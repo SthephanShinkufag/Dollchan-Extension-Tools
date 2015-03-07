@@ -2138,67 +2138,72 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}, readCfg, this);
 	});
 	var readUserPosts = regeneratorRuntime.mark(function readUserPosts() {
-		var uVis, vis, post, date, update, spellsHide, num;
+		var vis, date, spellsHide, update, globalUserVis, post, num, hidePost, hideThread;
 		return regeneratorRuntime.wrap(function readUserPosts$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					return context$2$0.delegateYield(getStoredObj("DESU_Posts_" + aib.dm), "t5", 1);
+					date = Date.now();
+					spellsHide = Cfg.hideBySpell;
+					update = false;
+					return context$2$0.delegateYield(getStoredObj("DESU_Posts_" + aib.dm), "t5", 4);
 
-				case 1:
-					bUVis = context$2$0.t5;
-					return context$2$0.delegateYield(getStoredObj("DESU_Threads_" + aib.dm), "t6", 3);
+				case 4:
+					globalUserVis = context$2$0.t5;
+					return context$2$0.delegateYield(getStoredObj("DESU_Threads_" + aib.dm), "t6", 6);
 
-				case 3:
+				case 6:
 					hThr = context$2$0.t6;
-					date = Date.now(), update = false, spellsHide = Cfg.hideBySpell;
 
-					if (brd in bUVis) {
-						uVis = bUVis[brd];
-					} else {
-						uVis = bUVis[brd] = {};
-					}
+					uVis = globalUserVis[brd] || {};
 					if (!(brd in hThr)) {
 						hThr[brd] = {};
 					}
 
 					if (dForm.firstThr) {
-						context$2$0.next = 9;
+						context$2$0.next = 11;
 						break;
 					}
 
 					return context$2$0.abrupt("return");
 
-				case 9:
+				case 11:
 					post = dForm.firstThr.op;
 
-				case 10:
+				case 12:
 					if (!post) {
-						context$2$0.next = 29;
+						context$2$0.next = 32;
 						break;
 					}
 
 					num = post.num;
 
 					if (!(num in uVis)) {
-						context$2$0.next = 16;
+						context$2$0.next = 19;
 						break;
 					}
 
+					hidePost = uVis[num][0] === 1;
+
 					if (post.isOp) {
-						uVis[num][0] = +!(num in hThr[brd]);
+						hideThread = !!(num in hThr[brd]);
+
+						if (hidePost !== hideThread) {
+							update = true;
+							hidePost = hideThread;
+						}
 					}
-					if (uVis[num][0] === 0) {
-						post.setUserVisib(true, date, false);
-					} else {
+					if (hidePost) {
 						uVis[num][1] = date;
 						post.btns.firstChild.className = "de-btn-hide-user";
 						post.userToggled = true;
+					} else {
+						post.setUserVisib(true, date, false);
 					}
-					return context$2$0.abrupt("continue", 26);
+					return context$2$0.abrupt("continue", 29);
 
-				case 16:
+				case 19:
 					if (!post.isOp) {
-						context$2$0.next = 20;
+						context$2$0.next = 23;
 						break;
 					}
 
@@ -2207,23 +2212,23 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					} else if (vis === "0") {
 						vis = null;
 					}
-					context$2$0.next = 25;
+					context$2$0.next = 28;
 					break;
 
-				case 20:
+				case 23:
 					if (!spellsHide) {
-						context$2$0.next = 24;
+						context$2$0.next = 27;
 						break;
 					}
 
 					vis = sVis[post.count];
-					context$2$0.next = 25;
+					context$2$0.next = 28;
 					break;
 
-				case 24:
-					return context$2$0.abrupt("continue", 26);
+				case 27:
+					return context$2$0.abrupt("continue", 29);
 
-				case 25:
+				case 28:
 					if (vis === "0") {
 						if (!post.hidden) {
 							post.setVisib(true);
@@ -2234,19 +2239,19 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						spells.check(post);
 					}
 
-				case 26:
+				case 29:
 					post = post.next;
-					context$2$0.next = 10;
+					context$2$0.next = 12;
 					break;
 
-				case 29:
-					spells.end(savePosts);
+				case 32:
 					if (update) {
-						bUVis[brd] = uVis;
-						saveUserPosts(false);
+						globalUserVis[brd] = uVis;
+						setStored("DESU_Posts_" + aib.dm, JSON.stringify(globalUserVis));
 					}
+					spells.end(savePosts);
 
-				case 31:
+				case 34:
 				case "end":
 					return context$2$0.stop();
 			}
@@ -3089,7 +3094,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	    hThr,
 	    pByNum,
 	    sVis,
-	    bUVis,
+	    uVis,
 	    needScroll,
 	    aib,
 	    nav,
@@ -3721,28 +3726,30 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		toggleContent("hid", true);
 	}
 
-	function saveUserPosts(clear) {
-		var minDate,
-		    b,
-		    vis,
-		    key,
-		    str = JSON.stringify(bUVis);
-		if (clear && str.length > 1000000) {
-			minDate = Date.now() - 5 * 24 * 3600 * 1000;
-			for (b in bUVis) {
-				if (bUVis.hasOwnProperty(b)) {
-					vis = bUVis[b];
-					for (key in vis) {
-						if (vis.hasOwnProperty(key) && vis[key][1] < minDate) {
-							delete vis[key];
+	function saveUserPosts() {
+		getStored("DESU_Posts_" + aib.dm).then(function (str) {
+			var obj;
+			try {
+				obj = JSON.parse(str || "{}") || {};
+			} catch (e) {
+				obj = {};
+			}
+			if (str.length > 1000000) {
+				var minDate = Date.now() - 5 * 24 * 3600 * 1000;
+				for (var b in obj) {
+					if (obj.hasOwnProperty(b)) {
+						var vis = obj[b];
+						for (var key in vis) {
+							if (vis.hasOwnProperty(key) && vis[key][1] < minDate) {
+								delete vis[key];
+							}
 						}
 					}
 				}
 			}
-			str = JSON.stringify(bUVis);
-		}
-		setStored("DESU_Posts_" + aib.dm, str);
-		toggleContent("hid", true);
+			setStored("DESU_Posts_" + aib.dm, JSON.stringify(obj));
+			toggleContent("hid", true);
+		});
 	}
 
 	function saveHiddenThreads(updContent) {
@@ -4045,7 +4052,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 								el.clone.setUserVisib(false, date, true);
 							}
 						}).bind(null, Date.now()));
-						saveUserPosts(true);
+						saveUserPosts();
 					}));
 				} else {
 					cont.insertAdjacentHTML("beforeend", "<b>" + Lng.noHidPosts[lang] + "</b>");
@@ -10624,7 +10631,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				post.setVisib(false);
 			}
 			if (post.userToggled) {
-				delete bUVis[brd][post.num];
+				delete uVis[post.num];
 				post.userToggled = false;
 			}
 		} else {
@@ -10951,7 +10958,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			} else {
 				this.unhideRefs();
 			}
-			bUVis[brd][this.num] = [+!hide, date];
+			uVis[this.num] = [+!hide, date];
 			if (sync) {
 				locStorage["__de-post"] = JSON.stringify({
 					brd: brd,
@@ -11089,7 +11096,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				saveHiddenThreads(false);
 			}
-			saveUserPosts(true);
+			saveUserPosts();
 		},
 		unhideRefs: function unhideRefs() {
 			if (!Cfg.hideRefPsts || !this.hasRef) {
@@ -11315,7 +11322,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					for (var post = dForm.firstThr.op; post; post = post.next) {
 						Post.findSameText(num, hidden, wrds, time, post);
 					}
-					saveUserPosts(true);
+					saveUserPosts();
 					return;
 				case "spell-notext":
 					addSpell(267, "", true);return;
@@ -13954,10 +13961,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						if (data.brd === brd && (post = pByNum[data.num]) && post.hidden ^ temp) {
 							post.setUserVisib(temp, data.date, false);
 						} else {
-							if (!(data.brd in bUVis)) {
-								bUVis[data.brd] = {};
-							}
-							bUVis[data.brd][data.num] = [+!temp, data.date];
+							uVis[data.num] = [+!temp, data.date];
 						}
 						if (data.isOp) {
 							if (!(data.brd in hThr)) {
@@ -14786,9 +14790,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						resolve("<a style=\"color: blue; font-weight: bold;\" href=\"" + "https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/" + "Dollchan_Extension_Tools.user.js\">" + Lng.updAvail[lang] + "</a>");
 					} else if (isForce) {
 						resolve(Lng.haveLatest[lang]);
+					} else {
+						reject();
 					}
 				} else if (isForce) {
 					resolve("<div style=\"color: red; font-weigth: bold;\">" + Lng.noConnect[lang] + "</div>");
+				} else {
+					reject();
 				}
 			});
 		});

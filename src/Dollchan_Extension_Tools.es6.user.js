@@ -547,7 +547,7 @@ Lng = {
 },
 
 doc = window.document, aProto = Array.prototype, locStorage, sesStorage,
-Cfg, hThr, pByNum, sVis, bUVis, needScroll,
+Cfg, hThr, pByNum, sVis, uVis, needScroll,
 aib, nav, brd, TNum, pageNum, updater, hKeys, visPosts = 2, dTime,
 WebmParser, Logger,
 pr, dForm, dummy, spells,
@@ -1331,34 +1331,35 @@ function readPosts() {
 }
 
 function* readUserPosts() {
-	bUVis = yield* getStoredObj('DESU_Posts_' + aib.dm);
-	hThr = yield* getStoredObj('DESU_Threads_' + aib.dm);
-	var uVis, vis, post, date = Date.now(),
+	var vis, date = Date.now(),
+		spellsHide = Cfg.hideBySpell,
 		update = false,
-		spellsHide = Cfg.hideBySpell;
-	if(brd in bUVis) {
-		uVis = bUVis[brd];
-	} else {
-		uVis = bUVis[brd] = {};
-	}
+		globalUserVis = yield* getStoredObj('DESU_Posts_' + aib.dm);
+	hThr = yield* getStoredObj('DESU_Threads_' + aib.dm);
+	uVis = globalUserVis[brd] || {};
 	if(!(brd in hThr)) {
 		hThr[brd] = {};
 	}
 	if(!dForm.firstThr) {
 		return;
 	}
-	for(post = dForm.firstThr.op; post; post = post.next) {
+	for(let post = dForm.firstThr.op; post; post = post.next) {
 		let num = post.num;
 		if(num in uVis) {
+			let hidePost = uVis[num][0] === 1;
 			if(post.isOp) {
-				uVis[num][0] = +!(num in hThr[brd]);
+				let hideThread = !!(num in hThr[brd]);
+				if(hidePost !== hideThread) {
+					update = true;
+					hidePost = hideThread;
+				}
 			}
-			if(uVis[num][0] === 0) {
-				post.setUserVisib(true, date, false);
-			} else {
+			if(hidePost) {
 				uVis[num][1] = date;
 				post.btns.firstChild.className = 'de-btn-hide-user';
 				post.userToggled = true;
+			} else {
+				post.setUserVisib(true, date, false);
 			}
 			continue;
 		}
@@ -1383,11 +1384,11 @@ function* readUserPosts() {
 			spells.check(post);
 		}
 	}
-	spells.end(savePosts);
 	if(update) {
-		bUVis[brd] = uVis;
-		saveUserPosts(false);
+		globalUserVis[brd] = uVis;
+		setStored('DESU_Posts_' + aib.dm, JSON.stringify(globalUserVis));
 	}
+	spells.end(savePosts);
 }
 
 function savePosts() {
@@ -1400,24 +1401,30 @@ function savePosts() {
 	toggleContent('hid', true);
 }
 
-function saveUserPosts(clear) {
-	var minDate, b, vis, key, str = JSON.stringify(bUVis);
-	if(clear && str.length > 1e6) {
-		minDate = Date.now() - 5 * 24 * 3600 * 1000;
-		for(b in bUVis) {
-			if(bUVis.hasOwnProperty(b)) {
-				vis = bUVis[b];
-				for(key in vis) {
-					if(vis.hasOwnProperty(key) && vis[key][1] < minDate) {
-						delete vis[key];
+function saveUserPosts() {
+	getStored('DESU_Posts_' + aib.dm).then(str => {
+		var obj;
+		try {
+			obj = JSON.parse(str || '{}') || {};
+		} catch(e) {
+			obj = {};
+		}
+		if(str.length > 1e6) {
+			let minDate = Date.now() - 5 * 24 * 3600 * 1000;
+			for(let b in obj) {
+				if(obj.hasOwnProperty(b)) {
+					let vis = obj[b];
+					for(let key in vis) {
+						if(vis.hasOwnProperty(key) && vis[key][1] < minDate) {
+							delete vis[key];
+						}
 					}
 				}
 			}
 		}
-		str = JSON.stringify(bUVis);
-	}
-	setStored('DESU_Posts_' + aib.dm, str);
-	toggleContent('hid', true);
+		setStored('DESU_Posts_' + aib.dm, JSON.stringify(obj));
+		toggleContent('hid', true);
+	});
 }
 
 function saveHiddenThreads(updContent) {
@@ -1768,7 +1775,7 @@ function showContent(cont, id, name, remove, data) {
 						el.clone.setUserVisib(false, date, true);
 					}
 				}.bind(null, Date.now()));
-				saveUserPosts(true);
+				saveUserPosts();
 			}));
 		} else {
 			cont.insertAdjacentHTML('beforeend', '<b>' + Lng.noHidPosts[lang] + '</b>');
@@ -8066,7 +8073,7 @@ Post.findSameText = function(oNum, oHid, oWords, date, post) {
 			post.setVisib(false);
 		}
 		if(post.userToggled) {
-			delete bUVis[brd][post.num];
+			delete uVis[post.num];
 			post.userToggled = false;
 		}
 	} else {
@@ -8438,7 +8445,7 @@ Post.prototype = {
 		} else {
 			this.unhideRefs();
 		}
-		bUVis[brd][this.num] = [+!hide, date];
+		uVis[this.num] = [+!hide, date];
 		if(sync) {
 			locStorage['__de-post'] = JSON.stringify({
 				'brd': brd,
@@ -8563,7 +8570,7 @@ Post.prototype = {
 			}
 			saveHiddenThreads(false);
 		}
-		saveUserPosts(true);
+		saveUserPosts();
 	},
 	get topCoord() {
 		var el = this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el;
@@ -8820,7 +8827,7 @@ Post.prototype = {
 			for(var post = dForm.firstThr.op; post; post = post.next) {
 				Post.findSameText(num, hidden, wrds, time, post);
 			}
-			saveUserPosts(true);
+			saveUserPosts();
 			return;
 		case 'spell-notext': addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
 		case 'thr-exp': this.thr.load(parseInt(el.textContent, 10), false);
@@ -11000,10 +11007,7 @@ function Initialization(checkDomains) {
 			if(data.brd === brd && (post = pByNum[data.num]) && (post.hidden ^ temp)) {
 				post.setUserVisib(temp, data.date, false);
 			} else {
-				if(!(data.brd in bUVis)) {
-					bUVis[data.brd] = {};
-				}
-				bUVis[data.brd][data.num] = [+!temp, data.date];
+				uVis[data.num] = [+!temp, data.date];
 			}
 			if(data.isOp) {
 				if(!(data.brd in hThr)) {
@@ -11738,9 +11742,13 @@ function checkForUpdates(isForce, lastUpdateTime) {
 					Lng.updAvail[lang] + '</a>');
 				} else if(isForce) {
 					resolve(Lng.haveLatest[lang]);
+				} else {
+					reject();
 				}
 			} else if(isForce) {
 				resolve('<div style="color: red; font-weigth: bold;">' + Lng.noConnect[lang] + '</div>');
+			} else {
+				reject();
 			}
 		});
 	});
