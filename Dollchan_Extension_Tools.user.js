@@ -3718,7 +3718,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			} catch (e) {
 				obj = {};
 			}
-			if (str.length > 1000000) {
+			if (str && str.length > 1000000) {
 				var minDate = Date.now() - 5 * 24 * 3600 * 1000;
 				for (var b in obj) {
 					if (obj.hasOwnProperty(b)) {
@@ -4749,7 +4749,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			if ($id("de-alert-edit-hotkeys")) {
 				return;
 			}
-			HotKeys.readKeys().then(function (keys) {
+			spawn(HotKeys.readKeys).then(function (keys) {
 				var aEl,
 				    evtListener,
 				    temp = KeyEditListener.getEditMarkup(keys);

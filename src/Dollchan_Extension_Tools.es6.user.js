@@ -1405,7 +1405,7 @@ function saveUserPosts() {
 		} catch(e) {
 			obj = {};
 		}
-		if(str.length > 1e6) {
+		if(str && str.length > 1e6) {
 			let minDate = Date.now() - 5 * 24 * 3600 * 1000;
 			for(let b in obj) {
 				if(obj.hasOwnProperty(b)) {
@@ -2577,7 +2577,7 @@ function getCfgCommon() {
 				if($id('de-alert-edit-hotkeys')) {
 					return;
 				}
-				HotKeys.readKeys().then(keys => {
+				spawn(HotKeys.readKeys).then(keys => {
 					var aEl, evtListener, temp = KeyEditListener.getEditMarkup(keys);
 					$alert(temp[1], 'edit-hotkeys', false);
 					aEl = $id('de-alert-edit-hotkeys');
