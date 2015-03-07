@@ -7884,7 +7884,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					var image = _step.value;
 
 					if (!(image instanceof Attachment)) {
-						return;
+						continue;
 					}
 					if (weightVals) {
 						var w = image.weight;

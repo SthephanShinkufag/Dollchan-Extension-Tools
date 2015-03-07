@@ -5483,7 +5483,7 @@ SpellsInterpreter.prototype = {
 		}
 		for(let image of images) {
 			if(!(image instanceof Attachment)) {
-				return;
+				continue;
 			}
 			if(weightVals) {
 				let w = image.weight;
