@@ -1405,7 +1405,7 @@ function saveUserPosts() {
 		} catch(e) {
 			obj = {};
 		}
-		if(str.length > 1e6) {
+		if(str && str.length > 1e6) {
 			let minDate = Date.now() - 5 * 24 * 3600 * 1000;
 			for(let b in obj) {
 				if(obj.hasOwnProperty(b)) {
