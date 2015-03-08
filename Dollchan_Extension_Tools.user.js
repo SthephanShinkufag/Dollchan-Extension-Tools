@@ -14351,7 +14351,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 
 		startLoad = async(regeneratorRuntime.mark(function callee$2$0(needSleep) {
-			var countIv, countdownValue, checked4XX, delay, repeadLoading, stopToken, _error, lPosts, isAjaxError, post, notif;
+			var countIv, countdownValue, checked4XX, delay, repeadLoading, stopToken, _error, lPosts, eCode, post, notif;
 
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
@@ -14360,9 +14360,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							return stopLoad = stopLoadHelper.bind(null, reject);
 						});
 
-					case 1:
+						lastECode = 200;
+
+					case 2:
 						if (!needSleep) {
-							context$3$0.next = 18;
+							context$3$0.next = 19;
 							break;
 						}
 
@@ -14372,76 +14374,72 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 								return countEl.textContent = --countdownValue;
 							}, 1000);
 						}
-						context$3$0.prev = 3;
-						context$3$0.next = 6;
+						context$3$0.prev = 4;
+						context$3$0.next = 7;
 						return Promise.race([stopToken, sleep(delay)]);
 
-					case 6:
-						context$3$0.next = 12;
+					case 7:
+						context$3$0.next = 13;
 						break;
 
-					case 8:
-						context$3$0.prev = 8;
-						context$3$0.t30 = context$3$0["catch"](3);
+					case 9:
+						context$3$0.prev = 9;
+						context$3$0.t30 = context$3$0["catch"](4);
 
 						if (!(context$3$0.t30 instanceof StopLoadingTaskError)) {
-							context$3$0.next = 12;
+							context$3$0.next = 13;
 							break;
 						}
 
 						return context$3$0.abrupt("return");
 
-					case 12:
-						context$3$0.prev = 12;
+					case 13:
+						context$3$0.prev = 13;
 
 						clearInterval(countIv);
-						return context$3$0.finish(12);
+						return context$3$0.finish(13);
 
-					case 15:
+					case 16:
 						if (useCountdown) {
 							countEl.innerHTML = "<span class=\"de-wait\"></span>";
 						}
-						context$3$0.next = 19;
+						context$3$0.next = 20;
 						break;
-
-					case 18:
-						needSleep = true;
 
 					case 19:
+						needSleep = true;
+
+					case 20:
 						_error = AjaxError.Success, lPosts = 0;
-						context$3$0.prev = 20;
-						context$3$0.next = 23;
+						context$3$0.prev = 21;
+						context$3$0.next = 24;
 						return Promise.race([stopToken, dForm.firstThr.loadNew(true)]);
 
-					case 23:
+					case 24:
 						lPosts = context$3$0.sent;
-						context$3$0.next = 31;
+						context$3$0.next = 32;
 						break;
 
-					case 26:
-						context$3$0.prev = 26;
-						context$3$0.t31 = context$3$0["catch"](20);
+					case 27:
+						context$3$0.prev = 27;
+						context$3$0.t31 = context$3$0["catch"](21);
 
 						if (!(context$3$0.t31 instanceof StopLoadingTaskError)) {
-							context$3$0.next = 30;
+							context$3$0.next = 31;
 							break;
 						}
 
 						return context$3$0.abrupt("return");
 
-					case 30:
+					case 31:
 						_error = context$3$0.t31;
 
-					case 31:
+					case 32:
 						infoLoadErrors(_error, -1);
-						isAjaxError = _error instanceof AjaxError;
+						eCode = _error instanceof AjaxError ? _error.code : 0;
 
-						if (isAjaxError) {
-							lastECode = _error.code;
-						}
-
-						if (!(!isAjaxError || _error.code !== 200 && _error.code !== 304)) {
-							context$3$0.next = 47;
+						if (!(eCode !== 200 && eCode !== 304)) {
+							context$3$0.next = 48;
 							break;
 						}
 
@@ -14474,9 +14472,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 45:
 						setState("warn");
-						return context$3$0.abrupt("continue", 48);
+						lastECode = eCode;
+						return context$3$0.abrupt("continue", 50);
 
-					case 47:
+					case 48:
+						lastECode = eCode;
 						if (!focused) {
 							if (lPosts !== 0) {
 								if (Cfg.favIcoBlink && favHref && newPosts === 0) {
@@ -14511,20 +14511,20 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							}
 						}
 
-					case 48:
+					case 50:
 						if (repeadLoading) {
-							context$3$0.next = 1;
+							context$3$0.next = 2;
 							break;
 						}
 
-					case 49:
+					case 51:
 						stopLoad = emptyFn;
 
-					case 50:
+					case 52:
 					case "end":
 						return context$3$0.stop();
 				}
-			}, callee$2$0, this, [[3, 8, 12, 15], [20, 26]]);
+			}, callee$2$0, this, [[4, 9, 13, 16], [21, 27]]);
 		}));
 
 		function setState(state) {
