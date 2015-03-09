@@ -8067,7 +8067,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		
 			if (val & 64) {
-				if (/(?:\n\s*){5}/i.test(txt)) {
+				if (/(?:\n\s*){10}/i.test(txt)) {
 					this._wipeMsg = "whitespace";
 					return true;
 				}
@@ -8815,9 +8815,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			if (this.cap) {
 				this.capTr = $parent(this.cap, "TR");
 				this.txta.addEventListener("focus", this._captchaInit.bind(this, this.capTr.innerHTML), false);
-				if (this.file) {
-					this.file.addEventListener("click", this._captchaInit.bind(this, this.capTr.innerHTML), false);
-				}
+				this.form.addEventListener("click", this._captchaInit.bind(this, this.capTr.innerHTML), false);
 				if (!aib.krau) {
 					this.capTr.style.display = "none";
 				}

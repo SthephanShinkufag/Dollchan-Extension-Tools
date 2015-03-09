@@ -5639,7 +5639,7 @@ SpellsInterpreter.prototype = {
 		}
 		// (1 << 5): whitespace
 		if(val & 64) {
-			if(/(?:\n\s*){5}/i.test(txt)) {
+			if(/(?:\n\s*){10}/i.test(txt)) {
 				this._wipeMsg = 'whitespace';
 				return true;
 			}
@@ -6217,7 +6217,7 @@ PostForm.prototype = {
 		this.form.style.display = 'inline-block';
 		this.form.style.textAlign = 'left';
 		if(nav.Firefox) {
-			this.txta.addEventListener('mouseup', function () {
+			this.txta.addEventListener('mouseup', function() {
 			saveCfg('textaWidth', parseInt(this.style.width, 10));
 			saveCfg('textaHeight', parseInt(this.style.height, 10));
 			}, false);
@@ -6375,9 +6375,7 @@ PostForm.prototype = {
 		if(this.cap) {
 			this.capTr = $parent(this.cap, 'TR');
 			this.txta.addEventListener('focus', this._captchaInit.bind(this, this.capTr.innerHTML), false);
-			if(this.file) {
-				this.file.addEventListener('click', this._captchaInit.bind(this, this.capTr.innerHTML), false);
-			}
+			this.form.addEventListener('click', this._captchaInit.bind(this, this.capTr.innerHTML), false);
 			if(!aib.krau) {
 				this.capTr.style.display = 'none';
 			}
@@ -11666,7 +11664,7 @@ function scrollPage() {
 		}
 		return;
 	}
-	setTimeout(function () {
+	setTimeout(function() {
 		var post, num, hash,
 			val = +sesStorage['de-scroll-' + brd + TNum];
 		if(val) {
