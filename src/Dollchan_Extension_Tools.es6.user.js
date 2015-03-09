@@ -11425,8 +11425,8 @@ function initThreadUpdater(title, enableUpdate) {
 				error = e;
 			}
 			infoLoadErrors(error, -1);
-			let eCode = error instanceof AjaxError ? error.code : 0;
-			if(eCode !== 200 && eCode !== 304) {
+			lastECode = error instanceof AjaxError ? error.code : 0;
+			if(lastECode !== 200 && lastECode !== 304) {
 				if(Cfg.favIcoBlink && !focused && favHref) {
 					clearInterval(favIntrv);
 					favIntrv = setInterval(favIcoBlink.bind('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAA3' +
@@ -11450,10 +11450,8 @@ function initThreadUpdater(title, enableUpdate) {
 					}
 				}
 				setState('warn');
-				lastECode = eCode;
 				continue;
 			}
-			lastECode = eCode;
 			if(!focused) {
 				if(lPosts !== 0) {
 					if(Cfg.favIcoBlink && favHref && newPosts === 0) {

@@ -14349,7 +14349,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 
 		startLoad = async(regeneratorRuntime.mark(function callee$2$0(needSleep) {
-			var countIv, countdownValue, checked4XX, delay, repeadLoading, stopToken, _error, lPosts, eCode, post, notif;
+			var countIv, countdownValue, checked4XX, delay, repeadLoading, stopToken, _error, lPosts, post, notif;
 
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
@@ -14434,10 +14434,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 32:
 						infoLoadErrors(_error, -1);
-						eCode = _error instanceof AjaxError ? _error.code : 0;
+						lastECode = _error instanceof AjaxError ? _error.code : 0;
 
-						if (!(eCode !== 200 && eCode !== 304)) {
-							context$3$0.next = 48;
+						if (!(lastECode !== 200 && lastECode !== 304)) {
+							context$3$0.next = 47;
 							break;
 						}
 
@@ -14470,11 +14470,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 45:
 						setState("warn");
-						lastECode = eCode;
-						return context$3$0.abrupt("continue", 50);
+						return context$3$0.abrupt("continue", 48);
 
-					case 48:
-						lastECode = eCode;
+					case 47:
 						if (!focused) {
 							if (lPosts !== 0) {
 								if (Cfg.favIcoBlink && favHref && newPosts === 0) {
@@ -14509,16 +14507,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							}
 						}
 
-					case 50:
+					case 48:
 						if (repeadLoading) {
 							context$3$0.next = 2;
 							break;
 						}
 
-					case 51:
+					case 49:
 						stopLoad = emptyFn;
 
-					case 52:
+					case 50:
 					case "end":
 						return context$3$0.stop();
 				}
