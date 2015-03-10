@@ -1342,7 +1342,7 @@ function* readUserPosts() {
 	for(let post = dForm.firstThr.op; post; post = post.next) {
 		let num = post.num;
 		if(num in uVis) {
-			let hidePost = uVis[num][0] === 1;
+			let hidePost = uVis[num][0] === 0;
 			if(post.isOp) {
 				let hideThread = !!(num in hThr[brd]);
 				if(hidePost !== hideThread) {
@@ -1351,11 +1351,11 @@ function* readUserPosts() {
 				}
 			}
 			if(hidePost) {
+				post.setUserVisib(true, date, false);
+			} else {
 				uVis[num][1] = date;
 				post.btns.firstChild.className = 'de-btn-hide-user';
 				post.userToggled = true;
-			} else {
-				post.setUserVisib(true, date, false);
 			}
 			continue;
 		}

@@ -2182,7 +2182,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						break;
 					}
 
-					hidePost = uVis[num][0] === 1;
+					hidePost = uVis[num][0] === 0;
 
 					if (post.isOp) {
 						hideThread = !!(num in hThr[brd]);
@@ -2193,11 +2193,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 					}
 					if (hidePost) {
+						post.setUserVisib(true, date, false);
+					} else {
 						uVis[num][1] = date;
 						post.btns.firstChild.className = "de-btn-hide-user";
 						post.userToggled = true;
-					} else {
-						post.setUserVisib(true, date, false);
 					}
 					return context$2$0.abrupt("continue", 29);
 
