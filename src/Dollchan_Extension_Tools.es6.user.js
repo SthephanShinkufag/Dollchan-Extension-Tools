@@ -11393,25 +11393,28 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	startLoad = async(function* (needSleep) {
-		var countIv, countdownValue, checked4XX = false,
+		var checked4XX = false,
 			delay = initDelay,
 			repeatLoading = enabled,
 			stopToken = new Promise((resolve, reject) => stopLoad = stopLoadHelper.bind(null, reject));
 		lastECode = 200;
 		do {
 			if(needSleep) {
-				if(useCountdown) {
-					countEl.textContent = countdownValue = delay / 1000;
-					countIv = setInterval(() => countEl.textContent = --countdownValue, 1e3);
-				}
 				try {
-					yield Promise.race([stopToken, sleep(delay)]);
+					if(useCountdown) {
+						let seconds = delay / 1000;
+						while(seconds > 0) {
+							countEl.textContent = seconds;
+							yield Promise.race([stopToken, sleep(1000)]);
+							seconds--;
+						}
+					} else {
+						yield Promise.race([stopToken, sleep(delay)]);
+					}
 				} catch(e) {
 					if(e instanceof StopLoadingTaskError) {
 						return;
 					}
-				} finally {
-					clearInterval(countIv);
 				}
 				if(useCountdown) {
 					countEl.innerHTML = '<span class="de-wait"></span>';

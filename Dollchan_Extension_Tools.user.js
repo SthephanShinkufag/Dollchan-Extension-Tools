@@ -14353,7 +14353,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 
 		startLoad = async(regeneratorRuntime.mark(function callee$2$0(needSleep) {
-			var countIv, countdownValue, checked4XX, delay, repeatLoading, stopToken, _error, lPosts, post, notif;
+			var checked4XX, delay, repeatLoading, stopToken, seconds, _error, lPosts, post, notif;
 
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
@@ -14366,82 +14366,98 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 2:
 						if (!needSleep) {
-							context$3$0.next = 19;
+							context$3$0.next = 26;
 							break;
 						}
 
-						if (useCountdown) {
-							countEl.textContent = countdownValue = delay / 1000;
-							countIv = setInterval(function () {
-								return countEl.textContent = --countdownValue;
-							}, 1000);
+						context$3$0.prev = 3;
+
+						if (!useCountdown) {
+							context$3$0.next = 15;
+							break;
 						}
-						context$3$0.prev = 4;
-						context$3$0.next = 7;
-						return Promise.race([stopToken, sleep(delay)]);
 
-					case 7:
-						context$3$0.next = 13;
-						break;
+						seconds = delay / 1000;
 
-					case 9:
-						context$3$0.prev = 9;
-						context$3$0.t30 = context$3$0["catch"](4);
-
-						if (!(context$3$0.t30 instanceof StopLoadingTaskError)) {
+					case 6:
+						if (!(seconds > 0)) {
 							context$3$0.next = 13;
 							break;
 						}
 
-						return context$3$0.abrupt("return");
+						countEl.textContent = seconds;
+						context$3$0.next = 10;
+						return Promise.race([stopToken, sleep(1000)]);
+
+					case 10:
+						seconds--;
+						context$3$0.next = 6;
+						break;
 
 					case 13:
-						context$3$0.prev = 13;
+						context$3$0.next = 17;
+						break;
 
-						clearInterval(countIv);
-						return context$3$0.finish(13);
+					case 15:
+						context$3$0.next = 17;
+						return Promise.race([stopToken, sleep(delay)]);
 
-					case 16:
-						if (useCountdown) {
-							countEl.innerHTML = "<span class=\"de-wait\"></span>";
-						}
-						context$3$0.next = 20;
+					case 17:
+						context$3$0.next = 23;
 						break;
 
 					case 19:
-						needSleep = true;
+						context$3$0.prev = 19;
+						context$3$0.t30 = context$3$0["catch"](3);
 
-					case 20:
-						_error = AjaxError.Success, lPosts = 0;
-						context$3$0.prev = 21;
-						context$3$0.next = 24;
-						return Promise.race([stopToken, dForm.firstThr.loadNew(true)]);
-
-					case 24:
-						lPosts = context$3$0.sent;
-						context$3$0.next = 32;
-						break;
-
-					case 27:
-						context$3$0.prev = 27;
-						context$3$0.t31 = context$3$0["catch"](21);
-
-						if (!(context$3$0.t31 instanceof StopLoadingTaskError)) {
-							context$3$0.next = 31;
+						if (!(context$3$0.t30 instanceof StopLoadingTaskError)) {
+							context$3$0.next = 23;
 							break;
 						}
 
 						return context$3$0.abrupt("return");
 
+					case 23:
+						if (useCountdown) {
+							countEl.innerHTML = "<span class=\"de-wait\"></span>";
+						}
+						context$3$0.next = 27;
+						break;
+
+					case 26:
+						needSleep = true;
+
+					case 27:
+						_error = AjaxError.Success, lPosts = 0;
+						context$3$0.prev = 28;
+						context$3$0.next = 31;
+						return Promise.race([stopToken, dForm.firstThr.loadNew(true)]);
+
 					case 31:
+						lPosts = context$3$0.sent;
+						context$3$0.next = 39;
+						break;
+
+					case 34:
+						context$3$0.prev = 34;
+						context$3$0.t31 = context$3$0["catch"](28);
+
+						if (!(context$3$0.t31 instanceof StopLoadingTaskError)) {
+							context$3$0.next = 38;
+							break;
+						}
+
+						return context$3$0.abrupt("return");
+
+					case 38:
 						_error = context$3$0.t31;
 
-					case 32:
+					case 39:
 						infoLoadErrors(_error, -1);
 						lastECode = _error instanceof AjaxError ? _error.code : 0;
 
 						if (!(lastECode !== 200 && lastECode !== 304)) {
-							context$3$0.next = 47;
+							context$3$0.next = 54;
 							break;
 						}
 
@@ -14454,29 +14470,29 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 
 						if (!(lastECode !== 0 && lastECode < 500)) {
-							context$3$0.next = 45;
+							context$3$0.next = 52;
 							break;
 						}
 
 						if (!(!checked4XX && (lastECode === 404 || lastECode === 400))) {
-							context$3$0.next = 42;
+							context$3$0.next = 49;
 							break;
 						}
 
 						checked4XX = true;
-						context$3$0.next = 45;
+						context$3$0.next = 52;
 						break;
 
-					case 42:
+					case 49:
 						updateTitle();
 						disable(false);
 						return context$3$0.abrupt("return");
 
-					case 45:
+					case 52:
 						setState("warn");
-						return context$3$0.abrupt("continue", 48);
+						return context$3$0.abrupt("continue", 55);
 
-					case 47:
+					case 54:
 						if (!focused) {
 							if (lPosts !== 0) {
 								if (Cfg.favIcoBlink && favHref && newPosts === 0) {
@@ -14511,20 +14527,20 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							}
 						}
 
-					case 48:
+					case 55:
 						if (repeatLoading) {
 							context$3$0.next = 2;
 							break;
 						}
 
-					case 49:
+					case 56:
 						stopLoad = emptyFn;
 
-					case 50:
+					case 57:
 					case "end":
 						return context$3$0.stop();
 				}
-			}, callee$2$0, this, [[4, 9, 13, 16], [21, 27]]);
+			}, callee$2$0, this, [[3, 19], [28, 34]]);
 		}));
 
 		function setState(state) {
