@@ -11401,7 +11401,7 @@ function initThreadUpdater(title, enableUpdate) {
 		do {
 			if(needSleep) {
 				try {
-					if(useCountdown) {
+					if(useCountdown && (focused || !canFocusLoad)) {
 						let seconds = delay / 1000;
 						while(seconds > 0) {
 							countEl.textContent = seconds;
@@ -11416,11 +11416,11 @@ function initThreadUpdater(title, enableUpdate) {
 						return;
 					}
 				}
-				if(useCountdown) {
-					countEl.innerHTML = '<span class="de-wait"></span>';
-				}
 			} else {
 				needSleep = true;
+			}
+			if(useCountdown) {
+				countEl.innerHTML = '<span class="de-wait"></span>';
 			}
 			let error = AjaxError.Success,
 				lPosts = 0;

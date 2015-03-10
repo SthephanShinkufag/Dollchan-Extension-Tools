@@ -14366,13 +14366,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 2:
 						if (!needSleep) {
-							context$3$0.next = 26;
+							context$3$0.next = 25;
 							break;
 						}
 
 						context$3$0.prev = 3;
 
-						if (!useCountdown) {
+						if (!(useCountdown && (focused || !canFocusLoad))) {
 							context$3$0.next = 15;
 							break;
 						}
@@ -14418,16 +14418,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return context$3$0.abrupt("return");
 
 					case 23:
+						context$3$0.next = 26;
+						break;
+
+					case 25:
+						needSleep = true;
+
+					case 26:
 						if (useCountdown) {
 							countEl.innerHTML = "<span class=\"de-wait\"></span>";
 						}
-						context$3$0.next = 27;
-						break;
-
-					case 26:
-						needSleep = true;
-
-					case 27:
 						_error = AjaxError.Success, lPosts = 0;
 						context$3$0.prev = 28;
 						context$3$0.next = 31;
