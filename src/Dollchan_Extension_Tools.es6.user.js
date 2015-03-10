@@ -8141,30 +8141,14 @@ Post.prototype = {
 				return;
 			}
 			switch(el.tagName) {
-			case 'IMG':
-				if(el.classList.contains('de-video-thumb')) {
-					if(Cfg.addYouTube === 3) {
-						let vObject = this.videos;
-						vObject.currentLink.classList.add('de-current');
-						vObject.addPlayer(vObject.playerInfo, el.classList.contains('de-ytube'));
-						$pd(e);
-					}
-				} else if(Cfg.expandImgs !== 0) {
-					this._clickImage(el, e);
-				}
-				return;
-			case 'OBJECT':
-			case 'VIDEO':
-				if(Cfg.expandImgs !== 0 && !(Cfg.webmControl && e.clientY >
-					(el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)))
-				{
-					this._clickImage(el, e);
-				}
-				return;
 			case 'A':
 				if(el.classList.contains('de-video-link')) {
 					this.videos.clickLink(el, Cfg.addYouTube);
 					$pd(e);
+					return;
+				}
+				if(el.firstElementChild.tagName === 'IMG') {
+					el = el.firstElementChild;
 				} else {
 					temp = el.parentNode;
 					if(temp === this.trunc) {
@@ -8184,6 +8168,27 @@ Post.prototype = {
 							window.location = el.href.replace(/#i/, '#');
 						}
 					}
+					return;
+				}
+				/* falls through */
+			case 'IMG':
+				if(el.classList.contains('de-video-thumb')) {
+					if(Cfg.addYouTube === 3) {
+						let vObject = this.videos;
+						vObject.currentLink.classList.add('de-current');
+						vObject.addPlayer(vObject.playerInfo, el.classList.contains('de-ytube'));
+						$pd(e);
+					}
+				} else if(Cfg.expandImgs !== 0) {
+					this._clickImage(el, e);
+				}
+				return;
+			case 'OBJECT':
+			case 'VIDEO':
+				if(Cfg.expandImgs !== 0 && !(Cfg.webmControl && e.clientY >
+					(el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)))
+				{
+					this._clickImage(el, e);
 				}
 				return;
 			}
@@ -10934,7 +10939,7 @@ function getImageBoard(checkDomains, checkOther) {
 
 function Initialization(checkDomains) {
 	var intrv, url, formEl;
-	if(/^(?:about|chrome|opera|res)/i.test(window.location)) {
+	if(/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 		return null;
 	}
 	try {
@@ -11390,7 +11395,7 @@ function initThreadUpdater(title, enableUpdate) {
 	startLoad = async(function* (needSleep) {
 		var countIv, countdownValue, checked4XX = false,
 			delay = initDelay,
-			repeadLoading = enabled,
+			repeatLoading = enabled,
 			stopToken = new Promise((resolve, reject) => stopLoad = stopLoadHelper.bind(null, reject));
 		lastECode = 200;
 		do {
@@ -11491,7 +11496,7 @@ function initThreadUpdater(title, enableUpdate) {
 					delay = Math.min(delay + initDelay, 12e4);
 				}
 			}
-		} while(repeadLoading);
+		} while(repeatLoading);
 		stopLoad = emptyFn;
 	});
 		

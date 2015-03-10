@@ -10709,28 +10709,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return;
 				}
 				switch (el.tagName) {
-					case "IMG":
-						if (el.classList.contains("de-video-thumb")) {
-							if (Cfg.addYouTube === 3) {
-								var vObject = this.videos;
-								vObject.currentLink.classList.add("de-current");
-								vObject.addPlayer(vObject.playerInfo, el.classList.contains("de-ytube"));
-								$pd(e);
-							}
-						} else if (Cfg.expandImgs !== 0) {
-							this._clickImage(el, e);
-						}
-						return;
-					case "OBJECT":
-					case "VIDEO":
-						if (Cfg.expandImgs !== 0 && !(Cfg.webmControl && e.clientY > el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)) {
-							this._clickImage(el, e);
-						}
-						return;
 					case "A":
 						if (el.classList.contains("de-video-link")) {
 							this.videos.clickLink(el, Cfg.addYouTube);
 							$pd(e);
+							return;
+						}
+						if (el.firstElementChild.tagName === "IMG") {
+							el = el.firstElementChild;
 						} else {
 							temp = el.parentNode;
 							if (temp === this.trunc) {
@@ -10748,6 +10734,24 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 									window.location = el.href.replace(/#i/, "#");
 								}
 							}
+							return;
+						}
+										case "IMG":
+						if (el.classList.contains("de-video-thumb")) {
+							if (Cfg.addYouTube === 3) {
+								var vObject = this.videos;
+								vObject.currentLink.classList.add("de-current");
+								vObject.addPlayer(vObject.playerInfo, el.classList.contains("de-ytube"));
+								$pd(e);
+							}
+						} else if (Cfg.expandImgs !== 0) {
+							this._clickImage(el, e);
+						}
+						return;
+					case "OBJECT":
+					case "VIDEO":
+						if (Cfg.expandImgs !== 0 && !(Cfg.webmControl && e.clientY > el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)) {
+							this._clickImage(el, e);
 						}
 						return;
 				}
@@ -13879,7 +13883,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function Initialization(checkDomains) {
 		var intrv, url, formEl;
-		if (/^(?:about|chrome|opera|res)/i.test(window.location)) {
+		if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 			return null;
 		}
 		try {
@@ -14349,12 +14353,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 
 		startLoad = async(regeneratorRuntime.mark(function callee$2$0(needSleep) {
-			var countIv, countdownValue, checked4XX, delay, repeadLoading, stopToken, _error, lPosts, post, notif;
+			var countIv, countdownValue, checked4XX, delay, repeatLoading, stopToken, _error, lPosts, post, notif;
 
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
-						checked4XX = false, delay = initDelay, repeadLoading = enabled, stopToken = new Promise(function (resolve, reject) {
+						checked4XX = false, delay = initDelay, repeatLoading = enabled, stopToken = new Promise(function (resolve, reject) {
 							return stopLoad = stopLoadHelper.bind(null, reject);
 						});
 
@@ -14508,7 +14512,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 
 					case 48:
-						if (repeadLoading) {
+						if (repeatLoading) {
 							context$3$0.next = 2;
 							break;
 						}
