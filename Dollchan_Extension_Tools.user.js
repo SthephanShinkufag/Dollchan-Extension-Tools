@@ -10715,8 +10715,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							$pd(e);
 							return;
 						}
-						if (el.firstElementChild.tagName === "IMG") {
-							el = el.firstElementChild;
+						temp = el.firstElementChild;
+						if (temp && temp.tagName === "IMG") {
+							el = temp;
 						} else {
 							temp = el.parentNode;
 							if (temp === this.trunc) {
