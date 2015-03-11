@@ -42,6 +42,7 @@ defaultCfg = {
 	'noSpoilers':       1,      // open spoilers
 	'noPostNames':      0,      // hide post names
 	'noPostScrl':       1,      // no scroll in posts
+	'widePosts':        0,      // stretch posts to the screen width
 	'correctTime':      0,      // correct time in posts
 	'timeOffset':       '+0',   //    offset in hours
 	'timePattern':      '',     //    find pattern
@@ -136,7 +137,7 @@ Lng = {
 		'updThrDelay':  [' (сек)', ' (sec)'],
 		'noErrInTitle': ['Не показывать номер ошибки в заголовке', 'Don\'t show error number in title'],
 		'favIcoBlink':  ['Мигать фавиконом при новых постах', 'Favicon blinking on new posts'],
-		'markNewPosts': ['Выделять новые посты при переключении на тред', 'Mark new posts on page focus'],
+		'markNewPosts': ['Выделять новые посты при смене вкладки', 'Mark new posts when tab changes'],
 		'desktNotif':   ['Уведомления на рабочем столе', 'Desktop notifications'],
 		'updCount':     ['Обратный счетчик секунд до обновления', 'Show countdown to thread update'],
 		'expandPosts': {
@@ -150,10 +151,11 @@ Lng = {
 		'noSpoilers':   ['Открывать текстовые спойлеры', 'Open text spoilers'],
 		'noPostNames':  ['Скрывать имена в постах', 'Hide names in posts'],
 		'noPostScrl':   ['Без скролла в постах', 'No scroll in posts'],
+		'widePosts':    ['Растягивать посты по ширине экрана', 'Stretch posts to the screen width'],
 		'hotKeys':      ['Горячие клавиши ', 'Keyboard hotkeys '],
 		'loadPages':    [' Количество страниц, загружаемых по F5', ' Number of pages that are loaded on F5 '],
-		'correctTime':  ['Корректировать время в постах* ', 'Correct time in posts* '],
-		'timeOffset':   [' Разница во времени', ' Time difference'],
+		'correctTime':  ['Коррекция времени в постах* ', 'Correct time in posts* '],
+		'timeOffset':   [' (ч) разница ', ' (h) difference '],
 		'timePattern':  [' Шаблон поиска', ' Find pattern'],
 		'timeRPattern': [' Шаблон замены', ' Replace pattern'],
 
@@ -2358,16 +2360,15 @@ function getCfgPosts() {
 		lBox('noSpoilers', true, updateCSS),
 		lBox('noPostNames', true, updateCSS),
 		lBox('noPostScrl', true, updateCSS),
+		lBox('widePosts', true, updateCSS),
 		$New('div', null, [
 			lBox('correctTime', false, DateTime.toggleSettings),
+			inpTxt('timeOffset', 2, null),
+			$txt(Lng.cfg.timeOffset[lang]),
 			$add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-' +
 				(lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">[?]</a>')
 		]),
 		$New('div', {'class': 'de-cfg-depend'}, [
-			$New('div', null, [
-				inpTxt('timeOffset', 2, null),
-				$txt(Lng.cfg.timeOffset[lang])
-			]),
 			$New('div', null, [
 				inpTxt('timePattern', 25, null),
 				$txt(Lng.cfg.timePattern[lang])
@@ -2645,13 +2646,13 @@ function getCfgInfo() {
 			'<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;' +
 			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
 			(lang ? 'home-en/' : '') + '" target="_blank">Github</a></div>'),
-		$add('<div><div style="display: inline-block; vertical-align: top; width: 186px; height: 230px;">' +
+		$add('<div><div style="display: inline-block; vertical-align: top; width: 177px; height: 235px;">' +
 			Lng.thrViewed[lang] + Cfg.stats.view + '<br>' +
 			Lng.thrCreated[lang] + Cfg.stats.op + '<br>' +
 			Lng.thrHidden[lang] + getHiddenThrCount() + '<br>' +
 			Lng.postsSent[lang] + Cfg.stats.reply + '</div>' +
-			'<table style="display: inline-block; padding-left: 7px; height: 230px; ' +
-			'border-left: 1px solid grey; overflow-y: auto; border-collapse: separate; border-spacing: 1px; width: 170px;">' + new Logger().getTable() + '</table></div>'),
+			'<table style="display: inline-block; padding-left: 7px; height: 235px; ' +
+			'border-left: 1px solid grey; overflow-y: auto; border-collapse: separate; border-spacing: 1px; width: 177px;">' + new Logger().getTable() + '</table></div>'),
 		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
 			$alert(Lng.infoDebug[lang] +
 				':<textarea readonly id="de-debug-info" class="de-editor"></textarea>', 'help-debug', false);
@@ -11764,12 +11765,12 @@ function scriptCSS() {
 	// Settings window
 	x += '#de-main { -moz-box-sizing: content-box; box-sizing: content-box; }\
 		.de-block { display: block; }\
-		#de-content-cfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; }\
+		#de-content-cfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; border: none; }\
 		.de-cfg-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		.de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		.de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
 		.de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
-		.de-cfg-body { min-height: 308px; min-width: 357px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important;}\
+		.de-cfg-body { box-sizing: content-box; min-height: 309px; width: 363px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important;}\
 		.de-cfg-body input, .de-cfg-body label, .de-cfg-body select { width: auto; padding: 0 !important; margin: 1px 2px !important; }\
 		.de-cfg-body input[type="button"], .de-cfg-body input[type="text"] { padding: 1px 2px !important; }\
 		.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\
@@ -11781,7 +11782,7 @@ function scriptCSS() {
 		#de-cfg-bar:lang(de) { background-color: #777; }\
 		.de-cfg-depend { padding-left: 25px; }\
 		.de-cfg-tab { padding: 4px 4px; border-radius: 4px 4px 0 0; font: bold 12px arial; text-align: center; cursor: default; }\
-		.de-cfg-tab-back { display: table-cell !important; float: none !important; width:auto; min-width: 0 !important; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; }\
+		.de-cfg-tab-back { display: table-cell !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; }\
 		.de-cfg-tab-back:lang(de) { border-color: #444 !important; }\
 		.de-cfg-tab-back:lang(fr) { border-color: #121421 !important; }\
 		.de-cfg-tab-back[selected="true"] { border-bottom: none !important; }\
@@ -11795,7 +11796,7 @@ function scriptCSS() {
 		#de-spell-panel > a { padding: 0 4px; }\
 		#de-spell-div { display: table; }\
 		#de-spell-div > div { display: table-cell; vertical-align: top; }\
-		#de-spell-edit { padding: 2px !important; width: 325px; height: 180px; max-width: 100%; border: none !important; outline: none !important; }\
+		#de-spell-edit { padding: 2px !important; width: 330px; height: 180px; max-width: 100%; border: none !important; outline: none !important; }\
 		#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 182px; text-align: right; color: #fff; font: 12px courier new; }\
 		#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\
 		#de-spell-rowmeter:lang(de) { background-color: #777; }';
@@ -12061,7 +12062,7 @@ function scriptCSS() {
 		.de-link-parent { outline: 1px dotted !important; }\
 		.de-link-pview { font-weight: bold; }\
 		.de-link-ref { text-decoration: none; }\
-		.de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\
+		.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\
 		.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
 		.de-menu-item:hover { background-color: #222; color: #fff; }\
 		.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid blue; border-right: 4px solid blue; }' : 'box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }') + '\
@@ -12142,6 +12143,9 @@ function updateCSS() {
 	}
 	if(Cfg.noPostScrl) {
 		x += 'blockquote, blockquote > p, .code_part { height: auto !important; max-height: 100% !important; overflow: visible !important; }';
+	}
+	if(Cfg.widePosts) {
+		x += '.' + aib.cReply.replace(/\s/, '.') + ' { width: 100%; }';
 	}
 	if(Cfg.noBoardRule) {
 		x += (aib.futa ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
