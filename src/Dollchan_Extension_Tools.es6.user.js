@@ -7003,10 +7003,8 @@ function* html5Submit(form) {
 	var formData = new FormData();
 	for(let {name, value, type, el} of getFormElements(form)) {
 		if(type === 'file') {
-			let fileName = value.name;
-			if(Cfg.removeFName) {
-				value = new File([value], fileName.substring(fileName.lastIndexOf('.')));
-			}
+			let fileName = value.name,
+				newFileName = Cfg.removeFName ? fileName.substring(fileName.lastIndexOf('.')) : fileName;
 			if(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) &&
 			   (Cfg.postSameImg || Cfg.removeEXIF))
 			{
@@ -7015,7 +7013,9 @@ function* html5Submit(form) {
 				if(!data) {
 					return Promise.reject(Lng.fileCorrupt[lang] + fileName);
 				}
-				value = new File(data, value.name)
+				value = new File(data, newFileName)
+			} else if(Cfg.removeFName) {
+				value = new File([value], newFileName);
 			}
 		}
 		formData.append(name, value);

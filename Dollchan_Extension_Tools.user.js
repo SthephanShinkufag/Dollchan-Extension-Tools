@@ -2414,7 +2414,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}, downloadImgData, this);
 	});
 	var html5Submit = regeneratorRuntime.mark(function html5Submit(form) {
-		var formData, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, _step$value, _name, value, type, el, fileName, data, xhr;
+		var formData, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, _step$value, _name, value, type, el, fileName, newFileName, data, xhr;
 
 		return regeneratorRuntime.wrap(function html5Submit$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
@@ -2428,7 +2428,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 6:
 					if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-						context$2$0.next = 27;
+						context$2$0.next = 29;
 						break;
 					}
 
@@ -2439,102 +2439,105 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					el = _step$value.el;
 
 					if (!(type === "file")) {
-						context$2$0.next = 23;
+						context$2$0.next = 25;
 						break;
 					}
 
-					fileName = value.name;
-
-					if (Cfg.removeFName) {
-						value = new File([value], fileName.substring(fileName.lastIndexOf(".")));
-					}
+					fileName = value.name, newFileName = Cfg.removeFName ? fileName.substring(fileName.lastIndexOf(".")) : fileName;
 
 					if (!(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) && (Cfg.postSameImg || Cfg.removeEXIF))) {
-						context$2$0.next = 23;
+						context$2$0.next = 24;
 						break;
 					}
 
-					context$2$0.next = 18;
+					context$2$0.next = 17;
 					return readFileArrayBuffer(value);
 
-				case 18:
+				case 17:
 					context$2$0.t26 = context$2$0.sent;
 					data = cleanFile(context$2$0.t26, el.obj.imgFile);
 
 					if (data) {
-						context$2$0.next = 22;
+						context$2$0.next = 21;
 						break;
 					}
 
 					return context$2$0.abrupt("return", Promise.reject(Lng.fileCorrupt[lang] + fileName));
 
-				case 22:
-					value = new File(data, value.name);
-
-				case 23:
-					formData.append(_name, value);
+				case 21:
+					value = new File(data, newFileName);
+					context$2$0.next = 25;
+					break;
 
 				case 24:
+					if (Cfg.removeFName) {
+						value = new File([value], newFileName);
+					}
+
+				case 25:
+					formData.append(_name, value);
+
+				case 26:
 					_iteratorNormalCompletion = true;
 					context$2$0.next = 6;
 					break;
 
-				case 27:
-					context$2$0.next = 33;
+				case 29:
+					context$2$0.next = 35;
 					break;
 
-				case 29:
-					context$2$0.prev = 29;
+				case 31:
+					context$2$0.prev = 31;
 					context$2$0.t27 = context$2$0["catch"](4);
 					_didIteratorError = true;
 					_iteratorError = context$2$0.t27;
 
-				case 33:
-					context$2$0.prev = 33;
-					context$2$0.prev = 34;
+				case 35:
+					context$2$0.prev = 35;
+					context$2$0.prev = 36;
 
 					if (!_iteratorNormalCompletion && _iterator["return"]) {
 						_iterator["return"]();
 					}
 
-				case 36:
-					context$2$0.prev = 36;
+				case 38:
+					context$2$0.prev = 38;
 
 					if (!_didIteratorError) {
-						context$2$0.next = 39;
+						context$2$0.next = 41;
 						break;
 					}
 
 					throw _iteratorError;
 
-				case 39:
-					return context$2$0.finish(36);
-
-				case 40:
-					return context$2$0.finish(33);
-
 				case 41:
-					context$2$0.next = 43;
-					return $ajax(form.action, { method: "POST", data: formData });
+					return context$2$0.finish(38);
+
+				case 42:
+					return context$2$0.finish(35);
 
 				case 43:
+					context$2$0.next = 45;
+					return $ajax(form.action, { method: "POST", data: formData });
+
+				case 45:
 					xhr = context$2$0.sent;
 
 					if (!(xhr.status === 200)) {
-						context$2$0.next = 46;
+						context$2$0.next = 48;
 						break;
 					}
 
 					return context$2$0.abrupt("return", $DOM(xhr.responseText));
 
-				case 46:
+				case 48:
 					return context$2$0.abrupt("return", Promise.reject(new AjaxError(xhr.status, xhr.statusText)));
 
-				case 47:
+				case 49:
 				case "end":
 					return context$2$0.stop();
 			}
-		}, html5Submit, this, [[4, 29, 33, 41], [34,, 36, 40]]);
+		}, html5Submit, this, [[4, 31, 35, 43], [36,, 38, 42]]);
 	});
 	var initScript = regeneratorRuntime.mark(function initScript(checkDomains) {
 		var formEl, str;
