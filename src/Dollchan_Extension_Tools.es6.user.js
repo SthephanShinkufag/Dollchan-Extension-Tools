@@ -6716,22 +6716,19 @@ FileInput.prototype = {
 		var el = this.form.rarInput;
 		el.onchange = e => {
 			$del(this._rjUtil);
-			var file = e.target.files[0],
-				fr = new FileReader(),
-				btnsPlace = this._buttonsPlace;
-			btnsPlace.insertAdjacentHTML('afterend',
+			this._buttonsPlace.insertAdjacentHTML('afterend',
 				'<span><span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
-			this._rjUtil = btnsPlace.nextSibling;
-			fr.onload = function(file, node, e) {
-				if(this._buttonsPlace.nextSibling === node) {
-					node.className = 'de-file-rarmsg de-file-utils';
-					node.title = this.el.files[0].name + ' + ' + file.name;
-					node.textContent = this.el.files[0].name.replace(/^.+\./, '') + ' + ' +
+			let myRjUtil = this._rjUtil = this._buttonsPlace.nextSibling,
+				file = e.target.files[0];
+			readFileArrayBuffer(file).then(val => {
+				if(this._rjUtil === myRjUtil) {
+					myRjUtil.className = 'de-file-rarmsg de-file-utils';
+					myRjUtil.title = this.el.files[0].name + ' + ' + file.name;
+					myRjUtil.textContent = this.el.files[0].name.replace(/^.+\./, '') + ' + ' +
 						file.name.replace(/^.+\./, '');
-					this.imgFile = e.target.result;
+					this.imgFile = val;
 				}
-			}.bind(this, file, btnsPlace.nextSibling);
-			fr.readAsArrayBuffer(file);
+			});
 		};
 		el.click();
 	},
@@ -6780,10 +6777,9 @@ FileInput.prototype = {
 		}));
 	},
 	_showPviewImage() {
-		var fr, files = this.el.files;
+		var files = this.el.files;
 		if(files && files[0]) {
-			fr = new FileReader();
-			fr.onload = e => {
+			readFileArrayBuffer(files[0]).then(val => {
 				this.form.eventFiles(false);
 				var file = this.el.files[0],
 					thumb = this.thumb;
@@ -6797,14 +6793,13 @@ FileInput.prototype = {
 					'<video class="de-file-img" loop autoplay muted src=""></video>' :
 					'<img class="de-file-img" src="">');
 				this._mediaEl = thumb = thumb.firstChild;
-				thumb.src = window.URL.createObjectURL(new Blob([e.target.result]));
+				thumb.src = window.URL.createObjectURL(new Blob([val]));
 				thumb = thumb.nextSibling;
 				if(thumb) {
 					window.URL.revokeObjectURL(thumb.src);
 					$del(thumb);
 				}
-			};
-			fr.readAsArrayBuffer(files[0]);
+			});
 		}
 	}
 };

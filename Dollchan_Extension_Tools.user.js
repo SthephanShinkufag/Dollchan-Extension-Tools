@@ -9208,20 +9208,17 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			var el = this.form.rarInput;
 			el.onchange = function (e) {
 				$del(_this._rjUtil);
-				var file = e.target.files[0],
-				    fr = new FileReader(),
-				    btnsPlace = _this._buttonsPlace;
-				btnsPlace.insertAdjacentHTML("afterend", "<span><span class=\"de-wait\"></span>" + Lng.wait[lang] + "</span>");
-				_this._rjUtil = btnsPlace.nextSibling;
-				fr.onload = (function (file, node, e) {
-					if (this._buttonsPlace.nextSibling === node) {
-						node.className = "de-file-rarmsg de-file-utils";
-						node.title = this.el.files[0].name + " + " + file.name;
-						node.textContent = this.el.files[0].name.replace(/^.+\./, "") + " + " + file.name.replace(/^.+\./, "");
-						this.imgFile = e.target.result;
+				_this._buttonsPlace.insertAdjacentHTML("afterend", "<span><span class=\"de-wait\"></span>" + Lng.wait[lang] + "</span>");
+				var myRjUtil = _this._rjUtil = _this._buttonsPlace.nextSibling,
+				    file = e.target.files[0];
+				readFileArrayBuffer(file).then(function (val) {
+					if (_this._rjUtil === myRjUtil) {
+						myRjUtil.className = "de-file-rarmsg de-file-utils";
+						myRjUtil.title = _this.el.files[0].name + " + " + file.name;
+						myRjUtil.textContent = _this.el.files[0].name.replace(/^.+\./, "") + " + " + file.name.replace(/^.+\./, "");
+						_this.imgFile = val;
 					}
-				}).bind(_this, file, btnsPlace.nextSibling);
-				fr.readAsArrayBuffer(file);
+				});
 			};
 			el.click();
 		},
@@ -9272,11 +9269,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		_showPviewImage: function _showPviewImage() {
 			var _this = this;
 
-			var fr,
-			    files = this.el.files;
+			var files = this.el.files;
 			if (files && files[0]) {
-				fr = new FileReader();
-				fr.onload = function (e) {
+				readFileArrayBuffer(files[0]).then(function (val) {
 					_this.form.eventFiles(false);
 					var file = _this.el.files[0],
 					    thumb = _this.thumb;
@@ -9288,14 +9283,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					thumb.title = file.name + ", " + (file.size / 1024).toFixed(2) + "KB";
 					thumb.insertAdjacentHTML("afterbegin", file.type === "video/webm" ? "<video class=\"de-file-img\" loop autoplay muted src=\"\"></video>" : "<img class=\"de-file-img\" src=\"\">");
 					_this._mediaEl = thumb = thumb.firstChild;
-					thumb.src = window.URL.createObjectURL(new Blob([e.target.result]));
+					thumb.src = window.URL.createObjectURL(new Blob([val]));
 					thumb = thumb.nextSibling;
 					if (thumb) {
 						window.URL.revokeObjectURL(thumb.src);
 						$del(thumb);
 					}
-				};
-				fr.readAsArrayBuffer(files[0]);
+				});
 			}
 		}
 	}, {
