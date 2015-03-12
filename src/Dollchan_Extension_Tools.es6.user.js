@@ -551,6 +551,7 @@ Lng = {
 	sizeKByte:		[' КБ', ' KB'],
 	sizeMByte:		[' МБ', ' MB'],
 	sizeGByte:		[' ГБ', ' GB'],
+	second:			['с', 's']
 },
 
 doc = window.document, aProto = Array.prototype, locStorage, sesStorage,
@@ -3208,7 +3209,7 @@ HotKeys.prototype = {
 				if(TNum) {
 					idx = this.tKeys.indexOf(kc);
 					if(idx === 0) { // Update thread
-						Thread.loadNewPosts(null);
+						updater.forceLoad(null);
 						break;
 					}
 					return;
@@ -6907,12 +6908,14 @@ function getSubmitError(dc) {
 
 var doUploading = async(function* (getProgress) {
 	$alert(Lng.sendingPost[lang] +
-		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none"></progress><div style="display: none"><span></span> / <span></span></div>', 'upload', true);
-	let inited = false,
+		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none"></progress><div style="display: none"><span></span> / <span></span> (<span></span>)</div>', 'upload', true);
+	let beginTime = Date.now(),
+		inited = false,
 		progress = $id('de-uploadprogress'),
 		counterWrap = progress.nextSibling,
 		counterEl = counterWrap.firstChild,
-		totalEl = counterWrap.lastChild;
+		totalEl = counterEl.nextElementSibling,
+		speedEl = totalEl.nextElementSibling;
 	let p;
 	while(p = getProgress()) {
 		let val;
@@ -6937,6 +6940,7 @@ var doUploading = async(function* (getProgress) {
 		let loaded = val.data.loaded;
 		progress.value = loaded;
 		counterEl.textContent = prettifySize(loaded);
+		speedEl.textContent = prettifySize((loaded / (Date.now() - beginTime)) * 1e3) + '/' + Lng.second[lang];
 	}
 	$alert(Lng.internalError[lang] + getPrettyErrorMessage(new Error()), 'upload', false)
 });
@@ -9585,14 +9589,6 @@ function Thread(el, prev, isLight) {
 Thread.clearPostsMark = function() {
 	dForm.firstThr.clearPostsMarks();
 };
-Thread.loadNewPosts = function(e) {
-	if(e) {
-		$pd(e);
-	}
-	$alert(Lng.loading[lang], 'newposts', true);
-	dForm.firstThr.clearPostsMarks();
-	updater.forceLoad();
-};
 Thread.prototype = {
 	hasNew: false,
 	hidden: false,
@@ -11422,6 +11418,9 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function forceLoadPosts(isFocusLoad) {
+		if(paused) {
+			return;
+		}
 		if(!enabled && !disabledByUser) {
 			enable();
 			if(!checkFocusLoad(isFocusLoad)) {
@@ -11642,7 +11641,17 @@ function initThreadUpdater(title, enableUpdate) {
 		get focused() {
 			return focused;
 		},
-		forceLoad: forceLoadPosts.bind(null, false),
+		forceLoad(e) {
+			if(e) {
+				$pd(e);
+			}
+			dForm.firstThr.clearPostsMarks();
+			if(paused) {
+				return;
+			}
+			$alert(Lng.loading[lang], 'newposts', true);
+			forceLoadPosts(false)
+		},
 		enable() {
 			if(!inited) {
 				init();
@@ -11682,6 +11691,7 @@ function initThreadUpdater(title, enableUpdate) {
 				if(!countEl) {
 					countEl = $id('de-updater-count');
 				}
+				countEl.innerHTML = '<span class="de-wait"></span>';
 				countEl.style.display = '';
 				useCountdown = true;
 				forceLoadPosts(false);
@@ -11722,11 +11732,13 @@ function initPage() {
 				'<span id="de-updater-count" style="display: none;"></span>]' +
 				(aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '') +
 				'</div>');
-			dForm.firstThr.el.nextSibling.addEventListener('click', Thread.loadNewPosts, false);
 		}
 	}
 	if(!localRun){
 		updater = initThreadUpdater(doc.title, TNum && Cfg.ajaxUpdThr);
+		if(TNum) {
+			dForm.firstThr.el.nextSibling.firstElementChild.addEventListener('click', updater.forceLoad, false);
+		}
 	}
 }
 

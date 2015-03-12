@@ -3128,7 +3128,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		sizeByte: [" Байт", " Byte"],
 		sizeKByte: [" КБ", " KB"],
 		sizeMByte: [" МБ", " MB"],
-		sizeGByte: [" ГБ", " GB"] },
+		sizeGByte: [" ГБ", " GB"],
+		second: ["с", "s"]
+	},
 	    doc = window.document,
 	    aProto = Array.prototype,
 	    locStorage,
@@ -5414,7 +5416,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							idx = this.tKeys.indexOf(kc);
 							if (idx === 0) {
 							
-								Thread.loadNewPosts(null);
+								updater.forceLoad(null);
 								break;
 							}
 							return;
@@ -9448,18 +9450,18 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	var doUploading = async(regeneratorRuntime.mark(function callee$1$3(getProgress) {
-		var inited, progress, counterWrap, counterEl, totalEl, p, _val, total, loaded;
+		var beginTime, inited, progress, counterWrap, counterEl, totalEl, speedEl, p, _val, total, loaded;
 
 		return regeneratorRuntime.wrap(function callee$1$3$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					$alert(Lng.sendingPost[lang] + "<br><progress id=\"de-uploadprogress\" value=\"0\" max=\"1\" style=\"display: none\"></progress><div style=\"display: none\"><span></span> / <span></span></div>", "upload", true);
-					inited = false, progress = $id("de-uploadprogress"), counterWrap = progress.nextSibling, counterEl = counterWrap.firstChild, totalEl = counterWrap.lastChild;
+					$alert(Lng.sendingPost[lang] + "<br><progress id=\"de-uploadprogress\" value=\"0\" max=\"1\" style=\"display: none\"></progress><div style=\"display: none\"><span></span> / <span></span> (<span></span>)</div>", "upload", true);
+					beginTime = Date.now(), inited = false, progress = $id("de-uploadprogress"), counterWrap = progress.nextSibling, counterEl = counterWrap.firstChild, totalEl = counterEl.nextElementSibling, speedEl = totalEl.nextElementSibling;
 					p = undefined;
 
 				case 3:
 					if (!(p = getProgress())) {
-						context$2$0.next = 24;
+						context$2$0.next = 25;
 						break;
 					}
 
@@ -9503,13 +9505,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					progress.value = loaded;
 					counterEl.textContent = prettifySize(loaded);
+					speedEl.textContent = prettifySize(loaded / (Date.now() - beginTime) * 1000) + "/" + Lng.second[lang];
 					context$2$0.next = 3;
 					break;
 
-				case 24:
+				case 25:
 					$alert(Lng.internalError[lang] + getPrettyErrorMessage(new Error()), "upload", false);
 
-				case 25:
+				case 26:
 				case "end":
 					return context$2$0.stop();
 			}
@@ -12378,14 +12381,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	Thread.clearPostsMark = function () {
 		dForm.firstThr.clearPostsMarks();
 	};
-	Thread.loadNewPosts = function (e) {
-		if (e) {
-			$pd(e);
-		}
-		$alert(Lng.loading[lang], "newposts", true);
-		dForm.firstThr.clearPostsMarks();
-		updater.forceLoad();
-	};
 	Thread.prototype = Object.defineProperties({
 		hasNew: false,
 		hidden: false,
@@ -14443,6 +14438,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 
 		function forceLoadPosts(isFocusLoad) {
+			if (paused) {
+				return;
+			}
 			if (!enabled && !disabledByUser) {
 				enable();
 				if (!checkFocusLoad(isFocusLoad)) {
@@ -14735,7 +14733,17 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 
 		return Object.defineProperties({
-			forceLoad: forceLoadPosts.bind(null, false),
+			forceLoad: function forceLoad(e) {
+				if (e) {
+					$pd(e);
+				}
+				dForm.firstThr.clearPostsMarks();
+				if (paused) {
+					return;
+				}
+				$alert(Lng.loading[lang], "newposts", true);
+				forceLoadPosts(false);
+			},
 			enable: (function (_enable) {
 				var _enableWrapper = function enable() {
 					return _enable.apply(this, arguments);
@@ -14785,6 +14793,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					if (!countEl) {
 						countEl = $id("de-updater-count");
 					}
+					countEl.innerHTML = "<span class=\"de-wait\"></span>";
 					countEl.style.display = "";
 					useCountdown = true;
 					forceLoadPosts(false);
@@ -14836,11 +14845,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 			if (!localRun) {
 				dForm.firstThr.el.insertAdjacentHTML("afterend", "<div id=\"de-updater-div\">&gt;&gt; [<a class=\"de-abtn\" id=\"de-updater-btn\" href=\"#\"></a>" + "<span id=\"de-updater-count\" style=\"display: none;\"></span>]" + (aib.mak ? "[<a class=\"de-abtn\" href=\"#\" onclick=\"UnbanShow();\">Реквест разбана</a>]" : "") + "</div>");
-				dForm.firstThr.el.nextSibling.addEventListener("click", Thread.loadNewPosts, false);
 			}
 		}
 		if (!localRun) {
 			updater = initThreadUpdater(doc.title, TNum && Cfg.ajaxUpdThr);
+			if (TNum) {
+				dForm.firstThr.el.nextSibling.firstElementChild.addEventListener("click", updater.forceLoad, false);
+			}
 		}
 	}
 
