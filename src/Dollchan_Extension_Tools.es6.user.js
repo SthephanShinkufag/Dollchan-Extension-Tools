@@ -545,7 +545,12 @@ Lng = {
 		'don\'t use operator %s with spells #rep & #outrep'
 	],
 	seRow:          [' (строка ', ' (row '],
-	seCol:          [', столбец ', ', column ']
+	seCol:          [', столбец ', ', column '],
+	sendingPost:	['Отправка поста...', 'Sending post...'],
+	sizeByte:		[' Байт', ' Byte'],
+	sizeKByte:		[' КБ', ' KB'],
+	sizeMByte:		[' МБ', ' MB'],
+	sizeGByte:		[' ГБ', ' GB'],
 },
 
 doc = window.document, aProto = Array.prototype, locStorage, sesStorage,
@@ -786,6 +791,9 @@ function $ajax(url, params = null, useNative = true) {
 	return new Promise((resolve, reject) => {
 		if(useNative || !(typeof GM_xmlhttpRequest === 'function')) {
 			let xhr = new XMLHttpRequest();
+			if(params && params.onprogress) {
+				xhr.upload.onprogress = params.onprogress;
+			}
 			xhr.onloadend = e => resolve(e.target);
 			xhr.open((params && params.method) || 'GET', url, true);
 			if(params) {
@@ -806,7 +814,7 @@ function $ajax(url, params = null, useNative = true) {
 			let obj = {
 				'method': (params && params.method) || 'GET',
 				'url': nav.fixLink(url),
-				'onload'(e) { resolve(e) }
+				'onload'(e) { resolve(e); }
 			};
 			if(params) {
 				delete params.method;
@@ -1141,6 +1149,19 @@ function isFormElDisabled(el) {
 		}
 	}
 	return false;
+}
+
+function prettifySize(val) {
+	if(val > 512 * 1024 * 1024) {
+		return (val / (1024 * 1024 * 1024)).toFixed(2) + Lng.sizeGByte[lang];
+	}
+	if(val > 512 * 1024) {
+		return (val / (1024 * 1024)).toFixed(2) + Lng.sizeMByte[lang];
+	}
+	if(val > 512) {
+		return (val / (1024)).toFixed(2) + Lng.sizeKByte[lang];
+	}
+	return val + Lng.sizeByte[lang];
 }
 
 
@@ -6399,13 +6420,11 @@ PostForm.prototype = {
 							brd + '/csstest.foo"></iframe>');
 						doc.body.lastChild.onload = e => {
 							$del(e.target);
-							spawn(html5Submit, this.form)
-								.then(checkUpload, e => $alert(getErrorMessage(e), 'upload', false));
+							spawn(html5Submit, this.form, true).then(doUploading);
 						};
 						return;
 					}
-					spawn(html5Submit, this.form)
-						.then(checkUpload, e => $alert(getErrorMessage(e), 'upload', false));
+					spawn(html5Submit, this.form, true).then(doUploading);
 				};
 			}, 0);
 		} else if(Cfg.ajaxReply === 1) {
@@ -6886,6 +6905,42 @@ function getSubmitError(dc) {
 	return err;
 }
 
+var doUploading = async(function* (getProgress) {
+	$alert(Lng.sendingPost[lang] +
+		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none"></progress><div style="display: none"><span></span> / <span></span></div>', 'upload', true);
+	let inited = false,
+		progress = $id('de-uploadprogress'),
+		counterWrap = progress.nextSibling,
+		counterEl = counterWrap.firstChild,
+		totalEl = counterWrap.lastChild;
+	let p;
+	while(p = getProgress()) {
+		let val;
+		try {
+			val = yield p;
+		} catch(e) {
+			$alert(getErrorMessage(e), 'upload', false)
+			return;
+		}
+		if(val.done) {
+			checkUpload(val.data);
+			return;
+		}
+		if(!inited) {
+			let total = val.data.total;
+			progress.setAttribute('max', total);
+			progress.style.display = '';
+			totalEl.textContent = prettifySize(total);
+			counterWrap.style.display = '';
+			inited = true;
+		}
+		let loaded = val.data.loaded;
+		progress.value = loaded;
+		counterEl.textContent = prettifySize(loaded);
+	}
+	$alert(Lng.internalError[lang] + getPrettyErrorMessage(new Error()), 'upload', false)
+});
+
 function checkUpload(dc) {
 	if(aib.krau) {
 		pr.form.action = pr.form.action.split('?')[0];
@@ -6994,7 +7049,7 @@ function checkDelete(dc) {
 	}
 }
 
-function* html5Submit(form) {
+function* html5Submit(form, needProgress = false) {
 	var formData = new FormData();
 	for(let {name, value, type, el} of getFormElements(form)) {
 		if(type === 'file') {
@@ -7015,11 +7070,27 @@ function* html5Submit(form) {
 		}
 		formData.append(name, value);
 	}
-	let xhr = yield $ajax(form.action, {method: 'POST', data: formData});
-	if(xhr.status === 200) {
-		return $DOM(xhr.responseText);
+	if(needProgress) {
+		let lastFuncs = null;
+		let promises = [new Promise((resolve, reject) => lastFuncs = {resolve, reject})];
+		$ajax(form.action, {method: 'POST', data: formData, onprogress: e => {
+			lastFuncs.resolve({ done: false, data: { loaded: e.loaded, total: e.total } });
+			promises.push(new Promise((resolve, reject) => lastFuncs = {resolve, reject}));
+		}}).then(xhr => {
+			if(xhr.status === 200) {
+				lastFuncs.resolve({ done: true, data: $DOM(xhr.responseText) });
+			} else {
+				lastFuncs.reject(new AjaxError(xhr.status, xhr.statusText));
+			}
+		});
+		return () => promises.splice(0, 1)[0];
+	} else {
+		let xhr = yield $ajax(form.action, {method: 'POST', data: formData, });
+		if(xhr.status === 200) {
+			return $DOM(xhr.responseText);
+		}
+		return Promise.reject(new AjaxError(xhr.status, xhr.statusText));
 	}
-	return Promise.reject(new AjaxError(xhr.status, xhr.statusText));
 }
 
 function readFileArrayBuffer(file) {
