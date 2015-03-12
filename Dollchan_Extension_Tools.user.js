@@ -1742,6 +1742,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 
 (function de_main_func_inner(scriptStorage, FormData) {
+	"use strict";
+
 	var getFormElements = regeneratorRuntime.mark(
 
 
@@ -2650,9 +2652,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		}, initScript, this, [[22, 26]]);
 	});
-
-	"use strict";
-
 	var version = "15.1.28.0",
 	    defaultCfg = {
 		disabled: 0,
@@ -5678,8 +5677,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "saveButton", { value: val, configurable: true });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		}
 	});
 
@@ -6209,8 +6208,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "vData", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		}
 	});
 	Videos.ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
@@ -6470,8 +6469,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "player", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		}
 	});
 
@@ -7194,8 +7193,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			get: function () {
 				return this._list || this._decompileSpells();
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		}
 	});
 
@@ -7557,8 +7556,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				return (this._errMsgArg ? this._errMsg.replace("%s", this._errMsgArg) : this._errMsg) + Lng.seRow[lang] + this._line + Lng.seCol[lang] + this._col + ")";
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		}
 	});
 
@@ -7895,14 +7894,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						var w = image.weight;
 						switch (compareRule) {
 							case 0:
-								hide = w >= weightVals[0] && w <= weightVals[1];if (_iterator["return"]) _iterator["return"]();
-								break;
+								hide = w >= weightVals[0] && w <= weightVals[1];break;
 							case 1:
-								hide = w < weightVals[0];if (_iterator["return"]) _iterator["return"]();
-								break;
+								hide = w < weightVals[0];break;
 							case 2:
-								hide = w > weightVals[0];if (_iterator["return"]) _iterator["return"]();
-								break;
+								hide = w > weightVals[0];break;
 						}
 						if (!hide) {
 							continue;
@@ -7918,13 +7914,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 								if (w >= sizeVals[0] && w <= sizeVals[1] && h >= sizeVals[2] && h <= sizeVals[3]) {
 									return true;
 								}
-								if (_iterator["return"]) _iterator["return"]();
 								break;
 							case 1:
 								if (w < sizeVals[0] && h < sizeVals[3]) {
 									return true;
 								}
-								if (_iterator["return"]) _iterator["return"]();
 								break;
 							case 2:
 								if (w > sizeVals[0] && h > sizeVals[3]) {
@@ -9023,8 +9017,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "fileArea", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		rarInput: {
 			get: function () {
@@ -9032,8 +9026,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "rarInput", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		isVisible: {
 			get: function () {
@@ -9043,15 +9037,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				return false;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		topCoord: {
 			get: function () {
 				return this.pForm.getBoundingClientRect().top;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		}
 	});
 
@@ -9304,15 +9298,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			get: function () {
 				return Cfg.fileThumb ? this.thumb.firstChild : this.el;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		_wrap: {
 			get: function () {
 				return aib.multiFile ? this.el.parentNode : this.el;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		}
 	});
 
@@ -10087,8 +10081,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "_btns", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		_zoomFactor: {
 			get: function () {
@@ -10096,8 +10090,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "_zoomFactor", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		}
 	});
 
@@ -10258,8 +10252,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "inPview", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		isImage: {
 			get: function () {
@@ -10267,8 +10261,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "isImage", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		isVideo: {
 			get: function () {
@@ -10276,8 +10270,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "isVideo", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		height: {
 			get: function () {
@@ -10288,8 +10282,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				});
 				return dat[1];
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		src: {
 			get: function () {
@@ -10297,8 +10291,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "src", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		width: {
 			get: function () {
@@ -10309,8 +10303,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				});
 				return dat[0];
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		_offset: {
 			get: function () {
@@ -10333,8 +10327,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "_offset", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		}
 	});
 
@@ -10462,8 +10456,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						Object.defineProperty(this, "canvas", { value: val });
 						return val;
 					},
-					enumerable: true,
-					configurable: true
+					configurable: true,
+					enumerable: true
 				},
 				storage: {
 					get: function () {
@@ -10479,8 +10473,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							return val;
 						}
 					},
-					enumerable: true,
-					configurable: true
+					configurable: true,
+					enumerable: true
 				},
 				workers: {
 					get: function () {
@@ -10489,8 +10483,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						Object.defineProperty(this, "workers", { value: val, configurable: true });
 						return val;
 					},
-					enumerable: true,
-					configurable: true
+					configurable: true,
+					enumerable: true
 				}
 			}) },
 		_callback: { writable: true, value: null },
@@ -10640,8 +10634,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "dPxRatio", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		wHeight: {
 			get: function () {
@@ -10656,8 +10650,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				});
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		wWidth: {
 			get: function () {
@@ -10672,8 +10666,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				});
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		}
 	});
 	Post.prototype = Object.defineProperties({
@@ -11411,8 +11405,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			get: function () {
 				return PostContent.get(this).html;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		images: {
 			get: function () {
@@ -11420,8 +11414,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "images", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		mp3Obj: {
 			get: function () {
@@ -11430,8 +11424,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "mp3Obj", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		msg: {
 			get: function () {
@@ -11439,16 +11433,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "msg", { configurable: true, value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		nextInThread: {
 			get: function () {
 				var post = this.next;
 				return !post || post.count === 0 ? null : post;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		nextNotDeleted: {
 			get: function () {
@@ -11458,8 +11452,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				return post;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		noteEl: {
 			get: function () {
@@ -11473,58 +11467,58 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "noteEl", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		posterName: {
 			get: function () {
 				return PostContent.get(this).posterName;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		posterTrip: {
 			get: function () {
 				return PostContent.get(this).posterTrip;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		subj: {
 			get: function () {
 				return PostContent.get(this).subj;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		text: {
 			get: function () {
 				return PostContent.get(this).text;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		title: {
 			get: function () {
 				return PostContent.get(this).title;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		tNum: {
 			get: function () {
 				return this.thr.num;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		topCoord: {
 			get: function () {
 				var el = this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el;
 				return el.getBoundingClientRect().top;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		trunc: {
 			get: function () {
@@ -11536,8 +11530,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "trunc", { configurable: true, value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		videos: {
 			get: function () {
@@ -11545,8 +11539,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "videos", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		wrap: {
 			get: function () {
@@ -11554,8 +11548,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "wrap", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		}
 	});
 
@@ -11593,8 +11587,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "html", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		posterName: {
 			get: function () {
@@ -11603,8 +11597,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "posterName", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		posterTrip: {
 			get: function () {
@@ -11613,8 +11607,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "posterTrip", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		subj: {
 			get: function () {
@@ -11623,8 +11617,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "subj", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		text: {
 			get: function () {
@@ -11632,8 +11626,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "text", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		title: {
 			get: function () {
@@ -11641,8 +11635,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "title", { value: val });
 				return val;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		}
 	});
 
@@ -11700,8 +11694,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			get: function () {
 				return this.data[0];
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		firstAttach: {
 			get: function () {
@@ -11713,15 +11707,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				return null;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		last: {
 			get: function () {
 				return this.data[this.length - 1];
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		}
 	});
 
@@ -12039,8 +12033,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "_op", { value: op });
 				return op;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		}
 	});
 
@@ -12731,31 +12725,31 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				return post;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		nextNotHidden: {
 			get: function () {
 				for (var thr = this.next; thr && thr.hidden; thr = thr.next) {}
 				return thr;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		prevNotHidden: {
 			get: function () {
 				for (var thr = this.prev; thr && thr.hidden; thr = thr.prev) {}
 				return thr;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		},
 		topCoord: {
 			get: function () {
 				return this.op.topCoord;
 			},
-			enumerable: true,
-			configurable: true
+			configurable: true,
+			enumerable: true
 		}
 	});
 
@@ -12862,8 +12856,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				get: function () {
 					return navigator.userAgent + (this.Firefox ? " [" + navigator.buildID + "]" : "");
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			hasWorker: {
 				get: function () {
@@ -12877,8 +12871,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "hasWorker", { value: val });
 					return val;
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			canPlayMP3: {
 				get: function () {
@@ -12886,8 +12880,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "canPlayMP3", { value: val });
 					return val;
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			canPlayWebm: {
 				get: function () {
@@ -12895,8 +12889,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "canPlayWebm", { value: val });
 					return val;
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			matchesSelector: {
 				get: function () {
@@ -12906,8 +12900,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "matchesSelector", { value: val });
 					return val;
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			}
 		});
 	}
@@ -13268,141 +13262,141 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				get: function () {
 					return this["2chru.net"];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			"2-ch.su": {
 				get: function () {
 					return this["2--ch.ru"];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			"2ch.hk": {
 				get: function () {
 					return [ibEngines["body.makaba"]];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			"2ch.pm": {
 				get: function () {
 					return [ibEngines["body.makaba"]];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			"2ch.re": {
 				get: function () {
 					return [ibEngines["body.makaba"]];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			"2ch.tf": {
 				get: function () {
 					return [ibEngines["body.makaba"]];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			"2ch.wf": {
 				get: function () {
 					return [ibEngines["body.makaba"]];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			"2ch.yt": {
 				get: function () {
 					return [ibEngines["body.makaba"]];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			"2-ch.so": {
 				get: function () {
 					return [ibEngines["body.makaba"]];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			"dmirrgetyojz735v.onion": {
 				get: function () {
 					return this["2chru.net"];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			"dobrochan.org": {
 				get: function () {
 					return this["dobrochan.com"];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			"dobrochan.ru": {
 				get: function () {
 					return this["dobrochan.com"];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			"niuchan.org": {
 				get: function () {
 					return this["diochan.com"];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			"ponyach.cf": {
 				get: function () {
 					return this["ponya.ch"];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			"ponyach.ga": {
 				get: function () {
 					return this["ponya.ch"];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			"ponyach.ml": {
 				get: function () {
 					return this["ponya.ch"];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			"ponyach.ru": {
 				get: function () {
 					return this["ponya.ch"];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			"ponychan.ru": {
 				get: function () {
 					return this["ponya.ch"];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			"syn-ch.com": {
 				get: function () {
 					return this["syn-ch.ru"];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			"syn-ch.org": {
 				get: function () {
 					return this["syn-ch.ru"];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			}
 		});
 
@@ -13633,8 +13627,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				get: function () {
 					return this["script[src*=\"kusaba\"]"];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			}
 		});
 
@@ -13793,8 +13787,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "qImgLink", { value: val });
 					return val;
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			qMsgImgLink: {
 				get: function () {
@@ -13802,8 +13796,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "qMsgImgLink", { value: val });
 					return val;
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			qThread: {
 				get: function () {
@@ -13811,8 +13805,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "qThread", { value: val });
 					return val;
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			lastPage: {
 				get: function () {
@@ -13824,15 +13818,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "lastPage", { value: val });
 					return val;
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			markupTags: {
 				get: function () {
 					return this.markupBB ? ["b", "i", "u", "s", "spoiler", "code", "", "", "q"] : ["**", "*", "", "^H", "%%", "`", "", "", "q"];
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			reCrossLinks: {
 				get: function () {
@@ -13840,8 +13834,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "reCrossLinks", { value: val });
 					return val;
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			rep: {
 				get: function () {
@@ -13849,8 +13843,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "rep", { value: val });
 					return val;
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			}
 		});
 
@@ -14694,15 +14688,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				get: function () {
 					return enabled;
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			},
 			focused: {
 				get: function () {
 					return focused;
 				},
-				enumerable: true,
-				configurable: true
+				configurable: true,
+				enumerable: true
 			}
 		});
 	}
