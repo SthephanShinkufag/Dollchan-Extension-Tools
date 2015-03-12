@@ -11511,9 +11511,6 @@ function initThreadUpdater(title, enableUpdate) {
 						'HvAJDB4PPOAMjgfsTA/O4wUIrjOQODzdt5CQyM9wwYmO+9EWBg8H2uwDTvMdBkFqAVbwxAlqmvOV2I5AYASFUr' +
 						'cXUe0gcAAAAASUVORK5CYII='), 800);
 				}
-				if(!Cfg.noErrInTitle) {
-					updateTitle();
-				}
 				if(lastECode !== 0 && lastECode < 500) {
 					if(!checked4XX && (lastECode === 404 || lastECode === 400)) {
 						checked4XX = true;
@@ -11523,9 +11520,13 @@ function initThreadUpdater(title, enableUpdate) {
 						return;
 					}
 				}
+				if(!Cfg.noErrInTitle) {
+					updateTitle();
+				}
 				setState('warn');
 				continue;
 			}
+			setState('on');
 			if(!focused) {
 				if(lPosts !== 0) {
 					if(Cfg.favIcoBlink && favHref && newPosts === 0) {
@@ -11570,9 +11571,12 @@ function initThreadUpdater(title, enableUpdate) {
 	});
 		
 	function setState(state) {
-		var btn = stateButton || (stateButton = $q('a[id^="de-btn-upd"]', doc));
-		btn.id = 'de-btn-upd-' + state;
-		btn.title = Lng.panelBtn['upd-' + (state === 'off' ? 'off' : 'on')][lang];
+		var btn = stateButton || (stateButton = $q('a[id^="de-btn-upd"]', doc)),
+			newId = 'de-btn-upd-' + state;
+		if(btn.id !== newId) {
+			btn.id = newId
+			btn.title = Lng.panelBtn['upd-' + (state === 'off' ? 'off' : 'on')][lang];
+		}
 	}
 
 	function onVis() {

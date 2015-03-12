@@ -14590,34 +14590,35 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							clearInterval(favIntrv);
 							favIntrv = setInterval(favIcoBlink.bind("iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAA3" + "NCSVQICAjb4U/gAAAALVBMVEX////QRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdi" + "Ad5MAAAAD3RSTlMAESIzRFVmd4iZu8zd7v9ufV8LAAAACXBIWXMAAAsSAAALEgHS3X78AAAAFXRFWHRDcmVhdG" + "lvbiBUaW1lADEwLzIvMTOFMzGTAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAAH9J" + "REFUCJljYEAAjbO3C0E067l37946ABlxLxWY6q4wMDDde+PAwPxGgYHj5bnLDAx1BQw8j3yBKvQ2MPA9YL53mI" + "HvAJDB4PPOAMjgfsTA/O4wUIrjOQODzdt5CQyM9wwYmO+9EWBg8H2uwDTvMdBkFqAVbwxAlqmvOV2I5AYASFUr" + "cXUe0gcAAAAASUVORK5CYII="), 800);
 						}
-						if (!Cfg.noErrInTitle) {
-							updateTitle();
-						}
 
 						if (!(lastECode !== 0 && lastECode < 500)) {
-							context$3$0.next = 52;
+							context$3$0.next = 51;
 							break;
 						}
 
 						if (!(!checked4XX && (lastECode === 404 || lastECode === 400))) {
-							context$3$0.next = 49;
+							context$3$0.next = 48;
 							break;
 						}
 
 						checked4XX = true;
-						context$3$0.next = 52;
+						context$3$0.next = 51;
 						break;
 
-					case 49:
+					case 48:
 						updateTitle();
 						disable(false);
 						return context$3$0.abrupt("return");
 
-					case 52:
+					case 51:
+						if (!Cfg.noErrInTitle) {
+							updateTitle();
+						}
 						setState("warn");
-						return context$3$0.abrupt("continue", 55);
+						return context$3$0.abrupt("continue", 56);
 
 					case 54:
+						setState("on");
 						if (!focused) {
 							if (lPosts !== 0) {
 								if (Cfg.favIcoBlink && favHref && newPosts === 0) {
@@ -14652,16 +14653,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							}
 						}
 
-					case 55:
+					case 56:
 						if (repeatLoading) {
 							context$3$0.next = 2;
 							break;
 						}
 
-					case 56:
+					case 57:
 						stopLoad = emptyFn;
 
-					case 57:
+					case 58:
 					case "end":
 						return context$3$0.stop();
 				}
@@ -14669,9 +14670,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}));
 
 		function setState(state) {
-			var btn = stateButton || (stateButton = $q("a[id^=\"de-btn-upd\"]", doc));
-			btn.id = "de-btn-upd-" + state;
-			btn.title = Lng.panelBtn["upd-" + (state === "off" ? "off" : "on")][lang];
+			var btn = stateButton || (stateButton = $q("a[id^=\"de-btn-upd\"]", doc)),
+			    newId = "de-btn-upd-" + state;
+			if (btn.id !== newId) {
+				btn.id = newId;
+				btn.title = Lng.panelBtn["upd-" + (state === "off" ? "off" : "on")][lang];
+			}
 		}
 
 		function onVis() {
