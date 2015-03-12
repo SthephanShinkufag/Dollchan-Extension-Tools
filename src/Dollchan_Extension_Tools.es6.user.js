@@ -452,10 +452,10 @@ Lng = {
 	updAvail:       ['Доступно обновление!', 'Update available!'],
 	haveLatest:     ['У вас стоит самая последняя версия!', 'You have latest version!'],
 	storage:        ['Хранение: ', 'Storage: '],
-	thrViewed:      ['Тредов просмотрено: ', 'Threads viewed: '],
-	thrCreated:     ['Тредов создано: ', 'Threads created: '],
-	thrHidden:      ['Тредов скрыто: ', 'Threads hidden: '],
-	postsSent:      ['Постов отправлено: ', 'Posts sent: '],
+	thrViewed:      ['Тредов посещено', 'Threads visited'],
+	thrCreated:     ['Тредов создано', 'Threads created'],
+	thrHidden:      ['Тредов скрыто', 'Threads hidden'],
+	postsSent:      ['Постов отправлено', 'Posts sent'],
 	total:          ['Всего', 'Total'],
 	debug:          ['Отладка', 'Debug'],
 	infoDebug:      ['Информация для отладки', 'Information for debugging'],
@@ -737,8 +737,7 @@ Logger = new function() {
 			var i, len, data = this.getData(false),
 				html = '<tbody>';
 			for(i = 0, len = data.length; i < len; ++i) {
-				html += '<tr><td>' +
-					data[i][0] + '</td><td style="text-align: right;">' + data[i][1] + 'ms</td></tr>';
+				html += '<tr><td>' + data[i][0] + '</td><td>' + data[i][1] + 'ms</td></tr>';
 			}
 			return html + '</tbody>';
 		},
@@ -2646,13 +2645,13 @@ function getCfgInfo() {
 			'<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;' +
 			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
 			(lang ? 'home-en/' : '') + '" target="_blank">Github</a></div>'),
-		$add('<div><div style="display: inline-block; vertical-align: top; width: 177px; height: 235px;">' +
-			Lng.thrViewed[lang] + Cfg.stats.view + '<br>' +
-			Lng.thrCreated[lang] + Cfg.stats.op + '<br>' +
-			Lng.thrHidden[lang] + getHiddenThrCount() + '<br>' +
-			Lng.postsSent[lang] + Cfg.stats.reply + '</div>' +
-			'<table style="display: inline-block; padding-left: 7px; height: 235px; ' +
-			'border-left: 1px solid grey; overflow-y: auto; border-collapse: separate; border-spacing: 1px; width: 177px;">' + new Logger().getTable() + '</table></div>'),
+		$add('<div><table class="de-cfg-info-data"><tbody>' +
+			'<tr><td>' + Lng.thrViewed[lang] + '</td><td>' + Cfg.stats.view + '</td></tr>' +
+			'<tr><td>' + Lng.thrCreated[lang] + '</td><td>' + Cfg.stats.op + '</td></tr>' +
+			'<tr><td>' + Lng.thrHidden[lang] + '</td><td>' + getHiddenThrCount() + '</td></tr>' +
+			'<tr><td>' + Lng.postsSent[lang] + '</td><td>' + Cfg.stats.reply + '</td></tr></tbody></table>' +
+			'<table class="de-cfg-info-data" style="border-left: 1px solid grey;">' +
+				new Logger().getTable() + '</table></div>'),
 		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
 			$alert(Lng.infoDebug[lang] +
 				':<textarea readonly id="de-debug-info" class="de-editor"></textarea>', 'help-debug', false);
@@ -11781,6 +11780,9 @@ function scriptCSS() {
 		#de-cfg-bar:lang(en) { background-color: #325f9e; }\
 		#de-cfg-bar:lang(de) { background-color: #777; }\
 		.de-cfg-depend { padding-left: 25px; }\
+		.de-cfg-info-data { display: inline-block; padding: 0 8px; width: 165px; height: 255px; overflow-y: auto; border-collapse: separate; border-spacing: 1px; box-sizing: content-box; }\
+		.de-cfg-info-data > tbody > tr > td:first-child { width: 100%; }\
+		.de-cfg-info-data > tbody > tr > td:last-child { text-align: right; }\
 		.de-cfg-tab { padding: 4px 4px; border-radius: 4px 4px 0 0; font: bold 12px arial; text-align: center; cursor: default; }\
 		.de-cfg-tab-back { display: table-cell !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; }\
 		.de-cfg-tab-back:lang(de) { border-color: #444 !important; }\
@@ -11796,7 +11798,7 @@ function scriptCSS() {
 		#de-spell-panel > a { padding: 0 4px; }\
 		#de-spell-div { display: table; }\
 		#de-spell-div > div { display: table-cell; vertical-align: top; }\
-		#de-spell-edit { padding: 2px !important; width: 330px; height: 180px; max-width: 100%; border: none !important; outline: none !important; }\
+		#de-spell-edit { padding: 2px !important; width: 333px; height: 180px; max-width: 100%; border: none !important; outline: none !important; }\
 		#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 182px; text-align: right; color: #fff; font: 12px courier new; }\
 		#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\
 		#de-spell-rowmeter:lang(de) { background-color: #777; }';

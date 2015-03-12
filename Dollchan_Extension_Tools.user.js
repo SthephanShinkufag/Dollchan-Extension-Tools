@@ -2994,10 +2994,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		updAvail: ["Доступно обновление!", "Update available!"],
 		haveLatest: ["У вас стоит самая последняя версия!", "You have latest version!"],
 		storage: ["Хранение: ", "Storage: "],
-		thrViewed: ["Тредов просмотрено: ", "Threads viewed: "],
-		thrCreated: ["Тредов создано: ", "Threads created: "],
-		thrHidden: ["Тредов скрыто: ", "Threads hidden: "],
-		postsSent: ["Постов отправлено: ", "Posts sent: "],
+		thrViewed: ["Тредов посещено", "Threads visited"],
+		thrCreated: ["Тредов создано", "Threads created"],
+		thrHidden: ["Тредов скрыто", "Threads hidden"],
+		postsSent: ["Постов отправлено", "Posts sent"],
 		total: ["Всего", "Total"],
 		debug: ["Отладка", "Debug"],
 		infoDebug: ["Информация для отладки", "Information for debugging"],
@@ -3305,7 +3305,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				    data = this.getData(false),
 				    html = "<tbody>";
 				for (i = 0, len = data.length; i < len; ++i) {
-					html += "<tr><td>" + data[i][0] + "</td><td style=\"text-align: right;\">" + data[i][1] + "ms</td></tr>";
+					html += "<tr><td>" + data[i][0] + "</td><td>" + data[i][1] + "ms</td></tr>";
 				}
 				return html + "</tbody>";
 			},
@@ -4803,7 +4803,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 			return count;
 		}
-		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-info" }, [$add("<div style=\"padding-bottom: 10px;\">" + "<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions\" " + "target=\"_blank\">v" + version + "</a>&nbsp;|&nbsp;" + "<a href=\"http://www.freedollchan.org/scripts/\" target=\"_blank\">Freedollchan</a>&nbsp;|&nbsp;" + "<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/" + (lang ? "home-en/" : "") + "\" target=\"_blank\">Github</a></div>"), $add("<div><div style=\"display: inline-block; vertical-align: top; width: 177px; height: 235px;\">" + Lng.thrViewed[lang] + Cfg.stats.view + "<br>" + Lng.thrCreated[lang] + Cfg.stats.op + "<br>" + Lng.thrHidden[lang] + getHiddenThrCount() + "<br>" + Lng.postsSent[lang] + Cfg.stats.reply + "</div>" + "<table style=\"display: inline-block; padding-left: 7px; height: 235px; " + "border-left: 1px solid grey; overflow-y: auto; border-collapse: separate; border-spacing: 1px; width: 177px;\">" + new Logger().getTable() + "</table></div>"), $btn(Lng.debug[lang], Lng.infoDebug[lang], function () {
+		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-info" }, [$add("<div style=\"padding-bottom: 10px;\">" + "<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions\" " + "target=\"_blank\">v" + version + "</a>&nbsp;|&nbsp;" + "<a href=\"http://www.freedollchan.org/scripts/\" target=\"_blank\">Freedollchan</a>&nbsp;|&nbsp;" + "<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/" + (lang ? "home-en/" : "") + "\" target=\"_blank\">Github</a></div>"), $add("<div><table class=\"de-cfg-info-data\"><tbody>" + "<tr><td>" + Lng.thrViewed[lang] + "</td><td>" + Cfg.stats.view + "</td></tr>" + "<tr><td>" + Lng.thrCreated[lang] + "</td><td>" + Cfg.stats.op + "</td></tr>" + "<tr><td>" + Lng.thrHidden[lang] + "</td><td>" + getHiddenThrCount() + "</td></tr>" + "<tr><td>" + Lng.postsSent[lang] + "</td><td>" + Cfg.stats.reply + "</td></tr></tbody></table>" + "<table class=\"de-cfg-info-data\" style=\"border-left: 1px solid grey;\">" + new Logger().getTable() + "</table></div>"), $btn(Lng.debug[lang], Lng.infoDebug[lang], function () {
 			$alert(Lng.infoDebug[lang] + ":<textarea readonly id=\"de-debug-info\" class=\"de-editor\"></textarea>", "help-debug", false);
 			$id("de-debug-info").value = JSON.stringify({
 				version: version,
@@ -5678,8 +5678,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "saveButton", { value: val, configurable: true });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		}
 	});
 
@@ -6209,8 +6209,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "vData", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		}
 	});
 	Videos.ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
@@ -6470,8 +6470,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "player", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		}
 	});
 
@@ -7194,8 +7194,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			get: function () {
 				return this._list || this._decompileSpells();
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		}
 	});
 
@@ -7557,8 +7557,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				return (this._errMsgArg ? this._errMsg.replace("%s", this._errMsgArg) : this._errMsg) + Lng.seRow[lang] + this._line + Lng.seCol[lang] + this._col + ")";
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		}
 	});
 
@@ -7895,11 +7895,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						var w = image.weight;
 						switch (compareRule) {
 							case 0:
-								hide = w >= weightVals[0] && w <= weightVals[1];break;
+								hide = w >= weightVals[0] && w <= weightVals[1];if (_iterator["return"]) _iterator["return"]();
+								break;
 							case 1:
-								hide = w < weightVals[0];break;
+								hide = w < weightVals[0];if (_iterator["return"]) _iterator["return"]();
+								break;
 							case 2:
-								hide = w > weightVals[0];break;
+								hide = w > weightVals[0];if (_iterator["return"]) _iterator["return"]();
+								break;
 						}
 						if (!hide) {
 							continue;
@@ -7915,11 +7918,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 								if (w >= sizeVals[0] && w <= sizeVals[1] && h >= sizeVals[2] && h <= sizeVals[3]) {
 									return true;
 								}
+								if (_iterator["return"]) _iterator["return"]();
 								break;
 							case 1:
 								if (w < sizeVals[0] && h < sizeVals[3]) {
 									return true;
 								}
+								if (_iterator["return"]) _iterator["return"]();
 								break;
 							case 2:
 								if (w > sizeVals[0] && h > sizeVals[3]) {
@@ -9018,8 +9023,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "fileArea", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		rarInput: {
 			get: function () {
@@ -9027,8 +9032,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "rarInput", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		isVisible: {
 			get: function () {
@@ -9038,15 +9043,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				return false;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		topCoord: {
 			get: function () {
 				return this.pForm.getBoundingClientRect().top;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		}
 	});
 
@@ -9299,15 +9304,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			get: function () {
 				return Cfg.fileThumb ? this.thumb.firstChild : this.el;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		_wrap: {
 			get: function () {
 				return aib.multiFile ? this.el.parentNode : this.el;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		}
 	});
 
@@ -10082,8 +10087,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "_btns", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		_zoomFactor: {
 			get: function () {
@@ -10091,8 +10096,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "_zoomFactor", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		}
 	});
 
@@ -10253,8 +10258,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "inPview", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		isImage: {
 			get: function () {
@@ -10262,8 +10267,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "isImage", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		isVideo: {
 			get: function () {
@@ -10271,8 +10276,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "isVideo", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		height: {
 			get: function () {
@@ -10283,8 +10288,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				});
 				return dat[1];
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		src: {
 			get: function () {
@@ -10292,8 +10297,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "src", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		width: {
 			get: function () {
@@ -10304,8 +10309,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				});
 				return dat[0];
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		_offset: {
 			get: function () {
@@ -10328,8 +10333,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "_offset", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		}
 	});
 
@@ -10457,8 +10462,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						Object.defineProperty(this, "canvas", { value: val });
 						return val;
 					},
-					configurable: true,
-					enumerable: true
+					enumerable: true,
+					configurable: true
 				},
 				storage: {
 					get: function () {
@@ -10474,8 +10479,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							return val;
 						}
 					},
-					configurable: true,
-					enumerable: true
+					enumerable: true,
+					configurable: true
 				},
 				workers: {
 					get: function () {
@@ -10484,8 +10489,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						Object.defineProperty(this, "workers", { value: val, configurable: true });
 						return val;
 					},
-					configurable: true,
-					enumerable: true
+					enumerable: true,
+					configurable: true
 				}
 			}) },
 		_callback: { writable: true, value: null },
@@ -10635,8 +10640,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "dPxRatio", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		wHeight: {
 			get: function () {
@@ -10651,8 +10656,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				});
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		wWidth: {
 			get: function () {
@@ -10667,8 +10672,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				});
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		}
 	});
 	Post.prototype = Object.defineProperties({
@@ -11406,8 +11411,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			get: function () {
 				return PostContent.get(this).html;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		images: {
 			get: function () {
@@ -11415,8 +11420,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "images", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		mp3Obj: {
 			get: function () {
@@ -11425,8 +11430,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "mp3Obj", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		msg: {
 			get: function () {
@@ -11434,16 +11439,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "msg", { configurable: true, value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		nextInThread: {
 			get: function () {
 				var post = this.next;
 				return !post || post.count === 0 ? null : post;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		nextNotDeleted: {
 			get: function () {
@@ -11453,8 +11458,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				return post;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		noteEl: {
 			get: function () {
@@ -11468,58 +11473,58 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "noteEl", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		posterName: {
 			get: function () {
 				return PostContent.get(this).posterName;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		posterTrip: {
 			get: function () {
 				return PostContent.get(this).posterTrip;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		subj: {
 			get: function () {
 				return PostContent.get(this).subj;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		text: {
 			get: function () {
 				return PostContent.get(this).text;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		title: {
 			get: function () {
 				return PostContent.get(this).title;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		tNum: {
 			get: function () {
 				return this.thr.num;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		topCoord: {
 			get: function () {
 				var el = this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el;
 				return el.getBoundingClientRect().top;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		trunc: {
 			get: function () {
@@ -11531,8 +11536,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "trunc", { configurable: true, value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		videos: {
 			get: function () {
@@ -11540,8 +11545,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "videos", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		wrap: {
 			get: function () {
@@ -11549,8 +11554,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "wrap", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		}
 	});
 
@@ -11588,8 +11593,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "html", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		posterName: {
 			get: function () {
@@ -11598,8 +11603,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "posterName", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		posterTrip: {
 			get: function () {
@@ -11608,8 +11613,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "posterTrip", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		subj: {
 			get: function () {
@@ -11618,8 +11623,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "subj", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		text: {
 			get: function () {
@@ -11627,8 +11632,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "text", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		title: {
 			get: function () {
@@ -11636,8 +11641,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "title", { value: val });
 				return val;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		}
 	});
 
@@ -11695,8 +11700,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			get: function () {
 				return this.data[0];
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		firstAttach: {
 			get: function () {
@@ -11708,15 +11713,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				return null;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		last: {
 			get: function () {
 				return this.data[this.length - 1];
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		}
 	});
 
@@ -12034,8 +12039,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				Object.defineProperty(this, "_op", { value: op });
 				return op;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		}
 	});
 
@@ -12726,31 +12731,31 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				return post;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		nextNotHidden: {
 			get: function () {
 				for (var thr = this.next; thr && thr.hidden; thr = thr.next) {}
 				return thr;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		prevNotHidden: {
 			get: function () {
 				for (var thr = this.prev; thr && thr.hidden; thr = thr.prev) {}
 				return thr;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		},
 		topCoord: {
 			get: function () {
 				return this.op.topCoord;
 			},
-			configurable: true,
-			enumerable: true
+			enumerable: true,
+			configurable: true
 		}
 	});
 
@@ -12857,8 +12862,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				get: function () {
 					return navigator.userAgent + (this.Firefox ? " [" + navigator.buildID + "]" : "");
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			hasWorker: {
 				get: function () {
@@ -12872,8 +12877,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "hasWorker", { value: val });
 					return val;
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			canPlayMP3: {
 				get: function () {
@@ -12881,8 +12886,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "canPlayMP3", { value: val });
 					return val;
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			canPlayWebm: {
 				get: function () {
@@ -12890,8 +12895,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "canPlayWebm", { value: val });
 					return val;
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			matchesSelector: {
 				get: function () {
@@ -12901,8 +12906,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "matchesSelector", { value: val });
 					return val;
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			}
 		});
 	}
@@ -13263,141 +13268,141 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				get: function () {
 					return this["2chru.net"];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			"2-ch.su": {
 				get: function () {
 					return this["2--ch.ru"];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			"2ch.hk": {
 				get: function () {
 					return [ibEngines["body.makaba"]];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			"2ch.pm": {
 				get: function () {
 					return [ibEngines["body.makaba"]];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			"2ch.re": {
 				get: function () {
 					return [ibEngines["body.makaba"]];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			"2ch.tf": {
 				get: function () {
 					return [ibEngines["body.makaba"]];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			"2ch.wf": {
 				get: function () {
 					return [ibEngines["body.makaba"]];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			"2ch.yt": {
 				get: function () {
 					return [ibEngines["body.makaba"]];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			"2-ch.so": {
 				get: function () {
 					return [ibEngines["body.makaba"]];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			"dmirrgetyojz735v.onion": {
 				get: function () {
 					return this["2chru.net"];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			"dobrochan.org": {
 				get: function () {
 					return this["dobrochan.com"];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			"dobrochan.ru": {
 				get: function () {
 					return this["dobrochan.com"];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			"niuchan.org": {
 				get: function () {
 					return this["diochan.com"];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			"ponyach.cf": {
 				get: function () {
 					return this["ponya.ch"];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			"ponyach.ga": {
 				get: function () {
 					return this["ponya.ch"];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			"ponyach.ml": {
 				get: function () {
 					return this["ponya.ch"];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			"ponyach.ru": {
 				get: function () {
 					return this["ponya.ch"];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			"ponychan.ru": {
 				get: function () {
 					return this["ponya.ch"];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			"syn-ch.com": {
 				get: function () {
 					return this["syn-ch.ru"];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			"syn-ch.org": {
 				get: function () {
 					return this["syn-ch.ru"];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			}
 		});
 
@@ -13628,8 +13633,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				get: function () {
 					return this["script[src*=\"kusaba\"]"];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			}
 		});
 
@@ -13788,8 +13793,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "qImgLink", { value: val });
 					return val;
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			qMsgImgLink: {
 				get: function () {
@@ -13797,8 +13802,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "qMsgImgLink", { value: val });
 					return val;
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			qThread: {
 				get: function () {
@@ -13806,8 +13811,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "qThread", { value: val });
 					return val;
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			lastPage: {
 				get: function () {
@@ -13819,15 +13824,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "lastPage", { value: val });
 					return val;
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			markupTags: {
 				get: function () {
 					return this.markupBB ? ["b", "i", "u", "s", "spoiler", "code", "", "", "q"] : ["**", "*", "", "^H", "%%", "`", "", "", "q"];
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			reCrossLinks: {
 				get: function () {
@@ -13835,8 +13840,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "reCrossLinks", { value: val });
 					return val;
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			rep: {
 				get: function () {
@@ -13844,8 +13849,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.defineProperty(this, "rep", { value: val });
 					return val;
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			}
 		});
 
@@ -14689,15 +14694,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				get: function () {
 					return enabled;
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			},
 			focused: {
 				get: function () {
 					return focused;
 				},
-				configurable: true,
-				enumerable: true
+				enumerable: true,
+				configurable: true
 			}
 		});
 	}
@@ -14818,7 +14823,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 
 	
-		x += "#de-main { -moz-box-sizing: content-box; box-sizing: content-box; }\t\t.de-block { display: block; }\t\t#de-content-cfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; border: none; }\t\t.de-cfg-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\t\t.de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\t\t.de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\t\t.de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\t\t.de-cfg-body { box-sizing: content-box; min-height: 309px; width: 363px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important;}\t\t.de-cfg-body input, .de-cfg-body label, .de-cfg-body select { width: auto; padding: 0 !important; margin: 1px 2px !important; }\t\t.de-cfg-body input[type=\"button\"], .de-cfg-body input[type=\"text\"] { padding: 1px 2px !important; }\t\t.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\t\t.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\t\t#de-cfg-btns { padding: 3px; font-size: 13px !important; }\t\t#de-cfg-btns input { padding: 0 3px; }\t\t#de-cfg-bar { width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\t\t#de-cfg-bar:lang(en) { background-color: #325f9e; }\t\t#de-cfg-bar:lang(de) { background-color: #777; }\t\t.de-cfg-depend { padding-left: 25px; }\t\t.de-cfg-tab { padding: 4px 4px; border-radius: 4px 4px 0 0; font: bold 12px arial; text-align: center; cursor: default; }\t\t.de-cfg-tab-back { display: table-cell !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; }\t\t.de-cfg-tab-back:lang(de) { border-color: #444 !important; }\t\t.de-cfg-tab-back:lang(fr) { border-color: #121421 !important; }\t\t.de-cfg-tab-back[selected=\"true\"] { border-bottom: none !important; }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab { background-color: rgba(0,0,0,.2); }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:lang(en), .de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:lang(fr) { background: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover { background-color: rgba(99,99,99,.2); }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover:lang(en), .de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t\t.de-cfg-tab::" + (nav.Firefox ? "-moz-" : "") + "selection { background: transparent; }\t\t.de-cfg-unvis { display: none; }\t\t#de-spell-panel { float: right; }\t\t#de-spell-panel > a { padding: 0 4px; }\t\t#de-spell-div { display: table; }\t\t#de-spell-div > div { display: table-cell; vertical-align: top; }\t\t#de-spell-edit { padding: 2px !important; width: 330px; height: 180px; max-width: 100%; border: none !important; outline: none !important; }\t\t#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 182px; text-align: right; color: #fff; font: 12px courier new; }\t\t#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\t\t#de-spell-rowmeter:lang(de) { background-color: #777; }";
+		x += "#de-main { -moz-box-sizing: content-box; box-sizing: content-box; }\t\t.de-block { display: block; }\t\t#de-content-cfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; border: none; }\t\t.de-cfg-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\t\t.de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\t\t.de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\t\t.de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\t\t.de-cfg-body { box-sizing: content-box; min-height: 309px; width: 363px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important;}\t\t.de-cfg-body input, .de-cfg-body label, .de-cfg-body select { width: auto; padding: 0 !important; margin: 1px 2px !important; }\t\t.de-cfg-body input[type=\"button\"], .de-cfg-body input[type=\"text\"] { padding: 1px 2px !important; }\t\t.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\t\t.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\t\t#de-cfg-btns { padding: 3px; font-size: 13px !important; }\t\t#de-cfg-btns input { padding: 0 3px; }\t\t#de-cfg-bar { width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\t\t#de-cfg-bar:lang(en) { background-color: #325f9e; }\t\t#de-cfg-bar:lang(de) { background-color: #777; }\t\t.de-cfg-depend { padding-left: 25px; }\t\t.de-cfg-info-data { display: inline-block; padding: 0 8px; width: 165px; height: 255px; overflow-y: auto; border-collapse: separate; border-spacing: 1px; box-sizing: content-box; }\t\t.de-cfg-info-data > tbody > tr > td:first-child { width: 100%; }\t\t.de-cfg-info-data > tbody > tr > td:last-child { text-align: right; }\t\t.de-cfg-tab { padding: 4px 4px; border-radius: 4px 4px 0 0; font: bold 12px arial; text-align: center; cursor: default; }\t\t.de-cfg-tab-back { display: table-cell !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; }\t\t.de-cfg-tab-back:lang(de) { border-color: #444 !important; }\t\t.de-cfg-tab-back:lang(fr) { border-color: #121421 !important; }\t\t.de-cfg-tab-back[selected=\"true\"] { border-bottom: none !important; }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab { background-color: rgba(0,0,0,.2); }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:lang(en), .de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:lang(fr) { background: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover { background-color: rgba(99,99,99,.2); }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover:lang(en), .de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t\t.de-cfg-tab::" + (nav.Firefox ? "-moz-" : "") + "selection { background: transparent; }\t\t.de-cfg-unvis { display: none; }\t\t#de-spell-panel { float: right; }\t\t#de-spell-panel > a { padding: 0 4px; }\t\t#de-spell-div { display: table; }\t\t#de-spell-div > div { display: table-cell; vertical-align: top; }\t\t#de-spell-edit { padding: 2px !important; width: 333px; height: 180px; max-width: 100%; border: none !important; outline: none !important; }\t\t#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 182px; text-align: right; color: #fff; font: 12px courier new; }\t\t#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\t\t#de-spell-rowmeter:lang(de) { background-color: #777; }";
 
 	
 		x += "#de-btn-logo { margin-right: 3px; cursor: pointer; }\t\t#de-panel { height: 25px; z-index: 9999; border-radius: 15px 0 0 0; cursor: default;}\t\t#de-panel-btns { display: inline-block; padding: 0 0 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\t\t#de-panel-btns:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\t\t#de-panel-btns:lang(fr), #de-panel-info:lang(fr) { border-color: #616b86; }\t\t#de-panel-btns > li { margin: 0 1px; padding: 0; }\t\t#de-panel-btns > li, #de-panel-btns > li > a, #de-btn-logo { display: inline-block; width: 25px; height: 25px; }\t\t#de-panel-btns:lang(en) > li, #de-panel-btns:lang(fr) > li  { transition: all 0.3s ease; }\t\t#de-panel-btns:lang(en) > li:hover, #de-panel-btns:lang(fr) > li:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\t\t#de-panel-btns:lang(de) > li > a { border-radius: 5px; }\t\t#de-panel-btns:lang(de) > li > a:hover { width: 21px; height: 21px; border: 2px solid #444; }\t\t#de-panel-info { vertical-align: 6px; padding: " + (nav.Chrome ? 3 : 2) + "px 6px; margin-left: 2px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }";
