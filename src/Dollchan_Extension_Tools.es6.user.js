@@ -11937,7 +11937,7 @@ function scriptCSS() {
 
 	// Post panel
 	x += '.de-post-btns { margin-left: 4px; }\
-		.de-post-note { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
+		.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
 		.de-thread-note { font-style: italic; }\
 		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on { transform:rotate(0deg); display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
 	if(Cfg.postBtnsCSS === 0) {

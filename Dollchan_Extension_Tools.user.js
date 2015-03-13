@@ -14996,7 +14996,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 
 	
-		x += ".de-post-btns { margin-left: 4px; }\t\t.de-post-note { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\t\t.de-thread-note { font-style: italic; }\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on { transform:rotate(0deg); display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ";
+		x += ".de-post-btns { margin-left: 4px; }\t\t.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\t\t.de-thread-note { font-style: italic; }\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on { transform:rotate(0deg); display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ";
 		if (Cfg.postBtnsCSS === 0) {
 			x += "color: #4F7942; font-size: 14px; }\t\t\t.de-post-hide .de-btn-hide:after { content: \"✚\"; }\t\t\t.de-post-hide .de-btn-hide-user:after { content: \"✚\"; }\t\t\t.de-btn-expthr:after { content: \"⇕\"; }\t\t\t.de-btn-fav:after { content: \"★\"; }\t\t\t.de-btn-fav-sel:after { content: \"[★]\"; }\t\t\t.de-btn-hide:after { content: \"✖\"; }\t\t\t.de-btn-hide-user:after { content: \"✖\"; color: red !important; }\t\t\t.de-btn-rep:after { content: \"▶\"; }\t\t\t.de-btn-sage:after { content: \"❎\"; }\t\t\t.de-btn-src:after { content: \"[S]\"; }\t\t\t.de-btn-stick:after { content: \"◻\"; }\t\t\t.de-btn-stick-on:after { content: \"◼\"; }";
 		} else if (Cfg.postBtnsCSS === 1) {
