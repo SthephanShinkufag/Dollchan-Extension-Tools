@@ -161,7 +161,7 @@ Lng = {
 
 		'expandImgs': {
 			sel:        [['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center']],
-			txt:        ['раскрывать картинки по клику', 'expand images on click']
+			txt:        ['Раскрывать картинки по клику', 'Expand images on click']
 		},
 		'imgNavBtns':   ['Добавлять кнопки навигации по картинкам', 'Add buttons for images navigation'],
 		'resizeDPI':    ['Отображать картинки пиксель в пиксель', 'Don\'t upscale images on retina displays'],
@@ -178,10 +178,10 @@ Lng = {
 
 		'linksNavig': {
 			sel:        [['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
-			txt:        ['навигация по >>ссылкам* ', 'navigation by >>links* ']
+			txt:        ['Навигация по >>ссылкам* ', 'Navigation by >>links* ']
 		},
-		'linksOver':    [' появление ', ' appearance '],
-		'linksOut':     [' пропадание (мс)', ' disappearance (ms)'],
+		'linksOver':    [' Появление ', ' Appearance '],
+		'linksOut':     [' Пропадание (мс)', ' Disappearance (ms)'],
 		'markViewed':   ['Отмечать просмотренные посты*', 'Mark viewed posts*'],
 		'strikeHidd':   ['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
 		'removeHidd':   ['Удалять из карты ответов', 'Remove from replies map'],
@@ -189,7 +189,7 @@ Lng = {
 		'crossLinks':   ['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
 		'insertNum':    ['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
 		'addOPLink':    ['Вставлять >>ссылку при ответе на оп-пост на доске', 'Insert >>link for reply to op-posts on board'],
-		'addMP3':       ['Плеер к mp3 ссылкам*', 'Player to mp3 links*'],
+		'addMP3':       ['Плеер к mp3 ссылкам* ', 'Player to mp3 links* '],
 		'addImgs':      ['Загружать картинки к jpg, png, gif ссылкам*', 'Load images to jpg, png, gif links*'],
 		'addVocaroo':   ['Плеер к Vocaroo ссылкам*', 'Player to Vocaroo links*'],
 		'addVimeo':     ['Добавлять плеер к Vimeo ссылкам*', 'Add player to Vimeo links*'],
@@ -214,36 +214,36 @@ Lng = {
 		'postSameImg':  ['Возможность отправки одинаковых картинок', 'Ability to post same images'],
 		'removeEXIF':   ['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG '],
 		'removeFName':  ['Удалять имя файлов', 'Clear file names'],
-		'sendErrNotif': ['Оповещать в заголовке об ошибке отправки поста', 'Inform in title about post send error'],
+		'sendErrNotif': ['Оповещать в заголовке об ошибке отправки', 'Inform in title about post send error'],
 		'scrAfterRep':  ['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
 		'addPostForm': {
 			sel:        [['Сверху', 'Внизу', 'Скрытая'], ['At top', 'At bottom', 'Hidden']],
-			txt:        ['форма ответа в треде', 'reply form in thread']
+			txt:        ['Форма ответа в треде', 'Reply form in thread']
 		},
 		'favOnReply':   ['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
-		'warnSubjTrip': ['Предупреждать при наличии трип-кода в поле "Тема"', 'Warn if "Subject" field contains trip-code'],
+		'warnSubjTrip': ['Оповещать при наличии трип-кода в поле "Тема"', 'Warn if "Subject" field contains trip-code'],
 		'fileThumb':    ['Область превью картинок вместо кнопки "Файл"', 'File thumbnail area instead of "File" button'],
 		'addSageBtn':   ['Кнопка Sage вместо "E-mail"* ', 'Sage button instead of "E-mail"* '],
-		'saveSage':     ['запоминать сажу', 'remember sage'],
+		'saveSage':     ['Запоминать сажу', 'Remember sage'],
 		'captchaLang': {
 			sel:        [['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus']],
-			txt:        ['язык ввода капчи', 'language input in captcha']
+			txt:        ['Язык ввода капчи', 'Language input in captcha']
 		},
 		'addTextBtns': {
 			sel:        [['Откл.', 'Графич.', 'Упрощ.', 'Стандарт.'], ['Disable', 'As images', 'As text', 'Standard']],
-			txt:        ['кнопки форматирования текста ', 'text format buttons ']
+			txt:        ['Кнопки разметки текста ', 'Text format buttons ']
 		},
-		'txtBtnsLoc':   ['внизу', 'at bottom'],
+		'txtBtnsLoc':   ['Внизу', 'At bottom'],
 		'userPassw':    [' Постоянный пароль ', ' Fixed password '],
 		'userName':     ['Постоянное имя', 'Fixed name'],
-		'noBoardRule':  ['правила', 'rules'],
-		'noGoto':       ['поле goto', 'goto field'],
-		'noPassword':   ['пароль', 'password'],
+		'noBoardRule':  ['правила ', 'rules '],
+		'noGoto':       ['поле goto ', 'goto field '],
+		'noPassword':   ['пароль ', 'password '],
 		'noName':       ['имя', 'name'],
 
 		'scriptStyle': {
 			sel:        [['Glass black', 'Glass blue', 'Solid grey'], ['Glass black', 'Glass blue', 'Solid grey']],
-			txt:        ['стиль скрипта', 'script style']
+			txt:        ['Стиль скрипта', 'Script style']
 		},
 		'userCSS':      ['Пользовательский CSS ', 'User CSS '],
 		'attachPanel':  ['Прикрепить главную панель', 'Attach main panel'],
@@ -2405,7 +2405,7 @@ function getCfgPosts() {
 function getCfgImages() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-images'}, [
 		optSel('expandImgs', true, null),
-		$New('div', {'style': 'padding-left: 25px;'}, [
+		$New('div', {'class': 'de-cfg-depend'}, [
 			lBox('imgNavBtns', true, updateCSS),
 			lBox('resizeImgs', true, null),
 			$if(Post.sizing.dPxRatio > 1, lBox('resizeDPI', true, null)),
@@ -2471,7 +2471,7 @@ function getCfgLinks() {
 			$New('div', null, [
 				optSel('YTubeType', false, null),
 				inpTxt('YTubeWidth', 4, null),
-				$txt('?'),
+				$txt('\u00D7'),
 				inpTxt('YTubeHeigh', 4, null),
 				$txt(' '),
 				lBox('YTubeHD', false, null)
@@ -2538,6 +2538,7 @@ function getCfgForm() {
 		])),
 		$if(pr.name, $New('div', null, [
 			inpTxt('nameValue', 15, PostForm.setUserName),
+			$txt(' '),
 			lBox('userName', false, PostForm.setUserName)
 		])),
 		$New('div', null, [
@@ -11849,28 +11850,28 @@ function scriptCSS() {
 	}
 
 	// Settings window
-	x += '#de-main { -moz-box-sizing: content-box; box-sizing: content-box; }\
-		.de-block { display: block; }\
+	x += '.de-block { display: block; }\
 		#de-content-cfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; border: none; }\
+		#de-content-cfg input[type="button"] { padding: 0 2px !important; margin: 0 1px !important; }\
 		.de-cfg-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		.de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		.de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
 		.de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
-		.de-cfg-body { box-sizing: content-box; min-height: 309px; width: 363px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important;}\
-		.de-cfg-body input, .de-cfg-body label, .de-cfg-body select { width: auto; padding: 0 !important; margin: 1px 2px !important; }\
-		.de-cfg-body input[type="button"], .de-cfg-body input[type="text"] { padding: 1px 2px !important; }\
+		.de-cfg-body { box-sizing: content-box; min-height: 292px; width: 354px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important; }\
+		.de-cfg-body input[type="text"], .de-cfg-body select { width: auto; padding: 1px 2px !important; margin: 1px 0 !important; font: 13px sans-serif !important; }\
+		.de-cfg-body input[type="checkbox"] { vertical-align: text-bottom; margin: 2px 1px !important; }\
+		.de-cfg-body label { padding: 0 !important; margin: 0 !important; }\
 		.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\
 		.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\
 		#de-cfg-btns { padding: 3px; font-size: 13px !important; }\
-		#de-cfg-btns input { padding: 0 3px; }\
 		#de-cfg-bar { width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\
 		#de-cfg-bar:lang(en) { background-color: #325f9e; }\
 		#de-cfg-bar:lang(de) { background-color: #777; }\
-		.de-cfg-depend { padding-left: 25px; }\
-		.de-cfg-info-data { display: inline-block; padding: 0 8px; width: 165px; height: 255px; overflow-y: auto; border-collapse: separate; border-spacing: 1px; box-sizing: content-box; }\
+		.de-cfg-depend { padding-left: 17px; }\
+		.de-cfg-info-data { display: inline-block; padding: 0 7px; width: 162px; height: 238px; overflow-y: auto; border-collapse: separate; border-spacing: 1px; box-sizing: content-box; }\
 		.de-cfg-info-data > tbody > tr > td:first-child { width: 100%; }\
 		.de-cfg-info-data > tbody > tr > td:last-child { text-align: right; }\
-		.de-cfg-tab { padding: 4px 4px; border-radius: 4px 4px 0 0; font: bold 12px arial; text-align: center; cursor: default; }\
+		.de-cfg-tab { padding: 4px 3px; border-radius: 4px 4px 0 0; font: bold 12px arial; text-align: center; cursor: default; }\
 		.de-cfg-tab-back { display: table-cell !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; }\
 		.de-cfg-tab-back:lang(de) { border-color: #444 !important; }\
 		.de-cfg-tab-back:lang(fr) { border-color: #121421 !important; }\
@@ -11885,8 +11886,8 @@ function scriptCSS() {
 		#de-spell-panel > a { padding: 0 4px; }\
 		#de-spell-div { display: table; }\
 		#de-spell-div > div { display: table-cell; vertical-align: top; }\
-		#de-spell-edit { padding: 2px !important; width: 333px; height: 180px; max-width: 100%; border: none !important; outline: none !important; }\
-		#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 182px; text-align: right; color: #fff; font: 12px courier new; }\
+		#de-spell-edit { padding: 2px !important; width: 323px; height: 194px; max-width: 100%; border: none !important; outline: none !important; }\
+		#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 196px; text-align: right; color: #fff; font: 12px courier new; }\
 		#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\
 		#de-spell-rowmeter:lang(de) { background-color: #777; }';
 
@@ -12058,7 +12059,7 @@ function scriptCSS() {
 		.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
 		.de-img-pre { max-width: 200px; max-height: 200px; }\
 		.de-img-full { float: left; }\
-		.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; -moz-box-sizing: content-box; box-sizing: content-box; }\
+		.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; }\
 		#de-img-btn-next > div, #de-img-btn-prev > div { height: 36px; width: 36px; }' +
 		gif('#de-img-btn-next > div', 'R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7') +
 		gif('#de-img-btn-prev > div', 'R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=') +

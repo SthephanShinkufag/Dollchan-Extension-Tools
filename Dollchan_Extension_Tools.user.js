@@ -2835,7 +2835,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 			expandImgs: {
 				sel: [["Откл.", "В посте", "По центру"], ["Disable", "In post", "By center"]],
-				txt: ["раскрывать картинки по клику", "expand images on click"]
+				txt: ["Раскрывать картинки по клику", "Expand images on click"]
 			},
 			imgNavBtns: ["Добавлять кнопки навигации по картинкам", "Add buttons for images navigation"],
 			resizeDPI: ["Отображать картинки пиксель в пиксель", "Don't upscale images on retina displays"],
@@ -2852,10 +2852,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 			linksNavig: {
 				sel: [["Откл.", "Без карты", "С картой"], ["Disable", "No map", "With map"]],
-				txt: ["навигация по >>ссылкам* ", "navigation by >>links* "]
+				txt: ["Навигация по >>ссылкам* ", "Navigation by >>links* "]
 			},
-			linksOver: [" появление ", " appearance "],
-			linksOut: [" пропадание (мс)", " disappearance (ms)"],
+			linksOver: [" Появление ", " Appearance "],
+			linksOut: [" Пропадание (мс)", " Disappearance (ms)"],
 			markViewed: ["Отмечать просмотренные посты*", "Mark viewed posts*"],
 			strikeHidd: ["Зачеркивать >>ссылки на скрытые посты", "Strike >>links to hidden posts"],
 			removeHidd: ["Удалять из карты ответов", "Remove from replies map"],
@@ -2863,7 +2863,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			crossLinks: ["Преобразовывать http:// в >>/b/ссылки*", "Replace http:// with >>/b/links*"],
 			insertNum: ["Вставлять >>ссылку по клику на №поста*", "Insert >>link on №postnumber click*"],
 			addOPLink: ["Вставлять >>ссылку при ответе на оп-пост на доске", "Insert >>link for reply to op-posts on board"],
-			addMP3: ["Плеер к mp3 ссылкам*", "Player to mp3 links*"],
+			addMP3: ["Плеер к mp3 ссылкам* ", "Player to mp3 links* "],
 			addImgs: ["Загружать картинки к jpg, png, gif ссылкам*", "Load images to jpg, png, gif links*"],
 			addVocaroo: ["Плеер к Vocaroo ссылкам*", "Player to Vocaroo links*"],
 			addVimeo: ["Добавлять плеер к Vimeo ссылкам*", "Add player to Vimeo links*"],
@@ -2885,36 +2885,36 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			postSameImg: ["Возможность отправки одинаковых картинок", "Ability to post same images"],
 			removeEXIF: ["Удалять EXIF из JPEG ", "Remove EXIF from JPEG "],
 			removeFName: ["Удалять имя файлов", "Clear file names"],
-			sendErrNotif: ["Оповещать в заголовке об ошибке отправки поста", "Inform in title about post send error"],
+			sendErrNotif: ["Оповещать в заголовке об ошибке отправки", "Inform in title about post send error"],
 			scrAfterRep: ["Перемещаться в конец треда после отправки", "Scroll to the bottom after reply"],
 			addPostForm: {
 				sel: [["Сверху", "Внизу", "Скрытая"], ["At top", "At bottom", "Hidden"]],
-				txt: ["форма ответа в треде", "reply form in thread"]
+				txt: ["Форма ответа в треде", "Reply form in thread"]
 			},
 			favOnReply: ["Добавлять тред в избранное при ответе", "Add thread to favorites on reply"],
-			warnSubjTrip: ["Предупреждать при наличии трип-кода в поле \"Тема\"", "Warn if \"Subject\" field contains trip-code"],
+			warnSubjTrip: ["Оповещать при наличии трип-кода в поле \"Тема\"", "Warn if \"Subject\" field contains trip-code"],
 			fileThumb: ["Область превью картинок вместо кнопки \"Файл\"", "File thumbnail area instead of \"File\" button"],
 			addSageBtn: ["Кнопка Sage вместо \"E-mail\"* ", "Sage button instead of \"E-mail\"* "],
-			saveSage: ["запоминать сажу", "remember sage"],
+			saveSage: ["Запоминать сажу", "Remember sage"],
 			captchaLang: {
 				sel: [["Откл.", "Eng", "Rus"], ["Disable", "Eng", "Rus"]],
-				txt: ["язык ввода капчи", "language input in captcha"]
+				txt: ["Язык ввода капчи", "Language input in captcha"]
 			},
 			addTextBtns: {
 				sel: [["Откл.", "Графич.", "Упрощ.", "Стандарт."], ["Disable", "As images", "As text", "Standard"]],
-				txt: ["кнопки форматирования текста ", "text format buttons "]
+				txt: ["Кнопки разметки текста ", "Text format buttons "]
 			},
-			txtBtnsLoc: ["внизу", "at bottom"],
+			txtBtnsLoc: ["Внизу", "At bottom"],
 			userPassw: [" Постоянный пароль ", " Fixed password "],
 			userName: ["Постоянное имя", "Fixed name"],
-			noBoardRule: ["правила", "rules"],
-			noGoto: ["поле goto", "goto field"],
-			noPassword: ["пароль", "password"],
+			noBoardRule: ["правила ", "rules "],
+			noGoto: ["поле goto ", "goto field "],
+			noPassword: ["пароль ", "password "],
 			noName: ["имя", "name"],
 
 			scriptStyle: {
 				sel: [["Glass black", "Glass blue", "Solid grey"], ["Glass black", "Glass blue", "Solid grey"]],
-				txt: ["стиль скрипта", "script style"]
+				txt: ["Стиль скрипта", "Script style"]
 			},
 			userCSS: ["Пользовательский CSS ", "User CSS "],
 			attachPanel: ["Прикрепить главную панель", "Attach main panel"],
@@ -4737,7 +4737,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function getCfgImages() {
-		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-images" }, [optSel("expandImgs", true, null), $New("div", { style: "padding-left: 25px;" }, [lBox("imgNavBtns", true, updateCSS), lBox("resizeImgs", true, null), $if(Post.sizing.dPxRatio > 1, lBox("resizeDPI", true, null)), $New("div", null, [inpTxt("minImgSize", 4, function () {
+		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-images" }, [optSel("expandImgs", true, null), $New("div", { "class": "de-cfg-depend" }, [lBox("imgNavBtns", true, updateCSS), lBox("resizeImgs", true, null), $if(Post.sizing.dPxRatio > 1, lBox("resizeDPI", true, null)), $New("div", null, [inpTxt("minImgSize", 4, function () {
 			saveCfg("minImgSize", Math.max(+this.value, 1));
 		}), $txt(Lng.cfg.minImgSize[lang])]), inpTxt("zoomFactor", 4, function () {
 			saveCfg("zoomFactor", Math.min(Math.max(+this.value, 1), 100));
@@ -4751,7 +4751,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			saveCfg("linksOver", +this.value | 0);
 		}), $txt(Lng.cfg.linksOver[lang]), inpTxt("linksOut", 4, function () {
 			saveCfg("linksOut", +this.value | 0);
-		}), $txt(Lng.cfg.linksOut[lang])]), lBox("markViewed", true, null), lBox("strikeHidd", true, null), $New("div", { "class": "de-cfg-depend" }, [lBox("removeHidd", false, updateCSS)]), lBox("noNavigHidd", true, null)]), lBox("crossLinks", true, null), lBox("insertNum", true, null), lBox("addOPLink", true, null), lBox("addImgs", true, null), lBox("addMP3", false, null), $if(aib.prot === "http:", lBox("addVocaroo", false, null)), optSel("addYouTube", true, null), $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [optSel("YTubeType", false, null), inpTxt("YTubeWidth", 4, null), $txt("?"), inpTxt("YTubeHeigh", 4, null), $txt(" "), lBox("YTubeHD", false, null)]), $if(!nav.Opera11 || nav.isGM, lBox("YTubeTitles", false, null)), lBox("addVimeo", true, null)])]);
+		}), $txt(Lng.cfg.linksOut[lang])]), lBox("markViewed", true, null), lBox("strikeHidd", true, null), $New("div", { "class": "de-cfg-depend" }, [lBox("removeHidd", false, updateCSS)]), lBox("noNavigHidd", true, null)]), lBox("crossLinks", true, null), lBox("insertNum", true, null), lBox("addOPLink", true, null), lBox("addImgs", true, null), lBox("addMP3", false, null), $if(aib.prot === "http:", lBox("addVocaroo", false, null)), optSel("addYouTube", true, null), $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [optSel("YTubeType", false, null), inpTxt("YTubeWidth", 4, null), $txt("×"), inpTxt("YTubeHeigh", 4, null), $txt(" "), lBox("YTubeHD", false, null)]), $if(!nav.Opera11 || nav.isGM, lBox("YTubeTitles", false, null)), lBox("addVimeo", true, null)])]);
 	}
 
 	function getCfgForm() {
@@ -4779,7 +4779,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}), lBox("txtBtnsLoc", false, pr.addTextPanel.bind(pr))])), $if(pr.passw, $New("div", null, [inpTxt("passwValue", 15, PostForm.setUserPassw), $txt(Lng.cfg.userPassw[lang]), $btn(Lng.change[lang], "", function () {
 			$q("input[info=\"passwValue\"]", doc).value = Math.round(Math.random() * 1000000000000000).toString(32);
 			PostForm.setUserPassw();
-		})])), $if(pr.name, $New("div", null, [inpTxt("nameValue", 15, PostForm.setUserName), lBox("userName", false, PostForm.setUserName)])), $New("div", null, [$txt(Lng.dontShow[lang]), lBox("noBoardRule", false, updateCSS), $if(pr.gothr, lBox("noGoto", false, function () {
+		})])), $if(pr.name, $New("div", null, [inpTxt("nameValue", 15, PostForm.setUserName), $txt(" "), lBox("userName", false, PostForm.setUserName)])), $New("div", null, [$txt(Lng.dontShow[lang]), lBox("noBoardRule", false, updateCSS), $if(pr.gothr, lBox("noGoto", false, function () {
 			$disp(pr.gothr);
 		})), $if(pr.passw, lBox("noPassword", false, function () {
 			$disp(pr.passw.parentNode.parentNode);
@@ -14960,7 +14960,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 
 	
-		x += "#de-main { -moz-box-sizing: content-box; box-sizing: content-box; }\t\t.de-block { display: block; }\t\t#de-content-cfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; border: none; }\t\t.de-cfg-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\t\t.de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\t\t.de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\t\t.de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\t\t.de-cfg-body { box-sizing: content-box; min-height: 309px; width: 363px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important;}\t\t.de-cfg-body input, .de-cfg-body label, .de-cfg-body select { width: auto; padding: 0 !important; margin: 1px 2px !important; }\t\t.de-cfg-body input[type=\"button\"], .de-cfg-body input[type=\"text\"] { padding: 1px 2px !important; }\t\t.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\t\t.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\t\t#de-cfg-btns { padding: 3px; font-size: 13px !important; }\t\t#de-cfg-btns input { padding: 0 3px; }\t\t#de-cfg-bar { width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\t\t#de-cfg-bar:lang(en) { background-color: #325f9e; }\t\t#de-cfg-bar:lang(de) { background-color: #777; }\t\t.de-cfg-depend { padding-left: 25px; }\t\t.de-cfg-info-data { display: inline-block; padding: 0 8px; width: 165px; height: 255px; overflow-y: auto; border-collapse: separate; border-spacing: 1px; box-sizing: content-box; }\t\t.de-cfg-info-data > tbody > tr > td:first-child { width: 100%; }\t\t.de-cfg-info-data > tbody > tr > td:last-child { text-align: right; }\t\t.de-cfg-tab { padding: 4px 4px; border-radius: 4px 4px 0 0; font: bold 12px arial; text-align: center; cursor: default; }\t\t.de-cfg-tab-back { display: table-cell !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; }\t\t.de-cfg-tab-back:lang(de) { border-color: #444 !important; }\t\t.de-cfg-tab-back:lang(fr) { border-color: #121421 !important; }\t\t.de-cfg-tab-back[selected=\"true\"] { border-bottom: none !important; }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab { background-color: rgba(0,0,0,.2); }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:lang(en), .de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:lang(fr) { background: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover { background-color: rgba(99,99,99,.2); }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover:lang(en), .de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t\t.de-cfg-tab::" + (nav.Firefox ? "-moz-" : "") + "selection { background: transparent; }\t\t.de-cfg-unvis { display: none; }\t\t#de-spell-panel { float: right; }\t\t#de-spell-panel > a { padding: 0 4px; }\t\t#de-spell-div { display: table; }\t\t#de-spell-div > div { display: table-cell; vertical-align: top; }\t\t#de-spell-edit { padding: 2px !important; width: 333px; height: 180px; max-width: 100%; border: none !important; outline: none !important; }\t\t#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 182px; text-align: right; color: #fff; font: 12px courier new; }\t\t#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\t\t#de-spell-rowmeter:lang(de) { background-color: #777; }";
+		x += ".de-block { display: block; }\t\t#de-content-cfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; border: none; }\t\t#de-content-cfg input[type=\"button\"] { padding: 0 2px !important; margin: 0 1px !important; }\t\t.de-cfg-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\t\t.de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\t\t.de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\t\t.de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\t\t.de-cfg-body { box-sizing: content-box; min-height: 292px; width: 354px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important; }\t\t.de-cfg-body input[type=\"text\"], .de-cfg-body select { width: auto; padding: 1px 2px !important; margin: 1px 0 !important; font: 13px sans-serif !important; }\t\t.de-cfg-body input[type=\"checkbox\"] { vertical-align: text-bottom; margin: 2px 1px !important; }\t\t.de-cfg-body label { padding: 0 !important; margin: 0 !important; }\t\t.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\t\t.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\t\t#de-cfg-btns { padding: 3px; font-size: 13px !important; }\t\t#de-cfg-bar { width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\t\t#de-cfg-bar:lang(en) { background-color: #325f9e; }\t\t#de-cfg-bar:lang(de) { background-color: #777; }\t\t.de-cfg-depend { padding-left: 17px; }\t\t.de-cfg-info-data { display: inline-block; padding: 0 7px; width: 162px; height: 238px; overflow-y: auto; border-collapse: separate; border-spacing: 1px; box-sizing: content-box; }\t\t.de-cfg-info-data > tbody > tr > td:first-child { width: 100%; }\t\t.de-cfg-info-data > tbody > tr > td:last-child { text-align: right; }\t\t.de-cfg-tab { padding: 4px 3px; border-radius: 4px 4px 0 0; font: bold 12px arial; text-align: center; cursor: default; }\t\t.de-cfg-tab-back { display: table-cell !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; }\t\t.de-cfg-tab-back:lang(de) { border-color: #444 !important; }\t\t.de-cfg-tab-back:lang(fr) { border-color: #121421 !important; }\t\t.de-cfg-tab-back[selected=\"true\"] { border-bottom: none !important; }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab { background-color: rgba(0,0,0,.2); }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:lang(en), .de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:lang(fr) { background: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover { background-color: rgba(99,99,99,.2); }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover:lang(en), .de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t\t.de-cfg-tab::" + (nav.Firefox ? "-moz-" : "") + "selection { background: transparent; }\t\t.de-cfg-unvis { display: none; }\t\t#de-spell-panel { float: right; }\t\t#de-spell-panel > a { padding: 0 4px; }\t\t#de-spell-div { display: table; }\t\t#de-spell-div > div { display: table-cell; vertical-align: top; }\t\t#de-spell-edit { padding: 2px !important; width: 323px; height: 194px; max-width: 100%; border: none !important; outline: none !important; }\t\t#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 196px; text-align: right; color: #fff; font: 12px courier new; }\t\t#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\t\t#de-spell-rowmeter:lang(de) { background-color: #777; }";
 
 	
 		x += "#de-btn-logo { margin-right: 3px; cursor: pointer; }\t\t#de-panel { height: 25px; z-index: 9999; border-radius: 15px 0 0 0; cursor: default;}\t\t#de-panel-btns { display: inline-block; padding: 0 0 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\t\t#de-panel-btns:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\t\t#de-panel-btns:lang(fr), #de-panel-info:lang(fr) { border-color: #616b86; }\t\t#de-panel-btns > li { margin: 0 1px; padding: 0; }\t\t#de-panel-btns > li, #de-panel-btns > li > a, #de-btn-logo { display: inline-block; width: 25px; height: 25px; }\t\t#de-panel-btns:lang(en) > li, #de-panel-btns:lang(fr) > li  { transition: all 0.3s ease; }\t\t#de-panel-btns:lang(en) > li:hover, #de-panel-btns:lang(fr) > li:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\t\t#de-panel-btns:lang(de) > li > a { border-radius: 5px; }\t\t#de-panel-btns:lang(de) > li > a:hover { width: 21px; height: 21px; border: 2px solid #444; }\t\t#de-panel-info { vertical-align: 6px; padding: " + (nav.Chrome ? 3 : 2) + "px 6px; margin-left: 2px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }";
@@ -15063,7 +15063,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		x += cont(".de-video-link.de-vimeo", "https://vimeo.com/favicon.ico");
 		x += cont(".de-img-arch", "data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==");
 		x += cont(".de-img-audio", "data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==");
-		x += ".de-current:after { content: \" ◆\"; }\t\t.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\t\t.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\t\t.de-img-pre { max-width: 200px; max-height: 200px; }\t\t.de-img-full { float: left; }\t\t.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; -moz-box-sizing: content-box; box-sizing: content-box; }\t\t#de-img-btn-next > div, #de-img-btn-prev > div { height: 36px; width: 36px; }" + gif("#de-img-btn-next > div", "R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7") + gif("#de-img-btn-prev > div", "R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=") + "#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; margin-top: -8px; background-color: black; cursor: pointer; }\t\t#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\t\t#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\t\t.de-mp3, .de-video-obj { margin: 5px 20px; white-space: nowrap; clear: both; }\t\t.de-video-expanded > embed, .de-video-expanded > iframe, .de-video-expanded > a > img { width: 848px; height: 480px; }\t\t#de-video-list { padding: 0 0 4px; overflow-y: scroll; }\t\t.de-video-resizer:after { content: \" ➕\"; margin-right: -15px; vertical-align: 8px; color: black; font-size: 12px; cursor: pointer; }\t\t.de-video-title[de-time]:after { content: \" [\" attr(de-time) \"]\"; color: red; }\t\ttd > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\t\tvideo { background: black; }\t\t.de-vocaroo > embed { display: inline-block; }";
+		x += ".de-current:after { content: \" ◆\"; }\t\t.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\t\t.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\t\t.de-img-pre { max-width: 200px; max-height: 200px; }\t\t.de-img-full { float: left; }\t\t.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; }\t\t#de-img-btn-next > div, #de-img-btn-prev > div { height: 36px; width: 36px; }" + gif("#de-img-btn-next > div", "R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7") + gif("#de-img-btn-prev > div", "R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=") + "#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; margin-top: -8px; background-color: black; cursor: pointer; }\t\t#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\t\t#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\t\t.de-mp3, .de-video-obj { margin: 5px 20px; white-space: nowrap; clear: both; }\t\t.de-video-expanded > embed, .de-video-expanded > iframe, .de-video-expanded > a > img { width: 848px; height: 480px; }\t\t#de-video-list { padding: 0 0 4px; overflow-y: scroll; }\t\t.de-video-resizer:after { content: \" ➕\"; margin-right: -15px; vertical-align: 8px; color: black; font-size: 12px; cursor: pointer; }\t\t.de-video-title[de-time]:after { content: \" [\" attr(de-time) \"]\"; color: red; }\t\ttd > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\t\tvideo { background: black; }\t\t.de-vocaroo > embed { display: inline-block; }";
 
 	
 		p = aib.multiFile ? 90 : 130;
