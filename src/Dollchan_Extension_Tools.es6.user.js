@@ -6909,7 +6909,7 @@ function getSubmitError(dc) {
 
 var doUploading = async(function* (getProgress) {
 	$alert(Lng.sendingPost[lang] +
-		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none"></progress><div style="display: none"><span></span> / <span></span> (<span></span>)</div>', 'upload', true);
+		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;"></progress><div style="display: none; font: bold 12px sans-serif;"><span></span> / <span></span> (<span></span>)</div>', 'upload', true);
 	let beginTime = Date.now(),
 		inited = false,
 		progress = $id('de-uploadprogress'),
@@ -6943,7 +6943,7 @@ var doUploading = async(function* (getProgress) {
 		counterEl.textContent = prettifySize(loaded);
 		speedEl.textContent = prettifySize((loaded / (Date.now() - beginTime)) * 1e3) + '/' + Lng.second[lang];
 	}
-	$alert(Lng.internalError[lang] + getPrettyErrorMessage(new Error()), 'upload', false)
+	$alert(Lng.internalError[lang] + getPrettyErrorMessage(new Error()), 'upload', false);
 });
 
 function checkUpload(dc) {

@@ -9455,7 +9455,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		return regeneratorRuntime.wrap(function callee$1$3$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					$alert(Lng.sendingPost[lang] + "<br><progress id=\"de-uploadprogress\" value=\"0\" max=\"1\" style=\"display: none\"></progress><div style=\"display: none\"><span></span> / <span></span> (<span></span>)</div>", "upload", true);
+					$alert(Lng.sendingPost[lang] + "<br><progress id=\"de-uploadprogress\" value=\"0\" max=\"1\" style=\"display: none; width: 200px;\"></progress><div style=\"display: none; font: bold 12px sans-serif;\"><span></span> / <span></span> (<span></span>)</div>", "upload", true);
 					beginTime = Date.now(), inited = false, progress = $id("de-uploadprogress"), counterWrap = progress.nextSibling, counterEl = counterWrap.firstChild, totalEl = counterEl.nextElementSibling, speedEl = totalEl.nextElementSibling;
 					p = undefined;
 
