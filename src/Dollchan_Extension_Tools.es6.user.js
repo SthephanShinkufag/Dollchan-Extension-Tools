@@ -11852,23 +11852,23 @@ function scriptCSS() {
 	// Settings window
 	x += '.de-block { display: block; }\
 		#de-content-cfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; border: none; }\
-		#de-content-cfg input[type="button"] { padding: 0 2px !important; margin: 0 1px !important; }\
+		#de-content-cfg input[type="button"] { padding: 0 2px; margin: 0 1px; height: 24px; }\
 		.de-cfg-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		.de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		.de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
 		.de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
-		.de-cfg-body { box-sizing: content-box; min-height: 292px; width: 354px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important; }\
-		.de-cfg-body input[type="text"], .de-cfg-body select { width: auto; padding: 1px 2px !important; margin: 1px 0 !important; font: 13px sans-serif !important; }\
-		.de-cfg-body input[type="checkbox"] { vertical-align: text-bottom; margin: 2px 1px !important; }\
-		.de-cfg-body label { padding: 0 !important; margin: 0 !important; }\
+		.de-cfg-body { min-height: 292px; width: 354px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
+		.de-cfg-body input[type="text"], .de-cfg-body select { width: auto; padding: 1px 2px; margin: 1px 0; font: 13px sans-serif; }\
+		.de-cfg-body input[type="checkbox"] { ' + (nav.Presto ? '' : 'vertical-align: -1px; ') + 'margin: 2px 1px; }\
+		.de-cfg-body label { padding: 0; margin: 0; }\
 		.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\
 		.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\
-		#de-cfg-btns { padding: 3px; font-size: 13px !important; }\
+		#de-cfg-btns { padding: 3px; font-size: 13px; }\
 		#de-cfg-bar { width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\
 		#de-cfg-bar:lang(en) { background-color: #325f9e; }\
 		#de-cfg-bar:lang(de) { background-color: #777; }\
 		.de-cfg-depend { padding-left: 17px; }\
-		.de-cfg-info-data { display: inline-block; padding: 0 7px; width: 162px; height: 238px; overflow-y: auto; border-collapse: separate; border-spacing: 1px; box-sizing: content-box; }\
+		.de-cfg-info-data { display: inline-block; padding: 0 7px; width: 162px; height: 238px; overflow-y: auto; border-collapse: separate; border-spacing: 1px; box-sizing: content-box; -moz-box-sizing: content-box; }\
 		.de-cfg-info-data > tbody > tr > td:first-child { width: 100%; }\
 		.de-cfg-info-data > tbody > tr > td:last-child { text-align: right; }\
 		.de-cfg-tab { padding: 4px 3px; border-radius: 4px 4px 0 0; font: bold 12px arial; text-align: center; cursor: default; }\
@@ -12059,7 +12059,7 @@ function scriptCSS() {
 		.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
 		.de-img-pre { max-width: 200px; max-height: 200px; }\
 		.de-img-full { float: left; }\
-		.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; }\
+		.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
 		#de-img-btn-next > div, #de-img-btn-prev > div { height: 36px; width: 36px; }' +
 		gif('#de-img-btn-next > div', 'R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7') +
 		gif('#de-img-btn-prev > div', 'R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=') +
