@@ -6857,7 +6857,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				temp_.reverse();
 			}
 			spell += "(";
-			if (val[0].length !== 0) {
+			if (val[0].length) {
 				spell += val[0].join(",") + (temp_ ? "," : "");
 			}
 			if (temp_) {
@@ -7033,7 +7033,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						nData.push([temp[2], temp[3]]);
 					}
 				});
-				return nData.length === 0 ? false : nData;
+				return !nData.length ? false : nData;
 			}
 			return false;
 		},
@@ -7432,10 +7432,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				this._setError(Lng.seMissSpell[lang], null);
 				return null;
 			}
-			if (reps.length === 0) {
+			if (!reps.length) {
 				reps = false;
 			}
-			if (outreps.length === 0) {
+			if (!outreps.length) {
 				outreps = false;
 			}
 			return [spells, reps, outreps];
@@ -8416,7 +8416,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				} else {
 					el.obj = last = new FileInput(this, el, last);
 					last.init(false);
-					if (clear && el.files && el.files.length !== 0) {
+					if (clear && el.files && el.files.length) {
 						last.clear();
 					}
 				}
@@ -9056,13 +9056,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				m = text.match(/^(\s*)(.*?)(\s*)$/);
 				str = m[1] + "[" + tag + "]" + m[2] + "[/" + tag + "]" + m[3];
-				return [m[2].length === 0 ? m[1].length + tag.length + 2 : str.length, str];
+				return [!m[2].length ? m[1].length + tag.length + 2 : str.length, str];
 			}
 			for (var rv = "", i = 0, arr = text.split("\n"), len = arr.length; i < len; ++i) {
 				m = arr[i].match(/^(\s*)(.*?)(\s*)$/);
 				rv += "\n" + m[1] + (tag === "^H" ? m[2] + "^H".repeat(m[2].length) : tag + m[2] + tag) + m[3];
 			}
-			return [i === 1 && m[2].length === 0 && tag !== "^H" ? m[1].length + tag.length : rv.length - 1, rv.slice(1)];
+			return [i === 1 && !m[2].length && tag !== "^H" ? m[1].length + tag.length : rv.length - 1, rv.slice(1)];
 		}
 	}, {
 		fileArea: {
@@ -10306,7 +10306,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 				}
 				imgs = post.images;
-			} while (imgs.length === 0);
+			} while (!imgs.length);
 			return isForward ? imgs.first : imgs.last;
 		},
 		getFullObject: function getFullObject() {
@@ -12154,7 +12154,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						rRef.push(oRef[i]);
 					}
 					op.ref = rRef;
-					if (rRef.length !== 0) {
+					if (rRef.length) {
 						op.hasRef = true;
 						addRefMap(op, this._tUrl);
 					}
@@ -12228,10 +12228,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		var i,
 		    el,
 		    len,
+		    num,
 		    bStr = "<a " + aib.rLinkClick + " href=\"" + tUrl + aib.anchor,
+		    strNums = Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
 		    html = ["<div class=\"de-refmap\">"];
 		for (i = 0, el = post.ref, len = el.length; i < len; ++i) {
-			html.push(bStr, el[i], "\" class=\"de-link-ref\">&gt;&gt;", el[i], "</a><span class=\"de-refcomma\">, </span>");
+			num = el[i];
+			html.push(bStr, num, "\" class=\"de-link-ref ", strNums && strNums.indexOf(+num) !== -1 ? "de-link-hid" : "", "\">&gt;&gt;", num, "</a><span class=\"de-refcomma\">, </span>");
 		}
 		html.push("</div>");
 		if (aib.dobr) {
@@ -12290,7 +12293,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    len,
 		    links,
 		    pNum = post.num,
-		    strNums = add && Cfg.strikeHidd && Post.hiddenNums.length !== 0 ? Post.hiddenNums : null,
+		    strNums = add && Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
 		    opNums = add && dForm.tNums;
 		for (i = 0, links = $T("a", post.msg), len = links.length; i < len; ++i) {
 			link = links[i];
@@ -12327,7 +12330,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						continue;
 					}
 					ref.splice(idx, 1);
-					if (ref.length === 0) {
+					if (!ref.length) {
 						lPost.hasRef = false;
 						$del($c("de-refmap", lPost.el));
 						continue;
