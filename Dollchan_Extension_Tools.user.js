@@ -2458,8 +2458,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return readFileArrayBuffer(value);
 
 				case 17:
-					context$2$0.t27 = context$2$0.sent;
-					data = cleanFile(context$2$0.t27, el.obj.imgFile);
+					context$2$0.t29 = context$2$0.sent;
+					data = cleanFile(context$2$0.t29, el.obj.imgFile);
 
 					if (data) {
 						context$2$0.next = 21;
@@ -2492,9 +2492,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 31:
 					context$2$0.prev = 31;
-					context$2$0.t28 = context$2$0["catch"](4);
+					context$2$0.t30 = context$2$0["catch"](4);
 					_didIteratorError = true;
-					_iteratorError = context$2$0.t28;
+					_iteratorError = context$2$0.t30;
 
 				case 35:
 					context$2$0.prev = 35;
@@ -2601,10 +2601,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 4:
 					new Logger().log("Init");
-					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t33", 6);
+					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t35", 6);
 
 				case 6:
-					str = context$2$0.t33;
+					str = context$2$0.t35;
 
 					if (!(str && str.contains(aib.dm))) {
 						context$2$0.next = 9;
@@ -2615,7 +2615,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 9:
 					excludeList = str || "";
-					return context$2$0.delegateYield(readCfg(), "t34", 11);
+					return context$2$0.delegateYield(readCfg(), "t36", 11);
 
 				case 11:
 					new Logger().log("Config loading");
@@ -2644,9 +2644,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 26:
 					context$2$0.prev = 26;
-					context$2$0.t35 = context$2$0["catch"](22);
+					context$2$0.t37 = context$2$0["catch"](22);
 
-					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t35));
+					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t37));
 					doc.body.style.display = "";
 					return context$2$0.abrupt("return");
 
@@ -2679,10 +2679,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 					new Logger().log("Scroll page");
 					readPosts();
-					return context$2$0.delegateYield(readUserPosts(), "t36", 48);
+					return context$2$0.delegateYield(readUserPosts(), "t38", 48);
 
 				case 48:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t37", 49);
+					return context$2$0.delegateYield(readFavoritesPosts(), "t39", 49);
 
 				case 49:
 					setTimeout(PostContent.purge, 0);
@@ -6790,7 +6790,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}, callee$1$1, this, [[13, 20], [24, 28]]);
 	}));
 
-	function infoLoadErrors(e, newPosts) {
+	function infoLoadErrors(e) {
+		var showError = arguments[1] === undefined ? true : arguments[1];
+
 		var isAjax = e instanceof AjaxError,
 		    eCode = isAjax ? e.code : 0;
 		if (eCode === 200 || eCode === 304) {
@@ -6799,7 +6801,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			$alert(e.message || Lng.noConnect[lang], "newposts", false);
 		} else {
 			$alert(Lng.thrNotFound[lang] + TNum + "): \n" + getErrorMessage(e), "newposts", false);
-			if (newPosts !== -1) {
+			if (showError) {
 				doc.title = "{" + eCode + "} " + doc.title;
 			}
 		}
@@ -9567,7 +9569,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}, function (e) {
 					return e;
 				}).then(function (e) {
-					infoLoadErrors(e, 0);
+					infoLoadErrors(e);
 					if (Cfg.scrAfterRep) {
 						scrollTo(0, window.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
 					}
@@ -9589,59 +9591,139 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		pr.filesCount = 0;
 	}
 
-	function endDelete() {
-		var el = $id("de-alert-deleting");
-		if (el) {
-			closeAlert(el);
-			$alert(Lng.succDeleted[lang], "deleted", false);
-		}
-	}
+	var checkDelete = async(regeneratorRuntime.mark(function callee$1$4(dc) {
+		var err, _ref, _ref2, num, post, els, threads, i, _len, el, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, thr;
 
-	function checkDelete(dc) {
-		var el,
-		    i,
-		    els,
-		    len,
-		    post,
-		    tNums,
-		    num,
-		    err = getSubmitError(dc);
-		if (err) {
-			$alert(Lng.errDelete[lang] + err, "deleting", false);
-			updater.sendErrNotif();
-			return;
-		}
-		tNums = [];
-		num = (doc.location.hash.match(/\d+/) || [null])[0];
-		if (num && (post = pByNum[num])) {
-			if (!post.isOp) {
-				post.el.className = aib.cReply;
+		return regeneratorRuntime.wrap(function callee$1$4$(context$2$0) {
+			while (1) switch (context$2$0.prev = context$2$0.next) {
+				case 0:
+					err = getSubmitError(dc);
+
+					if (!err) {
+						context$2$0.next = 5;
+						break;
+					}
+
+					$alert(Lng.errDelete[lang] + err, "delete", false);
+					updater.sendErrNotif();
+					return context$2$0.abrupt("return");
+
+				case 5:
+					_ref = doc.location.hash.match(/\d+/) || [];
+					_ref2 = _slicedToArray(_ref, 1);
+					num = _ref2[0];
+
+					if (num) {
+						post = pByNum[num];
+
+						if (post) {
+							if (!post.isOp) {
+								post.el.className = aib.cReply;
+							}
+							doc.location.hash = "";
+						}
+					}
+					els = $Q("." + aib.cRPost + " input:checked", dForm.el);
+					threads = new Set();
+
+					for (i = 0, _len = els.length; i < _len; ++i) {
+						el = els[i];
+
+						el.checked = false;
+						if (!TNum) {
+							threads.add(aib.getPostEl(el).post.thr);
+						}
+					}
+
+					if (!TNum) {
+						context$2$0.next = 24;
+						break;
+					}
+
+					dForm.firstThr.clearPostsMarks();
+					context$2$0.prev = 14;
+					context$2$0.next = 17;
+					return dForm.firstThr.loadNew(false);
+
+				case 17:
+					context$2$0.next = 22;
+					break;
+
+				case 19:
+					context$2$0.prev = 19;
+					context$2$0.t27 = context$2$0["catch"](14);
+
+					infoLoadErrors(context$2$0.t27);
+
+				case 22:
+					context$2$0.next = 50;
+					break;
+
+				case 24:
+					_iteratorNormalCompletion = true;
+					_didIteratorError = false;
+					_iteratorError = undefined;
+					context$2$0.prev = 27;
+					_iterator = threads[Symbol.iterator]();
+
+				case 29:
+					if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+						context$2$0.next = 36;
+						break;
+					}
+
+					thr = _step.value;
+					context$2$0.next = 33;
+					return thr.load(visPosts, false, false);
+
+				case 33:
+					_iteratorNormalCompletion = true;
+					context$2$0.next = 29;
+					break;
+
+				case 36:
+					context$2$0.next = 42;
+					break;
+
+				case 38:
+					context$2$0.prev = 38;
+					context$2$0.t28 = context$2$0["catch"](27);
+					_didIteratorError = true;
+					_iteratorError = context$2$0.t28;
+
+				case 42:
+					context$2$0.prev = 42;
+					context$2$0.prev = 43;
+
+					if (!_iteratorNormalCompletion && _iterator["return"]) {
+						_iterator["return"]();
+					}
+
+				case 45:
+					context$2$0.prev = 45;
+
+					if (!_didIteratorError) {
+						context$2$0.next = 48;
+						break;
+					}
+
+					throw _iteratorError;
+
+				case 48:
+					return context$2$0.finish(45);
+
+				case 49:
+					return context$2$0.finish(42);
+
+				case 50:
+					$alert(Lng.succDeleted[lang], "delete", false);
+
+				case 51:
+				case "end":
+					return context$2$0.stop();
 			}
-			doc.location.hash = "";
-		}
-		for (i = 0, els = $Q("." + aib.cRPost + " input:checked", dForm.el), len = els.length; i < len; ++i) {
-			el = els[i];
-			el.checked = false;
-			if (!TNum && tNums.indexOf(num = aib.getPostEl(el).post.tNum) === -1) {
-				tNums.push(num);
-			}
-		}
-		if (TNum) {
-			dForm.firstThr.clearPostsMarks();
-			dForm.firstThr.loadNew(false).then(function () {
-				return AjaxError.Success;
-			}, function (e) {
-				return e;
-			}).then(function (e) {
-				infoLoadErrors(e, 0);
-				endDelete();
-			}, false);
-		} else {
-			tNums.forEach(function (tNum) {
-				pByNum[tNum].thr.load(visPosts, false, false).then(endDelete);
-			});
-		}
-	}
+		}, callee$1$4, this, [[14, 19], [27, 38, 42, 50], [43,, 45, 49]]);
+	}));
 
 	function readFileArrayBuffer(file) {
 		return new Promise(function (resolve, reject) {
@@ -11806,7 +11888,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
-						return context$3$0.delegateYield(_this.data, "t29", 1);
+						return context$3$0.delegateYield(_this.data, "t31", 1);
 
 					case 1:
 					case "end":
@@ -12496,11 +12578,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 			closeAlert($id("de-alert-load-thr"));
 		},
-		loadNew: async(regeneratorRuntime.mark(function callee$1$4(useAPI) {
+		loadNew: async(regeneratorRuntime.mark(function callee$1$5(useAPI) {
 			var _this = this;
 
 			var json;
-			return regeneratorRuntime.wrap(function callee$1$4$(context$2$0) {
+			return regeneratorRuntime.wrap(function callee$1$5$(context$2$0) {
 				while (1) switch (context$2$0.prev = context$2$0.next) {
 					case 0:
 						if (!(aib.dobr && useAPI)) {
@@ -12550,14 +12632,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return ajaxLoad(aib.getThrdUrl(brd, TNum));
 
 					case 18:
-						context$2$0.t30 = context$2$0.sent;
-						return context$2$0.abrupt("return", _this.loadNewFromForm(context$2$0.t30));
+						context$2$0.t32 = context$2$0.sent;
+						return context$2$0.abrupt("return", _this.loadNewFromForm(context$2$0.t32));
 
 					case 20:
 					case "end":
 						return context$2$0.stop();
 				}
-			}, callee$1$4, this);
+			}, callee$1$5, this);
 		})),
 		loadNewFromForm: function loadNewFromForm(form) {
 			this._checkBans(dForm.firstThr.op, form);
@@ -14264,9 +14346,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					btn.onclick = function (e) {
 						$pd(e);
 						pr.closeQReply();
-						$alert(Lng.deleting[lang], "deleting", true);
+						$alert(Lng.deleting[lang], "delete", true);
 						spawn(html5Submit, _this.el).then(checkDelete, function (e) {
-							return $alert(getErrorMessage(e), "deleting", false);
+							return $alert(getErrorMessage(e), "delete", false);
 						});
 					};
 				}
@@ -14481,7 +14563,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 
 		startLoad = async(regeneratorRuntime.mark(function callee$2$0(needSleep) {
-			var checked4XX, delay, repeatLoading, stopToken, seconds, _error, lPosts, post, notif;
+			var checked4XX, delay, repeatLoading, stopToken, seconds, _error, lPosts, eCode, post, notif;
 
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
@@ -14536,9 +14618,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 19:
 						context$3$0.prev = 19;
-						context$3$0.t31 = context$3$0["catch"](3);
+						context$3$0.t33 = context$3$0["catch"](3);
 
-						if (!(context$3$0.t31 instanceof StopLoadingTaskError)) {
+						if (!(context$3$0.t33 instanceof StopLoadingTaskError)) {
 							context$3$0.next = 23;
 							break;
 						}
@@ -14568,9 +14650,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 34:
 						context$3$0.prev = 34;
-						context$3$0.t32 = context$3$0["catch"](28);
+						context$3$0.t34 = context$3$0["catch"](28);
 
-						if (!(context$3$0.t32 instanceof StopLoadingTaskError)) {
+						if (!(context$3$0.t34 instanceof StopLoadingTaskError)) {
 							context$3$0.next = 38;
 							break;
 						}
@@ -14578,50 +14660,59 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return context$3$0.abrupt("return");
 
 					case 38:
-						_error = context$3$0.t32;
+						_error = context$3$0.t34;
 
 					case 39:
-						infoLoadErrors(_error, -1);
-						lastECode = _error instanceof AjaxError ? _error.code : 0;
+						infoLoadErrors(_error, false);
+						eCode = _error instanceof AjaxError ? _error.code : 0;
 
-						if (!(lastECode !== 200 && lastECode !== 304)) {
-							context$3$0.next = 54;
+						if (!(eCode !== 200 && eCode !== 304)) {
+							context$3$0.next = 57;
 							break;
 						}
 
+						lastECode = eCode;
 						if (Cfg.favIcoBlink && !focused && favHref) {
 							clearInterval(favIntrv);
 							favIntrv = setInterval(favIcoBlink.bind("iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAA3" + "NCSVQICAjb4U/gAAAALVBMVEX////QRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdi" + "Ad5MAAAAD3RSTlMAESIzRFVmd4iZu8zd7v9ufV8LAAAACXBIWXMAAAsSAAALEgHS3X78AAAAFXRFWHRDcmVhdG" + "lvbiBUaW1lADEwLzIvMTOFMzGTAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAAH9J" + "REFUCJljYEAAjbO3C0E067l37946ABlxLxWY6q4wMDDde+PAwPxGgYHj5bnLDAx1BQw8j3yBKvQ2MPA9YL53mI" + "HvAJDB4PPOAMjgfsTA/O4wUIrjOQODzdt5CQyM9wwYmO+9EWBg8H2uwDTvMdBkFqAVbwxAlqmvOV2I5AYASFUr" + "cXUe0gcAAAAASUVORK5CYII="), 800);
 						}
 
-						if (!(lastECode !== 0 && lastECode < 500)) {
-							context$3$0.next = 51;
+						if (!(eCode !== 0 && eCode < 500)) {
+							context$3$0.next = 52;
 							break;
 						}
 
-						if (!(!checked4XX && (lastECode === 404 || lastECode === 400))) {
-							context$3$0.next = 48;
+						if (!(!checked4XX && (eCode === 404 || eCode === 400))) {
+							context$3$0.next = 49;
 							break;
 						}
 
 						checked4XX = true;
-						context$3$0.next = 51;
+						context$3$0.next = 52;
 						break;
 
-					case 48:
+					case 49:
 						updateTitle();
 						disable(false);
 						return context$3$0.abrupt("return");
 
-					case 51:
+					case 52:
 						if (!Cfg.noErrInTitle) {
 							updateTitle();
 						}
 						setState("warn");
-						return context$3$0.abrupt("continue", 56);
+						return context$3$0.abrupt("continue", 60);
 
-					case 54:
-						setState("on");
+					case 57:
+						if (lastECode !== 200) {
+							setState("on");
+							if (!Cfg.noErrInTitle) {
+								updateTitle();
+							}
+						}
+
+					case 58:
+						lastECode = eCode;
 						if (!focused) {
 							if (lPosts !== 0) {
 								if (Cfg.favIcoBlink && favHref && newPosts === 0) {
@@ -14656,16 +14747,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							}
 						}
 
-					case 56:
+					case 60:
 						if (repeatLoading) {
 							context$3$0.next = 2;
 							break;
 						}
 
-					case 57:
+					case 61:
 						stopLoad = emptyFn;
 
-					case 58:
+					case 62:
 					case "end":
 						return context$3$0.stop();
 				}
@@ -14673,12 +14764,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}));
 
 		function setState(state) {
-			var btn = stateButton || (stateButton = $q("a[id^=\"de-btn-upd\"]", doc)),
-			    newId = "de-btn-upd-" + state;
-			if (btn.id !== newId) {
-				btn.id = newId;
-				btn.title = Lng.panelBtn["upd-" + (state === "off" ? "off" : "on")][lang];
-			}
+			var btn = stateButton || (stateButton = $q("a[id^=\"de-btn-upd\"]", doc));
+			btn.id = "de-btn-upd-" + state;
+			btn.title = Lng.panelBtn["upd-" + (state === "off" ? "off" : "on")][lang];
 		}
 
 		function onVis() {

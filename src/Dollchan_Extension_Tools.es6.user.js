@@ -4514,7 +4514,7 @@ var loadPages = async(function* (count) {
 	dForm.show();
 });
 
-function infoLoadErrors(e, newPosts) {
+function infoLoadErrors(e, showError = true) {
 	var isAjax = e instanceof AjaxError,
 		eCode = isAjax ? e.code : 0;
 	if(eCode === 200 || eCode === 304) {
@@ -4523,7 +4523,7 @@ function infoLoadErrors(e, newPosts) {
 		$alert(e.message || Lng.noConnect[lang], 'newposts', false);
 	} else {
 		$alert(Lng.thrNotFound[lang] + TNum + '): \n' + getErrorMessage(e), 'newposts', false);
-		if(newPosts !== -1) {
+		if(showError) {
 			doc.title = '{' + eCode + '} ' + doc.title;
 		}
 	}
@@ -6990,7 +6990,7 @@ function checkUpload(dc) {
 			closeAlert($id('de-alert-upload'));
 		} else {
 			dForm.firstThr.loadNew(true).then(() => AjaxError.Success, e => e).then(e => {
-				infoLoadErrors(e, 0);
+				infoLoadErrors(e);
 				if(Cfg.scrAfterRep) {
 					scrollTo(0, window.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
 				}
@@ -7011,48 +7011,46 @@ function checkUpload(dc) {
 	pr.filesCount = 0;
 }
 
-function endDelete() {
-	var el = $id('de-alert-deleting');
-	if(el) {
-		closeAlert(el);
-		$alert(Lng.succDeleted[lang], 'deleted', false);
-	}
-}
-
-function checkDelete(dc) {
-	var el, i, els, len, post, tNums, num, err = getSubmitError(dc);
+var checkDelete = async(function* (dc) {
+	let err = getSubmitError(dc);
 	if(err) {
-		$alert(Lng.errDelete[lang] + err, 'deleting', false);
+		$alert(Lng.errDelete[lang] + err, 'delete', false);
 		updater.sendErrNotif();
 		return;
 	}
-	tNums = [];
-	num = (doc.location.hash.match(/\d+/) || [null])[0];
-	if(num && (post = pByNum[num])) {
-		if(!post.isOp) {
-			post.el.className = aib.cReply;
+	let [num] = doc.location.hash.match(/\d+/) || [];
+	if(num) {
+		let post = pByNum[num];
+		if(post) {
+			if(!post.isOp) {
+				post.el.className = aib.cReply;
+			}
+			doc.location.hash = '';
 		}
-		doc.location.hash = '';
 	}
-	for(i = 0, els = $Q('.' + aib.cRPost + ' input:checked', dForm.el), len = els.length; i < len; ++i) {
-		el = els[i];
+	let els = $Q('.' + aib.cRPost + ' input:checked', dForm.el);
+	let threads = new Set();
+	for(let i = 0, len = els.length; i < len; ++i) {
+		let el = els[i];
 		el.checked = false;
-		if(!TNum && tNums.indexOf(num = aib.getPostEl(el).post.tNum) === -1) {
-			tNums.push(num);
+		if(!TNum) {
+			threads.add(aib.getPostEl(el).post.thr);
 		}
 	}
 	if(TNum) {
 		dForm.firstThr.clearPostsMarks();
-		dForm.firstThr.loadNew(false).then(() => AjaxError.Success, e => e).then(e => {
-			infoLoadErrors(e, 0);
-			endDelete();
-		}, false);
+		try {
+			yield dForm.firstThr.loadNew(false);
+		} catch(e) {
+			infoLoadErrors(e);
+		}
 	} else {
-		tNums.forEach(function(tNum) {
-			pByNum[tNum].thr.load(visPosts, false, false).then(endDelete);
-		});
+		for(let thr of threads) {
+			yield thr.load(visPosts, false, false);
+		}
 	}
-}
+	$alert(Lng.succDeleted[lang], 'delete', false);
+});
 
 function* html5Submit(form, needProgress = false) {
 	var formData = new FormData();
@@ -7079,18 +7077,18 @@ function* html5Submit(form, needProgress = false) {
 		let lastFuncs = null;
 		let promises = [new Promise((resolve, reject) => lastFuncs = {resolve, reject})];
 		$ajax(form.action, {method: 'POST', data: formData, onprogress: e => {
-			lastFuncs.resolve({ done: false, data: { loaded: e.loaded, total: e.total } });
+			lastFuncs.resolve({ done: false, data: {loaded: e.loaded, total: e.total} });
 			promises.push(new Promise((resolve, reject) => lastFuncs = {resolve, reject}));
 		}}).then(xhr => {
 			if(xhr.status === 200) {
-				lastFuncs.resolve({ done: true, data: $DOM(xhr.responseText) });
+				lastFuncs.resolve({done: true, data: $DOM(xhr.responseText)});
 			} else {
 				lastFuncs.reject(new AjaxError(xhr.status, xhr.statusText));
 			}
 		});
 		return () => promises.splice(0, 1)[0];
 	} else {
-		let xhr = yield $ajax(form.action, {method: 'POST', data: formData, });
+		let xhr = yield $ajax(form.action, {method: 'POST', data: formData});
 		if(xhr.status === 200) {
 			return $DOM(xhr.responseText);
 		}
@@ -11258,9 +11256,9 @@ DelForm.prototype = {
 				btn.onclick = e => {
 					$pd(e);
 					pr.closeQReply();
-					$alert(Lng.deleting[lang], 'deleting', true);
+					$alert(Lng.deleting[lang], 'delete', true);
 					spawn(html5Submit, this.el)
-						.then(checkDelete, e => $alert(getErrorMessage(e), 'deleting', false));
+						.then(checkDelete, e => $alert(getErrorMessage(e), 'delete', false));
 				};
 			}
 		} else if(Cfg.ajaxReply === 1) {
@@ -11502,9 +11500,10 @@ function initThreadUpdater(title, enableUpdate) {
 				}
 				error = e;
 			}
-			infoLoadErrors(error, -1);
-			lastECode = error instanceof AjaxError ? error.code : 0;
-			if(lastECode !== 200 && lastECode !== 304) {
+			infoLoadErrors(error, false);
+			let eCode = error instanceof AjaxError ? error.code : 0;
+			if(eCode !== 200 && eCode !== 304) {
+				lastECode = eCode;
 				if(Cfg.favIcoBlink && !focused && favHref) {
 					clearInterval(favIntrv);
 					favIntrv = setInterval(favIcoBlink.bind('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAA3' +
@@ -11515,8 +11514,8 @@ function initThreadUpdater(title, enableUpdate) {
 						'HvAJDB4PPOAMjgfsTA/O4wUIrjOQODzdt5CQyM9wwYmO+9EWBg8H2uwDTvMdBkFqAVbwxAlqmvOV2I5AYASFUr' +
 						'cXUe0gcAAAAASUVORK5CYII='), 800);
 				}
-				if(lastECode !== 0 && lastECode < 500) {
-					if(!checked4XX && (lastECode === 404 || lastECode === 400)) {
+				if(eCode !== 0 && eCode < 500) {
+					if(!checked4XX && (eCode === 404 || eCode === 400)) {
 						checked4XX = true;
 					} else {
 						updateTitle();
@@ -11529,8 +11528,13 @@ function initThreadUpdater(title, enableUpdate) {
 				}
 				setState('warn');
 				continue;
+			} else if(lastECode !== 200) {
+				setState('on');
+				if(!Cfg.noErrInTitle) {
+					updateTitle();
+				}
 			}
-			setState('on');
+			lastECode = eCode;
 			if(!focused) {
 				if(lPosts !== 0) {
 					if(Cfg.favIcoBlink && favHref && newPosts === 0) {
@@ -11575,12 +11579,9 @@ function initThreadUpdater(title, enableUpdate) {
 	});
 		
 	function setState(state) {
-		var btn = stateButton || (stateButton = $q('a[id^="de-btn-upd"]', doc)),
-			newId = 'de-btn-upd-' + state;
-		if(btn.id !== newId) {
-			btn.id = newId
-			btn.title = Lng.panelBtn['upd-' + (state === 'off' ? 'off' : 'on')][lang];
-		}
+		var btn = stateButton || (stateButton = $q('a[id^="de-btn-upd"]', doc));
+		btn.id = 'de-btn-upd-' + state
+		btn.title = Lng.panelBtn['upd-' + (state === 'off' ? 'off' : 'on')][lang];
 	}
 
 	function onVis() {
