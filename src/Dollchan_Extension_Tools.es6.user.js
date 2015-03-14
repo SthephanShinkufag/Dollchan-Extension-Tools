@@ -12089,7 +12089,7 @@ function scriptCSS() {
 		.de-file > div { display: table; width: 100%; height: 100%; cursor: pointer; }\
 		.de-file > div > div { display: table-cell; vertical-align: middle; }\
 		.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -' + (p + 2) + 'px !important; vertical-align: top; width: ' + (p + 2) + 'px !important; height: ' + (p + 2) + 'px; border: none !important; cursor: pointer; }\
-		#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width:100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\
+		#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\
 		.de-file-drag { background: rgba(88, 88, 88, 0.4); border: 1px solid grey; }\
 		.de-file-hover > .de-file-utils { display: block; position: relative; margin: -18px 2px; }\
 		.de-file-img > img, .de-file-img > video { max-width: ' + (p - 4) + 'px; max-height: ' + (p - 4) + 'px; }\
@@ -12239,7 +12239,7 @@ function updateCSS() {
 		x += 'blockquote, blockquote > p, .code_part { height: auto !important; max-height: 100% !important; overflow: visible !important; }';
 	}
 	if(Cfg.widePosts) {
-		x += '.' + aib.cReply.replace(/\s/, '.') + ' { width: 100%; }';
+		x += '.' + aib.cReply.replace(/\s/, '.') + ':not(.de-pview) { width: 100%; }';
 	}
 	if(Cfg.noBoardRule) {
 		x += (aib.futa ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
