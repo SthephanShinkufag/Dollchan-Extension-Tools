@@ -14667,7 +14667,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						eCode = _error instanceof AjaxError ? _error.code : 0;
 
 						if (!(eCode !== 200 && eCode !== 304)) {
-							context$3$0.next = 57;
+							context$3$0.next = 55;
 							break;
 						}
 
@@ -14701,18 +14701,19 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							updateTitle();
 						}
 						setState("warn");
-						return context$3$0.abrupt("continue", 60);
+						return context$3$0.abrupt("continue", 57);
 
-					case 57:
-						if (lastECode !== 200) {
+					case 55:
+						if (lastECode === 200) {
+							lastECode = eCode;
+						} else {
+							lastECode = eCode;
+							clearInterval(favIntrv);
 							setState("on");
 							if (!Cfg.noErrInTitle) {
 								updateTitle();
 							}
 						}
-
-					case 58:
-						lastECode = eCode;
 						if (!focused) {
 							if (lPosts !== 0) {
 								if (Cfg.favIcoBlink && favHref && newPosts === 0) {
@@ -14747,16 +14748,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							}
 						}
 
-					case 60:
+					case 57:
 						if (repeatLoading) {
 							context$3$0.next = 2;
 							break;
 						}
 
-					case 61:
+					case 58:
 						stopLoad = emptyFn;
 
-					case 62:
+					case 59:
 					case "end":
 						return context$3$0.stop();
 				}
@@ -15167,7 +15168,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	
 		x += cont(".de-wait", "data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7");
-		x += ".de-abtn { text-decoration: none !important; outline: none; }\t\t.de-after-fimg { clear: left; }\t\t#de-alert { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\t\t#de-alert > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\t\t.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\t\t.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\t\t.de-alert-msg { display: inline-block; }\t\t.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; " + (nav.Presto ? "" : "resize: none !important; ") + "}\t\t.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t\t.de-content-block > input { margin: 0 4px; }\t\t#de-content-fav, #de-content-hid, #de-content-vid { font-size: 16px; padding: 10px; border: 1px solid gray; border-radius: 8px; }\t\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t\t.de-entry { display: block !important; float: none !important; width: auto; max-width: 100% !important; margin: 2px 0 !important; padding: 0 !important; border: none; font-size: 14px; " + (nav.Presto ? "white-space: nowrap; " : "") + "}\t\t.de-entry > a { text-decoration: none; border: none; }\t\t.de-entry > input { margin: 2px 4px; }\t\t.de-fav-inf-err { color: #c33; font-size: 12px; }\t\t.de-fav-inf-new { color: #424f79; }\t\t.de-fav-inf-new:before { content: \"+ \"; }\t\t.de-fav-inf-old { color: #4f7942; }\t\t.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\t\t.de-fav-title { margin-right: 15px; }\t\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t\t.de-link-hid { text-decoration: line-through !important; }\t\t.de-link-parent { outline: 1px dotted !important; }\t\t.de-link-pview { font-weight: bold; }\t\t.de-link-ref { text-decoration: none; }\t\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t\t.de-menu-item:hover { background-color: #222; color: #fff; }\t\t.de-new-post { " + (nav.Presto ? "border-left: 4px solid blue; border-right: 4px solid blue; }" : "box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }") + "\t\t.de-omitted { color: grey; font-style: italic; }\t\t.de-omitted:before { content: \"" + Lng.postsOmitted[lang] + "\"; }\t\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\t\t.de-pview-info { padding: 3px 6px !important; }\t\t.de-ref-op:after { content: \" [OP]\"; }\t\t.de-ref-del:after { content: \" [del]\"; }\t\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\t\t.de-refmap:before { content: \"" + Lng.replies[lang] + " \"; }\t\t.de-refcomma:last-child { display: none; }\t\t.de-selected, .de-error-key { " + (nav.Presto ? "border-left: 4px solid red; border-right: 4px solid red; }" : "box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }") + "\t\t#de-updater-btn:after { content: \"" + Lng.getNewPosts[lang] + "\" }\t\t#de-updater-count:before { content: \": \" }\t\t#de-updater-div { clear: left; margin-top: 10px; cursor: pointer; }\t\t.de-viewed { color: #888 !important; }\t\tsmall[id^=\"rfmap\"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\t\tform > hr { clear: both }\t\t" + aib.css + aib.cssEn + ".de-post-hide > " + aib.qHide + " { display: none !important; }";
+		x += ".de-abtn { text-decoration: none !important; outline: none; }\t\t.de-after-fimg { clear: left; }\t\t#de-alert { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\t\t#de-alert > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\t\t.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\t\t.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\t\t.de-alert-msg { display: inline-block; }\t\t.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; " + (nav.Presto ? "" : "resize: none !important; ") + "}\t\t.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t\t.de-content-block > input { margin: 0 4px; }\t\t#de-content-fav, #de-content-hid, #de-content-vid { font-size: 16px; padding: 10px; border: 1px solid gray; border-radius: 8px; }\t\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t\t.de-entry { display: block !important; float: none !important; width: auto; max-width: 100% !important; margin: 2px 0 !important; padding: 0 !important; border: none; font-size: 14px; " + (nav.Presto ? "white-space: nowrap; " : "") + "}\t\t.de-entry > a { text-decoration: none; border: none; }\t\t.de-entry > input { margin: 2px 4px; }\t\t.de-fav-inf-err { color: #c33; font-size: 12px; }\t\t.de-fav-inf-new { color: #424f79; }\t\t.de-fav-inf-new:before { content: \"+ \"; }\t\t.de-fav-inf-old { color: #4f7942; }\t\t.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\t\t.de-fav-title { margin-right: 15px; }\t\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t\t.de-link-hid { text-decoration: line-through !important; }\t\t.de-link-parent { outline: 1px dotted !important; }\t\t.de-link-pview { font-weight: bold; }\t\t.de-link-ref { text-decoration: none; }\t\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t\t.de-menu-item:hover { background-color: #222; color: #fff; }\t\t.de-new-post { " + (nav.Presto ? "border-left: 4px solid blue; border-right: 4px solid blue; }" : "box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }") + "\t\t.de-omitted { color: grey; font-style: italic; }\t\t.de-omitted:before { content: \"" + Lng.postsOmitted[lang] + "\"; }\t\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\t\t.de-pview-info { padding: 3px 6px !important; }\t\t.de-ref-op:after { content: \" [OP]\"; }\t\t.de-ref-del:after { content: \" [del]\"; }\t\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\t\t.de-refmap:before { content: \"" + Lng.replies[lang] + " \"; }\t\t.de-refcomma:last-child { display: none; }\t\t.de-selected, .de-error-key { " + (nav.Presto ? "border-left: 4px solid red; border-right: 4px solid red; }" : "box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }") + "\t\t#de-updater-btn:after { content: \"" + Lng.getNewPosts[lang] + "\" }\t\t#de-updater-count:before { content: \": \" }\t\t#de-updater-div { clear: left; margin-top: 10px; }\t\t.de-viewed { color: #888 !important; }\t\tsmall[id^=\"rfmap\"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\t\tform > hr { clear: both }\t\t" + aib.css + aib.cssEn + ".de-post-hide > " + aib.qHide + " { display: none !important; }";
 
 		if (!nav.Firefox) {
 			x = x.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + "$1");

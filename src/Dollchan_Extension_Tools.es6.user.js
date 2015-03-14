@@ -11528,13 +11528,17 @@ function initThreadUpdater(title, enableUpdate) {
 				}
 				setState('warn');
 				continue;
-			} else if(lastECode !== 200) {
+			}
+			if(lastECode === 200) {
+				lastECode = eCode;
+			} else {
+				lastECode = eCode;
+				clearInterval(favIntrv);
 				setState('on');
 				if(!Cfg.noErrInTitle) {
 					updateTitle();
 				}
 			}
-			lastECode = eCode;
 			if(!focused) {
 				if(lPosts !== 0) {
 					if(Cfg.favIcoBlink && favHref && newPosts === 0) {
@@ -12172,7 +12176,7 @@ function scriptCSS() {
 		.de-selected, .de-error-key { ' + (nav.Presto ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
 		#de-updater-btn:after { content: "' + Lng.getNewPosts[lang] + '" }\
 		#de-updater-count:before { content: ": " }\
-		#de-updater-div { clear: left; margin-top: 10px; cursor: pointer; }\
+		#de-updater-div { clear: left; margin-top: 10px; }\
 		.de-viewed { color: #888 !important; }\
 		small[id^="rfmap"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\
 		form > hr { clear: both }\
