@@ -11528,17 +11528,14 @@ function initThreadUpdater(title, enableUpdate) {
 				}
 				setState('warn');
 				continue;
-			}
-			if(lastECode === 200) {
-				lastECode = eCode;
-			} else {
-				lastECode = eCode;
+			} else if(lastECode !== 200) {
 				clearInterval(favIntrv);
 				setState('on');
 				if(!Cfg.noErrInTitle) {
-					updateTitle();
+					updateTitle(eCode);
 				}
 			}
+			lastECode = eCode;
 			if(!focused) {
 				if(lPosts !== 0) {
 					if(Cfg.favIcoBlink && favHref && newPosts === 0) {
@@ -11606,10 +11603,10 @@ function initThreadUpdater(title, enableUpdate) {
 		}, 200);
 	}
 
-	function updateTitle() {
+	function updateTitle(eCode = lastECode) {
 		doc.title = (aPlayers === 0 ? '' : 'd ') +
 			(sendError === true ? '{' + Lng.error[lang] + '} ' : '') +
-			(lastECode === 200 ? '' : '{' + lastECode + '} ') +
+			(eCode === 200 ? '' : '{' + eCode + '} ') +
 			(newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
 	}
 

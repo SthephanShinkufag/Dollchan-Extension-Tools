@@ -14667,7 +14667,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						eCode = _error instanceof AjaxError ? _error.code : 0;
 
 						if (!(eCode !== 200 && eCode !== 304)) {
-							context$3$0.next = 55;
+							context$3$0.next = 57;
 							break;
 						}
 
@@ -14701,19 +14701,19 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							updateTitle();
 						}
 						setState("warn");
-						return context$3$0.abrupt("continue", 57);
+						return context$3$0.abrupt("continue", 60);
 
-					case 55:
-						if (lastECode === 200) {
-							lastECode = eCode;
-						} else {
-							lastECode = eCode;
+					case 57:
+						if (lastECode !== 200) {
 							clearInterval(favIntrv);
 							setState("on");
 							if (!Cfg.noErrInTitle) {
-								updateTitle();
+								updateTitle(eCode);
 							}
 						}
+
+					case 58:
+						lastECode = eCode;
 						if (!focused) {
 							if (lPosts !== 0) {
 								if (Cfg.favIcoBlink && favHref && newPosts === 0) {
@@ -14748,16 +14748,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							}
 						}
 
-					case 57:
+					case 60:
 						if (repeatLoading) {
 							context$3$0.next = 2;
 							break;
 						}
 
-					case 58:
+					case 61:
 						stopLoad = emptyFn;
 
-					case 59:
+					case 62:
 					case "end":
 						return context$3$0.stop();
 				}
@@ -14789,7 +14789,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 
 		function updateTitle() {
-			doc.title = (aPlayers === 0 ? "" : "d ") + (sendError === true ? "{" + Lng.error[lang] + "} " : "") + (lastECode === 200 ? "" : "{" + lastECode + "} ") + (newPosts === 0 ? "" : "[" + newPosts + "] ") + title;
+			var eCode = arguments[0] === undefined ? lastECode : arguments[0];
+
+			doc.title = (aPlayers === 0 ? "" : "d ") + (sendError === true ? "{" + Lng.error[lang] + "} " : "") + (eCode === 200 ? "" : "{" + eCode + "} ") + (newPosts === 0 ? "" : "[" + newPosts + "] ") + title;
 		}
 
 		if ("hidden" in doc) {
