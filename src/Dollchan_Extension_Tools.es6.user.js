@@ -617,9 +617,9 @@ function $add(html) {
 }
 
 function $new(tag, attr, events) {
-	var key, el = doc.createElement(tag);
+	var el = doc.createElement(tag);
 	if(attr) {
-		for(key in attr) {
+		for(let key in attr) {
 			if(key === 'text') {
 				el.textContent = attr[key];
 			} else if(key === 'value') {
@@ -630,7 +630,7 @@ function $new(tag, attr, events) {
 		}
 	}
 	if(events) {
-		for(key in events) {
+		for(let key in events) {
 			if(events.hasOwnProperty(key)) {
 				el.addEventListener(key, events[key], false);
 			}
@@ -640,8 +640,7 @@ function $new(tag, attr, events) {
 }
 
 function $New(tag, attr, nodes) {
-	var el = $new(tag, attr, null);
-	for(var i = 0, len = nodes.length; i < len; i++) {
+	for(var i = 0, len = nodes.length, el = $new(tag, attr, null); i < len; i++) {
 		if(nodes[i]) {
 			el.appendChild(nodes[i]);
 		}
@@ -724,9 +723,9 @@ Logger = new function() {
 			marks.push(['LoggerFinish', Date.now()]);
 		},
 		getData(full) {
-			var i, len, duration, lastExtra = 0,
-				timeLog = [];
-			for(i = 1, len = marks.length - 1; i < len; ++i) {
+			var duration, timeLog = [],
+				i = 1;
+			for(let len = marks.length - 1, lastExtra = 0; i < len; ++i) {
 				duration = marks[i][1] - marks[i - 1][1] + lastExtra;
 				if(full || duration > 1) {
 					lastExtra = 0;
@@ -740,9 +739,9 @@ Logger = new function() {
 			return timeLog;
 		},
 		getTable() {
-			var i, len, data = this.getData(false),
-				html = '<tbody>';
-			for(i = 0, len = data.length; i < len; ++i) {
+			var html = '<tbody>',
+				data = this.getData(false);
+			for(let i = 0, len = data.length; i < len; ++i) {
 				html += '<tr><td>' + data[i][0] + '</td><td>' + data[i][1] + 'ms</td></tr>';
 			}
 			return html + '</tbody>';
@@ -767,15 +766,11 @@ function async(generatorFunc) {
 				console.log('Generator throw: ', err);
 				return Promise.reject(err);
 			}
-			if (result.done) {
-				return result.value;
-			} else {
-				return Promise.resolve(result.value).then(onFulfilled, onRejected);
-			}
+			return result.done ? result.value : Promise.resolve(result.value).then(onFulfilled, onRejected);
 		}
-		var generator = generatorFunc.apply(this, args);
-		var onFulfilled = continuer.bind(continuer, 'next');
-		var onRejected = continuer.bind(continuer, 'throw');
+		var generator = generatorFunc.apply(this, args),
+			onFulfilled = continuer.bind(continuer, 'next'),
+			onRejected = continuer.bind(continuer, 'throw');
 		return onFulfilled();
 	};
 }
@@ -785,7 +780,7 @@ function spawn(generatorFunc, ...args) {
 }
 
 function sleep(ms) {
-	return new Promise((resolve, reject) =>	setTimeout(() => resolve(), ms));
+	return new Promise((resolve, reject) => setTimeout(() => resolve(), ms));
 }
 
 function $ajax(url, params = null, useNative = true) {
@@ -918,9 +913,11 @@ function TarBuilder() {
 }
 TarBuilder.prototype = {
 	addFile(filepath, input) {
-		var i, checksum, nameLen, fileSize = input.length,
+		var i = 0,
+			checksum = 0,
+			fileSize = input.length,
 			header = new Uint8Array(512);
-		for(i = 0, nameLen = Math.min(filepath.length, 100); i < nameLen; ++i) {
+		for(let nameLen = Math.min(filepath.length, 100); i < nameLen; ++i) {
 			header[i] = filepath.charCodeAt(i) & 0xFF;
 		}
 		// fileMode
@@ -937,7 +934,7 @@ TarBuilder.prototype = {
 		this._padSet(header, 148, '        ', 8);
 		// type ('0')
 		header[156] = 0x30;
-		for(i = checksum = 0; i < 157; i++) {
+		for(i = 0; i < 157; i++) {
 			checksum += header[i];
 		}
 		// checksum
@@ -988,8 +985,7 @@ function getAbsLink(url) {
 }
 
 function getErrorMessage(e) {
-	var isAjax = e instanceof AjaxError;
-	if(isAjax) {
+	if(e instanceof AjaxError) {
 		return e.code === 0 ? e.message || Lng.noConnect[lang] : 'HTTP [' + e.code + '] ' + e.message;
 	}
 	return typeof e === 'string' ? e : Lng.internalError[lang] + getPrettyErrorMessage(e);
@@ -1035,14 +1031,14 @@ function resizeImage(size, minSize, maxSize) {
 
 // https://html.spec.whatwg.org/multipage/forms.html#constructing-form-data-set
 function* getFormElements(form) {
-	var controls = $Q('button, input, keygen, object, select, textarea', form);
-	var fixName = name => name ? name.replace(/([^\r])\n|\r([^\n])/g, '$1\r\n$2') : '';
+	var controls = $Q('button, input, keygen, object, select, textarea', form),
+		fixName = name => name ? name.replace(/([^\r])\n|\r([^\n])/g, '$1\r\n$2') : '';
   constructSet:
 	for(let i = 0, len = controls.length; i < len; ++i) {
-		let field = controls[i];
-		let tagName = field.tagName.toLowerCase();
-		let type = field.getAttribute('type');
-		let name = field.getAttribute('name');
+		let field = controls[i],
+			tagName = field.tagName.toLowerCase(),
+			type = field.getAttribute('type'),
+			name = field.getAttribute('name');
 		if($parent(field, 'datalist', form) ||
 		   isFormElDisabled(field) ||
 		   (tagName === 'button' && type !== 'submit') ||
@@ -1060,8 +1056,8 @@ function* getFormElements(form) {
 		}
 		if(tagName === 'select') {
 			let options = $Q('select > option, select > optgrout > option', field);
-			for(let i = 0, len = options.length; i < len; ++i) {
-				let option = options[i];
+			for(let _i = 0, _len = options.length; _i < _len; ++_i) {
+				let option = options[_i];
 				if(option.selected && !isFormElDisabled(option)) {
 					yield {
 						el: field,
@@ -1086,11 +1082,11 @@ function* getFormElements(form) {
 			case 'file':
 				if(field.files.length > 0) {
 					let files = field.files;
-					for(let i = 0, len = files.length; i < len; ++i) {
+					for(let _i = 0, _len = files.length; _i < _len; ++_i) {
 						yield {
 							el: field,
 							name: name,
-							value: files[i],
+							value: files[_i],
 							type: type
 						};
 					}
@@ -1195,7 +1191,7 @@ function setStored(id, value) {
 	if(nav.isGM) {
 		GM_setValue(id, value);
 	} else if(nav.isChromeStorage) {
-		var obj = {};
+		let obj = {};
 		obj[id] = value;
 		if(value.toString().length < 4095) {
 			chrome.storage.sync.set(obj, emptyFn);
@@ -1336,11 +1332,11 @@ function readFav() {
 }
 
 function readPosts() {
-	var data, str = TNum ? sesStorage['de-hidden-' + brd + TNum] : null;
+	var str = TNum ? sesStorage['de-hidden-' + brd + TNum] : null;
 	if(typeof str === 'string') {
-		data = str.split(',');
+		let data = str.split(',');
 		if(data.length === 4 && +data[0] === (Cfg.hideBySpell ? spells.hash : 0) &&
-			(data[1] in pByNum) && pByNum[data[1]].count === +data[2])
+		  (data[1] in pByNum) && pByNum[data[1]].count === +data[2])
 		{
 			sVis = data[3].split('');
 			return;
@@ -1350,7 +1346,7 @@ function readPosts() {
 }
 
 function* readUserPosts() {
-	var vis, date = Date.now(),
+	var date = Date.now(),
 		spellsHide = Cfg.hideBySpell,
 		update = false,
 		globalUserVis = yield* getStoredObj('DESU_Posts_' + aib.dm);
@@ -1382,6 +1378,7 @@ function* readUserPosts() {
 			}
 			continue;
 		}
+		let vis;
 		if(post.isOp) {
 			if(num in hThr[brd]) {
 				vis = '0';
@@ -1412,7 +1409,7 @@ function* readUserPosts() {
 
 function savePosts() {
 	if(TNum) {
-		var lPost = dForm.firstThr.lastNotDeleted;
+		let lPost = dForm.firstThr.lastNotDeleted;
 		sesStorage['de-hidden-' + brd + TNum] = (Cfg.hideBySpell ? spells.hash : '0') +
 			',' + lPost.num + ',' + lPost.count + ',' + sVis.join('');
 	}
@@ -1455,7 +1452,7 @@ function saveHiddenThreads(updContent) {
 }
 
 function* readFavoritesPosts() {
-	var thr, temp, num, update = false,
+	var temp, update = false,
 		fav = yield* getStoredObj('DESU_Favorites');
 	if(!(aib.host in fav)) {
 		return;
@@ -1465,8 +1462,9 @@ function* readFavoritesPosts() {
 		return;
 	}
 	temp = temp[brd];
-	for(thr = dForm.firstThr; thr; thr = thr.next) {
-		if((num = thr.num) in temp) {
+	for(let thr = dForm.firstThr; thr; thr = thr.next) {
+		let num = thr.num;
+		if(num in temp) {
 			thr.setFavBtn(true);
 			if(TNum) {
 				temp[num].cnt = thr.pcount;
@@ -1511,17 +1509,18 @@ function removeFavoriteEntry(fav, h, b, num, clearPage) {
 }
 
 function readViewedPosts() {
-	if(Cfg.markViewed) {
-		var data = sesStorage['de-viewed'];
-		if(data) {
-			data.split(',').forEach(function(pNum) {
-				var post = pByNum[pNum];
-				if(post) {
-					post.el.classList.add('de-viewed');
-					post.viewed = true;
-				}
-			});
-		}
+	if(!Cfg.markViewed) {
+		return;
+	}
+	var data = sesStorage['de-viewed'];
+	if(data) {
+		data.split(',').forEach(function(pNum) {
+			var post = pByNum[pNum];
+			if(post) {
+				post.el.classList.add('de-viewed');
+				post.viewed = true;
+			}
+		});
 	}
 }
 
@@ -1604,7 +1603,7 @@ function addPanel(formEl) {
 				case 'de-btn-expimg':
 					isExpImg = !isExpImg;
 					$del($c('de-img-center', doc));
-					for(var post = dForm.firstThr.op; post; post = post.next) {
+					for(let post = dForm.firstThr.op; post; post = post.next) {
 						post.toggleImages(isExpImg);
 					}
 					break;
@@ -1752,8 +1751,7 @@ function showContent(cont, id, name, remove, data) {
 	}
 
 	if(name === 'hid') {
-		let block = null,
-			els = $C('de-post-hide', dForm.el);
+		let block, els = $C('de-post-hide', dForm.el);
 		for(let i = 0, len = els.length; i < len; ++i) {
 			let post = els[i];
 			if(post.isOp) {
@@ -1827,10 +1825,9 @@ function showContent(cont, id, name, remove, data) {
 			});
 		}));
 		cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
-			var i, len, els = $Q('.de-entry[info]', this.parentNode);
-			for(i = 0, len = els.length; i < len; ++i) {
-				let [board, tNum] = els[i].getAttribute('info').split(';');
-				let xhr = yield $ajax(aib.getThrdUrl(board, tNum));
+			for(var i = 0, els = $Q('.de-entry[info]', this.parentNode), len = els.length; i < len; ++i) {
+				let [board, tNum] = els[i].getAttribute('info').split(';'),
+					xhr = yield $ajax(aib.getThrdUrl(board, tNum));
 				if(xhr.status === 404) {
 					delete hThr[board][tNum];
 					saveHiddenThreads(true);
@@ -1839,8 +1836,8 @@ function showContent(cont, id, name, remove, data) {
 		})));
 		cont.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
 			$each($Q('.de-entry[info]', this.parentNode), function(date, el) {
-				var post, arr = el.getAttribute('info').split(';');
 				if($t('input', el).checked) {
+					let arr = el.getAttribute('info').split(';');
 					if(arr[1] in pByNum) {
 						pByNum[arr[1]].setUserVisib(false, date, true);
 					} else {
@@ -1896,7 +1893,7 @@ function showVideosTable(cont) {
 		'</center>' +
 		'<div id="de-video-list" style="max-width: ' + (+Cfg.YTubeWidth + 40) +
 			'px; max-height: ' + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 110) + 'px;"></div>';
-	let linkList = cont.lastChild;
+	var linkList = cont.lastChild;
 	$before(linkList, $new('script', {'type': 'text/javascript', 'text':`
 		(function() {
 			if('YT' in window && 'Player' in window.YT) {
@@ -1905,8 +1902,8 @@ function showVideosTable(cont) {
 				window.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;
 			}
 			function onYouTubePlayerAPIReady() {
-				var el = document.querySelector('#de-content-vid > .de-video-obj');
-				window.de_addVideoEvents = addEvents.bind(el);
+				window.de_addVideoEvents =
+					addEvents.bind(document.querySelector('#de-content-vid > .de-video-obj'));
 				window.de_addVideoEvents();
 			}
 			function addEvents() {
@@ -1939,8 +1936,9 @@ function showVideosTable(cont) {
 		playerInfo: null,
 		currentLink: null,
 		handleEvent(e) {
-			var node, el = e.target;
+			var el = e.target;
 			if(el.classList.contains('de-abtn')) {
+				let node;
 				switch(e.target.id) {
 				case 'de-video-btn-hide':
 					if(this.listHidden) {
@@ -1956,16 +1954,14 @@ function showVideosTable(cont) {
 				case 'de-video-btn-prev':
 					node = this.currentLink.parentNode;
 					node = node.previousSibling || node.parentNode.lastChild;
-					node.firstChild.click();
-					$pd(e);
-					return;
+					break;
 				case 'de-video-btn-next':
 					node = this.currentLink.parentNode;
 					node = node.nextSibling || node.parentNode.firstChild;
-					node.firstChild.click();
-					$pd(e);
-					return;
 				}
+				node.firstChild.click();
+				$pd(e);
+				return;
 			} else if(!el.classList.contains('de-video-link')) {
 				return;
 			}
@@ -2000,8 +1996,8 @@ function clearFavoriteTable() {
 		len = els.length;
 	if(len > 0) {
 		readFav().then(fav => {
-			for(var el, i = 0; i < len; ++i) {
-				el = els[i];
+			for(let i = 0; i < len; ++i) {
+				let el = els[i];
 				removeFavoriteEntry(fav, el.getAttribute('de-host'), el.getAttribute('de-board'),
 					el.getAttribute('de-num'), true);
 			}
@@ -2011,48 +2007,48 @@ function clearFavoriteTable() {
 }
 
 function showFavoriteTable(cont, data) {
-	var h, b, i, block, tNum;
-	for(h in data) {
-		for(b in data[h]) {
-			i = data[h][b];
-			block = addContentBlock(cont, i.url ?
-				$new('a', {'href': i.url, 'text': h + '/' + b}, null) :
-				$new('b', {'text': h + '/' + b}, null));
+	for(let h in data) {
+		for(let b in data[h]) {
+			let d = data[h][b],
+				block = addContentBlock(cont, d.url ?
+					$new('a', {'href': d.url, 'text': h + '/' + b}, null) :
+					$new('b', {'text': h + '/' + b}, null));
 			if(h === aib.host && b === brd) {
 				block.classList.add('de-fav-current');
 			}
-			for(tNum in data[h][b]) {
+			for(let tNum in d) {
 				if(tNum === 'url') {
 					continue;
 				}
-				i = data[h][b][tNum];
-				if(!i.url.startsWith('http')) {
-					i.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + i.url;
+				let t = d[tNum];
+				if(!t.url.startsWith('http')) {
+					t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 				}
 				block.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply +
-					'" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + i.url +
+					'" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url +
 					'"><input type="checkbox"><span class="de-btn-expthr" title="' + Lng.findThrd[lang] +
-					'"></span><a href="' + i.url + '">№' + tNum + '</a><span class="de-fav-title"> - ' +
-					i.txt + '</span><span class="de-fav-inf-posts">[<span class="de-fav-inf-old" title="' +
-					Lng.oldPosts[lang] + '">' + i.cnt + '</span>] <span class="de-fav-inf-new" title="' +
-					Lng.newPosts[lang] + '"' + (i['new'] ? '>' : ' style="display: none;">') +
-					(i['new'] || 0) + '</span> <span class="de-fav-inf-page" title="' +
+					'"></span><a href="' + t.url + '">№' + tNum + '</a><span class="de-fav-title"> - ' +
+					t.txt + '</span><span class="de-fav-inf-posts">[<span class="de-fav-inf-old" title="' +
+					Lng.oldPosts[lang] + '">' + t.cnt + '</span>] <span class="de-fav-inf-new" title="' +
+					Lng.newPosts[lang] + '"' + (t['new'] ? '>' : ' style="display: none;">') +
+					(t['new'] || 0) + '</span> <span class="de-fav-inf-page" title="' +
 					Lng.thrPage[lang] + '"></span> <span class="de-fav-inf-err">' +
-					(i['err'] || '') + '</span></span></div>');
+					(t['err'] || '') + '</span></span></div>');
 				block.lastChild.firstChild.nextSibling.onclick = e => loadFavorThread(e.target);
 			}
 		}
 	}
-	cont.insertAdjacentHTML('afterbegin', '<b>' + (Lng[block ? 'favThrds' : 'noFavThrds'][lang]) + '</b>');
+	cont.insertAdjacentHTML('afterbegin', '<b>' +
+		(Lng[cont.hasChildNodes() ? 'favThrds' : 'noFavThrds'][lang]) + '</b>');
 	cont.insertAdjacentHTML('beforeend', '<hr>');
 	cont.appendChild(addEditButton('favor', function(fn) {
 		readFav().then(val => fn(val, true, saveFavorites));
 	}));
 	cont.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(function* () {
-		var i, len, els = $C('de-entry', doc),
-			update = false,
+		var update = false,
+			els = $C('de-entry', doc),
 			fav = yield* getStoredObj('DESU_Favorites');
-		for(i = 0, len = els.length; i < len; ++i) {
+		for(let i = 0, len = els.length; i < len; ++i) {
 			let form, el = els[i],
 				host = el.getAttribute('de-host'),
 				b = el.getAttribute('de-board'),
@@ -2093,27 +2089,26 @@ function showFavoriteTable(cont, data) {
 		}
 	})));
 	cont.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(function* () {
-		var i, el, page, endPage, els = $Q('.de-fav-current > .de-entry', doc),
+		var els = $Q('.de-fav-current > .de-entry', doc),
 			infoCount = els.length,
-			infoLoaded = 0,
 			postsInfo = [];
 		if(!infoCount) {
 			return;
 		}
 		$alert(Lng.loading[lang], 'load-pages', true);
-		for(i = 0; i < infoCount; ++i) {
-			el = els[i];
+		for(let i = 0; i < infoCount; ++i) {
+			let el = els[i];
 			postsInfo.push([+el.getAttribute('de-num'), el = $c('de-fav-inf-page', el), false]);
 			el.classList.add('de-wait');
 		}
-		for(page = 0, endPage = (aib.lastPage || 10) + 1; page < endPage; ++page) {
+		for(let page = 0, infoLoaded = 0, endPage = (aib.lastPage || 10) + 1; page < endPage; ++page) {
 			let form;
 			try {
 				form = new DelForm((yield ajaxLoad(aib.getPageUrl(brd, page))), true);
 			} catch(e) {
 				continue;
 			}
-			for(tNums = form.tNums, i = 0; i < infoCount; ++i) {
+			for(let i = 0, tNums = form.tNums; i < infoCount; ++i) {
 				let pInfo = postsInfo[i];
 				if(tNums.indexOf(pInfo[0]) !== -1) {
 					pInfo[1].classList.remove('de-wait');
@@ -2126,7 +2121,7 @@ function showFavoriteTable(cont, data) {
 				break;
 			}
 		}
-		for(i = 0; i < infoCount; ++i) {
+		for(let i = 0; i < infoCount; ++i) {
 			let [, node, isFound] = postsInfo[i];
 			if(!isFound) {
 				node.classList.remove('de-wait');
@@ -2227,7 +2222,8 @@ function inpTxt(id, size, Fn) {
 }
 
 function optSel(id, isBlock, Fn) {
-	for(var i = 0, x = Lng.cfg[id], len = x.sel[lang].length, el, opt = ''; i < len; i++) {
+	var el, opt = '', x = Lng.cfg[id];
+	for(let i = 0, len = x.sel[lang].length; i < len; i++) {
 		opt += '<option value="' + i + '">' + x.sel[lang][i] + '</option>';
 	}
 	el = $add('<select info="' + id + '">' + opt + '</select>');
@@ -2245,8 +2241,8 @@ function cfgTab(name) {
 		'text': Lng.cfgTab[name][lang],
 		'info': name}, {
 		'click'() {
-			var pN = this.parentNode;
-			if(pN.getAttribute('selected') === 'true') {
+			var el = this.parentNode;
+			if(el.getAttribute('selected') === 'true') {
 				return;
 			}
 			let prefTab = $c('de-cfg-body', doc);
@@ -2254,7 +2250,7 @@ function cfgTab(name) {
 				prefTab.className = 'de-cfg-unvis';
 				$q('.de-cfg-tab-back[selected="true"]', doc).setAttribute('selected', false);
 			}
-			pN.setAttribute('selected', true);
+			el.setAttribute('selected', true);
 			let id = this.getAttribute('info'),
 				newTab = $id('de-cfg-' + id);
 			if(!newTab) {
@@ -2281,12 +2277,12 @@ function cfgTab(name) {
 }
 
 function updRowMeter(node) {
-	var str, top = node.scrollTop,
+	var top = node.scrollTop,
 		el = node.parentNode.previousSibling.firstChild,
 		num = el.numLines || 1,
 		i = 15;
 	if(num - i < ((top / 12) | 0 + 1)) {
-		str = '';
+		let str = '';
 		while(i--) {
 			str += num++ + '<br>';
 		}
@@ -2561,9 +2557,7 @@ function getCfgCommon() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-common'}, [
 		optSel('scriptStyle', true, function() {
 			saveCfg('scriptStyle', this.selectedIndex);
-			var lang = getThemeLang();
-			$id('de-main').lang = lang;
-			$id('de-qarea').firstChild.nextSibling.lang = lang;
+			$id('de-main').lang = $id('de-qarea').firstChild.nextSibling.lang = getThemeLang();
 		}),
 		$New('div', null, [
 			lBox('userCSS', false, updateCSS),
@@ -2601,15 +2595,15 @@ function getCfgCommon() {
 					return;
 				}
 				spawn(HotKeys.readKeys).then(keys => {
-					var aEl, evtListener, temp = KeyEditListener.getEditMarkup(keys);
+					var el, fn, temp = KeyEditListener.getEditMarkup(keys);
 					$alert(temp[1], 'edit-hotkeys', false);
-					aEl = $id('de-alert-edit-hotkeys');
-					evtListener = new KeyEditListener(aEl, keys, temp[0]);
-					aEl.addEventListener('focus', evtListener, true);
-					aEl.addEventListener('blur', evtListener, true);
-					aEl.addEventListener('click', evtListener, true);
-					aEl.addEventListener('keydown', evtListener, true);
-					aEl.addEventListener('keyup', evtListener, true);
+					el = $id('de-alert-edit-hotkeys');
+					fn = new KeyEditListener(el, keys, temp[0]);
+					el.addEventListener('focus', fn, true);
+					el.addEventListener('blur', fn, true);
+					el.addEventListener('click', fn, true);
+					el.addEventListener('keydown', fn, true);
+					el.addEventListener('keyup', fn, true);
 				});
 			})
 		]),
@@ -2653,9 +2647,9 @@ function getCfgCommon() {
 
 function getCfgInfo() {
 	function getHiddenThrCount() {
-		var b, tNum, count = 0;
-		for(b in hThr) {
-			for(tNum in hThr[b]) {
+		var count = 0;
+		for(let b in hThr) {
+			for(let tNum in hThr[b]) {
 				count++;
 			}
 		}
@@ -2773,8 +2767,8 @@ function addSettings(Set, id) {
 							com = val[aib.dm];
 						for(let i in com) {
 							if(i !== 'correctTime' && i !== 'timePattern' &&
-								i !== 'userCSS' && i !== 'userCSSTxt' &&
-								com[i] !== defaultCfg[i] && i !== 'stats')
+							   i !== 'userCSS' && i !== 'userCSSTxt' &&
+							   com[i] !== defaultCfg[i] && i !== 'stats')
 							{
 								obj[i] = com[i];
 							}
@@ -2811,9 +2805,7 @@ function closeAlert(el) {
 		if(Cfg.animation) {
 			nav.animEvent(el, function(node) {
 				var p = node && node.parentNode;
-				if(p) {
-					p.removeChild(node);
-				}
+				p && p.removeChild(node);
 			});
 			el.classList.add('de-close');
 		} else {
@@ -2897,12 +2889,11 @@ function addMenu(e) {
 				('#sage,#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep')
 					.split(',').join('</span><span class="de-menu-item">') + '</span></div>', false,
 			function(el) {
-				var exp = el.textContent,
-					idx = Spells.names.indexOf(exp.substr(1));
+				var exp = el.textContent;
 				$txtInsert($id('de-spell-edit'), exp + (
 					!TNum || exp === '#op' || exp === '#rep' || exp === '#outrep' ? '' :
 						'[' + brd + ',' + TNum + ']'
-				) + (Spells.needArg[idx] ? '(' : ''));
+				) + (Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? '(' : ''));
 			});
 			return;
 		case 'de-btn-refresh': 
@@ -2959,7 +2950,7 @@ function HotKeys() {
 }
 HotKeys.version = 6;
 HotKeys.readKeys = function* () {
-	var tKeys, keys, str = yield* getStored('DESU_keys');
+	var keys, str = yield* getStored('DESU_keys');
 	if(!str) {
 		return HotKeys.getDefaultKeys();
 	}
@@ -2970,7 +2961,7 @@ HotKeys.readKeys = function* () {
 			return HotKeys.getDefaultKeys();
 		}
 		if(keys[0] !== HotKeys.version) {
-			tKeys = HotKeys.getDefaultKeys();
+			let tKeys = HotKeys.getDefaultKeys();
 			switch(keys[0]) {
 			case 1:
 				keys[2][11] = tKeys[2][11];
@@ -2997,7 +2988,7 @@ HotKeys.readKeys = function* () {
 			setStored('DESU_keys', JSON.stringify(keys));
 		}
 		if(keys[1] ^ !!nav.Firefox) {
-			var mapFunc = nav.Firefox ? function mapFuncFF(key) {
+			let mapFunc = nav.Firefox ? function mapFuncFF(key) {
 				switch(key) {
 				case 189: return 173;
 				case 187: return 61;
@@ -3021,7 +3012,6 @@ HotKeys.readKeys = function* () {
 	}
 };
 HotKeys.getDefaultKeys = function() {
-	var isFirefox = !!nav.Firefox;
 	var globKeys = [
 		/* One post/thread above      */ 0x004B /* = K          */,
 		/* One post/thread below      */ 0x004A /* = J          */,
@@ -3051,7 +3041,7 @@ HotKeys.getDefaultKeys = function() {
 	var thrKeys = [
 		/* Update thread  */ 0x0055 /* = U */
 	];
-	return [HotKeys.version, isFirefox, globKeys, nonThrKeys, thrKeys];
+	return [HotKeys.version, !!nav.Firefox, globKeys, nonThrKeys, thrKeys];
 };
 HotKeys.prototype = {
 	cPost: null,
@@ -3087,7 +3077,7 @@ HotKeys.prototype = {
 		if(this.paused) {
 			return;
 		}
-		var temp, post, scrollToThread, globIdx, idx, curTh = e.target.tagName,
+		var curTh = e.target.tagName,
 			kc = e.keyCode | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) |
 				(e.altKey ? 0x4000 : 0) | (curTh === 'TEXTAREA' ||
 				(curTh === 'INPUT' && e.target.type === 'text') ? 0x8000 : 0);
@@ -3117,7 +3107,7 @@ HotKeys.prototype = {
 		} else if(kc === 0x801B) { // ESC (txt)
 			e.target.blur();
 		} else {
-			globIdx = this.gKeys.indexOf(kc);
+			let post, idx, globIdx = this.gKeys.indexOf(kc);
 			switch(globIdx) {
 			case 2: // Quick reply
 				if(pr.form) {
@@ -3232,9 +3222,9 @@ HotKeys.prototype = {
 					post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 					if(post) {
 						if(post.thr.loadedOnce && post.thr.op.next.count === 1) {
-							temp = post.thr.nextNotHidden;
-							post.thr.load(visPosts, !!temp);
-							post = (temp || post.thr).op;
+							let nextThr = post.thr.nextNotHidden;
+							post.thr.load(visPosts, !!nextThr);
+							post = (nextThr || post.thr).op;
 						} else {
 							post.thr.load(1, false);
 							post = post.thr.op;
@@ -3249,9 +3239,9 @@ HotKeys.prototype = {
 				}
 				/* falls through */
 			default:
-				scrollToThread = !TNum && (globIdx === 0 || globIdx === 1);
-				this._scroll(this._getFirstVisPost(scrollToThread, false), globIdx === 0 || idx === 0,
-					scrollToThread);
+				let scrollToThr = !TNum && (globIdx === 0 || globIdx === 1);
+				this._scroll(this._getFirstVisPost(scrollToThr, false),
+					globIdx === 0 || idx === 0, scrollToThr);
 			}
 		}
 		e.stopPropagation();
@@ -3268,11 +3258,10 @@ HotKeys.prototype = {
 	},
 
 	_getFirstVisPost(getThread, getFull) {
-		var post, tPost;
 		if(this.lastPageOffset !== window.pageYOffset) {
-			post = getThread ? dForm.firstThr : dForm.firstThr.op;
+			let post = getThread ? dForm.firstThr : dForm.firstThr.op;
 			while(post.topCoord < 1) {
-				tPost = post.next;
+				let tPost = post.next;
 				if(!tPost) {
 					break;
 				}
@@ -3287,9 +3276,8 @@ HotKeys.prototype = {
 		return this.cPost;
 	},
 	_getNextVisPost(cPost, isOp, toUp) {
-		var thr;
 		if(isOp) {
-			thr = cPost ? toUp ? cPost.thr.prevNotHidden : cPost.thr.nextNotHidden :
+			let thr = cPost ? toUp ? cPost.thr.prevNotHidden : cPost.thr.nextNotHidden :
 				dForm.firstThr.hidden ? dForm.firstThr.nextNotHidden : dForm.firstThr;
 			return thr ? thr.op : null;
 		}
@@ -3328,11 +3316,11 @@ HotKeys.prototype = {
 };
 
 function KeyEditListener(alertEl, keys, allKeys) {
-	var j, k, i, len, aInputs = aProto.slice.call($C('de-input-key', alertEl));
-	for(i = 0, len = allKeys.length; i < len; ++i) {
-		k = allKeys[i];
+	var aInputs = aProto.slice.call($C('de-input-key', alertEl));
+	for(let i = 0, len = allKeys.length; i < len; ++i) {
+		let k = allKeys[i];
 		if(k !== 0) {
-			for(j = i + 1; j < len; ++j) {
+			for(let j = i + 1; j < len; ++j) {
 				if(k === allKeys[j]) {
 					aInputs[i].classList.add('de-error-key');
 					aInputs[j].classList.add('de-error-key');
@@ -3412,7 +3400,7 @@ KeyEditListener.prototype = {
 		return val;
 	},
 	handleEvent(e) {
-		var key, keyStr, keys, str, id, temp, el = e.target;
+		var key, el = e.target;
 		switch(e.type) {
 		case 'blur':
 			if(hKeys && this.errCount === 0) {
@@ -3427,13 +3415,14 @@ KeyEditListener.prototype = {
 			this.cEl = el;
 			return;
 		case 'click':
+			let keys;
 			if(el.id === 'de-keys-reset') {
 				this.keys = HotKeys.getDefaultKeys();
 				this.initKeys = HotKeys.getDefaultKeys();
 				if(hKeys) {
 					hKeys.resume(this.keys);
 				}
-				temp = KeyEditListener.getEditMarkup(this.keys);
+				let temp = KeyEditListener.getEditMarkup(this.keys);
 				this.allKeys = temp[0];
 				$c('de-alert-msg', this.aEl).innerHTML = temp[1];
 				this.allInputs = aProto.slice.call($C('de-input-key', this.aEl));
@@ -3464,12 +3453,12 @@ KeyEditListener.prototype = {
 				this.errorInput = false;
 				break;
 			}
-			keyStr = KeyEditListener.keyCodes[key];
+			let keyStr = KeyEditListener.keyCodes[key];
 			if(keyStr === undefined) {
 				this.cKey = -1;
 				return;
 			}
-			str = '';
+			let str = '';
 			if(e.ctrlKey) {
 				str += 'Ctrl+';
 			}
@@ -3490,21 +3479,20 @@ KeyEditListener.prototype = {
 			this.cEl.value = str;
 			break;
 		case 'keyup':
-			var idx, rIdx, oKey, rEl, isError;
 			el = this.cEl;
 			key = this.cKey;
 			if(!el || key === -1) {
 				return;
 			}
-			isError = el.classList.contains('de-error-key');
+			let rEl, isError = el.classList.contains('de-error-key');
 			if(!this.errorInput && key !== -1) {
-				idx = this.allInputs.indexOf(el);
-				oKey = this.allKeys[idx];
+				let idx = this.allInputs.indexOf(el),
+					oKey = this.allKeys[idx];
 				if(oKey === key) {
 					this.errorInput = false;
 					break;
 				}
-				rIdx = key === 0 ? -1 : this.allKeys.indexOf(key);
+				let rIdx = key === 0 ? -1 : this.allKeys.indexOf(key);
 				this.allKeys[idx] = key;
 				if(isError) {
 					idx = this.allKeys.indexOf(oKey);
@@ -3555,7 +3543,7 @@ function initMessageFunctions() {
 		if(typeof e.data !== 'string') {
 			return;
 		}
-		var temp, data = e.data.substring(1);
+		var data = e.data.substring(1);
 		switch(e.data[0]) {
 		case 'A':
 			if(data.substr(10, 5) === 'pform') {
@@ -3676,29 +3664,30 @@ WorkerPool.prototype = {
 
 function addImgFileIcon(aEl, fName, info) {
 	var app, ext, type = info.type;
-	if(typeof type !== 'undefined') {
-		if(type === 2) {
-			app = 'application/x-rar-compressed';
-			ext = 'rar';
-		} else if(type === 1) {
-			app = 'application/zip';
-			ext = 'zip';
-		} else if(type === 0) {
-			app = 'application/x-7z-compressed';
-			ext = '7z';
-		} else if(type === 3) {
-			app = 'audio/ogg';
-			ext = 'ogg';
-		} else {
-			app = 'audio/mpeg';
-			ext = 'mp3';
-		}
-		aEl.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(
-				new Blob([new Uint8Array(info.data, info.idx)], {'type': app})
-			) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
-			'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>'
-		);
+	if(typeof type === 'undefined') {
+		return;
 	}
+	if(type === 2) {
+		app = 'application/x-rar-compressed';
+		ext = 'rar';
+	} else if(type === 1) {
+		app = 'application/zip';
+		ext = 'zip';
+	} else if(type === 0) {
+		app = 'application/x-7z-compressed';
+		ext = '7z';
+	} else if(type === 3) {
+		app = 'audio/ogg';
+		ext = 'ogg';
+	} else {
+		app = 'audio/mpeg';
+		ext = 'mp3';
+	}
+	aEl.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(
+			new Blob([new Uint8Array(info.data, info.idx)], {'type': app})
+		) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
+		'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>'
+	);
 }
 
 function* downloadImgDataHelper(url, repeatOnError) {
@@ -3712,7 +3701,7 @@ function* downloadImgDataHelper(url, repeatOnError) {
 			return null;
 		}
 	}
-	let isAb = xhr.responseType === 'arraybuffer';
+	var isAb = xhr.responseType === 'arraybuffer';
 	if(xhr.status === 0 && isAb) {
 		return new Uint8Array(xhr.response);
 	} else if(xhr.status !== 200) {
@@ -3741,11 +3730,13 @@ function preloadImages(post) {
 	if(!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {
 		return;
 	}
-	var pool, mReqs = post ? 1 : 4, cImg = 1,
-		rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile, function(e) {
-			console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
-		});
+	var pool;
 	if(isPreImg || Cfg.preLoadImgs) {
+		let cImg = 1,
+			mReqs = post ? 1 : 4,
+			rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile, function(e) {
+				console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
+			});
 		pool = new TasksPool(mReqs, async(function* (num, data) {
 			var [url, lnk, iType, nExp, el] = data,
 				imageData = yield* downloadImgData(url);
@@ -3781,33 +3772,34 @@ function preloadImages(post) {
 		});
 		Images_.preloading = true;
 	}
-	let els = $Q(aib.qThumbImages, post || dForm.el);
+	var els = $Q(aib.qThumbImages, post || dForm.el);
 	for(let i = 0, len = els.length; i < len; ++i) {
 		let el = els[i],
 			lnk = $parent(el = els[i], 'A');
-		if(lnk) {
-			let iType, url = lnk.href,
-				nExp = !!Cfg.openImgs;
-			if(/\.gif$/i.test(url)) {
-				iType = 'image/gif';
+		if(!lnk) {
+			continue;
+		}
+		let iType, url = lnk.href,
+			nExp = !!Cfg.openImgs;
+		if(/\.gif$/i.test(url)) {
+			iType = 'image/gif';
+		} else {
+			if(/\.jpe?g$/i.test(url)) {
+				iType = 'image/jpeg';
+			} else if(/\.png$/i.test(url)) {
+				iType = 'image/png';
+			} else if(/\.webm$/i.test(url)) {
+				iType = 'video/webm';
+				nExp = false;
 			} else {
-				if(/\.jpe?g$/i.test(url)) {
-					iType = 'image/jpeg';
-				} else if(/\.png$/i.test(url)) {
-					iType = 'image/png';
-				} else if(/\.webm$/i.test(url)) {
-					iType = 'video/webm';
-					nExp = false;
-				} else {
-					continue;
-				}
-				nExp &= !Cfg.openGIFs;
+				continue;
 			}
-			if(pool) {
-				pool.run([url, lnk, iType, nExp, el]);
-			} else if(nExp) {
-				el.src = url; // !
-			}
+			nExp &= !Cfg.openGIFs;
+		}
+		if(pool) {
+			pool.run([url, lnk, iType, nExp, el]);
+		} else if(nExp) {
+			el.src = url; // !
 		}
 	}
 	if(pool) {
@@ -3826,7 +3818,7 @@ function getDataFromImg(img) {
 }
 
 function loadDocFiles(imgOnly) {
-	var els, files, progress, counter, count = 0,
+	var els, progress, counter, count = 0,
 		current = 1,
 		warnings = '',
 		tar = new TarBuilder(),
@@ -3858,9 +3850,9 @@ function loadDocFiles(imgOnly) {
 			$del(el);
 		}
 	}), function() {
-		var u, a, dt, name = aib.dm + '-' + brd.replace(/[\\\/:*?"<>|]/g, '') + '-' + TNum;
+		var u, a, name = aib.dm + '-' + brd.replace(/[\\\/:*?"<>|]/g, '') + '-' + TNum;
 		if(!imgOnly) {
-			dt = doc.doctype;
+			let dt = doc.doctype;
 			$t('head', dc).insertAdjacentHTML('beforeend',
 				'<script type="text/javascript" src="data/dollscript.js"></script>');
 			tar.addString('data/dollscript.js', '(' + String(de_main_func_outer || de_main_func_inner) + ')(null, true);');
@@ -3884,9 +3876,9 @@ function loadDocFiles(imgOnly) {
 	els = aProto.slice.call($Q(aib.qThumbImages, $q('[de-form]', dc)));
 	count += els.length;
 	els.forEach(function(el) {
-		var url, lnk = $parent(el, 'A');
+		var lnk = $parent(el, 'A');
 		if(lnk) {
-			url = lnk.href;
+			let url = lnk.href;
 			if(aib.tiny) {
 				url = url.replace(/^.*?\?v=|&.*?$/g, '');
 			}
@@ -3895,7 +3887,6 @@ function loadDocFiles(imgOnly) {
 		}
 	});
 	if(!imgOnly) {
-		files = [];
 		$each($Q('#de-main, .de-parea, .de-post-btns, #de-qarea, .de-refmap, #de-updater-div, .de-video-obj,' +
 			' link[rel="alternate stylesheet"], script, ' + aib.qPostForm, dc), $del);
 		$each($T('a', dc), function(el) {
@@ -3912,11 +3903,12 @@ function loadDocFiles(imgOnly) {
 		$each($Q('.' + aib.cRPost, dc), function(post, i) {
 			post.setAttribute('de-num', i === 0 ? TNum : aib.getPNum(post));
 		});
+		let files = [];
 		$each($Q('link, *[src]', dc), function(el) {
 			if(els.indexOf(el) !== -1) {
 				return;
 			}
-			var temp, i, ext, name, url = el.tagName === 'LINK' ? el.href : el.src;
+			var name, url = el.tagName === 'LINK' ? el.href : el.src;
 			if(!this.test(url)) {
 				$del(el);
 				return;
@@ -3924,11 +3916,11 @@ function loadDocFiles(imgOnly) {
 			name = url.substring(url.lastIndexOf("/") + 1).replace(/[\\\/:*?"<>|]/g, '_')
 				.toLowerCase();
 			if(files.indexOf(name) !== -1) {
-				temp = url.lastIndexOf('.');
-				ext = url.substring(temp);
+				let temp = url.lastIndexOf('.'),
+					ext = url.substring(temp);
 				url = url.substring(0, temp);
 				name = name.substring(0, name.lastIndexOf('.'));
-				for(i = 0; ; ++i) {
+				for(let i = 0; ; ++i) {
 					temp = name + '(' + i + ')' + ext;
 					if(files.indexOf(temp) === -1) {
 						break;
@@ -3997,9 +3989,7 @@ DateTime.prototype = {
 			return false;
 		}
 		this.rPattern = '';
-		let j = 0,
-			str = m[0];
-		for(let i = 1, len = m.length; i < len; ++i) {
+		for(let i = 1, len = m.length, j = 0, str = m[0]; i < len; ++i) {
 			let a = m[i],
 				p = this.pattern[i - 2];
 			if((p === 'm' || p === 'y') && a.length > 3) {
@@ -4022,9 +4012,9 @@ DateTime.prototype = {
 			return txt;
 		}
 		return txt.replace(new RegExp(this.regex, 'g'), (...args) => {
-			var i, a, second, minute, hour, day, month, year, dtime;
-			for(i = 1; i < 8; i++) {
-				a = args[i];
+			var second, minute, hour, day, month, year, dtime;
+			for(let i = 1; i < 8; i++) {
+				let a = args[i];
 				switch(this.pattern[i - 1]) {
 				case 's': second = a; break;
 				case 'i': minute = a; break;
@@ -4094,12 +4084,12 @@ Videos._global = {
 Videos.ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 Videos.vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
 Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
-	var time, list, id = m[1],
+	var time, id = m[1],
 		wh = ' width="' + Cfg.YTubeWidth + '" height="' + Cfg.YTubeHeigh + '">',
 		sp = '<span class="de-video-resizer" title="' + Lng.expandVideo[lang] + '"></span>';
 	if(isYtube) {
 		time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
-		list = m[0].match(/list=[^&#]+/);
+		let list = m[0].match(/list=[^&#]+/);
 		el.innerHTML =
 			'<iframe frameborder="0" allowfullscreen="1" src="https://www.youtube.com/embed/' +
 			id + '?' + (enableJsapi ? 'enablejsapi=1&' : '') +
@@ -4146,12 +4136,11 @@ Videos._getTitlesLoader = function() {
 			let xhr = yield $ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json', null, false);
 			if(xhr.status === 200) {
 				try {
-					let entry = JSON.parse(xhr.responseText)[0],
-						date = new RegExp (/(.*)\s(.*)?/).exec(entry["upload_date"]);
+					let entry = JSON.parse(xhr.responseText)[0];
 					title = entry["title"];
 					author = entry["user_name"];
 					views = entry["stats_number_of_plays"];
-					publ = date[1];
+					publ = (new RegExp (/(.*)\s(.*)?/).exec(entry["upload_date"]))[1];
 				} catch(e) {}
 			}
 		}
@@ -4190,7 +4179,7 @@ Videos.prototype = {
 		return val;
 	},
 	addLink(m, loader, link, isYtube) {
-		var msg, src, time, dataObj;
+		var time, dataObj;
 		this.hasLinks = true;
 		this.linksCount++;
 		if(this.playerInfo === null) {
@@ -4230,7 +4219,7 @@ Videos.prototype = {
 					Lng.views[lang] + dataObj[2] + ', ' + Lng.published[lang] + dataObj[3];
 			}
 		} else {
-			src = isYtube ? aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '')
+			let src = isYtube ? aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '')
 				: aib.prot + '//vimeo.com/' + m[1];
 			this.post.msg.insertAdjacentHTML('beforeend',
 				'<p class="de-video-ext"><a class="de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo') +
@@ -4333,50 +4322,46 @@ VideosParser.prototype = {
 		}
 	},
 	parse(post = null) {
-		var i, els, len, loader = this._loader,
-			videos = aib.fixVideo(post);
-		for(i = 0, els = $Q('a[href*="youtu"]', post ? post.el : dForm.el), len = els.length; i < len; ++i) {
+		var loader = this._loader,
+			els = $Q('a[href*="youtu"]', post ? post.el : dForm.el);
+		for(let i = 0, len = els.length; i < len; ++i) {
 			let el = els[i],
 				m = el.href.match(Videos.ytReg);
 			if(m) {
 				let mPost = post || (aib.getPostEl(el) || {}).post;
-				if(mPost) {
-					mPost.videos.addLink(m, loader, el, true);
-				}
+				mPost && mPost.videos.addLink(m, loader, el, true);
 			}
 		}
 		if(Cfg.addVimeo) {
-			for(i = 0, els = $Q('a[href*="vimeo.com"]', post ? post.el : dForm.el), len = els.length; i < len; ++i) {
+			els = $Q('a[href*="vimeo.com"]', post ? post.el : dForm.el);
+			for(let i = 0, len = els.length; i < len; ++i) {
 				let el = els[i],
 					m = el.href.match(Videos.vimReg);
 				if(m) {
 					let mPost = post || (aib.getPostEl(el) || {}).post;
-					if(mPost) {
-						mPost.videos.addLink(m, loader, el, false);
-					}
+					mPost && mPost.videos.addLink(m, loader, el, false);
 				}
 			}
 		}
-		for(i = 0, len = videos.length; i < len; ++i) {
-			let [pst, m, isYtube] = videos[i];
-			if(pst) {
-				pst.videos.addLink(m, loader, null, isYtube);
-			}
+		els = aib.fixVideo(post);
+		for(let i = 0, len = els.length; i < len; ++i) {
+			let [pst, m, isYtube] = els[i];
+			pst && pst.videos.addLink(m, loader, null, isYtube);
 		}
 		return this;
 	}
 };
 
 function embedMediaLinks(post) {
-	var el, link, src, i, els, len;
 	if(Cfg.addMP3) {
-		for(i = 0, els = $Q('a[href*=".mp3"]', post ? post.el : dForm.el), len = els.length; i < len; ++i) {
-			link = els[i];
+		let els = $Q('a[href*=".mp3"]', post ? post.el : dForm.el);
+		for(let i = 0, len = els.length; i < len; ++i) {
+			let link = els[i];
 			if(link.target !== '_blank' && link.rel !== 'nofollow') {
 				continue;
 			}
-			src = link.href;
-			el = (post || aib.getPostEl(link).post).mp3Obj;
+			let src = link.href,
+				el = (post || aib.getPostEl(link).post).mp3Obj;
 			if(nav.canPlayMP3) {
 				if(!$q('audio[src="' + src + '"]', el)) {
 					el.insertAdjacentHTML('beforeend',
@@ -4391,10 +4376,12 @@ function embedMediaLinks(post) {
 		}
 	}
 	if(Cfg.addVocaroo) {
-		for(i = 0, els = $Q('a[href*="vocaroo.com"]', post ? post.el : dForm.el), len = els.length; i < len; ++i) {
-			link = els[i];
-			src = link.href.split('\/').pop();
-			if(!(el = link.previousSibling) || el.className !== 'de-vocaroo') {
+		let els = $Q('a[href*="vocaroo.com"]', post ? post.el : dForm.el);
+		for(let i = 0, len = els.length; i < len; ++i) {
+			let link = els[i],
+				src = link.href.split('\/').pop(),
+				el = link.previousSibling;
+			if(!el || el.className !== 'de-vocaroo') {
 				link.insertAdjacentHTML('beforebegin', '<div class="de-vocaroo"><embed' +
 					' width="148" height="44" wmode="transparent" type="application/x-shockwave-flash"' +
 					' src="http://vocaroo.com/player.swf?playMediaID=' + src + '"></div>');
@@ -4459,7 +4446,7 @@ function loadFavorThread(node) {
 }
 
 var loadPages = async(function* (count) {
-	var pages = [], hasError = false;
+	var hasError = false;
 	$alert(Lng.loading[lang], 'load-pages', true);
 	Pview.clearCache();
 	isExpImg = false;
@@ -4477,7 +4464,7 @@ var loadPages = async(function* (count) {
 		}
 		pr.txta.value = '';
 	}
-	for(var i = pageNum, len = Math.min(aib.lastPage + 1, pageNum + count); i < len; ++i) {
+	for(let i = pageNum, len = Math.min(aib.lastPage + 1, pageNum + count); i < len; ++i) {
 		let content;
 		try {
 			content = replacePost(yield ajaxLoad(aib.getPageUrl(brd, i)));
@@ -4606,15 +4593,15 @@ Spells.decompileSpell = function(type, neg, val, scope) {
 };
 Spells.prototype = {
 	_optimizeSpells(spells) {
-		var i, j, len, flags, type, spell, scope, neg, parensSpells, lastSpell = -1,
+		var neg, lastSpell = -1,
 			newSpells = [];
-		for(i = 0, len = spells.length; i < len; ++i) {
-			spell = spells[i];
-			flags = spell[0];
-			type = flags & 0xFF;
+		for(let i = 0, len = spells.length; i < len; ++i) {
+			let j, spell = spells[i],
+				flags = spell[0],
+				type = flags & 0xFF;
 			neg = (flags & 0x100) !== 0;
 			if(type === 0xFF) {
-				parensSpells = this._optimizeSpells(spell[1]);
+				let parensSpells = this._optimizeSpells(spell[1]);
 				if(parensSpells) {
 					if(parensSpells.length !== 1) {
 						newSpells.push([flags, parensSpells]);
@@ -4630,9 +4617,9 @@ Spells.prototype = {
 					neg = !(neg ^ ((flags & 0x100) !== 0));
 				}
 			} else {
-				scope = spell[2];
+				let scope = spell[2];
 				if(!scope || (scope[0] === brd &&
-					(scope[1] === -1 ? !TNum : (!scope[1] || scope[1] === TNum))))
+				   (scope[1] === -1 ? !TNum : (!scope[1] || scope[1] === TNum))))
 				{
 					if(type === 12) {
 						neg = !neg;
@@ -4676,15 +4663,16 @@ Spells.prototype = {
 		return data;
 	},
 	_decompileScope(scope, indent) {
-		var spell, type, temp, str, dScope = [], hScope = false, i = 0, j = 0, len = scope.length;
-		for(; i < len; i++, j++) {
-			spell = scope[i];
-			type = spell[0] & 0xFF;
+		var dScope = [],
+			hScope = false;
+		for(let i = 0, j = 0, len = scope.length; i < len; i++, j++) {
+			let spell = scope[i],
+				type = spell[0] & 0xFF;
 			if(type === 0xFF) {
 				hScope = true;
-				temp = this._decompileScope(spell[1], indent + '    ');
+				let temp = this._decompileScope(spell[1], indent + '    ');
 				if(temp[1]) {
-					str = ((spell[0] & 0x100) ? '!(\n' : '(\n') + indent + '    ' +
+					let str = ((spell[0] & 0x100) ? '!(\n' : '(\n') + indent + '    ' +
 						temp[0].join('\n' + indent + '    ') + '\n' + indent + ')';
 					if(j === 0) {
 						dScope[0] = str;
@@ -4740,20 +4728,20 @@ Spells.prototype = {
 			'(' + rep[2] + ',' + rep[3].replace(/\)/g, '\\)') + ')';
 	},
 	_optimizeReps(data) {
-		if(data) {
-			var nData = [];
-			data.forEach(function(temp) {
-				if(!temp[0] || (temp[0] === brd && (temp[1] === -1 ? !TNum : !temp[1] || temp[1] === TNum))) {
-					nData.push([temp[2], temp[3]]);
-				}
-			});
-			return !nData.length ? false : nData;
+		if(!data) {
+			return false;
 		}
-		return false;
+		var nData = [];
+		data.forEach(function(temp) {
+			if(!temp[0] || (temp[0] === brd && (temp[1] === -1 ? !TNum : !temp[1] || temp[1] === TNum))) {
+				nData.push([temp[2], temp[3]]);
+			}
+		});
+		return !nData.length ? false : nData;
 	},
 	_initReps(data) {
 		if(data) {
-			for(var i = data.length - 1; i >= 0; i--) {
+			for(let i = data.length - 1; i >= 0; i--) {
 				data[i][0] = toRegExp(data[i][0], false);
 			}
 		}
@@ -4829,7 +4817,7 @@ Spells.prototype = {
 		// Wraps AND-spells with brackets for proper sorting
 		for(let i = 0, len = sp.length-1; i < len; i++) {
 			if(sp[i][0] > 0x200) {
-				var temp = [0xFF, []];
+				let temp = [0xFF, []];
 				do {
 					temp[1].push(sp.splice(i, 1)[0]);
 					len--;
@@ -4878,7 +4866,7 @@ Spells.prototype = {
 	setSpells(spells, sync) {
 		this.update(spells, sync, Cfg.hideBySpell);
 		if(Cfg.hideBySpell) {
-			for(var post = dForm.firstThr.op; post; post = post.next) {
+			for(let post = dForm.firstThr.op; post; post = post.next) {
 				this.check(post);
 			}
 			this.end(savePosts);
@@ -4899,7 +4887,7 @@ Spells.prototype = {
 				fn();
 			}
 			if(this._hasComplFns) {
-				for(var i = 0, len = this._completeFns.length; i < len; ++i) {
+				for(let i = 0, len = this._completeFns.length; i < len; ++i) {
 					this._completeFns[i]();
 				}
 				this._completeFns = [];
@@ -4947,8 +4935,8 @@ Spells.prototype = {
 			spells[1].some(scope && isNeg ? function(spell, i) {
 				var data;
 				if(spell[0] === 0xFF && ((data = spell[1]) instanceof Array) && data.length === 2 &&
-					data[0][0] === 0x20C && data[1][0] === type && data[1][2] == null &&
-					String(data[1][1]) === sArg && String(data[0][2]) === sScope)
+				   data[0][0] === 0x20C && data[1][0] === type && data[1][2] == null &&
+				   String(data[1][1]) === sArg && String(data[0][2]) === sScope)
 				{
 					idx = i;
 					return true;
@@ -5004,14 +4992,13 @@ SpellsCodegen.prototype = {
 	_errMsg: '',
 	_errMsgArg: null,
 	_generate(sList, inParens) {
-		var res, name, i = 0,
-			len = sList.length,
-			spells = [],
+		var spells = [],
 			reps = [],
 			outreps = [],
 			lastType = this.TYPE_UNKNOWN,
 			hasReps = false;
-		for(; i < len; i++, this._col++) {
+		for(let i = 0, len = sList.length; i < len; i++, this._col++) {
+			let res;
 			switch(sList[i]) {
 			case '\n':
 				this._line++;
@@ -5020,7 +5007,7 @@ SpellsCodegen.prototype = {
 			case '\r':
 			case ' ': continue;
 			case '#':
-				name = '';
+				let name = '';
 				i++;
 				this._col++;
 				while((sList[i] >= 'a' && sList[i] <= 'z') || (sList[i] >= 'A' && sList[i] <= 'Z')) {
@@ -5148,7 +5135,8 @@ SpellsCodegen.prototype = {
 			this._setError(Lng.seMissClBkt[lang], null);
 			return null;
 		}
-		if(lastType !== this.TYPE_SPELL && lastType !== this.TYPE_PARENTHESES &&
+		if(lastType !== this.TYPE_SPELL &&
+		   lastType !== this.TYPE_PARENTHESES &&
 		   lastType !== this.TYPE_REPLACER)
 		{
 			this._setError(Lng.seMissSpell[lang], null);
@@ -5163,7 +5151,7 @@ SpellsCodegen.prototype = {
 		return [spells, reps, outreps];
 	},
 	_getScope(str) {
-		var scope, m = str.match(/^\[([a-z0-9\/]+)(?:(,)|,(\s*[0-9]+))?\]/);
+		var m = str.match(/^\[([a-z0-9\/]+)(?:(,)|,(\s*[0-9]+))?\]/);
 		if(m) {
 			return [m[0].length, [m[1], m[3] ? m[3] : m[2] ? -1 : false]];
 		}
@@ -5171,33 +5159,33 @@ SpellsCodegen.prototype = {
 	},
 	_getRegex(str, haveComma) {
 		var val, m = str.match(/^\((\/.*?[^\\]\/[igm]*)(?:\)|\s*(,))/);
-		if(m) {
-			if(haveComma !== !!m[2]) {
-				return null;
-			}
-			val = m[1];
-			try {
-				toRegExp(val, true);
-			} catch(e) {
-				this._setError(Lng.seErrRegex[lang], val);
-				return null;
-			}
-			return [m[0].length, val];
+		if(!m) {
+			return null;
 		}
-		return null;
+		if(haveComma !== !!m[2]) {
+			return null;
+		}
+		val = m[1];
+		try {
+			toRegExp(val, true);
+		} catch(e) {
+			this._setError(Lng.seErrRegex[lang], val);
+			return null;
+		}
+		return [m[0].length, val];
 	},
 	_getText(str, haveBracket) {
 		var m = str.match(/^(\()?(.*?[^\\])\)/);
-		if(m) {
-			if(haveBracket !== !!m[1]) {
-				return null;
-			}
-			return [m[0].length, m[2].replace(/\\\)/g, ')')];
+		if(!m) {
+			return null;
 		}
-		return null;
+		if(haveBracket !== !!m[1]) {
+			return null;
+		}
+		return [m[0].length, m[2].replace(/\\\)/g, ')')];
 	},
 	_doRep(name, str) {
-		var regex, val, scope = this._getScope(str);
+		var regex, scope = this._getScope(str);
 		if(scope) {
 			str = str.substring(scope[0]);
 		} else {
@@ -5209,7 +5197,7 @@ SpellsCodegen.prototype = {
 			if(str[0] === ')') {
 				return [regex[0] + scope[0] + 1, [scope[1][0], scope[1][1], regex[1], '']];
 			}
-			val = this._getText(str, false);
+			let val = this._getText(str, false);
 			if(val) {
 				return [val[0] + regex[0] + scope[0], [scope[1][0], scope[1][1], regex[1], val[1]]];
 			}
@@ -5286,7 +5274,7 @@ SpellsCodegen.prototype = {
 			if(m) {
 				m[1].split(/, */).forEach(function(v) {
 					if(v.contains('-')) {
-						var nums = v.split('-');
+						let nums = v.split('-');
 						nums[0] = +nums[0];
 						nums[1] = +nums[1];
 						this[1].push(nums);
@@ -5334,12 +5322,12 @@ SpellsInterpreter.prototype = {
 	hasNumSpell: false,
 	postHidden: false,
 	run() {
-		var rv, type, val, i = this._ctx.pop(),
+		var rv, i = this._ctx.pop(),
 			scope = this._ctx.pop(),
 			len = this._ctx.pop();
 		while(true) {
 			if(i < len) {
-				type = scope[i][0] & 0xFF;
+				let type = scope[i][0] & 0xFF;
 				if(type === 0xFF) {
 					this._deep++;
 					this._ctx.push(len, scope, i);
@@ -5348,7 +5336,7 @@ SpellsInterpreter.prototype = {
 					i = 0;
 					continue;
 				}
-				val = this._runSpell(type, scope[i][1]);
+				let val = this._runSpell(type, scope[i][1]);
 				if(val instanceof Promise) {
 					val.then(this._asyncContinue);
 					this._ctx.push(len, scope, i, scope[i][0]);
@@ -5392,14 +5380,13 @@ SpellsInterpreter.prototype = {
 	_lastSpellIdx: 0,
 	_wipeMsg: '',
 	_asyncContinue(val) {
-		var temp, rv = this._checkRes(this._ctx.pop(), val);
+		var rv = this._checkRes(this._ctx.pop(), val);
 		if(rv === null) {
 			if(!this.run()) {
 				return;
 			}
 		} else if(rv) {
-			temp = this._ctx.pop();
-			this._post.spellHide(this._getMsg(this._ctx.pop()[temp - 1]));
+			this._post.spellHide(this._getMsg(this._ctx.pop()[this._ctx.pop() - 1]));
 			this.postHidden = true;
 		} else if(!this._post.deleted) {
 			sVis[this._post.count] = 1;
@@ -5467,7 +5454,7 @@ SpellsInterpreter.prototype = {
 		return val.test(this._post.html);
 	},
 	_imgn(val) {
-		for(let image of this._post.images) {
+		for(var image of this._post.images) {
 			if((image instanceof Attachment) && val.test(image.info)) {
 				return true;
 			}
@@ -5475,7 +5462,7 @@ SpellsInterpreter.prototype = {
 		return false;
 	},
 	_ihash: async(function* () {
-		for(let image of this._post.images) {
+		for(var image of this._post.images) {
 			if(!(image instanceof Attachment)) {
 				continue;
 			}
@@ -5499,7 +5486,7 @@ SpellsInterpreter.prototype = {
 		return pTrip ? !val || pTrip.contains(val) : false;
 	},
 	_img(val) {
-		var temp, hide, images = this._post.images,
+		var hide, images = this._post.images,
 			[compareRule, weightVals, sizeVals] = val;
 		if(!val) {
 			return images.hasAttachments;
@@ -5561,15 +5548,15 @@ SpellsInterpreter.prototype = {
 		return this._videoVauthor(val, false);
 	},
 	_wipe(val) {
-		var arr, len, i, j, n, x, keys, pop, capsw, casew, _txt, txt = this._post.text;
+		var arr, len, x, txt = this._post.text;
 		// (1 << 0): samelines
 		if(val & 1) {
 			arr = txt.replace(/>/g, '').split(/\s*\n\s*/);
 			if((len = arr.length) > 5) {
 				arr.sort();
-				for(i = 0, n = len / 4; i < len;) {
+				for(let i = 0, n = len / 4; i < len;) {
 					x = arr[i];
-					j = 0;
+					let j = 0;
 					while(arr[i++] === x) {
 						j++;
 					}
@@ -5585,9 +5572,10 @@ SpellsInterpreter.prototype = {
 			arr = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' ');
 			if((len = arr.length) > 3) {
 				arr.sort();
-				for(i = 0, n = len / 4, keys = 0, pop = 0; i < len; keys++) {
+				let keys = 0;
+				for(let i = 0, n = len / 4, pop = 0; i < len; keys++) {
 					x = arr[i];
-					j = 0;
+					let j = 0;
 					while(arr[i++] === x) {
 						j++;
 					}
@@ -5618,9 +5606,9 @@ SpellsInterpreter.prototype = {
 		}
 		// (1 << 3): symbols
 		if(val & 8) {
-			_txt = txt.replace(/\s+/g, '');
+			let _txt = txt.replace(/\s+/g, '');
 			if((len = _txt.length) > 30 &&
-				(x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
+			   (x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
 			{
 				this._wipeMsg = 'specsymbols: ' + (x * 100).toFixed(0) + '%';
 				return true;
@@ -5630,7 +5618,10 @@ SpellsInterpreter.prototype = {
 		if(val & 16) {
 			arr = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
 			if((len = arr.length) > 4) {
-				for(i = 0, n = 0, capsw = 0, casew = 0; i < len; i++) {
+				let n = 0,
+					capsw = 0,
+					casew = 0;
+				for(let i = 0; i < len; i++) {
 					x = arr[i];
 					if((x.match(/[a-zа-я]/ig) || []).length < 5) {
 						continue;
@@ -5654,7 +5645,7 @@ SpellsInterpreter.prototype = {
 		}
 		// (1 << 5): numbers
 		if(val & 32) {
-			_txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
+			let _txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
 			if((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > 0.4) {
 				this._wipeMsg = 'numbers: ' + Math.round(x * 100) + '%';
 				return true;
@@ -5725,7 +5716,7 @@ SpellsInterpreter.prototype = {
 function disableSpells() {
 	if(spells.enable) {
 		sVis = TNum ? '1'.repeat(dForm.firstThr.pcount).split('') : [];
-		for(var post = dForm.firstThr.op; post; post = post.next) {
+		for(let post = dForm.firstThr.op; post; post = post.next) {
 			if(post.spellHidden && !post.userToggled) {
 				post.spellUnhide();
 			}
@@ -5765,7 +5756,7 @@ function addSpell(type, arg, isNeg) {
 		val = spells.list;
 		saveCfg('hideBySpell', !!val);
 		if(val) {
-			for(var post = dForm.firstThr.op; post; post = post.next) {
+			for(let post = dForm.firstThr.op; post; post = post.next) {
 				spells.check(post);
 			}
 			spells.end(savePosts);
@@ -5831,16 +5822,12 @@ function PostForm(form, ignoreForm, init, dc) {
 }
 PostForm.setUserName = function() {
 	var el = $q('input[info="nameValue"]', doc);
-	if(el) {
-		saveCfg('nameValue', el.value);
-	}
+	el && saveCfg('nameValue', el.value);
 	pr.name.value = Cfg.userName ? Cfg.nameValue : '';
 };
 PostForm.setUserPassw = function() {
 	var el = $q('input[info="passwValue"]', doc);
-	if(el) {
-		saveCfg('passwValue', el.value);
-	}
+	el && saveCfg('passwValue', el.value);
 	(pr.dpass || {}).value = pr.passw.value = Cfg.passwValue;
 };
 PostForm.prototype = {
@@ -5871,9 +5858,7 @@ PostForm.prototype = {
 		return val;
 	},
 	addTextPanel() {
-		var i, len, html, btns, tPanel = $id('de-txt-panel'),
-			id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub', 'quote'],
-			val = ['B', 'i', 'U', 'S', '%', 'C', 'v', '^', '&gt;'];
+		var id, val, btns, html = '', tPanel = $id('de-txt-panel');
 		if(!Cfg.addTextBtns) {
 			$del(tPanel);
 			return;
@@ -5884,7 +5869,10 @@ PostForm.prototype = {
 		tPanel.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
 		$after(Cfg.txtBtnsLoc ? $id('de-txta-resizer') || this.txta :
 			aib._420 ? $c('popup', this.form) : this.subm, tPanel);
-		for(html = '', i = 0, btns = aib.markupTags, len = btns.length; i < len; ++i) {
+		id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub', 'quote'],
+		val = ['B', 'i', 'U', 'S', '%', 'C', 'v', '^', '&gt;']
+		btns = aib.markupTags;
+		for(let i = 0, len = btns.length; i < len; ++i) {
 			if(btns[i] === '') {
 				continue;
 			}
@@ -5905,10 +5893,11 @@ PostForm.prototype = {
 		}
 	},
 	eventFiles(clear) {
-		var i, len, inp, els, el, last = null;
-		for(i = 0, els = $Q('input[type="file"]', this.fileTd), len = els.length; i < len; ++i) {
-			el = els[i];
-			inp = el.obj;
+		var last = null,
+			els = $Q('input[type="file"]', this.fileTd);
+		for(let i = 0, len = els.length; i < len; ++i) {
+			let el = els[i],
+				inp = el.obj;
 			if(inp) {
 				inp.prev = last;
 				if(last) {
@@ -5926,12 +5915,13 @@ PostForm.prototype = {
 		this.fileObj = els[0].obj;
 	},
 	handleEvent(e) {
-		var x, start, end, scrtop, id, len, val, el = e.target;
+		var id, el = e.target;
 		if(el.tagName !== 'SPAN') {
 			el = el.parentNode;
 		}
 		id = el.id;
 		if(id.startsWith('de-btn')) {
+			let x;
 			if(e.type === 'mouseover') {
 				if(id === 'de-btn-quote') {
 					quotetxt = $txtSelect();
@@ -5950,15 +5940,15 @@ PostForm.prototype = {
 				return;
 			}
 			x = pr.txta;
-			start = x.selectionStart;
-			end = x.selectionEnd;
+			let start = x.selectionStart,
+				end = x.selectionEnd;
 			if(id === 'de-btn-quote') {
 				$txtInsert(x, '> ' + (start === end ? quotetxt : x.value.substring(start, end))
 					.replace(/\n/gm, '\n> '));
 			} else {
-				scrtop = x.scrollTop;
-				val = this._wrapText(aib.markupBB, el.getAttribute('de-tag'), x.value.substring(start, end));
-				len = start + val[0];
+				let scrtop = x.scrollTop,
+					val = this._wrapText(aib.markupBB, el.getAttribute('de-tag'), x.value.substring(start, end)),
+					len = start + val[0];
 				x.value = x.value.substr(0, start) + val[1] + x.value.substr(end);
 				x.setSelectionRange(len, len);
 				x.focus();
@@ -5970,7 +5960,7 @@ PostForm.prototype = {
 	},
 	get isVisible() {
 		if(!this.isHidden && this.isBottom && $q(':focus', this.pForm)) {
-			var cr = this.pForm.getBoundingClientRect();
+			let cr = this.pForm.getBoundingClientRect();
 			return cr.bottom > 0 && cr.top < doc.documentElement.clientHeight;
 		}
 		return false;
@@ -6063,7 +6053,6 @@ PostForm.prototype = {
 		}
 	},
 	refreshCapImg(focus) {
-		var src, img;
 		if(this._lastCapUpdate) {
 			this._lastCapUpdate = Date.now();
 		}
@@ -6073,11 +6062,11 @@ PostForm.prototype = {
 			if(!this.cap || (aib.krau && !$q('input[name="captcha_name"]', this.form).hasAttribute('value'))) {
 				return;
 			}
-			img = this.recap ? $id('recaptcha_image') : $t('img', this.capTr);
+			let img = this.recap ? $id('recaptcha_image') : $t('img', this.capTr);
 			if(aib.dobr || aib.krau || aib.dvachnet || this.recap) {
 				img.click();
 			} else if(img) {
-				src = img.getAttribute('src');
+				let src = img.getAttribute('src');
 				if(aib.tire) {
 					src = '/' + brd + '/captcha.fpl?' + Math.random();
 				} else if(aib.kus || aib.tinyIb) {
@@ -6128,7 +6117,7 @@ PostForm.prototype = {
 	_lastCapUpdate: 0,
 	_pBtn: [],
 	_init() {
-		var btn, el;
+		var el;
 		this.pForm = $New('div', {'id': 'de-pform'}, [this.form, this.oeForm]);
 		dForm.el.insertAdjacentHTML('beforebegin', '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
 		this.pArea[0] = dForm.el.previousSibling;
@@ -6169,7 +6158,7 @@ PostForm.prototype = {
 				if(!Cfg.hangQReply) {
 					return;
 				}
-				var cr, x, y, maxX, maxY, curX = e.clientX,
+				var curX = e.clientX,
 					curY = e.clientY;
 				switch(e.type) {
 				case 'mousedown':
@@ -6182,11 +6171,11 @@ PostForm.prototype = {
 					$pd(e);
 					return;
 				case 'mousemove':
-					maxX = Post.sizing.wWidth - this._el.offsetWidth;
-					maxY = Post.sizing.wHeight - this._el.offsetHeight - 25;
-					cr = this._el.getBoundingClientRect();
-					x = cr.left + curX - this._oldX;
-					y = cr.top + curY - this._oldY;
+					let maxX = Post.sizing.wWidth - this._el.offsetWidth,
+						maxY = Post.sizing.wHeight - this._el.offsetHeight - 25,
+						cr = this._el.getBoundingClientRect(),
+						x = cr.left + curX - this._oldX,
+						y = cr.top + curY - this._oldY;
 					this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? 'right: 0' :
 						x < 0 || curX < this._oldX && x < 20 ? 'left: 0' :
 						'left: ' + x + 'px';
@@ -6257,7 +6246,7 @@ PostForm.prototype = {
 						$pd(e);
 						return;
 					case 'mousemove':
-						var cr = this._el.getBoundingClientRect();
+						let cr = this._el.getBoundingClientRect();
 						this._elStyle.width = (e.clientX - cr.left) + 'px';
 						this._elStyle.height = (e.clientY - cr.top) + 'px';
 						return;
@@ -6276,23 +6265,23 @@ PostForm.prototype = {
 			}
 		}
 		if(!aib.iich && Cfg.addSageBtn && this.mail) {
-			btn = $new('span', {'id': 'de-sagebtn', 'class': 'de-btn-sage'}, {'click': e => {
-				e.stopPropagation();
-				$pd(e);
-				toggleCfg('sageReply');
-				this._setSage();
-			}});
 			el = $parent(this.mail, 'LABEL') || this.mail;
 			if(el.nextElementSibling || el.previousElementSibling) {
 				el.style.display = 'none';
 			} else {
 				$parent(this.mail, 'TR').style.display = 'none';
 			}
-			$after(this.subm, btn);
+			el = $new('span', {'id': 'de-sagebtn', 'class': 'de-btn-sage'}, {'click': e => {
+				e.stopPropagation();
+				$pd(e);
+				toggleCfg('sageReply');
+				this._setSage();
+			}});
+			$after(this.subm, el);
 			setTimeout(this._setSage.bind(this), 0);
 			if(aib._2chru) {
-				while(btn.nextSibling) {
-					$del(btn.nextSibling);
+				while(el.nextSibling) {
+					$del(el.nextSibling);
 				}
 			}
 		}
@@ -6310,7 +6299,6 @@ PostForm.prototype = {
 			this.subm.value = Lng.reply[lang];
 		}
 		this.subm.addEventListener('click', e => {
-			var temp, val = this.txta.value;
 			if(aib._2chru && !aib.reqCaptcha) {
 				$ajax('/' + brd + '/api/requires-captcha').then(xhr => {
 					if(xhr.status !== 200) {
@@ -6351,11 +6339,12 @@ PostForm.prototype = {
 				$alert(Lng.subjHasTrip[lang], 'upload', false);
 				return;
 			}
+			var val = this.txta.value;
 			if(spells.haveOutreps) {
 				val = spells.outReplace(val);
 			}
 			if(this.tNum && pByNum[this.tNum].subj === 'Dollchan Extension Tools') {
-				temp = '\n\n' + this._wrapText(aib.markupBB, aib.markupTags[5],
+				let temp = '\n\n' + this._wrapText(aib.markupBB, aib.markupTags[5],
 					'-'.repeat(50) + '\n' + nav.ua + '\nv' + version + ' [' + nav.scriptInstall + ']')[1];
 				if(!val.contains(temp)) {
 					val += temp;
@@ -6560,8 +6549,9 @@ PostForm.prototype = {
 		}
 	},
 	_wrapText(markupBB, tag, text) {
-		var str, m;
+		var m;
 		if(markupBB) {
+			let str;
 			if(text.contains('\n')) {
 				str = '[' + tag + ']' + text + '[/' + tag + ']';
 				return [str.length, str];
@@ -6570,11 +6560,14 @@ PostForm.prototype = {
 			str = m[1] + '[' + tag + ']' + m[2] + '[/' + tag + ']' + m[3];
 			return [!m[2].length ? m[1].length + tag.length + 2 : str.length, str];
 		}
-		for(var rv = '', i = 0, arr = text.split('\n'), len = arr.length; i < len; ++i) {
+		var rv = '', i = 0,
+			arr = text.split('\n');
+		for(let len = arr.length; i < len; ++i) {
 			m = arr[i].match(/^(\s*)(.*?)(\s*)$/);
 			rv += '\n' + m[1] + (tag === '^H' ? m[2] + '^H'.repeat(m[2].length) : tag + m[2] + tag) + m[3];
 		}
-		return [i === 1 && !m[2].length && tag !== '^H' ? m[1].length + tag.length :
+		return [i === 1 && !m[2].length && tag !== '^H' ?
+			m[1].length + tag.length :
 			rv.length - 1, rv.slice(1)];
 	}
 };
@@ -6611,13 +6604,11 @@ FileInput.prototype = {
 		this.hideInputs();
 	},
 	delUtils() {
-		var mParent;
 		if(Cfg.fileThumb) {
 			this.thumb.classList.add('de-file-off');
 			if(this._mediaEl) {
 				window.URL.revokeObjectURL(this._mediaEl.src);
-				mParent = this._mediaEl.parentNode;
-				mParent.title = Lng.clickToAdd[lang];
+				this._mediaEl.parentNode.title = Lng.clickToAdd[lang];
 				$del(this._mediaEl);
 				this._mediaEl = null;
 			}
@@ -6672,7 +6663,7 @@ FileInput.prototype = {
 		}
 	},
 	hideInputs() {
-		var hideThumbs = Cfg.fileThumb, inp = this.next;
+		var inp = this.next;
 		while(inp && inp.empty) {
 			inp = inp.next;
 		}
@@ -6681,6 +6672,7 @@ FileInput.prototype = {
 			while(inp.prev && inp.prev.empty) {
 				inp = inp.prev;
 			}
+			let hideThumbs = Cfg.fileThumb;
 			while((inp = inp.next)) {
 				if(hideThumbs) {
 					inp.thumb.style.display = 'none';
@@ -6691,13 +6683,12 @@ FileInput.prototype = {
 		}
 	},
 	init(update) {
-		var imgTD;
 		if(Cfg.fileThumb) {
 			this.form.fileTd.parentNode.style.display = 'none';
-			imgTD = this.form.fileArea;
-			imgTD.insertAdjacentHTML('beforeend', '<div class="de-file de-file-off"><div class="de-file-img">' +
+			this.form.fileArea.insertAdjacentHTML('beforeend',
+				'<div class="de-file de-file-off"><div class="de-file-img">' +
 				'<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
-			this.thumb = imgTD.lastChild;
+			this.thumb = this.form.fileArea.lastChild;
 			this.thumb.addEventListener('mouseover', this, false);
 			this.thumb.addEventListener('mouseout', this, false);
 			this.thumb.addEventListener('click', this, false);
@@ -6799,29 +6790,30 @@ FileInput.prototype = {
 	},
 	_showPviewImage() {
 		var files = this.el.files;
-		if(files && files[0]) {
-			readFileArrayBuffer(files[0]).then(val => {
-				this.form.eventFiles(false);
-				var file = this.el.files[0],
-					thumb = this.thumb;
-				if(this.empty) {
-					return;
-				}
-				thumb.classList.remove('de-file-off');
-				thumb = thumb.firstChild.firstChild;
-				thumb.title = file.name + ', ' + (file.size/1024).toFixed(2) + 'KB';
-				thumb.insertAdjacentHTML('afterbegin', file.type === 'video/webm' ?
-					'<video class="de-file-img" loop autoplay muted src=""></video>' :
-					'<img class="de-file-img" src="">');
-				this._mediaEl = thumb = thumb.firstChild;
-				thumb.src = window.URL.createObjectURL(new Blob([val]));
-				thumb = thumb.nextSibling;
-				if(thumb) {
-					window.URL.revokeObjectURL(thumb.src);
-					$del(thumb);
-				}
-			});
+		if(!files || !files[0]) {
+			return;
 		}
+		readFileArrayBuffer(files[0]).then(val => {
+			this.form.eventFiles(false);
+			if(this.empty) {
+				return;
+			}
+			var file = this.el.files[0],
+				thumb = this.thumb;
+			thumb.classList.remove('de-file-off');
+			thumb = thumb.firstChild.firstChild;
+			thumb.title = file.name + ', ' + (file.size/1024).toFixed(2) + 'KB';
+			thumb.insertAdjacentHTML('afterbegin', file.type === 'video/webm' ?
+				'<video class="de-file-img" loop autoplay muted src=""></video>' :
+				'<img class="de-file-img" src="">');
+			this._mediaEl = thumb = thumb.firstChild;
+			thumb.src = window.URL.createObjectURL(new Blob([val]));
+			thumb = thumb.nextSibling;
+			if(thumb) {
+				window.URL.revokeObjectURL(thumb.src);
+				$del(thumb);
+			}
+		});
 	}
 };
 
@@ -6890,8 +6882,8 @@ FormResizer.prototype = {
 // ===========================================================================================================
 
 function getSubmitError(dc) {
-	var err = '', form = $q(aib.qDForm, dc);
-	if(dc.body.hasChildNodes() && !form) {
+	var err = '';
+	if(dc.body.hasChildNodes() && !$q(aib.qDForm, dc)) {
 		if(aib.mak) {
 			try {
 				return Lng.error[lang] + ':\n' + JSON.parse(dc.body.innerHTML)['Reason'];
@@ -6910,15 +6902,14 @@ function getSubmitError(dc) {
 var doUploading = async(function* (getProgress) {
 	$alert(Lng.sendingPost[lang] +
 		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;"></progress><div style="display: none; font: bold 12px sans-serif;"><span></span> / <span></span> (<span></span>)</div>', 'upload', true);
-	let beginTime = Date.now(),
+	var p, beginTime = Date.now(),
 		inited = false,
 		progress = $id('de-uploadprogress'),
 		counterWrap = progress.nextSibling,
 		counterEl = counterWrap.firstChild,
 		totalEl = counterEl.nextElementSibling,
 		speedEl = totalEl.nextElementSibling;
-	let p;
-	while(p = getProgress()) {
+	while((p = getProgress())) {
 		let val;
 		try {
 			val = yield p;
@@ -6953,7 +6944,7 @@ function checkUpload(dc) {
 		aib.btnZeroLUTime.click();
 	}
 	updater['continue']();
-	var el, err = getSubmitError(dc);
+	var err = getSubmitError(dc);
 	if(err) {
 		if(pr.isQuick) {
 			pr.setReply(true, false);
@@ -6978,7 +6969,7 @@ function checkUpload(dc) {
 		window.location = aib.getThrdUrl(brd, aib.getTNum($q(aib.qDForm, dc)));
 		return;
 	}
-	el = !aib.tiny && !aib.kus &&
+	var el = !aib.tiny && !aib.kus &&
 		(aib.qPostRedir === null || $q(aib.qPostRedir, dc)) ? $q(aib.qDForm, dc) : null;
 	if(TNum) {
 		dForm.firstThr.clearPostsMarks();
@@ -7012,7 +7003,7 @@ function checkUpload(dc) {
 }
 
 var checkDelete = async(function* (dc) {
-	let err = getSubmitError(dc);
+	var err = getSubmitError(dc);
 	if(err) {
 		$alert(Lng.errDelete[lang] + err, 'delete', false);
 		updater.sendErrNotif();
@@ -7028,8 +7019,8 @@ var checkDelete = async(function* (dc) {
 			doc.location.hash = '';
 		}
 	}
-	let els = $Q('.' + aib.cRPost + ' input:checked', dForm.el);
-	let threads = new Set();
+	var els = $Q('.' + aib.cRPost + ' input:checked', dForm.el),
+		threads = new Set();
 	for(let i = 0, len = els.length; i < len; ++i) {
 		let el = els[i];
 		el.checked = false;
@@ -7061,8 +7052,7 @@ function* html5Submit(form, needProgress = false) {
 			if(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) &&
 			   (Cfg.postSameImg || Cfg.removeEXIF))
 			{
-				let data = cleanFile((yield readFileArrayBuffer(value)),
-                                     el.obj.imgFile);
+				let data = cleanFile((yield readFileArrayBuffer(value)), el.obj.imgFile);
 				if(!data) {
 					return Promise.reject(Lng.fileCorrupt[lang] + fileName);
 				}
@@ -7074,8 +7064,8 @@ function* html5Submit(form, needProgress = false) {
 		formData.append(name, value);
 	}
 	if(needProgress) {
-		let lastFuncs = null;
-		let promises = [new Promise((resolve, reject) => lastFuncs = {resolve, reject})];
+		let lastFuncs = null,
+			promises = [new Promise((resolve, reject) => lastFuncs = {resolve, reject})];
 		$ajax(form.action, {method: 'POST', data: formData, onprogress: e => {
 			lastFuncs.resolve({ done: false, data: {loaded: e.loaded, total: e.total} });
 			promises.push(new Promise((resolve, reject) => lastFuncs = {resolve, reject}));
@@ -7105,7 +7095,7 @@ function readFileArrayBuffer(file) {
 }
 
 function cleanFile(data, extraData) {
-	var tmp, i, len, deep, val, lIdx, jpgDat, img = nav.getUnsafeUint8Array(data),
+	var i, len, val, lIdx, jpgDat, img = nav.getUnsafeUint8Array(data),
 		rand = Cfg.postSameImg && String(Math.round(Math.random() * 1e6)),
 		rExif = !!Cfg.removeEXIF,
 		rv = extraData ? rand ? [img, extraData, rand] : [img, extraData] : rand ?
@@ -7115,15 +7105,15 @@ function cleanFile(data, extraData) {
 	}
 	// JPG
 	if(img[0] === 0xFF && img[1] === 0xD8) {
-		for(i = 2, deep = 1, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len; ) {
+		let deep = 1; 
+		for(i = 2, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len; ) {
 			if(img[i] === 0xFF) {
 				if(rExif) {
 					if(!jpgDat && deep === 1) {
 						if(img[i + 1] === 0xE1 && img[i + 4] === 0x45) {
 							jpgDat = readExif(data, i + 10, (img[i + 2] << 8) + img[i + 3]);
 						} else if(img[i + 1] === 0xE0 && img[i + 7] === 0x46 &&
-								  (img[i + 2] !== 0 || img[i + 3] >= 0x0E ||
-								  img[i + 15] !== 0xFF))
+						         (img[i + 2] !== 0 || img[i + 3] >= 0x0E || img[i + 15] !== 0xFF))
 						{
 							jpgDat = img.subarray(i + 11, i + 16);
 						}
@@ -7186,7 +7176,7 @@ function cleanFile(data, extraData) {
 }
 
 function readExif(data, off, len) {
-	var i, j, dE, tag, tgLen, xRes = 0,
+	var i, xRes = 0,
 		yRes = 0,
 		resT = 0,
 		dv = nav.getUnsafeDataView(data, off),
@@ -7198,8 +7188,9 @@ function readExif(data, off, len) {
 	if(i > len) {
 		return null;
 	}
-	for(tgLen = dv.getUint16(i, le), j = 0; j < tgLen; j++) {
-		tag = dv.getUint16(dE = i + 2 + 12 * j, le);
+	for(let j = 0, tgLen = dv.getUint16(i, le); j < tgLen; j++) {
+		let dE = i + 2 + 12 * j,
+			tag = dv.getUint16(dE, le);
 		if(tag === 0x0128) {
 			resT = dv.getUint16(dE + 8, le) - 1;
 		} else if(tag === 0x011A || tag === 0x011B) {
@@ -7224,23 +7215,22 @@ WebmParser = function(data) {
 		segmentId = 0x18538067,
 		voidId = 0xEC;
 	function WebmElement(elData, dataLength, offset) {
-		var num, clz, id, size, headSize = 0;
 		if(offset + 4 >= dataLength) {
 			return;
 		}
-		num = elData.getUint32(offset);
-		clz = Math.clz32(num);
+		var num = elData.getUint32(offset),
+			clz = Math.clz32(num);
 		if(clz > 3) {
 			this.error = true;
 			return;
 		}
-		id = num >>> (8 * (3 - clz));
-		headSize += clz + 1;
 		offset += clz + 1;
 		if(offset + 4 >= dataLength) {
 			this.error = true;
 			return;
 		}
+		var id = num >>> (8 * (3 - clz)),
+			headSize = clz + 1;
 		num = elData.getUint32(offset);
 		clz = Math.clz32(num);
 		if(clz > 3) {
@@ -7257,7 +7247,7 @@ WebmParser = function(data) {
 			num = elData.getUint32(offset);
 			clz -= 4;
 		}
-		size = num >>> (8 * (3 - clz));
+		var size = num >>> (8 * (3 - clz));
 		headSize += clz + 1;
 		offset += clz + 1;
 		if(offset + size > dataLength) {
@@ -7329,8 +7319,7 @@ WebmParser = function(data) {
 			if(this.error) {
 				return null;
 			}
-			var len = this.segment.endOffset;
-			this.rv[0] = nav.getUnsafeUint8Array(this.data, 0, len);
+			this.rv[0] = nav.getUnsafeUint8Array(this.data, 0, this.segment.endOffset);
 			return this.rv;
 		}
 	};
@@ -7344,32 +7333,32 @@ WebmParser = function(data) {
 // ===========================================================================================================
 
 function genImgHash(data) {
-	var i, j, l, c, t, u, g, buf = new Uint8Array(data[0]),
+	var buf = new Uint8Array(data[0]),
 		oldw = data[1],
 		oldh = data[2],
-		tmp = oldw * oldh,
-		newh = 8,
+		size = oldw * oldh;
+	for(let i = 0, j = 0; i < size; i++, j += 4) {
+		buf[i] = buf[j] * 0.3 + buf[j + 1] * 0.59 + buf[j + 2] * 0.11;
+	}
+	var newh = 8,
 		neww = 8,
 		levels = 3,
 		areas = 256 / levels,
 		values = 256 / (levels - 1),
 		hash = 0;
-	for(i = 0, j = 0; i < tmp; i++, j += 4) {
-		buf[i] = buf[j] * 0.3 + buf[j + 1] * 0.59 + buf[j + 2] * 0.11;
-	}
-	for(i = 0; i < newh; i++) {
-		for(j = 0; j < neww; j++) {
-			tmp = i / (newh - 1) * (oldh - 1);
-			l = Math.min(tmp | 0, oldh - 2);
-			u = tmp - l;
+	for(let i = 0; i < newh; i++) {
+		for(let j = 0; j < neww; j++) {
+			let tmp = i / (newh - 1) * (oldh - 1),
+				l = Math.min(tmp | 0, oldh - 2),
+				u = tmp - l;
 			tmp = j / (neww - 1) * (oldw - 1);
-			c = Math.min(tmp | 0, oldw - 2);
-			t = tmp - c;
+			let c = Math.min(tmp | 0, oldw - 2),
+				t = tmp - c;
 			hash = (hash << 4) + Math.min(values * (((buf[l * oldw + c] * ((1 - t) * (1 - u)) +
 				buf[l * oldw + c + 1] * (t * (1 - u)) +
 				buf[(l + 1) * oldw + c + 1] * (t * u) +
 				buf[(l + 1) * oldw + c] * ((1 - t) * u)) / areas) | 0), 255);
-			g = hash & 0xF0000000;
+			let g = hash & 0xF0000000;
 			if(g) {
 				hash ^= g >>> 24;
 			}
@@ -7394,7 +7383,7 @@ ImgBtnsShowHider.prototype = {
 	handleEvent(e) {
 		switch(e.type) {
 		case 'mousemove':
-			var curX = e.clientX,
+			let curX = e.clientX,
 				curY = e.clientY;
 			if(this._oldX !== curX || this._oldY !== curY) {
 				this._oldX = curX;
@@ -7463,7 +7452,7 @@ AttachmentViewer.prototype = {
 		this._remove(e);
 	},
 	handleEvent(e) {
-		var temp, isOverEvent = false;
+		var isOverEvent = false;
 		switch(e.type) {
 		case 'mousedown':
 			if(this.data.isVideo && this.data.isControlClick(e, this._elStyle.height)) {
@@ -7475,7 +7464,7 @@ AttachmentViewer.prototype = {
 			doc.body.addEventListener('mouseup', this, true);
 			break;
 		case 'mousemove':
-			var curX = e.clientX,
+			let curX = e.clientX,
 				curY = e.clientY;
 			if(curX !== this._oldX || curY !== this._oldY) {
 				this._elStyle.left = (this._oldL = parseInt(this._elStyle.left, 10) + curX - this._oldX) + 'px';
@@ -7508,7 +7497,7 @@ AttachmentViewer.prototype = {
 			isOverEvent = true;
 			/* falls through */
 		case 'mouseout':
-			temp = e.relatedTarget;
+			let temp = e.relatedTarget;
 			if(!temp || (temp !== this._obj && !this._obj.contains(temp))) {
 				if(isOverEvent) {
 					Pview.mouseEnter(this.data.post);
@@ -7563,10 +7552,10 @@ AttachmentViewer.prototype = {
 		return val;
 	},
 	_getHolder(el, data) {
-		var obj, html, size = data.computeFullSize(false),
-			screenWidth = Post.sizing.wWidth,
+		var screenWidth = Post.sizing.wWidth,
 			screenHeight = Post.sizing.wHeight,
 			minSize = Cfg.minImgSize,
+			size = data.computeFullSize(false),
 			ar = size[0] / size[1];
 		this._ar = ar;
 		this._curW = size[0];
@@ -7579,12 +7568,11 @@ AttachmentViewer.prototype = {
 		}
 		this._minSize = minSize;
 		this._maxSize = !size[2] ? null :
-			minSize > (size[2][2] > 1 ? size[2][0]: size[2][1]) ? size[2] : null;
+			minSize > (size[2][2] > 1 ? size[2][0] : size[2][1]) ? size[2] : null;
 		this._oldL = (screenWidth - size[0]) / 2 - 1;
 		this._oldT = (screenHeight - size[1]) / 2 - 1;
-		html = '<div class="de-img-center" style="top:' + this._oldT + 'px; left:' +
-			this._oldL + 'px; width:' + size[0] + 'px; height:' + size[1] + 'px; display: block"></div>';
-		obj = $add(html);
+		var obj = $add('<div class="de-img-center" style="top:' + this._oldT + 'px; left:' +
+			this._oldL + 'px; width:' + size[0] + 'px; height:' + size[1] + 'px; display: block"></div>');
 		if(data.isImage) {
 			obj.insertAdjacentHTML('afterbegin', '<a href="' + data.src + '"></a>');
 			obj.firstChild.appendChild(el);
@@ -7597,14 +7585,14 @@ AttachmentViewer.prototype = {
 		if(delta === 0) {
 			return;
 		}
-		var tmp, oldW = this._curW,
+		var oldW = this._curW,
 			oldH = this._curH,
 			width = delta < 0 ? oldW * this._zoomFactor : oldW / this._zoomFactor,
 			height = delta < 0 ? oldH * this._zoomFactor : oldH / this._zoomFactor;
 		if(delta > 0) {
-			tmp = resizeImage([width, height, this._ar], this._minSize, this._maxSize);
-			width = tmp[0];
-			height = tmp[1];
+			let size = resizeImage([width, height, this._ar], this._minSize, this._maxSize);
+			width = size[0];
+			height = size[1];
 		}
 		this._curW = width;
 		this._curH = height;
@@ -7615,9 +7603,8 @@ AttachmentViewer.prototype = {
 	},
 	_show(data) {
 		var el = data.getFullObject(),
-			obj = this._getHolder(el, data),
-			style = obj.style;
-		this._elStyle = style;
+			obj = this._getHolder(el, data);
+		this._elStyle = obj.style;
 		this.data = data;
 		this._fullEl = el;
 		this._obj = obj;
@@ -7708,7 +7695,7 @@ IAttachmentData.prototype = {
 		return false;
 	},
 	computeFullSize(inPost) {
-		var maxWidth, maxHeight, maxSize, temp, width = this.width,
+		var maxSize, width = this.width,
 			height = this.height;
 		if(Cfg.resizeDPI) {
 			width /= Post.sizing.dPxRatio;
@@ -7718,18 +7705,17 @@ IAttachmentData.prototype = {
 			if(inPost) {
 				maxSize = [Post.sizing.wWidth - this._offset - 3, Number.MAX_SAFE_INTEGER, 0];
 			} else {
-				maxWidth = Post.sizing.wWidth - 2;
-				maxHeight = Post.sizing.wHeight - 2;
+				let maxWidth = Post.sizing.wWidth - 2,
+					maxHeight = Post.sizing.wHeight - 2;
 				maxSize = [maxWidth, maxHeight, maxWidth / maxHeight];
 			}
 		} else {
 			maxSize = null;
 		}
-		temp = resizeImage([width, height, width / height], Cfg.minImgSize, maxSize);
-		return [temp[0], temp[1], maxSize];
+		var size = resizeImage([width, height, width / height], Cfg.minImgSize, maxSize);
+		return [size[0], size[1], maxSize];
 	},
 	expand(inPost, e) {
-		var size, el = this.el;
 		if(!inPost) {
 			if(Attachment.viewer) {
 				if(Attachment.viewer.data === this) {
@@ -7744,9 +7730,10 @@ IAttachmentData.prototype = {
 			return;
 		}
 		this.expanded = true;
+		var el = this.el,
+			size = this.computeFullSize(inPost);
 		(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-after-fimg"></div>');
-		size = this.computeFullSize(inPost);
 		el.parentNode.style.display = 'none';
 		this._fullEl = this.getFullObject();
 		this._fullEl.className = 'de-img-full';
@@ -7872,11 +7859,8 @@ function EmbeddedImage(post, el, idx) {
 }
 EmbeddedImage.prototype = Object.create(IAttachmentData.prototype, {
 	getFollow: { value(isForward) {
-		let nImage = this.post.images.data[isForward ? this.idx + 1 : this.idx - 1];
-		if(nImage) {
-			return nImage;
-		}
-		return this.getFollowPost(isForward);
+		var nImage = this.post.images.data[isForward ? this.idx + 1 : this.idx - 1];
+		return nImage ? nImage : this.getFollowPost(isForward);
 	} },
 	_useCache: { value: false },
 	_getImageSize: { value() {
@@ -7922,9 +7906,9 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 		return val;
 	} },
 	weight: { configurable: true, get() {
-		var w, val = 0;
+		var val = 0;
 		if(this.info) {
-			w = this.info.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
+			let w = this.info.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
 			val = w[2] === 'M' ? (w[1] * 1e3) | 0 : !w[2] ? Math.round(w[1] / 1e3) : w[1];
 		}
 		Object.defineProperty(this, 'weight', { value: val });
@@ -7932,10 +7916,7 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 	} },
 	getFollow: { value(isForward) {
 		var nImage = this.post.images.data[isForward ? this.idx + 1 : this.idx - 1];
-		if(nImage) {
-			return nImage;
-		}
-		return this.getFollowPost(isForward);
+		return nImage ? nImage : this.getFollowPost(isForward);
 	} },
 	getHash: { value() {
 		return new Promise((resolve, reject) => {
@@ -7954,8 +7935,7 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 							resolve(-1);
 						}
 						var buffer = data.buffer;
-						runWorker([buffer, this.el.naturalWidth, this.el.naturalHeight],
-								  [buffer]);
+						runWorker([buffer, this.el.naturalWidth, this.el.naturalHeight], [buffer]);
 					});
 				} else if(this.el.naturalWidth + this.el.naturalHeight === 0) {
 					resolve(this.hash = -1);
@@ -8007,14 +7987,15 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 	_processing: { writable: true, value: false },
 	_needToHide: { writable: true, value: false },
 	_useCache: { configurable: true, get() {
-		var val = !this.inPview && !this.post.isOp && !this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4;
+		var val = !this.inPview && !this.post.isOp &&
+			!this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4;
 		Object.defineProperty(this, '_useCache', { value: val });
 		return val;
 	} },
 	_getImageSize: { value() {
 		if(this.info) {
-			var sz = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
-			return [sz[1], sz[2]];
+			let size = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
+			return [size[1], size[2]];
 		}
 		return [-1, -1];
 	} },
@@ -8027,8 +8008,8 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 });
 
 function addImagesSearch(el) {
-	for(var link, i = 0, els = $Q(aib.qImgLink, el), len = els.length; i < len; i++) {
-		link = els[i];
+	for(var i = 0, els = $Q(aib.qImgLink, el), len = els.length; i < len; i++) {
+		let link = els[i];
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
 			continue;
@@ -8058,7 +8039,6 @@ function embedImagesLinks(el) {
 // ===========================================================================================================
 
 function Post(el, thr, num, count, isOp, prev, isLight) {
-	var refEl, html;
 	this.count = count;
 	this.el = el;
 	this.isOp = isOp;
@@ -8071,11 +8051,12 @@ function Post(el, thr, num, count, isOp, prev, isLight) {
 	if(isLight) {
 		return;
 	}
-	this._pref = refEl = $q(aib.qRef, el);
+	var refEl = $q(aib.qRef, el),
+		html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') +
+			'"><span class="de-btn-hide" de-menu="hide"></span><span class="de-btn-rep"></span>';
+	this._pref = refEl;
 	this.ref = [];
 	el.post = this;
-	html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') +
-		'"><span class="de-btn-hide" de-menu="hide"></span><span class="de-btn-rep"></span>';
 	if(isOp) {
 		if(!TNum) {
 			html += '<span class="de-btn-expthr" de-menu="expand"></span>';
@@ -8095,15 +8076,16 @@ function Post(el, thr, num, count, isOp, prev, isLight) {
 }
 Post.hiddenNums = [];
 Post.getWrds = function(text) {
-	return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').substring(0, 800).split(' ');
+	return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').trim().substring(0, 800).split(' ');
 };
 Post.findSameText = function(oNum, oHid, oWords, date, post) {
-	var j, words = Post.getWrds(post.text),
+	var words = Post.getWrds(post.text),
 		len = words.length,
 		i = oWords.length,
 		olen = i,
 		_olen = i,
 		n = 0;
+	console.log(words)
 	if(len < olen * 0.4 || len > olen * 3) {
 		return;
 	}
@@ -8112,7 +8094,7 @@ Post.findSameText = function(oNum, oHid, oWords, date, post) {
 			_olen--;
 			continue;
 		}
-		j = len;
+		let j = len;
 		while(j--) {
 			if(words[j] === oWords[i] || oWords[i].match(/>>\d+/) && words[j].match(/>>\d+/)) {
 				n++;
@@ -8226,7 +8208,7 @@ Post.prototype = {
 						$pd(e);
 						e.stopPropagation();
 					} else if(Cfg.insertNum && pr.form && temp === this._pref &&
-						!/Reply|Ответ/.test(el.textContent))
+					          !/Reply|Ответ/.test(el.textContent))
 					{
 						$pd(e);
 						e.stopPropagation();
@@ -8255,8 +8237,8 @@ Post.prototype = {
 				return;
 			case 'OBJECT':
 			case 'VIDEO':
-				if(Cfg.expandImgs !== 0 && !(Cfg.webmControl && e.clientY >
-					(el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)))
+				if(Cfg.expandImgs !== 0 && !(Cfg.webmControl &&
+				   e.clientY > (el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)))
 				{
 					this._clickImage(el, e);
 				}
@@ -8306,8 +8288,7 @@ Post.prototype = {
 			}
 			return;
 		}
-		if(type === 'mouseover' &&
-		   Cfg.expandImgs &&
+		if(type === 'mouseover' && Cfg.expandImgs &&
 		   !el.classList.contains('de-img-full') &&
 		   (temp = this.images.getImageByEl(el)) &&
 		   (temp.isImage || temp.isVideo))
@@ -8520,36 +8501,35 @@ Post.prototype = {
 		}
 	},
 	setVisib(hide) {
-		var el, tEl;
 		if(this.hidden === hide) {
 			return;
 		}
 		if(this.isOp) {
 			this.hidden = this.thr.hidden = hide;
-			tEl = this.thr.el;
+			let el = $id('de-thr-hid-' + this.num),
+				tEl = this.thr.el;
 			tEl.style.display = hide ? 'none' : '';
-			el = $id('de-thr-hid-' + this.num);
 			if(el) {
 				el.style.display = hide ? '' : 'none';
-			} else {
-				tEl.insertAdjacentHTML('beforebegin', '<div class="' + aib.cReply +
-					' de-thr-hid" id="de-thr-hid-' + this.num + '">' + Lng.hiddenThrd[lang] +
-					' <a href="#">№' + this.num + '</a> <span class="de-thread-note"></span></div>');
-				el = $t('a', tEl.previousSibling);
-				el.onclick = el.onmouseover = el.onmouseout = e => {
-					switch(e.type) {
-					case 'click':
-						this.toggleUserVisib();
-						$pd(e);
-						return;
-					case 'mouseover': this.thr.el.style.display = ''; return;
-					default: // mouseout
-						if(this.hidden) {
-							this.thr.el.style.display = 'none';
-						}
-					}
-				};
+				return;
 			}
+			tEl.insertAdjacentHTML('beforebegin', '<div class="' + aib.cReply +
+				' de-thr-hid" id="de-thr-hid-' + this.num + '">' + Lng.hiddenThrd[lang] +
+				' <a href="#">№' + this.num + '</a> <span class="de-thread-note"></span></div>');
+			el = $t('a', tEl.previousSibling);
+			el.onclick = el.onmouseover = el.onmouseout = e => {
+				switch(e.type) {
+				case 'click':
+					this.toggleUserVisib();
+					$pd(e);
+					return;
+				case 'mouseover': this.thr.el.style.display = ''; return;
+				default: // mouseout
+					if(this.hidden) {
+						this.thr.el.style.display = 'none';
+					}
+				}
+			};
 			return;
 		}
 		if(Cfg.delHiddPost) {
@@ -8607,7 +8587,7 @@ Post.prototype = {
 		return this.thr.num;
 	},
 	toggleImages(expand) {
-		for(let image of this.images) {
+		for(var image of this.images) {
 			if(image.isImage && (image.expanded ^ expand)) {
 				if(expand) {
 					image.expand(true, null);
@@ -8620,9 +8600,8 @@ Post.prototype = {
 	},
 	toggleUserVisib() {
 		var isOp = this.isOp,
-			hide = !this.hidden,
-			date = Date.now();
-		this.setUserVisib(hide, date, true);
+			hide = !this.hidden;
+		this.setUserVisib(hide, Date.now(), true);
 		if(isOp) {
 			if(hide) {
 				hThr[brd][this.num] = this.title;
@@ -8634,8 +8613,8 @@ Post.prototype = {
 		saveUserPosts();
 	},
 	get topCoord() {
-		var el = this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el;
-		return el.getBoundingClientRect().top;
+		return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el)
+			.getBoundingClientRect().top;
 	},
 	get trunc() {
 		var el = aib.qTrunc && $q(aib.qTrunc, this.el), val = null;
@@ -8659,10 +8638,8 @@ Post.prototype = {
 	},
 	unselect() {
 		if(this.isOp) {
-			var el = $id('de-thr-hid-' + this.num);
-			if(el) {
-				el.classList.remove('de-selected');
-			}
+			let el = $id('de-thr-hid-' + this.num);
+			el && el.classList.remove('de-selected');
 			this.thr.el.classList.remove('de-selected');
 		} else {
 			this.el.classList.remove('de-selected');
@@ -8716,10 +8693,8 @@ Post.prototype = {
 		}
 	},
 	_addMenu(el) {
-		var html, cr = el.getBoundingClientRect(),
-			isLeft = false,
-			className = 'de-menu ' + aib.cReply,
-			xOffset = window.pageXOffset;
+		var html, isLeft = false,
+			className = 'de-menu ' + aib.cReply;
 		switch(el.getAttribute('de-menu')) {
 		case 'hide':
 			if(!Cfg.menuHiddBtn) {
@@ -8736,6 +8711,8 @@ Post.prototype = {
 			className += ' de-imgmenu';
 			html = this._addMenuImgSrc(el);
 		}
+		var cr = el.getBoundingClientRect(),
+			xOffset = window.pageXOffset;
 		doc.body.insertAdjacentHTML('beforeend', '<div class="' + className +
 			'" style="position: absolute; ' + (
 			isLeft ? 'left: ' + (cr.left + xOffset) :
@@ -8751,12 +8728,12 @@ Post.prototype = {
 		this._menu.addEventListener('mouseout', this, false);
 	},
 	_addMenuHide() {
-		var sel, ssel, str = '', addItem = function(name) {
-			str += '<span info="spell-' + name + '" class="de-menu-item">' +
-				Lng.selHiderMenu[name][lang] + '</span>';
-		};
-		sel = nav.Presto ? doc.getSelection() : window.getSelection();
-		ssel = sel.toString();
+		var str = '', sel = nav.Presto ? doc.getSelection() : window.getSelection(),
+			ssel = sel.toString(),
+			addItem = function(name) {
+				str += '<span info="spell-' + name + '" class="de-menu-item">' +
+					Lng.selHiderMenu[name][lang] + '</span>';
+			};
 		if(ssel) {
 			this._selText = ssel;
 			this._selRange = sel.getRangeAt(0);
@@ -8826,9 +8803,7 @@ Post.prototype = {
 			if(!this.images.getImageByEl(el.previousSibling.firstElementChild).collapse(e)) {
 				return;
 			}
-		} else if((data = this.images.getImageByEl(el)) &&
-				  (data.isImage || data.isVideo))
-		{
+		} else if((data = this.images.getImageByEl(el)) && (data.isImage || data.isVideo)) {
 			data.expand((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
 		} else {
 			return;
@@ -8885,7 +8860,7 @@ Post.prototype = {
 				hidden = this.hidden,
 				wrds = Post.getWrds(this.text),
 				time = Date.now();
-			for(var post = dForm.firstThr.op; post; post = post.next) {
+			for(let post = dForm.firstThr.op; post; post = post.next) {
 				Post.findSameText(num, hidden, wrds, time, post);
 			}
 			saveUserPosts();
@@ -8929,7 +8904,8 @@ Post.prototype = {
 				this.updateMsg(replacePost($q(aib.qMsg, form)));
 				$del(node);
 			} else {
-				for(var i = 0, els = aib.getPosts(form), len = els.length; i < len; i++) {
+				let els = aib.getPosts(form);
+				for(let i = 0, len = els.length; i < len; i++) {
 					if(this.num === aib.getPNum(els[i])) {
 						this.updateMsg(replacePost($q(aib.qMsg, els[i])));
 						$del(node);
@@ -8947,11 +8923,11 @@ Post.prototype = {
 		}.bind(null, pNum));
 	},
 	_strikePostNum(isHide) {
-		var idx, num = this.num;
+		var num = this.num;
 		if(isHide) {
 			Post.hiddenNums.push(+num);
 		} else {
-			idx = Post.hiddenNums.indexOf(+num);
+			let idx = Post.hiddenNums.indexOf(+num);
 			if(idx !== -1) {
 				Post.hiddenNums.splice(idx, 1);
 			}
@@ -8959,7 +8935,7 @@ Post.prototype = {
 		$each($Q('a[href*="#' + num + '"]', dForm.el), isHide ? function(el) {
 			el.classList.add('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-				var refmap = el.parentNode;
+				let refmap = el.parentNode;
 				if(!$q('.de-link-ref:not(.de-link-hid)', refmap)) {
 					refmap.style.display = 'none';
 				}
@@ -8967,7 +8943,7 @@ Post.prototype = {
 		} : function(el) {
 			el.classList.remove('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-				var refmap = el.parentNode;
+				let refmap = el.parentNode;
 				if($q('.de-link-ref:not(.de-link-hid)', refmap)) {
 					refmap.style.display = '';
 				}
@@ -9048,8 +9024,8 @@ function PostImages(post) {
 		hasAttachments = false,
 		idx = 0;
 	for(let i = 0, len = els.length; i < len; ++i, ++idx) {
-		let el = els[i];
-		let obj = new Attachment(post, el, idx);
+		let el = els[i],
+			obj = new Attachment(post, el, idx);
 		filesMap.set(el, obj);
 		data.push(obj);
 		hasAttachments = true;
@@ -9057,8 +9033,8 @@ function PostImages(post) {
 	if(Cfg.addImgs) {
 		els = aProto.slice.call($C('de-img-pre', post.el));
 		for(let i = 0, len = els.length; i < len; ++i, ++idx) {
-			let el = els[i];
-			let obj = new EmbeddedImage(post, el, idx);
+			let el = els[i],
+				obj = new EmbeddedImage(post, el, idx);
 			filesMap.set(el, obj);
 			data.push(obj);
 		}
@@ -9073,7 +9049,7 @@ PostImages.prototype = {
 		return this.data[0];
 	},
 	get firstAttach() {
-		for(let i = 0; i < this.length; ++i) {
+		for(var i = 0; i < this.length; ++i) {
 			let obj = this.data[i];
 			if(obj instanceof Attachment) {
 				return obj;
@@ -9097,17 +9073,17 @@ PostImages.prototype = {
 // ===========================================================================================================
 
 function Pview(parent, link, tNum, pNum) {
-	var b, post = pByNum[pNum];
 	this.parent = parent;
 	this._link = link;
 	this.num = pNum;
 	this.thr = parent.thr;
 	Object.defineProperty(this, 'tNum', { value: tNum });
+	var post = pByNum[pNum];
 	if(post && (!post.isOp || !parent.isPview || !parent._loaded)) {
 		this._showPost(post);
 		return;
 	}
-	b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
+	var b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
 	post = this._cache && this._cache[b + tNum] && this._cache[b + tNum].getPost(pNum);
 	if(post) {
 		this._loaded = true;
@@ -9124,19 +9100,19 @@ Pview.del = function(pv) {
 	if(!pv) {
 		return;
 	}
-	var el, vPost = Attachment.viewer && Attachment.viewer.data.post;
 	pv.parent.kid = null;
 	pv._link.classList.remove('de-link-parent');
 	if(!pv.parent.isPview) {
 		Pview.top = null;
 	}
+	var vPost = Attachment.viewer && Attachment.viewer.data.post;
 	do {
 		clearTimeout(pv._readDelay);
 		if(vPost === pv) {
 			Attachment.viewer.close(null);
 			Attachment.viewer = vPost = null;
 		}
-		el = pv.el;
+		let el = pv.el;
 		if(Cfg.animation) {
 			nav.animEvent(el, $del);
 			el.classList.add('de-pview-anim');
@@ -9191,17 +9167,16 @@ Pview.prototype = Object.create(Post.prototype, {
 	} },
 	_onerror: { value(e) {
 		Pview.del(this);
-		var text = e instanceof AjaxError && e.code === 404 ?
-			Lng.postNotFound[lang] :
-			getErrorMessage(e);
-		this._showText(text);
+		this._showText(e instanceof AjaxError && e.code === 404 ?
+			Lng.postNotFound[lang] : getErrorMessage(e));
 	} },
 	_onload: { value(b, form) {
-		var rm, parent = this.parent,
+		var parent = this.parent,
 			parentNum = parent.num,
 			cache = this._cache[b + this.tNum] = new PviewsCache(form, b, this.tNum),
 			post = cache.getPost(this.num);
 		if(post && (brd !== b || !post.hasRef || post.ref.indexOf(parentNum) === -1)) {
+			let rm;
 			if(post.hasRef) {
 				rm = $c('de-refmap', post.el);
 			} else {
@@ -9224,7 +9199,7 @@ Pview.prototype = Object.create(Post.prototype, {
 		}
 	} },
 	_showPost: { value(post) {
-		var node, el = this.el = post.el.cloneNode(true),
+		var el = this.el = post.el.cloneNode(true),
 			pText = '<span class="de-btn-rep" title="' + Lng.replyToPost[lang] + '"></span>' +
 				(post.sage ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
 				'<span class="de-btn-stick" title="' + Lng.attachPview[lang] + '"></span>' +
@@ -9239,7 +9214,8 @@ Pview.prototype = Object.create(Post.prototype, {
 		this._pref = $q(aib.qRef, el);
 		this._link.classList.add('de-link-parent');
 		if(post.inited) {
-			this.btns = node = $c('de-post-btns', el);
+			let node = $c('de-post-btns', el);
+			this.btns = node;
 			this.isOp = post.isOp;
 			node.classList.remove('de-post-counter');
 			if(post.hidden) {
@@ -9322,12 +9298,12 @@ Pview.prototype = Object.create(Post.prototype, {
 });
 
 function PviewsCache(form, b, tNum) {
-	var i, len, post, pBn = {},
+	var pBn = {},
 		pProto = Post.prototype,
 		thr = $q(aib.qThread, form) || form,
 		posts = aib.getPosts(thr);
-	for(i = 0, len = posts.length; i < len; ++i) {
-		post = posts[i];
+	for(let i = 0, len = posts.length; i < len; ++i) {
+		let post = posts[i];
 		pBn[aib.getPNum(post)] = Object.create(pProto, {
 			count: { value: i + 1 },
 			el: { value: post, writable: true },
@@ -9368,14 +9344,15 @@ PviewsCache.prototype = {
 		return pst;
 	},
 	get _op() {
-		var i, j, len, num, nRef, oRef, rRef, oOp, op = this._opObj;
+		var oOp, op = this._opObj;
 		op.el = replacePost(aib.getOp(this._thr));
 		op.msg = $q(aib.qMsg, op.el);
 		if(this._brd === brd && (oOp = pByNum[this._tNum])) {
-			oRef = op.ref;
-			rRef = [];
-			for(i = j = 0, nRef = oOp.ref, len = nRef.length; j < len; ++j) {
-				num = nRef[j];
+			let i, j, len, rRef = [],
+				oRef = op.ref,
+				nRef = oOp.ref;
+			for(i = j = 0, len = nRef.length; j < len; ++j) {
+				let num = nRef[j];
 				if(oRef[i] === num) {
 					i++;
 				} else if(oRef.indexOf(num) !== -1) {
@@ -9413,7 +9390,7 @@ function setPviewPosition(link, pView, isAnim) {
 	if(pView.link === link) {
 		return;
 	}
-	var isTop, top, oldCSS, uId, cr = link.getBoundingClientRect(),
+	var oldCSS, cr = link.getBoundingClientRect(),
 		offX = cr.left + window.pageXOffset + link.offsetWidth / 2,
 		offY = cr.top + window.pageYOffset,
 		bWidth = doc.documentElement.clientWidth,
@@ -9426,8 +9403,8 @@ function setPviewPosition(link, pView, isAnim) {
 	} else {
 		pView.style.cssText = lmw;
 	}
-	top = pView.offsetHeight;
-	isTop = top + cr.top + link.offsetHeight < doc.documentElement.clientHeight || cr.top - top < 5;
+	var top = pView.offsetHeight,
+		isTop = top + cr.top + link.offsetHeight < doc.documentElement.clientHeight || cr.top - top < 5;
 	top = (isTop ? offY + link.offsetHeight : offY - top) + 'px';
 	pView.link = link;
 	pView.aLeft = isLeft;
@@ -9436,7 +9413,7 @@ function setPviewPosition(link, pView, isAnim) {
 		pView.style.top = top;
 		return;
 	}
-	uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
+	var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
 	$css('@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + '; }}').className =
 		'de-css-move';
 	if(pView.newPos) {
@@ -9452,11 +9429,12 @@ function setPviewPosition(link, pView, isAnim) {
 }
 
 function addRefMap(post, tUrl) {
-	var i, el, len, num, bStr = '<a ' + aib.rLinkClick + ' href="' + tUrl + aib.anchor,
+	var bStr = '<a ' + aib.rLinkClick + ' href="' + tUrl + aib.anchor,
 		strNums = Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
-		html = ['<div class="de-refmap">'];
-	for(i = 0, el = post.ref, len = el.length; i < len; ++i) {
-		num = el[i];
+		html = ['<div class="de-refmap">'],
+		el = post.ref;
+	for(let i = 0, len = el.length; i < len; ++i) {
+		let num = el[i];
 		html.push(bStr, num, '" class="de-link-ref ',
 			(strNums && strNums.indexOf(+num) !== -1 ? 'de-link-hid' : ''),
 			'">&gt;&gt;', num, '</a><span class="de-refcomma">, </span>');
@@ -9473,13 +9451,14 @@ function addRefMap(post, tUrl) {
 }
 
 function genRefMap(posts, thrURL) {
-	var tc, lNum, post, ref, i, len, links, url, pNum, opNums = dForm.tNums;
-	for(pNum in posts) {
-		for(i = 0, links = $T('a', posts[pNum].msg), len = links.length; i < len; ++i) {
-			tc = links[i].textContent;
+	var opNums = dForm.tNums;
+	for(let pNum in posts) {
+		let links = $T('a', posts[pNum].msg);
+		for(let i = 0, len = links.length; i < len; ++i) {
+			let lNum, tc = links[i].textContent;
 			if(tc[0] === '>' && tc[1] === '>' && (lNum = +tc.substr(2)) && (lNum in posts)) {
-				post = posts[lNum];
-				ref = post.ref;
+				let post = posts[lNum],
+					ref = post.ref;
 				if(ref.indexOf(pNum) === -1) {
 					ref.push(pNum);
 					post.hasRef = true;
@@ -9488,7 +9467,7 @@ function genRefMap(posts, thrURL) {
 					links[i].classList.add('de-ref-op');
 				}
 				if(thrURL) {
-					url = links[i].getAttribute('href');
+					let url = links[i].getAttribute('href');
 					if(url[0] === '#') {
 						links[i].setAttribute('href', thrURL + url);
 					}
@@ -9499,14 +9478,15 @@ function genRefMap(posts, thrURL) {
 }
 
 function updRefMap(post, add) {
-	var tc, ref, idx, link, lNum, lPost, i, len, links, pNum = post.num,
+	var pNum = post.num,
+		links = $T('a', post.msg),
 		strNums = add && Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
 		opNums = add && dForm.tNums;
-	for(i = 0, links = $T('a', post.msg), len = links.length; i < len; ++i) {
-		link = links[i];
-		tc = link.textContent;
+	for(let i = 0, len = links.length; i < len; ++i) {
+		let lNum, link = links[i],
+			tc = link.textContent;
 		if(tc[0] === '>' && tc[1] === '>' && (lNum = +tc.substr(2)) && (lNum in pByNum)) {
-			lPost = pByNum[lNum];
+			let lPost = pByNum[lNum];
 			if(!TNum) {
 				link.href = '#' + (aib.fch ? 'p' : '') + lNum;
 			}
@@ -9531,8 +9511,8 @@ function updRefMap(post, add) {
 					continue;
 				}
 			} else if(lPost.hasRef) {
-				ref = lPost.ref;
-				idx = ref.indexOf(pNum);
+				let ref = lPost.ref,
+					idx = ref.indexOf(pNum);
 				if(idx === -1) {
 					continue;
 				}
@@ -9554,8 +9534,7 @@ function updRefMap(post, add) {
 // ===========================================================================================================
 
 function Thread(el, prev, isLight) {
-	var i, pEl, lastPost,
-		els = aib.getPosts(el),
+	var els = aib.getPosts(el),
 		len = els.length,
 		num = aib.getTNum(el),
 		omt = TNum ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
@@ -9566,10 +9545,12 @@ function Thread(el, prev, isLight) {
 	if(prev) {
 		prev.next = this;
 	}
-	pByNum[num] = lastPost = this.op = el.post = new Post(aib.getOp(el), this, num, 0, true,
+	var lastPost = this.op = el.post = new Post(aib.getOp(el), this, num, 0, true,
 		prev ? prev.last : null, isLight);
-	for(i = 0; i < len; i++) {
-		num = aib.getPNum(pEl = els[i]);
+	pByNum[num] = lastPost;
+	for(let i = 0; i < len; i++) {
+		let pEl = els[i];
+		num = aib.getPNum(pEl);
 		pByNum[num] = lastPost = new Post(pEl, this, num, omt + i, false, lastPost, isLight);
 	}
 	this.last = lastPost;
@@ -9581,9 +9562,9 @@ function Thread(el, prev, isLight) {
 	el.setAttribute('de-thread', null);
 	visPosts = Math.max(visPosts, len);
 	if(aib._420 || aib.tiny) {
-		pEl = el.lastChild;
-		if(pEl !== this.op.el) {
-			$after(el, pEl);
+		let temp = el.lastChild;
+		if(temp !== this.op.el) {
+			$after(el, temp);
 		}
 		$del($c('clear', el));
 	}
@@ -9624,7 +9605,7 @@ Thread.prototype = {
 		}
 	},
 	deletePost(post, delAll, removePost) {
-		var tPost, idx = post.count, count = 0;
+		var count = 0;
 		do {
 			if(removePost) {
 				$del(post.wrap);
@@ -9650,9 +9631,9 @@ Thread.prototype = {
 			count++;
 		} while(delAll && post);
 		if(!spells.hasNumSpell) {
-			sVis.splice(idx, count);
+			sVis.splice(post.count, count);
 		}
-		for(tPost = post; tPost; tPost = tPost.nextInThread) {
+		for(let tPost = post; tPost; tPost = tPost.nextInThread) {
 			tPost.count -= count;
 		}
 		this.pcount -= count;
@@ -9754,34 +9735,28 @@ Thread.prototype = {
 	setFavorState(val) {
 		this.setFavBtn(val);
 		readFav().then(fav => {
-			var h = aib.host,
-				b = brd,
-				num = this.num;
 			if(val) {
-				if(!fav[h]) {
-					fav[h] = {};
-				}
-				if(!fav[h][brd]) {
-					fav[h][brd] = {};
-				}
-				fav[h][brd].url = aib.prot + '//' + aib.host + aib.getPageUrl(brd, 0);
-				fav[h][brd][num] = {
+				let f = fav[aib.host];
+				!f && (f = {});
+				!f[brd] && (f[brd] = {});
+				f[brd].url = aib.prot + '//' + aib.host + aib.getPageUrl(brd, 0);
+				f[brd][this.num] = {
 					'cnt': this.pcount,
 					'new': 0,
 					'txt': this.op.title,
-					'url': aib.getThrdUrl(brd, num)
+					'url': aib.getThrdUrl(brd, this.num)
 				};
 			} else {
-				removeFavoriteEntry(fav, h, b, num, false);
+				removeFavoriteEntry(fav, aib.host, brd, this.num, false);
 			}
 			saveFavorites(fav);
 		});
 	},
 	updateHidden(data) {
-		var realHid, date = Date.now(),
+		var date = Date.now(),
 			thr = this;
 		do {
-			realHid = thr.num in data;
+			let realHid = thr.num in data;
 			if(thr.hidden ^ realHid) {
 				if(realHid) {
 					thr.op.setUserVisib(true, date, false);
@@ -9830,24 +9805,26 @@ Thread.prototype = {
 		}
 	},
 	_checkBans(op, thrNode) {
-		var pEl, bEl, post, i, bEls, len;
-		if(aib.qBan) {
-			for(i = 0, bEls = $Q(aib.qBan, thrNode), len = bEls.length; i < len; ++i) {
-				bEl = bEls[i];
-				pEl = aib.getPostEl(bEl);
+		if(!aib.qBan) {
+			return;
+		}
+		var bEls = $Q(aib.qBan, thrNode);
+		for(let i = 0, len = bEls.length; i < len; ++i) {
+			let bEl = bEls[i],
+				pEl = aib.getPostEl(bEl),
 				post = pEl ? pByNum[aib.getPNum(pEl)] : op;
-				if(post && !post.banned) {
-					if(!$q(aib.qBan, post.el)) {
-						post.msg.appendChild(bEl);
-					}
-					post.banned = true;
+			if(post && !post.banned) {
+				if(!$q(aib.qBan, post.el)) {
+					post.msg.appendChild(bEl);
 				}
+				post.banned = true;
 			}
 		}
 	},
 	_importPosts(last, newPosts, begin, end, vParser) {
-		var newCount, newVisCount, fragm = doc.createDocumentFragment();
-		newCount = newVisCount = end - begin;
+		var newCount = end - begin,
+			newVisCount = newCount,
+			fragm = doc.createDocumentFragment();
 		for(; begin < end; ++begin) {
 			last = this._addPost(fragm, newPosts[begin], begin + 1, vParser, last);
 			newVisCount -= spells.check(last);
@@ -9855,7 +9832,7 @@ Thread.prototype = {
 		return [newCount, newVisCount, fragm, last];
 	},
 	_parsePosts(nPosts) {
-		var i, cnt, firstChangedPost, res, temp, vParser, saveSpells = false,
+		var vParser, saveSpells = false,
 			newPosts = 0,
 			newVisPosts = 0,
 			len = nPosts.length,
@@ -9863,39 +9840,40 @@ Thread.prototype = {
 		if(aib.dobr || (post.count !== 0 &&
 		   (post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)))
 		{
-			firstChangedPost = null;
+			let firstChangedPost = null;
 			vParser = new VideosParser();
 			post = this.op.nextNotDeleted;
+			let i;
 			for(i = post.count - 1; i < len && post; ) {
-				if(post.num !== aib.getPNum(nPosts[i])) {
-					if(+post.num > +aib.getPNum(nPosts[i])) {
-						if(!firstChangedPost) {
-							firstChangedPost = post.prev;
-						}
-						cnt = 0;
-						do {
-							cnt++;
-							i++;
-						} while(+aib.getPNum(nPosts[i]) < +post.num);
-						res = this._importPosts(post.prev, nPosts, i - cnt, i, vParser);
-						newPosts += res[0];
-						this.pcount += res[0];
-						newVisPosts += res[1];
-						$after(post.prev.wrap, res[2]);
-						res[3].next = post;
-						post.prev = res[3];
-						for(temp = post; temp; temp = temp.nextInThread) {
-							temp.count += cnt;
-						}
-					} else {
-						if(!firstChangedPost) {
-							firstChangedPost = post;
-						}
-						post = this.deletePost(post, false, !TNum);
-					}
-				} else {
+				if(post.num === aib.getPNum(nPosts[i])) {
 					i++;
 					post = post.nextNotDeleted;
+					continue;
+				}
+				if(+post.num > +aib.getPNum(nPosts[i])) {
+					if(!firstChangedPost) {
+						firstChangedPost = post.prev;
+					}
+					let cnt = 0;
+					do {
+						cnt++;
+						i++;
+					} while(+aib.getPNum(nPosts[i]) < +post.num);
+					let res = this._importPosts(post.prev, nPosts, i - cnt, i, vParser);
+					newPosts += res[0];
+					this.pcount += res[0];
+					newVisPosts += res[1];
+					$after(post.prev.wrap, res[2]);
+					res[3].next = post;
+					post.prev = res[3];
+					for(let temp = post; temp; temp = temp.nextInThread) {
+						temp.count += cnt;
+					}
+				} else {
+					if(!firstChangedPost) {
+						firstChangedPost = post;
+					}
+					post = this.deletePost(post, false, !TNum);
 				}
 			}
 			if(i === len && post) {
@@ -9916,7 +9894,7 @@ Thread.prototype = {
 		}
 		if(len + 1 > this.pcount) {
 			vParser = vParser || new VideosParser();
-			res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len, vParser);
+			let res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len, vParser);
 			newPosts += res[0];
 			newVisPosts += res[1];
 			this.el.appendChild(res[2]);
@@ -9925,23 +9903,23 @@ Thread.prototype = {
 			saveSpells = true;
 		}
 		readFav().then(fav => {
-			var h = aib.host;
-			if(fav[h] && fav[h][brd]) {
-				let f = fav[h][brd][this.op.num];
-				if(f) {
-					let el = $id('de-content-fav');
-					if(el) {
-						el = $q('.de-fav-current > .de-entry[de-num="' +
-						        this.op.num + '"] .de-fav-inf-old', el);
-						el.textContent = this.pcount;
-						el = el.nextElementSibling;
-						el.style.display = 'none';
-						el.textContent = 0;
-					}
-					f.cnt = this.pcount;
-					f['new'] = 0;
-					setStored('DESU_Favorites', JSON.stringify(fav));
+			var f = fav[aib.host];
+			if(!f || !f[brd]) {
+				return;
+			}
+			if((f = f[brd][this.op.num])) {
+				let el = $id('de-content-fav');
+				if(el) {
+					el = $q('.de-fav-current > .de-entry[de-num="' +
+							this.op.num + '"] .de-fav-inf-old', el);
+					el.textContent = this.pcount;
+					el = el.nextElementSibling;
+					el.style.display = 'none';
+					el.textContent = 0;
 				}
+				f.cnt = this.pcount;
+				f['new'] = 0;
+				setStored('DESU_Favorites', JSON.stringify(fav));
 			}
 		});
 		if(saveSpells) {
@@ -10112,9 +10090,9 @@ function getNavFuncs() {
 		},
 		get matchesSelector() {
 			var dE = doc.documentElement,
-				fun = dE.matchesSelector || dE.mozMatchesSelector ||
-					dE.webkitMatchesSelector || dE.oMatchesSelector,
-				val = Function.prototype.call.bind(fun);
+				val = Function.prototype.call.bind(
+					dE.matchesSelector || dE.mozMatchesSelector ||
+					dE.webkitMatchesSelector || dE.oMatchesSelector);
 			Object.defineProperty(this, 'matchesSelector', { value: val });
 			return val;
 		},
@@ -10458,12 +10436,12 @@ function getImageBoard(checkDomains, checkOther) {
 					form[action="/paint"] > select { width: 105px; }
 					form[action="/paint"] > input[type="text"] { width: 24px !important; }` },
 			fixFileInputs: { value(el) {
-				var i, len, node = $id('files_parent'),
-					str = '';
-				for(i = 0, len = 4; i < len; ++i) {
+				var str = '';
+				for(let i = 0, len = 4; i < len; ++i) {
 					str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
 						'><input type="file" name="file_' +  i + '" tabindex="7"></input></div>';
 				}
+				var node = $id('files_parent');
 				node.innerHTML = str;
 				node.removeAttribute('id');
 			} },
@@ -10589,9 +10567,7 @@ function getImageBoard(checkDomains, checkOther) {
 					el.nextSibling.appendChild(el);
 				});
 				var el = $q('td > .anoniconsselectlist', doc);
-				if(el) {
-					$q('.option-area > td:last-child', doc).appendChild(el);
-				}
+				el && $q('.option-area > td:last-child', doc).appendChild(el);
 				el = $q('tr:not([class])', doc.body);
 				if(!el) {
 					return;
@@ -10618,12 +10594,12 @@ function getImageBoard(checkDomains, checkOther) {
 				}, true);
 			} },
 			fixFileInputs: { value(el) {
-				var i, len, node = $q('#postform .images-area', doc).lastElementChild,
-					str = '';
-				for(i = 0, len = 4; i < len; ++i) {
+				var str = '';
+				for(let i = 0, len = 4; i < len; ++i) {
 					str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
 						'><input type="file" name="image' +  (i + 1) + '"></input></div>';
 				}
+				var node = $q('#postform .images-area', doc).lastElementChild;
 				node.innerHTML = str;
 			} },
 			lastPage: { configurable: true, get() {
@@ -10700,9 +10676,10 @@ function getImageBoard(checkDomains, checkOther) {
 			qTable: { value: '.post.reply' },
 			qTrunc: { value: '.toolong' },
 			fixVideo: { value(post) {
-				var i, els, el, len, src, videos = [];
-				for(i = 0, els = $Q('.video-container, #ytplayer', post ? post.el : dForm.el), len = els.length; i < len; ++i) {
-					el = els[i];
+				var videos = [],
+					els = $Q('.video-container, #ytplayer', post ? post.el : dForm.el);
+				for(let i = 0, len = els.length; i < len; ++i) {
+					let el = els[i];
 					videos.push([post || this.getPostEl(el).post, el.id === 'ytplayer' ?
 						el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true]);
 					$del(el);
@@ -10762,7 +10739,8 @@ function getImageBoard(checkDomains, checkOther) {
 			fixFileInputs: { value(el) {
 				var str = '><input name="file" type="file"></input></div>';
 				el.removeAttribute('onchange');
-				el.parentNode.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+				el.parentNode.parentNode.innerHTML =
+					'<div' + str + ('<div style="display: none;"' + str).repeat(3);
 			} },
 			markupBB: { value: true },
 			multiFile: { value: true },
@@ -10818,8 +10796,9 @@ function getImageBoard(checkDomains, checkOther) {
 		},
 		qTrunc: '.abbrev, .abbr, .shortened',
 		fixVideo(post) {
-			var i, els, len, videos = [];
-			for(i = 0, els = $Q('embed, object, iframe', post ? post.el : dForm.el), len = els.length; i < len; ++i) {
+			var videos = [],
+				els = $Q('embed, object, iframe', post ? post.el : dForm.el);
+			for(let i = 0, len = els.length; i < len; ++i) {
 				let el = els[i],
 					src = el.src || el.data,
 					m = src.match(Videos.ytReg);
@@ -10854,13 +10833,13 @@ function getImageBoard(checkDomains, checkOther) {
 			return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
 		},
 		getOp(thr) {
-			var el, opEnd, op = localRun ? $q('div[de-oppost]', thr) : $c(this.cOPost, thr);
+			var op = localRun ? $q('div[de-oppost]', thr) : $c(this.cOPost, thr);
 			if(op) {
 				return op;
 			}
 			op = thr.ownerDocument.createElement('div');
 			op.setAttribute('de-oppost', '');
-			opEnd = $q(this.qTable, thr);
+			var el, opEnd = $q(this.qTable, thr);
 			while((el = thr.firstChild) !== opEnd) {
 				op.appendChild(el);
 			}
@@ -10965,7 +10944,7 @@ function getImageBoard(checkDomains, checkOther) {
 	};
 
 	localRun = prot === 'file:';
-	var i, ibObj = null, dm = localRun ?
+	var ibObj = null, dm = localRun ?
 		(window.location.pathname.match(/\/([^-]+)-[^-]+-[^\.]+\.[a-z]+$/) || [,''])[1] :
 		window.location.hostname
 			.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
@@ -10982,7 +10961,7 @@ function getImageBoard(checkDomains, checkOther) {
 		}
 	}
 	if(checkOther) {
-		for(i in ibEngines) {
+		for(let i in ibEngines) {
 			if($q(i, doc)) {
 				ibObj = Object.create(ibBase, ibEngines[i]);
 				break;
@@ -11003,7 +10982,6 @@ function getImageBoard(checkDomains, checkOther) {
 // ===========================================================================================================
 
 function Initialization(checkDomains) {
-	var intrv, url, formEl;
 	if(/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 		return null;
 	}
@@ -11028,7 +11006,7 @@ function Initialization(checkDomains) {
 		$script('window.top.postMessage("A' + window.name + '" + document.documentElement.outerHTML, "*");');
 		return null;
 	case 'de-iframe-fav':
-		intrv = setInterval(function() {
+		let intrv = setInterval(function() {
 			$script('window.top.postMessage("B' + (doc.body.offsetHeight + 5) + '", "*");');
 		}, 1500);
 		window.addEventListener('load', setTimeout.bind(window, clearInterval, 3e4, intrv), false);
@@ -11041,7 +11019,7 @@ function Initialization(checkDomains) {
 	if((aib.init && aib.init()) || $id('de-panel')) {
 		return null;
 	}
-	formEl = $q(aib.qDForm + ', form[de-form]', doc);
+	var formEl = $q(aib.qDForm + ', form[de-form]', doc);
 	if(!formEl) {
 		return null;
 	}
@@ -11133,6 +11111,7 @@ function Initialization(checkDomains) {
 		}
 	}, false);
 
+	var url;
 	if(localRun) {
 		url = window.location.pathname.match(/\/[^-]+-([^-]+)-([^\.]+)\.[a-z]+$/);
 		aib.prot = 'http:';
@@ -11205,7 +11184,7 @@ DelForm.prototype = {
 	lastThr: null,
 	tNums: null,
 	addFormContent(formEl, append) {
-		var i, thr, node, threads = $Q(aib.qThread, formEl),
+		var threads = $Q(aib.qThread, formEl),
 			len = threads.length;
 		$each($T('script', formEl), $del);
 		if(len === 0) {
@@ -11226,11 +11205,11 @@ DelForm.prototype = {
 				this.el.appendChild(formEl.firstChild);
 			}
 		}
-		thr = new Thread(threads[0], this.lastThr, this.isLight);
+		var thr = new Thread(threads[0], this.lastThr, this.isLight);
 		if(this.firstThr === null) {
 			this.firstThr = thr;
 		}
-		for(i = 1; i < len; ++i) {
+		for(let i = 1; i < len; ++i) {
 			this.tNums.push(+thr.num);
 			thr = new Thread(threads[i], thr, this.isLight);
 		}
@@ -11278,15 +11257,15 @@ DelForm.prototype = {
 	},
 
 	_parseThreads(formEl) {
-		var el, i, len, node, threads = [],
+		var i, len, threads = [],
 			fNodes = aProto.slice.call(formEl.childNodes),
 			cThr = doc.createElement('div');
 		for(i = 0, len = fNodes.length - 1; i < len; ++i) {
-			node = fNodes[i];
+			let node = fNodes[i];
 			if(node.tagName === 'HR') {
 				formEl.insertBefore(cThr, node);
 				formEl.insertBefore(cThr.lastElementChild, node);
-				el = cThr.lastElementChild;
+				let el = cThr.lastElementChild;
 				if(el.tagName === 'BR') {
 					formEl.insertBefore(el, node);
 				}
@@ -11378,7 +11357,7 @@ function initThreadUpdater(title, enableUpdate) {
 			stopLoad(true);
 			enabled = hasAudio = false;
 			setState('off');
-			var btn = $id('de-btn-audio-on');
+			let btn = $id('de-btn-audio-on');
 			if(btn) {
 				btn.id = 'de-btn-audio-off';
 			}
@@ -11546,7 +11525,7 @@ function initThreadUpdater(title, enableUpdate) {
 					newPosts += lPosts;
 					updateTitle();
 					if(Cfg.desktNotif && notifGranted) {
-						var post = dForm.firstThr.last,
+						let post = dForm.firstThr.last,
 							notif = new Notification(aib.dm + '/' + brd + '/' + TNum + ': ' + newPosts +
 								Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : (newPosts % 10) > 4 ||
 								(newPosts % 10) === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
@@ -11765,8 +11744,9 @@ function scrollPage() {
 		if(val) {
 			window.scrollTo(0, val);
 			sesStorage.removeItem('de-scroll-' + brd + TNum);
-		} else if((hash = window.location.hash) && (num = hash.match(/#i?(\d+)$/)) &&
-		   (num = num[1]) && (post = pByNum[num]))
+		} else if((hash = window.location.hash) &&
+		          (num = hash.match(/#i?(\d+)$/)) &&
+		          (num = num[1]) && (post = pByNum[num]))
 		{
 			post.el.scrollIntoView(true);
 		}
@@ -11775,9 +11755,9 @@ function scrollPage() {
 
 function checkForUpdates(isForce, lastUpdateTime) {
 	return new Promise((resolve, reject) => {
-		var day, temp = Cfg.scrUpdIntrv;
 		if(!isForce) {
-			day = 2 * 1000 * 60 * 60 * 24;
+			let day = 2 * 1000 * 60 * 60 * 24,
+				temp = Cfg.scrUpdIntrv;
 			switch(temp) {
 			case 0: temp = day; break;
 			case 1: temp = day * 2; break;
@@ -12273,7 +12253,7 @@ function addDelformStuff(isLog) {
 	}
 	if(dForm.firstThr && Cfg.linksNavig === 2) {
 		genRefMap(pByNum, '');
-		for(var post = dForm.firstThr.op; post; post = post.next) {
+		for(let post = dForm.firstThr.op; post; post = post.next) {
 			if(post.hasRef) {
 				addRefMap(post, '');
 			}

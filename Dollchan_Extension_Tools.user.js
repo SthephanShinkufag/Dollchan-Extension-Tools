@@ -1748,68 +1748,62 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 
 	function getFormElements(form) {
-		var controls, fixName, i, _len, field, tagName, type, _name, options, _i, _len2, option, files, _i2, _len3, dirname, dir;
+		var controls, fixName, i, _len, field, tagName, type, _name, options, _i, _len2, option, files, _len3, dirname, dir;
 
 		return regeneratorRuntime.wrap(function getFormElements$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					controls = $Q("button, input, keygen, object, select, textarea", form);
-
-					fixName = function (name) {
+					controls = $Q("button, input, keygen, object, select, textarea", form), fixName = function (name) {
 						return name ? name.replace(/([^\r])\n|\r([^\n])/g, "$1\r\n$2") : "";
 					};
-
 					i = 0, _len = controls.length;
 
-				case 3:
+				case 2:
 					if (!(i < _len)) {
-						context$2$0.next = 62;
+						context$2$0.next = 58;
 						break;
 					}
 
-					field = controls[i];
-					tagName = field.tagName.toLowerCase();
-					type = field.getAttribute("type");
-					_name = field.getAttribute("name");
+					field = controls[i], tagName = field.tagName.toLowerCase(), type = field.getAttribute("type"), _name = field.getAttribute("name");
 
 					if (!($parent(field, "datalist", form) || isFormElDisabled(field) || tagName === "button" && type !== "submit" || tagName === "input" && (type === "checkbox" && !field.checked || type === "radio" && !field.checked || type === "image" && !_name) || tagName === "object" && !(type in navigator.mimeTypes))) {
-						context$2$0.next = 10;
+						context$2$0.next = 6;
 						break;
 					}
 
-					return context$2$0.abrupt("continue", 59);
+					return context$2$0.abrupt("continue", 55);
 
-				case 10:
+				case 6:
 					if (!(tagName === "object")) {
-						context$2$0.next = 12;
+						context$2$0.next = 8;
 						break;
 					}
 
 					throw new Error("Not supported");
 
-				case 12:
+				case 8:
 					if (!(tagName === "select")) {
-						context$2$0.next = 25;
+						context$2$0.next = 21;
 						break;
 					}
 
 					options = $Q("select > option, select > optgrout > option", field);
 					_i = 0, _len2 = options.length;
 
-				case 15:
+				case 11:
 					if (!(_i < _len2)) {
-						context$2$0.next = 23;
+						context$2$0.next = 19;
 						break;
 					}
 
 					option = options[_i];
 
 					if (!(option.selected && !isFormElDisabled(option))) {
-						context$2$0.next = 20;
+						context$2$0.next = 16;
 						break;
 					}
 
-					context$2$0.next = 20;
+					context$2$0.next = 16;
 					return {
 						el: field,
 						name: fixName(_name),
@@ -1817,30 +1811,30 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						type: type
 					};
 
-				case 20:
+				case 16:
 					++_i;
-					context$2$0.next = 15;
+					context$2$0.next = 11;
 					break;
 
-				case 23:
-					context$2$0.next = 47;
+				case 19:
+					context$2$0.next = 43;
 					break;
 
-				case 25:
+				case 21:
 					if (!(tagName === "input")) {
-						context$2$0.next = 47;
+						context$2$0.next = 43;
 						break;
 					}
 
 					context$2$0.t0 = type;
-					context$2$0.next = context$2$0.t0 === "image" ? 29 : context$2$0.t0 === "checkbox" ? 30 : context$2$0.t0 === "radio" ? 30 : context$2$0.t0 === "file" ? 33 : 47;
+					context$2$0.next = context$2$0.t0 === "image" ? 25 : context$2$0.t0 === "checkbox" ? 26 : context$2$0.t0 === "radio" ? 26 : context$2$0.t0 === "file" ? 29 : 43;
 					break;
 
-				case 29:
+				case 25:
 					throw new Error("Not supported");
 
-				case 30:
-					context$2$0.next = 32;
+				case 26:
+					context$2$0.next = 28;
 					return {
 						el: field,
 						name: fixName(_name),
@@ -1848,43 +1842,43 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						type: type
 					};
 
-				case 32:
-					return context$2$0.abrupt("continue", 59);
+				case 28:
+					return context$2$0.abrupt("continue", 55);
 
-				case 33:
+				case 29:
 					if (!(field.files.length > 0)) {
-						context$2$0.next = 44;
+						context$2$0.next = 40;
 						break;
 					}
 
 					files = field.files;
-					_i2 = 0, _len3 = files.length;
+					_i = 0, _len3 = files.length;
 
-				case 36:
-					if (!(_i2 < _len3)) {
-						context$2$0.next = 42;
+				case 32:
+					if (!(_i < _len3)) {
+						context$2$0.next = 38;
 						break;
 					}
 
-					context$2$0.next = 39;
+					context$2$0.next = 35;
 					return {
 						el: field,
 						name: _name,
-						value: files[_i2],
+						value: files[_i],
 						type: type
 					};
 
-				case 39:
-					++_i2;
-					context$2$0.next = 36;
+				case 35:
+					++_i;
+					context$2$0.next = 32;
 					break;
 
-				case 42:
-					context$2$0.next = 46;
+				case 38:
+					context$2$0.next = 42;
 					break;
 
-				case 44:
-					context$2$0.next = 46;
+				case 40:
+					context$2$0.next = 42;
 					return {
 						el: field,
 						name: fixName(_name),
@@ -1892,16 +1886,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						type: "application/octet-stream"
 					};
 
-				case 46:
-					return context$2$0.abrupt("continue", 59);
+				case 42:
+					return context$2$0.abrupt("continue", 55);
 
-				case 47:
+				case 43:
 					if (!(type === "textarea")) {
-						context$2$0.next = 52;
+						context$2$0.next = 48;
 						break;
 					}
 
-					context$2$0.next = 50;
+					context$2$0.next = 46;
 					return {
 						el: field,
 						name: _name || "",
@@ -1909,12 +1903,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						type: type
 					};
 
-				case 50:
-					context$2$0.next = 54;
+				case 46:
+					context$2$0.next = 50;
 					break;
 
-				case 52:
-					context$2$0.next = 54;
+				case 48:
+					context$2$0.next = 50;
 					return {
 						el: field,
 						name: fixName(_name),
@@ -1922,16 +1916,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						type: type
 					};
 
-				case 54:
+				case 50:
 					dirname = field.getAttribute("dirname");
 
 					if (!dirname) {
-						context$2$0.next = 59;
+						context$2$0.next = 55;
 						break;
 					}
 
 					dir = nav.matchesSelector(field, ":dir(rtl)") ? "rtl" : "ltr";
-					context$2$0.next = 59;
+					context$2$0.next = 55;
 					return {
 						el: field,
 						name: fixName(dirname),
@@ -1939,12 +1933,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						type: "direction"
 					};
 
-				case 59:
+				case 55:
 					++i;
-					context$2$0.next = 3;
+					context$2$0.next = 2;
 					break;
 
-				case 62:
+				case 58:
 				case "end":
 					return context$2$0.stop();
 			}
@@ -2140,7 +2134,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}, readCfg, this);
 	});
 	var readUserPosts = regeneratorRuntime.mark(function readUserPosts() {
-		var vis, date, spellsHide, update, globalUserVis, post, num, hidePost, hideThread;
+		var date, spellsHide, update, globalUserVis, post, num, hidePost, hideThread, vis;
 		return regeneratorRuntime.wrap(function readUserPosts$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
@@ -2173,7 +2167,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 12:
 					if (!post) {
-						context$2$0.next = 32;
+						context$2$0.next = 33;
 						break;
 					}
 
@@ -2201,11 +2195,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						post.btns.firstChild.className = "de-btn-hide-user";
 						post.userToggled = true;
 					}
-					return context$2$0.abrupt("continue", 29);
+					return context$2$0.abrupt("continue", 30);
 
 				case 19:
+					vis = undefined;
+
 					if (!post.isOp) {
-						context$2$0.next = 23;
+						context$2$0.next = 24;
 						break;
 					}
 
@@ -2214,23 +2210,23 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					} else if (vis === "0") {
 						vis = null;
 					}
-					context$2$0.next = 28;
+					context$2$0.next = 29;
 					break;
 
-				case 23:
+				case 24:
 					if (!spellsHide) {
-						context$2$0.next = 27;
+						context$2$0.next = 28;
 						break;
 					}
 
 					vis = sVis[post.count];
-					context$2$0.next = 28;
+					context$2$0.next = 29;
 					break;
 
-				case 27:
-					return context$2$0.abrupt("continue", 29);
-
 				case 28:
+					return context$2$0.abrupt("continue", 30);
+
+				case 29:
 					if (vis === "0") {
 						if (!post.hidden) {
 							post.setVisib(true);
@@ -2241,26 +2237,26 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						spells.check(post);
 					}
 
-				case 29:
+				case 30:
 					post = post.next;
 					context$2$0.next = 12;
 					break;
 
-				case 32:
+				case 33:
 					if (update) {
 						globalUserVis[brd] = uVis;
 						setStored("DESU_Posts_" + aib.dm, JSON.stringify(globalUserVis));
 					}
 					spells.end(savePosts);
 
-				case 34:
+				case 35:
 				case "end":
 					return context$2$0.stop();
 			}
 		}, readUserPosts, this);
 	});
 	var readFavoritesPosts = regeneratorRuntime.mark(function readFavoritesPosts() {
-		var thr, temp, num, update, fav;
+		var temp, update, fav, thr, num;
 		return regeneratorRuntime.wrap(function readFavoritesPosts$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
@@ -2290,7 +2286,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				case 8:
 					temp = temp[brd];
 					for (thr = dForm.firstThr; thr; thr = thr.next) {
-						if ((num = thr.num) in temp) {
+						num = thr.num;
+
+						if (num in temp) {
 							thr.setFavBtn(true);
 							if (TNum) {
 								temp[num].cnt = thr.pcount;
@@ -2527,8 +2525,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 
 					_ret = (function () {
-						var lastFuncs = null;
-						var promises = [new Promise(function (resolve, reject) {
+						var lastFuncs = null,
+						    promises = [new Promise(function (resolve, reject) {
 							return lastFuncs = { resolve: resolve, reject: reject };
 						})];
 						$ajax(form.action, { method: "POST", data: formData, onprogress: function (e) {
@@ -3220,10 +3218,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function $new(tag, attr, events) {
-		var key,
-		    el = doc.createElement(tag);
+		var el = doc.createElement(tag);
 		if (attr) {
-			for (key in attr) {
+			for (var key in attr) {
 				if (key === "text") {
 					el.textContent = attr[key];
 				} else if (key === "value") {
@@ -3234,7 +3231,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		}
 		if (events) {
-			for (key in events) {
+			for (var key in events) {
 				if (events.hasOwnProperty(key)) {
 					el.addEventListener(key, events[key], false);
 				}
@@ -3244,8 +3241,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function $New(tag, attr, nodes) {
-		var el = $new(tag, attr, null);
-		for (var i = 0, len = nodes.length; i < len; i++) {
+		for (var i = 0, len = nodes.length, el = $new(tag, attr, null); i < len; i++) {
 			if (nodes[i]) {
 				el.appendChild(nodes[i]);
 			}
@@ -3329,12 +3325,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				marks.push(["LoggerFinish", Date.now()]);
 			},
 			getData: function getData(full) {
-				var i,
-				    len,
-				    duration,
-				    lastExtra = 0,
-				    timeLog = [];
-				for (i = 1, len = marks.length - 1; i < len; ++i) {
+				var duration,
+				    timeLog = [],
+				    i = 1;
+				for (var _len = marks.length - 1, lastExtra = 0; i < _len; ++i) {
 					duration = marks[i][1] - marks[i - 1][1] + lastExtra;
 					if (full || duration > 1) {
 						lastExtra = 0;
@@ -3348,11 +3342,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				return timeLog;
 			},
 			getTable: function getTable() {
-				var i,
-				    len,
-				    data = this.getData(false),
-				    html = "<tbody>";
-				for (i = 0, len = data.length; i < len; ++i) {
+				var html = "<tbody>",
+				    data = this.getData(false);
+				for (var i = 0, _len = data.length; i < _len; ++i) {
 					html += "<tr><td>" + data[i][0] + "</td><td>" + data[i][1] + "ms</td></tr>";
 				}
 				return html + "</tbody>";
@@ -3381,15 +3373,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					console.log("Generator throw: ", err);
 					return Promise.reject(err);
 				}
-				if (result.done) {
-					return result.value;
-				} else {
-					return Promise.resolve(result.value).then(onFulfilled, onRejected);
-				}
+				return result.done ? result.value : Promise.resolve(result.value).then(onFulfilled, onRejected);
 			}
-			var generator = generatorFunc.apply(this, args);
-			var onFulfilled = continuer.bind(continuer, "next");
-			var onRejected = continuer.bind(continuer, "throw");
+			var generator = generatorFunc.apply(this, args),
+			    onFulfilled = continuer.bind(continuer, "next"),
+			    onRejected = continuer.bind(continuer, "throw");
 			return onFulfilled();
 		};
 	}
@@ -3550,12 +3538,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 	TarBuilder.prototype = {
 		addFile: function addFile(filepath, input) {
-			var i,
-			    checksum,
-			    nameLen,
+			var i = 0,
+			    checksum = 0,
 			    fileSize = input.length,
 			    header = new Uint8Array(512);
-			for (i = 0, nameLen = Math.min(filepath.length, 100); i < nameLen; ++i) {
+			for (var nameLen = Math.min(filepath.length, 100); i < nameLen; ++i) {
 				header[i] = filepath.charCodeAt(i) & 255;
 			}
 		
@@ -3572,7 +3559,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			this._padSet(header, 148, "        ", 8);
 		
 			header[156] = 48;
-			for (i = checksum = 0; i < 157; i++) {
+			for (i = 0; i < 157; i++) {
 				checksum += header[i];
 			}
 		
@@ -3626,8 +3613,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function getErrorMessage(e) {
-		var isAjax = e instanceof AjaxError;
-		if (isAjax) {
+		if (e instanceof AjaxError) {
 			return e.code === 0 ? e.message || Lng.noConnect[lang] : "HTTP [" + e.code + "] " + e.message;
 		}
 		return typeof e === "string" ? e : Lng.internalError[lang] + getPrettyErrorMessage(e);
@@ -3758,10 +3744,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function readPosts() {
-		var data,
-		    str = TNum ? sesStorage["de-hidden-" + brd + TNum] : null;
+		var str = TNum ? sesStorage["de-hidden-" + brd + TNum] : null;
 		if (typeof str === "string") {
-			data = str.split(",");
+			var data = str.split(",");
 			if (data.length === 4 && +data[0] === (Cfg.hideBySpell ? spells.hash : 0) && data[1] in pByNum && pByNum[data[1]].count === +data[2]) {
 				sVis = data[3].split("");
 				return;
@@ -3842,17 +3827,18 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function readViewedPosts() {
-		if (Cfg.markViewed) {
-			var data = sesStorage["de-viewed"];
-			if (data) {
-				data.split(",").forEach(function (pNum) {
-					var post = pByNum[pNum];
-					if (post) {
-						post.el.classList.add("de-viewed");
-						post.viewed = true;
-					}
-				});
-			}
+		if (!Cfg.markViewed) {
+			return;
+		}
+		var data = sesStorage["de-viewed"];
+		if (data) {
+			data.split(",").forEach(function (pNum) {
+				var post = pByNum[pNum];
+				if (post) {
+					post.el.classList.add("de-viewed");
+					post.viewed = true;
+				}
+			});
 		}
 	}
 
@@ -4064,7 +4050,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 		if (name === "hid") {
 			(function () {
-				var block = null,
+				var block = undefined,
 				    els = $C("de-post-hide", dForm.el);
 				for (var i = 0, _len = els.length; i < _len; ++i) {
 					var post = els[i];
@@ -4136,17 +4122,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function callee$3$0() {
 					var _this = this;
 
-					var i, len, els, _els$i$getAttribute$split, _els$i$getAttribute$split2, board, tNum, xhr;
+					var i, els, len, _els$i$getAttribute$split, _els$i$getAttribute$split2, board, tNum, xhr;
 
 					return regeneratorRuntime.wrap(function callee$3$0$(context$4$0) {
 						while (1) switch (context$4$0.prev = context$4$0.next) {
 							case 0:
-								els = $Q(".de-entry[info]", _this.parentNode);
-								i = 0, len = els.length;
+								i = 0, els = $Q(".de-entry[info]", _this.parentNode), len = els.length;
 
-							case 2:
+							case 1:
 								if (!(i < len)) {
-									context$4$0.next = 14;
+									context$4$0.next = 13;
 									break;
 								}
 
@@ -4154,10 +4139,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 								_els$i$getAttribute$split2 = _slicedToArray(_els$i$getAttribute$split, 2);
 								board = _els$i$getAttribute$split2[0];
 								tNum = _els$i$getAttribute$split2[1];
-								context$4$0.next = 9;
+								context$4$0.next = 8;
 								return $ajax(aib.getThrdUrl(board, tNum));
 
-							case 9:
+							case 8:
 								xhr = context$4$0.sent;
 
 								if (xhr.status === 404) {
@@ -4165,12 +4150,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 									saveHiddenThreads(true);
 								}
 
-							case 11:
+							case 10:
 								++i;
-								context$4$0.next = 2;
+								context$4$0.next = 1;
 								break;
 
-							case 14:
+							case 13:
 							case "end":
 								return context$4$0.stop();
 						}
@@ -4178,9 +4163,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}))));
 				cont.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function () {
 					$each($Q(".de-entry[info]", this.parentNode), (function (date, el) {
-						var post,
-						    arr = el.getAttribute("info").split(";");
 						if ($t("input", el).checked) {
+							var arr = el.getAttribute("info").split(";");
 							if (arr[1] in pByNum) {
 								pByNum[arr[1]].setUserVisib(false, date, true);
 							} else {
@@ -4225,7 +4209,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 		cont.innerHTML = "<div de-disableautoplay class=\"de-video-obj\"></div>" + "<center>" + "<a class=\"de-abtn\" id=\"de-video-btn-prev\" href=\"#\" title=\"" + Lng.prevVideo[lang] + "\">" + "&#x25C0;" + "</a> " + "<a class=\"de-abtn\" id=\"de-video-btn-hide\" href=\"#\" title=\"" + Lng.hideLnkList[lang] + "\">" + "&#x25B2;" + "</a> " + "<a class=\"de-abtn\" id=\"de-video-btn-next\" href=\"#\" title=\"" + Lng.nextVideo[lang] + "\">" + "&#x25B6;" + "</a>" + "</center>" + "<div id=\"de-video-list\" style=\"max-width: " + (+Cfg.YTubeWidth + 40) + "px; max-height: " + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 110) + "px;\"></div>";
 		var linkList = cont.lastChild;
-		$before(linkList, $new("script", { type: "text/javascript", text: "\n\t\t(function() {\n\t\t\tif('YT' in window && 'Player' in window.YT) {\n\t\t\t\tonYouTubePlayerAPIReady();\n\t\t\t} else {\n\t\t\t\twindow.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;\n\t\t\t}\n\t\t\tfunction onYouTubePlayerAPIReady() {\n\t\t\t\tvar el = document.querySelector('#de-content-vid > .de-video-obj');\n\t\t\t\twindow.de_addVideoEvents = addEvents.bind(el);\n\t\t\t\twindow.de_addVideoEvents();\n\t\t\t}\n\t\t\tfunction addEvents() {\n\t\t\t\tvar autoplay = true;\n\t\t\t\tif(this.hasAttribute('de-disableautoplay')) {\n\t\t\t\t\tautoplay = false;\n\t\t\t\t\tthis.removeAttribute('de-disableautoplay');\n\t\t\t\t}\n\t\t\t\tnew YT.Player(this.firstChild, { events: {\n\t\t\t\t\t'onError': gotoNextVideo,\n\t\t\t\t\t'onReady': autoplay ? function(e) {\n\t\t\t\t\t\te.target.playVideo();\n\t\t\t\t\t} : Function.prototype,\n\t\t\t\t\t'onStateChange': function(e) {\n\t\t\t\t\t\tif(e.data === 0) {\n\t\t\t\t\t\t\tgotoNextVideo();\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}});\n\t\t\t}\n\t\t\tfunction gotoNextVideo() {\n\t\t\t\tdocument.getElementById(\"de-video-btn-next\").click();\n\t\t\t}\n\t\t})();\n\t" }));
+		$before(linkList, $new("script", { type: "text/javascript", text: "\n\t\t(function() {\n\t\t\tif('YT' in window && 'Player' in window.YT) {\n\t\t\t\tonYouTubePlayerAPIReady();\n\t\t\t} else {\n\t\t\t\twindow.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;\n\t\t\t}\n\t\t\tfunction onYouTubePlayerAPIReady() {\n\t\t\t\twindow.de_addVideoEvents =\n\t\t\t\t\taddEvents.bind(document.querySelector('#de-content-vid > .de-video-obj'));\n\t\t\t\twindow.de_addVideoEvents();\n\t\t\t}\n\t\t\tfunction addEvents() {\n\t\t\t\tvar autoplay = true;\n\t\t\t\tif(this.hasAttribute('de-disableautoplay')) {\n\t\t\t\t\tautoplay = false;\n\t\t\t\t\tthis.removeAttribute('de-disableautoplay');\n\t\t\t\t}\n\t\t\t\tnew YT.Player(this.firstChild, { events: {\n\t\t\t\t\t'onError': gotoNextVideo,\n\t\t\t\t\t'onReady': autoplay ? function(e) {\n\t\t\t\t\t\te.target.playVideo();\n\t\t\t\t\t} : Function.prototype,\n\t\t\t\t\t'onStateChange': function(e) {\n\t\t\t\t\t\tif(e.data === 0) {\n\t\t\t\t\t\t\tgotoNextVideo();\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}});\n\t\t\t}\n\t\t\tfunction gotoNextVideo() {\n\t\t\t\tdocument.getElementById(\"de-video-btn-next\").click();\n\t\t\t}\n\t\t})();\n\t" }));
 		cont.addEventListener("click", {
 			linkList: linkList,
 			listHidden: false,
@@ -4233,9 +4217,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			playerInfo: null,
 			currentLink: null,
 			handleEvent: function handleEvent(e) {
-				var node,
-				    el = e.target;
+				var el = e.target;
 				if (el.classList.contains("de-abtn")) {
+					var node = undefined;
 					switch (e.target.id) {
 						case "de-video-btn-hide":
 							if (this.listHidden) {
@@ -4251,16 +4235,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						case "de-video-btn-prev":
 							node = this.currentLink.parentNode;
 							node = node.previousSibling || node.parentNode.lastChild;
-							node.firstChild.click();
-							$pd(e);
-							return;
+							break;
 						case "de-video-btn-next":
 							node = this.currentLink.parentNode;
 							node = node.nextSibling || node.parentNode.firstChild;
-							node.firstChild.click();
-							$pd(e);
-							return;
 					}
+					node.firstChild.click();
+					$pd(e);
+					return;
 				} else if (!el.classList.contains("de-video-link")) {
 					return;
 				}
@@ -4295,8 +4277,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    len = els.length;
 		if (len > 0) {
 			readFav().then(function (fav) {
-				for (var el, i = 0; i < len; ++i) {
-					el = els[i];
+				for (var i = 0; i < len; ++i) {
+					var el = els[i];
 					removeFavoriteEntry(fav, el.getAttribute("de-host"), el.getAttribute("de-board"), el.getAttribute("de-num"), true);
 				}
 				saveFavorites(fav);
@@ -4305,30 +4287,29 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function showFavoriteTable(cont, data) {
-		var h, b, i, block, tNum;
-		for (h in data) {
-			for (b in data[h]) {
-				i = data[h][b];
-				block = addContentBlock(cont, i.url ? $new("a", { href: i.url, text: h + "/" + b }, null) : $new("b", { text: h + "/" + b }, null));
+		for (var h in data) {
+			for (var b in data[h]) {
+				var d = data[h][b],
+				    block = addContentBlock(cont, d.url ? $new("a", { href: d.url, text: h + "/" + b }, null) : $new("b", { text: h + "/" + b }, null));
 				if (h === aib.host && b === brd) {
 					block.classList.add("de-fav-current");
 				}
-				for (tNum in data[h][b]) {
+				for (var tNum in d) {
 					if (tNum === "url") {
 						continue;
 					}
-					i = data[h][b][tNum];
-					if (!i.url.startsWith("http")) {
-						i.url = (h === aib.host ? aib.prot + "//" : "http://") + h + i.url;
+					var t = d[tNum];
+					if (!t.url.startsWith("http")) {
+						t.url = (h === aib.host ? aib.prot + "//" : "http://") + h + t.url;
 					}
-					block.insertAdjacentHTML("beforeend", "<div class=\"de-entry " + aib.cReply + "\" de-host=\"" + h + "\" de-board=\"" + b + "\" de-num=\"" + tNum + "\" de-url=\"" + i.url + "\"><input type=\"checkbox\"><span class=\"de-btn-expthr\" title=\"" + Lng.findThrd[lang] + "\"></span><a href=\"" + i.url + "\">№" + tNum + "</a><span class=\"de-fav-title\"> - " + i.txt + "</span><span class=\"de-fav-inf-posts\">[<span class=\"de-fav-inf-old\" title=\"" + Lng.oldPosts[lang] + "\">" + i.cnt + "</span>] <span class=\"de-fav-inf-new\" title=\"" + Lng.newPosts[lang] + "\"" + (i["new"] ? ">" : " style=\"display: none;\">") + (i["new"] || 0) + "</span> <span class=\"de-fav-inf-page\" title=\"" + Lng.thrPage[lang] + "\"></span> <span class=\"de-fav-inf-err\">" + (i.err || "") + "</span></span></div>");
+					block.insertAdjacentHTML("beforeend", "<div class=\"de-entry " + aib.cReply + "\" de-host=\"" + h + "\" de-board=\"" + b + "\" de-num=\"" + tNum + "\" de-url=\"" + t.url + "\"><input type=\"checkbox\"><span class=\"de-btn-expthr\" title=\"" + Lng.findThrd[lang] + "\"></span><a href=\"" + t.url + "\">№" + tNum + "</a><span class=\"de-fav-title\"> - " + t.txt + "</span><span class=\"de-fav-inf-posts\">[<span class=\"de-fav-inf-old\" title=\"" + Lng.oldPosts[lang] + "\">" + t.cnt + "</span>] <span class=\"de-fav-inf-new\" title=\"" + Lng.newPosts[lang] + "\"" + (t["new"] ? ">" : " style=\"display: none;\">") + (t["new"] || 0) + "</span> <span class=\"de-fav-inf-page\" title=\"" + Lng.thrPage[lang] + "\"></span> <span class=\"de-fav-inf-err\">" + (t.err || "") + "</span></span></div>");
 					block.lastChild.firstChild.nextSibling.onclick = function (e) {
 						return loadFavorThread(e.target);
 					};
 				}
 			}
 		}
-		cont.insertAdjacentHTML("afterbegin", "<b>" + Lng[block ? "favThrds" : "noFavThrds"][lang] + "</b>");
+		cont.insertAdjacentHTML("afterbegin", "<b>" + Lng[cont.hasChildNodes() ? "favThrds" : "noFavThrds"][lang] + "</b>");
 		cont.insertAdjacentHTML("beforeend", "<hr>");
 		cont.appendChild(addEditButton("favor", function (fn) {
 			readFav().then(function (val) {
@@ -4336,26 +4317,26 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			});
 		}));
 		cont.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(regeneratorRuntime.mark(function callee$2$0() {
-			var i, len, els, update, fav, form, el, host, _b, num, f, cnt;
+			var update, els, fav, i, _len, form, el, host, b, num, f, cnt;
 
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
-						els = $C("de-entry", doc);
 						update = false;
+						els = $C("de-entry", doc);
 						return context$3$0.delegateYield(getStoredObj("DESU_Favorites"), "t8", 3);
 
 					case 3:
 						fav = context$3$0.t8;
-						i = 0, len = els.length;
+						i = 0, _len = els.length;
 
 					case 5:
-						if (!(i < len)) {
+						if (!(i < _len)) {
 							context$3$0.next = 33;
 							break;
 						}
 
-						form = undefined, el = els[i], host = el.getAttribute("de-host"), _b = el.getAttribute("de-board"), num = el.getAttribute("de-num"), f = fav[host][_b][num];
+						form = undefined, el = els[i], host = el.getAttribute("de-host"), b = el.getAttribute("de-board"), num = el.getAttribute("de-num"), f = fav[host][b][num];
 
 						if (!(host !== aib.host || f.err === "Closed")) {
 							context$3$0.next = 9;
@@ -4371,7 +4352,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						el.className = "de-wait";
 						context$3$0.prev = 13;
 						context$3$0.next = 16;
-						return ajaxLoad(aib.getThrdUrl(_b, num));
+						return ajaxLoad(aib.getThrdUrl(b, num));
 
 					case 16:
 						form = context$3$0.sent;
@@ -4420,12 +4401,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}, callee$2$0, this, [[13, 19]]);
 		}))));
 		cont.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(regeneratorRuntime.mark(function callee$2$1() {
-			var i, el, page, endPage, els, infoCount, infoLoaded, postsInfo, form, pInfo, _postsInfo$i, node, isFound;
+			var els, infoCount, postsInfo, i, el, page, infoLoaded, endPage, form, tNums, pInfo, _postsInfo$i, node, isFound;
 
 			return regeneratorRuntime.wrap(function callee$2$1$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
-						els = $Q(".de-fav-current > .de-entry", doc), infoCount = els.length, infoLoaded = 0, postsInfo = [];
+						els = $Q(".de-fav-current > .de-entry", doc), infoCount = els.length, postsInfo = [];
 
 						if (infoCount) {
 							context$3$0.next = 3;
@@ -4438,10 +4419,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						$alert(Lng.loading[lang], "load-pages", true);
 						for (i = 0; i < infoCount; ++i) {
 							el = els[i];
+
 							postsInfo.push([+el.getAttribute("de-num"), el = $c("de-fav-inf-page", el), false]);
 							el.classList.add("de-wait");
 						}
-						page = 0, endPage = (aib.lastPage || 10) + 1;
+						page = 0, infoLoaded = 0, endPage = (aib.lastPage || 10) + 1;
 
 					case 6:
 						if (!(page < endPage)) {
@@ -4466,7 +4448,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return context$3$0.abrupt("continue", 21);
 
 					case 18:
-						for (tNums = form.tNums, i = 0; i < infoCount; ++i) {
+						for (i = 0, tNums = form.tNums; i < infoCount; ++i) {
 							pInfo = postsInfo[i];
 
 							if (tNums.indexOf(pInfo[0]) !== -1) {
@@ -4619,7 +4601,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function optSel(id, isBlock, Fn) {
-		for (var i = 0, x = Lng.cfg[id], len = x.sel[lang].length, el, opt = ""; i < len; i++) {
+		var el,
+		    opt = "",
+		    x = Lng.cfg[id];
+		for (var i = 0, _len = x.sel[lang].length; i < _len; i++) {
 			opt += "<option value=\"" + i + "\">" + x.sel[lang][i] + "</option>";
 		}
 		el = $add("<select info=\"" + id + "\">" + opt + "</select>");
@@ -4637,8 +4622,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			text: Lng.cfgTab[name][lang],
 			info: name }, {
 			click: function () {
-				var pN = this.parentNode;
-				if (pN.getAttribute("selected") === "true") {
+				var el = this.parentNode;
+				if (el.getAttribute("selected") === "true") {
 					return;
 				}
 				var prefTab = $c("de-cfg-body", doc);
@@ -4646,7 +4631,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					prefTab.className = "de-cfg-unvis";
 					$q(".de-cfg-tab-back[selected=\"true\"]", doc).setAttribute("selected", false);
 				}
-				pN.setAttribute("selected", true);
+				el.setAttribute("selected", true);
 				var id = this.getAttribute("info"),
 				    newTab = $id("de-cfg-" + id);
 				if (!newTab) {
@@ -4665,13 +4650,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function updRowMeter(node) {
-		var str,
-		    top = node.scrollTop,
+		var top = node.scrollTop,
 		    el = node.parentNode.previousSibling.firstChild,
 		    num = el.numLines || 1,
 		    i = 15;
 		if (num - i < (top / 12 | 0 + 1)) {
-			str = "";
+			var str = "";
 			while (i--) {
 				str += num++ + "<br>";
 			}
@@ -4791,9 +4775,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	function getCfgCommon() {
 		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-common" }, [optSel("scriptStyle", true, function () {
 			saveCfg("scriptStyle", this.selectedIndex);
-			var lang = getThemeLang();
-			$id("de-main").lang = lang;
-			$id("de-qarea").firstChild.nextSibling.lang = lang;
+			$id("de-main").lang = $id("de-qarea").firstChild.nextSibling.lang = getThemeLang();
 		}), $New("div", null, [lBox("userCSS", false, updateCSS), addEditButton("css", function (fn) {
 			fn(Cfg.userCSSTxt, false, function () {
 				saveCfg("userCSSTxt", this.value);
@@ -4819,17 +4801,17 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				return;
 			}
 			spawn(HotKeys.readKeys).then(function (keys) {
-				var aEl,
-				    evtListener,
+				var el,
+				    fn,
 				    temp = KeyEditListener.getEditMarkup(keys);
 				$alert(temp[1], "edit-hotkeys", false);
-				aEl = $id("de-alert-edit-hotkeys");
-				evtListener = new KeyEditListener(aEl, keys, temp[0]);
-				aEl.addEventListener("focus", evtListener, true);
-				aEl.addEventListener("blur", evtListener, true);
-				aEl.addEventListener("click", evtListener, true);
-				aEl.addEventListener("keydown", evtListener, true);
-				aEl.addEventListener("keyup", evtListener, true);
+				el = $id("de-alert-edit-hotkeys");
+				fn = new KeyEditListener(el, keys, temp[0]);
+				el.addEventListener("focus", fn, true);
+				el.addEventListener("blur", fn, true);
+				el.addEventListener("click", fn, true);
+				el.addEventListener("keydown", fn, true);
+				el.addEventListener("keyup", fn, true);
 			});
 		})]), $New("div", { "class": "de-cfg-depend" }, [inpTxt("loadPages", 2, null), $txt(Lng.cfg.loadPages[lang])]), $if(!nav.isChromeStorage && !nav.Presto || nav.isGM, $New("div", null, [lBox("updScript", true, null), $New("div", { "class": "de-cfg-depend" }, [optSel("scrUpdIntrv", false, null), $btn(Lng.checkNow[lang], "", function () {
 			$alert(Lng.loading[lang], "updavail", true);
@@ -4857,11 +4839,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function getCfgInfo() {
 		function getHiddenThrCount() {
-			var b,
-			    tNum,
-			    count = 0;
-			for (b in hThr) {
-				for (tNum in hThr[b]) {
+			var count = 0;
+			for (var b in hThr) {
+				for (var tNum in hThr[b]) {
 					count++;
 				}
 			}
@@ -4977,9 +4957,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			if (Cfg.animation) {
 				nav.animEvent(el, function (node) {
 					var p = node && node.parentNode;
-					if (p) {
-						p.removeChild(node);
-					}
+					p && p.removeChild(node);
 				});
 				el.classList.add("de-close");
 			} else {
@@ -5056,9 +5034,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			switch (el.id) {
 				case "de-btn-addspell":
 					showMenu(el, "<div style=\"display: inline-block; border-right: 1px solid grey;\">" + "<span class=\"de-menu-item\">" + "#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,<br>".split(",").join("</span><span class=\"de-menu-item\">") + "</span></div><div style=\"display: inline-block;\"><span class=\"de-menu-item\">" + "#sage,#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep".split(",").join("</span><span class=\"de-menu-item\">") + "</span></div>", false, function (el) {
-						var exp = el.textContent,
-						    idx = Spells.names.indexOf(exp.substr(1));
-						$txtInsert($id("de-spell-edit"), exp + (!TNum || exp === "#op" || exp === "#rep" || exp === "#outrep" ? "" : "[" + brd + "," + TNum + "]") + (Spells.needArg[idx] ? "(" : ""));
+						var exp = el.textContent;
+						$txtInsert($id("de-spell-edit"), exp + (!TNum || exp === "#op" || exp === "#rep" || exp === "#outrep" ? "" : "[" + brd + "," + TNum + "]") + (Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? "(" : ""));
 					});
 					return;
 				case "de-btn-refresh":
@@ -5112,7 +5089,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 	HotKeys.version = 6;
 	HotKeys.readKeys = regeneratorRuntime.mark(function callee$1$0() {
-		var tKeys, keys, str, mapFunc;
+		var keys, str, tKeys, mapFunc;
 		return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
@@ -5146,6 +5123,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				case 9:
 					if (keys[0] !== HotKeys.version) {
 						tKeys = HotKeys.getDefaultKeys();
+
 						switch (keys[0]) {
 							case 1:
 								keys[2][11] = tKeys[2][11];
@@ -5207,7 +5185,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}, callee$1$0, this, [[4,, 6, 13]]);
 	});
 	HotKeys.getDefaultKeys = function () {
-		var isFirefox = !!nav.Firefox;
 		var globKeys = [
 		75 ,
 		74 ,
@@ -5234,7 +5211,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		69 		];
 		var thrKeys = [
 		85 		];
-		return [HotKeys.version, isFirefox, globKeys, nonThrKeys, thrKeys];
+		return [HotKeys.version, !!nav.Firefox, globKeys, nonThrKeys, thrKeys];
 	};
 	HotKeys.prototype = {
 		cPost: null,
@@ -5270,12 +5247,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			if (this.paused) {
 				return;
 			}
-			var temp,
-			    post,
-			    scrollToThread,
-			    globIdx,
-			    idx,
-			    curTh = e.target.tagName,
+			var curTh = e.target.tagName,
 			    kc = e.keyCode | (e.ctrlKey ? 4096 : 0) | (e.shiftKey ? 8192 : 0) | (e.altKey ? 16384 : 0) | (curTh === "TEXTAREA" || curTh === "INPUT" && e.target.type === "text" ? 32768 : 0);
 			if (kc === 116 || kc === 32884) {
 			
@@ -5306,7 +5278,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			
 				e.target.blur();
 			} else {
-				globIdx = this.gKeys.indexOf(kc);
+				var post = undefined,
+				    idx = undefined,
+				    globIdx = this.gKeys.indexOf(kc);
 				switch (globIdx) {
 					case 2:
 					
@@ -5440,9 +5414,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 							if (post) {
 								if (post.thr.loadedOnce && post.thr.op.next.count === 1) {
-									temp = post.thr.nextNotHidden;
-									post.thr.load(visPosts, !!temp);
-									post = (temp || post.thr).op;
+									var nextThr = post.thr.nextNotHidden;
+									post.thr.load(visPosts, !!nextThr);
+									post = (nextThr || post.thr).op;
 								} else {
 									post.thr.load(1, false);
 									post = post.thr.op;
@@ -5456,8 +5430,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							break;
 						}
 										default:
-						scrollToThread = !TNum && (globIdx === 0 || globIdx === 1);
-						this._scroll(this._getFirstVisPost(scrollToThread, false), globIdx === 0 || idx === 0, scrollToThread);
+						var scrollToThr = !TNum && (globIdx === 0 || globIdx === 1);
+						this._scroll(this._getFirstVisPost(scrollToThr, false), globIdx === 0 || idx === 0, scrollToThr);
 				}
 			}
 			e.stopPropagation();
@@ -5474,11 +5448,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		},
 
 		_getFirstVisPost: function _getFirstVisPost(getThread, getFull) {
-			var post, tPost;
 			if (this.lastPageOffset !== window.pageYOffset) {
-				post = getThread ? dForm.firstThr : dForm.firstThr.op;
+				var post = getThread ? dForm.firstThr : dForm.firstThr.op;
 				while (post.topCoord < 1) {
-					tPost = post.next;
+					var tPost = post.next;
 					if (!tPost) {
 						break;
 					}
@@ -5493,9 +5466,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			return this.cPost;
 		},
 		_getNextVisPost: function _getNextVisPost(cPost, isOp, toUp) {
-			var thr;
 			if (isOp) {
-				thr = cPost ? toUp ? cPost.thr.prevNotHidden : cPost.thr.nextNotHidden : dForm.firstThr.hidden ? dForm.firstThr.nextNotHidden : dForm.firstThr;
+				var thr = cPost ? toUp ? cPost.thr.prevNotHidden : cPost.thr.nextNotHidden : dForm.firstThr.hidden ? dForm.firstThr.nextNotHidden : dForm.firstThr;
 				return thr ? thr.op : null;
 			}
 			return cPost ? cPost.getAdjacentVisPost(toUp) : dForm.firstThr.hidden || dForm.firstThr.op.hidden ? dForm.firstThr.op.getAdjacentVisPost(toUp) : dForm.firstThr.op;
@@ -5531,15 +5503,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	};
 
 	function KeyEditListener(alertEl, keys, allKeys) {
-		var j,
-		    k,
-		    i,
-		    len,
-		    aInputs = aProto.slice.call($C("de-input-key", alertEl));
-		for (i = 0, len = allKeys.length; i < len; ++i) {
-			k = allKeys[i];
+		var aInputs = aProto.slice.call($C("de-input-key", alertEl));
+		for (var i = 0, _len = allKeys.length; i < _len; ++i) {
+			var k = allKeys[i];
 			if (k !== 0) {
-				for (j = i + 1; j < len; ++j) {
+				for (var j = i + 1; j < _len; ++j) {
 					if (k === allKeys[j]) {
 						aInputs[i].classList.add("de-error-key");
 						aInputs[j].classList.add("de-error-key");
@@ -5598,11 +5566,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		errorInput: false,
 		handleEvent: function handleEvent(e) {
 			var key,
-			    keyStr,
-			    keys,
-			    str,
-			    id,
-			    temp,
 			    el = e.target;
 			switch (e.type) {
 				case "blur":
@@ -5618,13 +5581,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					this.cEl = el;
 					return;
 				case "click":
+					var keys = undefined;
 					if (el.id === "de-keys-reset") {
 						this.keys = HotKeys.getDefaultKeys();
 						this.initKeys = HotKeys.getDefaultKeys();
 						if (hKeys) {
 							hKeys.resume(this.keys);
 						}
-						temp = KeyEditListener.getEditMarkup(this.keys);
+						var temp = KeyEditListener.getEditMarkup(this.keys);
 						this.allKeys = temp[0];
 						$c("de-alert-msg", this.aEl).innerHTML = temp[1];
 						this.allInputs = aProto.slice.call($C("de-input-key", this.aEl));
@@ -5656,12 +5620,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						this.errorInput = false;
 						break;
 					}
-					keyStr = KeyEditListener.keyCodes[key];
+					var keyStr = KeyEditListener.keyCodes[key];
 					if (keyStr === undefined) {
 						this.cKey = -1;
 						return;
 					}
-					str = "";
+					var str = "";
 					if (e.ctrlKey) {
 						str += "Ctrl+";
 					}
@@ -5681,21 +5645,21 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					this.cEl.value = str;
 					break;
 				case "keyup":
-					var idx, rIdx, oKey, rEl, isError;
 					el = this.cEl;
 					key = this.cKey;
 					if (!el || key === -1) {
 						return;
 					}
-					isError = el.classList.contains("de-error-key");
+					var rEl = undefined,
+					    isError = el.classList.contains("de-error-key");
 					if (!this.errorInput && key !== -1) {
-						idx = this.allInputs.indexOf(el);
-						oKey = this.allKeys[idx];
+						var idx = this.allInputs.indexOf(el),
+						    oKey = this.allKeys[idx];
 						if (oKey === key) {
 							this.errorInput = false;
 							break;
 						}
-						rIdx = key === 0 ? -1 : this.allKeys.indexOf(key);
+						var rIdx = key === 0 ? -1 : this.allKeys.indexOf(key);
 						this.allKeys[idx] = key;
 						if (isError) {
 							idx = this.allKeys.indexOf(oKey);
@@ -5755,8 +5719,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			if (typeof e.data !== "string") {
 				return;
 			}
-			var temp,
-			    data = e.data.substring(1);
+			var data = e.data.substring(1);
 			switch (e.data[0]) {
 				case "A":
 					if (data.substr(10, 5) === "pform") {
@@ -5872,121 +5835,125 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		var app,
 		    ext,
 		    type = info.type;
-		if (typeof type !== "undefined") {
-			if (type === 2) {
-				app = "application/x-rar-compressed";
-				ext = "rar";
-			} else if (type === 1) {
-				app = "application/zip";
-				ext = "zip";
-			} else if (type === 0) {
-				app = "application/x-7z-compressed";
-				ext = "7z";
-			} else if (type === 3) {
-				app = "audio/ogg";
-				ext = "ogg";
-			} else {
-				app = "audio/mpeg";
-				ext = "mp3";
-			}
-			aEl.insertAdjacentHTML("afterend", "<a href=\"" + window.URL.createObjectURL(new Blob([new Uint8Array(info.data, info.idx)], { type: app })) + "\" class=\"de-img-" + (type > 2 ? "audio" : "arch") + "\" title=\"" + Lng.downloadFile[lang] + "\" download=\"" + fName.substring(0, fName.lastIndexOf(".")) + "." + ext + "\">." + ext + "</a>");
+		if (typeof type === "undefined") {
+			return;
 		}
+		if (type === 2) {
+			app = "application/x-rar-compressed";
+			ext = "rar";
+		} else if (type === 1) {
+			app = "application/zip";
+			ext = "zip";
+		} else if (type === 0) {
+			app = "application/x-7z-compressed";
+			ext = "7z";
+		} else if (type === 3) {
+			app = "audio/ogg";
+			ext = "ogg";
+		} else {
+			app = "audio/mpeg";
+			ext = "mp3";
+		}
+		aEl.insertAdjacentHTML("afterend", "<a href=\"" + window.URL.createObjectURL(new Blob([new Uint8Array(info.data, info.idx)], { type: app })) + "\" class=\"de-img-" + (type > 2 ? "audio" : "arch") + "\" title=\"" + Lng.downloadFile[lang] + "\" download=\"" + fName.substring(0, fName.lastIndexOf(".")) + "." + ext + "\">." + ext + "</a>");
 	}
 
 	function preloadImages(post) {
 		if (!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {
 			return;
 		}
-		var pool,
-		    mReqs = post ? 1 : 4,
-		    cImg = 1,
-		    rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile, function (e) {
-			console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
-		});
+		var pool;
 		if (isPreImg || Cfg.preLoadImgs) {
-			pool = new TasksPool(mReqs, async(regeneratorRuntime.mark(function callee$2$0(num, data) {
-				var _data, url, lnk, iType, nExp, el, imageData, fName, aEl;
+			(function () {
+				var cImg = 1,
+				    mReqs = post ? 1 : 4,
+				    rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile, function (e) {
+					console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
+				});
+				pool = new TasksPool(mReqs, async(regeneratorRuntime.mark(function callee$3$0(num, data) {
+					var _data, url, lnk, iType, nExp, el, imageData, fName, aEl;
 
-				return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-					while (1) switch (context$3$0.prev = context$3$0.next) {
-						case 0:
-							_data = _slicedToArray(data, 5);
-							url = _data[0];
-							lnk = _data[1];
-							iType = _data[2];
-							nExp = _data[3];
-							el = _data[4];
-							return context$3$0.delegateYield(downloadImgData(url), "t17", 7);
+					return regeneratorRuntime.wrap(function callee$3$0$(context$4$0) {
+						while (1) switch (context$4$0.prev = context$4$0.next) {
+							case 0:
+								_data = _slicedToArray(data, 5);
+								url = _data[0];
+								lnk = _data[1];
+								iType = _data[2];
+								nExp = _data[3];
+								el = _data[4];
+								return context$4$0.delegateYield(downloadImgData(url), "t17", 7);
 
-						case 7:
-							imageData = context$3$0.t17;
+							case 7:
+								imageData = context$4$0.t17;
 
-							if (imageData) {
-								fName = url.substring(url.lastIndexOf("/") + 1), aEl = $q(aib.qImgLink, aib.getImgWrap(lnk));
+								if (imageData) {
+									fName = url.substring(url.lastIndexOf("/") + 1), aEl = $q(aib.qImgLink, aib.getImgWrap(lnk));
 
-								aEl.setAttribute("download", fName);
-								lnk.href = window.URL.createObjectURL(new Blob([imageData], { type: iType }));
-								lnk.setAttribute("de-name", fName);
-								if (iType === "video/webm") {
-									el.setAttribute("de-video", "");
+									aEl.setAttribute("download", fName);
+									lnk.href = window.URL.createObjectURL(new Blob([imageData], { type: iType }));
+									lnk.setAttribute("de-name", fName);
+									if (iType === "video/webm") {
+										el.setAttribute("de-video", "");
+									}
+									if (nExp) {
+										el.src = lnk.href;
+									}
+									if (rjf) {
+										rjf.run(imageData.buffer, [imageData.buffer], addImgFileIcon.bind(null, aEl, fName));
+									}
 								}
-								if (nExp) {
-									el.src = lnk.href;
+								if (Images_.progressId) {
+									$alert(Lng.loadImage[lang] + cImg + "/" + len, Images_.progressId, true);
 								}
-								if (rjf) {
-									rjf.run(imageData.buffer, [imageData.buffer], addImgFileIcon.bind(null, aEl, fName));
-								}
-							}
-							if (Images_.progressId) {
-								$alert(Lng.loadImage[lang] + cImg + "/" + len, Images_.progressId, true);
-							}
-							cImg++;
+								cImg++;
 
-						case 11:
-						case "end":
-							return context$3$0.stop();
+							case 11:
+							case "end":
+								return context$4$0.stop();
+						}
+					}, callee$3$0, this);
+				})), function () {
+					Images_.preloading = false;
+					if (Images_.afterpreload) {
+						Images_.afterpreload();
+						Images_.afterpreload = Images_.progressId = null;
 					}
-				}, callee$2$0, this);
-			})), function () {
-				Images_.preloading = false;
-				if (Images_.afterpreload) {
-					Images_.afterpreload();
-					Images_.afterpreload = Images_.progressId = null;
-				}
-				if (rjf) {
-					rjf.clear();
-				}
-			});
-			Images_.preloading = true;
+					if (rjf) {
+						rjf.clear();
+					}
+				});
+				Images_.preloading = true;
+			})();
 		}
 		var els = $Q(aib.qThumbImages, post || dForm.el);
 		for (var i = 0, _len = els.length; i < _len; ++i) {
 			var el = els[i],
 			    lnk = $parent(el = els[i], "A");
-			if (lnk) {
-				var iType = undefined,
-				    url = lnk.href,
-				    nExp = !!Cfg.openImgs;
-				if (/\.gif$/i.test(url)) {
-					iType = "image/gif";
+			if (!lnk) {
+				continue;
+			}
+			var iType = undefined,
+			    url = lnk.href,
+			    nExp = !!Cfg.openImgs;
+			if (/\.gif$/i.test(url)) {
+				iType = "image/gif";
+			} else {
+				if (/\.jpe?g$/i.test(url)) {
+					iType = "image/jpeg";
+				} else if (/\.png$/i.test(url)) {
+					iType = "image/png";
+				} else if (/\.webm$/i.test(url)) {
+					iType = "video/webm";
+					nExp = false;
 				} else {
-					if (/\.jpe?g$/i.test(url)) {
-						iType = "image/jpeg";
-					} else if (/\.png$/i.test(url)) {
-						iType = "image/png";
-					} else if (/\.webm$/i.test(url)) {
-						iType = "video/webm";
-						nExp = false;
-					} else {
-						continue;
-					}
-					nExp &= !Cfg.openGIFs;
+					continue;
 				}
-				if (pool) {
-					pool.run([url, lnk, iType, nExp, el]);
-				} else if (nExp) {
-					el.src = url;
-				}
+				nExp &= !Cfg.openGIFs;
+			}
+			if (pool) {
+				pool.run([url, lnk, iType, nExp, el]);
+			} else if (nExp) {
+				el.src = url;
 			}
 		}
 		if (pool) {
@@ -6006,7 +5973,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function loadDocFiles(imgOnly) {
 		var els,
-		    files,
 		    progress,
 		    counter,
 		    count = 0,
@@ -6060,10 +6026,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		})), function () {
 			var u,
 			    a,
-			    dt,
 			    name = aib.dm + "-" + brd.replace(/[\\\/:*?"<>|]/g, "") + "-" + TNum;
 			if (!imgOnly) {
-				dt = doc.doctype;
+				var dt = doc.doctype;
 				$t("head", dc).insertAdjacentHTML("beforeend", "<script type=\"text/javascript\" src=\"data/dollscript.js\"></script>");
 				tar.addString("data/dollscript.js", "(" + String(de_main_func_outer || de_main_func_inner) + ")(null, true);");
 				tar.addString(name + ".html", "<!DOCTYPE " + dt.name + (dt.publicId ? " PUBLIC \"" + dt.publicId + "\"" : dt.systemId ? " SYSTEM" : "") + (dt.systemId ? " \"" + dt.systemId + "\"" : "") + ">" + dc.outerHTML);
@@ -6082,10 +6047,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		els = aProto.slice.call($Q(aib.qThumbImages, $q("[de-form]", dc)));
 		count += els.length;
 		els.forEach(function (el) {
-			var url,
-			    lnk = $parent(el, "A");
+			var lnk = $parent(el, "A");
 			if (lnk) {
-				url = lnk.href;
+				var url = lnk.href;
 				if (aib.tiny) {
 					url = url.replace(/^.*?\?v=|&.*?$/g, "");
 				}
@@ -6093,54 +6057,53 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		});
 		if (!imgOnly) {
-			files = [];
-			$each($Q("#de-main, .de-parea, .de-post-btns, #de-qarea, .de-refmap, #de-updater-div, .de-video-obj," + " link[rel=\"alternate stylesheet\"], script, " + aib.qPostForm, dc), $del);
-			$each($T("a", dc), function (el) {
-				var num,
-				    tc = el.textContent;
-				if (tc[0] === ">" && tc[1] === ">" && (num = +tc.substr(2)) && num in pByNum) {
-					el.href = aib.anchor + num;
-				} else {
-					el.href = getAbsLink(el.href);
-				}
-				if (!el.classList.contains("de-link-pref")) {
-					el.className = "de-link-pref " + el.className;
-				}
-			});
-			$each($Q("." + aib.cRPost, dc), function (post, i) {
-				post.setAttribute("de-num", i === 0 ? TNum : aib.getPNum(post));
-			});
-			$each($Q("link, *[src]", dc), (function (el) {
-				if (els.indexOf(el) !== -1) {
-					return;
-				}
-				var temp,
-				    i,
-				    ext,
-				    name,
-				    url = el.tagName === "LINK" ? el.href : el.src;
-				if (!this.test(url)) {
-					$del(el);
-					return;
-				}
-				name = url.substring(url.lastIndexOf("/") + 1).replace(/[\\\/:*?"<>|]/g, "_").toLowerCase();
-				if (files.indexOf(name) !== -1) {
-					temp = url.lastIndexOf(".");
-					ext = url.substring(temp);
-					url = url.substring(0, temp);
-					name = name.substring(0, name.lastIndexOf("."));
-					for (i = 0;; ++i) {
-						temp = name + "(" + i + ")" + ext;
-						if (files.indexOf(temp) === -1) {
-							break;
-						}
+			(function () {
+				$each($Q("#de-main, .de-parea, .de-post-btns, #de-qarea, .de-refmap, #de-updater-div, .de-video-obj," + " link[rel=\"alternate stylesheet\"], script, " + aib.qPostForm, dc), $del);
+				$each($T("a", dc), function (el) {
+					var num,
+					    tc = el.textContent;
+					if (tc[0] === ">" && tc[1] === ">" && (num = +tc.substr(2)) && num in pByNum) {
+						el.href = aib.anchor + num;
+					} else {
+						el.href = getAbsLink(el.href);
 					}
-					name = temp;
-				}
-				files.push(name);
-				Images_.pool.run([url, name, el, null]);
-				count++;
-			}).bind(new RegExp("^\\/\\/?|^https?:\\/\\/([^\\/]*.)?" + regQuote(aib.dm) + "\\/", "i")));
+					if (!el.classList.contains("de-link-pref")) {
+						el.className = "de-link-pref " + el.className;
+					}
+				});
+				$each($Q("." + aib.cRPost, dc), function (post, i) {
+					post.setAttribute("de-num", i === 0 ? TNum : aib.getPNum(post));
+				});
+				var files = [];
+				$each($Q("link, *[src]", dc), (function (el) {
+					if (els.indexOf(el) !== -1) {
+						return;
+					}
+					var name,
+					    url = el.tagName === "LINK" ? el.href : el.src;
+					if (!this.test(url)) {
+						$del(el);
+						return;
+					}
+					name = url.substring(url.lastIndexOf("/") + 1).replace(/[\\\/:*?"<>|]/g, "_").toLowerCase();
+					if (files.indexOf(name) !== -1) {
+						var temp = url.lastIndexOf("."),
+						    ext = url.substring(temp);
+						url = url.substring(0, temp);
+						name = name.substring(0, name.lastIndexOf("."));
+						for (var i = 0;; ++i) {
+							temp = name + "(" + i + ")" + ext;
+							if (files.indexOf(temp) === -1) {
+								break;
+							}
+						}
+						name = temp;
+					}
+					files.push(name);
+					Images_.pool.run([url, name, el, null]);
+					count++;
+				}).bind(new RegExp("^\\/\\/?|^https?:\\/\\/([^\\/]*.)?" + regQuote(aib.dm) + "\\/", "i")));
+			})();
 		}
 		$alert((imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) + "<br><progress id=\"de-loadprogress\" value=\"0\" max=\"" + count + "\"></progress> <span>1</span>/" + count, "filesload", true);
 		progress = $id("de-loadprogress");
@@ -6187,9 +6150,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				return false;
 			}
 			this.rPattern = "";
-			var j = 0,
-			    str = m[0];
-			for (var i = 1, _len = m.length; i < _len; ++i) {
+			for (var i = 1, _len = m.length, j = 0, str = m[0]; i < _len; ++i) {
 				var a = m[i],
 				    p = this.pattern[i - 2];
 				if ((p === "m" || p === "y") && a.length > 3) {
@@ -6218,9 +6179,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					args[_key] = arguments[_key];
 				}
 
-				var i, a, second, minute, hour, day, month, year, dtime;
-				for (i = 1; i < 8; i++) {
-					a = args[i];
+				var second, minute, hour, day, month, year, dtime;
+				for (var i = 1; i < 8; i++) {
+					var a = args[i];
 					switch (_this.pattern[i - 1]) {
 						case "s":
 							second = a;break;
@@ -6283,13 +6244,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		var enableJsapi = arguments[3] === undefined ? false : arguments[3];
 
 		var time,
-		    list,
 		    id = m[1],
 		    wh = " width=\"" + Cfg.YTubeWidth + "\" height=\"" + Cfg.YTubeHeigh + "\">",
 		    sp = "<span class=\"de-video-resizer\" title=\"" + Lng.expandVideo[lang] + "\"></span>";
 		if (isYtube) {
 			time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
-			list = m[0].match(/list=[^&#]+/);
+			var list = m[0].match(/list=[^&#]+/);
 			el.innerHTML = "<iframe frameborder=\"0\" allowfullscreen=\"1\" src=\"https://www.youtube.com/embed/" + id + "?" + (enableJsapi ? "enablejsapi=1&" : "") + (Cfg.YTubeHD ? "hd=1&" : "") + (list ? list[0] + "&" : "") + "start=" + time + (Cfg.YTubeType === 1 ? "&html5=1&rel=0\" type=\"text/html\"" : "\" type=\"application/x-shockwave-flash\"") + wh + "</iframe>" + sp;
 		} else {
 			time = m[2] ? m[2] : "";
@@ -6308,7 +6268,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	};
 	Videos._getTitlesLoader = function () {
 		return Cfg.YTubeTitles && new TasksPool(4, async(regeneratorRuntime.mark(function callee$2$0(num, info) {
-			var title, author, views, publ, _info, link, isYtube, videoObj, id, xhr, entry, date, data;
+			var title, author, views, publ, _info, link, isYtube, videoObj, id, xhr, entry, data;
 
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
@@ -6352,12 +6312,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 						if (xhr.status === 200) {
 							try {
-								entry = JSON.parse(xhr.responseText)[0], date = new RegExp(/(.*)\s(.*)?/).exec(entry.upload_date);
+								entry = JSON.parse(xhr.responseText)[0];
 
 								title = entry.title;
 								author = entry.user_name;
 								views = entry.stats_number_of_plays;
-								publ = date[1];
+								publ = new RegExp(/(.*)\s(.*)?/).exec(entry.upload_date)[1];
 							} catch (e) {}
 						}
 
@@ -6405,7 +6365,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		linksCount: 0,
 		loadedLinksCount: 0,
 		addLink: function addLink(m, loader, link, isYtube) {
-			var msg, src, time, dataObj;
+			var time, dataObj;
 			this.hasLinks = true;
 			this.linksCount++;
 			if (this.playerInfo === null) {
@@ -6444,7 +6404,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					link.title = Lng.author[lang] + dataObj[1] + ", " + Lng.views[lang] + dataObj[2] + ", " + Lng.published[lang] + dataObj[3];
 				}
 			} else {
-				src = isYtube ? aib.prot + "//www.youtube.com/watch?v=" + m[1] + (time ? "#t=" + time : "") : aib.prot + "//vimeo.com/" + m[1];
+				var src = isYtube ? aib.prot + "//www.youtube.com/watch?v=" + m[1] + (time ? "#t=" + time : "") : aib.prot + "//vimeo.com/" + m[1];
 				this.post.msg.insertAdjacentHTML("beforeend", "<p class=\"de-video-ext\"><a class=\"de-video-link " + (isYtube ? "de-ytube" : "de-vimeo") + (dataObj ? " de-video-title\" title=\"" + Lng.author[lang] + dataObj[1] + ", " + Lng.views[lang] + dataObj[2] + ", " + Lng.published[lang] + dataObj[3] + "\" de-author=\"" + dataObj[1] : "") + (time ? "\" de-time=\"" + time : "") + "\" href=\"" + src + "\">" + (dataObj ? dataObj[0] : src) + "</a></p>");
 				link = this.post.msg.lastChild.firstChild;
 			}
@@ -6551,58 +6511,51 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		parse: function parse() {
 			var post = arguments[0] === undefined ? null : arguments[0];
 
-			var i,
-			    els,
-			    len,
-			    loader = this._loader,
-			    videos = aib.fixVideo(post);
-			for (i = 0, els = $Q("a[href*=\"youtu\"]", post ? post.el : dForm.el), len = els.length; i < len; ++i) {
+			var loader = this._loader,
+			    els = $Q("a[href*=\"youtu\"]", post ? post.el : dForm.el);
+			for (var i = 0, _len = els.length; i < _len; ++i) {
 				var el = els[i],
 				    _m = el.href.match(Videos.ytReg);
 				if (_m) {
 					var mPost = post || (aib.getPostEl(el) || {}).post;
-					if (mPost) {
-						mPost.videos.addLink(_m, loader, el, true);
-					}
+					mPost && mPost.videos.addLink(_m, loader, el, true);
 				}
 			}
 			if (Cfg.addVimeo) {
-				for (i = 0, els = $Q("a[href*=\"vimeo.com\"]", post ? post.el : dForm.el), len = els.length; i < len; ++i) {
+				els = $Q("a[href*=\"vimeo.com\"]", post ? post.el : dForm.el);
+				for (var i = 0, _len2 = els.length; i < _len2; ++i) {
 					var el = els[i],
 					    _m2 = el.href.match(Videos.vimReg);
 					if (_m2) {
 						var mPost = post || (aib.getPostEl(el) || {}).post;
-						if (mPost) {
-							mPost.videos.addLink(_m2, loader, el, false);
-						}
+						mPost && mPost.videos.addLink(_m2, loader, el, false);
 					}
 				}
 			}
-			for (i = 0, len = videos.length; i < len; ++i) {
-				var _videos$i = _slicedToArray(videos[i], 3);
+			els = aib.fixVideo(post);
+			for (var i = 0, _len3 = els.length; i < _len3; ++i) {
+				var _els$i = _slicedToArray(els[i], 3);
 
-				var pst = _videos$i[0];
-				var _m3 = _videos$i[1];
-				var isYtube = _videos$i[2];
+				var pst = _els$i[0];
+				var _m3 = _els$i[1];
+				var isYtube = _els$i[2];
 
-				if (pst) {
-					pst.videos.addLink(_m3, loader, null, isYtube);
-				}
+				pst && pst.videos.addLink(_m3, loader, null, isYtube);
 			}
 			return this;
 		}
 	};
 
 	function embedMediaLinks(post) {
-		var el, link, src, i, els, len;
 		if (Cfg.addMP3) {
-			for (i = 0, els = $Q("a[href*=\".mp3\"]", post ? post.el : dForm.el), len = els.length; i < len; ++i) {
-				link = els[i];
+			var els = $Q("a[href*=\".mp3\"]", post ? post.el : dForm.el);
+			for (var i = 0, _len = els.length; i < _len; ++i) {
+				var link = els[i];
 				if (link.target !== "_blank" && link.rel !== "nofollow") {
 					continue;
 				}
-				src = link.href;
-				el = (post || aib.getPostEl(link).post).mp3Obj;
+				var src = link.href,
+				    el = (post || aib.getPostEl(link).post).mp3Obj;
 				if (nav.canPlayMP3) {
 					if (!$q("audio[src=\"" + src + "\"]", el)) {
 						el.insertAdjacentHTML("beforeend", "<p><audio src=\"" + src + "\" preload=\"none\" controls></audio></p>");
@@ -6616,10 +6569,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		}
 		if (Cfg.addVocaroo) {
-			for (i = 0, els = $Q("a[href*=\"vocaroo.com\"]", post ? post.el : dForm.el), len = els.length; i < len; ++i) {
-				link = els[i];
-				src = link.href.split("/").pop();
-				if (!(el = link.previousSibling) || el.className !== "de-vocaroo") {
+			var els = $Q("a[href*=\"vocaroo.com\"]", post ? post.el : dForm.el);
+			for (var i = 0, _len2 = els.length; i < _len2; ++i) {
+				var link = els[i],
+				    src = link.href.split("/").pop(),
+				    el = link.previousSibling;
+				if (!el || el.className !== "de-vocaroo") {
 					link.insertAdjacentHTML("beforebegin", "<div class=\"de-vocaroo\"><embed" + " width=\"148\" height=\"44\" wmode=\"transparent\" type=\"application/x-shockwave-flash\"" + " src=\"http://vocaroo.com/player.swf?playMediaID=" + src + "\"></div>");
 				}
 			}
@@ -6686,11 +6641,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	var loadPages = async(regeneratorRuntime.mark(function callee$1$1(count) {
-		var pages, hasError, i, len, content;
+		var hasError, i, _len, content;
+
 		return regeneratorRuntime.wrap(function callee$1$1$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					pages = [], hasError = false;
+					hasError = false;
 
 					$alert(Lng.loading[lang], "load-pages", true);
 					Pview.clearCache();
@@ -6709,10 +6665,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 						pr.txta.value = "";
 					}
-					i = pageNum, len = Math.min(aib.lastPage + 1, pageNum + count);
+					i = pageNum, _len = Math.min(aib.lastPage + 1, pageNum + count);
 
 				case 11:
-					if (!(i < len)) {
+					if (!(i < _len)) {
 						context$2$0.next = 36;
 						break;
 					}
@@ -6876,24 +6832,17 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	};
 	Spells.prototype = Object.defineProperties({
 		_optimizeSpells: function _optimizeSpells(spells) {
-			var i,
-			    j,
-			    len,
-			    flags,
-			    type,
-			    spell,
-			    scope,
-			    neg,
-			    parensSpells,
+			var neg,
 			    lastSpell = -1,
 			    newSpells = [];
-			for (i = 0, len = spells.length; i < len; ++i) {
-				spell = spells[i];
-				flags = spell[0];
-				type = flags & 255;
+			for (var i = 0, _len = spells.length; i < _len; ++i) {
+				var j = undefined,
+				    spell = spells[i],
+				    flags = spell[0],
+				    type = flags & 255;
 				neg = (flags & 256) !== 0;
 				if (type === 255) {
-					parensSpells = this._optimizeSpells(spell[1]);
+					var parensSpells = this._optimizeSpells(spell[1]);
 					if (parensSpells) {
 						if (parensSpells.length !== 1) {
 							newSpells.push([flags, parensSpells]);
@@ -6908,7 +6857,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						neg = !(neg ^ (flags & 256) !== 0);
 					}
 				} else {
-					scope = spell[2];
+					var scope = spell[2];
 					if (!scope || scope[0] === brd && (scope[1] === -1 ? !TNum : !scope[1] || scope[1] === TNum)) {
 						if (type === 12) {
 							neg = !neg;
@@ -6954,23 +6903,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			return data;
 		},
 		_decompileScope: function _decompileScope(scope, indent) {
-			var spell,
-			    type,
-			    temp,
-			    str,
-			    dScope = [],
-			    hScope = false,
-			    i = 0,
-			    j = 0,
-			    len = scope.length;
-			for (; i < len; i++, j++) {
-				spell = scope[i];
-				type = spell[0] & 255;
+			var dScope = [],
+			    hScope = false;
+			for (var i = 0, j = 0, _len = scope.length; i < _len; i++, j++) {
+				var spell = scope[i],
+				    type = spell[0] & 255;
 				if (type === 255) {
 					hScope = true;
-					temp = this._decompileScope(spell[1], indent + "    ");
+					var temp = this._decompileScope(spell[1], indent + "    ");
 					if (temp[1]) {
-						str = (spell[0] & 256 ? "!(\n" : "(\n") + indent + "    " + temp[0].join("\n" + indent + "    ") + "\n" + indent + ")";
+						var str = (spell[0] & 256 ? "!(\n" : "(\n") + indent + "    " + temp[0].join("\n" + indent + "    ") + "\n" + indent + ")";
 						if (j === 0) {
 							dScope[0] = str;
 						} else {
@@ -6982,7 +6924,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				} else {
 					dScope[j] = Spells.decompileSpell(type, spell[0] & 256, spell[1], spell[2]);
 				}
-				if (i !== len - 1) {
+				if (i !== _len - 1) {
 					dScope[j] += spell[0] & 512 ? " &" : " |";
 				}
 			}
@@ -7028,16 +6970,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			return (isOrep ? "#outrep" : "#rep") + (rep[0] ? "[" + rep[0] + (rep[1] ? "," + (rep[1] === -1 ? "" : rep[1]) : "") + "]" : "") + "(" + rep[2] + "," + rep[3].replace(/\)/g, "\\)") + ")";
 		},
 		_optimizeReps: function _optimizeReps(data) {
-			if (data) {
-				var nData = [];
-				data.forEach(function (temp) {
-					if (!temp[0] || temp[0] === brd && (temp[1] === -1 ? !TNum : !temp[1] || temp[1] === TNum)) {
-						nData.push([temp[2], temp[3]]);
-					}
-				});
-				return !nData.length ? false : nData;
+			if (!data) {
+				return false;
 			}
-			return false;
+			var nData = [];
+			data.forEach(function (temp) {
+				if (!temp[0] || temp[0] === brd && (temp[1] === -1 ? !TNum : !temp[1] || temp[1] === TNum)) {
+					nData.push([temp[2], temp[3]]);
+				}
+			});
+			return !nData.length ? false : nData;
 		},
 		_initReps: function _initReps(data) {
 			if (data) {
@@ -7182,7 +7124,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					fn();
 				}
 				if (this._hasComplFns) {
-					for (var i = 0, len = this._completeFns.length; i < len; ++i) {
+					for (var i = 0, _len = this._completeFns.length; i < _len; ++i) {
 						this._completeFns[i]();
 					}
 					this._completeFns = [];
@@ -7286,16 +7228,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		_errMsg: "",
 		_errMsgArg: null,
 		_generate: function _generate(sList, inParens) {
-			var res,
-			    name,
-			    i = 0,
-			    len = sList.length,
-			    spells = [],
+			var spells = [],
 			    reps = [],
 			    outreps = [],
 			    lastType = this.TYPE_UNKNOWN,
 			    hasReps = false;
-			for (; i < len; i++, this._col++) {
+			for (var i = 0, _len = sList.length; i < _len; i++, this._col++) {
+				var res = undefined;
 				switch (sList[i]) {
 					case "\n":
 						this._line++;
@@ -7304,7 +7243,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					case " ":
 						continue;
 					case "#":
-						name = "";
+						var name = "";
 						i++;
 						this._col++;
 						while (sList[i] >= "a" && sList[i] <= "z" || sList[i] >= "A" && sList[i] <= "Z") {
@@ -7443,8 +7382,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			return [spells, reps, outreps];
 		},
 		_getScope: function _getScope(str) {
-			var scope,
-			    m = str.match(/^\[([a-z0-9\/]+)(?:(,)|,(\s*[0-9]+))?\]/);
+			var m = str.match(/^\[([a-z0-9\/]+)(?:(,)|,(\s*[0-9]+))?\]/);
 			if (m) {
 				return [m[0].length, [m[1], m[3] ? m[3] : m[2] ? -1 : false]];
 			}
@@ -7453,34 +7391,33 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		_getRegex: function _getRegex(str, haveComma) {
 			var val,
 			    m = str.match(/^\((\/.*?[^\\]\/[igm]*)(?:\)|\s*(,))/);
-			if (m) {
-				if (haveComma !== !!m[2]) {
-					return null;
-				}
-				val = m[1];
-				try {
-					toRegExp(val, true);
-				} catch (e) {
-					this._setError(Lng.seErrRegex[lang], val);
-					return null;
-				}
-				return [m[0].length, val];
+			if (!m) {
+				return null;
 			}
-			return null;
+			if (haveComma !== !!m[2]) {
+				return null;
+			}
+			val = m[1];
+			try {
+				toRegExp(val, true);
+			} catch (e) {
+				this._setError(Lng.seErrRegex[lang], val);
+				return null;
+			}
+			return [m[0].length, val];
 		},
 		_getText: function _getText(str, haveBracket) {
 			var m = str.match(/^(\()?(.*?[^\\])\)/);
-			if (m) {
-				if (haveBracket !== !!m[1]) {
-					return null;
-				}
-				return [m[0].length, m[2].replace(/\\\)/g, ")")];
+			if (!m) {
+				return null;
 			}
-			return null;
+			if (haveBracket !== !!m[1]) {
+				return null;
+			}
+			return [m[0].length, m[2].replace(/\\\)/g, ")")];
 		},
 		_doRep: function _doRep(name, str) {
 			var regex,
-			    val,
 			    scope = this._getScope(str);
 			if (scope) {
 				str = str.substring(scope[0]);
@@ -7493,9 +7430,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				if (str[0] === ")") {
 					return [regex[0] + scope[0] + 1, [scope[1][0], scope[1][1], regex[1], ""]];
 				}
-				val = this._getText(str, false);
-				if (val) {
-					return [val[0] + regex[0] + scope[0], [scope[1][0], scope[1][1], regex[1], val[1]]];
+				var _val = this._getText(str, false);
+				if (_val) {
+					return [_val[0] + regex[0] + scope[0], [scope[1][0], scope[1][1], regex[1], _val[1]]];
 				}
 			}
 			this._setError(Lng.seSyntaxErr[lang], name);
@@ -7638,14 +7575,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		postHidden: false,
 		run: function run() {
 			var rv,
-			    type,
-			    val,
 			    i = this._ctx.pop(),
 			    scope = this._ctx.pop(),
 			    len = this._ctx.pop();
 			while (true) {
 				if (i < len) {
-					type = scope[i][0] & 255;
+					var type = scope[i][0] & 255;
 					if (type === 255) {
 						this._deep++;
 						this._ctx.push(len, scope, i);
@@ -7654,13 +7589,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						i = 0;
 						continue;
 					}
-					val = this._runSpell(type, scope[i][1]);
-					if (val instanceof Promise) {
-						val.then(this._asyncContinue);
+					var _val = this._runSpell(type, scope[i][1]);
+					if (_val instanceof Promise) {
+						_val.then(this._asyncContinue);
 						this._ctx.push(len, scope, i, scope[i][0]);
 						return false;
 					}
-					rv = this._checkRes(scope[i][0], val);
+					rv = this._checkRes(scope[i][0], _val);
 					if (rv === null) {
 						i++;
 						continue;
@@ -7698,15 +7633,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		_lastSpellIdx: 0,
 		_wipeMsg: "",
 		_asyncContinue: function _asyncContinue(val) {
-			var temp,
-			    rv = this._checkRes(this._ctx.pop(), val);
+			var rv = this._checkRes(this._ctx.pop(), val);
 			if (rv === null) {
 				if (!this.run()) {
 					return;
 				}
 			} else if (rv) {
-				temp = this._ctx.pop();
-				this._post.spellHide(this._getMsg(this._ctx.pop()[temp - 1]));
+				this._post.spellHide(this._getMsg(this._ctx.pop()[this._ctx.pop() - 1]));
 				this.postHidden = true;
 			} else if (!this._post.deleted) {
 				sVis[this._post.count] = 1;
@@ -7936,7 +7869,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			return pTrip ? !val || pTrip.contains(val) : false;
 		},
 		_img: function _img(val) {
-			var temp;var hide;var images = this._post.images;
+			var hide;var images = this._post.images;
 			var _val = _slicedToArray(val, 3);
 
 			var compareRule = _val[0];
@@ -8030,24 +7963,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		_wipe: function _wipe(val) {
 			var arr,
 			    len,
-			    i,
-			    j,
-			    n,
 			    x,
-			    keys,
-			    pop,
-			    capsw,
-			    casew,
-			    _txt,
 			    txt = this._post.text;
 		
 			if (val & 1) {
 				arr = txt.replace(/>/g, "").split(/\s*\n\s*/);
 				if ((len = arr.length) > 5) {
 					arr.sort();
-					for (i = 0, n = len / 4; i < len;) {
+					for (var i = 0, n = len / 4; i < len;) {
 						x = arr[i];
-						j = 0;
+						var j = 0;
 						while (arr[i++] === x) {
 							j++;
 						}
@@ -8063,9 +7988,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				arr = txt.replace(/[\s\.\?\!,>]+/g, " ").toUpperCase().split(" ");
 				if ((len = arr.length) > 3) {
 					arr.sort();
-					for (i = 0, n = len / 4, keys = 0, pop = 0; i < len; keys++) {
+					var keys = 0;
+					for (var i = 0, n = len / 4, pop = 0; i < len; keys++) {
 						x = arr[i];
-						j = 0;
+						var j = 0;
 						while (arr[i++] === x) {
 							j++;
 						}
@@ -8096,7 +8022,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		
 			if (val & 8) {
-				_txt = txt.replace(/\s+/g, "");
+				var _txt = txt.replace(/\s+/g, "");
 				if ((len = _txt.length) > 30 && (x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, "").length / len) > 0.4) {
 					this._wipeMsg = "specsymbols: " + (x * 100).toFixed(0) + "%";
 					return true;
@@ -8106,7 +8032,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			if (val & 16) {
 				arr = txt.replace(/[\s\.\?!;,-]+/g, " ").trim().split(" ");
 				if ((len = arr.length) > 4) {
-					for (i = 0, n = 0, capsw = 0, casew = 0; i < len; i++) {
+					var n = 0,
+					    capsw = 0,
+					    casew = 0;
+					for (var i = 0; i < len; i++) {
 						x = arr[i];
 						if ((x.match(/[a-zа-я]/ig) || []).length < 5) {
 							continue;
@@ -8130,7 +8059,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		
 			if (val & 32) {
-				_txt = txt.replace(/\s+/g, " ").replace(/>>\d+|https*:\/\/.*?(?: |$)/g, "");
+				var _txt = txt.replace(/\s+/g, " ").replace(/>>\d+|https*:\/\/.*?(?: |$)/g, "");
 				if ((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, "").length) / len) > 0.4) {
 					this._wipeMsg = "numbers: " + Math.round(x * 100) + "%";
 					return true;
@@ -8347,16 +8276,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 	PostForm.setUserName = function () {
 		var el = $q("input[info=\"nameValue\"]", doc);
-		if (el) {
-			saveCfg("nameValue", el.value);
-		}
+		el && saveCfg("nameValue", el.value);
 		pr.name.value = Cfg.userName ? Cfg.nameValue : "";
 	};
 	PostForm.setUserPassw = function () {
 		var el = $q("input[info=\"passwValue\"]", doc);
-		if (el) {
-			saveCfg("passwValue", el.value);
-		}
+		el && saveCfg("passwValue", el.value);
 		(pr.dpass || {}).value = pr.passw.value = Cfg.passwValue;
 	};
 	PostForm.prototype = Object.defineProperties({
@@ -8370,13 +8295,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		pArea: [],
 		qArea: null,
 		addTextPanel: function addTextPanel() {
-			var i,
-			    len,
-			    html,
+			var id,
+			    val,
 			    btns,
-			    tPanel = $id("de-txt-panel"),
-			    id = ["bold", "italic", "under", "strike", "spoil", "code", "sup", "sub", "quote"],
-			    val = ["B", "i", "U", "S", "%", "C", "v", "^", "&gt;"];
+			    html = "",
+			    tPanel = $id("de-txt-panel");
 			if (!Cfg.addTextBtns) {
 				$del(tPanel);
 				return;
@@ -8386,11 +8309,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 			tPanel.style.cssFloat = Cfg.txtBtnsLoc ? "none" : "right";
 			$after(Cfg.txtBtnsLoc ? $id("de-txta-resizer") || this.txta : aib._420 ? $c("popup", this.form) : this.subm, tPanel);
-			for (html = "", i = 0, btns = aib.markupTags, len = btns.length; i < len; ++i) {
+			id = ["bold", "italic", "under", "strike", "spoil", "code", "sup", "sub", "quote"], val = ["B", "i", "U", "S", "%", "C", "v", "^", "&gt;"];
+			btns = aib.markupTags;
+			for (var i = 0, _len = btns.length; i < _len; ++i) {
 				if (btns[i] === "") {
 					continue;
 				}
-				html += "<span id=\"de-btn-" + id[i] + "\" de-title=\"" + Lng.txtBtn[i][lang] + "\" de-tag=\"" + btns[i] + "\">" + (Cfg.addTextBtns === 2 ? (html === "" ? "[ " : "") + "<a class=\"de-abtn\" href=\"#\">" + val[i] + "</a>" + (i === len - 1 ? " ]" : " / ") : Cfg.addTextBtns === 3 ? "<input type=\"button\" value=\"" + val[i] + "\" style=\"font-weight: bold;\">" : "") + "</span>";
+				html += "<span id=\"de-btn-" + id[i] + "\" de-title=\"" + Lng.txtBtn[i][lang] + "\" de-tag=\"" + btns[i] + "\">" + (Cfg.addTextBtns === 2 ? (html === "" ? "[ " : "") + "<a class=\"de-abtn\" href=\"#\">" + val[i] + "</a>" + (i === _len - 1 ? " ]" : " / ") : Cfg.addTextBtns === 3 ? "<input type=\"button\" value=\"" + val[i] + "\" style=\"font-weight: bold;\">" : "") + "</span>";
 			}
 			tPanel.innerHTML = html;
 		},
@@ -8400,15 +8325,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		},
 		eventFiles: function eventFiles(clear) {
-			var i,
-			    len,
-			    inp,
-			    els,
-			    el,
-			    last = null;
-			for (i = 0, els = $Q("input[type=\"file\"]", this.fileTd), len = els.length; i < len; ++i) {
-				el = els[i];
-				inp = el.obj;
+			var last = null,
+			    els = $Q("input[type=\"file\"]", this.fileTd);
+			for (var i = 0, _len = els.length; i < _len; ++i) {
+				var el = els[i],
+				    inp = el.obj;
 				if (inp) {
 					inp.prev = last;
 					if (last) {
@@ -8426,19 +8347,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			this.fileObj = els[0].obj;
 		},
 		handleEvent: function handleEvent(e) {
-			var x,
-			    start,
-			    end,
-			    scrtop,
-			    id,
-			    len,
-			    val,
+			var id,
 			    el = e.target;
 			if (el.tagName !== "SPAN") {
 				el = el.parentNode;
 			}
 			id = el.id;
 			if (id.startsWith("de-btn")) {
+				var x = undefined;
 				if (e.type === "mouseover") {
 					if (id === "de-btn-quote") {
 						quotetxt = $txtSelect();
@@ -8462,16 +8378,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return;
 				}
 				x = pr.txta;
-				start = x.selectionStart;
-				end = x.selectionEnd;
+				var start = x.selectionStart,
+				    end = x.selectionEnd;
 				if (id === "de-btn-quote") {
 					$txtInsert(x, "> " + (start === end ? quotetxt : x.value.substring(start, end)).replace(/\n/gm, "\n> "));
 				} else {
-					scrtop = x.scrollTop;
-					val = this._wrapText(aib.markupBB, el.getAttribute("de-tag"), x.value.substring(start, end));
-					len = start + val[0];
-					x.value = x.value.substr(0, start) + val[1] + x.value.substr(end);
-					x.setSelectionRange(len, len);
+					var scrtop = x.scrollTop,
+					    _val = this._wrapText(aib.markupBB, el.getAttribute("de-tag"), x.value.substring(start, end)),
+					    _len = start + _val[0];
+					x.value = x.value.substr(0, start) + _val[1] + x.value.substr(end);
+					x.setSelectionRange(_len, _len);
 					x.focus();
 					x.scrollTop = scrtop;
 				}
@@ -8558,7 +8474,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		},
 		refreshCapImg: function refreshCapImg(focus) {
-			var src, img;
 			if (this._lastCapUpdate) {
 				this._lastCapUpdate = Date.now();
 			}
@@ -8568,11 +8483,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				if (!this.cap || aib.krau && !$q("input[name=\"captcha_name\"]", this.form).hasAttribute("value")) {
 					return;
 				}
-				img = this.recap ? $id("recaptcha_image") : $t("img", this.capTr);
+				var img = this.recap ? $id("recaptcha_image") : $t("img", this.capTr);
 				if (aib.dobr || aib.krau || aib.dvachnet || this.recap) {
 					img.click();
 				} else if (img) {
-					src = img.getAttribute("src");
+					var src = img.getAttribute("src");
 					if (aib.tire) {
 						src = "/" + brd + "/captcha.fpl?" + Math.random();
 					} else if (aib.kus || aib.tinyIb) {
@@ -8623,7 +8538,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		_init: function _init() {
 			var _this = this;
 
-			var btn, el;
+			var el;
 			this.pForm = $New("div", { id: "de-pform" }, [this.form, this.oeForm]);
 			dForm.el.insertAdjacentHTML("beforebegin", "<div class=\"de-parea\"><div>[<a href=\"#\"></a>]</div><hr></div>");
 			this.pArea[0] = dForm.el.previousSibling;
@@ -8652,12 +8567,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					if (!Cfg.hangQReply) {
 						return;
 					}
-					var cr,
-					    x,
-					    y,
-					    maxX,
-					    maxY,
-					    curX = e.clientX,
+					var curX = e.clientX,
 					    curY = e.clientY;
 					switch (e.type) {
 						case "mousedown":
@@ -8670,11 +8580,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							$pd(e);
 							return;
 						case "mousemove":
-							maxX = Post.sizing.wWidth - this._el.offsetWidth;
-							maxY = Post.sizing.wHeight - this._el.offsetHeight - 25;
-							cr = this._el.getBoundingClientRect();
-							x = cr.left + curX - this._oldX;
-							y = cr.top + curY - this._oldY;
+							var maxX = Post.sizing.wWidth - this._el.offsetWidth,
+							    maxY = Post.sizing.wHeight - this._el.offsetHeight - 25,
+							    cr = this._el.getBoundingClientRect(),
+							    x = cr.left + curX - this._oldX,
+							    y = cr.top + curY - this._oldY;
 							this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? "right: 0" : x < 0 || curX < this._oldX && x < 20 ? "left: 0" : "left: " + x + "px";
 							this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? "bottom: 25px" : y < 0 || curY < this._oldY && y < 20 ? "top: 0" : "top: " + y + "px";
 							this._elStyle.cssText = this._X + "; " + this._Y;
@@ -8762,23 +8672,23 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 			}
 			if (!aib.iich && Cfg.addSageBtn && this.mail) {
-				btn = $new("span", { id: "de-sagebtn", "class": "de-btn-sage" }, { click: function (e) {
-						e.stopPropagation();
-						$pd(e);
-						toggleCfg("sageReply");
-						_this._setSage();
-					} });
 				el = $parent(this.mail, "LABEL") || this.mail;
 				if (el.nextElementSibling || el.previousElementSibling) {
 					el.style.display = "none";
 				} else {
 					$parent(this.mail, "TR").style.display = "none";
 				}
-				$after(this.subm, btn);
+				el = $new("span", { id: "de-sagebtn", "class": "de-btn-sage" }, { click: function (e) {
+						e.stopPropagation();
+						$pd(e);
+						toggleCfg("sageReply");
+						_this._setSage();
+					} });
+				$after(this.subm, el);
 				setTimeout(this._setSage.bind(this), 0);
 				if (aib._2chru) {
-					while (btn.nextSibling) {
-						$del(btn.nextSibling);
+					while (el.nextSibling) {
+						$del(el.nextSibling);
 					}
 				}
 			}
@@ -8796,8 +8706,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				this.subm.value = Lng.reply[lang];
 			}
 			this.subm.addEventListener("click", function (e) {
-				var temp,
-				    val = _this.txta.value;
 				if (aib._2chru && !aib.reqCaptcha) {
 					$ajax("/" + brd + "/api/requires-captcha").then(function (xhr) {
 						if (xhr.status !== 200) {
@@ -8840,11 +8748,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					$alert(Lng.subjHasTrip[lang], "upload", false);
 					return;
 				}
+				var val = _this.txta.value;
 				if (spells.haveOutreps) {
 					val = spells.outReplace(val);
 				}
 				if (_this.tNum && pByNum[_this.tNum].subj === "Dollchan Extension Tools") {
-					temp = "\n\n" + _this._wrapText(aib.markupBB, aib.markupTags[5], "-".repeat(50) + "\n" + nav.ua + "\nv" + version + " [" + nav.scriptInstall + "]")[1];
+					var temp = "\n\n" + _this._wrapText(aib.markupBB, aib.markupTags[5], "-".repeat(50) + "\n" + nav.ua + "\nv" + version + " [" + nav.scriptInstall + "]")[1];
 					if (!val.contains(temp)) {
 						val += temp;
 					}
@@ -9050,8 +8959,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		},
 		_wrapText: function _wrapText(markupBB, tag, text) {
-			var str, m;
+			var m;
 			if (markupBB) {
+				var str = undefined;
 				if (text.contains("\n")) {
 					str = "[" + tag + "]" + text + "[/" + tag + "]";
 					return [str.length, str];
@@ -9060,7 +8970,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				str = m[1] + "[" + tag + "]" + m[2] + "[/" + tag + "]" + m[3];
 				return [!m[2].length ? m[1].length + tag.length + 2 : str.length, str];
 			}
-			for (var rv = "", i = 0, arr = text.split("\n"), len = arr.length; i < len; ++i) {
+			var rv = "",
+			    i = 0,
+			    arr = text.split("\n");
+			for (var _len = arr.length; i < _len; ++i) {
 				m = arr[i].match(/^(\s*)(.*?)(\s*)$/);
 				rv += "\n" + m[1] + (tag === "^H" ? m[2] + "^H".repeat(m[2].length) : tag + m[2] + tag) + m[3];
 			}
@@ -9145,13 +9058,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			this.hideInputs();
 		},
 		delUtils: function delUtils() {
-			var mParent;
 			if (Cfg.fileThumb) {
 				this.thumb.classList.add("de-file-off");
 				if (this._mediaEl) {
 					window.URL.revokeObjectURL(this._mediaEl.src);
-					mParent = this._mediaEl.parentNode;
-					mParent.title = Lng.clickToAdd[lang];
+					this._mediaEl.parentNode.title = Lng.clickToAdd[lang];
 					$del(this._mediaEl);
 					this._mediaEl = null;
 				}
@@ -9211,8 +9122,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		},
 		hideInputs: function hideInputs() {
-			var hideThumbs = Cfg.fileThumb,
-			    inp = this.next;
+			var inp = this.next;
 			while (inp && inp.empty) {
 				inp = inp.next;
 			}
@@ -9221,6 +9131,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				while (inp.prev && inp.prev.empty) {
 					inp = inp.prev;
 				}
+				var hideThumbs = Cfg.fileThumb;
 				while (inp = inp.next) {
 					if (hideThumbs) {
 						inp.thumb.style.display = "none";
@@ -9231,12 +9142,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		},
 		init: function init(update) {
-			var imgTD;
 			if (Cfg.fileThumb) {
 				this.form.fileTd.parentNode.style.display = "none";
-				imgTD = this.form.fileArea;
-				imgTD.insertAdjacentHTML("beforeend", "<div class=\"de-file de-file-off\"><div class=\"de-file-img\">" + "<div class=\"de-file-img\" title=\"" + Lng.clickToAdd[lang] + "\"></div></div></div>");
-				this.thumb = imgTD.lastChild;
+				this.form.fileArea.insertAdjacentHTML("beforeend", "<div class=\"de-file de-file-off\"><div class=\"de-file-img\">" + "<div class=\"de-file-img\" title=\"" + Lng.clickToAdd[lang] + "\"></div></div></div>");
+				this.thumb = this.form.fileArea.lastChild;
 				this.thumb.addEventListener("mouseover", this, false);
 				this.thumb.addEventListener("mouseout", this, false);
 				this.thumb.addEventListener("click", this, false);
@@ -9334,27 +9243,28 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			var _this = this;
 
 			var files = this.el.files;
-			if (files && files[0]) {
-				readFileArrayBuffer(files[0]).then(function (val) {
-					_this.form.eventFiles(false);
-					var file = _this.el.files[0],
-					    thumb = _this.thumb;
-					if (_this.empty) {
-						return;
-					}
-					thumb.classList.remove("de-file-off");
-					thumb = thumb.firstChild.firstChild;
-					thumb.title = file.name + ", " + (file.size / 1024).toFixed(2) + "KB";
-					thumb.insertAdjacentHTML("afterbegin", file.type === "video/webm" ? "<video class=\"de-file-img\" loop autoplay muted src=\"\"></video>" : "<img class=\"de-file-img\" src=\"\">");
-					_this._mediaEl = thumb = thumb.firstChild;
-					thumb.src = window.URL.createObjectURL(new Blob([val]));
-					thumb = thumb.nextSibling;
-					if (thumb) {
-						window.URL.revokeObjectURL(thumb.src);
-						$del(thumb);
-					}
-				});
+			if (!files || !files[0]) {
+				return;
 			}
+			readFileArrayBuffer(files[0]).then(function (val) {
+				_this.form.eventFiles(false);
+				if (_this.empty) {
+					return;
+				}
+				var file = _this.el.files[0],
+				    thumb = _this.thumb;
+				thumb.classList.remove("de-file-off");
+				thumb = thumb.firstChild.firstChild;
+				thumb.title = file.name + ", " + (file.size / 1024).toFixed(2) + "KB";
+				thumb.insertAdjacentHTML("afterbegin", file.type === "video/webm" ? "<video class=\"de-file-img\" loop autoplay muted src=\"\"></video>" : "<img class=\"de-file-img\" src=\"\">");
+				_this._mediaEl = thumb = thumb.firstChild;
+				thumb.src = window.URL.createObjectURL(new Blob([val]));
+				thumb = thumb.nextSibling;
+				if (thumb) {
+					window.URL.revokeObjectURL(thumb.src);
+					$del(thumb);
+				}
+			});
 		}
 	}, {
 		_buttonsPlace: {
@@ -9433,9 +9343,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 
 	function getSubmitError(dc) {
-		var err = "",
-		    form = $q(aib.qDForm, dc);
-		if (dc.body.hasChildNodes() && !form) {
+		var err = "";
+		if (dc.body.hasChildNodes() && !$q(aib.qDForm, dc)) {
 			if (aib.mak) {
 				try {
 					return Lng.error[lang] + ":\n" + JSON.parse(dc.body.innerHTML).Reason;
@@ -9452,48 +9361,47 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	var doUploading = async(regeneratorRuntime.mark(function callee$1$3(getProgress) {
-		var beginTime, inited, progress, counterWrap, counterEl, totalEl, speedEl, p, _val, total, loaded;
+		var p, beginTime, inited, progress, counterWrap, counterEl, totalEl, speedEl, _val, total, loaded;
 
 		return regeneratorRuntime.wrap(function callee$1$3$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
 					$alert(Lng.sendingPost[lang] + "<br><progress id=\"de-uploadprogress\" value=\"0\" max=\"1\" style=\"display: none; width: 200px;\"></progress><div style=\"display: none; font: bold 12px sans-serif;\"><span></span> / <span></span> (<span></span>)</div>", "upload", true);
 					beginTime = Date.now(), inited = false, progress = $id("de-uploadprogress"), counterWrap = progress.nextSibling, counterEl = counterWrap.firstChild, totalEl = counterEl.nextElementSibling, speedEl = totalEl.nextElementSibling;
-					p = undefined;
 
-				case 3:
+				case 2:
 					if (!(p = getProgress())) {
-						context$2$0.next = 25;
+						context$2$0.next = 24;
 						break;
 					}
 
 					_val = undefined;
-					context$2$0.prev = 5;
-					context$2$0.next = 8;
+					context$2$0.prev = 4;
+					context$2$0.next = 7;
 					return p;
 
-				case 8:
+				case 7:
 					_val = context$2$0.sent;
-					context$2$0.next = 15;
+					context$2$0.next = 14;
 					break;
 
-				case 11:
-					context$2$0.prev = 11;
-					context$2$0.t26 = context$2$0["catch"](5);
+				case 10:
+					context$2$0.prev = 10;
+					context$2$0.t26 = context$2$0["catch"](4);
 
 					$alert(getErrorMessage(context$2$0.t26), "upload", false);
 					return context$2$0.abrupt("return");
 
-				case 15:
+				case 14:
 					if (!_val.done) {
-						context$2$0.next = 18;
+						context$2$0.next = 17;
 						break;
 					}
 
 					checkUpload(_val.data);
 					return context$2$0.abrupt("return");
 
-				case 18:
+				case 17:
 					if (!inited) {
 						total = _val.data.total;
 
@@ -9508,17 +9416,17 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					progress.value = loaded;
 					counterEl.textContent = prettifySize(loaded);
 					speedEl.textContent = prettifySize(loaded / (Date.now() - beginTime) * 1000) + "/" + Lng.second[lang];
-					context$2$0.next = 3;
+					context$2$0.next = 2;
 					break;
 
-				case 25:
+				case 24:
 					$alert(Lng.internalError[lang] + getPrettyErrorMessage(new Error()), "upload", false);
 
-				case 26:
+				case 25:
 				case "end":
 					return context$2$0.stop();
 			}
-		}, callee$1$3, this, [[5, 11]]);
+		}, callee$1$3, this, [[4, 10]]);
 	}));
 
 	function checkUpload(dc) {
@@ -9528,8 +9436,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			aib.btnZeroLUTime.click();
 		}
 		updater["continue"]();
-		var el,
-		    err = getSubmitError(dc);
+		var err = getSubmitError(dc);
 		if (err) {
 			if (pr.isQuick) {
 				pr.setReply(true, false);
@@ -9554,7 +9461,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			window.location = aib.getThrdUrl(brd, aib.getTNum($q(aib.qDForm, dc)));
 			return;
 		}
-		el = !aib.tiny && !aib.kus && (aib.qPostRedir === null || $q(aib.qPostRedir, dc)) ? $q(aib.qDForm, dc) : null;
+		var el = !aib.tiny && !aib.kus && (aib.qPostRedir === null || $q(aib.qPostRedir, dc)) ? $q(aib.qDForm, dc) : null;
 		if (TNum) {
 			dForm.firstThr.clearPostsMarks();
 			if (el) {
@@ -9623,8 +9530,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							doc.location.hash = "";
 						}
 					}
-					els = $Q("." + aib.cRPost + " input:checked", dForm.el);
-					threads = new Set();
+					els = $Q("." + aib.cRPost + " input:checked", dForm.el), threads = new Set();
 
 					for (i = 0, _len = els.length; i < _len; ++i) {
 						el = els[i];
@@ -9636,93 +9542,93 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 
 					if (!TNum) {
-						context$2$0.next = 24;
+						context$2$0.next = 23;
 						break;
 					}
 
 					dForm.firstThr.clearPostsMarks();
-					context$2$0.prev = 14;
-					context$2$0.next = 17;
+					context$2$0.prev = 13;
+					context$2$0.next = 16;
 					return dForm.firstThr.loadNew(false);
 
-				case 17:
-					context$2$0.next = 22;
+				case 16:
+					context$2$0.next = 21;
 					break;
 
-				case 19:
-					context$2$0.prev = 19;
-					context$2$0.t27 = context$2$0["catch"](14);
+				case 18:
+					context$2$0.prev = 18;
+					context$2$0.t27 = context$2$0["catch"](13);
 
 					infoLoadErrors(context$2$0.t27);
 
-				case 22:
-					context$2$0.next = 50;
+				case 21:
+					context$2$0.next = 49;
 					break;
 
-				case 24:
+				case 23:
 					_iteratorNormalCompletion = true;
 					_didIteratorError = false;
 					_iteratorError = undefined;
-					context$2$0.prev = 27;
+					context$2$0.prev = 26;
 					_iterator = threads[Symbol.iterator]();
 
-				case 29:
+				case 28:
 					if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-						context$2$0.next = 36;
+						context$2$0.next = 35;
 						break;
 					}
 
 					thr = _step.value;
-					context$2$0.next = 33;
+					context$2$0.next = 32;
 					return thr.load(visPosts, false, false);
 
-				case 33:
+				case 32:
 					_iteratorNormalCompletion = true;
-					context$2$0.next = 29;
+					context$2$0.next = 28;
 					break;
 
-				case 36:
-					context$2$0.next = 42;
+				case 35:
+					context$2$0.next = 41;
 					break;
 
-				case 38:
-					context$2$0.prev = 38;
-					context$2$0.t28 = context$2$0["catch"](27);
+				case 37:
+					context$2$0.prev = 37;
+					context$2$0.t28 = context$2$0["catch"](26);
 					_didIteratorError = true;
 					_iteratorError = context$2$0.t28;
 
-				case 42:
+				case 41:
+					context$2$0.prev = 41;
 					context$2$0.prev = 42;
-					context$2$0.prev = 43;
 
 					if (!_iteratorNormalCompletion && _iterator["return"]) {
 						_iterator["return"]();
 					}
 
-				case 45:
-					context$2$0.prev = 45;
+				case 44:
+					context$2$0.prev = 44;
 
 					if (!_didIteratorError) {
-						context$2$0.next = 48;
+						context$2$0.next = 47;
 						break;
 					}
 
 					throw _iteratorError;
 
+				case 47:
+					return context$2$0.finish(44);
+
 				case 48:
-					return context$2$0.finish(45);
+					return context$2$0.finish(41);
 
 				case 49:
-					return context$2$0.finish(42);
-
-				case 50:
 					$alert(Lng.succDeleted[lang], "delete", false);
 
-				case 51:
+				case 50:
 				case "end":
 					return context$2$0.stop();
 			}
-		}, callee$1$4, this, [[14, 19], [27, 38, 42, 50], [43,, 45, 49]]);
+		}, callee$1$4, this, [[13, 18], [26, 37, 41, 49], [42,, 44, 48]]);
 	}));
 
 	function readFileArrayBuffer(file) {
@@ -9736,10 +9642,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function cleanFile(data, extraData) {
-		var tmp,
-		    i,
+		var i,
 		    len,
-		    deep,
 		    val,
 		    lIdx,
 		    jpgDat,
@@ -9752,7 +9656,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 	
 		if (img[0] === 255 && img[1] === 216) {
-			for (i = 2, deep = 1, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len;) {
+			var deep = 1;
+			for (i = 2, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len;) {
 				if (img[i] === 255) {
 					if (rExif) {
 						if (!jpgDat && deep === 1) {
@@ -9820,10 +9725,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function readExif(data, off, len) {
 		var i,
-		    j,
-		    dE,
-		    tag,
-		    tgLen,
 		    xRes = 0,
 		    yRes = 0,
 		    resT = 0,
@@ -9836,8 +9737,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		if (i > len) {
 			return null;
 		}
-		for (tgLen = dv.getUint16(i, le), j = 0; j < tgLen; j++) {
-			tag = dv.getUint16(dE = i + 2 + 12 * j, le);
+		for (var j = 0, tgLen = dv.getUint16(i, le); j < tgLen; j++) {
+			var dE = i + 2 + 12 * j,
+			    tag = dv.getUint16(dE, le);
 			if (tag === 296) {
 				resT = dv.getUint16(dE + 8, le) - 1;
 			} else if (tag === 282 || tag === 283) {
@@ -9862,27 +9764,22 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    segmentId = 408125543,
 		    voidId = 236;
 		function WebmElement(elData, dataLength, offset) {
-			var num,
-			    clz,
-			    id,
-			    size,
-			    headSize = 0;
 			if (offset + 4 >= dataLength) {
 				return;
 			}
-			num = elData.getUint32(offset);
-			clz = Math.clz32(num);
+			var num = elData.getUint32(offset),
+			    clz = Math.clz32(num);
 			if (clz > 3) {
 				this.error = true;
 				return;
 			}
-			id = num >>> 8 * (3 - clz);
-			headSize += clz + 1;
 			offset += clz + 1;
 			if (offset + 4 >= dataLength) {
 				this.error = true;
 				return;
 			}
+			var id = num >>> 8 * (3 - clz),
+			    headSize = clz + 1;
 			num = elData.getUint32(offset);
 			clz = Math.clz32(num);
 			if (clz > 3) {
@@ -9899,7 +9796,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				num = elData.getUint32(offset);
 				clz -= 4;
 			}
-			size = num >>> 8 * (3 - clz);
+			var size = num >>> 8 * (3 - clz);
 			headSize += clz + 1;
 			offset += clz + 1;
 			if (offset + size > dataLength) {
@@ -9971,8 +9868,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				if (this.error) {
 					return null;
 				}
-				var len = this.segment.endOffset;
-				this.rv[0] = nav.getUnsafeUint8Array(this.data, 0, len);
+				this.rv[0] = nav.getUnsafeUint8Array(this.data, 0, this.segment.endOffset);
 				return this.rv;
 			}
 		};
@@ -9985,36 +9881,29 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 
 	function genImgHash(data) {
-		var i,
-		    j,
-		    l,
-		    c,
-		    t,
-		    u,
-		    g,
-		    buf = new Uint8Array(data[0]),
+		var buf = new Uint8Array(data[0]),
 		    oldw = data[1],
 		    oldh = data[2],
-		    tmp = oldw * oldh,
-		    newh = 8,
+		    size = oldw * oldh;
+		for (var i = 0, j = 0; i < size; i++, j += 4) {
+			buf[i] = buf[j] * 0.3 + buf[j + 1] * 0.59 + buf[j + 2] * 0.11;
+		}
+		var newh = 8,
 		    neww = 8,
 		    levels = 3,
 		    areas = 256 / levels,
 		    values = 256 / (levels - 1),
 		    hash = 0;
-		for (i = 0, j = 0; i < tmp; i++, j += 4) {
-			buf[i] = buf[j] * 0.3 + buf[j + 1] * 0.59 + buf[j + 2] * 0.11;
-		}
-		for (i = 0; i < newh; i++) {
-			for (j = 0; j < neww; j++) {
-				tmp = i / (newh - 1) * (oldh - 1);
-				l = Math.min(tmp | 0, oldh - 2);
-				u = tmp - l;
+		for (var i = 0; i < newh; i++) {
+			for (var j = 0; j < neww; j++) {
+				var tmp = i / (newh - 1) * (oldh - 1),
+				    l = Math.min(tmp | 0, oldh - 2),
+				    u = tmp - l;
 				tmp = j / (neww - 1) * (oldw - 1);
-				c = Math.min(tmp | 0, oldw - 2);
-				t = tmp - c;
+				var c = Math.min(tmp | 0, oldw - 2),
+				    t = tmp - c;
 				hash = (hash << 4) + Math.min(values * ((buf[l * oldw + c] * ((1 - t) * (1 - u)) + buf[l * oldw + c + 1] * (t * (1 - u)) + buf[(l + 1) * oldw + c + 1] * (t * u) + buf[(l + 1) * oldw + c] * ((1 - t) * u)) / areas | 0), 255);
-				g = hash & 4026531840;
+				var g = hash & 4026531840;
 				if (g) {
 					hash ^= g >>> 24;
 				}
@@ -10109,8 +9998,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			this._remove(e);
 		},
 		handleEvent: function handleEvent(e) {
-			var temp,
-			    isOverEvent = false;
+			var isOverEvent = false;
 			switch (e.type) {
 				case "mousedown":
 					if (this.data.isVideo && this.data.isControlClick(e, this._elStyle.height)) {
@@ -10154,7 +10042,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				case "mouseover":
 					isOverEvent = true;
 								case "mouseout":
-					temp = e.relatedTarget;
+					var temp = e.relatedTarget;
 					if (!temp || temp !== this._obj && !this._obj.contains(temp)) {
 						if (isOverEvent) {
 							Pview.mouseEnter(this.data.post);
@@ -10199,12 +10087,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		_minSize: 0,
 		_moved: false,
 		_getHolder: function _getHolder(el, data) {
-			var obj,
-			    html,
-			    size = data.computeFullSize(false),
-			    screenWidth = Post.sizing.wWidth,
+			var screenWidth = Post.sizing.wWidth,
 			    screenHeight = Post.sizing.wHeight,
 			    minSize = Cfg.minImgSize,
+			    size = data.computeFullSize(false),
 			    ar = size[0] / size[1];
 			this._ar = ar;
 			this._curW = size[0];
@@ -10219,8 +10105,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			this._maxSize = !size[2] ? null : minSize > (size[2][2] > 1 ? size[2][0] : size[2][1]) ? size[2] : null;
 			this._oldL = (screenWidth - size[0]) / 2 - 1;
 			this._oldT = (screenHeight - size[1]) / 2 - 1;
-			html = "<div class=\"de-img-center\" style=\"top:" + this._oldT + "px; left:" + this._oldL + "px; width:" + size[0] + "px; height:" + size[1] + "px; display: block\"></div>";
-			obj = $add(html);
+			var obj = $add("<div class=\"de-img-center\" style=\"top:" + this._oldT + "px; left:" + this._oldL + "px; width:" + size[0] + "px; height:" + size[1] + "px; display: block\"></div>");
 			if (data.isImage) {
 				obj.insertAdjacentHTML("afterbegin", "<a href=\"" + data.src + "\"></a>");
 				obj.firstChild.appendChild(el);
@@ -10233,15 +10118,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			if (delta === 0) {
 				return;
 			}
-			var tmp,
-			    oldW = this._curW,
+			var oldW = this._curW,
 			    oldH = this._curH,
 			    width = delta < 0 ? oldW * this._zoomFactor : oldW / this._zoomFactor,
 			    height = delta < 0 ? oldH * this._zoomFactor : oldH / this._zoomFactor;
 			if (delta > 0) {
-				tmp = resizeImage([width, height, this._ar], this._minSize, this._maxSize);
-				width = tmp[0];
-				height = tmp[1];
+				var size = resizeImage([width, height, this._ar], this._minSize, this._maxSize);
+				width = size[0];
+				height = size[1];
 			}
 			this._curW = width;
 			this._curH = height;
@@ -10252,9 +10136,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		},
 		_show: function _show(data) {
 			var el = data.getFullObject(),
-			    obj = this._getHolder(el, data),
-			    style = obj.style;
-			this._elStyle = style;
+			    obj = this._getHolder(el, data);
+			this._elStyle = obj.style;
 			this.data = data;
 			this._fullEl = el;
 			this._obj = obj;
@@ -10326,10 +10209,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			return false;
 		},
 		computeFullSize: function computeFullSize(inPost) {
-			var maxWidth,
-			    maxHeight,
-			    maxSize,
-			    temp,
+			var maxSize,
 			    width = this.width,
 			    height = this.height;
 			if (Cfg.resizeDPI) {
@@ -10340,19 +10220,17 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				if (inPost) {
 					maxSize = [Post.sizing.wWidth - this._offset - 3, Number.MAX_SAFE_INTEGER, 0];
 				} else {
-					maxWidth = Post.sizing.wWidth - 2;
-					maxHeight = Post.sizing.wHeight - 2;
+					var maxWidth = Post.sizing.wWidth - 2,
+					    maxHeight = Post.sizing.wHeight - 2;
 					maxSize = [maxWidth, maxHeight, maxWidth / maxHeight];
 				}
 			} else {
 				maxSize = null;
 			}
-			temp = resizeImage([width, height, width / height], Cfg.minImgSize, maxSize);
-			return [temp[0], temp[1], maxSize];
+			var size = resizeImage([width, height, width / height], Cfg.minImgSize, maxSize);
+			return [size[0], size[1], maxSize];
 		},
 		expand: function expand(inPost, e) {
-			var size,
-			    el = this.el;
 			if (!inPost) {
 				if (Attachment.viewer) {
 					if (Attachment.viewer.data === this) {
@@ -10367,8 +10245,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				return;
 			}
 			this.expanded = true;
+			var el = this.el,
+			    size = this.computeFullSize(inPost);
 			(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML("afterend", "<div class=\"de-after-fimg\"></div>");
-			size = this.computeFullSize(inPost);
 			el.parentNode.style.display = "none";
 			this._fullEl = this.getFullObject();
 			this._fullEl.className = "de-img-full";
@@ -10553,10 +10432,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	EmbeddedImage.prototype = Object.create(IAttachmentData.prototype, {
 		getFollow: { value: function value(isForward) {
 				var nImage = this.post.images.data[isForward ? this.idx + 1 : this.idx - 1];
-				if (nImage) {
-					return nImage;
-				}
-				return this.getFollowPost(isForward);
+				return nImage ? nImage : this.getFollowPost(isForward);
 			} },
 		_useCache: { value: false },
 		_getImageSize: { value: function value() {
@@ -10602,10 +10478,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				return val;
 			} },
 		weight: { configurable: true, get: function get() {
-				var w,
-				    val = 0;
+				var val = 0;
 				if (this.info) {
-					w = this.info.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
+					var w = this.info.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
 					val = w[2] === "M" ? w[1] * 1000 | 0 : !w[2] ? Math.round(w[1] / 1000) : w[1];
 				}
 				Object.defineProperty(this, "weight", { value: val });
@@ -10613,10 +10488,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			} },
 		getFollow: { value: function value(isForward) {
 				var nImage = this.post.images.data[isForward ? this.idx + 1 : this.idx - 1];
-				if (nImage) {
-					return nImage;
-				}
-				return this.getFollowPost(isForward);
+				return nImage ? nImage : this.getFollowPost(isForward);
 			} },
 		getHash: { value: function value() {
 				var _this = this;
@@ -10710,8 +10582,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			} },
 		_getImageSize: { value: function value() {
 				if (this.info) {
-					var sz = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
-					return [sz[1], sz[2]];
+					var size = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
+					return [size[1], size[2]];
 				}
 				return [-1, -1];
 			} },
@@ -10724,8 +10596,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	});
 
 	function addImagesSearch(el) {
-		for (var link, i = 0, els = $Q(aib.qImgLink, el), len = els.length; i < len; i++) {
-			link = els[i];
+		for (var i = 0, els = $Q(aib.qImgLink, el), len = els.length; i < len; i++) {
+			var link = els[i];
 			if (/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 				$del(link);
 				continue;
@@ -10754,7 +10626,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 
 	function Post(el, thr, num, count, isOp, prev, isLight) {
-		var refEl, html;
 		this.count = count;
 		this.el = el;
 		this.isOp = isOp;
@@ -10767,10 +10638,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		if (isLight) {
 			return;
 		}
-		this._pref = refEl = $q(aib.qRef, el);
+		var refEl = $q(aib.qRef, el),
+		    html = "<span class=\"de-post-btns" + (isOp ? "" : " de-post-counter") + "\"><span class=\"de-btn-hide\" de-menu=\"hide\"></span><span class=\"de-btn-rep\"></span>";
+		this._pref = refEl;
 		this.ref = [];
 		el.post = this;
-		html = "<span class=\"de-post-btns" + (isOp ? "" : " de-post-counter") + "\"><span class=\"de-btn-hide\" de-menu=\"hide\"></span><span class=\"de-btn-rep\"></span>";
 		if (isOp) {
 			if (!TNum) {
 				html += "<span class=\"de-btn-expthr\" de-menu=\"expand\"></span>";
@@ -10790,16 +10662,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 	Post.hiddenNums = [];
 	Post.getWrds = function (text) {
-		return text.replace(/\s+/g, " ").replace(/[^a-zа-яё ]/ig, "").substring(0, 800).split(" ");
+		return text.replace(/\s+/g, " ").replace(/[^a-zа-яё ]/ig, "").trim().substring(0, 800).split(" ");
 	};
 	Post.findSameText = function (oNum, oHid, oWords, date, post) {
-		var j,
-		    words = Post.getWrds(post.text),
+		var words = Post.getWrds(post.text),
 		    len = words.length,
 		    i = oWords.length,
 		    olen = i,
 		    _olen = i,
 		    n = 0;
+		console.log(words);
 		if (len < olen * 0.4 || len > olen * 3) {
 			return;
 		}
@@ -10808,7 +10680,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				_olen--;
 				continue;
 			}
-			j = len;
+			var j = len;
 			while (j--) {
 				if (words[j] === oWords[i] || oWords[i].match(/>>\d+/) && words[j].match(/>>\d+/)) {
 					n++;
@@ -11172,36 +11044,35 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		setVisib: function setVisib(hide) {
 			var _this = this;
 
-			var el, tEl;
 			if (this.hidden === hide) {
 				return;
 			}
 			if (this.isOp) {
 				this.hidden = this.thr.hidden = hide;
-				tEl = this.thr.el;
+				var el = $id("de-thr-hid-" + this.num),
+				    tEl = this.thr.el;
 				tEl.style.display = hide ? "none" : "";
-				el = $id("de-thr-hid-" + this.num);
 				if (el) {
 					el.style.display = hide ? "" : "none";
-				} else {
-					tEl.insertAdjacentHTML("beforebegin", "<div class=\"" + aib.cReply + " de-thr-hid\" id=\"de-thr-hid-" + this.num + "\">" + Lng.hiddenThrd[lang] + " <a href=\"#\">№" + this.num + "</a> <span class=\"de-thread-note\"></span></div>");
-					el = $t("a", tEl.previousSibling);
-					el.onclick = el.onmouseover = el.onmouseout = function (e) {
-						switch (e.type) {
-							case "click":
-								_this.toggleUserVisib();
-								$pd(e);
-								return;
-							case "mouseover":
-								_this.thr.el.style.display = "";return;
-							default:
-							
-								if (_this.hidden) {
-									_this.thr.el.style.display = "none";
-								}
-						}
-					};
+					return;
 				}
+				tEl.insertAdjacentHTML("beforebegin", "<div class=\"" + aib.cReply + " de-thr-hid\" id=\"de-thr-hid-" + this.num + "\">" + Lng.hiddenThrd[lang] + " <a href=\"#\">№" + this.num + "</a> <span class=\"de-thread-note\"></span></div>");
+				el = $t("a", tEl.previousSibling);
+				el.onclick = el.onmouseover = el.onmouseout = function (e) {
+					switch (e.type) {
+						case "click":
+							_this.toggleUserVisib();
+							$pd(e);
+							return;
+						case "mouseover":
+							_this.thr.el.style.display = "";return;
+						default:
+						
+							if (_this.hidden) {
+								_this.thr.el.style.display = "none";
+							}
+					}
+				};
 				return;
 			}
 			if (Cfg.delHiddPost) {
@@ -11283,9 +11154,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		},
 		toggleUserVisib: function toggleUserVisib() {
 			var isOp = this.isOp,
-			    hide = !this.hidden,
-			    date = Date.now();
-			this.setUserVisib(hide, date, true);
+			    hide = !this.hidden;
+			this.setUserVisib(hide, Date.now(), true);
 			if (isOp) {
 				if (hide) {
 					hThr[brd][this.num] = this.title;
@@ -11311,9 +11181,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		unselect: function unselect() {
 			if (this.isOp) {
 				var el = $id("de-thr-hid-" + this.num);
-				if (el) {
-					el.classList.remove("de-selected");
-				}
+				el && el.classList.remove("de-selected");
 				this.thr.el.classList.remove("de-selected");
 			} else {
 				this.el.classList.remove("de-selected");
@@ -11361,10 +11229,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		},
 		_addMenu: function _addMenu(el) {
 			var html,
-			    cr = el.getBoundingClientRect(),
 			    isLeft = false,
-			    className = "de-menu " + aib.cReply,
-			    xOffset = window.pageXOffset;
+			    className = "de-menu " + aib.cReply;
 			switch (el.getAttribute("de-menu")) {
 				case "hide":
 					if (!Cfg.menuHiddBtn) {
@@ -11380,6 +11246,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					className += " de-imgmenu";
 					html = this._addMenuImgSrc(el);
 			}
+			var cr = el.getBoundingClientRect(),
+			    xOffset = window.pageXOffset;
 			doc.body.insertAdjacentHTML("beforeend", "<div class=\"" + className + "\" style=\"position: absolute; " + (isLeft ? "left: " + (cr.left + xOffset) : "right: " + (doc.documentElement.clientWidth - cr.right - xOffset)) + "px; top: " + (window.pageYOffset + cr.bottom) + "px;\">" + html + "</div>");
 			if (this._menu) {
 				clearTimeout(this._menuDelay);
@@ -11391,14 +11259,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			this._menu.addEventListener("mouseout", this, false);
 		},
 		_addMenuHide: function _addMenuHide() {
-			var sel,
-			    ssel,
-			    str = "",
+			var str = "",
+			    sel = nav.Presto ? doc.getSelection() : window.getSelection(),
+			    ssel = sel.toString(),
 			    addItem = function addItem(name) {
 				str += "<span info=\"spell-" + name + "\" class=\"de-menu-item\">" + Lng.selHiderMenu[name][lang] + "</span>";
 			};
-			sel = nav.Presto ? doc.getSelection() : window.getSelection();
-			ssel = sel.toString();
 			if (ssel) {
 				this._selText = ssel;
 				this._selRange = sel.getRangeAt(0);
@@ -11567,7 +11433,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					_this.updateMsg(replacePost($q(aib.qMsg, form)));
 					$del(node);
 				} else {
-					for (var i = 0, els = aib.getPosts(form), len = els.length; i < len; i++) {
+					var els = aib.getPosts(form);
+					for (var i = 0, _len = els.length; i < _len; i++) {
 						if (_this.num === aib.getPNum(els[i])) {
 							_this.updateMsg(replacePost($q(aib.qMsg, els[i])));
 							$del(node);
@@ -11585,12 +11452,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}).bind(null, pNum));
 		},
 		_strikePostNum: function _strikePostNum(isHide) {
-			var idx,
-			    num = this.num;
+			var num = this.num;
 			if (isHide) {
 				Post.hiddenNums.push(+num);
 			} else {
-				idx = Post.hiddenNums.indexOf(+num);
+				var idx = Post.hiddenNums.indexOf(+num);
 				if (idx !== -1) {
 					Post.hiddenNums.splice(idx, 1);
 				}
@@ -11727,8 +11593,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		},
 		topCoord: {
 			get: function () {
-				var el = this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el;
-				return el.getBoundingClientRect().top;
+				return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el).getBoundingClientRect().top;
 			},
 			configurable: true,
 			enumerable: true
@@ -11860,8 +11725,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    hasAttachments = false,
 		    idx = 0;
 		for (var i = 0, _len = els.length; i < _len; ++i, ++idx) {
-			var el = els[i];
-			var obj = new Attachment(post, el, idx);
+			var el = els[i],
+			    obj = new Attachment(post, el, idx);
 			filesMap.set(el, obj);
 			data.push(obj);
 			hasAttachments = true;
@@ -11869,8 +11734,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		if (Cfg.addImgs) {
 			els = aProto.slice.call($C("de-img-pre", post.el));
 			for (var i = 0, _len2 = els.length; i < _len2; ++i, ++idx) {
-				var el = els[i];
-				var obj = new EmbeddedImage(post, el, idx);
+				var el = els[i],
+				    obj = new EmbeddedImage(post, el, idx);
 				filesMap.set(el, obj);
 				data.push(obj);
 			}
@@ -11938,18 +11803,17 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	function Pview(parent, link, tNum, pNum) {
 		var _this = this;
 
-		var b,
-		    post = pByNum[pNum];
 		this.parent = parent;
 		this._link = link;
 		this.num = pNum;
 		this.thr = parent.thr;
 		Object.defineProperty(this, "tNum", { value: tNum });
+		var post = pByNum[pNum];
 		if (post && (!post.isOp || !parent.isPview || !parent._loaded)) {
 			this._showPost(post);
 			return;
 		}
-		b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, "").replace(/\/$/, "");
+		var b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, "").replace(/\/$/, "");
 		post = this._cache && this._cache[b + tNum] && this._cache[b + tNum].getPost(pNum);
 		if (post) {
 			this._loaded = true;
@@ -11970,20 +11834,19 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		if (!pv) {
 			return;
 		}
-		var el,
-		    vPost = Attachment.viewer && Attachment.viewer.data.post;
 		pv.parent.kid = null;
 		pv._link.classList.remove("de-link-parent");
 		if (!pv.parent.isPview) {
 			Pview.top = null;
 		}
+		var vPost = Attachment.viewer && Attachment.viewer.data.post;
 		do {
 			clearTimeout(pv._readDelay);
 			if (vPost === pv) {
 				Attachment.viewer.close(null);
 				Attachment.viewer = vPost = null;
 			}
-			el = pv.el;
+			var el = pv.el;
 			if (Cfg.animation) {
 				nav.animEvent(el, $del);
 				el.classList.add("de-pview-anim");
@@ -12039,16 +11902,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			} },
 		_onerror: { value: function value(e) {
 				Pview.del(this);
-				var text = e instanceof AjaxError && e.code === 404 ? Lng.postNotFound[lang] : getErrorMessage(e);
-				this._showText(text);
+				this._showText(e instanceof AjaxError && e.code === 404 ? Lng.postNotFound[lang] : getErrorMessage(e));
 			} },
 		_onload: { value: function value(b, form) {
-				var rm,
-				    parent = this.parent,
+				var parent = this.parent,
 				    parentNum = parent.num,
 				    cache = this._cache[b + this.tNum] = new PviewsCache(form, b, this.tNum),
 				    post = cache.getPost(this.num);
 				if (post && (brd !== b || !post.hasRef || post.ref.indexOf(parentNum) === -1)) {
+					var rm = undefined;
 					if (post.hasRef) {
 						rm = $c("de-refmap", post.el);
 					} else {
@@ -12068,8 +11930,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 			} },
 		_showPost: { value: function value(post) {
-				var node,
-				    el = this.el = post.el.cloneNode(true),
+				var el = this.el = post.el.cloneNode(true),
 				    pText = "<span class=\"de-btn-rep\" title=\"" + Lng.replyToPost[lang] + "\"></span>" + (post.sage ? "<span class=\"de-btn-sage\" title=\"SAGE\"></span>" : "") + "<span class=\"de-btn-stick\" title=\"" + Lng.attachPview[lang] + "\"></span>" + (post.deleted ? "" : "<span style=\"margin-right: 4px; vertical-align: 1px; color: #4f7942; " + "font: bold 11px tahoma; cursor: default;\">" + (post.isOp ? "OP" : post.count + 1) + "</span>");
 				el.post = this;
 				el.className = aib.cReply + " de-pview" + (post.viewed ? " de-viewed" : "");
@@ -12080,7 +11941,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				this._pref = $q(aib.qRef, el);
 				this._link.classList.add("de-link-parent");
 				if (post.inited) {
-					this.btns = node = $c("de-post-btns", el);
+					var node = $c("de-post-btns", el);
+					this.btns = node;
 					this.isOp = post.isOp;
 					node.classList.remove("de-post-counter");
 					if (post.hidden) {
@@ -12159,15 +12021,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			} } });
 
 	function PviewsCache(form, b, tNum) {
-		var i,
-		    len,
-		    post,
-		    pBn = {},
+		var pBn = {},
 		    pProto = Post.prototype,
 		    thr = $q(aib.qThread, form) || form,
 		    posts = aib.getPosts(thr);
-		for (i = 0, len = posts.length; i < len; ++i) {
-			post = posts[i];
+		for (var i = 0, _len = posts.length; i < _len; ++i) {
+			var post = posts[i];
 			pBn[aib.getPNum(post)] = Object.create(pProto, {
 				count: { value: i + 1 },
 				el: { value: post, writable: true },
@@ -12209,22 +12068,19 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		} }, {
 		_op: {
 			get: function () {
-				var i,
-				    j,
-				    len,
-				    num,
-				    nRef,
-				    oRef,
-				    rRef,
-				    oOp,
+				var oOp,
 				    op = this._opObj;
 				op.el = replacePost(aib.getOp(this._thr));
 				op.msg = $q(aib.qMsg, op.el);
 				if (this._brd === brd && (oOp = pByNum[this._tNum])) {
-					oRef = op.ref;
-					rRef = [];
-					for (i = j = 0, nRef = oOp.ref, len = nRef.length; j < len; ++j) {
-						num = nRef[j];
+					var i = undefined,
+					    j = undefined,
+					    _len = undefined,
+					    rRef = [],
+					    oRef = op.ref,
+					    nRef = oOp.ref;
+					for (i = j = 0, _len = nRef.length; j < _len; ++j) {
+						var num = nRef[j];
 						if (oRef[i] === num) {
 							i++;
 						} else if (oRef.indexOf(num) !== -1) {
@@ -12232,7 +12088,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 						rRef.push(num);
 					}
-					for (len = oRef.length; i < len; i++) {
+					for (_len = oRef.length; i < _len; i++) {
 						rRef.push(oRef[i]);
 					}
 					op.ref = rRef;
@@ -12265,10 +12121,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		if (pView.link === link) {
 			return;
 		}
-		var isTop,
-		    top,
-		    oldCSS,
-		    uId,
+		var oldCSS,
 		    cr = link.getBoundingClientRect(),
 		    offX = cr.left + window.pageXOffset + link.offsetWidth / 2,
 		    offY = cr.top + window.pageYOffset,
@@ -12282,8 +12135,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		} else {
 			pView.style.cssText = lmw;
 		}
-		top = pView.offsetHeight;
-		isTop = top + cr.top + link.offsetHeight < doc.documentElement.clientHeight || cr.top - top < 5;
+		var top = pView.offsetHeight,
+		    isTop = top + cr.top + link.offsetHeight < doc.documentElement.clientHeight || cr.top - top < 5;
 		top = (isTop ? offY + link.offsetHeight : offY - top) + "px";
 		pView.link = link;
 		pView.aLeft = isLeft;
@@ -12292,7 +12145,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			pView.style.top = top;
 			return;
 		}
-		uId = "de-movecss-" + Math.round(Math.random() * 1000);
+		var uId = "de-movecss-" + Math.round(Math.random() * 1000);
 		$css("@" + nav.cssFix + "keyframes " + uId + " {to { " + lmw + " top:" + top + "; }}").className = "de-css-move";
 		if (pView.newPos) {
 			pView.style.cssText = pView.newPos;
@@ -12307,15 +12160,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function addRefMap(post, tUrl) {
-		var i,
-		    el,
-		    len,
-		    num,
-		    bStr = "<a " + aib.rLinkClick + " href=\"" + tUrl + aib.anchor,
+		var bStr = "<a " + aib.rLinkClick + " href=\"" + tUrl + aib.anchor,
 		    strNums = Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
-		    html = ["<div class=\"de-refmap\">"];
-		for (i = 0, el = post.ref, len = el.length; i < len; ++i) {
-			num = el[i];
+		    html = ["<div class=\"de-refmap\">"],
+		    el = post.ref;
+		for (var i = 0, _len = el.length; i < _len; ++i) {
+			var num = el[i];
 			html.push(bStr, num, "\" class=\"de-link-ref ", strNums && strNums.indexOf(+num) !== -1 ? "de-link-hid" : "", "\">&gt;&gt;", num, "</a><span class=\"de-refcomma\">, </span>");
 		}
 		html.push("</div>");
@@ -12330,22 +12180,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function genRefMap(posts, thrURL) {
-		var tc,
-		    lNum,
-		    post,
-		    ref,
-		    i,
-		    len,
-		    links,
-		    url,
-		    pNum,
-		    opNums = dForm.tNums;
-		for (pNum in posts) {
-			for (i = 0, links = $T("a", posts[pNum].msg), len = links.length; i < len; ++i) {
-				tc = links[i].textContent;
+		var opNums = dForm.tNums;
+		for (var pNum in posts) {
+			var links = $T("a", posts[pNum].msg);
+			for (var i = 0, _len = links.length; i < _len; ++i) {
+				var lNum = undefined,
+				    tc = links[i].textContent;
 				if (tc[0] === ">" && tc[1] === ">" && (lNum = +tc.substr(2)) && lNum in posts) {
-					post = posts[lNum];
-					ref = post.ref;
+					var post = posts[lNum],
+					    ref = post.ref;
 					if (ref.indexOf(pNum) === -1) {
 						ref.push(pNum);
 						post.hasRef = true;
@@ -12354,7 +12197,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						links[i].classList.add("de-ref-op");
 					}
 					if (thrURL) {
-						url = links[i].getAttribute("href");
+						var url = links[i].getAttribute("href");
 						if (url[0] === "#") {
 							links[i].setAttribute("href", thrURL + url);
 						}
@@ -12365,23 +12208,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function updRefMap(post, add) {
-		var tc,
-		    ref,
-		    idx,
-		    link,
-		    lNum,
-		    lPost,
-		    i,
-		    len,
-		    links,
-		    pNum = post.num,
+		var pNum = post.num,
+		    links = $T("a", post.msg),
 		    strNums = add && Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
 		    opNums = add && dForm.tNums;
-		for (i = 0, links = $T("a", post.msg), len = links.length; i < len; ++i) {
-			link = links[i];
-			tc = link.textContent;
+		for (var i = 0, _len = links.length; i < _len; ++i) {
+			var lNum = undefined,
+			    link = links[i],
+			    tc = link.textContent;
 			if (tc[0] === ">" && tc[1] === ">" && (lNum = +tc.substr(2)) && lNum in pByNum) {
-				lPost = pByNum[lNum];
+				var lPost = pByNum[lNum];
 				if (!TNum) {
 					link.href = "#" + (aib.fch ? "p" : "") + lNum;
 				}
@@ -12406,8 +12242,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						continue;
 					}
 				} else if (lPost.hasRef) {
-					ref = lPost.ref;
-					idx = ref.indexOf(pNum);
+					var ref = lPost.ref,
+					    idx = ref.indexOf(pNum);
 					if (idx === -1) {
 						continue;
 					}
@@ -12428,10 +12264,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 
 	function Thread(el, prev, isLight) {
-		var i,
-		    pEl,
-		    lastPost,
-		    els = aib.getPosts(el),
+		var els = aib.getPosts(el),
 		    len = els.length,
 		    num = aib.getTNum(el),
 		    omt = TNum ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
@@ -12442,9 +12275,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		if (prev) {
 			prev.next = this;
 		}
-		pByNum[num] = lastPost = this.op = el.post = new Post(aib.getOp(el), this, num, 0, true, prev ? prev.last : null, isLight);
-		for (i = 0; i < len; i++) {
-			num = aib.getPNum(pEl = els[i]);
+		var lastPost = this.op = el.post = new Post(aib.getOp(el), this, num, 0, true, prev ? prev.last : null, isLight);
+		pByNum[num] = lastPost;
+		for (var i = 0; i < len; i++) {
+			var pEl = els[i];
+			num = aib.getPNum(pEl);
 			pByNum[num] = lastPost = new Post(pEl, this, num, omt + i, false, lastPost, isLight);
 		}
 		this.last = lastPost;
@@ -12456,9 +12291,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		el.setAttribute("de-thread", null);
 		visPosts = Math.max(visPosts, len);
 		if (aib._420 || aib.tiny) {
-			pEl = el.lastChild;
-			if (pEl !== this.op.el) {
-				$after(el, pEl);
+			var temp = el.lastChild;
+			if (temp !== this.op.el) {
+				$after(el, temp);
 			}
 			$del($c("clear", el));
 		}
@@ -12481,9 +12316,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		},
 		deletePost: function deletePost(post, delAll, removePost) {
-			var tPost,
-			    idx = post.count,
-			    count = 0;
+			var count = 0;
 			do {
 				if (removePost) {
 					$del(post.wrap);
@@ -12509,9 +12342,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				count++;
 			} while (delAll && post);
 			if (!spells.hasNumSpell) {
-				sVis.splice(idx, count);
+				sVis.splice(post.count, count);
 			}
-			for (tPost = post; tPost; tPost = tPost.nextInThread) {
+			for (var tPost = post; tPost; tPost = tPost.nextInThread) {
 				tPost.count -= count;
 			}
 			this.pcount -= count;
@@ -12671,35 +12504,28 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 			this.setFavBtn(val);
 			readFav().then(function (fav) {
-				var h = aib.host,
-				    b = brd,
-				    num = _this.num;
 				if (val) {
-					if (!fav[h]) {
-						fav[h] = {};
-					}
-					if (!fav[h][brd]) {
-						fav[h][brd] = {};
-					}
-					fav[h][brd].url = aib.prot + "//" + aib.host + aib.getPageUrl(brd, 0);
-					fav[h][brd][num] = {
+					var f = fav[aib.host];
+					!f && (f = {});
+					!f[brd] && (f[brd] = {});
+					f[brd].url = aib.prot + "//" + aib.host + aib.getPageUrl(brd, 0);
+					f[brd][_this.num] = {
 						cnt: _this.pcount,
 						"new": 0,
 						txt: _this.op.title,
-						url: aib.getThrdUrl(brd, num)
+						url: aib.getThrdUrl(brd, _this.num)
 					};
 				} else {
-					removeFavoriteEntry(fav, h, b, num, false);
+					removeFavoriteEntry(fav, aib.host, brd, _this.num, false);
 				}
 				saveFavorites(fav);
 			});
 		},
 		updateHidden: function updateHidden(data) {
-			var realHid,
-			    date = Date.now(),
+			var date = Date.now(),
 			    thr = this;
 			do {
-				realHid = thr.num in data;
+				var realHid = (thr.num in data);
 				if (thr.hidden ^ realHid) {
 					if (realHid) {
 						thr.op.setUserVisib(true, date, false);
@@ -12749,26 +12575,26 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		},
 		_checkBans: function _checkBans(op, thrNode) {
-			var pEl, bEl, post, i, bEls, len;
-			if (aib.qBan) {
-				for (i = 0, bEls = $Q(aib.qBan, thrNode), len = bEls.length; i < len; ++i) {
-					bEl = bEls[i];
-					pEl = aib.getPostEl(bEl);
-					post = pEl ? pByNum[aib.getPNum(pEl)] : op;
-					if (post && !post.banned) {
-						if (!$q(aib.qBan, post.el)) {
-							post.msg.appendChild(bEl);
-						}
-						post.banned = true;
+			if (!aib.qBan) {
+				return;
+			}
+			var bEls = $Q(aib.qBan, thrNode);
+			for (var i = 0, _len = bEls.length; i < _len; ++i) {
+				var bEl = bEls[i],
+				    pEl = aib.getPostEl(bEl),
+				    post = pEl ? pByNum[aib.getPNum(pEl)] : op;
+				if (post && !post.banned) {
+					if (!$q(aib.qBan, post.el)) {
+						post.msg.appendChild(bEl);
 					}
+					post.banned = true;
 				}
 			}
 		},
 		_importPosts: function _importPosts(last, newPosts, begin, end, vParser) {
-			var newCount,
-			    newVisCount,
+			var newCount = end - begin,
+			    newVisCount = newCount,
 			    fragm = doc.createDocumentFragment();
-			newCount = newVisCount = end - begin;
 			for (; begin < end; ++begin) {
 				last = this._addPost(fragm, newPosts[begin], begin + 1, vParser, last);
 				newVisCount -= spells.check(last);
@@ -12778,51 +12604,47 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		_parsePosts: function _parsePosts(nPosts) {
 			var _this = this;
 
-			var i,
-			    cnt,
-			    firstChangedPost,
-			    res,
-			    temp,
-			    vParser,
+			var vParser,
 			    saveSpells = false,
 			    newPosts = 0,
 			    newVisPosts = 0,
 			    len = nPosts.length,
 			    post = this.lastNotDeleted;
 			if (aib.dobr || post.count !== 0 && (post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)) {
-				firstChangedPost = null;
+				var firstChangedPost = null;
 				vParser = new VideosParser();
 				post = this.op.nextNotDeleted;
+				var i = undefined;
 				for (i = post.count - 1; i < len && post;) {
-					if (post.num !== aib.getPNum(nPosts[i])) {
-						if (+post.num > +aib.getPNum(nPosts[i])) {
-							if (!firstChangedPost) {
-								firstChangedPost = post.prev;
-							}
-							cnt = 0;
-							do {
-								cnt++;
-								i++;
-							} while (+aib.getPNum(nPosts[i]) < +post.num);
-							res = this._importPosts(post.prev, nPosts, i - cnt, i, vParser);
-							newPosts += res[0];
-							this.pcount += res[0];
-							newVisPosts += res[1];
-							$after(post.prev.wrap, res[2]);
-							res[3].next = post;
-							post.prev = res[3];
-							for (temp = post; temp; temp = temp.nextInThread) {
-								temp.count += cnt;
-							}
-						} else {
-							if (!firstChangedPost) {
-								firstChangedPost = post;
-							}
-							post = this.deletePost(post, false, !TNum);
-						}
-					} else {
+					if (post.num === aib.getPNum(nPosts[i])) {
 						i++;
 						post = post.nextNotDeleted;
+						continue;
+					}
+					if (+post.num > +aib.getPNum(nPosts[i])) {
+						if (!firstChangedPost) {
+							firstChangedPost = post.prev;
+						}
+						var cnt = 0;
+						do {
+							cnt++;
+							i++;
+						} while (+aib.getPNum(nPosts[i]) < +post.num);
+						var res = this._importPosts(post.prev, nPosts, i - cnt, i, vParser);
+						newPosts += res[0];
+						this.pcount += res[0];
+						newVisPosts += res[1];
+						$after(post.prev.wrap, res[2]);
+						res[3].next = post;
+						post.prev = res[3];
+						for (var temp = post; temp; temp = temp.nextInThread) {
+							temp.count += cnt;
+						}
+					} else {
+						if (!firstChangedPost) {
+							firstChangedPost = post;
+						}
+						post = this.deletePost(post, false, !TNum);
 					}
 				}
 				if (i === len && post) {
@@ -12843,7 +12665,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 			if (len + 1 > this.pcount) {
 				vParser = vParser || new VideosParser();
-				res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len, vParser);
+				var res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len, vParser);
 				newPosts += res[0];
 				newVisPosts += res[1];
 				this.el.appendChild(res[2]);
@@ -12852,22 +12674,22 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				saveSpells = true;
 			}
 			readFav().then(function (fav) {
-				var h = aib.host;
-				if (fav[h] && fav[h][brd]) {
-					var f = fav[h][brd][_this.op.num];
-					if (f) {
-						var el = $id("de-content-fav");
-						if (el) {
-							el = $q(".de-fav-current > .de-entry[de-num=\"" + _this.op.num + "\"] .de-fav-inf-old", el);
-							el.textContent = _this.pcount;
-							el = el.nextElementSibling;
-							el.style.display = "none";
-							el.textContent = 0;
-						}
-						f.cnt = _this.pcount;
-						f["new"] = 0;
-						setStored("DESU_Favorites", JSON.stringify(fav));
+				var f = fav[aib.host];
+				if (!f || !f[brd]) {
+					return;
+				}
+				if (f = f[brd][_this.op.num]) {
+					var el = $id("de-content-fav");
+					if (el) {
+						el = $q(".de-fav-current > .de-entry[de-num=\"" + _this.op.num + "\"] .de-fav-inf-old", el);
+						el.textContent = _this.pcount;
+						el = el.nextElementSibling;
+						el.style.display = "none";
+						el.textContent = 0;
 					}
+					f.cnt = _this.pcount;
+					f["new"] = 0;
+					setStored("DESU_Favorites", JSON.stringify(fav));
 				}
 			});
 			if (saveSpells) {
@@ -13103,8 +12925,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			matchesSelector: {
 				get: function () {
 					var dE = doc.documentElement,
-					    fun = dE.matchesSelector || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector,
-					    val = Function.prototype.call.bind(fun);
+					    val = Function.prototype.call.bind(dE.matchesSelector || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector);
 					Object.defineProperty(this, "matchesSelector", { value: val });
 					return val;
 				},
@@ -13401,13 +13222,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					} },
 				css: { value: "img[id^=\"translate_button\"], img[src$=\"button-expand.gif\"], img[src$=\"button-close.gif\"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none !important; }\n\t\t\t\t\tdiv[id^=\"Wz\"] { z-index: 10000 !important; }\n\t\t\t\t\t.de-thr-hid { margin-bottom: " + (!TNum ? "7" : "2") + "px; float: none !important; }\n\t\t\t\t\t.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\n\t\t\t\t\t.de-video-obj + div { clear: left; }\n\t\t\t\t\tform[action=\"/paint\"] > select { width: 105px; }\n\t\t\t\t\tform[action=\"/paint\"] > input[type=\"text\"] { width: 24px !important; }" },
 				fixFileInputs: { value: function value(el) {
-						var i,
-						    len,
-						    node = $id("files_parent"),
-						    str = "";
-						for (i = 0, len = 4; i < len; ++i) {
+						var str = "";
+						for (var i = 0, _len = 4; i < _len; ++i) {
 							str += "<div" + (i === 0 ? "" : " style=\"display: none;\"") + "><input type=\"file\" name=\"file_" + i + "\" tabindex=\"7\"></input></div>";
 						}
+						var node = $id("files_parent");
 						node.innerHTML = str;
 						node.removeAttribute("id");
 					} },
@@ -13653,9 +13472,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							el.nextSibling.appendChild(el);
 						});
 						var el = $q("td > .anoniconsselectlist", doc);
-						if (el) {
-							$q(".option-area > td:last-child", doc).appendChild(el);
-						}
+						el && $q(".option-area > td:last-child", doc).appendChild(el);
 						el = $q("tr:not([class])", doc.body);
 						if (!el) {
 							return;
@@ -13681,13 +13498,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}, true);
 					} },
 				fixFileInputs: { value: function value(el) {
-						var i,
-						    len,
-						    node = $q("#postform .images-area", doc).lastElementChild,
-						    str = "";
-						for (i = 0, len = 4; i < len; ++i) {
+						var str = "";
+						for (var i = 0, _len = 4; i < _len; ++i) {
 							str += "<div" + (i === 0 ? "" : " style=\"display: none;\"") + "><input type=\"file\" name=\"image" + (i + 1) + "\"></input></div>";
 						}
+						var node = $q("#postform .images-area", doc).lastElementChild;
 						node.innerHTML = str;
 					} },
 				lastPage: { configurable: true, get: function get() {
@@ -13761,14 +13576,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				qTable: { value: ".post.reply" },
 				qTrunc: { value: ".toolong" },
 				fixVideo: { value: function value(post) {
-						var i,
-						    els,
-						    el,
-						    len,
-						    src,
-						    videos = [];
-						for (i = 0, els = $Q(".video-container, #ytplayer", post ? post.el : dForm.el), len = els.length; i < len; ++i) {
-							el = els[i];
+						var videos = [],
+						    els = $Q(".video-container, #ytplayer", post ? post.el : dForm.el);
+						for (var i = 0, _len = els.length; i < _len; ++i) {
+							var el = els[i];
 							videos.push([post || this.getPostEl(el).post, el.id === "ytplayer" ? el.src.match(Videos.ytReg) : ["", el.getAttribute("data-video")], true]);
 							$del(el);
 						}
@@ -13863,11 +13674,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			qThumbImages: ".thumb, .de-thumb, .ca_thumb, img[src*=\"thumb\"], img[src*=\"/spoiler\"], img[src^=\"blob:\"]",
 			qTrunc: ".abbrev, .abbr, .shortened",
 			fixVideo: function fixVideo(post) {
-				var i,
-				    els,
-				    len,
-				    videos = [];
-				for (i = 0, els = $Q("embed, object, iframe", post ? post.el : dForm.el), len = els.length; i < len; ++i) {
+				var videos = [],
+				    els = $Q("embed, object, iframe", post ? post.el : dForm.el);
+				for (var i = 0, _len = els.length; i < _len; ++i) {
 					var el = els[i],
 					    src = el.src || el.data,
 					    _m = src.match(Videos.ytReg);
@@ -13902,15 +13711,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
 			},
 			getOp: function getOp(thr) {
-				var el,
-				    opEnd,
-				    op = localRun ? $q("div[de-oppost]", thr) : $c(this.cOPost, thr);
+				var op = localRun ? $q("div[de-oppost]", thr) : $c(this.cOPost, thr);
 				if (op) {
 					return op;
 				}
 				op = thr.ownerDocument.createElement("div");
 				op.setAttribute("de-oppost", "");
-				opEnd = $q(this.qTable, thr);
+				var el,
+				    opEnd = $q(this.qTable, thr);
 				while ((el = thr.firstChild) !== opEnd) {
 					op.appendChild(el);
 				}
@@ -14057,8 +13865,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		});
 
 		localRun = prot === "file:";
-		var i,
-		    ibObj = null,
+		var ibObj = null,
 		    dm = localRun ? (window.location.pathname.match(/\/([^-]+)-[^-]+-[^\.]+\.[a-z]+$/) || [, ""])[1] : window.location.hostname.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 		if (checkDomains) {
 			if (dm in ibDomains) {
@@ -14069,7 +13876,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		}
 		if (checkOther) {
-			for (i in ibEngines) {
+			for (var i in ibEngines) {
 				if ($q(i, doc)) {
 					ibObj = Object.create(ibBase, ibEngines[i]);
 					break;
@@ -14089,7 +13896,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 
 	function Initialization(checkDomains) {
-		var intrv, url, formEl;
 		if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 			return null;
 		}
@@ -14115,7 +13921,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				$script("window.top.postMessage(\"A" + window.name + "\" + document.documentElement.outerHTML, \"*\");");
 				return null;
 			case "de-iframe-fav":
-				intrv = setInterval(function () {
+				var intrv = setInterval(function () {
 					$script("window.top.postMessage(\"B" + (doc.body.offsetHeight + 5) + "\", \"*\");");
 				}, 1500);
 				window.addEventListener("load", setTimeout.bind(window, clearInterval, 30000, intrv), false);
@@ -14128,7 +13934,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		if (aib.init && aib.init() || $id("de-panel")) {
 			return null;
 		}
-		formEl = $q(aib.qDForm + ", form[de-form]", doc);
+		var formEl = $q(aib.qDForm + ", form[de-form]", doc);
 		if (!formEl) {
 			return null;
 		}
@@ -14226,6 +14032,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		}, false);
 
+		var url;
 		if (localRun) {
 			url = window.location.pathname.match(/\/[^-]+-([^-]+)-([^\.]+)\.[a-z]+$/);
 			aib.prot = "http:";
@@ -14290,10 +14097,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		lastThr: null,
 		tNums: null,
 		addFormContent: function addFormContent(formEl, append) {
-			var i,
-			    thr,
-			    node,
-			    threads = $Q(aib.qThread, formEl),
+			var threads = $Q(aib.qThread, formEl),
 			    len = threads.length;
 			$each($T("script", formEl), $del);
 			if (len === 0) {
@@ -14314,11 +14118,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					this.el.appendChild(formEl.firstChild);
 				}
 			}
-			thr = new Thread(threads[0], this.lastThr, this.isLight);
+			var thr = new Thread(threads[0], this.lastThr, this.isLight);
 			if (this.firstThr === null) {
 				this.firstThr = thr;
 			}
-			for (i = 1; i < len; ++i) {
+			for (var i = 1; i < len; ++i) {
 				this.tNums.push(+thr.num);
 				thr = new Thread(threads[i], thr, this.isLight);
 			}
@@ -14366,19 +14170,17 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		},
 
 		_parseThreads: function _parseThreads(formEl) {
-			var el,
-			    i,
+			var i,
 			    len,
-			    node,
 			    threads = [],
 			    fNodes = aProto.slice.call(formEl.childNodes),
 			    cThr = doc.createElement("div");
 			for (i = 0, len = fNodes.length - 1; i < len; ++i) {
-				node = fNodes[i];
+				var node = fNodes[i];
 				if (node.tagName === "HR") {
 					formEl.insertBefore(cThr, node);
 					formEl.insertBefore(cThr.lastElementChild, node);
-					el = cThr.lastElementChild;
+					var el = cThr.lastElementChild;
 					if (el.tagName === "BR") {
 						formEl.insertBefore(el, node);
 					}
@@ -14976,10 +14778,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function checkForUpdates(isForce, lastUpdateTime) {
 		return new Promise(function (resolve, reject) {
-			var day,
-			    temp = Cfg.scrUpdIntrv;
 			if (!isForce) {
-				day = 2 * 1000 * 60 * 60 * 24;
+				var day = 2 * 1000 * 60 * 60 * 24,
+				    temp = Cfg.scrUpdIntrv;
 				switch (temp) {
 					case 0:
 						temp = day;break;
