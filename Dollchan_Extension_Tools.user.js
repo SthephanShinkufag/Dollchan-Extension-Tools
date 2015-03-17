@@ -6124,8 +6124,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				return false;
 			}
 			this.rPattern = "";
-			for (var i = 1, len = m.length, j = 0, str = m[0]; i < len; ++i) {
-				var a = m[i],
+			for (var i = 1, len = m.length, j = 0, str = m[0]; i < len;) {
+				var a = m[i++],
 				    p = this.pattern[i - 2];
 				if ((p === "m" || p === "y") && a.length > 3) {
 					p = p.toUpperCase();
