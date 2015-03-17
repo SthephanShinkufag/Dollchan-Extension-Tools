@@ -1748,7 +1748,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 
 	function getFormElements(form) {
-		var controls, fixName, i, _len, field, tagName, type, _name, options, _i, _len2, option, files, _len3, dirname, dir;
+		var controls, fixName, i, len, field, tagName, type, name, options, _i, _len, option, files, dirname, dir;
 
 		return regeneratorRuntime.wrap(function getFormElements$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
@@ -1756,17 +1756,17 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					controls = $Q("button, input, keygen, object, select, textarea", form), fixName = function (name) {
 						return name ? name.replace(/([^\r])\n|\r([^\n])/g, "$1\r\n$2") : "";
 					};
-					i = 0, _len = controls.length;
+					i = 0, len = controls.length;
 
 				case 2:
-					if (!(i < _len)) {
+					if (!(i < len)) {
 						context$2$0.next = 58;
 						break;
 					}
 
-					field = controls[i], tagName = field.tagName.toLowerCase(), type = field.getAttribute("type"), _name = field.getAttribute("name");
+					field = controls[i], tagName = field.tagName.toLowerCase(), type = field.getAttribute("type"), name = field.getAttribute("name");
 
-					if (!($parent(field, "datalist", form) || isFormElDisabled(field) || tagName === "button" && type !== "submit" || tagName === "input" && (type === "checkbox" && !field.checked || type === "radio" && !field.checked || type === "image" && !_name) || tagName === "object" && !(type in navigator.mimeTypes))) {
+					if (!($parent(field, "datalist", form) || isFormElDisabled(field) || tagName === "button" && type !== "submit" || tagName === "input" && (type === "checkbox" && !field.checked || type === "radio" && !field.checked || type === "image" && !name) || tagName === "object" && !(type in navigator.mimeTypes))) {
 						context$2$0.next = 6;
 						break;
 					}
@@ -1788,10 +1788,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 
 					options = $Q("select > option, select > optgrout > option", field);
-					_i = 0, _len2 = options.length;
+					_i = 0, _len = options.length;
 
 				case 11:
-					if (!(_i < _len2)) {
+					if (!(_i < _len)) {
 						context$2$0.next = 19;
 						break;
 					}
@@ -1806,7 +1806,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					context$2$0.next = 16;
 					return {
 						el: field,
-						name: fixName(_name),
+						name: fixName(name),
 						value: option.value,
 						type: type
 					};
@@ -1837,7 +1837,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					context$2$0.next = 28;
 					return {
 						el: field,
-						name: fixName(_name),
+						name: fixName(name),
 						value: field.value || "on",
 						type: type
 					};
@@ -1852,10 +1852,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 
 					files = field.files;
-					_i = 0, _len3 = files.length;
+					_i = 0, _len = files.length;
 
 				case 32:
-					if (!(_i < _len3)) {
+					if (!(_i < _len)) {
 						context$2$0.next = 38;
 						break;
 					}
@@ -1863,7 +1863,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					context$2$0.next = 35;
 					return {
 						el: field,
-						name: _name,
+						name: name,
 						value: files[_i],
 						type: type
 					};
@@ -1881,7 +1881,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					context$2$0.next = 42;
 					return {
 						el: field,
-						name: fixName(_name),
+						name: fixName(name),
 						value: "",
 						type: "application/octet-stream"
 					};
@@ -1898,7 +1898,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					context$2$0.next = 46;
 					return {
 						el: field,
-						name: _name || "",
+						name: name || "",
 						value: field.value,
 						type: type
 					};
@@ -1911,7 +1911,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					context$2$0.next = 50;
 					return {
 						el: field,
-						name: fixName(_name),
+						name: fixName(name),
 						value: field.value,
 						type: type
 					};
@@ -2167,7 +2167,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 12:
 					if (!post) {
-						context$2$0.next = 33;
+						context$2$0.next = 32;
 						break;
 					}
 
@@ -2195,13 +2195,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						post.btns.firstChild.className = "de-btn-hide-user";
 						post.userToggled = true;
 					}
-					return context$2$0.abrupt("continue", 30);
+					return context$2$0.abrupt("continue", 29);
 
 				case 19:
-					vis = undefined;
-
 					if (!post.isOp) {
-						context$2$0.next = 24;
+						context$2$0.next = 23;
 						break;
 					}
 
@@ -2210,23 +2208,23 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					} else if (vis === "0") {
 						vis = null;
 					}
-					context$2$0.next = 29;
+					context$2$0.next = 28;
 					break;
 
-				case 24:
+				case 23:
 					if (!spellsHide) {
-						context$2$0.next = 28;
+						context$2$0.next = 27;
 						break;
 					}
 
 					vis = sVis[post.count];
-					context$2$0.next = 29;
+					context$2$0.next = 28;
 					break;
 
-				case 28:
-					return context$2$0.abrupt("continue", 30);
+				case 27:
+					return context$2$0.abrupt("continue", 29);
 
-				case 29:
+				case 28:
 					if (vis === "0") {
 						if (!post.hidden) {
 							post.setVisib(true);
@@ -2237,19 +2235,19 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						spells.check(post);
 					}
 
-				case 30:
+				case 29:
 					post = post.next;
 					context$2$0.next = 12;
 					break;
 
-				case 33:
+				case 32:
 					if (update) {
 						globalUserVis[brd] = uVis;
 						setStored("DESU_Posts_" + aib.dm, JSON.stringify(globalUserVis));
 					}
 					spells.end(savePosts);
 
-				case 35:
+				case 34:
 				case "end":
 					return context$2$0.stop();
 			}
@@ -2310,8 +2308,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}, readFavoritesPosts, this);
 	});
 	var downloadImgDataHelper = regeneratorRuntime.mark(function downloadImgDataHelper(url, repeatOnError) {
-		var xhr, isAb, txt, rv, i, _len;
-
+		var xhr, isAb, txt, rv, i, len;
 		return regeneratorRuntime.wrap(function downloadImgDataHelper$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
@@ -2387,7 +2384,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				case 33:
 					txt = xhr.responseText, rv = new Uint8Array(txt.length);
 
-					for (i = 0, _len = txt.length; i < _len; ++i) {
+					for (i = 0, len = txt.length; i < len; ++i) {
 						rv[i] = txt.charCodeAt(i) & 255;
 					}
 					return context$2$0.abrupt("return", rv);
@@ -2416,7 +2413,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	var html5Submit = regeneratorRuntime.mark(function html5Submit(form) {
 		var needProgress = arguments[1] === undefined ? false : arguments[1];
 
-		var formData, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, _step$value, _name, value, type, el, fileName, newFileName, data, _ret, xhr;
+		var formData, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, _step$value, name, value, type, el, fileName, newFileName, data, lastFuncs, promises, xhr;
 
 		return regeneratorRuntime.wrap(function html5Submit$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
@@ -2435,7 +2432,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 
 					_step$value = _step.value;
-					_name = _step$value.name;
+					name = _step$value.name;
 					value = _step$value.value;
 					type = _step$value.type;
 					el = _step$value.el;
@@ -2477,7 +2474,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 
 				case 25:
-					formData.append(_name, value);
+					formData.append(name, value);
 
 				case 26:
 					_iteratorNormalCompletion = true;
@@ -2524,40 +2521,25 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						break;
 					}
 
-					_ret = (function () {
-						var lastFuncs = null,
-						    promises = [new Promise(function (resolve, reject) {
-							return lastFuncs = { resolve: resolve, reject: reject };
-						})];
-						$ajax(form.action, { method: "POST", data: formData, onprogress: function (e) {
-								lastFuncs.resolve({ done: false, data: { loaded: e.loaded, total: e.total } });
-								promises.push(new Promise(function (resolve, reject) {
-									return lastFuncs = { resolve: resolve, reject: reject };
-								}));
-							} }).then(function (xhr) {
-							if (xhr.status === 200) {
-								lastFuncs.resolve({ done: true, data: $DOM(xhr.responseText) });
-							} else {
-								lastFuncs.reject(new AjaxError(xhr.status, xhr.statusText));
-							}
-						});
-						return {
-							v: function () {
-								return promises.splice(0, 1)[0];
-							}
-						};
-					})();
+					lastFuncs = null, promises = [new Promise(function (resolve, reject) {
+						return lastFuncs = { resolve: resolve, reject: reject };
+					})];
 
-					if (!(typeof _ret === "object")) {
-						context$2$0.next = 47;
-						break;
-					}
-
-					return context$2$0.abrupt("return", _ret.v);
-
-				case 47:
-					context$2$0.next = 55;
-					break;
+					$ajax(form.action, { method: "POST", data: formData, onprogress: function (e) {
+							lastFuncs.resolve({ done: false, data: { loaded: e.loaded, total: e.total } });
+							promises.push(new Promise(function (resolve, reject) {
+								return lastFuncs = { resolve: resolve, reject: reject };
+							}));
+						} }).then(function (xhr) {
+						if (xhr.status === 200) {
+							lastFuncs.resolve({ done: true, data: $DOM(xhr.responseText) });
+						} else {
+							lastFuncs.reject(new AjaxError(xhr.status, xhr.statusText));
+						}
+					});
+					return context$2$0.abrupt("return", function () {
+						return promises.splice(0, 1)[0];
+					});
 
 				case 49:
 					context$2$0.next = 51;
@@ -3328,7 +3310,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				var duration,
 				    timeLog = [],
 				    i = 1;
-				for (var _len = marks.length - 1, lastExtra = 0; i < _len; ++i) {
+				for (var len = marks.length - 1, lastExtra = 0; i < len; ++i) {
 					duration = marks[i][1] - marks[i - 1][1] + lastExtra;
 					if (full || duration > 1) {
 						lastExtra = 0;
@@ -3344,7 +3326,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			getTable: function getTable() {
 				var html = "<tbody>",
 				    data = this.getData(false);
-				for (var i = 0, _len = data.length; i < _len; ++i) {
+				for (var i = 0, len = data.length; i < len; ++i) {
 					html += "<tr><td>" + data[i][0] + "</td><td>" + data[i][1] + "ms</td></tr>";
 				}
 				return html + "</tbody>";
@@ -4049,140 +4031,138 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 
 		if (name === "hid") {
-			(function () {
-				var block = undefined,
-				    els = $C("de-post-hide", dForm.el);
-				for (var i = 0, _len = els.length; i < _len; ++i) {
-					var post = els[i];
-					if (post.isOp) {
-						continue;
-					}
-					var cln = post.cloneNode(true);
-					cln.removeAttribute("id");
-					cln.style.display = "";
-					if (cln.classList.contains(aib.cRPost)) {
-						cln.classList.add("de-cloned-post");
-					} else {
-						cln.className = aib.cReply + " de-cloned-post";
-					}
-					cln.post = Object.create(cln.clone = post.post);
-					cln.post.el = cln;
-					cln.btn = $q(".de-btn-hide, .de-btn-hide-user", cln);
-					cln.btn.parentNode.className = "de-post-btns";
-					cln.btn.onclick = (function () {
-					
-						this.hideContent(this.hidden = !this.hidden);
-					}).bind(cln);
-					if (!block) {
-						block = cont.appendChild($add("<div class=\"de-content-block\"><b>" + Lng.hiddenPosts[lang] + ":</b></div>"));
-					}
-					block.appendChild($New("div", { "class": "de-entry" }, [cln]));
+			var block,
+			    els = $C("de-post-hide", dForm.el);
+			for (var i = 0, len = els.length; i < len; ++i) {
+				var post = els[i];
+				if (post.isOp) {
+					continue;
 				}
-				if (block) {
-					cont.appendChild($btn(Lng.expandAll[lang], "", function () {
-						$each($Q(".de-cloned-post", this.parentNode), function (el) {
-							var post = el.post;
-							post.hideContent(post.hidden = !post.hidden);
-						});
-						this.value = this.value === Lng.undo[lang] ? Lng.expandAll[lang] : Lng.undo[lang];
-					}));
-					cont.appendChild($btn(Lng.save[lang], "", function () {
-						$each($Q(".de-cloned-post", this.parentNode), (function (date, el) {
-							if (!el.post.hidden) {
-								el.clone.setUserVisib(false, date, true);
-							}
-						}).bind(null, Date.now()));
-						saveUserPosts();
-					}));
+				var cln = post.cloneNode(true);
+				cln.removeAttribute("id");
+				cln.style.display = "";
+				if (cln.classList.contains(aib.cRPost)) {
+					cln.classList.add("de-cloned-post");
 				} else {
-					cont.insertAdjacentHTML("beforeend", "<b>" + Lng.noHidPosts[lang] + "</b>");
+					cln.className = aib.cReply + " de-cloned-post";
 				}
-				cont.insertAdjacentHTML("beforeend", "<hr><b>" + ($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ":") + "</b>");
-				for (var b in hThr) {
-					if (!$isEmpty(hThr[b])) {
-						block = addContentBlock(cont, $new("b", { text: "/" + b }, null));
-						for (var tNum in hThr[b]) {
-							block.insertAdjacentHTML("beforeend", "<div class=\"de-entry " + aib.cReply + "\" info=\"" + b + ";" + tNum + "\"><input type=\"checkbox\"><a href=\"" + aib.getThrdUrl(b, tNum) + "\" target=\"_blank\">№" + tNum + "</a> - " + hThr[b][tNum] + "</div>");
-						}
-					}
+				cln.post = Object.create(cln.clone = post.post);
+				cln.post.el = cln;
+				cln.btn = $q(".de-btn-hide, .de-btn-hide-user", cln);
+				cln.btn.parentNode.className = "de-post-btns";
+				cln.btn.onclick = (function () {
+				
+					this.hideContent(this.hidden = !this.hidden);
+				}).bind(cln);
+				if (!block) {
+					block = cont.appendChild($add("<div class=\"de-content-block\"><b>" + Lng.hiddenPosts[lang] + ":</b></div>"));
 				}
-				cont.insertAdjacentHTML("beforeend", "<hr>");
-				cont.appendChild(addEditButton("hidden", function (fn) {
-					fn(hThr, true, function (data) {
-						hThr = data;
-						if (!(brd in hThr)) {
-							hThr[brd] = {};
-						}
-						dForm.firstThr.updateHidden(hThr[brd]);
-						saveHiddenThreads(true);
-						locStorage["__de-threads"] = JSON.stringify(hThr);
-						locStorage.removeItem("__de-threads");
+				block.appendChild($New("div", { "class": "de-entry" }, [cln]));
+			}
+			if (block) {
+				cont.appendChild($btn(Lng.expandAll[lang], "", function () {
+					$each($Q(".de-cloned-post", this.parentNode), function (el) {
+						var post = el.post;
+						post.hideContent(post.hidden = !post.hidden);
 					});
+					this.value = this.value === Lng.undo[lang] ? Lng.expandAll[lang] : Lng.undo[lang];
 				}));
-				cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function callee$3$0() {
-					var _this = this;
-
-					var i, els, len, _els$i$getAttribute$split, _els$i$getAttribute$split2, board, tNum, xhr;
-
-					return regeneratorRuntime.wrap(function callee$3$0$(context$4$0) {
-						while (1) switch (context$4$0.prev = context$4$0.next) {
-							case 0:
-								i = 0, els = $Q(".de-entry[info]", _this.parentNode), len = els.length;
-
-							case 1:
-								if (!(i < len)) {
-									context$4$0.next = 13;
-									break;
-								}
-
-								_els$i$getAttribute$split = els[i].getAttribute("info").split(";");
-								_els$i$getAttribute$split2 = _slicedToArray(_els$i$getAttribute$split, 2);
-								board = _els$i$getAttribute$split2[0];
-								tNum = _els$i$getAttribute$split2[1];
-								context$4$0.next = 8;
-								return $ajax(aib.getThrdUrl(board, tNum));
-
-							case 8:
-								xhr = context$4$0.sent;
-
-								if (xhr.status === 404) {
-									delete hThr[board][tNum];
-									saveHiddenThreads(true);
-								}
-
-							case 10:
-								++i;
-								context$4$0.next = 1;
-								break;
-
-							case 13:
-							case "end":
-								return context$4$0.stop();
-						}
-					}, callee$3$0, this);
-				}))));
-				cont.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function () {
-					$each($Q(".de-entry[info]", this.parentNode), (function (date, el) {
-						if ($t("input", el).checked) {
-							var arr = el.getAttribute("info").split(";");
-							if (arr[1] in pByNum) {
-								pByNum[arr[1]].setUserVisib(false, date, true);
-							} else {
-								locStorage["__de-post"] = JSON.stringify({
-									brd: arr[0],
-									date: date,
-									isOp: true,
-									num: arr[1],
-									hide: false
-								});
-								locStorage.removeItem("__de-post");
-							}
-							delete hThr[arr[0]][arr[1]];
+				cont.appendChild($btn(Lng.save[lang], "", function () {
+					$each($Q(".de-cloned-post", this.parentNode), (function (date, el) {
+						if (!el.post.hidden) {
+							el.clone.setUserVisib(false, date, true);
 						}
 					}).bind(null, Date.now()));
-					saveHiddenThreads(true);
+					saveUserPosts();
 				}));
-			})();
+			} else {
+				cont.insertAdjacentHTML("beforeend", "<b>" + Lng.noHidPosts[lang] + "</b>");
+			}
+			cont.insertAdjacentHTML("beforeend", "<hr><b>" + ($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ":") + "</b>");
+			for (var b in hThr) {
+				if (!$isEmpty(hThr[b])) {
+					block = addContentBlock(cont, $new("b", { text: "/" + b }, null));
+					for (var tNum in hThr[b]) {
+						block.insertAdjacentHTML("beforeend", "<div class=\"de-entry " + aib.cReply + "\" info=\"" + b + ";" + tNum + "\"><input type=\"checkbox\"><a href=\"" + aib.getThrdUrl(b, tNum) + "\" target=\"_blank\">№" + tNum + "</a> - " + hThr[b][tNum] + "</div>");
+					}
+				}
+			}
+			cont.insertAdjacentHTML("beforeend", "<hr>");
+			cont.appendChild(addEditButton("hidden", function (fn) {
+				fn(hThr, true, function (data) {
+					hThr = data;
+					if (!(brd in hThr)) {
+						hThr[brd] = {};
+					}
+					dForm.firstThr.updateHidden(hThr[brd]);
+					saveHiddenThreads(true);
+					locStorage["__de-threads"] = JSON.stringify(hThr);
+					locStorage.removeItem("__de-threads");
+				});
+			}));
+			cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function callee$2$0() {
+				var _this = this;
+
+				var i, els, len, _els$i$getAttribute$split, _els$i$getAttribute$split2, board, tNum, xhr;
+
+				return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
+					while (1) switch (context$3$0.prev = context$3$0.next) {
+						case 0:
+							i = 0, els = $Q(".de-entry[info]", _this.parentNode), len = els.length;
+
+						case 1:
+							if (!(i < len)) {
+								context$3$0.next = 13;
+								break;
+							}
+
+							_els$i$getAttribute$split = els[i].getAttribute("info").split(";");
+							_els$i$getAttribute$split2 = _slicedToArray(_els$i$getAttribute$split, 2);
+							board = _els$i$getAttribute$split2[0];
+							tNum = _els$i$getAttribute$split2[1];
+							context$3$0.next = 8;
+							return $ajax(aib.getThrdUrl(board, tNum));
+
+						case 8:
+							xhr = context$3$0.sent;
+
+							if (xhr.status === 404) {
+								delete hThr[board][tNum];
+								saveHiddenThreads(true);
+							}
+
+						case 10:
+							++i;
+							context$3$0.next = 1;
+							break;
+
+						case 13:
+						case "end":
+							return context$3$0.stop();
+					}
+				}, callee$2$0, this);
+			}))));
+			cont.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function () {
+				$each($Q(".de-entry[info]", this.parentNode), (function (date, el) {
+					if ($t("input", el).checked) {
+						var arr = el.getAttribute("info").split(";");
+						if (arr[1] in pByNum) {
+							pByNum[arr[1]].setUserVisib(false, date, true);
+						} else {
+							locStorage["__de-post"] = JSON.stringify({
+								brd: arr[0],
+								date: date,
+								isOp: true,
+								num: arr[1],
+								hide: false
+							});
+							locStorage.removeItem("__de-post");
+						}
+						delete hThr[arr[0]][arr[1]];
+					}
+				}).bind(null, Date.now()));
+				saveHiddenThreads(true);
+			}));
 		}
 
 		if (name === "vid") {
@@ -4219,7 +4199,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			handleEvent: function handleEvent(e) {
 				var el = e.target;
 				if (el.classList.contains("de-abtn")) {
-					var node = undefined;
+					var node;
 					switch (e.target.id) {
 						case "de-video-btn-hide":
 							if (this.listHidden) {
@@ -4259,7 +4239,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				$pd(e);
 			}
 		}, true);
-		for (var i = 0, _len = els.length; i < _len; ++i) {
+		for (var i = 0, len = els.length; i < len; ++i) {
 			var el = els[i].cloneNode(true);
 			el.videoInfo = els[i].videoInfo;
 			linkList.insertAdjacentHTML("beforeend", "<div class=\"de-entry " + aib.cReply + "\"></div>");
@@ -4317,8 +4297,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			});
 		}));
 		cont.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(regeneratorRuntime.mark(function callee$2$0() {
-			var update, els, fav, i, _len, form, el, host, b, num, f, cnt;
-
+			var update, els, fav, i, len, form, el, host, b, num, f, cnt;
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
@@ -4328,15 +4307,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 3:
 						fav = context$3$0.t8;
-						i = 0, _len = els.length;
+						i = 0, len = els.length;
 
 					case 5:
-						if (!(i < _len)) {
+						if (!(i < len)) {
 							context$3$0.next = 33;
 							break;
 						}
 
-						form = undefined, el = els[i], host = el.getAttribute("de-host"), b = el.getAttribute("de-board"), num = el.getAttribute("de-num"), f = fav[host][b][num];
+						el = els[i], host = el.getAttribute("de-host"), b = el.getAttribute("de-board"), num = el.getAttribute("de-num"), f = fav[host][b][num];
 
 						if (!(host !== aib.host || f.err === "Closed")) {
 							context$3$0.next = 9;
@@ -4427,27 +4406,26 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 6:
 						if (!(page < endPage)) {
-							context$3$0.next = 24;
+							context$3$0.next = 23;
 							break;
 						}
 
-						form = undefined;
-						context$3$0.prev = 8;
-						context$3$0.next = 11;
+						context$3$0.prev = 7;
+						context$3$0.next = 10;
 						return ajaxLoad(aib.getPageUrl(brd, page));
 
-					case 11:
+					case 10:
 						context$3$0.t10 = context$3$0.sent;
 						form = new DelForm(context$3$0.t10, true);
-						context$3$0.next = 18;
+						context$3$0.next = 17;
 						break;
 
-					case 15:
-						context$3$0.prev = 15;
-						context$3$0.t11 = context$3$0["catch"](8);
-						return context$3$0.abrupt("continue", 21);
+					case 14:
+						context$3$0.prev = 14;
+						context$3$0.t11 = context$3$0["catch"](7);
+						return context$3$0.abrupt("continue", 20);
 
-					case 18:
+					case 17:
 						for (i = 0, tNums = form.tNums; i < infoCount; ++i) {
 							pInfo = postsInfo[i];
 
@@ -4460,18 +4438,18 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 
 						if (!(infoLoaded === infoCount)) {
-							context$3$0.next = 21;
+							context$3$0.next = 20;
 							break;
 						}
 
-						return context$3$0.abrupt("break", 24);
+						return context$3$0.abrupt("break", 23);
 
-					case 21:
+					case 20:
 						++page;
 						context$3$0.next = 6;
 						break;
 
-					case 24:
+					case 23:
 						for (i = 0; i < infoCount; ++i) {
 							_postsInfo$i = _slicedToArray(postsInfo[i], 3);
 							node = _postsInfo$i[1];
@@ -4484,11 +4462,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 						closeAlert($id("de-alert-load-pages"));
 
-					case 26:
+					case 25:
 					case "end":
 						return context$3$0.stop();
 				}
-			}, callee$2$1, this, [[8, 15]]);
+			}, callee$2$1, this, [[7, 14]]);
 		}))));
 		cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function callee$2$2() {
 			var i, els, len, el, node, xhr;
@@ -4604,7 +4582,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		var el,
 		    opt = "",
 		    x = Lng.cfg[id];
-		for (var i = 0, _len = x.sel[lang].length; i < _len; i++) {
+		for (var i = 0, len = x.sel[lang].length; i < len; i++) {
 			opt += "<option value=\"" + i + "\">" + x.sel[lang][i] + "</option>";
 		}
 		el = $add("<select info=\"" + id + "\">" + opt + "</select>");
@@ -5278,8 +5256,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			
 				e.target.blur();
 			} else {
-				var post = undefined,
-				    idx = undefined,
+				var post,
+				    idx,
 				    globIdx = this.gKeys.indexOf(kc);
 				switch (globIdx) {
 					case 2:
@@ -5504,10 +5482,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function KeyEditListener(alertEl, keys, allKeys) {
 		var aInputs = aProto.slice.call($C("de-input-key", alertEl));
-		for (var i = 0, _len = allKeys.length; i < _len; ++i) {
+		for (var i = 0, len = allKeys.length; i < len; ++i) {
 			var k = allKeys[i];
 			if (k !== 0) {
-				for (var j = i + 1; j < _len; ++j) {
+				for (var j = i + 1; j < len; ++j) {
 					if (k === allKeys[j]) {
 						aInputs[i].classList.add("de-error-key");
 						aInputs[j].classList.add("de-error-key");
@@ -5581,7 +5559,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					this.cEl = el;
 					return;
 				case "click":
-					var keys = undefined;
+					var keys;
 					if (el.id === "de-keys-reset") {
 						this.keys = HotKeys.getDefaultKeys();
 						this.initKeys = HotKeys.getDefaultKeys();
@@ -5650,7 +5628,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					if (!el || key === -1) {
 						return;
 					}
-					var rEl = undefined,
+					var rEl,
 					    isError = el.classList.contains("de-error-key");
 					if (!this.errorInput && key !== -1) {
 						var idx = this.allInputs.indexOf(el),
@@ -5863,76 +5841,74 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 		var pool;
 		if (isPreImg || Cfg.preLoadImgs) {
-			(function () {
-				var cImg = 1,
-				    mReqs = post ? 1 : 4,
-				    rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile, function (e) {
-					console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
-				});
-				pool = new TasksPool(mReqs, async(regeneratorRuntime.mark(function callee$3$0(num, data) {
-					var _data, url, lnk, iType, nExp, el, imageData, fName, aEl;
+			var cImg = 1,
+			    mReqs = post ? 1 : 4,
+			    rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile, function (e) {
+				console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
+			});
+			pool = new TasksPool(mReqs, async(regeneratorRuntime.mark(function callee$2$0(num, data) {
+				var _data, url, lnk, iType, nExp, el, imageData, fName, aEl;
 
-					return regeneratorRuntime.wrap(function callee$3$0$(context$4$0) {
-						while (1) switch (context$4$0.prev = context$4$0.next) {
-							case 0:
-								_data = _slicedToArray(data, 5);
-								url = _data[0];
-								lnk = _data[1];
-								iType = _data[2];
-								nExp = _data[3];
-								el = _data[4];
-								return context$4$0.delegateYield(downloadImgData(url), "t17", 7);
+				return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
+					while (1) switch (context$3$0.prev = context$3$0.next) {
+						case 0:
+							_data = _slicedToArray(data, 5);
+							url = _data[0];
+							lnk = _data[1];
+							iType = _data[2];
+							nExp = _data[3];
+							el = _data[4];
+							return context$3$0.delegateYield(downloadImgData(url), "t17", 7);
 
-							case 7:
-								imageData = context$4$0.t17;
+						case 7:
+							imageData = context$3$0.t17;
 
-								if (imageData) {
-									fName = url.substring(url.lastIndexOf("/") + 1), aEl = $q(aib.qImgLink, aib.getImgWrap(lnk));
+							if (imageData) {
+								fName = url.substring(url.lastIndexOf("/") + 1), aEl = $q(aib.qImgLink, aib.getImgWrap(lnk));
 
-									aEl.setAttribute("download", fName);
-									lnk.href = window.URL.createObjectURL(new Blob([imageData], { type: iType }));
-									lnk.setAttribute("de-name", fName);
-									if (iType === "video/webm") {
-										el.setAttribute("de-video", "");
-									}
-									if (nExp) {
-										el.src = lnk.href;
-									}
-									if (rjf) {
-										rjf.run(imageData.buffer, [imageData.buffer], addImgFileIcon.bind(null, aEl, fName));
-									}
+								aEl.setAttribute("download", fName);
+								lnk.href = window.URL.createObjectURL(new Blob([imageData], { type: iType }));
+								lnk.setAttribute("de-name", fName);
+								if (iType === "video/webm") {
+									el.setAttribute("de-video", "");
 								}
-								if (Images_.progressId) {
-									$alert(Lng.loadImage[lang] + cImg + "/" + len, Images_.progressId, true);
+								if (nExp) {
+									el.src = lnk.href;
 								}
-								cImg++;
+								if (rjf) {
+									rjf.run(imageData.buffer, [imageData.buffer], addImgFileIcon.bind(null, aEl, fName));
+								}
+							}
+							if (Images_.progressId) {
+								$alert(Lng.loadImage[lang] + cImg + "/" + len, Images_.progressId, true);
+							}
+							cImg++;
 
-							case 11:
-							case "end":
-								return context$4$0.stop();
-						}
-					}, callee$3$0, this);
-				})), function () {
-					Images_.preloading = false;
-					if (Images_.afterpreload) {
-						Images_.afterpreload();
-						Images_.afterpreload = Images_.progressId = null;
+						case 11:
+						case "end":
+							return context$3$0.stop();
 					}
-					if (rjf) {
-						rjf.clear();
-					}
-				});
-				Images_.preloading = true;
-			})();
+				}, callee$2$0, this);
+			})), function () {
+				Images_.preloading = false;
+				if (Images_.afterpreload) {
+					Images_.afterpreload();
+					Images_.afterpreload = Images_.progressId = null;
+				}
+				if (rjf) {
+					rjf.clear();
+				}
+			});
+			Images_.preloading = true;
 		}
 		var els = $Q(aib.qThumbImages, post || dForm.el);
-		for (var i = 0, _len = els.length; i < _len; ++i) {
+		for (var i = 0, len = els.length; i < len; ++i) {
 			var el = els[i],
 			    lnk = $parent(el = els[i], "A");
 			if (!lnk) {
 				continue;
 			}
-			var iType = undefined,
+			var iType,
 			    url = lnk.href,
 			    nExp = !!Cfg.openImgs;
 			if (/\.gif$/i.test(url)) {
@@ -6057,53 +6033,51 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		});
 		if (!imgOnly) {
-			(function () {
-				$each($Q("#de-main, .de-parea, .de-post-btns, #de-qarea, .de-refmap, #de-updater-div, .de-video-obj," + " link[rel=\"alternate stylesheet\"], script, " + aib.qPostForm, dc), $del);
-				$each($T("a", dc), function (el) {
-					var num,
-					    tc = el.textContent;
-					if (tc[0] === ">" && tc[1] === ">" && (num = +tc.substr(2)) && num in pByNum) {
-						el.href = aib.anchor + num;
-					} else {
-						el.href = getAbsLink(el.href);
-					}
-					if (!el.classList.contains("de-link-pref")) {
-						el.className = "de-link-pref " + el.className;
-					}
-				});
-				$each($Q("." + aib.cRPost, dc), function (post, i) {
-					post.setAttribute("de-num", i === 0 ? TNum : aib.getPNum(post));
-				});
-				var files = [];
-				$each($Q("link, *[src]", dc), (function (el) {
-					if (els.indexOf(el) !== -1) {
-						return;
-					}
-					var name,
-					    url = el.tagName === "LINK" ? el.href : el.src;
-					if (!this.test(url)) {
-						$del(el);
-						return;
-					}
-					name = url.substring(url.lastIndexOf("/") + 1).replace(/[\\\/:*?"<>|]/g, "_").toLowerCase();
-					if (files.indexOf(name) !== -1) {
-						var temp = url.lastIndexOf("."),
-						    ext = url.substring(temp);
-						url = url.substring(0, temp);
-						name = name.substring(0, name.lastIndexOf("."));
-						for (var i = 0;; ++i) {
-							temp = name + "(" + i + ")" + ext;
-							if (files.indexOf(temp) === -1) {
-								break;
-							}
+			$each($Q("#de-main, .de-parea, .de-post-btns, #de-qarea, .de-refmap, #de-updater-div, .de-video-obj," + " link[rel=\"alternate stylesheet\"], script, " + aib.qPostForm, dc), $del);
+			$each($T("a", dc), function (el) {
+				var num,
+				    tc = el.textContent;
+				if (tc[0] === ">" && tc[1] === ">" && (num = +tc.substr(2)) && num in pByNum) {
+					el.href = aib.anchor + num;
+				} else {
+					el.href = getAbsLink(el.href);
+				}
+				if (!el.classList.contains("de-link-pref")) {
+					el.className = "de-link-pref " + el.className;
+				}
+			});
+			$each($Q("." + aib.cRPost, dc), function (post, i) {
+				post.setAttribute("de-num", i === 0 ? TNum : aib.getPNum(post));
+			});
+			var files = [];
+			$each($Q("link, *[src]", dc), (function (el) {
+				if (els.indexOf(el) !== -1) {
+					return;
+				}
+				var name,
+				    url = el.tagName === "LINK" ? el.href : el.src;
+				if (!this.test(url)) {
+					$del(el);
+					return;
+				}
+				name = url.substring(url.lastIndexOf("/") + 1).replace(/[\\\/:*?"<>|]/g, "_").toLowerCase();
+				if (files.indexOf(name) !== -1) {
+					var temp = url.lastIndexOf("."),
+					    ext = url.substring(temp);
+					url = url.substring(0, temp);
+					name = name.substring(0, name.lastIndexOf("."));
+					for (var i = 0;; ++i) {
+						temp = name + "(" + i + ")" + ext;
+						if (files.indexOf(temp) === -1) {
+							break;
 						}
-						name = temp;
 					}
-					files.push(name);
-					Images_.pool.run([url, name, el, null]);
-					count++;
-				}).bind(new RegExp("^\\/\\/?|^https?:\\/\\/([^\\/]*.)?" + regQuote(aib.dm) + "\\/", "i")));
-			})();
+					name = temp;
+				}
+				files.push(name);
+				Images_.pool.run([url, name, el, null]);
+				count++;
+			}).bind(new RegExp("^\\/\\/?|^https?:\\/\\/([^\\/]*.)?" + regQuote(aib.dm) + "\\/", "i")));
 		}
 		$alert((imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) + "<br><progress id=\"de-loadprogress\" value=\"0\" max=\"" + count + "\"></progress> <span>1</span>/" + count, "filesload", true);
 		progress = $id("de-loadprogress");
@@ -6150,7 +6124,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				return false;
 			}
 			this.rPattern = "";
-			for (var i = 1, _len = m.length, j = 0, str = m[0]; i < _len; ++i) {
+			for (var i = 1, len = m.length, j = 0, str = m[0]; i < len; ++i) {
 				var a = m[i],
 				    p = this.pattern[i - 2];
 				if ((p === "m" || p === "y") && a.length > 3) {
@@ -6449,7 +6423,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		},
 		updatePost: function updatePost(oldLinks, newLinks, cloned) {
 			var loader = !cloned && Videos._getTitlesLoader();
-			for (var i = 0, j = 0, _len = newLinks.length; i < _len; ++i) {
+			for (var i = 0, j = 0, len = newLinks.length; i < len; ++i) {
 				var el = newLinks[i],
 				    link = oldLinks[j];
 				if (link && link.classList.contains("de-current")) {
@@ -6459,9 +6433,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					el.videoInfo = link.videoInfo;
 					j++;
 				} else {
-					var _m = el.href.match(Videos.ytReg);
-					if (_m) {
-						this.addLink(_m, loader, el, true);
+					var m = el.href.match(Videos.ytReg);
+					if (m) {
+						this.addLink(m, loader, el, true);
 						j++;
 					}
 				}
@@ -6513,34 +6487,34 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 			var loader = this._loader,
 			    els = $Q("a[href*=\"youtu\"]", post ? post.el : dForm.el);
-			for (var i = 0, _len = els.length; i < _len; ++i) {
+			for (var i = 0, len = els.length; i < len; ++i) {
 				var el = els[i],
-				    _m = el.href.match(Videos.ytReg);
-				if (_m) {
+				    m = el.href.match(Videos.ytReg);
+				if (m) {
 					var mPost = post || (aib.getPostEl(el) || {}).post;
-					mPost && mPost.videos.addLink(_m, loader, el, true);
+					mPost && mPost.videos.addLink(m, loader, el, true);
 				}
 			}
 			if (Cfg.addVimeo) {
 				els = $Q("a[href*=\"vimeo.com\"]", post ? post.el : dForm.el);
-				for (var i = 0, _len2 = els.length; i < _len2; ++i) {
+				for (var i = 0, len = els.length; i < len; ++i) {
 					var el = els[i],
-					    _m2 = el.href.match(Videos.vimReg);
-					if (_m2) {
+					    m = el.href.match(Videos.vimReg);
+					if (m) {
 						var mPost = post || (aib.getPostEl(el) || {}).post;
-						mPost && mPost.videos.addLink(_m2, loader, el, false);
+						mPost && mPost.videos.addLink(m, loader, el, false);
 					}
 				}
 			}
 			els = aib.fixVideo(post);
-			for (var i = 0, _len3 = els.length; i < _len3; ++i) {
+			for (var i = 0, len = els.length; i < len; ++i) {
 				var _els$i = _slicedToArray(els[i], 3);
 
 				var pst = _els$i[0];
-				var _m3 = _els$i[1];
+				var m = _els$i[1];
 				var isYtube = _els$i[2];
 
-				pst && pst.videos.addLink(_m3, loader, null, isYtube);
+				pst && pst.videos.addLink(m, loader, null, isYtube);
 			}
 			return this;
 		}
@@ -6549,7 +6523,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	function embedMediaLinks(post) {
 		if (Cfg.addMP3) {
 			var els = $Q("a[href*=\".mp3\"]", post ? post.el : dForm.el);
-			for (var i = 0, _len = els.length; i < _len; ++i) {
+			for (var i = 0, len = els.length; i < len; ++i) {
 				var link = els[i];
 				if (link.target !== "_blank" && link.rel !== "nofollow") {
 					continue;
@@ -6570,7 +6544,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 		if (Cfg.addVocaroo) {
 			var els = $Q("a[href*=\"vocaroo.com\"]", post ? post.el : dForm.el);
-			for (var i = 0, _len2 = els.length; i < _len2; ++i) {
+			for (var i = 0, len = els.length; i < len; ++i) {
 				var link = els[i],
 				    src = link.href.split("/").pop(),
 				    el = link.previousSibling;
@@ -6641,8 +6615,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	var loadPages = async(regeneratorRuntime.mark(function callee$1$1(count) {
-		var hasError, i, _len, content;
-
+		var hasError, i, len, content;
 		return regeneratorRuntime.wrap(function callee$1$1$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
@@ -6665,68 +6638,67 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 						pr.txta.value = "";
 					}
-					i = pageNum, _len = Math.min(aib.lastPage + 1, pageNum + count);
+					i = pageNum, len = Math.min(aib.lastPage + 1, pageNum + count);
 
 				case 11:
-					if (!(i < _len)) {
-						context$2$0.next = 36;
+					if (!(i < len)) {
+						context$2$0.next = 35;
 						break;
 					}
 
-					content = undefined;
-					context$2$0.prev = 13;
-					context$2$0.next = 16;
+					context$2$0.prev = 12;
+					context$2$0.next = 15;
 					return ajaxLoad(aib.getPageUrl(brd, i));
 
-				case 16:
+				case 15:
 					context$2$0.t19 = context$2$0.sent;
 					content = replacePost(context$2$0.t19);
-					context$2$0.next = 23;
+					context$2$0.next = 22;
 					break;
 
-				case 20:
-					context$2$0.prev = 20;
-					context$2$0.t20 = context$2$0["catch"](13);
+				case 19:
+					context$2$0.prev = 19;
+					context$2$0.t20 = context$2$0["catch"](12);
 
 					content = $add("<div><center style=\"font-size: 2em\">" + getErrorMessage(context$2$0.t20) + "</center><hr></div>");
 
-				case 23:
+				case 22:
 					if (i != pageNum) {
 						dForm.el.insertAdjacentHTML("beforeend", "<center style=\"font-size: 2em\">" + Lng.page[lang] + " " + i + "</center><hr>");
 					}
-					context$2$0.prev = 24;
+					context$2$0.prev = 23;
 
 					dForm.addFormContent(content, true);
-					context$2$0.next = 33;
+					context$2$0.next = 32;
 					break;
 
-				case 28:
-					context$2$0.prev = 28;
-					context$2$0.t21 = context$2$0["catch"](24);
+				case 27:
+					context$2$0.prev = 27;
+					context$2$0.t21 = context$2$0["catch"](23);
 
 					$alert(getPrettyErrorMessage(context$2$0.t21), "load-pages", true);
 					hasError = true;
-					return context$2$0.abrupt("break", 36);
+					return context$2$0.abrupt("break", 35);
 
-				case 33:
+				case 32:
 					++i;
 					context$2$0.next = 11;
 					break;
 
-				case 36:
+				case 35:
 					if (hasError) {
-						context$2$0.next = 44;
+						context$2$0.next = 43;
 						break;
 					}
 
 					dForm.initAjax();
 					addDelformStuff(false);
-					return context$2$0.delegateYield(readUserPosts(), "t22", 40);
+					return context$2$0.delegateYield(readUserPosts(), "t22", 39);
+
+				case 39:
+					return context$2$0.delegateYield(readFavoritesPosts(), "t23", 40);
 
 				case 40:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t23", 41);
-
-				case 41:
 					$each($Q("input[type=\"password\"]", dForm.el), function (pEl) {
 						pr.dpass = pEl;
 						pEl.value = Cfg.passwValue;
@@ -6736,14 +6708,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 					closeAlert($id("de-alert-load-pages"));
 
-				case 44:
+				case 43:
 					dForm.show();
 
-				case 45:
+				case 44:
 				case "end":
 					return context$2$0.stop();
 			}
-		}, callee$1$1, this, [[13, 20], [24, 28]]);
+		}, callee$1$1, this, [[12, 19], [23, 27]]);
 	}));
 
 	function infoLoadErrors(e) {
@@ -6806,7 +6778,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 	
 		else if (type === 15 || type === 11) {
-			var temp_ = undefined,
+			var temp_,
 			    temp = val[1].length - 1;
 			if (temp !== -1) {
 				for (temp_ = []; temp >= 0; --temp) {
@@ -6835,8 +6807,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			var neg,
 			    lastSpell = -1,
 			    newSpells = [];
-			for (var i = 0, _len = spells.length; i < _len; ++i) {
-				var j = undefined,
+			for (var i = 0, len = spells.length; i < len; ++i) {
+				var j,
 				    spell = spells[i],
 				    flags = spell[0],
 				    type = flags & 255;
@@ -6905,7 +6877,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		_decompileScope: function _decompileScope(scope, indent) {
 			var dScope = [],
 			    hScope = false;
-			for (var i = 0, j = 0, _len = scope.length; i < _len; i++, j++) {
+			for (var i = 0, j = 0, len = scope.length; i < len; i++, j++) {
 				var spell = scope[i],
 				    type = spell[0] & 255;
 				if (type === 255) {
@@ -6924,7 +6896,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				} else {
 					dScope[j] = Spells.decompileSpell(type, spell[0] & 256, spell[1], spell[2]);
 				}
-				if (i !== _len - 1) {
+				if (i !== len - 1) {
 					dScope[j] += spell[0] & 512 ? " &" : " |";
 				}
 			}
@@ -7054,31 +7026,31 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		},
 		sort: function sort(sp) {
 		
-			for (var i = 0, _len = sp.length - 1; i < _len; i++) {
+			for (var i = 0, len = sp.length - 1; i < len; i++) {
 				if (sp[i][0] > 512) {
 					var temp = [255, []];
 					do {
 						temp[1].push(sp.splice(i, 1)[0]);
-						_len--;
+						len--;
 					} while (sp[i][0] > 512);
 					temp[1].push(sp.splice(i, 1)[0]);
 					sp.splice(i, 0, temp);
 				}
 			}
 			sp = sp.sort();
-			for (var i = 0, _len2 = sp.length - 1; i < _len2; i++) {
+			for (var i = 0, len = sp.length - 1; i < len; i++) {
 			
 				if (sp[i][0] === sp[i + 1][0] && sp[i][1] <= sp[i + 1][1] && sp[i][1] >= sp[i + 1][1] && (sp[i][2] === null ||
 				sp[i][2] === undefined || sp[i][2] <= sp[i + 1][2] && sp[i][2] >= sp[i + 1][2])) {
 				
 					sp.splice(i + 1, 1);
 					i--;
-					_len2--;
+					len--;
 				
 				} else if (sp[i][0] === 255) {
 					sp.push(sp.splice(i, 1)[0]);
 					i--;
-					_len2--;
+					len--;
 				}
 			}
 		},
@@ -7124,7 +7096,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					fn();
 				}
 				if (this._hasComplFns) {
-					for (var i = 0, _len = this._completeFns.length; i < _len; ++i) {
+					for (var i = 0, len = this._completeFns.length; i < len; ++i) {
 						this._completeFns[i]();
 					}
 					this._completeFns = [];
@@ -7233,8 +7205,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			    outreps = [],
 			    lastType = this.TYPE_UNKNOWN,
 			    hasReps = false;
-			for (var i = 0, _len = sList.length; i < _len; i++, this._col++) {
-				var res = undefined;
+			for (var i = 0, len = sList.length; i < len; i++, this._col++) {
+				var res;
 				switch (sList[i]) {
 					case "\n":
 						this._line++;
@@ -7430,9 +7402,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				if (str[0] === ")") {
 					return [regex[0] + scope[0] + 1, [scope[1][0], scope[1][1], regex[1], ""]];
 				}
-				var _val = this._getText(str, false);
-				if (_val) {
-					return [_val[0] + regex[0] + scope[0], [scope[1][0], scope[1][1], regex[1], _val[1]]];
+				var val = this._getText(str, false);
+				if (val) {
+					return [val[0] + regex[0] + scope[0], [scope[1][0], scope[1][1], regex[1], val[1]]];
 				}
 			}
 			this._setError(Lng.seSyntaxErr[lang], name);
@@ -7589,13 +7561,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						i = 0;
 						continue;
 					}
-					var _val = this._runSpell(type, scope[i][1]);
-					if (_val instanceof Promise) {
-						_val.then(this._asyncContinue);
+					var val = this._runSpell(type, scope[i][1]);
+					if (val instanceof Promise) {
+						val.then(this._asyncContinue);
 						this._ctx.push(len, scope, i, scope[i][0]);
 						return false;
 					}
-					rv = this._checkRes(scope[i][0], _val);
+					rv = this._checkRes(scope[i][0], val);
 					if (rv === null) {
 						i++;
 						continue;
@@ -8311,11 +8283,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			$after(Cfg.txtBtnsLoc ? $id("de-txta-resizer") || this.txta : aib._420 ? $c("popup", this.form) : this.subm, tPanel);
 			id = ["bold", "italic", "under", "strike", "spoil", "code", "sup", "sub", "quote"], val = ["B", "i", "U", "S", "%", "C", "v", "^", "&gt;"];
 			btns = aib.markupTags;
-			for (var i = 0, _len = btns.length; i < _len; ++i) {
+			for (var i = 0, len = btns.length; i < len; ++i) {
 				if (btns[i] === "") {
 					continue;
 				}
-				html += "<span id=\"de-btn-" + id[i] + "\" de-title=\"" + Lng.txtBtn[i][lang] + "\" de-tag=\"" + btns[i] + "\">" + (Cfg.addTextBtns === 2 ? (html === "" ? "[ " : "") + "<a class=\"de-abtn\" href=\"#\">" + val[i] + "</a>" + (i === _len - 1 ? " ]" : " / ") : Cfg.addTextBtns === 3 ? "<input type=\"button\" value=\"" + val[i] + "\" style=\"font-weight: bold;\">" : "") + "</span>";
+				html += "<span id=\"de-btn-" + id[i] + "\" de-title=\"" + Lng.txtBtn[i][lang] + "\" de-tag=\"" + btns[i] + "\">" + (Cfg.addTextBtns === 2 ? (html === "" ? "[ " : "") + "<a class=\"de-abtn\" href=\"#\">" + val[i] + "</a>" + (i === len - 1 ? " ]" : " / ") : Cfg.addTextBtns === 3 ? "<input type=\"button\" value=\"" + val[i] + "\" style=\"font-weight: bold;\">" : "") + "</span>";
 			}
 			tPanel.innerHTML = html;
 		},
@@ -8327,7 +8299,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		eventFiles: function eventFiles(clear) {
 			var last = null,
 			    els = $Q("input[type=\"file\"]", this.fileTd);
-			for (var i = 0, _len = els.length; i < _len; ++i) {
+			for (var i = 0, len = els.length; i < len; ++i) {
 				var el = els[i],
 				    inp = el.obj;
 				if (inp) {
@@ -8354,7 +8326,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 			id = el.id;
 			if (id.startsWith("de-btn")) {
-				var x = undefined;
+				var x;
 				if (e.type === "mouseover") {
 					if (id === "de-btn-quote") {
 						quotetxt = $txtSelect();
@@ -8384,10 +8356,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					$txtInsert(x, "> " + (start === end ? quotetxt : x.value.substring(start, end)).replace(/\n/gm, "\n> "));
 				} else {
 					var scrtop = x.scrollTop,
-					    _val = this._wrapText(aib.markupBB, el.getAttribute("de-tag"), x.value.substring(start, end)),
-					    _len = start + _val[0];
-					x.value = x.value.substr(0, start) + _val[1] + x.value.substr(end);
-					x.setSelectionRange(_len, _len);
+					    val = this._wrapText(aib.markupBB, el.getAttribute("de-tag"), x.value.substring(start, end)),
+					    len = start + val[0];
+					x.value = x.value.substr(0, start) + val[1] + x.value.substr(end);
+					x.setSelectionRange(len, len);
 					x.focus();
 					x.scrollTop = scrtop;
 				}
@@ -8961,7 +8933,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		_wrapText: function _wrapText(markupBB, tag, text) {
 			var m;
 			if (markupBB) {
-				var str = undefined;
+				var str;
 				if (text.contains("\n")) {
 					str = "[" + tag + "]" + text + "[/" + tag + "]";
 					return [str.length, str];
@@ -8973,7 +8945,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			var rv = "",
 			    i = 0,
 			    arr = text.split("\n");
-			for (var _len = arr.length; i < _len; ++i) {
+			for (var len = arr.length; i < len; ++i) {
 				m = arr[i].match(/^(\s*)(.*?)(\s*)$/);
 				rv += "\n" + m[1] + (tag === "^H" ? m[2] + "^H".repeat(m[2].length) : tag + m[2] + tag) + m[3];
 			}
@@ -9351,7 +9323,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				} catch (e) {}
 			}
 			var els = $Q(aib.qError, dc);
-			for (var i = 0, _len = els.length; i < _len; ++i) {
+			for (var i = 0, len = els.length; i < len; ++i) {
 				err += els[i].innerHTML + "\n";
 			}
 			err = err.replace(/<a [^>]+>Назад.+|<br.+/, "") || Lng.error[lang] + ":\n" + dc.body.innerHTML;
@@ -9361,8 +9333,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	var doUploading = async(regeneratorRuntime.mark(function callee$1$3(getProgress) {
-		var p, beginTime, inited, progress, counterWrap, counterEl, totalEl, speedEl, _val, total, loaded;
-
+		var p, beginTime, inited, progress, counterWrap, counterEl, totalEl, speedEl, val, total, loaded;
 		return regeneratorRuntime.wrap(function callee$1$3$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
@@ -9371,39 +9342,38 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 2:
 					if (!(p = getProgress())) {
-						context$2$0.next = 24;
+						context$2$0.next = 23;
 						break;
 					}
 
-					_val = undefined;
-					context$2$0.prev = 4;
-					context$2$0.next = 7;
+					context$2$0.prev = 3;
+					context$2$0.next = 6;
 					return p;
 
-				case 7:
-					_val = context$2$0.sent;
-					context$2$0.next = 14;
+				case 6:
+					val = context$2$0.sent;
+					context$2$0.next = 13;
 					break;
 
-				case 10:
-					context$2$0.prev = 10;
-					context$2$0.t26 = context$2$0["catch"](4);
+				case 9:
+					context$2$0.prev = 9;
+					context$2$0.t26 = context$2$0["catch"](3);
 
 					$alert(getErrorMessage(context$2$0.t26), "upload", false);
 					return context$2$0.abrupt("return");
 
-				case 14:
-					if (!_val.done) {
-						context$2$0.next = 17;
+				case 13:
+					if (!val.done) {
+						context$2$0.next = 16;
 						break;
 					}
 
-					checkUpload(_val.data);
+					checkUpload(val.data);
 					return context$2$0.abrupt("return");
 
-				case 17:
+				case 16:
 					if (!inited) {
-						total = _val.data.total;
+						total = val.data.total;
 
 						progress.setAttribute("max", total);
 						progress.style.display = "";
@@ -9411,7 +9381,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						counterWrap.style.display = "";
 						inited = true;
 					}
-					loaded = _val.data.loaded;
+					loaded = val.data.loaded;
 
 					progress.value = loaded;
 					counterEl.textContent = prettifySize(loaded);
@@ -9419,14 +9389,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					context$2$0.next = 2;
 					break;
 
-				case 24:
+				case 23:
 					$alert(Lng.internalError[lang] + getPrettyErrorMessage(new Error()), "upload", false);
 
-				case 25:
+				case 24:
 				case "end":
 					return context$2$0.stop();
 			}
-		}, callee$1$3, this, [[4, 10]]);
+		}, callee$1$3, this, [[3, 9]]);
 	}));
 
 	function checkUpload(dc) {
@@ -9499,7 +9469,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	var checkDelete = async(regeneratorRuntime.mark(function callee$1$4(dc) {
-		var err, _ref, _ref2, num, post, els, threads, i, _len, el, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, thr;
+		var err, _ref, _ref2, num, post, els, threads, i, len, el, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, thr;
 
 		return regeneratorRuntime.wrap(function callee$1$4$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
@@ -9532,7 +9502,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 					els = $Q("." + aib.cRPost + " input:checked", dForm.el), threads = new Set();
 
-					for (i = 0, _len = els.length; i < _len; ++i) {
+					for (i = 0, len = els.length; i < len; ++i) {
 						el = els[i];
 
 						el.checked = false;
@@ -10497,28 +10467,26 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					if (_this.hash !== null) {
 						resolve(_this.hash);
 					} else {
-						(function () {
-							var runWorker = function (data, transferObj) {
-								_this._glob.workers.run(data, [data[0]], function (data) {
-									resolve(_this.hash = data.hash);
-								});
-							};
-							if (aib.fch) {
-								spawn(downloadImgData, _this.el.src).then(function (data) {
-									if (!data) {
-										_this.hash = -1;
-										resolve(-1);
-									}
-									var buffer = data.buffer;
-									runWorker([buffer, _this.el.naturalWidth, _this.el.naturalHeight], [buffer]);
-								});
-							} else if (_this.el.naturalWidth + _this.el.naturalHeight === 0) {
-								resolve(_this.hash = -1);
-							} else {
-								var data = _this.data;
-								runWorker(data, [data[0]]);
-							}
-						})();
+						var runWorker = function (data, transferObj) {
+							_this._glob.workers.run(data, [data[0]], function (data) {
+								resolve(_this.hash = data.hash);
+							});
+						};
+						if (aib.fch) {
+							spawn(downloadImgData, _this.el.src).then(function (data) {
+								if (!data) {
+									_this.hash = -1;
+									resolve(-1);
+								}
+								var buffer = data.buffer;
+								runWorker([buffer, _this.el.naturalWidth, _this.el.naturalHeight], [buffer]);
+							});
+						} else if (_this.el.naturalWidth + _this.el.naturalHeight === 0) {
+							resolve(_this.hash = -1);
+						} else {
+							var data = _this.data;
+							runWorker(data, [data[0]]);
+						}
 					}
 				});
 			} },
@@ -11434,7 +11402,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					$del(node);
 				} else {
 					var els = aib.getPosts(form);
-					for (var i = 0, _len = els.length; i < _len; i++) {
+					for (var i = 0, len = els.length; i < len; i++) {
 						if (_this.num === aib.getPNum(els[i])) {
 							_this.updateMsg(replacePost($q(aib.qMsg, els[i])));
 							$del(node);
@@ -11724,7 +11692,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    data = [],
 		    hasAttachments = false,
 		    idx = 0;
-		for (var i = 0, _len = els.length; i < _len; ++i, ++idx) {
+		for (var i = 0, len = els.length; i < len; ++i, ++idx) {
 			var el = els[i],
 			    obj = new Attachment(post, el, idx);
 			filesMap.set(el, obj);
@@ -11733,7 +11701,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 		if (Cfg.addImgs) {
 			els = aProto.slice.call($C("de-img-pre", post.el));
-			for (var i = 0, _len2 = els.length; i < _len2; ++i, ++idx) {
+			for (var i = 0, len = els.length; i < len; ++i, ++idx) {
 				var el = els[i],
 				    obj = new EmbeddedImage(post, el, idx);
 				filesMap.set(el, obj);
@@ -11910,7 +11878,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				    cache = this._cache[b + this.tNum] = new PviewsCache(form, b, this.tNum),
 				    post = cache.getPost(this.num);
 				if (post && (brd !== b || !post.hasRef || post.ref.indexOf(parentNum) === -1)) {
-					var rm = undefined;
+					var rm;
 					if (post.hasRef) {
 						rm = $c("de-refmap", post.el);
 					} else {
@@ -12025,7 +11993,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    pProto = Post.prototype,
 		    thr = $q(aib.qThread, form) || form,
 		    posts = aib.getPosts(thr);
-		for (var i = 0, _len = posts.length; i < _len; ++i) {
+		for (var i = 0, len = posts.length; i < len; ++i) {
 			var post = posts[i];
 			pBn[aib.getPNum(post)] = Object.create(pProto, {
 				count: { value: i + 1 },
@@ -12073,13 +12041,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				op.el = replacePost(aib.getOp(this._thr));
 				op.msg = $q(aib.qMsg, op.el);
 				if (this._brd === brd && (oOp = pByNum[this._tNum])) {
-					var i = undefined,
-					    j = undefined,
-					    _len = undefined,
+					var i,
+					    j,
+					    len,
 					    rRef = [],
 					    oRef = op.ref,
 					    nRef = oOp.ref;
-					for (i = j = 0, _len = nRef.length; j < _len; ++j) {
+					for (i = j = 0, len = nRef.length; j < len; ++j) {
 						var num = nRef[j];
 						if (oRef[i] === num) {
 							i++;
@@ -12088,7 +12056,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 						rRef.push(num);
 					}
-					for (_len = oRef.length; i < _len; i++) {
+					for (len = oRef.length; i < len; i++) {
 						rRef.push(oRef[i]);
 					}
 					op.ref = rRef;
@@ -12164,7 +12132,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    strNums = Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
 		    html = ["<div class=\"de-refmap\">"],
 		    el = post.ref;
-		for (var i = 0, _len = el.length; i < _len; ++i) {
+		for (var i = 0, len = el.length; i < len; ++i) {
 			var num = el[i];
 			html.push(bStr, num, "\" class=\"de-link-ref ", strNums && strNums.indexOf(+num) !== -1 ? "de-link-hid" : "", "\">&gt;&gt;", num, "</a><span class=\"de-refcomma\">, </span>");
 		}
@@ -12183,8 +12151,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		var opNums = dForm.tNums;
 		for (var pNum in posts) {
 			var links = $T("a", posts[pNum].msg);
-			for (var i = 0, _len = links.length; i < _len; ++i) {
-				var lNum = undefined,
+			for (var i = 0, len = links.length; i < len; ++i) {
+				var lNum,
 				    tc = links[i].textContent;
 				if (tc[0] === ">" && tc[1] === ">" && (lNum = +tc.substr(2)) && lNum in posts) {
 					var post = posts[lNum],
@@ -12212,8 +12180,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    links = $T("a", post.msg),
 		    strNums = add && Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
 		    opNums = add && dForm.tNums;
-		for (var i = 0, _len = links.length; i < _len; ++i) {
-			var lNum = undefined,
+		for (var i = 0, len = links.length; i < len; ++i) {
+			var lNum,
 			    link = links[i],
 			    tc = link.textContent;
 			if (tc[0] === ">" && tc[1] === ">" && (lNum = +tc.substr(2)) && lNum in pByNum) {
@@ -12579,7 +12547,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				return;
 			}
 			var bEls = $Q(aib.qBan, thrNode);
-			for (var i = 0, _len = bEls.length; i < _len; ++i) {
+			for (var i = 0, len = bEls.length; i < len; ++i) {
 				var bEl = bEls[i],
 				    pEl = aib.getPostEl(bEl),
 				    post = pEl ? pByNum[aib.getPNum(pEl)] : op;
@@ -12614,7 +12582,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				var firstChangedPost = null;
 				vParser = new VideosParser();
 				post = this.op.nextNotDeleted;
-				var i = undefined;
+				var i;
 				for (i = post.count - 1; i < len && post;) {
 					if (post.num === aib.getPNum(nPosts[i])) {
 						i++;
@@ -12714,9 +12682,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			} else if (vPosts < num) {
 				var fragm = doc.createDocumentFragment(),
 				    tPost = this.op,
-				    _len = nPosts.length - vPosts,
+				    len = nPosts.length - vPosts,
 				    vParser = new VideosParser();
-				for (var i = Math.max(0, _len - num); i < _len; ++i) {
+				for (var i = Math.max(0, len - num); i < len; ++i) {
 					tPost = this._addPost(fragm, nPosts[i], i + 1, vParser, tPost);
 					spells.check(tPost);
 				}
@@ -12727,7 +12695,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					post.prev = tPost;
 				}
 				needRMUpdate = true;
-				num = Math.min(_len + vPosts, num);
+				num = Math.min(len + vPosts, num);
 			} else {
 				return num <= visPosts;
 			}
@@ -13223,7 +13191,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				css: { value: "img[id^=\"translate_button\"], img[src$=\"button-expand.gif\"], img[src$=\"button-close.gif\"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none !important; }\n\t\t\t\t\tdiv[id^=\"Wz\"] { z-index: 10000 !important; }\n\t\t\t\t\t.de-thr-hid { margin-bottom: " + (!TNum ? "7" : "2") + "px; float: none !important; }\n\t\t\t\t\t.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\n\t\t\t\t\t.de-video-obj + div { clear: left; }\n\t\t\t\t\tform[action=\"/paint\"] > select { width: 105px; }\n\t\t\t\t\tform[action=\"/paint\"] > input[type=\"text\"] { width: 24px !important; }" },
 				fixFileInputs: { value: function value(el) {
 						var str = "";
-						for (var i = 0, _len = 4; i < _len; ++i) {
+						for (var i = 0, len = 4; i < len; ++i) {
 							str += "<div" + (i === 0 ? "" : " style=\"display: none;\"") + "><input type=\"file\" name=\"file_" + i + "\" tabindex=\"7\"></input></div>";
 						}
 						var node = $id("files_parent");
@@ -13499,7 +13467,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					} },
 				fixFileInputs: { value: function value(el) {
 						var str = "";
-						for (var i = 0, _len = 4; i < _len; ++i) {
+						for (var i = 0, len = 4; i < len; ++i) {
 							str += "<div" + (i === 0 ? "" : " style=\"display: none;\"") + "><input type=\"file\" name=\"image" + (i + 1) + "\"></input></div>";
 						}
 						var node = $q("#postform .images-area", doc).lastElementChild;
@@ -13578,7 +13546,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				fixVideo: { value: function value(post) {
 						var videos = [],
 						    els = $Q(".video-container, #ytplayer", post ? post.el : dForm.el);
-						for (var i = 0, _len = els.length; i < _len; ++i) {
+						for (var i = 0, len = els.length; i < len; ++i) {
 							var el = els[i];
 							videos.push([post || this.getPostEl(el).post, el.id === "ytplayer" ? el.src.match(Videos.ytReg) : ["", el.getAttribute("data-video")], true]);
 							$del(el);
@@ -13676,16 +13644,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			fixVideo: function fixVideo(post) {
 				var videos = [],
 				    els = $Q("embed, object, iframe", post ? post.el : dForm.el);
-				for (var i = 0, _len = els.length; i < _len; ++i) {
+				for (var i = 0, len = els.length; i < len; ++i) {
 					var el = els[i],
 					    src = el.src || el.data,
-					    _m = src.match(Videos.ytReg);
-					if (_m) {
-						videos.push([post || this.getPostEl(el).post, _m, true]);
+					    m = src.match(Videos.ytReg);
+					if (m) {
+						videos.push([post || this.getPostEl(el).post, m, true]);
 						$del(el);
 					}
-					if (Cfg.addVimeo && (_m = src.match(Videos.vimReg))) {
-						videos.push([post || this.getPostEl(el).post, _m, false]);
+					if (Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
+						videos.push([post || this.getPostEl(el).post, m, false]);
 						$del(el);
 					}
 				}
@@ -14365,8 +14333,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 
 		startLoad = async(regeneratorRuntime.mark(function callee$2$0(needSleep) {
-			var checked4XX, delay, repeatLoading, stopToken, seconds, _error, lPosts, eCode, post, notif;
-
+			var checked4XX, delay, repeatLoading, stopToken, seconds, error, lPosts, eCode, post, notif;
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
@@ -14440,7 +14407,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						if (useCountdown) {
 							countEl.innerHTML = "<span class=\"de-wait\"></span>";
 						}
-						_error = AjaxError.Success, lPosts = 0;
+						error = AjaxError.Success, lPosts = 0;
 						context$3$0.prev = 28;
 						context$3$0.next = 31;
 						return Promise.race([stopToken, dForm.firstThr.loadNew(true)]);
@@ -14462,11 +14429,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return context$3$0.abrupt("return");
 
 					case 38:
-						_error = context$3$0.t34;
+						error = context$3$0.t34;
 
 					case 39:
-						infoLoadErrors(_error, false);
-						eCode = _error instanceof AjaxError ? _error.code : 0;
+						infoLoadErrors(error, false);
+						eCode = error instanceof AjaxError ? error.code : 0;
 
 						if (!(eCode !== 200 && eCode !== 304)) {
 							context$3$0.next = 57;

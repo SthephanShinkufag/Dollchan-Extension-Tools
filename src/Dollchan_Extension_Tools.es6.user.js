@@ -619,7 +619,7 @@ function $add(html) {
 function $new(tag, attr, events) {
 	var el = doc.createElement(tag);
 	if(attr) {
-		for(let key in attr) {
+		for(var key in attr) {
 			if(key === 'text') {
 				el.textContent = attr[key];
 			} else if(key === 'value') {
@@ -630,7 +630,7 @@ function $new(tag, attr, events) {
 		}
 	}
 	if(events) {
-		for(let key in events) {
+		for(var key in events) {
 			if(events.hasOwnProperty(key)) {
 				el.addEventListener(key, events[key], false);
 			}
@@ -725,7 +725,7 @@ Logger = new function() {
 		getData(full) {
 			var duration, timeLog = [],
 				i = 1;
-			for(let len = marks.length - 1, lastExtra = 0; i < len; ++i) {
+			for(var len = marks.length - 1, lastExtra = 0; i < len; ++i) {
 				duration = marks[i][1] - marks[i - 1][1] + lastExtra;
 				if(full || duration > 1) {
 					lastExtra = 0;
@@ -741,7 +741,7 @@ Logger = new function() {
 		getTable() {
 			var html = '<tbody>',
 				data = this.getData(false);
-			for(let i = 0, len = data.length; i < len; ++i) {
+			for(var i = 0, len = data.length; i < len; ++i) {
 				html += '<tr><td>' + data[i][0] + '</td><td>' + data[i][1] + 'ms</td></tr>';
 			}
 			return html + '</tbody>';
@@ -786,7 +786,7 @@ function sleep(ms) {
 function $ajax(url, params = null, useNative = true) {
 	return new Promise((resolve, reject) => {
 		if(useNative || !(typeof GM_xmlhttpRequest === 'function')) {
-			let xhr = new XMLHttpRequest();
+			var xhr = new XMLHttpRequest();
 			if(params && params.onprogress) {
 				xhr.upload.onprogress = params.onprogress;
 			}
@@ -796,9 +796,9 @@ function $ajax(url, params = null, useNative = true) {
 				if(params.responseType) {
 					xhr.responseType = params.responseType;
 				}
-				let headers = params.headers;
+				var headers = params.headers;
 				if(headers) {
-					for(let h in headers) {
+					for(var h in headers) {
 						if(headers.hasOwnProperty(h)) {
 							xhr.setRequestHeader(h, headers[h]);
 						}
@@ -807,7 +807,7 @@ function $ajax(url, params = null, useNative = true) {
 			}
 			xhr.send(params && params.data || null);
 		} else {
-			let obj = {
+			var obj = {
 				'method': (params && params.method) || 'GET',
 				'url': nav.fixLink(url),
 				'onload'(e) { resolve(e); }
@@ -917,7 +917,7 @@ TarBuilder.prototype = {
 			checksum = 0,
 			fileSize = input.length,
 			header = new Uint8Array(512);
-		for(let nameLen = Math.min(filepath.length, 100); i < nameLen; ++i) {
+		for(var nameLen = Math.min(filepath.length, 100); i < nameLen; ++i) {
 			header[i] = filepath.charCodeAt(i) & 0xFF;
 		}
 		// fileMode
@@ -1034,8 +1034,8 @@ function* getFormElements(form) {
 	var controls = $Q('button, input, keygen, object, select, textarea', form),
 		fixName = name => name ? name.replace(/([^\r])\n|\r([^\n])/g, '$1\r\n$2') : '';
   constructSet:
-	for(let i = 0, len = controls.length; i < len; ++i) {
-		let field = controls[i],
+	for(var i = 0, len = controls.length; i < len; ++i) {
+		var field = controls[i],
 			tagName = field.tagName.toLowerCase(),
 			type = field.getAttribute('type'),
 			name = field.getAttribute('name');
@@ -1055,9 +1055,9 @@ function* getFormElements(form) {
 			throw new Error('Not supported');
 		}
 		if(tagName === 'select') {
-			let options = $Q('select > option, select > optgrout > option', field);
-			for(let _i = 0, _len = options.length; _i < _len; ++_i) {
-				let option = options[_i];
+			var options = $Q('select > option, select > optgrout > option', field);
+			for(var _i = 0, _len = options.length; _i < _len; ++_i) {
+				var option = options[_i];
 				if(option.selected && !isFormElDisabled(option)) {
 					yield {
 						el: field,
@@ -1081,8 +1081,8 @@ function* getFormElements(form) {
 				continue constructSet;
 			case 'file':
 				if(field.files.length > 0) {
-					let files = field.files;
-					for(let _i = 0, _len = files.length; _i < _len; ++_i) {
+					var files = field.files;
+					for(var _i = 0, _len = files.length; _i < _len; ++_i) {
 						yield {
 							el: field,
 							name: name,
@@ -1116,9 +1116,9 @@ function* getFormElements(form) {
 				type: type
 			};
 		}
-		let dirname = field.getAttribute('dirname');
+		var dirname = field.getAttribute('dirname');
 		if(dirname) {
-			let dir = nav.matchesSelector(field, ':dir(rtl)') ? 'rtl': 'ltr';
+			var dir = nav.matchesSelector(field, ':dir(rtl)') ? 'rtl': 'ltr';
 			yield {
 				el: field,
 				name: fixName(dirname),
@@ -1191,7 +1191,7 @@ function setStored(id, value) {
 	if(nav.isGM) {
 		GM_setValue(id, value);
 	} else if(nav.isChromeStorage) {
-		let obj = {};
+		var obj = {};
 		obj[id] = value;
 		if(value.toString().length < 4095) {
 			chrome.storage.sync.set(obj, emptyFn);
@@ -1334,7 +1334,7 @@ function readFav() {
 function readPosts() {
 	var str = TNum ? sesStorage['de-hidden-' + brd + TNum] : null;
 	if(typeof str === 'string') {
-		let data = str.split(',');
+		var data = str.split(',');
 		if(data.length === 4 && +data[0] === (Cfg.hideBySpell ? spells.hash : 0) &&
 		  (data[1] in pByNum) && pByNum[data[1]].count === +data[2])
 		{
@@ -1358,12 +1358,12 @@ function* readUserPosts() {
 	if(!dForm.firstThr) {
 		return;
 	}
-	for(let post = dForm.firstThr.op; post; post = post.next) {
-		let num = post.num;
+	for(var post = dForm.firstThr.op; post; post = post.next) {
+		var num = post.num;
 		if(num in uVis) {
-			let hidePost = uVis[num][0] === 0;
+			var hidePost = uVis[num][0] === 0;
 			if(post.isOp) {
-				let hideThread = !!(num in hThr[brd]);
+				var hideThread = !!(num in hThr[brd]);
 				if(hidePost !== hideThread) {
 					update = true;
 					hidePost = hideThread;
@@ -1378,7 +1378,7 @@ function* readUserPosts() {
 			}
 			continue;
 		}
-		let vis;
+		var vis;
 		if(post.isOp) {
 			if(num in hThr[brd]) {
 				vis = '0';
@@ -1409,7 +1409,7 @@ function* readUserPosts() {
 
 function savePosts() {
 	if(TNum) {
-		let lPost = dForm.firstThr.lastNotDeleted;
+		var lPost = dForm.firstThr.lastNotDeleted;
 		sesStorage['de-hidden-' + brd + TNum] = (Cfg.hideBySpell ? spells.hash : '0') +
 			',' + lPost.num + ',' + lPost.count + ',' + sVis.join('');
 	}
@@ -1426,11 +1426,11 @@ function saveUserPosts() {
 			obj = {};
 		}
 		if(str && str.length > 1e6) {
-			let minDate = Date.now() - 5 * 24 * 3600 * 1000;
-			for(let b in obj) {
+			var minDate = Date.now() - 5 * 24 * 3600 * 1000;
+			for(var b in obj) {
 				if(obj.hasOwnProperty(b)) {
-					let vis = obj[b];
-					for(let key in vis) {
+					var vis = obj[b];
+					for(var key in vis) {
 						if(vis.hasOwnProperty(key) && vis[key][1] < minDate) {
 							delete vis[key];
 						}
@@ -1462,8 +1462,8 @@ function* readFavoritesPosts() {
 		return;
 	}
 	temp = temp[brd];
-	for(let thr = dForm.firstThr; thr; thr = thr.next) {
-		let num = thr.num;
+	for(var thr = dForm.firstThr; thr; thr = thr.next) {
+		var num = thr.num;
 		if(num in temp) {
 			thr.setFavBtn(true);
 			if(TNum) {
@@ -1603,7 +1603,7 @@ function addPanel(formEl) {
 				case 'de-btn-expimg':
 					isExpImg = !isExpImg;
 					$del($c('de-img-center', doc));
-					for(let post = dForm.firstThr.op; post; post = post.next) {
+					for(var post = dForm.firstThr.op; post; post = post.next) {
 						post.toggleImages(isExpImg);
 					}
 					break;
@@ -1751,13 +1751,13 @@ function showContent(cont, id, name, remove, data) {
 	}
 
 	if(name === 'hid') {
-		let block, els = $C('de-post-hide', dForm.el);
-		for(let i = 0, len = els.length; i < len; ++i) {
-			let post = els[i];
+		var block, els = $C('de-post-hide', dForm.el);
+		for(var i = 0, len = els.length; i < len; ++i) {
+			var post = els[i];
 			if(post.isOp) {
 				continue;
 			}
-			let cln = post.cloneNode(true);
+			var cln = post.cloneNode(true);
 			cln.removeAttribute('id');
 			cln.style.display = '';
 			if(cln.classList.contains(aib.cRPost)) {
@@ -1800,10 +1800,10 @@ function showContent(cont, id, name, remove, data) {
 		}
 		cont.insertAdjacentHTML('beforeend', '<hr><b>' + 
 			($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') + '</b>');
-		for(let b in hThr) {
+		for(var b in hThr) {
 			if(!$isEmpty(hThr[b])) {
 				block = addContentBlock(cont, $new('b', {'text': '/' + b}, null));
-				for(let tNum in hThr[b]) {
+				for(var tNum in hThr[b]) {
 					block.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply +
 						'" info="' + b + ';' + tNum + '"><input type="checkbox"><a href="' +
 						aib.getThrdUrl(b, tNum) + '" target="_blank">№' + tNum + '</a> - ' +
@@ -1826,7 +1826,7 @@ function showContent(cont, id, name, remove, data) {
 		}));
 		cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
 			for(var i = 0, els = $Q('.de-entry[info]', this.parentNode), len = els.length; i < len; ++i) {
-				let [board, tNum] = els[i].getAttribute('info').split(';'),
+				var [board, tNum] = els[i].getAttribute('info').split(';'),
 					xhr = yield $ajax(aib.getThrdUrl(board, tNum));
 				if(xhr.status === 404) {
 					delete hThr[board][tNum];
@@ -1837,7 +1837,7 @@ function showContent(cont, id, name, remove, data) {
 		cont.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
 			$each($Q('.de-entry[info]', this.parentNode), function(date, el) {
 				if($t('input', el).checked) {
-					let arr = el.getAttribute('info').split(';');
+					var arr = el.getAttribute('info').split(';');
 					if(arr[1] in pByNum) {
 						pByNum[arr[1]].setUserVisib(false, date, true);
 					} else {
@@ -1938,7 +1938,7 @@ function showVideosTable(cont) {
 		handleEvent(e) {
 			var el = e.target;
 			if(el.classList.contains('de-abtn')) {
-				let node;
+				var node;
 				switch(e.target.id) {
 				case 'de-video-btn-hide':
 					if(this.listHidden) {
@@ -1965,7 +1965,7 @@ function showVideosTable(cont) {
 			} else if(!el.classList.contains('de-video-link')) {
 				return;
 			}
-			let m = el.videoInfo;
+			var m = el.videoInfo;
 			if(this.playerInfo !== m) {
 				if(this.currentLink) {
 					this.currentLink.classList.remove('de-current');
@@ -1978,8 +1978,8 @@ function showVideosTable(cont) {
 			$pd(e);
 		}
 	}, true);
-	for(let i = 0, len = els.length; i < len; ++i) {
-		let el = els[i].cloneNode(true);
+	for(var i = 0, len = els.length; i < len; ++i) {
+		var el = els[i].cloneNode(true);
 		el.videoInfo = els[i].videoInfo;
 		linkList.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '"></div>');
 		linkList.lastChild.appendChild(el);
@@ -1996,8 +1996,8 @@ function clearFavoriteTable() {
 		len = els.length;
 	if(len > 0) {
 		readFav().then(fav => {
-			for(let i = 0; i < len; ++i) {
-				let el = els[i];
+			for(var i = 0; i < len; ++i) {
+				var el = els[i];
 				removeFavoriteEntry(fav, el.getAttribute('de-host'), el.getAttribute('de-board'),
 					el.getAttribute('de-num'), true);
 			}
@@ -2007,20 +2007,20 @@ function clearFavoriteTable() {
 }
 
 function showFavoriteTable(cont, data) {
-	for(let h in data) {
-		for(let b in data[h]) {
-			let d = data[h][b],
+	for(var h in data) {
+		for(var b in data[h]) {
+			var d = data[h][b],
 				block = addContentBlock(cont, d.url ?
 					$new('a', {'href': d.url, 'text': h + '/' + b}, null) :
 					$new('b', {'text': h + '/' + b}, null));
 			if(h === aib.host && b === brd) {
 				block.classList.add('de-fav-current');
 			}
-			for(let tNum in d) {
+			for(var tNum in d) {
 				if(tNum === 'url') {
 					continue;
 				}
-				let t = d[tNum];
+				var t = d[tNum];
 				if(!t.url.startsWith('http')) {
 					t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 				}
@@ -2048,8 +2048,8 @@ function showFavoriteTable(cont, data) {
 		var update = false,
 			els = $C('de-entry', doc),
 			fav = yield* getStoredObj('DESU_Favorites');
-		for(let i = 0, len = els.length; i < len; ++i) {
-			let form, el = els[i],
+		for(var i = 0, len = els.length; i < len; ++i) {
+			var form, el = els[i],
 				host = el.getAttribute('de-host'),
 				b = el.getAttribute('de-board'),
 				num = el.getAttribute('de-num'),
@@ -2070,7 +2070,7 @@ function showFavoriteTable(cont, data) {
 				update = true;
 				continue;
 			}
-			let cnt = aib.getPosts(form).length + 1 - el.previousElementSibling.textContent;
+			var cnt = aib.getPosts(form).length + 1 - el.previousElementSibling.textContent;
 			el.textContent = cnt;
 			el.className = 'de-fav-inf-new';
 			if(cnt === 0) {
@@ -2096,20 +2096,20 @@ function showFavoriteTable(cont, data) {
 			return;
 		}
 		$alert(Lng.loading[lang], 'load-pages', true);
-		for(let i = 0; i < infoCount; ++i) {
-			let el = els[i];
+		for(var i = 0; i < infoCount; ++i) {
+			var el = els[i];
 			postsInfo.push([+el.getAttribute('de-num'), el = $c('de-fav-inf-page', el), false]);
 			el.classList.add('de-wait');
 		}
-		for(let page = 0, infoLoaded = 0, endPage = (aib.lastPage || 10) + 1; page < endPage; ++page) {
-			let form;
+		for(var page = 0, infoLoaded = 0, endPage = (aib.lastPage || 10) + 1; page < endPage; ++page) {
+			var form;
 			try {
 				form = new DelForm((yield ajaxLoad(aib.getPageUrl(brd, page))), true);
 			} catch(e) {
 				continue;
 			}
-			for(let i = 0, tNums = form.tNums; i < infoCount; ++i) {
-				let pInfo = postsInfo[i];
+			for(var i = 0, tNums = form.tNums; i < infoCount; ++i) {
+				var pInfo = postsInfo[i];
 				if(tNums.indexOf(pInfo[0]) !== -1) {
 					pInfo[1].classList.remove('de-wait');
 					pInfo[1].textContent = '@' + page;
@@ -2121,8 +2121,8 @@ function showFavoriteTable(cont, data) {
 				break;
 			}
 		}
-		for(let i = 0; i < infoCount; ++i) {
-			let [, node, isFound] = postsInfo[i];
+		for(var i = 0; i < infoCount; ++i) {
+			var [, node, isFound] = postsInfo[i];
 			if(!isFound) {
 				node.classList.remove('de-wait');
 				node.textContent = '@?';
@@ -2132,10 +2132,10 @@ function showFavoriteTable(cont, data) {
 	})));
 	cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
 		for(var i = 0, els = $C('de-entry', doc), len = els.length; i < len; ++i) {
-			let el = els[i],
+			var el = els[i],
 				node = $c('de-fav-inf-err', el);
 			node.classList.add('de-wait');
-			let xhr = yield $ajax(el.getAttribute('de-url'), null, false);
+			var xhr = yield $ajax(el.getAttribute('de-url'), null, false);
 			switch(xhr.status) {
 			case 200: break;
 			case 404: el.setAttribute('de-removed', '');
@@ -2223,7 +2223,7 @@ function inpTxt(id, size, Fn) {
 
 function optSel(id, isBlock, Fn) {
 	var el, opt = '', x = Lng.cfg[id];
-	for(let i = 0, len = x.sel[lang].length; i < len; i++) {
+	for(var i = 0, len = x.sel[lang].length; i < len; i++) {
 		opt += '<option value="' + i + '">' + x.sel[lang][i] + '</option>';
 	}
 	el = $add('<select info="' + id + '">' + opt + '</select>');
@@ -2245,13 +2245,13 @@ function cfgTab(name) {
 			if(el.getAttribute('selected') === 'true') {
 				return;
 			}
-			let prefTab = $c('de-cfg-body', doc);
+			var prefTab = $c('de-cfg-body', doc);
 			if(prefTab) {
 				prefTab.className = 'de-cfg-unvis';
 				$q('.de-cfg-tab-back[selected="true"]', doc).setAttribute('selected', false);
 			}
 			el.setAttribute('selected', true);
-			let id = this.getAttribute('info'),
+			var id = this.getAttribute('info'),
 				newTab = $id('de-cfg-' + id);
 			if(!newTab) {
 				$after($id('de-cfg-bar'), newTab =
@@ -2282,7 +2282,7 @@ function updRowMeter(node) {
 		num = el.numLines || 1,
 		i = 15;
 	if(num - i < ((top / 12) | 0 + 1)) {
-		let str = '';
+		var str = '';
 		while(i--) {
 			str += num++ + '<br>';
 		}
@@ -2648,8 +2648,8 @@ function getCfgCommon() {
 function getCfgInfo() {
 	function getHiddenThrCount() {
 		var count = 0;
-		for(let b in hThr) {
-			for(let tNum in hThr[b]) {
+		for(var b in hThr) {
+			for(var tNum in hThr[b]) {
 				count++;
 			}
 		}
@@ -2765,7 +2765,7 @@ function addSettings(Set, id) {
 					spawn(getStoredObj, 'DESU_Config').then(val => {
 						var obj = {},
 							com = val[aib.dm];
-						for(let i in com) {
+						for(var i in com) {
 							if(i !== 'correctTime' && i !== 'timePattern' &&
 							   i !== 'userCSS' && i !== 'userCSSTxt' &&
 							   com[i] !== defaultCfg[i] && i !== 'stats')
@@ -2961,7 +2961,7 @@ HotKeys.readKeys = function* () {
 			return HotKeys.getDefaultKeys();
 		}
 		if(keys[0] !== HotKeys.version) {
-			let tKeys = HotKeys.getDefaultKeys();
+			var tKeys = HotKeys.getDefaultKeys();
 			switch(keys[0]) {
 			case 1:
 				keys[2][11] = tKeys[2][11];
@@ -2988,7 +2988,7 @@ HotKeys.readKeys = function* () {
 			setStored('DESU_keys', JSON.stringify(keys));
 		}
 		if(keys[1] ^ !!nav.Firefox) {
-			let mapFunc = nav.Firefox ? function mapFuncFF(key) {
+			var mapFunc = nav.Firefox ? function mapFuncFF(key) {
 				switch(key) {
 				case 189: return 173;
 				case 187: return 61;
@@ -3107,7 +3107,7 @@ HotKeys.prototype = {
 		} else if(kc === 0x801B) { // ESC (txt)
 			e.target.blur();
 		} else {
-			let post, idx, globIdx = this.gKeys.indexOf(kc);
+			var post, idx, globIdx = this.gKeys.indexOf(kc);
 			switch(globIdx) {
 			case 2: // Quick reply
 				if(pr.form) {
@@ -3222,7 +3222,7 @@ HotKeys.prototype = {
 					post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 					if(post) {
 						if(post.thr.loadedOnce && post.thr.op.next.count === 1) {
-							let nextThr = post.thr.nextNotHidden;
+							var nextThr = post.thr.nextNotHidden;
 							post.thr.load(visPosts, !!nextThr);
 							post = (nextThr || post.thr).op;
 						} else {
@@ -3239,7 +3239,7 @@ HotKeys.prototype = {
 				}
 				/* falls through */
 			default:
-				let scrollToThr = !TNum && (globIdx === 0 || globIdx === 1);
+				var scrollToThr = !TNum && (globIdx === 0 || globIdx === 1);
 				this._scroll(this._getFirstVisPost(scrollToThr, false),
 					globIdx === 0 || idx === 0, scrollToThr);
 			}
@@ -3259,9 +3259,9 @@ HotKeys.prototype = {
 
 	_getFirstVisPost(getThread, getFull) {
 		if(this.lastPageOffset !== window.pageYOffset) {
-			let post = getThread ? dForm.firstThr : dForm.firstThr.op;
+			var post = getThread ? dForm.firstThr : dForm.firstThr.op;
 			while(post.topCoord < 1) {
-				let tPost = post.next;
+				var tPost = post.next;
 				if(!tPost) {
 					break;
 				}
@@ -3277,7 +3277,7 @@ HotKeys.prototype = {
 	},
 	_getNextVisPost(cPost, isOp, toUp) {
 		if(isOp) {
-			let thr = cPost ? toUp ? cPost.thr.prevNotHidden : cPost.thr.nextNotHidden :
+			var thr = cPost ? toUp ? cPost.thr.prevNotHidden : cPost.thr.nextNotHidden :
 				dForm.firstThr.hidden ? dForm.firstThr.nextNotHidden : dForm.firstThr;
 			return thr ? thr.op : null;
 		}
@@ -3317,10 +3317,10 @@ HotKeys.prototype = {
 
 function KeyEditListener(alertEl, keys, allKeys) {
 	var aInputs = aProto.slice.call($C('de-input-key', alertEl));
-	for(let i = 0, len = allKeys.length; i < len; ++i) {
-		let k = allKeys[i];
+	for(var i = 0, len = allKeys.length; i < len; ++i) {
+		var k = allKeys[i];
 		if(k !== 0) {
-			for(let j = i + 1; j < len; ++j) {
+			for(var j = i + 1; j < len; ++j) {
 				if(k === allKeys[j]) {
 					aInputs[i].classList.add('de-error-key');
 					aInputs[j].classList.add('de-error-key');
@@ -3415,14 +3415,14 @@ KeyEditListener.prototype = {
 			this.cEl = el;
 			return;
 		case 'click':
-			let keys;
+			var keys;
 			if(el.id === 'de-keys-reset') {
 				this.keys = HotKeys.getDefaultKeys();
 				this.initKeys = HotKeys.getDefaultKeys();
 				if(hKeys) {
 					hKeys.resume(this.keys);
 				}
-				let temp = KeyEditListener.getEditMarkup(this.keys);
+				var temp = KeyEditListener.getEditMarkup(this.keys);
 				this.allKeys = temp[0];
 				$c('de-alert-msg', this.aEl).innerHTML = temp[1];
 				this.allInputs = aProto.slice.call($C('de-input-key', this.aEl));
@@ -3453,12 +3453,12 @@ KeyEditListener.prototype = {
 				this.errorInput = false;
 				break;
 			}
-			let keyStr = KeyEditListener.keyCodes[key];
+			var keyStr = KeyEditListener.keyCodes[key];
 			if(keyStr === undefined) {
 				this.cKey = -1;
 				return;
 			}
-			let str = '';
+			var str = '';
 			if(e.ctrlKey) {
 				str += 'Ctrl+';
 			}
@@ -3484,15 +3484,15 @@ KeyEditListener.prototype = {
 			if(!el || key === -1) {
 				return;
 			}
-			let rEl, isError = el.classList.contains('de-error-key');
+			var rEl, isError = el.classList.contains('de-error-key');
 			if(!this.errorInput && key !== -1) {
-				let idx = this.allInputs.indexOf(el),
+				var idx = this.allInputs.indexOf(el),
 					oKey = this.allKeys[idx];
 				if(oKey === key) {
 					this.errorInput = false;
 					break;
 				}
-				let rIdx = key === 0 ? -1 : this.allKeys.indexOf(key);
+				var rIdx = key === 0 ? -1 : this.allKeys.indexOf(key);
 				this.allKeys[idx] = key;
 				if(isError) {
 					idx = this.allKeys.indexOf(oKey);
@@ -3713,9 +3713,9 @@ function* downloadImgDataHelper(url, repeatOnError) {
 	} else if(isAb) {
 		return new Uint8Array(xhr.response);
 	} else {
-		let txt = xhr.responseText,
+		var txt = xhr.responseText,
 			rv = new Uint8Array(txt.length);
-		for(let i = 0, len = txt.length; i < len; ++i) {
+		for(var i = 0, len = txt.length; i < len; ++i) {
 			rv[i] = txt.charCodeAt(i) & 0xFF;
 		}
 		return rv;
@@ -3732,7 +3732,7 @@ function preloadImages(post) {
 	}
 	var pool;
 	if(isPreImg || Cfg.preLoadImgs) {
-		let cImg = 1,
+		var cImg = 1,
 			mReqs = post ? 1 : 4,
 			rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile, function(e) {
 				console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
@@ -3741,7 +3741,7 @@ function preloadImages(post) {
 			var [url, lnk, iType, nExp, el] = data,
 				imageData = yield* downloadImgData(url);
 			if(imageData) {
-				let fName = url.substring(url.lastIndexOf("/") + 1),
+				var fName = url.substring(url.lastIndexOf("/") + 1),
 					aEl = $q(aib.qImgLink, aib.getImgWrap(lnk));
 				aEl.setAttribute('download', fName);
 				lnk.href = window.URL.createObjectURL(new Blob([imageData], {'type': iType}));
@@ -3773,13 +3773,13 @@ function preloadImages(post) {
 		Images_.preloading = true;
 	}
 	var els = $Q(aib.qThumbImages, post || dForm.el);
-	for(let i = 0, len = els.length; i < len; ++i) {
-		let el = els[i],
+	for(var i = 0, len = els.length; i < len; ++i) {
+		var el = els[i],
 			lnk = $parent(el = els[i], 'A');
 		if(!lnk) {
 			continue;
 		}
-		let iType, url = lnk.href,
+		var iType, url = lnk.href,
 			nExp = !!Cfg.openImgs;
 		if(/\.gif$/i.test(url)) {
 			iType = 'image/gif';
@@ -3852,7 +3852,7 @@ function loadDocFiles(imgOnly) {
 	}), function() {
 		var u, a, name = aib.dm + '-' + brd.replace(/[\\\/:*?"<>|]/g, '') + '-' + TNum;
 		if(!imgOnly) {
-			let dt = doc.doctype;
+			var dt = doc.doctype;
 			$t('head', dc).insertAdjacentHTML('beforeend',
 				'<script type="text/javascript" src="data/dollscript.js"></script>');
 			tar.addString('data/dollscript.js', '(' + String(de_main_func_outer || de_main_func_inner) + ')(null, true);');
@@ -3878,7 +3878,7 @@ function loadDocFiles(imgOnly) {
 	els.forEach(function(el) {
 		var lnk = $parent(el, 'A');
 		if(lnk) {
-			let url = lnk.href;
+			var url = lnk.href;
 			if(aib.tiny) {
 				url = url.replace(/^.*?\?v=|&.*?$/g, '');
 			}
@@ -3903,7 +3903,7 @@ function loadDocFiles(imgOnly) {
 		$each($Q('.' + aib.cRPost, dc), function(post, i) {
 			post.setAttribute('de-num', i === 0 ? TNum : aib.getPNum(post));
 		});
-		let files = [];
+		var files = [];
 		$each($Q('link, *[src]', dc), function(el) {
 			if(els.indexOf(el) !== -1) {
 				return;
@@ -3916,11 +3916,11 @@ function loadDocFiles(imgOnly) {
 			name = url.substring(url.lastIndexOf("/") + 1).replace(/[\\\/:*?"<>|]/g, '_')
 				.toLowerCase();
 			if(files.indexOf(name) !== -1) {
-				let temp = url.lastIndexOf('.'),
+				var temp = url.lastIndexOf('.'),
 					ext = url.substring(temp);
 				url = url.substring(0, temp);
 				name = name.substring(0, name.lastIndexOf('.'));
-				for(let i = 0; ; ++i) {
+				for(var i = 0; ; ++i) {
 					temp = name + '(' + i + ')' + ext;
 					if(files.indexOf(temp) === -1) {
 						break;
@@ -3989,13 +3989,13 @@ DateTime.prototype = {
 			return false;
 		}
 		this.rPattern = '';
-		for(let i = 1, len = m.length, j = 0, str = m[0]; i < len; ++i) {
-			let a = m[i],
+		for(var i = 1, len = m.length, j = 0, str = m[0]; i < len; ++i) {
+			var a = m[i],
 				p = this.pattern[i - 2];
 			if((p === 'm' || p === 'y') && a.length > 3) {
 				p = p.toUpperCase();
 			}
-			let k = str.indexOf(a, j);
+			var k = str.indexOf(a, j);
 			this.rPattern += str.substring(j, k) + '_' + p;
 			j = k + a.length;
 		}
@@ -4013,8 +4013,8 @@ DateTime.prototype = {
 		}
 		return txt.replace(new RegExp(this.regex, 'g'), (...args) => {
 			var second, minute, hour, day, month, year, dtime;
-			for(let i = 1; i < 8; i++) {
-				let a = args[i];
+			for(var i = 1; i < 8; i++) {
+				var a = args[i];
 				switch(this.pattern[i - 1]) {
 				case 's': second = a; break;
 				case 'i': minute = a; break;
@@ -4089,7 +4089,7 @@ Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
 		sp = '<span class="de-video-resizer" title="' + Lng.expandVideo[lang] + '"></span>';
 	if(isYtube) {
 		time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
-		let list = m[0].match(/list=[^&#]+/);
+		var list = m[0].match(/list=[^&#]+/);
 		el.innerHTML =
 			'<iframe frameborder="0" allowfullscreen="1" src="https://www.youtube.com/embed/' +
 			id + '?' + (enableJsapi ? 'enablejsapi=1&' : '') +
@@ -4121,11 +4121,11 @@ Videos._getTitlesLoader = function() {
 	return Cfg.YTubeTitles && new TasksPool(4, async(function* (num, info) {
 		var title, author, views, publ, [link, isYtube, videoObj, id] = info;
 		if(isYtube) {
-			let xhr = yield $ajax(aib.prot + '//gdata.youtube.com/feeds/api/videos/' + id +
+			var xhr = yield $ajax(aib.prot + '//gdata.youtube.com/feeds/api/videos/' + id +
 				'?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published', null, false)
 			if(xhr.status === 200) {
 				try {
-					let entry = JSON.parse(xhr.responseText).entry;
+					var entry = JSON.parse(xhr.responseText).entry;
 					title = entry.title.$t;
 					author = entry.author[0].name.$t;
 					views = entry.yt$statistics.viewCount;
@@ -4133,10 +4133,10 @@ Videos._getTitlesLoader = function() {
 				} catch(e) {}
 			}
 		} else {
-			let xhr = yield $ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json', null, false);
+			var xhr = yield $ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json', null, false);
 			if(xhr.status === 200) {
 				try {
-					let entry = JSON.parse(xhr.responseText)[0];
+					var entry = JSON.parse(xhr.responseText)[0];
 					title = entry["title"];
 					author = entry["user_name"];
 					views = entry["stats_number_of_plays"];
@@ -4150,7 +4150,7 @@ Videos._getTitlesLoader = function() {
 			link.classList.add('de-video-title');
 			link.title = Lng.author[lang] + author + ', ' + Lng.views[lang] + views + ', ' +
 				Lng.published[lang] + publ;
-			let data = [title, author, views, publ];
+			var data = [title, author, views, publ];
 			Videos._global.vData[isYtube ? 0 : 1][id] = data;
 			videoObj.vData[isYtube ? 0 : 1].push(data);
 			if(videoObj.titleLoadFn) {
@@ -4219,7 +4219,7 @@ Videos.prototype = {
 					Lng.views[lang] + dataObj[2] + ', ' + Lng.published[lang] + dataObj[3];
 			}
 		} else {
-			let src = isYtube ? aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '')
+			var src = isYtube ? aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '')
 				: aib.prot + '//vimeo.com/' + m[1];
 			this.post.msg.insertAdjacentHTML('beforeend',
 				'<p class="de-video-ext"><a class="de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo') +
@@ -4270,8 +4270,8 @@ Videos.prototype = {
 	},
 	updatePost(oldLinks, newLinks, cloned) {
 		var loader = !cloned && Videos._getTitlesLoader();
-		for(let i = 0, j = 0, len = newLinks.length; i < len; ++i) {
-			let el = newLinks[i],
+		for(var i = 0, j = 0, len = newLinks.length; i < len; ++i) {
+			var el = newLinks[i],
 				link = oldLinks[j];
 			if(link && link.classList.contains('de-current')) {
 				this.currentLink = el;
@@ -4280,7 +4280,7 @@ Videos.prototype = {
 				el.videoInfo = link.videoInfo;
 				j++;
 			} else {
-				let m = el.href.match(Videos.ytReg);
+				var m = el.href.match(Videos.ytReg);
 				if(m) {
 					this.addLink(m, loader, el, true);
 					j++;
@@ -4324,28 +4324,28 @@ VideosParser.prototype = {
 	parse(post = null) {
 		var loader = this._loader,
 			els = $Q('a[href*="youtu"]', post ? post.el : dForm.el);
-		for(let i = 0, len = els.length; i < len; ++i) {
-			let el = els[i],
+		for(var i = 0, len = els.length; i < len; ++i) {
+			var el = els[i],
 				m = el.href.match(Videos.ytReg);
 			if(m) {
-				let mPost = post || (aib.getPostEl(el) || {}).post;
+				var mPost = post || (aib.getPostEl(el) || {}).post;
 				mPost && mPost.videos.addLink(m, loader, el, true);
 			}
 		}
 		if(Cfg.addVimeo) {
 			els = $Q('a[href*="vimeo.com"]', post ? post.el : dForm.el);
-			for(let i = 0, len = els.length; i < len; ++i) {
-				let el = els[i],
+			for(var i = 0, len = els.length; i < len; ++i) {
+				var el = els[i],
 					m = el.href.match(Videos.vimReg);
 				if(m) {
-					let mPost = post || (aib.getPostEl(el) || {}).post;
+					var mPost = post || (aib.getPostEl(el) || {}).post;
 					mPost && mPost.videos.addLink(m, loader, el, false);
 				}
 			}
 		}
 		els = aib.fixVideo(post);
-		for(let i = 0, len = els.length; i < len; ++i) {
-			let [pst, m, isYtube] = els[i];
+		for(var i = 0, len = els.length; i < len; ++i) {
+			var [pst, m, isYtube] = els[i];
 			pst && pst.videos.addLink(m, loader, null, isYtube);
 		}
 		return this;
@@ -4354,13 +4354,13 @@ VideosParser.prototype = {
 
 function embedMediaLinks(post) {
 	if(Cfg.addMP3) {
-		let els = $Q('a[href*=".mp3"]', post ? post.el : dForm.el);
-		for(let i = 0, len = els.length; i < len; ++i) {
-			let link = els[i];
+		var els = $Q('a[href*=".mp3"]', post ? post.el : dForm.el);
+		for(var i = 0, len = els.length; i < len; ++i) {
+			var link = els[i];
 			if(link.target !== '_blank' && link.rel !== 'nofollow') {
 				continue;
 			}
-			let src = link.href,
+			var src = link.href,
 				el = (post || aib.getPostEl(link).post).mp3Obj;
 			if(nav.canPlayMP3) {
 				if(!$q('audio[src="' + src + '"]', el)) {
@@ -4376,9 +4376,9 @@ function embedMediaLinks(post) {
 		}
 	}
 	if(Cfg.addVocaroo) {
-		let els = $Q('a[href*="vocaroo.com"]', post ? post.el : dForm.el);
-		for(let i = 0, len = els.length; i < len; ++i) {
-			let link = els[i],
+		var els = $Q('a[href*="vocaroo.com"]', post ? post.el : dForm.el);
+		for(var i = 0, len = els.length; i < len; ++i) {
+			var link = els[i],
 				src = link.href.split('\/').pop(),
 				el = link.previousSibling;
 			if(!el || el.className !== 'de-vocaroo') {
@@ -4464,8 +4464,8 @@ var loadPages = async(function* (count) {
 		}
 		pr.txta.value = '';
 	}
-	for(let i = pageNum, len = Math.min(aib.lastPage + 1, pageNum + count); i < len; ++i) {
-		let content;
+	for(var i = pageNum, len = Math.min(aib.lastPage + 1, pageNum + count); i < len; ++i) {
+		var content;
 		try {
 			content = replacePost(yield ajaxLoad(aib.getPageUrl(brd, i)));
 		} catch(e) {
@@ -4555,11 +4555,11 @@ Spells.decompileSpell = function(type, neg, val, scope) {
 		if(val === 0x3F) {
 			return spell;
 		}
-		let names = [],
+		var names = [],
 			bits = {1: 'samelines',2: 'samewords', 4: 'longwords', 8: 'symbols',
 			        16: 'capslock', 32: 'numbers', 64: 'whitespace'
 			};
-		for(let bit in bits) {
+		for(var bit in bits) {
 			if(val & +bit) {
 				names.push(bits[bit]);
 			}
@@ -4568,7 +4568,7 @@ Spells.decompileSpell = function(type, neg, val, scope) {
 	}
 	// #num, #tlen
 	else if(type === 15 || type === 11) {
-		let temp_, temp = val[1].length - 1;
+		var temp_, temp = val[1].length - 1;
 		if(temp !== -1) {
 			for(temp_ = []; temp >= 0; --temp) {
 				temp_.push(val[1][temp][0] + '-' + val[1][temp][1]);
@@ -4595,13 +4595,13 @@ Spells.prototype = {
 	_optimizeSpells(spells) {
 		var neg, lastSpell = -1,
 			newSpells = [];
-		for(let i = 0, len = spells.length; i < len; ++i) {
-			let j, spell = spells[i],
+		for(var i = 0, len = spells.length; i < len; ++i) {
+			var j, spell = spells[i],
 				flags = spell[0],
 				type = flags & 0xFF;
 			neg = (flags & 0x100) !== 0;
 			if(type === 0xFF) {
-				let parensSpells = this._optimizeSpells(spell[1]);
+				var parensSpells = this._optimizeSpells(spell[1]);
 				if(parensSpells) {
 					if(parensSpells.length !== 1) {
 						newSpells.push([flags, parensSpells]);
@@ -4617,7 +4617,7 @@ Spells.prototype = {
 					neg = !(neg ^ ((flags & 0x100) !== 0));
 				}
 			} else {
-				let scope = spell[2];
+				var scope = spell[2];
 				if(!scope || (scope[0] === brd &&
 				   (scope[1] === -1 ? !TNum : (!scope[1] || scope[1] === TNum))))
 				{
@@ -4665,14 +4665,14 @@ Spells.prototype = {
 	_decompileScope(scope, indent) {
 		var dScope = [],
 			hScope = false;
-		for(let i = 0, j = 0, len = scope.length; i < len; i++, j++) {
-			let spell = scope[i],
+		for(var i = 0, j = 0, len = scope.length; i < len; i++, j++) {
+			var spell = scope[i],
 				type = spell[0] & 0xFF;
 			if(type === 0xFF) {
 				hScope = true;
-				let temp = this._decompileScope(spell[1], indent + '    ');
+				var temp = this._decompileScope(spell[1], indent + '    ');
 				if(temp[1]) {
-					let str = ((spell[0] & 0x100) ? '!(\n' : '(\n') + indent + '    ' +
+					var str = ((spell[0] & 0x100) ? '!(\n' : '(\n') + indent + '    ' +
 						temp[0].join('\n' + indent + '    ') + '\n' + indent + ')';
 					if(j === 0) {
 						dScope[0] = str;
@@ -4741,7 +4741,7 @@ Spells.prototype = {
 	},
 	_initReps(data) {
 		if(data) {
-			for(let i = data.length - 1; i >= 0; i--) {
+			for(var i = data.length - 1; i >= 0; i--) {
 				data[i][0] = toRegExp(data[i][0], false);
 			}
 		}
@@ -4815,9 +4815,9 @@ Spells.prototype = {
 	},
 	sort(sp) {
 		// Wraps AND-spells with brackets for proper sorting
-		for(let i = 0, len = sp.length-1; i < len; i++) {
+		for(var i = 0, len = sp.length-1; i < len; i++) {
 			if(sp[i][0] > 0x200) {
-				let temp = [0xFF, []];
+				var temp = [0xFF, []];
 				do {
 					temp[1].push(sp.splice(i, 1)[0]);
 					len--;
@@ -4827,7 +4827,7 @@ Spells.prototype = {
 			}
 		}
 		sp = sp.sort();
-		for(let i = 0, len = sp.length - 1; i < len; i++) {
+		for(var i = 0, len = sp.length - 1; i < len; i++) {
 			// Removes duplicates and weaker spells
 			if(sp[i][0] === sp[i+1][0] && sp[i][1] <= sp[i+1][1] && sp[i][1] >= sp[i+1][1] &&
 			  (sp[i][2] === null || // Stronger spell with 3 parameters
@@ -4866,7 +4866,7 @@ Spells.prototype = {
 	setSpells(spells, sync) {
 		this.update(spells, sync, Cfg.hideBySpell);
 		if(Cfg.hideBySpell) {
-			for(let post = dForm.firstThr.op; post; post = post.next) {
+			for(var post = dForm.firstThr.op; post; post = post.next) {
 				this.check(post);
 			}
 			this.end(savePosts);
@@ -4887,7 +4887,7 @@ Spells.prototype = {
 				fn();
 			}
 			if(this._hasComplFns) {
-				for(let i = 0, len = this._completeFns.length; i < len; ++i) {
+				for(var i = 0, len = this._completeFns.length; i < len; ++i) {
 					this._completeFns[i]();
 				}
 				this._completeFns = [];
@@ -4997,8 +4997,8 @@ SpellsCodegen.prototype = {
 			outreps = [],
 			lastType = this.TYPE_UNKNOWN,
 			hasReps = false;
-		for(let i = 0, len = sList.length; i < len; i++, this._col++) {
-			let res;
+		for(var i = 0, len = sList.length; i < len; i++, this._col++) {
+			var res;
 			switch(sList[i]) {
 			case '\n':
 				this._line++;
@@ -5007,7 +5007,7 @@ SpellsCodegen.prototype = {
 			case '\r':
 			case ' ': continue;
 			case '#':
-				let name = '';
+				var name = '';
 				i++;
 				this._col++;
 				while((sList[i] >= 'a' && sList[i] <= 'z') || (sList[i] >= 'A' && sList[i] <= 'Z')) {
@@ -5197,7 +5197,7 @@ SpellsCodegen.prototype = {
 			if(str[0] === ')') {
 				return [regex[0] + scope[0] + 1, [scope[1][0], scope[1][1], regex[1], '']];
 			}
-			let val = this._getText(str, false);
+			var val = this._getText(str, false);
 			if(val) {
 				return [val[0] + regex[0] + scope[0], [scope[1][0], scope[1][1], regex[1], val[1]]];
 			}
@@ -5274,7 +5274,7 @@ SpellsCodegen.prototype = {
 			if(m) {
 				m[1].split(/, */).forEach(function(v) {
 					if(v.contains('-')) {
-						let nums = v.split('-');
+						var nums = v.split('-');
 						nums[0] = +nums[0];
 						nums[1] = +nums[1];
 						this[1].push(nums);
@@ -5327,7 +5327,7 @@ SpellsInterpreter.prototype = {
 			len = this._ctx.pop();
 		while(true) {
 			if(i < len) {
-				let type = scope[i][0] & 0xFF;
+				var type = scope[i][0] & 0xFF;
 				if(type === 0xFF) {
 					this._deep++;
 					this._ctx.push(len, scope, i);
@@ -5336,7 +5336,7 @@ SpellsInterpreter.prototype = {
 					i = 0;
 					continue;
 				}
-				let val = this._runSpell(type, scope[i][1]);
+				var val = this._runSpell(type, scope[i][1]);
 				if(val instanceof Promise) {
 					val.then(this._asyncContinue);
 					this._ctx.push(len, scope, i, scope[i][0]);
@@ -5466,7 +5466,7 @@ SpellsInterpreter.prototype = {
 			if(!(image instanceof Attachment)) {
 				continue;
 			}
-			let hash = image.hash !== null ? image.hash : yield image.getHash();
+			var hash = image.hash !== null ? image.hash : yield image.getHash();
 			if(hash === val) {
 				return true;
 			}
@@ -5491,12 +5491,12 @@ SpellsInterpreter.prototype = {
 		if(!val) {
 			return images.hasAttachments;
 		}
-		for(let image of images) {
+		for(var image of images) {
 			if(!(image instanceof Attachment)) {
 				continue;
 			}
 			if(weightVals) {
-				let w = image.weight;
+				var w = image.weight;
 				switch(compareRule) {
 				case 0: hide = w >= weightVals[0] && w <= weightVals[1]; break;
 				case 1: hide = w < weightVals[0]; break;
@@ -5509,7 +5509,7 @@ SpellsInterpreter.prototype = {
 				}
 			}
 			if(sizeVals) {
-				let w = image.width,
+				var w = image.width,
 					h = image.height;
 				switch(compareRule) {
 				case 0:
@@ -5554,9 +5554,9 @@ SpellsInterpreter.prototype = {
 			arr = txt.replace(/>/g, '').split(/\s*\n\s*/);
 			if((len = arr.length) > 5) {
 				arr.sort();
-				for(let i = 0, n = len / 4; i < len;) {
+				for(var i = 0, n = len / 4; i < len;) {
 					x = arr[i];
-					let j = 0;
+					var j = 0;
 					while(arr[i++] === x) {
 						j++;
 					}
@@ -5572,10 +5572,10 @@ SpellsInterpreter.prototype = {
 			arr = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' ');
 			if((len = arr.length) > 3) {
 				arr.sort();
-				let keys = 0;
-				for(let i = 0, n = len / 4, pop = 0; i < len; keys++) {
+				var keys = 0;
+				for(var i = 0, n = len / 4, pop = 0; i < len; keys++) {
 					x = arr[i];
-					let j = 0;
+					var j = 0;
 					while(arr[i++] === x) {
 						j++;
 					}
@@ -5606,7 +5606,7 @@ SpellsInterpreter.prototype = {
 		}
 		// (1 << 3): symbols
 		if(val & 8) {
-			let _txt = txt.replace(/\s+/g, '');
+			var _txt = txt.replace(/\s+/g, '');
 			if((len = _txt.length) > 30 &&
 			   (x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
 			{
@@ -5618,10 +5618,10 @@ SpellsInterpreter.prototype = {
 		if(val & 16) {
 			arr = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
 			if((len = arr.length) > 4) {
-				let n = 0,
+				var n = 0,
 					capsw = 0,
 					casew = 0;
-				for(let i = 0; i < len; i++) {
+				for(var i = 0; i < len; i++) {
 					x = arr[i];
 					if((x.match(/[a-zа-я]/ig) || []).length < 5) {
 						continue;
@@ -5645,7 +5645,7 @@ SpellsInterpreter.prototype = {
 		}
 		// (1 << 5): numbers
 		if(val & 32) {
-			let _txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
+			var _txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
 			if((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > 0.4) {
 				this._wipeMsg = 'numbers: ' + Math.round(x * 100) + '%';
 				return true;
@@ -5688,8 +5688,8 @@ SpellsInterpreter.prototype = {
 		if(!videos.hasLinks || !Cfg.YTubeTitles) {
 			return false;
 		}
-		for(let siteData of videos.vData) {
-			for(let data of siteData) {
+		for(var siteData of videos.vData) {
+			for(var data of siteData) {
 				if(isAuthorSpell ? val === data[1] : val.test(data[0])) {
 					return true;
 				}
@@ -5716,7 +5716,7 @@ SpellsInterpreter.prototype = {
 function disableSpells() {
 	if(spells.enable) {
 		sVis = TNum ? '1'.repeat(dForm.firstThr.pcount).split('') : [];
-		for(let post = dForm.firstThr.op; post; post = post.next) {
+		for(var post = dForm.firstThr.op; post; post = post.next) {
 			if(post.spellHidden && !post.userToggled) {
 				post.spellUnhide();
 			}
@@ -5756,7 +5756,7 @@ function addSpell(type, arg, isNeg) {
 		val = spells.list;
 		saveCfg('hideBySpell', !!val);
 		if(val) {
-			for(let post = dForm.firstThr.op; post; post = post.next) {
+			for(var post = dForm.firstThr.op; post; post = post.next) {
 				spells.check(post);
 			}
 			spells.end(savePosts);
@@ -5872,7 +5872,7 @@ PostForm.prototype = {
 		id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub', 'quote'],
 		val = ['B', 'i', 'U', 'S', '%', 'C', 'v', '^', '&gt;']
 		btns = aib.markupTags;
-		for(let i = 0, len = btns.length; i < len; ++i) {
+		for(var i = 0, len = btns.length; i < len; ++i) {
 			if(btns[i] === '') {
 				continue;
 			}
@@ -5895,8 +5895,8 @@ PostForm.prototype = {
 	eventFiles(clear) {
 		var last = null,
 			els = $Q('input[type="file"]', this.fileTd);
-		for(let i = 0, len = els.length; i < len; ++i) {
-			let el = els[i],
+		for(var i = 0, len = els.length; i < len; ++i) {
+			var el = els[i],
 				inp = el.obj;
 			if(inp) {
 				inp.prev = last;
@@ -5921,7 +5921,7 @@ PostForm.prototype = {
 		}
 		id = el.id;
 		if(id.startsWith('de-btn')) {
-			let x;
+			var x;
 			if(e.type === 'mouseover') {
 				if(id === 'de-btn-quote') {
 					quotetxt = $txtSelect();
@@ -5940,13 +5940,13 @@ PostForm.prototype = {
 				return;
 			}
 			x = pr.txta;
-			let start = x.selectionStart,
+			var start = x.selectionStart,
 				end = x.selectionEnd;
 			if(id === 'de-btn-quote') {
 				$txtInsert(x, '> ' + (start === end ? quotetxt : x.value.substring(start, end))
 					.replace(/\n/gm, '\n> '));
 			} else {
-				let scrtop = x.scrollTop,
+				var scrtop = x.scrollTop,
 					val = this._wrapText(aib.markupBB, el.getAttribute('de-tag'), x.value.substring(start, end)),
 					len = start + val[0];
 				x.value = x.value.substr(0, start) + val[1] + x.value.substr(end);
@@ -5960,7 +5960,7 @@ PostForm.prototype = {
 	},
 	get isVisible() {
 		if(!this.isHidden && this.isBottom && $q(':focus', this.pForm)) {
-			let cr = this.pForm.getBoundingClientRect();
+			var cr = this.pForm.getBoundingClientRect();
 			return cr.bottom > 0 && cr.top < doc.documentElement.clientHeight;
 		}
 		return false;
@@ -6062,11 +6062,11 @@ PostForm.prototype = {
 			if(!this.cap || (aib.krau && !$q('input[name="captcha_name"]', this.form).hasAttribute('value'))) {
 				return;
 			}
-			let img = this.recap ? $id('recaptcha_image') : $t('img', this.capTr);
+			var img = this.recap ? $id('recaptcha_image') : $t('img', this.capTr);
 			if(aib.dobr || aib.krau || aib.dvachnet || this.recap) {
 				img.click();
 			} else if(img) {
-				let src = img.getAttribute('src');
+				var src = img.getAttribute('src');
 				if(aib.tire) {
 					src = '/' + brd + '/captcha.fpl?' + Math.random();
 				} else if(aib.kus || aib.tinyIb) {
@@ -6171,7 +6171,7 @@ PostForm.prototype = {
 					$pd(e);
 					return;
 				case 'mousemove':
-					let maxX = Post.sizing.wWidth - this._el.offsetWidth,
+					var maxX = Post.sizing.wWidth - this._el.offsetWidth,
 						maxY = Post.sizing.wHeight - this._el.offsetHeight - 25,
 						cr = this._el.getBoundingClientRect(),
 						x = cr.left + curX - this._oldX,
@@ -6246,7 +6246,7 @@ PostForm.prototype = {
 						$pd(e);
 						return;
 					case 'mousemove':
-						let cr = this._el.getBoundingClientRect();
+						var cr = this._el.getBoundingClientRect();
 						this._elStyle.width = (e.clientX - cr.left) + 'px';
 						this._elStyle.height = (e.clientY - cr.top) + 'px';
 						return;
@@ -6344,7 +6344,7 @@ PostForm.prototype = {
 				val = spells.outReplace(val);
 			}
 			if(this.tNum && pByNum[this.tNum].subj === 'Dollchan Extension Tools') {
-				let temp = '\n\n' + this._wrapText(aib.markupBB, aib.markupTags[5],
+				var temp = '\n\n' + this._wrapText(aib.markupBB, aib.markupTags[5],
 					'-'.repeat(50) + '\n' + nav.ua + '\nv' + version + ' [' + nav.scriptInstall + ']')[1];
 				if(!val.contains(temp)) {
 					val += temp;
@@ -6551,7 +6551,7 @@ PostForm.prototype = {
 	_wrapText(markupBB, tag, text) {
 		var m;
 		if(markupBB) {
-			let str;
+			var str;
 			if(text.contains('\n')) {
 				str = '[' + tag + ']' + text + '[/' + tag + ']';
 				return [str.length, str];
@@ -6562,7 +6562,7 @@ PostForm.prototype = {
 		}
 		var rv = '', i = 0,
 			arr = text.split('\n');
-		for(let len = arr.length; i < len; ++i) {
+		for(var len = arr.length; i < len; ++i) {
 			m = arr[i].match(/^(\s*)(.*?)(\s*)$/);
 			rv += '\n' + m[1] + (tag === '^H' ? m[2] + '^H'.repeat(m[2].length) : tag + m[2] + tag) + m[3];
 		}
@@ -6672,7 +6672,7 @@ FileInput.prototype = {
 			while(inp.prev && inp.prev.empty) {
 				inp = inp.prev;
 			}
-			let hideThumbs = Cfg.fileThumb;
+			var hideThumbs = Cfg.fileThumb;
 			while((inp = inp.next)) {
 				if(hideThumbs) {
 					inp.thumb.style.display = 'none';
@@ -6730,7 +6730,7 @@ FileInput.prototype = {
 			$del(this._rjUtil);
 			this._buttonsPlace.insertAdjacentHTML('afterend',
 				'<span><span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
-			let myRjUtil = this._rjUtil = this._buttonsPlace.nextSibling,
+			var myRjUtil = this._rjUtil = this._buttonsPlace.nextSibling,
 				file = e.target.files[0];
 			readFileArrayBuffer(file).then(val => {
 				if(this._rjUtil === myRjUtil) {
@@ -6889,8 +6889,8 @@ function getSubmitError(dc) {
 				return Lng.error[lang] + ':\n' + JSON.parse(dc.body.innerHTML)['Reason'];
 			} catch(e) {}
 		}
-		let els = $Q(aib.qError, dc);
-		for(let i = 0, len = els.length; i < len; ++i) {
+		var els = $Q(aib.qError, dc);
+		for(var i = 0, len = els.length; i < len; ++i) {
 			err += els[i].innerHTML + '\n';
 		}
 		err = err.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
@@ -6910,7 +6910,7 @@ var doUploading = async(function* (getProgress) {
 		totalEl = counterEl.nextElementSibling,
 		speedEl = totalEl.nextElementSibling;
 	while((p = getProgress())) {
-		let val;
+		var val;
 		try {
 			val = yield p;
 		} catch(e) {
@@ -6922,14 +6922,14 @@ var doUploading = async(function* (getProgress) {
 			return;
 		}
 		if(!inited) {
-			let total = val.data.total;
+			var total = val.data.total;
 			progress.setAttribute('max', total);
 			progress.style.display = '';
 			totalEl.textContent = prettifySize(total);
 			counterWrap.style.display = '';
 			inited = true;
 		}
-		let loaded = val.data.loaded;
+		var loaded = val.data.loaded;
 		progress.value = loaded;
 		counterEl.textContent = prettifySize(loaded);
 		speedEl.textContent = prettifySize((loaded / (Date.now() - beginTime)) * 1e3) + '/' + Lng.second[lang];
@@ -7009,9 +7009,9 @@ var checkDelete = async(function* (dc) {
 		updater.sendErrNotif();
 		return;
 	}
-	let [num] = doc.location.hash.match(/\d+/) || [];
+	var [num] = doc.location.hash.match(/\d+/) || [];
 	if(num) {
-		let post = pByNum[num];
+		var post = pByNum[num];
 		if(post) {
 			if(!post.isOp) {
 				post.el.className = aib.cReply;
@@ -7021,8 +7021,8 @@ var checkDelete = async(function* (dc) {
 	}
 	var els = $Q('.' + aib.cRPost + ' input:checked', dForm.el),
 		threads = new Set();
-	for(let i = 0, len = els.length; i < len; ++i) {
-		let el = els[i];
+	for(var i = 0, len = els.length; i < len; ++i) {
+		var el = els[i];
 		el.checked = false;
 		if(!TNum) {
 			threads.add(aib.getPostEl(el).post.thr);
@@ -7036,7 +7036,7 @@ var checkDelete = async(function* (dc) {
 			infoLoadErrors(e);
 		}
 	} else {
-		for(let thr of threads) {
+		for(var thr of threads) {
 			yield thr.load(visPosts, false, false);
 		}
 	}
@@ -7045,14 +7045,14 @@ var checkDelete = async(function* (dc) {
 
 function* html5Submit(form, needProgress = false) {
 	var formData = new FormData();
-	for(let {name, value, type, el} of getFormElements(form)) {
+	for(var {name, value, type, el} of getFormElements(form)) {
 		if(type === 'file') {
-			let fileName = value.name,
+			var fileName = value.name,
 				newFileName = Cfg.removeFName ? fileName.substring(fileName.lastIndexOf('.')) : fileName;
 			if(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) &&
 			   (Cfg.postSameImg || Cfg.removeEXIF))
 			{
-				let data = cleanFile((yield readFileArrayBuffer(value)), el.obj.imgFile);
+				var data = cleanFile((yield readFileArrayBuffer(value)), el.obj.imgFile);
 				if(!data) {
 					return Promise.reject(Lng.fileCorrupt[lang] + fileName);
 				}
@@ -7064,7 +7064,7 @@ function* html5Submit(form, needProgress = false) {
 		formData.append(name, value);
 	}
 	if(needProgress) {
-		let lastFuncs = null,
+		var lastFuncs = null,
 			promises = [new Promise((resolve, reject) => lastFuncs = {resolve, reject})];
 		$ajax(form.action, {method: 'POST', data: formData, onprogress: e => {
 			lastFuncs.resolve({ done: false, data: {loaded: e.loaded, total: e.total} });
@@ -7078,7 +7078,7 @@ function* html5Submit(form, needProgress = false) {
 		});
 		return () => promises.splice(0, 1)[0];
 	} else {
-		let xhr = yield $ajax(form.action, {method: 'POST', data: formData});
+		var xhr = yield $ajax(form.action, {method: 'POST', data: formData});
 		if(xhr.status === 200) {
 			return $DOM(xhr.responseText);
 		}
@@ -7105,7 +7105,7 @@ function cleanFile(data, extraData) {
 	}
 	// JPG
 	if(img[0] === 0xFF && img[1] === 0xD8) {
-		let deep = 1; 
+		var deep = 1; 
 		for(i = 2, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len; ) {
 			if(img[i] === 0xFF) {
 				if(rExif) {
@@ -7188,8 +7188,8 @@ function readExif(data, off, len) {
 	if(i > len) {
 		return null;
 	}
-	for(let j = 0, tgLen = dv.getUint16(i, le); j < tgLen; j++) {
-		let dE = i + 2 + 12 * j,
+	for(var j = 0, tgLen = dv.getUint16(i, le); j < tgLen; j++) {
+		var dE = i + 2 + 12 * j,
 			tag = dv.getUint16(dE, le);
 		if(tag === 0x0128) {
 			resT = dv.getUint16(dE + 8, le) - 1;
@@ -7337,7 +7337,7 @@ function genImgHash(data) {
 		oldw = data[1],
 		oldh = data[2],
 		size = oldw * oldh;
-	for(let i = 0, j = 0; i < size; i++, j += 4) {
+	for(var i = 0, j = 0; i < size; i++, j += 4) {
 		buf[i] = buf[j] * 0.3 + buf[j + 1] * 0.59 + buf[j + 2] * 0.11;
 	}
 	var newh = 8,
@@ -7346,19 +7346,19 @@ function genImgHash(data) {
 		areas = 256 / levels,
 		values = 256 / (levels - 1),
 		hash = 0;
-	for(let i = 0; i < newh; i++) {
-		for(let j = 0; j < neww; j++) {
-			let tmp = i / (newh - 1) * (oldh - 1),
+	for(var i = 0; i < newh; i++) {
+		for(var j = 0; j < neww; j++) {
+			var tmp = i / (newh - 1) * (oldh - 1),
 				l = Math.min(tmp | 0, oldh - 2),
 				u = tmp - l;
 			tmp = j / (neww - 1) * (oldw - 1);
-			let c = Math.min(tmp | 0, oldw - 2),
+			var c = Math.min(tmp | 0, oldw - 2),
 				t = tmp - c;
 			hash = (hash << 4) + Math.min(values * (((buf[l * oldw + c] * ((1 - t) * (1 - u)) +
 				buf[l * oldw + c + 1] * (t * (1 - u)) +
 				buf[(l + 1) * oldw + c + 1] * (t * u) +
 				buf[(l + 1) * oldw + c] * ((1 - t) * u)) / areas) | 0), 255);
-			let g = hash & 0xF0000000;
+			var g = hash & 0xF0000000;
 			if(g) {
 				hash ^= g >>> 24;
 			}
@@ -7383,7 +7383,7 @@ ImgBtnsShowHider.prototype = {
 	handleEvent(e) {
 		switch(e.type) {
 		case 'mousemove':
-			let curX = e.clientX,
+			var curX = e.clientX,
 				curY = e.clientY;
 			if(this._oldX !== curX || this._oldY !== curY) {
 				this._oldX = curX;
@@ -7464,7 +7464,7 @@ AttachmentViewer.prototype = {
 			doc.body.addEventListener('mouseup', this, true);
 			break;
 		case 'mousemove':
-			let curX = e.clientX,
+			var curX = e.clientX,
 				curY = e.clientY;
 			if(curX !== this._oldX || curY !== this._oldY) {
 				this._elStyle.left = (this._oldL = parseInt(this._elStyle.left, 10) + curX - this._oldX) + 'px';
@@ -7497,7 +7497,7 @@ AttachmentViewer.prototype = {
 			isOverEvent = true;
 			/* falls through */
 		case 'mouseout':
-			let temp = e.relatedTarget;
+			var temp = e.relatedTarget;
 			if(!temp || (temp !== this._obj && !this._obj.contains(temp))) {
 				if(isOverEvent) {
 					Pview.mouseEnter(this.data.post);
@@ -7590,7 +7590,7 @@ AttachmentViewer.prototype = {
 			width = delta < 0 ? oldW * this._zoomFactor : oldW / this._zoomFactor,
 			height = delta < 0 ? oldH * this._zoomFactor : oldH / this._zoomFactor;
 		if(delta > 0) {
-			let size = resizeImage([width, height, this._ar], this._minSize, this._maxSize);
+			var size = resizeImage([width, height, this._ar], this._minSize, this._maxSize);
 			width = size[0];
 			height = size[1];
 		}
@@ -7705,7 +7705,7 @@ IAttachmentData.prototype = {
 			if(inPost) {
 				maxSize = [Post.sizing.wWidth - this._offset - 3, Number.MAX_SAFE_INTEGER, 0];
 			} else {
-				let maxWidth = Post.sizing.wWidth - 2,
+				var maxWidth = Post.sizing.wWidth - 2,
 					maxHeight = Post.sizing.wHeight - 2;
 				maxSize = [maxWidth, maxHeight, maxWidth / maxHeight];
 			}
@@ -7908,7 +7908,7 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 	weight: { configurable: true, get() {
 		var val = 0;
 		if(this.info) {
-			let w = this.info.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
+			var w = this.info.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
 			val = w[2] === 'M' ? (w[1] * 1e3) | 0 : !w[2] ? Math.round(w[1] / 1e3) : w[1];
 		}
 		Object.defineProperty(this, 'weight', { value: val });
@@ -7923,7 +7923,7 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 			if(this.hash !== null) {
 				resolve(this.hash);
 			} else {
-				let runWorker = (data, transferObj) => {
+				var runWorker = (data, transferObj) => {
 					this._glob.workers.run(data, [data[0]], data => {
 						resolve(this.hash = data.hash);
 					});
@@ -7940,7 +7940,7 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 				} else if(this.el.naturalWidth + this.el.naturalHeight === 0) {
 					resolve(this.hash = -1);
 				} else {
-					let data = this.data;
+					var data = this.data;
 					runWorker(data, [data[0]]);
 				}
 			}
@@ -7994,7 +7994,7 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 	} },
 	_getImageSize: { value() {
 		if(this.info) {
-			let size = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
+			var size = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
 			return [size[1], size[2]];
 		}
 		return [-1, -1];
@@ -8009,7 +8009,7 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 
 function addImagesSearch(el) {
 	for(var i = 0, els = $Q(aib.qImgLink, el), len = els.length; i < len; i++) {
-		let link = els[i];
+		var link = els[i];
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
 			continue;
@@ -8023,11 +8023,11 @@ function addImagesSearch(el) {
 
 function embedImagesLinks(el) {
 	for(var i = 0, els = $Q(aib.qMsgImgLink, el), len = els.length; i < len; ++i) {
-		let link = els[i];
+		var link = els[i];
 		if(link.parentNode.tagName === 'SMALL') {
 			return;
 		}
-		let a = link.cloneNode(false);
+		var a = link.cloneNode(false);
 		a.target = '_blank';
 		a.innerHTML = '<img class="de-img-pre" src="' + a.href + '">';
 		$before(link, a);
@@ -8094,7 +8094,7 @@ Post.findSameText = function(oNum, oHid, oWords, date, post) {
 			_olen--;
 			continue;
 		}
-		let j = len;
+		var j = len;
 		while(j--) {
 			if(words[j] === oWords[i] || oWords[i].match(/>>\d+/) && words[j].match(/>>\d+/)) {
 				n++;
@@ -8226,7 +8226,7 @@ Post.prototype = {
 			case 'IMG':
 				if(el.classList.contains('de-video-thumb')) {
 					if(Cfg.addYouTube === 3) {
-						let vObject = this.videos;
+						var vObject = this.videos;
 						vObject.currentLink.classList.add('de-current');
 						vObject.addPlayer(vObject.playerInfo, el.classList.contains('de-ytube'));
 						$pd(e);
@@ -8506,7 +8506,7 @@ Post.prototype = {
 		}
 		if(this.isOp) {
 			this.hidden = this.thr.hidden = hide;
-			let el = $id('de-thr-hid-' + this.num),
+			var el = $id('de-thr-hid-' + this.num),
 				tEl = this.thr.el;
 			tEl.style.display = hide ? 'none' : '';
 			if(el) {
@@ -8638,7 +8638,7 @@ Post.prototype = {
 	},
 	unselect() {
 		if(this.isOp) {
-			let el = $id('de-thr-hid-' + this.num);
+			var el = $id('de-thr-hid-' + this.num);
 			el && el.classList.remove('de-selected');
 			this.thr.el.classList.remove('de-selected');
 		} else {
@@ -8860,7 +8860,7 @@ Post.prototype = {
 				hidden = this.hidden,
 				wrds = Post.getWrds(this.text),
 				time = Date.now();
-			for(let post = dForm.firstThr.op; post; post = post.next) {
+			for(var post = dForm.firstThr.op; post; post = post.next) {
 				Post.findSameText(num, hidden, wrds, time, post);
 			}
 			saveUserPosts();
@@ -8904,8 +8904,8 @@ Post.prototype = {
 				this.updateMsg(replacePost($q(aib.qMsg, form)));
 				$del(node);
 			} else {
-				let els = aib.getPosts(form);
-				for(let i = 0, len = els.length; i < len; i++) {
+				var els = aib.getPosts(form);
+				for(var i = 0, len = els.length; i < len; i++) {
 					if(this.num === aib.getPNum(els[i])) {
 						this.updateMsg(replacePost($q(aib.qMsg, els[i])));
 						$del(node);
@@ -8927,7 +8927,7 @@ Post.prototype = {
 		if(isHide) {
 			Post.hiddenNums.push(+num);
 		} else {
-			let idx = Post.hiddenNums.indexOf(+num);
+			var idx = Post.hiddenNums.indexOf(+num);
 			if(idx !== -1) {
 				Post.hiddenNums.splice(idx, 1);
 			}
@@ -8935,7 +8935,7 @@ Post.prototype = {
 		$each($Q('a[href*="#' + num + '"]', dForm.el), isHide ? function(el) {
 			el.classList.add('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-				let refmap = el.parentNode;
+				var refmap = el.parentNode;
 				if(!$q('.de-link-ref:not(.de-link-hid)', refmap)) {
 					refmap.style.display = 'none';
 				}
@@ -8943,7 +8943,7 @@ Post.prototype = {
 		} : function(el) {
 			el.classList.remove('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-				let refmap = el.parentNode;
+				var refmap = el.parentNode;
 				if($q('.de-link-ref:not(.de-link-hid)', refmap)) {
 					refmap.style.display = '';
 				}
@@ -9023,8 +9023,8 @@ function PostImages(post) {
 		data = [],
 		hasAttachments = false,
 		idx = 0;
-	for(let i = 0, len = els.length; i < len; ++i, ++idx) {
-		let el = els[i],
+	for(var i = 0, len = els.length; i < len; ++i, ++idx) {
+		var el = els[i],
 			obj = new Attachment(post, el, idx);
 		filesMap.set(el, obj);
 		data.push(obj);
@@ -9032,8 +9032,8 @@ function PostImages(post) {
 	}
 	if(Cfg.addImgs) {
 		els = aProto.slice.call($C('de-img-pre', post.el));
-		for(let i = 0, len = els.length; i < len; ++i, ++idx) {
-			let el = els[i],
+		for(var i = 0, len = els.length; i < len; ++i, ++idx) {
+			var el = els[i],
 				obj = new EmbeddedImage(post, el, idx);
 			filesMap.set(el, obj);
 			data.push(obj);
@@ -9050,7 +9050,7 @@ PostImages.prototype = {
 	},
 	get firstAttach() {
 		for(var i = 0; i < this.length; ++i) {
-			let obj = this.data[i];
+			var obj = this.data[i];
 			if(obj instanceof Attachment) {
 				return obj;
 			}
@@ -9112,7 +9112,7 @@ Pview.del = function(pv) {
 			Attachment.viewer.close(null);
 			Attachment.viewer = vPost = null;
 		}
-		let el = pv.el;
+		var el = pv.el;
 		if(Cfg.animation) {
 			nav.animEvent(el, $del);
 			el.classList.add('de-pview-anim');
@@ -9176,7 +9176,7 @@ Pview.prototype = Object.create(Post.prototype, {
 			cache = this._cache[b + this.tNum] = new PviewsCache(form, b, this.tNum),
 			post = cache.getPost(this.num);
 		if(post && (brd !== b || !post.hasRef || post.ref.indexOf(parentNum) === -1)) {
-			let rm;
+			var rm;
 			if(post.hasRef) {
 				rm = $c('de-refmap', post.el);
 			} else {
@@ -9214,7 +9214,7 @@ Pview.prototype = Object.create(Post.prototype, {
 		this._pref = $q(aib.qRef, el);
 		this._link.classList.add('de-link-parent');
 		if(post.inited) {
-			let node = $c('de-post-btns', el);
+			var node = $c('de-post-btns', el);
 			this.btns = node;
 			this.isOp = post.isOp;
 			node.classList.remove('de-post-counter');
@@ -9302,8 +9302,8 @@ function PviewsCache(form, b, tNum) {
 		pProto = Post.prototype,
 		thr = $q(aib.qThread, form) || form,
 		posts = aib.getPosts(thr);
-	for(let i = 0, len = posts.length; i < len; ++i) {
-		let post = posts[i];
+	for(var i = 0, len = posts.length; i < len; ++i) {
+		var post = posts[i];
 		pBn[aib.getPNum(post)] = Object.create(pProto, {
 			count: { value: i + 1 },
 			el: { value: post, writable: true },
@@ -9348,11 +9348,11 @@ PviewsCache.prototype = {
 		op.el = replacePost(aib.getOp(this._thr));
 		op.msg = $q(aib.qMsg, op.el);
 		if(this._brd === brd && (oOp = pByNum[this._tNum])) {
-			let i, j, len, rRef = [],
+			var i, j, len, rRef = [],
 				oRef = op.ref,
 				nRef = oOp.ref;
 			for(i = j = 0, len = nRef.length; j < len; ++j) {
-				let num = nRef[j];
+				var num = nRef[j];
 				if(oRef[i] === num) {
 					i++;
 				} else if(oRef.indexOf(num) !== -1) {
@@ -9433,8 +9433,8 @@ function addRefMap(post, tUrl) {
 		strNums = Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
 		html = ['<div class="de-refmap">'],
 		el = post.ref;
-	for(let i = 0, len = el.length; i < len; ++i) {
-		let num = el[i];
+	for(var i = 0, len = el.length; i < len; ++i) {
+		var num = el[i];
 		html.push(bStr, num, '" class="de-link-ref ',
 			(strNums && strNums.indexOf(+num) !== -1 ? 'de-link-hid' : ''),
 			'">&gt;&gt;', num, '</a><span class="de-refcomma">, </span>');
@@ -9452,12 +9452,12 @@ function addRefMap(post, tUrl) {
 
 function genRefMap(posts, thrURL) {
 	var opNums = dForm.tNums;
-	for(let pNum in posts) {
-		let links = $T('a', posts[pNum].msg);
-		for(let i = 0, len = links.length; i < len; ++i) {
-			let lNum, tc = links[i].textContent;
+	for(var pNum in posts) {
+		var links = $T('a', posts[pNum].msg);
+		for(var i = 0, len = links.length; i < len; ++i) {
+			var lNum, tc = links[i].textContent;
 			if(tc[0] === '>' && tc[1] === '>' && (lNum = +tc.substr(2)) && (lNum in posts)) {
-				let post = posts[lNum],
+				var post = posts[lNum],
 					ref = post.ref;
 				if(ref.indexOf(pNum) === -1) {
 					ref.push(pNum);
@@ -9467,7 +9467,7 @@ function genRefMap(posts, thrURL) {
 					links[i].classList.add('de-ref-op');
 				}
 				if(thrURL) {
-					let url = links[i].getAttribute('href');
+					var url = links[i].getAttribute('href');
 					if(url[0] === '#') {
 						links[i].setAttribute('href', thrURL + url);
 					}
@@ -9482,11 +9482,11 @@ function updRefMap(post, add) {
 		links = $T('a', post.msg),
 		strNums = add && Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
 		opNums = add && dForm.tNums;
-	for(let i = 0, len = links.length; i < len; ++i) {
-		let lNum, link = links[i],
+	for(var i = 0, len = links.length; i < len; ++i) {
+		var lNum, link = links[i],
 			tc = link.textContent;
 		if(tc[0] === '>' && tc[1] === '>' && (lNum = +tc.substr(2)) && (lNum in pByNum)) {
-			let lPost = pByNum[lNum];
+			var lPost = pByNum[lNum];
 			if(!TNum) {
 				link.href = '#' + (aib.fch ? 'p' : '') + lNum;
 			}
@@ -9511,7 +9511,7 @@ function updRefMap(post, add) {
 					continue;
 				}
 			} else if(lPost.hasRef) {
-				let ref = lPost.ref,
+				var ref = lPost.ref,
 					idx = ref.indexOf(pNum);
 				if(idx === -1) {
 					continue;
@@ -9548,8 +9548,8 @@ function Thread(el, prev, isLight) {
 	var lastPost = this.op = el.post = new Post(aib.getOp(el), this, num, 0, true,
 		prev ? prev.last : null, isLight);
 	pByNum[num] = lastPost;
-	for(let i = 0; i < len; i++) {
-		let pEl = els[i];
+	for(var i = 0; i < len; i++) {
+		var pEl = els[i];
 		num = aib.getPNum(pEl);
 		pByNum[num] = lastPost = new Post(pEl, this, num, omt + i, false, lastPost, isLight);
 	}
@@ -9562,7 +9562,7 @@ function Thread(el, prev, isLight) {
 	el.setAttribute('de-thread', null);
 	visPosts = Math.max(visPosts, len);
 	if(aib._420 || aib.tiny) {
-		let temp = el.lastChild;
+		var temp = el.lastChild;
 		if(temp !== this.op.el) {
 			$after(el, temp);
 		}
@@ -9633,7 +9633,7 @@ Thread.prototype = {
 		if(!spells.hasNumSpell) {
 			sVis.splice(post.count, count);
 		}
-		for(let tPost = post; tPost; tPost = tPost.nextInThread) {
+		for(var tPost = post; tPost; tPost = tPost.nextInThread) {
 			tPost.count -= count;
 		}
 		this.pcount -= count;
@@ -9696,7 +9696,7 @@ Thread.prototype = {
 	},
 	loadNew: async(function* (useAPI) {
 		if(aib.dobr && useAPI) {
-			let json = yield getJsonPosts('/api/thread/' + brd + '/' + TNum + '.json');
+			var json = yield getJsonPosts('/api/thread/' + brd + '/' + TNum + '.json');
 			if(!json) {
 				return 0;
 			}
@@ -9736,7 +9736,7 @@ Thread.prototype = {
 		this.setFavBtn(val);
 		readFav().then(fav => {
 			if(val) {
-				let f = fav[aib.host];
+				var f = fav[aib.host];
 				!f && (f = {});
 				!f[brd] && (f[brd] = {});
 				f[brd].url = aib.prot + '//' + aib.host + aib.getPageUrl(brd, 0);
@@ -9756,7 +9756,7 @@ Thread.prototype = {
 		var date = Date.now(),
 			thr = this;
 		do {
-			let realHid = thr.num in data;
+			var realHid = thr.num in data;
 			if(thr.hidden ^ realHid) {
 				if(realHid) {
 					thr.op.setUserVisib(true, date, false);
@@ -9809,8 +9809,8 @@ Thread.prototype = {
 			return;
 		}
 		var bEls = $Q(aib.qBan, thrNode);
-		for(let i = 0, len = bEls.length; i < len; ++i) {
-			let bEl = bEls[i],
+		for(var i = 0, len = bEls.length; i < len; ++i) {
+			var bEl = bEls[i],
 				pEl = aib.getPostEl(bEl),
 				post = pEl ? pByNum[aib.getPNum(pEl)] : op;
 			if(post && !post.banned) {
@@ -9840,10 +9840,10 @@ Thread.prototype = {
 		if(aib.dobr || (post.count !== 0 &&
 		   (post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)))
 		{
-			let firstChangedPost = null;
+			var firstChangedPost = null;
 			vParser = new VideosParser();
 			post = this.op.nextNotDeleted;
-			let i;
+			var i;
 			for(i = post.count - 1; i < len && post; ) {
 				if(post.num === aib.getPNum(nPosts[i])) {
 					i++;
@@ -9854,19 +9854,19 @@ Thread.prototype = {
 					if(!firstChangedPost) {
 						firstChangedPost = post.prev;
 					}
-					let cnt = 0;
+					var cnt = 0;
 					do {
 						cnt++;
 						i++;
 					} while(+aib.getPNum(nPosts[i]) < +post.num);
-					let res = this._importPosts(post.prev, nPosts, i - cnt, i, vParser);
+					var res = this._importPosts(post.prev, nPosts, i - cnt, i, vParser);
 					newPosts += res[0];
 					this.pcount += res[0];
 					newVisPosts += res[1];
 					$after(post.prev.wrap, res[2]);
 					res[3].next = post;
 					post.prev = res[3];
-					for(let temp = post; temp; temp = temp.nextInThread) {
+					for(var temp = post; temp; temp = temp.nextInThread) {
 						temp.count += cnt;
 					}
 				} else {
@@ -9894,7 +9894,7 @@ Thread.prototype = {
 		}
 		if(len + 1 > this.pcount) {
 			vParser = vParser || new VideosParser();
-			let res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len, vParser);
+			var res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len, vParser);
 			newPosts += res[0];
 			newVisPosts += res[1];
 			this.el.appendChild(res[2]);
@@ -9908,7 +9908,7 @@ Thread.prototype = {
 				return;
 			}
 			if((f = f[brd][this.op.num])) {
-				let el = $id('de-content-fav');
+				var el = $id('de-content-fav');
 				if(el) {
 					el = $q('.de-fav-current > .de-entry[de-num="' +
 							this.op.num + '"] .de-fav-inf-old', el);
@@ -9941,11 +9941,11 @@ Thread.prototype = {
 			}
 			needRMUpdate = false;
 		} else if(vPosts < num) {
-			let fragm = doc.createDocumentFragment(),
+			var fragm = doc.createDocumentFragment(),
 				tPost = this.op,
 				len = nPosts.length - vPosts,
 				vParser = new VideosParser();
-			for(let i = Math.max(0, len - num); i < len; ++i) {
+			for(var i = Math.max(0, len - num); i < len; ++i) {
 				tPost = this._addPost(fragm, nPosts[i], i + 1, vParser, tPost);
 				spells.check(tPost);
 			}
@@ -10437,7 +10437,7 @@ function getImageBoard(checkDomains, checkOther) {
 					form[action="/paint"] > input[type="text"] { width: 24px !important; }` },
 			fixFileInputs: { value(el) {
 				var str = '';
-				for(let i = 0, len = 4; i < len; ++i) {
+				for(var i = 0, len = 4; i < len; ++i) {
 					str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
 						'><input type="file" name="file_' +  i + '" tabindex="7"></input></div>';
 				}
@@ -10595,7 +10595,7 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			fixFileInputs: { value(el) {
 				var str = '';
-				for(let i = 0, len = 4; i < len; ++i) {
+				for(var i = 0, len = 4; i < len; ++i) {
 					str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
 						'><input type="file" name="image' +  (i + 1) + '"></input></div>';
 				}
@@ -10678,8 +10678,8 @@ function getImageBoard(checkDomains, checkOther) {
 			fixVideo: { value(post) {
 				var videos = [],
 					els = $Q('.video-container, #ytplayer', post ? post.el : dForm.el);
-				for(let i = 0, len = els.length; i < len; ++i) {
-					let el = els[i];
+				for(var i = 0, len = els.length; i < len; ++i) {
+					var el = els[i];
 					videos.push([post || this.getPostEl(el).post, el.id === 'ytplayer' ?
 						el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true]);
 					$del(el);
@@ -10798,8 +10798,8 @@ function getImageBoard(checkDomains, checkOther) {
 		fixVideo(post) {
 			var videos = [],
 				els = $Q('embed, object, iframe', post ? post.el : dForm.el);
-			for(let i = 0, len = els.length; i < len; ++i) {
-				let el = els[i],
+			for(var i = 0, len = els.length; i < len; ++i) {
+				var el = els[i],
 					src = el.src || el.data,
 					m = src.match(Videos.ytReg);
 				if(m) {
@@ -10961,7 +10961,7 @@ function getImageBoard(checkDomains, checkOther) {
 		}
 	}
 	if(checkOther) {
-		for(let i in ibEngines) {
+		for(var i in ibEngines) {
 			if($q(i, doc)) {
 				ibObj = Object.create(ibBase, ibEngines[i]);
 				break;
@@ -11006,7 +11006,7 @@ function Initialization(checkDomains) {
 		$script('window.top.postMessage("A' + window.name + '" + document.documentElement.outerHTML, "*");');
 		return null;
 	case 'de-iframe-fav':
-		let intrv = setInterval(function() {
+		var intrv = setInterval(function() {
 			$script('window.top.postMessage("B' + (doc.body.offsetHeight + 5) + '", "*");');
 		}, 1500);
 		window.addEventListener('load', setTimeout.bind(window, clearInterval, 3e4, intrv), false);
@@ -11209,7 +11209,7 @@ DelForm.prototype = {
 		if(this.firstThr === null) {
 			this.firstThr = thr;
 		}
-		for(let i = 1; i < len; ++i) {
+		for(var i = 1; i < len; ++i) {
 			this.tNums.push(+thr.num);
 			thr = new Thread(threads[i], thr, this.isLight);
 		}
@@ -11230,7 +11230,7 @@ DelForm.prototype = {
 	initAjax() {
 		if(Cfg.ajaxReply === 2) {
 			this.el.onsubmit = $pd;
-			let btn = $q(aib.qDelBut, this.el);
+			var btn = $q(aib.qDelBut, this.el);
 			if(btn) {
 				btn.onclick = e => {
 					$pd(e);
@@ -11261,11 +11261,11 @@ DelForm.prototype = {
 			fNodes = aProto.slice.call(formEl.childNodes),
 			cThr = doc.createElement('div');
 		for(i = 0, len = fNodes.length - 1; i < len; ++i) {
-			let node = fNodes[i];
+			var node = fNodes[i];
 			if(node.tagName === 'HR') {
 				formEl.insertBefore(cThr, node);
 				formEl.insertBefore(cThr.lastElementChild, node);
-				let el = cThr.lastElementChild;
+				var el = cThr.lastElementChild;
 				if(el.tagName === 'BR') {
 					formEl.insertBefore(el, node);
 				}
@@ -11357,7 +11357,7 @@ function initThreadUpdater(title, enableUpdate) {
 			stopLoad(true);
 			enabled = hasAudio = false;
 			setState('off');
-			let btn = $id('de-btn-audio-on');
+			var btn = $id('de-btn-audio-on');
 			if(btn) {
 				btn.id = 'de-btn-audio-off';
 			}
@@ -11449,7 +11449,7 @@ function initThreadUpdater(title, enableUpdate) {
 			if(needSleep) {
 				try {
 					if(useCountdown && (focused || !canFocusLoad)) {
-						let seconds = delay / 1000;
+						var seconds = delay / 1000;
 						while(seconds > 0) {
 							countEl.textContent = seconds;
 							yield Promise.race([stopToken, sleep(1000)]);
@@ -11469,7 +11469,7 @@ function initThreadUpdater(title, enableUpdate) {
 			if(useCountdown) {
 				countEl.innerHTML = '<span class="de-wait"></span>';
 			}
-			let error = AjaxError.Success,
+			var error = AjaxError.Success,
 				lPosts = 0;
 			try {
 				lPosts = yield Promise.race([stopToken, dForm.firstThr.loadNew(true)]);
@@ -11480,7 +11480,7 @@ function initThreadUpdater(title, enableUpdate) {
 				error = e;
 			}
 			infoLoadErrors(error, false);
-			let eCode = error instanceof AjaxError ? error.code : 0;
+			var eCode = error instanceof AjaxError ? error.code : 0;
 			if(eCode !== 200 && eCode !== 304) {
 				lastECode = eCode;
 				if(Cfg.favIcoBlink && !focused && favHref) {
@@ -11525,7 +11525,7 @@ function initThreadUpdater(title, enableUpdate) {
 					newPosts += lPosts;
 					updateTitle();
 					if(Cfg.desktNotif && notifGranted) {
-						let post = dForm.firstThr.last,
+						var post = dForm.firstThr.last,
 							notif = new Notification(aib.dm + '/' + brd + '/' + TNum + ': ' + newPosts +
 								Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : (newPosts % 10) > 4 ||
 								(newPosts % 10) === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
@@ -11756,7 +11756,7 @@ function scrollPage() {
 function checkForUpdates(isForce, lastUpdateTime) {
 	return new Promise((resolve, reject) => {
 		if(!isForce) {
-			let day = 2 * 1000 * 60 * 60 * 24,
+			var day = 2 * 1000 * 60 * 60 * 24,
 				temp = Cfg.scrUpdIntrv;
 			switch(temp) {
 			case 0: temp = day; break;
@@ -12253,7 +12253,7 @@ function addDelformStuff(isLog) {
 	}
 	if(dForm.firstThr && Cfg.linksNavig === 2) {
 		genRefMap(pByNum, '');
-		for(let post = dForm.firstThr.op; post; post = post.next) {
+		for(var post = dForm.firstThr.op; post; post = post.next) {
 			if(post.hasRef) {
 				addRefMap(post, '');
 			}
