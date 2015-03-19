@@ -4257,15 +4257,15 @@ Videos.prototype = {
 				this.player.innerHTML = '';
 				this.playerInfo = null;
 			}
-		} else if(mode > 2) {
-			this.currentLink.classList.remove('de-current');
-			this.currentLink = el;
-			this._addThumb(m, el.classList.contains('de-ytube'));
 		} else {
 			this.currentLink.classList.remove('de-current');
 			this.currentLink = el;
-			el.classList.add('de-current');
-			this.addPlayer(m, el.classList.contains('de-ytube'));
+			if(mode > 2) {
+				this._addThumb(m, el.classList.contains('de-ytube'));
+			} else {
+				el.classList.add('de-current');
+				this.addPlayer(m, el.classList.contains('de-ytube'));
+			}
 		}
 	},
 	updatePost(oldLinks, newLinks, cloned) {
@@ -4323,29 +4323,29 @@ VideosParser.prototype = {
 	},
 	parse(post = null) {
 		var loader = this._loader,
-			els = $Q('a[href*="youtu"]', post ? post.el : dForm.el);
-		for(var i = 0, len = els.length; i < len; ++i) {
-			var el = els[i],
-				m = el.href.match(Videos.ytReg);
+			vids = aib.fixVideo(post),
+			links = $Q('a[href*="youtu"]', post ? post.el : dForm.el);
+		for(var i = 0, len = links.length; i < len; ++i) {
+			var link = links[i],
+				m = link.href.match(Videos.ytReg);
 			if(m) {
-				var mPost = post || (aib.getPostEl(el) || {}).post;
-				mPost && mPost.videos.addLink(m, loader, el, true);
+				var mPost = post || (aib.getPostEl(link) || {}).post;
+				mPost && mPost.videos.addLink(m, loader, link, true);
 			}
 		}
 		if(Cfg.addVimeo) {
-			els = $Q('a[href*="vimeo.com"]', post ? post.el : dForm.el);
-			for(var i = 0, len = els.length; i < len; ++i) {
-				var el = els[i],
-					m = el.href.match(Videos.vimReg);
+			links = $Q('a[href*="vimeo.com"]', post ? post.el : dForm.el);
+			for(var i = 0, len = links.length; i < len; ++i) {
+				var link = links[i],
+					m = link.href.match(Videos.vimReg);
 				if(m) {
-					var mPost = post || (aib.getPostEl(el) || {}).post;
-					mPost && mPost.videos.addLink(m, loader, el, false);
+					var mPost = post || (aib.getPostEl(link) || {}).post;
+					mPost && mPost.videos.addLink(m, loader, link, false);
 				}
 			}
 		}
-		els = aib.fixVideo(post);
-		for(var i = 0, len = els.length; i < len; ++i) {
-			var [pst, m, isYtube] = els[i];
+		for(var i = 0, len = vids.length; i < len; ++i) {
+			var [pst, m, isYtube] = vids[i];
 			pst && pst.videos.addLink(m, loader, null, isYtube);
 		}
 		return this;
@@ -10548,7 +10548,7 @@ function getImageBoard(checkDomains, checkOther) {
 				return el.parentNode;
 			} },
 			cssEn: { get() {
-				return `.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], .de-qarea-hanging .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, #page_wrap, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }
+				return `.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], .de-qarea-hanging .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }
 				.captcha-image > img { cursor: pointer; }
 				.de-abtn { transition: none; }
 				#de-txt-panel { font-size: 16px !important; }
