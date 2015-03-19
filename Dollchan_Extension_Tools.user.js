@@ -6279,7 +6279,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 12:
 						context$3$0.next = 14;
-						return $ajax(aib.prot + "//vimeo.com/api/v2/video/" + m[1] + ".json", null, false);
+						return $ajax(aib.prot + "//vimeo.com/api/v2/video/" + id + ".json", null, false);
 
 					case 14:
 						xhr = context$3$0.sent;
@@ -12473,11 +12473,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			this.setFavBtn(val);
 			readFav().then(function (fav) {
 				if (val) {
-					var f = fav[aib.host];
-					!f && (f = {});
-					!f[brd] && (f[brd] = {});
-					f[brd].url = aib.prot + "//" + aib.host + aib.getPageUrl(brd, 0);
-					f[brd][_this.num] = {
+					var h = aib.host;
+					!fav[h] && (fav[h] = {});
+					!fav[h][brd] && (fav[h][brd] = {});
+					fav[h][brd].url = aib.prot + "//" + aib.host + aib.getPageUrl(brd, 0);
+					fav[h][brd][_this.num] = {
 						cnt: _this.pcount,
 						"new": 0,
 						txt: _this.op.title,
@@ -13427,7 +13427,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return el.parentNode;
 					} },
 				cssEn: { get: function get() {
-						return ".ABU-refmap, .box[onclick=\"ToggleSage()\"], img[alt=\"webm file\"], .de-qarea-hanging .kupi-passcode-suka, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t.de-abtn { transition: none; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.images-area input { float: left; }\n\t\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t\t" + (Cfg.expandPosts === 1 ? ".expand-large-comment, div[id^=\"shrinked-post\"] { display: none !important; } div[id^=\"original-post\"] { display: block !important; }" : "");
+						return ".ABU-refmap, .box[onclick=\"ToggleSage()\"], img[alt=\"webm file\"], .de-qarea-hanging .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, #page_wrap, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t.de-abtn { transition: none; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.images-area input { float: left; }\n\t\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t\t" + (Cfg.expandPosts === 1 ? ".expand-large-comment, div[id^=\"shrinked-post\"] { display: none !important; } div[id^=\"original-post\"] { display: block !important; }" : "");
 					} },
 				hasPicWrap: { value: true },
 				init: { value: function value() {
