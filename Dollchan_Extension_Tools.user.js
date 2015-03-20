@@ -11581,7 +11581,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		},
 		videos: {
 			get: function () {
-				var val = new Videos(this);
+				var val = Cfg.addYouTube ? new Videos(this) : null;
 				Object.defineProperty(this, "videos", { value: val });
 				return val;
 			},
@@ -11925,7 +11925,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					if (node) {
 						node.classList.remove("de-link-parent");
 					}
-					if (post.videos.hasLinks) {
+					if (Cfg.addYouTube && post.videos.hasLinks) {
 						if (post.videos.playerInfo !== null) {
 							Object.defineProperty(this, "videos", {
 								value: new Videos(this, $c("de-video-obj", el), post.videos.playerInfo)
@@ -11952,7 +11952,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				} else {
 					this._pref.insertAdjacentHTML("afterend", "<span class=\"de-post-btns\">" + pText + "</span");
 					embedMediaLinks(this);
-					new VideosParser().parse(this).end();
+					if (Cfg.addYouTube) {
+						new VideosParser().parse(this).end();
+					}
 					if (Cfg.addImgs) {
 						embedImagesLinks(el);
 					}
@@ -12520,7 +12522,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				});
 				post.el.classList.add("de-post-new");
 			}
-			vParser.parse(post);
+			if (vParser) {
+				vParser.parse(post);
+			}
 			if (Cfg.imgSrcBtns) {
 				addImagesSearch(el);
 			}
@@ -12579,10 +12583,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			    len = nPosts.length,
 			    post = this.lastNotDeleted;
 			if (aib.dobr || post.count !== 0 && (post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)) {
-				var firstChangedPost = null;
-				vParser = new VideosParser();
+				if (Cfg.addYouTube) {
+					vParser = new VideosParser();
+				}
 				post = this.op.nextNotDeleted;
-				var i;
+				var i,
+				    firstChangedPost = null;
 				for (i = post.count - 1; i < len && post;) {
 					if (post.num === aib.getPNum(nPosts[i])) {
 						i++;
@@ -12632,7 +12638,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 			}
 			if (len + 1 > this.pcount) {
-				vParser = vParser || new VideosParser();
+				if (Cfg.addYouTube && !vParser) {
+					vParser = new VideosParser();
+				}
 				var res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len, vParser);
 				newPosts += res[0];
 				newVisPosts += res[1];
@@ -12682,13 +12690,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			} else if (vPosts < num) {
 				var fragm = doc.createDocumentFragment(),
 				    tPost = this.op,
-				    len = nPosts.length - vPosts,
-				    vParser = new VideosParser();
-				for (var i = Math.max(0, len - num); i < len; ++i) {
-					tPost = this._addPost(fragm, nPosts[i], i + 1, vParser, tPost);
-					spells.check(tPost);
+				    len = nPosts.length - vPosts;
+				if (Cfg.addYouTube) {
+					var vParser = new VideosParser();
+					for (var i = Math.max(0, len - num); i < len; ++i) {
+						tPost = this._addPost(fragm, nPosts[i], i + 1, vParser, tPost);
+						spells.check(tPost);
+					}
+					vParser.end();
 				}
-				vParser.end();
 				$after(this.op.wrap, fragm);
 				tPost.next = post;
 				if (post) {
@@ -15015,8 +15025,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		isLog && new Logger().log("Preload images");
 		embedMediaLinks(null);
 		isLog && new Logger().log("Audio links");
-		new VideosParser().parse(null).end();
-		isLog && new Logger().log("Video links");
+		if (Cfg.addYouTube) {
+			new VideosParser().parse(null).end();
+			isLog && new Logger().log("Video links");
+		}
 		if (Cfg.addImgs) {
 			embedImagesLinks(dForm.el);
 			isLog && new Logger().log("Image links");
