@@ -5470,7 +5470,7 @@ SpellsInterpreter.prototype = {
 		}
 		return false;
 	},
-	_ihash: async(function* () {
+	_ihash: async(function* (val) {
 		for(var image of this._post.images) {
 			if(!(image instanceof Attachment)) {
 				continue;
@@ -7900,15 +7900,6 @@ function Attachment(post, el, idx) {
 }
 Attachment.viewer = null;
 Attachment.prototype = Object.create(IAttachmentData.prototype, {
-	data: { get() {
-		var img = this.el,
-			cnv = this._glob.canvas,
-			w = cnv.width = img.naturalWidth,
-			h = cnv.height = img.naturalHeight,
-			ctx = cnv.getContext('2d');
-		ctx.drawImage(img, 0, 0);
-		return [ctx.getImageData(0, 0, w, h).data.buffer, w, h];
-	} },
 	hash: { configurable: true, get() {
 		var val = null;
 		if(this.src in this._glob.storage) {
@@ -7935,34 +7926,35 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 		var nImage = this.post.images.data[isForward ? this.idx + 1 : this.idx - 1];
 		return nImage ? nImage : this.getFollowPost(isForward);
 	} },
-	getHash: { value() {
-		return new Promise((resolve, reject) => {
-			if(this.hash !== null) {
-				resolve(this.hash);
-			} else {
-				var runWorker = (data, transferObj) => {
-					this._glob.workers.run(data, [data[0]], data => {
-						resolve(this.hash = data.hash);
-					});
-				};
-				if(aib.fch) {
-					spawn(downloadImgData, this.el.src).then(data => {
-						if(!data) {
-							this.hash = -1;
-							resolve(-1);
-						}
-						var buffer = data.buffer;
-						runWorker([buffer, this.el.naturalWidth, this.el.naturalHeight], [buffer]);
-					});
-				} else if(this.el.naturalWidth + this.el.naturalHeight === 0) {
-					resolve(this.hash = -1);
-				} else {
-					var data = this.data;
-					runWorker(data, [data[0]]);
-				}
+	getHash: { value: async(function* () {
+		if(this.hash !== null) {
+			return this.hash;
+		}
+		if(this.el.naturalWidth + this.el.naturalHeight === 0) {
+			this.hash = -1;
+			return -1;
+		}
+		var data;
+		if(aib.fch) {
+			var imgData = yield* downloadImgData(this.el.src);
+			if(!imgData) {
+				this.hash = -1;
+				return -1;
 			}
-		});
-	} },
+			data = [imgData.buffer, this.el.naturalWidth, this.el.naturalHeight];
+		} else {
+			var img = this.el,
+				cnv = this._glob.canvas,
+				w = cnv.width = img.naturalWidth,
+				h = cnv.height = img.naturalHeight,
+				ctx = cnv.getContext('2d');
+			ctx.drawImage(img, 0, 0);
+			data = [ctx.getImageData(0, 0, w, h).data.buffer, w, h];
+		}
+		var { hash } = yield this._glob.workerRun(data, data[0]);
+		this.hash = hash;
+		return hash;
+	}) },
 
 	_glob: { value: {
 		get canvas() {
@@ -7983,10 +7975,15 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 				return val;
 			}
 		},
-		get workers() {
+		workerRun(data, transferObj) {
+			return new Promise((resolve, reject) => {
+				this._workers.run(data, transferObj, val => resolve(val));
+			});
+		},
+		get _workers() {
 			var val = new WorkerPool(4, genImgHash, emptyFn);
 			spells.addCompleteFunc(this._clearWorkers.bind(this));
-			Object.defineProperty(this, 'workers', { value: val, configurable: true });
+			Object.defineProperty(this, '_workers', { value: val, configurable: true });
 			return val;
 		},
 
@@ -7996,8 +7993,8 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 			sesStorage['de-imageshash'] = JSON.stringify(this.storage);
 		},
 		_clearWorkers() {
-			this.workers.clear();
-			delete this.workers;
+			this._workers.clear();
+			delete this._workers;
 		}
 	} },
 	_callback: { writable: true, value: null },
@@ -8869,8 +8866,10 @@ Post.prototype = {
 			addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
 			return;
 		case 'spell-ihash':
-			this.images.firstAttach.getHash(function(hash) {
-				addSpell(4 /* #ihash */, hash, false);
+			Promise.resolve(this.images.firstAttach.getHash()).then(hash => {
+				if(hash !== -1) {
+					addSpell(4 /* #ihash */, hash, false);
+				}
 			});
 			return;
 		case 'spell-noimg': addSpell(0x108 /* (#all & !#img) */, '', true); return;
