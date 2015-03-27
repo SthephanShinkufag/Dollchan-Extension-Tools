@@ -3692,7 +3692,7 @@ function addImgFileIcon(aEl, fName, info) {
 	);
 }
 
-function* downloadImgDataHelper(url, repeatOnError) {
+function* downloadImgData(url, repeatOnError = true) {
 	var xhr;
 	if(aib.fch && nav.Firefox && !url.startsWith('blob')) {
 		xhr = yield $ajax(url, {overrideMimeType: 'text/plain; charset=x-user-defined'}, false);
@@ -3710,7 +3710,7 @@ function* downloadImgDataHelper(url, repeatOnError) {
 		if(xhr.status === 404 || !repeatOnError) {
 			return null;
 		} else {
-			return yield* downloadImgDataHelper(url, false);
+			return yield* downloadImgData(url, false);
 		}
 	} else if(isAb) {
 		return new Uint8Array(xhr.response);
@@ -3722,10 +3722,6 @@ function* downloadImgDataHelper(url, repeatOnError) {
 		}
 		return rv;
 	}
-}
-
-function* downloadImgData(url) {
-	return yield* downloadImgDataHelper(url, true);
 }
 
 function preloadImages(post) {
@@ -3858,7 +3854,8 @@ function loadDocFiles(imgOnly) {
 			$t('head', dc).insertAdjacentHTML('beforeend',
 				'<script type="text/javascript" src="data/dollscript.js"></script>');
 			tar.addString('data/dollscript.js', '(' +
-				String(de_main_func_outer || de_main_func_inner) + ')(null, true);');
+				String(typeof de_main_func_outer === 'undefined' ? de_main_func_inner : de_main_func_outer) +
+			')(null, true);');
 			tar.addString(
 				name + '.html', '<!DOCTYPE ' + dt.name +
 				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') +
