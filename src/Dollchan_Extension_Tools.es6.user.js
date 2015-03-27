@@ -10585,10 +10585,11 @@ function getImageBoard(checkDomains, checkOther) {
 				.captcha-image > img { cursor: pointer; }
 				.de-abtn { transition: none; }
 				#de-txt-panel { font-size: 16px !important; }
-				.images-area input { float: left; }
+				.images-area input { float: none !important; display: inline !important; }
 				.images-single + .de-video-obj { display: inline-block; }
 				.mess-post { display: block; }
-				.images-area input { float: none !important; display: inline !important; }
+				.postbtn-reply-href { font-size: 0px; }
+				.postbtn-reply-href::after { font-size: 14px; content: attr(name); }
 				${Cfg.expandPosts === 1 ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : ''}`;
 			} },
 			hasPicWrap: { value: true },
