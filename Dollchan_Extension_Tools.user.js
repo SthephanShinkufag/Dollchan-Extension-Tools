@@ -2694,6 +2694,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		updCount: 1,
 		expandPosts: 2,
 		postBtnsCSS: 2,
+		showHideBtn: 1,
+		showRepBtn: 1,
 		noSpoilers: 1,
 		noPostNames: 0,
 		noPostScrl: 1,
@@ -2800,8 +2802,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			},
 			postBtnsCSS: {
 				sel: [["Text", "Classic", "Solid grey"], ["Text", "Classic", "Solid grey"]],
-				txt: ["Стиль кнопок постов*", "Post buttons style*"]
+				txt: ["Кнопки постов* ", "Post buttons* "]
 			},
+			showHideBtn: ["Скрытие ", "Post hide "],
+			showRepBtn: ["Ответ", "Post reply"],
 			noSpoilers: ["Открывать текстовые спойлеры", "Open text spoilers"],
 			noPostNames: ["Скрывать имена в постах", "Hide names in posts"],
 			noPostScrl: ["Без скролла в постах", "No scroll in posts"],
@@ -4697,7 +4701,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		})), lBox("updCount", true, function () {
 			updater.toggleCounter(Cfg.updCount);
-		})])])), optSel("expandPosts", true, null), optSel("postBtnsCSS", true, null), lBox("noSpoilers", true, updateCSS), lBox("noPostNames", true, updateCSS), lBox("noPostScrl", true, updateCSS), lBox("widePosts", true, updateCSS), $New("div", null, [lBox("correctTime", false, DateTime.toggleSettings), inpTxt("timeOffset", 2, null), $txt(Lng.cfg.timeOffset[lang]), $add("<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-" + (lang ? "en" : "ru") + "\" class=\"de-abtn\" target=\"_blank\">[?]</a>")]), $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [inpTxt("timePattern", 25, null), $txt(Lng.cfg.timePattern[lang])]), $New("div", null, [inpTxt("timeRPattern", 25, null), $txt(Lng.cfg.timeRPattern[lang])])])]);
+		})])])), optSel("expandPosts", true, null), optSel("postBtnsCSS", false, null), lBox("showHideBtn", false, updateCSS), lBox("showRepBtn", false, updateCSS), lBox("noSpoilers", true, updateCSS), lBox("noPostNames", true, updateCSS), lBox("noPostScrl", true, updateCSS), lBox("widePosts", true, updateCSS), $New("div", null, [lBox("correctTime", false, DateTime.toggleSettings), inpTxt("timeOffset", 2, null), $txt(Lng.cfg.timeOffset[lang]), $add("<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-" + (lang ? "en" : "ru") + "\" class=\"de-abtn\" target=\"_blank\">[?]</a>")]), $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [inpTxt("timePattern", 25, null), $txt(Lng.cfg.timePattern[lang])]), $New("div", null, [inpTxt("timeRPattern", 25, null), $txt(Lng.cfg.timeRPattern[lang])])])]);
 	}
 
 	function getCfgImages() {
@@ -15028,6 +15032,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 		if (Cfg.noBoardRule) {
 			x += (aib.futa ? ".chui" : ".rules, #rules, #rules_row") + " { display: none; }";
+		}
+		if (!Cfg.showHideBtn) {
+			x += ".de-btn-hide { display: none; }";
+		}
+		if (!Cfg.showRepBtn) {
+			x += ".de-btn-rep { display: none; }";
 		}
 		if (!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
 			x += "#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child { display: none; }";

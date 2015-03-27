@@ -39,6 +39,8 @@ defaultCfg = {
 	'updCount':         1,      //    show countdown for thread updater
 	'expandPosts':      2,      // expand shorted posts [0=off, 1=auto, 2=on click]
 	'postBtnsCSS':      2,      // post buttons style [0=text, 1=classic, 2=solid grey]
+	'showHideBtn':      1,      // show post hide button
+	'showRepBtn':       1,      // show post reply button
 	'noSpoilers':       1,      // open spoilers
 	'noPostNames':      0,      // hide post names
 	'noPostScrl':       1,      // no scroll in posts
@@ -146,8 +148,10 @@ Lng = {
 		},
 		'postBtnsCSS': {
 			sel:        [['Text', 'Classic', 'Solid grey'], ['Text', 'Classic', 'Solid grey']],
-			txt:        ['Стиль кнопок постов*', 'Post buttons style*']
+			txt:        ['Кнопки постов* ', 'Post buttons* ']
 		},
+		'showHideBtn':  ['Скрытие ', 'Post hide '],
+		'showRepBtn':   ['Ответ', 'Post reply'],
 		'noSpoilers':   ['Открывать текстовые спойлеры', 'Open text spoilers'],
 		'noPostNames':  ['Скрывать имена в постах', 'Hide names in posts'],
 		'noPostScrl':   ['Без скролла в постах', 'No scroll in posts'],
@@ -2367,7 +2371,9 @@ function getCfgPosts() {
 			])
 		])),
 		optSel('expandPosts', true, null),
-		optSel('postBtnsCSS', true, null),
+		optSel('postBtnsCSS', false, null),
+		lBox('showHideBtn', false, updateCSS),
+		lBox('showRepBtn', false, updateCSS),
 		lBox('noSpoilers', true, updateCSS),
 		lBox('noPostNames', true, updateCSS),
 		lBox('noPostScrl', true, updateCSS),
@@ -12241,6 +12247,12 @@ function updateCSS() {
 	}
 	if(Cfg.noBoardRule) {
 		x += (aib.futa ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
+	}
+	if(!Cfg.showHideBtn) {
+		x += '.de-btn-hide { display: none; }';
+	}
+	if(!Cfg.showRepBtn) {
+		x += '.de-btn-rep { display: none; }';
 	}
 	if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
 		x += '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child { display: none; }';
