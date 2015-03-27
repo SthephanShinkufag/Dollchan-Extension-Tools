@@ -2026,12 +2026,11 @@ function showFavoriteTable(cont, data) {
 					'" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url +
 					'"><input type="checkbox"><span class="de-btn-expthr" title="' + Lng.findThrd[lang] +
 					'"></span><a href="' + t.url + '">№' + tNum + '</a><span class="de-fav-title"> - ' +
-					t.txt + '</span><span class="de-fav-inf-posts">[<span class="de-fav-inf-old" title="' +
-					Lng.oldPosts[lang] + '">' + t.cnt + '</span>] <span class="de-fav-inf-new" title="' +
-					Lng.newPosts[lang] + '"' + (t['new'] ? '>' : ' style="display: none;">') +
-					(t['new'] || 0) + '</span> <span class="de-fav-inf-page" title="' +
-					Lng.thrPage[lang] + '"></span> <span class="de-fav-inf-err">' +
-					(t['err'] || '') + '</span></span></div>');
+					t.txt + '</span><span class="de-fav-inf-posts"><span class="de-fav-inf-err">' +
+					(t['err'] || '') + '</span> <span class="de-fav-inf-new" title="' + Lng.newPosts[lang] +
+					'"' + (t['new'] ? '>' : ' style="display: none;">') + (t['new'] || 0) + '</span> ' +
+					'<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span> ' +
+					'<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span></span></div>');
 				block.lastChild.firstChild.nextSibling.onclick = e => loadFavorThread(e.target);
 			}
 		}
@@ -2063,12 +2062,12 @@ function showFavoriteTable(cont, data) {
 				form = yield ajaxLoad(aib.getThrdUrl(b, num));
 			} catch(e) {
 				el.classList.remove('de-wait');
-				f['err'] = el.nextElementSibling.nextElementSibling.textContent =
+				f['err'] = el.previousElementSibling.textContent =
 					getErrorMessage(e);
 				update = true;
 				continue;
 			}
-			var cnt = aib.getPosts(form).length + 1 - el.previousElementSibling.textContent;
+			var cnt = aib.getPosts(form).length + 1 - el.nextElementSibling.textContent;
 			el.textContent = cnt;
 			el.className = 'de-fav-inf-new';
 			if(cnt === 0) {
@@ -2078,7 +2077,7 @@ function showFavoriteTable(cont, data) {
 				update = true;
 			}
 			if($q(aib.qClosed, form)) {
-				f['err'] = el.nextElementSibling.nextElementSibling.textContent = 'Closed';
+				f['err'] = el.previousElementSibling.textContent = 'Closed';
 				update = true;
 			}
 		}
@@ -12151,7 +12150,7 @@ function scriptCSS() {
 		.de-entry > input { margin: 2px 4px; }\
 		.de-fav-inf-err { color: #c33; font-size: 12px; }\
 		.de-fav-inf-new { color: #424f79; }\
-		.de-fav-inf-new:before { content: "+ "; }\
+		.de-fav-inf-new:after { content: " +"; }\
 		.de-fav-inf-old { color: #4f7942; }\
 		.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\
 		.de-fav-title { margin-right: 15px; }\
