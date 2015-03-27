@@ -4083,27 +4083,27 @@ Videos._global = {
 Videos.ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 Videos.vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
 Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
-	var time, id = m[1],
-		wh = ' width="' + Cfg.YTubeWidth + '" height="' + Cfg.YTubeHeigh + '">',
-		sp = '<span class="de-video-resizer" title="' + Lng.expandVideo[lang] + '"></span>';
+	var txt, wh = ' width="' + Cfg.YTubeWidth + '" height="' + Cfg.YTubeHeigh + '">';
 	if(isYtube) {
-		time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
 		var list = m[0].match(/list=[^&#]+/);
-		el.innerHTML =
-			'<iframe frameborder="0" allowfullscreen="1" src="https://www.youtube.com/embed/' + id + '?' +
-			(enableJsapi ? 'enablejsapi=1&' : Cfg.addYouTube === 3 ? 'autoplay=1&' : '') +
-			(Cfg.YTubeHD ? 'hd=1&' : '') + (list ? list[0] + '&' : '') + 'start=' + time +
-			(Cfg.YTubeType === 1 ? '&html5=1&rel=0" type="text/html"' : '" type="application/x-shockwave-flash"') +
-			wh + '</iframe>' + sp;
+		txt = '<iframe frameborder="0" allowfullscreen="1" src="https://www.youtube.com/embed/' + m[1] +
+			'?start=' + (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0) +
+			(enableJsapi ? '&enablejsapi=1' : Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
+			(Cfg.YTubeHD ? '&hd=1' : '') + (list ? '&' + list[0] : '') +
+			(Cfg.YTubeType === 1 ? '&html5=1" type="text/html"' : '" type="application/x-shockwave-flash"') +
+			wh + '</iframe>';
 	} else {
-		time = m[2] ? m[2] : '';
-		el.innerHTML = Cfg.YTubeType === 1 ?
-			'<iframe src="' + aib.prot + '//player.vimeo.com/video/' + id + time + '" frameborder="0" ' +
-				'webkitallowfullscreen mozallowfullscreen allowfullscreen' + wh + '</iframe>' + sp :
+		var id = m[1] + (m[2] ? m[2] : '');
+		txt = Cfg.YTubeType === 1 ?
+			'<iframe src="' + aib.prot + '//player.vimeo.com/video/' + id +
+				(Cfg.addYouTube === 3 ? '?autoplay=1' : '') + '" frameborder="0" ' +
+				'webkitallowfullscreen mozallowfullscreen allowfullscreen' + wh + '</iframe>' :
 			'<embed type="application/x-shockwave-flash" src="' + aib.prot + '//vimeo.com/moogaloop.swf' +
-				'?clip_id=' + id + time + '&server=vimeo.com&color=00adef&fullscreen=1" ' +
-				'allowscriptaccess="always" allowfullscreen="true"' + wh + '</embed>' + sp;
+				'?clip_id=' + id + (Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
+				'&server=vimeo.com&color=00adef&fullscreen=1" ' +
+				'allowscriptaccess="always" allowfullscreen="true"' + wh + '</embed>';
 	}
+	el.innerHTML = txt + '<span class="de-video-resizer" title="' + Lng.expandVideo[lang] + '"></span>';
 	el.lastChild.onclick = function() {
 		var node = this.parentNode,
 			exp = node.className === 'de-video-obj';
