@@ -74,7 +74,7 @@ defaultCfg = {
 	'addImgs':          0,      // embed links to images
 	'addMP3':           1,      // embed mp3 links
 	'addVocaroo':       1,      // embed Vocaroo links
-	'addYouTube':       3,      // embed YouTube links [0=off, 1=onclick, 2=player, 3=preview+player, 4=only preview]
+	'addYouTube':       3,      // embed YouTube links [0=off, 1=onclick, 2=player, 3=preview+player, 4=preview]
 	'YTubeType':        0,      //    player type [0=flash, 1=HTML5]
 	'YTubeWidth':       360,    //    player width
 	'YTubeHeigh':       270,    //    player height
@@ -711,7 +711,7 @@ function $isEmpty(obj) {
 }
 
 Logger = new function() {
-	var instance, marks = [];
+	var instance, marks = [], finished = false;
 	function LoggerSingleton() {
 		if(instance) {
 			return instance;
@@ -720,6 +720,7 @@ Logger = new function() {
 	}
 	LoggerSingleton.prototype = {
 		finish() {
+			finished = true;
 			marks.push(['LoggerFinish', Date.now()]);
 		},
 		getData(full) {
@@ -750,7 +751,9 @@ Logger = new function() {
 			marks.push(['LoggerInit', Date.now()]);
 		},
 		log(text) {
-			marks.push([text, Date.now()]);
+			if(!finished) {
+				marks.push([text, Date.now()]);
+			}
 		}
 	};
 	return LoggerSingleton;
@@ -785,28 +788,7 @@ function sleep(ms) {
 
 function $ajax(url, params = null, useNative = true) {
 	return new Promise((resolve, reject) => {
-		if(useNative || !(typeof GM_xmlhttpRequest === 'function')) {
-			var xhr = new XMLHttpRequest();
-			if(params && params.onprogress) {
-				xhr.upload.onprogress = params.onprogress;
-			}
-			xhr.onloadend = e => resolve(e.target);
-			xhr.open((params && params.method) || 'GET', url, true);
-			if(params) {
-				if(params.responseType) {
-					xhr.responseType = params.responseType;
-				}
-				var headers = params.headers;
-				if(headers) {
-					for(var h in headers) {
-						if(headers.hasOwnProperty(h)) {
-							xhr.setRequestHeader(h, headers[h]);
-						}
-					}
-				}
-			}
-			xhr.send(params && params.data || null);
-		} else {
+		if(!useNative && (typeof GM_xmlhttpRequest === 'function')) {
 			var obj = {
 				'method': (params && params.method) || 'GET',
 				'url': nav.fixLink(url),
@@ -817,7 +799,28 @@ function $ajax(url, params = null, useNative = true) {
 				Object.assign(obj, params);
 			}
 			GM_xmlhttpRequest(obj);
+			return;
 		}
+		var xhr = new XMLHttpRequest();
+		if(params && params.onprogress) {
+			xhr.upload.onprogress = params.onprogress;
+		}
+		xhr.onloadend = e => resolve(e.target);
+		xhr.open((params && params.method) || 'GET', url, true);
+		if(params) {
+			if(params.responseType) {
+				xhr.responseType = params.responseType;
+			}
+			var headers = params.headers;
+			if(headers) {
+				for(var h in headers) {
+					if(headers.hasOwnProperty(h)) {
+						xhr.setRequestHeader(h, headers[h]);
+					}
+				}
+			}
+		}
+		xhr.send(params && params.data || null);
 	});
 }
 
@@ -891,20 +894,17 @@ TasksPool.prototype = {
 		}
 	},
 	_run(data) {
-		Promise.resolve(this.func(this.num++, data)).then(
-			() => this._end(),
-			e => {
-				if(e instanceof TasksPool.PauseError) {
-					this.pause();
-					if(e.duration !== -1) {
-						setTimeout(() => this['continue'](), e.duration);
-					}
-				} else {
-					this._end();
-					throw e;
+		Promise.resolve(this.func(this.num++, data)).then(() => this._end(), e => {
+			if(e instanceof TasksPool.PauseError) {
+				this.pause();
+				if(e.duration !== -1) {
+					setTimeout(() => this['continue'](), e.duration);
 				}
+			} else {
+				this._end();
+				throw e;
 			}
-		);
+		});
 	}
 };
 
@@ -988,7 +988,7 @@ function getErrorMessage(e) {
 	if(e instanceof AjaxError) {
 		return e.code === 0 ? e.message || Lng.noConnect[lang] : 'HTTP [' + e.code + '] ' + e.message;
 	}
-	return typeof e === 'string' ? e : Lng.internalError[lang] + getPrettyErrorMessage(e);
+	return (typeof e === 'string') ? e : Lng.internalError[lang] + getPrettyErrorMessage(e);
 }
 
 function getPrettyErrorMessage(e) {
@@ -1182,9 +1182,8 @@ function* getStored(id) {
 		}));
 	} else if(nav.isScriptStorage) {
 		return scriptStorage.getItem(id);
-	} else {
-		return locStorage.getItem(id);
 	}
+	return locStorage.getItem(id);
 }
 
 function setStored(id, value) {
@@ -1705,11 +1704,11 @@ function toggleContent(name, isUpd, data) {
 			id = name = remove = data = null;
 		});
 		el.className = 'de-content de-cfg-close';
-		return !remove;
+
 	} else {
 		showContent(el, id, name, remove, data);
-		return !remove;
 	}
+	return !remove;
 }
 
 function addContentBlock(parent, title) {
@@ -1732,13 +1731,11 @@ function showContent(cont, id, name, remove, data) {
 		return;
 	}
 	cont.id = id;
-	if(name === 'cfg') {
-		addSettings(cont, cfgTabId);
-	} else if(Cfg.attachPanel) {
+	if(Cfg.attachPanel && name !== 'cfg') {
 		cont.style.backgroundColor = getComputedStyle(doc.body).getPropertyValue('background-color');
 	}
-
-	if(name === 'fav') {
+	switch(name) {
+	case 'fav':
 		if(data) {
 			showFavoriteTable(cont, data);
 		} else {
@@ -1748,119 +1745,10 @@ function showContent(cont, id, name, remove, data) {
 			});
 		}
 		return;
+	case 'cfg': addSettings(cont, cfgTabId); break;
+	case 'hid': showHiddenTable(cont); break;
+	case 'vid': showVideosTable(cont);
 	}
-
-	if(name === 'hid') {
-		var block, els = $C('de-post-hide', dForm.el);
-		for(var i = 0, len = els.length; i < len; ++i) {
-			var post = els[i];
-			if(post.isOp) {
-				continue;
-			}
-			var cln = post.cloneNode(true);
-			cln.removeAttribute('id');
-			cln.style.display = '';
-			if(cln.classList.contains(aib.cRPost)) {
-				cln.classList.add('de-cloned-post');
-			} else {
-				cln.className = aib.cReply + ' de-cloned-post';
-			}
-			cln.post = Object.create(cln.clone = post.post);
-			cln.post.el = cln;
-			cln.btn = $q('.de-btn-hide, .de-btn-hide-user', cln);
-			cln.btn.parentNode.className = 'de-post-btns';
-			cln.btn.onclick = function() { // doesn't work properly. TODO: Fix
-				this.hideContent(this.hidden = !this.hidden);
-			}.bind(cln);
-			if(!block) {
-				block = cont.appendChild(
-					$add('<div class="de-content-block"><b>' + Lng.hiddenPosts[lang] + ':</b></div>')
-				);
-			}
-			block.appendChild($New('div', {'class': 'de-entry'}, [cln]));
-		}
-		if(block) {
-			cont.appendChild($btn(Lng.expandAll[lang], '', function() {
-				$each($Q('.de-cloned-post', this.parentNode), function(el) {
-					var post = el.post;
-					post.hideContent(post.hidden = !post.hidden);
-				});
-				this.value = this.value === Lng.undo[lang] ? Lng.expandAll[lang] : Lng.undo[lang];
-			}));
-			cont.appendChild($btn(Lng.save[lang], '', function() {
-				$each($Q('.de-cloned-post', this.parentNode), function(date, el) {
-					if(!el.post.hidden) {
-						el.clone.setUserVisib(false, date, true);
-					}
-				}.bind(null, Date.now()));
-				saveUserPosts();
-			}));
-		} else {
-			cont.insertAdjacentHTML('beforeend', '<b>' + Lng.noHidPosts[lang] + '</b>');
-		}
-		cont.insertAdjacentHTML('beforeend', '<hr><b>' + 
-			($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') + '</b>');
-		for(var b in hThr) {
-			if(!$isEmpty(hThr[b])) {
-				block = addContentBlock(cont, $new('b', {'text': '/' + b}, null));
-				for(var tNum in hThr[b]) {
-					block.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply +
-						'" info="' + b + ';' + tNum + '"><input type="checkbox"><a href="' +
-						aib.getThrdUrl(b, tNum) + '" target="_blank">№' + tNum + '</a> - ' +
-						hThr[b][tNum] + '</div>');
-				}
-			}
-		}
-		cont.insertAdjacentHTML('beforeend', '<hr>');
-		cont.appendChild(addEditButton('hidden', function(fn) {
-			fn(hThr, true, function(data) {
-				hThr = data;
-				if(!(brd in hThr)) {
-					hThr[brd] = {};
-				}
-				dForm.firstThr.updateHidden(hThr[brd]);
-				saveHiddenThreads(true);
-				locStorage['__de-threads'] = JSON.stringify(hThr);
-				locStorage.removeItem('__de-threads');
-			});
-		}));
-		cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
-			for(var i = 0, els = $Q('.de-entry[info]', this.parentNode), len = els.length; i < len; ++i) {
-				var [board, tNum] = els[i].getAttribute('info').split(';'),
-					xhr = yield $ajax(aib.getThrdUrl(board, tNum));
-				if(xhr.status === 404) {
-					delete hThr[board][tNum];
-					saveHiddenThreads(true);
-				}
-			}
-		})));
-		cont.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
-			$each($Q('.de-entry[info]', this.parentNode), function(date, el) {
-				if($t('input', el).checked) {
-					var arr = el.getAttribute('info').split(';');
-					if(arr[1] in pByNum) {
-						pByNum[arr[1]].setUserVisib(false, date, true);
-					} else {
-						locStorage['__de-post'] = JSON.stringify({
-							'brd': arr[0],
-							'date': date,
-							'isOp': true,
-							'num': arr[1],
-							'hide': false
-						});
-						locStorage.removeItem('__de-post');
-					}
-					delete hThr[arr[0]][arr[1]];
-				}
-			}.bind(null, Date.now()));
-			saveHiddenThreads(true);
-		}));
-	}
-
-	if(name === 'vid') {
-		showVideosTable(cont);
-	}
-
 	if(Cfg.animation) {
 		cont.className = 'de-content de-cfg-open';
 	}
@@ -1989,6 +1877,112 @@ function showVideosTable(cont) {
 		}
 		el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
 	}
+}
+
+function showHiddenTable(cont) {
+	var block, els = $C('de-post-hide', dForm.el);
+	for(var i = 0, len = els.length; i < len; ++i) {
+		var post = els[i];
+		if(post.isOp) {
+			continue;
+		}
+		var cln = post.cloneNode(true);
+		cln.removeAttribute('id');
+		cln.style.display = '';
+		if(cln.classList.contains(aib.cRPost)) {
+			cln.classList.add('de-cloned-post');
+		} else {
+			cln.className = aib.cReply + ' de-cloned-post';
+		}
+		cln.post = Object.create(cln.clone = post.post);
+		cln.post.el = cln;
+		cln.btn = $q('.de-btn-hide, .de-btn-hide-user', cln);
+		cln.btn.parentNode.className = 'de-post-btns';
+		cln.btn.onclick = function() { // doesn't work properly. TODO: Fix
+			this.hideContent(this.hidden = !this.hidden);
+		}.bind(cln);
+		if(!block) {
+			block = cont.appendChild(
+				$add('<div class="de-content-block"><b>' + Lng.hiddenPosts[lang] + ':</b></div>')
+			);
+		}
+		block.appendChild($New('div', {'class': 'de-entry'}, [cln]));
+	}
+	if(block) {
+		cont.appendChild($btn(Lng.expandAll[lang], '', function() {
+			$each($Q('.de-cloned-post', this.parentNode), function(el) {
+				var post = el.post;
+				post.hideContent(post.hidden = !post.hidden);
+			});
+			this.value = this.value === Lng.undo[lang] ? Lng.expandAll[lang] : Lng.undo[lang];
+		}));
+		cont.appendChild($btn(Lng.save[lang], '', function() {
+			$each($Q('.de-cloned-post', this.parentNode), function(date, el) {
+				if(!el.post.hidden) {
+					el.clone.setUserVisib(false, date, true);
+				}
+			}.bind(null, Date.now()));
+			saveUserPosts();
+		}));
+	} else {
+		cont.insertAdjacentHTML('beforeend', '<b>' + Lng.noHidPosts[lang] + '</b>');
+	}
+	cont.insertAdjacentHTML('beforeend', '<hr><b>' + 
+		($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') + '</b>');
+	for(var b in hThr) {
+		if(!$isEmpty(hThr[b])) {
+			block = addContentBlock(cont, $new('b', {'text': '/' + b}, null));
+			for(var tNum in hThr[b]) {
+				block.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '" info="' +
+					b + ';' + tNum + '"><input type="checkbox"><a href="' + aib.getThrdUrl(b, tNum) +
+					'" target="_blank">№' + tNum + '</a> - ' + hThr[b][tNum] + '</div>');
+			}
+		}
+	}
+	cont.insertAdjacentHTML('beforeend', '<hr>');
+	cont.appendChild(addEditButton('hidden', function(fn) {
+		fn(hThr, true, function(data) {
+			hThr = data;
+			if(!(brd in hThr)) {
+				hThr[brd] = {};
+			}
+			dForm.firstThr.updateHidden(hThr[brd]);
+			saveHiddenThreads(true);
+			locStorage['__de-threads'] = JSON.stringify(hThr);
+			locStorage.removeItem('__de-threads');
+		});
+	}));
+	cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
+		for(var i = 0, els = $Q('.de-entry[info]', this.parentNode), len = els.length; i < len; ++i) {
+			var [board, tNum] = els[i].getAttribute('info').split(';'),
+				xhr = yield $ajax(aib.getThrdUrl(board, tNum));
+			if(xhr.status === 404) {
+				delete hThr[board][tNum];
+				saveHiddenThreads(true);
+			}
+		}
+	})));
+	cont.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
+		$each($Q('.de-entry[info]', this.parentNode), function(date, el) {
+			if($t('input', el).checked) {
+				var arr = el.getAttribute('info').split(';');
+				if(arr[1] in pByNum) {
+					pByNum[arr[1]].setUserVisib(false, date, true);
+				} else {
+					locStorage['__de-post'] = JSON.stringify({
+						'brd': arr[0],
+						'date': date,
+						'isOp': true,
+						'num': arr[1],
+						'hide': false
+					});
+					locStorage.removeItem('__de-post');
+				}
+				delete hThr[arr[0]][arr[1]];
+			}
+		}.bind(null, Date.now()));
+		saveHiddenThreads(true);
+	}));
 }
 
 function clearFavoriteTable() {
@@ -2802,15 +2796,17 @@ function addSettings(Set, id) {
 function closeAlert(el) {
 	if(el) {
 		el.closeTimeout = null;
-		if(Cfg.animation) {
-			nav.animEvent(el, function(node) {
-				var p = node && node.parentNode;
-				p && p.removeChild(node);
-			});
-			el.classList.add('de-close');
-		} else {
+		if(!Cfg.animation) {
 			$del(el);
+			return;
 		}
+		nav.animEvent(el, function(node) {
+			var p = node && node.parentNode;
+			if(p) {
+				p.removeChild(node);
+			}
+		});
+		el.classList.add('de-close');
 	}
 }
 
@@ -3855,7 +3851,8 @@ function loadDocFiles(imgOnly) {
 			var dt = doc.doctype;
 			$t('head', dc).insertAdjacentHTML('beforeend',
 				'<script type="text/javascript" src="data/dollscript.js"></script>');
-			tar.addString('data/dollscript.js', '(' + String(de_main_func_outer || de_main_func_inner) + ')(null, true);');
+			tar.addString('data/dollscript.js', '(' +
+				String(de_main_func_outer || de_main_func_inner) + ')(null, true);');
 			tar.addString(
 				name + '.html', '<!DOCTYPE ' + dt.name +
 				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') +
@@ -4243,21 +4240,7 @@ Videos.prototype = {
 	},
 	clickLink(el, mode) {
 		var m = el.videoInfo;
-		if(this.playerInfo === m) {
-			if(mode === 3) {
-				if($c('de-video-thumb', this.player)) {
-					el.classList.add('de-current');
-					this.addPlayer(m, el.classList.contains('de-ytube'));
-				} else {
-					el.classList.remove('de-current');
-					this._addThumb(m, el.classList.contains('de-ytube'));
-				}
-			} else {
-				el.classList.remove('de-current');
-				this.player.innerHTML = '';
-				this.playerInfo = null;
-			}
-		} else {
+		if(this.playerInfo !== m) {
 			this.currentLink.classList.remove('de-current');
 			this.currentLink = el;
 			if(mode > 2) {
@@ -4266,6 +4249,20 @@ Videos.prototype = {
 				el.classList.add('de-current');
 				this.addPlayer(m, el.classList.contains('de-ytube'));
 			}
+			return;
+		}
+		if(mode === 3) {
+			if($c('de-video-thumb', this.player)) {
+				el.classList.add('de-current');
+				this.addPlayer(m, el.classList.contains('de-ytube'));
+			} else {
+				el.classList.remove('de-current');
+				this._addThumb(m, el.classList.contains('de-ytube'));
+			}
+		} else {
+			el.classList.remove('de-current');
+			this.player.innerHTML = '';
+			this.playerInfo = null;
 		}
 	},
 	updatePost(oldLinks, newLinks, cloned) {
@@ -4300,15 +4297,15 @@ Videos.prototype = {
 		if(isYtube) {
 			el.innerHTML = '<a href="' + aib.prot + '//www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
 				'<img class="de-video-thumb de-ytube" src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg"' + wh;
-		} else {
-			el.innerHTML = '<a href="' + aib.prot + '//vimeo.com/' + m[1] + '" target="_blank">' +
-				'<img class="de-video-thumb de-vimeo" src=""' + wh;
-			$ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json', null, false).then(xhr => {
-				try {
-					el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
-				} catch(e) {}
-			});
+			return;
 		}
+		el.innerHTML = '<a href="' + aib.prot + '//vimeo.com/' + m[1] + '" target="_blank">' +
+			'<img class="de-video-thumb de-vimeo" src=""' + wh;
+		$ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json', null, false).then(xhr => {
+			try {
+				el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
+			} catch(e) {}
+		});
 	}
 };
 
@@ -4330,7 +4327,9 @@ VideosParser.prototype = {
 				m = link.href.match(Videos.ytReg);
 			if(m) {
 				var mPost = post || (aib.getPostEl(link) || {}).post;
-				mPost && mPost.videos.addLink(m, loader, link, true);
+				if(mPost) {
+					mPost.videos.addLink(m, loader, link, true);
+				}
 			}
 		}
 		if(Cfg.addVimeo) {
@@ -4340,13 +4339,17 @@ VideosParser.prototype = {
 					m = link.href.match(Videos.vimReg);
 				if(m) {
 					var mPost = post || (aib.getPostEl(link) || {}).post;
-					mPost && mPost.videos.addLink(m, loader, link, false);
+					if(mPost) {
+						mPost.videos.addLink(m, loader, link, false);
+					}
 				}
 			}
 		}
 		for(var i = 0, len = vids.length; i < len; ++i) {
 			var [pst, m, isYtube] = vids[i];
-			pst && pst.videos.addLink(m, loader, null, isYtube);
+			if(pst) {
+				pst.videos.addLink(m, loader, null, isYtube);
+			}
 		}
 		return this;
 	}
@@ -4486,7 +4489,7 @@ var loadPages = async(function* (count) {
 	}
 	if(!hasError) {
 		dForm.initAjax();
-		addDelformStuff(false);
+		addDelformStuff();
 		yield* readUserPosts();
 		yield* readFavoritesPosts();
 		$each($Q('input[type="password"]', dForm.el), function(pEl) {
@@ -5822,12 +5825,16 @@ function PostForm(form, ignoreForm, init, dc) {
 }
 PostForm.setUserName = function() {
 	var el = $q('input[info="nameValue"]', doc);
-	el && saveCfg('nameValue', el.value);
+	if(el) {
+		saveCfg('nameValue', el.value);
+	}
 	pr.name.value = Cfg.userName ? Cfg.nameValue : '';
 };
 PostForm.setUserPassw = function() {
 	var el = $q('input[info="passwValue"]', doc);
-	el && saveCfg('passwValue', el.value);
+	if(el) {
+		saveCfg('passwValue', el.value);
+	}
 	(pr.dpass || {}).value = pr.passw.value = Cfg.passwValue;
 };
 PostForm.prototype = {
@@ -6119,7 +6126,8 @@ PostForm.prototype = {
 	_init() {
 		var el;
 		this.pForm = $New('div', {'id': 'de-pform'}, [this.form, this.oeForm]);
-		dForm.el.insertAdjacentHTML('beforebegin', '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
+		dForm.el.insertAdjacentHTML('beforebegin',
+			'<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
 		this.pArea[0] = dForm.el.previousSibling;
 		this._pBtn[0] = this.pArea[0].firstChild;
 		this._pBtn[0].firstElementChild.onclick = this.showMainReply.bind(this, false);
@@ -6901,7 +6909,9 @@ function getSubmitError(dc) {
 
 var doUploading = async(function* (getProgress) {
 	$alert(Lng.sendingPost[lang] +
-		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;"></progress><div style="display: none; font: bold 12px sans-serif;"><span></span> / <span></span> (<span></span>)</div>', 'upload', true);
+		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' +
+		'</progress><div style="display: none; font: bold 12px sans-serif;">' +
+		'<span></span> / <span></span> (<span></span>)</div>', 'upload', true);
 	var p, beginTime = Date.now(),
 		inited = false,
 		progress = $id('de-uploadprogress'),
@@ -7307,7 +7317,7 @@ WebmParser = function(data) {
 			if(this.error || !data) {
 				return this;
 			}
-			var size = typeof data === 'string' ? data.length : data.byteLength;
+			var size = (typeof data === 'string') ? data.length : data.byteLength;
 			if(size > 127) {
 				this.error = true;
 				return;
@@ -7780,7 +7790,8 @@ IAttachmentData.prototype = {
 					saveCfg('webmVolume', Math.round(this.volume * 100));
 				};
 			} else {
-				obj = $add('<object style="width: 100%; height: 100%" data="' + src + '" type="application/x-vlc-plugin">' +
+				obj = $add('<object style="width: 100%; height: 100%" data="' + src +
+					'" type="application/x-vlc-plugin">' +
 					'<param name="pluginspage" value="http://www.videolan.org/vlc/" />' +
 					'<param name="controls" value="' + (Cfg.webmControl ? 'true' : 'false') + '" />' +
 					'<param name="loop" value="true" />' +
@@ -8639,7 +8650,9 @@ Post.prototype = {
 	unselect() {
 		if(this.isOp) {
 			var el = $id('de-thr-hid-' + this.num);
-			el && el.classList.remove('de-selected');
+			if(el) {
+				el.classList.remove('de-selected');
+			}
 			this.thr.el.classList.remove('de-selected');
 		} else {
 			this.el.classList.remove('de-selected');
@@ -8825,8 +8838,8 @@ Post.prototype = {
 				end = end.parentNode;
 			}
 			if((nav.matchesSelector(start, aib.qMsg + ' *') && nav.matchesSelector(end, aib.qMsg + ' *')) ||
-				(nav.matchesSelector(start, '.' + aib.cSubj) && nav.matchesSelector(end, '.' + aib.cSubj))
-				) {
+			   (nav.matchesSelector(start, '.' + aib.cSubj) && nav.matchesSelector(end, '.' + aib.cSubj))) 
+			{
 				if(this._selText.contains('\n')) {
 					addSpell(1 /* #exp */, '/' +
 						regQuote(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
@@ -9167,7 +9180,7 @@ Pview.prototype = Object.create(Post.prototype, {
 	} },
 	_onerror: { value(e) {
 		Pview.del(this);
-		this._showText(e instanceof AjaxError && e.code === 404 ?
+		this._showText((e instanceof AjaxError) && e.code === 404 ?
 			Lng.postNotFound[lang] : getErrorMessage(e));
 	} },
 	_onload: { value(b, form) {
@@ -9607,7 +9620,8 @@ Thread.prototype = {
 		}
 	},
 	deletePost(post, delAll, removePost) {
-		var count = 0;
+		var count = 0,
+			idx = post.count;
 		do {
 			if(removePost) {
 				$del(post.wrap);
@@ -9633,7 +9647,7 @@ Thread.prototype = {
 			count++;
 		} while(delAll && post);
 		if(!spells.hasNumSpell) {
-			sVis.splice(post.count, count);
+			sVis.splice(idx, count);
 		}
 		for(var tPost = post; tPost; tPost = tPost.nextInThread) {
 			tPost.count -= count;
@@ -9739,8 +9753,12 @@ Thread.prototype = {
 		readFav().then(fav => {
 			if(val) {
 				var h = aib.host;
-				!fav[h] && (fav[h] = {});
-				!fav[h][brd] && (fav[h][brd] = {});
+				if(!fav[h]) {
+					fav[h] = {};
+				}
+				if(!fav[h][brd]) {
+					fav[h][brd] = {};
+				}
 				fav[h][brd].url = aib.prot + '//' + aib.host + aib.getPageUrl(brd, 0);
 				fav[h][brd][this.num] = {
 					'cnt': this.pcount,
@@ -10043,7 +10061,7 @@ function getNavFuncs() {
 		isChromeStorage = window.chrome && !!window.chrome.storage,
 		isScriptStorage = !!scriptStorage && !ua.contains('Opera Mobi');
 	try {
-		isGM = typeof GM_setValue === 'function' &&
+		isGM = (typeof GM_setValue === 'function') &&
 			(!chrome || !GM_setValue.toString().contains('not supported'));
 	} catch(e) {}
 	return {
@@ -10110,14 +10128,14 @@ function getNavFuncs() {
 			var rv;
 			if(typeof i === 'undefined') {
 				rv = new Uint8Array(data);
-				return rv instanceof Uint8Array ? rv : new unsafeWindow.Uint8Array(data);
+				return (rv instanceof Uint8Array) ? rv : new unsafeWindow.Uint8Array(data);
 			}
 			rv = new Uint8Array(data, i, len);
-			return rv instanceof Uint8Array ? rv : new unsafeWindow.Uint8Array(data, i, len);
+			return (rv instanceof Uint8Array) ? rv : new unsafeWindow.Uint8Array(data, i, len);
 		},
 		getUnsafeDataView(data, offset) {
 			var rv = new DataView(data, offset || 0);
-			return rv instanceof DataView ? rv : new unsafeWindow.DataView(data, offset || 0);
+			return (rv instanceof DataView) ? rv : new unsafeWindow.DataView(data, offset || 0);
 		}
 	};
 }
@@ -10576,7 +10594,9 @@ function getImageBoard(checkDomains, checkOther) {
 					el.nextSibling.appendChild(el);
 				});
 				var el = $q('td > .anoniconsselectlist', doc);
-				el && $q('.option-area > td:last-child', doc).appendChild(el);
+				if(el) {
+					$q('.option-area > td:last-child', doc).appendChild(el);
+				}
 				el = $q('tr:not([class])', doc.body);
 				if(!el) {
 					return;
@@ -11004,7 +11024,7 @@ function Initialization(checkDomains) {
 			sesStorage = unsafeWindow.sessionStorage;
 		}
 	}
-	if(!(locStorage && typeof locStorage === 'object' && sesStorage)) {
+	if(!(locStorage && (typeof locStorage === 'object') && sesStorage)) {
 		console.log('WEBSTORAGE ERROR: please, enable webstorage!');
 		return null;
 	}
@@ -11413,13 +11433,9 @@ function initThreadUpdater(title, enableUpdate) {
 		}
 		if(!enabled && !disabledByUser) {
 			enable();
-			if(!checkFocusLoad(isFocusLoad)) {
-				return;
-			}
-		} else {
-			if(!checkFocusLoad(isFocusLoad)) {
-				return;
-			}
+		}
+		if(!checkFocusLoad(isFocusLoad)) {
+			return;
 		}
 		stopLoad(false);
 		startLoad(false);
@@ -11489,18 +11505,12 @@ function initThreadUpdater(title, enableUpdate) {
 				error = e;
 			}
 			infoLoadErrors(error, false);
-			var eCode = error instanceof AjaxError ? error.code : 0;
+			var eCode = (error instanceof AjaxError) ? error.code : 0;
 			if(eCode !== 200 && eCode !== 304) {
 				lastECode = eCode;
 				if(Cfg.favIcoBlink && !focused && favHref) {
 					clearInterval(favIntrv);
-					favIntrv = setInterval(favIcoBlink.bind('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAA3' +
-						'NCSVQICAjb4U/gAAAALVBMVEX////QRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdi' +
-						'Ad5MAAAAD3RSTlMAESIzRFVmd4iZu8zd7v9ufV8LAAAACXBIWXMAAAsSAAALEgHS3X78AAAAFXRFWHRDcmVhdG' +
-						'lvbiBUaW1lADEwLzIvMTOFMzGTAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAAH9J' +
-						'REFUCJljYEAAjbO3C0E067l37946ABlxLxWY6q4wMDDde+PAwPxGgYHj5bnLDAx1BQw8j3yBKvQ2MPA9YL53mI' +
-						'HvAJDB4PPOAMjgfsTA/O4wUIrjOQODzdt5CQyM9wwYmO+9EWBg8H2uwDTvMdBkFqAVbwxAlqmvOV2I5AYASFUr' +
-						'cXUe0gcAAAAASUVORK5CYII='), 800);
+					favIntrv = setInterval(favIcoBlink.bind('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAA3NCSVQICAjb4U/gAAAALVBMVEX////QRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdiAd5MAAAAD3RSTlMAESIzRFVmd4iZu8zd7v9ufV8LAAAACXBIWXMAAAsSAAALEgHS3X78AAAAFXRFWHRDcmVhdGlvbiBUaW1lADEwLzIvMTOFMzGTAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAAH9JREFUCJljYEAAjbO3C0E067l37946ABlxLxWY6q4wMDDde+PAwPxGgYHj5bnLDAx1BQw8j3yBKvQ2MPA9YL53mIHvAJDB4PPOAMjgfsTA/O4wUIrjOQODzdt5CQyM9wwYmO+9EWBg8H2uwDTvMdBkFqAVbwxAlqmvOV2I5AYASFUrcXUe0gcAAAAASUVORK5CYII='), 800);
 				}
 				if(eCode !== 0 && eCode < 500) {
 					if(!checked4XX && (eCode === 404 || eCode === 400)) {
@@ -11527,9 +11537,7 @@ function initThreadUpdater(title, enableUpdate) {
 			if(!focused) {
 				if(lPosts !== 0) {
 					if(Cfg.favIcoBlink && favHref && newPosts === 0) {
-						favIntrv = setInterval(favIcoBlink.bind('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAA' +
-							'AABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbB' +
-							'SAcACBAAAeaR9cIAAAAASUVORK5CYII='), 800);
+						favIntrv = setInterval(favIcoBlink.bind('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII='), 800);
 					}
 					newPosts += lPosts;
 					updateTitle();
@@ -12245,22 +12253,22 @@ function updateCSS() {
 // MAIN
 // ===========================================================================================================
 
-function addDelformStuff(isLog) {
+function addDelformStuff() {
 	preloadImages(null);
-	isLog && new Logger().log('Preload images');
+	new Logger().log('Preload images');
 	embedMediaLinks(null);
-	isLog && new Logger().log('Audio links');
+	new Logger().log('Audio links');
 	if(Cfg.addYouTube) {
 		new VideosParser().parse(null).end();
-		isLog && new Logger().log('Video links');
+		new Logger().log('Video links');
 	}
 	if(Cfg.addImgs) {
 		embedImagesLinks(dForm.el);
-		isLog && new Logger().log('Image links');
+		new Logger().log('Image links');
 	}
 	if(Cfg.imgSrcBtns) {
 		addImagesSearch(dForm.el);
-		isLog && new Logger().log('Sauce buttons');
+		new Logger().log('Sauce buttons');
 	}
 	if(dForm.firstThr && Cfg.linksNavig === 2) {
 		genRefMap(pByNum, '');
@@ -12269,7 +12277,7 @@ function addDelformStuff(isLog) {
 				addRefMap(post, '');
 			}
 		}
-		isLog && new Logger().log('Reflinks map');
+		new Logger().log('Reflinks map');
 	}
 }
 
@@ -12322,7 +12330,7 @@ function* initScript(checkDomains) {
 		new Logger().log('Add panel');
 	}
 	initMessageFunctions();
-	addDelformStuff(true);
+	addDelformStuff();
 	readViewedPosts();
 	scriptCSS();
 	new Logger().log('Apply CSS');
@@ -12346,10 +12354,12 @@ if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 } else {
 	aib = getImageBoard(true, false);
 	needScroll = true;
-	doc.addEventListener(doc.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll", function wheelFunc(e) {
-		needScroll = false;
-		doc.removeEventListener(e.type, wheelFunc, false);
-	}, false);
+	doc.addEventListener(
+		doc.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll",
+		function wheelFunc(e) {
+			needScroll = false;
+			doc.removeEventListener(e.type, wheelFunc, false);
+		}, false);
 	doc.addEventListener('DOMContentLoaded', async(initScript.bind(null, false)), false);
 }
 

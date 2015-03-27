@@ -1984,16 +1984,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 10:
 					if (!nav.isScriptStorage) {
-						context$2$0.next = 14;
+						context$2$0.next = 12;
 						break;
 					}
 
 					return context$2$0.abrupt("return", scriptStorage.getItem(id));
 
-				case 14:
+				case 12:
 					return context$2$0.abrupt("return", locStorage.getItem(id));
 
-				case 15:
+				case 13:
 				case "end":
 					return context$2$0.stop();
 			}
@@ -2648,7 +2648,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						new Logger().log("Add panel");
 					}
 					initMessageFunctions();
-					addDelformStuff(true);
+					addDelformStuff();
 					readViewedPosts();
 					scriptCSS();
 					new Logger().log("Apply CSS");
@@ -3295,7 +3295,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	Logger = new function () {
 		var instance,
-		    marks = [];
+		    marks = [],
+		    finished = false;
 		function LoggerSingleton() {
 			if (instance) {
 				return instance;
@@ -3304,6 +3305,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 		LoggerSingleton.prototype = {
 			finish: function finish() {
+				finished = true;
 				marks.push(["LoggerFinish", Date.now()]);
 			},
 			getData: function getData(full) {
@@ -3335,7 +3337,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				marks.push(["LoggerInit", Date.now()]);
 			},
 			log: function log(text) {
-				marks.push([text, Date.now()]);
+				if (!finished) {
+					marks.push([text, Date.now()]);
+				}
 			}
 		};
 		return LoggerSingleton;
@@ -3385,30 +3389,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		var useNative = arguments[2] === undefined ? true : arguments[2];
 
 		return new Promise(function (resolve, reject) {
-			if (useNative || !(typeof GM_xmlhttpRequest === "function")) {
-				var xhr = new XMLHttpRequest();
-				if (params && params.onprogress) {
-					xhr.upload.onprogress = params.onprogress;
-				}
-				xhr.onloadend = function (e) {
-					return resolve(e.target);
-				};
-				xhr.open(params && params.method || "GET", url, true);
-				if (params) {
-					if (params.responseType) {
-						xhr.responseType = params.responseType;
-					}
-					var headers = params.headers;
-					if (headers) {
-						for (var h in headers) {
-							if (headers.hasOwnProperty(h)) {
-								xhr.setRequestHeader(h, headers[h]);
-							}
-						}
-					}
-				}
-				xhr.send(params && params.data || null);
-			} else {
+			if (!useNative && typeof GM_xmlhttpRequest === "function") {
 				var obj = {
 					method: params && params.method || "GET",
 					url: nav.fixLink(url),
@@ -3421,7 +3402,30 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					Object.assign(obj, params);
 				}
 				GM_xmlhttpRequest(obj);
+				return;
 			}
+			var xhr = new XMLHttpRequest();
+			if (params && params.onprogress) {
+				xhr.upload.onprogress = params.onprogress;
+			}
+			xhr.onloadend = function (e) {
+				return resolve(e.target);
+			};
+			xhr.open(params && params.method || "GET", url, true);
+			if (params) {
+				if (params.responseType) {
+					xhr.responseType = params.responseType;
+				}
+				var headers = params.headers;
+				if (headers) {
+					for (var h in headers) {
+						if (headers.hasOwnProperty(h)) {
+							xhr.setRequestHeader(h, headers[h]);
+						}
+					}
+				}
+			}
+			xhr.send(params && params.data || null);
 		});
 	}
 
@@ -3984,11 +3988,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				id = name = remove = data = null;
 			});
 			el.className = "de-content de-cfg-close";
-			return !remove;
 		} else {
 			showContent(el, id, name, remove, data);
-			return !remove;
 		}
+		return !remove;
 	}
 
 	function addContentBlock(parent, title) {
@@ -4012,163 +4015,27 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			return;
 		}
 		cont.id = id;
-		if (name === "cfg") {
-			addSettings(cont, cfgTabId);
-		} else if (Cfg.attachPanel) {
+		if (Cfg.attachPanel && name !== "cfg") {
 			cont.style.backgroundColor = getComputedStyle(doc.body).getPropertyValue("background-color");
 		}
-
-		if (name === "fav") {
-			if (data) {
-				showFavoriteTable(cont, data);
-			} else {
-			
-				readFav().then(function (fav) {
-					showFavoriteTable(cont, fav);
-				});
-			}
-			return;
-		}
-
-		if (name === "hid") {
-			var block,
-			    els = $C("de-post-hide", dForm.el);
-			for (var i = 0, len = els.length; i < len; ++i) {
-				var post = els[i];
-				if (post.isOp) {
-					continue;
-				}
-				var cln = post.cloneNode(true);
-				cln.removeAttribute("id");
-				cln.style.display = "";
-				if (cln.classList.contains(aib.cRPost)) {
-					cln.classList.add("de-cloned-post");
+		switch (name) {
+			case "fav":
+				if (data) {
+					showFavoriteTable(cont, data);
 				} else {
-					cln.className = aib.cReply + " de-cloned-post";
-				}
-				cln.post = Object.create(cln.clone = post.post);
-				cln.post.el = cln;
-				cln.btn = $q(".de-btn-hide, .de-btn-hide-user", cln);
-				cln.btn.parentNode.className = "de-post-btns";
-				cln.btn.onclick = (function () {
 				
-					this.hideContent(this.hidden = !this.hidden);
-				}).bind(cln);
-				if (!block) {
-					block = cont.appendChild($add("<div class=\"de-content-block\"><b>" + Lng.hiddenPosts[lang] + ":</b></div>"));
-				}
-				block.appendChild($New("div", { "class": "de-entry" }, [cln]));
-			}
-			if (block) {
-				cont.appendChild($btn(Lng.expandAll[lang], "", function () {
-					$each($Q(".de-cloned-post", this.parentNode), function (el) {
-						var post = el.post;
-						post.hideContent(post.hidden = !post.hidden);
+					readFav().then(function (fav) {
+						showFavoriteTable(cont, fav);
 					});
-					this.value = this.value === Lng.undo[lang] ? Lng.expandAll[lang] : Lng.undo[lang];
-				}));
-				cont.appendChild($btn(Lng.save[lang], "", function () {
-					$each($Q(".de-cloned-post", this.parentNode), (function (date, el) {
-						if (!el.post.hidden) {
-							el.clone.setUserVisib(false, date, true);
-						}
-					}).bind(null, Date.now()));
-					saveUserPosts();
-				}));
-			} else {
-				cont.insertAdjacentHTML("beforeend", "<b>" + Lng.noHidPosts[lang] + "</b>");
-			}
-			cont.insertAdjacentHTML("beforeend", "<hr><b>" + ($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ":") + "</b>");
-			for (var b in hThr) {
-				if (!$isEmpty(hThr[b])) {
-					block = addContentBlock(cont, $new("b", { text: "/" + b }, null));
-					for (var tNum in hThr[b]) {
-						block.insertAdjacentHTML("beforeend", "<div class=\"de-entry " + aib.cReply + "\" info=\"" + b + ";" + tNum + "\"><input type=\"checkbox\"><a href=\"" + aib.getThrdUrl(b, tNum) + "\" target=\"_blank\">№" + tNum + "</a> - " + hThr[b][tNum] + "</div>");
-					}
 				}
-			}
-			cont.insertAdjacentHTML("beforeend", "<hr>");
-			cont.appendChild(addEditButton("hidden", function (fn) {
-				fn(hThr, true, function (data) {
-					hThr = data;
-					if (!(brd in hThr)) {
-						hThr[brd] = {};
-					}
-					dForm.firstThr.updateHidden(hThr[brd]);
-					saveHiddenThreads(true);
-					locStorage["__de-threads"] = JSON.stringify(hThr);
-					locStorage.removeItem("__de-threads");
-				});
-			}));
-			cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function callee$2$0() {
-				var _this = this;
-
-				var i, els, len, _els$i$getAttribute$split, _els$i$getAttribute$split2, board, tNum, xhr;
-
-				return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-					while (1) switch (context$3$0.prev = context$3$0.next) {
-						case 0:
-							i = 0, els = $Q(".de-entry[info]", _this.parentNode), len = els.length;
-
-						case 1:
-							if (!(i < len)) {
-								context$3$0.next = 13;
-								break;
-							}
-
-							_els$i$getAttribute$split = els[i].getAttribute("info").split(";");
-							_els$i$getAttribute$split2 = _slicedToArray(_els$i$getAttribute$split, 2);
-							board = _els$i$getAttribute$split2[0];
-							tNum = _els$i$getAttribute$split2[1];
-							context$3$0.next = 8;
-							return $ajax(aib.getThrdUrl(board, tNum));
-
-						case 8:
-							xhr = context$3$0.sent;
-
-							if (xhr.status === 404) {
-								delete hThr[board][tNum];
-								saveHiddenThreads(true);
-							}
-
-						case 10:
-							++i;
-							context$3$0.next = 1;
-							break;
-
-						case 13:
-						case "end":
-							return context$3$0.stop();
-					}
-				}, callee$2$0, this);
-			}))));
-			cont.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function () {
-				$each($Q(".de-entry[info]", this.parentNode), (function (date, el) {
-					if ($t("input", el).checked) {
-						var arr = el.getAttribute("info").split(";");
-						if (arr[1] in pByNum) {
-							pByNum[arr[1]].setUserVisib(false, date, true);
-						} else {
-							locStorage["__de-post"] = JSON.stringify({
-								brd: arr[0],
-								date: date,
-								isOp: true,
-								num: arr[1],
-								hide: false
-							});
-							locStorage.removeItem("__de-post");
-						}
-						delete hThr[arr[0]][arr[1]];
-					}
-				}).bind(null, Date.now()));
-				saveHiddenThreads(true);
-			}));
+				return;
+			case "cfg":
+				addSettings(cont, cfgTabId);break;
+			case "hid":
+				showHiddenTable(cont);break;
+			case "vid":
+				showVideosTable(cont);
 		}
-
-		if (name === "vid") {
-			showVideosTable(cont);
-		}
-
 		if (Cfg.animation) {
 			cont.className = "de-content de-cfg-open";
 		}
@@ -4250,6 +4117,141 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 			el.setAttribute("onclick", "window.de_addVideoEvents && window.de_addVideoEvents();");
 		}
+	}
+
+	function showHiddenTable(cont) {
+		var block,
+		    els = $C("de-post-hide", dForm.el);
+		for (var i = 0, len = els.length; i < len; ++i) {
+			var post = els[i];
+			if (post.isOp) {
+				continue;
+			}
+			var cln = post.cloneNode(true);
+			cln.removeAttribute("id");
+			cln.style.display = "";
+			if (cln.classList.contains(aib.cRPost)) {
+				cln.classList.add("de-cloned-post");
+			} else {
+				cln.className = aib.cReply + " de-cloned-post";
+			}
+			cln.post = Object.create(cln.clone = post.post);
+			cln.post.el = cln;
+			cln.btn = $q(".de-btn-hide, .de-btn-hide-user", cln);
+			cln.btn.parentNode.className = "de-post-btns";
+			cln.btn.onclick = (function () {
+			
+				this.hideContent(this.hidden = !this.hidden);
+			}).bind(cln);
+			if (!block) {
+				block = cont.appendChild($add("<div class=\"de-content-block\"><b>" + Lng.hiddenPosts[lang] + ":</b></div>"));
+			}
+			block.appendChild($New("div", { "class": "de-entry" }, [cln]));
+		}
+		if (block) {
+			cont.appendChild($btn(Lng.expandAll[lang], "", function () {
+				$each($Q(".de-cloned-post", this.parentNode), function (el) {
+					var post = el.post;
+					post.hideContent(post.hidden = !post.hidden);
+				});
+				this.value = this.value === Lng.undo[lang] ? Lng.expandAll[lang] : Lng.undo[lang];
+			}));
+			cont.appendChild($btn(Lng.save[lang], "", function () {
+				$each($Q(".de-cloned-post", this.parentNode), (function (date, el) {
+					if (!el.post.hidden) {
+						el.clone.setUserVisib(false, date, true);
+					}
+				}).bind(null, Date.now()));
+				saveUserPosts();
+			}));
+		} else {
+			cont.insertAdjacentHTML("beforeend", "<b>" + Lng.noHidPosts[lang] + "</b>");
+		}
+		cont.insertAdjacentHTML("beforeend", "<hr><b>" + ($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ":") + "</b>");
+		for (var b in hThr) {
+			if (!$isEmpty(hThr[b])) {
+				block = addContentBlock(cont, $new("b", { text: "/" + b }, null));
+				for (var tNum in hThr[b]) {
+					block.insertAdjacentHTML("beforeend", "<div class=\"de-entry " + aib.cReply + "\" info=\"" + b + ";" + tNum + "\"><input type=\"checkbox\"><a href=\"" + aib.getThrdUrl(b, tNum) + "\" target=\"_blank\">№" + tNum + "</a> - " + hThr[b][tNum] + "</div>");
+				}
+			}
+		}
+		cont.insertAdjacentHTML("beforeend", "<hr>");
+		cont.appendChild(addEditButton("hidden", function (fn) {
+			fn(hThr, true, function (data) {
+				hThr = data;
+				if (!(brd in hThr)) {
+					hThr[brd] = {};
+				}
+				dForm.firstThr.updateHidden(hThr[brd]);
+				saveHiddenThreads(true);
+				locStorage["__de-threads"] = JSON.stringify(hThr);
+				locStorage.removeItem("__de-threads");
+			});
+		}));
+		cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function callee$2$0() {
+			var _this = this;
+
+			var i, els, len, _els$i$getAttribute$split, _els$i$getAttribute$split2, board, tNum, xhr;
+
+			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
+				while (1) switch (context$3$0.prev = context$3$0.next) {
+					case 0:
+						i = 0, els = $Q(".de-entry[info]", _this.parentNode), len = els.length;
+
+					case 1:
+						if (!(i < len)) {
+							context$3$0.next = 13;
+							break;
+						}
+
+						_els$i$getAttribute$split = els[i].getAttribute("info").split(";");
+						_els$i$getAttribute$split2 = _slicedToArray(_els$i$getAttribute$split, 2);
+						board = _els$i$getAttribute$split2[0];
+						tNum = _els$i$getAttribute$split2[1];
+						context$3$0.next = 8;
+						return $ajax(aib.getThrdUrl(board, tNum));
+
+					case 8:
+						xhr = context$3$0.sent;
+
+						if (xhr.status === 404) {
+							delete hThr[board][tNum];
+							saveHiddenThreads(true);
+						}
+
+					case 10:
+						++i;
+						context$3$0.next = 1;
+						break;
+
+					case 13:
+					case "end":
+						return context$3$0.stop();
+				}
+			}, callee$2$0, this);
+		}))));
+		cont.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function () {
+			$each($Q(".de-entry[info]", this.parentNode), (function (date, el) {
+				if ($t("input", el).checked) {
+					var arr = el.getAttribute("info").split(";");
+					if (arr[1] in pByNum) {
+						pByNum[arr[1]].setUserVisib(false, date, true);
+					} else {
+						locStorage["__de-post"] = JSON.stringify({
+							brd: arr[0],
+							date: date,
+							isOp: true,
+							num: arr[1],
+							hide: false
+						});
+						locStorage.removeItem("__de-post");
+					}
+					delete hThr[arr[0]][arr[1]];
+				}
+			}).bind(null, Date.now()));
+			saveHiddenThreads(true);
+		}));
 	}
 
 	function clearFavoriteTable() {
@@ -4932,15 +4934,17 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	function closeAlert(el) {
 		if (el) {
 			el.closeTimeout = null;
-			if (Cfg.animation) {
-				nav.animEvent(el, function (node) {
-					var p = node && node.parentNode;
-					p && p.removeChild(node);
-				});
-				el.classList.add("de-close");
-			} else {
+			if (!Cfg.animation) {
 				$del(el);
+				return;
 			}
+			nav.animEvent(el, function (node) {
+				var p = node && node.parentNode;
+				if (p) {
+					p.removeChild(node);
+				}
+			});
+			el.classList.add("de-close");
 		}
 	}
 
@@ -6396,21 +6400,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		},
 		clickLink: function clickLink(el, mode) {
 			var m = el.videoInfo;
-			if (this.playerInfo === m) {
-				if (mode === 3) {
-					if ($c("de-video-thumb", this.player)) {
-						el.classList.add("de-current");
-						this.addPlayer(m, el.classList.contains("de-ytube"));
-					} else {
-						el.classList.remove("de-current");
-						this._addThumb(m, el.classList.contains("de-ytube"));
-					}
-				} else {
-					el.classList.remove("de-current");
-					this.player.innerHTML = "";
-					this.playerInfo = null;
-				}
-			} else {
+			if (this.playerInfo !== m) {
 				this.currentLink.classList.remove("de-current");
 				this.currentLink = el;
 				if (mode > 2) {
@@ -6419,6 +6409,20 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					el.classList.add("de-current");
 					this.addPlayer(m, el.classList.contains("de-ytube"));
 				}
+				return;
+			}
+			if (mode === 3) {
+				if ($c("de-video-thumb", this.player)) {
+					el.classList.add("de-current");
+					this.addPlayer(m, el.classList.contains("de-ytube"));
+				} else {
+					el.classList.remove("de-current");
+					this._addThumb(m, el.classList.contains("de-ytube"));
+				}
+			} else {
+				el.classList.remove("de-current");
+				this.player.innerHTML = "";
+				this.playerInfo = null;
 			}
 		},
 		updatePost: function updatePost(oldLinks, newLinks, cloned) {
@@ -6452,14 +6456,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			this.playerInfo = m;
 			if (isYtube) {
 				el.innerHTML = "<a href=\"" + aib.prot + "//www.youtube.com/watch?v=" + m[1] + "\" target=\"_blank\">" + "<img class=\"de-video-thumb de-ytube\" src=\"https://i.ytimg.com/vi/" + m[1] + "/0.jpg\"" + wh;
-			} else {
-				el.innerHTML = "<a href=\"" + aib.prot + "//vimeo.com/" + m[1] + "\" target=\"_blank\">" + "<img class=\"de-video-thumb de-vimeo\" src=\"\"" + wh;
-				$ajax(aib.prot + "//vimeo.com/api/v2/video/" + m[1] + ".json", null, false).then(function (xhr) {
-					try {
-						el.firstChild.firstChild.setAttribute("src", JSON.parse(xhr.responseText)[0].thumbnail_large);
-					} catch (e) {}
-				});
+				return;
 			}
+			el.innerHTML = "<a href=\"" + aib.prot + "//vimeo.com/" + m[1] + "\" target=\"_blank\">" + "<img class=\"de-video-thumb de-vimeo\" src=\"\"" + wh;
+			$ajax(aib.prot + "//vimeo.com/api/v2/video/" + m[1] + ".json", null, false).then(function (xhr) {
+				try {
+					el.firstChild.firstChild.setAttribute("src", JSON.parse(xhr.responseText)[0].thumbnail_large);
+				} catch (e) {}
+			});
 		}
 	}, {
 		player: {
@@ -6493,7 +6497,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				    m = link.href.match(Videos.ytReg);
 				if (m) {
 					var mPost = post || (aib.getPostEl(link) || {}).post;
-					mPost && mPost.videos.addLink(m, loader, link, true);
+					if (mPost) {
+						mPost.videos.addLink(m, loader, link, true);
+					}
 				}
 			}
 			if (Cfg.addVimeo) {
@@ -6503,7 +6509,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					    m = link.href.match(Videos.vimReg);
 					if (m) {
 						var mPost = post || (aib.getPostEl(link) || {}).post;
-						mPost && mPost.videos.addLink(m, loader, link, false);
+						if (mPost) {
+							mPost.videos.addLink(m, loader, link, false);
+						}
 					}
 				}
 			}
@@ -6514,7 +6522,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				var m = _vids$i[1];
 				var isYtube = _vids$i[2];
 
-				pst && pst.videos.addLink(m, loader, null, isYtube);
+				if (pst) {
+					pst.videos.addLink(m, loader, null, isYtube);
+				}
 			}
 			return this;
 		}
@@ -6692,7 +6702,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 
 					dForm.initAjax();
-					addDelformStuff(false);
+					addDelformStuff();
 					return context$2$0.delegateYield(readUserPosts(), "t22", 39);
 
 				case 39:
@@ -8248,12 +8258,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 	PostForm.setUserName = function () {
 		var el = $q("input[info=\"nameValue\"]", doc);
-		el && saveCfg("nameValue", el.value);
+		if (el) {
+			saveCfg("nameValue", el.value);
+		}
 		pr.name.value = Cfg.userName ? Cfg.nameValue : "";
 	};
 	PostForm.setUserPassw = function () {
 		var el = $q("input[info=\"passwValue\"]", doc);
-		el && saveCfg("passwValue", el.value);
+		if (el) {
+			saveCfg("passwValue", el.value);
+		}
 		(pr.dpass || {}).value = pr.passw.value = Cfg.passwValue;
 	};
 	PostForm.prototype = Object.defineProperties({
@@ -9337,7 +9351,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		return regeneratorRuntime.wrap(function callee$1$3$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					$alert(Lng.sendingPost[lang] + "<br><progress id=\"de-uploadprogress\" value=\"0\" max=\"1\" style=\"display: none; width: 200px;\"></progress><div style=\"display: none; font: bold 12px sans-serif;\"><span></span> / <span></span> (<span></span>)</div>", "upload", true);
+					$alert(Lng.sendingPost[lang] + "<br><progress id=\"de-uploadprogress\" value=\"0\" max=\"1\" style=\"display: none; width: 200px;\">" + "</progress><div style=\"display: none; font: bold 12px sans-serif;\">" + "<span></span> / <span></span> (<span></span>)</div>", "upload", true);
 					beginTime = Date.now(), inited = false, progress = $id("de-uploadprogress"), counterWrap = progress.nextSibling, counterEl = counterWrap.firstChild, totalEl = counterEl.nextElementSibling, speedEl = totalEl.nextElementSibling;
 
 				case 2:
@@ -11149,7 +11163,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		unselect: function unselect() {
 			if (this.isOp) {
 				var el = $id("de-thr-hid-" + this.num);
-				el && el.classList.remove("de-selected");
+				if (el) {
+					el.classList.remove("de-selected");
+				}
 				this.thr.el.classList.remove("de-selected");
 			} else {
 				this.el.classList.remove("de-selected");
@@ -12286,7 +12302,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		},
 		deletePost: function deletePost(post, delAll, removePost) {
-			var count = 0;
+			var count = 0,
+			    idx = post.count;
 			do {
 				if (removePost) {
 					$del(post.wrap);
@@ -12312,7 +12329,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				count++;
 			} while (delAll && post);
 			if (!spells.hasNumSpell) {
-				sVis.splice(post.count, count);
+				sVis.splice(idx, count);
 			}
 			for (var tPost = post; tPost; tPost = tPost.nextInThread) {
 				tPost.count -= count;
@@ -12476,8 +12493,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			readFav().then(function (fav) {
 				if (val) {
 					var h = aib.host;
-					!fav[h] && (fav[h] = {});
-					!fav[h][brd] && (fav[h][brd] = {});
+					if (!fav[h]) {
+						fav[h] = {};
+					}
+					if (!fav[h][brd]) {
+						fav[h][brd] = {};
+					}
 					fav[h][brd].url = aib.prot + "//" + aib.host + aib.getPageUrl(brd, 0);
 					fav[h][brd][_this.num] = {
 						cnt: _this.pcount,
@@ -13450,7 +13471,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							el.nextSibling.appendChild(el);
 						});
 						var el = $q("td > .anoniconsselectlist", doc);
-						el && $q(".option-area > td:last-child", doc).appendChild(el);
+						if (el) {
+							$q(".option-area > td:last-child", doc).appendChild(el);
+						}
 						el = $q("tr:not([class])", doc.body);
 						if (!el) {
 							return;
@@ -14308,13 +14331,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 			if (!enabled && !disabledByUser) {
 				enable();
-				if (!checkFocusLoad(isFocusLoad)) {
-					return;
-				}
-			} else {
-				if (!checkFocusLoad(isFocusLoad)) {
-					return;
-				}
+			}
+			if (!checkFocusLoad(isFocusLoad)) {
+				return;
 			}
 			stopLoad(false);
 			startLoad(false);
@@ -14453,7 +14472,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						lastECode = eCode;
 						if (Cfg.favIcoBlink && !focused && favHref) {
 							clearInterval(favIntrv);
-							favIntrv = setInterval(favIcoBlink.bind("iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAA3" + "NCSVQICAjb4U/gAAAALVBMVEX////QRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdi" + "Ad5MAAAAD3RSTlMAESIzRFVmd4iZu8zd7v9ufV8LAAAACXBIWXMAAAsSAAALEgHS3X78AAAAFXRFWHRDcmVhdG" + "lvbiBUaW1lADEwLzIvMTOFMzGTAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAAH9J" + "REFUCJljYEAAjbO3C0E067l37946ABlxLxWY6q4wMDDde+PAwPxGgYHj5bnLDAx1BQw8j3yBKvQ2MPA9YL53mI" + "HvAJDB4PPOAMjgfsTA/O4wUIrjOQODzdt5CQyM9wwYmO+9EWBg8H2uwDTvMdBkFqAVbwxAlqmvOV2I5AYASFUr" + "cXUe0gcAAAAASUVORK5CYII="), 800);
+							favIntrv = setInterval(favIcoBlink.bind("iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAA3NCSVQICAjb4U/gAAAALVBMVEX////QRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdiAd5MAAAAD3RSTlMAESIzRFVmd4iZu8zd7v9ufV8LAAAACXBIWXMAAAsSAAALEgHS3X78AAAAFXRFWHRDcmVhdGlvbiBUaW1lADEwLzIvMTOFMzGTAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAAH9JREFUCJljYEAAjbO3C0E067l37946ABlxLxWY6q4wMDDde+PAwPxGgYHj5bnLDAx1BQw8j3yBKvQ2MPA9YL53mIHvAJDB4PPOAMjgfsTA/O4wUIrjOQODzdt5CQyM9wwYmO+9EWBg8H2uwDTvMdBkFqAVbwxAlqmvOV2I5AYASFUrcXUe0gcAAAAASUVORK5CYII="), 800);
 						}
 
 						if (!(eCode !== 0 && eCode < 500)) {
@@ -14496,7 +14515,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						if (!focused) {
 							if (lPosts !== 0) {
 								if (Cfg.favIcoBlink && favHref && newPosts === 0) {
-									favIntrv = setInterval(favIcoBlink.bind("iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAA" + "AABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbB" + "SAcACBAAAeaR9cIAAAAASUVORK5CYII="), 800);
+									favIntrv = setInterval(favIcoBlink.bind("iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII="), 800);
 								}
 								newPosts += lPosts;
 								updateTitle();
@@ -15020,22 +15039,22 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 
 
-	function addDelformStuff(isLog) {
+	function addDelformStuff() {
 		preloadImages(null);
-		isLog && new Logger().log("Preload images");
+		new Logger().log("Preload images");
 		embedMediaLinks(null);
-		isLog && new Logger().log("Audio links");
+		new Logger().log("Audio links");
 		if (Cfg.addYouTube) {
 			new VideosParser().parse(null).end();
-			isLog && new Logger().log("Video links");
+			new Logger().log("Video links");
 		}
 		if (Cfg.addImgs) {
 			embedImagesLinks(dForm.el);
-			isLog && new Logger().log("Image links");
+			new Logger().log("Image links");
 		}
 		if (Cfg.imgSrcBtns) {
 			addImagesSearch(dForm.el);
-			isLog && new Logger().log("Sauce buttons");
+			new Logger().log("Sauce buttons");
 		}
 		if (dForm.firstThr && Cfg.linksNavig === 2) {
 			genRefMap(pByNum, "");
@@ -15044,7 +15063,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					addRefMap(post, "");
 				}
 			}
-			isLog && new Logger().log("Reflinks map");
+			new Logger().log("Reflinks map");
 		}
 	}
 
