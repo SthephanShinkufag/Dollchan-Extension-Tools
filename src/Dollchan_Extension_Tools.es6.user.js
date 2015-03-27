@@ -12073,10 +12073,10 @@ function scriptCSS() {
 		.de-mp3, .de-video-obj { margin: 5px 20px; white-space: nowrap; clear: both; }\
 		.de-video-expanded > embed, .de-video-expanded > iframe, .de-video-expanded > a > img { width: 848px; height: 480px; }\
 		#de-video-list { padding: 0 0 4px; overflow-y: scroll; }\
-		.de-video-resizer:after { content: " \u2795"; margin-right: -15px; vertical-align: 8px; color: black; font-size: 12px; cursor: pointer; }\
-		.de-video-obj > a { display: table-cell; position: relative; }\
+		.de-video-resizer:after { content: " \u2795"; display: inline-block; margin-left: 3px; vertical-align: 8px; color: black; font-size: 12px; cursor: pointer; }\
+		.de-video-obj > a { display: table; position: relative; border-spacing: 0; }\
 		.de-video-obj > a:after { opacity: .6; position: absolute; left: 42%; top: 42%; content: url("data:image/gif;base64,R0lGODlhPwAsAJEAAAAAAP////8AAP///yH5BAEAAAMALAAAAAA/ACwAAAJvnC2py+0P35kj2ostzbzn44Wig4ymWJ7qt7buC8fyTNf2jee6EAT72ev9RMHgsFMsHjHJ5DLSbD4d0eh0Ua1eeVnrtCu9go1bbresOKPT3jVb6WbA43If/Y7P6/f8vt9V0ZeyN6gHQjhhSFFYRlEAADs="); }\
-		.de-video-obj > a:hover:after { opacity: .8; }\
+		.de-video-obj > a:hover:after { opacity: .85; }\
 		.de-video-title[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
 		td > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\
 		video { background: black; }\
