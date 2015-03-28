@@ -2029,8 +2029,8 @@ function showFavoriteTable(cont, data) {
 					'"></span><a href="' + t.url + '">' + tNum + '</a><span class="de-fav-title"> - ' +
 					t.txt + '</span><span class="de-fav-inf-posts"><span class="de-fav-inf-err">' +
 					(t['err'] || '') + '</span> <span class="de-fav-inf-new" title="' + Lng.newPosts[lang] +
-					'"' + (t['new'] ? '>' : ' style="display: none;">') + (t['new'] || 0) + '</span> ' +
-					'<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span> ' +
+					'"' + (t['new'] ? '>' : ' style="display: none;">') + (t['new'] || 0) + '</span> [' +
+					'<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>] ' +
 					'<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span></span></div>');
 				block.lastChild.firstChild.nextSibling.onclick = e => loadFavorThread(e.target);
 			}
