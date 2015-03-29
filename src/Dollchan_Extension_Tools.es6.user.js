@@ -80,7 +80,6 @@ defaultCfg = {
 	'YTubeType':        0,      //    player type [0=flash, 1=HTML5]
 	'YTubeWidth':       360,    //    player width
 	'YTubeHeigh':       270,    //    player height
-	'YTubeHD':          0,      //    hd video quality
 	'YTubeTitles':      0,      //    convert links to titles
 	'addVimeo':         1,      //    embed vimeo links
 	'ajaxReply':        2,      // posting with AJAX (0=no, 1=iframe, 2=HTML5)
@@ -208,7 +207,6 @@ Lng = {
 			sel:        [['Flash', 'HTML5'], ['Flash', 'HTML5']],
 			txt:        ['', '']
 		},
-		'YTubeHD':      ['HD ', 'HD '],
 		'YTubeTitles':  ['Загружать названия к YouTube-ссылкам*', 'Load titles into YouTube-links*'],
 
 		'ajaxReply': {
@@ -2184,9 +2182,7 @@ function fixSettings() {
 		'input[info="strikeHidd"]', 'input[info="noNavigHidd"]'
 	]);
 	toggleBox(Cfg.strikeHidd && Cfg.linksNavig === 2, ['input[info="removeHidd"]']);
-	toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, [
-		'select[info="YTubeType"]', 'input[info="YTubeHD"]', 'input[info="addVimeo"]'
-	]);
+	toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, ['select[info="YTubeType"]', 'input[info="addVimeo"]']);
 	toggleBox(Cfg.addYouTube, [
 		'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]'
 	]);
@@ -2468,9 +2464,7 @@ function getCfgLinks() {
 				optSel('YTubeType', false, null),
 				inpTxt('YTubeWidth', 4, null),
 				$txt('\u00D7'),
-				inpTxt('YTubeHeigh', 4, null),
-				$txt(' '),
-				lBox('YTubeHD', false, null)
+				inpTxt('YTubeHeigh', 4, null)
 			]),
 			$if(!nav.Opera11 || nav.isGM, lBox('YTubeTitles', false, null)),
 			lBox('addVimeo', true, null)
@@ -4090,9 +4084,8 @@ Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
 		txt = '<iframe frameborder="0" allowfullscreen="1" src="https://www.youtube.com/embed/' + m[1] +
 			'?start=' + (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0) +
 			(enableJsapi ? '&enablejsapi=1' : Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
-			(Cfg.YTubeHD ? '&hd=1' : '') + (list ? '&' + list[0] : '') +
-			(Cfg.YTubeType === 1 ? '&html5=1" type="text/html"' : '" type="application/x-shockwave-flash"') +
-			wh + '</iframe>';
+			(list ? '&' + list[0] : '') + (Cfg.YTubeType === 1 ? '&html5=1" type="text/html"' :
+				'" type="application/x-shockwave-flash"') + wh + '</iframe>';
 	} else {
 		var id = m[1] + (m[2] ? m[2] : '');
 		txt = Cfg.YTubeType === 1 ?

@@ -2721,7 +2721,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		YTubeType: 0,
 		YTubeWidth: 360,
 		YTubeHeigh: 270,
-		YTubeHD: 0,
 		YTubeTitles: 0,
 		addVimeo: 1,
 		ajaxReply: 2,
@@ -2845,7 +2844,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				sel: [["Flash", "HTML5"], ["Flash", "HTML5"]],
 				txt: ["", ""]
 			},
-			YTubeHD: ["HD ", "HD "],
 			YTubeTitles: ["Загружать названия к YouTube-ссылкам*", "Load titles into YouTube-links*"],
 
 			ajaxReply: {
@@ -4542,7 +4540,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		toggleBox(Cfg.openImgs, ["input[info=\"openGIFs\"]"]);
 		toggleBox(Cfg.linksNavig, ["input[info=\"linksOver\"]", "input[info=\"linksOut\"]", "input[info=\"markViewed\"]", "input[info=\"strikeHidd\"]", "input[info=\"noNavigHidd\"]"]);
 		toggleBox(Cfg.strikeHidd && Cfg.linksNavig === 2, ["input[info=\"removeHidd\"]"]);
-		toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, ["select[info=\"YTubeType\"]", "input[info=\"YTubeHD\"]", "input[info=\"addVimeo\"]"]);
+		toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, ["select[info=\"YTubeType\"]", "input[info=\"addVimeo\"]"]);
 		toggleBox(Cfg.addYouTube, ["input[info=\"YTubeWidth\"]", "input[info=\"YTubeHeigh\"]", "input[info=\"YTubeTitles\"]"]);
 		toggleBox(Cfg.ajaxReply, ["input[info=\"sendErrNotif\"]", "input[info=\"scrAfterRep\"]"]);
 		toggleBox(Cfg.ajaxReply === 2, ["input[info=\"postSameImg\"]", "input[info=\"removeEXIF\"]", "input[info=\"removeFName\"]"]);
@@ -4706,7 +4704,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			saveCfg("linksOver", +this.value | 0);
 		}), $txt(Lng.cfg.linksOver[lang]), inpTxt("linksOut", 4, function () {
 			saveCfg("linksOut", +this.value | 0);
-		}), $txt(Lng.cfg.linksOut[lang])]), lBox("markViewed", true, null), lBox("strikeHidd", true, null), $New("div", { "class": "de-cfg-depend" }, [lBox("removeHidd", false, updateCSS)]), lBox("noNavigHidd", true, null)]), lBox("crossLinks", true, null), lBox("insertNum", true, null), lBox("addOPLink", true, null), lBox("addImgs", true, null), lBox("addMP3", false, null), $if(aib.prot === "http:", lBox("addVocaroo", false, null)), optSel("addYouTube", true, null), $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [optSel("YTubeType", false, null), inpTxt("YTubeWidth", 4, null), $txt("×"), inpTxt("YTubeHeigh", 4, null), $txt(" "), lBox("YTubeHD", false, null)]), $if(!nav.Opera11 || nav.isGM, lBox("YTubeTitles", false, null)), lBox("addVimeo", true, null)])]);
+		}), $txt(Lng.cfg.linksOut[lang])]), lBox("markViewed", true, null), lBox("strikeHidd", true, null), $New("div", { "class": "de-cfg-depend" }, [lBox("removeHidd", false, updateCSS)]), lBox("noNavigHidd", true, null)]), lBox("crossLinks", true, null), lBox("insertNum", true, null), lBox("addOPLink", true, null), lBox("addImgs", true, null), lBox("addMP3", false, null), $if(aib.prot === "http:", lBox("addVocaroo", false, null)), optSel("addYouTube", true, null), $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [optSel("YTubeType", false, null), inpTxt("YTubeWidth", 4, null), $txt("×"), inpTxt("YTubeHeigh", 4, null)]), $if(!nav.Opera11 || nav.isGM, lBox("YTubeTitles", false, null)), lBox("addVimeo", true, null)])]);
 	}
 
 	function getCfgForm() {
@@ -6216,7 +6214,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    wh = " width=\"" + Cfg.YTubeWidth + "\" height=\"" + Cfg.YTubeHeigh + "\">";
 		if (isYtube) {
 			var list = m[0].match(/list=[^&#]+/);
-			txt = "<iframe frameborder=\"0\" allowfullscreen=\"1\" src=\"https://www.youtube.com/embed/" + m[1] + "?start=" + (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0) + (enableJsapi ? "&enablejsapi=1" : Cfg.addYouTube === 3 ? "&autoplay=1" : "") + (Cfg.YTubeHD ? "&hd=1" : "") + (list ? "&" + list[0] : "") + (Cfg.YTubeType === 1 ? "&html5=1\" type=\"text/html\"" : "\" type=\"application/x-shockwave-flash\"") + wh + "</iframe>";
+			txt = "<iframe frameborder=\"0\" allowfullscreen=\"1\" src=\"https://www.youtube.com/embed/" + m[1] + "?start=" + (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0) + (enableJsapi ? "&enablejsapi=1" : Cfg.addYouTube === 3 ? "&autoplay=1" : "") + (list ? "&" + list[0] : "") + (Cfg.YTubeType === 1 ? "&html5=1\" type=\"text/html\"" : "\" type=\"application/x-shockwave-flash\"") + wh + "</iframe>";
 		} else {
 			var id = m[1] + (m[2] ? m[2] : "");
 			txt = Cfg.YTubeType === 1 ? "<iframe src=\"" + aib.prot + "//player.vimeo.com/video/" + id + (Cfg.addYouTube === 3 ? "?autoplay=1" : "") + "\" frameborder=\"0\" " + "webkitallowfullscreen mozallowfullscreen allowfullscreen" + wh + "</iframe>" : "<embed type=\"application/x-shockwave-flash\" src=\"" + aib.prot + "//vimeo.com/moogaloop.swf" + "?clip_id=" + id + (Cfg.addYouTube === 3 ? "&autoplay=1" : "") + "&server=vimeo.com&color=00adef&fullscreen=1\" " + "allowscriptaccess=\"always\" allowfullscreen=\"true\"" + wh + "</embed>";
