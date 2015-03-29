@@ -10310,9 +10310,9 @@ function getImageBoard(checkDomains, checkOther) {
 				.post-btn { display: none !important; }` },
 			fixFileInputs: { value(el) {
 				var str = '';
-				for(var i = 0, len = 4; i < len; ++i) {
+				for(var i = 0, len = 5; i < len; ++i) {
 					str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
-						'><input type="file" name="file' + (i === 0 ? '' : i) + '"></div>';
+						'><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"></div>';
 				}
 				$id('upload_file').parentNode.innerHTML = str;
 			} },
@@ -10652,10 +10652,9 @@ function getImageBoard(checkDomains, checkOther) {
 				var str = '';
 				for(var i = 0, len = 4; i < len; ++i) {
 					str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
-						'><input type="file" name="image' +  (i + 1) + '"></input></div>';
+						'><input type="file" name="image' + (i + 1) + '"></input></div>';
 				}
-				var node = $q('#postform .images-area', doc).lastElementChild;
-				node.innerHTML = str;
+				$q('#postform .images-area', doc).lastElementChild.innerHTML = str;
 			} },
 			lastPage: { configurable: true, get() {
 				var els = $Q('.pager > a:not([class])', doc),

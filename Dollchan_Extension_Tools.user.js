@@ -13123,8 +13123,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				css: { value: ".fileinfo { width: 250px; }\n\t\t\t\t.multifile { width: auto !important; }\n\t\t\t\t.post-btn { display: none !important; }" },
 				fixFileInputs: { value: function value(el) {
 						var str = "";
-						for (var i = 0, len = 4; i < len; ++i) {
-							str += "<div" + (i === 0 ? "" : " style=\"display: none;\"") + "><input type=\"file\" name=\"file" + (i === 0 ? "" : i) + "\"></div>";
+						for (var i = 0, len = 5; i < len; ++i) {
+							str += "<div" + (i === 0 ? "" : " style=\"display: none;\"") + "><input type=\"file\" name=\"file" + (i === 0 ? "" : i + 1) + "\"></div>";
 						}
 						$id("upload_file").parentNode.innerHTML = str;
 					} },
@@ -13562,8 +13562,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						for (var i = 0, len = 4; i < len; ++i) {
 							str += "<div" + (i === 0 ? "" : " style=\"display: none;\"") + "><input type=\"file\" name=\"image" + (i + 1) + "\"></input></div>";
 						}
-						var node = $q("#postform .images-area", doc).lastElementChild;
-						node.innerHTML = str;
+						$q("#postform .images-area", doc).lastElementChild.innerHTML = str;
 					} },
 				lastPage: { configurable: true, get: function get() {
 						var els = $Q(".pager > a:not([class])", doc),
