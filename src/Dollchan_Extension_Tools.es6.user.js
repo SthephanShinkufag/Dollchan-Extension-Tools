@@ -1186,7 +1186,7 @@ function* getStored(id) {
 	} else if(nav.isScriptStorage) {
 		return scriptStorage.getItem(id);
 	}
-	return locStorage.getItem(id);
+	return locStorage[id];
 }
 
 function setStored(id, value) {
@@ -1205,7 +1205,7 @@ function setStored(id, value) {
 	} else if(nav.isScriptStorage) {
 		scriptStorage.setItem(id, value);
 	} else {
-		locStorage.setItem(id, value);
+		locStorage[id] = value;
 	}
 }
 
@@ -1257,12 +1257,9 @@ function* readCfg() {
 	if(!Cfg.timePattern) {
 		Cfg.timePattern = aib.timePattern;
 	}
-	if((nav.Opera11 || aib.fch || aib.tiny || aib.ponya) && Cfg.ajaxReply === 2) {
+	if((nav.Opera11 || aib.fch || aib.ponya) && Cfg.ajaxReply === 2) {
 		Lng.cfg['ajaxReply'].sel.forEach(a => a.splice(-1));
 		Cfg.ajaxReply = 1;
-	}
-	if(aib.tiny) {
-		Cfg.fileThumb = 0;
 	}
 	if(aib.prot !== 'http:') {
 		Cfg.addVocaroo = 0;
@@ -10303,14 +10300,26 @@ function getImageBoard(checkDomains, checkOther) {
 			init: { value() { return true; } }
 		}],
 		'8ch.net': [{
+			_8ch: { value: true },
+			
 			css: { value: `.fileinfo { width: 250px; }
 				.multifile { width: auto !important; }
-				.post-hide-link { display: none !important; }` }
-		}, 'form[name*="postcontrols"]'],
-		'8chan.co': [{
+				.post-btn { display: none !important; }` },
+			fixFileInputs: { value(el) {
+				var str = '';
+				for(var i = 0, len = 4; i < len; ++i) {
+					str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
+						'><input type="file" name="file' + (i === 0 ? '' : i) + '"></div>';
+				}
+				$id('upload_file').parentNode.innerHTML = str;
+			} },
 			init: { value() {
-				$script('multi_image();');
-			} }
+				if(locStorage['file_dragdrop'] === 'true') {
+					locStorage['file_dragdrop'] = false;
+					window.location.reload();
+				}
+			} },
+			multiFile: { value: true }
 		}, 'form[name*="postcontrols"]'],
 		'arhivach.org': [{
 			cReply: { value: 'post' },
@@ -10392,8 +10401,8 @@ function getImageBoard(checkDomains, checkOther) {
 				var val = new DateTime(
 					'yyyy-nn-dd-hh-ii-ss',
 					'_d _M _Y (_w) _h:_i ',
-					nCfg.timeOffset || 0,
-					nCfg.correctTime ? lang : 1,
+					Cfg.timeOffset || 0,
+					Cfg.correctTime ? lang : 1,
 					null
 				);
 				Object.defineProperty(this, 'weight', { value: val });
@@ -10479,7 +10488,7 @@ function getImageBoard(checkDomains, checkOther) {
 				var str = '';
 				for(var i = 0, len = 4; i < len; ++i) {
 					str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
-						'><input type="file" name="file_' +  i + '" tabindex="7"></input></div>';
+						'><input type="file" name="file_' + i + '" tabindex="7"></input></div>';
 				}
 				var node = $id('files_parent');
 				node.innerHTML = str;
@@ -10544,8 +10553,8 @@ function getImageBoard(checkDomains, checkOther) {
 				time:after { content: none; }` },
 			init: { value() {
 				var val = '{"simpleNavbar":true,"showInfo":true}';
-				if(locStorage.getItem('settings') !== val) {
-					locStorage.setItem('settings', val);
+				if(locStorage['settings'] !== val) {
+					locStorage['settings'] = val;
 					window.location.reload();
 				}
 			} },
@@ -12244,7 +12253,7 @@ function updateCSS() {
 		x += aib.qName + ', .' + aib.cTrip + ' { display: none; }';
 	}
 	if(Cfg.noSpoilers) {
-		if(aib.krau || aib.fch || aib._410 || aib.dio) {
+		if(aib.krau || aib.fch || aib._8ch || aib._410 || aib.dio) {
 			x += '.spoiler, s { color: #fff !important; }\
 				.spoiler > a, s > a:not(:hover) { color: inherit !important; }';
 		} else {

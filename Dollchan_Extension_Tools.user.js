@@ -1991,7 +1991,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return context$2$0.abrupt("return", scriptStorage.getItem(id));
 
 				case 12:
-					return context$2$0.abrupt("return", locStorage.getItem(id));
+					return context$2$0.abrupt("return", locStorage[id]);
 
 				case 13:
 				case "end":
@@ -2056,14 +2056,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					if (!Cfg.timePattern) {
 						Cfg.timePattern = aib.timePattern;
 					}
-					if ((nav.Opera11 || aib.fch || aib.tiny || aib.ponya) && Cfg.ajaxReply === 2) {
+					if ((nav.Opera11 || aib.fch || aib.ponya) && Cfg.ajaxReply === 2) {
 						Lng.cfg.ajaxReply.sel.forEach(function (a) {
 							return a.splice(-1);
 						});
 						Cfg.ajaxReply = 1;
-					}
-					if (aib.tiny) {
-						Cfg.fileThumb = 0;
 					}
 					if (aib.prot !== "http:") {
 						Cfg.addVocaroo = 0;
@@ -2127,7 +2124,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}, emptyFn);
 					}
 
-				case 23:
+				case 22:
 				case "end":
 					return context$2$0.stop();
 			}
@@ -3676,7 +3673,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		} else if (nav.isScriptStorage) {
 			scriptStorage.setItem(id, value);
 		} else {
-			locStorage.setItem(id, value);
+			locStorage[id] = value;
 		}
 	}
 
@@ -13118,12 +13115,23 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					} }
 			}],
 			"8ch.net": [{
-				css: { value: ".fileinfo { width: 250px; }\n\t\t\t\t.multifile { width: auto !important; }\n\t\t\t\t.post-hide-link { display: none !important; }" }
-			}, "form[name*=\"postcontrols\"]"],
-			"8chan.co": [{
+				_8ch: { value: true },
+
+				css: { value: ".fileinfo { width: 250px; }\n\t\t\t\t.multifile { width: auto !important; }\n\t\t\t\t.post-btn { display: none !important; }" },
+				fixFileInputs: { value: function value(el) {
+						var str = "";
+						for (var i = 0, len = 4; i < len; ++i) {
+							str += "<div" + (i === 0 ? "" : " style=\"display: none;\"") + "><input type=\"file\" name=\"file" + (i === 0 ? "" : i) + "\"></div>";
+						}
+						$id("upload_file").parentNode.innerHTML = str;
+					} },
 				init: { value: function value() {
-						$script("multi_image();");
-					} }
+						if (locStorage.file_dragdrop === "true") {
+							locStorage.file_dragdrop = false;
+							window.location.reload();
+						}
+					} },
+				multiFile: { value: true }
 			}, "form[name*=\"postcontrols\"]"],
 			"arhivach.org": [{
 				cReply: { value: "post" },
@@ -13195,7 +13203,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					} },
 				hasPicWrap: { value: true },
 				hDTFix: { configurable: true, get: function get() {
-						var val = new DateTime("yyyy-nn-dd-hh-ii-ss", "_d _M _Y (_w) _h:_i ", nCfg.timeOffset || 0, nCfg.correctTime ? lang : 1, null);
+						var val = new DateTime("yyyy-nn-dd-hh-ii-ss", "_d _M _Y (_w) _h:_i ", Cfg.timeOffset || 0, Cfg.correctTime ? lang : 1, null);
 						Object.defineProperty(this, "weight", { value: val });
 						return val;
 					} },
@@ -13324,8 +13332,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				css: { value: ".fa-sort, .image_id { display: none !important; }\n\t\t\t\ttime:after { content: none; }" },
 				init: { value: function value() {
 						var val = "{\"simpleNavbar\":true,\"showInfo\":true}";
-						if (locStorage.getItem("settings") !== val) {
-							locStorage.setItem("settings", val);
+						if (locStorage.settings !== val) {
+							locStorage.settings = val;
 							window.location.reload();
 						}
 					} },
@@ -15062,7 +15070,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			x += aib.qName + ", ." + aib.cTrip + " { display: none; }";
 		}
 		if (Cfg.noSpoilers) {
-			if (aib.krau || aib.fch || aib._410 || aib.dio) {
+			if (aib.krau || aib.fch || aib._8ch || aib._410 || aib.dio) {
 				x += ".spoiler, s { color: #fff !important; }\t\t\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }";
 			} else {
 				x += ".spoiler { color: inherit !important; }\t\t\t\t.spoiler > a { color: inherit !important; }";
