@@ -1261,6 +1261,9 @@ function* readCfg() {
 		Lng.cfg['ajaxReply'].sel.forEach(a => a.splice(-1));
 		Cfg.ajaxReply = 1;
 	}
+	if(aib.tiny && !aib._8ch) {
+		Cfg.fileThumb = 0;
+	}
 	if(aib.prot !== 'http:') {
 		Cfg.addVocaroo = 0;
 	}

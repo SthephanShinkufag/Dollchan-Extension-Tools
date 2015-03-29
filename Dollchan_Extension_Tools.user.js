@@ -2062,6 +2062,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						});
 						Cfg.ajaxReply = 1;
 					}
+					if (aib.tiny && !aib._8ch) {
+						Cfg.fileThumb = 0;
+					}
 					if (aib.prot !== "http:") {
 						Cfg.addVocaroo = 0;
 					}
@@ -2124,7 +2127,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}, emptyFn);
 					}
 
-				case 22:
+				case 23:
 				case "end":
 					return context$2$0.stop();
 			}
