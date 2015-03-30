@@ -2678,13 +2678,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		markNewPosts: 1,
 		desktNotif: 0,
 		updCount: 1,
-		expandPosts: 2,
+		expandTrunc: 0,
 		postBtnsCSS: 2,
 		showHideBtn: 1,
 		showRepBtn: 1,
 		noSpoilers: 1,
 		noPostNames: 0,
-		noPostScrl: 1,
 		widePosts: 0,
 		correctTime: 0,
 		timeOffset: "+0",
@@ -2781,10 +2780,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			markNewPosts: ["Выделять новые посты при смене вкладки", "Mark new posts when tab changes"],
 			desktNotif: ["Уведомления на рабочем столе", "Desktop notifications"],
 			updCount: ["Обратный счетчик секунд до обновления", "Show countdown to thread update"],
-			expandPosts: {
-				sel: [["Откл.", "Авто", "По клику"], ["Disable", "Auto", "On click"]],
-				txt: ["AJAX загрузка сокращенных постов*", "AJAX upload of shorted posts*"]
-			},
+			expandTrunc: ["Разворачивать сокращенные посты*", "Auto expanding of truncated posts*"],
 			postBtnsCSS: {
 				sel: [["Text", "Classic", "Solid grey"], ["Text", "Classic", "Solid grey"]],
 				txt: ["Кнопки постов* ", "Post buttons* "]
@@ -2793,7 +2789,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			showRepBtn: ["Ответ", "Post reply"],
 			noSpoilers: ["Открывать текстовые спойлеры", "Open text spoilers"],
 			noPostNames: ["Скрывать имена в постах", "Hide names in posts"],
-			noPostScrl: ["Без скролла в постах", "No scroll in posts"],
 			widePosts: ["Растягивать посты по ширине экрана", "Stretch posts to the screen width"],
 			hotKeys: ["Горячие клавиши ", "Keyboard hotkeys "],
 			loadPages: [" Количество страниц, загружаемых по F5", " Number of pages that are loaded on F5 "],
@@ -4686,7 +4681,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		})), lBox("updCount", true, function () {
 			updater.toggleCounter(Cfg.updCount);
-		})])])), optSel("expandPosts", true, null), optSel("postBtnsCSS", false, null), lBox("showHideBtn", false, updateCSS), lBox("showRepBtn", false, updateCSS), lBox("noSpoilers", true, updateCSS), lBox("noPostNames", true, updateCSS), lBox("noPostScrl", true, updateCSS), lBox("widePosts", true, updateCSS), $New("div", null, [lBox("correctTime", false, DateTime.toggleSettings), inpTxt("timeOffset", 2, null), $txt(Lng.cfg.timeOffset[lang]), $add("<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-" + (lang ? "en" : "ru") + "\" class=\"de-abtn\" target=\"_blank\">[?]</a>")]), $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [inpTxt("timePattern", 25, null), $txt(Lng.cfg.timePattern[lang])]), $New("div", null, [inpTxt("timeRPattern", 25, null), $txt(Lng.cfg.timeRPattern[lang])])])]);
+		})])])), lBox("expandTrunc", true, updateCSS), optSel("postBtnsCSS", false, null), lBox("showHideBtn", false, updateCSS), lBox("showRepBtn", false, updateCSS), lBox("noSpoilers", true, updateCSS), lBox("noPostNames", true, updateCSS), lBox("widePosts", true, updateCSS), $New("div", null, [lBox("correctTime", false, DateTime.toggleSettings), inpTxt("timeOffset", 2, null), $txt(Lng.cfg.timeOffset[lang]), $add("<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-" + (lang ? "en" : "ru") + "\" class=\"de-abtn\" target=\"_blank\">[?]</a>")]), $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [inpTxt("timePattern", 25, null), $txt(Lng.cfg.timePattern[lang])]), $New("div", null, [inpTxt("timeRPattern", 25, null), $txt(Lng.cfg.timeRPattern[lang])])])]);
 	}
 
 	function getCfgImages() {
@@ -10683,7 +10678,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 		refEl.insertAdjacentHTML("afterend", html + "</span>");
 		this.btns = refEl.nextSibling;
-		if (Cfg.expandPosts === 1 && this.trunc) {
+		if (Cfg.expandTrunc && this.trunc) {
 			this._getFull(this.trunc, true);
 		}
 		el.addEventListener("mouseover", this, true);
@@ -12994,7 +12989,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				timePattern: { value: "yyyy+nn+dd++w++hh+ii+ss" }
 			}],
 			"2chru.net": [{
-				_2chru: { value: true }
+				_2chru: { value: true },
+
+				css: { value: ".small { display: none; }" }
 			}, "form[action*=\"imgboard.php?delete\"]"],
 			"2--ch.ru": [{
 				tire: { value: true },
@@ -13046,7 +13043,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				getTNum: { value: function value(op) {
 						return $q("a[id]", op).id.match(/\d+/)[0];
 					} },
-				css: { value: "#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }\n\t\t\t\t.de-thr-hid { margin: 1em 0; }" },
+				css: { value: "#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }\t\t\t\t.de-thr-hid { margin: 1em 0; }" },
 				docExt: { value: ".php" },
 				markupBB: { value: true },
 				markupTags: { value: ["**", "*", "", "", "%", "pre", "", "", "q"] }
@@ -13089,7 +13086,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return el.parentNode;
 					} },
 				anchor: { value: "#p" },
-				css: { value: ".backlink, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }\n\t\t\t\t.postForm { display: table !important; }\n\t\t\t\ttextarea { margin-right: 0 !important; }" },
+				css: { value: ".backlink, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }\t\t\t\t.postForm { display: table !important; }\t\t\t\ttextarea { margin-right: 0 !important; }" },
 				docExt: { value: "" },
 				firstPage: { value: 1 },
 				init: { value: function value() {
@@ -13120,7 +13117,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			"8ch.net": [{
 				_8ch: { value: true },
 
-				css: { value: ".fileinfo { width: 250px; }\n\t\t\t\t.multifile { width: auto !important; }\n\t\t\t\t.post-btn { display: none !important; }" },
+				css: { value: ".fileinfo { width: 250px; }\t\t\t\t.multifile { width: auto !important; }\t\t\t\t.post-btn { display: none !important; }" },
 				fixFileInputs: { value: function value(el) {
 						var str = "";
 						for (var i = 0, len = 5; i < len; ++i) {
@@ -13146,7 +13143,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				getTNum: { value: function value(op) {
 						return op.postid;
 					} },
-				css: { value: ".post_replies { display: none !important; }\n\t\t\t\t.post { overflow-x: auto !important; }" },
+				css: { value: ".post_replies { display: none !important; }\t\t\t\t.post { overflow-x: auto !important; }" },
 				docExt: { value: "" },
 				res: { value: "thread/" },
 				rLinkClick: { value: "" }
@@ -13193,7 +13190,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						node.insertAdjacentHTML("beforebegin", playerHtml);
 						return node.previousSibling;
 					} },
-				css: { value: ".delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none !important; }\n\t\t\t\t.delete { background: none; }\n\t\t\t\t.delete_checkbox { position: static !important; }\n\t\t\t\t.file + .de-video-obj { float: left; margin: 5px 20px 5px 5px; }\n\t\t\t\t.de-video-obj + div { clear: left; }" },
+				css: { value: ".delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none !important; }\t\t\t\t.delete { background: none; }\t\t\t\t.delete_checkbox { position: static !important; }\t\t\t\t.file + .de-video-obj { float: left; margin: 5px 20px 5px 5px; }\t\t\t\t.de-video-obj + div { clear: left; }" },
 				disableRedirection: { value: function value(el) {
 						($q(this.qPostRedir, el) || {}).selectedIndex = 1;
 					} },
@@ -13278,7 +13275,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						node.insertAdjacentHTML("beforebegin", playerHtml);
 						return node.previousSibling;
 					} },
-				css: { value: "img[id^=\"translate_button\"], img[src$=\"button-expand.gif\"], img[src$=\"button-close.gif\"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none !important; }\n\t\t\t\t\tdiv[id^=\"Wz\"] { z-index: 10000 !important; }\n\t\t\t\t\t.de-thr-hid { margin-bottom: " + (!TNum ? "7" : "2") + "px; float: none !important; }\n\t\t\t\t\t.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\n\t\t\t\t\t.de-video-obj + div { clear: left; }\n\t\t\t\t\tform[action=\"/paint\"] > select { width: 105px; }\n\t\t\t\t\tform[action=\"/paint\"] > input[type=\"text\"] { width: 24px !important; }" },
+				css: { value: "img[id^=\"translate_button\"], img[src$=\"button-expand.gif\"], img[src$=\"button-close.gif\"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none !important; }\n\t\t\t\tdiv[id^=\"Wz\"] { z-index: 10000 !important; }\n\t\t\t\t.de-thr-hid { margin-bottom: " + (!TNum ? "7" : "2") + "px; float: none !important; }\n\t\t\t\t.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\n\t\t\t\t.de-video-obj + div { clear: left; }\n\t\t\t\tform[action=\"/paint\"] > select { width: 105px; }\n\t\t\t\tform[action=\"/paint\"] > input[type=\"text\"] { width: 24px !important; }" },
 				fixFileInputs: { value: function value(el) {
 						var str = "";
 						for (var i = 0, len = 4; i < len; ++i) {
@@ -13332,7 +13329,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				synch: { value: true },
 
 				cFileInfo: { value: "unimportant" },
-				css: { value: ".fa-sort, .image_id { display: none !important; }\n\t\t\t\ttime:after { content: none; }" },
+				css: { value: ".fa-sort, .image_id { display: none !important; }\t\t\t\ttime:after { content: none; }" },
 				init: { value: function value() {
 						var val = "{\"simpleNavbar\":true,\"showInfo\":true}";
 						if (locStorage.settings !== val) {
@@ -13517,7 +13514,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return el.parentNode;
 					} },
 				cssEn: { get: function get() {
-						return ".ABU-refmap, .box[onclick=\"ToggleSage()\"], img[alt=\"webm file\"], .de-qarea-hanging .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t.de-abtn { transition: none; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t\t" + (Cfg.expandPosts === 1 ? ".expand-large-comment, div[id^=\"shrinked-post\"] { display: none !important; } div[id^=\"original-post\"] { display: block !important; }" : "");
+						return ".ABU-refmap, .box[onclick=\"ToggleSage()\"], img[alt=\"webm file\"], .de-qarea-hanging .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t.de-abtn { transition: none; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t\t" + (Cfg.expandTrunc ? ".expand-large-comment, div[id^=\"shrinked-post\"] { display: none !important; } div[id^=\"original-post\"] { display: block !important; }" : "");
 					} },
 				hasPicWrap: { value: true },
 				init: { value: function value() {
@@ -13604,7 +13601,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				getTNum: { value: function value(op) {
 						return $q("input[type=\"checkbox\"]", op).name.match(/\d+/)[0];
 					} },
-				cssEn: { value: ".de-cfg-body, .de-content { font-family: arial; }\n\t\t\t\t.ftbl { width: auto; margin: 0; }\n\t\t\t\t.reply { background: #f0e0d6; }\n\t\t\t\tspan { font-size: inherit; }" },
+				cssEn: { value: ".de-cfg-body, .de-content { font-family: arial; }\t\t\t\t.ftbl { width: auto; margin: 0; }\t\t\t\t.reply { background: #f0e0d6; }\t\t\t\tspan { font-size: inherit; }" },
 				docExt: { value: ".htm" },
 				thrid: { value: "resto" }
 			},
@@ -13652,9 +13649,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					} },
 				firstPage: { value: 1 },
 				markupTags: { value: ["'''", "''", "__", "^H", "**", "`", "", "", "q"] },
-				cssEn: { get: function get() {
-						return ".banner, " + (TNum ? "" : ".de-btn-rep,") + " .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }\n\t\t\t\tform, form table { margin: 0; }";
-					} },
+				cssEn: { value: ".banner, " + (TNum ? "" : ".de-btn-rep,") + " .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }\n\t\t\t\tform, form table { margin: 0; }" },
 				rLinkClick: { value: "onclick=\"highlightReply(this.textContent.substr(2))\"" },
 				timePattern: { value: "nn+dd+yy++w++hh+ii+ss" },
 				thrid: { value: "thread" }
@@ -13665,7 +13660,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				cOPost: { value: "postnode" },
 				qError: { value: "h1, h2, div[style*=\"1.25em\"]" },
 				qPostRedir: { value: null },
-				cssEn: { value: ".extrabtns, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }\n\t\t\t\t.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }" },
+				cssEn: { value: ".extrabtns, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }\t\t\t\t.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }" },
 				markupBB: { value: true },
 				rLinkClick: { value: "onclick=\"highlight(this.textContent.substr(2), true)\"" }
 			},
@@ -13688,7 +13683,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				getSage: { value: function value(post) {
 						return !!$q(".sage", post);
 					} },
-				css: { value: ".content > hr, .de-parea > hr { display: none !important }" },
+				cssEn: { value: ".content > hr, .de-parea > hr { display: none !important }" },
 				docExt: { value: "" },
 				fixFileInputs: { value: function value(el) {
 						var str = "><input name=\"file\" type=\"file\"></input></div>";
@@ -15025,7 +15020,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	
 		x += cont(".de-wait", "data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7");
-		x += ".de-abtn { text-decoration: none !important; outline: none; }\t\t.de-after-fimg { clear: left; }\t\t#de-alert { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\t\t#de-alert > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\t\t.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\t\t.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\t\t.de-alert-msg { display: inline-block; }\t\t.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; " + (nav.Presto ? "" : "resize: none !important; ") + "}\t\t.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t\t.de-content-block > input { margin: 0 4px; }\t\t#de-content-fav, #de-content-hid, #de-content-vid { font-size: 16px; padding: 10px; border: 1px solid gray; border-radius: 8px; }\t\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t\t.de-entry { display: block !important; float: none !important; width: auto; max-width: 100% !important; margin: 2px 0 !important; padding: 0 !important; border: none; font-size: 14px; " + (nav.Presto ? "white-space: nowrap; " : "") + "}\t\t.de-entry > a { text-decoration: none; border: none; }\t\t.de-entry > input { margin: 2px 4px; }\t\t.de-fav-inf-err { color: #c33; font-size: 12px; }\t\t.de-fav-inf-new { color: #424f79; }\t\t.de-fav-inf-new:after { content: \" +\"; }\t\t.de-fav-inf-old { color: #4f7942; }\t\t.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\t\t.de-fav-title { margin-right: 15px; }\t\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t\t.de-link-hid { text-decoration: line-through !important; }\t\t.de-link-parent { outline: 1px dotted !important; }\t\t.de-link-pview { font-weight: bold; }\t\t.de-link-ref { text-decoration: none; }\t\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t\t.de-menu-item:hover { background-color: #222; color: #fff; }\t\t.de-new-post { " + (nav.Presto ? "border-left: 4px solid blue; border-right: 4px solid blue; }" : "box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }") + "\t\t.de-omitted { color: grey; font-style: italic; }\t\t.de-omitted:before { content: \"" + Lng.postsOmitted[lang] + "\"; }\t\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\t\t.de-pview-info { padding: 3px 6px !important; }\t\t.de-ref-op:after { content: \" [OP]\"; }\t\t.de-ref-del:after { content: \" [del]\"; }\t\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\t\t.de-refmap:before { content: \"" + Lng.replies[lang] + " \"; }\t\t.de-refcomma:last-child { display: none; }\t\t.de-selected, .de-error-key { " + (nav.Presto ? "border-left: 4px solid red; border-right: 4px solid red; }" : "box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }") + "\t\t#de-updater-btn:after { content: \"" + Lng.getNewPosts[lang] + "\" }\t\t#de-updater-count:before { content: \": \" }\t\t#de-updater-div { clear: left; margin-top: 10px; }\t\t.de-viewed { color: #888 !important; }\t\tsmall[id^=\"rfmap\"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\t\tform > hr { clear: both }\t\t" + aib.css + aib.cssEn + ".de-post-hide > " + aib.qHide + " { display: none !important; }";
+		x += ".de-abtn { text-decoration: none !important; outline: none; }\t\t.de-after-fimg { clear: left; }\t\t#de-alert { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\t\t#de-alert > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\t\t.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\t\t.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\t\t.de-alert-msg { display: inline-block; }\t\t.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; " + (nav.Presto ? "" : "resize: none !important; ") + "}\t\t.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t\t.de-content-block > input { margin: 0 4px; }\t\t#de-content-fav, #de-content-hid, #de-content-vid { font-size: 16px; padding: 10px; border: 1px solid gray; border-radius: 8px; }\t\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t\t.de-entry { display: block !important; float: none !important; width: auto; max-width: 100% !important; margin: 2px 0 !important; padding: 0 !important; border: none; font-size: 14px; " + (nav.Presto ? "white-space: nowrap; " : "") + "}\t\t.de-entry > a { text-decoration: none; border: none; }\t\t.de-entry > input { margin: 2px 4px; }\t\t.de-fav-inf-err { color: #c33; font-size: 12px; }\t\t.de-fav-inf-new { color: #424f79; }\t\t.de-fav-inf-new:after { content: \" +\"; }\t\t.de-fav-inf-old { color: #4f7942; }\t\t.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\t\t.de-fav-title { margin-right: 15px; }\t\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t\t.de-link-hid { text-decoration: line-through !important; }\t\t.de-link-parent { outline: 1px dotted !important; }\t\t.de-link-pview { font-weight: bold; }\t\t.de-link-ref { text-decoration: none; }\t\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t\t.de-menu-item:hover { background-color: #222; color: #fff; }\t\t.de-new-post { " + (nav.Presto ? "border-left: 4px solid blue; border-right: 4px solid blue; }" : "box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }") + "\t\t.de-omitted { color: grey; font-style: italic; }\t\t.de-omitted:before { content: \"" + Lng.postsOmitted[lang] + "\"; }\t\t.de-post-hide > " + aib.qHide + " { display: none !important; }\t\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\t\t.de-pview-info { padding: 3px 6px !important; }\t\t.de-ref-op:after { content: \" [OP]\"; }\t\t.de-ref-del:after { content: \" [del]\"; }\t\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\t\t.de-refmap:before { content: \"" + Lng.replies[lang] + " \"; }\t\t.de-refcomma:last-child { display: none; }\t\t.de-selected, .de-error-key { " + (nav.Presto ? "border-left: 4px solid red; border-right: 4px solid red; }" : "box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }") + "\t\t#de-updater-btn:after { content: \"" + Lng.getNewPosts[lang] + "\" }\t\t#de-updater-count:before { content: \": \" }\t\t#de-updater-div { clear: left; margin-top: 10px; }\t\t.de-viewed { color: #888 !important; }";
+
+	
+		x += "small[id^=\"rfmap\"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\t\tform > hr { clear: both }";
 
 		if (!nav.Firefox) {
 			x = x.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + "$1");
@@ -15078,9 +15076,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				x += ".spoiler { color: inherit !important; }\t\t\t\t.spoiler > a { color: inherit !important; }";
 			}
 		}
-		if (Cfg.noPostScrl) {
-			x += "blockquote, blockquote > p, .code_part { height: auto !important; max-height: 100% !important; overflow: visible !important; }";
-		}
 		if (Cfg.widePosts) {
 			x += "." + aib.cReply.replace(/\s/, ".") + ":not(.de-pview) { width: 100%; }";
 		}
@@ -15096,7 +15091,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		if (!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
 			x += "#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child { display: none; }";
 		}
-		$id("de-css-dynamic").textContent = x;
+		$id("de-css-dynamic").textContent = x + "\n" + aib.css + "\n" + aib.cssEn;
 		$id("de-css-user").textContent = Cfg.userCSS ? Cfg.userCSSTxt : "";
 	}
 

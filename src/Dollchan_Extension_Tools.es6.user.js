@@ -37,13 +37,12 @@ defaultCfg = {
 	'markNewPosts':     1,      //    new posts marking on page focus
 	'desktNotif':       0,      //    desktop notifications, if new posts detected
 	'updCount':         1,      //    show countdown for thread updater
-	'expandPosts':      2,      // expand shorted posts [0=off, 1=auto, 2=on click]
+	'expandTrunc':      0,      // auto expanding of truncated posts
 	'postBtnsCSS':      2,      // post buttons style [0=text, 1=classic, 2=solid grey]
 	'showHideBtn':      1,      // show post hide button
 	'showRepBtn':       1,      // show post reply button
 	'noSpoilers':       1,      // open spoilers
 	'noPostNames':      0,      // hide post names
-	'noPostScrl':       1,      // no scroll in posts
 	'widePosts':        0,      // stretch posts to the screen width
 	'correctTime':      0,      // correct time in posts
 	'timeOffset':       '+0',   //    offset in hours
@@ -141,10 +140,7 @@ Lng = {
 		'markNewPosts': ['Выделять новые посты при смене вкладки', 'Mark new posts when tab changes'],
 		'desktNotif':   ['Уведомления на рабочем столе', 'Desktop notifications'],
 		'updCount':     ['Обратный счетчик секунд до обновления', 'Show countdown to thread update'],
-		'expandPosts': {
-			sel:        [['Откл.', 'Авто', 'По клику'], ['Disable', 'Auto', 'On click']],
-			txt:        ['AJAX загрузка сокращенных постов*', 'AJAX upload of shorted posts*']
-		},
+		'expandTrunc':  ['Разворачивать сокращенные посты*', 'Auto expanding of truncated posts*'],
 		'postBtnsCSS': {
 			sel:        [['Text', 'Classic', 'Solid grey'], ['Text', 'Classic', 'Solid grey']],
 			txt:        ['Кнопки постов* ', 'Post buttons* ']
@@ -153,7 +149,6 @@ Lng = {
 		'showRepBtn':   ['Ответ', 'Post reply'],
 		'noSpoilers':   ['Открывать текстовые спойлеры', 'Open text spoilers'],
 		'noPostNames':  ['Скрывать имена в постах', 'Hide names in posts'],
-		'noPostScrl':   ['Без скролла в постах', 'No scroll in posts'],
 		'widePosts':    ['Растягивать посты по ширине экрана', 'Stretch posts to the screen width'],
 		'hotKeys':      ['Горячие клавиши ', 'Keyboard hotkeys '],
 		'loadPages':    [' Количество страниц, загружаемых по F5', ' Number of pages that are loaded on F5 '],
@@ -2366,13 +2361,12 @@ function getCfgPosts() {
 				})
 			])
 		])),
-		optSel('expandPosts', true, null),
+		lBox('expandTrunc', true, updateCSS),
 		optSel('postBtnsCSS', false, null),
 		lBox('showHideBtn', false, updateCSS),
 		lBox('showRepBtn', false, updateCSS),
 		lBox('noSpoilers', true, updateCSS),
 		lBox('noPostNames', true, updateCSS),
-		lBox('noPostScrl', true, updateCSS),
 		lBox('widePosts', true, updateCSS),
 		$New('div', null, [
 			lBox('correctTime', false, DateTime.toggleSettings),
@@ -8091,7 +8085,7 @@ function Post(el, thr, num, count, isOp, prev, isLight) {
 	}
 	refEl.insertAdjacentHTML('afterend', html + '</span>');
 	this.btns = refEl.nextSibling;
-	if(Cfg.expandPosts === 1 && this.trunc) {
+	if(Cfg.expandTrunc && this.trunc) {
 		this._getFull(this.trunc, true);
 	}
 	el.addEventListener('mouseover', this, true);
@@ -10166,7 +10160,9 @@ function getImageBoard(checkDomains, checkOther) {
 			timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
 		}],
 		'2chru.net': [{
-			_2chru: { value: true }
+			_2chru: { value: true },
+			
+			css: { value: '.small { display: none; }' }
 		}, 'form[action*="imgboard.php?delete"]'],
 		get '2-chru.net'() { return this['2chru.net']; },
 		get '2-ch.su'() { return this['2--ch.ru']; },
@@ -10229,8 +10225,8 @@ function getImageBoard(checkDomains, checkOther) {
 			getTNum: { value(op) {
 				return $q('a[id]', op).id.match(/\d+/)[0];
 			} },
-			css: { value: `#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }
-				.de-thr-hid { margin: 1em 0; }` },
+			css: { value: '#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }\
+				.de-thr-hid { margin: 1em 0; }' },
 			docExt: { value: '.php' },
 			markupBB: { value: true },
 			markupTags: { value: ['**', '*', '', '', '%', 'pre', '', '', 'q'] }
@@ -10273,9 +10269,9 @@ function getImageBoard(checkDomains, checkOther) {
 				return el.parentNode;
 			} },
 			anchor: { value: '#p' },
-			css: { value: `.backlink, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }
-				.postForm { display: table !important; }
-				textarea { margin-right: 0 !important; }` },
+			css: { value: '.backlink, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }\
+				.postForm { display: table !important; }\
+				textarea { margin-right: 0 !important; }' },
 			docExt: { value: '' },
 			firstPage: { value: 1 },
 			init: { value() {
@@ -10305,9 +10301,9 @@ function getImageBoard(checkDomains, checkOther) {
 		'8ch.net': [{
 			_8ch: { value: true },
 			
-			css: { value: `.fileinfo { width: 250px; }
-				.multifile { width: auto !important; }
-				.post-btn { display: none !important; }` },
+			css: { value: '.fileinfo { width: 250px; }\
+				.multifile { width: auto !important; }\
+				.post-btn { display: none !important; }' },
 			fixFileInputs: { value(el) {
 				var str = '';
 				for(var i = 0, len = 5; i < len; ++i) {
@@ -10334,8 +10330,8 @@ function getImageBoard(checkDomains, checkOther) {
 			getTNum: { value(op) {
 				return op.postid;
 			} },
-			css: { value: `.post_replies { display: none !important; }
-				.post { overflow-x: auto !important; }` },
+			css: { value: '.post_replies { display: none !important; }\
+				.post { overflow-x: auto !important; }' },
 			docExt: { value: '' },
 			res: { value: 'thread/' },
 			rLinkClick: { value: '' }
@@ -10384,11 +10380,11 @@ function getImageBoard(checkDomains, checkOther) {
 				node.insertAdjacentHTML('beforebegin', playerHtml);
 				return node.previousSibling;
 			} },
-			css: { value: `.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none !important; }
-				.delete { background: none; }
-				.delete_checkbox { position: static !important; }
-				.file + .de-video-obj { float: left; margin: 5px 20px 5px 5px; }
-				.de-video-obj + div { clear: left; }` },
+			css: { value: '.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none !important; }\
+				.delete { background: none; }\
+				.delete_checkbox { position: static !important; }\
+				.file + .de-video-obj { float: left; margin: 5px 20px 5px 5px; }\
+				.de-video-obj + div { clear: left; }' },
 			disableRedirection: { value(el) {
 				($q(this.qPostRedir, el) || {}).selectedIndex = 1;
 			} },
@@ -10481,12 +10477,12 @@ function getImageBoard(checkDomains, checkOther) {
 				return node.previousSibling;
 			} },
 			css: { value: `img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none !important; }
-					div[id^="Wz"] { z-index: 10000 !important; }
-					.de-thr-hid { margin-bottom: ${!TNum ? '7' : '2'}px; float: none !important; }
-					.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }
-					.de-video-obj + div { clear: left; }
-					form[action="/paint"] > select { width: 105px; }
-					form[action="/paint"] > input[type="text"] { width: 24px !important; }` },
+				div[id^="Wz"] { z-index: 10000 !important; }
+				.de-thr-hid { margin-bottom: ${!TNum ? '7' : '2'}px; float: none !important; }
+				.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }
+				.de-video-obj + div { clear: left; }
+				form[action="/paint"] > select { width: 105px; }
+				form[action="/paint"] > input[type="text"] { width: 24px !important; }` },
 			fixFileInputs: { value(el) {
 				var str = '';
 				for(var i = 0, len = 4; i < len; ++i) {
@@ -10552,8 +10548,8 @@ function getImageBoard(checkDomains, checkOther) {
 			synch: { value: true },
 			
 			cFileInfo: { value: 'unimportant' },
-			css: { value: `.fa-sort, .image_id { display: none !important; }
-				time:after { content: none; }` },
+			css: { value: '.fa-sort, .image_id { display: none !important; }\
+				time:after { content: none; }' },
 			init: { value() {
 				var val = '{"simpleNavbar":true,"showInfo":true}';
 				if(locStorage['settings'] !== val) {
@@ -10609,7 +10605,7 @@ function getImageBoard(checkDomains, checkOther) {
 				.mess-post { display: block; }
 				.postbtn-reply-href { font-size: 0px; }
 				.postbtn-reply-href::after { font-size: 14px; content: attr(name); }
-				${Cfg.expandPosts === 1 ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : ''}`;
+				${Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : ''}`;
 			} },
 			hasPicWrap: { value: true },
 			init: { value() {
@@ -10696,10 +10692,10 @@ function getImageBoard(checkDomains, checkOther) {
 			getTNum: { value(op) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
-			cssEn: { value: `.de-cfg-body, .de-content { font-family: arial; }
-				.ftbl { width: auto; margin: 0; }
-				.reply { background: #f0e0d6; }
-				span { font-size: inherit; }` },
+			cssEn: { value: '.de-cfg-body, .de-content { font-family: arial; }\
+				.ftbl { width: auto; margin: 0; }\
+				.reply { background: #f0e0d6; }\
+				span { font-size: inherit; }' },
 			docExt: { value: '.htm' },
 			thrid: { value: 'resto' }
 		},
@@ -10718,7 +10714,7 @@ function getImageBoard(checkDomains, checkOther) {
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'trip' },
 			qDForm: { value: 'form[name*="postcontrols"]' },
-			qHide: { value: '.intro ~ *'},
+			qHide: { value: '.intro ~ *' },
 			qImgLink: { value: 'p.fileinfo > a:first-of-type' },
 			qMsg: { value: '.body' },
 			qName: { value: '.name' },
@@ -10748,11 +10744,9 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			firstPage: { value: 1 },
 			markupTags: { value: ["'''", "''", '__', '^H', '**', '`', '', '', 'q'] },
-			cssEn: { get() {
-				return `.banner, ${TNum ? '' : '.de-btn-rep,'} .hide-thread-link, .mentioned, .post-hover { display: none !important; }
+			cssEn: { value: `.banner, ${TNum ? '' : '.de-btn-rep,'} .hide-thread-link, .mentioned, .post-hover { display: none !important; }
 				div.post.reply { float: left; clear: left; display: block; }
-				form, form table { margin: 0; }`;
-			} },
+				form, form table { margin: 0; }` },
 			rLinkClick: { value: 'onclick="highlightReply(this.textContent.substr(2))"' },
 			timePattern: { value: 'nn+dd+yy++w++hh+ii+ss' },
 			thrid: { value: 'thread' }
@@ -10763,8 +10757,8 @@ function getImageBoard(checkDomains, checkOther) {
 			cOPost: { value: 'postnode' },
 			qError: { value: 'h1, h2, div[style*="1.25em"]' },
 			qPostRedir: { value: null },
-			cssEn: { value: `.extrabtns, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }
-				.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }` },
+			cssEn: { value: '.extrabtns, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }\
+				.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }' },
 			markupBB: { value: true },
 			rLinkClick: { value: 'onclick="highlight(this.textContent.substr(2), true)"' }
 		},
@@ -10788,7 +10782,7 @@ function getImageBoard(checkDomains, checkOther) {
 			getSage: { value(post) {
 				return !!$q('.sage', post);
 			} },
-			css: { value: '.content > hr, .de-parea > hr { display: none !important }' },
+			cssEn: { value: '.content > hr, .de-parea > hr { display: none !important }' },
 			docExt: { value: '' },
 			fixFileInputs: { value(el) {
 				var str = '><input name="file" type="file"></input></div>';
@@ -12190,6 +12184,7 @@ function scriptCSS() {
 		.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid blue; border-right: 4px solid blue; }' : 'box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }') + '\
 		.de-omitted { color: grey; font-style: italic; }\
 		.de-omitted:before { content: "' + Lng.postsOmitted[lang] + '"; }\
+		.de-post-hide > ' + aib.qHide + ' { display: none !important; }\
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-ref-op:after { content: " [OP]"; }\
@@ -12201,10 +12196,11 @@ function scriptCSS() {
 		#de-updater-btn:after { content: "' + Lng.getNewPosts[lang] + '" }\
 		#de-updater-count:before { content: ": " }\
 		#de-updater-div { clear: left; margin-top: 10px; }\
-		.de-viewed { color: #888 !important; }\
-		small[id^="rfmap"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\
-		form > hr { clear: both }\
-		' + aib.css + aib.cssEn + '.de-post-hide > ' + aib.qHide + ' { display: none !important; }';
+		.de-viewed { color: #888 !important; }';
+		
+	// Non-script elements
+	x += 'small[id^="rfmap"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\
+		form > hr { clear: both }';
 
 	if(!nav.Firefox) {
 		x = x.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + '$1');
@@ -12263,9 +12259,6 @@ function updateCSS() {
 				.spoiler > a { color: inherit !important; }';
 		}
 	}
-	if(Cfg.noPostScrl) {
-		x += 'blockquote, blockquote > p, .code_part { height: auto !important; max-height: 100% !important; overflow: visible !important; }';
-	}
 	if(Cfg.widePosts) {
 		x += '.' + aib.cReply.replace(/\s/, '.') + ':not(.de-pview) { width: 100%; }';
 	}
@@ -12281,7 +12274,7 @@ function updateCSS() {
 	if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
 		x += '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child { display: none; }';
 	}
-	$id('de-css-dynamic').textContent = x;
+	$id('de-css-dynamic').textContent = x + '\n' + aib.css + '\n' + aib.cssEn;
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 }
 
