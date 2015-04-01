@@ -10269,8 +10269,8 @@ function getImageBoard(checkDomains, checkOther) {
 				return el.parentNode;
 			} },
 			anchor: { value: '#p' },
-			css: { value: '.backlink, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }\
-				.postForm { display: table !important; }\
+			css: { value: '.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }\
+				.postForm { display: table !important; width: auto !important; }\
 				textarea { margin-right: 0 !important; }' },
 			docExt: { value: '' },
 			firstPage: { value: 1 },
@@ -12087,7 +12087,7 @@ function scriptCSS() {
 	
 	// File inputs
 	'.de-file { display: inline-block; margin: 1px; height: ' + (p = aib.multiFile ? 90 : 130) + 'px; width: ' + p + 'px; text-align: center; border: 1px dashed grey; }\
-	.de-file > .de-file-del, .de-file-spoil { float: right; }\
+	.de-file > .de-file-del, .de-file > .de-file-spoil { float: right; }\
 	.de-file > .de-file-rar { float: left; }\
 	.de-file > .de-file-rarmsg { float: left; padding: 0 4px 2px; color: #fff; background-color: rgba(55, 55, 55, 0.5); }\
 	.de-file > .de-file-utils { display: none; }\
