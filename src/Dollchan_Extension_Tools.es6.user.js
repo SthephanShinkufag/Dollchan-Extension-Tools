@@ -5454,18 +5454,18 @@ SpellsInterpreter.prototype = {
 		}
 		return false;
 	},
-	_ihash: async(function* (val) {
+	_ihash(val) {
 		for(var image of this._post.images) {
 			if(!(image instanceof Attachment)) {
 				continue;
 			}
-			var hash = image.hash !== null ? image.hash : yield image.getHash();
+			var hash = image.hash !== null ? image.hash : image.getHash();
 			if(hash === val) {
 				return true;
 			}
 		}
 		return false;
-	}),
+	},
 	_subj(val) {
 		var pSubj = this._post.subj;
 		return pSubj ? !val || val.test(pSubj) : false;
