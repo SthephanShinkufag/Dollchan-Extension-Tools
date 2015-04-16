@@ -9727,24 +9727,25 @@ Thread.prototype = {
 		}
 		closeAlert($id('de-alert-load-thr'));
 	},
-	loadNew: async(function* (useAPI) {
+	loadNew: function(useAPI) {
 		if(aib.dobr && useAPI) {
-			var json = yield getJsonPosts('/api/thread/' + brd + '/' + TNum + '.json');
-			if(!json) {
-				return 0;
-			}
-			if(json.error) {
-				return Promise.reject(new AjaxError(0, json.message));
-			}
-			if(this._lastModified !== json.last_modified || this.pcount !== json.posts_count) {
-				this._lastModified = json.last_modified;
-				return yield this.loadNew(false);
-			} else {
-				return 0;
-			}
+			return getJsonPosts('/api/thread/' + brd + '/' + TNum + '.json').then(json => {
+				if(!json) {
+					return 0;
+				}
+				if(json.error) {
+					return Promise.reject(new AjaxError(0, json.message));
+				}
+				if(this._lastModified !== json.last_modified || this.pcount !== json.posts_count) {
+					this._lastModified = json.last_modified;
+					return this.loadNew(false);
+				} else {
+					return 0;
+				}
+			});
 		}
-		return this.loadNewFromForm(yield ajaxLoad(aib.getThrdUrl(brd, TNum)));
-	}),
+		return ajaxLoad(aib.getThrdUrl(brd, TNum)).then(form => this.loadNewFromForm(form));
+	},
 	loadNewFromForm(form) {
 		this._checkBans(dForm.firstThr.op, form);
 		var lastOffset = pr.isVisible ? pr.topCoord : null,
@@ -11403,6 +11404,7 @@ function initThreadUpdater(title, enableUpdate) {
 		enabled = canFocusLoad = true;
 		paused = disabledByUser = false;
 		newPosts = 0;
+		lastECode = 200;
 		if(useCountdown) {
 			countEl = $id('de-updater-count');
 			countEl.style.display = '';
@@ -11494,11 +11496,9 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	startLoad = async(function* (needSleep) {
-		var checked4XX = false,
-			delay = initDelay,
+		var delay = initDelay,
 			repeatLoading = enabled,
 			stopToken = new Promise((resolve, reject) => stopLoad = stopLoadHelper.bind(null, reject));
-		lastECode = 200;
 		do {
 			if(needSleep) {
 				try {
@@ -11536,24 +11536,22 @@ function initThreadUpdater(title, enableUpdate) {
 			infoLoadErrors(error, false);
 			var eCode = (error instanceof AjaxError) ? error.code : 0;
 			if(eCode !== 200 && eCode !== 304) {
-				lastECode = eCode;
 				if(Cfg.favIcoBlink && !focused && favHref) {
 					clearInterval(favIntrv);
 					favIntrv = setInterval(favIcoBlink.bind('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAA3NCSVQICAjb4U/gAAAALVBMVEX////QRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdiAd5MAAAAD3RSTlMAESIzRFVmd4iZu8zd7v9ufV8LAAAACXBIWXMAAAsSAAALEgHS3X78AAAAFXRFWHRDcmVhdGlvbiBUaW1lADEwLzIvMTOFMzGTAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAAH9JREFUCJljYEAAjbO3C0E067l37946ABlxLxWY6q4wMDDde+PAwPxGgYHj5bnLDAx1BQw8j3yBKvQ2MPA9YL53mIHvAJDB4PPOAMjgfsTA/O4wUIrjOQODzdt5CQyM9wwYmO+9EWBg8H2uwDTvMdBkFqAVbwxAlqmvOV2I5AYASFUrcXUe0gcAAAAASUVORK5CYII='), 800);
 				}
-				if(eCode !== 0 && eCode < 500) {
-					if(!checked4XX && (eCode === 404 || eCode === 400)) {
-						checked4XX = true;
-					} else {
-						updateTitle();
-						disable(false);
-						return;
-					}
+				if(eCode !== 0 && eCode < 500 && ((eCode !== 404 && eCode !== 400) ||
+				   (lastECode !== 404 && lastECode !== 400)))
+				{
+					updateTitle(eCode);
+					disable(false);
+					return;
 				}
+				lastECode = eCode;
+				setState('warn');
 				if(!Cfg.noErrInTitle) {
 					updateTitle();
 				}
-				setState('warn');
 				continue;
 			} else if(lastECode !== 200) {
 				clearInterval(favIntrv);

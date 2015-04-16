@@ -2575,10 +2575,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 4:
 					new Logger().log("Init");
-					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t34", 6);
+					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t33", 6);
 
 				case 6:
-					str = context$2$0.t34;
+					str = context$2$0.t33;
 
 					if (!(str && str.contains(aib.dm))) {
 						context$2$0.next = 9;
@@ -2589,7 +2589,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 9:
 					excludeList = str || "";
-					return context$2$0.delegateYield(readCfg(), "t35", 11);
+					return context$2$0.delegateYield(readCfg(), "t34", 11);
 
 				case 11:
 					new Logger().log("Config loading");
@@ -2618,9 +2618,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 26:
 					context$2$0.prev = 26;
-					context$2$0.t36 = context$2$0["catch"](22);
+					context$2$0.t35 = context$2$0["catch"](22);
 
-					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t36));
+					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t35));
 					doc.body.style.display = "";
 					return context$2$0.abrupt("return");
 
@@ -2653,10 +2653,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 					new Logger().log("Scroll page");
 					readPosts();
-					return context$2$0.delegateYield(readUserPosts(), "t37", 48);
+					return context$2$0.delegateYield(readUserPosts(), "t36", 48);
 
 				case 48:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t38", 49);
+					return context$2$0.delegateYield(readFavoritesPosts(), "t37", 49);
 
 				case 49:
 					setTimeout(PostContent.purge, 0);
@@ -12428,69 +12428,29 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 			closeAlert($id("de-alert-load-thr"));
 		},
-		loadNew: async(regeneratorRuntime.mark(function callee$1$5(useAPI) {
+		loadNew: function loadNew(useAPI) {
 			var _this = this;
 
-			var json;
-			return regeneratorRuntime.wrap(function callee$1$5$(context$2$0) {
-				while (1) switch (context$2$0.prev = context$2$0.next) {
-					case 0:
-						if (!(aib.dobr && useAPI)) {
-							context$2$0.next = 16;
-							break;
-						}
-
-						context$2$0.next = 3;
-						return getJsonPosts("/api/thread/" + brd + "/" + TNum + ".json");
-
-					case 3:
-						json = context$2$0.sent;
-
-						if (json) {
-							context$2$0.next = 6;
-							break;
-						}
-
-						return context$2$0.abrupt("return", 0);
-
-					case 6:
-						if (!json.error) {
-							context$2$0.next = 8;
-							break;
-						}
-
-						return context$2$0.abrupt("return", Promise.reject(new AjaxError(0, json.message)));
-
-					case 8:
-						if (!(_this._lastModified !== json.last_modified || _this.pcount !== json.posts_count)) {
-							context$2$0.next = 15;
-							break;
-						}
-
+			if (aib.dobr && useAPI) {
+				return getJsonPosts("/api/thread/" + brd + "/" + TNum + ".json").then(function (json) {
+					if (!json) {
+						return 0;
+					}
+					if (json.error) {
+						return Promise.reject(new AjaxError(0, json.message));
+					}
+					if (_this._lastModified !== json.last_modified || _this.pcount !== json.posts_count) {
 						_this._lastModified = json.last_modified;
-						context$2$0.next = 12;
 						return _this.loadNew(false);
-
-					case 12:
-						return context$2$0.abrupt("return", context$2$0.sent);
-
-					case 15:
-						return context$2$0.abrupt("return", 0);
-
-					case 16:
-						context$2$0.next = 18;
-						return ajaxLoad(aib.getThrdUrl(brd, TNum));
-
-					case 18:
-						context$2$0.t31 = context$2$0.sent;
-						return context$2$0.abrupt("return", _this.loadNewFromForm(context$2$0.t31));
-
-					case 20:
-					case "end":
-						return context$2$0.stop();
-				}
-			}, callee$1$5, this);
-		})),
+					} else {
+						return 0;
+					}
+				});
+			}
+			return ajaxLoad(aib.getThrdUrl(brd, TNum)).then(function (form) {
+				return _this.loadNewFromForm(form);
+			});
+		},
 		loadNewFromForm: function loadNewFromForm(form) {
 			this._checkBans(dForm.firstThr.op, form);
 			var lastOffset = pr.isVisible ? pr.topCoord : null;
@@ -14312,6 +14272,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			enabled = canFocusLoad = true;
 			paused = disabledByUser = false;
 			newPosts = 0;
+			lastECode = 200;
 			if (useCountdown) {
 				countEl = $id("de-updater-count");
 				countEl.style.display = "";
@@ -14402,146 +14363,134 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 
 		startLoad = async(regeneratorRuntime.mark(function callee$2$0(needSleep) {
-			var checked4XX, delay, repeatLoading, stopToken, seconds, error, lPosts, eCode, post, notif;
+			var delay, repeatLoading, stopToken, seconds, error, lPosts, eCode, post, notif;
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
-						checked4XX = false, delay = initDelay, repeatLoading = enabled, stopToken = new Promise(function (resolve, reject) {
+						delay = initDelay, repeatLoading = enabled, stopToken = new Promise(function (resolve, reject) {
 							return stopLoad = stopLoadHelper.bind(null, reject);
 						});
 
-						lastECode = 200;
-
-					case 2:
+					case 1:
 						if (!needSleep) {
-							context$3$0.next = 25;
+							context$3$0.next = 24;
 							break;
 						}
 
-						context$3$0.prev = 3;
+						context$3$0.prev = 2;
 
 						if (!(useCountdown && (focused || !canFocusLoad))) {
-							context$3$0.next = 15;
+							context$3$0.next = 14;
 							break;
 						}
 
 						seconds = delay / 1000;
 
-					case 6:
+					case 5:
 						if (!(seconds > 0)) {
-							context$3$0.next = 13;
+							context$3$0.next = 12;
 							break;
 						}
 
 						countEl.textContent = seconds;
-						context$3$0.next = 10;
+						context$3$0.next = 9;
 						return Promise.race([stopToken, sleep(1000)]);
 
-					case 10:
+					case 9:
 						seconds--;
-						context$3$0.next = 6;
+						context$3$0.next = 5;
 						break;
 
-					case 13:
-						context$3$0.next = 17;
+					case 12:
+						context$3$0.next = 16;
 						break;
 
-					case 15:
-						context$3$0.next = 17;
+					case 14:
+						context$3$0.next = 16;
 						return Promise.race([stopToken, sleep(delay)]);
 
-					case 17:
-						context$3$0.next = 23;
+					case 16:
+						context$3$0.next = 22;
 						break;
 
-					case 19:
-						context$3$0.prev = 19;
-						context$3$0.t32 = context$3$0["catch"](3);
+					case 18:
+						context$3$0.prev = 18;
+						context$3$0.t31 = context$3$0["catch"](2);
 
-						if (!(context$3$0.t32 instanceof StopLoadingTaskError)) {
-							context$3$0.next = 23;
+						if (!(context$3$0.t31 instanceof StopLoadingTaskError)) {
+							context$3$0.next = 22;
 							break;
 						}
 
 						return context$3$0.abrupt("return");
 
-					case 23:
-						context$3$0.next = 26;
+					case 22:
+						context$3$0.next = 25;
 						break;
 
-					case 25:
+					case 24:
 						needSleep = true;
 
-					case 26:
+					case 25:
 						if (useCountdown) {
 							countEl.innerHTML = "<span class=\"de-wait\"></span>";
 						}
 						error = AjaxError.Success, lPosts = 0;
-						context$3$0.prev = 28;
-						context$3$0.next = 31;
+						context$3$0.prev = 27;
+						context$3$0.next = 30;
 						return Promise.race([stopToken, dForm.firstThr.loadNew(true)]);
 
-					case 31:
+					case 30:
 						lPosts = context$3$0.sent;
-						context$3$0.next = 39;
+						context$3$0.next = 38;
 						break;
 
-					case 34:
-						context$3$0.prev = 34;
-						context$3$0.t33 = context$3$0["catch"](28);
+					case 33:
+						context$3$0.prev = 33;
+						context$3$0.t32 = context$3$0["catch"](27);
 
-						if (!(context$3$0.t33 instanceof StopLoadingTaskError)) {
-							context$3$0.next = 38;
+						if (!(context$3$0.t32 instanceof StopLoadingTaskError)) {
+							context$3$0.next = 37;
 							break;
 						}
 
 						return context$3$0.abrupt("return");
 
-					case 38:
-						error = context$3$0.t33;
+					case 37:
+						error = context$3$0.t32;
 
-					case 39:
+					case 38:
 						infoLoadErrors(error, false);
 						eCode = error instanceof AjaxError ? error.code : 0;
 
 						if (!(eCode !== 200 && eCode !== 304)) {
-							context$3$0.next = 57;
+							context$3$0.next = 52;
 							break;
 						}
 
-						lastECode = eCode;
 						if (Cfg.favIcoBlink && !focused && favHref) {
 							clearInterval(favIntrv);
 							favIntrv = setInterval(favIcoBlink.bind("iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAA3NCSVQICAjb4U/gAAAALVBMVEX////QRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdiAd5MAAAAD3RSTlMAESIzRFVmd4iZu8zd7v9ufV8LAAAACXBIWXMAAAsSAAALEgHS3X78AAAAFXRFWHRDcmVhdGlvbiBUaW1lADEwLzIvMTOFMzGTAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAAH9JREFUCJljYEAAjbO3C0E067l37946ABlxLxWY6q4wMDDde+PAwPxGgYHj5bnLDAx1BQw8j3yBKvQ2MPA9YL53mIHvAJDB4PPOAMjgfsTA/O4wUIrjOQODzdt5CQyM9wwYmO+9EWBg8H2uwDTvMdBkFqAVbwxAlqmvOV2I5AYASFUrcXUe0gcAAAAASUVORK5CYII="), 800);
 						}
 
-						if (!(eCode !== 0 && eCode < 500)) {
-							context$3$0.next = 52;
+						if (!(eCode !== 0 && eCode < 500 && (eCode !== 404 && eCode !== 400 || lastECode !== 404 && lastECode !== 400))) {
+							context$3$0.next = 46;
 							break;
 						}
 
-						if (!(!checked4XX && (eCode === 404 || eCode === 400))) {
-							context$3$0.next = 49;
-							break;
-						}
-
-						checked4XX = true;
-						context$3$0.next = 52;
-						break;
-
-					case 49:
-						updateTitle();
+						updateTitle(eCode);
 						disable(false);
 						return context$3$0.abrupt("return");
 
-					case 52:
+					case 46:
+						lastECode = eCode;
+						setState("warn");
 						if (!Cfg.noErrInTitle) {
 							updateTitle();
 						}
-						setState("warn");
-						return context$3$0.abrupt("continue", 60);
+						return context$3$0.abrupt("continue", 55);
 
-					case 57:
+					case 52:
 						if (lastECode !== 200) {
 							clearInterval(favIntrv);
 							setState("on");
@@ -14550,7 +14499,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							}
 						}
 
-					case 58:
+					case 53:
 						lastECode = eCode;
 						if (!focused) {
 							if (lPosts !== 0) {
@@ -14586,20 +14535,20 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							}
 						}
 
-					case 60:
+					case 55:
 						if (repeatLoading) {
-							context$3$0.next = 2;
+							context$3$0.next = 1;
 							break;
 						}
 
-					case 61:
+					case 56:
 						stopLoad = emptyFn;
 
-					case 62:
+					case 57:
 					case "end":
 						return context$3$0.stop();
 				}
-			}, callee$2$0, this, [[3, 19], [28, 34]]);
+			}, callee$2$0, this, [[2, 18], [27, 33]]);
 		}));
 
 		function setState(state) {
