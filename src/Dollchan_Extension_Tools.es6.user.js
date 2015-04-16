@@ -5449,7 +5449,7 @@ SpellsInterpreter.prototype = {
 		return val.test(this._post.html);
 	},
 	_imgn(val) {
-		for(var image of this._post.images) {
+		for(var image of this._post.images.data) {
 			if((image instanceof Attachment) && val.test(image.info)) {
 				return true;
 			}
@@ -5457,7 +5457,7 @@ SpellsInterpreter.prototype = {
 		return false;
 	},
 	_ihash: async(function* (val) {
-		for(var image of this._post.images) {
+		for(var image of this._post.images.data) {
 			if(!(image instanceof Attachment)) {
 				continue;
 			}
@@ -5486,7 +5486,7 @@ SpellsInterpreter.prototype = {
 		if(!val) {
 			return images.hasAttachments;
 		}
-		for(var image of images) {
+		for(var image of images.data) {
 			if(!(image instanceof Attachment)) {
 				continue;
 			}
@@ -9089,9 +9089,6 @@ PostImages.prototype = {
 	},
 	get last() {
 		return this.data[this.length - 1];
-	},
-	*[Symbol.iterator]() {
-		yield* this.data;
 	},
 	getImageByEl(el) {
 		return this._map.get(el);

@@ -1728,8 +1728,6 @@ $define(GLOBAL + BIND, {
 
 var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } };
 
-var _defineProperty = function (obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); };
-
 
 
 
@@ -2575,10 +2573,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 4:
 					new Logger().log("Init");
-					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t33", 6);
+					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t32", 6);
 
 				case 6:
-					str = context$2$0.t33;
+					str = context$2$0.t32;
 
 					if (!(str && str.contains(aib.dm))) {
 						context$2$0.next = 9;
@@ -2589,7 +2587,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 9:
 					excludeList = str || "";
-					return context$2$0.delegateYield(readCfg(), "t34", 11);
+					return context$2$0.delegateYield(readCfg(), "t33", 11);
 
 				case 11:
 					new Logger().log("Config loading");
@@ -2618,9 +2616,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 26:
 					context$2$0.prev = 26;
-					context$2$0.t35 = context$2$0["catch"](22);
+					context$2$0.t34 = context$2$0["catch"](22);
 
-					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t35));
+					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t34));
 					doc.body.style.display = "";
 					return context$2$0.abrupt("return");
 
@@ -2653,10 +2651,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 					new Logger().log("Scroll page");
 					readPosts();
-					return context$2$0.delegateYield(readUserPosts(), "t36", 48);
+					return context$2$0.delegateYield(readUserPosts(), "t35", 48);
 
 				case 48:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t37", 49);
+					return context$2$0.delegateYield(readFavoritesPosts(), "t36", 49);
 
 				case 49:
 					setTimeout(PostContent.purge, 0);
@@ -7702,7 +7700,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			var _iteratorError = undefined;
 
 			try {
-				for (var _iterator = this._post.images[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+				for (var _iterator = this._post.images.data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 					var image = _step.value;
 
 					if (image instanceof Attachment && val.test(image.info)) {
@@ -7738,7 +7736,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						_didIteratorError = false;
 						_iteratorError = undefined;
 						context$2$0.prev = 3;
-						_iterator = _this._post.images[Symbol.iterator]();
+						_iterator = _this._post.images.data[Symbol.iterator]();
 
 					case 5:
 						if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
@@ -7858,7 +7856,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			var _iteratorError = undefined;
 
 			try {
-				for (var _iterator = images[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+				for (var _iterator = images.data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 					var image = _step.value;
 
 					if (!(image instanceof Attachment)) {
@@ -11759,29 +11757,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		this.hasAttachments = hasAttachments;
 		this._map = filesMap;
 	}
-	PostImages.prototype = Object.defineProperties((function () {
-		var _Object$defineProperties = {};
-		_Object$defineProperties[Symbol.iterator] = regeneratorRuntime.mark(function callee$2$0() {
-			var _this = this;
-
-			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-				while (1) switch (context$3$0.prev = context$3$0.next) {
-					case 0:
-						return context$3$0.delegateYield(_this.data, "t30", 1);
-
-					case 1:
-					case "end":
-						return context$3$0.stop();
-				}
-			}, callee$2$0, this);
-		});
-
-		_defineProperty(_Object$defineProperties, "getImageByEl", function getImageByEl(el) {
+	PostImages.prototype = Object.defineProperties({
+		getImageByEl: function getImageByEl(el) {
 			return this._map.get(el);
-		});
-
-		return _Object$defineProperties;
-	})(), {
+		}
+	}, {
 		first: {
 			get: function () {
 				return this.data[0];
@@ -14415,9 +14395,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 18:
 						context$3$0.prev = 18;
-						context$3$0.t31 = context$3$0["catch"](2);
+						context$3$0.t30 = context$3$0["catch"](2);
 
-						if (!(context$3$0.t31 instanceof StopLoadingTaskError)) {
+						if (!(context$3$0.t30 instanceof StopLoadingTaskError)) {
 							context$3$0.next = 22;
 							break;
 						}
@@ -14447,9 +14427,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 33:
 						context$3$0.prev = 33;
-						context$3$0.t32 = context$3$0["catch"](27);
+						context$3$0.t31 = context$3$0["catch"](27);
 
-						if (!(context$3$0.t32 instanceof StopLoadingTaskError)) {
+						if (!(context$3$0.t31 instanceof StopLoadingTaskError)) {
 							context$3$0.next = 37;
 							break;
 						}
@@ -14457,7 +14437,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return context$3$0.abrupt("return");
 
 					case 37:
-						error = context$3$0.t32;
+						error = context$3$0.t31;
 
 					case 38:
 						infoLoadErrors(error, false);
