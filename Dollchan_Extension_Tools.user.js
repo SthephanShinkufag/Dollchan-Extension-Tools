@@ -1197,9 +1197,7 @@ $define(GLOBAL + BIND, {
     }
   }, weakMethods, false, true);
 }();
-}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
-
-!(function(global) {
+}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);!(function(global) {
   "use strict";
 
   var hasOwn = Object.prototype.hasOwnProperty;
@@ -1630,27 +1628,33 @@ $define(GLOBAL + BIND, {
       }
     },
 
-    _findFinallyEntry: function(finallyLoc) {
+    abrupt: function(type, arg) {
       for (var i = this.tryEntries.length - 1; i >= 0; --i) {
         var entry = this.tryEntries[i];
         if (entry.tryLoc <= this.prev &&
-            hasOwn.call(entry, "finallyLoc") && (
-              entry.finallyLoc === finallyLoc ||
-              this.prev < entry.finallyLoc)) {
-          return entry;
+            hasOwn.call(entry, "finallyLoc") &&
+            this.prev < entry.finallyLoc) {
+          var finallyEntry = entry;
+          break;
         }
       }
-    },
 
-    abrupt: function(type, arg) {
-      var entry = this._findFinallyEntry();
-      var record = entry ? entry.completion : {};
+      if (finallyEntry &&
+          (type === "break" ||
+           type === "continue") &&
+          finallyEntry.tryLoc <= arg &&
+          arg < finallyEntry.finallyLoc) {
+       
+       
+        finallyEntry = null;
+      }
 
+      var record = finallyEntry ? finallyEntry.completion : {};
       record.type = type;
       record.arg = arg;
 
-      if (entry) {
-        this.next = entry.finallyLoc;
+      if (finallyEntry) {
+        this.next = finallyEntry.finallyLoc;
       } else {
         this.complete(record);
       }
@@ -1677,8 +1681,12 @@ $define(GLOBAL + BIND, {
     },
 
     finish: function(finallyLoc) {
-      var entry = this._findFinallyEntry(finallyLoc);
-      return this.complete(entry.completion, entry.afterLoc);
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.finallyLoc === finallyLoc) {
+          return this.complete(entry.completion, entry.afterLoc);
+        }
+      }
     },
 
     "catch": function(tryLoc) {
@@ -3377,7 +3385,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				var obj = {
 					method: params && params.method || "GET",
 					url: nav.fixLink(url),
-					onload: function (e) {
+					onload: function onload(e) {
 						resolve(e);
 					}
 				};
@@ -3436,7 +3444,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 			}
 		},
-		"continue": function () {
+		"continue": function _continue() {
 			if (!this.stopped) {
 				this.paused = false;
 				if (this.index >= this.length) {
@@ -3979,7 +3987,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function addContentBlock(parent, title) {
-		return parent.appendChild($New("div", { "class": "de-content-block" }, [$new("input", { type: "checkbox" }, { click: function () {
+		return parent.appendChild($New("div", { "class": "de-content-block" }, [$new("input", { type: "checkbox" }, { click: function click() {
 				var _this = this;
 
 				$each($Q(".de-entry > input", this.parentNode), function (el) {
@@ -4545,7 +4553,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function lBox(id, isBlock, fn) {
-		var el = $new("input", { info: id, type: "checkbox" }, { click: function () {
+		var el = $new("input", { info: id, type: "checkbox" }, { click: function click() {
 				toggleCfg(this.getAttribute("info"));
 				fixSettings();
 				if (fn) {
@@ -4585,7 +4593,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			"class": "de-cfg-tab",
 			text: Lng.cfgTab[name][lang],
 			info: name }, {
-			click: function () {
+			click: function click() {
 				var el = this.parentNode;
 				if (el.getAttribute("selected") === "true") {
 					return;
@@ -4638,20 +4646,20 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			click: $pd,
 			mouseover: addMenu,
 			mouseout: removeMenu
-		}), $new("a", { text: Lng.apply[lang], href: "#", "class": "de-abtn" }, { click: function (e) {
+		}), $new("a", { text: Lng.apply[lang], href: "#", "class": "de-abtn" }, { click: function click(e) {
 				$pd(e);
 				saveCfg("hideBySpell", 1);
 				$q("input[info=\"hideBySpell\"]", doc).checked = true;
 				toggleSpells();
-			} }), $new("a", { text: Lng.clear[lang], href: "#", "class": "de-abtn" }, { click: function (e) {
+			} }), $new("a", { text: Lng.clear[lang], href: "#", "class": "de-abtn" }, { click: function click(e) {
 				$pd(e);
 				$id("de-spell-edit").value = "";
 				toggleSpells();
 			} }), $add("<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-" + (lang ? "en" : "ru") + "\" class=\"de-abtn\" target=\"_blank\">[?]</a>")]), $New("div", { id: "de-spell-div" }, [$add("<div><div id=\"de-spell-rowmeter\"></div></div>"), $New("div", null, [$new("textarea", { id: "de-spell-edit", wrap: "off" }, {
-			keydown: function () {
+			keydown: function keydown() {
 				updRowMeter(this);
 			},
-			scroll: function () {
+			scroll: function scroll() {
 				updRowMeter(this);
 			}
 		})])]), lBox("sortSpells", true, function () {
@@ -4786,7 +4794,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}, emptyFn);
 		})])])), $if(nav.isGlobal, $New("div", null, [$txt(Lng.cfg.excludeList[lang]), $new("input", { type: "text", id: "de-exclude-edit", size: 45, style: "display: block;",
 			value: excludeList }, {
-			keyup: function () {
+			keyup: function keyup() {
 				setStored("DESU_Exclude", this.value);
 			}
 		}), lBox("turnOff", true, function () {
@@ -4950,7 +4958,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				el.classList.add("de-blink");
 			}
 		} else {
-			el = $id("de-alert").appendChild($New("div", { "class": aib.cReply, id: "de-alert-" + id }, [$new("span", { "class": cBtn, text: tBtn }, { click: function () {
+			el = $id("de-alert").appendChild($New("div", { "class": aib.cReply, id: "de-alert-" + id }, [$new("span", { "class": cBtn, text: tBtn }, { click: function click() {
 					closeAlert(this.parentNode);
 				} }), $add("<div class=\"de-alert-msg\">" + txt.trim() + "</div>")]));
 			if (Cfg.animation) {
@@ -8621,7 +8629,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							"class": "shortened",
 							style: "margin: 0px 0.5em;",
 							text: "проверить капчу" }, {
-							click: function () {
+							click: function click() {
 								var _this2 = this;
 
 								$ajax("/" + brd + "/api/validate-captcha", { method: "POST" }).then(function (xhr) {
@@ -14650,7 +14658,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					paused = true;
 				}
 			},
-			"continue": function () {
+			"continue": function _continue() {
 				if (enabled && paused) {
 					startLoad(false);
 					paused = false;
