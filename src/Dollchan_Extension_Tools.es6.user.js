@@ -5331,8 +5331,8 @@ SpellsInterpreter.prototype = {
 				}
 				var val = this._runSpell(type, scope[i][1]);
 				if(val instanceof Promise) {
-					val.then(this._asyncContinue);
-					this._ctx.push(len, scope, i, scope[i][0]);
+					this._ctx.push(len, scope, i);
+					val.then(this._asyncContinue.bind(this));
 					return false;
 				}
 				rv = this._checkRes(scope[i][0], val);
@@ -5373,13 +5373,15 @@ SpellsInterpreter.prototype = {
 	_lastSpellIdx: 0,
 	_wipeMsg: '',
 	_asyncContinue(val) {
-		var rv = this._checkRes(this._ctx.pop(), val);
+		var cl = this._ctx.length;
+		var spell = this._ctx[cl - 2][this._ctx[cl - 1]];
+		var rv = this._checkRes(spell[0], val);
 		if(rv === null) {
 			if(!this.run()) {
 				return;
 			}
 		} else if(rv) {
-			this._post.spellHide(this._getMsg(this._ctx.pop()[this._ctx.pop() - 1]));
+			this._post.spellHide(this._getMsg(spell));
 			this.postHidden = true;
 		} else if(!this._post.deleted) {
 			sVis[this._post.count] = 1;
@@ -5454,18 +5456,18 @@ SpellsInterpreter.prototype = {
 		}
 		return false;
 	},
-	_ihash(val) {
+	_ihash: async(function* (val) {
 		for(var image of this._post.images) {
 			if(!(image instanceof Attachment)) {
 				continue;
 			}
-			var hash = image.hash !== null ? image.hash : image.getHash();
+			var hash = image.hash !== null ? image.hash : (yield image.getHash());
 			if(hash === val) {
 				return true;
 			}
 		}
 		return false;
-	},
+	}),
 	_subj(val) {
 		var pSubj = this._post.subj;
 		return pSubj ? !val || val.test(pSubj) : false;
@@ -7928,37 +7930,39 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 		var nImage = this.post.images.data[isForward ? this.idx + 1 : this.idx - 1];
 		return nImage ? nImage : this.getFollowPost(isForward);
 	} },
-	getHash: { value: async(function* () {
+	getHash: { value: function() {
 		if(this.hash !== null) {
-			return this.hash;
+			return Promise.resolve(this.hash);
+		}
+		if(!this.el.complete) {
+			return new Promise((resolve, reject) => {
+				this.el.addEventListener('load', () => resolve());
+			}).then(() => this.getHash());
 		}
 		if(this.el.naturalWidth + this.el.naturalHeight === 0) {
 			this.hash = -1;
-			return -1;
+			return Promise.resolve(-1);
 		}
-		var data;
 		if(aib.fch) {
-			var imgData = yield* downloadImgData(this.el.src);
-			if(!imgData) {
-				this.hash = -1;
-				return -1;
-			}
-			data = [imgData.buffer, this.el.naturalWidth, this.el.naturalHeight];
-		} else {
-			var img = this.el,
-				cnv = this._glob.canvas,
-				w = cnv.width = img.naturalWidth,
-				h = cnv.height = img.naturalHeight,
-				ctx = cnv.getContext('2d');
-			ctx.drawImage(img, 0, 0);
-			data = [ctx.getImageData(0, 0, w, h).data.buffer, w, h];
+			return spawn(downloadImgData, this.el.src).then(imgData => {
+				if(!imgData) {
+					throw null;
+				}
+				return this._glob.workerRun([imgData.buffer, this.el.naturalWidth, this.el.naturalHeight],
+				                            imgData.buffer);
+			}).then(data => this.hash = data.hash).catch(() => this.hash = -1);
 		}
-		var { hash } = yield this._glob.workerRun(data, data[0]);
-		this.hash = hash;
-		return hash;
-	}) },
+		var img = this.el,
+			cnv = this._glob.canvas,
+			w = cnv.width = img.naturalWidth,
+			h = cnv.height = img.naturalHeight,
+			ctx = cnv.getContext('2d');
+		ctx.drawImage(img, 0, 0);
+		var data = ctx.getImageData(0, 0, w, h).data.buffer;
+		return this._glob.workerRun([data, w, h], data).then(data => this.hash = data.hash);
+	} },
 
-	_glob: { value: {
+	_glob: { value: Object.create({
 		get canvas() {
 			var val = doc.createElement('canvas');
 			Object.defineProperty(this, 'canvas', { value: val });
@@ -7998,7 +8002,7 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 			this._workers.clear();
 			delete this._workers;
 		}
-	} },
+	}) },
 	_callback: { writable: true, value: null },
 	_processing: { writable: true, value: false },
 	_needToHide: { writable: true, value: false },
@@ -8868,7 +8872,7 @@ Post.prototype = {
 			addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
 			return;
 		case 'spell-ihash':
-			Promise.resolve(this.images.firstAttach.getHash()).then(hash => {
+			this.images.firstAttach.getHash().then(hash => {
 				if(hash !== -1) {
 					addSpell(4 /* #ihash */, hash, false);
 				}
