@@ -3857,7 +3857,7 @@ function loadDocFiles(imgOnly) {
 		setTimeout(function(el, url) {
 			window.URL.revokeObjectURL(url);
 			$del(el);
-		}, 0, a, u);
+		}, 1e5, a, u);
 		$del($id('de-alert-filesload'));
 		Images_.pool = tar = warnings = count = current = imgOnly = progress = counter = null;
 	});

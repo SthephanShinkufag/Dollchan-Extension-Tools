@@ -6010,7 +6010,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			setTimeout(function (el, url) {
 				window.URL.revokeObjectURL(url);
 				$del(el);
-			}, 0, a, u);
+			}, 100000, a, u);
 			$del($id("de-alert-filesload"));
 			Images_.pool = tar = warnings = count = current = imgOnly = progress = counter = null;
 		});
