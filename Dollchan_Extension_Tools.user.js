@@ -10449,13 +10449,20 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 	Attachment.viewer = null;
 	Attachment.prototype = Object.create(IAttachmentData.prototype, {
+		_hash: { configurable: true, writable: true, value: null },
 		hash: { configurable: true, get: function get() {
-				var val = null;
-				if (this.src in this._glob.storage) {
-					val = this._glob.storage[this.src];
+				if (this.hasOwnProperty("_hash")) {
+					return this._hash;
 				}
-				Object.defineProperty(this, "hash", { writable: true, value: val });
-				return val;
+				if (this.src in this._glob.storage) {
+					return this._hash = this._glob.storage[this.src];
+				}
+				return null;
+			}, set: function set(val) {
+				this._hash = val;
+				if (val !== -1) {
+					this._glob.storage[this.src] = val;
+				}
 			} },
 		info: { configurable: true, get: function get() {
 				var val = aib.getFileInfo(aib.getImgWrap(this.el.parentNode));
@@ -10675,7 +10682,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    olen = i,
 		    _olen = i,
 		    n = 0;
-		console.log(words);
 		if (len < olen * 0.4 || len > olen * 3) {
 			return;
 		}
