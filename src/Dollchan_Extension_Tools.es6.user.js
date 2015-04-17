@@ -10126,6 +10126,9 @@ function getNavFuncs() {
 			try {
 				val = 'Worker' in window;
 			} catch(e) {}
+			if(val && this.Firefox) {
+				val = +(navigator.userAgent.match(/rv:(\d{2})/) || [])[1] >= 40;
+			}
 			Object.defineProperty(this, 'hasWorker', { value: val });
 			return val;
 		},
