@@ -122,7 +122,7 @@ defaultCfg = {
 	'textaWidth':       300,    // textarea size
 	'textaHeight':      115,
 	'qReplyX':          'right: 0',     // quick reply position
-	'qReplyY':          'bottom: 25px'  
+	'qReplyY':          'bottom: 25px'
 },
 
 Lng = {
@@ -1553,7 +1553,7 @@ function addPanel(formEl) {
 					(imgLen === 0 ? '' :
 						pButton('expimg', '#', false) +
 						pButton('maskimg', '#', true) +
-						(nav.Presto || localRun ? '' : 
+						(nav.Presto || localRun ? '' :
 							(Cfg.preLoadImgs ? '' : pButton('preimg', '#', false)) +
 							(!TNum ? '' : pButton('savethr', '#', false)))) +
 					(!TNum || localRun ? '' :
@@ -1925,7 +1925,7 @@ function showHiddenTable(cont) {
 	} else {
 		cont.insertAdjacentHTML('beforeend', '<b>' + Lng.noHidPosts[lang] + '</b>');
 	}
-	cont.insertAdjacentHTML('beforeend', '<hr><b>' + 
+	cont.insertAdjacentHTML('beforeend', '<hr><b>' +
 		($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') + '</b>');
 	for(var b in hThr) {
 		if(!$isEmpty(hThr[b])) {
@@ -2886,7 +2886,7 @@ function addMenu(e) {
 				) + (Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? '(' : ''));
 			});
 			return;
-		case 'de-btn-refresh': 
+		case 'de-btn-refresh':
 			showMenu(el, '<span class="de-menu-item">' +
 				Lng.selAjaxPages[lang].join('</span><span class="de-menu-item">') + '</span>', true,
 			function(el) {
@@ -5891,7 +5891,7 @@ PostForm.prototype = {
 			html += '<span id="de-btn-' + id[i] + '" de-title="' + Lng.txtBtn[i][lang] +
 				'" de-tag="' + btns[i] + '">' + (
 					Cfg.addTextBtns === 2 ?
-						(html === '' ? '[ ' : '') + '<a class="de-abtn" href="#">' + val[i] + '</a>' + 
+						(html === '' ? '[ ' : '') + '<a class="de-abtn" href="#">' + val[i] + '</a>' +
 						(i === len - 1 ? ' ]' : ' / ') :
 					Cfg.addTextBtns === 3 ?
 						'<input type="button" value="' + val[i] + '" style="font-weight: bold;">' : ''
@@ -7137,7 +7137,7 @@ function cleanFile(data, extraData) {
 	}
 	// JPG
 	if(img[0] === 0xFF && img[1] === 0xD8) {
-		var deep = 1; 
+		var deep = 1;
 		for(i = 2, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len; ) {
 			if(img[i] === 0xFF) {
 				if(rExif) {
@@ -8866,7 +8866,7 @@ Post.prototype = {
 				end = end.parentNode;
 			}
 			if((nav.matchesSelector(start, aib.qMsg + ' *') && nav.matchesSelector(end, aib.qMsg + ' *')) ||
-			   (nav.matchesSelector(start, '.' + aib.cSubj) && nav.matchesSelector(end, '.' + aib.cSubj))) 
+			   (nav.matchesSelector(start, '.' + aib.cSubj) && nav.matchesSelector(end, '.' + aib.cSubj)))
 			{
 				if(this._selText.contains('\n')) {
 					addSpell(1 /* #exp */, '/' +
@@ -9261,7 +9261,7 @@ Pview.prototype = Object.create(Post.prototype, {
 			if(post.hidden) {
 				node.classList.add('de-post-hide');
 			}
-			node.innerHTML = '<span class="de-btn-hide' + (post.userToggled ? '-user' : '') + 
+			node.innerHTML = '<span class="de-btn-hide' + (post.userToggled ? '-user' : '') +
 				'" de-menu="hide" title="' + Lng.togglePost[lang] + '"></span>' + pText;
 			$each($Q((!TNum && post.isOp ? aib.qOmitted + ', ' : '') +
 				'.de-img-full, .de-after-fimg', el), $del);
@@ -10180,7 +10180,7 @@ function getImageBoard(checkDomains, checkOther) {
 		}],
 		'2chru.net': [{
 			_2chru: { value: true },
-			
+
 			css: { value: '.small { display: none; }' }
 		}, 'form[action*="imgboard.php?delete"]'],
 		get '2-chru.net'() { return this['2chru.net']; },
@@ -10234,7 +10234,7 @@ function getImageBoard(checkDomains, checkOther) {
 		}, 'script[src*="kusaba"]'],
 		'420chan.org': [{
 			_420: { value: true },
-			
+
 			qBan: { value: '.ban' },
 			qError: { value: 'pre' },
 			qHide: { value: '.replyheader ~ *' },
@@ -10252,7 +10252,7 @@ function getImageBoard(checkDomains, checkOther) {
 		}],
 		'4chan.org': [{
 			fch: { value: true },
-			
+
 			cFileInfo: { value: 'fileText' },
 			cOPost: { value: 'op' },
 			cReply: { value: 'post reply' },
@@ -10319,7 +10319,7 @@ function getImageBoard(checkDomains, checkOther) {
 		}],
 		'8ch.net': [{
 			_8ch: { value: true },
-			
+
 			css: { value: '.fileinfo { width: 250px; }\
 				.multifile { width: auto !important; }\
 				.post-btn { display: none !important; }' },
@@ -10360,7 +10360,7 @@ function getImageBoard(checkDomains, checkOther) {
 		}],
 		'diochan.com': [{
 			dio: { value: true },
-			
+
 			css: { value: '.resize { display: none !important; }' },
 		}, 'script[src*="kusaba"]'],
 		get 'dmirrgetyojz735v.onion'() { return this['2chru.net']; },
@@ -10461,7 +10461,7 @@ function getImageBoard(checkDomains, checkOther) {
 		}],
 		'krautchan.net': [{
 			krau: { value: true },
-			
+
 			cFileInfo: { value: 'fileinfo' },
 			cReply: { value: 'postreply' },
 			cRPost: { value: 'postreply' },
@@ -10555,7 +10555,7 @@ function getImageBoard(checkDomains, checkOther) {
 		get 'ponychan.ru'() { return this['ponya.ch']; },
 		'ponychan.net': [{
 			pony: { value: true },
-			
+
 			cOPost: { value: 'op' },
 			qPages: { value: 'table[border="0"] > tbody > tr > td:nth-child(2) > a:last-of-type' },
 			css: { value: '#bodywrap3 > hr { display: none !important; }' }
@@ -10565,7 +10565,7 @@ function getImageBoard(checkDomains, checkOther) {
 		}, 'form[action*="imgboard.php?delete"]'],
 		'syn-ch.ru': [{
 			synch: { value: true },
-			
+
 			cFileInfo: { value: 'unimportant' },
 			css: { value: '.fa-sort, .image_id { display: none !important; }\
 				time:after { content: none; }' },
@@ -10685,7 +10685,7 @@ function getImageBoard(checkDomains, checkOther) {
 		},
 		'form[action*="futaba.php"]': {
 			futa: { value: true },
-			
+
 			qDForm: { value: 'form:not([enctype])' },
 			qImgLink: { value: 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]' },
 			qOmitted: { value: 'font[color="#707070"]' },
@@ -10726,7 +10726,7 @@ function getImageBoard(checkDomains, checkOther) {
 		},
 		'form[name*="postcontrols"]': {
 			tiny: { value: true },
-			
+
 			cFileInfo: { value: 'fileinfo' },
 			cReply: { value: 'post reply' },
 			qClosed: { value: '.fa-lock' },
@@ -10772,7 +10772,7 @@ function getImageBoard(checkDomains, checkOther) {
 		},
 		'script[src*="kusaba"]': {
 			kus: { value: true },
-			
+
 			cOPost: { value: 'postnode' },
 			qError: { value: 'h1, h2, div[style*="1.25em"]' },
 			qPostRedir: { value: null },
@@ -11412,7 +11412,6 @@ function initThreadUpdater(title, enableUpdate) {
 		enabled = canFocusLoad = true;
 		paused = disabledByUser = false;
 		newPosts = 0;
-		lastECode = 200;
 		if(useCountdown) {
 			countEl = $id('de-updater-count');
 			countEl.style.display = '';
@@ -11452,7 +11451,7 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		});
 	}
-	
+
 	function checkFocusLoad(isFocusLoad) {
 		if(isFocusLoad) {
 			if(!canFocusLoad) {
@@ -11609,7 +11608,7 @@ function initThreadUpdater(title, enableUpdate) {
 		} while(repeatLoading);
 		stopLoad = emptyFn;
 	});
-		
+
 	function setState(state) {
 		var btn = stateButton || (stateButton = $q('a[id^="de-btn-upd"]', doc));
 		btn.id = 'de-btn-upd-' + state
@@ -12100,7 +12099,7 @@ function scriptCSS() {
 	td > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\
 	video { background: black; }\
 	.de-vocaroo > embed { display: inline-block; }' +
-	
+
 	// File inputs
 	'.de-file { display: inline-block; margin: 1px; height: ' + (p = aib.multiFile ? 90 : 130) + 'px; width: ' + p + 'px; text-align: center; border: 1px dashed grey; }\
 	.de-file > .de-file-del, .de-file > .de-file-spoil { float: right; }\

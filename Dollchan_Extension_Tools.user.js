@@ -14147,7 +14147,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			enabled = canFocusLoad = true;
 			paused = disabledByUser = false;
 			newPosts = 0;
-			lastECode = 200;
 			if (useCountdown) {
 				countEl = $id("de-updater-count");
 				countEl.style.display = "";
