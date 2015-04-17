@@ -12759,12 +12759,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			hasWorker: {
 				get: function () {
 					var val = false;
-					if (!this.Firefox) {
-					
-						try {
-							val = "Worker" in window;
-						} catch (e) {}
-					}
+					try {
+						val = "Worker" in window;
+					} catch (e) {}
 					Object.defineProperty(this, "hasWorker", { value: val });
 					return val;
 				},

@@ -10123,11 +10123,9 @@ function getNavFuncs() {
 		},
 		get hasWorker() {
 			var val = false;
-			if(!this.Firefox) { // see https://github.com/greasemonkey/greasemonkey/issues/2034
-				try {
-					val = 'Worker' in window;
-				} catch(e) {}
-			}
+			try {
+				val = 'Worker' in window;
+			} catch(e) {}
 			Object.defineProperty(this, 'hasWorker', { value: val });
 			return val;
 		},
