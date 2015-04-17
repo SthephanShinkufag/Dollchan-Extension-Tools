@@ -10504,7 +10504,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						if (!imgData) {
 							throw null;
 						}
-						return _this._glob.workerRun([imgData.buffer, _this.el.naturalWidth, _this.el.naturalHeight], imgData.buffer);
+						return _this._glob.workerRun([imgData.buffer, _this.el.naturalWidth, _this.el.naturalHeight], [imgData.buffer]);
 					}).then(function (data) {
 						return _this.hash = data.hash;
 					})["catch"](function () {
@@ -10518,17 +10518,17 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				    ctx = cnv.getContext("2d");
 				ctx.drawImage(img, 0, 0);
 				var data = ctx.getImageData(0, 0, w, h).data.buffer;
-				return this._glob.workerRun([data, w, h], data).then(function (data) {
+				return this._glob.workerRun([data, w, h], [data]).then(function (data) {
 					return _this.hash = data.hash;
 				});
 			} },
 
 		_glob: { value: Object.create(Object.defineProperties({
-				workerRun: function workerRun(data, transferObj) {
+				workerRun: function workerRun(data, transferObjs) {
 					var _this = this;
 
 					return new Promise(function (resolve, reject) {
-						_this._workers.run(data, transferObj, function (val) {
+						_this._workers.run(data, transferObjs, function (val) {
 							return resolve(val);
 						});
 					});

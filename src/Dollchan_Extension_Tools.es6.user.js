@@ -7956,7 +7956,7 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 					throw null;
 				}
 				return this._glob.workerRun([imgData.buffer, this.el.naturalWidth, this.el.naturalHeight],
-				                            imgData.buffer);
+				                            [imgData.buffer]);
 			}).then(data => this.hash = data.hash).catch(() => this.hash = -1);
 		}
 		var img = this.el,
@@ -7966,7 +7966,7 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 			ctx = cnv.getContext('2d');
 		ctx.drawImage(img, 0, 0);
 		var data = ctx.getImageData(0, 0, w, h).data.buffer;
-		return this._glob.workerRun([data, w, h], data).then(data => this.hash = data.hash);
+		return this._glob.workerRun([data, w, h], [data]).then(data => this.hash = data.hash);
 	} },
 
 	_glob: { value: Object.create({
@@ -7988,9 +7988,9 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 				return val;
 			}
 		},
-		workerRun(data, transferObj) {
+		workerRun(data, transferObjs) {
 			return new Promise((resolve, reject) => {
-				this._workers.run(data, transferObj, val => resolve(val));
+				this._workers.run(data, transferObjs, val => resolve(val));
 			});
 		},
 		get _workers() {
