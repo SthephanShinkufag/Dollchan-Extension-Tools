@@ -2626,6 +2626,7 @@ function getCfgCommon() {
 							val[dm].disabled = Cfg.turnOff;
 						}
 					}
+					val[aib.dm].turnOff = Cfg.turnOff;
 					setStored('DESU_Config', JSON.stringify(val));
 				});
 			})
@@ -3879,8 +3880,8 @@ function loadDocFiles(imgOnly) {
 		}
 	});
 	if(!imgOnly) {
-		$each($Q('#de-main, .de-parea, .de-post-btns, #de-qarea, .de-refmap, #de-updater-div, .de-video-obj,' +
-			' link[rel="alternate stylesheet"], script, ' + aib.qPostForm, dc), $del);
+		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, #de-qarea, .de-refmap, #de-updater-div,' +
+			' .de-video-obj, link[rel="alternate stylesheet"], script, ' + aib.qPostForm, dc), $del);
 		$each($T('a', dc), function(el) {
 			var num, tc = el.textContent;
 			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && (num in pByNum)) {
