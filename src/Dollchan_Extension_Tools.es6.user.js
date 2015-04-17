@@ -3674,7 +3674,7 @@ function addImgFileIcon(aEl, fName, info) {
 		ext = 'mp3';
 	}
 	aEl.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(
-			new Blob([new Uint8Array(info.data, info.idx)], {'type': app})
+			new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {'type': app})
 		) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
 		'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>'
 	);
@@ -10150,11 +10150,11 @@ function getNavFuncs() {
 			return val;
 		},
 		// See https://github.com/greasemonkey/greasemonkey/issues/2034 for more info
-		getUnsafeUint8Array(data, i, len) {
+		getUnsafeUint8Array(data, i = 0, len = null) {
 			var rv;
-			if(typeof i === 'undefined') {
-				rv = new Uint8Array(data);
-				return (rv instanceof Uint8Array) ? rv : new unsafeWindow.Uint8Array(data);
+			if(len === null) {
+				rv = new Uint8Array(data, i);
+				return (rv instanceof Uint8Array) ? rv : new unsafeWindow.Uint8Array(data, i);
 			}
 			rv = new Uint8Array(data, i, len);
 			return (rv instanceof Uint8Array) ? rv : new unsafeWindow.Uint8Array(data, i, len);

@@ -5737,7 +5737,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			app = "audio/mpeg";
 			ext = "mp3";
 		}
-		aEl.insertAdjacentHTML("afterend", "<a href=\"" + window.URL.createObjectURL(new Blob([new Uint8Array(info.data, info.idx)], { type: app })) + "\" class=\"de-img-" + (type > 2 ? "audio" : "arch") + "\" title=\"" + Lng.downloadFile[lang] + "\" download=\"" + fName.substring(0, fName.lastIndexOf(".")) + "." + ext + "\">." + ext + "</a>");
+		aEl.insertAdjacentHTML("afterend", "<a href=\"" + window.URL.createObjectURL(new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], { type: app })) + "\" class=\"de-img-" + (type > 2 ? "audio" : "arch") + "\" title=\"" + Lng.downloadFile[lang] + "\" download=\"" + fName.substring(0, fName.lastIndexOf(".")) + "." + ext + "\">." + ext + "</a>");
 	}
 
 	function downloadImgData(url) {
@@ -12732,11 +12732,14 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				return url;
 			},
 		
-			getUnsafeUint8Array: function getUnsafeUint8Array(data, i, len) {
+			getUnsafeUint8Array: function getUnsafeUint8Array(data) {
+				var i = arguments[1] === undefined ? 0 : arguments[1];
+				var len = arguments[2] === undefined ? null : arguments[2];
+
 				var rv;
-				if (typeof i === "undefined") {
-					rv = new Uint8Array(data);
-					return rv instanceof Uint8Array ? rv : new unsafeWindow.Uint8Array(data);
+				if (len === null) {
+					rv = new Uint8Array(data, i);
+					return rv instanceof Uint8Array ? rv : new unsafeWindow.Uint8Array(data, i);
 				}
 				rv = new Uint8Array(data, i, len);
 				return rv instanceof Uint8Array ? rv : new unsafeWindow.Uint8Array(data, i, len);
