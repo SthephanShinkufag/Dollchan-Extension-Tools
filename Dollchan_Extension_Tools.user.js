@@ -2313,95 +2313,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		}, readFavoritesPosts, this);
 	});
-	var downloadImgData = regeneratorRuntime.mark(function downloadImgData(url) {
-		var repeatOnError = arguments[1] === undefined ? true : arguments[1];
-		var xhr, isAb, txt, rv, i, len;
-		return regeneratorRuntime.wrap(function downloadImgData$(context$2$0) {
-			while (1) switch (context$2$0.prev = context$2$0.next) {
-				case 0:
-					if (!(aib.fch && nav.Firefox && !url.startsWith("blob"))) {
-						context$2$0.next = 6;
-						break;
-					}
-
-					context$2$0.next = 3;
-					return $ajax(url, { overrideMimeType: "text/plain; charset=x-user-defined" }, false);
-
-				case 3:
-					xhr = context$2$0.sent;
-					context$2$0.next = 15;
-					break;
-
-				case 6:
-					context$2$0.prev = 6;
-					context$2$0.next = 9;
-					return $ajax(url, { responseType: "arraybuffer" });
-
-				case 9:
-					xhr = context$2$0.sent;
-					context$2$0.next = 15;
-					break;
-
-				case 12:
-					context$2$0.prev = 12;
-					context$2$0.t14 = context$2$0["catch"](6);
-					return context$2$0.abrupt("return", null);
-
-				case 15:
-					isAb = xhr.responseType === "arraybuffer";
-
-					if (!(xhr.status === 0 && isAb)) {
-						context$2$0.next = 20;
-						break;
-					}
-
-					return context$2$0.abrupt("return", new Uint8Array(xhr.response));
-
-				case 20:
-					if (!(xhr.status !== 200)) {
-						context$2$0.next = 29;
-						break;
-					}
-
-					if (!(xhr.status === 404 || !repeatOnError)) {
-						context$2$0.next = 25;
-						break;
-					}
-
-					return context$2$0.abrupt("return", null);
-
-				case 25:
-					return context$2$0.delegateYield(downloadImgData(url, false), "t15", 26);
-
-				case 26:
-					return context$2$0.abrupt("return", context$2$0.t15);
-
-				case 27:
-					context$2$0.next = 36;
-					break;
-
-				case 29:
-					if (!isAb) {
-						context$2$0.next = 33;
-						break;
-					}
-
-					return context$2$0.abrupt("return", new Uint8Array(xhr.response));
-
-				case 33:
-					txt = xhr.responseText, rv = new Uint8Array(txt.length);
-
-					for (i = 0, len = txt.length; i < len; ++i) {
-						rv[i] = txt.charCodeAt(i) & 255;
-					}
-					return context$2$0.abrupt("return", rv);
-
-				case 36:
-				case "end":
-					return context$2$0.stop();
-			}
-		}, downloadImgData, this, [[6, 12]]);
-	});
 	var html5Submit = regeneratorRuntime.mark(function html5Submit(form) {
 		var needProgress = arguments[1] === undefined ? false : arguments[1];
 
@@ -2445,8 +2356,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					return readFileArrayBuffer(value);
 
 				case 17:
-					context$2$0.t28 = context$2$0.sent;
-					data = cleanFile(context$2$0.t28, el.obj.imgFile);
+					context$2$0.t24 = context$2$0.sent;
+					data = cleanFile(context$2$0.t24, el.obj.imgFile);
 
 					if (data) {
 						context$2$0.next = 21;
@@ -2479,9 +2390,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 31:
 					context$2$0.prev = 31;
-					context$2$0.t29 = context$2$0["catch"](4);
+					context$2$0.t25 = context$2$0["catch"](4);
 					_didIteratorError = true;
-					_iteratorError = context$2$0.t29;
+					_iteratorError = context$2$0.t25;
 
 				case 35:
 					context$2$0.prev = 35;
@@ -2573,10 +2484,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 4:
 					new Logger().log("Init");
-					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t32", 6);
+					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t28", 6);
 
 				case 6:
-					str = context$2$0.t32;
+					str = context$2$0.t28;
 
 					if (!(str && str.contains(aib.dm))) {
 						context$2$0.next = 9;
@@ -2587,7 +2498,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 9:
 					excludeList = str || "";
-					return context$2$0.delegateYield(readCfg(), "t33", 11);
+					return context$2$0.delegateYield(readCfg(), "t29", 11);
 
 				case 11:
 					new Logger().log("Config loading");
@@ -2616,9 +2527,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 26:
 					context$2$0.prev = 26;
-					context$2$0.t34 = context$2$0["catch"](22);
+					context$2$0.t30 = context$2$0["catch"](22);
 
-					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t34));
+					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t30));
 					doc.body.style.display = "";
 					return context$2$0.abrupt("return");
 
@@ -2651,10 +2562,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 					new Logger().log("Scroll page");
 					readPosts();
-					return context$2$0.delegateYield(readUserPosts(), "t35", 48);
+					return context$2$0.delegateYield(readUserPosts(), "t31", 48);
 
 				case 48:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t36", 49);
+					return context$2$0.delegateYield(readFavoritesPosts(), "t32", 49);
 
 				case 49:
 					setTimeout(PostContent.purge, 0);
@@ -3491,7 +3402,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		_run: function _run(data) {
 			var _this = this;
 
-			Promise.resolve(this.func(this.num++, data)).then(function () {
+			this.func(this.num++, data).then(function () {
 				return _this._end();
 			}, function (e) {
 				if (e instanceof TasksPool.PauseError) {
@@ -5829,6 +5740,42 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		aEl.insertAdjacentHTML("afterend", "<a href=\"" + window.URL.createObjectURL(new Blob([new Uint8Array(info.data, info.idx)], { type: app })) + "\" class=\"de-img-" + (type > 2 ? "audio" : "arch") + "\" title=\"" + Lng.downloadFile[lang] + "\" download=\"" + fName.substring(0, fName.lastIndexOf(".")) + "." + ext + "\">." + ext + "</a>");
 	}
 
+	function downloadImgData(url) {
+		var repeatOnError = arguments[1] === undefined ? true : arguments[1];
+
+		var promise;
+		if (aib.fch && nav.Firefox && !url.startsWith("blob")) {
+			promise = $ajax(url, { overrideMimeType: "text/plain; charset=x-user-defined" }, false);
+		} else {
+			try {
+				promise = $ajax(url, { responseType: "arraybuffer" });
+			} catch (e) {
+				return Promise.resolve(null);
+			}
+		}
+		return promise.then(function (xhr) {
+			var isAb = xhr.responseType === "arraybuffer";
+			if (xhr.status === 0 && isAb) {
+				return new Uint8Array(xhr.response);
+			} else if (xhr.status !== 200) {
+				if (xhr.status === 404 || !repeatOnError) {
+					return null;
+				} else {
+					return downloadImgData(url, false);
+				}
+			} else if (isAb) {
+				return new Uint8Array(xhr.response);
+			} else {
+				var txt = xhr.responseText,
+				    rv = new Uint8Array(txt.length);
+				for (var i = 0, len = txt.length; i < len; ++i) {
+					rv[i] = txt.charCodeAt(i) & 255;
+				}
+				return rv;
+			}
+		});
+	}
+
 	function preloadImages(post) {
 		if (!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {
 			return;
@@ -5840,50 +5787,38 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			    rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile, function (e) {
 				console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
 			});
-			pool = new TasksPool(mReqs, async(regeneratorRuntime.mark(function callee$2$0(num, data) {
-				var _data, url, lnk, iType, nExp, el, imageData, fName, aEl;
+			pool = new TasksPool(mReqs, function (num, data) {
+				return downloadImgData(data[0]).then(function (imageData) {
+					var _data = _slicedToArray(data, 5);
 
-				return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-					while (1) switch (context$3$0.prev = context$3$0.next) {
-						case 0:
-							_data = _slicedToArray(data, 5);
-							url = _data[0];
-							lnk = _data[1];
-							iType = _data[2];
-							nExp = _data[3];
-							el = _data[4];
-							return context$3$0.delegateYield(downloadImgData(url), "t16", 7);
+					var url = _data[0];
+					var lnk = _data[1];
+					var iType = _data[2];
+					var nExp = _data[3];
+					var el = _data[4];
 
-						case 7:
-							imageData = context$3$0.t16;
-
-							if (imageData) {
-								fName = url.substring(url.lastIndexOf("/") + 1), aEl = $q(aib.qImgLink, aib.getImgWrap(lnk));
-
-								aEl.setAttribute("download", fName);
-								lnk.href = window.URL.createObjectURL(new Blob([imageData], { type: iType }));
-								lnk.setAttribute("de-name", fName);
-								if (iType === "video/webm") {
-									el.setAttribute("de-video", "");
-								}
-								if (nExp) {
-									el.src = lnk.href;
-								}
-								if (rjf) {
-									rjf.run(imageData.buffer, [imageData.buffer], addImgFileIcon.bind(null, aEl, fName));
-								}
-							}
-							if (Images_.progressId) {
-								$alert(Lng.loadImage[lang] + cImg + "/" + len, Images_.progressId, true);
-							}
-							cImg++;
-
-						case 11:
-						case "end":
-							return context$3$0.stop();
+					if (imageData) {
+						var fName = url.substring(url.lastIndexOf("/") + 1),
+						    aEl = $q(aib.qImgLink, aib.getImgWrap(lnk));
+						aEl.setAttribute("download", fName);
+						lnk.href = window.URL.createObjectURL(new Blob([imageData], { type: iType }));
+						lnk.setAttribute("de-name", fName);
+						if (iType === "video/webm") {
+							el.setAttribute("de-video", "");
+						}
+						if (nExp) {
+							el.src = lnk.href;
+						}
+						if (rjf) {
+							rjf.run(imageData.buffer, [imageData.buffer], addImgFileIcon.bind(null, aEl, fName));
+						}
 					}
-				}, callee$2$0, this);
-			})), function () {
+					if (Images_.progressId) {
+						$alert(Lng.loadImage[lang] + cImg + "/" + len, Images_.progressId, true);
+					}
+					cImg++;
+				});
+			}, function () {
 				Images_.preloading = false;
 				if (Images_.afterpreload) {
 					Images_.afterpreload();
@@ -5950,50 +5885,37 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		    warnings = "",
 		    tar = new TarBuilder(),
 		    dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
-		Images_.pool = new TasksPool(4, async(regeneratorRuntime.mark(function callee$2$0(num, data) {
-			var _data, url, name, el, link, safeName, imgData;
+		Images_.pool = new TasksPool(4, function (num, data) {
+			return downloadImgData(data[0]).then(function (imgData) {
+				var _data = _slicedToArray(data, 4);
 
-			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-				while (1) switch (context$3$0.prev = context$3$0.next) {
-					case 0:
-						_data = _slicedToArray(data, 4);
-						url = _data[0];
-						name = _data[1];
-						el = _data[2];
-						link = _data[3];
-						safeName = name.replace(/[\\\/:*?"<>|]/g, "_");
-						return context$3$0.delegateYield(downloadImgData(url), "t17", 7);
-
-					case 7:
-						imgData = context$3$0.t17;
-
-						progress.value = current;
-						counter.innerHTML = current;
-						current++;
-						if (link) {
-							if (!imgData) {
-								warnings += "<br>" + Lng.cantLoad[lang] + "<a href=\"" + url + "\">" + url + "</a><br>" + Lng.willSavePview[lang];
-								$alert(Lng.loadErrors[lang] + warnings, "floadwarn", false);
-								safeName = "thumb-" + safeName.replace(/\.[a-z]+$/, ".png");
-								imgData = getDataFromImg(el);
-							}
-							if (!imgOnly) {
-								el.classList.add("de-thumb");
-								el.src = link.href = $q(aib.qImgLink, aib.getImgWrap(link)).href = safeName = "images/" + safeName;
-							}
-							tar.addFile(safeName, imgData);
-						} else if (imgData && imgData.length > 0) {
-							tar.addFile(el.href = el.src = "data/" + safeName, imgData);
-						} else {
-							$del(el);
-						}
-
-					case 12:
-					case "end":
-						return context$3$0.stop();
+				var url = _data[0];
+				var name = _data[1];
+				var el = _data[2];
+				var link = _data[3];
+				var safeName = name.replace(/[\\\/:*?"<>|]/g, "_");
+				progress.value = current;
+				counter.innerHTML = current;
+				current++;
+				if (link) {
+					if (!imgData) {
+						warnings += "<br>" + Lng.cantLoad[lang] + "<a href=\"" + url + "\">" + url + "</a><br>" + Lng.willSavePview[lang];
+						$alert(Lng.loadErrors[lang] + warnings, "floadwarn", false);
+						safeName = "thumb-" + safeName.replace(/\.[a-z]+$/, ".png");
+						imgData = getDataFromImg(el);
+					}
+					if (!imgOnly) {
+						el.classList.add("de-thumb");
+						el.src = link.href = $q(aib.qImgLink, aib.getImgWrap(link)).href = safeName = "images/" + safeName;
+					}
+					tar.addFile(safeName, imgData);
+				} else if (imgData && imgData.length > 0) {
+					tar.addFile(el.href = el.src = "data/" + safeName, imgData);
+				} else {
+					$del(el);
 				}
-			}, callee$2$0, this);
-		})), function () {
+			});
+		}, function () {
 			var u,
 			    a,
 			    name = aib.dm + "-" + brd.replace(/[\\\/:*?"<>|]/g, "") + "-" + TNum;
@@ -6232,94 +6154,68 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		};
 	};
+	Videos._titlesLoaderHelper = function (_ref, num) {
+		for (var _len = arguments.length, data = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+			data[_key - 2] = arguments[_key];
+		}
+
+		var _ref2 = _slicedToArray(_ref, 4);
+
+		var link = _ref2[0];
+		var isYtube = _ref2[1];
+		var videoObj = _ref2[2];
+		var id = _ref2[3];
+
+		if (data.length !== 0) {
+			var title = data[0];
+			var author = data[1];
+			var views = data[2];
+			var publ = data[3];
+
+			link.textContent = title;
+			link.setAttribute("de-author", author);
+			link.classList.add("de-video-title");
+			link.title = Lng.author[lang] + author + ", " + Lng.views[lang] + views + ", " + Lng.published[lang] + publ;
+			Videos._global.vData[isYtube ? 0 : 1][id] = data;
+			videoObj.vData[isYtube ? 0 : 1].push(data);
+			if (videoObj.titleLoadFn) {
+				videoObj.titleLoadFn(data);
+			}
+		}
+		videoObj.loadedLinksCount++;
+		if (num % 30 === 0) {
+			return Promise.reject(new TasksPool.PauseError(3000));
+		}
+		return sleep(250);
+	};
 	Videos._getTitlesLoader = function () {
-		return Cfg.YTubeTitles && new TasksPool(4, async(regeneratorRuntime.mark(function callee$2$0(num, info) {
-			var title, author, views, publ, _info, link, isYtube, videoObj, id, xhr, entry, data;
+		return Cfg.YTubeTitles && new TasksPool(4, function (num, info) {
+			var _info = _slicedToArray(info, 4);
 
-			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-				while (1) switch (context$3$0.prev = context$3$0.next) {
-					case 0:
-						_info = _slicedToArray(info, 4);
-						link = _info[0];
-						isYtube = _info[1];
-						videoObj = _info[2];
-						id = _info[3];
+			var isYtube = _info[1];
+			var id = _info[3];
 
-						if (!isYtube) {
-							context$3$0.next = 12;
-							break;
-						}
-
-						context$3$0.next = 8;
-						return $ajax(aib.prot + "//gdata.youtube.com/feeds/api/videos/" + id + "?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published", null, false);
-
-					case 8:
-						xhr = context$3$0.sent;
-
-						if (xhr.status === 200) {
-							try {
-								entry = JSON.parse(xhr.responseText).entry;
-
-								title = entry.title.$t;
-								author = entry.author[0].name.$t;
-								views = entry.yt$statistics.viewCount;
-								publ = entry.published.$t.substr(0, 10);
-							} catch (e) {}
-						}
-						context$3$0.next = 16;
-						break;
-
-					case 12:
-						context$3$0.next = 14;
-						return $ajax(aib.prot + "//vimeo.com/api/v2/video/" + id + ".json", null, false);
-
-					case 14:
-						xhr = context$3$0.sent;
-
-						if (xhr.status === 200) {
-							try {
-								entry = JSON.parse(xhr.responseText)[0];
-
-								title = entry.title;
-								author = entry.user_name;
-								views = entry.stats_number_of_plays;
-								publ = new RegExp(/(.*)\s(.*)?/).exec(entry.upload_date)[1];
-							} catch (e) {}
-						}
-
-					case 16:
-						if (title) {
-							link.textContent = title;
-							link.setAttribute("de-author", author);
-							link.classList.add("de-video-title");
-							link.title = Lng.author[lang] + author + ", " + Lng.views[lang] + views + ", " + Lng.published[lang] + publ;
-							data = [title, author, views, publ];
-
-							Videos._global.vData[isYtube ? 0 : 1][id] = data;
-							videoObj.vData[isYtube ? 0 : 1].push(data);
-							if (videoObj.titleLoadFn) {
-								videoObj.titleLoadFn(data);
-							}
-						}
-						videoObj.loadedLinksCount++;
-
-						if (!(num % 30 === 0)) {
-							context$3$0.next = 20;
-							break;
-						}
-
-						return context$3$0.abrupt("return", Promise.reject(new TasksPool.PauseError(3000)));
-
-					case 20:
-						context$3$0.next = 22;
-						return sleep(250);
-
-					case 22:
-					case "end":
-						return context$3$0.stop();
+			if (isYtube) {
+				return $ajax(aib.prot + "//gdata.youtube.com/feeds/api/videos/" + id + "?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published", null, false).then(function (xhr) {
+					if (xhr.status === 200) {
+						try {
+							var entry = JSON.parse(xhr.responseText).entry;
+							return Videos._titlesLoaderHelper(info, num, entry.title.$t, entry.author[0].name.$t, entry.yt$statistics.viewCount, entry.published.$t.substr(0, 10));
+						} catch (e) {}
+					}
+					return Videos._titlesLoaderHelper(info, num);
+				});
+			}
+			return $ajax(aib.prot + "//vimeo.com/api/v2/video/" + id + ".json", null, false).then(function (xhr) {
+				if (xhr.status === 200) {
+					try {
+						var entry = JSON.parse(xhr.responseText)[0];
+						return Videos._titlesLoaderHelper(info, num, entry.title, entry.user_name, entry.stats_number_of_plays, new RegExp(/(.*)\s(.*)?/).exec(entry.upload_date)[1]);
+					} catch (e) {}
 				}
-			}, callee$2$0, this);
-		})), function () {
+				return Videos._titlesLoaderHelper(info, num);
+			});
+		}, function () {
 			sesStorage["de-videos-data"] = JSON.stringify(Videos._global.vData);
 		});
 	};
@@ -6649,16 +6545,16 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					return ajaxLoad(aib.getPageUrl(brd, i));
 
 				case 15:
-					context$2$0.t18 = context$2$0.sent;
-					content = replacePost(context$2$0.t18);
+					context$2$0.t14 = context$2$0.sent;
+					content = replacePost(context$2$0.t14);
 					context$2$0.next = 22;
 					break;
 
 				case 19:
 					context$2$0.prev = 19;
-					context$2$0.t19 = context$2$0["catch"](12);
+					context$2$0.t15 = context$2$0["catch"](12);
 
-					content = $add("<div><center style=\"font-size: 2em\">" + getErrorMessage(context$2$0.t19) + "</center><hr></div>");
+					content = $add("<div><center style=\"font-size: 2em\">" + getErrorMessage(context$2$0.t15) + "</center><hr></div>");
 
 				case 22:
 					if (i != pageNum) {
@@ -6672,9 +6568,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 27:
 					context$2$0.prev = 27;
-					context$2$0.t20 = context$2$0["catch"](23);
+					context$2$0.t16 = context$2$0["catch"](23);
 
-					$alert(getPrettyErrorMessage(context$2$0.t20), "load-pages", true);
+					$alert(getPrettyErrorMessage(context$2$0.t16), "load-pages", true);
 					hasError = true;
 					return context$2$0.abrupt("break", 35);
 
@@ -6691,10 +6587,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 					dForm.initAjax();
 					addDelformStuff();
-					return context$2$0.delegateYield(readUserPosts(), "t21", 39);
+					return context$2$0.delegateYield(readUserPosts(), "t17", 39);
 
 				case 39:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t22", 40);
+					return context$2$0.delegateYield(readFavoritesPosts(), "t18", 40);
 
 				case 40:
 					$each($Q("input[type=\"password\"]", dForm.el), function (pEl) {
@@ -7759,7 +7655,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							break;
 						}
 
-						context$2$0.t23 = image.hash;
+						context$2$0.t19 = image.hash;
 						context$2$0.next = 16;
 						break;
 
@@ -7768,10 +7664,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return image.getHash();
 
 					case 15:
-						context$2$0.t23 = context$2$0.sent;
+						context$2$0.t19 = context$2$0.sent;
 
 					case 16:
-						hash = context$2$0.t23;
+						hash = context$2$0.t19;
 
 						if (!(hash === val)) {
 							context$2$0.next = 19;
@@ -7791,9 +7687,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 					case 24:
 						context$2$0.prev = 24;
-						context$2$0.t24 = context$2$0["catch"](3);
+						context$2$0.t20 = context$2$0["catch"](3);
 						_didIteratorError = true;
-						_iteratorError = context$2$0.t24;
+						_iteratorError = context$2$0.t20;
 
 					case 28:
 						context$2$0.prev = 28;
@@ -9379,9 +9275,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 9:
 					context$2$0.prev = 9;
-					context$2$0.t25 = context$2$0["catch"](3);
+					context$2$0.t21 = context$2$0["catch"](3);
 
-					$alert(getErrorMessage(context$2$0.t25), "upload", false);
+					$alert(getErrorMessage(context$2$0.t21), "upload", false);
 					return context$2$0.abrupt("return");
 
 				case 13:
@@ -9549,9 +9445,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 18:
 					context$2$0.prev = 18;
-					context$2$0.t26 = context$2$0["catch"](13);
+					context$2$0.t22 = context$2$0["catch"](13);
 
-					infoLoadErrors(context$2$0.t26);
+					infoLoadErrors(context$2$0.t22);
 
 				case 21:
 					context$2$0.next = 49;
@@ -9585,9 +9481,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 37:
 					context$2$0.prev = 37;
-					context$2$0.t27 = context$2$0["catch"](26);
+					context$2$0.t23 = context$2$0["catch"](26);
 					_didIteratorError = true;
-					_iteratorError = context$2$0.t27;
+					_iteratorError = context$2$0.t23;
 
 				case 41:
 					context$2$0.prev = 41;
@@ -10500,14 +10396,15 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					return Promise.resolve(-1);
 				}
 				if (aib.fch) {
-					return spawn(downloadImgData, this.el.src).then(function (imgData) {
-						if (!imgData) {
-							throw null;
+					return downloadImgData(this.el.src).then(function (imgData) {
+						if (imgData) {
+							var buffer = imgData.buffer;
+							return _this._glob.workerRun([buffer, _this.el.naturalWidth, _this.el.naturalHeight], [buffer]);
 						}
-						return _this._glob.workerRun([imgData.buffer, _this.el.naturalWidth, _this.el.naturalHeight], [imgData.buffer]);
+						return Promise.reject();
 					}).then(function (data) {
 						return _this.hash = data.hash;
-					})["catch"](function () {
+					}, function () {
 						return _this.hash = -1;
 					});
 				}
@@ -12413,18 +12310,16 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 			if (aib.dobr && useAPI) {
 				return getJsonPosts("/api/thread/" + brd + "/" + TNum + ".json").then(function (json) {
-					if (!json) {
-						return 0;
+					if (json) {
+						if (json.error) {
+							return Promise.reject(new AjaxError(0, json.message));
+						}
+						if (_this._lastModified !== json.last_modified || _this.pcount !== json.posts_count) {
+							_this._lastModified = json.last_modified;
+							return _this.loadNew(false);
+						}
 					}
-					if (json.error) {
-						return Promise.reject(new AjaxError(0, json.message));
-					}
-					if (_this._lastModified !== json.last_modified || _this.pcount !== json.posts_count) {
-						_this._lastModified = json.last_modified;
-						return _this.loadNew(false);
-					} else {
-						return 0;
-					}
+					return 0;
 				});
 			}
 			return ajaxLoad(aib.getThrdUrl(brd, TNum)).then(function (form) {
@@ -14395,9 +14290,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 					case 18:
 						context$3$0.prev = 18;
-						context$3$0.t30 = context$3$0["catch"](2);
+						context$3$0.t26 = context$3$0["catch"](2);
 
-						if (!(context$3$0.t30 instanceof StopLoadingTaskError)) {
+						if (!(context$3$0.t26 instanceof StopLoadingTaskError)) {
 							context$3$0.next = 22;
 							break;
 						}
@@ -14427,9 +14322,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 					case 33:
 						context$3$0.prev = 33;
-						context$3$0.t31 = context$3$0["catch"](27);
+						context$3$0.t27 = context$3$0["catch"](27);
 
-						if (!(context$3$0.t31 instanceof StopLoadingTaskError)) {
+						if (!(context$3$0.t27 instanceof StopLoadingTaskError)) {
 							context$3$0.next = 37;
 							break;
 						}
@@ -14437,7 +14332,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return context$3$0.abrupt("return");
 
 					case 37:
-						error = context$3$0.t31;
+						error = context$3$0.t27;
 
 					case 38:
 						infoLoadErrors(error, false);

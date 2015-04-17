@@ -892,7 +892,7 @@ TasksPool.prototype = {
 		}
 	},
 	_run(data) {
-		Promise.resolve(this.func(this.num++, data)).then(() => this._end(), e => {
+		this.func(this.num++, data).then(() => this._end(), e => {
 			if(e instanceof TasksPool.PauseError) {
 				this.pause();
 				if(e.duration !== -1) {
@@ -3680,36 +3680,38 @@ function addImgFileIcon(aEl, fName, info) {
 	);
 }
 
-function* downloadImgData(url, repeatOnError = true) {
-	var xhr;
+function downloadImgData(url, repeatOnError = true) {
+	var promise;
 	if(aib.fch && nav.Firefox && !url.startsWith('blob')) {
-		xhr = yield $ajax(url, {overrideMimeType: 'text/plain; charset=x-user-defined'}, false);
+		promise = $ajax(url, {overrideMimeType: 'text/plain; charset=x-user-defined'}, false);
 	} else {
 		try {
-			xhr = yield $ajax(url, {responseType: 'arraybuffer'});
+			promise = $ajax(url, {responseType: 'arraybuffer'});
 		} catch(e) {
-			return null;
+			return Promise.resolve(null);
 		}
 	}
-	var isAb = xhr.responseType === 'arraybuffer';
-	if(xhr.status === 0 && isAb) {
-		return new Uint8Array(xhr.response);
-	} else if(xhr.status !== 200) {
-		if(xhr.status === 404 || !repeatOnError) {
-			return null;
+	return promise.then(xhr => {
+		var isAb = xhr.responseType === 'arraybuffer';
+		if(xhr.status === 0 && isAb) {
+			return new Uint8Array(xhr.response);
+		} else if(xhr.status !== 200) {
+			if(xhr.status === 404 || !repeatOnError) {
+				return null;
+			} else {
+				return downloadImgData(url, false);
+			}
+		} else if(isAb) {
+			return new Uint8Array(xhr.response);
 		} else {
-			return yield* downloadImgData(url, false);
+			var txt = xhr.responseText,
+				rv = new Uint8Array(txt.length);
+			for(var i = 0, len = txt.length; i < len; ++i) {
+				rv[i] = txt.charCodeAt(i) & 0xFF;
+			}
+			return rv;
 		}
-	} else if(isAb) {
-		return new Uint8Array(xhr.response);
-	} else {
-		var txt = xhr.responseText,
-			rv = new Uint8Array(txt.length);
-		for(var i = 0, len = txt.length; i < len; ++i) {
-			rv[i] = txt.charCodeAt(i) & 0xFF;
-		}
-		return rv;
-	}
+	});
 }
 
 function preloadImages(post) {
@@ -3723,30 +3725,31 @@ function preloadImages(post) {
 			rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile, function(e) {
 				console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
 			});
-		pool = new TasksPool(mReqs, async(function* (num, data) {
-			var [url, lnk, iType, nExp, el] = data,
-				imageData = yield* downloadImgData(url);
-			if(imageData) {
-				var fName = url.substring(url.lastIndexOf("/") + 1),
-					aEl = $q(aib.qImgLink, aib.getImgWrap(lnk));
-				aEl.setAttribute('download', fName);
-				lnk.href = window.URL.createObjectURL(new Blob([imageData], {'type': iType}));
-				lnk.setAttribute('de-name', fName);
-				if(iType === 'video/webm') {
-					el.setAttribute('de-video', '');
+		pool = new TasksPool(mReqs, function(num, data) {
+			return downloadImgData(data[0]).then(imageData => {
+				var [url, lnk, iType, nExp, el] = data;
+				if(imageData) {
+					var fName = url.substring(url.lastIndexOf("/") + 1),
+						aEl = $q(aib.qImgLink, aib.getImgWrap(lnk));
+					aEl.setAttribute('download', fName);
+					lnk.href = window.URL.createObjectURL(new Blob([imageData], {'type': iType}));
+					lnk.setAttribute('de-name', fName);
+					if(iType === 'video/webm') {
+						el.setAttribute('de-video', '');
+					}
+					if(nExp) {
+						el.src = lnk.href;
+					}
+					if(rjf) {
+						rjf.run(imageData.buffer, [imageData.buffer], addImgFileIcon.bind(null, aEl, fName));
+					}
 				}
-				if(nExp) {
-					el.src = lnk.href;
+				if(Images_.progressId) {
+					$alert(Lng.loadImage[lang] + cImg + '/' + len, Images_.progressId, true);
 				}
-				if(rjf) {
-					rjf.run(imageData.buffer, [imageData.buffer], addImgFileIcon.bind(null, aEl, fName));
-				}
-			}
-			if(Images_.progressId) {
-				$alert(Lng.loadImage[lang] + cImg + '/' + len, Images_.progressId, true);
-			}
-			cImg++;
-		}), function() {
+				cImg++;
+			});
+		}, function() {
 			Images_.preloading = false;
 			if(Images_.afterpreload) {
 				Images_.afterpreload();
@@ -3809,33 +3812,34 @@ function loadDocFiles(imgOnly) {
 		warnings = '',
 		tar = new TarBuilder(),
 		dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
-	Images_.pool = new TasksPool(4, async(function* (num, data) {
-		var [url, name, el, link] = data,
-			safeName = name.replace(/[\\\/:*?"<>|]/g, '_'),
-			imgData = yield* downloadImgData(url);
-		progress.value = current;
-		counter.innerHTML = current;
-		current++;
-		if(link) {
-			if(!imgData) {
-				warnings += '<br>' + Lng.cantLoad[lang] + '<a href="' + url + '">' +
-					url + '</a><br>' + Lng.willSavePview[lang];
-				$alert(Lng.loadErrors[lang] + warnings, 'floadwarn', false);
-				safeName = 'thumb-' + safeName.replace(/\.[a-z]+$/, '.png');
-				imgData = getDataFromImg(el);
+	Images_.pool = new TasksPool(4, function(num, data) {
+		return downloadImgData(data[0]).then(imgData => {
+			var [url, name, el, link] = data,
+				safeName = name.replace(/[\\\/:*?"<>|]/g, '_');
+			progress.value = current;
+			counter.innerHTML = current;
+			current++;
+			if(link) {
+				if(!imgData) {
+					warnings += '<br>' + Lng.cantLoad[lang] + '<a href="' + url + '">' +
+						url + '</a><br>' + Lng.willSavePview[lang];
+					$alert(Lng.loadErrors[lang] + warnings, 'floadwarn', false);
+					safeName = 'thumb-' + safeName.replace(/\.[a-z]+$/, '.png');
+					imgData = getDataFromImg(el);
+				}
+				if(!imgOnly) {
+					el.classList.add('de-thumb');
+					el.src = link.href =
+						$q(aib.qImgLink, aib.getImgWrap(link)).href = safeName = 'images/' + safeName;
+				}
+				tar.addFile(safeName, imgData);
+			} else if(imgData && imgData.length > 0) {
+				tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
+			} else {
+				$del(el);
 			}
-			if(!imgOnly) {
-				el.classList.add('de-thumb');
-				el.src = link.href =
-					$q(aib.qImgLink, aib.getImgWrap(link)).href = safeName = 'images/' + safeName;
-			}
-			tar.addFile(safeName, imgData);
-		} else if(imgData && imgData.length > 0) {
-			tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
-		} else {
-			$del(el);
-		}
-	}), function() {
+		});
+	}, function() {
 		var u, a, name = aib.dm + '-' + brd.replace(/[\\\/:*?"<>|]/g, '') + '-' + TNum;
 		if(!imgOnly) {
 			var dt = doc.doctype;
@@ -4104,52 +4108,60 @@ Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
 		}
 	};
 };
+Videos._titlesLoaderHelper = function([link, isYtube, videoObj, id], num, ...data) {
+	if(data.length !== 0) {
+		var [title, author, views, publ] = data;
+		link.textContent = title;
+		link.setAttribute('de-author', author);
+		link.classList.add('de-video-title');
+		link.title = Lng.author[lang] + author + ', ' + Lng.views[lang] + views + ', ' +
+			Lng.published[lang] + publ;
+		Videos._global.vData[isYtube ? 0 : 1][id] = data;
+		videoObj.vData[isYtube ? 0 : 1].push(data);
+		if(videoObj.titleLoadFn) {
+			videoObj.titleLoadFn(data);
+		}
+	}
+	videoObj.loadedLinksCount++;
+	if(num % 30 === 0) {
+		return Promise.reject(new TasksPool.PauseError(3e3));
+	}
+	return sleep(250);
+};
 Videos._getTitlesLoader = function() {
-	return Cfg.YTubeTitles && new TasksPool(4, async(function* (num, info) {
-		var title, author, views, publ, [link, isYtube, videoObj, id] = info;
+	return Cfg.YTubeTitles && new TasksPool(4, function(num, info) {
+		var [, isYtube,, id] = info;
 		if(isYtube) {
-			var xhr = yield $ajax(aib.prot + '//gdata.youtube.com/feeds/api/videos/' + id +
-				'?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published', null, false)
-			if(xhr.status === 200) {
-				try {
-					var entry = JSON.parse(xhr.responseText).entry;
-					title = entry.title.$t;
-					author = entry.author[0].name.$t;
-					views = entry.yt$statistics.viewCount;
-					publ = entry.published.$t.substr(0, 10);
-				} catch(e) {}
-			}
-		} else {
-			var xhr = yield $ajax(aib.prot + '//vimeo.com/api/v2/video/' + id + '.json', null, false);
+			return $ajax(aib.prot + '//gdata.youtube.com/feeds/api/videos/' + id +
+			             '?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published',
+			             null, false).then(xhr => {
+				if(xhr.status === 200) {
+					try {
+						var entry = JSON.parse(xhr.responseText).entry;
+						return Videos._titlesLoaderHelper(info, num,
+						                                  entry.title.$t,
+						                                  entry.author[0].name.$t,
+						                                  entry.yt$statistics.viewCount,
+						                                  entry.published.$t.substr(0, 10));
+					} catch(e) { }
+				}
+				return Videos._titlesLoaderHelper(info, num);
+			});
+		}
+		return $ajax(aib.prot + '//vimeo.com/api/v2/video/' + id + '.json', null, false).then(xhr => {
 			if(xhr.status === 200) {
 				try {
 					var entry = JSON.parse(xhr.responseText)[0];
-					title = entry["title"];
-					author = entry["user_name"];
-					views = entry["stats_number_of_plays"];
-					publ = (new RegExp (/(.*)\s(.*)?/).exec(entry["upload_date"]))[1];
-				} catch(e) {}
+					return Videos._titlesLoaderHelper(info, num,
+					                                  entry["title"],
+					                                  entry["user_name"],
+					                                  entry["stats_number_of_plays"],
+					                                  (new RegExp (/(.*)\s(.*)?/).exec(entry["upload_date"]))[1]);
+				} catch(e) { }
 			}
-		}
-		if(title) {
-			link.textContent = title;
-			link.setAttribute('de-author', author);
-			link.classList.add('de-video-title');
-			link.title = Lng.author[lang] + author + ', ' + Lng.views[lang] + views + ', ' +
-				Lng.published[lang] + publ;
-			var data = [title, author, views, publ];
-			Videos._global.vData[isYtube ? 0 : 1][id] = data;
-			videoObj.vData[isYtube ? 0 : 1].push(data);
-			if(videoObj.titleLoadFn) {
-				videoObj.titleLoadFn(data);
-			}
-		}
-		videoObj.loadedLinksCount++;
-		if(num % 30 === 0) {
-			return Promise.reject(new TasksPool.PauseError(3e3));
-		}
-		yield sleep(250);
-	}), () => {
+			return Videos._titlesLoaderHelper(info, num);
+		});
+	}, () => {
 		sesStorage['de-videos-data'] = JSON.stringify(Videos._global.vData);
 	});
 };
@@ -7951,13 +7963,14 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 			return Promise.resolve(-1);
 		}
 		if(aib.fch) {
-			return spawn(downloadImgData, this.el.src).then(imgData => {
-				if(!imgData) {
-					throw null;
+			return downloadImgData(this.el.src).then(imgData => {
+				if(imgData) {
+					var buffer = imgData.buffer;
+					return this._glob.workerRun([buffer, this.el.naturalWidth, this.el.naturalHeight],
+				                                [buffer]);
 				}
-				return this._glob.workerRun([imgData.buffer, this.el.naturalWidth, this.el.naturalHeight],
-				                            [imgData.buffer]);
-			}).then(data => this.hash = data.hash).catch(() => this.hash = -1);
+				return Promise.reject();
+			}).then(data => this.hash = data.hash, () => this.hash = -1);
 		}
 		var img = this.el,
 			cnv = this._glob.canvas,
@@ -9727,18 +9740,16 @@ Thread.prototype = {
 	loadNew: function(useAPI) {
 		if(aib.dobr && useAPI) {
 			return getJsonPosts('/api/thread/' + brd + '/' + TNum + '.json').then(json => {
-				if(!json) {
-					return 0;
+				if(json) {
+					if(json.error) {
+						return Promise.reject(new AjaxError(0, json.message));
+					}
+					if(this._lastModified !== json.last_modified || this.pcount !== json.posts_count) {
+						this._lastModified = json.last_modified;
+						return this.loadNew(false);
+					}
 				}
-				if(json.error) {
-					return Promise.reject(new AjaxError(0, json.message));
-				}
-				if(this._lastModified !== json.last_modified || this.pcount !== json.posts_count) {
-					this._lastModified = json.last_modified;
-					return this.loadNew(false);
-				} else {
-					return 0;
-				}
+				return 0;
 			});
 		}
 		return ajaxLoad(aib.getThrdUrl(brd, TNum)).then(form => this.loadNewFromForm(form));
