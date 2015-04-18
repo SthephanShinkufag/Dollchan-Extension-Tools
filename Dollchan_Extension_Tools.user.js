@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         15.4.19.0
+// @version         15.4.19.1
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       (c) 2015 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
@@ -2580,7 +2580,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		}, initScript, this, [[22, 26]]);
 	});
-	var version = "15.4.19.0",
+	var version = "15.4.19.1",
 	    defaultCfg = {
 		disabled: 0,
 		language: 0,
@@ -13108,7 +13108,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						node.insertAdjacentHTML("beforebegin", playerHtml);
 						return node.previousSibling;
 					} },
-				css: { value: "img[id^=\"translate_button\"], img[src$=\"button-expand.gif\"], img[src$=\"button-close.gif\"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none !important; }\n\t\t\t\tdiv[id^=\"Wz\"] { z-index: 10000 !important; }\n\t\t\t\t.de-thr-hid { margin-bottom: " + (!TNum ? "7" : "2") + "px; float: none !important; }\n\t\t\t\t.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\n\t\t\t\t.de-video-obj + div { clear: left; }\n\t\t\t\tform[action=\"/paint\"] > select { width: 105px; }\n\t\t\t\tform[action=\"/paint\"] > input[type=\"text\"] { width: 24px !important; }" },
+				css: { value: "img[id^=\"translate_button\"], img[src$=\"button-expand.gif\"], img[src$=\"button-close.gif\"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none !important; }\t\t\t\tdiv[id^=\"Wz\"] { z-index: 10000 !important; }\t\t\t\t.de-thr-hid { float: none !important; }\t\t\t\t.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\t\t\t\t.de-video-obj + div { clear: left; }\t\t\t\tform[action=\"/paint\"] > select { width: 105px; }\t\t\t\tform[action=\"/paint\"] > input[type=\"text\"] { width: 24px !important; }"
+				},
 				fixFileInputs: { value: function value(el) {
 						var str = "";
 						for (var i = 0, len = 4; i < len; ++i) {
@@ -13482,7 +13483,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					} },
 				firstPage: { value: 1 },
 				markupTags: { value: ["'''", "''", "__", "^H", "**", "`", "", "", "q"] },
-				cssEn: { value: ".banner, " + (TNum ? "" : ".de-btn-rep,") + " .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }\n\t\t\t\tform, form table { margin: 0; }" },
+				cssEn: { get: function get() {
+						return ".banner, " + (TNum ? "" : ".de-btn-rep,") + " .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }\n\t\t\t\t\tform, form table { margin: 0; }";
+					} },
 				rLinkClick: { value: "onclick=\"highlightReply(this.textContent.substr(2))\"" },
 				timePattern: { value: "nn+dd+yy++w++hh+ii+ss" },
 				thrid: { value: "thread" }

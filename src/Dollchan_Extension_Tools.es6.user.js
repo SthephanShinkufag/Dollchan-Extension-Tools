@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         15.4.19.0
+// @version         15.4.19.1
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       (c) 2015 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
@@ -20,7 +20,7 @@
 (function de_main_func_inner(scriptStorage, FormData) {
 'use strict';
 
-var version = '15.4.19.0',
+var version = '15.4.19.1',
 defaultCfg = {
 	'disabled':         0,      // script enabled by default
 	'language':         0,      // script language [0=ru, 1=en]
@@ -10502,13 +10502,14 @@ function getImageBoard(checkDomains, checkOther) {
 				node.insertAdjacentHTML('beforebegin', playerHtml);
 				return node.previousSibling;
 			} },
-			css: { value: `img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none !important; }
-				div[id^="Wz"] { z-index: 10000 !important; }
-				.de-thr-hid { margin-bottom: ${!TNum ? '7' : '2'}px; float: none !important; }
-				.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }
-				.de-video-obj + div { clear: left; }
-				form[action="/paint"] > select { width: 105px; }
-				form[action="/paint"] > input[type="text"] { width: 24px !important; }` },
+			css: { value: 'img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none !important; }\
+				div[id^="Wz"] { z-index: 10000 !important; }\
+				.de-thr-hid { float: none !important; }\
+				.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\
+				.de-video-obj + div { clear: left; }\
+				form[action="/paint"] > select { width: 105px; }\
+				form[action="/paint"] > input[type="text"] { width: 24px !important; }'
+			},
 			fixFileInputs: { value(el) {
 				var str = '';
 				for(var i = 0, len = 4; i < len; ++i) {
@@ -10770,9 +10771,11 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			firstPage: { value: 1 },
 			markupTags: { value: ["'''", "''", '__', '^H', '**', '`', '', '', 'q'] },
-			cssEn: { value: `.banner, ${TNum ? '' : '.de-btn-rep,'} .hide-thread-link, .mentioned, .post-hover { display: none !important; }
-				div.post.reply { float: left; clear: left; display: block; }
-				form, form table { margin: 0; }` },
+			cssEn: { get() {
+				return `.banner, ${TNum ? '' : '.de-btn-rep,'} .hide-thread-link, .mentioned, .post-hover { display: none !important; }
+					div.post.reply { float: left; clear: left; display: block; }
+					form, form table { margin: 0; }`;
+			} },
 			rLinkClick: { value: 'onclick="highlightReply(this.textContent.substr(2))"' },
 			timePattern: { value: 'nn+dd+yy++w++hh+ii+ss' },
 			thrid: { value: 'thread' }
