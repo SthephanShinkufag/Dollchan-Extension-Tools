@@ -4216,7 +4216,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 					case 5:
 						if (!(i < len)) {
-							context$3$0.next = 33;
+							context$3$0.next = 34;
 							break;
 						}
 
@@ -4227,7 +4227,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							break;
 						}
 
-						return context$3$0.abrupt("continue", 30);
+						return context$3$0.abrupt("continue", 31);
 
 					case 9:
 						el = $c("de-fav-inf-new", el);
@@ -4250,9 +4250,14 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						el.classList.remove("de-wait");
 						f.err = el.previousElementSibling.textContent = getErrorMessage(context$3$0.t9);
 						update = true;
-						return context$3$0.abrupt("continue", 30);
+						return context$3$0.abrupt("continue", 31);
 
 					case 25:
+						if (f.err) {
+							delete f.err;
+							el.previousElementSibling.textContent = "";
+							update = true;
+						}
 						cnt = aib.getPosts(form).length + 1 - el.nextElementSibling.textContent;
 
 						el.textContent = cnt;
@@ -4268,17 +4273,17 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							update = true;
 						}
 
-					case 30:
+					case 31:
 						++i;
 						context$3$0.next = 5;
 						break;
 
-					case 33:
+					case 34:
 						if (update) {
 							setStored("DESU_Favorites", JSON.stringify(fav));
 						}
 
-					case 34:
+					case 35:
 					case "end":
 						return context$3$0.stop();
 				}

@@ -2061,6 +2061,11 @@ function showFavoriteTable(cont, data) {
 				update = true;
 				continue;
 			}
+			if(f['err']) {
+				delete f['err'];
+				el.previousElementSibling.textContent = '';
+				update = true;
+			}
 			var cnt = aib.getPosts(form).length + 1 - el.nextElementSibling.textContent;
 			el.textContent = cnt;
 			el.className = 'de-fav-inf-new';
@@ -11012,7 +11017,7 @@ function getImageBoard(checkDomains, checkOther) {
 		thrid: 'parent'
 	};
 
-	localRun = prot === 'file:';
+	localRun = prot === 'file:' ;
 	var ibObj = null, dm = localRun ?
 		(window.location.pathname.match(/\/([^-]+)-[^-]+-[^\.]+\.[a-z]+$/) || [,''])[1] :
 		window.location.hostname
