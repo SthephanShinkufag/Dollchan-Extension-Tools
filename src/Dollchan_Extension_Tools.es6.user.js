@@ -62,6 +62,7 @@ defaultCfg = {
 	'openImgs':         0,      // open images in posts
 	'openGIFs':         0,      //    open only GIFs in posts
 	'imgSrcBtns':       1,      // add image search buttons
+	'delImgNames':      0,      // remove names of images
 	'linksNavig':       2,      // navigation by >>links [0=off, 1=no map, 2=+refmap]
 	'linksOver':        100,    //    delay appearance in ms
 	'linksOut':         1500,   //    delay disappearance in ms
@@ -173,6 +174,7 @@ Lng = {
 		'openImgs':     ['Скачивать полные версии картинок*', 'Download full version of images*'],
 		'openGIFs':     ['Скачивать только GIFы*', 'Download GIFs only*'],
 		'imgSrcBtns':   ['Добавлять кнопки для поиска картинок*', 'Add image search buttons*'],
+		'delImgNames':  ['Скрывать имена картинок*', 'Hide names of images*'],
 
 		'linksNavig': {
 			sel:        [['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
@@ -2426,7 +2428,8 @@ function getCfgImages() {
 		$New('div', {'class': 'de-cfg-depend'}, [
 			lBox('openGIFs', false, null)
 		]),
-		lBox('imgSrcBtns', true, null)
+		lBox('imgSrcBtns', true, null),
+		lBox('delImgNames', true, null)
 	]);
 }
 
@@ -8054,6 +8057,8 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 });
 
 function addImagesSearch(el) {
+	var addSrc = Cfg.imgSrcBtns,
+		delNames = Cfg.delImgNames;
 	for(var i = 0, els = $Q(aib.qImgLink, el), len = els.length; i < len; i++) {
 		var link = els[i];
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
@@ -8063,7 +8068,13 @@ function addImagesSearch(el) {
 		if(link.firstElementChild) {
 			continue;
 		}
-		link.insertAdjacentHTML('beforebegin', '<span class="de-btn-src" de-menu="imgsrc"></span>');
+		if(addSrc) {
+			link.insertAdjacentHTML('beforebegin', '<span class="de-btn-src" de-menu="imgsrc"></span>');
+		}
+		if(delNames) {
+			link.classList.add('de-img-name');
+			link.textContent = link.textContent.split('.').slice(-1)[0];
+		}
 	}
 }
 
@@ -9311,7 +9322,7 @@ Pview.prototype = Object.create(Post.prototype, {
 			if(Cfg.addImgs) {
 				embedImagesLinks(el);
 			}
-			if(Cfg.imgSrcBtns) {
+			if(Cfg.imgSrcBtns || Cfg.delImgNames) {
 				addImagesSearch(el);
 			}
 		}
@@ -9837,7 +9848,7 @@ Thread.prototype = {
 		if(vParser) {
 			vParser.parse(post);
 		}
-		if(Cfg.imgSrcBtns) {
+		if(Cfg.imgSrcBtns || Cfg.delImgNames) {
 			addImagesSearch(el);
 		}
 		post.addFuncs();
@@ -10631,7 +10642,8 @@ function getImageBoard(checkDomains, checkOther) {
 				.mess-post { display: block; }
 				.postbtn-reply-href { font-size: 0px; }
 				.postbtn-reply-href::after { font-size: 14px; content: attr(name); }
-				${Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : ''}`;
+				${Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : ''}
+				${Cfg.delImgNames ? '.filesize { display: inline !important; }' : ''}`;
 			} },
 			hasPicWrap: { value: true },
 			init: { value() {
@@ -12245,6 +12257,9 @@ function updateCSS() {
 		x += '.de-img-pre, .de-video-obj, .thumb, .ca_thumb, .fileThumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
 			.de-img-pre:hover, .de-video-obj:hover, .thumb:hover, .ca_thumb:hover, .fileThumb:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
 	}
+	if(Cfg.delImgNames) {
+	x += '.de-img-name { text-transform: capitalize; text-decoration: none; }';
+	}
 	if(!aib.dobr && !aib.krau && !aib.mak) {
 		x += '.de-img-full { margin: 2px 5px; }';
 	}
@@ -12302,7 +12317,7 @@ function addDelformStuff() {
 		embedImagesLinks(dForm.el);
 		new Logger().log('Image links');
 	}
-	if(Cfg.imgSrcBtns) {
+	if(Cfg.imgSrcBtns || Cfg.delImgNames) {
 		addImagesSearch(dForm.el);
 		new Logger().log('Sauce buttons');
 	}

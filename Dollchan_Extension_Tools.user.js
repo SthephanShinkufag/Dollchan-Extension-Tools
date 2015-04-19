@@ -2622,6 +2622,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		openImgs: 0,
 		openGIFs: 0,
 		imgSrcBtns: 1,
+		delImgNames: 0,
 		linksNavig: 2,
 		linksOver: 100,
 		linksOut: 1500,
@@ -2732,6 +2733,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			openImgs: ["Скачивать полные версии картинок*", "Download full version of images*"],
 			openGIFs: ["Скачивать только GIFы*", "Download GIFs only*"],
 			imgSrcBtns: ["Добавлять кнопки для поиска картинок*", "Add image search buttons*"],
+			delImgNames: ["Скрывать имена картинок*", "Hide names of images*"],
 
 			linksNavig: {
 				sel: [["Откл.", "Без карты", "С картой"], ["Disable", "No map", "With map"]],
@@ -4615,7 +4617,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			saveCfg("zoomFactor", Math.min(Math.max(+this.value, 1), 100));
 		}), $txt(Lng.cfg.zoomFactor[lang]), lBox("webmControl", true, null), $if(nav.canPlayWebm, $New("div", null, [inpTxt("webmVolume", 4, function () {
 			saveCfg("webmVolume", Math.min(+this.value, 100));
-		}), $txt(Lng.cfg.webmVolume[lang])]))]), $if(!nav.Presto, lBox("preLoadImgs", true, null)), $if(!nav.Presto && !aib.fch, $New("div", { "class": "de-cfg-depend" }, [lBox("findImgFile", true, null)])), lBox("openImgs", true, null), $New("div", { "class": "de-cfg-depend" }, [lBox("openGIFs", false, null)]), lBox("imgSrcBtns", true, null)]);
+		}), $txt(Lng.cfg.webmVolume[lang])]))]), $if(!nav.Presto, lBox("preLoadImgs", true, null)), $if(!nav.Presto && !aib.fch, $New("div", { "class": "de-cfg-depend" }, [lBox("findImgFile", true, null)])), lBox("openImgs", true, null), $New("div", { "class": "de-cfg-depend" }, [lBox("openGIFs", false, null)]), lBox("imgSrcBtns", true, null), lBox("delImgNames", true, null)]);
 	}
 
 	function getCfgLinks() {
@@ -10510,6 +10512,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	});
 
 	function addImagesSearch(el) {
+		var addSrc = Cfg.imgSrcBtns,
+		    delNames = Cfg.delImgNames;
 		for (var i = 0, els = $Q(aib.qImgLink, el), len = els.length; i < len; i++) {
 			var link = els[i];
 			if (/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
@@ -10519,7 +10523,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (link.firstElementChild) {
 				continue;
 			}
-			link.insertAdjacentHTML("beforebegin", "<span class=\"de-btn-src\" de-menu=\"imgsrc\"></span>");
+			if (addSrc) {
+				link.insertAdjacentHTML("beforebegin", "<span class=\"de-btn-src\" de-menu=\"imgsrc\"></span>");
+			}
+			if (delNames) {
+				link.classList.add("de-img-name");
+				link.textContent = link.textContent.split(".").slice(-1)[0];
+			}
 		}
 	}
 
@@ -11889,7 +11899,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					if (Cfg.addImgs) {
 						embedImagesLinks(el);
 					}
-					if (Cfg.imgSrcBtns) {
+					if (Cfg.imgSrcBtns || Cfg.delImgNames) {
 						addImagesSearch(el);
 					}
 				}
@@ -12419,7 +12429,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (vParser) {
 				vParser.parse(post);
 			}
-			if (Cfg.imgSrcBtns) {
+			if (Cfg.imgSrcBtns || Cfg.delImgNames) {
 				addImagesSearch(el);
 			}
 			post.addFuncs();
@@ -13347,7 +13357,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return el.parentNode;
 					} },
 				cssEn: { get: function get() {
-						return ".ABU-refmap, .box[onclick=\"ToggleSage()\"], img[alt=\"webm file\"], .de-qarea-hanging .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t.de-abtn { transition: none; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t\t" + (Cfg.expandTrunc ? ".expand-large-comment, div[id^=\"shrinked-post\"] { display: none !important; } div[id^=\"original-post\"] { display: block !important; }" : "");
+						return ".ABU-refmap, .box[onclick=\"ToggleSage()\"], img[alt=\"webm file\"], .de-qarea-hanging .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t.de-abtn { transition: none; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t\t" + (Cfg.expandTrunc ? ".expand-large-comment, div[id^=\"shrinked-post\"] { display: none !important; } div[id^=\"original-post\"] { display: block !important; }" : "") + "\n\t\t\t\t" + (Cfg.delImgNames ? ".filesize { display: inline !important; }" : "");
 					} },
 				hasPicWrap: { value: true },
 				init: { value: function value() {
@@ -14794,6 +14804,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		if (Cfg.maskImgs) {
 			x += ".de-img-pre, .de-video-obj, .thumb, .ca_thumb, .fileThumb, img[src*=\"spoiler\"], img[src*=\"thumb\"], img[src^=\"blob\"] { opacity: 0.07 !important; }\t\t\t.de-img-pre:hover, .de-video-obj:hover, .thumb:hover, .ca_thumb:hover, .fileThumb:hover, img[src*=\"spoiler\"]:hover, img[src*=\"thumb\"]:hover, img[src^=\"blob\"]:hover { opacity: 1 !important; }";
 		}
+		if (Cfg.delImgNames) {
+			x += ".de-img-name { text-transform: capitalize; text-decoration: none; }";
+		}
 		if (!aib.dobr && !aib.krau && !aib.mak) {
 			x += ".de-img-full { margin: 2px 5px; }";
 		}
@@ -14848,7 +14861,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			embedImagesLinks(dForm.el);
 			new Logger().log("Image links");
 		}
-		if (Cfg.imgSrcBtns) {
+		if (Cfg.imgSrcBtns || Cfg.delImgNames) {
 			addImagesSearch(dForm.el);
 			new Logger().log("Sauce buttons");
 		}
