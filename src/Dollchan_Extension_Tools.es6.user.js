@@ -8056,9 +8056,12 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 	} }
 });
 
-function addImagesSearch(el) {
+function processImageNames(el) {
 	var addSrc = Cfg.imgSrcBtns,
 		delNames = Cfg.delImgNames;
+	if(!addSrc && !delNames) {
+		return;
+	}
 	for(var i = 0, els = $Q(aib.qImgLink, el), len = els.length; i < len; i++) {
 		var link = els[i];
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
@@ -9322,9 +9325,7 @@ Pview.prototype = Object.create(Post.prototype, {
 			if(Cfg.addImgs) {
 				embedImagesLinks(el);
 			}
-			if(Cfg.imgSrcBtns || Cfg.delImgNames) {
-				addImagesSearch(el);
-			}
+			processImageNames(el);
 		}
 		el.addEventListener('click', this, true);
 		this._showPview(el);
@@ -9848,9 +9849,7 @@ Thread.prototype = {
 		if(vParser) {
 			vParser.parse(post);
 		}
-		if(Cfg.imgSrcBtns || Cfg.delImgNames) {
-			addImagesSearch(el);
-		}
+		processImageNames(el);
 		post.addFuncs();
 		preloadImages(el);
 		if(TNum && Cfg.markNewPosts) {
@@ -12258,7 +12257,7 @@ function updateCSS() {
 			.de-img-pre:hover, .de-video-obj:hover, .thumb:hover, .ca_thumb:hover, .fileThumb:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
 	}
 	if(Cfg.delImgNames) {
-	x += '.de-img-name { text-transform: capitalize; text-decoration: none; }';
+		x += '.de-img-name { text-transform: capitalize; text-decoration: none; }';
 	}
 	if(!aib.dobr && !aib.krau && !aib.mak) {
 		x += '.de-img-full { margin: 2px 5px; }';
@@ -12315,12 +12314,10 @@ function addDelformStuff() {
 	}
 	if(Cfg.addImgs) {
 		embedImagesLinks(dForm.el);
-		new Logger().log('Image links');
+		new Logger().log('Image-links');
 	}
-	if(Cfg.imgSrcBtns || Cfg.delImgNames) {
-		addImagesSearch(dForm.el);
-		new Logger().log('Sauce buttons');
-	}
+	processImageNames(dForm.el);
+	new Logger().log('Image names');
 	if(dForm.firstThr && Cfg.linksNavig === 2) {
 		genRefMap(pByNum, '');
 		for(var post = dForm.firstThr.op; post; post = post.next) {

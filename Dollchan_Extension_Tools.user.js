@@ -10511,9 +10511,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			} }
 	});
 
-	function addImagesSearch(el) {
+	function processImageNames(el) {
 		var addSrc = Cfg.imgSrcBtns,
 		    delNames = Cfg.delImgNames;
+		if (!addSrc && !delNames) {
+			return;
+		}
 		for (var i = 0, els = $Q(aib.qImgLink, el), len = els.length; i < len; i++) {
 			var link = els[i];
 			if (/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
@@ -11899,9 +11902,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					if (Cfg.addImgs) {
 						embedImagesLinks(el);
 					}
-					if (Cfg.imgSrcBtns || Cfg.delImgNames) {
-						addImagesSearch(el);
-					}
+					processImageNames(el);
 				}
 				el.addEventListener("click", this, true);
 				this._showPview(el);
@@ -12429,9 +12430,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (vParser) {
 				vParser.parse(post);
 			}
-			if (Cfg.imgSrcBtns || Cfg.delImgNames) {
-				addImagesSearch(el);
-			}
+			processImageNames(el);
 			post.addFuncs();
 			preloadImages(el);
 			if (TNum && Cfg.markNewPosts) {
@@ -14859,12 +14858,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}
 		if (Cfg.addImgs) {
 			embedImagesLinks(dForm.el);
-			new Logger().log("Image links");
+			new Logger().log("Image-links");
 		}
-		if (Cfg.imgSrcBtns || Cfg.delImgNames) {
-			addImagesSearch(dForm.el);
-			new Logger().log("Sauce buttons");
-		}
+		processImageNames(dForm.el);
+		new Logger().log("Image names");
 		if (dForm.firstThr && Cfg.linksNavig === 2) {
 			genRefMap(pByNum, "");
 			for (var post = dForm.firstThr.op; post; post = post.next) {
