@@ -8646,7 +8646,7 @@ Post.prototype = {
 		return this.thr.num;
 	},
 	toggleImages(expand) {
-		for(var image of this.images) {
+		for(var image of this.images.data) {
 			if(image.isImage && (image.expanded ^ expand)) {
 				if(expand) {
 					image.expand(true, null);

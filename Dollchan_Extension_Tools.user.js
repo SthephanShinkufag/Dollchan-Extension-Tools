@@ -1197,9 +1197,7 @@ $define(GLOBAL + BIND, {
     }
   }, weakMethods, false, true);
 }();
-}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
-
-!(function(global) {
+}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);!(function(global) {
   "use strict";
 
   var hasOwn = Object.prototype.hasOwnProperty;
@@ -3298,7 +3296,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				var obj = {
 					method: params && params.method || "GET",
 					url: nav.fixLink(url),
-					onload: function (e) {
+					onload: function onload(e) {
 						resolve(e);
 					}
 				};
@@ -3357,7 +3355,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				}
 			}
 		},
-		"continue": function () {
+		"continue": function _continue() {
 			if (!this.stopped) {
 				this.paused = false;
 				if (this.index >= this.length) {
@@ -3900,7 +3898,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function addContentBlock(parent, title) {
-		return parent.appendChild($New("div", { "class": "de-content-block" }, [$new("input", { type: "checkbox" }, { click: function () {
+		return parent.appendChild($New("div", { "class": "de-content-block" }, [$new("input", { type: "checkbox" }, { click: function click() {
 				var _this = this;
 
 				$each($Q(".de-entry > input", this.parentNode), function (el) {
@@ -4471,7 +4469,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function lBox(id, isBlock, fn) {
-		var el = $new("input", { info: id, type: "checkbox" }, { click: function () {
+		var el = $new("input", { info: id, type: "checkbox" }, { click: function click() {
 				toggleCfg(this.getAttribute("info"));
 				fixSettings();
 				if (fn) {
@@ -4511,7 +4509,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			"class": "de-cfg-tab",
 			text: Lng.cfgTab[name][lang],
 			info: name }, {
-			click: function () {
+			click: function click() {
 				var el = this.parentNode;
 				if (el.getAttribute("selected") === "true") {
 					return;
@@ -4564,20 +4562,20 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			click: $pd,
 			mouseover: addMenu,
 			mouseout: removeMenu
-		}), $new("a", { text: Lng.apply[lang], href: "#", "class": "de-abtn" }, { click: function (e) {
+		}), $new("a", { text: Lng.apply[lang], href: "#", "class": "de-abtn" }, { click: function click(e) {
 				$pd(e);
 				saveCfg("hideBySpell", 1);
 				$q("input[info=\"hideBySpell\"]", doc).checked = true;
 				toggleSpells();
-			} }), $new("a", { text: Lng.clear[lang], href: "#", "class": "de-abtn" }, { click: function (e) {
+			} }), $new("a", { text: Lng.clear[lang], href: "#", "class": "de-abtn" }, { click: function click(e) {
 				$pd(e);
 				$id("de-spell-edit").value = "";
 				toggleSpells();
 			} }), $add("<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-" + (lang ? "en" : "ru") + "\" class=\"de-abtn\" target=\"_blank\">[?]</a>")]), $New("div", { id: "de-spell-div" }, [$add("<div><div id=\"de-spell-rowmeter\"></div></div>"), $New("div", null, [$new("textarea", { id: "de-spell-edit", wrap: "off" }, {
-			keydown: function () {
+			keydown: function keydown() {
 				updRowMeter(this);
 			},
-			scroll: function () {
+			scroll: function scroll() {
 				updRowMeter(this);
 			}
 		})])]), lBox("sortSpells", true, function () {
@@ -4712,7 +4710,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}, emptyFn);
 		})])])), $if(nav.isGlobal, $New("div", null, [$txt(Lng.cfg.excludeList[lang]), $new("input", { type: "text", id: "de-exclude-edit", size: 45, style: "display: block;",
 			value: excludeList }, {
-			keyup: function () {
+			keyup: function keyup() {
 				setStored("DESU_Exclude", this.value);
 			}
 		}), lBox("turnOff", true, function () {
@@ -4877,7 +4875,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				el.classList.add("de-blink");
 			}
 		} else {
-			el = $id("de-alert").appendChild($New("div", { "class": aib.cReply, id: "de-alert-" + id }, [$new("span", { "class": cBtn, text: tBtn }, { click: function () {
+			el = $id("de-alert").appendChild($New("div", { "class": aib.cReply, id: "de-alert-" + id }, [$new("span", { "class": cBtn, text: tBtn }, { click: function click() {
 					closeAlert(this.parentNode);
 				} }), $add("<div class=\"de-alert-msg\">" + txt.trim() + "</div>")]));
 			if (Cfg.animation) {
@@ -8605,7 +8603,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							"class": "shortened",
 							style: "margin: 0px 0.5em;",
 							text: "проверить капчу" }, {
-							click: function () {
+							click: function click() {
 								var _this2 = this;
 
 								$ajax("/" + brd + "/api/validate-captcha", { method: "POST" }).then(function (xhr) {
@@ -11050,7 +11048,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			var _iteratorError = undefined;
 
 			try {
-				for (var _iterator = this.images[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+				for (var _iterator = this.images.data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 					var image = _step.value;
 
 					if (image.isImage && image.expanded ^ expand) {
@@ -14552,7 +14550,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					paused = true;
 				}
 			},
-			"continue": function () {
+			"continue": function _continue() {
 				if (enabled && paused) {
 					startLoad(false);
 					paused = false;
