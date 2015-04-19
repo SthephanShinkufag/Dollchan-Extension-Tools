@@ -6145,7 +6145,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		    wh = " width=\"" + Cfg.YTubeWidth + "\" height=\"" + Cfg.YTubeHeigh + "\">";
 		if (isYtube) {
 			var list = m[0].match(/list=[^&#]+/);
-			txt = "<iframe frameborder=\"0\" allowfullscreen=\"1\" src=\"https://www.youtube.com/embed/" + m[1] + "?start=" + (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0) + (enableJsapi ? "&enablejsapi=1" : Cfg.addYouTube === 3 ? "&autoplay=1" : "") + (list ? "&" + list[0] : "") + (Cfg.YTubeType === 1 ? "&html5=1\" type=\"text/html\"" : "\" type=\"application/x-shockwave-flash\"") + wh + "</iframe>";
+			txt = "<iframe frameborder=\"0\" allowfullscreen=\"1\" src=\"https://www.youtube.com/embed/" + m[1] + "?start=" + ((m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0)) + (enableJsapi ? "&enablejsapi=1" : Cfg.addYouTube === 3 ? "&autoplay=1" : "") + (list ? "&" + list[0] : "") + (Cfg.YTubeType === 1 ? "&html5=1\" type=\"text/html\"" : "\" type=\"application/x-shockwave-flash\"") + wh + "</iframe>";
 		} else {
 			var id = m[1] + (m[2] ? m[2] : "");
 			txt = Cfg.YTubeType === 1 ? "<iframe src=\"" + aib.prot + "//player.vimeo.com/video/" + id + (Cfg.addYouTube === 3 ? "?autoplay=1" : "") + "\" frameborder=\"0\" " + "webkitallowfullscreen mozallowfullscreen allowfullscreen" + wh + "</iframe>" : "<embed type=\"application/x-shockwave-flash\" src=\"" + aib.prot + "//vimeo.com/moogaloop.swf" + "?clip_id=" + id + (Cfg.addYouTube === 3 ? "&autoplay=1" : "") + "&server=vimeo.com&color=00adef&fullscreen=1\" " + "allowscriptaccess=\"always\" allowfullscreen=\"true\"" + wh + "</embed>";
@@ -13108,8 +13108,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						node.insertAdjacentHTML("beforebegin", playerHtml);
 						return node.previousSibling;
 					} },
-				css: { value: "img[id^=\"translate_button\"], img[src$=\"button-expand.gif\"], img[src$=\"button-close.gif\"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none !important; }\t\t\t\tdiv[id^=\"Wz\"] { z-index: 10000 !important; }\t\t\t\t.de-thr-hid { float: none !important; }\t\t\t\t.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\t\t\t\t.de-video-obj + div { clear: left; }\t\t\t\tform[action=\"/paint\"] > select { width: 105px; }\t\t\t\tform[action=\"/paint\"] > input[type=\"text\"] { width: 24px !important; }"
-				},
+				css: { value: "img[id^=\"translate_button\"], img[src$=\"button-expand.gif\"], img[src$=\"button-close.gif\"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none !important; }\t\t\t\tdiv[id^=\"Wz\"] { z-index: 10000 !important; }\t\t\t\t.de-thr-hid { float: none !important; }\t\t\t\t.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\t\t\t\t.de-video-obj + div { clear: left; }\t\t\t\tform[action=\"/paint\"] > select { width: 105px; }\t\t\t\tform[action=\"/paint\"] > input[type=\"text\"] { width: 24px !important; }" },
 				fixFileInputs: { value: function value(el) {
 						var str = "";
 						for (var i = 0, len = 4; i < len; ++i) {

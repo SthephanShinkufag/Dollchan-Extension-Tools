@@ -4086,7 +4086,7 @@ Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
 	if(isYtube) {
 		var list = m[0].match(/list=[^&#]+/);
 		txt = '<iframe frameborder="0" allowfullscreen="1" src="https://www.youtube.com/embed/' + m[1] +
-			'?start=' + (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0) +
+			'?start=' + ((m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0)) +
 			(enableJsapi ? '&enablejsapi=1' : Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
 			(list ? '&' + list[0] : '') + (Cfg.YTubeType === 1 ? '&html5=1" type="text/html"' :
 				'" type="application/x-shockwave-flash"') + wh + '</iframe>';
@@ -10508,8 +10508,7 @@ function getImageBoard(checkDomains, checkOther) {
 				.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\
 				.de-video-obj + div { clear: left; }\
 				form[action="/paint"] > select { width: 105px; }\
-				form[action="/paint"] > input[type="text"] { width: 24px !important; }'
-			},
+				form[action="/paint"] > input[type="text"] { width: 24px !important; }' },
 			fixFileInputs: { value(el) {
 				var str = '';
 				for(var i = 0, len = 4; i < len; ++i) {
