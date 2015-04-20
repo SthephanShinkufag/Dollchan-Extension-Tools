@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         15.4.19.1
+// @version         15.4.20.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       (c) 2015 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
@@ -20,7 +20,7 @@
 (function de_main_func_inner(scriptStorage, FormData) {
 'use strict';
 
-var version = '15.4.19.1',
+var version = '15.4.20.0',
 defaultCfg = {
 	'disabled':         0,      // script enabled by default
 	'language':         0,      // script language [0=ru, 1=en]
@@ -7487,6 +7487,9 @@ function AttachmentViewer(data) {
 AttachmentViewer.prototype = {
 	data: null,
 	close(e) {
+		if(this.data.inPview && this.data.post.sticked) {
+			$c('de-btn-stick-on', this.data.post.el).click();
+		}
 		if(this.hasOwnProperty('_btns')) {
 			this._btns.remove();
 		}
@@ -7659,6 +7662,9 @@ AttachmentViewer.prototype = {
 		if(data.inPview) {
 			obj.addEventListener('mouseover', this, true);
 			obj.addEventListener('mouseout', this, true);
+			if(!data.post.sticked) {
+				$c('de-btn-stick', data.post.el).click();
+			}
 		}
 		if(!data.inPview) {
 			this._btns.show();

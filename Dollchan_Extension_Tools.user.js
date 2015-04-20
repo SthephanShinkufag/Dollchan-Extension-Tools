@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         15.4.19.1
+// @version         15.4.20.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       (c) 2015 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
@@ -2578,7 +2578,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		}, initScript, this, [[22, 26]]);
 	});
-	var version = "15.4.19.1",
+	var version = "15.4.20.0",
 	    defaultCfg = {
 		disabled: 0,
 		language: 0,
@@ -9888,6 +9888,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	AttachmentViewer.prototype = Object.defineProperties({
 		data: null,
 		close: function close(e) {
+			if (this.data.inPview && this.data.post.sticked) {
+				$c("de-btn-stick-on", this.data.post.el).click();
+			}
 			if (this.hasOwnProperty("_btns")) {
 				this._btns.remove();
 			}
@@ -10047,6 +10050,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (data.inPview) {
 				obj.addEventListener("mouseover", this, true);
 				obj.addEventListener("mouseout", this, true);
+				if (!data.post.sticked) {
+					$c("de-btn-stick", data.post.el).click();
+				}
 			}
 			if (!data.inPview) {
 				this._btns.show();
