@@ -6376,9 +6376,6 @@ PostForm.prototype = {
 			if(Cfg.ajaxReply) {
 				$alert(Lng.checking[lang], 'upload', true);
 			}
-			if(Cfg.favOnReply && this.tNum) {
-				pByNum[this.tNum].thr.setFavorState(true);
-			}
 			if(this.video && (val = this.video.value) && (val = val.match(Videos.ytReg))) {
 				this.video.value = 'http://www.youtube.com/watch?v=' + val[1];
 			}
@@ -6996,6 +6993,8 @@ function checkUpload(dc) {
 		$alert(err, 'upload', false);
 		updater.sendErrNotif();
 		return;
+	} else if(Cfg.favOnReply && pr.tNum) {
+		pByNum[pr.tNum].thr.setFavorState(true);
 	}
 	pr.txta.value = '';
 	if(pr.file) {

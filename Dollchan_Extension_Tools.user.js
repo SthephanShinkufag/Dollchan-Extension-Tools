@@ -8643,9 +8643,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				if (Cfg.ajaxReply) {
 					$alert(Lng.checking[lang], "upload", true);
 				}
-				if (Cfg.favOnReply && _this.tNum) {
-					pByNum[_this.tNum].thr.setFavorState(true);
-				}
 				if (_this.video && (val = _this.video.value) && (val = val.match(Videos.ytReg))) {
 					_this.video.value = "http://www.youtube.com/watch?v=" + val[1];
 				}
@@ -9343,6 +9340,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			$alert(err, "upload", false);
 			updater.sendErrNotif();
 			return;
+		} else if (Cfg.favOnReply && pr.tNum) {
+			pByNum[pr.tNum].thr.setFavorState(true);
 		}
 		pr.txta.value = "";
 		if (pr.file) {
