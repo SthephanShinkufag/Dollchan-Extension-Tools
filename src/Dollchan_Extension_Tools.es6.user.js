@@ -90,6 +90,7 @@ defaultCfg = {
 	'scrAfterRep':      0,      //    scroll to the bottom after reply
 	'addPostForm':      2,      // postform displayed [0=at top, 1=at bottom, 2=hidden]
 	'hangQReply':       1,      // quick reply type [0=inline, 1=hanging]
+	'spacedQuote':      1,      // insert a space when quoting "> "
 	'favOnReply':       1,      // add thread to favorites on reply
 	'warnSubjTrip':     0,      // warn if subject field contains tripcode
 	'fileThumb':        1,      // file preview area instead of file button
@@ -219,6 +220,7 @@ Lng = {
 			sel:        [['Сверху', 'Внизу', 'Скрытая'], ['At top', 'At bottom', 'Hidden']],
 			txt:        ['Форма ответа в треде', 'Reply form in thread']
 		},
+		'spacedQuote':  ['Вставлять пробел при цитировании "> "', 'Insert a space when quoting "> "'],
 		'favOnReply':   ['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
 		'warnSubjTrip': ['Оповещать при наличии трип-кода в поле "Тема"', 'Warn if "Subject" field contains trip-code'],
 		'fileThumb':    ['Область превью картинок вместо кнопки "Файл"', 'File thumbnail area instead of "File" button'],
@@ -2491,6 +2493,7 @@ function getCfgForm() {
 			pr.isBottom = Cfg.addPostForm === 1;
 			pr.setReply(false, !TNum || Cfg.addPostForm > 1);
 		})),
+		$if(pr.txta, lBox('spacedQuote', true, null)),
 		lBox('favOnReply', true, null),
 		$if(pr.subj, lBox('warnSubjTrip', false, null)),
 		$if(pr.file && !nav.Presto, lBox('fileThumb', true, function() {
@@ -3343,7 +3346,7 @@ function KeyEditListener(alertEl, keys, allKeys) {
 //     Chrome/Opera: '-' - 189, '=' - 187, ';' - 186
 KeyEditListener.keyCodes = ['',,,,,,,,'Backspace','Tab',,,,'Enter',,,'Shift','Ctrl','Alt',
 	/* Pause/Break */,/* Caps Lock */,,,,,,,/* Escape */,,,,,'Space',/* Page Up */,
-	/* Page Down */,/* End */,/* Home */,'<','^','>','v',,,,,/* Insert */,/* Delete */,,'0','1','2',
+	/* Page Down */,/* End */,/* Home */,'←','↑','→','↓',,,,,/* Insert */,/* Delete */,,'0','1','2',
 	'3','4','5','6','7','8','9',,';',,'=',,,,'A','B','C','D','E','F','G','H','I','J','K','L','M',
 	'N','O','P','Q','R','S','T','U','V','W','X','Y','Z',/* Left WIN Key */,/* Right WIN Key */,
 	/* Select key */,,,'Numpad 0','Numpad 1','Numpad 2','Numpad 3','Numpad 4','Numpad 5','Numpad 6',
@@ -4433,7 +4436,7 @@ function getJsonPosts(url) {
 		switch(xhr.status) {
 		case 200: return JSON.parse(xhr.responseText);
 		case 304: return null;
-		default: return Promise.reject(AjaxError(xht.status, xhr.message));
+		default: return Promise.reject(AjaxError(xhr.status, xhr.message));
 		}
 	});
 }
@@ -5962,10 +5965,11 @@ PostForm.prototype = {
 			}
 			x = pr.txta;
 			var start = x.selectionStart,
-				end = x.selectionEnd;
+				end = x.selectionEnd,
+				q = Cfg.spacedQuote ? '> ' : '>';
 			if(id === 'de-btn-quote') {
-				$txtInsert(x, '> ' + (start === end ? quotetxt : x.value.substring(start, end))
-					.replace(/\n/gm, '\n> '));
+				$txtInsert(x, q + (start === end ? quotetxt : x.value.substring(start, end))
+					.replace(/\n/gm, '\n' + q));
 			} else {
 				var scrtop = x.scrollTop,
 					val = this._wrapText(aib.markupBB, el.getAttribute('de-tag'), x.value.substring(start, end)),
@@ -6035,7 +6039,8 @@ PostForm.prototype = {
 				isNumClick ? '>>' + pNum :
 					(temp !== '' && temp.slice(-1) !== '\n' ? '\n' : '') +
 					(this.lastQuickPNum === pNum && temp.contains('>>' + pNum) ? '' : '>>' + pNum + '\n')) +
-				(quotetxt ? quotetxt.replace(/^\n|\n$/g, '').replace(/(^|\n)(.)/gm, '$1> $2') + '\n': ''));
+				(quotetxt ? quotetxt.replace(/^\n|\n$/g, '')
+				.replace(/(^|\n)(.)/gm, '$1>' + (Cfg.spacedQuote ? ' ' : '') + '$2') + '\n': ''));
 		}
 		temp = pByNum[pNum].thr.op.title;
 		if(temp.length > 27) {
@@ -8682,7 +8687,7 @@ Post.prototype = {
 	},
 	get trunc() {
 		var el = aib.qTrunc && $q(aib.qTrunc, this.el), val = null;
-		if(el && /long|full comment|gekurzt|слишком|длинн|мног|полн/i.test(el.textContent)) {
+		if(el && /long|full comment|gekürzt|слишком|длинн|мног|полн/i.test(el.textContent)) {
 			val = el;
 		}
 		Object.defineProperty(this, 'trunc', { configurable: true, value: val });
@@ -11659,7 +11664,7 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function updateTitle(eCode = lastECode) {
-		doc.title = (aPlayers === 0 ? '' : 'd ') +
+		doc.title = (aPlayers === 0 ? '' : '♫ ') +
 			(sendError === true ? '{' + Lng.error[lang] + '} ' : '') +
 			(eCode === 200 ? '' : '{' + eCode + '} ') +
 			(newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
@@ -12116,7 +12121,7 @@ function scriptCSS() {
 	.de-mp3, .de-video-obj { margin: 5px 20px; white-space: nowrap; clear: both; }\
 	.de-video-expanded > embed, .de-video-expanded > iframe, .de-video-expanded > a > img { width: 848px; height: 480px; }\
 	#de-video-list { padding: 0 0 4px; overflow-y: scroll; }\
-	.de-video-resizer:after { content: " \u2795"; display: inline-block; margin-left: 3px; vertical-align: 8px; color: black; font-size: 12px; cursor: pointer; }\
+	.de-video-resizer:after { content: "\u2795"; display: inline-block; margin: 0 -15px 0 3px; vertical-align: 8px; color: black; font-size: 12px; cursor: pointer; }\
 	.de-video-obj > a { display: table; position: relative; border-spacing: 0; }\
 	.de-video-obj > a:after { opacity: .6; position: absolute; left: 42%; top: 42%; content: url("data:image/gif;base64,R0lGODlhPwAsAJEAAAAAAP////8AAP///yH5BAEAAAMALAAAAAA/ACwAAAJvnC2py+0P35kj2ostzbzn44Wig4ymWJ7qt7buC8fyTNf2jee6EAT72ev9RMHgsFMsHjHJ5DLSbD4d0eh0Ua1eeVnrtCu9go1bbresOKPT3jVb6WbA43If/Y7P6/f8vt9V0ZeyN6gHQjhhSFFYRlEAADs="); }\
 	.de-video-obj > a:hover:after { opacity: .85; }\

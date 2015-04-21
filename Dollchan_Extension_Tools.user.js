@@ -1197,7 +1197,9 @@ $define(GLOBAL + BIND, {
     }
   }, weakMethods, false, true);
 }();
-}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);!(function(global) {
+}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+!(function(global) {
   "use strict";
 
   var hasOwn = Object.prototype.hasOwnProperty;
@@ -2648,6 +2650,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		scrAfterRep: 0,
 		addPostForm: 2,
 		hangQReply: 1,
+		spacedQuote: 1,
 		favOnReply: 1,
 		warnSubjTrip: 0,
 		fileThumb: 1,
@@ -2773,6 +2776,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				sel: [["Сверху", "Внизу", "Скрытая"], ["At top", "At bottom", "Hidden"]],
 				txt: ["Форма ответа в треде", "Reply form in thread"]
 			},
+			spacedQuote: ["Вставлять пробел при цитировании \"> \"", "Insert a space when quoting \"> \""],
 			favOnReply: ["Добавлять тред в избранное при ответе", "Add thread to favorites on reply"],
 			warnSubjTrip: ["Оповещать при наличии трип-кода в поле \"Тема\"", "Warn if \"Subject\" field contains trip-code"],
 			fileThumb: ["Область превью картинок вместо кнопки \"Файл\"", "File thumbnail area instead of \"File\" button"],
@@ -3296,7 +3300,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				var obj = {
 					method: params && params.method || "GET",
 					url: nav.fixLink(url),
-					onload: function onload(e) {
+					onload: function (e) {
 						resolve(e);
 					}
 				};
@@ -3355,7 +3359,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				}
 			}
 		},
-		"continue": function _continue() {
+		"continue": function () {
 			if (!this.stopped) {
 				this.paused = false;
 				if (this.index >= this.length) {
@@ -3898,7 +3902,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function addContentBlock(parent, title) {
-		return parent.appendChild($New("div", { "class": "de-content-block" }, [$new("input", { type: "checkbox" }, { click: function click() {
+		return parent.appendChild($New("div", { "class": "de-content-block" }, [$new("input", { type: "checkbox" }, { click: function () {
 				var _this = this;
 
 				$each($Q(".de-entry > input", this.parentNode), function (el) {
@@ -4469,7 +4473,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function lBox(id, isBlock, fn) {
-		var el = $new("input", { info: id, type: "checkbox" }, { click: function click() {
+		var el = $new("input", { info: id, type: "checkbox" }, { click: function () {
 				toggleCfg(this.getAttribute("info"));
 				fixSettings();
 				if (fn) {
@@ -4509,7 +4513,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			"class": "de-cfg-tab",
 			text: Lng.cfgTab[name][lang],
 			info: name }, {
-			click: function click() {
+			click: function () {
 				var el = this.parentNode;
 				if (el.getAttribute("selected") === "true") {
 					return;
@@ -4562,20 +4566,20 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			click: $pd,
 			mouseover: addMenu,
 			mouseout: removeMenu
-		}), $new("a", { text: Lng.apply[lang], href: "#", "class": "de-abtn" }, { click: function click(e) {
+		}), $new("a", { text: Lng.apply[lang], href: "#", "class": "de-abtn" }, { click: function (e) {
 				$pd(e);
 				saveCfg("hideBySpell", 1);
 				$q("input[info=\"hideBySpell\"]", doc).checked = true;
 				toggleSpells();
-			} }), $new("a", { text: Lng.clear[lang], href: "#", "class": "de-abtn" }, { click: function click(e) {
+			} }), $new("a", { text: Lng.clear[lang], href: "#", "class": "de-abtn" }, { click: function (e) {
 				$pd(e);
 				$id("de-spell-edit").value = "";
 				toggleSpells();
 			} }), $add("<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-" + (lang ? "en" : "ru") + "\" class=\"de-abtn\" target=\"_blank\">[?]</a>")]), $New("div", { id: "de-spell-div" }, [$add("<div><div id=\"de-spell-rowmeter\"></div></div>"), $New("div", null, [$new("textarea", { id: "de-spell-edit", wrap: "off" }, {
-			keydown: function keydown() {
+			keydown: function () {
 				updRowMeter(this);
 			},
-			scroll: function scroll() {
+			scroll: function () {
 				updRowMeter(this);
 			}
 		})])]), lBox("sortSpells", true, function () {
@@ -4631,7 +4635,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			saveCfg("addPostForm", this.selectedIndex);
 			pr.isBottom = Cfg.addPostForm === 1;
 			pr.setReply(false, !TNum || Cfg.addPostForm > 1);
-		})), lBox("favOnReply", true, null), $if(pr.subj, lBox("warnSubjTrip", false, null)), $if(pr.file && !nav.Presto, lBox("fileThumb", true, function () {
+		})), $if(pr.txta, lBox("spacedQuote", true, null)), lBox("favOnReply", true, null), $if(pr.subj, lBox("warnSubjTrip", false, null)), $if(pr.file && !nav.Presto, lBox("fileThumb", true, function () {
 			for (var inp = pr.fileObj; true; inp = inp.next) {
 				inp.updateUtils();
 				if (!inp.next) {
@@ -4710,7 +4714,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}, emptyFn);
 		})])])), $if(nav.isGlobal, $New("div", null, [$txt(Lng.cfg.excludeList[lang]), $new("input", { type: "text", id: "de-exclude-edit", size: 45, style: "display: block;",
 			value: excludeList }, {
-			keyup: function keyup() {
+			keyup: function () {
 				setStored("DESU_Exclude", this.value);
 			}
 		}), lBox("turnOff", true, function () {
@@ -4875,7 +4879,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				el.classList.add("de-blink");
 			}
 		} else {
-			el = $id("de-alert").appendChild($New("div", { "class": aib.cReply, id: "de-alert-" + id }, [$new("span", { "class": cBtn, text: tBtn }, { click: function click() {
+			el = $id("de-alert").appendChild($New("div", { "class": aib.cReply, id: "de-alert-" + id }, [$new("span", { "class": cBtn, text: tBtn }, { click: function () {
 					closeAlert(this.parentNode);
 				} }), $add("<div class=\"de-alert-msg\">" + txt.trim() + "</div>")]));
 			if (Cfg.animation) {
@@ -5420,7 +5424,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 
 
-	KeyEditListener.keyCodes = ["",,,,,,,, "Backspace", "Tab",,,, "Enter",,, "Shift", "Ctrl", "Alt",,,,,,,,,,,,,, "Space",,,,, "<", "^", ">", "v",,,,,,,, "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",, ";",, "=",,,, "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",,,,,, "Numpad 0", "Numpad 1", "Numpad 2", "Numpad 3", "Numpad 4", "Numpad 5", "Numpad 6", "Numpad 7", "Numpad 8", "Numpad 9", "Numpad *", "Numpad +",, "Numpad -", "Numpad .", "Numpad /",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, "-",,,,,,,,,,,,, ";", "=", ",", "-", ".", "/", "`",,,,,,,,,,,,,,,,,,,,,,,,,,, "[", "\\", "]", "'"];
+	KeyEditListener.keyCodes = ["",,,,,,,, "Backspace", "Tab",,,, "Enter",,, "Shift", "Ctrl", "Alt",,,,,,,,,,,,,, "Space",,,,, "←", "↑", "→", "↓",,,,,,,, "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",, ";",, "=",,,, "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",,,,,, "Numpad 0", "Numpad 1", "Numpad 2", "Numpad 3", "Numpad 4", "Numpad 5", "Numpad 6", "Numpad 7", "Numpad 8", "Numpad 9", "Numpad *", "Numpad +",, "Numpad -", "Numpad .", "Numpad /",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, "-",,,,,,,,,,,,, ";", "=", ",", "-", ".", "/", "`",,,,,,,,,,,,,,,,,,,,,,,,,,, "[", "\\", "]", "'"];
 	KeyEditListener.getStrKey = function (key) {
 		var str = "";
 		if (key & 4096) {
@@ -6491,7 +6495,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				case 304:
 					return null;
 				default:
-					return Promise.reject(AjaxError(xht.status, xhr.message));
+					return Promise.reject(AjaxError(xhr.status, xhr.message));
 			}
 		});
 	}
@@ -8260,9 +8264,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				}
 				x = pr.txta;
 				var start = x.selectionStart,
-				    end = x.selectionEnd;
+				    end = x.selectionEnd,
+				    q = Cfg.spacedQuote ? "> " : ">";
 				if (id === "de-btn-quote") {
-					$txtInsert(x, "> " + (start === end ? quotetxt : x.value.substring(start, end)).replace(/\n/gm, "\n> "));
+					$txtInsert(x, q + (start === end ? quotetxt : x.value.substring(start, end)).replace(/\n/gm, "\n" + q));
 				} else {
 					var scrtop = x.scrollTop,
 					    val = this._wrapText(aib.markupBB, el.getAttribute("de-tag"), x.value.substring(start, end)),
@@ -8316,7 +8321,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (!Cfg.addOPLink && !TNum && post.isOp && !isNumClick) {
 				this.txta.focus();
 			} else {
-				$txtInsert(this.txta, (isNumClick ? ">>" + pNum : (temp !== "" && temp.slice(-1) !== "\n" ? "\n" : "") + (this.lastQuickPNum === pNum && temp.contains(">>" + pNum) ? "" : ">>" + pNum + "\n")) + (quotetxt ? quotetxt.replace(/^\n|\n$/g, "").replace(/(^|\n)(.)/gm, "$1> $2") + "\n" : ""));
+				$txtInsert(this.txta, (isNumClick ? ">>" + pNum : (temp !== "" && temp.slice(-1) !== "\n" ? "\n" : "") + (this.lastQuickPNum === pNum && temp.contains(">>" + pNum) ? "" : ">>" + pNum + "\n")) + (quotetxt ? quotetxt.replace(/^\n|\n$/g, "").replace(/(^|\n)(.)/gm, "$1>" + (Cfg.spacedQuote ? " " : "") + "$2") + "\n" : ""));
 			}
 			temp = pByNum[pNum].thr.op.title;
 			if (temp.length > 27) {
@@ -8603,7 +8608,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							"class": "shortened",
 							style: "margin: 0px 0.5em;",
 							text: "проверить капчу" }, {
-							click: function click() {
+							click: function () {
 								var _this2 = this;
 
 								$ajax("/" + brd + "/api/validate-captcha", { method: "POST" }).then(function (xhr) {
@@ -11535,7 +11540,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			get: function () {
 				var el = aib.qTrunc && $q(aib.qTrunc, this.el),
 				    val = null;
-				if (el && /long|full comment|gekurzt|слишком|длинн|мног|полн/i.test(el.textContent)) {
+				if (el && /long|full comment|gekürzt|слишком|длинн|мног|полн/i.test(el.textContent)) {
 					val = el;
 				}
 				Object.defineProperty(this, "trunc", { configurable: true, value: val });
@@ -14477,7 +14482,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		function updateTitle() {
 			var eCode = arguments[0] === undefined ? lastECode : arguments[0];
 
-			doc.title = (aPlayers === 0 ? "" : "d ") + (sendError === true ? "{" + Lng.error[lang] + "} " : "") + (eCode === 200 ? "" : "{" + eCode + "} ") + (newPosts === 0 ? "" : "[" + newPosts + "] ") + title;
+			doc.title = (aPlayers === 0 ? "" : "♫ ") + (sendError === true ? "{" + Lng.error[lang] + "} " : "") + (eCode === 200 ? "" : "{" + eCode + "} ") + (newPosts === 0 ? "" : "[" + newPosts + "] ") + title;
 		}
 
 		if ("hidden" in doc) {
@@ -14555,7 +14560,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					paused = true;
 				}
 			},
-			"continue": function _continue() {
+			"continue": function () {
 				if (enabled && paused) {
 					startLoad(false);
 					paused = false;
@@ -14763,7 +14768,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		"#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\t#de-txt-panel > span:empty { display: inline-block; width: 27px; height: 23px; }" + gif("#de-btn-bold:empty", (p = "R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ") + "T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==") + gif("#de-btn-italic:empty", p + "K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==") + gif("#de-btn-under:empty", p + "V3IKpq4YAoRARzAoV3hzoDnoJNlGSWSEHw7JrEHILiVp1NlZXtKe5XiptPrFh4NVKHh9FI5NX60WIJ6ATZoVeaVnf8xSU4r7NMRYcFk6pzYRD2TIUAAA7") + gif("#de-btn-strike:empty", p + "S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7") + gif("#de-btn-spoil:empty", "R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==") + gif("#de-btn-code:empty", p + "O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=") + gif("#de-btn-sup:empty", p + "Q3IKpq4YAgZiSQhGByrzn7YURGFGWhxzMuqqBGC7wRUNkeU7nnWNoMosFXKzi8BHs3EQnDRAHLY2e0BxnWfEJkRdT80NNTrliG3aWcBhZhgIAOw==") + gif("#de-btn-sub:empty", p + "R3IKpq4YAgZiSxquujtOCvIUayAkVZEoRcjCu2wbivMw2WaYi7vVYYqMFYq/i8BEM4ZIrYOmpdD49m2VFd2oiUZTORWcNYT9SpnZrTjiML0MBADs=") + gif("#de-btn-quote:empty", p + "L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=") + (nav.Anim ? "@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }\t\t@keyframes de-close { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }\t\t@keyframes de-blink {\t\t\t0%, 100% { transform: translateX(0); }\t\t\t10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }\t\t\t20%, 40%, 60%, 80% { transform: translateX(10px); }\t\t}\t\t@keyframes de-cfg-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\t\t@keyframes de-cfg-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\t\t@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-open-br { from { transform: translate(50%,50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-close-tl { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-close-bl { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\t\t.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\t\t.de-open { animation: de-open .15s ease-out both; }\t\t.de-close { animation: de-close .15s ease-in both; }\t\t.de-blink { animation: de-blink .7s ease-in-out both; }\t\t.de-cfg-open { animation: de-cfg-open .2s ease-out backwards; }\t\t.de-cfg-close { animation: de-cfg-close .2s ease-in both; }\t\t.de-post-new { animation: de-post-new .2s ease-out both; }" : "") +
 
 	
-		cont(".de-video-link.de-ytube", "https://youtube.com/favicon.ico") + cont(".de-video-link.de-vimeo", "https://vimeo.com/favicon.ico") + cont(".de-img-arch", "data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==") + cont(".de-img-audio", "data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==") + ".de-current:after { content: \" ◆\"; }\t.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\t.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\t.de-img-pre { max-width: 200px; max-height: 200px; }\t.de-img-full { float: left; }\t.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\t#de-img-btn-next > div, #de-img-btn-prev > div { height: 36px; width: 36px; }" + gif("#de-img-btn-next > div", "R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7") + gif("#de-img-btn-prev > div", "R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=") + "#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; margin-top: -8px; background-color: black; cursor: pointer; }\t#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\t#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\t.de-mp3, .de-video-obj { margin: 5px 20px; white-space: nowrap; clear: both; }\t.de-video-expanded > embed, .de-video-expanded > iframe, .de-video-expanded > a > img { width: 848px; height: 480px; }\t#de-video-list { padding: 0 0 4px; overflow-y: scroll; }\t.de-video-resizer:after { content: \" ➕\"; display: inline-block; margin-left: 3px; vertical-align: 8px; color: black; font-size: 12px; cursor: pointer; }\t.de-video-obj > a { display: table; position: relative; border-spacing: 0; }\t.de-video-obj > a:after { opacity: .6; position: absolute; left: 42%; top: 42%; content: url(\"data:image/gif;base64,R0lGODlhPwAsAJEAAAAAAP////8AAP///yH5BAEAAAMALAAAAAA/ACwAAAJvnC2py+0P35kj2ostzbzn44Wig4ymWJ7qt7buC8fyTNf2jee6EAT72ev9RMHgsFMsHjHJ5DLSbD4d0eh0Ua1eeVnrtCu9go1bbresOKPT3jVb6WbA43If/Y7P6/f8vt9V0ZeyN6gHQjhhSFFYRlEAADs=\"); }\t.de-video-obj > a:hover:after { opacity: .85; }\t.de-video-title[de-time]:after { content: \" [\" attr(de-time) \"]\"; color: red; }\ttd > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\tvideo { background: black; }\t.de-vocaroo > embed { display: inline-block; }" +
+		cont(".de-video-link.de-ytube", "https://youtube.com/favicon.ico") + cont(".de-video-link.de-vimeo", "https://vimeo.com/favicon.ico") + cont(".de-img-arch", "data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==") + cont(".de-img-audio", "data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==") + ".de-current:after { content: \" ◆\"; }\t.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\t.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\t.de-img-pre { max-width: 200px; max-height: 200px; }\t.de-img-full { float: left; }\t.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\t#de-img-btn-next > div, #de-img-btn-prev > div { height: 36px; width: 36px; }" + gif("#de-img-btn-next > div", "R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7") + gif("#de-img-btn-prev > div", "R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=") + "#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; margin-top: -8px; background-color: black; cursor: pointer; }\t#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\t#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\t.de-mp3, .de-video-obj { margin: 5px 20px; white-space: nowrap; clear: both; }\t.de-video-expanded > embed, .de-video-expanded > iframe, .de-video-expanded > a > img { width: 848px; height: 480px; }\t#de-video-list { padding: 0 0 4px; overflow-y: scroll; }\t.de-video-resizer:after { content: \"➕\"; display: inline-block; margin: 0 -15px 0 3px; vertical-align: 8px; color: black; font-size: 12px; cursor: pointer; }\t.de-video-obj > a { display: table; position: relative; border-spacing: 0; }\t.de-video-obj > a:after { opacity: .6; position: absolute; left: 42%; top: 42%; content: url(\"data:image/gif;base64,R0lGODlhPwAsAJEAAAAAAP////8AAP///yH5BAEAAAMALAAAAAA/ACwAAAJvnC2py+0P35kj2ostzbzn44Wig4ymWJ7qt7buC8fyTNf2jee6EAT72ev9RMHgsFMsHjHJ5DLSbD4d0eh0Ua1eeVnrtCu9go1bbresOKPT3jVb6WbA43If/Y7P6/f8vt9V0ZeyN6gHQjhhSFFYRlEAADs=\"); }\t.de-video-obj > a:hover:after { opacity: .85; }\t.de-video-title[de-time]:after { content: \" [\" attr(de-time) \"]\"; color: red; }\ttd > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\tvideo { background: black; }\t.de-vocaroo > embed { display: inline-block; }" +
 
 	
 		".de-file { display: inline-block; margin: 1px; height: " + (p = aib.multiFile ? 90 : 130) + "px; width: " + p + "px; text-align: center; border: 1px dashed grey; }\t.de-file > .de-file-del, .de-file > .de-file-spoil { float: right; }\t.de-file > .de-file-rar { float: left; }\t.de-file > .de-file-rarmsg { float: left; padding: 0 4px 2px; color: #fff; background-color: rgba(55, 55, 55, 0.5); }\t.de-file > .de-file-utils { display: none; }\t.de-file > div { display: table; width: 100%; height: 100%; cursor: pointer; }\t.de-file > div > div { display: table-cell; vertical-align: middle; }\t.de-file + [type=\"file\"] { opacity: 0; margin: 1px 0 0 -" + (p + 2) + "px !important; vertical-align: top; width: " + (p + 2) + "px !important; height: " + (p + 2) + "px; border: none !important; cursor: pointer; }\t#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\t.de-file-drag { background: rgba(88, 88, 88, 0.4); border: 1px solid grey; }\t.de-file-hover > .de-file-utils { display: block !important; position: relative; margin: -18px 2px; }\t.de-file-hover > .de-file-spoil { margin: -16px 21px; }\t.de-file-img > img, .de-file-img > video { max-width: " + (p - 4) + "px; max-height: " + (p - 4) + "px; }\t.de-file-input { max-width: 300px; }\t.de-file-off > div > div:after { content: \"" + Lng.noFile[lang] + "\" }\t.de-file-rarmsg { margin: 0 5px; font: bold 11px tahoma; cursor: default; }\t.de-file-del, .de-file-rar { display: inline-block; margin: 0 4px -3px; width: 16px; height: 16px; cursor: pointer; }\t.de-file-spoil { display: none; }" + gif(".de-file-del", "R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=") + gif(".de-file-rar", "R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==") +
