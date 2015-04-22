@@ -5557,8 +5557,8 @@ SpellsInterpreter.prototype = {
 		return this._post.isOp;
 	},
 	_tlen(val) {
-		var text = this._post.text;
-		return !val ? !!text : this._tlenNum_helper(val, text.replace(/\n/g, '').length);
+		var text = this._post.text.replace(/^\s+|\s+$|\s+(?=\s)|\n/g, '');
+		return !val ? !!text : this._tlenNum_helper(val, text.length);
 	},
 	_all(val) {
 		return true;
