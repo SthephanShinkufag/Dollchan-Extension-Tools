@@ -10845,6 +10845,28 @@ function getImageBoard(checkDomains, checkOther) {
 			multiFile: { value: true },
 			res: { value: 'thread/' },
 			rLinkClick: { value: '' }
+		},
+		'div#mainc': {
+			claire: { value: true },
+			
+			qDForm: { value: '#mainc' },
+			getPageUrl: { value(b, p) {
+				return fixBrd(b) + '?do=page&p=' + (p < 0 ? 0 : p);
+			} },
+			getThrdUrl: { value(b, tNum) {
+				return this.prot + '//' + this.host + fixBrd(b) + '?do=thread&id=' + tNum;
+			} },
+			getTNum: { value(op) {
+				return $q('a[name]', op).name.match(/\d+/)[0];
+			} },
+			css: { value: '.reply { background-color: #e4e4d6; }' },
+			init: { value() {
+				var el = $id('mainc'),
+					pArea = $id('postarea');
+				$del(el.firstElementChild);
+				$before(el, pArea.nextElementSibling);
+				$before(el, pArea);
+			} }
 		}
 	};
 
@@ -11219,6 +11241,12 @@ function Initialization(checkDomains) {
 		TNum = url ? url[2] : '';
 		pageNum = 0;
 		aib.docExt = '.html';
+	} else if(aib.claire) {
+		url = window.location.search.match(/^\?do=(thread|page)&(id|p)=(\d+)$/);
+		brd = window.location.pathname.replace(/\//g, '');
+		TNum = url[1] === 'thread' ? url[3] : false;
+		pageNum = url[1] === 'page' ? +url[3] : 0;
+		aib.docExt = '';
 	} else {
 		url = (window.location.pathname || '').match(new RegExp(
 			'^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?' +
