@@ -1160,7 +1160,7 @@ function prettifySize(val) {
 	if(val > 512) {
 		return (val / (1024)).toFixed(2) + Lng.sizeKByte[lang];
 	}
-	return val + Lng.sizeByte[lang];
+	return val.toFixed(2) + Lng.sizeByte[lang];
 }
 
 

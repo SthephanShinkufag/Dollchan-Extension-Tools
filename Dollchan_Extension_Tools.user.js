@@ -3576,7 +3576,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		if (val > 512) {
 			return (val / 1024).toFixed(2) + Lng.sizeKByte[lang];
 		}
-		return val + Lng.sizeByte[lang];
+		return val.toFixed(2) + Lng.sizeByte[lang];
 	}
 
 	function setStored(id, value) {
