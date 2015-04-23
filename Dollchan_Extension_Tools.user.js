@@ -1198,8 +1198,6 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
-
-
 !(function(global) {
   "use strict";
 
@@ -12723,6 +12721,15 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				return rv;
 			};
 			File.prototype = new Blob();
+			var origAppend = FormData.prototype.append;
+			FormData.prototype.append = function append(name, value) {
+				var fileName = arguments[2] === undefined ? null : arguments[2];
+
+				if (value instanceof Blob && "name" in value && fileName === null) {
+					return origAppend.call(this, name, value, value.name);
+				}
+				return origAppend.apply(this, arguments);
+			};
 		}
 		var ua = window.navigator.userAgent,
 		    firefox = ua.contains("Gecko/"),

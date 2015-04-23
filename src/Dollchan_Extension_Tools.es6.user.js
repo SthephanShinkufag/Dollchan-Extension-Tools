@@ -10115,6 +10115,13 @@ function getNavFuncs() {
 			return rv;
 		};
 		File.prototype = new Blob;
+		var origAppend = FormData.prototype.append;
+		FormData.prototype.append = function append(name, value, fileName = null) {
+			if((value instanceof Blob) && ('name' in value) && fileName === null) {
+				return origAppend.call(this, name, value, value.name);
+			}
+			return origAppend.apply(this, arguments);
+		};
 	}
 	var ua = window.navigator.userAgent,
 		firefox = ua.contains('Gecko/'),
