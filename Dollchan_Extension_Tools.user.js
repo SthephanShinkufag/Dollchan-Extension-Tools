@@ -2112,7 +2112,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					if (!Cfg.stats) {
 						Cfg.stats = { view: 0, op: 0, reply: 0 };
 					}
-					if (TNum) {
+					if (aib.t) {
 						Cfg.stats.view++;
 					}
 					if (aib.fch) {
@@ -2143,54 +2143,55 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, readCfg, this);
 	});
 	var readUserPosts = regeneratorRuntime.mark(function readUserPosts() {
-		var date, spellsHide, update, globalUserVis, post, num, hidePost, hideThread, vis;
+		var b, date, spellsHide, update, globalUserVis, post, num, hidePost, hideThread, vis;
 		return regeneratorRuntime.wrap(function readUserPosts$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
+					b = aib.b;
 					date = Date.now();
 					spellsHide = Cfg.hideBySpell;
 					update = false;
-					return context$2$0.delegateYield(getStoredObj("DESU_Posts_" + aib.dm), "t5", 4);
+					return context$2$0.delegateYield(getStoredObj("DESU_Posts_" + aib.dm), "t5", 5);
 
-				case 4:
+				case 5:
 					globalUserVis = context$2$0.t5;
-					return context$2$0.delegateYield(getStoredObj("DESU_Threads_" + aib.dm), "t6", 6);
+					return context$2$0.delegateYield(getStoredObj("DESU_Threads_" + aib.dm), "t6", 7);
 
-				case 6:
+				case 7:
 					hThr = context$2$0.t6;
 
-					uVis = globalUserVis[brd] || {};
-					if (!(brd in hThr)) {
-						hThr[brd] = {};
+					uVis = globalUserVis[b] || {};
+					if (!(b in hThr)) {
+						hThr[b] = {};
 					}
 
 					if (dForm.firstThr) {
-						context$2$0.next = 11;
+						context$2$0.next = 12;
 						break;
 					}
 
 					return context$2$0.abrupt("return");
 
-				case 11:
+				case 12:
 					post = dForm.firstThr.op;
 
-				case 12:
+				case 13:
 					if (!post) {
-						context$2$0.next = 32;
+						context$2$0.next = 33;
 						break;
 					}
 
 					num = post.num;
 
 					if (!(num in uVis)) {
-						context$2$0.next = 19;
+						context$2$0.next = 20;
 						break;
 					}
 
 					hidePost = uVis[num][0] === 0;
 
 					if (post.isOp) {
-						hideThread = !!(num in hThr[brd]);
+						hideThread = !!(num in hThr[b]);
 
 						if (hidePost !== hideThread) {
 							update = true;
@@ -2204,36 +2205,36 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						post.btns.firstChild.className = "de-btn-hide-user";
 						post.userToggled = true;
 					}
-					return context$2$0.abrupt("continue", 29);
+					return context$2$0.abrupt("continue", 30);
 
-				case 19:
+				case 20:
 					if (!post.isOp) {
-						context$2$0.next = 23;
+						context$2$0.next = 24;
 						break;
 					}
 
-					if (num in hThr[brd]) {
+					if (num in hThr[b]) {
 						vis = "0";
 					} else if (vis === "0") {
 						vis = null;
 					}
-					context$2$0.next = 28;
+					context$2$0.next = 29;
 					break;
 
-				case 23:
+				case 24:
 					if (!spellsHide) {
-						context$2$0.next = 27;
+						context$2$0.next = 28;
 						break;
 					}
 
 					vis = sVis[post.count];
-					context$2$0.next = 28;
+					context$2$0.next = 29;
 					break;
 
-				case 27:
-					return context$2$0.abrupt("continue", 29);
-
 				case 28:
+					return context$2$0.abrupt("continue", 30);
+
+				case 29:
 					if (vis === "0") {
 						if (!post.hidden) {
 							post.setVisib(true);
@@ -2244,19 +2245,19 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						spells.check(post);
 					}
 
-				case 29:
+				case 30:
 					post = post.next;
-					context$2$0.next = 12;
+					context$2$0.next = 13;
 					break;
 
-				case 32:
+				case 33:
 					if (update) {
-						globalUserVis[brd] = uVis;
+						globalUserVis[b] = uVis;
 						setStored("DESU_Posts_" + aib.dm, JSON.stringify(globalUserVis));
 					}
 					spells.end(savePosts);
 
-				case 34:
+				case 35:
 				case "end":
 					return context$2$0.stop();
 			}
@@ -2283,7 +2284,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				case 5:
 					temp = fav[aib.host];
 
-					if (brd in temp) {
+					if (aib.b in temp) {
 						context$2$0.next = 8;
 						break;
 					}
@@ -2291,13 +2292,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					return context$2$0.abrupt("return");
 
 				case 8:
-					temp = temp[brd];
+					temp = temp[aib.b];
 					for (thr = dForm.firstThr; thr; thr = thr.next) {
 						num = thr.num;
 
 						if (num in temp) {
 							thr.setFavBtn(true);
-							if (TNum) {
+							if (aib.t) {
 								temp[num].cnt = thr.pcount;
 								temp[num]["new"] = 0;
 							} else {
@@ -3031,9 +3032,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	    needScroll,
 	    aib,
 	    nav,
-	    brd,
-	    TNum,
-	    pageNum,
 	    updater,
 	    hKeys,
 	    visPosts = 2,
@@ -3638,7 +3636,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function readPosts() {
-		var str = TNum ? sesStorage["de-hidden-" + brd + TNum] : null;
+		var str = aib.t ? sesStorage["de-hidden-" + aib.b + aib.t] : null;
 		if (typeof str === "string") {
 			var data = str.split(",");
 			if (data.length === 4 && +data[0] === (Cfg.hideBySpell ? spells.hash : 0) && data[1] in pByNum && pByNum[data[1]].count === +data[2]) {
@@ -3650,9 +3648,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function savePosts() {
-		if (TNum) {
+		if (aib.t) {
 			var lPost = dForm.firstThr.lastNotDeleted;
-			sesStorage["de-hidden-" + brd + TNum] = (Cfg.hideBySpell ? spells.hash : "0") + "," + lPost.num + "," + lPost.count + "," + sVis.join("");
+			sesStorage["de-hidden-" + aib.b + aib.t] = (Cfg.hideBySpell ? spells.hash : "0") + "," + lPost.num + "," + lPost.count + "," + sVis.join("");
 		}
 		saveHiddenThreads(false);
 		toggleContent("hid", true);
@@ -3679,7 +3677,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 				}
 			}
-			obj[brd] = uVis;
+			obj[aib.b] = uVis;
 			setStored("DESU_Posts_" + aib.dm, JSON.stringify(obj));
 			toggleContent("hid", true);
 		});
@@ -3715,7 +3713,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				}
 			}
 		}
-		if (clearPage && h === aib.host && b === brd && num in pByNum) {
+		if (clearPage && h === aib.host && b === aib.b && num in pByNum) {
 			pByNum[num].thr.setFavBtn(false);
 		}
 	}
@@ -3746,8 +3744,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	function addPanel(formEl) {
 		var panel,
 		    evtObject,
-		    imgLen = $Q(aib.qThumbImages, formEl).length;
-		(pr && pr.pArea[0] || formEl).insertAdjacentHTML("beforebegin", "<div id=\"de-main\" lang=\"" + getThemeLang() + "\">" + "<div id=\"de-panel\">" + "<span id=\"de-btn-logo\" title=\"" + Lng.panelBtn.attach[lang] + "\"></span>" + "<ul id=\"de-panel-btns\"" + (Cfg.expandPanel ? ">" : " style=\"display: none\">") + (Cfg.disabled ? pButton("enable", "#", false) : pButton("settings", "#", true) + pButton("hidden", "#", true) + pButton("favor", "#", true) + (!Cfg.addYouTube ? "" : pButton("video", "#", false)) + (localRun ? "" : pButton("refresh", "#", false) + (!TNum && pageNum === aib.firstPage ? "" : pButton("goback", aib.getPageUrl(brd, pageNum - 1), true)) + (TNum || pageNum === aib.lastPage ? "" : pButton("gonext", aib.getPageUrl(brd, pageNum + 1), true))) + pButton("goup", "#", false) + pButton("godown", "#", false) + (imgLen === 0 ? "" : pButton("expimg", "#", false) + pButton("maskimg", "#", true) + (nav.Presto || localRun ? "" : (Cfg.preLoadImgs ? "" : pButton("preimg", "#", false)) + (!TNum ? "" : pButton("savethr", "#", false)))) + (!TNum || localRun ? "" : pButton(Cfg.ajaxUpdThr ? "upd-on" : "upd-off", "#", false) + (nav.Safari ? "" : pButton("audio-off", "#", false))) + (!aib.mak && !aib.tiny && !aib.fch ? "" : pButton("catalog", aib.prot + "//" + aib.host + "/" + (aib.mak ? "makaba/makaba.fcgi?task=catalog&board=" + brd : brd + "/catalog.html"), false)) + pButton("enable", "#", false) + (!TNum ? "" : "<span id=\"de-panel-info\" title=\"" + Lng.panelBtn.counter[lang] + "\">" + dForm.firstThr.pcount + "/" + imgLen + "</span>")) + "</ul>" + "</div><div class=\"de-content\"></div>" + (Cfg.disabled ? "" : "<div id=\"de-alert\"></div><hr style=\"clear: both;\">") + "</div>");
+		    imgLen = $Q(aib.qThumbImages, formEl).length,
+		    b = aib.b,
+		    isThr = aib.t;
+		(pr && pr.pArea[0] || formEl).insertAdjacentHTML("beforebegin", "<div id=\"de-main\" lang=\"" + getThemeLang() + "\">" + "<div id=\"de-panel\">" + "<span id=\"de-btn-logo\" title=\"" + Lng.panelBtn.attach[lang] + "\"></span>" + "<ul id=\"de-panel-btns\"" + (Cfg.expandPanel ? ">" : " style=\"display: none\">") + (Cfg.disabled ? pButton("enable", "#", false) : pButton("settings", "#", true) + pButton("hidden", "#", true) + pButton("favor", "#", true) + (!Cfg.addYouTube ? "" : pButton("video", "#", false)) + (localRun ? "" : pButton("refresh", "#", false) + (!isThr && aib.page === aib.firstPage ? "" : pButton("goback", aib.getPageUrl(b, aib.page - 1), true)) + (isThr || aib.page === aib.lastPage ? "" : pButton("gonext", aib.getPageUrl(b, aib.page + 1), true))) + pButton("goup", "#", false) + pButton("godown", "#", false) + (imgLen === 0 ? "" : pButton("expimg", "#", false) + pButton("maskimg", "#", true) + (nav.Presto || localRun ? "" : (Cfg.preLoadImgs ? "" : pButton("preimg", "#", false)) + (!isThr ? "" : pButton("savethr", "#", false)))) + (!isThr || localRun ? "" : pButton(Cfg.ajaxUpdThr ? "upd-on" : "upd-off", "#", false) + (nav.Safari ? "" : pButton("audio-off", "#", false))) + (!aib.mak && !aib.tiny && !aib.fch ? "" : pButton("catalog", aib.prot + "//" + aib.host + "/" + (aib.mak ? "makaba/makaba.fcgi?task=catalog&board=" + b : b + "/catalog.html"), false)) + pButton("enable", "#", false) + (!isThr ? "" : "<span id=\"de-panel-info\" title=\"" + Lng.panelBtn.counter[lang] + "\">" + dForm.firstThr.pcount + "/" + imgLen + "</span>")) + "</ul>" + "</div><div class=\"de-content\"></div>" + (Cfg.disabled ? "" : "<div id=\"de-alert\"></div><hr style=\"clear: both;\">") + "</div>");
 		panel = $id("de-panel");
 		evtObject = {
 			attach: false,
@@ -3846,7 +3846,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							case "de-btn-maskimg":
 								KeyEditListener.setTitle(e.target, 9);break;
 							case "de-btn-refresh":
-								if (TNum) {
+								if (isThr) {
 									return;
 								}
 														case "de-btn-savethr":
@@ -4088,10 +4088,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		cont.appendChild(addEditButton("hidden", function (fn) {
 			fn(hThr, true, function (data) {
 				hThr = data;
-				if (!(brd in hThr)) {
-					hThr[brd] = {};
+				if (!(aib.b in hThr)) {
+					hThr[aib.b] = {};
 				}
-				dForm.firstThr.updateHidden(hThr[brd]);
+				dForm.firstThr.updateHidden(hThr[aib.b]);
 				saveHiddenThreads(true);
 				locStorage["__de-threads"] = JSON.stringify(hThr);
 				locStorage.removeItem("__de-threads");
@@ -4181,7 +4181,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			for (var b in data[h]) {
 				var d = data[h][b],
 				    block = addContentBlock(cont, d.url ? $new("a", { href: d.url, text: h + "/" + b }, null) : $new("b", { text: h + "/" + b }, null));
-				if (h === aib.host && b === brd) {
+				if (h === aib.host && b === aib.b) {
 					block.classList.add("de-fav-current");
 				}
 				for (var tNum in d) {
@@ -4327,7 +4327,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 						context$3$0.prev = 7;
 						context$3$0.next = 10;
-						return ajaxLoad(aib.getPageUrl(brd, page));
+						return ajaxLoad(aib.getPageUrl(aib.b, page));
 
 					case 10:
 						context$3$0.t10 = context$3$0.sent;
@@ -4596,7 +4596,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function getCfgPosts() {
-		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-posts" }, [$if(!localRun, $New("div", null, [lBox("ajaxUpdThr", false, TNum ? function () {
+		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-posts" }, [$if(!localRun, $New("div", null, [lBox("ajaxUpdThr", false, aib.t ? function () {
 			if (Cfg.ajaxUpdThr) {
 				updater.enable();
 			} else {
@@ -4635,7 +4635,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-form" }, [optSel("ajaxReply", true, null), $if(pr.form, $New("div", { "class": "de-cfg-depend" }, [$if(!nav.Opera11, $New("div", null, [lBox("postSameImg", true, null), lBox("removeEXIF", false, null), lBox("removeFName", false, null), lBox("sendErrNotif", true, null)])), lBox("scrAfterRep", true, null)])), $if(pr.form, optSel("addPostForm", true, function () {
 			saveCfg("addPostForm", this.selectedIndex);
 			pr.isBottom = Cfg.addPostForm === 1;
-			pr.setReply(false, !TNum || Cfg.addPostForm > 1);
+			pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
 		})), $if(pr.txta, lBox("spacedQuote", true, null)), lBox("favOnReply", true, null), $if(pr.subj, lBox("warnSubjTrip", false, null)), $if(pr.file && !nav.Presto, lBox("fileThumb", true, function () {
 			for (var inp = pr.fileObj; true; inp = inp.next) {
 				inp.updateUtils();
@@ -4749,7 +4749,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				nav: nav,
 				cfg: Cfg,
 				sSpells: spells.list.split("\n"),
-				oSpells: sesStorage["de-spells-" + brd + (TNum || "")],
+				oSpells: sesStorage["de-spells-" + aib.b + (aib.t || "")],
 				perf: new Logger().getData(true)
 			}, function (key, value) {
 				if (key in defaultCfg) {
@@ -4931,7 +4931,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				case "de-btn-addspell":
 					showMenu(el, "<div style=\"display: inline-block; border-right: 1px solid grey;\">" + "<span class=\"de-menu-item\">" + "#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,<br>".split(",").join("</span><span class=\"de-menu-item\">") + "</span></div><div style=\"display: inline-block;\"><span class=\"de-menu-item\">" + "#sage,#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep".split(",").join("</span><span class=\"de-menu-item\">") + "</span></div>", false, function (el) {
 						var exp = el.textContent;
-						$txtInsert($id("de-spell-edit"), exp + (!TNum || exp === "#op" || exp === "#rep" || exp === "#outrep" ? "" : "[" + brd + "," + TNum + "]") + (Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? "(" : ""));
+						$txtInsert($id("de-spell-edit"), exp + (!aib.t || exp === "#op" || exp === "#rep" || exp === "#outrep" ? "" : "[" + aib.b + "," + aib.t + "]") + (Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? "(" : ""));
 					});
 					return;
 				case "de-btn-refresh":
@@ -5134,7 +5134,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		},
 		enable: function enable() {
 			if (!this.enabled) {
-				this.clear(pageNum);
+				this.clear(aib.page);
 				doc.addEventListener("keydown", this, true);
 				this.enabled = true;
 			}
@@ -5143,11 +5143,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (this.paused) {
 				return;
 			}
-			var curTh = e.target.tagName,
+			var isThr = aib.t,
+			    curTh = e.target.tagName,
 			    kc = e.keyCode | (e.ctrlKey ? 4096 : 0) | (e.shiftKey ? 8192 : 0) | (e.altKey ? 16384 : 0) | (curTh === "TEXTAREA" || curTh === "INPUT" && e.target.type === "text" ? 32768 : 0);
 			if (kc === 116 || kc === 32884) {
 			
-				if (TNum || $id("de-alert-load-pages")) {
+				if (isThr || $id("de-alert-load-pages")) {
 					return;
 				}
 				if (Attachment.viewer) {
@@ -5166,7 +5167,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					this.cPost.unselect();
 					this.cPost = null;
 				}
-				if (TNum) {
+				if (isThr) {
 					dForm.firstThr.clearPostsMarks();
 				}
 				this.lastPageOffset = 0;
@@ -5199,8 +5200,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					
 						if (Attachment.viewer) {
 							Attachment.viewer.navigate(false);
-						} else if (TNum || pageNum !== aib.firstPage) {
-							window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
+						} else if (isThr || aib.page !== aib.firstPage) {
+							window.location.pathname = aib.getPageUrl(aib.b, isThr ? 0 : aib.page - 1);
 						}
 						break;
 					case 5:
@@ -5277,12 +5278,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					
 						if (Attachment.viewer) {
 							Attachment.viewer.navigate(true);
-						} else if (!TNum && this.lastPage !== aib.lastPage) {
-							window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
+						} else if (!isThr && this.lastPage !== aib.lastPage) {
+							window.location.pathname = aib.getPageUrl(aib.b, this.lastPage + 1);
 						}
 						break;
 					case -1:
-						if (TNum) {
+						if (isThr) {
 							idx = this.tKeys.indexOf(kc);
 							if (idx === 0) {
 							
@@ -5299,9 +5300,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 							if (post) {
 								if (nav.Firefox) {
-									GM_openInTab(aib.getThrdUrl(brd, post.tNum), false, true);
+									GM_openInTab(aib.getThrdUrl(aib.b, post.tNum), false, true);
 								} else {
-									window.open(aib.getThrdUrl(brd, post.tNum), "_blank");
+									window.open(aib.getThrdUrl(aib.b, post.tNum), "_blank");
 								}
 							}
 							break;
@@ -5326,7 +5327,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							break;
 						}
 										default:
-						var scrollToThr = !TNum && (globIdx === 0 || globIdx === 1);
+						var scrollToThr = !isThr && (globIdx === 0 || globIdx === 1);
 						this._scroll(this._getFirstVisPost(scrollToThr, false), globIdx === 0 || idx === 0, scrollToThr);
 				}
 			}
@@ -5370,7 +5371,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		},
 		_init: function _init(keys) {
 			this.enabled = true;
-			this.lastPage = pageNum;
+			this.lastPage = aib.page;
 			this.gKeys = keys[2];
 			this.ntKeys = keys[3];
 			this.tKeys = keys[4];
@@ -5379,8 +5380,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		_scroll: function _scroll(post, toUp, toThread) {
 			var next = this._getNextVisPost(post, toThread, toUp);
 			if (!next) {
-				if (!TNum && (toUp ? pageNum > aib.firstPage : this.lastPage < aib.lastPage)) {
-					window.location.pathname = aib.getPageUrl(brd, toUp ? pageNum - 1 : this.lastPage + 1);
+				if (!aib.t && (toUp ? aib.page > aib.firstPage : this.lastPage < aib.lastPage)) {
+					window.location.pathname = aib.getPageUrl(aib.b, toUp ? aib.page - 1 : this.lastPage + 1);
 				}
 				return;
 			}
@@ -5931,7 +5932,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, function () {
 			var u,
 			    a,
-			    name = aib.dm + "-" + brd.replace(/[\\\/:*?"<>|]/g, "") + "-" + TNum;
+			    name = aib.dm + "-" + aib.b.replace(/[\\\/:*?"<>|]/g, "") + "-" + aib.t;
 			if (!imgOnly) {
 				var dt = doc.doctype;
 				$t("head", dc).insertAdjacentHTML("beforeend", "<script type=\"text/javascript\" src=\"data/dollscript.js\"></script>");
@@ -5976,7 +5977,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				}
 			});
 			$each($Q("." + aib.cRPost, dc), function (post, i) {
-				post.setAttribute("de-num", i === 0 ? TNum : aib.getPNum(post));
+				post.setAttribute("de-num", i === 0 ? aib.t : aib.getPNum(post));
 			});
 			var files = [];
 			$each($Q("link, *[src]", dc), (function (el) {
@@ -6545,7 +6546,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						}
 						pr.txta.value = "";
 					}
-					i = pageNum, len = Math.min(aib.lastPage + 1, pageNum + count);
+					i = aib.page, len = Math.min(aib.lastPage + 1, aib.page + count);
 
 				case 11:
 					if (!(i < len)) {
@@ -6555,7 +6556,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 					context$2$0.prev = 12;
 					context$2$0.next = 15;
-					return ajaxLoad(aib.getPageUrl(brd, i));
+					return ajaxLoad(aib.getPageUrl(aib.b, i));
 
 				case 15:
 					context$2$0.t14 = context$2$0.sent;
@@ -6570,7 +6571,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					content = $add("<div><center style=\"font-size: 2em\">" + getErrorMessage(context$2$0.t15) + "</center><hr></div>");
 
 				case 22:
-					if (i != pageNum) {
+					if (i != aib.page) {
 						dForm.el.insertAdjacentHTML("beforeend", "<center style=\"font-size: 2em\">" + Lng.page[lang] + " " + i + "</center><hr>");
 					}
 					context$2$0.prev = 23;
@@ -6611,7 +6612,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						pEl.value = Cfg.passwValue;
 					});
 					if (hKeys) {
-						hKeys.clear(pageNum + count - 1);
+						hKeys.clear(aib.page + count - 1);
 					}
 					closeAlert($id("de-alert-load-pages"));
 
@@ -6635,7 +6636,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		} else if (isAjax && eCode === 0) {
 			$alert(e.message || Lng.noConnect[lang], "newposts", false);
 		} else {
-			$alert(Lng.thrNotFound[lang] + TNum + "): \n" + getErrorMessage(e), "newposts", false);
+			$alert(Lng.thrNotFound[lang] + aib.t + "): \n" + getErrorMessage(e), "newposts", false);
 			if (showError) {
 				doc.title = "{" + eCode + "} " + doc.title;
 			}
@@ -6737,7 +6738,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 				} else {
 					var scope = spell[2];
-					if (!scope || scope[0] === brd && (scope[1] === -1 ? !TNum : !scope[1] || scope[1] === TNum)) {
+					if (!scope || scope[0] === aib.b && (scope[1] === -1 ? !aib.t : !scope[1] || scope[1] === aib.t)) {
 						if (type === 12) {
 							neg = !neg;
 						} else {
@@ -6854,7 +6855,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 			var nData = [];
 			data.forEach(function (temp) {
-				if (!temp[0] || temp[0] === brd && (temp[1] === -1 ? !TNum : !temp[1] || temp[1] === TNum)) {
+				if (!temp[0] || temp[0] === aib.b && (temp[1] === -1 ? !aib.t : !temp[1] || temp[1] === aib.t)) {
 					nData.push([temp[2], temp[3]]);
 				}
 			});
@@ -6881,7 +6882,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			var spells, data;
 			try {
 				spells = JSON.parse(Cfg.spells);
-				data = JSON.parse(sesStorage["de-spells-" + brd + (TNum || "")]);
+				data = JSON.parse(sesStorage["de-spells-" + aib.b + (aib.t || "")]);
 			} catch (e) {}
 			if (data && spells && data[0] === spells[0]) {
 				this._data = spells;
@@ -6966,7 +6967,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			    reps = this._optimizeReps(data[2]),
 			    outreps = this._optimizeReps(data[3]);
 			saveCfg("spells", JSON.stringify(data));
-			sesStorage["de-spells-" + brd + (TNum || "")] = JSON.stringify([data[0], spells, reps, outreps]);
+			sesStorage["de-spells-" + aib.b + (aib.t || "")] = JSON.stringify([data[0], spells, reps, outreps]);
 			this._data = data;
 			this._list = "";
 			this.hash = data[0];
@@ -8052,7 +8053,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 	function disableSpells() {
 		if (spells.enable) {
-			sVis = TNum ? "1".repeat(dForm.firstThr.pcount).split("") : [];
+			sVis = aib.t ? "1".repeat(dForm.firstThr.pcount).split("") : [];
 			for (var post = dForm.firstThr.op; post; post = post.next) {
 				if (post.spellHidden && !post.userToggled) {
 					post.spellUnhide();
@@ -8091,7 +8092,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		    chk = $q("input[info=\"hideBySpell\"]", doc);
 		if (!val || (temp = spells.parseText(val))) {
 			disableSpells();
-			spells.addSpell(type, arg, TNum ? [brd, TNum] : null, isNeg, temp);
+			spells.addSpell(type, arg, aib.t ? [aib.b, aib.t] : null, isNeg, temp);
 			val = spells.list;
 			saveCfg("hideBySpell", !!val);
 			if (val) {
@@ -8121,7 +8122,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		this.oeForm = $q("form[name=\"oeform\"], form[action*=\"paint\"]", dc);
 		if (!ignoreForm && !form) {
 			if (this.oeForm) {
-				ajaxLoad(aib.getThrdUrl(brd, dForm.firstThr.num), false).then(function (loadedDoc) {
+				ajaxLoad(aib.getThrdUrl(aib.b, dForm.firstThr.num), false).then(function (loadedDoc) {
 					pr = new PostForm($q(aib.qPostForm, loadedDoc), true, init, loadedDoc);
 				}, function () {
 					pr = new PostForm(null, true, init, dc);
@@ -8135,7 +8136,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			return dc.evaluate(path, root, null, 8, null).singleNodeValue;
 		}
 		var p = ".//tr[not(contains(@style,\"none\"))]//input[not(@type=\"hidden\") and ";
-		this.tNum = TNum;
+		this.tNum = aib.t;
 		this.form = form;
 		this.cap = $q("input[type=\"text\"][name*=\"aptcha\"], div[id*=\"captcha\"]", form);
 		this.txta = $q("tr:not([style*=\"none\"]) textarea:not([style*=\"display:none\"])", form);
@@ -8284,19 +8285,20 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		},
 		showQuickReply: function showQuickReply(post, pNum, closeReply, isNumClick) {
 			var temp,
-			    tNum = post.tNum;
+			    isThr = aib.t,
+			    qNum = post.tNum;
 			if (!this.isQuick) {
 				this.isQuick = true;
 				this.setReply(true, false);
-				$t("a", this._pBtn[+this.isBottom]).className = "de-abtn de-parea-btn-" + (TNum ? "reply" : "thrd");
-				if (!TNum && !aib.kus && !aib.dobr && !aib.mak) {
+				$t("a", this._pBtn[+this.isBottom]).className = "de-abtn de-parea-btn-" + (isThr ? "reply" : "thrd");
+				if (!isThr && !aib.kus && !aib.dobr && !aib.mak) {
 					if (this.oeForm) {
 						$del($q("input[name=\"oek_parent\"]", this.oeForm));
-						this.oeForm.insertAdjacentHTML("afterbegin", "<input type=\"hidden\" value=\"" + tNum + "\" name=\"oek_parent\">");
+						this.oeForm.insertAdjacentHTML("afterbegin", "<input type=\"hidden\" value=\"" + qNum + "\" name=\"oek_parent\">");
 					}
 					if (this.form) {
 						$del($q("input[name=\"" + aib.thrid + "\"]", this.form));
-						this.form.insertAdjacentHTML("afterbegin", "<input type=\"hidden\" id=\"de_thrid\" value=\"" + tNum + "\" name=\"" + aib.thrid + "\">");
+						this.form.insertAdjacentHTML("afterbegin", "<input type=\"hidden\" id=\"de_thrid\" value=\"" + qNum + "\" name=\"" + aib.thrid + "\">");
 					}
 				}
 			} else if (closeReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
@@ -8304,22 +8306,22 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				return;
 			}
 			$after(post.wrap, this.qArea);
-			if (!TNum) {
-				this._toggleQuickReply(tNum);
+			if (!isThr) {
+				this._toggleQuickReply(qNum);
 			}
 			if (!this.form) {
 				return;
 			}
-			if (this._lastCapUpdate && (!TNum && this.tNum !== tNum || Date.now() - this._lastCapUpdate > 300000)) {
-				this.tNum = tNum;
+			if (this._lastCapUpdate && (!isThr && this.tNum !== qNum || Date.now() - this._lastCapUpdate > 300000)) {
+				this.tNum = qNum;
 				this.refreshCapImg(false);
 			}
-			this.tNum = tNum;
+			this.tNum = qNum;
 			if (aib._420 && this.txta.value === "Comment") {
 				this.txta.value = "";
 			}
 			temp = this.txta.value;
-			if (!Cfg.addOPLink && !TNum && post.isOp && !isNumClick) {
+			if (!Cfg.addOPLink && !isThr && post.isOp && !isNumClick) {
 				this.txta.focus();
 			} else {
 				$txtInsert(this.txta, (isNumClick ? ">>" + pNum : (temp !== "" && temp.slice(-1) !== "\n" ? "\n" : "") + (this.lastQuickPNum === pNum && temp.contains(">>" + pNum) ? "" : ">>" + pNum + "\n")) + (quotetxt ? quotetxt.replace(/^\n|\n$/g, "").replace(/(^|\n)(.)/gm, "$1>" + (Cfg.spacedQuote ? " " : "") + "$2") + "\n" : ""));
@@ -8333,7 +8335,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		},
 		showMainReply: function showMainReply(isBottom, evt) {
 			this.closeQReply();
-			if (!TNum) {
+			if (!aib.t) {
 				this.tNum = false;
 				this.refreshCapImg(false);
 			}
@@ -8353,11 +8355,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (this.isQuick) {
 				this.isQuick = false;
 				this.lastQuickPNum = -1;
-				if (!TNum) {
+				if (!aib.t) {
 					this._toggleQuickReply(0);
 					$del($id("de_thrid"));
 				}
-				this.setReply(false, !TNum || Cfg.addPostForm > 1);
+				this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 			}
 		},
 		refreshCapImg: function refreshCapImg(focus) {
@@ -8376,9 +8378,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				} else if (img) {
 					var src = img.getAttribute("src");
 					if (aib.tire) {
-						src = "/" + brd + "/captcha.fpl?" + Math.random();
+						src = "/" + aib.b + "/captcha.fpl?" + Math.random();
 					} else if (aib.kus || aib.tinyIb) {
-						src = src.replace(/\?[^?]+$|$/, (aib._410 ? "?board=" + brd + "&" : "?") + Math.random());
+						src = src.replace(/\?[^?]+$|$/, (aib._410 ? "?board=" + aib.b + "&" : "?") + Math.random());
 					} else {
 						src = src.replace(/pl$/, "pl?key=mainpage&amp;dummy=").replace(/dummy=[\d\.]*/, "dummy=" + Math.random());
 						src = this.tNum ? src.replace(/mainpage|res\d+/, "res" + this.tNum) : src.replace(/res\d+/, "mainpage");
@@ -8415,7 +8417,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		},
 		updatePAreaBtns: function updatePAreaBtns() {
 			var txt = "de-abtn de-parea-btn-",
-			    rep = TNum ? "reply" : "thrd";
+			    rep = aib.t ? "reply" : "thrd";
 			$t("a", this._pBtn[+this.isBottom]).className = txt + (this.pForm.style.display === "" ? "close" : rep);
 			$t("a", this._pBtn[+!this.isBottom]).className = txt + rep;
 		},
@@ -8438,7 +8440,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			this._pBtn[1].firstElementChild.onclick = this.showMainReply.bind(this, true);
 			this.qArea = $add("<div style=\"display: none; " + Cfg.qReplyX + "; " + Cfg.qReplyY + ";\" id=\"de-qarea\" class=\"" + aib.cReply + (Cfg.hangQReply ? " de-qarea-hanging" : " de-qarea-inline") + "\"></div>");
 			this.isBottom = Cfg.addPostForm === 1;
-			this.setReply(false, !TNum || Cfg.addPostForm > 1);
+			this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 			el = this.qArea;
 			el.insertAdjacentHTML("beforeend", "<div id=\"de-resizer-top\"></div>" + "<div" + (Cfg.hangQReply ? " class=\"de-cfg-head\"" : "") + ">" + "<span id=\"de-qarea-target\"></span>" + "<span id=\"de-qarea-utils\">" + "<span id=\"de-qarea-toggle\" title=\"" + Lng.toggleQReply[lang] + "\">❐</span>" + "<span id=\"de-qarea-close\" title=\"" + Lng.closeQReply[lang] + "\">✖</span>" + "</span></div>" + "<div id=\"de-resizer-left\"></div>" + "<div id=\"de-resizer-right\"></div>" + "<div id=\"de-resizer-bottom\"></div>");
 			el = el.firstChild.nextSibling;
@@ -8594,7 +8596,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 			this.subm.addEventListener("click", function (e) {
 				if (aib._2chru && !aib.reqCaptcha) {
-					$ajax("/" + brd + "/api/requires-captcha").then(function (xhr) {
+					$ajax("/" + aib.b + "/api/requires-captcha").then(function (xhr) {
 						if (xhr.status !== 200) {
 							return;
 						}
@@ -8604,7 +8606,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							return;
 						}
 						$id("captcha_tr").style.display = "table-row";
-						$id("captchaimage").src = "/" + brd + "/captcha?" + Math.random();
+						$id("captchaimage").src = "/" + aib.b + "/captcha?" + Math.random();
 						$after(_this.cap, $new("span", {
 							"class": "shortened",
 							style: "margin: 0px 0.5em;",
@@ -8612,7 +8614,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							click: function () {
 								var _this2 = this;
 
-								$ajax("/" + brd + "/api/validate-captcha", { method: "POST" }).then(function (xhr) {
+								$ajax("/" + aib.b + "/api/validate-captcha", { method: "POST" }).then(function (xhr) {
 									if (xhr.status === 200) {
 										if (JSON.parse(xhr.responseText).status === "ok") {
 											_this2.innerHTML = "можно постить";
@@ -8699,7 +8701,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							aib.addProgressTrack.click();
 						}
 						if (aib._2chru) {
-							doc.body.insertAdjacentHTML("beforeend", "<iframe class=\"ninja\" id=\"csstest\" src=\"/" + brd + "/csstest.foo\"></iframe>");
+							doc.body.insertAdjacentHTML("beforeend", "<iframe class=\"ninja\" id=\"csstest\" src=\"/" + aib.b + "/csstest.foo\"></iframe>");
 							doc.body.lastChild.onload = function (e) {
 								$del(e.target);
 								spawn(html5Submit, _this.form, true).then(doUploading);
@@ -8820,7 +8822,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						_this.refreshCapImg(false);
 					}
 				};
-				if (!TNum && this.isQuick) {
+				if (!aib.t && this.isQuick) {
 					this.refreshCapImg(false);
 				}
 			}
@@ -9361,11 +9363,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		Cfg.stats[pr.tNum ? "reply" : "op"]++;
 		saveComCfg(aib.dm, Cfg);
 		if (!pr.tNum) {
-			window.location = aib.getThrdUrl(brd, aib.getTNum($q(aib.qDForm, dc)));
+			window.location = aib.getThrdUrl(aib.b, aib.getTNum($q(aib.qDForm, dc)));
 			return;
 		}
 		var el = !aib.tiny && !aib.kus && (aib.qPostRedir === null || $q(aib.qPostRedir, dc)) ? $q(aib.qDForm, dc) : null;
-		if (TNum) {
+		if (aib.t) {
 			dForm.firstThr.clearPostsMarks();
 			if (el) {
 				dForm.firstThr.loadNewFromForm(el);
@@ -9402,7 +9404,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	var checkDelete = async(regeneratorRuntime.mark(function callee$1$4(dc) {
-		var err, _ref, _ref2, num, post, els, threads, i, len, el, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, thr;
+		var err, _ref, _ref2, num, post, els, threads, isThr, i, len, el, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, thr;
 
 		return regeneratorRuntime.wrap(function callee$1$4$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
@@ -9433,18 +9435,18 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							doc.location.hash = "";
 						}
 					}
-					els = $Q("." + aib.cRPost + " input:checked", dForm.el), threads = new Set();
+					els = $Q("." + aib.cRPost + " input:checked", dForm.el), threads = new Set(), isThr = aib.t;
 
 					for (i = 0, len = els.length; i < len; ++i) {
 						el = els[i];
 
 						el.checked = false;
-						if (!TNum) {
+						if (!isThr) {
 							threads.add(aib.getPostEl(el).post.thr);
 						}
 					}
 
-					if (!TNum) {
+					if (!isThr) {
 						context$2$0.next = 23;
 						break;
 					}
@@ -10582,7 +10584,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		this.ref = [];
 		el.post = this;
 		if (isOp) {
-			if (!TNum) {
+			if (!aib.t) {
 				html += "<span class=\"de-btn-expthr\" de-menu=\"expand\"></span>";
 			}
 			html += "<span class=\"de-btn-fav\" title=\"" + Lng.addFav[lang] + "\"></span>";
@@ -10747,9 +10749,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							} else if (Cfg.insertNum && pr.form && temp === this._pref && !/Reply|Ответ/.test(el.textContent)) {
 								$pd(e);
 								e.stopPropagation();
-								if (pr.isQuick || TNum && pr.isHidden) {
+								if (pr.isQuick || aib.t && pr.isHidden) {
 									pr.showQuickReply(this.isPview ? this.getTopParent() : this, this.num, false, true);
-								} else if (TNum) {
+								} else if (aib.t) {
 									$txtInsert(pr.txta, ">>" + this.num);
 								} else {
 									window.location = el.href.replace(/#i/, "#");
@@ -10968,7 +10970,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			uVis[this.num] = [+!hide, date];
 			if (sync) {
 				locStorage["__de-post"] = JSON.stringify({
-					brd: brd,
+					brd: aib.b,
 					date: date,
 					isOp: this.isOp,
 					num: this.num,
@@ -11035,7 +11037,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		spellHide: function spellHide(note) {
 			this.spellHidden = true;
 			if (!this.userToggled) {
-				if (TNum && !this.deleted) {
+				if (aib.t && !this.deleted) {
 					sVis[this.count] = 0;
 				}
 				if (!this.hidden) {
@@ -11048,7 +11050,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		spellUnhide: function spellUnhide() {
 			this.spellHidden = false;
 			if (!this.userToggled) {
-				if (TNum && !this.deleted) {
+				if (aib.t && !this.deleted) {
 					sVis[this.count] = 1;
 				}
 				this.setVisib(false);
@@ -11095,9 +11097,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			this.setUserVisib(hide, Date.now(), true);
 			if (isOp) {
 				if (hide) {
-					hThr[brd][this.num] = this.title;
+					hThr[aib.b][this.num] = this.title;
 				} else {
-					delete hThr[brd][this.num];
+					delete hThr[aib.b][this.num];
 				}
 				saveHiddenThreads(false);
 			}
@@ -11369,18 +11371,18 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (!isInit) {
 				$alert(Lng.loading[lang], "load-fullmsg", true);
 			}
-			ajaxLoad(aib.getThrdUrl(brd, this.tNum)).then(function (form) {
+			ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(function (form) {
 				if (_this.isOp) {
 					_this.updateMsg(replacePost($q(aib.qMsg, form)));
 					$del(node);
-				} else {
-					var els = aib.getPosts(form);
-					for (var i = 0, len = els.length; i < len; i++) {
-						if (_this.num === aib.getPNum(els[i])) {
-							_this.updateMsg(replacePost($q(aib.qMsg, els[i])));
-							$del(node);
-							return;
-						}
+					return;
+				}
+				var els = aib.getPosts(form);
+				for (var i = 0, len = els.length; i < len; i++) {
+					if (_this.num === aib.getPNum(els[i])) {
+						_this.updateMsg(replacePost($q(aib.qMsg, els[i])));
+						$del(node);
+						return;
 					}
 				}
 			}, emptyFn);
@@ -11832,7 +11834,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				    parentNum = parent.num,
 				    cache = this._cache[b + this.tNum] = new PviewsCache(form, b, this.tNum),
 				    post = cache.getPost(this.num);
-				if (post && (brd !== b || !post.hasRef || post.ref.indexOf(parentNum) === -1)) {
+				if (post && (aib.b !== b || !post.hasRef || post.ref.indexOf(parentNum) === -1)) {
 					var rm;
 					if (post.hasRef) {
 						rm = $c("de-refmap", post.el);
@@ -11840,7 +11842,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						post.msg.insertAdjacentHTML("afterend", "<div class=\"de-refmap\"></div>");
 						rm = post.msg.nextSibling;
 					}
-					rm.insertAdjacentHTML("afterbegin", "<a class=\"de-link-ref\" href=\"" + aib.getThrdUrl(b, parent.tNum) + aib.anchor + parentNum + "\">&gt;&gt;" + (brd === b ? "" : "/" + brd + "/") + parentNum + "</a><span class=\"de-refcomma\">, </span>");
+					rm.insertAdjacentHTML("afterbegin", "<a class=\"de-link-ref\" href=\"" + aib.getThrdUrl(b, parent.tNum) + aib.anchor + parentNum + "\">&gt;&gt;" + (aib.b === b ? "" : "/" + aib.b + "/") + parentNum + "</a><span class=\"de-refcomma\">, </span>");
 				}
 				if (parent.kid === this) {
 					Pview.del(this);
@@ -11872,7 +11874,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						node.classList.add("de-post-hide");
 					}
 					node.innerHTML = "<span class=\"de-btn-hide" + (post.userToggled ? "-user" : "") + "\" de-menu=\"hide\" title=\"" + Lng.togglePost[lang] + "\"></span>" + pText;
-					$each($Q((!TNum && post.isOp ? aib.qOmitted + ", " : "") + ".de-img-full, .de-after-fimg", el), $del);
+					$each($Q((!aib.t && post.isOp ? aib.qOmitted + ", " : "") + ".de-img-full, .de-after-fimg", el), $del);
 					$each($Q(aib.qThumbImages, el), function (el) {
 						el.parentNode.style.display = "";
 					});
@@ -11964,7 +11966,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			msg: { value: $q(aib.qMsg, thr), writable: true },
 			ref: { value: [], writable: true }
 		});
-		this._brd = b;
+		this._b = b;
 		this._thr = thr;
 		this._tNum = tNum;
 		this._tUrl = aib.getThrdUrl(b, tNum);
@@ -11995,7 +11997,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				    op = this._opObj;
 				op.el = replacePost(aib.getOp(this._thr));
 				op.msg = $q(aib.qMsg, op.el);
-				if (this._brd === brd && (oOp = pByNum[this._tNum])) {
+				if (this._b === aib.b && (oOp = pByNum[this._tNum])) {
 					var i,
 					    j,
 					    len,
@@ -12134,14 +12136,15 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		var pNum = post.num,
 		    links = $T("a", post.msg),
 		    strNums = add && Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
-		    opNums = add && dForm.tNums;
+		    opNums = add && dForm.tNums,
+		    isThr = aib.t;
 		for (var i = 0, len = links.length; i < len; ++i) {
 			var lNum,
 			    link = links[i],
 			    tc = link.textContent;
 			if (tc[0] === ">" && tc[1] === ">" && (lNum = +tc.substr(2)) && lNum in pByNum) {
 				var lPost = pByNum[lNum];
-				if (!TNum) {
+				if (!isThr) {
 					link.href = "#" + (aib.fch ? "p" : "") + lNum;
 				}
 				if (add) {
@@ -12190,7 +12193,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		var els = aib.getPosts(el),
 		    len = els.length,
 		    num = aib.getTNum(el),
-		    omt = TNum ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
+		    omt = aib.t ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
 		this.num = num;
 		this.pcount = omt + len;
 		this.el = el;
@@ -12282,7 +12285,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (informUser) {
 				$alert(Lng.loading[lang], "load-thr", true);
 			}
-			return ajaxLoad(aib.getThrdUrl(brd, this.num)).then(function (form) {
+			return ajaxLoad(aib.getThrdUrl(aib.b, this.num)).then(function (form) {
 				return _this.loadFromForm(last, smartScroll, form);
 			}, function (e) {
 				return $alert(getErrorMessage(e), "load-thr", false);
@@ -12319,7 +12322,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (this._processExpandThread(els, last === 1 ? els.length : last)) {
 				$del(expEl);
 			} else if (!expEl) {
-				thrEl.insertAdjacentHTML("beforeend", "<span class=\"de-expand\">[<a href=\"" + aib.getThrdUrl(brd, this.num) + aib.anchor + this.last.num + "\">" + Lng.collapseThrd[lang] + "</a>]</span>");
+				thrEl.insertAdjacentHTML("beforeend", "<span class=\"de-expand\">[<a href=\"" + aib.getThrdUrl(aib.b, this.num) + aib.anchor + this.last.num + "\">" + Lng.collapseThrd[lang] + "</a>]</span>");
 				thrEl.lastChild.onclick = function (e) {
 					$pd(e);
 					_this.load(visPosts, true);
@@ -12339,7 +12342,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			var _this = this;
 
 			if (aib.dobr && useAPI) {
-				return getJsonPosts("/api/thread/" + brd + "/" + TNum + ".json").then(function (json) {
+				return getJsonPosts("/api/thread/" + aib.b + "/" + aib.t + ".json").then(function (json) {
 					if (json) {
 						if (json.error) {
 							return Promise.reject(new AjaxError(0, json.message));
@@ -12352,7 +12355,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					return 0;
 				});
 			}
-			return ajaxLoad(aib.getThrdUrl(brd, TNum)).then(function (form) {
+			return ajaxLoad(aib.getThrdUrl(aib.b, aib.t)).then(function (form) {
 				return _this.loadNewFromForm(form);
 			});
 		},
@@ -12386,23 +12389,24 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 			this.setFavBtn(val);
 			readFav().then(function (fav) {
+				var b = aib.b,
+				    h = aib.host;
 				if (val) {
-					var h = aib.host;
 					if (!fav[h]) {
 						fav[h] = {};
 					}
-					if (!fav[h][brd]) {
-						fav[h][brd] = {};
+					if (!fav[h][b]) {
+						fav[h][b] = {};
 					}
-					fav[h][brd].url = aib.prot + "//" + aib.host + aib.getPageUrl(brd, 0);
-					fav[h][brd][_this.num] = {
+					fav[h][b].url = aib.prot + "//" + aib.host + aib.getPageUrl(b, 0);
+					fav[h][b][_this.num] = {
 						cnt: _this.pcount,
 						"new": 0,
 						txt: _this.op.title,
-						url: aib.getThrdUrl(brd, _this.num)
+						url: aib.getThrdUrl(b, _this.num)
 					};
 				} else {
-					removeFavoriteEntry(fav, aib.host, brd, _this.num, false);
+					removeFavoriteEntry(fav, h, b, _this.num, false);
 				}
 				saveFavorites(fav);
 			});
@@ -12432,7 +12436,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			pByNum[num] = post = new Post(el, this, num, i, false, prev);
 			Object.defineProperty(post, "wrap", { value: wrap });
 			parent.appendChild(wrap);
-			if (TNum && updater.focused && Cfg.animation) {
+			if (aib.t && updater.focused && Cfg.animation) {
 				nav.animEvent(post.el, function (node) {
 					node.classList.remove("de-post-new");
 				});
@@ -12444,7 +12448,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			processImageNames(el);
 			post.addFuncs();
 			preloadImages(el);
-			if (TNum && Cfg.markNewPosts) {
+			if (aib.t && Cfg.markNewPosts) {
 				this._addPostMark(el);
 			}
 			return post;
@@ -12532,11 +12536,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						if (!firstChangedPost) {
 							firstChangedPost = post;
 						}
-						post = this.deletePost(post, false, !TNum);
+						post = this.deletePost(post, false, !aib.t);
 					}
 				}
 				if (i === len && post) {
-					this.deletePost(post, true, !TNum);
+					this.deletePost(post, true, !aib.t);
 				}
 				if (firstChangedPost && spells.hasNumSpell) {
 					disableSpells();
@@ -12565,10 +12569,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 			readFav().then(function (fav) {
 				var f = fav[aib.host];
-				if (!f || !f[brd]) {
+				if (!f || !f[aib.b]) {
 					return;
 				}
-				if (f = f[brd][_this.op.num]) {
+				if (f = f[aib.b][_this.op.num]) {
 					var el = $id("de-content-fav");
 					if (el) {
 						el = $q(".de-fav-current > .de-entry[de-num=\"" + _this.op.num + "\"] .de-fav-inf-old", el);
@@ -13503,7 +13507,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				firstPage: { value: 1 },
 				markupTags: { value: ["'''", "''", "__", "^H", "**", "`", "", "", "q"] },
 				cssEn: { get: function get() {
-						return ".banner, " + (TNum ? "" : ".de-btn-rep,") + " .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }\n\t\t\t\t\tform, form table { margin: 0; }";
+						return ".banner, " + (this.t ? "" : ".de-btn-rep,") + " .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }\n\t\t\t\t\tform, form table { margin: 0; }";
 					} },
 				rLinkClick: { value: "onclick=\"highlightReply(this.textContent.substr(2))\"" },
 				timePattern: { value: "nn+dd+yy++w++hh+ii+ss" },
@@ -13551,8 +13555,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				rLinkClick: { value: "" }
 			},
 			"div#mainc": {
-				claire: { value: true },
-
 				qDForm: { value: "#mainc" },
 				getPageUrl: { value: function value(b, p) {
 						return fixBrd(b) + "?do=page&p=" + (p < 0 ? 0 : p);
@@ -13570,6 +13572,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						$del(el.firstElementChild);
 						$before(el, pArea.nextElementSibling);
 						$before(el, pArea);
+					} },
+				parseURL: { value: function value() {
+						var url = window.location.search.match(/^\?do=(thread|page)&(id|p)=(\d+)$/);
+						this.b = window.location.pathname.replace(/\//g, "");
+						this.t = url[1] === "thread" ? url[3] : false;
+						this.page = url[1] === "page" ? +url[3] : 0;
+						this.docExt = "";
 					} }
 			}
 		}, {
@@ -13721,6 +13730,15 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			init: null,
 			markupBB: false,
 			multiFile: false,
+			parseURL: function parseURL() {
+				var url = (window.location.pathname || "").match(new RegExp("^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?" + "(" + regQuote(this.res) + ")?" + "(\\d+|index|wakaba|futaba)?" + "(\\.(?:[a-z]+))?(?:\\/|$)"));
+				this.b = url[1].replace(/\/$/, "");
+				this.t = url[2] ? url[3] : this.futa ? +(window.location.search.match(/\d+/) || [false])[0] : false;
+				this.page = url[3] && !this.t ? +url[3] || this.firstPage : this.firstPage;
+				if (!this.hasOwnProperty("docExt") && url[4]) {
+					this.docExt = url[4];
+				}
+			},
 			prot: prot,
 			res: "res/",
 			rLinkClick: "onclick=\"highlight(this.textContent.substr(2))\"",
@@ -13759,7 +13777,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				get: function () {
 					var el = $q(this.qPages, doc),
 					    val = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
-					if (pageNum === val + 1) {
+					if (this.page === val + 1) {
 						val++;
 					}
 					Object.defineProperty(this, "lastPage", { value: val });
@@ -13888,7 +13906,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							return;
 						}
 						temp = data.hide;
-						if (data.brd === brd && (post = pByNum[data.num]) && post.hidden ^ temp) {
+						if (data.brd === aib.b && (post = pByNum[data.num]) && post.hidden ^ temp) {
 							post.setUserVisib(temp, data.date, false);
 						} else {
 							uVis[data.num] = [+!temp, data.date];
@@ -13918,10 +13936,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						} catch (err) {
 							return;
 						}
-						if (!(brd in hThr)) {
-							hThr[brd] = {};
+						if (!(aib.b in hThr)) {
+							hThr[aib.b] = {};
 						}
-						dForm.firstThr.updateHidden(hThr[brd]);
+						dForm.firstThr.updateHidden(hThr[aib.b]);
 						toggleContent("hid", true);
 					})();
 					return;
@@ -13963,33 +13981,20 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		}, false);
 
-		var url;
 		if (localRun) {
-			url = window.location.pathname.match(/\/[^-]+-([^-]+)-([^\.]+)\.[a-z]+$/);
+			var url = window.location.pathname.match(/\/[^-]+-([^-]+)-([^\.]+)\.[a-z]+$/);
 			aib.prot = "http:";
 			aib.host = aib.dm;
-			brd = url ? url[1] : "";
-			TNum = url ? url[2] : "";
-			pageNum = 0;
+			aib.b = url ? url[1] : "";
+			aib.t = url ? url[2] : "";
+			aib.page = 0;
 			aib.docExt = ".html";
-		} else if (aib.claire) {
-			url = window.location.search.match(/^\?do=(thread|page)&(id|p)=(\d+)$/);
-			brd = window.location.pathname.replace(/\//g, "");
-			TNum = url[1] === "thread" ? url[3] : false;
-			pageNum = url[1] === "page" ? +url[3] : 0;
-			aib.docExt = "";
 		} else {
-			url = (window.location.pathname || "").match(new RegExp("^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?" + "(" + regQuote(aib.res) + ")?" + "(\\d+|index|wakaba|futaba)?" + "(\\.(?:[a-z]+))?(?:\\/|$)"));
-			brd = url[1].replace(/\/$/, "");
-			TNum = url[2] ? url[3] : aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] : false;
-			pageNum = url[3] && !TNum ? +url[3] || aib.firstPage : aib.firstPage;
-			if (!aib.hasOwnProperty("docExt") && url[4]) {
-				aib.docExt = url[4];
-			}
+			aib.parseURL();
 		}
-		if (TNum) {
+		if (aib.t) {
 			doc.defaultView.addEventListener("beforeunload", function (e) {
-				sesStorage["de-scroll-" + brd + TNum] = window.pageYOffset;
+				sesStorage["de-scroll-" + aib.b + aib.t] = window.pageYOffset;
 			}, false);
 		}
 		dummy = doc.createElement("div");
@@ -14142,7 +14147,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				txt = txt.replace(/<\/?wbr>/g, "").replace(/ \(OP\)<\/a/g, "</a");
 			}
 			if (aib.krau) {
-				txt = txt.replace(/href="(#\d+)"/g, "href=\"/" + brd + "/thread-" + TNum + ".html$1\"").replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g, "<a class=\"de-ref-del\" href=\"#$1\" onclick=\"highlightPost($1)\">&gt;&gt;$1</a>");
+				txt = txt.replace(/href="(#\d+)"/g, "href=\"/" + aib.b + "/thread-" + aib.t + ".html$1\"").replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g, "<a class=\"de-ref-del\" href=\"#$1\" onclick=\"highlightPost($1)\">&gt;&gt;$1</a>");
 			}
 			txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig, function (x, a, b, c) {
 				return c ? x : a + "<a href=\"" + b + "\">" + b + "</a>";
@@ -14444,9 +14449,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 								newPosts += lPosts;
 								updateTitle();
 								if (Cfg.desktNotif && notifGranted) {
-									post = dForm.firstThr.last, notif = new Notification(aib.dm + "/" + brd + "/" + TNum + ": " + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
+									post = dForm.firstThr.last, notif = new Notification(aib.dm + "/" + aib.b + "/" + aib.t + ": " + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
 										body: post.text.substring(0, 250).replace(/\s+/g, " "),
-										tag: aib.dm + brd + TNum,
+										tag: aib.dm + aib.b + aib.t,
 										icon: post.images.firstAttach || favHref
 									});
 
@@ -14659,24 +14664,24 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function initPage() {
-		if (TNum) {
+		if (aib.t) {
 			if (Cfg.rePageTitle) {
-				doc.title = "/" + brd + " - " + dForm.firstThr.op.title;
+				doc.title = "/" + aib.b + " - " + dForm.firstThr.op.title;
 			}
 			if (!localRun) {
 				dForm.firstThr.el.insertAdjacentHTML("afterend", "<div id=\"de-updater-div\">&gt;&gt; [<a class=\"de-abtn\" id=\"de-updater-btn\" href=\"#\"></a>" + "<span id=\"de-updater-count\" style=\"display: none;\"></span>]" + (aib.mak ? "[<a class=\"de-abtn\" href=\"#\" onclick=\"UnbanShow();\">Реквест разбана</a>]" : "") + "</div>");
 			}
 		}
 		if (!localRun) {
-			updater = initThreadUpdater(doc.title, TNum && Cfg.ajaxUpdThr);
-			if (TNum) {
+			updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr);
+			if (aib.t) {
 				dForm.firstThr.el.nextSibling.firstElementChild.addEventListener("click", updater.forceLoad, false);
 			}
 		}
 	}
 
 	function scrollPage() {
-		if (!TNum) {
+		if (!aib.t) {
 			if (!updater.focused || window.pageYOffset !== 0) {
 				window.scrollTo(0, 0);
 			}
@@ -14686,10 +14691,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			var post,
 			    num,
 			    hash,
-			    val = +sesStorage["de-scroll-" + brd + TNum];
+			    val = +sesStorage["de-scroll-" + aib.b + aib.t];
 			if (val) {
 				window.scrollTo(0, val);
-				sesStorage.removeItem("de-scroll-" + brd + TNum);
+				sesStorage.removeItem("de-scroll-" + aib.b + aib.t);
 			} else if ((hash = window.location.hash) && (num = hash.match(/#i?(\d+)$/)) && (num = num[1]) && (post = pByNum[num])) {
 				post.el.scrollIntoView(true);
 			}
