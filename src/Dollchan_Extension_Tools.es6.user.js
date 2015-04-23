@@ -10171,7 +10171,7 @@ function getNavFuncs() {
 		get hasWorker() {
 			var val = false;
 			try {
-				val = 'Worker' in window;
+				val = 'Worker' in window && 'URL' in window;
 			} catch(e) {}
 			if(val && this.Firefox) {
 				val = +(navigator.userAgent.match(/rv:(\d{2})/) || [])[1] >= 40;
