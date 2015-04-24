@@ -14439,7 +14439,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 					case 52:
 						if (lastECode !== 200) {
-							clearInterval(favIntrv);
+							restoreFavicon();
 							setState("on");
 							if (!Cfg.noErrInTitle) {
 								updateTitle(eCode);
@@ -14504,13 +14504,17 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			btn.title = Lng.panelBtn["upd-" + (state === "off" ? "off" : "on")][lang];
 		}
 
-		function onVis() {
+		function restoreFavicon() {
 			if (Cfg.favIcoBlink && favHref) {
 				clearInterval(favIntrv);
 				favNorm = true;
 				$del($q("link[rel=\"shortcut icon\"]", doc.head));
 				doc.head.insertAdjacentHTML("afterbegin", "<link rel=\"shortcut icon\" href=\"" + favHref + "\">");
 			}
+		}
+
+		function onVis() {
+			restoreFavicon();
 			newPosts = 0;
 			focused = true;
 			sendError = false;
