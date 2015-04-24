@@ -7046,11 +7046,10 @@ function checkUpload(dc) {
 		}
 	} else {
 		if(el) {
-			pByNum[pr.tNum].thr.loadFromForm(visPosts, false, el);
+			pByNum[pr.tNum].thr.loadFromForm(visPosts, true, el);
 			closeAlert($id('de-alert-upload'));
 		} else {
-			pByNum[pr.tNum].thr.load(visPosts, false, false)
-				.then(() => closeAlert($id('de-alert-upload')));
+			pByNum[pr.tNum].thr.load(visPosts, false, false).then(() => closeAlert($id('de-alert-upload')));
 		}
 	}
 	pr.closeQReply();
@@ -9736,7 +9735,7 @@ Thread.prototype = {
 		var nextCoord, els = aib.getPosts(form),
 			op = this.op,
 			thrEl = this.el,
-			expEl = $c('de-expand', thrEl),
+			expEl = $c('de-collapse', thrEl),
 			nOmt = last === 1 ? 0 : Math.max(els.length - last, 0);
 		if(smartScroll) {
 			if(this.next) {
@@ -9760,9 +9759,9 @@ Thread.prototype = {
 		if(this._processExpandThread(els, last === 1 ? els.length : last)) {
 			$del(expEl);
 		} else if(!expEl) {
-			thrEl.insertAdjacentHTML('beforeend', '<span class="de-expand">[<a href="' +
-				aib.getThrdUrl(aib.b, this.num) + aib.anchor + this.last.num + '">' +
-				Lng.collapseThrd[lang] + '</a>]</span>');
+			thrEl.insertAdjacentHTML('beforeend', '<span class="de-collapse">&gt;&gt; [' +
+				'<a class="de-abtn" href="' + aib.getThrdUrl(aib.b, this.num) + aib.anchor + this.last.num +
+				'">' + Lng.collapseThrd[lang] + '</a>]</span>');
 			thrEl.lastChild.onclick = e => {
 				$pd(e);
 				this.load(visPosts, true);
@@ -12249,6 +12248,7 @@ function scriptCSS() {
 	.de-entry { display: block !important; float: none !important; width: auto; max-width: 100% !important; margin: 2px 0 !important; padding: 0 !important; border: none; font-size: 14px; ' + (nav.Presto ? 'white-space: nowrap; ' : '') + '}\
 	.de-entry > a { text-decoration: none; border: none; }\
 	.de-entry > input { margin: 2px 4px; }\
+	.de-collapse { clear: left; display: block; float: left; margin: 5px 0 10px 0; }\
 	.de-fav-inf-err { color: #c33; font-size: 12px; }\
 	.de-fav-inf-new { color: #424f79; }\
 	.de-fav-inf-new:after { content: " +"; }\
