@@ -1198,8 +1198,6 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
-
-
 !(function(global) {
   "use strict";
 
@@ -2349,7 +2347,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						break;
 					}
 
-					fileName = value.name, newFileName = Cfg.removeFName ? fileName.substring(fileName.lastIndexOf(".")) : fileName;
+					fileName = value.name, newFileName = Cfg.removeFName ? " " + fileName.substring(fileName.lastIndexOf(".")) : fileName;
 
 					if (!(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) && (Cfg.postSameImg || Cfg.removeEXIF))) {
 						context$2$0.next = 24;
@@ -9350,7 +9348,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			$alert(err, "upload", false);
 			updater.sendErrNotif();
 			return;
-		} else if (Cfg.favOnReply && pr.tNum) {
+		}
+		if (Cfg.favOnReply && pr.tNum) {
 			pByNum[pr.tNum].thr.setFavorState(true);
 		}
 		pr.txta.value = "";

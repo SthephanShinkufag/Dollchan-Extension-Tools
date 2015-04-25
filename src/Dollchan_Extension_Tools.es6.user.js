@@ -7009,7 +7009,8 @@ function checkUpload(dc) {
 		$alert(err, 'upload', false);
 		updater.sendErrNotif();
 		return;
-	} else if(Cfg.favOnReply && pr.tNum) {
+	}
+	if(Cfg.favOnReply && pr.tNum) {
 		pByNum[pr.tNum].thr.setFavorState(true);
 	}
 	pr.txta.value = '';
@@ -7104,7 +7105,7 @@ function* html5Submit(form, needProgress = false) {
 	for(var {name, value, type, el} of getFormElements(form)) {
 		if(type === 'file') {
 			var fileName = value.name,
-				newFileName = Cfg.removeFName ? fileName.substring(fileName.lastIndexOf('.')) : fileName;
+				newFileName = Cfg.removeFName ? ' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
 			if(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) &&
 			   (Cfg.postSameImg || Cfg.removeEXIF))
 			{
