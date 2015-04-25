@@ -14714,63 +14714,48 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function checkForUpdates(isForce, lastUpdateTime) {
-		return new Promise(function (resolve, reject) {
-			if (!isForce) {
-				var day = 2 * 1000 * 60 * 60 * 24,
-				    temp = Cfg.scrUpdIntrv;
-				switch (temp) {
-					case 0:
-						temp = day;break;
-					case 1:
-						temp = day * 2;break;
-					case 2:
-						temp = day * 7;break;
-					case 3:
-						temp = day * 14;break;
-					default:
-						temp = day * 30;
-				}
-				if (Date.now() - +lastUpdateTime < temp) {
-					reject();
-					return;
-				}
+		if (!isForce) {
+			var day = 2 * 1000 * 60 * 60 * 24,
+			    temp = Cfg.scrUpdIntrv;
+			switch (temp) {
+				case 0:
+					temp = day;break;
+				case 1:
+					temp = day * 2;break;
+				case 2:
+					temp = day * 7;break;
+				case 3:
+					temp = day * 14;break;
+				default:
+					temp = day * 30;
 			}
-			$ajax("https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js", { "Content-Type": "text/plain" }, false).then(function (xhr) {
-				if (xhr.status === 200) {
-					var dVer = xhr.responseText.match(/@version\s+([0-9.]+)/)[1].split("."),
-					    cVer = version.split("."),
-					    len = cVer.length > dVer.length ? cVer.length : dVer.length,
-					    i = 0,
-					    isUpd = false;
-					if (!dVer) {
-						if (isForce) {
-							resolve("<div style=\"color: red; font-weigth: bold;\">" + Lng.noConnect[lang] + "</div>");
-						}
-						return;
-					}
+			if (Date.now() - +lastUpdateTime < temp) {
+				return Promise.reject();
+			}
+		}
+		return $ajax("https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js", { "Content-Type": "text/plain" }, false).then(function (xhr) {
+			if (xhr.status === 200) {
+				var m = xhr.responseText.match(/@version\s+([0-9.]+)/),
+				    dVer = m && m[1] ? m[1].split(".") : null;
+				if (dVer) {
+					var cVer = version.split(".");
 					saveComCfg("lastUpd", Date.now());
-					while (i < len) {
+					for (var i = 0, len = Math.max(cVer.length, dVer.length); i < len; ++i) {
 						if ((+dVer[i] || 0) > (+cVer[i] || 0)) {
-							isUpd = true;
-							break;
+							return "<a style=\"color: blue; font-weight: bold;\" href=\"" + "https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/" + "Dollchan_Extension_Tools.user.js\">" + Lng.updAvail[lang] + "</a>";
 						} else if ((+dVer[i] || 0) < (+cVer[i] || 0)) {
 							break;
 						}
-						i++;
 					}
-					if (isUpd) {
-						resolve("<a style=\"color: blue; font-weight: bold;\" href=\"" + "https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/" + "Dollchan_Extension_Tools.user.js\">" + Lng.updAvail[lang] + "</a>");
-					} else if (isForce) {
-						resolve(Lng.haveLatest[lang]);
-					} else {
-						reject();
+					if (isForce) {
+						return Lng.haveLatest[lang];
 					}
-				} else if (isForce) {
-					resolve("<div style=\"color: red; font-weigth: bold;\">" + Lng.noConnect[lang] + "</div>");
-				} else {
-					reject();
 				}
-			});
+			}
+			if (isForce) {
+				return "<div style=\"color: red; font-weigth: bold;\">" + Lng.noConnect[lang] + "</div>";
+			}
+			return Promise.reject();
 		});
 	}
 
