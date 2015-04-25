@@ -8264,6 +8264,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				    q = Cfg.spacedQuote ? "> " : ">";
 				if (id === "de-btn-quote") {
 					$txtInsert(x, q + (start === end ? quotetxt : x.value.substring(start, end)).replace(/\n/gm, "\n" + q));
+					quotetxt = "";
 				} else {
 					var scrtop = x.scrollTop,
 					    val = this._wrapText(aib.markupBB, el.getAttribute("de-tag"), x.value.substring(start, end)),
@@ -10801,6 +10802,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return;
 					case "de-btn-rep":
 						pr.showQuickReply(this.isPview ? this.getTopParent() : this, this.num, !this.isPview, false);
+						quotetxt = "";
 						return;
 					case "de-btn-sage":
 						addSpell(9, "", false);return;
