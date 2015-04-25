@@ -794,7 +794,13 @@ function $ajax(url, params = null, useNative = true) {
 			var obj = {
 				'method': (params && params.method) || 'GET',
 				'url': nav.fixLink(url),
-				'onload'(e) { resolve(e); }
+				'onload'(e) {
+					if(e.status === 200) {
+						resolve(e);
+					} else {
+						reject(e);
+					}
+				}
 			};
 			if(params) {
 				delete params.method;
@@ -807,7 +813,13 @@ function $ajax(url, params = null, useNative = true) {
 		if(params && params.onprogress) {
 			xhr.upload.onprogress = params.onprogress;
 		}
-		xhr.onloadend = e => resolve(e.target);
+		xhr.onloadend = ({ target }) => {
+			if(target.status === 200) {
+				resolve(target);
+			} else {
+				reject(target);
+			}
+		};
 		xhr.open((params && params.method) || 'GET', url, true);
 		if(params) {
 			if(params.responseType) {
@@ -1960,11 +1972,14 @@ function showHiddenTable(cont) {
 	}));
 	cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
 		for(var i = 0, els = $Q('.de-entry[info]', this.parentNode), len = els.length; i < len; ++i) {
-			var [board, tNum] = els[i].getAttribute('info').split(';'),
-				xhr = yield $ajax(aib.getThrdUrl(board, tNum));
-			if(xhr.status === 404) {
-				delete hThr[board][tNum];
-				saveHiddenThreads(true);
+			var [board, tNum] = els[i].getAttribute('info').split(';');
+			try {
+				yield $ajax(aib.getThrdUrl(board, tNum));
+			} catch(xhr) {
+				if(xhr.status === 404) {
+					delete hThr[board][tNum];
+					saveHiddenThreads(true);
+				}
 			}
 		}
 	})));
@@ -2139,11 +2154,13 @@ function showFavoriteTable(cont, data) {
 			var el = els[i],
 				node = $c('de-fav-inf-err', el);
 			node.classList.add('de-wait');
-			var xhr = yield $ajax(el.getAttribute('de-url'), null, false);
-			switch(xhr.status) {
-			case 200: break;
-			case 404: el.setAttribute('de-removed', '');
-			default: node.textContent = getErrorMessage(new AjaxError(xhr.status, xhr.statusText));
+			try {
+				yield $ajax(el.getAttribute('de-url'), null, false);
+			} catch(xhr) {
+				if(xhr.status === 404) {
+					el.setAttribute('de-removed', '');
+				}
+				node.textContent = getErrorMessage(new AjaxError(xhr.status, xhr.statusText));
 			}
 			node.classList.remove('de-wait');
 		}
@@ -3709,25 +3726,23 @@ function downloadImgData(url, repeatOnError = true) {
 		}
 	}
 	return promise.then(xhr => {
-		var isAb = xhr.responseType === 'arraybuffer';
-		if(xhr.status === 0 && isAb) {
+		if(xhr.responseType === 'arraybuffer') {
 			return new Uint8Array(xhr.response);
-		} else if(xhr.status !== 200) {
-			if(xhr.status === 404 || !repeatOnError) {
-				return null;
-			} else {
-				return downloadImgData(url, false);
-			}
-		} else if(isAb) {
-			return new Uint8Array(xhr.response);
-		} else {
-			var txt = xhr.responseText,
-				rv = new Uint8Array(txt.length);
-			for(var i = 0, len = txt.length; i < len; ++i) {
-				rv[i] = txt.charCodeAt(i) & 0xFF;
-			}
-			return rv;
 		}
+		var txt = xhr.responseText,
+			rv = new Uint8Array(txt.length);
+		for(var i = 0, len = txt.length; i < len; ++i) {
+			rv[i] = txt.charCodeAt(i) & 0xFF;
+		}
+		return rv;
+	}, xhr => {
+		if(xhr.status === 0 && xhr.responseType === 'arraybuffer') {
+			return new Uint8Array(xhr.response);
+		}
+		if(xhr.status === 404 || !repeatOnError) {
+			return null;
+		}
+		return downloadImgData(url, false);
 	});
 }
 
@@ -4152,32 +4167,22 @@ Videos._getTitlesLoader = function() {
 			return $ajax(aib.prot + '//gdata.youtube.com/feeds/api/videos/' + id +
 			             '?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published',
 			             null, false).then(xhr => {
-				if(xhr.status === 200) {
-					try {
-						var entry = JSON.parse(xhr.responseText).entry;
-						return Videos._titlesLoaderHelper(info, num,
-						                                  entry.title.$t,
-						                                  entry.author[0].name.$t,
-						                                  entry.yt$statistics.viewCount,
-						                                  entry.published.$t.substr(0, 10));
-					} catch(e) { }
-				}
-				return Videos._titlesLoaderHelper(info, num);
-			});
+				var entry = JSON.parse(xhr.responseText).entry;
+				return Videos._titlesLoaderHelper(info, num,
+												  entry.title.$t,
+												  entry.author[0].name.$t,
+												  entry.yt$statistics.viewCount,
+												  entry.published.$t.substr(0, 10));
+			}).catch(() => Videos._titlesLoaderHelper(info, num));
 		}
 		return $ajax(aib.prot + '//vimeo.com/api/v2/video/' + id + '.json', null, false).then(xhr => {
-			if(xhr.status === 200) {
-				try {
-					var entry = JSON.parse(xhr.responseText)[0];
-					return Videos._titlesLoaderHelper(info, num,
-					                                  entry["title"],
-					                                  entry["user_name"],
-					                                  entry["stats_number_of_plays"],
-					                                  (new RegExp (/(.*)\s(.*)?/).exec(entry["upload_date"]))[1]);
-				} catch(e) { }
-			}
-			return Videos._titlesLoaderHelper(info, num);
-		});
+			var entry = JSON.parse(xhr.responseText)[0];
+			return Videos._titlesLoaderHelper(info, num,
+											  entry["title"],
+											  entry["user_name"],
+											  entry["stats_number_of_plays"],
+											  (new RegExp (/(.*)\s(.*)?/).exec(entry["upload_date"]))[1]);
+		}).catch(() => Videos._titlesLoaderHelper(info, num));
 	}, () => {
 		sesStorage['de-videos-data'] = JSON.stringify(Videos._global.vData);
 	});
@@ -4425,24 +4430,17 @@ AjaxError.Success = new AjaxError(200, '');
 
 function ajaxLoad(url, returnForm = true) {
 	return $ajax(url).then(xhr => {
-		if(xhr.status !== 200) {
-			return Promise.reject(new AjaxError(xhr.status, xhr.statusText));
-		}
 		var el, text = xhr.responseText;
 		if((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
 			el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 		}
 		return el ? el : Promise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
-	});
+	}, xhr => Promise.reject(new AjaxError(xhr.status, xhr.statusText)));
 }
 
 function getJsonPosts(url) {
-	return $ajax(url).then(xhr => {
-		switch(xhr.status) {
-		case 200: return JSON.parse(xhr.responseText);
-		case 304: return null;
-		default: return Promise.reject(AjaxError(xhr.status, xhr.message));
-		}
+	return $ajax(url).then(xhr => JSON.parse(xhr.responseText), xhr => {
+		return xhr.status === 304 ? null : Promise.reject(new AjaxError(xhr.status, xhr.message))
 	});
 }
 
@@ -6337,9 +6335,6 @@ PostForm.prototype = {
 		this.subm.addEventListener('click', e => {
 			if(aib._2chru && !aib.reqCaptcha) {
 				$ajax('/' + aib.b + '/api/requires-captcha').then(xhr => {
-					if(xhr.status !== 200) {
-						return;
-					}
 					aib.reqCaptcha = true;
 					if(JSON.parse(xhr.responseText)['requires-captcha'] !== '1') {
 						this.subm.click();
@@ -6353,20 +6348,16 @@ PostForm.prototype = {
 						'text': 'проверить капчу'}, {
 						'click'() {
 							$ajax('/' + aib.b + '/api/validate-captcha', { method: 'POST' }).then(xhr => {
-								if(xhr.status === 200) {
-									if(JSON.parse(xhr.responseText).status === 'ok') {
-										this.innerHTML = 'можно постить';
-									} else {
-										this.innerHTML = 'неверная капча';
-										setTimeout(el => {
-											this.innerHTML = 'проверить капчу';
-										}, 1000);
-									}
+								if(JSON.parse(xhr.responseText).status === 'ok') {
+									this.innerHTML = 'можно постить';
+								} else {
+									this.innerHTML = 'неверная капча';
+									setTimeout(el => this.innerHTML = 'проверить капчу', 1000);
 								}
-							});
+							}, emptyFn);
 						}
 					}));
-				});
+				}, emptyFn);
 				$pd(e);
 				return;
 			}
@@ -7126,20 +7117,16 @@ function* html5Submit(form, needProgress = false) {
 		$ajax(form.action, {method: 'POST', data: formData, onprogress: e => {
 			lastFuncs.resolve({ done: false, data: {loaded: e.loaded, total: e.total} });
 			promises.push(new Promise((resolve, reject) => lastFuncs = {resolve, reject}));
-		}}).then(xhr => {
-			if(xhr.status === 200) {
-				lastFuncs.resolve({done: true, data: $DOM(xhr.responseText)});
-			} else {
-				lastFuncs.reject(new AjaxError(xhr.status, xhr.statusText));
-			}
-		});
+		}}).then(xhr => lastFuncs.resolve({done: true, data: $DOM(xhr.responseText)}),
+		         xhr => lastFuncs.reject(new AjaxError(xhr.status, xhr.statusText)));
 		return () => promises.splice(0, 1)[0];
 	} else {
-		var xhr = yield $ajax(form.action, {method: 'POST', data: formData});
-		if(xhr.status === 200) {
+		try {
+			var xhr = yield $ajax(form.action, {method: 'POST', data: formData});
 			return $DOM(xhr.responseText);
+		} catch(xhr) {
+			return Promise.reject(new AjaxError(xhr.status, xhr.statusText));
 		}
-		return Promise.reject(new AjaxError(xhr.status, xhr.statusText));
 	}
 }
 
@@ -11590,11 +11577,9 @@ function initThreadUpdater(title, enableUpdate) {
 			if(needSleep) {
 				try {
 					if(useCountdown && (focused || !canFocusLoad)) {
-						var seconds = delay / 1000;
-						while(seconds > 0) {
+						for(var seconds = delay / 1000; seconds > 0; --seconds) {
 							countEl.textContent = seconds;
 							yield Promise.race([stopToken, sleep(1000)]);
-							seconds--;
 						}
 					} else {
 						yield Promise.race([stopToken, sleep(delay)]);
@@ -11905,31 +11890,28 @@ function checkForUpdates(isForce, lastUpdateTime) {
 		 {'Content-Type': 'text/plain'},
 		 false
 	).then(xhr => {
-		if(xhr.status === 200) {
-			var m = xhr.responseText.match(/@version\s+([0-9.]+)/),
-				dVer = m && m[1] ? m[1].split('.') : null;
-			if(dVer) {
-				var cVer = version.split('.');
-				saveComCfg('lastUpd', Date.now());
-				for(var i = 0, len = Math.max(cVer.length, dVer.length); i < len; ++i) {
-					if((+dVer[i] || 0) > (+cVer[i] || 0)) {
-						return '<a style="color: blue; font-weight: bold;" href="' +
-							'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/' +
-							'Dollchan_Extension_Tools.user.js">' + Lng.updAvail[lang] + '</a>';
-					} else if((+dVer[i] || 0) < (+cVer[i] || 0)) {
-						break;
-					}
-				}
-				if(isForce) {
-					return Lng.haveLatest[lang];
+		var m = xhr.responseText.match(/@version\s+([0-9.]+)/),
+			dVer = m && m[1] ? m[1].split('.') : null;
+		if(dVer) {
+			var cVer = version.split('.');
+			saveComCfg('lastUpd', Date.now());
+			for(var i = 0, len = Math.max(cVer.length, dVer.length); i < len; ++i) {
+				if((+dVer[i] || 0) > (+cVer[i] || 0)) {
+					return '<a style="color: blue; font-weight: bold;" href="' +
+						'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/' +
+						'Dollchan_Extension_Tools.user.js">' + Lng.updAvail[lang] + '</a>';
+				} else if((+dVer[i] || 0) < (+cVer[i] || 0)) {
+					break;
 				}
 			}
-		}
-		if(isForce) {
-			return '<div style="color: red; font-weigth: bold;">' + Lng.noConnect[lang] + '</div>';
+			if(isForce) {
+				return Lng.haveLatest[lang];
+			}
 		}
 		return Promise.reject();
-	});
+	}, () => isForce ? '<div style="color: red; font-weigth: bold;">' + Lng.noConnect[lang] + '</div>' :
+	                   Promise.reject()
+	);
 }
 
 

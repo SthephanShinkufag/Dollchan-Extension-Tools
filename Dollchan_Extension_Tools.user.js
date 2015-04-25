@@ -2358,8 +2358,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					return readFileArrayBuffer(value);
 
 				case 17:
-					context$2$0.t24 = context$2$0.sent;
-					data = cleanFile(context$2$0.t24, el.obj.imgFile);
+					context$2$0.t25 = context$2$0.sent;
+					data = cleanFile(context$2$0.t25, el.obj.imgFile);
 
 					if (data) {
 						context$2$0.next = 21;
@@ -2392,9 +2392,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 31:
 					context$2$0.prev = 31;
-					context$2$0.t25 = context$2$0["catch"](4);
+					context$2$0.t26 = context$2$0["catch"](4);
 					_didIteratorError = true;
-					_iteratorError = context$2$0.t25;
+					_iteratorError = context$2$0.t26;
 
 				case 35:
 					context$2$0.prev = 35;
@@ -2436,38 +2436,33 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 								return lastFuncs = { resolve: resolve, reject: reject };
 							}));
 						} }).then(function (xhr) {
-						if (xhr.status === 200) {
-							lastFuncs.resolve({ done: true, data: $DOM(xhr.responseText) });
-						} else {
-							lastFuncs.reject(new AjaxError(xhr.status, xhr.statusText));
-						}
+						return lastFuncs.resolve({ done: true, data: $DOM(xhr.responseText) });
+					}, function (xhr) {
+						return lastFuncs.reject(new AjaxError(xhr.status, xhr.statusText));
 					});
 					return context$2$0.abrupt("return", function () {
 						return promises.splice(0, 1)[0];
 					});
 
 				case 49:
-					context$2$0.next = 51;
+					context$2$0.prev = 49;
+					context$2$0.next = 52;
 					return $ajax(form.action, { method: "POST", data: formData });
 
-				case 51:
+				case 52:
 					xhr = context$2$0.sent;
-
-					if (!(xhr.status === 200)) {
-						context$2$0.next = 54;
-						break;
-					}
-
 					return context$2$0.abrupt("return", $DOM(xhr.responseText));
 
-				case 54:
-					return context$2$0.abrupt("return", Promise.reject(new AjaxError(xhr.status, xhr.statusText)));
+				case 56:
+					context$2$0.prev = 56;
+					context$2$0.t27 = context$2$0["catch"](49);
+					return context$2$0.abrupt("return", Promise.reject(new AjaxError(context$2$0.t27.status, context$2$0.t27.statusText)));
 
-				case 55:
+				case 59:
 				case "end":
 					return context$2$0.stop();
 			}
-		}, html5Submit, this, [[4, 31, 35, 43], [36,, 38, 42]]);
+		}, html5Submit, this, [[4, 31, 35, 43], [36,, 38, 42], [49, 56]]);
 	});
 	var initScript = regeneratorRuntime.mark(function initScript(checkDomains) {
 		var formEl, str;
@@ -2486,10 +2481,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 4:
 					new Logger().log("Init");
-					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t28", 6);
+					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t30", 6);
 
 				case 6:
-					str = context$2$0.t28;
+					str = context$2$0.t30;
 
 					if (!(str && str.contains(aib.dm))) {
 						context$2$0.next = 9;
@@ -2500,7 +2495,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 9:
 					excludeList = str || "";
-					return context$2$0.delegateYield(readCfg(), "t29", 11);
+					return context$2$0.delegateYield(readCfg(), "t31", 11);
 
 				case 11:
 					new Logger().log("Config loading");
@@ -2529,9 +2524,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 26:
 					context$2$0.prev = 26;
-					context$2$0.t30 = context$2$0["catch"](22);
+					context$2$0.t32 = context$2$0["catch"](22);
 
-					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t30));
+					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t32));
 					doc.body.style.display = "";
 					return context$2$0.abrupt("return");
 
@@ -2564,10 +2559,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 					new Logger().log("Scroll page");
 					readPosts();
-					return context$2$0.delegateYield(readUserPosts(), "t31", 48);
+					return context$2$0.delegateYield(readUserPosts(), "t33", 48);
 
 				case 48:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t32", 49);
+					return context$2$0.delegateYield(readFavoritesPosts(), "t34", 49);
 
 				case 49:
 					setTimeout(PostContent.purge, 0);
@@ -3298,7 +3293,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					method: params && params.method || "GET",
 					url: nav.fixLink(url),
 					onload: function (e) {
-						resolve(e);
+						if (e.status === 200) {
+							resolve(e);
+						} else {
+							reject(e);
+						}
 					}
 				};
 				if (params) {
@@ -3312,8 +3311,14 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (params && params.onprogress) {
 				xhr.upload.onprogress = params.onprogress;
 			}
-			xhr.onloadend = function (e) {
-				return resolve(e.target);
+			xhr.onloadend = function (_ref) {
+				var target = _ref.target;
+
+				if (target.status === 200) {
+					resolve(target);
+				} else {
+					reject(target);
+				}
 			};
 			xhr.open(params && params.method || "GET", url, true);
 			if (params) {
@@ -4098,7 +4103,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function callee$2$0() {
 			var _this = this;
 
-			var i, els, len, _els$i$getAttribute$split, _els$i$getAttribute$split2, board, tNum, xhr;
+			var i, els, len, _els$i$getAttribute$split, _els$i$getAttribute$split2, board, tNum;
 
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
@@ -4107,7 +4112,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 					case 1:
 						if (!(i < len)) {
-							context$3$0.next = 13;
+							context$3$0.next = 17;
 							break;
 						}
 
@@ -4115,27 +4120,33 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						_els$i$getAttribute$split2 = _slicedToArray(_els$i$getAttribute$split, 2);
 						board = _els$i$getAttribute$split2[0];
 						tNum = _els$i$getAttribute$split2[1];
-						context$3$0.next = 8;
+						context$3$0.prev = 6;
+						context$3$0.next = 9;
 						return $ajax(aib.getThrdUrl(board, tNum));
 
-					case 8:
-						xhr = context$3$0.sent;
+					case 9:
+						context$3$0.next = 14;
+						break;
 
-						if (xhr.status === 404) {
+					case 11:
+						context$3$0.prev = 11;
+						context$3$0.t8 = context$3$0["catch"](6);
+
+						if (context$3$0.t8.status === 404) {
 							delete hThr[board][tNum];
 							saveHiddenThreads(true);
 						}
 
-					case 10:
+					case 14:
 						++i;
 						context$3$0.next = 1;
 						break;
 
-					case 13:
+					case 17:
 					case "end":
 						return context$3$0.stop();
 				}
-			}, callee$2$0, this);
+			}, callee$2$0, this, [[6, 11]]);
 		}))));
 		cont.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function () {
 			$each($Q(".de-entry[info]", this.parentNode), (function (date, el) {
@@ -4211,10 +4222,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					case 0:
 						update = false;
 						els = $C("de-entry", doc);
-						return context$3$0.delegateYield(getStoredObj("DESU_Favorites"), "t8", 3);
+						return context$3$0.delegateYield(getStoredObj("DESU_Favorites"), "t9", 3);
 
 					case 3:
-						fav = context$3$0.t8;
+						fav = context$3$0.t9;
 						i = 0, len = els.length;
 
 					case 5:
@@ -4248,10 +4259,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 					case 19:
 						context$3$0.prev = 19;
-						context$3$0.t9 = context$3$0["catch"](13);
+						context$3$0.t10 = context$3$0["catch"](13);
 
 						el.classList.remove("de-wait");
-						f.err = el.previousElementSibling.textContent = getErrorMessage(context$3$0.t9);
+						f.err = el.previousElementSibling.textContent = getErrorMessage(context$3$0.t10);
 						update = true;
 						return context$3$0.abrupt("continue", 31);
 
@@ -4328,14 +4339,14 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return ajaxLoad(aib.getPageUrl(aib.b, page));
 
 					case 10:
-						context$3$0.t10 = context$3$0.sent;
-						form = new DelForm(context$3$0.t10, true);
+						context$3$0.t11 = context$3$0.sent;
+						form = new DelForm(context$3$0.t11, true);
 						context$3$0.next = 17;
 						break;
 
 					case 14:
 						context$3$0.prev = 14;
-						context$3$0.t11 = context$3$0["catch"](7);
+						context$3$0.t12 = context$3$0["catch"](7);
 						return context$3$0.abrupt("continue", 20);
 
 					case 17:
@@ -4382,7 +4393,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}, callee$2$1, this, [[7, 14]]);
 		}))));
 		cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function callee$2$2() {
-			var i, els, len, el, node, xhr;
+			var i, els, len, el, node;
 			return regeneratorRuntime.wrap(function callee$2$2$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
@@ -4397,23 +4408,22 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						el = els[i], node = $c("de-fav-inf-err", el);
 
 						node.classList.add("de-wait");
-						context$3$0.next = 6;
+						context$3$0.prev = 4;
+						context$3$0.next = 7;
 						return $ajax(el.getAttribute("de-url"), null, false);
 
-					case 6:
-						xhr = context$3$0.sent;
-						context$3$0.t12 = xhr.status;
-						context$3$0.next = context$3$0.t12 === 200 ? 10 : context$3$0.t12 === 404 ? 11 : 12;
+					case 7:
+						context$3$0.next = 13;
 						break;
 
-					case 10:
-						return context$3$0.abrupt("break", 13);
+					case 9:
+						context$3$0.prev = 9;
+						context$3$0.t13 = context$3$0["catch"](4);
 
-					case 11:
-						el.setAttribute("de-removed", "");
-
-					case 12:
-						node.textContent = getErrorMessage(new AjaxError(xhr.status, xhr.statusText));
+						if (context$3$0.t13.status === 404) {
+							el.setAttribute("de-removed", "");
+						}
+						node.textContent = getErrorMessage(new AjaxError(context$3$0.t13.status, context$3$0.t13.statusText));
 
 					case 13:
 						node.classList.remove("de-wait");
@@ -4430,7 +4440,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					case "end":
 						return context$3$0.stop();
 				}
-			}, callee$2$2, this);
+			}, callee$2$2, this, [[4, 9]]);
 		}))));
 		cont.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function () {
 			$each($C("de-entry", doc), function (el) {
@@ -4987,10 +4997,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					return context$2$0.delegateYield(getStored("DESU_keys"), "t13", 1);
+					return context$2$0.delegateYield(getStored("DESU_keys"), "t14", 1);
 
 				case 1:
-					str = context$2$0.t13;
+					str = context$2$0.t14;
 
 					if (str) {
 						context$2$0.next = 4;
@@ -5766,25 +5776,23 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		}
 		return promise.then(function (xhr) {
-			var isAb = xhr.responseType === "arraybuffer";
-			if (xhr.status === 0 && isAb) {
+			if (xhr.responseType === "arraybuffer") {
 				return new Uint8Array(xhr.response);
-			} else if (xhr.status !== 200) {
-				if (xhr.status === 404 || !repeatOnError) {
-					return null;
-				} else {
-					return downloadImgData(url, false);
-				}
-			} else if (isAb) {
-				return new Uint8Array(xhr.response);
-			} else {
-				var txt = xhr.responseText,
-				    rv = new Uint8Array(txt.length);
-				for (var i = 0, len = txt.length; i < len; ++i) {
-					rv[i] = txt.charCodeAt(i) & 255;
-				}
-				return rv;
 			}
+			var txt = xhr.responseText,
+			    rv = new Uint8Array(txt.length);
+			for (var i = 0, len = txt.length; i < len; ++i) {
+				rv[i] = txt.charCodeAt(i) & 255;
+			}
+			return rv;
+		}, function (xhr) {
+			if (xhr.status === 0 && xhr.responseType === "arraybuffer") {
+				return new Uint8Array(xhr.response);
+			}
+			if (xhr.status === 404 || !repeatOnError) {
+				return null;
+			}
+			return downloadImgData(url, false);
 		});
 	}
 
@@ -6209,22 +6217,16 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 			if (isYtube) {
 				return $ajax(aib.prot + "//gdata.youtube.com/feeds/api/videos/" + id + "?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published", null, false).then(function (xhr) {
-					if (xhr.status === 200) {
-						try {
-							var entry = JSON.parse(xhr.responseText).entry;
-							return Videos._titlesLoaderHelper(info, num, entry.title.$t, entry.author[0].name.$t, entry.yt$statistics.viewCount, entry.published.$t.substr(0, 10));
-						} catch (e) {}
-					}
+					var entry = JSON.parse(xhr.responseText).entry;
+					return Videos._titlesLoaderHelper(info, num, entry.title.$t, entry.author[0].name.$t, entry.yt$statistics.viewCount, entry.published.$t.substr(0, 10));
+				})["catch"](function () {
 					return Videos._titlesLoaderHelper(info, num);
 				});
 			}
 			return $ajax(aib.prot + "//vimeo.com/api/v2/video/" + id + ".json", null, false).then(function (xhr) {
-				if (xhr.status === 200) {
-					try {
-						var entry = JSON.parse(xhr.responseText)[0];
-						return Videos._titlesLoaderHelper(info, num, entry.title, entry.user_name, entry.stats_number_of_plays, new RegExp(/(.*)\s(.*)?/).exec(entry.upload_date)[1]);
-					} catch (e) {}
-				}
+				var entry = JSON.parse(xhr.responseText)[0];
+				return Videos._titlesLoaderHelper(info, num, entry.title, entry.user_name, entry.stats_number_of_plays, new RegExp(/(.*)\s(.*)?/).exec(entry.upload_date)[1]);
+			})["catch"](function () {
 				return Videos._titlesLoaderHelper(info, num);
 			});
 		}, function () {
@@ -6475,28 +6477,22 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		var returnForm = arguments[1] === undefined ? true : arguments[1];
 
 		return $ajax(url).then(function (xhr) {
-			if (xhr.status !== 200) {
-				return Promise.reject(new AjaxError(xhr.status, xhr.statusText));
-			}
 			var el,
 			    text = xhr.responseText;
 			if ((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
 				el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 			}
 			return el ? el : Promise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
+		}, function (xhr) {
+			return Promise.reject(new AjaxError(xhr.status, xhr.statusText));
 		});
 	}
 
 	function getJsonPosts(url) {
 		return $ajax(url).then(function (xhr) {
-			switch (xhr.status) {
-				case 200:
-					return JSON.parse(xhr.responseText);
-				case 304:
-					return null;
-				default:
-					return Promise.reject(AjaxError(xhr.status, xhr.message));
-			}
+			return JSON.parse(xhr.responseText);
+		}, function (xhr) {
+			return xhr.status === 304 ? null : Promise.reject(new AjaxError(xhr.status, xhr.message));
 		});
 	}
 
@@ -6557,16 +6553,16 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					return ajaxLoad(aib.getPageUrl(aib.b, i));
 
 				case 15:
-					context$2$0.t14 = context$2$0.sent;
-					content = replacePost(context$2$0.t14);
+					context$2$0.t15 = context$2$0.sent;
+					content = replacePost(context$2$0.t15);
 					context$2$0.next = 22;
 					break;
 
 				case 19:
 					context$2$0.prev = 19;
-					context$2$0.t15 = context$2$0["catch"](12);
+					context$2$0.t16 = context$2$0["catch"](12);
 
-					content = $add("<div><center style=\"font-size: 2em\">" + getErrorMessage(context$2$0.t15) + "</center><hr></div>");
+					content = $add("<div><center style=\"font-size: 2em\">" + getErrorMessage(context$2$0.t16) + "</center><hr></div>");
 
 				case 22:
 					if (i != aib.page) {
@@ -6580,9 +6576,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 27:
 					context$2$0.prev = 27;
-					context$2$0.t16 = context$2$0["catch"](23);
+					context$2$0.t17 = context$2$0["catch"](23);
 
-					$alert(getPrettyErrorMessage(context$2$0.t16), "load-pages", true);
+					$alert(getPrettyErrorMessage(context$2$0.t17), "load-pages", true);
 					hasError = true;
 					return context$2$0.abrupt("break", 35);
 
@@ -6599,10 +6595,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 					dForm.initAjax();
 					addDelformStuff();
-					return context$2$0.delegateYield(readUserPosts(), "t17", 39);
+					return context$2$0.delegateYield(readUserPosts(), "t18", 39);
 
 				case 39:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t18", 40);
+					return context$2$0.delegateYield(readFavoritesPosts(), "t19", 40);
 
 				case 40:
 					$each($Q("input[type=\"password\"]", dForm.el), function (pEl) {
@@ -7667,7 +7663,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							break;
 						}
 
-						context$2$0.t19 = image.hash;
+						context$2$0.t20 = image.hash;
 						context$2$0.next = 16;
 						break;
 
@@ -7676,10 +7672,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return image.getHash();
 
 					case 15:
-						context$2$0.t19 = context$2$0.sent;
+						context$2$0.t20 = context$2$0.sent;
 
 					case 16:
-						hash = context$2$0.t19;
+						hash = context$2$0.t20;
 
 						if (!(hash === val)) {
 							context$2$0.next = 19;
@@ -7699,9 +7695,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 					case 24:
 						context$2$0.prev = 24;
-						context$2$0.t20 = context$2$0["catch"](3);
+						context$2$0.t21 = context$2$0["catch"](3);
 						_didIteratorError = true;
-						_iteratorError = context$2$0.t20;
+						_iteratorError = context$2$0.t21;
 
 					case 28:
 						context$2$0.prev = 28;
@@ -8595,9 +8591,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			this.subm.addEventListener("click", function (e) {
 				if (aib._2chru && !aib.reqCaptcha) {
 					$ajax("/" + aib.b + "/api/requires-captcha").then(function (xhr) {
-						if (xhr.status !== 200) {
-							return;
-						}
 						aib.reqCaptcha = true;
 						if (JSON.parse(xhr.responseText)["requires-captcha"] !== "1") {
 							_this.subm.click();
@@ -8613,20 +8606,18 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 								var _this2 = this;
 
 								$ajax("/" + aib.b + "/api/validate-captcha", { method: "POST" }).then(function (xhr) {
-									if (xhr.status === 200) {
-										if (JSON.parse(xhr.responseText).status === "ok") {
-											_this2.innerHTML = "можно постить";
-										} else {
-											_this2.innerHTML = "неверная капча";
-											setTimeout(function (el) {
-												_this2.innerHTML = "проверить капчу";
-											}, 1000);
-										}
+									if (JSON.parse(xhr.responseText).status === "ok") {
+										_this2.innerHTML = "можно постить";
+									} else {
+										_this2.innerHTML = "неверная капча";
+										setTimeout(function (el) {
+											return _this2.innerHTML = "проверить капчу";
+										}, 1000);
 									}
-								});
+								}, emptyFn);
 							}
 						}));
-					});
+					}, emptyFn);
 					$pd(e);
 					return;
 				}
@@ -9288,9 +9279,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 9:
 					context$2$0.prev = 9;
-					context$2$0.t21 = context$2$0["catch"](3);
+					context$2$0.t22 = context$2$0["catch"](3);
 
-					$alert(getErrorMessage(context$2$0.t21), "upload", false);
+					$alert(getErrorMessage(context$2$0.t22), "upload", false);
 					return context$2$0.abrupt("return");
 
 				case 13:
@@ -9461,9 +9452,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 18:
 					context$2$0.prev = 18;
-					context$2$0.t22 = context$2$0["catch"](13);
+					context$2$0.t23 = context$2$0["catch"](13);
 
-					infoLoadErrors(context$2$0.t22);
+					infoLoadErrors(context$2$0.t23);
 
 				case 21:
 					context$2$0.next = 49;
@@ -9497,9 +9488,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 37:
 					context$2$0.prev = 37;
-					context$2$0.t23 = context$2$0["catch"](26);
+					context$2$0.t24 = context$2$0["catch"](26);
 					_didIteratorError = true;
-					_iteratorError = context$2$0.t23;
+					_iteratorError = context$2$0.t24;
 
 				case 41:
 					context$2$0.prev = 41;
@@ -14345,7 +14336,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return Promise.race([stopToken, sleep(1000)]);
 
 					case 9:
-						seconds--;
+						--seconds;
 						context$3$0.next = 5;
 						break;
 
@@ -14363,9 +14354,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 					case 18:
 						context$3$0.prev = 18;
-						context$3$0.t26 = context$3$0["catch"](2);
+						context$3$0.t28 = context$3$0["catch"](2);
 
-						if (!(context$3$0.t26 instanceof StopLoadingTaskError)) {
+						if (!(context$3$0.t28 instanceof StopLoadingTaskError)) {
 							context$3$0.next = 22;
 							break;
 						}
@@ -14395,9 +14386,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 					case 33:
 						context$3$0.prev = 33;
-						context$3$0.t27 = context$3$0["catch"](27);
+						context$3$0.t29 = context$3$0["catch"](27);
 
-						if (!(context$3$0.t27 instanceof StopLoadingTaskError)) {
+						if (!(context$3$0.t29 instanceof StopLoadingTaskError)) {
 							context$3$0.next = 37;
 							break;
 						}
@@ -14405,7 +14396,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return context$3$0.abrupt("return");
 
 					case 37:
-						error = context$3$0.t27;
+						error = context$3$0.t29;
 
 					case 38:
 						infoLoadErrors(error, false);
@@ -14734,28 +14725,25 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		}
 		return $ajax("https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js", { "Content-Type": "text/plain" }, false).then(function (xhr) {
-			if (xhr.status === 200) {
-				var m = xhr.responseText.match(/@version\s+([0-9.]+)/),
-				    dVer = m && m[1] ? m[1].split(".") : null;
-				if (dVer) {
-					var cVer = version.split(".");
-					saveComCfg("lastUpd", Date.now());
-					for (var i = 0, len = Math.max(cVer.length, dVer.length); i < len; ++i) {
-						if ((+dVer[i] || 0) > (+cVer[i] || 0)) {
-							return "<a style=\"color: blue; font-weight: bold;\" href=\"" + "https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/" + "Dollchan_Extension_Tools.user.js\">" + Lng.updAvail[lang] + "</a>";
-						} else if ((+dVer[i] || 0) < (+cVer[i] || 0)) {
-							break;
-						}
-					}
-					if (isForce) {
-						return Lng.haveLatest[lang];
+			var m = xhr.responseText.match(/@version\s+([0-9.]+)/),
+			    dVer = m && m[1] ? m[1].split(".") : null;
+			if (dVer) {
+				var cVer = version.split(".");
+				saveComCfg("lastUpd", Date.now());
+				for (var i = 0, len = Math.max(cVer.length, dVer.length); i < len; ++i) {
+					if ((+dVer[i] || 0) > (+cVer[i] || 0)) {
+						return "<a style=\"color: blue; font-weight: bold;\" href=\"" + "https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/" + "Dollchan_Extension_Tools.user.js\">" + Lng.updAvail[lang] + "</a>";
+					} else if ((+dVer[i] || 0) < (+cVer[i] || 0)) {
+						break;
 					}
 				}
-			}
-			if (isForce) {
-				return "<div style=\"color: red; font-weigth: bold;\">" + Lng.noConnect[lang] + "</div>";
+				if (isForce) {
+					return Lng.haveLatest[lang];
+				}
 			}
 			return Promise.reject();
+		}, function () {
+			return isForce ? "<div style=\"color: red; font-weigth: bold;\">" + Lng.noConnect[lang] + "</div>" : Promise.reject();
 		});
 	}
 
