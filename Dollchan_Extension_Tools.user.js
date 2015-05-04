@@ -6040,6 +6040,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		this.arrM = Lng.month[dtLang];
 		this.arrFM = Lng.fullMonth[dtLang];
 		this.rPattern = rPattern;
+		this.genRFunc();
 		this.onRPat = onRPat;
 	}
 	DateTime.toggleSettings = function (el) {
@@ -6053,6 +6054,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		return !val.contains("i") || !val.contains("h") || !val.contains("d") || !val.contains("y") || !(val.contains("n") || val.contains("m")) || /[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 	};
 	DateTime.prototype = {
+		genDataTime: null,
+		genRFunc: function genRFunc() {
+			this.genDataTime = new Function("dtime", "return '" + this.rPattern.replace("_o", "' + this.sDiff + '").replace("_s", "' + this.pad2(dtime.getSeconds()) + '").replace("_i", "' + this.pad2(dtime.getMinutes()) + '").replace("_h", "' + this.pad2(dtime.getHours()) + '").replace("_d", "' + this.pad2(dtime.getDate()) + '").replace("_w", "' + this.arrW[dtime.getDay()] + '").replace("_n", "' + this.pad2(dtime.getMonth() + 1) + '").replace("_m", "' + this.arrM[dtime.getMonth()] + '").replace("_M", "' + this.arrFM[dtime.getMonth()] + '").replace("_y", "' + ('' + dtime.getFullYear()).substring(2) + '").replace("_Y", "' + dtime.getFullYear() + '") + "';");
+		},
 		getRPattern: function getRPattern(txt) {
 			var m = txt.match(new RegExp(this.regex));
 			if (!m) {
@@ -6073,6 +6078,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (this.onRPat) {
 				this.onRPat(this.rPattern);
 			}
+			this.genRFunc();
 			return true;
 		},
 		pad2: function pad2(num) {
@@ -6084,15 +6090,15 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (this.disabled || !this.rPattern && !this.getRPattern(txt)) {
 				return txt;
 			}
-			return txt.replace(new RegExp(this.regex, "g"), function () {
-				for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-					args[_key] = arguments[_key];
+			return txt.replace(new RegExp(this.regex, "g"), function (str) {
+				for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+					args[_key - 1] = arguments[_key];
 				}
 
-				var second, minute, hour, day, month, year, dtime;
-				for (var i = 1; i < 8; i++) {
+				var second, minute, hour, day, month, year;
+				for (var i = 0; i < 7; ++i) {
 					var a = args[i];
-					switch (_this.pattern[i - 1]) {
+					switch (_this.pattern[i]) {
 						case "s":
 							second = a;break;
 						case "i":
@@ -6136,9 +6142,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							}
 					}
 				}
-				dtime = new Date(year.length === 2 ? "20" + year : year, month, day, hour, minute, second || 0);
+				var dtime = new Date(year.length === 2 ? "20" + year : year, month, day, hour, minute, second || 0);
 				dtime.setHours(dtime.getHours() + _this.diff);
-				return _this.rPattern.replace("_o", _this.sDiff).replace("_s", _this.pad2(dtime.getSeconds())).replace("_i", _this.pad2(dtime.getMinutes())).replace("_h", _this.pad2(dtime.getHours())).replace("_d", _this.pad2(dtime.getDate())).replace("_w", _this.arrW[dtime.getDay()]).replace("_n", _this.pad2(dtime.getMonth() + 1)).replace("_m", _this.arrM[dtime.getMonth()]).replace("_M", _this.arrFM[dtime.getMonth()]).replace("_y", ("" + dtime.getFullYear()).substring(2)).replace("_Y", dtime.getFullYear());
+				return _this.genDataTime(dtime);
 			});
 		}
 	};

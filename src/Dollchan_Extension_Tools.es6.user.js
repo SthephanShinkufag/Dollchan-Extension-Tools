@@ -3991,6 +3991,7 @@ function DateTime(pattern, rPattern, diff, dtLang, onRPat) {
 	this.arrM = Lng.month[dtLang];
 	this.arrFM = Lng.fullMonth[dtLang];
 	this.rPattern = rPattern;
+	this.genRFunc();
 	this.onRPat = onRPat;
 }
 DateTime.toggleSettings = function(el) {
@@ -4006,6 +4007,22 @@ DateTime.checkPattern = function(val) {
 		/[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 };
 DateTime.prototype = {
+	genDataTime: null,
+	genRFunc() {
+		this.genDataTime = new Function('dtime', 'return \'' + this.rPattern
+			.replace('_o', '\' + this.sDiff + \'')
+			.replace('_s', '\' + this.pad2(dtime.getSeconds()) + \'')
+			.replace('_i', '\' + this.pad2(dtime.getMinutes()) + \'')
+			.replace('_h', '\' + this.pad2(dtime.getHours()) + \'')
+			.replace('_d', '\' + this.pad2(dtime.getDate()) + \'')
+			.replace('_w', '\' + this.arrW[dtime.getDay()] + \'')
+			.replace('_n', '\' + this.pad2(dtime.getMonth() + 1) + \'')
+			.replace('_m', '\' + this.arrM[dtime.getMonth()] + \'')
+			.replace('_M', '\' + this.arrFM[dtime.getMonth()] + \'')
+			.replace('_y', '\' + (\'\' + dtime.getFullYear()).substring(2) + \'')
+			.replace('_Y', '\' + dtime.getFullYear() + \'') + '\';'
+		);
+	},
 	getRPattern(txt) {
 		var m = txt.match(new RegExp(this.regex));
 		if(!m) {
@@ -4026,6 +4043,7 @@ DateTime.prototype = {
 		if(this.onRPat) {
 			this.onRPat(this.rPattern);
 		}
+		this.genRFunc();
 		return true;
 	},
 	pad2(num) {
@@ -4035,11 +4053,11 @@ DateTime.prototype = {
 		if(this.disabled || (!this.rPattern && !this.getRPattern(txt))) {
 			return txt;
 		}
-		return txt.replace(new RegExp(this.regex, 'g'), (...args) => {
-			var second, minute, hour, day, month, year, dtime;
-			for(var i = 1; i < 8; i++) {
+		return txt.replace(new RegExp(this.regex, 'g'), (str, ...args) => {
+			var second, minute, hour, day, month, year;
+			for(var i = 0; i < 7; ++i) {
 				var a = args[i];
-				switch(this.pattern[i - 1]) {
+				switch(this.pattern[i]) {
 				case 's': second = a; break;
 				case 'i': minute = a; break;
 				case 'h': hour = a; break;
@@ -4047,7 +4065,7 @@ DateTime.prototype = {
 				case 'n': month = a - 1; break;
 				case 'y': year = a; break;
 				case 'm':
-					switch(a.slice(0,3)) {
+					switch(a.slice(0, 3)) {
 					case 'янв': case 'jan': month = 0; break;
 					case 'фев': case 'feb': month = 1; break;
 					case 'мар': case 'mar': month = 2; break;
@@ -4064,20 +4082,9 @@ DateTime.prototype = {
 					}
 				}
 			}
-			dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
+			var dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
 			dtime.setHours(dtime.getHours() + this.diff);
-			return this.rPattern
-				.replace('_o', this.sDiff)
-				.replace('_s', this.pad2(dtime.getSeconds()))
-				.replace('_i', this.pad2(dtime.getMinutes()))
-				.replace('_h', this.pad2(dtime.getHours()))
-				.replace('_d', this.pad2(dtime.getDate()))
-				.replace('_w', this.arrW[dtime.getDay()])
-				.replace('_n', this.pad2(dtime.getMonth() + 1))
-				.replace('_m', this.arrM[dtime.getMonth()])
-				.replace('_M', this.arrFM[dtime.getMonth()])
-				.replace('_y', ('' + dtime.getFullYear()).substring(2))
-				.replace('_Y', dtime.getFullYear());
+			return this.genDataTime(dtime);
 		});
 	}
 };
