@@ -4046,19 +4046,22 @@ DateTime.prototype = {
 				case 'd': day = a; break;
 				case 'n': month = a - 1; break;
 				case 'y': year = a; break;
-				case 'm': month =
-					/^янв|^jan/i.test(a) ? 0 :
-					/^фев|^feb/i.test(a) ? 1 :
-					/^мар|^mar/i.test(a) ? 2 :
-					/^апр|^apr/i.test(a) ? 3 :
-					/^май|^may/i.test(a) ? 4 :
-					/^июн|^jun/i.test(a) ? 5 :
-					/^июл|^jul/i.test(a) ? 6 :
-					/^авг|^aug/i.test(a) ? 7 :
-					/^сен|^sep/i.test(a) ? 8 :
-					/^окт|^oct/i.test(a) ? 9 :
-					/^ноя|^nov/i.test(a) ? 10 :
-					/^дек|^dec/i.test(a) && 11;
+				case 'm':
+					switch(a.slice(0,3)) {
+					case 'янв': case 'jan': month = 0; break;
+					case 'фев': case 'feb': month = 1; break;
+					case 'мар': case 'mar': month = 2; break;
+					case 'апр': case 'apr': month = 3; break;
+					case 'май': case 'мая': case 'may': month = 4; break;
+					case 'июн': case 'jun': month = 5; break;
+					case 'июл': case 'jul': month = 6; break;
+					case 'авг': case 'aug': month = 7; break;
+					case 'сен': case 'sep': month = 8; break;
+					case 'окт': case 'oct': month = 9; break;
+					case 'ноя': case 'nov': month = 10; break;
+					case 'дек': case 'dec': month = 11; break;
+					default: month = 0; break;
+					}
 				}
 			}
 			dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
