@@ -6172,7 +6172,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			get: function () {
 				var val;
 				try {
-					val = Cfg.YTubeTitles ? JSON.parse(sesStorage["de-videos-data"] || "[{}, {}]") : [{}, {}];
+					val = Cfg.YTubeTitles ? JSON.parse(sesStorage["de-videos-data1"] || "[{}, {}]") : [{}, {}];
 				} catch (e) {
 					val = [{}, {}];
 				}
@@ -6251,9 +6251,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			var id = _info[3];
 
 			if (isYtube) {
-				return $ajax(aib.prot + "//gdata.youtube.com/feeds/api/videos/" + id + "?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published", null, false).then(function (xhr) {
-					var entry = JSON.parse(xhr.responseText).entry;
-					return Videos._titlesLoaderHelper(info, num, entry.title.$t, entry.author[0].name.$t, entry.yt$statistics.viewCount, entry.published.$t.substr(0, 10));
+				return $ajax("https://www.googleapis.com/youtube/v3/videos?key=API_KEY&id=" + id + "&part=snippet,statistics&fields=items/snippet/title,items/snippet/publishedAt,items/snippet/channelTitle,items/statistics/viewCount", null, false).then(function (xhr) {
+					var items = JSON.parse(xhr.responseText).items[0];
+					return Videos._titlesLoaderHelper(info, num, items.snippet.title, items.snippet.channelTitle, items.statistics.viewCount, items.snippet.publishedAt.substr(0, 10));
 				})["catch"](function () {
 					return Videos._titlesLoaderHelper(info, num);
 				});

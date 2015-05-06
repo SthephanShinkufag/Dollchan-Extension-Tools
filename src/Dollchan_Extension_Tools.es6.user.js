@@ -4109,7 +4109,7 @@ Videos._global = {
 	get vData() {
 		var val;
 		try {
-			val = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data'] || '[{}, {}]') : [{}, {}];
+			val = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data1'] || '[{}, {}]') : [{}, {}];
 		} catch(e) {
 			val = [{}, {}];
 		}
@@ -4176,15 +4176,15 @@ Videos._getTitlesLoader = function() {
 	return Cfg.YTubeTitles && new TasksPool(4, function(num, info) {
 		var [, isYtube,, id] = info;
 		if(isYtube) {
-			return $ajax(aib.prot + '//gdata.youtube.com/feeds/api/videos/' + id +
-			             '?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published',
+			return $ajax('https://www.googleapis.com/youtube/v3/videos?key=API_KEY&id=' + id +
+			             '&part=snippet,statistics&fields=items/snippet/title,items/snippet/publishedAt,items/snippet/channelTitle,items/statistics/viewCount',
 			             null, false).then(xhr => {
-				var entry = JSON.parse(xhr.responseText).entry;
+				var items = JSON.parse(xhr.responseText).items[0];
 				return Videos._titlesLoaderHelper(info, num,
-												  entry.title.$t,
-												  entry.author[0].name.$t,
-												  entry.yt$statistics.viewCount,
-												  entry.published.$t.substr(0, 10));
+												  items.snippet.title,
+												  items.snippet.channelTitle,
+												  items.statistics.viewCount,
+												  items.snippet.publishedAt.substr(0, 10));
 			}).catch(() => Videos._titlesLoaderHelper(info, num));
 		}
 		return $ajax(aib.prot + '//vimeo.com/api/v2/video/' + id + '.json', null, false).then(xhr => {
