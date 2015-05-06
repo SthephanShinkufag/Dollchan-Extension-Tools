@@ -2486,7 +2486,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				case 6:
 					str = context$2$0.t30;
 
-					if (!(str && str.contains(aib.dm))) {
+					if (!(str && str.includes(aib.dm))) {
 						context$2$0.next = 9;
 						break;
 					}
@@ -4898,7 +4898,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				el.classList.add("de-open");
 			}
 		}
-		if (Cfg.closePopups && !wait && !id.contains("help") && !id.contains("edit")) {
+		if (Cfg.closePopups && !wait && !id.includes("help") && !id.includes("edit")) {
 			el.closeTimeout = setTimeout(closeAlert, 4000, el);
 		}
 	}
@@ -6035,13 +6035,14 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}).replace(/\-/g, "[^<]").replace(/\+/g, "[^0-9]").replace(/([sihdny]+)/g, "($1)").replace(/[sihdny]/g, "\\d").replace(/m|w/g, "([a-zA-Zа-яА-Я]+)");
 		this.pattern = pattern.replace(/[\?\-\+]+/g, "").replace(/([a-z])\1+/g, "$1");
 		this.diff = parseInt(diff, 10);
-		this.sDiff = (this.diff < 0 ? "" : "+") + this.diff;
 		this.arrW = Lng.week[dtLang];
 		this.arrM = Lng.month[dtLang];
 		this.arrFM = Lng.fullMonth[dtLang];
-		this.rPattern = rPattern;
-		this.genRFunc();
-		this.onRPat = onRPat;
+		if (rPattern) {
+			this.genDateTime = DateTime.genRFunc(rPattern, diff);
+		} else {
+			this.onRPat = onRPat;
+		}
 	}
 	DateTime.toggleSettings = function (el) {
 		if (el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.timeOffset) || DateTime.checkPattern(Cfg.timePattern))) {
@@ -6051,20 +6052,21 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}
 	};
 	DateTime.checkPattern = function (val) {
-		return !val.contains("i") || !val.contains("h") || !val.contains("d") || !val.contains("y") || !(val.contains("n") || val.contains("m")) || /[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
+		return !val.includes("i") || !val.includes("h") || !val.includes("d") || !val.includes("y") || !(val.includes("n") || val.includes("m")) || /[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
+	};
+	DateTime.genRFunc = function (rPattern, diff) {
+		return new Function("dtime", "return '" + rPattern.replace("_o", (diff < 0 ? "" : "+") + diff).replace("_s", "' + this.pad2(dtime.getSeconds()) + '").replace("_i", "' + this.pad2(dtime.getMinutes()) + '").replace("_h", "' + this.pad2(dtime.getHours()) + '").replace("_d", "' + this.pad2(dtime.getDate()) + '").replace("_w", "' + this.arrW[dtime.getDay()] + '").replace("_n", "' + this.pad2(dtime.getMonth() + 1) + '").replace("_m", "' + this.arrM[dtime.getMonth()] + '").replace("_M", "' + this.arrFM[dtime.getMonth()] + '").replace("_y", "' + ('' + dtime.getFullYear()).substring(2) + '").replace("_Y", "' + dtime.getFullYear() + '") + "';");
 	};
 	DateTime.prototype = {
-		genDataTime: null,
-		genRFunc: function genRFunc() {
-			this.genDataTime = new Function("dtime", "return '" + this.rPattern.replace("_o", "' + this.sDiff + '").replace("_s", "' + this.pad2(dtime.getSeconds()) + '").replace("_i", "' + this.pad2(dtime.getMinutes()) + '").replace("_h", "' + this.pad2(dtime.getHours()) + '").replace("_d", "' + this.pad2(dtime.getDate()) + '").replace("_w", "' + this.arrW[dtime.getDay()] + '").replace("_n", "' + this.pad2(dtime.getMonth() + 1) + '").replace("_m", "' + this.arrM[dtime.getMonth()] + '").replace("_M", "' + this.arrFM[dtime.getMonth()] + '").replace("_y", "' + ('' + dtime.getFullYear()).substring(2) + '").replace("_Y", "' + dtime.getFullYear() + '") + "';");
-		},
+		genDateTime: null,
+		onRPat: null,
 		getRPattern: function getRPattern(txt) {
 			var m = txt.match(new RegExp(this.regex));
 			if (!m) {
 				this.disabled = true;
 				return false;
 			}
-			this.rPattern = "";
+			var rPattern = "";
 			for (var i = 1, len = m.length, j = 0, str = m[0]; i < len;) {
 				var a = m[i++],
 				    p = this.pattern[i - 2];
@@ -6072,13 +6074,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					p = p.toUpperCase();
 				}
 				var k = str.indexOf(a, j);
-				this.rPattern += str.substring(j, k) + "_" + p;
+				rPattern += str.substring(j, k) + "_" + p;
 				j = k + a.length;
 			}
 			if (this.onRPat) {
-				this.onRPat(this.rPattern);
+				this.onRPat(rPattern);
 			}
-			this.genRFunc();
+			this.genDateTime = DateTime.genRFunc(rPattern, this.diff);
 			return true;
 		},
 		pad2: function pad2(num) {
@@ -6087,7 +6089,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		fix: function fix(txt) {
 			var _this = this;
 
-			if (this.disabled || !this.rPattern && !this.getRPattern(txt)) {
+			if (this.disabled || !this.genDateTime && !this.getRPattern(txt)) {
 				return txt;
 			}
 			return txt.replace(new RegExp(this.regex, "g"), function (str) {
@@ -6144,7 +6146,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				}
 				var dtime = new Date(year.length === 2 ? "20" + year : year, month, day, hour, minute, second || 0);
 				dtime.setHours(dtime.getHours() + _this.diff);
-				return _this.genDataTime(dtime);
+				return _this.genDateTime(dtime);
 			});
 		}
 	};
@@ -7421,7 +7423,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					m = str.match(/^\(([\d-, ]+)\)/);
 					if (m) {
 						m[1].split(/, */).forEach(function (v) {
-							if (v.contains("-")) {
+							if (v.includes("-")) {
 								var nums = v.split("-");
 								nums[0] = +nums[0];
 								nums[1] = +nums[1];
@@ -7623,7 +7625,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		},
 		_words: function _words(val) {
-			return this._post.text.toLowerCase().contains(val) || this._post.subj.toLowerCase().contains(val);
+			return this._post.text.toLowerCase().includes(val) || this._post.subj.toLowerCase().includes(val);
 		},
 		_exp: function _exp(val) {
 			return val.test(this._post.text);
@@ -7771,11 +7773,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		},
 		_name: function _name(val) {
 			var pName = this._post.posterName;
-			return pName ? !val || pName.contains(val) : false;
+			return pName ? !val || pName.includes(val) : false;
 		},
 		_trip: function _trip(val) {
 			var pTrip = this._post.posterTrip;
-			return pTrip ? !val || pTrip.contains(val) : false;
+			return pTrip ? !val || pTrip.includes(val) : false;
 		},
 		_img: function _img(val) {
 			var hide;var images = this._post.images;
@@ -8352,7 +8354,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (!Cfg.addOPLink && !isThr && post.isOp && !isNumClick) {
 				this.txta.focus();
 			} else {
-				$txtInsert(this.txta, (isNumClick ? ">>" + pNum : (temp !== "" && temp.slice(-1) !== "\n" ? "\n" : "") + (this.lastQuickPNum === pNum && temp.contains(">>" + pNum) ? "" : ">>" + pNum + "\n")) + (quotetxt ? quotetxt.replace(/^\n|\n$/g, "").replace(/(^|\n)(.)/gm, "$1>" + (Cfg.spacedQuote ? " " : "") + "$2") + "\n" : ""));
+				$txtInsert(this.txta, (isNumClick ? ">>" + pNum : (temp !== "" && temp.slice(-1) !== "\n" ? "\n" : "") + (this.lastQuickPNum === pNum && temp.includes(">>" + pNum) ? "" : ">>" + pNum + "\n")) + (quotetxt ? quotetxt.replace(/^\n|\n$/g, "").replace(/(^|\n)(.)/gm, "$1>" + (Cfg.spacedQuote ? " " : "") + "$2") + "\n" : ""));
 			}
 			temp = pByNum[pNum].thr.op.title;
 			if (temp.length > 27) {
@@ -8666,7 +8668,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				}
 				if (_this.tNum && pByNum[_this.tNum].subj === "Dollchan Extension Tools") {
 					var temp = "\n\n" + _this._wrapText(aib.markupBB, aib.markupTags[5], "-".repeat(50) + "\n" + nav.ua + "\nv" + version + " [" + nav.scriptInstall + "]")[1];
-					if (!val.contains(temp)) {
+					if (!val.includes(temp)) {
 						val += temp;
 					}
 				}
@@ -8873,7 +8875,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			var m;
 			if (markupBB) {
 				var str;
-				if (text.contains("\n")) {
+				if (text.includes("\n")) {
 					str = "[" + tag + "]" + text + "[/" + tag + "]";
 					return [str.length, str];
 				}
@@ -11315,7 +11317,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						end = end.parentNode;
 					}
 					if (nav.matchesSelector(start, aib.qMsg + " *") && nav.matchesSelector(end, aib.qMsg + " *") || nav.matchesSelector(start, "." + aib.cSubj) && nav.matchesSelector(end, "." + aib.cSubj)) {
-						if (this._selText.contains("\n")) {
+						if (this._selText.includes("\n")) {
 							addSpell(1, "/" + regQuote(this._selText).replace(/\r?\n/g, "\\n") + "/", false);
 						} else {
 							addSpell(0, this._selText.replace(/\)/g, "\\)").toLowerCase(), false);
@@ -12708,10 +12710,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 
 	function getNavFuncs() {
-		if (!("contains" in String.prototype)) {
-			String.prototype.contains = function (s) {
+		if (!("includes" in String.prototype)) {
+			String.prototype.includes = String.prototype.contains || function (s) {
 				return this.indexOf(s) !== -1;
 			};
+		}
+		if (!("startsWith" in String.prototype)) {
 			String.prototype.startsWith = function (s) {
 				return this.indexOf(s) === 0;
 			};
@@ -12759,17 +12763,17 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			};
 		}
 		var ua = window.navigator.userAgent,
-		    firefox = ua.contains("Gecko/"),
+		    firefox = ua.includes("Gecko/"),
 		    presto = window.opera ? +window.opera.version() : 0,
 		    opera11 = presto ? presto < 12.1 : false,
-		    webkit = ua.contains("WebKit/"),
-		    chrome = webkit && ua.contains("Chrome/"),
+		    webkit = ua.includes("WebKit/"),
+		    chrome = webkit && ua.includes("Chrome/"),
 		    safari = webkit && !chrome,
 		    isGM = false,
 		    isChromeStorage = window.chrome && !!window.chrome.storage,
-		    isScriptStorage = !!scriptStorage && !ua.contains("Opera Mobi");
+		    isScriptStorage = !!scriptStorage && !ua.includes("Opera Mobi");
 		try {
-			isGM = typeof GM_setValue === "function" && (!chrome || !GM_setValue.toString().contains("not supported"));
+			isGM = typeof GM_setValue === "function" && (!chrome || !GM_setValue.toString().includes("not supported"));
 		} catch (e) {}
 		return Object.defineProperties({
 			Firefox: firefox,
@@ -12915,7 +12919,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				qPostRedir: { value: "input#noko" },
 				getSage: { value: function value(post) {
 						var el = $c("filetitle", post);
-						return el && el.textContent.contains("⇩");
+						return el && el.textContent.includes("⇩");
 					} },
 				css: { value: "#resizer { display: none !important; }" },
 				markupBB: { value: false },
@@ -13094,7 +13098,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					} },
 				hasPicWrap: { value: true },
 				hDTFix: { configurable: true, get: function get() {
-						var val = new DateTime("yyyy-nn-dd-hh-ii-ss", "_d _M _Y (_w) _h:_i ", Cfg.timeOffset || 0, Cfg.correctTime ? lang : 1, null);
+						var val = new DateTime("yyyy-nn-dd-hh-ii-ss", "_d _M _Y (_w) _h:_i ", Cfg.timeOffset || 0, Cfg.correctTime ? lang : 1);
 						Object.defineProperty(this, "weight", { value: val });
 						return val;
 					} },
@@ -13390,6 +13394,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				qPostRedir: { value: null },
 				qThumbImages: { value: ".preview" },
 				qTrunc: { value: null },
+				nameSelector: { value: ".ananimas, .post-email, .ananimas > span, .post-email > span" },
 				getImgParent: { value: function value(node) {
 						var el = $parent(node, "FIGURE"),
 						    parent = el.parentNode;
@@ -13401,11 +13406,27 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				getPNum: { value: function value(post) {
 						return post.getAttribute("data-num");
 					} },
+				getSage: { writable: true, value: function value(post) {
+						if (this.hasNames) {
+							this.getSage = function (post) {
+								var name = $q(this.qName, post);
+								return name ? name.childElementCount === 0 && !$c("ophui", post) : false;
+							};
+						} else {
+							this.getSage = Object.getPrototypeOf(this).getSage;
+						}
+						return this.getSage(post);
+					} },
 				getWrap: { value: function value(el) {
 						return el.parentNode;
 					} },
 				cssEn: { get: function get() {
 						return ".ABU-refmap, .box[onclick=\"ToggleSage()\"], img[alt=\"webm file\"], .de-qarea-hanging .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t.de-abtn { transition: none; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t\t" + (Cfg.expandTrunc ? ".expand-large-comment, div[id^=\"shrinked-post\"] { display: none !important; } div[id^=\"original-post\"] { display: block !important; }" : "") + "\n\t\t\t\t" + (Cfg.delImgNames ? ".filesize { display: inline !important; }" : "");
+					} },
+				hasNames: { configurable: true, get: function get() {
+						var val = !!$q(".ananimas > span[id^=\"id_tag_\"], .post-email > span[id^=\"id_tag_\"]", doc.body);
+						Object.defineProperty(this, "hasNames", { value: val });
+						return val;
 					} },
 				hasPicWrap: { value: true },
 				init: { value: function value() {
@@ -14833,7 +14854,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		"#de-txta-resizer { display: inline-block !important; float: none !important; padding: 5px; margin: " + (nav.Presto ? "-2px -10px" : "0 0 -1px -11px") + "; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\t.de-parea { text-align: center; }\t.de-parea-btn-close:after { content: \"" + Lng.hideForm[lang] + "\" }\t.de-parea-btn-thrd:after { content: \"" + Lng.makeThrd[lang] + "\" }\t.de-parea-btn-reply:after { content: \"" + Lng.makeReply[lang] + "\" }\t#de-pform { display: inline-block; vertical-align: middle; }\t#de-pform > form { padding: 0; margin: 0; border: none; }\t#de-pform input[type=\"text\"], #de-pform input[type=\"file\"] { width: 200px; }\t#de-qarea { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\t#de-qarea > div:nth-child(2) { text-align: center; }\t.de-qarea-hanging { position: fixed; z-index: 9990; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\t.de-qarea-hanging > .de-cfg-head { cursor: move; }\t.de-qarea-hanging #de-qarea-utils > span:hover { color: #ff6; }\t.de-qarea-hanging > #de-pform { padding: 2px 2px 0 1px; border: 1px solid gray; }\t.de-qarea-hanging .de-textarea { min-width: 98% !important; resize: none !important; }\t.de-qarea-hanging #de-txta-resizer { display: none !important; }\t.de-qarea-hanging #de-resizer-bottom { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\t.de-qarea-hanging #de-resizer-left { position: absolute; margin: -3px; bottom: 3px; top: 3px; width: 6px; cursor: ew-resize; }\t.de-qarea-hanging #de-resizer-right { position: absolute; margin: -3px; bottom: 3px; top: 3px; display: inline-block; width: 6px; cursor: ew-resize; }\t.de-qarea-hanging #de-resizer-top { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\t.de-qarea-inline { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\t#de-qarea-target { font-weight: bold; margin-left: 4px; }\t#de-qarea-utils { float: right; margin-top: " + (nav.Chrome ? -1 : -4) + "px; font: normal 16px arial; cursor: pointer; }\t#de-qarea-utils > span { margin-right: 4px; }\t#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }" +
 
 	
-		cont(".de-wait", "data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7") + ".de-abtn { text-decoration: none !important; outline: none; }\t.de-after-fimg { clear: left; }\t#de-alert { overflow-y: auto !important; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\t#de-alert > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\t.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\t.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\t.de-alert-msg { display: inline-block; }\t.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; " + (nav.Presto ? "" : "resize: none !important; ") + "}\t.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t.de-content-block > input { margin: 0 4px; }\t#de-content-fav, #de-content-hid, #de-content-vid { font-size: 16px; padding: 10px; border: 1px solid gray; border-radius: 8px; }\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t.de-entry { display: block !important; float: none !important; width: auto; max-width: 100% !important; margin: 2px 0 !important; padding: 0 !important; border: none; font-size: 14px; " + (nav.Presto ? "white-space: nowrap; " : "") + "}\t.de-entry > a { text-decoration: none; border: none; }\t.de-entry > input { margin: 2px 4px; }\t.de-collapse { clear: left; display: block; float: left; margin: 5px 0 10px 0; }\t.de-fav-inf-err { color: #c33; font-size: 12px; }\t.de-fav-inf-new { color: #424f79; }\t.de-fav-inf-new:after { content: \" +\"; }\t.de-fav-inf-old { color: #4f7942; }\t.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\t.de-fav-title { margin-right: 15px; }\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t.de-link-hid { text-decoration: line-through !important; }\t.de-link-parent { outline: 1px dotted !important; }\t.de-link-pview { font-weight: bold; }\t.de-link-ref { text-decoration: none; }\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t.de-menu-item:hover { background-color: #222; color: #fff; }\t.de-new-post { " + (nav.Presto ? "border-left: 4px solid blue; border-right: 4px solid blue; }" : "box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }") + "\t.de-omitted { color: grey; font-style: italic; }\t.de-omitted:before { content: \"" + Lng.postsOmitted[lang] + "\"; }\t.de-post-hide > " + aib.qHide + " { display: none !important; }\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\t.de-pview-info { padding: 3px 6px !important; }\t.de-ref-op:after { content: \" [OP]\"; }\t.de-ref-del:after { content: \" [del]\"; }\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\t.de-refmap:before { content: \"" + Lng.replies[lang] + " \"; }\t.de-refcomma:last-child { display: none; }\t.de-selected, .de-error-key { " + (nav.Presto ? "border-left: 4px solid red; border-right: 4px solid red; }" : "box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }") + "\t#de-updater-btn:after { content: \"" + Lng.getNewPosts[lang] + "\" }\t#de-updater-count:before { content: \": \" }\t#de-updater-div { clear: left; margin-top: 10px; }\t.de-viewed { color: #888 !important; }\tform > hr { clear: both }";
+		cont(".de-wait", "data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7") + ".de-abtn { text-decoration: none !important; outline: none; }\t.de-after-fimg { clear: left; }\t#de-alert { overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\t#de-alert > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\t.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\t.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\t.de-alert-msg { display: inline-block; }\t.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; " + (nav.Presto ? "" : "resize: none !important; ") + "}\t.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t.de-content-block > input { margin: 0 4px; }\t#de-content-fav, #de-content-hid, #de-content-vid { font-size: 16px; padding: 10px; border: 1px solid gray; border-radius: 8px; }\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t.de-entry { display: block !important; float: none !important; width: auto; max-width: 100% !important; margin: 2px 0 !important; padding: 0 !important; border: none; font-size: 14px; " + (nav.Presto ? "white-space: nowrap; " : "") + "}\t.de-entry > a { text-decoration: none; border: none; }\t.de-entry > input { margin: 2px 4px; }\t.de-collapse { clear: left; display: block; float: left; margin: 5px 0 10px 0; }\t.de-fav-inf-err { color: #c33; font-size: 12px; }\t.de-fav-inf-new { color: #424f79; }\t.de-fav-inf-new:after { content: \" +\"; }\t.de-fav-inf-old { color: #4f7942; }\t.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\t.de-fav-title { margin-right: 15px; }\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t.de-link-hid { text-decoration: line-through !important; }\t.de-link-parent { outline: 1px dotted !important; }\t.de-link-pview { font-weight: bold; }\t.de-link-ref { text-decoration: none; }\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t.de-menu-item:hover { background-color: #222; color: #fff; }\t.de-new-post { " + (nav.Presto ? "border-left: 4px solid blue; border-right: 4px solid blue; }" : "box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }") + "\t.de-omitted { color: grey; font-style: italic; }\t.de-omitted:before { content: \"" + Lng.postsOmitted[lang] + "\"; }\t.de-post-hide > " + aib.qHide + " { display: none !important; }\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\t.de-pview-info { padding: 3px 6px !important; }\t.de-ref-op:after { content: \" [OP]\"; }\t.de-ref-del:after { content: \" [del]\"; }\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\t.de-refmap:before { content: \"" + Lng.replies[lang] + " \"; }\t.de-refcomma:last-child { display: none; }\t.de-selected, .de-error-key { " + (nav.Presto ? "border-left: 4px solid red; border-right: 4px solid red; }" : "box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }") + "\t#de-updater-btn:after { content: \"" + Lng.getNewPosts[lang] + "\" }\t#de-updater-count:before { content: \": \" }\t#de-updater-div { clear: left; margin-top: 10px; }\t.de-viewed { color: #888 !important; }\tform > hr { clear: both }";
 
 		if (!nav.Firefox) {
 			x = x.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + "$1");

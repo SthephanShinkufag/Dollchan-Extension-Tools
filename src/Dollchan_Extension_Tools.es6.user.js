@@ -1327,7 +1327,7 @@ function* readCfg() {
 	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
 	if(Cfg.correctTime) {
-		dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, function(rp) {
+		dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, rp => {
 			saveCfg('timeRPattern', rp);
 		});
 	}
@@ -2867,7 +2867,7 @@ function $alert(txt, id, wait) {
 			el.classList.add('de-open');
 		}
 	}
-	if(Cfg.closePopups && !wait && !id.contains('help') && !id.contains('edit')) {
+	if(Cfg.closePopups && !wait && !id.includes('help') && !id.includes('edit')) {
 		el.closeTimeout = setTimeout(closeAlert, 4e3, el);
 	}
 }
@@ -3986,13 +3986,14 @@ function DateTime(pattern, rPattern, diff, dtLang, onRPat) {
 		.replace(/m|w/g, '([a-zA-Zа-яА-Я]+)');
 	this.pattern = pattern.replace(/[\?\-\+]+/g, '').replace(/([a-z])\1+/g, '$1');
 	this.diff = parseInt(diff, 10);
-	this.sDiff = (this.diff < 0 ? '' : '+') + this.diff;
 	this.arrW = Lng.week[dtLang];
 	this.arrM = Lng.month[dtLang];
 	this.arrFM = Lng.fullMonth[dtLang];
-	this.rPattern = rPattern;
-	this.genRFunc();
-	this.onRPat = onRPat;
+	if(rPattern) {
+		this.genDateTime = DateTime.genRFunc(rPattern, diff);
+	} else {
+		this.onRPat = onRPat;
+	}
 }
 DateTime.toggleSettings = function(el) {
 	if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.timeOffset) || DateTime.checkPattern(Cfg.timePattern))) {
@@ -4002,34 +4003,35 @@ DateTime.toggleSettings = function(el) {
 	}
 };
 DateTime.checkPattern = function(val) {
-	return !val.contains('i') || !val.contains('h') || !val.contains('d') || !val.contains('y') ||
-		!(val.contains('n') || val.contains('m')) ||
+	return !val.includes('i') || !val.includes('h') || !val.includes('d') || !val.includes('y') ||
+		!(val.includes('n') || val.includes('m')) ||
 		/[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 };
+DateTime.genRFunc = function(rPattern, diff) {
+	return new Function('dtime', 'return \'' +
+		rPattern.replace('_o', (diff < 0 ? '' : '+') + diff)
+		.replace('_s', '\' + this.pad2(dtime.getSeconds()) + \'')
+		.replace('_i', '\' + this.pad2(dtime.getMinutes()) + \'')
+		.replace('_h', '\' + this.pad2(dtime.getHours()) + \'')
+		.replace('_d', '\' + this.pad2(dtime.getDate()) + \'')
+		.replace('_w', '\' + this.arrW[dtime.getDay()] + \'')
+		.replace('_n', '\' + this.pad2(dtime.getMonth() + 1) + \'')
+		.replace('_m', '\' + this.arrM[dtime.getMonth()] + \'')
+		.replace('_M', '\' + this.arrFM[dtime.getMonth()] + \'')
+		.replace('_y', '\' + (\'\' + dtime.getFullYear()).substring(2) + \'')
+		.replace('_Y', '\' + dtime.getFullYear() + \'') + '\';'
+	);
+};
 DateTime.prototype = {
-	genDataTime: null,
-	genRFunc() {
-		this.genDataTime = new Function('dtime', 'return \'' + this.rPattern
-			.replace('_o', '\' + this.sDiff + \'')
-			.replace('_s', '\' + this.pad2(dtime.getSeconds()) + \'')
-			.replace('_i', '\' + this.pad2(dtime.getMinutes()) + \'')
-			.replace('_h', '\' + this.pad2(dtime.getHours()) + \'')
-			.replace('_d', '\' + this.pad2(dtime.getDate()) + \'')
-			.replace('_w', '\' + this.arrW[dtime.getDay()] + \'')
-			.replace('_n', '\' + this.pad2(dtime.getMonth() + 1) + \'')
-			.replace('_m', '\' + this.arrM[dtime.getMonth()] + \'')
-			.replace('_M', '\' + this.arrFM[dtime.getMonth()] + \'')
-			.replace('_y', '\' + (\'\' + dtime.getFullYear()).substring(2) + \'')
-			.replace('_Y', '\' + dtime.getFullYear() + \'') + '\';'
-		);
-	},
+	genDateTime: null,
+	onRPat: null,
 	getRPattern(txt) {
 		var m = txt.match(new RegExp(this.regex));
 		if(!m) {
 			this.disabled = true;
 			return false;
 		}
-		this.rPattern = '';
+		var rPattern = '';
 		for(var i = 1, len = m.length, j = 0, str = m[0]; i < len; ) {
 			var a = m[i++],
 				p = this.pattern[i - 2];
@@ -4037,20 +4039,20 @@ DateTime.prototype = {
 				p = p.toUpperCase();
 			}
 			var k = str.indexOf(a, j);
-			this.rPattern += str.substring(j, k) + '_' + p;
+			rPattern += str.substring(j, k) + '_' + p;
 			j = k + a.length;
 		}
 		if(this.onRPat) {
-			this.onRPat(this.rPattern);
+			this.onRPat(rPattern);
 		}
-		this.genRFunc();
+		this.genDateTime = DateTime.genRFunc(rPattern, this.diff);
 		return true;
 	},
 	pad2(num) {
 		return num < 10 ? '0' + num : num;
 	},
 	fix(txt) {
-		if(this.disabled || (!this.rPattern && !this.getRPattern(txt))) {
+		if(this.disabled || (!this.genDateTime && !this.getRPattern(txt))) {
 			return txt;
 		}
 		return txt.replace(new RegExp(this.regex, 'g'), (str, ...args) => {
@@ -4084,7 +4086,7 @@ DateTime.prototype = {
 			}
 			var dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
 			dtime.setHours(dtime.getHours() + this.diff);
-			return this.genDataTime(dtime);
+			return this.genDateTime(dtime);
 		});
 	}
 };
@@ -5303,7 +5305,7 @@ SpellsCodegen.prototype = {
 			m = str.match(/^\(([\d-, ]+)\)/);
 			if(m) {
 				m[1].split(/, */).forEach(function(v) {
-					if(v.contains('-')) {
+					if(v.includes('-')) {
 						var nums = v.split('-');
 						nums[0] = +nums[0];
 						nums[1] = +nums[1];
@@ -5477,7 +5479,7 @@ SpellsInterpreter.prototype = {
 		}
 	},
 	_words(val) {
-		return this._post.text.toLowerCase().contains(val) || this._post.subj.toLowerCase().contains(val);
+		return this._post.text.toLowerCase().includes(val) || this._post.subj.toLowerCase().includes(val);
 	},
 	_exp(val) {
 		return val.test(this._post.text);
@@ -5511,11 +5513,11 @@ SpellsInterpreter.prototype = {
 	},
 	_name(val) {
 		var pName = this._post.posterName;
-		return pName ? !val || pName.contains(val) : false;
+		return pName ? !val || pName.includes(val) : false;
 	},
 	_trip(val) {
 		var pTrip = this._post.posterTrip;
-		return pTrip ? !val || pTrip.contains(val) : false;
+		return pTrip ? !val || pTrip.includes(val) : false;
 	},
 	_img(val) {
 		var hide, images = this._post.images,
@@ -6055,7 +6057,7 @@ PostForm.prototype = {
 			$txtInsert(this.txta, (
 				isNumClick ? '>>' + pNum :
 					(temp !== '' && temp.slice(-1) !== '\n' ? '\n' : '') +
-					(this.lastQuickPNum === pNum && temp.contains('>>' + pNum) ? '' : '>>' + pNum + '\n')) +
+					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : '>>' + pNum + '\n')) +
 				(quotetxt ? quotetxt.replace(/^\n|\n$/g, '')
 				.replace(/(^|\n)(.)/gm, '$1>' + (Cfg.spacedQuote ? ' ' : '') + '$2') + '\n': ''));
 		}
@@ -6384,7 +6386,7 @@ PostForm.prototype = {
 			if(this.tNum && pByNum[this.tNum].subj === 'Dollchan Extension Tools') {
 				var temp = '\n\n' + this._wrapText(aib.markupBB, aib.markupTags[5],
 					'-'.repeat(50) + '\n' + nav.ua + '\nv' + version + ' [' + nav.scriptInstall + ']')[1];
-				if(!val.contains(temp)) {
+				if(!val.includes(temp)) {
 					val += temp;
 				}
 			}
@@ -6589,7 +6591,7 @@ PostForm.prototype = {
 		var m;
 		if(markupBB) {
 			var str;
-			if(text.contains('\n')) {
+			if(text.includes('\n')) {
 				str = '[' + tag + ']' + text + '[/' + tag + ']';
 				return [str.length, str];
 			}
@@ -8909,7 +8911,7 @@ Post.prototype = {
 			if((nav.matchesSelector(start, aib.qMsg + ' *') && nav.matchesSelector(end, aib.qMsg + ' *')) ||
 			   (nav.matchesSelector(start, '.' + aib.cSubj) && nav.matchesSelector(end, '.' + aib.cSubj)))
 			{
-				if(this._selText.contains('\n')) {
+				if(this._selText.includes('\n')) {
 					addSpell(1 /* #exp */, '/' +
 						regQuote(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
 				} else {
@@ -10074,10 +10076,12 @@ Thread.prototype = {
 // ===========================================================================================================
 
 function getNavFuncs() {
-	if(!('contains' in String.prototype)) {
-		String.prototype.contains = function(s) {
+	if(!('includes' in String.prototype)) {
+		String.prototype.includes = String.prototype.contains || function(s) {
 			return this.indexOf(s) !== -1;
 		};
+	}
+	if(!('startsWith' in String.prototype)) {
 		String.prototype.startsWith = function(s) {
 			return this.indexOf(s) === 0;
 		};
@@ -10123,18 +10127,18 @@ function getNavFuncs() {
 		};
 	}
 	var ua = window.navigator.userAgent,
-		firefox = ua.contains('Gecko/'),
+		firefox = ua.includes('Gecko/'),
 		presto = window.opera ? +window.opera.version() : 0,
 		opera11 = presto ? presto < 12.1 : false,
-		webkit = ua.contains('WebKit/'),
-		chrome = webkit && ua.contains('Chrome/'),
+		webkit = ua.includes('WebKit/'),
+		chrome = webkit && ua.includes('Chrome/'),
 		safari = webkit && !chrome,
 		isGM = false,
 		isChromeStorage = window.chrome && !!window.chrome.storage,
-		isScriptStorage = !!scriptStorage && !ua.contains('Opera Mobi');
+		isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	try {
 		isGM = (typeof GM_setValue === 'function') &&
-			(!chrome || !GM_setValue.toString().contains('not supported'));
+			(!chrome || !GM_setValue.toString().includes('not supported'));
 	} catch(e) {}
 	return {
 		get ua() {
@@ -10272,7 +10276,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qPostRedir: { value: 'input#noko' },
 			getSage: { value(post) {
 				var el = $c('filetitle', post);
-				return el && el.textContent.contains('\u21E9');
+				return el && el.textContent.includes('\u21E9');
 			} },
 			css: { value: '#resizer { display: none !important; }' },
 			markupBB: { value: false },
@@ -10467,8 +10471,7 @@ function getImageBoard(checkDomains, checkOther) {
 					'yyyy-nn-dd-hh-ii-ss',
 					'_d _M _Y (_w) _h:_i ',
 					Cfg.timeOffset || 0,
-					Cfg.correctTime ? lang : 1,
-					null
+					Cfg.correctTime ? lang : 1
 				);
 				Object.defineProperty(this, 'weight', { value: val });
 				return val;
@@ -10647,6 +10650,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qPostRedir: { value: null },
 			qThumbImages: { value: '.preview' },
 			qTrunc: { value: null },
+			nameSelector: { value: '.ananimas, .post-email, .ananimas > span, .post-email > span' },
 			getImgParent: { value(node) {
 				var el = $parent(node, 'FIGURE'),
 					parent = el.parentNode;
@@ -10657,6 +10661,17 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			getPNum: { value(post) {
 				return post.getAttribute('data-num');
+			} },
+			getSage: { writable: true, value(post) {
+				if(this.hasNames) {
+					this.getSage = function(post) {
+						var name = $q(this.qName, post);
+						return name ? name.childElementCount === 0 && !$c('ophui', post) : false;
+					};
+				} else {
+					this.getSage = Object.getPrototypeOf(this).getSage;
+				}
+				return this.getSage(post);
 			} },
 			getWrap: { value(el) {
 				return el.parentNode;
@@ -10673,6 +10688,11 @@ function getImageBoard(checkDomains, checkOther) {
 				.postbtn-reply-href::after { font-size: 14px; content: attr(name); }
 				${Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : ''}
 				${Cfg.delImgNames ? '.filesize { display: inline !important; }' : ''}`;
+			} },
+			hasNames: { configurable: true, get() {
+				var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
+				Object.defineProperty(this, 'hasNames', { value: val });
+				return val;
 			} },
 			hasPicWrap: { value: true },
 			init: { value() {
@@ -12214,7 +12234,7 @@ function scriptCSS() {
 	cont('.de-wait', 'data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7') +
 	'.de-abtn { text-decoration: none !important; outline: none; }\
 	.de-after-fimg { clear: left; }\
-	#de-alert { overflow-y: auto !important; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
+	#de-alert { overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
 	#de-alert > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
 	.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
 	.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\
@@ -12361,7 +12381,7 @@ function* initScript(checkDomains) {
 	}
 	new Logger().log('Init');
 	var str = yield* getStored('DESU_Exclude');
-	if(str && str.contains(aib.dm)) {
+	if(str && str.includes(aib.dm)) {
 		return;
 	}
 	excludeList = str || '';
