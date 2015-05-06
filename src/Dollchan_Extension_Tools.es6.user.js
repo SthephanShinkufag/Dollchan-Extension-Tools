@@ -4364,7 +4364,8 @@ VideosParser.prototype = {
 			if(m) {
 				var mPost = post || (aib.getPostEl(link) || {}).post;
 				if(mPost) {
-					mPost.videos.addLink(m, loader, link, true);
+					// https://support.google.com/youtube/answer/6098135?p=yt_devicesupport&hl=en&rd=1
+					mPost.videos.addLink(m, /* loader */ null, link, true);
 				}
 			}
 		}

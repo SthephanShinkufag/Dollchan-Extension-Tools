@@ -6431,7 +6431,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				if (m) {
 					var mPost = post || (aib.getPostEl(link) || {}).post;
 					if (mPost) {
-						mPost.videos.addLink(m, loader, link, true);
+					
+						mPost.videos.addLink(m, null, link, true);
 					}
 				}
 			}
