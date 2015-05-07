@@ -124,7 +124,8 @@ defaultCfg = {
 	'textaWidth':       300,    // textarea size
 	'textaHeight':      115,
 	'qReplyX':          'right: 0',     // quick reply position
-	'qReplyY':          'bottom: 25px'
+	'qReplyY':          'bottom: 25px',
+	'ytApiKey':			''		// public key for youtube API
 },
 
 Lng = {
@@ -206,6 +207,7 @@ Lng = {
 			txt:        ['', '']
 		},
 		'YTubeTitles':  ['Загружать названия к YouTube-ссылкам*', 'Load titles into YouTube-links*'],
+		'ytApiKey':		['Ключ YouTube API*', 'YT YouTube Key*'],
 
 		'ajaxReply': {
 			sel:        [['Откл.', 'Iframe', 'HTML5'], ['Disable', 'Iframe', 'HTML5']],
@@ -2209,8 +2211,10 @@ function fixSettings() {
 	toggleBox(Cfg.strikeHidd && Cfg.linksNavig === 2, ['input[info="removeHidd"]']);
 	toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, ['select[info="YTubeType"]', 'input[info="addVimeo"]']);
 	toggleBox(Cfg.addYouTube, [
-		'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]'
+		'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]',
+		'input[info="ytApiKey"]'
 	]);
+	toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
 	toggleBox(Cfg.ajaxReply, ['input[info="sendErrNotif"]', 'input[info="scrAfterRep"]']);
 	toggleBox(Cfg.ajaxReply === 2, [
 		'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]'
@@ -2465,7 +2469,7 @@ function getCfgLinks() {
 					saveCfg('linksOver', +this.value | 0);
 				}),
 				$txt(Lng.cfg.linksOver[lang]),
-					inpTxt('linksOut', 4, function() {
+				inpTxt('linksOut', 4, function() {
 					saveCfg('linksOut', +this.value | 0);
 				}),
 				$txt(Lng.cfg.linksOut[lang])
@@ -2492,6 +2496,12 @@ function getCfgLinks() {
 				inpTxt('YTubeHeigh', 4, null)
 			]),
 			$if(!nav.Opera11 || nav.isGM, lBox('YTubeTitles', false, null)),
+			$if(!nav.Opera11 || nav.isGM, $New('div', null, [
+				inpTxt('ytApiKey', 30, function() {
+					saveCfg('ytApiKey', this.value.trim());
+				}),
+				$txt(' ' + Lng.cfg.ytApiKey[lang])
+			])),
 			lBox('addVimeo', true, null)
 		])
 	]);
@@ -4176,24 +4186,24 @@ Videos._getTitlesLoader = function() {
 	return Cfg.YTubeTitles && new TasksPool(4, function(num, info) {
 		var [, isYtube,, id] = info;
 		if(isYtube) {
-			return $ajax('https://www.googleapis.com/youtube/v3/videos?key=API_KEY&id=' + id +
+			return $ajax('https://www.googleapis.com/youtube/v3/videos?key=' + Cfg.ytApiKey + '&id=' + id +
 			             '&part=snippet,statistics&fields=items/snippet/title,items/snippet/publishedAt,items/snippet/channelTitle,items/statistics/viewCount',
 			             null, false).then(xhr => {
 				var items = JSON.parse(xhr.responseText).items[0];
 				return Videos._titlesLoaderHelper(info, num,
-												  items.snippet.title,
-												  items.snippet.channelTitle,
-												  items.statistics.viewCount,
-												  items.snippet.publishedAt.substr(0, 10));
+				                                  items.snippet.title,
+				                                  items.snippet.channelTitle,
+				                                  items.statistics.viewCount,
+				                                  items.snippet.publishedAt.substr(0, 10));
 			}).catch(() => Videos._titlesLoaderHelper(info, num));
 		}
 		return $ajax(aib.prot + '//vimeo.com/api/v2/video/' + id + '.json', null, false).then(xhr => {
 			var entry = JSON.parse(xhr.responseText)[0];
 			return Videos._titlesLoaderHelper(info, num,
-											  entry["title"],
-											  entry["user_name"],
-											  entry["stats_number_of_plays"],
-											  (new RegExp (/(.*)\s(.*)?/).exec(entry["upload_date"]))[1]);
+			                                  entry["title"],
+			                                  entry["user_name"],
+			                                  entry["stats_number_of_plays"],
+			                                  (/(.*)\s(.*)?/.exec(entry["upload_date"]))[1]);
 		}).catch(() => Videos._titlesLoaderHelper(info, num));
 	}, () => {
 		sesStorage['de-videos-data'] = JSON.stringify(Videos._global.vData);
@@ -4364,8 +4374,7 @@ VideosParser.prototype = {
 			if(m) {
 				var mPost = post || (aib.getPostEl(link) || {}).post;
 				if(mPost) {
-					// https://support.google.com/youtube/answer/6098135?p=yt_devicesupport&hl=en&rd=1
-					mPost.videos.addLink(m, /* loader */ null, link, true);
+					mPost.videos.addLink(m, Cfg.ytApiKey ? loader : null, link, true);
 				}
 			}
 		}
@@ -11974,7 +11983,7 @@ function scriptCSS() {
 	.de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 	.de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
 	.de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
-	.de-cfg-body { min-height: 292px; width: 354px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
+	.de-cfg-body { min-height: 305px; width: 354px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
 	.de-cfg-body input[type="text"], .de-cfg-body select { width: auto; padding: 1px 2px; margin: 1px 0; font: 13px sans-serif; }\
 	.de-cfg-body input[type="checkbox"] { ' + (nav.Presto ? '' : 'vertical-align: -1px; ') + 'margin: 2px 1px; }\
 	.de-cfg-body label { padding: 0; margin: 0; }\
