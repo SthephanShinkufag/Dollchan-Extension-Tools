@@ -2758,7 +2758,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				txt: ["", ""]
 			},
 			YTubeTitles: ["Загружать названия к YouTube-ссылкам*", "Load titles into YouTube-links*"],
-			ytApiKey: ["Ключ YouTube API*", "YT YouTube Key*"],
+			ytApiKey: ["Ключ YouTube API*", "YouTube API Key*"],
 
 			ajaxReply: {
 				sel: [["Откл.", "Iframe", "HTML5"], ["Disable", "Iframe", "HTML5"]],
