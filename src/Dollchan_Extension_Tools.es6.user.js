@@ -4206,7 +4206,7 @@ Videos._getTitlesLoader = function() {
 			                                  (/(.*)\s(.*)?/.exec(entry["upload_date"]))[1]);
 		}).catch(() => Videos._titlesLoaderHelper(info, num));
 	}, () => {
-		sesStorage['de-videos-data'] = JSON.stringify(Videos._global.vData);
+		sesStorage['de-videos-data1'] = JSON.stringify(Videos._global.vData);
 	});
 };
 Videos.prototype = {

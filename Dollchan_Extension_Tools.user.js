@@ -6270,7 +6270,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				return Videos._titlesLoaderHelper(info, num);
 			});
 		}, function () {
-			sesStorage["de-videos-data"] = JSON.stringify(Videos._global.vData);
+			sesStorage["de-videos-data1"] = JSON.stringify(Videos._global.vData);
 		});
 	};
 	Videos.prototype = Object.defineProperties({
