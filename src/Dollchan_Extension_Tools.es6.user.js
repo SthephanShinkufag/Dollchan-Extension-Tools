@@ -3119,7 +3119,7 @@ HotKeys.prototype = {
 			curTh = e.target.tagName,
 			kc = e.keyCode | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) |
 				(e.altKey ? 0x4000 : 0) | (curTh === 'TEXTAREA' ||
-				(curTh === 'INPUT' && e.target.type === 'text') ? 0x8000 : 0);
+				(curTh === 'INPUT' && (e.target.type === 'text' || e.target.type === 'password')) ? 0x8000 : 0);
 		if(kc === 0x74 || kc === 0x8074) { // F5
 			if(isThr || $id('de-alert-load-pages')) {
 				return;
@@ -3152,7 +3152,7 @@ HotKeys.prototype = {
 					return;
 				}
 				pr.subm.click();
-			} else if(e.target.tagName === 'INPUT') {
+			} else if(kc & 0x8000) {
 				return;
 			}
 			switch(globIdx) {

@@ -5163,7 +5163,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 			var isThr = aib.t,
 			    curTh = e.target.tagName,
-			    kc = e.keyCode | (e.ctrlKey ? 4096 : 0) | (e.shiftKey ? 8192 : 0) | (e.altKey ? 16384 : 0) | (curTh === "TEXTAREA" || curTh === "INPUT" && e.target.type === "text" ? 32768 : 0);
+			    kc = e.keyCode | (e.ctrlKey ? 4096 : 0) | (e.shiftKey ? 8192 : 0) | (e.altKey ? 16384 : 0) | (curTh === "TEXTAREA" || curTh === "INPUT" && (e.target.type === "text" || e.target.type === "password") ? 32768 : 0);
 			if (kc === 116 || kc === 32884) {
 			
 				if (isThr || $id("de-alert-load-pages")) {
@@ -5202,7 +5202,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return;
 					}
 					pr.subm.click();
-				} else if (e.target.tagName === "INPUT") {
+				} else if (kc & 32768) {
 					return;
 				}
 				switch (globIdx) {
