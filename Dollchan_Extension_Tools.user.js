@@ -4765,12 +4765,17 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				oSpells: sesStorage["de-spells-" + aib.b + (aib.t || "")],
 				perf: new Logger().getData(true)
 			}, function (key, value) {
-				if (key in defaultCfg) {
-					if (value === defaultCfg[key] || key === "nameValue" || key === "passwValue") {
+				switch (key) {
+					case "stats":
+					case "nameValue":
+					case "passwValue":
+					case "ytApiKey":
 						return void 0;
-					}
 				}
-				return key === "stats" ? void 0 : value;
+				if (key in defaultCfg && value === defaultCfg[key]) {
+					return void 0;
+				}
+				return value;
 			}, "\t");
 		})]);
 	}
@@ -5191,6 +5196,15 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				var post,
 				    idx,
 				    globIdx = this.gKeys.indexOf(kc);
+				if (globIdx === 5) {
+				
+					if (e.target !== pr.txta && e.target !== pr.cap) {
+						return;
+					}
+					pr.subm.click();
+				} else if (e.target.tagName === "INPUT") {
+					return;
+				}
 				switch (globIdx) {
 					case 2:
 					
@@ -5218,11 +5232,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						}
 						break;
 					case 5:
-					
-						if (e.target !== pr.txta && e.target !== pr.cap) {
-							return;
-						}
-						pr.subm.click();
 						break;
 					case 6:
 					
