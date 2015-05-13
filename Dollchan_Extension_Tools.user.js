@@ -5196,15 +5196,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				var post,
 				    idx,
 				    globIdx = this.gKeys.indexOf(kc);
-				if (globIdx === 5) {
-				
-					if (e.target !== pr.txta && e.target !== pr.cap) {
-						return;
-					}
-					pr.subm.click();
-				} else if (kc & 32768) {
-					return;
-				}
 				switch (globIdx) {
 					case 2:
 					
@@ -5232,6 +5223,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						}
 						break;
 					case 5:
+					
+						if (e.target !== pr.txta && e.target !== pr.cap) {
+							return;
+						}
+						pr.subm.click();
 						break;
 					case 6:
 					
@@ -5779,19 +5775,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	function downloadImgData(url) {
 		var repeatOnError = arguments[1] === undefined ? true : arguments[1];
 
-		var promise;
-		if (aib.fch && nav.Firefox && !url.startsWith("blob")) {
-			promise = $ajax(url, { overrideMimeType: "text/plain; charset=x-user-defined" }, false);
-		} else {
-			try {
-				promise = $ajax(url, { responseType: "arraybuffer" });
-			} catch (e) {
-				return Promise.resolve(null);
-			}
-		}
-		return promise.then(function (xhr) {
-			if (xhr.responseType === "arraybuffer") {
-				return new Uint8Array(xhr.response);
+		return $ajax(url, {
+			responseType: "arraybuffer",
+			overrideMimeType: "text/plain; charset=x-user-defined"
+		}, !aib.fch || url.startsWith("blob")).then(function (xhr) {
+			if (!xhr.responseText) {
+				return nav.getUnsafeUint8Array(xhr.response);
 			}
 			var txt = xhr.responseText,
 			    rv = new Uint8Array(txt.length);
@@ -5800,13 +5789,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 			return rv;
 		}, function (xhr) {
+			if (xhr instanceof Error || xhr.status === 404) {
+				return null;
+			}
 			if (xhr.status === 0 && xhr.responseType === "arraybuffer") {
 				return new Uint8Array(xhr.response);
 			}
-			if (xhr.status === 404 || !repeatOnError) {
-				return null;
-			}
-			return downloadImgData(url, false);
+			return repeatOnError ? downloadImgData(url, false) : null;
 		});
 	}
 

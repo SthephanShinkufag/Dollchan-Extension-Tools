@@ -3147,14 +3147,6 @@ HotKeys.prototype = {
 			e.target.blur();
 		} else {
 			var post, idx, globIdx = this.gKeys.indexOf(kc);
-			if(globIdx === 5) { // Send post (txt)
-				if(e.target !== pr.txta && e.target !== pr.cap) {
-					return;
-				}
-				pr.subm.click();
-			} else if(kc & 0x8000) {
-				return;
-			}
 			switch(globIdx) {
 			case 2: // Quick reply
 				if(pr.form) {
@@ -3178,7 +3170,12 @@ HotKeys.prototype = {
 					window.location.pathname = aib.getPageUrl(aib.b, isThr ? 0 : aib.page - 1);
 				}
 				break;
-			case 5: break; // Send post (txt)
+			case 5:  // Send post (txt)
+				if(e.target !== pr.txta && e.target !== pr.cap) {
+					return;
+				}
+				pr.subm.click();
+				break;
 			case 6: // Open/close favorites posts
 				toggleContent('fav', false);
 				break;
@@ -3733,19 +3730,12 @@ function addImgFileIcon(aEl, fName, info) {
 }
 
 function downloadImgData(url, repeatOnError = true) {
-	var promise;
-	if(aib.fch && nav.Firefox && !url.startsWith('blob')) {
-		promise = $ajax(url, {overrideMimeType: 'text/plain; charset=x-user-defined'}, false);
-	} else {
-		try {
-			promise = $ajax(url, {responseType: 'arraybuffer'});
-		} catch(e) {
-			return Promise.resolve(null);
-		}
-	}
-	return promise.then(xhr => {
-		if(xhr.responseType === 'arraybuffer') {
-			return new Uint8Array(xhr.response);
+	return $ajax(url, {
+		responseType: 'arraybuffer',
+		overrideMimeType: 'text/plain; charset=x-user-defined'
+	}, !aib.fch || url.startsWith('blob')).then(xhr => {
+		if(!xhr.responseText) {
+			return nav.getUnsafeUint8Array(xhr.response);
 		}
 		var txt = xhr.responseText,
 			rv = new Uint8Array(txt.length);
@@ -3754,13 +3744,13 @@ function downloadImgData(url, repeatOnError = true) {
 		}
 		return rv;
 	}, xhr => {
+		if(xhr instanceof Error || xhr.status === 404) {
+			return null;
+		}
 		if(xhr.status === 0 && xhr.responseType === 'arraybuffer') {
 			return new Uint8Array(xhr.response);
 		}
-		if(xhr.status === 404 || !repeatOnError) {
-			return null;
-		}
-		return downloadImgData(url, false);
+		return repeatOnError ? downloadImgData(url, false) : null;
 	});
 }
 
