@@ -12627,7 +12627,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		_processExpandThread: function _processExpandThread(nPosts, num) {
 			var needRMUpdate,
 			    post = this.op.next,
-			    vPosts = post ? this.pcount - post.count : 0;
+			    vPosts = this.pcount === 1 ? 0 : this.pcount - post.count;
 			if (vPosts > num) {
 				while (vPosts-- !== num) {
 					post.wrap.classList.add("de-hidden");
