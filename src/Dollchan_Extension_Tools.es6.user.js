@@ -10032,7 +10032,7 @@ Thread.prototype = {
 	},
 	_processExpandThread(nPosts, num) {
 		var needRMUpdate, post = this.op.next,
-			vPosts = this.pcount === 1 ? 0 : this.last.count - post.count + 1;
+			vPosts = post ? this.pcount - post.count : 0;
 		if(vPosts > num) {
 			while(vPosts-- !== num) {
 				post.wrap.classList.add('de-hidden');
@@ -10041,15 +10041,17 @@ Thread.prototype = {
 			}
 			needRMUpdate = false;
 		} else if(vPosts < num) {
-			var fragm = doc.createDocumentFragment(),
+			var vParser, fragm = doc.createDocumentFragment(),
 				tPost = this.op,
 				len = nPosts.length - vPosts;
 			if(Cfg.addYouTube) {
-				var vParser = new VideosParser();
-				for(var i = Math.max(0, len - num); i < len; ++i) {
-					tPost = this._addPost(fragm, nPosts[i], i + 1, vParser, tPost);
-					spells.check(tPost);
-				}
+				vParser = new VideosParser();
+			}
+			for(var i = Math.max(0, len - num + vPosts); i < len; ++i) {
+				tPost = this._addPost(fragm, nPosts[i], i + 1, vParser, tPost);
+				spells.check(tPost);
+			}
+			if(vParser) {
 				vParser.end();
 			}
 			$after(this.op.wrap, fragm);
