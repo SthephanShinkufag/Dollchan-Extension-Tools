@@ -3734,7 +3734,7 @@ function downloadImgData(url, repeatOnError = true) {
 		responseType: 'arraybuffer',
 		overrideMimeType: 'text/plain; charset=x-user-defined'
 	}, !aib.fch || url.startsWith('blob')).then(xhr => {
-		if(!xhr.responseText) {
+		if('response' in xhr) {
 			return nav.getUnsafeUint8Array(xhr.response);
 		}
 		var txt = xhr.responseText,

@@ -5779,7 +5779,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			responseType: "arraybuffer",
 			overrideMimeType: "text/plain; charset=x-user-defined"
 		}, !aib.fch || url.startsWith("blob")).then(function (xhr) {
-			if (!xhr.responseText) {
+			if ("response" in xhr) {
 				return nav.getUnsafeUint8Array(xhr.response);
 			}
 			var txt = xhr.responseText,
