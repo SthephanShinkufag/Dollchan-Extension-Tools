@@ -1055,7 +1055,7 @@ function* getFormElements(form) {
 			tagName = field.tagName.toLowerCase(),
 			type = field.getAttribute('type'),
 			name = field.getAttribute('name');
-		if($parent(field, 'datalist', form) ||
+		if($parent(field, 'DATALIST', form) ||
 		   isFormElDisabled(field) ||
 		   (tagName === 'button' && type !== 'submit') ||
 		   (tagName === 'input' && (
@@ -5929,7 +5929,7 @@ PostForm.prototype = {
 						(html === '' ? '[ ' : '') + '<a class="de-abtn" href="#">' + val[i] + '</a>' +
 						(i === len - 1 ? ' ]' : ' / ') :
 					Cfg.addTextBtns === 3 ?
-						'<input type="button" value="' + val[i] + '" style="font-weight: bold;">' : ''
+						'<button type="button" style="font-weight: bold;">' + val[i] + '</button>' : ''
 				) + '</span>';
 		}
 		tPanel.innerHTML = html;

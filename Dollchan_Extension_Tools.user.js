@@ -1773,7 +1773,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 					field = controls[i], tagName = field.tagName.toLowerCase(), type = field.getAttribute("type"), name = field.getAttribute("name");
 
-					if (!($parent(field, "datalist", form) || isFormElDisabled(field) || tagName === "button" && type !== "submit" || tagName === "input" && (type === "checkbox" && !field.checked || type === "radio" && !field.checked || type === "image" && !name) || tagName === "object" && !(type in navigator.mimeTypes))) {
+					if (!($parent(field, "DATALIST", form) || isFormElDisabled(field) || tagName === "button" && type !== "submit" || tagName === "input" && (type === "checkbox" && !field.checked || type === "radio" && !field.checked || type === "image" && !name) || tagName === "object" && !(type in navigator.mimeTypes))) {
 						context$2$0.next = 6;
 						break;
 					}
@@ -8234,7 +8234,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				if (btns[i] === "") {
 					continue;
 				}
-				html += "<span id=\"de-btn-" + id[i] + "\" de-title=\"" + Lng.txtBtn[i][lang] + "\" de-tag=\"" + btns[i] + "\">" + (Cfg.addTextBtns === 2 ? (html === "" ? "[ " : "") + "<a class=\"de-abtn\" href=\"#\">" + val[i] + "</a>" + (i === len - 1 ? " ]" : " / ") : Cfg.addTextBtns === 3 ? "<input type=\"button\" value=\"" + val[i] + "\" style=\"font-weight: bold;\">" : "") + "</span>";
+				html += "<span id=\"de-btn-" + id[i] + "\" de-title=\"" + Lng.txtBtn[i][lang] + "\" de-tag=\"" + btns[i] + "\">" + (Cfg.addTextBtns === 2 ? (html === "" ? "[ " : "") + "<a class=\"de-abtn\" href=\"#\">" + val[i] + "</a>" + (i === len - 1 ? " ]" : " / ") : Cfg.addTextBtns === 3 ? "<button type=\"button\" style=\"font-weight: bold;\">" + val[i] + "</button>" : "") + "</span>";
 			}
 			tPanel.innerHTML = html;
 		},
