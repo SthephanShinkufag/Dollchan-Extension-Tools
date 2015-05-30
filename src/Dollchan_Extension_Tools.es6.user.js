@@ -1909,11 +1909,7 @@ function showHiddenTable(cont) {
 		var cln = post.cloneNode(true);
 		cln.removeAttribute('id');
 		cln.style.display = '';
-		if(cln.classList.contains(aib.cRPost)) {
-			cln.classList.add('de-cloned-post');
-		} else {
-			cln.className = aib.cReply + ' de-cloned-post';
-		}
+		cln.className = aib.cReply + ' de-cloned-post';
 		cln.post = Object.create(cln.clone = post.post);
 		cln.post.el = cln;
 		cln.btn = $q('.de-btn-hide, .de-btn-hide-user', cln);
@@ -2091,7 +2087,7 @@ function showFavoriteTable(cont, data) {
 				el.previousElementSibling.textContent = '';
 				update = true;
 			}
-			var cnt = aib.getPosts(form).length + 1 - el.nextElementSibling.textContent;
+			var cnt = $Q(aib.qRPost, form).length + 1 - el.nextElementSibling.textContent;
 			el.textContent = cnt;
 			el.className = 'de-fav-inf-new';
 			if(cnt === 0) {
@@ -3932,7 +3928,7 @@ function loadDocFiles(imgOnly) {
 				el.className = 'de-link-pref ' + el.className;
 			}
 		});
-		$each($Q('.' + aib.cRPost, dc), function(post, i) {
+		$each($Q(aib.qRPost, dc), function(post, i) {
 			post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post));
 		});
 		var files = [];
@@ -7087,7 +7083,7 @@ var checkDelete = async(function* (dc) {
 			doc.location.hash = '';
 		}
 	}
-	var els = $Q('.' + aib.cRPost + ' input:checked', dForm.el),
+	var els = $Q(aib.qRPost + ' input:checked', dForm.el),
 		threads = new Set(),
 		isThr = aib.t;
 	for(var i = 0, len = els.length; i < len; ++i) {
@@ -8916,7 +8912,8 @@ Post.prototype = {
 			if(end.nodeType === 3) {
 				end = end.parentNode;
 			}
-			if((nav.matchesSelector(start, aib.qMsg + ' *') && nav.matchesSelector(end, aib.qMsg + ' *')) ||
+			var inMsgSel = aib.qMsg + ', ' + aib.qMsg + ' *';
+			if((nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel)) ||
 			   (nav.matchesSelector(start, '.' + aib.cSubj) && nav.matchesSelector(end, '.' + aib.cSubj)))
 			{
 				if(this._selText.includes('\n')) {
@@ -8999,7 +8996,7 @@ Post.prototype = {
 				$del(node);
 				return;
 			}
-			var els = aib.getPosts(form);
+			var els = $Q(aib.qRPost, form);
 			for(var i = 0, len = els.length; i < len; i++) {
 				if(this.num === aib.getPNum(els[i])) {
 					this.updateMsg(replacePost($q(aib.qMsg, els[i])));
@@ -9392,7 +9389,7 @@ function PviewsCache(form, b, tNum) {
 	var pBn = {},
 		pProto = Post.prototype,
 		thr = $q(aib.qThread, form) || form,
-		posts = aib.getPosts(thr);
+		posts = $Q(aib.qRPost, thr);
 	for(var i = 0, len = posts.length; i < len; ++i) {
 		var post = posts[i];
 		pBn[aib.getPNum(post)] = Object.create(pProto, {
@@ -9626,7 +9623,7 @@ function updRefMap(post, add) {
 // ===========================================================================================================
 
 function Thread(el, prev, isLight) {
-	var els = aib.getPosts(el),
+	var els = $Q(aib.qRPost, el),
 		len = els.length,
 		num = aib.getTNum(el),
 		omt = aib.t ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
@@ -9742,7 +9739,7 @@ Thread.prototype = {
 		);
 	},
 	loadFromForm(last, smartScroll, form) {
-		var nextCoord, els = aib.getPosts(form),
+		var nextCoord, els = $Q(aib.qRPost, form),
 			op = this.op,
 			thrEl = this.el,
 			expEl = $c('de-collapse', thrEl),
@@ -9807,7 +9804,7 @@ Thread.prototype = {
 	loadNewFromForm(form) {
 		this._checkBans(dForm.firstThr.op, form);
 		var lastOffset = pr.isVisible ? pr.topCoord : null,
-			[newPosts, newVisPosts] = this._parsePosts(aib.getPosts(form));
+			[newPosts, newVisPosts] = this._parsePosts($Q(aib.qRPost, form));
 		if(lastOffset !== null) {
 			scrollTo(window.pageXOffset, window.pageYOffset - (lastOffset - pr.topCoord));
 		}
@@ -10205,7 +10202,7 @@ function getNavFuncs() {
 		get matchesSelector() {
 			var dE = doc.documentElement,
 				val = Function.prototype.call.bind(
-					dE.matchesSelector || dE.mozMatchesSelector ||
+					dE.matches || dE.mozMatchesSelector ||
 					dE.webkitMatchesSelector || dE.oMatchesSelector);
 			Object.defineProperty(this, 'matchesSelector', { value: val });
 			return val;
@@ -10402,10 +10399,10 @@ function getImageBoard(checkDomains, checkOther) {
 		}, 'form[name*="postcontrols"]'],
 		'arhivach.org': [{
 			cReply: { value: 'post' },
-			cRPost: { value: 'post' },
 			qDForm: { value: 'body > .container-fluid' },
 			qMsg: { value: '.post_comment_body' },
 			qRef: { value: '.post_id' },
+			qRPost: { value: '.post' },
 			qThread: { value: '.thread_inner' },
 			getTNum: { value(op) {
 				return op.postid;
@@ -10524,7 +10521,6 @@ function getImageBoard(checkDomains, checkOther) {
 
 			cFileInfo: { value: 'fileinfo' },
 			cReply: { value: 'postreply' },
-			cRPost: { value: 'postreply' },
 			cSubj: { value: 'postsubject' },
 			qBan: { value: '.ban_mark' },
 			qClosed: { value: 'img[src="/images/locked.gif"]' },
@@ -10536,6 +10532,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qPages: { value: 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a' },
 			qPostRedir: { value: 'input#forward_thread' },
 			qRef: { value: '.postnumber' },
+			qRPost: { value: '.postreply' },
 			qThread: { value: '.thread_body' },
 			qThumbImages: { value: 'img[id^="thumbnail_"]' },
 			qTrunc: { value: 'p[id^="post_truncated"]' },
@@ -10658,6 +10655,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qName: { value: '.ananimas, .post-email' },
 			qOmitted: { value: '.mess-post' },
 			qPostRedir: { value: null },
+			qRPost: { value: 'div.reply' },
 			qThumbImages: { value: '.preview' },
 			qTrunc: { value: null },
 			nameSelector: { value: '.ananimas, .post-email, .ananimas > span, .post-email > span' },
@@ -10770,6 +10768,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qPostForm: { value: 'form:nth-of-type(1)' },
 			qPostRedir: { value: null },
 			qRef: { value: '.del' },
+			qRPost: { value: 'td:nth-child(2)' },
 			qThumbImages: { value: 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img' },
 			getPageUrl: { value(b, p) {
 				return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
@@ -10782,9 +10781,6 @@ function getImageBoard(checkDomains, checkOther) {
 					el = el.parentElement;
 				}
 				return el;
-			} },
-			getPosts: { value(thr) {
-				return $Q('td:nth-child(2)', thr);
 			} },
 			getTNum: { value(op) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
@@ -10865,7 +10861,6 @@ function getImageBoard(checkDomains, checkOther) {
 		'link[href$="phutaba.css"]': {
 			cOPost: { value: 'thread_OP' },
 			cReply: { value: 'post' },
-			cRPost: { value: 'thread_reply' },
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'tripcode' },
 			qError: { value: '.error' },
@@ -10874,6 +10869,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qMsg: { value: '.text' },
 			qPages: { value: '.pagelist > li:nth-last-child(2)' },
 			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
+			qRPost: { value: '.thread_reply' },
 			qTrunc: { value: '.tldr' },
 			getImgWrap: { value(el) {
 				return el.parentNode.parentNode;
@@ -10927,7 +10923,6 @@ function getImageBoard(checkDomains, checkOther) {
 		cFileInfo: 'filesize',
 		cOPost: 'oppost',
 		cReply: 'reply',
-		cRPost: 'reply',
 		cSubj: 'filetitle',
 		cTrip: 'postertrip',
 		qBan: '',
@@ -10959,6 +10954,7 @@ function getImageBoard(checkDomains, checkOther) {
 		qPostForm: '#postform',
 		qPostRedir: 'input[name="postredir"][value="1"]',
 		qRef: '.reflink',
+		qRPost: '.reply',
 		qTable: 'form > table, div > table, div[id^="repl"]',
 		qThumbImages: '.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]',
 		get qThread() {
@@ -11031,13 +11027,11 @@ function getImageBoard(checkDomains, checkOther) {
 			return fixBrd(b) + (p > 0 ? p + this.docExt : '');
 		},
 		getPostEl(el) {
-			while(el && !el.classList.contains(this.cRPost) && !el.hasAttribute('de-thread')) {
+			var sel = this.qRPost + ', [de-thread]';
+			while(el && !nav.matchesSelector(el, sel)) {
 				el = el.parentElement;
 			}
 			return el;
-		},
-		getPosts(thr) {
-			return $Q('.' + this.cRPost, thr);
 		},
 		getSage(post) {
 			var a = $q('a[href^="mailto:"], a[href="sage"]', post);
