@@ -9276,7 +9276,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		if (dc.body.hasChildNodes() && !$q(aib.qDForm, dc)) {
 			if (aib.mak) {
 				try {
-					return Lng.error[lang] + ":\n" + JSON.parse(dc.body.innerHTML).Reason;
+					var json = JSON.parse(dc.body.innerHTML);
+					if (json.Status != 'OK' && json.Status != 'Redirect') {
+						return Lng.error[lang] + ":\n" + json.Reason;
+					} else {
+						return null;
+					}
 				} catch (e) {}
 			}
 			var els = $Q(aib.qError, dc);
@@ -9388,7 +9393,16 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		Cfg.stats[pr.tNum ? "reply" : "op"]++;
 		saveComCfg(aib.dm, Cfg);
 		if (!pr.tNum) {
-			window.location = aib.getThrdUrl(aib.b, aib.getTNum($q(aib.qDForm, dc)));
+			if (aib.mak) {
+				try {
+					var json = JSON.parse(dc.body.innerHTML);
+					if (json.Status == 'Redirect') {
+						window.location = aib.getThrdUrl(aib.b, json.Target);
+					}
+				} catch(e) {}
+			} else {
+				window.location = aib.getThrdUrl(aib.b, aib.getTNum($q(aib.qDForm, dc)));
+			}
 			return;
 		}
 		var el = !aib.tiny && !aib.kus && (aib.qPostRedir === null || $q(aib.qPostRedir, dc)) ? $q(aib.qDForm, dc) : null;
