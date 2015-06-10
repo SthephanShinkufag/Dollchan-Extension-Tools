@@ -2575,7 +2575,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		}, initScript, this, [[22, 26]]);
 	});
-	var version = "15.4.20.0",
+	var version = "15.6.10.0",
 	    defaultCfg = {
 		disabled: 0,
 		language: 0,

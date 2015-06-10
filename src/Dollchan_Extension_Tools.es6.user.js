@@ -20,7 +20,7 @@
 (function de_main_func_inner(scriptStorage, FormData) {
 'use strict';
 
-var version = '15.4.20.0',
+var version = '15.6.10.0',
 defaultCfg = {
 	'disabled':         0,      // script enabled by default
 	'language':         0,      // script language [0=ru, 1=en]
