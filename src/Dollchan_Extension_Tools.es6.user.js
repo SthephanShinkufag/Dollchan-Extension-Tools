@@ -3108,7 +3108,7 @@ HotKeys.prototype = {
 		}
 	},
 	handleEvent(e) {
-		if(this.paused) {
+		if(this.paused || e.metaKey) {
 			return;
 		}
 		var isThr = aib.t,

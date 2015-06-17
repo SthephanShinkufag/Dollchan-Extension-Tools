@@ -5154,7 +5154,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		},
 		handleEvent: function handleEvent(e) {
-			if (this.paused) {
+			if (this.paused || e.metaKey) {
 				return;
 			}
 			var isThr = aib.t,
