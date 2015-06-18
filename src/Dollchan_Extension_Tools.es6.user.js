@@ -811,15 +811,22 @@ function $ajax(url, params = null, useNative = true) {
 			GM_xmlhttpRequest(obj);
 			return;
 		}
+		var useCache = params && params.useCache;
 		var xhr = new XMLHttpRequest();
 		if(params && params.onprogress) {
 			xhr.upload.onprogress = params.onprogress;
 		}
-		xhr.onloadend = ({ target }) => {
-			if(target.status === 200) {
-				resolve(target);
-			} else {
-				reject(target);
+		xhr.onreadystatechange = ({ target }) => {
+			if(target.readyState === 4) {
+				if(target.status === 200) {
+					if(useCache) {
+						aib.LastModified = target.getResponseHeader('Last-Modified');
+						aib.ETag = xhr.getResponseHeader('Etag');
+					}
+					resolve(target);
+				} else {
+					reject(target);
+				}
 			}
 		};
 		xhr.open((params && params.method) || 'GET', url, true);
@@ -834,6 +841,14 @@ function $ajax(url, params = null, useNative = true) {
 						xhr.setRequestHeader(h, headers[h]);
 					}
 				}
+			}
+		}
+		if(useCache) {
+			if(aib.LastModified) {
+				xhr.setRequestHeader('If-Modified-Since', aib.LastModified);
+			}
+			if(aib.ETag) {
+				xhr.setRequestHeader('If-None-Match', aib.ETag);
 			}
 		}
 		xhr.send(params && params.data || null);
@@ -4444,18 +4459,18 @@ function AjaxError(code, message) {
 }
 AjaxError.Success = new AjaxError(200, '');
 
-function ajaxLoad(url, returnForm = true) {
-	return $ajax(url).then(xhr => {
+function ajaxLoad(url, returnForm = true, useCache = false) {
+	return $ajax(url, { useCache: useCache }).then(xhr => {
 		var el, text = xhr.responseText;
 		if((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
 			el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 		}
 		return el ? el : Promise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
-	}, xhr => Promise.reject(new AjaxError(xhr.status, xhr.statusText)));
+	}, xhr => xhr.status === 304 ? null : Promise.reject(new AjaxError(xhr.status, xhr.statusText)));
 }
 
 function getJsonPosts(url) {
-	return $ajax(url).then(xhr => JSON.parse(xhr.responseText), xhr => {
+	return $ajax(url,{ useCache: true }).then(xhr => JSON.parse(xhr.responseText), xhr => {
 		return xhr.status === 304 ? null : Promise.reject(new AjaxError(xhr.status, xhr.message))
 	});
 }
@@ -9813,7 +9828,8 @@ Thread.prototype = {
 				return 0;
 			});
 		}
-		return ajaxLoad(aib.getThrdUrl(aib.b, aib.t)).then(form => this.loadNewFromForm(form));
+		return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, true)
+			.then(form => form ? this.loadNewFromForm(form) : 0);
 	},
 	loadNewFromForm(form) {
 		this._checkBans(dForm.firstThr.op, form);
@@ -11086,6 +11102,8 @@ function getImageBoard(checkDomains, checkOther) {
 		},
 		dm: '',
 		docExt: '.html',
+		LastModified: null,
+		ETag: null,
 		firstPage: 0,
 		fixFileInputs: emptyFn,
 		hasPicWrap: false,

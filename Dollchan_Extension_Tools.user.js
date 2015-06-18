@@ -3309,17 +3309,24 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				GM_xmlhttpRequest(obj);
 				return;
 			}
+			var useCache = params && params.useCache;
 			var xhr = new XMLHttpRequest();
 			if (params && params.onprogress) {
 				xhr.upload.onprogress = params.onprogress;
 			}
-			xhr.onloadend = function (_ref) {
+			xhr.onreadystatechange = function (_ref) {
 				var target = _ref.target;
 
-				if (target.status === 200) {
-					resolve(target);
-				} else {
-					reject(target);
+				if (target.readyState === 4) {
+					if (target.status === 200) {
+						if (useCache) {
+							aib.LastModified = target.getResponseHeader("Last-Modified");
+							aib.ETag = xhr.getResponseHeader("Etag");
+						}
+						resolve(target);
+					} else {
+						reject(target);
+					}
 				}
 			};
 			xhr.open(params && params.method || "GET", url, true);
@@ -3334,6 +3341,14 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							xhr.setRequestHeader(h, headers[h]);
 						}
 					}
+				}
+			}
+			if (useCache) {
+				if (aib.LastModified) {
+					xhr.setRequestHeader("If-Modified-Since", aib.LastModified);
+				}
+				if (aib.ETag) {
+					xhr.setRequestHeader("If-None-Match", aib.ETag);
 				}
 			}
 			xhr.send(params && params.data || null);
@@ -6509,8 +6524,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 	function ajaxLoad(url) {
 		var returnForm = arguments[1] === undefined ? true : arguments[1];
+		var useCache = arguments[2] === undefined ? false : arguments[2];
 
-		return $ajax(url).then(function (xhr) {
+		return $ajax(url, { useCache: useCache }).then(function (xhr) {
 			var el,
 			    text = xhr.responseText;
 			if ((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
@@ -6518,12 +6534,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 			return el ? el : Promise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
 		}, function (xhr) {
-			return Promise.reject(new AjaxError(xhr.status, xhr.statusText));
+			return xhr.status === 304 ? null : Promise.reject(new AjaxError(xhr.status, xhr.statusText));
 		});
 	}
 
 	function getJsonPosts(url) {
-		return $ajax(url).then(function (xhr) {
+		return $ajax(url, { useCache: true }).then(function (xhr) {
 			return JSON.parse(xhr.responseText);
 		}, function (xhr) {
 			return xhr.status === 304 ? null : Promise.reject(new AjaxError(xhr.status, xhr.message));
@@ -12396,8 +12412,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					return 0;
 				});
 			}
-			return ajaxLoad(aib.getThrdUrl(aib.b, aib.t)).then(function (form) {
-				return _this.loadNewFromForm(form);
+			return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, true).then(function (form) {
+				return form ? _this.loadNewFromForm(form) : 0;
 			});
 		},
 		loadNewFromForm: function loadNewFromForm(form) {
@@ -13792,6 +13808,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			},
 			dm: "",
 			docExt: ".html",
+			LastModified: null,
+			ETag: null,
 			firstPage: 0,
 			fixFileInputs: emptyFn,
 			hasPicWrap: false,
