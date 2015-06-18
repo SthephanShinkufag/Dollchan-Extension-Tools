@@ -5366,14 +5366,16 @@ SpellsCodegen.prototype = {
 
 function SpellsInterpreter(post, spells, length) {
 	this._post = post;
-	this._ctx = [length, spells, 0];
+	this._ctx = [length, spells, 0, false];
+	this._spellsStack = [];
 	this._deep = 0;
 }
 SpellsInterpreter.prototype = {
 	hasNumSpell: false,
 	postHidden: false,
 	run() {
-		var rv, i = this._ctx.pop(),
+		var rv, stopCheck, isNegScope = this._ctx.pop(),
+			i = this._ctx.pop(),
 			scope = this._ctx.pop(),
 			len = this._ctx.pop();
 		while(true) {
@@ -5381,7 +5383,8 @@ SpellsInterpreter.prototype = {
 				var type = scope[i][0] & 0xFF;
 				if(type === 0xFF) {
 					this._deep++;
-					this._ctx.push(len, scope, i);
+					this._ctx.push(len, scope, i, isNegScope);
+					isNegScope = !!(((scope[i][0] & 0x100) !== 0) ^ isNegScope);
 					scope = scope[i][1];
 					len = scope.length;
 					i = 0;
@@ -5393,29 +5396,25 @@ SpellsInterpreter.prototype = {
 					val.then(this._asyncContinue.bind(this));
 					return false;
 				}
-				rv = this._checkRes(scope[i][0], val);
-				if(rv === null) {
+				[rv, stopCheck] = this._checkRes(scope[i], val, isNegScope);
+				if(!stopCheck) {
 					i++;
 					continue;
 				}
-				this._lastSpellIdx = i;
-			} else {
-				this._lastSpellIdx = i -= 1;
-				rv = false;
 			}
 			if(this._deep !== 0) {
 				this._deep--;
+				isNegScope = this._ctx.pop();
 				i = this._ctx.pop();
 				scope = this._ctx.pop();
 				len = this._ctx.pop();
-				rv = this._checkRes(scope[i][0], rv);
-				if(rv === null) {
+				if(((scope[i][0] & 0x200) === 0) ^ rv) {
 					i++;
 					continue;
 				}
 			}
 			if(rv) {
-				this._post.spellHide(this._getMsg(scope[i]));
+				this._post.spellHide(this._getMsg());
 				this.postHidden = true;
 			} else if(!this._post.deleted) {
 				sVis[this._post.count] = 1;
@@ -5428,18 +5427,17 @@ SpellsInterpreter.prototype = {
 	},
 
 	_endFn: null,
-	_lastSpellIdx: 0,
 	_wipeMsg: '',
 	_asyncContinue(val) {
 		var cl = this._ctx.length;
-		var spell = this._ctx[cl - 2][this._ctx[cl - 1]];
-		var rv = this._checkRes(spell[0], val);
-		if(rv === null) {
+		var spell = this._ctx[cl - 3][this._ctx[cl - 2]];
+		var [rv, stopCheck] = this._checkRes(spell, val, this._ctx[cl - 1]);
+		if(!stopCheck) {
 			if(!this.run()) {
 				return;
 			}
 		} else if(rv) {
-			this._post.spellHide(this._getMsg(spell));
+			this._post.spellHide(this._getMsg());
 			this.postHidden = true;
 		} else if(!this._post.deleted) {
 			sVis[this._post.count] = 1;
@@ -5448,31 +5446,33 @@ SpellsInterpreter.prototype = {
 			this._endFn(this);
 		}
 	},
-	_checkRes(flags, val) {
-		if((flags & 0x100) !== 0) {
-			val = !val;
-		}
-		if((flags & 0x200) !== 0) {
-			if(!val) {
-				return false;
+	_checkRes(spell, val, isNegScope) {
+		var flags = spell[0];
+		var isAndSpell = ((flags & 0x200) !== 0) ^ isNegScope;
+		var isNegSpell = ((flags & 0x100) !== 0) ^ isNegScope;
+		if(isNegSpell ^ val) {
+			if((spell[0] & 0xFF) === 14) {
+				this._spellsStack.push([isNegSpell, spell, this._wipeMsg]);
+			} else {
+				this._spellsStack.push([isNegSpell, spell, null]);
 			}
-		} else if(val) {
-			return true;
+			return [true, !isAndSpell];
 		}
-		return null;
+		this._spellsStack = [];
+		return [false, isAndSpell];
 	},
-	_getMsg(spell) {
-		var neg = spell[0] & 0x100,
-			type = spell[0] & 0xFF,
-			val = spell[1];
-		if(type === 0xFF) {
-			return this._getMsg(val[this._lastSpellIdx]);
+	_getMsg() {
+		var rv = [];
+		for(var [isNeg, spell, wipeMsg] of this._spellsStack) {
+			var type = spell[0] & 0xFF,
+				val = spell[1],
+				spell = Spells.decompileSpell(type, isNeg, val, spell[2]);
+			if(type === 14 && wipeMsg) {
+				spell += '<' + wipeMsg + '>';
+			}
+			rv.push(spell);
 		}
-		if(type === 14) {
-			return (neg ? '!#wipe' : '#wipe') + (this._wipeMsg ? ': ' + this._wipeMsg : '');
-		} else {
-			return Spells.decompileSpell(type, neg, val, spell[2]);
-		}
+		return rv.join(' & ');
 	},
 	_runSpell(spellId, val) {
 		switch(spellId) {
@@ -10462,7 +10462,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qDForm: { value: 'form[action*="delete"]' },
 			qError: { value: '.post-error, h2' },
 			qMsg: { value: '.postbody' },
-			qOmitted: { value: '.abbrev > span:first-of-type' },
+			qOmitted: { value: '.abbrev > span:last-of-type' },
 			qPages: { value: '.pages > tbody > tr > td' },
 			qPostRedir: { value: 'select[name="goto"]' },
 			qTrunc: { value: '.abbrev > span:nth-last-child(2)' },

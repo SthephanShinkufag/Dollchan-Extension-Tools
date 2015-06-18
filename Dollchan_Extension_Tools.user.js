@@ -7491,7 +7491,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 	function SpellsInterpreter(post, spells, length) {
 		this._post = post;
-		this._ctx = [length, spells, 0];
+		this._ctx = [length, spells, 0, false];
+		this._spellsStack = [];
 		this._deep = 0;
 	}
 	SpellsInterpreter.prototype = {
@@ -7499,6 +7500,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		postHidden: false,
 		run: function run() {
 			var rv,
+			    stopCheck,
+			    isNegScope = this._ctx.pop(),
 			    i = this._ctx.pop(),
 			    scope = this._ctx.pop(),
 			    len = this._ctx.pop();
@@ -7507,7 +7510,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					var type = scope[i][0] & 255;
 					if (type === 255) {
 						this._deep++;
-						this._ctx.push(len, scope, i);
+						this._ctx.push(len, scope, i, isNegScope);
+						isNegScope = !!((scope[i][0] & 256) !== 0 ^ isNegScope);
 						scope = scope[i][1];
 						len = scope.length;
 						i = 0;
@@ -7519,29 +7523,32 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						val.then(this._asyncContinue.bind(this));
 						return false;
 					}
-					rv = this._checkRes(scope[i][0], val);
-					if (rv === null) {
+
+					var _ref = this._checkRes(scope[i], val, isNegScope);
+
+					var _ref2 = _slicedToArray(_ref, 2);
+
+					rv = _ref2[0];
+					stopCheck = _ref2[1];
+
+					if (!stopCheck) {
 						i++;
 						continue;
 					}
-					this._lastSpellIdx = i;
-				} else {
-					this._lastSpellIdx = i -= 1;
-					rv = false;
 				}
 				if (this._deep !== 0) {
 					this._deep--;
+					isNegScope = this._ctx.pop();
 					i = this._ctx.pop();
 					scope = this._ctx.pop();
 					len = this._ctx.pop();
-					rv = this._checkRes(scope[i][0], rv);
-					if (rv === null) {
+					if ((scope[i][0] & 512) === 0 ^ rv) {
 						i++;
 						continue;
 					}
 				}
 				if (rv) {
-					this._post.spellHide(this._getMsg(scope[i]));
+					this._post.spellHide(this._getMsg());
 					this.postHidden = true;
 				} else if (!this._post.deleted) {
 					sVis[this._post.count] = 1;
@@ -7554,18 +7561,24 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		},
 
 		_endFn: null,
-		_lastSpellIdx: 0,
 		_wipeMsg: "",
 		_asyncContinue: function _asyncContinue(val) {
 			var cl = this._ctx.length;
-			var spell = this._ctx[cl - 2][this._ctx[cl - 1]];
-			var rv = this._checkRes(spell[0], val);
-			if (rv === null) {
+			var spell = this._ctx[cl - 3][this._ctx[cl - 2]];
+
+			var _checkRes = this._checkRes(spell, val, this._ctx[cl - 1]);
+
+			var _checkRes2 = _slicedToArray(_checkRes, 2);
+
+			var rv = _checkRes2[0];
+			var stopCheck = _checkRes2[1];
+
+			if (!stopCheck) {
 				if (!this.run()) {
 					return;
 				}
 			} else if (rv) {
-				this._post.spellHide(this._getMsg(spell));
+				this._post.spellHide(this._getMsg());
 				this.postHidden = true;
 			} else if (!this._post.deleted) {
 				sVis[this._post.count] = 1;
@@ -7574,31 +7587,59 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				this._endFn(this);
 			}
 		},
-		_checkRes: function _checkRes(flags, val) {
-			if ((flags & 256) !== 0) {
-				val = !val;
-			}
-			if ((flags & 512) !== 0) {
-				if (!val) {
-					return false;
+		_checkRes: function _checkRes(spell, val, isNegScope) {
+			var flags = spell[0];
+			var isAndSpell = (flags & 512) !== 0 ^ isNegScope;
+			var isNegSpell = (flags & 256) !== 0 ^ isNegScope;
+			if (isNegSpell ^ val) {
+				if ((spell[0] & 255) === 14) {
+					this._spellsStack.push([isNegSpell, spell, this._wipeMsg]);
+				} else {
+					this._spellsStack.push([isNegSpell, spell, null]);
 				}
-			} else if (val) {
-				return true;
+				return [true, !isAndSpell];
 			}
-			return null;
+			this._spellsStack = [];
+			return [false, isAndSpell];
 		},
-		_getMsg: function _getMsg(spell) {
-			var neg = spell[0] & 256,
-			    type = spell[0] & 255,
-			    val = spell[1];
-			if (type === 255) {
-				return this._getMsg(val[this._lastSpellIdx]);
+		_getMsg: function _getMsg() {
+			var rv = [];
+			var _iteratorNormalCompletion = true;
+			var _didIteratorError = false;
+			var _iteratorError = undefined;
+
+			try {
+				for (var _iterator = this._spellsStack[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+					var _step$value = _slicedToArray(_step.value, 3);
+
+					var isNeg = _step$value[0];
+					var spell = _step$value[1];
+					var wipeMsg = _step$value[2];
+
+					var type = spell[0] & 255,
+					    val = spell[1],
+					    spell = Spells.decompileSpell(type, isNeg, val, spell[2]);
+					if (type === 14 && wipeMsg) {
+						spell += "<" + wipeMsg + ">";
+					}
+					rv.push(spell);
+				}
+			} catch (err) {
+				_didIteratorError = true;
+				_iteratorError = err;
+			} finally {
+				try {
+					if (!_iteratorNormalCompletion && _iterator["return"]) {
+						_iterator["return"]();
+					}
+				} finally {
+					if (_didIteratorError) {
+						throw _iteratorError;
+					}
+				}
 			}
-			if (type === 14) {
-				return (neg ? "!#wipe" : "#wipe") + (this._wipeMsg ? ": " + this._wipeMsg : "");
-			} else {
-				return Spells.decompileSpell(type, neg, val, spell[2]);
-			}
+
+			return rv.join(" & ");
 		},
 		_runSpell: function _runSpell(spellId, val) {
 			switch (spellId) {
@@ -13095,7 +13136,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				qDForm: { value: "form[action*=\"delete\"]" },
 				qError: { value: ".post-error, h2" },
 				qMsg: { value: ".postbody" },
-				qOmitted: { value: ".abbrev > span:first-of-type" },
+				qOmitted: { value: ".abbrev > span:last-of-type" },
 				qPages: { value: ".pages > tbody > tr > td" },
 				qPostRedir: { value: "select[name=\"goto\"]" },
 				qTrunc: { value: ".abbrev > span:nth-last-child(2)" },
