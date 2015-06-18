@@ -10462,7 +10462,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qDForm: { value: 'form[action*="delete"]' },
 			qError: { value: '.post-error, h2' },
 			qMsg: { value: '.postbody' },
-			qOmitted: { value: '.abbrev > span:first-of-type' },
+			qOmitted: { value: '.abbrev > span:last-of-type' },
 			qPages: { value: '.pages > tbody > tr > td' },
 			qPostRedir: { value: 'select[name="goto"]' },
 			qTrunc: { value: '.abbrev > span:nth-last-child(2)' },
