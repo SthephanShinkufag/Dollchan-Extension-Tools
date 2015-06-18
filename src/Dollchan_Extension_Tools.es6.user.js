@@ -10431,11 +10431,18 @@ function getImageBoard(checkDomains, checkOther) {
 			cReply: { value: 'post' },
 			qDForm: { value: 'body > .container-fluid' },
 			qMsg: { value: '.post_comment_body' },
-			qRef: { value: '.post_id' },
-			qRPost: { value: '.post' },
+			qRef: { value: '.post_id, .post_head > b' },
+			qRPost: { value: '.post:not(:first-child)' },
 			qThread: { value: '.thread_inner' },
-			getTNum: { value(op) {
-				return op.postid;
+			getOp: { value(el) {
+				return $q('.post:first-child', el);
+			} },
+			getPNum: { value(post) {
+				return post.getAttribute('postid') ||
+					$q('blockquote', post).getAttribute('id').substring(1);
+			} },
+			getTNum: { value(el) {
+				return this.getOp(el).getAttribute('postid');
 			} },
 			css: { value: '.post_replies { display: none !important; }\
 				.post { overflow-x: auto !important; }' },

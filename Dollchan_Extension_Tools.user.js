@@ -13106,11 +13106,17 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				cReply: { value: "post" },
 				qDForm: { value: "body > .container-fluid" },
 				qMsg: { value: ".post_comment_body" },
-				qRef: { value: ".post_id" },
-				qRPost: { value: ".post" },
+				qRef: { value: ".post_id, .post_head > b" },
+				qRPost: { value: ".post:not(:first-child)" },
 				qThread: { value: ".thread_inner" },
-				getTNum: { value: function value(op) {
-						return op.postid;
+				getOp: { value: function value(el) {
+						return $q(".post:first-child", el);
+					} },
+				getPNum: { value: function value(post) {
+						return post.getAttribute("postid") || $q("blockquote", post).getAttribute("id").substring(1);
+					} },
+				getTNum: { value: function value(el) {
+						return this.getOp(el).getAttribute("postid");
 					} },
 				css: { value: ".post_replies { display: none !important; }\t\t\t\t.post { overflow-x: auto !important; }" },
 				docExt: { value: "" },
