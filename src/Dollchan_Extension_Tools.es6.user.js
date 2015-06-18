@@ -9668,7 +9668,13 @@ function Thread(el, prev, isLight) {
 	pByNum[num] = lastPost;
 	for(var i = 0; i < len; i++) {
 		var pEl = els[i];
-		num = aib.getPNum(pEl);
+        try {
+            num = aib.getPNum(pEl);
+        } catch(err) {
+            // malformed post, hopefully getPNum has removed it already
+            console.log(err);
+            continue;
+        }
 		pByNum[num] = lastPost = new Post(pEl, this, num, omt + i, false, lastPost, isLight);
 	}
 	this.last = lastPost;
@@ -10433,6 +10439,25 @@ function getImageBoard(checkDomains, checkOther) {
 			qMsg: { value: '.post_comment_body' },
 			qRef: { value: '.post_id' },
 			qRPost: { value: '.post' },
+            getPNum: { value(post) {
+                var m = post.id.match(/\d+/);
+                if (m !== null) {
+                    return m[0]
+                } else {
+                    // their parser has some sort of bug, the post with broken markup
+                    // sometimes gets inserted when upstream deletes stuff
+                    // look at DELETED post right after http://arhivach.org/thread/89806/
+                    //
+                    // extract ID from blockquote (verbose on purpose)
+                    var deleted_id = post.querySelector('span.post_comment > div.post_comment_body > blockquote').id.match(/\d+/)[0];
+                    // TODO: mark deleted_id post as deleted
+
+                    // remove this monstrosity & clean up
+                    post.parentNode.removeChild(post);
+                    throw 'messed up post (notification about deletion of >>'
+                            + deleted_id + '), ignored';
+                }
+            } },
 			qThread: { value: '.thread_inner' },
 			getTNum: { value(op) {
 				return op.postid;
