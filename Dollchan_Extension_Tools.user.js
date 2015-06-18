@@ -13109,20 +13109,37 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			"arhivach.org": [{
 				cReply: { value: "post" },
 				qDForm: { value: "body > .container-fluid" },
+				qHide: { value: ".post_comment" },
 				qMsg: { value: ".post_comment_body" },
 				qRef: { value: ".post_id, .post_head > b" },
-				qRPost: { value: ".post:not(:first-child)" },
+				qRPost: { value: ".post:not(:first-child):not([postid=\"\"])" },
 				qThread: { value: ".thread_inner" },
 				getOp: { value: function value(el) {
 						return $q(".post:first-child", el);
 					} },
 				getPNum: { value: function value(post) {
-						return post.getAttribute("postid") || $q("blockquote", post).getAttribute("id").substring(1);
+						return post.getAttribute("postid");
 					} },
 				getTNum: { value: function value(el) {
 						return this.getOp(el).getAttribute("postid");
 					} },
-				css: { value: ".post_replies { display: none !important; }\t\t\t\t.post { overflow-x: auto !important; }" },
+				init: { value: function value() {
+						setTimeout(function () {
+							var delPosts = $Q(".post[postid=\"\"]", doc);
+							for (var i = 0, len = delPosts.length; i < len; ++i) {
+								try {
+									var post = pByNum[$q("blockquote", delPosts[i]).getAttribute("id").substring(1)];
+									if (post) {
+										post.deleted = true;
+										post.btns.classList.remove("de-post-counter");
+										post.btns.classList.add("de-post-deleted");
+										post.wrap.classList.add("de-post-removed");
+									}
+								} catch (e) {}
+							}
+						}, 0);
+					} },
+				css: { value: ".post_replies, .post[postid=\"\"] { display: none !important; }\t\t\t\t.post { overflow-x: auto !important; }" },
 				docExt: { value: "" },
 				res: { value: "thread/" },
 				rLinkClick: { value: "" }
@@ -13135,7 +13152,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			"diochan.com": [{
 				dio: { value: true },
 
-				css: { value: ".resize { display: none !important; }" } }, "script[src*=\"kusaba\"]"],
+				css: { value: ".resize { display: none !important; }" }
+			}, "script[src*=\"kusaba\"]"],
 			"dobrochan.com": [{
 				dobr: { value: true },
 
