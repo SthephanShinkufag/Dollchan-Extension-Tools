@@ -4588,7 +4588,7 @@ Spells.needArg = [
 	/* op */ false, /* tlen */ false, /* all */ false, /* video */ false, /* wipe */ false,
 	/* num */ true, /* vauthor */ true
 ];
-Spells.decompileSpell = function(type, neg, val, scope) {
+Spells.decompileSpell = function(type, neg, val, scope, wipeMsg = null) {
 	var spell = (neg ? '!#' : '#') + Spells.names[type] + (scope ? '[' +
 		scope[0] + (scope[1] ? ',' + (scope[1] === -1 ? '' : scope[1]) : '') + ']' : '');
 	if(!val) {
@@ -4603,17 +4603,23 @@ Spells.decompileSpell = function(type, neg, val, scope) {
 	}
 	// #wipe
 	else if(type === 14) {
-		if(val === 0x3F) {
+		if(val === 0x3F && !wipeMsg) {
 			return spell;
 		}
-		var names = [],
+		var [msgBit, msgData] = wipeMsg || [],
+			names = [],
 			bits = {1: 'samelines',2: 'samewords', 4: 'longwords', 8: 'symbols',
 			        16: 'capslock', 32: 'numbers', 64: 'whitespace'
 			};
 		for(var bit in bits) {
-			if(val & +bit) {
-				names.push(bits[bit]);
+			if(+bit !== msgBit) {
+				if(val & +bit) {
+					names.push(bits[bit]);
+				}
 			}
+		}
+		if(msgBit) {
+			names.push(bits[msgBit].toUpperCase() + (msgData ? ': ' + msgData : null));
 		}
 		return spell + '(' + names.join(',') + ')';
 	}
@@ -5427,7 +5433,7 @@ SpellsInterpreter.prototype = {
 	},
 
 	_endFn: null,
-	_wipeMsg: '',
+	_wipeMsg: null,
 	_asyncContinue(val) {
 		var cl = this._ctx.length;
 		var spell = this._ctx[cl - 3][this._ctx[cl - 2]];
@@ -5451,11 +5457,7 @@ SpellsInterpreter.prototype = {
 		var isAndSpell = ((flags & 0x200) !== 0) ^ isNegScope;
 		var isNegSpell = ((flags & 0x100) !== 0) ^ isNegScope;
 		if(isNegSpell ^ val) {
-			if((spell[0] & 0xFF) === 14) {
-				this._spellsStack.push([isNegSpell, spell, this._wipeMsg]);
-			} else {
-				this._spellsStack.push([isNegSpell, spell, null]);
-			}
+			this._spellsStack.push([isNegSpell, spell, (spell[0] & 0xFF) === 14 ? this._wipeMsg : null]);
 			return [true, !isAndSpell];
 		}
 		this._spellsStack = [];
@@ -5464,13 +5466,7 @@ SpellsInterpreter.prototype = {
 	_getMsg() {
 		var rv = [];
 		for(var [isNeg, spell, wipeMsg] of this._spellsStack) {
-			var type = spell[0] & 0xFF,
-				val = spell[1],
-				spell = Spells.decompileSpell(type, isNeg, val, spell[2]);
-			if(type === 14 && wipeMsg) {
-				spell += '<' + wipeMsg + '>';
-			}
-			rv.push(spell);
+			rv.push(Spells.decompileSpell(spell[0] & 0xFF, isNeg, spell[1], spell[2], wipeMsg));
 		}
 		return rv.join(' & ');
 	},
@@ -5614,7 +5610,7 @@ SpellsInterpreter.prototype = {
 						j++;
 					}
 					if(j > 4 && j > n && x) {
-						this._wipeMsg = 'same lines: "' + x.substr(0, 20) + '" x' + (j + 1);
+						this._wipeMsg = [1, '"' + x.substr(0, 20) + '" x' + (j + 1)];
 						return true;
 					}
 				}
@@ -5637,14 +5633,14 @@ SpellsInterpreter.prototype = {
 							pop = j;
 						}
 						if(pop >= n) {
-							this._wipeMsg = 'same words: "' + x.substr(0, 20) + '" x' + (pop + 1);
+							this._wipeMsg = [2, 'same "' + x.substr(0, 20) + '" x' + (pop + 1)];
 							return true;
 						}
 					}
 				}
 				x = keys / len;
 				if(x < 0.25) {
-					this._wipeMsg = 'uniq words: ' + (x * 100).toFixed(0) + '%';
+					this._wipeMsg = [2, 'uniq ' + (x * 100).toFixed(0) + '%'];
 					return true;
 				}
 			}
@@ -5653,7 +5649,7 @@ SpellsInterpreter.prototype = {
 		if(val & 4) {
 			arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
 			if(arr[0].length > 50 || ((len = arr.length) > 1 && arr.join('').length / len > 10)) {
-				this._wipeMsg = 'long words';
+				this._wipeMsg = [4, null];
 				return true;
 			}
 		}
@@ -5663,7 +5659,7 @@ SpellsInterpreter.prototype = {
 			if((len = _txt.length) > 30 &&
 			   (x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
 			{
-				this._wipeMsg = 'specsymbols: ' + (x * 100).toFixed(0) + '%';
+				this._wipeMsg = [8, (x * 100).toFixed(0) + '%'];
 				return true;
 			}
 		}
@@ -5688,10 +5684,10 @@ SpellsInterpreter.prototype = {
 					n++;
 				}
 				if(capsw / n >= 0.3 && n > 4) {
-					this._wipeMsg = 'CAPSLOCK: ' + capsw / arr.length * 100 + '%';
+					this._wipeMsg = [16, 'CAPS ' + capsw / arr.length * 100 + '%'];
 					return true;
 				} else if(casew / n >= 0.3 && n > 8) {
-					this._wipeMsg = 'cAsE words: ' + casew / arr.length * 100 + '%';
+					this._wipeMsg = [16, 'cAsE ' + casew / arr.length * 100 + '%'];
 					return true;
 				}
 			}
@@ -5700,14 +5696,14 @@ SpellsInterpreter.prototype = {
 		if(val & 32) {
 			var _txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
 			if((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > 0.4) {
-				this._wipeMsg = 'numbers: ' + Math.round(x * 100) + '%';
+				this._wipeMsg = [32, Math.round(x * 100) + '%'];
 				return true;
 			}
 		}
 		// (1 << 5): whitespace
 		if(val & 64) {
 			if(/(?:\n\s*){10}/i.test(txt)) {
-				this._wipeMsg = 'whitespace';
+				this._wipeMsg = [64, null];
 				return true;
 			}
 		}
