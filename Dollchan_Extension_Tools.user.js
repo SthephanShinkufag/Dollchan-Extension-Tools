@@ -2318,21 +2318,22 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	var html5Submit = regeneratorRuntime.mark(function html5Submit(form) {
 		var needProgress = arguments[1] === undefined ? false : arguments[1];
 
-		var formData, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, _step$value, name, value, type, el, fileName, newFileName, data, lastFuncs, promises, xhr;
+		var formData, hasFiles, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, _step$value, name, value, type, el, fileName, newFileName, data, lastFuncs, promises, xhr;
 
 		return regeneratorRuntime.wrap(function html5Submit$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
 					formData = new FormData();
+					hasFiles = false;
 					_iteratorNormalCompletion = true;
 					_didIteratorError = false;
 					_iteratorError = undefined;
-					context$2$0.prev = 4;
+					context$2$0.prev = 5;
 					_iterator = getFormElements(form)[Symbol.iterator]();
 
-				case 6:
+				case 7:
 					if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-						context$2$0.next = 29;
+						context$2$0.next = 31;
 						break;
 					}
 
@@ -2343,86 +2344,87 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					el = _step$value.el;
 
 					if (!(type === "file")) {
-						context$2$0.next = 25;
+						context$2$0.next = 27;
 						break;
 					}
 
+					hasFiles = true;
 					fileName = value.name, newFileName = Cfg.removeFName ? " " + fileName.substring(fileName.lastIndexOf(".")) : fileName;
 
 					if (!(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) && (Cfg.postSameImg || Cfg.removeEXIF))) {
-						context$2$0.next = 24;
+						context$2$0.next = 26;
 						break;
 					}
 
-					context$2$0.next = 17;
+					context$2$0.next = 19;
 					return readFileArrayBuffer(value);
 
-				case 17:
+				case 19:
 					context$2$0.t25 = context$2$0.sent;
 					data = cleanFile(context$2$0.t25, el.obj.imgFile);
 
 					if (data) {
-						context$2$0.next = 21;
+						context$2$0.next = 23;
 						break;
 					}
 
 					return context$2$0.abrupt("return", Promise.reject(Lng.fileCorrupt[lang] + fileName));
 
-				case 21:
+				case 23:
 					value = new File(data, newFileName);
-					context$2$0.next = 25;
+					context$2$0.next = 27;
 					break;
 
-				case 24:
+				case 26:
 					if (Cfg.removeFName) {
 						value = new File([value], newFileName);
 					}
 
-				case 25:
+				case 27:
 					formData.append(name, value);
 
-				case 26:
+				case 28:
 					_iteratorNormalCompletion = true;
-					context$2$0.next = 6;
-					break;
-
-				case 29:
-					context$2$0.next = 35;
+					context$2$0.next = 7;
 					break;
 
 				case 31:
-					context$2$0.prev = 31;
-					context$2$0.t26 = context$2$0["catch"](4);
+					context$2$0.next = 37;
+					break;
+
+				case 33:
+					context$2$0.prev = 33;
+					context$2$0.t26 = context$2$0["catch"](5);
 					_didIteratorError = true;
 					_iteratorError = context$2$0.t26;
 
-				case 35:
-					context$2$0.prev = 35;
-					context$2$0.prev = 36;
+				case 37:
+					context$2$0.prev = 37;
+					context$2$0.prev = 38;
 
 					if (!_iteratorNormalCompletion && _iterator["return"]) {
 						_iterator["return"]();
 					}
 
-				case 38:
-					context$2$0.prev = 38;
+				case 40:
+					context$2$0.prev = 40;
 
 					if (!_didIteratorError) {
-						context$2$0.next = 41;
+						context$2$0.next = 43;
 						break;
 					}
 
 					throw _iteratorError;
 
-				case 41:
-					return context$2$0.finish(38);
-
-				case 42:
-					return context$2$0.finish(35);
-
 				case 43:
+					return context$2$0.finish(40);
+
+				case 44:
+					return context$2$0.finish(37);
+
+				case 45:
 					if (!needProgress) {
-						context$2$0.next = 49;
+						context$2$0.next = 51;
 						break;
 					}
 
@@ -2440,29 +2442,29 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}, function (xhr) {
 						return lastFuncs.reject(new AjaxError(xhr.status, xhr.statusText));
 					});
-					return context$2$0.abrupt("return", function () {
-						return promises.splice(0, 1)[0];
-					});
+					return context$2$0.abrupt("return", [hasFiles, function () {
+						return promises.shift();
+					}]);
 
-				case 49:
-					context$2$0.prev = 49;
-					context$2$0.next = 52;
+				case 51:
+					context$2$0.prev = 51;
+					context$2$0.next = 54;
 					return $ajax(form.action, { method: "POST", data: formData });
 
-				case 52:
+				case 54:
 					xhr = context$2$0.sent;
 					return context$2$0.abrupt("return", $DOM(xhr.responseText));
 
-				case 56:
-					context$2$0.prev = 56;
-					context$2$0.t27 = context$2$0["catch"](49);
+				case 58:
+					context$2$0.prev = 58;
+					context$2$0.t27 = context$2$0["catch"](51);
 					return context$2$0.abrupt("return", Promise.reject(new AjaxError(context$2$0.t27.status, context$2$0.t27.statusText)));
 
-				case 59:
+				case 61:
 				case "end":
 					return context$2$0.stop();
 			}
-		}, html5Submit, this, [[4, 31, 35, 43], [36,, 38, 42], [49, 56]]);
+		}, html5Submit, this, [[5, 33, 37, 45], [38,, 40, 44], [51, 58]]);
 	});
 	var initScript = regeneratorRuntime.mark(function initScript(checkDomains) {
 		var formEl, str;
@@ -6553,7 +6555,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		return $ajax(url, { useCache: true }).then(function (xhr) {
 			return JSON.parse(xhr.responseText);
 		}, function (xhr) {
-			return xhr.status === 304 ? null : Promise.reject(new AjaxError(xhr.status, xhr.message));
+			return xhr.status === 304 ? null : Promise.reject(new AjaxError(xhr.status, xhr.statusText));
 		});
 	}
 
@@ -6686,7 +6688,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 		var isAjax = e instanceof AjaxError,
 		    eCode = isAjax ? e.code : 0;
-		if (eCode === 200 || eCode === 304) {
+		if (eCode === 200) {
 			closeAlert($id("de-alert-newposts"));
 		} else if (isAjax && eCode === 0) {
 			$alert(e.message || Lng.noConnect[lang], "newposts", false);
@@ -9366,17 +9368,24 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		return err;
 	}
 
-	var doUploading = async(regeneratorRuntime.mark(function callee$1$3(getProgress) {
-		var p, beginTime, inited, progress, counterWrap, counterEl, totalEl, speedEl, val, total, loaded;
+	var doUploading = async(regeneratorRuntime.mark(function callee$1$3(_ref) {
+		var _ref2 = _slicedToArray(_ref, 2);
+
+		var hasFiles = _ref2[0];
+		var getProgress = _ref2[1];
+		var p, val, beginTime, inited, progress, counterWrap, counterEl, totalEl, speedEl, total, loaded;
 		return regeneratorRuntime.wrap(function callee$1$3$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					$alert(Lng.sendingPost[lang] + "<br><progress id=\"de-uploadprogress\" value=\"0\" max=\"1\" style=\"display: none; width: 200px;\">" + "</progress><div style=\"display: none; font: bold 12px sans-serif;\">" + "<span></span> / <span></span> (<span></span>)</div>", "upload", true);
-					beginTime = Date.now(), inited = false, progress = $id("de-uploadprogress"), counterWrap = progress.nextSibling, counterEl = counterWrap.firstChild, totalEl = counterEl.nextElementSibling, speedEl = totalEl.nextElementSibling;
+					$alert(Lng.sendingPost[lang] + (hasFiles ? "<br><progress id=\"de-uploadprogress\" value=\"0\" max=\"1\" style=\"display: none; width: 200px;\">" + "</progress><div style=\"display: none; font: bold 12px sans-serif;\">" + "<span></span> / <span></span> (<span></span>)</div>" : ""), "upload", true);
+
+					if (hasFiles) {
+						beginTime = Date.now(), inited = false, progress = $id("de-uploadprogress"), counterWrap = progress.nextSibling, counterEl = counterWrap.firstChild, totalEl = counterEl.nextElementSibling, speedEl = totalEl.nextElementSibling;
+					}
 
 				case 2:
 					if (!(p = getProgress())) {
-						context$2$0.next = 23;
+						context$2$0.next = 19;
 						break;
 					}
 
@@ -9406,27 +9415,29 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					return context$2$0.abrupt("return");
 
 				case 16:
-					if (!inited) {
-						total = val.data.total;
+					if (hasFiles) {
+						if (!inited) {
+							total = val.data.total;
 
-						progress.setAttribute("max", total);
-						progress.style.display = "";
-						totalEl.textContent = prettifySize(total);
-						counterWrap.style.display = "";
-						inited = true;
+							progress.setAttribute("max", total);
+							progress.style.display = "";
+							totalEl.textContent = prettifySize(total);
+							counterWrap.style.display = "";
+							inited = true;
+						}
+						loaded = val.data.loaded;
+
+						progress.value = loaded;
+						counterEl.textContent = prettifySize(loaded);
+						speedEl.textContent = prettifySize(loaded / (Date.now() - beginTime) * 1000) + "/" + Lng.second[lang];
 					}
-					loaded = val.data.loaded;
-
-					progress.value = loaded;
-					counterEl.textContent = prettifySize(loaded);
-					speedEl.textContent = prettifySize(loaded / (Date.now() - beginTime) * 1000) + "/" + Lng.second[lang];
 					context$2$0.next = 2;
 					break;
 
-				case 23:
+				case 19:
 					$alert(Lng.internalError[lang] + getPrettyErrorMessage(new Error()), "upload", false);
 
-				case 24:
+				case 20:
 				case "end":
 					return context$2$0.stop();
 			}

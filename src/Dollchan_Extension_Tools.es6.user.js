@@ -4198,10 +4198,10 @@ Videos._getYTInfoAPI = function(info, num, id) {
 	             null, false).then(xhr => {
 		var items = JSON.parse(xhr.responseText).items[0];
 		return Videos._titlesLoaderHelper(info, num,
-										  items.snippet.title,
-										  items.snippet.channelTitle,
-										  items.statistics.viewCount,
-										  items.snippet.publishedAt.substr(0, 10));
+		                                  items.snippet.title,
+		                                  items.snippet.channelTitle,
+		                                  items.statistics.viewCount,
+		                                  items.snippet.publishedAt.substr(0, 10));
 	}).catch(() => Videos._getYTInfoOembed(info, num, id));
 };
 Videos._getYTInfoOembed = function(info, num, id) {
@@ -4209,10 +4209,10 @@ Videos._getYTInfoOembed = function(info, num, id) {
 	             null, false).then(xhr => {
 		var json = JSON.parse(xhr.responseText);
 		return Videos._titlesLoaderHelper(info, num,
-										  json.title,
-										  json.author_name,
-										  null,
-										  null);
+		                                  json.title,
+		                                  json.author_name,
+		                                  null,
+		                                  null);
 	}).catch(() => Videos._titlesLoaderHelper(info, num));
 };
 Videos._getTitlesLoader = function() {
@@ -4486,8 +4486,8 @@ function ajaxLoad(url, returnForm = true, useCache = false) {
 }
 
 function getJsonPosts(url) {
-	return $ajax(url,{ useCache: true }).then(xhr => JSON.parse(xhr.responseText), xhr => {
-		return xhr.status === 304 ? null : Promise.reject(new AjaxError(xhr.status, xhr.message))
+	return $ajax(url, { useCache: true }).then(xhr => JSON.parse(xhr.responseText), xhr => {
+		return xhr.status === 304 ? null : Promise.reject(new AjaxError(xhr.status, xhr.statusText))
 	});
 }
 
@@ -4571,7 +4571,7 @@ var loadPages = async(function* (count) {
 function infoLoadErrors(e, showError = true) {
 	var isAjax = e instanceof AjaxError,
 		eCode = isAjax ? e.code : 0;
-	if(eCode === 200 || eCode === 304) {
+	if(eCode === 200) {
 		closeAlert($id('de-alert-newposts'));
 	} else if(isAjax && eCode === 0) {
 		$alert(e.message || Lng.noConnect[lang], 'newposts', false);
@@ -6991,20 +6991,22 @@ function getSubmitError(dc) {
 	return err;
 }
 
-var doUploading = async(function* (getProgress) {
-	$alert(Lng.sendingPost[lang] +
+var doUploading = async(function* ([hasFiles, getProgress]) {
+	$alert(Lng.sendingPost[lang] + (hasFiles ?
 		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' +
 		'</progress><div style="display: none; font: bold 12px sans-serif;">' +
-		'<span></span> / <span></span> (<span></span>)</div>', 'upload', true);
-	var p, beginTime = Date.now(),
-		inited = false,
-		progress = $id('de-uploadprogress'),
-		counterWrap = progress.nextSibling,
-		counterEl = counterWrap.firstChild,
-		totalEl = counterEl.nextElementSibling,
-		speedEl = totalEl.nextElementSibling;
+		'<span></span> / <span></span> (<span></span>)</div>' : ''), 'upload', true);
+	var p, val;
+	if(hasFiles) {
+		var beginTime = Date.now(),
+			inited = false,
+			progress = $id('de-uploadprogress'),
+			counterWrap = progress.nextSibling,
+			counterEl = counterWrap.firstChild,
+			totalEl = counterEl.nextElementSibling,
+			speedEl = totalEl.nextElementSibling;
+	}
 	while((p = getProgress())) {
-		var val;
 		try {
 			val = yield p;
 		} catch(e) {
@@ -7015,18 +7017,21 @@ var doUploading = async(function* (getProgress) {
 			checkUpload(val.data);
 			return;
 		}
-		if(!inited) {
-			var total = val.data.total;
-			progress.setAttribute('max', total);
-			progress.style.display = '';
-			totalEl.textContent = prettifySize(total);
-			counterWrap.style.display = '';
-			inited = true;
+		if(hasFiles) {
+			if(!inited) {
+				var total = val.data.total;
+				progress.setAttribute('max', total);
+				progress.style.display = '';
+				totalEl.textContent = prettifySize(total);
+				counterWrap.style.display = '';
+				inited = true;
+			}
+			var loaded = val.data.loaded;
+			progress.value = loaded;
+			counterEl.textContent = prettifySize(loaded);
+			speedEl.textContent = prettifySize((loaded / (Date.now() - beginTime)) * 1e3) +
+			                                   '/' + Lng.second[lang];
 		}
-		var loaded = val.data.loaded;
-		progress.value = loaded;
-		counterEl.textContent = prettifySize(loaded);
-		speedEl.textContent = prettifySize((loaded / (Date.now() - beginTime)) * 1e3) + '/' + Lng.second[lang];
 	}
 	$alert(Lng.internalError[lang] + getPrettyErrorMessage(new Error()), 'upload', false);
 });
@@ -7151,8 +7156,10 @@ var checkDelete = async(function* (dc) {
 
 function* html5Submit(form, needProgress = false) {
 	var formData = new FormData();
+	var hasFiles = false;
 	for(var {name, value, type, el} of getFormElements(form)) {
 		if(type === 'file') {
+			hasFiles = true;
 			var fileName = value.name,
 				newFileName = Cfg.removeFName ? ' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
 			if(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) &&
@@ -7177,7 +7184,7 @@ function* html5Submit(form, needProgress = false) {
 			promises.push(new Promise((resolve, reject) => lastFuncs = {resolve, reject}));
 		}}).then(xhr => lastFuncs.resolve({done: true, data: $DOM(xhr.responseText)}),
 		         xhr => lastFuncs.reject(new AjaxError(xhr.status, xhr.statusText)));
-		return () => promises.splice(0, 1)[0];
+		return [hasFiles, () => promises.shift()];
 	} else {
 		try {
 			var xhr = yield $ajax(form.action, {method: 'POST', data: formData});
