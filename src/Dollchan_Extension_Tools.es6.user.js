@@ -4177,8 +4177,9 @@ Videos._titlesLoaderHelper = function([link, isYtube, videoObj, id], num, ...dat
 		link.textContent = title;
 		link.setAttribute('de-author', author);
 		link.classList.add('de-video-title');
-		link.title = Lng.author[lang] + author + ', ' + Lng.views[lang] + views + ', ' +
-			Lng.published[lang] + publ;
+		link.title = Lng.author[lang] + author +
+			(views ? ', ' + Lng.views[lang] + views : '') +
+			(publ ? ', ' + Lng.published[lang] + publ : '');
 		Videos._global.vData[isYtube ? 0 : 1][id] = data;
 		videoObj.vData[isYtube ? 0 : 1].push(data);
 		if(videoObj.titleLoadFn) {
@@ -4191,20 +4192,34 @@ Videos._titlesLoaderHelper = function([link, isYtube, videoObj, id], num, ...dat
 	}
 	return sleep(250);
 };
+Videos._getYTInfoAPI = function(info, num, id) {
+	return $ajax('https://www.googleapis.com/youtube/v3/videos?key=' + Cfg.ytApiKey + '&id=' + id +
+	             '&part=snippet,statistics&fields=items/snippet/title,items/snippet/publishedAt,items/snippet/channelTitle,items/statistics/viewCount',
+	             null, false).then(xhr => {
+		var items = JSON.parse(xhr.responseText).items[0];
+		return Videos._titlesLoaderHelper(info, num,
+										  items.snippet.title,
+										  items.snippet.channelTitle,
+										  items.statistics.viewCount,
+										  items.snippet.publishedAt.substr(0, 10));
+	}).catch(() => Videos._getYTInfoOembed(info, num, id));
+};
+Videos._getYTInfoOembed = function(info, num, id) {
+	return $ajax('http://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&format=json',
+	             null, false).then(xhr => {
+		var json = JSON.parse(xhr.responseText);
+		return Videos._titlesLoaderHelper(info, num,
+										  json.title,
+										  json.author_name,
+										  null,
+										  null);
+	}).catch(() => Videos._titlesLoaderHelper(info, num));
+};
 Videos._getTitlesLoader = function() {
 	return Cfg.YTubeTitles && new TasksPool(4, function(num, info) {
 		var [, isYtube,, id] = info;
 		if(isYtube) {
-			return $ajax('https://www.googleapis.com/youtube/v3/videos?key=' + Cfg.ytApiKey + '&id=' + id +
-			             '&part=snippet,statistics&fields=items/snippet/title,items/snippet/publishedAt,items/snippet/channelTitle,items/statistics/viewCount',
-			             null, false).then(xhr => {
-				var items = JSON.parse(xhr.responseText).items[0];
-				return Videos._titlesLoaderHelper(info, num,
-				                                  items.snippet.title,
-				                                  items.snippet.channelTitle,
-				                                  items.statistics.viewCount,
-				                                  items.snippet.publishedAt.substr(0, 10));
-			}).catch(() => Videos._titlesLoaderHelper(info, num));
+			return Cfg.ytApiKey ? Videos._getYTInfoAPI(info, num, id) : Videos._getYTInfoOembed(info, num, id);
 		}
 		return $ajax(aib.prot + '//vimeo.com/api/v2/video/' + id + '.json', null, false).then(xhr => {
 			var entry = JSON.parse(xhr.responseText)[0];
@@ -4267,8 +4282,9 @@ Videos.prototype = {
 				link.textContent = dataObj[0];
 				link.classList.add('de-video-title');
 				link.setAttribute('de-author', dataObj[1]);
-				link.title = Lng.author[lang] + dataObj[1] + ', ' +
-					Lng.views[lang] + dataObj[2] + ', ' + Lng.published[lang] + dataObj[3];
+				link.title = Lng.author[lang] + dataObj[1] + 
+					(dataObj[2] ? ', ' + Lng.views[lang] + dataObj[2] : '') +
+					(dataObj[3] ? ', ' + Lng.published[lang] + dataObj[3] : '');
 			}
 		} else {
 			var src = isYtube ? aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '')
@@ -4383,7 +4399,7 @@ VideosParser.prototype = {
 			if(m) {
 				var mPost = post || (aib.getPostEl(link) || {}).post;
 				if(mPost) {
-					mPost.videos.addLink(m, Cfg.ytApiKey ? loader : null, link, true);
+					mPost.videos.addLink(m, loader, link, true);
 				}
 			}
 		}
