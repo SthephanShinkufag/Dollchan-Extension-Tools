@@ -11728,7 +11728,7 @@ function initThreadUpdater(title, enableUpdate) {
 							{
 								'body': post.text.substring(0, 250).replace(/\s+/g, ' '),
 								'tag': aib.dm + aib.b + aib.t,
-								'icon': post.images.firstAttach || favHref
+								'icon': post.images.firstAttach ? post.images.firstAttach.src : favHref
 							});
 						notif.onshow = setTimeout.bind(window, notif.close.bind(notif), 12e3);
 						notif.onclick = window.focus;
