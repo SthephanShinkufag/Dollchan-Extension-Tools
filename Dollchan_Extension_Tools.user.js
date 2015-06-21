@@ -7604,7 +7604,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		_asyncContinue: function _asyncContinue(val) {
 			var cl = this._ctx.length;
 			var spell = this._ctx[cl - 3][this._ctx[cl - 2] - 1];
-			console.log(this._ctx, spell);
 
 			var _checkRes = this._checkRes(spell, val, this._ctx[cl - 1]);
 
@@ -10493,7 +10492,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				if (val !== -1) {
 					Object.defineProperty(this, "_offset", { value: val });
 				} else {
-					val = Object.getPrototypeOf(this)._offset;
+					val = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(Object.getPrototypeOf(this)), "_offset").get.call(this);
 					if (!this.inPview && !this.post.isOp && !this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4) {
 						Attachment.cachedOffset = val;
 					}

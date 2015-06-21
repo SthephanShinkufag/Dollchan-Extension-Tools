@@ -5445,7 +5445,6 @@ SpellsInterpreter.prototype = {
 	_asyncContinue(val) {
 		var cl = this._ctx.length;
 		var spell = this._ctx[cl - 3][this._ctx[cl - 2] - 1];
-		console.log(this._ctx, spell);
 		var [rv, stopCheck] = this._checkRes(spell, val, this._ctx[cl - 1]);
 		return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null]
 		                 : this.run();
@@ -7999,7 +7998,8 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 		if(val !== -1) {
 			Object.defineProperty(this, '_offset', { value: val });
 		} else {
-			val = Object.getPrototypeOf(this)._offset;
+			val = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(Object.getPrototypeOf(this)),
+			                                      '_offset').get.call(this);
 			if(!this.inPview && !this.post.isOp &&
 			   !this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4)
 			{
