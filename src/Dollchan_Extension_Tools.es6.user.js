@@ -1389,6 +1389,7 @@ function* readUserPosts() {
 	if(!dForm.firstThr) {
 		return;
 	}
+	var sRunner = new SpellsRunner();
 	for(var post = dForm.firstThr.op; post; post = post.next) {
 		var num = post.num;
 		if(num in uVis) {
@@ -1428,24 +1429,14 @@ function* readUserPosts() {
 			}
 			post.spellHidden = true;
 		} else if(vis !== '1') {
-			spells.check(post);
+			sRunner.run(post);
 		}
 	}
 	if(update) {
 		globalUserVis[b] = uVis;
 		setStored('DESU_Posts_' + aib.dm, JSON.stringify(globalUserVis));
 	}
-	spells.end(savePosts);
-}
-
-function savePosts() {
-	if(aib.t) {
-		var lPost = dForm.firstThr.lastNotDeleted;
-		sesStorage['de-hidden-' + aib.b + aib.t] = (Cfg.hideBySpell ? spells.hash : '0') +
-			',' + lPost.num + ',' + lPost.count + ',' + sVis.join('');
-	}
-	saveHiddenThreads(false);
-	toggleContent('hid', true);
+	sRunner.end();
 }
 
 function saveUserPosts() {
@@ -4822,7 +4813,6 @@ Spells.prototype = {
 	},
 	_init(spells, reps, outreps) {
 		this._spells = this._initSpells(spells);
-		this._sLength = spells && spells.length;
 		this._reps = this._initReps(reps);
 		this._outreps = this._initReps(outreps);
 		this.enable = !!this._spells;
@@ -4852,14 +4842,6 @@ Spells.prototype = {
 			this._data = spells;
 		}
 	},
-	_asyncSpellComplete(interp) {
-		this.hasNumSpell |= interp.hasNumSpell;
-		this._asyncJobs--;
-		this.end(null);
-	},
-	_asyncJobs: 0,
-	_completeFns: [],
-	_hasComplFns: false,
 	_data: null,
 	_list: '',
 
@@ -4868,10 +4850,6 @@ Spells.prototype = {
 	enable: false,
 	get list() {
 		return this._list || this._decompileSpells();
-	},
-	addCompleteFunc(Fn) {
-		this._completeFns.push(Fn);
-		this._hasComplFns = true;
 	},
 	parseText(str) {
 		var codeGen = new SpellsCodegen(str),
@@ -4939,10 +4917,11 @@ Spells.prototype = {
 	setSpells(spells, sync) {
 		this.update(spells, sync, Cfg.hideBySpell);
 		if(Cfg.hideBySpell) {
+			var sRunner = new SpellsRunner();
 			for(var post = dForm.firstThr.op; post; post = post.next) {
-				this.check(post);
+				sRunner.run(post);
 			}
-			this.end(savePosts);
+			sRunner.end();
 		} else {
 			this.enable = false;
 		}
@@ -4953,35 +4932,6 @@ Spells.prototype = {
 		this._data = null;
 		this.haveReps = this.haveOutreps = false;
 		saveCfg('hideBySpell', false);
-	},
-	end(fn) {
-		if(this._asyncJobs === 0) {
-			if(fn) {
-				fn();
-			}
-			if(this._hasComplFns) {
-				for(var i = 0, len = this._completeFns.length; i < len; ++i) {
-					this._completeFns[i]();
-				}
-				this._completeFns = [];
-				this._hasComplFns = false;
-			}
-		} else if(fn) {
-			this.addCompleteFunc(fn);
-		}
-	},
-	check(post) {
-		if(!this.enable) {
-			return 0;
-		}
-		var interp = new SpellsInterpreter(post, this._spells, this._sLength);
-		if(interp.run()) {
-			this.hasNumSpell |= interp.hasNumSpell;
-			return interp.postHidden ? 1 : 0;
-		}
-		interp.setEndFn(this._asyncSpellComplete.bind(this));
-		this._asyncJobs++;
-		return 0;
 	},
 	replace(txt) {
 		for(var i = 0, len = this._reps.length; i < len; i++) {
@@ -5386,15 +5336,68 @@ SpellsCodegen.prototype = {
 	}
 };
 
-function SpellsInterpreter(post, spells, length) {
+function SpellsRunner(savePosts = true) {
+	this._spells = spells._spells;
+	if(!this._spells) {
+		this.run = () => 0;
+		this._savePosts = false;
+	}
+	this._savePosts = savePosts;
+}
+SpellsRunner.prototype = {
+	hasNumSpell: false,
+	end() {
+		if(this._endPromise) {
+			this._endPromise.then(() => this._savePostsHelper());
+		} else {
+			this._savePostsHelper();
+		}
+	},
+	run(post) {
+		var interp = new SpellsInterpreter(post, this._spells);
+		var res = interp.run();
+		if(res instanceof Promise) {
+			res = res.then(val => this._checkRes(post, val));
+			this._endPromise = this._endPromise ? this._endPromise.then(() => res) : res;
+			return 0;
+		}
+		return this._checkRes(post, res);
+	},
+
+	_endPromise: null,
+	_checkRes(post, [hasNumSpell, val, msg]) {
+		this.hasNumSpell |= hasNumSpell;
+		if(val) {
+			post.spellHide(msg);
+			return 1;
+		}
+		if(!post.deleted) {
+			sVis[post.count] = 1;
+		}
+		return 0;
+	},
+	_savePostsHelper() {
+		if(this._savePosts) {
+			if(aib.t) {
+				var lPost = dForm.firstThr.lastNotDeleted;
+				sesStorage['de-hidden-' + aib.b + aib.t] = (Cfg.hideBySpell ? spells.hash : '0') +
+					',' + lPost.num + ',' + lPost.count + ',' + sVis.join('');
+			}
+			saveHiddenThreads(false);
+			toggleContent('hid', true);
+		}
+		ImagesHashStorage.endFn();
+	}
+};
+
+function SpellsInterpreter(post, spells) {
 	this._post = post;
-	this._ctx = [length, spells, 0, false];
+	this._ctx = [spells.length, spells, 0, false];
 	this._spellsStack = [];
 	this._deep = 0;
 }
 SpellsInterpreter.prototype = {
 	hasNumSpell: false,
-	postHidden: false,
 	run() {
 		var rv, stopCheck, isNegScope = this._ctx.pop(),
 			i = this._ctx.pop(),
@@ -5414,9 +5417,8 @@ SpellsInterpreter.prototype = {
 				}
 				var val = this._runSpell(type, scope[i][1]);
 				if(val instanceof Promise) {
-					this._ctx.push(len, scope, i);
-					val.then(this._asyncContinue.bind(this));
-					return false;
+					this._ctx.push(len, scope, ++i, isNegScope);
+					return val.then(this._asyncContinue.bind(this));
 				}
 				[rv, stopCheck] = this._checkRes(scope[i], val, isNegScope);
 				if(!stopCheck) {
@@ -5435,38 +5437,18 @@ SpellsInterpreter.prototype = {
 					continue;
 				}
 			}
-			if(rv) {
-				this._post.spellHide(this._getMsg());
-				this.postHidden = true;
-			} else if(!this._post.deleted) {
-				sVis[this._post.count] = 1;
-			}
-			return true;
+			return [this.hasNumSpell, rv, rv ? this._getMsg() : null];
 		}
 	},
-	setEndFn(Fn) {
-		this._endFn = Fn;
-	},
 
-	_endFn: null,
 	_wipeMsg: null,
 	_asyncContinue(val) {
 		var cl = this._ctx.length;
-		var spell = this._ctx[cl - 3][this._ctx[cl - 2]];
+		var spell = this._ctx[cl - 3][this._ctx[cl - 2] - 1];
+		console.log(this._ctx, spell);
 		var [rv, stopCheck] = this._checkRes(spell, val, this._ctx[cl - 1]);
-		if(!stopCheck) {
-			if(!this.run()) {
-				return;
-			}
-		} else if(rv) {
-			this._post.spellHide(this._getMsg());
-			this.postHidden = true;
-		} else if(!this._post.deleted) {
-			sVis[this._post.count] = 1;
-		}
-		if(this._endFn) {
-			this._endFn(this);
-		}
+		return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null]
+		                 : this.run();
 	},
 	_checkRes(spell, val, isNegScope) {
 		var flags = spell[0];
@@ -5531,7 +5513,7 @@ SpellsInterpreter.prototype = {
 			if(!(image instanceof Attachment)) {
 				continue;
 			}
-			var hash = image.hash !== null ? image.hash : (yield image.getHash());
+			var hash = yield* ImagesHashStorage.getHash(image);
 			if(hash === val) {
 				return true;
 			}
@@ -5821,10 +5803,11 @@ function addSpell(type, arg, isNeg) {
 		val = spells.list;
 		saveCfg('hideBySpell', !!val);
 		if(val) {
+			var sRunner = new SpellsRunner();
 			for(var post = dForm.firstThr.op; post; post = post.next) {
-				spells.check(post);
+				sRunner.run(post);
 			}
-			spells.end(savePosts);
+			sRunner.end();
 		} else {
 			saveCfg('spells', '');
 			spells.enable = false;
@@ -7947,21 +7930,13 @@ IAttachmentData.prototype = {
 
 	_fullEl: null,
 	get _offset() {
-		var val = -1;
-		if(this._useCache) {
-			val = this._glob._offset;
-		}
-		if(val === -1) {
-			if(this.post.hidden) {
-				this.post.hideContent(false);
-				val = this.el.getBoundingClientRect().left + window.pageXOffset;
-				this.post.hideContent(true);
-			} else {
-				val = this.el.getBoundingClientRect().left + window.pageXOffset;
-			}
-			if(this._useCache) {
-				this._glob._offset = val;
-			}
+		var val;
+		if(this.post.hidden) {
+			this.post.hideContent(false);
+			val = this.el.getBoundingClientRect().left + window.pageXOffset;
+			this.post.hideContent(true);
+		} else {
+			val = this.el.getBoundingClientRect().left + window.pageXOffset;
 		}
 		Object.defineProperty(this, '_offset', { value: val });
 		return val;
@@ -7997,23 +7972,9 @@ function Attachment(post, el, idx) {
 	this.el = el;
 	this.idx = idx;
 }
+Attachment.cachedOffset = -1;
 Attachment.viewer = null;
 Attachment.prototype = Object.create(IAttachmentData.prototype, {
-	_hash: { configurable: true, writable: true, value: null },
-	hash: { configurable: true, get() {
-		if(this.hasOwnProperty('_hash')) {
-			return this._hash;
-		}
-		if(this.src in this._glob.storage) {
-			return this._hash = this._glob.storage[this.src];
-		}
-		return null;
-	}, set(val) {
-		this._hash = val;
-		if(val !== -1) {
-			this._glob.storage[this.src] = val;
-		}
-	} },
 	info: { configurable: true, get() {
 		var val = aib.getFileInfo(aib.getImgWrap(this.el.parentNode));
 		Object.defineProperty(this, 'info', { value: val });
@@ -8032,87 +7993,19 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 		var nImage = this.post.images.data[isForward ? this.idx + 1 : this.idx - 1];
 		return nImage ? nImage : this.getFollowPost(isForward);
 	} },
-	getHash: { value: function() {
-		if(this.hash !== null) {
-			return Promise.resolve(this.hash);
-		}
-		if(!this.el.complete) {
-			return new Promise((resolve, reject) => {
-				this.el.addEventListener('load', () => resolve());
-			}).then(() => this.getHash());
-		}
-		if(this.el.naturalWidth + this.el.naturalHeight === 0) {
-			this.hash = -1;
-			return Promise.resolve(-1);
-		}
-		if(aib.fch) {
-			return downloadImgData(this.el.src).then(imgData => {
-				if(imgData) {
-					var buffer = imgData.buffer;
-					return this._glob.workerRun([buffer, this.el.naturalWidth, this.el.naturalHeight],
-				                                [buffer]);
-				}
-				return Promise.reject();
-			}).then(data => this.hash = data.hash, () => this.hash = -1);
-		}
-		var img = this.el,
-			cnv = this._glob.canvas,
-			w = cnv.width = img.naturalWidth,
-			h = cnv.height = img.naturalHeight,
-			ctx = cnv.getContext('2d');
-		ctx.drawImage(img, 0, 0);
-		var data = ctx.getImageData(0, 0, w, h).data.buffer;
-		return this._glob.workerRun([data, w, h], [data]).then(data => this.hash = data.hash);
-	} },
 
-	_glob: { value: Object.create({
-		get canvas() {
-			var val = doc.createElement('canvas');
-			Object.defineProperty(this, 'canvas', { value: val });
-			return val;
-		},
-		get storage() {
-			var val = null;
-			try {
-				val = JSON.parse(sesStorage['de-imageshash']);
-			} finally {
-				if(!val) {
-					val = {};
-				}
-				spells.addCompleteFunc(this._saveStorage.bind(this));
-				Object.defineProperty(this, 'storage', { value: val });
-				return val;
+	_offset: { configurable: true, get() {
+		var val = Attachment.cachedOffset;
+		if(val !== -1) {
+			Object.defineProperty(this, '_offset', { value: val });
+		} else {
+			val = Object.getPrototypeOf(this)._offset;
+			if(!this.inPview && !this.post.isOp &&
+			   !this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4)
+			{
+				Attachment.cachedOffset = val;
 			}
-		},
-		workerRun(data, transferObjs) {
-			return new Promise((resolve, reject) => {
-				this._workers.run(data, transferObjs, val => resolve(val));
-			});
-		},
-		get _workers() {
-			var val = new WorkerPool(4, genImgHash, emptyFn);
-			spells.addCompleteFunc(this._clearWorkers.bind(this));
-			Object.defineProperty(this, '_workers', { value: val, configurable: true });
-			return val;
-		},
-
-		_expAttach: null,
-		_offset: -1,
-		_saveStorage() {
-			sesStorage['de-imageshash'] = JSON.stringify(this.storage);
-		},
-		_clearWorkers() {
-			this._workers.clear();
-			delete this._workers;
 		}
-	}) },
-	_callback: { writable: true, value: null },
-	_processing: { writable: true, value: false },
-	_needToHide: { writable: true, value: false },
-	_useCache: { configurable: true, get() {
-		var val = !this.inPview && !this.post.isOp &&
-			!this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4;
-		Object.defineProperty(this, '_useCache', { value: val });
 		return val;
 	} },
 	_getImageSize: { value() {
@@ -8128,6 +8021,84 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 	_getImageParent: { value() {
 		return aib.getImgParent(this.el.parentNode);
 	} }
+});
+
+var ImagesHashStorage = Object.create({
+	endFn() {
+		if(this.hasOwnProperty('_storage')) {
+			sesStorage['de-imageshash'] = JSON.stringify(this._storage);
+		}
+		if(this.hasOwnProperty('_workers')) {
+			this._workers.clear();
+			delete this._workers;
+		}
+	},
+	get getHash() {
+		var val = this._getHashHelper.bind(this);
+		Object.defineProperty(this, 'getHash', { value: val });
+		return val;
+	},
+
+	*_getHashHelper(imgObj) {
+		var el = imgObj.el,
+			src = imgObj.src;
+		if(src in this._storage) {
+			return this._storage[src];
+		}
+		if(!el.complete) {
+			yield new Promise(resolve => el.addEventListener('load', () => resolve()));
+		}
+		if(el.naturalWidth + el.naturalHeight === 0) {
+			return -1;
+		}
+		var data, buffer, val = -1,
+			w = el.naturalWidth,
+			h = el.naturalHeight;
+		if(aib.fch) {
+			var imgData = yield downloadImgData(el.src);
+			if(imgData) {
+				buffer = imgData.buffer;
+			}
+		} else {
+			var cnv = this._canvas;
+			cnv.width = w;
+			cnv.height = h;
+			var ctx = cnv.getContext('2d');
+			ctx.drawImage(el, 0, 0);
+			buffer = ctx.getImageData(0, 0, w, h).data.buffer;
+		}
+		if(buffer) {
+			data = yield new Promise(resolve =>
+				this._workers.run([buffer, w, h], [buffer], val => resolve(val)));
+			if(data && ('hash' in data)) {
+				val = data.hash;
+			}
+		}
+		this._storage[src] = val;
+		return val;
+	},
+	get _canvas() {
+		var val = doc.createElement('canvas');
+		Object.defineProperty(this, '_canvas', { value: val });
+		return val;
+	},
+	get _storage() {
+		var val = null;
+		try {
+			val = JSON.parse(sesStorage['de-imageshash']);
+		} finally {
+			if(!val) {
+				val = {};
+			}
+			Object.defineProperty(this, '_storage', { value: val });
+			return val;
+		}
+	},
+	get _workers() {
+		var val = new WorkerPool(4, genImgHash, emptyFn);
+		Object.defineProperty(this, '_workers', { value: val, configurable: true });
+		return val;
+	}
 });
 
 function processImageNames(el) {
@@ -8796,7 +8767,9 @@ Post.prototype = {
 			newMsg.appendChild(videoExt);
 		}
 		this.addFuncs();
-		spells.check(this);
+		var sRunner = new SpellsRunner();
+		sRunner.run(this);
+		sRunner.end();
 		closeAlert($id('de-alert-load-fullmsg'));
 	},
 	get videos() {
@@ -8987,7 +8960,7 @@ Post.prototype = {
 			addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
 			return;
 		case 'spell-ihash':
-			this.images.firstAttach.getHash().then(hash => {
+			spawn(ImagesHashStorage.getHash, this.images.firstAttach).then(hash => {
 				if(hash !== -1) {
 					addSpell(4 /* #ihash */, hash, false);
 				}
@@ -9964,18 +9937,18 @@ Thread.prototype = {
 			}
 		}
 	},
-	_importPosts(last, newPosts, begin, end, vParser) {
+	_importPosts(last, newPosts, begin, end, vParser, sRunner) {
 		var newCount = end - begin,
 			newVisCount = newCount,
 			fragm = doc.createDocumentFragment();
 		for(; begin < end; ++begin) {
 			last = this._addPost(fragm, newPosts[begin], begin + 1, vParser, last);
-			newVisCount -= spells.check(last);
+			newVisCount -= sRunner.run(last);
 		}
 		return [newCount, newVisCount, fragm, last];
 	},
 	_parsePosts(nPosts) {
-		var vParser, saveSpells = false,
+		var vParser, sRunner = new SpellsRunner(),
 			newPosts = 0,
 			newVisPosts = 0,
 			len = nPosts.length,
@@ -10003,7 +9976,7 @@ Thread.prototype = {
 						cnt++;
 						i++;
 					} while(+aib.getPNum(nPosts[i]) < +post.num);
-					var res = this._importPosts(post.prev, nPosts, i - cnt, i, vParser);
+					var res = this._importPosts(post.prev, nPosts, i - cnt, i, vParser, sRunner);
 					newPosts += res[0];
 					this.pcount += res[0];
 					newVisPosts += res[1];
@@ -10023,12 +9996,11 @@ Thread.prototype = {
 			if(i === len && post) {
 				this.deletePost(post, true, !aib.t);
 			}
-			if(firstChangedPost && spells.hasNumSpell) {
+			if(firstChangedPost && sRunner.hasNumSpell) {
 				disableSpells();
 				for(post = firstChangedPost.nextInThread; post; post = post.nextInThread) {
-					spells.check(post);
+					sRunner.run(post);
 				}
-				saveSpells = true;
 			}
 			if(newPosts !== 0) {
 				for(post = firstChangedPost; post; post = post.nextInThread) {
@@ -10040,13 +10012,12 @@ Thread.prototype = {
 			if(Cfg.addYouTube && !vParser) {
 				vParser = new VideosParser();
 			}
-			var res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len, vParser);
+			var res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len, vParser, sRunner);
 			newPosts += res[0];
 			newVisPosts += res[1];
 			this.el.appendChild(res[2]);
 			this.last = res[3];
 			this.pcount = len + 1;
-			saveSpells = true;
 		}
 		readFav().then(fav => {
 			var f = fav[aib.host];
@@ -10068,12 +10039,10 @@ Thread.prototype = {
 				setStored('DESU_Favorites', JSON.stringify(fav));
 			}
 		});
-		if(saveSpells) {
-			spells.end(savePosts);
-		}
 		if(vParser) {
 			vParser.end();
 		}
+		sRunner.end();
 		return [newPosts, newVisPosts];
 	},
 	_processExpandThread(nPosts, num) {
@@ -10093,10 +10062,12 @@ Thread.prototype = {
 			if(Cfg.addYouTube) {
 				vParser = new VideosParser();
 			}
+			var sRunner = new SpellsRunner(false);
 			for(var i = Math.max(0, len - num + vPosts); i < len; ++i) {
 				tPost = this._addPost(fragm, nPosts[i], i + 1, vParser, tPost);
-				spells.check(tPost);
+				sRunner.run(tPost);
 			}
+			sRunner.end();
 			if(vParser) {
 				vParser.end();
 			}

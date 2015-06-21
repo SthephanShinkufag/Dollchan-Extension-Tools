@@ -2141,7 +2141,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, readCfg, this);
 	});
 	var readUserPosts = regeneratorRuntime.mark(function readUserPosts() {
-		var b, date, spellsHide, update, globalUserVis, post, num, hidePost, hideThread, vis;
+		var b, date, spellsHide, update, globalUserVis, sRunner, post, num, hidePost, hideThread, vis;
 		return regeneratorRuntime.wrap(function readUserPosts$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
@@ -2171,18 +2171,19 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					return context$2$0.abrupt("return");
 
 				case 12:
+					sRunner = new SpellsRunner();
 					post = dForm.firstThr.op;
 
-				case 13:
+				case 14:
 					if (!post) {
-						context$2$0.next = 33;
+						context$2$0.next = 34;
 						break;
 					}
 
 					num = post.num;
 
 					if (!(num in uVis)) {
-						context$2$0.next = 20;
+						context$2$0.next = 21;
 						break;
 					}
 
@@ -2203,11 +2204,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						post.btns.firstChild.className = "de-btn-hide-user";
 						post.userToggled = true;
 					}
-					return context$2$0.abrupt("continue", 30);
+					return context$2$0.abrupt("continue", 31);
 
-				case 20:
+				case 21:
 					if (!post.isOp) {
-						context$2$0.next = 24;
+						context$2$0.next = 25;
 						break;
 					}
 
@@ -2216,23 +2217,23 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					} else if (vis === "0") {
 						vis = null;
 					}
-					context$2$0.next = 29;
+					context$2$0.next = 30;
 					break;
 
-				case 24:
+				case 25:
 					if (!spellsHide) {
-						context$2$0.next = 28;
+						context$2$0.next = 29;
 						break;
 					}
 
 					vis = sVis[post.count];
-					context$2$0.next = 29;
+					context$2$0.next = 30;
 					break;
 
-				case 28:
-					return context$2$0.abrupt("continue", 30);
-
 				case 29:
+					return context$2$0.abrupt("continue", 31);
+
+				case 30:
 					if (vis === "0") {
 						if (!post.hidden) {
 							post.setVisib(true);
@@ -2240,22 +2241,22 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						}
 						post.spellHidden = true;
 					} else if (vis !== "1") {
-						spells.check(post);
+						sRunner.run(post);
 					}
 
-				case 30:
+				case 31:
 					post = post.next;
-					context$2$0.next = 13;
+					context$2$0.next = 14;
 					break;
 
-				case 33:
+				case 34:
 					if (update) {
 						globalUserVis[b] = uVis;
 						setStored("DESU_Posts_" + aib.dm, JSON.stringify(globalUserVis));
 					}
-					spells.end(savePosts);
+					sRunner.end();
 
-				case 35:
+				case 36:
 				case "end":
 					return context$2$0.stop();
 			}
@@ -3667,15 +3668,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		}
 		sVis = [];
-	}
-
-	function savePosts() {
-		if (aib.t) {
-			var lPost = dForm.firstThr.lastNotDeleted;
-			sesStorage["de-hidden-" + aib.b + aib.t] = (Cfg.hideBySpell ? spells.hash : "0") + "," + lPost.num + "," + lPost.count + "," + sVis.join("");
-		}
-		saveHiddenThreads(false);
-		toggleContent("hid", true);
 	}
 
 	function saveUserPosts() {
@@ -6942,7 +6934,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		},
 		_init: function _init(spells, reps, outreps) {
 			this._spells = this._initSpells(spells);
-			this._sLength = spells && spells.length;
 			this._reps = this._initReps(reps);
 			this._outreps = this._initReps(outreps);
 			this.enable = !!this._spells;
@@ -6972,24 +6963,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				this._data = spells;
 			}
 		},
-		_asyncSpellComplete: function _asyncSpellComplete(interp) {
-			this.hasNumSpell |= interp.hasNumSpell;
-			this._asyncJobs--;
-			this.end(null);
-		},
-		_asyncJobs: 0,
-		_completeFns: [],
-		_hasComplFns: false,
 		_data: null,
 		_list: "",
 
 		hash: 0,
 		hasNumSpell: false,
 		enable: false,
-		addCompleteFunc: function addCompleteFunc(Fn) {
-			this._completeFns.push(Fn);
-			this._hasComplFns = true;
-		},
 		parseText: function parseText(str) {
 			var codeGen = new SpellsCodegen(str),
 			    data = codeGen.generate();
@@ -7054,10 +7033,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		setSpells: function setSpells(spells, sync) {
 			this.update(spells, sync, Cfg.hideBySpell);
 			if (Cfg.hideBySpell) {
+				var sRunner = new SpellsRunner();
 				for (var post = dForm.firstThr.op; post; post = post.next) {
-					this.check(post);
+					sRunner.run(post);
 				}
-				this.end(savePosts);
+				sRunner.end();
 			} else {
 				this.enable = false;
 			}
@@ -7068,35 +7048,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			this._data = null;
 			this.haveReps = this.haveOutreps = false;
 			saveCfg("hideBySpell", false);
-		},
-		end: function end(fn) {
-			if (this._asyncJobs === 0) {
-				if (fn) {
-					fn();
-				}
-				if (this._hasComplFns) {
-					for (var i = 0, len = this._completeFns.length; i < len; ++i) {
-						this._completeFns[i]();
-					}
-					this._completeFns = [];
-					this._hasComplFns = false;
-				}
-			} else if (fn) {
-				this.addCompleteFunc(fn);
-			}
-		},
-		check: function check(post) {
-			if (!this.enable) {
-				return 0;
-			}
-			var interp = new SpellsInterpreter(post, this._spells, this._sLength);
-			if (interp.run()) {
-				this.hasNumSpell |= interp.hasNumSpell;
-				return interp.postHidden ? 1 : 0;
-			}
-			interp.setEndFn(this._asyncSpellComplete.bind(this));
-			this._asyncJobs++;
-			return 0;
 		},
 		replace: function replace(txt) {
 			for (var i = 0, len = this._reps.length; i < len; i++) {
@@ -7516,15 +7467,87 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}
 	});
 
-	function SpellsInterpreter(post, spells, length) {
+	function SpellsRunner() {
+		var savePosts = arguments[0] === undefined ? true : arguments[0];
+
+		this._spells = spells._spells;
+		if (!this._spells) {
+			this.run = function () {
+				return 0;
+			};
+			this._savePosts = false;
+		}
+		this._savePosts = savePosts;
+	}
+	SpellsRunner.prototype = {
+		hasNumSpell: false,
+		end: function end() {
+			var _this = this;
+
+			if (this._endPromise) {
+				this._endPromise.then(function () {
+					return _this._savePostsHelper();
+				});
+			} else {
+				this._savePostsHelper();
+			}
+		},
+		run: function run(post) {
+			var _this = this;
+
+			var interp = new SpellsInterpreter(post, this._spells);
+			var res = interp.run();
+			if (res instanceof Promise) {
+				res = res.then(function (val) {
+					return _this._checkRes(post, val);
+				});
+				this._endPromise = this._endPromise ? this._endPromise.then(function () {
+					return res;
+				}) : res;
+				return 0;
+			}
+			return this._checkRes(post, res);
+		},
+
+		_endPromise: null,
+		_checkRes: function _checkRes(post, _ref) {
+			var _ref2 = _slicedToArray(_ref, 3);
+
+			var hasNumSpell = _ref2[0];
+			var val = _ref2[1];
+			var msg = _ref2[2];
+
+			this.hasNumSpell |= hasNumSpell;
+			if (val) {
+				post.spellHide(msg);
+				return 1;
+			}
+			if (!post.deleted) {
+				sVis[post.count] = 1;
+			}
+			return 0;
+		},
+		_savePostsHelper: function _savePostsHelper() {
+			if (this._savePosts) {
+				if (aib.t) {
+					var lPost = dForm.firstThr.lastNotDeleted;
+					sesStorage["de-hidden-" + aib.b + aib.t] = (Cfg.hideBySpell ? spells.hash : "0") + "," + lPost.num + "," + lPost.count + "," + sVis.join("");
+				}
+				saveHiddenThreads(false);
+				toggleContent("hid", true);
+			}
+			ImagesHashStorage.endFn();
+		}
+	};
+
+	function SpellsInterpreter(post, spells) {
 		this._post = post;
-		this._ctx = [length, spells, 0, false];
+		this._ctx = [spells.length, spells, 0, false];
 		this._spellsStack = [];
 		this._deep = 0;
 	}
 	SpellsInterpreter.prototype = {
 		hasNumSpell: false,
-		postHidden: false,
 		run: function run() {
 			var rv,
 			    stopCheck,
@@ -7546,9 +7569,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 					var val = this._runSpell(type, scope[i][1]);
 					if (val instanceof Promise) {
-						this._ctx.push(len, scope, i);
-						val.then(this._asyncContinue.bind(this));
-						return false;
+						this._ctx.push(len, scope, ++i, isNegScope);
+						return val.then(this._asyncContinue.bind(this));
 					}
 
 					var _ref = this._checkRes(scope[i], val, isNegScope);
@@ -7574,24 +7596,15 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						continue;
 					}
 				}
-				if (rv) {
-					this._post.spellHide(this._getMsg());
-					this.postHidden = true;
-				} else if (!this._post.deleted) {
-					sVis[this._post.count] = 1;
-				}
-				return true;
+				return [this.hasNumSpell, rv, rv ? this._getMsg() : null];
 			}
 		},
-		setEndFn: function setEndFn(Fn) {
-			this._endFn = Fn;
-		},
 
-		_endFn: null,
 		_wipeMsg: null,
 		_asyncContinue: function _asyncContinue(val) {
 			var cl = this._ctx.length;
-			var spell = this._ctx[cl - 3][this._ctx[cl - 2]];
+			var spell = this._ctx[cl - 3][this._ctx[cl - 2] - 1];
+			console.log(this._ctx, spell);
 
 			var _checkRes = this._checkRes(spell, val, this._ctx[cl - 1]);
 
@@ -7600,19 +7613,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			var rv = _checkRes2[0];
 			var stopCheck = _checkRes2[1];
 
-			if (!stopCheck) {
-				if (!this.run()) {
-					return;
-				}
-			} else if (rv) {
-				this._post.spellHide(this._getMsg());
-				this.postHidden = true;
-			} else if (!this._post.deleted) {
-				sVis[this._post.count] = 1;
-			}
-			if (this._endFn) {
-				this._endFn(this);
-			}
+			return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null] : this.run();
 		},
 		_checkRes: function _checkRes(spell, val, isNegScope) {
 			var flags = spell[0];
@@ -7752,7 +7753,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 					case 5:
 						if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-							context$2$0.next = 22;
+							context$2$0.next = 16;
 							break;
 						}
 
@@ -7763,82 +7764,68 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							break;
 						}
 
-						return context$2$0.abrupt("continue", 19);
+						return context$2$0.abrupt("continue", 13);
 
 					case 9:
-						if (!(image.hash !== null)) {
-							context$2$0.next = 13;
-							break;
-						}
+						return context$2$0.delegateYield(ImagesHashStorage.getHash(image), "t20", 10);
 
-						context$2$0.t20 = image.hash;
-						context$2$0.next = 16;
-						break;
-
-					case 13:
-						context$2$0.next = 15;
-						return image.getHash();
-
-					case 15:
-						context$2$0.t20 = context$2$0.sent;
-
-					case 16:
+					case 10:
 						hash = context$2$0.t20;
 
 						if (!(hash === val)) {
-							context$2$0.next = 19;
+							context$2$0.next = 13;
 							break;
 						}
 
 						return context$2$0.abrupt("return", true);
 
-					case 19:
+					case 13:
 						_iteratorNormalCompletion = true;
 						context$2$0.next = 5;
 						break;
 
-					case 22:
-						context$2$0.next = 28;
+					case 16:
+						context$2$0.next = 22;
 						break;
 
-					case 24:
-						context$2$0.prev = 24;
+					case 18:
+						context$2$0.prev = 18;
 						context$2$0.t21 = context$2$0["catch"](3);
 						_didIteratorError = true;
 						_iteratorError = context$2$0.t21;
 
-					case 28:
-						context$2$0.prev = 28;
-						context$2$0.prev = 29;
+					case 22:
+						context$2$0.prev = 22;
+						context$2$0.prev = 23;
 
 						if (!_iteratorNormalCompletion && _iterator["return"]) {
 							_iterator["return"]();
 						}
 
-					case 31:
-						context$2$0.prev = 31;
+					case 25:
+						context$2$0.prev = 25;
 
 						if (!_didIteratorError) {
-							context$2$0.next = 34;
+							context$2$0.next = 28;
 							break;
 						}
 
 						throw _iteratorError;
 
-					case 34:
-						return context$2$0.finish(31);
+					case 28:
+						return context$2$0.finish(25);
 
-					case 35:
-						return context$2$0.finish(28);
+					case 29:
+						return context$2$0.finish(22);
 
-					case 36:
+					case 30:
 						return context$2$0.abrupt("return", false);
 
-					case 37:
+					case 31:
 					case "end":
 						return context$2$0.stop();
 				}
-			}, callee$1$2, this, [[3, 24, 28, 36], [29,, 31, 35]]);
+			}, callee$1$2, this, [[3, 18, 22, 30], [23,, 25, 29]]);
 		})),
 		_subj: function _subj(val) {
 			var pSubj = this._post.subj;
@@ -8198,10 +8185,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			val = spells.list;
 			saveCfg("hideBySpell", !!val);
 			if (val) {
+				var sRunner = new SpellsRunner();
 				for (var post = dForm.firstThr.op; post; post = post.next) {
-					spells.check(post);
+					sRunner.run(post);
 				}
-				spells.end(savePosts);
+				sRunner.end();
 			} else {
 				saveCfg("spells", "");
 				spells.enable = false;
@@ -10433,21 +10421,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		},
 		_offset: {
 			get: function () {
-				var val = -1;
-				if (this._useCache) {
-					val = this._glob._offset;
-				}
-				if (val === -1) {
-					if (this.post.hidden) {
-						this.post.hideContent(false);
-						val = this.el.getBoundingClientRect().left + window.pageXOffset;
-						this.post.hideContent(true);
-					} else {
-						val = this.el.getBoundingClientRect().left + window.pageXOffset;
-					}
-					if (this._useCache) {
-						this._glob._offset = val;
-					}
+				var val;
+				if (this.post.hidden) {
+					this.post.hideContent(false);
+					val = this.el.getBoundingClientRect().left + window.pageXOffset;
+					this.post.hideContent(true);
+				} else {
+					val = this.el.getBoundingClientRect().left + window.pageXOffset;
 				}
 				Object.defineProperty(this, "_offset", { value: val });
 				return val;
@@ -10486,23 +10466,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		this.el = el;
 		this.idx = idx;
 	}
+	Attachment.cachedOffset = -1;
 	Attachment.viewer = null;
 	Attachment.prototype = Object.create(IAttachmentData.prototype, {
-		_hash: { configurable: true, writable: true, value: null },
-		hash: { configurable: true, get: function get() {
-				if (this.hasOwnProperty("_hash")) {
-					return this._hash;
-				}
-				if (this.src in this._glob.storage) {
-					return this._hash = this._glob.storage[this.src];
-				}
-				return null;
-			}, set: function set(val) {
-				this._hash = val;
-				if (val !== -1) {
-					this._glob.storage[this.src] = val;
-				}
-			} },
 		info: { configurable: true, get: function get() {
 				var val = aib.getFileInfo(aib.getImgWrap(this.el.parentNode));
 				Object.defineProperty(this, "info", { value: val });
@@ -10521,114 +10487,17 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				var nImage = this.post.images.data[isForward ? this.idx + 1 : this.idx - 1];
 				return nImage ? nImage : this.getFollowPost(isForward);
 			} },
-		getHash: { value: function value() {
-				var _this = this;
 
-				if (this.hash !== null) {
-					return Promise.resolve(this.hash);
+		_offset: { configurable: true, get: function get() {
+				var val = Attachment.cachedOffset;
+				if (val !== -1) {
+					Object.defineProperty(this, "_offset", { value: val });
+				} else {
+					val = Object.getPrototypeOf(this)._offset;
+					if (!this.inPview && !this.post.isOp && !this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4) {
+						Attachment.cachedOffset = val;
+					}
 				}
-				if (!this.el.complete) {
-					return new Promise(function (resolve, reject) {
-						_this.el.addEventListener("load", function () {
-							return resolve();
-						});
-					}).then(function () {
-						return _this.getHash();
-					});
-				}
-				if (this.el.naturalWidth + this.el.naturalHeight === 0) {
-					this.hash = -1;
-					return Promise.resolve(-1);
-				}
-				if (aib.fch) {
-					return downloadImgData(this.el.src).then(function (imgData) {
-						if (imgData) {
-							var buffer = imgData.buffer;
-							return _this._glob.workerRun([buffer, _this.el.naturalWidth, _this.el.naturalHeight], [buffer]);
-						}
-						return Promise.reject();
-					}).then(function (data) {
-						return _this.hash = data.hash;
-					}, function () {
-						return _this.hash = -1;
-					});
-				}
-				var img = this.el,
-				    cnv = this._glob.canvas,
-				    w = cnv.width = img.naturalWidth,
-				    h = cnv.height = img.naturalHeight,
-				    ctx = cnv.getContext("2d");
-				ctx.drawImage(img, 0, 0);
-				var data = ctx.getImageData(0, 0, w, h).data.buffer;
-				return this._glob.workerRun([data, w, h], [data]).then(function (data) {
-					return _this.hash = data.hash;
-				});
-			} },
-
-		_glob: { value: Object.create(Object.defineProperties({
-				workerRun: function workerRun(data, transferObjs) {
-					var _this = this;
-
-					return new Promise(function (resolve, reject) {
-						_this._workers.run(data, transferObjs, function (val) {
-							return resolve(val);
-						});
-					});
-				},
-
-				_expAttach: null,
-				_offset: -1,
-				_saveStorage: function _saveStorage() {
-					sesStorage["de-imageshash"] = JSON.stringify(this.storage);
-				},
-				_clearWorkers: function _clearWorkers() {
-					this._workers.clear();
-					delete this._workers;
-				}
-			}, {
-				canvas: {
-					get: function () {
-						var val = doc.createElement("canvas");
-						Object.defineProperty(this, "canvas", { value: val });
-						return val;
-					},
-					configurable: true,
-					enumerable: true
-				},
-				storage: {
-					get: function () {
-						var val = null;
-						try {
-							val = JSON.parse(sesStorage["de-imageshash"]);
-						} finally {
-							if (!val) {
-								val = {};
-							}
-							spells.addCompleteFunc(this._saveStorage.bind(this));
-							Object.defineProperty(this, "storage", { value: val });
-							return val;
-						}
-					},
-					configurable: true,
-					enumerable: true
-				},
-				_workers: {
-					get: function () {
-						var val = new WorkerPool(4, genImgHash, emptyFn);
-						spells.addCompleteFunc(this._clearWorkers.bind(this));
-						Object.defineProperty(this, "_workers", { value: val, configurable: true });
-						return val;
-					},
-					configurable: true,
-					enumerable: true
-				}
-			})) },
-		_callback: { writable: true, value: null },
-		_processing: { writable: true, value: false },
-		_needToHide: { writable: true, value: false },
-		_useCache: { configurable: true, get: function get() {
-				var val = !this.inPview && !this.post.isOp && !this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4;
-				Object.defineProperty(this, "_useCache", { value: val });
 				return val;
 			} },
 		_getImageSize: { value: function value() {
@@ -10645,6 +10514,159 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				return aib.getImgParent(this.el.parentNode);
 			} }
 	});
+
+	var ImagesHashStorage = Object.create(Object.defineProperties({
+		endFn: function endFn() {
+			if (this.hasOwnProperty("_storage")) {
+				sesStorage["de-imageshash"] = JSON.stringify(this._storage);
+			}
+			if (this.hasOwnProperty("_workers")) {
+				this._workers.clear();
+				delete this._workers;
+			}
+		},
+
+		_getHashHelper: regeneratorRuntime.mark(function _getHashHelper(imgObj) {
+			var _this = this;
+
+			var el, src, data, buffer, val, w, h, imgData, cnv, ctx;
+			return regeneratorRuntime.wrap(function _getHashHelper$(context$2$0) {
+				while (1) switch (context$2$0.prev = context$2$0.next) {
+					case 0:
+						el = imgObj.el, src = imgObj.src;
+
+						if (!(src in _this._storage)) {
+							context$2$0.next = 3;
+							break;
+						}
+
+						return context$2$0.abrupt("return", _this._storage[src]);
+
+					case 3:
+						if (el.complete) {
+							context$2$0.next = 6;
+							break;
+						}
+
+						context$2$0.next = 6;
+						return new Promise(function (resolve) {
+							return el.addEventListener("load", function () {
+								return resolve();
+							});
+						});
+
+					case 6:
+						if (!(el.naturalWidth + el.naturalHeight === 0)) {
+							context$2$0.next = 8;
+							break;
+						}
+
+						return context$2$0.abrupt("return", -1);
+
+					case 8:
+						val = -1, w = el.naturalWidth, h = el.naturalHeight;
+
+						if (!aib.fch) {
+							context$2$0.next = 16;
+							break;
+						}
+
+						context$2$0.next = 12;
+						return downloadImgData(el.src);
+
+					case 12:
+						imgData = context$2$0.sent;
+
+						if (imgData) {
+							buffer = imgData.buffer;
+						}
+						context$2$0.next = 22;
+						break;
+
+					case 16:
+						cnv = _this._canvas;
+
+						cnv.width = w;
+						cnv.height = h;
+						ctx = cnv.getContext("2d");
+
+						ctx.drawImage(el, 0, 0);
+						buffer = ctx.getImageData(0, 0, w, h).data.buffer;
+
+					case 22:
+						if (!buffer) {
+							context$2$0.next = 27;
+							break;
+						}
+
+						context$2$0.next = 25;
+						return new Promise(function (resolve) {
+							return _this._workers.run([buffer, w, h], [buffer], function (val) {
+								return resolve(val);
+							});
+						});
+
+					case 25:
+						data = context$2$0.sent;
+
+						if (data && "hash" in data) {
+							val = data.hash;
+						}
+
+					case 27:
+						_this._storage[src] = val;
+						return context$2$0.abrupt("return", val);
+
+					case 29:
+					case "end":
+						return context$2$0.stop();
+				}
+			}, _getHashHelper, this);
+		}) }, {
+		getHash: {
+			get: function () {
+				var val = this._getHashHelper.bind(this);
+				Object.defineProperty(this, "getHash", { value: val });
+				return val;
+			},
+			configurable: true,
+			enumerable: true
+		},
+		_canvas: {
+			get: function () {
+				var val = doc.createElement("canvas");
+				Object.defineProperty(this, "_canvas", { value: val });
+				return val;
+			},
+			configurable: true,
+			enumerable: true
+		},
+		_storage: {
+			get: function () {
+				var val = null;
+				try {
+					val = JSON.parse(sesStorage["de-imageshash"]);
+				} finally {
+					if (!val) {
+						val = {};
+					}
+					Object.defineProperty(this, "_storage", { value: val });
+					return val;
+				}
+			},
+			configurable: true,
+			enumerable: true
+		},
+		_workers: {
+			get: function () {
+				var val = new WorkerPool(4, genImgHash, emptyFn);
+				Object.defineProperty(this, "_workers", { value: val, configurable: true });
+				return val;
+			},
+			configurable: true,
+			enumerable: true
+		}
+	}));
 
 	function processImageNames(el) {
 		var addSrc = Cfg.imgSrcBtns,
@@ -11266,7 +11288,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				newMsg.appendChild(videoExt);
 			}
 			this.addFuncs();
-			spells.check(this);
+			var sRunner = new SpellsRunner();
+			sRunner.run(this);
+			sRunner.end();
 			closeAlert($id("de-alert-load-fullmsg"));
 		},
 
@@ -11437,7 +11461,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					addSpell(8, [0, [w, w], [wi, wi, h, h]], false);
 					return;
 				case "spell-ihash":
-					this.images.firstAttach.getHash().then(function (hash) {
+					spawn(ImagesHashStorage.getHash, this.images.firstAttach).then(function (hash) {
 						if (hash !== -1) {
 							addSpell(4, hash, false);
 						}
@@ -12605,13 +12629,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				}
 			}
 		},
-		_importPosts: function _importPosts(last, newPosts, begin, end, vParser) {
+		_importPosts: function _importPosts(last, newPosts, begin, end, vParser, sRunner) {
 			var newCount = end - begin,
 			    newVisCount = newCount,
 			    fragm = doc.createDocumentFragment();
 			for (; begin < end; ++begin) {
 				last = this._addPost(fragm, newPosts[begin], begin + 1, vParser, last);
-				newVisCount -= spells.check(last);
+				newVisCount -= sRunner.run(last);
 			}
 			return [newCount, newVisCount, fragm, last];
 		},
@@ -12619,7 +12643,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			var _this = this;
 
 			var vParser,
-			    saveSpells = false,
+			    sRunner = new SpellsRunner(),
 			    newPosts = 0,
 			    newVisPosts = 0,
 			    len = nPosts.length,
@@ -12646,7 +12670,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							cnt++;
 							i++;
 						} while (+aib.getPNum(nPosts[i]) < +post.num);
-						var res = this._importPosts(post.prev, nPosts, i - cnt, i, vParser);
+						var res = this._importPosts(post.prev, nPosts, i - cnt, i, vParser, sRunner);
 						newPosts += res[0];
 						this.pcount += res[0];
 						newVisPosts += res[1];
@@ -12666,12 +12690,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				if (i === len && post) {
 					this.deletePost(post, true, !aib.t);
 				}
-				if (firstChangedPost && spells.hasNumSpell) {
+				if (firstChangedPost && sRunner.hasNumSpell) {
 					disableSpells();
 					for (post = firstChangedPost.nextInThread; post; post = post.nextInThread) {
-						spells.check(post);
+						sRunner.run(post);
 					}
-					saveSpells = true;
 				}
 				if (newPosts !== 0) {
 					for (post = firstChangedPost; post; post = post.nextInThread) {
@@ -12683,13 +12706,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				if (Cfg.addYouTube && !vParser) {
 					vParser = new VideosParser();
 				}
-				var res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len, vParser);
+				var res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len, vParser, sRunner);
 				newPosts += res[0];
 				newVisPosts += res[1];
 				this.el.appendChild(res[2]);
 				this.last = res[3];
 				this.pcount = len + 1;
-				saveSpells = true;
 			}
 			readFav().then(function (fav) {
 				var f = fav[aib.host];
@@ -12710,12 +12732,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					setStored("DESU_Favorites", JSON.stringify(fav));
 				}
 			});
-			if (saveSpells) {
-				spells.end(savePosts);
-			}
 			if (vParser) {
 				vParser.end();
 			}
+			sRunner.end();
 			return [newPosts, newVisPosts];
 		},
 		_processExpandThread: function _processExpandThread(nPosts, num) {
@@ -12737,10 +12757,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				if (Cfg.addYouTube) {
 					vParser = new VideosParser();
 				}
+				var sRunner = new SpellsRunner(false);
 				for (var i = Math.max(0, len - num + vPosts); i < len; ++i) {
 					tPost = this._addPost(fragm, nPosts[i], i + 1, vParser, tPost);
-					spells.check(tPost);
+					sRunner.run(tPost);
 				}
+				sRunner.end();
 				if (vParser) {
 					vParser.end();
 				}
