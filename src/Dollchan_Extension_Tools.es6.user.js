@@ -5393,7 +5393,8 @@ SpellsRunner.prototype = {
 function SpellsInterpreter(post, spells) {
 	this._post = post;
 	this._ctx = [spells.length, spells, 0, false];
-	this._spellsStack = [];
+	this._lastTSpells = [];
+	this._triggeredSpellsStack = [this._lastTSpells];
 	this._deep = 0;
 }
 SpellsInterpreter.prototype = {
@@ -5413,6 +5414,8 @@ SpellsInterpreter.prototype = {
 					scope = scope[i][1];
 					len = scope.length;
 					i = 0;
+					this._lastTSpells = [];
+					this._triggeredSpellsStack.push(this._lastTSpells);
 					continue;
 				}
 				var val = this._runSpell(type, scope[i][1]);
@@ -5434,6 +5437,8 @@ SpellsInterpreter.prototype = {
 				len = this._ctx.pop();
 				if(((scope[i][0] & 0x200) === 0) ^ rv) {
 					i++;
+					this._triggeredSpellsStack.pop();
+					this._lastTSpells = this._triggeredSpellsStack[this._triggeredSpellsStack.length - 1];
 					continue;
 				}
 			}
@@ -5454,16 +5459,18 @@ SpellsInterpreter.prototype = {
 		var isAndSpell = ((flags & 0x200) !== 0) ^ isNegScope;
 		var isNegSpell = ((flags & 0x100) !== 0) ^ isNegScope;
 		if(isNegSpell ^ val) {
-			this._spellsStack.push([isNegSpell, spell, (spell[0] & 0xFF) === 14 ? this._wipeMsg : null]);
+			this._lastTSpells.push([isNegSpell, spell, (spell[0] & 0xFF) === 14 ? this._wipeMsg : null]);
 			return [true, !isAndSpell];
 		}
-		this._spellsStack = [];
+		this._lastTSpells.length = 0;
 		return [false, isAndSpell];
 	},
 	_getMsg() {
 		var rv = [];
-		for(var [isNeg, spell, wipeMsg] of this._spellsStack) {
-			rv.push(Spells.decompileSpell(spell[0] & 0xFF, isNeg, spell[1], spell[2], wipeMsg));
+		for(var spellEls of this._triggeredSpellsStack) {
+			for(var [isNeg, spell, wipeMsg] of spellEls) {
+				rv.push(Spells.decompileSpell(spell[0] & 0xFF, isNeg, spell[1], spell[2], wipeMsg));
+			}
 		}
 		return rv.join(' & ');
 	},
@@ -9098,7 +9105,7 @@ PostContent.prototype = {
 		return val;
 	},
 	get posterName() {
-		var pName = $q(aib.qName, this.el), val = pName ? pName.textContent.trim() : '';
+		var pName = $q(aib.qName, this.el), val = pName ? pName.textContent.trim().replace(/\s/g, ' ') : '';
 		Object.defineProperty(this, 'posterName', { value: val });
 		return val;
 	},

@@ -7543,7 +7543,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	function SpellsInterpreter(post, spells) {
 		this._post = post;
 		this._ctx = [spells.length, spells, 0, false];
-		this._spellsStack = [];
+		this._lastTSpells = [];
+		this._triggeredSpellsStack = [this._lastTSpells];
 		this._deep = 0;
 	}
 	SpellsInterpreter.prototype = {
@@ -7565,6 +7566,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						scope = scope[i][1];
 						len = scope.length;
 						i = 0;
+						this._lastTSpells = [];
+						this._triggeredSpellsStack.push(this._lastTSpells);
 						continue;
 					}
 					var val = this._runSpell(type, scope[i][1]);
@@ -7593,6 +7596,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					len = this._ctx.pop();
 					if ((scope[i][0] & 512) === 0 ^ rv) {
 						i++;
+						this._triggeredSpellsStack.pop();
+						this._lastTSpells = this._triggeredSpellsStack[this._triggeredSpellsStack.length - 1];
 						continue;
 					}
 				}
@@ -7619,10 +7624,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			var isAndSpell = (flags & 512) !== 0 ^ isNegScope;
 			var isNegSpell = (flags & 256) !== 0 ^ isNegScope;
 			if (isNegSpell ^ val) {
-				this._spellsStack.push([isNegSpell, spell, (spell[0] & 255) === 14 ? this._wipeMsg : null]);
+				this._lastTSpells.push([isNegSpell, spell, (spell[0] & 255) === 14 ? this._wipeMsg : null]);
 				return [true, !isAndSpell];
 			}
-			this._spellsStack = [];
+			this._lastTSpells.length = 0;
 			return [false, isAndSpell];
 		},
 		_getMsg: function _getMsg() {
@@ -7632,14 +7637,36 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			var _iteratorError = undefined;
 
 			try {
-				for (var _iterator = this._spellsStack[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-					var _step$value = _slicedToArray(_step.value, 3);
+				for (var _iterator = this._triggeredSpellsStack[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+					var spellEls = _step.value;
+					var _iteratorNormalCompletion2 = true;
+					var _didIteratorError2 = false;
+					var _iteratorError2 = undefined;
 
-					var isNeg = _step$value[0];
-					var spell = _step$value[1];
-					var wipeMsg = _step$value[2];
+					try {
+						for (var _iterator2 = spellEls[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+							var _step2$value = _slicedToArray(_step2.value, 3);
 
-					rv.push(Spells.decompileSpell(spell[0] & 255, isNeg, spell[1], spell[2], wipeMsg));
+							var isNeg = _step2$value[0];
+							var spell = _step2$value[1];
+							var wipeMsg = _step2$value[2];
+
+							rv.push(Spells.decompileSpell(spell[0] & 255, isNeg, spell[1], spell[2], wipeMsg));
+						}
+					} catch (err) {
+						_didIteratorError2 = true;
+						_iteratorError2 = err;
+					} finally {
+						try {
+							if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
+								_iterator2["return"]();
+							}
+						} finally {
+							if (_didIteratorError2) {
+								throw _iteratorError2;
+							}
+						}
+					}
 				}
 			} catch (err) {
 				_didIteratorError = true;
@@ -11761,7 +11788,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		posterName: {
 			get: function () {
 				var pName = $q(aib.qName, this.el),
-				    val = pName ? pName.textContent.trim() : "";
+				    val = pName ? pName.textContent.trim().replace(/\s/g, " ") : "";
 				Object.defineProperty(this, "posterName", { value: val });
 				return val;
 			},
