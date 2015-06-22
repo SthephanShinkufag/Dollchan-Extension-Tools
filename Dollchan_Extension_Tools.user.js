@@ -3297,7 +3297,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				var obj = {
 					method: params && params.method || "GET",
 					url: nav.fixLink(url),
-					onload: function (e) {
+					onload: function onload(e) {
 						if (e.status === 200) {
 							resolve(e);
 						} else {
@@ -3360,7 +3360,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 	function TasksPool(tasksCount, taskFunc, endFn) {
 		this.array = [];
-		this.length = this.index = this.running = 0;
+		this.running = 0;
 		this.num = 1;
 		this.func = taskFunc;
 		this.endFn = endFn;
@@ -3374,24 +3374,24 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	TasksPool.prototype = {
 		complete: function complete() {
 			if (!this.stopped) {
-				if (this.index >= this.length && this.running === 0) {
+				if (this.array.length === 0 && this.running === 0) {
 					this.endFn();
 				} else {
 					this.completed = true;
 				}
 			}
 		},
-		"continue": function () {
+		"continue": function _continue() {
 			if (!this.stopped) {
 				this.paused = false;
-				if (this.index >= this.length) {
+				if (this.array.length === 0) {
 					if (this.completed) {
 						this.endFn();
 					}
 					return;
 				}
-				while (this.index < this.length && this.running !== this.max) {
-					this._run(this.array[this.index++]);
+				while (this.array.length !== 0 && this.running !== this.max) {
+					this._run(this.array.shift());
 					this.running++;
 				}
 			}
@@ -3403,7 +3403,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (!this.stopped) {
 				if (this.paused || this.running === this.max) {
 					this.array.push(data);
-					this.length++;
 				} else {
 					this._run(data);
 					this.running++;
@@ -3417,8 +3416,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 		_end: function _end() {
 			if (!this.stopped) {
-				if (!this.paused && this.index < this.length) {
-					this._run(this.array[this.index++]);
+				if (!this.paused && this.array.length !== 0) {
+					this._run(this.array.shift());
 					return;
 				}
 				this.running--;
@@ -3917,7 +3916,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function addContentBlock(parent, title) {
-		return parent.appendChild($New("div", { "class": "de-content-block" }, [$new("input", { type: "checkbox" }, { click: function () {
+		return parent.appendChild($New("div", { "class": "de-content-block" }, [$new("input", { type: "checkbox" }, { click: function click() {
 				var _this = this;
 
 				$each($Q(".de-entry > input", this.parentNode), function (el) {
@@ -4490,7 +4489,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function lBox(id, isBlock, fn) {
-		var el = $new("input", { info: id, type: "checkbox" }, { click: function () {
+		var el = $new("input", { info: id, type: "checkbox" }, { click: function click() {
 				toggleCfg(this.getAttribute("info"));
 				fixSettings();
 				if (fn) {
@@ -4530,7 +4529,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			"class": "de-cfg-tab",
 			text: Lng.cfgTab[name][lang],
 			info: name }, {
-			click: function () {
+			click: function click() {
 				var el = this.parentNode;
 				if (el.getAttribute("selected") === "true") {
 					return;
@@ -4583,20 +4582,20 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			click: $pd,
 			mouseover: addMenu,
 			mouseout: removeMenu
-		}), $new("a", { text: Lng.apply[lang], href: "#", "class": "de-abtn" }, { click: function (e) {
+		}), $new("a", { text: Lng.apply[lang], href: "#", "class": "de-abtn" }, { click: function click(e) {
 				$pd(e);
 				saveCfg("hideBySpell", 1);
 				$q("input[info=\"hideBySpell\"]", doc).checked = true;
 				toggleSpells();
-			} }), $new("a", { text: Lng.clear[lang], href: "#", "class": "de-abtn" }, { click: function (e) {
+			} }), $new("a", { text: Lng.clear[lang], href: "#", "class": "de-abtn" }, { click: function click(e) {
 				$pd(e);
 				$id("de-spell-edit").value = "";
 				toggleSpells();
 			} }), $add("<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-" + (lang ? "en" : "ru") + "\" class=\"de-abtn\" target=\"_blank\">[?]</a>")]), $New("div", { id: "de-spell-div" }, [$add("<div><div id=\"de-spell-rowmeter\"></div></div>"), $New("div", null, [$new("textarea", { id: "de-spell-edit", wrap: "off" }, {
-			keydown: function () {
+			keydown: function keydown() {
 				updRowMeter(this);
 			},
-			scroll: function () {
+			scroll: function scroll() {
 				updRowMeter(this);
 			}
 		})])]), lBox("sortSpells", true, function () {
@@ -4733,7 +4732,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}, emptyFn);
 		})])])), $if(nav.isGlobal, $New("div", null, [$txt(Lng.cfg.excludeList[lang]), $new("input", { type: "text", id: "de-exclude-edit", size: 45, style: "display: block;",
 			value: excludeList }, {
-			keyup: function () {
+			keyup: function keyup() {
 				setStored("DESU_Exclude", this.value);
 			}
 		}), lBox("turnOff", true, function () {
@@ -4903,7 +4902,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				el.classList.add("de-blink");
 			}
 		} else {
-			el = $id("de-alert").appendChild($New("div", { "class": aib.cReply, id: "de-alert-" + id }, [$new("span", { "class": cBtn, text: tBtn }, { click: function () {
+			el = $id("de-alert").appendChild($New("div", { "class": aib.cReply, id: "de-alert-" + id }, [$new("span", { "class": cBtn, text: tBtn }, { click: function click() {
 					closeAlert(this.parentNode);
 				} }), $add("<div class=\"de-alert-msg\">" + txt.trim() + "</div>")]));
 			if (Cfg.animation) {
@@ -6743,7 +6742,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				}
 			}
 			if (msgBit) {
-				names.push(bits[msgBit].toUpperCase() + (msgData ? ": " + msgData : null));
+				names.push(bits[msgBit].toUpperCase() + (msgData ? ": " + msgData : ""));
 			}
 			return spell + "(" + names.join(",") + ")";
 		}
@@ -8725,7 +8724,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							"class": "shortened",
 							style: "margin: 0px 0.5em;",
 							text: "проверить капчу" }, {
-							click: function () {
+							click: function click() {
 								var _this2 = this;
 
 								$ajax("/" + aib.b + "/api/validate-captcha", { method: "POST" }).then(function (xhr) {
@@ -14826,7 +14825,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					paused = true;
 				}
 			},
-			"continue": function () {
+			"continue": function _continue() {
 				if (enabled && paused) {
 					startLoad(false);
 					paused = false;

@@ -857,7 +857,7 @@ function $ajax(url, params = null, useNative = true) {
 
 function TasksPool(tasksCount, taskFunc, endFn) {
 	this.array = [];
-	this.length = this.index = this.running = 0;
+	this.running = 0;
 	this.num = 1;
 	this.func = taskFunc;
 	this.endFn = endFn;
@@ -871,7 +871,7 @@ TasksPool.PauseError = function(duration) {
 TasksPool.prototype = {
 	complete() {
 		if(!this.stopped) {
-			if(this.index >= this.length && this.running === 0) {
+			if(this.array.length === 0 && this.running === 0) {
 				this.endFn();
 			} else {
 				this.completed = true;
@@ -881,14 +881,14 @@ TasksPool.prototype = {
 	'continue'() {
 		if(!this.stopped) {
 			this.paused = false;
-			if(this.index >= this.length) {
+			if(this.array.length === 0) {
 				if(this.completed) {
 					this.endFn();
 				}
 				return;
 			}
-			while(this.index < this.length && this.running !== this.max) {
-				this._run(this.array[this.index++]);
+			while(this.array.length !== 0 && this.running !== this.max) {
+				this._run(this.array.shift());
 				this.running++;
 			}
 		}
@@ -900,7 +900,6 @@ TasksPool.prototype = {
 		if(!this.stopped) {
 			if(this.paused || this.running === this.max) {
 				this.array.push(data);
-				this.length++;
 			} else {
 				this._run(data);
 				this.running++;
@@ -914,8 +913,8 @@ TasksPool.prototype = {
 
 	_end() {
 		if(!this.stopped) {
-			if(!this.paused && this.index < this.length) {
-				this._run(this.array[this.index++]);
+			if(!this.paused && this.array.length !== 0) {
+				this._run(this.array.shift());
 				return;
 			}
 			this.running--;
@@ -4626,7 +4625,7 @@ Spells.decompileSpell = function(type, neg, val, scope, wipeMsg = null) {
 			}
 		}
 		if(msgBit) {
-			names.push(bits[msgBit].toUpperCase() + (msgData ? ': ' + msgData : null));
+			names.push(bits[msgBit].toUpperCase() + (msgData ? ': ' + msgData : ''));
 		}
 		return spell + '(' + names.join(',') + ')';
 	}
