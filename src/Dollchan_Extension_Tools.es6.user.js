@@ -1077,12 +1077,9 @@ function* getFormElements(form) {
 		       (type === 'radio' && !field.checked) ||
 		       (type === 'image' && !name)
 		   )) ||
-		   (tagName === 'object' && !(type in navigator.mimeTypes))
+		   tagName === 'object'
 		) {
 			continue;
-		}
-		if(tagName === 'object') {
-			throw new Error('Not supported');
 		}
 		if(tagName === 'select') {
 			var options = $Q('select > option, select > optgrout > option', field);
@@ -1099,7 +1096,7 @@ function* getFormElements(form) {
 			}
 		} else if(tagName === 'input') {
 			switch(type) {
-			case 'image': throw new Error('Not supported');
+			case 'image': throw new Error('input[type="image"] is not supported');
 			case 'checkbox':
 			case 'radio':
 				yield {

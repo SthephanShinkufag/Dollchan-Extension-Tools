@@ -1198,8 +1198,6 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
-
-
 !(function(global) {
   "use strict";
 
@@ -1769,50 +1767,42 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 2:
 					if (!(i < len)) {
-						context$2$0.next = 58;
+						context$2$0.next = 56;
 						break;
 					}
 
 					field = controls[i], tagName = field.tagName.toLowerCase(), type = field.getAttribute("type"), name = field.getAttribute("name");
 
-					if (!($parent(field, "DATALIST", form) || isFormElDisabled(field) || tagName === "button" && type !== "submit" || tagName === "input" && (type === "checkbox" && !field.checked || type === "radio" && !field.checked || type === "image" && !name) || tagName === "object" && !(type in navigator.mimeTypes))) {
+					if (!($parent(field, "DATALIST", form) || isFormElDisabled(field) || tagName === "button" && type !== "submit" || tagName === "input" && (type === "checkbox" && !field.checked || type === "radio" && !field.checked || type === "image" && !name) || tagName === "object")) {
 						context$2$0.next = 6;
 						break;
 					}
 
-					return context$2$0.abrupt("continue", 55);
+					return context$2$0.abrupt("continue", 53);
 
 				case 6:
-					if (!(tagName === "object")) {
-						context$2$0.next = 8;
-						break;
-					}
-
-					throw new Error("Not supported");
-
-				case 8:
 					if (!(tagName === "select")) {
-						context$2$0.next = 21;
+						context$2$0.next = 19;
 						break;
 					}
 
 					options = $Q("select > option, select > optgrout > option", field);
 					_i = 0, _len = options.length;
 
-				case 11:
+				case 9:
 					if (!(_i < _len)) {
-						context$2$0.next = 19;
+						context$2$0.next = 17;
 						break;
 					}
 
 					option = options[_i];
 
 					if (!(option.selected && !isFormElDisabled(option))) {
-						context$2$0.next = 16;
+						context$2$0.next = 14;
 						break;
 					}
 
-					context$2$0.next = 16;
+					context$2$0.next = 14;
 					return {
 						el: field,
 						name: fixName(name),
@@ -1820,30 +1810,30 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						type: type
 					};
 
-				case 16:
+				case 14:
 					++_i;
-					context$2$0.next = 11;
+					context$2$0.next = 9;
+					break;
+
+				case 17:
+					context$2$0.next = 41;
 					break;
 
 				case 19:
-					context$2$0.next = 43;
-					break;
-
-				case 21:
 					if (!(tagName === "input")) {
-						context$2$0.next = 43;
+						context$2$0.next = 41;
 						break;
 					}
 
 					context$2$0.t0 = type;
-					context$2$0.next = context$2$0.t0 === "image" ? 25 : context$2$0.t0 === "checkbox" ? 26 : context$2$0.t0 === "radio" ? 26 : context$2$0.t0 === "file" ? 29 : 43;
+					context$2$0.next = context$2$0.t0 === "image" ? 23 : context$2$0.t0 === "checkbox" ? 24 : context$2$0.t0 === "radio" ? 24 : context$2$0.t0 === "file" ? 27 : 41;
 					break;
 
-				case 25:
-					throw new Error("Not supported");
+				case 23:
+					throw new Error("input[type=\"image\"] is not supported");
 
-				case 26:
-					context$2$0.next = 28;
+				case 24:
+					context$2$0.next = 26;
 					return {
 						el: field,
 						name: fixName(name),
@@ -1851,25 +1841,25 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						type: type
 					};
 
-				case 28:
-					return context$2$0.abrupt("continue", 55);
+				case 26:
+					return context$2$0.abrupt("continue", 53);
 
-				case 29:
+				case 27:
 					if (!(field.files.length > 0)) {
-						context$2$0.next = 40;
+						context$2$0.next = 38;
 						break;
 					}
 
 					files = field.files;
 					_i = 0, _len = files.length;
 
-				case 32:
+				case 30:
 					if (!(_i < _len)) {
-						context$2$0.next = 38;
+						context$2$0.next = 36;
 						break;
 					}
 
-					context$2$0.next = 35;
+					context$2$0.next = 33;
 					return {
 						el: field,
 						name: name,
@@ -1877,17 +1867,17 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						type: type
 					};
 
-				case 35:
+				case 33:
 					++_i;
-					context$2$0.next = 32;
+					context$2$0.next = 30;
+					break;
+
+				case 36:
+					context$2$0.next = 40;
 					break;
 
 				case 38:
-					context$2$0.next = 42;
-					break;
-
-				case 40:
-					context$2$0.next = 42;
+					context$2$0.next = 40;
 					return {
 						el: field,
 						name: fixName(name),
@@ -1895,16 +1885,16 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						type: "application/octet-stream"
 					};
 
-				case 42:
-					return context$2$0.abrupt("continue", 55);
+				case 40:
+					return context$2$0.abrupt("continue", 53);
 
-				case 43:
+				case 41:
 					if (!(type === "textarea")) {
-						context$2$0.next = 48;
+						context$2$0.next = 46;
 						break;
 					}
 
-					context$2$0.next = 46;
+					context$2$0.next = 44;
 					return {
 						el: field,
 						name: name || "",
@@ -1912,12 +1902,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						type: type
 					};
 
-				case 46:
-					context$2$0.next = 50;
+				case 44:
+					context$2$0.next = 48;
 					break;
 
-				case 48:
-					context$2$0.next = 50;
+				case 46:
+					context$2$0.next = 48;
 					return {
 						el: field,
 						name: fixName(name),
@@ -1925,16 +1915,16 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						type: type
 					};
 
-				case 50:
+				case 48:
 					dirname = field.getAttribute("dirname");
 
 					if (!dirname) {
-						context$2$0.next = 55;
+						context$2$0.next = 53;
 						break;
 					}
 
 					dir = nav.matchesSelector(field, ":dir(rtl)") ? "rtl" : "ltr";
-					context$2$0.next = 55;
+					context$2$0.next = 53;
 					return {
 						el: field,
 						name: fixName(dirname),
@@ -1942,12 +1932,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						type: "direction"
 					};
 
-				case 55:
+				case 53:
 					++i;
 					context$2$0.next = 2;
 					break;
 
-				case 58:
+				case 56:
 				case "end":
 					return context$2$0.stop();
 			}
