@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         15.6.10.0
+// @version         15.7.2.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       (c) 2015 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
@@ -1198,6 +1198,8 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+
 !(function(global) {
   "use strict";
 
@@ -2578,7 +2580,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		}, initScript, this, [[22, 26]]);
 	});
-	var version = "15.6.10.0",
+	var version = "15.7.2.0",
 	    defaultCfg = {
 		disabled: 0,
 		language: 0,
@@ -2639,6 +2641,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		YTubeWidth: 360,
 		YTubeHeigh: 270,
 		YTubeTitles: 0,
+		ytApiKey: "",
 		addVimeo: 1,
 		ajaxReply: 2,
 		postSameImg: 1,
@@ -2682,8 +2685,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		textaWidth: 300,
 		textaHeight: 115,
 		qReplyX: "right: 0",
-		qReplyY: "bottom: 25px",
-		ytApiKey: ""
+		qReplyY: "bottom: 25px"
 	},
 	    Lng = {
 		cfg: {
@@ -4643,7 +4645,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			saveCfg("linksOver", +this.value | 0);
 		}), $txt(Lng.cfg.linksOver[lang]), inpTxt("linksOut", 4, function () {
 			saveCfg("linksOut", +this.value | 0);
-		}), $txt(Lng.cfg.linksOut[lang])]), lBox("markViewed", true, null), lBox("strikeHidd", true, null), $New("div", { "class": "de-cfg-depend" }, [lBox("removeHidd", false, updateCSS)]), lBox("noNavigHidd", true, null)]), lBox("crossLinks", true, null), lBox("insertNum", true, null), lBox("addOPLink", true, null), lBox("addImgs", true, null), lBox("addMP3", false, null), $if(aib.prot === "http:", lBox("addVocaroo", false, null)), optSel("addYouTube", true, null), $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [optSel("YTubeType", false, null), inpTxt("YTubeWidth", 4, null), $txt("×"), inpTxt("YTubeHeigh", 4, null)]), $if(!nav.Opera11 || nav.isGM, lBox("YTubeTitles", false, null)), $if(!nav.Opera11 || nav.isGM, $New("div", null, [inpTxt("ytApiKey", 30, function () {
+		}), $txt(Lng.cfg.linksOut[lang])]), lBox("markViewed", true, null), lBox("strikeHidd", true, null), $New("div", { "class": "de-cfg-depend" }, [lBox("removeHidd", false, updateCSS)]), lBox("noNavigHidd", true, null)]), lBox("crossLinks", true, null), lBox("insertNum", true, null), lBox("addOPLink", true, null), lBox("addImgs", true, null), lBox("addMP3", false, null), $if(aib.prot === "http:", lBox("addVocaroo", false, null)), optSel("addYouTube", true, null), $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [optSel("YTubeType", false, null), inpTxt("YTubeWidth", 4, null), $txt("×"), inpTxt("YTubeHeigh", 4, null)]), $if(!nav.Opera11 || nav.isGM, lBox("YTubeTitles", false, null)), $if(!nav.Opera11 || nav.isGM, $New("div", null, [inpTxt("ytApiKey", 25, function () {
 			saveCfg("ytApiKey", this.value.trim());
 		}), $txt(" " + Lng.cfg.ytApiKey[lang])])), lBox("addVimeo", true, null)])]);
 	}

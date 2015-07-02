@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         15.6.10.0
+// @version         15.7.2.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       (c) 2015 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
@@ -20,7 +20,7 @@
 (function de_main_func_inner(scriptStorage, FormData) {
 'use strict';
 
-var version = '15.6.10.0',
+var version = '15.7.2.0',
 defaultCfg = {
 	'disabled':         0,      // script enabled by default
 	'language':         0,      // script language [0=ru, 1=en]
@@ -81,6 +81,7 @@ defaultCfg = {
 	'YTubeWidth':       360,    //    player width
 	'YTubeHeigh':       270,    //    player height
 	'YTubeTitles':      0,      //    convert links to titles
+	'ytApiKey':         '',     //    public key for youtube API
 	'addVimeo':         1,      //    embed vimeo links
 	'ajaxReply':        2,      // posting with AJAX (0=no, 1=iframe, 2=HTML5)
 	'postSameImg':      1,      //    ability to post same images
@@ -124,8 +125,7 @@ defaultCfg = {
 	'textaWidth':       300,    // textarea size
 	'textaHeight':      115,
 	'qReplyX':          'right: 0',     // quick reply position
-	'qReplyY':          'bottom: 25px',
-	'ytApiKey':			''		// public key for youtube API
+	'qReplyY':          'bottom: 25px'
 },
 
 Lng = {
@@ -2498,7 +2498,7 @@ function getCfgLinks() {
 			]),
 			$if(!nav.Opera11 || nav.isGM, lBox('YTubeTitles', false, null)),
 			$if(!nav.Opera11 || nav.isGM, $New('div', null, [
-				inpTxt('ytApiKey', 30, function() {
+				inpTxt('ytApiKey', 25, function() {
 					saveCfg('ytApiKey', this.value.trim());
 				}),
 				$txt(' ' + Lng.cfg.ytApiKey[lang])
