@@ -59,8 +59,7 @@ defaultCfg = {
 	'maskImgs':         0,      // mask images
 	'preLoadImgs':      0,      // pre-load images
 	'findImgFile':      0,      //    detect built-in files in images
-	'openImgs':         0,      // open images in posts
-	'openGIFs':         0,      //    open only GIFs in posts
+	'openImgs':         0,      // open images in posts [0=off, 1=all images, 2=GIFs only, 3=non-GIFs]
 	'imgSrcBtns':       1,      // add image search buttons
 	'delImgNames':      0,      // remove names of images
 	'linksNavig':       2,      // navigation by >>links [0=off, 1=no map, 2=+refmap]
@@ -173,8 +172,10 @@ Lng = {
 		'webmVolume':   [' Громкость webm-файлов [0-100]', ' Default volume for webm files [0-100]'],
 		'preLoadImgs':  ['Предварительно загружать картинки*', 'Pre-load images*'],
 		'findImgFile':  ['Распознавать встроенные файлы в картинках*', 'Detect built-in files in images*'],
-		'openImgs':     ['Скачивать полные версии картинок*', 'Download full version of images*'],
-		'openGIFs':     ['Скачивать только GIFы*', 'Download GIFs only*'],
+		'openImgs': {
+			sel:        [['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'], ['Disable', 'All types', 'Only GIF', 'Non-GIF']],
+			txt:        ['Скачивать полные версии картинок*', 'Download full version of images*']
+		},
 		'imgSrcBtns':   ['Добавлять кнопки для поиска картинок*', 'Add image search buttons*'],
 		'delImgNames':  ['Скрывать имена картинок*', 'Hide names of images*'],
 
@@ -2201,7 +2202,6 @@ function fixSettings() {
 		'input[info="webmControl"]', 'input[info="webmVolume"]'
 	]);
 	toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
-	toggleBox(Cfg.openImgs, ['input[info="openGIFs"]']);
 	toggleBox(Cfg.linksNavig, [
 		'input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]',
 		'input[info="strikeHidd"]', 'input[info="noNavigHidd"]'
@@ -2449,10 +2449,7 @@ function getCfgImages() {
 		$if(!nav.Presto && !aib.fch, $New('div', {'class': 'de-cfg-depend'}, [
 			lBox('findImgFile', true, null)
 		])),
-		lBox('openImgs', true, null),
-		$New('div', {'class': 'de-cfg-depend'}, [
-			lBox('openGIFs', false, null)
-		]),
+		optSel('openImgs', true, null),
 		lBox('imgSrcBtns', true, null),
 		lBox('delImgNames', true, null)
 	]);
@@ -3810,6 +3807,7 @@ function preloadImages(post) {
 			nExp = !!Cfg.openImgs;
 		if(/\.gif$/i.test(url)) {
 			iType = 'image/gif';
+			nExp &= Cfg.openImgs !== 3;
 		} else {
 			if(/\.jpe?g$/i.test(url)) {
 				iType = 'image/jpeg';
@@ -3821,7 +3819,7 @@ function preloadImages(post) {
 			} else {
 				continue;
 			}
-			nExp &= !Cfg.openGIFs;
+			nExp &= Cfg.openImgs !== 2;
 		}
 		if(pool) {
 			pool.run([url, lnk, iType, nExp, el]);

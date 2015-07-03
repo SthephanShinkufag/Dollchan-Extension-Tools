@@ -1198,6 +1198,8 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+
 !(function(global) {
   "use strict";
 
@@ -2610,7 +2612,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		preLoadImgs: 0,
 		findImgFile: 0,
 		openImgs: 0,
-		openGIFs: 0,
 		imgSrcBtns: 1,
 		delImgNames: 0,
 		linksNavig: 2,
@@ -2722,8 +2723,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			webmVolume: [" Громкость webm-файлов [0-100]", " Default volume for webm files [0-100]"],
 			preLoadImgs: ["Предварительно загружать картинки*", "Pre-load images*"],
 			findImgFile: ["Распознавать встроенные файлы в картинках*", "Detect built-in files in images*"],
-			openImgs: ["Скачивать полные версии картинок*", "Download full version of images*"],
-			openGIFs: ["Скачивать только GIFы*", "Download GIFs only*"],
+			openImgs: {
+				sel: [["Откл.", "Все подряд", "Только GIF", "Кроме GIF"], ["Disable", "All types", "Only GIF", "Non-GIF"]],
+				txt: ["Скачивать полные версии картинок*", "Download full version of images*"]
+			},
 			imgSrcBtns: ["Добавлять кнопки для поиска картинок*", "Add image search buttons*"],
 			delImgNames: ["Скрывать имена картинок*", "Hide names of images*"],
 
@@ -4467,7 +4470,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		toggleBox(Cfg.ajaxUpdThr, ["input[info=\"updThrDelay\"]", "input[info=\"noErrInTitle\"]", "input[info=\"favIcoBlink\"]", "input[info=\"markNewPosts\"]", "input[info=\"desktNotif\"]", "input[info=\"updCount\"]"]);
 		toggleBox(Cfg.expandImgs, ["input[info=\"imgNavBtns\"]", "input[info=\"resizeDPI\"]", "input[info=\"resizeImgs\"]", "input[info=\"minImgSize\"]", "input[info=\"zoomFactor\"]", "input[info=\"webmControl\"]", "input[info=\"webmVolume\"]"]);
 		toggleBox(Cfg.preLoadImgs, ["input[info=\"findImgFile\"]"]);
-		toggleBox(Cfg.openImgs, ["input[info=\"openGIFs\"]"]);
 		toggleBox(Cfg.linksNavig, ["input[info=\"linksOver\"]", "input[info=\"linksOut\"]", "input[info=\"markViewed\"]", "input[info=\"strikeHidd\"]", "input[info=\"noNavigHidd\"]"]);
 		toggleBox(Cfg.strikeHidd && Cfg.linksNavig === 2, ["input[info=\"removeHidd\"]"]);
 		toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, ["select[info=\"YTubeType\"]", "input[info=\"addVimeo\"]"]);
@@ -4627,7 +4629,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			saveCfg("zoomFactor", Math.min(Math.max(+this.value, 1), 100));
 		}), $txt(Lng.cfg.zoomFactor[lang]), lBox("webmControl", true, null), $if(nav.canPlayWebm, $New("div", null, [inpTxt("webmVolume", 4, function () {
 			saveCfg("webmVolume", Math.min(+this.value, 100));
-		}), $txt(Lng.cfg.webmVolume[lang])]))]), $if(!nav.Presto, lBox("preLoadImgs", true, null)), $if(!nav.Presto && !aib.fch, $New("div", { "class": "de-cfg-depend" }, [lBox("findImgFile", true, null)])), lBox("openImgs", true, null), $New("div", { "class": "de-cfg-depend" }, [lBox("openGIFs", false, null)]), lBox("imgSrcBtns", true, null), lBox("delImgNames", true, null)]);
+		}), $txt(Lng.cfg.webmVolume[lang])]))]), $if(!nav.Presto, lBox("preLoadImgs", true, null)), $if(!nav.Presto && !aib.fch, $New("div", { "class": "de-cfg-depend" }, [lBox("findImgFile", true, null)])), optSel("openImgs", true, null), lBox("imgSrcBtns", true, null), lBox("delImgNames", true, null)]);
 	}
 
 	function getCfgLinks() {
@@ -5861,6 +5863,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			    nExp = !!Cfg.openImgs;
 			if (/\.gif$/i.test(url)) {
 				iType = "image/gif";
+				nExp &= Cfg.openImgs !== 3;
 			} else {
 				if (/\.jpe?g$/i.test(url)) {
 					iType = "image/jpeg";
@@ -5872,7 +5875,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				} else {
 					continue;
 				}
-				nExp &= !Cfg.openGIFs;
+				nExp &= Cfg.openImgs !== 2;
 			}
 			if (pool) {
 				pool.run([url, lnk, iType, nExp, el]);
