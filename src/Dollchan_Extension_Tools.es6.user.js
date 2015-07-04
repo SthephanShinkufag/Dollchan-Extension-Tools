@@ -12376,7 +12376,7 @@ function updateCSS() {
 		}
 	}
 	if(Cfg.widePosts) {
-		x += '.' + aib.cReply.replace(/\s/, '.') + ':not(.de-pview) { width: 100%; }';
+		x += '.' + aib.cReply.replace(/\s/, '.') + ':not(.de-pview) { float: none; width: 100%; }';
 	}
 	x += '.postarea, .recaptcha_image_cell + td, .recaptcha_image_cell + td + td, small[id^="rfmap"], .theader, .thumbnailmsg, ' +
 		(Cfg.panelCounter ? '' : '#de-panel-info, ') +
