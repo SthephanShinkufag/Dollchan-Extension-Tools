@@ -9821,7 +9821,7 @@ Thread.prototype = {
 				return 0;
 			});
 		}
-		return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, true)
+		return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, !aib.dobr)
 			.then(form => form ? this.loadNewFromForm(form) : 0);
 	},
 	loadNewFromForm(form) {
