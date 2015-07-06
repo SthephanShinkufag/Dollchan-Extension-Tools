@@ -13606,6 +13606,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				init: { value: function value() {
 						var _this = this;
 
+						var obj = JSON.parse(locStorage.store);
+						if (obj.other.navigation !== "page") {
+							obj.other.navigation = "page";
+							locStorage.store = JSON.stringify(obj);
+							window.location.reload();
+						}
 						$script("window.FormData = void 0;");
 						$each($C("autorefresh", doc), $del);
 						$each($C("postform-image", doc), function (el) {

@@ -10760,6 +10760,12 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			hasPicWrap: { value: true },
 			init: { value() {
+				var obj = JSON.parse(locStorage.store);
+				if(obj.other.navigation !== 'page') {
+					obj.other.navigation = 'page';
+					locStorage.store = JSON.stringify(obj);
+					window.location.reload();
+				}
 				$script('window.FormData = void 0;');
 				$each($C('autorefresh', doc), $del);
 				$each($C('postform-image', doc), function(el) {
