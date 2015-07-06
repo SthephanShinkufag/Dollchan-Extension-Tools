@@ -11025,16 +11025,17 @@ function getImageBoard(checkDomains, checkOther) {
 			var videos = [],
 				els = $Q('embed, object, iframe', post ? post.el : dForm.el);
 			for(var i = 0, len = els.length; i < len; ++i) {
-				var el = els[i],
-					src = el.src || el.data,
-					m = src.match(Videos.ytReg);
-				if(m) {
-					videos.push([post || this.getPostEl(el).post, m, true]);
-					$del(el);
-				}
-				if(Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
-					videos.push([post || this.getPostEl(el).post, m, false]);
-					$del(el);
+				var m, el = els[i],
+					src = el.src || el.data;
+				if(src) {
+					if((m = src.match(Videos.ytReg))) {
+						videos.push([post || this.getPostEl(el).post, m, true]);
+						$del(el);
+					}
+					if(Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
+						videos.push([post || this.getPostEl(el).post, m, false]);
+						$del(el);
+					}
 				}
 			}
 			return videos;
