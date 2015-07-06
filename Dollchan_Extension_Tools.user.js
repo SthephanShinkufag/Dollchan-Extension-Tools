@@ -5928,7 +5928,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 					if (!imgOnly) {
 						el.classList.add("de-thumb");
-						el.src = link.href = $q(aib.qImgLink, aib.getImgWrap(link)).href = safeName = "images/" + safeName;
+						link.href = $q(aib.qImgLink, aib.getImgWrap(link)).href = safeName = "images/" + safeName;
+						if (safeName.match(/\.webm$/)) {
+							tar.addFile(el.src = safeName.replace(/\.webm$/, ".png"), getDataFromImg(el));
+						} else {
+							el.src = safeName;
+						}
 					}
 					tar.addFile(safeName, imgData);
 				} else if (imgData && imgData.length > 0) {

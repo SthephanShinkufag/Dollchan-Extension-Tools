@@ -3873,8 +3873,12 @@ function loadDocFiles(imgOnly) {
 				}
 				if(!imgOnly) {
 					el.classList.add('de-thumb');
-					el.src = link.href =
-						$q(aib.qImgLink, aib.getImgWrap(link)).href = safeName = 'images/' + safeName;
+					link.href = $q(aib.qImgLink, aib.getImgWrap(link)).href = safeName = 'images/' + safeName;
+					if(safeName.match(/\.webm$/)) {
+						tar.addFile(el.src = safeName.replace(/\.webm$/, '.png'), getDataFromImg(el));
+					} else {
+						el.src = safeName;
+					}
 				}
 				tar.addFile(safeName, imgData);
 			} else if(imgData && imgData.length > 0) {
@@ -3949,8 +3953,7 @@ function loadDocFiles(imgOnly) {
 				$del(el);
 				return;
 			}
-			name = url.substring(url.lastIndexOf("/") + 1).replace(/[\\\/:*?"<>|]/g, '_')
-				.toLowerCase();
+			name = url.substring(url.lastIndexOf("/") + 1).replace(/[\\\/:*?"<>|]/g, '_').toLowerCase();
 			if(files.indexOf(name) !== -1) {
 				var temp = url.lastIndexOf('.'),
 					ext = url.substring(temp);
