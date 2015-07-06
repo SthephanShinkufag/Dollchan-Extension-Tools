@@ -2294,6 +2294,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							if (aib.t) {
 								temp[num].cnt = thr.pcount;
 								temp[num]["new"] = 0;
+								temp[num].last = thr.last.num;
 							} else {
 								temp[num]["new"] = thr.pcount - temp[num].cnt;
 							}
