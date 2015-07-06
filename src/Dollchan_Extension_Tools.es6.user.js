@@ -1912,14 +1912,14 @@ function showHiddenTable(cont) {
 		var cln = post.cloneNode(true);
 		cln.removeAttribute('id');
 		cln.style.display = '';
-		cln.className = aib.cReply + ' de-cloned-post';
+		cln.className = aib.cReply + ' de-post-hide de-cloned-post';
 		cln.post = Object.create(cln.clone = post.post);
 		cln.post.el = cln;
 		cln.btn = $q('.de-btn-hide, .de-btn-hide-user', cln);
 		cln.btn.parentNode.className = 'de-post-btns';
-		cln.btn.onclick = function() { // doesn't work properly. TODO: Fix
+		cln.btn.onclick = function() {
 			this.hideContent(this.hidden = !this.hidden);
-		}.bind(cln);
+		}.bind(cln.post);
 		if(!block) {
 			block = cont.appendChild(
 				$add('<div class="de-content-block"><b>' + Lng.hiddenPosts[lang] + ':</b></div>')
@@ -2040,15 +2040,22 @@ function showFavoriteTable(cont, data) {
 				if(!t.url.startsWith('http')) {
 					t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 				}
-				block.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply +
-					'" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url +
-					'"><input type="checkbox"><span class="de-btn-expthr" title="' + Lng.findThrd[lang] +
-					'"></span><a href="' + t.url + '">' + tNum + '</a><span class="de-fav-title"> - ' +
-					t.txt + '</span><span class="de-fav-inf-posts"><span class="de-fav-inf-err">' +
-					(t['err'] || '') + '</span> <span class="de-fav-inf-new" title="' + Lng.newPosts[lang] +
-					'"' + (t['new'] ? '>' : ' style="display: none;">') + (t['new'] || 0) + '</span> [' +
-					'<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>] ' +
-					'<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span></span></div>');
+				block.insertAdjacentHTML('beforeend',
+					'<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b +
+						'" de-num="' + tNum + '" de-url="' + t.url + '">' +
+						'<input type="checkbox">' +
+						'<span class="de-btn-expthr" title="' + Lng.findThrd[lang] + '"></span>' +
+						'<a href="' + t.url + (t.last ? aib.anchor + t.last : '') + '">' + tNum + '</a>' +
+						'<span class="de-fav-title"> - ' + t.txt + '</span>' +
+						'<span class="de-fav-inf-posts">' +
+							'<span class="de-fav-inf-err">' + (t['err'] || '') + '</span> ' +
+							'<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' +
+								(t['new'] ? '>' : ' style="display: none;">') + (t['new'] || 0) + '</span> ' +
+							'[<span class="de-fav-inf-old" title="' +
+								Lng.oldPosts[lang] + '">' + t.cnt + '</span>] ' +
+							'<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>' +
+						'</span>' +
+					'</div>');
 				block.lastChild.firstChild.nextSibling.onclick = e => loadFavorThread(e.target);
 			}
 		}
@@ -9861,7 +9868,8 @@ Thread.prototype = {
 					'cnt': this.pcount,
 					'new': 0,
 					'txt': this.op.title,
-					'url': aib.getThrdUrl(b, this.num)
+					'url': aib.getThrdUrl(b, this.num),
+					'last': this.last.num
 				};
 			} else {
 				removeFavoriteEntry(fav, h, b, this.num, false);
