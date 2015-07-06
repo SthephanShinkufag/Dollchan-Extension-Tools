@@ -10768,10 +10768,6 @@ function getImageBoard(checkDomains, checkOther) {
 				}
 				$script('window.FormData = void 0;');
 				$each($C('autorefresh', doc), $del);
-				$each($C('postform-image', doc), function(el) {
-					el.insertAdjacentHTML('afterend', '<div style="clear: both;"></div>');
-					el.nextSibling.appendChild(el);
-				});
 				var el = $q('td > .anoniconsselectlist', doc);
 				if(el) {
 					$q('.option-area > td:last-child', doc).appendChild(el);
