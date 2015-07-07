@@ -11236,7 +11236,9 @@ function Initialization(checkDomains) {
 	if(!locStorage && !checkStorage()) {
 		return null;
 	}
-	initNavFuncs();
+	if(!nav) {
+		initNavFuncs();
+	}
 	doc.defaultView.addEventListener('storage', function(e) {
 		var data, temp, post, val = e.newValue;
 		if(!val) {
