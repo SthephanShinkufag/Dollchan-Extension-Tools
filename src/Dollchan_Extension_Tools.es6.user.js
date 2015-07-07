@@ -10761,13 +10761,14 @@ function getImageBoard(checkDomains, checkOther) {
 			hasPicWrap: { value: true },
 			init: { value() {
 				try {
-					var obj = JSON.parse(locStorage.store);
-					if(obj.other.navigation !== 'page') {
-						obj.other.navigation = 'page';
-						locStorage.store = JSON.stringify(obj);
+					var data = JSON.parse(locStorage['store']);
+				} finally {
+					if(data.other && data.other.navigation !== 'page') {
+						data.other.navigation = 'page';
+						locStorage['store'] = JSON.stringify(data);
 						window.location.reload();
 					}
-				} catch(e) {}
+				}
 				$script('window.FormData = void 0;');
 				$each($C('autorefresh', doc), $del);
 				var el = $q('td > .anoniconsselectlist', doc);
