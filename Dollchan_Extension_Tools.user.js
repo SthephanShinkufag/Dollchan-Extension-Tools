@@ -13606,12 +13606,14 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				init: { value: function value() {
 						var _this = this;
 
-						var obj = JSON.parse(locStorage.store);
-						if (obj.other.navigation !== "page") {
-							obj.other.navigation = "page";
-							locStorage.store = JSON.stringify(obj);
-							window.location.reload();
-						}
+						try {
+							var obj = JSON.parse(locStorage.store);
+							if (obj.other.navigation !== "page") {
+								obj.other.navigation = "page";
+								locStorage.store = JSON.stringify(obj);
+								window.location.reload();
+							}
+						} catch (e) {}
 						$script("window.FormData = void 0;");
 						$each($C("autorefresh", doc), $del);
 						var el = $q("td > .anoniconsselectlist", doc);

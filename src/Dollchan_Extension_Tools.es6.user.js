@@ -10760,12 +10760,14 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			hasPicWrap: { value: true },
 			init: { value() {
-				var obj = JSON.parse(locStorage.store);
-				if(obj.other.navigation !== 'page') {
-					obj.other.navigation = 'page';
-					locStorage.store = JSON.stringify(obj);
-					window.location.reload();
-				}
+				try {
+					var obj = JSON.parse(locStorage.store);
+					if(obj.other.navigation !== 'page') {
+						obj.other.navigation = 'page';
+						locStorage.store = JSON.stringify(obj);
+						window.location.reload();
+					}
+				} catch(e) {}
 				$script('window.FormData = void 0;');
 				$each($C('autorefresh', doc), $del);
 				var el = $q('td > .anoniconsselectlist', doc);
