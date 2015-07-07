@@ -13162,18 +13162,19 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				_8ch: { value: true },
 
 				css: { value: ".fileinfo { width: 250px; }\t\t\t\t.multifile { width: auto !important; }\t\t\t\t.post-btn { display: none !important; }" },
+				earlyInit: { value: function value() {
+						if (locStorage.file_dragdrop === "true") {
+							locStorage.file_dragdrop = false;
+							return true;
+						}
+						return false;
+					} },
 				fixFileInputs: { value: function value(el) {
 						var str = "";
 						for (var i = 0, len = 5; i < len; ++i) {
 							str += "<div" + (i === 0 ? "" : " style=\"display: none;\"") + "><input type=\"file\" name=\"file" + (i === 0 ? "" : i + 1) + "\"></div>";
 						}
 						$id("upload_file").parentNode.innerHTML = str;
-					} },
-				init: { value: function value() {
-						if (locStorage.file_dragdrop === "true") {
-							locStorage.file_dragdrop = false;
-							window.location.reload();
-						}
 					} },
 				multiFile: { value: true }
 			}, "form[name*=\"postcontrols\"]"],
@@ -13398,12 +13399,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				cFileInfo: { value: "unimportant" },
 				css: { value: ".fa-sort, .image_id { display: none !important; }\t\t\t\ttime:after { content: none; }" },
-				init: { value: function value() {
+				earlyInit: { value: function value() {
 						var val = "{\"simpleNavbar\":true,\"showInfo\":true}";
 						if (locStorage.settings !== val) {
 							locStorage.settings = val;
-							window.location.reload();
+							return true;
 						}
+						return false;
 					} },
 				markupBB: { value: true },
 				markupTags: { value: ["b", "i", "u", "s", "spoiler", "code", "sub", "sup", "q"] }
@@ -13597,6 +13599,17 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				cssEn: { get: function get() {
 						return ".ABU-refmap, .box[onclick=\"ToggleSage()\"], img[alt=\"webm file\"], .de-qarea-hanging .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t.de-abtn { transition: none; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t\t" + (Cfg.expandTrunc ? ".expand-large-comment, div[id^=\"shrinked-post\"] { display: none !important; } div[id^=\"original-post\"] { display: block !important; }" : "") + "\n\t\t\t\t" + (Cfg.delImgNames ? ".filesize { display: inline !important; }" : "");
 					} },
+				earlyInit: { value: function value() {
+						try {
+							var obj = JSON.parse(locStorage.store);
+							if (obj.other.navigation !== "page") {
+								obj.other.navigation = "page";
+								locStorage.store = JSON.stringify(obj);
+								return true;
+							}
+						} catch (e) {}
+						return false;
+					} },
 				hasNames: { configurable: true, get: function get() {
 						var val = !!$q(".ananimas > span[id^=\"id_tag_\"], .post-email > span[id^=\"id_tag_\"]", doc.body);
 						Object.defineProperty(this, "hasNames", { value: val });
@@ -13606,15 +13619,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				init: { value: function value() {
 						var _this = this;
 
-						try {
-							var data = JSON.parse(locStorage.store);
-						} finally {
-							if (data.other && data.other.navigation !== "page") {
-								data.other.navigation = "page";
-								locStorage.store = JSON.stringify(data);
-								window.location.reload();
-							}
-						}
 						$script("window.FormData = void 0;");
 						$each($C("autorefresh", doc), $del);
 						var el = $q("td > .anoniconsselectlist", doc);
@@ -13956,6 +13960,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			dm: "",
 			docExt: ".html",
 			LastModified: null,
+			earlyInit: null,
 			ETag: null,
 			firstPage: 0,
 			fixFileInputs: emptyFn,
@@ -14078,7 +14083,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 
 
-	function Initialization(checkDomains) {
+	function beforeDOMLoad() {
 		if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 			return null;
 		}
@@ -14111,11 +14116,18 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				liteMode = true;
 				pr = {};
 		}
+		return true;
+	}
+
+	function Initialization(checkDomains) {
 		if (!aib) {
 			aib = getImageBoard(checkDomains, true);
 		}
 		if (aib.init && aib.init() || $id("de-panel")) {
 			return null;
+		}
+		if (checkDomains && aib.earlyInit && aib.earlyInit()) {
+			window.location.reload();
 		}
 		var formEl = $q(aib.qDForm + ", form[de-form]", doc);
 		if (!formEl) {
@@ -15111,11 +15123,17 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}
 	}
 
+	if (!beforeDOMLoad()) {
+		return;
+	}
 	if (doc.readyState === "interactive" || doc.readyState === "complete") {
 		needScroll = false;
 		async(initScript)(true);
 	} else {
 		aib = getImageBoard(true, false);
+		if (aib && aib.earlyInit) {
+			aib.earlyInit();
+		}
 		needScroll = true;
 		doc.addEventListener(doc.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll", function wheelFunc(e) {
 			needScroll = false;

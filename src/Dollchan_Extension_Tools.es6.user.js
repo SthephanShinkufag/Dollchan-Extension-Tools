@@ -10414,6 +10414,13 @@ function getImageBoard(checkDomains, checkOther) {
 			css: { value: '.fileinfo { width: 250px; }\
 				.multifile { width: auto !important; }\
 				.post-btn { display: none !important; }' },
+			earlyInit: { value() {
+				if(locStorage['file_dragdrop'] === 'true') {
+					locStorage['file_dragdrop'] = false;
+					return true;
+				}
+				return false;
+			} },
 			fixFileInputs: { value(el) {
 				var str = '';
 				for(var i = 0, len = 5; i < len; ++i) {
@@ -10421,12 +10428,6 @@ function getImageBoard(checkDomains, checkOther) {
 						'><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"></div>';
 				}
 				$id('upload_file').parentNode.innerHTML = str;
-			} },
-			init: { value() {
-				if(locStorage['file_dragdrop'] === 'true') {
-					locStorage['file_dragdrop'] = false;
-					window.location.reload();
-				}
 			} },
 			multiFile: { value: true }
 		}, 'form[name*="postcontrols"]'],
@@ -10682,12 +10683,13 @@ function getImageBoard(checkDomains, checkOther) {
 			cFileInfo: { value: 'unimportant' },
 			css: { value: '.fa-sort, .image_id { display: none !important; }\
 				time:after { content: none; }' },
-			init: { value() {
+			earlyInit: { value() {
 				var val = '{"simpleNavbar":true,"showInfo":true}';
 				if(locStorage['settings'] !== val) {
 					locStorage['settings'] = val;
-					window.location.reload();
+					return true;
 				}
+				return false;
 			} },
 			markupBB: { value: true },
 			markupTags: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'] }
@@ -10753,6 +10755,17 @@ function getImageBoard(checkDomains, checkOther) {
 				${Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : ''}
 				${Cfg.delImgNames ? '.filesize { display: inline !important; }' : ''}`;
 			} },
+			earlyInit: { value() {
+				try {
+					var obj = JSON.parse(locStorage.store);
+					if(obj.other.navigation !== 'page') {
+						obj.other.navigation = 'page';
+						locStorage.store = JSON.stringify(obj);
+						return true;
+					}
+				} catch(e) {}
+				return false;
+			} },
 			hasNames: { configurable: true, get() {
 				var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
 				Object.defineProperty(this, 'hasNames', { value: val });
@@ -10760,15 +10773,6 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			hasPicWrap: { value: true },
 			init: { value() {
-				try {
-					var data = JSON.parse(locStorage['store']);
-				} finally {
-					if(data.other && data.other.navigation !== 'page') {
-						data.other.navigation = 'page';
-						locStorage['store'] = JSON.stringify(data);
-						window.location.reload();
-					}
-				}
 				$script('window.FormData = void 0;');
 				$each($C('autorefresh', doc), $del);
 				var el = $q('td > .anoniconsselectlist', doc);
@@ -11135,6 +11139,7 @@ function getImageBoard(checkDomains, checkOther) {
 		dm: '',
 		docExt: '.html',
 		LastModified: null,
+		earlyInit: null,
 		ETag: null,
 		firstPage: 0,
 		fixFileInputs: emptyFn,
@@ -11229,7 +11234,7 @@ function getImageBoard(checkDomains, checkOther) {
 // INITIALIZATION
 // ===========================================================================================================
 
-function Initialization(checkDomains) {
+function beforeDOMLoad() {
 	if(/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 		return null;
 	}
@@ -11261,11 +11266,18 @@ function Initialization(checkDomains) {
 		liteMode = true;
 		pr = {};
 	}
+	return true;
+}
+
+function Initialization(checkDomains) {
 	if(!aib) {
 		aib = getImageBoard(checkDomains, true);
 	}
 	if((aib.init && aib.init()) || $id('de-panel')) {
 		return null;
+	}
+	if(checkDomains && aib.earlyInit && aib.earlyInit()) {
+		window.location.reload();
 	}
 	var formEl = $q(aib.qDForm + ', form[de-form]', doc);
 	if(!formEl) {
@@ -12508,11 +12520,17 @@ function* initScript(checkDomains) {
 	new Logger().finish();
 }
 
+if(!beforeDOMLoad()) {
+	return;
+}
 if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 	needScroll = false;
 	async(initScript)(true);
 } else {
 	aib = getImageBoard(true, false);
+	if(aib && aib.earlyInit) {
+		aib.earlyInit();
+	}
 	needScroll = true;
 	doc.addEventListener(
 		doc.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll",
