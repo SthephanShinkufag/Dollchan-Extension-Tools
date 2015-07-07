@@ -1198,6 +1198,8 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+
 !(function(global) {
   "use strict";
 
@@ -2546,18 +2548,16 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						dForm.initAjax();
 					}
 					new Logger().log("Parse delform");
-					pr = new PostForm($q(aib.qPostForm, doc), false, !liteMode, doc);
+					pr = new PostForm($q(aib.qPostForm, doc), false, doc);
 					new Logger().log("Parse postform");
 					if (Cfg.hotKeys) {
 						hKeys = new HotKeys();
 						new Logger().log("Init keybinds");
 					}
-					if (!liteMode) {
-						initPage();
-						new Logger().log("Init page");
-						addPanel(formEl);
-						new Logger().log("Add panel");
-					}
+					initPage();
+					new Logger().log("Init page");
+					addPanel(formEl);
+					new Logger().log("Add panel");
 					initMessageFunctions();
 					addDelformStuff();
 					readViewedPosts();
@@ -2570,17 +2570,17 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 					new Logger().log("Scroll page");
 					readPosts();
-					return context$2$0.delegateYield(readUserPosts(), "t33", 50);
+					return context$2$0.delegateYield(readUserPosts(), "t33", 53);
 
-				case 50:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t34", 51);
+				case 53:
+					return context$2$0.delegateYield(readFavoritesPosts(), "t34", 54);
 
-				case 51:
+				case 54:
 					setTimeout(PostContent.purge, 0);
 					new Logger().log("Apply spells");
 					new Logger().finish();
 
-				case 54:
+				case 57:
 				case "end":
 					return context$2$0.stop();
 			}
@@ -2951,7 +2951,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		oldPosts: ["Постов при последнем посещении", "Posts at the last visit"],
 		newPosts: ["Количество новых постов", "Number of new posts"],
 		thrPage: ["Тред на @странице", "Thread on @page"],
-		findThrd: ["Найти/Загрузить тред", "Find/Load thread"],
 		hiddenPosts: ["Скрытые посты на странице", "Hidden posts on the page"],
 		hiddenThrds: ["Скрытые треды", "Hidden threads"],
 		noHidPosts: ["На этой странице нет скрытых постов...", "No hidden posts on this page..."],
@@ -3052,7 +3051,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	    Images_ = { preloading: false, afterpreload: null, progressId: null, canvas: null },
 	    lang,
 	    quotetxt = "",
-	    liteMode,
 	    localRun,
 	    isExpImg,
 	    isPreImg,
@@ -3306,7 +3304,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				var obj = {
 					method: params && params.method || "GET",
 					url: nav.fixLink(url),
-					onload: function onload(e) {
+					onload: function (e) {
 						if (e.status === 200) {
 							resolve(e);
 						} else {
@@ -3390,7 +3388,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				}
 			}
 		},
-		"continue": function _continue() {
+		"continue": function () {
 			if (!this.stopped) {
 				this.paused = false;
 				if (this.array.length === 0) {
@@ -3899,9 +3897,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function toggleContent(name, isUpd, data) {
-		if (liteMode) {
-			return false;
-		}
 		var remove,
 		    el = $c("de-content", doc),
 		    id = "de-content-" + name;
@@ -3925,7 +3920,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function addContentBlock(parent, title) {
-		return parent.appendChild($New("div", { "class": "de-content-block" }, [$new("input", { type: "checkbox" }, { click: function click() {
+		return parent.appendChild($New("div", { "class": "de-content-block" }, [$new("input", { type: "checkbox" }, { click: function () {
 				var _this = this;
 
 				$each($Q(".de-entry > input", this.parentNode), function (el) {
@@ -4215,10 +4210,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					if (!t.url.startsWith("http")) {
 						t.url = (h === aib.host ? aib.prot + "//" : "http://") + h + t.url;
 					}
-					block.insertAdjacentHTML("beforeend", "<div class=\"de-entry " + aib.cReply + "\" de-host=\"" + h + "\" de-board=\"" + b + "\" de-num=\"" + tNum + "\" de-url=\"" + t.url + "\">" + "<input type=\"checkbox\">" + "<span class=\"de-btn-expthr\" title=\"" + Lng.findThrd[lang] + "\"></span>" + "<a href=\"" + t.url + (t.last ? aib.anchor + t.last : "") + "\">" + tNum + "</a>" + "<span class=\"de-fav-title\"> - " + t.txt + "</span>" + "<span class=\"de-fav-inf-posts\">" + "<span class=\"de-fav-inf-err\">" + (t.err || "") + "</span> " + "<span class=\"de-fav-inf-new\" title=\"" + Lng.newPosts[lang] + "\"" + (t["new"] ? ">" : " style=\"display: none;\">") + (t["new"] || 0) + "</span> " + "[<span class=\"de-fav-inf-old\" title=\"" + Lng.oldPosts[lang] + "\">" + t.cnt + "</span>] " + "<span class=\"de-fav-inf-page\" title=\"" + Lng.thrPage[lang] + "\"></span>" + "</span>" + "</div>");
-					block.lastChild.firstChild.nextSibling.onclick = function (e) {
-						return loadFavorThread(e.target);
-					};
+					block.insertAdjacentHTML("beforeend", "<div class=\"de-entry " + aib.cReply + "\" de-host=\"" + h + "\" de-board=\"" + b + "\" de-num=\"" + tNum + "\" de-url=\"" + t.url + "\">" + "<input type=\"checkbox\">" + "<a href=\"" + t.url + (t.last ? aib.anchor + t.last : "") + "\">" + tNum + "</a>" + "<span class=\"de-fav-title\"> - " + t.txt + "</span>" + "<span class=\"de-fav-inf-posts\">" + "<span class=\"de-fav-inf-err\">" + (t.err || "") + "</span> " + "<span class=\"de-fav-inf-new\" title=\"" + Lng.newPosts[lang] + "\"" + (t["new"] ? ">" : " style=\"display: none;\">") + (t["new"] || 0) + "</span> " + "[<span class=\"de-fav-inf-old\" title=\"" + Lng.oldPosts[lang] + "\">" + t.cnt + "</span>] " + "<span class=\"de-fav-inf-page\" title=\"" + Lng.thrPage[lang] + "\"></span>" + "</span>" + "</div>");
 				}
 			}
 		}
@@ -4496,7 +4488,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function lBox(id, isBlock, fn) {
-		var el = $new("input", { info: id, type: "checkbox" }, { click: function click() {
+		var el = $new("input", { info: id, type: "checkbox" }, { click: function () {
 				toggleCfg(this.getAttribute("info"));
 				fixSettings();
 				if (fn) {
@@ -4536,7 +4528,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			"class": "de-cfg-tab",
 			text: Lng.cfgTab[name][lang],
 			info: name }, {
-			click: function click() {
+			click: function () {
 				var el = this.parentNode;
 				if (el.getAttribute("selected") === "true") {
 					return;
@@ -4589,20 +4581,20 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			click: $pd,
 			mouseover: addMenu,
 			mouseout: removeMenu
-		}), $new("a", { text: Lng.apply[lang], href: "#", "class": "de-abtn" }, { click: function click(e) {
+		}), $new("a", { text: Lng.apply[lang], href: "#", "class": "de-abtn" }, { click: function (e) {
 				$pd(e);
 				saveCfg("hideBySpell", 1);
 				$q("input[info=\"hideBySpell\"]", doc).checked = true;
 				toggleSpells();
-			} }), $new("a", { text: Lng.clear[lang], href: "#", "class": "de-abtn" }, { click: function click(e) {
+			} }), $new("a", { text: Lng.clear[lang], href: "#", "class": "de-abtn" }, { click: function (e) {
 				$pd(e);
 				$id("de-spell-edit").value = "";
 				toggleSpells();
 			} }), $add("<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-" + (lang ? "en" : "ru") + "\" class=\"de-abtn\" target=\"_blank\">[?]</a>")]), $New("div", { id: "de-spell-div" }, [$add("<div><div id=\"de-spell-rowmeter\"></div></div>"), $New("div", null, [$new("textarea", { id: "de-spell-edit", wrap: "off" }, {
-			keydown: function keydown() {
+			keydown: function () {
 				updRowMeter(this);
 			},
-			scroll: function scroll() {
+			scroll: function () {
 				updRowMeter(this);
 			}
 		})])]), lBox("sortSpells", true, function () {
@@ -4739,7 +4731,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}, emptyFn);
 		})])])), $if(nav.isGlobal, $New("div", null, [$txt(Lng.cfg.excludeList[lang]), $new("input", { type: "text", id: "de-exclude-edit", size: 45, style: "display: block;",
 			value: excludeList }, {
-			keyup: function keyup() {
+			keyup: function () {
 				setStored("DESU_Exclude", this.value);
 			}
 		}), lBox("turnOff", true, function () {
@@ -4909,7 +4901,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				el.classList.add("de-blink");
 			}
 		} else {
-			el = $id("de-alert").appendChild($New("div", { "class": aib.cReply, id: "de-alert-" + id }, [$new("span", { "class": cBtn, text: tBtn }, { click: function click() {
+			el = $id("de-alert").appendChild($New("div", { "class": aib.cReply, id: "de-alert-" + id }, [$new("span", { "class": cBtn, text: tBtn }, { click: function () {
 					closeAlert(this.parentNode);
 				} }), $add("<div class=\"de-alert-msg\">" + txt.trim() + "</div>")]));
 			if (Cfg.animation) {
@@ -5642,23 +5634,14 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 	function initMessageFunctions() {
 		doc.defaultView.addEventListener("message", function (e) {
-			if (typeof e.data !== "string") {
-				return;
-			}
-			var data = e.data.substring(1);
-			switch (e.data[0]) {
-				case "A":
-					if (data.substr(10, 5) === "pform") {
-						checkUpload($DOM(data.substr(15)));
-						$q("iframe[name=\"de-iframe-pform\"]", doc).src = "about:blank";
-					} else {
-						checkDelete($DOM(data.substr(15)));
-						$q("iframe[name=\"de-iframe-dform\"]", doc).src = "about:blank";
-					}
-					return;
-				case "B":
-					$id("de-iframe-fav").style.height = data + "px";
-					closeAlert($id("de-alert-load-favthr"));
+			if (typeof e.data === "string") {
+				if (e.data.substr(10, 5) === "pform") {
+					checkUpload($DOM(e.data.substr(15)));
+					$q("iframe[name=\"de-iframe-pform\"]", doc).src = "about:blank";
+				} else {
+					checkDelete($DOM(e.data.substr(15)));
+					$q("iframe[name=\"de-iframe-dform\"]", doc).src = "about:blank";
+				}
 			}
 		}, false);
 	}
@@ -6561,26 +6544,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, function (xhr) {
 			return xhr.status === 304 ? null : Promise.reject(new AjaxError(xhr.status, xhr.statusText));
 		});
-	}
-
-	function loadFavorThread(node) {
-		var post,
-		    el = node.parentNode,
-		    ifrm = $t("iframe", el),
-		    cont = $c("de-content", doc);
-		if (ifrm) {
-			$del(ifrm);
-			cont.style.overflowY = "auto";
-			return;
-		}
-		if ((post = pByNum[el.getAttribute("de-num")]) && !post.hidden) {
-			scrollTo(0, window.pageYOffset + post.el.getBoundingClientRect().top);
-			return;
-		}
-		$del($id("de-iframe-fav"));
-		$c("de-content", doc).style.overflowY = "scroll";
-		$alert(Lng.loading[lang], "load-favthr", true);
-		el.insertAdjacentHTML("beforeend", "<iframe name=\"de-iframe-fav\" id=\"de-iframe-fav\" src=\"" + $t("a", el).href + "\" scrolling=\"no\" style=\"display: block; border: none; width: " + (doc.documentElement.clientWidth - 55) + "px; height: 1px;\"></iframe>");
 	}
 
 	var loadPages = async(regeneratorRuntime.mark(function callee$1$1(count) {
@@ -8246,14 +8209,14 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 
 
-	function PostForm(form, ignoreForm, init, dc) {
+	function PostForm(form, ignoreForm, dc) {
 		this.oeForm = $q("form[name=\"oeform\"], form[action*=\"paint\"]", dc);
 		if (!ignoreForm && !form) {
 			if (this.oeForm) {
 				ajaxLoad(aib.getThrdUrl(aib.b, dForm.firstThr.num), false).then(function (loadedDoc) {
-					pr = new PostForm($q(aib.qPostForm, loadedDoc), true, init, loadedDoc);
+					pr = new PostForm($q(aib.qPostForm, loadedDoc), true, loadedDoc);
 				}, function () {
-					pr = new PostForm(null, true, init, dc);
+					pr = new PostForm(null, true, dc);
 				});
 			} else {
 				this.form = null;
@@ -8281,9 +8244,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		this.subj = $x(p + "(@name=\"field3\" or @name=\"sub\" or @name=\"subject\" or @name=\"internal_s\" or @name=\"nya3\" or @name=\"kasumi\")]", form);
 		this.video = $q("tr input[name=\"video\"], tr input[name=\"embed\"]", form);
 		this.gothr = aib.qPostRedir && (p = $q(aib.qPostRedir, form)) && $parent(p, "TR");
-		if (init) {
-			this._init();
-		}
+		this._init();
 	}
 	PostForm.setUserName = function () {
 		var el = $q("input[info=\"nameValue\"]", doc);
@@ -8737,7 +8698,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							"class": "shortened",
 							style: "margin: 0px 0.5em;",
 							text: "проверить капчу" }, {
-							click: function click() {
+							click: function () {
 								var _this2 = this;
 
 								$ajax("/" + aib.b + "/api/validate-captcha", { method: "POST" }).then(function (xhr) {
@@ -14262,15 +14223,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		formEl.removeAttribute("id");
 	}
 	DelForm.doReplace = function (formEl) {
-		if (liteMode) {
-			doc.body.insertAdjacentHTML("afterbegin", formEl.outerHTML);
-			formEl = doc.body.firstChild;
-			window.addEventListener("load", (function (formEl) {
-				while (formEl.nextSibling) {
-					$del(formEl.nextSibling);
-				}
-			}).bind(null, formEl), false);
-		} else if (aib.rep) {
+		if (aib.rep) {
 			formEl.insertAdjacentHTML("beforebegin", replaceString(formEl.outerHTML));
 			formEl.style.display = "none";
 			formEl.id = "de-dform-old";
@@ -14849,7 +14802,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					paused = true;
 				}
 			},
-			"continue": function _continue() {
+			"continue": function () {
 				if (enabled && paused) {
 					startLoad(false);
 					paused = false;
@@ -15134,15 +15087,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			break;
 		case "de-iframe-pform":
 		case "de-iframe-dform":
-			$script("window.top.postMessage(\"A" + window.name + "\" + document.documentElement.outerHTML, \"*\");");
+			$script("window.top.postMessage(\"" + window.name + "\" + document.documentElement.outerHTML, \"*\");");
 			return;
-		case "de-iframe-fav":
-			var intrv = setInterval(function () {
-				$script("window.top.postMessage(\"B" + (doc.body.offsetHeight + 5) + "\", \"*\");");
-			}, 1500);
-			window.addEventListener("load", setTimeout.bind(window, clearInterval, 30000, intrv), false);
-			liteMode = true;
-			pr = {};
 	}
 
 	if (doc.readyState === "interactive" || doc.readyState === "complete") {

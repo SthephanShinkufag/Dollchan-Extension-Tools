@@ -479,7 +479,6 @@ Lng = {
 	oldPosts:       ['Постов при последнем посещении', 'Posts at the last visit'],
 	newPosts:       ['Количество новых постов', 'Number of new posts'],
 	thrPage:        ['Тред на @странице', 'Thread on @page'],
-	findThrd:       ['Найти/Загрузить тред', 'Find/Load thread'],
 	hiddenPosts:    ['Скрытые посты на странице', 'Hidden posts on the page'],
 	hiddenThrds:    ['Скрытые треды', 'Hidden threads'],
 	noHidPosts:     ['На этой странице нет скрытых постов...', 'No hidden posts on this page...'],
@@ -565,7 +564,7 @@ aib, nav, updater, hKeys, visPosts = 2, dTime,
 WebmParser, Logger,
 pr, dForm, dummy, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
-lang, quotetxt = '', liteMode, localRun, isExpImg, isPreImg, chromeCssUpd, excludeList,
+lang, quotetxt = '', localRun, isExpImg, isPreImg, chromeCssUpd, excludeList,
 $each = Function.prototype.call.bind(aProto.forEach),
 emptyFn = Function.prototype;
 
@@ -1711,9 +1710,6 @@ function addPanel(formEl) {
 }
 
 function toggleContent(name, isUpd, data) {
-	if(liteMode) {
-		return false;
-	}
 	var remove, el = $c('de-content', doc),
 		id = 'de-content-' + name;
 	if(!el) {
@@ -2046,7 +2042,6 @@ function showFavoriteTable(cont, data) {
 					'<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b +
 						'" de-num="' + tNum + '" de-url="' + t.url + '">' +
 						'<input type="checkbox">' +
-						'<span class="de-btn-expthr" title="' + Lng.findThrd[lang] + '"></span>' +
 						'<a href="' + t.url + (t.last ? aib.anchor + t.last : '') + '">' + tNum + '</a>' +
 						'<span class="de-fav-title"> - ' + t.txt + '</span>' +
 						'<span class="de-fav-inf-posts">' +
@@ -2058,7 +2053,6 @@ function showFavoriteTable(cont, data) {
 							'<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>' +
 						'</span>' +
 					'</div>');
-				block.lastChild.firstChild.nextSibling.onclick = e => loadFavorThread(e.target);
 			}
 		}
 	}
@@ -3583,23 +3577,14 @@ KeyEditListener.prototype = {
 
 function initMessageFunctions() {
 	doc.defaultView.addEventListener('message', function(e) {
-		if(typeof e.data !== 'string') {
-			return;
-		}
-		var data = e.data.substring(1);
-		switch(e.data[0]) {
-		case 'A':
-			if(data.substr(10, 5) === 'pform') {
-				checkUpload($DOM(data.substr(15)));
+		if(typeof e.data === 'string') {
+			if(e.data.substr(10, 5) === 'pform') {
+				checkUpload($DOM(e.data.substr(15)));
 				$q('iframe[name="de-iframe-pform"]', doc).src = 'about:blank';
 			} else {
-				checkDelete($DOM(data.substr(15)));
+				checkDelete($DOM(e.data.substr(15)));
 				$q('iframe[name="de-iframe-dform"]', doc).src = 'about:blank';
 			}
-			return;
-		case 'B':
-			$id('de-iframe-fav').style.height = data + 'px';
-			closeAlert($id('de-alert-load-favthr'));
 		}
 	}, false);
 }
@@ -4486,27 +4471,6 @@ function getJsonPosts(url) {
 	return $ajax(url, { useCache: true }).then(xhr => JSON.parse(xhr.responseText), xhr => {
 		return xhr.status === 304 ? null : Promise.reject(new AjaxError(xhr.status, xhr.statusText))
 	});
-}
-
-function loadFavorThread(node) {
-	var post, el = node.parentNode,
-		ifrm = $t('iframe', el),
-		cont = $c('de-content', doc);
-	if(ifrm) {
-		$del(ifrm);
-		cont.style.overflowY = 'auto';
-		return;
-	}
-	if((post = pByNum[el.getAttribute('de-num')]) && !post.hidden) {
-		scrollTo(0, window.pageYOffset + post.el.getBoundingClientRect().top);
-		return;
-	}
-	$del($id('de-iframe-fav'));
-	$c('de-content', doc).style.overflowY = 'scroll';
-	$alert(Lng.loading[lang], 'load-favthr', true);
-	el.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-fav" id="de-iframe-fav" src="' +
-		$t('a', el).href + '" scrolling="no" style="display: block; border: none; width: ' +
-		(doc.documentElement.clientWidth - 55) + 'px; height: 1px;"></iframe>');
 }
 
 var loadPages = async(function* (count) {
@@ -5839,14 +5803,14 @@ function addSpell(type, arg, isNeg) {
 // POSTFORM
 // ===========================================================================================================
 
-function PostForm(form, ignoreForm, init, dc) {
+function PostForm(form, ignoreForm, dc) {
 	this.oeForm = $q('form[name="oeform"], form[action*="paint"]', dc);
 	if(!ignoreForm && !form) {
 		if(this.oeForm) {
 			ajaxLoad(aib.getThrdUrl(aib.b, dForm.firstThr.num), false).then(loadedDoc => {
-				pr = new PostForm($q(aib.qPostForm, loadedDoc), true, init, loadedDoc);
+				pr = new PostForm($q(aib.qPostForm, loadedDoc), true, loadedDoc);
 			}, () => {
-				pr = new PostForm(null, true, init, dc);
+				pr = new PostForm(null, true, dc);
 			});
 		} else {
 			this.form = null;
@@ -5877,9 +5841,7 @@ function PostForm(form, ignoreForm, init, dc) {
 	this.subj = $x(p + '(@name="field3" or @name="sub" or @name="subject" or @name="internal_s" or @name="nya3" or @name="kasumi")]', form);
 	this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
 	this.gothr = aib.qPostRedir && (p = $q(aib.qPostRedir, form)) && $parent(p, 'TR');
-	if(init) {
-		this._init();
-	}
+	this._init();
 }
 PostForm.setUserName = function() {
 	var el = $q('input[info="nameValue"]', doc);
@@ -11396,15 +11358,7 @@ function DelForm(formEl, isLight) {
 	formEl.removeAttribute('id');
 }
 DelForm.doReplace = function(formEl) {
-	if(liteMode) {
-		doc.body.insertAdjacentHTML('afterbegin', formEl.outerHTML);
-		formEl = doc.body.firstChild;
-		window.addEventListener('load', function(formEl) {
-			while(formEl.nextSibling) {
-				$del(formEl.nextSibling);
-			}
-		}.bind(null, formEl), false);
-	} else if(aib.rep) {
+	if(aib.rep) {
 		formEl.insertAdjacentHTML('beforebegin', replaceString(formEl.outerHTML));
 		formEl.style.display = 'none';
 		formEl.id = 'de-dform-old';
@@ -12488,18 +12442,16 @@ function* initScript(checkDomains) {
 		dForm.initAjax();
 	}
 	new Logger().log('Parse delform');
-	pr = new PostForm($q(aib.qPostForm, doc), false, !liteMode, doc);
+	pr = new PostForm($q(aib.qPostForm, doc), false, doc);
 	new Logger().log('Parse postform');
 	if(Cfg.hotKeys) {
 		hKeys = new HotKeys();
 		new Logger().log('Init keybinds');
 	}
-	if(!liteMode) {
-		initPage();
-		new Logger().log('Init page');
-		addPanel(formEl);
-		new Logger().log('Add panel');
-	}
+	initPage();
+	new Logger().log('Init page');
+	addPanel(formEl);
+	new Logger().log('Add panel');
 	initMessageFunctions();
 	addDelformStuff();
 	readViewedPosts();
@@ -12526,15 +12478,8 @@ switch(window.name) {
 case '': break;
 case 'de-iframe-pform':
 case 'de-iframe-dform':
-	$script('window.top.postMessage("A' + window.name + '" + document.documentElement.outerHTML, "*");');
+	$script('window.top.postMessage("' + window.name + '" + document.documentElement.outerHTML, "*");');
 	return;
-case 'de-iframe-fav':
-	var intrv = setInterval(function() {
-		$script('window.top.postMessage("B' + (doc.body.offsetHeight + 5) + '", "*");');
-	}, 1500);
-	window.addEventListener('load', setTimeout.bind(window, clearInterval, 3e4, intrv), false);
-	liteMode = true;
-	pr = {};
 }
 
 if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
