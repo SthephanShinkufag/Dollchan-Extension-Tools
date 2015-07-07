@@ -5635,12 +5635,14 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	function initMessageFunctions() {
 		doc.defaultView.addEventListener("message", function (e) {
 			if (typeof e.data === "string") {
-				if (e.data.substr(10, 5) === "pform") {
-					checkUpload($DOM(e.data.substr(15)));
-					$q("iframe[name=\"de-iframe-pform\"]", doc).src = "about:blank";
-				} else {
-					checkDelete($DOM(e.data.substr(15)));
-					$q("iframe[name=\"de-iframe-dform\"]", doc).src = "about:blank";
+				switch (e.data.substr(0, 15)) {
+					case "de-iframe-pform":
+						checkUpload($DOM(e.data.substr(15)));
+						$q("iframe[name=\"de-iframe-pform\"]", doc).src = "about:blank";
+						return;
+					case "de-iframe-dform":
+						checkDelete($DOM(e.data.substr(15)));
+						$q("iframe[name=\"de-iframe-dform\"]", doc).src = "about:blank";
 				}
 			}
 		}, false);

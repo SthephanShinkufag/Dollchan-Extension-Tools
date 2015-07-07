@@ -3578,10 +3578,12 @@ KeyEditListener.prototype = {
 function initMessageFunctions() {
 	doc.defaultView.addEventListener('message', function(e) {
 		if(typeof e.data === 'string') {
-			if(e.data.substr(10, 5) === 'pform') {
+			switch(e.data.substr(0, 15)) {
+			case 'de-iframe-pform':
 				checkUpload($DOM(e.data.substr(15)));
 				$q('iframe[name="de-iframe-pform"]', doc).src = 'about:blank';
-			} else {
+				return;
+			case 'de-iframe-dform':
 				checkDelete($DOM(e.data.substr(15)));
 				$q('iframe[name="de-iframe-dform"]', doc).src = 'about:blank';
 			}
