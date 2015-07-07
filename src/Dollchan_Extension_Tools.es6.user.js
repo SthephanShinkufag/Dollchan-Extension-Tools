@@ -1340,13 +1340,14 @@ function* readCfg() {
 	}
 	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
-	if(Cfg.correctTime) {
-		dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, rp => {
-			saveCfg('timeRPattern', rp);
-		});
-	}
 	if(Cfg.updScript) {
-		checkForUpdates(false, val.lastUpd).then(html => $alert(html, 'updavail', false), emptyFn);
+		checkForUpdates(false, val.lastUpd).then(html => {
+			if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
+				$alert(html, 'updavail', false);
+			} else {
+				doc.addEventListener('DOMContentLoaded', () => $alert(html, 'updavail', false), false);
+			}
+		}, emptyFn);
 	}
 }
 
@@ -10115,7 +10116,25 @@ Thread.prototype = {
 // BROWSER
 // ===========================================================================================================
 
-function getNavFuncs() {
+function checkStorage() {
+	try {
+		locStorage = window.localStorage;
+		sesStorage = window.sessionStorage;
+		sesStorage['__de-test'] = 1;
+	} catch(e) {
+		if(typeof unsafeWindow !== 'undefined') {
+			locStorage = unsafeWindow.localStorage;
+			sesStorage = unsafeWindow.sessionStorage;
+		}
+	}
+	if(!(locStorage && (typeof locStorage === 'object') && sesStorage)) {
+		console.log('WEBSTORAGE ERROR: please, enable webstorage!');
+		return false;
+	}
+	return true;
+}
+
+function initNavFuncs() {
 	if(!('includes' in String.prototype)) {
 		String.prototype.includes = String.prototype.contains || function(s) {
 			return this.indexOf(s) !== -1;
@@ -10180,7 +10199,7 @@ function getNavFuncs() {
 		isGM = (typeof GM_setValue === 'function') &&
 			(!chrome || !GM_setValue.toString().includes('not supported'));
 	} catch(e) {}
-	return {
+	nav = {
 		get ua() {
 			return navigator.userAgent + (this.Firefox ? ' [' + navigator.buildID + ']' : '');
 		},
@@ -10540,9 +10559,9 @@ function getImageBoard(checkDomains, checkOther) {
 				Object.defineProperty(this, 'weight', { value: val });
 				return val;
 			} },
-			init: { value() {
+			earlyInit: { value(hasContent) {
 				if(window.location.pathname === '/settings') {
-					nav = getNavFuncs();
+					initNavFuncs();
 					$q('input[type="button"]', doc).addEventListener('click', function() {
 						spawn(readCfg).then(() => saveCfg('__hanarating', $id('rating').value));
 					}, false);
@@ -10683,10 +10702,13 @@ function getImageBoard(checkDomains, checkOther) {
 			cFileInfo: { value: 'unimportant' },
 			css: { value: '.fa-sort, .image_id { display: none !important; }\
 				time:after { content: none; }' },
-			earlyInit: { value() {
+			earlyInit: { value(hasContent) {
 				var val = '{"simpleNavbar":true,"showInfo":true}';
 				if(locStorage['settings'] !== val) {
 					locStorage['settings'] = val;
+					if(hasContent) {
+						window.location.reload();
+					}
 					return true;
 				}
 				return false;
@@ -10761,6 +10783,9 @@ function getImageBoard(checkDomains, checkOther) {
 					if(obj.other.navigation !== 'page') {
 						obj.other.navigation = 'page';
 						locStorage.store = JSON.stringify(obj);
+						if(hasContent) {
+							window.location.reload();
+						}
 						return true;
 					}
 				} catch(e) {}
@@ -11234,57 +11259,24 @@ function getImageBoard(checkDomains, checkOther) {
 // INITIALIZATION
 // ===========================================================================================================
 
-function beforeDOMLoad() {
-	if(/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
-		return null;
-	}
-	try {
-		locStorage = window.localStorage;
-		sesStorage = window.sessionStorage;
-		sesStorage['__de-test'] = 1;
-	} catch(e) {
-		if(typeof unsafeWindow !== 'undefined') {
-			locStorage = unsafeWindow.localStorage;
-			sesStorage = unsafeWindow.sessionStorage;
-		}
-	}
-	if(!(locStorage && (typeof locStorage === 'object') && sesStorage)) {
-		console.log('WEBSTORAGE ERROR: please, enable webstorage!');
-		return null;
-	}
-	switch(window.name) {
-	case '': break;
-	case 'de-iframe-pform':
-	case 'de-iframe-dform':
-		$script('window.top.postMessage("A' + window.name + '" + document.documentElement.outerHTML, "*");');
-		return null;
-	case 'de-iframe-fav':
-		var intrv = setInterval(function() {
-			$script('window.top.postMessage("B' + (doc.body.offsetHeight + 5) + '", "*");');
-		}, 1500);
-		window.addEventListener('load', setTimeout.bind(window, clearInterval, 3e4, intrv), false);
-		liteMode = true;
-		pr = {};
-	}
-	return true;
-}
-
 function Initialization(checkDomains) {
 	if(!aib) {
 		aib = getImageBoard(checkDomains, true);
 	}
-	if((aib.init && aib.init()) || $id('de-panel')) {
+	if(checkDomains && aib.earlyInit && (!checkStorage() || aib.earlyInit())) {
 		return null;
 	}
-	if(checkDomains && aib.earlyInit && aib.earlyInit()) {
-		window.location.reload();
+	if((aib.init && aib.init()) || $id('de-panel')) {
+		return null;
 	}
 	var formEl = $q(aib.qDForm + ', form[de-form]', doc);
 	if(!formEl) {
 		return null;
 	}
-	nav = getNavFuncs();
-
+	if(!locStorage && !checkStorage()) {
+		return null;
+	}
+	initNavFuncs();
 	doc.defaultView.addEventListener('storage', function(e) {
 		var data, temp, post, val = e.newValue;
 		if(!val) {
@@ -12465,8 +12457,15 @@ function* initScript(checkDomains) {
 		return;
 	}
 	excludeList = str || '';
-	yield* readCfg();
-	new Logger().log('Config loading');
+	if(!Cfg) {
+		yield* readCfg();
+		new Logger().log('Config loading');
+	}
+	if(Cfg.correctTime) {
+		dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang,
+		                     rp => saveCfg('timeRPattern', rp));
+		new Logger().log('Time correction');
+	}
 	if(Cfg.disabled) {
 		addPanel(formEl);
 		scriptCSS();
@@ -12520,16 +12519,38 @@ function* initScript(checkDomains) {
 	new Logger().finish();
 }
 
-if(!beforeDOMLoad()) {
+if(/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 	return;
 }
+switch(window.name) {
+case '': break;
+case 'de-iframe-pform':
+case 'de-iframe-dform':
+	$script('window.top.postMessage("A' + window.name + '" + document.documentElement.outerHTML, "*");');
+	return;
+case 'de-iframe-fav':
+	var intrv = setInterval(function() {
+		$script('window.top.postMessage("B' + (doc.body.offsetHeight + 5) + '", "*");');
+	}, 1500);
+	window.addEventListener('load', setTimeout.bind(window, clearInterval, 3e4, intrv), false);
+	liteMode = true;
+	pr = {};
+}
+
 if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 	needScroll = false;
 	async(initScript)(true);
 } else {
 	aib = getImageBoard(true, false);
-	if(aib && aib.earlyInit) {
-		aib.earlyInit();
+	if(aib) {
+		if(!checkStorage()) {
+			return;
+		}
+		if(aib.earlyInit) {
+			aib.earlyInit();
+		}
+		initNavFuncs();
+		async(readCfg)();
 	}
 	needScroll = true;
 	doc.addEventListener(

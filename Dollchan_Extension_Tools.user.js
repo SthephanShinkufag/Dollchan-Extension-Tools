@@ -1198,8 +1198,6 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
-
-
 !(function(global) {
   "use strict";
 
@@ -2117,18 +2115,19 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 					setStored("DESU_Config", JSON.stringify(val));
 					lang = Cfg.language;
-					if (Cfg.correctTime) {
-						dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, function (rp) {
-							saveCfg("timeRPattern", rp);
-						});
-					}
 					if (Cfg.updScript) {
 						checkForUpdates(false, val.lastUpd).then(function (html) {
-							return $alert(html, "updavail", false);
+							if (doc.readyState === "interactive" || doc.readyState === "complete") {
+								$alert(html, "updavail", false);
+							} else {
+								doc.addEventListener("DOMContentLoaded", function () {
+									return $alert(html, "updavail", false);
+								}, false);
+							}
 						}, emptyFn);
 					}
 
-				case 23:
+				case 22:
 				case "end":
 					return context$2$0.stop();
 			}
@@ -2493,13 +2492,27 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 9:
 					excludeList = str || "";
-					return context$2$0.delegateYield(readCfg(), "t31", 11);
 
-				case 11:
+					if (Cfg) {
+						context$2$0.next = 13;
+						break;
+					}
+
+					return context$2$0.delegateYield(readCfg(), "t31", 12);
+
+				case 12:
 					new Logger().log("Config loading");
 
+				case 13:
+					if (Cfg.correctTime) {
+						dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, function (rp) {
+							return saveCfg("timeRPattern", rp);
+						});
+						new Logger().log("Time correction");
+					}
+
 					if (!Cfg.disabled) {
-						context$2$0.next = 16;
+						context$2$0.next = 18;
 						break;
 					}
 
@@ -2507,28 +2520,28 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					scriptCSS();
 					return context$2$0.abrupt("return");
 
-				case 16:
+				case 18:
 					spells = new Spells(!!Cfg.hideBySpell);
 					new Logger().log("Parsing spells");
 					doc.body.style.display = "none";
 					formEl = DelForm.doReplace(formEl);
 					new Logger().log("Replace delform");
 					pByNum = Object.create(null);
-					context$2$0.prev = 22;
+					context$2$0.prev = 24;
 
 					dForm = new DelForm(formEl, false);
-					context$2$0.next = 31;
+					context$2$0.next = 33;
 					break;
 
-				case 26:
-					context$2$0.prev = 26;
-					context$2$0.t32 = context$2$0["catch"](22);
+				case 28:
+					context$2$0.prev = 28;
+					context$2$0.t32 = context$2$0["catch"](24);
 
 					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t32));
 					doc.body.style.display = "";
 					return context$2$0.abrupt("return");
 
-				case 31:
+				case 33:
 					if (!localRun) {
 						dForm.initAjax();
 					}
@@ -2557,21 +2570,21 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 					new Logger().log("Scroll page");
 					readPosts();
-					return context$2$0.delegateYield(readUserPosts(), "t33", 48);
+					return context$2$0.delegateYield(readUserPosts(), "t33", 50);
 
-				case 48:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t34", 49);
+				case 50:
+					return context$2$0.delegateYield(readFavoritesPosts(), "t34", 51);
 
-				case 49:
+				case 51:
 					setTimeout(PostContent.purge, 0);
 					new Logger().log("Apply spells");
 					new Logger().finish();
 
-				case 52:
+				case 54:
 				case "end":
 					return context$2$0.stop();
 			}
-		}, initScript, this, [[22, 26]]);
+		}, initScript, this, [[24, 28]]);
 	});
 	var version = "15.7.2.0",
 	    defaultCfg = {
@@ -12858,7 +12871,25 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 
 
-	function getNavFuncs() {
+	function checkStorage() {
+		try {
+			locStorage = window.localStorage;
+			sesStorage = window.sessionStorage;
+			sesStorage["__de-test"] = 1;
+		} catch (e) {
+			if (typeof unsafeWindow !== "undefined") {
+				locStorage = unsafeWindow.localStorage;
+				sesStorage = unsafeWindow.sessionStorage;
+			}
+		}
+		if (!(locStorage && typeof locStorage === "object" && sesStorage)) {
+			console.log("WEBSTORAGE ERROR: please, enable webstorage!");
+			return false;
+		}
+		return true;
+	}
+
+	function initNavFuncs() {
 		if (!("includes" in String.prototype)) {
 			String.prototype.includes = String.prototype.contains || function (s) {
 				return this.indexOf(s) !== -1;
@@ -12924,7 +12955,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		try {
 			isGM = typeof GM_setValue === "function" && (!chrome || !GM_setValue.toString().includes("not supported"));
 		} catch (e) {}
-		return Object.defineProperties({
+		nav = Object.defineProperties({
 			Firefox: firefox,
 			Opera11: opera11,
 			Presto: presto,
@@ -13276,9 +13307,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						Object.defineProperty(this, "weight", { value: val });
 						return val;
 					} },
-				init: { value: function value() {
+				earlyInit: { value: function value(hasContent) {
 						if (window.location.pathname === "/settings") {
-							nav = getNavFuncs();
+							initNavFuncs();
 							$q("input[type=\"button\"]", doc).addEventListener("click", function () {
 								spawn(readCfg).then(function () {
 									return saveCfg("__hanarating", $id("rating").value);
@@ -13399,10 +13430,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				cFileInfo: { value: "unimportant" },
 				css: { value: ".fa-sort, .image_id { display: none !important; }\t\t\t\ttime:after { content: none; }" },
-				earlyInit: { value: function value() {
+				earlyInit: { value: function value(hasContent) {
 						var val = "{\"simpleNavbar\":true,\"showInfo\":true}";
 						if (locStorage.settings !== val) {
 							locStorage.settings = val;
+							if (hasContent) {
+								window.location.reload();
+							}
 							return true;
 						}
 						return false;
@@ -13605,6 +13639,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							if (obj.other.navigation !== "page") {
 								obj.other.navigation = "page";
 								locStorage.store = JSON.stringify(obj);
+								if (hasContent) {
+									window.location.reload();
+								}
 								return true;
 							}
 						} catch (e) {}
@@ -14083,58 +14120,24 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 
 
-	function beforeDOMLoad() {
-		if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
-			return null;
-		}
-		try {
-			locStorage = window.localStorage;
-			sesStorage = window.sessionStorage;
-			sesStorage["__de-test"] = 1;
-		} catch (e) {
-			if (typeof unsafeWindow !== "undefined") {
-				locStorage = unsafeWindow.localStorage;
-				sesStorage = unsafeWindow.sessionStorage;
-			}
-		}
-		if (!(locStorage && typeof locStorage === "object" && sesStorage)) {
-			console.log("WEBSTORAGE ERROR: please, enable webstorage!");
-			return null;
-		}
-		switch (window.name) {
-			case "":
-				break;
-			case "de-iframe-pform":
-			case "de-iframe-dform":
-				$script("window.top.postMessage(\"A" + window.name + "\" + document.documentElement.outerHTML, \"*\");");
-				return null;
-			case "de-iframe-fav":
-				var intrv = setInterval(function () {
-					$script("window.top.postMessage(\"B" + (doc.body.offsetHeight + 5) + "\", \"*\");");
-				}, 1500);
-				window.addEventListener("load", setTimeout.bind(window, clearInterval, 30000, intrv), false);
-				liteMode = true;
-				pr = {};
-		}
-		return true;
-	}
-
 	function Initialization(checkDomains) {
 		if (!aib) {
 			aib = getImageBoard(checkDomains, true);
 		}
-		if (aib.init && aib.init() || $id("de-panel")) {
+		if (checkDomains && aib.earlyInit && (!checkStorage() || aib.earlyInit())) {
 			return null;
 		}
-		if (checkDomains && aib.earlyInit && aib.earlyInit()) {
-			window.location.reload();
+		if (aib.init && aib.init() || $id("de-panel")) {
+			return null;
 		}
 		var formEl = $q(aib.qDForm + ", form[de-form]", doc);
 		if (!formEl) {
 			return null;
 		}
-		nav = getNavFuncs();
-
+		if (!locStorage && !checkStorage()) {
+			return null;
+		}
+		initNavFuncs();
 		doc.defaultView.addEventListener("storage", function (e) {
 			var data,
 			    temp,
@@ -15123,16 +15126,39 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}
 	}
 
-	if (!beforeDOMLoad()) {
+	if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 		return;
 	}
+	switch (window.name) {
+		case "":
+			break;
+		case "de-iframe-pform":
+		case "de-iframe-dform":
+			$script("window.top.postMessage(\"A" + window.name + "\" + document.documentElement.outerHTML, \"*\");");
+			return;
+		case "de-iframe-fav":
+			var intrv = setInterval(function () {
+				$script("window.top.postMessage(\"B" + (doc.body.offsetHeight + 5) + "\", \"*\");");
+			}, 1500);
+			window.addEventListener("load", setTimeout.bind(window, clearInterval, 30000, intrv), false);
+			liteMode = true;
+			pr = {};
+	}
+
 	if (doc.readyState === "interactive" || doc.readyState === "complete") {
 		needScroll = false;
 		async(initScript)(true);
 	} else {
 		aib = getImageBoard(true, false);
-		if (aib && aib.earlyInit) {
-			aib.earlyInit();
+		if (aib) {
+			if (!checkStorage()) {
+				return;
+			}
+			if (aib.earlyInit) {
+				aib.earlyInit();
+			}
+			initNavFuncs();
+			async(readCfg)();
 		}
 		needScroll = true;
 		doc.addEventListener(doc.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll", function wheelFunc(e) {
