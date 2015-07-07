@@ -5841,7 +5841,306 @@ function PostForm(form, ignoreForm, dc) {
 	this.subj = $x(p + '(@name="field3" or @name="sub" or @name="subject" or @name="internal_s" or @name="nya3" or @name="kasumi")]', form);
 	this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
 	this.gothr = aib.qPostRedir && (p = $q(aib.qPostRedir, form)) && $parent(p, 'TR');
-	this._init();
+	this.pForm = $New('div', {'id': 'de-pform'}, [this.form, this.oeForm]);
+	dForm.el.insertAdjacentHTML('beforebegin',
+		'<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
+	this.pArea[0] = dForm.el.previousSibling;
+	this._pBtn[0] = this.pArea[0].firstChild;
+	this._pBtn[0].firstElementChild.onclick = this.showMainReply.bind(this, false);
+	var el = aib.fch ? $c('board', dForm.el) : dForm.el;
+	el.insertAdjacentHTML('afterend', '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
+	this.pArea[1] = el.nextSibling;
+	this._pBtn[1] = this.pArea[1].firstChild;
+	this._pBtn[1].firstElementChild.onclick = this.showMainReply.bind(this, true);
+	this.qArea = $add('<div style="display: none; ' + Cfg.qReplyX + '; ' + Cfg.qReplyY +
+		';" id="de-qarea" class="' + aib.cReply +
+		(Cfg.hangQReply ? ' de-qarea-hanging' : ' de-qarea-inline') + '"></div>');
+	this.isBottom = Cfg.addPostForm === 1;
+	this.setReply(false, !aib.t || Cfg.addPostForm > 1);
+	el = this.qArea;
+	el.insertAdjacentHTML('beforeend',
+		'<div id="de-resizer-top"></div>' +
+		'<div' + (Cfg.hangQReply ? ' class="de-cfg-head"' : '') + '>' +
+			'<span id="de-qarea-target"></span>' +
+			'<span id="de-qarea-utils">' +
+				'<span id="de-qarea-toggle" title="' + Lng.toggleQReply[lang] + '">\u2750</span>' +
+				'<span id="de-qarea-close" title="' + Lng.closeQReply[lang] + '">\u2716</span>' +
+			'</span></div>' +
+		'<div id="de-resizer-left"></div>' +
+		'<div id="de-resizer-right"></div>' +
+		'<div id="de-resizer-bottom"></div>');
+	el = el.firstChild.nextSibling;
+	el.lang = getThemeLang();
+	el.addEventListener('mousedown', {
+		_el: this.qArea,
+		_elStyle: this.qArea.style,
+		_oldX: 0,
+		_oldY: 0,
+		_X: 0,
+		_Y: 0,
+		handleEvent(e) {
+			if(!Cfg.hangQReply) {
+				return;
+			}
+			var curX = e.clientX,
+				curY = e.clientY;
+			switch(e.type) {
+			case 'mousedown':
+				this._oldX = curX;
+				this._oldY = curY;
+				this._X = Cfg.qReplyX;
+				this._Y = Cfg.qReplyY;
+				doc.body.addEventListener('mousemove', this, false);
+				doc.body.addEventListener('mouseup', this, false);
+				$pd(e);
+				return;
+			case 'mousemove':
+				var maxX = Post.sizing.wWidth - this._el.offsetWidth,
+					maxY = Post.sizing.wHeight - this._el.offsetHeight - 25,
+					cr = this._el.getBoundingClientRect(),
+					x = cr.left + curX - this._oldX,
+					y = cr.top + curY - this._oldY;
+				this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? 'right: 0' :
+					x < 0 || curX < this._oldX && x < 20 ? 'left: 0' :
+					'left: ' + x + 'px';
+				this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? 'bottom: 25px' :
+					y < 0 || curY < this._oldY && y < 20 ? 'top: 0' :
+					'top: ' + y + 'px';
+				this._elStyle.cssText = this._X + '; ' + this._Y;
+				this._oldX = curX;
+				this._oldY = curY;
+				return;
+			default: // mouseup
+				doc.body.removeEventListener('mousemove', this, false);
+				doc.body.removeEventListener('mouseup', this, false);
+				saveCfg('qReplyX', this._X);
+				saveCfg('qReplyY', this._Y);
+			}
+		}
+	}, false);
+	el = el.lastChild;
+	el.firstChild.onclick = () => {
+		var node = this.qArea;
+		toggleCfg('hangQReply');
+		if(Cfg.hangQReply) {
+			node.className = aib.cReply + ' de-qarea-hanging';
+			node = node.firstChild.nextSibling;
+			node.className = 'de-cfg-head';
+		} else {
+			node.className = aib.cReply + ' de-qarea-inline';
+			node = node.firstChild.nextSibling;
+			node.removeAttribute('class');
+			this.txta.focus();
+		}
+	};
+	el.lastChild.onclick = this.closeQReply.bind(this);
+	if(aib.tire) {
+		$each($Q('input[type="hidden"]', dForm.el), $del);
+		dForm.el.appendChild($c('userdelete', doc.body));
+		this.dpass = $q('input[type="password"]', dForm.el);
+	}
+	if(!this.form || !this.txta) {
+		return;
+	}
+	new FormResizer('top', el = this.qArea.firstChild, this);
+	new FormResizer('left', el = el.nextSibling.nextSibling, this);
+	new FormResizer('right', el = el.nextSibling, this);
+	new FormResizer('bottom', el = el.nextSibling, this);
+	if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
+		this.setPlaceholders();
+	}
+	aib.disableRedirection(this.form);
+	this.form.style.display = 'inline-block';
+	this.form.style.textAlign = 'left';
+	if(nav.Firefox) {
+		this.txta.addEventListener('mouseup', function() {
+		saveCfg('textaWidth', parseInt(this.style.width, 10));
+		saveCfg('textaHeight', parseInt(this.style.height, 10));
+		}, false);
+	} else {
+		this.txta.insertAdjacentHTML('afterend', '<div id="de-txta-resizer"></div>');
+		this.txta.nextSibling.addEventListener('mousedown', {
+			_el: this.txta,
+			_elStyle: this.txta.style,
+			handleEvent(e) {
+				switch(e.type) {
+				case 'mousedown':
+					doc.body.addEventListener('mousemove', this, false);
+					doc.body.addEventListener('mouseup', this, false);
+					$pd(e);
+					return;
+				case 'mousemove':
+					var cr = this._el.getBoundingClientRect();
+					this._elStyle.width = (e.clientX - cr.left) + 'px';
+					this._elStyle.height = (e.clientY - cr.top) + 'px';
+					return;
+				default: // mouseup
+					doc.body.removeEventListener('mousemove', this, false);
+					doc.body.removeEventListener('mouseup', this, false);
+					saveCfg('textaWidth', parseInt(this._elStyle.width, 10));
+					saveCfg('textaHeight', parseInt(this._elStyle.height, 10));
+				}
+			}
+		}, false);
+	}
+	if(aib.kus) {
+		while(this.subm.nextSibling) {
+			$del(this.subm.nextSibling);
+		}
+	}
+	if(!aib.iich && Cfg.addSageBtn && this.mail) {
+		el = $parent(this.mail, 'LABEL') || this.mail;
+		if(el.nextElementSibling || el.previousElementSibling) {
+			el.style.display = 'none';
+		} else {
+			$parent(this.mail, 'TR').style.display = 'none';
+		}
+		el = $new('span', {'id': 'de-sagebtn', 'class': 'de-btn-sage'}, {'click': e => {
+			e.stopPropagation();
+			$pd(e);
+			toggleCfg('sageReply');
+			this._setSage();
+		}});
+		$after(this.subm, el);
+		setTimeout(this._setSage.bind(this), 0);
+		if(aib._2chru) {
+			while(el.nextSibling) {
+				$del(el.nextSibling);
+			}
+		}
+	}
+	this.addTextPanel();
+	this.txta.classList.add('de-textarea');
+	this.txta.style.cssText = 'width: ' + Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px;';
+	this.txta.addEventListener('keypress', function(e) {
+		var code = e.charCode || e.keyCode;
+		if((code === 33 || code === 34) && e.which === 0) {
+			e.target.blur();
+			window.focus();
+		}
+	}, false);
+	if(!aib.tiny) {
+		this.subm.value = Lng.reply[lang];
+	}
+	this.subm.addEventListener('click', e => {
+		if(aib._2chru && !aib.reqCaptcha) {
+			$ajax('/' + aib.b + '/api/requires-captcha').then(xhr => {
+				aib.reqCaptcha = true;
+				if(JSON.parse(xhr.responseText)['requires-captcha'] !== '1') {
+					this.subm.click();
+					return;
+				}
+				$id('captcha_tr').style.display = 'table-row';
+				$id('captchaimage').src = '/' + aib.b + '/captcha?' + Math.random();
+				$after(this.cap, $new('span', {
+					'class': 'shortened',
+					'style': 'margin: 0px 0.5em;',
+					'text': 'проверить капчу'}, {
+					'click'() {
+						$ajax('/' + aib.b + '/api/validate-captcha', { method: 'POST' }).then(xhr => {
+							if(JSON.parse(xhr.responseText).status === 'ok') {
+								this.innerHTML = 'можно постить';
+							} else {
+								this.innerHTML = 'неверная капча';
+								setTimeout(el => this.innerHTML = 'проверить капчу', 1000);
+							}
+						}, emptyFn);
+					}
+				}));
+			}, emptyFn);
+			$pd(e);
+			return;
+		}
+		if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
+			$pd(e);
+			$alert(Lng.subjHasTrip[lang], 'upload', false);
+			return;
+		}
+		var val = this.txta.value;
+		if(spells.haveOutreps) {
+			val = spells.outReplace(val);
+		}
+		if(this.tNum && pByNum[this.tNum].subj === 'Dollchan Extension Tools') {
+			var temp = '\n\n' + this._wrapText(aib.markupBB, aib.markupTags[5],
+				'-'.repeat(50) + '\n' + nav.ua + '\nv' + version + ' [' + nav.scriptInstall + ']')[1];
+			if(!val.includes(temp)) {
+				val += temp;
+			}
+		}
+		this.txta.value = val;
+		if(Cfg.ajaxReply) {
+			$alert(Lng.checking[lang], 'upload', true);
+		}
+		if(this.video && (val = this.video.value) && (val = val.match(Videos.ytReg))) {
+			this.video.value = 'http://www.youtube.com/watch?v=' + val[1];
+		}
+		if(this.isQuick) {
+			this.pForm.style.display = 'none';
+			this.qArea.style.display = 'none';
+			$after(this._pBtn[+this.isBottom], this.pForm);
+		}
+		updater.pause();
+	}, false);
+	if(Cfg.noGoto && this.gothr) {
+		this.gothr.style.display = 'none';
+	}
+	if(Cfg.noPassword && this.passw) {
+		$parent(this.passw, 'TR').style.display = 'none';
+	}
+	if(Cfg.noName && this.name) {
+		$parent(this.name, 'TR').style.display = 'none';
+	}
+	window.addEventListener('load', () => {
+		if(Cfg.userName && this.name) {
+			setTimeout(PostForm.setUserName, 1e3);
+		}
+		if(this.passw) {
+			setTimeout(PostForm.setUserPassw, 1e3);
+		}
+	}, false);
+	if(this.cap) {
+		this.capTr = $parent(this.cap, 'TR');
+		this.txta.addEventListener('focus', this._captchaInit.bind(this, this.capTr.innerHTML), false);
+		this.form.addEventListener('click', this._captchaInit.bind(this, this.capTr.innerHTML), false);
+		if(!aib.krau) {
+			this.capTr.style.display = 'none';
+		}
+		if(!aib.mak && !aib.fch && !$id('recaptcha_widget_div')) {
+			this.capTr.innerHTML = '';
+		}
+		this.cap = null;
+	}
+	if(Cfg.ajaxReply === 2) {
+		if(aib.krau) {
+			this.form.removeAttribute('onsubmit');
+		}
+		setTimeout(() => {
+			this.form.onsubmit = e => {
+				$pd(e);
+				if(aib.krau) {
+					aib.addProgressTrack.click();
+				}
+				if(aib._2chru) {
+					doc.body.insertAdjacentHTML('beforeend', '<iframe class="ninja" id="csstest" src="/' +
+						aib.b + '/csstest.foo"></iframe>');
+					doc.body.lastChild.onload = e => {
+						$del(e.target);
+						spawn(html5Submit, this.form, true).then(doUploading);
+					};
+					return;
+				}
+				spawn(html5Submit, this.form, true).then(doUploading);
+			};
+		}, 0);
+	} else if(Cfg.ajaxReply === 1) {
+		this.form.target = 'de-iframe-pform';
+		this.form.onsubmit = null;
+	}
+	el = this.file;
+	if(el) {
+		aib.fixFileInputs(el);
+		this.eventFiles(true);
+	}
 }
 PostForm.setUserName = function() {
 	var el = $q('input[info="nameValue"]', doc);
@@ -6150,309 +6449,6 @@ PostForm.prototype = {
 
 	_lastCapUpdate: 0,
 	_pBtn: [],
-	_init() {
-		var el;
-		this.pForm = $New('div', {'id': 'de-pform'}, [this.form, this.oeForm]);
-		dForm.el.insertAdjacentHTML('beforebegin',
-			'<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
-		this.pArea[0] = dForm.el.previousSibling;
-		this._pBtn[0] = this.pArea[0].firstChild;
-		this._pBtn[0].firstElementChild.onclick = this.showMainReply.bind(this, false);
-		el = aib.fch ? $c('board', dForm.el) : dForm.el;
-		el.insertAdjacentHTML('afterend', '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
-		this.pArea[1] = el.nextSibling;
-		this._pBtn[1] = this.pArea[1].firstChild;
-		this._pBtn[1].firstElementChild.onclick = this.showMainReply.bind(this, true);
-		this.qArea = $add('<div style="display: none; ' + Cfg.qReplyX + '; ' + Cfg.qReplyY +
-			';" id="de-qarea" class="' + aib.cReply +
-			(Cfg.hangQReply ? ' de-qarea-hanging' : ' de-qarea-inline') + '"></div>');
-		this.isBottom = Cfg.addPostForm === 1;
-		this.setReply(false, !aib.t || Cfg.addPostForm > 1);
-		el = this.qArea;
-		el.insertAdjacentHTML('beforeend',
-			'<div id="de-resizer-top"></div>' +
-			'<div' + (Cfg.hangQReply ? ' class="de-cfg-head"' : '') + '>' +
-				'<span id="de-qarea-target"></span>' +
-				'<span id="de-qarea-utils">' +
-					'<span id="de-qarea-toggle" title="' + Lng.toggleQReply[lang] + '">\u2750</span>' +
-					'<span id="de-qarea-close" title="' + Lng.closeQReply[lang] + '">\u2716</span>' +
-				'</span></div>' +
-			'<div id="de-resizer-left"></div>' +
-			'<div id="de-resizer-right"></div>' +
-			'<div id="de-resizer-bottom"></div>');
-		el = el.firstChild.nextSibling;
-		el.lang = getThemeLang();
-		el.addEventListener('mousedown', {
-			_el: this.qArea,
-			_elStyle: this.qArea.style,
-			_oldX: 0,
-			_oldY: 0,
-			_X: 0,
-			_Y: 0,
-			handleEvent(e) {
-				if(!Cfg.hangQReply) {
-					return;
-				}
-				var curX = e.clientX,
-					curY = e.clientY;
-				switch(e.type) {
-				case 'mousedown':
-					this._oldX = curX;
-					this._oldY = curY;
-					this._X = Cfg.qReplyX;
-					this._Y = Cfg.qReplyY;
-					doc.body.addEventListener('mousemove', this, false);
-					doc.body.addEventListener('mouseup', this, false);
-					$pd(e);
-					return;
-				case 'mousemove':
-					var maxX = Post.sizing.wWidth - this._el.offsetWidth,
-						maxY = Post.sizing.wHeight - this._el.offsetHeight - 25,
-						cr = this._el.getBoundingClientRect(),
-						x = cr.left + curX - this._oldX,
-						y = cr.top + curY - this._oldY;
-					this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? 'right: 0' :
-						x < 0 || curX < this._oldX && x < 20 ? 'left: 0' :
-						'left: ' + x + 'px';
-					this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? 'bottom: 25px' :
-						y < 0 || curY < this._oldY && y < 20 ? 'top: 0' :
-						'top: ' + y + 'px';
-					this._elStyle.cssText = this._X + '; ' + this._Y;
-					this._oldX = curX;
-					this._oldY = curY;
-					return;
-				default: // mouseup
-					doc.body.removeEventListener('mousemove', this, false);
-					doc.body.removeEventListener('mouseup', this, false);
-					saveCfg('qReplyX', this._X);
-					saveCfg('qReplyY', this._Y);
-				}
-			}
-		}, false);
-		el = el.lastChild;
-		el.firstChild.onclick = () => {
-			var node = this.qArea;
-			toggleCfg('hangQReply');
-			if(Cfg.hangQReply) {
-				node.className = aib.cReply + ' de-qarea-hanging';
-				node = node.firstChild.nextSibling;
-				node.className = 'de-cfg-head';
-			} else {
-				node.className = aib.cReply + ' de-qarea-inline';
-				node = node.firstChild.nextSibling;
-				node.removeAttribute('class');
-				this.txta.focus();
-			}
-		};
-		el.lastChild.onclick = this.closeQReply.bind(this);
-		if(aib.tire) {
-			$each($Q('input[type="hidden"]', dForm.el), $del);
-			dForm.el.appendChild($c('userdelete', doc.body));
-			this.dpass = $q('input[type="password"]', dForm.el);
-		}
-		if(!this.form || !this.txta) {
-			return;
-		}
-		new FormResizer('top', el = this.qArea.firstChild, this);
-		new FormResizer('left', el = el.nextSibling.nextSibling, this);
-		new FormResizer('right', el = el.nextSibling, this);
-		new FormResizer('bottom', el = el.nextSibling, this);
-		if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
-			this.setPlaceholders();
-		}
-		aib.disableRedirection(this.form);
-		this.form.style.display = 'inline-block';
-		this.form.style.textAlign = 'left';
-		if(nav.Firefox) {
-			this.txta.addEventListener('mouseup', function() {
-			saveCfg('textaWidth', parseInt(this.style.width, 10));
-			saveCfg('textaHeight', parseInt(this.style.height, 10));
-			}, false);
-		} else {
-			this.txta.insertAdjacentHTML('afterend', '<div id="de-txta-resizer"></div>');
-			this.txta.nextSibling.addEventListener('mousedown', {
-				_el: this.txta,
-				_elStyle: this.txta.style,
-				handleEvent(e) {
-					switch(e.type) {
-					case 'mousedown':
-						doc.body.addEventListener('mousemove', this, false);
-						doc.body.addEventListener('mouseup', this, false);
-						$pd(e);
-						return;
-					case 'mousemove':
-						var cr = this._el.getBoundingClientRect();
-						this._elStyle.width = (e.clientX - cr.left) + 'px';
-						this._elStyle.height = (e.clientY - cr.top) + 'px';
-						return;
-					default: // mouseup
-						doc.body.removeEventListener('mousemove', this, false);
-						doc.body.removeEventListener('mouseup', this, false);
-						saveCfg('textaWidth', parseInt(this._elStyle.width, 10));
-						saveCfg('textaHeight', parseInt(this._elStyle.height, 10));
-					}
-				}
-			}, false);
-		}
-		if(aib.kus) {
-			while(this.subm.nextSibling) {
-				$del(this.subm.nextSibling);
-			}
-		}
-		if(!aib.iich && Cfg.addSageBtn && this.mail) {
-			el = $parent(this.mail, 'LABEL') || this.mail;
-			if(el.nextElementSibling || el.previousElementSibling) {
-				el.style.display = 'none';
-			} else {
-				$parent(this.mail, 'TR').style.display = 'none';
-			}
-			el = $new('span', {'id': 'de-sagebtn', 'class': 'de-btn-sage'}, {'click': e => {
-				e.stopPropagation();
-				$pd(e);
-				toggleCfg('sageReply');
-				this._setSage();
-			}});
-			$after(this.subm, el);
-			setTimeout(this._setSage.bind(this), 0);
-			if(aib._2chru) {
-				while(el.nextSibling) {
-					$del(el.nextSibling);
-				}
-			}
-		}
-		this.addTextPanel();
-		this.txta.classList.add('de-textarea');
-		this.txta.style.cssText = 'width: ' + Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px;';
-		this.txta.addEventListener('keypress', function(e) {
-			var code = e.charCode || e.keyCode;
-			if((code === 33 || code === 34) && e.which === 0) {
-				e.target.blur();
-				window.focus();
-			}
-		}, false);
-		if(!aib.tiny) {
-			this.subm.value = Lng.reply[lang];
-		}
-		this.subm.addEventListener('click', e => {
-			if(aib._2chru && !aib.reqCaptcha) {
-				$ajax('/' + aib.b + '/api/requires-captcha').then(xhr => {
-					aib.reqCaptcha = true;
-					if(JSON.parse(xhr.responseText)['requires-captcha'] !== '1') {
-						this.subm.click();
-						return;
-					}
-					$id('captcha_tr').style.display = 'table-row';
-					$id('captchaimage').src = '/' + aib.b + '/captcha?' + Math.random();
-					$after(this.cap, $new('span', {
-						'class': 'shortened',
-						'style': 'margin: 0px 0.5em;',
-						'text': 'проверить капчу'}, {
-						'click'() {
-							$ajax('/' + aib.b + '/api/validate-captcha', { method: 'POST' }).then(xhr => {
-								if(JSON.parse(xhr.responseText).status === 'ok') {
-									this.innerHTML = 'можно постить';
-								} else {
-									this.innerHTML = 'неверная капча';
-									setTimeout(el => this.innerHTML = 'проверить капчу', 1000);
-								}
-							}, emptyFn);
-						}
-					}));
-				}, emptyFn);
-				$pd(e);
-				return;
-			}
-			if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
-				$pd(e);
-				$alert(Lng.subjHasTrip[lang], 'upload', false);
-				return;
-			}
-			var val = this.txta.value;
-			if(spells.haveOutreps) {
-				val = spells.outReplace(val);
-			}
-			if(this.tNum && pByNum[this.tNum].subj === 'Dollchan Extension Tools') {
-				var temp = '\n\n' + this._wrapText(aib.markupBB, aib.markupTags[5],
-					'-'.repeat(50) + '\n' + nav.ua + '\nv' + version + ' [' + nav.scriptInstall + ']')[1];
-				if(!val.includes(temp)) {
-					val += temp;
-				}
-			}
-			this.txta.value = val;
-			if(Cfg.ajaxReply) {
-				$alert(Lng.checking[lang], 'upload', true);
-			}
-			if(this.video && (val = this.video.value) && (val = val.match(Videos.ytReg))) {
-				this.video.value = 'http://www.youtube.com/watch?v=' + val[1];
-			}
-			if(this.isQuick) {
-				this.pForm.style.display = 'none';
-				this.qArea.style.display = 'none';
-				$after(this._pBtn[+this.isBottom], this.pForm);
-			}
-			updater.pause();
-		}, false);
-		if(Cfg.noGoto && this.gothr) {
-			this.gothr.style.display = 'none';
-		}
-		if(Cfg.noPassword && this.passw) {
-			$parent(this.passw, 'TR').style.display = 'none';
-		}
-		if(Cfg.noName && this.name) {
-			$parent(this.name, 'TR').style.display = 'none';
-		}
-		window.addEventListener('load', () => {
-			if(Cfg.userName && this.name) {
-				setTimeout(PostForm.setUserName, 1e3);
-			}
-			if(this.passw) {
-				setTimeout(PostForm.setUserPassw, 1e3);
-			}
-		}, false);
-		if(this.cap) {
-			this.capTr = $parent(this.cap, 'TR');
-			this.txta.addEventListener('focus', this._captchaInit.bind(this, this.capTr.innerHTML), false);
-			this.form.addEventListener('click', this._captchaInit.bind(this, this.capTr.innerHTML), false);
-			if(!aib.krau) {
-				this.capTr.style.display = 'none';
-			}
-			if(!aib.mak && !aib.fch && !$id('recaptcha_widget_div')) {
-				this.capTr.innerHTML = '';
-			}
-			this.cap = null;
-		}
-		if(Cfg.ajaxReply === 2) {
-			if(aib.krau) {
-				this.form.removeAttribute('onsubmit');
-			}
-			setTimeout(() => {
-				this.form.onsubmit = e => {
-					$pd(e);
-					if(aib.krau) {
-						aib.addProgressTrack.click();
-					}
-					if(aib._2chru) {
-						doc.body.insertAdjacentHTML('beforeend', '<iframe class="ninja" id="csstest" src="/' +
-							aib.b + '/csstest.foo"></iframe>');
-						doc.body.lastChild.onload = e => {
-							$del(e.target);
-							spawn(html5Submit, this.form, true).then(doUploading);
-						};
-						return;
-					}
-					spawn(html5Submit, this.form, true).then(doUploading);
-				};
-			}, 0);
-		} else if(Cfg.ajaxReply === 1) {
-			this.form.target = 'de-iframe-pform';
-			this.form.onsubmit = null;
-		}
-		el = this.file;
-		if(el) {
-			aib.fixFileInputs(el);
-			this.eventFiles(true);
-		}
-	},
 	_setSage() {
 		var el = $id('de-sagebtn'),
 			c = Cfg.sageReply;
