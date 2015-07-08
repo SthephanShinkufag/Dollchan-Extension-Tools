@@ -3304,7 +3304,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				var obj = {
 					method: params && params.method || "GET",
 					url: nav.fixLink(url),
-					onload: function onload(e) {
+					onload: function (e) {
 						if (e.status === 200) {
 							resolve(e);
 						} else {
@@ -3388,7 +3388,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				}
 			}
 		},
-		"continue": function _continue() {
+		"continue": function () {
 			if (!this.stopped) {
 				this.paused = false;
 				if (this.array.length === 0) {
@@ -3920,7 +3920,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function addContentBlock(parent, title) {
-		return parent.appendChild($New("div", { "class": "de-content-block" }, [$new("input", { type: "checkbox" }, { click: function click() {
+		return parent.appendChild($New("div", { "class": "de-content-block" }, [$new("input", { type: "checkbox" }, { click: function () {
 				var _this = this;
 
 				$each($Q(".de-entry > input", this.parentNode), function (el) {
@@ -4488,7 +4488,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function lBox(id, isBlock, fn) {
-		var el = $new("input", { info: id, type: "checkbox" }, { click: function click() {
+		var el = $new("input", { info: id, type: "checkbox" }, { click: function () {
 				toggleCfg(this.getAttribute("info"));
 				fixSettings();
 				if (fn) {
@@ -4528,7 +4528,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			"class": "de-cfg-tab",
 			text: Lng.cfgTab[name][lang],
 			info: name }, {
-			click: function click() {
+			click: function () {
 				var el = this.parentNode;
 				if (el.getAttribute("selected") === "true") {
 					return;
@@ -4581,20 +4581,20 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			click: $pd,
 			mouseover: addMenu,
 			mouseout: removeMenu
-		}), $new("a", { text: Lng.apply[lang], href: "#", "class": "de-abtn" }, { click: function click(e) {
+		}), $new("a", { text: Lng.apply[lang], href: "#", "class": "de-abtn" }, { click: function (e) {
 				$pd(e);
 				saveCfg("hideBySpell", 1);
 				$q("input[info=\"hideBySpell\"]", doc).checked = true;
 				toggleSpells();
-			} }), $new("a", { text: Lng.clear[lang], href: "#", "class": "de-abtn" }, { click: function click(e) {
+			} }), $new("a", { text: Lng.clear[lang], href: "#", "class": "de-abtn" }, { click: function (e) {
 				$pd(e);
 				$id("de-spell-edit").value = "";
 				toggleSpells();
 			} }), $add("<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-" + (lang ? "en" : "ru") + "\" class=\"de-abtn\" target=\"_blank\">[?]</a>")]), $New("div", { id: "de-spell-div" }, [$add("<div><div id=\"de-spell-rowmeter\"></div></div>"), $New("div", null, [$new("textarea", { id: "de-spell-edit", wrap: "off" }, {
-			keydown: function keydown() {
+			keydown: function () {
 				updRowMeter(this);
 			},
-			scroll: function scroll() {
+			scroll: function () {
 				updRowMeter(this);
 			}
 		})])]), lBox("sortSpells", true, function () {
@@ -4731,7 +4731,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}, emptyFn);
 		})])])), $if(nav.isGlobal, $New("div", null, [$txt(Lng.cfg.excludeList[lang]), $new("input", { type: "text", id: "de-exclude-edit", size: 45, style: "display: block;",
 			value: excludeList }, {
-			keyup: function keyup() {
+			keyup: function () {
 				setStored("DESU_Exclude", this.value);
 			}
 		}), lBox("turnOff", true, function () {
@@ -4901,7 +4901,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				el.classList.add("de-blink");
 			}
 		} else {
-			el = $id("de-alert").appendChild($New("div", { "class": aib.cReply, id: "de-alert-" + id }, [$new("span", { "class": cBtn, text: tBtn }, { click: function click() {
+			el = $id("de-alert").appendChild($New("div", { "class": aib.cReply, id: "de-alert-" + id }, [$new("span", { "class": cBtn, text: tBtn }, { click: function () {
 					closeAlert(this.parentNode);
 				} }), $add("<div class=\"de-alert-msg\">" + txt.trim() + "</div>")]));
 			if (Cfg.animation) {
@@ -8428,7 +8428,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						"class": "shortened",
 						style: "margin: 0px 0.5em;",
 						text: "проверить капчу" }, {
-						click: function click() {
+						click: function () {
 							var _this2 = this;
 
 							$ajax("/" + aib.b + "/api/validate-captcha", { method: "POST" }).then(function (xhr) {
@@ -13125,15 +13125,15 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				firstPage: { value: 1 },
 				init: { value: function value() {
 						var el = $id("captchaFormPart");
-						if (!el) {
-							return;
+						if (el) {
+							doc.body.insertAdjacentHTML("beforeend", "<div style=\"display: none;\">" + "<div onclick=\"initRecaptcha();\"></div></div>");
+							this.updateCaptcha = (function (el, focus) {
+								$id("g-recaptcha").innerHTML = "";
+								this.click();
+								el.style.display = "";
+							}).bind(doc.body.lastChild.firstChild, el);
 						}
-						doc.body.insertAdjacentHTML("beforeend", "<div style=\"display: none;\">" + "<div onclick=\"initRecaptcha();\"></div></div>");
-						this.updateCaptcha = (function (el, focus) {
-							$id("g-recaptcha").innerHTML = "";
-							this.click();
-							el.style.display = "";
-						}).bind(doc.body.lastChild.firstChild, el);
+						return false;
 					} },
 				markupBB: { value: true },
 				markupTags: { value: ["", "", "", "", "spoiler", "", "", "", "q"] },
@@ -13157,6 +13157,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							locStorage.file_dragdrop = false;
 							return true;
 						}
+						return false;
 					} },
 				fixFileInputs: { value: function value(el) {
 						var str = "";
@@ -13199,16 +13200,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 								} catch (e) {}
 							}
 						}, 0);
+						return false;
 					} },
 				css: { value: ".post_replies, .post[postid=\"\"] { display: none !important; }\t\t\t\t.post { overflow-x: auto !important; }" },
 				docExt: { value: "" },
 				res: { value: "thread/" },
 				rLinkClick: { value: "" }
-			}],
-			"britfa.gs": [{
-				init: { value: function value() {
-						return true;
-					} }
 			}],
 			"diochan.com": [{
 				dio: { value: true },
@@ -13267,6 +13264,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					} },
 				init: { value: function value() {
 						if (window.location.pathname === "/settings") {
+							if (!nav) {
+								initNavFuncs();
+							}
 							$q("input[type=\"button\"]", doc).addEventListener("click", function () {
 								spawn(readCfg).then(function () {
 									return saveCfg("__hanarating", $id("rating").value);
@@ -13274,6 +13274,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							}, false);
 							return true;
 						}
+						return false;
 					} },
 				multiFile: { value: true },
 				rLinkClick: { value: "onclick=\"Highlight(event, this.textContent.substr(2))\"" },
@@ -13349,6 +13350,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						this.btnZeroLUTime = els[0];
 						this.initCaptcha = els[1];
 						this.addProgressTrack = els[2];
+						return false;
 					} },
 				markupBB: { value: true },
 				markupTags: { value: ["b", "i", "u", "s", "spoiler", "aa", "", "", "q"] },
@@ -13380,8 +13382,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				qPages: { value: "table[border=\"0\"] > tbody > tr > td:nth-child(2) > a:last-of-type" },
 				css: { value: "#bodywrap3 > hr { display: none !important; }" }
 			}, "script[src*=\"kusaba\"]"],
-			"reptila.ch": [{
-				qMsg: { value: ".message" } }, "form[action*=\"imgboard.php?delete\"]"],
 			"syn-ch.ru": [{
 				synch: { value: true },
 
@@ -13393,6 +13393,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							locStorage.settings = val;
 							return true;
 						}
+						return false;
 					} },
 				markupBB: { value: true },
 				markupTags: { value: ["b", "i", "u", "s", "spoiler", "code", "sub", "sup", "q"] }
@@ -13419,41 +13420,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				enumerable: true
 			},
 			"2ch.pm": {
-				get: function () {
-					return [ibEngines["body.makaba"]];
-				},
-				configurable: true,
-				enumerable: true
-			},
-			"2ch.re": {
-				get: function () {
-					return [ibEngines["body.makaba"]];
-				},
-				configurable: true,
-				enumerable: true
-			},
-			"2ch.tf": {
-				get: function () {
-					return [ibEngines["body.makaba"]];
-				},
-				configurable: true,
-				enumerable: true
-			},
-			"2ch.wf": {
-				get: function () {
-					return [ibEngines["body.makaba"]];
-				},
-				configurable: true,
-				enumerable: true
-			},
-			"2ch.yt": {
-				get: function () {
-					return [ibEngines["body.makaba"]];
-				},
-				configurable: true,
-				enumerable: true
-			},
-			"2-ch.so": {
 				get: function () {
 					return [ibEngines["body.makaba"]];
 				},
@@ -13595,6 +13561,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 								return true;
 							}
 						} catch (e) {}
+						return false;
 					} },
 				hasNames: { configurable: true, get: function get() {
 						var val = !!$q(".ananimas > span[id^=\"id_tag_\"], .post-email > span[id^=\"id_tag_\"]", doc.body);
@@ -13613,7 +13580,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						}
 						el = $q("tr:not([class])", doc.body);
 						if (!el) {
-							return;
+							return false;
 						}
 						doc.body.insertAdjacentHTML("beforeend", "<div style=\"display: none;\">" + "<div onclick=\"loadCaptcha();\"></div></div>");
 						this.updateCaptcha = (function (el, focus) {
@@ -13634,6 +13601,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 								e.stopPropagation();
 							}
 						}, true);
+						return false;
 					} },
 				fixFileInputs: { value: function value(el) {
 						var str = "";
@@ -13794,6 +13762,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						$del(el.firstElementChild);
 						$before(el, pArea.nextElementSibling);
 						$before(el, pArea);
+						return false;
 					} },
 				parseURL: { value: function value() {
 						var url = window.location.search.match(/^\?do=(thread|page)&(id|p)=(\d+)$/);
@@ -14798,7 +14767,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					paused = true;
 				}
 			},
-			"continue": function _continue() {
+			"continue": function () {
 				if (enabled && paused) {
 					startLoad(false);
 					paused = false;

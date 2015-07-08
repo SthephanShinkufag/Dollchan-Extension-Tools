@@ -10284,11 +10284,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}],
 		get '2ch.hk'() { return [ibEngines['body.makaba']]; },
 		get '2ch.pm'() { return [ibEngines['body.makaba']]; },
-		get '2ch.re'() { return [ibEngines['body.makaba']]; },
-		get '2ch.tf'() { return [ibEngines['body.makaba']]; },
-		get '2ch.wf'() { return [ibEngines['body.makaba']]; },
-		get '2ch.yt'() { return [ibEngines['body.makaba']]; },
-		get '2-ch.so'() { return [ibEngines['body.makaba']]; },
 		'410chan.org': [{
 			_410: { value: true },
 
@@ -10365,16 +10360,16 @@ function getImageBoard(checkDomains, checkEngines) {
 			firstPage: { value: 1 },
 			init: { value() {
 				var el = $id('captchaFormPart');
-				if(!el) {
-					return;
+				if(el) {
+					doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
+						'<div onclick="initRecaptcha();"></div></div>');
+					this.updateCaptcha = function(el, focus) {
+						$id('g-recaptcha').innerHTML = '';
+						this.click();
+						el.style.display = '';
+					}.bind(doc.body.lastChild.firstChild, el);
 				}
-				doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
-					'<div onclick="initRecaptcha();"></div></div>');
-				this.updateCaptcha = function(el, focus) {
-					$id('g-recaptcha').innerHTML = '';
-					this.click();
-					el.style.display = '';
-				}.bind(doc.body.lastChild.firstChild, el);
+				return false;
 			} },
 			markupBB: { value: true },
 			markupTags: { value: ['', '', '', '', 'spoiler', '', '', '', 'q'] },
@@ -10398,6 +10393,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					locStorage['file_dragdrop'] = false;
 					return true;
 				}
+				return false;
 			} },
 			fixFileInputs: { value(el) {
 				var str = '';
@@ -10441,15 +10437,13 @@ function getImageBoard(checkDomains, checkEngines) {
 						} catch(e) {}
 					}
 				}, 0);
+				return false;
 			} },
 			css: { value: '.post_replies, .post[postid=""] { display: none !important; }\
 				.post { overflow-x: auto !important; }' },
 			docExt: { value: '' },
 			res: { value: 'thread/' },
 			rLinkClick: { value: '' }
-		}],
-		'britfa.gs': [{
-			init: { value() { return true; } }
 		}],
 		'diochan.com': [{
 			dio: { value: true },
@@ -10520,11 +10514,15 @@ function getImageBoard(checkDomains, checkEngines) {
 			} },
 			init: { value() {
 				if(window.location.pathname === '/settings') {
+					if(!nav) {
+						initNavFuncs();
+					}
 					$q('input[type="button"]', doc).addEventListener('click', function() {
 						spawn(readCfg).then(() => saveCfg('__hanarating', $id('rating').value));
 					}, false);
 					return true;
 				}
+				return false;
 			} },
 			multiFile: { value: true },
 			rLinkClick: { value: 'onclick="Highlight(event, this.textContent.substr(2))"' },
@@ -10614,6 +10612,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				this.btnZeroLUTime = els[0];
 				this.initCaptcha = els[1];
 				this.addProgressTrack = els[2];
+				return false;
 			} },
 			markupBB: { value: true },
 			markupTags: { value: ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'] },
@@ -10651,9 +10650,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			qPages: { value: 'table[border="0"] > tbody > tr > td:nth-child(2) > a:last-of-type' },
 			css: { value: '#bodywrap3 > hr { display: none !important; }' }
 		}, 'script[src*="kusaba"]'],
-		'reptila.ch': [{
-			qMsg: { value: '.message' },
-		}, 'form[action*="imgboard.php?delete"]'],
 		'syn-ch.ru': [{
 			synch: { value: true },
 
@@ -10666,6 +10662,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					locStorage['settings'] = val;
 					return true;
 				}
+				return false;
 			} },
 			markupBB: { value: true },
 			markupTags: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'] }
@@ -10740,6 +10737,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						return true;
 					}
 				} catch(e) {}
+				return false;
 			} },
 			hasNames: { configurable: true, get() {
 				var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
@@ -10756,7 +10754,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				}
 				el = $q('tr:not([class])', doc.body);
 				if(!el) {
-					return;
+					return false;
 				}
 				doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
 					'<div onclick="loadCaptcha();"></div></div>');
@@ -10778,6 +10776,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						e.stopPropagation();
 					}
 				}, true);
+				return false;
 			} },
 			fixFileInputs: { value(el) {
 				var str = '';
@@ -10948,6 +10947,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				$del(el.firstElementChild);
 				$before(el, pArea.nextElementSibling);
 				$before(el, pArea);
+				return false;
 			} },
 			parseURL: { value() {
 				var url = window.location.search.match(/^\?do=(thread|page)&(id|p)=(\d+)$/);
