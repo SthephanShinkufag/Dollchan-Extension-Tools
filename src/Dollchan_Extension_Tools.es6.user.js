@@ -10240,7 +10240,7 @@ function initNavFuncs() {
 // IMAGEBOARD
 // ===========================================================================================================
 
-function getImageBoard(checkDomains, checkOther) {
+function getImageBoard(checkDomains, checkEngines) {
 	var prot = window.location.protocol;
 	var ibDomains = {
 		'02ch.net': [{
@@ -10398,7 +10398,6 @@ function getImageBoard(checkDomains, checkOther) {
 					locStorage['file_dragdrop'] = false;
 					return true;
 				}
-				return false;
 			} },
 			fixFileInputs: { value(el) {
 				var str = '';
@@ -10519,9 +10518,8 @@ function getImageBoard(checkDomains, checkOther) {
 				Object.defineProperty(this, 'weight', { value: val });
 				return val;
 			} },
-			earlyInit: { value(hasContent) {
+			init: { value() {
 				if(window.location.pathname === '/settings') {
-					initNavFuncs();
 					$q('input[type="button"]', doc).addEventListener('click', function() {
 						spawn(readCfg).then(() => saveCfg('__hanarating', $id('rating').value));
 					}, false);
@@ -10662,16 +10660,12 @@ function getImageBoard(checkDomains, checkOther) {
 			cFileInfo: { value: 'unimportant' },
 			css: { value: '.fa-sort, .image_id { display: none !important; }\
 				time:after { content: none; }' },
-			earlyInit: { value(hasContent) {
+			earlyInit: { value() {
 				var val = '{"simpleNavbar":true,"showInfo":true}';
 				if(locStorage['settings'] !== val) {
 					locStorage['settings'] = val;
-					if(hasContent) {
-						window.location.reload();
-					}
 					return true;
 				}
-				return false;
 			} },
 			markupBB: { value: true },
 			markupTags: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'] }
@@ -10743,13 +10737,9 @@ function getImageBoard(checkDomains, checkOther) {
 					if(obj.other.navigation !== 'page') {
 						obj.other.navigation = 'page';
 						locStorage.store = JSON.stringify(obj);
-						if(hasContent) {
-							window.location.reload();
-						}
 						return true;
 					}
 				} catch(e) {}
-				return false;
 			} },
 			hasNames: { configurable: true, get() {
 				var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
@@ -11195,10 +11185,10 @@ function getImageBoard(checkDomains, checkOther) {
 					ibBase, info[0]
 				);
 			})(ibDomains[dm]);
-			checkOther = false;
+			checkEngines = false;
 		}
 	}
-	if(checkOther) {
+	if(checkEngines) {
 		for(var i in ibEngines) {
 			if($q(i, doc)) {
 				ibObj = Object.create(ibBase, ibEngines[i]);
@@ -11223,8 +11213,14 @@ function Initialization(checkDomains) {
 	if(!aib) {
 		aib = getImageBoard(checkDomains, true);
 	}
-	if(checkDomains && aib.earlyInit && (!checkStorage() || aib.earlyInit())) {
-		return null;
+	if(checkDomains && aib.earlyInit) {
+		if(!checkStorage()) {
+			return null;
+		}
+		if(aib.earlyInit()) {
+			window.location.reload();
+			return null;
+		}
 	}
 	if((aib.init && aib.init()) || $id('de-panel')) {
 		return null;

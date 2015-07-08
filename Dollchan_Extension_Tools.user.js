@@ -1198,6 +1198,8 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+
 !(function(global) {
   "use strict";
 
@@ -13012,7 +13014,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 
 
-	function getImageBoard(checkDomains, checkOther) {
+	function getImageBoard(checkDomains, checkEngines) {
 		var prot = window.location.protocol;
 		var ibDomains = Object.defineProperties({
 			"02ch.net": [{
@@ -13155,7 +13157,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							locStorage.file_dragdrop = false;
 							return true;
 						}
-						return false;
 					} },
 				fixFileInputs: { value: function value(el) {
 						var str = "";
@@ -13264,9 +13265,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						Object.defineProperty(this, "weight", { value: val });
 						return val;
 					} },
-				earlyInit: { value: function value(hasContent) {
+				init: { value: function value() {
 						if (window.location.pathname === "/settings") {
-							initNavFuncs();
 							$q("input[type=\"button\"]", doc).addEventListener("click", function () {
 								spawn(readCfg).then(function () {
 									return saveCfg("__hanarating", $id("rating").value);
@@ -13387,16 +13387,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				cFileInfo: { value: "unimportant" },
 				css: { value: ".fa-sort, .image_id { display: none !important; }\t\t\t\ttime:after { content: none; }" },
-				earlyInit: { value: function value(hasContent) {
+				earlyInit: { value: function value() {
 						var val = "{\"simpleNavbar\":true,\"showInfo\":true}";
 						if (locStorage.settings !== val) {
 							locStorage.settings = val;
-							if (hasContent) {
-								window.location.reload();
-							}
 							return true;
 						}
-						return false;
 					} },
 				markupBB: { value: true },
 				markupTags: { value: ["b", "i", "u", "s", "spoiler", "code", "sub", "sup", "q"] }
@@ -13596,13 +13592,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							if (obj.other.navigation !== "page") {
 								obj.other.navigation = "page";
 								locStorage.store = JSON.stringify(obj);
-								if (hasContent) {
-									window.location.reload();
-								}
 								return true;
 							}
 						} catch (e) {}
-						return false;
 					} },
 				hasNames: { configurable: true, get: function get() {
 						var val = !!$q(".ananimas > span[id^=\"id_tag_\"], .post-email > span[id^=\"id_tag_\"]", doc.body);
@@ -14054,10 +14046,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				ibObj = (function createBoard(info) {
 					return Object.create(info[2] ? createBoard(ibDomains[info[2]]) : info[1] ? Object.create(ibBase, ibEngines[info[1]]) : ibBase, info[0]);
 				})(ibDomains[dm]);
-				checkOther = false;
+				checkEngines = false;
 			}
 		}
-		if (checkOther) {
+		if (checkEngines) {
 			for (var i in ibEngines) {
 				if ($q(i, doc)) {
 					ibObj = Object.create(ibBase, ibEngines[i]);
@@ -14081,8 +14073,14 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		if (!aib) {
 			aib = getImageBoard(checkDomains, true);
 		}
-		if (checkDomains && aib.earlyInit && (!checkStorage() || aib.earlyInit())) {
-			return null;
+		if (checkDomains && aib.earlyInit) {
+			if (!checkStorage()) {
+				return null;
+			}
+			if (aib.earlyInit()) {
+				window.location.reload();
+				return null;
+			}
 		}
 		if (aib.init && aib.init() || $id("de-panel")) {
 			return null;
