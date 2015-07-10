@@ -5196,7 +5196,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			
 				e.target.blur();
 			} else {
-				var post,
+				var attach,
+				    post,
 				    idx,
 				    globIdx = this.gKeys.indexOf(kc);
 				switch (globIdx) {
@@ -5234,11 +5235,17 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						break;
 					case 6:
 					
-						toggleContent("fav", false);
+						attach = toggleContent("fav", false);
+						if (!Cfg.expandPanel) {
+							$id("de-panel").lastChild.style.display = attach ? "" : "none";
+						}
 						break;
 					case 7:
 					
-						toggleContent("hid", false);
+						attach = toggleContent("hid", false);
+						if (!Cfg.expandPanel) {
+							$id("de-panel").lastChild.style.display = attach ? "" : "none";
+						}
 						break;
 					case 8:
 					
@@ -5251,7 +5258,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						break;
 					case 10:
 					
-						toggleContent("cfg", false);
+						attach = toggleContent("cfg", false);
+						if (!Cfg.expandPanel) {
+							$id("de-panel").lastChild.style.display = attach ? "" : "none";
+						}
 						break;
 					case 11:
 					

@@ -3144,7 +3144,7 @@ HotKeys.prototype = {
 		} else if(kc === 0x801B) { // ESC (txt)
 			e.target.blur();
 		} else {
-			var post, idx, globIdx = this.gKeys.indexOf(kc);
+			var attach, post, idx, globIdx = this.gKeys.indexOf(kc);
 			switch(globIdx) {
 			case 2: // Quick reply
 				if(pr.form) {
@@ -3175,10 +3175,16 @@ HotKeys.prototype = {
 				pr.subm.click();
 				break;
 			case 6: // Open/close favorites posts
-				toggleContent('fav', false);
+				attach = toggleContent('fav', false);
+				if(!Cfg.expandPanel) {
+					$id('de-panel').lastChild.style.display = attach ? '' : 'none';
+				}
 				break;
 			case 7: // Open/close hidden posts
-				toggleContent('hid', false);
+				attach = toggleContent('hid', false);
+				if(!Cfg.expandPanel) {
+					$id('de-panel').lastChild.style.display = attach ? '' : 'none';
+				}
 				break;
 			case 8: // Open/close panel
 				$disp($id('de-panel').lastChild);
@@ -3188,7 +3194,10 @@ HotKeys.prototype = {
 				updateCSS();
 				break;
 			case 10: // Open/close settings
-				toggleContent('cfg', false);
+				attach = toggleContent('cfg', false);
+				if(!Cfg.expandPanel) {
+					$id('de-panel').lastChild.style.display = attach ? '' : 'none';
+				}
 				break;
 			case 11: // Expand current image
 				post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
