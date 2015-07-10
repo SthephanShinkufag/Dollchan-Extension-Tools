@@ -3304,7 +3304,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				var obj = {
 					method: params && params.method || "GET",
 					url: nav.fixLink(url),
-					onload: function (e) {
+					onload: function onload(e) {
 						if (e.status === 200) {
 							resolve(e);
 						} else {
@@ -3388,7 +3388,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				}
 			}
 		},
-		"continue": function () {
+		"continue": function _continue() {
 			if (!this.stopped) {
 				this.paused = false;
 				if (this.array.length === 0) {
@@ -3767,7 +3767,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		    imgLen = $Q(aib.qThumbImages, formEl).length,
 		    b = aib.b,
 		    isThr = aib.t;
-		(pr && pr.pArea[0] || formEl).insertAdjacentHTML("beforebegin", "<div id=\"de-main\" lang=\"" + getThemeLang() + "\">" + "<div id=\"de-panel\">" + "<span id=\"de-btn-logo\" title=\"" + Lng.panelBtn.attach[lang] + "\"></span>" + "<ul id=\"de-panel-btns\"" + (Cfg.expandPanel ? ">" : " style=\"display: none\">") + (Cfg.disabled ? pButton("enable", "#", false) : pButton("settings", "#", true) + pButton("hidden", "#", true) + pButton("favor", "#", true) + (!Cfg.addYouTube ? "" : pButton("video", "#", true)) + (localRun ? "" : pButton("refresh", "#", false) + (!isThr && aib.page === aib.firstPage ? "" : pButton("goback", aib.getPageUrl(b, aib.page - 1), true)) + (isThr || aib.page === aib.lastPage ? "" : pButton("gonext", aib.getPageUrl(b, aib.page + 1), true))) + pButton("goup", "#", false) + pButton("godown", "#", false) + (imgLen === 0 ? "" : pButton("expimg", "#", false) + pButton("maskimg", "#", true) + (nav.Presto || localRun ? "" : (Cfg.preLoadImgs ? "" : pButton("preimg", "#", false)) + (!isThr ? "" : pButton("savethr", "#", false)))) + (!isThr || localRun ? "" : pButton(Cfg.ajaxUpdThr ? "upd-on" : "upd-off", "#", false) + (nav.Safari ? "" : pButton("audio-off", "#", false))) + (!aib.mak && !aib.tiny && !aib.fch ? "" : pButton("catalog", aib.prot + "//" + aib.host + "/" + (aib.mak ? "makaba/makaba.fcgi?task=catalog&board=" + b : b + "/catalog.html"), false)) + pButton("enable", "#", false) + (!isThr ? "" : "<span id=\"de-panel-info\" title=\"" + Lng.panelBtn.counter[lang] + "\">" + dForm.firstThr.pcount + "/" + imgLen + "</span>")) + "</ul>" + "</div><div class=\"de-content\"></div>" + (Cfg.disabled ? "" : "<div id=\"de-alert\"></div><hr style=\"clear: both;\">") + "</div>");
+		(pr && pr.pArea[0] || formEl).insertAdjacentHTML("beforebegin", "<div id=\"de-main\" lang=\"" + getThemeLang() + "\">" + "<div id=\"de-panel\">" + "<span id=\"de-btn-logo\" title=\"" + Lng.panelBtn.attach[lang] + "\"></span>" + "<ul id=\"de-panel-btns\"" + (Cfg.expandPanel ? ">" : " style=\"display: none\">") + (Cfg.disabled ? pButton("enable", "#", false) : pButton("settings", "#", true) + pButton("hidden", "#", true) + pButton("favor", "#", true) + (!Cfg.addYouTube ? "" : pButton("video", "#", true)) + (localRun ? "" : pButton("refresh", "#", false) + (!isThr && aib.page === aib.firstPage ? "" : pButton("goback", aib.getPageUrl(b, aib.page - 1), true)) + (isThr || aib.page === aib.lastPage ? "" : pButton("gonext", aib.getPageUrl(b, aib.page + 1), true))) + pButton("goup", "#", false) + pButton("godown", "#", false) + (imgLen === 0 ? "" : pButton("expimg", "#", false) + pButton("maskimg", "#", true) + (nav.Presto || localRun ? "" : (Cfg.preLoadImgs ? "" : pButton("preimg", "#", false)) + (!isThr ? "" : pButton("savethr", "#", false)))) + (!isThr || localRun ? "" : pButton(Cfg.ajaxUpdThr ? "upd-on" : "upd-off", "#", false) + (nav.Safari ? "" : pButton("audio-off", "#", false))) + (!aib.mak && !aib.tiny && !aib.fch ? "" : pButton("catalog", aib.prot + "//" + aib.host + "/" + b + "/catalog.html", false)) + pButton("enable", "#", false) + (!isThr ? "" : "<span id=\"de-panel-info\" title=\"" + Lng.panelBtn.counter[lang] + "\">" + dForm.firstThr.pcount + "/" + imgLen + "</span>")) + "</ul>" + "</div><div class=\"de-content\"></div>" + (Cfg.disabled ? "" : "<div id=\"de-alert\"></div><hr style=\"clear: both;\">") + "</div>");
 		panel = $id("de-panel");
 		evtObject = {
 			attach: false,
@@ -3922,7 +3922,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function addContentBlock(parent, title) {
-		return parent.appendChild($New("div", { "class": "de-content-block" }, [$new("input", { type: "checkbox" }, { click: function () {
+		return parent.appendChild($New("div", { "class": "de-content-block" }, [$new("input", { type: "checkbox" }, { click: function click() {
 				var _this = this;
 
 				$each($Q(".de-entry > input", this.parentNode), function (el) {
@@ -4490,7 +4490,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function lBox(id, isBlock, fn) {
-		var el = $new("input", { info: id, type: "checkbox" }, { click: function () {
+		var el = $new("input", { info: id, type: "checkbox" }, { click: function click() {
 				toggleCfg(this.getAttribute("info"));
 				fixSettings();
 				if (fn) {
@@ -4530,7 +4530,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			"class": "de-cfg-tab",
 			text: Lng.cfgTab[name][lang],
 			info: name }, {
-			click: function () {
+			click: function click() {
 				var el = this.parentNode;
 				if (el.getAttribute("selected") === "true") {
 					return;
@@ -4583,20 +4583,20 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			click: $pd,
 			mouseover: addMenu,
 			mouseout: removeMenu
-		}), $new("a", { text: Lng.apply[lang], href: "#", "class": "de-abtn" }, { click: function (e) {
+		}), $new("a", { text: Lng.apply[lang], href: "#", "class": "de-abtn" }, { click: function click(e) {
 				$pd(e);
 				saveCfg("hideBySpell", 1);
 				$q("input[info=\"hideBySpell\"]", doc).checked = true;
 				toggleSpells();
-			} }), $new("a", { text: Lng.clear[lang], href: "#", "class": "de-abtn" }, { click: function (e) {
+			} }), $new("a", { text: Lng.clear[lang], href: "#", "class": "de-abtn" }, { click: function click(e) {
 				$pd(e);
 				$id("de-spell-edit").value = "";
 				toggleSpells();
 			} }), $add("<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-" + (lang ? "en" : "ru") + "\" class=\"de-abtn\" target=\"_blank\">[?]</a>")]), $New("div", { id: "de-spell-div" }, [$add("<div><div id=\"de-spell-rowmeter\"></div></div>"), $New("div", null, [$new("textarea", { id: "de-spell-edit", wrap: "off" }, {
-			keydown: function () {
+			keydown: function keydown() {
 				updRowMeter(this);
 			},
-			scroll: function () {
+			scroll: function scroll() {
 				updRowMeter(this);
 			}
 		})])]), lBox("sortSpells", true, function () {
@@ -4733,7 +4733,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}, emptyFn);
 		})])])), $if(nav.isGlobal, $New("div", null, [$txt(Lng.cfg.excludeList[lang]), $new("input", { type: "text", id: "de-exclude-edit", size: 45, style: "display: block;",
 			value: excludeList }, {
-			keyup: function () {
+			keyup: function keyup() {
 				setStored("DESU_Exclude", this.value);
 			}
 		}), lBox("turnOff", true, function () {
@@ -4903,7 +4903,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				el.classList.add("de-blink");
 			}
 		} else {
-			el = $id("de-alert").appendChild($New("div", { "class": aib.cReply, id: "de-alert-" + id }, [$new("span", { "class": cBtn, text: tBtn }, { click: function () {
+			el = $id("de-alert").appendChild($New("div", { "class": aib.cReply, id: "de-alert-" + id }, [$new("span", { "class": cBtn, text: tBtn }, { click: function click() {
 					closeAlert(this.parentNode);
 				} }), $add("<div class=\"de-alert-msg\">" + txt.trim() + "</div>")]));
 			if (Cfg.animation) {
@@ -5061,7 +5061,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							case 6:
 								keys[2][18] = tKeys[2][18];
 						}
-
 						keys[0] = HotKeys.version;
 						setStored("DESU_keys", JSON.stringify(keys));
 					}
@@ -8439,7 +8438,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						"class": "shortened",
 						style: "margin: 0px 0.5em;",
 						text: "проверить капчу" }, {
-						click: function () {
+						click: function click() {
 							var _this2 = this;
 
 							$ajax("/" + aib.b + "/api/validate-captcha", { method: "POST" }).then(function (xhr) {
@@ -12448,11 +12447,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			var _this = this;
 
 			var nextCoord,
-			    els = $Q(aib.qRPost, form),
+			    loadedPosts = $Q(aib.qRPost, form),
 			    op = this.op,
 			    thrEl = this.el,
-			    expEl = $c("de-collapse", thrEl),
-			    nOmt = last === 1 ? 0 : Math.max(els.length - last, 0);
+			    omitted = last === 1 ? 0 : Math.max(loadedPosts.length - last, 0);
 			if (smartScroll) {
 				if (this.next) {
 					nextCoord = this.next.topCoord;
@@ -12470,9 +12468,66 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				this.loadedOnce = true;
 			}
 			this._checkBans(op, form);
-			this._parsePosts(els);
-			thrEl.style.counterReset = "de-cnt " + (nOmt + 1);
-			if (this._processExpandThread(els, last === 1 ? els.length : last)) {
+			this._parsePosts(loadedPosts);
+			var post = op.next,
+			    needToShow = last === 1 ? loadedPosts.length : last,
+			    existed = this.pcount === 1 ? 0 : this.pcount - post.count,
+			   
+			hidden = Math.max(post.count - omitted - existed, 0);
+			if (omitted !== 0) {
+				op.el.insertAdjacentHTML("afterend", "<div class=\"de-omitted\">" + omitted + "</div>");
+			}
+			if (existed - hidden !== needToShow) {
+				var needRMUpdate = false;
+				if (existed - hidden > needToShow) {
+					while (existed-- !== needToShow) {
+						post.wrap.classList.add("de-hidden");
+						post.omitted = true;
+						post = post.next;
+						omitted--;
+					}
+				} else {
+					var vParser,
+					    fragm = doc.createDocumentFragment(),
+					    tPost = op,
+					    nonExisted = loadedPosts.length - existed;
+					if (Cfg.addYouTube) {
+						vParser = new VideosParser();
+					}
+					var sRunner = new SpellsRunner(false);
+					for (var i = Math.max(0, nonExisted + existed - needToShow); i < nonExisted; ++i) {
+						tPost = this._addPost(fragm, loadedPosts[i], i + 1, vParser, tPost);
+						sRunner.run(tPost);
+					}
+					sRunner.end();
+					if (vParser) {
+						vParser.end();
+					}
+					$after(op.wrap, fragm);
+					tPost.next = post;
+					if (post) {
+						post.prev = tPost;
+					}
+					needRMUpdate = true;
+					needToShow = Math.min(nonExisted + existed, needToShow);
+				}
+				while (existed-- !== 0) {
+					if (post.trunc) {
+						post.updateMsg(replacePost($q(aib.qMsg, loadedPosts[post.count - 1])));
+					}
+					if (post.omitted) {
+						post.wrap.classList.remove("de-hidden");
+						post.omitted = false;
+					}
+					if (needRMUpdate) {
+						updRefMap(post, true);
+					}
+					post = post.next;
+				}
+				thrEl.style.counterReset = "de-cnt " + (omitted + 1);
+			}
+			var expEl = $c("de-collapse", thrEl);
+			if (needToShow <= visPosts) {
 				$del(expEl);
 			} else if (!expEl) {
 				thrEl.insertAdjacentHTML("beforeend", "<span class=\"de-collapse\">&gt;&gt; [" + "<a class=\"de-abtn\" href=\"" + aib.getThrdUrl(aib.b, this.num) + aib.anchor + this.last.num + "\">" + Lng.collapseThrd[lang] + "</a>]</span>");
@@ -12482,9 +12537,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				};
 			} else if (expEl !== thrEl.lastChild) {
 				thrEl.appendChild(expEl);
-			}
-			if (nOmt !== 0) {
-				op.el.insertAdjacentHTML("afterend", "<div class=\"de-omitted\">" + nOmt + "</div>");
 			}
 			if (smartScroll) {
 				scrollTo(window.pageXOffset, window.pageYOffset - (nextCoord - this.next.topCoord));
@@ -12744,59 +12796,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 			sRunner.end();
 			return [newPosts, newVisPosts];
-		},
-		_processExpandThread: function _processExpandThread(nPosts, num) {
-			var needRMUpdate,
-			    post = this.op.next,
-			    vPosts = this.pcount === 1 ? 0 : this.pcount - post.count;
-			if (vPosts > num) {
-				while (vPosts-- !== num) {
-					post.wrap.classList.add("de-hidden");
-					post.omitted = true;
-					post = post.next;
-				}
-				needRMUpdate = false;
-			} else if (vPosts < num) {
-				var vParser,
-				    fragm = doc.createDocumentFragment(),
-				    tPost = this.op,
-				    len = nPosts.length - vPosts;
-				if (Cfg.addYouTube) {
-					vParser = new VideosParser();
-				}
-				var sRunner = new SpellsRunner(false);
-				for (var i = Math.max(0, len - num + vPosts); i < len; ++i) {
-					tPost = this._addPost(fragm, nPosts[i], i + 1, vParser, tPost);
-					sRunner.run(tPost);
-				}
-				sRunner.end();
-				if (vParser) {
-					vParser.end();
-				}
-				$after(this.op.wrap, fragm);
-				tPost.next = post;
-				if (post) {
-					post.prev = tPost;
-				}
-				needRMUpdate = true;
-				num = Math.min(len + vPosts, num);
-			} else {
-				return num <= visPosts;
-			}
-			while (vPosts-- !== 0) {
-				if (post.trunc) {
-					post.updateMsg(replacePost($q(aib.qMsg, nPosts[post.count - 1])));
-				}
-				if (post.omitted) {
-					post.wrap.classList.remove("de-hidden");
-					post.omitted = false;
-				}
-				if (needRMUpdate) {
-					updRefMap(post, true);
-				}
-				post = post.next;
-			}
-			return num <= visPosts;
 		}
 	}, {
 		lastNotDeleted: {
@@ -14772,7 +14771,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					paused = true;
 				}
 			},
-			"continue": function () {
+			"continue": function _continue() {
 				if (enabled && paused) {
 					startLoad(false);
 					paused = false;

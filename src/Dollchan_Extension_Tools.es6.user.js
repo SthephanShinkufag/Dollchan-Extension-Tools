@@ -1587,9 +1587,7 @@ function addPanel(formEl) {
 						pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off', '#', false) +
 						(nav.Safari ? '' : pButton('audio-off', '#', false))) +
 					(!aib.mak && !aib.tiny && !aib.fch ? '' :
-						pButton('catalog', aib.prot + '//' + aib.host + '/' + (aib.mak ?
-							'makaba/makaba.fcgi?task=catalog&board=' + b :
-							b + '/catalog.html'), false)) +
+						pButton('catalog', aib.prot + '//' + aib.host + '/' + b + '/catalog.html', false)) +
 					pButton('enable', '#', false) +
 					(!isThr ? '' :
 						'<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' +
@@ -3022,7 +3020,6 @@ HotKeys.readKeys = function* () {
 			case 6:
 				keys[2][18] = tKeys[2][18];
 			}
-			
 			keys[0] = HotKeys.version;
 			setStored('DESU_keys', JSON.stringify(keys));
 		}
@@ -3070,7 +3067,7 @@ HotKeys.getDefaultKeys = function() {
 		/* Spoiler text               */ 0xC050 /* = Alt+P      */,
 		/* Code text                  */ 0xC043 /* = Alt+C      */,
 		/* Open next page/picture     */ 0x1027 /* = Ctrl+Right */,
-		/* Open/close "Hidden"        */ 0x4056 /* = Alt+V      */
+		/* Open/close "Video"         */ 0x4056 /* = Alt+V      */
 	];
 	var nonThrKeys = [
 		/* One post above */ 0x004D /* = M */,
@@ -9741,11 +9738,10 @@ Thread.prototype = {
 		);
 	},
 	loadFromForm(last, smartScroll, form) {
-		var nextCoord, els = $Q(aib.qRPost, form),
+		var nextCoord, loadedPosts = $Q(aib.qRPost, form),
 			op = this.op,
 			thrEl = this.el,
-			expEl = $c('de-collapse', thrEl),
-			nOmt = last === 1 ? 0 : Math.max(els.length - last, 0);
+			omitted = last === 1 ? 0 : Math.max(loadedPosts.length - last, 0);
 		if(smartScroll) {
 			if(this.next) {
 				nextCoord = this.next.topCoord;
@@ -9763,9 +9759,64 @@ Thread.prototype = {
 			this.loadedOnce = true;
 		}
 		this._checkBans(op, form);
-		this._parsePosts(els);
-		thrEl.style.counterReset = 'de-cnt ' + (nOmt + 1);
-		if(this._processExpandThread(els, last === 1 ? els.length : last)) {
+		this._parsePosts(loadedPosts);
+		var post = op.next,
+			needToShow = last === 1 ? loadedPosts.length : last,
+			existed = this.pcount === 1 ? 0 : this.pcount - post.count, // All replies on page
+			hidden = Math.max(post.count - omitted - existed, 0); // .de-hidden replies
+		if(omitted !== 0) {
+			op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + omitted + '</div>');
+		}
+		if(existed - hidden !== needToShow) {
+			var needRMUpdate = false;
+			if(existed - hidden > needToShow) {
+				while(existed-- !== needToShow) {
+					post.wrap.classList.add('de-hidden');
+					post.omitted = true;
+					post = post.next;
+					omitted--;
+				}
+			} else {
+				var vParser, fragm = doc.createDocumentFragment(),
+					tPost = op,
+					nonExisted = loadedPosts.length - existed;
+				if(Cfg.addYouTube) {
+					vParser = new VideosParser();
+				}
+				var sRunner = new SpellsRunner(false);
+				for(var i = Math.max(0, nonExisted + existed - needToShow); i < nonExisted; ++i) {
+					tPost = this._addPost(fragm, loadedPosts[i], i + 1, vParser, tPost);
+					sRunner.run(tPost);
+				}
+				sRunner.end();
+				if(vParser) {
+					vParser.end();
+				}
+				$after(op.wrap, fragm);
+				tPost.next = post;
+				if(post) {
+					post.prev = tPost;
+				}
+				needRMUpdate = true;
+				needToShow = Math.min(nonExisted + existed, needToShow);
+			}
+			while(existed-- !== 0) {
+				if(post.trunc) {
+					post.updateMsg(replacePost($q(aib.qMsg, loadedPosts[post.count - 1])));
+				}
+				if(post.omitted) {
+					post.wrap.classList.remove('de-hidden');
+					post.omitted = false;
+				}
+				if(needRMUpdate) {
+					updRefMap(post, true);
+				}
+				post = post.next;
+			}
+			thrEl.style.counterReset = 'de-cnt ' + (omitted + 1);
+		}
+		var expEl = $c('de-collapse', thrEl);
+		if(needToShow <= visPosts) {
 			$del(expEl);
 		} else if(!expEl) {
 			thrEl.insertAdjacentHTML('beforeend', '<span class="de-collapse">&gt;&gt; [' +
@@ -9777,9 +9828,6 @@ Thread.prototype = {
 			};
 		} else if(expEl !== thrEl.lastChild) {
 			thrEl.appendChild(expEl);
-		}
-		if(nOmt !== 0) {
-			op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + nOmt + '</div>');
 		}
 		if(smartScroll) {
 			scrollTo(window.pageXOffset, window.pageYOffset - (nextCoord - this.next.topCoord));
@@ -10026,57 +10074,6 @@ Thread.prototype = {
 		}
 		sRunner.end();
 		return [newPosts, newVisPosts];
-	},
-	_processExpandThread(nPosts, num) {
-		var needRMUpdate, post = this.op.next,
-			vPosts = this.pcount === 1 ? 0 : this.pcount - post.count;
-		if(vPosts > num) {
-			while(vPosts-- !== num) {
-				post.wrap.classList.add('de-hidden');
-				post.omitted = true;
-				post = post.next;
-			}
-			needRMUpdate = false;
-		} else if(vPosts < num) {
-			var vParser, fragm = doc.createDocumentFragment(),
-				tPost = this.op,
-				len = nPosts.length - vPosts;
-			if(Cfg.addYouTube) {
-				vParser = new VideosParser();
-			}
-			var sRunner = new SpellsRunner(false);
-			for(var i = Math.max(0, len - num + vPosts); i < len; ++i) {
-				tPost = this._addPost(fragm, nPosts[i], i + 1, vParser, tPost);
-				sRunner.run(tPost);
-			}
-			sRunner.end();
-			if(vParser) {
-				vParser.end();
-			}
-			$after(this.op.wrap, fragm);
-			tPost.next = post;
-			if(post) {
-				post.prev = tPost;
-			}
-			needRMUpdate = true;
-			num = Math.min(len + vPosts, num);
-		} else {
-			return num <= visPosts;
-		}
-		while(vPosts-- !== 0) {
-			if(post.trunc) {
-				post.updateMsg(replacePost($q(aib.qMsg, nPosts[post.count - 1])));
-			}
-			if(post.omitted) {
-				post.wrap.classList.remove('de-hidden');
-				post.omitted = false;
-			}
-			if(needRMUpdate) {
-				updRefMap(post, true);
-			}
-			post = post.next;
-		}
-		return num <= visPosts;
 	}
 };
 
