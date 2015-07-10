@@ -6468,9 +6468,6 @@ PostForm.prototype = {
 		}
 		if(this.form) {
 			$q('#de_thrid, input[name*="thread"]', this.form).value = tNum;
-			if(aib.pony) {
-				$q('input[name="quickreply"]', this.form).value = tNum || '';
-			}
 		}
 	},
 	_captchaInit(html) {
@@ -10644,12 +10641,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		get 'ponyach.ru'() { return this['ponya.ch']; },
 		get 'ponychan.ru'() { return this['ponya.ch']; },
 		'ponychan.net': [{
-			pony: { value: true },
-
-			cOPost: { value: 'op' },
-			qPages: { value: 'table[border="0"] > tbody > tr > td:nth-child(2) > a:last-of-type' },
-			css: { value: '#bodywrap3 > hr { display: none !important; }' }
-		}, 'script[src*="kusaba"]'],
+			cOPost: { value: 'opContainer' }
+		}, 'form[name*="postcontrols"]'],
 		'syn-ch.ru': [{
 			synch: { value: true },
 
