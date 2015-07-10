@@ -1568,7 +1568,7 @@ function addPanel(formEl) {
 					pButton('settings', '#', true) +
 					pButton('hidden', '#', true) +
 					pButton('favor', '#', true) +
-					(!Cfg.addYouTube ? '' : pButton('video', '#', false)) +
+					(!Cfg.addYouTube ? '' : pButton('video', '#', true)) +
 					(localRun ? '' :
 						pButton('refresh', '#', false) +
 						(!isThr && (aib.page === aib.firstPage) ? '' :
@@ -1679,6 +1679,7 @@ function addPanel(formEl) {
 				case 'de-btn-settings': KeyEditListener.setTitle(e.target, 10); break;
 				case 'de-btn-hidden': KeyEditListener.setTitle(e.target, 7); break;
 				case 'de-btn-favor': KeyEditListener.setTitle(e.target, 6); break;
+				case 'de-btn-video': KeyEditListener.setTitle(e.target, 18); break;
 				case 'de-btn-goback': KeyEditListener.setTitle(e.target, 4); break;
 				case 'de-btn-gonext': KeyEditListener.setTitle(e.target, 17); break;
 				case 'de-btn-maskimg': KeyEditListener.setTitle(e.target, 9); break;
