@@ -350,22 +350,23 @@ Lng = {
 	hotKeyEdit: [[
 		'%l%i24 – предыдущая страница/картинка%/l',
 		'%l%i217 – следующая страница/картинка%/l',
-		'%l%i23 – скрыть текущий пост/тред%/l',
-		'%l%i33 – раскрыть текущий тред%/l',
-		'%l%i22 – быстрый ответ%/l',
-		'%l%i25t – отправить пост%/l',
 		'%l%i21 – тред (на доске)/пост (в треде) ниже%/l',
 		'%l%i20 – тред (на доске)/пост (в треде) выше%/l',
 		'%l%i31 – пост (на доске) ниже%/l',
 		'%l%i30 – пост (на доске) выше%/l',
-		'%l%i32 – открыть тред%/l',
-		'%l%i210 – открыть/закрыть настройки%/l',
-		'%l%i26 – открыть/закрыть избранное%/l',
-		'%l%i27 – открыть/закрыть скрытые посты%/l',
+		'%l%i23 – скрыть пост/тред%/l',
+		'%l%i32 – перейти в тред%/l',
+		'%l%i33 – развернуть тред%/l',
+		'%l%i211 – раскрыть картинку в посте%/l',
+		'%l%i22 – быстрый ответ%/l',
+		'%l%i25t – отправить пост%/l',
+		'%l%i210 – открыть/закрыть "Настройки"%/l',
+		'%l%i26 – открыть/закрыть "Избранное"%/l',
+		'%l%i27 – открыть/закрыть "Скрытое"%/l',
+		'%l%i218 – открыть/закрыть "Видео"%/l',
 		'%l%i28 – открыть/закрыть панель%/l',
 		'%l%i29 – включить/выключить маскировку картинок%/l',
-		'%l%i40 – обновить тред%/l',
-		'%l%i211 – раскрыть картинку в текущем посте%/l',
+		'%l%i40 – обновить тред (в треде)%/l',
 		'%l%i212t – жирный%/l',
 		'%l%i213t – курсив%/l',
 		'%l%i214t – зачеркнутый%/l',
@@ -373,22 +374,23 @@ Lng = {
 		'%l%i216t – код%/l'], [
 		'%l%i24 – previous page/image%/l',
 		'%l%i217 – next page/image%/l',
-		'%l%i23 – hide current post/thread%/l',
-		'%l%i33 – expand current thread%/l',
-		'%l%i22 – quick reply%/l',
-		'%l%i25t – send post%/l',
 		'%l%i21 – thread (on board)/post (in thread) below%/l',
 		'%l%i20 – thread (on board)/post (in thread) above%/l',
 		'%l%i31 – on board post below%/l',
 		'%l%i30 – on board post above%/l',
-		'%l%i32 – open thread%/l',
-		'%l%i210 – open/close Settings%/l',
-		'%l%i26 – open/close Favorites%/l',
-		'%l%i27 – open/close Hidden Posts Table%/l',
+		'%l%i23 – hide post/thread%/l',
+		'%l%i32 – go to thread%/l',
+		'%l%i33 – expand thread%/l',
+		'%l%i211 – expand post\'s images%/l',
+		'%l%i22 – quick reply%/l',
+		'%l%i25t – send post%/l',
+		'%l%i210 – open/close "Settings"%/l',
+		'%l%i26 – open/close "Favorites"%/l',
+		'%l%i27 – open/close "Hidden"%/l',
+		'%l%i218 – open/close "Videos"%/l',
 		'%l%i28 – open/close the main panel%/l',
 		'%l%i29 – turn on/off masking images%/l',
 		'%l%i40 – update thread%/l',
-		'%l%i211 – expand current post\'s images%/l',
 		'%l%i212t – bold%/l',
 		'%l%i213t – italic%/l',
 		'%l%i214t – strike%/l',
@@ -2984,7 +2986,7 @@ function removeMenu(e) {
 function HotKeys() {
 	spawn(HotKeys.readKeys).then(keys => this._init(keys));
 }
-HotKeys.version = 6;
+HotKeys.version = 7;
 HotKeys.readKeys = function* () {
 	var keys, str = yield* getStored('DESU_keys');
 	if(!str) {
@@ -3016,10 +3018,10 @@ HotKeys.readKeys = function* () {
 				/* falls through */
 			case 4:
 			case 5:
-				if(keys[2][18]) {
-					delete keys[2][18];
-				}
+			case 6:
+				keys[2][18] = tKeys[2][18];
 			}
+			
 			keys[0] = HotKeys.version;
 			setStored('DESU_keys', JSON.stringify(keys));
 		}
@@ -3055,8 +3057,8 @@ HotKeys.getDefaultKeys = function() {
 		/* Hide selected thread/post  */ 0x0048 /* = H          */,
 		/* Open previous page/picture */ 0x1025 /* = Ctrl+Left  */,
 		/* Send post (txt)            */ 0xC00D /* = Alt+Enter  */,
-		/* Open/close favorites posts */ 0x4046 /* = Alt+F      */,
-		/* Open/close hidden posts    */ 0x4048 /* = Alt+H      */,
+		/* Open/close "Favorites"     */ 0x4046 /* = Alt+F      */,
+		/* Open/close "Hidden"        */ 0x4048 /* = Alt+H      */,
 		/* Open/close panel           */ 0x0050 /* = P          */,
 		/* Mask/unmask images         */ 0x0042 /* = B          */,
 		/* Open/close settings        */ 0x4053 /* = Alt+S      */,
@@ -3066,7 +3068,8 @@ HotKeys.getDefaultKeys = function() {
 		/* Strike text                */ 0xC054 /* = Alt+T      */,
 		/* Spoiler text               */ 0xC050 /* = Alt+P      */,
 		/* Code text                  */ 0xC043 /* = Alt+C      */,
-		/* Open next page/picture     */ 0x1027 /* = Ctrl+Right */
+		/* Open next page/picture     */ 0x1027 /* = Ctrl+Right */,
+		/* Open/close "Hidden"        */ 0x4056 /* = Alt+V      */
 	];
 	var nonThrKeys = [
 		/* One post above */ 0x004D /* = M */,
@@ -3115,9 +3118,9 @@ HotKeys.prototype = {
 		}
 		var isThr = aib.t,
 			curTh = e.target.tagName,
-			kc = e.keyCode | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) |
-				(e.altKey ? 0x4000 : 0) | (curTh === 'TEXTAREA' ||
-				(curTh === 'INPUT' && (e.target.type === 'text' || e.target.type === 'password')) ? 0x8000 : 0);
+			kc = e.keyCode | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) | (e.altKey ? 0x4000 : 0) |
+				(curTh === 'TEXTAREA' || (curTh === 'INPUT' &&
+				(e.target.type === 'text' || e.target.type === 'password')) ? 0x8000 : 0);
 		if(kc === 0x74 || kc === 0x8074) { // F5
 			if(isThr || $id('de-alert-load-pages')) {
 				return;
@@ -3144,7 +3147,8 @@ HotKeys.prototype = {
 		} else if(kc === 0x801B) { // ESC (txt)
 			e.target.blur();
 		} else {
-			var attach, post, idx, globIdx = this.gKeys.indexOf(kc);
+			var post, idx, expand = null,
+				globIdx = this.gKeys.indexOf(kc);
 			switch(globIdx) {
 			case 2: // Quick reply
 				if(pr.form) {
@@ -3174,17 +3178,11 @@ HotKeys.prototype = {
 				}
 				pr.subm.click();
 				break;
-			case 6: // Open/close favorites posts
-				attach = toggleContent('fav', false);
-				if(!Cfg.expandPanel) {
-					$id('de-panel').lastChild.style.display = attach ? '' : 'none';
-				}
+			case 6: // Open/close "Favorites"
+				expand = toggleContent('fav', false);
 				break;
-			case 7: // Open/close hidden posts
-				attach = toggleContent('hid', false);
-				if(!Cfg.expandPanel) {
-					$id('de-panel').lastChild.style.display = attach ? '' : 'none';
-				}
+			case 7: // Open/close "Hidden"
+				expand = toggleContent('hid', false);
 				break;
 			case 8: // Open/close panel
 				$disp($id('de-panel').lastChild);
@@ -3193,11 +3191,8 @@ HotKeys.prototype = {
 				toggleCfg('maskImgs');
 				updateCSS();
 				break;
-			case 10: // Open/close settings
-				attach = toggleContent('cfg', false);
-				if(!Cfg.expandPanel) {
-					$id('de-panel').lastChild.style.display = attach ? '' : 'none';
-				}
+			case 10: // Open/close "Settings"
+				expand = toggleContent('cfg', false);
 				break;
 			case 11: // Expand current image
 				post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
@@ -3241,6 +3236,9 @@ HotKeys.prototype = {
 				} else if(!isThr && this.lastPage !== aib.lastPage) {
 					window.location.pathname = aib.getPageUrl(aib.b, this.lastPage + 1);
 				}
+				break;
+			case 18: // Open/close "Videos"
+				expand = toggleContent('vid', false);
 				break;
 			case -1:
 				if(isThr) {
@@ -3288,6 +3286,9 @@ HotKeys.prototype = {
 				var scrollToThr = !isThr && (globIdx === 0 || globIdx === 1);
 				this._scroll(this._getFirstVisPost(scrollToThr, false),
 					globIdx === 0 || idx === 0, scrollToThr);
+			}
+			if(expand !== null && !Cfg.expandPanel) {
+				$id('de-panel').lastChild.style.display = expand ? '' : 'none';
 			}
 		}
 		e.stopPropagation();
@@ -10650,7 +10651,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get 'ponyach.ru'() { return this['ponya.ch']; },
 		get 'ponychan.ru'() { return this['ponya.ch']; },
 		'ponychan.net': [{
-			cOPost: { value: 'opContainer' }
+			cOPost: { value: 'opContainer' },
+			css: { value: '.mature_thread { display: block !important; }\
+				.mature_warning { display: none; }' }
 		}, 'form[name*="postcontrols"]'],
 		'syn-ch.ru': [{
 			synch: { value: true },
@@ -12279,6 +12282,7 @@ function scriptCSS() {
 	.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\
 	.de-fav-title { margin-right: 15px; }\
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\
+	.de-input-key { height: 12px }\
 	.de-link-hid { text-decoration: line-through !important; }\
 	.de-link-parent { outline: 1px dotted !important; }\
 	.de-link-pview { font-weight: bold; }\
