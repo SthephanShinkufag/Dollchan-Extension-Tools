@@ -9760,20 +9760,17 @@ Thread.prototype = {
 		}
 		this._checkBans(op, form);
 		this._parsePosts(loadedPosts);
-		var post = op.next,
+		var newHidden = 0, post = op.next,
 			needRMUpdate = false,
 			needToShow = last === 1 ? loadedPosts.length : last,
-			existed = this.pcount === 1 ? 0 : this.pcount - post.count;
-		if(omitted !== 0) {
-			op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + omitted + '</div>');
-		}
-		// [all replies on page] - [.de-hidden replies] > [replies we need to show]
-		if(existed - Math.max(post.count - omitted - existed, 0) > needToShow) {
+			existed = this.pcount === 1 ? 0 : this.pcount - post.count,
+			hidden = Math.max(post.count - omitted - existed, 0);
+		if(existed - hidden > needToShow) {
 			while(existed-- !== needToShow) {
 				post.wrap.classList.add('de-hidden');
 				post.omitted = true;
 				post = post.next;
-				omitted--;
+				newHidden++;
 			}
 		} else {
 			var vParser, fragm = doc.createDocumentFragment(),
@@ -9812,7 +9809,7 @@ Thread.prototype = {
 			}
 			post = post.next;
 		}
-		thrEl.style.counterReset = 'de-cnt ' + (omitted + 1);
+		thrEl.style.counterReset = 'de-cnt ' + (omitted - newHidden + 1);
 		var expEl = $c('de-collapse', thrEl);
 		if(needToShow <= visPosts) {
 			$del(expEl);
@@ -9826,6 +9823,9 @@ Thread.prototype = {
 			};
 		} else if(expEl !== thrEl.lastChild) {
 			thrEl.appendChild(expEl);
+		}
+		if(omitted !== 0) {
+			op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + omitted + '</div>');
 		}
 		if(smartScroll) {
 			scrollTo(window.pageXOffset, window.pageYOffset - (nextCoord - this.next.topCoord));
