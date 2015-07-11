@@ -48,6 +48,7 @@ defaultCfg = {
 	'timeOffset':       '+0',   //    offset in hours
 	'timePattern':      '',     //    find pattern
 	'timeRPattern':     '',     //    replace pattern
+	'updThrBtns':       1,      // updater buttons in threads list
 	'expandImgs':       2,      // expand images by click [0=off, 1=in post, 2=by center]
 	'imgNavBtns':       1,      //    add image navigation for full images
 	'resizeDPI':        0,      //    honor dpi settings
@@ -9656,6 +9657,16 @@ function Thread(el, prev, isLight) {
 		}
 		$del($c('clear', el));
 	}
+	if(!aib.t && Cfg.updThrBtns) {
+		el.insertAdjacentHTML('beforeend',
+			'<div class="de-thread-buttons">&gt;&gt; <span class="de-thread-updater">[' +
+			'<a class="de-abtn" href="#"></a>]</span></div>');
+		this.btns = el.lastChild;
+		this.btns.firstElementChild.onclick = e => {
+			$pd(e);
+			this.load(0, false);
+		};
+	}
 }
 Thread.clearPostsMark = function() {
 	dForm.firstThr.clearPostsMarks();
@@ -9738,10 +9749,10 @@ Thread.prototype = {
 		);
 	},
 	loadFromForm(last, smartScroll, form) {
+		// last = [0: get new posts, 1: get all posts, N: get N posts]
 		var nextCoord, loadedPosts = $Q(aib.qRPost, form),
 			op = this.op,
-			thrEl = this.el,
-			omitted = last === 1 ? 0 : Math.max(loadedPosts.length - last, 0);
+			thrEl = this.el;
 		if(smartScroll) {
 			if(this.next) {
 				nextCoord = this.next.topCoord;
@@ -9762,7 +9773,10 @@ Thread.prototype = {
 		this._parsePosts(loadedPosts);
 		var newHidden = 0, post = op.next,
 			needRMUpdate = false,
-			needToShow = last === 1 ? loadedPosts.length : last,
+			omitted = last === 0 ? post.count - 1 :
+				last === 1 ? 0 : Math.max(loadedPosts.length - last, 0),
+			needToShow = last === 0 ? Math.max(loadedPosts.length - post.count + 1, 0) :
+				last === 1 ? loadedPosts.length : last,
 			existed = this.pcount === 1 ? 0 : this.pcount - post.count,
 			hidden = Math.max(post.count - omitted - existed, 0);
 		if(existed - hidden > needToShow) {
@@ -9810,19 +9824,25 @@ Thread.prototype = {
 			post = post.next;
 		}
 		thrEl.style.counterReset = 'de-cnt ' + (omitted - newHidden + 1);
-		var expEl = $c('de-collapse', thrEl);
-		if(needToShow <= visPosts) {
-			$del(expEl);
-		} else if(!expEl) {
-			thrEl.insertAdjacentHTML('beforeend', '<span class="de-collapse">&gt;&gt; [' +
-				'<a class="de-abtn" href="' + aib.getThrdUrl(aib.b, this.num) + aib.anchor + this.last.num +
-				'">' + Lng.collapseThrd[lang] + '</a>]</span>');
-			thrEl.lastChild.onclick = e => {
+		var btn = this.btns;
+		if(btn !== thrEl.lastChild) {
+			thrEl.appendChild(btn);
+		}
+		btn = $c('de-thread-collapse', btn);
+		if(!btn) {
+			this.btns.insertAdjacentHTML('beforeend',
+				'<span class="de-thread-collapse"> [<a class="de-abtn" href="' +
+				aib.getThrdUrl(aib.b, this.num) + aib.anchor + this.last.num + '"></a>]</span>');
+			btn = this.btns.lastChild;
+			btn.onclick = e => {
 				$pd(e);
 				this.load(visPosts, true);
 			};
-		} else if(expEl !== thrEl.lastChild) {
-			thrEl.appendChild(expEl);
+		}
+		if(needToShow <= visPosts) {
+			btn.style.display = 'none';
+		} else if(btn) {
+			btn.style.display = '';
 		}
 		if(omitted !== 0) {
 			op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + omitted + '</div>');
@@ -12270,7 +12290,6 @@ function scriptCSS() {
 	.de-entry { display: block !important; float: none !important; width: auto; max-width: 100% !important; margin: 2px 0 !important; padding: 0 !important; border: none; font-size: 14px; ' + (nav.Presto ? 'white-space: nowrap; ' : '') + '}\
 	.de-entry > a { text-decoration: none; border: none; }\
 	.de-entry > input { margin: 2px 4px; }\
-	.de-collapse { clear: left; display: block; float: left; margin: 5px 0 10px 0; }\
 	.de-fav-inf-err { color: #c33; font-size: 12px; }\
 	.de-fav-inf-new { color: #424f79; }\
 	.de-fav-inf-new:after { content: " +"; }\
@@ -12287,7 +12306,7 @@ function scriptCSS() {
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
 	.de-menu-item:hover { background-color: #222; color: #fff; }\
 	.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid blue; border-right: 4px solid blue; }' : 'box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }') + '\
-	.de-omitted { color: grey; font-style: italic; }\
+	.de-omitted { color: grey; }\
 	.de-omitted:before { content: "' + Lng.postsOmitted[lang] + '"; }\
 	.de-post-hide > ' + aib.qHide + ' { display: none !important; }\
 	.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
@@ -12298,7 +12317,9 @@ function scriptCSS() {
 	.de-refmap:before { content: "' + Lng.replies[lang] + ' "; }\
 	.de-refcomma:last-child { display: none; }\
 	.de-selected, .de-error-key { ' + (nav.Presto ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
-	#de-updater-btn:after { content: "' + Lng.getNewPosts[lang] + '" }\
+	.de-thread-buttons { clear: left; float: left; margin: 5px 0 10px 0; }\
+	.de-thread-collapse > a:after { content: "' +  Lng.collapseThrd[lang] + '" }\
+	#de-updater-btn:after, .de-thread-updater > a:after { content: "' + Lng.getNewPosts[lang] + '" }\
 	#de-updater-count:before { content: ": " }\
 	#de-updater-div { clear: left; margin-top: 10px; }\
 	.de-viewed { color: #888 !important; }\
