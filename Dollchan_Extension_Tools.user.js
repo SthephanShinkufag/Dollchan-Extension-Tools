@@ -12470,62 +12470,59 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			this._checkBans(op, form);
 			this._parsePosts(loadedPosts);
 			var post = op.next,
+			    needRMUpdate = false,
 			    needToShow = last === 1 ? loadedPosts.length : last,
-			    existed = this.pcount === 1 ? 0 : this.pcount - post.count,
-			   
-			hidden = Math.max(post.count - omitted - existed, 0);
+			    existed = this.pcount === 1 ? 0 : this.pcount - post.count;
 			if (omitted !== 0) {
 				op.el.insertAdjacentHTML("afterend", "<div class=\"de-omitted\">" + omitted + "</div>");
 			}
-			if (existed - hidden !== needToShow) {
-				var needRMUpdate = false;
-				if (existed - hidden > needToShow) {
-					while (existed-- !== needToShow) {
-						post.wrap.classList.add("de-hidden");
-						post.omitted = true;
-						post = post.next;
-						omitted--;
-					}
-				} else {
-					var vParser,
-					    fragm = doc.createDocumentFragment(),
-					    tPost = op,
-					    nonExisted = loadedPosts.length - existed;
-					if (Cfg.addYouTube) {
-						vParser = new VideosParser();
-					}
-					var sRunner = new SpellsRunner(false);
-					for (var i = Math.max(0, nonExisted + existed - needToShow); i < nonExisted; ++i) {
-						tPost = this._addPost(fragm, loadedPosts[i], i + 1, vParser, tPost);
-						sRunner.run(tPost);
-					}
-					sRunner.end();
-					if (vParser) {
-						vParser.end();
-					}
-					$after(op.wrap, fragm);
-					tPost.next = post;
-					if (post) {
-						post.prev = tPost;
-					}
-					needRMUpdate = true;
-					needToShow = Math.min(nonExisted + existed, needToShow);
-				}
-				while (existed-- !== 0) {
-					if (post.trunc) {
-						post.updateMsg(replacePost($q(aib.qMsg, loadedPosts[post.count - 1])));
-					}
-					if (post.omitted) {
-						post.wrap.classList.remove("de-hidden");
-						post.omitted = false;
-					}
-					if (needRMUpdate) {
-						updRefMap(post, true);
-					}
+		
+			if (existed - Math.max(post.count - omitted - existed, 0) > needToShow) {
+				while (existed-- !== needToShow) {
+					post.wrap.classList.add("de-hidden");
+					post.omitted = true;
 					post = post.next;
+					omitted--;
 				}
-				thrEl.style.counterReset = "de-cnt " + (omitted + 1);
+			} else {
+				var vParser,
+				    fragm = doc.createDocumentFragment(),
+				    tPost = op,
+				    nonExisted = loadedPosts.length - existed;
+				if (Cfg.addYouTube) {
+					vParser = new VideosParser();
+				}
+				var sRunner = new SpellsRunner(false);
+				for (var i = Math.max(0, nonExisted + existed - needToShow); i < nonExisted; ++i) {
+					tPost = this._addPost(fragm, loadedPosts[i], i + 1, vParser, tPost);
+					sRunner.run(tPost);
+				}
+				sRunner.end();
+				if (vParser) {
+					vParser.end();
+				}
+				$after(op.wrap, fragm);
+				tPost.next = post;
+				if (post) {
+					post.prev = tPost;
+				}
+				needRMUpdate = true;
+				needToShow = Math.min(nonExisted + existed, needToShow);
 			}
+			while (existed-- !== 0) {
+				if (post.trunc) {
+					post.updateMsg(replacePost($q(aib.qMsg, loadedPosts[post.count - 1])));
+				}
+				if (post.omitted) {
+					post.wrap.classList.remove("de-hidden");
+					post.omitted = false;
+				}
+				if (needRMUpdate) {
+					updRefMap(post, true);
+				}
+				post = post.next;
+			}
+			thrEl.style.counterReset = "de-cnt " + (omitted + 1);
 			var expEl = $c("de-collapse", thrEl);
 			if (needToShow <= visPosts) {
 				$del(expEl);
