@@ -2603,6 +2603,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		markNewPosts: 1,
 		desktNotif: 0,
 		updCount: 1,
+		updThrBtns: 1,
 		expandTrunc: 0,
 		postBtnsCSS: 2,
 		showHideBtn: 1,
@@ -2614,7 +2615,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		timeOffset: "+0",
 		timePattern: "",
 		timeRPattern: "",
-		updThrBtns: 1,
 		expandImgs: 2,
 		imgNavBtns: 1,
 		resizeDPI: 0,
@@ -2708,6 +2708,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			markNewPosts: ["Выделять новые посты при смене вкладки", "Mark new posts when tab changes"],
 			desktNotif: ["Уведомления на рабочем столе", "Desktop notifications"],
 			updCount: ["Обратный счетчик секунд до обновления", "Show countdown to thread update"],
+			updThrBtns: ["Кнопки получения новых постов в списке тредов", "Get-new-posts buttons in threads list"],
 			expandTrunc: ["Разворачивать сокращенные посты*", "Auto expanding of truncated posts*"],
 			postBtnsCSS: {
 				sel: [["Text", "Classic", "Solid grey"], ["Text", "Classic", "Solid grey"]],
@@ -4627,7 +4628,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		})), lBox("updCount", true, function () {
 			updater.toggleCounter(Cfg.updCount);
-		})])])), lBox("expandTrunc", true, updateCSS), optSel("postBtnsCSS", false, null), lBox("showHideBtn", false, updateCSS), lBox("showRepBtn", false, updateCSS), lBox("noSpoilers", true, updateCSS), lBox("noPostNames", true, updateCSS), lBox("widePosts", true, updateCSS), $New("div", null, [lBox("correctTime", false, DateTime.toggleSettings), inpTxt("timeOffset", 2, null), $txt(Lng.cfg.timeOffset[lang]), $add("<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-" + (lang ? "en" : "ru") + "\" class=\"de-abtn\" target=\"_blank\">[?]</a>")]), $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [inpTxt("timePattern", 25, null), $txt(Lng.cfg.timePattern[lang])]), $New("div", null, [inpTxt("timeRPattern", 25, null), $txt(Lng.cfg.timeRPattern[lang])])])]);
+		})])])), lBox("updThrBtns", true, updateCSS), lBox("expandTrunc", true, updateCSS), optSel("postBtnsCSS", false, null), lBox("showHideBtn", false, updateCSS), lBox("showRepBtn", false, updateCSS), lBox("noSpoilers", true, updateCSS), lBox("noPostNames", true, updateCSS), lBox("widePosts", true, updateCSS), $New("div", null, [lBox("correctTime", false, DateTime.toggleSettings), inpTxt("timeOffset", 2, null), $txt(Lng.cfg.timeOffset[lang]), $add("<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-" + (lang ? "en" : "ru") + "\" class=\"de-abtn\" target=\"_blank\">[?]</a>")]), $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [inpTxt("timePattern", 25, null), $txt(Lng.cfg.timePattern[lang])]), $New("div", null, [inpTxt("timeRPattern", 25, null), $txt(Lng.cfg.timeRPattern[lang])])])]);
 	}
 
 	function getCfgImages() {
@@ -12378,8 +12379,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 			$del($c("clear", el));
 		}
-		if (!aib.t && Cfg.updThrBtns) {
-			el.insertAdjacentHTML("beforeend", "<div class=\"de-thread-buttons\">&gt;&gt; <span class=\"de-thread-updater\">[" + "<a class=\"de-abtn\" href=\"#\"></a>]</span></div>");
+		if (!aib.t) {
+			el.insertAdjacentHTML("beforeend", "<div class=\"de-thread-buttons\">" + "<span class=\"de-thread-updater\">&gt;&gt; [<a class=\"de-abtn\" href=\"#\"></a>]</span>");
 			this.btns = el.lastChild;
 			this.btns.firstElementChild.onclick = function (e) {
 				$pd(e);
@@ -12523,7 +12524,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				if (post.trunc) {
 					post.updateMsg(replacePost($q(aib.qMsg, loadedPosts[post.count - 1])));
 				}
-				if (post.omitted) {
+				if (post.omitted && last !== 0) {
 					post.wrap.classList.remove("de-hidden");
 					post.omitted = false;
 				}
@@ -12537,20 +12538,14 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (btn !== thrEl.lastChild) {
 				thrEl.appendChild(btn);
 			}
-			btn = $c("de-thread-collapse", btn);
-			if (!btn) {
-				this.btns.insertAdjacentHTML("beforeend", "<span class=\"de-thread-collapse\"> [<a class=\"de-abtn\" href=\"" + aib.getThrdUrl(aib.b, this.num) + aib.anchor + this.last.num + "\"></a>]</span>");
-				btn = this.btns.lastChild;
-				btn.onclick = function (e) {
+			if (!$c("de-thread-collapse", btn)) {
+				btn.insertAdjacentHTML("beforeend", "<span class=\"de-thread-collapse\"> [<a class=\"de-abtn\" href=\"#\"></a>]</span>");
+				btn.lastChild.onclick = function (e) {
 					$pd(e);
 					_this.load(visPosts, true);
 				};
 			}
-			if (needToShow <= visPosts) {
-				btn.style.display = "none";
-			} else if (btn) {
-				btn.style.display = "";
-			}
+			btn.lastChild.style.display = needToShow > visPosts ? "" : "none";
 			if (omitted !== 0) {
 				op.el.insertAdjacentHTML("afterend", "<div class=\"de-omitted\">" + omitted + "</div>");
 			}
@@ -15030,7 +15025,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		if (Cfg.widePosts) {
 			x += "." + aib.cReply.replace(/\s/, ".") + ":not(.de-pview) { float: none; width: 100%; }";
 		}
-		x += ".postarea, .recaptcha_image_cell + td, .recaptcha_image_cell + td + td, small[id^=\"rfmap\"], .theader, .thumbnailmsg, " + (Cfg.panelCounter ? "" : "#de-panel-info, ") + (Cfg.imgNavBtns ? "" : "#de-img-btn-next, #de-img-btn-prev, ") + (Cfg.showHideBtn ? "" : ".de-btn-hide, ") + (Cfg.showRepBtn ? "" : ".de-btn-rep, ") + (Cfg.removeHidd ? ".de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, " : "") + (Cfg.delHiddPost ? ".de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, " : "") + (Cfg.noPostNames ? aib.qName + ", ." + aib.cTrip + ", " : "") + (Cfg.noBoardRule ? (aib.mak ? ".rules-area" : aib.krau ? "#rules_row" : aib.futa ? ".chui" : ".rules, #rules") + ", " : "") + (!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? "#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, " : "") + "body > hr { display: none !important; }";
+		x += ".postarea, .recaptcha_image_cell + td, .recaptcha_image_cell + td + td, small[id^=\"rfmap\"], .theader, .thumbnailmsg, " + (Cfg.panelCounter ? "" : "#de-panel-info, ") + (Cfg.imgNavBtns ? "" : "#de-img-btn-next, #de-img-btn-prev, ") + (Cfg.showHideBtn ? "" : ".de-btn-hide, ") + (Cfg.showRepBtn ? "" : ".de-btn-rep, ") + (Cfg.updThrBtns ? "" : ".de-thread-updater, ") + (Cfg.removeHidd ? ".de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, " : "") + (Cfg.delHiddPost ? ".de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, " : "") + (Cfg.noPostNames ? aib.qName + ", ." + aib.cTrip + ", " : "") + (Cfg.noBoardRule ? (aib.mak ? ".rules-area" : aib.krau ? "#rules_row" : aib.futa ? ".chui" : ".rules, #rules") + ", " : "") + (!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? "#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, " : "") + "body > hr { display: none !important; }";
 		$id("de-css-dynamic").textContent = x + "\n" + aib.css + "\n" + aib.cssEn;
 		$id("de-css-user").textContent = Cfg.userCSS ? Cfg.userCSSTxt : "";
 	}

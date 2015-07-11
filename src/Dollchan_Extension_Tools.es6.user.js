@@ -37,6 +37,7 @@ defaultCfg = {
 	'markNewPosts':     1,      //    new posts marking on page focus
 	'desktNotif':       0,      //    desktop notifications, if new posts detected
 	'updCount':         1,      //    show countdown for thread updater
+	'updThrBtns':       1,      // updater buttons in threads list
 	'expandTrunc':      0,      // auto expanding of truncated posts
 	'postBtnsCSS':      2,      // post buttons style [0=text, 1=classic, 2=solid grey]
 	'showHideBtn':      1,      // show post hide button
@@ -48,7 +49,6 @@ defaultCfg = {
 	'timeOffset':       '+0',   //    offset in hours
 	'timePattern':      '',     //    find pattern
 	'timeRPattern':     '',     //    replace pattern
-	'updThrBtns':       1,      // updater buttons in threads list
 	'expandImgs':       2,      // expand images by click [0=off, 1=in post, 2=by center]
 	'imgNavBtns':       1,      //    add image navigation for full images
 	'resizeDPI':        0,      //    honor dpi settings
@@ -143,6 +143,7 @@ Lng = {
 		'markNewPosts': ['Выделять новые посты при смене вкладки', 'Mark new posts when tab changes'],
 		'desktNotif':   ['Уведомления на рабочем столе', 'Desktop notifications'],
 		'updCount':     ['Обратный счетчик секунд до обновления', 'Show countdown to thread update'],
+		'updThrBtns':   ['Кнопки получения новых постов в списке тредов', 'Get-new-posts buttons in threads list'],
 		'expandTrunc':  ['Разворачивать сокращенные посты*', 'Auto expanding of truncated posts*'],
 		'postBtnsCSS': {
 			sel:        [['Text', 'Classic', 'Solid grey'], ['Text', 'Classic', 'Solid grey']],
@@ -2398,6 +2399,7 @@ function getCfgPosts() {
 				})
 			])
 		])),
+		lBox('updThrBtns', true, updateCSS),
 		lBox('expandTrunc', true, updateCSS),
 		optSel('postBtnsCSS', false, null),
 		lBox('showHideBtn', false, updateCSS),
@@ -9657,10 +9659,9 @@ function Thread(el, prev, isLight) {
 		}
 		$del($c('clear', el));
 	}
-	if(!aib.t && Cfg.updThrBtns) {
-		el.insertAdjacentHTML('beforeend',
-			'<div class="de-thread-buttons">&gt;&gt; <span class="de-thread-updater">[' +
-			'<a class="de-abtn" href="#"></a>]</span></div>');
+	if(!aib.t) {
+		el.insertAdjacentHTML('beforeend', '<div class="de-thread-buttons">' +
+			'<span class="de-thread-updater">&gt;&gt; [<a class="de-abtn" href="#"></a>]</span>');
 		this.btns = el.lastChild;
 		this.btns.firstElementChild.onclick = e => {
 			$pd(e);
@@ -9814,7 +9815,7 @@ Thread.prototype = {
 			if(post.trunc) {
 				post.updateMsg(replacePost($q(aib.qMsg, loadedPosts[post.count - 1])));
 			}
-			if(post.omitted) {
+			if(post.omitted && last !== 0) {
 				post.wrap.classList.remove('de-hidden');
 				post.omitted = false;
 			}
@@ -9828,22 +9829,15 @@ Thread.prototype = {
 		if(btn !== thrEl.lastChild) {
 			thrEl.appendChild(btn);
 		}
-		btn = $c('de-thread-collapse', btn);
-		if(!btn) {
-			this.btns.insertAdjacentHTML('beforeend',
-				'<span class="de-thread-collapse"> [<a class="de-abtn" href="' +
-				aib.getThrdUrl(aib.b, this.num) + aib.anchor + this.last.num + '"></a>]</span>');
-			btn = this.btns.lastChild;
-			btn.onclick = e => {
+		if(!$c('de-thread-collapse', btn)) {
+			btn.insertAdjacentHTML('beforeend',
+				'<span class="de-thread-collapse"> [<a class="de-abtn" href="#"></a>]</span>');
+			btn.lastChild.onclick = e => {
 				$pd(e);
 				this.load(visPosts, true);
 			};
 		}
-		if(needToShow <= visPosts) {
-			btn.style.display = 'none';
-		} else if(btn) {
-			btn.style.display = '';
-		}
+		btn.lastChild.style.display = needToShow > visPosts ? '' : 'none';
 		if(omitted !== 0) {
 			op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + omitted + '</div>');
 		}
@@ -12378,6 +12372,7 @@ function updateCSS() {
 		(Cfg.imgNavBtns ? '' : '#de-img-btn-next, #de-img-btn-prev, ') +
 		(Cfg.showHideBtn ? '' : '.de-btn-hide, ') +
 		(Cfg.showRepBtn ? '' : '.de-btn-rep, ') +
+		(Cfg.updThrBtns ? '' : '.de-thread-updater, ') +
 		(Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') +
 		(Cfg.delHiddPost ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, ' : '') +
 		(Cfg.noPostNames ? aib.qName + ', .' + aib.cTrip + ', ' : '') +
