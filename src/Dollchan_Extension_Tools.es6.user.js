@@ -10693,8 +10693,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', formEl), pEl => {
 					var post = pByNum[this.getPNum(pEl)],
 						pDate = +pEl.getAttribute('data-lastmodified');
-					if(post && (!this.modifiedPosts.has(post) || this.modifiedPosts.get(post) < pDate)) {
-						this.modifiedPosts.set(post, pDate);
+					if(post && (!this.modifiedPosts.has(pEl) || this.modifiedPosts.get(pEl) < pDate)) {
+						this.modifiedPosts.set(pEl, pDate);
 						post.updateMsg(replacePost($q(this.qMsg, pEl)),
 									   mySRunner || (mySRunner = new SpellsRunner()));
 					}

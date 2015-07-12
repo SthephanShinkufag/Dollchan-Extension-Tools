@@ -13429,8 +13429,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						$each($Q(".oppost[data-lastmodified], .reply[data-lastmodified]", formEl), function (pEl) {
 							var post = pByNum[_this.getPNum(pEl)],
 							    pDate = +pEl.getAttribute("data-lastmodified");
-							if (post && (!_this.modifiedPosts.has(post) || _this.modifiedPosts.get(post) < pDate)) {
-								_this.modifiedPosts.set(post, pDate);
+							if (post && (!_this.modifiedPosts.has(pEl) || _this.modifiedPosts.get(pEl) < pDate)) {
+								_this.modifiedPosts.set(pEl, pDate);
 								post.updateMsg(replacePost($q(_this.qMsg, pEl)), mySRunner || (mySRunner = new SpellsRunner()));
 							}
 						});
