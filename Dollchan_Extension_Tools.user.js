@@ -1198,8 +1198,6 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
-
-
 !(function(global) {
   "use strict";
 
@@ -3059,7 +3057,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	    chromeCssUpd,
 	    excludeList,
 	    $each = Function.prototype.call.bind(aProto.forEach),
-	    emptyFn = Function.prototype;
+	    emptyFn = Function.prototype,
+	    nativeXHRworks = true;
 
 
 
@@ -3299,7 +3298,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 	function $ajax(url) {
 		var params = arguments[1] === undefined ? null : arguments[1];
-		var useNative = arguments[2] === undefined ? true : arguments[2];
+		var useNative = arguments[2] === undefined ? nativeXHRworks : arguments[2];
 
 		return new Promise(function (resolve, reject) {
 			if (!useNative && typeof GM_xmlhttpRequest === "function") {
@@ -3341,7 +3340,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 				}
 			};
-			xhr.open(params && params.method || "GET", url, true);
+			try {
+				xhr.open(params && params.method || "GET", url, true);
+			} catch (e) {
+				nativeXHRworks = false;
+				resolve($ajax(url, params, false));
+				return;
+			}
 			if (params) {
 				if (params.responseType) {
 					xhr.responseType = params.responseType;

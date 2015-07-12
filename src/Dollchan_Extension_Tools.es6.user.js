@@ -570,7 +570,8 @@ pr, dForm, dummy, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
 lang, quotetxt = '', localRun, isExpImg, isPreImg, chromeCssUpd, excludeList,
 $each = Function.prototype.call.bind(aProto.forEach),
-emptyFn = Function.prototype;
+emptyFn = Function.prototype,
+nativeXHRworks = true;
 
 
 // UTILS
@@ -794,7 +795,7 @@ function sleep(ms) {
 	return new Promise((resolve, reject) => setTimeout(() => resolve(), ms));
 }
 
-function $ajax(url, params = null, useNative = true) {
+function $ajax(url, params = null, useNative = nativeXHRworks) {
 	return new Promise((resolve, reject) => {
 		if(!useNative && (typeof GM_xmlhttpRequest === 'function')) {
 			var obj = {
@@ -833,7 +834,13 @@ function $ajax(url, params = null, useNative = true) {
 				}
 			}
 		};
-		xhr.open((params && params.method) || 'GET', url, true);
+		try {
+			xhr.open((params && params.method) || 'GET', url, true);
+		} catch(e) {
+			nativeXHRworks = false;
+			resolve($ajax(url, params, false));
+			return;
+		}
 		if(params) {
 			if(params.responseType) {
 				xhr.responseType = params.responseType;
