@@ -9877,7 +9877,7 @@ Thread.prototype = {
 				return 0;
 			});
 		}
-		return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, false && !aib.dobr)
+		return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, !aib.dobr)
 			.then(form => form ? this.loadNewFromForm(form) : 0);
 	},
 	loadNewFromForm(form) {
@@ -10678,7 +10678,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return post.getAttribute('data-num');
 			} },
 			modifiedPosts: { configurable: true, get() {
-				var val = new Map();
+				var val = new WeakMap();
 				Object.defineProperty(this, 'modifiedPosts', { value: val });
 				return val;
 			} },
@@ -10696,7 +10696,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					if(post && (!this.modifiedPosts.has(pEl) || this.modifiedPosts.get(pEl) < pDate)) {
 						this.modifiedPosts.set(pEl, pDate);
 						post.updateMsg(replacePost($q(this.qMsg, pEl)),
-									   mySRunner || (mySRunner = new SpellsRunner()));
+						               mySRunner || (mySRunner = new SpellsRunner()));
 					}
 				});
 				if(mySRunner && !sRunner) {

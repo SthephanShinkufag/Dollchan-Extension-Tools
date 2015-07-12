@@ -12584,7 +12584,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					return 0;
 				});
 			}
-			return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, false && !aib.dobr).then(function (form) {
+			return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, !aib.dobr).then(function (form) {
 				return form ? _this.loadNewFromForm(form) : 0;
 			});
 		},
@@ -13411,7 +13411,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return post.getAttribute("data-num");
 					} },
 				modifiedPosts: { configurable: true, get: function get() {
-						var val = new Map();
+						var val = new WeakMap();
 						Object.defineProperty(this, "modifiedPosts", { value: val });
 						return val;
 					} },
