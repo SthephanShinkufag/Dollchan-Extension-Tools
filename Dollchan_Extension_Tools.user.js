@@ -12395,6 +12395,31 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			};
 		}
 	}
+	Thread.addPost = function (parent, el, i, prev, thr, vParser) {
+		var post,
+		    num = aib.getPNum(el),
+		    wrap = aib.getWrap(el, false);
+		el = replacePost(el);
+		pByNum[num] = post = new Post(el, thr, num, i, false, prev);
+		Object.defineProperty(post, "wrap", { value: wrap });
+		parent.appendChild(wrap);
+		if (aib.t && updater.focused && Cfg.animation) {
+			nav.animEvent(post.el, function (node) {
+				node.classList.remove("de-post-new");
+			});
+			post.el.classList.add("de-post-new");
+		}
+		if (vParser) {
+			vParser.parse(post);
+		}
+		processImageNames(el);
+		post.addFuncs();
+		preloadImages(el);
+		if (aib.t && Cfg.markNewPosts) {
+			thr._addPostMark(el);
+		}
+		return post;
+	};
 	Thread.clearPostsMark = function () {
 		dForm.firstThr.clearPostsMarks();
 	};
@@ -12516,7 +12541,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					sRunner = new SpellsRunner(false);
 				}
 				for (var i = Math.max(0, nonExisted + existed - needToShow); i < nonExisted; ++i) {
-					tPost = this._addPost(fragm, loadedPosts[i], i + 1, vParser, tPost);
+					tPost = Thread.addPost(fragm, loadedPosts[i], i + 1, tPost, this, vParser);
 					sRunner.run(tPost);
 				}
 				if (vParser) {
@@ -12659,31 +12684,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		},
 
 		_lastModified: "",
-		_addPost: function _addPost(parent, el, i, vParser, prev) {
-			var post,
-			    num = aib.getPNum(el),
-			    wrap = aib.getWrap(el, false);
-			el = replacePost(el);
-			pByNum[num] = post = new Post(el, this, num, i, false, prev);
-			Object.defineProperty(post, "wrap", { value: wrap });
-			parent.appendChild(wrap);
-			if (aib.t && updater.focused && Cfg.animation) {
-				nav.animEvent(post.el, function (node) {
-					node.classList.remove("de-post-new");
-				});
-				post.el.classList.add("de-post-new");
-			}
-			if (vParser) {
-				vParser.parse(post);
-			}
-			processImageNames(el);
-			post.addFuncs();
-			preloadImages(el);
-			if (aib.t && Cfg.markNewPosts) {
-				this._addPostMark(el);
-			}
-			return post;
-		},
 		_addPostMark: function _addPostMark(postEl) {
 			if (updater.focused) {
 				this.clearPostsMarks();
@@ -12717,7 +12717,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			    newVisCount = newCount,
 			    fragm = doc.createDocumentFragment();
 			for (; begin < end; ++begin) {
-				last = this._addPost(fragm, newPosts[begin], begin + 1, vParser, last);
+				last = Thread.addPost(fragm, newPosts[begin], begin + 1, last, this, vParser);
 				newVisCount -= sRunner.run(last);
 			}
 			return [newCount, newVisCount, fragm, last];
@@ -13419,7 +13419,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				checkForm: { value: function value(formEl, sRunner) {
 						var _this = this;
 
-						var mySRunner = sRunner;
+						var vParser,
+						    fragm,
+						    mySRunner = sRunner;
 						if (!this.postMapInited) {
 							this.postMapInited = true;
 							$each($Q(".oppost[data-lastmodified], .reply[data-lastmodified]", dForm.el), function (pEl) {
@@ -13427,11 +13429,24 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							});
 						}
 						$each($Q(".oppost[data-lastmodified], .reply[data-lastmodified]", formEl), function (pEl) {
-							var post = pByNum[_this.getPNum(pEl)],
+							var nPost,
+							    post = pByNum[_this.getPNum(pEl)],
 							    pDate = +pEl.getAttribute("data-lastmodified");
 							if (post && (!_this.modifiedPosts.has(pEl) || _this.modifiedPosts.get(pEl) < pDate)) {
 								_this.modifiedPosts.set(pEl, pDate);
-								post.updateMsg(replacePost($q(_this.qMsg, pEl)), mySRunner || (mySRunner = new SpellsRunner()));
+								fragm = doc.createDocumentFragment();
+								nPost = Thread.addPost(fragm, pEl, post.count, post.prev, post.thr, Cfg.addYouTube ? vParser || (vParser = new VideosParser()) : null);
+								if (post.next) {
+									post.next.prev = nPost;
+									nPost.next = post.next;
+								}
+								if (post.omitted) {
+									nPost.omitted = true;
+									nPost.wrap.classList.add("de-hidden");
+								}
+								(mySRunner || (mySRunner = new SpellsRunner())).run(nPost);
+								post.wrap.parentNode.insertBefore(fragm, post.wrap);
+								$del(post.wrap);
 							}
 						});
 						if (mySRunner && !sRunner) {
