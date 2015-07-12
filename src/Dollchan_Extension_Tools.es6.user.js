@@ -9662,7 +9662,7 @@ function Thread(el, prev, isLight) {
 	}
 	if(!aib.t) {
 		el.insertAdjacentHTML('beforeend', '<div class="de-thread-buttons">' +
-			'<span class="de-thread-updater">&gt;&gt; [<a class="de-abtn" href="#"></a>]</span>');
+			'<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>]</span>');
 		this.btns = el.lastChild;
 		this.btns.firstElementChild.onclick = e => {
 			$pd(e);
@@ -11910,7 +11910,7 @@ function initPage() {
 		}
 		if(!localRun) {
 			dForm.firstThr.el.insertAdjacentHTML('afterend',
-				'<div id="de-updater-div">&gt;&gt; [<a class="de-abtn" id="de-updater-btn" href="#"></a>' +
+				'<div id="de-updater-div">[<a class="de-abtn" id="de-updater-btn" href="#"></a>' +
 				'<span id="de-updater-count" style="display: none;"></span>]' +
 				(aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '') +
 				'</div>');
@@ -12322,6 +12322,7 @@ function scriptCSS() {
 	#de-updater-btn:after, .de-thread-updater > a:after { content: "' + Lng.getNewPosts[lang] + '" }\
 	#de-updater-count:before { content: ": " }\
 	#de-updater-div { clear: left; margin-top: 10px; }\
+	#de-updater-div:before, .de-thread-updater:before { content: ">> " }\
 	.de-viewed { color: #888 !important; }\
 	form > hr { clear: both }';
 
