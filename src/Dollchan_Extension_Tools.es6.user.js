@@ -1563,6 +1563,7 @@ function addPanel(formEl) {
 		isThr = aib.t;
 	(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin',
 		'<div id="de-main" lang="' + getThemeLang() + '">' +
+			'<div class="de-content"></div>' +
 			'<div id="de-panel">' +
 				'<span id="de-btn-logo" title="' + Lng.panelBtn.attach[lang] + '"></span>' +
 				'<ul id="de-panel-btns"' + (Cfg.expandPanel ? '>' : ' style="display: none">') +
@@ -1596,7 +1597,7 @@ function addPanel(formEl) {
 						dForm.firstThr.pcount + '/' + imgLen + '</span>')
 				) +
 				'</ul>' +
-			'</div><div class="de-content"></div>' +
+			'</div>' +
 		(Cfg.disabled ? '' : '<div id="de-alert"></div><hr style="clear: both;">') +
 		'</div>'
 	);
@@ -10557,7 +10558,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			ru: { value: true }
 		}, 'script[src*="kusaba"]'],
 		'iichan.hk': [{
-			iich: { value: true }
+			iich: { value: true },
+
+			css: { get() {
+				return `${this.t ? '#de-main { margin-top: ' + (Cfg.attachPanel ? '-33' : '-51') + 'px; }\
+					.logo { margin-bottom: 14px; }' : ''}`;
+			} },
 		}],
 		'inach.org': [{
 			qPostRedir: { value: 'input[name="fieldnoko"]' },

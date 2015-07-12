@@ -3769,7 +3769,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		    imgLen = $Q(aib.qThumbImages, formEl).length,
 		    b = aib.b,
 		    isThr = aib.t;
-		(pr && pr.pArea[0] || formEl).insertAdjacentHTML("beforebegin", "<div id=\"de-main\" lang=\"" + getThemeLang() + "\">" + "<div id=\"de-panel\">" + "<span id=\"de-btn-logo\" title=\"" + Lng.panelBtn.attach[lang] + "\"></span>" + "<ul id=\"de-panel-btns\"" + (Cfg.expandPanel ? ">" : " style=\"display: none\">") + (Cfg.disabled ? pButton("enable", "#", false) : pButton("settings", "#", true) + pButton("hidden", "#", true) + pButton("favor", "#", true) + (!Cfg.addYouTube ? "" : pButton("video", "#", true)) + (localRun ? "" : pButton("refresh", "#", false) + (!isThr && aib.page === aib.firstPage ? "" : pButton("goback", aib.getPageUrl(b, aib.page - 1), true)) + (isThr || aib.page === aib.lastPage ? "" : pButton("gonext", aib.getPageUrl(b, aib.page + 1), true))) + pButton("goup", "#", false) + pButton("godown", "#", false) + (imgLen === 0 ? "" : pButton("expimg", "#", false) + pButton("maskimg", "#", true) + (nav.Presto || localRun ? "" : (Cfg.preLoadImgs ? "" : pButton("preimg", "#", false)) + (!isThr ? "" : pButton("savethr", "#", false)))) + (!isThr || localRun ? "" : pButton(Cfg.ajaxUpdThr ? "upd-on" : "upd-off", "#", false) + (nav.Safari ? "" : pButton("audio-off", "#", false))) + (!aib.mak && !aib.tiny && !aib.fch ? "" : pButton("catalog", aib.prot + "//" + aib.host + "/" + b + "/catalog.html", false)) + pButton("enable", "#", false) + (!isThr ? "" : "<span id=\"de-panel-info\" title=\"" + Lng.panelBtn.counter[lang] + "\">" + dForm.firstThr.pcount + "/" + imgLen + "</span>")) + "</ul>" + "</div><div class=\"de-content\"></div>" + (Cfg.disabled ? "" : "<div id=\"de-alert\"></div><hr style=\"clear: both;\">") + "</div>");
+		(pr && pr.pArea[0] || formEl).insertAdjacentHTML("beforebegin", "<div id=\"de-main\" lang=\"" + getThemeLang() + "\">" + "<div class=\"de-content\"></div>" + "<div id=\"de-panel\">" + "<span id=\"de-btn-logo\" title=\"" + Lng.panelBtn.attach[lang] + "\"></span>" + "<ul id=\"de-panel-btns\"" + (Cfg.expandPanel ? ">" : " style=\"display: none\">") + (Cfg.disabled ? pButton("enable", "#", false) : pButton("settings", "#", true) + pButton("hidden", "#", true) + pButton("favor", "#", true) + (!Cfg.addYouTube ? "" : pButton("video", "#", true)) + (localRun ? "" : pButton("refresh", "#", false) + (!isThr && aib.page === aib.firstPage ? "" : pButton("goback", aib.getPageUrl(b, aib.page - 1), true)) + (isThr || aib.page === aib.lastPage ? "" : pButton("gonext", aib.getPageUrl(b, aib.page + 1), true))) + pButton("goup", "#", false) + pButton("godown", "#", false) + (imgLen === 0 ? "" : pButton("expimg", "#", false) + pButton("maskimg", "#", true) + (nav.Presto || localRun ? "" : (Cfg.preLoadImgs ? "" : pButton("preimg", "#", false)) + (!isThr ? "" : pButton("savethr", "#", false)))) + (!isThr || localRun ? "" : pButton(Cfg.ajaxUpdThr ? "upd-on" : "upd-off", "#", false) + (nav.Safari ? "" : pButton("audio-off", "#", false))) + (!aib.mak && !aib.tiny && !aib.fch ? "" : pButton("catalog", aib.prot + "//" + aib.host + "/" + b + "/catalog.html", false)) + pButton("enable", "#", false) + (!isThr ? "" : "<span id=\"de-panel-info\" title=\"" + Lng.panelBtn.counter[lang] + "\">" + dForm.firstThr.pcount + "/" + imgLen + "</span>")) + "</ul>" + "</div>" + (Cfg.disabled ? "" : "<div id=\"de-alert\"></div><hr style=\"clear: both;\">") + "</div>");
 		panel = $id("de-panel");
 		evtObject = {
 			attach: false,
@@ -13307,8 +13307,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				ru: { value: true }
 			}, "script[src*=\"kusaba\"]"],
 			"iichan.hk": [{
-				iich: { value: true }
-			}],
+				iich: { value: true },
+
+				css: { get: function get() {
+						return "" + (this.t ? "#de-main { margin-top: " + (Cfg.attachPanel ? "-33" : "-51") + "px; }\t\t\t\t\t.logo { margin-bottom: 14px; }" : "");
+					} } }],
 			"inach.org": [{
 				qPostRedir: { value: "input[name=\"fieldnoko\"]" },
 				css: { value: "#postform > table > tbody > tr:first-child { display: none !important; }" },
