@@ -11284,7 +11284,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				this.el.classList.remove("de-selected");
 			}
 		},
-		updateMsg: function updateMsg(newMsg) {
+		updateMsg: function updateMsg(newMsg, sRunner) {
 			var origMsg = aib.dobr ? this.msg.firstElementChild : this.msg,
 			    videoExt = $c("de-video-ext", origMsg),
 			    videoLinks = $Q(":not(.de-video-ext) > .de-video-link", origMsg);
@@ -11299,9 +11299,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				newMsg.appendChild(videoExt);
 			}
 			this.addFuncs();
-			var sRunner = new SpellsRunner();
 			sRunner.run(this);
-			sRunner.end();
 			closeAlert($id("de-alert-load-fullmsg"));
 		},
 
@@ -11517,7 +11515,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				if (isInit) {
 					this.msg.replaceChild($q(".alternate > div", this.el), this.msg.firstElementChild);
 				} else {
-					this.updateMsg($q(".alternate > div", this.el));
+					var sRunner = new SpellsRunner();
+					this.updateMsg($q(".alternate > div", this.el), sRunner);
+					sRunner.end();
 				}
 				return;
 			}
@@ -11531,19 +11531,21 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				$alert(Lng.loading[lang], "load-fullmsg", true);
 			}
 			ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(function (form) {
+				var sRunner = new SpellsRunner();
 				if (_this.isOp) {
-					_this.updateMsg(replacePost($q(aib.qMsg, form)));
+					_this.updateMsg(replacePost($q(aib.qMsg, form)), sRunner);
 					$del(node);
-					return;
-				}
-				var els = $Q(aib.qRPost, form);
-				for (var i = 0, len = els.length; i < len; i++) {
-					if (_this.num === aib.getPNum(els[i])) {
-						_this.updateMsg(replacePost($q(aib.qMsg, els[i])));
-						$del(node);
-						return;
+				} else {
+					var els = $Q(aib.qRPost, form);
+					for (var i = 0, len = els.length; i < len; i++) {
+						if (_this.num === aib.getPNum(els[i])) {
+							_this.updateMsg(replacePost($q(aib.qMsg, els[i])), sRunner);
+							$del(node);
+							break;
+						}
 					}
 				}
+				sRunner.end();
 			}, emptyFn);
 		},
 		_markLink: function _markLink(pNum) {
@@ -12465,6 +12467,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 		
 			var nextCoord,
+			    sRunner,
 			    loadedPosts = $Q(aib.qRPost, form),
 			    op = this.op,
 			    thrEl = this.el;
@@ -12479,12 +12482,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			$del($q(aib.qOmitted + ", .de-omitted", thrEl));
 			if (!this.loadedOnce) {
 				if (op.trunc) {
-					op.updateMsg(replacePost($q(aib.qMsg, form)));
+					op.updateMsg(replacePost($q(aib.qMsg, form)), sRunner || (sRunner = new SpellsRunner()));
 				}
 				op.ref = [];
 				this.loadedOnce = true;
 			}
-			this._checkBans(op, form);
+			this._checkBans(form);
+			aib.checkForm(form, sRunner);
 			this._parsePosts(loadedPosts);
 			var newHidden = 0,
 			    post = op.next,
@@ -12508,12 +12512,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				if (Cfg.addYouTube) {
 					vParser = new VideosParser();
 				}
-				var sRunner = new SpellsRunner(false);
+				if (!sRunner) {
+					sRunner = new SpellsRunner(false);
+				}
 				for (var i = Math.max(0, nonExisted + existed - needToShow); i < nonExisted; ++i) {
 					tPost = this._addPost(fragm, loadedPosts[i], i + 1, vParser, tPost);
 					sRunner.run(tPost);
 				}
-				sRunner.end();
 				if (vParser) {
 					vParser.end();
 				}
@@ -12527,7 +12532,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 			while (existed-- !== 0) {
 				if (post.trunc) {
-					post.updateMsg(replacePost($q(aib.qMsg, loadedPosts[post.count - 1])));
+					post.updateMsg(replacePost($q(aib.qMsg, loadedPosts[post.count - 1])), sRunner || (sRunner = new SpellsRunner()));
 				}
 				if (post.omitted && last !== 0) {
 					post.wrap.classList.remove("de-hidden");
@@ -12537,6 +12542,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					updRefMap(post, true);
 				}
 				post = post.next;
+			}
+			if (sRunner) {
+				sRunner.end();
 			}
 			thrEl.style.counterReset = "de-cnt " + (omitted - newHidden + 1);
 			var btn = this.btns;
@@ -12576,12 +12584,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					return 0;
 				});
 			}
-			return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, !aib.dobr).then(function (form) {
+			return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, false && !aib.dobr).then(function (form) {
 				return form ? _this.loadNewFromForm(form) : 0;
 			});
 		},
 		loadNewFromForm: function loadNewFromForm(form) {
-			this._checkBans(dForm.firstThr.op, form);
+			this._checkBans(form);
+			aib.checkForm(form, null);
 			var lastOffset = pr.isVisible ? pr.topCoord : null;
 			var _parsePosts = this._parsePosts($Q(aib.qRPost, form));
 
@@ -12686,7 +12695,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				postEl.classList.add("de-new-post");
 			}
 		},
-		_checkBans: function _checkBans(op, thrNode) {
+		_checkBans: function _checkBans(thrNode) {
 			if (!aib.qBan) {
 				return;
 			}
@@ -12694,7 +12703,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			for (var i = 0, len = bEls.length; i < len; ++i) {
 				var bEl = bEls[i],
 				    pEl = aib.getPostEl(bEl),
-				    post = pEl ? pByNum[aib.getPNum(pEl)] : op;
+				    post = pEl ? pByNum[aib.getPNum(pEl)] : this.op;
 				if (post && !post.banned) {
 					if (!$q(aib.qBan, post.el)) {
 						post.msg.appendChild(bEl);
@@ -13398,6 +13407,37 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			"ponya.ch": [{
 				ponya: { value: true },
 
+				getPNum: { value: function value(post) {
+						return post.getAttribute("data-num");
+					} },
+				modifiedPosts: { configurable: true, get: function get() {
+						var val = new Map();
+						Object.defineProperty(this, "modifiedPosts", { value: val });
+						return val;
+					} },
+				postMapInited: { writable: true, value: false },
+				checkForm: { value: function value(formEl, sRunner) {
+						var _this = this;
+
+						var mySRunner = sRunner;
+						if (!this.postMapInited) {
+							this.postMapInited = true;
+							$each($Q(".oppost[data-lastmodified], .reply[data-lastmodified]", dForm.el), function (pEl) {
+								return _this.modifiedPosts.set(pEl, +pEl.getAttribute("data-lastmodified"));
+							});
+						}
+						$each($Q(".oppost[data-lastmodified], .reply[data-lastmodified]", formEl), function (pEl) {
+							var post = pByNum[_this.getPNum(pEl)],
+							    pDate = +pEl.getAttribute("data-lastmodified");
+							if (post && (!_this.modifiedPosts.has(post) || _this.modifiedPosts.get(post) < pDate)) {
+								_this.modifiedPosts.set(post, pDate);
+								post.updateMsg(replacePost($q(_this.qMsg, pEl)), mySRunner || (mySRunner = new SpellsRunner()));
+							}
+						});
+						if (mySRunner && !sRunner) {
+							mySRunner.end();
+						}
+					} },
 				multiFile: { value: true },
 				thrid: { value: "replythread" }
 			}],
@@ -13945,6 +13985,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			hasPicWrap: false,
 			host: window.location.hostname,
 			init: null,
+			checkForm: emptyFn,
 			markupBB: false,
 			multiFile: false,
 			parseURL: function parseURL() {

@@ -8741,7 +8741,7 @@ Post.prototype = {
 			this.el.classList.remove('de-selected');
 		}
 	},
-	updateMsg(newMsg) {
+	updateMsg(newMsg, sRunner) {
 		var origMsg = aib.dobr ? this.msg.firstElementChild : this.msg,
 			videoExt = $c('de-video-ext', origMsg),
 			videoLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);
@@ -8756,9 +8756,7 @@ Post.prototype = {
 			newMsg.appendChild(videoExt);
 		}
 		this.addFuncs();
-		var sRunner = new SpellsRunner();
 		sRunner.run(this);
-		sRunner.end();
 		closeAlert($id('de-alert-load-fullmsg'));
 	},
 	get videos() {
@@ -8987,7 +8985,9 @@ Post.prototype = {
 			if(isInit) {
 				this.msg.replaceChild($q('.alternate > div', this.el), this.msg.firstElementChild);
 			} else {
-				this.updateMsg($q('.alternate > div', this.el));
+				var sRunner = new SpellsRunner();
+				this.updateMsg($q('.alternate > div', this.el), sRunner);
+				sRunner.end();
 			}
 			return;
 		}
@@ -9001,19 +9001,21 @@ Post.prototype = {
 			$alert(Lng.loading[lang], 'load-fullmsg', true);
 		}
 		ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(form => {
+			var sRunner = new SpellsRunner();
 			if(this.isOp) {
-				this.updateMsg(replacePost($q(aib.qMsg, form)));
+				this.updateMsg(replacePost($q(aib.qMsg, form)), sRunner);
 				$del(node);
-				return;
-			}
-			var els = $Q(aib.qRPost, form);
-			for(var i = 0, len = els.length; i < len; i++) {
-				if(this.num === aib.getPNum(els[i])) {
-					this.updateMsg(replacePost($q(aib.qMsg, els[i])));
-					$del(node);
-					return;
+			} else {
+				var els = $Q(aib.qRPost, form);
+				for(var i = 0, len = els.length; i < len; i++) {
+					if(this.num === aib.getPNum(els[i])) {
+						this.updateMsg(replacePost($q(aib.qMsg, els[i])), sRunner);
+						$del(node);
+						break;
+					}
 				}
 			}
+			sRunner.end();
 		}, emptyFn);
 	},
 	_markLink(pNum) {
@@ -9759,7 +9761,7 @@ Thread.prototype = {
 	},
 	loadFromForm(last, smartScroll, form) {
 		// last = [0: get new posts, 1: get all posts, N: get N posts]
-		var nextCoord, loadedPosts = $Q(aib.qRPost, form),
+		var nextCoord, sRunner, loadedPosts = $Q(aib.qRPost, form),
 			op = this.op,
 			thrEl = this.el;
 		if(smartScroll) {
@@ -9773,12 +9775,13 @@ Thread.prototype = {
 		$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 		if(!this.loadedOnce) {
 			if(op.trunc) {
-				op.updateMsg(replacePost($q(aib.qMsg, form)));
+				op.updateMsg(replacePost($q(aib.qMsg, form)), sRunner || (sRunner = new SpellsRunner()));
 			}
 			op.ref = [];
 			this.loadedOnce = true;
 		}
-		this._checkBans(op, form);
+		this._checkBans(form);
+		aib.checkForm(form, sRunner);
 		this._parsePosts(loadedPosts);
 		var newHidden = 0, post = op.next,
 			needRMUpdate = false,
@@ -9802,12 +9805,13 @@ Thread.prototype = {
 			if(Cfg.addYouTube) {
 				vParser = new VideosParser();
 			}
-			var sRunner = new SpellsRunner(false);
+			if(!sRunner) {
+				sRunner = new SpellsRunner(false);
+			}
 			for(var i = Math.max(0, nonExisted + existed - needToShow); i < nonExisted; ++i) {
 				tPost = this._addPost(fragm, loadedPosts[i], i + 1, vParser, tPost);
 				sRunner.run(tPost);
 			}
-			sRunner.end();
 			if(vParser) {
 				vParser.end();
 			}
@@ -9821,7 +9825,8 @@ Thread.prototype = {
 		}
 		while(existed-- !== 0) {
 			if(post.trunc) {
-				post.updateMsg(replacePost($q(aib.qMsg, loadedPosts[post.count - 1])));
+				post.updateMsg(replacePost($q(aib.qMsg, loadedPosts[post.count - 1])),
+				               sRunner || (sRunner = new SpellsRunner()));
 			}
 			if(post.omitted && last !== 0) {
 				post.wrap.classList.remove('de-hidden');
@@ -9831,6 +9836,9 @@ Thread.prototype = {
 				updRefMap(post, true);
 			}
 			post = post.next;
+		}
+		if(sRunner) {
+			sRunner.end();
 		}
 		thrEl.style.counterReset = 'de-cnt ' + (omitted - newHidden + 1);
 		var btn = this.btns;
@@ -9869,11 +9877,12 @@ Thread.prototype = {
 				return 0;
 			});
 		}
-		return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, !aib.dobr)
+		return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, false && !aib.dobr)
 			.then(form => form ? this.loadNewFromForm(form) : 0);
 	},
 	loadNewFromForm(form) {
-		this._checkBans(dForm.firstThr.op, form);
+		this._checkBans(form);
+		aib.checkForm(form, null);
 		var lastOffset = pr.isVisible ? pr.topCoord : null,
 			[newPosts, newVisPosts] = this._parsePosts($Q(aib.qRPost, form));
 		if(lastOffset !== null) {
@@ -9970,7 +9979,7 @@ Thread.prototype = {
 			postEl.classList.add('de-new-post');
 		}
 	},
-	_checkBans(op, thrNode) {
+	_checkBans(thrNode) {
 		if(!aib.qBan) {
 			return;
 		}
@@ -9978,7 +9987,7 @@ Thread.prototype = {
 		for(var i = 0, len = bEls.length; i < len; ++i) {
 			var bEl = bEls[i],
 				pEl = aib.getPostEl(bEl),
-				post = pEl ? pByNum[aib.getPNum(pEl)] : op;
+				post = pEl ? pByNum[aib.getPNum(pEl)] : this.op;
 			if(post && !post.banned) {
 				if(!$q(aib.qBan, post.el)) {
 					post.msg.appendChild(bEl);
@@ -10665,6 +10674,35 @@ function getImageBoard(checkDomains, checkEngines) {
 		'ponya.ch': [{
 			ponya: { value: true },
 
+			getPNum: { value(post) {
+				return post.getAttribute('data-num');
+			} },
+			modifiedPosts: { configurable: true, get() {
+				var val = new Map();
+				Object.defineProperty(this, 'modifiedPosts', { value: val });
+				return val;
+			} },
+			postMapInited: { writable: true, value: false },
+			checkForm: { value(formEl, sRunner) {
+				var mySRunner = sRunner;
+				if(!this.postMapInited) {
+					this.postMapInited = true;
+					$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', dForm.el),
+					      pEl => this.modifiedPosts.set(pEl, +pEl.getAttribute('data-lastmodified')));
+				}
+				$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', formEl), pEl => {
+					var post = pByNum[this.getPNum(pEl)],
+						pDate = +pEl.getAttribute('data-lastmodified');
+					if(post && (!this.modifiedPosts.has(post) || this.modifiedPosts.get(post) < pDate)) {
+						this.modifiedPosts.set(post, pDate);
+						post.updateMsg(replacePost($q(this.qMsg, pEl)),
+									   mySRunner || (mySRunner = new SpellsRunner()));
+					}
+				});
+				if(mySRunner && !sRunner) {
+					mySRunner.end();
+				}
+			} },
 			multiFile: { value: true },
 			thrid: { value: 'replythread' }
 		}],
@@ -11149,6 +11187,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		hasPicWrap: false,
 		host: window.location.hostname,
 		init: null,
+		checkForm: emptyFn,
 		get lastPage() {
 			var el = $q(this.qPages, doc),
 				val = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
