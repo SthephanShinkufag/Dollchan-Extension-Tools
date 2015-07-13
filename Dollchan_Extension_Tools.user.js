@@ -13495,6 +13495,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						Cfg.timePattern = "w+dd+m+yyyy+hh+ii+ss";
 						Cfg.timeOffset = 4;
 						Cfg.correctTime = 1;
+						return false;
 					} },
 				markupBB: { value: true },
 				markupTags: { value: ["b", "i", "u", "s", "spoiler", "code", "sub", "sup", "q"] }
