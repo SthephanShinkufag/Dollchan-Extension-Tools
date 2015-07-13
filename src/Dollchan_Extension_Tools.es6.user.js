@@ -10024,7 +10024,7 @@ Thread.prototype = {
 			newVisPosts = 0,
 			len = nPosts.length,
 			post = this.lastNotDeleted,
-			maybeVParser = Cfg.addYouTube ? new Maybe(VideosParser) : null;
+			maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
 		if(aib.dobr || (post.count !== 0 &&
 		   (post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)))
 		{
