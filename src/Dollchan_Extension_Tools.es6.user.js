@@ -10310,7 +10310,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			getPageUrl: { value(b, p) {
 				return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
 			} },
-			css: { value: 'span[id$="_display"], #fastload { display: none !important; }' },
+			css: { value: 'span[id$="_display"], #fastload { display: none; }' },
 			docExt: { value: '.html' },
 			fixFileInputs: { value(el) {
 				var str = '><input name="file" maxlength="4" ' +
@@ -10333,7 +10333,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				var el = $c('filetitle', post);
 				return el && el.textContent.includes('\u21E9');
 			} },
-			css: { value: '#resizer { display: none !important; }' },
+			css: { value: '#resizer { display: none; }' },
 			markupBB: { value: false },
 			markupTags: { value: ['**', '*', '__', '^^', '%%', '`', '', '', 'q'] },
 			timePattern: { value: 'dd+nn+yyyy++w++hh+ii+ss' }
@@ -10463,6 +10463,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			getTNum: { value(el) {
 				return this.getOp(el).getAttribute('postid');
 			} },
+			getThrdUrl: { value(b, tNum) {
+				return $q('link[rel="canonical"]', doc.head).href;
+			} },
 			init: { value() {
 				setTimeout(() => {
 					var delPosts = $Q('.post[postid=""]', doc);
@@ -10489,7 +10492,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		'diochan.com': [{
 			dio: { value: true },
 
-			css: { value: '.resize { display: none !important; }' }
+			css: { value: '.resize { display: none; }' }
 		}, 'script[src*="kusaba"]'],
 		get 'dmirrgetyojz735v.onion'() { return this['2chru.net']; },
 		'dobrochan.com': [{
@@ -10527,7 +10530,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				node.insertAdjacentHTML('beforebegin', playerHtml);
 				return node.previousSibling;
 			} },
-			css: { value: '.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none !important; }\
+			css: { value: '.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none; }\
 				.delete { background: none; }\
 				.delete_checkbox { position: static !important; }\
 				.file + .de-video-obj { float: left; margin: 5px 20px 5px 5px; }\
@@ -10575,11 +10578,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		'dva-ch.net': [{
 			dvachnet: { value: true },
 		}],
-		'hii.pm': [{
-			qPostRedir: { value: 'input[name="redirecttothread"][value="1"]' },
-			css: { value: '#captcha_status, .content-background > hr, div[style="position: relative;"] { display: none !important; }' },
-			ru: { value: true }
-		}, 'script[src*="kusaba"]'],
 		'iichan.hk': [{
 			iich: { value: true },
 
@@ -10590,7 +10588,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}],
 		'inach.org': [{
 			qPostRedir: { value: 'input[name="fieldnoko"]' },
-			css: { value: '#postform > table > tbody > tr:first-child { display: none !important; }' },
 			markupBB: { value: true },
 			timePattern: { value: 'nn+dd+yyyy++w++hh+ii+ss' }
 		}],
@@ -10630,9 +10627,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				node.insertAdjacentHTML('beforebegin', playerHtml);
 				return node.previousSibling;
 			} },
-			css: { value: 'img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none !important; }\
+			css: { value: 'img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none; }\
 				div[id^="Wz"] { z-index: 10000 !important; }\
-				.de-thr-hid { float: none !important; }\
+				.de-thr-hid { float: none; }\
 				.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\
 				.de-video-obj + div { clear: left; }\
 				form[action="/paint"] > select { width: 105px; }\
@@ -10673,7 +10670,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			getWrap: { value(el, isOp) {
 				return el.parentNode;
 			} },
-			css: { value: '.image-hover, form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none !important; }' },
+			css: { value: 'form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none; }' },
 			markupBB: { value: true },
 			markupTags: { value: ['b', 'i', 'u', '-', 'spoiler', 'c', '', '', 'q'] }
 		}, 'form[name*="postcontrols"]'],
@@ -10752,7 +10749,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			synch: { value: true },
 
 			cFileInfo: { value: 'unimportant' },
-			css: { value: '.fa-sort, .image_id { display: none !important; }\
+			css: { value: '.fa-sort { display: none; }\
 				time:after { content: none; }' },
 			earlyInit: { value() {
 				var val = '{"simpleNavbar":true,"showInfo":true}';
@@ -12180,11 +12177,11 @@ function scriptCSS() {
 		'color: #4F7942; font-size: 14px; }\
 		.de-post-hide .de-btn-hide:after { content: "\u271A"; }\
 		.de-post-hide .de-btn-hide-user:after { content: "\u271A"; }\
-		.de-btn-expthr:after { content: "\u21D5"; }\
+		.de-btn-expthr:after { content: "\u2B0D"; }\
 		.de-btn-fav:after { content: "\u2605"; }\
-		.de-btn-fav-sel:after { content: "[\u2605]"; }\
+		.de-btn-fav-sel:after { content: "\u2605"; color: red; }\
 		.de-btn-hide:after { content: "\u2716"; }\
-		.de-btn-hide-user:after { content: "\u2716"; color: red !important; }\
+		.de-btn-hide-user:after { content: "\u2716"; color: red; }\
 		.de-btn-rep:after { content: "\u25B6"; }\
 		.de-btn-sage:after { content: "\u274E"; }\
 		.de-btn-src:after { content: "[S]"; }\
