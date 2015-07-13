@@ -866,16 +866,16 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 	});
 }
 
-function Maybe(ctor, ...args) {
+function Maybe(ctor/*, ...args*/) {
 	this._ctor = ctor;
-	this._args = args;
+	//this._args = args;
 	this.hasValue = false;
 }
 Maybe.prototype = {
 	get value() {
 		var ctor = this._ctor;
 		this.hasValue = !!ctor;
-		var val = ctor ? new ctor(...this._args) : null;
+		var val = ctor ? new ctor(/*...this._args*/) : null;
 		Object.defineProperty(this, 'value', { value: val });
 		return val;
 	}
@@ -5342,13 +5342,11 @@ SpellsCodegen.prototype = {
 	}
 };
 
-function SpellsRunner(savePosts = true) {
+function SpellsRunner() {
 	this._spells = spells._spells;
 	if(!this._spells) {
 		this.run = () => 0;
-		this._savePosts = false;
 	}
-	this._savePosts = savePosts;
 }
 SpellsRunner.prototype = {
 	hasNumSpell: false,
@@ -5383,7 +5381,7 @@ SpellsRunner.prototype = {
 		return 0;
 	},
 	_savePostsHelper() {
-		if(this._savePosts) {
+		if(this._spells) {
 			if(aib.t) {
 				var lPost = dForm.firstThr.lastNotDeleted;
 				sesStorage['de-hidden-' + aib.b + aib.t] = (Cfg.hideBySpell ? spells.hash : '0') +

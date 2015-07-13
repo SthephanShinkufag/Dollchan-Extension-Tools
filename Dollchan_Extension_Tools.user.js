@@ -1729,10 +1729,6 @@ $define(GLOBAL + BIND, {
 
 var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } };
 
-var _applyConstructor = function (Constructor, args) { var instance = Object.create(Constructor.prototype); var result = Constructor.apply(instance, args); return result != null && (typeof result == "object" || typeof result == "function") ? result : instance; };
-
-var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } };
-
 
 
 
@@ -3376,13 +3372,9 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
 		});
 	}
 
-	function Maybe(ctor) {
-		for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-			args[_key - 1] = arguments[_key];
-		}
-
+	function Maybe(ctor ) {
 		this._ctor = ctor;
-		this._args = args;
+	
 		this.hasValue = false;
 	}
 	Maybe.prototype = Object.defineProperties({}, {
@@ -3390,7 +3382,7 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
 			get: function () {
 				var ctor = this._ctor;
 				this.hasValue = !!ctor;
-				var val = ctor ? _applyConstructor(ctor, _toConsumableArray(this._args)) : null;
+				var val = ctor ? new ctor() : null;
 				Object.defineProperty(this, "value", { value: val });
 				return val;
 			},
@@ -7489,16 +7481,12 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
 	});
 
 	function SpellsRunner() {
-		var savePosts = arguments[0] === undefined ? true : arguments[0];
-
 		this._spells = spells._spells;
 		if (!this._spells) {
 			this.run = function () {
 				return 0;
 			};
-			this._savePosts = false;
 		}
-		this._savePosts = savePosts;
 	}
 	SpellsRunner.prototype = {
 		hasNumSpell: false,
@@ -7549,7 +7537,7 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
 			return 0;
 		},
 		_savePostsHelper: function _savePostsHelper() {
-			if (this._savePosts) {
+			if (this._spells) {
 				if (aib.t) {
 					var lPost = dForm.firstThr.lastNotDeleted;
 					sesStorage["de-hidden-" + aib.b + aib.t] = (Cfg.hideBySpell ? spells.hash : "0") + "," + lPost.num + "," + lPost.count + "," + sVis.join("");
@@ -15189,5 +15177,4 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
 		doc.addEventListener("DOMContentLoaded", async(initScript.bind(null, false)), false);
 	}
 })(window.opera && window.opera.scriptStorage, window.FormData);
-
                      })();
