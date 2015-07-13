@@ -875,7 +875,7 @@ Maybe.prototype = {
 	get value() {
 		var ctor = this._ctor;
 		this.hasValue = !!ctor;
-		var val = ctor ? new this._ctor(...this._args) : null;
+		var val = ctor ? new ctor(...this._args) : null;
 		Object.defineProperty(this, 'value', { value: val });
 		return val;
 	}

@@ -3390,7 +3390,7 @@ var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i =
 			get: function () {
 				var ctor = this._ctor;
 				this.hasValue = !!ctor;
-				var val = ctor ? _applyConstructor(this._ctor, _toConsumableArray(this._args)) : null;
+				var val = ctor ? _applyConstructor(ctor, _toConsumableArray(this._args)) : null;
 				Object.defineProperty(this, "value", { value: val });
 				return val;
 			},
