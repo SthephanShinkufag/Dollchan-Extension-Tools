@@ -1198,8 +1198,6 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
-
-
 !(function(global) {
   "use strict";
 
@@ -2063,9 +2061,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						});
 						Cfg.ajaxReply = 1;
 					}
-					if (aib.tiny && !aib._8ch) {
-						Cfg.fileThumb = 0;
-					}
 					if (aib.prot !== "http:") {
 						Cfg.addVocaroo = 0;
 					}
@@ -2107,14 +2102,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					if (aib.t) {
 						Cfg.stats.view++;
 					}
-					if (aib.fch) {
-						Cfg.findImgFile = 0;
-					}
-					if (aib.synch) {
-						Cfg.timePattern = "w+dd+m+yyyy+hh+ii+ss";
-						Cfg.timeOffset = 4;
-						Cfg.correctTime = 1;
-					}
 					setStored("DESU_Config", JSON.stringify(val));
 					lang = Cfg.language;
 					if (Cfg.updScript) {
@@ -2129,14 +2116,14 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						}, emptyFn);
 					}
 
-				case 22:
+				case 19:
 				case "end":
 					return context$2$0.stop();
 			}
 		}, readCfg, this);
 	});
 	var readUserPosts = regeneratorRuntime.mark(function readUserPosts() {
-		var b, date, spellsHide, update, globalUserVis, sRunner, post, num, hidePost, hideThread, vis;
+		var b, date, spellsHide, update, globalUserVis, maybeSpells, post, num, hidePost, hideThread, vis;
 		return regeneratorRuntime.wrap(function readUserPosts$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
@@ -2166,7 +2153,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					return context$2$0.abrupt("return");
 
 				case 12:
-					sRunner = new SpellsRunner();
+					maybeSpells = new Maybe(SpellsRunner);
 					post = dForm.firstThr.op;
 
 				case 14:
@@ -2236,7 +2223,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						}
 						post.spellHidden = true;
 					} else if (vis !== "1") {
-						sRunner.run(post);
+						maybeSpells.value.run(post);
 					}
 
 				case 31:
@@ -2249,7 +2236,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						globalUserVis[b] = uVis;
 						setStored("DESU_Posts_" + aib.dm, JSON.stringify(globalUserVis));
 					}
-					sRunner.end();
+					if (maybeSpells.hasValue) {
+						maybeSpells.value.end();
+					}
 
 				case 36:
 				case "end":
@@ -2463,7 +2452,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		}, html5Submit, this, [[5, 33, 37, 45], [38,, 40, 44], [51, 58]]);
 	});
-	var initScript = regeneratorRuntime.mark(function initScript(checkDomains) {
+	var initScript = regeneratorRuntime.mark(function initScript(checkDomains, readCfgPromise) {
 		var formEl, str;
 		return regeneratorRuntime.wrap(function initScript$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
@@ -2496,16 +2485,29 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					excludeList = str || "";
 
 					if (Cfg) {
-						context$2$0.next = 13;
+						context$2$0.next = 18;
 						break;
 					}
 
-					return context$2$0.delegateYield(readCfg(), "t31", 12);
+					if (!readCfgPromise) {
+						context$2$0.next = 16;
+						break;
+					}
 
-				case 12:
+					context$2$0.next = 14;
+					return readCfgPromise;
+
+				case 14:
+					context$2$0.next = 17;
+					break;
+
+				case 16:
+					return context$2$0.delegateYield(readCfg(), "t31", 17);
+
+				case 17:
 					new Logger().log("Config loading");
 
-				case 13:
+				case 18:
 					if (Cfg.correctTime) {
 						dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, function (rp) {
 							return saveCfg("timeRPattern", rp);
@@ -2514,7 +2516,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 
 					if (!Cfg.disabled) {
-						context$2$0.next = 18;
+						context$2$0.next = 23;
 						break;
 					}
 
@@ -2522,28 +2524,28 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					scriptCSS();
 					return context$2$0.abrupt("return");
 
-				case 18:
+				case 23:
 					spells = new Spells(!!Cfg.hideBySpell);
 					new Logger().log("Parsing spells");
 					doc.body.style.display = "none";
 					formEl = DelForm.doReplace(formEl);
 					new Logger().log("Replace delform");
 					pByNum = Object.create(null);
-					context$2$0.prev = 24;
+					context$2$0.prev = 29;
 
 					dForm = new DelForm(formEl, false);
-					context$2$0.next = 33;
+					context$2$0.next = 38;
 					break;
 
-				case 28:
-					context$2$0.prev = 28;
-					context$2$0.t32 = context$2$0["catch"](24);
+				case 33:
+					context$2$0.prev = 33;
+					context$2$0.t32 = context$2$0["catch"](29);
 
 					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t32));
 					doc.body.style.display = "";
 					return context$2$0.abrupt("return");
 
-				case 33:
+				case 38:
 					if (!localRun) {
 						dForm.initAjax();
 					}
@@ -2570,21 +2572,21 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 					new Logger().log("Scroll page");
 					readPosts();
-					return context$2$0.delegateYield(readUserPosts(), "t33", 53);
+					return context$2$0.delegateYield(readUserPosts(), "t33", 58);
 
-				case 53:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t34", 54);
+				case 58:
+					return context$2$0.delegateYield(readFavoritesPosts(), "t34", 59);
 
-				case 54:
+				case 59:
 					setTimeout(PostContent.purge, 0);
 					new Logger().log("Apply spells");
 					new Logger().finish();
 
-				case 57:
+				case 62:
 				case "end":
 					return context$2$0.stop();
 			}
-		}, initScript, this, [[24, 28]]);
+		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.7.2.0",
 	    defaultCfg = {
@@ -8790,15 +8792,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				if (aib.dobr || aib.krau || aib.dvachnet || this.recap) {
 					img.click();
 				} else if (img) {
-					var src = img.getAttribute("src");
-					if (aib.tire) {
-						src = "/" + aib.b + "/captcha.fpl?" + Math.random();
-					} else if (aib.kus || aib.tinyIb) {
-						src = src.replace(/\?[^?]+$|$/, (aib._410 ? "?board=" + aib.b + "&" : "?") + Math.random());
-					} else {
-						src = src.replace(/pl$/, "pl?key=mainpage&amp;dummy=").replace(/dummy=[\d\.]*/, "dummy=" + Math.random());
-						src = this.tNum ? src.replace(/mainpage|res\d+/, "res" + this.tNum) : src.replace(/res\d+/, "mainpage");
-					}
+					var src = aib.getCaptchaSrc(img.getAttribute("src"), this.tNum);
 					img.src = "";
 					img.src = src;
 				}
@@ -13075,6 +13069,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				qPostRedir: { value: null },
 				qTable: { value: "table:not(.postfiles)" },
 				qThread: { value: ".threadz" },
+				getCaptchaSrc: { value: function value(src, tNum) {
+						return "/" + this.b + "/captcha.fpl?" + Math.random();
+					} },
 				getOmitted: { value: function value(el, len) {
 						var txt;
 						return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
@@ -13097,6 +13094,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				_410: { value: true },
 
 				qPostRedir: { value: "input#noko" },
+				getCaptchaSrc: { value: function value(src, tNum) {
+						return src.replace(/\?[^?]+$|$/, "?board=" + aib.b + "&" + Math.random());
+					} },
 				getSage: { value: function value(post) {
 						var el = $c("filetitle", post);
 						return el && el.textContent.includes("⇩");
@@ -13165,6 +13165,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				docExt: { value: "" },
 				firstPage: { value: 1 },
 				init: { value: function value() {
+						Cfg.findImgFile = 0;
 						var el = $id("captchaFormPart");
 						if (el) {
 							doc.body.insertAdjacentHTML("beforeend", "<div style=\"display: none;\">" + "<div onclick=\"initRecaptcha();\"></div></div>");
@@ -13200,6 +13201,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						}
 						return false;
 					} },
+				init: { value: null },
 				fixFileInputs: { value: function value(el) {
 						var str = "";
 						for (var i = 0, len = 5; i < len; ++i) {
@@ -13479,8 +13481,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				css: { value: ".mature_thread { display: block !important; }\t\t\t\t.mature_warning { display: none; }" }
 			}, "form[name*=\"postcontrols\"]"],
 			"syn-ch.ru": [{
-				synch: { value: true },
-
 				cFileInfo: { value: "unimportant" },
 				css: { value: ".fa-sort { display: none; }\t\t\t\ttime::after { content: none; }" },
 				earlyInit: { value: function value() {
@@ -13490,6 +13490,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							return true;
 						}
 						return false;
+					} },
+				init: { value: function value() {
+						Cfg.timePattern = "w+dd+m+yyyy+hh+ii+ss";
+						Cfg.timeOffset = 4;
+						Cfg.correctTime = 1;
 					} },
 				markupBB: { value: true },
 				markupTags: { value: ["b", "i", "u", "s", "spoiler", "code", "sub", "sup", "q"] }
@@ -13752,6 +13757,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				tinyIb: { value: true },
 
 				qPostRedir: { value: null },
+				getCaptchaSrc: { value: function value(src, tNum) {
+						return src.replace(/\?[^?]+$|$/, "?" + Math.random());
+					} },
 				ru: { value: true }
 			},
 			"form[name*=\"postcontrols\"]": {
@@ -13790,6 +13798,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				getTNum: { value: function value(op) {
 						return $q("input[type=\"checkbox\"]", op).name.match(/\d+/)[0];
 					} },
+				init: { value: function value() {
+						Cfg.fileThumb = 0;
+						return false;
+					} },
 				firstPage: { value: 1 },
 				markupTags: { value: ["'''", "''", "__", "^H", "**", "`", "", "", "q"] },
 				cssEn: { get: function get() {
@@ -13805,6 +13817,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				cOPost: { value: "postnode" },
 				qError: { value: "h1, h2, div[style*=\"1.25em\"]" },
 				qPostRedir: { value: null },
+				getCaptchaSrc: { value: function value(src, tNum) {
+						return src.replace(/\?[^?]+$|$/, "?" + Math.random());
+					} },
 				cssEn: { value: ".extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }\t\t\t\t.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }" },
 				markupBB: { value: true },
 				rLinkClick: { value: "onclick=\"highlight(this.textContent.substr(2), true)\"" }
@@ -13919,6 +13934,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 				}
 				return videos;
+			},
+			getCaptchaSrc: function getCaptchaSrc(src, tNum) {
+				var tmp = src.replace(/pl$/, "pl?key=mainpage&amp;dummy=").replace(/dummy=[\d\.]*/, "dummy=" + Math.random());
+				return tNum ? tmp.replace(/mainpage|res\d+/, "res" + tNum) : tmp.replace(/res\d+/, "mainpage");
 			},
 			getFileInfo: function getFileInfo(wrap) {
 				var el = $c(this.cFileInfo, wrap);
@@ -15157,6 +15176,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		needScroll = false;
 		async(initScript)(true);
 	} else {
+		var cfgRead = null;
 		aib = getImageBoard(true, false);
 		if (aib) {
 			if (!checkStorage()) {
@@ -15166,14 +15186,14 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				aib.earlyInit();
 			}
 			initNavFuncs();
-			async(readCfg)();
+			cfgRead = spawn(readCfg);
 		}
 		needScroll = true;
 		doc.addEventListener(doc.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll", function wheelFunc(e) {
 			needScroll = false;
 			doc.removeEventListener(e.type, wheelFunc, false);
 		}, false);
-		doc.addEventListener("DOMContentLoaded", async(initScript.bind(null, false)), false);
+		doc.addEventListener("DOMContentLoaded", async(initScript.bind(null, false, cfgRead)), false);
 	}
 })(window.opera && window.opera.scriptStorage, window.FormData);
                      })();

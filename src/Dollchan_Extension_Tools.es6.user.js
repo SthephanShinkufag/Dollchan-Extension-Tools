@@ -1311,9 +1311,6 @@ function* readCfg() {
 		Lng.cfg['ajaxReply'].sel.forEach(a => a.splice(-1));
 		Cfg.ajaxReply = 1;
 	}
-	if(aib.tiny && !aib._8ch) {
-		Cfg.fileThumb = 0;
-	}
 	if(aib.prot !== 'http:') {
 		Cfg.addVocaroo = 0;
 	}
@@ -1354,14 +1351,6 @@ function* readCfg() {
 	}
 	if(aib.t) {
 		Cfg.stats.view++;
-	}
-	if(aib.fch) {
-		Cfg.findImgFile = 0;
-	}
-	if(aib.synch) {
-		Cfg.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
-		Cfg.timeOffset = 4;
-		Cfg.correctTime = 1;
 	}
 	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
@@ -1412,7 +1401,7 @@ function* readUserPosts() {
 	if(!dForm.firstThr) {
 		return;
 	}
-	var sRunner = new SpellsRunner();
+	var maybeSpells = new Maybe(SpellsRunner);
 	for(var post = dForm.firstThr.op; post; post = post.next) {
 		var num = post.num;
 		if(num in uVis) {
@@ -1452,14 +1441,16 @@ function* readUserPosts() {
 			}
 			post.spellHidden = true;
 		} else if(vis !== '1') {
-			sRunner.run(post);
+			maybeSpells.value.run(post);
 		}
 	}
 	if(update) {
 		globalUserVis[b] = uVis;
 		setStored('DESU_Posts_' + aib.dm, JSON.stringify(globalUserVis));
 	}
-	sRunner.end();
+	if(maybeSpells.hasValue) {
+		maybeSpells.value.end();
+	}
 }
 
 function saveUserPosts() {
@@ -6432,18 +6423,7 @@ PostForm.prototype = {
 			if(aib.dobr || aib.krau || aib.dvachnet || this.recap) {
 				img.click();
 			} else if(img) {
-				var src = img.getAttribute('src');
-				if(aib.tire) {
-					src = '/' + aib.b + '/captcha.fpl?' + Math.random();
-				} else if(aib.kus || aib.tinyIb) {
-					src = src.replace(/\?[^?]+$|$/,
-						(aib._410 ? '?board=' + aib.b + '&' : '?') + Math.random());
-				} else {
-					src = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
-						.replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
-					src = this.tNum ? src.replace(/mainpage|res\d+/, 'res' + this.tNum) :
-						src.replace(/res\d+/, 'mainpage');
-				}
+				var src = aib.getCaptchaSrc(img.getAttribute('src'), this.tNum);
 				img.src = '';
 				img.src = src;
 			}
@@ -10303,6 +10283,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			qPostRedir: { value: null },
 			qTable: { value: 'table:not(.postfiles)' },
 			qThread: { value: '.threadz' },
+			getCaptchaSrc: { value(src, tNum) {
+				return '/' + this.b + '/captcha.fpl?' + Math.random();
+			} },
 			getOmitted: { value(el, len) {
 				var txt;
 				return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
@@ -10329,6 +10312,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			_410: { value: true },
 
 			qPostRedir: { value: 'input#noko' },
+			getCaptchaSrc: { value(src, tNum) {
+				return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
+			} },
 			getSage: { value(post) {
 				var el = $c('filetitle', post);
 				return el && el.textContent.includes('\u21E9');
@@ -10400,6 +10386,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			docExt: { value: '' },
 			firstPage: { value: 1 },
 			init: { value() {
+				Cfg.findImgFile = 0;
 				var el = $id('captchaFormPart');
 				if(el) {
 					doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
@@ -10436,6 +10423,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				}
 				return false;
 			} },
+			init: { value: null }, // Don't run tinyboard init function
 			fixFileInputs: { value(el) {
 				var str = '';
 				for(var i = 0, len = 5; i < len; ++i) {
@@ -10746,8 +10734,6 @@ function getImageBoard(checkDomains, checkEngines) {
 				.mature_warning { display: none; }' }
 		}, 'form[name*="postcontrols"]'],
 		'syn-ch.ru': [{
-			synch: { value: true },
-
 			cFileInfo: { value: 'unimportant' },
 			css: { value: '.fa-sort { display: none; }\
 				time::after { content: none; }' },
@@ -10758,6 +10744,11 @@ function getImageBoard(checkDomains, checkEngines) {
 					return true;
 				}
 				return false;
+			} },
+			init: { value() {
+				Cfg.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
+				Cfg.timeOffset = 4;
+				Cfg.correctTime = 1;
 			} },
 			markupBB: { value: true },
 			markupTags: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'] }
@@ -10930,6 +10921,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			tinyIb: { value: true },
 
 			qPostRedir: { value: null },
+			getCaptchaSrc: { value(src, tNum) {
+				return src.replace(/\?[^?]+$|$/, '?' + Math.random());
+			} },
 			ru: { value: true }
 		},
 		'form[name*="postcontrols"]': {
@@ -10969,6 +10963,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			getTNum: { value(op) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
+			init: { value() {
+				Cfg.fileThumb = 0;
+				return false;
+			} },
 			firstPage: { value: 1 },
 			markupTags: { value: ["'''", "''", '__', '^H', '**', '`', '', '', 'q'] },
 			cssEn: { get() {
@@ -10986,6 +10984,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			cOPost: { value: 'postnode' },
 			qError: { value: 'h1, h2, div[style*="1.25em"]' },
 			qPostRedir: { value: null },
+			getCaptchaSrc: { value(src, tNum) {
+				return src.replace(/\?[^?]+$|$/, '?' + Math.random());
+			} },
 			cssEn: { value: '.extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }\
 				.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }' },
 			markupBB: { value: true },
@@ -11118,6 +11119,12 @@ function getImageBoard(checkDomains, checkEngines) {
 				}
 			}
 			return videos;
+		},
+		getCaptchaSrc(src, tNum) {
+			var tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
+			             .replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
+			return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum)
+			            : tmp.replace(/res\d+/, 'mainpage');
 		},
 		getFileInfo(wrap) {
 			var el = $c(this.cFileInfo, wrap);
@@ -12495,7 +12502,7 @@ function addDelformStuff() {
 	}
 }
 
-function* initScript(checkDomains) {
+function* initScript(checkDomains, readCfgPromise) {
 	new Logger().init();
 	var formEl = Initialization(checkDomains);
 	if(!formEl) {
@@ -12508,7 +12515,11 @@ function* initScript(checkDomains) {
 	}
 	excludeList = str || '';
 	if(!Cfg) {
-		yield* readCfg();
+		if(readCfgPromise) {
+			yield readCfgPromise;
+		} else {
+			yield* readCfg();
+		}
 		new Logger().log('Config loading');
 	}
 	if(Cfg.correctTime) {
@@ -12582,6 +12593,7 @@ if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 	needScroll = false;
 	async(initScript)(true);
 } else {
+	var cfgRead = null;
 	aib = getImageBoard(true, false);
 	if(aib) {
 		if(!checkStorage()) {
@@ -12591,16 +12603,16 @@ if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 			aib.earlyInit();
 		}
 		initNavFuncs();
-		async(readCfg)();
+		cfgRead = spawn(readCfg);
 	}
 	needScroll = true;
-	doc.addEventListener(
-		doc.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll",
-		function wheelFunc(e) {
-			needScroll = false;
-			doc.removeEventListener(e.type, wheelFunc, false);
-		}, false);
-	doc.addEventListener('DOMContentLoaded', async(initScript.bind(null, false)), false);
+	doc.addEventListener(doc.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll",
+	                     function wheelFunc(e) {
+							needScroll = false;
+							doc.removeEventListener(e.type, wheelFunc, false);
+		                 },
+						 false);
+	doc.addEventListener('DOMContentLoaded', async(initScript.bind(null, false, cfgRead)), false);
 }
 
 })(window.opera && window.opera.scriptStorage, window.FormData);
