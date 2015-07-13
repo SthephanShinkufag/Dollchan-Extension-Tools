@@ -1292,7 +1292,7 @@ function* readCfg() {
 	if(!Cfg.timePattern) {
 		Cfg.timePattern = aib.timePattern;
 	}
-	if((nav.Opera11 || aib.fch || aib.ponya) && Cfg.ajaxReply === 2) {
+	if((nav.Opera11 || aib.fch) && Cfg.ajaxReply === 2) {
 		Lng.cfg['ajaxReply'].sel.forEach(a => a.splice(-1));
 		Cfg.ajaxReply = 1;
 	}
@@ -10672,10 +10672,13 @@ function getImageBoard(checkDomains, checkEngines) {
 		}, 'form[name*="postcontrols"]'],
 		get 'niuchan.org'() { return this['diochan.com']; },
 		'ponya.ch': [{
-			ponya: { value: true },
-
 			getPNum: { value(post) {
 				return post.getAttribute('data-num');
+			} },
+			init: { value() {
+				defaultCfg.postSameImg  = 0;
+				defaultCfg.removeEXIF = 0;
+				return false;
 			} },
 			modifiedPosts: { configurable: true, get() {
 				var val = new WeakMap();
@@ -10691,13 +10694,20 @@ function getImageBoard(checkDomains, checkEngines) {
 					      pEl => this.modifiedPosts.set(pEl, +pEl.getAttribute('data-lastmodified')));
 				}
 				$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', formEl), pEl => {
-					var nPost, post = pByNum[this.getPNum(pEl)],
+					var thr, nPost, post = pByNum[this.getPNum(pEl)],
 						pDate = +pEl.getAttribute('data-lastmodified');
 					if(post && (!this.modifiedPosts.has(pEl) || this.modifiedPosts.get(pEl) < pDate)) {
 						this.modifiedPosts.set(pEl, pDate);
+						thr = post.thr;
 						fragm = doc.createDocumentFragment();
-						nPost = Thread.addPost(fragm, pEl, post.count, post.prev, post.thr,
+						nPost = Thread.addPost(fragm, pEl, post.count, post.prev, thr,
 						                       Cfg.addYouTube ? vParser || (vParser = new VideosParser()) : null);
+						if(thr.op === post) {
+							thr.op = nPost;
+						}
+						if(thr.last === post) {
+							thr.last = nPost;
+						}
 						if(post.next) {
 							post.next.prev = nPost;
 							nPost.next = post.next;

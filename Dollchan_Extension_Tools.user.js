@@ -2055,7 +2055,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					if (!Cfg.timePattern) {
 						Cfg.timePattern = aib.timePattern;
 					}
-					if ((nav.Opera11 || aib.fch || aib.ponya) && Cfg.ajaxReply === 2) {
+					if ((nav.Opera11 || aib.fch) && Cfg.ajaxReply === 2) {
 						Lng.cfg.ajaxReply.sel.forEach(function (a) {
 							return a.splice(-1);
 						});
@@ -13405,10 +13405,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				markupTags: { value: ["b", "i", "u", "-", "spoiler", "c", "", "", "q"] }
 			}, "form[name*=\"postcontrols\"]"],
 			"ponya.ch": [{
-				ponya: { value: true },
-
 				getPNum: { value: function value(post) {
 						return post.getAttribute("data-num");
+					} },
+				init: { value: function value() {
+						defaultCfg.postSameImg = 0;
+						defaultCfg.removeEXIF = 0;
+						return false;
 					} },
 				modifiedPosts: { configurable: true, get: function get() {
 						var val = new WeakMap();
@@ -13429,13 +13432,21 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							});
 						}
 						$each($Q(".oppost[data-lastmodified], .reply[data-lastmodified]", formEl), function (pEl) {
-							var nPost,
+							var thr,
+							    nPost,
 							    post = pByNum[_this.getPNum(pEl)],
 							    pDate = +pEl.getAttribute("data-lastmodified");
 							if (post && (!_this.modifiedPosts.has(pEl) || _this.modifiedPosts.get(pEl) < pDate)) {
 								_this.modifiedPosts.set(pEl, pDate);
+								thr = post.thr;
 								fragm = doc.createDocumentFragment();
-								nPost = Thread.addPost(fragm, pEl, post.count, post.prev, post.thr, Cfg.addYouTube ? vParser || (vParser = new VideosParser()) : null);
+								nPost = Thread.addPost(fragm, pEl, post.count, post.prev, thr, Cfg.addYouTube ? vParser || (vParser = new VideosParser()) : null);
+								if (thr.op === post) {
+									thr.op = nPost;
+								}
+								if (thr.last === post) {
+									thr.last = nPost;
+								}
 								if (post.next) {
 									post.next.prev = nPost;
 									nPost.next = post.next;
