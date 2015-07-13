@@ -866,6 +866,21 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 	});
 }
 
+function Maybe(ctor, ...args) {
+	this._ctor = ctor;
+	this._args = args;
+	this.hasValue = false;
+}
+Maybe.prototype = {
+	get value() {
+		var ctor = this._ctor;
+		this.hasValue = !!ctor;
+		var val = ctor ? new this._ctor(...this._args) : null;
+		Object.defineProperty(this, 'value', { value: val });
+		return val;
+	}
+};
+
 function TasksPool(tasksCount, taskFunc, endFn) {
 	this.array = [];
 	this.running = 0;
@@ -9001,21 +9016,23 @@ Post.prototype = {
 			$alert(Lng.loading[lang], 'load-fullmsg', true);
 		}
 		ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(form => {
-			var sRunner = new SpellsRunner();
+			var maybeSpells = new Maybe(SpellsRunner);
 			if(this.isOp) {
-				this.updateMsg(replacePost($q(aib.qMsg, form)), sRunner);
+				this.updateMsg(replacePost($q(aib.qMsg, form)), maybeSpells.value);
 				$del(node);
 			} else {
 				var els = $Q(aib.qRPost, form);
 				for(var i = 0, len = els.length; i < len; i++) {
 					if(this.num === aib.getPNum(els[i])) {
-						this.updateMsg(replacePost($q(aib.qMsg, els[i])), sRunner);
+						this.updateMsg(replacePost($q(aib.qMsg, els[i])), maybeSpells.value);
 						$del(node);
 						break;
 					}
 				}
 			}
-			sRunner.end();
+			if(maybeSpells.hasValue) {
+				maybeSpells.value.end();
+			}
 		}, emptyFn);
 	},
 	_markLink(pNum) {
@@ -9679,30 +9696,6 @@ function Thread(el, prev, isLight) {
 		};
 	}
 }
-Thread.addPost = function(parent, el, i, prev, thr, vParser) {
-	var post, num = aib.getPNum(el),
-		wrap = aib.getWrap(el, false);
-	el = replacePost(el);
-	pByNum[num] = post = new Post(el, thr, num, i, false, prev);
-	Object.defineProperty(post, 'wrap', { value: wrap });
-	parent.appendChild(wrap);
-	if(aib.t && updater.focused && Cfg.animation) {
-		nav.animEvent(post.el, function(node) {
-			node.classList.remove('de-post-new');
-		});
-		post.el.classList.add('de-post-new');
-	}
-	if(vParser) {
-		vParser.parse(post);
-	}
-	processImageNames(el);
-	post.addFuncs();
-	preloadImages(el);
-	if(aib.t && Cfg.markNewPosts) {
-		thr._addPostMark(el);
-	}
-	return post;
-};
 Thread.clearPostsMark = function() {
 	dForm.firstThr.clearPostsMarks();
 };
@@ -9728,6 +9721,30 @@ Thread.prototype = {
 	},
 	get topCoord() {
 		return this.op.topCoord;
+	},
+	addPost(parent, el, i, prev, maybeVParser) {
+		var post, num = aib.getPNum(el),
+			wrap = aib.getWrap(el, false);
+		el = replacePost(el);
+		pByNum[num] = post = new Post(el, this, num, i, false, prev);
+		Object.defineProperty(post, 'wrap', { value: wrap });
+		parent.appendChild(wrap);
+		if(aib.t && updater.focused && Cfg.animation) {
+			nav.animEvent(post.el, function(node) {
+				node.classList.remove('de-post-new');
+			});
+			post.el.classList.add('de-post-new');
+		}
+		if(maybeVParser.value) {
+			maybeVParser.value.parse(post);
+		}
+		processImageNames(el);
+		post.addFuncs();
+		preloadImages(el);
+		if(aib.t && Cfg.markNewPosts) {
+			this._addPostMark(el);
+		}
+		return post;
 	},
 	clearPostsMarks() {
 		if(this.hasNew) {
@@ -9785,7 +9802,8 @@ Thread.prototype = {
 	},
 	loadFromForm(last, smartScroll, form) {
 		// last = [0: get new posts, 1: get all posts, N: get N posts]
-		var nextCoord, sRunner, loadedPosts = $Q(aib.qRPost, form),
+		var nextCoord, loadedPosts = $Q(aib.qRPost, form),
+			maybeSpells = new Maybe(SpellsRunner),
 			op = this.op,
 			thrEl = this.el;
 		if(smartScroll) {
@@ -9799,13 +9817,13 @@ Thread.prototype = {
 		$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 		if(!this.loadedOnce) {
 			if(op.trunc) {
-				op.updateMsg(replacePost($q(aib.qMsg, form)), sRunner || (sRunner = new SpellsRunner()));
+				op.updateMsg(replacePost($q(aib.qMsg, form)), maybeSpells.value);
 			}
 			op.ref = [];
 			this.loadedOnce = true;
 		}
 		this._checkBans(form);
-		aib.checkForm(form, sRunner);
+		aib.checkForm(form, maybeSpells);
 		this._parsePosts(loadedPosts);
 		var newHidden = 0, post = op.next,
 			needRMUpdate = false,
@@ -9823,21 +9841,16 @@ Thread.prototype = {
 				newHidden++;
 			}
 		} else {
-			var vParser, fragm = doc.createDocumentFragment(),
+			var fragm = doc.createDocumentFragment(),
 				tPost = op,
-				nonExisted = loadedPosts.length - existed;
-			if(Cfg.addYouTube) {
-				vParser = new VideosParser();
-			}
-			if(!sRunner) {
-				sRunner = new SpellsRunner(false);
-			}
+				nonExisted = loadedPosts.length - existed,
+				maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
 			for(var i = Math.max(0, nonExisted + existed - needToShow); i < nonExisted; ++i) {
-				tPost = Thread.addPost(fragm, loadedPosts[i], i + 1, tPost, this, vParser);
-				sRunner.run(tPost);
+				tPost = this.addPost(fragm, loadedPosts[i], i + 1, tPost, maybeVParser);
+				maybeSpells.value.run(tPost);
 			}
-			if(vParser) {
-				vParser.end();
+			if(maybeVParser.hasValue) {
+				maybeVParser.value.end();
 			}
 			$after(op.wrap, fragm);
 			tPost.next = post;
@@ -9849,8 +9862,7 @@ Thread.prototype = {
 		}
 		while(existed-- !== 0) {
 			if(post.trunc) {
-				post.updateMsg(replacePost($q(aib.qMsg, loadedPosts[post.count - 1])),
-				               sRunner || (sRunner = new SpellsRunner()));
+				post.updateMsg(replacePost($q(aib.qMsg, loadedPosts[post.count - 1])), maybeSpells.value);
 			}
 			if(post.omitted && last !== 0) {
 				post.wrap.classList.remove('de-hidden');
@@ -9861,8 +9873,8 @@ Thread.prototype = {
 			}
 			post = post.next;
 		}
-		if(sRunner) {
-			sRunner.end();
+		if(maybeSpells.hasValue) {
+			maybeSpells.value.end();
 		}
 		thrEl.style.counterReset = 'de-cnt ' + (omitted - newHidden + 1);
 		var btn = this.btns;
@@ -9996,28 +10008,26 @@ Thread.prototype = {
 			}
 		}
 	},
-	_importPosts(last, newPosts, begin, end, vParser, sRunner) {
+	_importPosts(last, newPosts, begin, end, maybeVParser, maybeSpells) {
 		var newCount = end - begin,
 			newVisCount = newCount,
 			fragm = doc.createDocumentFragment();
 		for(; begin < end; ++begin) {
-			last = Thread.addPost(fragm, newPosts[begin], begin + 1, last, this, vParser);
-			newVisCount -= sRunner.run(last);
+			last = this.addPost(fragm, newPosts[begin], begin + 1, last, maybeVParser);
+			newVisCount -= maybeSpells.value.run(last);
 		}
 		return [newCount, newVisCount, fragm, last];
 	},
 	_parsePosts(nPosts) {
-		var vParser, sRunner = new SpellsRunner(),
+		var maybeSpells = new Maybe(SpellsRunner),
 			newPosts = 0,
 			newVisPosts = 0,
 			len = nPosts.length,
-			post = this.lastNotDeleted;
+			post = this.lastNotDeleted,
+			maybeVParser = Cfg.addYouTube ? new Maybe(VideosParser) : null;
 		if(aib.dobr || (post.count !== 0 &&
 		   (post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)))
 		{
-			if(Cfg.addYouTube) {
-				vParser = new VideosParser();
-			}
 			post = this.op.nextNotDeleted;
 			var i, firstChangedPost = null;
 			for(i = post.count - 1; i < len && post; ) {
@@ -10035,7 +10045,7 @@ Thread.prototype = {
 						cnt++;
 						i++;
 					} while(+aib.getPNum(nPosts[i]) < +post.num);
-					var res = this._importPosts(post.prev, nPosts, i - cnt, i, vParser, sRunner);
+					var res = this._importPosts(post.prev, nPosts, i - cnt, i, maybeVParser, maybeSpells);
 					newPosts += res[0];
 					this.pcount += res[0];
 					newVisPosts += res[1];
@@ -10055,10 +10065,10 @@ Thread.prototype = {
 			if(i === len && post) {
 				this.deletePost(post, true, !aib.t);
 			}
-			if(firstChangedPost && sRunner.hasNumSpell) {
+			if(firstChangedPost && maybeSpells.hasValue && maybeSpells.value.hasNumSpell) {
 				disableSpells();
 				for(post = firstChangedPost.nextInThread; post; post = post.nextInThread) {
-					sRunner.run(post);
+					maybeSpells.value.run(post);
 				}
 			}
 			if(newPosts !== 0) {
@@ -10068,10 +10078,7 @@ Thread.prototype = {
 			}
 		}
 		if(len + 1 > this.pcount) {
-			if(Cfg.addYouTube && !vParser) {
-				vParser = new VideosParser();
-			}
-			var res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len, vParser, sRunner);
+			var res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len, maybeVParser, maybeSpells);
 			newPosts += res[0];
 			newVisPosts += res[1];
 			this.el.appendChild(res[2]);
@@ -10098,10 +10105,12 @@ Thread.prototype = {
 				setStored('DESU_Favorites', JSON.stringify(fav));
 			}
 		});
-		if(vParser) {
-			vParser.end();
+		if(maybeVParser.hasValue) {
+			maybeVParser.value.end();
 		}
-		sRunner.end();
+		if(maybeSpells.hasValue) {
+			maybeSpells.value.end();
+		}
 		return [newPosts, newVisPosts];
 	}
 };
@@ -10686,22 +10695,22 @@ function getImageBoard(checkDomains, checkEngines) {
 				return val;
 			} },
 			postMapInited: { writable: true, value: false },
-			checkForm: { value(formEl, sRunner) {
-				var vParser, fragm, mySRunner = sRunner;
+			checkForm: { value(formEl, maybeSpells) {
+				var myMaybeSpells = maybeSpells || new Maybe(SpellsRunner),
+					maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
 				if(!this.postMapInited) {
 					this.postMapInited = true;
 					$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', dForm.el),
 					      pEl => this.modifiedPosts.set(pEl, +pEl.getAttribute('data-lastmodified')));
 				}
 				$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', formEl), pEl => {
-					var thr, nPost, post = pByNum[this.getPNum(pEl)],
+					var nPost, post = pByNum[this.getPNum(pEl)],
 						pDate = +pEl.getAttribute('data-lastmodified');
 					if(post && (!this.modifiedPosts.has(pEl) || this.modifiedPosts.get(pEl) < pDate)) {
+						var thr = post.thr,
+							fragm = doc.createDocumentFragment();
 						this.modifiedPosts.set(pEl, pDate);
-						thr = post.thr;
-						fragm = doc.createDocumentFragment();
-						nPost = Thread.addPost(fragm, pEl, post.count, post.prev, thr,
-						                       Cfg.addYouTube ? vParser || (vParser = new VideosParser()) : null);
+						nPost = thr.addPost(fragm, pEl, post.count, post.prev, maybeVParser);
 						if(thr.op === post) {
 							thr.op = nPost;
 						}
@@ -10716,13 +10725,16 @@ function getImageBoard(checkDomains, checkEngines) {
 							nPost.omitted = true;
 							nPost.wrap.classList.add('de-hidden');
 						}
-						(mySRunner || (mySRunner = new SpellsRunner())).run(nPost);
+						myMaybeSpells.value.run(nPost);
 						post.wrap.parentNode.insertBefore(fragm, post.wrap);
 						$del(post.wrap);
 					}
 				});
-				if(mySRunner && !sRunner) {
-					mySRunner.end();
+				if(!maybeSpells && myMaybeSpells.hasValue) {
+					myMaybeSpells.value.end();
+				}
+				if(maybeVParser.hasValue) {
+					maybeVParser.value.end();
 				}
 			} },
 			multiFile: { value: true },
