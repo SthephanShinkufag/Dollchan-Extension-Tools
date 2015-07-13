@@ -12608,10 +12608,10 @@ if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 	needScroll = true;
 	doc.addEventListener(doc.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll",
 	                     function wheelFunc(e) {
-							needScroll = false;
-							doc.removeEventListener(e.type, wheelFunc, false);
-		                 },
-						 false);
+	                     	needScroll = false;
+	                     	doc.removeEventListener(e.type, wheelFunc, false);
+	                     },
+	                     false);
 	doc.addEventListener('DOMContentLoaded', async(initScript.bind(null, false, cfgRead)), false);
 }
 
