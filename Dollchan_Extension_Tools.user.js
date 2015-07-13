@@ -15174,7 +15174,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 	if (doc.readyState === "interactive" || doc.readyState === "complete") {
 		needScroll = false;
-		async(initScript)(true);
+		async(initScript)(true, null);
 	} else {
 		var cfgRead = null;
 		aib = getImageBoard(true, false);

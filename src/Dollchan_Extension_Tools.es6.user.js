@@ -12591,7 +12591,7 @@ case 'de-iframe-dform':
 
 if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 	needScroll = false;
-	async(initScript)(true);
+	async(initScript)(true, null);
 } else {
 	var cfgRead = null;
 	aib = getImageBoard(true, false);
