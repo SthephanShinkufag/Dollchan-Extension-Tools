@@ -3697,9 +3697,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	function readPosts() {
 		var str = aib.t ? sesStorage["de-hidden-" + aib.b + aib.t] : null;
 		if (typeof str === "string") {
-			var data = str.split(",");
+			var data = str.split(";");
 			if (data.length === 4 && +data[0] === (Cfg.hideBySpell ? spells.hash : 0) && data[1] in pByNum && pByNum[data[1]].count === +data[2]) {
-				sVis = data[3].split("");
+				sVis = data[3].split(",");
 				return;
 			}
 		}
@@ -7544,7 +7544,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (this._spells) {
 				if (aib.t) {
 					var lPost = dForm.firstThr.lastNotDeleted;
-					sesStorage["de-hidden-" + aib.b + aib.t] = (Cfg.hideBySpell ? spells.hash : "0") + "," + lPost.num + "," + lPost.count + "," + sVis.join("");
+					sesStorage["de-hidden-" + aib.b + aib.t] = (Cfg.hideBySpell ? spells.hash : "0") + ";" + lPost.num + ";" + lPost.count + ";" + sVis.join();
 				}
 				saveHiddenThreads(false);
 				toggleContent("hid", true);
