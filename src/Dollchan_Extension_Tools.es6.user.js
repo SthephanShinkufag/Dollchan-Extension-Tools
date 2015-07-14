@@ -11369,6 +11369,10 @@ function Initialization(checkDomains) {
 			if(Attachment.viewer) {
 				Attachment.viewer.setWebmVolume(val);
 			}
+			temp = $q('input[info="webmVolume"]', doc.body);
+			if(temp) {
+				temp.value = val;
+			}
 			break;
 		case '__de-post': (() => {
 			try {

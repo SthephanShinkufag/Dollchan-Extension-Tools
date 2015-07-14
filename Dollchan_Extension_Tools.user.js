@@ -14214,6 +14214,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					if (Attachment.viewer) {
 						Attachment.viewer.setWebmVolume(val);
 					}
+					temp = $q("input[info=\"webmVolume\"]", doc.body);
+					if (temp) {
+						temp.value = val;
+					}
 					break;
 				case "__de-post":
 					(function () {
