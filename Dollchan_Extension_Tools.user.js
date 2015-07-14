@@ -4665,7 +4665,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}), $txt(Lng.cfg.minImgSize[lang])]), inpTxt("zoomFactor", 4, function () {
 			saveCfg("zoomFactor", Math.min(Math.max(+this.value, 1), 100));
 		}), $txt(Lng.cfg.zoomFactor[lang]), lBox("webmControl", true, null), $if(nav.canPlayWebm, $New("div", null, [inpTxt("webmVolume", 4, function () {
-			saveCfg("webmVolume", Math.min(+this.value, 100));
+			var val = Math.min(+this.value || 0, 100);
+			if (Attachment.viewer) {
+				Attachment.viewer.setWebmVolume(val);
+			}
+			saveCfg("webmVolume", val);
+			locStorage["__de-webmvolume"] = val;
+			locStorage.removeItem("__de-webmvolume");
 		}), $txt(Lng.cfg.webmVolume[lang])]))]), $if(!nav.Presto, lBox("preLoadImgs", true, null)), $if(!nav.Presto && !aib.fch, $New("div", { "class": "de-cfg-depend" }, [lBox("findImgFile", true, null)])), optSel("openImgs", true, null), lBox("imgSrcBtns", true, null), lBox("delImgNames", true, null)]);
 	}
 
@@ -10107,6 +10113,17 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			} while (!data.isVideo && !data.isImage);
 			this.update(data, true, null);
 		},
+		setWebmVolume: function setWebmVolume(val) {
+			var el = this._fullEl;
+			if (el.tagName === "VIDEO") {
+				if (val === 0) {
+					el.muted = true;
+				} else {
+					el.muted = false;
+					el.volume = val / 100;
+				}
+			}
+		},
 		update: function update(data, showButtons, e) {
 			this._remove(e);
 			this._show(data, showButtons);
@@ -10205,7 +10222,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		_remove: function _remove(e) {
 			if (this.data.isVideo && this._fullEl.tagName === "VIDEO") {
 				this._fullEl.pause();
-				this._fullEl.src = "";
+				this._fullEl.removeAttribute("src");
 			}
 			this._obj.style.display = "none";
 			setTimeout($del, 100, this._obj);
@@ -10323,9 +10340,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				if (nav.canPlayWebm) {
 					obj = $add("<video style=\"width: 100%; height: 100%\" src=\"" + src + "\" loop autoplay " + (Cfg.webmControl ? "controls " : "") + (Cfg.webmVolume === 0 ? "muted " : "") + "></video>");
 					if (Cfg.webmVolume !== 0) {
-						obj.oncanplay = function () {
-							this.volume = Cfg.webmVolume / 100;
-						};
+						obj.volume = Cfg.webmVolume / 100;
 					}
 					obj.onerror = function () {
 						if (!this.onceLoaded) {
@@ -10334,7 +10349,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						}
 					};
 					obj.onvolumechange = function () {
-						saveCfg("webmVolume", Math.round(this.volume * 100));
+						var val = this.muted ? 0 : Math.round(this.volume * 100);
+						saveCfg("webmVolume", val);
+						locStorage["__de-webmvolume"] = val;
+						locStorage.removeItem("__de-webmvolume");
 					};
 				} else {
 					obj = $add("<object style=\"width: 100%; height: 100%\" data=\"" + src + "\" type=\"application/x-vlc-plugin\">" + "<param name=\"pluginspage\" value=\"http://www.videolan.org/vlc/\" />" + "<param name=\"controls\" value=\"" + (Cfg.webmControl ? "true" : "false") + "\" />" + "<param name=\"loop\" value=\"true\" />" + "<param name=\"autoplay\" value=\"true\" />" + "<param name=\"wmode\" value=\"transparent\" /></object>");
@@ -14190,6 +14208,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				return;
 			}
 			switch (e.key) {
+				case "__de-webmvolume":
+					val = +val || 0;
+					Cfg.webmVolume = val;
+					if (Attachment.viewer) {
+						Attachment.viewer.setWebmVolume(val);
+					}
+					break;
 				case "__de-post":
 					(function () {
 						try {

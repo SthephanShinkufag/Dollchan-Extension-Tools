@@ -2461,7 +2461,13 @@ function getCfgImages() {
 			lBox('webmControl', true, null),
 			$if(nav.canPlayWebm, $New('div', null, [
 				inpTxt('webmVolume', 4, function() {
-					saveCfg('webmVolume', Math.min(+this.value, 100));
+					var val = Math.min(+this.value || 0, 100);
+					if(Attachment.viewer) {
+						Attachment.viewer.setWebmVolume(val);
+					}
+					saveCfg('webmVolume', val);
+					locStorage['__de-webmvolume'] = val;
+					locStorage.removeItem('__de-webmvolume');
 				}),
 				$txt(Lng.cfg.webmVolume[lang])
 			]))
@@ -7598,6 +7604,17 @@ AttachmentViewer.prototype = {
 		} while(!data.isVideo && !data.isImage);
 		this.update(data, true, null);
 	},
+	setWebmVolume: function(val) {
+		var el = this._fullEl;
+		if(el.tagName === 'VIDEO') {
+			if(val === 0) {
+				el.muted = true;
+			} else {
+				el.muted = false;
+				el.volume = val / 100;
+			}
+		}
+	},
 	update(data, showButtons, e) {
 		this._remove(e);
 		this._show(data, showButtons);
@@ -7708,7 +7725,7 @@ AttachmentViewer.prototype = {
 	_remove(e) {
 		if(this.data.isVideo && this._fullEl.tagName === 'VIDEO') {
 			this._fullEl.pause();
-			this._fullEl.src = '';
+			this._fullEl.removeAttribute('src');
 		}
 		this._obj.style.display = 'none';
 		setTimeout($del, 100, this._obj);
@@ -7845,9 +7862,7 @@ IAttachmentData.prototype = {
 					'" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') +
 					(Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>');
 				if(Cfg.webmVolume !== 0) {
-					obj.oncanplay = function() {
-						this.volume = Cfg.webmVolume / 100;
-					};
+					obj.volume = Cfg.webmVolume / 100;
 				}
 				obj.onerror = function() {
 					if(!this.onceLoaded) {
@@ -7856,7 +7871,10 @@ IAttachmentData.prototype = {
 					}
 				};
 				obj.onvolumechange = function() {
-					saveCfg('webmVolume', Math.round(this.volume * 100));
+					var val = this.muted ? 0 : Math.round(this.volume * 100);
+					saveCfg('webmVolume', val);
+					locStorage['__de-webmvolume'] = val;
+					locStorage.removeItem('__de-webmvolume');
 				};
 			} else {
 				obj = $add('<object style="width: 100%; height: 100%" data="' + src +
@@ -11345,6 +11363,13 @@ function Initialization(checkDomains) {
 			return;
 		}
 		switch(e.key) {
+		case '__de-webmvolume':
+			val = +val || 0;
+			Cfg.webmVolume = val;
+			if(Attachment.viewer) {
+				Attachment.viewer.setWebmVolume(val);
+			}
+			break;
 		case '__de-post': (() => {
 			try {
 				data = JSON.parse(val);
