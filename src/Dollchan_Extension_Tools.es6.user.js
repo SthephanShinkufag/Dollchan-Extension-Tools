@@ -878,6 +878,11 @@ Maybe.prototype = {
 		var val = ctor ? new ctor(/*...this._args*/) : null;
 		Object.defineProperty(this, 'value', { value: val });
 		return val;
+	},
+	end() {
+		if(this.hasValue) {
+			this.value.end();
+		}
 	}
 };
 
@@ -1448,9 +1453,7 @@ function* readUserPosts() {
 		globalUserVis[b] = uVis;
 		setStored('DESU_Posts_' + aib.dm, JSON.stringify(globalUserVis));
 	}
-	if(maybeSpells.hasValue) {
-		maybeSpells.value.end();
-	}
+	maybeSpells.end();
 }
 
 function saveUserPosts() {
@@ -9026,9 +9029,7 @@ Post.prototype = {
 					}
 				}
 			}
-			if(maybeSpells.hasValue) {
-				maybeSpells.value.end();
-			}
+			maybeSpells.end();
 		}, emptyFn);
 	},
 	_markLink(pNum) {
@@ -9845,9 +9846,7 @@ Thread.prototype = {
 				tPost = this.addPost(fragm, loadedPosts[i], i + 1, tPost, maybeVParser);
 				maybeSpells.value.run(tPost);
 			}
-			if(maybeVParser.hasValue) {
-				maybeVParser.value.end();
-			}
+			maybeVParser.end();
 			$after(op.wrap, fragm);
 			tPost.next = post;
 			if(post) {
@@ -9869,9 +9868,7 @@ Thread.prototype = {
 			}
 			post = post.next;
 		}
-		if(maybeSpells.hasValue) {
-			maybeSpells.value.end();
-		}
+		maybeSpells.end();
 		thrEl.style.counterReset = 'de-cnt ' + (omitted - newHidden + 1);
 		var btn = this.btns;
 		if(btn !== thrEl.lastChild) {
@@ -10101,12 +10098,8 @@ Thread.prototype = {
 				setStored('DESU_Favorites', JSON.stringify(fav));
 			}
 		});
-		if(maybeVParser.hasValue) {
-			maybeVParser.value.end();
-		}
-		if(maybeSpells.hasValue) {
-			maybeSpells.value.end();
-		}
+		maybeVParser.end();
+		maybeSpells.end();
 		return [newPosts, newVisPosts];
 	}
 };
@@ -10731,12 +10724,10 @@ function getImageBoard(checkDomains, checkEngines) {
 						$del(post.wrap);
 					}
 				});
-				if(!maybeSpells && myMaybeSpells.hasValue) {
-					myMaybeSpells.value.end();
+				if(!maybeSpells) {
+					myMaybeSpells.end();
 				}
-				if(maybeVParser.hasValue) {
-					maybeVParser.value.end();
-				}
+				maybeVParser.end();
 			} },
 			multiFile: { value: true },
 			thrid: { value: 'replythread' }

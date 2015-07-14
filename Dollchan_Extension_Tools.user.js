@@ -1198,6 +1198,8 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+
 !(function(global) {
   "use strict";
 
@@ -2236,9 +2238,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						globalUserVis[b] = uVis;
 						setStored("DESU_Posts_" + aib.dm, JSON.stringify(globalUserVis));
 					}
-					if (maybeSpells.hasValue) {
-						maybeSpells.value.end();
-					}
+					maybeSpells.end();
 
 				case 36:
 				case "end":
@@ -3381,7 +3381,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	
 		this.hasValue = false;
 	}
-	Maybe.prototype = Object.defineProperties({}, {
+	Maybe.prototype = Object.defineProperties({
+		end: function end() {
+			if (this.hasValue) {
+				this.value.end();
+			}
+		}
+	}, {
 		value: {
 			get: function () {
 				var ctor = this._ctor;
@@ -11574,9 +11580,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						}
 					}
 				}
-				if (maybeSpells.hasValue) {
-					maybeSpells.value.end();
-				}
+				maybeSpells.end();
 			}, emptyFn);
 		},
 		_markLink: function _markLink(pNum) {
@@ -12569,9 +12573,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					tPost = this.addPost(fragm, loadedPosts[i], i + 1, tPost, maybeVParser);
 					maybeSpells.value.run(tPost);
 				}
-				if (maybeVParser.hasValue) {
-					maybeVParser.value.end();
-				}
+				maybeVParser.end();
 				$after(op.wrap, fragm);
 				tPost.next = post;
 				if (post) {
@@ -12593,9 +12595,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				}
 				post = post.next;
 			}
-			if (maybeSpells.hasValue) {
-				maybeSpells.value.end();
-			}
+			maybeSpells.end();
 			thrEl.style.counterReset = "de-cnt " + (omitted - newHidden + 1);
 			var btn = this.btns;
 			if (btn !== thrEl.lastChild) {
@@ -12835,12 +12835,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					setStored("DESU_Favorites", JSON.stringify(fav));
 				}
 			});
-			if (maybeVParser.hasValue) {
-				maybeVParser.value.end();
-			}
-			if (maybeSpells.hasValue) {
-				maybeSpells.value.end();
-			}
+			maybeVParser.end();
+			maybeSpells.end();
 			return [newPosts, newVisPosts];
 		}
 	}, {
@@ -13484,12 +13480,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 								$del(post.wrap);
 							}
 						});
-						if (!maybeSpells && myMaybeSpells.hasValue) {
-							myMaybeSpells.value.end();
+						if (!maybeSpells) {
+							myMaybeSpells.end();
 						}
-						if (maybeVParser.hasValue) {
-							maybeVParser.value.end();
-						}
+						maybeVParser.end();
 					} },
 				multiFile: { value: true },
 				thrid: { value: "replythread" }
