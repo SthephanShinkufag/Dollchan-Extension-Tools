@@ -12221,7 +12221,7 @@ function scriptCSS() {
 		.de-btn-hide-user::after { content: "\u2716"; color: red; }\
 		.de-btn-rep::after { content: "\u25B6"; }\
 		.de-btn-sage::after { content: "\u274E"; }\
-		.de-btn-src::after { content: "[S]"; }\
+		.de-btn-src::after { content: "\uD83D\uDD0E"; }\
 		.de-btn-stick::after { content: "\u25FB"; }\
 		.de-btn-stick-on::after { content: "\u25FC"; }' :
 	Cfg.postBtnsCSS === 1 ?
