@@ -9801,7 +9801,6 @@ Thread.prototype = {
 		);
 	},
 	loadFromForm(last, smartScroll, form) {
-		// last = [0: get new posts, 1: get all posts, N: get N posts]
 		var nextCoord, loadedPosts = $Q(aib.qRPost, form),
 			maybeSpells = new Maybe(SpellsRunner),
 			op = this.op,
@@ -9825,20 +9824,29 @@ Thread.prototype = {
 		this._checkBans(form);
 		aib.checkForm(form, maybeSpells);
 		this._parsePosts(loadedPosts);
-		var newHidden = 0, post = op.next,
+		var hidden, omitted, needToShow, post = op.next,
 			needRMUpdate = false,
-			omitted = last === 0 ? post.count - 1 :
-				last === 1 ? 0 : Math.max(loadedPosts.length - last, 0),
-			needToShow = last === 0 ? Math.max(loadedPosts.length - post.count + 1, 0) :
-				last === 1 ? loadedPosts.length : last,
-			existed = this.pcount === 1 ? 0 : this.pcount - post.count,
-			hidden = Math.max(post.count - omitted - existed, 0);
-		if(existed - hidden > needToShow) {
+			existed = this.pcount === 1 ? 0 : this.pcount - post.count;
+		switch(last) {
+		case 0: // get new posts
+			hidden = $C('de-hidden', thrEl).length;
+			omitted = hidden + post.count - 1;
+			needToShow = Math.max(loadedPosts.length - hidden - post.count + 1, 0);
+			break;
+		case 1: // get all posts
+			hidden = omitted = 0;
+			needToShow = loadedPosts.length;
+			break;
+		default: // get last posts
+			needToShow = last;
+			hidden = Math.max(existed - last, 0);
+			omitted = Math.max(loadedPosts.length - last, 0);
+		}
+		if(hidden) {
 			while(existed-- !== needToShow) {
 				post.wrap.classList.add('de-hidden');
 				post.omitted = true;
 				post = post.next;
-				newHidden++;
 			}
 		} else {
 			var fragm = doc.createDocumentFragment(),
@@ -9862,7 +9870,7 @@ Thread.prototype = {
 			if(post.trunc) {
 				post.updateMsg(replacePost($q(aib.qMsg, loadedPosts[post.count - 1])), maybeSpells.value);
 			}
-			if(post.omitted && last !== 0) {
+			if(post.omitted) {
 				post.wrap.classList.remove('de-hidden');
 				post.omitted = false;
 			}
@@ -9872,7 +9880,7 @@ Thread.prototype = {
 			post = post.next;
 		}
 		maybeSpells.end();
-		thrEl.style.counterReset = 'de-cnt ' + (omitted - newHidden + 1);
+		thrEl.style.counterReset = 'de-cnt ' + (omitted - hidden + 1);
 		var btn = this.btns;
 		if(btn !== thrEl.lastChild) {
 			thrEl.appendChild(btn);

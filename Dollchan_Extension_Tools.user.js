@@ -12528,7 +12528,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		loadFromForm: function loadFromForm(last, smartScroll, form) {
 			var _this = this;
 
-		
 			var nextCoord,
 			    loadedPosts = $Q(aib.qRPost, form),
 			    maybeSpells = new Maybe(SpellsRunner),
@@ -12553,19 +12552,35 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			this._checkBans(form);
 			aib.checkForm(form, maybeSpells);
 			this._parsePosts(loadedPosts);
-			var newHidden = 0,
+			var hidden,
+			    omitted,
+			    needToShow,
 			    post = op.next,
 			    needRMUpdate = false,
-			    omitted = last === 0 ? post.count - 1 : last === 1 ? 0 : Math.max(loadedPosts.length - last, 0),
-			    needToShow = last === 0 ? Math.max(loadedPosts.length - post.count + 1, 0) : last === 1 ? loadedPosts.length : last,
-			    existed = this.pcount === 1 ? 0 : this.pcount - post.count,
-			    hidden = Math.max(post.count - omitted - existed, 0);
-			if (existed - hidden > needToShow) {
+			    existed = this.pcount === 1 ? 0 : this.pcount - post.count;
+			switch (last) {
+				case 0:
+				
+					hidden = $C("de-hidden", thrEl).length;
+					omitted = hidden + post.count - 1;
+					needToShow = Math.max(loadedPosts.length - hidden - post.count + 1, 0);
+					break;
+				case 1:
+				
+					hidden = omitted = 0;
+					needToShow = loadedPosts.length;
+					break;
+				default:
+				
+					needToShow = last;
+					hidden = Math.max(existed - last, 0);
+					omitted = Math.max(loadedPosts.length - last, 0);
+			}
+			if (hidden) {
 				while (existed-- !== needToShow) {
 					post.wrap.classList.add("de-hidden");
 					post.omitted = true;
 					post = post.next;
-					newHidden++;
 				}
 			} else {
 				var fragm = doc.createDocumentFragment(),
@@ -12589,7 +12604,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				if (post.trunc) {
 					post.updateMsg(replacePost($q(aib.qMsg, loadedPosts[post.count - 1])), maybeSpells.value);
 				}
-				if (post.omitted && last !== 0) {
+				if (post.omitted) {
 					post.wrap.classList.remove("de-hidden");
 					post.omitted = false;
 				}
@@ -12599,7 +12614,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				post = post.next;
 			}
 			maybeSpells.end();
-			thrEl.style.counterReset = "de-cnt " + (omitted - newHidden + 1);
+			thrEl.style.counterReset = "de-cnt " + (omitted - hidden + 1);
 			var btn = this.btns;
 			if (btn !== thrEl.lastChild) {
 				thrEl.appendChild(btn);
