@@ -6053,6 +6053,9 @@ function PostForm(form, ignoreForm, dc) {
 			window.focus();
 		}
 	}, false);
+	if(aib.dobr) {
+		this.txta.removeAttribute('id');
+	}
 	if(!aib.tiny) {
 		this.subm.value = Lng.reply[lang];
 	}

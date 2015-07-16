@@ -8459,6 +8459,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				window.focus();
 			}
 		}, false);
+		if (aib.dobr) {
+			this.txta.removeAttribute("id");
+		}
 		if (!aib.tiny) {
 			this.subm.value = Lng.reply[lang];
 		}
