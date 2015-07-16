@@ -13493,7 +13493,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}],
 			"ponychan.net": [{
 				cOPost: { value: "opContainer" },
-				css: { value: ".mature_thread { display: block !important; }\t\t\t\t.mature_warning { display: none; }" }
+				css: { value: ".mature_thread { display: block !important; }\t\t\t\t.mature_warning { display: none; }" },
+				init: { value: function value() {
+						$each($Q("img[data-mature-src]", doc.body), function (el) {
+							el.src = el.getAttribute("data-mature-src");
+						});
+						return false;
+					} }
 			}, "form[name*=\"postcontrols\"]"],
 			"syn-ch.ru": [{
 				cFileInfo: { value: "unimportant" },

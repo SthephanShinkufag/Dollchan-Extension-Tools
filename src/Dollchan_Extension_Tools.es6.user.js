@@ -10743,7 +10743,13 @@ function getImageBoard(checkDomains, checkEngines) {
 		'ponychan.net': [{
 			cOPost: { value: 'opContainer' },
 			css: { value: '.mature_thread { display: block !important; }\
-				.mature_warning { display: none; }' }
+				.mature_warning { display: none; }' },
+			init: { value() {
+				$each($Q('img[data-mature-src]', doc.body), function(el) {
+					el.src = el.getAttribute('data-mature-src');
+				});
+				return false;
+			} }
 		}, 'form[name*="postcontrols"]'],
 		'syn-ch.ru': [{
 			cFileInfo: { value: 'unimportant' },
