@@ -3949,7 +3949,7 @@ function loadDocFiles(imgOnly) {
 		}
 	});
 	if(!imgOnly) {
-		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, #de-qarea, .de-refmap, #de-updater-div,' +
+		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, #de-qarea, .de-refmap, .de-thread-buttons,' +
 			' .de-video-obj, link[rel="alternate stylesheet"], script, ' + aib.qPostForm, dc), $del);
 		$each($T('a', dc), function(el) {
 			var num, tc = el.textContent;
@@ -9824,25 +9824,25 @@ Thread.prototype = {
 		this._checkBans(form);
 		aib.checkForm(form, maybeSpells);
 		this._parsePosts(loadedPosts);
-		var hidden, omitted, needToShow, post = op.next,
+		var needToHide, needToOmit, needToShow, post = op.next,
 			needRMUpdate = false,
 			existed = this.pcount === 1 ? 0 : this.pcount - post.count;
 		switch(last) {
 		case 0: // get new posts
-			hidden = $C('de-hidden', thrEl).length;
-			omitted = hidden + post.count - 1;
-			needToShow = Math.max(loadedPosts.length - hidden - post.count + 1, 0);
+			needToHide = $C('de-hidden', thrEl).length;
+			needToOmit = needToHide + post.count - 1;
+			needToShow = Math.max(loadedPosts.length - needToHide - post.count + 1, 0);
 			break;
 		case 1: // get all posts
-			hidden = omitted = 0;
+			needToHide = needToOmit = 0;
 			needToShow = loadedPosts.length;
 			break;
 		default: // get last posts
+			needToHide = Math.max(existed - last, 0);
+			needToOmit = Math.max(loadedPosts.length - last, 0);
 			needToShow = last;
-			hidden = Math.max(existed - last, 0);
-			omitted = Math.max(loadedPosts.length - last, 0);
 		}
-		if(hidden) {
+		if(needToHide) {
 			while(existed-- !== needToShow) {
 				post.wrap.classList.add('de-hidden');
 				post.omitted = true;
@@ -9880,7 +9880,7 @@ Thread.prototype = {
 			post = post.next;
 		}
 		maybeSpells.end();
-		thrEl.style.counterReset = 'de-cnt ' + (omitted - hidden + 1);
+		thrEl.style.counterReset = 'de-cnt ' + (needToOmit - needToHide + 1);
 		var btn = this.btns;
 		if(btn !== thrEl.lastChild) {
 			thrEl.appendChild(btn);
@@ -9894,8 +9894,8 @@ Thread.prototype = {
 			};
 		}
 		btn.lastChild.style.display = needToShow > visPosts ? '' : 'none';
-		if(omitted !== 0) {
-			op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + omitted + '</div>');
+		if(needToOmit > 0) {
+			op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + needToOmit + '</div>');
 		}
 		if(smartScroll) {
 			scrollTo(window.pageXOffset, window.pageYOffset - (nextCoord - this.next.topCoord));
@@ -12029,9 +12029,9 @@ function initPage() {
 			doc.title = '/' + aib.b + ' - ' + dForm.firstThr.op.title;
 		}
 		if(!localRun) {
-			dForm.firstThr.el.insertAdjacentHTML('afterend',
-				'<div id="de-updater-div">[<a class="de-abtn" id="de-updater-btn" href="#"></a>' +
-				'<span id="de-updater-count" style="display: none;"></span>]' +
+			dForm.firstThr.el.insertAdjacentHTML('afterend', '<div class="de-thread-buttons">' +
+				'<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>' +
+				'<span id="de-updater-count" style="display: none;"></span>]</span>' +
 				(aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '') +
 				'</div>');
 		}
@@ -12039,7 +12039,8 @@ function initPage() {
 	if(!localRun){
 		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr);
 		if(aib.t) {
-			dForm.firstThr.el.nextSibling.firstElementChild.addEventListener('click', updater.forceLoad, false);
+			dForm.firstThr.el.nextSibling.firstChild.firstElementChild
+				.addEventListener('click', updater.forceLoad, false);
 		}
 	}
 }
@@ -12437,12 +12438,11 @@ function scriptCSS() {
 	.de-refmap::before { content: "' + Lng.replies[lang] + ' "; }\
 	.de-refcomma:last-child { display: none; }\
 	.de-selected, .de-error-key { ' + (nav.Presto ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
-	.de-thread-buttons { clear: left; float: left; margin: 5px 0 10px 0; }\
+	.de-thread-buttons { clear: left; margin-top: 5px; }\
 	.de-thread-collapse > a::after { content: "' +  Lng.collapseThrd[lang] + '" }\
-	#de-updater-btn::after, .de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '" }\
+	.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '" }\
+	.de-thread-updater::before { content: ">> " }\
 	#de-updater-count::before { content: ": " }\
-	#de-updater-div { clear: left; margin-top: 10px; }\
-	#de-updater-div::before, .de-thread-updater::before { content: ">> " }\
 	.de-viewed { color: #888 !important; }\
 	form > hr { clear: both }';
 
