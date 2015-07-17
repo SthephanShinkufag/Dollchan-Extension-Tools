@@ -9831,7 +9831,7 @@ Thread.prototype = {
 		case 0: // get new posts
 			needToHide = $C('de-hidden', thrEl).length;
 			needToOmit = needToHide + post.count - 1;
-			needToShow = Math.max(loadedPosts.length - needToHide - post.count + 1, 0);
+			needToShow = loadedPosts.length - needToOmit;
 			break;
 		case 1: // get all posts
 			needToHide = needToOmit = 0;
@@ -12122,7 +12122,7 @@ function getThemeLang() {
 
 function scriptCSS() {
 	function cont(id, src) {
-		return id + '::before { content: ""; padding: 0 16px 0 0; margin: 0 4px; background: url(' + src + ') no-repeat center; }';
+		return id + '::before { content: ""; padding: 0 16px 0 0; margin: 0 4px; background: url(' + src + ') no-repeat center; background-size: contain; }';
 	}
 	function gif(id, src) {
 		return id + ' { background: url(data:image/gif;base64,' + src + ') no-repeat center !important; }';
