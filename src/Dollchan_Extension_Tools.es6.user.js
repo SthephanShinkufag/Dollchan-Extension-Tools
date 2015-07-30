@@ -9570,81 +9570,77 @@ function addRefMap(post, tUrl) {
 function genRefMap(posts, thrURL) {
 	var opNums = dForm.tNums;
 	for(var pNum in posts) {
-		var links = $T('a', posts[pNum].msg);
-		for(var i = 0, len = links.length; i < len; ++i) {
-			var lNum, tc = links[i].textContent;
-			if(tc[0] === '>' && tc[1] === '>' && (lNum = +tc.substr(2)) && (lNum in posts)) {
-				var post = posts[lNum],
-					ref = post.ref;
-				if(ref.indexOf(pNum) === -1) {
-					ref.push(pNum);
-					post.hasRef = true;
-				}
-				if(opNums.indexOf(lNum) !== -1) {
-					links[i].classList.add('de-ref-op');
-				}
-				if(thrURL) {
-					var url = links[i].getAttribute('href');
-					if(url[0] === '#') {
-						links[i].setAttribute('href', thrURL + url);
-					}
+		aib.forEachReflink(posts[pNum].msg, (link, lNum) => {
+			var ref, post = posts[lNum];
+			if(!post) {
+				return;
+			}
+			ref = post.ref;
+			if(ref.indexOf(pNum) === -1) {
+				ref.push(pNum);
+				post.hasRef = true;
+			}
+			if(!aib.hasOPNum && opNums.indexOf(lNum) !== -1) {
+				link.classList.add('de-ref-op');
+			}
+			if(thrURL) {
+				var url = link.getAttribute('href');
+				if(url[0] === '#') {
+					link.setAttribute('href', thrURL + url);
 				}
 			}
-		}
+		});
 	}
 }
 
 function updRefMap(post, add) {
 	var pNum = post.num,
-		links = $T('a', post.msg),
 		strNums = add && Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
-		opNums = add && dForm.tNums,
 		isThr = aib.t;
-	for(var i = 0, len = links.length; i < len; ++i) {
-		var lNum, link = links[i],
-			tc = link.textContent;
-		if(tc[0] === '>' && tc[1] === '>' && (lNum = +tc.substr(2)) && (lNum in pByNum)) {
-			var lPost = pByNum[lNum];
-			if(!isThr) {
-				link.href = '#' + (aib.fch ? 'p' : '') + lNum;
-			}
-			if(add) {
-				if(strNums && strNums.lastIndexOf(lNum) !== -1) {
-					link.classList.add('de-link-hid');
-				}
-				if(opNums.indexOf(lNum) !== -1) {
-					link.classList.add('de-ref-op');
-				}
-				if(lPost.ref.indexOf(pNum) === -1) {
-					lPost.ref.push(pNum);
-					post.hasRef = true;
-					if(Cfg.hideRefPsts && lPost.hidden) {
-						if(!post.hidden) {
-							post.hideRefs();
-						}
-						post.setVisib(true);
-						post.setNote('reference to >>' + lNum);
-					}
-				} else {
-					continue;
-				}
-			} else if(lPost.hasRef) {
-				var ref = lPost.ref,
-					idx = ref.indexOf(pNum);
-				if(idx === -1) {
-					continue;
-				}
-				ref.splice(idx, 1);
-				if(!ref.length) {
-					lPost.hasRef = false;
-					$del($c('de-refmap', lPost.el));
-					continue;
-				}
-			}
-			$del($c('de-refmap', lPost.el));
-			addRefMap(lPost, '');
+	aib.forEachReflink(post.msg, (link, lNum) => {
+		var lPost = pByNum[lNum];
+		if(!lPost) {
+			return;
 		}
-	}
+		if(!isThr) {
+			link.href = '#' + (aib.fch ? 'p' : '') + lNum;
+		}
+		if(add) {
+			if(strNums && strNums.lastIndexOf(lNum) !== -1) {
+				link.classList.add('de-link-hid');
+			}
+			if(!aib.hasOPNum && dForm.tNums.indexOf(lNum) !== -1) {
+				link.classList.add('de-ref-op');
+			}
+			if(lPost.ref.indexOf(pNum) === -1) {
+				lPost.ref.push(pNum);
+				post.hasRef = true;
+				if(Cfg.hideRefPsts && lPost.hidden) {
+					if(!post.hidden) {
+						post.hideRefs();
+					}
+					post.setVisib(true);
+					post.setNote('reference to >>' + lNum);
+				}
+			} else {
+				return;
+			}
+		} else if(lPost.hasRef) {
+			var ref = lPost.ref,
+				idx = ref.indexOf(pNum);
+			if(idx === -1) {
+				return;
+			}
+			ref.splice(idx, 1);
+			if(!ref.length) {
+				lPost.hasRef = false;
+				$del($c('de-refmap', lPost.el));
+				return;
+			}
+		}
+		$del($c('de-refmap', lPost.el));
+		addRefMap(lPost, '');
+	});
 }
 
 
@@ -10852,11 +10848,19 @@ function getImageBoard(checkDomains, checkEngines) {
 				} catch(e) {}
 				return false;
 			} },
+			forEachReflink: { value(msg, fn) {
+				var links = $Q('.post-reply-link', msg);
+				for(var i = 0, len = links.length; i < len; ++i) {
+					var link = links[i];
+					fn(link, link.getAttribute('data-num'));
+				}
+			} },
 			hasNames: { configurable: true, get() {
 				var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
 				Object.defineProperty(this, 'hasNames', { value: val });
 				return val;
 			} },
+			hasOPNum: { value: true },
 			hasPicWrap: { value: true },
 			init: { value() {
 				$script('window.FormData = void 0;');
@@ -11147,6 +11151,15 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return videos;
 		},
+		forEachReflink(msg, fn) {
+			var links = $T('a', msg);
+			for(var i = 0, len = links.length; i < len; ++i) {
+				var lNum, tc = links[i].textContent;
+				if(tc[0] === '>' && tc[1] === '>' && (lNum = +tc.substr(2))) {
+					fn(links[i], lNum);
+				}
+			}
+		},
 		getCaptchaSrc(src, tNum) {
 			var tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
 			             .replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
@@ -11247,6 +11260,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		ETag: null,
 		firstPage: 0,
 		fixFileInputs: emptyFn,
+		hasOPNum: false,
 		hasPicWrap: false,
 		host: window.location.hostname,
 		init: null,
