@@ -3586,29 +3586,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		return new RegExp(str.substr(1, l - 1), noG ? flags.replace("g", "") : flags);
 	}
 
-	function setImageSize(size, idx, nVal) {
-		size[idx] = nVal;
-		if (idx === 0) {
-			size[1] = nVal / size[2];
-		} else {
-			size[0] = nVal * size[2];
-		}
-	}
-
-	function resizeImage(size, minSize, maxSize) {
-		var idx = size[2] > 1 ? 1 : 0;
-		if (+size[idx] < +minSize) {
-			setImageSize(size, idx, minSize);
-		}
-		if (maxSize) {
-			idx = size[2] > maxSize[2] ? 0 : 1;
-			if (+size[idx] > +maxSize[idx]) {
-				setImageSize(size, idx, +maxSize[idx]);
-			}
-		}
-		return size;
-	}
-
 	function isFormElDisabled(el) {
 	
 		switch (el.tagName.toLowerCase()) {
@@ -10147,7 +10124,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		_curW: 0,
 		_oldX: 0,
 		_oldY: 0,
-		_maxSize: null,
 		_minSize: 0,
 		_moved: false,
 		_getHolder: function _getHolder(el, data) {
@@ -10166,7 +10142,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				minSize = Math.floor(screenHeight * ar);
 			}
 			this._minSize = minSize;
-			this._maxSize = !size[2] ? null : minSize > (size[2][2] > 1 ? size[2][0] : size[2][1]) ? size[2] : null;
 			this._oldL = (screenWidth - size[0]) / 2 - 1;
 			this._oldT = (screenHeight - size[1]) / 2 - 1;
 			var obj = $add("<div class=\"de-img-center\" style=\"top:" + this._oldT + "px; left:" + this._oldL + "px; width:" + size[0] + "px; height:" + size[1] + "px; display: block\"></div>");
@@ -10182,14 +10157,19 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (delta === 0) {
 				return;
 			}
-			var oldW = this._curW,
-			    oldH = this._curH,
-			    width = delta < 0 ? oldW * this._zoomFactor : oldW / this._zoomFactor,
-			    height = delta < 0 ? oldH * this._zoomFactor : oldH / this._zoomFactor;
+			var width,
+			    height,
+			    oldW = this._curW,
+			    oldH = this._curH;
 			if (delta > 0) {
-				var size = resizeImage([width, height, this._ar], this._minSize, this._maxSize);
-				width = size[0];
-				height = size[1];
+				width = oldW / this._zoomFactor;
+				height = oldH / this._zoomFactor;
+				if (width <= this._minSize && height <= this._minSize) {
+					return;
+				}
+			} else {
+				width = oldW * this._zoomFactor;
+				height = oldH * this._zoomFactor;
 			}
 			this._curW = width;
 			this._curH = height;
@@ -10276,26 +10256,44 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			return false;
 		},
 		computeFullSize: function computeFullSize(inPost) {
-			var maxSize,
+			var minSize = Cfg.minImgSize,
 			    width = this.width,
 			    height = this.height;
 			if (Cfg.resizeDPI) {
 				width /= Post.sizing.dPxRatio;
 				height /= Post.sizing.dPxRatio;
 			}
-			if (Cfg.resizeImgs) {
-				if (inPost) {
-					maxSize = [Post.sizing.wWidth - this._offset - 3, Number.MAX_SAFE_INTEGER, 0];
+			if (width < minSize && height < minSize) {
+				var ar = width / height;
+				if (width > height) {
+					width = minSize;
+					height = width / ar;
 				} else {
-					var maxWidth = Post.sizing.wWidth - 2,
-					    maxHeight = Post.sizing.wHeight - 2;
-					maxSize = [maxWidth, maxHeight, maxWidth / maxHeight];
+					height = minSize;
+					width = height * ar;
 				}
-			} else {
-				maxSize = null;
 			}
-			var size = resizeImage([width, height, width / height], Cfg.minImgSize, maxSize);
-			return [size[0], size[1], maxSize];
+			if (Cfg.resizeImgs) {
+				var maxWidth, maxHeight;
+				if (inPost) {
+					maxWidth = Post.sizing.wWidth - this._offset - 3;
+					maxHeight = Number.MAX_SAFE_INTEGER;
+				} else {
+					maxWidth = Post.sizing.wWidth - 2;
+					maxHeight = Post.sizing.wHeight - 2;
+				}
+				if (width > maxWidth || height > maxHeight) {
+					var ar = width / height;
+					if (width > height) {
+						width = maxWidth;
+						height = width / ar;
+					} else {
+						height = maxHeight;
+						width = height * ar;
+					}
+				}
+			}
+			return [width, height];
 		},
 		expand: function expand(inPost, e) {
 			if (!inPost) {
