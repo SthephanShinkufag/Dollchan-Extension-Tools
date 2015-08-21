@@ -7629,7 +7629,7 @@ AttachmentViewer.prototype = {
 		var [width, height, minSize] = data.computeFullSize(false);
 		this._width = width;
 		this._height = height;
-		this._minSize = minSize / this._zoomFactor;
+		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
 		var obj = $add('<div class="de-img-center" style="top:' + this._oldT + 'px; left:' +
@@ -7789,9 +7789,8 @@ IAttachmentData.prototype = {
 				maxHeight = Post.sizing.wHeight - 2;
 			}
 			if(width > maxWidth || height > maxHeight) {
-				var ar = width / height,
-					maxAr = maxWidth / maxHeight;
-				if(ar > maxAr) {
+				var ar = width / height;
+				if(ar > maxWidth / maxHeight) {
 					width = maxWidth;
 					height = width / ar;
 				} else {
@@ -7803,7 +7802,7 @@ IAttachmentData.prototype = {
 				}
 			}
 		}
-		return [width, height, minSize];
+		return [width, height, null];
 	},
 	expand(inPost, e) {
 		if(!inPost) {
