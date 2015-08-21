@@ -10113,38 +10113,33 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			this._show(data, showButtons);
 		},
 
-		_ar: 0,
 		_data: null,
 		_elStyle: null,
 		_fullEl: null,
 		_obj: null,
 		_oldL: 0,
 		_oldT: 0,
-		_curH: 0,
-		_curW: 0,
+		_height: 0,
+		_width: 0,
 		_oldX: 0,
 		_oldY: 0,
 		_minSize: 0,
 		_moved: false,
 		_getHolder: function _getHolder(el, data) {
-			var screenWidth = Post.sizing.wWidth,
-			    screenHeight = Post.sizing.wHeight,
-			    minSize = Cfg.minImgSize,
-			    size = data.computeFullSize(false),
-			    ar = size[0] / size[1];
-			this._ar = ar;
-			this._curW = size[0];
-			this._curH = size[1];
-			if (minSize * ar > screenWidth) {
-				minSize = Math.floor(screenWidth / ar);
-			}
-			if (minSize / ar > screenHeight) {
-				minSize = Math.floor(screenHeight * ar);
-			}
-			this._minSize = minSize;
-			this._oldL = (screenWidth - size[0]) / 2 - 1;
-			this._oldT = (screenHeight - size[1]) / 2 - 1;
-			var obj = $add("<div class=\"de-img-center\" style=\"top:" + this._oldT + "px; left:" + this._oldL + "px; width:" + size[0] + "px; height:" + size[1] + "px; display: block\"></div>");
+			var _data$computeFullSize = data.computeFullSize(false);
+
+			var _data$computeFullSize2 = _slicedToArray(_data$computeFullSize, 3);
+
+			var width = _data$computeFullSize2[0];
+			var height = _data$computeFullSize2[1];
+			var minSize = _data$computeFullSize2[2];
+
+			this._width = width;
+			this._height = height;
+			this._minSize = minSize / this._zoomFactor;
+			this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
+			this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
+			var obj = $add("<div class=\"de-img-center\" style=\"top:" + this._oldT + "px; left:" + this._oldL + "px; width:" + width + "px; height:" + height + "px; display: block\"></div>");
 			if (data.isImage) {
 				obj.insertAdjacentHTML("afterbegin", "<a href=\"" + data.src + "\"></a>");
 				obj.firstChild.appendChild(el);
@@ -10159,8 +10154,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 			var width,
 			    height,
-			    oldW = this._curW,
-			    oldH = this._curH;
+			    oldW = this._width,
+			    oldH = this._height;
 			if (delta > 0) {
 				width = oldW / this._zoomFactor;
 				height = oldH / this._zoomFactor;
@@ -10171,8 +10166,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				width = oldW * this._zoomFactor;
 				height = oldH * this._zoomFactor;
 			}
-			this._curW = width;
-			this._curH = height;
+			this._width = width;
+			this._height = height;
 			this._elStyle.width = width + "px";
 			this._elStyle.height = height + "px";
 			this._elStyle.left = (this._oldL = parseInt(clientX - width / oldW * (clientX - this._oldL), 10)) + "px";
@@ -10283,17 +10278,21 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					maxHeight = Post.sizing.wHeight - 2;
 				}
 				if (width > maxWidth || height > maxHeight) {
-					var ar = width / height;
-					if (width > height) {
+					var ar = width / height,
+					    maxAr = maxWidth / maxHeight;
+					if (ar > maxAr) {
 						width = maxWidth;
 						height = width / ar;
 					} else {
 						height = maxHeight;
 						width = height * ar;
 					}
+					if (width < minSize || heigth < minSize) {
+						return [width, height, Math.max(width, height)];
+					}
 				}
 			}
-			return [width, height];
+			return [width, height, minSize];
 		},
 		expand: function expand(inPost, e) {
 			if (!inPost) {
