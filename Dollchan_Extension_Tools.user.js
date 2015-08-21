@@ -10286,7 +10286,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						height = maxHeight;
 						width = height * ar;
 					}
-					if (width < minSize || heigth < minSize) {
+					if (width < minSize || height < minSize) {
 						return [width, height, Math.max(width, height)];
 					}
 				}
