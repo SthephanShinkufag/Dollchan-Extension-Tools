@@ -4435,9 +4435,6 @@ function embedMediaLinks(post) {
 				if(!$q('audio[src="' + src + '"]', el)) {
 					el.insertAdjacentHTML('beforeend',
 						'<p><audio src="' + src + '" preload="none" controls></audio></p>');
-					link = el.lastChild.firstChild;
-					link.addEventListener('play', updater.addPlayingTag, false);
-					link.addEventListener('pause', updater.removePlayingTag, false);
 				}
 			} else if(!$q('object[FlashVars*="' + src + '"]', el)) {
 				el.insertAdjacentHTML('beforeend', '<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '"><br>');
@@ -11655,8 +11652,7 @@ function initThreadUpdater(title, enableUpdate) {
 		inited = false,
 		lastECode = 200,
 		sendError = false,
-		newPosts = 0,
-		aPlayers = 0;
+		newPosts = 0;
 
 	function init() {
 		audioEl = null;
@@ -11897,8 +11893,7 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function updateTitle(eCode = lastECode) {
-		doc.title = (aPlayers === 0 ? '' : '♫ ') +
-			(sendError === true ? '{' + Lng.error[lang] + '} ' : '') +
+		doc.title = (sendError === true ? '{' + Lng.error[lang] + '} ' : '') +
 			(eCode === 200 ? '' : '{' + eCode + '} ') +
 			(newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
 	}
@@ -12003,18 +11998,6 @@ function initThreadUpdater(title, enableUpdate) {
 				useCountdown = false;
 			}
 		},
-		addPlayingTag() {
-			aPlayers++;
-			if(aPlayers === 1) {
-				updateTitle();
-			}
-		},
-		removePlayingTag() {
-			aPlayers = Math.max(aPlayers - 1, 0);
-			if(aPlayers === 0) {
-				updateTitle();
-			}
-		},
 		sendErrNotif() {
 			if(Cfg.sendErrNotif && !focused) {
 				sendError = true;
@@ -12048,7 +12031,7 @@ function initPage() {
 
 function scrollPage() {
 	if(!aib.t) {
-		if(!updater.focused || window.pageYOffset !== 0) {
+		if(doc.hidden || window.pageYOffset !== 0) {
 			window.scrollTo(0, 0);
 		}
 		return;
