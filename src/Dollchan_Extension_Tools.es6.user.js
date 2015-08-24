@@ -641,7 +641,7 @@ function $new(tag, attr, events) {
 	if(events) {
 		for(var key in events) {
 			if(events.hasOwnProperty(key)) {
-				el.addEventListener(key, events[key], false);
+				el.addEventListener(key, events[key]);
 			}
 		}
 	}
@@ -1341,7 +1341,7 @@ function* readCfg() {
 			if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 				$alert(html, 'updavail', false);
 			} else {
-				doc.addEventListener('DOMContentLoaded', () => $alert(html, 'updavail', false), false);
+				doc.addEventListener('DOMContentLoaded', () => $alert(html, 'updavail', false));
 			}
 		}, emptyFn);
 	}
@@ -1702,8 +1702,8 @@ function addPanel(formEl) {
 		}
 	};
 	panel.addEventListener('click', evtObject, true);
-	panel.addEventListener('mouseover', evtObject, false);
-	panel.addEventListener('mouseout', evtObject, false);
+	panel.addEventListener('mouseover', evtObject);
+	panel.addEventListener('mouseout', evtObject);
 }
 
 function toggleContent(name, isUpd, data) {
@@ -2251,7 +2251,7 @@ function optSel(id, isBlock, Fn) {
 	el.addEventListener('change', Fn || function() {
 		saveCfg(this.getAttribute('info'), this.selectedIndex);
 		fixSettings();
-	}, false);
+	});
 	el.selectedIndex = Cfg[id];
 	return $New('label', isBlock ? {'class': 'de-block'} : null, [el, $txt(' ' + x.txt[lang])]);
 }
@@ -2915,7 +2915,7 @@ function showMenu(el, html, inPanel, onclick) {
 			} while(!el.classList.contains('de-menu'));
 			$del(el);
 		}
-	}.bind(onclick), false);
+	}.bind(onclick));
 }
 
 function addMenu(e) {
@@ -3599,7 +3599,7 @@ function initMessageFunctions() {
 				$q('iframe[name="de-iframe-dform"]', doc).src = 'about:blank';
 			}
 		}
-	}, false);
+	});
 }
 
 function detectImgFile(ab) {
@@ -5898,8 +5898,8 @@ function PostForm(form, ignoreForm, dc) {
 				this._oldY = curY;
 				this._X = Cfg.qReplyX;
 				this._Y = Cfg.qReplyY;
-				doc.body.addEventListener('mousemove', this, false);
-				doc.body.addEventListener('mouseup', this, false);
+				doc.body.addEventListener('mousemove', this);
+				doc.body.addEventListener('mouseup', this);
 				$pd(e);
 				return;
 			case 'mousemove':
@@ -5919,13 +5919,13 @@ function PostForm(form, ignoreForm, dc) {
 				this._oldY = curY;
 				return;
 			default: // mouseup
-				doc.body.removeEventListener('mousemove', this, false);
-				doc.body.removeEventListener('mouseup', this, false);
+				doc.body.removeEventListener('mousemove', this);
+				doc.body.removeEventListener('mouseup', this);
 				saveCfg('qReplyX', this._X);
 				saveCfg('qReplyY', this._Y);
 			}
 		}
-	}, false);
+	});
 	el = el.lastChild;
 	el.firstChild.onclick = () => {
 		var node = this.qArea;
@@ -5962,9 +5962,9 @@ function PostForm(form, ignoreForm, dc) {
 	this.form.style.textAlign = 'left';
 	if(nav.Firefox) {
 		this.txta.addEventListener('mouseup', function() {
-		saveCfg('textaWidth', parseInt(this.style.width, 10));
-		saveCfg('textaHeight', parseInt(this.style.height, 10));
-		}, false);
+			saveCfg('textaWidth', parseInt(this.style.width, 10));
+			saveCfg('textaHeight', parseInt(this.style.height, 10));
+		});
 	} else {
 		this.txta.insertAdjacentHTML('afterend', '<div id="de-txta-resizer"></div>');
 		this.txta.nextSibling.addEventListener('mousedown', {
@@ -5973,8 +5973,8 @@ function PostForm(form, ignoreForm, dc) {
 			handleEvent(e) {
 				switch(e.type) {
 				case 'mousedown':
-					doc.body.addEventListener('mousemove', this, false);
-					doc.body.addEventListener('mouseup', this, false);
+					doc.body.addEventListener('mousemove', this);
+					doc.body.addEventListener('mouseup', this);
 					$pd(e);
 					return;
 				case 'mousemove':
@@ -5983,8 +5983,8 @@ function PostForm(form, ignoreForm, dc) {
 					this._elStyle.height = (e.clientY - cr.top) + 'px';
 					return;
 				default: // mouseup
-					doc.body.removeEventListener('mousemove', this, false);
-					doc.body.removeEventListener('mouseup', this, false);
+					doc.body.removeEventListener('mousemove', this);
+					doc.body.removeEventListener('mouseup', this);
 					saveCfg('textaWidth', parseInt(this._elStyle.width, 10));
 					saveCfg('textaHeight', parseInt(this._elStyle.height, 10));
 				}
@@ -6026,7 +6026,7 @@ function PostForm(form, ignoreForm, dc) {
 			e.target.blur();
 			window.focus();
 		}
-	}, false);
+	});
 	if(aib.dobr) {
 		this.txta.removeAttribute('id');
 	}
@@ -6091,7 +6091,7 @@ function PostForm(form, ignoreForm, dc) {
 			$after(this._pBtn[+this.isBottom], this.pForm);
 		}
 		updater.pause();
-	}, false);
+	});
 	if(Cfg.noGoto && this.gothr) {
 		this.gothr.style.display = 'none';
 	}
@@ -6108,11 +6108,11 @@ function PostForm(form, ignoreForm, dc) {
 		if(this.passw) {
 			setTimeout(PostForm.setUserPassw, 1e3);
 		}
-	}, false);
+	});
 	if(this.cap) {
 		this.capTr = $parent(this.cap, 'TR');
-		this.txta.addEventListener('focus', this._captchaInit.bind(this, this.capTr.innerHTML), false);
-		this.form.addEventListener('click', this._captchaInit.bind(this, this.capTr.innerHTML), false);
+		this.txta.addEventListener('focus', this._captchaInit.bind(this, this.capTr.innerHTML));
+		this.form.addEventListener('click', this._captchaInit.bind(this, this.capTr.innerHTML));
 		if(!aib.krau) {
 			this.capTr.style.display = 'none';
 		}
@@ -6612,9 +6612,9 @@ FileInput.prototype = {
 		oldEl.insertAdjacentHTML('afterend', oldEl.outerHTML);
 		newEl = this.el.nextSibling;
 		newEl.obj = this;
-		newEl.addEventListener('change', this, false);
-		newEl.addEventListener('dragleave', this, false);
-		newEl.addEventListener('drop', this, false);
+		newEl.addEventListener('change', this);
+		newEl.addEventListener('dragleave', this);
+		newEl.addEventListener('drop', this);
 		if(form.file === oldEl) {
 			form.file = newEl;
 		}
@@ -6716,12 +6716,12 @@ FileInput.prototype = {
 				'<div class="de-file de-file-off"><div class="de-file-img">' +
 				'<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
 			this.thumb = this.form.fileArea.lastChild;
-			this.thumb.addEventListener('mouseover', this, false);
-			this.thumb.addEventListener('mouseout', this, false);
-			this.thumb.addEventListener('click', this, false);
-			this.thumb.addEventListener('dragover', this, false);
-			this.el.addEventListener('dragleave', this, false);
-			this.el.addEventListener('drop', this, false);
+			this.thumb.addEventListener('mouseover', this);
+			this.thumb.addEventListener('mouseout', this);
+			this.thumb.addEventListener('click', this);
+			this.thumb.addEventListener('dragover', this);
+			this.el.addEventListener('dragleave', this);
+			this.el.addEventListener('drop', this);
 			if(update) {
 				this._showPviewImage();
 			} else if(this.prev) {
@@ -6738,7 +6738,7 @@ FileInput.prototype = {
 		}
 		if(!update) {
 			this.el.classList.add('de-file-input');
-			this.el.addEventListener('change', this, false);
+			this.el.addEventListener('change', this);
 		}
 	},
 
@@ -6860,7 +6860,7 @@ function FormResizer(dir, el, form) {
 	this.qa = form.qArea;
 	this.qaStyle = form.qArea.style;
 	this.txStyle = form.txta.style;
-	el.addEventListener('mousedown', this, false);
+	el.addEventListener('mousedown', this);
 }
 FormResizer.prototype = {
 	handleEvent(e) {
@@ -6876,8 +6876,8 @@ FormResizer.prototype = {
 			case 'right': val = 'left: ' + cr.left + 'px; ' + Cfg.qReplyY;
 			}
 			this.qaStyle.cssText = val;
-			doc.body.addEventListener('mousemove', this, false);
-			doc.body.addEventListener('mouseup', this, false);
+			doc.body.addEventListener('mousemove', this);
+			doc.body.addEventListener('mouseup', this);
 			$pd(e);
 			return;
 		case 'mousemove':
@@ -6898,8 +6898,8 @@ FormResizer.prototype = {
 			}
 			return;
 		default: // mouseup
-			doc.body.removeEventListener('mousemove', this, false);
-			doc.body.removeEventListener('mouseup', this, false);
+			doc.body.removeEventListener('mousemove', this);
+			doc.body.removeEventListener('mouseup', this);
 			if(this.vertical) {
 				saveCfg('textaHeight', parseInt(this.txStyle.height, 10));
 				saveCfg('qReplyY', cr.top < 1 ? 'top: 0' :
@@ -7435,8 +7435,8 @@ function ImgBtnsShowHider(nextFn, prevFn) {
 	this._btnsStyle = btns.style;
 	this._nextFn = nextFn;
 	this._prevFn = prevFn;
-	doc.defaultView.addEventListener('mousemove', this, false);
-	btns.addEventListener('mouseover', this, false);
+	doc.defaultView.addEventListener('mousemove', this);
+	btns.addEventListener('mouseover', this);
 }
 ImgBtnsShowHider.prototype = {
 	handleEvent(e) {
@@ -7453,8 +7453,8 @@ ImgBtnsShowHider.prototype = {
 		case 'mouseover':
 			if(!this.hasEvents) {
 				this.hasEvents = true;
-				this._btns.addEventListener('mouseout', this, false);
-				this._btns.addEventListener('click', this, false);
+				this._btns.addEventListener('mouseout', this);
+				this._btns.addEventListener('click', this);
 			}
 			if(!this._hidden) {
 				clearTimeout(this._hideTmt);
@@ -7477,7 +7477,7 @@ ImgBtnsShowHider.prototype = {
 	},
 	remove() {
 		$del(this._btns);
-		doc.defaultView.removeEventListener('mousemove', this, false);
+		doc.defaultView.removeEventListener('mousemove', this);
 		clearTimeout(this._hideTmt);
 	},
 	show() {
@@ -8222,7 +8222,7 @@ Post.sizing = {
 	get wHeight() {
 		var val = doc.documentElement.clientHeight;
 		if(!this._enabled) {
-			doc.defaultView.addEventListener('resize', this, false);
+			doc.defaultView.addEventListener('resize', this);
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
@@ -8234,7 +8234,7 @@ Post.sizing = {
 	get wWidth() {
 		var val = doc.documentElement.clientWidth;
 		if(!this._enabled) {
-			doc.defaultView.addEventListener('resize', this, false);
+			doc.defaultView.addEventListener('resize', this);
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
@@ -8820,9 +8820,9 @@ Post.prototype = {
 			$del(this._menu);
 		}
 		this._menu = doc.body.lastChild;
-		this._menu.addEventListener('click', this, false);
-		this._menu.addEventListener('mouseover', this, false);
-		this._menu.addEventListener('mouseout', this, false);
+		this._menu.addEventListener('click', this);
+		this._menu.addEventListener('mouseover', this);
+		this._menu.addEventListener('mouseout', this);
 	},
 	_addMenuHide() {
 		var str = '', sel = nav.Presto ? doc.getSelection() : window.getSelection(),
@@ -9021,7 +9021,7 @@ Post.prototype = {
 	},
 	_markLink(pNum) {
 		$each($Q('a[href*="' + pNum + '"]', this.el), function(num, el) {
-			if(el.textContent === '>>' + num) {
+			if(el.textContent.startsWith('>>' + num)) {
 				el.classList.add('de-link-pview');
 			}
 		}.bind(null, pNum));
@@ -9483,7 +9483,7 @@ function PviewMoved() {
 		this.style.cssText = this.newPos;
 		this.newPos = false;
 		$each($C('de-css-move', doc.head), $del);
-		this.removeEventListener(nav.animEnd, PviewMoved, false);
+		this.removeEventListener(nav.animEnd, PviewMoved);
 	}
 }
 
@@ -9519,12 +9519,12 @@ function setPviewPosition(link, pView, isAnim) {
 		'de-css-move';
 	if(pView.newPos) {
 		pView.style.cssText = pView.newPos;
-		pView.removeEventListener(nav.animEnd, PviewMoved, false);
+		pView.removeEventListener(nav.animEnd, PviewMoved);
 	} else {
 		pView.style.cssText = oldCSS;
 	}
 	pView.newPos = lmw + ' top:' + top + ';';
-	pView.addEventListener(nav.animEnd, PviewMoved, false);
+	pView.addEventListener(nav.animEnd, PviewMoved);
 	pView.classList.add('de-pview-anim');
 	pView.style[nav.animName] = uId;
 }
@@ -10205,10 +10205,10 @@ function initNavFuncs() {
 		animEnd: webkit ? 'webkitAnimationEnd' : opera11 ? 'oAnimationEnd' : 'animationend',
 		animEvent(el, fn) {
 			el.addEventListener(this.animEnd, function aEvent() {
-				this.removeEventListener(nav.animEnd, aEvent, false);
+				this.removeEventListener(nav.animEnd, aEvent);
 				fn(this);
 				fn = null;
-			}, false);
+			});
 		},
 		fixLink: safari ? getAbsLink : function fixLink(url) {
 			return url;
@@ -10553,7 +10553,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					}
 					$q('input[type="button"]', doc).addEventListener('click', function() {
 						spawn(readCfg).then(() => saveCfg('__hanarating', $id('rating').value));
-					}, false);
+					});
 					return true;
 				}
 				return false;
@@ -11458,7 +11458,7 @@ function Initialization(checkDomains) {
 		/* falls through */
 		default: return;
 		}
-	}, false);
+	});
 
 	if(localRun) {
 		var url = window.location.pathname.match(/\/[^-]+-([^-]+)-([^\.]+)\.[a-z]+$/);
@@ -11474,7 +11474,7 @@ function Initialization(checkDomains) {
 	if(aib.t) {
 		doc.defaultView.addEventListener('beforeunload', function(e) {
 			sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset;
-		}, false);
+		});
 	}
 	dummy = doc.createElement('div');
 	return formEl;
@@ -11498,9 +11498,7 @@ DelForm.doReplace = function(formEl) {
 		formEl.style.display = 'none';
 		formEl.id = 'de-dform-old';
 		formEl = formEl.previousSibling;
-		window.addEventListener('load', function() {
-			$del($id('de-dform-old'));
-		}, false);
+		window.addEventListener('load', () => $del($id('de-dform-old')));
 	}
 	return formEl;
 };
@@ -11909,18 +11907,18 @@ function initThreadUpdater(title, enableUpdate) {
 			} else {
 				onVis();
 			}
-		}, false);
+		});
 	} else {
 		focused = false;
-		doc.defaultView.addEventListener('focus', onVis, false);
+		doc.defaultView.addEventListener('focus', onVis);
 		doc.defaultView.addEventListener('blur', function() {
 			focused = false;
 			dForm.firstThr.clearPostsMarks();
-		}, false);
+		});
 		doc.defaultView.addEventListener('mousemove', function mouseMove() {
-			doc.defaultView.removeEventListener('mousemove', mouseMove, false);
+			doc.defaultView.removeEventListener('mousemove', mouseMove);
 			onVis();
-		}, false);
+		});
 	}
 	if(enableUpdate) {
 		init();
@@ -12024,16 +12022,19 @@ function initPage() {
 		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr);
 		if(aib.t) {
 			dForm.firstThr.el.nextSibling.firstChild.firstElementChild
-				.addEventListener('click', updater.forceLoad, false);
+				.addEventListener('click', updater.forceLoad);
 		}
 	}
 }
 
 function scrollPage() {
 	if(!aib.t) {
-		if(doc.hidden || window.pageYOffset !== 0) {
+		if(doc.hidden || (needScroll && window.pageYOffset !== 0)) {
 			window.scrollTo(0, 0);
 		}
+		return;
+	}
+	if(!needScroll) {
 		return;
 	}
 	setTimeout(function() {
@@ -12588,9 +12589,7 @@ function* initScript(checkDomains, readCfgPromise) {
 	new Logger().log('Apply CSS');
 	doc.body.style.display = '';
 	new Logger().log('Display page');
-	if(needScroll) {
-		scrollPage();
-	}
+	scrollPage();
 	new Logger().log('Scroll page');
 	readPosts();
 	yield* readUserPosts();
@@ -12631,10 +12630,9 @@ if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 	doc.addEventListener(doc.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll",
 	                     function wheelFunc(e) {
 	                     	needScroll = false;
-	                     	doc.removeEventListener(e.type, wheelFunc, false);
-	                     },
-	                     false);
-	doc.addEventListener('DOMContentLoaded', async(initScript.bind(null, false, cfgRead)), false);
+	                     	doc.removeEventListener(e.type, wheelFunc);
+	                     });
+	doc.addEventListener('DOMContentLoaded', async(initScript.bind(null, false, cfgRead)));
 }
 
 })(window.opera && window.opera.scriptStorage, window.FormData);
