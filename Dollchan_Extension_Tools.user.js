@@ -13341,7 +13341,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				timePattern: { value: "dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?" }
 			}],
 			"dva-ch.net": [{
-				dvachnet: { value: true } }],
+				dvachnet: { value: true },
+
+				ru: { value: true }
+			}],
 			"iichan.hk": [{
 				iich: { value: true },
 

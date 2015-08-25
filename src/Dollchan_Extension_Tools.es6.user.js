@@ -10557,6 +10557,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		get 'dobrochan.ru'() { return this['dobrochan.com']; },
 		'dva-ch.net': [{
 			dvachnet: { value: true },
+
+			ru: { value: true }
 		}],
 		'iichan.hk': [{
 			iich: { value: true },
