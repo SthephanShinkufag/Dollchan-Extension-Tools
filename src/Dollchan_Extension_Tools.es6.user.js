@@ -12484,7 +12484,7 @@ function updateCSS() {
 		(Cfg.imgNavBtns ? '' : '#de-img-btn-next, #de-img-btn-prev, ') +
 		(Cfg.showHideBtn ? '' : '.de-btn-hide, ') +
 		(Cfg.showRepBtn ? '' : '.de-btn-rep, ') +
-		(Cfg.updThrBtns && !aib.t ? '' : '.de-thread-updater, ') +
+		(Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ') +
 		(Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') +
 		(Cfg.delHiddPost ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, ' : '') +
 		(Cfg.noPostNames ? aib.qName + ', .' + aib.cTrip + ', ' : '') +
