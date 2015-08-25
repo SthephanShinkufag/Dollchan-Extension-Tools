@@ -1198,6 +1198,8 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+
 !(function(global) {
   "use strict";
 
@@ -13349,7 +13351,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				iich: { value: true },
 
 				css: { get: function get() {
-						return "" + (this.t ? "#de-main { margin-top: " + (Cfg.attachPanel ? "-33" : "-51") + "px; }\t\t\t\t\t.logo { margin-bottom: 14px; }" : "");
+						return "" + (this.t ? "#de-main { margin-top: " + (Cfg.attachPanel ? "-37" : "-55") + "px; }\t\t\t\t\t.logo { margin-bottom: 14px; }" : "");
 					} } }],
 			"inach.org": [{
 				qPostRedir: { value: "input[name=\"fieldnoko\"]" },
@@ -15167,7 +15169,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		if (Cfg.widePosts) {
 			x += "." + aib.cReply.replace(/\s/, ".") + ":not(.de-pview) { float: none; width: 100%; }";
 		}
-		x += ".postarea, .recaptcha_image_cell + td, .recaptcha_image_cell + td + td, small[id^=\"rfmap\"], .theader, .thumbnailmsg, " + (Cfg.panelCounter ? "" : "#de-panel-info, ") + (Cfg.imgNavBtns ? "" : "#de-img-btn-next, #de-img-btn-prev, ") + (Cfg.showHideBtn ? "" : ".de-btn-hide, ") + (Cfg.showRepBtn ? "" : ".de-btn-rep, ") + (Cfg.updThrBtns ? "" : ".de-thread-updater, ") + (Cfg.removeHidd ? ".de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, " : "") + (Cfg.delHiddPost ? ".de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, " : "") + (Cfg.noPostNames ? aib.qName + ", ." + aib.cTrip + ", " : "") + (Cfg.noBoardRule ? (aib.mak ? ".rules-area" : aib.krau ? "#rules_row" : aib.futa ? ".chui" : ".rules, #rules") + ", " : "") + (!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? "#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, " : "") + "body > hr { display: none !important; }";
+		x += ".postarea, .recaptcha_image_cell + td, .recaptcha_image_cell + td + td, small[id^=\"rfmap\"], .theader, .thumbnailmsg, " + (Cfg.panelCounter ? "" : "#de-panel-info, ") + (Cfg.imgNavBtns ? "" : "#de-img-btn-next, #de-img-btn-prev, ") + (Cfg.showHideBtn ? "" : ".de-btn-hide, ") + (Cfg.showRepBtn ? "" : ".de-btn-rep, ") + (Cfg.updThrBtns && !aib.t ? "" : ".de-thread-updater, ") + (Cfg.removeHidd ? ".de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, " : "") + (Cfg.delHiddPost ? ".de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, " : "") + (Cfg.noPostNames ? aib.qName + ", ." + aib.cTrip + ", " : "") + (Cfg.noBoardRule ? (aib.mak ? ".rules-area" : aib.krau ? "#rules_row" : aib.futa ? ".chui" : ".rules, #rules") + ", " : "") + (!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? "#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, " : "") + "body > hr { display: none !important; }";
 		$id("de-css-dynamic").textContent = x + "\n" + aib.css + "\n" + aib.cssEn;
 		$id("de-css-user").textContent = Cfg.userCSS ? Cfg.userCSSTxt : "";
 	}
