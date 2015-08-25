@@ -10977,7 +10977,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
 			init: { value() {
-				Cfg.fileThumb = 0;
+				if(Cfg) {
+					Cfg.fileThumb = 0;
+				}
 				setTimeout(function() {
 					$del($id('updater'));
 				}, 0);

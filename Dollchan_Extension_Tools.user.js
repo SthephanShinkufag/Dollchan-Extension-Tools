@@ -13828,7 +13828,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return $q("input[type=\"checkbox\"]", op).name.match(/\d+/)[0];
 					} },
 				init: { value: function value() {
-						Cfg.fileThumb = 0;
+						if (Cfg) {
+							Cfg.fileThumb = 0;
+						}
 						setTimeout(function () {
 							$del($id("updater"));
 						}, 0);
