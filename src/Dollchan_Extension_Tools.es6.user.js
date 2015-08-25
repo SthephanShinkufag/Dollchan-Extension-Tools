@@ -10432,7 +10432,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
 						'><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"></div>';
 				}
-				$id('upload_file').parentNode.innerHTML = str;
+				$id('upload').lastChild.innerHTML = str;
 			} },
 			multiFile: { value: true }
 		}, 'form[name*="postcontrols"]'],
@@ -10655,14 +10655,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			rLinkClick: { value: 'onclick="highlightPost(this.textContent.substr(2))"' },
 			timePattern: { value: 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?' }
 		}],
+		'lainchan.org': [{
+			cOPost: { value: 'op' },
+			css: { value: '.sidearrows { display: none !important; }' }
+		}, 'form[name*="postcontrols"]'],
 		'mlpg.co': [{
-			cOPost: { value: 'opContainer' },
-			getWrap: { value(el, isOp) {
-				return el.parentNode;
-			} },
-			css: { value: 'form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none; }' },
-			markupBB: { value: true },
-			markupTags: { value: ['b', 'i', 'u', '-', 'spoiler', 'c', '', '', 'q'] }
+			cOPost: { value: 'opContainer' }
 		}, 'form[name*="postcontrols"]'],
 		get 'niuchan.org'() { return this['diochan.com']; },
 		'ponya.ch': [{
@@ -10980,6 +10978,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			} },
 			init: { value() {
 				Cfg.fileThumb = 0;
+				setTimeout(function() {
+					$del($id('updater'));
+				}, 0);
 				return false;
 			} },
 			firstPage: { value: 1 },
@@ -12362,7 +12363,7 @@ function scriptCSS() {
 	#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }\
 	#de-qarea { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\
 	#de-qarea > div:nth-child(2) { text-align: center; }\
-	.de-qarea-hanging { position: fixed; z-index: 9990; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\
+	.de-qarea-hanging { position: fixed !important; z-index: 9990; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\
 	.de-qarea-hanging > .de-cfg-head { cursor: move; }\
 	.de-qarea-hanging #de-qarea-utils > span:hover { color: #ff6; }\
 	.de-qarea-hanging > #de-pform { padding: 2px 2px 0 1px; border: 1px solid gray; }\
