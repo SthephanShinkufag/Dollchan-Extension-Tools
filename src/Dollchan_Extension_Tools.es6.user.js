@@ -4081,7 +4081,7 @@ DateTime.prototype = {
 				case 'n': month = a - 1; break;
 				case 'y': year = a; break;
 				case 'm':
-					switch(a.slice(0, 3)) {
+					switch(a.slice(0, 3).toLowerCase()) {
 					case 'янв': case 'jan': month = 0; break;
 					case 'фев': case 'feb': month = 1; break;
 					case 'мар': case 'mar': month = 2; break;
@@ -10750,9 +10750,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				return false;
 			} },
 			init: { value() {
-				Cfg.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
-				Cfg.timeOffset = 4;
-				Cfg.correctTime = 1;
+				defaultCfg.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
+				defaultCfg.timeOffset = 4;
+				defaultCfg.correctTime = 1;
 				return false;
 			} },
 			markupBB: { value: true },
