@@ -10536,16 +10536,6 @@ function getImageBoard(checkDomains, checkEngines) {
 				el.firstElementChild.value = 1;
 			} },
 			hasPicWrap: { value: true },
-			hDTFix: { configurable: true, get() {
-				var val = new DateTime(
-					'yyyy-nn-dd-hh-ii-ss',
-					'_d _M _Y (_w) _h:_i ',
-					Cfg.timeOffset || 0,
-					Cfg.correctTime ? lang : 1
-				);
-				Object.defineProperty(this, 'weight', { value: val });
-				return val;
-			} },
 			init: { value() {
 				if(window.location.pathname === '/settings') {
 					if(!nav) {
@@ -10574,6 +10564,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			css: { get() {
 				return `${this.t ? '#de-main { margin-top: ' + (Cfg.attachPanel ? '-37' : '-55') + 'px; }\
 					.logo { margin-bottom: 14px; }' : ''}`;
+			} },
+			init: { value() {
+				window.onload = emptyFn;
+				var post, hash = window.location.hash;
+				if(hash && (hash = hash.match(/#i?(\d+)$/)[1]) && (post = $id('reply' + hash))) {
+					post.classList.add('highlight');
+				}
+				return false;
 			} },
 		}],
 		'inach.org': [{

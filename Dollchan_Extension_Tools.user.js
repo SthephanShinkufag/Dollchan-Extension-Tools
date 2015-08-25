@@ -13321,11 +13321,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						el.firstElementChild.value = 1;
 					} },
 				hasPicWrap: { value: true },
-				hDTFix: { configurable: true, get: function get() {
-						var val = new DateTime("yyyy-nn-dd-hh-ii-ss", "_d _M _Y (_w) _h:_i ", Cfg.timeOffset || 0, Cfg.correctTime ? lang : 1);
-						Object.defineProperty(this, "weight", { value: val });
-						return val;
-					} },
 				init: { value: function value() {
 						if (window.location.pathname === "/settings") {
 							if (!nav) {
@@ -13352,6 +13347,15 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				css: { get: function get() {
 						return "" + (this.t ? "#de-main { margin-top: " + (Cfg.attachPanel ? "-37" : "-55") + "px; }\t\t\t\t\t.logo { margin-bottom: 14px; }" : "");
+					} },
+				init: { value: function value() {
+						window.onload = emptyFn;
+						var post,
+						    hash = window.location.hash;
+						if (hash && (hash = hash.match(/#i?(\d+)$/)[1]) && (post = $id("reply" + hash))) {
+							post.classList.add("highlight");
+						}
+						return false;
 					} } }],
 			"inach.org": [{
 				qPostRedir: { value: "input[name=\"fieldnoko\"]" },
