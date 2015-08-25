@@ -2247,7 +2247,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, readUserPosts, this);
 	});
 	var readFavoritesPosts = regeneratorRuntime.mark(function readFavoritesPosts() {
-		var temp, update, fav, thr, num;
+		var temp, update, fav, thr, num, f, post;
 		return regeneratorRuntime.wrap(function readFavoritesPosts$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
@@ -2280,13 +2280,22 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						num = thr.num;
 
 						if (num in temp) {
+							f = temp[num];
+
 							thr.setFavBtn(true);
 							if (aib.t) {
-								temp[num].cnt = thr.pcount;
-								temp[num]["new"] = 0;
-								temp[num].last = thr.last.num;
+								f.cnt = thr.pcount;
+								f["new"] = 0;
+								if (aib.t && Cfg.markNewPosts && f.last) {
+									post = pByNum[f.last];
+
+									while (post = post.next) {
+										thr._addPostMark(post.el, true);
+									}
+								}
+								f.last = thr.last.num;
 							} else {
-								temp[num]["new"] = thr.pcount - temp[num].cnt;
+								f["new"] = thr.pcount - f.cnt;
 							}
 							update = true;
 						}
@@ -12448,7 +12457,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			post.addFuncs();
 			preloadImages(el);
 			if (aib.t && Cfg.markNewPosts) {
-				this._addPostMark(el);
+				this._addPostMark(el, false);
 			}
 			return post;
 		},
@@ -12713,8 +12722,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		},
 
 		_lastModified: "",
-		_addPostMark: function _addPostMark(postEl) {
-			if (updater.focused) {
+		_addPostMark: function _addPostMark(postEl, forced) {
+			if (updater.focused && !forced) {
 				this.clearPostsMarks();
 			} else {
 				if (!this.hasNew) {

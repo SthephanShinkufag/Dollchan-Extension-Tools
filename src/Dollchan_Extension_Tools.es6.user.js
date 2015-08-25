@@ -1481,13 +1481,20 @@ function* readFavoritesPosts() {
 	for(var thr = dForm.firstThr; thr; thr = thr.next) {
 		var num = thr.num;
 		if(num in temp) {
+			var f = temp[num];
 			thr.setFavBtn(true);
 			if(aib.t) {
-				temp[num].cnt = thr.pcount;
-				temp[num]['new'] = 0;
-				temp[num].last = thr.last.num;
+				f.cnt = thr.pcount;
+				f['new'] = 0;
+				if(aib.t && Cfg.markNewPosts && f.last) {
+					var post = pByNum[f.last];
+					while(post = post.next) {
+						thr._addPostMark(post.el, true);
+					}
+				}
+				f.last = thr.last.num;
 			} else {
-				temp[num]['new'] = thr.pcount - temp[num].cnt;
+				f['new'] = thr.pcount - f.cnt;
 			}
 			update = true;
 		}
@@ -9722,7 +9729,7 @@ Thread.prototype = {
 		post.addFuncs();
 		preloadImages(el);
 		if(aib.t && Cfg.markNewPosts) {
-			this._addPostMark(el);
+			this._addPostMark(el, false);
 		}
 		return post;
 	},
@@ -9964,8 +9971,8 @@ Thread.prototype = {
 	},
 
 	_lastModified: '',
-	_addPostMark(postEl) {
-		if(updater.focused) {
+	_addPostMark(postEl, forced) {
+		if(updater.focused && !forced) {
 			this.clearPostsMarks();
 		} else {
 			if(!this.hasNew) {
