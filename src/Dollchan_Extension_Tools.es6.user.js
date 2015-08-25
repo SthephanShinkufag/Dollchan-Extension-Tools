@@ -9036,7 +9036,7 @@ Post.prototype = {
 				Post.hiddenNums.splice(idx, 1);
 			}
 		}
-		$each($Q('a[href*="#' + num + '"]', dForm.el), isHide ? function(el) {
+		$each($Q('a[href*="' + aib.anchor + num + '"]', dForm.el), isHide ? function(el) {
 			el.classList.add('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
 				var refmap = el.parentNode;
