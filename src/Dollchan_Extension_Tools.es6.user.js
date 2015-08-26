@@ -10841,7 +10841,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				var links = $Q('.post-reply-link', msg);
 				for(var i = 0, len = links.length; i < len; ++i) {
 					var link = links[i];
-					fn(link, link.getAttribute('data-num'));
+					fn(link, +link.getAttribute('data-num'));
 				}
 			} },
 			hasNames: { configurable: true, get() {

@@ -13705,7 +13705,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						var links = $Q(".post-reply-link", msg);
 						for (var i = 0, len = links.length; i < len; ++i) {
 							var link = links[i];
-							fn(link, link.getAttribute("data-num"));
+							fn(link, +link.getAttribute("data-num"));
 						}
 					} },
 				hasNames: { configurable: true, get: function get() {
