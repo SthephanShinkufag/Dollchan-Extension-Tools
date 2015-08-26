@@ -480,6 +480,7 @@ Lng = {
 	infoCount:      ['Обновить счетчики постов', 'Refresh posts counters'],
 	infoPage:       ['Проверить актуальность тредов (до 5 страницы)', 'Check for threads actuality (up to 5 page)'],
 	clrDeleted:     ['Очистить недоступные (404) треды', 'Clear inaccessible (404) threads'],
+	setByUser:      ['Выбрано пользователем', 'Set by user'],
 	oldPosts:       ['Постов при последнем посещении', 'Posts at the last visit'],
 	newPosts:       ['Количество новых постов', 'Number of new posts'],
 	thrPage:        ['Тред на @странице', 'Thread on @page'],
@@ -2045,6 +2046,8 @@ function showFavoriteTable(cont, data) {
 				block.insertAdjacentHTML('beforeend',
 					'<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b +
 						'" de-num="' + tNum + '" de-url="' + t.url + '">' +
+						(t['type'] === 'user' ? '<span class="de-fav-user" title="'
+							+ Lng.setByUser[lang] + '"></span>' : '') +
 						'<input type="checkbox">' +
 						'<a href="' + t.url + (t.last ? aib.anchor + t.last : '') + '">' + tNum + '</a>' +
 						'<span class="de-fav-title"> - ' + t.txt + '</span>' +
@@ -7013,7 +7016,7 @@ function checkUpload(dc) {
 		return;
 	}
 	if(Cfg.favOnReply && pr.tNum) {
-		pByNum[pr.tNum].thr.setFavorState(true);
+		pByNum[pr.tNum].thr.setFavorState(true, 'onreply');
 	}
 	pr.txta.value = '';
 	if(pr.file) {
@@ -8356,8 +8359,8 @@ Post.prototype = {
 				$del(this._menu);
 				this._menu = null;
 				return;
-			case 'de-btn-fav': this.thr.setFavorState(true); return;
-			case 'de-btn-fav-sel': this.thr.setFavorState(false); return;
+			case 'de-btn-fav': this.thr.setFavorState(true, 'user'); return;
+			case 'de-btn-fav-sel': this.thr.setFavorState(false, 'user'); return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
 				if(this.isPview) {
@@ -9928,7 +9931,7 @@ Thread.prototype = {
 			el.title = state ? Lng.delFav[lang] : Lng.addFav[lang];
 		}
 	},
-	setFavorState(val) {
+	setFavorState(val, type) {
 		this.setFavBtn(val);
 		readFav().then(fav => {
 			var b = aib.b,
@@ -9946,7 +9949,8 @@ Thread.prototype = {
 					'new': 0,
 					'txt': this.op.title,
 					'url': aib.getThrdUrl(b, this.num),
-					'last': this.last.num
+					'last': this.last.num,
+					'type': type
 				};
 			} else {
 				removeFavoriteEntry(fav, h, b, this.num, false);
@@ -12404,8 +12408,10 @@ function scriptCSS() {
 	#de-content-fav, #de-content-hid, #de-content-vid { font-size: 16px; padding: 10px; border: 1px solid gray; border-radius: 8px; }\
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
 	.de-entry { display: block !important; float: none !important; width: auto; max-width: 100% !important; margin: 2px 0 !important; padding: 0 !important; border: none; font-size: 14px; ' + (nav.Presto ? 'white-space: nowrap; ' : '') + '}\
+	#de-content-fav input[type="checkbox"] { margin-left: 14px; }\
 	.de-entry > a { text-decoration: none; border: none; }\
 	.de-entry > input { margin: 2px 4px; }\
+	.de-fav-user::after { content: "\u2605"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\
 	.de-fav-inf-err { color: #c33; font-size: 12px; }\
 	.de-fav-inf-new { color: #424f79; }\
 	.de-fav-inf-new::after { content: " +"; }\
