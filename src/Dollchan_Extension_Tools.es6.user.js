@@ -20,8 +20,10 @@
 (function de_main_func_inner(scriptStorage, FormData) {
 'use strict';
 
-var version = '15.8.27.0',
-defaultCfg = {
+var version = '15.8.27.0';
+var commit = '6359368ee4';
+
+var defaultCfg = {
 	'disabled':         0,      // script enabled by default
 	'language':         0,      // script language [0=ru, 1=en]
 	'hideBySpell':      1,      // hide posts by spells
@@ -6083,7 +6085,8 @@ function PostForm(form, ignoreForm, dc) {
 		}
 		if(this.tNum && pByNum[this.tNum].subj === 'Dollchan Extension Tools') {
 			var temp = '\n\n' + this._wrapText(aib.markupBB, aib.markupTags[5],
-				'-'.repeat(50) + '\n' + nav.ua + '\nv' + version + ' [' + nav.scriptInstall + ']')[1];
+				'-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit +
+				' [' + nav.scriptInstall + ']')[1];
 			if(!val.includes(temp)) {
 				val += temp;
 			}

@@ -9,10 +9,11 @@
   },
   "devDependencies": {
     "gulp": "^3.6.2",
+    "gulp-dest": "^0.2.1",
+    "gulp-headerfooter": "^1.0.3",
     "gulp-jshint": "^1.5.5",
-	"gulp-headerfooter": "^1.0.3",
-	"gulp-dest": "^0.2.1",
-	"gulp-strip-comments": "^1.0.0"
+    "gulp-replace": "^0.5.4",
+    "gulp-strip-comments": "^1.0.0"
   },
   "repository": {
     "type": "git",
