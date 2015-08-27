@@ -16,23 +16,37 @@ var paths = {
 	],
 };
 
-gulp.task('make', function(cb) {
+gulp.task('updatecommit', function(cb) {
 	var git = spawn('git', ['rev-parse', 'HEAD']);
+	var stdout, stderr;
 	git.stdout.on('data', function(data) {
-		gulp.src('src/Dollchan_Extension_Tools.es6.user.js')
-			.pipe(replace(/^var commit = '[^']*';$/m, 'var commit = \'' + String(data).trim().substr(0, 10) + '\';'))
-			.pipe(gulp.dest('./src/'));
-		gulp.src('src/Dollchan_Extension_Tools.es6.user.js')
-			.pipe(babel({ compact: false }))
-			.pipe(headerfooter.header('src/regenerator-runtime.js'))
-			.pipe(headerfooter.header('src/core-js.custom.js'))
-			.pipe(strip())
-			.pipe(headerfooter.header('(function de_main_func_outer() {\n'))
-			.pipe(headerfooter.footer('})();'))
-			.pipe(headerfooter.header('Dollchan_Extension_Tools.meta.js'))
-			.pipe(dest('', {basename: 'Dollchan_Extension_Tools.user.'}))
-			.pipe(gulp.dest('./'));
+		stdout = String(data);
 	});
+	git.stderr.on('data', function(data) {
+		stderr = String(data);
+	});
+	git.on('close', function(code) {
+		if(code !== 0) {
+			throw 'Git error:\n' + (stdout ? stdout + '\n' : '') + stderr;
+		}
+		gulp.src('src/Dollchan_Extension_Tools.es6.user.js')
+			.pipe(replace(/^var commit = '[^']*';$/m, 'var commit = \'' + stdout.trim().substr(0, 7) + '\';'))
+			.pipe(gulp.dest('./src/'))
+			.on('end', cb);
+	});
+});
+
+gulp.task('make', ['updatecommit'], function() {
+	return gulp.src('src/Dollchan_Extension_Tools.es6.user.js')
+		.pipe(babel({ compact: false }))
+		.pipe(headerfooter.header('src/regenerator-runtime.js'))
+		.pipe(headerfooter.header('src/core-js.custom.js'))
+		.pipe(strip())
+		.pipe(headerfooter.header('(function de_main_func_outer() {\n'))
+		.pipe(headerfooter.footer('})();'))
+		.pipe(headerfooter.header('Dollchan_Extension_Tools.meta.js'))
+		.pipe(dest('', {basename: 'Dollchan_Extension_Tools.user.'}))
+		.pipe(gulp.dest('./'));
 });
 
 gulp.task('lint', function() {

@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "6359368ee4";
+	var commit = "5006789";
 
 	var defaultCfg = {
 		disabled: 0,
