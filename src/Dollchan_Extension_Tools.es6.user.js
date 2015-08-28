@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '0842004';
+var commit = '81f94ea';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1711,7 +1711,7 @@ function addPanel(formEl) {
 function toggleWindow(name, isUpd, data) {
 	var main = $id('de-main'),
 		win = $id('de-window-' + name),
-		isActive = win && win.classList.contains('de-window-active');
+		isActive = win && win.classList.contains('de-window-open');
 	if(isUpd && !isActive) {
 		return true;
 	}
@@ -1731,7 +1731,7 @@ function toggleWindow(name, isUpd, data) {
 	}
 	var el, body = $c('de-window-body', win),
 		remove = !isUpd && isActive;
-	if(!remove && (el = $c('de-window-active', win.parentNode))) {
+	if(!remove && (el = $c('de-window-open', win.parentNode))) {
 		toggleWindow(el.id.substr(10), false);
 	}
 	if(!isUpd && Cfg.animation && body.hasChildNodes()) {
@@ -1752,12 +1752,11 @@ function showWindow(win, body, name, isUpd, remove, data) {
 		cfgTabId = temp.getAttribute('info');
 	}
 	body.innerHTML = '';
+	win.className = 'de-window';
 	if(remove) {
-		win.className = 'de-window';
 		win.style.display = 'none';
 		return;
 	}
-	win.className = 'de-window de-window-active';
 	win.style.display = '';
 	switch(name) {
 	case 'fav':
