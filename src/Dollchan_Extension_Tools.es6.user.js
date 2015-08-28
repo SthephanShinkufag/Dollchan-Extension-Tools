@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'faa5233';
+var commit = '0842004';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -300,10 +300,10 @@ Lng = {
 
 	panelBtn: {
 		'attach':       ['Прикрепить/Открепить', 'Attach/Detach'],
-		'settings':     ['Настройки', 'Settings'],
-		'hidden':       ['Скрытое', 'Hidden'],
-		'favor':        ['Избранное', 'Favorites'],
-		'video':        ['Видео-ссылки', 'Video links'],
+		'cfg':          ['Настройки', 'Settings'],
+		'hid':          ['Скрытое', 'Hidden'],
+		'fav':          ['Избранное', 'Favorites'],
+		'vid':          ['Видео-ссылки', 'Video links'],
 		'refresh':      ['Обновить', 'Refresh'],
 		'goback':       ['Назад', 'Go back'],
 		'gonext':       ['Следующая', 'Next'],
@@ -492,7 +492,6 @@ Lng = {
 	noHidThrds:     ['Нет скрытых тредов...', 'No hidden threads...'],
 	expandAll:      ['Раскрыть все', 'Expand all'],
 	invalidData:    ['Некорректный формат данных', 'Incorrect data format'],
-	favThrds:       ['Избранные треды:', 'Favorite threads:'],
 	noFavThrds:     ['Нет избранных тредов...', 'Favorites is empty...'],
 	noVideoLinks:   ['Нет ссылок на видео...', 'No video links...'],
 	hideLnkList:    ['Скрыть/Показать список ссылок', 'Hide/Unhide list of links'],
@@ -1459,14 +1458,14 @@ function saveUserPosts() {
 		}
 		obj[aib.b] = uVis;
 		setStored('DESU_Posts_' + aib.dm, JSON.stringify(obj));
-		toggleContent('hid', true);
+		toggleWindow('hid', true);
 	});
 }
 
-function saveHiddenThreads(updContent) {
+function saveHiddenThreads(updWindow) {
 	setStored('DESU_Threads_' + aib.dm, JSON.stringify(hThr));
-	if(updContent) {
-		toggleContent('hid', true);
+	if(updWindow) {
+		toggleWindow('hid', true);
 	}
 }
 
@@ -1509,7 +1508,7 @@ function* readFavoritesPosts() {
 
 function saveFavorites(fav) {
 	setStored('DESU_Favorites', JSON.stringify(fav));
-	toggleContent('fav', true, fav);
+	toggleWindow('fav', true, fav);
 }
 
 function removeFavoriteEntry(fav, h, b, num, clearPage) {
@@ -1556,54 +1555,47 @@ function readViewedPosts() {
 // ===========================================================================================================
 
 function pButton(id, href, hasHotkey) {
-	return '<li><a id="de-btn-' + id + '" class="de-abtn" ' + (hasHotkey ? 'de-' : '') + 'title="' +
+	return '<li><a id="de-panel-' + id + '" class="de-abtn" ' + (hasHotkey ? 'de-' : '') + 'title="' +
 		Lng.panelBtn[id][lang] +'" href="' + href + '"></a></li>';
 }
 
 function addPanel(formEl) {
 	var panel, evtObject, imgLen = $Q(aib.qThumbImages, formEl).length,
-		b = aib.b,
 		isThr = aib.t;
 	(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin',
-		'<div id="de-main" lang="' + getThemeLang() + '">' +
-			'<div class="de-content"></div>' +
-			'<div id="de-panel">' +
-				'<span id="de-btn-logo" title="' + Lng.panelBtn.attach[lang] + '"></span>' +
-				'<ul id="de-panel-btns"' + (Cfg.expandPanel ? '>' : ' style="display: none">') +
-				(Cfg.disabled ? pButton('enable', '#', false) :
-					pButton('settings', '#', true) +
-					pButton('hidden', '#', true) +
-					pButton('favor', '#', true) +
-					(!Cfg.addYouTube ? '' : pButton('video', '#', true)) +
-					(localRun ? '' :
-						pButton('refresh', '#', false) +
-						(!isThr && (aib.page === aib.firstPage) ? '' :
-							pButton('goback', aib.getPageUrl(b, aib.page - 1), true)) +
-						(isThr || aib.page === aib.lastPage ? '' :
-							pButton('gonext', aib.getPageUrl(b, aib.page + 1), true))
-					) + pButton('goup', '#', false) +
-					pButton('godown', '#', false) +
-					(imgLen === 0 ? '' :
-						pButton('expimg', '#', false) +
-						pButton('maskimg', '#', true) +
-						(nav.Presto || localRun ? '' :
-							(Cfg.preLoadImgs ? '' : pButton('preimg', '#', false)) +
-							(!isThr ? '' : pButton('savethr', '#', false)))) +
-					(!isThr || localRun ? '' :
-						pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off', '#', false) +
-						(nav.Safari ? '' : pButton('audio-off', '#', false))) +
-					(!aib.mak && !aib.tiny && !aib.fch ? '' :
-						pButton('catalog', aib.prot + '//' + aib.host + '/' + b + '/catalog.html', false)) +
-					pButton('enable', '#', false) +
-					(!isThr ? '' :
-						'<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' +
-						dForm.firstThr.pcount + '/' + imgLen + '</span>')
-				) +
-				'</ul>' +
-			'</div>' +
-		(Cfg.disabled ? '' : '<div id="de-alert"></div><hr style="clear: both;">') +
-		'</div>'
-	);
+		'<div id="de-main" lang="' + getThemeLang() + '"><div id="de-panel">' +
+			'<span id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '"></span>' +
+			'<ul id="de-panel-btns"' + (Cfg.expandPanel ? '>' : ' style="display: none;">') +
+			(Cfg.disabled ? pButton('enable', '#', false) :
+				pButton('cfg', '#', true) +
+				pButton('hid', '#', true) +
+				pButton('fav', '#', true) +
+				(!Cfg.addYouTube ? '' : pButton('vid', '#', true)) +
+				(localRun ? '' :
+					pButton('refresh', '#', false) +
+					(!isThr && (aib.page === aib.firstPage) ? '' :
+						pButton('goback', aib.getPageUrl(aib.b, aib.page - 1), true)) +
+					(isThr || aib.page === aib.lastPage ? '' :
+						pButton('gonext', aib.getPageUrl(aib.b, aib.page + 1), true))
+				) + pButton('goup', '#', false) +
+				pButton('godown', '#', false) +
+				(imgLen === 0 ? '' :
+					pButton('expimg', '#', false) +
+					pButton('maskimg', '#', true) +
+					(nav.Presto || localRun ? '' :
+						(Cfg.preLoadImgs ? '' : pButton('preimg', '#', false)) +
+						(!isThr ? '' : pButton('savethr', '#', false)))) +
+				(!isThr || localRun ? '' :
+					pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off', '#', false) +
+					(nav.Safari ? '' : pButton('audio-off', '#', false))) +
+				(!aib.mak && !aib.tiny && !aib.fch ? '' :
+					pButton('catalog', aib.prot + '//' + aib.host + '/' + aib.b + '/catalog.html', false)) +
+				pButton('enable', '#', false) +
+				(!isThr ? '' :
+					'<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' +
+					dForm.firstThr.pcount + '/' + imgLen + '</span>')
+			) + '</ul>' +
+		'</div>' + (Cfg.disabled ? '' : '<div id="de-alert"></div><hr style="clear: both;">') + '</div>');
 	panel = $id('de-panel');
 	evtObject = {
 		attach: false,
@@ -1613,7 +1605,7 @@ function addPanel(formEl) {
 			switch(e.type) {
 			case 'click':
 				switch(e.target.id) {
-				case 'de-btn-logo':
+				case 'de-panel-logo':
 					if(Cfg.expandPanel) {
 						this.panel.lastChild.style.display = 'none';
 						this.attach = false;
@@ -1622,51 +1614,51 @@ function addPanel(formEl) {
 					}
 					toggleCfg('expandPanel');
 					return;
-				case 'de-btn-settings': this.attach = toggleContent('cfg', false); break;
-				case 'de-btn-hidden': this.attach = toggleContent('hid', false); break;
-				case 'de-btn-favor': this.attach = toggleContent('fav', false); break;
-				case 'de-btn-video': this.attach = toggleContent('vid', false); break;
-				case 'de-btn-refresh': window.location.reload(); break;
-				case 'de-btn-goup': scrollTo(0, 0); break;
-				case 'de-btn-godown': scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight); break;
-				case 'de-btn-expimg':
+				case 'de-panel-cfg': this.attach = toggleWindow('cfg', false); break;
+				case 'de-panel-hid': this.attach = toggleWindow('hid', false); break;
+				case 'de-panel-fav': this.attach = toggleWindow('fav', false); break;
+				case 'de-panel-vid': this.attach = toggleWindow('vid', false); break;
+				case 'de-panel-refresh': window.location.reload(); break;
+				case 'de-panel-goup': scrollTo(0, 0); break;
+				case 'de-panel-godown': scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight); break;
+				case 'de-panel-expimg':
 					isExpImg = !isExpImg;
 					$del($c('de-img-center', doc));
 					for(var post = dForm.firstThr.op; post; post = post.next) {
 						post.toggleImages(isExpImg);
 					}
 					break;
-				case 'de-btn-preimg':
+				case 'de-panel-preimg':
 					isPreImg = !isPreImg;
 					if(!e.ctrlKey) {
 						preloadImages(null);
 					}
 				break;
-				case 'de-btn-maskimg':
+				case 'de-panel-maskimg':
 					toggleCfg('maskImgs');
 					updateCSS();
 					break;
-				case 'de-btn-upd-on':
-				case 'de-btn-upd-off':
-				case 'de-btn-upd-warn':
+				case 'de-panel-upd-on':
+				case 'de-panel-upd-off':
+				case 'de-panel-upd-warn':
 					if(updater.enabled) {
 						updater.disable();
 					} else {
 						updater.enable();
 					}
 					break;
-				case 'de-btn-audio-on':
-				case 'de-btn-audio-off':
+				case 'de-panel-audio-on':
+				case 'de-panel-audio-off':
 					if(updater.toggleAudio(0)) {
 						updater.enable();
-						e.target.id = 'de-btn-audio-on';
+						e.target.id = 'de-panel-audio-on';
 					} else {
-						e.target.id = 'de-btn-audio-off';
+						e.target.id = 'de-panel-audio-off';
 					}
 					$del($c('de-menu', doc));
 					break;
-				case 'de-btn-savethr': break;
-				case 'de-btn-enable':
+				case 'de-panel-savethr': break;
+				case 'de-panel-enable':
 					toggleCfg('disabled');
 					window.location.reload();
 					break;
@@ -1680,20 +1672,20 @@ function addPanel(formEl) {
 					this.panel.lastChild.style.display = '';
 				}
 				switch(e.target.id) {
-				case 'de-btn-settings': KeyEditListener.setTitle(e.target, 10); break;
-				case 'de-btn-hidden': KeyEditListener.setTitle(e.target, 7); break;
-				case 'de-btn-favor': KeyEditListener.setTitle(e.target, 6); break;
-				case 'de-btn-video': KeyEditListener.setTitle(e.target, 18); break;
-				case 'de-btn-goback': KeyEditListener.setTitle(e.target, 4); break;
-				case 'de-btn-gonext': KeyEditListener.setTitle(e.target, 17); break;
-				case 'de-btn-maskimg': KeyEditListener.setTitle(e.target, 9); break;
-				case 'de-btn-refresh':
+				case 'de-panel-cfg': KeyEditListener.setTitle(e.target, 10); break;
+				case 'de-panel-hid': KeyEditListener.setTitle(e.target, 7); break;
+				case 'de-panel-fav': KeyEditListener.setTitle(e.target, 6); break;
+				case 'de-panel-vid': KeyEditListener.setTitle(e.target, 18); break;
+				case 'de-panel-goback': KeyEditListener.setTitle(e.target, 4); break;
+				case 'de-panel-gonext': KeyEditListener.setTitle(e.target, 17); break;
+				case 'de-panel-maskimg': KeyEditListener.setTitle(e.target, 9); break;
+				case 'de-panel-refresh':
 					if(isThr) {
 						return;
 					}
 					/* falls through */
-				case 'de-btn-savethr':
-				case 'de-btn-audio-off': addMenu(e);
+				case 'de-panel-savethr':
+				case 'de-panel-audio-off': addMenu(e);
 				}
 				return;
 			default: // mouseout
@@ -1704,9 +1696,9 @@ function addPanel(formEl) {
 					}, 500, this);
 				}
 				switch(e.target.id) {
-				case 'de-btn-refresh':
-				case 'de-btn-savethr':
-				case 'de-btn-audio-off': removeMenu(e);
+				case 'de-panel-refresh':
+				case 'de-panel-savethr':
+				case 'de-panel-audio-off': removeMenu(e);
 				}
 			}
 		}
@@ -1716,76 +1708,83 @@ function addPanel(formEl) {
 	panel.addEventListener('mouseout', evtObject);
 }
 
-function toggleContent(name, isUpd, data) {
-	var remove, el = $c('de-content', doc),
-		id = 'de-content-' + name;
-	if(!el) {
-		return false;
-	}
-	if(isUpd && el.id !== id) {
+function toggleWindow(name, isUpd, data) {
+	var main = $id('de-main'),
+		win = $id('de-window-' + name),
+		isActive = win && win.classList.contains('de-window-active');
+	if(isUpd && !isActive) {
 		return true;
 	}
-	remove = !isUpd && el.id === id;
-	if(el.hasChildNodes() && Cfg.animation) {
-		nav.animEvent(el, function(node) {
-			showContent(node, id, name, remove, data);
-			id = name = remove = data = null;
+	if(!win) {
+		main.insertAdjacentHTML('afterbegin',
+			'<div id="de-window-' + name + '" class="de-window"' +
+				(Cfg.attachPanel && name !== 'cfg' ? ' style="background-color: ' +
+				getComputedStyle(doc.body).getPropertyValue('background-color') + '"' : '') + '>' +
+			'<div class="de-window-head"><span class="de-window-title">' +
+				(name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang]) + '</span>' +
+			'<span class="de-window-buttons">' +
+			//'<span class="de-btn-toggle"></span>' +
+			'<span class="de-btn-close"></span></span></div>' +
+			'<div class="de-window-body' + (name === 'cfg' ? ' ' + aib.cReply : '') + '"></div></div>');
+		win = main.firstChild;
+		win.firstChild.lastChild.lastChild.onclick = toggleWindow.bind(null, name, false);
+	}
+	var el, body = $c('de-window-body', win),
+		remove = !isUpd && isActive;
+	if(!remove && (el = $c('de-window-active', win.parentNode))) {
+		toggleWindow(el.id.substr(10), false);
+	}
+	if(!isUpd && Cfg.animation && body.hasChildNodes()) {
+		nav.animEvent(win, function(node) {
+			showWindow(node, body, name, isUpd, remove, data);
+			name = isUpd = remove = data = null;
 		});
-		el.className = 'de-content de-cfg-close';
-
+		win.className = 'de-window de-window-close';
 	} else {
-		showContent(el, id, name, remove, data);
+		showWindow(win, body, name, isUpd, remove, data);
 	}
 	return !remove;
 }
 
-function addContentBlock(parent, title) {
-	return parent.appendChild($New('div', {'class': 'de-content-block'}, [
-		$new('input', {'type': 'checkbox'}, {'click'() {
-			$each($Q('.de-entry > input', this.parentNode), el => el.checked = this.checked);
-		}}),
-		title
-	]));
-}
-
-function showContent(cont, id, name, remove, data) {
+function showWindow(win, body, name, isUpd, remove, data) {
 	var temp, cfgTabId;
-	if(name === 'cfg' && !remove && (temp = $q('.de-cfg-tab-back[selected="true"] > .de-cfg-tab', cont))) {
+	if(name === 'cfg' && !remove && (temp = $q('.de-cfg-tab-back[selected="true"] > .de-cfg-tab', body))) {
 		cfgTabId = temp.getAttribute('info');
 	}
-	cont.innerHTML = cont.style.backgroundColor = '';
+	body.innerHTML = '';
 	if(remove) {
-		cont.removeAttribute('id');
+		win.className = 'de-window';
+		win.style.display = 'none';
 		return;
 	}
-	cont.id = id;
-	if(Cfg.attachPanel && name !== 'cfg') {
-		cont.style.backgroundColor = getComputedStyle(doc.body).getPropertyValue('background-color');
-	}
+	win.className = 'de-window de-window-active';
+	win.style.display = '';
 	switch(name) {
 	case 'fav':
 		if(data) {
-			showFavoriteTable(cont, data);
-		} else {
-			// TODO: show load message
-			readFav().then(fav => {
-				showFavoriteTable(cont, fav);
-			});
+			showFavoriteTable(body, data);
+			break;
 		}
+		readFav().then(fav => {
+			showFavoriteTable(body, fav);
+			if(!isUpd && Cfg.animation) {
+				win.classList.add('de-window-open');
+			}
+		});
 		return;
-	case 'cfg': addSettings(cont, cfgTabId); break;
-	case 'hid': showHiddenTable(cont); break;
-	case 'vid': showVideosTable(cont);
+	case 'cfg': addSettings(body, cfgTabId); break;
+	case 'hid': showHiddenTable(body); break;
+	case 'vid': showVideosTable(body);
 	}
-	if(Cfg.animation) {
-		cont.className = 'de-content de-cfg-open';
+	if(!isUpd && Cfg.animation) {
+		win.classList.add('de-window-open');
 	}
 }
 
-function showVideosTable(cont) {
+function showVideosTable(body) {
 	var els = $C('de-video-link', dForm.el);
 	if(!els.length) {
-		cont.innerHTML = '<b>' + Lng.noVideoLinks[lang] + '</b>';
+		body.innerHTML = '<b>' + Lng.noVideoLinks[lang] + '</b>';
 		return;
 	}
 	if(!$id('de-ytube-api')) {
@@ -1795,7 +1794,7 @@ function showVideosTable(cont) {
 			'src': aib.prot + '//www.youtube.com/player_api'
 		}, null));
 	}
-	cont.innerHTML = '<div de-disableautoplay class="de-video-obj"></div>' +
+	body.innerHTML = '<div de-disableautoplay class="de-video-obj"></div>' +
 		'<center>' +
 			'<a class="de-abtn" id="de-video-btn-prev" href="#" title="' + Lng.prevVideo[lang] + '">' +
 				'&#x25C0;' +
@@ -1809,7 +1808,7 @@ function showVideosTable(cont) {
 		'</center>' +
 		'<div id="de-video-list" style="max-width: ' + (+Cfg.YTubeWidth + 40) +
 			'px; max-height: ' + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 110) + 'px;"></div>';
-	var linkList = cont.lastChild;
+	var linkList = body.lastChild;
 	$before(linkList, $new('script', {'type': 'text/javascript', 'text':`
 		(function() {
 			if('YT' in window && 'Player' in window.YT) {
@@ -1819,7 +1818,7 @@ function showVideosTable(cont) {
 			}
 			function onYouTubePlayerAPIReady() {
 				window.de_addVideoEvents =
-					addEvents.bind(document.querySelector('#de-content-vid > .de-video-obj'));
+					addEvents.bind(document.querySelector('.de-window-body > .de-video-obj'));
 				window.de_addVideoEvents();
 			}
 			function addEvents() {
@@ -1845,10 +1844,10 @@ function showVideosTable(cont) {
 			}
 		})();
 	`}));
-	cont.addEventListener('click', {
+	body.addEventListener('click', {
 		linkList: linkList,
 		listHidden: false,
-		player: cont.firstChild,
+		player: body.firstChild,
 		playerInfo: null,
 		currentLink: null,
 		handleEvent(e) {
@@ -1907,7 +1906,17 @@ function showVideosTable(cont) {
 	}
 }
 
-function showHiddenTable(cont) {
+function addContentBlock(parent, title) {
+	return parent.appendChild($New('div', {'class': 'de-content-block'}, [
+		$new('input', {'type': 'checkbox'}, {'click'() {
+			$each($Q('.de-entry > input', this.parentNode), el => el.checked = this.checked);
+		}}),
+		title
+	]));
+}
+
+
+function showHiddenTable(body) {
 	var block, els = $C('de-post-hide', dForm.el);
 	for(var i = 0, len = els.length; i < len; ++i) {
 		var post = els[i];
@@ -1926,21 +1935,21 @@ function showHiddenTable(cont) {
 			this.hideContent(this.hidden = !this.hidden);
 		}.bind(cln.post);
 		if(!block) {
-			block = cont.appendChild(
+			block = body.appendChild(
 				$add('<div class="de-content-block"><b>' + Lng.hiddenPosts[lang] + ':</b></div>')
 			);
 		}
 		block.appendChild($New('div', {'class': 'de-entry'}, [cln]));
 	}
 	if(block) {
-		cont.appendChild($btn(Lng.expandAll[lang], '', function() {
+		body.appendChild($btn(Lng.expandAll[lang], '', function() {
 			$each($Q('.de-cloned-post', this.parentNode), function(el) {
 				var post = el.post;
 				post.hideContent(post.hidden = !post.hidden);
 			});
 			this.value = this.value === Lng.undo[lang] ? Lng.expandAll[lang] : Lng.undo[lang];
 		}));
-		cont.appendChild($btn(Lng.save[lang], '', function() {
+		body.appendChild($btn(Lng.save[lang], '', function() {
 			$each($Q('.de-cloned-post', this.parentNode), function(date, el) {
 				if(!el.post.hidden) {
 					el.clone.setUserVisib(false, date, true);
@@ -1949,13 +1958,13 @@ function showHiddenTable(cont) {
 			saveUserPosts();
 		}));
 	} else {
-		cont.insertAdjacentHTML('beforeend', '<b>' + Lng.noHidPosts[lang] + '</b>');
+		body.insertAdjacentHTML('beforeend', '<b>' + Lng.noHidPosts[lang] + '</b>');
 	}
-	cont.insertAdjacentHTML('beforeend', '<hr><b>' +
+	body.insertAdjacentHTML('beforeend', '<hr><b>' +
 		($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') + '</b>');
 	for(var b in hThr) {
 		if(!$isEmpty(hThr[b])) {
-			block = addContentBlock(cont, $new('b', {'text': '/' + b}, null));
+			block = addContentBlock(body, $new('b', {'text': '/' + b}, null));
 			for(var tNum in hThr[b]) {
 				block.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '" info="' +
 					b + ';' + tNum + '"><input type="checkbox"><a href="' + aib.getThrdUrl(b, tNum) +
@@ -1963,8 +1972,8 @@ function showHiddenTable(cont) {
 			}
 		}
 	}
-	cont.insertAdjacentHTML('beforeend', '<hr>');
-	cont.appendChild(addEditButton('hidden', function(fn) {
+	body.insertAdjacentHTML('beforeend', '<hr>');
+	body.appendChild(addEditButton('hidden', function(fn) {
 		fn(hThr, true, function(data) {
 			hThr = data;
 			if(!(aib.b in hThr)) {
@@ -1976,7 +1985,7 @@ function showHiddenTable(cont) {
 			locStorage.removeItem('__de-threads');
 		});
 	}));
-	cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
+	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
 		for(var i = 0, els = $Q('.de-entry[info]', this.parentNode), len = els.length; i < len; ++i) {
 			var [board, tNum] = els[i].getAttribute('info').split(';');
 			try {
@@ -1989,7 +1998,7 @@ function showHiddenTable(cont) {
 			}
 		}
 	})));
-	cont.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
+	body.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
 		$each($Q('.de-entry[info]', this.parentNode), function(date, el) {
 			if($t('input', el).checked) {
 				var arr = el.getAttribute('info').split(';');
@@ -2027,11 +2036,11 @@ function clearFavoriteTable() {
 	}
 }
 
-function showFavoriteTable(cont, data) {
+function showFavoriteTable(body, data) {
 	for(var h in data) {
 		for(var b in data[h]) {
 			var d = data[h][b],
-				block = addContentBlock(cont, d.url ?
+				block = addContentBlock(body, d.url ?
 					$new('a', {'href': d.url, 'text': h + '/' + b}, null) :
 					$new('b', {'text': h + '/' + b}, null));
 			if(h === aib.host && b === aib.b) {
@@ -2065,13 +2074,14 @@ function showFavoriteTable(cont, data) {
 			}
 		}
 	}
-	cont.insertAdjacentHTML('afterbegin', '<b>' +
-		(Lng[cont.hasChildNodes() ? 'favThrds' : 'noFavThrds'][lang]) + '</b>');
-	cont.insertAdjacentHTML('beforeend', '<hr>');
-	cont.appendChild(addEditButton('favor', function(fn) {
+	if(!body.hasChildNodes()) {
+		body.insertAdjacentHTML('afterbegin', '<center><b>' + Lng.noFavThrds[lang] + '</b></center>');
+	}
+	body.insertAdjacentHTML('beforeend', '<hr>');
+	body.appendChild(addEditButton('favor', function(fn) {
 		readFav().then(val => fn(val, true, saveFavorites));
 	}));
-	cont.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(function* () {
+	body.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(function* () {
 		var update = false,
 			els = $C('de-entry', doc),
 			fav = yield* getStoredObj('DESU_Favorites');
@@ -2092,8 +2102,7 @@ function showFavoriteTable(cont, data) {
 				form = yield ajaxLoad(aib.getThrdUrl(b, num));
 			} catch(e) {
 				el.classList.remove('de-wait');
-				f['err'] = el.previousElementSibling.textContent =
-					getErrorMessage(e);
+				f['err'] = el.previousElementSibling.textContent = getErrorMessage(e);
 				update = true;
 				continue;
 			}
@@ -2120,7 +2129,7 @@ function showFavoriteTable(cont, data) {
 			setStored('DESU_Favorites', JSON.stringify(fav));
 		}
 	})));
-	cont.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(function* () {
+	body.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(function* () {
 		var els = $Q('.de-fav-current > .de-entry', doc),
 			infoCount = els.length,
 			postsInfo = [];
@@ -2162,7 +2171,7 @@ function showFavoriteTable(cont, data) {
 		}
 		closeAlert($id('de-alert-load-pages'));
 	})));
-	cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
+	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
 		for(var i = 0, els = $C('de-entry', doc), len = els.length; i < len; ++i) {
 			var el = els[i],
 				node = $c('de-fav-inf-err', el);
@@ -2179,7 +2188,7 @@ function showFavoriteTable(cont, data) {
 		}
 		clearFavoriteTable();
 	})));
-	cont.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
+	body.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
 		$each($C('de-entry', doc), function(el) {
 			if($t('input', el).checked) {
 				el.setAttribute('de-removed', '');
@@ -2187,9 +2196,6 @@ function showFavoriteTable(cont, data) {
 		});
 		clearFavoriteTable();
 	}));
-	if(Cfg.animation) {
-		cont.className = 'de-content de-cfg-open';
-	}
 }
 
 
@@ -2609,12 +2615,12 @@ function getCfgCommon() {
 				fn(Cfg.userCSSTxt, false, function() {
 					saveCfg('userCSSTxt', this.value);
 					updateCSS();
-					toggleContent('cfg', true);
+					toggleWindow('cfg', true);
 				});
 			})
 		]),
 		lBox('attachPanel', true, function() {
-			toggleContent('cfg', false);
+			toggleWindow('cfg', false);
 			updateCSS();
 		}),
 		lBox('panelCounter', true, updateCSS),
@@ -2771,78 +2777,75 @@ function addEditButton(name, getDataFn) {
 	}.bind(null, getDataFn));
 }
 
-function addSettings(Set, id) {
-	Set.appendChild($New('div', {'class': aib.cReply}, [
-		$new('div', {'class': 'de-cfg-head', 'text': 'Dollchan Extension Tools'}, null),
-		$New('div', {'id': 'de-cfg-bar'}, [
-			cfgTab('filters'),
-			cfgTab('posts'),
-			cfgTab('images'),
-			cfgTab('links'),
-			$if(pr.form || pr.oeForm, cfgTab('form')),
-			cfgTab('common'),
-			cfgTab('info')
-		]),
-		$New('div', {'id': 'de-cfg-btns'}, [
-			optSel('language', false, function() {
-				saveCfg('language', lang = this.selectedIndex);
-				$del($id('de-main'));
-				$del($id('de-css'));
-				$del($id('de-css-dynamic'));
-				scriptCSS();
-				addPanel(dForm.el);
-				toggleContent('cfg', false);
-			}),
-			$New('div', {'style': 'float: right;'}, [
-				addEditButton('cfg', function(fn) {
-					fn(Cfg, true, function(data) {
-						saveComCfg(aib.dm, data);
-						window.location.reload();
-					});
-				}),
-				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
-					spawn(getStoredObj, 'DESU_Config').then(val => {
-						if(val && ('global' in val) && !$isEmpty(val.global)) {
-							delete val[aib.dm];
-							setStored('DESU_Config', JSON.stringify(val));
-							window.location.reload();
-						} else {
-							$alert(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
-						}
-					});
-				})),
-				$if(nav.isGlobal, $btn(Lng.save[lang], Lng.saveGlobal[lang], function() {
-					spawn(getStoredObj, 'DESU_Config').then(val => {
-						var obj = {},
-							com = val[aib.dm];
-						for(var i in com) {
-							if(i !== 'correctTime' && i !== 'timePattern' &&
-							   i !== 'userCSS' && i !== 'userCSSTxt' &&
-							   com[i] !== defaultCfg[i] && i !== 'stats')
-							{
-								obj[i] = com[i];
-							}
-						}
-						val.global = obj;
-						setStored('DESU_Config', JSON.stringify(val));
-						toggleContent('cfg', true);
-					});
-				})),
-				$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
-					if(confirm(Lng.conReset[lang])) {
-						delStored('DESU_Config');
-						delStored('DESU_Favorites');
-						delStored('DESU_Posts_' + aib.dm);
-						delStored('DESU_Threads_' + aib.dm);
-						delStored('DESU_keys');
-						window.location.reload();
-					}
-				})
-			]),
-			$new('div', {'style': 'clear: both;'}, null)
-		])
+function addSettings(body, id) {
+	body.appendChild($New('div', {'id': 'de-cfg-bar'}, [
+		cfgTab('filters'),
+		cfgTab('posts'),
+		cfgTab('images'),
+		cfgTab('links'),
+		$if(pr.form || pr.oeForm, cfgTab('form')),
+		cfgTab('common'),
+		cfgTab('info')
 	]));
-	$q('.de-cfg-tab[info="' + (id || 'filters') + '"]', Set).click();
+	body.appendChild($New('div', {'id': 'de-cfg-btns'}, [
+		optSel('language', false, function() {
+			saveCfg('language', lang = this.selectedIndex);
+			$del($id('de-main'));
+			$del($id('de-css'));
+			$del($id('de-css-dynamic'));
+			scriptCSS();
+			addPanel(dForm.el);
+			toggleWindow('cfg', false);
+		}),
+		$New('div', {'style': 'float: right;'}, [
+			addEditButton('cfg', function(fn) {
+				fn(Cfg, true, function(data) {
+					saveComCfg(aib.dm, data);
+					window.location.reload();
+				});
+			}),
+			$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
+				spawn(getStoredObj, 'DESU_Config').then(val => {
+					if(val && ('global' in val) && !$isEmpty(val.global)) {
+						delete val[aib.dm];
+						setStored('DESU_Config', JSON.stringify(val));
+						window.location.reload();
+					} else {
+						$alert(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
+					}
+				});
+			})),
+			$if(nav.isGlobal, $btn(Lng.save[lang], Lng.saveGlobal[lang], function() {
+				spawn(getStoredObj, 'DESU_Config').then(val => {
+					var obj = {},
+						com = val[aib.dm];
+					for(var i in com) {
+						if(i !== 'correctTime' && i !== 'timePattern' &&
+						   i !== 'userCSS' && i !== 'userCSSTxt' &&
+						   com[i] !== defaultCfg[i] && i !== 'stats')
+						{
+							obj[i] = com[i];
+						}
+					}
+					val.global = obj;
+					setStored('DESU_Config', JSON.stringify(val));
+					toggleWindow('cfg', true);
+				});
+			})),
+			$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
+				if(confirm(Lng.conReset[lang])) {
+					delStored('DESU_Config');
+					delStored('DESU_Favorites');
+					delStored('DESU_Posts_' + aib.dm);
+					delStored('DESU_Threads_' + aib.dm);
+					delStored('DESU_keys');
+					window.location.reload();
+				}
+			})
+		]),
+		$new('div', {'style': 'clear: both;'}, null)
+	]));
+	$q('.de-cfg-tab[info="' + (id || 'filters') + '"]', body).click();
 }
 
 
@@ -2948,14 +2951,14 @@ function addMenu(e) {
 					(Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? '(' : ''));
 			});
 			return;
-		case 'de-btn-refresh':
+		case 'de-panel-refresh':
 			showMenu(el, '<span class="de-menu-item">' +
 				Lng.selAjaxPages[lang].join('</span><span class="de-menu-item">') + '</span>', true,
 			function(el) {
 				loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1);
 			});
 			return;
-		case 'de-btn-savethr':
+		case 'de-panel-savethr':
 			showMenu(el, '<span class="de-menu-item">' +
 				Lng.selSaveThr[lang].join('</span><span class="de-menu-item">') + '</span>', true,
 			function(el) {
@@ -2971,14 +2974,14 @@ function addMenu(e) {
 				}
 			});
 			return;
-		case 'de-btn-audio-off':
+		case 'de-panel-audio-off':
 			showMenu(el, '<span class="de-menu-item">' +
 				Lng.selAudioNotif[lang].join('</span><span class="de-menu-item">') + '</span>', true,
 			function(el) {
 				var i = aProto.indexOf.call(el.parentNode.children, el);
 				updater.enable();
 				updater.toggleAudio(i === 0 ? 3e4 : i === 1 ? 6e4 : i === 2 ? 12e4 : 3e5);
-				$id('de-btn-audio-off').id = 'de-btn-audio-on';
+				$id('de-panel-audio-off').id = 'de-panel-audio-on';
 			});
 		}
 	}, Cfg.linksOver, e.target);
@@ -3192,10 +3195,10 @@ HotKeys.prototype = {
 				pr.subm.click();
 				break;
 			case 6: // Open/close "Favorites"
-				expand = toggleContent('fav', false);
+				expand = toggleWindow('fav', false);
 				break;
 			case 7: // Open/close "Hidden"
-				expand = toggleContent('hid', false);
+				expand = toggleWindow('hid', false);
 				break;
 			case 8: // Open/close panel
 				$disp($id('de-panel').lastChild);
@@ -3205,7 +3208,7 @@ HotKeys.prototype = {
 				updateCSS();
 				break;
 			case 10: // Open/close "Settings"
-				expand = toggleContent('cfg', false);
+				expand = toggleWindow('cfg', false);
 				break;
 			case 11: // Expand current image
 				post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
@@ -3251,7 +3254,7 @@ HotKeys.prototype = {
 				}
 				break;
 			case 18: // Open/close "Videos"
-				expand = toggleContent('vid', false);
+				expand = toggleWindow('vid', false);
 				break;
 			case -1:
 				if(isThr) {
@@ -4170,7 +4173,7 @@ Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
 		var node = this.parentNode,
 			exp = node.className === 'de-video-obj';
 		node.className = exp ? 'de-video-obj de-video-expanded' : 'de-video-obj';
-		if(node.parentNode.id === 'de-content-vid') {
+		if(node.parentNode.id === 'de-window-vid') {
 			node = node.nextSibling.nextSibling.nextSibling;
 			node.style.maxWidth = (exp ? 888 : +Cfg.YTubeWidth + 40) + 'px';
 			node.style.maxHeight =
@@ -5374,7 +5377,7 @@ SpellsRunner.prototype = {
 					';' + lPost.num + ';' + lPost.count + ';' + sVis.join();
 			}
 			saveHiddenThreads(false);
-			toggleContent('hid', true);
+			toggleWindow('hid', true);
 		}
 		ImagesHashStorage.endFn();
 	}
@@ -5861,7 +5864,7 @@ function PostForm(form, ignoreForm, dc) {
 	this.subj = $x(p + '(@name="field3" or @name="sub" or @name="subject" or @name="internal_s" or @name="nya3" or @name="kasumi")]', form);
 	this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
 	this.gothr = aib.qPostRedir && (p = $q(aib.qPostRedir, form)) && $parent(p, 'TR');
-	this.pForm = $New('div', {'id': 'de-pform'}, [this.form, this.oeForm]);
+	this.pForm = $New('div', {'id': 'de-pform', 'class': 'de-window-body'}, [this.form, this.oeForm]);
 	dForm.el.insertAdjacentHTML('beforebegin',
 		'<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
 	this.pArea[0] = dForm.el.previousSibling;
@@ -5879,16 +5882,16 @@ function PostForm(form, ignoreForm, dc) {
 	this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 	el = this.qArea;
 	el.insertAdjacentHTML('beforeend',
-		'<div id="de-resizer-top"></div>' +
-		'<div' + (Cfg.hangQReply ? ' class="de-cfg-head"' : '') + '>' +
-			'<span id="de-qarea-target"></span>' +
-			'<span id="de-qarea-utils">' +
-				'<span id="de-qarea-toggle" title="' + Lng.toggleQReply[lang] + '">\u2750</span>' +
-				'<span id="de-qarea-close" title="' + Lng.closeQReply[lang] + '">\u2716</span>' +
+		'<div class="de-resizer-top"></div>' +
+		'<div' + (Cfg.hangQReply ? ' class="de-window-head"' : '') + '>' +
+			'<span class="de-window-title"></span>' +
+			'<span class="de-window-buttons">' +
+				'<span class="de-btn-toggle" title="' + Lng.toggleQReply[lang] + '"></span>' +
+				'<span class="de-btn-close" title="' + Lng.closeQReply[lang] + '"></span>' +
 			'</span></div>' +
-		'<div id="de-resizer-left"></div>' +
-		'<div id="de-resizer-right"></div>' +
-		'<div id="de-resizer-bottom"></div>');
+		'<div class="de-resizer-left"></div>' +
+		'<div class="de-resizer-right"></div>' +
+		'<div class="de-resizer-bottom"></div>');
 	el = el.firstChild.nextSibling;
 	el.lang = getThemeLang();
 	el.addEventListener('mousedown', {
@@ -5945,7 +5948,7 @@ function PostForm(form, ignoreForm, dc) {
 		if(Cfg.hangQReply) {
 			node.className = aib.cReply + ' de-qarea-hanging';
 			node = node.firstChild.nextSibling;
-			node.className = 'de-cfg-head';
+			node.className = 'de-window-head';
 		} else {
 			node.className = aib.cReply + ' de-qarea-inline';
 			node = node.firstChild.nextSibling;
@@ -5978,7 +5981,7 @@ function PostForm(form, ignoreForm, dc) {
 			saveCfg('textaHeight', parseInt(this.style.height, 10));
 		});
 	} else {
-		this.txta.insertAdjacentHTML('afterend', '<div id="de-txta-resizer"></div>');
+		this.txta.insertAdjacentHTML('afterend', '<div id="de-resizer-text"></div>');
 		this.txta.nextSibling.addEventListener('mousedown', {
 			_el: this.txta,
 			_elStyle: this.txta.style,
@@ -6217,7 +6220,7 @@ PostForm.prototype = {
 			tPanel = $new('span', {'id': 'de-txt-panel'}, {'click': this, 'mouseover': this});
 		}
 		tPanel.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
-		$after(Cfg.txtBtnsLoc ? $id('de-txta-resizer') || this.txta :
+		$after(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta :
 			aib._420 ? $c('popup', this.form) : this.subm, tPanel);
 		id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub', 'quote'],
 		val = ['B', 'i', 'U', 'S', '%', 'C', 'v', '^', '&gt;']
@@ -6376,7 +6379,7 @@ PostForm.prototype = {
 		if(temp.length > 27) {
 			temp = temp.substr(0, 30) + '\u2026';
 		}
-		$id('de-qarea-target').textContent = temp || '#' + pNum;
+		$c('de-window-title', this.qArea).textContent = temp || '#' + pNum;
 		this.lastQuickPNum = pNum;
 	},
 	showMainReply(isBottom, evt) {
@@ -6436,7 +6439,7 @@ PostForm.prototype = {
 	},
 	setReply(quick, hide) {
 		if(quick) {
-			$before($id('de-resizer-right'), this.pForm);
+			$before($c('de-resizer-right', this.qArea), this.pForm);
 		} else {
 			$after(this.pArea[+this.isBottom], this.qArea);
 			$after(this._pBtn[+this.isBottom], this.pForm);
@@ -10090,7 +10093,7 @@ Thread.prototype = {
 				return;
 			}
 			if((f = f[aib.b][this.op.num])) {
-				var el = $id('de-content-fav');
+				var el = $id('de-window-fav');
 				if(el) {
 					el = $q('.de-fav-current > .de-entry[de-num="' + this.op.num + '"] .de-fav-inf-old', el);
 					el.textContent = this.pcount;
@@ -10938,7 +10941,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			getTNum: { value(op) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
-			cssEn: { value: '.de-cfg-body, .de-content { font-family: arial; }\
+			cssEn: { value: '.de-cfg-body, .de-window { font-family: arial; }\
 				.ftbl { width: auto; margin: 0; }\
 				.reply { background: #f0e0d6; }\
 				span { font-size: inherit; }' },
@@ -11415,7 +11418,7 @@ function Initialization(checkDomains) {
 					if(temp) {
 						hThr[data.brd] = {};
 					} else {
-						toggleContent('hid', true);
+						toggleWindow('hid', true);
 						return;
 					}
 				}
@@ -11425,7 +11428,7 @@ function Initialization(checkDomains) {
 					delete hThr[data.brd][data.num];
 				}
 			}
-			toggleContent('hid', true);
+			toggleWindow('hid', true);
 		})();
 		return;
 		case '__de-threads': (() => {
@@ -11438,7 +11441,7 @@ function Initialization(checkDomains) {
 				hThr[aib.b] = {};
 			}
 			dForm.firstThr.updateHidden(hThr[aib.b]);
-			toggleContent('hid', true);
+			toggleWindow('hid', true);
 		})();
 		return;
 		case '__de-spells': (() => {
@@ -11699,9 +11702,9 @@ function initThreadUpdater(title, enableUpdate) {
 			stopLoad(true);
 			enabled = hasAudio = false;
 			setState('off');
-			var btn = $id('de-btn-audio-on');
+			var btn = $id('de-panel-audio-on');
 			if(btn) {
-				btn.id = 'de-btn-audio-off';
+				btn.id = 'de-panel-audio-off';
 			}
 		}
 	}
@@ -11881,8 +11884,8 @@ function initThreadUpdater(title, enableUpdate) {
 	});
 
 	function setState(state) {
-		var btn = stateButton || (stateButton = $q('a[id^="de-btn-upd"]', doc));
-		btn.id = 'de-btn-upd-' + state
+		var btn = stateButton || (stateButton = $q('a[id^="de-panel-upd"]', doc));
+		btn.id = 'de-panel-upd-' + state
 		btn.title = Lng.panelBtn['upd-' + (state === 'off' ? 'off' : 'on')][lang];
 	}
 
@@ -12131,15 +12134,27 @@ function scriptCSS() {
 		return id + ' { background: url(data:image/gif;base64,' + src + ') no-repeat center !important; }';
 	}
 
-	// Settings window
+	// Windows
 	var p, x = '\
-	.de-block { display: block; }\
-	#de-content-cfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; border: none; }\
-	#de-content-cfg input[type="button"] { padding: 0 2px; margin: 0 1px; height: 24px; }\
-	.de-cfg-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
-	.de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
-	.de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
-	.de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
+	.de-btn-close::after { content: "\u2716"; }\
+	.de-btn-toggle::after { content: "\u2750"; }\
+	.de-window textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
+	.de-window .de-window-buttons > span:hover, .de-qarea-hanging .de-window-buttons > span:hover { color: #ff6; }\
+	.de-window-buttons { float: right; margin-top: ' + (nav.Chrome ? -1 : -4) + 'px; font: normal 16px arial; cursor: pointer; }\
+	.de-window-buttons > span { margin-right: 4px; }\
+	#de-window-cfg { padding-right: 20px; }\
+	#de-window-cfg > .de-window-body { float: left; width: auto; min-width: 0; padding: 0; border: none; }\
+	#de-window-cfg input[type="button"] { padding: 0 2px; margin: 0 1px; height: 24px; }\
+	#de-window-fav > .de-window-body, #de-window-hid > .de-window-body, #de-window-vid > .de-window-body { font-size: 16px; padding: 8px; border: 1px solid gray; }\
+	#de-window-fav input[type="checkbox"] { margin-left: 14px; }\
+	.de-window-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
+	.de-window-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
+	.de-window-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
+	.de-window-head:lang(de), #de-panel:lang(de) { background: #777; }\
+	.de-window-title { font-weight: bold; margin-left: 4px; }' +
+
+	// Settings window
+	'.de-block { display: block; }\
 	.de-cfg-body { min-height: 309px; width: 354px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
 	.de-cfg-body input[type="text"], .de-cfg-body select { width: auto; padding: 1px 2px; margin: 1px 0; font: 13px sans-serif; }\
 	.de-cfg-body input[type="checkbox"] { ' + (nav.Presto ? '' : 'vertical-align: -1px; ') + 'margin: 2px 1px; }\
@@ -12175,39 +12190,39 @@ function scriptCSS() {
 	#de-spell-rowmeter:lang(de) { background-color: #777; }' +
 
 	// Main panel
-	'#de-btn-logo { margin-right: 3px; cursor: pointer; }\
+	'#de-panel-logo { margin-right: 3px; cursor: pointer; }\
 	#de-panel { height: 25px; z-index: 9999; border-radius: 15px 0 0 0; cursor: default;}\
 	#de-panel-btns { display: inline-block; padding: 0 0 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\
 	#de-panel-btns:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
 	#de-panel-btns:lang(fr), #de-panel-info:lang(fr) { border-color: #616b86; }\
 	#de-panel-btns > li { margin: 0 1px; padding: 0; }\
-	#de-panel-btns > li, #de-panel-btns > li > a, #de-btn-logo { display: inline-block; width: 25px; height: 25px; }\
+	#de-panel-btns > li, #de-panel-btns > li > a, #de-panel-logo { display: inline-block; width: 25px; height: 25px; }\
 	#de-panel-btns:lang(en) > li, #de-panel-btns:lang(fr) > li  { transition: all 0.3s ease; }\
 	#de-panel-btns:lang(en) > li:hover, #de-panel-btns:lang(fr) > li:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
 	#de-panel-btns:lang(de) > li > a { border-radius: 5px; }\
 	#de-panel-btns:lang(de) > li > a:hover { width: 21px; height: 21px; border: 2px solid #444; }\
 	#de-panel-info { vertical-align: 6px; padding: ' + (nav.Chrome ? 3 : 2) + 'px 6px; margin-left: 2px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }' +
-	gif('#de-btn-logo', (p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA') + 'QAI5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=') +
-	gif('#de-btn-settings', p + 'QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7') +
-	gif('#de-btn-hidden', p + 'QAI5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=') +
-	gif('#de-btn-favor', p + 'QAIzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs=') +
-	gif('#de-btn-video', p + 'AAI9jI+py+0Po5wTWEvN3VjyH20a6HDHB5TiaTIkuyov3MltEuM3nS5z8EPsgsIY6rE6QlA5JDMDbEKn1KqhAAA7') +
-	gif('#de-btn-refresh', p + 'AAJBjI+py+0Po5zUgItBxDZrmHUcGAbe15xiybCm5iYegsaHfY8Kvrb6/qPhZr7LgrcyJlHFE1LoVG6ilVewis1qDQUAOw==') +
-	gif('#de-btn-goback', p + 'QAIrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7') +
-	gif('#de-btn-gonext', p + 'QAIrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7') +
-	gif('#de-btn-goup', p + 'QAIsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==') +
-	gif('#de-btn-godown', p + 'QAItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=') +
-	gif('#de-btn-expimg', p + 'QAI9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7') +
-	gif('#de-btn-preimg', p + 'QAJFjI+pGwCcHJPGWdoe3Lz7qh1WFJLXiX4qgrbXVEIYadLLnMX4yve+7ErBYorRjXiEeXagGguZAbWaSdHLOow4j8Hrj1EAADs=') +
-	gif('#de-btn-maskimg', p + 'QAJQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==') +
-	gif('#de-btn-savethr', p + 'QAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs=') +
-	gif('#de-btn-catalog', p + 'QAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=') +
-	gif('#de-btn-audio-off', p + 'QAI7jI+pq+DO1psvQHOj3rxTik1dCIzmSZqfmGXIWlkiB6L2jedhPqOfCitVYolgKcUwyoQuSe3WwzV1kQIAOw==') +
-	gif('#de-btn-audio-on', p + 'QAJHjI+pq+AewJHs2WdoZLz7X11WRkEgNoHqimadOG7uAqOm+Y6atvb+D0TgfjHS6RIp8YQ1pbHRfA4n0eSTI7JqP8Wtahr0FAAAOw==') +
-	gif('#de-btn-enable', p + 'AAJAjI+py+0Po5wUWKoswOF27z2aMX6bo51lioal2bzwISPyHSZ1lts9fwKKfjQiyXgkslq95TAFnUCdUirnis0eCgA7') +
-	gif('#de-btn-upd-on', 'R0lGODlhGQAZAJEAADL/Mv' + (p = 'Dw8P///wAAACH5BAEAAAIALAAAAAAZABkAQAJElI+pe2EBoxOTNYmr3bz7OwHiCDzQh6bq06QSCUhcZMCmNrfrzvf+XsF1MpjhCSainBg0AbKkFCJko6g0MSGyftwuowAAOw==')) +
-	gif('#de-btn-upd-off', 'R0lGODlhGQAZAJEAAP8yMv' + p) +
-	gif('#de-btn-upd-warn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
+	gif('#de-panel-logo', (p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA') + 'QAI5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=') +
+	gif('#de-panel-cfg', p + 'QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7') +
+	gif('#de-panel-hid', p + 'QAI5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=') +
+	gif('#de-panel-fav', p + 'QAIzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs=') +
+	gif('#de-panel-vid', p + 'AAI9jI+py+0Po5wTWEvN3VjyH20a6HDHB5TiaTIkuyov3MltEuM3nS5z8EPsgsIY6rE6QlA5JDMDbEKn1KqhAAA7') +
+	gif('#de-panel-refresh', p + 'AAJBjI+py+0Po5zUgItBxDZrmHUcGAbe15xiybCm5iYegsaHfY8Kvrb6/qPhZr7LgrcyJlHFE1LoVG6ilVewis1qDQUAOw==') +
+	gif('#de-panel-goback', p + 'QAIrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7') +
+	gif('#de-panel-gonext', p + 'QAIrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7') +
+	gif('#de-panel-goup', p + 'QAIsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==') +
+	gif('#de-panel-godown', p + 'QAItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=') +
+	gif('#de-panel-expimg', p + 'QAI9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7') +
+	gif('#de-panel-preimg', p + 'QAJFjI+pGwCcHJPGWdoe3Lz7qh1WFJLXiX4qgrbXVEIYadLLnMX4yve+7ErBYorRjXiEeXagGguZAbWaSdHLOow4j8Hrj1EAADs=') +
+	gif('#de-panel-maskimg', p + 'QAJQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==') +
+	gif('#de-panel-savethr', p + 'QAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs=') +
+	gif('#de-panel-catalog', p + 'QAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=') +
+	gif('#de-panel-audio-off', p + 'QAI7jI+pq+DO1psvQHOj3rxTik1dCIzmSZqfmGXIWlkiB6L2jedhPqOfCitVYolgKcUwyoQuSe3WwzV1kQIAOw==') +
+	gif('#de-panel-audio-on', p + 'QAJHjI+pq+AewJHs2WdoZLz7X11WRkEgNoHqimadOG7uAqOm+Y6atvb+D0TgfjHS6RIp8YQ1pbHRfA4n0eSTI7JqP8Wtahr0FAAAOw==') +
+	gif('#de-panel-enable', p + 'AAJAjI+py+0Po5wUWKoswOF27z2aMX6bo51lioal2bzwISPyHSZ1lts9fwKKfjQiyXgkslq95TAFnUCdUirnis0eCgA7') +
+	gif('#de-panel-upd-on', 'R0lGODlhGQAZAJEAADL/Mv' + (p = 'Dw8P///wAAACH5BAEAAAIALAAAAAAZABkAQAJElI+pe2EBoxOTNYmr3bz7OwHiCDzQh6bq06QSCUhcZMCmNrfrzvf+XsF1MpjhCSainBg0AbKkFCJko6g0MSGyftwuowAAOw==')) +
+	gif('#de-panel-upd-off', 'R0lGODlhGQAZAJEAAP8yMv' + p) +
+	gif('#de-panel-upd-warn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
 
 	if(Cfg.disabled) {
 		$css(x).id = 'de-css';
@@ -12299,8 +12314,6 @@ function scriptCSS() {
 			10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }\
 			20%, 40%, 60%, 80% { transform: translateX(10px); }\
 		}\
-		@keyframes de-cfg-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
-		@keyframes de-cfg-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
 		@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\
 		@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\
 		@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
@@ -12310,13 +12323,15 @@ function scriptCSS() {
 		@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
 		@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\
 		@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\
+		@keyframes de-window-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
+		@keyframes de-window-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
 		.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\
 		.de-open { animation: de-open .15s ease-out both; }\
 		.de-close { animation: de-close .15s ease-in both; }\
 		.de-blink { animation: de-blink .7s ease-in-out both; }\
-		.de-cfg-open { animation: de-cfg-open .2s ease-out backwards; }\
-		.de-cfg-close { animation: de-cfg-close .2s ease-in both; }\
-		.de-post-new { animation: de-post-new .2s ease-out both; }' : '') +
+		.de-post-new { animation: de-post-new .2s ease-out both; }\
+		.de-window-open { animation: de-window-open .2s ease-out backwards; }\
+		.de-window-close { animation: de-window-close .2s ease-in both; }' : '') +
 
 	// Embedders
 	cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') +
@@ -12370,7 +12385,7 @@ function scriptCSS() {
 	gif('.de-file-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') +
 
 	// Post reply
-	'#de-txta-resizer { display: inline-block !important; float: none !important; padding: 5px; margin: ' + (nav.Presto ? '-2px -10px' : '0 0 -1px -11px') + '; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\
+	'#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ' + (nav.Presto ? '-2px -10px' : '0 0 -1px -11px') + '; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\
 	.de-parea { text-align: center; }\
 	.de-parea-btn-close::after { content: "' + Lng.hideForm[lang] + '" }\
 	.de-parea-btn-thrd::after { content: "' + Lng.makeThrd[lang] + '" }\
@@ -12381,19 +12396,15 @@ function scriptCSS() {
 	#de-qarea { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\
 	#de-qarea > div:nth-child(2) { text-align: center; }\
 	.de-qarea-hanging { position: fixed !important; z-index: 9990; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\
-	.de-qarea-hanging > .de-cfg-head { cursor: move; }\
-	.de-qarea-hanging #de-qarea-utils > span:hover { color: #ff6; }\
+	.de-qarea-hanging > .de-window-head { cursor: move; }\
 	.de-qarea-hanging > #de-pform { padding: 2px 2px 0 1px; border: 1px solid gray; }\
 	.de-qarea-hanging .de-textarea { min-width: 98% !important; resize: none !important; }\
-	.de-qarea-hanging #de-txta-resizer { display: none !important; }\
-	.de-qarea-hanging #de-resizer-bottom { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\
-	.de-qarea-hanging #de-resizer-left { position: absolute; margin: -3px; bottom: 3px; top: 3px; width: 6px; cursor: ew-resize; }\
-	.de-qarea-hanging #de-resizer-right { position: absolute; margin: -3px; bottom: 3px; top: 3px; display: inline-block; width: 6px; cursor: ew-resize; }\
-	.de-qarea-hanging #de-resizer-top { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\
+	.de-qarea-hanging #de-resizer-text { display: none !important; }\
+	.de-qarea-hanging .de-resizer-bottom { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\
+	.de-qarea-hanging .de-resizer-left { position: absolute; margin: -3px; bottom: 3px; top: 3px; width: 6px; cursor: ew-resize; }\
+	.de-qarea-hanging .de-resizer-right { position: absolute; margin: -3px; bottom: 3px; top: 3px; display: inline-block; width: 6px; cursor: ew-resize; }\
+	.de-qarea-hanging .de-resizer-top { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\
 	.de-qarea-inline { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\
-	#de-qarea-target { font-weight: bold; margin-left: 4px; }\
-	#de-qarea-utils { float: right; margin-top: ' + (nav.Chrome ? -1 : -4) + 'px; font: normal 16px arial; cursor: pointer; }\
-	#de-qarea-utils > span { margin-right: 4px; }\
 	#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\
 	.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }' +
 
@@ -12406,13 +12417,10 @@ function scriptCSS() {
 	.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
 	.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\
 	.de-alert-msg { display: inline-block; }\
-	.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
 	.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\
 	.de-content-block > input { margin: 0 4px; }\
-	#de-content-fav, #de-content-hid, #de-content-vid { font-size: 16px; padding: 10px; border: 1px solid gray; border-radius: 8px; }\
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
 	.de-entry { display: block !important; float: none !important; width: auto; max-width: 100% !important; margin: 2px 0 !important; padding: 0 !important; border: none; font-size: 14px; ' + (nav.Presto ? 'white-space: nowrap; ' : '') + '}\
-	#de-content-fav input[type="checkbox"] { margin-left: 14px; }\
 	.de-entry > a { text-decoration: none; border: none; }\
 	.de-entry > input { margin: 2px 4px; }\
 	.de-fav-user::after { content: "\u2605"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\
@@ -12466,11 +12474,11 @@ function scriptCSS() {
 function updateCSS() {
 	var x = '';
 	if(Cfg.attachPanel) {
-		x += '.de-content { position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto; }\
-		#de-content-fav, #de-content-hid { overflow-y: scroll; }\
+		x += '.de-window { position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto; }\
+		#de-window-fav, #de-window-hid { overflow-y: scroll; }\
 		#de-panel { position: fixed; right: 0; bottom: 0; }'
 	} else {
-		x += '.de-content { clear: both; float: right; }\
+		x += '.de-window { clear: both; float: right; }\
 		#de-panel { float: right; clear: both; }'
 	}
 	if(Cfg.disabled) {
