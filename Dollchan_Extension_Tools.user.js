@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "5006789";
+	var commit = "faa5233";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -10539,16 +10539,18 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			} },
 
 		_offset: { configurable: true, get: function get() {
-				var val = Attachment.cachedOffset;
-				if (val !== -1) {
-					Object.defineProperty(this, "_offset", { value: val });
-				} else {
-					val = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(Object.getPrototypeOf(this)), "_offset").get.call(this);
-					if (!this.inPview && !this.post.isOp && !this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4) {
-						Attachment.cachedOffset = val;
+				var needCache = !this.inPview && !this.post.isOp && !this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4;
+				var value;
+				if (!needCache || Attachment.cachedOffset === -1) {
+					value = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(Object.getPrototypeOf(this)), "_offset").get.call(this);
+					if (needCache) {
+						Attachment.cachedOffset = value;
 					}
+				} else {
+					value = Attachment.cachedOffset;
+					Object.defineProperty(this, "_offset", { value: value });
 				}
-				return val;
+				return value;
 			} },
 		_getImageSize: { value: function value() {
 				if (this.info) {
