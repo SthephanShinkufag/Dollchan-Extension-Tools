@@ -2596,7 +2596,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "0e4af0d";
+	var commit = "39cf034";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -9480,7 +9480,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			updater.sendErrNotif();
 			return;
 		}
-		if (Cfg.favOnReply && pr.tNum) {
+		if (Cfg.favOnReply && pr.tNum && !$c("de-btn-fav-sel", pByNum[pr.tNum].el)) {
 			pByNum[pr.tNum].thr.setFavorState(true, "onreply");
 		}
 		pr.txta.value = "";
