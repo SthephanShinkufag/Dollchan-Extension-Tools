@@ -2596,7 +2596,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "39cf034";
+	var commit = "4fcbf98";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -2667,7 +2667,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		sendErrNotif: 1,
 		scrAfterRep: 0,
 		addPostForm: 2,
-		hangQReply: 1,
 		spacedQuote: 1,
 		favOnReply: 1,
 		warnSubjTrip: 0,
@@ -2689,7 +2688,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		userCSS: 0,
 		userCSSTxt: "",
 		expandPanel: 0,
-		attachPanel: 1,
 		panelCounter: 1,
 		rePageTitle: 1,
 		animation: 1,
@@ -2701,8 +2699,21 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		turnOff: 0,
 		textaWidth: 300,
 		textaHeight: 115,
-		qReplyX: "right: 0",
-		qReplyY: "bottom: 25px"
+		replyWinDrag: 0,
+		replyWinX: "right: 0",
+		replyWinY: "bottom: 25px",
+		cfgWinDrag: 0,
+		cfgWinX: "right: 0",
+		cfgWinY: "bottom: 25px",
+		hidWinDrag: 0,
+		hidWinX: "right: 0",
+		hidWinY: "bottom: 25px",
+		favWinDrag: 0,
+		favWinX: "right: 0",
+		favWinY: "bottom: 25px",
+		vidWinDrag: 0,
+		vidWinX: "right: 0",
+		vidWinY: "bottom: 25px"
 	},
 	    Lng = {
 		cfg: {
@@ -2825,7 +2836,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				txt: ["Стиль скрипта", "Script style"]
 			},
 			userCSS: ["Пользовательский CSS ", "User CSS "],
-			attachPanel: ["Прикрепить главную панель", "Attach main panel"],
 			panelCounter: ["Счетчик постов/картинок на главной панели", "Counter of posts/images on main panel"],
 			rePageTitle: ["Название треда в заголовке вкладки*", "Thread title in page tab*"],
 			animation: ["CSS3 анимация в скрипте", "CSS3 animation in script"],
@@ -2976,8 +2986,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		hideLnkList: ["Скрыть/Показать список ссылок", "Hide/Unhide list of links"],
 		prevVideo: ["Предыдущее видео", "Previous video"],
 		nextVideo: ["Следующее видео", "Next video"],
-		toggleQReply: ["Поместить под пост / Открепить", "Move under post / Unattach"],
-		closeQReply: ["Закрыть форму", "Close form"],
+		toggleWindow: ["Закрепить на панели / Открепить", "Attach to panel / Detach"],
+		closeWindow: ["Закрыть окно", "Close window"],
+		toggleReply: ["Поместить под пост / Открепить", "Move under post / Detach"],
+		closeReply: ["Закрыть форму", "Close form"],
 		replies: ["Ответы:", "Replies:"],
 		postsOmitted: ["Пропущено ответов: ", "Posts omitted: "],
 		collapseThrd: ["Свернуть тред", "Collapse thread"],
@@ -3053,8 +3065,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	    nav,
 	    updater,
 	    hKeys,
-	    visPosts = 2,
 	    dTime,
+	    visPosts = 2,
+	    topWinZ = 0,
 	    WebmParser,
 	    Logger,
 	    pr,
@@ -3791,7 +3804,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		(pr && pr.pArea[0] || formEl).insertAdjacentHTML("beforebegin", "<div id=\"de-main\" lang=\"" + getThemeLang() + "\"><div id=\"de-panel\">" + "<span id=\"de-panel-logo\" title=\"" + Lng.panelBtn.attach[lang] + "\"></span>" + "<ul id=\"de-panel-btns\"" + (Cfg.expandPanel ? ">" : " style=\"display: none;\">") + (Cfg.disabled ? pButton("enable", "#", false) : pButton("cfg", "#", true) + pButton("hid", "#", true) + pButton("fav", "#", true) + (!Cfg.addYouTube ? "" : pButton("vid", "#", true)) + (localRun ? "" : pButton("refresh", "#", false) + (!isThr && aib.page === aib.firstPage ? "" : pButton("goback", aib.getPageUrl(aib.b, aib.page - 1), true)) + (isThr || aib.page === aib.lastPage ? "" : pButton("gonext", aib.getPageUrl(aib.b, aib.page + 1), true))) + pButton("goup", "#", false) + pButton("godown", "#", false) + (imgLen === 0 ? "" : pButton("expimg", "#", false) + pButton("maskimg", "#", true) + (nav.Presto || localRun ? "" : (Cfg.preLoadImgs ? "" : pButton("preimg", "#", false)) + (!isThr ? "" : pButton("savethr", "#", false)))) + (!isThr || localRun ? "" : pButton(Cfg.ajaxUpdThr ? "upd-on" : "upd-off", "#", false) + (nav.Safari ? "" : pButton("audio-off", "#", false))) + (!aib.mak && !aib.tiny && !aib.fch ? "" : pButton("catalog", aib.prot + "//" + aib.host + "/" + aib.b + "/catalog.html", false)) + pButton("enable", "#", false) + (!isThr ? "" : "<span id=\"de-panel-info\" title=\"" + Lng.panelBtn.counter[lang] + "\">" + dForm.firstThr.pcount + "/" + imgLen + "</span>")) + "</ul>" + "</div>" + (Cfg.disabled ? "" : "<div id=\"de-alert\"></div><hr style=\"clear: both;\">") + "</div>");
 		panel = $id("de-panel");
 		evtObject = {
-			attach: false,
 			odelay: 0,
 			panel: panel,
 			handleEvent: function handleEvent(e) {
@@ -3799,22 +3811,19 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					case "click":
 						switch (e.target.id) {
 							case "de-panel-logo":
-								if (Cfg.expandPanel) {
+								if (Cfg.expandPanel && !$c("de-win-active", doc)) {
 									this.panel.lastChild.style.display = "none";
-									this.attach = false;
-								} else {
-									this.attach = true;
 								}
 								toggleCfg("expandPanel");
 								return;
 							case "de-panel-cfg":
-								this.attach = toggleWindow("cfg", false);break;
+								toggleWindow("cfg", false);break;
 							case "de-panel-hid":
-								this.attach = toggleWindow("hid", false);break;
+								toggleWindow("hid", false);break;
 							case "de-panel-fav":
-								this.attach = toggleWindow("fav", false);break;
+								toggleWindow("fav", false);break;
 							case "de-panel-vid":
-								this.attach = toggleWindow("vid", false);break;
+								toggleWindow("vid", false);break;
 							case "de-panel-refresh":
 								window.location.reload();break;
 							case "de-panel-goup":
@@ -3899,10 +3908,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return;
 					default:
 					
-						if (!Cfg.expandPanel && !this.attach) {
+						if (!Cfg.expandPanel && !$c("de-win-active", doc)) {
 							this.odelay = setTimeout(function (obj) {
 								obj.panel.lastChild.style.display = "none";
-								obj.attach = false;
 							}, 500, this);
 						}
 						switch (e.target.id) {
@@ -3919,36 +3927,112 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		panel.addEventListener("mouseout", evtObject);
 	}
 
+	function makeDraggable(win, head, name) {
+		head.addEventListener("mousedown", {
+			_el: win,
+			_elStyle: win.style,
+			_oldX: 0,
+			_oldY: 0,
+			_X: 0,
+			_Y: 0,
+			_Z: 0,
+			handleEvent: function handleEvent(e) {
+				if (!Cfg[name + "WinDrag"]) {
+					return;
+				}
+				var curX = e.clientX,
+				    curY = e.clientY;
+				switch (e.type) {
+					case "mousedown":
+						this._oldX = curX;
+						this._oldY = curY;
+						this._X = Cfg[name + "WinX"];
+						this._Y = Cfg[name + "WinY"];
+						if (this._Z < topWinZ) {
+							this._Z = ++topWinZ;
+						}
+						this._elStyle.zIndex = this._Z;
+						doc.body.addEventListener("mousemove", this);
+						doc.body.addEventListener("mouseup", this);
+						$pd(e);
+						return;
+					case "mousemove":
+						var maxX = Post.sizing.wWidth - this._el.offsetWidth,
+						    maxY = Post.sizing.wHeight - this._el.offsetHeight - 25,
+						    cr = this._el.getBoundingClientRect(),
+						    x = cr.left + curX - this._oldX,
+						    y = cr.top + curY - this._oldY;
+						this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? "right: 0" : x < 0 || curX < this._oldX && x < 20 ? "left: 0" : "left: " + x + "px";
+						this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? "bottom: 25px" : y < 0 || curY < this._oldY && y < 20 ? "top: 0" : "top: " + y + "px";
+						this._elStyle.cssText = this._X + "; " + this._Y + "; z-index: " + this._Z + ";";
+						this._oldX = curX;
+						this._oldY = curY;
+						return;
+					default:
+					
+						doc.body.removeEventListener("mousemove", this);
+						doc.body.removeEventListener("mouseup", this);
+						saveCfg(name + "WinX", this._X);
+						saveCfg(name + "WinY", this._Y);
+				}
+			}
+		});
+	}
+
 	function toggleWindow(name, isUpd, data) {
-		var main = $id("de-main"),
-		    win = $id("de-window-" + name),
-		    isActive = win && win.classList.contains("de-window-active");
+		var el,
+		    main = $id("de-main"),
+		    win = $id("de-win-" + name),
+		    isActive = win && win.classList.contains("de-win-active");
 		if (isUpd && !isActive) {
-			return true;
+			return;
 		}
 		if (!win) {
-			main.insertAdjacentHTML("afterbegin", "<div id=\"de-window-" + name + "\" class=\"de-window\"" + (Cfg.attachPanel && name !== "cfg" ? " style=\"background-color: " + getComputedStyle(doc.body).getPropertyValue("background-color") + "\"" : "") + ">" + "<div class=\"de-window-head\"><span class=\"de-window-title\">" + (name === "cfg" ? "Dollchan Extension Tools" : Lng.panelBtn[name][lang]) + "</span>" + "<span class=\"de-window-buttons\">" +
-		
-			"<span class=\"de-btn-close\"></span></span></div>" + "<div class=\"de-window-body" + (name === "cfg" ? " " + aib.cReply : "") + "\"></div></div>");
+			main.insertAdjacentHTML("afterbegin", "<div id=\"de-win-" + name + "\" class=\"" + (Cfg[name + "WinDrag"] ? "de-win\" style=\"" + Cfg[name + "WinX"] + "; " + Cfg[name + "WinY"] : "de-win-fixed\" style=\"right: 0; bottom: 25px") + "; display: none;\">" + "<div class=\"de-win-head\"><span class=\"de-win-title\">" + (name === "cfg" ? "Dollchan Extension Tools" : Lng.panelBtn[name][lang]) + "</span>" + "<span class=\"de-win-buttons\">" + "<span class=\"de-btn-toggle\" title=\"" + Lng.toggleWindow[lang] + "\"></span>" + "<span class=\"de-btn-close\" title=\"" + Lng.closeWindow[lang] + "\"></span></span></div>" + "<div class=\"de-win-body" + (name === "cfg" ? " " + aib.cReply : "\" style=\"background-color: " + getComputedStyle(doc.body).getPropertyValue("background-color") + ";") + "\"></div></div>");
 			win = main.firstChild;
-			win.firstChild.lastChild.lastChild.onclick = toggleWindow.bind(null, name, false);
+			el = win.firstChild.lastChild;
+			el.lastChild.onclick = toggleWindow.bind(null, name, false);
+			el.firstChild.onclick = function (e) {
+				var node = e.target.parentNode.parentNode.parentNode,
+				    name = node.id.substr(7);
+				toggleCfg(name + "WinDrag");
+				if (node.style.zIndex < topWinZ) {
+					++topWinZ;
+				}
+				if (Cfg[name + "WinDrag"]) {
+					node.classList.remove("de-win-fixed");
+					node.classList.add("de-win");
+					node.style.cssText = Cfg[name + "WinX"] + "; " + Cfg[name + "WinY"] + "; z-index: " + topWinZ + ";";
+				} else {
+					var temp = $q(".de-win-active.de-win-fixed", win.parentNode);
+					if (temp) {
+						toggleWindow(temp.id.substr(7), false);
+					}
+					node.classList.remove("de-win");
+					node.classList.add("de-win-fixed");
+					node.style.cssText = "right: 0; bottom: 25px; z-index: " + topWinZ + ";";
+				}
+			};
+			makeDraggable(win, win.firstChild, name);
 		}
-		var el,
-		    body = $c("de-window-body", win),
+		if (win.style.zIndex < topWinZ) {
+			win.style.zIndex = ++topWinZ;
+		}
+		var body = win.lastChild,
 		    remove = !isUpd && isActive;
-		if (!remove && (el = $c("de-window-active", win.parentNode))) {
-			toggleWindow(el.id.substr(10), false);
+		if (!remove && !win.classList.contains("de-win") && (el = $q(".de-win-active.de-win-fixed:not(#de-win-" + name + ")", win.parentNode))) {
+			toggleWindow(el.id.substr(7), false);
 		}
 		if (!isUpd && Cfg.animation && body.hasChildNodes()) {
 			nav.animEvent(win, function (node) {
 				showWindow(node, body, name, isUpd, remove, data);
 				name = isUpd = remove = data = null;
 			});
-			win.className = "de-window de-window-close";
+			win.classList.remove("de-win-open");
+			win.classList.add("de-win-close");
 		} else {
 			showWindow(win, body, name, isUpd, remove, data);
 		}
-		return !remove;
 	}
 
 	function showWindow(win, body, name, isUpd, remove, data) {
@@ -3958,12 +4042,19 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}
 		body.innerHTML = "";
 		if (remove) {
-			win.className = "de-window";
+			win.classList.remove("de-win-active");
+			win.classList.remove("de-win-close");
 			win.style.display = "none";
+			if (!Cfg.expandPanel && !$c("de-win-active", doc)) {
+				$id("de-panel").lastChild.style.display = "none";
+			}
 			return;
 		}
-		win.className = "de-window de-window-active";
+		win.classList.add("de-win-active");
 		win.style.display = "";
+		if (!Cfg.expandPanel) {
+			$id("de-panel").lastChild.style.display = "";
+		}
 		switch (name) {
 			case "fav":
 				if (data) {
@@ -3973,7 +4064,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				readFav().then(function (fav) {
 					showFavoriteTable(body, fav);
 					if (!isUpd && Cfg.animation) {
-						win.classList.add("de-window-open");
+						win.classList.add("de-win-open");
 					}
 				});
 				return;
@@ -3985,7 +4076,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				showVideosTable(body);
 		}
 		if (!isUpd && Cfg.animation) {
-			win.classList.add("de-window-open");
+			win.classList.add("de-win-open");
 		}
 	}
 
@@ -4004,7 +4095,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}
 		body.innerHTML = "<div de-disableautoplay class=\"de-video-obj\"></div>" + "<center>" + "<a class=\"de-abtn\" id=\"de-video-btn-prev\" href=\"#\" title=\"" + Lng.prevVideo[lang] + "\">" + "&#x25C0;" + "</a> " + "<a class=\"de-abtn\" id=\"de-video-btn-hide\" href=\"#\" title=\"" + Lng.hideLnkList[lang] + "\">" + "&#x25B2;" + "</a> " + "<a class=\"de-abtn\" id=\"de-video-btn-next\" href=\"#\" title=\"" + Lng.nextVideo[lang] + "\">" + "&#x25B6;" + "</a>" + "</center>" + "<div id=\"de-video-list\" style=\"max-width: " + (+Cfg.YTubeWidth + 40) + "px; max-height: " + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 110) + "px;\"></div>";
 		var linkList = body.lastChild;
-		$before(linkList, $new("script", { type: "text/javascript", text: "\n\t\t(function() {\n\t\t\tif('YT' in window && 'Player' in window.YT) {\n\t\t\t\tonYouTubePlayerAPIReady();\n\t\t\t} else {\n\t\t\t\twindow.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;\n\t\t\t}\n\t\t\tfunction onYouTubePlayerAPIReady() {\n\t\t\t\twindow.de_addVideoEvents =\n\t\t\t\t\taddEvents.bind(document.querySelector('.de-window-body > .de-video-obj'));\n\t\t\t\twindow.de_addVideoEvents();\n\t\t\t}\n\t\t\tfunction addEvents() {\n\t\t\t\tvar autoplay = true;\n\t\t\t\tif(this.hasAttribute('de-disableautoplay')) {\n\t\t\t\t\tautoplay = false;\n\t\t\t\t\tthis.removeAttribute('de-disableautoplay');\n\t\t\t\t}\n\t\t\t\tnew YT.Player(this.firstChild, { events: {\n\t\t\t\t\t'onError': gotoNextVideo,\n\t\t\t\t\t'onReady': autoplay ? function(e) {\n\t\t\t\t\t\te.target.playVideo();\n\t\t\t\t\t} : Function.prototype,\n\t\t\t\t\t'onStateChange': function(e) {\n\t\t\t\t\t\tif(e.data === 0) {\n\t\t\t\t\t\t\tgotoNextVideo();\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}});\n\t\t\t}\n\t\t\tfunction gotoNextVideo() {\n\t\t\t\tdocument.getElementById(\"de-video-btn-next\").click();\n\t\t\t}\n\t\t})();\n\t" }));
+		$before(linkList, $new("script", { type: "text/javascript", text: "\n\t\t(function() {\n\t\t\tif('YT' in window && 'Player' in window.YT) {\n\t\t\t\tonYouTubePlayerAPIReady();\n\t\t\t} else {\n\t\t\t\twindow.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;\n\t\t\t}\n\t\t\tfunction onYouTubePlayerAPIReady() {\n\t\t\t\twindow.de_addVideoEvents =\n\t\t\t\t\taddEvents.bind(document.querySelector('#de-win-vid > .de-win-body > .de-video-obj'));\n\t\t\t\twindow.de_addVideoEvents();\n\t\t\t}\n\t\t\tfunction addEvents() {\n\t\t\t\tvar autoplay = true;\n\t\t\t\tif(this.hasAttribute('de-disableautoplay')) {\n\t\t\t\t\tautoplay = false;\n\t\t\t\t\tthis.removeAttribute('de-disableautoplay');\n\t\t\t\t}\n\t\t\t\tnew YT.Player(this.firstChild, { events: {\n\t\t\t\t\t'onError': gotoNextVideo,\n\t\t\t\t\t'onReady': autoplay ? function(e) {\n\t\t\t\t\t\te.target.playVideo();\n\t\t\t\t\t} : Function.prototype,\n\t\t\t\t\t'onStateChange': function(e) {\n\t\t\t\t\t\tif(e.data === 0) {\n\t\t\t\t\t\t\tgotoNextVideo();\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}});\n\t\t\t}\n\t\t\tfunction gotoNextVideo() {\n\t\t\t\tdocument.getElementById(\"de-video-btn-next\").click();\n\t\t\t}\n\t\t})();\n\t" }));
 		body.addEventListener("click", {
 			linkList: linkList,
 			listHidden: false,
@@ -4722,17 +4813,14 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	function getCfgCommon() {
 		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-common" }, [optSel("scriptStyle", true, function () {
 			saveCfg("scriptStyle", this.selectedIndex);
-			$id("de-main").lang = $id("de-qarea").firstChild.nextSibling.lang = getThemeLang();
+			$id("de-main").lang = $q("#de-win-reply > .de-win-head", doc).lang = getThemeLang();
 		}), $New("div", null, [lBox("userCSS", false, updateCSS), addEditButton("css", function (fn) {
 			fn(Cfg.userCSSTxt, false, function () {
 				saveCfg("userCSSTxt", this.value);
 				updateCSS();
 				toggleWindow("cfg", true);
 			});
-		})]), lBox("attachPanel", true, function () {
-			toggleWindow("cfg", false);
-			updateCSS();
-		}), lBox("panelCounter", true, updateCSS), lBox("rePageTitle", true, null), $if(nav.Anim, lBox("animation", true, null)), lBox("closePopups", true, null), $New("div", null, [lBox("hotKeys", false, function () {
+		})]), lBox("panelCounter", true, updateCSS), lBox("rePageTitle", true, null), $if(nav.Anim, lBox("animation", true, null)), lBox("closePopups", true, null), $New("div", null, [lBox("hotKeys", false, function () {
 			if (Cfg.hotKeys) {
 				if (hKeys) {
 					hKeys.enable();
@@ -4960,7 +5048,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		    pos,
 		    menu,
 		    cr = el.getBoundingClientRect();
-		if (Cfg.attachPanel && inPanel) {
+		if (inPanel) {
 			pos = "fixed";
 			y = "bottom: 25";
 		} else {
@@ -5237,7 +5325,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			} else {
 				var post,
 				    idx,
-				    expand = null,
 				    globIdx = this.gKeys.indexOf(kc);
 				switch (globIdx) {
 					case 2:
@@ -5274,11 +5361,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						break;
 					case 6:
 					
-						expand = toggleWindow("fav", false);
+						toggleWindow("fav", false);
 						break;
 					case 7:
 					
-						expand = toggleWindow("hid", false);
+						toggleWindow("hid", false);
 						break;
 					case 8:
 					
@@ -5291,7 +5378,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						break;
 					case 10:
 					
-						expand = toggleWindow("cfg", false);
+						toggleWindow("cfg", false);
 						break;
 					case 11:
 					
@@ -5345,7 +5432,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						break;
 					case 18:
 					
-						expand = toggleWindow("vid", false);
+						toggleWindow("vid", false);
 						break;
 					case -1:
 						if (isThr) {
@@ -5394,9 +5481,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 										default:
 						var scrollToThr = !isThr && (globIdx === 0 || globIdx === 1);
 						this._scroll(this._getFirstVisPost(scrollToThr, false), globIdx === 0 || idx === 0, scrollToThr);
-				}
-				if (expand !== null && !Cfg.expandPanel) {
-					$id("de-panel").lastChild.style.display = expand ? "" : "none";
 				}
 			}
 			e.stopPropagation();
@@ -6021,7 +6105,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		});
 		if (!imgOnly) {
-			$each($Q("#de-main, .de-parea, .de-post-btns, .de-btn-src, #de-qarea, .de-refmap, .de-thread-buttons," + " .de-video-obj, link[rel=\"alternate stylesheet\"], script, " + aib.qPostForm, dc), $del);
+			$each($Q("#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thread-buttons, " + ".de-video-obj, #de-win-reply, link[rel=\"alternate stylesheet\"], script, " + aib.qPostForm, dc), $del);
 			$each($T("a", dc), function (el) {
 				var num,
 				    tc = el.textContent;
@@ -6254,7 +6338,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			var node = this.parentNode,
 			    exp = node.className === "de-video-obj";
 			node.className = exp ? "de-video-obj de-video-expanded" : "de-video-obj";
-			if (node.parentNode.id === "de-window-vid") {
+			if (node.parentNode.parentNode.id === "de-win-vid") {
 				node = node.nextSibling.nextSibling.nextSibling;
 				node.style.maxWidth = (exp ? 888 : +Cfg.YTubeWidth + 40) + "px";
 				node.style.maxHeight = doc.documentElement.clientHeight - (exp ? 590 : +Cfg.YTubeHeigh + 110) + "px";
@@ -8288,7 +8372,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		this.subj = $x(p + "(@name=\"field3\" or @name=\"sub\" or @name=\"subject\" or @name=\"internal_s\" or @name=\"nya3\" or @name=\"kasumi\")]", form);
 		this.video = $q("tr input[name=\"video\"], tr input[name=\"embed\"]", form);
 		this.gothr = aib.qPostRedir && (p = $q(aib.qPostRedir, form)) && $parent(p, "TR");
-		this.pForm = $New("div", { id: "de-pform", "class": "de-window-body" }, [this.form, this.oeForm]);
+		this.pForm = $New("div", { id: "de-pform", "class": "de-win-body" }, [this.form, this.oeForm]);
 		dForm.el.insertAdjacentHTML("beforebegin", "<div class=\"de-parea\"><div>[<a href=\"#\"></a>]</div><hr></div>");
 		this.pArea[0] = dForm.el.previousSibling;
 		this._pBtn[0] = this.pArea[0].firstChild;
@@ -8298,73 +8382,28 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		this.pArea[1] = el.nextSibling;
 		this._pBtn[1] = this.pArea[1].firstChild;
 		this._pBtn[1].firstElementChild.onclick = this.showMainReply.bind(this, true);
-		this.qArea = $add("<div style=\"display: none; " + Cfg.qReplyX + "; " + Cfg.qReplyY + ";\" id=\"de-qarea\" class=\"" + aib.cReply + (Cfg.hangQReply ? " de-qarea-hanging" : " de-qarea-inline") + "\"></div>");
+		this.qArea = $add("<div style=\"display: none; " + Cfg.replyWinX + "; " + Cfg.replyWinY + "; z-index: " + ++topWinZ + ";\" id=\"de-win-reply\" class=\"" + aib.cReply + (Cfg.replyWinDrag ? " de-win" : " de-win-inpost") + "\"></div>");
 		this.isBottom = Cfg.addPostForm === 1;
 		this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 		el = this.qArea;
-		el.insertAdjacentHTML("beforeend", "<div class=\"de-resizer-top\"></div>" + "<div" + (Cfg.hangQReply ? " class=\"de-window-head\"" : "") + ">" + "<span class=\"de-window-title\"></span>" + "<span class=\"de-window-buttons\">" + "<span class=\"de-btn-toggle\" title=\"" + Lng.toggleQReply[lang] + "\"></span>" + "<span class=\"de-btn-close\" title=\"" + Lng.closeQReply[lang] + "\"></span>" + "</span></div>" + "<div class=\"de-resizer-left\"></div>" + "<div class=\"de-resizer-right\"></div>" + "<div class=\"de-resizer-bottom\"></div>");
+		el.insertAdjacentHTML("beforeend", "<div class=\"de-resizer-top\"></div>" + "<div class=\"de-win-head\">" + "<span class=\"de-win-title\"></span>" + "<span class=\"de-win-buttons\">" + "<span class=\"de-btn-toggle\" title=\"" + Lng.toggleReply[lang] + "\"></span>" + "<span class=\"de-btn-close\" title=\"" + Lng.closeReply[lang] + "\"></span></span></div>" + "<div class=\"de-resizer-left\"></div>" + "<div class=\"de-resizer-right\"></div>" + "<div class=\"de-resizer-bottom\"></div>");
 		el = el.firstChild.nextSibling;
 		el.lang = getThemeLang();
-		el.addEventListener("mousedown", {
-			_el: this.qArea,
-			_elStyle: this.qArea.style,
-			_oldX: 0,
-			_oldY: 0,
-			_X: 0,
-			_Y: 0,
-			handleEvent: function handleEvent(e) {
-				if (!Cfg.hangQReply) {
-					return;
-				}
-				var curX = e.clientX,
-				    curY = e.clientY;
-				switch (e.type) {
-					case "mousedown":
-						this._oldX = curX;
-						this._oldY = curY;
-						this._X = Cfg.qReplyX;
-						this._Y = Cfg.qReplyY;
-						doc.body.addEventListener("mousemove", this);
-						doc.body.addEventListener("mouseup", this);
-						$pd(e);
-						return;
-					case "mousemove":
-						var maxX = Post.sizing.wWidth - this._el.offsetWidth,
-						    maxY = Post.sizing.wHeight - this._el.offsetHeight - 25,
-						    cr = this._el.getBoundingClientRect(),
-						    x = cr.left + curX - this._oldX,
-						    y = cr.top + curY - this._oldY;
-						this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? "right: 0" : x < 0 || curX < this._oldX && x < 20 ? "left: 0" : "left: " + x + "px";
-						this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? "bottom: 25px" : y < 0 || curY < this._oldY && y < 20 ? "top: 0" : "top: " + y + "px";
-						this._elStyle.cssText = this._X + "; " + this._Y;
-						this._oldX = curX;
-						this._oldY = curY;
-						return;
-					default:
-					
-						doc.body.removeEventListener("mousemove", this);
-						doc.body.removeEventListener("mouseup", this);
-						saveCfg("qReplyX", this._X);
-						saveCfg("qReplyY", this._Y);
-				}
-			}
-		});
+		makeDraggable(this.qArea, el, "reply");
 		el = el.lastChild;
 		el.firstChild.onclick = function () {
-			var node = _this.qArea;
-			toggleCfg("hangQReply");
-			if (Cfg.hangQReply) {
-				node.className = aib.cReply + " de-qarea-hanging";
-				node = node.firstChild.nextSibling;
-				node.className = "de-window-head";
+			toggleCfg("replyWinDrag");
+			if (Cfg.replyWinDrag) {
+				_this.qArea.className = aib.cReply + " de-win";
+				if (_this.qArea.style.zIndex < topWinZ) {
+					_this.qArea.style.zIndex = ++topWinZ;
+				}
 			} else {
-				node.className = aib.cReply + " de-qarea-inline";
-				node = node.firstChild.nextSibling;
-				node.removeAttribute("class");
+				_this.qArea.className = aib.cReply + " de-win-inpost";
 				_this.txta.focus();
 			}
 		};
-		el.lastChild.onclick = this.closeQReply.bind(this);
+		el.lastChild.onclick = this.closeReply.bind(this);
 		if (aib.tire) {
 			$each($Q("input[type=\"hidden\"]", dForm.el), $del);
 			dForm.el.appendChild($c("userdelete", doc.body));
@@ -8725,10 +8764,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 				}
 			} else if (closeReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
-				this.closeQReply();
+				this.closeReply();
 				return;
 			}
 			$after(post.wrap, this.qArea);
+			if (this.qArea.classList.contains("de-win") && this.qArea.style.zIndex < topWinZ) {
+				this.qArea.style.zIndex = ++topWinZ;
+			}
 			if (!isThr) {
 				this._toggleQuickReply(qNum);
 			}
@@ -8753,11 +8795,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (temp.length > 27) {
 				temp = temp.substr(0, 30) + "…";
 			}
-			$c("de-window-title", this.qArea).textContent = temp || "#" + pNum;
+			$c("de-win-title", this.qArea).textContent = temp || "#" + pNum;
 			this.lastQuickPNum = pNum;
 		},
 		showMainReply: function showMainReply(isBottom, evt) {
-			this.closeQReply();
+			this.closeReply();
 			if (!aib.t) {
 				this.tNum = false;
 				this.refreshCapImg(false);
@@ -8774,7 +8816,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				$pd(evt);
 			}
 		},
-		closeQReply: function closeQReply() {
+		closeReply: function closeReply() {
 			if (this.isQuick) {
 				this.isQuick = false;
 				this.lastQuickPNum = -1;
@@ -9321,13 +9363,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				case "mousedown":
 					switch (this.dir) {
 						case "top":
-							val = Cfg.qReplyX + "; bottom: " + (maxY - cr.bottom) + "px";break;
+							val = Cfg.replyWinX + "; bottom: " + (maxY - cr.bottom) + "px";break;
 						case "bottom":
-							val = Cfg.qReplyX + "; top: " + cr.top + "px";break;
+							val = Cfg.replyWinX + "; top: " + cr.top + "px";break;
 						case "left":
-							val = "right: " + (maxX - cr.right) + "px; " + Cfg.qReplyY;break;
+							val = "right: " + (maxX - cr.right) + "px; " + Cfg.replyWinY;break;
 						case "right":
-							val = "left: " + cr.left + "px; " + Cfg.qReplyY;
+							val = "left: " + cr.left + "px; " + Cfg.replyWinY;
 					}
 					this.qaStyle.cssText = val;
 					doc.body.addEventListener("mousemove", this);
@@ -9349,12 +9391,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					doc.body.removeEventListener("mouseup", this);
 					if (this.vertical) {
 						saveCfg("textaHeight", parseInt(this.txStyle.height, 10));
-						saveCfg("qReplyY", cr.top < 1 ? "top: 0" : cr.bottom > maxY - 26 ? "bottom: 25px" : "top: " + cr.top + "px");
+						saveCfg("replyWinY", cr.top < 1 ? "top: 0" : cr.bottom > maxY - 26 ? "bottom: 25px" : "top: " + cr.top + "px");
 					} else {
 						saveCfg("textaWidth", parseInt(this.txStyle.width, 10));
-						saveCfg("qReplyX", cr.left < 1 ? "left: 0" : cr.right > maxX - 1 ? "right: 0" : "left: " + cr.left + "px");
+						saveCfg("replyWinX", cr.left < 1 ? "left: 0" : cr.right > maxX - 1 ? "right: 0" : "left: " + cr.left + "px");
 					}
-					this.qaStyle.cssText = Cfg.qReplyX + "; " + Cfg.qReplyY;
+					this.qaStyle.cssText = Cfg.replyWinX + "; " + Cfg.replyWinY;
 			}
 		}
 	};
@@ -9537,7 +9579,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				});
 			}
 		}
-		pr.closeQReply();
+		pr.closeReply();
 		pr.refreshCapImg(false);
 		pr.filesCount = 0;
 	}
@@ -10793,7 +10835,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (!aib.t) {
 				html += "<span class=\"de-btn-expthr\" de-menu=\"expand\"></span>";
 			}
-			html += "<span class=\"de-btn-fav\" title=\"" + Lng.addFav[lang] + "\"></span>";
+			html += "<span class=\"de-btn-fav\"></span>";
 		}
 		this.sage = aib.getSage(el);
 		if (this.sage) {
@@ -11059,6 +11101,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					if (!isOutEvent) {
 						quotetxt = $txtSelect();
 					}
+					return;
+				case "de-btn-fav":
+				case "de-btn-fav-sel":
+					this._addButtonTitle(el);
 					return;
 				case "de-menu":
 				case "de-menu-item":
@@ -11372,7 +11418,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				case "de-btn-expthr":
 					el.title = Lng.expandThrd[lang];return;
 				case "de-btn-rep":
-					el.title = Lng.replyToPost[lang];
+					el.title = Lng.replyToPost[lang];return;
+				case "de-btn-fav":
+					el.title = Lng.addFav[lang];return;
+				case "de-btn-fav-sel":
+					el.title = Lng.delFav[lang];
 			}
 		},
 		_addMenu: function _addMenu(el) {
@@ -12548,7 +12598,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					smartScroll = false;
 				}
 			}
-			pr.closeQReply();
+			pr.closeReply();
 			$del($q(aib.qOmitted + ", .de-omitted", thrEl));
 			if (!this.loadedOnce) {
 				if (op.trunc) {
@@ -12848,7 +12898,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					return;
 				}
 				if (f = f[aib.b][_this.op.num]) {
-					var el = $id("de-window-fav");
+					var el = $id("de-win-fav");
 					if (el) {
 						el = $q(".de-fav-current > .de-entry[de-num=\"" + _this.op.num + "\"] .de-fav-inf-old", el);
 						el.textContent = _this.pcount;
@@ -13372,7 +13422,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				iich: { value: true },
 
 				css: { get: function get() {
-						return "" + (this.t ? "#de-main { margin-top: " + (Cfg.attachPanel ? "-37" : "-55") + "px; }\t\t\t\t\t.logo { margin-bottom: 14px; }" : "");
+						return "" + (this.t ? "#de-main { margin-top: -37px; }\t\t\t\t\t.logo { margin-bottom: 14px; }" : "");
 					} },
 				init: { value: function value() {
 						window.onload = emptyFn;
@@ -13702,7 +13752,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return el.parentNode;
 					} },
 				cssEn: { get: function get() {
-						return ".ABU-refmap, .box[onclick=\"ToggleSage()\"], img[alt=\"webm file\"], .de-qarea-hanging .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t.de-abtn { transition: none; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t\t" + (Cfg.expandTrunc ? ".expand-large-comment, div[id^=\"shrinked-post\"] { display: none !important; } div[id^=\"original-post\"] { display: block !important; }" : "") + "\n\t\t\t\t" + (Cfg.delImgNames ? ".filesize { display: inline !important; }" : "");
+						return ".ABU-refmap, .box[onclick=\"ToggleSage()\"], img[alt=\"webm file\"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t.de-abtn { transition: none; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t\t" + (Cfg.expandTrunc ? ".expand-large-comment, div[id^=\"shrinked-post\"] { display: none !important; } div[id^=\"original-post\"] { display: block !important; }" : "") + "\n\t\t\t\t" + (Cfg.delImgNames ? ".filesize { display: inline !important; }" : "");
 					} },
 				earlyInit: { value: function value() {
 						try {
@@ -13808,7 +13858,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				getTNum: { value: function value(op) {
 						return $q("input[type=\"checkbox\"]", op).name.match(/\d+/)[0];
 					} },
-				cssEn: { value: ".de-cfg-body, .de-window { font-family: arial; }\t\t\t\t.ftbl { width: auto; margin: 0; }\t\t\t\t.reply { background: #f0e0d6; }\t\t\t\tspan { font-size: inherit; }" },
+				cssEn: { value: ".ftbl { width: auto; margin: 0; }\t\t\t\t.reply { background: #f0e0d6; }\t\t\t\tspan { font-size: inherit; }" },
 				docExt: { value: ".htm" },
 				thrid: { value: "resto" }
 			},
@@ -14460,7 +14510,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				if (btn) {
 					btn.onclick = function (e) {
 						$pd(e);
-						pr.closeQReply();
+						pr.closeReply();
 						$alert(Lng.deleting[lang], "delete", true);
 						spawn(html5Submit, _this.el).then(checkDelete, function (e) {
 							return $alert(getErrorMessage(e), "delete", false);
@@ -14471,7 +14521,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				this.el.insertAdjacentHTML("beforeend", "<iframe name=\"de-iframe-pform\" src=\"about:blank\" style=\"display: none;\"></iframe>" + "<iframe name=\"de-iframe-dform\" src=\"about:blank\" style=\"display: none;\"></iframe>");
 				this.el.target = "de-iframe-dform";
 				this.el.onsubmit = function () {
-					pr.closeQReply();
+					pr.closeReply();
 					$alert(Lng.deleting[lang], "deleting", true);
 				};
 			}
@@ -15124,18 +15174,16 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 	
 		var p,
-		    x = "\t.de-btn-close::after { content: \"✖\"; }\t.de-btn-toggle::after { content: \"❐\"; }\t.de-window textarea { display: block; margin: 2px 0; font: 12px courier new; " + (nav.Presto ? "" : "resize: none !important; ") + "}\t.de-window .de-window-buttons > span:hover, .de-qarea-hanging .de-window-buttons > span:hover { color: #ff6; }\t.de-window-buttons { float: right; margin-top: " + (nav.Chrome ? -1 : -4) + "px; font: normal 16px arial; cursor: pointer; }\t.de-window-buttons > span { margin-right: 4px; }\t#de-window-cfg { padding-right: 20px; }\t#de-window-cfg > .de-window-body { float: left; width: auto; min-width: 0; padding: 0; border: none; }\t#de-window-cfg input[type=\"button\"] { padding: 0 2px; margin: 0 1px; height: 24px; }\t#de-window-fav > .de-window-body, #de-window-hid > .de-window-body, #de-window-vid > .de-window-body { font-size: 16px; padding: 8px; border: 1px solid gray; }\t#de-window-fav input[type=\"checkbox\"] { margin-left: 14px; }\t.de-window-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\t.de-window-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\t.de-window-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\t.de-window-head:lang(de), #de-panel:lang(de) { background: #777; }\t.de-window-title { font-weight: bold; margin-left: 4px; }" +
+		    x = "\t.de-btn-close::after { content: \"✖\"; font-size: 15px; }\t.de-btn-toggle::after { content: \"▬\"; font-size: 13px; }\t.de-win > .de-win-head { cursor: move; }\t.de-win .de-btn-toggle::after { content: \"❐\"; font-size: 15px; }\t.de-win .de-resizer-bottom { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\t.de-win .de-resizer-left { position: absolute; margin: -3px; bottom: 3px; top: 3px; width: 6px; cursor: ew-resize; }\t.de-win .de-resizer-right { position: absolute; margin: -3px; bottom: 3px; top: 3px; display: inline-block; width: 6px; cursor: ew-resize; }\t.de-win .de-resizer-top { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\t.de-win-body { display: inline-block; vertical-align: middle; }\t.de-win-buttons { float: right; margin-top: -3px; cursor: pointer; }\t.de-win-buttons > span { margin-right: 4px; }\t.de-win-buttons > span:hover { color: #f66; }\t#de-win-cfg, #de-win-hid, #de-win-fav, #de-win-vid { position: fixed; max-height: 100%; overflow-x: visible; overflow-y: auto; }\t#de-win-cfg > .de-win-body { float: left; width: auto; min-width: 0; padding: 0; border: none; }\t#de-win-cfg input[type=\"button\"] { padding: 0 2px; margin: 0 1px; height: 24px; }\t#de-win-cfg textarea { display: block; margin: 2px 0; font: 12px courier new; " + (nav.Presto ? "" : "resize: none !important; ") + "}\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { font-size: 16px; padding: 10px; border: 1px solid gray; }\t#de-win-fav input[type=\"checkbox\"] { margin-left: 14px; }\t.de-win-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\t.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\t.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\t.de-win-head:lang(de), #de-panel:lang(de) { background: #777; }\t.de-win-title { font: bold 14px arial; margin-left: 32px; }" +
 
 	
 		".de-block { display: block; }\t.de-cfg-body { min-height: 309px; width: 354px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important; box-sizing: content-box; -moz-box-sizing: content-box; }\t.de-cfg-body input[type=\"text\"], .de-cfg-body select { width: auto; padding: 1px 2px; margin: 1px 0; font: 13px sans-serif; }\t.de-cfg-body input[type=\"checkbox\"] { " + (nav.Presto ? "" : "vertical-align: -1px; ") + "margin: 2px 1px; }\t.de-cfg-body label { padding: 0; margin: 0; }\t.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\t.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\t#de-cfg-btns { padding: 3px; font-size: 13px; }\t#de-cfg-bar { width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\t#de-cfg-bar:lang(en) { background-color: #325f9e; }\t#de-cfg-bar:lang(de) { background-color: #777; }\t.de-cfg-depend { padding-left: 17px; }\t.de-cfg-info-data { display: inline-block; padding: 0 7px; width: 162px; height: 238px; overflow-y: auto; border-collapse: separate; border-spacing: 1px; box-sizing: content-box; -moz-box-sizing: content-box; }\t.de-cfg-info-data > tbody > tr > td:first-child { width: 100%; }\t.de-cfg-info-data > tbody > tr > td:last-child { text-align: right; }\t.de-cfg-tab { padding: 4px 3px; border-radius: 4px 4px 0 0; font: bold 12px arial; text-align: center; cursor: default; }\t.de-cfg-tab-back { display: table-cell !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; }\t.de-cfg-tab-back:lang(de) { border-color: #444 !important; }\t.de-cfg-tab-back:lang(fr) { border-color: #121421 !important; }\t.de-cfg-tab-back[selected=\"true\"] { border-bottom: none !important; }\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab { background-color: rgba(0,0,0,.2); }\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:lang(en), .de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:lang(fr) { background: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover { background-color: rgba(99,99,99,.2); }\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover:lang(en), .de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t.de-cfg-tab::" + (nav.Firefox ? "-moz-" : "") + "selection { background: transparent; }\t.de-cfg-unvis { display: none; }\t#de-spell-panel { float: right; }\t#de-spell-panel > a { padding: 0 4px; }\t#de-spell-div { display: table; }\t#de-spell-div > div { display: table-cell; vertical-align: top; }\t#de-spell-edit { padding: 2px !important; width: 323px; height: 194px; max-width: 100%; border: none !important; outline: none !important; }\t#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 196px; text-align: right; color: #fff; font: 12px courier new; }\t#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\t#de-spell-rowmeter:lang(de) { background-color: #777; }" +
 
 	
-		"#de-panel-logo { margin-right: 3px; cursor: pointer; }\t#de-panel { height: 25px; z-index: 9999; border-radius: 15px 0 0 0; cursor: default;}\t#de-panel-btns { display: inline-block; padding: 0 0 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\t#de-panel-btns:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\t#de-panel-btns:lang(fr), #de-panel-info:lang(fr) { border-color: #616b86; }\t#de-panel-btns > li { margin: 0 1px; padding: 0; }\t#de-panel-btns > li, #de-panel-btns > li > a, #de-panel-logo { display: inline-block; width: 25px; height: 25px; }\t#de-panel-btns:lang(en) > li, #de-panel-btns:lang(fr) > li  { transition: all 0.3s ease; }\t#de-panel-btns:lang(en) > li:hover, #de-panel-btns:lang(fr) > li:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\t#de-panel-btns:lang(de) > li > a { border-radius: 5px; }\t#de-panel-btns:lang(de) > li > a:hover { width: 21px; height: 21px; border: 2px solid #444; }\t#de-panel-info { vertical-align: 6px; padding: " + (nav.Chrome ? 3 : 2) + "px 6px; margin-left: 2px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }" + gif("#de-panel-logo", (p = "R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA") + "QAI5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=") + gif("#de-panel-cfg", p + "QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7") + gif("#de-panel-hid", p + "QAI5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=") + gif("#de-panel-fav", p + "QAIzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs=") + gif("#de-panel-vid", p + "AAI9jI+py+0Po5wTWEvN3VjyH20a6HDHB5TiaTIkuyov3MltEuM3nS5z8EPsgsIY6rE6QlA5JDMDbEKn1KqhAAA7") + gif("#de-panel-refresh", p + "AAJBjI+py+0Po5zUgItBxDZrmHUcGAbe15xiybCm5iYegsaHfY8Kvrb6/qPhZr7LgrcyJlHFE1LoVG6ilVewis1qDQUAOw==") + gif("#de-panel-goback", p + "QAIrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7") + gif("#de-panel-gonext", p + "QAIrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7") + gif("#de-panel-goup", p + "QAIsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==") + gif("#de-panel-godown", p + "QAItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=") + gif("#de-panel-expimg", p + "QAI9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7") + gif("#de-panel-preimg", p + "QAJFjI+pGwCcHJPGWdoe3Lz7qh1WFJLXiX4qgrbXVEIYadLLnMX4yve+7ErBYorRjXiEeXagGguZAbWaSdHLOow4j8Hrj1EAADs=") + gif("#de-panel-maskimg", p + "QAJQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==") + gif("#de-panel-savethr", p + "QAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs=") + gif("#de-panel-catalog", p + "QAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=") + gif("#de-panel-audio-off", p + "QAI7jI+pq+DO1psvQHOj3rxTik1dCIzmSZqfmGXIWlkiB6L2jedhPqOfCitVYolgKcUwyoQuSe3WwzV1kQIAOw==") + gif("#de-panel-audio-on", p + "QAJHjI+pq+AewJHs2WdoZLz7X11WRkEgNoHqimadOG7uAqOm+Y6atvb+D0TgfjHS6RIp8YQ1pbHRfA4n0eSTI7JqP8Wtahr0FAAAOw==") + gif("#de-panel-enable", p + "AAJAjI+py+0Po5wUWKoswOF27z2aMX6bo51lioal2bzwISPyHSZ1lts9fwKKfjQiyXgkslq95TAFnUCdUirnis0eCgA7") + gif("#de-panel-upd-on", "R0lGODlhGQAZAJEAADL/Mv" + (p = "Dw8P///wAAACH5BAEAAAIALAAAAAAZABkAQAJElI+pe2EBoxOTNYmr3bz7OwHiCDzQh6bq06QSCUhcZMCmNrfrzvf+XsF1MpjhCSainBg0AbKkFCJko6g0MSGyftwuowAAOw==")) + gif("#de-panel-upd-off", "R0lGODlhGQAZAJEAAP8yMv" + p) + gif("#de-panel-upd-warn", "R0lGODlhGQAZAJEAAP/0Qf" + p);
+		"#de-panel { position: fixed; right: 0; bottom: 0; }\t#de-panel-logo { margin-right: 3px; cursor: pointer; }\t#de-panel { height: 25px; z-index: 9999; border-radius: 15px 0 0 0; cursor: default;}\t#de-panel-btns { display: inline-block; padding: 0 0 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\t#de-panel-btns:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\t#de-panel-btns:lang(fr), #de-panel-info:lang(fr) { border-color: #616b86; }\t#de-panel-btns > li { margin: 0 1px; padding: 0; }\t#de-panel-btns > li, #de-panel-btns > li > a, #de-panel-logo { display: inline-block; width: 25px; height: 25px; }\t#de-panel-btns:lang(en) > li, #de-panel-btns:lang(fr) > li  { transition: all 0.3s ease; }\t#de-panel-btns:lang(en) > li:hover, #de-panel-btns:lang(fr) > li:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\t#de-panel-btns:lang(de) > li > a { border-radius: 5px; }\t#de-panel-btns:lang(de) > li > a:hover { width: 21px; height: 21px; border: 2px solid #444; }\t#de-panel-info { vertical-align: 6px; padding: " + (nav.Chrome ? 3 : 2) + "px 6px; margin-left: 2px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }" + gif("#de-panel-logo", (p = "R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA") + "QAI5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=") + gif("#de-panel-cfg", p + "QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7") + gif("#de-panel-hid", p + "QAI5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=") + gif("#de-panel-fav", p + "QAIzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs=") + gif("#de-panel-vid", p + "AAI9jI+py+0Po5wTWEvN3VjyH20a6HDHB5TiaTIkuyov3MltEuM3nS5z8EPsgsIY6rE6QlA5JDMDbEKn1KqhAAA7") + gif("#de-panel-refresh", p + "AAJBjI+py+0Po5zUgItBxDZrmHUcGAbe15xiybCm5iYegsaHfY8Kvrb6/qPhZr7LgrcyJlHFE1LoVG6ilVewis1qDQUAOw==") + gif("#de-panel-goback", p + "QAIrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7") + gif("#de-panel-gonext", p + "QAIrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7") + gif("#de-panel-goup", p + "QAIsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==") + gif("#de-panel-godown", p + "QAItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=") + gif("#de-panel-expimg", p + "QAI9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7") + gif("#de-panel-preimg", p + "QAJFjI+pGwCcHJPGWdoe3Lz7qh1WFJLXiX4qgrbXVEIYadLLnMX4yve+7ErBYorRjXiEeXagGguZAbWaSdHLOow4j8Hrj1EAADs=") + gif("#de-panel-maskimg", p + "QAJQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==") + gif("#de-panel-savethr", p + "QAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs=") + gif("#de-panel-catalog", p + "QAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=") + gif("#de-panel-audio-off", p + "QAI7jI+pq+DO1psvQHOj3rxTik1dCIzmSZqfmGXIWlkiB6L2jedhPqOfCitVYolgKcUwyoQuSe3WwzV1kQIAOw==") + gif("#de-panel-audio-on", p + "QAJHjI+pq+AewJHs2WdoZLz7X11WRkEgNoHqimadOG7uAqOm+Y6atvb+D0TgfjHS6RIp8YQ1pbHRfA4n0eSTI7JqP8Wtahr0FAAAOw==") + gif("#de-panel-enable", p + "AAJAjI+py+0Po5wUWKoswOF27z2aMX6bo51lioal2bzwISPyHSZ1lts9fwKKfjQiyXgkslq95TAFnUCdUirnis0eCgA7") + gif("#de-panel-upd-on", "R0lGODlhGQAZAJEAADL/Mv" + (p = "Dw8P///wAAACH5BAEAAAIALAAAAAAZABkAQAJElI+pe2EBoxOTNYmr3bz7OwHiCDzQh6bq06QSCUhcZMCmNrfrzvf+XsF1MpjhCSainBg0AbKkFCJko6g0MSGyftwuowAAOw==")) + gif("#de-panel-upd-off", "R0lGODlhGQAZAJEAAP8yMv" + p) + gif("#de-panel-upd-warn", "R0lGODlhGQAZAJEAAP/0Qf" + p);
 
 		if (Cfg.disabled) {
 			$css(x).id = "de-css";
-			$css("").id = "de-css-dynamic";
-			updateCSS();
 			return;
 		}
 
@@ -15149,7 +15197,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		".de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); margin-right: 4px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\t.de-post-deleted::after { content: \"" + Lng.deleted[lang] + "\"; margin-right: 4px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }" +
 
 	
-		"#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\t#de-txt-panel > span:empty { display: inline-block; width: 27px; height: 23px; }" + gif("#de-btn-bold:empty", (p = "R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ") + "T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==") + gif("#de-btn-italic:empty", p + "K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==") + gif("#de-btn-under:empty", p + "V3IKpq4YAoRARzAoV3hzoDnoJNlGSWSEHw7JrEHILiVp1NlZXtKe5XiptPrFh4NVKHh9FI5NX60WIJ6ATZoVeaVnf8xSU4r7NMRYcFk6pzYRD2TIUAAA7") + gif("#de-btn-strike:empty", p + "S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7") + gif("#de-btn-spoil:empty", "R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==") + gif("#de-btn-code:empty", p + "O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=") + gif("#de-btn-sup:empty", p + "Q3IKpq4YAgZiSQhGByrzn7YURGFGWhxzMuqqBGC7wRUNkeU7nnWNoMosFXKzi8BHs3EQnDRAHLY2e0BxnWfEJkRdT80NNTrliG3aWcBhZhgIAOw==") + gif("#de-btn-sub:empty", p + "R3IKpq4YAgZiSxquujtOCvIUayAkVZEoRcjCu2wbivMw2WaYi7vVYYqMFYq/i8BEM4ZIrYOmpdD49m2VFd2oiUZTORWcNYT9SpnZrTjiML0MBADs=") + gif("#de-btn-quote:empty", p + "L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=") + (nav.Anim ? "@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }\t\t@keyframes de-close { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }\t\t@keyframes de-blink {\t\t\t0%, 100% { transform: translateX(0); }\t\t\t10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }\t\t\t20%, 40%, 60%, 80% { transform: translateX(10px); }\t\t}\t\t@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-open-br { from { transform: translate(50%,50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-close-tl { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-close-bl { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\t\t@keyframes de-window-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\t\t@keyframes de-window-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\t\t.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\t\t.de-open { animation: de-open .15s ease-out both; }\t\t.de-close { animation: de-close .15s ease-in both; }\t\t.de-blink { animation: de-blink .7s ease-in-out both; }\t\t.de-post-new { animation: de-post-new .2s ease-out both; }\t\t.de-window-open { animation: de-window-open .2s ease-out backwards; }\t\t.de-window-close { animation: de-window-close .2s ease-in both; }" : "") +
+		"#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\t#de-txt-panel > span:empty { display: inline-block; width: 27px; height: 23px; }" + gif("#de-btn-bold:empty", (p = "R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ") + "T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==") + gif("#de-btn-italic:empty", p + "K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==") + gif("#de-btn-under:empty", p + "V3IKpq4YAoRARzAoV3hzoDnoJNlGSWSEHw7JrEHILiVp1NlZXtKe5XiptPrFh4NVKHh9FI5NX60WIJ6ATZoVeaVnf8xSU4r7NMRYcFk6pzYRD2TIUAAA7") + gif("#de-btn-strike:empty", p + "S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7") + gif("#de-btn-spoil:empty", "R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==") + gif("#de-btn-code:empty", p + "O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=") + gif("#de-btn-sup:empty", p + "Q3IKpq4YAgZiSQhGByrzn7YURGFGWhxzMuqqBGC7wRUNkeU7nnWNoMosFXKzi8BHs3EQnDRAHLY2e0BxnWfEJkRdT80NNTrliG3aWcBhZhgIAOw==") + gif("#de-btn-sub:empty", p + "R3IKpq4YAgZiSxquujtOCvIUayAkVZEoRcjCu2wbivMw2WaYi7vVYYqMFYq/i8BEM4ZIrYOmpdD49m2VFd2oiUZTORWcNYT9SpnZrTjiML0MBADs=") + gif("#de-btn-quote:empty", p + "L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=") + (nav.Anim ? "@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }\t\t@keyframes de-close { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }\t\t@keyframes de-blink {\t\t\t0%, 100% { transform: translateX(0); }\t\t\t10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }\t\t\t20%, 40%, 60%, 80% { transform: translateX(10px); }\t\t}\t\t@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-open-br { from { transform: translate(50%,50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-close-tl { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-close-bl { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\t\t@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\t\t@keyframes de-win-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\t\t@keyframes de-win-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\t\t.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\t\t.de-open { animation: de-open .15s ease-out both; }\t\t.de-close { animation: de-close .15s ease-in both; }\t\t.de-blink { animation: de-blink .7s ease-in-out both; }\t\t.de-post-new { animation: de-post-new .2s ease-out both; }\t\t.de-win-open { animation: de-win-open .2s ease-out backwards; }\t\t.de-win-close { animation: de-win-close .2s ease-in both; }" : "") +
 
 	
 		cont(".de-video-link.de-ytube", "https://youtube.com/favicon.ico") + cont(".de-video-link.de-vimeo", "https://vimeo.com/favicon.ico") + cont(".de-img-arch", "data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==") + cont(".de-img-audio", "data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==") + ".de-current::after { content: \" ●\"; }\t.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\t.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\t.de-img-pre { max-width: 200px; max-height: 200px; }\t.de-img-full { float: left; }\t.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\t#de-img-btn-next > div, #de-img-btn-prev > div { height: 36px; width: 36px; }" + gif("#de-img-btn-next > div", "R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7") + gif("#de-img-btn-prev > div", "R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=") + "#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; margin-top: -8px; background-color: black; cursor: pointer; }\t#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\t#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\t.de-mp3, .de-video-obj { margin: 5px 20px; white-space: nowrap; clear: both; }\t.de-video-expanded > embed, .de-video-expanded > iframe, .de-video-expanded > a > img { width: 848px; height: 480px; }\t#de-video-list { padding: 0 0 4px; overflow-y: scroll; }\t.de-video-resizer::after { content: \"➕\"; display: inline-block; margin: 0 -15px 0 3px; vertical-align: 8px; color: black; font-size: 12px; cursor: pointer; }\t.de-video-obj > a { display: table; position: relative; border-spacing: 0; }\t.de-video-obj > a::after { opacity: .6; position: absolute; left: 42%; top: 42%; content: url(\"data:image/gif;base64,R0lGODlhPwAsAJEAAAAAAP////8AAP///yH5BAEAAAMALAAAAAA/ACwAAAJvnC2py+0P35kj2ostzbzn44Wig4ymWJ7qt7buC8fyTNf2jee6EAT72ev9RMHgsFMsHjHJ5DLSbD4d0eh0Ua1eeVnrtCu9go1bbresOKPT3jVb6WbA43If/Y7P6/f8vt9V0ZeyN6gHQjhhSFFYRlEAADs=\"); }\t.de-video-obj > a:hover::after { opacity: .85; }\t.de-video-title[de-time]::after { content: \" [\" attr(de-time) \"]\"; color: red; }\ttd > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\tvideo { background: black; }\t.de-vocaroo > embed { display: inline-block; }" +
@@ -15158,7 +15206,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		".de-file { display: inline-block; margin: 1px; height: " + (p = aib.multiFile ? 90 : 130) + "px; width: " + p + "px; text-align: center; border: 1px dashed grey; }\t.de-file > .de-file-del, .de-file > .de-file-spoil { float: right; }\t.de-file > .de-file-rar { float: left; }\t.de-file > .de-file-rarmsg { float: left; padding: 0 4px 2px; color: #fff; background-color: rgba(55, 55, 55, 0.5); }\t.de-file > .de-file-utils { display: none; }\t.de-file > div { display: table; width: 100%; height: 100%; cursor: pointer; }\t.de-file > div > div { display: table-cell; vertical-align: middle; }\t.de-file + [type=\"file\"] { opacity: 0; margin: 1px 0 0 -" + (p + 2) + "px !important; vertical-align: top; width: " + (p + 2) + "px !important; height: " + (p + 2) + "px; border: none !important; cursor: pointer; }\t#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\t.de-file-drag { background: rgba(88, 88, 88, 0.4); border: 1px solid grey; }\t.de-file-hover > .de-file-utils { display: block !important; position: relative; margin: -18px 2px; }\t.de-file-hover > .de-file-spoil { margin: -16px 21px; }\t.de-file-img > img, .de-file-img > video { max-width: " + (p - 4) + "px; max-height: " + (p - 4) + "px; }\t.de-file-input { max-width: 300px; }\t.de-file-off > div > div::after { content: \"" + Lng.noFile[lang] + "\" }\t.de-file-rarmsg { margin: 0 5px; font: bold 11px tahoma; cursor: default; }\t.de-file-del, .de-file-rar { display: inline-block; margin: 0 4px -3px; width: 16px; height: 16px; cursor: pointer; }\t.de-file-spoil { display: none; }" + gif(".de-file-del", "R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=") + gif(".de-file-rar", "R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==") +
 
 	
-		"#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: " + (nav.Presto ? "-2px -10px" : "0 0 -1px -11px") + "; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\t.de-parea { text-align: center; }\t.de-parea-btn-close::after { content: \"" + Lng.hideForm[lang] + "\" }\t.de-parea-btn-thrd::after { content: \"" + Lng.makeThrd[lang] + "\" }\t.de-parea-btn-reply::after { content: \"" + Lng.makeReply[lang] + "\" }\t#de-pform { display: inline-block; vertical-align: middle; }\t#de-pform > form { padding: 0; margin: 0; border: none; }\t#de-pform input[type=\"text\"], #de-pform input[type=\"file\"] { width: 200px; }\t#de-qarea { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\t#de-qarea > div:nth-child(2) { text-align: center; }\t.de-qarea-hanging { position: fixed !important; z-index: 9990; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\t.de-qarea-hanging > .de-window-head { cursor: move; }\t.de-qarea-hanging > #de-pform { padding: 2px 2px 0 1px; border: 1px solid gray; }\t.de-qarea-hanging .de-textarea { min-width: 98% !important; resize: none !important; }\t.de-qarea-hanging #de-resizer-text { display: none !important; }\t.de-qarea-hanging .de-resizer-bottom { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\t.de-qarea-hanging .de-resizer-left { position: absolute; margin: -3px; bottom: 3px; top: 3px; width: 6px; cursor: ew-resize; }\t.de-qarea-hanging .de-resizer-right { position: absolute; margin: -3px; bottom: 3px; top: 3px; display: inline-block; width: 6px; cursor: ew-resize; }\t.de-qarea-hanging .de-resizer-top { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\t.de-qarea-inline { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\t#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }" +
+		"#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: " + (nav.Presto ? "-2px -10px" : "0 0 -1px -11px") + "; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\t.de-parea { text-align: center; }\t.de-parea-btn-close::after { content: \"" + Lng.hideForm[lang] + "\" }\t.de-parea-btn-thrd::after { content: \"" + Lng.makeThrd[lang] + "\" }\t.de-parea-btn-reply::after { content: \"" + Lng.makeReply[lang] + "\" }\t#de-pform > form { padding: 0; margin: 0; border: none; }\t#de-pform input[type=\"text\"], #de-pform input[type=\"file\"] { width: 200px; }\t.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\t#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }" +
 
 	
 		cont(".de-wait", "data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7") + ".de-abtn { text-decoration: none !important; outline: none; }\t.de-after-fimg { clear: left; }\t#de-alert { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\t#de-alert > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\t.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\t.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\t.de-alert-msg { display: inline-block; }\t.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t.de-content-block > input { margin: 0 4px; }\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t.de-entry { display: block !important; float: none !important; width: auto; max-width: 100% !important; margin: 2px 0 !important; padding: 0 !important; border: none; font-size: 14px; " + (nav.Presto ? "white-space: nowrap; " : "") + "}\t.de-entry > a { text-decoration: none; border: none; }\t.de-entry > input { margin: 2px 4px; }\t.de-fav-user::after { content: \"★\"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\t.de-fav-inf-err { color: #c33; font-size: 12px; }\t.de-fav-inf-new { color: #424f79; }\t.de-fav-inf-new::after { content: \" +\"; }\t.de-fav-inf-old { color: #4f7942; }\t.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\t.de-fav-title { margin-right: 15px; }\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t.de-input-key { height: 12px }\t.de-link-hid { text-decoration: line-through !important; }\t.de-link-parent { outline: 1px dotted !important; }\t.de-link-pview { font-weight: bold; }\t.de-link-ref { text-decoration: none; }\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t.de-menu-item:hover { background-color: #222; color: #fff; }\t.de-new-post { " + (nav.Presto ? "border-left: 4px solid blue; border-right: 4px solid blue; }" : "box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }") + "\t.de-omitted { color: grey; }\t.de-omitted::before { content: \"" + Lng.postsOmitted[lang] + "\"; }\t.de-post-hide > " + aib.qHide + " { display: none !important; }\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\t.de-pview-info { padding: 3px 6px !important; }\t.de-ref-op::after { content: \" [OP]\"; }\t.de-ref-del::after { content: \" [del]\"; }\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\t.de-refmap::before { content: \"" + Lng.replies[lang] + " \"; }\t.de-refcomma:last-child { display: none; }\t.de-selected, .de-error-key { " + (nav.Presto ? "border-left: 4px solid red; border-right: 4px solid red; }" : "box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }") + "\t.de-thread-buttons { clear: left; margin-top: 5px; }\t.de-thread-collapse > a::after { content: \"" + Lng.collapseThrd[lang] + "\" }\t.de-thread-updater > a::after { content: \"" + Lng.getNewPosts[lang] + "\" }\t.de-thread-updater::before { content: \">> \" }\t#de-updater-count::before { content: \": \" }\t.de-viewed { color: #888 !important; }\tform > hr { clear: both }";
@@ -15177,17 +15225,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 	function updateCSS() {
 		var x = "";
-		if (Cfg.attachPanel) {
-			x += ".de-window { position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto; }\t\t#de-window-fav, #de-window-hid { overflow-y: scroll; }\t\t#de-panel { position: fixed; right: 0; bottom: 0; }";
-		} else {
-			x += ".de-window { clear: both; float: right; }\t\t#de-panel { float: right; clear: both; }";
-		}
-		if (Cfg.disabled) {
-			$id("de-css-dynamic").textContent = x;
-			return;
-		}
 		if (Cfg.maskImgs) {
-			x += ".de-img-pre, .de-video-obj, .thumb, .ca_thumb, .fileThumb, img[src*=\"spoiler\"], img[src*=\"thumb\"], img[src^=\"blob\"] { opacity: 0.07 !important; }\t\t\t.de-img-pre:hover, .de-video-obj:hover, .thumb:hover, .ca_thumb:hover, .fileThumb:hover, img[src*=\"spoiler\"]:hover, img[src*=\"thumb\"]:hover, img[src^=\"blob\"]:hover { opacity: 1 !important; }";
+			x += ".de-img-pre, .de-video-obj, .thumb, .ca_thumb, .fileThumb, img[src*=\"spoiler\"], img[src*=\"thumb\"], img[src^=\"blob\"] { opacity: .07 !important; }\t\t\t.de-img-pre:hover, .de-video-obj:hover, .thumb:hover, .ca_thumb:hover, .fileThumb:hover, img[src*=\"spoiler\"]:hover, img[src*=\"thumb\"]:hover, img[src^=\"blob\"]:hover { opacity: 1 !important; }";
 		}
 		if (Cfg.delImgNames) {
 			x += ".de-img-name { text-transform: capitalize; text-decoration: none; }";

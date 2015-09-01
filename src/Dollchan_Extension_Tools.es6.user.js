@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '39cf034';
+var commit = '4fcbf98';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -92,7 +92,6 @@ var defaultCfg = {
 	'sendErrNotif':     1,      //    inform about post send error if page is blurred
 	'scrAfterRep':      0,      //    scroll to the bottom after reply
 	'addPostForm':      2,      // postform displayed [0=at top, 1=at bottom, 2=hidden]
-	'hangQReply':       1,      // quick reply type [0=inline, 1=hanging]
 	'spacedQuote':      1,      // insert a space when quoting "> "
 	'favOnReply':       1,      // add thread to favorites on reply
 	'warnSubjTrip':     0,      // warn if subject field contains tripcode
@@ -114,7 +113,6 @@ var defaultCfg = {
 	'userCSS':          0,      // user style
 	'userCSSTxt':       '',     //    css text
 	'expandPanel':      0,      // show full main panel
-	'attachPanel':      1,      // attach main panel
 	'panelCounter':     1,      // posts/images counter in script panel
 	'rePageTitle':      1,      // replace page title in threads
 	'animation':        1,      // CSS3 animation in script
@@ -126,8 +124,21 @@ var defaultCfg = {
 	'turnOff':          0,      // enable script only for this site
 	'textaWidth':       300,    // textarea size
 	'textaHeight':      115,
-	'qReplyX':          'right: 0',     // quick reply position
-	'qReplyY':          'bottom: 25px'
+	'replyWinDrag':     0,      // draggable Quick Reply form 
+	'replyWinX':        'right: 0',     // Quick Reply form position
+	'replyWinY':        'bottom: 25px',
+	'cfgWinDrag':       0,      // draggable Settings window 
+	'cfgWinX':          'right: 0',     // Settings window position
+	'cfgWinY':          'bottom: 25px',
+	'hidWinDrag':       0,      // draggable Hidden window 
+	'hidWinX':          'right: 0',     // Hidden window  position
+	'hidWinY':          'bottom: 25px',
+	'favWinDrag':       0,      // draggable Favorites window
+	'favWinX':          'right: 0',     // Favorites window position
+	'favWinY':          'bottom: 25px',
+	'vidWinDrag':       0,      // draggable Video window
+	'vidWinX':          'right: 0',     // Video window position
+	'vidWinY':          'bottom: 25px'
 },
 
 Lng = {
@@ -254,7 +265,6 @@ Lng = {
 			txt:        ['Стиль скрипта', 'Script style']
 		},
 		'userCSS':      ['Пользовательский CSS ', 'User CSS '],
-		'attachPanel':  ['Прикрепить главную панель', 'Attach main panel'],
 		'panelCounter': ['Счетчик постов/картинок на главной панели', 'Counter of posts/images on main panel'],
 		'rePageTitle':  ['Название треда в заголовке вкладки*', 'Thread title in page tab*'],
 		'animation':    ['CSS3 анимация в скрипте', 'CSS3 animation in script'],
@@ -497,8 +507,10 @@ Lng = {
 	hideLnkList:    ['Скрыть/Показать список ссылок', 'Hide/Unhide list of links'],
 	prevVideo:      ['Предыдущее видео', 'Previous video'],
 	nextVideo:      ['Следующее видео', 'Next video'],
-	toggleQReply:   ['Поместить под пост / Открепить', 'Move under post / Unattach'],
-	closeQReply:    ['Закрыть форму', 'Close form'],
+	toggleWindow:   ['Закрепить на панели / Открепить', 'Attach to panel / Detach'],
+	closeWindow:    ['Закрыть окно', 'Close window'],
+	toggleReply:    ['Поместить под пост / Открепить', 'Move under post / Detach'],
+	closeReply:     ['Закрыть форму', 'Close form'],
 	replies:        ['Ответы:', 'Replies:'],
 	postsOmitted:   ['Пропущено ответов: ', 'Posts omitted: '],
 	collapseThrd:   ['Свернуть тред', 'Collapse thread'],
@@ -566,7 +578,7 @@ Lng = {
 
 doc = window.document, aProto = Array.prototype, locStorage, sesStorage,
 Cfg, hThr, pByNum, sVis, uVis, needScroll,
-aib, nav, updater, hKeys, visPosts = 2, dTime,
+aib, nav, updater, hKeys, dTime, visPosts = 2, topWinZ = 0,
 WebmParser, Logger,
 pr, dForm, dummy, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
@@ -1598,7 +1610,6 @@ function addPanel(formEl) {
 		'</div>' + (Cfg.disabled ? '' : '<div id="de-alert"></div><hr style="clear: both;">') + '</div>');
 	panel = $id('de-panel');
 	evtObject = {
-		attach: false,
 		odelay: 0,
 		panel: panel,
 		handleEvent(e) {
@@ -1606,18 +1617,15 @@ function addPanel(formEl) {
 			case 'click':
 				switch(e.target.id) {
 				case 'de-panel-logo':
-					if(Cfg.expandPanel) {
+					if(Cfg.expandPanel && !$c('de-win-active', doc)) {
 						this.panel.lastChild.style.display = 'none';
-						this.attach = false;
-					} else {
-						this.attach = true;
 					}
 					toggleCfg('expandPanel');
 					return;
-				case 'de-panel-cfg': this.attach = toggleWindow('cfg', false); break;
-				case 'de-panel-hid': this.attach = toggleWindow('hid', false); break;
-				case 'de-panel-fav': this.attach = toggleWindow('fav', false); break;
-				case 'de-panel-vid': this.attach = toggleWindow('vid', false); break;
+				case 'de-panel-cfg': toggleWindow('cfg', false); break;
+				case 'de-panel-hid': toggleWindow('hid', false); break;
+				case 'de-panel-fav': toggleWindow('fav', false); break;
+				case 'de-panel-vid': toggleWindow('vid', false); break;
 				case 'de-panel-refresh': window.location.reload(); break;
 				case 'de-panel-goup': scrollTo(0, 0); break;
 				case 'de-panel-godown': scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight); break;
@@ -1689,10 +1697,9 @@ function addPanel(formEl) {
 				}
 				return;
 			default: // mouseout
-				if(!Cfg.expandPanel && !this.attach) {
+				if(!Cfg.expandPanel && !$c('de-win-active', doc)) {
 					this.odelay = setTimeout(function(obj) {
 						obj.panel.lastChild.style.display = 'none';
-						obj.attach = false;
 					}, 500, this);
 				}
 				switch(e.target.id) {
@@ -1708,42 +1715,131 @@ function addPanel(formEl) {
 	panel.addEventListener('mouseout', evtObject);
 }
 
+function makeDraggable(win, head, name) {
+	head.addEventListener('mousedown', {
+		_el: win,
+		_elStyle: win.style,
+		_oldX: 0,
+		_oldY: 0,
+		_X: 0,
+		_Y: 0,
+		_Z: 0,
+		handleEvent(e) {
+			if(!Cfg[name + 'WinDrag']) {
+				return;
+			}
+			var curX = e.clientX,
+				curY = e.clientY;
+			switch(e.type) {
+			case 'mousedown':
+				this._oldX = curX;
+				this._oldY = curY;
+				this._X = Cfg[name + 'WinX'];
+				this._Y = Cfg[name + 'WinY'];
+				if(this._Z < topWinZ) {
+					this._Z = ++topWinZ;
+				}
+				this._elStyle.zIndex = this._Z;
+				doc.body.addEventListener('mousemove', this);
+				doc.body.addEventListener('mouseup', this);
+				$pd(e);
+				return;
+			case 'mousemove':
+				var maxX = Post.sizing.wWidth - this._el.offsetWidth,
+					maxY = Post.sizing.wHeight - this._el.offsetHeight - 25,
+					cr = this._el.getBoundingClientRect(),
+					x = cr.left + curX - this._oldX,
+					y = cr.top + curY - this._oldY;
+				this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? 'right: 0' :
+					x < 0 || curX < this._oldX && x < 20 ? 'left: 0' :
+					'left: ' + x + 'px';
+				this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? 'bottom: 25px' :
+					y < 0 || curY < this._oldY && y < 20 ? 'top: 0' :
+					'top: ' + y + 'px';
+				this._elStyle.cssText = this._X + '; ' + this._Y + '; z-index: ' + this._Z + ';';
+				this._oldX = curX;
+				this._oldY = curY;
+				return;
+			default: // mouseup
+				doc.body.removeEventListener('mousemove', this);
+				doc.body.removeEventListener('mouseup', this);
+				saveCfg(name + 'WinX', this._X);
+				saveCfg(name + 'WinY', this._Y);
+			}
+		}
+	});
+}
+
 function toggleWindow(name, isUpd, data) {
-	var main = $id('de-main'),
-		win = $id('de-window-' + name),
-		isActive = win && win.classList.contains('de-window-active');
+	var el, main = $id('de-main'),
+		win = $id('de-win-' + name),
+		isActive = win && win.classList.contains('de-win-active');
 	if(isUpd && !isActive) {
-		return true;
+		return;
 	}
 	if(!win) {
 		main.insertAdjacentHTML('afterbegin',
-			'<div id="de-window-' + name + '" class="de-window"' +
-				(Cfg.attachPanel && name !== 'cfg' ? ' style="background-color: ' +
-				getComputedStyle(doc.body).getPropertyValue('background-color') + '"' : '') + '>' +
-			'<div class="de-window-head"><span class="de-window-title">' +
-				(name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang]) + '</span>' +
-			'<span class="de-window-buttons">' +
-			//'<span class="de-btn-toggle"></span>' +
-			'<span class="de-btn-close"></span></span></div>' +
-			'<div class="de-window-body' + (name === 'cfg' ? ' ' + aib.cReply : '') + '"></div></div>');
+			'<div id="de-win-' + name + '" class="' +
+				(Cfg[name + 'WinDrag'] ?
+					'de-win" style="' + Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] :
+					'de-win-fixed" style="right: 0; bottom: 25px') +
+				'; display: none;">' +
+				'<div class="de-win-head"><span class="de-win-title">' +
+					(name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang]) + '</span>' +
+					'<span class="de-win-buttons">' +
+						'<span class="de-btn-toggle" title="' + Lng.toggleWindow[lang] + '"></span>' +
+						'<span class="de-btn-close" title="' + Lng.closeWindow[lang] + '"></span></span></div>' +
+				'<div class="de-win-body' + (name === 'cfg' ? ' ' + aib.cReply :
+					'" style="background-color: ' +
+					getComputedStyle(doc.body).getPropertyValue('background-color') + ';') +
+					'"></div></div>');
 		win = main.firstChild;
-		win.firstChild.lastChild.lastChild.onclick = toggleWindow.bind(null, name, false);
+		el = win.firstChild.lastChild;
+		el.lastChild.onclick = toggleWindow.bind(null, name, false);
+		el.firstChild.onclick = function(e) {
+			var node = e.target.parentNode.parentNode.parentNode,
+				name = node.id.substr(7);
+			toggleCfg(name + 'WinDrag');
+			if(node.style.zIndex < topWinZ) {
+				++topWinZ;
+			}
+			if(Cfg[name + 'WinDrag']) {
+				node.classList.remove('de-win-fixed');
+				node.classList.add('de-win');
+				node.style.cssText = Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] +
+					'; z-index: ' + topWinZ + ';';
+			} else {
+				var temp = $q('.de-win-active.de-win-fixed', win.parentNode);
+				if(temp) {
+					toggleWindow(temp.id.substr(7), false);
+				}
+				node.classList.remove('de-win');
+				node.classList.add('de-win-fixed');
+				node.style.cssText = 'right: 0; bottom: 25px; z-index: ' + topWinZ + ';';
+			}
+		};
+		makeDraggable(win, win.firstChild, name);
 	}
-	var el, body = $c('de-window-body', win),
+	if(win.style.zIndex < topWinZ) {
+		win.style.zIndex = ++topWinZ;
+	}
+	var body = win.lastChild,
 		remove = !isUpd && isActive;
-	if(!remove && (el = $c('de-window-active', win.parentNode))) {
-		toggleWindow(el.id.substr(10), false);
+	if(!remove && !win.classList.contains('de-win') &&
+	  (el = $q('.de-win-active.de-win-fixed:not(#de-win-' + name + ')', win.parentNode)))
+	{
+		toggleWindow(el.id.substr(7), false);
 	}
 	if(!isUpd && Cfg.animation && body.hasChildNodes()) {
 		nav.animEvent(win, function(node) {
 			showWindow(node, body, name, isUpd, remove, data);
 			name = isUpd = remove = data = null;
 		});
-		win.className = 'de-window de-window-close';
+		win.classList.remove('de-win-open');
+		win.classList.add('de-win-close');
 	} else {
 		showWindow(win, body, name, isUpd, remove, data);
 	}
-	return !remove;
 }
 
 function showWindow(win, body, name, isUpd, remove, data) {
@@ -1753,12 +1849,19 @@ function showWindow(win, body, name, isUpd, remove, data) {
 	}
 	body.innerHTML = '';
 	if(remove) {
-		win.className = 'de-window';
+		win.classList.remove('de-win-active');
+		win.classList.remove('de-win-close');
 		win.style.display = 'none';
+		if(!Cfg.expandPanel && !$c('de-win-active', doc)) {
+			$id('de-panel').lastChild.style.display = 'none';
+		}
 		return;
 	}
-	win.className = 'de-window de-window-active';
+	win.classList.add('de-win-active');
 	win.style.display = '';
+	if(!Cfg.expandPanel) {
+		$id('de-panel').lastChild.style.display = '';
+	}
 	switch(name) {
 	case 'fav':
 		if(data) {
@@ -1768,7 +1871,7 @@ function showWindow(win, body, name, isUpd, remove, data) {
 		readFav().then(fav => {
 			showFavoriteTable(body, fav);
 			if(!isUpd && Cfg.animation) {
-				win.classList.add('de-window-open');
+				win.classList.add('de-win-open');
 			}
 		});
 		return;
@@ -1777,7 +1880,7 @@ function showWindow(win, body, name, isUpd, remove, data) {
 	case 'vid': showVideosTable(body);
 	}
 	if(!isUpd && Cfg.animation) {
-		win.classList.add('de-window-open');
+		win.classList.add('de-win-open');
 	}
 }
 
@@ -1818,7 +1921,7 @@ function showVideosTable(body) {
 			}
 			function onYouTubePlayerAPIReady() {
 				window.de_addVideoEvents =
-					addEvents.bind(document.querySelector('.de-window-body > .de-video-obj'));
+					addEvents.bind(document.querySelector('#de-win-vid > .de-win-body > .de-video-obj'));
 				window.de_addVideoEvents();
 			}
 			function addEvents() {
@@ -2607,7 +2710,7 @@ function getCfgCommon() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-common'}, [
 		optSel('scriptStyle', true, function() {
 			saveCfg('scriptStyle', this.selectedIndex);
-			$id('de-main').lang = $id('de-qarea').firstChild.nextSibling.lang = getThemeLang();
+			$id('de-main').lang = $q('#de-win-reply > .de-win-head', doc).lang = getThemeLang();
 		}),
 		$New('div', null, [
 			lBox('userCSS', false, updateCSS),
@@ -2619,10 +2722,6 @@ function getCfgCommon() {
 				});
 			})
 		]),
-		lBox('attachPanel', true, function() {
-			toggleWindow('cfg', false);
-			updateCSS();
-		}),
 		lBox('panelCounter', true, updateCSS),
 		lBox('rePageTitle', true, null),
 		$if(nav.Anim, lBox('animation', true, null)),
@@ -2906,7 +3005,7 @@ function $alert(txt, id, wait) {
 
 function showMenu(el, html, inPanel, onclick) {
 	var y, pos, menu, cr = el.getBoundingClientRect();
-	if(Cfg.attachPanel && inPanel) {
+	if(inPanel) {
 		pos = 'fixed';
 		y = 'bottom: 25';
 	} else {
@@ -3163,8 +3262,7 @@ HotKeys.prototype = {
 		} else if(kc === 0x801B) { // ESC (txt)
 			e.target.blur();
 		} else {
-			var post, idx, expand = null,
-				globIdx = this.gKeys.indexOf(kc);
+			var post, idx, globIdx = this.gKeys.indexOf(kc);
 			switch(globIdx) {
 			case 2: // Quick reply
 				if(pr.form) {
@@ -3195,10 +3293,10 @@ HotKeys.prototype = {
 				pr.subm.click();
 				break;
 			case 6: // Open/close "Favorites"
-				expand = toggleWindow('fav', false);
+				toggleWindow('fav', false);
 				break;
 			case 7: // Open/close "Hidden"
-				expand = toggleWindow('hid', false);
+				toggleWindow('hid', false);
 				break;
 			case 8: // Open/close panel
 				$disp($id('de-panel').lastChild);
@@ -3208,7 +3306,7 @@ HotKeys.prototype = {
 				updateCSS();
 				break;
 			case 10: // Open/close "Settings"
-				expand = toggleWindow('cfg', false);
+				toggleWindow('cfg', false);
 				break;
 			case 11: // Expand current image
 				post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
@@ -3254,7 +3352,7 @@ HotKeys.prototype = {
 				}
 				break;
 			case 18: // Open/close "Videos"
-				expand = toggleWindow('vid', false);
+				toggleWindow('vid', false);
 				break;
 			case -1:
 				if(isThr) {
@@ -3302,9 +3400,6 @@ HotKeys.prototype = {
 				var scrollToThr = !isThr && (globIdx === 0 || globIdx === 1);
 				this._scroll(this._getFirstVisPost(scrollToThr, false),
 					globIdx === 0 || idx === 0, scrollToThr);
-			}
-			if(expand !== null && !Cfg.expandPanel) {
-				$id('de-panel').lastChild.style.display = expand ? '' : 'none';
 			}
 		}
 		e.stopPropagation();
@@ -3941,8 +4036,9 @@ function loadDocFiles(imgOnly) {
 		}
 	});
 	if(!imgOnly) {
-		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, #de-qarea, .de-refmap, .de-thread-buttons,' +
-			' .de-video-obj, link[rel="alternate stylesheet"], script, ' + aib.qPostForm, dc), $del);
+		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thread-buttons, ' +
+			'.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' +
+			aib.qPostForm, dc), $del);
 		$each($T('a', dc), function(el) {
 			var num, tc = el.textContent;
 			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && (num in pByNum)) {
@@ -4173,7 +4269,7 @@ Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
 		var node = this.parentNode,
 			exp = node.className === 'de-video-obj';
 		node.className = exp ? 'de-video-obj de-video-expanded' : 'de-video-obj';
-		if(node.parentNode.id === 'de-window-vid') {
+		if(node.parentNode.parentNode.id === 'de-win-vid') {
 			node = node.nextSibling.nextSibling.nextSibling;
 			node.style.maxWidth = (exp ? 888 : +Cfg.YTubeWidth + 40) + 'px';
 			node.style.maxHeight =
@@ -5864,7 +5960,7 @@ function PostForm(form, ignoreForm, dc) {
 	this.subj = $x(p + '(@name="field3" or @name="sub" or @name="subject" or @name="internal_s" or @name="nya3" or @name="kasumi")]', form);
 	this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
 	this.gothr = aib.qPostRedir && (p = $q(aib.qPostRedir, form)) && $parent(p, 'TR');
-	this.pForm = $New('div', {'id': 'de-pform', 'class': 'de-window-body'}, [this.form, this.oeForm]);
+	this.pForm = $New('div', {'id': 'de-pform', 'class': 'de-win-body'}, [this.form, this.oeForm]);
 	dForm.el.insertAdjacentHTML('beforebegin',
 		'<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
 	this.pArea[0] = dForm.el.previousSibling;
@@ -5875,88 +5971,39 @@ function PostForm(form, ignoreForm, dc) {
 	this.pArea[1] = el.nextSibling;
 	this._pBtn[1] = this.pArea[1].firstChild;
 	this._pBtn[1].firstElementChild.onclick = this.showMainReply.bind(this, true);
-	this.qArea = $add('<div style="display: none; ' + Cfg.qReplyX + '; ' + Cfg.qReplyY +
-		';" id="de-qarea" class="' + aib.cReply +
-		(Cfg.hangQReply ? ' de-qarea-hanging' : ' de-qarea-inline') + '"></div>');
+	this.qArea = $add('<div style="display: none; ' + Cfg.replyWinX + '; ' + Cfg.replyWinY +
+		'; z-index: ' + ++topWinZ + ';" id="de-win-reply" class="' + aib.cReply +
+		(Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost') + '"></div>');
 	this.isBottom = Cfg.addPostForm === 1;
 	this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 	el = this.qArea;
 	el.insertAdjacentHTML('beforeend',
 		'<div class="de-resizer-top"></div>' +
-		'<div' + (Cfg.hangQReply ? ' class="de-window-head"' : '') + '>' +
-			'<span class="de-window-title"></span>' +
-			'<span class="de-window-buttons">' +
-				'<span class="de-btn-toggle" title="' + Lng.toggleQReply[lang] + '"></span>' +
-				'<span class="de-btn-close" title="' + Lng.closeQReply[lang] + '"></span>' +
-			'</span></div>' +
+		'<div class="de-win-head">' +
+			'<span class="de-win-title"></span>' +
+			'<span class="de-win-buttons">' +
+				'<span class="de-btn-toggle" title="' + Lng.toggleReply[lang] + '"></span>' +
+				'<span class="de-btn-close" title="' + Lng.closeReply[lang] + '"></span></span></div>' +
 		'<div class="de-resizer-left"></div>' +
 		'<div class="de-resizer-right"></div>' +
 		'<div class="de-resizer-bottom"></div>');
 	el = el.firstChild.nextSibling;
 	el.lang = getThemeLang();
-	el.addEventListener('mousedown', {
-		_el: this.qArea,
-		_elStyle: this.qArea.style,
-		_oldX: 0,
-		_oldY: 0,
-		_X: 0,
-		_Y: 0,
-		handleEvent(e) {
-			if(!Cfg.hangQReply) {
-				return;
-			}
-			var curX = e.clientX,
-				curY = e.clientY;
-			switch(e.type) {
-			case 'mousedown':
-				this._oldX = curX;
-				this._oldY = curY;
-				this._X = Cfg.qReplyX;
-				this._Y = Cfg.qReplyY;
-				doc.body.addEventListener('mousemove', this);
-				doc.body.addEventListener('mouseup', this);
-				$pd(e);
-				return;
-			case 'mousemove':
-				var maxX = Post.sizing.wWidth - this._el.offsetWidth,
-					maxY = Post.sizing.wHeight - this._el.offsetHeight - 25,
-					cr = this._el.getBoundingClientRect(),
-					x = cr.left + curX - this._oldX,
-					y = cr.top + curY - this._oldY;
-				this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? 'right: 0' :
-					x < 0 || curX < this._oldX && x < 20 ? 'left: 0' :
-					'left: ' + x + 'px';
-				this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? 'bottom: 25px' :
-					y < 0 || curY < this._oldY && y < 20 ? 'top: 0' :
-					'top: ' + y + 'px';
-				this._elStyle.cssText = this._X + '; ' + this._Y;
-				this._oldX = curX;
-				this._oldY = curY;
-				return;
-			default: // mouseup
-				doc.body.removeEventListener('mousemove', this);
-				doc.body.removeEventListener('mouseup', this);
-				saveCfg('qReplyX', this._X);
-				saveCfg('qReplyY', this._Y);
-			}
-		}
-	});
+	makeDraggable(this.qArea, el, 'reply');
 	el = el.lastChild;
 	el.firstChild.onclick = () => {
-		var node = this.qArea;
-		toggleCfg('hangQReply');
-		if(Cfg.hangQReply) {
-			node.className = aib.cReply + ' de-qarea-hanging';
-			node = node.firstChild.nextSibling;
-			node.className = 'de-window-head';
+		toggleCfg('replyWinDrag');
+		if(Cfg.replyWinDrag) {
+			this.qArea.className = aib.cReply + ' de-win';
+			if(this.qArea.style.zIndex < topWinZ) {
+				this.qArea.style.zIndex = ++topWinZ;
+			}
 		} else {
-			node.className = aib.cReply + ' de-qarea-inline';
-			node = node.firstChild.nextSibling;
-			node.removeAttribute('class');
+			this.qArea.className = aib.cReply + ' de-win-inpost';
 			this.txta.focus();
 		}
 	};
-	el.lastChild.onclick = this.closeQReply.bind(this);
+	el.lastChild.onclick = this.closeReply.bind(this);
 	if(aib.tire) {
 		$each($Q('input[type="hidden"]', dForm.el), $del);
 		dForm.el.appendChild($c('userdelete', doc.body));
@@ -6344,10 +6391,13 @@ PostForm.prototype = {
 				}
 			}
 		} else if(closeReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
-			this.closeQReply();
+			this.closeReply();
 			return;
 		}
 		$after(post.wrap, this.qArea);
+		if(this.qArea.classList.contains('de-win') && this.qArea.style.zIndex < topWinZ) {
+			this.qArea.style.zIndex = ++topWinZ;
+		}
 		if(!isThr) {
 			this._toggleQuickReply(qNum);
 		}
@@ -6379,11 +6429,11 @@ PostForm.prototype = {
 		if(temp.length > 27) {
 			temp = temp.substr(0, 30) + '\u2026';
 		}
-		$c('de-window-title', this.qArea).textContent = temp || '#' + pNum;
+		$c('de-win-title', this.qArea).textContent = temp || '#' + pNum;
 		this.lastQuickPNum = pNum;
 	},
 	showMainReply(isBottom, evt) {
-		this.closeQReply();
+		this.closeReply();
 		if(!aib.t) {
 			this.tNum = false;
 			this.refreshCapImg(false);
@@ -6400,7 +6450,7 @@ PostForm.prototype = {
 			$pd(evt);
 		}
 	},
-	closeQReply() {
+	closeReply() {
 		if(this.isQuick) {
 			this.isQuick = false;
 			this.lastQuickPNum = -1;
@@ -6886,10 +6936,10 @@ FormResizer.prototype = {
 		switch(e.type) {
 		case 'mousedown':
 			switch(this.dir) {
-			case 'top': val = Cfg.qReplyX + '; bottom: ' + (maxY - cr.bottom) + 'px'; break;
-			case 'bottom': val = Cfg.qReplyX + '; top: ' + cr.top + 'px'; break;
-			case 'left': val = 'right: ' + (maxX - cr.right) + 'px; ' + Cfg.qReplyY; break;
-			case 'right': val = 'left: ' + cr.left + 'px; ' + Cfg.qReplyY;
+			case 'top': val = Cfg.replyWinX + '; bottom: ' + (maxY - cr.bottom) + 'px'; break;
+			case 'bottom': val = Cfg.replyWinX + '; top: ' + cr.top + 'px'; break;
+			case 'left': val = 'right: ' + (maxX - cr.right) + 'px; ' + Cfg.replyWinY; break;
+			case 'right': val = 'left: ' + cr.left + 'px; ' + Cfg.replyWinY;
 			}
 			this.qaStyle.cssText = val;
 			doc.body.addEventListener('mousemove', this);
@@ -6918,14 +6968,14 @@ FormResizer.prototype = {
 			doc.body.removeEventListener('mouseup', this);
 			if(this.vertical) {
 				saveCfg('textaHeight', parseInt(this.txStyle.height, 10));
-				saveCfg('qReplyY', cr.top < 1 ? 'top: 0' :
+				saveCfg('replyWinY', cr.top < 1 ? 'top: 0' :
 					cr.bottom > maxY - 26 ? 'bottom: 25px' : 'top: ' + cr.top + 'px');
 			} else {
 				saveCfg('textaWidth', parseInt(this.txStyle.width, 10));
-				saveCfg('qReplyX', cr.left < 1 ? 'left: 0' :
+				saveCfg('replyWinX', cr.left < 1 ? 'left: 0' :
 					cr.right > maxX - 1 ? 'right: 0' : 'left: ' + cr.left + 'px');
 			}
-			this.qaStyle.cssText = Cfg.qReplyX + '; ' + Cfg.qReplyY;
+			this.qaStyle.cssText = Cfg.replyWinX + '; ' + Cfg.replyWinY;
 		}
 	}
 };
@@ -7073,7 +7123,7 @@ function checkUpload(dc) {
 			pByNum[pr.tNum].thr.load(visPosts, false, false).then(() => closeAlert($id('de-alert-upload')));
 		}
 	}
-	pr.closeQReply();
+	pr.closeReply();
 	pr.refreshCapImg(false);
 	pr.filesCount = 0;
 }
@@ -8173,7 +8223,7 @@ function Post(el, thr, num, count, isOp, prev, isLight) {
 		if(!aib.t) {
 			html += '<span class="de-btn-expthr" de-menu="expand"></span>';
 		}
-		html += '<span class="de-btn-fav" title="' + Lng.addFav[lang] + '"></span>';
+		html += '<span class="de-btn-fav"></span>';
 	}
 	this.sage = aib.getSage(el);
 	if(this.sage) {
@@ -8432,6 +8482,10 @@ Post.prototype = {
 			if(!isOutEvent) {
 				quotetxt = $txtSelect();
 			}
+			return;
+		case 'de-btn-fav':
+		case 'de-btn-fav-sel':
+			this._addButtonTitle(el);
 			return;
 		case 'de-menu':
 		case 'de-menu-item':
@@ -8803,7 +8857,9 @@ Post.prototype = {
 		case 'de-btn-hide':
 		case 'de-btn-hide-user': el.title = Lng.togglePost[lang]; return;
 		case 'de-btn-expthr': el.title = Lng.expandThrd[lang]; return;
-		case 'de-btn-rep': el.title = Lng.replyToPost[lang];
+		case 'de-btn-rep': el.title = Lng.replyToPost[lang]; return;
+		case 'de-btn-fav': el.title = Lng.addFav[lang]; return;
+		case 'de-btn-fav-sel': el.title = Lng.delFav[lang];
 		}
 	},
 	_addMenu(el) {
@@ -9809,7 +9865,7 @@ Thread.prototype = {
 				smartScroll = false;
 			}
 		}
-		pr.closeQReply();
+		pr.closeReply();
 		$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 		if(!this.loadedOnce) {
 			if(op.trunc) {
@@ -10093,7 +10149,7 @@ Thread.prototype = {
 				return;
 			}
 			if((f = f[aib.b][this.op.num])) {
-				var el = $id('de-window-fav');
+				var el = $id('de-win-fav');
 				if(el) {
 					el = $q('.de-fav-current > .de-entry[de-num="' + this.op.num + '"] .de-fav-inf-old', el);
 					el.textContent = this.pcount;
@@ -10582,7 +10638,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			iich: { value: true },
 
 			css: { get() {
-				return `${this.t ? '#de-main { margin-top: ' + (Cfg.attachPanel ? '-37' : '-55') + 'px; }\
+				return `${this.t ? '#de-main { margin-top: -37px; }\
 					.logo { margin-bottom: 14px; }' : ''}`;
 			} },
 			init: { value() {
@@ -10825,7 +10881,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return el.parentNode;
 			} },
 			cssEn: { get() {
-				return `.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], .de-qarea-hanging .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }
+				return `.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }
 				.captcha-image > img { cursor: pointer; }
 				.de-abtn { transition: none; }
 				#de-txt-panel { font-size: 16px !important; }
@@ -10941,8 +10997,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			getTNum: { value(op) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
-			cssEn: { value: '.de-cfg-body, .de-window { font-family: arial; }\
-				.ftbl { width: auto; margin: 0; }\
+			cssEn: { value: '.ftbl { width: auto; margin: 0; }\
 				.reply { background: #f0e0d6; }\
 				span { font-size: inherit; }' },
 			docExt: { value: '.htm' },
@@ -11580,7 +11635,7 @@ DelForm.prototype = {
 			if(btn) {
 				btn.onclick = e => {
 					$pd(e);
-					pr.closeQReply();
+					pr.closeReply();
 					$alert(Lng.deleting[lang], 'delete', true);
 					spawn(html5Submit, this.el)
 						.then(checkDelete, e => $alert(getErrorMessage(e), 'delete', false));
@@ -11593,7 +11648,7 @@ DelForm.prototype = {
 			);
 			this.el.target = 'de-iframe-dform';
 			this.el.onsubmit = function() {
-				pr.closeQReply();
+				pr.closeReply();
 				$alert(Lng.deleting[lang], 'deleting', true);
 			};
 		}
@@ -12136,22 +12191,29 @@ function scriptCSS() {
 
 	// Windows
 	var p, x = '\
-	.de-btn-close::after { content: "\u2716"; }\
-	.de-btn-toggle::after { content: "\u2750"; }\
-	.de-window textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
-	.de-window .de-window-buttons > span:hover, .de-qarea-hanging .de-window-buttons > span:hover { color: #ff6; }\
-	.de-window-buttons { float: right; margin-top: ' + (nav.Chrome ? -1 : -4) + 'px; font: normal 16px arial; cursor: pointer; }\
-	.de-window-buttons > span { margin-right: 4px; }\
-	#de-window-cfg { padding-right: 20px; }\
-	#de-window-cfg > .de-window-body { float: left; width: auto; min-width: 0; padding: 0; border: none; }\
-	#de-window-cfg input[type="button"] { padding: 0 2px; margin: 0 1px; height: 24px; }\
-	#de-window-fav > .de-window-body, #de-window-hid > .de-window-body, #de-window-vid > .de-window-body { font-size: 16px; padding: 8px; border: 1px solid gray; }\
-	#de-window-fav input[type="checkbox"] { margin-left: 14px; }\
-	.de-window-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
-	.de-window-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
-	.de-window-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
-	.de-window-head:lang(de), #de-panel:lang(de) { background: #777; }\
-	.de-window-title { font-weight: bold; margin-left: 4px; }' +
+	.de-btn-close::after { content: "\u2716"; font-size: 15px; }\
+	.de-btn-toggle::after { content: "\u25AC"; font-size: 13px; }\
+	.de-win > .de-win-head { cursor: move; }\
+	.de-win .de-btn-toggle::after { content: "\u2750"; font-size: 15px; }\
+	.de-win .de-resizer-bottom { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\
+	.de-win .de-resizer-left { position: absolute; margin: -3px; bottom: 3px; top: 3px; width: 6px; cursor: ew-resize; }\
+	.de-win .de-resizer-right { position: absolute; margin: -3px; bottom: 3px; top: 3px; display: inline-block; width: 6px; cursor: ew-resize; }\
+	.de-win .de-resizer-top { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\
+	.de-win-body { display: inline-block; vertical-align: middle; }\
+	.de-win-buttons { float: right; margin-top: -3px; cursor: pointer; }\
+	.de-win-buttons > span { margin-right: 4px; }\
+	.de-win-buttons > span:hover { color: #f66; }\
+	#de-win-cfg, #de-win-hid, #de-win-fav, #de-win-vid { position: fixed; max-height: 100%; overflow-x: visible; overflow-y: auto; }\
+	#de-win-cfg > .de-win-body { float: left; width: auto; min-width: 0; padding: 0; border: none; }\
+	#de-win-cfg input[type="button"] { padding: 0 2px; margin: 0 1px; height: 24px; }\
+	#de-win-cfg textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
+	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { font-size: 16px; padding: 10px; border: 1px solid gray; }\
+	#de-win-fav input[type="checkbox"] { margin-left: 14px; }\
+	.de-win-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\
+	.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
+	.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
+	.de-win-head:lang(de), #de-panel:lang(de) { background: #777; }\
+	.de-win-title { font: bold 14px arial; margin-left: 32px; }' +
 
 	// Settings window
 	'.de-block { display: block; }\
@@ -12190,7 +12252,8 @@ function scriptCSS() {
 	#de-spell-rowmeter:lang(de) { background-color: #777; }' +
 
 	// Main panel
-	'#de-panel-logo { margin-right: 3px; cursor: pointer; }\
+	'#de-panel { position: fixed; right: 0; bottom: 0; }\
+	#de-panel-logo { margin-right: 3px; cursor: pointer; }\
 	#de-panel { height: 25px; z-index: 9999; border-radius: 15px 0 0 0; cursor: default;}\
 	#de-panel-btns { display: inline-block; padding: 0 0 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\
 	#de-panel-btns:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
@@ -12226,8 +12289,6 @@ function scriptCSS() {
 
 	if(Cfg.disabled) {
 		$css(x).id = 'de-css';
-		$css('').id = 'de-css-dynamic';
-		updateCSS();
 		return;
 	}
 
@@ -12323,15 +12384,15 @@ function scriptCSS() {
 		@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
 		@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\
 		@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\
-		@keyframes de-window-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
-		@keyframes de-window-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
+		@keyframes de-win-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
+		@keyframes de-win-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
 		.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\
 		.de-open { animation: de-open .15s ease-out both; }\
 		.de-close { animation: de-close .15s ease-in both; }\
 		.de-blink { animation: de-blink .7s ease-in-out both; }\
 		.de-post-new { animation: de-post-new .2s ease-out both; }\
-		.de-window-open { animation: de-window-open .2s ease-out backwards; }\
-		.de-window-close { animation: de-window-close .2s ease-in both; }' : '') +
+		.de-win-open { animation: de-win-open .2s ease-out backwards; }\
+		.de-win-close { animation: de-win-close .2s ease-in both; }' : '') +
 
 	// Embedders
 	cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') +
@@ -12390,21 +12451,15 @@ function scriptCSS() {
 	.de-parea-btn-close::after { content: "' + Lng.hideForm[lang] + '" }\
 	.de-parea-btn-thrd::after { content: "' + Lng.makeThrd[lang] + '" }\
 	.de-parea-btn-reply::after { content: "' + Lng.makeReply[lang] + '" }\
-	#de-pform { display: inline-block; vertical-align: middle; }\
 	#de-pform > form { padding: 0; margin: 0; border: none; }\
 	#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }\
-	#de-qarea { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\
-	#de-qarea > div:nth-child(2) { text-align: center; }\
-	.de-qarea-hanging { position: fixed !important; z-index: 9990; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\
-	.de-qarea-hanging > .de-window-head { cursor: move; }\
-	.de-qarea-hanging > #de-pform { padding: 2px 2px 0 1px; border: 1px solid gray; }\
-	.de-qarea-hanging .de-textarea { min-width: 98% !important; resize: none !important; }\
-	.de-qarea-hanging #de-resizer-text { display: none !important; }\
-	.de-qarea-hanging .de-resizer-bottom { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\
-	.de-qarea-hanging .de-resizer-left { position: absolute; margin: -3px; bottom: 3px; top: 3px; width: 6px; cursor: ew-resize; }\
-	.de-qarea-hanging .de-resizer-right { position: absolute; margin: -3px; bottom: 3px; top: 3px; display: inline-block; width: 6px; cursor: ew-resize; }\
-	.de-qarea-hanging .de-resizer-top { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\
-	.de-qarea-inline { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\
+	.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\
+	.de-win-inpost > .de-win-head { background: none; color: inherit; }\
+	#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\
+	#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\
+	#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\
+	#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\
+	#de-win-reply.de-win #de-resizer-text { display: none !important; }\
 	#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\
 	.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }' +
 
@@ -12473,20 +12528,8 @@ function scriptCSS() {
 
 function updateCSS() {
 	var x = '';
-	if(Cfg.attachPanel) {
-		x += '.de-window { position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto; }\
-		#de-window-fav, #de-window-hid { overflow-y: scroll; }\
-		#de-panel { position: fixed; right: 0; bottom: 0; }'
-	} else {
-		x += '.de-window { clear: both; float: right; }\
-		#de-panel { float: right; clear: both; }'
-	}
-	if(Cfg.disabled) {
-		$id('de-css-dynamic').textContent = x;
-		return;
-	}
 	if(Cfg.maskImgs) {
-		x += '.de-img-pre, .de-video-obj, .thumb, .ca_thumb, .fileThumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
+		x += '.de-img-pre, .de-video-obj, .thumb, .ca_thumb, .fileThumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: .07 !important; }\
 			.de-img-pre:hover, .de-video-obj:hover, .thumb:hover, .ca_thumb:hover, .fileThumb:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
 	}
 	if(Cfg.delImgNames) {
