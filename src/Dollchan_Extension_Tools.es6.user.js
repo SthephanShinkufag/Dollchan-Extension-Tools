@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '4fcbf98';
+var commit = '1d0878d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1514,7 +1514,7 @@ function* readFavoritesPosts() {
 		}
 	}
 	if(update) {
-		saveFavorites(fav);
+		setStored('DESU_Favorites', JSON.stringify(fav));
 	}
 }
 
@@ -1713,6 +1713,15 @@ function addPanel(formEl) {
 	panel.addEventListener('click', evtObject, true);
 	panel.addEventListener('mouseover', evtObject);
 	panel.addEventListener('mouseout', evtObject);
+	if(locStorage['__de-fav-open'] === '1') {
+		toggleWindow('fav', false, null, true);
+	}
+}
+
+function updateWinZ(style) {
+	if(style.zIndex < topWinZ) {
+		style.zIndex = ++topWinZ;
+	}
 }
 
 function makeDraggable(win, head, name) {
@@ -1737,9 +1746,8 @@ function makeDraggable(win, head, name) {
 				this._X = Cfg[name + 'WinX'];
 				this._Y = Cfg[name + 'WinY'];
 				if(this._Z < topWinZ) {
-					this._Z = ++topWinZ;
+					this._Z = this._elStyle.zIndex = ++topWinZ;
 				}
-				this._elStyle.zIndex = this._Z;
 				doc.body.addEventListener('mousemove', this);
 				doc.body.addEventListener('mouseup', this);
 				$pd(e);
@@ -1770,7 +1778,7 @@ function makeDraggable(win, head, name) {
 	});
 }
 
-function toggleWindow(name, isUpd, data) {
+function toggleWindow(name, isUpd, data, isSync) {
 	var el, main = $id('de-main'),
 		win = $id('de-win-' + name),
 		isActive = win && win.classList.contains('de-win-active');
@@ -1800,14 +1808,10 @@ function toggleWindow(name, isUpd, data) {
 			var node = e.target.parentNode.parentNode.parentNode,
 				name = node.id.substr(7);
 			toggleCfg(name + 'WinDrag');
-			if(node.style.zIndex < topWinZ) {
-				++topWinZ;
-			}
 			if(Cfg[name + 'WinDrag']) {
 				node.classList.remove('de-win-fixed');
 				node.classList.add('de-win');
-				node.style.cssText = Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] +
-					'; z-index: ' + topWinZ + ';';
+				node.style.cssText = Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] + ';';
 			} else {
 				var temp = $q('.de-win-active.de-win-fixed', win.parentNode);
 				if(temp) {
@@ -1815,35 +1819,34 @@ function toggleWindow(name, isUpd, data) {
 				}
 				node.classList.remove('de-win');
 				node.classList.add('de-win-fixed');
-				node.style.cssText = 'right: 0; bottom: 25px; z-index: ' + topWinZ + ';';
+				node.style.cssText = 'right: 0; bottom: 25px;';
 			}
+			updateWinZ(node.style);
 		};
 		makeDraggable(win, win.firstChild, name);
 	}
-	if(win.style.zIndex < topWinZ) {
-		win.style.zIndex = ++topWinZ;
-	}
-	var body = win.lastChild,
-		remove = !isUpd && isActive;
+	updateWinZ(win.style);
+	var remove = !isUpd && isActive;
 	if(!remove && !win.classList.contains('de-win') &&
 	  (el = $q('.de-win-active.de-win-fixed:not(#de-win-' + name + ')', win.parentNode)))
 	{
 		toggleWindow(el.id.substr(7), false);
 	}
-	if(!isUpd && Cfg.animation && body.hasChildNodes()) {
+	var isAnim = !isUpd && !isSync && Cfg.animation;
+	if(isAnim && win.lastChild.hasChildNodes()) {
 		nav.animEvent(win, function(node) {
-			showWindow(node, body, name, isUpd, remove, data);
-			name = isUpd = remove = data = null;
+			showWindow(node, name, false, remove, data, false, Cfg.animation);
+			name = remove = data = null;
 		});
 		win.classList.remove('de-win-open');
 		win.classList.add('de-win-close');
 	} else {
-		showWindow(win, body, name, isUpd, remove, data);
+		showWindow(win, name, isUpd, remove, data, isSync, isAnim);
 	}
 }
 
-function showWindow(win, body, name, isUpd, remove, data) {
-	var temp, cfgTabId;
+function showWindow(win, name, isUpd, remove, data, isSync, isAnim) {
+	var temp, cfgTabId, body = win.lastChild;
 	if(name === 'cfg' && !remove && (temp = $q('.de-cfg-tab-back[selected="true"] > .de-cfg-tab', body))) {
 		cfgTabId = temp.getAttribute('info');
 	}
@@ -1852,6 +1855,9 @@ function showWindow(win, body, name, isUpd, remove, data) {
 		win.classList.remove('de-win-active');
 		win.classList.remove('de-win-close');
 		win.style.display = 'none';
+		if(!isSync) {
+			locStorage['__de-fav-open'] = 0;
+		}
 		if(!Cfg.expandPanel && !$c('de-win-active', doc)) {
 			$id('de-panel').lastChild.style.display = 'none';
 		}
@@ -1859,6 +1865,10 @@ function showWindow(win, body, name, isUpd, remove, data) {
 	}
 	win.classList.add('de-win-active');
 	win.style.display = '';
+	if(!isSync) {
+		locStorage['__de-fav-open'] = 0;
+		locStorage['__de-fav-open'] = 1;
+	}
 	if(!Cfg.expandPanel) {
 		$id('de-panel').lastChild.style.display = '';
 	}
@@ -1870,7 +1880,7 @@ function showWindow(win, body, name, isUpd, remove, data) {
 		}
 		readFav().then(fav => {
 			showFavoriteTable(body, fav);
-			if(!isUpd && Cfg.animation) {
+			if(isAnim) {
 				win.classList.add('de-win-open');
 			}
 		});
@@ -1879,7 +1889,7 @@ function showWindow(win, body, name, isUpd, remove, data) {
 	case 'hid': showHiddenTable(body); break;
 	case 'vid': showVideosTable(body);
 	}
-	if(!isUpd && Cfg.animation) {
+	if(isAnim) {
 		win.classList.add('de-win-open');
 	}
 }
@@ -1900,15 +1910,11 @@ function showVideosTable(body) {
 	body.innerHTML = '<div de-disableautoplay class="de-video-obj"></div>' +
 		'<center>' +
 			'<a class="de-abtn" id="de-video-btn-prev" href="#" title="' + Lng.prevVideo[lang] + '">' +
-				'&#x25C0;' +
-			'</a> ' +
+				'&#x25C0;</a> ' +
 			'<a class="de-abtn" id="de-video-btn-hide" href="#" title="' + Lng.hideLnkList[lang] + '">' +
-				'&#x25B2;' +
-			'</a> ' +
+				'&#x25B2;</a> ' +
 			'<a class="de-abtn" id="de-video-btn-next" href="#" title="' + Lng.nextVideo[lang] + '">' +
-				'&#x25B6;' +
-			'</a>' +
-		'</center>' +
+				'&#x25B6;</a></center>' +
 		'<div id="de-video-list" style="max-width: ' + (+Cfg.YTubeWidth + 40) +
 			'px; max-height: ' + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 110) + 'px;"></div>';
 	var linkList = body.lastChild;
@@ -5995,9 +6001,7 @@ function PostForm(form, ignoreForm, dc) {
 		toggleCfg('replyWinDrag');
 		if(Cfg.replyWinDrag) {
 			this.qArea.className = aib.cReply + ' de-win';
-			if(this.qArea.style.zIndex < topWinZ) {
-				this.qArea.style.zIndex = ++topWinZ;
-			}
+			updateWinZ(this.qArea.style);
 		} else {
 			this.qArea.className = aib.cReply + ' de-win-inpost';
 			this.txta.focus();
@@ -6395,8 +6399,8 @@ PostForm.prototype = {
 			return;
 		}
 		$after(post.wrap, this.qArea);
-		if(this.qArea.classList.contains('de-win') && this.qArea.style.zIndex < topWinZ) {
-			this.qArea.style.zIndex = ++topWinZ;
+		if(this.qArea.classList.contains('de-win')) {
+			updateWinZ(this.qArea.style);
 		}
 		if(!isThr) {
 			this._toggleQuickReply(qNum);
@@ -11456,6 +11460,7 @@ function Initialization(checkDomains) {
 				temp.value = val;
 			}
 			break;
+		case '__de-fav-open': toggleWindow('fav', false, null, true); break;
 		case '__de-post': (() => {
 			try {
 				data = JSON.parse(val);
@@ -12192,7 +12197,7 @@ function scriptCSS() {
 	// Windows
 	var p, x = '\
 	.de-btn-close::after { content: "\u2716"; font-size: 15px; }\
-	.de-btn-toggle::after { content: "\u25AC"; font-size: 13px; }\
+	.de-btn-toggle::after { content: "\u29C9"; font-size: 13px; }\
 	.de-win > .de-win-head { cursor: move; }\
 	.de-win .de-btn-toggle::after { content: "\u2750"; font-size: 15px; }\
 	.de-win .de-resizer-bottom { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\

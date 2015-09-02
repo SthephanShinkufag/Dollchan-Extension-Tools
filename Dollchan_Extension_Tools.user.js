@@ -2301,7 +2301,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						}
 					}
 					if (update) {
-						saveFavorites(fav);
+						setStored("DESU_Favorites", JSON.stringify(fav));
 					}
 
 				case 11:
@@ -2596,7 +2596,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "4fcbf98";
+	var commit = "1d0878d";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -3925,6 +3925,15 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		panel.addEventListener("click", evtObject, true);
 		panel.addEventListener("mouseover", evtObject);
 		panel.addEventListener("mouseout", evtObject);
+		if (locStorage["__de-fav-open"] === "1") {
+			toggleWindow("fav", false, null, true);
+		}
+	}
+
+	function updateWinZ(style) {
+		if (style.zIndex < topWinZ) {
+			style.zIndex = ++topWinZ;
+		}
 	}
 
 	function makeDraggable(win, head, name) {
@@ -3949,9 +3958,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						this._X = Cfg[name + "WinX"];
 						this._Y = Cfg[name + "WinY"];
 						if (this._Z < topWinZ) {
-							this._Z = ++topWinZ;
+							this._Z = this._elStyle.zIndex = ++topWinZ;
 						}
-						this._elStyle.zIndex = this._Z;
 						doc.body.addEventListener("mousemove", this);
 						doc.body.addEventListener("mouseup", this);
 						$pd(e);
@@ -3979,7 +3987,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		});
 	}
 
-	function toggleWindow(name, isUpd, data) {
+	function toggleWindow(name, isUpd, data, isSync) {
 		var el,
 		    main = $id("de-main"),
 		    win = $id("de-win-" + name),
@@ -3996,13 +4004,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				var node = e.target.parentNode.parentNode.parentNode,
 				    name = node.id.substr(7);
 				toggleCfg(name + "WinDrag");
-				if (node.style.zIndex < topWinZ) {
-					++topWinZ;
-				}
 				if (Cfg[name + "WinDrag"]) {
 					node.classList.remove("de-win-fixed");
 					node.classList.add("de-win");
-					node.style.cssText = Cfg[name + "WinX"] + "; " + Cfg[name + "WinY"] + "; z-index: " + topWinZ + ";";
+					node.style.cssText = Cfg[name + "WinX"] + "; " + Cfg[name + "WinY"] + ";";
 				} else {
 					var temp = $q(".de-win-active.de-win-fixed", win.parentNode);
 					if (temp) {
@@ -4010,33 +4015,34 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 					node.classList.remove("de-win");
 					node.classList.add("de-win-fixed");
-					node.style.cssText = "right: 0; bottom: 25px; z-index: " + topWinZ + ";";
+					node.style.cssText = "right: 0; bottom: 25px;";
 				}
+				updateWinZ(node.style);
 			};
 			makeDraggable(win, win.firstChild, name);
 		}
-		if (win.style.zIndex < topWinZ) {
-			win.style.zIndex = ++topWinZ;
-		}
-		var body = win.lastChild,
-		    remove = !isUpd && isActive;
+		updateWinZ(win.style);
+		var remove = !isUpd && isActive;
 		if (!remove && !win.classList.contains("de-win") && (el = $q(".de-win-active.de-win-fixed:not(#de-win-" + name + ")", win.parentNode))) {
 			toggleWindow(el.id.substr(7), false);
 		}
-		if (!isUpd && Cfg.animation && body.hasChildNodes()) {
+		var isAnim = !isUpd && !isSync && Cfg.animation;
+		if (isAnim && win.lastChild.hasChildNodes()) {
 			nav.animEvent(win, function (node) {
-				showWindow(node, body, name, isUpd, remove, data);
-				name = isUpd = remove = data = null;
+				showWindow(node, name, false, remove, data, false, Cfg.animation);
+				name = remove = data = null;
 			});
 			win.classList.remove("de-win-open");
 			win.classList.add("de-win-close");
 		} else {
-			showWindow(win, body, name, isUpd, remove, data);
+			showWindow(win, name, isUpd, remove, data, isSync, isAnim);
 		}
 	}
 
-	function showWindow(win, body, name, isUpd, remove, data) {
-		var temp, cfgTabId;
+	function showWindow(win, name, isUpd, remove, data, isSync, isAnim) {
+		var temp,
+		    cfgTabId,
+		    body = win.lastChild;
 		if (name === "cfg" && !remove && (temp = $q(".de-cfg-tab-back[selected=\"true\"] > .de-cfg-tab", body))) {
 			cfgTabId = temp.getAttribute("info");
 		}
@@ -4045,6 +4051,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			win.classList.remove("de-win-active");
 			win.classList.remove("de-win-close");
 			win.style.display = "none";
+			if (!isSync) {
+				locStorage["__de-fav-open"] = 0;
+			}
 			if (!Cfg.expandPanel && !$c("de-win-active", doc)) {
 				$id("de-panel").lastChild.style.display = "none";
 			}
@@ -4052,6 +4061,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}
 		win.classList.add("de-win-active");
 		win.style.display = "";
+		if (!isSync) {
+			locStorage["__de-fav-open"] = 0;
+			locStorage["__de-fav-open"] = 1;
+		}
 		if (!Cfg.expandPanel) {
 			$id("de-panel").lastChild.style.display = "";
 		}
@@ -4063,7 +4076,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				}
 				readFav().then(function (fav) {
 					showFavoriteTable(body, fav);
-					if (!isUpd && Cfg.animation) {
+					if (isAnim) {
 						win.classList.add("de-win-open");
 					}
 				});
@@ -4075,7 +4088,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			case "vid":
 				showVideosTable(body);
 		}
-		if (!isUpd && Cfg.animation) {
+		if (isAnim) {
 			win.classList.add("de-win-open");
 		}
 	}
@@ -4093,7 +4106,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				src: aib.prot + "//www.youtube.com/player_api"
 			}, null));
 		}
-		body.innerHTML = "<div de-disableautoplay class=\"de-video-obj\"></div>" + "<center>" + "<a class=\"de-abtn\" id=\"de-video-btn-prev\" href=\"#\" title=\"" + Lng.prevVideo[lang] + "\">" + "&#x25C0;" + "</a> " + "<a class=\"de-abtn\" id=\"de-video-btn-hide\" href=\"#\" title=\"" + Lng.hideLnkList[lang] + "\">" + "&#x25B2;" + "</a> " + "<a class=\"de-abtn\" id=\"de-video-btn-next\" href=\"#\" title=\"" + Lng.nextVideo[lang] + "\">" + "&#x25B6;" + "</a>" + "</center>" + "<div id=\"de-video-list\" style=\"max-width: " + (+Cfg.YTubeWidth + 40) + "px; max-height: " + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 110) + "px;\"></div>";
+		body.innerHTML = "<div de-disableautoplay class=\"de-video-obj\"></div>" + "<center>" + "<a class=\"de-abtn\" id=\"de-video-btn-prev\" href=\"#\" title=\"" + Lng.prevVideo[lang] + "\">" + "&#x25C0;</a> " + "<a class=\"de-abtn\" id=\"de-video-btn-hide\" href=\"#\" title=\"" + Lng.hideLnkList[lang] + "\">" + "&#x25B2;</a> " + "<a class=\"de-abtn\" id=\"de-video-btn-next\" href=\"#\" title=\"" + Lng.nextVideo[lang] + "\">" + "&#x25B6;</a></center>" + "<div id=\"de-video-list\" style=\"max-width: " + (+Cfg.YTubeWidth + 40) + "px; max-height: " + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 110) + "px;\"></div>";
 		var linkList = body.lastChild;
 		$before(linkList, $new("script", { type: "text/javascript", text: "\n\t\t(function() {\n\t\t\tif('YT' in window && 'Player' in window.YT) {\n\t\t\t\tonYouTubePlayerAPIReady();\n\t\t\t} else {\n\t\t\t\twindow.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;\n\t\t\t}\n\t\t\tfunction onYouTubePlayerAPIReady() {\n\t\t\t\twindow.de_addVideoEvents =\n\t\t\t\t\taddEvents.bind(document.querySelector('#de-win-vid > .de-win-body > .de-video-obj'));\n\t\t\t\twindow.de_addVideoEvents();\n\t\t\t}\n\t\t\tfunction addEvents() {\n\t\t\t\tvar autoplay = true;\n\t\t\t\tif(this.hasAttribute('de-disableautoplay')) {\n\t\t\t\t\tautoplay = false;\n\t\t\t\t\tthis.removeAttribute('de-disableautoplay');\n\t\t\t\t}\n\t\t\t\tnew YT.Player(this.firstChild, { events: {\n\t\t\t\t\t'onError': gotoNextVideo,\n\t\t\t\t\t'onReady': autoplay ? function(e) {\n\t\t\t\t\t\te.target.playVideo();\n\t\t\t\t\t} : Function.prototype,\n\t\t\t\t\t'onStateChange': function(e) {\n\t\t\t\t\t\tif(e.data === 0) {\n\t\t\t\t\t\t\tgotoNextVideo();\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}});\n\t\t\t}\n\t\t\tfunction gotoNextVideo() {\n\t\t\t\tdocument.getElementById(\"de-video-btn-next\").click();\n\t\t\t}\n\t\t})();\n\t" }));
 		body.addEventListener("click", {
@@ -8395,9 +8408,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			toggleCfg("replyWinDrag");
 			if (Cfg.replyWinDrag) {
 				_this.qArea.className = aib.cReply + " de-win";
-				if (_this.qArea.style.zIndex < topWinZ) {
-					_this.qArea.style.zIndex = ++topWinZ;
-				}
+				updateWinZ(_this.qArea.style);
 			} else {
 				_this.qArea.className = aib.cReply + " de-win-inpost";
 				_this.txta.focus();
@@ -8768,8 +8779,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				return;
 			}
 			$after(post.wrap, this.qArea);
-			if (this.qArea.classList.contains("de-win") && this.qArea.style.zIndex < topWinZ) {
-				this.qArea.style.zIndex = ++topWinZ;
+			if (this.qArea.classList.contains("de-win")) {
+				updateWinZ(this.qArea.style);
 			}
 			if (!isThr) {
 				this._toggleQuickReply(qNum);
@@ -14325,6 +14336,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						temp.value = val;
 					}
 					break;
+				case "__de-fav-open":
+					toggleWindow("fav", false, null, true);break;
 				case "__de-post":
 					(function () {
 						try {
@@ -15174,7 +15187,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 	
 		var p,
-		    x = "\t.de-btn-close::after { content: \"✖\"; font-size: 15px; }\t.de-btn-toggle::after { content: \"▬\"; font-size: 13px; }\t.de-win > .de-win-head { cursor: move; }\t.de-win .de-btn-toggle::after { content: \"❐\"; font-size: 15px; }\t.de-win .de-resizer-bottom { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\t.de-win .de-resizer-left { position: absolute; margin: -3px; bottom: 3px; top: 3px; width: 6px; cursor: ew-resize; }\t.de-win .de-resizer-right { position: absolute; margin: -3px; bottom: 3px; top: 3px; display: inline-block; width: 6px; cursor: ew-resize; }\t.de-win .de-resizer-top { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\t.de-win-body { display: inline-block; vertical-align: middle; }\t.de-win-buttons { float: right; margin-top: -3px; cursor: pointer; }\t.de-win-buttons > span { margin-right: 4px; }\t.de-win-buttons > span:hover { color: #f66; }\t#de-win-cfg, #de-win-hid, #de-win-fav, #de-win-vid { position: fixed; max-height: 100%; overflow-x: visible; overflow-y: auto; }\t#de-win-cfg > .de-win-body { float: left; width: auto; min-width: 0; padding: 0; border: none; }\t#de-win-cfg input[type=\"button\"] { padding: 0 2px; margin: 0 1px; height: 24px; }\t#de-win-cfg textarea { display: block; margin: 2px 0; font: 12px courier new; " + (nav.Presto ? "" : "resize: none !important; ") + "}\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { font-size: 16px; padding: 10px; border: 1px solid gray; }\t#de-win-fav input[type=\"checkbox\"] { margin-left: 14px; }\t.de-win-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\t.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\t.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\t.de-win-head:lang(de), #de-panel:lang(de) { background: #777; }\t.de-win-title { font: bold 14px arial; margin-left: 32px; }" +
+		    x = "\t.de-btn-close::after { content: \"✖\"; font-size: 15px; }\t.de-btn-toggle::after { content: \"⧉\"; font-size: 13px; }\t.de-win > .de-win-head { cursor: move; }\t.de-win .de-btn-toggle::after { content: \"❐\"; font-size: 15px; }\t.de-win .de-resizer-bottom { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\t.de-win .de-resizer-left { position: absolute; margin: -3px; bottom: 3px; top: 3px; width: 6px; cursor: ew-resize; }\t.de-win .de-resizer-right { position: absolute; margin: -3px; bottom: 3px; top: 3px; display: inline-block; width: 6px; cursor: ew-resize; }\t.de-win .de-resizer-top { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\t.de-win-body { display: inline-block; vertical-align: middle; }\t.de-win-buttons { float: right; margin-top: -3px; cursor: pointer; }\t.de-win-buttons > span { margin-right: 4px; }\t.de-win-buttons > span:hover { color: #f66; }\t#de-win-cfg, #de-win-hid, #de-win-fav, #de-win-vid { position: fixed; max-height: 100%; overflow-x: visible; overflow-y: auto; }\t#de-win-cfg > .de-win-body { float: left; width: auto; min-width: 0; padding: 0; border: none; }\t#de-win-cfg input[type=\"button\"] { padding: 0 2px; margin: 0 1px; height: 24px; }\t#de-win-cfg textarea { display: block; margin: 2px 0; font: 12px courier new; " + (nav.Presto ? "" : "resize: none !important; ") + "}\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { font-size: 16px; padding: 10px; border: 1px solid gray; }\t#de-win-fav input[type=\"checkbox\"] { margin-left: 14px; }\t.de-win-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\t.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\t.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\t.de-win-head:lang(de), #de-panel:lang(de) { background: #777; }\t.de-win-title { font: bold 14px arial; margin-left: 32px; }" +
 
 	
 		".de-block { display: block; }\t.de-cfg-body { min-height: 309px; width: 354px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important; box-sizing: content-box; -moz-box-sizing: content-box; }\t.de-cfg-body input[type=\"text\"], .de-cfg-body select { width: auto; padding: 1px 2px; margin: 1px 0; font: 13px sans-serif; }\t.de-cfg-body input[type=\"checkbox\"] { " + (nav.Presto ? "" : "vertical-align: -1px; ") + "margin: 2px 1px; }\t.de-cfg-body label { padding: 0; margin: 0; }\t.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\t.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\t#de-cfg-btns { padding: 3px; font-size: 13px; }\t#de-cfg-bar { width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\t#de-cfg-bar:lang(en) { background-color: #325f9e; }\t#de-cfg-bar:lang(de) { background-color: #777; }\t.de-cfg-depend { padding-left: 17px; }\t.de-cfg-info-data { display: inline-block; padding: 0 7px; width: 162px; height: 238px; overflow-y: auto; border-collapse: separate; border-spacing: 1px; box-sizing: content-box; -moz-box-sizing: content-box; }\t.de-cfg-info-data > tbody > tr > td:first-child { width: 100%; }\t.de-cfg-info-data > tbody > tr > td:last-child { text-align: right; }\t.de-cfg-tab { padding: 4px 3px; border-radius: 4px 4px 0 0; font: bold 12px arial; text-align: center; cursor: default; }\t.de-cfg-tab-back { display: table-cell !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; }\t.de-cfg-tab-back:lang(de) { border-color: #444 !important; }\t.de-cfg-tab-back:lang(fr) { border-color: #121421 !important; }\t.de-cfg-tab-back[selected=\"true\"] { border-bottom: none !important; }\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab { background-color: rgba(0,0,0,.2); }\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:lang(en), .de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:lang(fr) { background: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover { background-color: rgba(99,99,99,.2); }\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover:lang(en), .de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t.de-cfg-tab::" + (nav.Firefox ? "-moz-" : "") + "selection { background: transparent; }\t.de-cfg-unvis { display: none; }\t#de-spell-panel { float: right; }\t#de-spell-panel > a { padding: 0 4px; }\t#de-spell-div { display: table; }\t#de-spell-div > div { display: table-cell; vertical-align: top; }\t#de-spell-edit { padding: 2px !important; width: 323px; height: 194px; max-width: 100%; border: none !important; outline: none !important; }\t#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 196px; text-align: right; color: #fff; font: 12px courier new; }\t#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\t#de-spell-rowmeter:lang(de) { background-color: #777; }" +
