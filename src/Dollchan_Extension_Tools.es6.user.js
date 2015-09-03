@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '1d0878d';
+var commit = 'f2ca139';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -126,19 +126,19 @@ var defaultCfg = {
 	'textaHeight':      115,
 	'replyWinDrag':     0,      // draggable Quick Reply form 
 	'replyWinX':        'right: 0',     // Quick Reply form position
-	'replyWinY':        'bottom: 25px',
+	'replyWinY':        'top: 0',
 	'cfgWinDrag':       0,      // draggable Settings window 
 	'cfgWinX':          'right: 0',     // Settings window position
-	'cfgWinY':          'bottom: 25px',
+	'cfgWinY':          'top: 0',
 	'hidWinDrag':       0,      // draggable Hidden window 
-	'hidWinX':          'right: 0',     // Hidden window  position
-	'hidWinY':          'bottom: 25px',
+	'hidWinX':          'right: 0',     // Hidden window position
+	'hidWinY':          'top: 0',
 	'favWinDrag':       0,      // draggable Favorites window
 	'favWinX':          'right: 0',     // Favorites window position
-	'favWinY':          'bottom: 25px',
+	'favWinY':          'top: 0',
 	'vidWinDrag':       0,      // draggable Video window
 	'vidWinX':          'right: 0',     // Video window position
-	'vidWinY':          'bottom: 25px'
+	'vidWinY':          'top: 0'
 },
 
 Lng = {
@@ -1855,7 +1855,7 @@ function showWindow(win, name, isUpd, remove, data, isSync, isAnim) {
 		win.classList.remove('de-win-active');
 		win.classList.remove('de-win-close');
 		win.style.display = 'none';
-		if(!isSync) {
+		if(!isSync && name === 'fav') {
 			locStorage['__de-fav-open'] = 0;
 		}
 		if(!Cfg.expandPanel && !$c('de-win-active', doc)) {
@@ -1865,7 +1865,7 @@ function showWindow(win, name, isUpd, remove, data, isSync, isAnim) {
 	}
 	win.classList.add('de-win-active');
 	win.style.display = '';
-	if(!isSync) {
+	if(!isSync && name === 'fav') {
 		locStorage['__de-fav-open'] = 0;
 		locStorage['__de-fav-open'] = 1;
 	}
@@ -12196,20 +12196,20 @@ function scriptCSS() {
 
 	// Windows
 	var p, x = '\
-	.de-btn-close::after { content: "\u2716"; font-size: 15px; }\
-	.de-btn-toggle::after { content: "\u29C9"; font-size: 13px; }\
+	.de-btn-close::after { content: "\u2716"; }\
+	.de-btn-toggle::after { content: "\u21E7"; font-weight: bold; }\
 	.de-win > .de-win-head { cursor: move; }\
-	.de-win .de-btn-toggle::after { content: "\u2750"; font-size: 15px; }\
+	.de-win .de-btn-toggle::after { content: "\u21E9"; }\
 	.de-win .de-resizer-bottom { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\
 	.de-win .de-resizer-left { position: absolute; margin: -3px; bottom: 3px; top: 3px; width: 6px; cursor: ew-resize; }\
 	.de-win .de-resizer-right { position: absolute; margin: -3px; bottom: 3px; top: 3px; display: inline-block; width: 6px; cursor: ew-resize; }\
 	.de-win .de-resizer-top { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\
 	.de-win-body { display: inline-block; vertical-align: middle; }\
-	.de-win-buttons { float: right; margin-top: -3px; cursor: pointer; }\
-	.de-win-buttons > span { margin-right: 4px; }\
+	.de-win-buttons { float: right; line-height: 16px; margin-top: 1px; cursor: pointer; }\
+	.de-win-buttons > span { margin-right: 4px; font-size: 15px; }\
 	.de-win-buttons > span:hover { color: #f66; }\
 	#de-win-cfg, #de-win-hid, #de-win-fav, #de-win-vid { position: fixed; max-height: 100%; overflow-x: visible; overflow-y: auto; }\
-	#de-win-cfg > .de-win-body { float: left; width: auto; min-width: 0; padding: 0; border: none; }\
+	#de-win-cfg > .de-win-body { float: left; width: auto; min-width: 0; padding: 0;  margin: 0 !important; border: none; }\
 	#de-win-cfg input[type="button"] { padding: 0 2px; margin: 0 1px; height: 24px; }\
 	#de-win-cfg textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
 	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { font-size: 16px; padding: 10px; border: 1px solid gray; }\
