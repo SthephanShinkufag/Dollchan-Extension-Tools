@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'f2ca139';
+var commit = 'bd1f9b3';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1915,7 +1915,7 @@ function showVideosTable(body) {
 				'&#x25B2;</a> ' +
 			'<a class="de-abtn" id="de-video-btn-next" href="#" title="' + Lng.nextVideo[lang] + '">' +
 				'&#x25B6;</a></center>' +
-		'<div id="de-video-list" style="max-width: ' + (+Cfg.YTubeWidth + 40) +
+		'<div id="de-video-list" class="de-content-block" style="max-width: ' + (+Cfg.YTubeWidth + 40) +
 			'px; max-height: ' + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 110) + 'px;"></div>';
 	var linkList = body.lastChild;
 	$before(linkList, $new('script', {'type': 'text/javascript', 'text':`
@@ -2018,7 +2018,7 @@ function showVideosTable(body) {
 function addContentBlock(parent, title) {
 	return parent.appendChild($New('div', {'class': 'de-content-block'}, [
 		$new('input', {'type': 'checkbox'}, {'click'() {
-			$each($Q('.de-entry > input', this.parentNode), el => el.checked = this.checked);
+			$each($Q('.de-entry input', this.parentNode), el => el.checked = this.checked);
 		}}),
 		title
 	]));
@@ -2163,23 +2163,21 @@ function showFavoriteTable(body, data) {
 				if(!t.url.startsWith('http')) {
 					t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 				}
-				block.insertAdjacentHTML('beforeend',
-					'<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b +
-						'" de-num="' + tNum + '" de-url="' + t.url + '">' +
-						(t['type'] === 'user' ? '<span class="de-fav-user" title="'
-							+ Lng.setByUser[lang] + '"></span>' : '') +
+				block.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '" de-host="' +
+					h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">' +
+					'<div>' + (t['type'] !== 'user' ? '' :
+						'<span class="de-fav-user" title="' + Lng.setByUser[lang] + '"></span>') +
 						'<input type="checkbox">' +
-						'<a href="' + t.url + (t.last ? aib.anchor + t.last : '') + '">' + tNum + '</a>' +
-						'<span class="de-fav-title"> - ' + t.txt + '</span>' +
-						'<span class="de-fav-inf-posts">' +
-							'<span class="de-fav-inf-err">' + (t['err'] || '') + '</span> ' +
-							'<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' +
-								(t['new'] ? '>' : ' style="display: none;">') + (t['new'] || 0) + '</span> ' +
-							'[<span class="de-fav-inf-old" title="' +
-								Lng.oldPosts[lang] + '">' + t.cnt + '</span>] ' +
-							'<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>' +
-						'</span>' +
-					'</div>');
+						'<a href="' + t.url + (t.last ? aib.anchor + t.last : '') + '">' + tNum + '</a></div>' +
+					'<div class="de-fav-title">&nbsp;- ' + t.txt + '</div>' +
+					'<div class="de-fav-inf">' +
+						'<span class="de-fav-inf-err">' + (t['err'] || '') + '</span> ' +
+						'<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' +
+							(t['new'] ? '>' : ' style="display: none;">') + (t['new'] || 0) + '</span> ' +
+						'[<span class="de-fav-inf-old" title="' +
+							Lng.oldPosts[lang] + '">' + t.cnt + '</span>] ' +
+						'<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>' +
+						'</span></div>');
 			}
 		}
 	}
@@ -12477,19 +12475,21 @@ function scriptCSS() {
 	.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
 	.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\
 	.de-alert-msg { display: inline-block; }\
+	.de-content-block { width: 100%; border-spacing: 0 2px; }\
 	.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\
 	.de-content-block > input { margin: 0 4px; }\
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
-	.de-entry { display: block !important; float: none !important; width: auto; max-width: 100% !important; margin: 2px 0 !important; padding: 0 !important; border: none; font-size: 14px; ' + (nav.Presto ? 'white-space: nowrap; ' : '') + '}\
-	.de-entry > a { text-decoration: none; border: none; }\
-	.de-entry > input { margin: 2px 4px; }\
-	.de-fav-user::after { content: "\u2605"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\
+	.de-entry { display: table-row !important; float: none !important; border: none; font-size: 14px; }\
+	.de-entry > div { display: table-cell; white-space: nowrap; }\
+	.de-entry a { text-decoration: none; border: none; }\
+	.de-entry input { margin: 2px 4px; }\
+	.de-fav-inf { padding: 0 4px 0 10px; width: 100%; text-align: right; font: bold 14px serif; cursor: default; }\
 	.de-fav-inf-err { color: #c33; font-size: 12px; }\
 	.de-fav-inf-new { color: #424f79; }\
 	.de-fav-inf-new::after { content: " +"; }\
 	.de-fav-inf-old { color: #4f7942; }\
-	.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\
-	.de-fav-title { margin-right: 15px; }\
+	.de-fav-title { width: 100%; }\
+	.de-fav-user::after { content: "\u2605"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\
 	.de-input-key { height: 12px }\
 	.de-link-hid { text-decoration: line-through !important; }\
