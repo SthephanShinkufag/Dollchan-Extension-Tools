@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'bd1f9b3';
+var commit = '0a1b6f9';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1915,8 +1915,8 @@ function showVideosTable(body) {
 				'&#x25B2;</a> ' +
 			'<a class="de-abtn" id="de-video-btn-next" href="#" title="' + Lng.nextVideo[lang] + '">' +
 				'&#x25B6;</a></center>' +
-		'<div id="de-video-list" class="de-content-block" style="max-width: ' + (+Cfg.YTubeWidth + 40) +
-			'px; max-height: ' + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 110) + 'px;"></div>';
+		'<div id="de-video-list" style="max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; max-height: ' +
+			(doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 110) + 'px;"></div>';
 	var linkList = body.lastChild;
 	$before(linkList, $new('script', {'type': 'text/javascript', 'text':`
 		(function() {
@@ -2018,7 +2018,7 @@ function showVideosTable(body) {
 function addContentBlock(parent, title) {
 	return parent.appendChild($New('div', {'class': 'de-content-block'}, [
 		$new('input', {'type': 'checkbox'}, {'click'() {
-			$each($Q('.de-entry input', this.parentNode), el => el.checked = this.checked);
+			$each($Q('.de-entry > input', this.parentNode), el => el.checked = this.checked);
 		}}),
 		title
 	]));
@@ -2165,11 +2165,11 @@ function showFavoriteTable(body, data) {
 				}
 				block.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '" de-host="' +
 					h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">' +
-					'<div>' + (t['type'] !== 'user' ? '' :
+					(t['type'] !== 'user' ? '' :
 						'<span class="de-fav-user" title="' + Lng.setByUser[lang] + '"></span>') +
 						'<input type="checkbox">' +
-						'<a href="' + t.url + (t.last ? aib.anchor + t.last : '') + '">' + tNum + '</a></div>' +
-					'<div class="de-fav-title">&nbsp;- ' + t.txt + '</div>' +
+						'<a href="' + t.url + (t.last ? aib.anchor + t.last : '') + '">' + tNum + '</a>' +
+					'<div class="de-fav-title">- ' + t.txt + '</div>' +
 					'<div class="de-fav-inf">' +
 						'<span class="de-fav-inf-err">' + (t['err'] || '') + '</span> ' +
 						'<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' +
@@ -12202,7 +12202,7 @@ function scriptCSS() {
 	.de-win .de-resizer-left { position: absolute; margin: -3px; bottom: 3px; top: 3px; width: 6px; cursor: ew-resize; }\
 	.de-win .de-resizer-right { position: absolute; margin: -3px; bottom: 3px; top: 3px; display: inline-block; width: 6px; cursor: ew-resize; }\
 	.de-win .de-resizer-top { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\
-	.de-win-body { display: inline-block; vertical-align: middle; }\
+	.de-win-body { display: inline-' + (nav.Presto ? 'block' : 'table') + '; vertical-align: middle; }\
 	.de-win-buttons { float: right; line-height: 16px; margin-top: 1px; cursor: pointer; }\
 	.de-win-buttons > span { margin-right: 4px; font-size: 15px; }\
 	.de-win-buttons > span:hover { color: #f66; }\
@@ -12210,8 +12210,8 @@ function scriptCSS() {
 	#de-win-cfg > .de-win-body { float: left; width: auto; min-width: 0; padding: 0;  margin: 0 !important; border: none; }\
 	#de-win-cfg input[type="button"] { padding: 0 2px; margin: 0 1px; height: 24px; }\
 	#de-win-cfg textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
-	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { font-size: 16px; padding: 10px; border: 1px solid gray; }\
-	#de-win-fav input[type="checkbox"] { margin-left: 14px; }\
+	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 10px; border: 1px solid gray; }\
+	#de-win-fav input[type="checkbox"] { margin-left: 15px; }\
 	.de-win-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\
 	.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 	.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
@@ -12475,20 +12475,19 @@ function scriptCSS() {
 	.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
 	.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\
 	.de-alert-msg { display: inline-block; }\
-	.de-content-block { width: 100%; border-spacing: 0 2px; }\
 	.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\
 	.de-content-block > input { margin: 0 4px; }\
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
-	.de-entry { display: table-row !important; float: none !important; border: none; font-size: 14px; }\
-	.de-entry > div { display: table-cell; white-space: nowrap; }\
-	.de-entry a { text-decoration: none; border: none; }\
-	.de-entry input { margin: 2px 4px; }\
-	.de-fav-inf { padding: 0 4px 0 10px; width: 100%; text-align: right; font: bold 14px serif; cursor: default; }\
+	.de-entry { float: none !important; display: table !important; padding: 0 2px 0 0 !important; margin: 2px 0 !important; width: 100%; border: none !important; font-size: 14px; white-space: nowrap; }\
+	.de-entry > a { text-decoration: none; border: none; }\
+	.de-entry > div { display: table-cell; }\
+	.de-entry > input { margin: 2px 4px; }\
+	.de-fav-inf { font: bold 14px serif; cursor: default; }\
 	.de-fav-inf-err { color: #c33; font-size: 12px; }\
 	.de-fav-inf-new { color: #424f79; }\
 	.de-fav-inf-new::after { content: " +"; }\
 	.de-fav-inf-old { color: #4f7942; }\
-	.de-fav-title { width: 100%; }\
+	.de-fav-title { padding: 0 15px 0 4px; width: 100%; }\
 	.de-fav-user::after { content: "\u2605"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\
 	.de-input-key { height: 12px }\
