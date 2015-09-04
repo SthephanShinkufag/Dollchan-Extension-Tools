@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'd369648';
+var commit = '3f060ea';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12272,7 +12272,7 @@ function scriptCSS() {
 	.de-panel-button { flex: 0 1 auto; margin: 0 1px; padding: 0; }\
 	.de-panel-button:lang(en), .de-panel-button:lang(fr)  { transition: all 0.3s ease; }\
 	.de-panel-button:lang(en):hover, .de-panel-button:lang(fr):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
-	.de-panel-button-inner { display: inline-block; width: 25px; height: 25px; }\
+	.de-panel-button-inner { display: block; width: 25px; height: 25px; }\
 	.de-panel-button-inner:lang(de) { border-radius: 5px; box-sizing: border-box; }\
 	.de-panel-button-inner:lang(de):hover { border: 2px solid #444; }\
 	#de-panel-info { padding: 0 6px; margin-left: 2px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }' +
