@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'c84c5fc';
+var commit = 'f1f5aee';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12290,7 +12290,7 @@ function scriptCSS() {
 	.de-panel-button:lang(en):hover, .de-panel-button:lang(fr):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
 	.de-panel-button:lang(de) { border-radius: 5px; box-sizing: border-box; }\
 	.de-panel-button:lang(de):hover { border: 2px solid #444; }\
-	#de-panel-info { padding: 0 6px; margin-left: 2px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }' +
+	#de-panel-info { flex: 0 0 auto; padding: 0 6px; margin-left: 2px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }' +
 	gif('#de-panel-logo', (p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA') + 'QAI5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=') +
 	gif('#de-panel-cfg', p + 'QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7') +
 	gif('#de-panel-hid', p + 'QAI5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=') +
