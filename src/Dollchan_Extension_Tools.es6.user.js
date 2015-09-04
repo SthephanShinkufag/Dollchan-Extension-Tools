@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '3aa42da';
+var commit = 'f17feae';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1312,7 +1312,7 @@ function* readCfg() {
 	if(!Cfg.timePattern) {
 		Cfg.timePattern = aib.timePattern;
 	}
-	if((nav.Opera11 || aib.fch) && Cfg.ajaxReply === 2) {
+	if(aib.fch && Cfg.ajaxReply === 2) {
 		Lng.cfg['ajaxReply'].sel.forEach(a => a.splice(-1));
 		Cfg.ajaxReply = 1;
 	}
@@ -1323,12 +1323,6 @@ function* readCfg() {
 		Cfg.desktNotif = 0;
 	}
 	if(nav.Presto) {
-		if(nav.Opera11) {
-			if(!nav.isGM) {
-				Cfg.YTubeTitles = 0;
-			}
-			Cfg.animation = 0;
-		}
 		if(Cfg.YTubeType === 2) {
 			Cfg.YTubeType = 1;
 		}
@@ -2651,13 +2645,13 @@ function getCfgLinks() {
 				$txt('\u00D7'),
 				inpTxt('YTubeHeigh', 4, null)
 			]),
-			$if(!nav.Opera11 || nav.isGM, lBox('YTubeTitles', false, null)),
-			$if(!nav.Opera11 || nav.isGM, $New('div', null, [
+			lBox('YTubeTitles', false, null),
+			$New('div', null, [
 				inpTxt('ytApiKey', 25, function() {
 					saveCfg('ytApiKey', this.value.trim());
 				}),
 				$txt(' ' + Lng.cfg.ytApiKey[lang])
-			])),
+			]),
 			lBox('addVimeo', true, null)
 		])
 	]);
@@ -2667,12 +2661,12 @@ function getCfgForm() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-form'}, [
 		optSel('ajaxReply', true, null),
 		$if(pr.form, $New('div', {'class': 'de-cfg-depend'}, [
-			$if(!nav.Opera11, $New('div', null, [
+			$New('div', null, [
 				lBox('postSameImg', true, null),
 				lBox('removeEXIF', false, null),
 				lBox('removeFName', false, null),
 				lBox('sendErrNotif', true, null)
-			])),
+			]),
 			lBox('scrAfterRep', true, null)
 		])),
 		$if(pr.form, optSel('addPostForm', true, function() {
@@ -2757,7 +2751,7 @@ function getCfgCommon() {
 		]),
 		lBox('panelCounter', true, updateCSS),
 		lBox('rePageTitle', true, null),
-		$if(nav.Anim, lBox('animation', true, null)),
+		lBox('animation', true, null),
 		lBox('closePopups', true, null),
 		$New('div', null, [
 			lBox('hotKeys', false, function() {
@@ -10280,7 +10274,6 @@ function initNavFuncs() {
 	var ua = window.navigator.userAgent,
 		firefox = ua.includes('Gecko/'),
 		presto = window.opera ? +window.opera.version() : 0,
-		opera11 = presto ? presto < 12.1 : false,
 		webkit = ua.includes('WebKit/'),
 		chrome = webkit && ua.includes('Chrome/'),
 		safari = webkit && !chrome,
@@ -10296,7 +10289,6 @@ function initNavFuncs() {
 			return navigator.userAgent + (this.Firefox ? ' [' + navigator.buildID + ']' : '');
 		},
 		Firefox: firefox,
-		Opera11: opera11,
 		Presto: presto,
 		WebKit: webkit,
 		Chrome: chrome,
@@ -10308,10 +10300,9 @@ function initNavFuncs() {
 		scriptInstall: (firefox ? (typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish') :
 			isChromeStorage ? 'Chrome extension' :
 			isGM ? 'Monkey' : 'Native userscript'),
-		cssFix: webkit ? '-webkit-' : opera11 ? '-o-' : '',
-		Anim: !opera11,
-		animName: webkit ? 'webkitAnimationName' : opera11 ? 'OAnimationName' : 'animationName',
-		animEnd: webkit ? 'webkitAnimationEnd' : opera11 ? 'oAnimationEnd' : 'animationend',
+		cssFix: webkit ? '-webkit-' : '',
+		animName: webkit ? 'webkitAnimationName' : 'animationName',
+		animEnd: webkit ? 'webkitAnimationEnd' : 'animationend',
 		animEvent(el, fn) {
 			el.addEventListener(this.animEnd, function aEvent() {
 				this.removeEventListener(nav.animEnd, aEvent);
@@ -12289,12 +12280,12 @@ function scriptCSS() {
 	#de-spell-rowmeter:lang(de) { background-color: #777; }' +
 
 	// Main panel
-	'#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; flex-flow: row nowrap; }\
-	#de-panel-logo { flex: 0 1 auto; margin-right: 3px; cursor: pointer; min-height: 25px; width: 25px; }\
+	'#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; flex-flow: row nowrap; min-height: 25px; }\
+	#de-panel-logo { flex: 0 0 auto; margin-right: 3px; cursor: pointer; min-height: 25px; width: 25px; }\
 	#de-panel-buttons { flex: 0 1 auto; display: inline-flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #8fbbed; }\
 	#de-panel-buttons:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
 	#de-panel-buttons:lang(fr), #de-panel-info:lang(fr) { border-color: #616b86; }\
-	.de-panel-button { display: block; width: 25px; height: 25px; flex: 0 1 auto; margin: 0 1px; padding: 0; }\
+	.de-panel-button { display: block; width: 25px; height: 25px; flex: 0 0 auto; margin: 0 1px; padding: 0; }\
 	.de-panel-button:lang(en), .de-panel-button:lang(fr)  { transition: all 0.3s ease; }\
 	.de-panel-button:lang(en):hover, .de-panel-button:lang(fr):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
 	.de-panel-button:lang(de) { border-radius: 5px; box-sizing: border-box; }\
@@ -12402,32 +12393,31 @@ function scriptCSS() {
 	gif('#de-btn-quote:empty', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=') +
 
 	// Show/close animation
-	(nav.Anim ?
-		'@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }\
-		@keyframes de-close { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }\
-		@keyframes de-blink {\
-			0%, 100% { transform: translateX(0); }\
-			10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }\
-			20%, 40%, 60%, 80% { transform: translateX(10px); }\
-		}\
-		@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\
-		@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\
-		@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
-		@keyframes de-post-open-br { from { transform: translate(50%,50%) scale(0); opacity: 0; } }\
-		@keyframes de-post-close-tl { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\
-		@keyframes de-post-close-bl { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\
-		@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
-		@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\
-		@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\
-		@keyframes de-win-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
-		@keyframes de-win-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
-		.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\
-		.de-open { animation: de-open .15s ease-out both; }\
-		.de-close { animation: de-close .15s ease-in both; }\
-		.de-blink { animation: de-blink .7s ease-in-out both; }\
-		.de-post-new { animation: de-post-new .2s ease-out both; }\
-		.de-win-open { animation: de-win-open .2s ease-out backwards; }\
-		.de-win-close { animation: de-win-close .2s ease-in both; }' : '') +
+	'@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }\
+	@keyframes de-close { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }\
+	@keyframes de-blink {\
+		0%, 100% { transform: translateX(0); }\
+		10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }\
+		20%, 40%, 60%, 80% { transform: translateX(10px); }\
+	}\
+	@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\
+	@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\
+	@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
+	@keyframes de-post-open-br { from { transform: translate(50%,50%) scale(0); opacity: 0; } }\
+	@keyframes de-post-close-tl { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\
+	@keyframes de-post-close-bl { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\
+	@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
+	@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\
+	@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\
+	@keyframes de-win-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
+	@keyframes de-win-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
+	.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\
+	.de-open { animation: de-open .15s ease-out both; }\
+	.de-close { animation: de-close .15s ease-in both; }\
+	.de-blink { animation: de-blink .7s ease-in-out both; }\
+	.de-post-new { animation: de-post-new .2s ease-out both; }\
+	.de-win-open { animation: de-win-open .2s ease-out backwards; }\
+	.de-win-close { animation: de-win-close .2s ease-in both; }' +
 
 	// Embedders
 	cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') +
