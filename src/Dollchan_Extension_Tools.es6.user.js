@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '1df7283';
+var commit = '3aa42da';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10677,7 +10677,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					.logo { margin-bottom: 14px; }' : ''}`;
 			} },
 			init: { value() {
-				window.onload = emptyFn;
+				doc.body.insertAdjacentHTML('beforeend', '<div onclick="highlight = function() {};"></div>');
+				doc.body.lastChild.click();
 				var post, hash = window.location.hash;
 				if(hash && (hash = hash.match(/#i?(\d+)$/)[1]) && (post = $id('reply' + hash))) {
 					post.classList.add('highlight');

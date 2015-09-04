@@ -1198,6 +1198,8 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+
 !(function(global) {
   "use strict";
 
@@ -2594,7 +2596,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "1df7283";
+	var commit = "3aa42da";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -13507,7 +13509,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return "" + (this.t ? "#de-main { margin-top: -37px; }\t\t\t\t\t.logo { margin-bottom: 14px; }" : "");
 					} },
 				init: { value: function value() {
-						window.onload = emptyFn;
+						doc.body.insertAdjacentHTML("beforeend", "<div onclick=\"highlight = function() {};\"></div>");
+						doc.body.lastChild.click();
 						var post,
 						    hash = window.location.hash;
 						if (hash && (hash = hash.match(/#i?(\d+)$/)[1]) && (post = $id("reply" + hash))) {
