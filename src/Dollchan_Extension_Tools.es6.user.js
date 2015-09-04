@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '6af8b55';
+var commit = '24864c9';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1575,157 +1575,178 @@ function readViewedPosts() {
 // PANEL
 // ===========================================================================================================
 
-function pButton(id, href = '#') {
-	return '<a id="de-panel-' + id + '" class="de-abtn de-panel-button" title="' +
-		Lng.panelBtn[id][lang] + '" href="' + href + '"></a>';
-}
-
-function addPanel(formEl) {
-	var panel, evtObject, imgLen = $Q(aib.qThumbImages, formEl).length,
-		isThr = aib.t;
-	(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin',
-		'<div id="de-main" lang="' + getThemeLang() + '"><div id="de-panel">' +
-			'<span id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '"></span>' +
-			'<span id="de-panel-buttons"' + (Cfg.expandPanel ? '>' : ' style="display: none;">') +
-			(Cfg.disabled ? pButton('enable') :
-				pButton('cfg') +
-				pButton('hid') +
-				pButton('fav') +
-				(!Cfg.addYouTube ? '' : pButton('vid')) +
-				(localRun ? '' :
-					pButton('refresh') +
-					(!isThr && (aib.page === aib.firstPage) ? '' :
-						pButton('goback', aib.getPageUrl(aib.b, aib.page - 1))) +
-					(isThr || aib.page === aib.lastPage ? '' :
-						pButton('gonext', aib.getPageUrl(aib.b, aib.page + 1)))
-				) + pButton('goup') +
-				pButton('godown') +
-				(imgLen === 0 ? '' :
-					pButton('expimg') +
-					pButton('maskimg') +
-					(nav.Presto || localRun ? '' :
-						(Cfg.preLoadImgs ? '' : pButton('preimg')) +
-						(!isThr ? '' : pButton('savethr')))) +
-				(!isThr || localRun ? '' :
-					pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') +
-					(nav.Safari ? '' : pButton('audio-off'))) +
-				(!aib.mak && !aib.tiny && !aib.fch ? '' :
-					pButton('catalog', aib.prot + '//' + aib.host + '/' + aib.b + '/catalog.html')) +
-				pButton('enable') +
-				(!isThr ? '' :
-					'<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' +
-					dForm.firstThr.pcount + '/' + imgLen + '</span>')
-			) + '</span>' +
-		'</div>' + (Cfg.disabled ? '' : '<div id="de-alert"></div><hr style="clear: both;">') + '</div>');
-	panel = $id('de-panel');
-	evtObject = {
-		odelay: 0,
-		panel: panel,
-		handleEvent(e) {
-			switch(e.type) {
-			case 'click':
-				switch(e.target.id) {
-				case 'de-panel-logo':
-					if(Cfg.expandPanel && !$c('de-win-active', doc)) {
-						this.panel.lastChild.style.display = 'none';
-					}
-					toggleCfg('expandPanel');
-					return;
-				case 'de-panel-cfg': toggleWindow('cfg', false); break;
-				case 'de-panel-hid': toggleWindow('hid', false); break;
-				case 'de-panel-fav': toggleWindow('fav', false); break;
-				case 'de-panel-vid': toggleWindow('vid', false); break;
-				case 'de-panel-refresh': window.location.reload(); break;
-				case 'de-panel-goup': scrollTo(0, 0); break;
-				case 'de-panel-godown': scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight); break;
-				case 'de-panel-expimg':
-					isExpImg = !isExpImg;
-					$del($c('de-img-center', doc));
-					for(var post = dForm.firstThr.op; post; post = post.next) {
-						post.toggleImages(isExpImg);
-					}
-					break;
-				case 'de-panel-preimg':
-					isPreImg = !isPreImg;
-					if(!e.ctrlKey) {
-						preloadImages(null);
-					}
+var panel = {
+	_hideTO: 0,
+	_menuTO: 0,
+	_el: null,
+	get _infoEl() {
+		var val = $q('#de-panel-info', this._el);
+		Object.defineProperty(this, '_infoEl', { value: val, configurable: true });
+		return val;
+	},
+	_prepareToHide() {
+		this._hideTO = setTimeout(() => this._el.lastChild.style.display = 'none', 500);
+	},
+	handleEvent(e) {
+		switch(e.type) {
+		case 'click':
+			switch(e.target.id) {
+			case 'de-panel-logo':
+				if(Cfg.expandPanel && !$c('de-win-active', doc)) {
+					this._el.lastChild.style.display = 'none';
+				}
+				toggleCfg('expandPanel');
+				return;
+			case 'de-panel-cfg': toggleWindow('cfg', false); break;
+			case 'de-panel-hid': toggleWindow('hid', false); break;
+			case 'de-panel-fav': toggleWindow('fav', false); break;
+			case 'de-panel-vid': toggleWindow('vid', false); break;
+			case 'de-panel-refresh': window.location.reload(); break;
+			case 'de-panel-goup': scrollTo(0, 0); break;
+			case 'de-panel-godown': scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight); break;
+			case 'de-panel-expimg':
+				isExpImg = !isExpImg;
+				$del($c('de-img-center', doc));
+				for(var post = dForm.firstThr.op; post; post = post.next) {
+					post.toggleImages(isExpImg);
+				}
 				break;
-				case 'de-panel-maskimg':
-					toggleCfg('maskImgs');
-					updateCSS();
-					break;
-				case 'de-panel-upd-on':
-				case 'de-panel-upd-off':
-				case 'de-panel-upd-warn':
-					if(updater.enabled) {
-						updater.disable();
-					} else {
-						updater.enable();
-					}
-					break;
-				case 'de-panel-audio-on':
-				case 'de-panel-audio-off':
-					if(updater.toggleAudio(0)) {
-						updater.enable();
-						e.target.id = 'de-panel-audio-on';
-					} else {
-						e.target.id = 'de-panel-audio-off';
-					}
-					$del($c('de-menu', doc));
-					break;
-				case 'de-panel-savethr': break;
-				case 'de-panel-enable':
-					toggleCfg('disabled');
-					window.location.reload();
-					break;
-				default: return;
+			case 'de-panel-preimg':
+				isPreImg = !isPreImg;
+				if(!e.ctrlKey) {
+					preloadImages(null);
 				}
-				$pd(e);
-				return;
-			case 'mouseover':
-				if(!Cfg.expandPanel) {
-					clearTimeout(this.odelay);
-					this.panel.lastChild.style.display = '';
+			break;
+			case 'de-panel-maskimg':
+				toggleCfg('maskImgs');
+				updateCSS();
+				break;
+			case 'de-panel-upd-on':
+			case 'de-panel-upd-off':
+			case 'de-panel-upd-warn':
+				if(updater.enabled) {
+					updater.disable();
+				} else {
+					updater.enable();
 				}
-				switch(e.target.id) {
-				case 'de-panel-cfg': KeyEditListener.setTitle(e.target, 10); break;
-				case 'de-panel-hid': KeyEditListener.setTitle(e.target, 7); break;
-				case 'de-panel-fav': KeyEditListener.setTitle(e.target, 6); break;
-				case 'de-panel-vid': KeyEditListener.setTitle(e.target, 18); break;
-				case 'de-panel-goback': KeyEditListener.setTitle(e.target, 4); break;
-				case 'de-panel-gonext': KeyEditListener.setTitle(e.target, 17); break;
-				case 'de-panel-maskimg': KeyEditListener.setTitle(e.target, 9); break;
-				case 'de-panel-refresh':
-					if(isThr) {
-						return;
-					}
-					/* falls through */
-				case 'de-panel-savethr':
-				case 'de-panel-audio-off': addMenu(e);
+				break;
+			case 'de-panel-audio-on':
+			case 'de-panel-audio-off':
+				if(updater.toggleAudio(0)) {
+					updater.enable();
+					e.target.id = 'de-panel-audio-on';
+				} else {
+					e.target.id = 'de-panel-audio-off';
 				}
-				return;
-			default: // mouseout
-				if(!Cfg.expandPanel && !$c('de-win-active', doc)) {
-					this.odelay = setTimeout(() => {
-						this.panel.lastChild.style.display = 'none';
-					}, 500);
+				$del($c('de-menu', doc));
+				break;
+			case 'de-panel-savethr': break;
+			case 'de-panel-enable':
+				toggleCfg('disabled');
+				window.location.reload();
+				break;
+			default: return;
+			}
+			$pd(e);
+			return;
+		case 'mouseover':
+			if(!Cfg.expandPanel) {
+				clearTimeout(this._hideTO);
+				this._el.lastChild.style.display = '';
+			}
+			switch(e.target.id) {
+			case 'de-panel-cfg': KeyEditListener.setTitle(e.target, 10); break;
+			case 'de-panel-hid': KeyEditListener.setTitle(e.target, 7); break;
+			case 'de-panel-fav': KeyEditListener.setTitle(e.target, 6); break;
+			case 'de-panel-vid': KeyEditListener.setTitle(e.target, 18); break;
+			case 'de-panel-goback': KeyEditListener.setTitle(e.target, 4); break;
+			case 'de-panel-gonext': KeyEditListener.setTitle(e.target, 17); break;
+			case 'de-panel-maskimg': KeyEditListener.setTitle(e.target, 9); break;
+			case 'de-panel-refresh':
+				if(aib.t) {
+					return;
 				}
-				switch(e.target.id) {
-				case 'de-panel-refresh':
-				case 'de-panel-savethr':
-				case 'de-panel-audio-off': removeMenu(e);
-				}
+				/* falls through */
+			case 'de-panel-savethr':
+			case 'de-panel-audio-off':
+				this._menuTO = setTimeout(() => {
+					var menu = addMenu(e.target);
+					menu.onover = () => clearTimeout(this._hideTO);
+					menu.onout = () => this._prepareToHide();
+				}, Cfg.linksOver); 
+			}
+			return;
+		default: // mouseout
+			if(!Cfg.expandPanel && !$c('de-win-active', doc)) {
+				this._prepareToHide();
+			}
+			switch(e.target.id) {
+			case 'de-panel-refresh':
+			case 'de-panel-savethr':
+			case 'de-panel-audio-off':
+				clearTimeout(this._menuTO);
+				this._menuTO = 0;
 			}
 		}
-	};
-	panel.addEventListener('click', evtObject, true);
-	panel.addEventListener('mouseover', evtObject);
-	panel.addEventListener('mouseout', evtObject);
-	if(locStorage['__de-fav-open'] === '1') {
-		toggleWindow('fav', false, null, true);
+	},
+	init(formEl) {
+		var imgLen = $Q(aib.qThumbImages, formEl).length,
+			isThr = aib.t,
+			pButton = (id, href = '#') => '<a id="de-panel-' + id + '" class="de-abtn de-panel-button" title="' +
+				Lng.panelBtn[id][lang] + '" href="' + href + '"></a>';
+		(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin',
+			'<div id="de-main" lang="' + getThemeLang() + '"><div id="de-panel">' +
+				'<span id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '"></span>' +
+				'<span id="de-panel-buttons"' + (Cfg.expandPanel ? '>' : ' style="display: none;">') +
+				(Cfg.disabled ? pButton('enable') :
+					pButton('cfg') +
+					pButton('hid') +
+					pButton('fav') +
+					(!Cfg.addYouTube ? '' : pButton('vid')) +
+					(localRun ? '' :
+						pButton('refresh') +
+						(!isThr && (aib.page === aib.firstPage) ? '' :
+							pButton('goback', aib.getPageUrl(aib.b, aib.page - 1))) +
+						(isThr || aib.page === aib.lastPage ? '' :
+							pButton('gonext', aib.getPageUrl(aib.b, aib.page + 1)))
+					) + pButton('goup') +
+					pButton('godown') +
+					(imgLen === 0 ? '' :
+						pButton('expimg') +
+						pButton('maskimg') +
+						(nav.Presto || localRun ? '' :
+							(Cfg.preLoadImgs ? '' : pButton('preimg')) +
+							(!isThr ? '' : pButton('savethr')))) +
+					(!isThr || localRun ? '' :
+						pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') +
+						(nav.Safari ? '' : pButton('audio-off'))) +
+					(!aib.mak && !aib.tiny && !aib.fch ? '' :
+						pButton('catalog', aib.prot + '//' + aib.host + '/' + aib.b + '/catalog.html')) +
+					pButton('enable') +
+					(!isThr ? '' :
+						'<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' +
+						dForm.firstThr.pcount + '/' + imgLen + '</span>')
+				) + '</span>' +
+			'</div>' + (Cfg.disabled ? '' : '<div id="de-alert"></div><hr style="clear: both;">') + '</div>');
+		this._el = $id('de-panel');
+		this._el.addEventListener('click', this, true);
+		this._el.addEventListener('mouseover', this);
+		this._el.addEventListener('mouseout', this);
+		if(locStorage['__de-fav-open'] === '1') {
+			toggleWindow('fav', false, null, true);
+		}
+	},
+	remove() {
+		this._el.removeEventListener('click', this, true);
+		this._el.removeEventListener('mouseover', this);
+		this._el.removeEventListener('mouseout', this);
+		delete this._infoEl;
+		$del($id('de-main'));
+	},
+	updateCounter(postCount, imgsCount) {
+		this._infoEl.textContent = postCount + '/' + imgsCount;
 	}
-}
+};
 
 function updateWinZ(style) {
 	if(style.zIndex < topWinZ) {
@@ -2032,7 +2053,6 @@ function addContentBlock(parent, title) {
 		title
 	]));
 }
-
 
 function showHiddenTable(body) {
 	var block, els = $C('de-post-hide', dForm.el);
@@ -2457,8 +2477,8 @@ function getCfgFilters() {
 				'href': '#',
 				'class': 'de-abtn'}, {
 				'click': $pd,
-				'mouseover': addMenu,
-				'mouseout': removeMenu
+				'mouseover': ({ target }) => target.odelay = setTimeout(() => addMenu(target), Cfg.linksOver),
+				'mouseout': ({ target }) => clearTimeout(target.odelay)
 			}),
 			$new('a', {'text': Lng.apply[lang], 'href': '#', 'class': 'de-abtn'}, {'click'(e) {
 				$pd(e);
@@ -2902,11 +2922,11 @@ function addSettings(body, id) {
 	body.appendChild($New('div', {'id': 'de-cfg-btns'}, [
 		optSel('language', false, function() {
 			saveCfg('language', lang = this.selectedIndex);
-			$del($id('de-main'));
+			panel.remove();
 			$del($id('de-css'));
 			$del($id('de-css-dynamic'));
 			scriptCSS();
-			addPanel(dForm.el);
+			panel.init(dForm.el);
 			toggleWindow('cfg', false);
 		}),
 		$New('div', {'style': 'float: right;'}, [
@@ -3016,95 +3036,120 @@ function $alert(txt, id, wait) {
 	}
 }
 
-function showMenu(el, html, inPanel, onclick) {
-	var y, pos, menu, cr = el.getBoundingClientRect();
-	if(inPanel) {
-		pos = 'fixed';
-		y = 'bottom: 25';
+function Menu(parentEl, html, clickFn) {
+	doc.body.insertAdjacentHTML('beforeend', '<div class="' + aib.cReply +
+		' de-menu" style="position: absolute; left: 0px; top: 0px; visibility: hidden;">' + html + '</div>');
+	var el = doc.body.lastChild;
+	var mStyle = el.style;
+	var cr = parentEl.getBoundingClientRect();
+	var width = el.offsetWidth;
+	if(cr.left + width < Post.sizing.wWidth) {
+		mStyle.left = (window.pageXOffset + cr.left) + 'px';
 	} else {
-		pos = 'absolute';
-		y = 'top: ' + (window.pageYOffset + cr.bottom);
+		mStyle.left = (window.pageXOffset + cr.right - width) + 'px';
 	}
-	doc.body.insertAdjacentHTML('beforeend', '<div class="' + aib.cReply + ' de-menu" style="position: ' +
-		pos + '; right: ' + (doc.documentElement.clientWidth - cr.right - window.pageXOffset) +
-		'px; ' + y + 'px;">' + html + '</div>');
-	menu = doc.body.lastChild;
-	menu.addEventListener('mouseover', function(e) {
-		clearTimeout(e.currentTarget.odelay);
-	}, true);
-	menu.addEventListener('mouseout', removeMenu, true);
-	menu.addEventListener('click', function(e) {
+	var height = el.offsetHeight;
+	if(cr.bottom + height < Post.sizing.wHeight) {
+		mStyle.top = (window.pageYOffset + cr.bottom) + 'px';
+	} else {
+		mStyle.top = (window.pageYOffset + cr.top - height) + 'px';
+	}
+	mStyle.removeProperty('visibility');
+	this._clickFn = clickFn;
+	this._el = el;
+	this._parentEl = parentEl;
+	el.addEventListener('mouseover', this, true);
+	el.addEventListener('mouseout', this, true);
+	parentEl.addEventListener('mouseout', this);
+	el.addEventListener('click', this);
+}
+Menu.prototype = {
+	_closeTO: 0,
+	onover: null,
+	onout: null,
+	remove() {
+		this._el.removeEventListener('mouseover', this, true);
+		this._el.removeEventListener('mouseout', this, true);
+		this._parentEl.removeEventListener('mouseout', this);
+		this._el.removeEventListener('click', this);
+		$del(this._el);
+		this._el = null;
+	},
+	handleEvent(e) {
 		var el = e.target;
-		if(el.className === 'de-menu-item') {
-			setTimeout(this, 10, el);
-			do {
-				el = el.parentElement;
-			} while(!el.classList.contains('de-menu'));
-			$del(el);
-		}
-	}.bind(onclick));
-}
-
-function addMenu(e) {
-	e.target.odelay = setTimeout(function(el) {
-		switch(el.id) {
-		case 'de-btn-addspell':
-			showMenu(el, '<div style="display: inline-block; border-right: 1px solid grey;">' +
-				'<span class="de-menu-item">' + ('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,<br>')
-					.split(',').join('</span><span class="de-menu-item">') +
-				'</span></div><div style="display: inline-block;"><span class="de-menu-item">' +
-				('#sage,#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep')
-					.split(',').join('</span><span class="de-menu-item">') + '</span></div>', false,
-			function(el) {
-				var exp = el.textContent;
-				$txtInsert($id('de-spell-edit'), exp +
-					(!aib.t || exp === '#op' || exp === '#rep' || exp === '#outrep' ? '' :
-						'[' + aib.b + ',' + aib.t + ']') +
-					(Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? '(' : ''));
-			});
+		switch(e.type) {
+		case 'click':
+			if(el.className === 'de-menu-item') {
+				this.remove();
+				this._clickFn(el);
+			}
+			break;
+		case 'mouseover':
+			clearTimeout(this._closeTO);
+			if(this.onover) {
+				this.onover();
+			}
 			return;
-		case 'de-panel-refresh':
-			showMenu(el, '<span class="de-menu-item">' +
-				Lng.selAjaxPages[lang].join('</span><span class="de-menu-item">') + '</span>', true,
-			function(el) {
-				loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1);
-			});
-			return;
-		case 'de-panel-savethr':
-			showMenu(el, '<span class="de-menu-item">' +
-				Lng.selSaveThr[lang].join('</span><span class="de-menu-item">') + '</span>', true,
-			function(el) {
-				if(!$id('de-alert-savethr')) {
-					var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
-					if(Images_.preloading) {
-						$alert(Lng.loading[lang], 'savethr', true);
-						Images_.afterpreload = loadDocFiles.bind(null, imgOnly);
-						Images_.progressId = 'savethr';
-					} else {
-						loadDocFiles(imgOnly);
-					}
+		case 'mouseout':
+			clearTimeout(this._closeTO);
+			var rt = e.relatedTarget;
+			if(this._el && (!rt || (rt !== this._el && !this._el.contains(rt)))) {
+				this._closeTO = setTimeout(() => this.remove(), 75);
+				if(this.onout) {
+					this.onout();
 				}
-			});
+			}
 			return;
-		case 'de-panel-audio-off':
-			showMenu(el, '<span class="de-menu-item">' +
-				Lng.selAudioNotif[lang].join('</span><span class="de-menu-item">') + '</span>', true,
-			function(el) {
-				var i = aProto.indexOf.call(el.parentNode.children, el);
-				updater.enable();
-				updater.toggleAudio(i === 0 ? 3e4 : i === 1 ? 6e4 : i === 2 ? 12e4 : 3e5);
-				$id('de-panel-audio-off').id = 'de-panel-audio-on';
-			});
 		}
-	}, Cfg.linksOver, e.target);
-}
+	}
+};
 
-function removeMenu(e) {
-	var el = $c('de-menu', doc),
-		rt = e.relatedTarget;
-	clearTimeout(e.target.odelay);
-	if(el && (!rt || (rt !== el && !el.contains(rt)))) {
-		el.odelay = setTimeout($del, 75, el);
+function addMenu(el) {
+	switch(el.id) {
+	case 'de-btn-addspell':
+		return new Menu(el, '<div style="display: inline-block; border-right: 1px solid grey;">' +
+			'<span class="de-menu-item">' + ('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,<br>')
+				.split(',').join('</span><span class="de-menu-item">') +
+			'</span></div><div style="display: inline-block;"><span class="de-menu-item">' +
+			('#sage,#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep')
+				.split(',').join('</span><span class="de-menu-item">') + '</span></div>',
+		function(el) {
+			var exp = el.textContent;
+			$txtInsert($id('de-spell-edit'), exp +
+				(!aib.t || exp === '#op' || exp === '#rep' || exp === '#outrep' ? '' :
+					'[' + aib.b + ',' + aib.t + ']') +
+				(Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? '(' : ''));
+		});
+	case 'de-panel-refresh':
+		return new Menu(el, '<span class="de-menu-item">' +
+			Lng.selAjaxPages[lang].join('</span><span class="de-menu-item">') + '</span>',
+		function(el) {
+			loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1);
+		});
+	case 'de-panel-savethr':
+		return new Menu(el, '<span class="de-menu-item">' +
+			Lng.selSaveThr[lang].join('</span><span class="de-menu-item">') + '</span>',
+		function(el) {
+			if(!$id('de-alert-savethr')) {
+				var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
+				if(Images_.preloading) {
+					$alert(Lng.loading[lang], 'savethr', true);
+					Images_.afterpreload = loadDocFiles.bind(null, imgOnly);
+					Images_.progressId = 'savethr';
+				} else {
+					loadDocFiles(imgOnly);
+				}
+			}
+		});
+	case 'de-panel-audio-off':
+		return new Menu(el, '<span class="de-menu-item">' +
+			Lng.selAudioNotif[lang].join('</span><span class="de-menu-item">') + '</span>',
+		function(el) {
+			var i = aProto.indexOf.call(el.parentNode.children, el);
+			updater.enable();
+			updater.toggleAudio(i === 0 ? 3e4 : i === 1 ? 6e4 : i === 2 ? 12e4 : 3e5);
+			$id('de-panel-audio-off').id = 'de-panel-audio-on';
+		});
 	}
 }
 
@@ -7643,7 +7688,7 @@ AttachmentViewer.prototype = {
 			var temp = e.relatedTarget;
 			if(!temp || (temp !== this._obj && !this._obj.contains(temp))) {
 				if(isOverEvent) {
-					Pview.mouseEnter(this.data.post);
+					this.data.post.mouseEnter();
 				} else if(Pview.top && this.data.post.el !== temp && !this.data.post.el.contains(temp)) {
 					Pview.top.markToDel();
 				}
@@ -8428,8 +8473,10 @@ Post.prototype = {
 			switch(el.className) {
 			case 'de-btn-expthr':
 				this.thr.load(1, false);
-				$del(this._menu);
-				this._menu = null;
+				if(this._menu) {
+					this._menu.remove();
+					this._menu = null;
+				}
 				return;
 			case 'de-btn-fav': this.thr.setFavorState(true, 'user'); return;
 			case 'de-btn-fav-sel': this.thr.setFavorState(false, 'user'); return;
@@ -8446,8 +8493,10 @@ Post.prototype = {
 				} else {
 					this.toggleUserVisib();
 				}
-				$del(this._menu);
-				this._menu = null;
+				if(this._menu) {
+					this._menu.remove();
+					this._menu = null;
+				}
 				return;
 			case 'de-btn-rep':
 				pr.showQuickReply(this.isPview ? this.getTopParent() : this, this.num, !this.isPview, false);
@@ -8459,9 +8508,6 @@ Post.prototype = {
 				el.className = this.sticked ? 'de-btn-stick' : 'de-btn-stick-on';
 				this.sticked = !this.sticked;
 				return;
-			}
-			if(el.classList[0] === 'de-menu-item') {
-				this._clickMenu(el);
 			}
 			return;
 		}
@@ -8487,9 +8533,9 @@ Post.prototype = {
 			/* falls through */
 		case 'de-btn-src':
 			if(isOutEvent) {
-				this._closeMenu(e.relatedTarget);
+				clearTimeout(this._menuDelay);
 			} else {
-				this._menuDelay = setTimeout(this._addMenu.bind(this, el), Cfg.linksOver);
+				this._menuDelay = setTimeout(() => this._addMenu(el), Cfg.linksOver);
 			}
 			return;
 		case 'de-btn-rep':
@@ -8501,14 +8547,6 @@ Post.prototype = {
 		case 'de-btn-fav':
 		case 'de-btn-fav-sel':
 			this._addButtonTitle(el);
-			return;
-		case 'de-menu':
-		case 'de-menu-item':
-			if(isOutEvent) {
-				this._closeMenu(e.relatedTarget);
-			} else {
-				clearTimeout(this._menuDelay);
-			}
 			return;
 		default:
 			if(!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
@@ -8878,8 +8916,7 @@ Post.prototype = {
 		}
 	},
 	_addMenu(el) {
-		var html, isLeft = false,
-			className = 'de-menu ' + aib.cReply;
+		var html;
 		switch(el.getAttribute('de-menu')) {
 		case 'hide':
 			if(!Cfg.menuHiddBtn) {
@@ -8892,54 +8929,43 @@ Post.prototype = {
 				.join('</span><span class="de-menu-item" info="thr-exp">') + '</span>';
 			break;
 		case 'imgsrc':
-			isLeft = true;
-			className += ' de-imgmenu';
 			html = this._addMenuImgSrc(el);
 		}
-		var cr = el.getBoundingClientRect(),
-			xOffset = window.pageXOffset;
-		doc.body.insertAdjacentHTML('beforeend', '<div class="' + className +
-			'" style="position: absolute; ' + (
-			isLeft ? 'left: ' + (cr.left + xOffset) :
-				'right: ' + (doc.documentElement.clientWidth - cr.right - xOffset)
-			) + 'px; top: ' + (window.pageYOffset + cr.bottom) + 'px;">' + html + '</div>');
 		if(this._menu) {
-			clearTimeout(this._menuDelay);
-			$del(this._menu);
+			this._menu.remove();
 		}
-		this._menu = doc.body.lastChild;
-		this._menu.addEventListener('click', this);
-		this._menu.addEventListener('mouseover', this);
-		this._menu.addEventListener('mouseout', this);
+		this._menu = new Menu(el, html, el => this._clickMenu(el));
+		if(this.isPview) {
+			this._menu.onover = () => this.mouseEnter();
+			this._menu.onout = () => this.markToDel();
+		}
 	},
 	_addMenuHide() {
 		var str = '', sel = nav.Presto ? doc.getSelection() : window.getSelection(),
 			ssel = sel.toString(),
-			addItem = function(name) {
-				str += '<span info="spell-' + name + '" class="de-menu-item">' +
-					Lng.selHiderMenu[name][lang] + '</span>';
-			};
+			getItem = name => '<span info="spell-' + name + '" class="de-menu-item">' +
+				Lng.selHiderMenu[name][lang] + '</span>';
 		if(ssel) {
 			this._selText = ssel;
 			this._selRange = sel.getRangeAt(0);
-			addItem('sel');
+			str += getItem('sel');
 		}
 		if(this.posterName) {
-			addItem('name');
+			str += getItem('name');
 		}
 		if(this.posterTrip) {
-			addItem('trip');
+			str += getItem('trip');
 		}
 		if(this.images.hasAttachments) {
-			addItem('img');
-			addItem('ihash');
+			str += getItem('img');
+			str += getItem('ihash');
 		} else {
-			addItem('noimg');
+			str += getItem('noimg');
 		}
 		if(this.text) {
-			addItem('text');
+			str += getItem('text');
 		} else {
-			addItem('notext');
+			str += getItem('notext');
 		}
 		return str;
 	},
@@ -8957,11 +8983,11 @@ Post.prototype = {
 					) + p + info[0] + '</a>';
 			});
 		}
-		return '<a class="de-menu-item de-imgmenu de-src-google" href="http://google.com/searchbyimage?image_url=' + p + 'Google</a>' +
-			'<a class="de-menu-item de-imgmenu de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex</a>' +
-			'<a class="de-menu-item de-imgmenu de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' +
-			'<a class="de-menu-item de-imgmenu de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' +
-			'<a class="de-menu-item de-imgmenu de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>' + str;
+		return '<a class="de-menu-item de-src-google" href="http://google.com/searchbyimage?image_url=' + p + 'Google</a>' +
+			'<a class="de-menu-item de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex</a>' +
+			'<a class="de-menu-item de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' +
+			'<a class="de-menu-item de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' +
+			'<a class="de-menu-item de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>' + str;
 	},
 	_addPview(link) {
 		var tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,aib.getPostEl(link).post.tNum])[1],
@@ -8997,8 +9023,6 @@ Post.prototype = {
 		e.stopPropagation();
 	},
 	_clickMenu(el) {
-		$del(this._menu);
-		this._menu = null;
 		switch(el.getAttribute('info')) {
 		case 'spell-sel':
 			var start = this._selRange.startContainer,
@@ -9055,15 +9079,6 @@ Post.prototype = {
 			return;
 		case 'spell-notext': addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
 		case 'thr-exp': this.thr.load(parseInt(el.textContent, 10), false);
-		}
-	},
-	_closeMenu(rt) {
-		clearTimeout(this._menuDelay);
-		if(this._menu && (!rt || rt.className !== 'de-menu-item')) {
-			this._menuDelay = setTimeout(() => {
-				$del(this._menu);
-				this._menu = null;
-			}, 75);
 		}
 	},
 	_getFull(node, isInit) {
@@ -9311,13 +9326,6 @@ Pview.del = function(pv) {
 		}
 	} while((pv = pv.kid));
 };
-Pview.mouseEnter = function(post) {
-	if(post.kid) {
-		post.kid.markToDel();
-	} else {
-		clearTimeout(Pview.delTO);
-	}
-};
 Pview.delTO = 0;
 Pview.top = null;
 Pview.prototype = Object.create(Post.prototype, {
@@ -9341,6 +9349,13 @@ Pview.prototype = Object.create(Post.prototype, {
 			Pview.delTO = setTimeout(Pview.del, Cfg.linksOut, lastSticked ? lastSticked.kid : this);
 		}
 	} },
+	mouseEnter: { value() {
+		if(this.kid) {
+			this.kid.markToDel();
+		} else {
+			clearTimeout(Pview.delTO);
+		}
+	} },
 
 	_loaded: { value: false, writable: true },
 	_cache: { value: {}, writable: true },
@@ -9348,8 +9363,8 @@ Pview.prototype = Object.create(Post.prototype, {
 	_handleMouseEvents: { value(el, isOverEvent) {
 		if(!el || (el !== this.el && !this.el.contains(el))) {
 			if(isOverEvent) {
-				Pview.mouseEnter(this);
-			} else if(Pview.top && (!this._menu || (this._menu !== el && !this._menu.contains(el)))) {
+				this.mouseEnter();
+			} else if(Pview.top) {
 				Pview.top.markToDel();
 			}
 		}
@@ -9997,8 +10012,7 @@ Thread.prototype = {
 			scrollTo(window.pageXOffset, window.pageYOffset - (lastOffset - pr.topCoord));
 		}
 		if(newPosts !== 0) {
-			$id('de-panel-info').firstChild.textContent = this.pcount + '/' +
-				$Q(aib.qThumbImages, dForm.el).length;
+			panel.updateCounter(this.pcount, $Q(aib.qThumbImages, dForm.el).length);
 		}
 		return newVisPosts;
 	},
@@ -12631,7 +12645,7 @@ function* initScript(checkDomains, readCfgPromise) {
 		new Logger().log('Time correction');
 	}
 	if(Cfg.disabled) {
-		addPanel(formEl);
+		panel.init(formEl);
 		scriptCSS();
 		return;
 	}
@@ -12660,7 +12674,7 @@ function* initScript(checkDomains, readCfgPromise) {
 	}
 	initPage();
 	new Logger().log('Init page');
-	addPanel(formEl);
+	panel.init(formEl);
 	new Logger().log('Add panel');
 	initMessageFunctions();
 	addDelformStuff();
