@@ -2588,7 +2588,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "f17feae";
+	var commit = "c84c5fc";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -3800,9 +3800,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		_prepareToHide: function _prepareToHide() {
 			var _this = this;
 
-			this._hideTO = setTimeout(function () {
-				return _this._el.lastChild.style.display = "none";
-			}, 500);
+			if (!Cfg.expandPanel && !$c("de-win-active", doc)) {
+				this._hideTO = setTimeout(function () {
+					return _this._el.lastChild.style.display = "none";
+				}, 500);
+			}
 		},
 		handleEvent: function handleEvent(e) {
 			var _this = this;
@@ -3916,9 +3918,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					return;
 				default:
 				
-					if (!Cfg.expandPanel && !$c("de-win-active", doc)) {
-						this._prepareToHide();
-					}
+					this._prepareToHide();
 					switch (e.target.id) {
 						case "de-panel-refresh":
 						case "de-panel-savethr":

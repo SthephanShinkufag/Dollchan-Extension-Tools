@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'f17feae';
+var commit = 'c84c5fc';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1579,7 +1579,9 @@ var panel = {
 		return val;
 	},
 	_prepareToHide() {
-		this._hideTO = setTimeout(() => this._el.lastChild.style.display = 'none', 500);
+		if(!Cfg.expandPanel && !$c('de-win-active', doc)) {
+			this._hideTO = setTimeout(() => this._el.lastChild.style.display = 'none', 500);
+		}
 	},
 	handleEvent(e) {
 		switch(e.type) {
@@ -1671,9 +1673,7 @@ var panel = {
 			}
 			return;
 		default: // mouseout
-			if(!Cfg.expandPanel && !$c('de-win-active', doc)) {
-				this._prepareToHide();
-			}
+			this._prepareToHide();
 			switch(e.target.id) {
 			case 'de-panel-refresh':
 			case 'de-panel-savethr':
