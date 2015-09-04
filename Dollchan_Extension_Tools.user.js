@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "6e2ff2b";
+	var commit = "1df7283";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -5139,6 +5139,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		onover: null,
 		onout: null,
 		remove: function remove() {
+			if (!this._el) {
+				return;
+			}
 			this._el.removeEventListener("mouseover", this, true);
 			this._el.removeEventListener("mouseout", this, true);
 			this._parentEl.removeEventListener("mouseout", this);

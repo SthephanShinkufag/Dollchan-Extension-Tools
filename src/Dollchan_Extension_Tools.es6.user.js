@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '6e2ff2b';
+var commit = '1df7283';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3071,6 +3071,9 @@ Menu.prototype = {
 	onover: null,
 	onout: null,
 	remove() {
+		if(!this._el) {
+			return;
+		}
 		this._el.removeEventListener('mouseover', this, true);
 		this._el.removeEventListener('mouseout', this, true);
 		this._parentEl.removeEventListener('mouseout', this);
