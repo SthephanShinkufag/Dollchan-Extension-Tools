@@ -1198,6 +1198,8 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+
 !(function(global) {
   "use strict";
 
@@ -2295,8 +2297,16 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					if (update) {
 						setStored("DESU_Favorites", JSON.stringify(fav));
 					}
+					temp = locStorage["__de-fav-window"];
+					if (temp === "open" || temp === "update") {
+						toggleWindow("fav", false, fav, true);
+					}
+					if (update) {
+						locStorage.removeItem("__de-fav-window");
+						locStorage["__de-fav-window"] = "update";
+					}
 
-				case 11:
+				case 14:
 				case "end":
 					return context$2$0.stop();
 			}
@@ -2588,7 +2598,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "f1f5aee";
+	var commit = "ab722ee";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -3940,9 +3950,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			this._el.addEventListener("click", this, true);
 			this._el.addEventListener("mouseover", this);
 			this._el.addEventListener("mouseout", this);
-			if (locStorage["__de-fav-open"] === "1") {
-				toggleWindow("fav", false, null, true);
-			}
 		},
 		remove: function remove() {
 			this._el.removeEventListener("click", this, true);
@@ -4088,7 +4095,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			win.classList.remove("de-win-close");
 			win.style.display = "none";
 			if (!isSync && name === "fav") {
-				locStorage["__de-fav-open"] = 0;
+				locStorage["__de-fav-window"] = "close";
 			}
 			if (!Cfg.expandPanel && !$c("de-win-active", doc)) {
 				$id("de-panel").lastChild.style.display = "none";
@@ -4098,8 +4105,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		win.classList.add("de-win-active");
 		win.style.display = "";
 		if (!isSync && name === "fav") {
-			locStorage["__de-fav-open"] = 0;
-			locStorage["__de-fav-open"] = 1;
+			if (isUpd) {
+				locStorage.removeItem("__de-fav-window");
+			}
+			locStorage["__de-fav-window"] = isUpd ? "update" : "open";
 		}
 		if (!Cfg.expandPanel) {
 			$id("de-panel").lastChild.style.display = "";
@@ -4476,6 +4485,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					case 34:
 						if (update) {
 							setStored("DESU_Favorites", JSON.stringify(fav));
+							locStorage.removeItem("__de-fav-window");
+							locStorage["__de-fav-window"] = "update";
 						}
 
 					case 35:
@@ -12986,6 +12997,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					f["new"] = 0;
 					f.last = _this.last.num;
 					setStored("DESU_Favorites", JSON.stringify(fav));
+					locStorage.removeItem("__de-fav-window");
+					locStorage["__de-fav-window"] = "update";
 				}
 			});
 			maybeVParser.end();
@@ -14399,8 +14412,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						temp.value = val;
 					}
 					break;
-				case "__de-fav-open":
-					toggleWindow("fav", false, null, true);break;
+				case "__de-fav-window":
+					toggleWindow("fav", val === "update", null, true);break;
 				case "__de-post":
 					(function () {
 						try {

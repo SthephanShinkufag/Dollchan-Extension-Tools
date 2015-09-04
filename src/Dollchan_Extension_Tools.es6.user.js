@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'f1f5aee';
+var commit = 'ab722ee';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1519,6 +1519,14 @@ function* readFavoritesPosts() {
 	if(update) {
 		setStored('DESU_Favorites', JSON.stringify(fav));
 	}
+	temp = locStorage['__de-fav-window'];
+	if(temp === 'open' || temp === 'update') {
+		toggleWindow('fav', false, fav, true);
+	}
+	if(update) {
+		locStorage.removeItem('__de-fav-window');
+		locStorage['__de-fav-window'] = 'update';
+	}
 }
 
 function saveFavorites(fav) {
@@ -1726,9 +1734,6 @@ var panel = {
 		this._el.addEventListener('click', this, true);
 		this._el.addEventListener('mouseover', this);
 		this._el.addEventListener('mouseout', this);
-		if(locStorage['__de-fav-open'] === '1') {
-			toggleWindow('fav', false, null, true);
-		}
 	},
 	remove() {
 		this._el.removeEventListener('click', this, true);
@@ -1880,7 +1885,7 @@ function showWindow(win, name, isUpd, remove, data, isSync, isAnim) {
 		win.classList.remove('de-win-close');
 		win.style.display = 'none';
 		if(!isSync && name === 'fav') {
-			locStorage['__de-fav-open'] = 0;
+			locStorage['__de-fav-window'] = 'close';
 		}
 		if(!Cfg.expandPanel && !$c('de-win-active', doc)) {
 			$id('de-panel').lastChild.style.display = 'none';
@@ -1890,8 +1895,10 @@ function showWindow(win, name, isUpd, remove, data, isSync, isAnim) {
 	win.classList.add('de-win-active');
 	win.style.display = '';
 	if(!isSync && name === 'fav') {
-		locStorage['__de-fav-open'] = 0;
-		locStorage['__de-fav-open'] = 1;
+		if(isUpd) {
+			locStorage.removeItem('__de-fav-window');
+		}
+		locStorage['__de-fav-window'] = isUpd ? 'update' : 'open';
 	}
 	if(!Cfg.expandPanel) {
 		$id('de-panel').lastChild.style.display = '';
@@ -2257,6 +2264,8 @@ function showFavoriteTable(body, data) {
 		}
 		if(update) {
 			setStored('DESU_Favorites', JSON.stringify(fav));
+			locStorage.removeItem('__de-fav-window');
+			locStorage['__de-fav-window'] = 'update';
 		}
 	})));
 	body.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(function* () {
@@ -10190,6 +10199,8 @@ Thread.prototype = {
 				f['new'] = 0;
 				f.last = this.last.num;
 				setStored('DESU_Favorites', JSON.stringify(fav));
+				locStorage.removeItem('__de-fav-window');
+				locStorage['__de-fav-window'] = 'update';
 			}
 		});
 		maybeVParser.end();
@@ -11483,7 +11494,7 @@ function Initialization(checkDomains) {
 				temp.value = val;
 			}
 			break;
-		case '__de-fav-open': toggleWindow('fav', false, null, true); break;
+		case '__de-fav-window': toggleWindow('fav', val === 'update', null, true); break;
 		case '__de-post': (() => {
 			try {
 				data = JSON.parse(val);
