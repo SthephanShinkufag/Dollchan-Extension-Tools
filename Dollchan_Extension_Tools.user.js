@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "24864c9";
+	var commit = "366f589";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -3910,7 +3910,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 												case "de-panel-savethr":
 						case "de-panel-audio-off":
 							this._menuTO = setTimeout(function () {
-								var menu = addMenu(e.target);
+								var menu = addMenu(e.target, true);
 								menu.onover = function () {
 									return clearTimeout(_this._hideTO);
 								};
@@ -5106,22 +5106,24 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}
 	}
 
-	function Menu(parentEl, html, clickFn) {
-		doc.body.insertAdjacentHTML("beforeend", "<div class=\"" + aib.cReply + " de-menu\" style=\"position: absolute; left: 0px; top: 0px; visibility: hidden;\">" + html + "</div>");
+	function Menu(parentEl, html, isFixed, clickFn) {
+		doc.body.insertAdjacentHTML("beforeend", "<div class=\"" + aib.cReply + " de-menu\" style=\"position: " + (isFixed ? "fixed" : "absolute") + "; left: 0px; top: 0px; visibility: hidden;\">" + html + "</div>");
 		var el = doc.body.lastChild;
 		var mStyle = el.style;
 		var cr = parentEl.getBoundingClientRect();
 		var width = el.offsetWidth;
+		var xOffset = isFixed ? 0 : window.pageXOffset;
 		if (cr.left + width < Post.sizing.wWidth) {
-			mStyle.left = window.pageXOffset + cr.left + "px";
+			mStyle.left = xOffset + cr.left + "px";
 		} else {
-			mStyle.left = window.pageXOffset + cr.right - width + "px";
+			mStyle.left = xOffset + cr.right - width + "px";
 		}
 		var height = el.offsetHeight;
+		var yOffset = isFixed ? 0 : window.pageYOffset;
 		if (cr.bottom + height < Post.sizing.wHeight) {
-			mStyle.top = window.pageYOffset + cr.bottom + "px";
+			mStyle.top = yOffset + cr.bottom + "px";
 		} else {
-			mStyle.top = window.pageYOffset + cr.top - height + "px";
+			mStyle.top = yOffset + cr.top - height + "px";
 		}
 		mStyle.removeProperty("visibility");
 		this._clickFn = clickFn;
@@ -5168,7 +5170,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						this._closeTO = setTimeout(function () {
 							return _this.remove();
 						}, 75);
-						if (this.onout) {
+						if (el !== this._parentEl && this.onout) {
 							this.onout();
 						}
 					}
@@ -5180,16 +5182,16 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	function addMenu(el) {
 		switch (el.id) {
 			case "de-btn-addspell":
-				return new Menu(el, "<div style=\"display: inline-block; border-right: 1px solid grey;\">" + "<span class=\"de-menu-item\">" + "#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,<br>".split(",").join("</span><span class=\"de-menu-item\">") + "</span></div><div style=\"display: inline-block;\"><span class=\"de-menu-item\">" + "#sage,#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep".split(",").join("</span><span class=\"de-menu-item\">") + "</span></div>", function (el) {
+				return new Menu(el, "<div style=\"display: inline-block; border-right: 1px solid grey;\">" + "<span class=\"de-menu-item\">" + "#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,<br>".split(",").join("</span><span class=\"de-menu-item\">") + "</span></div><div style=\"display: inline-block;\"><span class=\"de-menu-item\">" + "#sage,#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep".split(",").join("</span><span class=\"de-menu-item\">") + "</span></div>", true, function (el) {
 					var exp = el.textContent;
 					$txtInsert($id("de-spell-edit"), exp + (!aib.t || exp === "#op" || exp === "#rep" || exp === "#outrep" ? "" : "[" + aib.b + "," + aib.t + "]") + (Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? "(" : ""));
 				});
 			case "de-panel-refresh":
-				return new Menu(el, "<span class=\"de-menu-item\">" + Lng.selAjaxPages[lang].join("</span><span class=\"de-menu-item\">") + "</span>", function (el) {
+				return new Menu(el, "<span class=\"de-menu-item\">" + Lng.selAjaxPages[lang].join("</span><span class=\"de-menu-item\">") + "</span>", true, function (el) {
 					loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1);
 				});
 			case "de-panel-savethr":
-				return new Menu(el, "<span class=\"de-menu-item\">" + Lng.selSaveThr[lang].join("</span><span class=\"de-menu-item\">") + "</span>", function (el) {
+				return new Menu(el, "<span class=\"de-menu-item\">" + Lng.selSaveThr[lang].join("</span><span class=\"de-menu-item\">") + "</span>", true, function (el) {
 					if (!$id("de-alert-savethr")) {
 						var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
 						if (Images_.preloading) {
@@ -5202,7 +5204,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 				});
 			case "de-panel-audio-off":
-				return new Menu(el, "<span class=\"de-menu-item\">" + Lng.selAudioNotif[lang].join("</span><span class=\"de-menu-item\">") + "</span>", function (el) {
+				return new Menu(el, "<span class=\"de-menu-item\">" + Lng.selAudioNotif[lang].join("</span><span class=\"de-menu-item\">") + "</span>", true, function (el) {
 					var i = aProto.indexOf.call(el.parentNode.children, el);
 					updater.enable();
 					updater.toggleAudio(i === 0 ? 30000 : i === 1 ? 60000 : i === 2 ? 120000 : 300000);
@@ -11534,7 +11536,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (this._menu) {
 				this._menu.remove();
 			}
-			this._menu = new Menu(el, html, function (el) {
+			this._menu = new Menu(el, html, false, function (el) {
 				return _this._clickMenu(el);
 			});
 			if (this.isPview) {
