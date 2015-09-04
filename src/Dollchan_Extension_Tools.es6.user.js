@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '3f060ea';
+var commit = '66a726c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1576,8 +1576,8 @@ function readViewedPosts() {
 // ===========================================================================================================
 
 function pButton(id, hasHotkey = false, href = '#') {
-	return '<span class="de-panel-button"><a id="de-panel-' + id + '" class="de-abtn de-panel-button-inner" ' + (hasHotkey ? 'de-' : '') + 'title="' +
-		Lng.panelBtn[id][lang] +'" href="' + href + '"></a></span>';
+	return '<a id="de-panel-' + id + '" class="de-abtn de-panel-button" ' + (hasHotkey ? 'de-' : '') + 'title="' +
+		Lng.panelBtn[id][lang] +'" href="' + href + '"></a>';
 }
 
 function addPanel(formEl) {
@@ -12198,7 +12198,7 @@ function scriptCSS() {
 		return id + '::before { content: ""; padding: 0 16px 0 0; margin: 0 4px; background: url(' + src + ') no-repeat center; background-size: contain; }';
 	}
 	function gif(id, src) {
-		return id + ' { background: url(data:image/gif;base64,' + src + ') no-repeat center !important; }';
+		return id + ' { background-image: url(data:image/gif;base64,' + src + ') !important; background-repeat: no-repeat !important; background-position: center !important; }';
 	}
 
 	// Windows
@@ -12269,12 +12269,11 @@ function scriptCSS() {
 	#de-panel-buttons { flex: 0 1 auto; display: inline-flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #8fbbed; }\
 	#de-panel-buttons:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
 	#de-panel-buttons:lang(fr), #de-panel-info:lang(fr) { border-color: #616b86; }\
-	.de-panel-button { flex: 0 1 auto; margin: 0 1px; padding: 0; }\
+	.de-panel-button { display: block; width: 25px; height: 25px; flex: 0 1 auto; margin: 0 1px; padding: 0; }\
 	.de-panel-button:lang(en), .de-panel-button:lang(fr)  { transition: all 0.3s ease; }\
 	.de-panel-button:lang(en):hover, .de-panel-button:lang(fr):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
-	.de-panel-button-inner { display: block; width: 25px; height: 25px; }\
-	.de-panel-button-inner:lang(de) { border-radius: 5px; box-sizing: border-box; }\
-	.de-panel-button-inner:lang(de):hover { border: 2px solid #444; }\
+	.de-panel-button:lang(de) { border-radius: 5px; box-sizing: border-box; }\
+	.de-panel-button:lang(de):hover { border: 2px solid #444; }\
 	#de-panel-info { padding: 0 6px; margin-left: 2px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }' +
 	gif('#de-panel-logo', (p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA') + 'QAI5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=') +
 	gif('#de-panel-cfg', p + 'QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7') +
