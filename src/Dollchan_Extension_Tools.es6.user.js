@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '0a1b6f9';
+var commit = 'd369648';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -684,6 +684,15 @@ function $script(text) {
 }
 
 function $css(text) {
+	if(!nav.Firefox) {
+		text = text.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + '$1');
+		if(!nav.Presto) {
+			text = text.replace(/\(to bottom/g, '(top').replace(/\(to top/g, '(bottom');
+		}
+		if(nav.Safari && !('flex' in document.body.style)) {
+			text = text.replace(/( flex|inline-flex|align-items)/g, ' -webkit-$1');
+		}
+	}
 	return doc.head.appendChild($new('style', {'type': 'text/css', 'text': text}, null));
 }
 
@@ -1566,9 +1575,9 @@ function readViewedPosts() {
 // PANEL
 // ===========================================================================================================
 
-function pButton(id, href, hasHotkey) {
-	return '<li><a id="de-panel-' + id + '" class="de-abtn" ' + (hasHotkey ? 'de-' : '') + 'title="' +
-		Lng.panelBtn[id][lang] +'" href="' + href + '"></a></li>';
+function pButton(id, hasHotkey = false, href = '#') {
+	return '<span class="de-panel-button"><a id="de-panel-' + id + '" class="de-abtn de-panel-button-inner" ' + (hasHotkey ? 'de-' : '') + 'title="' +
+		Lng.panelBtn[id][lang] +'" href="' + href + '"></a></span>';
 }
 
 function addPanel(formEl) {
@@ -1577,36 +1586,36 @@ function addPanel(formEl) {
 	(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin',
 		'<div id="de-main" lang="' + getThemeLang() + '"><div id="de-panel">' +
 			'<span id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '"></span>' +
-			'<ul id="de-panel-btns"' + (Cfg.expandPanel ? '>' : ' style="display: none;">') +
-			(Cfg.disabled ? pButton('enable', '#', false) :
-				pButton('cfg', '#', true) +
-				pButton('hid', '#', true) +
-				pButton('fav', '#', true) +
-				(!Cfg.addYouTube ? '' : pButton('vid', '#', true)) +
+			'<span id="de-panel-buttons"' + (Cfg.expandPanel ? '>' : ' style="display: none;">') +
+			(Cfg.disabled ? pButton('enable') :
+				pButton('cfg', true) +
+				pButton('hid', true) +
+				pButton('fav', true) +
+				(!Cfg.addYouTube ? '' : pButton('vid', true)) +
 				(localRun ? '' :
-					pButton('refresh', '#', false) +
+					pButton('refresh') +
 					(!isThr && (aib.page === aib.firstPage) ? '' :
-						pButton('goback', aib.getPageUrl(aib.b, aib.page - 1), true)) +
+						pButton('goback', true, aib.getPageUrl(aib.b, aib.page - 1))) +
 					(isThr || aib.page === aib.lastPage ? '' :
-						pButton('gonext', aib.getPageUrl(aib.b, aib.page + 1), true))
-				) + pButton('goup', '#', false) +
-				pButton('godown', '#', false) +
+						pButton('gonext', true, aib.getPageUrl(aib.b, aib.page + 1)))
+				) + pButton('goup') +
+				pButton('godown') +
 				(imgLen === 0 ? '' :
-					pButton('expimg', '#', false) +
-					pButton('maskimg', '#', true) +
+					pButton('expimg') +
+					pButton('maskimg', true) +
 					(nav.Presto || localRun ? '' :
-						(Cfg.preLoadImgs ? '' : pButton('preimg', '#', false)) +
-						(!isThr ? '' : pButton('savethr', '#', false)))) +
+						(Cfg.preLoadImgs ? '' : pButton('preimg')) +
+						(!isThr ? '' : pButton('savethr')))) +
 				(!isThr || localRun ? '' :
-					pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off', '#', false) +
-					(nav.Safari ? '' : pButton('audio-off', '#', false))) +
+					pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') +
+					(nav.Safari ? '' : pButton('audio-off'))) +
 				(!aib.mak && !aib.tiny && !aib.fch ? '' :
-					pButton('catalog', aib.prot + '//' + aib.host + '/' + aib.b + '/catalog.html', false)) +
-				pButton('enable', '#', false) +
+					pButton('catalog', false, aib.prot + '//' + aib.host + '/' + aib.b + '/catalog.html')) +
+				pButton('enable') +
 				(!isThr ? '' :
 					'<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' +
 					dForm.firstThr.pcount + '/' + imgLen + '</span>')
-			) + '</ul>' +
+			) + '</span>' +
 		'</div>' + (Cfg.disabled ? '' : '<div id="de-alert"></div><hr style="clear: both;">') + '</div>');
 	panel = $id('de-panel');
 	evtObject = {
@@ -1698,9 +1707,9 @@ function addPanel(formEl) {
 				return;
 			default: // mouseout
 				if(!Cfg.expandPanel && !$c('de-win-active', doc)) {
-					this.odelay = setTimeout(function(obj) {
-						obj.panel.lastChild.style.display = 'none';
-					}, 500, this);
+					this.odelay = setTimeout(() => {
+						this.panel.lastChild.style.display = 'none';
+					}, 500);
 				}
 				switch(e.target.id) {
 				case 'de-panel-refresh':
@@ -12213,8 +12222,8 @@ function scriptCSS() {
 	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 10px; border: 1px solid gray; }\
 	#de-win-fav input[type="checkbox"] { margin-left: 15px; }\
 	.de-win-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\
-	.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
-	.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
+	.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\
+	.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\
 	.de-win-head:lang(de), #de-panel:lang(de) { background: #777; }\
 	.de-win-title { font: bold 14px arial; margin-left: 32px; }' +
 
@@ -12255,19 +12264,18 @@ function scriptCSS() {
 	#de-spell-rowmeter:lang(de) { background-color: #777; }' +
 
 	// Main panel
-	'#de-panel { position: fixed; right: 0; bottom: 0; }\
-	#de-panel-logo { margin-right: 3px; cursor: pointer; }\
-	#de-panel { height: 25px; z-index: 9999; border-radius: 15px 0 0 0; cursor: default;}\
-	#de-panel-btns { display: inline-block; padding: 0 0 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\
-	#de-panel-btns:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
-	#de-panel-btns:lang(fr), #de-panel-info:lang(fr) { border-color: #616b86; }\
-	#de-panel-btns > li { margin: 0 1px; padding: 0; }\
-	#de-panel-btns > li, #de-panel-btns > li > a, #de-panel-logo { display: inline-block; width: 25px; height: 25px; }\
-	#de-panel-btns:lang(en) > li, #de-panel-btns:lang(fr) > li  { transition: all 0.3s ease; }\
-	#de-panel-btns:lang(en) > li:hover, #de-panel-btns:lang(fr) > li:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
-	#de-panel-btns:lang(de) > li > a { border-radius: 5px; }\
-	#de-panel-btns:lang(de) > li > a:hover { width: 21px; height: 21px; border: 2px solid #444; }\
-	#de-panel-info { vertical-align: 6px; padding: ' + (nav.Chrome ? 3 : 2) + 'px 6px; margin-left: 2px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }' +
+	'#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; flex-flow: row nowrap; }\
+	#de-panel-logo { flex: 0 1 auto; margin-right: 3px; cursor: pointer; min-height: 25px; width: 25px; }\
+	#de-panel-buttons { flex: 0 1 auto; display: inline-flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #8fbbed; }\
+	#de-panel-buttons:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
+	#de-panel-buttons:lang(fr), #de-panel-info:lang(fr) { border-color: #616b86; }\
+	.de-panel-button { flex: 0 1 auto; margin: 0 1px; padding: 0; }\
+	.de-panel-button:lang(en), .de-panel-button:lang(fr)  { transition: all 0.3s ease; }\
+	.de-panel-button:lang(en):hover, .de-panel-button:lang(fr):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
+	.de-panel-button-inner { display: inline-block; width: 25px; height: 25px; }\
+	.de-panel-button-inner:lang(de) { border-radius: 5px; box-sizing: border-box; }\
+	.de-panel-button-inner:lang(de):hover { border: 2px solid #444; }\
+	#de-panel-info { padding: 0 6px; margin-left: 2px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }' +
 	gif('#de-panel-logo', (p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA') + 'QAI5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=') +
 	gif('#de-panel-cfg', p + 'QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7') +
 	gif('#de-panel-hid', p + 'QAI5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=') +
@@ -12518,12 +12526,6 @@ function scriptCSS() {
 	.de-viewed { color: #888 !important; }\
 	form > hr { clear: both }';
 
-	if(!nav.Firefox) {
-		x = x.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + '$1');
-		if(!nav.Presto) {
-			x = x.replace(/\(to bottom/g, '(top').replace(/\(to top/g, '(bottom');
-		}
-	}
 	$css(x).id = 'de-css';
 	$css('').id = 'de-css-dynamic';
 	$css('').id = 'de-css-user';
