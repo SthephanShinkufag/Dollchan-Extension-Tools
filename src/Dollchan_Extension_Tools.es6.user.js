@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '66a726c';
+var commit = '6af8b55';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1575,9 +1575,9 @@ function readViewedPosts() {
 // PANEL
 // ===========================================================================================================
 
-function pButton(id, hasHotkey = false, href = '#') {
-	return '<a id="de-panel-' + id + '" class="de-abtn de-panel-button" ' + (hasHotkey ? 'de-' : '') + 'title="' +
-		Lng.panelBtn[id][lang] +'" href="' + href + '"></a>';
+function pButton(id, href = '#') {
+	return '<a id="de-panel-' + id + '" class="de-abtn de-panel-button" title="' +
+		Lng.panelBtn[id][lang] + '" href="' + href + '"></a>';
 }
 
 function addPanel(formEl) {
@@ -1588,21 +1588,21 @@ function addPanel(formEl) {
 			'<span id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '"></span>' +
 			'<span id="de-panel-buttons"' + (Cfg.expandPanel ? '>' : ' style="display: none;">') +
 			(Cfg.disabled ? pButton('enable') :
-				pButton('cfg', true) +
-				pButton('hid', true) +
-				pButton('fav', true) +
-				(!Cfg.addYouTube ? '' : pButton('vid', true)) +
+				pButton('cfg') +
+				pButton('hid') +
+				pButton('fav') +
+				(!Cfg.addYouTube ? '' : pButton('vid')) +
 				(localRun ? '' :
 					pButton('refresh') +
 					(!isThr && (aib.page === aib.firstPage) ? '' :
-						pButton('goback', true, aib.getPageUrl(aib.b, aib.page - 1))) +
+						pButton('goback', aib.getPageUrl(aib.b, aib.page - 1))) +
 					(isThr || aib.page === aib.lastPage ? '' :
-						pButton('gonext', true, aib.getPageUrl(aib.b, aib.page + 1)))
+						pButton('gonext', aib.getPageUrl(aib.b, aib.page + 1)))
 				) + pButton('goup') +
 				pButton('godown') +
 				(imgLen === 0 ? '' :
 					pButton('expimg') +
-					pButton('maskimg', true) +
+					pButton('maskimg') +
 					(nav.Presto || localRun ? '' :
 						(Cfg.preLoadImgs ? '' : pButton('preimg')) +
 						(!isThr ? '' : pButton('savethr')))) +
@@ -1610,7 +1610,7 @@ function addPanel(formEl) {
 					pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') +
 					(nav.Safari ? '' : pButton('audio-off'))) +
 				(!aib.mak && !aib.tiny && !aib.fch ? '' :
-					pButton('catalog', false, aib.prot + '//' + aib.host + '/' + aib.b + '/catalog.html')) +
+					pButton('catalog', aib.prot + '//' + aib.host + '/' + aib.b + '/catalog.html')) +
 				pButton('enable') +
 				(!isThr ? '' :
 					'<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' +
@@ -3556,6 +3556,10 @@ KeyEditListener.getEditMarkup = function(keys) {
 };
 KeyEditListener.setTitle = function(el, idx) {
 	var title = el.getAttribute('de-title');
+	if(!title) {
+		title = el.getAttribute('title');
+		el.setAttribute('de-title', title);
+	}
 	if(hKeys && idx !== -1) {
 		title += ' [' + KeyEditListener.getStrKey(hKeys.gKeys[idx]) + ']';
 	}

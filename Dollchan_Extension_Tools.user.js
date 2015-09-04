@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "66a726c";
+	var commit = "6af8b55";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -3800,10 +3800,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 
 	function pButton(id) {
-		var hasHotkey = arguments[1] === undefined ? false : arguments[1];
-		var href = arguments[2] === undefined ? "#" : arguments[2];
+		var href = arguments[1] === undefined ? "#" : arguments[1];
 
-		return "<a id=\"de-panel-" + id + "\" class=\"de-abtn de-panel-button\" " + (hasHotkey ? "de-" : "") + "title=\"" + Lng.panelBtn[id][lang] + "\" href=\"" + href + "\"></a>";
+		return "<a id=\"de-panel-" + id + "\" class=\"de-abtn de-panel-button\" title=\"" + Lng.panelBtn[id][lang] + "\" href=\"" + href + "\"></a>";
 	}
 
 	function addPanel(formEl) {
@@ -3811,7 +3810,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		    evtObject,
 		    imgLen = $Q(aib.qThumbImages, formEl).length,
 		    isThr = aib.t;
-		(pr && pr.pArea[0] || formEl).insertAdjacentHTML("beforebegin", "<div id=\"de-main\" lang=\"" + getThemeLang() + "\"><div id=\"de-panel\">" + "<span id=\"de-panel-logo\" title=\"" + Lng.panelBtn.attach[lang] + "\"></span>" + "<span id=\"de-panel-buttons\"" + (Cfg.expandPanel ? ">" : " style=\"display: none;\">") + (Cfg.disabled ? pButton("enable") : pButton("cfg", true) + pButton("hid", true) + pButton("fav", true) + (!Cfg.addYouTube ? "" : pButton("vid", true)) + (localRun ? "" : pButton("refresh") + (!isThr && aib.page === aib.firstPage ? "" : pButton("goback", true, aib.getPageUrl(aib.b, aib.page - 1))) + (isThr || aib.page === aib.lastPage ? "" : pButton("gonext", true, aib.getPageUrl(aib.b, aib.page + 1)))) + pButton("goup") + pButton("godown") + (imgLen === 0 ? "" : pButton("expimg") + pButton("maskimg", true) + (nav.Presto || localRun ? "" : (Cfg.preLoadImgs ? "" : pButton("preimg")) + (!isThr ? "" : pButton("savethr")))) + (!isThr || localRun ? "" : pButton(Cfg.ajaxUpdThr ? "upd-on" : "upd-off") + (nav.Safari ? "" : pButton("audio-off"))) + (!aib.mak && !aib.tiny && !aib.fch ? "" : pButton("catalog", false, aib.prot + "//" + aib.host + "/" + aib.b + "/catalog.html")) + pButton("enable") + (!isThr ? "" : "<span id=\"de-panel-info\" title=\"" + Lng.panelBtn.counter[lang] + "\">" + dForm.firstThr.pcount + "/" + imgLen + "</span>")) + "</span>" + "</div>" + (Cfg.disabled ? "" : "<div id=\"de-alert\"></div><hr style=\"clear: both;\">") + "</div>");
+		(pr && pr.pArea[0] || formEl).insertAdjacentHTML("beforebegin", "<div id=\"de-main\" lang=\"" + getThemeLang() + "\"><div id=\"de-panel\">" + "<span id=\"de-panel-logo\" title=\"" + Lng.panelBtn.attach[lang] + "\"></span>" + "<span id=\"de-panel-buttons\"" + (Cfg.expandPanel ? ">" : " style=\"display: none;\">") + (Cfg.disabled ? pButton("enable") : pButton("cfg") + pButton("hid") + pButton("fav") + (!Cfg.addYouTube ? "" : pButton("vid")) + (localRun ? "" : pButton("refresh") + (!isThr && aib.page === aib.firstPage ? "" : pButton("goback", aib.getPageUrl(aib.b, aib.page - 1))) + (isThr || aib.page === aib.lastPage ? "" : pButton("gonext", aib.getPageUrl(aib.b, aib.page + 1)))) + pButton("goup") + pButton("godown") + (imgLen === 0 ? "" : pButton("expimg") + pButton("maskimg") + (nav.Presto || localRun ? "" : (Cfg.preLoadImgs ? "" : pButton("preimg")) + (!isThr ? "" : pButton("savethr")))) + (!isThr || localRun ? "" : pButton(Cfg.ajaxUpdThr ? "upd-on" : "upd-off") + (nav.Safari ? "" : pButton("audio-off"))) + (!aib.mak && !aib.tiny && !aib.fch ? "" : pButton("catalog", aib.prot + "//" + aib.host + "/" + aib.b + "/catalog.html")) + pButton("enable") + (!isThr ? "" : "<span id=\"de-panel-info\" title=\"" + Lng.panelBtn.counter[lang] + "\">" + dForm.firstThr.pcount + "/" + imgLen + "</span>")) + "</span>" + "</div>" + (Cfg.disabled ? "" : "<div id=\"de-alert\"></div><hr style=\"clear: both;\">") + "</div>");
 		panel = $id("de-panel");
 		evtObject = {
 			odelay: 0,
@@ -5629,6 +5628,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	};
 	KeyEditListener.setTitle = function (el, idx) {
 		var title = el.getAttribute("de-title");
+		if (!title) {
+			title = el.getAttribute("title");
+			el.setAttribute("de-title", title);
+		}
 		if (hKeys && idx !== -1) {
 			title += " [" + KeyEditListener.getStrKey(hKeys.gKeys[idx]) + "]";
 		}
