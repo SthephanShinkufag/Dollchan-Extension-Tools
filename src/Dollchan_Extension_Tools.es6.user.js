@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '366f589';
+var commit = '6e2ff2b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1670,7 +1670,7 @@ var panel = {
 			case 'de-panel-savethr':
 			case 'de-panel-audio-off':
 				this._menuTO = setTimeout(() => {
-					var menu = addMenu(e.target, true);
+					var menu = addMenu(e.target);
 					menu.onover = () => clearTimeout(this._hideTO);
 					menu.onout = () => this._prepareToHide();
 				}, Cfg.linksOver); 

@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "366f589";
+	var commit = "6e2ff2b";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -3910,7 +3910,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 												case "de-panel-savethr":
 						case "de-panel-audio-off":
 							this._menuTO = setTimeout(function () {
-								var menu = addMenu(e.target, true);
+								var menu = addMenu(e.target);
 								menu.onover = function () {
 									return clearTimeout(_this._hideTO);
 								};
