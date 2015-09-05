@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'ab722ee';
+var commit = '82f9ac5';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1876,7 +1876,7 @@ function toggleWindow(name, isUpd, data, isSync) {
 
 function showWindow(win, name, isUpd, remove, data, isSync, isAnim) {
 	var temp, cfgTabId, body = win.lastChild;
-	if(name === 'cfg' && !remove && (temp = $q('.de-cfg-tab-back[selected="true"] > .de-cfg-tab', body))) {
+	if(name === 'cfg' && !remove && (temp = $q('.de-cfg-tab[selected]', body))) {
 		cfgTabId = temp.getAttribute('info');
 	}
 	body.innerHTML = '';
@@ -2414,21 +2414,20 @@ function optSel(id, isBlock, Fn) {
 }
 
 function cfgTab(name) {
-	return $New('div', {'class': aib.cReply + ' de-cfg-tab-back', 'selected': false}, [$new('div', {
-		'class': 'de-cfg-tab',
+	return $new('div', {
+		'class': aib.cReply + ' de-cfg-tab',
 		'text': Lng.cfgTab[name][lang],
 		'info': name}, {
 		'click'() {
-			var el = this.parentNode;
-			if(el.getAttribute('selected') === 'true') {
+			if(this.hasAttribute('selected')) {
 				return;
 			}
 			var prefTab = $c('de-cfg-body', doc);
 			if(prefTab) {
 				prefTab.className = 'de-cfg-unvis';
-				$q('.de-cfg-tab-back[selected="true"]', doc).setAttribute('selected', false);
+				$q('.de-cfg-tab[selected]', doc).removeAttribute('selected');
 			}
-			el.setAttribute('selected', true);
+			this.setAttribute('selected', '');
 			var id = this.getAttribute('info'),
 				newTab = $id('de-cfg-' + id);
 			if(!newTab) {
@@ -2451,7 +2450,7 @@ function cfgTab(name) {
 			}
 			fixSettings();
 		}
-	})]);
+	});
 }
 
 function updRowMeter(node) {
@@ -12270,15 +12269,13 @@ function scriptCSS() {
 	.de-cfg-info-data { display: inline-block; padding: 0 7px; width: 162px; height: 238px; overflow-y: auto; border-collapse: separate; border-spacing: 1px; box-sizing: content-box; -moz-box-sizing: content-box; }\
 	.de-cfg-info-data > tbody > tr > td:first-child { width: 100%; }\
 	.de-cfg-info-data > tbody > tr > td:last-child { text-align: right; }\
-	.de-cfg-tab { padding: 4px 3px; border-radius: 4px 4px 0 0; font: bold 12px arial; text-align: center; cursor: default; }\
-	.de-cfg-tab-back { display: table-cell !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; }\
-	.de-cfg-tab-back:lang(de) { border-color: #444 !important; }\
-	.de-cfg-tab-back:lang(fr) { border-color: #121421 !important; }\
-	.de-cfg-tab-back[selected="true"] { border-bottom: none !important; }\
-	.de-cfg-tab-back[selected="false"] > .de-cfg-tab { background-color: rgba(0,0,0,.2); }\
-	.de-cfg-tab-back[selected="false"] > .de-cfg-tab:lang(en), .de-cfg-tab-back[selected="false"] > .de-cfg-tab:lang(fr) { background: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
-	.de-cfg-tab-back[selected="false"] > .de-cfg-tab:hover { background-color: rgba(99,99,99,.2); }\
-	.de-cfg-tab-back[selected="false"] > .de-cfg-tab:hover:lang(en), .de-cfg-tab-back[selected="false"] > .de-cfg-tab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
+	.de-cfg-tab { display: table-cell !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 3px !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(0,0,0,.2) 0%, rgba(0,0,0,.2) 100%) !important; }\
+	.de-cfg-tab:lang(en) { border-color: #183d77 !important; }\
+	.de-cfg-tab:lang(fr) { border-color: #121421 !important; }\
+	.de-cfg-tab:lang(en), .de-cfg-tab:lang(fr) { background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
+	.de-cfg-tab:hover { background-image: linear-gradient(to bottom, rgba(99,99,99,.2) 0%, rgba(99,99,99,.2) 100%) !important; }\
+	.de-cfg-tab:lang(en):hover, .de-cfg-tab:lang(fr):hover  { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
+	.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\
 	.de-cfg-tab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\
 	.de-cfg-unvis { display: none; }\
 	#de-spell-panel { float: right; }\
