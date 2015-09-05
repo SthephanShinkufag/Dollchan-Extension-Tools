@@ -1198,6 +1198,8 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+
 !(function(global) {
   "use strict";
 
@@ -2295,16 +2297,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					if (update) {
 						setStored("DESU_Favorites", JSON.stringify(fav));
 					}
-					temp = locStorage["__de-fav-window"];
-					if (temp === "open" || temp === "update") {
-						toggleWindow("fav", false, fav, true);
-					}
-					if (update) {
-						locStorage.removeItem("__de-fav-window");
-						locStorage["__de-fav-window"] = "update";
-					}
 
-				case 14:
+				case 11:
 				case "end":
 					return context$2$0.stop();
 			}
@@ -2596,7 +2590,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "82f9ac5";
+	var commit = "7bfa540";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -4028,7 +4022,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		});
 	}
 
-	function toggleWindow(name, isUpd, data, isSync) {
+	function toggleWindow(name, isUpd, data) {
 		var el,
 		    main = $id("de-main"),
 		    win = $id("de-win-" + name),
@@ -4067,20 +4061,20 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		if (!remove && !win.classList.contains("de-win") && (el = $q(".de-win-active.de-win-fixed:not(#de-win-" + name + ")", win.parentNode))) {
 			toggleWindow(el.id.substr(7), false);
 		}
-		var isAnim = !isUpd && !isSync && Cfg.animation;
+		var isAnim = !isUpd && Cfg.animation;
 		if (isAnim && win.lastChild.hasChildNodes()) {
 			nav.animEvent(win, function (node) {
-				showWindow(node, name, false, remove, data, false, Cfg.animation);
+				showWindow(node, name, false, remove, data, Cfg.animation);
 				name = remove = data = null;
 			});
 			win.classList.remove("de-win-open");
 			win.classList.add("de-win-close");
 		} else {
-			showWindow(win, name, isUpd, remove, data, isSync, isAnim);
+			showWindow(win, name, isUpd, remove, data, isAnim);
 		}
 	}
 
-	function showWindow(win, name, isUpd, remove, data, isSync, isAnim) {
+	function showWindow(win, name, isUpd, remove, data, isAnim) {
 		var temp,
 		    cfgTabId,
 		    body = win.lastChild;
@@ -4092,9 +4086,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			win.classList.remove("de-win-active");
 			win.classList.remove("de-win-close");
 			win.style.display = "none";
-			if (!isSync && name === "fav") {
-				locStorage["__de-fav-window"] = "close";
-			}
 			if (!Cfg.expandPanel && !$c("de-win-active", doc)) {
 				$id("de-panel").lastChild.style.display = "none";
 			}
@@ -4102,12 +4093,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}
 		win.classList.add("de-win-active");
 		win.style.display = "";
-		if (!isSync && name === "fav") {
-			if (isUpd) {
-				locStorage.removeItem("__de-fav-window");
-			}
-			locStorage["__de-fav-window"] = isUpd ? "update" : "open";
-		}
 		if (!Cfg.expandPanel) {
 			$id("de-panel").lastChild.style.display = "";
 		}
@@ -4483,8 +4468,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					case 34:
 						if (update) {
 							setStored("DESU_Favorites", JSON.stringify(fav));
-							locStorage.removeItem("__de-fav-window");
-							locStorage["__de-fav-window"] = "update";
 						}
 
 					case 35:
@@ -12994,8 +12977,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					f["new"] = 0;
 					f.last = _this.last.num;
 					setStored("DESU_Favorites", JSON.stringify(fav));
-					locStorage.removeItem("__de-fav-window");
-					locStorage["__de-fav-window"] = "update";
 				}
 			});
 			maybeVParser.end();
@@ -14409,8 +14390,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						temp.value = val;
 					}
 					break;
-				case "__de-fav-window":
-					toggleWindow("fav", val === "update", null, true);break;
 				case "__de-post":
 					(function () {
 						try {

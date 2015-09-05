@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '82f9ac5';
+var commit = '7bfa540';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1519,14 +1519,6 @@ function* readFavoritesPosts() {
 	if(update) {
 		setStored('DESU_Favorites', JSON.stringify(fav));
 	}
-	temp = locStorage['__de-fav-window'];
-	if(temp === 'open' || temp === 'update') {
-		toggleWindow('fav', false, fav, true);
-	}
-	if(update) {
-		locStorage.removeItem('__de-fav-window');
-		locStorage['__de-fav-window'] = 'update';
-	}
 }
 
 function saveFavorites(fav) {
@@ -1807,7 +1799,7 @@ function makeDraggable(win, head, name) {
 	});
 }
 
-function toggleWindow(name, isUpd, data, isSync) {
+function toggleWindow(name, isUpd, data) {
 	var el, main = $id('de-main'),
 		win = $id('de-win-' + name),
 		isActive = win && win.classList.contains('de-win-active');
@@ -1861,20 +1853,20 @@ function toggleWindow(name, isUpd, data, isSync) {
 	{
 		toggleWindow(el.id.substr(7), false);
 	}
-	var isAnim = !isUpd && !isSync && Cfg.animation;
+	var isAnim = !isUpd && Cfg.animation;
 	if(isAnim && win.lastChild.hasChildNodes()) {
 		nav.animEvent(win, function(node) {
-			showWindow(node, name, false, remove, data, false, Cfg.animation);
+			showWindow(node, name, false, remove, data, Cfg.animation);
 			name = remove = data = null;
 		});
 		win.classList.remove('de-win-open');
 		win.classList.add('de-win-close');
 	} else {
-		showWindow(win, name, isUpd, remove, data, isSync, isAnim);
+		showWindow(win, name, isUpd, remove, data, isAnim);
 	}
 }
 
-function showWindow(win, name, isUpd, remove, data, isSync, isAnim) {
+function showWindow(win, name, isUpd, remove, data, isAnim) {
 	var temp, cfgTabId, body = win.lastChild;
 	if(name === 'cfg' && !remove && (temp = $q('.de-cfg-tab[selected]', body))) {
 		cfgTabId = temp.getAttribute('info');
@@ -1884,9 +1876,6 @@ function showWindow(win, name, isUpd, remove, data, isSync, isAnim) {
 		win.classList.remove('de-win-active');
 		win.classList.remove('de-win-close');
 		win.style.display = 'none';
-		if(!isSync && name === 'fav') {
-			locStorage['__de-fav-window'] = 'close';
-		}
 		if(!Cfg.expandPanel && !$c('de-win-active', doc)) {
 			$id('de-panel').lastChild.style.display = 'none';
 		}
@@ -1894,12 +1883,6 @@ function showWindow(win, name, isUpd, remove, data, isSync, isAnim) {
 	}
 	win.classList.add('de-win-active');
 	win.style.display = '';
-	if(!isSync && name === 'fav') {
-		if(isUpd) {
-			locStorage.removeItem('__de-fav-window');
-		}
-		locStorage['__de-fav-window'] = isUpd ? 'update' : 'open';
-	}
 	if(!Cfg.expandPanel) {
 		$id('de-panel').lastChild.style.display = '';
 	}
@@ -2264,8 +2247,6 @@ function showFavoriteTable(body, data) {
 		}
 		if(update) {
 			setStored('DESU_Favorites', JSON.stringify(fav));
-			locStorage.removeItem('__de-fav-window');
-			locStorage['__de-fav-window'] = 'update';
 		}
 	})));
 	body.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(function* () {
@@ -10198,8 +10179,6 @@ Thread.prototype = {
 				f['new'] = 0;
 				f.last = this.last.num;
 				setStored('DESU_Favorites', JSON.stringify(fav));
-				locStorage.removeItem('__de-fav-window');
-				locStorage['__de-fav-window'] = 'update';
 			}
 		});
 		maybeVParser.end();
@@ -11493,7 +11472,6 @@ function Initialization(checkDomains) {
 				temp.value = val;
 			}
 			break;
-		case '__de-fav-window': toggleWindow('fav', val === 'update', null, true); break;
 		case '__de-post': (() => {
 			try {
 				data = JSON.parse(val);
