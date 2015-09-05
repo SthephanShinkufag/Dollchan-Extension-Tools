@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '57de0f7';
+var commit = 'c0db9be';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10665,12 +10665,18 @@ function getImageBoard(checkDomains, checkEngines) {
 					.logo { margin-bottom: 14px; }' : ''}`;
 			} },
 			init: { value() {
-				doc.body.insertAdjacentHTML('beforeend', '<div onclick="highlight = function() {};"></div>');
+				doc.body.insertAdjacentHTML('beforeend', '<div onclick="' + `
+					highlight = function(num) {
+						var post = document.getElementsByClassName('highlight')[0];
+						if(post) {
+							post.className = 'reply';
+						}
+						if((post = document.getElementById('reply' + num))) {
+							post.className = 'reply highlight';
+						}
+					};
+				` + '"></div>');
 				doc.body.lastChild.click();
-				var post, hash = window.location.hash;
-				if(hash && (hash = hash.match(/#i?(\d+)$/)[1]) && (post = $id('reply' + hash))) {
-					post.classList.add('highlight');
-				}
 				return false;
 			} },
 		}],
