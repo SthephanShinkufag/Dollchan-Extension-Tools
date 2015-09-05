@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'c0db9be';
+var commit = 'd42ff3d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10669,10 +10669,10 @@ function getImageBoard(checkDomains, checkEngines) {
 					highlight = function(num) {
 						var post = document.getElementsByClassName('highlight')[0];
 						if(post) {
-							post.className = 'reply';
+							post.classList.remove('highlight');
 						}
 						if((post = document.getElementById('reply' + num))) {
-							post.className = 'reply highlight';
+							post.classList.add('highlight');
 						}
 					};
 				` + '"></div>');

@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "c0db9be";
+	var commit = "d42ff3d";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -13496,7 +13496,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return "" + (this.t ? "#de-main { margin-top: -37px; }\t\t\t\t\t.logo { margin-bottom: 14px; }" : "");
 					} },
 				init: { value: function value() {
-						doc.body.insertAdjacentHTML("beforeend", "<div onclick=\"" + "\n\t\t\t\t\thighlight = function(num) {\n\t\t\t\t\t\tvar post = document.getElementsByClassName('highlight')[0];\n\t\t\t\t\t\tif(post) {\n\t\t\t\t\t\t\tpost.className = 'reply';\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif((post = document.getElementById('reply' + num))) {\n\t\t\t\t\t\t\tpost.className = 'reply highlight';\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\t\t\t\t" + "\"></div>");
+						doc.body.insertAdjacentHTML("beforeend", "<div onclick=\"" + "\n\t\t\t\t\thighlight = function(num) {\n\t\t\t\t\t\tvar post = document.getElementsByClassName('highlight')[0];\n\t\t\t\t\t\tif(post) {\n\t\t\t\t\t\t\tpost.classList.remove('highlight');\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif((post = document.getElementById('reply' + num))) {\n\t\t\t\t\t\t\tpost.classList.add('highlight');\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\t\t\t\t" + "\"></div>");
 						doc.body.lastChild.click();
 						return false;
 					} } }],
