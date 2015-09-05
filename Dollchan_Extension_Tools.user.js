@@ -2281,13 +2281,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 								f.cnt = thr.pcount;
 								f["new"] = 0;
 								if (aib.t && Cfg.markNewPosts && f.last) {
-									post = pByNum[f.last];
+									post = pByNum[f.last.match(/\d+/)];
 
 									while (post = post.next) {
 										thr._addPostMark(post.el, true);
 									}
 								}
-								f.last = thr.last.num;
+								f.last = aib.anchor + thr.last.num;
 							} else {
 								f["new"] = thr.pcount - f.cnt;
 							}
@@ -2297,8 +2297,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					if (update) {
 						setStored("DESU_Favorites", JSON.stringify(fav));
 					}
+					if (sesStorage["__de-win-fav"] === "1") {
+						toggleWindow("fav", false, null, true);
+						sesStorage.removeItem("__de-win-fav");
+					}
 
-				case 11:
+				case 12:
 				case "end":
 					return context$2$0.stop();
 			}
@@ -2590,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "7bfa540";
+	var commit = "57de0f7";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -4022,7 +4026,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		});
 	}
 
-	function toggleWindow(name, isUpd, data) {
+	function toggleWindow(name, isUpd, data, noAnim) {
 		var el,
 		    main = $id("de-main"),
 		    win = $id("de-win-" + name),
@@ -4061,7 +4065,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		if (!remove && !win.classList.contains("de-win") && (el = $q(".de-win-active.de-win-fixed:not(#de-win-" + name + ")", win.parentNode))) {
 			toggleWindow(el.id.substr(7), false);
 		}
-		var isAnim = !isUpd && Cfg.animation;
+		var isAnim = !noAnim && !isUpd && Cfg.animation;
 		if (isAnim && win.lastChild.hasChildNodes()) {
 			nav.animEvent(win, function (node) {
 				showWindow(node, name, false, remove, data, Cfg.animation);
@@ -4375,7 +4379,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					if (!t.url.startsWith("http")) {
 						t.url = (h === aib.host ? aib.prot + "//" : "http://") + h + t.url;
 					}
-					block.insertAdjacentHTML("beforeend", "<div class=\"de-entry " + aib.cReply + "\" de-host=\"" + h + "\" de-board=\"" + b + "\" de-num=\"" + tNum + "\" de-url=\"" + t.url + "\">" + (t.type !== "user" ? "" : "<span class=\"de-fav-user\" title=\"" + Lng.setByUser[lang] + "\"></span>") + "<input type=\"checkbox\">" + "<a href=\"" + t.url + (t.last ? aib.anchor + t.last : "") + "\">" + tNum + "</a>" + "<div class=\"de-fav-title\">- " + t.txt + "</div>" + "<div class=\"de-fav-inf\">" + "<span class=\"de-fav-inf-err\">" + (t.err || "") + "</span> " + "<span class=\"de-fav-inf-new\" title=\"" + Lng.newPosts[lang] + "\"" + (t["new"] ? ">" : " style=\"display: none;\">") + (t["new"] || 0) + "</span> " + "[<span class=\"de-fav-inf-old\" title=\"" + Lng.oldPosts[lang] + "\">" + t.cnt + "</span>] " + "<span class=\"de-fav-inf-page\" title=\"" + Lng.thrPage[lang] + "\"></span>" + "</span></div>");
+					block.insertAdjacentHTML("beforeend", "<div class=\"de-entry " + aib.cReply + "\" de-host=\"" + h + "\" de-board=\"" + b + "\" de-num=\"" + tNum + "\" de-url=\"" + t.url + "\">" + (t.type !== "user" ? "" : "<span class=\"de-fav-user\" title=\"" + Lng.setByUser[lang] + "\"></span>") + "<input type=\"checkbox\">" + "<a href=\"" + t.url + (!t.last ? "" : t.last.startsWith("#") ? t.last : h === aib.host ? aib.anchor + t.last : "") + "\">" + tNum + "</a>" + "<div class=\"de-fav-title\">- " + t.txt + "</div>" + "<div class=\"de-fav-inf\">" + "<span class=\"de-fav-inf-err\">" + (t.err || "") + "</span> " + "<span class=\"de-fav-inf-new\" title=\"" + Lng.newPosts[lang] + "\"" + (t["new"] ? ">" : " style=\"display: none;\">") + (t["new"] || 0) + "</span> " + "[<span class=\"de-fav-inf-old\" title=\"" + Lng.oldPosts[lang] + "\">" + t.cnt + "</span>] " + "<span class=\"de-fav-inf-page\" title=\"" + Lng.thrPage[lang] + "\"></span>" + "</span></div>");
+					$t("a", block.lastChild).onclick = function () {
+						sesStorage["__de-win-fav"] = "1";
+					};
 				}
 			}
 		}
@@ -12827,7 +12834,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						"new": 0,
 						txt: _this.op.title,
 						url: aib.getThrdUrl(b, _this.num),
-						last: _this.last.num,
+						last: aib.anchor + _this.last.num,
 						type: type
 					};
 				} else {
@@ -12975,7 +12982,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 					f.cnt = _this.pcount;
 					f["new"] = 0;
-					f.last = _this.last.num;
+					f.last = aib.anchor + _this.last.num;
 					setStored("DESU_Favorites", JSON.stringify(fav));
 				}
 			});
@@ -15173,7 +15180,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (val) {
 				window.scrollTo(0, val);
 				sesStorage.removeItem("de-scroll-" + aib.b + aib.t);
-			} else if ((hash = window.location.hash) && (num = hash.match(/#i?(\d+)$/)) && (num = num[1]) && (post = pByNum[num])) {
+			} else if ((hash = window.location.hash) && (num = hash.match(/#[ip]?(\d+)$/)) && (num = num[1]) && (post = pByNum[num])) {
 				post.el.scrollIntoView(true);
 			}
 		}, 0);

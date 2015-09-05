@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '7bfa540';
+var commit = '57de0f7';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1504,12 +1504,12 @@ function* readFavoritesPosts() {
 				f.cnt = thr.pcount;
 				f['new'] = 0;
 				if(aib.t && Cfg.markNewPosts && f.last) {
-					var post = pByNum[f.last];
+					var post = pByNum[f.last.match(/\d+/)];
 					while(post = post.next) {
 						thr._addPostMark(post.el, true);
 					}
 				}
-				f.last = thr.last.num;
+				f.last = aib.anchor + thr.last.num;
 			} else {
 				f['new'] = thr.pcount - f.cnt;
 			}
@@ -1518,6 +1518,10 @@ function* readFavoritesPosts() {
 	}
 	if(update) {
 		setStored('DESU_Favorites', JSON.stringify(fav));
+	}
+	if(sesStorage['__de-win-fav'] === '1') {
+		toggleWindow('fav', false, null, true);
+		sesStorage.removeItem('__de-win-fav');
 	}
 }
 
@@ -1799,7 +1803,7 @@ function makeDraggable(win, head, name) {
 	});
 }
 
-function toggleWindow(name, isUpd, data) {
+function toggleWindow(name, isUpd, data, noAnim) {
 	var el, main = $id('de-main'),
 		win = $id('de-win-' + name),
 		isActive = win && win.classList.contains('de-win-active');
@@ -1853,7 +1857,7 @@ function toggleWindow(name, isUpd, data) {
 	{
 		toggleWindow(el.id.substr(7), false);
 	}
-	var isAnim = !isUpd && Cfg.animation;
+	var isAnim = !noAnim && !isUpd && Cfg.animation;
 	if(isAnim && win.lastChild.hasChildNodes()) {
 		nav.animEvent(win, function(node) {
 			showWindow(node, name, false, remove, data, Cfg.animation);
@@ -2181,7 +2185,8 @@ function showFavoriteTable(body, data) {
 					(t['type'] !== 'user' ? '' :
 						'<span class="de-fav-user" title="' + Lng.setByUser[lang] + '"></span>') +
 						'<input type="checkbox">' +
-						'<a href="' + t.url + (t.last ? aib.anchor + t.last : '') + '">' + tNum + '</a>' +
+						'<a href="' + t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last :
+							h === aib.host ? aib.anchor + t.last : '') + '">' + tNum + '</a>' +
 					'<div class="de-fav-title">- ' + t.txt + '</div>' +
 					'<div class="de-fav-inf">' +
 						'<span class="de-fav-inf-err">' + (t['err'] || '') + '</span> ' +
@@ -2191,6 +2196,9 @@ function showFavoriteTable(body, data) {
 							Lng.oldPosts[lang] + '">' + t.cnt + '</span>] ' +
 						'<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>' +
 						'</span></div>');
+				$t('a', block.lastChild).onclick = function() {
+					sesStorage['__de-win-fav'] = '1';
+				}
 			}
 		}
 	}
@@ -10030,7 +10038,7 @@ Thread.prototype = {
 					'new': 0,
 					'txt': this.op.title,
 					'url': aib.getThrdUrl(b, this.num),
-					'last': this.last.num,
+					'last': aib.anchor + this.last.num,
 					'type': type
 				};
 			} else {
@@ -10177,7 +10185,7 @@ Thread.prototype = {
 				}
 				f.cnt = this.pcount;
 				f['new'] = 0;
-				f.last = this.last.num;
+				f.last = aib.anchor + this.last.num;
 				setStored('DESU_Favorites', JSON.stringify(fav));
 			}
 		});
@@ -12136,7 +12144,7 @@ function scrollPage() {
 			window.scrollTo(0, val);
 			sesStorage.removeItem('de-scroll-' + aib.b + aib.t);
 		} else if((hash = window.location.hash) &&
-		          (num = hash.match(/#i?(\d+)$/)) &&
+		          (num = hash.match(/#[ip]?(\d+)$/)) &&
 		          (num = num[1]) && (post = pByNum[num]))
 		{
 			post.el.scrollIntoView(true);
