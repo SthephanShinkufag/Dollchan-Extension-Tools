@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'da78fb3';
+var commit = 'aaa05d4';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12265,7 +12265,7 @@ function scriptCSS() {
 	.de-cfg-body label { padding: 0; margin: 0; }\
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\
 	.de-cfg-body:lang(de), #de-cfg-buttons:lang(de) { border-color: #444; }\
-	#de-cfg-buttons { display: flex; flex: none; flex-flow: row nowrap; align-items: center; padding: 3px; font-size: 13px; }\
+	#de-cfg-buttons { display: flex; flex-flow: row nowrap; align-items: center; padding: 3px; font-size: 13px; }\
 	.de-cfg-lang-select { flex: 1 0 auto; }\
 	#de-cfg-bar { width: 100%; display: flex; background-color: #1f2740; margin: 0; padding: 0; }\
 	#de-cfg-bar:lang(en) { background-color: #325f9e; }\
@@ -12510,7 +12510,7 @@ function scriptCSS() {
 	.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
 	.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\
 	.de-alert-msg { display: inline-block; }\
-	.de-button { padding: 0 2px; margin: 0 1px; height: 24px; }\
+	.de-button { flex: none; padding: 0 2px; margin: 0 1px; height: 24px; }\
 	.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\
 	.de-content-block > input { margin: 0 4px; }\
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
