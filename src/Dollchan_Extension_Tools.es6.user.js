@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '28c6380';
+var commit = '7522f2b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1505,8 +1505,10 @@ function* readFavoritesPosts() {
 				f['new'] = 0;
 				if(aib.t && Cfg.markNewPosts && f.last) {
 					var post = pByNum[f.last.match(/\d+/)];
-					while(post = post.next) {
-						thr._addPostMark(post.el, true);
+					if(post) {
+						while(post = post.next) {
+							thr._addPostMark(post.el, true);
+						}
 					}
 				}
 				f.last = aib.anchor + thr.last.num;
@@ -2199,7 +2201,9 @@ function showFavoriteTable(body, data) {
 						'</span></div>');
 				$t('a', block.lastChild).onclick = function() {
 					sesStorage['de-win-fav'] = '1';
-					sesStorage.removeItem['de-scroll-' + b + tNum];
+					var el = this.parentNode;
+					sesStorage.removeItem('de-scroll-' +
+						el.getAttribute('de-board') + el.getAttribute('de-num'));
 				}
 			}
 		}
@@ -10753,11 +10757,13 @@ function getImageBoard(checkDomains, checkEngines) {
 					'<div onclick="window.lastUpdateTime = 0;"></div>' +
 					'<div onclick="if(boardRequiresCaptcha) { requestCaptcha(true); }"></div>' +
 					'<div onclick="setupProgressTracking();"></div>' +
+					'<div onclick="highlightPost = function() {}"></div></div>' +
 				'</div>');
 				var els = doc.body.lastChild.children;
 				this.btnZeroLUTime = els[0];
 				this.initCaptcha = els[1];
 				this.addProgressTrack = els[2];
+				els[3].click();
 				return false;
 			} },
 			markupBB: { value: true },
@@ -12259,8 +12265,7 @@ function scriptCSS() {
 	.de-cfg-body label { padding: 0; margin: 0; }\
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\
 	.de-cfg-body:lang(de), #de-cfg-buttons:lang(de) { border-color: #444; }\
-	#de-cfg-buttons { display: flex; flex-flow: row nowrap; align-items: center; padding: 3px; font-size: 13px; }\
-	#de-cfg-buttons > input { flex: none; }\
+	#de-cfg-buttons { display: flex; flex: none; flex-flow: row nowrap; align-items: center; padding: 3px; font-size: 13px; }\
 	.de-cfg-lang-select { flex: 1 0 auto; }\
 	#de-cfg-bar { width: 100%; display: flex; background-color: #1f2740; margin: 0; padding: 0; }\
 	#de-cfg-bar:lang(en) { background-color: #325f9e; }\
