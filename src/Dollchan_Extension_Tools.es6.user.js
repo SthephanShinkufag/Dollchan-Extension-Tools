@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '52e581f';
+var commit = '02856e5';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12241,7 +12241,7 @@ function scriptCSS() {
 	.de-win-buttons > span:hover { color: #f66; }\
 	#de-win-cfg, #de-win-hid, #de-win-fav, #de-win-vid { position: fixed; max-height: 100%; overflow-x: visible; overflow-y: auto; }\
 	#de-win-cfg > .de-win-body { float: left; width: auto; min-width: 0; padding: 0;  margin: 0 !important; border: none; }\
-	#de-win-cfg input[type="button"] { padding: 0 2px; margin: 0 1px; height: 24px; }\
+	#de-win-cfg input[type="button"], .de-win-body > input[type="button"] { padding: 0 2px; margin: 0 1px; height: 24px; }\
 	#de-win-cfg textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
 	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 10px; border: 1px solid gray; }\
 	#de-win-fav input[type="checkbox"] { margin-left: 15px; }\
