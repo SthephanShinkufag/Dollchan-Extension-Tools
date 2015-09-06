@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '1bc5a67';
+var commit = '52e581f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1519,9 +1519,9 @@ function* readFavoritesPosts() {
 	if(update) {
 		setStored('DESU_Favorites', JSON.stringify(fav));
 	}
-	if(sesStorage['__de-win-fav'] === '1') {
+	if(sesStorage['de-win-fav'] === '1') {
 		toggleWindow('fav', false, null, true);
-		sesStorage.removeItem('__de-win-fav');
+		sesStorage.removeItem('de-win-fav');
 	}
 }
 
@@ -2197,7 +2197,8 @@ function showFavoriteTable(body, data) {
 						'<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>' +
 						'</span></div>');
 				$t('a', block.lastChild).onclick = function() {
-					sesStorage['__de-win-fav'] = '1';
+					sesStorage['de-win-fav'] = '1';
+					sesStorage.removeItem['de-scroll-' + b + tNum];
 				}
 			}
 		}
@@ -6126,7 +6127,7 @@ function PostForm(form, ignoreForm, dc) {
 			this._setSage();
 		}});
 		$after(this.subm, el);
-		setTimeout(this._setSage.bind(this), 0);
+		setTimeout(() => this._setSage(), 0);
 		if(aib._2chru) {
 			while(el.nextSibling) {
 				$del(el.nextSibling);
@@ -6169,7 +6170,7 @@ function PostForm(form, ignoreForm, dc) {
 								this.innerHTML = 'можно постить';
 							} else {
 								this.innerHTML = 'неверная капча';
-								setTimeout(el => this.innerHTML = 'проверить капчу', 1000);
+								setTimeout(el => this.innerHTML = 'проверить капчу', 1e3);
 							}
 						}, emptyFn);
 					}
@@ -6612,7 +6613,7 @@ PostForm.prototype = {
 		if(aib.dvachnet) {
 			$script('get_captcha()');
 		}
-		setTimeout(this._captchaUpd.bind(this), 100);
+		setTimeout(() => this._captchaUpd(), 100);
 	},
 	_captchaUpd() {
 		var img, a;
@@ -6774,7 +6775,7 @@ FileInput.prototype = {
 	},
 	handleEvent(e) {
 		switch(e.type) {
-		case 'change': setTimeout(this._onFileChange.bind(this), 20); return;
+		case 'change': setTimeout(() => this._onFileChange(), 20); return;
 		case 'click':
 			if(e.target === this._delUtil) {
 				this.delUtils();
@@ -7615,7 +7616,7 @@ ImgBtnsShowHider.prototype = {
 	_oldY: -1,
 	_setHideTmt() {
 		clearTimeout(this._hideTmt);
-		this._hideTmt = setTimeout(this.hide.bind(this), 2000);
+		this._hideTmt = setTimeout(() => this.hide(), 2e3);
 	}
 };
 
@@ -8591,7 +8592,7 @@ Post.prototype = {
 					}
 				} else {
 					clearTimeout(Pview.delTO);
-					this._linkDelay = setTimeout(this._addPview.bind(this, el), Cfg.linksOver);
+					this._linkDelay = setTimeout(() => this._addPview(el), Cfg.linksOver);
 				}
 				$pd(e);
 				e.stopPropagation();
@@ -8784,7 +8785,7 @@ Post.prototype = {
 		this.hidden = hide;
 		this.hideContent(hide);
 		if(Cfg.strikeHidd) {
-			setTimeout(this._strikePostNum.bind(this, hide), 50);
+			setTimeout(() => this._strikePostNum(hide), 50);
 		}
 	},
 	spellHide(note) {
@@ -10573,7 +10574,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return $q('link[rel="canonical"]', doc.head).href;
 			} },
 			init: { value() {
-				setTimeout(() => {
+				setTimeout(function() {
 					var delPosts = $Q('.post[postid=""]', doc);
 					for(var i = 0, len = delPosts.length; i < len; ++i) {
 						try {
@@ -12155,6 +12156,9 @@ function scrollPage() {
 		          (num = num[1]) && (post = pByNum[num]))
 		{
 			post.el.scrollIntoView(true);
+			if(hKeys) {
+				hKeys.cPost = post;
+			}
 			post.select();
 		}
 	}, 0);

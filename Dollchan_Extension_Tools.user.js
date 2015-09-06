@@ -1198,6 +1198,8 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+
 !(function(global) {
   "use strict";
 
@@ -2295,9 +2297,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					if (update) {
 						setStored("DESU_Favorites", JSON.stringify(fav));
 					}
-					if (sesStorage["__de-win-fav"] === "1") {
+					if (sesStorage["de-win-fav"] === "1") {
 						toggleWindow("fav", false, null, true);
-						sesStorage.removeItem("__de-win-fav");
+						sesStorage.removeItem("de-win-fav");
 					}
 
 				case 12:
@@ -2592,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "1bc5a67";
+	var commit = "52e581f";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -4381,7 +4383,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 					block.insertAdjacentHTML("beforeend", "<div class=\"de-entry " + aib.cReply + "\" de-host=\"" + h + "\" de-board=\"" + b + "\" de-num=\"" + tNum + "\" de-url=\"" + t.url + "\">" + (t.type !== "user" ? "" : "<span class=\"de-fav-user\" title=\"" + Lng.setByUser[lang] + "\"></span>") + "<input type=\"checkbox\">" + "<a href=\"" + t.url + (!t.last ? "" : t.last.startsWith("#") ? t.last : h === aib.host ? aib.anchor + t.last : "") + "\">" + tNum + "</a>" + "<div class=\"de-fav-title\">- " + t.txt + "</div>" + "<div class=\"de-fav-inf\">" + "<span class=\"de-fav-inf-err\">" + (t.err || "") + "</span> " + "<span class=\"de-fav-inf-new\" title=\"" + Lng.newPosts[lang] + "\"" + (t["new"] ? ">" : " style=\"display: none;\">") + (t["new"] || 0) + "</span> " + "[<span class=\"de-fav-inf-old\" title=\"" + Lng.oldPosts[lang] + "\">" + t.cnt + "</span>] " + "<span class=\"de-fav-inf-page\" title=\"" + Lng.thrPage[lang] + "\"></span>" + "</span></div>");
 					$t("a", block.lastChild).onclick = function () {
-						sesStorage["__de-win-fav"] = "1";
+						sesStorage["de-win-fav"] = "1";
+						sesStorage.removeItem["de-scroll-" + b + tNum];
 					};
 				}
 			}
@@ -8568,7 +8571,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					_this._setSage();
 				} });
 			$after(this.subm, el);
-			setTimeout(this._setSage.bind(this), 0);
+			setTimeout(function () {
+				return _this._setSage();
+			}, 0);
 			if (aib._2chru) {
 				while (el.nextSibling) {
 					$del(el.nextSibling);
@@ -8996,6 +9001,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		},
 		_captchaInit: function _captchaInit(html) {
+			var _this = this;
+
 			if (this.capInited) {
 				return;
 			}
@@ -9019,7 +9026,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (aib.dvachnet) {
 				$script("get_captcha()");
 			}
-			setTimeout(this._captchaUpd.bind(this), 100);
+			setTimeout(function () {
+				return _this._captchaUpd();
+			}, 100);
 		},
 		_captchaUpd: function _captchaUpd() {
 			var _this = this;
@@ -9231,7 +9240,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 			switch (e.type) {
 				case "change":
-					setTimeout(this._onFileChange.bind(this), 20);return;
+					setTimeout(function () {
+						return _this._onFileChange();
+					}, 20);return;
 				case "click":
 					if (e.target === this._delUtil) {
 						this.delUtils();
@@ -10162,8 +10173,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		_oldX: -1,
 		_oldY: -1,
 		_setHideTmt: function _setHideTmt() {
+			var _this = this;
+
 			clearTimeout(this._hideTmt);
-			this._hideTmt = setTimeout(this.hide.bind(this), 2000);
+			this._hideTmt = setTimeout(function () {
+				return _this.hide();
+			}, 2000);
 		}
 	};
 
@@ -11252,7 +11267,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							}
 						} else {
 							clearTimeout(Pview.delTO);
-							this._linkDelay = setTimeout(this._addPview.bind(this, el), Cfg.linksOver);
+							this._linkDelay = setTimeout(function () {
+								return _this._addPview(el);
+							}, Cfg.linksOver);
 						}
 						$pd(e);
 						e.stopPropagation();
@@ -11397,7 +11414,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			this.hidden = hide;
 			this.hideContent(hide);
 			if (Cfg.strikeHidd) {
-				setTimeout(this._strikePostNum.bind(this, hide), 50);
+				setTimeout(function () {
+					return _this._strikePostNum(hide);
+				}, 50);
 			}
 		},
 		spellHide: function spellHide(note) {
@@ -15195,6 +15214,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				sesStorage.removeItem("de-scroll-" + aib.b + aib.t);
 			} else if ((hash = window.location.hash) && (num = hash.match(/#[ip]?(\d+)$/)) && (num = num[1]) && (post = pByNum[num])) {
 				post.el.scrollIntoView(true);
+				if (hKeys) {
+					hKeys.cPost = post;
+				}
 				post.select();
 			}
 		}, 0);
