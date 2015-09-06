@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "d42ff3d";
+	var commit = "cad5dae";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -11095,6 +11095,27 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 								} else {
 									window.location = el.href.replace(/#i/, "#");
 								}
+							} else if ((temp = el.textContent)[0] === ">" && temp[1] === ">" && !temp[2].includes("/")) {
+								var num = temp.match(/\d+/),
+								    post = pByNum[num];
+								if (!post) {
+									return;
+								}
+								post.el.scrollIntoView(true);
+								if (hKeys) {
+									if (hKeys.cPost) {
+										hKeys.cPost.unselect();
+									}
+									hKeys.cPost = post;
+								} else {
+									temp = $c("de-selected", doc);
+									if (temp) {
+										temp.unselect();
+									}
+								}
+								post.select();
+								window.location.href = aib.anchor + num;
+								$pd(e);
 							}
 							return;
 						}
@@ -12421,7 +12442,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function addRefMap(post, tUrl) {
-		var bStr = "<a " + aib.rLinkClick + " href=\"" + tUrl + aib.anchor,
+		var bStr = "<a href=\"" + tUrl + aib.anchor,
 		    strNums = Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
 		    html = ["<div class=\"de-refmap\">"],
 		    el = post.ref;
@@ -13341,7 +13362,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					} },
 				markupBB: { value: true },
 				markupTags: { value: ["", "", "", "", "spoiler", "", "", "", "q"] },
-				rLinkClick: { value: "" },
 				rep: { value: true },
 				res: { value: "thread/" },
 				timePattern: { value: "nn+dd+yy+w+hh+ii-?s?s?" },
@@ -13412,8 +13432,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					} },
 				css: { value: ".post_replies, .post[postid=\"\"] { display: none !important; }\t\t\t\t.post { overflow-x: auto !important; }" },
 				docExt: { value: "" },
-				res: { value: "thread/" },
-				rLinkClick: { value: "" }
+				res: { value: "thread/" }
 			}],
 			"diochan.com": [{
 				dio: { value: true },
@@ -13480,7 +13499,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return false;
 					} },
 				multiFile: { value: true },
-				rLinkClick: { value: "onclick=\"Highlight(event, this.textContent.substr(2))\"" },
 				ru: { value: true },
 				timePattern: { value: "dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?" }
 			}],
@@ -13496,7 +13514,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return "" + (this.t ? "#de-main { margin-top: -37px; }\t\t\t\t\t.logo { margin-bottom: 14px; }" : "");
 					} },
 				init: { value: function value() {
-						doc.body.insertAdjacentHTML("beforeend", "<div onclick=\"" + "\n\t\t\t\t\thighlight = function(num) {\n\t\t\t\t\t\tvar post = document.getElementsByClassName('highlight')[0];\n\t\t\t\t\t\tif(post) {\n\t\t\t\t\t\t\tpost.classList.remove('highlight');\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif((post = document.getElementById('reply' + num))) {\n\t\t\t\t\t\t\tpost.classList.add('highlight');\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\t\t\t\t" + "\"></div>");
+						doc.body.insertAdjacentHTML("beforeend", "<div onclick=\"highlight = function() {}\"></div>");
 						doc.body.lastChild.click();
 						return false;
 					} } }],
@@ -13565,7 +13583,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				multiFile: { value: true },
 				rep: { value: true },
 				res: { value: "thread-" },
-				rLinkClick: { value: "onclick=\"highlightPost(this.textContent.substr(2))\"" },
 				timePattern: { value: "yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?" }
 			}],
 			"lainchan.org": [{
@@ -13896,7 +13913,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				markupBB: { value: true },
 				markupTags: { value: ["B", "I", "U", "S", "SPOILER", "CODE", "SUP", "SUB", "q"] },
 				multiFile: { value: true },
-				rLinkClick: { value: "" },
 				timePattern: { value: "dd+nn+yy+w+hh+ii+ss" }
 			},
 			"form[action*=\"futaba.php\"]": {
@@ -13988,7 +14004,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				cssEn: { get: function get() {
 						return ".banner, " + (this.t ? "" : ".de-btn-rep,") + " .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }\n\t\t\t\t\tform, form table { margin: 0; }";
 					} },
-				rLinkClick: { value: "onclick=\"highlightReply(this.textContent.substr(2))\"" },
 				timePattern: { value: "nn+dd+yy++w++hh+ii+ss" },
 				thrid: { value: "thread" }
 			},
@@ -14002,8 +14017,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return src.replace(/\?[^?]+$|$/, "?" + Math.random());
 					} },
 				cssEn: { value: ".extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }\t\t\t\t.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }" },
-				markupBB: { value: true },
-				rLinkClick: { value: "onclick=\"highlight(this.textContent.substr(2), true)\"" }
+				markupBB: { value: true }
 			},
 			"link[href$=\"phutaba.css\"]": {
 				cOPost: { value: "thread_OP" },
@@ -14033,8 +14047,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					} },
 				markupBB: { value: true },
 				multiFile: { value: true },
-				res: { value: "thread/" },
-				rLinkClick: { value: "" }
+				res: { value: "thread/" }
 			},
 			"div#mainc": {
 				qDForm: { value: "#mainc" },
@@ -14243,7 +14256,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			},
 			prot: prot,
 			res: "res/",
-			rLinkClick: "onclick=\"highlight(this.textContent.substr(2))\"",
 			ru: false,
 			timePattern: "w+dd+m+yyyy+hh+ii+ss",
 			thrid: "parent"
@@ -14633,7 +14645,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				txt = txt.replace(/<\/?wbr>/g, "").replace(/ \(OP\)<\/a/g, "</a");
 			}
 			if (aib.krau) {
-				txt = txt.replace(/href="(#\d+)"/g, "href=\"/" + aib.b + "/thread-" + aib.t + ".html$1\"").replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g, "<a class=\"de-ref-del\" href=\"#$1\" onclick=\"highlightPost($1)\">&gt;&gt;$1</a>");
+				txt = txt.replace(/href="(#\d+)"/g, "href=\"/" + aib.b + "/thread-" + aib.t + ".html$1\"").replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g, "<a class=\"de-ref-del\" href=\"#$1\">&gt;&gt;$1</a>");
 			}
 			txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig, function (x, a, b, c) {
 				return c ? x : a + "<a href=\"" + b + "\">" + b + "</a>";
@@ -15177,6 +15189,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				sesStorage.removeItem("de-scroll-" + aib.b + aib.t);
 			} else if ((hash = window.location.hash) && (num = hash.match(/#[ip]?(\d+)$/)) && (num = num[1]) && (post = pByNum[num])) {
 				post.el.scrollIntoView(true);
+				post.select();
 			}
 		}, 0);
 	}
