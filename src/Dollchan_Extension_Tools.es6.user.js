@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '02856e5';
+var commit = '28c6380';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -675,8 +675,8 @@ function $txt(el) {
 	return doc.createTextNode(el);
 }
 
-function $btn(val, ttl, Fn, className = '') {
-	return $new('input', {'type': 'button', 'class': className, 'value': val, 'title': ttl}, {'click': Fn});
+function $btn(val, ttl, Fn) {
+	return $new('input', {'type': 'button', 'class': 'de-button', 'value': val, 'title': ttl}, {'click': Fn});
 }
 
 function $script(text) {
@@ -1886,7 +1886,6 @@ function showWindow(win, name, isUpd, remove, data, isAnim) {
 		return;
 	}
 	win.classList.add('de-win-active');
-	win.style.display = '';
 	if(!Cfg.expandPanel) {
 		$id('de-panel').lastChild.style.display = '';
 	}
@@ -1898,6 +1897,7 @@ function showWindow(win, name, isUpd, remove, data, isAnim) {
 		}
 		readFav().then(fav => {
 			showFavoriteTable(body, fav);
+			win.style.display = '';
 			if(isAnim) {
 				win.classList.add('de-win-open');
 			}
@@ -1907,6 +1907,7 @@ function showWindow(win, name, isUpd, remove, data, isAnim) {
 	case 'hid': showHiddenTable(body); break;
 	case 'vid': showVideosTable(body);
 	}
+	win.style.display = '';
 	if(isAnim) {
 		win.classList.add('de-win-open');
 	}
@@ -2832,7 +2833,7 @@ function getCfgInfo() {
 	]);
 }
 
-function addEditButton(name, getDataFn, className = '') {
+function addEditButton(name, getDataFn) {
 	return $btn(Lng.edit[lang], Lng.editInTxt[lang], function(getData) {
 		getData(function(val, isJSON, saveFn) {
 			var el, ta = $new('textarea', {
@@ -2858,7 +2859,7 @@ function addEditButton(name, getDataFn, className = '') {
 				}
 			}.bind(ta, saveFn) : saveFn.bind(ta)));
 		});
-	}.bind(null, getDataFn), className);
+	}.bind(null, getDataFn));
 }
 
 function cfgTabClick(e) {
@@ -2926,7 +2927,7 @@ function addSettings(body, id) {
 				saveComCfg(aib.dm, data);
 				window.location.reload();
 			});
-		}, 'de-cfg-button'),
+		}),
 		$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
 			spawn(getStoredObj, 'DESU_Config').then(val => {
 				if(val && ('global' in val) && !$isEmpty(val.global)) {
@@ -2937,7 +2938,7 @@ function addSettings(body, id) {
 					$alert(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
 				}
 			});
-		}, 'de-cfg-button')),
+		})),
 		$if(nav.isGlobal, $btn(Lng.save[lang], Lng.saveGlobal[lang], function() {
 			spawn(getStoredObj, 'DESU_Config').then(val => {
 				var obj = {},
@@ -2954,7 +2955,7 @@ function addSettings(body, id) {
 				setStored('DESU_Config', JSON.stringify(val));
 				toggleWindow('cfg', true);
 			});
-		}, 'de-cfg-button')),
+		})),
 		$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
 			if(confirm(Lng.conReset[lang])) {
 				delStored('DESU_Config');
@@ -2964,7 +2965,7 @@ function addSettings(body, id) {
 				delStored('DESU_keys');
 				window.location.reload();
 			}
-		}, 'de-cfg-button')
+		})
 	]));
 	$q('.de-cfg-tab[info="' + (id || 'filters') + '"]', body).click();
 }
@@ -12241,7 +12242,6 @@ function scriptCSS() {
 	.de-win-buttons > span:hover { color: #f66; }\
 	#de-win-cfg, #de-win-hid, #de-win-fav, #de-win-vid { position: fixed; max-height: 100%; overflow-x: visible; overflow-y: auto; }\
 	#de-win-cfg > .de-win-body { float: left; width: auto; min-width: 0; padding: 0;  margin: 0 !important; border: none; }\
-	#de-win-cfg input[type="button"], .de-win-body > input[type="button"] { padding: 0 2px; margin: 0 1px; height: 24px; }\
 	#de-win-cfg textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
 	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 10px; border: 1px solid gray; }\
 	#de-win-fav input[type="checkbox"] { margin-left: 15px; }\
@@ -12260,8 +12260,8 @@ function scriptCSS() {
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\
 	.de-cfg-body:lang(de), #de-cfg-buttons:lang(de) { border-color: #444; }\
 	#de-cfg-buttons { display: flex; flex-flow: row nowrap; align-items: center; padding: 3px; font-size: 13px; }\
+	#de-cfg-buttons > input { flex: none; }\
 	.de-cfg-lang-select { flex: 1 0 auto; }\
-	.de-cfg-button { flex: none; }\
 	#de-cfg-bar { width: 100%; display: flex; background-color: #1f2740; margin: 0; padding: 0; }\
 	#de-cfg-bar:lang(en) { background-color: #325f9e; }\
 	#de-cfg-bar:lang(de) { background-color: #777; }\
@@ -12505,6 +12505,7 @@ function scriptCSS() {
 	.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
 	.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\
 	.de-alert-msg { display: inline-block; }\
+	.de-button { padding: 0 2px; margin: 0 1px; height: 24px; }\
 	.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\
 	.de-content-block > input { margin: 0 4px; }\
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
