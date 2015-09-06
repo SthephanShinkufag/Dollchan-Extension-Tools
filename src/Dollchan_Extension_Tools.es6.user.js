@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'aaa05d4';
+var commit = '0c53717';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2798,7 +2798,7 @@ function getCfgInfo() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-info'}, [
 		$add('<div style="padding-bottom: 10px;">' +
 			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions" ' +
-			'target="_blank">v' + version + '</a>&nbsp;|&nbsp;' +
+			'target="_blank">v' + version + '.' + commit + '</a>&nbsp;|&nbsp;' +
 			'<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;' +
 			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
 			(lang ? 'home-en/' : '') + '" target="_blank">Github</a></div>'),
@@ -12271,7 +12271,7 @@ function scriptCSS() {
 	#de-cfg-bar:lang(en) { background-color: #325f9e; }\
 	#de-cfg-bar:lang(de) { background-color: #777; }\
 	.de-cfg-depend { padding-left: 17px; }\
-	.de-cfg-info-data { display: inline-block; padding: 0 7px; width: 162px; height: 238px; overflow-y: auto; border-collapse: separate; border-spacing: 1px; box-sizing: content-box; -moz-box-sizing: content-box; }\
+	.de-cfg-info-data { display: inline-block; padding: 0 7px; width: 162px; height: 258px; overflow-y: auto; border-collapse: separate; border-spacing: 1px; box-sizing: content-box; -moz-box-sizing: content-box; }\
 	.de-cfg-info-data > tbody > tr > td:first-child { width: 100%; }\
 	.de-cfg-info-data > tbody > tr > td:last-child { text-align: right; }\
 	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 3px !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(0,0,0,.2) 0%, rgba(0,0,0,.2) 100%) !important; }\
