@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'cad5dae';
+var commit = '1bc5a67';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -675,8 +675,8 @@ function $txt(el) {
 	return doc.createTextNode(el);
 }
 
-function $btn(val, ttl, Fn) {
-	return $new('input', {'type': 'button', 'value': val, 'title': ttl}, {'click': Fn});
+function $btn(val, ttl, Fn, className = '') {
+	return $new('input', {'type': 'button', 'class': className, 'value': val, 'title': ttl}, {'click': Fn});
 }
 
 function $script(text) {
@@ -2388,7 +2388,7 @@ function inpTxt(id, size, Fn) {
 	});
 }
 
-function optSel(id, isBlock, Fn) {
+function optSel(id, isBlock, Fn, className = '') {
 	var el, opt = '', x = Lng.cfg[id];
 	for(var i = 0, len = x.sel[lang].length; i < len; i++) {
 		opt += '<option value="' + i + '">' + x.sel[lang][i] + '</option>';
@@ -2399,47 +2399,7 @@ function optSel(id, isBlock, Fn) {
 		fixSettings();
 	});
 	el.selectedIndex = Cfg[id];
-	return $New('label', isBlock ? {'class': 'de-block'} : null, [el, $txt(' ' + x.txt[lang])]);
-}
-
-function cfgTab(name) {
-	return $new('div', {
-		'class': aib.cReply + ' de-cfg-tab',
-		'text': Lng.cfgTab[name][lang],
-		'info': name}, {
-		'click'() {
-			if(this.hasAttribute('selected')) {
-				return;
-			}
-			var prefTab = $c('de-cfg-body', doc);
-			if(prefTab) {
-				prefTab.className = 'de-cfg-unvis';
-				$q('.de-cfg-tab[selected]', doc).removeAttribute('selected');
-			}
-			this.setAttribute('selected', '');
-			var id = this.getAttribute('info'),
-				newTab = $id('de-cfg-' + id);
-			if(!newTab) {
-				$after($id('de-cfg-bar'), newTab =
-					id === 'filters' ? getCfgFilters() :
-					id === 'posts' ? getCfgPosts() :
-					id === 'images' ? getCfgImages() :
-					id === 'links' ? getCfgLinks() :
-					id === 'form' ? getCfgForm() :
-					id === 'common' ? getCfgCommon() :
-					getCfgInfo()
-				);
-				if(id === 'filters') {
-					updRowMeter($id('de-spell-edit'));
-				}
-			}
-			newTab.className = 'de-cfg-body';
-			if(id === 'filters') {
-				$id('de-spell-edit').value = spells.list;
-			}
-			fixSettings();
-		}
-	});
+	return $New('label', {'class': className + (isBlock ? ' de-block' : '')}, [el, $txt(' ' + x.txt[lang])]);
 }
 
 function updRowMeter(node) {
@@ -2871,7 +2831,7 @@ function getCfgInfo() {
 	]);
 }
 
-function addEditButton(name, getDataFn) {
+function addEditButton(name, getDataFn, className = '') {
 	return $btn(Lng.edit[lang], Lng.editInTxt[lang], function(getData) {
 		getData(function(val, isJSON, saveFn) {
 			var el, ta = $new('textarea', {
@@ -2897,10 +2857,50 @@ function addEditButton(name, getDataFn) {
 				}
 			}.bind(ta, saveFn) : saveFn.bind(ta)));
 		});
-	}.bind(null, getDataFn));
+	}.bind(null, getDataFn), className);
+}
+
+function cfgTabClick(e) {
+	var el = e.target;
+	if(el.hasAttribute('selected')) {
+		return;
+	}
+	var prefTab = $c('de-cfg-body', doc);
+	if(prefTab) {
+		prefTab.className = 'de-cfg-unvis';
+		$q('.de-cfg-tab[selected]', doc).removeAttribute('selected');
+	}
+	el.setAttribute('selected', '');
+	var id = el.getAttribute('info'),
+		newTab = $id('de-cfg-' + id);
+	if(!newTab) {
+		$after($id('de-cfg-bar'), newTab =
+			id === 'filters' ? getCfgFilters() :
+			id === 'posts' ? getCfgPosts() :
+			id === 'images' ? getCfgImages() :
+			id === 'links' ? getCfgLinks() :
+			id === 'form' ? getCfgForm() :
+			id === 'common' ? getCfgCommon() :
+			getCfgInfo()
+		);
+		if(id === 'filters') {
+			updRowMeter($id('de-spell-edit'));
+		}
+	}
+	newTab.className = 'de-cfg-body';
+	if(id === 'filters') {
+		$id('de-spell-edit').value = spells.list;
+	}
+	fixSettings();
 }
 
 function addSettings(body, id) {
+	var cfgTab = name => $new('div', {
+		'class': aib.cReply + ' de-cfg-tab',
+		'text': Lng.cfgTab[name][lang],
+		'info': name}, {
+		'click': cfgTabClick
+	});
 	body.appendChild($New('div', {'id': 'de-cfg-bar'}, [
 		cfgTab('filters'),
 		cfgTab('posts'),
@@ -2910,7 +2910,7 @@ function addSettings(body, id) {
 		cfgTab('common'),
 		cfgTab('info')
 	]));
-	body.appendChild($New('div', {'id': 'de-cfg-btns'}, [
+	body.appendChild($New('div', {'id': 'de-cfg-buttons'}, [
 		optSel('language', false, function() {
 			saveCfg('language', lang = this.selectedIndex);
 			panel.remove();
@@ -2919,54 +2919,51 @@ function addSettings(body, id) {
 			scriptCSS();
 			panel.init(dForm.el);
 			toggleWindow('cfg', false);
-		}),
-		$New('div', {'style': 'float: right;'}, [
-			addEditButton('cfg', function(fn) {
-				fn(Cfg, true, function(data) {
-					saveComCfg(aib.dm, data);
-					window.location.reload();
-				});
-			}),
-			$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
-				spawn(getStoredObj, 'DESU_Config').then(val => {
-					if(val && ('global' in val) && !$isEmpty(val.global)) {
-						delete val[aib.dm];
-						setStored('DESU_Config', JSON.stringify(val));
-						window.location.reload();
-					} else {
-						$alert(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
-					}
-				});
-			})),
-			$if(nav.isGlobal, $btn(Lng.save[lang], Lng.saveGlobal[lang], function() {
-				spawn(getStoredObj, 'DESU_Config').then(val => {
-					var obj = {},
-						com = val[aib.dm];
-					for(var i in com) {
-						if(i !== 'correctTime' && i !== 'timePattern' &&
-						   i !== 'userCSS' && i !== 'userCSSTxt' &&
-						   com[i] !== defaultCfg[i] && i !== 'stats')
-						{
-							obj[i] = com[i];
-						}
-					}
-					val.global = obj;
+		}, 'de-cfg-lang-select'),
+		addEditButton('cfg', function(fn) {
+			fn(Cfg, true, function(data) {
+				saveComCfg(aib.dm, data);
+				window.location.reload();
+			});
+		}, 'de-cfg-button'),
+		$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
+			spawn(getStoredObj, 'DESU_Config').then(val => {
+				if(val && ('global' in val) && !$isEmpty(val.global)) {
+					delete val[aib.dm];
 					setStored('DESU_Config', JSON.stringify(val));
-					toggleWindow('cfg', true);
-				});
-			})),
-			$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
-				if(confirm(Lng.conReset[lang])) {
-					delStored('DESU_Config');
-					delStored('DESU_Favorites');
-					delStored('DESU_Posts_' + aib.dm);
-					delStored('DESU_Threads_' + aib.dm);
-					delStored('DESU_keys');
 					window.location.reload();
+				} else {
+					$alert(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
 				}
-			})
-		]),
-		$new('div', {'style': 'clear: both;'}, null)
+			});
+		}, 'de-cfg-button')),
+		$if(nav.isGlobal, $btn(Lng.save[lang], Lng.saveGlobal[lang], function() {
+			spawn(getStoredObj, 'DESU_Config').then(val => {
+				var obj = {},
+					com = val[aib.dm];
+				for(var i in com) {
+					if(i !== 'correctTime' && i !== 'timePattern' &&
+					   i !== 'userCSS' && i !== 'userCSSTxt' &&
+					   com[i] !== defaultCfg[i] && i !== 'stats')
+					{
+						obj[i] = com[i];
+					}
+				}
+				val.global = obj;
+				setStored('DESU_Config', JSON.stringify(val));
+				toggleWindow('cfg', true);
+			});
+		}, 'de-cfg-button')),
+		$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
+			if(confirm(Lng.conReset[lang])) {
+				delStored('DESU_Config');
+				delStored('DESU_Favorites');
+				delStored('DESU_Posts_' + aib.dm);
+				delStored('DESU_Threads_' + aib.dm);
+				delStored('DESU_keys');
+				window.location.reload();
+			}
+		}, 'de-cfg-button')
 	]));
 	$q('.de-cfg-tab[info="' + (id || 'filters') + '"]', body).click();
 }
@@ -12256,17 +12253,19 @@ function scriptCSS() {
 	.de-cfg-body input[type="text"], .de-cfg-body select { width: auto; padding: 1px 2px; margin: 1px 0; font: 13px sans-serif; }\
 	.de-cfg-body input[type="checkbox"] { ' + (nav.Presto ? '' : 'vertical-align: -1px; ') + 'margin: 2px 1px; }\
 	.de-cfg-body label { padding: 0; margin: 0; }\
-	.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\
-	.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\
-	#de-cfg-btns { padding: 3px; font-size: 13px; }\
-	#de-cfg-bar { width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\
+	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\
+	.de-cfg-body:lang(de), #de-cfg-buttons:lang(de) { border-color: #444; }\
+	#de-cfg-buttons { display: flex; flex-flow: row nowrap; align-items: center; padding: 3px; font-size: 13px; }\
+	.de-cfg-lang-select { flex: 1 0 auto; }\
+	.de-cfg-button { flex: none; }\
+	#de-cfg-bar { width: 100%; display: flex; background-color: #1f2740; margin: 0; padding: 0; }\
 	#de-cfg-bar:lang(en) { background-color: #325f9e; }\
 	#de-cfg-bar:lang(de) { background-color: #777; }\
 	.de-cfg-depend { padding-left: 17px; }\
 	.de-cfg-info-data { display: inline-block; padding: 0 7px; width: 162px; height: 238px; overflow-y: auto; border-collapse: separate; border-spacing: 1px; box-sizing: content-box; -moz-box-sizing: content-box; }\
 	.de-cfg-info-data > tbody > tr > td:first-child { width: 100%; }\
 	.de-cfg-info-data > tbody > tr > td:last-child { text-align: right; }\
-	.de-cfg-tab { display: table-cell !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 3px !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(0,0,0,.2) 0%, rgba(0,0,0,.2) 100%) !important; }\
+	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 3px !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(0,0,0,.2) 0%, rgba(0,0,0,.2) 100%) !important; }\
 	.de-cfg-tab:lang(en) { border-color: #183d77 !important; }\
 	.de-cfg-tab:lang(fr) { border-color: #121421 !important; }\
 	.de-cfg-tab:lang(en), .de-cfg-tab:lang(fr) { background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
@@ -12286,16 +12285,16 @@ function scriptCSS() {
 
 	// Main panel
 	'#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; flex-flow: row nowrap; min-height: 25px; }\
-	#de-panel-logo { flex: 0 0 auto; margin-right: 3px; cursor: pointer; min-height: 25px; width: 25px; }\
+	#de-panel-logo { flex: none; margin-right: 3px; cursor: pointer; min-height: 25px; width: 25px; }\
 	#de-panel-buttons { flex: 0 1 auto; display: inline-flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #8fbbed; }\
 	#de-panel-buttons:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
 	#de-panel-buttons:lang(fr), #de-panel-info:lang(fr) { border-color: #616b86; }\
-	.de-panel-button { display: block; width: 25px; height: 25px; flex: 0 0 auto; margin: 0 1px; padding: 0; }\
+	.de-panel-button { display: block; width: 25px; height: 25px; flex: none; margin: 0 1px; padding: 0; }\
 	.de-panel-button:lang(en), .de-panel-button:lang(fr)  { transition: all 0.3s ease; }\
 	.de-panel-button:lang(en):hover, .de-panel-button:lang(fr):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
 	.de-panel-button:lang(de) { border-radius: 5px; box-sizing: border-box; }\
 	.de-panel-button:lang(de):hover { border: 2px solid #444; }\
-	#de-panel-info { flex: 0 0 auto; padding: 0 6px; margin-left: 2px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }' +
+	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }' +
 	gif('#de-panel-logo', (p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA') + 'QAI5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=') +
 	gif('#de-panel-cfg', p + 'QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7') +
 	gif('#de-panel-hid', p + 'QAI5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=') +

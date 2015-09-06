@@ -1198,8 +1198,6 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
-
-
 !(function(global) {
   "use strict";
 
@@ -2594,7 +2592,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "cad5dae";
+	var commit = "1bc5a67";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -3172,7 +3170,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function $btn(val, ttl, Fn) {
-		return $new("input", { type: "button", value: val, title: ttl }, { click: Fn });
+		var className = arguments[3] === undefined ? "" : arguments[3];
+
+		return $new("input", { type: "button", "class": className, value: val, title: ttl }, { click: Fn });
 	}
 
 	function $script(text) {
@@ -4679,6 +4679,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function optSel(id, isBlock, Fn) {
+		var className = arguments[3] === undefined ? "" : arguments[3];
+
 		var el,
 		    opt = "",
 		    x = Lng.cfg[id];
@@ -4691,39 +4693,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			fixSettings();
 		});
 		el.selectedIndex = Cfg[id];
-		return $New("label", isBlock ? { "class": "de-block" } : null, [el, $txt(" " + x.txt[lang])]);
-	}
-
-	function cfgTab(name) {
-		return $new("div", {
-			"class": aib.cReply + " de-cfg-tab",
-			text: Lng.cfgTab[name][lang],
-			info: name }, {
-			click: function click() {
-				if (this.hasAttribute("selected")) {
-					return;
-				}
-				var prefTab = $c("de-cfg-body", doc);
-				if (prefTab) {
-					prefTab.className = "de-cfg-unvis";
-					$q(".de-cfg-tab[selected]", doc).removeAttribute("selected");
-				}
-				this.setAttribute("selected", "");
-				var id = this.getAttribute("info"),
-				    newTab = $id("de-cfg-" + id);
-				if (!newTab) {
-					$after($id("de-cfg-bar"), newTab = id === "filters" ? getCfgFilters() : id === "posts" ? getCfgPosts() : id === "images" ? getCfgImages() : id === "links" ? getCfgLinks() : id === "form" ? getCfgForm() : id === "common" ? getCfgCommon() : getCfgInfo());
-					if (id === "filters") {
-						updRowMeter($id("de-spell-edit"));
-					}
-				}
-				newTab.className = "de-cfg-body";
-				if (id === "filters") {
-					$id("de-spell-edit").value = spells.list;
-				}
-				fixSettings();
-			}
-		});
+		return $New("label", { "class": className + (isBlock ? " de-block" : "") }, [el, $txt(" " + x.txt[lang])]);
 	}
 
 	function updRowMeter(node) {
@@ -4965,6 +4935,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function addEditButton(name, getDataFn) {
+		var className = arguments[2] === undefined ? "" : arguments[2];
+
 		return $btn(Lng.edit[lang], Lng.editInTxt[lang], (function (getData) {
 			getData(function (val, isJSON, saveFn) {
 				var el,
@@ -4991,12 +4963,46 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 				}).bind(ta, saveFn) : saveFn.bind(ta)));
 			});
-		}).bind(null, getDataFn));
+		}).bind(null, getDataFn), className);
+	}
+
+	function cfgTabClick(e) {
+		var el = e.target;
+		if (el.hasAttribute("selected")) {
+			return;
+		}
+		var prefTab = $c("de-cfg-body", doc);
+		if (prefTab) {
+			prefTab.className = "de-cfg-unvis";
+			$q(".de-cfg-tab[selected]", doc).removeAttribute("selected");
+		}
+		el.setAttribute("selected", "");
+		var id = el.getAttribute("info"),
+		    newTab = $id("de-cfg-" + id);
+		if (!newTab) {
+			$after($id("de-cfg-bar"), newTab = id === "filters" ? getCfgFilters() : id === "posts" ? getCfgPosts() : id === "images" ? getCfgImages() : id === "links" ? getCfgLinks() : id === "form" ? getCfgForm() : id === "common" ? getCfgCommon() : getCfgInfo());
+			if (id === "filters") {
+				updRowMeter($id("de-spell-edit"));
+			}
+		}
+		newTab.className = "de-cfg-body";
+		if (id === "filters") {
+			$id("de-spell-edit").value = spells.list;
+		}
+		fixSettings();
 	}
 
 	function addSettings(body, id) {
+		var cfgTab = function (name) {
+			return $new("div", {
+				"class": aib.cReply + " de-cfg-tab",
+				text: Lng.cfgTab[name][lang],
+				info: name }, {
+				click: cfgTabClick
+			});
+		};
 		body.appendChild($New("div", { id: "de-cfg-bar" }, [cfgTab("filters"), cfgTab("posts"), cfgTab("images"), cfgTab("links"), $if(pr.form || pr.oeForm, cfgTab("form")), cfgTab("common"), cfgTab("info")]));
-		body.appendChild($New("div", { id: "de-cfg-btns" }, [optSel("language", false, function () {
+		body.appendChild($New("div", { id: "de-cfg-buttons" }, [optSel("language", false, function () {
 			saveCfg("language", lang = this.selectedIndex);
 			panel.remove();
 			$del($id("de-css"));
@@ -5004,12 +5010,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			scriptCSS();
 			panel.init(dForm.el);
 			toggleWindow("cfg", false);
-		}), $New("div", { style: "float: right;" }, [addEditButton("cfg", function (fn) {
+		}, "de-cfg-lang-select"), addEditButton("cfg", function (fn) {
 			fn(Cfg, true, function (data) {
 				saveComCfg(aib.dm, data);
 				window.location.reload();
 			});
-		}), $if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function () {
+		}, "de-cfg-button"), $if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function () {
 			spawn(getStoredObj, "DESU_Config").then(function (val) {
 				if (val && "global" in val && !$isEmpty(val.global)) {
 					delete val[aib.dm];
@@ -5019,7 +5025,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					$alert(Lng.noGlobalCfg[lang], "err-noglobalcfg", false);
 				}
 			});
-		})), $if(nav.isGlobal, $btn(Lng.save[lang], Lng.saveGlobal[lang], function () {
+		}, "de-cfg-button")), $if(nav.isGlobal, $btn(Lng.save[lang], Lng.saveGlobal[lang], function () {
 			spawn(getStoredObj, "DESU_Config").then(function (val) {
 				var obj = {},
 				    com = val[aib.dm];
@@ -5032,7 +5038,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				setStored("DESU_Config", JSON.stringify(val));
 				toggleWindow("cfg", true);
 			});
-		})), $btn(Lng.reset[lang], Lng.resetCfg[lang], function () {
+		}, "de-cfg-button")), $btn(Lng.reset[lang], Lng.resetCfg[lang], function () {
 			if (confirm(Lng.conReset[lang])) {
 				delStored("DESU_Config");
 				delStored("DESU_Favorites");
@@ -5041,7 +5047,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				delStored("DESU_keys");
 				window.location.reload();
 			}
-		})]), $new("div", { style: "clear: both;" }, null)]));
+		}, "de-cfg-button")]));
 		$q(".de-cfg-tab[info=\"" + (id || "filters") + "\"]", body).click();
 	}
 
@@ -15257,10 +15263,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		    x = "\t.de-btn-close::after { content: \"✖\"; }\t.de-btn-toggle::after { content: \"⇧\"; font-weight: bold; }\t.de-win > .de-win-head { cursor: move; }\t.de-win .de-btn-toggle::after { content: \"⇩\"; }\t.de-win .de-resizer-bottom { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\t.de-win .de-resizer-left { position: absolute; margin: -3px; bottom: 3px; top: 3px; width: 6px; cursor: ew-resize; }\t.de-win .de-resizer-right { position: absolute; margin: -3px; bottom: 3px; top: 3px; display: inline-block; width: 6px; cursor: ew-resize; }\t.de-win .de-resizer-top { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\t.de-win-body { display: inline-" + (nav.Presto ? "block" : "table") + "; vertical-align: middle; }\t.de-win-buttons { float: right; line-height: 16px; margin-top: 1px; cursor: pointer; }\t.de-win-buttons > span { margin-right: 4px; font-size: 15px; }\t.de-win-buttons > span:hover { color: #f66; }\t#de-win-cfg, #de-win-hid, #de-win-fav, #de-win-vid { position: fixed; max-height: 100%; overflow-x: visible; overflow-y: auto; }\t#de-win-cfg > .de-win-body { float: left; width: auto; min-width: 0; padding: 0;  margin: 0 !important; border: none; }\t#de-win-cfg input[type=\"button\"] { padding: 0 2px; margin: 0 1px; height: 24px; }\t#de-win-cfg textarea { display: block; margin: 2px 0; font: 12px courier new; " + (nav.Presto ? "" : "resize: none !important; ") + "}\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 10px; border: 1px solid gray; }\t#de-win-fav input[type=\"checkbox\"] { margin-left: 15px; }\t.de-win-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\t.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\t.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\t.de-win-head:lang(de), #de-panel:lang(de) { background: #777; }\t.de-win-title { font: bold 14px arial; margin-left: 32px; }" +
 
 	
-		".de-block { display: block; }\t.de-cfg-body { min-height: 309px; width: 354px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important; box-sizing: content-box; -moz-box-sizing: content-box; }\t.de-cfg-body input[type=\"text\"], .de-cfg-body select { width: auto; padding: 1px 2px; margin: 1px 0; font: 13px sans-serif; }\t.de-cfg-body input[type=\"checkbox\"] { " + (nav.Presto ? "" : "vertical-align: -1px; ") + "margin: 2px 1px; }\t.de-cfg-body label { padding: 0; margin: 0; }\t.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\t.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\t#de-cfg-btns { padding: 3px; font-size: 13px; }\t#de-cfg-bar { width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\t#de-cfg-bar:lang(en) { background-color: #325f9e; }\t#de-cfg-bar:lang(de) { background-color: #777; }\t.de-cfg-depend { padding-left: 17px; }\t.de-cfg-info-data { display: inline-block; padding: 0 7px; width: 162px; height: 238px; overflow-y: auto; border-collapse: separate; border-spacing: 1px; box-sizing: content-box; -moz-box-sizing: content-box; }\t.de-cfg-info-data > tbody > tr > td:first-child { width: 100%; }\t.de-cfg-info-data > tbody > tr > td:last-child { text-align: right; }\t.de-cfg-tab { display: table-cell !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 3px !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(0,0,0,.2) 0%, rgba(0,0,0,.2) 100%) !important; }\t.de-cfg-tab:lang(en) { border-color: #183d77 !important; }\t.de-cfg-tab:lang(fr) { border-color: #121421 !important; }\t.de-cfg-tab:lang(en), .de-cfg-tab:lang(fr) { background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t.de-cfg-tab:hover { background-image: linear-gradient(to bottom, rgba(99,99,99,.2) 0%, rgba(99,99,99,.2) 100%) !important; }\t.de-cfg-tab:lang(en):hover, .de-cfg-tab:lang(fr):hover  { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\t.de-cfg-tab::" + (nav.Firefox ? "-moz-" : "") + "selection { background: transparent; }\t.de-cfg-unvis { display: none; }\t#de-spell-panel { float: right; }\t#de-spell-panel > a { padding: 0 4px; }\t#de-spell-div { display: table; }\t#de-spell-div > div { display: table-cell; vertical-align: top; }\t#de-spell-edit { padding: 2px !important; width: 323px; height: 194px; max-width: 100%; border: none !important; outline: none !important; }\t#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 196px; text-align: right; color: #fff; font: 12px courier new; }\t#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\t#de-spell-rowmeter:lang(de) { background-color: #777; }" +
+		".de-block { display: block; }\t.de-cfg-body { min-height: 309px; width: 354px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important; box-sizing: content-box; -moz-box-sizing: content-box; }\t.de-cfg-body input[type=\"text\"], .de-cfg-body select { width: auto; padding: 1px 2px; margin: 1px 0; font: 13px sans-serif; }\t.de-cfg-body input[type=\"checkbox\"] { " + (nav.Presto ? "" : "vertical-align: -1px; ") + "margin: 2px 1px; }\t.de-cfg-body label { padding: 0; margin: 0; }\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\t.de-cfg-body:lang(de), #de-cfg-buttons:lang(de) { border-color: #444; }\t#de-cfg-buttons { display: flex; flex-flow: row nowrap; align-items: center; padding: 3px; font-size: 13px; }\t.de-cfg-lang-select { flex: 1 0 auto; }\t.de-cfg-button { flex: none; }\t#de-cfg-bar { width: 100%; display: flex; background-color: #1f2740; margin: 0; padding: 0; }\t#de-cfg-bar:lang(en) { background-color: #325f9e; }\t#de-cfg-bar:lang(de) { background-color: #777; }\t.de-cfg-depend { padding-left: 17px; }\t.de-cfg-info-data { display: inline-block; padding: 0 7px; width: 162px; height: 238px; overflow-y: auto; border-collapse: separate; border-spacing: 1px; box-sizing: content-box; -moz-box-sizing: content-box; }\t.de-cfg-info-data > tbody > tr > td:first-child { width: 100%; }\t.de-cfg-info-data > tbody > tr > td:last-child { text-align: right; }\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 3px !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(0,0,0,.2) 0%, rgba(0,0,0,.2) 100%) !important; }\t.de-cfg-tab:lang(en) { border-color: #183d77 !important; }\t.de-cfg-tab:lang(fr) { border-color: #121421 !important; }\t.de-cfg-tab:lang(en), .de-cfg-tab:lang(fr) { background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t.de-cfg-tab:hover { background-image: linear-gradient(to bottom, rgba(99,99,99,.2) 0%, rgba(99,99,99,.2) 100%) !important; }\t.de-cfg-tab:lang(en):hover, .de-cfg-tab:lang(fr):hover  { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\t.de-cfg-tab::" + (nav.Firefox ? "-moz-" : "") + "selection { background: transparent; }\t.de-cfg-unvis { display: none; }\t#de-spell-panel { float: right; }\t#de-spell-panel > a { padding: 0 4px; }\t#de-spell-div { display: table; }\t#de-spell-div > div { display: table-cell; vertical-align: top; }\t#de-spell-edit { padding: 2px !important; width: 323px; height: 194px; max-width: 100%; border: none !important; outline: none !important; }\t#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 196px; text-align: right; color: #fff; font: 12px courier new; }\t#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\t#de-spell-rowmeter:lang(de) { background-color: #777; }" +
 
 	
-		"#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; flex-flow: row nowrap; min-height: 25px; }\t#de-panel-logo { flex: 0 0 auto; margin-right: 3px; cursor: pointer; min-height: 25px; width: 25px; }\t#de-panel-buttons { flex: 0 1 auto; display: inline-flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #8fbbed; }\t#de-panel-buttons:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\t#de-panel-buttons:lang(fr), #de-panel-info:lang(fr) { border-color: #616b86; }\t.de-panel-button { display: block; width: 25px; height: 25px; flex: 0 0 auto; margin: 0 1px; padding: 0; }\t.de-panel-button:lang(en), .de-panel-button:lang(fr)  { transition: all 0.3s ease; }\t.de-panel-button:lang(en):hover, .de-panel-button:lang(fr):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\t.de-panel-button:lang(de) { border-radius: 5px; box-sizing: border-box; }\t.de-panel-button:lang(de):hover { border: 2px solid #444; }\t#de-panel-info { flex: 0 0 auto; padding: 0 6px; margin-left: 2px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }" + gif("#de-panel-logo", (p = "R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA") + "QAI5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=") + gif("#de-panel-cfg", p + "QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7") + gif("#de-panel-hid", p + "QAI5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=") + gif("#de-panel-fav", p + "QAIzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs=") + gif("#de-panel-vid", p + "AAI9jI+py+0Po5wTWEvN3VjyH20a6HDHB5TiaTIkuyov3MltEuM3nS5z8EPsgsIY6rE6QlA5JDMDbEKn1KqhAAA7") + gif("#de-panel-refresh", p + "AAJBjI+py+0Po5zUgItBxDZrmHUcGAbe15xiybCm5iYegsaHfY8Kvrb6/qPhZr7LgrcyJlHFE1LoVG6ilVewis1qDQUAOw==") + gif("#de-panel-goback", p + "QAIrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7") + gif("#de-panel-gonext", p + "QAIrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7") + gif("#de-panel-goup", p + "QAIsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==") + gif("#de-panel-godown", p + "QAItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=") + gif("#de-panel-expimg", p + "QAI9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7") + gif("#de-panel-preimg", p + "QAJFjI+pGwCcHJPGWdoe3Lz7qh1WFJLXiX4qgrbXVEIYadLLnMX4yve+7ErBYorRjXiEeXagGguZAbWaSdHLOow4j8Hrj1EAADs=") + gif("#de-panel-maskimg", p + "QAJQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==") + gif("#de-panel-savethr", p + "QAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs=") + gif("#de-panel-catalog", p + "QAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=") + gif("#de-panel-audio-off", p + "QAI7jI+pq+DO1psvQHOj3rxTik1dCIzmSZqfmGXIWlkiB6L2jedhPqOfCitVYolgKcUwyoQuSe3WwzV1kQIAOw==") + gif("#de-panel-audio-on", p + "QAJHjI+pq+AewJHs2WdoZLz7X11WRkEgNoHqimadOG7uAqOm+Y6atvb+D0TgfjHS6RIp8YQ1pbHRfA4n0eSTI7JqP8Wtahr0FAAAOw==") + gif("#de-panel-enable", p + "AAJAjI+py+0Po5wUWKoswOF27z2aMX6bo51lioal2bzwISPyHSZ1lts9fwKKfjQiyXgkslq95TAFnUCdUirnis0eCgA7") + gif("#de-panel-upd-on", "R0lGODlhGQAZAJEAADL/Mv" + (p = "Dw8P///wAAACH5BAEAAAIALAAAAAAZABkAQAJElI+pe2EBoxOTNYmr3bz7OwHiCDzQh6bq06QSCUhcZMCmNrfrzvf+XsF1MpjhCSainBg0AbKkFCJko6g0MSGyftwuowAAOw==")) + gif("#de-panel-upd-off", "R0lGODlhGQAZAJEAAP8yMv" + p) + gif("#de-panel-upd-warn", "R0lGODlhGQAZAJEAAP/0Qf" + p);
+		"#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; flex-flow: row nowrap; min-height: 25px; }\t#de-panel-logo { flex: none; margin-right: 3px; cursor: pointer; min-height: 25px; width: 25px; }\t#de-panel-buttons { flex: 0 1 auto; display: inline-flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #8fbbed; }\t#de-panel-buttons:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\t#de-panel-buttons:lang(fr), #de-panel-info:lang(fr) { border-color: #616b86; }\t.de-panel-button { display: block; width: 25px; height: 25px; flex: none; margin: 0 1px; padding: 0; }\t.de-panel-button:lang(en), .de-panel-button:lang(fr)  { transition: all 0.3s ease; }\t.de-panel-button:lang(en):hover, .de-panel-button:lang(fr):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\t.de-panel-button:lang(de) { border-radius: 5px; box-sizing: border-box; }\t.de-panel-button:lang(de):hover { border: 2px solid #444; }\t#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }" + gif("#de-panel-logo", (p = "R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA") + "QAI5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=") + gif("#de-panel-cfg", p + "QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7") + gif("#de-panel-hid", p + "QAI5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=") + gif("#de-panel-fav", p + "QAIzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs=") + gif("#de-panel-vid", p + "AAI9jI+py+0Po5wTWEvN3VjyH20a6HDHB5TiaTIkuyov3MltEuM3nS5z8EPsgsIY6rE6QlA5JDMDbEKn1KqhAAA7") + gif("#de-panel-refresh", p + "AAJBjI+py+0Po5zUgItBxDZrmHUcGAbe15xiybCm5iYegsaHfY8Kvrb6/qPhZr7LgrcyJlHFE1LoVG6ilVewis1qDQUAOw==") + gif("#de-panel-goback", p + "QAIrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7") + gif("#de-panel-gonext", p + "QAIrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7") + gif("#de-panel-goup", p + "QAIsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==") + gif("#de-panel-godown", p + "QAItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=") + gif("#de-panel-expimg", p + "QAI9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7") + gif("#de-panel-preimg", p + "QAJFjI+pGwCcHJPGWdoe3Lz7qh1WFJLXiX4qgrbXVEIYadLLnMX4yve+7ErBYorRjXiEeXagGguZAbWaSdHLOow4j8Hrj1EAADs=") + gif("#de-panel-maskimg", p + "QAJQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==") + gif("#de-panel-savethr", p + "QAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs=") + gif("#de-panel-catalog", p + "QAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=") + gif("#de-panel-audio-off", p + "QAI7jI+pq+DO1psvQHOj3rxTik1dCIzmSZqfmGXIWlkiB6L2jedhPqOfCitVYolgKcUwyoQuSe3WwzV1kQIAOw==") + gif("#de-panel-audio-on", p + "QAJHjI+pq+AewJHs2WdoZLz7X11WRkEgNoHqimadOG7uAqOm+Y6atvb+D0TgfjHS6RIp8YQ1pbHRfA4n0eSTI7JqP8Wtahr0FAAAOw==") + gif("#de-panel-enable", p + "AAJAjI+py+0Po5wUWKoswOF27z2aMX6bo51lioal2bzwISPyHSZ1lts9fwKKfjQiyXgkslq95TAFnUCdUirnis0eCgA7") + gif("#de-panel-upd-on", "R0lGODlhGQAZAJEAADL/Mv" + (p = "Dw8P///wAAACH5BAEAAAIALAAAAAAZABkAQAJElI+pe2EBoxOTNYmr3bz7OwHiCDzQh6bq06QSCUhcZMCmNrfrzvf+XsF1MpjhCSainBg0AbKkFCJko6g0MSGyftwuowAAOw==")) + gif("#de-panel-upd-off", "R0lGODlhGQAZAJEAAP8yMv" + p) + gif("#de-panel-upd-warn", "R0lGODlhGQAZAJEAAP/0Qf" + p);
 
 		if (Cfg.disabled) {
 			$css(x).id = "de-css";
