@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '7522f2b';
+var commit = 'da78fb3';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12534,7 +12534,7 @@ function scriptCSS() {
 	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
 	.de-menu-item:hover { background-color: #222; color: #fff; }\
-	.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid blue; border-right: 4px solid blue; }' : 'box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }') + '\
+	.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(0, 0, 255, .7); border-right: 4px solid rgba(0, 0, 255, .7); }' : 'box-shadow: 6px 0 2px -2px rgba(0, 0, 255, .8), -6px 0 2px -2px rgba(0, 0, 255, .8); }') + '\
 	.de-omitted { color: grey; }\
 	.de-omitted::before { content: "' + Lng.postsOmitted[lang] + '"; }\
 	.de-post-hide > ' + aib.qHide + ' { display: none !important; }\
@@ -12545,7 +12545,7 @@ function scriptCSS() {
 	.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
 	.de-refmap::before { content: "' + Lng.replies[lang] + ' "; }\
 	.de-refcomma:last-child { display: none; }\
-	.de-selected, .de-error-key { ' + (nav.Presto ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
+	.de-selected, .de-error-key { ' + (nav.Presto ? 'border-left: 4px solid rgba(255, 0, 0, .7); border-right: 4px solid rgba(255, 0, 0, .7); }' : 'box-shadow: 6px 0 2px -2px rgba(255, 0, 0, .8), -6px 0 2px -2px rgba(255, 0, 0, .8); }') + '\
 	.de-thread-buttons { clear: left; margin-top: 5px; }\
 	.de-thread-collapse > a::after { content: "' +  Lng.collapseThrd[lang] + '" }\
 	.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '" }\
