@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '0c53717';
+var commit = 'c2cc28a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -169,7 +169,7 @@ Lng = {
 		'widePosts':    ['Растягивать посты по ширине экрана', 'Stretch posts to the screen width'],
 		'hotKeys':      ['Горячие клавиши ', 'Keyboard hotkeys '],
 		'loadPages':    [' Количество страниц, загружаемых по F5', ' Number of pages that are loaded on F5 '],
-		'correctTime':  ['Коррекция времени в постах* ', 'Correct time in posts* '],
+		'correctTime':  ['Коррекция времени* ', 'Correct time* '],
 		'timeOffset':   [' (ч) разница ', ' (h) difference '],
 		'timePattern':  [' Шаблон поиска', ' Find pattern'],
 		'timeRPattern': [' Шаблон замены', ' Replace pattern'],
@@ -198,18 +198,18 @@ Lng = {
 			sel:        [['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
 			txt:        ['Навигация по >>ссылкам* ', 'Navigation by >>links* ']
 		},
-		'linksOver':    [' Появление ', ' Appearance '],
-		'linksOut':     [' Пропадание (мс)', ' Disappearance (ms)'],
+		'linksOver':    [' Появление ', ' Appear. '],
+		'linksOut':     [' Пропадание (мс)', ' Disappear. (ms)'],
 		'markViewed':   ['Отмечать просмотренные посты*', 'Mark viewed posts*'],
 		'strikeHidd':   ['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
 		'removeHidd':   ['Удалять из карты ответов', 'Remove from replies map'],
 		'noNavigHidd':  ['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
 		'crossLinks':   ['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
 		'insertNum':    ['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
-		'addOPLink':    ['Вставлять >>ссылку при ответе на оп-пост на доске', 'Insert >>link for reply to op-posts on board'],
-		'addMP3':       ['Плеер к mp3 ссылкам* ', 'Player to mp3 links* '],
+		'addOPLink':    ['>>ссылка при ответе на оп-пост на доске', 'Insert >>link for reply to op-posts on board'],
 		'addImgs':      ['Загружать картинки к jpg, png, gif ссылкам*', 'Load images to jpg, png, gif links*'],
-		'addVocaroo':   ['Плеер к Vocaroo ссылкам*', 'Player to Vocaroo links*'],
+		'addMP3':       ['Плеер к mp3 ссылкам* ', 'Player to mp3 links* '],
+		'addVocaroo':   ['к Vocaroo ссылкам*', 'to Vocaroo links*'],
 		'addVimeo':     ['Добавлять плеер к Vimeo ссылкам*', 'Add player to Vimeo links*'],
 		'addYouTube': {
 			sel:        [
@@ -223,7 +223,7 @@ Lng = {
 			txt:        ['', '']
 		},
 		'YTubeTitles':  ['Загружать названия к YouTube-ссылкам*', 'Load titles into YouTube-links*'],
-		'ytApiKey':		['Ключ YouTube API*', 'YouTube API Key*'],
+		'ytApiKey':		['Ключ YT API*', 'YT API Key*'],
 
 		'ajaxReply': {
 			sel:        [['Откл.', 'Iframe', 'HTML5'], ['Disable', 'Iframe', 'HTML5']],
@@ -1937,7 +1937,7 @@ function showVideosTable(body) {
 			'<a class="de-abtn" id="de-video-btn-next" href="#" title="' + Lng.nextVideo[lang] + '">' +
 				'&#x25B6;</a></center>' +
 		'<div id="de-video-list" style="max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; max-height: ' +
-			(doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 110) + 'px;"></div>';
+			(doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 155) + 'px;"></div>';
 	var linkList = body.lastChild;
 	$before(linkList, $new('script', {'type': 'text/javascript', 'text':`
 		(function() {
@@ -2764,7 +2764,7 @@ function getCfgCommon() {
 		])),
 		$if(nav.isGlobal, $New('div', null, [
 			$txt(Lng.cfg['excludeList'][lang]),
-			$new('input', {'type': 'text', 'id': 'de-exclude-edit', 'size': 45, 'style': 'display: block;',
+			$new('input', {'type': 'text', 'id': 'de-exclude-edit', 'style': 'display: block; width: 97%;',
 				'value': excludeList}, {
 				'keyup'() {
 					setStored('DESU_Exclude', this.value);
@@ -4335,7 +4335,7 @@ Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
 			node = node.nextSibling.nextSibling.nextSibling;
 			node.style.maxWidth = (exp ? 888 : +Cfg.YTubeWidth + 40) + 'px';
 			node.style.maxHeight =
-				(doc.documentElement.clientHeight - (exp ? 590 : +Cfg.YTubeHeigh + 110)) + 'px';
+				(doc.documentElement.clientHeight - (exp ? 590 : +Cfg.YTubeHeigh + 155)) + 'px';
 		}
 	};
 };
@@ -12242,15 +12242,15 @@ function scriptCSS() {
 	.de-win .de-resizer-left { position: absolute; margin: -3px; bottom: 3px; top: 3px; width: 6px; cursor: ew-resize; }\
 	.de-win .de-resizer-right { position: absolute; margin: -3px; bottom: 3px; top: 3px; display: inline-block; width: 6px; cursor: ew-resize; }\
 	.de-win .de-resizer-top { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\
-	.de-win-body { display: inline-' + (nav.Presto ? 'block' : 'table') + '; vertical-align: middle; }\
 	.de-win-buttons { float: right; line-height: 16px; margin-top: 1px; cursor: pointer; }\
 	.de-win-buttons > span { margin-right: 4px; font-size: 15px; }\
 	.de-win-buttons > span:hover { color: #f66; }\
-	#de-win-cfg, #de-win-hid, #de-win-fav, #de-win-vid { position: fixed; max-height: 100%; overflow-x: visible; overflow-y: auto; }\
-	#de-win-cfg > .de-win-body { float: left; width: auto; min-width: 0; padding: 0;  margin: 0 !important; border: none; }\
+	#de-win-cfg { width: 370px; }\
+	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\
+	#de-win-cfg > .de-win-body { float: none; width: auto; min-width: 0; padding: 0;  margin: 0 !important; border: none; }\
 	#de-win-cfg textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
 	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 10px; border: 1px solid gray; }\
-	#de-win-fav input[type="checkbox"] { margin-left: 15px; }\
+	#de-win-fav input[type="checkbox"] { flex: none; margin-left: 15px; }\
 	.de-win-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\
 	.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\
 	.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\
@@ -12259,7 +12259,7 @@ function scriptCSS() {
 
 	// Settings window
 	'.de-block { display: block; }\
-	.de-cfg-body { min-height: 309px; width: 354px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
+	.de-cfg-body { min-height: 309px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
 	.de-cfg-body input[type="text"], .de-cfg-body select { width: auto; padding: 1px 2px; margin: 1px 0; font: 13px sans-serif; }\
 	.de-cfg-body input[type="checkbox"] { ' + (nav.Presto ? '' : 'vertical-align: -1px; ') + 'margin: 2px 1px; }\
 	.de-cfg-body label { padding: 0; margin: 0; }\
@@ -12274,7 +12274,7 @@ function scriptCSS() {
 	.de-cfg-info-data { display: inline-block; padding: 0 7px; width: 162px; height: 258px; overflow-y: auto; border-collapse: separate; border-spacing: 1px; box-sizing: content-box; -moz-box-sizing: content-box; }\
 	.de-cfg-info-data > tbody > tr > td:first-child { width: 100%; }\
 	.de-cfg-info-data > tbody > tr > td:last-child { text-align: right; }\
-	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 3px !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(0,0,0,.2) 0%, rgba(0,0,0,.2) 100%) !important; }\
+	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(0,0,0,.2) 0%, rgba(0,0,0,.2) 100%) !important; }\
 	.de-cfg-tab:lang(en) { border-color: #183d77 !important; }\
 	.de-cfg-tab:lang(fr) { border-color: #121421 !important; }\
 	.de-cfg-tab:lang(en), .de-cfg-tab:lang(fr) { background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
@@ -12287,7 +12287,8 @@ function scriptCSS() {
 	#de-spell-panel > a { padding: 0 4px; }\
 	#de-spell-div { display: table; }\
 	#de-spell-div > div { display: table-cell; vertical-align: top; }\
-	#de-spell-edit { padding: 2px !important; width: 323px; height: 194px; max-width: 100%; border: none !important; outline: none !important; }\
+	#de-spell-div > div + div { width: 100%; }\
+	#de-spell-edit { padding: 2px !important; width: 100%; height: 194px; max-width: 100%; border: none !important; outline: none !important; }\
 	#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 196px; text-align: right; color: #fff; font: 12px courier new; }\
 	#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\
 	#de-spell-rowmeter:lang(de) { background-color: #777; }' +
@@ -12495,7 +12496,7 @@ function scriptCSS() {
 	.de-win-inpost > .de-win-head { background: none; color: inherit; }\
 	#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\
 	#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\
-	#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\
+	#de-win-reply.de-win > .de-win-body { display: inline-block; vertical-align: middle; padding: 2px 2px 0 1px; border: 1px solid gray; }\
 	#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\
 	#de-win-reply.de-win #de-resizer-text { display: none !important; }\
 	#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\
@@ -12514,16 +12515,15 @@ function scriptCSS() {
 	.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\
 	.de-content-block > input { margin: 0 4px; }\
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
-	.de-entry { float: none !important; display: table !important; padding: 0 2px 0 0 !important; margin: 2px 0 !important; width: 100%; border: none !important; font-size: 14px; white-space: nowrap; }\
+	.de-entry { display: flex; flex-flow: row nowrap; align-items: center; float: none !important; padding: 0 2px 0 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden; white-space: nowrap; }\
 	.de-entry > a { text-decoration: none; border: none; }\
-	.de-entry > div { display: table-cell; }\
 	.de-entry > input { margin: 2px 4px; }\
 	.de-fav-inf { font: bold 14px serif; cursor: default; }\
 	.de-fav-inf-err { color: #c33; font-size: 12px; }\
 	.de-fav-inf-new { color: #424f79; }\
 	.de-fav-inf-new::after { content: " +"; }\
 	.de-fav-inf-old { color: #4f7942; }\
-	.de-fav-title { padding: 0 15px 0 4px; width: 100%; }\
+	.de-fav-title { flex: 1 1 auto; padding: 0 10px 0 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\
 	.de-fav-user::after { content: "\u2605"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\
 	.de-input-key { height: 12px }\
