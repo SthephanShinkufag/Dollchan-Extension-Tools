@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'c2cc28a';
+var commit = '3b80173';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -772,12 +772,11 @@ Logger = new function() {
 			return timeLog;
 		},
 		getTable() {
-			var html = '<tbody>',
-				data = this.getData(false);
+			var html = '', data = this.getData(false);
 			for(var i = 0, len = data.length; i < len; ++i) {
-				html += '<tr><td>' + data[i][0] + '</td><td>' + data[i][1] + 'ms</td></tr>';
+				html += '<div><span>' + data[i][0] + '</span><span>' + data[i][1] + 'ms</span></div>';
 			}
-			return html + '</tbody>';
+			return html;
 		},
 		init() {
 			marks.push(['LoggerInit', Date.now()]);
@@ -2095,9 +2094,11 @@ function showHiddenTable(body) {
 		if(!$isEmpty(hThr[b])) {
 			block = addContentBlock(body, $new('b', {'text': '/' + b}, null));
 			for(var tNum in hThr[b]) {
-				block.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '" info="' +
-					b + ';' + tNum + '"><input type="checkbox"><a href="' + aib.getThrdUrl(b, tNum) +
-					'" target="_blank">' + tNum + '</a> - ' + hThr[b][tNum] + '</div>');
+				block.insertAdjacentHTML('beforeend',
+					'<div class="de-entry ' + aib.cReply + '" info="' + b + ';' + tNum + '">' +
+						'<input type="checkbox">' +
+						'<a href="' + aib.getThrdUrl(b, tNum) + '" target="_blank">' + tNum + '</a>' +
+						'<div class="de-entry-title">- ' + hThr[b][tNum] + '</div></div>');
 			}
 		}
 	}
@@ -2190,7 +2191,7 @@ function showFavoriteTable(body, data) {
 						'<input type="checkbox">' +
 						'<a href="' + t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last :
 							h === aib.host ? aib.anchor + t.last : '') + '">' + tNum + '</a>' +
-					'<div class="de-fav-title">- ' + t.txt + '</div>' +
+					'<div class="de-entry-title">- ' + t.txt + '</div>' +
 					'<div class="de-fav-inf">' +
 						'<span class="de-fav-inf-err">' + (t['err'] || '') + '</span> ' +
 						'<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' +
@@ -2802,13 +2803,12 @@ function getCfgInfo() {
 			'<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;' +
 			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
 			(lang ? 'home-en/' : '') + '" target="_blank">Github</a></div>'),
-		$add('<div><table class="de-cfg-info-data"><tbody>' +
-			'<tr><td>' + Lng.thrViewed[lang] + '</td><td>' + Cfg.stats.view + '</td></tr>' +
-			'<tr><td>' + Lng.thrCreated[lang] + '</td><td>' + Cfg.stats.op + '</td></tr>' +
-			'<tr><td>' + Lng.thrHidden[lang] + '</td><td>' + getHiddenThrCount() + '</td></tr>' +
-			'<tr><td>' + Lng.postsSent[lang] + '</td><td>' + Cfg.stats.reply + '</td></tr></tbody></table>' +
-			'<table class="de-cfg-info-data" style="border-left: 1px solid grey;">' +
-				new Logger().getTable() + '</table></div>'),
+		$add('<div id="de-info-table"><div>' +
+			'<div><span>' + Lng.thrViewed[lang] + '</span><span>' + Cfg.stats.view + '</span></div>' +
+			'<div><span>' + Lng.thrCreated[lang] + '</span><span>' + Cfg.stats.op + '</span></div>' +
+			'<div><span>' + Lng.thrHidden[lang] + '</span><span>' + getHiddenThrCount() + '</span></div>' +
+			'<div><span>' + Lng.postsSent[lang] + '</span><span>' + Cfg.stats.reply + '</span></div></div>' +
+			'<div style="border-left: 1px solid grey;">' + new Logger().getTable() + '</div></div>'),
 		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
 			$alert(Lng.infoDebug[lang] +
 				':<textarea readonly id="de-debug-info" class="de-editor"></textarea>', 'help-debug', false);
@@ -12247,10 +12247,11 @@ function scriptCSS() {
 	.de-win-buttons > span:hover { color: #f66; }\
 	#de-win-cfg { width: 370px; }\
 	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\
-	#de-win-cfg > .de-win-body { float: none; width: auto; min-width: 0; padding: 0;  margin: 0 !important; border: none; }\
+	#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\
 	#de-win-cfg textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
 	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 10px; border: 1px solid gray; }\
 	#de-win-fav input[type="checkbox"] { flex: none; margin-left: 15px; }\
+	#de-win-vid .de-entry { white-space: normal; }\
 	.de-win-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\
 	.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\
 	.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\
@@ -12271,9 +12272,10 @@ function scriptCSS() {
 	#de-cfg-bar:lang(en) { background-color: #325f9e; }\
 	#de-cfg-bar:lang(de) { background-color: #777; }\
 	.de-cfg-depend { padding-left: 17px; }\
-	.de-cfg-info-data { display: inline-block; padding: 0 7px; width: 162px; height: 258px; overflow-y: auto; border-collapse: separate; border-spacing: 1px; box-sizing: content-box; -moz-box-sizing: content-box; }\
-	.de-cfg-info-data > tbody > tr > td:first-child { width: 100%; }\
-	.de-cfg-info-data > tbody > tr > td:last-child { text-align: right; }\
+	#de-info-table { display: flex; height: 258px; overflow-y: auto; }\
+	#de-info-table > div { width: 100%; padding: 0px 10px; }\
+	#de-info-table > div > div { display: flex; }\
+	#de-info-table > div > div > span:first-child { flex: 1 0 auto; }\
 	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(0,0,0,.2) 0%, rgba(0,0,0,.2) 100%) !important; }\
 	.de-cfg-tab:lang(en) { border-color: #183d77 !important; }\
 	.de-cfg-tab:lang(fr) { border-color: #121421 !important; }\
@@ -12494,7 +12496,7 @@ function scriptCSS() {
 	#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }\
 	.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\
 	.de-win-inpost > .de-win-head { background: none; color: inherit; }\
-	#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\
+	#de-win-reply { display: block; width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\
 	#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\
 	#de-win-reply.de-win > .de-win-body { display: inline-block; vertical-align: middle; padding: 2px 2px 0 1px; border: 1px solid gray; }\
 	#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\
@@ -12515,15 +12517,15 @@ function scriptCSS() {
 	.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\
 	.de-content-block > input { margin: 0 4px; }\
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
-	.de-entry { display: flex; flex-flow: row nowrap; align-items: center; float: none !important; padding: 0 2px 0 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden; white-space: nowrap; }\
+	.de-entry { display: flex !important; flex-flow: row nowrap; align-items: center; float: none !important; padding: 0 4px 0 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\
 	.de-entry > a { text-decoration: none; border: none; }\
 	.de-entry > input { margin: 2px 4px; }\
-	.de-fav-inf { font: bold 14px serif; cursor: default; }\
+	.de-entry-title { flex: 1 1 auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\
+	.de-fav-inf { padding-left: 10px; font: bold 14px serif; cursor: default; }\
 	.de-fav-inf-err { color: #c33; font-size: 12px; }\
 	.de-fav-inf-new { color: #424f79; }\
 	.de-fav-inf-new::after { content: " +"; }\
 	.de-fav-inf-old { color: #4f7942; }\
-	.de-fav-title { flex: 1 1 auto; padding: 0 10px 0 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\
 	.de-fav-user::after { content: "\u2605"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\
 	.de-input-key { height: 12px }\
