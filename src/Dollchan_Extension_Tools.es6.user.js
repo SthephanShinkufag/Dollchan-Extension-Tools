@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '3b80173';
+var commit = '670d0de';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2007,6 +2007,7 @@ function showVideosTable(body) {
 				$pd(e);
 				return;
 			} else if(!el.classList.contains('de-video-link')) {
+				pByNum[+e.target.getAttribute('de-num')].selectCurrent();
 				return;
 			}
 			var m = el.videoInfo;
@@ -2023,9 +2024,11 @@ function showVideosTable(body) {
 		}
 	}, true);
 	for(var i = 0, len = els.length; i < len; ++i) {
-		var el = els[i].cloneNode(true);
+		var el = els[i].cloneNode(true),
+			num = aib.getPostEl(els[i]).post.num;
 		el.videoInfo = els[i].videoInfo;
-		linkList.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '"></div>');
+		linkList.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '">&nbsp;' +
+			'<a href="' + aib.anchor + num + '" de-num="' + num + '">&gt;</a></div>');
 		linkList.lastChild.appendChild(el);
 		el.classList.remove('de-current');
 		if(i === 0) {
@@ -2808,7 +2811,7 @@ function getCfgInfo() {
 			'<div><span>' + Lng.thrCreated[lang] + '</span><span>' + Cfg.stats.op + '</span></div>' +
 			'<div><span>' + Lng.thrHidden[lang] + '</span><span>' + getHiddenThrCount() + '</span></div>' +
 			'<div><span>' + Lng.postsSent[lang] + '</span><span>' + Cfg.stats.reply + '</span></div></div>' +
-			'<div style="border-left: 1px solid grey;">' + new Logger().getTable() + '</div></div>'),
+			'<div style="overflow-y: auto; border-left: 1px solid grey;">' + new Logger().getTable() + '</div></div>'),
 		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
 			$alert(Lng.infoDebug[lang] +
 				':<textarea readonly id="de-debug-info" class="de-editor"></textarea>', 'help-debug', false);
@@ -8448,19 +8451,8 @@ Post.prototype = {
 						if(!post) {
 							return;
 						}
+						post.selectCurrent();
 						post.el.scrollIntoView(true);
-						if(hKeys) {
-							if(hKeys.cPost) {
-								hKeys.cPost.unselect();
-							}
-							hKeys.cPost = post;
-						} else {
-							temp = $c('de-selected', doc);
-							if(temp) {
-								temp.unselect();
-							}
-						}
-						post.select();
 						window.location.href = aib.anchor + num;
 						$pd(e);
 					}
@@ -8718,6 +8710,20 @@ Post.prototype = {
 		} else {
 			this.el.classList.add('de-selected');
 		}
+	},
+	selectCurrent() {
+		if(hKeys) {
+			if(hKeys.cPost) {
+				hKeys.cPost.unselect();
+			}
+			hKeys.cPost = this;
+		} else {
+			var el = $c('de-selected', doc);
+			if(el) {
+				el.unselect();
+			}
+		}
+		this.select();
 	},
 	setUserVisib(hide, date, sync) {
 		this.setVisib(hide);
@@ -12272,7 +12278,7 @@ function scriptCSS() {
 	#de-cfg-bar:lang(en) { background-color: #325f9e; }\
 	#de-cfg-bar:lang(de) { background-color: #777; }\
 	.de-cfg-depend { padding-left: 17px; }\
-	#de-info-table { display: flex; height: 258px; overflow-y: auto; }\
+	#de-info-table { display: flex; height: 258px; }\
 	#de-info-table > div { width: 100%; padding: 0px 10px; }\
 	#de-info-table > div > div { display: flex; }\
 	#de-info-table > div > div > span:first-child { flex: 1 0 auto; }\
@@ -12452,11 +12458,11 @@ function scriptCSS() {
 	'#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; margin-top: -8px; background-color: black; cursor: pointer; }\
 	#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\
 	#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\
-	.de-mp3, .de-video-obj { margin: 5px 20px; white-space: nowrap; clear: both; }\
+	.de-mp3, .de-video-obj { margin: 5px 20px; white-space: nowrap; }\
 	.de-video-expanded > embed, .de-video-expanded > iframe, .de-video-expanded > a > img { width: 848px; height: 480px; }\
-	#de-video-list { padding: 0 0 4px; overflow-y: scroll; }\
-	.de-video-resizer::after { content: "\u2795"; display: inline-block; margin: 0 -15px 0 3px; vertical-align: 8px; color: black; font-size: 12px; cursor: pointer; }\
-	.de-video-obj > a { display: table; position: relative; border-spacing: 0; }\
+	#de-video-list { padding: 0 0 4px; overflow-y: auto; }\
+	.de-video-resizer::after { content: "\u2795"; display: inline-block; margin: 0 -13px 0 1px; vertical-align: 14px; color: #000; font-size: 12px; cursor: pointer; }\
+	.de-video-obj > a { display: table; position: relative; border-spacing: 0; border: none; }\
 	.de-video-obj > a::after { opacity: .6; position: absolute; left: 42%; top: 42%; content: url("data:image/gif;base64,R0lGODlhPwAsAJEAAAAAAP////8AAP///yH5BAEAAAMALAAAAAA/ACwAAAJvnC2py+0P35kj2ostzbzn44Wig4ymWJ7qt7buC8fyTNf2jee6EAT72ev9RMHgsFMsHjHJ5DLSbD4d0eh0Ua1eeVnrtCu9go1bbresOKPT3jVb6WbA43If/Y7P6/f8vt9V0ZeyN6gHQjhhSFFYRlEAADs="); }\
 	.de-video-obj > a:hover::after { opacity: .85; }\
 	.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }\
