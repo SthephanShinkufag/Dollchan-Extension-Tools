@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'de84d89';
+var commit = '0c72f7d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2805,7 +2805,7 @@ function getCfgInfo() {
 			'<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;' +
 			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
 			(lang ? 'home-en/' : '') + '" target="_blank">Github</a></div>'),
-		$add('<div id="de-info-table"><div class="de-info-column">' +
+		$add('<div id="de-info-table"><div id="de-info-stats">' +
 			'<div class="de-info-row"><span class="de-info-name">' + Lng.thrViewed[lang] +
 				'</span><span>' + Cfg.stats.view + '</span></div>' +
 			'<div class="de-info-row"><span class="de-info-name">' + Lng.thrCreated[lang] +
@@ -2814,8 +2814,7 @@ function getCfgInfo() {
 				'</span><span>' + getHiddenThrCount() + '</span></div>' +
 			'<div class="de-info-row"><span class="de-info-name">' + Lng.postsSent[lang] +
 				'</span><span>' + Cfg.stats.reply + '</span></div></div>' +
-			'<div class="de-info-column" style="overflow-y: auto; border-left: 1px solid grey;">' +
-				new Logger().getTable() + '</div></div>'),
+			'<div id="de-info-log">' + new Logger().getTable() + '</div></div>'),
 		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
 			$alert(Lng.infoDebug[lang] +
 				':<textarea readonly id="de-debug-info" class="de-editor"></textarea>', 'help-debug', false);
@@ -12291,7 +12290,8 @@ function scriptCSS() {
 	.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\
 	.de-cfg-tab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\
 	.de-cfg-unvis { display: none; }\
-	.de-info-column { width: 100%; padding: 0px 10px; }\
+	#de-info-log, #de-info-stats { width: 100%; padding: 0px 10px; }\
+	#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\
 	.de-info-name { flex: 1 0 auto; }\
 	.de-info-row { display: flex; }\
 	#de-info-table { display: flex; height: 258px; }\
