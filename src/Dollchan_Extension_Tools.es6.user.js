@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '670d0de';
+var commit = '98dcb53';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -774,7 +774,8 @@ Logger = new function() {
 		getTable() {
 			var html = '', data = this.getData(false);
 			for(var i = 0, len = data.length; i < len; ++i) {
-				html += '<div><span>' + data[i][0] + '</span><span>' + data[i][1] + 'ms</span></div>';
+				html += '<div class="de-info-row"><span class="de-info-name">' +
+					data[i][0] + '</span><span>' + data[i][1] + 'ms</span></div>';
 			}
 			return html;
 		},
@@ -2806,12 +2807,17 @@ function getCfgInfo() {
 			'<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;' +
 			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
 			(lang ? 'home-en/' : '') + '" target="_blank">Github</a></div>'),
-		$add('<div id="de-info-table"><div>' +
-			'<div><span>' + Lng.thrViewed[lang] + '</span><span>' + Cfg.stats.view + '</span></div>' +
-			'<div><span>' + Lng.thrCreated[lang] + '</span><span>' + Cfg.stats.op + '</span></div>' +
-			'<div><span>' + Lng.thrHidden[lang] + '</span><span>' + getHiddenThrCount() + '</span></div>' +
-			'<div><span>' + Lng.postsSent[lang] + '</span><span>' + Cfg.stats.reply + '</span></div></div>' +
-			'<div style="overflow-y: auto; border-left: 1px solid grey;">' + new Logger().getTable() + '</div></div>'),
+		$add('<div id="de-info-table"><div class="de-info-column">' +
+			'<div class="de-info-row"><span class="de-info-name">' + Lng.thrViewed[lang] +
+				'</span><span>' + Cfg.stats.view + '</span></div>' +
+			'<div class="de-info-row"><span class="de-info-name">' + Lng.thrCreated[lang] +
+				'</span><span>' + Cfg.stats.op + '</span></div>' +
+			'<div class="de-info-row"><span class="de-info-name">' + Lng.thrHidden[lang] +
+				'</span><span>' + getHiddenThrCount() + '</span></div>' +
+			'<div class="de-info-row"><span class="de-info-name">' + Lng.postsSent[lang] +
+				'</span><span>' + Cfg.stats.reply + '</span></div></div>' +
+			'<div class="de-info-column" style="overflow-y: auto; border-left: 1px solid grey;">' +
+				new Logger().getTable() + '</div></div>'),
 		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
 			$alert(Lng.infoDebug[lang] +
 				':<textarea readonly id="de-debug-info" class="de-editor"></textarea>', 'help-debug', false);
@@ -12278,10 +12284,10 @@ function scriptCSS() {
 	#de-cfg-bar:lang(en) { background-color: #325f9e; }\
 	#de-cfg-bar:lang(de) { background-color: #777; }\
 	.de-cfg-depend { padding-left: 17px; }\
+	.de-info-column { width: 100%; padding: 0px 10px; }\
+	.de-info-name { flex: 1 0 auto; }\
+	.de-info-row { display: flex; }\
 	#de-info-table { display: flex; height: 258px; }\
-	#de-info-table > div { width: 100%; padding: 0px 10px; }\
-	#de-info-table > div > div { display: flex; }\
-	#de-info-table > div > div > span:first-child { flex: 1 0 auto; }\
 	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(0,0,0,.2) 0%, rgba(0,0,0,.2) 100%) !important; }\
 	.de-cfg-tab:lang(en) { border-color: #183d77 !important; }\
 	.de-cfg-tab:lang(fr) { border-color: #121421 !important; }\
