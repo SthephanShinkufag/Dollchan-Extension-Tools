@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '98dcb53';
+var commit = 'de84d89';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -772,12 +772,10 @@ Logger = new function() {
 			return timeLog;
 		},
 		getTable() {
-			var html = '', data = this.getData(false);
-			for(var i = 0, len = data.length; i < len; ++i) {
-				html += '<div class="de-info-row"><span class="de-info-name">' +
-					data[i][0] + '</span><span>' + data[i][1] + 'ms</span></div>';
-			}
-			return html;
+			return this.getData(false).map(data => `<div class="de-info-row">
+				<span class="de-info-name">${ data[0] }</span>
+				<span>${ data[1] }ms</span>
+			</div>`).join('');
 		},
 		init() {
 			marks.push(['LoggerInit', Date.now()]);
@@ -12284,10 +12282,6 @@ function scriptCSS() {
 	#de-cfg-bar:lang(en) { background-color: #325f9e; }\
 	#de-cfg-bar:lang(de) { background-color: #777; }\
 	.de-cfg-depend { padding-left: 17px; }\
-	.de-info-column { width: 100%; padding: 0px 10px; }\
-	.de-info-name { flex: 1 0 auto; }\
-	.de-info-row { display: flex; }\
-	#de-info-table { display: flex; height: 258px; }\
 	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(0,0,0,.2) 0%, rgba(0,0,0,.2) 100%) !important; }\
 	.de-cfg-tab:lang(en) { border-color: #183d77 !important; }\
 	.de-cfg-tab:lang(fr) { border-color: #121421 !important; }\
@@ -12297,6 +12291,10 @@ function scriptCSS() {
 	.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\
 	.de-cfg-tab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\
 	.de-cfg-unvis { display: none; }\
+	.de-info-column { width: 100%; padding: 0px 10px; }\
+	.de-info-name { flex: 1 0 auto; }\
+	.de-info-row { display: flex; }\
+	#de-info-table { display: flex; height: 258px; }\
 	#de-spell-panel { float: right; }\
 	#de-spell-panel > a { padding: 0 4px; }\
 	#de-spell-div { display: table; }\
