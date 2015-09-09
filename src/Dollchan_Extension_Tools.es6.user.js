@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '0c72f7d';
+var commit = 'ca231ec';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -770,12 +770,6 @@ Logger = new function() {
 			duration = marks[i][1] - marks[0][1];
 			timeLog.push([Lng.total[lang], duration]);
 			return timeLog;
-		},
-		getTable() {
-			return this.getData(false).map(data => `<div class="de-info-row">
-				<span class="de-info-name">${ data[0] }</span>
-				<span>${ data[1] }ms</span>
-			</div>`).join('');
 		},
 		init() {
 			marks.push(['LoggerInit', Date.now()]);
@@ -1927,15 +1921,17 @@ function showVideosTable(body) {
 		}, null));
 	}
 	body.innerHTML = '<div de-disableautoplay class="de-video-obj"></div>' +
-		'<center>' +
-			'<a class="de-abtn" id="de-video-btn-prev" href="#" title="' + Lng.prevVideo[lang] + '">' +
-				'&#x25C0;</a> ' +
-			'<a class="de-abtn" id="de-video-btn-hide" href="#" title="' + Lng.hideLnkList[lang] + '">' +
-				'&#x25B2;</a> ' +
-			'<a class="de-abtn" id="de-video-btn-next" href="#" title="' + Lng.nextVideo[lang] + '">' +
-				'&#x25B6;</a></center>' +
+		'<div id="de-video-buttons">' +
+			'<a class="de-abtn" id="de-video-btn-prev" href="#" title="' +
+				Lng.prevVideo[lang] + '">&#x25C0;</a>' +
+			'<a class="de-abtn" id="de-video-btn-resize" href="#" title="' +
+				Lng.expandVideo[lang] + '"></a>' +
+			'<a class="de-abtn" id="de-video-btn-next" href="#" title="' +
+				Lng.nextVideo[lang] + '">&#x25B6;</a>' +
+			'<a class="de-abtn" id="de-video-btn-hide" href="#" title="' +
+				Lng.hideLnkList[lang] + '">&#x25B2;</a></div>' +
 		'<div id="de-video-list" style="max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; max-height: ' +
-			(doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 155) + 'px;"></div>';
+			(doc.documentElement.clientHeight * .92 - +Cfg.YTubeHeigh - 82) + 'px;"></div>';
 	var linkList = body.lastChild;
 	$before(linkList, $new('script', {'type': 'text/javascript', 'text':`
 		(function() {
@@ -1984,14 +1980,13 @@ function showVideosTable(body) {
 				var node;
 				switch(e.target.id) {
 				case 'de-video-btn-hide':
-					if(this.listHidden) {
-						this.linkList.style.display = '';
-						e.target.textContent = '\u25B2';
-					} else {
+					if((this.listHidden = !this.listHidden)) {
 						this.linkList.style.display = 'none';
 						e.target.textContent = '\u25BC';
+					} else {
+						this.linkList.style.display = '';
+						e.target.textContent = '\u25B2';
 					}
-					this.listHidden = !this.listHidden;
 					$pd(e);
 					return;
 				case 'de-video-btn-prev':
@@ -2001,8 +1996,17 @@ function showVideosTable(body) {
 				case 'de-video-btn-next':
 					node = this.currentLink.parentNode;
 					node = node.nextSibling || node.parentNode.firstChild;
+					break;
+				case 'de-video-btn-resize':
+					var exp = this.player.className === 'de-video-obj';
+					this.player.className = exp ? 'de-video-obj de-video-expanded' : 'de-video-obj';
+					this.linkList.style.maxWidth = (exp ? 894 : +Cfg.YTubeWidth + 40) + 'px';
+					this.linkList.style.maxHeight = (doc.documentElement.clientHeight * .92 -
+						(exp ? 562 : +Cfg.YTubeHeigh + 82)) + 'px';
+					$pd(e);
+					return;
 				}
-				node.firstChild.click();
+				node.lastChild.click();
 				$pd(e);
 				return;
 			} else if(!el.classList.contains('de-video-link')) {
@@ -2798,6 +2802,12 @@ function getCfgInfo() {
 		}
 		return count;
 	}
+	function getInfoTable(data) {
+		return data.map(data => `<div class="de-info-row">
+			<span class="de-info-name">${ data[0] }</span>
+			<span>${ data[1] }ms</span>
+		</div>`).join('');
+	}
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-info'}, [
 		$add('<div style="padding-bottom: 10px;">' +
 			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions" ' +
@@ -2805,16 +2815,13 @@ function getCfgInfo() {
 			'<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;' +
 			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
 			(lang ? 'home-en/' : '') + '" target="_blank">Github</a></div>'),
-		$add('<div id="de-info-table"><div id="de-info-stats">' +
-			'<div class="de-info-row"><span class="de-info-name">' + Lng.thrViewed[lang] +
-				'</span><span>' + Cfg.stats.view + '</span></div>' +
-			'<div class="de-info-row"><span class="de-info-name">' + Lng.thrCreated[lang] +
-				'</span><span>' + Cfg.stats.op + '</span></div>' +
-			'<div class="de-info-row"><span class="de-info-name">' + Lng.thrHidden[lang] +
-				'</span><span>' + getHiddenThrCount() + '</span></div>' +
-			'<div class="de-info-row"><span class="de-info-name">' + Lng.postsSent[lang] +
-				'</span><span>' + Cfg.stats.reply + '</span></div></div>' +
-			'<div id="de-info-log">' + new Logger().getTable() + '</div></div>'),
+		$add('<div id="de-info-table"><div id="de-info-stats">' + getInfoTable([
+				[Lng.thrViewed[lang], Cfg.stats.view],
+				[Lng.thrCreated[lang], Cfg.stats.op],
+				[Lng.thrHidden[lang], getHiddenThrCount()],
+				[Lng.postsSent[lang], Cfg.stats.reply]
+			]) + '</div>' +
+			'<div id="de-info-log">' + getInfoTable(new Logger().getData(false)) + '</div></div>'),
 		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
 			$alert(Lng.infoDebug[lang] +
 				':<textarea readonly id="de-debug-info" class="de-editor"></textarea>', 'help-debug', false);
@@ -4332,18 +4339,15 @@ Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
 				'&server=vimeo.com&color=00adef&fullscreen=1" ' +
 				'allowscriptaccess="always" allowfullscreen="true"' + wh + '</embed>';
 	}
-	el.innerHTML = txt + '<span class="de-video-resizer" title="' + Lng.expandVideo[lang] + '"></span>';
-	el.lastChild.onclick = function() {
-		var node = this.parentNode,
-			exp = node.className === 'de-video-obj';
-		node.className = exp ? 'de-video-obj de-video-expanded' : 'de-video-obj';
-		if(node.parentNode.parentNode.id === 'de-win-vid') {
-			node = node.nextSibling.nextSibling.nextSibling;
-			node.style.maxWidth = (exp ? 888 : +Cfg.YTubeWidth + 40) + 'px';
-			node.style.maxHeight =
-				(doc.documentElement.clientHeight - (exp ? 590 : +Cfg.YTubeHeigh + 155)) + 'px';
-		}
-	};
+	el.innerHTML = txt + (enableJsapi ? '' :
+		'<span class="de-video-resizer" title="' + Lng.expandVideo[lang] + '"></span>');
+	if(!enableJsapi) {
+		el.lastChild.onclick = function() {
+			var node = this.parentNode;
+			node.className = node.className === 'de-video-obj' ?
+				'de-video-obj de-video-expanded' : 'de-video-obj';
+		};
+	}
 };
 Videos._titlesLoaderHelper = function([link, isYtube, videoObj, id], num, ...data) {
 	if(data.length !== 0) {
@@ -12260,6 +12264,7 @@ function scriptCSS() {
 	#de-win-cfg textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
 	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 10px; border: 1px solid gray; }\
 	#de-win-fav input[type="checkbox"] { flex: none; margin-left: 15px; }\
+	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\
 	#de-win-vid .de-entry { white-space: normal; }\
 	.de-win-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\
 	.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\
@@ -12290,7 +12295,7 @@ function scriptCSS() {
 	.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\
 	.de-cfg-tab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\
 	.de-cfg-unvis { display: none; }\
-	#de-info-log, #de-info-stats { width: 100%; padding: 0px 10px; }\
+	#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\
 	#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\
 	.de-info-name { flex: 1 0 auto; }\
 	.de-info-row { display: flex; }\
@@ -12463,9 +12468,12 @@ function scriptCSS() {
 	#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\
 	#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\
 	.de-mp3, .de-video-obj { margin: 5px 20px; white-space: nowrap; }\
-	.de-video-expanded > embed, .de-video-expanded > iframe, .de-video-expanded > a > img { width: 848px; height: 480px; }\
-	#de-video-list { padding: 0 0 4px; overflow-y: auto; }\
-	.de-video-resizer::after { content: "\u2795"; display: inline-block; margin: 0 -13px 0 1px; vertical-align: 14px; color: #000; font-size: 12px; cursor: pointer; }\
+	#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; }\
+	#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\
+	#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }\
+	.de-video-expanded > embed, .de-video-expanded > iframe, .de-video-expanded > a > img { width: 854px; height: 480px; }\
+	#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\
+	.de-video-resizer::after { content: "\u2795"; display: inline-block; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\
 	.de-video-obj > a { display: table; position: relative; border-spacing: 0; border: none; }\
 	.de-video-obj > a::after { opacity: .6; position: absolute; left: 42%; top: 42%; content: url("data:image/gif;base64,R0lGODlhPwAsAJEAAAAAAP////8AAP///yH5BAEAAAMALAAAAAA/ACwAAAJvnC2py+0P35kj2ostzbzn44Wig4ymWJ7qt7buC8fyTNf2jee6EAT72ev9RMHgsFMsHjHJ5DLSbD4d0eh0Ua1eeVnrtCu9go1bbresOKPT3jVb6WbA43If/Y7P6/f8vt9V0ZeyN6gHQjhhSFFYRlEAADs="); }\
 	.de-video-obj > a:hover::after { opacity: .85; }\
@@ -12506,7 +12514,7 @@ function scriptCSS() {
 	#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }\
 	.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\
 	.de-win-inpost > .de-win-head { background: none; color: inherit; }\
-	#de-win-reply { display: block; width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\
+	#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\
 	#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\
 	#de-win-reply.de-win > .de-win-body { display: inline-block; vertical-align: middle; padding: 2px 2px 0 1px; border: 1px solid gray; }\
 	#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\
