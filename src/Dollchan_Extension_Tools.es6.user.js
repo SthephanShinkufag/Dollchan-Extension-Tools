@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'ca231ec';
+var commit = '4e3c93b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2802,10 +2802,10 @@ function getCfgInfo() {
 		}
 		return count;
 	}
-	function getInfoTable(data) {
+	function getInfoTable(data, needMs) {
 		return data.map(data => `<div class="de-info-row">
 			<span class="de-info-name">${ data[0] }</span>
-			<span>${ data[1] }ms</span>
+			<span>${ data[1] + (needMs ? 'ms' : '')}</span>
 		</div>`).join('');
 	}
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-info'}, [
@@ -2820,8 +2820,8 @@ function getCfgInfo() {
 				[Lng.thrCreated[lang], Cfg.stats.op],
 				[Lng.thrHidden[lang], getHiddenThrCount()],
 				[Lng.postsSent[lang], Cfg.stats.reply]
-			]) + '</div>' +
-			'<div id="de-info-log">' + getInfoTable(new Logger().getData(false)) + '</div></div>'),
+			], false) + '</div>' +
+			'<div id="de-info-log">' + getInfoTable(new Logger().getData(false), true) + '</div></div>'),
 		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
 			$alert(Lng.infoDebug[lang] +
 				':<textarea readonly id="de-debug-info" class="de-editor"></textarea>', 'help-debug', false);

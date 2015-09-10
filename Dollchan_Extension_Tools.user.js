@@ -1198,8 +1198,6 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
-
-
 !(function(global) {
   "use strict";
 
@@ -2596,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "ca231ec";
+	var commit = "4e3c93b";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -4914,12 +4912,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 			return count;
 		}
-		function getInfoTable(data) {
+		function getInfoTable(data, needMs) {
 			return data.map(function (data) {
-				return "<div class=\"de-info-row\">\n\t\t\t<span class=\"de-info-name\">" + data[0] + "</span>\n\t\t\t<span>" + data[1] + "ms</span>\n\t\t</div>";
+				return "<div class=\"de-info-row\">\n\t\t\t<span class=\"de-info-name\">" + data[0] + "</span>\n\t\t\t<span>" + (data[1] + (needMs ? "ms" : "")) + "</span>\n\t\t</div>";
 			}).join("");
 		}
-		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-info" }, [$add("<div style=\"padding-bottom: 10px;\">" + "<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions\" " + "target=\"_blank\">v" + version + "." + commit + "</a>&nbsp;|&nbsp;" + "<a href=\"http://www.freedollchan.org/scripts/\" target=\"_blank\">Freedollchan</a>&nbsp;|&nbsp;" + "<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/" + (lang ? "home-en/" : "") + "\" target=\"_blank\">Github</a></div>"), $add("<div id=\"de-info-table\"><div id=\"de-info-stats\">" + getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], getHiddenThrCount()], [Lng.postsSent[lang], Cfg.stats.reply]]) + "</div>" + "<div id=\"de-info-log\">" + getInfoTable(new Logger().getData(false)) + "</div></div>"), $btn(Lng.debug[lang], Lng.infoDebug[lang], function () {
+		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-info" }, [$add("<div style=\"padding-bottom: 10px;\">" + "<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions\" " + "target=\"_blank\">v" + version + "." + commit + "</a>&nbsp;|&nbsp;" + "<a href=\"http://www.freedollchan.org/scripts/\" target=\"_blank\">Freedollchan</a>&nbsp;|&nbsp;" + "<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/" + (lang ? "home-en/" : "") + "\" target=\"_blank\">Github</a></div>"), $add("<div id=\"de-info-table\"><div id=\"de-info-stats\">" + getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], getHiddenThrCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false) + "</div>" + "<div id=\"de-info-log\">" + getInfoTable(new Logger().getData(false), true) + "</div></div>"), $btn(Lng.debug[lang], Lng.infoDebug[lang], function () {
 			$alert(Lng.infoDebug[lang] + ":<textarea readonly id=\"de-debug-info\" class=\"de-editor\"></textarea>", "help-debug", false);
 			$id("de-debug-info").value = JSON.stringify({
 				version: version,
