@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '4e3c93b';
+var commit = 'f909b24';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2805,7 +2805,7 @@ function getCfgInfo() {
 	function getInfoTable(data, needMs) {
 		return data.map(data => `<div class="de-info-row">
 			<span class="de-info-name">${ data[0] }</span>
-			<span>${ data[1] + (needMs ? 'ms' : '')}</span>
+			<span>${ data[1] + (needMs ? 'ms' : '') }</span>
 		</div>`).join('');
 	}
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-info'}, [
@@ -3605,11 +3605,11 @@ KeyEditListener.getEditMarkup = function(keys) {
 			var key = this[+id1][+id2];
 			aKeys.push(key);
 			return '<input class="de-input-key" type="text" de-id1="' + id1 + '" de-id2="' + id2 +
-				'" size="26" value="' + KeyEditListener.getStrKey(key) +
+				'" size="18" value="' + KeyEditListener.getStrKey(key) +
 				(isText ? '" de-text' : '"' ) + ' readonly></input>';
 		}.bind(keys, allKeys)) +
-	'<input type="button" id="de-keys-save" value="' + Lng.save[lang] + '"></input>' +
-	'<input type="button" id="de-keys-reset" value="' + Lng.reset[lang] + '"></input>';
+	'<input type="button" id="de-keys-save" class="de-button" value="' + Lng.save[lang] + '"></input>' +
+	'<input type="button" id="de-keys-reset" class="de-button" value="' + Lng.reset[lang] + '"></input>';
 	return [allKeys, html];
 };
 KeyEditListener.setTitle = function(el, idx) {
@@ -4320,24 +4320,24 @@ Videos._global = {
 Videos.ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 Videos.vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
 Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
-	var txt, wh = ' width="' + Cfg.YTubeWidth + '" height="' + Cfg.YTubeHeigh + '">';
+	var txt;
 	if(isYtube) {
 		var list = m[0].match(/list=[^&#]+/);
-		txt = '<iframe frameborder="0" allowfullscreen="1" src="https://www.youtube.com/embed/' + m[1] +
+		txt = '<iframe class="de-video-player" src="https://www.youtube.com/embed/' + m[1] +
 			'?start=' + ((m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0)) +
 			(enableJsapi ? '&enablejsapi=1' : Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
 			(list ? '&' + list[0] : '') + (Cfg.YTubeType === 1 ? '&html5=1" type="text/html"' :
-				'" type="application/x-shockwave-flash"') + wh + '</iframe>';
+				'" type="application/x-shockwave-flash"') + ' frameborder="0" allowfullscreen="1"></iframe>';
 	} else {
 		var id = m[1] + (m[2] ? m[2] : '');
 		txt = Cfg.YTubeType === 1 ?
-			'<iframe src="' + aib.prot + '//player.vimeo.com/video/' + id +
+			'<iframe class="de-video-player" src="' + aib.prot + '//player.vimeo.com/video/' + id +
 				(Cfg.addYouTube === 3 ? '?autoplay=1' : '') + '" frameborder="0" ' +
-				'webkitallowfullscreen mozallowfullscreen allowfullscreen' + wh + '</iframe>' :
-			'<embed type="application/x-shockwave-flash" src="' + aib.prot + '//vimeo.com/moogaloop.swf' +
-				'?clip_id=' + id + (Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
+				'webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>' :
+			'<embed class="de-video-player" type="application/x-shockwave-flash" src="' + aib.prot +
+				'//vimeo.com/moogaloop.swf' + '?clip_id=' + id + (Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
 				'&server=vimeo.com&color=00adef&fullscreen=1" ' +
-				'allowscriptaccess="always" allowfullscreen="true"' + wh + '</embed>';
+				'allowscriptaccess="always" allowfullscreen="true"></embed>';
 	}
 	el.innerHTML = txt + (enableJsapi ? '' :
 		'<span class="de-video-resizer" title="' + Lng.expandVideo[lang] + '"></span>');
@@ -4540,16 +4540,16 @@ Videos.prototype = {
 	},
 
 	_addThumb(m, isYtube) {
-		var el = this.player,
-			wh = ' width="' + Cfg.YTubeWidth + '" height="' + Cfg.YTubeHeigh + '"></a>';
+		var el = this.player;
 		this.playerInfo = m;
 		if(isYtube) {
-			el.innerHTML = '<a href="' + aib.prot + '//www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
-				'<img class="de-video-thumb de-ytube" src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg"' + wh;
+			el.innerHTML = '<a class="de-video-player" href="' +
+				aib.prot + '//www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
+				'<img class="de-video-thumb de-ytube" src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg"></a>';
 			return;
 		}
-		el.innerHTML = '<a href="' + aib.prot + '//vimeo.com/' + m[1] + '" target="_blank">' +
-			'<img class="de-video-thumb de-vimeo" src=""' + wh;
+		el.innerHTML = '<a class="de-video-player" href="' + aib.prot + '//vimeo.com/' + m[1] +
+			'" target="_blank"><img class="de-video-thumb de-vimeo" src=""></a>';
 		$ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json', null, false).then(xhr => {
 			try {
 				el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
@@ -12468,19 +12468,20 @@ function scriptCSS() {
 	#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\
 	#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\
 	.de-mp3, .de-video-obj { margin: 5px 20px; white-space: nowrap; }\
-	#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; }\
+	#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\
 	#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\
 	#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }\
-	.de-video-expanded > embed, .de-video-expanded > iframe, .de-video-expanded > a > img { width: 854px; height: 480px; }\
+	.de-video-expanded { width: 854px !important; height: 480px !important; }\
 	#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\
-	.de-video-resizer::after { content: "\u2795"; display: inline-block; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\
-	.de-video-obj > a { display: table; position: relative; border-spacing: 0; border: none; }\
-	.de-video-obj > a::after { opacity: .6; position: absolute; left: 42%; top: 42%; content: url("data:image/gif;base64,R0lGODlhPwAsAJEAAAAAAP////8AAP///yH5BAEAAAMALAAAAAA/ACwAAAJvnC2py+0P35kj2ostzbzn44Wig4ymWJ7qt7buC8fyTNf2jee6EAT72ev9RMHgsFMsHjHJ5DLSbD4d0eh0Ua1eeVnrtCu9go1bbresOKPT3jVb6WbA43If/Y7P6/f8vt9V0ZeyN6gHQjhhSFFYRlEAADs="); }\
-	.de-video-obj > a:hover::after { opacity: .85; }\
+	.de-video-resizer::after { content: "\u2795"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\
+	.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\
+	a.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\
+	a.de-video-player::after { content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255, 0, 0, .4); border-radius: 8px; line-height: 0; }\
+	a.de-video-player:hover::after { background-color: rgba(255, 0, 0, .7); }\
 	.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }\
+	.de-vocaroo > embed { display: inline-block; }\
 	td > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\
-	video { background: black; }\
-	.de-vocaroo > embed { display: inline-block; }' +
+	video { background: black; }' +
 
 	// File inputs
 	'.de-file { display: inline-block; margin: 1px; height: ' + (p = aib.multiFile ? 90 : 130) + 'px; width: ' + p + 'px; text-align: center; border: 1px dashed grey; }\
@@ -12581,7 +12582,7 @@ function scriptCSS() {
 }
 
 function updateCSS() {
-	var x = '';
+	var x = '.de-video-obj { width: ' + +Cfg.YTubeWidth + 'px; height: ' + +Cfg.YTubeHeigh + 'px; }';
 	if(Cfg.maskImgs) {
 		x += '.de-img-pre, .de-video-obj, .thumb, .ca_thumb, .fileThumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: .07 !important; }\
 			.de-img-pre:hover, .de-video-obj:hover, .thumb:hover, .ca_thumb:hover, .fileThumb:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
