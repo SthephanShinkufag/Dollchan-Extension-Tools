@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'f909b24';
+var commit = '6be62e2';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -136,6 +136,7 @@ var defaultCfg = {
 	'favWinDrag':       0,      // draggable Favorites window
 	'favWinX':          'right: 0',     // Favorites window position
 	'favWinY':          'top: 0',
+	'favWinWidth':      500,    // Favorites window width
 	'vidWinDrag':       0,      // draggable Video window
 	'vidWinX':          'right: 0',     // Video window position
 	'vidWinY':          'top: 0'
@@ -1564,7 +1565,7 @@ function readViewedPosts() {
 }
 
 
-// PANEL
+// PANEL & WINDOWS
 // ===========================================================================================================
 
 var panel = {
@@ -1797,30 +1798,107 @@ function makeDraggable(win, head, name) {
 	});
 }
 
+function winResizer(name, dir, cfgName, win, target) {
+	this.name = name;
+	this.dir = dir;
+	this.cfgName = cfgName;
+	this.vertical = dir === 'top' || dir === 'bottom';
+	this.win = win;
+	this.winStyle = win.style;
+	this.tStyle = target.style;
+	$c('de-resizer-' + dir, win).addEventListener('mousedown', this);
+}
+winResizer.prototype = {
+	handleEvent(e) {
+		var val, x, y, cr = this.win.getBoundingClientRect(),
+			maxX = nav.Chrome ? doc.documentElement.clientWidth : Post.sizing.wWidth,
+			maxY = nav.Chrome ? doc.documentElement.clientHeight : Post.sizing.wHeight,
+			z = '; z-index: ' + this.win.style.zIndex;
+		switch(e.type) {
+		case 'mousedown':
+			if(this.win.classList.contains('de-win-fixed')) {
+				x = 'right: 0';
+				y = 'bottom: 25px';
+			} else {
+				x = Cfg[this.name + 'WinX'];
+				y = Cfg[this.name + 'WinY'];
+			}
+			switch(this.dir) {
+			case 'top': val = x + '; bottom: ' + (maxY - cr.bottom) + 'px' + z; break;
+			case 'bottom': val = x + '; top: ' + cr.top + 'px' + z; break;
+			case 'left': val = 'right: ' + (maxX - cr.right) + 'px; ' + y + z; break;
+			case 'right': val = 'left: ' + cr.left + 'px; ' + y + z;
+			}
+			this.winStyle.cssText = val;
+			doc.body.addEventListener('mousemove', this);
+			doc.body.addEventListener('mouseup', this);
+			$pd(e);
+			return;
+		case 'mousemove':
+			if(this.vertical) {
+				val = e.clientY;
+				this.tStyle.height = Math.max(
+					parseInt(this.tStyle.height, 10) + (
+						this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) :
+							(val > maxY - 45 ? maxY - 25 : val) - cr.bottom
+				), 90) + 'px';
+			} else {
+				val = e.clientX;
+				this.tStyle.width = Math.max(
+					parseInt(this.tStyle.width, 10) + (
+						this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
+							(val > maxX - 20 ? maxX : val) - cr.right
+				), this.name === 'reply' ? 275 : 355) + 'px';
+			}
+			return;
+		default: // mouseup
+			doc.body.removeEventListener('mousemove', this);
+			doc.body.removeEventListener('mouseup', this);
+			saveCfg(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
+			if(this.win.classList.contains('de-win-fixed')) {
+				this.winStyle.cssText = 'right: 0; bottom: 25px' + z;
+				return;
+			}
+			if(this.vertical) {
+				saveCfg(this.name + 'WinY', cr.top < 1 ? 'top: 0' :
+					cr.bottom > maxY - 26 ? 'bottom: 25px' : 'top: ' + cr.top + 'px');
+			} else {
+				saveCfg(this.name + 'WinX', cr.left < 1 ? 'left: 0' :
+					cr.right > maxX - 1 ? 'right: 0' : 'left: ' + cr.left + 'px');
+			}
+			this.winStyle.cssText = Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z;
+		}
+	}
+};
+
 function toggleWindow(name, isUpd, data, noAnim) {
-	var el, main = $id('de-main'),
+	var el, body, main = $id('de-main'),
 		win = $id('de-win-' + name),
 		isActive = win && win.classList.contains('de-win-active');
 	if(isUpd && !isActive) {
 		return;
 	}
 	if(!win) {
-		main.insertAdjacentHTML('afterbegin',
-			'<div id="de-win-' + name + '" class="' +
-				(Cfg[name + 'WinDrag'] ?
-					'de-win" style="' + Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] :
-					'de-win-fixed" style="right: 0; bottom: 25px') +
-				'; display: none;">' +
-				'<div class="de-win-head"><span class="de-win-title">' +
-					(name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang]) + '</span>' +
-					'<span class="de-win-buttons">' +
-						'<span class="de-btn-toggle" title="' + Lng.toggleWindow[lang] + '"></span>' +
-						'<span class="de-btn-close" title="' + Lng.closeWindow[lang] + '"></span></span></div>' +
-				'<div class="de-win-body' + (name === 'cfg' ? ' ' + aib.cReply :
-					'" style="background-color: ' +
-					getComputedStyle(doc.body).getPropertyValue('background-color') + ';') +
-					'"></div></div>');
+		main.insertAdjacentHTML('afterbegin', '<div id="de-win-' + name + '" class="' +
+			(Cfg[name + 'WinDrag'] ?
+				'de-win" style="' + Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] :
+				'de-win-fixed" style="right: 0; bottom: 25px') + '; display: none;">' +
+			'<div class="de-win-head"><span class="de-win-title">' +
+				(name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang]) + '</span>' +
+				'<span class="de-win-buttons">' +
+					'<span class="de-btn-toggle" title="' + Lng.toggleWindow[lang] + '"></span>' +
+					'<span class="de-btn-close" title="' + Lng.closeWindow[lang] + '"></span></span></div>' +
+			(name !== 'fav' ? '' : '<div class="de-resizer de-resizer-left"></div>') +
+			'<div class="de-win-body' + (name === 'cfg' ? ' ' + aib.cReply : '" style="' +
+				(name !== 'fav' ? '' : 'width: ' + Cfg.favWinWidth + 'px; ') + 'background-color: ' +
+				getComputedStyle(doc.body).getPropertyValue('background-color')) + '"></div>' +
+				(name !== 'fav' ? '' : '<div class="de-resizer de-resizer-right"></div>') + '</div>');
 		win = main.firstChild;
+		if(name === 'fav') {
+			body = win.lastChild.previousSibling;
+			new winResizer('fav', 'left', 'favWinWidth', win, body);
+			new winResizer('fav', 'right', 'favWinWidth', win, body);
+		}
 		el = win.firstChild.lastChild;
 		el.lastChild.onclick = toggleWindow.bind(null, name, false);
 		el.firstChild.onclick = function(e) {
@@ -1852,20 +1930,23 @@ function toggleWindow(name, isUpd, data, noAnim) {
 		toggleWindow(el.id.substr(7), false);
 	}
 	var isAnim = !noAnim && !isUpd && Cfg.animation;
-	if(isAnim && win.lastChild.hasChildNodes()) {
+	if(!body) {
+		body = $c('de-win-body', win);
+	}
+	if(isAnim && body.hasChildNodes()) {
 		nav.animEvent(win, function(node) {
-			showWindow(node, name, false, remove, data, Cfg.animation);
-			name = remove = data = null;
+			showWindow(node, body, name, false, remove, data, Cfg.animation);
+			body = name = remove = data = null;
 		});
 		win.classList.remove('de-win-open');
 		win.classList.add('de-win-close');
 	} else {
-		showWindow(win, name, isUpd, remove, data, isAnim);
+		showWindow(win, body, name, isUpd, remove, data, isAnim);
 	}
 }
 
-function showWindow(win, name, isUpd, remove, data, isAnim) {
-	var temp, cfgTabId, body = win.lastChild;
+function showWindow(win, body, name, isUpd, remove, data, isAnim) {
+	var temp, cfgTabId;
 	if(name === 'cfg' && !remove && (temp = $q('.de-cfg-tab[selected]', body))) {
 		cfgTabId = temp.getAttribute('info');
 	}
@@ -1886,11 +1967,11 @@ function showWindow(win, name, isUpd, remove, data, isAnim) {
 	switch(name) {
 	case 'fav':
 		if(data) {
-			showFavoriteTable(body, data);
+			showFavoritesWindow(body, data);
 			break;
 		}
 		readFav().then(fav => {
-			showFavoriteTable(body, fav);
+			showFavoritesWindow(body, fav);
 			win.style.display = '';
 			if(isAnim) {
 				win.classList.add('de-win-open');
@@ -1898,8 +1979,8 @@ function showWindow(win, name, isUpd, remove, data, isAnim) {
 		});
 		return;
 	case 'cfg': addSettings(body, cfgTabId); break;
-	case 'hid': showHiddenTable(body); break;
-	case 'vid': showVideosTable(body);
+	case 'hid': showHiddenWindow(body); break;
+	case 'vid': showVideosWindow(body);
 	}
 	win.style.display = '';
 	if(isAnim) {
@@ -1907,7 +1988,7 @@ function showWindow(win, name, isUpd, remove, data, isAnim) {
 	}
 }
 
-function showVideosTable(body) {
+function showVideosWindow(body) {
 	var els = $C('de-video-link', dForm.el);
 	if(!els.length) {
 		body.innerHTML = '<b>' + Lng.noVideoLinks[lang] + '</b>';
@@ -2050,7 +2131,7 @@ function addContentBlock(parent, title) {
 	]));
 }
 
-function showHiddenTable(body) {
+function showHiddenWindow(body) {
 	var block, els = $C('de-post-hide', dForm.el);
 	for(var i = 0, len = els.length; i < len; ++i) {
 		var post = els[i];
@@ -2157,7 +2238,7 @@ function showHiddenTable(body) {
 	}));
 }
 
-function clearFavoriteTable() {
+function cleanFavorites() {
 	var els = $Q('.de-entry[de-removed]', doc),
 		len = els.length;
 	if(len > 0) {
@@ -2172,7 +2253,7 @@ function clearFavoriteTable() {
 	}
 }
 
-function showFavoriteTable(body, data) {
+function showFavoritesWindow(body, data) {
 	for(var h in data) {
 		for(var b in data[h]) {
 			var d = data[h][b],
@@ -2327,7 +2408,7 @@ function showFavoriteTable(body, data) {
 			}
 			node.classList.remove('de-wait');
 		}
-		clearFavoriteTable();
+		cleanFavorites();
 	})));
 	body.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
 		$each($C('de-entry', doc), function(el) {
@@ -2335,7 +2416,7 @@ function showFavoriteTable(body, data) {
 				el.setAttribute('de-removed', '');
 			}
 		});
-		clearFavoriteTable();
+		cleanFavorites();
 	}));
 }
 
@@ -6050,15 +6131,15 @@ function PostForm(form, ignoreForm, dc) {
 	this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 	el = this.qArea;
 	el.insertAdjacentHTML('beforeend',
-		'<div class="de-resizer-top"></div>' +
+		'<div class="de-resizer de-resizer-top"></div>' +
 		'<div class="de-win-head">' +
 			'<span class="de-win-title"></span>' +
 			'<span class="de-win-buttons">' +
 				'<span class="de-btn-toggle" title="' + Lng.toggleReply[lang] + '"></span>' +
 				'<span class="de-btn-close" title="' + Lng.closeReply[lang] + '"></span></span></div>' +
-		'<div class="de-resizer-left"></div>' +
-		'<div class="de-resizer-right"></div>' +
-		'<div class="de-resizer-bottom"></div>');
+		'<div class="de-resizer de-resizer-left"></div>' +
+		'<div class="de-resizer de-resizer-right"></div>' +
+		'<div class="de-resizer de-resizer-bottom"></div>');
 	el = el.firstChild.nextSibling;
 	el.lang = getThemeLang();
 	makeDraggable(this.qArea, el, 'reply');
@@ -6082,10 +6163,10 @@ function PostForm(form, ignoreForm, dc) {
 	if(!this.form || !this.txta) {
 		return;
 	}
-	new FormResizer('top', el = this.qArea.firstChild, this);
-	new FormResizer('left', el = el.nextSibling.nextSibling, this);
-	new FormResizer('right', el = el.nextSibling, this);
-	new FormResizer('bottom', el = el.nextSibling, this);
+	new winResizer('reply', 'top', 'textaHeight', this.qArea, this.txta);
+	new winResizer('reply', 'left', 'textaWidth', this.qArea, this.txta);
+	new winResizer('reply', 'right', 'textaWidth', this.qArea, this.txta);
+	new winResizer('reply', 'bottom', 'textaHeight', this.qArea, this.txta);
 	if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
 		this.setPlaceholders();
 	}
@@ -6987,66 +7068,6 @@ FileInput.prototype = {
 				$del(thumb);
 			}
 		});
-	}
-};
-
-function FormResizer(dir, el, form) {
-	this.dir = dir;
-	this.vertical = dir === 'top' || dir === 'bottom';
-	this.qa = form.qArea;
-	this.qaStyle = form.qArea.style;
-	this.txStyle = form.txta.style;
-	el.addEventListener('mousedown', this);
-}
-FormResizer.prototype = {
-	handleEvent(e) {
-		var val, cr = this.qa.getBoundingClientRect(),
-			maxX = nav.Chrome ? doc.documentElement.clientWidth : Post.sizing.wWidth,
-			maxY = nav.Chrome ? doc.documentElement.clientHeight : Post.sizing.wHeight;
-		switch(e.type) {
-		case 'mousedown':
-			switch(this.dir) {
-			case 'top': val = Cfg.replyWinX + '; bottom: ' + (maxY - cr.bottom) + 'px'; break;
-			case 'bottom': val = Cfg.replyWinX + '; top: ' + cr.top + 'px'; break;
-			case 'left': val = 'right: ' + (maxX - cr.right) + 'px; ' + Cfg.replyWinY; break;
-			case 'right': val = 'left: ' + cr.left + 'px; ' + Cfg.replyWinY;
-			}
-			this.qaStyle.cssText = val;
-			doc.body.addEventListener('mousemove', this);
-			doc.body.addEventListener('mouseup', this);
-			$pd(e);
-			return;
-		case 'mousemove':
-			if(this.vertical) {
-				val = e.clientY;
-				this.txStyle.height = Math.max(
-					parseInt(this.txStyle.height, 10) + (
-						this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) :
-							(val > maxY - 45 ? maxY - 25 : val) - cr.bottom
-				), 90) + 'px';
-			} else {
-				val = e.clientX;
-				this.txStyle.width = Math.max(
-					parseInt(this.txStyle.width, 10) + (
-						this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
-							(val > maxX - 20 ? maxX : val) - cr.right
-				), 275) + 'px';
-			}
-			return;
-		default: // mouseup
-			doc.body.removeEventListener('mousemove', this);
-			doc.body.removeEventListener('mouseup', this);
-			if(this.vertical) {
-				saveCfg('textaHeight', parseInt(this.txStyle.height, 10));
-				saveCfg('replyWinY', cr.top < 1 ? 'top: 0' :
-					cr.bottom > maxY - 26 ? 'bottom: 25px' : 'top: ' + cr.top + 'px');
-			} else {
-				saveCfg('textaWidth', parseInt(this.txStyle.width, 10));
-				saveCfg('replyWinX', cr.left < 1 ? 'left: 0' :
-					cr.right > maxX - 1 ? 'right: 0' : 'left: ' + cr.left + 'px');
-			}
-			this.qaStyle.cssText = Cfg.replyWinX + '; ' + Cfg.replyWinY;
-		}
 	}
 };
 
@@ -12249,12 +12270,13 @@ function scriptCSS() {
 	var p, x = '\
 	.de-btn-close::after { content: "\u2716"; }\
 	.de-btn-toggle::after { content: "\u21E7"; font-weight: bold; }\
+	.de-resizer { position: absolute; margin: -3px; }\
+	.de-resizer-bottom { height: 6px; width: 100%; cursor: ns-resize; }\
+	.de-resizer-left { width: 6px; bottom: 3px; top: 3px; cursor: ew-resize; }\
+	.de-resizer-right { width: 6px; bottom: 3px; top: 3px; display: inline-block; cursor: ew-resize; }\
+	.de-resizer-top { height: 6px; width: 100%; cursor: ns-resize; }\
 	.de-win > .de-win-head { cursor: move; }\
 	.de-win .de-btn-toggle::after { content: "\u21E9"; }\
-	.de-win .de-resizer-bottom { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\
-	.de-win .de-resizer-left { position: absolute; margin: -3px; bottom: 3px; top: 3px; width: 6px; cursor: ew-resize; }\
-	.de-win .de-resizer-right { position: absolute; margin: -3px; bottom: 3px; top: 3px; display: inline-block; width: 6px; cursor: ew-resize; }\
-	.de-win .de-resizer-top { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\
 	.de-win-buttons { float: right; line-height: 16px; margin-top: 1px; cursor: pointer; }\
 	.de-win-buttons > span { margin-right: 4px; font-size: 15px; }\
 	.de-win-buttons > span:hover { color: #f66; }\
@@ -12263,6 +12285,7 @@ function scriptCSS() {
 	#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\
 	#de-win-cfg textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
 	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 10px; border: 1px solid gray; }\
+	#de-win-fav > .de-win-body { display: inline-block; }\
 	#de-win-fav input[type="checkbox"] { flex: none; margin-left: 15px; }\
 	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\
 	#de-win-vid .de-entry { white-space: normal; }\
@@ -12514,6 +12537,7 @@ function scriptCSS() {
 	#de-pform > form { padding: 0; margin: 0; border: none; }\
 	#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }\
 	.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\
+	.de-win-inpost > .de-resizer { display: none; }\
 	.de-win-inpost > .de-win-head { background: none; color: inherit; }\
 	#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\
 	#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\
@@ -12582,7 +12606,7 @@ function scriptCSS() {
 }
 
 function updateCSS() {
-	var x = '.de-video-obj { width: ' + +Cfg.YTubeWidth + 'px; height: ' + +Cfg.YTubeHeigh + 'px; }';
+	var x = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }';
 	if(Cfg.maskImgs) {
 		x += '.de-img-pre, .de-video-obj, .thumb, .ca_thumb, .fileThumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: .07 !important; }\
 			.de-img-pre:hover, .de-video-obj:hover, .thumb:hover, .ca_thumb:hover, .fileThumb:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
