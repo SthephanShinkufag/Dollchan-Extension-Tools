@@ -1198,8 +1198,6 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
-
-
 !(function(global) {
   "use strict";
 
@@ -2596,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "6be62e2";
+	var commit = "1e66c81";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -5871,6 +5869,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 					if (key === 16 || key === 17 || key === 18) {
 						this.errorInput = true;
+						this.cKey = 0;
 					} else {
 						this.cKey = key | (e.ctrlKey ? 4096 : 0) | (e.shiftKey ? 8192 : 0) | (e.altKey ? 16384 : 0) | (this.cEl.hasAttribute("de-text") ? 32768 : 0);
 						this.errorInput = false;

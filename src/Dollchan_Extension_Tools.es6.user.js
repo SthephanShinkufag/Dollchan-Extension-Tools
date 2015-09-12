@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '6be62e2';
+var commit = '1e66c81';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3784,6 +3784,7 @@ KeyEditListener.prototype = {
 			}
 			if(key === 16 || key === 17 || key === 18) {
 				this.errorInput = true;
+				this.cKey = 0;
 			} else {
 				this.cKey = key | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) |
 					(e.altKey ? 0x4000 : 0) | (this.cEl.hasAttribute('de-text') ? 0x8000 : 0);
