@@ -2596,7 +2596,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "95140d4";
+	var commit = "bece64f";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -4007,7 +4007,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? "right: 0" : x < 0 || curX < this._oldX && x < 20 ? "left: 0" : "left: " + x + "px";
 						this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? "bottom: 25px" : y < 0 || curY < this._oldY && y < 20 ? "top: 0" : "top: " + y + "px";
 						var width = this._wStyle.width;
-						this._wStyle.cssText = this._X + "; " + this._Y + "; z-index: " + this._Z + (width ? "; width: " + width : "");
+						this._win.setAttribute("style", this._X + "; " + this._Y + "; z-index: " + this._Z + (width ? "; width: " + width : ""));
 						this._oldX = curX;
 						this._oldY = curY;
 						return;
@@ -4061,7 +4061,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						case "right":
 							val = "left: " + cr.left + "px; " + y + z;
 					}
-					this.wStyle.cssText = val;
+					this.win.setAttribute("style", val);
 					doc.body.addEventListener("mousemove", this);
 					doc.body.addEventListener("mouseup", this);
 					$pd(e);
@@ -4081,7 +4081,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					doc.body.removeEventListener("mouseup", this);
 					saveCfg(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
 					if (this.win.classList.contains("de-win-fixed")) {
-						this.wStyle.cssText = "right: 0; bottom: 25px" + z;
+						this.win.setAttribute("style", "right: 0; bottom: 25px" + z);
 						return;
 					}
 					if (this.vertical) {
@@ -4089,7 +4089,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					} else {
 						saveCfg(this.name + "WinX", cr.left < 1 ? "left: 0" : cr.right > maxX - 1 ? "right: 0" : "left: " + cr.left + "px");
 					}
-					this.wStyle.cssText = Cfg[this.name + "WinX"] + "; " + Cfg[this.name + "WinY"] + z;
+					this.win.setAttribute("style", Cfg[this.name + "WinX"] + "; " + Cfg[this.name + "WinY"] + z);
 			}
 		}
 	};
