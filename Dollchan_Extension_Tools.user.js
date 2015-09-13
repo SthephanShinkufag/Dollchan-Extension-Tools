@@ -1198,6 +1198,8 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+
 !(function(global) {
   "use strict";
 
@@ -3970,8 +3972,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 	function makeDraggable(win, head, name) {
 		head.addEventListener("mousedown", {
-			_el: win,
-			_elStyle: win.style,
+			_win: win,
 			_oldX: 0,
 			_oldY: 0,
 			_X: 0,
@@ -3990,21 +3991,22 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						this._X = Cfg[name + "WinX"];
 						this._Y = Cfg[name + "WinY"];
 						if (this._Z < topWinZ) {
-							this._Z = this._elStyle.zIndex = ++topWinZ;
+							this._Z = this._win.style.zIndex = ++topWinZ;
 						}
 						doc.body.addEventListener("mousemove", this);
 						doc.body.addEventListener("mouseup", this);
 						$pd(e);
 						return;
 					case "mousemove":
-						var maxX = Post.sizing.wWidth - this._el.offsetWidth,
-						    maxY = Post.sizing.wHeight - this._el.offsetHeight - 25,
-						    cr = this._el.getBoundingClientRect(),
+						var maxX = Post.sizing.wWidth - this._win.offsetWidth,
+						    maxY = Post.sizing.wHeight - this._win.offsetHeight - 25,
+						    cr = this._win.getBoundingClientRect(),
 						    x = cr.left + curX - this._oldX,
 						    y = cr.top + curY - this._oldY;
 						this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? "right: 0" : x < 0 || curX < this._oldX && x < 20 ? "left: 0" : "left: " + x + "px";
 						this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? "bottom: 25px" : y < 0 || curY < this._oldY && y < 20 ? "top: 0" : "top: " + y + "px";
-						this._elStyle.cssText = this._X + "; " + this._Y + "; z-index: " + this._Z + ";";
+						var width = this._win.style.width;
+						this._win.style.cssText = this._X + "; " + this._Y + "; z-index: " + this._Z + (width ? "; width: " + width : "");
 						this._oldX = curX;
 						this._oldY = curY;
 						return;
@@ -4019,17 +4021,16 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		});
 	}
 
-	function winResizer(name, dir, cfgName, win, target) {
+	function WinResizer(name, dir, cfgName, win, target) {
 		this.name = name;
 		this.dir = dir;
 		this.cfgName = cfgName;
 		this.vertical = dir === "top" || dir === "bottom";
 		this.win = win;
-		this.winStyle = win.style;
 		this.tStyle = target.style;
 		$c("de-resizer-" + dir, win).addEventListener("mousedown", this);
 	}
-	winResizer.prototype = {
+	WinResizer.prototype = {
 		handleEvent: function handleEvent(e) {
 			var val,
 			    x,
@@ -4037,7 +4038,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			    cr = this.win.getBoundingClientRect(),
 			    maxX = nav.Chrome ? doc.documentElement.clientWidth : Post.sizing.wWidth,
 			    maxY = nav.Chrome ? doc.documentElement.clientHeight : Post.sizing.wHeight,
-			    z = "; z-index: " + this.win.style.zIndex;
+			    width = this.win.style.width,
+			    z = "; z-index: " + this.win.style.zIndex + (width ? "; width:" + width : "");
 			switch (e.type) {
 				case "mousedown":
 					if (this.win.classList.contains("de-win-fixed")) {
@@ -4057,7 +4059,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						case "right":
 							val = "left: " + cr.left + "px; " + y + z;
 					}
-					this.winStyle.cssText = val;
+					this.win.style.cssText = val;
 					doc.body.addEventListener("mousemove", this);
 					doc.body.addEventListener("mouseup", this);
 					$pd(e);
@@ -4068,7 +4070,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						this.tStyle.height = Math.max(parseInt(this.tStyle.height, 10) + (this.dir === "top" ? cr.top - (val < 20 ? 0 : val) : (val > maxY - 45 ? maxY - 25 : val) - cr.bottom), 90) + "px";
 					} else {
 						val = e.clientX;
-						this.tStyle.width = Math.max(parseInt(this.tStyle.width, 10) + (this.dir === "left" ? cr.left - (val < 20 ? 0 : val) : (val > maxX - 20 ? maxX : val) - cr.right), this.name === "reply" ? 275 : 355) + "px";
+						this.tStyle.width = Math.max(parseInt(this.tStyle.width, 10) + (this.dir === "left" ? cr.left - (val < 20 ? 0 : val) : (val > maxX - 20 ? maxX : val) - cr.right), this.name === "reply" ? 275 : 385) + "px";
 					}
 					return;
 				default:
@@ -4077,7 +4079,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					doc.body.removeEventListener("mouseup", this);
 					saveCfg(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
 					if (this.win.classList.contains("de-win-fixed")) {
-						this.winStyle.cssText = "right: 0; bottom: 25px" + z;
+						this.win.style.cssText = "right: 0; bottom: 25px" + z;
 						return;
 					}
 					if (this.vertical) {
@@ -4085,14 +4087,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					} else {
 						saveCfg(this.name + "WinX", cr.left < 1 ? "left: 0" : cr.right > maxX - 1 ? "right: 0" : "left: " + cr.left + "px");
 					}
-					this.winStyle.cssText = Cfg[this.name + "WinX"] + "; " + Cfg[this.name + "WinY"] + z;
+					this.win.style.cssText = Cfg[this.name + "WinX"] + "; " + Cfg[this.name + "WinY"] + z;
 			}
 		}
 	};
 
 	function toggleWindow(name, isUpd, data, noAnim) {
 		var el,
-		    body,
 		    main = $id("de-main"),
 		    win = $id("de-win-" + name),
 		    isActive = win && win.classList.contains("de-win-active");
@@ -4100,23 +4101,24 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			return;
 		}
 		if (!win) {
-			main.insertAdjacentHTML("afterbegin", "<div id=\"de-win-" + name + "\" class=\"" + (Cfg[name + "WinDrag"] ? "de-win\" style=\"" + Cfg[name + "WinX"] + "; " + Cfg[name + "WinY"] : "de-win-fixed\" style=\"right: 0; bottom: 25px") + "; display: none;\">" + "<div class=\"de-win-head\"><span class=\"de-win-title\">" + (name === "cfg" ? "Dollchan Extension Tools" : Lng.panelBtn[name][lang]) + "</span>" + "<span class=\"de-win-buttons\">" + "<span class=\"de-btn-toggle\" title=\"" + Lng.toggleWindow[lang] + "\"></span>" + "<span class=\"de-btn-close\" title=\"" + Lng.closeWindow[lang] + "\"></span></span></div>" + (name !== "fav" ? "" : "<div class=\"de-resizer de-resizer-left\"></div>") + "<div class=\"de-win-body" + (name === "cfg" ? " " + aib.cReply : "\" style=\"" + (name !== "fav" ? "" : "width: " + Cfg.favWinWidth + "px; ") + "background-color: " + getComputedStyle(doc.body).getPropertyValue("background-color")) + "\"></div>" + (name !== "fav" ? "" : "<div class=\"de-resizer de-resizer-right\"></div>") + "</div>");
+			main.insertAdjacentHTML("afterbegin", "<div id=\"de-win-" + name + "\" class=\"" + (Cfg[name + "WinDrag"] ? "de-win\" style=\"" + Cfg[name + "WinX"] + "; " + Cfg[name + "WinY"] : "de-win-fixed\" style=\"right: 0; bottom: 25px") + (name !== "fav" ? "" : "; width: " + Cfg.favWinWidth + "px; ") + "; display: none;\">" + "<div class=\"de-win-head\"><span class=\"de-win-title\">" + (name === "cfg" ? "Dollchan Extension Tools" : Lng.panelBtn[name][lang]) + "</span>" + "<span class=\"de-win-buttons\">" + "<span class=\"de-btn-toggle\" title=\"" + Lng.toggleWindow[lang] + "\"></span>" + "<span class=\"de-btn-close\" title=\"" + Lng.closeWindow[lang] + "\"></span></span></div>" + "<div class=\"de-win-body" + (name === "cfg" ? " " + aib.cReply : "\" style=\"background-color: " + getComputedStyle(doc.body).getPropertyValue("background-color")) + "\"></div>" + (name !== "fav" ? "" : "<div class=\"de-resizer de-resizer-left\">" + "</div><div class=\"de-resizer de-resizer-right\"></div>") + "</div>");
 			win = main.firstChild;
 			if (name === "fav") {
-				body = win.lastChild.previousSibling;
-				new winResizer("fav", "left", "favWinWidth", win, body);
-				new winResizer("fav", "right", "favWinWidth", win, body);
+				new WinResizer("fav", "left", "favWinWidth", win, win);
+				new WinResizer("fav", "right", "favWinWidth", win, win);
 			}
 			el = win.firstChild.lastChild;
 			el.lastChild.onclick = toggleWindow.bind(null, name, false);
 			el.firstChild.onclick = function (e) {
 				var node = e.target.parentNode.parentNode.parentNode,
-				    name = node.id.substr(7);
+				    name = node.id.substr(7),
+				    width = node.style.width,
+				    w = width ? "; width: " + width : "";
 				toggleCfg(name + "WinDrag");
 				if (Cfg[name + "WinDrag"]) {
 					node.classList.remove("de-win-fixed");
 					node.classList.add("de-win");
-					node.style.cssText = Cfg[name + "WinX"] + "; " + Cfg[name + "WinY"] + ";";
+					node.style.cssText = Cfg[name + "WinX"] + "; " + Cfg[name + "WinY"] + w;
 				} else {
 					var temp = $q(".de-win-active.de-win-fixed", win.parentNode);
 					if (temp) {
@@ -4124,7 +4126,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 					node.classList.remove("de-win");
 					node.classList.add("de-win-fixed");
-					node.style.cssText = "right: 0; bottom: 25px;";
+					node.style.cssText = "right: 0; bottom: 25px" + w;
 				}
 				updateWinZ(node.style);
 			};
@@ -4135,10 +4137,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		if (!remove && !win.classList.contains("de-win") && (el = $q(".de-win-active.de-win-fixed:not(#de-win-" + name + ")", win.parentNode))) {
 			toggleWindow(el.id.substr(7), false);
 		}
-		var isAnim = !noAnim && !isUpd && Cfg.animation;
-		if (!body) {
-			body = $c("de-win-body", win);
-		}
+		var isAnim = !noAnim && !isUpd && Cfg.animation,
+		    body = win.firstChild.nextSibling;
 		if (isAnim && body.hasChildNodes()) {
 			nav.animEvent(win, function (node) {
 				showWindow(node, body, name, false, remove, data, Cfg.animation);
@@ -8564,8 +8564,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		this.isBottom = Cfg.addPostForm === 1;
 		this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 		el = this.qArea;
-		el.insertAdjacentHTML("beforeend", "<div class=\"de-resizer de-resizer-top\"></div>" + "<div class=\"de-win-head\">" + "<span class=\"de-win-title\"></span>" + "<span class=\"de-win-buttons\">" + "<span class=\"de-btn-toggle\" title=\"" + Lng.toggleReply[lang] + "\"></span>" + "<span class=\"de-btn-close\" title=\"" + Lng.closeReply[lang] + "\"></span></span></div>" + "<div class=\"de-resizer de-resizer-left\"></div>" + "<div class=\"de-resizer de-resizer-right\"></div>" + "<div class=\"de-resizer de-resizer-bottom\"></div>");
-		el = el.firstChild.nextSibling;
+		el.insertAdjacentHTML("beforeend", "<div class=\"de-win-head\">" + "<span class=\"de-win-title\"></span>" + "<span class=\"de-win-buttons\">" + "<span class=\"de-btn-toggle\" title=\"" + Lng.toggleReply[lang] + "\"></span>" + "<span class=\"de-btn-close\" title=\"" + Lng.closeReply[lang] + "\"></span></span></div>" + "<div class=\"de-resizer de-resizer-top\"></div>" + "<div class=\"de-resizer de-resizer-left\"></div>" + "<div class=\"de-resizer de-resizer-right\"></div>" + "<div class=\"de-resizer de-resizer-bottom\"></div>");
+		el = el.firstChild;
 		el.lang = getThemeLang();
 		makeDraggable(this.qArea, el, "reply");
 		el = el.lastChild;
@@ -8588,10 +8588,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		if (!this.form || !this.txta) {
 			return;
 		}
-		new winResizer("reply", "top", "textaHeight", this.qArea, this.txta);
-		new winResizer("reply", "left", "textaWidth", this.qArea, this.txta);
-		new winResizer("reply", "right", "textaWidth", this.qArea, this.txta);
-		new winResizer("reply", "bottom", "textaHeight", this.qArea, this.txta);
+		new WinResizer("reply", "top", "textaHeight", this.qArea, this.txta);
+		new WinResizer("reply", "left", "textaWidth", this.qArea, this.txta);
+		new WinResizer("reply", "right", "textaWidth", this.qArea, this.txta);
+		new WinResizer("reply", "bottom", "textaHeight", this.qArea, this.txta);
 		if (!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
 			this.setPlaceholders();
 		}
@@ -9033,7 +9033,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		},
 		setReply: function setReply(quick, hide) {
 			if (quick) {
-				$before($c("de-resizer-right", this.qArea), this.pForm);
+				$after(this.qArea.firstChild, this.pForm);
 			} else {
 				$after(this.pArea[+this.isBottom], this.qArea);
 				$after(this._pBtn[+this.isBottom], this.pForm);
@@ -15308,7 +15308,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 	
 		var p,
-		    x = "\t.de-btn-close::after { content: \"✖\"; }\t.de-btn-toggle::after { content: \"⇧\"; font-weight: bold; }\t.de-resizer { position: absolute; margin: -3px; }\t.de-resizer-bottom { height: 6px; width: 100%; cursor: ns-resize; }\t.de-resizer-left { width: 6px; bottom: 3px; top: 3px; cursor: ew-resize; }\t.de-resizer-right { width: 6px; bottom: 3px; top: 3px; display: inline-block; cursor: ew-resize; }\t.de-resizer-top { height: 6px; width: 100%; cursor: ns-resize; }\t.de-win > .de-win-head { cursor: move; }\t.de-win .de-btn-toggle::after { content: \"⇩\"; }\t.de-win-buttons { float: right; line-height: 16px; margin-top: 1px; cursor: pointer; }\t.de-win-buttons > span { margin-right: 4px; font-size: 15px; }\t.de-win-buttons > span:hover { color: #f66; }\t#de-win-cfg { width: 370px; }\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\t#de-win-cfg textarea { display: block; margin: 2px 0; font: 12px courier new; " + (nav.Presto ? "" : "resize: none !important; ") + "}\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 10px; border: 1px solid gray; }\t#de-win-fav > .de-win-body { display: inline-block; }\t#de-win-fav input[type=\"checkbox\"] { flex: none; margin-left: 15px; }\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\t#de-win-vid .de-entry { white-space: normal; }\t.de-win-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\t.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\t.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\t.de-win-head:lang(de), #de-panel:lang(de) { background: #777; }\t.de-win-title { font: bold 14px arial; margin-left: 32px; }" +
+		    x = "\t.de-btn-close::after { content: \"✖\"; }\t.de-btn-toggle::after { content: \"⇧\"; font-weight: bold; }\t.de-resizer { position: absolute; }\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\t.de-win > .de-win-head { cursor: move; }\t.de-win .de-btn-toggle::after { content: \"⇩\"; }\t.de-win-buttons { float: right; line-height: 16px; margin-top: 1px; cursor: pointer; }\t.de-win-buttons > span { margin-right: 4px; font-size: 15px; }\t.de-win-buttons > span:hover { color: #f66; }\t#de-win-cfg { width: 370px; }\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\t#de-win-cfg textarea { display: block; margin: 2px 0; font: 12px courier new; " + (nav.Presto ? "" : "resize: none !important; ") + "}\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\t#de-win-fav input[type=\"checkbox\"] { flex: none; margin-left: 15px; }\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\t#de-win-vid .de-entry { white-space: normal; }\t.de-win-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\t.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\t.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\t.de-win-head:lang(de), #de-panel:lang(de) { background: #777; }\t.de-win-title { font: bold 14px arial; margin-left: 32px; }" +
 
 	
 		".de-block { display: block; }\t.de-cfg-body { min-height: 309px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important; box-sizing: content-box; -moz-box-sizing: content-box; }\t.de-cfg-body input[type=\"text\"], .de-cfg-body select { width: auto; padding: 1px 2px; margin: 1px 0; font: 13px sans-serif; }\t.de-cfg-body input[type=\"checkbox\"] { " + (nav.Presto ? "" : "vertical-align: -1px; ") + "margin: 2px 1px; }\t.de-cfg-body label { padding: 0; margin: 0; }\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\t.de-cfg-body:lang(de), #de-cfg-buttons:lang(de) { border-color: #444; }\t#de-cfg-buttons { display: flex; flex-flow: row nowrap; align-items: center; padding: 3px; font-size: 13px; }\t.de-cfg-lang-select { flex: 1 0 auto; }\t#de-cfg-bar { width: 100%; display: flex; background-color: #1f2740; margin: 0; padding: 0; }\t#de-cfg-bar:lang(en) { background-color: #325f9e; }\t#de-cfg-bar:lang(de) { background-color: #777; }\t.de-cfg-depend { padding-left: 17px; }\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(0,0,0,.2) 0%, rgba(0,0,0,.2) 100%) !important; }\t.de-cfg-tab:lang(en) { border-color: #183d77 !important; }\t.de-cfg-tab:lang(fr) { border-color: #121421 !important; }\t.de-cfg-tab:lang(en), .de-cfg-tab:lang(fr) { background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t.de-cfg-tab:hover { background-image: linear-gradient(to bottom, rgba(99,99,99,.2) 0%, rgba(99,99,99,.2) 100%) !important; }\t.de-cfg-tab:lang(en):hover, .de-cfg-tab:lang(fr):hover  { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\t.de-cfg-tab::" + (nav.Firefox ? "-moz-" : "") + "selection { background: transparent; }\t.de-cfg-unvis { display: none; }\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\t.de-info-name { flex: 1 0 auto; }\t.de-info-row { display: flex; }\t#de-info-table { display: flex; height: 258px; }\t#de-spell-panel { float: right; }\t#de-spell-panel > a { padding: 0 4px; }\t#de-spell-div { display: table; }\t#de-spell-div > div { display: table-cell; vertical-align: top; }\t#de-spell-div > div + div { width: 100%; }\t#de-spell-edit { padding: 2px !important; width: 100%; height: 194px; max-width: 100%; border: none !important; outline: none !important; }\t#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 196px; text-align: right; color: #fff; font: 12px courier new; }\t#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\t#de-spell-rowmeter:lang(de) { background-color: #777; }" +
@@ -15343,10 +15343,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		".de-file { display: inline-block; margin: 1px; height: " + (p = aib.multiFile ? 90 : 130) + "px; width: " + p + "px; text-align: center; border: 1px dashed grey; }\t.de-file > .de-file-del, .de-file > .de-file-spoil { float: right; }\t.de-file > .de-file-rar { float: left; }\t.de-file > .de-file-rarmsg { float: left; padding: 0 4px 2px; color: #fff; background-color: rgba(55, 55, 55, 0.5); }\t.de-file > .de-file-utils { display: none; }\t.de-file > div { display: table; width: 100%; height: 100%; cursor: pointer; }\t.de-file > div > div { display: table-cell; vertical-align: middle; }\t.de-file + [type=\"file\"] { opacity: 0; margin: 1px 0 0 -" + (p + 2) + "px !important; vertical-align: top; width: " + (p + 2) + "px !important; height: " + (p + 2) + "px; border: none !important; cursor: pointer; }\t#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\t.de-file-drag { background: rgba(88, 88, 88, 0.4); border: 1px solid grey; }\t.de-file-hover > .de-file-utils { display: block !important; position: relative; margin: -18px 2px; }\t.de-file-hover > .de-file-spoil { margin: -16px 21px; }\t.de-file-img > img, .de-file-img > video { max-width: " + (p - 4) + "px; max-height: " + (p - 4) + "px; }\t.de-file-input { max-width: 300px; }\t.de-file-off > div > div::after { content: \"" + Lng.noFile[lang] + "\" }\t.de-file-rarmsg { margin: 0 5px; font: bold 11px tahoma; cursor: default; }\t.de-file-del, .de-file-rar { display: inline-block; margin: 0 4px -3px; width: 16px; height: 16px; cursor: pointer; }\t.de-file-spoil { display: none; }" + gif(".de-file-del", "R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=") + gif(".de-file-rar", "R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==") +
 
 	
-		"#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: " + (nav.Presto ? "-2px -10px" : "0 0 -1px -11px") + "; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\t.de-parea { text-align: center; }\t.de-parea-btn-close::after { content: \"" + Lng.hideForm[lang] + "\" }\t.de-parea-btn-thrd::after { content: \"" + Lng.makeThrd[lang] + "\" }\t.de-parea-btn-reply::after { content: \"" + Lng.makeReply[lang] + "\" }\t#de-pform > form { padding: 0; margin: 0; border: none; }\t#de-pform input[type=\"text\"], #de-pform input[type=\"file\"] { width: 200px; }\t.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\t.de-win-inpost > .de-resizer { display: none; }\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\t#de-win-reply.de-win > .de-win-body { display: inline-block; vertical-align: middle; padding: 2px 2px 0 1px; border: 1px solid gray; }\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\t#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }" +
+		"#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: " + (nav.Presto ? "-2px -10px" : "0 0 -1px -11px") + "; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\t.de-parea { text-align: center; }\t.de-parea-btn-close::after { content: \"" + Lng.hideForm[lang] + "\" }\t.de-parea-btn-thrd::after { content: \"" + Lng.makeThrd[lang] + "\" }\t.de-parea-btn-reply::after { content: \"" + Lng.makeReply[lang] + "\" }\t#de-pform > form { padding: 0; margin: 0; border: none; }\t#de-pform input[type=\"text\"], #de-pform input[type=\"file\"] { width: 200px; }\t.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\t.de-win-inpost > .de-resizer { display: none; }\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\t#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }" +
 
 	
-		cont(".de-wait", "data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7") + ".de-abtn { text-decoration: none !important; outline: none; }\t.de-after-fimg { clear: left; }\t#de-alert { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\t#de-alert > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\t.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\t.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\t.de-alert-msg { display: inline-block; }\t.de-button { flex: none; padding: 0 2px; margin: 0 1px; height: 24px; }\t.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t.de-content-block > input { margin: 0 4px; }\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t.de-entry { display: flex !important; flex-flow: row nowrap; align-items: center; float: none !important; padding: 0 4px 0 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\t.de-entry > a { text-decoration: none; border: none; }\t.de-entry > input { margin: 2px 4px; }\t.de-entry-title { flex: 1 1 auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\t.de-fav-inf { padding-left: 10px; font: bold 14px serif; cursor: default; }\t.de-fav-inf-err { color: #c33; font-size: 12px; }\t.de-fav-inf-new { color: #424f79; }\t.de-fav-inf-new::after { content: \" +\"; }\t.de-fav-inf-old { color: #4f7942; }\t.de-fav-user::after { content: \"★\"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t.de-input-key { height: 12px }\t.de-link-hid { text-decoration: line-through !important; }\t.de-link-parent { outline: 1px dotted !important; }\t.de-link-pview { font-weight: bold; }\t.de-link-ref { text-decoration: none; }\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t.de-menu-item:hover { background-color: #222; color: #fff; }\t.de-new-post { " + (nav.Presto ? "border-left: 4px solid rgba(0, 0, 255, .7); border-right: 4px solid rgba(0, 0, 255, .7); }" : "box-shadow: 6px 0 2px -2px rgba(0, 0, 255, .8), -6px 0 2px -2px rgba(0, 0, 255, .8); }") + "\t.de-omitted { color: grey; }\t.de-omitted::before { content: \"" + Lng.postsOmitted[lang] + "\"; }\t.de-post-hide > " + aib.qHide + " { display: none !important; }\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\t.de-pview-info { padding: 3px 6px !important; }\t.de-ref-op::after { content: \" [OP]\"; }\t.de-ref-del::after { content: \" [del]\"; }\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\t.de-refmap::before { content: \"" + Lng.replies[lang] + " \"; }\t.de-refcomma:last-child { display: none; }\t.de-selected, .de-error-key { " + (nav.Presto ? "border-left: 4px solid rgba(255, 0, 0, .7); border-right: 4px solid rgba(255, 0, 0, .7); }" : "box-shadow: 6px 0 2px -2px rgba(255, 0, 0, .8), -6px 0 2px -2px rgba(255, 0, 0, .8); }") + "\t.de-thread-buttons { clear: left; margin-top: 5px; }\t.de-thread-collapse > a::after { content: \"" + Lng.collapseThrd[lang] + "\" }\t.de-thread-updater > a::after { content: \"" + Lng.getNewPosts[lang] + "\" }\t.de-thread-updater::before { content: \">> \" }\t#de-updater-count::before { content: \": \" }\t.de-viewed { color: #888 !important; }\tform > hr { clear: both }";
+		cont(".de-wait", "data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7") + ".de-abtn { text-decoration: none !important; outline: none; }\t.de-after-fimg { clear: left; }\t#de-alert { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\t#de-alert > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\t.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\t.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\t.de-alert-msg { display: inline-block; }\t.de-button { flex: none; padding: 0 " + (nav.Firefox ? "2" : "4") + "px; margin: 0 1px; height: 24px; }\t.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t.de-content-block > input { margin: 0 4px; }\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t.de-entry { display: flex !important; flex-flow: row nowrap; align-items: center; float: none !important; padding: 0 4px 0 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\t.de-entry > a { text-decoration: none; border: none; }\t.de-entry > input { margin: 2px 4px; }\t.de-entry-title { flex: 1 1 auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\t.de-fav-inf { padding-left: 10px; font: bold 14px serif; cursor: default; }\t.de-fav-inf-err { color: #c33; font-size: 12px; }\t.de-fav-inf-new { color: #424f79; }\t.de-fav-inf-new::after { content: \" +\"; }\t.de-fav-inf-old { color: #4f7942; }\t.de-fav-user::after { content: \"★\"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t.de-input-key { height: 12px }\t.de-link-hid { text-decoration: line-through !important; }\t.de-link-parent { outline: 1px dotted !important; }\t.de-link-pview { font-weight: bold; }\t.de-link-ref { text-decoration: none; }\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t.de-menu-item:hover { background-color: #222; color: #fff; }\t.de-new-post { " + (nav.Presto ? "border-left: 4px solid rgba(0, 0, 255, .7); border-right: 4px solid rgba(0, 0, 255, .7); }" : "box-shadow: 6px 0 2px -2px rgba(0, 0, 255, .8), -6px 0 2px -2px rgba(0, 0, 255, .8); }") + "\t.de-omitted { color: grey; }\t.de-omitted::before { content: \"" + Lng.postsOmitted[lang] + "\"; }\t.de-post-hide > " + aib.qHide + " { display: none !important; }\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\t.de-pview-info { padding: 3px 6px !important; }\t.de-ref-op::after { content: \" [OP]\"; }\t.de-ref-del::after { content: \" [del]\"; }\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\t.de-refmap::before { content: \"" + Lng.replies[lang] + " \"; }\t.de-refcomma:last-child { display: none; }\t.de-selected, .de-error-key { " + (nav.Presto ? "border-left: 4px solid rgba(255, 0, 0, .7); border-right: 4px solid rgba(255, 0, 0, .7); }" : "box-shadow: 6px 0 2px -2px rgba(255, 0, 0, .8), -6px 0 2px -2px rgba(255, 0, 0, .8); }") + "\t.de-thread-buttons { clear: left; margin-top: 5px; }\t.de-thread-collapse > a::after { content: \"" + Lng.collapseThrd[lang] + "\" }\t.de-thread-updater > a::after { content: \"" + Lng.getNewPosts[lang] + "\" }\t.de-thread-updater::before { content: \">> \" }\t#de-updater-count::before { content: \": \" }\t.de-viewed { color: #888 !important; }\tform > hr { clear: both }";
 
 		$css(x).id = "de-css";
 		$css("").id = "de-css-dynamic";

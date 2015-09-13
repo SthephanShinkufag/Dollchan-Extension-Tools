@@ -1746,8 +1746,7 @@ function updateWinZ(style) {
 
 function makeDraggable(win, head, name) {
 	head.addEventListener('mousedown', {
-		_el: win,
-		_elStyle: win.style,
+		_win: win,
 		_oldX: 0,
 		_oldY: 0,
 		_X: 0,
@@ -1766,16 +1765,16 @@ function makeDraggable(win, head, name) {
 				this._X = Cfg[name + 'WinX'];
 				this._Y = Cfg[name + 'WinY'];
 				if(this._Z < topWinZ) {
-					this._Z = this._elStyle.zIndex = ++topWinZ;
+					this._Z = this._win.style.zIndex = ++topWinZ;
 				}
 				doc.body.addEventListener('mousemove', this);
 				doc.body.addEventListener('mouseup', this);
 				$pd(e);
 				return;
 			case 'mousemove':
-				var maxX = Post.sizing.wWidth - this._el.offsetWidth,
-					maxY = Post.sizing.wHeight - this._el.offsetHeight - 25,
-					cr = this._el.getBoundingClientRect(),
+				var maxX = Post.sizing.wWidth - this._win.offsetWidth,
+					maxY = Post.sizing.wHeight - this._win.offsetHeight - 25,
+					cr = this._win.getBoundingClientRect(),
 					x = cr.left + curX - this._oldX,
 					y = cr.top + curY - this._oldY;
 				this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? 'right: 0' :
@@ -1784,7 +1783,9 @@ function makeDraggable(win, head, name) {
 				this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? 'bottom: 25px' :
 					y < 0 || curY < this._oldY && y < 20 ? 'top: 0' :
 					'top: ' + y + 'px';
-				this._elStyle.cssText = this._X + '; ' + this._Y + '; z-index: ' + this._Z + ';';
+				var width = this._win.style.width;
+				this._win.style.cssText = this._X + '; ' + this._Y +
+					'; z-index: ' + this._Z + (width ? '; width: ' + width : '');
 				this._oldX = curX;
 				this._oldY = curY;
 				return;
@@ -1798,22 +1799,22 @@ function makeDraggable(win, head, name) {
 	});
 }
 
-function winResizer(name, dir, cfgName, win, target) {
+function WinResizer(name, dir, cfgName, win, target) {
 	this.name = name;
 	this.dir = dir;
 	this.cfgName = cfgName;
 	this.vertical = dir === 'top' || dir === 'bottom';
 	this.win = win;
-	this.winStyle = win.style;
 	this.tStyle = target.style;
 	$c('de-resizer-' + dir, win).addEventListener('mousedown', this);
 }
-winResizer.prototype = {
+WinResizer.prototype = {
 	handleEvent(e) {
 		var val, x, y, cr = this.win.getBoundingClientRect(),
 			maxX = nav.Chrome ? doc.documentElement.clientWidth : Post.sizing.wWidth,
 			maxY = nav.Chrome ? doc.documentElement.clientHeight : Post.sizing.wHeight,
-			z = '; z-index: ' + this.win.style.zIndex;
+			width = this.win.style.width,
+			z = '; z-index: ' + this.win.style.zIndex + (width ? '; width:' + width : '');
 		switch(e.type) {
 		case 'mousedown':
 			if(this.win.classList.contains('de-win-fixed')) {
@@ -1829,7 +1830,7 @@ winResizer.prototype = {
 			case 'left': val = 'right: ' + (maxX - cr.right) + 'px; ' + y + z; break;
 			case 'right': val = 'left: ' + cr.left + 'px; ' + y + z;
 			}
-			this.winStyle.cssText = val;
+			this.win.style.cssText = val;
 			doc.body.addEventListener('mousemove', this);
 			doc.body.addEventListener('mouseup', this);
 			$pd(e);
@@ -1848,7 +1849,7 @@ winResizer.prototype = {
 					parseInt(this.tStyle.width, 10) + (
 						this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
 							(val > maxX - 20 ? maxX : val) - cr.right
-				), this.name === 'reply' ? 275 : 355) + 'px';
+				), this.name === 'reply' ? 275 : 385) + 'px';
 			}
 			return;
 		default: // mouseup
@@ -1856,7 +1857,7 @@ winResizer.prototype = {
 			doc.body.removeEventListener('mouseup', this);
 			saveCfg(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
 			if(this.win.classList.contains('de-win-fixed')) {
-				this.winStyle.cssText = 'right: 0; bottom: 25px' + z;
+				this.win.style.cssText = 'right: 0; bottom: 25px' + z;
 				return;
 			}
 			if(this.vertical) {
@@ -1866,13 +1867,13 @@ winResizer.prototype = {
 				saveCfg(this.name + 'WinX', cr.left < 1 ? 'left: 0' :
 					cr.right > maxX - 1 ? 'right: 0' : 'left: ' + cr.left + 'px');
 			}
-			this.winStyle.cssText = Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z;
+			this.win.style.cssText = Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z;
 		}
 	}
 };
 
 function toggleWindow(name, isUpd, data, noAnim) {
-	var el, body, main = $id('de-main'),
+	var el, main = $id('de-main'),
 		win = $id('de-win-' + name),
 		isActive = win && win.classList.contains('de-win-active');
 	if(isUpd && !isActive) {
@@ -1882,33 +1883,34 @@ function toggleWindow(name, isUpd, data, noAnim) {
 		main.insertAdjacentHTML('afterbegin', '<div id="de-win-' + name + '" class="' +
 			(Cfg[name + 'WinDrag'] ?
 				'de-win" style="' + Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] :
-				'de-win-fixed" style="right: 0; bottom: 25px') + '; display: none;">' +
+				'de-win-fixed" style="right: 0; bottom: 25px') +
+			(name !== 'fav' ? '' : '; width: ' + Cfg.favWinWidth + 'px; ') + '; display: none;">' +
 			'<div class="de-win-head"><span class="de-win-title">' +
 				(name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang]) + '</span>' +
 				'<span class="de-win-buttons">' +
 					'<span class="de-btn-toggle" title="' + Lng.toggleWindow[lang] + '"></span>' +
 					'<span class="de-btn-close" title="' + Lng.closeWindow[lang] + '"></span></span></div>' +
-			(name !== 'fav' ? '' : '<div class="de-resizer de-resizer-left"></div>') +
-			'<div class="de-win-body' + (name === 'cfg' ? ' ' + aib.cReply : '" style="' +
-				(name !== 'fav' ? '' : 'width: ' + Cfg.favWinWidth + 'px; ') + 'background-color: ' +
+			'<div class="de-win-body' + (name === 'cfg' ? ' ' + aib.cReply : '" style="background-color: ' +
 				getComputedStyle(doc.body).getPropertyValue('background-color')) + '"></div>' +
-				(name !== 'fav' ? '' : '<div class="de-resizer de-resizer-right"></div>') + '</div>');
+			(name !== 'fav' ? '' : '<div class="de-resizer de-resizer-left">' +
+				'</div><div class="de-resizer de-resizer-right"></div>') + '</div>');
 		win = main.firstChild;
 		if(name === 'fav') {
-			body = win.lastChild.previousSibling;
-			new winResizer('fav', 'left', 'favWinWidth', win, body);
-			new winResizer('fav', 'right', 'favWinWidth', win, body);
+			new WinResizer('fav', 'left', 'favWinWidth', win, win);
+			new WinResizer('fav', 'right', 'favWinWidth', win, win);
 		}
 		el = win.firstChild.lastChild;
 		el.lastChild.onclick = toggleWindow.bind(null, name, false);
 		el.firstChild.onclick = function(e) {
 			var node = e.target.parentNode.parentNode.parentNode,
-				name = node.id.substr(7);
+				name = node.id.substr(7),
+				width = node.style.width,
+				w = width ? '; width: ' + width : '';
 			toggleCfg(name + 'WinDrag');
 			if(Cfg[name + 'WinDrag']) {
 				node.classList.remove('de-win-fixed');
 				node.classList.add('de-win');
-				node.style.cssText = Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] + ';';
+				node.style.cssText = Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] + w;
 			} else {
 				var temp = $q('.de-win-active.de-win-fixed', win.parentNode);
 				if(temp) {
@@ -1916,7 +1918,7 @@ function toggleWindow(name, isUpd, data, noAnim) {
 				}
 				node.classList.remove('de-win');
 				node.classList.add('de-win-fixed');
-				node.style.cssText = 'right: 0; bottom: 25px;';
+				node.style.cssText = 'right: 0; bottom: 25px' + w;
 			}
 			updateWinZ(node.style);
 		};
@@ -1929,10 +1931,8 @@ function toggleWindow(name, isUpd, data, noAnim) {
 	{
 		toggleWindow(el.id.substr(7), false);
 	}
-	var isAnim = !noAnim && !isUpd && Cfg.animation;
-	if(!body) {
-		body = $c('de-win-body', win);
-	}
+	var isAnim = !noAnim && !isUpd && Cfg.animation,
+		body = win.firstChild.nextSibling;
 	if(isAnim && body.hasChildNodes()) {
 		nav.animEvent(win, function(node) {
 			showWindow(node, body, name, false, remove, data, Cfg.animation);
@@ -6132,16 +6132,16 @@ function PostForm(form, ignoreForm, dc) {
 	this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 	el = this.qArea;
 	el.insertAdjacentHTML('beforeend',
-		'<div class="de-resizer de-resizer-top"></div>' +
 		'<div class="de-win-head">' +
 			'<span class="de-win-title"></span>' +
 			'<span class="de-win-buttons">' +
 				'<span class="de-btn-toggle" title="' + Lng.toggleReply[lang] + '"></span>' +
 				'<span class="de-btn-close" title="' + Lng.closeReply[lang] + '"></span></span></div>' +
+		'<div class="de-resizer de-resizer-top"></div>' +
 		'<div class="de-resizer de-resizer-left"></div>' +
 		'<div class="de-resizer de-resizer-right"></div>' +
 		'<div class="de-resizer de-resizer-bottom"></div>');
-	el = el.firstChild.nextSibling;
+	el = el.firstChild;
 	el.lang = getThemeLang();
 	makeDraggable(this.qArea, el, 'reply');
 	el = el.lastChild;
@@ -6164,10 +6164,10 @@ function PostForm(form, ignoreForm, dc) {
 	if(!this.form || !this.txta) {
 		return;
 	}
-	new winResizer('reply', 'top', 'textaHeight', this.qArea, this.txta);
-	new winResizer('reply', 'left', 'textaWidth', this.qArea, this.txta);
-	new winResizer('reply', 'right', 'textaWidth', this.qArea, this.txta);
-	new winResizer('reply', 'bottom', 'textaHeight', this.qArea, this.txta);
+	new WinResizer('reply', 'top', 'textaHeight', this.qArea, this.txta);
+	new WinResizer('reply', 'left', 'textaWidth', this.qArea, this.txta);
+	new WinResizer('reply', 'right', 'textaWidth', this.qArea, this.txta);
+	new WinResizer('reply', 'bottom', 'textaHeight', this.qArea, this.txta);
 	if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
 		this.setPlaceholders();
 	}
@@ -6641,7 +6641,7 @@ PostForm.prototype = {
 	},
 	setReply(quick, hide) {
 		if(quick) {
-			$before($c('de-resizer-right', this.qArea), this.pForm);
+			$after(this.qArea.firstChild, this.pForm);
 		} else {
 			$after(this.pArea[+this.isBottom], this.qArea);
 			$after(this._pBtn[+this.isBottom], this.pForm);
@@ -12271,11 +12271,11 @@ function scriptCSS() {
 	var p, x = '\
 	.de-btn-close::after { content: "\u2716"; }\
 	.de-btn-toggle::after { content: "\u21E7"; font-weight: bold; }\
-	.de-resizer { position: absolute; margin: -3px; }\
-	.de-resizer-bottom { height: 6px; width: 100%; cursor: ns-resize; }\
-	.de-resizer-left { width: 6px; bottom: 3px; top: 3px; cursor: ew-resize; }\
-	.de-resizer-right { width: 6px; bottom: 3px; top: 3px; display: inline-block; cursor: ew-resize; }\
-	.de-resizer-top { height: 6px; width: 100%; cursor: ns-resize; }\
+	.de-resizer { position: absolute; }\
+	.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\
+	.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\
+	.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\
+	.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\
 	.de-win > .de-win-head { cursor: move; }\
 	.de-win .de-btn-toggle::after { content: "\u21E9"; }\
 	.de-win-buttons { float: right; line-height: 16px; margin-top: 1px; cursor: pointer; }\
@@ -12285,8 +12285,7 @@ function scriptCSS() {
 	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\
 	#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\
 	#de-win-cfg textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
-	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 10px; border: 1px solid gray; }\
-	#de-win-fav > .de-win-body { display: inline-block; }\
+	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\
 	#de-win-fav input[type="checkbox"] { flex: none; margin-left: 15px; }\
 	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\
 	#de-win-vid .de-entry { white-space: normal; }\
@@ -12542,7 +12541,7 @@ function scriptCSS() {
 	.de-win-inpost > .de-win-head { background: none; color: inherit; }\
 	#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\
 	#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\
-	#de-win-reply.de-win > .de-win-body { display: inline-block; vertical-align: middle; padding: 2px 2px 0 1px; border: 1px solid gray; }\
+	#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\
 	#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\
 	#de-win-reply.de-win #de-resizer-text { display: none !important; }\
 	#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\
@@ -12557,7 +12556,7 @@ function scriptCSS() {
 	.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
 	.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\
 	.de-alert-msg { display: inline-block; }\
-	.de-button { flex: none; padding: 0 2px; margin: 0 1px; height: 24px; }\
+	.de-button { flex: none; padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px; margin: 0 1px; height: 24px; }\
 	.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\
 	.de-content-block > input { margin: 0 4px; }\
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
