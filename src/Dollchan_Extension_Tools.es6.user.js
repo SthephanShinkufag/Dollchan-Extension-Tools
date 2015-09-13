@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '1e66c81';
+var commit = '95140d4';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1747,6 +1747,7 @@ function updateWinZ(style) {
 function makeDraggable(win, head, name) {
 	head.addEventListener('mousedown', {
 		_win: win,
+		_wStyle: win.style,
 		_oldX: 0,
 		_oldY: 0,
 		_X: 0,
@@ -1765,7 +1766,7 @@ function makeDraggable(win, head, name) {
 				this._X = Cfg[name + 'WinX'];
 				this._Y = Cfg[name + 'WinY'];
 				if(this._Z < topWinZ) {
-					this._Z = this._win.style.zIndex = ++topWinZ;
+					this._Z = this._wStyle.zIndex = ++topWinZ;
 				}
 				doc.body.addEventListener('mousemove', this);
 				doc.body.addEventListener('mouseup', this);
@@ -1783,8 +1784,8 @@ function makeDraggable(win, head, name) {
 				this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? 'bottom: 25px' :
 					y < 0 || curY < this._oldY && y < 20 ? 'top: 0' :
 					'top: ' + y + 'px';
-				var width = this._win.style.width;
-				this._win.style.cssText = this._X + '; ' + this._Y +
+				var width = this._wStyle.width;
+				this._wStyle.cssText = this._X + '; ' + this._Y +
 					'; z-index: ' + this._Z + (width ? '; width: ' + width : '');
 				this._oldX = curX;
 				this._oldY = curY;
@@ -1805,6 +1806,7 @@ function WinResizer(name, dir, cfgName, win, target) {
 	this.cfgName = cfgName;
 	this.vertical = dir === 'top' || dir === 'bottom';
 	this.win = win;
+	this.wStyle = this.win.style;
 	this.tStyle = target.style;
 	$c('de-resizer-' + dir, win).addEventListener('mousedown', this);
 }
@@ -1813,8 +1815,8 @@ WinResizer.prototype = {
 		var val, x, y, cr = this.win.getBoundingClientRect(),
 			maxX = nav.Chrome ? doc.documentElement.clientWidth : Post.sizing.wWidth,
 			maxY = nav.Chrome ? doc.documentElement.clientHeight : Post.sizing.wHeight,
-			width = this.win.style.width,
-			z = '; z-index: ' + this.win.style.zIndex + (width ? '; width:' + width : '');
+			width = this.wStyle.width,
+			z = '; z-index: ' + this.wStyle.zIndex + (width ? '; width:' + width : '');
 		switch(e.type) {
 		case 'mousedown':
 			if(this.win.classList.contains('de-win-fixed')) {
@@ -1830,7 +1832,7 @@ WinResizer.prototype = {
 			case 'left': val = 'right: ' + (maxX - cr.right) + 'px; ' + y + z; break;
 			case 'right': val = 'left: ' + cr.left + 'px; ' + y + z;
 			}
-			this.win.style.cssText = val;
+			this.wStyle.cssText = val;
 			doc.body.addEventListener('mousemove', this);
 			doc.body.addEventListener('mouseup', this);
 			$pd(e);
@@ -1857,7 +1859,7 @@ WinResizer.prototype = {
 			doc.body.removeEventListener('mouseup', this);
 			saveCfg(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
 			if(this.win.classList.contains('de-win-fixed')) {
-				this.win.style.cssText = 'right: 0; bottom: 25px' + z;
+				this.wStyle.cssText = 'right: 0; bottom: 25px' + z;
 				return;
 			}
 			if(this.vertical) {
@@ -1867,7 +1869,7 @@ WinResizer.prototype = {
 				saveCfg(this.name + 'WinX', cr.left < 1 ? 'left: 0' :
 					cr.right > maxX - 1 ? 'right: 0' : 'left: ' + cr.left + 'px');
 			}
-			this.win.style.cssText = Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z;
+			this.wStyle.cssText = Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z;
 		}
 	}
 };
