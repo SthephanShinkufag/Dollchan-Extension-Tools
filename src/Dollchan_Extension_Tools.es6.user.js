@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '48391ff';
+var commit = '8fc705e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11898,10 +11898,12 @@ function initThreadUpdater(title, enableUpdate) {
 		startLoad(false);
 	}
 
-	function favIcoBlink() {
+	function favIcoBlink(isEmpty) {
+		var base64 = isEmpty ? /* empty.png */ 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAAtJREFUCNdjIBEAAAAwAAFletZ8AAAAAElFTkSuQmCC' :
+		/* error.png */'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==';
 		$del($q('link[rel="shortcut icon"]', doc.head));
 		doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' +
-			(!favNorm ? favHref : 'data:image/x-icon;base64,' + this) + '">');
+			(!favNorm ? favHref : 'data:image/x-icon;base64,' + base64) + '">');
 		favNorm = !favNorm;
 	}
 
@@ -11962,7 +11964,7 @@ function initThreadUpdater(title, enableUpdate) {
 			if(eCode !== 200 && eCode !== 304) {
 				if(Cfg.favIcoBlink && !focused && favHref) {
 					clearInterval(favIntrv);
-					favIntrv = setInterval(favIcoBlink.bind('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg=='), 800);
+					favIntrv = setInterval(favIcoBlink, 800, false);
 				}
 				if(eCode === 404 && lastECode === 404) {
 					updateTitle(eCode);
@@ -11986,7 +11988,7 @@ function initThreadUpdater(title, enableUpdate) {
 			if(!focused) {
 				if(lPosts !== 0) {
 					if(Cfg.favIcoBlink && favHref && newPosts === 0) {
-						favIntrv = setInterval(favIcoBlink.bind('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAAtJREFUCNdjIBEAAAAwAAFletZ8AAAAAElFTkSuQmCC'), 800);
+						favIntrv = setInterval(favIcoBlink, 800, true);
 					}
 					newPosts += lPosts;
 					updateTitle();
