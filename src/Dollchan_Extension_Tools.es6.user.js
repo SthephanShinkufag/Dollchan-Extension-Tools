@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'bece64f';
+var commit = 'db18d60';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10238,13 +10238,13 @@ Thread.prototype = {
 				return;
 			}
 			if((f = f[aib.b][this.op.num])) {
-				var el = $id('de-win-fav');
-				if(el) {
-					el = $q('.de-fav-current > .de-entry[de-num="' + this.op.num + '"] .de-fav-inf-old', el);
-					el.textContent = this.pcount;
-					el = el.nextElementSibling;
+				var el = $q('#de-win-fav > .de-win-body', doc);
+				if(el.hasChildNodes()) {
+					el = $q('.de-fav-current > .de-entry[de-num="' + this.op.num + '"] .de-fav-inf-new', el);
 					el.style.display = 'none';
 					el.textContent = 0;
+					el = el.nextElementSibling;
+					el.textContent = this.pcount;
 				}
 				f.cnt = this.pcount;
 				f['new'] = 0;
@@ -12558,7 +12558,7 @@ function scriptCSS() {
 	.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
 	.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\
 	.de-alert-msg { display: inline-block; }\
-	.de-button { flex: none; padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px; margin: 0 1px; height: 24px; }\
+	.de-button { flex: none; padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 0 1px; height: 24px; }\
 	.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\
 	.de-content-block > input { margin: 0 4px; }\
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
