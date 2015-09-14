@@ -2596,7 +2596,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "db18d60";
+	var commit = "0cb4a48";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -11709,7 +11709,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						if (this._selText.includes("\n")) {
 							addSpell(1, "/" + regQuote(this._selText).replace(/\r?\n/g, "\\n") + "/", false);
 						} else {
-							addSpell(0, this._selText.replace(/\)/g, "\\)").toLowerCase(), false);
+							addSpell(0, this._selText.toLowerCase(), false);
 						}
 					} else {
 						dummy.innerHTML = "";
@@ -11718,9 +11718,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 					return;
 				case "spell-name":
-					addSpell(6, this.posterName.replace(/\)/g, "\\)"), false);return;
+					addSpell(6, this.posterName, false);return;
 				case "spell-trip":
-					addSpell(7, this.posterTrip.replace(/\)/g, "\\)"), false);return;
+					addSpell(7, this.posterTrip, false);return;
 				case "spell-img":
 					var img = this.images.firstAttach,
 					    w = img.weight,

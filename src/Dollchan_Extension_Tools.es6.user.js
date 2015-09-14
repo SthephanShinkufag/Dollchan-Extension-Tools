@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'db18d60';
+var commit = '0cb4a48';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9101,7 +9101,7 @@ Post.prototype = {
 					addSpell(1 /* #exp */, '/' +
 						regQuote(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
 				} else {
-					addSpell(0 /* #words */, this._selText.replace(/\)/g, '\\)').toLowerCase(), false);
+					addSpell(0 /* #words */, this._selText.toLowerCase(), false);
 				}
 			} else {
 				dummy.innerHTML = '';
@@ -9110,8 +9110,8 @@ Post.prototype = {
 					regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
 			}
 			return;
-		case 'spell-name': addSpell(6 /* #name */, this.posterName.replace(/\)/g, '\\)'), false); return;
-		case 'spell-trip': addSpell(7 /* #trip */, this.posterTrip.replace(/\)/g, '\\)'), false); return;
+		case 'spell-name': addSpell(6 /* #name */, this.posterName, false); return;
+		case 'spell-trip': addSpell(7 /* #trip */, this.posterTrip, false); return;
 		case 'spell-img':
 			var img = this.images.firstAttach,
 				w = img.weight,
