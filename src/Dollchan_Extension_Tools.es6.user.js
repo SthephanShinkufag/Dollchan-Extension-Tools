@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'a7a492a';
+var commit = 'bb4d687';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12278,7 +12278,7 @@ function scriptCSS() {
 		return id + '::before { content: ""; padding-right: 16px; margin-right: 4px; background: url(' + src + ') no-repeat center; background-size: contain; }';
 	}
 	function gif(id, src) {
-		return id + ' { background-image: url(data:image/gif;base64,' + src + '); }';
+		return id + ' { background-image: url(data:image/gif;base64,' + src + '); background-repeat: no-repeat; background-position: center; }';
 	}
 
 	// Windows
@@ -12349,7 +12349,7 @@ function scriptCSS() {
 
 	// Main panel
 	'#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; flex-flow: row nowrap; min-height: 25px; }\
-	#de-panel-logo { flex: none; margin-right: 3px; cursor: pointer; min-height: 25px; width: 25px; background-repeat: no-repeat; background-position: center; }\
+	#de-panel-logo { flex: none; margin-right: 3px; cursor: pointer; min-height: 25px; width: 25px; }\
 	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #8fbbed; }\
 	#de-panel-buttons:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
 	#de-panel-buttons:lang(fr), #de-panel-info:lang(fr) { border-color: #616b86; }\
