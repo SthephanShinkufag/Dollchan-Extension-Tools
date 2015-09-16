@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'fe9d512';
+var commit = '8b8b1e2';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7117,7 +7117,7 @@ function getSubmitError(dc) {
 var doUploading = async(function* ([hasFiles, getProgress]) {
 	$alert(Lng.sendingPost[lang] + (hasFiles ?
 		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' +
-		'</progress><div style="display: none; font: bold 12px sans-serif;">' +
+		'</progress><div style="display: none; font: bold 12px arial;">' +
 		'<span></span> / <span></span> (<span></span>)</div>' : ''), 'upload', true);
 	var p, val;
 	if(hasFiles) {
@@ -12316,8 +12316,8 @@ function scriptCSS() {
 
 	// Settings window
 	'.de-block { display: block; }\
-	.de-cfg-body { min-height: 309px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
-	.de-cfg-body input[type="text"], .de-cfg-body select { width: auto; padding: 1px 2px; margin: 1px 0; font: 13px sans-serif; }\
+	.de-cfg-body { min-height: 309px; padding: 11px 7px 7px; margin-top: -1px; font: 13px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
+	.de-cfg-body input[type="text"], .de-cfg-body select { width: auto; padding: 1px 2px; margin: 1px 0; font: 13px arial; }\
 	.de-cfg-body input[type="checkbox"] { ' + (nav.Presto ? '' : 'vertical-align: -1px; ') + 'margin: 2px 1px; }\
 	.de-cfg-body label { padding: 0; margin: 0; }\
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\
