@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'bb4d687';
+var commit = 'fe9d512';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -109,7 +109,7 @@ var defaultCfg = {
 	'noGoto':           1,      // hide goto field
 	'noPassword':       1,      // hide password field
 	'noName':           0,      // hide name field
-	'scriptStyle':      0,      // script style [0=glass black, 1=glass blue, 2=solid grey]
+	'scriptStyle':      0,      // script style [0=gradient black, 1=gradient blue, 2=solid grey, 3=transparent blue]
 	'userCSS':          0,      // user style
 	'userCSSTxt':       '',     //    css text
 	'expandPanel':      0,      // show full main panel
@@ -262,7 +262,10 @@ Lng = {
 		'noName':       ['имя', 'name'],
 
 		'scriptStyle': {
-			sel:        [['Glass black', 'Glass blue', 'Solid grey'], ['Glass black', 'Glass blue', 'Solid grey']],
+			sel:        [
+				['Gradient black', 'Gradient blue', 'Solid grey', 'Transparent blue'],
+				['Gradient black', 'Gradient blue', 'Solid grey', 'Transparent blue']
+			],
 			txt:        ['Стиль скрипта', 'Script style']
 		},
 		'userCSS':      ['Пользовательский CSS ', 'User CSS '],
@@ -12270,7 +12273,8 @@ function checkForUpdates(isForce, lastUpdateTime) {
 function getThemeLang() {
 	return !Cfg.scriptStyle ? 'fr' :
 		Cfg.scriptStyle === 1 ? 'en' :
-		'de';
+		Cfg.scriptStyle === 2 ? 'de':
+		'es';
 }
 
 function scriptCSS() {
@@ -12304,9 +12308,10 @@ function scriptCSS() {
 	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\
 	#de-win-vid .de-entry { white-space: normal; }\
 	.de-win-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\
-	.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\
 	.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\
-	.de-win-head:lang(de), #de-panel:lang(de) { background: #777; }\
+	.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\
+	.de-win-head:lang(de), #de-panel:lang(de) { background-color: #777; }\
+	.de-win-head:lang(es), #de-panel:lang(es) { background-color: rgba(0, 20, 80, .72); }\
 	.de-win-title { font: bold 14px arial; margin-left: 32px; }' +
 
 	// Settings window
@@ -12319,16 +12324,17 @@ function scriptCSS() {
 	.de-cfg-body:lang(de), #de-cfg-buttons:lang(de) { border-color: #444; }\
 	#de-cfg-buttons { display: flex; flex-flow: row nowrap; align-items: center; padding: 3px; font-size: 13px; }\
 	.de-cfg-lang-select { flex: 1 0 auto; }\
-	#de-cfg-bar { width: 100%; display: flex; background-color: #1f2740; margin: 0; padding: 0; }\
+	#de-cfg-bar { display: flex; margin: 0; padding: 0; }\
+	#de-cfg-bar:lang(fr) { background-color: #1f2740; }\
 	#de-cfg-bar:lang(en) { background-color: #325f9e; }\
 	#de-cfg-bar:lang(de) { background-color: #777; }\
+	#de-cfg-bar:lang(es) { background-color: rgba(0, 20, 80, .72); }\
 	.de-cfg-depend { padding-left: 17px; }\
-	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(0,0,0,.2) 0%, rgba(0,0,0,.2) 100%) !important; }\
-	.de-cfg-tab:lang(en) { border-color: #183d77 !important; }\
+	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
+	.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
 	.de-cfg-tab:lang(fr) { border-color: #121421 !important; }\
-	.de-cfg-tab:lang(en), .de-cfg-tab:lang(fr) { background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
-	.de-cfg-tab:hover { background-image: linear-gradient(to bottom, rgba(99,99,99,.2) 0%, rgba(99,99,99,.2) 100%) !important; }\
-	.de-cfg-tab:lang(en):hover, .de-cfg-tab:lang(fr):hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
+	.de-cfg-tab:lang(en) { border-color: #183d77 !important; }\
+	.de-cfg-tab:lang(es) { border-color: #001450 !important; }\
 	.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\
 	.de-cfg-tab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\
 	.de-cfg-unvis { display: none; }\
@@ -12343,22 +12349,19 @@ function scriptCSS() {
 	#de-spell-div > div { display: table-cell; vertical-align: top; }\
 	#de-spell-div > div + div { width: 100%; }\
 	#de-spell-edit { padding: 2px !important; width: 100%; height: 194px; max-width: 100%; border: none !important; outline: none !important; }\
-	#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 196px; text-align: right; color: #fff; font: 12px courier new; }\
-	#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\
+	#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 196px; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\
 	#de-spell-rowmeter:lang(de) { background-color: #777; }' +
 
 	// Main panel
 	'#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; flex-flow: row nowrap; min-height: 25px; }\
 	#de-panel-logo { flex: none; margin-right: 3px; cursor: pointer; min-height: 25px; width: 25px; }\
-	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #8fbbed; }\
+	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\
+	#de-panel-buttons:lang(en), #de-panel-info:lang(en) { border-color: #8fbbed; }\
 	#de-panel-buttons:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
-	#de-panel-buttons:lang(fr), #de-panel-info:lang(fr) { border-color: #616b86; }\
-	.de-panel-button { display: block; width: 25px; height: 25px; flex: none; margin: 0 1px; padding: 0; }\
-	.de-panel-button:lang(en), .de-panel-button:lang(fr) { transition: all 0.3s ease; }\
-	.de-panel-button:lang(en):hover, .de-panel-button:lang(fr):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
-	.de-panel-button:lang(de) { border-radius: 5px; box-sizing: border-box; }\
-	.de-panel-button:lang(de):hover { border: 2px solid #444; }\
-	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }' +
+	.de-panel-button { display: block; width: 25px; height: 25px; flex: none; margin: 0 1px; padding: 0; transition: all 0.3s ease; }\
+	.de-panel-button:lang(fr):hover, .de-panel-button:lang(en):hover, .de-panel-button:lang(es):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
+	.de-panel-button:lang(de):hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }\
+	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; color: #fff; font: 18px serif; }' +
 	gif('#de-panel-logo', (p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA') + 'QAI5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=') +
 	gif('#de-panel-cfg', p + 'QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7') +
 	gif('#de-panel-hid', p + 'QAI5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=') +
