@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'b0ec6d0';
+var commit = 'f3a7331';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1221,43 +1221,6 @@ function prettifySize(val) {
 		return (val / (1024)).toFixed(2) + Lng.sizeKByte[lang];
 	}
 	return val.toFixed(2) + Lng.sizeByte[lang];
-}
-
-function arrayBufferDataURI(raw) {
-	var chunk, base64 = '',
-		encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
-		bytes = new Uint8Array(raw),
-		byteLength = bytes.byteLength,
-		byteRemainder = byteLength % 3,
-		mainLength = byteLength - byteRemainder;
-	// Main loop deals with bytes in chunks of 3
-	for(var i = 0; i < mainLength; i += 3) {
-		// Combine the three bytes into a single integer
-		chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
-		// Convert the raw binary segments to the appropriate ASCII encoding
-		base64 +=
-			// Use bitmasks to extract 6-bit segments from the triplet
-			encodings[(chunk & 16515072) >> 18] + // 16515072 = (2^6 - 1) << 18
-			encodings[(chunk & 258048) >> 12] +   //   258048 = (2^6 - 1) << 12
-			encodings[(chunk & 4032) >> 6] +      //     4032 = (2^6 - 1) << 6
-			encodings[chunk & 63];                //       63 =  2^6 - 1
-	}
-	// Deal with the remaining bytes and padding
-	if(byteRemainder === 1) {
-		chunk = bytes[mainLength];
-		base64 +=
-			encodings[(chunk & 252) >> 2] +     // 252 = (2^6 - 1) << 2
-			// Set the 4 least significant bits to zero
-			encodings[(chunk & 3) << 4] + '=='; //   3 =  2^2 - 1
-	} else if(byteRemainder === 2) {
-		chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1];
-		base64 +=
-			encodings[(chunk & 64512) >> 10] +  // 64512 = (2^6 - 1) << 10
-			encodings[(chunk & 1008) >> 4] +    //  1008 = (2^6 - 1) << 4
-			// Set the 2 least significant bits to zero
-			encodings[(chunk & 15) << 2] + '='; //    15 =  2^4 - 1
-	}
-	return base64;
 }
 
 
@@ -3077,39 +3040,26 @@ function addSettings(body, id) {
 			panel.init(dForm.el);
 			toggleWindow('cfg', false);
 		}, 'de-cfg-lang-select'),
-		$btn(Lng.file[lang], '', function() {
-			spawn(getStoredObj, 'DESU_Config').then(val => {
-				var i, len, str = encodeURI(JSON.stringify(val)),
-					arr = new Uint8Array(str.length);
-				for(i = 0, len = str.length; i < len; ++i) {
-					arr[i] = str.charCodeAt(i) & 0xff;
-				}
+		$if(!nav.Presto, $btn(Lng.file[lang], '', function() {
+			spawn(getStored, 'DESU_Config').then(val => {
 				$alert('', 'cfg-file', false);
-				$id('de-alert-cfg-file').lastChild.insertAdjacentHTML('beforeend',
-					'<b>' + Lng.impexpCfg[lang] + ':</b>' +
+				var el = $id('de-alert-cfg-file').lastChild;
+				el.insertAdjacentHTML('beforeend', '<b>' + Lng.impexpCfg[lang] + ':</b>' +
 					'<div class="de-list">' + Lng.fileToCfg[lang] + ':<br>' +
 						'<input type="file" id="de-import-file" style="margin-left: 12px;"></div>' +
-					'<div class="de-list"><a href="data:text/plain;base64,' + arrayBufferDataURI(arr) + 
-						'" download="DE_Config.txt">' + Lng.cfgToFile[lang] + '</div>');
-				$id('de-import-file').onchange = function(e) {
-					var file = e.target.files[0];
-					if(file && file.type.match('text.*')) {
-						var fr = new FileReader();
-						fr.onload = function(e) {
-							try {
-								var data = decodeURI(e.target.result),
-									tryToParse = JSON.parse(data);
-								setStored('DESU_Config', data);
-								window.location.reload();
-							} catch(err) {
-								$alert(Lng.invalidData[lang], 'err-invaliddata', false);
-							}
-						};
-						fr.readAsText(file);
+					'<div class="de-list"><a id="de-export-file" href="' + window.URL.createObjectURL(new Blob([val], { type: 'application/json' })) + 
+						'" download="DE_Config.json">' + Lng.cfgToFile[lang] + '</div>');
+				$id('de-import-file').onchange = function({ target: { files: [file] } }) {
+					if(file) {
+						readFile(file, true).then(val => {
+							var dummy = JSON.parse(data);
+							setStored('DESU_Config', val);
+							window.location.reload();
+						}).catch(() => $alert(Lng.invalidData[lang], 'err-invaliddata', false));
 					}
 				}
 			});
-		}),
+		})),
 		addEditButton('cfg', function(fn) {
 			fn(Cfg, true, function(data) {
 				saveComCfg(aib.dm, data);
@@ -7080,7 +7030,7 @@ FileInput.prototype = {
 				'<span><span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
 			var myRjUtil = this._rjUtil = this._buttonsPlace.nextSibling,
 				file = e.target.files[0];
-			readFileArrayBuffer(file).then(val => {
+			readFile(file, false).then(val => {
 				if(this._rjUtil === myRjUtil) {
 					myRjUtil.className = 'de-file-rarmsg de-file-utils';
 					myRjUtil.title = this.el.files[0].name + ' + ' + file.name;
@@ -7150,7 +7100,7 @@ FileInput.prototype = {
 		if(!files || !files[0]) {
 			return;
 		}
-		readFileArrayBuffer(files[0]).then(val => {
+		readFile(files[0], false).then(val => {
 			this.form.eventFiles(false);
 			if(this.empty) {
 				return;
@@ -7375,7 +7325,7 @@ function* html5Submit(form, needProgress = false) {
 			if(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) &&
 			   (Cfg.postSameImg || Cfg.removeEXIF))
 			{
-				var data = cleanFile((yield readFileArrayBuffer(value)), el.obj.imgFile);
+				var data = cleanFile((yield readFile(value, false)), el.obj.imgFile);
 				if(!data) {
 					return Promise.reject(Lng.fileCorrupt[lang] + fileName);
 				}
@@ -7405,11 +7355,15 @@ function* html5Submit(form, needProgress = false) {
 	}
 }
 
-function readFileArrayBuffer(file) {
+function readFile(file, asText) {
 	return new Promise((resolve, reject) => {
 		var fr = new FileReader();
 		fr.onload = e => resolve(e.target.result);
-		fr.readAsArrayBuffer(file);
+		if(asText) {
+			fr.readAsText(file);
+		} else {
+			fr.readAsArrayBuffer(file);
+		}
 	});
 }
 

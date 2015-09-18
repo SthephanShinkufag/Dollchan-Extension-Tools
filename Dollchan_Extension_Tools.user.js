@@ -1198,8 +1198,6 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
-
-
 !(function(global) {
   "use strict";
 
@@ -2352,7 +2350,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					}
 
 					context$2$0.next = 19;
-					return readFileArrayBuffer(value);
+					return readFile(value, false);
 
 				case 19:
 					context$2$0.t25 = context$2$0.sent;
@@ -2596,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "b0ec6d0";
+	var commit = "f3a7331";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -3649,42 +3647,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			return (val / 1024).toFixed(2) + Lng.sizeKByte[lang];
 		}
 		return val.toFixed(2) + Lng.sizeByte[lang];
-	}
-
-	function arrayBufferDataURI(raw) {
-		var chunk,
-		    base64 = "",
-		    encodings = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
-		    bytes = new Uint8Array(raw),
-		    byteLength = bytes.byteLength,
-		    byteRemainder = byteLength % 3,
-		    mainLength = byteLength - byteRemainder;
-	
-		for (var i = 0; i < mainLength; i += 3) {
-		
-			chunk = bytes[i] << 16 | bytes[i + 1] << 8 | bytes[i + 2];
-		
-			base64 +=
-		
-			encodings[(chunk & 16515072) >> 18] +
-			encodings[(chunk & 258048) >> 12] +
-			encodings[(chunk & 4032) >> 6] +
-			encodings[chunk & 63];
-		}
-	
-		if (byteRemainder === 1) {
-			chunk = bytes[mainLength];
-			base64 += encodings[(chunk & 252) >> 2] +
-		
-			encodings[(chunk & 3) << 4] + "==";
-		} else if (byteRemainder === 2) {
-			chunk = bytes[mainLength] << 8 | bytes[mainLength + 1];
-			base64 += encodings[(chunk & 64512) >> 10] +
-			encodings[(chunk & 1008) >> 4] +
-		
-			encodings[(chunk & 15) << 2] + "=";
-		}
-		return base64;
 	}
 
 	function setStored(id, value) {
@@ -5145,36 +5107,28 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			scriptCSS();
 			panel.init(dForm.el);
 			toggleWindow("cfg", false);
-		}, "de-cfg-lang-select"), $btn(Lng.file[lang], "", function () {
-			spawn(getStoredObj, "DESU_Config").then(function (val) {
-				var i,
-				    len,
-				    str = encodeURI(JSON.stringify(val)),
-				    arr = new Uint8Array(str.length);
-				for (i = 0, len = str.length; i < len; ++i) {
-					arr[i] = str.charCodeAt(i) & 255;
-				}
+		}, "de-cfg-lang-select"), $if(!nav.Presto, $btn(Lng.file[lang], "", function () {
+			spawn(getStored, "DESU_Config").then(function (val) {
 				$alert("", "cfg-file", false);
-				$id("de-alert-cfg-file").lastChild.insertAdjacentHTML("beforeend", "<b>" + Lng.impexpCfg[lang] + ":</b>" + "<div class=\"de-list\">" + Lng.fileToCfg[lang] + ":<br>" + "<input type=\"file\" id=\"de-import-file\" style=\"margin-left: 12px;\"></div>" + "<div class=\"de-list\"><a href=\"data:text/plain;base64," + arrayBufferDataURI(arr) + "\" download=\"DE_Config.txt\">" + Lng.cfgToFile[lang] + "</div>");
-				$id("de-import-file").onchange = function (e) {
-					var file = e.target.files[0];
-					if (file && file.type.match("text.*")) {
-						var fr = new FileReader();
-						fr.onload = function (e) {
-							try {
-								var data = decodeURI(e.target.result),
-								    tryToParse = JSON.parse(data);
-								setStored("DESU_Config", data);
-								window.location.reload();
-							} catch (err) {
-								$alert(Lng.invalidData[lang], "err-invaliddata", false);
-							}
-						};
-						fr.readAsText(file);
+				var el = $id("de-alert-cfg-file").lastChild;
+				el.insertAdjacentHTML("beforeend", "<b>" + Lng.impexpCfg[lang] + ":</b>" + "<div class=\"de-list\">" + Lng.fileToCfg[lang] + ":<br>" + "<input type=\"file\" id=\"de-import-file\" style=\"margin-left: 12px;\"></div>" + "<div class=\"de-list\"><a id=\"de-export-file\" href=\"" + window.URL.createObjectURL(new Blob([val], { type: "application/json" })) + "\" download=\"DE_Config.json\">" + Lng.cfgToFile[lang] + "</div>");
+				$id("de-import-file").onchange = function (_ref) {
+					var _ref$target$files = _slicedToArray(_ref.target.files, 1);
+
+					var file = _ref$target$files[0];
+
+					if (file) {
+						readFile(file, true).then(function (val) {
+							var dummy = JSON.parse(data);
+							setStored("DESU_Config", val);
+							window.location.reload();
+						})["catch"](function () {
+							return $alert(Lng.invalidData[lang], "err-invaliddata", false);
+						});
 					}
 				};
 			});
-		}), addEditButton("cfg", function (fn) {
+		})), addEditButton("cfg", function (fn) {
 			fn(Cfg, true, function (data) {
 				saveComCfg(aib.dm, data);
 				window.location.reload();
@@ -9506,7 +9460,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				_this._buttonsPlace.insertAdjacentHTML("afterend", "<span><span class=\"de-wait\"></span>" + Lng.wait[lang] + "</span>");
 				var myRjUtil = _this._rjUtil = _this._buttonsPlace.nextSibling,
 				    file = e.target.files[0];
-				readFileArrayBuffer(file).then(function (val) {
+				readFile(file, false).then(function (val) {
 					if (_this._rjUtil === myRjUtil) {
 						myRjUtil.className = "de-file-rarmsg de-file-utils";
 						myRjUtil.title = _this.el.files[0].name + " + " + file.name;
@@ -9577,7 +9531,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (!files || !files[0]) {
 				return;
 			}
-			readFileArrayBuffer(files[0]).then(function (val) {
+			readFile(files[0], false).then(function (val) {
 				_this.form.eventFiles(false);
 				if (_this.empty) {
 					return;
@@ -9930,13 +9884,17 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, callee$1$4, this, [[13, 18], [26, 37, 41, 49], [42,, 44, 48]]);
 	}));
 
-	function readFileArrayBuffer(file) {
+	function readFile(file, asText) {
 		return new Promise(function (resolve, reject) {
 			var fr = new FileReader();
 			fr.onload = function (e) {
 				return resolve(e.target.result);
 			};
-			fr.readAsArrayBuffer(file);
+			if (asText) {
+				fr.readAsText(file);
+			} else {
+				fr.readAsArrayBuffer(file);
+			}
 		});
 	}
 
