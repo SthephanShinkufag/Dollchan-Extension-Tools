@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "fb55032";
+	var commit = "5c88382";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -5110,7 +5110,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, "de-cfg-lang-select"), $if(!nav.Presto, $btn(Lng.file[lang], "", function () {
 			spawn(getStored, "DESU_Config").then(function (val) {
 				$alert("", "cfg-file", false);
-				$id("de-alert-cfg-file").lastChild.insertAdjacentHTML("beforeend", "<b>" + Lng.impexpCfg[lang] + ":</b>" + "<div class=\"de-list\">" + Lng.fileToCfg[lang] + ":<br>" + "<input type=\"file\" id=\"de-import-file\" style=\"margin-left: 12px;\"></div>" + "<div class=\"de-list\"><a id=\"de-export-file\" href=\"" + window.URL.createObjectURL(new Blob([val], { type: "application/json" })) + "\" download=\"DE_Config.json\">" + Lng.cfgToFile[lang] + "</div>");
+				$id("de-alert-cfg-file").lastChild.insertAdjacentHTML("beforeend", "<b>" + Lng.impexpCfg[lang] + ":</b>" + "<div class=\"de-list\">" + Lng.fileToCfg[lang] + ":<br>" + "<input type=\"file\" accept=\".json\" id=\"de-import-file\" style=\"margin-left: 12px;\"></div>" + "<div class=\"de-list\"><a href=\"" + window.URL.createObjectURL(new Blob([val], { type: "application/json" })) + "\" download=\"DE_Config.json\">" + Lng.cfgToFile[lang] + "</div>");
 				$id("de-import-file").onchange = function (_ref) {
 					var _ref$target$files = _slicedToArray(_ref.target.files, 1);
 
