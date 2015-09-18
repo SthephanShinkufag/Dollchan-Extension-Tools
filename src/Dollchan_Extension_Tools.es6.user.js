@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'f3a7331';
+var commit = 'fb55032';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3043,8 +3043,7 @@ function addSettings(body, id) {
 		$if(!nav.Presto, $btn(Lng.file[lang], '', function() {
 			spawn(getStored, 'DESU_Config').then(val => {
 				$alert('', 'cfg-file', false);
-				var el = $id('de-alert-cfg-file').lastChild;
-				el.insertAdjacentHTML('beforeend', '<b>' + Lng.impexpCfg[lang] + ':</b>' +
+				$id('de-alert-cfg-file').lastChild.insertAdjacentHTML('beforeend', '<b>' + Lng.impexpCfg[lang] + ':</b>' +
 					'<div class="de-list">' + Lng.fileToCfg[lang] + ':<br>' +
 						'<input type="file" id="de-import-file" style="margin-left: 12px;"></div>' +
 					'<div class="de-list"><a id="de-export-file" href="' + window.URL.createObjectURL(new Blob([val], { type: 'application/json' })) + 
@@ -3052,7 +3051,7 @@ function addSettings(body, id) {
 				$id('de-import-file').onchange = function({ target: { files: [file] } }) {
 					if(file) {
 						readFile(file, true).then(val => {
-							var dummy = JSON.parse(data);
+							var dummy = JSON.parse(val);
 							setStored('DESU_Config', val);
 							window.location.reload();
 						}).catch(() => $alert(Lng.invalidData[lang], 'err-invaliddata', false));
