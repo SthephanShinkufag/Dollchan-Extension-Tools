@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "5c88382";
+	var commit = "c3b1655";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -2965,7 +2965,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		infoDebug: ["Информация для отладки", "Information for debugging"],
 		impexpCfg: ["Импорт/экспорт настроек", "Config import/export"],
 		fileToCfg: ["Загрузить настройки из файла", "Load config from a file"],
-		cfgToFile: ["Скачать файл</a> с настройками", "Get config file</a>"],
+		cfgToFile: ["Сохранить файл</a> с настройками", "Get config file</a>"],
 		globalCfg: ["Глобальные настройки", "Global config"],
 		loadGlobal: [" и применить к этому домену", " and apply to this domain"],
 		saveGlobal: [" текущие настройки как глобальные", " current config as global"],
@@ -3647,6 +3647,17 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			return (val / 1024).toFixed(2) + Lng.sizeKByte[lang];
 		}
 		return val.toFixed(2) + Lng.sizeByte[lang];
+	}
+
+	function downloadBlob(blob, name) {
+		var url = window.URL.createObjectURL(blob);
+		var aEl = $add("<a href=\"" + url + "\" download=\"" + name + "\"></a>");
+		doc.body.appendChild(aEl);
+		aEl.click();
+		setTimeout(function () {
+			window.URL.revokeObjectURL(url);
+			$del(aEl);
+		}, 100000);
 	}
 
 	function setStored(id, value) {
@@ -5107,31 +5118,20 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			scriptCSS();
 			panel.init(dForm.el);
 			toggleWindow("cfg", false);
-		}, "de-cfg-lang-select"), $if(!nav.Presto, $btn(Lng.file[lang], "", function () {
-			spawn(getStored, "DESU_Config").then(function (val) {
-				$alert("", "cfg-file", false);
-				$id("de-alert-cfg-file").lastChild.insertAdjacentHTML("beforeend", "<b>" + Lng.impexpCfg[lang] + ":</b>" + "<div class=\"de-list\">" + Lng.fileToCfg[lang] + ":<br>" + "<input type=\"file\" accept=\".json\" id=\"de-import-file\" style=\"margin-left: 12px;\"></div>" + "<div class=\"de-list\"><a href=\"" + window.URL.createObjectURL(new Blob([val], { type: "application/json" })) + "\" download=\"DE_Config.json\">" + Lng.cfgToFile[lang] + "</div>");
-				$id("de-import-file").onchange = function (_ref) {
-					var _ref$target$files = _slicedToArray(_ref.target.files, 1);
-
-					var file = _ref$target$files[0];
-
-					if (file) {
-						readFile(file, true).then(function (val) {
-							var dummy = JSON.parse(val);
-							setStored("DESU_Config", val);
-							window.location.reload();
-						})["catch"](function () {
-							return $alert(Lng.invalidData[lang], "err-invaliddata", false);
-						});
-					}
-				};
-			});
-		})), addEditButton("cfg", function (fn) {
+		}, "de-cfg-lang-select"), addEditButton("cfg", function (fn) {
 			fn(Cfg, true, function (data) {
 				saveComCfg(aib.dm, data);
 				window.location.reload();
 			});
+		}), $btn(Lng.reset[lang], Lng.resetCfg[lang], function () {
+			if (confirm(Lng.conReset[lang])) {
+				delStored("DESU_Config");
+				delStored("DESU_Favorites");
+				delStored("DESU_Posts_" + aib.dm);
+				delStored("DESU_Threads_" + aib.dm);
+				delStored("DESU_keys");
+				window.location.reload();
+			}
 		}), $if(nav.isGlobal, $btn(Lng.global[lang], Lng.globalCfg[lang], function () {
 			$alert("", "cfg-global", false);
 			var el = $id("de-alert-cfg-global").lastChild;
@@ -5162,16 +5162,30 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				});
 			}), $txt(Lng.saveGlobal[lang])]));
 			el.insertAdjacentHTML("beforeend", "<hr><small>" + Lng.descrGlobal[lang] + "</small>");
-		})), $btn(Lng.reset[lang], Lng.resetCfg[lang], function () {
-			if (confirm(Lng.conReset[lang])) {
-				delStored("DESU_Config");
-				delStored("DESU_Favorites");
-				delStored("DESU_Posts_" + aib.dm);
-				delStored("DESU_Threads_" + aib.dm);
-				delStored("DESU_keys");
-				window.location.reload();
-			}
-		})]));
+		})), $if(!nav.Presto, $btn(Lng.file[lang], "", function () {
+			$alert("<b>" + Lng.impexpCfg[lang] + ":</b>" + "<div class=\"de-list\">" + Lng.fileToCfg[lang] + ":<br>" + "<input type=\"file\" accept=\".json\" id=\"de-import-file\" style=\"margin-left: 12px;\"></div>" + "<div class=\"de-list\"><a id=\"de-export-file\" href=\"#\">" + Lng.cfgToFile[lang] + "</div>", "cfg-file", false);
+			$id("de-import-file").onchange = function (_ref) {
+				var _ref$target$files = _slicedToArray(_ref.target.files, 1);
+
+				var file = _ref$target$files[0];
+
+				if (file) {
+					readFile(file, true).then(function (val) {
+						var dummy = JSON.parse(val);
+						setStored("DESU_Config", val);
+						window.location.reload();
+					})["catch"](function () {
+						return $alert(Lng.invalidData[lang], "err-invaliddata", false);
+					});
+				}
+			};
+			$id("de-export-file").addEventListener("click", function (e) {
+				spawn(getStored, "DESU_Config").then(function (val) {
+					downloadBlob(new Blob([val], { type: "application/json" }), "DE_Config.json");
+				});
+				$pd(e);
+			}, true);
+		}))]));
 		$q(".de-cfg-tab[info=\"" + (id || "filters") + "\"]", body).click();
 	}
 
@@ -6294,23 +6308,14 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				}
 			});
 		}, function () {
-			var u,
-			    a,
-			    name = aib.dm + "-" + aib.b.replace(/[\\\/:*?"<>|]/g, "") + "-" + aib.t;
+			var name = aib.dm + "-" + aib.b.replace(/[\\\/:*?"<>|]/g, "") + "-" + aib.t;
 			if (!imgOnly) {
 				var dt = doc.doctype;
 				$t("head", dc).insertAdjacentHTML("beforeend", "<script type=\"text/javascript\" src=\"data/dollscript.js\"></script>");
 				tar.addString("data/dollscript.js", "(" + String(typeof de_main_func_outer === "undefined" ? de_main_func_inner : de_main_func_outer) + ")(null, true);");
 				tar.addString(name + ".html", "<!DOCTYPE " + dt.name + (dt.publicId ? " PUBLIC \"" + dt.publicId + "\"" : dt.systemId ? " SYSTEM" : "") + (dt.systemId ? " \"" + dt.systemId + "\"" : "") + ">" + dc.outerHTML);
 			}
-			u = window.URL.createObjectURL(tar.get());
-			a = $new("a", { href: u, download: name + (imgOnly ? "-images.tar" : ".tar") }, null);
-			doc.body.appendChild(a);
-			a.click();
-			setTimeout(function (el, url) {
-				window.URL.revokeObjectURL(url);
-				$del(el);
-			}, 100000, a, u);
+			downloadBlob(tar.get(), name + (imgOnly ? "-images.tar" : ".tar"));
 			$del($id("de-alert-filesload"));
 			Images_.pool = tar = warnings = count = current = imgOnly = progress = counter = null;
 		});
@@ -10205,7 +10210,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				case "mouseout":
 					this._setHideTmt();return;
 				case "click":
-					switch (e.target.parentNode.id) {
+					switch (e.target.id) {
 						case "de-img-btn-next":
 							this._nextFn();return;
 						case "de-img-btn-prev":
