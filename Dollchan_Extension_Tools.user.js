@@ -2596,7 +2596,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "6e6b69c";
+	var commit = "b0ec6d0";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -5149,31 +5149,28 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			spawn(getStoredObj, "DESU_Config").then(function (val) {
 				var i,
 				    len,
-				    str = encodeURIComponent(JSON.stringify(val)),
+				    str = encodeURI(JSON.stringify(val)),
 				    arr = new Uint8Array(str.length);
 				for (i = 0, len = str.length; i < len; ++i) {
 					arr[i] = str.charCodeAt(i) & 255;
 				}
 				$alert("", "cfg-file", false);
-				var el = $id("de-alert-cfg-file").lastChild;
-				el.insertAdjacentHTML("beforeend", "<b>" + Lng.impexpCfg[lang] + ":</b>" + "<div class=\"de-list\">" + Lng.fileToCfg[lang] + ":<br>" + "<input type=\"file\" id=\"de-import-file\" style=\"margin-left: 12px;\"></div>" + "<div class=\"de-list\"><a href=\"data:text/plain;base64," + arrayBufferDataURI(arr) + "\" download=\"DE_Config.txt\">" + Lng.cfgToFile[lang] + "</div>");
+				$id("de-alert-cfg-file").lastChild.insertAdjacentHTML("beforeend", "<b>" + Lng.impexpCfg[lang] + ":</b>" + "<div class=\"de-list\">" + Lng.fileToCfg[lang] + ":<br>" + "<input type=\"file\" id=\"de-import-file\" style=\"margin-left: 12px;\"></div>" + "<div class=\"de-list\"><a href=\"data:text/plain;base64," + arrayBufferDataURI(arr) + "\" download=\"DE_Config.txt\">" + Lng.cfgToFile[lang] + "</div>");
 				$id("de-import-file").onchange = function (e) {
-					var files = e.target.files;
-					if (files[0] && files[0].type.match("text.*")) {
+					var file = e.target.files[0];
+					if (file && file.type.match("text.*")) {
 						var fr = new FileReader();
-						fr.onload = (function (theFile) {
-							return function (e) {
-								try {
-									var data = decodeURIComponent(e.target.result),
-									    tryToParse = JSON.parse(data);
-									setStored("DESU_Config", data);
-									window.location.reload();
-								} catch (err) {
-									$alert(Lng.invalidData[lang], "err-invaliddata", false);
-								}
-							};
-						})(files[0]);
-						fr.readAsText(files[0]);
+						fr.onload = function (e) {
+							try {
+								var data = decodeURI(e.target.result),
+								    tryToParse = JSON.parse(data);
+								setStored("DESU_Config", data);
+								window.location.reload();
+							} catch (err) {
+								$alert(Lng.invalidData[lang], "err-invaliddata", false);
+							}
+						};
+						fr.readAsText(file);
 					}
 				};
 			});
