@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '71e9df4';
+var commit = '6e6b69c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -124,13 +124,13 @@ var defaultCfg = {
 	'turnOff':          0,      // enable script only for this site
 	'textaWidth':       300,    // textarea size
 	'textaHeight':      115,
-	'replyWinDrag':     0,      // draggable Quick Reply form 
+	'replyWinDrag':     0,      // draggable Quick Reply form
 	'replyWinX':        'right: 0',     // Quick Reply form position
 	'replyWinY':        'top: 0',
-	'cfgWinDrag':       0,      // draggable Settings window 
+	'cfgWinDrag':       0,      // draggable Settings window
 	'cfgWinX':          'right: 0',     // Settings window position
 	'cfgWinY':          'top: 0',
-	'hidWinDrag':       0,      // draggable Hidden window 
+	'hidWinDrag':       0,      // draggable Hidden window
 	'hidWinX':          'right: 0',     // Hidden window position
 	'hidWinY':          'top: 0',
 	'favWinDrag':       0,      // draggable Favorites window
@@ -453,6 +453,8 @@ Lng = {
 	load:           ['Загрузить', 'Load'],
 	save:           ['Сохранить', 'Save'],
 	edit:           ['Правка', 'Edit'],
+	file:           ['Файл', 'File'],
+	global:         ['Глобальные', 'Global'],
 	reset:          ['Сброс', 'Reset'],
 	remove:         ['Удалить', 'Remove'],
 	info:           ['Инфо', 'Info'],
@@ -484,13 +486,18 @@ Lng = {
 	total:          ['Всего', 'Total'],
 	debug:          ['Отладка', 'Debug'],
 	infoDebug:      ['Информация для отладки', 'Information for debugging'],
-	loadGlobal:     ['Загрузить глобальные настройки', 'Load global settings'],
-	saveGlobal:     ['Сохранить настройки как глобальные', 'Save settings as global'],
+	impexpCfg:      ['Импорт/экспорт настроек', 'Config import/export'],
+	fileToCfg:      ['Загрузить настройки из файла', 'Load config from a file'],
+	cfgToFile:      ['Скачать файл</a> с настройками', 'Get config file</a>'],
+	globalCfg:      ['Глобальные настройки', 'Global config'],
+	loadGlobal:     [' и применить к этому домену', ' and apply to this domain'],
+	saveGlobal:     [' текущие настройки как глобальные', ' current config as global'],
+	descrGlobal:    ['Глобальные настройки будут по умолчанию применяться<br>при первом посещеннии других доменов', 'Global config will apply by default<br>at the first visit of other domains'],
 	editInTxt:      ['Правка в текстовом формате', 'Edit in text format'],
-	resetCfg:       ['Сбросить в настройки по умолчанию', 'Reset settings to defaults'],
+	resetCfg:       ['Сбросить в настройки по умолчанию', 'Reset config to defaults'],
 	conReset: [
 		'Данное действие удалит все ваши настройки и закладки. Продолжить?',
-		'This will delete all your preferences and favourites. Continue?'
+		'This will delete all your preferences and favorites. Continue?'
 	],
 	clrSelected:    ['Удалить выделенные записи', 'Remove selected notes'],
 	saveChanges:    ['Сохранить внесенные изменения', 'Save your changes'],
@@ -1214,6 +1221,43 @@ function prettifySize(val) {
 		return (val / (1024)).toFixed(2) + Lng.sizeKByte[lang];
 	}
 	return val.toFixed(2) + Lng.sizeByte[lang];
+}
+
+function arrayBufferDataURI(raw) {
+	var chunk, base64 = '',
+		encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
+		bytes = new Uint8Array(raw),
+		byteLength = bytes.byteLength,
+		byteRemainder = byteLength % 3,
+		mainLength = byteLength - byteRemainder;
+	// Main loop deals with bytes in chunks of 3
+	for(var i = 0; i < mainLength; i += 3) {
+		// Combine the three bytes into a single integer
+		chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
+		// Convert the raw binary segments to the appropriate ASCII encoding
+		base64 +=
+			// Use bitmasks to extract 6-bit segments from the triplet
+			encodings[(chunk & 16515072) >> 18] + // 16515072 = (2^6 - 1) << 18
+			encodings[(chunk & 258048) >> 12] +   //   258048 = (2^6 - 1) << 12
+			encodings[(chunk & 4032) >> 6] +      //     4032 = (2^6 - 1) << 6
+			encodings[chunk & 63];                //       63 =  2^6 - 1
+	}
+	// Deal with the remaining bytes and padding
+	if(byteRemainder === 1) {
+		chunk = bytes[mainLength];
+		base64 +=
+			encodings[(chunk & 252) >> 2] +     // 252 = (2^6 - 1) << 2
+			// Set the 4 least significant bits to zero
+			encodings[(chunk & 3) << 4] + '=='; //   3 =  2^2 - 1
+	} else if(byteRemainder === 2) {
+		chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1];
+		base64 +=
+			encodings[(chunk & 64512) >> 10] +  // 64512 = (2^6 - 1) << 10
+			encodings[(chunk & 1008) >> 4] +    //  1008 = (2^6 - 1) << 4
+			// Set the 2 least significant bits to zero
+			encodings[(chunk & 15) << 2] + '='; //    15 =  2^4 - 1
+	}
+	return base64;
 }
 
 
@@ -2950,14 +2994,11 @@ function getCfgInfo() {
 function addEditButton(name, getDataFn) {
 	return $btn(Lng.edit[lang], Lng.editInTxt[lang], function(getData) {
 		getData(function(val, isJSON, saveFn) {
-			var el, ta = $new('textarea', {
-				'class': 'de-editor',
-				'value': isJSON ? JSON.stringify(val, null, '\t') : val
-			}, null);
-			$alert('', 'edit-' + name, false);
-			el = $c('de-alert-msg', $id('de-alert-edit-' + name));
-			el.appendChild($txt(Lng.editor[name][lang]));
-			el.appendChild(ta);
+			$alert('<b>' + Lng.editor[name][lang] + '</b>' +
+				'<textarea class="de-editor"></textarea>', 'edit-' + name, false);
+			var el = $id('de-alert-edit-' + name).lastChild,
+				ta = el.lastChild;
+			ta.value = (isJSON ? JSON.stringify(val, null, '\t') : val);
 			el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], isJSON ? function(fun) {
 				var data;
 				try {
@@ -3036,39 +3077,86 @@ function addSettings(body, id) {
 			panel.init(dForm.el);
 			toggleWindow('cfg', false);
 		}, 'de-cfg-lang-select'),
+		$btn(Lng.file[lang], '', function() {
+			spawn(getStoredObj, 'DESU_Config').then(val => {
+				var i, len, str = encodeURIComponent(JSON.stringify(val)),
+					arr = new Uint8Array(str.length);
+				for(i = 0, len = str.length; i < len; ++i) {
+					arr[i] = str.charCodeAt(i) & 0xff;
+				}
+				$alert('', 'cfg-file', false);
+				var el = $id('de-alert-cfg-file').lastChild;
+				el.insertAdjacentHTML('beforeend', '<b>' + Lng.impexpCfg[lang] + ':</b>' +
+					'<div class="de-list">' + Lng.fileToCfg[lang] + ':<br>' +
+						'<input type="file" id="de-import-file" style="margin-left: 12px;"></div>' +
+					'<div class="de-list"><a href="data:text/plain;base64,' + arrayBufferDataURI(arr) + 
+						'" download="DE_Config.txt">' + Lng.cfgToFile[lang] + '</div>');
+				$id('de-import-file').onchange = function(e) {
+					var files = e.target.files;
+					if(files[0] && files[0].type.match('text.*')) {
+						var fr = new FileReader();
+						fr.onload = (function(theFile) {
+							return function(e) {
+								try {
+									var data = decodeURIComponent(e.target.result),
+										tryToParse = JSON.parse(data);
+										setStored('DESU_Config', data);
+										window.location.reload();
+								} catch(err) {
+									$alert(Lng.invalidData[lang], 'err-invaliddata', false);
+								}
+							};
+						})(files[0]);
+						fr.readAsText(files[0]);
+					}
+				}
+			});
+		}),
 		addEditButton('cfg', function(fn) {
 			fn(Cfg, true, function(data) {
 				saveComCfg(aib.dm, data);
 				window.location.reload();
 			});
 		}),
-		$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
-			spawn(getStoredObj, 'DESU_Config').then(val => {
-				if(val && ('global' in val) && !$isEmpty(val.global)) {
-					delete val[aib.dm];
-					setStored('DESU_Config', JSON.stringify(val));
-					window.location.reload();
-				} else {
-					$alert(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
-				}
-			});
-		})),
-		$if(nav.isGlobal, $btn(Lng.save[lang], Lng.saveGlobal[lang], function() {
-			spawn(getStoredObj, 'DESU_Config').then(val => {
-				var obj = {},
-					com = val[aib.dm];
-				for(var i in com) {
-					if(i !== 'correctTime' && i !== 'timePattern' &&
-					   i !== 'userCSS' && i !== 'userCSSTxt' &&
-					   com[i] !== defaultCfg[i] && i !== 'stats')
-					{
-						obj[i] = com[i];
-					}
-				}
-				val.global = obj;
-				setStored('DESU_Config', JSON.stringify(val));
-				toggleWindow('cfg', true);
-			});
+		$if(nav.isGlobal, $btn(Lng.global[lang], Lng.globalCfg[lang], function() {
+			$alert('', 'cfg-global', false);
+			var el = $id('de-alert-cfg-global').lastChild;
+			el.insertAdjacentHTML('beforeend', '<b>' + Lng.globalCfg[lang] + ':</b>');
+			el.appendChild($New('div', {'class': 'de-list'}, [
+				$btn(Lng.load[lang], '', function() {
+					spawn(getStoredObj, 'DESU_Config').then(val => {
+						if(val && ('global' in val) && !$isEmpty(val.global)) {
+							delete val[aib.dm];
+							setStored('DESU_Config', JSON.stringify(val));
+							window.location.reload();
+						} else {
+							$alert(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
+						}
+					});
+				}),
+				$txt(Lng.loadGlobal[lang])
+			]));
+			el.appendChild($New('div', {'class': 'de-list'}, [
+				$btn(Lng.save[lang], '', function() {
+					spawn(getStoredObj, 'DESU_Config').then(val => {
+						var obj = {},
+							com = val[aib.dm];
+						for(var i in com) {
+							if(i !== 'correctTime' && i !== 'timePattern' &&
+							   i !== 'userCSS' && i !== 'userCSSTxt' &&
+							   com[i] !== defaultCfg[i] && i !== 'stats')
+							{
+								obj[i] = com[i];
+							}
+						}
+						val.global = obj;
+						setStored('DESU_Config', JSON.stringify(val));
+						toggleWindow('cfg', true);
+					});
+				}),
+				$txt(Lng.saveGlobal[lang])
+			]));
+			el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
 		})),
 		$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
 			if(confirm(Lng.conReset[lang])) {
@@ -3344,7 +3432,7 @@ HotKeys.getDefaultKeys = function() {
 		/* Open/close "Hidden"        */ 0x4048 /* = Alt+H      */,
 		/* Open/close panel           */ 0x0050 /* = P          */,
 		/* Mask/unmask images         */ 0x0042 /* = B          */,
-		/* Open/close settings        */ 0x4053 /* = Alt+S      */,
+		/* Open/close "Settings"      */ 0x4053 /* = Alt+S      */,
 		/* Expand current image       */ 0x0049 /* = I          */,
 		/* Bold text                  */ 0xC042 /* = Alt+B      */,
 		/* Italic text                */ 0xC049 /* = Alt+I      */,
@@ -12343,7 +12431,7 @@ function scriptCSS() {
 	#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\
 	.de-info-name { flex: 1 0 auto; }\
 	.de-info-row { display: flex; }\
-	#de-info-table { display: flex; height: 258px; }\
+	#de-info-table { display: flex; height: 257px; }\
 	#de-spell-panel { float: right; }\
 	#de-spell-panel > a { padding: 0 4px; }\
 	#de-spell-div { display: table; }\
@@ -12584,11 +12672,11 @@ function scriptCSS() {
 	'.de-abtn { text-decoration: none !important; outline: none; }\
 	.de-after-fimg { clear: left; }\
 	#de-alert { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
-	#de-alert > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
+	#de-alert > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 8px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
 	.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
 	.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\
 	.de-alert-msg { display: inline-block; }\
-	.de-button { flex: none; padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 0 1px; height: 24px; font: 14px arial; }\
+	.de-button { flex: none; padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 1px; height: 24px; font: 12px arial; }\
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\
 	.de-input-key { height: 12px }\
@@ -12596,6 +12684,8 @@ function scriptCSS() {
 	.de-link-parent { outline: 1px dotted !important; }\
 	.de-link-pview { font-weight: bold; }\
 	.de-link-ref { text-decoration: none; }\
+	.de-list { padding-top: 4px; }\
+	.de-list::before { content: "\u25CF"; margin-right: 4px; }\
 	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
 	.de-menu-item:hover { background-color: #222; color: #fff; }\
