@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "c3b1655";
+	var commit = "128309b";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -6186,9 +6186,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					if (imageData) {
 						var fName = url.substring(url.lastIndexOf("/") + 1),
 						    aEl = $q(aib.qImgLink, aib.getImgWrap(lnk));
+						lnk.href = aEl.href = window.URL.createObjectURL(new Blob([imageData], { type: iType }));
+						lnk.setAttribute("download", fName);
 						aEl.setAttribute("download", fName);
-						lnk.href = window.URL.createObjectURL(new Blob([imageData], { type: iType }));
-						lnk.setAttribute("de-name", fName);
 						if (iType === "video/webm") {
 							el.setAttribute("de-video", "");
 						}
@@ -6328,7 +6328,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				if (aib.tiny) {
 					url = url.replace(/^.*?\?v=|&.*?$/g, "");
 				}
-				Images_.pool.run([url, lnk.getAttribute("de-name") || url.substring(url.lastIndexOf("/") + 1), el, lnk]);
+				Images_.pool.run([url, lnk.getAttribute("download") || url.substring(url.lastIndexOf("/") + 1), el, lnk]);
 			}
 		});
 		if (!imgOnly) {
