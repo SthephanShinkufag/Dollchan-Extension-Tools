@@ -1198,6 +1198,8 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+
 !(function(global) {
   "use strict";
 
@@ -2101,10 +2103,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					if (Cfg.updScript) {
 						checkForUpdates(false, val.lastUpd).then(function (html) {
 							if (doc.readyState === "interactive" || doc.readyState === "complete") {
-								$alert(html, "updavail", false);
+								$popup(html, "updavail", false);
 							} else {
 								doc.addEventListener("DOMContentLoaded", function () {
-									return $alert(html, "updavail", false);
+									return $popup(html, "updavail", false);
 								});
 							}
 						}, emptyFn);
@@ -2594,7 +2596,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "128309b";
+	var commit = "cab733b";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -3651,12 +3653,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 	function downloadBlob(blob, name) {
 		var url = window.URL.createObjectURL(blob);
-		var aEl = $add("<a href=\"" + url + "\" download=\"" + name + "\"></a>");
-		doc.body.appendChild(aEl);
-		aEl.click();
+		var link = $add("<a href=\"" + url + "\" download=\"" + name + "\"></a>");
+		doc.body.appendChild(link);
+		link.click();
 		setTimeout(function () {
 			window.URL.revokeObjectURL(url);
-			$del(aEl);
+			$del(link);
 		}, 100000);
 	}
 
@@ -3953,7 +3955,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				var href = arguments[1] === undefined ? "#" : arguments[1];
 				return "<a id=\"de-panel-" + id + "\" class=\"de-abtn de-panel-button\" title=\"" + Lng.panelBtn[id][lang] + "\" href=\"" + href + "\"></a>";
 			};
-			(pr && pr.pArea[0] || formEl).insertAdjacentHTML("beforebegin", "<div id=\"de-main\" lang=\"" + getThemeLang() + "\"><div id=\"de-panel\">" + "<span id=\"de-panel-logo\" title=\"" + Lng.panelBtn.attach[lang] + "\"></span>" + "<span id=\"de-panel-buttons\"" + (Cfg.expandPanel ? ">" : " style=\"display: none;\">") + (Cfg.disabled ? pButton("enable") : pButton("cfg") + pButton("hid") + pButton("fav") + (!Cfg.addYouTube ? "" : pButton("vid")) + (localRun ? "" : pButton("refresh") + (!isThr && aib.page === aib.firstPage ? "" : pButton("goback", aib.getPageUrl(aib.b, aib.page - 1))) + (isThr || aib.page === aib.lastPage ? "" : pButton("gonext", aib.getPageUrl(aib.b, aib.page + 1)))) + pButton("goup") + pButton("godown") + (imgLen === 0 ? "" : pButton("expimg") + pButton("maskimg") + (nav.Presto || localRun ? "" : (Cfg.preLoadImgs ? "" : pButton("preimg")) + (!isThr ? "" : pButton("savethr")))) + (!isThr || localRun ? "" : pButton(Cfg.ajaxUpdThr ? "upd-on" : "upd-off") + (nav.Safari ? "" : pButton("audio-off"))) + (!aib.mak && !aib.tiny && !aib.fch ? "" : pButton("catalog", aib.prot + "//" + aib.host + "/" + aib.b + "/catalog.html")) + pButton("enable") + (!isThr ? "" : "<span id=\"de-panel-info\" title=\"" + Lng.panelBtn.counter[lang] + "\">" + dForm.firstThr.pcount + "/" + imgLen + "</span>")) + "</span>" + "</div>" + (Cfg.disabled ? "" : "<div id=\"de-alert\"></div><hr style=\"clear: both;\">") + "</div>");
+			(pr && pr.pArea[0] || formEl).insertAdjacentHTML("beforebegin", "<div id=\"de-main\" lang=\"" + getThemeLang() + "\"><div id=\"de-panel\">" + "<span id=\"de-panel-logo\" title=\"" + Lng.panelBtn.attach[lang] + "\"></span>" + "<span id=\"de-panel-buttons\"" + (Cfg.expandPanel ? ">" : " style=\"display: none;\">") + (Cfg.disabled ? pButton("enable") : pButton("cfg") + pButton("hid") + pButton("fav") + (!Cfg.addYouTube ? "" : pButton("vid")) + (localRun ? "" : pButton("refresh") + (!isThr && aib.page === aib.firstPage ? "" : pButton("goback", aib.getPageUrl(aib.b, aib.page - 1))) + (isThr || aib.page === aib.lastPage ? "" : pButton("gonext", aib.getPageUrl(aib.b, aib.page + 1)))) + pButton("goup") + pButton("godown") + (imgLen === 0 ? "" : pButton("expimg") + pButton("maskimg") + (nav.Presto || localRun ? "" : (Cfg.preLoadImgs ? "" : pButton("preimg")) + (!isThr ? "" : pButton("savethr")))) + (!isThr || localRun ? "" : pButton(Cfg.ajaxUpdThr ? "upd-on" : "upd-off") + (nav.Safari ? "" : pButton("audio-off"))) + (!aib.mak && !aib.tiny && !aib.fch ? "" : pButton("catalog", aib.prot + "//" + aib.host + "/" + aib.b + "/catalog.html")) + pButton("enable") + (!isThr ? "" : "<span id=\"de-panel-info\" title=\"" + Lng.panelBtn.counter[lang] + "\">" + dForm.firstThr.pcount + "/" + imgLen + "</span>")) + "</span>" + "</div>" + (Cfg.disabled ? "" : "<div id=\"de-popup\"></div><hr style=\"clear: both;\">") + "</div>");
 			this._el = $id("de-panel");
 			this._el.addEventListener("click", this, true);
 			this._el.addEventListener("mouseover", this);
@@ -4129,25 +4131,23 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			el = win.firstChild.lastChild;
 			el.lastChild.onclick = toggleWindow.bind(null, name, false);
 			el.firstChild.onclick = function (e) {
-				var node = e.target.parentNode.parentNode.parentNode,
-				    name = node.id.substr(7),
-				    width = node.style.width,
+				var width = win.style.width,
 				    w = width ? "; width: " + width : "";
 				toggleCfg(name + "WinDrag");
 				if (Cfg[name + "WinDrag"]) {
-					node.classList.remove("de-win-fixed");
-					node.classList.add("de-win");
-					node.style.cssText = Cfg[name + "WinX"] + "; " + Cfg[name + "WinY"] + w;
+					win.classList.remove("de-win-fixed");
+					win.classList.add("de-win");
+					win.style.cssText = Cfg[name + "WinX"] + "; " + Cfg[name + "WinY"] + w;
 				} else {
 					var temp = $q(".de-win-active.de-win-fixed", win.parentNode);
 					if (temp) {
 						toggleWindow(temp.id.substr(7), false);
 					}
-					node.classList.remove("de-win");
-					node.classList.add("de-win-fixed");
-					node.style.cssText = "right: 0; bottom: 25px" + w;
+					win.classList.remove("de-win");
+					win.classList.add("de-win-fixed");
+					win.style.cssText = "right: 0; bottom: 25px" + w;
 				}
-				updateWinZ(node.style);
+				updateWinZ(win.style);
 			};
 			makeDraggable(win, win.firstChild, name);
 		}
@@ -4251,25 +4251,23 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 								this.linkList.style.display = "";
 								e.target.textContent = "▲";
 							}
-							$pd(e);
-							return;
+							break;
 						case "de-video-btn-prev":
 							node = this.currentLink.parentNode;
 							node = node.previousSibling || node.parentNode.lastChild;
+							node.lastChild.click();
 							break;
 						case "de-video-btn-next":
 							node = this.currentLink.parentNode;
 							node = node.nextSibling || node.parentNode.firstChild;
+							node.lastChild.click();
 							break;
 						case "de-video-btn-resize":
 							var exp = this.player.className === "de-video-obj";
 							this.player.className = exp ? "de-video-obj de-video-expanded" : "de-video-obj";
 							this.linkList.style.maxWidth = (exp ? 894 : +Cfg.YTubeWidth + 40) + "px";
 							this.linkList.style.maxHeight = doc.documentElement.clientHeight * 0.92 - (exp ? 562 : +Cfg.YTubeHeigh + 82) + "px";
-							$pd(e);
-							return;
 					}
-					node.lastChild.click();
 					$pd(e);
 					return;
 				} else if (!el.classList.contains("de-video-link")) {
@@ -4608,7 +4606,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return context$3$0.abrupt("return");
 
 					case 3:
-						$alert(Lng.loading[lang], "load-pages", true);
+						$popup(Lng.loading[lang], "load-pages", true);
 						for (i = 0; i < infoCount; ++i) {
 							el = els[i];
 
@@ -4673,7 +4671,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 								node.textContent = "@?";
 							}
 						}
-						closeAlert($id("de-alert-load-pages"));
+						closePopup("load-pages");
 
 					case 25:
 					case "end":
@@ -4967,16 +4965,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		}), $btn(Lng.edit[lang], "", function (e) {
 			$pd(e);
-			if ($id("de-alert-edit-hotkeys")) {
+			if ($id("de-popup-edit-hotkeys")) {
 				return;
 			}
 			spawn(HotKeys.readKeys).then(function (keys) {
-				var el,
-				    fn,
-				    temp = KeyEditListener.getEditMarkup(keys);
-				$alert(temp[1], "edit-hotkeys", false);
-				el = $id("de-alert-edit-hotkeys");
-				fn = new KeyEditListener(el, keys, temp[0]);
+				var temp = KeyEditListener.getEditMarkup(keys),
+				    el = $popup(temp[1], "edit-hotkeys", false),
+				    fn = new KeyEditListener(el, keys, temp[0]);
 				el.addEventListener("focus", fn, true);
 				el.addEventListener("blur", fn, true);
 				el.addEventListener("click", fn, true);
@@ -4984,11 +4979,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				el.addEventListener("keyup", fn, true);
 			});
 		})]), $New("div", { "class": "de-cfg-depend" }, [inpTxt("loadPages", 2, null), $txt(Lng.cfg.loadPages[lang])]), $if(!nav.isChromeStorage && !nav.Presto || nav.isGM, $New("div", null, [lBox("updScript", true, null), $New("div", { "class": "de-cfg-depend" }, [optSel("scrUpdIntrv", false, null), $btn(Lng.checkNow[lang], "", function () {
-			$alert(Lng.loading[lang], "updavail", true);
+			$popup(Lng.loading[lang], "updavail", true);
 			spawn(getStoredObj, "DESU_Config").then(function (val) {
 				return checkForUpdates(true, val.lastUpd);
 			}).then(function (html) {
-				return $alert(html, "updavail", false);
+				return $popup(html, "updavail", false);
 			}, emptyFn);
 		})])])), $if(nav.isGlobal, $New("div", null, [$txt(Lng.cfg.excludeList[lang]), $new("input", { type: "text", id: "de-exclude-edit", style: "display: block; width: 97%;",
 			value: excludeList }, {
@@ -5024,8 +5019,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}).join("");
 		}
 		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-info" }, [$add("<div style=\"padding-bottom: 10px;\">" + "<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions\" " + "target=\"_blank\">v" + version + "." + commit + "</a>&nbsp;|&nbsp;" + "<a href=\"http://www.freedollchan.org/scripts/\" target=\"_blank\">Freedollchan</a>&nbsp;|&nbsp;" + "<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/" + (lang ? "home-en/" : "") + "\" target=\"_blank\">Github</a></div>"), $add("<div id=\"de-info-table\"><div id=\"de-info-stats\">" + getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], getHiddenThrCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false) + "</div>" + "<div id=\"de-info-log\">" + getInfoTable(new Logger().getData(false), true) + "</div></div>"), $btn(Lng.debug[lang], Lng.infoDebug[lang], function () {
-			$alert(Lng.infoDebug[lang] + ":<textarea readonly id=\"de-debug-info\" class=\"de-editor\"></textarea>", "help-debug", false);
-			$id("de-debug-info").value = JSON.stringify({
+			$popup(Lng.infoDebug[lang] + ":<textarea readonly class=\"de-editor\"></textarea>", "cfg-debug", false).firstElementChild.value = JSON.stringify({
 				version: version,
 				location: String(window.location),
 				nav: nav,
@@ -5050,10 +5044,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function addEditButton(name, getDataFn) {
-		return $btn(Lng.edit[lang], Lng.editInTxt[lang], (function (getData) {
-			getData(function (val, isJSON, saveFn) {
-				$alert("<b>" + Lng.editor[name][lang] + "</b>" + "<textarea class=\"de-editor\"></textarea>", "edit-" + name, false);
-				var el = $id("de-alert-edit-" + name).lastChild,
+		return $btn(Lng.edit[lang], Lng.editInTxt[lang], function () {
+			return getDataFn(function (val, isJSON, saveFn) {
+				var el = $popup("<b>" + Lng.editor[name][lang] + "</b>" + "<textarea class=\"de-editor\"></textarea>", "edit-" + name, false),
 				    ta = el.lastChild;
 				ta.value = isJSON ? JSON.stringify(val, null, "\t") : val;
 				el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], isJSON ? (function (fun) {
@@ -5063,15 +5056,15 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					} finally {
 						if (data) {
 							fun(data);
-							closeAlert($id("de-alert-edit-" + name));
-							closeAlert($id("de-alert-err-invaliddata"));
+							closePopup("edit-" + name);
+							closePopup("err-invaliddata");
 						} else {
-							$alert(Lng.invalidData[lang], "err-invaliddata", false);
+							$popup(Lng.invalidData[lang], "err-invaliddata", false);
 						}
 					}
 				}).bind(ta, saveFn) : saveFn.bind(ta)));
 			});
-		}).bind(null, getDataFn));
+		});
 	}
 
 	function cfgTabClick(e) {
@@ -5133,9 +5126,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				window.location.reload();
 			}
 		}), $if(nav.isGlobal, $btn(Lng.global[lang], Lng.globalCfg[lang], function () {
-			$alert("", "cfg-global", false);
-			var el = $id("de-alert-cfg-global").lastChild;
-			el.insertAdjacentHTML("beforeend", "<b>" + Lng.globalCfg[lang] + ":</b>");
+			var el = $popup("<b>" + Lng.globalCfg[lang] + ":</b>", "cfg-global", false);
 			el.appendChild($New("div", { "class": "de-list" }, [$btn(Lng.load[lang], "", function () {
 				spawn(getStoredObj, "DESU_Config").then(function (val) {
 					if (val && "global" in val && !$isEmpty(val.global)) {
@@ -5143,7 +5134,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						setStored("DESU_Config", JSON.stringify(val));
 						window.location.reload();
 					} else {
-						$alert(Lng.noGlobalCfg[lang], "err-noglobalcfg", false);
+						$popup(Lng.noGlobalCfg[lang], "err-noglobalcfg", false);
 					}
 				});
 			}), $txt(Lng.loadGlobal[lang])]));
@@ -5163,7 +5154,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}), $txt(Lng.saveGlobal[lang])]));
 			el.insertAdjacentHTML("beforeend", "<hr><small>" + Lng.descrGlobal[lang] + "</small>");
 		})), $if(!nav.Presto, $btn(Lng.file[lang], "", function () {
-			$alert("<b>" + Lng.impexpCfg[lang] + ":</b>" + "<div class=\"de-list\">" + Lng.fileToCfg[lang] + ":<br>" + "<input type=\"file\" accept=\".json\" id=\"de-import-file\" style=\"margin-left: 12px;\"></div>" + "<div class=\"de-list\"><a id=\"de-export-file\" href=\"#\">" + Lng.cfgToFile[lang] + "</div>", "cfg-file", false);
+			$popup("<b>" + Lng.impexpCfg[lang] + ":</b>" + "<div class=\"de-list\">" + Lng.fileToCfg[lang] + ":<br>" + "<input type=\"file\" accept=\".json\" id=\"de-import-file\" style=\"margin-left: 12px;\"></div>" + "<div class=\"de-list\"><a id=\"de-export-file\" href=\"#\">" + Lng.cfgToFile[lang] + "</div>", "cfg-file", false);
 			$id("de-import-file").onchange = function (_ref) {
 				var _ref$target$files = _slicedToArray(_ref.target.files, 1);
 
@@ -5175,7 +5166,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						setStored("DESU_Config", val);
 						window.location.reload();
 					})["catch"](function () {
-						return $alert(Lng.invalidData[lang], "err-invaliddata", false);
+						return $popup(Lng.invalidData[lang], "err-invaliddata", false);
 					});
 				}
 			};
@@ -5192,7 +5183,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 
 
-	function closeAlert(el) {
+	function closePopup(id) {
+		var el = $id("de-popup-" + id);
 		if (el) {
 			el.closeTimeout = null;
 			if (!Cfg.animation) {
@@ -5209,10 +5201,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}
 	}
 
-	function $alert(txt, id, wait) {
+	function $popup(txt, id, wait) {
 		var node,
-		    el = $id("de-alert-" + id),
-		    cBtn = "de-alert-btn" + (wait ? " de-wait" : ""),
+		    el = $id("de-popup-" + id),
+		    cBtn = "de-popup-btn" + (wait ? " de-wait" : ""),
 		    tBtn = wait ? "" : "✖ ";
 		if (el) {
 			$t("div", el).innerHTML = txt.trim();
@@ -5227,9 +5219,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				el.classList.add("de-blink");
 			}
 		} else {
-			el = $id("de-alert").appendChild($New("div", { "class": aib.cReply, id: "de-alert-" + id }, [$new("span", { "class": cBtn, text: tBtn }, { click: function click() {
-					closeAlert(this.parentNode);
-				} }), $add("<div class=\"de-alert-msg\">" + txt.trim() + "</div>")]));
+			el = $id("de-popup").appendChild($New("div", { "class": aib.cReply, id: "de-popup-" + id }, [$new("span", { "class": cBtn, text: tBtn }, { click: function click() {
+					closePopup(id);
+				} }), $add("<div class=\"de-popup-msg\">" + txt.trim() + "</div>")]));
 			if (Cfg.animation) {
 				nav.animEvent(el, function (node) {
 					node.classList.remove("de-open");
@@ -5237,9 +5229,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				el.classList.add("de-open");
 			}
 		}
-		if (Cfg.closePopups && !wait && !id.includes("help") && !id.includes("edit")) {
-			el.closeTimeout = setTimeout(closeAlert, 4000, el);
+		if (Cfg.closePopups && !wait && !id.includes("edit") && !id.includes("cfg")) {
+			el.closeTimeout = setTimeout(closePopup, 4000, id);
 		}
+		return el.lastChild;
 	}
 
 	function Menu(parentEl, html, isFixed, clickFn) {
@@ -5331,10 +5324,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				});
 			case "de-panel-savethr":
 				return new Menu(el, "<span class=\"de-menu-item\">" + Lng.selSaveThr[lang].join("</span><span class=\"de-menu-item\">") + "</span>", true, function (el) {
-					if (!$id("de-alert-savethr")) {
+					if (!$id("de-popup-savethr")) {
 						var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
 						if (Images_.preloading) {
-							$alert(Lng.loading[lang], "savethr", true);
+							$popup(Lng.loading[lang], "savethr", true);
 							Images_.afterpreload = loadDocFiles.bind(null, imgOnly);
 							Images_.progressId = "savethr";
 						} else {
@@ -5527,7 +5520,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			    kc = e.keyCode | (e.ctrlKey ? 4096 : 0) | (e.shiftKey ? 8192 : 0) | (e.altKey ? 16384 : 0) | (curTh === "TEXTAREA" || curTh === "INPUT" && (e.target.type === "text" || e.target.type === "password") ? 32768 : 0);
 			if (kc === 116 || kc === 32884) {
 			
-				if (isThr || $id("de-alert-load-pages")) {
+				if (isThr || $id("de-popup-load-pages")) {
 					return;
 				}
 				if (Attachment.viewer) {
@@ -5782,8 +5775,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}
 	};
 
-	function KeyEditListener(alertEl, keys, allKeys) {
-		var aInputs = aProto.slice.call($C("de-input-key", alertEl));
+	function KeyEditListener(popupEl, keys, allKeys) {
+		var aInputs = aProto.slice.call($C("de-input-key", popupEl));
 		for (var i = 0, len = allKeys.length; i < len; ++i) {
 			var k = allKeys[i];
 			if (k !== 0) {
@@ -5796,12 +5789,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				}
 			}
 		}
-		this.aEl = alertEl;
+		this.popupEl = popupEl;
 		this.keys = keys;
 		this.initKeys = JSON.parse(JSON.stringify(keys));
 		this.allKeys = allKeys;
 		this.allInputs = aInputs;
-		this.errCount = $C("de-error-key", alertEl).length;
+		this.errCount = $C("de-error-key", popupEl).length;
 		if (this.errCount !== 0) {
 			this.saveButton.disabled = true;
 		}
@@ -5874,15 +5867,15 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						}
 						var temp = KeyEditListener.getEditMarkup(this.keys);
 						this.allKeys = temp[0];
-						$c("de-alert-msg", this.aEl).innerHTML = temp[1];
-						this.allInputs = aProto.slice.call($C("de-input-key", this.aEl));
+						$c("de-popup-msg", this.popupEl).innerHTML = temp[1];
+						this.allInputs = aProto.slice.call($C("de-input-key", this.popupEl));
 						this.errCount = 0;
 						delete this.saveButton;
 						break;
 					} else if (el.id === "de-keys-save") {
 						keys = this.keys;
 						setStored("DESU_keys", JSON.stringify(keys));
-					} else if (el.className === "de-alert-btn") {
+					} else if (el.className === "de-popup-btn") {
 						keys = this.initKeys;
 					} else {
 						return;
@@ -5890,7 +5883,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					if (hKeys) {
 						hKeys.resume(keys);
 					}
-					closeAlert($id("de-alert-edit-hotkeys"));
+					closePopup("edit-hotkeys");
 					break;
 				case "keydown":
 					if (!this.cEl) {
@@ -6109,7 +6102,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}
 	};
 
-	function addImgFileIcon(aEl, fName, info) {
+	function addImgFileIcon(link, fName, info) {
 		var app,
 		    ext,
 		    type = info.type;
@@ -6132,7 +6125,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			app = "audio/mpeg";
 			ext = "mp3";
 		}
-		aEl.insertAdjacentHTML("afterend", "<a href=\"" + window.URL.createObjectURL(new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], { type: app })) + "\" class=\"de-img-" + (type > 2 ? "audio" : "arch") + "\" title=\"" + Lng.downloadFile[lang] + "\" download=\"" + fName.substring(0, fName.lastIndexOf(".")) + "." + ext + "\">." + ext + "</a>");
+		link.insertAdjacentHTML("afterend", "<a href=\"" + window.URL.createObjectURL(new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], { type: app })) + "\" class=\"de-img-" + (type > 2 ? "audio" : "arch") + "\" title=\"" + Lng.downloadFile[lang] + "\" download=\"" + fName.substring(0, fName.lastIndexOf(".")) + "." + ext + "\">." + ext + "</a>");
 	}
 
 	function downloadImgData(url) {
@@ -6178,29 +6171,29 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					var _data = _slicedToArray(data, 5);
 
 					var url = _data[0];
-					var lnk = _data[1];
+					var link = _data[1];
 					var iType = _data[2];
 					var nExp = _data[3];
 					var el = _data[4];
 
 					if (imageData) {
 						var fName = url.substring(url.lastIndexOf("/") + 1),
-						    aEl = $q(aib.qImgLink, aib.getImgWrap(lnk));
-						lnk.href = aEl.href = window.URL.createObjectURL(new Blob([imageData], { type: iType }));
-						lnk.setAttribute("download", fName);
+						    aEl = $q(aib.qImgLink, aib.getImgWrap(link));
+						link.href = aEl.href = window.URL.createObjectURL(new Blob([imageData], { type: iType }));
+						link.setAttribute("download", fName);
 						aEl.setAttribute("download", fName);
 						if (iType === "video/webm") {
 							el.setAttribute("de-video", "");
 						}
 						if (nExp) {
-							el.src = lnk.href;
+							el.src = link.href;
 						}
 						if (rjf) {
 							rjf.run(imageData.buffer, [imageData.buffer], addImgFileIcon.bind(null, aEl, fName));
 						}
 					}
 					if (Images_.progressId) {
-						$alert(Lng.loadImage[lang] + cImg + "/" + len, Images_.progressId, true);
+						$popup(Lng.loadImage[lang] + cImg + "/" + len, Images_.progressId, true);
 					}
 					cImg++;
 				});
@@ -6219,12 +6212,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		var els = $Q(aib.qThumbImages, post || dForm.el);
 		for (var i = 0, len = els.length; i < len; ++i) {
 			var el = els[i],
-			    lnk = $parent(el = els[i], "A");
-			if (!lnk) {
+			    link = $parent(el = els[i], "A");
+			if (!link) {
 				continue;
 			}
 			var iType,
-			    url = lnk.href,
+			    url = link.href,
 			    nExp = !!Cfg.openImgs;
 			if (/\.gif$/i.test(url)) {
 				iType = "image/gif";
@@ -6243,7 +6236,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				nExp &= Cfg.openImgs !== 2;
 			}
 			if (pool) {
-				pool.run([url, lnk, iType, nExp, el]);
+				pool.run([url, link, iType, nExp, el]);
 			} else if (nExp) {
 				el.src = url;
 			}
@@ -6287,7 +6280,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				if (link) {
 					if (!imgData) {
 						warnings += "<br>" + Lng.cantLoad[lang] + "<a href=\"" + url + "\">" + url + "</a><br>" + Lng.willSavePview[lang];
-						$alert(Lng.loadErrors[lang] + warnings, "floadwarn", false);
+						$popup(Lng.loadErrors[lang] + warnings, "err-files", false);
 						safeName = "thumb-" + safeName.replace(/\.[a-z]+$/, ".png");
 						imgData = getDataFromImg(el);
 					}
@@ -6316,19 +6309,19 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				tar.addString(name + ".html", "<!DOCTYPE " + dt.name + (dt.publicId ? " PUBLIC \"" + dt.publicId + "\"" : dt.systemId ? " SYSTEM" : "") + (dt.systemId ? " \"" + dt.systemId + "\"" : "") + ">" + dc.outerHTML);
 			}
 			downloadBlob(tar.get(), name + (imgOnly ? "-images.tar" : ".tar"));
-			$del($id("de-alert-filesload"));
+			$del($id("de-popup-load-files"));
 			Images_.pool = tar = warnings = count = current = imgOnly = progress = counter = null;
 		});
 		els = aProto.slice.call($Q(aib.qThumbImages, $q("[de-form]", dc)));
 		count += els.length;
 		els.forEach(function (el) {
-			var lnk = $parent(el, "A");
-			if (lnk) {
-				var url = lnk.href;
+			var link = $parent(el, "A");
+			if (link) {
+				var url = link.href;
 				if (aib.tiny) {
 					url = url.replace(/^.*?\?v=|&.*?$/g, "");
 				}
-				Images_.pool.run([url, lnk.getAttribute("download") || url.substring(url.lastIndexOf("/") + 1), el, lnk]);
+				Images_.pool.run([url, link.getAttribute("download") || url.substring(url.lastIndexOf("/") + 1), el, link]);
 			}
 		});
 		if (!imgOnly) {
@@ -6378,7 +6371,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				count++;
 			}).bind(new RegExp("^\\/\\/?|^https?:\\/\\/([^\\/]*.)?" + regQuote(aib.dm) + "\\/", "i")));
 		}
-		$alert((imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) + "<br><progress id=\"de-loadprogress\" value=\"0\" max=\"" + count + "\"></progress> <span>1</span>/" + count, "filesload", true);
+		$popup((imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) + "<br><progress id=\"de-loadprogress\" value=\"0\" max=\"" + count + "\"></progress> <span>1</span>/" + count, "load-files", true);
 		progress = $id("de-loadprogress");
 		counter = progress.nextElementSibling;
 		Images_.pool.complete();
@@ -6409,7 +6402,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 	DateTime.toggleSettings = function (el) {
 		if (el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.timeOffset) || DateTime.checkPattern(Cfg.timePattern))) {
-			$alert(Lng.cTimeError[lang], "err-correcttime", false);
+			$popup(Lng.cTimeError[lang], "err-correcttime", false);
 			saveCfg("correctTime", 0);
 			el.checked = false;
 		}
@@ -6904,7 +6897,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				case 0:
 					hasError = false;
 
-					$alert(Lng.loading[lang], "load-pages", true);
+					$popup(Lng.loading[lang], "load-pages", true);
 					Pview.clearCache();
 					isExpImg = false;
 					pByNum = Object.create(null);
@@ -6959,7 +6952,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					context$2$0.prev = 27;
 					context$2$0.t17 = context$2$0["catch"](23);
 
-					$alert(getPrettyErrorMessage(context$2$0.t17), "load-pages", true);
+					$popup(getPrettyErrorMessage(context$2$0.t17), "load-pages", true);
 					hasError = true;
 					return context$2$0.abrupt("break", 35);
 
@@ -6989,7 +6982,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					if (hKeys) {
 						hKeys.clear(aib.page + count - 1);
 					}
-					closeAlert($id("de-alert-load-pages"));
+					closePopup("load-pages");
 
 				case 43:
 					dForm.show();
@@ -7007,11 +7000,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		var isAjax = e instanceof AjaxError,
 		    eCode = isAjax ? e.code : 0;
 		if (eCode === 200) {
-			closeAlert($id("de-alert-newposts"));
+			closePopup("newposts");
 		} else if (isAjax && eCode === 0) {
-			$alert(e.message || Lng.noConnect[lang], "newposts", false);
+			$popup(e.message || Lng.noConnect[lang], "newposts", false);
 		} else {
-			$alert(Lng.thrNotFound[lang] + aib.t + "): \n" + getErrorMessage(e), "newposts", false);
+			$popup(Lng.thrNotFound[lang] + aib.t + "): \n" + getErrorMessage(e), "newposts", false);
 			if (showError) {
 				doc.title = "{" + eCode + "} " + doc.title;
 			}
@@ -7299,7 +7292,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			var codeGen = new SpellsCodegen(str),
 			    data = codeGen.generate();
 			if (codeGen.hasError) {
-				$alert(Lng.error[lang] + ": " + codeGen.error, "help-err-spell", false);
+				$popup(Lng.error[lang] + ": " + codeGen.error, "err-spell", false);
 			} else if (data) {
 				if (data[0] && Cfg.sortSpells) {
 					this.sort(data[0]);
@@ -8497,7 +8490,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				}
 			}
 		}
-		closeAlert($id("de-alert-help-err-spell"));
+		closePopup("err-spell");
 	}
 
 	function toggleSpells() {
@@ -8752,7 +8745,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 			if (Cfg.warnSubjTrip && _this.subj && /#.|##./.test(_this.subj.value)) {
 				$pd(e);
-				$alert(Lng.subjHasTrip[lang], "upload", false);
+				$popup(Lng.subjHasTrip[lang], "upload", false);
 				return;
 			}
 			var val = _this.txta.value;
@@ -8767,7 +8760,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 			_this.txta.value = val;
 			if (Cfg.ajaxReply) {
-				$alert(Lng.checking[lang], "upload", true);
+				$popup(Lng.checking[lang], "upload", true);
 			}
 			if (_this.video && (val = _this.video.value) && (val = val.match(Videos.ytReg))) {
 				_this.video.value = "http://www.youtube.com/watch?v=" + val[1];
@@ -9607,7 +9600,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		return regeneratorRuntime.wrap(function callee$1$3$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					$alert(Lng.sendingPost[lang] + (hasFiles ? "<br><progress id=\"de-uploadprogress\" value=\"0\" max=\"1\" style=\"display: none; width: 200px;\">" + "</progress><div style=\"display: none; font: bold 12px arial;\">" + "<span></span> / <span></span> (<span></span>)</div>" : ""), "upload", true);
+					$popup(Lng.sendingPost[lang] + (hasFiles ? "<br><progress id=\"de-uploadprogress\" value=\"0\" max=\"1\" style=\"display: none; width: 200px;\">" + "</progress><div style=\"display: none; font: bold 12px arial;\">" + "<span></span> / <span></span> (<span></span>)</div>" : ""), "upload", true);
 
 					if (hasFiles) {
 						beginTime = Date.now(), inited = false, progress = $id("de-uploadprogress"), counterWrap = progress.nextSibling, counterEl = counterWrap.firstChild, totalEl = counterEl.nextElementSibling, speedEl = totalEl.nextElementSibling;
@@ -9632,7 +9625,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					context$2$0.prev = 9;
 					context$2$0.t22 = context$2$0["catch"](3);
 
-					$alert(getErrorMessage(context$2$0.t22), "upload", false);
+					$popup(getErrorMessage(context$2$0.t22), "upload", false);
 					return context$2$0.abrupt("return");
 
 				case 13:
@@ -9665,7 +9658,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					break;
 
 				case 19:
-					$alert(Lng.internalError[lang] + getPrettyErrorMessage(new Error()), "upload", false);
+					$popup(Lng.internalError[lang] + getPrettyErrorMessage(new Error()), "upload", false);
 
 				case 20:
 				case "end":
@@ -9689,7 +9682,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (/captch|капч|подтвер|verifizie/i.test(err)) {
 				pr.refreshCapImg(true);
 			}
-			$alert(err, "upload", false);
+			$popup(err, "upload", false);
 			updater.sendErrNotif();
 			return;
 		}
@@ -9726,7 +9719,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				if (Cfg.scrAfterRep) {
 					scrollTo(0, window.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
 				}
-				closeAlert($id("de-alert-upload"));
+				closePopup("upload");
 			} else {
 				dForm.firstThr.loadNew(true).then(function () {
 					return AjaxError.Success;
@@ -9737,16 +9730,16 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					if (Cfg.scrAfterRep) {
 						scrollTo(0, window.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
 					}
-					closeAlert($id("de-alert-upload"));
+					closePopup("upload");
 				});
 			}
 		} else {
 			if (el) {
 				pByNum[pr.tNum].thr.loadFromForm(visPosts, true, el);
-				closeAlert($id("de-alert-upload"));
+				closePopup("upload");
 			} else {
 				pByNum[pr.tNum].thr.load(visPosts, false, false).then(function () {
-					return closeAlert($id("de-alert-upload"));
+					return closePopup("upload");
 				});
 			}
 		}
@@ -9768,7 +9761,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						break;
 					}
 
-					$alert(Lng.errDelete[lang] + err, "delete", false);
+					$popup(Lng.errDelete[lang] + err, "delete", false);
 					updater.sendErrNotif();
 					return context$2$0.abrupt("return");
 
@@ -9879,7 +9872,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					return context$2$0.finish(41);
 
 				case 49:
-					$alert(Lng.succDeleted[lang], "delete", false);
+					$popup(Lng.succDeleted[lang], "delete", false);
 
 				case 50:
 				case "end":
@@ -11601,7 +11594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 			this.addFuncs();
 			sRunner.run(this);
-			closeAlert($id("de-alert-load-fullmsg"));
+			closePopup("load-fullmsg");
 		},
 
 		_hasEvents: false,
@@ -11821,7 +11814,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				return;
 			}
 			if (!isInit) {
-				$alert(Lng.loading[lang], "load-fullmsg", true);
+				$popup(Lng.loading[lang], "load-fullmsg", true);
 			}
 			ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(function (form) {
 				var maybeSpells = new Maybe(SpellsRunner);
@@ -12767,12 +12760,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			var informUser = arguments[2] === undefined ? true : arguments[2];
 
 			if (informUser) {
-				$alert(Lng.loading[lang], "load-thr", true);
+				$popup(Lng.loading[lang], "load-thr", true);
 			}
 			return ajaxLoad(aib.getThrdUrl(aib.b, this.num)).then(function (form) {
 				return _this.loadFromForm(last, smartScroll, form);
 			}, function (e) {
-				return $alert(getErrorMessage(e), "load-thr", false);
+				return $popup(getErrorMessage(e), "load-thr", false);
 			});
 		},
 		loadFromForm: function loadFromForm(last, smartScroll, form) {
@@ -12883,7 +12876,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (smartScroll) {
 				scrollTo(window.pageXOffset, window.pageYOffset - (nextCoord - this.next.topCoord));
 			}
-			closeAlert($id("de-alert-load-thr"));
+			closePopup("load-thr");
 		},
 		loadNew: function loadNew(useAPI) {
 			var _this = this;
@@ -14688,9 +14681,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					btn.onclick = function (e) {
 						$pd(e);
 						pr.closeReply();
-						$alert(Lng.deleting[lang], "delete", true);
+						$popup(Lng.deleting[lang], "delete", true);
 						spawn(html5Submit, _this.el).then(checkDelete, function (e) {
-							return $alert(getErrorMessage(e), "delete", false);
+							return $popup(getErrorMessage(e), "delete", false);
 						});
 					};
 				}
@@ -14699,7 +14692,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				this.el.target = "de-iframe-dform";
 				this.el.onsubmit = function () {
 					pr.closeReply();
-					$alert(Lng.deleting[lang], "deleting", true);
+					$popup(Lng.deleting[lang], "deleting", true);
 				};
 			}
 		},
@@ -15167,7 +15160,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				if (paused) {
 					return;
 				}
-				$alert(Lng.loading[lang], "newposts", true);
+				$popup(Lng.loading[lang], "newposts", true);
 				forceLoadPosts(false);
 			},
 			enable: (function (_enable) {
@@ -15398,7 +15391,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		".de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t.de-content-block > input { margin: 0 4px; }\t.de-entry { display: flex !important; flex-flow: row nowrap; align-items: center; float: none !important; padding: 0 4px 0 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\t.de-entry > a { text-decoration: none; border: none; }\t.de-entry > input { margin: 2px 4px; }\t.de-entry-title { flex: 1 1 auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\t.de-fav-inf { padding-left: 10px; font: bold 14px serif; cursor: default; }\t.de-fav-inf-err { color: #c33; font-size: 12px; }\t.de-fav-inf-new { color: #424f79; }\t.de-fav-inf-new::after { content: \" +\"; }\t.de-fav-inf-old { color: #4f7942; }\t.de-fav-user::after { content: \"★\"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\t.de-fav-closed, .de-fav-unavail { display: inline-block; width: 16px; height: 16px; margin-bottom: -4px; }\t.de-fav-closed { background-image: url(data:image/gif;base64,R0lGODlhEAAQAKIAAP3rqPPOd+y6V+WmN+Dg4M7OzmZmZv///yH5BAEAAAcALAAAAAAQABAAAANCeLrWvZARUqqJkjiLj9FMcWHf6IldGZqM4zqRAcw0zXpAoO/6LfeNnS8XcAhjAIHSoFwim0wockCtUodWq+/1UiQAADs=); }\t.de-fav-unavail { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==); }" +
 
 	
-		cont(".de-wait", "data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7") + ".de-abtn { text-decoration: none !important; outline: none; }\t.de-after-fimg { clear: left; }\t#de-alert { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\t#de-alert > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 8px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\t.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\t.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\t.de-alert-msg { display: inline-block; }\t.de-button { flex: none; padding: 0 " + (nav.Firefox ? "2" : "4") + "px !important; margin: 1px; height: 24px; font: 12px arial; }\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t.de-input-key { height: 12px }\t.de-link-hid { text-decoration: line-through !important; }\t.de-link-parent { outline: 1px dotted !important; }\t.de-link-pview { font-weight: bold; }\t.de-link-ref { text-decoration: none; }\t.de-list { padding-top: 4px; }\t.de-list::before { content: \"●\"; margin-right: 4px; }\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t.de-menu-item:hover { background-color: #222; color: #fff; }\t.de-new-post { " + (nav.Presto ? "border-left: 4px solid rgba(0,0,255,.7); border-right: 4px solid rgba(0,0,255,.7); }" : "box-shadow: 6px 0 2px -2px rgba(0,0,255,.8), -6px 0 2px -2px rgba(0,0,255,.8); }") + "\t.de-omitted { color: grey; }\t.de-omitted::before { content: \"" + Lng.postsOmitted[lang] + "\"; }\t.de-post-hide > " + aib.qHide + " { display: none !important; }\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\t.de-pview-info { padding: 3px 6px !important; }\t.de-ref-op::after { content: \" [OP]\"; }\t.de-ref-del::after { content: \" [del]\"; }\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\t.de-refmap::before { content: \"" + Lng.replies[lang] + " \"; }\t.de-refcomma:last-child { display: none; }\t.de-selected, .de-error-key { " + (nav.Presto ? "border-left: 4px solid rgba(255,0,0,.7); border-right: 4px solid rgba(255,0,0,.7); }" : "box-shadow: 6px 0 2px -2px rgba(255,0,0,.8), -6px 0 2px -2px rgba(255,0,0,.8); }") + "\t.de-thread-buttons { clear: left; margin-top: 5px; }\t.de-thread-collapse > a::after { content: \"" + Lng.collapseThrd[lang] + "\"; }\t.de-thread-updater > a::after { content: \"" + Lng.getNewPosts[lang] + "\"; }\t.de-thread-updater::before { content: \">> \"; }\t#de-updater-count::before { content: \": \"; }\t.de-viewed { color: #888 !important; }\tform > hr { clear: both }";
+		cont(".de-wait", "data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7") + ".de-abtn { text-decoration: none !important; outline: none; }\t.de-after-fimg { clear: left; }\t#de-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\t#de-popup > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 8px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\t.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\t.de-popup-btn:not(.de-wait) + div { margin-top: .15em; }\t.de-popup-msg { display: inline-block; }\t.de-button { flex: none; padding: 0 " + (nav.Firefox ? "2" : "4") + "px !important; margin: 1px; height: 24px; font: 12px arial; }\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t.de-input-key { height: 12px }\t.de-link-hid { text-decoration: line-through !important; }\t.de-link-parent { outline: 1px dotted !important; }\t.de-link-pview { font-weight: bold; }\t.de-link-ref { text-decoration: none; }\t.de-list { padding-top: 4px; }\t.de-list::before { content: \"●\"; margin-right: 4px; }\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t.de-menu-item:hover { background-color: #222; color: #fff; }\t.de-new-post { " + (nav.Presto ? "border-left: 4px solid rgba(0,0,255,.7); border-right: 4px solid rgba(0,0,255,.7); }" : "box-shadow: 6px 0 2px -2px rgba(0,0,255,.8), -6px 0 2px -2px rgba(0,0,255,.8); }") + "\t.de-omitted { color: grey; }\t.de-omitted::before { content: \"" + Lng.postsOmitted[lang] + "\"; }\t.de-post-hide > " + aib.qHide + " { display: none !important; }\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\t.de-pview-info { padding: 3px 6px !important; }\t.de-ref-op::after { content: \" [OP]\"; }\t.de-ref-del::after { content: \" [del]\"; }\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\t.de-refmap::before { content: \"" + Lng.replies[lang] + " \"; }\t.de-refcomma:last-child { display: none; }\t.de-selected, .de-error-key { " + (nav.Presto ? "border-left: 4px solid rgba(255,0,0,.7); border-right: 4px solid rgba(255,0,0,.7); }" : "box-shadow: 6px 0 2px -2px rgba(255,0,0,.8), -6px 0 2px -2px rgba(255,0,0,.8); }") + "\t.de-thread-buttons { clear: left; margin-top: 5px; }\t.de-thread-collapse > a::after { content: \"" + Lng.collapseThrd[lang] + "\"; }\t.de-thread-updater > a::after { content: \"" + Lng.getNewPosts[lang] + "\"; }\t.de-thread-updater::before { content: \">> \"; }\t#de-updater-count::before { content: \": \"; }\t.de-viewed { color: #888 !important; }\tform > hr { clear: both }";
 
 		$css(x).id = "de-css";
 		$css("").id = "de-css-dynamic";
