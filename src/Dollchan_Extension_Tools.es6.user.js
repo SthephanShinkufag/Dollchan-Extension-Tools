@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'cab733b';
+var commit = '8f2a807';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1225,8 +1225,7 @@ function prettifySize(val) {
 
 function downloadBlob(blob, name) {
 	var url = window.URL.createObjectURL(blob);
-	var link = $add(`<a href="${ url }" download="${ name }"></a>`);
-	doc.body.appendChild(link);
+	var link = doc.body.appendChild($add(`<a href="${ url }" download="${ name }"></a>`));
 	link.click();
 	setTimeout(() => {
 		window.URL.revokeObjectURL(url);
@@ -2133,8 +2132,7 @@ function showVideosWindow(body) {
 		el.videoInfo = els[i].videoInfo;
 		linkList.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '">&nbsp;' +
 			'<a href="' + aib.anchor + num + '" de-num="' + num + '">&gt;</a></div>');
-		linkList.lastChild.appendChild(el);
-		el.classList.remove('de-current');
+		linkList.lastChild.appendChild(el).classList.remove('de-current');
 		if(i === 0) {
 			el.click();
 		}
@@ -2528,7 +2526,7 @@ function optSel(id, isBlock, Fn, className = '') {
 
 function updRowMeter(node) {
 	var top = node.scrollTop,
-		el = node.parentNode.previousSibling.firstChild,
+		el = node.previousSibling,
 		num = el.numLines || 1,
 		i = 15;
 	if(num - i < ((top / 12) | 0 + 1)) {
@@ -2570,11 +2568,11 @@ function getCfgFilters() {
 				(lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">[?]</a>')
 		]),
 		$New('div', {'id': 'de-spell-div'}, [
-			$add('<div><div id="de-spell-rowmeter"></div></div>'),
-			$New('div', null, [$new('textarea', {'id': 'de-spell-edit', 'wrap': 'off'}, {
+			$add('<div id="de-spell-rowmeter"></div>'),
+			$new('textarea', {'id': 'de-spell-edit', 'wrap': 'off'}, {
 				'keydown'() { updRowMeter(this); },
 				'scroll'() { updRowMeter(this); }
-			})])
+			})
 		]),
 		lBox('sortSpells', true, function() {
 			if(Cfg.sortSpells) {
@@ -10916,7 +10914,7 @@ function getImageBoard(checkDomains, checkEngines) {
 							nPost.wrap.classList.add('de-hidden');
 						}
 						myMaybeSpells.value.run(nPost);
-						post.wrap.parentNode.insertBefore(fragm, post.wrap);
+						$before(post.wrap, fragm);
 						$del(post.wrap);
 					}
 				});
@@ -12341,7 +12339,6 @@ function scriptCSS() {
 	#de-win-cfg { width: 370px; }\
 	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\
 	#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\
-	#de-win-cfg textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
 	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\
 	#de-win-fav input[type="checkbox"] { flex: none; margin-left: 15px; }\
 	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\
@@ -12384,11 +12381,9 @@ function scriptCSS() {
 	#de-info-table { display: flex; height: 257px; }\
 	#de-spell-panel { float: right; }\
 	#de-spell-panel > a { padding: 0 4px; }\
-	#de-spell-div { display: table; }\
-	#de-spell-div > div { display: table-cell; vertical-align: top; }\
-	#de-spell-div > div + div { width: 100%; }\
-	#de-spell-edit { padding: 2px !important; width: 100%; height: 194px; max-width: 100%; border: none !important; outline: none !important; }\
-	#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 196px; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\
+	#de-spell-div { display: flex; align-items: center; padding: 2px 0; }\
+	#de-spell-edit { padding: 2px !important; width: 100%; height: 196px; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
+	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; width: 2em; height: 196px; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\
 	#de-spell-rowmeter:lang(de) { background-color: #777; }' +
 
 	// Main panel
