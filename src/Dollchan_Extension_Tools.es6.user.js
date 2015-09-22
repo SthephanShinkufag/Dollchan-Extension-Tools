@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '8f2a807';
+var commit = '0491d93';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2542,34 +2542,34 @@ function updRowMeter(node) {
 
 function getCfgFilters() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-filters'}, [
-		lBox('hideBySpell', false, toggleSpells),
 		$New('div', {'id': 'de-spell-panel'}, [
+			lBox('hideBySpell', false, toggleSpells),
 			$new('a', {
 				'id': 'de-btn-addspell',
 				'text': Lng.add[lang],
 				'href': '#',
-				'class': 'de-abtn'}, {
+				'class': 'de-abtn de-spell-btn'}, {
 				'click': $pd,
 				'mouseover': ({ target }) => target.odelay = setTimeout(() => addMenu(target), Cfg.linksOver),
 				'mouseout': ({ target }) => clearTimeout(target.odelay)
 			}),
-			$new('a', {'text': Lng.apply[lang], 'href': '#', 'class': 'de-abtn'}, {'click'(e) {
+			$new('a', {'text': Lng.apply[lang], 'href': '#', 'class': 'de-abtn de-spell-btn'}, {'click'(e) {
 				$pd(e);
 				saveCfg('hideBySpell', 1);
 				$q('input[info="hideBySpell"]', doc).checked = true;
 				toggleSpells();
 			}}),
-			$new('a', {'text': Lng.clear[lang], 'href': '#', 'class': 'de-abtn'}, {'click'(e) {
+			$new('a', {'text': Lng.clear[lang], 'href': '#', 'class': 'de-abtn de-spell-btn'}, {'click'(e) {
 				$pd(e);
-				$id('de-spell-edit').value = '';
+				$id('de-spell-txt').value = '';
 				toggleSpells();
 			}}),
 			$add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-' +
-				(lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">[?]</a>')
+				(lang ? 'en' : 'ru') + '" class="de-abtn de-spell-btn" target="_blank">[?]</a>')
 		]),
-		$New('div', {'id': 'de-spell-div'}, [
+		$New('div', {'id': 'de-spell-editor'}, [
 			$add('<div id="de-spell-rowmeter"></div>'),
-			$new('textarea', {'id': 'de-spell-edit', 'wrap': 'off'}, {
+			$new('textarea', {'id': 'de-spell-txt', 'wrap': 'off'}, {
 				'keydown'() { updRowMeter(this); },
 				'scroll'() { updRowMeter(this); }
 			})
@@ -3005,12 +3005,12 @@ function cfgTabClick(e) {
 			getCfgInfo()
 		);
 		if(id === 'filters') {
-			updRowMeter($id('de-spell-edit'));
+			updRowMeter($id('de-spell-txt'));
 		}
 	}
 	newTab.className = 'de-cfg-body';
 	if(id === 'filters') {
-		$id('de-spell-edit').value = spells.list;
+		$id('de-spell-txt').value = spells.list;
 	}
 	fixSettings();
 }
@@ -3264,7 +3264,7 @@ function addMenu(el) {
 				.split(',').join('</span><span class="de-menu-item">') + '</span></div>', true,
 		function(el) {
 			var exp = el.textContent;
-			$txtInsert($id('de-spell-edit'), exp +
+			$txtInsert($id('de-spell-txt'), exp +
 				(!aib.t || exp === '#op' || exp === '#rep' || exp === '#outrep' ? '' :
 					'[' + aib.b + ',' + aib.t + ']') +
 				(Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? '(' : ''));
@@ -6070,7 +6070,7 @@ function disableSpells() {
 }
 
 function toggleSpells() {
-	var temp, fld = $id('de-spell-edit'),
+	var temp, fld = $id('de-spell-txt'),
 		val = fld.value;
 	if(val && (temp = spells.parseText(val))) {
 		disableSpells();
@@ -6091,7 +6091,7 @@ function toggleSpells() {
 }
 
 function addSpell(type, arg, isNeg) {
-	var temp, fld = $id('de-spell-edit'),
+	var temp, fld = $id('de-spell-txt'),
 		val = fld && fld.value,
 		chk = $q('input[info="hideBySpell"]', doc);
 	if(!val || (temp = spells.parseText(val))) {
@@ -11640,14 +11640,14 @@ function Initialization(checkDomains) {
 			disableSpells();
 			if(data.data) {
 				spells.setSpells(data.data, false);
-				temp = $id('de-spell-edit');
+				temp = $id('de-spell-txt');
 				if(temp) {
 					temp.value = spells.list;
 				}
 			} else {
 				if(data.data === '') {
 					spells.disable();
-					temp = $id('de-spell-edit');
+					temp = $id('de-spell-txt');
 					if(temp) {
 						temp.value = '';
 					}
@@ -12352,13 +12352,14 @@ function scriptCSS() {
 
 	// Settings window
 	'.de-block { display: block; }\
+	#de-btn-addspell { margin-left: auto; }\
 	.de-cfg-body { min-height: 309px; padding: 11px 7px 7px; margin-top: -1px; font: 13px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
 	.de-cfg-body input[type="text"], .de-cfg-body select { width: auto; padding: 1px 2px; margin: 1px 0; font: 13px arial; }\
 	.de-cfg-body input[type="checkbox"] { ' + (nav.Presto ? '' : 'vertical-align: -1px; ') + 'margin: 2px 1px; }\
 	.de-cfg-body label { padding: 0; margin: 0; }\
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\
 	.de-cfg-body:lang(de), #de-cfg-buttons:lang(de) { border-color: #444; }\
-	#de-cfg-buttons { display: flex; flex-flow: row nowrap; align-items: center; padding: 3px; font-size: 13px; }\
+	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; font-size: 13px; }\
 	.de-cfg-lang-select { flex: 1 0 auto; }\
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }\
 	#de-cfg-bar:lang(fr) { background-color: #1f2740; }\
@@ -12379,15 +12380,15 @@ function scriptCSS() {
 	.de-info-name { flex: 1 0 auto; }\
 	.de-info-row { display: flex; }\
 	#de-info-table { display: flex; height: 257px; }\
-	#de-spell-panel { float: right; }\
-	#de-spell-panel > a { padding: 0 4px; }\
-	#de-spell-div { display: flex; align-items: center; padding: 2px 0; }\
-	#de-spell-edit { padding: 2px !important; width: 100%; height: 196px; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
+	.de-spell-btn { padding: 0 4px; }\
+	#de-spell-editor { display: flex; align-items: center; padding: 2px 0; }\
+	#de-spell-panel { display: flex; }\
+	#de-spell-txt { padding: 2px !important; width: 100%; height: 196px; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
 	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; width: 2em; height: 196px; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\
 	#de-spell-rowmeter:lang(de) { background-color: #777; }' +
 
 	// Main panel
-	'#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; flex-flow: row nowrap; min-height: 25px; }\
+	'#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; }\
 	#de-panel-logo { flex: none; margin-right: 3px; cursor: pointer; min-height: 25px; width: 25px; }\
 	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\
 	#de-panel-buttons:lang(en), #de-panel-info:lang(en) { border-color: #8fbbed; }\
@@ -12598,11 +12599,11 @@ function scriptCSS() {
 	// Favorites
 	'.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\
 	.de-content-block > input { margin: 0 4px; }\
-	.de-entry { display: flex !important; flex-flow: row nowrap; align-items: center; float: none !important; padding: 0 4px 0 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\
-	.de-entry > a { text-decoration: none; border: none; }\
+	.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 4px 0 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\
+	.de-entry > a { flex: none; text-decoration: none; border: none; }\
 	.de-entry > input { margin: 2px 4px; }\
-	.de-entry-title { flex: 1 1 auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\
-	.de-fav-inf { padding-left: 10px; font: bold 14px serif; cursor: default; }\
+	.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\
+	.de-fav-inf { flex: none; padding-left: 10px; font: bold 14px serif; cursor: default; }\
 	.de-fav-inf-err { color: #c33; font-size: 12px; }\
 	.de-fav-inf-new { color: #424f79; }\
 	.de-fav-inf-new::after { content: " +"; }\
