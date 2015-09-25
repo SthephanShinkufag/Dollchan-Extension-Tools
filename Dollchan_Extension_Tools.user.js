@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "e33c7d4";
+	var commit = "121e3e8";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -3371,20 +3371,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 			this._oResFn(val);
 		},
-		_cancel: function _cancel(kidObj) {
-			var done = this._done;
-			this._done = true;
-			if (!done && this._cancelFn) {
-				this._cancelFn();
-			}
-			if (this._kid) {
-				this._kid.cancel();
-			}
-			if (this._parent) {
-				this._parent._cancel(this);
-			}
-		},
 		then: function then(onFulfilled, onRejected) {
+			if (!this._promise) {
+				return null;
+			}
 			var rvRes, rvRej;
 			var rv = new CancelablePromise(function (res, rej) {
 				rvRes = res;
@@ -3409,7 +3399,19 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			return this.then(void 0, onRejected);
 		},
 		cancel: function cancel() {
-			this._cancel(null);
+			var done = this._done;
+			this._done = true;
+			this._promise = null;
+			if (!done && this._cancelFn) {
+				this._cancelFn();
+				this._cancelFn = null;
+			}
+			if (this._kid) {
+				this._kid.cancel();
+			}
+			if (this._parent) {
+				this._parent.cancel();
+			}
 		}
 	};
 

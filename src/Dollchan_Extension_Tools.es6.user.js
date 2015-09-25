@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'e33c7d4';
+var commit = '121e3e8';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -857,20 +857,10 @@ CancelablePromise.prototype = {
 		}
 		this._oResFn(val);
 	},
-	_cancel(kidObj) {
-		var done = this._done;
-		this._done = true;
-		if(!done && this._cancelFn) {
-			this._cancelFn();
-		}
-		if(this._kid) {
-			this._kid.cancel();
-		}
-		if(this._parent) {
-			this._parent._cancel(this);
-		}
-	},
 	then(onFulfilled, onRejected) {
+		if(!this._promise) {
+			return null;
+		}
 		var rvRes, rvRej;
 		var rv = new CancelablePromise((res, rej) => {
 			rvRes = res;
@@ -895,7 +885,19 @@ CancelablePromise.prototype = {
 		return this.then(void 0, onRejected);
 	},
 	cancel() {
-		this._cancel(null);
+		var done = this._done;
+		this._done = true;
+		this._promise = null;
+		if(!done && this._cancelFn) {
+			this._cancelFn();
+			this._cancelFn = null;
+		}
+		if(this._kid) {
+			this._kid.cancel();
+		}
+		if(this._parent) {
+			this._parent.cancel();
+		}
 	}
 }
 
