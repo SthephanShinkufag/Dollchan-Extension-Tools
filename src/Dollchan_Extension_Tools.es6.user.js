@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '121e3e8';
+var commit = 'c935490';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -833,6 +833,12 @@ function CancelablePromise(fn) {
 		}
 	});
 }
+CancelablePromise.reject = function(val) {
+	return new CancelablePromise((res, rej) => rej(val));
+};
+CancelablePromise.resolve = function(val) {
+	return new CancelablePromise((res, rej) => res(val));
+};
 CancelablePromise.prototype = {
 	_cancelFn: null,
 	_done: false,
@@ -858,7 +864,7 @@ CancelablePromise.prototype = {
 		this._oResFn(val);
 	},
 	then(onFulfilled, onRejected) {
-		if(!this._promise) {
+			if(!this._promise) {
 			return null;
 		}
 		var rvRes, rvRej;
@@ -867,18 +873,24 @@ CancelablePromise.prototype = {
 			rvRej = rej;
 		});
 		rv._parent = this;
-		var thenFunc = function(callback, val) {
+		var thenFunc = function(callback, isResolve, val) {
 			rv._parent = this._kid = null;
-			if(!callback || rv._canceled) {
+			if(rv._canceled) {
 				return;
 			}
-			try {
-				rvRes(callback(val));
-			} catch(e) {
-				rvRej(e);
+			if(callback) {
+				try {
+					rvRes(callback(val));
+				} catch(e) {
+					rvRej(e);
+				}
+			} else if(isResolve) {
+				rvRes(val);
+			} else {
+				rvRej(val);
 			}
 		};
-		this._promise.then(thenFunc.bind(this, onFulfilled), thenFunc.bind(this, onRejected));
+		this._promise.then(thenFunc.bind(this, onFulfilled, true), thenFunc.bind(this, onRejected, false));
 		return rv;
 	},
 	catch(onRejected) {
@@ -4871,13 +4883,13 @@ function ajaxLoad(url, returnForm = true, useCache = false) {
 		if((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
 			el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 		}
-		return el ? el : Promise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
-	}, xhr => xhr.status === 304 ? null : Promise.reject(new AjaxError(xhr.status, xhr.statusText)));
+		return el ? el : CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
+	}, xhr => xhr.status === 304 ? null : CancelablePromise.reject(new AjaxError(xhr.status, xhr.statusText)));
 }
 
 function getJsonPosts(url) {
 	return $ajax(url, { useCache: true }).then(xhr => JSON.parse(xhr.responseText), xhr => {
-		return xhr.status === 304 ? null : Promise.reject(new AjaxError(xhr.status, xhr.statusText))
+		return xhr.status === 304 ? null : CancelablePromise.reject(new AjaxError(xhr.status, xhr.statusText))
 	});
 }
 
@@ -10185,7 +10197,7 @@ Thread.prototype = {
 			return getJsonPosts('/api/thread/' + aib.b + '/' + aib.t + '.json').then(json => {
 				if(json) {
 					if(json.error) {
-						return Promise.reject(new AjaxError(0, json.message));
+						return CancelablePromise.reject(new AjaxError(0, json.message));
 					}
 					if(this._lastModified !== json.last_modified || this.pcount !== json.posts_count) {
 						this._lastModified = json.last_modified;

@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "121e3e8";
+	var commit = "c935490";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -3347,6 +3347,16 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		});
 	}
+	CancelablePromise.reject = function (val) {
+		return new CancelablePromise(function (res, rej) {
+			return rej(val);
+		});
+	};
+	CancelablePromise.resolve = function (val) {
+		return new CancelablePromise(function (res, rej) {
+			return res(val);
+		});
+	};
 	CancelablePromise.prototype = {
 		_cancelFn: null,
 		_done: false,
@@ -3381,18 +3391,24 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				rvRej = rej;
 			});
 			rv._parent = this;
-			var thenFunc = function thenFunc(callback, val) {
+			var thenFunc = function thenFunc(callback, isResolve, val) {
 				rv._parent = this._kid = null;
-				if (!callback || rv._canceled) {
+				if (rv._canceled) {
 					return;
 				}
-				try {
-					rvRes(callback(val));
-				} catch (e) {
-					rvRej(e);
+				if (callback) {
+					try {
+						rvRes(callback(val));
+					} catch (e) {
+						rvRej(e);
+					}
+				} else if (isResolve) {
+					rvRes(val);
+				} else {
+					rvRej(val);
 				}
 			};
-			this._promise.then(thenFunc.bind(this, onFulfilled), thenFunc.bind(this, onRejected));
+			this._promise.then(thenFunc.bind(this, onFulfilled, true), thenFunc.bind(this, onRejected, false));
 			return rv;
 		},
 		"catch": function _catch(onRejected) {
@@ -6965,9 +6981,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if ((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
 				el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 			}
-			return el ? el : Promise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
+			return el ? el : CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
 		}, function (xhr) {
-			return xhr.status === 304 ? null : Promise.reject(new AjaxError(xhr.status, xhr.statusText));
+			return xhr.status === 304 ? null : CancelablePromise.reject(new AjaxError(xhr.status, xhr.statusText));
 		});
 	}
 
@@ -6975,7 +6991,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		return $ajax(url, { useCache: true }).then(function (xhr) {
 			return JSON.parse(xhr.responseText);
 		}, function (xhr) {
-			return xhr.status === 304 ? null : Promise.reject(new AjaxError(xhr.status, xhr.statusText));
+			return xhr.status === 304 ? null : CancelablePromise.reject(new AjaxError(xhr.status, xhr.statusText));
 		});
 	}
 
@@ -12974,7 +12990,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				return getJsonPosts("/api/thread/" + aib.b + "/" + aib.t + ".json").then(function (json) {
 					if (json) {
 						if (json.error) {
-							return Promise.reject(new AjaxError(0, json.message));
+							return CancelablePromise.reject(new AjaxError(0, json.message));
 						}
 						if (_this._lastModified !== json.last_modified || _this.pcount !== json.posts_count) {
 							_this._lastModified = json.last_modified;
