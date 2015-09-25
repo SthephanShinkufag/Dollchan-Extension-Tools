@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '0c80d00';
+var commit = 'e33c7d4';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -822,8 +822,85 @@ function sleep(ms) {
 	return new Promise((resolve, reject) => setTimeout(() => resolve(), ms));
 }
 
+function CancelablePromise(fn) {
+	this._promise = new Promise((res, rej) => {
+		this._oResFn = res;
+		this._oRejFn = rej;
+	});
+	fn(_ => this._resFn(_), _ => this._rejFn(_), cancelFn => {
+		if(!this._done) {
+			this._cancelFn = cancelFn
+		}
+	});
+}
+CancelablePromise.prototype = {
+	_cancelFn: null,
+	_done: false,
+	_kid: null,
+	_parent: null,
+	_rejFn(val) {
+		if(this._done) {
+			return;
+		}
+		this._cancelFn = null;
+		this._done = true;
+		this._oRejFn(val);
+	},
+	_resFn(val) {
+		if(this._done) {
+			return;
+		}
+		this._cancelFn = null;
+		this._done = true;
+		if(val instanceof CancelablePromise) {
+			this._kid = val;
+		}
+		this._oResFn(val);
+	},
+	_cancel(kidObj) {
+		var done = this._done;
+		this._done = true;
+		if(!done && this._cancelFn) {
+			this._cancelFn();
+		}
+		if(this._kid) {
+			this._kid.cancel();
+		}
+		if(this._parent) {
+			this._parent._cancel(this);
+		}
+	},
+	then(onFulfilled, onRejected) {
+		var rvRes, rvRej;
+		var rv = new CancelablePromise((res, rej) => {
+			rvRes = res;
+			rvRej = rej;
+		});
+		rv._parent = this;
+		var thenFunc = function(callback, val) {
+			rv._parent = this._kid = null;
+			if(!callback || rv._canceled) {
+				return;
+			}
+			try {
+				rvRes(callback(val));
+			} catch(e) {
+				rvRej(e);
+			}
+		};
+		this._promise.then(thenFunc.bind(this, onFulfilled), thenFunc.bind(this, onRejected));
+		return rv;
+	},
+	catch(onRejected) {
+		return this.then(void 0, onRejected);
+	},
+	cancel() {
+		this._cancel(null);
+	}
+}
+
 function $ajax(url, params = null, useNative = nativeXHRworks) {
-	return new Promise((resolve, reject) => {
+	return new CancelablePromise((resolve, reject, cancelFn) => {
 		if(!useNative && (typeof GM_xmlhttpRequest === 'function')) {
 			var obj = {
 				'method': (params && params.method) || 'GET',
@@ -840,7 +917,12 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				delete params.method;
 				Object.assign(obj, params);
 			}
-			GM_xmlhttpRequest(obj);
+			var gmxhr = GM_xmlhttpRequest(obj);
+			cancelFn(() => {
+				try {
+					gmxhr.abort();
+				} catch(e) {}
+			});
 			return;
 		}
 		var useCache = params && params.useCache;
@@ -890,6 +972,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			}
 		}
 		xhr.send(params && params.data || null);
+		cancelFn(() => xhr.abort());
 	});
 }
 
@@ -12051,23 +12134,17 @@ function initThreadUpdater(title, enableUpdate) {
 				}
 				loadPromise = dForm.firstThr.loadNew(true);
 				state = 4;
-				loadPromise.then(function(pCount) {
-					if(state !== 4 || loadPromise !== this) {
-						return;
-					}
+				loadPromise.then(pCount => {
 					handleNewPosts(pCount, AjaxError.Success);
 					if(working) {
 						makeStep();
 					}
-				}.bind(loadPromise), function(e) {
-					if(state !== 4 || loadPromise !== this) {
-						return;
-					}
+				}, e => {
 					handleNewPosts(0, e);
 					if(working) {
 						makeStep();
 					}
-				}.bind(loadPromise));
+				});
 				return;
 			case 4:
 				loadPromise = null;
@@ -12097,6 +12174,9 @@ function initThreadUpdater(title, enableUpdate) {
 					working = false;
 					if(currentTO !== null) {
 						clearTimeout(currentTO);
+					}
+					if(loadPromise) {
+						loadPromise.cancel();
 					}
 					currentTO = loadPromise = null;
 					if(useCountdown) {

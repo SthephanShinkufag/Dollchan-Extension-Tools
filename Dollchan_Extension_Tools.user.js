@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "0c80d00";
+	var commit = "e33c7d4";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -3330,11 +3330,94 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		});
 	}
 
+	function CancelablePromise(fn) {
+		var _this = this;
+
+		this._promise = new Promise(function (res, rej) {
+			_this._oResFn = res;
+			_this._oRejFn = rej;
+		});
+		fn(function (_) {
+			return _this._resFn(_);
+		}, function (_) {
+			return _this._rejFn(_);
+		}, function (cancelFn) {
+			if (!_this._done) {
+				_this._cancelFn = cancelFn;
+			}
+		});
+	}
+	CancelablePromise.prototype = {
+		_cancelFn: null,
+		_done: false,
+		_kid: null,
+		_parent: null,
+		_rejFn: function _rejFn(val) {
+			if (this._done) {
+				return;
+			}
+			this._cancelFn = null;
+			this._done = true;
+			this._oRejFn(val);
+		},
+		_resFn: function _resFn(val) {
+			if (this._done) {
+				return;
+			}
+			this._cancelFn = null;
+			this._done = true;
+			if (val instanceof CancelablePromise) {
+				this._kid = val;
+			}
+			this._oResFn(val);
+		},
+		_cancel: function _cancel(kidObj) {
+			var done = this._done;
+			this._done = true;
+			if (!done && this._cancelFn) {
+				this._cancelFn();
+			}
+			if (this._kid) {
+				this._kid.cancel();
+			}
+			if (this._parent) {
+				this._parent._cancel(this);
+			}
+		},
+		then: function then(onFulfilled, onRejected) {
+			var rvRes, rvRej;
+			var rv = new CancelablePromise(function (res, rej) {
+				rvRes = res;
+				rvRej = rej;
+			});
+			rv._parent = this;
+			var thenFunc = function thenFunc(callback, val) {
+				rv._parent = this._kid = null;
+				if (!callback || rv._canceled) {
+					return;
+				}
+				try {
+					rvRes(callback(val));
+				} catch (e) {
+					rvRej(e);
+				}
+			};
+			this._promise.then(thenFunc.bind(this, onFulfilled), thenFunc.bind(this, onRejected));
+			return rv;
+		},
+		"catch": function _catch(onRejected) {
+			return this.then(void 0, onRejected);
+		},
+		cancel: function cancel() {
+			this._cancel(null);
+		}
+	};
+
 	function $ajax(url) {
 		var params = arguments[1] === undefined ? null : arguments[1];
 		var useNative = arguments[2] === undefined ? nativeXHRworks : arguments[2];
 
-		return new Promise(function (resolve, reject) {
+		return new CancelablePromise(function (resolve, reject, cancelFn) {
 			if (!useNative && typeof GM_xmlhttpRequest === "function") {
 				var obj = {
 					method: params && params.method || "GET",
@@ -3351,7 +3434,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					delete params.method;
 					Object.assign(obj, params);
 				}
-				GM_xmlhttpRequest(obj);
+				var gmxhr = GM_xmlhttpRequest(obj);
+				cancelFn(function () {
+					try {
+						gmxhr.abort();
+					} catch (e) {}
+				});
 				return;
 			}
 			var useCache = params && params.useCache;
@@ -3403,6 +3491,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				}
 			}
 			xhr.send(params && params.data || null);
+			cancelFn(function () {
+				return xhr.abort();
+			});
 		});
 	}
 
@@ -14972,23 +15063,17 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						}
 						loadPromise = dForm.firstThr.loadNew(true);
 						state = 4;
-						loadPromise.then((function (pCount) {
-							if (state !== 4 || loadPromise !== this) {
-								return;
-							}
+						loadPromise.then(function (pCount) {
 							handleNewPosts(pCount, AjaxError.Success);
 							if (working) {
 								makeStep();
 							}
-						}).bind(loadPromise), (function (e) {
-							if (state !== 4 || loadPromise !== this) {
-								return;
-							}
+						}, function (e) {
 							handleNewPosts(0, e);
 							if (working) {
 								makeStep();
 							}
-						}).bind(loadPromise));
+						});
 						return;
 					case 4:
 						loadPromise = null;
@@ -15018,6 +15103,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						working = false;
 						if (currentTO !== null) {
 							clearTimeout(currentTO);
+						}
+						if (loadPromise) {
+							loadPromise.cancel();
 						}
 						currentTO = loadPromise = null;
 						if (useCountdown) {
