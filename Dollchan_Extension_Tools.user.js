@@ -1198,8 +1198,6 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
-
-
 !(function(global) {
   "use strict";
 
@@ -2478,10 +2476,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 4:
 					new Logger().log("Init");
-					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t30", 6);
+					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t28", 6);
 
 				case 6:
-					str = context$2$0.t30;
+					str = context$2$0.t28;
 
 					if (!(str && str.includes(aib.dm))) {
 						context$2$0.next = 9;
@@ -2511,7 +2509,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					break;
 
 				case 16:
-					return context$2$0.delegateYield(readCfg(), "t31", 17);
+					return context$2$0.delegateYield(readCfg(), "t29", 17);
 
 				case 17:
 					new Logger().log("Config loading");
@@ -2548,9 +2546,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				case 33:
 					context$2$0.prev = 33;
-					context$2$0.t32 = context$2$0["catch"](29);
+					context$2$0.t30 = context$2$0["catch"](29);
 
-					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t32));
+					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t30));
 					doc.body.style.display = "";
 					return context$2$0.abrupt("return");
 
@@ -2579,10 +2577,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					scrollPage();
 					new Logger().log("Scroll page");
 					readPosts();
-					return context$2$0.delegateYield(readUserPosts(), "t33", 58);
+					return context$2$0.delegateYield(readUserPosts(), "t31", 58);
 
 				case 58:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t34", 59);
+					return context$2$0.delegateYield(readFavoritesPosts(), "t32", 59);
 
 				case 59:
 					setTimeout(PostContent.purge, 0);
@@ -2596,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "0491d93";
+	var commit = "0c80d00";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -14760,7 +14758,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 	function initThreadUpdater(title, enableUpdate) {
 		var focused,
-		    startLoad,
+		    updMachine,
 		    audioRep,
 		    audioEl,
 		    stateButton,
@@ -14775,7 +14773,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		    canFocusLoad,
 		    paused,
 		    enabled = false,
-		    stopLoad = emptyFn,
 		    disabledByUser = true,
 		    inited = false,
 		    lastECode = 200,
@@ -14790,9 +14787,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			favIntrv = 0;
 			favNorm = notifGranted = inited = true;
 			favHref = ($q("head link[rel=\"shortcut icon\"]", doc) || {}).href;
+			updMachine = getUpdaterStateMachine();
 			useCountdown = !!Cfg.updCount;
 			enable();
-			startLoad(true);
+			updMachine.start(true);
 		}
 
 		function enable() {
@@ -14808,7 +14806,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		function disable(byUser) {
 			disabledByUser = byUser;
 			if (enabled) {
-				stopLoad(true);
+				updMachine.stop(true);
 				enabled = hasAudio = false;
 				setState("off");
 				var btn = $id("de-panel-audio-on");
@@ -14862,8 +14860,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (!checkFocusLoad(isFocusLoad)) {
 				return;
 			}
-			stopLoad(false);
-			startLoad(false);
+			updMachine.start(false);
 		}
 
 		function favIcoBlink(isEmpty) {
@@ -14874,210 +14871,166 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			favNorm = !favNorm;
 		}
 
-		function StopLoadingTaskError() {
-			this.name = "StopLoadingTaskError";
-		}
+		function getUpdaterStateMachine() {
+			var state,
+			    working = false;
+			var needSleep, repeatLoading, delay, seconds, loadPromise, currentTO;
 
-		function stopLoadHelper(reject, hideCountdown) {
-			reject(new StopLoadingTaskError());
-			if (useCountdown) {
-				if (hideCountdown) {
-					countEl.style.display = "none";
-				} else {
-					countEl.innerHTML = "<span class=\"de-wait\"></span>";
-				}
-			}
-			stopLoad = emptyFn;
-		}
-
-		startLoad = async(regeneratorRuntime.mark(function callee$2$0(needSleep) {
-			var delay, repeatLoading, stopToken, seconds, error, lPosts, eCode, post, notif;
-			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-				while (1) switch (context$3$0.prev = context$3$0.next) {
-					case 0:
-						delay = initDelay, repeatLoading = enabled, stopToken = new Promise(function (resolve, reject) {
-							return stopLoad = stopLoadHelper.bind(null, reject);
-						});
-
-					case 1:
-						if (!needSleep) {
-							context$3$0.next = 24;
-							break;
-						}
-
-						context$3$0.prev = 2;
-
-						if (!(useCountdown && (focused || !canFocusLoad))) {
-							context$3$0.next = 14;
-							break;
-						}
-
-						seconds = delay / 1000;
-
-					case 5:
-						if (!(seconds > 0)) {
-							context$3$0.next = 12;
-							break;
-						}
-
-						countEl.textContent = seconds;
-						context$3$0.next = 9;
-						return Promise.race([stopToken, sleep(1000)]);
-
-					case 9:
-						--seconds;
-						context$3$0.next = 5;
-						break;
-
-					case 12:
-						context$3$0.next = 16;
-						break;
-
-					case 14:
-						context$3$0.next = 16;
-						return Promise.race([stopToken, sleep(delay)]);
-
-					case 16:
-						context$3$0.next = 22;
-						break;
-
-					case 18:
-						context$3$0.prev = 18;
-						context$3$0.t28 = context$3$0["catch"](2);
-
-						if (!(context$3$0.t28 instanceof StopLoadingTaskError)) {
-							context$3$0.next = 22;
-							break;
-						}
-
-						return context$3$0.abrupt("return");
-
-					case 22:
-						context$3$0.next = 25;
-						break;
-
-					case 24:
-						needSleep = true;
-
-					case 25:
-						if (useCountdown) {
-							countEl.innerHTML = "<span class=\"de-wait\"></span>";
-						}
-						error = AjaxError.Success, lPosts = 0;
-						context$3$0.prev = 27;
-						context$3$0.next = 30;
-						return Promise.race([stopToken, dForm.firstThr.loadNew(true)]);
-
-					case 30:
-						lPosts = context$3$0.sent;
-						context$3$0.next = 38;
-						break;
-
-					case 33:
-						context$3$0.prev = 33;
-						context$3$0.t29 = context$3$0["catch"](27);
-
-						if (!(context$3$0.t29 instanceof StopLoadingTaskError)) {
-							context$3$0.next = 37;
-							break;
-						}
-
-						return context$3$0.abrupt("return");
-
-					case 37:
-						error = context$3$0.t29;
-
-					case 38:
-						infoLoadErrors(error, false);
-						eCode = error instanceof AjaxError ? error.code : 0;
-
-						if (!(eCode !== 200 && eCode !== 304)) {
-							context$3$0.next = 52;
-							break;
-						}
-
-						if (Cfg.favIcoBlink && !focused && favHref) {
-							clearInterval(favIntrv);
-							favIntrv = setInterval(favIcoBlink, 800, false);
-						}
-
-						if (!(eCode === 404 && lastECode === 404)) {
-							context$3$0.next = 46;
-							break;
-						}
-
+			function handleNewPosts(lPosts, error) {
+				infoLoadErrors(error, false);
+				var eCode = error instanceof AjaxError ? error.code : 0;
+				if (eCode !== 200 && eCode !== 304) {
+					if (Cfg.favIcoBlink && !focused && favHref) {
+						clearInterval(favIntrv);
+						favIntrv = setInterval(favIcoBlink, 800, false);
+					}
+					if (eCode === 404 && lastECode === 404) {
 						updateTitle(eCode);
 						disable(false);
-						return context$3$0.abrupt("return");
-
-					case 46:
+					} else {
 						lastECode = eCode;
 						setState("warn");
 						if (!Cfg.noErrInTitle) {
 							updateTitle();
 						}
-						return context$3$0.abrupt("continue", 55);
-
-					case 52:
-						if (lastECode !== 200) {
-							restoreFavicon();
-							setState("on");
-							if (!Cfg.noErrInTitle) {
-								updateTitle(eCode);
+					}
+					return;
+				}
+				if (lastECode !== 200) {
+					restoreFavicon();
+					setState("on");
+					if (!Cfg.noErrInTitle) {
+						updateTitle(eCode);
+					}
+				}
+				lastECode = eCode;
+				if (!focused) {
+					if (lPosts !== 0) {
+						if (Cfg.favIcoBlink && favHref && newPosts === 0) {
+							favIntrv = setInterval(favIcoBlink, 800, true);
+						}
+						newPosts += lPosts;
+						updateTitle();
+						if (Cfg.desktNotif && notifGranted) {
+							var post = dForm.firstThr.last,
+							    notif = new Notification(aib.dm + "/" + aib.b + "/" + aib.t + ": " + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
+								body: post.text.substring(0, 250).replace(/\s+/g, " "),
+								tag: aib.dm + aib.b + aib.t,
+								icon: post.images.firstAttach ? post.images.firstAttach.src : favHref
+							});
+							notif.onshow = setTimeout.bind(window, notif.close.bind(notif), 12000);
+							notif.onclick = window.focus;
+							notif.onerror = function () {
+								window.focus();
+								requestNotifPermission();
+							};
+						}
+						if (hasAudio) {
+							if (audioRep) {
+								audioNotif();
+							} else {
+								audioEl.play();
 							}
 						}
+						delay = initDelay;
+					} else if (delay !== 120000) {
+						delay = Math.min(delay + initDelay, 120000);
+					}
+				}
+			}
 
-					case 53:
-						lastECode = eCode;
-						if (!focused) {
-							if (lPosts !== 0) {
-								if (Cfg.favIcoBlink && favHref && newPosts === 0) {
-									favIntrv = setInterval(favIcoBlink, 800, true);
-								}
-								newPosts += lPosts;
-								updateTitle();
-								if (Cfg.desktNotif && notifGranted) {
-									post = dForm.firstThr.last, notif = new Notification(aib.dm + "/" + aib.b + "/" + aib.t + ": " + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
-										body: post.text.substring(0, 250).replace(/\s+/g, " "),
-										tag: aib.dm + aib.b + aib.t,
-										icon: post.images.firstAttach ? post.images.firstAttach.src : favHref
-									});
-
-									notif.onshow = setTimeout.bind(window, notif.close.bind(notif), 12000);
-									notif.onclick = window.focus;
-									notif.onerror = function () {
-										window.focus();
-										requestNotifPermission();
-									};
-								}
-								if (hasAudio) {
-									if (audioRep) {
-										audioNotif();
-									} else {
-										audioEl.play();
-									}
-								}
-								delay = initDelay;
-							} else if (delay !== 120000) {
-								delay = Math.min(delay + initDelay, 120000);
-							}
-						}
-
-					case 55:
-						if (repeatLoading) {
-							context$3$0.next = 1;
+			function makeStep() {
+				while (true) switch (state) {
+					case 0:
+						if (!needSleep) {
+							needSleep = true;
+							state = 3;
 							break;
 						}
-
-					case 56:
-						stopLoad = emptyFn;
-
-					case 57:
-					case "end":
-						return context$3$0.stop();
+						if (!(useCountdown && (focused || !canFocusLoad))) {
+							state = 2;
+							break;
+						}
+						seconds = delay / 1000;
+										case 1:
+						if (seconds <= 0) {
+							state = 3;
+							break;
+						}
+						countEl.textContent = seconds--;
+						state = 1;
+						currentTO = setTimeout(makeStep, 1000);
+						return;
+					case 2:
+						state = 3;
+						currentTO = setTimeout(makeStep, delay);
+						return;
+					case 3:
+						currentTO = null;
+						if (useCountdown) {
+							countEl.innerHTML = "<span class=\"de-wait\"></span>";
+						}
+						loadPromise = dForm.firstThr.loadNew(true);
+						state = 4;
+						loadPromise.then((function (pCount) {
+							if (state !== 4 || loadPromise !== this) {
+								return;
+							}
+							handleNewPosts(pCount, AjaxError.Success);
+							if (working) {
+								makeStep();
+							}
+						}).bind(loadPromise), (function (e) {
+							if (state !== 4 || loadPromise !== this) {
+								return;
+							}
+							handleNewPosts(0, e);
+							if (working) {
+								makeStep();
+							}
+						}).bind(loadPromise));
+						return;
+					case 4:
+						loadPromise = null;
+						if (repeatLoading) {
+							state = 0;
+							break;
+						}
+						working = false;
+						return;
 				}
-			}, callee$2$0, this, [[2, 18], [27, 33]]);
-		}));
+			}
+
+			return {
+				start: function start(needSleepArg) {
+					if (working) {
+						this.stop(false);
+					}
+					state = 0;
+					working = true;
+					delay = initDelay;
+					repeatLoading = enabled;
+					needSleep = needSleepArg;
+					makeStep();
+				},
+				stop: function stop(hideCountdown) {
+					if (working) {
+						working = false;
+						if (currentTO !== null) {
+							clearTimeout(currentTO);
+						}
+						currentTO = loadPromise = null;
+						if (useCountdown) {
+							if (hideCountdown) {
+								countEl.style.display = "none";
+							} else {
+								countEl.innerHTML = "<span class=\"de-wait\"></span>";
+							}
+						}
+					}
+				}
+			};
+		}
 
 		function setState(state) {
 			var btn = stateButton || (stateButton = $q("a[id^=\"de-panel-upd\"]", doc));
@@ -15176,7 +15129,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					init();
 				} else if (!enabled) {
 					enable();
-					startLoad(true);
+					updMachine.start(true);
 				} else {
 					return;
 				}
@@ -15184,13 +15137,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}),
 			pause: function pause() {
 				if (enabled && !paused) {
-					stopLoad(false);
+					updMachine.stop(false);
 					paused = true;
 				}
 			},
 			"continue": function _continue() {
 				if (enabled && paused) {
-					startLoad(false);
+					updMachine.start(false);
 					paused = false;
 				}
 			},

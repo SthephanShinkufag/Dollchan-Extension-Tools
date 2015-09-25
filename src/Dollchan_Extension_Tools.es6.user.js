@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '0491d93';
+var commit = '0c80d00';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11844,10 +11844,9 @@ function replacePost(el) {
 }
 
 function initThreadUpdater(title, enableUpdate) {
-	var focused, startLoad, audioRep, audioEl, stateButton,
+	var focused, updMachine, audioRep, audioEl, stateButton,
 		hasAudio, initDelay, favIntrv, favNorm, favHref, notifGranted, countEl,
 		useCountdown, canFocusLoad, paused, enabled = false,
-		stopLoad = emptyFn,
 		disabledByUser = true,
 		inited = false,
 		lastECode = 200,
@@ -11862,9 +11861,10 @@ function initThreadUpdater(title, enableUpdate) {
 		favIntrv = 0;
 		favNorm = notifGranted = inited = true;
 		favHref = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
+		updMachine = getUpdaterStateMachine();
 		useCountdown = !!Cfg.updCount;
 		enable();
-		startLoad(true);
+		updMachine.start(true);
 	}
 
 	function enable() {
@@ -11880,7 +11880,7 @@ function initThreadUpdater(title, enableUpdate) {
 	function disable(byUser) {
 		disabledByUser = byUser;
 		if(enabled) {
-			stopLoad(true);
+			updMachine.stop(true);
 			enabled = hasAudio = false;
 			setState('off');
 			var btn = $id('de-panel-audio-on');
@@ -11934,8 +11934,7 @@ function initThreadUpdater(title, enableUpdate) {
 		if(!checkFocusLoad(isFocusLoad)) {
 			return;
 		}
-		stopLoad(false);
-		startLoad(false);
+		updMachine.start(false);
 	}
 
 	function favIcoBlink(isEmpty) {
@@ -11947,58 +11946,11 @@ function initThreadUpdater(title, enableUpdate) {
 		favNorm = !favNorm;
 	}
 
-	function StopLoadingTaskError() {
-		this.name = 'StopLoadingTaskError';
-	}
+	function getUpdaterStateMachine() {
+		var state, working = false;
+		var needSleep, repeatLoading, delay, seconds, loadPromise, currentTO;
 
-	function stopLoadHelper(reject, hideCountdown) {
-		reject(new StopLoadingTaskError);
-		if(useCountdown) {
-			if(hideCountdown) {
-				countEl.style.display = 'none';
-			} else {
-				countEl.innerHTML = '<span class="de-wait"></span>';
-			}
-		}
-		stopLoad = emptyFn;
-	}
-
-	startLoad = async(function* (needSleep) {
-		var delay = initDelay,
-			repeatLoading = enabled,
-			stopToken = new Promise((resolve, reject) => stopLoad = stopLoadHelper.bind(null, reject));
-		do {
-			if(needSleep) {
-				try {
-					if(useCountdown && (focused || !canFocusLoad)) {
-						for(var seconds = delay / 1000; seconds > 0; --seconds) {
-							countEl.textContent = seconds;
-							yield Promise.race([stopToken, sleep(1000)]);
-						}
-					} else {
-						yield Promise.race([stopToken, sleep(delay)]);
-					}
-				} catch(e) {
-					if(e instanceof StopLoadingTaskError) {
-						return;
-					}
-				}
-			} else {
-				needSleep = true;
-			}
-			if(useCountdown) {
-				countEl.innerHTML = '<span class="de-wait"></span>';
-			}
-			var error = AjaxError.Success,
-				lPosts = 0;
-			try {
-				lPosts = yield Promise.race([stopToken, dForm.firstThr.loadNew(true)]);
-			} catch(e) {
-				if(e instanceof StopLoadingTaskError) {
-					return;
-				}
-				error = e;
-			}
+		function handleNewPosts(lPosts, error) {
 			infoLoadErrors(error, false);
 			var eCode = (error instanceof AjaxError) ? error.code : 0;
 			if(eCode !== 200 && eCode !== 304) {
@@ -12009,15 +11961,16 @@ function initThreadUpdater(title, enableUpdate) {
 				if(eCode === 404 && lastECode === 404) {
 					updateTitle(eCode);
 					disable(false);
-					return;
+				} else {
+					lastECode = eCode;
+					setState('warn');
+					if(!Cfg.noErrInTitle) {
+						updateTitle();
+					}
 				}
-				lastECode = eCode;
-				setState('warn');
-				if(!Cfg.noErrInTitle) {
-					updateTitle();
-				}
-				continue;
-			} else if(lastECode !== 200) {
+				return;
+			}
+			if(lastECode !== 200) {
 				restoreFavicon();
 				setState('on');
 				if(!Cfg.noErrInTitle) {
@@ -12062,9 +12015,101 @@ function initThreadUpdater(title, enableUpdate) {
 					delay = Math.min(delay + initDelay, 12e4);
 				}
 			}
-		} while(repeatLoading);
-		stopLoad = emptyFn;
-	});
+		}
+
+		function makeStep() {
+			while(true) switch(state) {
+			case 0:
+				if(!needSleep) {
+					needSleep = true;
+					state = 3;
+					break;
+				}
+				if(!(useCountdown && (focused || !canFocusLoad))) {
+					state = 2;
+					break;
+				}
+				seconds = delay / 1000;
+				/* falls through */
+			case 1:
+				if(seconds <= 0) {
+					state = 3;
+					break;
+				}
+				countEl.textContent = seconds--;
+				state = 1;
+				currentTO = setTimeout(makeStep, 1000);
+				return;
+			case 2:
+				state = 3;
+				currentTO = setTimeout(makeStep, delay);
+				return;
+			case 3:
+				currentTO = null;
+				if(useCountdown) {
+					countEl.innerHTML = '<span class="de-wait"></span>';
+				}
+				loadPromise = dForm.firstThr.loadNew(true);
+				state = 4;
+				loadPromise.then(function(pCount) {
+					if(state !== 4 || loadPromise !== this) {
+						return;
+					}
+					handleNewPosts(pCount, AjaxError.Success);
+					if(working) {
+						makeStep();
+					}
+				}.bind(loadPromise), function(e) {
+					if(state !== 4 || loadPromise !== this) {
+						return;
+					}
+					handleNewPosts(0, e);
+					if(working) {
+						makeStep();
+					}
+				}.bind(loadPromise));
+				return;
+			case 4:
+				loadPromise = null;
+				if(repeatLoading) {
+					state = 0;
+					break;
+				}
+				working = false;
+				return;
+			}
+		}
+
+		return {
+			start(needSleepArg) {
+				if(working) {
+					this.stop(false);
+				}
+				state = 0;
+				working = true;
+				delay = initDelay;
+				repeatLoading = enabled;
+				needSleep = needSleepArg;
+				makeStep();
+			},
+			stop(hideCountdown) {
+				if(working) {
+					working = false;
+					if(currentTO !== null) {
+						clearTimeout(currentTO);
+					}
+					currentTO = loadPromise = null;
+					if(useCountdown) {
+						if(hideCountdown) {
+							countEl.style.display = 'none';
+						} else {
+							countEl.innerHTML = '<span class="de-wait"></span>';
+						}
+					}
+				}
+			}
+		};
+	}
 
 	function setState(state) {
 		var btn = stateButton || (stateButton = $q('a[id^="de-panel-upd"]', doc));
@@ -12157,7 +12202,7 @@ function initThreadUpdater(title, enableUpdate) {
 				init();
 			} else if(!enabled) {
 				enable();
-				startLoad(true);
+				updMachine.start(true);
 			} else {
 				return;
 			}
@@ -12165,13 +12210,13 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		pause() {
 			if(enabled && !paused) {
-				stopLoad(false);
+				updMachine.stop(false);
 				paused = true;
 			}
 		},
 		'continue'() {
 			if(enabled && paused) {
-				startLoad(false);
+				updMachine.start(false);
 				paused = false;
 			}
 		},
