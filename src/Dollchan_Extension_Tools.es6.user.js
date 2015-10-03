@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'c935490';
+var commit = '8715300';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11943,7 +11943,7 @@ function replacePost(el) {
 function initThreadUpdater(title, enableUpdate) {
 	var focused, updMachine, audioRep, audioEl, stateButton,
 		hasAudio, initDelay, favIntrv, favNorm, favHref, notifGranted, countEl,
-		useCountdown, canFocusLoad, paused, enabled = false,
+		useCountdown, paused, enabled = false,
 		disabledByUser = true,
 		inited = false,
 		lastECode = 200,
@@ -11965,7 +11965,7 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function enable() {
-		enabled = canFocusLoad = true;
+		enabled = true;
 		paused = disabledByUser = false;
 		newPosts = 0;
 		if(useCountdown) {
@@ -12008,19 +12008,6 @@ function initThreadUpdater(title, enableUpdate) {
 		});
 	}
 
-	function checkFocusLoad(isFocusLoad) {
-		if(isFocusLoad) {
-			if(!canFocusLoad) {
-				return false;
-			}
-			canFocusLoad = false;
-			setTimeout(function() {
-				canFocusLoad = true;
-			}, 1e4);
-		}
-		return true;
-	}
-
 	function forceLoadPosts(isFocusLoad) {
 		if(paused) {
 			return;
@@ -12028,10 +12015,7 @@ function initThreadUpdater(title, enableUpdate) {
 		if(!enabled && !disabledByUser) {
 			enable();
 		}
-		if(!checkFocusLoad(isFocusLoad)) {
-			return;
-		}
-		updMachine.start(false);
+		updMachine.restart(isFocusLoad);
 	}
 
 	function favIcoBlink(isEmpty) {
@@ -12044,7 +12028,7 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function getUpdaterStateMachine() {
-		var state, working = false;
+		var state = -1, canFocusLoad = true;
 		var needSleep, repeatLoading, delay, seconds, loadPromise, currentTO;
 
 		function handleNewPosts(lPosts, error) {
@@ -12108,7 +12092,7 @@ function initThreadUpdater(title, enableUpdate) {
 						}
 					}
 					delay = initDelay;
-				} else if(delay !== 12e4) {
+				} else if(delay !== 12e4 && canFocusLoad) {
 					delay = Math.min(delay + initDelay, 12e4);
 				}
 			}
@@ -12150,12 +12134,12 @@ function initThreadUpdater(title, enableUpdate) {
 				state = 4;
 				loadPromise.then(pCount => {
 					handleNewPosts(pCount, AjaxError.Success);
-					if(working) {
+					if(state !== -1) {
 						makeStep();
 					}
 				}, e => {
 					handleNewPosts(0, e);
-					if(working) {
+					if(state !== -1) {
 						makeStep();
 					}
 				});
@@ -12166,26 +12150,35 @@ function initThreadUpdater(title, enableUpdate) {
 					state = 0;
 					break;
 				}
-				working = false;
+				state = -1;
 				return;
 			}
 		}
 
 		return {
+			restart(isFocusStart) {
+				if(isFocusStart) {
+					if(!canFocusLoad) {
+						return;
+					}
+					canFocusLoad = false;
+					setTimeout(() => canFocusLoad = true, 1e4);
+				}
+				this.start(false);
+			},
 			start(needSleepArg) {
-				if(working) {
+				if(state !== -1) {
 					this.stop(false);
 				}
 				state = 0;
-				working = true;
 				delay = initDelay;
 				repeatLoading = enabled;
 				needSleep = needSleepArg;
 				makeStep();
 			},
 			stop(hideCountdown) {
-				if(working) {
-					working = false;
+				if(state !== -1) {
+					state = -1;
 					if(currentTO !== null) {
 						clearTimeout(currentTO);
 					}

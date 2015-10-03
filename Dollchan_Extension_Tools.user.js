@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "c935490";
+	var commit = "8715300";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -14879,7 +14879,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		    notifGranted,
 		    countEl,
 		    useCountdown,
-		    canFocusLoad,
 		    paused,
 		    enabled = false,
 		    disabledByUser = true,
@@ -14903,7 +14902,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}
 
 		function enable() {
-			enabled = canFocusLoad = true;
+			enabled = true;
 			paused = disabledByUser = false;
 			newPosts = 0;
 			if (useCountdown) {
@@ -14946,19 +14945,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			});
 		}
 
-		function checkFocusLoad(isFocusLoad) {
-			if (isFocusLoad) {
-				if (!canFocusLoad) {
-					return false;
-				}
-				canFocusLoad = false;
-				setTimeout(function () {
-					canFocusLoad = true;
-				}, 10000);
-			}
-			return true;
-		}
-
 		function forceLoadPosts(isFocusLoad) {
 			if (paused) {
 				return;
@@ -14966,10 +14952,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (!enabled && !disabledByUser) {
 				enable();
 			}
-			if (!checkFocusLoad(isFocusLoad)) {
-				return;
-			}
-			updMachine.start(false);
+			updMachine.restart(isFocusLoad);
 		}
 
 		function favIcoBlink(isEmpty) {
@@ -14981,8 +14964,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}
 
 		function getUpdaterStateMachine() {
-			var state,
-			    working = false;
+			var state = -1,
+			    canFocusLoad = true;
 			var needSleep, repeatLoading, delay, seconds, loadPromise, currentTO;
 
 			function handleNewPosts(lPosts, error) {
@@ -15042,7 +15025,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							}
 						}
 						delay = initDelay;
-					} else if (delay !== 120000) {
+					} else if (delay !== 120000 && canFocusLoad) {
 						delay = Math.min(delay + initDelay, 120000);
 					}
 				}
@@ -15083,12 +15066,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						state = 4;
 						loadPromise.then(function (pCount) {
 							handleNewPosts(pCount, AjaxError.Success);
-							if (working) {
+							if (state !== -1) {
 								makeStep();
 							}
 						}, function (e) {
 							handleNewPosts(0, e);
-							if (working) {
+							if (state !== -1) {
 								makeStep();
 							}
 						});
@@ -15099,26 +15082,37 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							state = 0;
 							break;
 						}
-						working = false;
+						state = -1;
 						return;
 				}
 			}
 
 			return {
+				restart: function restart(isFocusStart) {
+					if (isFocusStart) {
+						if (!canFocusLoad) {
+							return;
+						}
+						canFocusLoad = false;
+						setTimeout(function () {
+							return canFocusLoad = true;
+						}, 10000);
+					}
+					this.start(false);
+				},
 				start: function start(needSleepArg) {
-					if (working) {
+					if (state !== -1) {
 						this.stop(false);
 					}
 					state = 0;
-					working = true;
 					delay = initDelay;
 					repeatLoading = enabled;
 					needSleep = needSleepArg;
 					makeStep();
 				},
 				stop: function stop(hideCountdown) {
-					if (working) {
-						working = false;
+					if (state !== -1) {
+						state = -1;
 						if (currentTO !== null) {
 							clearTimeout(currentTO);
 						}
