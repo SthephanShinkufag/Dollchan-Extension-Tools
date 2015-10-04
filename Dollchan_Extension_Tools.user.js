@@ -9880,7 +9880,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 						if (post) {
 							if (!post.isOp) {
-								post.el.className = aib.cReply;
+								post.el.className = aib.phut ? 'thread_reply' : aib.cReply;
 							}
 							doc.location.hash = "";
 						}
@@ -14234,7 +14234,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				getSage: { value: function value(post) {
 						return !!$q(".sage", post);
 					} },
-				cssEn: { value: ".content > hr, .de-parea > hr { display: none !important }" },
+				cssEn: { value: ".content > hr, .de-parea > hr, #de-pform img[src*=\"expand.png\"], .de-pview > .doubledash { display: none !important }\n\t\t\t\t#de-win-reply { float:left; margin-left:2em }\n\t\t\t.de-pview > .post { margin-left:0; border:none }" },
 				docExt: { value: "" },
 				fixFileInputs: { value: function value(el) {
 						var str = "><input name=\"file\" type=\"file\"></input></div>";
@@ -14243,6 +14243,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					} },
 				markupBB: { value: true },
 				multiFile: { value: true },
+				phut: { value: true },
 				res: { value: "thread/" }
 			},
 			"div#mainc": {

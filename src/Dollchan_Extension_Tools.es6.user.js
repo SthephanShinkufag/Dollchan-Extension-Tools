@@ -7377,7 +7377,7 @@ var checkDelete = async(function* (dc) {
 		var post = pByNum[num];
 		if(post) {
 			if(!post.isOp) {
-				post.el.className = aib.cReply;
+				post.el.className = aib.phut ? 'thread_reply' : aib.cReply;
 			}
 			doc.location.hash = '';
 		}
@@ -11328,7 +11328,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			getSage: { value(post) {
 				return !!$q('.sage', post);
 			} },
-			cssEn: { value: '.content > hr, .de-parea > hr { display: none !important }' },
+			cssEn: { value: '.content > hr, .de-parea > hr, #de-pform img[src*="expand.png"], .de-pview > .doubledash { display: none !important }\n\t\t\t\t#de-win-reply { float:left; margin-left:2em }\n\t\t\t\t.de-pview > .post { margin-left:0; border:none }' },
 			docExt: { value: '' },
 			fixFileInputs: { value(el) {
 				var str = '><input name="file" type="file"></input></div>';
@@ -11338,6 +11338,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			} },
 			markupBB: { value: true },
 			multiFile: { value: true },
+			phut: { value: true },
 			res: { value: 'thread/' }
 		},
 		'div#mainc': {
