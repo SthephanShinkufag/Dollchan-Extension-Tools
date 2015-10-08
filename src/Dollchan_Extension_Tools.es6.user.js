@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '8715300';
+var commit = '5a1d017';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11941,7 +11941,7 @@ function replacePost(el) {
 }
 
 function initThreadUpdater(title, enableUpdate) {
-	var focused, updMachine, audioRep, audioEl, stateButton,
+	var focused, audioRep, audioEl, stateButton,
 		hasAudio, initDelay, favIntrv, favNorm, favHref, notifGranted, countEl,
 		useCountdown, paused, enabled = false,
 		disabledByUser = true,
@@ -11949,6 +11949,172 @@ function initThreadUpdater(title, enableUpdate) {
 		lastECode = 200,
 		sendError = false,
 		newPosts = 0;
+
+	var updMachine = {
+		restart(isFocusStart) {
+			if(isFocusStart) {
+				if(!this._canFocusLoad) {
+					return;
+				}
+				this._canFocusLoad = false;
+				setTimeout(() => this._canFocusLoad = true, 1e4);
+			}
+			this.start(false);
+		},
+		start(needSleep) {
+			if(this._state !== -1) {
+				this.stop(false);
+			}
+			this._state = 0;
+			this._delay = initDelay;
+			this._repeatLoading = enabled;
+			this._makeStep(needSleep);
+		},
+		stop(hideCountdown) {
+			if(this._state !== -1) {
+				this._state = -1;
+				if(this._currentTO !== null) {
+					clearTimeout(this._currentTO);
+				}
+				if(this._loadPromise) {
+					this._loadPromise.cancel();
+				}
+				this._currentTO = this._loadPromise = null;
+				if(useCountdown) {
+					if(hideCountdown) {
+						countEl.style.display = 'none';
+					} else {
+						countEl.innerHTML = '<span class="de-wait"></span>';
+					}
+				}
+			}
+		},
+
+		_state: -1,
+		_canFocusLoad: true,
+
+		_currentTO: null,
+		_delay: null,
+		_loadPromise: null,
+		_repeatLoading: false,
+		_seconds: 0,
+
+		_handleNewPosts(lPosts, error) {
+			infoLoadErrors(error, false);
+			var eCode = (error instanceof AjaxError) ? error.code : 0;
+			if(eCode !== 200 && eCode !== 304) {
+				if(Cfg.favIcoBlink && !focused && favHref) {
+					clearInterval(favIntrv);
+					favIntrv = setInterval(favIcoBlink, 800, false);
+				}
+				if(eCode === 404 && lastECode === 404) {
+					updateTitle(eCode);
+					disable(false);
+				} else {
+					lastECode = eCode;
+					setState('warn');
+					if(!Cfg.noErrInTitle) {
+						updateTitle();
+					}
+					this._makeStep();
+				}
+				return;
+			}
+			if(lastECode !== 200) {
+				restoreFavicon();
+				setState('on');
+				if(!Cfg.noErrInTitle) {
+					updateTitle(eCode);
+				}
+			}
+			lastECode = eCode;
+			if(!focused) {
+				if(lPosts !== 0) {
+					if(Cfg.favIcoBlink && favHref && newPosts === 0) {
+						favIntrv = setInterval(favIcoBlink, 800, true);
+					}
+					newPosts += lPosts;
+					updateTitle();
+					if(Cfg.desktNotif && notifGranted) {
+						var post = dForm.firstThr.last,
+							notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts +
+								Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : (newPosts % 10) > 4 ||
+								(newPosts % 10) === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
+								(newPosts % 10) === 1 ? 0 : 1] + Lng.newPost[lang][3],
+							{
+								'body': post.text.substring(0, 250).replace(/\s+/g, ' '),
+								'tag': aib.dm + aib.b + aib.t,
+								'icon': post.images.firstAttach ? post.images.firstAttach.src : favHref
+							});
+						notif.onshow = setTimeout.bind(window, notif.close.bind(notif), 12e3);
+						notif.onclick = window.focus;
+						notif.onerror = function() {
+							window.focus();
+							requestNotifPermission();
+						};
+					}
+					if(hasAudio) {
+						if(audioRep) {
+							audioNotif();
+						} else {
+							audioEl.play();
+						}
+					}
+					this._delay = initDelay;
+				} else if(this._delay !== 12e4 && this._canFocusLoad) {
+					this._delay = Math.min(this._delay + initDelay, 12e4);
+				}
+			}
+			this._makeStep();
+		},
+		_makeStep(needSleep = true) {
+			while(true) switch(this._state) {
+			case 0:
+				if(!needSleep) {
+					needSleep = true;
+					this._state = 3;
+					break;
+				}
+				if(!(useCountdown && (focused || !this._canFocusLoad))) {
+					this._state = 2;
+					break;
+				}
+				this._seconds = this._delay / 1000;
+				/* falls through */
+			case 1:
+				if(this._seconds <= 0) {
+					this._state = 3;
+					break;
+				}
+				countEl.textContent = this._seconds--;
+				this._state = 1;
+				this._currentTO = setTimeout(() => this._makeStep(), 1000);
+				return;
+			case 2:
+				this._state = 3;
+				this._currentTO = setTimeout(() => this._makeStep(), this._delay);
+				return;
+			case 3:
+				this._currentTO = null;
+				if(useCountdown) {
+					countEl.innerHTML = '<span class="de-wait"></span>';
+				}
+				this._loadPromise = dForm.firstThr.loadNew(true);
+				this._state = 4;
+				this._loadPromise.then(pCount => this._handleNewPosts(pCount, AjaxError.Success),
+				                       e => this._handleNewPosts(0, e));
+				return;
+			case 4:
+				this._loadPromise = null;
+				if(this._repeatLoading) {
+					this._state = 0;
+					break;
+				}
+				this._state = -1;
+				return;
+			}
+		}
+	};
 
 	function init() {
 		audioEl = null;
@@ -11958,7 +12124,6 @@ function initThreadUpdater(title, enableUpdate) {
 		favIntrv = 0;
 		favNorm = notifGranted = inited = true;
 		favHref = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
-		updMachine = getUpdaterStateMachine();
 		useCountdown = !!Cfg.updCount;
 		enable();
 		updMachine.start(true);
@@ -12025,177 +12190,6 @@ function initThreadUpdater(title, enableUpdate) {
 		doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' +
 			(!favNorm ? favHref : 'data:image/x-icon;base64,' + base64) + '">');
 		favNorm = !favNorm;
-	}
-
-	function getUpdaterStateMachine() {
-		var state = -1, canFocusLoad = true;
-		var needSleep, repeatLoading, delay, seconds, loadPromise, currentTO;
-
-		function handleNewPosts(lPosts, error) {
-			infoLoadErrors(error, false);
-			var eCode = (error instanceof AjaxError) ? error.code : 0;
-			if(eCode !== 200 && eCode !== 304) {
-				if(Cfg.favIcoBlink && !focused && favHref) {
-					clearInterval(favIntrv);
-					favIntrv = setInterval(favIcoBlink, 800, false);
-				}
-				if(eCode === 404 && lastECode === 404) {
-					updateTitle(eCode);
-					disable(false);
-				} else {
-					lastECode = eCode;
-					setState('warn');
-					if(!Cfg.noErrInTitle) {
-						updateTitle();
-					}
-				}
-				return;
-			}
-			if(lastECode !== 200) {
-				restoreFavicon();
-				setState('on');
-				if(!Cfg.noErrInTitle) {
-					updateTitle(eCode);
-				}
-			}
-			lastECode = eCode;
-			if(!focused) {
-				if(lPosts !== 0) {
-					if(Cfg.favIcoBlink && favHref && newPosts === 0) {
-						favIntrv = setInterval(favIcoBlink, 800, true);
-					}
-					newPosts += lPosts;
-					updateTitle();
-					if(Cfg.desktNotif && notifGranted) {
-						var post = dForm.firstThr.last,
-							notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts +
-								Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : (newPosts % 10) > 4 ||
-								(newPosts % 10) === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
-								(newPosts % 10) === 1 ? 0 : 1] + Lng.newPost[lang][3],
-							{
-								'body': post.text.substring(0, 250).replace(/\s+/g, ' '),
-								'tag': aib.dm + aib.b + aib.t,
-								'icon': post.images.firstAttach ? post.images.firstAttach.src : favHref
-							});
-						notif.onshow = setTimeout.bind(window, notif.close.bind(notif), 12e3);
-						notif.onclick = window.focus;
-						notif.onerror = function() {
-							window.focus();
-							requestNotifPermission();
-						};
-					}
-					if(hasAudio) {
-						if(audioRep) {
-							audioNotif();
-						} else {
-							audioEl.play();
-						}
-					}
-					delay = initDelay;
-				} else if(delay !== 12e4 && canFocusLoad) {
-					delay = Math.min(delay + initDelay, 12e4);
-				}
-			}
-		}
-
-		function makeStep() {
-			while(true) switch(state) {
-			case 0:
-				if(!needSleep) {
-					needSleep = true;
-					state = 3;
-					break;
-				}
-				if(!(useCountdown && (focused || !canFocusLoad))) {
-					state = 2;
-					break;
-				}
-				seconds = delay / 1000;
-				/* falls through */
-			case 1:
-				if(seconds <= 0) {
-					state = 3;
-					break;
-				}
-				countEl.textContent = seconds--;
-				state = 1;
-				currentTO = setTimeout(makeStep, 1000);
-				return;
-			case 2:
-				state = 3;
-				currentTO = setTimeout(makeStep, delay);
-				return;
-			case 3:
-				currentTO = null;
-				if(useCountdown) {
-					countEl.innerHTML = '<span class="de-wait"></span>';
-				}
-				loadPromise = dForm.firstThr.loadNew(true);
-				state = 4;
-				loadPromise.then(pCount => {
-					handleNewPosts(pCount, AjaxError.Success);
-					if(state !== -1) {
-						makeStep();
-					}
-				}, e => {
-					handleNewPosts(0, e);
-					if(state !== -1) {
-						makeStep();
-					}
-				});
-				return;
-			case 4:
-				loadPromise = null;
-				if(repeatLoading) {
-					state = 0;
-					break;
-				}
-				state = -1;
-				return;
-			}
-		}
-
-		return {
-			restart(isFocusStart) {
-				if(isFocusStart) {
-					if(!canFocusLoad) {
-						return;
-					}
-					canFocusLoad = false;
-					setTimeout(() => canFocusLoad = true, 1e4);
-				}
-				this.start(false);
-			},
-			start(needSleepArg) {
-				if(state !== -1) {
-					this.stop(false);
-				}
-				state = 0;
-				delay = initDelay;
-				repeatLoading = enabled;
-				needSleep = needSleepArg;
-				makeStep();
-			},
-			stop(hideCountdown) {
-				if(state !== -1) {
-					state = -1;
-					if(currentTO !== null) {
-						clearTimeout(currentTO);
-					}
-					if(loadPromise) {
-						loadPromise.cancel();
-					}
-					currentTO = loadPromise = null;
-					if(useCountdown) {
-						if(hideCountdown) {
-							countEl.style.display = 'none';
-						} else {
-							countEl.innerHTML = '<span class="de-wait"></span>';
-						}
-					}
-				}
-			}
-		};
 	}
 
 	function setState(state) {
