@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "5a1d017";
+	var commit = "5fc06d7";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -14872,9 +14872,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		    stateButton,
 		    hasAudio,
 		    initDelay,
-		    favIntrv,
-		    favNorm,
-		    favHref,
 		    notifGranted,
 		    countEl,
 		    useCountdown,
@@ -14885,6 +14882,70 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		    lastECode = 200,
 		    sendError = false,
 		    newPosts = 0;
+
+		var favicon = Object.defineProperties({
+			startBlink: function startBlink(isEmpty) {
+				var _this = this;
+
+				if (this._blinkInterval) {
+					clearInterval(this._blinkInterval);
+				}
+				this._currentIcon = isEmpty ? this._emptyIcon : this._errorIcon;
+				this._blinkInterval = setInterval(function () {
+					_this._setIcon(_this._isOriginalIcon ? _this._currentIcon : _this.originalIcon);
+					_this._isOriginalIcon = !_this._isOriginalIcon;
+				}, this._blinkMS);
+			},
+			stopBlink: function stopBlink() {
+				if (this._blinkInterval) {
+					clearInterval(this._blinkInterval);
+					this._blinkInterval = null;
+				}
+				if (!this._isOriginalIcon) {
+					this._setIcon(this.originalIcon);
+					this._isOriginalIcon = true;
+				}
+			},
+
+			_blinkInterval: null,
+			_blinkMS: 800,
+			_currentIcon: null,
+			_emptyIcon: "data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAAtJREFUCNdjIBEAAAAwAAFletZ8AAAAAElFTkSuQmCC",
+			_errorIcon: "data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==",
+			_isOriginalIcon: true,
+			_setIcon: function _setIcon(iconUrl) {
+				$del(this._iconEl);
+				doc.head.insertAdjacentHTML("afterbegin", "<link rel=\"shortcut icon\" href=\"" + iconUrl + "\">");
+				this._iconEl = doc.head.firstChild;
+			}
+		}, {
+			canBlink: {
+				get: function () {
+					return Cfg.favIcoBlink && !!this.originalIcon;
+				},
+				configurable: true,
+				enumerable: true
+			},
+			originalIcon: {
+				get: function () {
+					return this._iconEl ? this._iconEl.href : null;
+				},
+				configurable: true,
+				enumerable: true
+			},
+			_iconEl: {
+				get: function () {
+					var el = $q("head link[rel=\"shortcut icon\"]", doc.head);
+					Object.defineProperties(this, {
+						_iconEl: { value: el, writable: true },
+						originalIcon: { value: el ? el.href : null }
+					});
+					return el;
+				},
+				configurable: true,
+				enumerable: true
+			}
+		});
 
 		var updMachine = {
 			restart: function restart(isFocusStart) {
@@ -14943,9 +15004,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				infoLoadErrors(error, false);
 				var eCode = error instanceof AjaxError ? error.code : 0;
 				if (eCode !== 200 && eCode !== 304) {
-					if (Cfg.favIcoBlink && !focused && favHref) {
-						clearInterval(favIntrv);
-						favIntrv = setInterval(favIcoBlink, 800, false);
+					if (!focused && favicon.canBlink) {
+						favicon.startBlink(false);
 					}
 					if (eCode === 404 && lastECode === 404) {
 						updateTitle(eCode);
@@ -14961,7 +15021,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					return;
 				}
 				if (lastECode !== 200) {
-					restoreFavicon();
+					favicon.stopBlink();
 					setState("on");
 					if (!Cfg.noErrInTitle) {
 						updateTitle(eCode);
@@ -14970,8 +15030,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				lastECode = eCode;
 				if (!focused) {
 					if (lPosts !== 0) {
-						if (Cfg.favIcoBlink && favHref && newPosts === 0) {
-							favIntrv = setInterval(favIcoBlink, 800, true);
+						if (newPosts === 0 && favicon.canBlink) {
+							favicon.startBlink(true);
 						}
 						newPosts += lPosts;
 						updateTitle();
@@ -14980,7 +15040,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							    notif = new Notification(aib.dm + "/" + aib.b + "/" + aib.t + ": " + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
 								body: post.text.substring(0, 250).replace(/\s+/g, " "),
 								tag: aib.dm + aib.b + aib.t,
-								icon: post.images.firstAttach ? post.images.firstAttach.src : favHref
+								icon: post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon
 							});
 							notif.onshow = setTimeout.bind(window, notif.close.bind(notif), 12000);
 							notif.onclick = window.focus;
@@ -15067,9 +15127,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			stateButton = null;
 			hasAudio = false;
 			initDelay = Cfg.updThrDelay * 1000;
-			favIntrv = 0;
-			favNorm = notifGranted = inited = true;
-			favHref = ($q("head link[rel=\"shortcut icon\"]", doc) || {}).href;
+			notifGranted = inited = true;
 			useCountdown = !!Cfg.updCount;
 			enable();
 			updMachine.start(true);
@@ -15129,31 +15187,14 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			updMachine.restart(isFocusLoad);
 		}
 
-		function favIcoBlink(isEmpty) {
-			var base64 = isEmpty ? "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAAtJREFUCNdjIBEAAAAwAAFletZ8AAAAAElFTkSuQmCC" :
-			"iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==";
-			$del($q("link[rel=\"shortcut icon\"]", doc.head));
-			doc.head.insertAdjacentHTML("afterbegin", "<link rel=\"shortcut icon\" href=\"" + (!favNorm ? favHref : "data:image/x-icon;base64," + base64) + "\">");
-			favNorm = !favNorm;
-		}
-
 		function setState(state) {
 			var btn = stateButton || (stateButton = $q("a[id^=\"de-panel-upd\"]", doc));
 			btn.id = "de-panel-upd-" + state;
 			btn.title = Lng.panelBtn["upd-" + (state === "off" ? "off" : "on")][lang];
 		}
 
-		function restoreFavicon() {
-			if (Cfg.favIcoBlink && favHref) {
-				clearInterval(favIntrv);
-				favNorm = true;
-				$del($q("link[rel=\"shortcut icon\"]", doc.head));
-				doc.head.insertAdjacentHTML("afterbegin", "<link rel=\"shortcut icon\" href=\"" + favHref + "\">");
-			}
-		}
-
 		function onVis() {
-			restoreFavicon();
+			favicon.stopBlink();
 			newPosts = 0;
 			focused = true;
 			sendError = false;

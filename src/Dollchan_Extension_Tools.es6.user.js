@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '5a1d017';
+var commit = '5fc06d7';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11941,14 +11941,62 @@ function replacePost(el) {
 }
 
 function initThreadUpdater(title, enableUpdate) {
-	var focused, audioRep, audioEl, stateButton,
-		hasAudio, initDelay, favIntrv, favNorm, favHref, notifGranted, countEl,
+	var focused, audioRep, audioEl, stateButton, hasAudio, initDelay, notifGranted, countEl,
 		useCountdown, paused, enabled = false,
 		disabledByUser = true,
 		inited = false,
 		lastECode = 200,
 		sendError = false,
 		newPosts = 0;
+
+	var favicon = {
+		get canBlink() {
+			return Cfg.favIcoBlink && !!this.originalIcon;
+		},
+		get originalIcon() {
+			return this._iconEl ? this._iconEl.href : null;
+		},
+		startBlink(isEmpty) {
+			if(this._blinkInterval) {
+				clearInterval(this._blinkInterval);
+			}
+			this._currentIcon = isEmpty ? this._emptyIcon : this._errorIcon;
+			this._blinkInterval = setInterval(() => {
+				this._setIcon(this._isOriginalIcon ? this._currentIcon : this.originalIcon);
+				this._isOriginalIcon = !this._isOriginalIcon;
+			}, this._blinkMS);
+		},
+		stopBlink() {
+			if(this._blinkInterval) {
+				clearInterval(this._blinkInterval);
+				this._blinkInterval = null;
+			}
+			if(!this._isOriginalIcon) {
+				this._setIcon(this.originalIcon);
+				this._isOriginalIcon = true;
+			}
+		},
+
+		_blinkInterval: null,
+		_blinkMS: 800,
+		_currentIcon: null,
+		_emptyIcon: 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAAtJREFUCNdjIBEAAAAwAAFletZ8AAAAAElFTkSuQmCC',
+		_errorIcon: 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==',
+		get _iconEl() {
+			var el = $q('head link[rel="shortcut icon"]', doc.head);
+			Object.defineProperties(this, {
+				'_iconEl': { value: el, writable: true },
+				'originalIcon': { value: el ? el.href : null }
+			});
+			return el;
+		},
+		_isOriginalIcon: true,
+		_setIcon(iconUrl) {
+			$del(this._iconEl);
+			doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' + iconUrl + '">');
+			this._iconEl = doc.head.firstChild;
+		}
+	};
 
 	var updMachine = {
 		restart(isFocusStart) {
@@ -12003,9 +12051,8 @@ function initThreadUpdater(title, enableUpdate) {
 			infoLoadErrors(error, false);
 			var eCode = (error instanceof AjaxError) ? error.code : 0;
 			if(eCode !== 200 && eCode !== 304) {
-				if(Cfg.favIcoBlink && !focused && favHref) {
-					clearInterval(favIntrv);
-					favIntrv = setInterval(favIcoBlink, 800, false);
+				if(!focused && favicon.canBlink) {
+					favicon.startBlink(false);
 				}
 				if(eCode === 404 && lastECode === 404) {
 					updateTitle(eCode);
@@ -12021,7 +12068,7 @@ function initThreadUpdater(title, enableUpdate) {
 				return;
 			}
 			if(lastECode !== 200) {
-				restoreFavicon();
+				favicon.stopBlink();
 				setState('on');
 				if(!Cfg.noErrInTitle) {
 					updateTitle(eCode);
@@ -12030,8 +12077,8 @@ function initThreadUpdater(title, enableUpdate) {
 			lastECode = eCode;
 			if(!focused) {
 				if(lPosts !== 0) {
-					if(Cfg.favIcoBlink && favHref && newPosts === 0) {
-						favIntrv = setInterval(favIcoBlink, 800, true);
+					if(newPosts === 0 && favicon.canBlink) {
+						favicon.startBlink(true);
 					}
 					newPosts += lPosts;
 					updateTitle();
@@ -12044,7 +12091,7 @@ function initThreadUpdater(title, enableUpdate) {
 							{
 								'body': post.text.substring(0, 250).replace(/\s+/g, ' '),
 								'tag': aib.dm + aib.b + aib.t,
-								'icon': post.images.firstAttach ? post.images.firstAttach.src : favHref
+								'icon': post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon
 							});
 						notif.onshow = setTimeout.bind(window, notif.close.bind(notif), 12e3);
 						notif.onclick = window.focus;
@@ -12121,9 +12168,7 @@ function initThreadUpdater(title, enableUpdate) {
 		stateButton = null;
 		hasAudio = false;
 		initDelay = Cfg.updThrDelay * 1e3;
-		favIntrv = 0;
-		favNorm = notifGranted = inited = true;
-		favHref = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
+		notifGranted = inited = true;
 		useCountdown = !!Cfg.updCount;
 		enable();
 		updMachine.start(true);
@@ -12183,32 +12228,14 @@ function initThreadUpdater(title, enableUpdate) {
 		updMachine.restart(isFocusLoad);
 	}
 
-	function favIcoBlink(isEmpty) {
-		var base64 = isEmpty ? /* empty.png */ 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAAtJREFUCNdjIBEAAAAwAAFletZ8AAAAAElFTkSuQmCC' :
-		/* error.png */'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==';
-		$del($q('link[rel="shortcut icon"]', doc.head));
-		doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' +
-			(!favNorm ? favHref : 'data:image/x-icon;base64,' + base64) + '">');
-		favNorm = !favNorm;
-	}
-
 	function setState(state) {
 		var btn = stateButton || (stateButton = $q('a[id^="de-panel-upd"]', doc));
 		btn.id = 'de-panel-upd-' + state
 		btn.title = Lng.panelBtn['upd-' + (state === 'off' ? 'off' : 'on')][lang];
 	}
 
-	function restoreFavicon() {
-		if(Cfg.favIcoBlink && favHref) {
-			clearInterval(favIntrv);
-			favNorm = true;
-			$del($q('link[rel="shortcut icon"]', doc.head));
-			doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' + favHref + '">');
-		}
-	}
-
 	function onVis() {
-		restoreFavicon();
+		favicon.stopBlink();
 		newPosts = 0;
 		focused = true;
 		sendError = false;
