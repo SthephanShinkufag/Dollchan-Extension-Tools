@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '5fc06d7';
+var commit = 'c3c18cb';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11941,13 +11941,49 @@ function replacePost(el) {
 }
 
 function initThreadUpdater(title, enableUpdate) {
-	var focused, audioRep, audioEl, stateButton, hasAudio, initDelay, notifGranted, countEl,
+	var focused, notifGranted, countEl,
 		useCountdown, paused, enabled = false,
 		disabledByUser = true,
 		inited = false,
 		lastECode = 200,
 		sendError = false,
 		newPosts = 0;
+
+	var audio = {
+		enabled: false,
+		repeatMS: 0,
+		disable() {
+			this.stop();
+			this.enabled = false;
+			var btn = $id('de-panel-audio-on');
+			if(btn) {
+				btn.id = 'de-panel-audio-off';
+			}
+		},
+		play() {
+			this.stop();
+			if(this.repeatMS === 0) {
+				this._el.play();
+				return;
+			}
+			this._playInterval = setInterval(() => this._el.play(), this.repeatMS);
+		},
+		stop() {
+			if(this._playInterval) {
+				clearInterval(this._playInterval);
+				this._playInterval = null;
+			}
+		},
+
+		_el() {
+			var value = $new('audio', {
+				'preload': 'auto',
+				'src': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg'
+			}, null)
+			Object.defineProperty(this, '_el', { value });
+			return value;
+		}
+	};
 
 	var favicon = {
 		get canBlink() {
@@ -11999,7 +12035,7 @@ function initThreadUpdater(title, enableUpdate) {
 	};
 
 	var updMachine = {
-		restart(isFocusStart) {
+		restart(isFocusStart, loadOnce) {
 			if(isFocusStart) {
 				if(!this._canFocusLoad) {
 					return;
@@ -12007,18 +12043,19 @@ function initThreadUpdater(title, enableUpdate) {
 				this._canFocusLoad = false;
 				setTimeout(() => this._canFocusLoad = true, 1e4);
 			}
-			this.start(false);
+			this.start(false, loadOnce);
 		},
-		start(needSleep) {
+		start(needSleep = false, loadOnce = false) {
 			if(this._state !== -1) {
-				this.stop(false);
+				this.stop(false, false);
 			}
 			this._state = 0;
-			this._delay = initDelay;
-			this._repeatLoading = enabled;
+			this._loadOnce = loadOnce;
+			this._delay = this._initDelay = Cfg.updThrDelay * 1e3;
+			this._setUpdateStatus('on');
 			this._makeStep(needSleep);
 		},
-		stop(hideCountdown) {
+		stop(hideCountdown, updateStatus = true) {
 			if(this._state !== -1) {
 				this._state = -1;
 				if(this._currentTO !== null) {
@@ -12035,6 +12072,9 @@ function initThreadUpdater(title, enableUpdate) {
 						countEl.innerHTML = '<span class="de-wait"></span>';
 					}
 				}
+				if(updateStatus) {
+					this._setUpdateStatus('off');
+				}
 			}
 		},
 
@@ -12042,10 +12082,19 @@ function initThreadUpdater(title, enableUpdate) {
 		_canFocusLoad: true,
 
 		_currentTO: null,
-		_delay: null,
+		_delay: 0,
+		_initDelay: 0,
 		_loadPromise: null,
-		_repeatLoading: false,
+		_loadOnce: false,
 		_seconds: 0,
+		_updateStatus: 'off',
+		get _panelButton() {
+			var value = $q('a[id^="de-panel-upd"]', doc);
+			if(value) {
+				Object.defineProperty(this, '_panelButton', { value });
+			}
+			return value;
+		},
 
 		_handleNewPosts(lPosts, error) {
 			infoLoadErrors(error, false);
@@ -12059,7 +12108,7 @@ function initThreadUpdater(title, enableUpdate) {
 					disable(false);
 				} else {
 					lastECode = eCode;
-					setState('warn');
+					this._setUpdateStatus('warn');
 					if(!Cfg.noErrInTitle) {
 						updateTitle();
 					}
@@ -12069,7 +12118,7 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 			if(lastECode !== 200) {
 				favicon.stopBlink();
-				setState('on');
+				this._setUpdateStatus('on');
 				if(!Cfg.noErrInTitle) {
 					updateTitle(eCode);
 				}
@@ -12100,16 +12149,12 @@ function initThreadUpdater(title, enableUpdate) {
 							requestNotifPermission();
 						};
 					}
-					if(hasAudio) {
-						if(audioRep) {
-							audioNotif();
-						} else {
-							audioEl.play();
-						}
+					if(audio.enabled) {
+						audio.play();
 					}
-					this._delay = initDelay;
+					this._delay = this._initDelay;
 				} else if(this._delay !== 12e4 && this._canFocusLoad) {
-					this._delay = Math.min(this._delay + initDelay, 12e4);
+					this._delay = Math.min(this._delay + this._initDelay, 12e4);
 				}
 			}
 			this._makeStep();
@@ -12118,7 +12163,6 @@ function initThreadUpdater(title, enableUpdate) {
 			while(true) switch(this._state) {
 			case 0:
 				if(!needSleep) {
-					needSleep = true;
 					this._state = 3;
 					break;
 				}
@@ -12153,25 +12197,27 @@ function initThreadUpdater(title, enableUpdate) {
 				return;
 			case 4:
 				this._loadPromise = null;
-				if(this._repeatLoading) {
-					this._state = 0;
-					break;
+				if(this._loadOnce) {
+					this._state = -1;
+					return;
 				}
-				this._state = -1;
-				return;
+				this._state = 0;
+				break;
+			}
+		},
+		_setUpdateStatus(status) {
+			if(this._panelButton) {
+				this._panelButton.id = 'de-panel-upd-' + status
+				this._panelButton.title = Lng.panelBtn['upd-' + (status === 'off' ? 'off' : 'on')][lang];
 			}
 		}
 	};
 
-	function init() {
-		audioEl = null;
-		stateButton = null;
-		hasAudio = false;
-		initDelay = Cfg.updThrDelay * 1e3;
+	function init(updateNow) {
 		notifGranted = inited = true;
 		useCountdown = !!Cfg.updCount;
 		enable();
-		updMachine.start(true);
+		updMachine.start(!updateNow);
 	}
 
 	function enable() {
@@ -12188,22 +12234,8 @@ function initThreadUpdater(title, enableUpdate) {
 		disabledByUser = byUser;
 		if(enabled) {
 			updMachine.stop(true);
-			enabled = hasAudio = false;
-			setState('off');
-			var btn = $id('de-panel-audio-on');
-			if(btn) {
-				btn.id = 'de-panel-audio-off';
-			}
-		}
-	}
-
-	function audioNotif() {
-		if(focused) {
-			hasAudio = false;
-		} else {
-			audioEl.play();
-			setTimeout(audioNotif, audioRep);
-			hasAudio = true;
+			audio.disable();
+			enabled = false;
 		}
 	}
 
@@ -12225,17 +12257,12 @@ function initThreadUpdater(title, enableUpdate) {
 		if(!enabled && !disabledByUser) {
 			enable();
 		}
-		updMachine.restart(isFocusLoad);
-	}
-
-	function setState(state) {
-		var btn = stateButton || (stateButton = $q('a[id^="de-panel-upd"]', doc));
-		btn.id = 'de-panel-upd-' + state
-		btn.title = Lng.panelBtn['upd-' + (state === 'off' ? 'off' : 'on')][lang];
+		updMachine.restart(isFocusLoad, !enabled);
 	}
 
 	function onVis() {
 		favicon.stopBlink();
+		audio.stop();
 		newPosts = 0;
 		focused = true;
 		sendError = false;
@@ -12278,7 +12305,7 @@ function initThreadUpdater(title, enableUpdate) {
 		});
 	}
 	if(enableUpdate) {
-		init();
+		init(false);
 	}
 	if(focused && Cfg.desktNotif && ('permission' in Notification)) {
 		switch(Notification.permission.toLowerCase()) {
@@ -12307,14 +12334,13 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		enable() {
 			if(!inited) {
-				init();
+				init(true);
 			} else if(!enabled) {
 				enable();
-				updMachine.start(true);
+				updMachine.start();
 			} else {
 				return;
 			}
-			setState('on');
 		},
 		pause() {
 			if(enabled && !paused) {
@@ -12324,20 +12350,18 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		'continue'() {
 			if(enabled && paused) {
-				updMachine.start(false);
+				updMachine.start();
 				paused = false;
 			}
 		},
 		disable: disable.bind(null, true),
-		toggleAudio(aRep) {
-			if(!audioEl) {
-				audioEl = $new('audio', {
-					'preload': 'auto',
-					'src': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg'
-				}, null);
+		toggleAudio(repeatMS) {
+			if(audio.enabled) {
+				audio.stop();
+				return audio.enabled = false;
 			}
-			audioRep = aRep;
-			return (hasAudio = !hasAudio);
+			audio.repeatMS = repeatMS;
+			return audio.enabled = true;
 		},
 		toggleCounter(enableCnt) {
 			if(enableCnt) {

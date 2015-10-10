@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "5fc06d7";
+	var commit = "c3c18cb";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -14867,11 +14867,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 	function initThreadUpdater(title, enableUpdate) {
 		var focused,
-		    audioRep,
-		    audioEl,
-		    stateButton,
-		    hasAudio,
-		    initDelay,
 		    notifGranted,
 		    countEl,
 		    useCountdown,
@@ -14882,6 +14877,46 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		    lastECode = 200,
 		    sendError = false,
 		    newPosts = 0;
+
+		var audio = {
+			enabled: false,
+			repeatMS: 0,
+			disable: function disable() {
+				this.stop();
+				this.enabled = false;
+				var btn = $id("de-panel-audio-on");
+				if (btn) {
+					btn.id = "de-panel-audio-off";
+				}
+			},
+			play: function play() {
+				var _this = this;
+
+				this.stop();
+				if (this.repeatMS === 0) {
+					this._el.play();
+					return;
+				}
+				this._playInterval = setInterval(function () {
+					return _this._el.play();
+				}, this.repeatMS);
+			},
+			stop: function stop() {
+				if (this._playInterval) {
+					clearInterval(this._playInterval);
+					this._playInterval = null;
+				}
+			},
+
+			_el: function _el() {
+				var value = $new("audio", {
+					preload: "auto",
+					src: "https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg"
+				}, null);
+				Object.defineProperty(this, "_el", { value: value });
+				return value;
+			}
+		};
 
 		var favicon = Object.defineProperties({
 			startBlink: function startBlink(isEmpty) {
@@ -14947,8 +14982,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		});
 
-		var updMachine = {
-			restart: function restart(isFocusStart) {
+		var updMachine = Object.defineProperties({
+			restart: function restart(isFocusStart, loadOnce) {
 				var _this = this;
 
 				if (isFocusStart) {
@@ -14960,18 +14995,24 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return _this._canFocusLoad = true;
 					}, 10000);
 				}
-				this.start(false);
+				this.start(false, loadOnce);
 			},
-			start: function start(needSleep) {
+			start: function start() {
+				var needSleep = arguments[0] === undefined ? false : arguments[0];
+				var loadOnce = arguments[1] === undefined ? false : arguments[1];
+
 				if (this._state !== -1) {
-					this.stop(false);
+					this.stop(false, false);
 				}
 				this._state = 0;
-				this._delay = initDelay;
-				this._repeatLoading = enabled;
+				this._loadOnce = loadOnce;
+				this._delay = this._initDelay = Cfg.updThrDelay * 1000;
+				this._setUpdateStatus("on");
 				this._makeStep(needSleep);
 			},
 			stop: function stop(hideCountdown) {
+				var updateStatus = arguments[1] === undefined ? true : arguments[1];
+
 				if (this._state !== -1) {
 					this._state = -1;
 					if (this._currentTO !== null) {
@@ -14988,6 +15029,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							countEl.innerHTML = "<span class=\"de-wait\"></span>";
 						}
 					}
+					if (updateStatus) {
+						this._setUpdateStatus("off");
+					}
 				}
 			},
 
@@ -14995,10 +15039,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			_canFocusLoad: true,
 
 			_currentTO: null,
-			_delay: null,
+			_delay: 0,
+			_initDelay: 0,
 			_loadPromise: null,
-			_repeatLoading: false,
+			_loadOnce: false,
 			_seconds: 0,
+			_updateStatus: "off",
 
 			_handleNewPosts: function _handleNewPosts(lPosts, error) {
 				infoLoadErrors(error, false);
@@ -15012,7 +15058,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						disable(false);
 					} else {
 						lastECode = eCode;
-						setState("warn");
+						this._setUpdateStatus("warn");
 						if (!Cfg.noErrInTitle) {
 							updateTitle();
 						}
@@ -15022,7 +15068,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				}
 				if (lastECode !== 200) {
 					favicon.stopBlink();
-					setState("on");
+					this._setUpdateStatus("on");
 					if (!Cfg.noErrInTitle) {
 						updateTitle(eCode);
 					}
@@ -15049,16 +15095,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 								requestNotifPermission();
 							};
 						}
-						if (hasAudio) {
-							if (audioRep) {
-								audioNotif();
-							} else {
-								audioEl.play();
-							}
+						if (audio.enabled) {
+							audio.play();
 						}
-						this._delay = initDelay;
+						this._delay = this._initDelay;
 					} else if (this._delay !== 120000 && this._canFocusLoad) {
-						this._delay = Math.min(this._delay + initDelay, 120000);
+						this._delay = Math.min(this._delay + this._initDelay, 120000);
 					}
 				}
 				this._makeStep();
@@ -15071,7 +15113,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				while (true) switch (this._state) {
 					case 0:
 						if (!needSleep) {
-							needSleep = true;
 							this._state = 3;
 							break;
 						}
@@ -15112,25 +15153,39 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 						return;
 					case 4:
 						this._loadPromise = null;
-						if (this._repeatLoading) {
-							this._state = 0;
-							break;
+						if (this._loadOnce) {
+							this._state = -1;
+							return;
 						}
-						this._state = -1;
-						return;
+						this._state = 0;
+						break;
+				}
+			},
+			_setUpdateStatus: function _setUpdateStatus(status) {
+				if (this._panelButton) {
+					this._panelButton.id = "de-panel-upd-" + status;
+					this._panelButton.title = Lng.panelBtn["upd-" + (status === "off" ? "off" : "on")][lang];
 				}
 			}
-		};
+		}, {
+			_panelButton: {
+				get: function () {
+					var value = $q("a[id^=\"de-panel-upd\"]", doc);
+					if (value) {
+						Object.defineProperty(this, "_panelButton", { value: value });
+					}
+					return value;
+				},
+				configurable: true,
+				enumerable: true
+			}
+		});
 
-		function init() {
-			audioEl = null;
-			stateButton = null;
-			hasAudio = false;
-			initDelay = Cfg.updThrDelay * 1000;
+		function init(updateNow) {
 			notifGranted = inited = true;
 			useCountdown = !!Cfg.updCount;
 			enable();
-			updMachine.start(true);
+			updMachine.start(!updateNow);
 		}
 
 		function enable() {
@@ -15147,22 +15202,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			disabledByUser = byUser;
 			if (enabled) {
 				updMachine.stop(true);
-				enabled = hasAudio = false;
-				setState("off");
-				var btn = $id("de-panel-audio-on");
-				if (btn) {
-					btn.id = "de-panel-audio-off";
-				}
-			}
-		}
-
-		function audioNotif() {
-			if (focused) {
-				hasAudio = false;
-			} else {
-				audioEl.play();
-				setTimeout(audioNotif, audioRep);
-				hasAudio = true;
+				audio.disable();
+				enabled = false;
 			}
 		}
 
@@ -15184,17 +15225,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			if (!enabled && !disabledByUser) {
 				enable();
 			}
-			updMachine.restart(isFocusLoad);
-		}
-
-		function setState(state) {
-			var btn = stateButton || (stateButton = $q("a[id^=\"de-panel-upd\"]", doc));
-			btn.id = "de-panel-upd-" + state;
-			btn.title = Lng.panelBtn["upd-" + (state === "off" ? "off" : "on")][lang];
+			updMachine.restart(isFocusLoad, !enabled);
 		}
 
 		function onVis() {
 			favicon.stopBlink();
+			audio.stop();
 			newPosts = 0;
 			focused = true;
 			sendError = false;
@@ -15237,7 +15273,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			});
 		}
 		if (enableUpdate) {
-			init();
+			init(false);
 		}
 		if (focused && Cfg.desktNotif && "permission" in Notification) {
 			switch (Notification.permission.toLowerCase()) {
@@ -15272,14 +15308,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				return _enableWrapper;
 			})(function () {
 				if (!inited) {
-					init();
+					init(true);
 				} else if (!enabled) {
 					enable();
-					updMachine.start(true);
+					updMachine.start();
 				} else {
 					return;
 				}
-				setState("on");
 			}),
 			pause: function pause() {
 				if (enabled && !paused) {
@@ -15289,20 +15324,18 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			},
 			"continue": function _continue() {
 				if (enabled && paused) {
-					updMachine.start(false);
+					updMachine.start();
 					paused = false;
 				}
 			},
 			disable: disable.bind(null, true),
-			toggleAudio: function toggleAudio(aRep) {
-				if (!audioEl) {
-					audioEl = $new("audio", {
-						preload: "auto",
-						src: "https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg"
-					}, null);
+			toggleAudio: function toggleAudio(repeatMS) {
+				if (audio.enabled) {
+					audio.stop();
+					return audio.enabled = false;
 				}
-				audioRep = aRep;
-				return hasAudio = !hasAudio;
+				audio.repeatMS = repeatMS;
+				return audio.enabled = true;
 			},
 			toggleCounter: function toggleCounter(enableCnt) {
 				if (enableCnt) {
