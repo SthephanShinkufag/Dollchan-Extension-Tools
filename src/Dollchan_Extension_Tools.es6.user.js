@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'c3c18cb';
+var commit = '4011a14';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10019,7 +10019,7 @@ Thread.prototype = {
 		pByNum[num] = post = new Post(el, this, num, i, false, prev);
 		Object.defineProperty(post, 'wrap', { value: wrap });
 		parent.appendChild(wrap);
-		if(aib.t && updater.focused && Cfg.animation) {
+		if(aib.t && !doc.hidden && Cfg.animation) {
 			nav.animEvent(post.el, function(node) {
 				node.classList.remove('de-post-new');
 			});
@@ -10275,7 +10275,7 @@ Thread.prototype = {
 
 	_lastModified: '',
 	_addPostMark(postEl, forced) {
-		if(updater.focused && !forced) {
+		if(!doc.hidden && !forced) {
 			this.clearPostsMarks();
 		} else {
 			if(!this.hasNew) {
@@ -11941,8 +11941,7 @@ function replacePost(el) {
 }
 
 function initThreadUpdater(title, enableUpdate) {
-	var focused, notifGranted, countEl,
-		useCountdown, paused, enabled = false,
+	var notifGranted, countEl, useCountdown, paused, enabled = false,
 		disabledByUser = true,
 		inited = false,
 		lastECode = 200,
@@ -12100,7 +12099,7 @@ function initThreadUpdater(title, enableUpdate) {
 			infoLoadErrors(error, false);
 			var eCode = (error instanceof AjaxError) ? error.code : 0;
 			if(eCode !== 200 && eCode !== 304) {
-				if(!focused && favicon.canBlink) {
+				if(doc.hidden && favicon.canBlink) {
 					favicon.startBlink(false);
 				}
 				if(eCode === 404 && lastECode === 404) {
@@ -12124,7 +12123,7 @@ function initThreadUpdater(title, enableUpdate) {
 				}
 			}
 			lastECode = eCode;
-			if(!focused) {
+			if(doc.hidden) {
 				if(lPosts !== 0) {
 					if(newPosts === 0 && favicon.canBlink) {
 						favicon.startBlink(true);
@@ -12166,7 +12165,7 @@ function initThreadUpdater(title, enableUpdate) {
 					this._state = 3;
 					break;
 				}
-				if(!(useCountdown && (focused || !this._canFocusLoad))) {
+				if(!(useCountdown && (!doc.hidden || !this._canFocusLoad))) {
 					this._state = 2;
 					break;
 				}
@@ -12260,54 +12259,32 @@ function initThreadUpdater(title, enableUpdate) {
 		updMachine.restart(isFocusLoad, !enabled);
 	}
 
-	function onVis() {
-		favicon.stopBlink();
-		audio.stop();
-		newPosts = 0;
-		focused = true;
-		sendError = false;
-		setTimeout(function() {
-			updateTitle();
-			if(enabled) {
-				forceLoadPosts(true);
-			}
-		}, 200);
-	}
-
 	function updateTitle(eCode = lastECode) {
 		doc.title = (sendError === true ? '{' + Lng.error[lang] + '} ' : '') +
 			(eCode === 200 ? '' : '{' + eCode + '} ') +
 			(newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
 	}
 
-	if('hidden' in doc) {
-		focused = !doc.hidden;
-		doc.addEventListener('visibilitychange', function() {
-			if(doc.hidden) {
-				focused = false;
-				if(dForm.firstThr) {
-					dForm.firstThr.clearPostsMarks();
+	doc.addEventListener('visibilitychange', function() {
+		if(!doc.hidden) {
+			favicon.stopBlink();
+			audio.stop();
+			newPosts = 0;
+			sendError = false;
+			setTimeout(function() {
+				updateTitle();
+				if(enabled) {
+					forceLoadPosts(true);
 				}
-			} else {
-				onVis();
-			}
-		});
-	} else {
-		focused = false;
-		doc.defaultView.addEventListener('focus', onVis);
-		doc.defaultView.addEventListener('blur', function() {
-			focused = false;
+			}, 200);
+		} else if(dForm.firstThr) {
 			dForm.firstThr.clearPostsMarks();
-		});
-		doc.defaultView.addEventListener('mousemove', function mouseMove() {
-			doc.defaultView.removeEventListener('mousemove', mouseMove);
-			onVis();
-		});
-	}
+		}
+	});
 	if(enableUpdate) {
 		init(false);
 	}
-	if(focused && Cfg.desktNotif && ('permission' in Notification)) {
+	if(!doc.hidden && Cfg.desktNotif && ('permission' in Notification)) {
 		switch(Notification.permission.toLowerCase()) {
 		case 'default': requestNotifPermission(); break;
 		case 'denied': saveCfg('desktNotif', 0);
@@ -12317,9 +12294,6 @@ function initThreadUpdater(title, enableUpdate) {
 	return {
 		get enabled() {
 			return enabled;
-		},
-		get focused() {
-			return focused;
 		},
 		forceLoad(e) {
 			if(e) {
@@ -12378,7 +12352,7 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		},
 		sendErrNotif() {
-			if(Cfg.sendErrNotif && !focused) {
+			if(Cfg.sendErrNotif && doc.hidden) {
 				sendError = true;
 				updateTitle();
 			}
