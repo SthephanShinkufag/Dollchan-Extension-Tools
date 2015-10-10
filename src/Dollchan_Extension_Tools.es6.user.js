@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '4011a14';
+var commit = 'f15f16e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1735,13 +1735,11 @@ var panel = {
 				updateCSS();
 				break;
 			case 'de-panel-upd-on':
-			case 'de-panel-upd-off':
 			case 'de-panel-upd-warn':
-				if(updater.enabled) {
-					updater.disable();
-				} else {
-					updater.enable();
-				}
+				updater.disable();
+				break;
+			case 'de-panel-upd-off':
+				updater.enable();
 				break;
 			case 'de-panel-audio-on':
 			case 'de-panel-audio-off':
@@ -11941,9 +11939,10 @@ function replacePost(el) {
 }
 
 function initThreadUpdater(title, enableUpdate) {
-	var notifGranted, countEl, useCountdown, paused, enabled = false,
+	var focusLoadTime = 0,
+		paused = false,
+		enabled = false,
 		disabledByUser = true,
-		inited = false,
 		lastECode = 200,
 		sendError = false,
 		newPosts = 0;
@@ -11984,6 +11983,67 @@ function initThreadUpdater(title, enableUpdate) {
 		}
 	};
 
+	var counter = {
+		enable() {
+			this._enabled = true;
+			this._el.style.removeProperty('display');
+		},
+		disable() {
+			this._enabled = false;
+			this._stop();
+			this._el.style.display = 'none';
+		},
+		count(delayMS, useCounter, callback) {
+			if(this._enabled && useCounter) {
+				var seconds = delayMS / 1000;
+				this._set(seconds);
+				this._countingIV = setInterval(() => {
+					seconds--;
+					if(seconds === 0) {
+						this._stop();
+						callback();
+					} else {
+						this._set(seconds);
+					}
+				}, 1000);
+			} else {
+				this._countingTO = setTimeout(() => {
+					this._countingTO = null;
+					callback();
+				}, delayMS);
+			}
+		},
+		setWait() {
+			if(this._enabled) {
+				this._stop();
+				this._el.innerHTML = '<span class="de-wait"></span>';
+			}
+		},
+
+		_countingIV: null,
+		_countingTO: null,
+		_enabled: false,
+		get _el() {
+			var value = $id('de-updater-count');
+			Object.defineProperty(this, '_el', { value });
+			return value;
+		},
+
+		_set(seconds) {
+			this._el.innerHTML = seconds;
+		},
+		_stop() {
+			if(this._countingIV) {
+				clearInterval(this._countingIV);
+				this._countingIV = null;
+			}
+			if(this._countingTO) {
+				clearTimeout(this._countingTO);
+				this._countingTO = null;
+			}
+		}
+	};
+
 	var favicon = {
 		get canBlink() {
 			return Cfg.favIcoBlink && !!this.originalIcon;
@@ -11991,15 +12051,11 @@ function initThreadUpdater(title, enableUpdate) {
 		get originalIcon() {
 			return this._iconEl ? this._iconEl.href : null;
 		},
-		startBlink(isEmpty) {
-			if(this._blinkInterval) {
-				clearInterval(this._blinkInterval);
-			}
-			this._currentIcon = isEmpty ? this._emptyIcon : this._errorIcon;
-			this._blinkInterval = setInterval(() => {
-				this._setIcon(this._isOriginalIcon ? this._currentIcon : this.originalIcon);
-				this._isOriginalIcon = !this._isOriginalIcon;
-			}, this._blinkMS);
+		startBlinkEmpty() {
+			this._startBlink(this._emptyIcon);
+		},
+		startBlinkError() {
+			this._startBlink(this._errorIcon);
 		},
 		stopBlink() {
 			if(this._blinkInterval) {
@@ -12030,23 +12086,84 @@ function initThreadUpdater(title, enableUpdate) {
 			$del(this._iconEl);
 			doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' + iconUrl + '">');
 			this._iconEl = doc.head.firstChild;
+		},
+		_startBlink(iconUrl) {
+			if(this._blinkInterval) {
+				if(this._currentIcon === iconUrl) {
+					return;
+				}
+				clearInterval(this._blinkInterval);
+			}
+			this._currentIcon = iconUrl;
+			this._blinkInterval = setInterval(() => {
+				this._setIcon(this._isOriginalIcon ? this._currentIcon : this.originalIcon);
+				this._isOriginalIcon = !this._isOriginalIcon;
+			}, this._blinkMS);
+		}
+	};
+
+	var notification = {
+		get canShow() {
+			return Cfg.desktNotif && this._granted;
+		},
+		checkPermission() {
+			if(Cfg.desktNotif && ('permission' in Notification)) {
+				switch(Notification.permission.toLowerCase()) {
+				case 'default': this._requestPermission(); break;
+				case 'denied': saveCfg('desktNotif', 0);
+				}
+			}
+		},
+		
+		show() {
+			var post = dForm.firstThr.last,
+				notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts +
+					Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : (newPosts % 10) > 4 ||
+					(newPosts % 10) === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
+					(newPosts % 10) === 1 ? 0 : 1] + Lng.newPost[lang][3],
+				{
+					'body': post.text.substring(0, 250).replace(/\s+/g, ' '),
+					'tag': aib.dm + aib.b + aib.t,
+					'icon': post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon
+				});
+			notif.onshow = () => setTimeout(() => {
+				if(notif === this._notifEl) {
+					this.close();
+				}
+			}, 12e3);
+			notif.onclick = () => window.focus();
+			notif.onerror = () => {
+				window.focus();
+				this._requestPermission();
+			};
+			this._notifEl = notif;
+		},
+		close() {
+			if(this._notifEl) {
+				this._notifEl.close();
+				this._notifEl = null;
+			}
+		},
+
+		_granted: false,
+		_closeTO: null,
+		_notifEl: null,
+
+		_requestPermission() {
+			Notification.requestPermission(state => {
+				if(state.toLowerCase() === 'denied') {
+					saveCfg('desktNotif', 0);
+				} else {
+					this._granted = true;
+				}
+			});
 		}
 	};
 
 	var updMachine = {
-		restart(isFocusStart, loadOnce) {
-			if(isFocusStart) {
-				if(!this._canFocusLoad) {
-					return;
-				}
-				this._canFocusLoad = false;
-				setTimeout(() => this._canFocusLoad = true, 1e4);
-			}
-			this.start(false, loadOnce);
-		},
 		start(needSleep = false, loadOnce = false) {
 			if(this._state !== -1) {
-				this.stop(false, false);
+				this.stop(false);
 			}
 			this._state = 0;
 			this._loadOnce = loadOnce;
@@ -12054,39 +12171,26 @@ function initThreadUpdater(title, enableUpdate) {
 			this._setUpdateStatus('on');
 			this._makeStep(needSleep);
 		},
-		stop(hideCountdown, updateStatus = true) {
+		stop(updateStatus = true) {
 			if(this._state !== -1) {
 				this._state = -1;
-				if(this._currentTO !== null) {
-					clearTimeout(this._currentTO);
-				}
 				if(this._loadPromise) {
 					this._loadPromise.cancel();
+					this._loadPromise = null;
 				}
-				this._currentTO = this._loadPromise = null;
-				if(useCountdown) {
-					if(hideCountdown) {
-						countEl.style.display = 'none';
-					} else {
-						countEl.innerHTML = '<span class="de-wait"></span>';
-					}
-				}
+				counter.setWait();
 				if(updateStatus) {
 					this._setUpdateStatus('off');
 				}
 			}
 		},
 
-		_state: -1,
-		_canFocusLoad: true,
-
-		_currentTO: null,
 		_delay: 0,
 		_initDelay: 0,
 		_loadPromise: null,
 		_loadOnce: false,
 		_seconds: 0,
-		_updateStatus: 'off',
+		_state: -1,
 		get _panelButton() {
 			var value = $q('a[id^="de-panel-upd"]', doc);
 			if(value) {
@@ -12100,11 +12204,11 @@ function initThreadUpdater(title, enableUpdate) {
 			var eCode = (error instanceof AjaxError) ? error.code : 0;
 			if(eCode !== 200 && eCode !== 304) {
 				if(doc.hidden && favicon.canBlink) {
-					favicon.startBlink(false);
+					favicon.startBlinkError();
 				}
 				if(eCode === 404 && lastECode === 404) {
 					updateTitle(eCode);
-					disable(false);
+					disableUpdater();
 				} else {
 					lastECode = eCode;
 					this._setUpdateStatus('warn');
@@ -12125,28 +12229,13 @@ function initThreadUpdater(title, enableUpdate) {
 			lastECode = eCode;
 			if(doc.hidden) {
 				if(lPosts !== 0) {
-					if(newPosts === 0 && favicon.canBlink) {
-						favicon.startBlink(true);
-					}
 					newPosts += lPosts;
 					updateTitle();
-					if(Cfg.desktNotif && notifGranted) {
-						var post = dForm.firstThr.last,
-							notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts +
-								Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : (newPosts % 10) > 4 ||
-								(newPosts % 10) === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
-								(newPosts % 10) === 1 ? 0 : 1] + Lng.newPost[lang][3],
-							{
-								'body': post.text.substring(0, 250).replace(/\s+/g, ' '),
-								'tag': aib.dm + aib.b + aib.t,
-								'icon': post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon
-							});
-						notif.onshow = setTimeout.bind(window, notif.close.bind(notif), 12e3);
-						notif.onclick = window.focus;
-						notif.onerror = function() {
-							window.focus();
-							requestNotifPermission();
-						};
+					if(favicon.canBlink) {
+						favicon.startBlinkEmpty();
+					}
+					if(notification.canShow) {
+						notification.show();
 					}
 					if(audio.enabled) {
 						audio.play();
@@ -12161,40 +12250,20 @@ function initThreadUpdater(title, enableUpdate) {
 		_makeStep(needSleep = true) {
 			while(true) switch(this._state) {
 			case 0:
-				if(!needSleep) {
-					this._state = 3;
-					break;
+				if(needSleep) {
+					this._state = 1;
+					counter.count(this._delay, !doc.hidden || !this._canFocusLoad, () => this._makeStep());
+					return;
 				}
-				if(!(useCountdown && (!doc.hidden || !this._canFocusLoad))) {
-					this._state = 2;
-					break;
-				}
-				this._seconds = this._delay / 1000;
 				/* falls through */
 			case 1:
-				if(this._seconds <= 0) {
-					this._state = 3;
-					break;
-				}
-				countEl.textContent = this._seconds--;
-				this._state = 1;
-				this._currentTO = setTimeout(() => this._makeStep(), 1000);
-				return;
-			case 2:
-				this._state = 3;
-				this._currentTO = setTimeout(() => this._makeStep(), this._delay);
-				return;
-			case 3:
-				this._currentTO = null;
-				if(useCountdown) {
-					countEl.innerHTML = '<span class="de-wait"></span>';
-				}
+				counter.setWait();
 				this._loadPromise = dForm.firstThr.loadNew(true);
-				this._state = 4;
+				this._state = 2;
 				this._loadPromise.then(pCount => this._handleNewPosts(pCount, AjaxError.Success),
 				                       e => this._handleNewPosts(0, e));
 				return;
-			case 4:
+			case 2:
 				this._loadPromise = null;
 				if(this._loadOnce) {
 					this._state = -1;
@@ -12212,51 +12281,33 @@ function initThreadUpdater(title, enableUpdate) {
 		}
 	};
 
-	function init(updateNow) {
-		notifGranted = inited = true;
-		useCountdown = !!Cfg.updCount;
-		enable();
-		updMachine.start(!updateNow);
-	}
-
-	function enable() {
+	function enableUpdater() {
 		enabled = true;
 		paused = disabledByUser = false;
-		newPosts = 0;
-		if(useCountdown) {
-			countEl = $id('de-updater-count');
-			countEl.style.display = '';
+		newPosts = focusLoadTime = 0;
+		notification.checkPermission();
+		if(Cfg.updCount) {
+			counter.enable();
 		}
 	}
 
-	function disable(byUser) {
-		disabledByUser = byUser;
+	function disableUpdater() {
 		if(enabled) {
-			updMachine.stop(true);
 			audio.disable();
+			counter.disable();
+			updMachine.stop();
 			enabled = false;
 		}
 	}
 
-	function requestNotifPermission() {
-		notifGranted = false;
-		Notification.requestPermission(function(state) {
-			if(state.toLowerCase() === 'denied') {
-				saveCfg('desktNotif', 0);
-			} else {
-				notifGranted = true;
-			}
-		});
-	}
-
-	function forceLoadPosts(isFocusLoad) {
+	function forceLoadPosts() {
 		if(paused) {
 			return;
 		}
 		if(!enabled && !disabledByUser) {
 			enable();
 		}
-		updMachine.restart(isFocusLoad, !enabled);
+		updMachine.start(false, !enabled);
 	}
 
 	function updateTitle(eCode = lastECode) {
@@ -12265,16 +12316,19 @@ function initThreadUpdater(title, enableUpdate) {
 			(newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
 	}
 
-	doc.addEventListener('visibilitychange', function() {
+	doc.addEventListener('visibilitychange', e => {
 		if(!doc.hidden) {
+			var focusTime = e.timeStamp;
 			favicon.stopBlink();
 			audio.stop();
+			notification.close();
 			newPosts = 0;
 			sendError = false;
 			setTimeout(function() {
 				updateTitle();
-				if(enabled) {
-					forceLoadPosts(true);
+				if(enabled && focusTime - focusLoadTime > 1e4) {
+					focusLoadTime = focusTime;
+					forceLoadPosts();
 				}
 			}, 200);
 		} else if(dForm.firstThr) {
@@ -12282,18 +12336,20 @@ function initThreadUpdater(title, enableUpdate) {
 		}
 	});
 	if(enableUpdate) {
-		init(false);
-	}
-	if(!doc.hidden && Cfg.desktNotif && ('permission' in Notification)) {
-		switch(Notification.permission.toLowerCase()) {
-		case 'default': requestNotifPermission(); break;
-		case 'denied': saveCfg('desktNotif', 0);
-		}
+		enableUpdater();
+		updMachine.start(true);
 	}
 
 	return {
-		get enabled() {
-			return enabled;
+		enable() {
+			if(!enabled) {
+				enableUpdater();
+				updMachine.start();
+			}
+		},
+		disable() {
+			disabledByUser = true;
+			disableUpdater()
 		},
 		forceLoad(e) {
 			if(e) {
@@ -12304,21 +12360,11 @@ function initThreadUpdater(title, enableUpdate) {
 				return;
 			}
 			$popup(Lng.loading[lang], 'newposts', true);
-			forceLoadPosts(false)
-		},
-		enable() {
-			if(!inited) {
-				init(true);
-			} else if(!enabled) {
-				enable();
-				updMachine.start();
-			} else {
-				return;
-			}
+			forceLoadPosts()
 		},
 		pause() {
 			if(enabled && !paused) {
-				updMachine.stop(false);
+				updMachine.stop();
 				paused = true;
 			}
 		},
@@ -12328,7 +12374,6 @@ function initThreadUpdater(title, enableUpdate) {
 				paused = false;
 			}
 		},
-		disable: disable.bind(null, true),
 		toggleAudio(repeatMS) {
 			if(audio.enabled) {
 				audio.stop();
@@ -12339,16 +12384,11 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		toggleCounter(enableCnt) {
 			if(enableCnt) {
-				if(!countEl) {
-					countEl = $id('de-updater-count');
-				}
-				countEl.innerHTML = '<span class="de-wait"></span>';
-				countEl.style.display = '';
-				useCountdown = true;
-				forceLoadPosts(false);
+				counter.enable();
+				counter.setWait();
+				forceLoadPosts();
 			} else {
-				countEl.style.display = 'none';
-				useCountdown = false;
+				counter.disable();
 			}
 		},
 		sendErrNotif() {

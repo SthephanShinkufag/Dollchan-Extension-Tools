@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "4011a14";
+	var commit = "f15f16e";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -3976,13 +3976,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							updateCSS();
 							break;
 						case "de-panel-upd-on":
-						case "de-panel-upd-off":
 						case "de-panel-upd-warn":
-							if (updater.enabled) {
-								updater.disable();
-							} else {
-								updater.enable();
-							}
+							updater.disable();
+							break;
+						case "de-panel-upd-off":
+							updater.enable();
 							break;
 						case "de-panel-audio-on":
 						case "de-panel-audio-off":
@@ -14866,13 +14864,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 	}
 
 	function initThreadUpdater(title, enableUpdate) {
-		var notifGranted,
-		    countEl,
-		    useCountdown,
-		    paused,
+		var focusLoadTime = 0,
+		    paused = false,
 		    enabled = false,
 		    disabledByUser = true,
-		    inited = false,
 		    lastECode = 200,
 		    sendError = false,
 		    newPosts = 0;
@@ -14917,18 +14912,80 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		};
 
-		var favicon = Object.defineProperties({
-			startBlink: function startBlink(isEmpty) {
+		var counter = Object.defineProperties({
+			enable: function enable() {
+				this._enabled = true;
+				this._el.style.removeProperty("display");
+			},
+			disable: function disable() {
+				this._enabled = false;
+				this._stop();
+				this._el.style.display = "none";
+			},
+			count: function count(delayMS, useCounter, callback) {
 				var _this = this;
 
-				if (this._blinkInterval) {
-					clearInterval(this._blinkInterval);
+				if (this._enabled && useCounter) {
+					var seconds = delayMS / 1000;
+					this._set(seconds);
+					this._countingIV = setInterval(function () {
+						seconds--;
+						if (seconds === 0) {
+							_this._stop();
+							callback();
+						} else {
+							_this._set(seconds);
+						}
+					}, 1000);
+				} else {
+					this._countingTO = setTimeout(function () {
+						_this._countingTO = null;
+						callback();
+					}, delayMS);
 				}
-				this._currentIcon = isEmpty ? this._emptyIcon : this._errorIcon;
-				this._blinkInterval = setInterval(function () {
-					_this._setIcon(_this._isOriginalIcon ? _this._currentIcon : _this.originalIcon);
-					_this._isOriginalIcon = !_this._isOriginalIcon;
-				}, this._blinkMS);
+			},
+			setWait: function setWait() {
+				if (this._enabled) {
+					this._stop();
+					this._el.innerHTML = "<span class=\"de-wait\"></span>";
+				}
+			},
+
+			_countingIV: null,
+			_countingTO: null,
+			_enabled: false,
+
+			_set: function _set(seconds) {
+				this._el.innerHTML = seconds;
+			},
+			_stop: function _stop() {
+				if (this._countingIV) {
+					clearInterval(this._countingIV);
+					this._countingIV = null;
+				}
+				if (this._countingTO) {
+					clearTimeout(this._countingTO);
+					this._countingTO = null;
+				}
+			}
+		}, {
+			_el: {
+				get: function () {
+					var value = $id("de-updater-count");
+					Object.defineProperty(this, "_el", { value: value });
+					return value;
+				},
+				configurable: true,
+				enumerable: true
+			}
+		});
+
+		var favicon = Object.defineProperties({
+			startBlinkEmpty: function startBlinkEmpty() {
+				this._startBlink(this._emptyIcon);
+			},
+			startBlinkError: function startBlinkError() {
+				this._startBlink(this._errorIcon);
 			},
 			stopBlink: function stopBlink() {
 				if (this._blinkInterval) {
@@ -14951,6 +15008,21 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				$del(this._iconEl);
 				doc.head.insertAdjacentHTML("afterbegin", "<link rel=\"shortcut icon\" href=\"" + iconUrl + "\">");
 				this._iconEl = doc.head.firstChild;
+			},
+			_startBlink: function _startBlink(iconUrl) {
+				var _this = this;
+
+				if (this._blinkInterval) {
+					if (this._currentIcon === iconUrl) {
+						return;
+					}
+					clearInterval(this._blinkInterval);
+				}
+				this._currentIcon = iconUrl;
+				this._blinkInterval = setInterval(function () {
+					_this._setIcon(_this._isOriginalIcon ? _this._currentIcon : _this.originalIcon);
+					_this._isOriginalIcon = !_this._isOriginalIcon;
+				}, this._blinkMS);
 			}
 		}, {
 			canBlink: {
@@ -14981,27 +15053,82 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		});
 
-		var updMachine = Object.defineProperties({
-			restart: function restart(isFocusStart, loadOnce) {
+		var notification = Object.defineProperties({
+			checkPermission: function checkPermission() {
+				if (Cfg.desktNotif && "permission" in Notification) {
+					switch (Notification.permission.toLowerCase()) {
+						case "default":
+							this._requestPermission();break;
+						case "denied":
+							saveCfg("desktNotif", 0);
+					}
+				}
+			},
+
+			show: function show() {
 				var _this = this;
 
-				if (isFocusStart) {
-					if (!this._canFocusLoad) {
-						return;
-					}
-					this._canFocusLoad = false;
-					setTimeout(function () {
-						return _this._canFocusLoad = true;
-					}, 10000);
-				}
-				this.start(false, loadOnce);
+				var post = dForm.firstThr.last,
+				    notif = new Notification(aib.dm + "/" + aib.b + "/" + aib.t + ": " + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
+					body: post.text.substring(0, 250).replace(/\s+/g, " "),
+					tag: aib.dm + aib.b + aib.t,
+					icon: post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon
+				});
+				notif.onshow = function () {
+					return setTimeout(function () {
+						if (notif === _this._notifEl) {
+							_this.close();
+						}
+					}, 12000);
+				};
+				notif.onclick = function () {
+					return window.focus();
+				};
+				notif.onerror = function () {
+					window.focus();
+					_this._requestPermission();
+				};
+				this._notifEl = notif;
 			},
+			close: function close() {
+				if (this._notifEl) {
+					this._notifEl.close();
+					this._notifEl = null;
+				}
+			},
+
+			_granted: false,
+			_closeTO: null,
+			_notifEl: null,
+
+			_requestPermission: function _requestPermission() {
+				var _this = this;
+
+				Notification.requestPermission(function (state) {
+					if (state.toLowerCase() === "denied") {
+						saveCfg("desktNotif", 0);
+					} else {
+						_this._granted = true;
+					}
+				});
+			}
+		}, {
+			canShow: {
+				get: function () {
+					return Cfg.desktNotif && this._granted;
+				},
+				configurable: true,
+				enumerable: true
+			}
+		});
+
+		var updMachine = Object.defineProperties({
 			start: function start() {
 				var needSleep = arguments[0] === undefined ? false : arguments[0];
 				var loadOnce = arguments[1] === undefined ? false : arguments[1];
 
 				if (this._state !== -1) {
-					this.stop(false, false);
+					this.stop(false);
 				}
 				this._state = 0;
 				this._loadOnce = loadOnce;
@@ -15009,52 +15136,39 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				this._setUpdateStatus("on");
 				this._makeStep(needSleep);
 			},
-			stop: function stop(hideCountdown) {
-				var updateStatus = arguments[1] === undefined ? true : arguments[1];
+			stop: function stop() {
+				var updateStatus = arguments[0] === undefined ? true : arguments[0];
 
 				if (this._state !== -1) {
 					this._state = -1;
-					if (this._currentTO !== null) {
-						clearTimeout(this._currentTO);
-					}
 					if (this._loadPromise) {
 						this._loadPromise.cancel();
+						this._loadPromise = null;
 					}
-					this._currentTO = this._loadPromise = null;
-					if (useCountdown) {
-						if (hideCountdown) {
-							countEl.style.display = "none";
-						} else {
-							countEl.innerHTML = "<span class=\"de-wait\"></span>";
-						}
-					}
+					counter.setWait();
 					if (updateStatus) {
 						this._setUpdateStatus("off");
 					}
 				}
 			},
 
-			_state: -1,
-			_canFocusLoad: true,
-
-			_currentTO: null,
 			_delay: 0,
 			_initDelay: 0,
 			_loadPromise: null,
 			_loadOnce: false,
 			_seconds: 0,
-			_updateStatus: "off",
+			_state: -1,
 
 			_handleNewPosts: function _handleNewPosts(lPosts, error) {
 				infoLoadErrors(error, false);
 				var eCode = error instanceof AjaxError ? error.code : 0;
 				if (eCode !== 200 && eCode !== 304) {
 					if (doc.hidden && favicon.canBlink) {
-						favicon.startBlink(false);
+						favicon.startBlinkError();
 					}
 					if (eCode === 404 && lastECode === 404) {
 						updateTitle(eCode);
-						disable(false);
+						disableUpdater();
 					} else {
 						lastECode = eCode;
 						this._setUpdateStatus("warn");
@@ -15075,24 +15189,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				lastECode = eCode;
 				if (doc.hidden) {
 					if (lPosts !== 0) {
-						if (newPosts === 0 && favicon.canBlink) {
-							favicon.startBlink(true);
-						}
 						newPosts += lPosts;
 						updateTitle();
-						if (Cfg.desktNotif && notifGranted) {
-							var post = dForm.firstThr.last,
-							    notif = new Notification(aib.dm + "/" + aib.b + "/" + aib.t + ": " + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
-								body: post.text.substring(0, 250).replace(/\s+/g, " "),
-								tag: aib.dm + aib.b + aib.t,
-								icon: post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon
-							});
-							notif.onshow = setTimeout.bind(window, notif.close.bind(notif), 12000);
-							notif.onclick = window.focus;
-							notif.onerror = function () {
-								window.focus();
-								requestNotifPermission();
-							};
+						if (favicon.canBlink) {
+							favicon.startBlinkEmpty();
+						}
+						if (notification.canShow) {
+							notification.show();
 						}
 						if (audio.enabled) {
 							audio.play();
@@ -15111,46 +15214,24 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 				while (true) switch (this._state) {
 					case 0:
-						if (!needSleep) {
-							this._state = 3;
-							break;
+						if (needSleep) {
+							this._state = 1;
+							counter.count(this._delay, !doc.hidden || !this._canFocusLoad, function () {
+								return _this._makeStep();
+							});
+							return;
 						}
-						if (!(useCountdown && (!doc.hidden || !this._canFocusLoad))) {
-							this._state = 2;
-							break;
-						}
-						this._seconds = this._delay / 1000;
 										case 1:
-						if (this._seconds <= 0) {
-							this._state = 3;
-							break;
-						}
-						countEl.textContent = this._seconds--;
-						this._state = 1;
-						this._currentTO = setTimeout(function () {
-							return _this._makeStep();
-						}, 1000);
-						return;
-					case 2:
-						this._state = 3;
-						this._currentTO = setTimeout(function () {
-							return _this._makeStep();
-						}, this._delay);
-						return;
-					case 3:
-						this._currentTO = null;
-						if (useCountdown) {
-							countEl.innerHTML = "<span class=\"de-wait\"></span>";
-						}
+						counter.setWait();
 						this._loadPromise = dForm.firstThr.loadNew(true);
-						this._state = 4;
+						this._state = 2;
 						this._loadPromise.then(function (pCount) {
 							return _this._handleNewPosts(pCount, AjaxError.Success);
 						}, function (e) {
 							return _this._handleNewPosts(0, e);
 						});
 						return;
-					case 4:
+					case 2:
 						this._loadPromise = null;
 						if (this._loadOnce) {
 							this._state = -1;
@@ -15180,51 +15261,33 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		});
 
-		function init(updateNow) {
-			notifGranted = inited = true;
-			useCountdown = !!Cfg.updCount;
-			enable();
-			updMachine.start(!updateNow);
-		}
-
-		function enable() {
+		function enableUpdater() {
 			enabled = true;
 			paused = disabledByUser = false;
-			newPosts = 0;
-			if (useCountdown) {
-				countEl = $id("de-updater-count");
-				countEl.style.display = "";
+			newPosts = focusLoadTime = 0;
+			notification.checkPermission();
+			if (Cfg.updCount) {
+				counter.enable();
 			}
 		}
 
-		function disable(byUser) {
-			disabledByUser = byUser;
+		function disableUpdater() {
 			if (enabled) {
-				updMachine.stop(true);
 				audio.disable();
+				counter.disable();
+				updMachine.stop();
 				enabled = false;
 			}
 		}
 
-		function requestNotifPermission() {
-			notifGranted = false;
-			Notification.requestPermission(function (state) {
-				if (state.toLowerCase() === "denied") {
-					saveCfg("desktNotif", 0);
-				} else {
-					notifGranted = true;
-				}
-			});
-		}
-
-		function forceLoadPosts(isFocusLoad) {
+		function forceLoadPosts() {
 			if (paused) {
 				return;
 			}
 			if (!enabled && !disabledByUser) {
 				enable();
 			}
-			updMachine.restart(isFocusLoad, !enabled);
+			updMachine.start(false, !enabled);
 		}
 
 		function updateTitle() {
@@ -15233,16 +15296,19 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			doc.title = (sendError === true ? "{" + Lng.error[lang] + "} " : "") + (eCode === 200 ? "" : "{" + eCode + "} ") + (newPosts === 0 ? "" : "[" + newPosts + "] ") + title;
 		}
 
-		doc.addEventListener("visibilitychange", function () {
+		doc.addEventListener("visibilitychange", function (e) {
 			if (!doc.hidden) {
+				var focusTime = e.timeStamp;
 				favicon.stopBlink();
 				audio.stop();
+				notification.close();
 				newPosts = 0;
 				sendError = false;
 				setTimeout(function () {
 					updateTitle();
-					if (enabled) {
-						forceLoadPosts(true);
+					if (enabled && focusTime - focusLoadTime > 10000) {
+						focusLoadTime = focusTime;
+						forceLoadPosts();
 					}
 				}, 200);
 			} else if (dForm.firstThr) {
@@ -15250,18 +15316,21 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			}
 		});
 		if (enableUpdate) {
-			init(false);
-		}
-		if (!doc.hidden && Cfg.desktNotif && "permission" in Notification) {
-			switch (Notification.permission.toLowerCase()) {
-				case "default":
-					requestNotifPermission();break;
-				case "denied":
-					saveCfg("desktNotif", 0);
-			}
+			enableUpdater();
+			updMachine.start(true);
 		}
 
-		return Object.defineProperties({
+		return {
+			enable: function enable() {
+				if (!enabled) {
+					enableUpdater();
+					updMachine.start();
+				}
+			},
+			disable: function disable() {
+				disabledByUser = true;
+				disableUpdater();
+			},
 			forceLoad: function forceLoad(e) {
 				if (e) {
 					$pd(e);
@@ -15271,31 +15340,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					return;
 				}
 				$popup(Lng.loading[lang], "newposts", true);
-				forceLoadPosts(false);
+				forceLoadPosts();
 			},
-			enable: (function (_enable) {
-				var _enableWrapper = function enable() {
-					return _enable.apply(this, arguments);
-				};
-
-				_enableWrapper.toString = function () {
-					return _enable.toString();
-				};
-
-				return _enableWrapper;
-			})(function () {
-				if (!inited) {
-					init(true);
-				} else if (!enabled) {
-					enable();
-					updMachine.start();
-				} else {
-					return;
-				}
-			}),
 			pause: function pause() {
 				if (enabled && !paused) {
-					updMachine.stop(false);
+					updMachine.stop();
 					paused = true;
 				}
 			},
@@ -15305,7 +15354,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					paused = false;
 				}
 			},
-			disable: disable.bind(null, true),
 			toggleAudio: function toggleAudio(repeatMS) {
 				if (audio.enabled) {
 					audio.stop();
@@ -15316,16 +15364,11 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 			},
 			toggleCounter: function toggleCounter(enableCnt) {
 				if (enableCnt) {
-					if (!countEl) {
-						countEl = $id("de-updater-count");
-					}
-					countEl.innerHTML = "<span class=\"de-wait\"></span>";
-					countEl.style.display = "";
-					useCountdown = true;
-					forceLoadPosts(false);
+					counter.enable();
+					counter.setWait();
+					forceLoadPosts();
 				} else {
-					countEl.style.display = "none";
-					useCountdown = false;
+					counter.disable();
 				}
 			},
 			sendErrNotif: function sendErrNotif() {
@@ -15334,15 +15377,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					updateTitle();
 				}
 			}
-		}, {
-			enabled: {
-				get: function () {
-					return enabled;
-				},
-				configurable: true,
-				enumerable: true
-			}
-		});
+		};
 	}
 
 	function initPage() {
