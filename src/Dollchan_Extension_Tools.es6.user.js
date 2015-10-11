@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'f15f16e';
+var commit = 'd4fe2de';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12241,7 +12241,7 @@ function initThreadUpdater(title, enableUpdate) {
 						audio.play();
 					}
 					this._delay = this._initDelay;
-				} else if(this._delay !== 12e4 && this._canFocusLoad) {
+				} else if(this._delay !== 12e4) {
 					this._delay = Math.min(this._delay + this._initDelay, 12e4);
 				}
 			}
@@ -12252,7 +12252,7 @@ function initThreadUpdater(title, enableUpdate) {
 			case 0:
 				if(needSleep) {
 					this._state = 1;
-					counter.count(this._delay, !doc.hidden || !this._canFocusLoad, () => this._makeStep());
+					counter.count(this._delay, !doc.hidden, () => this._makeStep());
 					return;
 				}
 				/* falls through */

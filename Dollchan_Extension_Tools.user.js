@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "f15f16e";
+	var commit = "d4fe2de";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -15201,7 +15201,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 							audio.play();
 						}
 						this._delay = this._initDelay;
-					} else if (this._delay !== 120000 && this._canFocusLoad) {
+					} else if (this._delay !== 120000) {
 						this._delay = Math.min(this._delay + this._initDelay, 120000);
 					}
 				}
@@ -15216,7 +15216,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 					case 0:
 						if (needSleep) {
 							this._state = 1;
-							counter.count(this._delay, !doc.hidden || !this._canFocusLoad, function () {
+							counter.count(this._delay, !doc.hidden, function () {
 								return _this._makeStep();
 							});
 							return;
