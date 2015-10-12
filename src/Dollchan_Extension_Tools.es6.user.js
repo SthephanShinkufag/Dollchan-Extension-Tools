@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'd4fe2de';
+var commit = '3f04450';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12014,8 +12014,8 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		},
 		setWait() {
+			this._stop();
 			if(this._enabled) {
-				this._stop();
 				this._el.innerHTML = '<span class="de-wait"></span>';
 			}
 		},
