@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '3f04450';
+var commit = '02f6032';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12386,10 +12386,10 @@ function initThreadUpdater(title, enableUpdate) {
 			if(enableCnt) {
 				counter.enable();
 				counter.setWait();
-				forceLoadPosts();
 			} else {
 				counter.disable();
 			}
+			forceLoadPosts();
 		},
 		sendErrNotif() {
 			if(Cfg.sendErrNotif && doc.hidden) {

@@ -2594,7 +2594,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "3f04450";
+	var commit = "02f6032";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -15366,10 +15366,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 				if (enableCnt) {
 					counter.enable();
 					counter.setWait();
-					forceLoadPosts();
 				} else {
 					counter.disable();
 				}
+				forceLoadPosts();
 			},
 			sendErrNotif: function sendErrNotif() {
 				if (Cfg.sendErrNotif && doc.hidden) {
