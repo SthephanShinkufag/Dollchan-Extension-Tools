@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '02f6032';
+var commit = '8d3bb57';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8008,26 +8008,35 @@ AttachmentViewer.prototype = {
 	}
 };
 
-function IAttachmentData() {}
-IAttachmentData.prototype = {
-	expanded: false,
+class ExpandableMedia {
+	constructor(post, el, idx) {
+		this.post = post;
+		this.el = el;
+		this.idx = idx;
+		this.expanded = false;
+		this._fullEl = null;
+	};
+
 	get inPview() {
 		var val = this.post.isPview;
 		Object.defineProperty(this, 'inPview', { value: val });
 		return val;
-	},
+	};
+
 	get isImage() {
 		var val = /\.jpe?g|\.png|\.gif/i.test(this.src) ||
 			(this.src.startsWith('blob:') && !this.el.hasAttribute('de-video'));
 		Object.defineProperty(this, 'isImage', { value: val });
 		return val;
-	},
+	};
+
 	get isVideo() {
 		var val = /\.webm(?:&|$)/i.test(this.src) ||
 			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
 		Object.defineProperty(this, 'isVideo', { value: val });
 		return val;
-	},
+	};
+
 	get height() {
 		var dat = this._getImageSize();
 		Object.defineProperties(this, {
@@ -8035,12 +8044,14 @@ IAttachmentData.prototype = {
 			'height': { value: dat[1] }
 		});
 		return dat[1];
-	},
+	};
+
 	get src() {
 		var val = this._getImageSrc();
 		Object.defineProperty(this, 'src', { value: val });
 		return val;
-	},
+	};
+
 	get width() {
 		var dat = this._getImageSize();
 		Object.defineProperties(this, {
@@ -8048,7 +8059,8 @@ IAttachmentData.prototype = {
 			'height': { value: dat[1] }
 		});
 		return dat[0];
-	},
+	};
+
 	collapse(e) {
 		if(!this.isVideo || !this.isControlClick(e, this._fullEl.style.height)) {
 			this.expanded = false;
@@ -8062,7 +8074,8 @@ IAttachmentData.prototype = {
 			return true;
 		}
 		return false;
-	},
+	};
+
 	computeFullSize(inPost) {
 		var minSize = Cfg.minImgSize,
 			width = this.width,
@@ -8105,7 +8118,8 @@ IAttachmentData.prototype = {
 			}
 		}
 		return [width, height, null];
-	},
+	};
+
 	expand(inPost, e) {
 		if(!inPost) {
 			if(Attachment.viewer) {
@@ -8131,7 +8145,13 @@ IAttachmentData.prototype = {
 		this._fullEl.style.width = size[0] + 'px';
 		this._fullEl.style.height = size[1] + 'px';
 		$after(el.parentNode, this._fullEl);
-	},
+	};
+
+	getFollow(isForward) {
+		var nImage = this.post.images.data[isForward ? this.idx + 1 : this.idx - 1];
+		return nImage ? nImage : this.getFollowPost(isForward);
+	};
+
 	getFollowPost(isForward) {
 		var imgs, post = this.post;
 		do {
@@ -8145,7 +8165,8 @@ IAttachmentData.prototype = {
 			imgs = post.images;
 		} while(!imgs.length);
 		return isForward ? imgs.first : imgs.last;
-	},
+	};
+
 	getFullObject() {
 		var obj, src = this.src;
 		if(this.isVideo) {
@@ -8190,11 +8211,13 @@ IAttachmentData.prototype = {
 			};
 		}
 		return obj;
-	},
+	};
+
 	isControlClick(e, styleHeight) {
 		return Cfg.webmControl && e.clientY >
 			(e.target.getBoundingClientRect().top + parseInt(styleHeight, 10) - 30);
-	},
+	};
+
 	sendCloseEvent(e, inPost) {
 		var pv = this.post,
 			cr = pv.el.getBoundingClientRect(),
@@ -8220,9 +8243,8 @@ IAttachmentData.prototype = {
 		} else if(x > cr.right || y > cr.bottom && Pview.top) {
 			Pview.top.markToDel();
 		}
-	},
+	};
 
-	_fullEl: null,
 	get _offset() {
 		var val;
 		if(this.post.hidden) {
@@ -8234,47 +8256,33 @@ IAttachmentData.prototype = {
 		}
 		Object.defineProperty(this, '_offset', { value: val });
 		return val;
-	}
-};
-
-function EmbeddedImage(post, el, idx) {
-	this.post = post;
-	this.el = el;
-	this.idx = idx;
+	};
 }
-EmbeddedImage.prototype = Object.create(IAttachmentData.prototype, {
-	getFollow: { value(isForward) {
-		var nImage = this.post.images.data[isForward ? this.idx + 1 : this.idx - 1];
-		return nImage ? nImage : this.getFollowPost(isForward);
-	} },
-	_useCache: { value: false },
-	_getImageSize: { value() {
+
+class EmbeddedImage extends ExpandableMedia {
+	_getImageSize() {
 		var iEl = new Image();
 		iEl.src = this.el.src;
 		return [iEl.width, iEl.height];
-	} },
-	_getImageSrc: { value() {
-		return this.el.src;
-	} },
-	_getImageParent: { value() {
-		return this.el.parentNode;
-	} }
-});
+	};
 
-function Attachment(post, el, idx) {
-	this.post = post;
-	this.el = el;
-	this.idx = idx;
+	_getImageSrc() {
+		return this.el.src;
+	};
+
+	_getImageParent() {
+		return this.el.parentNode;
+	};
 }
-Attachment.cachedOffset = -1;
-Attachment.viewer = null;
-Attachment.prototype = Object.create(IAttachmentData.prototype, {
-	info: { configurable: true, get() {
+
+class Attachment extends ExpandableMedia {
+	get info() {
 		var val = aib.getFileInfo(aib.getImgWrap(this.el.parentNode));
 		Object.defineProperty(this, 'info', { value: val });
 		return val;
-	} },
-	weight: { configurable: true, get() {
+	};
+
+	get weight() {
 		var val = 0;
 		if(this.info) {
 			var w = this.info.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
@@ -8282,19 +8290,14 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 		}
 		Object.defineProperty(this, 'weight', { value: val });
 		return val;
-	} },
-	getFollow: { value(isForward) {
-		var nImage = this.post.images.data[isForward ? this.idx + 1 : this.idx - 1];
-		return nImage ? nImage : this.getFollowPost(isForward);
-	} },
+	};
 
-	_offset: { configurable: true, get() {
+	get _offset() {
 		var needCache = !this.inPview && !this.post.isOp &&
 			!this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4;
 		var value;
 		if(!needCache || Attachment.cachedOffset === -1) {
-			value = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(Object.getPrototypeOf(this)),
-			                                        '_offset').get.call(this);
+			value = super._offset;
 			if(needCache) {
 				Attachment.cachedOffset = value;
 			}
@@ -8303,21 +8306,26 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 			Object.defineProperty(this, '_offset', { value });
 		}
 		return value;
-	} },
-	_getImageSize: { value() {
+	};
+
+	_getImageSize() {
 		if(this.info) {
 			var size = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
 			return [size[1], size[2]];
 		}
 		return [-1, -1];
-	} },
-	_getImageSrc: { value() {
+	};
+
+	_getImageSrc() {
 		return aib.getImgLink(this.el).href;
-	} },
-	_getImageParent: { value() {
+	};
+
+	_getImageParent() {
 		return aib.getImgParent(this.el.parentNode);
-	} }
-});
+	};
+}
+Attachment.cachedOffset = -1;
+Attachment.viewer = null;
 
 var ImagesHashStorage = Object.create({
 	endFn() {
