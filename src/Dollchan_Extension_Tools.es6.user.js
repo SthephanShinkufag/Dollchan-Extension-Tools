@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '88efc02';
+var commit = '4f6efed';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -6469,8 +6469,9 @@ function PostForm(form, ignoreForm, dc) {
 	});
 	if(this.cap) {
 		this.capTr = $parent(this.cap, 'TR');
-		this.txta.addEventListener('focus', this._captchaInit.bind(this, this.capTr.innerHTML));
-		this.form.addEventListener('click', this._captchaInit.bind(this, this.capTr.innerHTML));
+		var html = this.capTr.innerHTML;
+		this.txta.addEventListener('focus', () => this._captchaInit(html));
+		this.form.addEventListener('click', () => this._captchaInit(html), true);
 		if(!aib.krau) {
 			this.capTr.style.display = 'none';
 		}
@@ -6757,9 +6758,7 @@ PostForm.prototype = {
 		}
 	},
 	refreshCapImg(focus) {
-		if(this._lastCapUpdate) {
-			this._lastCapUpdate = Date.now();
-		}
+		this._lastCapUpdate = Date.now();
 		if(aib.mak || aib.fch) {
 			aib.updateCaptcha(focus);
 		} else {
@@ -6833,8 +6832,12 @@ PostForm.prototype = {
 		if(this.capInited) {
 			return;
 		}
+		this._lastCapUpdate = Date.now();
 		if(aib.mak || aib.fch) {
 			aib.updateCaptcha(false);
+			if(aib.mak) {
+				this.capTr.style.display = '';
+			}
 			pr.txta.tabIndex = 999;
 			this.capInited = true;
 			return;
