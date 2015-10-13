@@ -2602,7 +2602,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "4f6efed";
+	var commit = "495ff1e";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -8165,7 +8165,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			var _iteratorError = undefined;
 
 			try {
-				for (var _iterator = this._post.images.data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+				for (var _iterator = this._post.images.values[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 					var image = _step.value;
 
 					if (image instanceof Attachment && val.test(image.info)) {
@@ -8201,7 +8201,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						_didIteratorError = false;
 						_iteratorError = undefined;
 						context$2$0.prev = 3;
-						_iterator = _this202._post.images.data[Symbol.iterator]();
+						_iterator = _this202._post.images.values[Symbol.iterator]();
 
 					case 5:
 						if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
@@ -8307,7 +8307,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			var _iteratorError = undefined;
 
 			try {
-				for (var _iterator = images.data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+				for (var _iterator = images.values[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 					var image = _step.value;
 
 					if (!(image instanceof Attachment)) {
@@ -10585,14 +10585,18 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	});
 
 	var ExpandableMedia = (function () {
-		function ExpandableMedia(post, el, idx) {
+		function ExpandableMedia(post, el, prev) {
 			_classCallCheck(this, ExpandableMedia);
 
 			this.post = post;
 			this.el = el;
-			this.idx = idx;
+			this.prev = prev;
+			this.next = null;
 			this.expanded = false;
 			this._fullEl = null;
+			if (prev) {
+				prev.next = this;
+			}
 		}
 
 		_createClass(ExpandableMedia, {
@@ -10734,7 +10738,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			},
 			getFollow: {
 				value: function getFollow(isForward) {
-					var nImage = this.post.images.data[isForward ? this.idx + 1 : this.idx - 1];
+					var nImage = isForward ? this.next : this.prev;
 					if (nImage) {
 						return nImage;
 					}
@@ -10752,7 +10756,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							}
 						}
 						imgs = post.images;
-					} while (!imgs.length);
+					} while (imgs.first === null);
 					return isForward ? imgs.first : imgs.last;
 				}
 			},
@@ -11423,7 +11427,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 				return;
 			}
-			if (type === "mouseover" && Cfg.expandImgs && !el.classList.contains("de-img-full") && (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)) {
+			if (type === "mouseover" && Cfg.expandImgs && !el.classList.contains("de-img-full") && el.tagName === "IMG" && (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)) {
 				el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
 			}
 			if (!this._hasEvents) {
@@ -11677,7 +11681,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			var _iteratorError = undefined;
 
 			try {
-				for (var _iterator = this.images.data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+				for (var _iterator = this.images.values[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 					var image = _step.value;
 
 					if (image.isImage && image.expanded ^ expand) {
@@ -12274,59 +12278,49 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 	function PostImages(post) {
 		var els = $Q(aib.qThumbImages, post.el),
-		    filesMap = new WeakMap(),
-		    data = [],
+		    filesMap = new Map(),
+		    first = null,
 		    hasAttachments = false,
-		    idx = 0;
-		for (var i = 0, len = els.length; i < len; ++i, ++idx) {
-			var el = els[i],
-			    obj = new Attachment(post, el, idx);
-			filesMap.set(el, obj);
-			data.push(obj);
+		    last = null;
+		for (var i = 0, len = els.length; i < len; ++i) {
+			var el = els[i];
+			last = new Attachment(post, el, last);
+			filesMap.set(el, last);
 			hasAttachments = true;
+			if (!first) {
+				first = last;
+			}
 		}
 		if (Cfg.addImgs) {
 			els = aProto.slice.call($C("de-img-pre", post.el));
-			for (var i = 0, len = els.length; i < len; ++i, ++idx) {
-				var el = els[i],
-				    obj = new EmbeddedImage(post, el, idx);
-				filesMap.set(el, obj);
-				data.push(obj);
+			for (var i = 0, len = els.length; i < len; ++i) {
+				var el = els[i];
+				last = new EmbeddedImage(post, el, last);
+				filesMap.set(el, last);
+				if (!first) {
+					first = last;
+				}
 			}
 		}
-		this.data = data;
-		this.length = data.length;
+		this.first = first;
+		this.last = last;
 		this.hasAttachments = hasAttachments;
 		this._map = filesMap;
 	}
 	PostImages.prototype = Object.defineProperties({
 		getImageByEl: function getImageByEl(el) {
 			return this._map.get(el);
-		}
-	}, {
-		first: {
-			get: function () {
-				return this.data[0];
-			},
-			configurable: true,
-			enumerable: true
-		},
+		} }, {
 		firstAttach: {
 			get: function () {
-				for (var i = 0; i < this.length; ++i) {
-					var obj = this.data[i];
-					if (obj instanceof Attachment) {
-						return obj;
-					}
-				}
-				return null;
+				return this.hasAttachments ? this.first : null;
 			},
 			configurable: true,
 			enumerable: true
 		},
-		last: {
+		values: {
 			get: function () {
-				return this.data[this.length - 1];
+				return this._map.values();
 			},
 			configurable: true,
 			enumerable: true
