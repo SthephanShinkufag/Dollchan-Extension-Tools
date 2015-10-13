@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '8d3bb57';
+var commit = '88efc02';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7886,8 +7886,10 @@ AttachmentViewer.prototype = {
 		var data = this.data;
 		do {
 			data = data.getFollow(isForward);
-		} while(!data.isVideo && !data.isImage);
-		this.update(data, true, null);
+		} while(data && !data.isVideo && !data.isImage);
+		if(data) {
+			this.update(data, true, null);
+		}
 	},
 	setWebmVolume: function(val) {
 		var el = this._fullEl;
@@ -8149,10 +8151,9 @@ class ExpandableMedia {
 
 	getFollow(isForward) {
 		var nImage = this.post.images.data[isForward ? this.idx + 1 : this.idx - 1];
-		return nImage ? nImage : this.getFollowPost(isForward);
-	};
-
-	getFollowPost(isForward) {
+		if(nImage) {
+			return nImage;
+		}
 		var imgs, post = this.post;
 		do {
 			post = post.getAdjacentVisPost(!isForward);
@@ -8160,6 +8161,9 @@ class ExpandableMedia {
 				post = isForward ? dForm.firstThr.op : dForm.lastThr.last;
 				if(post.hidden || post.thr.hidden) {
 					post = post.getAdjacentVisPost(!isForward);
+					if(!post) {
+						return null;
+					}
 				}
 			}
 			imgs = post.images;

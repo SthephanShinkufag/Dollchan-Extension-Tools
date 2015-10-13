@@ -2602,7 +2602,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "8d3bb57";
+	var commit = "88efc02";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -10436,8 +10436,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			var data = this.data;
 			do {
 				data = data.getFollow(isForward);
-			} while (!data.isVideo && !data.isImage);
-			this.update(data, true, null);
+			} while (data && !data.isVideo && !data.isImage);
+			if (data) {
+				this.update(data, true, null);
+			}
 		},
 		setWebmVolume: function setWebmVolume(val) {
 			var el = this._fullEl;
@@ -10726,11 +10728,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			getFollow: {
 				value: function getFollow(isForward) {
 					var nImage = this.post.images.data[isForward ? this.idx + 1 : this.idx - 1];
-					return nImage ? nImage : this.getFollowPost(isForward);
-				}
-			},
-			getFollowPost: {
-				value: function getFollowPost(isForward) {
+					if (nImage) {
+						return nImage;
+					}
 					var imgs,
 					    post = this.post;
 					do {
@@ -10739,6 +10739,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							post = isForward ? dForm.firstThr.op : dForm.lastThr.last;
 							if (post.hidden || post.thr.hidden) {
 								post = post.getAdjacentVisPost(!isForward);
+								if (!post) {
+									return null;
+								}
 							}
 						}
 						imgs = post.images;
