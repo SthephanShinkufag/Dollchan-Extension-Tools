@@ -2602,7 +2602,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "495ff1e";
+	var commit = "c6a76eb";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -5805,7 +5805,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 									post.thr.load(1, false);
 									post = post.thr.op;
 								}
-								scrollTo(0, window.pageYOffset + post.topCoord);
+								scrollTo(0, post.offsetTop);
 								if (this.cPost && this.cPost !== post) {
 									this.cPost.unselect();
 									this.cPost = post;
@@ -5834,7 +5834,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		_getFirstVisPost: function _getFirstVisPost(getThread, getFull) {
 			if (this.lastPageOffset !== window.pageYOffset) {
 				var post = getThread ? dForm.firstThr : dForm.firstThr.op;
-				while (post.topCoord < 1) {
+				while (post.offsetTop < pageYOffset + 1) {
 					var tPost = post.next;
 					if (!tPost) {
 						break;
@@ -8843,7 +8843,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 									_this203.innerHTML = "можно постить";
 								} else {
 									_this203.innerHTML = "неверная капча";
-									setTimeout(function (el) {
+									setTimeout(function () {
 										return _this203.innerHTML = "проверить капчу";
 									}, 1000);
 								}
@@ -9397,9 +9397,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			configurable: true,
 			enumerable: true
 		},
-		topCoord: {
+		offsetTop: {
 			get: function () {
-				return this.pForm.getBoundingClientRect().top;
+				return this.pForm.offsetTop;
 			},
 			configurable: true,
 			enumerable: true
@@ -12149,9 +12149,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			configurable: true,
 			enumerable: true
 		},
-		topCoord: {
+		offsetTop: {
 			get: function () {
-				return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el).getBoundingClientRect().top;
+				return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el).offsetTop;
 			},
 			configurable: true,
 			enumerable: true
@@ -12936,7 +12936,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			    thrEl = this.el;
 			if (smartScroll) {
 				if (this.next) {
-					nextCoord = this.next.topCoord;
+					nextCoord = this.next.offsetTop;
 				} else {
 					smartScroll = false;
 				}
@@ -13032,7 +13032,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				op.el.insertAdjacentHTML("afterend", "<div class=\"de-omitted\">" + needToOmit + "</div>");
 			}
 			if (smartScroll) {
-				scrollTo(window.pageXOffset, window.pageYOffset - (nextCoord - this.next.topCoord));
+				scrollTo(window.pageXOffset, window.pageYOffset - (nextCoord - this.next.offsetTop));
 			}
 			closePopup("load-thr");
 		},
@@ -13060,7 +13060,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		loadNewFromForm: function loadNewFromForm(form) {
 			this._checkBans(form);
 			aib.checkForm(form, null);
-			var lastOffset = pr.isVisible ? pr.topCoord : null;
+			var lastOffset = pr.isVisible ? pr.offsetTop : null;
 			var _parsePosts = this._parsePosts($Q(aib.qRPost, form));
 
 			var _parsePosts2 = _slicedToArray(_parsePosts, 2);
@@ -13069,7 +13069,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			var newVisPosts = _parsePosts2[1];
 
 			if (lastOffset !== null) {
-				scrollTo(window.pageXOffset, window.pageYOffset - (lastOffset - pr.topCoord));
+				scrollTo(window.pageXOffset, window.pageYOffset - (lastOffset - pr.offsetTop));
 			}
 			if (newPosts !== 0) {
 				panel.updateCounter(this.pcount, $Q(aib.qThumbImages, dForm.el).length);
@@ -13287,9 +13287,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			configurable: true,
 			enumerable: true
 		},
-		topCoord: {
+		offsetTop: {
 			get: function () {
-				return this.op.topCoord;
+				return this.op.offsetTop;
 			},
 			configurable: true,
 			enumerable: true
@@ -15152,13 +15152,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 			},
 
-			_granted: false,
+			_granted: true,
 			_closeTO: null,
 			_notifEl: null,
 
 			_requestPermission: function _requestPermission() {
 				var _this234 = this;
 
+				this._granted = false;
 				Notification.requestPermission(function (state) {
 					if (state.toLowerCase() === "denied") {
 						saveCfg("desktNotif", 0);

@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '495ff1e';
+var commit = 'c6a76eb';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3689,7 +3689,7 @@ HotKeys.prototype = {
 							post.thr.load(1, false);
 							post = post.thr.op;
 						}
-						scrollTo(0, window.pageYOffset + post.topCoord);
+						scrollTo(0, post.offsetTop);
 						if(this.cPost && this.cPost !== post) {
 							this.cPost.unselect();
 							this.cPost = post;
@@ -3720,7 +3720,7 @@ HotKeys.prototype = {
 	_getFirstVisPost(getThread, getFull) {
 		if(this.lastPageOffset !== window.pageYOffset) {
 			var post = getThread ? dForm.firstThr : dForm.firstThr.op;
-			while(post.topCoord < 1) {
+			while(post.offsetTop < pageYOffset + 1) {
 				var tPost = post.next;
 				if(!tPost) {
 					break;
@@ -6410,7 +6410,7 @@ function PostForm(form, ignoreForm, dc) {
 								this.innerHTML = 'можно постить';
 							} else {
 								this.innerHTML = 'неверная капча';
-								setTimeout(el => this.innerHTML = 'проверить капчу', 1e3);
+								setTimeout(() => this.innerHTML = 'проверить капчу', 1e3);
 							}
 						}, emptyFn);
 					}
@@ -6663,8 +6663,8 @@ PostForm.prototype = {
 		}
 		return false;
 	},
-	get topCoord() {
-		return this.pForm.getBoundingClientRect().top;
+	get offsetTop() {
+		return this.pForm.offsetTop;
 	},
 	showQuickReply(post, pNum, closeReply, isNumClick) {
 		var temp, isThr = aib.t,
@@ -9056,9 +9056,9 @@ Post.prototype = {
 		}
 		saveUserPosts();
 	},
-	get topCoord() {
+	get offsetTop() {
 		return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el)
-			.getBoundingClientRect().top;
+			.offsetTop;
 	},
 	get trunc() {
 		var el = aib.qTrunc && $q(aib.qTrunc, this.el), val = null;
@@ -10022,8 +10022,8 @@ Thread.prototype = {
 		for(var thr = this.prev; thr && thr.hidden; thr = thr.prev) {}
 		return thr;
 	},
-	get topCoord() {
-		return this.op.topCoord;
+	get offsetTop() {
+		return this.op.offsetTop;
 	},
 	addPost(parent, el, i, prev, maybeVParser) {
 		var post, num = aib.getPNum(el),
@@ -10110,7 +10110,7 @@ Thread.prototype = {
 			thrEl = this.el;
 		if(smartScroll) {
 			if(this.next) {
-				nextCoord = this.next.topCoord;
+				nextCoord = this.next.offsetTop;
 			} else {
 				smartScroll = false;
 			}
@@ -10201,7 +10201,7 @@ Thread.prototype = {
 			op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + needToOmit + '</div>');
 		}
 		if(smartScroll) {
-			scrollTo(window.pageXOffset, window.pageYOffset - (nextCoord - this.next.topCoord));
+			scrollTo(window.pageXOffset, window.pageYOffset - (nextCoord - this.next.offsetTop));
 		}
 		closePopup('load-thr');
 	},
@@ -10226,10 +10226,10 @@ Thread.prototype = {
 	loadNewFromForm(form) {
 		this._checkBans(form);
 		aib.checkForm(form, null);
-		var lastOffset = pr.isVisible ? pr.topCoord : null,
+		var lastOffset = pr.isVisible ? pr.offsetTop : null,
 			[newPosts, newVisPosts] = this._parsePosts($Q(aib.qRPost, form));
 		if(lastOffset !== null) {
-			scrollTo(window.pageXOffset, window.pageYOffset - (lastOffset - pr.topCoord));
+			scrollTo(window.pageXOffset, window.pageYOffset - (lastOffset - pr.offsetTop));
 		}
 		if(newPosts !== 0) {
 			panel.updateCounter(this.pcount, $Q(aib.qThumbImages, dForm.el).length);
@@ -12160,11 +12160,12 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		},
 
-		_granted: false,
+		_granted: true,
 		_closeTO: null,
 		_notifEl: null,
 
 		_requestPermission() {
+			this._granted = false;
 			Notification.requestPermission(state => {
 				if(state.toLowerCase() === 'denied') {
 					saveCfg('desktNotif', 0);
