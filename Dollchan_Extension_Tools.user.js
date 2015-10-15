@@ -2602,7 +2602,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "c6a76eb";
+	var commit = "82ccde8";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -12936,7 +12936,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			    thrEl = this.el;
 			if (smartScroll) {
 				if (this.next) {
-					nextCoord = this.next.offsetTop;
+					nextCoord = this.next.offsetTop - window.pageYOffset;
 				} else {
 					smartScroll = false;
 				}
@@ -13032,7 +13032,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				op.el.insertAdjacentHTML("afterend", "<div class=\"de-omitted\">" + needToOmit + "</div>");
 			}
 			if (smartScroll) {
-				scrollTo(window.pageXOffset, window.pageYOffset - (nextCoord - this.next.offsetTop));
+				scrollTo(window.pageXOffset, this.next.offsetTop - nextCoord);
 			}
 			closePopup("load-thr");
 		},
@@ -13060,7 +13060,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		loadNewFromForm: function loadNewFromForm(form) {
 			this._checkBans(form);
 			aib.checkForm(form, null);
-			var lastOffset = pr.isVisible ? pr.offsetTop : null;
+			var lastOffset = pr.isVisible ? pr.offsetTop - window.pageYOffset : null;
 			var _parsePosts = this._parsePosts($Q(aib.qRPost, form));
 
 			var _parsePosts2 = _slicedToArray(_parsePosts, 2);
@@ -13069,7 +13069,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			var newVisPosts = _parsePosts2[1];
 
 			if (lastOffset !== null) {
-				scrollTo(window.pageXOffset, window.pageYOffset - (lastOffset - pr.offsetTop));
+				scrollTo(window.pageXOffset, pr.offsetTop - lastOffset);
 			}
 			if (newPosts !== 0) {
 				panel.updateCounter(this.pcount, $Q(aib.qThumbImages, dForm.el).length);
