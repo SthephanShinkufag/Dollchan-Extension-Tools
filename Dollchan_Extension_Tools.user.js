@@ -1198,6 +1198,8 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+
 !(function(global) {
   "use strict";
 
@@ -2602,7 +2604,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "82ccde8";
+	var commit = "986f7e4";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -13242,7 +13244,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 				if (f = f[aib.b][_this202.op.num]) {
 					var el = $q("#de-win-fav > .de-win-body", doc);
-					if (el.hasChildNodes()) {
+					if (el && el.hasChildNodes()) {
 						el = $q(".de-fav-current > .de-entry[de-num=\"" + _this202.op.num + "\"] .de-fav-inf-new", el);
 						el.style.display = "none";
 						el.textContent = 0;

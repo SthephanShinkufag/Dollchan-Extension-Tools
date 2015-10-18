@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '82ccde8';
+var commit = '986f7e4';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10399,7 +10399,7 @@ Thread.prototype = {
 			}
 			if((f = f[aib.b][this.op.num])) {
 				var el = $q('#de-win-fav > .de-win-body', doc);
-				if(el.hasChildNodes()) {
+				if(el && el.hasChildNodes()) {
 					el = $q('.de-fav-current > .de-entry[de-num="' + this.op.num + '"] .de-fav-inf-new', el);
 					el.style.display = 'none';
 					el.textContent = 0;
