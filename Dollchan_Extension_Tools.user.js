@@ -1198,8 +1198,6 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
-
-
 !(function(global) {
   "use strict";
 
@@ -2604,7 +2602,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "6bf933f";
+	var commit = "cb679b7";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -12580,14 +12578,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				el: { value: post, writable: true },
 				inited: { value: false },
 				pvInited: { value: false, writable: true },
-				ref: { value: [], writable: true }
+				ref: { value: new Set(), writable: true }
 			});
 		}
 		pBn[tNum] = this._opObj = Object.create(pProto, {
 			inited: { value: false },
 			isOp: { value: true },
 			msg: { value: $q(aib.qMsg, thr), writable: true },
-			ref: { value: [], writable: true }
+			ref: { value: new Set(), writable: true }
 		});
 		this._b = b;
 		this._thr = thr;
