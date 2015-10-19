@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '213b103';
+var commit = '6bf933f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3207,7 +3207,13 @@ function addSettings(body, id) {
 			}
 			$id('de-export-file').addEventListener('click', e => {
 				spawn(getStored, 'DESU_Config').then(val => {
-					downloadBlob(new Blob([val], { type: 'application/json' }), 'DE_Config.json')
+					var d = new Date(),
+						fn = function(i) {
+							return parseInt(i) < 10 ? '0' + i : i;
+						};
+					downloadBlob(new Blob([val], { type: 'application/json' }),
+						'DE_Config_' + d.getFullYear() + fn(d.getMonth() + 1) +
+							fn(d.getDate()) + '_' + fn(d.getHours()) + fn(d.getMinutes()) + '.json')
 				});
 				$pd(e);
 			}, true);

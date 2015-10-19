@@ -1198,6 +1198,8 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+
 !(function(global) {
   "use strict";
 
@@ -2602,7 +2604,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "213b103";
+	var commit = "6bf933f";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -5283,7 +5285,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			};
 			$id("de-export-file").addEventListener("click", function (e) {
 				spawn(getStored, "DESU_Config").then(function (val) {
-					downloadBlob(new Blob([val], { type: "application/json" }), "DE_Config.json");
+					var d = new Date(),
+					    fn = function fn(i) {
+						return parseInt(i) < 10 ? "0" + i : i;
+					};
+					downloadBlob(new Blob([val], { type: "application/json" }), "DE_Config_" + d.getFullYear() + fn(d.getMonth() + 1) + fn(d.getDate()) + "_" + fn(d.getHours()) + fn(d.getMinutes()) + ".json");
 				});
 				$pd(e);
 			}, true);
