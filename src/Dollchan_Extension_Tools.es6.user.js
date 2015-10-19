@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '986f7e4';
+var commit = '213b103';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5893,7 +5893,7 @@ SpellsInterpreter.prototype = {
 		return val.test(this._post.html);
 	},
 	_imgn(val) {
-		for(var image of this._post.images.values) {
+		for(var image of this._post.images) {
 			if((image instanceof Attachment) && val.test(image.info)) {
 				return true;
 			}
@@ -5901,7 +5901,7 @@ SpellsInterpreter.prototype = {
 		return false;
 	},
 	_ihash: async(function* (val) {
-		for(var image of this._post.images.values) {
+		for(var image of this._post.images) {
 			if(!(image instanceof Attachment)) {
 				continue;
 			}
@@ -5930,7 +5930,7 @@ SpellsInterpreter.prototype = {
 		if(!val) {
 			return images.hasAttachments;
 		}
-		for(var image of images.values) {
+		for(var image of images) {
 			if(!(image instanceof Attachment)) {
 				continue;
 			}
@@ -8475,7 +8475,7 @@ function Post(el, thr, num, count, isOp, prev, isLight) {
 		html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') +
 			'"><span class="de-btn-hide" de-menu="hide"></span><span class="de-btn-rep"></span>';
 	this._pref = refEl;
-	this.ref = [];
+	this.ref = new Set();
 	el.post = this;
 	if(isOp) {
 		if(!aib.t) {
@@ -8578,7 +8578,6 @@ Post.sizing = {
 Post.prototype = {
 	banned: false,
 	deleted: false,
-	hasRef: false,
 	hidden: false,
 	imagesExpanded: false,
 	inited: true,
@@ -8818,17 +8817,17 @@ Post.prototype = {
 		}
 	},
 	hideRefs() {
-		if(!Cfg.hideRefPsts || !this.hasRef) {
+		if(!Cfg.hideRefPsts || this.ref.size === 0) {
 			return;
 		}
-		this.ref.forEach(function(num) {
+		this.ref.forEach(num => {
 			var pst = pByNum[num];
 			if(pst && !pst.userToggled) {
 				pst.setVisib(true);
 				pst.setNote('reference to >>' + this.num);
 				pst.hideRefs();
 			}
-		}, this);
+		});
 	},
 	getAdjacentVisPost(toUp) {
 		var post = toUp ? this.prev : this.next;
@@ -9031,7 +9030,7 @@ Post.prototype = {
 		return this.thr.num;
 	},
 	toggleImages(expand) {
-		for(var image of this.images.values) {
+		for(var image of this.images) {
 			if(image.isImage && (image.expanded ^ expand)) {
 				if(expand) {
 					image.expand(true, null);
@@ -9069,7 +9068,7 @@ Post.prototype = {
 		return val;
 	},
 	unhideRefs() {
-		if(!Cfg.hideRefPsts || !this.hasRef) {
+		if(!Cfg.hideRefPsts || this.ref.size === 0) {
 			return;
 		}
 		this.ref.forEach(function(num) {
@@ -9487,8 +9486,18 @@ PostImages.prototype = {
 	getImageByEl(el) {
 		return this._map.get(el);
 	},
-	get values() {
-		return this._map.values();
+	[Symbol.iterator]() {
+		return {
+			_img: this.first,
+			next() {
+				var value = this._img;
+				if(value) {
+					this._img = value.next;
+					return { value, done: false };
+				}
+				return { done: true };
+			}
+		};
 	}
 };
 
@@ -9599,9 +9608,9 @@ Pview.prototype = Object.create(Post.prototype, {
 			parentNum = parent.num,
 			cache = this._cache[b + this.tNum] = new PviewsCache(form, b, this.tNum),
 			post = cache.getPost(this.num);
-		if(post && (aib.b !== b || !post.hasRef || post.ref.indexOf(parentNum) === -1)) {
+		if(post && (aib.b !== b || post.ref.size === 0 || !post.ref.has(parentNum))) {
 			var rm;
-			if(post.hasRef) {
+			if(post.ref.size !== 0) {
 				rm = $c('de-refmap', post.el);
 			} else {
 				post.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
@@ -9760,7 +9769,7 @@ PviewsCache.prototype = {
 		if(pst && !pst.pvInited) {
 			pst.el = replacePost(pst.el);
 			delete pst.msg;
-			if(pst.hasRef) {
+			if(pst.ref.size !== 0) {
 				addRefMap(pst, this._tUrl);
 			}
 			pst.pvInited = true;
@@ -9772,27 +9781,9 @@ PviewsCache.prototype = {
 		op.el = replacePost(aib.getOp(this._thr));
 		op.msg = $q(aib.qMsg, op.el);
 		if(this._b === aib.b && (oOp = pByNum[this._tNum])) {
-			var i, j, len, rRef = [],
-				oRef = op.ref,
-				nRef = oOp.ref;
-			for(i = j = 0, len = nRef.length; j < len; ++j) {
-				var num = nRef[j];
-				if(oRef[i] === num) {
-					i++;
-				} else if(oRef.indexOf(num) !== -1) {
-					continue;
-				}
-				rRef.push(num);
-			}
-			for(len = oRef.length; i < len; i++) {
-				rRef.push(oRef[i]);
-			}
-			op.ref = rRef;
-			if(rRef.length) {
-				op.hasRef = true;
-				addRefMap(op, this._tUrl);
-			}
-		} else if(op.hasRef) {
+			oOp.ref.forEach(num => op.ref.add(num));
+		}
+		if(op.ref.size !== 0) {
 			addRefMap(op, this._tUrl);
 		}
 		Object.defineProperty(this, '_op', { value: op });
@@ -9855,14 +9846,10 @@ function setPviewPosition(link, pView, isAnim) {
 function addRefMap(post, tUrl) {
 	var bStr = '<a href="' + tUrl + aib.anchor,
 		strNums = Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
-		html = ['<div class="de-refmap">'],
-		el = post.ref;
-	for(var i = 0, len = el.length; i < len; ++i) {
-		var num = el[i];
-		html.push(bStr, num, '" class="de-link-ref ',
-			(strNums && strNums.indexOf(+num) !== -1 ? 'de-link-hid' : ''),
-			'">&gt;&gt;', num, '</a><span class="de-refcomma">, </span>');
-	}
+		html = ['<div class="de-refmap">'];
+	post.ref.forEach(num => html.push(bStr, num, '" class="de-link-ref ',
+		(strNums && strNums.indexOf(+num) !== -1 ? 'de-link-hid' : ''),
+		'">&gt;&gt;', num, '</a><span class="de-refcomma">, </span>'));
 	html.push('</div>');
 	if(aib.dobr) {
 		el = post.msg.nextElementSibling;
@@ -9878,15 +9865,10 @@ function genRefMap(posts, thrURL) {
 	var opNums = dForm.tNums;
 	for(var pNum in posts) {
 		aib.forEachReflink(posts[pNum].msg, (link, lNum) => {
-			var ref, post = posts[lNum];
-			if(!post) {
+			if(!(lNum in posts)) {
 				return;
 			}
-			ref = post.ref;
-			if(ref.indexOf(pNum) === -1) {
-				ref.push(pNum);
-				post.hasRef = true;
-			}
+			posts[lNum].ref.add(pNum);
 			if(!aib.hasOPNum && opNums.indexOf(lNum) !== -1) {
 				link.classList.add('de-ref-op');
 			}
@@ -9919,9 +9901,8 @@ function updRefMap(post, add) {
 			if(!aib.hasOPNum && dForm.tNums.indexOf(lNum) !== -1) {
 				link.classList.add('de-ref-op');
 			}
-			if(lPost.ref.indexOf(pNum) === -1) {
-				lPost.ref.push(pNum);
-				post.hasRef = true;
+			if(!lPost.ref.has(pNum)) {
+				lPost.ref.add(pNum);
 				if(Cfg.hideRefPsts && lPost.hidden) {
 					if(!post.hidden) {
 						post.hideRefs();
@@ -9932,15 +9913,9 @@ function updRefMap(post, add) {
 			} else {
 				return;
 			}
-		} else if(lPost.hasRef) {
-			var ref = lPost.ref,
-				idx = ref.indexOf(pNum);
-			if(idx === -1) {
-				return;
-			}
-			ref.splice(idx, 1);
-			if(!ref.length) {
-				lPost.hasRef = false;
+		} else if(lPost.ref.size !== 0) {
+			lPost.ref.delete(pNum);
+			if(lPost.ref.size === 0) {
 				$del($c('de-refmap', lPost.el));
 				return;
 			}
@@ -10121,7 +10096,7 @@ Thread.prototype = {
 			if(op.trunc) {
 				op.updateMsg(replacePost($q(aib.qMsg, form)), maybeSpells.value);
 			}
-			op.ref = [];
+			op.ref = new Set();
 			this.loadedOnce = true;
 		}
 		this._checkBans(form);
@@ -12930,7 +12905,7 @@ function addDelformStuff() {
 	if(dForm.firstThr && Cfg.linksNavig === 2) {
 		genRefMap(pByNum, '');
 		for(var post = dForm.firstThr.op; post; post = post.next) {
-			if(post.hasRef) {
+			if(post.ref.size !== 0) {
 				addRefMap(post, '');
 			}
 		}

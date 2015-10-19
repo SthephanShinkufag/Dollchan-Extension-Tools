@@ -1198,8 +1198,6 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
-
-
 !(function(global) {
   "use strict";
 
@@ -2604,7 +2602,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "986f7e4";
+	var commit = "213b103";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -3341,19 +3339,19 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	}
 
 	function CancelablePromise(fn) {
-		var _this202 = this;
+		var _this203 = this;
 
 		this._promise = new Promise(function (res, rej) {
-			_this202._oResFn = res;
-			_this202._oRejFn = rej;
+			_this203._oResFn = res;
+			_this203._oRejFn = rej;
 		});
 		fn(function (_) {
-			return _this202._resFn(_);
+			return _this203._resFn(_);
 		}, function (_) {
-			return _this202._rejFn(_);
+			return _this203._rejFn(_);
 		}, function (cancelFn) {
-			if (!_this202._done) {
-				_this202._cancelFn = cancelFn;
+			if (!_this203._done) {
+				_this203._cancelFn = cancelFn;
 			}
 		});
 	}
@@ -3619,20 +3617,20 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		_run: function _run(data) {
-			var _this202 = this;
+			var _this203 = this;
 
 			this.func(this.num++, data).then(function () {
-				return _this202._end();
+				return _this203._end();
 			}, function (e) {
 				if (e instanceof TasksPool.PauseError) {
-					_this202.pause();
+					_this203.pause();
 					if (e.duration !== -1) {
 						setTimeout(function () {
-							return _this202["continue"]();
+							return _this203["continue"]();
 						}, e.duration);
 					}
 				} else {
-					_this202._end();
+					_this203._end();
 					throw e;
 				}
 			});
@@ -3934,16 +3932,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		_menuTO: 0,
 		_el: null,
 		_prepareToHide: function _prepareToHide() {
-			var _this202 = this;
+			var _this203 = this;
 
 			if (!Cfg.expandPanel && !$c("de-win-active", doc)) {
 				this._hideTO = setTimeout(function () {
-					return _this202._el.lastChild.style.display = "none";
+					return _this203._el.lastChild.style.display = "none";
 				}, 500);
 			}
 		},
 		handleEvent: function handleEvent(e) {
-			var _this202 = this;
+			var _this203 = this;
 
 			switch (e.type) {
 				case "click":
@@ -4042,10 +4040,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							this._menuTO = setTimeout(function () {
 								var menu = addMenu(e.target);
 								menu.onover = function () {
-									return clearTimeout(_this202._hideTO);
+									return clearTimeout(_this203._hideTO);
 								};
 								menu.onout = function () {
-									return _this202._prepareToHide();
+									return _this203._prepareToHide();
 								};
 							}, Cfg.linksOver);
 					}
@@ -4416,10 +4414,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 	function addContentBlock(parent, title) {
 		return parent.appendChild($New("div", { "class": "de-content-block" }, [$new("input", { type: "checkbox" }, { click: function click() {
-				var _this202 = this;
+				var _this203 = this;
 
 				$each($Q(".de-entry > input", this.parentNode), function (el) {
-					return el.checked = _this202.checked;
+					return el.checked = _this203.checked;
 				});
 			} }), title]));
 	}
@@ -4490,14 +4488,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			});
 		}));
 		body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function callee$2$0() {
-			var _this202 = this;
+			var _this203 = this;
 
 			var i, els, len, _els$i$getAttribute$split, _els$i$getAttribute$split2, board, tNum;
 
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
-						i = 0, els = $Q(".de-entry[info]", _this202.parentNode), len = els.length;
+						i = 0, els = $Q(".de-entry[info]", _this203.parentNode), len = els.length;
 
 					case 1:
 						if (!(i < len)) {
@@ -5392,7 +5390,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			this._el = null;
 		},
 		handleEvent: function handleEvent(e) {
-			var _this202 = this;
+			var _this203 = this;
 
 			var el = e.target;
 			switch (e.type) {
@@ -5413,7 +5411,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					var rt = e.relatedTarget;
 					if (this._el && (!rt || rt !== this._el && !this._el.contains(rt))) {
 						this._closeTO = setTimeout(function () {
-							return _this202.remove();
+							return _this203.remove();
 						}, 75);
 						if (el !== this._parentEl && this.onout) {
 							this.onout();
@@ -5462,10 +5460,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 	function HotKeys() {
-		var _this202 = this;
+		var _this203 = this;
 
 		spawn(HotKeys.readKeys).then(function (keys) {
-			return _this202._init(keys);
+			return _this203._init(keys);
 		});
 	}
 	HotKeys.version = 7;
@@ -6186,10 +6184,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			this._pool.run([data, transferObjs, fn]);
 		},
 		_createWorker: function _createWorker(num, data) {
-			var _this202 = this;
+			var _this203 = this;
 
 			return new Promise(function (resolve, reject) {
-				var w = _this202._freeWorkers.pop();
+				var w = _this203._freeWorkers.pop();
 				var _data = _slicedToArray(data, 3);
 
 				var sendData = _data[0];
@@ -6198,13 +6196,13 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 				w.onmessage = function (e) {
 					fn(e.data);
-					_this202._freeWorkers.push(w);
+					_this203._freeWorkers.push(w);
 					resolve();
 				};
 				w.onerror = function (err) {
 					resolve();
-					_this202._freeWorkers.push(w);
-					_this202._errFn(err);
+					_this203._freeWorkers.push(w);
+					_this203._errFn(err);
 				};
 				w.postMessage(sendData, transferObjs);
 			});
@@ -6556,7 +6554,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return num < 10 ? "0" + num : num;
 		},
 		fix: function fix(txt) {
-			var _this202 = this;
+			var _this203 = this;
 
 			if (this.disabled || !this.genDateTime && !this.getRPattern(txt)) {
 				return txt;
@@ -6569,7 +6567,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				var second, minute, hour, day, month, year;
 				for (var i = 0; i < 7; ++i) {
 					var a = args[i];
-					switch (_this202.pattern[i]) {
+					switch (_this203.pattern[i]) {
 						case "s":
 							second = a;break;
 						case "i":
@@ -6614,8 +6612,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					}
 				}
 				var dtime = new Date(year.length === 2 ? "20" + year : year, month, day, hour, minute, second || 0);
-				dtime.setHours(dtime.getHours() + _this202.diff);
-				return _this202.genDateTime(dtime);
+				dtime.setHours(dtime.getHours() + _this203.diff);
+				return _this203.genDateTime(dtime);
 			});
 		}
 	};
@@ -7306,7 +7304,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return [dScope, dScope.length > 2 || hScope];
 		},
 		_decompileSpells: function _decompileSpells() {
-			var _this202 = this;
+			var _this203 = this;
 
 			var str,
 			    reps,
@@ -7328,12 +7326,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 				if (reps) {
 					reps.forEach(function (rep) {
-						str += _this202._decompileRep(rep, false) + "\n";
+						str += _this203._decompileRep(rep, false) + "\n";
 					});
 				}
 				if (oreps) {
 					oreps.forEach(function (orep) {
-						str += _this202._decompileRep(orep, true) + "\n";
+						str += _this203._decompileRep(orep, true) + "\n";
 					});
 				}
 				str = str.substr(0, str.length - 1);
@@ -7910,24 +7908,24 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	SpellsRunner.prototype = {
 		hasNumSpell: false,
 		end: function end() {
-			var _this202 = this;
+			var _this203 = this;
 
 			if (this._endPromise) {
 				this._endPromise.then(function () {
-					return _this202._savePostsHelper();
+					return _this203._savePostsHelper();
 				});
 			} else {
 				this._savePostsHelper();
 			}
 		},
 		run: function run(post) {
-			var _this202 = this;
+			var _this203 = this;
 
 			var interp = new SpellsInterpreter(post, this._spells);
 			var res = interp.run();
 			if (res instanceof Promise) {
 				res = res.then(function (val) {
-					return _this202._checkRes(post, val);
+					return _this203._checkRes(post, val);
 				});
 				this._endPromise = this._endPromise ? this._endPromise.then(function () {
 					return res;
@@ -8167,7 +8165,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			var _iteratorError = undefined;
 
 			try {
-				for (var _iterator = this._post.images.values[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+				for (var _iterator = this._post.images[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 					var image = _step.value;
 
 					if (image instanceof Attachment && val.test(image.info)) {
@@ -8192,7 +8190,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return false;
 		},
 		_ihash: async(regeneratorRuntime.mark(function callee$1$2(val) {
-			var _this202 = this;
+			var _this203 = this;
 
 			var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, image, hash;
 
@@ -8203,7 +8201,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						_didIteratorError = false;
 						_iteratorError = undefined;
 						context$2$0.prev = 3;
-						_iterator = _this202._post.images.values[Symbol.iterator]();
+						_iterator = _this203._post.images[Symbol.iterator]();
 
 					case 5:
 						if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
@@ -8309,7 +8307,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			var _iteratorError = undefined;
 
 			try {
-				for (var _iterator = images.values[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+				for (var _iterator = images[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 					var image = _step.value;
 
 					if (!(image instanceof Attachment)) {
@@ -8663,7 +8661,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 	function PostForm(form, ignoreForm, dc) {
-		var _this202 = this;
+		var _this203 = this;
 
 		this.oeForm = $q("form[name=\"oeform\"], form[action*=\"paint\"]", dc);
 		if (!ignoreForm && !form) {
@@ -8721,11 +8719,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		el.firstChild.onclick = function () {
 			toggleCfg("replyWinDrag");
 			if (Cfg.replyWinDrag) {
-				_this202.qArea.className = aib.cReply + " de-win";
-				updateWinZ(_this202.qArea.style);
+				_this203.qArea.className = aib.cReply + " de-win";
+				updateWinZ(_this203.qArea.style);
 			} else {
-				_this202.qArea.className = aib.cReply + " de-win-inpost";
-				_this202.txta.focus();
+				_this203.qArea.className = aib.cReply + " de-win-inpost";
+				_this203.txta.focus();
 			}
 		};
 		el.lastChild.onclick = this.closeReply.bind(this);
@@ -8795,11 +8793,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					e.stopPropagation();
 					$pd(e);
 					toggleCfg("sageReply");
-					_this202._setSage();
+					_this203._setSage();
 				} });
 			$after(this.subm, el);
 			setTimeout(function () {
-				return _this202._setSage();
+				return _this203._setSage();
 			}, 0);
 			if (aib._2chru) {
 				while (el.nextSibling) {
@@ -8828,25 +8826,25 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				$ajax("/" + aib.b + "/api/requires-captcha").then(function (xhr) {
 					aib.reqCaptcha = true;
 					if (JSON.parse(xhr.responseText)["requires-captcha"] !== "1") {
-						_this202.subm.click();
+						_this203.subm.click();
 						return;
 					}
 					$id("captcha_tr").style.display = "table-row";
 					$id("captchaimage").src = "/" + aib.b + "/captcha?" + Math.random();
-					$after(_this202.cap, $new("span", {
+					$after(_this203.cap, $new("span", {
 						"class": "shortened",
 						style: "margin: 0px .5em;",
 						text: "проверить капчу" }, {
 						click: function click() {
-							var _this203 = this;
+							var _this204 = this;
 
 							$ajax("/" + aib.b + "/api/validate-captcha", { method: "POST" }).then(function (xhr) {
 								if (JSON.parse(xhr.responseText).status === "ok") {
-									_this203.innerHTML = "можно постить";
+									_this204.innerHTML = "можно постить";
 								} else {
-									_this203.innerHTML = "неверная капча";
+									_this204.innerHTML = "неверная капча";
 									setTimeout(function () {
-										return _this203.innerHTML = "проверить капчу";
+										return _this204.innerHTML = "проверить капчу";
 									}, 1000);
 								}
 							}, emptyFn);
@@ -8856,32 +8854,32 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				$pd(e);
 				return;
 			}
-			if (Cfg.warnSubjTrip && _this202.subj && /#.|##./.test(_this202.subj.value)) {
+			if (Cfg.warnSubjTrip && _this203.subj && /#.|##./.test(_this203.subj.value)) {
 				$pd(e);
 				$popup(Lng.subjHasTrip[lang], "upload", false);
 				return;
 			}
-			var val = _this202.txta.value;
+			var val = _this203.txta.value;
 			if (spells.haveOutreps) {
 				val = spells.outReplace(val);
 			}
-			if (_this202.tNum && pByNum[_this202.tNum].subj === "Dollchan Extension Tools") {
-				var temp = "\n\n" + _this202._wrapText(aib.markupBB, aib.markupTags[5], "-".repeat(50) + "\n" + nav.ua + "\nv" + version + "." + commit + " [" + nav.scriptInstall + "]")[1];
+			if (_this203.tNum && pByNum[_this203.tNum].subj === "Dollchan Extension Tools") {
+				var temp = "\n\n" + _this203._wrapText(aib.markupBB, aib.markupTags[5], "-".repeat(50) + "\n" + nav.ua + "\nv" + version + "." + commit + " [" + nav.scriptInstall + "]")[1];
 				if (!val.includes(temp)) {
 					val += temp;
 				}
 			}
-			_this202.txta.value = val;
+			_this203.txta.value = val;
 			if (Cfg.ajaxReply) {
 				$popup(Lng.checking[lang], "upload", true);
 			}
-			if (_this202.video && (val = _this202.video.value) && (val = val.match(Videos.ytReg))) {
-				_this202.video.value = "http://www.youtube.com/watch?v=" + val[1];
+			if (_this203.video && (val = _this203.video.value) && (val = val.match(Videos.ytReg))) {
+				_this203.video.value = "http://www.youtube.com/watch?v=" + val[1];
 			}
-			if (_this202.isQuick) {
-				_this202.pForm.style.display = "none";
-				_this202.qArea.style.display = "none";
-				$after(_this202._pBtn[+_this202.isBottom], _this202.pForm);
+			if (_this203.isQuick) {
+				_this203.pForm.style.display = "none";
+				_this203.qArea.style.display = "none";
+				$after(_this203._pBtn[+_this203.isBottom], _this203.pForm);
 			}
 			updater.pause();
 		});
@@ -8895,10 +8893,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			$parent(this.name, "TR").style.display = "none";
 		}
 		window.addEventListener("load", function () {
-			if (Cfg.userName && _this202.name) {
+			if (Cfg.userName && _this203.name) {
 				setTimeout(PostForm.setUserName, 1000);
 			}
-			if (_this202.passw) {
+			if (_this203.passw) {
 				setTimeout(PostForm.setUserPassw, 1000);
 			}
 		});
@@ -8906,10 +8904,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			this.capTr = $parent(this.cap, "TR");
 			var html = this.capTr.innerHTML;
 			this.txta.addEventListener("focus", function () {
-				return _this202._captchaInit(html);
+				return _this203._captchaInit(html);
 			});
 			this.form.addEventListener("click", function () {
-				return _this202._captchaInit(html);
+				return _this203._captchaInit(html);
 			}, true);
 			if (!aib.krau) {
 				this.capTr.style.display = "none";
@@ -8924,7 +8922,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				this.form.removeAttribute("onsubmit");
 			}
 			setTimeout(function () {
-				_this202.form.onsubmit = function (e) {
+				_this203.form.onsubmit = function (e) {
 					$pd(e);
 					if (aib.krau) {
 						aib.addProgressTrack.click();
@@ -8933,11 +8931,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						doc.body.insertAdjacentHTML("beforeend", "<iframe class=\"ninja\" id=\"csstest\" src=\"/" + aib.b + "/csstest.foo\"></iframe>");
 						doc.body.lastChild.onload = function (e) {
 							$del(e.target);
-							spawn(html5Submit, _this202.form, true).then(doUploading);
+							spawn(html5Submit, _this203.form, true).then(doUploading);
 						};
 						return;
 					}
-					spawn(html5Submit, _this202.form, true).then(doUploading);
+					spawn(html5Submit, _this203.form, true).then(doUploading);
 				};
 			}, 0);
 		} else if (Cfg.ajaxReply === 1) {
@@ -9231,7 +9229,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		_captchaInit: function _captchaInit(html) {
-			var _this202 = this;
+			var _this203 = this;
 
 			if (this.capInited) {
 				return;
@@ -9261,11 +9259,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				$script("get_captcha()");
 			}
 			setTimeout(function () {
-				return _this202._captchaUpd();
+				return _this203._captchaUpd();
 			}, 100);
 		},
 		_captchaUpd: function _captchaUpd() {
-			var _this202 = this;
+			var _this203 = this;
 
 			var img, a;
 			if ((this.recap = $id("recaptcha_response_field")) && (img = $id("recaptcha_image"))) {
@@ -9313,8 +9311,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			if (!aib.kus && !aib.tinyIb) {
 				this._lastCapUpdate = Date.now();
 				this.cap.onfocus = function () {
-					if (_this202._lastCapUpdate && Date.now() - _this202._lastCapUpdate > 300000) {
-						_this202.refreshCapImg(false);
+					if (_this203._lastCapUpdate && Date.now() - _this203._lastCapUpdate > 300000) {
+						_this203.refreshCapImg(false);
 					}
 				};
 				if (!aib.t && this.isQuick) {
@@ -9470,12 +9468,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		handleEvent: function handleEvent(e) {
-			var _this202 = this;
+			var _this203 = this;
 
 			switch (e.type) {
 				case "change":
 					setTimeout(function () {
-						return _this202._onFileChange();
+						return _this203._onFileChange();
 					}, 20);return;
 				case "click":
 					if (e.target === this._delUtil) {
@@ -9498,12 +9496,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				case "dragleave":
 				case "drop":
 					setTimeout(function () {
-						_this202.thumb.classList.remove("de-file-drag");
-						var el = _this202.place.firstChild;
+						_this203.thumb.classList.remove("de-file-drag");
+						var el = _this203.place.firstChild;
 						if (el) {
-							$before(el, _this202.el);
+							$before(el, _this203.el);
 						} else {
-							_this202.place.appendChild(_this202.el);
+							_this203.place.appendChild(_this203.el);
 						}
 					}, 10);
 					return;
@@ -9569,20 +9567,20 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		_spUtil: null,
 		_rjUtil: null,
 		_addRarJpeg: function _addRarJpeg() {
-			var _this202 = this;
+			var _this203 = this;
 
 			var el = this.form.rarInput;
 			el.onchange = function (e) {
-				$del(_this202._rjUtil);
-				_this202._buttonsPlace.insertAdjacentHTML("afterend", "<span><span class=\"de-wait\"></span>" + Lng.wait[lang] + "</span>");
-				var myRjUtil = _this202._rjUtil = _this202._buttonsPlace.nextSibling,
+				$del(_this203._rjUtil);
+				_this203._buttonsPlace.insertAdjacentHTML("afterend", "<span><span class=\"de-wait\"></span>" + Lng.wait[lang] + "</span>");
+				var myRjUtil = _this203._rjUtil = _this203._buttonsPlace.nextSibling,
 				    file = e.target.files[0];
 				readFile(file, false).then(function (val) {
-					if (_this202._rjUtil === myRjUtil) {
+					if (_this203._rjUtil === myRjUtil) {
 						myRjUtil.className = "de-file-rarmsg de-file-utils";
-						myRjUtil.title = _this202.el.files[0].name + " + " + file.name;
-						myRjUtil.textContent = _this202.el.files[0].name.replace(/^.+\./, "") + " + " + file.name.replace(/^.+\./, "");
-						_this202.imgFile = val;
+						myRjUtil.title = _this203.el.files[0].name + " + " + file.name;
+						myRjUtil.textContent = _this203.el.files[0].name.replace(/^.+\./, "") + " + " + file.name.replace(/^.+\./, "");
+						_this203.imgFile = val;
 					}
 				});
 			};
@@ -9642,24 +9640,24 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}));
 		},
 		_showPviewImage: function _showPviewImage() {
-			var _this202 = this;
+			var _this203 = this;
 
 			var files = this.el.files;
 			if (!files || !files[0]) {
 				return;
 			}
 			readFile(files[0], false).then(function (val) {
-				_this202.form.eventFiles(false);
-				if (_this202.empty) {
+				_this203.form.eventFiles(false);
+				if (_this203.empty) {
 					return;
 				}
-				var file = _this202.el.files[0],
-				    thumb = _this202.thumb;
+				var file = _this203.el.files[0],
+				    thumb = _this203.thumb;
 				thumb.classList.remove("de-file-off");
 				thumb = thumb.firstChild.firstChild;
 				thumb.title = file.name + ", " + (file.size / 1024).toFixed(2) + "KB";
 				thumb.insertAdjacentHTML("afterbegin", file.type === "video/webm" ? "<video class=\"de-file-img\" loop autoplay muted src=\"\"></video>" : "<img class=\"de-file-img\" src=\"\">");
-				_this202._mediaEl = thumb = thumb.firstChild;
+				_this203._mediaEl = thumb = thumb.firstChild;
 				thumb.src = window.URL.createObjectURL(new Blob([val]));
 				thumb = thumb.nextSibling;
 				if (thumb) {
@@ -10355,11 +10353,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		_oldX: -1,
 		_oldY: -1,
 		_setHideTmt: function _setHideTmt() {
-			var _this202 = this;
+			var _this203 = this;
 
 			clearTimeout(this._hideTmt);
 			this._hideTmt = setTimeout(function () {
-				return _this202.hide();
+				return _this203.hide();
 			}, 2000);
 		}
 	};
@@ -10973,7 +10971,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		},
 
 		_getHashHelper: regeneratorRuntime.mark(function _getHashHelper(imgObj) {
-			var _this202 = this;
+			var _this203 = this;
 
 			var el, src, data, buffer, val, w, h, imgData, cnv, ctx;
 			return regeneratorRuntime.wrap(function _getHashHelper$(context$2$0) {
@@ -10981,12 +10979,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					case 0:
 						el = imgObj.el, src = imgObj.src;
 
-						if (!(src in _this202._storage)) {
+						if (!(src in _this203._storage)) {
 							context$2$0.next = 3;
 							break;
 						}
 
-						return context$2$0.abrupt("return", _this202._storage[src]);
+						return context$2$0.abrupt("return", _this203._storage[src]);
 
 					case 3:
 						if (el.complete) {
@@ -11030,7 +11028,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						break;
 
 					case 16:
-						cnv = _this202._canvas;
+						cnv = _this203._canvas;
 
 						cnv.width = w;
 						cnv.height = h;
@@ -11047,7 +11045,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 						context$2$0.next = 25;
 						return new Promise(function (resolve) {
-							return _this202._workers.run([buffer, w, h], [buffer], function (val) {
+							return _this203._workers.run([buffer, w, h], [buffer], function (val) {
 								return resolve(val);
 							});
 						});
@@ -11060,7 +11058,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						}
 
 					case 27:
-						_this202._storage[src] = val;
+						_this203._storage[src] = val;
 						return context$2$0.abrupt("return", val);
 
 					case 29:
@@ -11171,7 +11169,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		var refEl = $q(aib.qRef, el),
 		    html = "<span class=\"de-post-btns" + (isOp ? "" : " de-post-counter") + "\"><span class=\"de-btn-hide\" de-menu=\"hide\"></span><span class=\"de-btn-rep\"></span>";
 		this._pref = refEl;
-		this.ref = [];
+		this.ref = new Set();
 		el.post = this;
 		if (isOp) {
 			if (!aib.t) {
@@ -11287,7 +11285,6 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	Post.prototype = Object.defineProperties({
 		banned: false,
 		deleted: false,
-		hasRef: false,
 		hidden: false,
 		imagesExpanded: false,
 		inited: true,
@@ -11312,7 +11309,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		handleEvent: function handleEvent(e) {
-			var _this202 = this;
+			var _this203 = this;
 
 			var temp,
 			    el = e.target,
@@ -11449,7 +11446,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						clearTimeout(this._menuDelay);
 					} else {
 						this._menuDelay = setTimeout(function () {
-							return _this202._addMenu(el);
+							return _this203._addMenu(el);
 						}, Cfg.linksOver);
 					}
 					return;
@@ -11489,7 +11486,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						} else {
 							clearTimeout(Pview.delTO);
 							this._linkDelay = setTimeout(function () {
-								return _this202._addPview(el);
+								return _this203._addPview(el);
 							}, Cfg.linksOver);
 						}
 						$pd(e);
@@ -11519,17 +11516,19 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		hideRefs: function hideRefs() {
-			if (!Cfg.hideRefPsts || !this.hasRef) {
+			var _this203 = this;
+
+			if (!Cfg.hideRefPsts || this.ref.size === 0) {
 				return;
 			}
 			this.ref.forEach(function (num) {
 				var pst = pByNum[num];
 				if (pst && !pst.userToggled) {
 					pst.setVisib(true);
-					pst.setNote("reference to >>" + this.num);
+					pst.setNote("reference to >>" + _this203.num);
 					pst.hideRefs();
 				}
-			}, this);
+			});
 		},
 		getAdjacentVisPost: function getAdjacentVisPost(toUp) {
 			var post = toUp ? this.prev : this.next;
@@ -11599,7 +11598,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		setVisib: function setVisib(hide) {
-			var _this202 = this;
+			var _this203 = this;
 
 			if (this.hidden === hide) {
 				return;
@@ -11618,15 +11617,15 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				el.onclick = el.onmouseover = el.onmouseout = function (e) {
 					switch (e.type) {
 						case "click":
-							_this202.toggleUserVisib();
+							_this203.toggleUserVisib();
 							$pd(e);
 							return;
 						case "mouseover":
-							_this202.thr.el.style.display = "";return;
+							_this203.thr.el.style.display = "";return;
 						default:
 						
-							if (_this202.hidden) {
-								_this202.thr.el.style.display = "none";
+							if (_this203.hidden) {
+								_this203.thr.el.style.display = "none";
 							}
 					}
 				};
@@ -11643,14 +11642,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					this.setNote("");
 				}
 				this._pref.onmouseover = this._pref.onmouseout = !hide ? null : function (e) {
-					return _this202.hideContent(e.type === "mouseout");
+					return _this203.hideContent(e.type === "mouseout");
 				};
 			}
 			this.hidden = hide;
 			this.hideContent(hide);
 			if (Cfg.strikeHidd) {
 				setTimeout(function () {
-					return _this202._strikePostNum(hide);
+					return _this203._strikePostNum(hide);
 				}, 50);
 			}
 		},
@@ -11683,7 +11682,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			var _iteratorError = undefined;
 
 			try {
-				for (var _iterator = this.images.values[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+				for (var _iterator = this.images[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 					var image = _step.value;
 
 					if (image.isImage && image.expanded ^ expand) {
@@ -11726,7 +11725,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			saveUserPosts();
 		},
 		unhideRefs: function unhideRefs() {
-			if (!Cfg.hideRefPsts || !this.hasRef) {
+			if (!Cfg.hideRefPsts || this.ref.size === 0) {
 				return;
 			}
 			this.ref.forEach(function (num) {
@@ -11793,7 +11792,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		_addMenu: function _addMenu(el) {
-			var _this202 = this;
+			var _this203 = this;
 
 			var html;
 			switch (el.getAttribute("de-menu")) {
@@ -11813,14 +11812,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				this._menu.remove();
 			}
 			this._menu = new Menu(el, html, false, function (el) {
-				return _this202._clickMenu(el);
+				return _this203._clickMenu(el);
 			});
 			if (this.isPview) {
 				this._menu.onover = function () {
-					return _this202.mouseEnter();
+					return _this203.mouseEnter();
 				};
 				this._menu.onout = function () {
-					return _this202.markToDel();
+					return _this203.markToDel();
 				};
 			}
 		},
@@ -11962,7 +11961,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		_getFull: function _getFull(node, isInit) {
-			var _this202 = this;
+			var _this203 = this;
 
 			if (aib.dobr) {
 				$del(node.nextSibling);
@@ -11988,14 +11987,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 			ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(function (form) {
 				var maybeSpells = new Maybe(SpellsRunner);
-				if (_this202.isOp) {
-					_this202.updateMsg(replacePost($q(aib.qMsg, form)), maybeSpells.value);
+				if (_this203.isOp) {
+					_this203.updateMsg(replacePost($q(aib.qMsg, form)), maybeSpells.value);
 					$del(node);
 				} else {
 					var els = $Q(aib.qRPost, form);
 					for (var i = 0, len = els.length; i < len; i++) {
-						if (_this202.num === aib.getPNum(els[i])) {
-							_this202.updateMsg(replacePost($q(aib.qMsg, els[i])), maybeSpells.value);
+						if (_this203.num === aib.getPNum(els[i])) {
+							_this203.updateMsg(replacePost($q(aib.qMsg, els[i])), maybeSpells.value);
 							$del(node);
 							break;
 						}
@@ -12309,20 +12308,31 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		this.hasAttachments = hasAttachments;
 		this._map = filesMap;
 	}
-	PostImages.prototype = Object.defineProperties({
-		getImageByEl: function getImageByEl(el) {
-			return this._map.get(el);
-		} }, {
+	PostImages.prototype = Object.defineProperties((function () {
+		var _Object$defineProperties = {
+			getImageByEl: function getImageByEl(el) {
+				return this._map.get(el);
+			} };
+
+		_Object$defineProperties[Symbol.iterator] = function () {
+			return {
+				_img: this.first,
+				next: function next() {
+					var value = this._img;
+					if (value) {
+						this._img = value.next;
+						return { value: value, done: false };
+					}
+					return { done: true };
+				}
+			};
+		};
+
+		return _Object$defineProperties;
+	})(), {
 		firstAttach: {
 			get: function () {
 				return this.hasAttachments ? this.first : null;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		values: {
-			get: function () {
-				return this._map.values();
 			},
 			configurable: true,
 			enumerable: true
@@ -12333,7 +12343,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 	function Pview(parent, link, tNum, pNum) {
-		var _this202 = this;
+		var _this203 = this;
 
 		this.parent = parent;
 		this._link = link;
@@ -12353,9 +12363,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		} else {
 			this._showText("<span class=\"de-wait\">" + Lng.loading[lang] + "</span>");
 			ajaxLoad(aib.getThrdUrl(b, tNum)).then(function (form) {
-				return _this202._onload(b, form);
+				return _this203._onload(b, form);
 			}, function (e) {
-				return _this202._onerror(e);
+				return _this203._onerror(e);
 			});
 		}
 	}
@@ -12441,9 +12451,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				    parentNum = parent.num,
 				    cache = this._cache[b + this.tNum] = new PviewsCache(form, b, this.tNum),
 				    post = cache.getPost(this.num);
-				if (post && (aib.b !== b || !post.hasRef || post.ref.indexOf(parentNum) === -1)) {
+				if (post && (aib.b !== b || post.ref.size === 0 || !post.ref.has(parentNum))) {
 					var rm;
-					if (post.hasRef) {
+					if (post.ref.size !== 0) {
 						rm = $c("de-refmap", post.el);
 					} else {
 						post.msg.insertAdjacentHTML("afterend", "<div class=\"de-refmap\"></div>");
@@ -12591,7 +12601,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			if (pst && !pst.pvInited) {
 				pst.el = replacePost(pst.el);
 				delete pst.msg;
-				if (pst.hasRef) {
+				if (pst.ref.size !== 0) {
 					addRefMap(pst, this._tUrl);
 				}
 				pst.pvInited = true;
@@ -12605,30 +12615,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				op.el = replacePost(aib.getOp(this._thr));
 				op.msg = $q(aib.qMsg, op.el);
 				if (this._b === aib.b && (oOp = pByNum[this._tNum])) {
-					var i,
-					    j,
-					    len,
-					    rRef = [],
-					    oRef = op.ref,
-					    nRef = oOp.ref;
-					for (i = j = 0, len = nRef.length; j < len; ++j) {
-						var num = nRef[j];
-						if (oRef[i] === num) {
-							i++;
-						} else if (oRef.indexOf(num) !== -1) {
-							continue;
-						}
-						rRef.push(num);
-					}
-					for (len = oRef.length; i < len; i++) {
-						rRef.push(oRef[i]);
-					}
-					op.ref = rRef;
-					if (rRef.length) {
-						op.hasRef = true;
-						addRefMap(op, this._tUrl);
-					}
-				} else if (op.hasRef) {
+					oOp.ref.forEach(function (num) {
+						return op.ref.add(num);
+					});
+				}
+				if (op.ref.size !== 0) {
 					addRefMap(op, this._tUrl);
 				}
 				Object.defineProperty(this, "_op", { value: op });
@@ -12694,12 +12685,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	function addRefMap(post, tUrl) {
 		var bStr = "<a href=\"" + tUrl + aib.anchor,
 		    strNums = Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
-		    html = ["<div class=\"de-refmap\">"],
-		    el = post.ref;
-		for (var i = 0, len = el.length; i < len; ++i) {
-			var num = el[i];
-			html.push(bStr, num, "\" class=\"de-link-ref ", strNums && strNums.indexOf(+num) !== -1 ? "de-link-hid" : "", "\">&gt;&gt;", num, "</a><span class=\"de-refcomma\">, </span>");
-		}
+		    html = ["<div class=\"de-refmap\">"];
+		post.ref.forEach(function (num) {
+			return html.push(bStr, num, "\" class=\"de-link-ref ", strNums && strNums.indexOf(+num) !== -1 ? "de-link-hid" : "", "\">&gt;&gt;", num, "</a><span class=\"de-refcomma\">, </span>");
+		});
 		html.push("</div>");
 		if (aib.dobr) {
 			el = post.msg.nextElementSibling;
@@ -12715,16 +12704,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		var opNums = dForm.tNums;
 		for (var pNum in posts) {
 			aib.forEachReflink(posts[pNum].msg, function (link, lNum) {
-				var ref,
-				    post = posts[lNum];
-				if (!post) {
+				if (!(lNum in posts)) {
 					return;
 				}
-				ref = post.ref;
-				if (ref.indexOf(pNum) === -1) {
-					ref.push(pNum);
-					post.hasRef = true;
-				}
+				posts[lNum].ref.add(pNum);
 				if (!aib.hasOPNum && opNums.indexOf(lNum) !== -1) {
 					link.classList.add("de-ref-op");
 				}
@@ -12757,9 +12740,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				if (!aib.hasOPNum && dForm.tNums.indexOf(lNum) !== -1) {
 					link.classList.add("de-ref-op");
 				}
-				if (lPost.ref.indexOf(pNum) === -1) {
-					lPost.ref.push(pNum);
-					post.hasRef = true;
+				if (!lPost.ref.has(pNum)) {
+					lPost.ref.add(pNum);
 					if (Cfg.hideRefPsts && lPost.hidden) {
 						if (!post.hidden) {
 							post.hideRefs();
@@ -12770,15 +12752,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				} else {
 					return;
 				}
-			} else if (lPost.hasRef) {
-				var ref = lPost.ref,
-				    idx = ref.indexOf(pNum);
-				if (idx === -1) {
-					return;
-				}
-				ref.splice(idx, 1);
-				if (!ref.length) {
-					lPost.hasRef = false;
+			} else if (lPost.ref.size !== 0) {
+				lPost.ref["delete"](pNum);
+				if (lPost.ref.size === 0) {
 					$del($c("de-refmap", lPost.el));
 					return;
 				}
@@ -12792,7 +12768,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 	function Thread(el, prev, isLight) {
-		var _this202 = this;
+		var _this203 = this;
 
 		var els = $Q(aib.qRPost, el),
 		    len = els.length,
@@ -12832,7 +12808,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			this.btns = el.lastChild;
 			this.btns.firstElementChild.onclick = function (e) {
 				$pd(e);
-				_this202.load(0, false);
+				_this203.load(0, false);
 			};
 		}
 	}
@@ -12915,7 +12891,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return post;
 		},
 		load: function load(last, smartScroll) {
-			var _this202 = this;
+			var _this203 = this;
 
 			var informUser = arguments[2] === undefined ? true : arguments[2];
 
@@ -12923,13 +12899,13 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				$popup(Lng.loading[lang], "load-thr", true);
 			}
 			return ajaxLoad(aib.getThrdUrl(aib.b, this.num)).then(function (form) {
-				return _this202.loadFromForm(last, smartScroll, form);
+				return _this203.loadFromForm(last, smartScroll, form);
 			}, function (e) {
 				return $popup(getErrorMessage(e), "load-thr", false);
 			});
 		},
 		loadFromForm: function loadFromForm(last, smartScroll, form) {
-			var _this202 = this;
+			var _this203 = this;
 
 			var nextCoord,
 			    loadedPosts = $Q(aib.qRPost, form),
@@ -12949,7 +12925,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				if (op.trunc) {
 					op.updateMsg(replacePost($q(aib.qMsg, form)), maybeSpells.value);
 				}
-				op.ref = [];
+				op.ref = new Set();
 				this.loadedOnce = true;
 			}
 			this._checkBans(form);
@@ -13026,7 +13002,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				btn.insertAdjacentHTML("beforeend", "<span class=\"de-thread-collapse\"> [<a class=\"de-abtn\" href=\"#\"></a>]</span>");
 				btn.lastChild.onclick = function (e) {
 					$pd(e);
-					_this202.load(visPosts, true);
+					_this203.load(visPosts, true);
 				};
 			}
 			btn.lastChild.style.display = needToShow > visPosts ? "" : "none";
@@ -13039,7 +13015,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			closePopup("load-thr");
 		},
 		loadNew: function loadNew(useAPI) {
-			var _this202 = this;
+			var _this203 = this;
 
 			if (aib.dobr && useAPI) {
 				return getJsonPosts("/api/thread/" + aib.b + "/" + aib.t + ".json").then(function (json) {
@@ -13047,16 +13023,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						if (json.error) {
 							return CancelablePromise.reject(new AjaxError(0, json.message));
 						}
-						if (_this202._lastModified !== json.last_modified || _this202.pcount !== json.posts_count) {
-							_this202._lastModified = json.last_modified;
-							return _this202.loadNew(false);
+						if (_this203._lastModified !== json.last_modified || _this203.pcount !== json.posts_count) {
+							_this203._lastModified = json.last_modified;
+							return _this203.loadNew(false);
 						}
 					}
 					return 0;
 				});
 			}
 			return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, !aib.dobr).then(function (form) {
-				return form ? _this202.loadNewFromForm(form) : 0;
+				return form ? _this203.loadNewFromForm(form) : 0;
 			});
 		},
 		loadNewFromForm: function loadNewFromForm(form) {
@@ -13086,7 +13062,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		setFavorState: function setFavorState(val, type) {
-			var _this202 = this;
+			var _this203 = this;
 
 			this.setFavBtn(val);
 			readFav().then(function (fav) {
@@ -13100,16 +13076,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						fav[h][b] = {};
 					}
 					fav[h][b].url = aib.prot + "//" + aib.host + aib.getPageUrl(b, 0);
-					fav[h][b][_this202.num] = {
-						cnt: _this202.pcount,
+					fav[h][b][_this203.num] = {
+						cnt: _this203.pcount,
 						"new": 0,
-						txt: _this202.op.title,
-						url: aib.getThrdUrl(b, _this202.num),
-						last: aib.anchor + _this202.last.num,
+						txt: _this203.op.title,
+						url: aib.getThrdUrl(b, _this203.num),
+						last: aib.anchor + _this203.last.num,
 						type: type
 					};
 				} else {
-					removeFavoriteEntry(fav, h, b, _this202.num, false);
+					removeFavoriteEntry(fav, h, b, _this203.num, false);
 				}
 				saveFavorites(fav);
 			});
@@ -13170,7 +13146,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return [newCount, newVisCount, fragm, last];
 		},
 		_parsePosts: function _parsePosts(nPosts) {
-			var _this202 = this;
+			var _this203 = this;
 
 			var maybeSpells = new Maybe(SpellsRunner),
 			    newPosts = 0,
@@ -13242,18 +13218,18 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				if (!f || !f[aib.b]) {
 					return;
 				}
-				if (f = f[aib.b][_this202.op.num]) {
+				if (f = f[aib.b][_this203.op.num]) {
 					var el = $q("#de-win-fav > .de-win-body", doc);
 					if (el && el.hasChildNodes()) {
-						el = $q(".de-fav-current > .de-entry[de-num=\"" + _this202.op.num + "\"] .de-fav-inf-new", el);
+						el = $q(".de-fav-current > .de-entry[de-num=\"" + _this203.op.num + "\"] .de-fav-inf-new", el);
 						el.style.display = "none";
 						el.textContent = 0;
 						el = el.nextElementSibling;
-						el.textContent = _this202.pcount;
+						el.textContent = _this203.pcount;
 					}
-					f.cnt = _this202.pcount;
+					f.cnt = _this203.pcount;
 					f["new"] = 0;
-					f.last = aib.anchor + _this202.last.num;
+					f.last = aib.anchor + _this203.last.num;
 					setStored("DESU_Favorites", JSON.stringify(fav));
 				}
 			});
@@ -13859,24 +13835,24 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					} },
 				postMapInited: { writable: true, value: false },
 				checkForm: { value: function value(formEl, maybeSpells) {
-						var _this290 = this;
+						var _this291 = this;
 
 						var myMaybeSpells = maybeSpells || new Maybe(SpellsRunner),
 						    maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
 						if (!this.postMapInited) {
 							this.postMapInited = true;
 							$each($Q(".oppost[data-lastmodified], .reply[data-lastmodified]", dForm.el), function (pEl) {
-								return _this290.modifiedPosts.set(pEl, +pEl.getAttribute("data-lastmodified"));
+								return _this291.modifiedPosts.set(pEl, +pEl.getAttribute("data-lastmodified"));
 							});
 						}
 						$each($Q(".oppost[data-lastmodified], .reply[data-lastmodified]", formEl), function (pEl) {
 							var nPost,
-							    post = pByNum[_this290.getPNum(pEl)],
+							    post = pByNum[_this291.getPNum(pEl)],
 							    pDate = +pEl.getAttribute("data-lastmodified");
-							if (post && (!_this290.modifiedPosts.has(pEl) || _this290.modifiedPosts.get(pEl) < pDate)) {
+							if (post && (!_this291.modifiedPosts.has(pEl) || _this291.modifiedPosts.get(pEl) < pDate)) {
 								var thr = post.thr,
 								    fragm = doc.createDocumentFragment();
-								_this290.modifiedPosts.set(pEl, pDate);
+								_this291.modifiedPosts.set(pEl, pDate);
 								nPost = thr.addPost(fragm, pEl, post.count, post.prev, maybeVParser);
 								if (thr.op === post) {
 									thr.op = nPost;
@@ -14115,7 +14091,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				hasOPNum: { value: true },
 				hasPicWrap: { value: true },
 				init: { value: function value() {
-						var _this290 = this;
+						var _this291 = this;
 
 						$script("window.FormData = void 0;");
 						$each($C("autorefresh", doc), $del);
@@ -14142,7 +14118,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						}).bind(doc.body.lastChild.firstChild, el);
 						el.addEventListener("click", function (e) {
 							if (e.target.tagName === "IMG") {
-								_this290.updateCaptcha(true);
+								_this291.updateCaptcha(true);
 								e.stopPropagation();
 							}
 						}, true);
@@ -14832,7 +14808,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			this.el.style.display = "none";
 		},
 		initAjax: function initAjax() {
-			var _this202 = this;
+			var _this203 = this;
 
 			if (Cfg.ajaxReply === 2) {
 				this.el.onsubmit = $pd;
@@ -14842,7 +14818,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						$pd(e);
 						pr.closeReply();
 						$popup(Lng.deleting[lang], "delete", true);
-						spawn(html5Submit, _this202.el).then(checkDelete, function (e) {
+						spawn(html5Submit, _this203.el).then(checkDelete, function (e) {
 							return $popup(getErrorMessage(e), "delete", false);
 						});
 					};
@@ -14941,7 +14917,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 			},
 			play: function play() {
-				var _this234 = this;
+				var _this235 = this;
 
 				this.stop();
 				if (this.repeatMS === 0) {
@@ -14949,7 +14925,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					return;
 				}
 				this._playInterval = setInterval(function () {
-					return _this234._el.play();
+					return _this235._el.play();
 				}, this.repeatMS);
 			},
 			stop: function stop() {
@@ -14980,7 +14956,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				this._el.style.display = "none";
 			},
 			count: function count(delayMS, useCounter, callback) {
-				var _this234 = this;
+				var _this235 = this;
 
 				if (this._enabled && useCounter) {
 					var seconds = delayMS / 1000;
@@ -14988,15 +14964,15 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					this._countingIV = setInterval(function () {
 						seconds--;
 						if (seconds === 0) {
-							_this234._stop();
+							_this235._stop();
 							callback();
 						} else {
-							_this234._set(seconds);
+							_this235._set(seconds);
 						}
 					}, 1000);
 				} else {
 					this._countingTO = setTimeout(function () {
-						_this234._countingTO = null;
+						_this235._countingTO = null;
 						callback();
 					}, delayMS);
 				}
@@ -15067,7 +15043,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				this._iconEl = doc.head.firstChild;
 			},
 			_startBlink: function _startBlink(iconUrl) {
-				var _this234 = this;
+				var _this235 = this;
 
 				if (this._blinkInterval) {
 					if (this._currentIcon === iconUrl) {
@@ -15077,8 +15053,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 				this._currentIcon = iconUrl;
 				this._blinkInterval = setInterval(function () {
-					_this234._setIcon(_this234._isOriginalIcon ? _this234._currentIcon : _this234.originalIcon);
-					_this234._isOriginalIcon = !_this234._isOriginalIcon;
+					_this235._setIcon(_this235._isOriginalIcon ? _this235._currentIcon : _this235.originalIcon);
+					_this235._isOriginalIcon = !_this235._isOriginalIcon;
 				}, this._blinkMS);
 			}
 		}, {
@@ -15123,7 +15099,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			},
 
 			show: function show() {
-				var _this234 = this;
+				var _this235 = this;
 
 				var post = dForm.firstThr.last,
 				    notif = new Notification(aib.dm + "/" + aib.b + "/" + aib.t + ": " + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
@@ -15133,8 +15109,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				});
 				notif.onshow = function () {
 					return setTimeout(function () {
-						if (notif === _this234._notifEl) {
-							_this234.close();
+						if (notif === _this235._notifEl) {
+							_this235.close();
 						}
 					}, 12000);
 				};
@@ -15143,7 +15119,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				};
 				notif.onerror = function () {
 					window.focus();
-					_this234._requestPermission();
+					_this235._requestPermission();
 				};
 				this._notifEl = notif;
 			},
@@ -15159,14 +15135,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			_notifEl: null,
 
 			_requestPermission: function _requestPermission() {
-				var _this234 = this;
+				var _this235 = this;
 
 				this._granted = false;
 				Notification.requestPermission(function (state) {
 					if (state.toLowerCase() === "denied") {
 						saveCfg("desktNotif", 0);
 					} else {
-						_this234._granted = true;
+						_this235._granted = true;
 					}
 				});
 			}
@@ -15266,7 +15242,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				this._makeStep();
 			},
 			_makeStep: function _makeStep() {
-				var _this234 = this;
+				var _this235 = this;
 
 				var needSleep = arguments[0] === undefined ? true : arguments[0];
 
@@ -15275,7 +15251,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						if (needSleep) {
 							this._state = 1;
 							counter.count(this._delay, !doc.hidden, function () {
-								return _this234._makeStep();
+								return _this235._makeStep();
 							});
 							return;
 						}
@@ -15284,9 +15260,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						this._loadPromise = dForm.firstThr.loadNew(true);
 						this._state = 2;
 						this._loadPromise.then(function (pCount) {
-							return _this234._handleNewPosts(pCount, AjaxError.Success);
+							return _this235._handleNewPosts(pCount, AjaxError.Success);
 						}, function (e) {
-							return _this234._handleNewPosts(0, e);
+							return _this235._handleNewPosts(0, e);
 						});
 						return;
 					case 2:
@@ -15639,7 +15615,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		if (dForm.firstThr && Cfg.linksNavig === 2) {
 			genRefMap(pByNum, "");
 			for (var post = dForm.firstThr.op; post; post = post.next) {
-				if (post.hasRef) {
+				if (post.ref.size !== 0) {
 					addRefMap(post, "");
 				}
 			}
