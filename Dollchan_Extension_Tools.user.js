@@ -2604,7 +2604,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "70df1bc";
+	var commit = "6afd6bc";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -6673,6 +6673,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			txt = Cfg.YTubeType === 1 ? "<iframe class=\"de-video-player\" src=\"" + aib.prot + "//player.vimeo.com/video/" + id + (Cfg.addYouTube === 3 ? "?autoplay=1" : "") + "\" frameborder=\"0\" " + "webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>" : "<embed class=\"de-video-player\" type=\"application/x-shockwave-flash\" src=\"" + aib.prot + "//vimeo.com/moogaloop.swf" + "?clip_id=" + id + (Cfg.addYouTube === 3 ? "&autoplay=1" : "") + "&server=vimeo.com&color=00adef&fullscreen=1\" " + "allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>";
 		}
 		el.innerHTML = txt + (enableJsapi ? "" : "<span class=\"de-video-resizer\" title=\"" + Lng.expandVideo[lang] + "\"></span>");
+		el.style.display = "";
 		if (!enableJsapi) {
 			el.lastChild.onclick = function () {
 				var node = this.parentNode;
@@ -6837,6 +6838,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			} else {
 				el.classList.remove("de-current");
 				this.player.innerHTML = "";
+				this.player.style.display = "none";
 				this.playerInfo = null;
 			}
 		},

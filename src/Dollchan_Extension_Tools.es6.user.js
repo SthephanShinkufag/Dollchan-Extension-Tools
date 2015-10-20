@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '70df1bc';
+var commit = '6afd6bc';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -4576,6 +4576,7 @@ Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
 	}
 	el.innerHTML = txt + (enableJsapi ? '' :
 		'<span class="de-video-resizer" title="' + Lng.expandVideo[lang] + '"></span>');
+	el.style.display = '';
 	if(!enableJsapi) {
 		el.lastChild.onclick = function() {
 			var node = this.parentNode;
@@ -4746,6 +4747,7 @@ Videos.prototype = {
 		} else {
 			el.classList.remove('de-current');
 			this.player.innerHTML = '';
+			this.player.style.display = 'none';
 			this.playerInfo = null;
 		}
 	},
