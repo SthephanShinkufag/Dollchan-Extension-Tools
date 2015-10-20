@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '1814f0d';
+var commit = '35a59fd';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -349,8 +349,8 @@ Lng = {
 		'notext':       ['Скрывать без текста', 'Hide without text']
 	},
 	selExpandThr: [
-		['5 постов', '15 постов', '30 постов', '50 постов', '100 постов'],
-		['5 posts', '15 posts', '30 posts', '50 posts', '100 posts']
+		['Показать еще 10', 'Раскрыть весь тред', 'Последние 20', 'Последние 50', 'Последние 100'],
+		['Show another 10', 'Expand all thread', 'Last 20 posts', 'Last 50 posts', 'Last 100 posts']
 	],
 	selAjaxPages: [
 		['1 страница', '2 страницы', '3 страницы', '4 страницы', '5 страниц'],
@@ -556,7 +556,7 @@ Lng = {
 	prevImg:        ['Предыдущая картинка', 'Previous image'],
 	togglePost:     ['Скрыть/Раскрыть пост', 'Hide/Unhide post'],
 	replyToPost:    ['Ответить на пост', 'Reply to post'],
-	expandThrd:     ['Раскрыть весь тред', 'Expand all thread'],
+	expandThrd:     ['Раскрытие треда', 'Thread expanding'],
 	addFav:         ['Добавить тред в Избранное', 'Add thread to Favorites'],
 	delFav:         ['Убрать тред из Избранного', 'Remove thread from Favorites'],
 	attachPview:    ['Закрепить превью', 'Attach preview'],
@@ -3696,7 +3696,7 @@ HotKeys.prototype = {
 							post.thr.load(visPosts, !!nextThr);
 							post = (nextThr || post.thr).op;
 						} else {
-							post.thr.load(1, false);
+							post.thr.load('all', false);
 							post = post.thr.op;
 						}
 						scrollTo(0, post.offsetTop);
@@ -8690,13 +8690,6 @@ Post.prototype = {
 				e.stopPropagation();
 			}
 			switch(el.className) {
-			case 'de-btn-expthr':
-				this.thr.load(1, false);
-				if(this._menu) {
-					this._menu.remove();
-					this._menu = null;
-				}
-				return;
 			case 'de-btn-fav': this.thr.setFavorState(true, 'user'); return;
 			case 'de-btn-fav-sel': this.thr.setFavorState(false, 'user'); return;
 			case 'de-btn-hide':
@@ -9312,7 +9305,9 @@ Post.prototype = {
 			saveUserPosts();
 			return;
 		case 'spell-notext': addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
-		case 'thr-exp': this.thr.load(parseInt(el.textContent, 10), false);
+		case 'thr-exp':
+			var task = parseInt(el.textContent.match(/\d+/), 10);
+			this.thr.load(!task ? 'all' : task === 10 ? 'more' : task, false);
 		}
 	},
 	_getFull(node, isInit) {
@@ -9980,7 +9975,7 @@ function Thread(el, prev, isLight) {
 		this.btns = el.lastChild;
 		this.btns.firstElementChild.onclick = e => {
 			$pd(e);
-			this.load(0, false);
+			this.load('new', false);
 		};
 	}
 }
@@ -10116,14 +10111,19 @@ Thread.prototype = {
 			needRMUpdate = false,
 			existed = this.pcount === 1 ? 0 : this.pcount - post.count;
 		switch(last) {
-		case 0: // get new posts
+		case 'new': // get new posts
 			needToHide = $C('de-hidden', thrEl).length;
 			needToOmit = needToHide + post.count - 1;
 			needToShow = loadedPosts.length - needToOmit;
 			break;
-		case 1: // get all posts
+		case 'all': // get all posts
 			needToHide = needToOmit = 0;
 			needToShow = loadedPosts.length;
+			break;
+		case 'more': // show 10 omitted posts + get new posts
+			needToHide = Math.max($C('de-hidden', thrEl).length - 10, 0);
+			needToOmit = Math.max(post.count - 11, 0);
+			needToShow = existed + 10;
 			break;
 		default: // get last posts
 			needToHide = Math.max(existed - last, 0);

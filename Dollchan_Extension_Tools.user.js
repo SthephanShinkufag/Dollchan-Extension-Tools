@@ -2604,7 +2604,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "1814f0d";
+	var commit = "35a59fd";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -2908,7 +2908,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			noimg: ["Скрывать без картинок", "Hide without images"],
 			notext: ["Скрывать без текста", "Hide without text"]
 		},
-		selExpandThr: [["5 постов", "15 постов", "30 постов", "50 постов", "100 постов"], ["5 posts", "15 posts", "30 posts", "50 posts", "100 posts"]],
+		selExpandThr: [["Показать еще 10", "Раскрыть весь тред", "Последние 20", "Последние 50", "Последние 100"], ["Show another 10", "Expand all thread", "Last 20 posts", "Last 50 posts", "Last 100 posts"]],
 		selAjaxPages: [["1 страница", "2 страницы", "3 страницы", "4 страницы", "5 страниц"], ["1 page", "2 pages", "3 pages", "4 pages", "5 pages"]],
 		selSaveThr: [["Скачать весь тред", "Скачать картинки"], ["Download thread", "Download images"]],
 		selAudioNotif: [["Каждые 30 сек.", "Каждую минуту", "Каждые 2 мин.", "Каждые 5 мин."], ["Every 30 sec.", "Every minute", "Every 2 min.", "Every 5 min."]],
@@ -3040,7 +3040,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		prevImg: ["Предыдущая картинка", "Previous image"],
 		togglePost: ["Скрыть/Раскрыть пост", "Hide/Unhide post"],
 		replyToPost: ["Ответить на пост", "Reply to post"],
-		expandThrd: ["Раскрыть весь тред", "Expand all thread"],
+		expandThrd: ["Раскрытие треда", "Thread expanding"],
 		addFav: ["Добавить тред в Избранное", "Add thread to Favorites"],
 		delFav: ["Убрать тред из Избранного", "Remove thread from Favorites"],
 		attachPview: ["Закрепить превью", "Attach preview"],
@@ -5811,7 +5811,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 									post.thr.load(visPosts, !!nextThr);
 									post = (nextThr || post.thr).op;
 								} else {
-									post.thr.load(1, false);
+									post.thr.load("all", false);
 									post = post.thr.op;
 								}
 								scrollTo(0, post.offsetTop);
@@ -11392,13 +11392,6 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					e.stopPropagation();
 				}
 				switch (el.className) {
-					case "de-btn-expthr":
-						this.thr.load(1, false);
-						if (this._menu) {
-							this._menu.remove();
-							this._menu = null;
-						}
-						return;
 					case "de-btn-fav":
 						this.thr.setFavorState(true, "user");return;
 					case "de-btn-fav-sel":
@@ -11966,7 +11959,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				case "spell-notext":
 					addSpell(267, "", true);return;
 				case "thr-exp":
-					this.thr.load(parseInt(el.textContent, 10), false);
+					var task = parseInt(el.textContent.match(/\d+/), 10);
+					this.thr.load(!task ? "all" : task === 10 ? "more" : task, false);
 			}
 		},
 		_getFull: function _getFull(node, isInit) {
@@ -12817,7 +12811,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			this.btns = el.lastChild;
 			this.btns.firstElementChild.onclick = function (e) {
 				$pd(e);
-				_this203.load(0, false);
+				_this203.load("new", false);
 			};
 		}
 	}
@@ -12947,16 +12941,22 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			    needRMUpdate = false,
 			    existed = this.pcount === 1 ? 0 : this.pcount - post.count;
 			switch (last) {
-				case 0:
+				case "new":
 				
 					needToHide = $C("de-hidden", thrEl).length;
 					needToOmit = needToHide + post.count - 1;
 					needToShow = loadedPosts.length - needToOmit;
 					break;
-				case 1:
+				case "all":
 				
 					needToHide = needToOmit = 0;
 					needToShow = loadedPosts.length;
+					break;
+				case "more":
+				
+					needToHide = Math.max($C("de-hidden", thrEl).length - 10, 0);
+					needToOmit = Math.max(post.count - 11, 0);
+					needToShow = existed + 10;
 					break;
 				default:
 				
