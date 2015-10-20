@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = '35a59fd';
+var commit = '70df1bc';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8690,6 +8690,13 @@ Post.prototype = {
 				e.stopPropagation();
 			}
 			switch(el.className) {
+			case 'de-btn-expthr':
+				this.thr.load('all', false);
+				if(this._menu) {
+					this._menu.remove();
+					this._menu = null;
+				}
+				return;
 			case 'de-btn-fav': this.thr.setFavorState(true, 'user'); return;
 			case 'de-btn-fav-sel': this.thr.setFavorState(false, 'user'); return;
 			case 'de-btn-hide':
@@ -10121,9 +10128,10 @@ Thread.prototype = {
 			needToShow = loadedPosts.length;
 			break;
 		case 'more': // show 10 omitted posts + get new posts
-			needToHide = Math.max($C('de-hidden', thrEl).length - 10, 0);
-			needToOmit = Math.max(post.count - 11, 0);
-			needToShow = existed + 10;
+			needToHide = $C('de-hidden', thrEl).length - 10;
+			needToOmit = Math.max(needToHide + post.count - 1, 0);
+			needToHide = Math.max(needToHide, 0);
+			needToShow = loadedPosts.length - needToOmit;
 			break;
 		default: // get last posts
 			needToHide = Math.max(existed - last, 0);
