@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         15.10.20.0
+// @version         15.10.20.1
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       (c) 2015 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
@@ -2603,8 +2603,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		}, initScript, this, [[29, 33]]);
 	});
-	var version = "15.10.20.0";
-	var commit = "b521918";
+	var version = "15.10.20.1";
+	var commit = "7cde917";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -12703,7 +12703,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		});
 		html.push("</div>");
 		if (aib.dobr) {
-			el = post.msg.nextElementSibling;
+			var el = post.msg.nextElementSibling;
 			if (el) {
 				el.insertAdjacentHTML("beforeend", html.join(""));
 			}

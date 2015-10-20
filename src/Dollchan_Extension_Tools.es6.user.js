@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         15.10.20.0
+// @version         15.10.20.1
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       (c) 2015 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
@@ -20,8 +20,8 @@
 (function de_main_func_inner(scriptStorage, FormData) {
 'use strict';
 
-var version = '15.10.20.0';
-var commit = 'b521918';
+var version = '15.10.20.1';
+var commit = '7cde917';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9866,7 +9866,7 @@ function addRefMap(post, tUrl) {
 		'">&gt;&gt;', num, '</a><span class="de-refcomma">, </span>'));
 	html.push('</div>');
 	if(aib.dobr) {
-		el = post.msg.nextElementSibling;
+		var el = post.msg.nextElementSibling;
 		if(el) {
 			el.insertAdjacentHTML('beforeend', html.join(''));
 		}
