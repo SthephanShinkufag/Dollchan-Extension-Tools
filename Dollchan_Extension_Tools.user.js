@@ -2604,7 +2604,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.8.27.0";
-	var commit = "c6e3979";
+	var commit = "1814f0d";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -5404,6 +5404,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					if (el.className === "de-menu-item") {
 						this.remove();
 						this._clickFn(el);
+						if (!Cfg.expandPanel && !$c("de-win-active", doc)) {
+							$id("de-panel").lastChild.style.display = "none";
+						}
 					}
 					break;
 				case "mouseover":
