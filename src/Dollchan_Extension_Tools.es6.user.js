@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.8.27.0';
-var commit = 'cb679b7';
+var commit = 'c6e3979';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1829,8 +1829,9 @@ var panel = {
 					(!isThr || localRun ? '' :
 						pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') +
 						(nav.Safari ? '' : pButton('audio-off'))) +
-					(!aib.mak && !aib.tiny && !aib.fch ? '' :
-						pButton('catalog', aib.prot + '//' + aib.host + '/' + aib.b + '/catalog.html')) +
+					(!aib.mak && !aib.tiny && !aib.fch && !aib.iich ? '' :
+						pButton('catalog', aib.prot + '//' + aib.host + '/' + aib.b + '/catalog' +
+							(aib.iich ? 'ue' : '') + '.html')) +
 					pButton('enable') +
 					(!isThr ? '' :
 						'<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' +
