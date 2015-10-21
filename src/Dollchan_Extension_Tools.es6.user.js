@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '2b4e50f';
+var commit = 'e06bd2c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1458,9 +1458,6 @@ function* readCfg() {
 	}
 	if(!Cfg.stats) {
 		Cfg.stats = {'view': 0, 'op': 0, 'reply': 0};
-	}
-	if(aib.t) {
-		Cfg.stats.view++;
 	}
 	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
@@ -2975,8 +2972,9 @@ function getCfgCommon() {
 		])),
 		$if(nav.isGlobal, $New('div', null, [
 			$txt(Lng.cfg['excludeList'][lang]),
-			$new('input', {'type': 'text', 'id': 'de-exclude-edit', 'style': 'display: block; width: 97%;',
-				'value': excludeList}, {
+			$new('input', {'type': 'text', 'id': 'de-exclude-edit', 'style': 'display: block; width: 80%;',
+				'value': excludeList,
+				'placeholder': '4chan.org, 8ch.net, ...'}, {
 				'keyup'() {
 					setStored('DESU_Exclude', this.value);
 				}
@@ -11779,6 +11777,8 @@ function Initialization(checkDomains) {
 		aib.parseURL();
 	}
 	if(aib.t) {
+		Cfg.stats.view++;
+		saveComCfg(aib.dm, Cfg);
 		doc.defaultView.addEventListener('beforeunload', function(e) {
 			sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset;
 		});
