@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '7cde917';
+var commit = '2b4e50f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -349,8 +349,8 @@ Lng = {
 		'notext':       ['Скрывать без текста', 'Hide without text']
 	},
 	selExpandThr: [
-		['Показать еще 10', 'Раскрыть весь тред', 'Последние 20', 'Последние 50', 'Последние 100'],
-		['Show another 10', 'Expand all thread', 'Last 20 posts', 'Last 50 posts', 'Last 100 posts']
+		['+10 постов', 'Последние 30', 'Последние 50', 'Последние 100', 'Весь тред'],
+		['+10 posts', 'Last 30 posts', 'Last 50 posts', 'Last 100 posts', 'All thread']
 	],
 	selAjaxPages: [
 		['1 страница', '2 страницы', '3 страницы', '4 страницы', '5 страниц'],

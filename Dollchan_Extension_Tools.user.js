@@ -2604,7 +2604,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.10.20.1";
-	var commit = "7cde917";
+	var commit = "2b4e50f";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -2908,7 +2908,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			noimg: ["Скрывать без картинок", "Hide without images"],
 			notext: ["Скрывать без текста", "Hide without text"]
 		},
-		selExpandThr: [["Показать еще 10", "Раскрыть весь тред", "Последние 20", "Последние 50", "Последние 100"], ["Show another 10", "Expand all thread", "Last 20 posts", "Last 50 posts", "Last 100 posts"]],
+		selExpandThr: [["+10 постов", "Последние 30", "Последние 50", "Последние 100", "Весь тред"], ["+10 posts", "Last 30 posts", "Last 50 posts", "Last 100 posts", "All thread"]],
 		selAjaxPages: [["1 страница", "2 страницы", "3 страницы", "4 страницы", "5 страниц"], ["1 page", "2 pages", "3 pages", "4 pages", "5 pages"]],
 		selSaveThr: [["Скачать весь тред", "Скачать картинки"], ["Download thread", "Download images"]],
 		selAudioNotif: [["Каждые 30 сек.", "Каждую минуту", "Каждые 2 мин.", "Каждые 5 мин."], ["Every 30 sec.", "Every minute", "Every 2 min.", "Every 5 min."]],
