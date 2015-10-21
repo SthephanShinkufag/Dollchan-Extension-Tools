@@ -2601,7 +2601,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.10.20.1";
-	var commit = "e06bd2c";
+	var commit = "6b519a0";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -2619,6 +2619,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		markNewPosts: 1,
 		desktNotif: 0,
 		updCount: 1,
+		hideReplies: 0,
 		updThrBtns: 1,
 		expandTrunc: 0,
 		postBtnsCSS: 2,
@@ -2736,6 +2737,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			markNewPosts: ["Выделять новые посты при смене вкладки", "Mark new posts when tab changes"],
 			desktNotif: ["Уведомления на рабочем столе", "Desktop notifications"],
 			updCount: ["Обратный счетчик секунд до обновления", "Show countdown to thread update"],
+			hideReplies: ["Показывать только оп-посты в списке тредов*", "Show only op-posts in threads list*"],
 			updThrBtns: ["Кнопки получения новых постов в списке тредов", "Get-new-posts buttons in threads list"],
 			expandTrunc: ["Разворачивать сокращенные посты*", "Auto expanding of truncated posts*"],
 			postBtnsCSS: {
@@ -3006,6 +3008,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		closeReply: ["Закрыть форму", "Close form"],
 		replies: ["Ответы:", "Replies:"],
 		postsOmitted: ["Пропущено ответов: ", "Posts omitted: "],
+		showPosts: ["Показать посты", "Show posts"],
+		hidePosts: ["Скрыть посты", "Hide posts"],
 		collapseThrd: ["Свернуть тред", "Collapse thread"],
 		deleted: ["удалён", "deleted"],
 		getNewPosts: ["Получить новые посты", "Get new posts"],
@@ -3338,19 +3342,19 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	}
 
 	function CancelablePromise(fn) {
-		var _this203 = this;
+		var _this204 = this;
 
 		this._promise = new Promise(function (res, rej) {
-			_this203._oResFn = res;
-			_this203._oRejFn = rej;
+			_this204._oResFn = res;
+			_this204._oRejFn = rej;
 		});
 		fn(function (_) {
-			return _this203._resFn(_);
+			return _this204._resFn(_);
 		}, function (_) {
-			return _this203._rejFn(_);
+			return _this204._rejFn(_);
 		}, function (cancelFn) {
-			if (!_this203._done) {
-				_this203._cancelFn = cancelFn;
+			if (!_this204._done) {
+				_this204._cancelFn = cancelFn;
 			}
 		});
 	}
@@ -3616,20 +3620,20 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		_run: function _run(data) {
-			var _this203 = this;
+			var _this204 = this;
 
 			this.func(this.num++, data).then(function () {
-				return _this203._end();
+				return _this204._end();
 			}, function (e) {
 				if (e instanceof TasksPool.PauseError) {
-					_this203.pause();
+					_this204.pause();
 					if (e.duration !== -1) {
 						setTimeout(function () {
-							return _this203["continue"]();
+							return _this204["continue"]();
 						}, e.duration);
 					}
 				} else {
-					_this203._end();
+					_this204._end();
 					throw e;
 				}
 			});
@@ -3931,16 +3935,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		_menuTO: 0,
 		_el: null,
 		_prepareToHide: function _prepareToHide() {
-			var _this203 = this;
+			var _this204 = this;
 
 			if (!Cfg.expandPanel && !$c("de-win-active", doc)) {
 				this._hideTO = setTimeout(function () {
-					return _this203._el.lastChild.style.display = "none";
+					return _this204._el.lastChild.style.display = "none";
 				}, 500);
 			}
 		},
 		handleEvent: function handleEvent(e) {
-			var _this203 = this;
+			var _this204 = this;
 
 			switch (e.type) {
 				case "click":
@@ -4039,10 +4043,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							this._menuTO = setTimeout(function () {
 								var menu = addMenu(e.target);
 								menu.onover = function () {
-									return clearTimeout(_this203._hideTO);
+									return clearTimeout(_this204._hideTO);
 								};
 								menu.onout = function () {
-									return _this203._prepareToHide();
+									return _this204._prepareToHide();
 								};
 							}, Cfg.linksOver);
 					}
@@ -4413,10 +4417,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 	function addContentBlock(parent, title) {
 		return parent.appendChild($New("div", { "class": "de-content-block" }, [$new("input", { type: "checkbox" }, { click: function click() {
-				var _this203 = this;
+				var _this204 = this;
 
 				$each($Q(".de-entry > input", this.parentNode), function (el) {
-					return el.checked = _this203.checked;
+					return el.checked = _this204.checked;
 				});
 			} }), title]));
 	}
@@ -4487,14 +4491,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			});
 		}));
 		body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function callee$2$0() {
-			var _this203 = this;
+			var _this204 = this;
 
 			var i, els, len, _els$i$getAttribute$split, _els$i$getAttribute$split2, board, tNum;
 
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
-						i = 0, els = $Q(".de-entry[info]", _this203.parentNode), len = els.length;
+						i = 0, els = $Q(".de-entry[info]", _this204.parentNode), len = els.length;
 
 					case 1:
 						if (!(i < len)) {
@@ -4990,7 +4994,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		})), lBox("updCount", true, function () {
 			updater.toggleCounter(Cfg.updCount);
-		})])])), lBox("updThrBtns", true, updateCSS), lBox("expandTrunc", true, updateCSS), optSel("postBtnsCSS", false, null), lBox("showHideBtn", false, updateCSS), lBox("showRepBtn", false, updateCSS), lBox("noSpoilers", true, updateCSS), lBox("noPostNames", true, updateCSS), lBox("widePosts", true, updateCSS), $New("div", null, [lBox("correctTime", false, DateTime.toggleSettings), inpTxt("timeOffset", 2, null), $txt(Lng.cfg.timeOffset[lang]), $add("<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-" + (lang ? "en" : "ru") + "\" class=\"de-abtn\" target=\"_blank\">[?]</a>")]), $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [inpTxt("timePattern", 25, null), $txt(Lng.cfg.timePattern[lang])]), $New("div", null, [inpTxt("timeRPattern", 25, null), $txt(Lng.cfg.timeRPattern[lang])])])]);
+		})])])), lBox("hideReplies", true, null), lBox("updThrBtns", true, updateCSS), lBox("expandTrunc", true, updateCSS), optSel("postBtnsCSS", false, null), lBox("showHideBtn", false, updateCSS), lBox("showRepBtn", false, updateCSS), lBox("noSpoilers", true, updateCSS), lBox("noPostNames", true, updateCSS), lBox("widePosts", true, updateCSS), $New("div", null, [lBox("correctTime", false, DateTime.toggleSettings), inpTxt("timeOffset", 2, null), $txt(Lng.cfg.timeOffset[lang]), $add("<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-" + (lang ? "en" : "ru") + "\" class=\"de-abtn\" target=\"_blank\">[?]</a>")]), $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [inpTxt("timePattern", 25, null), $txt(Lng.cfg.timePattern[lang])]), $New("div", null, [inpTxt("timeRPattern", 25, null), $txt(Lng.cfg.timeRPattern[lang])])])]);
 	}
 
 	function getCfgImages() {
@@ -5394,7 +5398,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			this._el = null;
 		},
 		handleEvent: function handleEvent(e) {
-			var _this203 = this;
+			var _this204 = this;
 
 			var el = e.target;
 			switch (e.type) {
@@ -5418,7 +5422,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					var rt = e.relatedTarget;
 					if (this._el && (!rt || rt !== this._el && !this._el.contains(rt))) {
 						this._closeTO = setTimeout(function () {
-							return _this203.remove();
+							return _this204.remove();
 						}, 75);
 						if (el !== this._parentEl && this.onout) {
 							this.onout();
@@ -5467,10 +5471,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 	function HotKeys() {
-		var _this203 = this;
+		var _this204 = this;
 
 		spawn(HotKeys.readKeys).then(function (keys) {
-			return _this203._init(keys);
+			return _this204._init(keys);
 		});
 	}
 	HotKeys.version = 7;
@@ -6191,10 +6195,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			this._pool.run([data, transferObjs, fn]);
 		},
 		_createWorker: function _createWorker(num, data) {
-			var _this203 = this;
+			var _this204 = this;
 
 			return new Promise(function (resolve, reject) {
-				var w = _this203._freeWorkers.pop();
+				var w = _this204._freeWorkers.pop();
 				var _data = _slicedToArray(data, 3);
 
 				var sendData = _data[0];
@@ -6203,13 +6207,13 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 				w.onmessage = function (e) {
 					fn(e.data);
-					_this203._freeWorkers.push(w);
+					_this204._freeWorkers.push(w);
 					resolve();
 				};
 				w.onerror = function (err) {
 					resolve();
-					_this203._freeWorkers.push(w);
-					_this203._errFn(err);
+					_this204._freeWorkers.push(w);
+					_this204._errFn(err);
 				};
 				w.postMessage(sendData, transferObjs);
 			});
@@ -6561,7 +6565,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return num < 10 ? "0" + num : num;
 		},
 		fix: function fix(txt) {
-			var _this203 = this;
+			var _this204 = this;
 
 			if (this.disabled || !this.genDateTime && !this.getRPattern(txt)) {
 				return txt;
@@ -6574,7 +6578,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				var second, minute, hour, day, month, year;
 				for (var i = 0; i < 7; ++i) {
 					var a = args[i];
-					switch (_this203.pattern[i]) {
+					switch (_this204.pattern[i]) {
 						case "s":
 							second = a;break;
 						case "i":
@@ -6619,8 +6623,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					}
 				}
 				var dtime = new Date(year.length === 2 ? "20" + year : year, month, day, hour, minute, second || 0);
-				dtime.setHours(dtime.getHours() + _this203.diff);
-				return _this203.genDateTime(dtime);
+				dtime.setHours(dtime.getHours() + _this204.diff);
+				return _this204.genDateTime(dtime);
 			});
 		}
 	};
@@ -7313,7 +7317,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return [dScope, dScope.length > 2 || hScope];
 		},
 		_decompileSpells: function _decompileSpells() {
-			var _this203 = this;
+			var _this204 = this;
 
 			var str,
 			    reps,
@@ -7335,12 +7339,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 				if (reps) {
 					reps.forEach(function (rep) {
-						str += _this203._decompileRep(rep, false) + "\n";
+						str += _this204._decompileRep(rep, false) + "\n";
 					});
 				}
 				if (oreps) {
 					oreps.forEach(function (orep) {
-						str += _this203._decompileRep(orep, true) + "\n";
+						str += _this204._decompileRep(orep, true) + "\n";
 					});
 				}
 				str = str.substr(0, str.length - 1);
@@ -7917,24 +7921,24 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	SpellsRunner.prototype = {
 		hasNumSpell: false,
 		end: function end() {
-			var _this203 = this;
+			var _this204 = this;
 
 			if (this._endPromise) {
 				this._endPromise.then(function () {
-					return _this203._savePostsHelper();
+					return _this204._savePostsHelper();
 				});
 			} else {
 				this._savePostsHelper();
 			}
 		},
 		run: function run(post) {
-			var _this203 = this;
+			var _this204 = this;
 
 			var interp = new SpellsInterpreter(post, this._spells);
 			var res = interp.run();
 			if (res instanceof Promise) {
 				res = res.then(function (val) {
-					return _this203._checkRes(post, val);
+					return _this204._checkRes(post, val);
 				});
 				this._endPromise = this._endPromise ? this._endPromise.then(function () {
 					return res;
@@ -8199,7 +8203,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return false;
 		},
 		_ihash: async(regeneratorRuntime.mark(function callee$1$2(val) {
-			var _this203 = this;
+			var _this204 = this;
 
 			var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, image, hash;
 
@@ -8210,7 +8214,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						_didIteratorError = false;
 						_iteratorError = undefined;
 						context$2$0.prev = 3;
-						_iterator = _this203._post.images[Symbol.iterator]();
+						_iterator = _this204._post.images[Symbol.iterator]();
 
 					case 5:
 						if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
@@ -8670,7 +8674,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 	function PostForm(form, ignoreForm, dc) {
-		var _this203 = this;
+		var _this204 = this;
 
 		this.oeForm = $q("form[name=\"oeform\"], form[action*=\"paint\"]", dc);
 		if (!ignoreForm && !form) {
@@ -8728,11 +8732,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		el.firstChild.onclick = function () {
 			toggleCfg("replyWinDrag");
 			if (Cfg.replyWinDrag) {
-				_this203.qArea.className = aib.cReply + " de-win";
-				updateWinZ(_this203.qArea.style);
+				_this204.qArea.className = aib.cReply + " de-win";
+				updateWinZ(_this204.qArea.style);
 			} else {
-				_this203.qArea.className = aib.cReply + " de-win-inpost";
-				_this203.txta.focus();
+				_this204.qArea.className = aib.cReply + " de-win-inpost";
+				_this204.txta.focus();
 			}
 		};
 		el.lastChild.onclick = this.closeReply.bind(this);
@@ -8802,11 +8806,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					e.stopPropagation();
 					$pd(e);
 					toggleCfg("sageReply");
-					_this203._setSage();
+					_this204._setSage();
 				} });
 			$after(this.subm, el);
 			setTimeout(function () {
-				return _this203._setSage();
+				return _this204._setSage();
 			}, 0);
 			if (aib._2chru) {
 				while (el.nextSibling) {
@@ -8835,25 +8839,25 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				$ajax("/" + aib.b + "/api/requires-captcha").then(function (xhr) {
 					aib.reqCaptcha = true;
 					if (JSON.parse(xhr.responseText)["requires-captcha"] !== "1") {
-						_this203.subm.click();
+						_this204.subm.click();
 						return;
 					}
 					$id("captcha_tr").style.display = "table-row";
 					$id("captchaimage").src = "/" + aib.b + "/captcha?" + Math.random();
-					$after(_this203.cap, $new("span", {
+					$after(_this204.cap, $new("span", {
 						"class": "shortened",
 						style: "margin: 0px .5em;",
 						text: "проверить капчу" }, {
 						click: function click() {
-							var _this204 = this;
+							var _this205 = this;
 
 							$ajax("/" + aib.b + "/api/validate-captcha", { method: "POST" }).then(function (xhr) {
 								if (JSON.parse(xhr.responseText).status === "ok") {
-									_this204.innerHTML = "можно постить";
+									_this205.innerHTML = "можно постить";
 								} else {
-									_this204.innerHTML = "неверная капча";
+									_this205.innerHTML = "неверная капча";
 									setTimeout(function () {
-										return _this204.innerHTML = "проверить капчу";
+										return _this205.innerHTML = "проверить капчу";
 									}, 1000);
 								}
 							}, emptyFn);
@@ -8863,32 +8867,32 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				$pd(e);
 				return;
 			}
-			if (Cfg.warnSubjTrip && _this203.subj && /#.|##./.test(_this203.subj.value)) {
+			if (Cfg.warnSubjTrip && _this204.subj && /#.|##./.test(_this204.subj.value)) {
 				$pd(e);
 				$popup(Lng.subjHasTrip[lang], "upload", false);
 				return;
 			}
-			var val = _this203.txta.value;
+			var val = _this204.txta.value;
 			if (spells.haveOutreps) {
 				val = spells.outReplace(val);
 			}
-			if (_this203.tNum && pByNum[_this203.tNum].subj === "Dollchan Extension Tools") {
-				var temp = "\n\n" + _this203._wrapText(aib.markupBB, aib.markupTags[5], "-".repeat(50) + "\n" + nav.ua + "\nv" + version + "." + commit + " [" + nav.scriptInstall + "]")[1];
+			if (_this204.tNum && pByNum[_this204.tNum].subj === "Dollchan Extension Tools") {
+				var temp = "\n\n" + _this204._wrapText(aib.markupBB, aib.markupTags[5], "-".repeat(50) + "\n" + nav.ua + "\nv" + version + "." + commit + " [" + nav.scriptInstall + "]")[1];
 				if (!val.includes(temp)) {
 					val += temp;
 				}
 			}
-			_this203.txta.value = val;
+			_this204.txta.value = val;
 			if (Cfg.ajaxReply) {
 				$popup(Lng.checking[lang], "upload", true);
 			}
-			if (_this203.video && (val = _this203.video.value) && (val = val.match(Videos.ytReg))) {
-				_this203.video.value = "http://www.youtube.com/watch?v=" + val[1];
+			if (_this204.video && (val = _this204.video.value) && (val = val.match(Videos.ytReg))) {
+				_this204.video.value = "http://www.youtube.com/watch?v=" + val[1];
 			}
-			if (_this203.isQuick) {
-				_this203.pForm.style.display = "none";
-				_this203.qArea.style.display = "none";
-				$after(_this203._pBtn[+_this203.isBottom], _this203.pForm);
+			if (_this204.isQuick) {
+				_this204.pForm.style.display = "none";
+				_this204.qArea.style.display = "none";
+				$after(_this204._pBtn[+_this204.isBottom], _this204.pForm);
 			}
 			updater.pause();
 		});
@@ -8902,10 +8906,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			$parent(this.name, "TR").style.display = "none";
 		}
 		window.addEventListener("load", function () {
-			if (Cfg.userName && _this203.name) {
+			if (Cfg.userName && _this204.name) {
 				setTimeout(PostForm.setUserName, 1000);
 			}
-			if (_this203.passw) {
+			if (_this204.passw) {
 				setTimeout(PostForm.setUserPassw, 1000);
 			}
 		});
@@ -8913,10 +8917,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			this.capTr = $parent(this.cap, "TR");
 			var html = this.capTr.innerHTML;
 			this.txta.addEventListener("focus", function () {
-				return _this203._captchaInit(html);
+				return _this204._captchaInit(html);
 			});
 			this.form.addEventListener("click", function () {
-				return _this203._captchaInit(html);
+				return _this204._captchaInit(html);
 			}, true);
 			if (!aib.krau) {
 				this.capTr.style.display = "none";
@@ -8931,7 +8935,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				this.form.removeAttribute("onsubmit");
 			}
 			setTimeout(function () {
-				_this203.form.onsubmit = function (e) {
+				_this204.form.onsubmit = function (e) {
 					$pd(e);
 					if (aib.krau) {
 						aib.addProgressTrack.click();
@@ -8940,11 +8944,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						doc.body.insertAdjacentHTML("beforeend", "<iframe class=\"ninja\" id=\"csstest\" src=\"/" + aib.b + "/csstest.foo\"></iframe>");
 						doc.body.lastChild.onload = function (e) {
 							$del(e.target);
-							spawn(html5Submit, _this203.form, true).then(doUploading);
+							spawn(html5Submit, _this204.form, true).then(doUploading);
 						};
 						return;
 					}
-					spawn(html5Submit, _this203.form, true).then(doUploading);
+					spawn(html5Submit, _this204.form, true).then(doUploading);
 				};
 			}, 0);
 		} else if (Cfg.ajaxReply === 1) {
@@ -9238,7 +9242,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		_captchaInit: function _captchaInit(html) {
-			var _this203 = this;
+			var _this204 = this;
 
 			if (this.capInited) {
 				return;
@@ -9268,11 +9272,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				$script("get_captcha()");
 			}
 			setTimeout(function () {
-				return _this203._captchaUpd();
+				return _this204._captchaUpd();
 			}, 100);
 		},
 		_captchaUpd: function _captchaUpd() {
-			var _this203 = this;
+			var _this204 = this;
 
 			var img, a;
 			if ((this.recap = $id("recaptcha_response_field")) && (img = $id("recaptcha_image"))) {
@@ -9320,8 +9324,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			if (!aib.kus && !aib.tinyIb) {
 				this._lastCapUpdate = Date.now();
 				this.cap.onfocus = function () {
-					if (_this203._lastCapUpdate && Date.now() - _this203._lastCapUpdate > 300000) {
-						_this203.refreshCapImg(false);
+					if (_this204._lastCapUpdate && Date.now() - _this204._lastCapUpdate > 300000) {
+						_this204.refreshCapImg(false);
 					}
 				};
 				if (!aib.t && this.isQuick) {
@@ -9477,12 +9481,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		handleEvent: function handleEvent(e) {
-			var _this203 = this;
+			var _this204 = this;
 
 			switch (e.type) {
 				case "change":
 					setTimeout(function () {
-						return _this203._onFileChange();
+						return _this204._onFileChange();
 					}, 20);return;
 				case "click":
 					if (e.target === this._delUtil) {
@@ -9505,12 +9509,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				case "dragleave":
 				case "drop":
 					setTimeout(function () {
-						_this203.thumb.classList.remove("de-file-drag");
-						var el = _this203.place.firstChild;
+						_this204.thumb.classList.remove("de-file-drag");
+						var el = _this204.place.firstChild;
 						if (el) {
-							$before(el, _this203.el);
+							$before(el, _this204.el);
 						} else {
-							_this203.place.appendChild(_this203.el);
+							_this204.place.appendChild(_this204.el);
 						}
 					}, 10);
 					return;
@@ -9576,20 +9580,20 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		_spUtil: null,
 		_rjUtil: null,
 		_addRarJpeg: function _addRarJpeg() {
-			var _this203 = this;
+			var _this204 = this;
 
 			var el = this.form.rarInput;
 			el.onchange = function (e) {
-				$del(_this203._rjUtil);
-				_this203._buttonsPlace.insertAdjacentHTML("afterend", "<span><span class=\"de-wait\"></span>" + Lng.wait[lang] + "</span>");
-				var myRjUtil = _this203._rjUtil = _this203._buttonsPlace.nextSibling,
+				$del(_this204._rjUtil);
+				_this204._buttonsPlace.insertAdjacentHTML("afterend", "<span><span class=\"de-wait\"></span>" + Lng.wait[lang] + "</span>");
+				var myRjUtil = _this204._rjUtil = _this204._buttonsPlace.nextSibling,
 				    file = e.target.files[0];
 				readFile(file, false).then(function (val) {
-					if (_this203._rjUtil === myRjUtil) {
+					if (_this204._rjUtil === myRjUtil) {
 						myRjUtil.className = "de-file-rarmsg de-file-utils";
-						myRjUtil.title = _this203.el.files[0].name + " + " + file.name;
-						myRjUtil.textContent = _this203.el.files[0].name.replace(/^.+\./, "") + " + " + file.name.replace(/^.+\./, "");
-						_this203.imgFile = val;
+						myRjUtil.title = _this204.el.files[0].name + " + " + file.name;
+						myRjUtil.textContent = _this204.el.files[0].name.replace(/^.+\./, "") + " + " + file.name.replace(/^.+\./, "");
+						_this204.imgFile = val;
 					}
 				});
 			};
@@ -9649,24 +9653,24 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}));
 		},
 		_showPviewImage: function _showPviewImage() {
-			var _this203 = this;
+			var _this204 = this;
 
 			var files = this.el.files;
 			if (!files || !files[0]) {
 				return;
 			}
 			readFile(files[0], false).then(function (val) {
-				_this203.form.eventFiles(false);
-				if (_this203.empty) {
+				_this204.form.eventFiles(false);
+				if (_this204.empty) {
 					return;
 				}
-				var file = _this203.el.files[0],
-				    thumb = _this203.thumb;
+				var file = _this204.el.files[0],
+				    thumb = _this204.thumb;
 				thumb.classList.remove("de-file-off");
 				thumb = thumb.firstChild.firstChild;
 				thumb.title = file.name + ", " + (file.size / 1024).toFixed(2) + "KB";
 				thumb.insertAdjacentHTML("afterbegin", file.type === "video/webm" ? "<video class=\"de-file-img\" loop autoplay muted src=\"\"></video>" : "<img class=\"de-file-img\" src=\"\">");
-				_this203._mediaEl = thumb = thumb.firstChild;
+				_this204._mediaEl = thumb = thumb.firstChild;
 				thumb.src = window.URL.createObjectURL(new Blob([val]));
 				thumb = thumb.nextSibling;
 				if (thumb) {
@@ -10362,11 +10366,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		_oldX: -1,
 		_oldY: -1,
 		_setHideTmt: function _setHideTmt() {
-			var _this203 = this;
+			var _this204 = this;
 
 			clearTimeout(this._hideTmt);
 			this._hideTmt = setTimeout(function () {
-				return _this203.hide();
+				return _this204.hide();
 			}, 2000);
 		}
 	};
@@ -10980,7 +10984,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		},
 
 		_getHashHelper: regeneratorRuntime.mark(function _getHashHelper(imgObj) {
-			var _this203 = this;
+			var _this204 = this;
 
 			var el, src, data, buffer, val, w, h, imgData, cnv, ctx;
 			return regeneratorRuntime.wrap(function _getHashHelper$(context$2$0) {
@@ -10988,12 +10992,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					case 0:
 						el = imgObj.el, src = imgObj.src;
 
-						if (!(src in _this203._storage)) {
+						if (!(src in _this204._storage)) {
 							context$2$0.next = 3;
 							break;
 						}
 
-						return context$2$0.abrupt("return", _this203._storage[src]);
+						return context$2$0.abrupt("return", _this204._storage[src]);
 
 					case 3:
 						if (el.complete) {
@@ -11037,7 +11041,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						break;
 
 					case 16:
-						cnv = _this203._canvas;
+						cnv = _this204._canvas;
 
 						cnv.width = w;
 						cnv.height = h;
@@ -11054,7 +11058,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 						context$2$0.next = 25;
 						return new Promise(function (resolve) {
-							return _this203._workers.run([buffer, w, h], [buffer], function (val) {
+							return _this204._workers.run([buffer, w, h], [buffer], function (val) {
 								return resolve(val);
 							});
 						});
@@ -11067,7 +11071,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						}
 
 					case 27:
-						_this203._storage[src] = val;
+						_this204._storage[src] = val;
 						return context$2$0.abrupt("return", val);
 
 					case 29:
@@ -11318,7 +11322,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		handleEvent: function handleEvent(e) {
-			var _this203 = this;
+			var _this204 = this;
 
 			var temp,
 			    el = e.target,
@@ -11455,7 +11459,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						clearTimeout(this._menuDelay);
 					} else {
 						this._menuDelay = setTimeout(function () {
-							return _this203._addMenu(el);
+							return _this204._addMenu(el);
 						}, Cfg.linksOver);
 					}
 					return;
@@ -11495,7 +11499,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						} else {
 							clearTimeout(Pview.delTO);
 							this._linkDelay = setTimeout(function () {
-								return _this203._addPview(el);
+								return _this204._addPview(el);
 							}, Cfg.linksOver);
 						}
 						$pd(e);
@@ -11525,7 +11529,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		hideRefs: function hideRefs() {
-			var _this203 = this;
+			var _this204 = this;
 
 			if (!Cfg.hideRefPsts || this.ref.size === 0) {
 				return;
@@ -11534,7 +11538,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				var pst = pByNum[num];
 				if (pst && !pst.userToggled) {
 					pst.setVisib(true);
-					pst.setNote("reference to >>" + _this203.num);
+					pst.setNote("reference to >>" + _this204.num);
 					pst.hideRefs();
 				}
 			});
@@ -11607,7 +11611,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		setVisib: function setVisib(hide) {
-			var _this203 = this;
+			var _this204 = this;
 
 			if (this.hidden === hide) {
 				return;
@@ -11626,15 +11630,15 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				el.onclick = el.onmouseover = el.onmouseout = function (e) {
 					switch (e.type) {
 						case "click":
-							_this203.toggleUserVisib();
+							_this204.toggleUserVisib();
 							$pd(e);
 							return;
 						case "mouseover":
-							_this203.thr.el.style.display = "";return;
+							_this204.thr.el.style.display = "";return;
 						default:
 						
-							if (_this203.hidden) {
-								_this203.thr.el.style.display = "none";
+							if (_this204.hidden) {
+								_this204.thr.el.style.display = "none";
 							}
 					}
 				};
@@ -11651,14 +11655,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					this.setNote("");
 				}
 				this._pref.onmouseover = this._pref.onmouseout = !hide ? null : function (e) {
-					return _this203.hideContent(e.type === "mouseout");
+					return _this204.hideContent(e.type === "mouseout");
 				};
 			}
 			this.hidden = hide;
 			this.hideContent(hide);
 			if (Cfg.strikeHidd) {
 				setTimeout(function () {
-					return _this203._strikePostNum(hide);
+					return _this204._strikePostNum(hide);
 				}, 50);
 			}
 		},
@@ -11801,7 +11805,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		_addMenu: function _addMenu(el) {
-			var _this203 = this;
+			var _this204 = this;
 
 			var html;
 			switch (el.getAttribute("de-menu")) {
@@ -11821,14 +11825,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				this._menu.remove();
 			}
 			this._menu = new Menu(el, html, false, function (el) {
-				return _this203._clickMenu(el);
+				return _this204._clickMenu(el);
 			});
 			if (this.isPview) {
 				this._menu.onover = function () {
-					return _this203.mouseEnter();
+					return _this204.mouseEnter();
 				};
 				this._menu.onout = function () {
-					return _this203.markToDel();
+					return _this204.markToDel();
 				};
 			}
 		},
@@ -11971,7 +11975,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		_getFull: function _getFull(node, isInit) {
-			var _this203 = this;
+			var _this204 = this;
 
 			if (aib.dobr) {
 				$del(node.nextSibling);
@@ -11997,14 +12001,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 			ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(function (form) {
 				var maybeSpells = new Maybe(SpellsRunner);
-				if (_this203.isOp) {
-					_this203.updateMsg(replacePost($q(aib.qMsg, form)), maybeSpells.value);
+				if (_this204.isOp) {
+					_this204.updateMsg(replacePost($q(aib.qMsg, form)), maybeSpells.value);
 					$del(node);
 				} else {
 					var els = $Q(aib.qRPost, form);
 					for (var i = 0, len = els.length; i < len; i++) {
-						if (_this203.num === aib.getPNum(els[i])) {
-							_this203.updateMsg(replacePost($q(aib.qMsg, els[i])), maybeSpells.value);
+						if (_this204.num === aib.getPNum(els[i])) {
+							_this204.updateMsg(replacePost($q(aib.qMsg, els[i])), maybeSpells.value);
 							$del(node);
 							break;
 						}
@@ -12353,7 +12357,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 	function Pview(parent, link, tNum, pNum) {
-		var _this203 = this;
+		var _this204 = this;
 
 		this.parent = parent;
 		this._link = link;
@@ -12373,9 +12377,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		} else {
 			this._showText("<span class=\"de-wait\">" + Lng.loading[lang] + "</span>");
 			ajaxLoad(aib.getThrdUrl(b, tNum)).then(function (form) {
-				return _this203._onload(b, form);
+				return _this204._onload(b, form);
 			}, function (e) {
-				return _this203._onerror(e);
+				return _this204._onerror(e);
 			});
 		}
 	}
@@ -12778,7 +12782,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 	function Thread(el, prev, isLight) {
-		var _this203 = this;
+		var _this204 = this;
 
 		var els = $Q(aib.qRPost, el),
 		    len = els.length,
@@ -12816,10 +12820,24 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		if (!aib.t) {
 			el.insertAdjacentHTML("beforeend", "<div class=\"de-thread-buttons\">" + "<span class=\"de-thread-updater\">[<a class=\"de-abtn\" href=\"#\"></a>]</span>");
 			this.btns = el.lastChild;
-			this.btns.firstElementChild.onclick = function (e) {
+			var updBtn = this.btns.firstElementChild;
+			updBtn.onclick = function (e) {
 				$pd(e);
-				_this203.load("new", false);
+				_this204.load("new", false);
 			};
+			if (Cfg.hideReplies) {
+				this.btns.insertAdjacentHTML("beforeend", " <span class=\"de-replies-btn\">[<a class=\"de-abtn\" href=\"#\"></a>]</span>");
+				var repBtn = this.btns.lastChild;
+				repBtn.onclick = function (e) {
+					$pd(e);
+					var nextCoord = !_this204.next || _this204.last.omitted ? null : _this204.next.offsetTop - window.pageYOffset;
+					_this204._toggleReplies(repBtn, updBtn);
+					if (nextCoord) {
+						scrollTo(window.pageXOffset, _this204.next.offsetTop - nextCoord);
+					}
+				};
+				this._toggleReplies(repBtn, updBtn);
+			}
 		}
 	}
 	Thread.clearPostsMark = function () {
@@ -12901,7 +12919,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return post;
 		},
 		load: function load(last, smartScroll) {
-			var _this203 = this;
+			var _this204 = this;
 
 			var informUser = arguments[2] === undefined ? true : arguments[2];
 
@@ -12909,13 +12927,13 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				$popup(Lng.loading[lang], "load-thr", true);
 			}
 			return ajaxLoad(aib.getThrdUrl(aib.b, this.num)).then(function (form) {
-				return _this203.loadFromForm(last, smartScroll, form);
+				return _this204.loadFromForm(last, smartScroll, form);
 			}, function (e) {
 				return $popup(getErrorMessage(e), "load-thr", false);
 			});
 		},
 		loadFromForm: function loadFromForm(last, smartScroll, form) {
-			var _this203 = this;
+			var _this204 = this;
 
 			var nextCoord,
 			    loadedPosts = $Q(aib.qRPost, form),
@@ -13019,7 +13037,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				btn.insertAdjacentHTML("beforeend", "<span class=\"de-thread-collapse\"> [<a class=\"de-abtn\" href=\"#\"></a>]</span>");
 				btn.lastChild.onclick = function (e) {
 					$pd(e);
-					_this203.load(visPosts, true);
+					_this204.load(visPosts, true);
 				};
 			}
 			btn.lastChild.style.display = needToShow > visPosts ? "" : "none";
@@ -13029,10 +13047,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			if (smartScroll) {
 				scrollTo(window.pageXOffset, this.next.offsetTop - nextCoord);
 			}
+			if (Cfg.hideReplies) {
+				$c("de-replies-btn", this.btns).firstElementChild.className = "de-abtn de-replies-hide";
+				if (Cfg.updThrBtns) {
+					btn.firstChild.style.display = "";
+				}
+			}
 			closePopup("load-thr");
 		},
 		loadNew: function loadNew(useAPI) {
-			var _this203 = this;
+			var _this204 = this;
 
 			if (aib.dobr && useAPI) {
 				return getJsonPosts("/api/thread/" + aib.b + "/" + aib.t + ".json").then(function (json) {
@@ -13040,16 +13064,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						if (json.error) {
 							return CancelablePromise.reject(new AjaxError(0, json.message));
 						}
-						if (_this203._lastModified !== json.last_modified || _this203.pcount !== json.posts_count) {
-							_this203._lastModified = json.last_modified;
-							return _this203.loadNew(false);
+						if (_this204._lastModified !== json.last_modified || _this204.pcount !== json.posts_count) {
+							_this204._lastModified = json.last_modified;
+							return _this204.loadNew(false);
 						}
 					}
 					return 0;
 				});
 			}
 			return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, !aib.dobr).then(function (form) {
-				return form ? _this203.loadNewFromForm(form) : 0;
+				return form ? _this204.loadNewFromForm(form) : 0;
 			});
 		},
 		loadNewFromForm: function loadNewFromForm(form) {
@@ -13079,7 +13103,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		setFavorState: function setFavorState(val, type) {
-			var _this203 = this;
+			var _this204 = this;
 
 			this.setFavBtn(val);
 			readFav().then(function (fav) {
@@ -13093,16 +13117,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						fav[h][b] = {};
 					}
 					fav[h][b].url = aib.prot + "//" + aib.host + aib.getPageUrl(b, 0);
-					fav[h][b][_this203.num] = {
-						cnt: _this203.pcount,
+					fav[h][b][_this204.num] = {
+						cnt: _this204.pcount,
 						"new": 0,
-						txt: _this203.op.title,
-						url: aib.getThrdUrl(b, _this203.num),
-						last: aib.anchor + _this203.last.num,
+						txt: _this204.op.title,
+						url: aib.getThrdUrl(b, _this204.num),
+						last: aib.anchor + _this204.last.num,
 						type: type
 					};
 				} else {
-					removeFavoriteEntry(fav, h, b, _this203.num, false);
+					removeFavoriteEntry(fav, h, b, _this204.num, false);
 				}
 				saveFavorites(fav);
 			});
@@ -13152,6 +13176,30 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 			}
 		},
+		_toggleReplies: function _toggleReplies(repBtn, updBtn) {
+			var isHide = !this.last.omitted;
+			for (var i = 0, post = this.op; post !== this.last; i++) {
+				post = post.next;
+				if (isHide) {
+					post.wrap.classList.add("de-hidden");
+					post.omitted = true;
+				} else {
+					post.wrap.classList.remove("de-hidden");
+					post.omitted = false;
+				}
+			}
+			repBtn.firstElementChild.className = "de-abtn " + (isHide ? "de-replies-show" : "de-replies-hide");
+			updBtn.style.display = isHide ? "none" : "";
+			var colBtn = $c("de-thread-collapse", this.el);
+			if (colBtn) {
+				colBtn.style.display = isHide ? "none" : "";
+			}
+			$del($q(aib.qOmitted + ", .de-omitted", this.el));
+			i = this.pcount - 1 - (isHide ? 0 : i);
+			if (i) {
+				this.op.el.insertAdjacentHTML("afterend", "<span class=\"de-omitted\">" + i + "</span> ");
+			}
+		},
 		_importPosts: function _importPosts(last, newPosts, begin, end, maybeVParser, maybeSpells) {
 			var newCount = end - begin,
 			    newVisCount = newCount,
@@ -13163,7 +13211,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return [newCount, newVisCount, fragm, last];
 		},
 		_parsePosts: function _parsePosts(nPosts) {
-			var _this203 = this;
+			var _this204 = this;
 
 			var maybeSpells = new Maybe(SpellsRunner),
 			    newPosts = 0,
@@ -13235,18 +13283,18 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				if (!f || !f[aib.b]) {
 					return;
 				}
-				if (f = f[aib.b][_this203.op.num]) {
+				if (f = f[aib.b][_this204.op.num]) {
 					var el = $q("#de-win-fav > .de-win-body", doc);
 					if (el && el.hasChildNodes()) {
-						el = $q(".de-fav-current > .de-entry[de-num=\"" + _this203.op.num + "\"] .de-fav-inf-new", el);
+						el = $q(".de-fav-current > .de-entry[de-num=\"" + _this204.op.num + "\"] .de-fav-inf-new", el);
 						el.style.display = "none";
 						el.textContent = 0;
 						el = el.nextElementSibling;
-						el.textContent = _this203.pcount;
+						el.textContent = _this204.pcount;
 					}
-					f.cnt = _this203.pcount;
+					f.cnt = _this204.pcount;
 					f["new"] = 0;
-					f.last = aib.anchor + _this203.last.num;
+					f.last = aib.anchor + _this204.last.num;
 					setStored("DESU_Favorites", JSON.stringify(fav));
 				}
 			});
@@ -13852,24 +13900,24 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					} },
 				postMapInited: { writable: true, value: false },
 				checkForm: { value: function value(formEl, maybeSpells) {
-						var _this291 = this;
+						var _this292 = this;
 
 						var myMaybeSpells = maybeSpells || new Maybe(SpellsRunner),
 						    maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
 						if (!this.postMapInited) {
 							this.postMapInited = true;
 							$each($Q(".oppost[data-lastmodified], .reply[data-lastmodified]", dForm.el), function (pEl) {
-								return _this291.modifiedPosts.set(pEl, +pEl.getAttribute("data-lastmodified"));
+								return _this292.modifiedPosts.set(pEl, +pEl.getAttribute("data-lastmodified"));
 							});
 						}
 						$each($Q(".oppost[data-lastmodified], .reply[data-lastmodified]", formEl), function (pEl) {
 							var nPost,
-							    post = pByNum[_this291.getPNum(pEl)],
+							    post = pByNum[_this292.getPNum(pEl)],
 							    pDate = +pEl.getAttribute("data-lastmodified");
-							if (post && (!_this291.modifiedPosts.has(pEl) || _this291.modifiedPosts.get(pEl) < pDate)) {
+							if (post && (!_this292.modifiedPosts.has(pEl) || _this292.modifiedPosts.get(pEl) < pDate)) {
 								var thr = post.thr,
 								    fragm = doc.createDocumentFragment();
-								_this291.modifiedPosts.set(pEl, pDate);
+								_this292.modifiedPosts.set(pEl, pDate);
 								nPost = thr.addPost(fragm, pEl, post.count, post.prev, maybeVParser);
 								if (thr.op === post) {
 									thr.op = nPost;
@@ -14108,7 +14156,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				hasOPNum: { value: true },
 				hasPicWrap: { value: true },
 				init: { value: function value() {
-						var _this291 = this;
+						var _this292 = this;
 
 						$script("window.FormData = void 0;");
 						$each($C("autorefresh", doc), $del);
@@ -14135,7 +14183,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						}).bind(doc.body.lastChild.firstChild, el);
 						el.addEventListener("click", function (e) {
 							if (e.target.tagName === "IMG") {
-								_this291.updateCaptcha(true);
+								_this292.updateCaptcha(true);
 								e.stopPropagation();
 							}
 						}, true);
@@ -14827,7 +14875,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			this.el.style.display = "none";
 		},
 		initAjax: function initAjax() {
-			var _this203 = this;
+			var _this204 = this;
 
 			if (Cfg.ajaxReply === 2) {
 				this.el.onsubmit = $pd;
@@ -14837,7 +14885,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						$pd(e);
 						pr.closeReply();
 						$popup(Lng.deleting[lang], "delete", true);
-						spawn(html5Submit, _this203.el).then(checkDelete, function (e) {
+						spawn(html5Submit, _this204.el).then(checkDelete, function (e) {
 							return $popup(getErrorMessage(e), "delete", false);
 						});
 					};
@@ -14936,7 +14984,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 			},
 			play: function play() {
-				var _this235 = this;
+				var _this236 = this;
 
 				this.stop();
 				if (this.repeatMS === 0) {
@@ -14944,7 +14992,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					return;
 				}
 				this._playInterval = setInterval(function () {
-					return _this235._el.play();
+					return _this236._el.play();
 				}, this.repeatMS);
 			},
 			stop: function stop() {
@@ -14975,7 +15023,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				this._el.style.display = "none";
 			},
 			count: function count(delayMS, useCounter, callback) {
-				var _this235 = this;
+				var _this236 = this;
 
 				if (this._enabled && useCounter) {
 					var seconds = delayMS / 1000;
@@ -14983,15 +15031,15 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					this._countingIV = setInterval(function () {
 						seconds--;
 						if (seconds === 0) {
-							_this235._stop();
+							_this236._stop();
 							callback();
 						} else {
-							_this235._set(seconds);
+							_this236._set(seconds);
 						}
 					}, 1000);
 				} else {
 					this._countingTO = setTimeout(function () {
-						_this235._countingTO = null;
+						_this236._countingTO = null;
 						callback();
 					}, delayMS);
 				}
@@ -15062,7 +15110,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				this._iconEl = doc.head.firstChild;
 			},
 			_startBlink: function _startBlink(iconUrl) {
-				var _this235 = this;
+				var _this236 = this;
 
 				if (this._blinkInterval) {
 					if (this._currentIcon === iconUrl) {
@@ -15072,8 +15120,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 				this._currentIcon = iconUrl;
 				this._blinkInterval = setInterval(function () {
-					_this235._setIcon(_this235._isOriginalIcon ? _this235._currentIcon : _this235.originalIcon);
-					_this235._isOriginalIcon = !_this235._isOriginalIcon;
+					_this236._setIcon(_this236._isOriginalIcon ? _this236._currentIcon : _this236.originalIcon);
+					_this236._isOriginalIcon = !_this236._isOriginalIcon;
 				}, this._blinkMS);
 			}
 		}, {
@@ -15118,7 +15166,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			},
 
 			show: function show() {
-				var _this235 = this;
+				var _this236 = this;
 
 				var post = dForm.firstThr.last,
 				    notif = new Notification(aib.dm + "/" + aib.b + "/" + aib.t + ": " + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
@@ -15128,8 +15176,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				});
 				notif.onshow = function () {
 					return setTimeout(function () {
-						if (notif === _this235._notifEl) {
-							_this235.close();
+						if (notif === _this236._notifEl) {
+							_this236.close();
 						}
 					}, 12000);
 				};
@@ -15138,7 +15186,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				};
 				notif.onerror = function () {
 					window.focus();
-					_this235._requestPermission();
+					_this236._requestPermission();
 				};
 				this._notifEl = notif;
 			},
@@ -15154,14 +15202,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			_notifEl: null,
 
 			_requestPermission: function _requestPermission() {
-				var _this235 = this;
+				var _this236 = this;
 
 				this._granted = false;
 				Notification.requestPermission(function (state) {
 					if (state.toLowerCase() === "denied") {
 						saveCfg("desktNotif", 0);
 					} else {
-						_this235._granted = true;
+						_this236._granted = true;
 					}
 				});
 			}
@@ -15261,7 +15309,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				this._makeStep();
 			},
 			_makeStep: function _makeStep() {
-				var _this235 = this;
+				var _this236 = this;
 
 				var needSleep = arguments[0] === undefined ? true : arguments[0];
 
@@ -15270,7 +15318,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						if (needSleep) {
 							this._state = 1;
 							counter.count(this._delay, !doc.hidden, function () {
-								return _this235._makeStep();
+								return _this236._makeStep();
 							});
 							return;
 						}
@@ -15279,9 +15327,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						this._loadPromise = dForm.firstThr.loadNew(true);
 						this._state = 2;
 						this._loadPromise.then(function (pCount) {
-							return _this235._handleNewPosts(pCount, AjaxError.Success);
+							return _this236._handleNewPosts(pCount, AjaxError.Success);
 						}, function (e) {
-							return _this235._handleNewPosts(0, e);
+							return _this236._handleNewPosts(0, e);
 						});
 						return;
 					case 2:
@@ -15579,7 +15627,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		".de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t.de-content-block > input { margin: 0 4px; }\t.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 4px 0 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\t.de-entry > a { flex: none; text-decoration: none; border: none; }\t.de-entry > input { margin: 2px 4px; }\t.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\t.de-fav-inf { flex: none; padding-left: 10px; font: bold 14px serif; cursor: default; }\t.de-fav-inf-err { color: #c33; font-size: 12px; }\t.de-fav-inf-new { color: #424f79; }\t.de-fav-inf-new::after { content: \" +\"; }\t.de-fav-inf-old { color: #4f7942; }\t.de-fav-user::after { content: \"★\"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\t.de-fav-closed, .de-fav-unavail { display: inline-block; width: 16px; height: 16px; margin-bottom: -4px; }\t.de-fav-closed { background-image: url(data:image/gif;base64,R0lGODlhEAAQAKIAAP3rqPPOd+y6V+WmN+Dg4M7OzmZmZv///yH5BAEAAAcALAAAAAAQABAAAANCeLrWvZARUqqJkjiLj9FMcWHf6IldGZqM4zqRAcw0zXpAoO/6LfeNnS8XcAhjAIHSoFwim0wockCtUodWq+/1UiQAADs=); }\t.de-fav-unavail { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==); }" +
 
 	
-		cont(".de-wait", "data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7") + ".de-abtn { text-decoration: none !important; outline: none; }\t.de-after-fimg { clear: left; }\t#de-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\t#de-popup > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 8px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\t.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\t.de-popup-btn:not(.de-wait) + div { margin-top: .15em; }\t.de-popup-msg { display: inline-block; }\t.de-button { flex: none; padding: 0 " + (nav.Firefox ? "2" : "4") + "px !important; margin: 1px; height: 24px; font: 12px arial; }\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t.de-input-key { height: 12px }\t.de-link-hid { text-decoration: line-through !important; }\t.de-link-parent { outline: 1px dotted !important; }\t.de-link-pview { font-weight: bold; }\t.de-link-ref { text-decoration: none; }\t.de-list { padding-top: 4px; }\t.de-list::before { content: \"●\"; margin-right: 4px; }\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t.de-menu-item:hover { background-color: #222; color: #fff; }\t.de-new-post { " + (nav.Presto ? "border-left: 4px solid rgba(0,0,255,.7); border-right: 4px solid rgba(0,0,255,.7); }" : "box-shadow: 6px 0 2px -2px rgba(0,0,255,.8), -6px 0 2px -2px rgba(0,0,255,.8); }") + "\t.de-omitted { color: grey; }\t.de-omitted::before { content: \"" + Lng.postsOmitted[lang] + "\"; }\t.de-post-hide > " + aib.qHide + " { display: none !important; }\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\t.de-pview-info { padding: 3px 6px !important; }\t.de-ref-op::after { content: \" [OP]\"; }\t.de-ref-del::after { content: \" [del]\"; }\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\t.de-refmap::before { content: \"" + Lng.replies[lang] + " \"; }\t.de-refcomma:last-child { display: none; }\t.de-selected, .de-error-key { " + (nav.Presto ? "border-left: 4px solid rgba(255,0,0,.7); border-right: 4px solid rgba(255,0,0,.7); }" : "box-shadow: 6px 0 2px -2px rgba(255,0,0,.8), -6px 0 2px -2px rgba(255,0,0,.8); }") + "\t.de-thread-buttons { clear: left; margin-top: 5px; }\t.de-thread-collapse > a::after { content: \"" + Lng.collapseThrd[lang] + "\"; }\t.de-thread-updater > a::after { content: \"" + Lng.getNewPosts[lang] + "\"; }\t.de-thread-updater::before { content: \">> \"; }\t#de-updater-count::before { content: \": \"; }\t.de-viewed { color: #888 !important; }\tform > hr { clear: both }";
+		cont(".de-wait", "data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7") + ".de-abtn { text-decoration: none !important; outline: none; }\t.de-after-fimg { clear: left; }\t#de-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\t#de-popup > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 8px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\t.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\t.de-popup-btn:not(.de-wait) + div { margin-top: .15em; }\t.de-popup-msg { display: inline-block; }\t.de-button { flex: none; padding: 0 " + (nav.Firefox ? "2" : "4") + "px !important; margin: 1px; height: 24px; font: 12px arial; }\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t.de-input-key { height: 12px }\t.de-link-hid { text-decoration: line-through !important; }\t.de-link-parent { outline: 1px dotted !important; }\t.de-link-pview { font-weight: bold; }\t.de-link-ref { text-decoration: none; }\t.de-list { padding-top: 4px; }\t.de-list::before { content: \"●\"; margin-right: 4px; }\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t.de-menu-item:hover { background-color: #222; color: #fff; }\t.de-new-post { " + (nav.Presto ? "border-left: 4px solid rgba(0,0,255,.7); border-right: 4px solid rgba(0,0,255,.7); }" : "box-shadow: 6px 0 2px -2px rgba(0,0,255,.8), -6px 0 2px -2px rgba(0,0,255,.8); }") + "\t.de-omitted { color: grey; }\t.de-omitted::before { content: \"" + Lng.postsOmitted[lang] + "\"; }\t.de-post-hide > " + aib.qHide + " { display: none !important; }\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\t.de-pview-info { padding: 3px 6px !important; }\t.de-ref-op::after { content: \" [OP]\"; }\t.de-ref-del::after { content: \" [del]\"; }\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\t.de-refmap::before { content: \"" + Lng.replies[lang] + " \"; }\t.de-refcomma:last-child { display: none; }\t.de-replies-hide::after { content: \"" + Lng.hidePosts[lang] + "\"; }\t.de-replies-show::after { content: \"" + Lng.showPosts[lang] + "\"; }\t.de-selected, .de-error-key { " + (nav.Presto ? "border-left: 4px solid rgba(255,0,0,.7); border-right: 4px solid rgba(255,0,0,.7); }" : "box-shadow: 6px 0 2px -2px rgba(255,0,0,.8), -6px 0 2px -2px rgba(255,0,0,.8); }") + "\t.de-thread-buttons { clear: left; margin-top: 5px; }\t.de-thread-collapse > a::after { content: \"" + Lng.collapseThrd[lang] + "\"; }\t.de-thread-updater > a::after { content: \"" + Lng.getNewPosts[lang] + "\"; }\t#de-updater-count::before { content: \": \"; }\t.de-viewed { color: #888 !important; }\tform > hr { clear: both }";
 
 		$css(x).id = "de-css";
 		$css("").id = "de-css-dynamic";
@@ -15589,6 +15637,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 	function updateCSS() {
 		var x = ".de-video-obj { width: " + Cfg.YTubeWidth + "px; height: " + Cfg.YTubeHeigh + "px; }";
+		if (Cfg.hideReplies || Cfg.updThrBtns) {
+			x += ".de-thread-buttons::before { content: \">> \"; }";
+		}
 		if (Cfg.maskImgs) {
 			x += ".de-img-pre, .de-video-obj, .thumb, .ca_thumb, .fileThumb, img[src*=\"spoiler\"], img[src*=\"thumb\"], img[src^=\"blob\"] { opacity: .07 !important; }\t\t\t.de-img-pre:hover, .de-video-obj:hover, .thumb:hover, .ca_thumb:hover, .fileThumb:hover, img[src*=\"spoiler\"]:hover, img[src*=\"thumb\"]:hover, img[src^=\"blob\"]:hover { opacity: 1 !important; }";
 		}

@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'e06bd2c';
+var commit = '6b519a0';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -39,6 +39,7 @@ var defaultCfg = {
 	'markNewPosts':     1,      //    new posts marking on page focus
 	'desktNotif':       0,      //    desktop notifications, if new posts detected
 	'updCount':         1,      //    show countdown for thread updater
+	'hideReplies':      0,      // show only op-posts in threads list
 	'updThrBtns':       1,      // updater buttons in threads list
 	'expandTrunc':      0,      // auto expanding of truncated posts
 	'postBtnsCSS':      2,      // post buttons style [0=text, 1=classic, 2=solid grey]
@@ -157,6 +158,7 @@ Lng = {
 		'markNewPosts': ['Выделять новые посты при смене вкладки', 'Mark new posts when tab changes'],
 		'desktNotif':   ['Уведомления на рабочем столе', 'Desktop notifications'],
 		'updCount':     ['Обратный счетчик секунд до обновления', 'Show countdown to thread update'],
+		'hideReplies':  ['Показывать только оп-посты в списке тредов*', 'Show only op-posts in threads list*'],
 		'updThrBtns':   ['Кнопки получения новых постов в списке тредов', 'Get-new-posts buttons in threads list'],
 		'expandTrunc':  ['Разворачивать сокращенные посты*', 'Auto expanding of truncated posts*'],
 		'postBtnsCSS': {
@@ -525,6 +527,8 @@ Lng = {
 	closeReply:     ['Закрыть форму', 'Close form'],
 	replies:        ['Ответы:', 'Replies:'],
 	postsOmitted:   ['Пропущено ответов: ', 'Posts omitted: '],
+	showPosts:      ['Показать посты', 'Show posts'],
+	hidePosts:      ['Скрыть посты', 'Hide posts'],
 	collapseThrd:   ['Свернуть тред', 'Collapse thread'],
 	deleted:        ['удалён', 'deleted'],
 	getNewPosts:    ['Получить новые посты', 'Get new posts'],
@@ -2017,7 +2021,7 @@ function toggleWindow(name, isUpd, data, noAnim) {
 		}
 		el = win.firstChild.lastChild;
 		el.lastChild.onclick = toggleWindow.bind(null, name, false);
-		el.firstChild.onclick = (e) => {
+		el.firstChild.onclick = e => {
 			var width = win.style.width,
 				w = width ? '; width: ' + width : '';
 			toggleCfg(name + 'WinDrag');
@@ -2713,6 +2717,7 @@ function getCfgPosts() {
 				})
 			])
 		])),
+		lBox('hideReplies', true, null),
 		lBox('updThrBtns', true, updateCSS),
 		lBox('expandTrunc', true, updateCSS),
 		optSel('postBtnsCSS', false, null),
@@ -9980,10 +9985,26 @@ function Thread(el, prev, isLight) {
 		el.insertAdjacentHTML('beforeend', '<div class="de-thread-buttons">' +
 			'<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>]</span>');
 		this.btns = el.lastChild;
-		this.btns.firstElementChild.onclick = e => {
+		var updBtn = this.btns.firstElementChild;
+		updBtn.onclick = e => {
 			$pd(e);
 			this.load('new', false);
 		};
+		if(Cfg.hideReplies) {
+			this.btns.insertAdjacentHTML('beforeend',
+				' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
+			var repBtn = this.btns.lastChild;
+			repBtn.onclick = e => {
+				$pd(e);
+				var nextCoord = !this.next || this.last.omitted ? null :
+					this.next.offsetTop - window.pageYOffset;
+				this._toggleReplies(repBtn, updBtn);
+				if(nextCoord) {
+					scrollTo(window.pageXOffset, this.next.offsetTop - nextCoord);
+				}
+			}
+			this._toggleReplies(repBtn, updBtn);
+		}
 	}
 }
 Thread.clearPostsMark = function() {
@@ -10196,6 +10217,12 @@ Thread.prototype = {
 		if(smartScroll) {
 			scrollTo(window.pageXOffset, this.next.offsetTop - nextCoord);
 		}
+		if(Cfg.hideReplies) {
+			$c('de-replies-btn', this.btns).firstElementChild.className = 'de-abtn de-replies-hide';
+			if(Cfg.updThrBtns) {
+				btn.firstChild.style.display = '';
+			}
+		}
 		closePopup('load-thr');
 	},
 	loadNew: function(useAPI) {
@@ -10306,6 +10333,31 @@ Thread.prototype = {
 				}
 				post.banned = true;
 			}
+		}
+	},
+	_toggleReplies(repBtn, updBtn) {
+		var isHide = !this.last.omitted;
+		for(var i = 0, post = this.op; post !== this.last; i++) {
+			post = post.next;
+			if(isHide) {
+				post.wrap.classList.add('de-hidden');
+				post.omitted = true;
+			} else {
+				post.wrap.classList.remove('de-hidden');
+				post.omitted = false;
+			}
+		}
+		repBtn.firstElementChild.className = 'de-abtn ' + (isHide ? 'de-replies-show' : 'de-replies-hide');
+		updBtn.style.display = isHide ? 'none' : '';
+		var colBtn = $c('de-thread-collapse', this.el);
+		if(colBtn) {
+			colBtn.style.display = isHide ? 'none' : '';
+		}
+		$del($q(aib.qOmitted + ', .de-omitted', this.el));
+		i = this.pcount - 1 - (isHide ? 0 : i);
+		if(i) {
+			this.op.el.insertAdjacentHTML('afterend',
+				'<span class="de-omitted">' + i + '</span> ');
 		}
 	},
 	_importPosts(last, newPosts, begin, end, maybeVParser, maybeSpells) {
@@ -12848,11 +12900,12 @@ function scriptCSS() {
 	.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
 	.de-refmap::before { content: "' + Lng.replies[lang] + ' "; }\
 	.de-refcomma:last-child { display: none; }\
+	.de-replies-hide::after { content: "' + Lng.hidePosts[lang] + '"; }\
+	.de-replies-show::after { content: "' + Lng.showPosts[lang] + '"; }\
 	.de-selected, .de-error-key { ' + (nav.Presto ? 'border-left: 4px solid rgba(255,0,0,.7); border-right: 4px solid rgba(255,0,0,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(255,0,0,.8), -6px 0 2px -2px rgba(255,0,0,.8); }') + '\
 	.de-thread-buttons { clear: left; margin-top: 5px; }\
 	.de-thread-collapse > a::after { content: "' + Lng.collapseThrd[lang] + '"; }\
 	.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '"; }\
-	.de-thread-updater::before { content: ">> "; }\
 	#de-updater-count::before { content: ": "; }\
 	.de-viewed { color: #888 !important; }\
 	form > hr { clear: both }';
@@ -12865,6 +12918,9 @@ function scriptCSS() {
 
 function updateCSS() {
 	var x = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }';
+	if(Cfg.hideReplies || Cfg.updThrBtns) {
+		x += '.de-thread-buttons::before { content: ">> "; }';
+	}
 	if(Cfg.maskImgs) {
 		x += '.de-img-pre, .de-video-obj, .thumb, .ca_thumb, .fileThumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: .07 !important; }\
 			.de-img-pre:hover, .de-video-obj:hover, .thumb:hover, .ca_thumb:hover, .fileThumb:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
