@@ -2601,7 +2601,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}, initScript, this, [[29, 33]]);
 	});
 	var version = "15.10.20.1";
-	var commit = "6b519a0";
+	var commit = "aeed642";
 
 	var defaultCfg = {
 		disabled: 0,
@@ -10622,14 +10622,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			},
 			isImage: {
 				get: function () {
-					var val = /\.jpe?g|\.png|\.gif/i.test(this.src) || this.src.startsWith("blob:") && !this.el.hasAttribute("de-video");
+					var val = this.src && (/\.jpe?g|\.png|\.gif/i.test(this.src) || this.src.startsWith("blob:") && !this.el.hasAttribute("de-video"));
 					Object.defineProperty(this, "isImage", { value: val });
 					return val;
 				}
 			},
 			isVideo: {
 				get: function () {
-					var val = /\.webm(?:&|$)/i.test(this.src) || this.src.startsWith("blob:") && this.el.hasAttribute("de-video");
+					var val = this.src && (/\.webm(?:&|$)/i.test(this.src) || this.src.startsWith("blob:") && this.el.hasAttribute("de-video"));
 					Object.defineProperty(this, "isVideo", { value: val });
 					return val;
 				}

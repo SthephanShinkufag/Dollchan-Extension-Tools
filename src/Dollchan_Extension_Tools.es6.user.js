@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '6b519a0';
+var commit = 'aeed642';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8048,15 +8048,15 @@ class ExpandableMedia {
 	};
 
 	get isImage() {
-		var val = /\.jpe?g|\.png|\.gif/i.test(this.src) ||
-			(this.src.startsWith('blob:') && !this.el.hasAttribute('de-video'));
+		var val = this.src && (/\.jpe?g|\.png|\.gif/i.test(this.src) ||
+			(this.src.startsWith('blob:') && !this.el.hasAttribute('de-video')));
 		Object.defineProperty(this, 'isImage', { value: val });
 		return val;
 	};
 
 	get isVideo() {
-		var val = /\.webm(?:&|$)/i.test(this.src) ||
-			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
+		var val = this.src && (/\.webm(?:&|$)/i.test(this.src) ||
+			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video')));
 		Object.defineProperty(this, 'isVideo', { value: val });
 		return val;
 	};
