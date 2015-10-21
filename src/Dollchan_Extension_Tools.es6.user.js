@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'aeed642';
+var commit = '0757c9d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1687,14 +1687,14 @@ function readViewedPosts() {
 // PANEL & WINDOWS
 // ===========================================================================================================
 
-var panel = {
+var panel = Object.create({
 	_hideTO: 0,
 	_menuTO: 0,
 	_el: null,
 	get _infoEl() {
-		var val = $q('#de-panel-info', this._el);
-		Object.defineProperty(this, '_infoEl', { value: val, configurable: true });
-		return val;
+		var value = $id('de-panel-info');
+		Object.defineProperty(this, '_infoEl', { value, configurable: true });
+		return value;
 	},
 	_prepareToHide() {
 		if(!Cfg.expandPanel && !$c('de-win-active', doc)) {
@@ -1854,7 +1854,7 @@ var panel = {
 	updateCounter(postCount, imgsCount) {
 		this._infoEl.textContent = postCount + '/' + imgsCount;
 	}
-};
+});
 
 function updateWinZ(style) {
 	if(style.zIndex < topWinZ) {

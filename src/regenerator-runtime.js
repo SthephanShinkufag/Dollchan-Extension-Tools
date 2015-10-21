@@ -34,7 +34,15 @@
   runtime = global.regeneratorRuntime = inModule ? module.exports : {};
 
   function wrap(innerFn, outerFn, self, tryLocsList) {
-    return new Generator(innerFn, outerFn, self || null, tryLocsList || []);
+    // If outerFn provided, then outerFn.prototype instanceof Generator.
+    var generator = Object.create((outerFn || Generator).prototype);
+    var context = new Context(tryLocsList || []);
+
+    // The ._invoke method unifies the implementations of the .next,
+    // .throw, and .return methods.
+    generator._invoke = makeInvokeMethod(innerFn, self, context);
+
+    return generator;
   }
   runtime.wrap = wrap;
 
@@ -69,6 +77,7 @@
   // .constructor.prototype properties for functions that return Generator
   // objects. For full spec compliance, you may wish to configure your
   // minifier not to mangle the names of these two functions.
+  function Generator() {}
   function GeneratorFunction() {}
   function GeneratorFunctionPrototype() {}
 
@@ -76,6 +85,16 @@
   GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
   GeneratorFunctionPrototype.constructor = GeneratorFunction;
   GeneratorFunction.displayName = "GeneratorFunction";
+
+  // Helper for defining the .next, .throw, and .return methods of the
+  // Iterator interface in terms of a single ._invoke method.
+  function defineIteratorMethods(prototype) {
+    ["next", "throw", "return"].forEach(function(method) {
+      prototype[method] = function(arg) {
+        return this._invoke(method, arg);
+      };
+    });
+  }
 
   runtime.isGeneratorFunction = function(genFun) {
     var ctor = typeof genFun === "function" && genFun.constructor;
@@ -88,47 +107,129 @@
   };
 
   runtime.mark = function(genFun) {
-    genFun.__proto__ = GeneratorFunctionPrototype;
+    if (Object.setPrototypeOf) {
+      Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
+    } else {
+      genFun.__proto__ = GeneratorFunctionPrototype;
+    }
     genFun.prototype = Object.create(Gp);
     return genFun;
   };
 
-  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
-    return new Promise(function(resolve, reject) {
-      var generator = wrap(innerFn, outerFn, self, tryLocsList);
-      var callNext = step.bind(generator.next);
-      var callThrow = step.bind(generator["throw"]);
-
-      function step(arg) {
-        var record = tryCatch(this, null, arg);
-        if (record.type === "throw") {
-          reject(record.arg);
-          return;
-        }
-
-        var info = record.arg;
-        if (info.done) {
-          resolve(info.value);
-        } else {
-          Promise.resolve(info.value).then(callNext, callThrow);
-        }
-      }
-
-      callNext();
-    });
+  // Within the body of any async function, `await x` is transformed to
+  // `yield regeneratorRuntime.awrap(x)`, so that the runtime can test
+  // `value instanceof AwaitArgument` to determine if the yielded value is
+  // meant to be awaited. Some may consider the name of this method too
+  // cutesy, but they are curmudgeons.
+  runtime.awrap = function(arg) {
+    return new AwaitArgument(arg);
   };
 
-  function Generator(innerFn, outerFn, self, tryLocsList) {
-    var generator = outerFn ? Object.create(outerFn.prototype) : this;
-    var context = new Context(tryLocsList);
+  function AwaitArgument(arg) {
+    this.arg = arg;
+  }
+
+  function AsyncIterator(generator) {
+    // This invoke function is written in a style that assumes some
+    // calling function (or Promise) will handle exceptions.
+    function invoke(method, arg) {
+      var result = generator[method](arg);
+      var value = result.value;
+      return value instanceof AwaitArgument
+        ? Promise.resolve(value.arg).then(invokeNext, invokeThrow)
+        : Promise.resolve(value).then(function(unwrapped) {
+            // When a yielded Promise is resolved, its final value becomes
+            // the .value of the Promise<{value,done}> result for the
+            // current iteration. If the Promise is rejected, however, the
+            // result for this iteration will be rejected with the same
+            // reason. Note that rejections of yielded Promises are not
+            // thrown back into the generator function, as is the case
+            // when an awaited Promise is rejected. This difference in
+            // behavior between yield and await is important, because it
+            // allows the consumer to decide what to do with the yielded
+            // rejection (swallow it and continue, manually .throw it back
+            // into the generator, abandon iteration, whatever). With
+            // await, by contrast, there is no opportunity to examine the
+            // rejection reason outside the generator function, so the
+            // only option is to throw it from the await expression, and
+            // let the generator function handle the exception.
+            result.value = unwrapped;
+            return result;
+          });
+    }
+
+    if (typeof process === "object" && process.domain) {
+      invoke = process.domain.bind(invoke);
+    }
+
+    var invokeNext = invoke.bind(generator, "next");
+    var invokeThrow = invoke.bind(generator, "throw");
+    var invokeReturn = invoke.bind(generator, "return");
+    var previousPromise;
+
+    function enqueue(method, arg) {
+      function callInvokeWithMethodAndArg() {
+        return invoke(method, arg);
+      }
+
+      return previousPromise =
+        // If enqueue has been called before, then we want to wait until
+        // all previous Promises have been resolved before calling invoke,
+        // so that results are always delivered in the correct order. If
+        // enqueue has not been called before, then it is important to
+        // call invoke immediately, without waiting on a callback to fire,
+        // so that the async generator function has the opportunity to do
+        // any necessary setup in a predictable way. This predictability
+        // is why the Promise constructor synchronously invokes its
+        // executor callback, and why async functions synchronously
+        // execute code before the first await. Since we implement simple
+        // async functions in terms of async generators, it is especially
+        // important to get this right, even though it requires care.
+        previousPromise ? previousPromise.then(
+          callInvokeWithMethodAndArg,
+          // Avoid propagating failures to Promises returned by later
+          // invocations of the iterator.
+          callInvokeWithMethodAndArg
+        ) : new Promise(function (resolve) {
+          resolve(callInvokeWithMethodAndArg());
+        });
+    }
+
+    // Define the unified helper method that is used to implement .next,
+    // .throw, and .return (see defineIteratorMethods).
+    this._invoke = enqueue;
+  }
+
+  defineIteratorMethods(AsyncIterator.prototype);
+
+  // Note that simple async functions are implemented on top of
+  // AsyncIterator objects; they just return a Promise for the value of
+  // the final result produced by the iterator.
+  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
+    var iter = new AsyncIterator(
+      wrap(innerFn, outerFn, self, tryLocsList)
+    );
+
+    return runtime.isGeneratorFunction(outerFn)
+      ? iter // If outerFn is a generator, return the full iterator.
+      : iter.next().then(function(result) {
+          return result.done ? result.value : iter.next();
+        });
+  };
+
+  function makeInvokeMethod(innerFn, self, context) {
     var state = GenStateSuspendedStart;
 
-    function invoke(method, arg) {
+    return function invoke(method, arg) {
       if (state === GenStateExecuting) {
         throw new Error("Generator is already running");
       }
 
       if (state === GenStateCompleted) {
+        if (method === "throw") {
+          throw arg;
+        }
+
         // Be forgiving, per 25.3.3.3.3 of the spec:
         // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
         return doneResult();
@@ -137,6 +238,33 @@
       while (true) {
         var delegate = context.delegate;
         if (delegate) {
+          if (method === "return" ||
+              (method === "throw" && delegate.iterator[method] === undefined)) {
+            // A return or throw (when the delegate iterator has no throw
+            // method) always terminates the yield* loop.
+            context.delegate = null;
+
+            // If the delegate iterator has a return method, give it a
+            // chance to clean up.
+            var returnMethod = delegate.iterator["return"];
+            if (returnMethod) {
+              var record = tryCatch(returnMethod, delegate.iterator, arg);
+              if (record.type === "throw") {
+                // If the return method threw an exception, let that
+                // exception prevail over the original return or throw.
+                method = "throw";
+                arg = record.arg;
+                continue;
+              }
+            }
+
+            if (method === "return") {
+              // Continue with the outer return, now that the delegate
+              // iterator has been terminated.
+              continue;
+            }
+          }
+
           var record = tryCatch(
             delegate.iterator[method],
             delegate.iterator,
@@ -150,7 +278,6 @@
             // overhead of an extra function call.
             method = "throw";
             arg = record.arg;
-
             continue;
           }
 
@@ -173,18 +300,10 @@
         }
 
         if (method === "next") {
-          if (state === GenStateSuspendedStart &&
-              typeof arg !== "undefined") {
-            // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
-            throw new TypeError(
-              "attempt to send " + JSON.stringify(arg) + " to newborn generator"
-            );
-          }
-
           if (state === GenStateSuspendedYield) {
             context.sent = arg;
           } else {
-            delete context.sent;
+            context.sent = undefined;
           }
 
         } else if (method === "throw") {
@@ -231,22 +350,18 @@
 
         } else if (record.type === "throw") {
           state = GenStateCompleted;
-
-          if (method === "next") {
-            context.dispatchException(record.arg);
-          } else {
-            arg = record.arg;
-          }
+          // Dispatch the exception by looping back around to the
+          // context.dispatchException(arg) call above.
+          method = "throw";
+          arg = record.arg;
         }
       }
-    }
-
-    generator.next = invoke.bind(generator, "next");
-    generator["throw"] = invoke.bind(generator, "throw");
-    generator["return"] = invoke.bind(generator, "return");
-
-    return generator;
+    };
   }
+
+  // Define Generator.prototype.{next,throw,return} in terms of the
+  // unified ._invoke helper method.
+  defineIteratorMethods(Gp);
 
   Gp[iteratorSymbol] = function() {
     return this;
@@ -284,7 +399,7 @@
     // locations where there is no enclosing try statement.
     this.tryEntries = [{ tryLoc: "root" }];
     tryLocsList.forEach(pushTryEntry, this);
-    this.reset();
+    this.reset(true);
   }
 
   runtime.keys = function(object) {
@@ -357,7 +472,7 @@
   Context.prototype = {
     constructor: Context,
 
-    reset: function() {
+    reset: function(skipTempReset) {
       this.prev = 0;
       this.next = 0;
       this.sent = undefined;
@@ -366,12 +481,15 @@
 
       this.tryEntries.forEach(resetTryEntry);
 
-      // Pre-initialize at least 20 temporary variables to enable hidden
-      // class optimizations for simple generators.
-      for (var tempIndex = 0, tempName;
-           hasOwn.call(this, tempName = "t" + tempIndex) || tempIndex < 20;
-           ++tempIndex) {
-        this[tempName] = null;
+      if (!skipTempReset) {
+        for (var name in this) {
+          // Not sure about the optimal order of these conditions:
+          if (name.charAt(0) === "t" &&
+              hasOwn.call(this, name) &&
+              !isNaN(+name.slice(1))) {
+            this[name] = undefined;
+          }
+        }
       }
     },
 
@@ -454,7 +572,7 @@
           (type === "break" ||
            type === "continue") &&
           finallyEntry.tryLoc <= arg &&
-          arg < finallyEntry.finallyLoc) {
+          arg <= finallyEntry.finallyLoc) {
         // Ignore the finally entry if control is not jumping to a
         // location outside the try/catch block.
         finallyEntry = null;
@@ -487,15 +605,15 @@
       } else if (record.type === "normal" && afterLoc) {
         this.next = afterLoc;
       }
-
-      return ContinueSentinel;
     },
 
     finish: function(finallyLoc) {
       for (var i = this.tryEntries.length - 1; i >= 0; --i) {
         var entry = this.tryEntries[i];
         if (entry.finallyLoc === finallyLoc) {
-          return this.complete(entry.completion, entry.afterLoc);
+          this.complete(entry.completion, entry.afterLoc);
+          resetTryEntry(entry);
+          return ContinueSentinel;
         }
       }
     },
@@ -533,5 +651,6 @@
   // object, this seems to be the most reliable technique that does not
   // use indirect eval (which violates Content Security Policy).
   typeof global === "object" ? global :
-  typeof window === "object" ? window : this
+  typeof window === "object" ? window :
+  typeof self === "object" ? self : this
 );

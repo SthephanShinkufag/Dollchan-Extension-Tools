@@ -1198,8 +1198,6 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
-
-
 !(function(global) {
   "use strict";
 
@@ -1226,7 +1224,15 @@ $define(GLOBAL + BIND, {
   runtime = global.regeneratorRuntime = inModule ? module.exports : {};
 
   function wrap(innerFn, outerFn, self, tryLocsList) {
-    return new Generator(innerFn, outerFn, self || null, tryLocsList || []);
+   
+    var generator = Object.create((outerFn || Generator).prototype);
+    var context = new Context(tryLocsList || []);
+
+   
+   
+    generator._invoke = makeInvokeMethod(innerFn, self, context);
+
+    return generator;
   }
   runtime.wrap = wrap;
 
@@ -1261,6 +1267,7 @@ $define(GLOBAL + BIND, {
  
  
  
+  function Generator() {}
   function GeneratorFunction() {}
   function GeneratorFunctionPrototype() {}
 
@@ -1268,6 +1275,16 @@ $define(GLOBAL + BIND, {
   GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
   GeneratorFunctionPrototype.constructor = GeneratorFunction;
   GeneratorFunction.displayName = "GeneratorFunction";
+
+ 
+ 
+  function defineIteratorMethods(prototype) {
+    ["next", "throw", "return"].forEach(function(method) {
+      prototype[method] = function(arg) {
+        return this._invoke(method, arg);
+      };
+    });
+  }
 
   runtime.isGeneratorFunction = function(genFun) {
     var ctor = typeof genFun === "function" && genFun.constructor;
@@ -1280,47 +1297,129 @@ $define(GLOBAL + BIND, {
   };
 
   runtime.mark = function(genFun) {
-    genFun.__proto__ = GeneratorFunctionPrototype;
+    if (Object.setPrototypeOf) {
+      Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
+    } else {
+      genFun.__proto__ = GeneratorFunctionPrototype;
+    }
     genFun.prototype = Object.create(Gp);
     return genFun;
   };
 
-  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
-    return new Promise(function(resolve, reject) {
-      var generator = wrap(innerFn, outerFn, self, tryLocsList);
-      var callNext = step.bind(generator.next);
-      var callThrow = step.bind(generator["throw"]);
-
-      function step(arg) {
-        var record = tryCatch(this, null, arg);
-        if (record.type === "throw") {
-          reject(record.arg);
-          return;
-        }
-
-        var info = record.arg;
-        if (info.done) {
-          resolve(info.value);
-        } else {
-          Promise.resolve(info.value).then(callNext, callThrow);
-        }
-      }
-
-      callNext();
-    });
+ 
+ 
+ 
+ 
+ 
+  runtime.awrap = function(arg) {
+    return new AwaitArgument(arg);
   };
 
-  function Generator(innerFn, outerFn, self, tryLocsList) {
-    var generator = outerFn ? Object.create(outerFn.prototype) : this;
-    var context = new Context(tryLocsList);
+  function AwaitArgument(arg) {
+    this.arg = arg;
+  }
+
+  function AsyncIterator(generator) {
+   
+   
+    function invoke(method, arg) {
+      var result = generator[method](arg);
+      var value = result.value;
+      return value instanceof AwaitArgument
+        ? Promise.resolve(value.arg).then(invokeNext, invokeThrow)
+        : Promise.resolve(value).then(function(unwrapped) {
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+            result.value = unwrapped;
+            return result;
+          });
+    }
+
+    if (typeof process === "object" && process.domain) {
+      invoke = process.domain.bind(invoke);
+    }
+
+    var invokeNext = invoke.bind(generator, "next");
+    var invokeThrow = invoke.bind(generator, "throw");
+    var invokeReturn = invoke.bind(generator, "return");
+    var previousPromise;
+
+    function enqueue(method, arg) {
+      function callInvokeWithMethodAndArg() {
+        return invoke(method, arg);
+      }
+
+      return previousPromise =
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+        previousPromise ? previousPromise.then(
+          callInvokeWithMethodAndArg,
+         
+         
+          callInvokeWithMethodAndArg
+        ) : new Promise(function (resolve) {
+          resolve(callInvokeWithMethodAndArg());
+        });
+    }
+
+   
+   
+    this._invoke = enqueue;
+  }
+
+  defineIteratorMethods(AsyncIterator.prototype);
+
+ 
+ 
+ 
+  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
+    var iter = new AsyncIterator(
+      wrap(innerFn, outerFn, self, tryLocsList)
+    );
+
+    return runtime.isGeneratorFunction(outerFn)
+      ? iter
+      : iter.next().then(function(result) {
+          return result.done ? result.value : iter.next();
+        });
+  };
+
+  function makeInvokeMethod(innerFn, self, context) {
     var state = GenStateSuspendedStart;
 
-    function invoke(method, arg) {
+    return function invoke(method, arg) {
       if (state === GenStateExecuting) {
         throw new Error("Generator is already running");
       }
 
       if (state === GenStateCompleted) {
+        if (method === "throw") {
+          throw arg;
+        }
+
        
        
         return doneResult();
@@ -1329,6 +1428,33 @@ $define(GLOBAL + BIND, {
       while (true) {
         var delegate = context.delegate;
         if (delegate) {
+          if (method === "return" ||
+              (method === "throw" && delegate.iterator[method] === undefined)) {
+           
+           
+            context.delegate = null;
+
+           
+           
+            var returnMethod = delegate.iterator["return"];
+            if (returnMethod) {
+              var record = tryCatch(returnMethod, delegate.iterator, arg);
+              if (record.type === "throw") {
+               
+               
+                method = "throw";
+                arg = record.arg;
+                continue;
+              }
+            }
+
+            if (method === "return") {
+             
+             
+              continue;
+            }
+          }
+
           var record = tryCatch(
             delegate.iterator[method],
             delegate.iterator,
@@ -1342,7 +1468,6 @@ $define(GLOBAL + BIND, {
            
             method = "throw";
             arg = record.arg;
-
             continue;
           }
 
@@ -1365,18 +1490,10 @@ $define(GLOBAL + BIND, {
         }
 
         if (method === "next") {
-          if (state === GenStateSuspendedStart &&
-              typeof arg !== "undefined") {
-           
-            throw new TypeError(
-              "attempt to send " + JSON.stringify(arg) + " to newborn generator"
-            );
-          }
-
           if (state === GenStateSuspendedYield) {
             context.sent = arg;
           } else {
-            delete context.sent;
+            context.sent = undefined;
           }
 
         } else if (method === "throw") {
@@ -1423,22 +1540,18 @@ $define(GLOBAL + BIND, {
 
         } else if (record.type === "throw") {
           state = GenStateCompleted;
-
-          if (method === "next") {
-            context.dispatchException(record.arg);
-          } else {
-            arg = record.arg;
-          }
+         
+         
+          method = "throw";
+          arg = record.arg;
         }
       }
-    }
-
-    generator.next = invoke.bind(generator, "next");
-    generator["throw"] = invoke.bind(generator, "throw");
-    generator["return"] = invoke.bind(generator, "return");
-
-    return generator;
+    };
   }
+
+ 
+ 
+  defineIteratorMethods(Gp);
 
   Gp[iteratorSymbol] = function() {
     return this;
@@ -1476,7 +1589,7 @@ $define(GLOBAL + BIND, {
    
     this.tryEntries = [{ tryLoc: "root" }];
     tryLocsList.forEach(pushTryEntry, this);
-    this.reset();
+    this.reset(true);
   }
 
   runtime.keys = function(object) {
@@ -1549,7 +1662,7 @@ $define(GLOBAL + BIND, {
   Context.prototype = {
     constructor: Context,
 
-    reset: function() {
+    reset: function(skipTempReset) {
       this.prev = 0;
       this.next = 0;
       this.sent = undefined;
@@ -1558,12 +1671,15 @@ $define(GLOBAL + BIND, {
 
       this.tryEntries.forEach(resetTryEntry);
 
-     
-     
-      for (var tempIndex = 0, tempName;
-           hasOwn.call(this, tempName = "t" + tempIndex) || tempIndex < 20;
-           ++tempIndex) {
-        this[tempName] = null;
+      if (!skipTempReset) {
+        for (var name in this) {
+         
+          if (name.charAt(0) === "t" &&
+              hasOwn.call(this, name) &&
+              !isNaN(+name.slice(1))) {
+            this[name] = undefined;
+          }
+        }
       }
     },
 
@@ -1646,7 +1762,7 @@ $define(GLOBAL + BIND, {
           (type === "break" ||
            type === "continue") &&
           finallyEntry.tryLoc <= arg &&
-          arg < finallyEntry.finallyLoc) {
+          arg <= finallyEntry.finallyLoc) {
        
        
         finallyEntry = null;
@@ -1679,15 +1795,15 @@ $define(GLOBAL + BIND, {
       } else if (record.type === "normal" && afterLoc) {
         this.next = afterLoc;
       }
-
-      return ContinueSentinel;
     },
 
     finish: function(finallyLoc) {
       for (var i = this.tryEntries.length - 1; i >= 0; --i) {
         var entry = this.tryEntries[i];
         if (entry.finallyLoc === finallyLoc) {
-          return this.complete(entry.completion, entry.afterLoc);
+          this.complete(entry.completion, entry.afterLoc);
+          resetTryEntry(entry);
+          return ContinueSentinel;
         }
       }
     },
@@ -1725,19 +1841,9 @@ $define(GLOBAL + BIND, {
  
  
   typeof global === "object" ? global :
-  typeof window === "object" ? window : this
+  typeof window === "object" ? window :
+  typeof self === "object" ? self : this
 );
-"use strict";
-
-var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } };
-
-var _get = function get(object, property, receiver) { var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc && desc.writable) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
-
-var _inherits = function (subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
 
 
 
@@ -1757,1317 +1863,492 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 
+'use strict';
+
+var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
+
+var _get = function get(_x24, _x25, _x26) { var _again = true; _function: while (_again) { var object = _x24, property = _x25, receiver = _x26; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x24 = parent; _x25 = property; _x26 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 (function de_main_func_inner(scriptStorage, FormData) {
-	"use strict";
-
-	var getFormElements = regeneratorRuntime.mark(
-
-
-	function getFormElements(form) {
-		var controls, fixName, i, len, field, tagName, type, name, options, _i, _len, option, files, dirname, dir;
-
-		return regeneratorRuntime.wrap(function getFormElements$(context$2$0) {
-			while (1) switch (context$2$0.prev = context$2$0.next) {
-				case 0:
-					controls = $Q("button, input, keygen, object, select, textarea", form), fixName = function (name) {
-						return name ? name.replace(/([^\r])\n|\r([^\n])/g, "$1\r\n$2") : "";
-					};
-					i = 0, len = controls.length;
-
-				case 2:
-					if (!(i < len)) {
-						context$2$0.next = 56;
-						break;
-					}
-
-					field = controls[i], tagName = field.tagName.toLowerCase(), type = field.getAttribute("type"), name = field.getAttribute("name");
-
-					if (!($parent(field, "DATALIST", form) || isFormElDisabled(field) || tagName === "button" && type !== "submit" || tagName === "input" && (type === "checkbox" && !field.checked || type === "radio" && !field.checked || type === "image" && !name) || tagName === "object")) {
-						context$2$0.next = 6;
-						break;
-					}
-
-					return context$2$0.abrupt("continue", 53);
-
-				case 6:
-					if (!(tagName === "select")) {
-						context$2$0.next = 19;
-						break;
-					}
-
-					options = $Q("select > option, select > optgrout > option", field);
-					_i = 0, _len = options.length;
-
-				case 9:
-					if (!(_i < _len)) {
-						context$2$0.next = 17;
-						break;
-					}
-
-					option = options[_i];
-
-					if (!(option.selected && !isFormElDisabled(option))) {
-						context$2$0.next = 14;
-						break;
-					}
-
-					context$2$0.next = 14;
-					return {
-						el: field,
-						name: fixName(name),
-						value: option.value,
-						type: type
-					};
-
-				case 14:
-					++_i;
-					context$2$0.next = 9;
-					break;
-
-				case 17:
-					context$2$0.next = 41;
-					break;
-
-				case 19:
-					if (!(tagName === "input")) {
-						context$2$0.next = 41;
-						break;
-					}
-
-					context$2$0.t0 = type;
-					context$2$0.next = context$2$0.t0 === "image" ? 23 : context$2$0.t0 === "checkbox" ? 24 : context$2$0.t0 === "radio" ? 24 : context$2$0.t0 === "file" ? 27 : 41;
-					break;
-
-				case 23:
-					throw new Error("input[type=\"image\"] is not supported");
-
-				case 24:
-					context$2$0.next = 26;
-					return {
-						el: field,
-						name: fixName(name),
-						value: field.value || "on",
-						type: type
-					};
-
-				case 26:
-					return context$2$0.abrupt("continue", 53);
-
-				case 27:
-					if (!(field.files.length > 0)) {
-						context$2$0.next = 38;
-						break;
-					}
-
-					files = field.files;
-					_i = 0, _len = files.length;
-
-				case 30:
-					if (!(_i < _len)) {
-						context$2$0.next = 36;
-						break;
-					}
-
-					context$2$0.next = 33;
-					return {
-						el: field,
-						name: name,
-						value: files[_i],
-						type: type
-					};
-
-				case 33:
-					++_i;
-					context$2$0.next = 30;
-					break;
-
-				case 36:
-					context$2$0.next = 40;
-					break;
-
-				case 38:
-					context$2$0.next = 40;
-					return {
-						el: field,
-						name: fixName(name),
-						value: "",
-						type: "application/octet-stream"
-					};
-
-				case 40:
-					return context$2$0.abrupt("continue", 53);
-
-				case 41:
-					if (!(type === "textarea")) {
-						context$2$0.next = 46;
-						break;
-					}
-
-					context$2$0.next = 44;
-					return {
-						el: field,
-						name: name || "",
-						value: field.value,
-						type: type
-					};
-
-				case 44:
-					context$2$0.next = 48;
-					break;
-
-				case 46:
-					context$2$0.next = 48;
-					return {
-						el: field,
-						name: fixName(name),
-						value: field.value,
-						type: type
-					};
-
-				case 48:
-					dirname = field.getAttribute("dirname");
-
-					if (!dirname) {
-						context$2$0.next = 53;
-						break;
-					}
-
-					dir = nav.matchesSelector(field, ":dir(rtl)") ? "rtl" : "ltr";
-					context$2$0.next = 53;
-					return {
-						el: field,
-						name: fixName(dirname),
-						value: dir,
-						type: "direction"
-					};
-
-				case 53:
-					++i;
-					context$2$0.next = 2;
-					break;
-
-				case 56:
-				case "end":
-					return context$2$0.stop();
-			}
-		}, getFormElements, this);
-	});
-	var getStored = regeneratorRuntime.mark(
-
-
-
-
-	function getStored(id) {
-		return regeneratorRuntime.wrap(function getStored$(context$2$0) {
-			while (1) switch (context$2$0.prev = context$2$0.next) {
-				case 0:
-					if (!nav.isGM) {
-						context$2$0.next = 4;
-						break;
-					}
-
-					return context$2$0.abrupt("return", GM_getValue(id));
-
-				case 4:
-					if (!nav.isChromeStorage) {
-						context$2$0.next = 10;
-						break;
-					}
-
-					context$2$0.next = 7;
-					return new Promise(function (resolve, reject) {
-						chrome.storage.local.get(id, function (obj) {
-							if (Object.keys(obj).length) {
-								resolve(obj[id]);
-							} else {
-								chrome.storage.sync.get(id, function (obj) {
-									resolve(obj[id]);
-								});
-							}
-						});
-					});
-
-				case 7:
-					return context$2$0.abrupt("return", context$2$0.sent);
-
-				case 10:
-					if (!nav.isScriptStorage) {
-						context$2$0.next = 12;
-						break;
-					}
-
-					return context$2$0.abrupt("return", scriptStorage.getItem(id));
-
-				case 12:
-					return context$2$0.abrupt("return", locStorage[id]);
-
-				case 13:
-				case "end":
-					return context$2$0.stop();
-			}
-		}, getStored, this);
-	});
-	var getStoredObj = regeneratorRuntime.mark(function getStoredObj(id) {
-		return regeneratorRuntime.wrap(function getStoredObj$(context$2$0) {
-			while (1) switch (context$2$0.prev = context$2$0.next) {
-				case 0:
-					return context$2$0.delegateYield(getStored(id), "t3", 1);
-
-				case 1:
-					context$2$0.t2 = context$2$0.t3;
-
-					if (context$2$0.t2) {
-						context$2$0.next = 4;
-						break;
-					}
-
-					context$2$0.t2 = "{}";
-
-				case 4:
-					context$2$0.t1 = JSON.parse(context$2$0.t2);
-
-					if (context$2$0.t1) {
-						context$2$0.next = 7;
-						break;
-					}
-
-					context$2$0.t1 = {};
-
-				case 7:
-					return context$2$0.abrupt("return", context$2$0.t1);
-
-				case 8:
-				case "end":
-					return context$2$0.stop();
-			}
-		}, getStoredObj, this);
-	});
-	var readCfg = regeneratorRuntime.mark(function readCfg() {
-		var obj, val;
-		return regeneratorRuntime.wrap(function readCfg$(context$2$0) {
-			while (1) switch (context$2$0.prev = context$2$0.next) {
-				case 0:
-					return context$2$0.delegateYield(getStoredObj("DESU_Config"), "t4", 1);
-
-				case 1:
-					val = context$2$0.t4;
-
-					if (!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
-						obj = nav.isGlobal ? val.global || {} : {};
-						obj.captchaLang = aib.ru ? 2 : 1;
-						obj.correctTime = 0;
-					}
-					Cfg = Object.assign(Object.create(defaultCfg), obj);
-					if (!Cfg.timeOffset) {
-						Cfg.timeOffset = "+0";
-					}
-					if (!Cfg.timePattern) {
-						Cfg.timePattern = aib.timePattern;
-					}
-					if (aib.fch && Cfg.ajaxReply === 2) {
-						Lng.cfg.ajaxReply.sel.forEach(function (a) {
-							return a.splice(-1);
-						});
-						Cfg.ajaxReply = 1;
-					}
-					if (aib.prot !== "http:") {
-						Cfg.addVocaroo = 0;
-					}
-					if (!("Notification" in window)) {
-						Cfg.desktNotif = 0;
-					}
-					if (nav.Presto) {
-						if (Cfg.YTubeType === 2) {
-							Cfg.YTubeType = 1;
-						}
-						Cfg.preLoadImgs = 0;
-						Cfg.findImgFile = 0;
-						if (!nav.isGM) {
-							Cfg.updScript = 0;
-						}
-						Cfg.fileThumb = 0;
-					}
-					if (nav.isChromeStorage) {
-						Cfg.updScript = 0;
-					}
-					if (Cfg.updThrDelay < 10) {
-						Cfg.updThrDelay = 10;
-					}
-					if (!Cfg.saveSage) {
-						Cfg.sageReply = 0;
-					}
-					if (!Cfg.passwValue) {
-						Cfg.passwValue = Math.round(Math.random() * 1000000000000000).toString(32);
-					}
-					if (!Cfg.stats) {
-						Cfg.stats = { view: 0, op: 0, reply: 0 };
-					}
-					setStored("DESU_Config", JSON.stringify(val));
-					lang = Cfg.language;
-					if (Cfg.updScript) {
-						checkForUpdates(false, val.lastUpd).then(function (html) {
-							if (doc.readyState === "interactive" || doc.readyState === "complete") {
-								$popup(html, "updavail", false);
-							} else {
-								doc.addEventListener("DOMContentLoaded", function () {
-									return $popup(html, "updavail", false);
-								});
-							}
-						}, emptyFn);
-					}
-
-				case 18:
-				case "end":
-					return context$2$0.stop();
-			}
-		}, readCfg, this);
-	});
-	var readUserPosts = regeneratorRuntime.mark(function readUserPosts() {
-		var b, date, spellsHide, update, globalUserVis, maybeSpells, post, num, hidePost, hideThread, vis;
-		return regeneratorRuntime.wrap(function readUserPosts$(context$2$0) {
-			while (1) switch (context$2$0.prev = context$2$0.next) {
-				case 0:
-					b = aib.b;
-					date = Date.now();
-					spellsHide = Cfg.hideBySpell;
-					update = false;
-					return context$2$0.delegateYield(getStoredObj("DESU_Posts_" + aib.dm), "t5", 5);
-
-				case 5:
-					globalUserVis = context$2$0.t5;
-					return context$2$0.delegateYield(getStoredObj("DESU_Threads_" + aib.dm), "t6", 7);
-
-				case 7:
-					hThr = context$2$0.t6;
-
-					uVis = globalUserVis[b] || {};
-					if (!(b in hThr)) {
-						hThr[b] = {};
-					}
-
-					if (dForm.firstThr) {
-						context$2$0.next = 12;
-						break;
-					}
-
-					return context$2$0.abrupt("return");
-
-				case 12:
-					maybeSpells = new Maybe(SpellsRunner);
-					post = dForm.firstThr.op;
-
-				case 14:
-					if (!post) {
-						context$2$0.next = 34;
-						break;
-					}
-
-					num = post.num;
-
-					if (!(num in uVis)) {
-						context$2$0.next = 21;
-						break;
-					}
-
-					hidePost = uVis[num][0] === 0;
-
-					if (post.isOp) {
-						hideThread = !!(num in hThr[b]);
-
-						if (hidePost !== hideThread) {
-							update = true;
-							hidePost = hideThread;
-						}
-					}
-					if (hidePost) {
-						post.setUserVisib(true, date, false);
-					} else {
-						uVis[num][1] = date;
-						post.btns.firstChild.className = "de-btn-hide-user";
-						post.userToggled = true;
-					}
-					return context$2$0.abrupt("continue", 31);
-
-				case 21:
-					if (!post.isOp) {
-						context$2$0.next = 25;
-						break;
-					}
-
-					if (num in hThr[b]) {
-						vis = "0";
-					} else if (vis === "0") {
-						vis = null;
-					}
-					context$2$0.next = 30;
-					break;
-
-				case 25:
-					if (!spellsHide) {
-						context$2$0.next = 29;
-						break;
-					}
-
-					vis = sVis[post.count];
-					context$2$0.next = 30;
-					break;
-
-				case 29:
-					return context$2$0.abrupt("continue", 31);
-
-				case 30:
-					if (vis === "0") {
-						if (!post.hidden) {
-							post.setVisib(true);
-							post.hideRefs();
-						}
-						post.spellHidden = true;
-					} else if (vis !== "1") {
-						maybeSpells.value.run(post);
-					}
-
-				case 31:
-					post = post.next;
-					context$2$0.next = 14;
-					break;
-
-				case 34:
-					if (update) {
-						globalUserVis[b] = uVis;
-						setStored("DESU_Posts_" + aib.dm, JSON.stringify(globalUserVis));
-					}
-					maybeSpells.end();
-
-				case 36:
-				case "end":
-					return context$2$0.stop();
-			}
-		}, readUserPosts, this);
-	});
-	var readFavoritesPosts = regeneratorRuntime.mark(function readFavoritesPosts() {
-		var temp, update, fav, thr, num, f, post;
-		return regeneratorRuntime.wrap(function readFavoritesPosts$(context$2$0) {
-			while (1) switch (context$2$0.prev = context$2$0.next) {
-				case 0:
-					update = false;
-					return context$2$0.delegateYield(getStoredObj("DESU_Favorites"), "t7", 2);
-
-				case 2:
-					fav = context$2$0.t7;
-
-					if (aib.host in fav) {
-						context$2$0.next = 5;
-						break;
-					}
-
-					return context$2$0.abrupt("return");
-
-				case 5:
-					temp = fav[aib.host];
-
-					if (aib.b in temp) {
-						context$2$0.next = 8;
-						break;
-					}
-
-					return context$2$0.abrupt("return");
-
-				case 8:
-					temp = temp[aib.b];
-					for (thr = dForm.firstThr; thr; thr = thr.next) {
-						num = thr.num;
-
-						if (num in temp) {
-							f = temp[num];
-
-							thr.setFavBtn(true);
-							if (aib.t) {
-								f.cnt = thr.pcount;
-								f["new"] = 0;
-								if (aib.t && Cfg.markNewPosts && f.last) {
-									post = pByNum[f.last.match(/\d+/)];
-
-									if (post) {
-										while (post = post.next) {
-											thr._addPostMark(post.el, true);
-										}
-									}
-								}
-								f.last = aib.anchor + thr.last.num;
-							} else {
-								f["new"] = thr.pcount - f.cnt;
-							}
-							update = true;
-						}
-					}
-					if (update) {
-						setStored("DESU_Favorites", JSON.stringify(fav));
-					}
-					if (sesStorage["de-win-fav"] === "1") {
-						toggleWindow("fav", false, null, true);
-						sesStorage.removeItem("de-win-fav");
-					}
-
-				case 12:
-				case "end":
-					return context$2$0.stop();
-			}
-		}, readFavoritesPosts, this);
-	});
-	var html5Submit = regeneratorRuntime.mark(function html5Submit(form) {
-		var needProgress = arguments[1] === undefined ? false : arguments[1];
-
-		var formData, hasFiles, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, _step$value, name, value, type, el, fileName, newFileName, data, lastFuncs, promises, xhr;
-
-		return regeneratorRuntime.wrap(function html5Submit$(context$2$0) {
-			while (1) switch (context$2$0.prev = context$2$0.next) {
-				case 0:
-					formData = new FormData();
-					hasFiles = false;
-					_iteratorNormalCompletion = true;
-					_didIteratorError = false;
-					_iteratorError = undefined;
-					context$2$0.prev = 5;
-					_iterator = getFormElements(form)[Symbol.iterator]();
-
-				case 7:
-					if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-						context$2$0.next = 31;
-						break;
-					}
-
-					_step$value = _step.value;
-					name = _step$value.name;
-					value = _step$value.value;
-					type = _step$value.type;
-					el = _step$value.el;
-
-					if (!(type === "file")) {
-						context$2$0.next = 27;
-						break;
-					}
-
-					hasFiles = true;
-					fileName = value.name, newFileName = Cfg.removeFName ? " " + fileName.substring(fileName.lastIndexOf(".")) : fileName;
-
-					if (!(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) && (Cfg.postSameImg || Cfg.removeEXIF))) {
-						context$2$0.next = 26;
-						break;
-					}
-
-					context$2$0.next = 19;
-					return readFile(value, false);
-
-				case 19:
-					context$2$0.t25 = context$2$0.sent;
-					data = cleanFile(context$2$0.t25, el.obj.imgFile);
-
-					if (data) {
-						context$2$0.next = 23;
-						break;
-					}
-
-					return context$2$0.abrupt("return", Promise.reject(Lng.fileCorrupt[lang] + fileName));
-
-				case 23:
-					value = new File(data, newFileName);
-					context$2$0.next = 27;
-					break;
-
-				case 26:
-					if (Cfg.removeFName) {
-						value = new File([value], newFileName);
-					}
-
-				case 27:
-					formData.append(name, value);
-
-				case 28:
-					_iteratorNormalCompletion = true;
-					context$2$0.next = 7;
-					break;
-
-				case 31:
-					context$2$0.next = 37;
-					break;
-
-				case 33:
-					context$2$0.prev = 33;
-					context$2$0.t26 = context$2$0["catch"](5);
-					_didIteratorError = true;
-					_iteratorError = context$2$0.t26;
-
-				case 37:
-					context$2$0.prev = 37;
-					context$2$0.prev = 38;
-
-					if (!_iteratorNormalCompletion && _iterator["return"]) {
-						_iterator["return"]();
-					}
-
-				case 40:
-					context$2$0.prev = 40;
-
-					if (!_didIteratorError) {
-						context$2$0.next = 43;
-						break;
-					}
-
-					throw _iteratorError;
-
-				case 43:
-					return context$2$0.finish(40);
-
-				case 44:
-					return context$2$0.finish(37);
-
-				case 45:
-					if (!needProgress) {
-						context$2$0.next = 51;
-						break;
-					}
-
-					lastFuncs = null, promises = [new Promise(function (resolve, reject) {
-						return lastFuncs = { resolve: resolve, reject: reject };
-					})];
-
-					$ajax(form.action, { method: "POST", data: formData, onprogress: function (e) {
-							lastFuncs.resolve({ done: false, data: { loaded: e.loaded, total: e.total } });
-							promises.push(new Promise(function (resolve, reject) {
-								return lastFuncs = { resolve: resolve, reject: reject };
-							}));
-						} }).then(function (xhr) {
-						return lastFuncs.resolve({ done: true, data: $DOM(xhr.responseText) });
-					}, function (xhr) {
-						return lastFuncs.reject(new AjaxError(xhr.status, xhr.statusText));
-					});
-					return context$2$0.abrupt("return", [hasFiles, function () {
-						return promises.shift();
-					}]);
-
-				case 51:
-					context$2$0.prev = 51;
-					context$2$0.next = 54;
-					return $ajax(form.action, { method: "POST", data: formData });
-
-				case 54:
-					xhr = context$2$0.sent;
-					return context$2$0.abrupt("return", $DOM(xhr.responseText));
-
-				case 58:
-					context$2$0.prev = 58;
-					context$2$0.t27 = context$2$0["catch"](51);
-					return context$2$0.abrupt("return", Promise.reject(new AjaxError(context$2$0.t27.status, context$2$0.t27.statusText)));
-
-				case 61:
-				case "end":
-					return context$2$0.stop();
-			}
-		}, html5Submit, this, [[5, 33, 37, 45], [38,, 40, 44], [51, 58]]);
-	});
-	var initScript = regeneratorRuntime.mark(function initScript(checkDomains, readCfgPromise) {
-		var formEl, str;
-		return regeneratorRuntime.wrap(function initScript$(context$2$0) {
-			while (1) switch (context$2$0.prev = context$2$0.next) {
-				case 0:
-					new Logger().init();
-					formEl = Initialization(checkDomains);
-
-					if (formEl) {
-						context$2$0.next = 4;
-						break;
-					}
-
-					return context$2$0.abrupt("return");
-
-				case 4:
-					new Logger().log("Init");
-					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t28", 6);
-
-				case 6:
-					str = context$2$0.t28;
-
-					if (!(str && str.includes(aib.dm))) {
-						context$2$0.next = 9;
-						break;
-					}
-
-					return context$2$0.abrupt("return");
-
-				case 9:
-					excludeList = str || "";
-
-					if (Cfg) {
-						context$2$0.next = 18;
-						break;
-					}
-
-					if (!readCfgPromise) {
-						context$2$0.next = 16;
-						break;
-					}
-
-					context$2$0.next = 14;
-					return readCfgPromise;
-
-				case 14:
-					context$2$0.next = 17;
-					break;
-
-				case 16:
-					return context$2$0.delegateYield(readCfg(), "t29", 17);
-
-				case 17:
-					new Logger().log("Config loading");
-
-				case 18:
-					if (Cfg.correctTime) {
-						dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, function (rp) {
-							return saveCfg("timeRPattern", rp);
-						});
-						new Logger().log("Time correction");
-					}
-
-					if (!Cfg.disabled) {
-						context$2$0.next = 23;
-						break;
-					}
-
-					panel.init(formEl);
-					scriptCSS();
-					return context$2$0.abrupt("return");
-
-				case 23:
-					spells = new Spells(!!Cfg.hideBySpell);
-					new Logger().log("Parsing spells");
-					doc.body.style.display = "none";
-					formEl = DelForm.doReplace(formEl);
-					new Logger().log("Replace delform");
-					pByNum = Object.create(null);
-					context$2$0.prev = 29;
-
-					dForm = new DelForm(formEl, false);
-					context$2$0.next = 38;
-					break;
-
-				case 33:
-					context$2$0.prev = 33;
-					context$2$0.t30 = context$2$0["catch"](29);
-
-					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t30));
-					doc.body.style.display = "";
-					return context$2$0.abrupt("return");
-
-				case 38:
-					if (!localRun) {
-						dForm.initAjax();
-					}
-					new Logger().log("Parse delform");
-					pr = new PostForm($q(aib.qPostForm, doc), false, doc);
-					new Logger().log("Parse postform");
-					if (Cfg.hotKeys) {
-						hKeys = new HotKeys();
-						new Logger().log("Init keybinds");
-					}
-					initPage();
-					new Logger().log("Init page");
-					panel.init(formEl);
-					new Logger().log("Add panel");
-					initMessageFunctions();
-					addDelformStuff();
-					readViewedPosts();
-					scriptCSS();
-					new Logger().log("Apply CSS");
-					doc.body.style.display = "";
-					new Logger().log("Display page");
-					scrollPage();
-					new Logger().log("Scroll page");
-					readPosts();
-					return context$2$0.delegateYield(readUserPosts(), "t31", 58);
-
-				case 58:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t32", 59);
-
-				case 59:
-					setTimeout(PostContent.purge, 0);
-					new Logger().log("Apply spells");
-					new Logger().finish();
-
-				case 62:
-				case "end":
-					return context$2$0.stop();
-			}
-		}, initScript, this, [[29, 33]]);
-	});
-	var version = "15.10.20.1";
-	var commit = "aeed642";
+	'use strict';
+
+	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
+	var version = '15.10.20.1';
+	var commit = '0757c9d';
 
 	var defaultCfg = {
-		disabled: 0,
-		language: 0,
-		hideBySpell: 1,
-		spells: "",
-		sortSpells: 0,
-		menuHiddBtn: 1,
-		hideRefPsts: 0,
-		delHiddPost: 0,
-		ajaxUpdThr: 1,
-		updThrDelay: 20,
-		noErrInTitle: 0,
-		favIcoBlink: 0,
-		markNewPosts: 1,
-		desktNotif: 0,
-		updCount: 1,
-		hideReplies: 0,
-		updThrBtns: 1,
-		expandTrunc: 0,
-		postBtnsCSS: 2,
-		showHideBtn: 1,
-		showRepBtn: 1,
-		noSpoilers: 1,
-		noPostNames: 0,
-		widePosts: 0,
-		correctTime: 0,
-		timeOffset: "+0",
-		timePattern: "",
-		timeRPattern: "",
-		expandImgs: 2,
-		imgNavBtns: 1,
-		resizeDPI: 0,
-		resizeImgs: 1,
-		minImgSize: 100,
-		zoomFactor: 25,
-		webmControl: 1,
-		webmVolume: 100,
-		maskImgs: 0,
-		preLoadImgs: 0,
-		findImgFile: 0,
-		openImgs: 0,
-		imgSrcBtns: 1,
-		delImgNames: 0,
-		linksNavig: 2,
-		linksOver: 100,
-		linksOut: 1500,
-		markViewed: 0,
-		strikeHidd: 0,
-		removeHidd: 0,
-		noNavigHidd: 0,
-		crossLinks: 0,
-		insertNum: 1,
-		addOPLink: 0,
-		addImgs: 0,
-		addMP3: 1,
-		addVocaroo: 1,
-		addYouTube: 3,
-		YTubeType: 0,
-		YTubeWidth: 360,
-		YTubeHeigh: 270,
-		YTubeTitles: 0,
-		ytApiKey: "",
-		addVimeo: 1,
-		ajaxReply: 2,
-		postSameImg: 1,
-		removeEXIF: 1,
-		removeFName: 0,
-		sendErrNotif: 1,
-		scrAfterRep: 0,
-		addPostForm: 2,
-		spacedQuote: 1,
-		favOnReply: 1,
-		warnSubjTrip: 0,
-		fileThumb: 1,
-		addSageBtn: 1,
-		saveSage: 1,
-		sageReply: 0,
-		captchaLang: 1,
-		addTextBtns: 1,
-		txtBtnsLoc: 1,
-		passwValue: "",
-		userName: 0,
-		nameValue: "",
-		noBoardRule: 1,
-		noGoto: 1,
-		noPassword: 1,
-		noName: 0,
-		scriptStyle: 0,
-		userCSS: 0,
-		userCSSTxt: "",
-		expandPanel: 0,
-		panelCounter: 1,
-		rePageTitle: 1,
-		animation: 1,
-		closePopups: 0,
-		hotKeys: 1,
-		loadPages: 1,
-		updScript: 1,
-		scrUpdIntrv: 1,
-		turnOff: 0,
-		textaWidth: 300,
-		textaHeight: 115,
-		replyWinDrag: 0,
-		replyWinX: "right: 0",
-		replyWinY: "top: 0",
-		cfgWinDrag: 0,
-		cfgWinX: "right: 0",
-		cfgWinY: "top: 0",
-		hidWinDrag: 0,
-		hidWinX: "right: 0",
-		hidWinY: "top: 0",
-		favWinDrag: 0,
-		favWinX: "right: 0",
-		favWinY: "top: 0",
-		favWinWidth: 500,
-		vidWinDrag: 0,
-		vidWinX: "right: 0",
-		vidWinY: "top: 0"
+		'disabled': 0,
+		'language': 0,
+		'hideBySpell': 1,
+		'spells': '',
+		'sortSpells': 0,
+		'menuHiddBtn': 1,
+		'hideRefPsts': 0,
+		'delHiddPost': 0,
+		'ajaxUpdThr': 1,
+		'updThrDelay': 20,
+		'noErrInTitle': 0,
+		'favIcoBlink': 0,
+		'markNewPosts': 1,
+		'desktNotif': 0,
+		'updCount': 1,
+		'hideReplies': 0,
+		'updThrBtns': 1,
+		'expandTrunc': 0,
+		'postBtnsCSS': 2,
+		'showHideBtn': 1,
+		'showRepBtn': 1,
+		'noSpoilers': 1,
+		'noPostNames': 0,
+		'widePosts': 0,
+		'correctTime': 0,
+		'timeOffset': '+0',
+		'timePattern': '',
+		'timeRPattern': '',
+		'expandImgs': 2,
+		'imgNavBtns': 1,
+		'resizeDPI': 0,
+		'resizeImgs': 1,
+		'minImgSize': 100,
+		'zoomFactor': 25,
+		'webmControl': 1,
+		'webmVolume': 100,
+		'maskImgs': 0,
+		'preLoadImgs': 0,
+		'findImgFile': 0,
+		'openImgs': 0,
+		'imgSrcBtns': 1,
+		'delImgNames': 0,
+		'linksNavig': 2,
+		'linksOver': 100,
+		'linksOut': 1500,
+		'markViewed': 0,
+		'strikeHidd': 0,
+		'removeHidd': 0,
+		'noNavigHidd': 0,
+		'crossLinks': 0,
+		'insertNum': 1,
+		'addOPLink': 0,
+		'addImgs': 0,
+		'addMP3': 1,
+		'addVocaroo': 1,
+		'addYouTube': 3,
+		'YTubeType': 0,
+		'YTubeWidth': 360,
+		'YTubeHeigh': 270,
+		'YTubeTitles': 0,
+		'ytApiKey': '',
+		'addVimeo': 1,
+		'ajaxReply': 2,
+		'postSameImg': 1,
+		'removeEXIF': 1,
+		'removeFName': 0,
+		'sendErrNotif': 1,
+		'scrAfterRep': 0,
+		'addPostForm': 2,
+		'spacedQuote': 1,
+		'favOnReply': 1,
+		'warnSubjTrip': 0,
+		'fileThumb': 1,
+		'addSageBtn': 1,
+		'saveSage': 1,
+		'sageReply': 0,
+		'captchaLang': 1,
+		'addTextBtns': 1,
+		'txtBtnsLoc': 1,
+		'passwValue': '',
+		'userName': 0,
+		'nameValue': '',
+		'noBoardRule': 1,
+		'noGoto': 1,
+		'noPassword': 1,
+		'noName': 0,
+		'scriptStyle': 0,
+		'userCSS': 0,
+		'userCSSTxt': '',
+		'expandPanel': 0,
+		'panelCounter': 1,
+		'rePageTitle': 1,
+		'animation': 1,
+		'closePopups': 0,
+		'hotKeys': 1,
+		'loadPages': 1,
+		'updScript': 1,
+		'scrUpdIntrv': 1,
+		'turnOff': 0,
+		'textaWidth': 300,
+		'textaHeight': 115,
+		'replyWinDrag': 0,
+		'replyWinX': 'right: 0',
+		'replyWinY': 'top: 0',
+		'cfgWinDrag': 0,
+		'cfgWinX': 'right: 0',
+		'cfgWinY': 'top: 0',
+		'hidWinDrag': 0,
+		'hidWinX': 'right: 0',
+		'hidWinY': 'top: 0',
+		'favWinDrag': 0,
+		'favWinX': 'right: 0',
+		'favWinY': 'top: 0',
+		'favWinWidth': 500,
+		'vidWinDrag': 0,
+		'vidWinX': 'right: 0',
+		'vidWinY': 'top: 0'
 	},
 	    Lng = {
 		cfg: {
-			hideBySpell: ["Заклинания: ", "Magic spells: "],
-			sortSpells: ["Сортировать спеллы и удалять дубликаты", "Sort spells and delete duplicates"],
-			menuHiddBtn: ["Дополнительное меню кнопок скрытия ", "Additional menu of hide buttons"],
-			hideRefPsts: ["Скрывать ответы на скрытые посты*", "Hide replies to hidden posts*"],
-			delHiddPost: ["Удалять скрытые посты", "Delete hidden posts"],
+			'hideBySpell': ['Заклинания: ', 'Magic spells: '],
+			'sortSpells': ['Сортировать спеллы и удалять дубликаты', 'Sort spells and delete duplicates'],
+			'menuHiddBtn': ['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
+			'hideRefPsts': ['Скрывать ответы на скрытые посты*', 'Hide replies to hidden posts*'],
+			'delHiddPost': ['Удалять скрытые посты', 'Delete hidden posts'],
 
-			ajaxUpdThr: ["AJAX обновление треда ", "AJAX thread update "],
-			updThrDelay: [" (сек)", " (sec)"],
-			noErrInTitle: ["Не показывать номер ошибки в заголовке", "Don't show error number in title"],
-			favIcoBlink: ["Мигать фавиконом при новых постах", "Favicon blinking on new posts"],
-			markNewPosts: ["Выделять новые посты при смене вкладки", "Mark new posts when tab changes"],
-			desktNotif: ["Уведомления на рабочем столе", "Desktop notifications"],
-			updCount: ["Обратный счетчик секунд до обновления", "Show countdown to thread update"],
-			hideReplies: ["Показывать только оп-посты в списке тредов*", "Show only op-posts in threads list*"],
-			updThrBtns: ["Кнопки получения новых постов в списке тредов", "Get-new-posts buttons in threads list"],
-			expandTrunc: ["Разворачивать сокращенные посты*", "Auto expanding of truncated posts*"],
-			postBtnsCSS: {
-				sel: [["Text", "Classic", "Solid grey"], ["Text", "Classic", "Solid grey"]],
-				txt: ["Кнопки постов* ", "Post buttons* "]
+			'ajaxUpdThr': ['AJAX обновление треда ', 'AJAX thread update '],
+			'updThrDelay': [' (сек)', ' (sec)'],
+			'noErrInTitle': ['Не показывать номер ошибки в заголовке', 'Don\'t show error number in title'],
+			'favIcoBlink': ['Мигать фавиконом при новых постах', 'Favicon blinking on new posts'],
+			'markNewPosts': ['Выделять новые посты при смене вкладки', 'Mark new posts when tab changes'],
+			'desktNotif': ['Уведомления на рабочем столе', 'Desktop notifications'],
+			'updCount': ['Обратный счетчик секунд до обновления', 'Show countdown to thread update'],
+			'hideReplies': ['Показывать только оп-посты в списке тредов*', 'Show only op-posts in threads list*'],
+			'updThrBtns': ['Кнопки получения новых постов в списке тредов', 'Get-new-posts buttons in threads list'],
+			'expandTrunc': ['Разворачивать сокращенные посты*', 'Auto expanding of truncated posts*'],
+			'postBtnsCSS': {
+				sel: [['Text', 'Classic', 'Solid grey'], ['Text', 'Classic', 'Solid grey']],
+				txt: ['Кнопки постов* ', 'Post buttons* ']
 			},
-			showHideBtn: ["Скрытие ", "Post hide "],
-			showRepBtn: ["Ответ", "Post reply"],
-			noSpoilers: ["Открывать текстовые спойлеры", "Open text spoilers"],
-			noPostNames: ["Скрывать имена в постах", "Hide names in posts"],
-			widePosts: ["Растягивать посты по ширине экрана", "Stretch posts to the screen width"],
-			hotKeys: ["Горячие клавиши ", "Keyboard hotkeys "],
-			loadPages: [" Количество страниц, загружаемых по F5", " Number of pages that are loaded on F5 "],
-			correctTime: ["Коррекция времени* ", "Correct time* "],
-			timeOffset: [" (ч) разница ", " (h) difference "],
-			timePattern: [" Шаблон поиска", " Find pattern"],
-			timeRPattern: [" Шаблон замены", " Replace pattern"],
+			'showHideBtn': ['Скрытие ', 'Post hide '],
+			'showRepBtn': ['Ответ', 'Post reply'],
+			'noSpoilers': ['Открывать текстовые спойлеры', 'Open text spoilers'],
+			'noPostNames': ['Скрывать имена в постах', 'Hide names in posts'],
+			'widePosts': ['Растягивать посты по ширине экрана', 'Stretch posts to the screen width'],
+			'hotKeys': ['Горячие клавиши ', 'Keyboard hotkeys '],
+			'loadPages': [' Количество страниц, загружаемых по F5', ' Number of pages that are loaded on F5 '],
+			'correctTime': ['Коррекция времени* ', 'Correct time* '],
+			'timeOffset': [' (ч) разница ', ' (h) difference '],
+			'timePattern': [' Шаблон поиска', ' Find pattern'],
+			'timeRPattern': [' Шаблон замены', ' Replace pattern'],
 
-			expandImgs: {
-				sel: [["Откл.", "В посте", "По центру"], ["Disable", "In post", "By center"]],
-				txt: ["Раскрывать картинки по клику", "Expand images on click"]
+			'expandImgs': {
+				sel: [['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center']],
+				txt: ['Раскрывать картинки по клику', 'Expand images on click']
 			},
-			imgNavBtns: ["Добавлять кнопки навигации по картинкам", "Add buttons for images navigation"],
-			resizeDPI: ["Отображать картинки пиксель в пиксель", "Don't upscale images on retina displays"],
-			resizeImgs: ["Уменьшать в экран большие картинки", "Resize large images to fit screen"],
-			minImgSize: [" Минимальный размер картинок (px)", " Minimal image's size (px)"],
-			zoomFactor: [" Чувствительность зума картинок [1-100]", " Sensibility of the images zoom [1-100]"],
-			webmControl: ["Показывать контрол-бар для webm-файлов", "Show control bar for webm files"],
-			webmVolume: [" Громкость webm-файлов [0-100]", " Default volume for webm files [0-100]"],
-			preLoadImgs: ["Предварительно загружать картинки*", "Pre-load images*"],
-			findImgFile: ["Распознавать встроенные файлы в картинках*", "Detect built-in files in images*"],
-			openImgs: {
-				sel: [["Откл.", "Все подряд", "Только GIF", "Кроме GIF"], ["Disable", "All types", "Only GIF", "Non-GIF"]],
-				txt: ["Скачивать полные версии картинок*", "Download full version of images*"]
+			'imgNavBtns': ['Добавлять кнопки навигации по картинкам', 'Add buttons for images navigation'],
+			'resizeDPI': ['Отображать картинки пиксель в пиксель', 'Don\'t upscale images on retina displays'],
+			'resizeImgs': ['Уменьшать в экран большие картинки', 'Resize large images to fit screen'],
+			'minImgSize': [' Минимальный размер картинок (px)', ' Minimal image\'s size (px)'],
+			'zoomFactor': [' Чувствительность зума картинок [1-100]', ' Sensibility of the images zoom [1-100]'],
+			'webmControl': ['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
+			'webmVolume': [' Громкость webm-файлов [0-100]', ' Default volume for webm files [0-100]'],
+			'preLoadImgs': ['Предварительно загружать картинки*', 'Pre-load images*'],
+			'findImgFile': ['Распознавать встроенные файлы в картинках*', 'Detect built-in files in images*'],
+			'openImgs': {
+				sel: [['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'], ['Disable', 'All types', 'Only GIF', 'Non-GIF']],
+				txt: ['Скачивать полные версии картинок*', 'Download full version of images*']
 			},
-			imgSrcBtns: ["Добавлять кнопки для поиска картинок*", "Add image search buttons*"],
-			delImgNames: ["Скрывать имена картинок*", "Hide names of images*"],
+			'imgSrcBtns': ['Добавлять кнопки для поиска картинок*', 'Add image search buttons*'],
+			'delImgNames': ['Скрывать имена картинок*', 'Hide names of images*'],
 
-			linksNavig: {
-				sel: [["Откл.", "Без карты", "С картой"], ["Disable", "No map", "With map"]],
-				txt: ["Навигация по >>ссылкам* ", "Navigation by >>links* "]
+			'linksNavig': {
+				sel: [['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
+				txt: ['Навигация по >>ссылкам* ', 'Navigation by >>links* ']
 			},
-			linksOver: [" Появление ", " Appear. "],
-			linksOut: [" Пропадание (мс)", " Disappear. (ms)"],
-			markViewed: ["Отмечать просмотренные посты*", "Mark viewed posts*"],
-			strikeHidd: ["Зачеркивать >>ссылки на скрытые посты", "Strike >>links to hidden posts"],
-			removeHidd: ["Удалять из карты ответов", "Remove from replies map"],
-			noNavigHidd: ["Не отображать превью для скрытых постов", "Don't show previews for hidden posts"],
-			crossLinks: ["Преобразовывать http:// в >>/b/ссылки*", "Replace http:// with >>/b/links*"],
-			insertNum: ["Вставлять >>ссылку по клику на №поста*", "Insert >>link on №postnumber click*"],
-			addOPLink: [">>ссылка при ответе на оп-пост на доске", "Insert >>link for reply to op-posts on board"],
-			addImgs: ["Загружать картинки к jpg, png, gif ссылкам*", "Load images to jpg, png, gif links*"],
-			addMP3: ["Плеер к mp3 ссылкам* ", "Player to mp3 links* "],
-			addVocaroo: ["к Vocaroo ссылкам*", "to Vocaroo links*"],
-			addVimeo: ["Добавлять плеер к Vimeo ссылкам*", "Add player to Vimeo links*"],
-			addYouTube: {
-				sel: [["Ничего", "Плеер по клику", "Авто плеер", "Превью+плеер", "Только превью"], ["Nothing", "On click player", "Auto player", "Preview+player", "Only preview"]],
-				txt: ["к YouTube-ссылкам* ", "to YouTube-links* "]
+			'linksOver': [' Появление ', ' Appear. '],
+			'linksOut': [' Пропадание (мс)', ' Disappear. (ms)'],
+			'markViewed': ['Отмечать просмотренные посты*', 'Mark viewed posts*'],
+			'strikeHidd': ['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
+			'removeHidd': ['Удалять из карты ответов', 'Remove from replies map'],
+			'noNavigHidd': ['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
+			'crossLinks': ['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
+			'insertNum': ['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
+			'addOPLink': ['>>ссылка при ответе на оп-пост на доске', 'Insert >>link for reply to op-posts on board'],
+			'addImgs': ['Загружать картинки к jpg, png, gif ссылкам*', 'Load images to jpg, png, gif links*'],
+			'addMP3': ['Плеер к mp3 ссылкам* ', 'Player to mp3 links* '],
+			'addVocaroo': ['к Vocaroo ссылкам*', 'to Vocaroo links*'],
+			'addVimeo': ['Добавлять плеер к Vimeo ссылкам*', 'Add player to Vimeo links*'],
+			'addYouTube': {
+				sel: [['Ничего', 'Плеер по клику', 'Авто плеер', 'Превью+плеер', 'Только превью'], ['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']],
+				txt: ['к YouTube-ссылкам* ', 'to YouTube-links* ']
 			},
-			YTubeType: {
-				sel: [["Flash", "HTML5"], ["Flash", "HTML5"]],
-				txt: ["", ""]
+			'YTubeType': {
+				sel: [['Flash', 'HTML5'], ['Flash', 'HTML5']],
+				txt: ['', '']
 			},
-			YTubeTitles: ["Загружать названия к YouTube-ссылкам*", "Load titles into YouTube-links*"],
-			ytApiKey: ["Ключ YT API*", "YT API Key*"],
+			'YTubeTitles': ['Загружать названия к YouTube-ссылкам*', 'Load titles into YouTube-links*'],
+			'ytApiKey': ['Ключ YT API*', 'YT API Key*'],
 
-			ajaxReply: {
-				sel: [["Откл.", "Iframe", "HTML5"], ["Disable", "Iframe", "HTML5"]],
-				txt: ["AJAX отправка постов*", "posting with AJAX*"]
+			'ajaxReply': {
+				sel: [['Откл.', 'Iframe', 'HTML5'], ['Disable', 'Iframe', 'HTML5']],
+				txt: ['AJAX отправка постов*', 'posting with AJAX*']
 			},
-			postSameImg: ["Возможность отправки одинаковых картинок", "Ability to post same images"],
-			removeEXIF: ["Удалять EXIF из JPEG ", "Remove EXIF from JPEG "],
-			removeFName: ["Удалять имя файлов", "Clear file names"],
-			sendErrNotif: ["Оповещать в заголовке об ошибке отправки", "Inform in title about post send error"],
-			scrAfterRep: ["Перемещаться в конец треда после отправки", "Scroll to the bottom after reply"],
-			addPostForm: {
-				sel: [["Сверху", "Внизу", "Скрытая"], ["At top", "At bottom", "Hidden"]],
-				txt: ["Форма ответа в треде", "Reply form in thread"]
+			'postSameImg': ['Возможность отправки одинаковых картинок', 'Ability to post same images'],
+			'removeEXIF': ['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG '],
+			'removeFName': ['Удалять имя файлов', 'Clear file names'],
+			'sendErrNotif': ['Оповещать в заголовке об ошибке отправки', 'Inform in title about post send error'],
+			'scrAfterRep': ['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
+			'addPostForm': {
+				sel: [['Сверху', 'Внизу', 'Скрытая'], ['At top', 'At bottom', 'Hidden']],
+				txt: ['Форма ответа в треде', 'Reply form in thread']
 			},
-			spacedQuote: ["Вставлять пробел при цитировании \"> \"", "Insert a space when quoting \"> \""],
-			favOnReply: ["Добавлять тред в избранное при ответе", "Add thread to favorites on reply"],
-			warnSubjTrip: ["Оповещать при наличии трип-кода в поле \"Тема\"", "Warn if \"Subject\" field contains trip-code"],
-			fileThumb: ["Область превью картинок вместо кнопки \"Файл\"", "File thumbnail area instead of \"File\" button"],
-			addSageBtn: ["Кнопка Sage вместо \"E-mail\"* ", "Sage button instead of \"E-mail\"* "],
-			saveSage: ["Запоминать сажу", "Remember sage"],
-			captchaLang: {
-				sel: [["Откл.", "Eng", "Rus"], ["Disable", "Eng", "Rus"]],
-				txt: ["Язык ввода капчи", "Language input in captcha"]
+			'spacedQuote': ['Вставлять пробел при цитировании "> "', 'Insert a space when quoting "> "'],
+			'favOnReply': ['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
+			'warnSubjTrip': ['Оповещать при наличии трип-кода в поле "Тема"', 'Warn if "Subject" field contains trip-code'],
+			'fileThumb': ['Область превью картинок вместо кнопки "Файл"', 'File thumbnail area instead of "File" button'],
+			'addSageBtn': ['Кнопка Sage вместо "E-mail"* ', 'Sage button instead of "E-mail"* '],
+			'saveSage': ['Запоминать сажу', 'Remember sage'],
+			'captchaLang': {
+				sel: [['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus']],
+				txt: ['Язык ввода капчи', 'Language input in captcha']
 			},
-			addTextBtns: {
-				sel: [["Откл.", "Графич.", "Упрощ.", "Стандарт."], ["Disable", "As images", "As text", "Standard"]],
-				txt: ["Кнопки разметки текста ", "Text format buttons "]
+			'addTextBtns': {
+				sel: [['Откл.', 'Графич.', 'Упрощ.', 'Стандарт.'], ['Disable', 'As images', 'As text', 'Standard']],
+				txt: ['Кнопки разметки текста ', 'Text format buttons ']
 			},
-			txtBtnsLoc: ["Внизу", "At bottom"],
-			userPassw: [" Постоянный пароль ", " Fixed password "],
-			userName: ["Постоянное имя", "Fixed name"],
-			noBoardRule: ["правила ", "rules "],
-			noGoto: ["поле goto ", "goto field "],
-			noPassword: ["пароль ", "password "],
-			noName: ["имя", "name"],
+			'txtBtnsLoc': ['Внизу', 'At bottom'],
+			'userPassw': [' Постоянный пароль ', ' Fixed password '],
+			'userName': ['Постоянное имя', 'Fixed name'],
+			'noBoardRule': ['правила ', 'rules '],
+			'noGoto': ['поле goto ', 'goto field '],
+			'noPassword': ['пароль ', 'password '],
+			'noName': ['имя', 'name'],
 
-			scriptStyle: {
-				sel: [["Gradient black", "Gradient blue", "Solid grey", "Transparent blue"], ["Gradient black", "Gradient blue", "Solid grey", "Transparent blue"]],
-				txt: ["Стиль скрипта", "Script style"]
+			'scriptStyle': {
+				sel: [['Gradient black', 'Gradient blue', 'Solid grey', 'Transparent blue'], ['Gradient black', 'Gradient blue', 'Solid grey', 'Transparent blue']],
+				txt: ['Стиль скрипта', 'Script style']
 			},
-			userCSS: ["Пользовательский CSS ", "User CSS "],
-			panelCounter: ["Счетчик постов/картинок на главной панели", "Counter of posts/images on main panel"],
-			rePageTitle: ["Название треда в заголовке вкладки*", "Thread title in page tab*"],
-			animation: ["CSS3 анимация в скрипте", "CSS3 animation in script"],
-			closePopups: ["Автоматически закрывать уведомления", "Close popups automatically"],
-			updScript: ["Автоматически проверять обновления скрипта", "Check for script update automatically"],
-			scrUpdIntrv: {
-				sel: [["Каждый день", "Каждые 2 дня", "Каждую неделю", "Каждые 2 недели", "Каждый месяц"], ["Every day", "Every 2 days", "Every week", "Every 2 week", "Every month"]],
-				txt: ["", ""]
+			'userCSS': ['Пользовательский CSS ', 'User CSS '],
+			'panelCounter': ['Счетчик постов/картинок на главной панели', 'Counter of posts/images on main panel'],
+			'rePageTitle': ['Название треда в заголовке вкладки*', 'Thread title in page tab*'],
+			'animation': ['CSS3 анимация в скрипте', 'CSS3 animation in script'],
+			'closePopups': ['Автоматически закрывать уведомления', 'Close popups automatically'],
+			'updScript': ['Автоматически проверять обновления скрипта', 'Check for script update automatically'],
+			'scrUpdIntrv': {
+				sel: [['Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'], ['Every day', 'Every 2 days', 'Every week', 'Every 2 week', 'Every month']],
+				txt: ['', '']
 			},
-			excludeList: ["Список доменов, запрещающих запуск скрипта:", "Domains list for preventing script launch:"],
-			turnOff: ["Включать скрипт только на этом сайте", "Enable script only on this site"],
+			'excludeList': ['Список доменов, запрещающих запуск скрипта:', 'Domains list for preventing script launch:'],
+			'turnOff': ['Включать скрипт только на этом сайте', 'Enable script only on this site'],
 
-			language: {
-				sel: [["Ru", "En"], ["Ru", "En"]],
-				txt: ["", ""]
+			'language': {
+				sel: [['Ru', 'En'], ['Ru', 'En']],
+				txt: ['', '']
 			}
 		},
 
-		txtBtn: [["Жирный", "Bold"], ["Наклонный", "Italic"], ["Подчеркнутый", "Underlined"], ["Зачеркнутый", "Strike"], ["Спойлер", "Spoiler"], ["Код", "Code"], ["Верхний индекс", "Superscript"], ["Нижний индекс", "Subscript"], ["Цитировать выделенное", "Quote selected"]],
+		txtBtn: [['Жирный', 'Bold'], ['Наклонный', 'Italic'], ['Подчеркнутый', 'Underlined'], ['Зачеркнутый', 'Strike'], ['Спойлер', 'Spoiler'], ['Код', 'Code'], ['Верхний индекс', 'Superscript'], ['Нижний индекс', 'Subscript'], ['Цитировать выделенное', 'Quote selected']],
 
 		cfgTab: {
-			filters: ["Фильтры", "Filters"],
-			posts: ["Посты", "Posts"],
-			images: ["Картинки", "Images"],
-			links: ["Ссылки", "Links"],
-			form: ["Форма", "Form"],
-			common: ["Общее", "Common"],
-			info: ["Инфо", "Info"]
+			'filters': ['Фильтры', 'Filters'],
+			'posts': ['Посты', 'Posts'],
+			'images': ['Картинки', 'Images'],
+			'links': ['Ссылки', 'Links'],
+			'form': ['Форма', 'Form'],
+			'common': ['Общее', 'Common'],
+			'info': ['Инфо', 'Info']
 		},
 
 		panelBtn: {
-			attach: ["Прикрепить/Открепить", "Attach/Detach"],
-			cfg: ["Настройки", "Settings"],
-			hid: ["Скрытое", "Hidden"],
-			fav: ["Избранное", "Favorites"],
-			vid: ["Видео-ссылки", "Video links"],
-			refresh: ["Обновить", "Refresh"],
-			goback: ["Назад", "Go back"],
-			gonext: ["Следующая", "Next"],
-			goup: ["Наверх", "To the top"],
-			godown: ["В конец", "To the bottom"],
-			expimg: ["Раскрыть картинки", "Expand images"],
-			preimg: ["Предзагрузка картинок ([Ctrl+Click] только для новых постов)", "Preload images ([Ctrl+Click] for new posts only)"],
-			maskimg: ["Маскировать картинки", "Mask images"],
-			"upd-on": ["Выключить автообновление треда", "Disable thread autoupdate"],
-			"upd-off": ["Включить автообновление треда", "Enable thread autoupdate"],
-			"audio-off": ["Звуковое оповещение о новых постах", "Sound notification about new posts"],
-			catalog: ["Каталог", "Catalog"],
-			counter: ["Постов/картинок в треде", "Posts/Images in thread"],
-			savethr: ["Сохранить на диск", "Save to disk"],
-			enable: ["Включить/выключить скрипт", "Turn on/off the script"]
+			'attach': ['Прикрепить/Открепить', 'Attach/Detach'],
+			'cfg': ['Настройки', 'Settings'],
+			'hid': ['Скрытое', 'Hidden'],
+			'fav': ['Избранное', 'Favorites'],
+			'vid': ['Видео-ссылки', 'Video links'],
+			'refresh': ['Обновить', 'Refresh'],
+			'goback': ['Назад', 'Go back'],
+			'gonext': ['Следующая', 'Next'],
+			'goup': ['Наверх', 'To the top'],
+			'godown': ['В конец', 'To the bottom'],
+			'expimg': ['Раскрыть картинки', 'Expand images'],
+			'preimg': ['Предзагрузка картинок ([Ctrl+Click] только для новых постов)', 'Preload images ([Ctrl+Click] for new posts only)'],
+			'maskimg': ['Маскировать картинки', 'Mask images'],
+			'upd-on': ['Выключить автообновление треда', 'Disable thread autoupdate'],
+			'upd-off': ['Включить автообновление треда', 'Enable thread autoupdate'],
+			'audio-off': ['Звуковое оповещение о новых постах', 'Sound notification about new posts'],
+			'catalog': ['Каталог', 'Catalog'],
+			'counter': ['Постов/картинок в треде', 'Posts/Images in thread'],
+			'savethr': ['Сохранить на диск', 'Save to disk'],
+			'enable': ['Включить/выключить скрипт', 'Turn on/off the script']
 		},
 
 		selHiderMenu: {
-			sel: ["Скрывать выделенное", "Hide selected text"],
-			name: ["Скрывать имя", "Hide name"],
-			trip: ["Скрывать трип-код", "Hide with trip-code"],
-			img: ["Скрывать картинку", "Hide with image"],
-			ihash: ["Скрывать схожие картинки", "Hide similar images"],
-			text: ["Скрыть схожий текст", "Hide similar text"],
-			noimg: ["Скрывать без картинок", "Hide without images"],
-			notext: ["Скрывать без текста", "Hide without text"]
+			'sel': ['Скрывать выделенное', 'Hide selected text'],
+			'name': ['Скрывать имя', 'Hide name'],
+			'trip': ['Скрывать трип-код', 'Hide with trip-code'],
+			'img': ['Скрывать картинку', 'Hide with image'],
+			'ihash': ['Скрывать схожие картинки', 'Hide similar images'],
+			'text': ['Скрыть схожий текст', 'Hide similar text'],
+			'noimg': ['Скрывать без картинок', 'Hide without images'],
+			'notext': ['Скрывать без текста', 'Hide without text']
 		},
-		selExpandThr: [["+10 постов", "Последние 30", "Последние 50", "Последние 100", "Весь тред"], ["+10 posts", "Last 30 posts", "Last 50 posts", "Last 100 posts", "All thread"]],
-		selAjaxPages: [["1 страница", "2 страницы", "3 страницы", "4 страницы", "5 страниц"], ["1 page", "2 pages", "3 pages", "4 pages", "5 pages"]],
-		selSaveThr: [["Скачать весь тред", "Скачать картинки"], ["Download thread", "Download images"]],
-		selAudioNotif: [["Каждые 30 сек.", "Каждую минуту", "Каждые 2 мин.", "Каждые 5 мин."], ["Every 30 sec.", "Every minute", "Every 2 min.", "Every 5 min."]],
+		selExpandThr: [['+10 постов', 'Последние 30', 'Последние 50', 'Последние 100', 'Весь тред'], ['+10 posts', 'Last 30 posts', 'Last 50 posts', 'Last 100 posts', 'All thread']],
+		selAjaxPages: [['1 страница', '2 страницы', '3 страницы', '4 страницы', '5 страниц'], ['1 page', '2 pages', '3 pages', '4 pages', '5 pages']],
+		selSaveThr: [['Скачать весь тред', 'Скачать картинки'], ['Download thread', 'Download images']],
+		selAudioNotif: [['Каждые 30 сек.', 'Каждую минуту', 'Каждые 2 мин.', 'Каждые 5 мин.'], ['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.']],
 
-		hotKeyEdit: [["%l%i24 – предыдущая страница/картинка%/l", "%l%i217 – следующая страница/картинка%/l", "%l%i21 – тред (на доске)/пост (в треде) ниже%/l", "%l%i20 – тред (на доске)/пост (в треде) выше%/l", "%l%i31 – пост (на доске) ниже%/l", "%l%i30 – пост (на доске) выше%/l", "%l%i23 – скрыть пост/тред%/l", "%l%i32 – перейти в тред%/l", "%l%i33 – развернуть тред%/l", "%l%i211 – раскрыть картинку в посте%/l", "%l%i22 – быстрый ответ%/l", "%l%i25t – отправить пост%/l", "%l%i210 – открыть/закрыть \"Настройки\"%/l", "%l%i26 – открыть/закрыть \"Избранное\"%/l", "%l%i27 – открыть/закрыть \"Скрытое\"%/l", "%l%i218 – открыть/закрыть \"Видео\"%/l", "%l%i28 – открыть/закрыть панель%/l", "%l%i29 – включить/выключить маскировку картинок%/l", "%l%i40 – обновить тред (в треде)%/l", "%l%i212t – жирный%/l", "%l%i213t – курсив%/l", "%l%i214t – зачеркнутый%/l", "%l%i215t – спойлер%/l", "%l%i216t – код%/l"], ["%l%i24 – previous page/image%/l", "%l%i217 – next page/image%/l", "%l%i21 – thread (on board)/post (in thread) below%/l", "%l%i20 – thread (on board)/post (in thread) above%/l", "%l%i31 – on board post below%/l", "%l%i30 – on board post above%/l", "%l%i23 – hide post/thread%/l", "%l%i32 – go to thread%/l", "%l%i33 – expand thread%/l", "%l%i211 – expand post's images%/l", "%l%i22 – quick reply%/l", "%l%i25t – send post%/l", "%l%i210 – open/close \"Settings\"%/l", "%l%i26 – open/close \"Favorites\"%/l", "%l%i27 – open/close \"Hidden\"%/l", "%l%i218 – open/close \"Videos\"%/l", "%l%i28 – open/close the main panel%/l", "%l%i29 – turn on/off masking images%/l", "%l%i40 – update thread%/l", "%l%i212t – bold%/l", "%l%i213t – italic%/l", "%l%i214t – strike%/l", "%l%i215t – spoiler%/l", "%l%i216t – code%/l"]],
+		hotKeyEdit: [['%l%i24 – предыдущая страница/картинка%/l', '%l%i217 – следующая страница/картинка%/l', '%l%i21 – тред (на доске)/пост (в треде) ниже%/l', '%l%i20 – тред (на доске)/пост (в треде) выше%/l', '%l%i31 – пост (на доске) ниже%/l', '%l%i30 – пост (на доске) выше%/l', '%l%i23 – скрыть пост/тред%/l', '%l%i32 – перейти в тред%/l', '%l%i33 – развернуть тред%/l', '%l%i211 – раскрыть картинку в посте%/l', '%l%i22 – быстрый ответ%/l', '%l%i25t – отправить пост%/l', '%l%i210 – открыть/закрыть "Настройки"%/l', '%l%i26 – открыть/закрыть "Избранное"%/l', '%l%i27 – открыть/закрыть "Скрытое"%/l', '%l%i218 – открыть/закрыть "Видео"%/l', '%l%i28 – открыть/закрыть панель%/l', '%l%i29 – включить/выключить маскировку картинок%/l', '%l%i40 – обновить тред (в треде)%/l', '%l%i212t – жирный%/l', '%l%i213t – курсив%/l', '%l%i214t – зачеркнутый%/l', '%l%i215t – спойлер%/l', '%l%i216t – код%/l'], ['%l%i24 – previous page/image%/l', '%l%i217 – next page/image%/l', '%l%i21 – thread (on board)/post (in thread) below%/l', '%l%i20 – thread (on board)/post (in thread) above%/l', '%l%i31 – on board post below%/l', '%l%i30 – on board post above%/l', '%l%i23 – hide post/thread%/l', '%l%i32 – go to thread%/l', '%l%i33 – expand thread%/l', '%l%i211 – expand post\'s images%/l', '%l%i22 – quick reply%/l', '%l%i25t – send post%/l', '%l%i210 – open/close "Settings"%/l', '%l%i26 – open/close "Favorites"%/l', '%l%i27 – open/close "Hidden"%/l', '%l%i218 – open/close "Videos"%/l', '%l%i28 – open/close the main panel%/l', '%l%i29 – turn on/off masking images%/l', '%l%i40 – update thread%/l', '%l%i212t – bold%/l', '%l%i213t – italic%/l', '%l%i214t – strike%/l', '%l%i215t – spoiler%/l', '%l%i216t – code%/l']],
 
-		month: [["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"], ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]],
-		fullMonth: [["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"], ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]],
-		week: [["Вск", "Пнд", "Втр", "Срд", "Чтв", "Птн", "Сбт"], ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]],
+		month: [['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'], ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']],
+		fullMonth: [['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']],
+		week: [['Вск', 'Пнд', 'Втр', 'Срд', 'Чтв', 'Птн', 'Сбт'], ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']],
 
 		editor: {
-			cfg: ["Редактирование настроек:", "Edit settings:"],
-			hidden: ["Редактирование скрытых тредов:", "Edit hidden threads:"],
-			favor: ["Редактирование избранного:", "Edit favorites:"],
-			css: ["Редактирование CSS", "Edit CSS"]
+			cfg: ['Редактирование настроек:', 'Edit settings:'],
+			hidden: ['Редактирование скрытых тредов:', 'Edit hidden threads:'],
+			favor: ['Редактирование избранного:', 'Edit favorites:'],
+			css: ['Редактирование CSS', 'Edit CSS']
 		},
 
-		newPost: [[" новый пост", " новых поста", " новых постов", ". Последний:"], [" new post", " new posts", " new posts", ". Latest: "]],
+		newPost: [[' новый пост', ' новых поста', ' новых постов', '. Последний:'], [' new post', ' new posts', ' new posts', '. Latest: ']],
 
-		name: ["Имя", "Name"],
-		subj: ["Тема", "Subject"],
-		mail: ["E-mail", "E-mail"],
-		cap: ["Капча", "Captcha"],
-		video: ["Видео", "Video"],
-		add: ["Добавить", "Add"],
-		apply: ["Применить", "Apply"],
-		clear: ["Очистить", "Clear"],
-		refresh: ["Обновить", "Refresh"],
-		load: ["Загрузить", "Load"],
-		save: ["Сохранить", "Save"],
-		edit: ["Правка", "Edit"],
-		file: ["Файл", "File"],
-		global: ["Глобальные", "Global"],
-		reset: ["Сброс", "Reset"],
-		remove: ["Удалить", "Remove"],
-		info: ["Инфо", "Info"],
-		undo: ["Отмена", "Undo"],
-		change: ["Сменить", "Change"],
-		reply: ["Ответ", "Reply"],
-		loading: ["Загрузка...", "Loading..."],
-		checking: ["Проверка...", "Checking..."],
-		deleting: ["Удаление...", "Deleting..."],
-		error: ["Ошибка", "Error"],
-		noConnect: ["Ошибка подключения", "Connection failed"],
-		internalError: ["Ошибка скрипта:\n", "Script error:\n"],
-		thrNotFound: ["Тред недоступен (№", "Thread is unavailable (№"],
-		thrClosed: ["Тред закрыт", "Thread is closed"],
-		succDeleted: ["Успешно удалено!", "Succesfully deleted!"],
-		errDelete: ["Не могу удалить:\n", "Can't delete:\n"],
-		cTimeError: ["Неправильные настройки времени", "Invalid time settings"],
-		noGlobalCfg: ["Глобальные настройки не найдены", "Global config not found"],
-		postNotFound: ["Пост не найден", "Post not found"],
-		dontShow: ["Скрыть: ", "Hide: "],
-		checkNow: ["Проверить сейчас", "Check now"],
-		updAvail: ["Доступно обновление!", "Update available!"],
-		haveLatest: ["У вас стоит самая последняя версия!", "You have latest version!"],
-		storage: ["Хранение: ", "Storage: "],
-		thrViewed: ["Тредов посещено", "Threads visited"],
-		thrCreated: ["Тредов создано", "Threads created"],
-		thrHidden: ["Тредов скрыто", "Threads hidden"],
-		postsSent: ["Постов отправлено", "Posts sent"],
-		total: ["Всего", "Total"],
-		debug: ["Отладка", "Debug"],
-		infoDebug: ["Информация для отладки", "Information for debugging"],
-		impexpCfg: ["Импорт/экспорт настроек", "Config import/export"],
-		fileToCfg: ["Загрузить настройки из файла", "Load config from a file"],
-		cfgToFile: ["Сохранить файл</a> с настройками", "Get config file</a>"],
-		globalCfg: ["Глобальные настройки", "Global config"],
-		loadGlobal: [" и применить к этому домену", " and apply to this domain"],
-		saveGlobal: [" текущие настройки как глобальные", " current config as global"],
-		descrGlobal: ["Глобальные настройки будут по умолчанию применяться<br>при первом посещеннии других доменов", "Global config will apply by default<br>at the first visit of other domains"],
-		editInTxt: ["Правка в текстовом формате", "Edit in text format"],
-		resetCfg: ["Сбросить в настройки по умолчанию", "Reset config to defaults"],
-		conReset: ["Данное действие удалит все ваши настройки и закладки. Продолжить?", "This will delete all your preferences and favorites. Continue?"],
-		clrSelected: ["Удалить выделенные записи", "Remove selected notes"],
-		saveChanges: ["Сохранить внесенные изменения", "Save your changes"],
-		infoCount: ["Обновить счетчики постов", "Refresh posts counters"],
-		infoPage: ["Проверить актуальность тредов (до 5 страницы)", "Check for threads actuality (up to 5 page)"],
-		clrDeleted: ["Очистить недоступные (404) треды", "Clear inaccessible (404) threads"],
-		setByUser: ["Выбрано пользователем", "Set by user"],
-		oldPosts: ["Постов при последнем посещении", "Posts at the last visit"],
-		newPosts: ["Количество новых постов", "Number of new posts"],
-		thrPage: ["Тред на @странице", "Thread on @page"],
-		hiddenPosts: ["Скрытые посты на странице", "Hidden posts on the page"],
-		hiddenThrds: ["Скрытые треды", "Hidden threads"],
-		noHidPosts: ["На этой странице нет скрытых постов...", "No hidden posts on this page..."],
-		noHidThrds: ["Нет скрытых тредов...", "No hidden threads..."],
-		expandAll: ["Раскрыть все", "Expand all"],
-		invalidData: ["Некорректный формат данных", "Incorrect data format"],
-		noFavThrds: ["Нет избранных тредов...", "Favorites is empty..."],
-		noVideoLinks: ["Нет ссылок на видео...", "No video links..."],
-		hideLnkList: ["Скрыть/Показать список ссылок", "Hide/Unhide list of links"],
-		prevVideo: ["Предыдущее видео", "Previous video"],
-		nextVideo: ["Следующее видео", "Next video"],
-		toggleWindow: ["Закрепить на панели / Открепить", "Attach to panel / Detach"],
-		closeWindow: ["Закрыть окно", "Close window"],
-		toggleReply: ["Поместить под пост / Открепить", "Move under post / Detach"],
-		closeReply: ["Закрыть форму", "Close form"],
-		replies: ["Ответы:", "Replies:"],
-		postsOmitted: ["Пропущено ответов: ", "Posts omitted: "],
-		showPosts: ["Показать посты", "Show posts"],
-		hidePosts: ["Скрыть посты", "Hide posts"],
-		collapseThrd: ["Свернуть тред", "Collapse thread"],
-		deleted: ["удалён", "deleted"],
-		getNewPosts: ["Получить новые посты", "Get new posts"],
-		page: ["Страница", "Page"],
-		hiddenThrd: ["Скрытый тред:", "Hidden thread:"],
-		makeThrd: ["Создать тред", "Create thread"],
-		makeReply: ["Ответить", "Make reply"],
-		noSage: ["Без сажи", "No sage"],
-		hideForm: ["Скрыть форму", "Hide form"],
-		search: ["Искать в ", "Search in "],
-		wait: ["Ждите", "Wait"],
-		noFile: ["Нет файла", "No file"],
-		clickToAdd: ["Выберите, либо перетащите файл", "Select or drag and drop file"],
-		removeFile: ["Удалить файл", "Remove file"],
-		spoilFile: ["Спойлер", "Spoiler"],
-		helpAddFile: ["Встроить .ogg, .rar, .zip или .7z в картинку", "Pack .ogg, .rar, .zip or .7z into image"],
-		downloadFile: ["Скачать содержащийся в картинке файл", "Download existing file from image"],
-		fileCorrupt: ["Файл повреждён: ", "File is corrupted: "],
-		subjHasTrip: ["Поле \"Тема\" содержит трипкод", "\"Subject\" field contains a tripcode"],
-		loadImage: ["Загружаются картинки: ", "Loading images: "],
-		loadFile: ["Загружаются файлы: ", "Loading files: "],
-		cantLoad: ["Не могу загрузить ", "Can't load "],
-		willSavePview: ["Будет сохранено превью", "Thumbnail will be saved"],
-		loadErrors: ["Во время загрузки произошли ошибки:", "An error occurred during the loading:"],
-		errCorruptData: ["Ошибка: сервер отправил повреждённые данные", "Error: server sent corrupted data"],
-		expImgInline: ["[Click] открыть в посте, [Ctrl+Click] в центре", "[Click] expand in post, [Ctrl+Click] by center"],
-		expImgFull: ["[Click] открыть в центре, [Ctrl+Click] в посте", "[Click] expand by center, [Ctrl+Click] in post"],
-		nextImg: ["Следующая картинка", "Next image"],
-		prevImg: ["Предыдущая картинка", "Previous image"],
-		togglePost: ["Скрыть/Раскрыть пост", "Hide/Unhide post"],
-		replyToPost: ["Ответить на пост", "Reply to post"],
-		expandThrd: ["Раскрытие треда", "Thread expanding"],
-		addFav: ["Добавить тред в Избранное", "Add thread to Favorites"],
-		delFav: ["Убрать тред из Избранного", "Remove thread from Favorites"],
-		attachPview: ["Закрепить превью", "Attach preview"],
-		expandVideo: ["Развернуть/Свернуть видео", "Expand/Collapse video"],
-		author: ["автор: ", "author: "],
-		views: ["просмотров: ", "views: "],
-		published: ["опубликовано: ", "published: "],
+		name: ['Имя', 'Name'],
+		subj: ['Тема', 'Subject'],
+		mail: ['E-mail', 'E-mail'],
+		cap: ['Капча', 'Captcha'],
+		video: ['Видео', 'Video'],
+		add: ['Добавить', 'Add'],
+		apply: ['Применить', 'Apply'],
+		clear: ['Очистить', 'Clear'],
+		refresh: ['Обновить', 'Refresh'],
+		load: ['Загрузить', 'Load'],
+		save: ['Сохранить', 'Save'],
+		edit: ['Правка', 'Edit'],
+		file: ['Файл', 'File'],
+		global: ['Глобальные', 'Global'],
+		reset: ['Сброс', 'Reset'],
+		remove: ['Удалить', 'Remove'],
+		info: ['Инфо', 'Info'],
+		undo: ['Отмена', 'Undo'],
+		change: ['Сменить', 'Change'],
+		reply: ['Ответ', 'Reply'],
+		loading: ['Загрузка...', 'Loading...'],
+		checking: ['Проверка...', 'Checking...'],
+		deleting: ['Удаление...', 'Deleting...'],
+		error: ['Ошибка', 'Error'],
+		noConnect: ['Ошибка подключения', 'Connection failed'],
+		internalError: ['Ошибка скрипта:\n', 'Script error:\n'],
+		thrNotFound: ['Тред недоступен (№', 'Thread is unavailable (№'],
+		thrClosed: ['Тред закрыт', 'Thread is closed'],
+		succDeleted: ['Успешно удалено!', 'Succesfully deleted!'],
+		errDelete: ['Не могу удалить:\n', 'Can\'t delete:\n'],
+		cTimeError: ['Неправильные настройки времени', 'Invalid time settings'],
+		noGlobalCfg: ['Глобальные настройки не найдены', 'Global config not found'],
+		postNotFound: ['Пост не найден', 'Post not found'],
+		dontShow: ['Скрыть: ', 'Hide: '],
+		checkNow: ['Проверить сейчас', 'Check now'],
+		updAvail: ['Доступно обновление!', 'Update available!'],
+		haveLatest: ['У вас стоит самая последняя версия!', 'You have latest version!'],
+		storage: ['Хранение: ', 'Storage: '],
+		thrViewed: ['Тредов посещено', 'Threads visited'],
+		thrCreated: ['Тредов создано', 'Threads created'],
+		thrHidden: ['Тредов скрыто', 'Threads hidden'],
+		postsSent: ['Постов отправлено', 'Posts sent'],
+		total: ['Всего', 'Total'],
+		debug: ['Отладка', 'Debug'],
+		infoDebug: ['Информация для отладки', 'Information for debugging'],
+		impexpCfg: ['Импорт/экспорт настроек', 'Config import/export'],
+		fileToCfg: ['Загрузить настройки из файла', 'Load config from a file'],
+		cfgToFile: ['Сохранить файл</a> с настройками', 'Get config file</a>'],
+		globalCfg: ['Глобальные настройки', 'Global config'],
+		loadGlobal: [' и применить к этому домену', ' and apply to this domain'],
+		saveGlobal: [' текущие настройки как глобальные', ' current config as global'],
+		descrGlobal: ['Глобальные настройки будут по умолчанию применяться<br>при первом посещеннии других доменов', 'Global config will apply by default<br>at the first visit of other domains'],
+		editInTxt: ['Правка в текстовом формате', 'Edit in text format'],
+		resetCfg: ['Сбросить в настройки по умолчанию', 'Reset config to defaults'],
+		conReset: ['Данное действие удалит все ваши настройки и закладки. Продолжить?', 'This will delete all your preferences and favorites. Continue?'],
+		clrSelected: ['Удалить выделенные записи', 'Remove selected notes'],
+		saveChanges: ['Сохранить внесенные изменения', 'Save your changes'],
+		infoCount: ['Обновить счетчики постов', 'Refresh posts counters'],
+		infoPage: ['Проверить актуальность тредов (до 5 страницы)', 'Check for threads actuality (up to 5 page)'],
+		clrDeleted: ['Очистить недоступные (404) треды', 'Clear inaccessible (404) threads'],
+		setByUser: ['Выбрано пользователем', 'Set by user'],
+		oldPosts: ['Постов при последнем посещении', 'Posts at the last visit'],
+		newPosts: ['Количество новых постов', 'Number of new posts'],
+		thrPage: ['Тред на @странице', 'Thread on @page'],
+		hiddenPosts: ['Скрытые посты на странице', 'Hidden posts on the page'],
+		hiddenThrds: ['Скрытые треды', 'Hidden threads'],
+		noHidPosts: ['На этой странице нет скрытых постов...', 'No hidden posts on this page...'],
+		noHidThrds: ['Нет скрытых тредов...', 'No hidden threads...'],
+		expandAll: ['Раскрыть все', 'Expand all'],
+		invalidData: ['Некорректный формат данных', 'Incorrect data format'],
+		noFavThrds: ['Нет избранных тредов...', 'Favorites is empty...'],
+		noVideoLinks: ['Нет ссылок на видео...', 'No video links...'],
+		hideLnkList: ['Скрыть/Показать список ссылок', 'Hide/Unhide list of links'],
+		prevVideo: ['Предыдущее видео', 'Previous video'],
+		nextVideo: ['Следующее видео', 'Next video'],
+		toggleWindow: ['Закрепить на панели / Открепить', 'Attach to panel / Detach'],
+		closeWindow: ['Закрыть окно', 'Close window'],
+		toggleReply: ['Поместить под пост / Открепить', 'Move under post / Detach'],
+		closeReply: ['Закрыть форму', 'Close form'],
+		replies: ['Ответы:', 'Replies:'],
+		postsOmitted: ['Пропущено ответов: ', 'Posts omitted: '],
+		showPosts: ['Показать посты', 'Show posts'],
+		hidePosts: ['Скрыть посты', 'Hide posts'],
+		collapseThrd: ['Свернуть тред', 'Collapse thread'],
+		deleted: ['удалён', 'deleted'],
+		getNewPosts: ['Получить новые посты', 'Get new posts'],
+		page: ['Страница', 'Page'],
+		hiddenThrd: ['Скрытый тред:', 'Hidden thread:'],
+		makeThrd: ['Создать тред', 'Create thread'],
+		makeReply: ['Ответить', 'Make reply'],
+		noSage: ['Без сажи', 'No sage'],
+		hideForm: ['Скрыть форму', 'Hide form'],
+		search: ['Искать в ', 'Search in '],
+		wait: ['Ждите', 'Wait'],
+		noFile: ['Нет файла', 'No file'],
+		clickToAdd: ['Выберите, либо перетащите файл', 'Select or drag and drop file'],
+		removeFile: ['Удалить файл', 'Remove file'],
+		spoilFile: ['Спойлер', 'Spoiler'],
+		helpAddFile: ['Встроить .ogg, .rar, .zip или .7z в картинку', 'Pack .ogg, .rar, .zip or .7z into image'],
+		downloadFile: ['Скачать содержащийся в картинке файл', 'Download existing file from image'],
+		fileCorrupt: ['Файл повреждён: ', 'File is corrupted: '],
+		subjHasTrip: ['Поле "Тема" содержит трипкод', '"Subject" field contains a tripcode'],
+		loadImage: ['Загружаются картинки: ', 'Loading images: '],
+		loadFile: ['Загружаются файлы: ', 'Loading files: '],
+		cantLoad: ['Не могу загрузить ', 'Can\'t load '],
+		willSavePview: ['Будет сохранено превью', 'Thumbnail will be saved'],
+		loadErrors: ['Во время загрузки произошли ошибки:', 'An error occurred during the loading:'],
+		errCorruptData: ['Ошибка: сервер отправил повреждённые данные', 'Error: server sent corrupted data'],
+		expImgInline: ['[Click] открыть в посте, [Ctrl+Click] в центре', '[Click] expand in post, [Ctrl+Click] by center'],
+		expImgFull: ['[Click] открыть в центре, [Ctrl+Click] в посте', '[Click] expand by center, [Ctrl+Click] in post'],
+		nextImg: ['Следующая картинка', 'Next image'],
+		prevImg: ['Предыдущая картинка', 'Previous image'],
+		togglePost: ['Скрыть/Раскрыть пост', 'Hide/Unhide post'],
+		replyToPost: ['Ответить на пост', 'Reply to post'],
+		expandThrd: ['Раскрытие треда', 'Thread expanding'],
+		addFav: ['Добавить тред в Избранное', 'Add thread to Favorites'],
+		delFav: ['Убрать тред из Избранного', 'Remove thread from Favorites'],
+		attachPview: ['Закрепить превью', 'Attach preview'],
+		expandVideo: ['Развернуть/Свернуть видео', 'Expand/Collapse video'],
+		author: ['автор: ', 'author: '],
+		views: ['просмотров: ', 'views: '],
+		published: ['опубликовано: ', 'published: '],
 
-		seSyntaxErr: ["синтаксическая ошибка в аргументе спелла: %s", "syntax error in argument of spell: %s"],
-		seUnknown: ["неизвестный спелл: %s", "unknown spell: %s"],
-		seMissOp: ["пропущен оператор", "missing operator"],
-		seMissArg: ["пропущен аргумент спелла: %s", "missing argument of spell: %s"],
-		seMissSpell: ["пропущен спелл", "missing spell"],
-		seErrRegex: ["синтаксическая ошибка в регулярном выражении: %s", "syntax error in regular expression: %s"],
-		seUnexpChar: ["неожиданный символ: %s", "unexpected character: %s"],
-		seMissClBkt: ["пропущена закрывающаяся скобка", "missing ) in parenthetical"],
-		seRepsInParens: ["спелл $s не должен располагаться в скобках", "spell %s shouldn't be in parens"],
-		seOpInReps: ["недопустимо использовать оператор %s со спеллами #rep и #outrep", "don't use operator %s with spells #rep & #outrep"],
-		seRow: [" (строка ", " (row "],
-		seCol: [", столбец ", ", column "],
-		sendingPost: ["Отправка поста...", "Sending post..."],
-		sizeByte: [" Байт", " Byte"],
-		sizeKByte: [" КБ", " KB"],
-		sizeMByte: [" МБ", " MB"],
-		sizeGByte: [" ГБ", " GB"],
-		second: ["с", "s"]
+		seSyntaxErr: ['синтаксическая ошибка в аргументе спелла: %s', 'syntax error in argument of spell: %s'],
+		seUnknown: ['неизвестный спелл: %s', 'unknown spell: %s'],
+		seMissOp: ['пропущен оператор', 'missing operator'],
+		seMissArg: ['пропущен аргумент спелла: %s', 'missing argument of spell: %s'],
+		seMissSpell: ['пропущен спелл', 'missing spell'],
+		seErrRegex: ['синтаксическая ошибка в регулярном выражении: %s', 'syntax error in regular expression: %s'],
+		seUnexpChar: ['неожиданный символ: %s', 'unexpected character: %s'],
+		seMissClBkt: ['пропущена закрывающаяся скобка', 'missing ) in parenthetical'],
+		seRepsInParens: ['спелл $s не должен располагаться в скобках', 'spell %s shouldn\'t be in parens'],
+		seOpInReps: ['недопустимо использовать оператор %s со спеллами #rep и #outrep', 'don\'t use operator %s with spells #rep & #outrep'],
+		seRow: [' (строка ', ' (row '],
+		seCol: [', столбец ', ', column '],
+		sendingPost: ['Отправка поста...', 'Sending post...'],
+		sizeByte: [' Байт', ' Byte'],
+		sizeKByte: [' КБ', ' KB'],
+		sizeMByte: [' МБ', ' MB'],
+		sizeGByte: [' ГБ', ' GB'],
+		second: ['с', 's']
 	},
 	    doc = window.document,
 	    aProto = Array.prototype,
@@ -3094,7 +2375,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	    spells,
 	    Images_ = { preloading: false, afterpreload: null, progressId: null, canvas: null },
 	    lang,
-	    quotetxt = "",
+	    quotetxt = '',
 	    localRun,
 	    isExpImg,
 	    isPreImg,
@@ -3159,9 +2440,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		var el = doc.createElement(tag);
 		if (attr) {
 			for (var key in attr) {
-				if (key === "text") {
+				if (key === 'text') {
 					el.textContent = attr[key];
-				} else if (key === "value") {
+				} else if (key === 'value') {
 					el.value = attr[key];
 				} else if (attr.hasOwnProperty(key)) {
 					el.setAttribute(key, attr[key]);
@@ -3192,24 +2473,24 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	}
 
 	function $btn(val, ttl, Fn) {
-		return $new("input", { type: "button", "class": "de-button", value: val, title: ttl }, { click: Fn });
+		return $new('input', { 'type': 'button', 'class': 'de-button', 'value': val, 'title': ttl }, { 'click': Fn });
 	}
 
 	function $script(text) {
-		$del(doc.head.appendChild($new("script", { type: "text/javascript", text: text }, null)));
+		$del(doc.head.appendChild($new('script', { 'type': 'text/javascript', 'text': text }, null)));
 	}
 
 	function $css(text) {
 		if (!nav.Firefox) {
-			text = text.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + "$1");
+			text = text.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + '$1');
 			if (!nav.Presto) {
-				text = text.replace(/\(to bottom/g, "(top").replace(/\(to top/g, "(bottom");
+				text = text.replace(/\(to bottom/g, '(top').replace(/\(to top/g, '(bottom');
 			}
-			if (nav.Safari && !("flex" in document.body.style)) {
-				text = text.replace(/( flex|inline-flex|align-items)/g, " -webkit-$1");
+			if (nav.Safari && !('flex' in document.body.style)) {
+				text = text.replace(/( flex|inline-flex|align-items)/g, ' -webkit-$1');
 			}
 		}
-		return doc.head.appendChild($new("style", { type: "text/css", text: text }, null));
+		return doc.head.appendChild($new('style', { 'type': 'text/css', 'text': text }, null));
 	}
 
 	function $if(cond, el) {
@@ -3217,7 +2498,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	}
 
 	function $disp(el) {
-		el.style.display = el.style.display === "none" ? "" : "none";
+		el.style.display = el.style.display === 'none' ? '' : 'none';
 	}
 
 	function $del(el) {
@@ -3227,7 +2508,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	}
 
 	function $DOM(html) {
-		var myDoc = doc.implementation.createHTMLDocument("");
+		var myDoc = doc.implementation.createHTMLDocument('');
 		myDoc.documentElement.innerHTML = html;
 		return myDoc;
 	}
@@ -3271,7 +2552,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		LoggerSingleton.prototype = {
 			finish: function finish() {
 				finished = true;
-				marks.push(["LoggerFinish", Date.now()]);
+				marks.push(['LoggerFinish', Date.now()]);
 			},
 			getData: function getData(full) {
 				var duration,
@@ -3291,7 +2572,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				return timeLog;
 			},
 			init: function init() {
-				marks.push(["LoggerInit", Date.now()]);
+				marks.push(['LoggerInit', Date.now()]);
 			},
 			log: function log(text) {
 				if (!finished) {
@@ -3304,30 +2585,31 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 	function async(generatorFunc) {
 		return function () {
-			for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-				args[_key] = arguments[_key];
-			}
-
 			function continuer(verb, arg) {
 				var result;
 				try {
 					result = generator[verb](arg);
 				} catch (err) {
-					console.log("Generator throw: ", err);
+					console.log('Generator throw: ', err);
 					return Promise.reject(err);
 				}
 				return result.done ? result.value : Promise.resolve(result.value).then(onFulfilled, onRejected);
 			}
+
+			for (var _len2 = arguments.length, args = Array(_len2), _key = 0; _key < _len2; _key++) {
+				args[_key] = arguments[_key];
+			}
+
 			var generator = generatorFunc.apply(this, args),
-			    onFulfilled = continuer.bind(continuer, "next"),
-			    onRejected = continuer.bind(continuer, "throw");
+			    onFulfilled = continuer.bind(continuer, 'next'),
+			    onRejected = continuer.bind(continuer, 'throw');
 			return onFulfilled();
 		};
 	}
 
 	function spawn(generatorFunc) {
-		for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-			args[_key - 1] = arguments[_key];
+		for (var _len3 = arguments.length, args = Array(_len3 > 1 ? _len3 - 1 : 0), _key2 = 1; _key2 < _len3; _key2++) {
+			args[_key2 - 1] = arguments[_key2];
 		}
 
 		return Promise.resolve(async(generatorFunc).apply(undefined, args));
@@ -3342,19 +2624,19 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	}
 
 	function CancelablePromise(fn) {
-		var _this204 = this;
+		var _this = this;
 
 		this._promise = new Promise(function (res, rej) {
-			_this204._oResFn = res;
-			_this204._oRejFn = rej;
+			_this._oResFn = res;
+			_this._oRejFn = rej;
 		});
 		fn(function (_) {
-			return _this204._resFn(_);
+			return _this._resFn(_);
 		}, function (_) {
-			return _this204._rejFn(_);
+			return _this._rejFn(_);
 		}, function (cancelFn) {
-			if (!_this204._done) {
-				_this204._cancelFn = cancelFn;
+			if (!_this._done) {
+				_this._cancelFn = cancelFn;
 			}
 		});
 	}
@@ -3422,7 +2704,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			this._promise.then(thenFunc.bind(this, onFulfilled, true), thenFunc.bind(this, onRejected, false));
 			return rv;
 		},
-		"catch": function _catch(onRejected) {
+		'catch': function _catch(onRejected) {
 			return this.then(void 0, onRejected);
 		},
 		cancel: function cancel() {
@@ -3443,15 +2725,15 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	};
 
 	function $ajax(url) {
-		var params = arguments[1] === undefined ? null : arguments[1];
-		var useNative = arguments[2] === undefined ? nativeXHRworks : arguments[2];
+		var params = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+		var useNative = arguments.length <= 2 || arguments[2] === undefined ? nativeXHRworks : arguments[2];
 
 		return new CancelablePromise(function (resolve, reject, cancelFn) {
-			if (!useNative && typeof GM_xmlhttpRequest === "function") {
+			if (!useNative && typeof GM_xmlhttpRequest === 'function') {
 				var obj = {
-					method: params && params.method || "GET",
-					url: nav.fixLink(url),
-					onload: function onload(e) {
+					'method': params && params.method || 'GET',
+					'url': nav.fixLink(url),
+					'onload': function onload(e) {
 						if (e.status === 200) {
 							resolve(e);
 						} else {
@@ -3482,8 +2764,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				if (target.readyState === 4) {
 					if (target.status === 200) {
 						if (useCache) {
-							aib.LastModified = target.getResponseHeader("Last-Modified");
-							aib.ETag = xhr.getResponseHeader("Etag");
+							aib.LastModified = target.getResponseHeader('Last-Modified');
+							aib.ETag = xhr.getResponseHeader('Etag');
 						}
 						resolve(target);
 					} else {
@@ -3492,7 +2774,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 			};
 			try {
-				xhr.open(params && params.method || "GET", url, true);
+				xhr.open(params && params.method || 'GET', url, true);
 			} catch (e) {
 				nativeXHRworks = false;
 				resolve($ajax(url, params, false));
@@ -3513,10 +2795,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 			if (useCache) {
 				if (aib.LastModified) {
-					xhr.setRequestHeader("If-Modified-Since", aib.LastModified);
+					xhr.setRequestHeader('If-Modified-Since', aib.LastModified);
 				}
 				if (aib.ETag) {
-					xhr.setRequestHeader("If-None-Match", aib.ETag);
+					xhr.setRequestHeader('If-None-Match', aib.ETag);
 				}
 			}
 			xhr.send(params && params.data || null);
@@ -3539,11 +2821,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}
 	}, {
 		value: {
-			get: function () {
+			get: function get() {
 				var ctor = this._ctor;
 				this.hasValue = !!ctor;
 				var val = ctor ? new ctor() : null;
-				Object.defineProperty(this, "value", { value: val });
+				Object.defineProperty(this, 'value', { value: val });
 				return val;
 			},
 			configurable: true,
@@ -3561,7 +2843,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		this.completed = this.paused = this.stopped = false;
 	}
 	TasksPool.PauseError = function (duration) {
-		this.name = "TasksPool.PauseError";
+		this.name = 'TasksPool.PauseError';
 		this.duration = duration;
 	};
 	TasksPool.prototype = {
@@ -3574,7 +2856,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 			}
 		},
-		"continue": function _continue() {
+		'continue': function _continue() {
 			if (!this.stopped) {
 				this.paused = false;
 				if (this.array.length === 0) {
@@ -3620,20 +2902,20 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		_run: function _run(data) {
-			var _this204 = this;
+			var _this2 = this;
 
 			this.func(this.num++, data).then(function () {
-				return _this204._end();
+				return _this2._end();
 			}, function (e) {
 				if (e instanceof TasksPool.PauseError) {
-					_this204.pause();
+					_this2.pause();
 					if (e.duration !== -1) {
 						setTimeout(function () {
-							return _this204["continue"]();
+							return _this2['continue']();
 						}, e.duration);
 					}
 				} else {
-					_this204._end();
+					_this2._end();
 					throw e;
 				}
 			});
@@ -3650,22 +2932,22 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			    fileSize = input.length,
 			    header = new Uint8Array(512);
 			for (var nameLen = Math.min(filepath.length, 100); i < nameLen; ++i) {
-				header[i] = filepath.charCodeAt(i) & 255;
+				header[i] = filepath.charCodeAt(i) & 0xFF;
 			}
 		
-			this._padSet(header, 100, "100777", 8);
+			this._padSet(header, 100, '100777', 8);
 		
-			this._padSet(header, 108, "0", 8);
+			this._padSet(header, 108, '0', 8);
 		
-			this._padSet(header, 116, "0", 8);
+			this._padSet(header, 116, '0', 8);
 		
 			this._padSet(header, 124, fileSize.toString(8), 13);
 		
 			this._padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12);
 		
-			this._padSet(header, 148, "        ", 8);
+			this._padSet(header, 148, '        ', 8);
 		
-			header[156] = 48;
+			header[156] = 0x30;
 			for (i = 0; i < 157; i++) {
 				checksum += header[i];
 			}
@@ -3683,13 +2965,13 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			    data,
 			    sDat = unescape(encodeURIComponent(str));
 			for (i = 0, len = sDat.length, data = new Uint8Array(len); i < len; ++i) {
-				data[i] = sDat.charCodeAt(i) & 255;
+				data[i] = sDat.charCodeAt(i) & 0xFF;
 			}
 			this.addFile(filepath, data);
 		},
 		get: function get() {
 			this._data.push(new Uint8Array(1024));
-			return new Blob(this._data, { type: "application/x-tar" });
+			return new Blob(this._data, { 'type': 'application/x-tar' });
 		},
 
 		_padSet: function _padSet(data, offset, num, len) {
@@ -3697,59 +2979,250 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			    nLen = num.length;
 			len -= 2;
 			while (nLen < len) {
-				data[offset++] = 32;
+				data[offset++] = 0x20;
 				len--;
 			}
 			while (i < nLen) {
 				data[offset++] = num.charCodeAt(i++);
 			}
-			data[offset] = 32;
+			data[offset] = 0x20;
 		}
 	};
 
 	function regQuote(str) {
-		return (str + "").replace(/([.?*+^$[\]\\(){}|\-])/g, "\\$1");
+		return (str + '').replace(/([.?*+^$[\]\\(){}|\-])/g, '\\$1');
 	}
 
 	function fixBrd(b) {
-		return "/" + b + (b ? "/" : "");
+		return '/' + b + (b ? '/' : '');
 	}
 
 	function getAbsLink(url) {
-		return url[1] === "/" ? aib.prot + url : url[0] === "/" ? aib.prot + "//" + aib.host + url : url;
+		return url[1] === '/' ? aib.prot + url : url[0] === '/' ? aib.prot + '//' + aib.host + url : url;
 	}
 
 	function getErrorMessage(e) {
 		if (e instanceof AjaxError) {
-			return e.code === 0 ? e.message || Lng.noConnect[lang] : "HTTP [" + e.code + "] " + e.message;
+			return e.code === 0 ? e.message || Lng.noConnect[lang] : 'HTTP [' + e.code + '] ' + e.message;
 		}
-		return typeof e === "string" ? e : Lng.internalError[lang] + getPrettyErrorMessage(e);
+		return typeof e === 'string' ? e : Lng.internalError[lang] + getPrettyErrorMessage(e);
 	}
 
 	function getPrettyErrorMessage(e) {
-		return e.stack ? nav.WebKit ? e.stack : e.name + ": " + e.message + "\n" + (nav.Firefox ? e.stack.replace(/^([^@]*).*\/(.+)$/gm, function (str, fName, line) {
-			return "    at " + (fName ? fName + " (" + line + ")" : line);
-		}) : e.stack) : e.name + ": " + e.message;
+		return e.stack ? nav.WebKit ? e.stack : e.name + ': ' + e.message + '\n' + (nav.Firefox ? e.stack.replace(/^([^@]*).*\/(.+)$/gm, function (str, fName, line) {
+			return '    at ' + (fName ? fName + ' (' + line + ')' : line);
+		}) : e.stack) : e.name + ': ' + e.message;
 	}
 
 	function toRegExp(str, noG) {
-		var l = str.lastIndexOf("/"),
+		var l = str.lastIndexOf('/'),
 		    flags = str.substr(l + 1);
-		return new RegExp(str.substr(1, l - 1), noG ? flags.replace("g", "") : flags);
+		return new RegExp(str.substr(1, l - 1), noG ? flags.replace('g', '') : flags);
+	}
+
+
+	function getFormElements(form) {
+		var controls, fixName, i, len, field, tagName, type, name, options, _i, _len, option, files, dirname, dir;
+
+		return regeneratorRuntime.wrap(function getFormElements$(context$2$0) {
+			while (1) switch (context$2$0.prev = context$2$0.next) {
+				case 0:
+					controls = $Q('button, input, keygen, object, select, textarea', form), fixName = function fixName(name) {
+						return name ? name.replace(/([^\r])\n|\r([^\n])/g, '$1\r\n$2') : '';
+					};
+					i = 0, len = controls.length;
+
+				case 2:
+					if (!(i < len)) {
+						context$2$0.next = 56;
+						break;
+					}
+
+					field = controls[i], tagName = field.tagName.toLowerCase(), type = field.getAttribute('type'), name = field.getAttribute('name');
+
+					if (!($parent(field, 'DATALIST', form) || isFormElDisabled(field) || tagName === 'button' && type !== 'submit' || tagName === 'input' && (type === 'checkbox' && !field.checked || type === 'radio' && !field.checked || type === 'image' && !name) || tagName === 'object')) {
+						context$2$0.next = 6;
+						break;
+					}
+
+					return context$2$0.abrupt('continue', 53);
+
+				case 6:
+					if (!(tagName === 'select')) {
+						context$2$0.next = 19;
+						break;
+					}
+
+					options = $Q('select > option, select > optgrout > option', field);
+					_i = 0, _len = options.length;
+
+				case 9:
+					if (!(_i < _len)) {
+						context$2$0.next = 17;
+						break;
+					}
+
+					option = options[_i];
+
+					if (!(option.selected && !isFormElDisabled(option))) {
+						context$2$0.next = 14;
+						break;
+					}
+
+					context$2$0.next = 14;
+					return {
+						el: field,
+						name: fixName(name),
+						value: option.value,
+						type: type
+					};
+
+				case 14:
+					++_i;
+					context$2$0.next = 9;
+					break;
+
+				case 17:
+					context$2$0.next = 41;
+					break;
+
+				case 19:
+					if (!(tagName === 'input')) {
+						context$2$0.next = 41;
+						break;
+					}
+
+					context$2$0.t0 = type;
+					context$2$0.next = context$2$0.t0 === 'image' ? 23 : context$2$0.t0 === 'checkbox' ? 24 : context$2$0.t0 === 'radio' ? 24 : context$2$0.t0 === 'file' ? 27 : 41;
+					break;
+
+				case 23:
+					throw new Error('input[type="image"] is not supported');
+
+				case 24:
+					context$2$0.next = 26;
+					return {
+						el: field,
+						name: fixName(name),
+						value: field.value || 'on',
+						type: type
+					};
+
+				case 26:
+					return context$2$0.abrupt('continue', 53);
+
+				case 27:
+					if (!(field.files.length > 0)) {
+						context$2$0.next = 38;
+						break;
+					}
+
+					files = field.files;
+					_i = 0, _len = files.length;
+
+				case 30:
+					if (!(_i < _len)) {
+						context$2$0.next = 36;
+						break;
+					}
+
+					context$2$0.next = 33;
+					return {
+						el: field,
+						name: name,
+						value: files[_i],
+						type: type
+					};
+
+				case 33:
+					++_i;
+					context$2$0.next = 30;
+					break;
+
+				case 36:
+					context$2$0.next = 40;
+					break;
+
+				case 38:
+					context$2$0.next = 40;
+					return {
+						el: field,
+						name: fixName(name),
+						value: '',
+						type: 'application/octet-stream'
+					};
+
+				case 40:
+					return context$2$0.abrupt('continue', 53);
+
+				case 41:
+					if (!(type === 'textarea')) {
+						context$2$0.next = 46;
+						break;
+					}
+
+					context$2$0.next = 44;
+					return {
+						el: field,
+						name: name || '',
+						value: field.value,
+						type: type
+					};
+
+				case 44:
+					context$2$0.next = 48;
+					break;
+
+				case 46:
+					context$2$0.next = 48;
+					return {
+						el: field,
+						name: fixName(name),
+						value: field.value,
+						type: type
+					};
+
+				case 48:
+					dirname = field.getAttribute('dirname');
+
+					if (!dirname) {
+						context$2$0.next = 53;
+						break;
+					}
+
+					dir = nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr';
+					context$2$0.next = 53;
+					return {
+						el: field,
+						name: fixName(dirname),
+						value: dir,
+						type: 'direction'
+					};
+
+				case 53:
+					++i;
+					context$2$0.next = 2;
+					break;
+
+				case 56:
+				case 'end':
+					return context$2$0.stop();
+			}
+		}, marked1$0[0], this);
 	}
 
 	function isFormElDisabled(el) {
 	
 		switch (el.tagName.toLowerCase()) {
-			case "button":
-			case "input":
-			case "select":
-			case "textarea":
-				if (el.hasAttribute("disabled")) {
+			case 'button':
+			case 'input':
+			case 'select':
+			case 'textarea':
+				if (el.hasAttribute('disabled')) {
 					return true;
 				}
 						default:
-				if (nav.matchesSelector(el, "fieldset[disabled] > :not(legend):not(:first-of-type) *")) {
+				if (nav.matchesSelector(el, 'fieldset[disabled] > :not(legend):not(:first-of-type) *')) {
 					return true;
 				}
 		}
@@ -3771,12 +3244,66 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 	function downloadBlob(blob, name) {
 		var url = window.URL.createObjectURL(blob);
-		var link = doc.body.appendChild($add("<a href=\"" + url + "\" download=\"" + name + "\"></a>"));
+		var link = doc.body.appendChild($add('<a href="' + url + '" download="' + name + '"></a>'));
 		link.click();
 		setTimeout(function () {
 			window.URL.revokeObjectURL(url);
 			$del(link);
-		}, 100000);
+		}, 1e5);
+	}
+
+
+
+
+	function getStored(id) {
+		return regeneratorRuntime.wrap(function getStored$(context$2$0) {
+			while (1) switch (context$2$0.prev = context$2$0.next) {
+				case 0:
+					if (!nav.isGM) {
+						context$2$0.next = 4;
+						break;
+					}
+
+					return context$2$0.abrupt('return', GM_getValue(id));
+
+				case 4:
+					if (!nav.isChromeStorage) {
+						context$2$0.next = 10;
+						break;
+					}
+
+					context$2$0.next = 7;
+					return new Promise(function (resolve, reject) {
+						chrome.storage.local.get(id, function (obj) {
+							if (Object.keys(obj).length) {
+								resolve(obj[id]);
+							} else {
+								chrome.storage.sync.get(id, function (obj) {
+									resolve(obj[id]);
+								});
+							}
+						});
+					});
+
+				case 7:
+					return context$2$0.abrupt('return', context$2$0.sent);
+
+				case 10:
+					if (!nav.isScriptStorage) {
+						context$2$0.next = 12;
+						break;
+					}
+
+					return context$2$0.abrupt('return', scriptStorage.getItem(id));
+
+				case 12:
+					return context$2$0.abrupt('return', locStorage[id]);
+
+				case 13:
+				case 'end':
+					return context$2$0.stop();
+			}
+		}, marked1$0[1], this);
 	}
 
 	function setStored(id, value) {
@@ -3811,14 +3338,52 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}
 	}
 
+	function getStoredObj(id) {
+		return regeneratorRuntime.wrap(function getStoredObj$(context$2$0) {
+			while (1) switch (context$2$0.prev = context$2$0.next) {
+				case 0:
+					context$2$0.t1 = JSON;
+					return context$2$0.delegateYield(getStored(id), 't3', 2);
+
+				case 2:
+					context$2$0.t2 = context$2$0.t3;
+
+					if (context$2$0.t2) {
+						context$2$0.next = 5;
+						break;
+					}
+
+					context$2$0.t2 = '{}';
+
+				case 5:
+					context$2$0.t4 = context$2$0.t2;
+					context$2$0.t0 = context$2$0.t1.parse.call(context$2$0.t1, context$2$0.t4);
+
+					if (context$2$0.t0) {
+						context$2$0.next = 9;
+						break;
+					}
+
+					context$2$0.t0 = {};
+
+				case 9:
+					return context$2$0.abrupt('return', context$2$0.t0);
+
+				case 10:
+				case 'end':
+					return context$2$0.stop();
+			}
+		}, marked1$0[2], this);
+	}
+
 	function saveComCfg(dm, obj) {
-		spawn(getStoredObj, "DESU_Config").then(function (val) {
+		spawn(getStoredObj, 'DESU_Config').then(function (val) {
 			if (obj) {
 				val[dm] = obj;
 			} else {
 				delete val[dm];
 			}
-			setStored("DESU_Config", JSON.stringify(val));
+			setStored('DESU_Config', JSON.stringify(val));
 		});
 	}
 
@@ -3829,35 +3394,239 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}
 	}
 
+	function readCfg() {
+		var obj, val;
+		return regeneratorRuntime.wrap(function readCfg$(context$2$0) {
+			while (1) switch (context$2$0.prev = context$2$0.next) {
+				case 0:
+					return context$2$0.delegateYield(getStoredObj('DESU_Config'), 't0', 1);
+
+				case 1:
+					val = context$2$0.t0;
+
+					if (!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
+						obj = nav.isGlobal ? val.global || {} : {};
+						obj.captchaLang = aib.ru ? 2 : 1;
+						obj.correctTime = 0;
+					}
+					Cfg = Object.assign(Object.create(defaultCfg), obj);
+					if (!Cfg.timeOffset) {
+						Cfg.timeOffset = '+0';
+					}
+					if (!Cfg.timePattern) {
+						Cfg.timePattern = aib.timePattern;
+					}
+					if (aib.fch && Cfg.ajaxReply === 2) {
+						Lng.cfg['ajaxReply'].sel.forEach(function (a) {
+							return a.splice(-1);
+						});
+						Cfg.ajaxReply = 1;
+					}
+					if (aib.prot !== 'http:') {
+						Cfg.addVocaroo = 0;
+					}
+					if (!('Notification' in window)) {
+						Cfg.desktNotif = 0;
+					}
+					if (nav.Presto) {
+						if (Cfg.YTubeType === 2) {
+							Cfg.YTubeType = 1;
+						}
+						Cfg.preLoadImgs = 0;
+						Cfg.findImgFile = 0;
+						if (!nav.isGM) {
+							Cfg.updScript = 0;
+						}
+						Cfg.fileThumb = 0;
+					}
+					if (nav.isChromeStorage) {
+						Cfg.updScript = 0;
+					}
+					if (Cfg.updThrDelay < 10) {
+						Cfg.updThrDelay = 10;
+					}
+					if (!Cfg.saveSage) {
+						Cfg.sageReply = 0;
+					}
+					if (!Cfg.passwValue) {
+						Cfg.passwValue = Math.round(Math.random() * 1e15).toString(32);
+					}
+					if (!Cfg.stats) {
+						Cfg.stats = { 'view': 0, 'op': 0, 'reply': 0 };
+					}
+					setStored('DESU_Config', JSON.stringify(val));
+					lang = Cfg.language;
+					if (Cfg.updScript) {
+						checkForUpdates(false, val.lastUpd).then(function (html) {
+							if (doc.readyState === 'interactive' || doc.readyState === 'complete') {
+								$popup(html, 'updavail', false);
+							} else {
+								doc.addEventListener('DOMContentLoaded', function () {
+									return $popup(html, 'updavail', false);
+								});
+							}
+						}, emptyFn);
+					}
+
+				case 18:
+				case 'end':
+					return context$2$0.stop();
+			}
+		}, marked1$0[3], this);
+	}
+
 	function toggleCfg(id) {
 		saveCfg(id, +!Cfg[id]);
 	}
 
 	function readFav() {
-		return spawn(getStoredObj, "DESU_Favorites");
+		return spawn(getStoredObj, 'DESU_Favorites');
 	}
 
 	function readPosts() {
-		var str = aib.t ? sesStorage["de-hidden-" + aib.b + aib.t] : null;
-		if (typeof str === "string") {
-			var data = str.split(";");
+		var str = aib.t ? sesStorage['de-hidden-' + aib.b + aib.t] : null;
+		if (typeof str === 'string') {
+			var data = str.split(';');
 			if (data.length === 4 && +data[0] === (Cfg.hideBySpell ? spells.hash : 0) && data[1] in pByNum && pByNum[data[1]].count === +data[2]) {
-				sVis = data[3].split(",");
+				sVis = data[3].split(',');
 				return;
 			}
 		}
 		sVis = [];
 	}
 
+	function readUserPosts() {
+		var b, date, spellsHide, update, globalUserVis, maybeSpells, post, num, hidePost, hideThread, vis;
+		return regeneratorRuntime.wrap(function readUserPosts$(context$2$0) {
+			while (1) switch (context$2$0.prev = context$2$0.next) {
+				case 0:
+					b = aib.b;
+					date = Date.now();
+					spellsHide = Cfg.hideBySpell;
+					update = false;
+					return context$2$0.delegateYield(getStoredObj('DESU_Posts_' + aib.dm), 't0', 5);
+
+				case 5:
+					globalUserVis = context$2$0.t0;
+					return context$2$0.delegateYield(getStoredObj('DESU_Threads_' + aib.dm), 't1', 7);
+
+				case 7:
+					hThr = context$2$0.t1;
+
+					uVis = globalUserVis[b] || {};
+					if (!(b in hThr)) {
+						hThr[b] = {};
+					}
+
+					if (dForm.firstThr) {
+						context$2$0.next = 12;
+						break;
+					}
+
+					return context$2$0.abrupt('return');
+
+				case 12:
+					maybeSpells = new Maybe(SpellsRunner);
+					post = dForm.firstThr.op;
+
+				case 14:
+					if (!post) {
+						context$2$0.next = 34;
+						break;
+					}
+
+					num = post.num;
+
+					if (!(num in uVis)) {
+						context$2$0.next = 21;
+						break;
+					}
+
+					hidePost = uVis[num][0] === 0;
+
+					if (post.isOp) {
+						hideThread = !!(num in hThr[b]);
+
+						if (hidePost !== hideThread) {
+							update = true;
+							hidePost = hideThread;
+						}
+					}
+					if (hidePost) {
+						post.setUserVisib(true, date, false);
+					} else {
+						uVis[num][1] = date;
+						post.btns.firstChild.className = 'de-btn-hide-user';
+						post.userToggled = true;
+					}
+					return context$2$0.abrupt('continue', 31);
+
+				case 21:
+					if (!post.isOp) {
+						context$2$0.next = 25;
+						break;
+					}
+
+					if (num in hThr[b]) {
+						vis = '0';
+					} else if (vis === '0') {
+						vis = null;
+					}
+					context$2$0.next = 30;
+					break;
+
+				case 25:
+					if (!spellsHide) {
+						context$2$0.next = 29;
+						break;
+					}
+
+					vis = sVis[post.count];
+					context$2$0.next = 30;
+					break;
+
+				case 29:
+					return context$2$0.abrupt('continue', 31);
+
+				case 30:
+					if (vis === '0') {
+						if (!post.hidden) {
+							post.setVisib(true);
+							post.hideRefs();
+						}
+						post.spellHidden = true;
+					} else if (vis !== '1') {
+						maybeSpells.value.run(post);
+					}
+
+				case 31:
+					post = post.next;
+					context$2$0.next = 14;
+					break;
+
+				case 34:
+					if (update) {
+						globalUserVis[b] = uVis;
+						setStored('DESU_Posts_' + aib.dm, JSON.stringify(globalUserVis));
+					}
+					maybeSpells.end();
+
+				case 36:
+				case 'end':
+					return context$2$0.stop();
+			}
+		}, marked1$0[4], this);
+	}
+
 	function saveUserPosts() {
-		spawn(getStored, "DESU_Posts_" + aib.dm).then(function (str) {
+		spawn(getStored, 'DESU_Posts_' + aib.dm).then(function (str) {
 			var obj;
 			try {
-				obj = JSON.parse(str || "{}") || {};
+				obj = JSON.parse(str || '{}') || {};
 			} catch (e) {
 				obj = {};
 			}
-			if (str && str.length > 1000000) {
+			if (str && str.length > 1e6) {
 				var minDate = Date.now() - 5 * 24 * 3600 * 1000;
 				for (var b in obj) {
 					if (obj.hasOwnProperty(b)) {
@@ -3871,27 +3640,98 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 			}
 			obj[aib.b] = uVis;
-			setStored("DESU_Posts_" + aib.dm, JSON.stringify(obj));
-			toggleWindow("hid", true);
+			setStored('DESU_Posts_' + aib.dm, JSON.stringify(obj));
+			toggleWindow('hid', true);
 		});
 	}
 
 	function saveHiddenThreads(updWindow) {
-		setStored("DESU_Threads_" + aib.dm, JSON.stringify(hThr));
+		setStored('DESU_Threads_' + aib.dm, JSON.stringify(hThr));
 		if (updWindow) {
-			toggleWindow("hid", true);
+			toggleWindow('hid', true);
 		}
 	}
 
+	function readFavoritesPosts() {
+		var temp, update, fav, thr, num, f, post;
+		return regeneratorRuntime.wrap(function readFavoritesPosts$(context$2$0) {
+			while (1) switch (context$2$0.prev = context$2$0.next) {
+				case 0:
+					update = false;
+					return context$2$0.delegateYield(getStoredObj('DESU_Favorites'), 't0', 2);
+
+				case 2:
+					fav = context$2$0.t0;
+
+					if (aib.host in fav) {
+						context$2$0.next = 5;
+						break;
+					}
+
+					return context$2$0.abrupt('return');
+
+				case 5:
+					temp = fav[aib.host];
+
+					if (aib.b in temp) {
+						context$2$0.next = 8;
+						break;
+					}
+
+					return context$2$0.abrupt('return');
+
+				case 8:
+					temp = temp[aib.b];
+					for (thr = dForm.firstThr; thr; thr = thr.next) {
+						num = thr.num;
+
+						if (num in temp) {
+							f = temp[num];
+
+							thr.setFavBtn(true);
+							if (aib.t) {
+								f.cnt = thr.pcount;
+								f['new'] = 0;
+								if (aib.t && Cfg.markNewPosts && f.last) {
+									post = pByNum[f.last.match(/\d+/)];
+
+									if (post) {
+										while (post = post.next) {
+											thr._addPostMark(post.el, true);
+										}
+									}
+								}
+								f.last = aib.anchor + thr.last.num;
+							} else {
+								f['new'] = thr.pcount - f.cnt;
+							}
+							update = true;
+						}
+					}
+					if (update) {
+						setStored('DESU_Favorites', JSON.stringify(fav));
+					}
+					if (sesStorage['de-win-fav'] === '1') {
+						toggleWindow('fav', false, null, true);
+						sesStorage.removeItem('de-win-fav');
+					}
+
+				case 12:
+				case 'end':
+					return context$2$0.stop();
+			}
+		}, marked1$0[5], this);
+	}
+
 	function saveFavorites(fav) {
-		setStored("DESU_Favorites", JSON.stringify(fav));
-		toggleWindow("fav", true, fav);
+		setStored('DESU_Favorites', JSON.stringify(fav));
+		toggleWindow('fav', true, fav);
 	}
 
 	function removeFavoriteEntry(fav, h, b, num, clearPage) {
 		function _isEmpty(f) {
 			for (var i in f) {
-				if (i !== "url" && f.hasOwnProperty(i)) {
+				if (i !== 'url' && f.hasOwnProperty(i)) {
 					return false;
 				}
 			}
@@ -3915,12 +3755,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		if (!Cfg.markViewed) {
 			return;
 		}
-		var data = sesStorage["de-viewed"];
+		var data = sesStorage['de-viewed'];
 		if (data) {
-			data.split(",").forEach(function (pNum) {
+			data.split(',').forEach(function (pNum) {
 				var post = pByNum[pNum];
 				if (post) {
-					post.el.classList.add("de-viewed");
+					post.el.classList.add('de-viewed');
 					post.viewed = true;
 				}
 			});
@@ -3930,83 +3770,84 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 
-	var panel = Object.defineProperties({
+	var panel = Object.create(Object.defineProperties({
 		_hideTO: 0,
 		_menuTO: 0,
 		_el: null,
-		_prepareToHide: function _prepareToHide() {
-			var _this204 = this;
 
-			if (!Cfg.expandPanel && !$c("de-win-active", doc)) {
+		_prepareToHide: function _prepareToHide() {
+			var _this3 = this;
+
+			if (!Cfg.expandPanel && !$c('de-win-active', doc)) {
 				this._hideTO = setTimeout(function () {
-					return _this204._el.lastChild.style.display = "none";
+					return _this3._el.lastChild.style.display = 'none';
 				}, 500);
 			}
 		},
 		handleEvent: function handleEvent(e) {
-			var _this204 = this;
+			var _this4 = this;
 
 			switch (e.type) {
-				case "click":
+				case 'click':
 					switch (e.target.id) {
-						case "de-panel-logo":
-							if (Cfg.expandPanel && !$c("de-win-active", doc)) {
-								this._el.lastChild.style.display = "none";
+						case 'de-panel-logo':
+							if (Cfg.expandPanel && !$c('de-win-active', doc)) {
+								this._el.lastChild.style.display = 'none';
 							}
-							toggleCfg("expandPanel");
+							toggleCfg('expandPanel');
 							return;
-						case "de-panel-cfg":
-							toggleWindow("cfg", false);break;
-						case "de-panel-hid":
-							toggleWindow("hid", false);break;
-						case "de-panel-fav":
-							toggleWindow("fav", false);break;
-						case "de-panel-vid":
-							toggleWindow("vid", false);break;
-						case "de-panel-refresh":
+						case 'de-panel-cfg':
+							toggleWindow('cfg', false);break;
+						case 'de-panel-hid':
+							toggleWindow('hid', false);break;
+						case 'de-panel-fav':
+							toggleWindow('fav', false);break;
+						case 'de-panel-vid':
+							toggleWindow('vid', false);break;
+						case 'de-panel-refresh':
 							window.location.reload();break;
-						case "de-panel-goup":
+						case 'de-panel-goup':
 							scrollTo(0, 0);break;
-						case "de-panel-godown":
+						case 'de-panel-godown':
 							scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight);break;
-						case "de-panel-expimg":
+						case 'de-panel-expimg':
 							isExpImg = !isExpImg;
-							$del($c("de-img-center", doc));
+							$del($c('de-img-center', doc));
 							for (var post = dForm.firstThr.op; post; post = post.next) {
 								post.toggleImages(isExpImg);
 							}
 							break;
-						case "de-panel-preimg":
+						case 'de-panel-preimg':
 							isPreImg = !isPreImg;
 							if (!e.ctrlKey) {
 								preloadImages(null);
 							}
 							break;
-						case "de-panel-maskimg":
-							toggleCfg("maskImgs");
+						case 'de-panel-maskimg':
+							toggleCfg('maskImgs');
 							updateCSS();
 							break;
-						case "de-panel-upd-on":
-						case "de-panel-upd-warn":
+						case 'de-panel-upd-on':
+						case 'de-panel-upd-warn':
 							updater.disable();
 							break;
-						case "de-panel-upd-off":
+						case 'de-panel-upd-off':
 							updater.enable();
 							break;
-						case "de-panel-audio-on":
-						case "de-panel-audio-off":
+						case 'de-panel-audio-on':
+						case 'de-panel-audio-off':
 							if (updater.toggleAudio(0)) {
 								updater.enable();
-								e.target.id = "de-panel-audio-on";
+								e.target.id = 'de-panel-audio-on';
 							} else {
-								e.target.id = "de-panel-audio-off";
+								e.target.id = 'de-panel-audio-off';
 							}
-							$del($c("de-menu", doc));
+							$del($c('de-menu', doc));
 							break;
-						case "de-panel-savethr":
+						case 'de-panel-savethr':
 							break;
-						case "de-panel-enable":
-							toggleCfg("disabled");
+						case 'de-panel-enable':
+							toggleCfg('disabled');
 							window.location.reload();
 							break;
 						default:
@@ -4014,39 +3855,39 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					}
 					$pd(e);
 					return;
-				case "mouseover":
+				case 'mouseover':
 					if (!Cfg.expandPanel) {
 						clearTimeout(this._hideTO);
-						this._el.lastChild.style.display = "";
+						this._el.lastChild.style.display = '';
 					}
 					switch (e.target.id) {
-						case "de-panel-cfg":
+						case 'de-panel-cfg':
 							KeyEditListener.setTitle(e.target, 10);break;
-						case "de-panel-hid":
+						case 'de-panel-hid':
 							KeyEditListener.setTitle(e.target, 7);break;
-						case "de-panel-fav":
+						case 'de-panel-fav':
 							KeyEditListener.setTitle(e.target, 6);break;
-						case "de-panel-vid":
+						case 'de-panel-vid':
 							KeyEditListener.setTitle(e.target, 18);break;
-						case "de-panel-goback":
+						case 'de-panel-goback':
 							KeyEditListener.setTitle(e.target, 4);break;
-						case "de-panel-gonext":
+						case 'de-panel-gonext':
 							KeyEditListener.setTitle(e.target, 17);break;
-						case "de-panel-maskimg":
+						case 'de-panel-maskimg':
 							KeyEditListener.setTitle(e.target, 9);break;
-						case "de-panel-refresh":
+						case 'de-panel-refresh':
 							if (aib.t) {
 								return;
 							}
-												case "de-panel-savethr":
-						case "de-panel-audio-off":
+												case 'de-panel-savethr':
+						case 'de-panel-audio-off':
 							this._menuTO = setTimeout(function () {
 								var menu = addMenu(e.target);
 								menu.onover = function () {
-									return clearTimeout(_this204._hideTO);
+									return clearTimeout(_this4._hideTO);
 								};
 								menu.onout = function () {
-									return _this204._prepareToHide();
+									return _this4._prepareToHide();
 								};
 							}, Cfg.linksOver);
 					}
@@ -4055,9 +3896,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				
 					this._prepareToHide();
 					switch (e.target.id) {
-						case "de-panel-refresh":
-						case "de-panel-savethr":
-						case "de-panel-audio-off":
+						case 'de-panel-refresh':
+						case 'de-panel-savethr':
+						case 'de-panel-audio-off':
 							clearTimeout(this._menuTO);
 							this._menuTO = 0;
 					}
@@ -4066,37 +3907,37 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		init: function init(formEl) {
 			var imgLen = $Q(aib.qThumbImages, formEl).length,
 			    isThr = aib.t,
-			    pButton = function (id) {
-				var href = arguments[1] === undefined ? "#" : arguments[1];
-				return "<a id=\"de-panel-" + id + "\" class=\"de-abtn de-panel-button\" title=\"" + Lng.panelBtn[id][lang] + "\" href=\"" + href + "\"></a>";
+			    pButton = function pButton(id) {
+				var href = arguments.length <= 1 || arguments[1] === undefined ? '#' : arguments[1];
+				return '<a id="de-panel-' + id + '" class="de-abtn de-panel-button" title="' + Lng.panelBtn[id][lang] + '" href="' + href + '"></a>';
 			};
-			(pr && pr.pArea[0] || formEl).insertAdjacentHTML("beforebegin", "<div id=\"de-main\" lang=\"" + getThemeLang() + "\"><div id=\"de-panel\">" + "<span id=\"de-panel-logo\" title=\"" + Lng.panelBtn.attach[lang] + "\"></span>" + "<span id=\"de-panel-buttons\"" + (Cfg.expandPanel ? ">" : " style=\"display: none;\">") + (Cfg.disabled ? pButton("enable") : pButton("cfg") + pButton("hid") + pButton("fav") + (!Cfg.addYouTube ? "" : pButton("vid")) + (localRun ? "" : pButton("refresh") + (!isThr && aib.page === aib.firstPage ? "" : pButton("goback", aib.getPageUrl(aib.b, aib.page - 1))) + (isThr || aib.page === aib.lastPage ? "" : pButton("gonext", aib.getPageUrl(aib.b, aib.page + 1)))) + pButton("goup") + pButton("godown") + (imgLen === 0 ? "" : pButton("expimg") + pButton("maskimg") + (nav.Presto || localRun ? "" : (Cfg.preLoadImgs ? "" : pButton("preimg")) + (!isThr ? "" : pButton("savethr")))) + (!isThr || localRun ? "" : pButton(Cfg.ajaxUpdThr ? "upd-on" : "upd-off") + (nav.Safari ? "" : pButton("audio-off"))) + (!aib.mak && !aib.tiny && !aib.fch && !aib.iich ? "" : pButton("catalog", aib.prot + "//" + aib.host + "/" + aib.b + "/catalog" + (aib.iich ? "ue" : "") + ".html")) + pButton("enable") + (!isThr ? "" : "<span id=\"de-panel-info\" title=\"" + Lng.panelBtn.counter[lang] + "\">" + dForm.firstThr.pcount + "/" + imgLen + "</span>")) + "</span>" + "</div>" + (Cfg.disabled ? "" : "<div id=\"de-popup\"></div><hr style=\"clear: both;\">") + "</div>");
-			this._el = $id("de-panel");
-			this._el.addEventListener("click", this, true);
-			this._el.addEventListener("mouseover", this);
-			this._el.addEventListener("mouseout", this);
+			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '<div id="de-main" lang="' + getThemeLang() + '"><div id="de-panel">' + '<span id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '"></span>' + '<span id="de-panel-buttons"' + (Cfg.expandPanel ? '>' : ' style="display: none;">') + (Cfg.disabled ? pButton('enable') : pButton('cfg') + pButton('hid') + pButton('fav') + (!Cfg.addYouTube ? '' : pButton('vid')) + (localRun ? '' : pButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : pButton('goback', aib.getPageUrl(aib.b, aib.page - 1))) + (isThr || aib.page === aib.lastPage ? '' : pButton('gonext', aib.getPageUrl(aib.b, aib.page + 1)))) + pButton('goup') + pButton('godown') + (imgLen === 0 ? '' : pButton('expimg') + pButton('maskimg') + (nav.Presto || localRun ? '' : (Cfg.preLoadImgs ? '' : pButton('preimg')) + (!isThr ? '' : pButton('savethr')))) + (!isThr || localRun ? '' : pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') + (nav.Safari ? '' : pButton('audio-off'))) + (!aib.mak && !aib.tiny && !aib.fch && !aib.iich ? '' : pButton('catalog', aib.prot + '//' + aib.host + '/' + aib.b + '/catalog' + (aib.iich ? 'ue' : '') + '.html')) + pButton('enable') + (!isThr ? '' : '<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' + dForm.firstThr.pcount + '/' + imgLen + '</span>')) + '</span>' + '</div>' + (Cfg.disabled ? '' : '<div id="de-popup"></div><hr style="clear: both;">') + '</div>');
+			this._el = $id('de-panel');
+			this._el.addEventListener('click', this, true);
+			this._el.addEventListener('mouseover', this);
+			this._el.addEventListener('mouseout', this);
 		},
 		remove: function remove() {
-			this._el.removeEventListener("click", this, true);
-			this._el.removeEventListener("mouseover", this);
-			this._el.removeEventListener("mouseout", this);
+			this._el.removeEventListener('click', this, true);
+			this._el.removeEventListener('mouseover', this);
+			this._el.removeEventListener('mouseout', this);
 			delete this._infoEl;
-			$del($id("de-main"));
+			$del($id('de-main'));
 		},
 		updateCounter: function updateCounter(postCount, imgsCount) {
-			this._infoEl.textContent = postCount + "/" + imgsCount;
+			this._infoEl.textContent = postCount + '/' + imgsCount;
 		}
 	}, {
 		_infoEl: {
-			get: function () {
-				var val = $q("#de-panel-info", this._el);
-				Object.defineProperty(this, "_infoEl", { value: val, configurable: true });
-				return val;
+			get: function get() {
+				var value = $id('de-panel-info');
+				Object.defineProperty(this, '_infoEl', { value: value, configurable: true });
+				return value;
 			},
 			configurable: true,
 			enumerable: true
 		}
-	});
+	}));
 
 	function updateWinZ(style) {
 		if (style.zIndex < topWinZ) {
@@ -4105,7 +3946,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	}
 
 	function makeDraggable(win, head, name) {
-		head.addEventListener("mousedown", {
+		head.addEventListener('mousedown', {
 			_win: win,
 			_wStyle: win.style,
 			_oldX: 0,
@@ -4114,43 +3955,43 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			_Y: 0,
 			_Z: 0,
 			handleEvent: function handleEvent(e) {
-				if (!Cfg[name + "WinDrag"]) {
+				if (!Cfg[name + 'WinDrag']) {
 					return;
 				}
 				var curX = e.clientX,
 				    curY = e.clientY;
 				switch (e.type) {
-					case "mousedown":
+					case 'mousedown':
 						this._oldX = curX;
 						this._oldY = curY;
-						this._X = Cfg[name + "WinX"];
-						this._Y = Cfg[name + "WinY"];
+						this._X = Cfg[name + 'WinX'];
+						this._Y = Cfg[name + 'WinY'];
 						if (this._Z < topWinZ) {
 							this._Z = this._wStyle.zIndex = ++topWinZ;
 						}
-						doc.body.addEventListener("mousemove", this);
-						doc.body.addEventListener("mouseup", this);
+						doc.body.addEventListener('mousemove', this);
+						doc.body.addEventListener('mouseup', this);
 						$pd(e);
 						return;
-					case "mousemove":
+					case 'mousemove':
 						var maxX = Post.sizing.wWidth - this._win.offsetWidth,
 						    maxY = Post.sizing.wHeight - this._win.offsetHeight - 25,
 						    cr = this._win.getBoundingClientRect(),
 						    x = cr.left + curX - this._oldX,
 						    y = cr.top + curY - this._oldY;
-						this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? "right: 0" : x < 0 || curX < this._oldX && x < 20 ? "left: 0" : "left: " + x + "px";
-						this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? "bottom: 25px" : y < 0 || curY < this._oldY && y < 20 ? "top: 0" : "top: " + y + "px";
+						this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? 'right: 0' : x < 0 || curX < this._oldX && x < 20 ? 'left: 0' : 'left: ' + x + 'px';
+						this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? 'bottom: 25px' : y < 0 || curY < this._oldY && y < 20 ? 'top: 0' : 'top: ' + y + 'px';
 						var width = this._wStyle.width;
-						this._win.setAttribute("style", this._X + "; " + this._Y + "; z-index: " + this._Z + (width ? "; width: " + width : ""));
+						this._win.setAttribute('style', this._X + '; ' + this._Y + '; z-index: ' + this._Z + (width ? '; width: ' + width : ''));
 						this._oldX = curX;
 						this._oldY = curY;
 						return;
 					default:
 					
-						doc.body.removeEventListener("mousemove", this);
-						doc.body.removeEventListener("mouseup", this);
-						saveCfg(name + "WinX", this._X);
-						saveCfg(name + "WinY", this._Y);
+						doc.body.removeEventListener('mousemove', this);
+						doc.body.removeEventListener('mouseup', this);
+						saveCfg(name + 'WinX', this._X);
+						saveCfg(name + 'WinY', this._Y);
 				}
 			}
 		});
@@ -4160,11 +4001,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		this.name = name;
 		this.dir = dir;
 		this.cfgName = cfgName;
-		this.vertical = dir === "top" || dir === "bottom";
+		this.vertical = dir === 'top' || dir === 'bottom';
 		this.win = win;
 		this.wStyle = this.win.style;
 		this.tStyle = target.style;
-		$c("de-resizer-" + dir, win).addEventListener("mousedown", this);
+		$c('de-resizer-' + dir, win).addEventListener('mousedown', this);
 	}
 	WinResizer.prototype = {
 		handleEvent: function handleEvent(e) {
@@ -4175,92 +4016,92 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			    maxX = nav.Chrome ? doc.documentElement.clientWidth : Post.sizing.wWidth,
 			    maxY = nav.Chrome ? doc.documentElement.clientHeight : Post.sizing.wHeight,
 			    width = this.wStyle.width,
-			    z = "; z-index: " + this.wStyle.zIndex + (width ? "; width:" + width : "");
+			    z = '; z-index: ' + this.wStyle.zIndex + (width ? '; width:' + width : '');
 			switch (e.type) {
-				case "mousedown":
-					if (this.win.classList.contains("de-win-fixed")) {
-						x = "right: 0";
-						y = "bottom: 25px";
+				case 'mousedown':
+					if (this.win.classList.contains('de-win-fixed')) {
+						x = 'right: 0';
+						y = 'bottom: 25px';
 					} else {
-						x = Cfg[this.name + "WinX"];
-						y = Cfg[this.name + "WinY"];
+						x = Cfg[this.name + 'WinX'];
+						y = Cfg[this.name + 'WinY'];
 					}
 					switch (this.dir) {
-						case "top":
-							val = x + "; bottom: " + (maxY - cr.bottom) + "px" + z;break;
-						case "bottom":
-							val = x + "; top: " + cr.top + "px" + z;break;
-						case "left":
-							val = "right: " + (maxX - cr.right) + "px; " + y + z;break;
-						case "right":
-							val = "left: " + cr.left + "px; " + y + z;
+						case 'top':
+							val = x + '; bottom: ' + (maxY - cr.bottom) + 'px' + z;break;
+						case 'bottom':
+							val = x + '; top: ' + cr.top + 'px' + z;break;
+						case 'left':
+							val = 'right: ' + (maxX - cr.right) + 'px; ' + y + z;break;
+						case 'right':
+							val = 'left: ' + cr.left + 'px; ' + y + z;
 					}
-					this.win.setAttribute("style", val);
-					doc.body.addEventListener("mousemove", this);
-					doc.body.addEventListener("mouseup", this);
+					this.win.setAttribute('style', val);
+					doc.body.addEventListener('mousemove', this);
+					doc.body.addEventListener('mouseup', this);
 					$pd(e);
 					return;
-				case "mousemove":
+				case 'mousemove':
 					if (this.vertical) {
 						val = e.clientY;
-						this.tStyle.height = Math.max(parseInt(this.tStyle.height, 10) + (this.dir === "top" ? cr.top - (val < 20 ? 0 : val) : (val > maxY - 45 ? maxY - 25 : val) - cr.bottom), 90) + "px";
+						this.tStyle.height = Math.max(parseInt(this.tStyle.height, 10) + (this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) : (val > maxY - 45 ? maxY - 25 : val) - cr.bottom), 90) + 'px';
 					} else {
 						val = e.clientX;
-						this.tStyle.width = Math.max(parseInt(this.tStyle.width, 10) + (this.dir === "left" ? cr.left - (val < 20 ? 0 : val) : (val > maxX - 20 ? maxX : val) - cr.right), this.name === "reply" ? 275 : 380) + "px";
+						this.tStyle.width = Math.max(parseInt(this.tStyle.width, 10) + (this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) : (val > maxX - 20 ? maxX : val) - cr.right), this.name === 'reply' ? 275 : 380) + 'px';
 					}
 					return;
 				default:
 				
-					doc.body.removeEventListener("mousemove", this);
-					doc.body.removeEventListener("mouseup", this);
+					doc.body.removeEventListener('mousemove', this);
+					doc.body.removeEventListener('mouseup', this);
 					saveCfg(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
-					if (this.win.classList.contains("de-win-fixed")) {
-						this.win.setAttribute("style", "right: 0; bottom: 25px" + z);
+					if (this.win.classList.contains('de-win-fixed')) {
+						this.win.setAttribute('style', 'right: 0; bottom: 25px' + z);
 						return;
 					}
 					if (this.vertical) {
-						saveCfg(this.name + "WinY", cr.top < 1 ? "top: 0" : cr.bottom > maxY - 26 ? "bottom: 25px" : "top: " + cr.top + "px");
+						saveCfg(this.name + 'WinY', cr.top < 1 ? 'top: 0' : cr.bottom > maxY - 26 ? 'bottom: 25px' : 'top: ' + cr.top + 'px');
 					} else {
-						saveCfg(this.name + "WinX", cr.left < 1 ? "left: 0" : cr.right > maxX - 1 ? "right: 0" : "left: " + cr.left + "px");
+						saveCfg(this.name + 'WinX', cr.left < 1 ? 'left: 0' : cr.right > maxX - 1 ? 'right: 0' : 'left: ' + cr.left + 'px');
 					}
-					this.win.setAttribute("style", Cfg[this.name + "WinX"] + "; " + Cfg[this.name + "WinY"] + z);
+					this.win.setAttribute('style', Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z);
 			}
 		}
 	};
 
 	function toggleWindow(name, isUpd, data, noAnim) {
 		var el,
-		    main = $id("de-main"),
-		    win = $id("de-win-" + name),
-		    isActive = win && win.classList.contains("de-win-active");
+		    main = $id('de-main'),
+		    win = $id('de-win-' + name),
+		    isActive = win && win.classList.contains('de-win-active');
 		if (isUpd && !isActive) {
 			return;
 		}
 		if (!win) {
-			main.insertAdjacentHTML("afterbegin", "<div id=\"de-win-" + name + "\" class=\"" + (Cfg[name + "WinDrag"] ? "de-win\" style=\"" + Cfg[name + "WinX"] + "; " + Cfg[name + "WinY"] : "de-win-fixed\" style=\"right: 0; bottom: 25px") + (name !== "fav" ? "" : "; width: " + Cfg.favWinWidth + "px; ") + "; display: none;\">" + "<div class=\"de-win-head\"><span class=\"de-win-title\">" + (name === "cfg" ? "Dollchan Extension Tools" : Lng.panelBtn[name][lang]) + "</span>" + "<span class=\"de-win-buttons\">" + "<span class=\"de-btn-toggle\" title=\"" + Lng.toggleWindow[lang] + "\"></span>" + "<span class=\"de-btn-close\" title=\"" + Lng.closeWindow[lang] + "\"></span></span></div>" + "<div class=\"de-win-body" + (name === "cfg" ? " " + aib.cReply : "\" style=\"background-color: " + getComputedStyle(doc.body).getPropertyValue("background-color")) + "\"></div>" + (name !== "fav" ? "" : "<div class=\"de-resizer de-resizer-left\">" + "</div><div class=\"de-resizer de-resizer-right\"></div>") + "</div>");
+			main.insertAdjacentHTML('afterbegin', '<div id="de-win-' + name + '" class="' + (Cfg[name + 'WinDrag'] ? 'de-win" style="' + Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] : 'de-win-fixed" style="right: 0; bottom: 25px') + (name !== 'fav' ? '' : '; width: ' + Cfg.favWinWidth + 'px; ') + '; display: none;">' + '<div class="de-win-head"><span class="de-win-title">' + (name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang]) + '</span>' + '<span class="de-win-buttons">' + '<span class="de-btn-toggle" title="' + Lng.toggleWindow[lang] + '"></span>' + '<span class="de-btn-close" title="' + Lng.closeWindow[lang] + '"></span></span></div>' + '<div class="de-win-body' + (name === 'cfg' ? ' ' + aib.cReply : '" style="background-color: ' + getComputedStyle(doc.body).getPropertyValue('background-color')) + '"></div>' + (name !== 'fav' ? '' : '<div class="de-resizer de-resizer-left">' + '</div><div class="de-resizer de-resizer-right"></div>') + '</div>');
 			win = main.firstChild;
-			if (name === "fav") {
-				new WinResizer("fav", "left", "favWinWidth", win, win);
-				new WinResizer("fav", "right", "favWinWidth", win, win);
+			if (name === 'fav') {
+				new WinResizer('fav', 'left', 'favWinWidth', win, win);
+				new WinResizer('fav', 'right', 'favWinWidth', win, win);
 			}
 			el = win.firstChild.lastChild;
 			el.lastChild.onclick = toggleWindow.bind(null, name, false);
 			el.firstChild.onclick = function (e) {
 				var width = win.style.width,
-				    w = width ? "; width: " + width : "";
-				toggleCfg(name + "WinDrag");
-				if (Cfg[name + "WinDrag"]) {
-					win.classList.remove("de-win-fixed");
-					win.classList.add("de-win");
-					win.style.cssText = Cfg[name + "WinX"] + "; " + Cfg[name + "WinY"] + w;
+				    w = width ? '; width: ' + width : '';
+				toggleCfg(name + 'WinDrag');
+				if (Cfg[name + 'WinDrag']) {
+					win.classList.remove('de-win-fixed');
+					win.classList.add('de-win');
+					win.style.cssText = Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] + w;
 				} else {
-					var temp = $q(".de-win-active.de-win-fixed", win.parentNode);
+					var temp = $q('.de-win-active.de-win-fixed', win.parentNode);
 					if (temp) {
 						toggleWindow(temp.id.substr(7), false);
 					}
-					win.classList.remove("de-win");
-					win.classList.add("de-win-fixed");
-					win.style.cssText = "right: 0; bottom: 25px" + w;
+					win.classList.remove('de-win');
+					win.classList.add('de-win-fixed');
+					win.style.cssText = 'right: 0; bottom: 25px' + w;
 				}
 				updateWinZ(win.style);
 			};
@@ -4268,7 +4109,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}
 		updateWinZ(win.style);
 		var remove = !isUpd && isActive;
-		if (!remove && !win.classList.contains("de-win") && (el = $q(".de-win-active.de-win-fixed:not(#de-win-" + name + ")", win.parentNode))) {
+		if (!remove && !win.classList.contains('de-win') && (el = $q('.de-win-active.de-win-fixed:not(#de-win-' + name + ')', win.parentNode))) {
 			toggleWindow(el.id.substr(7), false);
 		}
 		var isAnim = !noAnim && !isUpd && Cfg.animation,
@@ -4278,8 +4119,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				showWindow(node, body, name, false, remove, data, Cfg.animation);
 				body = name = remove = data = null;
 			});
-			win.classList.remove("de-win-open");
-			win.classList.add("de-win-close");
+			win.classList.remove('de-win-open');
+			win.classList.add('de-win-close');
 		} else {
 			showWindow(win, body, name, isUpd, remove, data, isAnim);
 		}
@@ -4287,67 +4128,67 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 	function showWindow(win, body, name, isUpd, remove, data, isAnim) {
 		var temp, cfgTabId;
-		if (name === "cfg" && !remove && (temp = $q(".de-cfg-tab[selected]", body))) {
-			cfgTabId = temp.getAttribute("info");
+		if (name === 'cfg' && !remove && (temp = $q('.de-cfg-tab[selected]', body))) {
+			cfgTabId = temp.getAttribute('info');
 		}
-		body.innerHTML = "";
+		body.innerHTML = '';
 		if (remove) {
-			win.classList.remove("de-win-active");
-			win.classList.remove("de-win-close");
-			win.style.display = "none";
-			if (!Cfg.expandPanel && !$c("de-win-active", doc)) {
-				$id("de-panel").lastChild.style.display = "none";
+			win.classList.remove('de-win-active');
+			win.classList.remove('de-win-close');
+			win.style.display = 'none';
+			if (!Cfg.expandPanel && !$c('de-win-active', doc)) {
+				$id('de-panel').lastChild.style.display = 'none';
 			}
 			return;
 		}
-		win.classList.add("de-win-active");
+		win.classList.add('de-win-active');
 		if (!Cfg.expandPanel) {
-			$id("de-panel").lastChild.style.display = "";
+			$id('de-panel').lastChild.style.display = '';
 		}
 		switch (name) {
-			case "fav":
+			case 'fav':
 				if (data) {
 					showFavoritesWindow(body, data);
 					break;
 				}
 				readFav().then(function (fav) {
 					showFavoritesWindow(body, fav);
-					win.style.display = "";
+					win.style.display = '';
 					if (isAnim) {
-						win.classList.add("de-win-open");
+						win.classList.add('de-win-open');
 					}
 				});
 				return;
-			case "cfg":
+			case 'cfg':
 				addSettings(body, cfgTabId);break;
-			case "hid":
+			case 'hid':
 				showHiddenWindow(body);break;
-			case "vid":
+			case 'vid':
 				showVideosWindow(body);
 		}
-		win.style.display = "";
+		win.style.display = '';
 		if (isAnim) {
-			win.classList.add("de-win-open");
+			win.classList.add('de-win-open');
 		}
 	}
 
 	function showVideosWindow(body) {
-		var els = $C("de-video-link", dForm.el);
+		var els = $C('de-video-link', dForm.el);
 		if (!els.length) {
-			body.innerHTML = "<b>" + Lng.noVideoLinks[lang] + "</b>";
+			body.innerHTML = '<b>' + Lng.noVideoLinks[lang] + '</b>';
 			return;
 		}
-		if (!$id("de-ytube-api")) {
-			doc.head.appendChild($new("script", {
-				id: "de-ytube-api",
-				type: "text/javascript",
-				src: aib.prot + "//www.youtube.com/player_api"
+		if (!$id('de-ytube-api')) {
+			doc.head.appendChild($new('script', {
+				'id': 'de-ytube-api',
+				'type': 'text/javascript',
+				'src': aib.prot + '//www.youtube.com/player_api'
 			}, null));
 		}
-		body.innerHTML = "<div de-disableautoplay class=\"de-video-obj\"></div>" + "<div id=\"de-video-buttons\">" + "<a class=\"de-abtn\" id=\"de-video-btn-prev\" href=\"#\" title=\"" + Lng.prevVideo[lang] + "\">&#x25C0;</a>" + "<a class=\"de-abtn\" id=\"de-video-btn-resize\" href=\"#\" title=\"" + Lng.expandVideo[lang] + "\"></a>" + "<a class=\"de-abtn\" id=\"de-video-btn-next\" href=\"#\" title=\"" + Lng.nextVideo[lang] + "\">&#x25B6;</a>" + "<a class=\"de-abtn\" id=\"de-video-btn-hide\" href=\"#\" title=\"" + Lng.hideLnkList[lang] + "\">&#x25B2;</a></div>" + "<div id=\"de-video-list\" style=\"max-width: " + (+Cfg.YTubeWidth + 40) + "px; max-height: " + (doc.documentElement.clientHeight * 0.92 - +Cfg.YTubeHeigh - 82) + "px;\"></div>";
+		body.innerHTML = '<div de-disableautoplay class="de-video-obj"></div>' + '<div id="de-video-buttons">' + '<a class="de-abtn" id="de-video-btn-prev" href="#" title="' + Lng.prevVideo[lang] + '">&#x25C0;</a>' + '<a class="de-abtn" id="de-video-btn-resize" href="#" title="' + Lng.expandVideo[lang] + '"></a>' + '<a class="de-abtn" id="de-video-btn-next" href="#" title="' + Lng.nextVideo[lang] + '">&#x25B6;</a>' + '<a class="de-abtn" id="de-video-btn-hide" href="#" title="' + Lng.hideLnkList[lang] + '">&#x25B2;</a></div>' + '<div id="de-video-list" style="max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; max-height: ' + (doc.documentElement.clientHeight * .92 - +Cfg.YTubeHeigh - 82) + 'px;"></div>';
 		var linkList = body.lastChild;
-		$before(linkList, $new("script", { type: "text/javascript", text: "\n\t\t(function() {\n\t\t\tif('YT' in window && 'Player' in window.YT) {\n\t\t\t\tonYouTubePlayerAPIReady();\n\t\t\t} else {\n\t\t\t\twindow.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;\n\t\t\t}\n\t\t\tfunction onYouTubePlayerAPIReady() {\n\t\t\t\twindow.de_addVideoEvents =\n\t\t\t\t\taddEvents.bind(document.querySelector('#de-win-vid > .de-win-body > .de-video-obj'));\n\t\t\t\twindow.de_addVideoEvents();\n\t\t\t}\n\t\t\tfunction addEvents() {\n\t\t\t\tvar autoplay = true;\n\t\t\t\tif(this.hasAttribute('de-disableautoplay')) {\n\t\t\t\t\tautoplay = false;\n\t\t\t\t\tthis.removeAttribute('de-disableautoplay');\n\t\t\t\t}\n\t\t\t\tnew YT.Player(this.firstChild, { events: {\n\t\t\t\t\t'onError': gotoNextVideo,\n\t\t\t\t\t'onReady': autoplay ? function(e) {\n\t\t\t\t\t\te.target.playVideo();\n\t\t\t\t\t} : Function.prototype,\n\t\t\t\t\t'onStateChange': function(e) {\n\t\t\t\t\t\tif(e.data === 0) {\n\t\t\t\t\t\t\tgotoNextVideo();\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}});\n\t\t\t}\n\t\t\tfunction gotoNextVideo() {\n\t\t\t\tdocument.getElementById(\"de-video-btn-next\").click();\n\t\t\t}\n\t\t})();\n\t" }));
-		body.addEventListener("click", {
+		$before(linkList, $new('script', { 'type': 'text/javascript', 'text': '\n\t\t(function() {\n\t\t\tif(\'YT\' in window && \'Player\' in window.YT) {\n\t\t\t\tonYouTubePlayerAPIReady();\n\t\t\t} else {\n\t\t\t\twindow.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;\n\t\t\t}\n\t\t\tfunction onYouTubePlayerAPIReady() {\n\t\t\t\twindow.de_addVideoEvents =\n\t\t\t\t\taddEvents.bind(document.querySelector(\'#de-win-vid > .de-win-body > .de-video-obj\'));\n\t\t\t\twindow.de_addVideoEvents();\n\t\t\t}\n\t\t\tfunction addEvents() {\n\t\t\t\tvar autoplay = true;\n\t\t\t\tif(this.hasAttribute(\'de-disableautoplay\')) {\n\t\t\t\t\tautoplay = false;\n\t\t\t\t\tthis.removeAttribute(\'de-disableautoplay\');\n\t\t\t\t}\n\t\t\t\tnew YT.Player(this.firstChild, { events: {\n\t\t\t\t\t\'onError\': gotoNextVideo,\n\t\t\t\t\t\'onReady\': autoplay ? function(e) {\n\t\t\t\t\t\te.target.playVideo();\n\t\t\t\t\t} : Function.prototype,\n\t\t\t\t\t\'onStateChange\': function(e) {\n\t\t\t\t\t\tif(e.data === 0) {\n\t\t\t\t\t\t\tgotoNextVideo();\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}});\n\t\t\t}\n\t\t\tfunction gotoNextVideo() {\n\t\t\t\tdocument.getElementById("de-video-btn-next").click();\n\t\t\t}\n\t\t})();\n\t' }));
+		body.addEventListener('click', {
 			linkList: linkList,
 			listHidden: false,
 			player: body.firstChild,
@@ -4355,49 +4196,49 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			currentLink: null,
 			handleEvent: function handleEvent(e) {
 				var el = e.target;
-				if (el.classList.contains("de-abtn")) {
+				if (el.classList.contains('de-abtn')) {
 					var node;
 					switch (e.target.id) {
-						case "de-video-btn-hide":
+						case 'de-video-btn-hide':
 							if (this.listHidden = !this.listHidden) {
-								this.linkList.style.display = "none";
-								e.target.textContent = "▼";
+								this.linkList.style.display = 'none';
+								e.target.textContent = '▼';
 							} else {
-								this.linkList.style.display = "";
-								e.target.textContent = "▲";
+								this.linkList.style.display = '';
+								e.target.textContent = '▲';
 							}
 							break;
-						case "de-video-btn-prev":
+						case 'de-video-btn-prev':
 							node = this.currentLink.parentNode;
 							node = node.previousSibling || node.parentNode.lastChild;
 							node.lastChild.click();
 							break;
-						case "de-video-btn-next":
+						case 'de-video-btn-next':
 							node = this.currentLink.parentNode;
 							node = node.nextSibling || node.parentNode.firstChild;
 							node.lastChild.click();
 							break;
-						case "de-video-btn-resize":
-							var exp = this.player.className === "de-video-obj";
-							this.player.className = exp ? "de-video-obj de-video-expanded" : "de-video-obj";
-							this.linkList.style.maxWidth = (exp ? 894 : +Cfg.YTubeWidth + 40) + "px";
-							this.linkList.style.maxHeight = doc.documentElement.clientHeight * 0.92 - (exp ? 562 : +Cfg.YTubeHeigh + 82) + "px";
+						case 'de-video-btn-resize':
+							var exp = this.player.className === 'de-video-obj';
+							this.player.className = exp ? 'de-video-obj de-video-expanded' : 'de-video-obj';
+							this.linkList.style.maxWidth = (exp ? 894 : +Cfg.YTubeWidth + 40) + 'px';
+							this.linkList.style.maxHeight = doc.documentElement.clientHeight * .92 - (exp ? 562 : +Cfg.YTubeHeigh + 82) + 'px';
 					}
 					$pd(e);
 					return;
-				} else if (!el.classList.contains("de-video-link")) {
-					pByNum[+e.target.getAttribute("de-num")].selectCurrent();
+				} else if (!el.classList.contains('de-video-link')) {
+					pByNum[+e.target.getAttribute('de-num')].selectCurrent();
 					return;
 				}
 				var m = el.videoInfo;
 				if (this.playerInfo !== m) {
 					if (this.currentLink) {
-						this.currentLink.classList.remove("de-current");
+						this.currentLink.classList.remove('de-current');
 					}
 					this.currentLink = el;
-					el.classList.add("de-current");
+					el.classList.add('de-current');
 					this.playerInfo = m;
-					Videos.addPlayer(this.player, m, el.classList.contains("de-ytube"), true);
+					Videos.addPlayer(this.player, m, el.classList.contains('de-ytube'), true);
 				}
 				$pd(e);
 			}
@@ -4406,59 +4247,59 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			var el = els[i].cloneNode(true),
 			    num = aib.getPostEl(els[i]).post.num;
 			el.videoInfo = els[i].videoInfo;
-			linkList.insertAdjacentHTML("beforeend", "<div class=\"de-entry " + aib.cReply + "\">&nbsp;" + "<a href=\"" + aib.anchor + num + "\" de-num=\"" + num + "\">&gt;</a></div>");
-			linkList.lastChild.appendChild(el).classList.remove("de-current");
+			linkList.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '">&nbsp;' + '<a href="' + aib.anchor + num + '" de-num="' + num + '">&gt;</a></div>');
+			linkList.lastChild.appendChild(el).classList.remove('de-current');
 			if (i === 0) {
 				el.click();
 			}
-			el.setAttribute("onclick", "window.de_addVideoEvents && window.de_addVideoEvents();");
+			el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
 		}
 	}
 
 	function addContentBlock(parent, title) {
-		return parent.appendChild($New("div", { "class": "de-content-block" }, [$new("input", { type: "checkbox" }, { click: function click() {
-				var _this204 = this;
+		return parent.appendChild($New('div', { 'class': 'de-content-block' }, [$new('input', { 'type': 'checkbox' }, { 'click': function click() {
+				var _this5 = this;
 
-				$each($Q(".de-entry > input", this.parentNode), function (el) {
-					return el.checked = _this204.checked;
+				$each($Q('.de-entry > input', this.parentNode), function (el) {
+					return el.checked = _this5.checked;
 				});
 			} }), title]));
 	}
 
 	function showHiddenWindow(body) {
 		var block,
-		    els = $C("de-post-hide", dForm.el);
+		    els = $C('de-post-hide', dForm.el);
 		for (var i = 0, len = els.length; i < len; ++i) {
 			var post = els[i];
 			if (post.isOp) {
 				continue;
 			}
 			var cln = post.cloneNode(true);
-			cln.removeAttribute("id");
-			cln.style.display = "";
-			cln.className = aib.cReply + " de-post-hide de-cloned-post";
+			cln.removeAttribute('id');
+			cln.style.display = '';
+			cln.className = aib.cReply + ' de-post-hide de-cloned-post';
 			cln.post = Object.create(cln.clone = post.post);
 			cln.post.el = cln;
-			cln.btn = $q(".de-btn-hide, .de-btn-hide-user", cln);
-			cln.btn.parentNode.className = "de-post-btns";
+			cln.btn = $q('.de-btn-hide, .de-btn-hide-user', cln);
+			cln.btn.parentNode.className = 'de-post-btns';
 			cln.btn.onclick = (function () {
 				this.hideContent(this.hidden = !this.hidden);
 			}).bind(cln.post);
 			if (!block) {
-				block = body.appendChild($add("<div class=\"de-content-block\"><b>" + Lng.hiddenPosts[lang] + ":</b></div>"));
+				block = body.appendChild($add('<div class="de-content-block"><b>' + Lng.hiddenPosts[lang] + ':</b></div>'));
 			}
-			block.appendChild($New("div", { "class": "de-entry" }, [cln]));
+			block.appendChild($New('div', { 'class': 'de-entry' }, [cln]));
 		}
 		if (block) {
-			body.appendChild($btn(Lng.expandAll[lang], "", function () {
-				$each($Q(".de-cloned-post", this.parentNode), function (el) {
+			body.appendChild($btn(Lng.expandAll[lang], '', function () {
+				$each($Q('.de-cloned-post', this.parentNode), function (el) {
 					var post = el.post;
 					post.hideContent(post.hidden = !post.hidden);
 				});
 				this.value = this.value === Lng.undo[lang] ? Lng.expandAll[lang] : Lng.undo[lang];
 			}));
-			body.appendChild($btn(Lng.save[lang], "", function () {
-				$each($Q(".de-cloned-post", this.parentNode), (function (date, el) {
+			body.appendChild($btn(Lng.save[lang], '', function () {
+				$each($Q('.de-cloned-post', this.parentNode), (function (date, el) {
 					if (!el.post.hidden) {
 						el.clone.setUserVisib(false, date, true);
 					}
@@ -4466,19 +4307,19 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				saveUserPosts();
 			}));
 		} else {
-			body.insertAdjacentHTML("beforeend", "<b>" + Lng.noHidPosts[lang] + "</b>");
+			body.insertAdjacentHTML('beforeend', '<b>' + Lng.noHidPosts[lang] + '</b>');
 		}
-		body.insertAdjacentHTML("beforeend", "<hr><b>" + ($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ":") + "</b>");
+		body.insertAdjacentHTML('beforeend', '<hr><b>' + ($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') + '</b>');
 		for (var b in hThr) {
 			if (!$isEmpty(hThr[b])) {
-				block = addContentBlock(body, $new("b", { text: "/" + b }, null));
+				block = addContentBlock(body, $new('b', { 'text': '/' + b }, null));
 				for (var tNum in hThr[b]) {
-					block.insertAdjacentHTML("beforeend", "<div class=\"de-entry " + aib.cReply + "\" info=\"" + b + ";" + tNum + "\">" + "<input type=\"checkbox\">" + "<a href=\"" + aib.getThrdUrl(b, tNum) + "\" target=\"_blank\">" + tNum + "</a>" + "<div class=\"de-entry-title\">- " + hThr[b][tNum] + "</div></div>");
+					block.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '" info="' + b + ';' + tNum + '">' + '<input type="checkbox">' + '<a href="' + aib.getThrdUrl(b, tNum) + '" target="_blank">' + tNum + '</a>' + '<div class="de-entry-title">- ' + hThr[b][tNum] + '</div></div>');
 				}
 			}
 		}
-		body.insertAdjacentHTML("beforeend", "<hr>");
-		body.appendChild(addEditButton("hidden", function (fn) {
+		body.insertAdjacentHTML('beforeend', '<hr>');
+		body.appendChild(addEditButton('hidden', function (fn) {
 			fn(hThr, true, function (data) {
 				hThr = data;
 				if (!(aib.b in hThr)) {
@@ -4486,19 +4327,17 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 				dForm.firstThr.updateHidden(hThr[aib.b]);
 				saveHiddenThreads(true);
-				locStorage["__de-threads"] = JSON.stringify(hThr);
-				locStorage.removeItem("__de-threads");
+				locStorage['__de-threads'] = JSON.stringify(hThr);
+				locStorage.removeItem('__de-threads');
 			});
 		}));
 		body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function callee$2$0() {
-			var _this204 = this;
-
 			var i, els, len, _els$i$getAttribute$split, _els$i$getAttribute$split2, board, tNum;
 
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
-						i = 0, els = $Q(".de-entry[info]", _this204.parentNode), len = els.length;
+						i = 0, els = $Q('.de-entry[info]', this.parentNode), len = els.length;
 
 					case 1:
 						if (!(i < len)) {
@@ -4506,7 +4345,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							break;
 						}
 
-						_els$i$getAttribute$split = els[i].getAttribute("info").split(";");
+						_els$i$getAttribute$split = els[i].getAttribute('info').split(';');
 						_els$i$getAttribute$split2 = _slicedToArray(_els$i$getAttribute$split, 2);
 						board = _els$i$getAttribute$split2[0];
 						tNum = _els$i$getAttribute$split2[1];
@@ -4520,9 +4359,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 					case 11:
 						context$3$0.prev = 11;
-						context$3$0.t8 = context$3$0["catch"](6);
+						context$3$0.t0 = context$3$0['catch'](6);
 
-						if (context$3$0.t8.status === 404) {
+						if (context$3$0.t0.status === 404) {
 							delete hThr[board][tNum];
 							saveHiddenThreads(true);
 						}
@@ -4533,26 +4372,26 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						break;
 
 					case 17:
-					case "end":
+					case 'end':
 						return context$3$0.stop();
 				}
 			}, callee$2$0, this, [[6, 11]]);
 		}))));
 		body.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function () {
-			$each($Q(".de-entry[info]", this.parentNode), (function (date, el) {
-				if ($t("input", el).checked) {
-					var arr = el.getAttribute("info").split(";");
+			$each($Q('.de-entry[info]', this.parentNode), (function (date, el) {
+				if ($t('input', el).checked) {
+					var arr = el.getAttribute('info').split(';');
 					if (arr[1] in pByNum) {
 						pByNum[arr[1]].setUserVisib(false, date, true);
 					} else {
-						locStorage["__de-post"] = JSON.stringify({
-							brd: arr[0],
-							date: date,
-							isOp: true,
-							num: arr[1],
-							hide: false
+						locStorage['__de-post'] = JSON.stringify({
+							'brd': arr[0],
+							'date': date,
+							'isOp': true,
+							'num': arr[1],
+							'hide': false
 						});
-						locStorage.removeItem("__de-post");
+						locStorage.removeItem('__de-post');
 					}
 					delete hThr[arr[0]][arr[1]];
 				}
@@ -4562,13 +4401,13 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	}
 
 	function cleanFavorites() {
-		var els = $Q(".de-entry[de-removed]", doc),
+		var els = $Q('.de-entry[de-removed]', doc),
 		    len = els.length;
 		if (len > 0) {
 			readFav().then(function (fav) {
 				for (var i = 0; i < len; ++i) {
 					var el = els[i];
-					removeFavoriteEntry(fav, el.getAttribute("de-host"), el.getAttribute("de-board"), el.getAttribute("de-num"), true);
+					removeFavoriteEntry(fav, el.getAttribute('de-host'), el.getAttribute('de-board'), el.getAttribute('de-num'), true);
 				}
 				saveFavorites(fav);
 			});
@@ -4579,32 +4418,32 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		for (var h in data) {
 			for (var b in data[h]) {
 				var d = data[h][b],
-				    block = addContentBlock(body, d.url ? $new("a", { href: d.url, text: h + "/" + b }, null) : $new("b", { text: h + "/" + b }, null));
+				    block = addContentBlock(body, d.url ? $new('a', { 'href': d.url, 'text': h + '/' + b }, null) : $new('b', { 'text': h + '/' + b }, null));
 				if (h === aib.host && b === aib.b) {
-					block.classList.add("de-fav-current");
+					block.classList.add('de-fav-current');
 				}
 				for (var tNum in d) {
-					if (tNum === "url") {
+					if (tNum === 'url') {
 						continue;
 					}
 					var t = d[tNum];
-					if (!t.url.startsWith("http")) {
-						t.url = (h === aib.host ? aib.prot + "//" : "http://") + h + t.url;
+					if (!t.url.startsWith('http')) {
+						t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 					}
-					block.insertAdjacentHTML("beforeend", "<div class=\"de-entry " + aib.cReply + "\" de-host=\"" + h + "\" de-board=\"" + b + "\" de-num=\"" + tNum + "\" de-url=\"" + t.url + "\">" + (t.type !== "user" ? "" : "<span class=\"de-fav-user\" title=\"" + Lng.setByUser[lang] + "\"></span>") + "<input type=\"checkbox\">" + "<a href=\"" + t.url + (!t.last ? "" : t.last.startsWith("#") ? t.last : h === aib.host ? aib.anchor + t.last : "") + "\">" + tNum + "</a>" + "<div class=\"de-entry-title\">- " + t.txt + "</div>" + "<div class=\"de-fav-inf\">" + "<span class=\"de-fav-inf-err" + (!t.err ? "" : t.err === "Closed" ? " de-fav-closed\" title=\"" + Lng.thrClosed[lang] : " de-fav-unavail\" title=\"" + t.err) + "\"></span> " + "<span class=\"de-fav-inf-new\" title=\"" + Lng.newPosts[lang] + "\"" + (t["new"] ? ">" : " style=\"display: none;\">") + (t["new"] || 0) + "</span> " + "[<span class=\"de-fav-inf-old\" title=\"" + Lng.oldPosts[lang] + "\">" + t.cnt + "</span>] " + "<span class=\"de-fav-inf-page\" title=\"" + Lng.thrPage[lang] + "\"></span>" + "</span></div>");
-					$t("a", block.lastChild).onclick = function () {
-						sesStorage["de-win-fav"] = "1";
+					block.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">' + (t['type'] !== 'user' ? '' : '<span class="de-fav-user" title="' + Lng.setByUser[lang] + '"></span>') + '<input type="checkbox">' + '<a href="' + t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last : h === aib.host ? aib.anchor + t.last : '') + '">' + tNum + '</a>' + '<div class="de-entry-title">- ' + t.txt + '</div>' + '<div class="de-fav-inf">' + '<span class="de-fav-inf-err' + (!t['err'] ? '' : t['err'] === 'Closed' ? ' de-fav-closed" title="' + Lng.thrClosed[lang] : ' de-fav-unavail" title="' + t['err']) + '"></span> ' + '<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + (t['new'] ? '>' : ' style="display: none;">') + (t['new'] || 0) + '</span> ' + '[<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>] ' + '<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>' + '</span></div>');
+					$t('a', block.lastChild).onclick = function () {
+						sesStorage['de-win-fav'] = '1';
 						var el = this.parentNode;
-						sesStorage.removeItem("de-scroll-" + el.getAttribute("de-board") + el.getAttribute("de-num"));
+						sesStorage.removeItem('de-scroll-' + el.getAttribute('de-board') + el.getAttribute('de-num'));
 					};
 				}
 			}
 		}
 		if (!body.hasChildNodes()) {
-			body.insertAdjacentHTML("afterbegin", "<center><b>" + Lng.noFavThrds[lang] + "</b></center>");
+			body.insertAdjacentHTML('afterbegin', '<center><b>' + Lng.noFavThrds[lang] + '</b></center>');
 		}
-		body.insertAdjacentHTML("beforeend", "<hr>");
-		body.appendChild(addEditButton("favor", function (fn) {
+		body.insertAdjacentHTML('beforeend', '<hr>');
+		body.appendChild(addEditButton('favor', function (fn) {
 			readFav().then(function (val) {
 				return fn(val, true, saveFavorites);
 			});
@@ -4615,11 +4454,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
 						update = false;
-						els = $C("de-entry", doc);
-						return context$3$0.delegateYield(getStoredObj("DESU_Favorites"), "t9", 3);
+						els = $C('de-entry', doc);
+						return context$3$0.delegateYield(getStoredObj('DESU_Favorites'), 't0', 3);
 
 					case 3:
-						fav = context$3$0.t9;
+						fav = context$3$0.t0;
 						i = 0, len = els.length;
 
 					case 5:
@@ -4628,20 +4467,20 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							break;
 						}
 
-						el = els[i], host = el.getAttribute("de-host"), b = el.getAttribute("de-board"), num = el.getAttribute("de-num"), f = fav[host][b][num];
+						el = els[i], host = el.getAttribute('de-host'), b = el.getAttribute('de-board'), num = el.getAttribute('de-num'), f = fav[host][b][num];
 
-						if (!(host !== aib.host || f.err === "Closed")) {
+						if (!(host !== aib.host || f['err'] === 'Closed')) {
 							context$3$0.next = 9;
 							break;
 						}
 
-						return context$3$0.abrupt("continue", 33);
+						return context$3$0.abrupt('continue', 33);
 
 					case 9:
-						el = $c("de-fav-inf-new", el);
-						el.style.display = "";
-						el.textContent = "";
-						el.className = "de-wait";
+						el = $c('de-fav-inf-new', el);
+						el.style.display = '';
+						el.textContent = '';
+						el.className = 'de-wait';
 						context$3$0.prev = 13;
 						context$3$0.next = 16;
 						return ajaxLoad(aib.getThrdUrl(b, num));
@@ -4653,38 +4492,38 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 					case 19:
 						context$3$0.prev = 19;
-						context$3$0.t10 = context$3$0["catch"](13);
+						context$3$0.t1 = context$3$0['catch'](13);
 
-						el.classList.remove("de-wait");
+						el.classList.remove('de-wait');
 						err = el.previousElementSibling;
-						err.classList.add("de-fav-unavail");
-						f.err = err.title = getErrorMessage(context$3$0.t10);
+						err.classList.add('de-fav-unavail');
+						f['err'] = err.title = getErrorMessage(context$3$0.t1);
 						update = true;
-						return context$3$0.abrupt("continue", 33);
+						return context$3$0.abrupt('continue', 33);
 
 					case 27:
-						if (f.err) {
+						if (f['err']) {
 							err = el.previousElementSibling;
-							err.classList.remove("de-fav-unavail");
-							err.title = "";
-							delete f.err;
+							err.classList.remove('de-fav-unavail');
+							err.title = '';
+							delete f['err'];
 							update = true;
 						}
 						cnt = $Q(aib.qRPost, form).length + 1 - el.nextElementSibling.textContent;
 
 						el.textContent = cnt;
-						el.className = "de-fav-inf-new";
+						el.className = 'de-fav-inf-new';
 						if (cnt === 0) {
-							el.style.display = "none";
+							el.style.display = 'none';
 						} else {
-							f["new"] = cnt;
+							f['new'] = cnt;
 							update = true;
 						}
 						if ($q(aib.qClosed, form)) {
 							err = el.previousElementSibling;
-							err.classList.add("de-fav-closed");
+							err.classList.add('de-fav-closed');
 							err.title = Lng.thrClosed[lang];
-							f.err = "Closed";
+							f['err'] = 'Closed';
 							update = true;
 						}
 
@@ -4695,110 +4534,111 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 					case 36:
 						if (update) {
-							setStored("DESU_Favorites", JSON.stringify(fav));
+							setStored('DESU_Favorites', JSON.stringify(fav));
 						}
 
 					case 37:
-					case "end":
+					case 'end':
 						return context$3$0.stop();
 				}
 			}, callee$2$0, this, [[13, 19]]);
 		}))));
-		body.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(regeneratorRuntime.mark(function callee$2$1() {
+		body.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(regeneratorRuntime.mark(function callee$2$0() {
 			var els, infoCount, postsInfo, i, el, page, infoLoaded, endPage, form, tNums, pInfo, _postsInfo$i, node, isFound;
 
-			return regeneratorRuntime.wrap(function callee$2$1$(context$3$0) {
+			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
-						els = $Q(".de-fav-current > .de-entry", doc), infoCount = els.length, postsInfo = [];
+						els = $Q('.de-fav-current > .de-entry', doc), infoCount = els.length, postsInfo = [];
 
 						if (infoCount) {
 							context$3$0.next = 3;
 							break;
 						}
 
-						return context$3$0.abrupt("return");
+						return context$3$0.abrupt('return');
 
 					case 3:
-						$popup(Lng.loading[lang], "load-pages", true);
+						$popup(Lng.loading[lang], 'load-pages', true);
 						for (i = 0; i < infoCount; ++i) {
 							el = els[i];
 
-							postsInfo.push([+el.getAttribute("de-num"), el = $c("de-fav-inf-page", el), false]);
-							el.classList.add("de-wait");
+							postsInfo.push([+el.getAttribute('de-num'), el = $c('de-fav-inf-page', el), false]);
+							el.classList.add('de-wait');
 						}
 						page = 0, infoLoaded = 0, endPage = (aib.lastPage || 10) + 1;
 
 					case 6:
 						if (!(page < endPage)) {
-							context$3$0.next = 23;
+							context$3$0.next = 24;
 							break;
 						}
 
 						context$3$0.prev = 7;
-						context$3$0.next = 10;
+						context$3$0.t0 = DelForm;
+						context$3$0.next = 11;
 						return ajaxLoad(aib.getPageUrl(aib.b, page));
 
-					case 10:
-						context$3$0.t11 = context$3$0.sent;
-						form = new DelForm(context$3$0.t11, true);
-						context$3$0.next = 17;
+					case 11:
+						context$3$0.t1 = context$3$0.sent;
+						form = new context$3$0.t0(context$3$0.t1, true);
+						context$3$0.next = 18;
 						break;
 
-					case 14:
-						context$3$0.prev = 14;
-						context$3$0.t12 = context$3$0["catch"](7);
-						return context$3$0.abrupt("continue", 20);
+					case 15:
+						context$3$0.prev = 15;
+						context$3$0.t2 = context$3$0['catch'](7);
+						return context$3$0.abrupt('continue', 21);
 
-					case 17:
+					case 18:
 						for (i = 0, tNums = form.tNums; i < infoCount; ++i) {
 							pInfo = postsInfo[i];
 
 							if (tNums.indexOf(pInfo[0]) !== -1) {
-								pInfo[1].classList.remove("de-wait");
-								pInfo[1].textContent = "@" + page;
+								pInfo[1].classList.remove('de-wait');
+								pInfo[1].textContent = '@' + page;
 								pInfo[2] = true;
 								infoLoaded++;
 							}
 						}
 
 						if (!(infoLoaded === infoCount)) {
-							context$3$0.next = 20;
+							context$3$0.next = 21;
 							break;
 						}
 
-						return context$3$0.abrupt("break", 23);
+						return context$3$0.abrupt('break', 24);
 
-					case 20:
+					case 21:
 						++page;
 						context$3$0.next = 6;
 						break;
 
-					case 23:
+					case 24:
 						for (i = 0; i < infoCount; ++i) {
 							_postsInfo$i = _slicedToArray(postsInfo[i], 3);
 							node = _postsInfo$i[1];
 							isFound = _postsInfo$i[2];
 
 							if (!isFound) {
-								node.classList.remove("de-wait");
-								node.textContent = "@?";
+								node.classList.remove('de-wait');
+								node.textContent = '@?';
 							}
 						}
-						closePopup("load-pages");
+						closePopup('load-pages');
 
-					case 25:
-					case "end":
+					case 26:
+					case 'end':
 						return context$3$0.stop();
 				}
-			}, callee$2$1, this, [[7, 14]]);
+			}, callee$2$0, this, [[7, 15]]);
 		}))));
-		body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function callee$2$2() {
+		body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function callee$2$0() {
 			var i, els, len, el, node;
-			return regeneratorRuntime.wrap(function callee$2$2$(context$3$0) {
+			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
-						i = 0, els = $C("de-entry", doc), len = els.length;
+						i = 0, els = $C('de-entry', doc), len = els.length;
 
 					case 1:
 						if (!(i < len)) {
@@ -4806,12 +4646,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							break;
 						}
 
-						el = els[i], node = $c("de-fav-inf-err", el);
+						el = els[i], node = $c('de-fav-inf-err', el);
 
-						node.classList.add("de-wait");
+						node.classList.add('de-wait');
 						context$3$0.prev = 4;
 						context$3$0.next = 7;
-						return $ajax(el.getAttribute("de-url"), null, false);
+						return $ajax(el.getAttribute('de-url'), null, false);
 
 					case 7:
 						context$3$0.next = 14;
@@ -4819,16 +4659,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 					case 9:
 						context$3$0.prev = 9;
-						context$3$0.t13 = context$3$0["catch"](4);
+						context$3$0.t0 = context$3$0['catch'](4);
 
-						if (context$3$0.t13.status === 404) {
-							el.setAttribute("de-removed", "");
+						if (context$3$0.t0.status === 404) {
+							el.setAttribute('de-removed', '');
 						}
-						node.classList.add("de-fav-unavail");
-						node.title = getErrorMessage(new AjaxError(context$3$0.t13.status, context$3$0.t13.statusText));
+						node.classList.add('de-fav-unavail');
+						node.title = getErrorMessage(new AjaxError(context$3$0.t0.status, context$3$0.t0.statusText));
 
 					case 14:
-						node.classList.remove("de-wait");
+						node.classList.remove('de-wait');
 
 					case 15:
 						++i;
@@ -4839,15 +4679,15 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						cleanFavorites();
 
 					case 19:
-					case "end":
+					case 'end':
 						return context$3$0.stop();
 				}
-			}, callee$2$2, this, [[4, 9]]);
+			}, callee$2$0, this, [[4, 9]]);
 		}))));
 		body.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function () {
-			$each($C("de-entry", doc), function (el) {
-				if ($t("input", el).checked) {
-					el.setAttribute("de-removed", "");
+			$each($C('de-entry', doc), function (el) {
+				if ($t('input', el).checked) {
+					el.setAttribute('de-removed', '');
 				}
 			});
 			cleanFavorites();
@@ -4865,57 +4705,57 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				($q(arr[i], doc) || {}).disabled = nState;
 			}
 		}
-		toggleBox(Cfg.ajaxUpdThr, ["input[info=\"updThrDelay\"]", "input[info=\"noErrInTitle\"]", "input[info=\"favIcoBlink\"]", "input[info=\"markNewPosts\"]", "input[info=\"desktNotif\"]", "input[info=\"updCount\"]"]);
-		toggleBox(Cfg.expandImgs, ["input[info=\"imgNavBtns\"]", "input[info=\"resizeDPI\"]", "input[info=\"resizeImgs\"]", "input[info=\"minImgSize\"]", "input[info=\"zoomFactor\"]", "input[info=\"webmControl\"]", "input[info=\"webmVolume\"]"]);
-		toggleBox(Cfg.preLoadImgs, ["input[info=\"findImgFile\"]"]);
-		toggleBox(Cfg.linksNavig, ["input[info=\"linksOver\"]", "input[info=\"linksOut\"]", "input[info=\"markViewed\"]", "input[info=\"strikeHidd\"]", "input[info=\"noNavigHidd\"]"]);
-		toggleBox(Cfg.strikeHidd && Cfg.linksNavig === 2, ["input[info=\"removeHidd\"]"]);
-		toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, ["select[info=\"YTubeType\"]", "input[info=\"addVimeo\"]"]);
-		toggleBox(Cfg.addYouTube, ["input[info=\"YTubeWidth\"]", "input[info=\"YTubeHeigh\"]", "input[info=\"YTubeTitles\"]", "input[info=\"ytApiKey\"]"]);
-		toggleBox(Cfg.YTubeTitles, ["input[info=\"ytApiKey\"]"]);
-		toggleBox(Cfg.ajaxReply, ["input[info=\"sendErrNotif\"]", "input[info=\"scrAfterRep\"]"]);
-		toggleBox(Cfg.ajaxReply === 2, ["input[info=\"postSameImg\"]", "input[info=\"removeEXIF\"]", "input[info=\"removeFName\"]"]);
-		toggleBox(Cfg.addTextBtns, ["input[info=\"txtBtnsLoc\"]"]);
-		toggleBox(Cfg.updScript, ["select[info=\"scrUpdIntrv\"]"]);
-		toggleBox(Cfg.hotKeys, ["input[info=\"loadPages\"]"]);
+		toggleBox(Cfg.ajaxUpdThr, ['input[info="updThrDelay"]', 'input[info="noErrInTitle"]', 'input[info="favIcoBlink"]', 'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="updCount"]']);
+		toggleBox(Cfg.expandImgs, ['input[info="imgNavBtns"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]', 'input[info="webmVolume"]']);
+		toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
+		toggleBox(Cfg.linksNavig, ['input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]', 'input[info="strikeHidd"]', 'input[info="noNavigHidd"]']);
+		toggleBox(Cfg.strikeHidd && Cfg.linksNavig === 2, ['input[info="removeHidd"]']);
+		toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, ['select[info="YTubeType"]', 'input[info="addVimeo"]']);
+		toggleBox(Cfg.addYouTube, ['input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]', 'input[info="ytApiKey"]']);
+		toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
+		toggleBox(Cfg.ajaxReply, ['input[info="sendErrNotif"]', 'input[info="scrAfterRep"]']);
+		toggleBox(Cfg.ajaxReply === 2, ['input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]']);
+		toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
+		toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
+		toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
 	}
 
 	function lBox(id, isBlock, fn) {
-		var el = $new("input", { info: id, type: "checkbox" }, { click: function click() {
-				toggleCfg(this.getAttribute("info"));
+		var el = $new('input', { 'info': id, 'type': 'checkbox' }, { 'click': function click() {
+				toggleCfg(this.getAttribute('info'));
 				fixSettings();
 				if (fn) {
 					fn(this);
 				}
 			} });
 		el.checked = Cfg[id];
-		return $New("label", isBlock ? { "class": "de-block" } : null, [el, $txt(" " + Lng.cfg[id][lang])]);
+		return $New('label', isBlock ? { 'class': 'de-block' } : null, [el, $txt(' ' + Lng.cfg[id][lang])]);
 	}
 
 	function inpTxt(id, size, Fn) {
-		return $new("input", { info: id, type: "text", size: size, value: Cfg[id] }, {
-			keyup: Fn ? Fn : function () {
-				saveCfg(this.getAttribute("info"), this.value);
+		return $new('input', { 'info': id, 'type': 'text', 'size': size, 'value': Cfg[id] }, {
+			'keyup': Fn ? Fn : function () {
+				saveCfg(this.getAttribute('info'), this.value);
 			}
 		});
 	}
 
 	function optSel(id, isBlock, Fn) {
-		var className = arguments[3] === undefined ? "" : arguments[3];
+		var className = arguments.length <= 3 || arguments[3] === undefined ? '' : arguments[3];
 
 		var el,
-		    opt = "",
+		    opt = '',
 		    x = Lng.cfg[id];
 		for (var i = 0, len = x.sel[lang].length; i < len; i++) {
-			opt += "<option value=\"" + i + "\">" + x.sel[lang][i] + "</option>";
+			opt += '<option value="' + i + '">' + x.sel[lang][i] + '</option>';
 		}
-		el = $add("<select info=\"" + id + "\">" + opt + "</select>");
-		el.addEventListener("change", Fn || function () {
-			saveCfg(this.getAttribute("info"), this.selectedIndex);
+		el = $add('<select info="' + id + '">' + opt + '</select>');
+		el.addEventListener('change', Fn || function () {
+			saveCfg(this.getAttribute('info'), this.selectedIndex);
 			fixSettings();
 		});
 		el.selectedIndex = Cfg[id];
-		return $New("label", { "class": className + (isBlock ? " de-block" : "") }, [el, $txt(" " + x.txt[lang])]);
+		return $New('label', { 'class': className + (isBlock ? ' de-block' : '') }, [el, $txt(' ' + x.txt[lang])]);
 	}
 
 	function updRowMeter(node) {
@@ -4924,111 +4764,111 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		    num = el.numLines || 1,
 		    i = 15;
 		if (num - i < (top / 12 | 0 + 1)) {
-			var str = "";
+			var str = '';
 			while (i--) {
-				str += num++ + "<br>";
+				str += num++ + '<br>';
 			}
-			el.insertAdjacentHTML("beforeend", str);
+			el.insertAdjacentHTML('beforeend', str);
 			el.numLines = num;
 		}
 		el.scrollTop = top;
 	}
 
 	function getCfgFilters() {
-		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-filters" }, [$New("div", { id: "de-spell-panel" }, [lBox("hideBySpell", false, toggleSpells), $new("a", {
-			id: "de-btn-addspell",
-			text: Lng.add[lang],
-			href: "#",
-			"class": "de-abtn de-spell-btn" }, {
-			click: $pd,
-			mouseover: function (_ref) {
-				var target = _ref.target;
+		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-filters' }, [$New('div', { 'id': 'de-spell-panel' }, [lBox('hideBySpell', false, toggleSpells), $new('a', {
+			'id': 'de-btn-addspell',
+			'text': Lng.add[lang],
+			'href': '#',
+			'class': 'de-abtn de-spell-btn' }, {
+			'click': $pd,
+			'mouseover': function mouseover(_ref2) {
+				var target = _ref2.target;
 				return target.odelay = setTimeout(function () {
 					return addMenu(target);
 				}, Cfg.linksOver);
 			},
-			mouseout: function (_ref) {
-				var target = _ref.target;
+			'mouseout': function mouseout(_ref3) {
+				var target = _ref3.target;
 				return clearTimeout(target.odelay);
 			}
-		}), $new("a", { text: Lng.apply[lang], href: "#", "class": "de-abtn de-spell-btn" }, { click: function click(e) {
+		}), $new('a', { 'text': Lng.apply[lang], 'href': '#', 'class': 'de-abtn de-spell-btn' }, { 'click': function click(e) {
 				$pd(e);
-				saveCfg("hideBySpell", 1);
-				$q("input[info=\"hideBySpell\"]", doc).checked = true;
+				saveCfg('hideBySpell', 1);
+				$q('input[info="hideBySpell"]', doc).checked = true;
 				toggleSpells();
-			} }), $new("a", { text: Lng.clear[lang], href: "#", "class": "de-abtn de-spell-btn" }, { click: function click(e) {
+			} }), $new('a', { 'text': Lng.clear[lang], 'href': '#', 'class': 'de-abtn de-spell-btn' }, { 'click': function click(e) {
 				$pd(e);
-				$id("de-spell-txt").value = "";
+				$id('de-spell-txt').value = '';
 				toggleSpells();
-			} }), $add("<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-" + (lang ? "en" : "ru") + "\" class=\"de-abtn de-spell-btn\" target=\"_blank\">[?]</a>")]), $New("div", { id: "de-spell-editor" }, [$add("<div id=\"de-spell-rowmeter\"></div>"), $new("textarea", { id: "de-spell-txt", wrap: "off" }, {
-			keydown: function keydown() {
+			} }), $add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-' + (lang ? 'en' : 'ru') + '" class="de-abtn de-spell-btn" target="_blank">[?]</a>')]), $New('div', { 'id': 'de-spell-editor' }, [$add('<div id="de-spell-rowmeter"></div>'), $new('textarea', { 'id': 'de-spell-txt', 'wrap': 'off' }, {
+			'keydown': function keydown() {
 				updRowMeter(this);
 			},
-			scroll: function scroll() {
+			'scroll': function scroll() {
 				updRowMeter(this);
 			}
-		})]), lBox("sortSpells", true, function () {
+		})]), lBox('sortSpells', true, function () {
 			if (Cfg.sortSpells) {
 				toggleSpells();
 			}
-		}), lBox("menuHiddBtn", true, null), lBox("hideRefPsts", true, null), lBox("delHiddPost", true, function () {
-			$each($C("de-post-hide", dForm.el), function (el) {
-				el.post.wrap.classList.toggle("de-hidden");
+		}), lBox('menuHiddBtn', true, null), lBox('hideRefPsts', true, null), lBox('delHiddPost', true, function () {
+			$each($C('de-post-hide', dForm.el), function (el) {
+				el.post.wrap.classList.toggle('de-hidden');
 			});
 			updateCSS();
 		})]);
 	}
 
 	function getCfgPosts() {
-		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-posts" }, [$if(!localRun, $New("div", null, [lBox("ajaxUpdThr", false, aib.t ? function () {
+		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-posts' }, [$if(!localRun, $New('div', null, [lBox('ajaxUpdThr', false, aib.t ? function () {
 			if (Cfg.ajaxUpdThr) {
 				updater.enable();
 			} else {
 				updater.disable();
 			}
-		} : null), $New("label", null, [inpTxt("updThrDelay", 2, null), $txt(Lng.cfg.updThrDelay[lang])]), $New("div", { "class": "de-cfg-depend" }, [lBox("noErrInTitle", true, null), lBox("favIcoBlink", true, null), lBox("markNewPosts", true, function () {
+		} : null), $New('label', null, [inpTxt('updThrDelay', 2, null), $txt(Lng.cfg.updThrDelay[lang])]), $New('div', { 'class': 'de-cfg-depend' }, [lBox('noErrInTitle', true, null), lBox('favIcoBlink', true, null), lBox('markNewPosts', true, function () {
 			dForm.firstThr.clearPostsMarks();
-		}), $if("Notification" in window, lBox("desktNotif", true, function () {
+		}), $if('Notification' in window, lBox('desktNotif', true, function () {
 			if (Cfg.desktNotif) {
 				Notification.requestPermission();
 			}
-		})), lBox("updCount", true, function () {
+		})), lBox('updCount', true, function () {
 			updater.toggleCounter(Cfg.updCount);
-		})])])), lBox("hideReplies", true, null), lBox("updThrBtns", true, updateCSS), lBox("expandTrunc", true, updateCSS), optSel("postBtnsCSS", false, null), lBox("showHideBtn", false, updateCSS), lBox("showRepBtn", false, updateCSS), lBox("noSpoilers", true, updateCSS), lBox("noPostNames", true, updateCSS), lBox("widePosts", true, updateCSS), $New("div", null, [lBox("correctTime", false, DateTime.toggleSettings), inpTxt("timeOffset", 2, null), $txt(Lng.cfg.timeOffset[lang]), $add("<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-" + (lang ? "en" : "ru") + "\" class=\"de-abtn\" target=\"_blank\">[?]</a>")]), $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [inpTxt("timePattern", 25, null), $txt(Lng.cfg.timePattern[lang])]), $New("div", null, [inpTxt("timeRPattern", 25, null), $txt(Lng.cfg.timeRPattern[lang])])])]);
+		})])])), lBox('hideReplies', true, null), lBox('updThrBtns', true, updateCSS), lBox('expandTrunc', true, updateCSS), optSel('postBtnsCSS', false, null), lBox('showHideBtn', false, updateCSS), lBox('showRepBtn', false, updateCSS), lBox('noSpoilers', true, updateCSS), lBox('noPostNames', true, updateCSS), lBox('widePosts', true, updateCSS), $New('div', null, [lBox('correctTime', false, DateTime.toggleSettings), inpTxt('timeOffset', 2, null), $txt(Lng.cfg.timeOffset[lang]), $add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-' + (lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">[?]</a>')]), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [inpTxt('timePattern', 25, null), $txt(Lng.cfg.timePattern[lang])]), $New('div', null, [inpTxt('timeRPattern', 25, null), $txt(Lng.cfg.timeRPattern[lang])])])]);
 	}
 
 	function getCfgImages() {
-		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-images" }, [optSel("expandImgs", true, null), $New("div", { "class": "de-cfg-depend" }, [lBox("imgNavBtns", true, updateCSS), lBox("resizeImgs", true, null), $if(Post.sizing.dPxRatio > 1, lBox("resizeDPI", true, null)), $New("div", null, [inpTxt("minImgSize", 4, function () {
-			saveCfg("minImgSize", Math.max(+this.value, 1));
-		}), $txt(Lng.cfg.minImgSize[lang])]), inpTxt("zoomFactor", 4, function () {
-			saveCfg("zoomFactor", Math.min(Math.max(+this.value, 1), 100));
-		}), $txt(Lng.cfg.zoomFactor[lang]), lBox("webmControl", true, null), $if(nav.canPlayWebm, $New("div", null, [inpTxt("webmVolume", 4, function () {
+		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-images' }, [optSel('expandImgs', true, null), $New('div', { 'class': 'de-cfg-depend' }, [lBox('imgNavBtns', true, updateCSS), lBox('resizeImgs', true, null), $if(Post.sizing.dPxRatio > 1, lBox('resizeDPI', true, null)), $New('div', null, [inpTxt('minImgSize', 4, function () {
+			saveCfg('minImgSize', Math.max(+this.value, 1));
+		}), $txt(Lng.cfg.minImgSize[lang])]), inpTxt('zoomFactor', 4, function () {
+			saveCfg('zoomFactor', Math.min(Math.max(+this.value, 1), 100));
+		}), $txt(Lng.cfg.zoomFactor[lang]), lBox('webmControl', true, null), $if(nav.canPlayWebm, $New('div', null, [inpTxt('webmVolume', 4, function () {
 			var val = Math.min(+this.value || 0, 100);
 			if (Attachment.viewer) {
 				Attachment.viewer.setWebmVolume(val);
 			}
-			saveCfg("webmVolume", val);
-			locStorage["__de-webmvolume"] = val;
-			locStorage.removeItem("__de-webmvolume");
-		}), $txt(Lng.cfg.webmVolume[lang])]))]), $if(!nav.Presto, lBox("preLoadImgs", true, null)), $if(!nav.Presto && !aib.fch, $New("div", { "class": "de-cfg-depend" }, [lBox("findImgFile", true, null)])), optSel("openImgs", true, null), lBox("imgSrcBtns", true, null), lBox("delImgNames", true, null)]);
+			saveCfg('webmVolume', val);
+			locStorage['__de-webmvolume'] = val;
+			locStorage.removeItem('__de-webmvolume');
+		}), $txt(Lng.cfg.webmVolume[lang])]))]), $if(!nav.Presto, lBox('preLoadImgs', true, null)), $if(!nav.Presto && !aib.fch, $New('div', { 'class': 'de-cfg-depend' }, [lBox('findImgFile', true, null)])), optSel('openImgs', true, null), lBox('imgSrcBtns', true, null), lBox('delImgNames', true, null)]);
 	}
 
 	function getCfgLinks() {
-		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-links" }, [optSel("linksNavig", true, null), $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [inpTxt("linksOver", 4, function () {
-			saveCfg("linksOver", +this.value | 0);
-		}), $txt(Lng.cfg.linksOver[lang]), inpTxt("linksOut", 4, function () {
-			saveCfg("linksOut", +this.value | 0);
-		}), $txt(Lng.cfg.linksOut[lang])]), lBox("markViewed", true, null), lBox("strikeHidd", true, null), $New("div", { "class": "de-cfg-depend" }, [lBox("removeHidd", false, updateCSS)]), lBox("noNavigHidd", true, null)]), lBox("crossLinks", true, null), lBox("insertNum", true, null), lBox("addOPLink", true, null), lBox("addImgs", true, null), lBox("addMP3", false, null), $if(aib.prot === "http:", lBox("addVocaroo", false, null)), optSel("addYouTube", true, null), $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [optSel("YTubeType", false, null), inpTxt("YTubeWidth", 4, null), $txt("×"), inpTxt("YTubeHeigh", 4, null)]), lBox("YTubeTitles", false, null), $New("div", null, [inpTxt("ytApiKey", 25, function () {
-			saveCfg("ytApiKey", this.value.trim());
-		}), $txt(" " + Lng.cfg.ytApiKey[lang])]), lBox("addVimeo", true, null)])]);
+		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-links' }, [optSel('linksNavig', true, null), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [inpTxt('linksOver', 4, function () {
+			saveCfg('linksOver', +this.value | 0);
+		}), $txt(Lng.cfg.linksOver[lang]), inpTxt('linksOut', 4, function () {
+			saveCfg('linksOut', +this.value | 0);
+		}), $txt(Lng.cfg.linksOut[lang])]), lBox('markViewed', true, null), lBox('strikeHidd', true, null), $New('div', { 'class': 'de-cfg-depend' }, [lBox('removeHidd', false, updateCSS)]), lBox('noNavigHidd', true, null)]), lBox('crossLinks', true, null), lBox('insertNum', true, null), lBox('addOPLink', true, null), lBox('addImgs', true, null), lBox('addMP3', false, null), $if(aib.prot === 'http:', lBox('addVocaroo', false, null)), optSel('addYouTube', true, null), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [optSel('YTubeType', false, null), inpTxt('YTubeWidth', 4, null), $txt('×'), inpTxt('YTubeHeigh', 4, null)]), lBox('YTubeTitles', false, null), $New('div', null, [inpTxt('ytApiKey', 25, function () {
+			saveCfg('ytApiKey', this.value.trim());
+		}), $txt(' ' + Lng.cfg.ytApiKey[lang])]), lBox('addVimeo', true, null)])]);
 	}
 
 	function getCfgForm() {
-		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-form" }, [optSel("ajaxReply", true, null), $if(pr.form, $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [lBox("postSameImg", true, null), lBox("removeEXIF", false, null), lBox("removeFName", false, null), lBox("sendErrNotif", true, null)]), lBox("scrAfterRep", true, null)])), $if(pr.form, optSel("addPostForm", true, function () {
-			saveCfg("addPostForm", this.selectedIndex);
+		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-form' }, [optSel('ajaxReply', true, null), $if(pr.form, $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [lBox('postSameImg', true, null), lBox('removeEXIF', false, null), lBox('removeFName', false, null), lBox('sendErrNotif', true, null)]), lBox('scrAfterRep', true, null)])), $if(pr.form, optSel('addPostForm', true, function () {
+			saveCfg('addPostForm', this.selectedIndex);
 			pr.isBottom = Cfg.addPostForm === 1;
 			pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
-		})), $if(pr.txta, lBox("spacedQuote", true, null)), lBox("favOnReply", true, null), $if(pr.subj, lBox("warnSubjTrip", false, null)), $if(pr.file && !nav.Presto, lBox("fileThumb", true, function () {
+		})), $if(pr.txta, lBox('spacedQuote', true, null)), lBox('favOnReply', true, null), $if(pr.subj, lBox('warnSubjTrip', false, null)), $if(pr.file && !nav.Presto, lBox('fileThumb', true, function () {
 			for (var inp = pr.fileObj; true; inp = inp.next) {
 				inp.updateUtils();
 				if (!inp.next) {
@@ -5042,32 +4882,32 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				pr.setPlaceholders();
 			}
 			updateCSS();
-		})), $if(!aib.iich && pr.mail, $New("div", null, [lBox("addSageBtn", false, null), lBox("saveSage", false, null)])), $if(pr.capTr, optSel("captchaLang", true, null)), $if(pr.txta, $New("div", null, [optSel("addTextBtns", false, function () {
-			saveCfg("addTextBtns", this.selectedIndex);
+		})), $if(!aib.iich && pr.mail, $New('div', null, [lBox('addSageBtn', false, null), lBox('saveSage', false, null)])), $if(pr.capTr, optSel('captchaLang', true, null)), $if(pr.txta, $New('div', null, [optSel('addTextBtns', false, function () {
+			saveCfg('addTextBtns', this.selectedIndex);
 			pr.addTextPanel();
-		}), lBox("txtBtnsLoc", false, pr.addTextPanel.bind(pr))])), $if(pr.passw, $New("div", null, [inpTxt("passwValue", 15, PostForm.setUserPassw), $txt(Lng.cfg.userPassw[lang]), $btn(Lng.change[lang], "", function () {
-			$q("input[info=\"passwValue\"]", doc).value = Math.round(Math.random() * 1000000000000000).toString(32);
+		}), lBox('txtBtnsLoc', false, pr.addTextPanel.bind(pr))])), $if(pr.passw, $New('div', null, [inpTxt('passwValue', 15, PostForm.setUserPassw), $txt(Lng.cfg.userPassw[lang]), $btn(Lng.change[lang], '', function () {
+			$q('input[info="passwValue"]', doc).value = Math.round(Math.random() * 1e15).toString(32);
 			PostForm.setUserPassw();
-		})])), $if(pr.name, $New("div", null, [inpTxt("nameValue", 15, PostForm.setUserName), $txt(" "), lBox("userName", false, PostForm.setUserName)])), $New("div", null, [$txt(Lng.dontShow[lang]), lBox("noBoardRule", false, updateCSS), $if(pr.gothr, lBox("noGoto", false, function () {
+		})])), $if(pr.name, $New('div', null, [inpTxt('nameValue', 15, PostForm.setUserName), $txt(' '), lBox('userName', false, PostForm.setUserName)])), $New('div', null, [$txt(Lng.dontShow[lang]), lBox('noBoardRule', false, updateCSS), $if(pr.gothr, lBox('noGoto', false, function () {
 			$disp(pr.gothr);
-		})), $if(pr.passw, lBox("noPassword", false, function () {
+		})), $if(pr.passw, lBox('noPassword', false, function () {
 			$disp(pr.passw.parentNode.parentNode);
-		})), $if(pr.name, lBox("noName", false, function () {
+		})), $if(pr.name, lBox('noName', false, function () {
 			$disp(pr.name.parentNode.parentNode);
 		}))])]);
 	}
 
 	function getCfgCommon() {
-		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-common" }, [optSel("scriptStyle", true, function () {
-			saveCfg("scriptStyle", this.selectedIndex);
-			$id("de-main").lang = $q("#de-win-reply > .de-win-head", doc).lang = getThemeLang();
-		}), $New("div", null, [lBox("userCSS", false, updateCSS), addEditButton("css", function (fn) {
+		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-common' }, [optSel('scriptStyle', true, function () {
+			saveCfg('scriptStyle', this.selectedIndex);
+			$id('de-main').lang = $q('#de-win-reply > .de-win-head', doc).lang = getThemeLang();
+		}), $New('div', null, [lBox('userCSS', false, updateCSS), addEditButton('css', function (fn) {
 			fn(Cfg.userCSSTxt, false, function () {
-				saveCfg("userCSSTxt", this.value);
+				saveCfg('userCSSTxt', this.value);
 				updateCSS();
-				toggleWindow("cfg", true);
+				toggleWindow('cfg', true);
 			});
-		})]), lBox("panelCounter", true, updateCSS), lBox("rePageTitle", true, null), lBox("animation", true, null), lBox("closePopups", true, null), $New("div", null, [lBox("hotKeys", false, function () {
+		})]), lBox('panelCounter', true, updateCSS), lBox('rePageTitle', true, null), lBox('animation', true, null), lBox('closePopups', true, null), $New('div', null, [lBox('hotKeys', false, function () {
 			if (Cfg.hotKeys) {
 				if (hKeys) {
 					hKeys.enable();
@@ -5077,43 +4917,43 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			} else if (hKeys) {
 				hKeys.disable();
 			}
-		}), $btn(Lng.edit[lang], "", function (e) {
+		}), $btn(Lng.edit[lang], '', function (e) {
 			$pd(e);
-			if ($id("de-popup-edit-hotkeys")) {
+			if ($id('de-popup-edit-hotkeys')) {
 				return;
 			}
 			spawn(HotKeys.readKeys).then(function (keys) {
 				var temp = KeyEditListener.getEditMarkup(keys),
-				    el = $popup(temp[1], "edit-hotkeys", false),
+				    el = $popup(temp[1], 'edit-hotkeys', false),
 				    fn = new KeyEditListener(el, keys, temp[0]);
-				el.addEventListener("focus", fn, true);
-				el.addEventListener("blur", fn, true);
-				el.addEventListener("click", fn, true);
-				el.addEventListener("keydown", fn, true);
-				el.addEventListener("keyup", fn, true);
+				el.addEventListener('focus', fn, true);
+				el.addEventListener('blur', fn, true);
+				el.addEventListener('click', fn, true);
+				el.addEventListener('keydown', fn, true);
+				el.addEventListener('keyup', fn, true);
 			});
-		})]), $New("div", { "class": "de-cfg-depend" }, [inpTxt("loadPages", 2, null), $txt(Lng.cfg.loadPages[lang])]), $if(!nav.isChromeStorage && !nav.Presto || nav.isGM, $New("div", null, [lBox("updScript", true, null), $New("div", { "class": "de-cfg-depend" }, [optSel("scrUpdIntrv", false, null), $btn(Lng.checkNow[lang], "", function () {
-			$popup(Lng.loading[lang], "updavail", true);
-			spawn(getStoredObj, "DESU_Config").then(function (val) {
+		})]), $New('div', { 'class': 'de-cfg-depend' }, [inpTxt('loadPages', 2, null), $txt(Lng.cfg.loadPages[lang])]), $if(!nav.isChromeStorage && !nav.Presto || nav.isGM, $New('div', null, [lBox('updScript', true, null), $New('div', { 'class': 'de-cfg-depend' }, [optSel('scrUpdIntrv', false, null), $btn(Lng.checkNow[lang], '', function () {
+			$popup(Lng.loading[lang], 'updavail', true);
+			spawn(getStoredObj, 'DESU_Config').then(function (val) {
 				return checkForUpdates(true, val.lastUpd);
 			}).then(function (html) {
-				return $popup(html, "updavail", false);
+				return $popup(html, 'updavail', false);
 			}, emptyFn);
-		})])])), $if(nav.isGlobal, $New("div", null, [$txt(Lng.cfg.excludeList[lang]), $new("input", { type: "text", id: "de-exclude-edit", style: "display: block; width: 80%;",
-			value: excludeList,
-			placeholder: "4chan.org, 8ch.net, ..." }, {
-			keyup: function keyup() {
-				setStored("DESU_Exclude", this.value);
+		})])])), $if(nav.isGlobal, $New('div', null, [$txt(Lng.cfg['excludeList'][lang]), $new('input', { 'type': 'text', 'id': 'de-exclude-edit', 'style': 'display: block; width: 80%;',
+			'value': excludeList,
+			'placeholder': '4chan.org, 8ch.net, ...' }, {
+			'keyup': function keyup() {
+				setStored('DESU_Exclude', this.value);
 			}
-		}), lBox("turnOff", true, function () {
-			spawn(getStoredObj, "DESU_Config").then(function (val) {
+		}), lBox('turnOff', true, function () {
+			spawn(getStoredObj, 'DESU_Config').then(function (val) {
 				for (var dm in val) {
-					if (dm !== aib.dm && dm !== "global" && dm !== "lastUpd") {
+					if (dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
 						val[dm].disabled = Cfg.turnOff;
 					}
 				}
 				val[aib.dm].turnOff = Cfg.turnOff;
-				setStored("DESU_Config", JSON.stringify(val));
+				setStored('DESU_Config', JSON.stringify(val));
 			});
 		})]))]);
 	}
@@ -5130,51 +4970,51 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}
 		function getInfoTable(data, needMs) {
 			return data.map(function (data) {
-				return "<div class=\"de-info-row\">\n\t\t\t<span class=\"de-info-name\">" + data[0] + "</span>\n\t\t\t<span>" + (data[1] + (needMs ? "ms" : "")) + "</span>\n\t\t</div>";
-			}).join("");
+				return '<div class="de-info-row">\n\t\t\t<span class="de-info-name">' + data[0] + '</span>\n\t\t\t<span>' + (data[1] + (needMs ? 'ms' : '')) + '</span>\n\t\t</div>';
+			}).join('');
 		}
-		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-info" }, [$add("<div style=\"padding-bottom: 10px;\">" + "<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions\" " + "target=\"_blank\">v" + version + "." + commit + "</a>&nbsp;|&nbsp;" + "<a href=\"http://www.freedollchan.org/scripts/\" target=\"_blank\">Freedollchan</a>&nbsp;|&nbsp;" + "<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/" + (lang ? "home-en/" : "") + "\" target=\"_blank\">Github</a></div>"), $add("<div id=\"de-info-table\"><div id=\"de-info-stats\">" + getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], getHiddenThrCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false) + "</div>" + "<div id=\"de-info-log\">" + getInfoTable(new Logger().getData(false), true) + "</div></div>"), $btn(Lng.debug[lang], Lng.infoDebug[lang], function () {
-			$popup(Lng.infoDebug[lang] + ":<textarea readonly class=\"de-editor\"></textarea>", "cfg-debug", false).firstElementChild.value = JSON.stringify({
-				version: version,
-				location: String(window.location),
-				nav: nav,
-				cfg: Cfg,
-				sSpells: spells.list.split("\n"),
-				oSpells: sesStorage["de-spells-" + aib.b + (aib.t || "")],
-				perf: new Logger().getData(true)
+		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-info' }, [$add('<div style="padding-bottom: 10px;">' + '<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions" ' + 'target="_blank">v' + version + '.' + commit + '</a>&nbsp;|&nbsp;' + '<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;' + '<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' + (lang ? 'home-en/' : '') + '" target="_blank">Github</a></div>'), $add('<div id="de-info-table"><div id="de-info-stats">' + getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], getHiddenThrCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false) + '</div>' + '<div id="de-info-log">' + getInfoTable(new Logger().getData(false), true) + '</div></div>'), $btn(Lng.debug[lang], Lng.infoDebug[lang], function () {
+			$popup(Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>', 'cfg-debug', false).firstElementChild.value = JSON.stringify({
+				'version': version,
+				'location': String(window.location),
+				'nav': nav,
+				'cfg': Cfg,
+				'sSpells': spells.list.split('\n'),
+				'oSpells': sesStorage['de-spells-' + aib.b + (aib.t || '')],
+				'perf': new Logger().getData(true)
 			}, function (key, value) {
 				switch (key) {
-					case "stats":
-					case "nameValue":
-					case "passwValue":
-					case "ytApiKey":
+					case 'stats':
+					case 'nameValue':
+					case 'passwValue':
+					case 'ytApiKey':
 						return void 0;
 				}
 				if (key in defaultCfg && value === defaultCfg[key]) {
 					return void 0;
 				}
 				return value;
-			}, "\t");
+			}, '\t');
 		})]);
 	}
 
 	function addEditButton(name, getDataFn) {
 		return $btn(Lng.edit[lang], Lng.editInTxt[lang], function () {
 			return getDataFn(function (val, isJSON, saveFn) {
-				var el = $popup("<b>" + Lng.editor[name][lang] + "</b>" + "<textarea class=\"de-editor\"></textarea>", "edit-" + name, false),
+				var el = $popup('<b>' + Lng.editor[name][lang] + '</b>' + '<textarea class="de-editor"></textarea>', 'edit-' + name, false),
 				    ta = el.lastChild;
-				ta.value = isJSON ? JSON.stringify(val, null, "\t") : val;
+				ta.value = isJSON ? JSON.stringify(val, null, '\t') : val;
 				el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], isJSON ? (function (fun) {
 					var data;
 					try {
-						data = JSON.parse(this.value.trim().replace(/[\n\r\t]/g, "") || "{}");
+						data = JSON.parse(this.value.trim().replace(/[\n\r\t]/g, '') || '{}');
 					} finally {
 						if (data) {
 							fun(data);
-							closePopup("edit-" + name);
-							closePopup("err-invaliddata");
+							closePopup('edit-' + name);
+							closePopup('err-invaliddata');
 						} else {
-							$popup(Lng.invalidData[lang], "err-invaliddata", false);
+							$popup(Lng.invalidData[lang], 'err-invaliddata', false);
 						}
 					}
 				}).bind(ta, saveFn) : saveFn.bind(ta)));
@@ -5184,126 +5024,126 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 	function cfgTabClick(e) {
 		var el = e.target;
-		if (el.hasAttribute("selected")) {
+		if (el.hasAttribute('selected')) {
 			return;
 		}
-		var prefTab = $c("de-cfg-body", doc);
+		var prefTab = $c('de-cfg-body', doc);
 		if (prefTab) {
-			prefTab.className = "de-cfg-unvis";
-			$q(".de-cfg-tab[selected]", doc).removeAttribute("selected");
+			prefTab.className = 'de-cfg-unvis';
+			$q('.de-cfg-tab[selected]', doc).removeAttribute('selected');
 		}
-		el.setAttribute("selected", "");
-		var id = el.getAttribute("info"),
-		    newTab = $id("de-cfg-" + id);
+		el.setAttribute('selected', '');
+		var id = el.getAttribute('info'),
+		    newTab = $id('de-cfg-' + id);
 		if (!newTab) {
-			$after($id("de-cfg-bar"), newTab = id === "filters" ? getCfgFilters() : id === "posts" ? getCfgPosts() : id === "images" ? getCfgImages() : id === "links" ? getCfgLinks() : id === "form" ? getCfgForm() : id === "common" ? getCfgCommon() : getCfgInfo());
-			if (id === "filters") {
-				updRowMeter($id("de-spell-txt"));
+			$after($id('de-cfg-bar'), newTab = id === 'filters' ? getCfgFilters() : id === 'posts' ? getCfgPosts() : id === 'images' ? getCfgImages() : id === 'links' ? getCfgLinks() : id === 'form' ? getCfgForm() : id === 'common' ? getCfgCommon() : getCfgInfo());
+			if (id === 'filters') {
+				updRowMeter($id('de-spell-txt'));
 			}
 		}
-		newTab.className = "de-cfg-body";
-		if (id === "filters") {
-			$id("de-spell-txt").value = spells.list;
+		newTab.className = 'de-cfg-body';
+		if (id === 'filters') {
+			$id('de-spell-txt').value = spells.list;
 		}
 		fixSettings();
 	}
 
 	function addSettings(body, id) {
-		var cfgTab = function (name) {
-			return $new("div", {
-				"class": aib.cReply + " de-cfg-tab",
-				text: Lng.cfgTab[name][lang],
-				info: name }, {
-				click: cfgTabClick
+		var cfgTab = function cfgTab(name) {
+			return $new('div', {
+				'class': aib.cReply + ' de-cfg-tab',
+				'text': Lng.cfgTab[name][lang],
+				'info': name }, {
+				'click': cfgTabClick
 			});
 		};
-		body.appendChild($New("div", { id: "de-cfg-bar" }, [cfgTab("filters"), cfgTab("posts"), cfgTab("images"), cfgTab("links"), $if(pr.form || pr.oeForm, cfgTab("form")), cfgTab("common"), cfgTab("info")]));
-		body.appendChild($New("div", { id: "de-cfg-buttons" }, [optSel("language", false, function () {
-			saveCfg("language", lang = this.selectedIndex);
+		body.appendChild($New('div', { 'id': 'de-cfg-bar' }, [cfgTab('filters'), cfgTab('posts'), cfgTab('images'), cfgTab('links'), $if(pr.form || pr.oeForm, cfgTab('form')), cfgTab('common'), cfgTab('info')]));
+		body.appendChild($New('div', { 'id': 'de-cfg-buttons' }, [optSel('language', false, function () {
+			saveCfg('language', lang = this.selectedIndex);
 			panel.remove();
-			$del($id("de-css"));
-			$del($id("de-css-dynamic"));
+			$del($id('de-css'));
+			$del($id('de-css-dynamic'));
 			scriptCSS();
 			panel.init(dForm.el);
-			toggleWindow("cfg", false);
-		}, "de-cfg-lang-select"), addEditButton("cfg", function (fn) {
+			toggleWindow('cfg', false);
+		}, 'de-cfg-lang-select'), addEditButton('cfg', function (fn) {
 			fn(Cfg, true, function (data) {
 				saveComCfg(aib.dm, data);
 				window.location.reload();
 			});
 		}), $btn(Lng.reset[lang], Lng.resetCfg[lang], function () {
 			if (confirm(Lng.conReset[lang])) {
-				delStored("DESU_Config");
-				delStored("DESU_Favorites");
-				delStored("DESU_Posts_" + aib.dm);
-				delStored("DESU_Threads_" + aib.dm);
-				delStored("DESU_keys");
+				delStored('DESU_Config');
+				delStored('DESU_Favorites');
+				delStored('DESU_Posts_' + aib.dm);
+				delStored('DESU_Threads_' + aib.dm);
+				delStored('DESU_keys');
 				window.location.reload();
 			}
 		}), $if(nav.isGlobal, $btn(Lng.global[lang], Lng.globalCfg[lang], function () {
-			var el = $popup("<b>" + Lng.globalCfg[lang] + ":</b>", "cfg-global", false);
-			el.appendChild($New("div", { "class": "de-list" }, [$btn(Lng.load[lang], "", function () {
-				spawn(getStoredObj, "DESU_Config").then(function (val) {
-					if (val && "global" in val && !$isEmpty(val.global)) {
+			var el = $popup('<b>' + Lng.globalCfg[lang] + ':</b>', 'cfg-global', false);
+			el.appendChild($New('div', { 'class': 'de-list' }, [$btn(Lng.load[lang], '', function () {
+				spawn(getStoredObj, 'DESU_Config').then(function (val) {
+					if (val && 'global' in val && !$isEmpty(val.global)) {
 						delete val[aib.dm];
-						setStored("DESU_Config", JSON.stringify(val));
+						setStored('DESU_Config', JSON.stringify(val));
 						window.location.reload();
 					} else {
-						$popup(Lng.noGlobalCfg[lang], "err-noglobalcfg", false);
+						$popup(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
 					}
 				});
 			}), $txt(Lng.loadGlobal[lang])]));
-			el.appendChild($New("div", { "class": "de-list" }, [$btn(Lng.save[lang], "", function () {
-				spawn(getStoredObj, "DESU_Config").then(function (val) {
+			el.appendChild($New('div', { 'class': 'de-list' }, [$btn(Lng.save[lang], '', function () {
+				spawn(getStoredObj, 'DESU_Config').then(function (val) {
 					var obj = {},
 					    com = val[aib.dm];
 					for (var i in com) {
-						if (i !== "correctTime" && i !== "timePattern" && i !== "userCSS" && i !== "userCSSTxt" && com[i] !== defaultCfg[i] && i !== "stats") {
+						if (i !== 'correctTime' && i !== 'timePattern' && i !== 'userCSS' && i !== 'userCSSTxt' && com[i] !== defaultCfg[i] && i !== 'stats') {
 							obj[i] = com[i];
 						}
 					}
 					val.global = obj;
-					setStored("DESU_Config", JSON.stringify(val));
-					toggleWindow("cfg", true);
+					setStored('DESU_Config', JSON.stringify(val));
+					toggleWindow('cfg', true);
 				});
 			}), $txt(Lng.saveGlobal[lang])]));
-			el.insertAdjacentHTML("beforeend", "<hr><small>" + Lng.descrGlobal[lang] + "</small>");
-		})), $if(!nav.Presto, $btn(Lng.file[lang], "", function () {
-			$popup("<b>" + Lng.impexpCfg[lang] + ":</b>" + "<div class=\"de-list\">" + Lng.fileToCfg[lang] + ":<br>" + "<input type=\"file\" accept=\".json\" id=\"de-import-file\" style=\"margin-left: 12px;\"></div>" + "<div class=\"de-list\"><a id=\"de-export-file\" href=\"#\">" + Lng.cfgToFile[lang] + "</div>", "cfg-file", false);
-			$id("de-import-file").onchange = function (_ref) {
-				var _ref$target$files = _slicedToArray(_ref.target.files, 1);
+			el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
+		})), $if(!nav.Presto, $btn(Lng.file[lang], '', function () {
+			$popup('<b>' + Lng.impexpCfg[lang] + ':</b>' + '<div class="de-list">' + Lng.fileToCfg[lang] + ':<br>' + '<input type="file" accept=".json" id="de-import-file" style="margin-left: 12px;"></div>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.cfgToFile[lang] + '</div>', 'cfg-file', false);
+			$id('de-import-file').onchange = function (_ref4) {
+				var _ref4$target$files = _slicedToArray(_ref4.target.files, 1);
 
-				var file = _ref$target$files[0];
+				var file = _ref4$target$files[0];
 
 				if (file) {
 					readFile(file, true).then(function (val) {
 						var dummy = JSON.parse(val);
-						setStored("DESU_Config", val);
+						setStored('DESU_Config', val);
 						window.location.reload();
-					})["catch"](function () {
-						return $popup(Lng.invalidData[lang], "err-invaliddata", false);
+					})['catch'](function () {
+						return $popup(Lng.invalidData[lang], 'err-invaliddata', false);
 					});
 				}
 			};
-			$id("de-export-file").addEventListener("click", function (e) {
-				spawn(getStored, "DESU_Config").then(function (val) {
+			$id('de-export-file').addEventListener('click', function (e) {
+				spawn(getStored, 'DESU_Config').then(function (val) {
 					var d = new Date(),
 					    fn = function fn(i) {
-						return parseInt(i) < 10 ? "0" + i : i;
+						return parseInt(i) < 10 ? '0' + i : i;
 					};
-					downloadBlob(new Blob([val], { type: "application/json" }), "DE_Config_" + d.getFullYear() + fn(d.getMonth() + 1) + fn(d.getDate()) + "_" + fn(d.getHours()) + fn(d.getMinutes()) + ".json");
+					downloadBlob(new Blob([val], { type: 'application/json' }), 'DE_Config_' + d.getFullYear() + fn(d.getMonth() + 1) + fn(d.getDate()) + '_' + fn(d.getHours()) + fn(d.getMinutes()) + '.json');
 				});
 				$pd(e);
 			}, true);
 		}))]));
-		$q(".de-cfg-tab[info=\"" + (id || "filters") + "\"]", body).click();
+		$q('.de-cfg-tab[info="' + (id || 'filters') + '"]', body).click();
 	}
 
 
 
 
 	function closePopup(id) {
-		var el = $id("de-popup-" + id);
+		var el = $id('de-popup-' + id);
 		if (el) {
 			el.closeTimeout = null;
 			if (!Cfg.animation) {
@@ -5316,71 +5156,71 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					p.removeChild(node);
 				}
 			});
-			el.classList.add("de-close");
+			el.classList.add('de-close');
 		}
 	}
 
 	function $popup(txt, id, wait) {
 		var node,
-		    el = $id("de-popup-" + id),
-		    cBtn = "de-popup-btn" + (wait ? " de-wait" : ""),
-		    tBtn = wait ? "" : "✖ ";
+		    el = $id('de-popup-' + id),
+		    cBtn = 'de-popup-btn' + (wait ? ' de-wait' : ''),
+		    tBtn = wait ? '' : '✖ ';
 		if (el) {
-			$t("div", el).innerHTML = txt.trim();
-			node = $t("span", el);
+			$t('div', el).innerHTML = txt.trim();
+			node = $t('span', el);
 			node.className = cBtn;
 			node.textContent = tBtn;
 			clearTimeout(el.closeTimeout);
 			if (!wait && Cfg.animation) {
 				nav.animEvent(el, function (node) {
-					node.classList.remove("de-blink");
+					node.classList.remove('de-blink');
 				});
-				el.classList.add("de-blink");
+				el.classList.add('de-blink');
 			}
 		} else {
-			el = $id("de-popup").appendChild($New("div", { "class": aib.cReply, id: "de-popup-" + id }, [$new("span", { "class": cBtn, text: tBtn }, { click: function click() {
+			el = $id('de-popup').appendChild($New('div', { 'class': aib.cReply, 'id': 'de-popup-' + id }, [$new('span', { 'class': cBtn, 'text': tBtn }, { 'click': function click() {
 					closePopup(id);
-				} }), $add("<div class=\"de-popup-msg\">" + txt.trim() + "</div>")]));
+				} }), $add('<div class="de-popup-msg">' + txt.trim() + '</div>')]));
 			if (Cfg.animation) {
 				nav.animEvent(el, function (node) {
-					node.classList.remove("de-open");
+					node.classList.remove('de-open');
 				});
-				el.classList.add("de-open");
+				el.classList.add('de-open');
 			}
 		}
-		if (Cfg.closePopups && !wait && !id.includes("edit") && !id.includes("cfg")) {
-			el.closeTimeout = setTimeout(closePopup, 4000, id);
+		if (Cfg.closePopups && !wait && !id.includes('edit') && !id.includes('cfg')) {
+			el.closeTimeout = setTimeout(closePopup, 4e3, id);
 		}
 		return el.lastChild;
 	}
 
 	function Menu(parentEl, html, isFixed, clickFn) {
-		doc.body.insertAdjacentHTML("beforeend", "<div class=\"" + aib.cReply + " de-menu\" style=\"position: " + (isFixed ? "fixed" : "absolute") + "; left: 0px; top: 0px; visibility: hidden;\">" + html + "</div>");
+		doc.body.insertAdjacentHTML('beforeend', '<div class="' + aib.cReply + ' de-menu" style="position: ' + (isFixed ? 'fixed' : 'absolute') + '; left: 0px; top: 0px; visibility: hidden;">' + html + '</div>');
 		var el = doc.body.lastChild;
 		var mStyle = el.style;
 		var cr = parentEl.getBoundingClientRect();
 		var width = el.offsetWidth;
 		var xOffset = isFixed ? 0 : window.pageXOffset;
 		if (cr.left + width < Post.sizing.wWidth) {
-			mStyle.left = xOffset + cr.left + "px";
+			mStyle.left = xOffset + cr.left + 'px';
 		} else {
-			mStyle.left = xOffset + cr.right - width + "px";
+			mStyle.left = xOffset + cr.right - width + 'px';
 		}
 		var height = el.offsetHeight;
 		var yOffset = isFixed ? 0 : window.pageYOffset;
 		if (cr.bottom + height < Post.sizing.wHeight) {
-			mStyle.top = yOffset + cr.bottom + "px";
+			mStyle.top = yOffset + cr.bottom + 'px';
 		} else {
-			mStyle.top = yOffset + cr.top - height + "px";
+			mStyle.top = yOffset + cr.top - height + 'px';
 		}
-		mStyle.removeProperty("visibility");
+		mStyle.removeProperty('visibility');
 		this._clickFn = clickFn;
 		this._el = el;
 		this._parentEl = parentEl;
-		el.addEventListener("mouseover", this, true);
-		el.addEventListener("mouseout", this, true);
-		parentEl.addEventListener("mouseout", this);
-		el.addEventListener("click", this);
+		el.addEventListener('mouseover', this, true);
+		el.addEventListener('mouseout', this, true);
+		parentEl.addEventListener('mouseout', this);
+		el.addEventListener('click', this);
 	}
 	Menu.prototype = {
 		_closeTO: 0,
@@ -5390,39 +5230,39 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			if (!this._el) {
 				return;
 			}
-			this._el.removeEventListener("mouseover", this, true);
-			this._el.removeEventListener("mouseout", this, true);
-			this._parentEl.removeEventListener("mouseout", this);
-			this._el.removeEventListener("click", this);
+			this._el.removeEventListener('mouseover', this, true);
+			this._el.removeEventListener('mouseout', this, true);
+			this._parentEl.removeEventListener('mouseout', this);
+			this._el.removeEventListener('click', this);
 			$del(this._el);
 			this._el = null;
 		},
 		handleEvent: function handleEvent(e) {
-			var _this204 = this;
+			var _this6 = this;
 
 			var el = e.target;
 			switch (e.type) {
-				case "click":
-					if (el.className === "de-menu-item") {
+				case 'click':
+					if (el.className === 'de-menu-item') {
 						this.remove();
 						this._clickFn(el);
-						if (!Cfg.expandPanel && !$c("de-win-active", doc)) {
-							$id("de-panel").lastChild.style.display = "none";
+						if (!Cfg.expandPanel && !$c('de-win-active', doc)) {
+							$id('de-panel').lastChild.style.display = 'none';
 						}
 					}
 					break;
-				case "mouseover":
+				case 'mouseover':
 					clearTimeout(this._closeTO);
 					if (this.onover) {
 						this.onover();
 					}
 					return;
-				case "mouseout":
+				case 'mouseout':
 					clearTimeout(this._closeTO);
 					var rt = e.relatedTarget;
 					if (this._el && (!rt || rt !== this._el && !this._el.contains(rt))) {
 						this._closeTO = setTimeout(function () {
-							return _this204.remove();
+							return _this6.remove();
 						}, 75);
 						if (el !== this._parentEl && this.onout) {
 							this.onout();
@@ -5435,34 +5275,34 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 	function addMenu(el) {
 		switch (el.id) {
-			case "de-btn-addspell":
-				return new Menu(el, "<div style=\"display: inline-block; border-right: 1px solid grey;\">" + "<span class=\"de-menu-item\">" + "#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,<br>".split(",").join("</span><span class=\"de-menu-item\">") + "</span></div><div style=\"display: inline-block;\"><span class=\"de-menu-item\">" + "#sage,#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep".split(",").join("</span><span class=\"de-menu-item\">") + "</span></div>", true, function (el) {
+			case 'de-btn-addspell':
+				return new Menu(el, '<div style="display: inline-block; border-right: 1px solid grey;">' + '<span class="de-menu-item">' + '#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,<br>'.split(',').join('</span><span class="de-menu-item">') + '</span></div><div style="display: inline-block;"><span class="de-menu-item">' + '#sage,#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep'.split(',').join('</span><span class="de-menu-item">') + '</span></div>', true, function (el) {
 					var exp = el.textContent;
-					$txtInsert($id("de-spell-txt"), exp + (!aib.t || exp === "#op" || exp === "#rep" || exp === "#outrep" ? "" : "[" + aib.b + "," + aib.t + "]") + (Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? "(" : ""));
+					$txtInsert($id('de-spell-txt'), exp + (!aib.t || exp === '#op' || exp === '#rep' || exp === '#outrep' ? '' : '[' + aib.b + ',' + aib.t + ']') + (Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? '(' : ''));
 				});
-			case "de-panel-refresh":
-				return new Menu(el, "<span class=\"de-menu-item\">" + Lng.selAjaxPages[lang].join("</span><span class=\"de-menu-item\">") + "</span>", true, function (el) {
+			case 'de-panel-refresh':
+				return new Menu(el, '<span class="de-menu-item">' + Lng.selAjaxPages[lang].join('</span><span class="de-menu-item">') + '</span>', true, function (el) {
 					loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1);
 				});
-			case "de-panel-savethr":
-				return new Menu(el, "<span class=\"de-menu-item\">" + Lng.selSaveThr[lang].join("</span><span class=\"de-menu-item\">") + "</span>", true, function (el) {
-					if (!$id("de-popup-savethr")) {
+			case 'de-panel-savethr':
+				return new Menu(el, '<span class="de-menu-item">' + Lng.selSaveThr[lang].join('</span><span class="de-menu-item">') + '</span>', true, function (el) {
+					if (!$id('de-popup-savethr')) {
 						var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
 						if (Images_.preloading) {
-							$popup(Lng.loading[lang], "savethr", true);
+							$popup(Lng.loading[lang], 'savethr', true);
 							Images_.afterpreload = loadDocFiles.bind(null, imgOnly);
-							Images_.progressId = "savethr";
+							Images_.progressId = 'savethr';
 						} else {
 							loadDocFiles(imgOnly);
 						}
 					}
 				});
-			case "de-panel-audio-off":
-				return new Menu(el, "<span class=\"de-menu-item\">" + Lng.selAudioNotif[lang].join("</span><span class=\"de-menu-item\">") + "</span>", true, function (el) {
+			case 'de-panel-audio-off':
+				return new Menu(el, '<span class="de-menu-item">' + Lng.selAudioNotif[lang].join('</span><span class="de-menu-item">') + '</span>', true, function (el) {
 					var i = aProto.indexOf.call(el.parentNode.children, el);
 					updater.enable();
-					updater.toggleAudio(i === 0 ? 30000 : i === 1 ? 60000 : i === 2 ? 120000 : 300000);
-					$id("de-panel-audio-off").id = "de-panel-audio-on";
+					updater.toggleAudio(i === 0 ? 3e4 : i === 1 ? 6e4 : i === 2 ? 12e4 : 3e5);
+					$id('de-panel-audio-off').id = 'de-panel-audio-on';
 				});
 		}
 	}
@@ -5471,10 +5311,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 	function HotKeys() {
-		var _this204 = this;
+		var _this7 = this;
 
 		spawn(HotKeys.readKeys).then(function (keys) {
-			return _this204._init(keys);
+			return _this7._init(keys);
 		});
 	}
 	HotKeys.version = 7;
@@ -5483,17 +5323,17 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					return context$2$0.delegateYield(getStored("DESU_keys"), "t14", 1);
+					return context$2$0.delegateYield(getStored('DESU_keys'), 't0', 1);
 
 				case 1:
-					str = context$2$0.t14;
+					str = context$2$0.t0;
 
 					if (str) {
 						context$2$0.next = 4;
 						break;
 					}
 
-					return context$2$0.abrupt("return", HotKeys.getDefaultKeys());
+					return context$2$0.abrupt('return', HotKeys.getDefaultKeys());
 
 				case 4:
 					context$2$0.prev = 4;
@@ -5508,7 +5348,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						break;
 					}
 
-					return context$2$0.abrupt("return", HotKeys.getDefaultKeys());
+					return context$2$0.abrupt('return', HotKeys.getDefaultKeys());
 
 				case 9:
 					if (keys[0] !== HotKeys.version) {
@@ -5533,7 +5373,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 								keys[2][18] = tKeys[2][18];
 						}
 						keys[0] = HotKeys.version;
-						setStored("DESU_keys", JSON.stringify(keys));
+						setStored('DESU_keys', JSON.stringify(keys));
 					}
 					if (keys[1] ^ !!nav.Firefox) {
 						mapFunc = nav.Firefox ? function mapFuncFF(key) {
@@ -5563,44 +5403,23 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						keys[1] = !!nav.Firefox;
 						keys[2] = keys[2].map(mapFunc);
 						keys[3] = keys[3].map(mapFunc);
-						setStored("DESU_keys", JSON.stringify(keys));
+						setStored('DESU_keys', JSON.stringify(keys));
 					}
-					return context$2$0.abrupt("return", keys);
+					return context$2$0.abrupt('return', keys);
 
 				case 13:
-				case "end":
+				case 'end':
 					return context$2$0.stop();
 			}
 		}, callee$1$0, this, [[4,, 6, 13]]);
 	});
 	HotKeys.getDefaultKeys = function () {
 		var globKeys = [
-		75 ,
-		74 ,
-		82 ,
-		72 ,
-		4133 ,
-		49165 ,
-		16454 ,
-		16456 ,
-		80 ,
-		66 ,
-		16467 ,
-		73 ,
-		49218 ,
-		49225 ,
-		49236 ,
-		49232 ,
-		49219 ,
-		4135 ,
-		16470 		];
+		0x004B 		, 0x004A 		, 0x0052 		, 0x0048 		, 0x1025 		, 0xC00D 		, 0x4046 		, 0x4048 		, 0x0050 		, 0x0042 		, 0x4053 		, 0x0049 		, 0xC042 		, 0xC049 		, 0xC054 		, 0xC050 		, 0xC043 		, 0x1027 		, 0x4056 		];
 		var nonThrKeys = [
-		77 ,
-		78 ,
-		86 ,
-		69 		];
+		0x004D 		, 0x004E 		, 0x0056 		, 0x0045 		];
 		var thrKeys = [
-		85 		];
+		0x0055 		];
 		return [HotKeys.version, !!nav.Firefox, globKeys, nonThrKeys, thrKeys];
 	};
 	HotKeys.prototype = {
@@ -5622,14 +5441,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				if (this.cPost) {
 					this.cPost.unselect();
 				}
-				doc.removeEventListener("keydown", this, true);
+				doc.removeEventListener('keydown', this, true);
 				this.enabled = false;
 			}
 		},
 		enable: function enable() {
 			if (!this.enabled) {
 				this.clear(aib.page);
-				doc.addEventListener("keydown", this, true);
+				doc.addEventListener('keydown', this, true);
 				this.enabled = true;
 			}
 		},
@@ -5639,10 +5458,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 			var isThr = aib.t,
 			    curTh = e.target.tagName,
-			    kc = e.keyCode | (e.ctrlKey ? 4096 : 0) | (e.shiftKey ? 8192 : 0) | (e.altKey ? 16384 : 0) | (curTh === "TEXTAREA" || curTh === "INPUT" && (e.target.type === "text" || e.target.type === "password") ? 32768 : 0);
-			if (kc === 116 || kc === 32884) {
+			    kc = e.keyCode | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) | (e.altKey ? 0x4000 : 0) | (curTh === 'TEXTAREA' || curTh === 'INPUT' && (e.target.type === 'text' || e.target.type === 'password') ? 0x8000 : 0);
+			if (kc === 0x74 || kc === 0x8074) {
 			
-				if (isThr || $id("de-popup-load-pages")) {
+				if (isThr || $id('de-popup-load-pages')) {
 					return;
 				}
 				if (Attachment.viewer) {
@@ -5650,7 +5469,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					Attachment.viewer = null;
 				}
 				loadPages(+Cfg.loadPages);
-			} else if (kc === 27) {
+			} else if (kc === 0x1B) {
 			
 				if (Attachment.viewer) {
 					Attachment.viewer.close(null);
@@ -5665,7 +5484,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					dForm.firstThr.clearPostsMarks();
 				}
 				this.lastPageOffset = 0;
-			} else if (kc === 32795) {
+			} else if (kc === 0x801B) {
 			
 				e.target.blur();
 			} else {
@@ -5707,24 +5526,24 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						break;
 					case 6:
 					
-						toggleWindow("fav", false);
+						toggleWindow('fav', false);
 						break;
 					case 7:
 					
-						toggleWindow("hid", false);
+						toggleWindow('hid', false);
 						break;
 					case 8:
 					
-						$disp($id("de-panel").lastChild);
+						$disp($id('de-panel').lastChild);
 						break;
 					case 9:
 					
-						toggleCfg("maskImgs");
+						toggleCfg('maskImgs');
 						updateCSS();
 						break;
 					case 10:
 					
-						toggleWindow("cfg", false);
+						toggleWindow('cfg', false);
 						break;
 					case 11:
 					
@@ -5738,35 +5557,35 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						if (e.target !== pr.txta) {
 							return;
 						}
-						$id("de-btn-bold").click();
+						$id('de-btn-bold').click();
 						break;
 					case 13:
 					
 						if (e.target !== pr.txta) {
 							return;
 						}
-						$id("de-btn-italic").click();
+						$id('de-btn-italic').click();
 						break;
 					case 14:
 					
 						if (e.target !== pr.txta) {
 							return;
 						}
-						$id("de-btn-strike").click();
+						$id('de-btn-strike').click();
 						break;
 					case 15:
 					
 						if (e.target !== pr.txta) {
 							return;
 						}
-						$id("de-btn-spoil").click();
+						$id('de-btn-spoil').click();
 						break;
 					case 16:
 					
 						if (e.target !== pr.txta) {
 							return;
 						}
-						$id("de-btn-code").click();
+						$id('de-btn-code').click();
 						break;
 					case 17:
 					
@@ -5778,7 +5597,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						break;
 					case 18:
 					
-						toggleWindow("vid", false);
+						toggleWindow('vid', false);
 						break;
 					case -1:
 						if (isThr) {
@@ -5800,7 +5619,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 								if (nav.Firefox) {
 									GM_openInTab(aib.getThrdUrl(aib.b, post.tNum), false, true);
 								} else {
-									window.open(aib.getThrdUrl(aib.b, post.tNum), "_blank");
+									window.open(aib.getThrdUrl(aib.b, post.tNum), '_blank');
 								}
 							}
 							break;
@@ -5813,7 +5632,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 									post.thr.load(visPosts, !!nextThr);
 									post = (nextThr || post.thr).op;
 								} else {
-									post.thr.load("all", false);
+									post.thr.load('all', false);
 									post = post.thr.op;
 								}
 								scrollTo(0, post.offsetTop);
@@ -5873,7 +5692,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			this.gKeys = keys[2];
 			this.ntKeys = keys[3];
 			this.tKeys = keys[4];
-			doc.addEventListener("keydown", this, true);
+			doc.addEventListener('keydown', this, true);
 		},
 		_scroll: function _scroll(post, toUp, toThread) {
 			var next = this._getNextVisPost(post, toThread, toUp);
@@ -5898,14 +5717,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	};
 
 	function KeyEditListener(popupEl, keys, allKeys) {
-		var aInputs = aProto.slice.call($C("de-input-key", popupEl));
+		var aInputs = aProto.slice.call($C('de-input-key', popupEl));
 		for (var i = 0, len = allKeys.length; i < len; ++i) {
 			var k = allKeys[i];
 			if (k !== 0) {
 				for (var j = i + 1; j < len; ++j) {
 					if (k === allKeys[j]) {
-						aInputs[i].classList.add("de-error-key");
-						aInputs[j].classList.add("de-error-key");
+						aInputs[i].classList.add('de-error-key');
+						aInputs[j].classList.add('de-error-key');
 						break;
 					}
 				}
@@ -5916,7 +5735,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		this.initKeys = JSON.parse(JSON.stringify(keys));
 		this.allKeys = allKeys;
 		this.allInputs = aInputs;
-		this.errCount = $C("de-error-key", popupEl).length;
+		this.errCount = $C('de-error-key', popupEl).length;
 		if (this.errCount !== 0) {
 			this.saveButton.disabled = true;
 		}
@@ -5924,38 +5743,40 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 
-	KeyEditListener.keyCodes = ["",,,,,,,, "Backspace", "Tab",,,, "Enter",,, "Shift", "Ctrl", "Alt",,,,,,,,,,,,,, "Space",,,,, "←", "↑", "→", "↓",,,,,,,, "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",, ";",, "=",,,, "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",,,,,, "Numpad 0", "Numpad 1", "Numpad 2", "Numpad 3", "Numpad 4", "Numpad 5", "Numpad 6", "Numpad 7", "Numpad 8", "Numpad 9", "Numpad *", "Numpad +",, "Numpad -", "Numpad .", "Numpad /",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, "-",,,,,,,,,,,,, ";", "=", ",", "-", ".", "/", "`",,,,,,,,,,,,,,,,,,,,,,,,,,, "[", "\\", "]", "'"];
+	KeyEditListener.keyCodes = ['',,,,,,,, 'Backspace', 'Tab',,,, 'Enter',,, 'Shift', 'Ctrl', 'Alt',,,,,,,,,,,,,,
+	  'Space',,,,, 	  '←', '↑', '→', '↓',,,,,,,,  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',, ';',, '=',,,, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',,,,,,  	'Numpad 0', 'Numpad 1', 'Numpad 2', 'Numpad 3', 'Numpad 4', 'Numpad 5', 'Numpad 6', 'Numpad 7', 'Numpad 8', 'Numpad 9', 'Numpad *', 'Numpad +',, 'Numpad -', 'Numpad .', 'Numpad /',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+	         	   '-',,,,,,,,,,,,, ';', '=', ',', '-', '.', '/', '`',,,,,,,,,,,,,,,,,,,,,,,,,,, '[', '\\', ']', '\''];
 	KeyEditListener.getStrKey = function (key) {
-		var str = "";
-		if (key & 4096) {
-			str += "Ctrl+";
+		var str = '';
+		if (key & 0x1000) {
+			str += 'Ctrl+';
 		}
-		if (key & 8192) {
-			str += "Shift+";
+		if (key & 0x2000) {
+			str += 'Shift+';
 		}
-		if (key & 16384) {
-			str += "Alt+";
+		if (key & 0x4000) {
+			str += 'Alt+';
 		}
-		str += KeyEditListener.keyCodes[key & 4095];
+		str += KeyEditListener.keyCodes[key & 0xFFF];
 		return str;
 	};
 	KeyEditListener.getEditMarkup = function (keys) {
 		var allKeys = [];
-		var html = Lng.hotKeyEdit[lang].join("").replace(/%l/g, "<label class=\"de-block\">").replace(/%\/l/g, "</label>").replace(/%i([2-4])([0-9]+)(t)?/g, (function (aKeys, all, id1, id2, isText) {
+		var html = Lng.hotKeyEdit[lang].join('').replace(/%l/g, '<label class="de-block">').replace(/%\/l/g, '</label>').replace(/%i([2-4])([0-9]+)(t)?/g, (function (aKeys, all, id1, id2, isText) {
 			var key = this[+id1][+id2];
 			aKeys.push(key);
-			return "<input class=\"de-input-key\" type=\"text\" de-id1=\"" + id1 + "\" de-id2=\"" + id2 + "\" size=\"18\" value=\"" + KeyEditListener.getStrKey(key) + (isText ? "\" de-text" : "\"") + " readonly></input>";
-		}).bind(keys, allKeys)) + "<input type=\"button\" id=\"de-keys-save\" class=\"de-button\" value=\"" + Lng.save[lang] + "\"></input>" + "<input type=\"button\" id=\"de-keys-reset\" class=\"de-button\" value=\"" + Lng.reset[lang] + "\"></input>";
+			return '<input class="de-input-key" type="text" de-id1="' + id1 + '" de-id2="' + id2 + '" size="18" value="' + KeyEditListener.getStrKey(key) + (isText ? '" de-text' : '"') + ' readonly></input>';
+		}).bind(keys, allKeys)) + '<input type="button" id="de-keys-save" class="de-button" value="' + Lng.save[lang] + '"></input>' + '<input type="button" id="de-keys-reset" class="de-button" value="' + Lng.reset[lang] + '"></input>';
 		return [allKeys, html];
 	};
 	KeyEditListener.setTitle = function (el, idx) {
-		var title = el.getAttribute("de-title");
+		var title = el.getAttribute('de-title');
 		if (!title) {
-			title = el.getAttribute("title");
-			el.setAttribute("de-title", title);
+			title = el.getAttribute('title');
+			el.setAttribute('de-title', title);
 		}
 		if (hKeys && idx !== -1) {
-			title += " [" + KeyEditListener.getStrKey(hKeys.gKeys[idx]) + "]";
+			title += ' [' + KeyEditListener.getStrKey(hKeys.gKeys[idx]) + ']';
 		}
 		el.title = title;
 	};
@@ -5963,25 +5784,26 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		cEl: null,
 		cKey: -1,
 		errorInput: false,
+
 		handleEvent: function handleEvent(e) {
 			var key,
 			    el = e.target;
 			switch (e.type) {
-				case "blur":
+				case 'blur':
 					if (hKeys && this.errCount === 0) {
 						hKeys.resume(this.keys);
 					}
 					this.cEl = null;
 					return;
-				case "focus":
+				case 'focus':
 					if (hKeys) {
 						hKeys.pause();
 					}
 					this.cEl = el;
 					return;
-				case "click":
+				case 'click':
 					var keys;
-					if (el.id === "de-keys-reset") {
+					if (el.id === 'de-keys-reset') {
 						this.keys = HotKeys.getDefaultKeys();
 						this.initKeys = HotKeys.getDefaultKeys();
 						if (hKeys) {
@@ -5989,15 +5811,15 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						}
 						var temp = KeyEditListener.getEditMarkup(this.keys);
 						this.allKeys = temp[0];
-						$c("de-popup-msg", this.popupEl).innerHTML = temp[1];
-						this.allInputs = aProto.slice.call($C("de-input-key", this.popupEl));
+						$c('de-popup-msg', this.popupEl).innerHTML = temp[1];
+						this.allInputs = aProto.slice.call($C('de-input-key', this.popupEl));
 						this.errCount = 0;
 						delete this.saveButton;
 						break;
-					} else if (el.id === "de-keys-save") {
+					} else if (el.id === 'de-keys-save') {
 						keys = this.keys;
-						setStored("DESU_keys", JSON.stringify(keys));
-					} else if (el.className === "de-popup-btn") {
+						setStored('DESU_keys', JSON.stringify(keys));
+					} else if (el.className === 'de-popup-btn') {
 						keys = this.initKeys;
 					} else {
 						return;
@@ -6005,16 +5827,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					if (hKeys) {
 						hKeys.resume(keys);
 					}
-					closePopup("edit-hotkeys");
+					closePopup('edit-hotkeys');
 					break;
-				case "keydown":
+				case 'keydown':
 					if (!this.cEl) {
 						return;
 					}
 					key = e.keyCode;
-					if (key === 27 || key === 46) {
+					if (key === 0x1B || key === 0x2E) {
 					
-						this.cEl.value = "";
+						this.cEl.value = '';
 						this.cKey = 0;
 						this.errorInput = false;
 						break;
@@ -6024,34 +5846,34 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						this.cKey = -1;
 						return;
 					}
-					var str = "";
+					var str = '';
 					if (e.ctrlKey) {
-						str += "Ctrl+";
+						str += 'Ctrl+';
 					}
 					if (e.shiftKey) {
-						str += "Shift+";
+						str += 'Shift+';
 					}
 					if (e.altKey) {
-						str += "Alt+";
+						str += 'Alt+';
 					}
 					if (key === 16 || key === 17 || key === 18) {
 						this.errorInput = true;
 						this.cKey = 0;
 					} else {
-						this.cKey = key | (e.ctrlKey ? 4096 : 0) | (e.shiftKey ? 8192 : 0) | (e.altKey ? 16384 : 0) | (this.cEl.hasAttribute("de-text") ? 32768 : 0);
+						this.cKey = key | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) | (e.altKey ? 0x4000 : 0) | (this.cEl.hasAttribute('de-text') ? 0x8000 : 0);
 						this.errorInput = false;
 						str += keyStr;
 					}
 					this.cEl.value = str;
 					break;
-				case "keyup":
+				case 'keyup':
 					el = this.cEl;
 					key = this.cKey;
 					if (!el || key === -1) {
 						return;
 					}
 					var rEl,
-					    isError = el.classList.contains("de-error-key");
+					    isError = el.classList.contains('de-error-key');
 					if (!this.errorInput && key !== -1) {
 						var idx = this.allInputs.indexOf(el),
 						    oKey = this.allKeys[idx];
@@ -6065,18 +5887,18 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							idx = this.allKeys.indexOf(oKey);
 							if (idx !== -1 && this.allKeys.indexOf(oKey, idx + 1) === -1) {
 								rEl = this.allInputs[idx];
-								if (rEl.classList.contains("de-error-key")) {
+								if (rEl.classList.contains('de-error-key')) {
 									this.errCount--;
-									rEl.classList.remove("de-error-key");
+									rEl.classList.remove('de-error-key');
 								}
 							}
 							if (rIdx === -1) {
 								this.errCount--;
-								el.classList.remove("de-error-key");
+								el.classList.remove('de-error-key');
 							}
 						}
 						if (rIdx === -1) {
-							this.keys[+el.getAttribute("de-id1")][+el.getAttribute("de-id2")] = key;
+							this.keys[+el.getAttribute('de-id1')][+el.getAttribute('de-id2')] = key;
 							if (this.errCount === 0) {
 								this.saveButton.disabled = false;
 							}
@@ -6084,14 +5906,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							break;
 						}
 						rEl = this.allInputs[rIdx];
-						if (!rEl.classList.contains("de-error-key")) {
+						if (!rEl.classList.contains('de-error-key')) {
 							this.errCount++;
-							rEl.classList.add("de-error-key");
+							rEl.classList.add('de-error-key');
 						}
 					}
 					if (!isError) {
 						this.errCount++;
-						el.classList.add("de-error-key");
+						el.classList.add('de-error-key');
 					}
 					if (this.errCount !== 0) {
 						this.saveButton.disabled = true;
@@ -6101,9 +5923,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}
 	}, {
 		saveButton: {
-			get: function () {
-				var val = $id("de-keys-save");
-				Object.defineProperty(this, "saveButton", { value: val, configurable: true });
+			get: function get() {
+				var val = $id('de-keys-save');
+				Object.defineProperty(this, 'saveButton', { value: val, configurable: true });
 				return val;
 			},
 			configurable: true,
@@ -6115,16 +5937,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 	function initMessageFunctions() {
-		doc.defaultView.addEventListener("message", function (e) {
-			if (typeof e.data === "string") {
+		doc.defaultView.addEventListener('message', function (e) {
+			if (typeof e.data === 'string') {
 				switch (e.data.substr(0, 15)) {
-					case "de-iframe-pform":
+					case 'de-iframe-pform':
 						checkUpload($DOM(e.data.substr(15)));
-						$q("iframe[name=\"de-iframe-pform\"]", doc).src = "about:blank";
+						$q('iframe[name="de-iframe-pform"]', doc).src = 'about:blank';
 						return;
-					case "de-iframe-dform":
+					case 'de-iframe-dform':
 						checkDelete($DOM(e.data.substr(15)));
-						$q("iframe[name=\"de-iframe-dform\"]", doc).src = "about:blank";
+						$q('iframe[name="de-iframe-dform"]', doc).src = 'about:blank';
 				}
 			}
 		});
@@ -6135,40 +5957,40 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		    j,
 		    dat = new Uint8Array(ab),
 		    len = dat.length;
-				if (dat[0] === 255 && dat[1] === 216) {
+				if (dat[0] === 0xFF && dat[1] === 0xD8) {
 			for (i = 0, j = 0; i < len - 1; i++) {
-				if (dat[i] === 255) {
-										if (dat[i + 1] === 216) {
+				if (dat[i] === 0xFF) {
+										if (dat[i + 1] === 0xD8) {
 						j++;
-											} else if (dat[i + 1] === 217 && --j === 0) {
-						i += 2;
+											} else if (dat[i + 1] === 0xD9 && --j === 0) {
+							i += 2;
+							break;
+						}
+				}
+			}
+					} else if (dat[0] === 0x89 && dat[1] === 0x50) {
+				for (i = 0; i < len - 7; i++) {
+										if (dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
+						i += 8;
 						break;
 					}
 				}
+			} else {
+				return {};
 			}
-					} else if (dat[0] === 137 && dat[1] === 80) {
-			for (i = 0; i < len - 7; i++) {
-								if (dat[i] === 73 && dat[i + 1] === 69 && dat[i + 2] === 78 && dat[i + 3] === 68) {
-					i += 8;
-					break;
-				}
-			}
-		} else {
-			return {};
-		}
 				if (i !== len && len - i > 60) {
 			for (len = i + 90; i < len; i++) {
-								if (dat[i] === 55 && dat[i + 1] === 122 && dat[i + 2] === 188) {
-					return { type: 0, idx: i, data: ab };
-									} else if (dat[i] === 80 && dat[i + 1] === 75 && dat[i + 2] === 3) {
-					return { type: 1, idx: i, data: ab };
-									} else if (dat[i] === 82 && dat[i + 1] === 97 && dat[i + 2] === 114) {
-					return { type: 2, idx: i, data: ab };
-									} else if (dat[i] === 79 && dat[i + 1] === 103 && dat[i + 2] === 103) {
-					return { type: 3, idx: i, data: ab };
-									} else if (dat[i] === 73 && dat[i + 1] === 68 && dat[i + 2] === 51) {
-					return { type: 4, idx: i, data: ab };
-				}
+								if (dat[i] === 0x37 && dat[i + 1] === 0x7A && dat[i + 2] === 0xBC) {
+					return { 'type': 0, 'idx': i, 'data': ab };
+									} else if (dat[i] === 0x50 && dat[i + 1] === 0x4B && dat[i + 2] === 0x03) {
+						return { 'type': 1, 'idx': i, 'data': ab };
+											} else if (dat[i] === 0x52 && dat[i + 1] === 0x61 && dat[i + 2] === 0x72) {
+							return { 'type': 2, 'idx': i, 'data': ab };
+													} else if (dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67) {
+								return { 'type': 3, 'idx': i, 'data': ab };
+															} else if (dat[i] === 0x49 && dat[i + 1] === 0x44 && dat[i + 2] === 0x33) {
+									return { 'type': 4, 'idx': i, 'data': ab };
+								}
 			}
 		}
 		return {};
@@ -6181,7 +6003,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			};
 			return;
 		}
-		var url = window.URL.createObjectURL(new Blob(["self.onmessage = function(e) {\n\t\tvar info = (" + String(wrkFn) + ")(e.data);\n\t\tif(info.data) {\n\t\t\tself.postMessage(info, [info.data]);\n\t\t} else {\n\t\t\tself.postMessage(info);\n\t\t}\n\t}"], { type: "text/javascript" }));
+		var url = window.URL.createObjectURL(new Blob(['self.onmessage = function(e) {\n\t\tvar info = (' + String(wrkFn) + ')(e.data);\n\t\tif(info.data) {\n\t\t\tself.postMessage(info, [info.data]);\n\t\t} else {\n\t\t\tself.postMessage(info);\n\t\t}\n\t}'], { 'type': 'text/javascript' }));
 		this._pool = new TasksPool(mReqs, this._createWorker.bind(this), null);
 		this._freeWorkers = [];
 		this._url = url;
@@ -6195,10 +6017,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			this._pool.run([data, transferObjs, fn]);
 		},
 		_createWorker: function _createWorker(num, data) {
-			var _this204 = this;
+			var _this8 = this;
 
 			return new Promise(function (resolve, reject) {
-				var w = _this204._freeWorkers.pop();
+				var w = _this8._freeWorkers.pop();
+
 				var _data = _slicedToArray(data, 3);
 
 				var sendData = _data[0];
@@ -6207,13 +6030,13 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 				w.onmessage = function (e) {
 					fn(e.data);
-					_this204._freeWorkers.push(w);
+					_this8._freeWorkers.push(w);
 					resolve();
 				};
 				w.onerror = function (err) {
 					resolve();
-					_this204._freeWorkers.push(w);
-					_this204._errFn(err);
+					_this8._freeWorkers.push(w);
+					_this8._errFn(err);
 				};
 				w.postMessage(sendData, transferObjs);
 			});
@@ -6228,49 +6051,49 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		var app,
 		    ext,
 		    type = info.type;
-		if (typeof type === "undefined") {
+		if (typeof type === 'undefined') {
 			return;
 		}
 		if (type === 2) {
-			app = "application/x-rar-compressed";
-			ext = "rar";
+			app = 'application/x-rar-compressed';
+			ext = 'rar';
 		} else if (type === 1) {
-			app = "application/zip";
-			ext = "zip";
+			app = 'application/zip';
+			ext = 'zip';
 		} else if (type === 0) {
-			app = "application/x-7z-compressed";
-			ext = "7z";
+			app = 'application/x-7z-compressed';
+			ext = '7z';
 		} else if (type === 3) {
-			app = "audio/ogg";
-			ext = "ogg";
+			app = 'audio/ogg';
+			ext = 'ogg';
 		} else {
-			app = "audio/mpeg";
-			ext = "mp3";
+			app = 'audio/mpeg';
+			ext = 'mp3';
 		}
-		link.insertAdjacentHTML("afterend", "<a href=\"" + window.URL.createObjectURL(new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], { type: app })) + "\" class=\"de-img-" + (type > 2 ? "audio" : "arch") + "\" title=\"" + Lng.downloadFile[lang] + "\" download=\"" + fName.substring(0, fName.lastIndexOf(".")) + "." + ext + "\">." + ext + "</a>");
+		link.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], { 'type': app })) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] + '" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>');
 	}
 
 	function downloadImgData(url) {
-		var repeatOnError = arguments[1] === undefined ? true : arguments[1];
+		var repeatOnError = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
 
 		return $ajax(url, {
-			responseType: "arraybuffer",
-			overrideMimeType: "text/plain; charset=x-user-defined"
-		}, !aib.fch || url.startsWith("blob")).then(function (xhr) {
-			if ("response" in xhr) {
+			responseType: 'arraybuffer',
+			overrideMimeType: 'text/plain; charset=x-user-defined'
+		}, !aib.fch || url.startsWith('blob')).then(function (xhr) {
+			if ('response' in xhr) {
 				return nav.getUnsafeUint8Array(xhr.response);
 			}
 			var txt = xhr.responseText,
 			    rv = new Uint8Array(txt.length);
 			for (var i = 0, len = txt.length; i < len; ++i) {
-				rv[i] = txt.charCodeAt(i) & 255;
+				rv[i] = txt.charCodeAt(i) & 0xFF;
 			}
 			return rv;
 		}, function (xhr) {
 			if (xhr instanceof Error || xhr.status === 404) {
 				return null;
 			}
-			if (xhr.status === 0 && xhr.responseType === "arraybuffer") {
+			if (xhr.status === 0 && xhr.responseType === 'arraybuffer') {
 				return new Uint8Array(xhr.response);
 			}
 			return repeatOnError ? downloadImgData(url, false) : null;
@@ -6290,22 +6113,22 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			});
 			pool = new TasksPool(mReqs, function (num, data) {
 				return downloadImgData(data[0]).then(function (imageData) {
-					var _data = _slicedToArray(data, 5);
+					var _data2 = _slicedToArray(data, 5);
 
-					var url = _data[0];
-					var link = _data[1];
-					var iType = _data[2];
-					var nExp = _data[3];
-					var el = _data[4];
+					var url = _data2[0];
+					var link = _data2[1];
+					var iType = _data2[2];
+					var nExp = _data2[3];
+					var el = _data2[4];
 
 					if (imageData) {
 						var fName = url.substring(url.lastIndexOf("/") + 1),
 						    aEl = $q(aib.qImgLink, aib.getImgWrap(link));
-						link.href = aEl.href = window.URL.createObjectURL(new Blob([imageData], { type: iType }));
-						link.setAttribute("download", fName);
-						aEl.setAttribute("download", fName);
-						if (iType === "video/webm") {
-							el.setAttribute("de-video", "");
+						link.href = aEl.href = window.URL.createObjectURL(new Blob([imageData], { 'type': iType }));
+						link.setAttribute('download', fName);
+						aEl.setAttribute('download', fName);
+						if (iType === 'video/webm') {
+							el.setAttribute('de-video', '');
 						}
 						if (nExp) {
 							el.src = link.href;
@@ -6315,7 +6138,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						}
 					}
 					if (Images_.progressId) {
-						$popup(Lng.loadImage[lang] + cImg + "/" + len, Images_.progressId, true);
+						$popup(Lng.loadImage[lang] + cImg + '/' + len, Images_.progressId, true);
 					}
 					cImg++;
 				});
@@ -6334,7 +6157,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		var els = $Q(aib.qThumbImages, post || dForm.el);
 		for (var i = 0, len = els.length; i < len; ++i) {
 			var el = els[i],
-			    link = $parent(el = els[i], "A");
+			    link = $parent(el = els[i], 'A');
 			if (!link) {
 				continue;
 			}
@@ -6342,15 +6165,15 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			    url = link.href,
 			    nExp = !!Cfg.openImgs;
 			if (/\.gif$/i.test(url)) {
-				iType = "image/gif";
+				iType = 'image/gif';
 				nExp &= Cfg.openImgs !== 3;
 			} else {
 				if (/\.jpe?g$/i.test(url)) {
-					iType = "image/jpeg";
+					iType = 'image/jpeg';
 				} else if (/\.png$/i.test(url)) {
-					iType = "image/png";
+					iType = 'image/png';
 				} else if (/\.webm$/i.test(url)) {
-					iType = "video/webm";
+					iType = 'video/webm';
 					nExp = false;
 				} else {
 					continue;
@@ -6369,11 +6192,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	}
 
 	function getDataFromImg(img) {
-		var cnv = Images_.canvas || (Images_.canvas = doc.createElement("canvas"));
+		var cnv = Images_.canvas || (Images_.canvas = doc.createElement('canvas'));
 		cnv.width = img.width;
 		cnv.height = img.height;
-		cnv.getContext("2d").drawImage(img, 0, 0);
-		return new Uint8Array(atob(cnv.toDataURL("image/png").split(",")[1]).split("").map(function (a) {
+		cnv.getContext('2d').drawImage(img, 0, 0);
+		return new Uint8Array(atob(cnv.toDataURL("image/png").split(',')[1]).split('').map(function (a) {
 			return a.charCodeAt();
 		}));
 	}
@@ -6384,104 +6207,104 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		    counter,
 		    count = 0,
 		    current = 1,
-		    warnings = "",
+		    warnings = '',
 		    tar = new TarBuilder(),
 		    dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
 		Images_.pool = new TasksPool(4, function (num, data) {
 			return downloadImgData(data[0]).then(function (imgData) {
-				var _data = _slicedToArray(data, 4);
+				var _data3 = _slicedToArray(data, 4);
 
-				var url = _data[0];
-				var name = _data[1];
-				var el = _data[2];
-				var link = _data[3];
-				var safeName = name.replace(/[\\\/:*?"<>|]/g, "_");
+				var url = _data3[0];
+				var name = _data3[1];
+				var el = _data3[2];
+				var link = _data3[3];
+				var safeName = name.replace(/[\\\/:*?"<>|]/g, '_');
 				progress.value = current;
 				counter.innerHTML = current;
 				current++;
 				if (link) {
 					if (!imgData) {
-						warnings += "<br>" + Lng.cantLoad[lang] + "<a href=\"" + url + "\">" + url + "</a><br>" + Lng.willSavePview[lang];
-						$popup(Lng.loadErrors[lang] + warnings, "err-files", false);
-						safeName = "thumb-" + safeName.replace(/\.[a-z]+$/, ".png");
+						warnings += '<br>' + Lng.cantLoad[lang] + '<a href="' + url + '">' + url + '</a><br>' + Lng.willSavePview[lang];
+						$popup(Lng.loadErrors[lang] + warnings, 'err-files', false);
+						safeName = 'thumb-' + safeName.replace(/\.[a-z]+$/, '.png');
 						imgData = getDataFromImg(el);
 					}
 					if (!imgOnly) {
-						el.classList.add("de-thumb");
-						link.href = $q(aib.qImgLink, aib.getImgWrap(link)).href = safeName = "images/" + safeName;
+						el.classList.add('de-thumb');
+						link.href = $q(aib.qImgLink, aib.getImgWrap(link)).href = safeName = 'images/' + safeName;
 						if (safeName.match(/\.webm$/)) {
-							tar.addFile(el.src = safeName.replace(/\.webm$/, ".png"), getDataFromImg(el));
+							tar.addFile(el.src = safeName.replace(/\.webm$/, '.png'), getDataFromImg(el));
 						} else {
 							el.src = safeName;
 						}
 					}
 					tar.addFile(safeName, imgData);
 				} else if (imgData && imgData.length > 0) {
-					tar.addFile(el.href = el.src = "data/" + safeName, imgData);
+					tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
 				} else {
 					$del(el);
 				}
 			});
 		}, function () {
-			var name = aib.dm + "-" + aib.b.replace(/[\\\/:*?"<>|]/g, "") + "-" + aib.t;
+			var name = aib.dm + '-' + aib.b.replace(/[\\\/:*?"<>|]/g, '') + '-' + aib.t;
 			if (!imgOnly) {
 				var dt = doc.doctype;
-				$t("head", dc).insertAdjacentHTML("beforeend", "<script type=\"text/javascript\" src=\"data/dollscript.js\"></script>");
-				tar.addString("data/dollscript.js", "(" + String(typeof de_main_func_outer === "undefined" ? de_main_func_inner : de_main_func_outer) + ")(null, true);");
-				tar.addString(name + ".html", "<!DOCTYPE " + dt.name + (dt.publicId ? " PUBLIC \"" + dt.publicId + "\"" : dt.systemId ? " SYSTEM" : "") + (dt.systemId ? " \"" + dt.systemId + "\"" : "") + ">" + dc.outerHTML);
+				$t('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js"></script>');
+				tar.addString('data/dollscript.js', '(' + String(typeof de_main_func_outer === 'undefined' ? de_main_func_inner : de_main_func_outer) + ')(null, true);');
+				tar.addString(name + '.html', '<!DOCTYPE ' + dt.name + (dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') + (dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML);
 			}
-			downloadBlob(tar.get(), name + (imgOnly ? "-images.tar" : ".tar"));
-			$del($id("de-popup-load-files"));
+			downloadBlob(tar.get(), name + (imgOnly ? '-images.tar' : '.tar'));
+			$del($id('de-popup-load-files'));
 			Images_.pool = tar = warnings = count = current = imgOnly = progress = counter = null;
 		});
-		els = aProto.slice.call($Q(aib.qThumbImages, $q("[de-form]", dc)));
+		els = aProto.slice.call($Q(aib.qThumbImages, $q('[de-form]', dc)));
 		count += els.length;
 		els.forEach(function (el) {
-			var link = $parent(el, "A");
+			var link = $parent(el, 'A');
 			if (link) {
 				var url = link.href;
 				if (aib.tiny) {
-					url = url.replace(/^.*?\?v=|&.*?$/g, "");
+					url = url.replace(/^.*?\?v=|&.*?$/g, '');
 				}
-				Images_.pool.run([url, link.getAttribute("download") || url.substring(url.lastIndexOf("/") + 1), el, link]);
+				Images_.pool.run([url, link.getAttribute('download') || url.substring(url.lastIndexOf("/") + 1), el, link]);
 			}
 		});
 		if (!imgOnly) {
-			$each($Q("#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thread-buttons, " + ".de-video-obj, #de-win-reply, link[rel=\"alternate stylesheet\"], script, " + aib.qPostForm, dc), $del);
-			$each($T("a", dc), function (el) {
+			$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thread-buttons, ' + '.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' + aib.qPostForm, dc), $del);
+			$each($T('a', dc), function (el) {
 				var num,
 				    tc = el.textContent;
-				if (tc[0] === ">" && tc[1] === ">" && (num = +tc.substr(2)) && num in pByNum) {
+				if (tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && num in pByNum) {
 					el.href = aib.anchor + num;
 				} else {
 					el.href = getAbsLink(el.href);
 				}
-				if (!el.classList.contains("de-link-pref")) {
-					el.className = "de-link-pref " + el.className;
+				if (!el.classList.contains('de-link-pref')) {
+					el.className = 'de-link-pref ' + el.className;
 				}
 			});
 			$each($Q(aib.qRPost, dc), function (post, i) {
-				post.setAttribute("de-num", i === 0 ? aib.t : aib.getPNum(post));
+				post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post));
 			});
 			var files = [];
-			$each($Q("link, *[src]", dc), (function (el) {
+			$each($Q('link, *[src]', dc), (function (el) {
 				if (els.indexOf(el) !== -1) {
 					return;
 				}
 				var name,
-				    url = el.tagName === "LINK" ? el.href : el.src;
+				    url = el.tagName === 'LINK' ? el.href : el.src;
 				if (!this.test(url)) {
 					$del(el);
 					return;
 				}
-				name = url.substring(url.lastIndexOf("/") + 1).replace(/[\\\/:*?"<>|]/g, "_").toLowerCase();
+				name = url.substring(url.lastIndexOf("/") + 1).replace(/[\\\/:*?"<>|]/g, '_').toLowerCase();
 				if (files.indexOf(name) !== -1) {
-					var temp = url.lastIndexOf("."),
+					var temp = url.lastIndexOf('.'),
 					    ext = url.substring(temp);
 					url = url.substring(0, temp);
-					name = name.substring(0, name.lastIndexOf("."));
+					name = name.substring(0, name.lastIndexOf('.'));
 					for (var i = 0;; ++i) {
-						temp = name + "(" + i + ")" + ext;
+						temp = name + '(' + i + ')' + ext;
 						if (files.indexOf(temp) === -1) {
 							break;
 						}
@@ -6491,10 +6314,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				files.push(name);
 				Images_.pool.run([url, name, el, null]);
 				count++;
-			}).bind(new RegExp("^\\/\\/?|^https?:\\/\\/([^\\/]*.)?" + regQuote(aib.dm) + "\\/", "i")));
+			}).bind(new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\.)?' + regQuote(aib.dm) + '\\/', 'i')));
 		}
-		$popup((imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) + "<br><progress id=\"de-loadprogress\" value=\"0\" max=\"" + count + "\"></progress> <span>1</span>/" + count, "load-files", true);
-		progress = $id("de-loadprogress");
+		$popup((imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) + '<br><progress id="de-loadprogress" value="0" max="' + count + '"></progress> <span>1</span>/' + count, 'load-files', true);
+		progress = $id('de-loadprogress');
 		counter = progress.nextElementSibling;
 		Images_.pool.complete();
 		els = null;
@@ -6509,9 +6332,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return;
 		}
 		this.regex = pattern.replace(/(?:[sihdny]\?){2,}/g, function (str) {
-			return "(?:" + str.replace(/\?/g, "") + ")?";
-		}).replace(/\-/g, "[^<]").replace(/\+/g, "[^0-9]").replace(/([sihdny]+)/g, "($1)").replace(/[sihdny]/g, "\\d").replace(/m|w/g, "([a-zA-Zа-яА-Я]+)");
-		this.pattern = pattern.replace(/[\?\-\+]+/g, "").replace(/([a-z])\1+/g, "$1");
+			return '(?:' + str.replace(/\?/g, '') + ')?';
+		}).replace(/\-/g, '[^<]').replace(/\+/g, '[^0-9]').replace(/([sihdny]+)/g, '($1)').replace(/[sihdny]/g, '\\d').replace(/m|w/g, '([a-zA-Zа-яА-Я]+)');
+		this.pattern = pattern.replace(/[\?\-\+]+/g, '').replace(/([a-z])\1+/g, '$1');
 		this.diff = parseInt(diff, 10);
 		this.arrW = Lng.week[dtLang];
 		this.arrM = Lng.month[dtLang];
@@ -6524,16 +6347,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	}
 	DateTime.toggleSettings = function (el) {
 		if (el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.timeOffset) || DateTime.checkPattern(Cfg.timePattern))) {
-			$popup(Lng.cTimeError[lang], "err-correcttime", false);
-			saveCfg("correctTime", 0);
+			$popup(Lng.cTimeError[lang], 'err-correcttime', false);
+			saveCfg('correctTime', 0);
 			el.checked = false;
 		}
 	};
 	DateTime.checkPattern = function (val) {
-		return !val.includes("i") || !val.includes("h") || !val.includes("d") || !val.includes("y") || !(val.includes("n") || val.includes("m")) || /[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
+		return !val.includes('i') || !val.includes('h') || !val.includes('d') || !val.includes('y') || !(val.includes('n') || val.includes('m')) || /[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 	};
 	DateTime.genRFunc = function (rPattern, diff) {
-		return new Function("dtime", "return '" + rPattern.replace("_o", (diff < 0 ? "" : "+") + diff).replace("_s", "' + this.pad2(dtime.getSeconds()) + '").replace("_i", "' + this.pad2(dtime.getMinutes()) + '").replace("_h", "' + this.pad2(dtime.getHours()) + '").replace("_d", "' + this.pad2(dtime.getDate()) + '").replace("_w", "' + this.arrW[dtime.getDay()] + '").replace("_n", "' + this.pad2(dtime.getMonth() + 1) + '").replace("_m", "' + this.arrM[dtime.getMonth()] + '").replace("_M", "' + this.arrFM[dtime.getMonth()] + '").replace("_y", "' + ('' + dtime.getFullYear()).substring(2) + '").replace("_Y", "' + dtime.getFullYear() + '") + "';");
+		return new Function('dtime', 'return \'' + rPattern.replace('_o', (diff < 0 ? '' : '+') + diff).replace('_s', '\' + this.pad2(dtime.getSeconds()) + \'').replace('_i', '\' + this.pad2(dtime.getMinutes()) + \'').replace('_h', '\' + this.pad2(dtime.getHours()) + \'').replace('_d', '\' + this.pad2(dtime.getDate()) + \'').replace('_w', '\' + this.arrW[dtime.getDay()] + \'').replace('_n', '\' + this.pad2(dtime.getMonth() + 1) + \'').replace('_m', '\' + this.arrM[dtime.getMonth()] + \'').replace('_M', '\' + this.arrFM[dtime.getMonth()] + \'').replace('_y', '\' + (\'\' + dtime.getFullYear()).substring(2) + \'').replace('_Y', '\' + dtime.getFullYear() + \'') + '\';');
 	};
 	DateTime.prototype = {
 		genDateTime: null,
@@ -6544,15 +6367,15 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				this.disabled = true;
 				return false;
 			}
-			var rPattern = "";
+			var rPattern = '';
 			for (var i = 1, len = m.length, j = 0, str = m[0]; i < len;) {
 				var a = m[i++],
 				    p = this.pattern[i - 2];
-				if ((p === "m" || p === "y") && a.length > 3) {
+				if ((p === 'm' || p === 'y') && a.length > 3) {
 					p = p.toUpperCase();
 				}
 				var k = str.indexOf(a, j);
-				rPattern += str.substring(j, k) + "_" + p;
+				rPattern += str.substring(j, k) + '_' + p;
 				j = k + a.length;
 			}
 			if (this.onRPat) {
@@ -6562,69 +6385,65 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return true;
 		},
 		pad2: function pad2(num) {
-			return num < 10 ? "0" + num : num;
+			return num < 10 ? '0' + num : num;
 		},
 		fix: function fix(txt) {
-			var _this204 = this;
+			var _this9 = this;
 
 			if (this.disabled || !this.genDateTime && !this.getRPattern(txt)) {
 				return txt;
 			}
-			return txt.replace(new RegExp(this.regex, "g"), function (str) {
-				for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-					args[_key - 1] = arguments[_key];
-				}
-
+			return txt.replace(new RegExp(this.regex, 'g'), function (str) {
 				var second, minute, hour, day, month, year;
 				for (var i = 0; i < 7; ++i) {
-					var a = args[i];
-					switch (_this204.pattern[i]) {
-						case "s":
+					var a = arguments[i + 1];
+					switch (_this9.pattern[i]) {
+						case 's':
 							second = a;break;
-						case "i":
+						case 'i':
 							minute = a;break;
-						case "h":
+						case 'h':
 							hour = a;break;
-						case "d":
+						case 'd':
 							day = a;break;
-						case "n":
+						case 'n':
 							month = a - 1;break;
-						case "y":
+						case 'y':
 							year = a;break;
-						case "m":
+						case 'm':
 							switch (a.slice(0, 3).toLowerCase()) {
-								case "янв":case "jan":
+								case 'янв':case 'jan':
 									month = 0;break;
-								case "фев":case "feb":
+								case 'фев':case 'feb':
 									month = 1;break;
-								case "мар":case "mar":
+								case 'мар':case 'mar':
 									month = 2;break;
-								case "апр":case "apr":
+								case 'апр':case 'apr':
 									month = 3;break;
-								case "май":case "мая":case "may":
+								case 'май':case 'мая':case 'may':
 									month = 4;break;
-								case "июн":case "jun":
+								case 'июн':case 'jun':
 									month = 5;break;
-								case "июл":case "jul":
+								case 'июл':case 'jul':
 									month = 6;break;
-								case "авг":case "aug":
+								case 'авг':case 'aug':
 									month = 7;break;
-								case "сен":case "sep":
+								case 'сен':case 'sep':
 									month = 8;break;
-								case "окт":case "oct":
+								case 'окт':case 'oct':
 									month = 9;break;
-								case "ноя":case "nov":
+								case 'ноя':case 'nov':
 									month = 10;break;
-								case "дек":case "dec":
+								case 'дек':case 'dec':
 									month = 11;break;
 								default:
 									month = 0;break;
 							}
 					}
 				}
-				var dtime = new Date(year.length === 2 ? "20" + year : year, month, day, hour, minute, second || 0);
-				dtime.setHours(dtime.getHours() + _this204.diff);
-				return _this204.genDateTime(dtime);
+				var dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
+				dtime.setHours(dtime.getHours() + _this9.diff);
+				return _this9.genDateTime(dtime);
 			});
 		}
 	};
@@ -6633,8 +6452,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 	function Videos(post) {
-		var player = arguments[1] === undefined ? null : arguments[1];
-		var playerInfo = arguments[2] === undefined ? null : arguments[2];
+		var player = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+		var playerInfo = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
 
 		this.post = post;
 		this.vData = [[], []];
@@ -6647,14 +6466,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	}
 	Videos._global = Object.defineProperties({}, {
 		vData: {
-			get: function () {
+			get: function get() {
 				var val;
 				try {
-					val = Cfg.YTubeTitles ? JSON.parse(sesStorage["de-videos-data1"] || "[{}, {}]") : [{}, {}];
+					val = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data1'] || '[{}, {}]') : [{}, {}];
 				} catch (e) {
 					val = [{}, {}];
 				}
-				Object.defineProperty(this, "vData", { value: val });
+				Object.defineProperty(this, 'vData', { value: val });
 				return val;
 			},
 			configurable: true,
@@ -6664,36 +6483,36 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	Videos.ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 	Videos.vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
 	Videos.addPlayer = function (el, m, isYtube) {
-		var enableJsapi = arguments[3] === undefined ? false : arguments[3];
+		var enableJsapi = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
 		var txt;
 		if (isYtube) {
 			var list = m[0].match(/list=[^&#]+/);
-			txt = "<iframe class=\"de-video-player\" src=\"https://www.youtube.com/embed/" + m[1] + "?start=" + ((m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0)) + (enableJsapi ? "&enablejsapi=1" : Cfg.addYouTube === 3 ? "&autoplay=1" : "") + (list ? "&" + list[0] : "") + (Cfg.YTubeType === 1 ? "&html5=1\" type=\"text/html\"" : "\" type=\"application/x-shockwave-flash\"") + " frameborder=\"0\" allowfullscreen=\"1\"></iframe>";
+			txt = '<iframe class="de-video-player" src="https://www.youtube.com/embed/' + m[1] + '?start=' + ((m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0)) + (enableJsapi ? '&enablejsapi=1' : Cfg.addYouTube === 3 ? '&autoplay=1' : '') + (list ? '&' + list[0] : '') + (Cfg.YTubeType === 1 ? '&html5=1" type="text/html"' : '" type="application/x-shockwave-flash"') + ' frameborder="0" allowfullscreen="1"></iframe>';
 		} else {
-			var id = m[1] + (m[2] ? m[2] : "");
-			txt = Cfg.YTubeType === 1 ? "<iframe class=\"de-video-player\" src=\"" + aib.prot + "//player.vimeo.com/video/" + id + (Cfg.addYouTube === 3 ? "?autoplay=1" : "") + "\" frameborder=\"0\" " + "webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>" : "<embed class=\"de-video-player\" type=\"application/x-shockwave-flash\" src=\"" + aib.prot + "//vimeo.com/moogaloop.swf" + "?clip_id=" + id + (Cfg.addYouTube === 3 ? "&autoplay=1" : "") + "&server=vimeo.com&color=00adef&fullscreen=1\" " + "allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>";
+			var id = m[1] + (m[2] ? m[2] : '');
+			txt = Cfg.YTubeType === 1 ? '<iframe class="de-video-player" src="' + aib.prot + '//player.vimeo.com/video/' + id + (Cfg.addYouTube === 3 ? '?autoplay=1' : '') + '" frameborder="0" ' + 'webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>' : '<embed class="de-video-player" type="application/x-shockwave-flash" src="' + aib.prot + '//vimeo.com/moogaloop.swf' + '?clip_id=' + id + (Cfg.addYouTube === 3 ? '&autoplay=1' : '') + '&server=vimeo.com&color=00adef&fullscreen=1" ' + 'allowscriptaccess="always" allowfullscreen="true"></embed>';
 		}
-		el.innerHTML = txt + (enableJsapi ? "" : "<span class=\"de-video-resizer\" title=\"" + Lng.expandVideo[lang] + "\"></span>");
-		el.style.display = "";
+		el.innerHTML = txt + (enableJsapi ? '' : '<span class="de-video-resizer" title="' + Lng.expandVideo[lang] + '"></span>');
+		el.style.display = '';
 		if (!enableJsapi) {
 			el.lastChild.onclick = function () {
 				var node = this.parentNode;
-				node.className = node.className === "de-video-obj" ? "de-video-obj de-video-expanded" : "de-video-obj";
+				node.className = node.className === 'de-video-obj' ? 'de-video-obj de-video-expanded' : 'de-video-obj';
 			};
 		}
 	};
-	Videos._titlesLoaderHelper = function (_ref, num) {
-		for (var _len = arguments.length, data = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-			data[_key - 2] = arguments[_key];
+	Videos._titlesLoaderHelper = function (_ref5, num) {
+		var _ref52 = _slicedToArray(_ref5, 4);
+
+		var link = _ref52[0];
+		var isYtube = _ref52[1];
+		var videoObj = _ref52[2];
+		var id = _ref52[3];
+
+		for (var _len4 = arguments.length, data = Array(_len4 > 2 ? _len4 - 2 : 0), _key3 = 2; _key3 < _len4; _key3++) {
+			data[_key3 - 2] = arguments[_key3];
 		}
-
-		var _ref2 = _slicedToArray(_ref, 4);
-
-		var link = _ref2[0];
-		var isYtube = _ref2[1];
-		var videoObj = _ref2[2];
-		var id = _ref2[3];
 
 		if (data.length !== 0) {
 			var title = data[0];
@@ -6702,9 +6521,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			var publ = data[3];
 
 			link.textContent = title;
-			link.setAttribute("de-author", author);
-			link.classList.add("de-video-title");
-			link.title = Lng.author[lang] + author + (views ? ", " + Lng.views[lang] + views : "") + (publ ? ", " + Lng.published[lang] + publ : "");
+			link.setAttribute('de-author', author);
+			link.classList.add('de-video-title');
+			link.title = Lng.author[lang] + author + (views ? ', ' + Lng.views[lang] + views : '') + (publ ? ', ' + Lng.published[lang] + publ : '');
 			Videos._global.vData[isYtube ? 0 : 1][id] = data;
 			videoObj.vData[isYtube ? 0 : 1].push(data);
 			if (videoObj.titleLoadFn) {
@@ -6713,23 +6532,23 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}
 		videoObj.loadedLinksCount++;
 		if (num % 30 === 0) {
-			return Promise.reject(new TasksPool.PauseError(3000));
+			return Promise.reject(new TasksPool.PauseError(3e3));
 		}
 		return sleep(250);
 	};
 	Videos._getYTInfoAPI = function (info, num, id) {
-		return $ajax("https://www.googleapis.com/youtube/v3/videos?key=" + Cfg.ytApiKey + "&id=" + id + "&part=snippet,statistics&fields=items/snippet/title,items/snippet/publishedAt,items/snippet/channelTitle,items/statistics/viewCount", null, false).then(function (xhr) {
+		return $ajax('https://www.googleapis.com/youtube/v3/videos?key=' + Cfg.ytApiKey + '&id=' + id + '&part=snippet,statistics&fields=items/snippet/title,items/snippet/publishedAt,items/snippet/channelTitle,items/statistics/viewCount', null, false).then(function (xhr) {
 			var items = JSON.parse(xhr.responseText).items[0];
 			return Videos._titlesLoaderHelper(info, num, items.snippet.title, items.snippet.channelTitle, items.statistics.viewCount, items.snippet.publishedAt.substr(0, 10));
-		})["catch"](function () {
+		})['catch'](function () {
 			return Videos._getYTInfoOembed(info, num, id);
 		});
 	};
 	Videos._getYTInfoOembed = function (info, num, id) {
-		return $ajax("http://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D" + id + "&format=json", null, false).then(function (xhr) {
+		return $ajax('http://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&format=json', null, false).then(function (xhr) {
 			var json = JSON.parse(xhr.responseText);
 			return Videos._titlesLoaderHelper(info, num, json.title, json.author_name, null, null);
-		})["catch"](function () {
+		})['catch'](function () {
 			return Videos._titlesLoaderHelper(info, num);
 		});
 	};
@@ -6743,14 +6562,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			if (isYtube) {
 				return Cfg.ytApiKey ? Videos._getYTInfoAPI(info, num, id) : Videos._getYTInfoOembed(info, num, id);
 			}
-			return $ajax(aib.prot + "//vimeo.com/api/v2/video/" + id + ".json", null, false).then(function (xhr) {
+			return $ajax(aib.prot + '//vimeo.com/api/v2/video/' + id + '.json', null, false).then(function (xhr) {
 				var entry = JSON.parse(xhr.responseText)[0];
-				return Videos._titlesLoaderHelper(info, num, entry.title, entry.user_name, entry.stats_number_of_plays, /(.*)\s(.*)?/.exec(entry.upload_date)[1]);
-			})["catch"](function () {
+				return Videos._titlesLoaderHelper(info, num, entry["title"], entry["user_name"], entry["stats_number_of_plays"], /(.*)\s(.*)?/.exec(entry["upload_date"])[1]);
+			})['catch'](function () {
 				return Videos._titlesLoaderHelper(info, num);
 			});
 		}, function () {
-			sesStorage["de-videos-data1"] = JSON.stringify(Videos._global.vData);
+			sesStorage['de-videos-data1'] = JSON.stringify(Videos._global.vData);
 		});
 	};
 	Videos.prototype = Object.defineProperties({
@@ -6760,6 +6579,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		titleLoadFn: null,
 		linksCount: 0,
 		loadedLinksCount: 0,
+
 		addLink: function addLink(m, loader, link, isYtube) {
 			var time, dataObj;
 			this.hasLinks = true;
@@ -6770,7 +6590,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				} else if (Cfg.addYouTube > 2) {
 					this._addThumb(m, isYtube);
 				}
-			} else if (!link && $q(".de-video-link[href*=\"" + m[1] + "\"]", this.post.msg)) {
+			} else if (!link && $q('.de-video-link[href*="' + m[1] + '"]', this.post.msg)) {
 				return;
 			}
 			if (loader && (dataObj = Videos._global.vData[isYtube ? 0 : 1][m[1]])) {
@@ -6785,23 +6605,23 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					m[2] = (m[2] || 0) + Math.floor(m[3] / 60);
 					m[3] %= 60;
 				}
-				time = (m[2] ? m[2] + "h" : "") + (m[3] ? m[3] + "m" : "") + (m[4] ? m[4] + "s" : "");
+				time = (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 			}
 			if (link) {
-				link.href = link.href.replace(/^http:/, "https:");
+				link.href = link.href.replace(/^http:/, 'https:');
 				if (time) {
-					link.setAttribute("de-time", time);
+					link.setAttribute('de-time', time);
 				}
-				link.className = "de-video-link " + (isYtube ? "de-ytube" : "de-vimeo");
+				link.className = 'de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo');
 				if (dataObj) {
 					link.textContent = dataObj[0];
-					link.classList.add("de-video-title");
-					link.setAttribute("de-author", dataObj[1]);
-					link.title = Lng.author[lang] + dataObj[1] + (dataObj[2] ? ", " + Lng.views[lang] + dataObj[2] : "") + (dataObj[3] ? ", " + Lng.published[lang] + dataObj[3] : "");
+					link.classList.add('de-video-title');
+					link.setAttribute('de-author', dataObj[1]);
+					link.title = Lng.author[lang] + dataObj[1] + (dataObj[2] ? ', ' + Lng.views[lang] + dataObj[2] : '') + (dataObj[3] ? ', ' + Lng.published[lang] + dataObj[3] : '');
 				}
 			} else {
-				var src = isYtube ? aib.prot + "//www.youtube.com/watch?v=" + m[1] + (time ? "#t=" + time : "") : aib.prot + "//vimeo.com/" + m[1];
-				this.post.msg.insertAdjacentHTML("beforeend", "<p class=\"de-video-ext\"><a class=\"de-video-link " + (isYtube ? "de-ytube" : "de-vimeo") + (dataObj ? " de-video-title\" title=\"" + Lng.author[lang] + dataObj[1] + ", " + Lng.views[lang] + dataObj[2] + ", " + Lng.published[lang] + dataObj[3] + "\" de-author=\"" + dataObj[1] : "") + (time ? "\" de-time=\"" + time : "") + "\" href=\"" + src + "\">" + (dataObj ? dataObj[0] : src) + "</a></p>");
+				var src = isYtube ? aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '') : aib.prot + '//vimeo.com/' + m[1];
+				this.post.msg.insertAdjacentHTML('beforeend', '<p class="de-video-ext"><a class="de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo') + (dataObj ? ' de-video-title" title="' + Lng.author[lang] + dataObj[1] + ', ' + Lng.views[lang] + dataObj[2] + ', ' + Lng.published[lang] + dataObj[3] + '" de-author="' + dataObj[1] : '') + (time ? '" de-time="' + time : '') + '" href="' + src + '">' + (dataObj ? dataObj[0] : src) + '</a></p>');
 				link = this.post.msg.lastChild.firstChild;
 			}
 			if (this.playerInfo === null || this.playerInfo === m) {
@@ -6819,28 +6639,28 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		clickLink: function clickLink(el, mode) {
 			var m = el.videoInfo;
 			if (this.playerInfo !== m) {
-				this.currentLink.classList.remove("de-current");
+				this.currentLink.classList.remove('de-current');
 				this.currentLink = el;
 				if (mode > 2) {
-					this._addThumb(m, el.classList.contains("de-ytube"));
+					this._addThumb(m, el.classList.contains('de-ytube'));
 				} else {
-					el.classList.add("de-current");
-					this.addPlayer(m, el.classList.contains("de-ytube"));
+					el.classList.add('de-current');
+					this.addPlayer(m, el.classList.contains('de-ytube'));
 				}
 				return;
 			}
 			if (mode === 3) {
-				if ($c("de-video-thumb", this.player)) {
-					el.classList.add("de-current");
-					this.addPlayer(m, el.classList.contains("de-ytube"));
+				if ($c('de-video-thumb', this.player)) {
+					el.classList.add('de-current');
+					this.addPlayer(m, el.classList.contains('de-ytube'));
 				} else {
-					el.classList.remove("de-current");
-					this._addThumb(m, el.classList.contains("de-ytube"));
+					el.classList.remove('de-current');
+					this._addThumb(m, el.classList.contains('de-ytube'));
 				}
 			} else {
-				el.classList.remove("de-current");
-				this.player.innerHTML = "";
-				this.player.style.display = "none";
+				el.classList.remove('de-current');
+				this.player.innerHTML = '';
+				this.player.style.display = 'none';
 				this.playerInfo = null;
 			}
 		},
@@ -6849,7 +6669,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			for (var i = 0, j = 0, len = newLinks.length; i < len; ++i) {
 				var el = newLinks[i],
 				    link = oldLinks[j];
-				if (link && link.classList.contains("de-current")) {
+				if (link && link.classList.contains('de-current')) {
 					this.currentLink = el;
 				}
 				if (cloned) {
@@ -6873,21 +6693,21 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			var el = this.player;
 			this.playerInfo = m;
 			if (isYtube) {
-				el.innerHTML = "<a class=\"de-video-player\" href=\"" + aib.prot + "//www.youtube.com/watch?v=" + m[1] + "\" target=\"_blank\">" + "<img class=\"de-video-thumb de-ytube\" src=\"https://i.ytimg.com/vi/" + m[1] + "/0.jpg\"></a>";
+				el.innerHTML = '<a class="de-video-player" href="' + aib.prot + '//www.youtube.com/watch?v=' + m[1] + '" target="_blank">' + '<img class="de-video-thumb de-ytube" src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg"></a>';
 				return;
 			}
-			el.innerHTML = "<a class=\"de-video-player\" href=\"" + aib.prot + "//vimeo.com/" + m[1] + "\" target=\"_blank\"><img class=\"de-video-thumb de-vimeo\" src=\"\"></a>";
-			$ajax(aib.prot + "//vimeo.com/api/v2/video/" + m[1] + ".json", null, false).then(function (xhr) {
+			el.innerHTML = '<a class="de-video-player" href="' + aib.prot + '//vimeo.com/' + m[1] + '" target="_blank"><img class="de-video-thumb de-vimeo" src=""></a>';
+			$ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json', null, false).then(function (xhr) {
 				try {
-					el.firstChild.firstChild.setAttribute("src", JSON.parse(xhr.responseText)[0].thumbnail_large);
+					el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
 				} catch (e) {}
 			});
 		}
 	}, {
 		player: {
-			get: function () {
-				var val = aib.insertYtPlayer(this.post.msg, "<div class=\"de-video-obj\"></div>");
-				Object.defineProperty(this, "player", { value: val });
+			get: function get() {
+				var val = aib.insertYtPlayer(this.post.msg, '<div class="de-video-obj"></div>');
+				Object.defineProperty(this, 'player', { value: val });
 				return val;
 			},
 			configurable: true,
@@ -6905,11 +6725,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		parse: function parse() {
-			var post = arguments[0] === undefined ? null : arguments[0];
+			var post = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
 
 			var loader = this._loader,
 			    vids = aib.fixVideo(post),
-			    links = $Q("a[href*=\"youtu\"]", post ? post.el : dForm.el);
+			    links = $Q('a[href*="youtu"]', post ? post.el : dForm.el);
 			for (var i = 0, len = links.length; i < len; ++i) {
 				var link = links[i],
 				    m = link.href.match(Videos.ytReg);
@@ -6921,7 +6741,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 			}
 			if (Cfg.addVimeo) {
-				links = $Q("a[href*=\"vimeo.com\"]", post ? post.el : dForm.el);
+				links = $Q('a[href*="vimeo.com"]', post ? post.el : dForm.el);
 				for (var i = 0, len = links.length; i < len; ++i) {
 					var link = links[i],
 					    m = link.href.match(Videos.vimReg);
@@ -6950,31 +6770,31 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 	function embedMediaLinks(post) {
 		if (Cfg.addMP3) {
-			var els = $Q("a[href*=\".mp3\"]", post ? post.el : dForm.el);
+			var els = $Q('a[href*=".mp3"]', post ? post.el : dForm.el);
 			for (var i = 0, len = els.length; i < len; ++i) {
 				var link = els[i];
-				if (link.target !== "_blank" && link.rel !== "nofollow") {
+				if (link.target !== '_blank' && link.rel !== 'nofollow') {
 					continue;
 				}
 				var src = link.href,
 				    el = (post || aib.getPostEl(link).post).mp3Obj;
 				if (nav.canPlayMP3) {
-					if (!$q("audio[src=\"" + src + "\"]", el)) {
-						el.insertAdjacentHTML("beforeend", "<p><audio src=\"" + src + "\" preload=\"none\" controls></audio></p>");
+					if (!$q('audio[src="' + src + '"]', el)) {
+						el.insertAdjacentHTML('beforeend', '<p><audio src="' + src + '" preload="none" controls></audio></p>');
 					}
-				} else if (!$q("object[FlashVars*=\"" + src + "\"]", el)) {
-					el.insertAdjacentHTML("beforeend", "<object data=\"http://junglebook2007.narod.ru/audio/player.swf\" type=\"application/x-shockwave-flash\" wmode=\"transparent\" width=\"220\" height=\"16\" FlashVars=\"playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=" + src + "\"><br>");
+				} else if (!$q('object[FlashVars*="' + src + '"]', el)) {
+					el.insertAdjacentHTML('beforeend', '<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '"><br>');
 				}
 			}
 		}
 		if (Cfg.addVocaroo) {
-			var els = $Q("a[href*=\"vocaroo.com\"]", post ? post.el : dForm.el);
+			var els = $Q('a[href*="vocaroo.com"]', post ? post.el : dForm.el);
 			for (var i = 0, len = els.length; i < len; ++i) {
 				var link = els[i],
-				    src = link.href.split("/").pop(),
+				    src = link.href.split('\/').pop(),
 				    el = link.previousSibling;
-				if (!el || el.className !== "de-vocaroo") {
-					link.insertAdjacentHTML("beforebegin", "<div class=\"de-vocaroo\"><embed" + " width=\"148\" height=\"44\" wmode=\"transparent\" type=\"application/x-shockwave-flash\"" + " src=\"http://vocaroo.com/player.swf?playMediaID=" + src + "\"></div>");
+				if (!el || el.className !== 'de-vocaroo') {
+					link.insertAdjacentHTML('beforebegin', '<div class="de-vocaroo"><embed' + ' width="148" height="44" wmode="transparent" type="application/x-shockwave-flash"' + ' src="http://vocaroo.com/player.swf?playMediaID=' + src + '"></div>');
 				}
 			}
 		}
@@ -6984,15 +6804,15 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 	function AjaxError(code, message) {
-		this.name = "AjaxError";
+		this.name = 'AjaxError';
 		this.code = code;
 		this.message = message;
 	}
-	AjaxError.Success = new AjaxError(200, "");
+	AjaxError.Success = new AjaxError(200, '');
 
 	function ajaxLoad(url) {
-		var returnForm = arguments[1] === undefined ? true : arguments[1];
-		var useCache = arguments[2] === undefined ? false : arguments[2];
+		var returnForm = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+		var useCache = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
 		return $ajax(url, { useCache: useCache }).then(function (xhr) {
 			var el,
@@ -7014,14 +6834,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		});
 	}
 
-	var loadPages = async(regeneratorRuntime.mark(function callee$1$1(count) {
+	var loadPages = async(regeneratorRuntime.mark(function callee$1$0(count) {
 		var hasError, i, len, content;
-		return regeneratorRuntime.wrap(function callee$1$1$(context$2$0) {
+		return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
 					hasError = false;
 
-					$popup(Lng.loading[lang], "load-pages", true);
+					$popup(Lng.loading[lang], 'load-pages', true);
 					Pview.clearCache();
 					isExpImg = false;
 					pByNum = Object.create(null);
@@ -7036,7 +6856,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						if (pr.file) {
 							pr.delFilesUtils();
 						}
-						pr.txta.value = "";
+						pr.txta.value = '';
 					}
 					i = aib.page, len = Math.min(aib.lastPage + 1, aib.page + count);
 
@@ -7051,20 +6871,20 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					return ajaxLoad(aib.getPageUrl(aib.b, i));
 
 				case 15:
-					context$2$0.t15 = context$2$0.sent;
-					content = replacePost(context$2$0.t15);
+					context$2$0.t0 = context$2$0.sent;
+					content = replacePost(context$2$0.t0);
 					context$2$0.next = 22;
 					break;
 
 				case 19:
 					context$2$0.prev = 19;
-					context$2$0.t16 = context$2$0["catch"](12);
+					context$2$0.t1 = context$2$0['catch'](12);
 
-					content = $add("<div><center style=\"font-size: 2em\">" + getErrorMessage(context$2$0.t16) + "</center><hr></div>");
+					content = $add('<div><center style="font-size: 2em">' + getErrorMessage(context$2$0.t1) + '</center><hr></div>');
 
 				case 22:
 					if (i != aib.page) {
-						dForm.el.insertAdjacentHTML("beforeend", "<center style=\"font-size: 2em\">" + Lng.page[lang] + " " + i + "</center><hr>");
+						dForm.el.insertAdjacentHTML('beforeend', '<center style="font-size: 2em">' + Lng.page[lang] + ' ' + i + '</center><hr>');
 					}
 					context$2$0.prev = 23;
 
@@ -7074,11 +6894,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 				case 27:
 					context$2$0.prev = 27;
-					context$2$0.t17 = context$2$0["catch"](23);
+					context$2$0.t2 = context$2$0['catch'](23);
 
-					$popup(getPrettyErrorMessage(context$2$0.t17), "load-pages", true);
+					$popup(getPrettyErrorMessage(context$2$0.t2), 'load-pages', true);
 					hasError = true;
-					return context$2$0.abrupt("break", 35);
+					return context$2$0.abrupt('break', 35);
 
 				case 32:
 					++i;
@@ -7093,44 +6913,44 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 					dForm.initAjax();
 					addDelformStuff();
-					return context$2$0.delegateYield(readUserPosts(), "t18", 39);
+					return context$2$0.delegateYield(readUserPosts(), 't3', 39);
 
 				case 39:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t19", 40);
+					return context$2$0.delegateYield(readFavoritesPosts(), 't4', 40);
 
 				case 40:
-					$each($Q("input[type=\"password\"]", dForm.el), function (pEl) {
+					$each($Q('input[type="password"]', dForm.el), function (pEl) {
 						pr.dpass = pEl;
 						pEl.value = Cfg.passwValue;
 					});
 					if (hKeys) {
 						hKeys.clear(aib.page + count - 1);
 					}
-					closePopup("load-pages");
+					closePopup('load-pages');
 
 				case 43:
 					dForm.show();
 
 				case 44:
-				case "end":
+				case 'end':
 					return context$2$0.stop();
 			}
-		}, callee$1$1, this, [[12, 19], [23, 27]]);
+		}, callee$1$0, this, [[12, 19], [23, 27]]);
 	}));
 
 	function infoLoadErrors(e) {
-		var showError = arguments[1] === undefined ? true : arguments[1];
+		var showError = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
 
 		var isAjax = e instanceof AjaxError,
 		    eCode = isAjax ? e.code : 0;
 		if (eCode === 200) {
-			closePopup("newposts");
+			closePopup('newposts');
 		} else if (isAjax && eCode === 0) {
-			$popup(e.message || Lng.noConnect[lang], "newposts", false);
+			$popup(e.message || Lng.noConnect[lang], 'newposts', false);
 		} else {
-			$popup(Lng.thrNotFound[lang] + aib.t + "): \n" + getErrorMessage(e), "newposts", false);
+			$popup(Lng.thrNotFound[lang] + aib.t + '): \n' + getErrorMessage(e), 'newposts', false);
 			if (showError) {
-				doc.title = "{" + eCode + "} " + doc.title;
+				doc.title = '{' + eCode + '} ' + doc.title;
 			}
 		}
 	}
@@ -7145,76 +6965,76 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			this.disable(false);
 		}
 	}
-	Spells.names = ["words", "exp", "exph", "imgn", "ihash", "subj", "name", "trip", "img", "sage", "op", "tlen", "all", "video", "wipe", "num", "vauthor"];
+	Spells.names = ['words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all', 'video', 'wipe', 'num', 'vauthor'];
 	Spells.needArg = [
 	true, true, true, true, true,
 	false, true, false, false, false,
 	false, false, false, false, false,
 	true, true];
 	Spells.decompileSpell = function (type, neg, val, scope) {
-		var wipeMsg = arguments[4] === undefined ? null : arguments[4];
+		var wipeMsg = arguments.length <= 4 || arguments[4] === undefined ? null : arguments[4];
 
-		var spell = (neg ? "!#" : "#") + Spells.names[type] + (scope ? "[" + scope[0] + (scope[1] ? "," + (scope[1] === -1 ? "" : scope[1]) : "") + "]" : "");
+		var spell = (neg ? '!#' : '#') + Spells.names[type] + (scope ? '[' + scope[0] + (scope[1] ? ',' + (scope[1] === -1 ? '' : scope[1]) : '') + ']' : '');
 		if (!val) {
 			return spell;
 		}
 	
 		if (type === 8) {
-			return spell + "(" + (val[0] === 2 ? ">" : val[0] === 1 ? "<" : "=") + (val[1] ? val[1][0] + (val[1][1] === val[1][0] ? "" : "-" + val[1][1]) : "") + (val[2] ? "@" + val[2][0] + (val[2][0] === val[2][1] ? "" : "-" + val[2][1]) + "x" + val[2][2] + (val[2][2] === val[2][3] ? "" : "-" + val[2][3]) : "") + ")";
+			return spell + '(' + (val[0] === 2 ? '>' : val[0] === 1 ? '<' : '=') + (val[1] ? val[1][0] + (val[1][1] === val[1][0] ? '' : '-' + val[1][1]) : '') + (val[2] ? '@' + val[2][0] + (val[2][0] === val[2][1] ? '' : '-' + val[2][1]) + 'x' + val[2][2] + (val[2][2] === val[2][3] ? '' : '-' + val[2][3]) : '') + ')';
 		}
 	
 		else if (type === 14) {
-			if (val === 63 && !wipeMsg) {
-				return spell;
-			}
+				if (val === 0x3F && !wipeMsg) {
+					return spell;
+				}
 
-			var _ref = wipeMsg || [];
+				var _ref6 = wipeMsg || [];
 
-			var _ref2 = _slicedToArray(_ref, 2);
+				var _ref62 = _slicedToArray(_ref6, 2);
 
-			var msgBit = _ref2[0];
-			var msgData = _ref2[1];
-			var names = [];
-			var bits = { 1: "samelines", 2: "samewords", 4: "longwords", 8: "symbols",
-				16: "capslock", 32: "numbers", 64: "whitespace"
-			};
-			for (var bit in bits) {
-				if (+bit !== msgBit) {
-					if (val & +bit) {
-						names.push(bits[bit]);
+				var msgBit = _ref62[0];
+				var msgData = _ref62[1];
+				var names = [];
+				var bits = { 1: 'samelines', 2: 'samewords', 4: 'longwords', 8: 'symbols',
+					16: 'capslock', 32: 'numbers', 64: 'whitespace'
+				};
+				for (var bit in bits) {
+					if (+bit !== msgBit) {
+						if (val & +bit) {
+							names.push(bits[bit]);
+						}
 					}
 				}
-			}
-			if (msgBit) {
-				names.push(bits[msgBit].toUpperCase() + (msgData ? ": " + msgData : ""));
-			}
-			return spell + "(" + names.join(",") + ")";
-		}
-	
-		else if (type === 15 || type === 11) {
-			var temp_,
-			    temp = val[1].length - 1;
-			if (temp !== -1) {
-				for (temp_ = []; temp >= 0; --temp) {
-					temp_.push(val[1][temp][0] + "-" + val[1][temp][1]);
+				if (msgBit) {
+					names.push(bits[msgBit].toUpperCase() + (msgData ? ': ' + msgData : ''));
 				}
-				temp_.reverse();
+				return spell + '(' + names.join(',') + ')';
 			}
-			spell += "(";
-			if (val[0].length) {
-				spell += val[0].join(",") + (temp_ ? "," : "");
-			}
-			if (temp_) {
-				spell += temp_.join(",");
-			}
-			return spell + ")";
-		}
-	
-		else if (type === 0 || type === 6 || type === 7 || type === 16) {
-			return spell + "(" + val.replace(/\)/g, "\\)") + ")";
-		} else {
-			return spell + "(" + String(val) + ")";
-		}
+		
+			else if (type === 15 || type === 11) {
+					var temp_,
+					    temp = val[1].length - 1;
+					if (temp !== -1) {
+						for (temp_ = []; temp >= 0; --temp) {
+							temp_.push(val[1][temp][0] + '-' + val[1][temp][1]);
+						}
+						temp_.reverse();
+					}
+					spell += '(';
+					if (val[0].length) {
+						spell += val[0].join(',') + (temp_ ? ',' : '');
+					}
+					if (temp_) {
+						spell += temp_.join(',');
+					}
+					return spell + ')';
+				}
+			
+				else if (type === 0 || type === 6 || type === 7 || type === 16) {
+						return spell + '(' + val.replace(/\)/g, '\\)') + ')';
+					} else {
+						return spell + '(' + String(val) + ')';
+					}
 	};
 	Spells.prototype = Object.defineProperties({
 		_optimizeSpells: function _optimizeSpells(spells) {
@@ -7225,22 +7045,22 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				var j,
 				    spell = spells[i],
 				    flags = spell[0],
-				    type = flags & 255;
-				neg = (flags & 256) !== 0;
-				if (type === 255) {
+				    type = flags & 0xFF;
+				neg = (flags & 0x100) !== 0;
+				if (type === 0xFF) {
 					var parensSpells = this._optimizeSpells(spell[1]);
 					if (parensSpells) {
 						if (parensSpells.length !== 1) {
 							newSpells.push([flags, parensSpells]);
 							lastSpell++;
 							continue;
-						} else if ((parensSpells[0][0] & 255) !== 12) {
-							newSpells.push([(parensSpells[0][0] | flags & 512) ^ flags & 256, parensSpells[0][1]]);
+						} else if ((parensSpells[0][0] & 0xFF) !== 12) {
+							newSpells.push([(parensSpells[0][0] | flags & 0x200) ^ flags & 0x100, parensSpells[0][1]]);
 							lastSpell++;
 							continue;
 						}
 						flags = parensSpells[0][0];
-						neg = !(neg ^ (flags & 256) !== 0);
+						neg = !(neg ^ (flags & 0x100) !== 0);
 					}
 				} else {
 					var scope = spell[2];
@@ -7254,33 +7074,33 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						}
 					}
 				}
-				for (j = lastSpell; j >= 0 && (newSpells[j][0] & 512) !== 0 ^ neg; --j) {}
+				for (j = lastSpell; j >= 0 && (newSpells[j][0] & 0x200) !== 0 ^ neg; --j) {}
 				if (j !== lastSpell) {
 					newSpells = newSpells.slice(0, j + 1);
 					lastSpell = j;
 				}
 				if (neg && j !== -1) {
-					newSpells[j][0] &= 511;
+					newSpells[j][0] &= 0x1FF;
 				}
-				if ((flags & 512) !== 0 ^ neg) {
+				if ((flags & 0x200) !== 0 ^ neg) {
 					break;
 				}
 			}
-			return lastSpell === -1 ? neg ? [[12, ""]] : null : newSpells;
+			return lastSpell === -1 ? neg ? [[12, '']] : null : newSpells;
 		},
 		_initSpells: function _initSpells(data) {
 			if (data) {
 				data.forEach(function initExps(item) {
 					var val = item[1];
 					if (val) {
-						switch (item[0] & 255) {
+						switch (item[0] & 0xFF) {
 							case 1:
 							case 2:
 							case 3:
 							case 5:
 							case 13:
 								item[1] = toRegExp(val, true);break;
-							case 255:
+							case 0xFF:
 								val.forEach(initExps);
 						}
 					}
@@ -7293,31 +7113,31 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			    hScope = false;
 			for (var i = 0, j = 0, len = scope.length; i < len; i++, j++) {
 				var spell = scope[i],
-				    type = spell[0] & 255;
-				if (type === 255) {
+				    type = spell[0] & 0xFF;
+				if (type === 0xFF) {
 					hScope = true;
-					var temp = this._decompileScope(spell[1], indent + "    ");
+					var temp = this._decompileScope(spell[1], indent + '    ');
 					if (temp[1]) {
-						var str = (spell[0] & 256 ? "!(\n" : "(\n") + indent + "    " + temp[0].join("\n" + indent + "    ") + "\n" + indent + ")";
+						var str = (spell[0] & 0x100 ? '!(\n' : '(\n') + indent + '    ' + temp[0].join('\n' + indent + '    ') + '\n' + indent + ')';
 						if (j === 0) {
 							dScope[0] = str;
 						} else {
-							dScope[--j] += " " + str;
+							dScope[--j] += ' ' + str;
 						}
 					} else {
-						dScope[j] = (spell[0] & 256 ? "!(" : "(") + temp[0].join(" ") + ")";
+						dScope[j] = (spell[0] & 0x100 ? '!(' : '(') + temp[0].join(' ') + ')';
 					}
 				} else {
-					dScope[j] = Spells.decompileSpell(type, spell[0] & 256, spell[1], spell[2]);
+					dScope[j] = Spells.decompileSpell(type, spell[0] & 0x100, spell[1], spell[2]);
 				}
 				if (i !== len - 1) {
-					dScope[j] += spell[0] & 512 ? " &" : " |";
+					dScope[j] += spell[0] & 0x200 ? ' &' : ' |';
 				}
 			}
 			return [dScope, dScope.length > 2 || hScope];
 		},
 		_decompileSpells: function _decompileSpells() {
-			var _this204 = this;
+			var _this10 = this;
 
 			var str,
 			    reps,
@@ -7327,24 +7147,24 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				this._read(false);
 				data = this._data;
 				if (!data) {
-					return this._list = "";
+					return this._list = '';
 				}
 			}
-			str = data[1] ? this._decompileScope(data[1], "")[0].join("\n") : "";
+			str = data[1] ? this._decompileScope(data[1], '')[0].join('\n') : '';
 			reps = data[2];
 			oreps = data[3];
 			if (reps || oreps) {
 				if (str) {
-					str += "\n\n";
+					str += '\n\n';
 				}
 				if (reps) {
 					reps.forEach(function (rep) {
-						str += _this204._decompileRep(rep, false) + "\n";
+						str += _this10._decompileRep(rep, false) + '\n';
 					});
 				}
 				if (oreps) {
 					oreps.forEach(function (orep) {
-						str += _this204._decompileRep(orep, true) + "\n";
+						str += _this10._decompileRep(orep, true) + '\n';
 					});
 				}
 				str = str.substr(0, str.length - 1);
@@ -7353,7 +7173,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return this._list = str;
 		},
 		_decompileRep: function _decompileRep(rep, isOrep) {
-			return (isOrep ? "#outrep" : "#rep") + (rep[0] ? "[" + rep[0] + (rep[1] ? "," + (rep[1] === -1 ? "" : rep[1]) : "") + "]" : "") + "(" + rep[2] + "," + rep[3].replace(/\)/g, "\\)") + ")";
+			return (isOrep ? '#outrep' : '#rep') + (rep[0] ? '[' + rep[0] + (rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '') + '(' + rep[2] + ',' + rep[3].replace(/\)/g, '\\)') + ')';
 		},
 		_optimizeReps: function _optimizeReps(data) {
 			if (!data) {
@@ -7387,7 +7207,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			var spells, data;
 			try {
 				spells = JSON.parse(Cfg.spells);
-				data = JSON.parse(sesStorage["de-spells-" + aib.b + (aib.t || "")]);
+				data = JSON.parse(sesStorage['de-spells-' + aib.b + (aib.t || '')]);
 			} catch (e) {}
 			if (data && spells && data[0] === spells[0]) {
 				this._data = spells;
@@ -7398,7 +7218,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				return;
 			}
 			if (!spells) {
-				spells = this.parseText("#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)");
+				spells = this.parseText('#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)');
 			}
 			if (init) {
 				this.update(spells, false, false);
@@ -7407,16 +7227,17 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		_data: null,
-		_list: "",
+		_list: '',
 
 		hash: 0,
 		hasNumSpell: false,
 		enable: false,
+
 		parseText: function parseText(str) {
 			var codeGen = new SpellsCodegen(str),
 			    data = codeGen.generate();
 			if (codeGen.hasError) {
-				$popup(Lng.error[lang] + ": " + codeGen.error, "err-spell", false);
+				$popup(Lng.error[lang] + ': ' + codeGen.error, 'err-spell', false);
 			} else if (data) {
 				if (data[0] && Cfg.sortSpells) {
 					this.sort(data[0]);
@@ -7428,12 +7249,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		sort: function sort(sp) {
 		
 			for (var i = 0, len = sp.length - 1; i < len; i++) {
-				if (sp[i][0] > 512) {
-					var temp = [255, []];
+				if (sp[i][0] > 0x200) {
+					var temp = [0xFF, []];
 					do {
 						temp[1].push(sp.splice(i, 1)[0]);
 						len--;
-					} while (sp[i][0] > 512);
+					} while (sp[i][0] > 0x200);
 					temp[1].push(sp.splice(i, 1)[0]);
 					sp.splice(i, 0, temp);
 				}
@@ -7442,34 +7263,35 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			for (var i = 0, len = sp.length - 1; i < len; i++) {
 			
 				if (sp[i][0] === sp[i + 1][0] && sp[i][1] <= sp[i + 1][1] && sp[i][1] >= sp[i + 1][1] && (sp[i][2] === null ||
-				sp[i][2] === undefined || sp[i][2] <= sp[i + 1][2] && sp[i][2] >= sp[i + 1][2])) {
+				sp[i][2] === undefined ||
+				sp[i][2] <= sp[i + 1][2] && sp[i][2] >= sp[i + 1][2])) {
 				
 					sp.splice(i + 1, 1);
 					i--;
 					len--;
 				
-				} else if (sp[i][0] === 255) {
-					sp.push(sp.splice(i, 1)[0]);
-					i--;
-					len--;
-				}
+				} else if (sp[i][0] === 0xFF) {
+						sp.push(sp.splice(i, 1)[0]);
+						i--;
+						len--;
+					}
 			}
 		},
 		update: function update(data, sync, isHide) {
 			var spells = data[1] ? this._optimizeSpells(data[1]) : false,
 			    reps = this._optimizeReps(data[2]),
 			    outreps = this._optimizeReps(data[3]);
-			saveCfg("spells", JSON.stringify(data));
-			sesStorage["de-spells-" + aib.b + (aib.t || "")] = JSON.stringify([data[0], spells, reps, outreps]);
+			saveCfg('spells', JSON.stringify(data));
+			sesStorage['de-spells-' + aib.b + (aib.t || '')] = JSON.stringify([data[0], spells, reps, outreps]);
 			this._data = data;
-			this._list = "";
+			this._list = '';
 			this.hash = data[0];
 			if (sync) {
-				locStorage["__de-spells"] = JSON.stringify({
-					hide: !!this.list && !!isHide,
-					data: data
+				locStorage['__de-spells'] = JSON.stringify({
+					'hide': !!this.list && !!isHide,
+					'data': data
 				});
-				locStorage.removeItem("__de-spells");
+				locStorage.removeItem('__de-spells');
 			}
 			this._init(spells, reps, outreps);
 		},
@@ -7487,10 +7309,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		},
 		disable: function disable(sync) {
 			this.enable = false;
-			this._list = "";
+			this._list = '';
 			this._data = null;
 			this.haveReps = this.haveOutreps = false;
-			saveCfg("hideBySpell", false);
+			saveCfg('hideBySpell', false);
 		},
 		replace: function replace(txt) {
 			for (var i = 0, len = this._reps.length; i < len; i++) {
@@ -7517,25 +7339,25 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			if (spells[1]) {
 				spells[1].some(scope && isNeg ? function (spell, i) {
 					var data;
-					if (spell[0] === 255 && (data = spell[1]) instanceof Array && data.length === 2 && data[0][0] === 524 && data[1][0] === type && data[1][2] == null && String(data[1][1]) === sArg && String(data[0][2]) === sScope) {
+					if (spell[0] === 0xFF && (data = spell[1]) instanceof Array && data.length === 2 && data[0][0] === 0x20C && data[1][0] === type && data[1][2] == null && String(data[1][1]) === sArg && String(data[0][2]) === sScope) {
 						idx = i;
 						return true;
 					}
-					return (spell[0] & 512) !== 0;
+					return (spell[0] & 0x200) !== 0;
 				} : function (spell, i) {
 					if (spell[0] === type && String(spell[1]) === sArg && String(spell[2]) === sScope) {
 						idx = i;
 						return true;
 					}
-					return (spell[0] & 512) !== 0;
+					return (spell[0] & 0x200) !== 0;
 				});
 			} else {
 				spells[1] = [];
 			}
-			if (typeof idx !== "undefined") {
+			if (typeof idx !== 'undefined') {
 				spells[1].splice(idx, 1);
 			} else if (scope && isNeg) {
-				spells[1].splice(0, 0, [255, [[524, "", scope], [type, arg, void 0]], void 0]);
+				spells[1].splice(0, 0, [0xFF, [[0x20C, '', scope], [type, arg, void 0]], void 0]);
 			} else {
 				spells[1].splice(0, 0, [type, arg, scope]);
 			}
@@ -7544,7 +7366,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}
 	}, {
 		list: {
-			get: function () {
+			get: function get() {
 				return this._list || this._decompileSpells();
 			},
 			configurable: true,
@@ -7570,7 +7392,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return this._sList ? this._generate(this._sList, false) : null;
 		},
 
-		_errMsg: "",
+		_errMsg: '',
 		_errMsgArg: null,
 		_generate: function _generate(sList, inParens) {
 			var spells = [],
@@ -7581,26 +7403,26 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			for (var i = 0, len = sList.length; i < len; i++, this._col++) {
 				var res;
 				switch (sList[i]) {
-					case "\n":
+					case '\n':
 						this._line++;
 						this._col = 0;
-										case "\r":
-					case " ":
+										case '\r':
+					case ' ':
 						continue;
-					case "#":
-						var name = "";
+					case '#':
+						var name = '';
 						i++;
 						this._col++;
-						while (sList[i] >= "a" && sList[i] <= "z" || sList[i] >= "A" && sList[i] <= "Z") {
+						while (sList[i] >= 'a' && sList[i] <= 'z' || sList[i] >= 'A' && sList[i] <= 'Z') {
 							name += sList[i].toLowerCase();
 							i++;
 							this._col++;
 						}
-						if (name === "rep" || name === "outrep") {
+						if (name === 'rep' || name === 'outrep') {
 							if (!hasReps) {
 								if (inParens) {
 									this._col -= 1 + name.length;
-									this._setError(Lng.seRepsInParens[lang], "#" + name);
+									this._setError(Lng.seRepsInParens[lang], '#' + name);
 									return null;
 								}
 								if (lastType === this.TYPE_ANDOR || lastType === this.TYPE_NOT) {
@@ -7608,9 +7430,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 									this._col -= 1 + name.length;
 									lookBack: while (i >= 0) {
 										switch (sList[i]) {
-											case "\n":
-											case "\r":
-											case " ":
+											case '\n':
+											case '\r':
+											case ' ':
 												i--;
 												this._col--;
 												break;
@@ -7627,7 +7449,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							if (!res) {
 								return null;
 							}
-							if (name === "rep") {
+							if (name === 'rep') {
 								reps.push(res[1]);
 							} else {
 								outreps.push(res[1]);
@@ -7650,9 +7472,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							lastType = this.TYPE_SPELL;
 						}
 						break;
-					case "(":
+					case '(':
 						if (hasReps) {
-							this._setError(Lng.seUnexpChar[lang], "(");
+							this._setError(Lng.seUnexpChar[lang], '(');
 							return null;
 						}
 						if (lastType === this.TYPE_SPELL || lastType === this.TYPE_PARENTHESES) {
@@ -7664,11 +7486,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							return null;
 						}
 						i += res[0] + 1;
-						spells.push([lastType === this.TYPE_NOT ? 511 : 255, res[1]]);
+						spells.push([lastType === this.TYPE_NOT ? 0x1FF : 0xFF, res[1]]);
 						lastType = this.TYPE_PARENTHESES;
 						break;
-					case "|":
-					case "&":
+					case '|':
+					case '&':
 						if (hasReps) {
 							this._setError(Lng.seUnexpChar[lang], sList[i]);
 							return null;
@@ -7677,14 +7499,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							this._setError(Lng.seMissSpell[lang], null);
 							return null;
 						}
-						if (sList[i] === "&") {
-							spells[spells.length - 1][0] |= 512;
+						if (sList[i] === '&') {
+							spells[spells.length - 1][0] |= 0x200;
 						}
 						lastType = this.TYPE_ANDOR;
 						break;
-					case "!":
+					case '!':
 						if (hasReps) {
-							this._setError(Lng.seUnexpChar[lang], "!");
+							this._setError(Lng.seUnexpChar[lang], '!');
 							return null;
 						}
 						if (lastType !== this.TYPE_ANDOR && lastType !== this.TYPE_UNKNOWN) {
@@ -7693,9 +7515,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						}
 						lastType = this.TYPE_NOT;
 						break;
-					case ")":
+					case ')':
 						if (hasReps) {
-							this._setError(Lng.seUnexpChar[lang], ")");
+							this._setError(Lng.seUnexpChar[lang], ')');
 							return null;
 						}
 						if (lastType === this.TYPE_ANDOR || lastType === this.TYPE_NOT) {
@@ -7759,7 +7581,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			if (haveBracket !== !!m[1]) {
 				return null;
 			}
-			return [m[0].length, m[2].replace(/\\\)/g, ")")];
+			return [m[0].length, m[2].replace(/\\\)/g, ')')];
 		},
 		_doRep: function _doRep(name, str) {
 			var regex,
@@ -7767,13 +7589,13 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			if (scope) {
 				str = str.substring(scope[0]);
 			} else {
-				scope = [0, ["", ""]];
+				scope = [0, ['', '']];
 			}
 			regex = this._getRegex(str, true);
 			if (regex) {
 				str = str.substring(regex[0]);
-				if (str[0] === ")") {
-					return [regex[0] + scope[0] + 1, [scope[1][0], scope[1][1], regex[1], ""]];
+				if (str[0] === ')') {
+					return [regex[0] + scope[0] + 1, [scope[1][0], scope[1][1], regex[1], '']];
 				}
 				var val = this._getText(str, false);
 				if (val) {
@@ -7801,13 +7623,13 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				str = str.substring(temp[0]);
 				scope = temp[1];
 			}
-			spellType = isNeg ? spellIdx | 256 : spellIdx;
-			if (str[0] !== "(" || str[1] === ")") {
+			spellType = isNeg ? spellIdx | 0x100 : spellIdx;
+			if (str[0] !== '(' || str[1] === ')') {
 				if (Spells.needArg[spellIdx]) {
 					this._setError(Lng.seMissArg[lang], name);
 					return null;
 				}
-				return [str[0] === "(" ? i + 2 : i, [spellType, spellIdx === 14 ? 63 : "", scope]];
+				return [str[0] === '(' ? i + 2 : i, [spellType, spellIdx === 14 ? 0x3F : '', scope]];
 			}
 			switch (spellIdx) {
 			
@@ -7821,7 +7643,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				case 8:
 					m = str.match(/^\(([><=])(?:(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?)?(?:@(\d+)(?:-(\d+))?x(\d+)(?:-(\d+))?)?\)/);
 					if (m && (m[2] || m[4])) {
-						return [i + m[0].length, [spellType, [m[1] === "=" ? 0 : m[1] === "<" ? 1 : 2, m[2] && [+m[2], m[3] ? +m[3] : +m[2]], m[4] && [+m[4], m[5] ? +m[5] : +m[4], +m[6], m[7] ? +m[7] : +m[6]]], scope]];
+						return [i + m[0].length, [spellType, [m[1] === '=' ? 0 : m[1] === '<' ? 1 : 2, m[2] && [+m[2], m[3] ? +m[3] : +m[2]], m[4] && [+m[4], m[5] ? +m[5] : +m[4], +m[6], m[7] ? +m[7] : +m[6]]], scope]];
 					}
 					break;
 			
@@ -7830,19 +7652,19 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					if (m) {
 						val = m[1].split(/, */).reduce(function (val, str) {
 							switch (str) {
-								case "samelines":
+								case 'samelines':
 									return val |= 1;
-								case "samewords":
+								case 'samewords':
 									return val |= 2;
-								case "longwords":
+								case 'longwords':
 									return val |= 4;
-								case "symbols":
+								case 'symbols':
 									return val |= 8;
-								case "capslock":
+								case 'capslock':
 									return val |= 16;
-								case "numbers":
+								case 'numbers':
 									return val |= 32;
-								case "whitespace":
+								case 'whitespace':
 									return val |= 64;
 								default:
 									return -1;
@@ -7859,8 +7681,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					m = str.match(/^\(([\d-, ]+)\)/);
 					if (m) {
 						m[1].split(/, */).forEach(function (v) {
-							if (v.includes("-")) {
-								var nums = v.split("-");
+							if (v.includes('-')) {
+								var nums = v.split('-');
 								nums[0] = +nums[0];
 								nums[1] = +nums[1];
 								this[1].push(nums);
@@ -7899,11 +7721,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}
 	}, {
 		error: {
-			get: function () {
+			get: function get() {
 				if (!this.hasError) {
-					return "";
+					return '';
 				}
-				return (this._errMsgArg ? this._errMsg.replace("%s", this._errMsgArg) : this._errMsg) + Lng.seRow[lang] + this._line + Lng.seCol[lang] + this._col + ")";
+				return (this._errMsgArg ? this._errMsg.replace('%s', this._errMsgArg) : this._errMsg) + Lng.seRow[lang] + this._line + Lng.seCol[lang] + this._col + ')';
 			},
 			configurable: true,
 			enumerable: true
@@ -7921,24 +7743,24 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	SpellsRunner.prototype = {
 		hasNumSpell: false,
 		end: function end() {
-			var _this204 = this;
+			var _this11 = this;
 
 			if (this._endPromise) {
 				this._endPromise.then(function () {
-					return _this204._savePostsHelper();
+					return _this11._savePostsHelper();
 				});
 			} else {
 				this._savePostsHelper();
 			}
 		},
 		run: function run(post) {
-			var _this204 = this;
+			var _this12 = this;
 
 			var interp = new SpellsInterpreter(post, this._spells);
 			var res = interp.run();
 			if (res instanceof Promise) {
 				res = res.then(function (val) {
-					return _this204._checkRes(post, val);
+					return _this12._checkRes(post, val);
 				});
 				this._endPromise = this._endPromise ? this._endPromise.then(function () {
 					return res;
@@ -7949,12 +7771,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		},
 
 		_endPromise: null,
-		_checkRes: function _checkRes(post, _ref) {
-			var _ref2 = _slicedToArray(_ref, 3);
+		_checkRes: function _checkRes(post, _ref7) {
+			var _ref72 = _slicedToArray(_ref7, 3);
 
-			var hasNumSpell = _ref2[0];
-			var val = _ref2[1];
-			var msg = _ref2[2];
+			var hasNumSpell = _ref72[0];
+			var val = _ref72[1];
+			var msg = _ref72[2];
 
 			this.hasNumSpell |= hasNumSpell;
 			if (val) {
@@ -7970,10 +7792,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			if (this._spells) {
 				if (aib.t) {
 					var lPost = dForm.firstThr.lastNotDeleted;
-					sesStorage["de-hidden-" + aib.b + aib.t] = (Cfg.hideBySpell ? spells.hash : "0") + ";" + lPost.num + ";" + lPost.count + ";" + sVis.join();
+					sesStorage['de-hidden-' + aib.b + aib.t] = (Cfg.hideBySpell ? spells.hash : '0') + ';' + lPost.num + ';' + lPost.count + ';' + sVis.join();
 				}
 				saveHiddenThreads(false);
-				toggleWindow("hid", true);
+				toggleWindow('hid', true);
 			}
 			ImagesHashStorage.endFn();
 		}
@@ -7997,11 +7819,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			    len = this._ctx.pop();
 			while (true) {
 				if (i < len) {
-					var type = scope[i][0] & 255;
-					if (type === 255) {
+					var type = scope[i][0] & 0xFF;
+					if (type === 0xFF) {
 						this._deep++;
 						this._ctx.push(len, scope, i, isNegScope);
-						isNegScope = !!((scope[i][0] & 256) !== 0 ^ isNegScope);
+						isNegScope = !!((scope[i][0] & 0x100) !== 0 ^ isNegScope);
 						scope = scope[i][1];
 						len = scope.length;
 						i = 0;
@@ -8015,12 +7837,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						return val.then(this._asyncContinue.bind(this));
 					}
 
-					var _ref = this._checkRes(scope[i], val, isNegScope);
+					var _checkRes2 = this._checkRes(scope[i], val, isNegScope);
 
-					var _ref2 = _slicedToArray(_ref, 2);
+					var _checkRes22 = _slicedToArray(_checkRes2, 2);
 
-					rv = _ref2[0];
-					stopCheck = _ref2[1];
+					rv = _checkRes22[0];
+					stopCheck = _checkRes22[1];
 
 					if (!stopCheck) {
 						i++;
@@ -8033,7 +7855,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					i = this._ctx.pop();
 					scope = this._ctx.pop();
 					len = this._ctx.pop();
-					if ((scope[i][0] & 512) === 0 ^ rv) {
+					if ((scope[i][0] & 0x200) === 0 ^ rv) {
 						i++;
 						this._triggeredSpellsStack.pop();
 						this._lastTSpells = this._triggeredSpellsStack[this._triggeredSpellsStack.length - 1];
@@ -8049,21 +7871,21 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			var cl = this._ctx.length;
 			var spell = this._ctx[cl - 3][this._ctx[cl - 2] - 1];
 
-			var _checkRes = this._checkRes(spell, val, this._ctx[cl - 1]);
+			var _checkRes3 = this._checkRes(spell, val, this._ctx[cl - 1]);
 
-			var _checkRes2 = _slicedToArray(_checkRes, 2);
+			var _checkRes32 = _slicedToArray(_checkRes3, 2);
 
-			var rv = _checkRes2[0];
-			var stopCheck = _checkRes2[1];
+			var rv = _checkRes32[0];
+			var stopCheck = _checkRes32[1];
 
 			return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null] : this.run();
 		},
 		_checkRes: function _checkRes(spell, val, isNegScope) {
 			var flags = spell[0];
-			var isAndSpell = (flags & 512) !== 0 ^ isNegScope;
-			var isNegSpell = (flags & 256) !== 0 ^ isNegScope;
+			var isAndSpell = (flags & 0x200) !== 0 ^ isNegScope;
+			var isNegSpell = (flags & 0x100) !== 0 ^ isNegScope;
 			if (isNegSpell ^ val) {
-				this._lastTSpells.push([isNegSpell, spell, (spell[0] & 255) === 14 ? this._wipeMsg : null]);
+				this._lastTSpells.push([isNegSpell, spell, (spell[0] & 0xFF) === 14 ? this._wipeMsg : null]);
 				return [true, !isAndSpell];
 			}
 			this._lastTSpells.length = 0;
@@ -8090,15 +7912,15 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							var spell = _step2$value[1];
 							var wipeMsg = _step2$value[2];
 
-							rv.push(Spells.decompileSpell(spell[0] & 255, isNeg, spell[1], spell[2], wipeMsg));
+							rv.push(Spells.decompileSpell(spell[0] & 0xFF, isNeg, spell[1], spell[2], wipeMsg));
 						}
 					} catch (err) {
 						_didIteratorError2 = true;
 						_iteratorError2 = err;
 					} finally {
 						try {
-							if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
-								_iterator2["return"]();
+							if (!_iteratorNormalCompletion2 && _iterator2['return']) {
+								_iterator2['return']();
 							}
 						} finally {
 							if (_didIteratorError2) {
@@ -8112,8 +7934,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				_iteratorError = err;
 			} finally {
 				try {
-					if (!_iteratorNormalCompletion && _iterator["return"]) {
-						_iterator["return"]();
+					if (!_iteratorNormalCompletion && _iterator['return']) {
+						_iterator['return']();
 					}
 				} finally {
 					if (_didIteratorError) {
@@ -8122,7 +7944,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 			}
 
-			return rv.join(" & ");
+			return rv.join(' & ');
 		},
 		_runSpell: function _runSpell(spellId, val) {
 			switch (spellId) {
@@ -8173,79 +7995,77 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return val.test(this._post.html);
 		},
 		_imgn: function _imgn(val) {
-			var _iteratorNormalCompletion = true;
-			var _didIteratorError = false;
-			var _iteratorError = undefined;
+			var _iteratorNormalCompletion3 = true;
+			var _didIteratorError3 = false;
+			var _iteratorError3 = undefined;
 
 			try {
-				for (var _iterator = this._post.images[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-					var image = _step.value;
+				for (var _iterator3 = this._post.images[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+					var image = _step3.value;
 
 					if (image instanceof Attachment && val.test(image.info)) {
 						return true;
 					}
 				}
 			} catch (err) {
-				_didIteratorError = true;
-				_iteratorError = err;
+				_didIteratorError3 = true;
+				_iteratorError3 = err;
 			} finally {
 				try {
-					if (!_iteratorNormalCompletion && _iterator["return"]) {
-						_iterator["return"]();
+					if (!_iteratorNormalCompletion3 && _iterator3['return']) {
+						_iterator3['return']();
 					}
 				} finally {
-					if (_didIteratorError) {
-						throw _iteratorError;
+					if (_didIteratorError3) {
+						throw _iteratorError3;
 					}
 				}
 			}
 
 			return false;
 		},
-		_ihash: async(regeneratorRuntime.mark(function callee$1$2(val) {
-			var _this204 = this;
+		_ihash: async(regeneratorRuntime.mark(function callee$1$0(val) {
+			var _iteratorNormalCompletion4, _didIteratorError4, _iteratorError4, _iterator4, _step4, image, hash;
 
-			var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, image, hash;
-
-			return regeneratorRuntime.wrap(function callee$1$2$(context$2$0) {
+			return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
 				while (1) switch (context$2$0.prev = context$2$0.next) {
 					case 0:
-						_iteratorNormalCompletion = true;
-						_didIteratorError = false;
-						_iteratorError = undefined;
+						_iteratorNormalCompletion4 = true;
+						_didIteratorError4 = false;
+						_iteratorError4 = undefined;
 						context$2$0.prev = 3;
-						_iterator = _this204._post.images[Symbol.iterator]();
+						_iterator4 = this._post.images[Symbol.iterator]();
 
 					case 5:
-						if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+						if (_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done) {
 							context$2$0.next = 16;
 							break;
 						}
 
-						image = _step.value;
+						image = _step4.value;
 
 						if (image instanceof Attachment) {
 							context$2$0.next = 9;
 							break;
 						}
 
-						return context$2$0.abrupt("continue", 13);
+						return context$2$0.abrupt('continue', 13);
 
 					case 9:
-						return context$2$0.delegateYield(ImagesHashStorage.getHash(image), "t20", 10);
+						return context$2$0.delegateYield(ImagesHashStorage.getHash(image), 't0', 10);
 
 					case 10:
-						hash = context$2$0.t20;
+						hash = context$2$0.t0;
 
 						if (!(hash === val)) {
 							context$2$0.next = 13;
 							break;
 						}
 
-						return context$2$0.abrupt("return", true);
+						return context$2$0.abrupt('return', true);
 
 					case 13:
-						_iteratorNormalCompletion = true;
+						_iteratorNormalCompletion4 = true;
 						context$2$0.next = 5;
 						break;
 
@@ -8255,27 +8075,27 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 					case 18:
 						context$2$0.prev = 18;
-						context$2$0.t21 = context$2$0["catch"](3);
-						_didIteratorError = true;
-						_iteratorError = context$2$0.t21;
+						context$2$0.t1 = context$2$0['catch'](3);
+						_didIteratorError4 = true;
+						_iteratorError4 = context$2$0.t1;
 
 					case 22:
 						context$2$0.prev = 22;
 						context$2$0.prev = 23;
 
-						if (!_iteratorNormalCompletion && _iterator["return"]) {
-							_iterator["return"]();
+						if (!_iteratorNormalCompletion4 && _iterator4['return']) {
+							_iterator4['return']();
 						}
 
 					case 25:
 						context$2$0.prev = 25;
 
-						if (!_didIteratorError) {
+						if (!_didIteratorError4) {
 							context$2$0.next = 28;
 							break;
 						}
 
-						throw _iteratorError;
+						throw _iteratorError4;
 
 					case 28:
 						return context$2$0.finish(25);
@@ -8284,13 +8104,13 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						return context$2$0.finish(22);
 
 					case 30:
-						return context$2$0.abrupt("return", false);
+						return context$2$0.abrupt('return', false);
 
 					case 31:
-					case "end":
+					case 'end':
 						return context$2$0.stop();
 				}
-			}, callee$1$2, this, [[3, 18, 22, 30], [23,, 25, 29]]);
+			}, callee$1$0, this, [[3, 18, 22, 30], [23,, 25, 29]]);
 		})),
 		_subj: function _subj(val) {
 			var pSubj = this._post.subj;
@@ -8306,6 +8126,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		},
 		_img: function _img(val) {
 			var hide;var images = this._post.images;
+
 			var _val = _slicedToArray(val, 3);
 
 			var compareRule = _val[0];
@@ -8315,13 +8136,13 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			if (!val) {
 				return images.hasAttachments;
 			}
-			var _iteratorNormalCompletion = true;
-			var _didIteratorError = false;
-			var _iteratorError = undefined;
+			var _iteratorNormalCompletion5 = true;
+			var _didIteratorError5 = false;
+			var _iteratorError5 = undefined;
 
 			try {
-				for (var _iterator = images[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-					var image = _step.value;
+				for (var _iterator5 = images[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+					var image = _step5.value;
 
 					if (!(image instanceof Attachment)) {
 						continue;
@@ -8364,16 +8185,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					}
 				}
 			} catch (err) {
-				_didIteratorError = true;
-				_iteratorError = err;
+				_didIteratorError5 = true;
+				_iteratorError5 = err;
 			} finally {
 				try {
-					if (!_iteratorNormalCompletion && _iterator["return"]) {
-						_iterator["return"]();
+					if (!_iteratorNormalCompletion5 && _iterator5['return']) {
+						_iterator5['return']();
 					}
 				} finally {
-					if (_didIteratorError) {
-						throw _iteratorError;
+					if (_didIteratorError5) {
+						throw _iteratorError5;
 					}
 				}
 			}
@@ -8387,7 +8208,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return this._post.isOp;
 		},
 		_tlen: function _tlen(val) {
-			var text = this._post.text.replace(/^\s+|\s+$|\s+(?=\s)|\n/g, "");
+			var text = this._post.text.replace(/^\s+|\s+$|\s+(?=\s)|\n/g, '');
 			return !val ? !!text : this._tlenNum_helper(val, text.length);
 		},
 		_all: function _all(val) {
@@ -8403,7 +8224,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			    txt = this._post.text;
 		
 			if (val & 1) {
-				arr = txt.replace(/>/g, "").split(/\s*\n\s*/);
+				arr = txt.replace(/>/g, '').split(/\s*\n\s*/);
 				if ((len = arr.length) > 5) {
 					arr.sort();
 					for (var i = 0, n = len / 4; i < len;) {
@@ -8413,7 +8234,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							j++;
 						}
 						if (j > 4 && j > n && x) {
-							this._wipeMsg = [1, "\"" + x.substr(0, 20) + "\" x" + (j + 1)];
+							this._wipeMsg = [1, '"' + x.substr(0, 20) + '" x' + (j + 1)];
 							return true;
 						}
 					}
@@ -8421,7 +8242,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		
 			if (val & 2) {
-				arr = txt.replace(/[\s\.\?\!,>]+/g, " ").toUpperCase().split(" ");
+				arr = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' ');
 				if ((len = arr.length) > 3) {
 					arr.sort();
 					var keys = 0;
@@ -8436,37 +8257,37 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 								pop = j;
 							}
 							if (pop >= n) {
-								this._wipeMsg = [2, "same \"" + x.substr(0, 20) + "\" x" + (pop + 1)];
+								this._wipeMsg = [2, 'same "' + x.substr(0, 20) + '" x' + (pop + 1)];
 								return true;
 							}
 						}
 					}
 					x = keys / len;
-					if (x < 0.25) {
-						this._wipeMsg = [2, "uniq " + (x * 100).toFixed(0) + "%"];
+					if (x < .25) {
+						this._wipeMsg = [2, 'uniq ' + (x * 100).toFixed(0) + '%'];
 						return true;
 					}
 				}
 			}
 		
 			if (val & 4) {
-				arr = txt.replace(/https*:\/\/.*?(\s|$)/g, "").replace(/[\s\.\?!,>:;-]+/g, " ").split(" ");
-				if (arr[0].length > 50 || (len = arr.length) > 1 && arr.join("").length / len > 10) {
+				arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
+				if (arr[0].length > 50 || (len = arr.length) > 1 && arr.join('').length / len > 10) {
 					this._wipeMsg = [4, null];
 					return true;
 				}
 			}
 		
 			if (val & 8) {
-				var _txt = txt.replace(/\s+/g, "");
-				if ((len = _txt.length) > 30 && (x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, "").length / len) > 0.4) {
-					this._wipeMsg = [8, (x * 100).toFixed(0) + "%"];
+				var _txt = txt.replace(/\s+/g, '');
+				if ((len = _txt.length) > 30 && (x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > .4) {
+					this._wipeMsg = [8, (x * 100).toFixed(0) + '%'];
 					return true;
 				}
 			}
 		
 			if (val & 16) {
-				arr = txt.replace(/[\s\.\?!;,-]+/g, " ").trim().split(" ");
+				arr = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
 				if ((len = arr.length) > 4) {
 					var n = 0,
 					    capsw = 0,
@@ -8484,20 +8305,20 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						}
 						n++;
 					}
-					if (capsw / n >= 0.3 && n > 4) {
-						this._wipeMsg = [16, "CAPS " + capsw / arr.length * 100 + "%"];
+					if (capsw / n >= .3 && n > 4) {
+						this._wipeMsg = [16, 'CAPS ' + capsw / arr.length * 100 + '%'];
 						return true;
-					} else if (casew / n >= 0.3 && n > 8) {
-						this._wipeMsg = [16, "cAsE " + casew / arr.length * 100 + "%"];
+					} else if (casew / n >= .3 && n > 8) {
+						this._wipeMsg = [16, 'cAsE ' + casew / arr.length * 100 + '%'];
 						return true;
 					}
 				}
 			}
 		
 			if (val & 32) {
-				var _txt = txt.replace(/\s+/g, " ").replace(/>>\d+|https*:\/\/.*?(?: |$)/g, "");
-				if ((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, "").length) / len) > 0.4) {
-					this._wipeMsg = [32, Math.round(x * 100) + "%"];
+				var _txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
+				if ((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > .4) {
+					this._wipeMsg = [32, Math.round(x * 100) + '%'];
 					return true;
 				}
 			}
@@ -8538,51 +8359,51 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			if (!videos.hasLinks || !Cfg.YTubeTitles) {
 				return false;
 			}
-			var _iteratorNormalCompletion = true;
-			var _didIteratorError = false;
-			var _iteratorError = undefined;
+			var _iteratorNormalCompletion6 = true;
+			var _didIteratorError6 = false;
+			var _iteratorError6 = undefined;
 
 			try {
-				for (var _iterator = videos.vData[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-					var siteData = _step.value;
-					var _iteratorNormalCompletion2 = true;
-					var _didIteratorError2 = false;
-					var _iteratorError2 = undefined;
+				for (var _iterator6 = videos.vData[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+					var siteData = _step6.value;
+					var _iteratorNormalCompletion7 = true;
+					var _didIteratorError7 = false;
+					var _iteratorError7 = undefined;
 
 					try {
-						for (var _iterator2 = siteData[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-							var data = _step2.value;
+						for (var _iterator7 = siteData[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+							var data = _step7.value;
 
 							if (isAuthorSpell ? val === data[1] : val.test(data[0])) {
 								return true;
 							}
 						}
 					} catch (err) {
-						_didIteratorError2 = true;
-						_iteratorError2 = err;
+						_didIteratorError7 = true;
+						_iteratorError7 = err;
 					} finally {
 						try {
-							if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
-								_iterator2["return"]();
+							if (!_iteratorNormalCompletion7 && _iterator7['return']) {
+								_iterator7['return']();
 							}
 						} finally {
-							if (_didIteratorError2) {
-								throw _iteratorError2;
+							if (_didIteratorError7) {
+								throw _iteratorError7;
 							}
 						}
 					}
 				}
 			} catch (err) {
-				_didIteratorError = true;
-				_iteratorError = err;
+				_didIteratorError6 = true;
+				_iteratorError6 = err;
 			} finally {
 				try {
-					if (!_iteratorNormalCompletion && _iterator["return"]) {
-						_iterator["return"]();
+					if (!_iteratorNormalCompletion6 && _iterator6['return']) {
+						_iterator6['return']();
 					}
 				} finally {
-					if (_didIteratorError) {
-						throw _iteratorError;
+					if (_didIteratorError6) {
+						throw _iteratorError6;
 					}
 				}
 			}
@@ -8607,19 +8428,19 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 	function disableSpells() {
 		if (spells.enable) {
-			sVis = aib.t ? "1".repeat(dForm.firstThr.pcount).split("") : [];
+			sVis = aib.t ? '1'.repeat(dForm.firstThr.pcount).split('') : [];
 			for (var post = dForm.firstThr.op; post; post = post.next) {
 				if (post.spellHidden && !post.userToggled) {
 					post.spellUnhide();
 				}
 			}
 		}
-		closePopup("err-spell");
+		closePopup('err-spell');
 	}
 
 	function toggleSpells() {
 		var temp,
-		    fld = $id("de-spell-txt"),
+		    fld = $id('de-spell-txt'),
 		    val = fld.value;
 		if (val && (temp = spells.parseText(val))) {
 			disableSpells();
@@ -8627,28 +8448,28 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			fld.value = spells.list;
 		} else {
 			if (val) {
-				locStorage["__de-spells"] = "{\"hide\": false, \"data\": null}";
+				locStorage['__de-spells'] = '{"hide": false, "data": null}';
 			} else {
 				disableSpells();
 				spells.disable();
-				saveCfg("spells", "");
-				locStorage["__de-spells"] = "{\"hide\": false, \"data\": \"\"}";
+				saveCfg('spells', '');
+				locStorage['__de-spells'] = '{"hide": false, "data": ""}';
 			}
-			locStorage.removeItem("__de-spells");
-			$q("input[info=\"hideBySpell\"]", doc).checked = spells.enable = false;
+			locStorage.removeItem('__de-spells');
+			$q('input[info="hideBySpell"]', doc).checked = spells.enable = false;
 		}
 	}
 
 	function addSpell(type, arg, isNeg) {
 		var temp,
-		    fld = $id("de-spell-txt"),
+		    fld = $id('de-spell-txt'),
 		    val = fld && fld.value,
-		    chk = $q("input[info=\"hideBySpell\"]", doc);
+		    chk = $q('input[info="hideBySpell"]', doc);
 		if (!val || (temp = spells.parseText(val))) {
 			disableSpells();
 			spells.addSpell(type, arg, aib.t ? [aib.b, aib.t] : null, isNeg, temp);
 			val = spells.list;
-			saveCfg("hideBySpell", !!val);
+			saveCfg('hideBySpell', !!val);
 			if (val) {
 				var sRunner = new SpellsRunner();
 				for (var post = dForm.firstThr.op; post; post = post.next) {
@@ -8656,7 +8477,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 				sRunner.end();
 			} else {
-				saveCfg("spells", "");
+				saveCfg('spells', '');
 				spells.enable = false;
 			}
 			if (fld) {
@@ -8674,9 +8495,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 	function PostForm(form, ignoreForm, dc) {
-		var _this204 = this;
+		var _this13 = this;
 
-		this.oeForm = $q("form[name=\"oeform\"], form[action*=\"paint\"]", dc);
+		this.oeForm = $q('form[name="oeform"], form[action*="paint"]', dc);
 		if (!ignoreForm && !form) {
 			if (this.oeForm) {
 				ajaxLoad(aib.getThrdUrl(aib.b, dForm.firstThr.num), false).then(function (loadedDoc) {
@@ -8692,100 +8513,100 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		function $x(path, root) {
 			return dc.evaluate(path, root, null, 8, null).singleNodeValue;
 		}
-		var p = ".//tr[not(contains(@style,\"none\"))]//input[not(@type=\"hidden\") and ";
+		var p = './/tr[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
 		this.tNum = aib.t;
 		this.form = form;
-		this.cap = $q("input[type=\"text\"][name*=\"aptcha\"], div[id*=\"captcha\"]", form);
-		this.txta = $q("tr:not([style*=\"none\"]) textarea:not([style*=\"display:none\"])", form);
-		this.subm = $q("tr input[type=\"submit\"]", form);
-		this.file = $q("tr input[type=\"file\"]", form);
+		this.cap = $q('input[type="text"][name*="aptcha"], div[id*="captcha"]', form);
+		this.txta = $q('tr:not([style*="none"]) textarea:not([style*="display:none"])', form);
+		this.subm = $q('tr input[type="submit"]', form);
+		this.file = $q('tr input[type="file"]', form);
 		if (this.file) {
-			this.fileTd = $parent(this.file, "TD");
-			this.spoil = $q("input[type=\"checkbox\"][name=\"spoiler\"]", this.fileTd);
+			this.fileTd = $parent(this.file, 'TD');
+			this.spoil = $q('input[type="checkbox"][name="spoiler"]', this.fileTd);
 		}
-		this.passw = $q("tr input[type=\"password\"]", form);
-		this.dpass = $q("input[type=\"password\"], input[name=\"password\"]", dForm.el);
-		this.name = $x(p + "(@name=\"field1\" or @name=\"name\" or @name=\"internal_n\" or @name=\"nya1\" or @name=\"akane\")]", form);
-		this.mail = $x(p + (aib._410 ? "@name=\"sage\"]" : "(@name=\"field2\" or @name=\"em\" or @name=\"sage\" or @name=\"email\" or @name=\"nya2\" or @name=\"nabiki\" or @name=\"dont_bump\")]"), form);
-		this.subj = $x(p + "(@name=\"field3\" or @name=\"sub\" or @name=\"subject\" or @name=\"internal_s\" or @name=\"nya3\" or @name=\"kasumi\")]", form);
-		this.video = $q("tr input[name=\"video\"], tr input[name=\"embed\"]", form);
-		this.gothr = aib.qPostRedir && (p = $q(aib.qPostRedir, form)) && $parent(p, "TR");
-		this.pForm = $New("div", { id: "de-pform", "class": "de-win-body" }, [this.form, this.oeForm]);
-		dForm.el.insertAdjacentHTML("beforebegin", "<div class=\"de-parea\"><div>[<a href=\"#\"></a>]</div><hr></div>");
+		this.passw = $q('tr input[type="password"]', form);
+		this.dpass = $q('input[type="password"], input[name="password"]', dForm.el);
+		this.name = $x(p + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form);
+		this.mail = $x(p + (aib._410 ? '@name="sage"]' : '(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nya2" or @name="nabiki" or @name="dont_bump")]'), form);
+		this.subj = $x(p + '(@name="field3" or @name="sub" or @name="subject" or @name="internal_s" or @name="nya3" or @name="kasumi")]', form);
+		this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
+		this.gothr = aib.qPostRedir && (p = $q(aib.qPostRedir, form)) && $parent(p, 'TR');
+		this.pForm = $New('div', { 'id': 'de-pform', 'class': 'de-win-body' }, [this.form, this.oeForm]);
+		dForm.el.insertAdjacentHTML('beforebegin', '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
 		this.pArea[0] = dForm.el.previousSibling;
 		this._pBtn[0] = this.pArea[0].firstChild;
 		this._pBtn[0].firstElementChild.onclick = this.showMainReply.bind(this, false);
-		var el = aib.fch ? $c("board", dForm.el) : dForm.el;
-		el.insertAdjacentHTML("afterend", "<div class=\"de-parea\"><div>[<a href=\"#\"></a>]</div><hr></div>");
+		var el = aib.fch ? $c('board', dForm.el) : dForm.el;
+		el.insertAdjacentHTML('afterend', '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
 		this.pArea[1] = el.nextSibling;
 		this._pBtn[1] = this.pArea[1].firstChild;
 		this._pBtn[1].firstElementChild.onclick = this.showMainReply.bind(this, true);
-		this.qArea = $add("<div style=\"display: none; " + Cfg.replyWinX + "; " + Cfg.replyWinY + "; z-index: " + ++topWinZ + ";\" id=\"de-win-reply\" class=\"" + aib.cReply + (Cfg.replyWinDrag ? " de-win" : " de-win-inpost") + "\"></div>");
+		this.qArea = $add('<div style="display: none; ' + Cfg.replyWinX + '; ' + Cfg.replyWinY + '; z-index: ' + ++topWinZ + ';" id="de-win-reply" class="' + aib.cReply + (Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost') + '"></div>');
 		this.isBottom = Cfg.addPostForm === 1;
 		this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 		el = this.qArea;
-		el.insertAdjacentHTML("beforeend", "<div class=\"de-win-head\">" + "<span class=\"de-win-title\"></span>" + "<span class=\"de-win-buttons\">" + "<span class=\"de-btn-toggle\" title=\"" + Lng.toggleReply[lang] + "\"></span>" + "<span class=\"de-btn-close\" title=\"" + Lng.closeReply[lang] + "\"></span></span></div>" + "<div class=\"de-resizer de-resizer-top\"></div>" + "<div class=\"de-resizer de-resizer-left\"></div>" + "<div class=\"de-resizer de-resizer-right\"></div>" + "<div class=\"de-resizer de-resizer-bottom\"></div>");
+		el.insertAdjacentHTML('beforeend', '<div class="de-win-head">' + '<span class="de-win-title"></span>' + '<span class="de-win-buttons">' + '<span class="de-btn-toggle" title="' + Lng.toggleReply[lang] + '"></span>' + '<span class="de-btn-close" title="' + Lng.closeReply[lang] + '"></span></span></div>' + '<div class="de-resizer de-resizer-top"></div>' + '<div class="de-resizer de-resizer-left"></div>' + '<div class="de-resizer de-resizer-right"></div>' + '<div class="de-resizer de-resizer-bottom"></div>');
 		el = el.firstChild;
 		el.lang = getThemeLang();
-		makeDraggable(this.qArea, el, "reply");
+		makeDraggable(this.qArea, el, 'reply');
 		el = el.lastChild;
 		el.firstChild.onclick = function () {
-			toggleCfg("replyWinDrag");
+			toggleCfg('replyWinDrag');
 			if (Cfg.replyWinDrag) {
-				_this204.qArea.className = aib.cReply + " de-win";
-				updateWinZ(_this204.qArea.style);
+				_this13.qArea.className = aib.cReply + ' de-win';
+				updateWinZ(_this13.qArea.style);
 			} else {
-				_this204.qArea.className = aib.cReply + " de-win-inpost";
-				_this204.txta.focus();
+				_this13.qArea.className = aib.cReply + ' de-win-inpost';
+				_this13.txta.focus();
 			}
 		};
 		el.lastChild.onclick = this.closeReply.bind(this);
 		if (aib.tire) {
-			$each($Q("input[type=\"hidden\"]", dForm.el), $del);
-			dForm.el.appendChild($c("userdelete", doc.body));
-			this.dpass = $q("input[type=\"password\"]", dForm.el);
+			$each($Q('input[type="hidden"]', dForm.el), $del);
+			dForm.el.appendChild($c('userdelete', doc.body));
+			this.dpass = $q('input[type="password"]', dForm.el);
 		}
 		if (!this.form || !this.txta) {
 			return;
 		}
-		new WinResizer("reply", "top", "textaHeight", this.qArea, this.txta);
-		new WinResizer("reply", "left", "textaWidth", this.qArea, this.txta);
-		new WinResizer("reply", "right", "textaWidth", this.qArea, this.txta);
-		new WinResizer("reply", "bottom", "textaHeight", this.qArea, this.txta);
+		new WinResizer('reply', 'top', 'textaHeight', this.qArea, this.txta);
+		new WinResizer('reply', 'left', 'textaWidth', this.qArea, this.txta);
+		new WinResizer('reply', 'right', 'textaWidth', this.qArea, this.txta);
+		new WinResizer('reply', 'bottom', 'textaHeight', this.qArea, this.txta);
 		if (!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
 			this.setPlaceholders();
 		}
 		aib.disableRedirection(this.form);
-		this.form.style.display = "inline-block";
-		this.form.style.textAlign = "left";
+		this.form.style.display = 'inline-block';
+		this.form.style.textAlign = 'left';
 		if (nav.Firefox) {
-			this.txta.addEventListener("mouseup", function () {
-				saveCfg("textaWidth", parseInt(this.style.width, 10));
-				saveCfg("textaHeight", parseInt(this.style.height, 10));
+			this.txta.addEventListener('mouseup', function () {
+				saveCfg('textaWidth', parseInt(this.style.width, 10));
+				saveCfg('textaHeight', parseInt(this.style.height, 10));
 			});
 		} else {
-			this.txta.insertAdjacentHTML("afterend", "<div id=\"de-resizer-text\"></div>");
-			this.txta.nextSibling.addEventListener("mousedown", {
+			this.txta.insertAdjacentHTML('afterend', '<div id="de-resizer-text"></div>');
+			this.txta.nextSibling.addEventListener('mousedown', {
 				_el: this.txta,
 				_elStyle: this.txta.style,
 				handleEvent: function handleEvent(e) {
 					switch (e.type) {
-						case "mousedown":
-							doc.body.addEventListener("mousemove", this);
-							doc.body.addEventListener("mouseup", this);
+						case 'mousedown':
+							doc.body.addEventListener('mousemove', this);
+							doc.body.addEventListener('mouseup', this);
 							$pd(e);
 							return;
-						case "mousemove":
+						case 'mousemove':
 							var cr = this._el.getBoundingClientRect();
-							this._elStyle.width = e.clientX - cr.left + "px";
-							this._elStyle.height = e.clientY - cr.top + "px";
+							this._elStyle.width = e.clientX - cr.left + 'px';
+							this._elStyle.height = e.clientY - cr.top + 'px';
 							return;
 						default:
 						
-							doc.body.removeEventListener("mousemove", this);
-							doc.body.removeEventListener("mouseup", this);
-							saveCfg("textaWidth", parseInt(this._elStyle.width, 10));
-							saveCfg("textaHeight", parseInt(this._elStyle.height, 10));
+							doc.body.removeEventListener('mousemove', this);
+							doc.body.removeEventListener('mouseup', this);
+							saveCfg('textaWidth', parseInt(this._elStyle.width, 10));
+							saveCfg('textaHeight', parseInt(this._elStyle.height, 10));
 					}
 				}
 			}, false);
@@ -8796,21 +8617,21 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		}
 		if (!aib.iich && Cfg.addSageBtn && this.mail) {
-			el = $parent(this.mail, "LABEL") || this.mail;
+			el = $parent(this.mail, 'LABEL') || this.mail;
 			if (el.nextElementSibling || el.previousElementSibling) {
-				el.style.display = "none";
+				el.style.display = 'none';
 			} else {
-				$parent(this.mail, "TR").style.display = "none";
+				$parent(this.mail, 'TR').style.display = 'none';
 			}
-			el = $new("span", { id: "de-sagebtn", "class": "de-btn-sage" }, { click: function (e) {
+			el = $new('span', { 'id': 'de-sagebtn', 'class': 'de-btn-sage' }, { 'click': function click(e) {
 					e.stopPropagation();
 					$pd(e);
-					toggleCfg("sageReply");
-					_this204._setSage();
+					toggleCfg('sageReply');
+					_this13._setSage();
 				} });
 			$after(this.subm, el);
 			setTimeout(function () {
-				return _this204._setSage();
+				return _this13._setSage();
 			}, 0);
 			if (aib._2chru) {
 				while (el.nextSibling) {
@@ -8819,9 +8640,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		}
 		this.addTextPanel();
-		this.txta.classList.add("de-textarea");
-		this.txta.style.cssText = "width: " + Cfg.textaWidth + "px; height: " + Cfg.textaHeight + "px;";
-		this.txta.addEventListener("keypress", function (e) {
+		this.txta.classList.add('de-textarea');
+		this.txta.style.cssText = 'width: ' + Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px;';
+		this.txta.addEventListener('keypress', function (e) {
 			var code = e.charCode || e.keyCode;
 			if ((code === 33 || code === 34) && e.which === 0) {
 				e.target.blur();
@@ -8829,36 +8650,36 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		});
 		if (aib.dobr) {
-			this.txta.removeAttribute("id");
+			this.txta.removeAttribute('id');
 		}
 		if (!aib.tiny) {
 			this.subm.value = Lng.reply[lang];
 		}
-		this.subm.addEventListener("click", function (e) {
+		this.subm.addEventListener('click', function (e) {
 			if (aib._2chru && !aib.reqCaptcha) {
-				$ajax("/" + aib.b + "/api/requires-captcha").then(function (xhr) {
+				$ajax('/' + aib.b + '/api/requires-captcha').then(function (xhr) {
 					aib.reqCaptcha = true;
-					if (JSON.parse(xhr.responseText)["requires-captcha"] !== "1") {
-						_this204.subm.click();
+					if (JSON.parse(xhr.responseText)['requires-captcha'] !== '1') {
+						_this13.subm.click();
 						return;
 					}
-					$id("captcha_tr").style.display = "table-row";
-					$id("captchaimage").src = "/" + aib.b + "/captcha?" + Math.random();
-					$after(_this204.cap, $new("span", {
-						"class": "shortened",
-						style: "margin: 0px .5em;",
-						text: "проверить капчу" }, {
-						click: function click() {
-							var _this205 = this;
+					$id('captcha_tr').style.display = 'table-row';
+					$id('captchaimage').src = '/' + aib.b + '/captcha?' + Math.random();
+					$after(_this13.cap, $new('span', {
+						'class': 'shortened',
+						'style': 'margin: 0px .5em;',
+						'text': 'проверить капчу' }, {
+						'click': function click() {
+							var _this14 = this;
 
-							$ajax("/" + aib.b + "/api/validate-captcha", { method: "POST" }).then(function (xhr) {
-								if (JSON.parse(xhr.responseText).status === "ok") {
-									_this205.innerHTML = "можно постить";
+							$ajax('/' + aib.b + '/api/validate-captcha', { method: 'POST' }).then(function (xhr) {
+								if (JSON.parse(xhr.responseText).status === 'ok') {
+									_this14.innerHTML = 'можно постить';
 								} else {
-									_this205.innerHTML = "неверная капча";
+									_this14.innerHTML = 'неверная капча';
 									setTimeout(function () {
-										return _this205.innerHTML = "проверить капчу";
-									}, 1000);
+										return _this14.innerHTML = 'проверить капчу';
+									}, 1e3);
 								}
 							}, emptyFn);
 						}
@@ -8867,92 +8688,92 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				$pd(e);
 				return;
 			}
-			if (Cfg.warnSubjTrip && _this204.subj && /#.|##./.test(_this204.subj.value)) {
+			if (Cfg.warnSubjTrip && _this13.subj && /#.|##./.test(_this13.subj.value)) {
 				$pd(e);
-				$popup(Lng.subjHasTrip[lang], "upload", false);
+				$popup(Lng.subjHasTrip[lang], 'upload', false);
 				return;
 			}
-			var val = _this204.txta.value;
+			var val = _this13.txta.value;
 			if (spells.haveOutreps) {
 				val = spells.outReplace(val);
 			}
-			if (_this204.tNum && pByNum[_this204.tNum].subj === "Dollchan Extension Tools") {
-				var temp = "\n\n" + _this204._wrapText(aib.markupBB, aib.markupTags[5], "-".repeat(50) + "\n" + nav.ua + "\nv" + version + "." + commit + " [" + nav.scriptInstall + "]")[1];
+			if (_this13.tNum && pByNum[_this13.tNum].subj === 'Dollchan Extension Tools') {
+				var temp = '\n\n' + _this13._wrapText(aib.markupBB, aib.markupTags[5], '-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit + ' [' + nav.scriptInstall + ']')[1];
 				if (!val.includes(temp)) {
 					val += temp;
 				}
 			}
-			_this204.txta.value = val;
+			_this13.txta.value = val;
 			if (Cfg.ajaxReply) {
-				$popup(Lng.checking[lang], "upload", true);
+				$popup(Lng.checking[lang], 'upload', true);
 			}
-			if (_this204.video && (val = _this204.video.value) && (val = val.match(Videos.ytReg))) {
-				_this204.video.value = "http://www.youtube.com/watch?v=" + val[1];
+			if (_this13.video && (val = _this13.video.value) && (val = val.match(Videos.ytReg))) {
+				_this13.video.value = 'http://www.youtube.com/watch?v=' + val[1];
 			}
-			if (_this204.isQuick) {
-				_this204.pForm.style.display = "none";
-				_this204.qArea.style.display = "none";
-				$after(_this204._pBtn[+_this204.isBottom], _this204.pForm);
+			if (_this13.isQuick) {
+				_this13.pForm.style.display = 'none';
+				_this13.qArea.style.display = 'none';
+				$after(_this13._pBtn[+_this13.isBottom], _this13.pForm);
 			}
 			updater.pause();
 		});
 		if (Cfg.noGoto && this.gothr) {
-			this.gothr.style.display = "none";
+			this.gothr.style.display = 'none';
 		}
 		if (Cfg.noPassword && this.passw) {
-			$parent(this.passw, "TR").style.display = "none";
+			$parent(this.passw, 'TR').style.display = 'none';
 		}
 		if (Cfg.noName && this.name) {
-			$parent(this.name, "TR").style.display = "none";
+			$parent(this.name, 'TR').style.display = 'none';
 		}
-		window.addEventListener("load", function () {
-			if (Cfg.userName && _this204.name) {
-				setTimeout(PostForm.setUserName, 1000);
+		window.addEventListener('load', function () {
+			if (Cfg.userName && _this13.name) {
+				setTimeout(PostForm.setUserName, 1e3);
 			}
-			if (_this204.passw) {
-				setTimeout(PostForm.setUserPassw, 1000);
+			if (_this13.passw) {
+				setTimeout(PostForm.setUserPassw, 1e3);
 			}
 		});
 		if (this.cap) {
-			this.capTr = $parent(this.cap, "TR");
+			this.capTr = $parent(this.cap, 'TR');
 			var html = this.capTr.innerHTML;
-			this.txta.addEventListener("focus", function () {
-				return _this204._captchaInit(html);
+			this.txta.addEventListener('focus', function () {
+				return _this13._captchaInit(html);
 			});
-			this.form.addEventListener("click", function () {
-				return _this204._captchaInit(html);
+			this.form.addEventListener('click', function () {
+				return _this13._captchaInit(html);
 			}, true);
 			if (!aib.krau) {
-				this.capTr.style.display = "none";
+				this.capTr.style.display = 'none';
 			}
-			if (!aib.mak && !aib.fch && !$id("recaptcha_widget_div")) {
-				this.capTr.innerHTML = "";
+			if (!aib.mak && !aib.fch && !$id('recaptcha_widget_div')) {
+				this.capTr.innerHTML = '';
 			}
 			this.cap = null;
 		}
 		if (Cfg.ajaxReply === 2) {
 			if (aib.krau) {
-				this.form.removeAttribute("onsubmit");
+				this.form.removeAttribute('onsubmit');
 			}
 			setTimeout(function () {
-				_this204.form.onsubmit = function (e) {
+				_this13.form.onsubmit = function (e) {
 					$pd(e);
 					if (aib.krau) {
 						aib.addProgressTrack.click();
 					}
 					if (aib._2chru) {
-						doc.body.insertAdjacentHTML("beforeend", "<iframe class=\"ninja\" id=\"csstest\" src=\"/" + aib.b + "/csstest.foo\"></iframe>");
+						doc.body.insertAdjacentHTML('beforeend', '<iframe class="ninja" id="csstest" src="/' + aib.b + '/csstest.foo"></iframe>');
 						doc.body.lastChild.onload = function (e) {
 							$del(e.target);
-							spawn(html5Submit, _this204.form, true).then(doUploading);
+							spawn(html5Submit, _this13.form, true).then(doUploading);
 						};
 						return;
 					}
-					spawn(html5Submit, _this204.form, true).then(doUploading);
+					spawn(html5Submit, _this13.form, true).then(doUploading);
 				};
 			}, 0);
 		} else if (Cfg.ajaxReply === 1) {
-			this.form.target = "de-iframe-pform";
+			this.form.target = 'de-iframe-pform';
 			this.form.onsubmit = null;
 		}
 		el = this.file;
@@ -8962,16 +8783,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}
 	}
 	PostForm.setUserName = function () {
-		var el = $q("input[info=\"nameValue\"]", doc);
+		var el = $q('input[info="nameValue"]', doc);
 		if (el) {
-			saveCfg("nameValue", el.value);
+			saveCfg('nameValue', el.value);
 		}
-		pr.name.value = Cfg.userName ? Cfg.nameValue : "";
+		pr.name.value = Cfg.userName ? Cfg.nameValue : '';
 	};
 	PostForm.setUserPassw = function () {
-		var el = $q("input[info=\"passwValue\"]", doc);
+		var el = $q('input[info="passwValue"]', doc);
 		if (el) {
-			saveCfg("passwValue", el.value);
+			saveCfg('passwValue', el.value);
 		}
 		(pr.dpass || {}).value = pr.passw.value = Cfg.passwValue;
 	};
@@ -8985,28 +8806,29 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		pForm: null,
 		pArea: [],
 		qArea: null,
+
 		addTextPanel: function addTextPanel() {
 			var id,
 			    val,
 			    btns,
-			    html = "",
-			    tPanel = $id("de-txt-panel");
+			    html = '',
+			    tPanel = $id('de-txt-panel');
 			if (!Cfg.addTextBtns) {
 				$del(tPanel);
 				return;
 			}
 			if (!tPanel) {
-				tPanel = $new("span", { id: "de-txt-panel" }, { click: this, mouseover: this });
+				tPanel = $new('span', { 'id': 'de-txt-panel' }, { 'click': this, 'mouseover': this });
 			}
-			tPanel.style.cssFloat = Cfg.txtBtnsLoc ? "none" : "right";
-			$after(Cfg.txtBtnsLoc ? $id("de-resizer-text") || this.txta : aib._420 ? $c("popup", this.form) : this.subm, tPanel);
-			id = ["bold", "italic", "under", "strike", "spoil", "code", "sup", "sub", "quote"], val = ["B", "i", "U", "S", "%", "C", "v", "^", "&gt;"];
+			tPanel.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
+			$after(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : aib._420 ? $c('popup', this.form) : this.subm, tPanel);
+			id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub', 'quote'], val = ['B', 'i', 'U', 'S', '%', 'C', 'v', '^', '&gt;'];
 			btns = aib.markupTags;
 			for (var i = 0, len = btns.length; i < len; ++i) {
-				if (btns[i] === "") {
+				if (btns[i] === '') {
 					continue;
 				}
-				html += "<span id=\"de-btn-" + id[i] + "\" de-title=\"" + Lng.txtBtn[i][lang] + "\" de-tag=\"" + btns[i] + "\">" + (Cfg.addTextBtns === 2 ? (html === "" ? "[ " : "") + "<a class=\"de-abtn\" href=\"#\">" + val[i] + "</a>" + (i === len - 1 ? " ]" : " / ") : Cfg.addTextBtns === 3 ? "<button type=\"button\" style=\"font-weight: bold;\">" + val[i] + "</button>" : "") + "</span>";
+				html += '<span id="de-btn-' + id[i] + '" de-title="' + Lng.txtBtn[i][lang] + '" de-tag="' + btns[i] + '">' + (Cfg.addTextBtns === 2 ? (html === '' ? '[ ' : '') + '<a class="de-abtn" href="#">' + val[i] + '</a>' + (i === len - 1 ? ' ]' : ' / ') : Cfg.addTextBtns === 3 ? '<button type="button" style="font-weight: bold;">' + val[i] + '</button>' : '') + '</span>';
 			}
 			tPanel.innerHTML = html;
 		},
@@ -9017,7 +8839,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		},
 		eventFiles: function eventFiles(clear) {
 			var last = null,
-			    els = $Q("input[type=\"file\"]", this.fileTd);
+			    els = $Q('input[type="file"]', this.fileTd);
 			for (var i = 0, len = els.length; i < len; ++i) {
 				var el = els[i],
 				    inp = el.obj;
@@ -9040,28 +8862,28 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		handleEvent: function handleEvent(e) {
 			var id,
 			    el = e.target;
-			if (el.tagName !== "SPAN") {
+			if (el.tagName !== 'SPAN') {
 				el = el.parentNode;
 			}
 			id = el.id;
-			if (id.startsWith("de-btn")) {
+			if (id.startsWith('de-btn')) {
 				var x;
-				if (e.type === "mouseover") {
-					if (id === "de-btn-quote") {
+				if (e.type === 'mouseover') {
+					if (id === 'de-btn-quote') {
 						quotetxt = $txtSelect();
 					}
 					x = -1;
 					if (hKeys) {
 						switch (id.substr(7)) {
-							case "bold":
+							case 'bold':
 								x = 12;break;
-							case "italic":
+							case 'italic':
 								x = 13;break;
-							case "strike":
+							case 'strike':
 								x = 14;break;
-							case "spoil":
+							case 'spoil':
 								x = 15;break;
-							case "code":
+							case 'code':
 								x = 16;
 						}
 					}
@@ -9071,13 +8893,13 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				x = pr.txta;
 				var start = x.selectionStart,
 				    end = x.selectionEnd,
-				    q = Cfg.spacedQuote ? "> " : ">";
-				if (id === "de-btn-quote") {
-					$txtInsert(x, q + (start === end ? quotetxt : x.value.substring(start, end)).replace(/\n/gm, "\n" + q));
-					quotetxt = "";
+				    q = Cfg.spacedQuote ? '> ' : '>';
+				if (id === 'de-btn-quote') {
+					$txtInsert(x, q + (start === end ? quotetxt : x.value.substring(start, end)).replace(/\n/gm, '\n' + q));
+					quotetxt = '';
 				} else {
 					var scrtop = x.scrollTop,
-					    val = this._wrapText(aib.markupBB, el.getAttribute("de-tag"), x.value.substring(start, end)),
+					    val = this._wrapText(aib.markupBB, el.getAttribute('de-tag'), x.value.substring(start, end)),
 					    len = start + val[0];
 					x.value = x.value.substr(0, start) + val[1] + x.value.substr(end);
 					x.setSelectionRange(len, len);
@@ -9088,6 +8910,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				e.stopPropagation();
 			}
 		},
+
 		showQuickReply: function showQuickReply(post, pNum, closeReply, isNumClick) {
 			var temp,
 			    isThr = aib.t,
@@ -9095,15 +8918,15 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			if (!this.isQuick) {
 				this.isQuick = true;
 				this.setReply(true, false);
-				$t("a", this._pBtn[+this.isBottom]).className = "de-abtn de-parea-btn-" + (isThr ? "reply" : "thrd");
+				$t('a', this._pBtn[+this.isBottom]).className = 'de-abtn de-parea-btn-' + (isThr ? 'reply' : 'thrd');
 				if (!isThr && !aib.kus && !aib.dobr && !aib.mak) {
 					if (this.oeForm) {
-						$del($q("input[name=\"oek_parent\"]", this.oeForm));
-						this.oeForm.insertAdjacentHTML("afterbegin", "<input type=\"hidden\" value=\"" + qNum + "\" name=\"oek_parent\">");
+						$del($q('input[name="oek_parent"]', this.oeForm));
+						this.oeForm.insertAdjacentHTML('afterbegin', '<input type="hidden" value="' + qNum + '" name="oek_parent">');
 					}
 					if (this.form) {
-						$del($q("input[name=\"" + aib.thrid + "\"]", this.form));
-						this.form.insertAdjacentHTML("afterbegin", "<input type=\"hidden\" id=\"de_thrid\" value=\"" + qNum + "\" name=\"" + aib.thrid + "\">");
+						$del($q('input[name="' + aib.thrid + '"]', this.form));
+						this.form.insertAdjacentHTML('afterbegin', '<input type="hidden" id="de_thrid" value="' + qNum + '" name="' + aib.thrid + '">');
 					}
 				}
 			} else if (closeReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
@@ -9111,7 +8934,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				return;
 			}
 			$after(post.wrap, this.qArea);
-			if (this.qArea.classList.contains("de-win")) {
+			if (this.qArea.classList.contains('de-win')) {
 				updateWinZ(this.qArea.style);
 			}
 			if (!isThr) {
@@ -9120,25 +8943,25 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			if (!this.form) {
 				return;
 			}
-			if (this._lastCapUpdate && (!isThr && this.tNum !== qNum || Date.now() - this._lastCapUpdate > 300000)) {
+			if (this._lastCapUpdate && (!isThr && this.tNum !== qNum || Date.now() - this._lastCapUpdate > 3e5)) {
 				this.tNum = qNum;
 				this.refreshCapImg(false);
 			}
 			this.tNum = qNum;
-			if (aib._420 && this.txta.value === "Comment") {
-				this.txta.value = "";
+			if (aib._420 && this.txta.value === 'Comment') {
+				this.txta.value = '';
 			}
 			temp = this.txta.value;
 			if (!Cfg.addOPLink && !isThr && post.isOp && !isNumClick) {
 				this.txta.focus();
 			} else {
-				$txtInsert(this.txta, (isNumClick ? ">>" + pNum : (temp !== "" && temp.slice(-1) !== "\n" ? "\n" : "") + (this.lastQuickPNum === pNum && temp.includes(">>" + pNum) ? "" : ">>" + pNum + "\n")) + (quotetxt ? quotetxt.replace(/^\n|\n$/g, "").replace(/(^|\n)(.)/gm, "$1>" + (Cfg.spacedQuote ? " " : "") + "$2") + "\n" : ""));
+				$txtInsert(this.txta, (isNumClick ? '>>' + pNum : (temp !== '' && temp.slice(-1) !== '\n' ? '\n' : '') + (this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : '>>' + pNum + '\n')) + (quotetxt ? quotetxt.replace(/^\n|\n$/g, '').replace(/(^|\n)(.)/gm, '$1>' + (Cfg.spacedQuote ? ' ' : '') + '$2') + '\n' : ''));
 			}
 			temp = pByNum[pNum].thr.op.title;
 			if (temp.length > 27) {
-				temp = temp.substr(0, 30) + "…";
+				temp = temp.substr(0, 30) + '…';
 			}
-			$c("de-win-title", this.qArea).textContent = temp || "#" + pNum;
+			$c('de-win-title', this.qArea).textContent = temp || '#' + pNum;
 			this.lastQuickPNum = pNum;
 		},
 		showMainReply: function showMainReply(isBottom, evt) {
@@ -9148,7 +8971,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				this.refreshCapImg(false);
 			}
 			if (this.isBottom === isBottom) {
-				this.pForm.style.display = this.isHidden ? "" : "none";
+				this.pForm.style.display = this.isHidden ? '' : 'none';
 				this.isHidden = !this.isHidden;
 				this.updatePAreaBtns();
 			} else {
@@ -9165,7 +8988,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				this.lastQuickPNum = -1;
 				if (!aib.t) {
 					this._toggleQuickReply(0);
-					$del($id("de_thrid"));
+					$del($id('de_thrid'));
 				}
 				this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 			}
@@ -9175,20 +8998,20 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			if (aib.mak || aib.fch) {
 				aib.updateCaptcha(focus);
 			} else {
-				if (!this.cap || aib.krau && !$q("input[name=\"captcha_name\"]", this.form).hasAttribute("value")) {
+				if (!this.cap || aib.krau && !$q('input[name="captcha_name"]', this.form).hasAttribute('value')) {
 					return;
 				}
-				var img = this.recap ? $id("recaptcha_image") : $t("img", this.capTr);
+				var img = this.recap ? $id('recaptcha_image') : $t('img', this.capTr);
 				if (aib.dobr || aib.krau || aib.dvachnet || this.recap) {
 					img.click();
 				} else if (img) {
-					var src = aib.getCaptchaSrc(img.getAttribute("src"), this.tNum);
-					img.src = "";
+					var src = aib.getCaptchaSrc(img.getAttribute('src'), this.tNum);
+					img.src = '';
 					img.src = src;
 				}
 			}
 			if (this.cap) {
-				this.cap.value = "";
+				this.cap.value = '';
 				if (focus) {
 					this.cap.focus();
 				}
@@ -9202,47 +9025,47 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				$after(this._pBtn[+this.isBottom], this.pForm);
 			}
 			this.isHidden = hide;
-			this.qArea.style.display = quick ? "" : "none";
-			this.pForm.style.display = hide ? "none" : "";
+			this.qArea.style.display = quick ? '' : 'none';
+			this.pForm.style.display = hide ? 'none' : '';
 			this.updatePAreaBtns();
 		},
 		setPlaceholders: function setPlaceholders() {
-			this._setPlaceholder("name");
-			this._setPlaceholder("subj");
-			this._setPlaceholder("mail");
-			this._setPlaceholder("cap");
-			this._setPlaceholder("video");
+			this._setPlaceholder('name');
+			this._setPlaceholder('subj');
+			this._setPlaceholder('mail');
+			this._setPlaceholder('cap');
+			this._setPlaceholder('video');
 		},
 		updatePAreaBtns: function updatePAreaBtns() {
-			var txt = "de-abtn de-parea-btn-",
-			    rep = aib.t ? "reply" : "thrd";
-			$t("a", this._pBtn[+this.isBottom]).className = txt + (this.pForm.style.display === "" ? "close" : rep);
-			$t("a", this._pBtn[+!this.isBottom]).className = txt + rep;
+			var txt = 'de-abtn de-parea-btn-',
+			    rep = aib.t ? 'reply' : 'thrd';
+			$t('a', this._pBtn[+this.isBottom]).className = txt + (this.pForm.style.display === '' ? 'close' : rep);
+			$t('a', this._pBtn[+!this.isBottom]).className = txt + rep;
 		},
 
 		_lastCapUpdate: 0,
 		_pBtn: [],
 		_setSage: function _setSage() {
-			var el = $id("de-sagebtn"),
+			var el = $id('de-sagebtn'),
 			    c = Cfg.sageReply;
-			el.style.opacity = c ? "1" : ".3";
-			el.title = c ? "SAGE!" : Lng.noSage[lang];
-			if (this.mail.type === "text") {
-				this.mail.value = c ? "sage" : aib.fch ? "noko" : "";
+			el.style.opacity = c ? '1' : '.3';
+			el.title = c ? 'SAGE!' : Lng.noSage[lang];
+			if (this.mail.type === 'text') {
+				this.mail.value = c ? 'sage' : aib.fch ? 'noko' : '';
 			} else {
 				this.mail.checked = c;
 			}
 		},
 		_toggleQuickReply: function _toggleQuickReply(tNum) {
 			if (this.oeForm) {
-				$q("input[name=\"oek_parent\"], input[name=\"replyto\"]", this.oeForm).value = tNum;
+				$q('input[name="oek_parent"], input[name="replyto"]', this.oeForm).value = tNum;
 			}
 			if (this.form) {
-				$q("#de_thrid, input[name*=\"thread\"]", this.form).value = tNum;
+				$q('#de_thrid, input[name*="thread"]', this.form).value = tNum;
 			}
 		},
 		_captchaInit: function _captchaInit(html) {
-			var _this204 = this;
+			var _this15 = this;
 
 			if (this.capInited) {
 				return;
@@ -9251,47 +9074,47 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			if (aib.mak || aib.fch) {
 				aib.updateCaptcha(false);
 				if (aib.mak) {
-					this.capTr.style.display = "";
+					this.capTr.style.display = '';
 				}
 				pr.txta.tabIndex = 999;
 				this.capInited = true;
 				return;
 			}
-			if (!$id("recaptcha_widget_div")) {
+			if (!$id('recaptcha_widget_div')) {
 				this.capTr.innerHTML = html;
 			}
-			this.cap = $q("input[type=\"text\"][name*=\"aptcha\"]:not([name=\"recaptcha_challenge_field\"])", this.capTr);
+			this.cap = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.capTr);
 			if (aib.tire) {
-				$script("show_captcha()");
+				$script('show_captcha()');
 			}
 			if (aib.krau) {
 				aib.initCaptcha.click();
-				$id("captcha_image").setAttribute("onclick", "requestCaptcha(true);");
+				$id('captcha_image').setAttribute('onclick', 'requestCaptcha(true);');
 			}
 			if (aib.dvachnet) {
-				$script("get_captcha()");
+				$script('get_captcha()');
 			}
 			setTimeout(function () {
-				return _this204._captchaUpd();
+				return _this15._captchaUpd();
 			}, 100);
 		},
 		_captchaUpd: function _captchaUpd() {
-			var _this204 = this;
+			var _this16 = this;
 
 			var img, a;
-			if ((this.recap = $id("recaptcha_response_field")) && (img = $id("recaptcha_image"))) {
+			if ((this.recap = $id('recaptcha_response_field')) && (img = $id('recaptcha_image'))) {
 				this.cap = this.recap;
-				img.setAttribute("onclick", "Recaptcha.reload()");
-				img.style.cssText = "width: 300px; cursor: pointer;";
+				img.setAttribute('onclick', 'Recaptcha.reload()');
+				img.style.cssText = 'width: 300px; cursor: pointer;';
 			}
 			this.capInited = true;
-			this.cap.autocomplete = "off";
+			this.cap.autocomplete = 'off';
 			if (!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
 				this.cap.placeholder = Lng.cap[lang];
 			}
 			this.cap.onkeypress = (function () {
-				var ru = "йцукенгшщзхъфывапролджэячсмитьбюё",
-				    en = "qwertyuiop[]asdfghjkl;'zxcvbnm,.`";
+				var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
+				    en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
 				return function (e) {
 					if (!Cfg.captchaLang || e.which === 0) {
 						return;
@@ -9300,12 +9123,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					    code = e.charCode || e.keyCode,
 					    chr = String.fromCharCode(code).toLowerCase();
 					if (Cfg.captchaLang === 1) {
-						if (code < 1040 || code > 1279 || (i = ru.indexOf(chr)) === -1) {
+						if (code < 0x0410 || code > 0x04FF || (i = ru.indexOf(chr)) === -1) {
 							return;
 						}
 						chr = en[i];
 					} else {
-						if (code < 33 || code > 122 || (i = en.indexOf(chr)) === -1) {
+						if (code < 0x0021 || code > 0x007A || (i = en.indexOf(chr)) === -1) {
 							return;
 						}
 						chr = ru[i];
@@ -9317,15 +9140,15 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			if (aib.krau) {
 				return;
 			}
-			if (aib.dobr || aib.dvachnet || this.recap || !(img = $q("img", this.capTr))) {
-				this.capTr.style.display = "";
+			if (aib.dobr || aib.dvachnet || this.recap || !(img = $q('img', this.capTr))) {
+				this.capTr.style.display = '';
 				return;
 			}
 			if (!aib.kus && !aib.tinyIb) {
 				this._lastCapUpdate = Date.now();
 				this.cap.onfocus = function () {
-					if (_this204._lastCapUpdate && Date.now() - _this204._lastCapUpdate > 300000) {
-						_this204.refreshCapImg(false);
+					if (_this16._lastCapUpdate && Date.now() - _this16._lastCapUpdate > 3e5) {
+						_this16.refreshCapImg(false);
 					}
 				};
 				if (!aib.t && this.isQuick) {
@@ -9334,13 +9157,13 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 			img.title = Lng.refresh[lang];
 			img.alt = Lng.loading[lang];
-			img.style.cssText = "vertical-align: text-bottom; border: none; cursor: pointer;";
+			img.style.cssText = 'vertical-align: text-bottom; border: none; cursor: pointer;';
 			img.onclick = this.refreshCapImg.bind(this, true);
-			if ((a = img.parentNode).tagName === "A") {
+			if ((a = img.parentNode).tagName === 'A') {
 				$after(a, img);
 				$del(a);
 			}
-			this.capTr.style.display = "";
+			this.capTr.style.display = '';
 		},
 		_setPlaceholder: function _setPlaceholder(val) {
 			var el = this[val];
@@ -9348,7 +9171,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				if (aib.multiFile || !Cfg.fileThumb) {
 					el.placeholder = Lng[val][lang];
 				} else {
-					el.removeAttribute("placeholder");
+					el.removeAttribute('placeholder');
 				}
 			}
 		},
@@ -9356,52 +9179,52 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			var m;
 			if (markupBB) {
 				var str;
-				if (text.includes("\n")) {
-					str = "[" + tag + "]" + text + "[/" + tag + "]";
+				if (text.includes('\n')) {
+					str = '[' + tag + ']' + text + '[/' + tag + ']';
 					return [str.length, str];
 				}
 				m = text.match(/^(\s*)(.*?)(\s*)$/);
-				str = m[1] + "[" + tag + "]" + m[2] + "[/" + tag + "]" + m[3];
+				str = m[1] + '[' + tag + ']' + m[2] + '[/' + tag + ']' + m[3];
 				return [!m[2].length ? m[1].length + tag.length + 2 : str.length, str];
 			}
-			var rv = "",
+			var rv = '',
 			    i = 0,
-			    arr = text.split("\n");
+			    arr = text.split('\n');
 			for (var len = arr.length; i < len; ++i) {
 				m = arr[i].match(/^(\s*)(.*?)(\s*)$/);
-				rv += "\n" + m[1] + (tag === "^H" ? m[2] + "^H".repeat(m[2].length) : tag + m[2] + tag) + m[3];
+				rv += '\n' + m[1] + (tag === '^H' ? m[2] + '^H'.repeat(m[2].length) : tag + m[2] + tag) + m[3];
 			}
-			return [i === 1 && !m[2].length && tag !== "^H" ? m[1].length + tag.length : rv.length - 1, rv.slice(1)];
+			return [i === 1 && !m[2].length && tag !== '^H' ? m[1].length + tag.length : rv.length - 1, rv.slice(1)];
 		}
 	}, {
 		fileArea: {
-			get: function () {
+			get: function get() {
 				var val;
 				if (aib.multiFile) {
-					val = $add("<tr><td></td><td><div id=\"de-file-area\"></div></td></tr>");
+					val = $add('<tr><td></td><td><div id="de-file-area"></div></td></tr>');
 					$after(this.fileTd.parentNode, val);
 				} else {
-					val = $t(aib.tiny ? "th" : "td", $parent(this.txta, "TR"));
-					val.innerHTML = "";
+					val = $t(aib.tiny ? 'th' : 'td', $parent(this.txta, 'TR'));
+					val.innerHTML = '';
 				}
-				Object.defineProperty(this, "fileArea", { value: val });
+				Object.defineProperty(this, 'fileArea', { value: val });
 				return val;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		rarInput: {
-			get: function () {
-				var val = doc.body.appendChild($new("input", { type: "file", style: "display: none;" }, null));
-				Object.defineProperty(this, "rarInput", { value: val });
+			get: function get() {
+				var val = doc.body.appendChild($new('input', { 'type': 'file', 'style': 'display: none;' }, null));
+				Object.defineProperty(this, 'rarInput', { value: val });
 				return val;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		isVisible: {
-			get: function () {
-				if (!this.isHidden && this.isBottom && $q(":focus", this.pForm)) {
+			get: function get() {
+				if (!this.isHidden && this.isBottom && $q(':focus', this.pForm)) {
 					var cr = this.pForm.getBoundingClientRect();
 					return cr.bottom > 0 && cr.top < doc.documentElement.clientHeight;
 				}
@@ -9411,7 +9234,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			enumerable: true
 		},
 		offsetTop: {
-			get: function () {
+			get: function get() {
 				return this.pForm.offsetTop;
 			},
 			configurable: true,
@@ -9437,12 +9260,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			var newEl,
 			    form = this.form,
 			    oldEl = this.el;
-			oldEl.insertAdjacentHTML("afterend", oldEl.outerHTML);
+			oldEl.insertAdjacentHTML('afterend', oldEl.outerHTML);
 			newEl = this.el.nextSibling;
 			newEl.obj = this;
-			newEl.addEventListener("change", this);
-			newEl.addEventListener("dragleave", this);
-			newEl.addEventListener("drop", this);
+			newEl.addEventListener('change', this);
+			newEl.addEventListener('dragleave', this);
+			newEl.addEventListener('drop', this);
 			if (form.file === oldEl) {
 				form.file = newEl;
 			}
@@ -9453,7 +9276,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		},
 		delUtils: function delUtils() {
 			if (Cfg.fileThumb) {
-				this.thumb.classList.add("de-file-off");
+				this.thumb.classList.add('de-file-off');
 				if (this._mediaEl) {
 					window.URL.revokeObjectURL(this._mediaEl.src);
 					this._mediaEl.parentNode.title = Lng.clickToAdd[lang];
@@ -9481,14 +9304,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		handleEvent: function handleEvent(e) {
-			var _this204 = this;
+			var _this17 = this;
 
 			switch (e.type) {
-				case "change":
+				case 'change':
 					setTimeout(function () {
-						return _this204._onFileChange();
+						return _this17._onFileChange();
 					}, 20);return;
-				case "click":
+				case 'click':
 					if (e.target === this._delUtil) {
 						this.delUtils();
 					} else if (e.target === this._spUtil) {
@@ -9496,32 +9319,32 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						return;
 					} else if (e.target === this._rjUtil) {
 						this._addRarJpeg();
-					} else if (e.target.className === "de-file-img") {
+					} else if (e.target.className === 'de-file-img') {
 						this.el.click();
 					}
 					e.stopPropagation();
 					$pd(e);
 					return;
-				case "dragover":
-					this.thumb.classList.add("de-file-drag");
+				case 'dragover':
+					this.thumb.classList.add('de-file-drag');
 					$after(this.thumb, this.el);
 					return;
-				case "dragleave":
-				case "drop":
+				case 'dragleave':
+				case 'drop':
 					setTimeout(function () {
-						_this204.thumb.classList.remove("de-file-drag");
-						var el = _this204.place.firstChild;
+						_this17.thumb.classList.remove('de-file-drag');
+						var el = _this17.place.firstChild;
 						if (el) {
-							$before(el, _this204.el);
+							$before(el, _this17.el);
 						} else {
-							_this204.place.appendChild(_this204.el);
+							_this17.place.appendChild(_this17.el);
 						}
 					}, 10);
 					return;
-				case "mouseover":
-					this.thumb.classList.add("de-file-hover");return;
-				case "mouseout":
-					this.thumb.classList.remove("de-file-hover");
+				case 'mouseover':
+					this.thumb.classList.add('de-file-hover');return;
+				case 'mouseout':
+					this.thumb.classList.remove('de-file-hover');
 			}
 		},
 		hideInputs: function hideInputs() {
@@ -9537,32 +9360,32 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				var hideThumbs = Cfg.fileThumb;
 				while (inp = inp.next) {
 					if (hideThumbs) {
-						inp.thumb.style.display = "none";
+						inp.thumb.style.display = 'none';
 					} else {
-						inp._wrap.style.display = "none";
+						inp._wrap.style.display = 'none';
 					}
 				}
 			}
 		},
 		init: function init(update) {
 			if (Cfg.fileThumb) {
-				this.form.fileTd.parentNode.style.display = "none";
-				this.form.fileArea.insertAdjacentHTML("beforeend", "<div class=\"de-file de-file-off\"><div class=\"de-file-img\">" + "<div class=\"de-file-img\" title=\"" + Lng.clickToAdd[lang] + "\"></div></div></div>");
+				this.form.fileTd.parentNode.style.display = 'none';
+				this.form.fileArea.insertAdjacentHTML('beforeend', '<div class="de-file de-file-off"><div class="de-file-img">' + '<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
 				this.thumb = this.form.fileArea.lastChild;
-				this.thumb.addEventListener("mouseover", this);
-				this.thumb.addEventListener("mouseout", this);
-				this.thumb.addEventListener("click", this);
-				this.thumb.addEventListener("dragover", this);
-				this.el.addEventListener("dragleave", this);
-				this.el.addEventListener("drop", this);
+				this.thumb.addEventListener('mouseover', this);
+				this.thumb.addEventListener('mouseout', this);
+				this.thumb.addEventListener('click', this);
+				this.thumb.addEventListener('dragover', this);
+				this.el.addEventListener('dragleave', this);
+				this.el.addEventListener('drop', this);
 				if (update) {
 					this._showPviewImage();
 				} else if (this.prev) {
-					this.thumb.style.display = "none";
+					this.thumb.style.display = 'none';
 				}
 			} else if (update) {
-				this._wrap.style.display = "";
-				this.form.fileTd.parentNode.style.display = "";
+				this._wrap.style.display = '';
+				this.form.fileTd.parentNode.style.display = '';
 				if (this._mediaE) {
 					window.URL.revokeObjectURL(this._mediaE.src);
 				}
@@ -9570,8 +9393,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				this.thumb = this._mediaEl = null;
 			}
 			if (!update) {
-				this.el.classList.add("de-file-input");
-				this.el.addEventListener("change", this);
+				this.el.classList.add('de-file-input');
+				this.el.addEventListener('change', this);
 			}
 		},
 
@@ -9579,21 +9402,22 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		_delUtil: null,
 		_spUtil: null,
 		_rjUtil: null,
+
 		_addRarJpeg: function _addRarJpeg() {
-			var _this204 = this;
+			var _this18 = this;
 
 			var el = this.form.rarInput;
 			el.onchange = function (e) {
-				$del(_this204._rjUtil);
-				_this204._buttonsPlace.insertAdjacentHTML("afterend", "<span><span class=\"de-wait\"></span>" + Lng.wait[lang] + "</span>");
-				var myRjUtil = _this204._rjUtil = _this204._buttonsPlace.nextSibling,
+				$del(_this18._rjUtil);
+				_this18._buttonsPlace.insertAdjacentHTML('afterend', '<span><span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
+				var myRjUtil = _this18._rjUtil = _this18._buttonsPlace.nextSibling,
 				    file = e.target.files[0];
 				readFile(file, false).then(function (val) {
-					if (_this204._rjUtil === myRjUtil) {
-						myRjUtil.className = "de-file-rarmsg de-file-utils";
-						myRjUtil.title = _this204.el.files[0].name + " + " + file.name;
-						myRjUtil.textContent = _this204.el.files[0].name.replace(/^.+\./, "") + " + " + file.name.replace(/^.+\./, "");
-						_this204.imgFile = val;
+					if (_this18._rjUtil === myRjUtil) {
+						myRjUtil.className = 'de-file-rarmsg de-file-utils';
+						myRjUtil.title = _this18.el.files[0].name + ' + ' + file.name;
+						myRjUtil.textContent = _this18.el.files[0].name.replace(/^.+\./, '') + ' + ' + file.name.replace(/^.+\./, '');
+						_this18.imgFile = val;
 					}
 				});
 			};
@@ -9615,17 +9439,17 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			if (this.empty) {
 				this.empty = false;
 				this._changeFilesCount(+1);
-				$after(this._buttonsPlace, this._delUtil = $new("span", {
-					"class": "de-file-del de-file-utils",
-					title: Lng.removeFile[lang] }, {
-					click: this
+				$after(this._buttonsPlace, this._delUtil = $new('span', {
+					'class': 'de-file-del de-file-utils',
+					'title': Lng.removeFile[lang] }, {
+					'click': this
 				}));
 				if (this.form.spoil) {
-					$after(this._buttonsPlace, this._spUtil = $new("input", {
-						"class": "de-file-spoil de-file-utils",
-						type: "checkbox",
-						title: Lng.spoilFile[lang] }, {
-						click: this
+					$after(this._buttonsPlace, this._spUtil = $new('input', {
+						'class': 'de-file-spoil de-file-utils',
+						'type': 'checkbox',
+						'title': Lng.spoilFile[lang] }, {
+						'click': this
 					}));
 					this._spUtil.checked = this.form.spoil.checked;
 				}
@@ -9634,9 +9458,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 			if (this.next) {
 				if (Cfg.fileThumb) {
-					this.next.thumb.style.display = "";
+					this.next.thumb.style.display = '';
 				} else {
-					this.next._wrap.style.display = "";
+					this.next._wrap.style.display = '';
 				}
 			}
 			if (nav.Presto || aib.fch || !/^image\/(?:png|jpeg)$/.test(this.el.files[0].type)) {
@@ -9646,31 +9470,31 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				$del(this._rjUtil);
 				this._rjUtil = null;
 			}
-			$after(this._buttonsPlace, this._rjUtil = $new("span", {
-				"class": "de-file-rar de-file-utils",
-				title: Lng.helpAddFile[lang] }, {
-				click: this
+			$after(this._buttonsPlace, this._rjUtil = $new('span', {
+				'class': 'de-file-rar de-file-utils',
+				'title': Lng.helpAddFile[lang] }, {
+				'click': this
 			}));
 		},
 		_showPviewImage: function _showPviewImage() {
-			var _this204 = this;
+			var _this19 = this;
 
 			var files = this.el.files;
 			if (!files || !files[0]) {
 				return;
 			}
 			readFile(files[0], false).then(function (val) {
-				_this204.form.eventFiles(false);
-				if (_this204.empty) {
+				_this19.form.eventFiles(false);
+				if (_this19.empty) {
 					return;
 				}
-				var file = _this204.el.files[0],
-				    thumb = _this204.thumb;
-				thumb.classList.remove("de-file-off");
+				var file = _this19.el.files[0],
+				    thumb = _this19.thumb;
+				thumb.classList.remove('de-file-off');
 				thumb = thumb.firstChild.firstChild;
-				thumb.title = file.name + ", " + (file.size / 1024).toFixed(2) + "KB";
-				thumb.insertAdjacentHTML("afterbegin", file.type === "video/webm" ? "<video class=\"de-file-img\" loop autoplay muted src=\"\"></video>" : "<img class=\"de-file-img\" src=\"\">");
-				_this204._mediaEl = thumb = thumb.firstChild;
+				thumb.title = file.name + ', ' + (file.size / 1024).toFixed(2) + 'KB';
+				thumb.insertAdjacentHTML('afterbegin', file.type === 'video/webm' ? '<video class="de-file-img" loop autoplay muted src=""></video>' : '<img class="de-file-img" src="">');
+				_this19._mediaEl = thumb = thumb.firstChild;
 				thumb.src = window.URL.createObjectURL(new Blob([val]));
 				thumb = thumb.nextSibling;
 				if (thumb) {
@@ -9681,14 +9505,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}
 	}, {
 		_buttonsPlace: {
-			get: function () {
+			get: function get() {
 				return Cfg.fileThumb ? this.thumb.firstChild : this.el;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		_wrap: {
-			get: function () {
+			get: function get() {
 				return aib.multiFile ? this.el.parentNode : this.el;
 			},
 			configurable: true,
@@ -9700,12 +9524,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 	function getSubmitError(dc) {
-		var err = "";
+		var err = '';
 		if (dc.body.hasChildNodes() && !$q(aib.qDForm, dc)) {
 			if (aib.mak) {
 				try {
 					var json = JSON.parse(dc.body.innerHTML);
-					if (json.Status !== "OK" && json.Status !== "Redirect") {
+					if (json.Status !== 'OK' && json.Status !== 'Redirect') {
 						return Lng.error[lang] + ":\n" + json.Reason;
 					} else {
 						return null;
@@ -9714,27 +9538,27 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 			var els = $Q(aib.qError, dc);
 			for (var i = 0, len = els.length; i < len; ++i) {
-				err += els[i].innerHTML + "\n";
+				err += els[i].innerHTML + '\n';
 			}
-			err = err.replace(/<a [^>]+>Назад.+|<br.+/, "") || Lng.error[lang] + ":\n" + dc.body.innerHTML;
-			err = /:null|successful|uploaded|updating|обновл|удален[о\.]/i.test(err) ? "" : err.replace(/"/g, "'");
+			err = err.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
+			err = /:null|successful|uploaded|updating|обновл|удален[о\.]/i.test(err) ? '' : err.replace(/"/g, "'");
 		}
 		return err;
 	}
 
-	var doUploading = async(regeneratorRuntime.mark(function callee$1$3(_ref) {
-		var _ref2 = _slicedToArray(_ref, 2);
+	var doUploading = async(regeneratorRuntime.mark(function callee$1$0(_ref8) {
+		var _ref82 = _slicedToArray(_ref8, 2);
 
-		var hasFiles = _ref2[0];
-		var getProgress = _ref2[1];
+		var hasFiles = _ref82[0];
+		var getProgress = _ref82[1];
 		var p, val, beginTime, inited, progress, counterWrap, counterEl, totalEl, speedEl, total, loaded;
-		return regeneratorRuntime.wrap(function callee$1$3$(context$2$0) {
+		return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					$popup(Lng.sendingPost[lang] + (hasFiles ? "<br><progress id=\"de-uploadprogress\" value=\"0\" max=\"1\" style=\"display: none; width: 200px;\">" + "</progress><div style=\"display: none; font: bold 12px arial;\">" + "<span></span> / <span></span> (<span></span>)</div>" : ""), "upload", true);
+					$popup(Lng.sendingPost[lang] + (hasFiles ? '<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' + '</progress><div style="display: none; font: bold 12px arial;">' + '<span></span> / <span></span> (<span></span>)</div>' : ''), 'upload', true);
 
 					if (hasFiles) {
-						beginTime = Date.now(), inited = false, progress = $id("de-uploadprogress"), counterWrap = progress.nextSibling, counterEl = counterWrap.firstChild, totalEl = counterEl.nextElementSibling, speedEl = totalEl.nextElementSibling;
+						beginTime = Date.now(), inited = false, progress = $id('de-uploadprogress'), counterWrap = progress.nextSibling, counterEl = counterWrap.firstChild, totalEl = counterEl.nextElementSibling, speedEl = totalEl.nextElementSibling;
 					}
 
 				case 2:
@@ -9754,10 +9578,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 				case 9:
 					context$2$0.prev = 9;
-					context$2$0.t22 = context$2$0["catch"](3);
+					context$2$0.t0 = context$2$0['catch'](3);
 
-					$popup(getErrorMessage(context$2$0.t22), "upload", false);
-					return context$2$0.abrupt("return");
+					$popup(getErrorMessage(context$2$0.t0), 'upload', false);
+					return context$2$0.abrupt('return');
 
 				case 13:
 					if (!val.done) {
@@ -9766,45 +9590,45 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					}
 
 					checkUpload(val.data);
-					return context$2$0.abrupt("return");
+					return context$2$0.abrupt('return');
 
 				case 16:
 					if (hasFiles) {
 						if (!inited) {
 							total = val.data.total;
 
-							progress.setAttribute("max", total);
-							progress.style.display = "";
+							progress.setAttribute('max', total);
+							progress.style.display = '';
 							totalEl.textContent = prettifySize(total);
-							counterWrap.style.display = "";
+							counterWrap.style.display = '';
 							inited = true;
 						}
 						loaded = val.data.loaded;
 
 						progress.value = loaded;
 						counterEl.textContent = prettifySize(loaded);
-						speedEl.textContent = prettifySize(loaded / (Date.now() - beginTime) * 1000) + "/" + Lng.second[lang];
+						speedEl.textContent = prettifySize(loaded / (Date.now() - beginTime) * 1e3) + '/' + Lng.second[lang];
 					}
 					context$2$0.next = 2;
 					break;
 
 				case 19:
-					$popup(Lng.internalError[lang] + getPrettyErrorMessage(new Error()), "upload", false);
+					$popup(Lng.internalError[lang] + getPrettyErrorMessage(new Error()), 'upload', false);
 
 				case 20:
-				case "end":
+				case 'end':
 					return context$2$0.stop();
 			}
-		}, callee$1$3, this, [[3, 9]]);
+		}, callee$1$0, this, [[3, 9]]);
 	}));
 
 	function checkUpload(dc) {
 		if (aib.krau) {
-			pr.form.action = pr.form.action.split("?")[0];
-			$id("postform_row_progress").style.display = "none";
+			pr.form.action = pr.form.action.split('?')[0];
+			$id('postform_row_progress').style.display = 'none';
 			aib.btnZeroLUTime.click();
 		}
-		updater["continue"]();
+		updater['continue']();
 		var err = getSubmitError(dc);
 		if (err) {
 			if (pr.isQuick) {
@@ -9813,27 +9637,27 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			if (/captch|капч|подтвер|verifizie/i.test(err)) {
 				pr.refreshCapImg(true);
 			}
-			$popup(err, "upload", false);
+			$popup(err, 'upload', false);
 			updater.sendErrNotif();
 			return;
 		}
-		if (Cfg.favOnReply && pr.tNum && !$c("de-btn-fav-sel", pByNum[pr.tNum].el)) {
-			pByNum[pr.tNum].thr.setFavorState(true, "onreply");
+		if (Cfg.favOnReply && pr.tNum && !$c('de-btn-fav-sel', pByNum[pr.tNum].el)) {
+			pByNum[pr.tNum].thr.setFavorState(true, 'onreply');
 		}
-		pr.txta.value = "";
+		pr.txta.value = '';
 		if (pr.file) {
 			pr.delFilesUtils();
 		}
 		if (pr.video) {
-			pr.video.value = "";
+			pr.video.value = '';
 		}
-		Cfg.stats[pr.tNum ? "reply" : "op"]++;
+		Cfg.stats[pr.tNum ? 'reply' : 'op']++;
 		saveComCfg(aib.dm, Cfg);
 		if (!pr.tNum) {
 			if (aib.mak) {
 				try {
 					var json = JSON.parse(dc.body.innerHTML);
-					if (json.Status === "Redirect") {
+					if (json.Status === 'Redirect') {
 						window.location = aib.getThrdUrl(aib.b, json.Target);
 					}
 				} catch (e) {}
@@ -9850,7 +9674,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				if (Cfg.scrAfterRep) {
 					scrollTo(0, window.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
 				}
-				closePopup("upload");
+				closePopup('upload');
 			} else {
 				dForm.firstThr.loadNew(true).then(function () {
 					return AjaxError.Success;
@@ -9861,16 +9685,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					if (Cfg.scrAfterRep) {
 						scrollTo(0, window.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
 					}
-					closePopup("upload");
+					closePopup('upload');
 				});
 			}
 		} else {
 			if (el) {
 				pByNum[pr.tNum].thr.loadFromForm(visPosts, true, el);
-				closePopup("upload");
+				closePopup('upload');
 			} else {
 				pByNum[pr.tNum].thr.load(visPosts, false, false).then(function () {
-					return closePopup("upload");
+					return closePopup('upload');
 				});
 			}
 		}
@@ -9879,10 +9703,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		pr.filesCount = 0;
 	}
 
-	var checkDelete = async(regeneratorRuntime.mark(function callee$1$4(dc) {
-		var err, _ref, _ref2, num, post, els, threads, isThr, i, len, el, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, thr;
+	var checkDelete = async(regeneratorRuntime.mark(function callee$1$0(dc) {
+		var err, _ref9, _ref92, num, post, els, threads, isThr, i, len, el, _iteratorNormalCompletion8, _didIteratorError8, _iteratorError8, _iterator8, _step8, thr;
 
-		return regeneratorRuntime.wrap(function callee$1$4$(context$2$0) {
+		return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
 					err = getSubmitError(dc);
@@ -9892,14 +9716,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						break;
 					}
 
-					$popup(Lng.errDelete[lang] + err, "delete", false);
+					$popup(Lng.errDelete[lang] + err, 'delete', false);
 					updater.sendErrNotif();
-					return context$2$0.abrupt("return");
+					return context$2$0.abrupt('return');
 
 				case 5:
-					_ref = doc.location.hash.match(/\d+/) || [];
-					_ref2 = _slicedToArray(_ref, 1);
-					num = _ref2[0];
+					_ref9 = doc.location.hash.match(/\d+/) || [];
+					_ref92 = _slicedToArray(_ref9, 1);
+					num = _ref92[0];
 
 					if (num) {
 						post = pByNum[num];
@@ -9908,10 +9732,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							if (!post.isOp) {
 								post.el.className = aib.cReply;
 							}
-							doc.location.hash = "";
+							doc.location.hash = '';
 						}
 					}
-					els = $Q(aib.qRPost + " input:checked", dForm.el), threads = new Set(), isThr = aib.t;
+					els = $Q(aib.qRPost + ' input:checked', dForm.el), threads = new Set(), isThr = aib.t;
 
 					for (i = 0, len = els.length; i < len; ++i) {
 						el = els[i];
@@ -9938,33 +9762,33 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 				case 18:
 					context$2$0.prev = 18;
-					context$2$0.t23 = context$2$0["catch"](13);
+					context$2$0.t0 = context$2$0['catch'](13);
 
-					infoLoadErrors(context$2$0.t23);
+					infoLoadErrors(context$2$0.t0);
 
 				case 21:
 					context$2$0.next = 49;
 					break;
 
 				case 23:
-					_iteratorNormalCompletion = true;
-					_didIteratorError = false;
-					_iteratorError = undefined;
+					_iteratorNormalCompletion8 = true;
+					_didIteratorError8 = false;
+					_iteratorError8 = undefined;
 					context$2$0.prev = 26;
-					_iterator = threads[Symbol.iterator]();
+					_iterator8 = threads[Symbol.iterator]();
 
 				case 28:
-					if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+					if (_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done) {
 						context$2$0.next = 35;
 						break;
 					}
 
-					thr = _step.value;
+					thr = _step8.value;
 					context$2$0.next = 32;
 					return thr.load(visPosts, false, false);
 
 				case 32:
-					_iteratorNormalCompletion = true;
+					_iteratorNormalCompletion8 = true;
 					context$2$0.next = 28;
 					break;
 
@@ -9974,27 +9798,27 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 				case 37:
 					context$2$0.prev = 37;
-					context$2$0.t24 = context$2$0["catch"](26);
-					_didIteratorError = true;
-					_iteratorError = context$2$0.t24;
+					context$2$0.t1 = context$2$0['catch'](26);
+					_didIteratorError8 = true;
+					_iteratorError8 = context$2$0.t1;
 
 				case 41:
 					context$2$0.prev = 41;
 					context$2$0.prev = 42;
 
-					if (!_iteratorNormalCompletion && _iterator["return"]) {
-						_iterator["return"]();
+					if (!_iteratorNormalCompletion8 && _iterator8['return']) {
+						_iterator8['return']();
 					}
 
 				case 44:
 					context$2$0.prev = 44;
 
-					if (!_didIteratorError) {
+					if (!_didIteratorError8) {
 						context$2$0.next = 47;
 						break;
 					}
 
-					throw _iteratorError;
+					throw _iteratorError8;
 
 				case 47:
 					return context$2$0.finish(44);
@@ -10003,14 +9827,167 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					return context$2$0.finish(41);
 
 				case 49:
-					$popup(Lng.succDeleted[lang], "delete", false);
+					$popup(Lng.succDeleted[lang], 'delete', false);
 
 				case 50:
-				case "end":
+				case 'end':
 					return context$2$0.stop();
 			}
-		}, callee$1$4, this, [[13, 18], [26, 37, 41, 49], [42,, 44, 48]]);
+		}, callee$1$0, this, [[13, 18], [26, 37, 41, 49], [42,, 44, 48]]);
 	}));
+
+	function html5Submit(form) {
+		var needProgress = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+
+		var formData, hasFiles, _iteratorNormalCompletion9, _didIteratorError9, _iteratorError9, _iterator9, _step9, _step9$value, name, value, type, el, fileName, newFileName, data, lastFuncs, promises, xhr;
+
+		return regeneratorRuntime.wrap(function html5Submit$(context$2$0) {
+			while (1) switch (context$2$0.prev = context$2$0.next) {
+				case 0:
+					formData = new FormData();
+					hasFiles = false;
+					_iteratorNormalCompletion9 = true;
+					_didIteratorError9 = false;
+					_iteratorError9 = undefined;
+					context$2$0.prev = 5;
+					_iterator9 = getFormElements(form)[Symbol.iterator]();
+
+				case 7:
+					if (_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done) {
+						context$2$0.next = 32;
+						break;
+					}
+
+					_step9$value = _step9.value;
+					name = _step9$value.name;
+					value = _step9$value.value;
+					type = _step9$value.type;
+					el = _step9$value.el;
+
+					if (!(type === 'file')) {
+						context$2$0.next = 28;
+						break;
+					}
+
+					hasFiles = true;
+					fileName = value.name, newFileName = Cfg.removeFName ? ' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
+
+					if (!(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) && (Cfg.postSameImg || Cfg.removeEXIF))) {
+						context$2$0.next = 27;
+						break;
+					}
+
+					context$2$0.next = 19;
+					return readFile(value, false);
+
+				case 19:
+					context$2$0.t0 = context$2$0.sent;
+					context$2$0.t1 = el.obj.imgFile;
+					data = cleanFile(context$2$0.t0, context$2$0.t1);
+
+					if (data) {
+						context$2$0.next = 24;
+						break;
+					}
+
+					return context$2$0.abrupt('return', Promise.reject(Lng.fileCorrupt[lang] + fileName));
+
+				case 24:
+					value = new File(data, newFileName);
+					context$2$0.next = 28;
+					break;
+
+				case 27:
+					if (Cfg.removeFName) {
+						value = new File([value], newFileName);
+					}
+
+				case 28:
+					formData.append(name, value);
+
+				case 29:
+					_iteratorNormalCompletion9 = true;
+					context$2$0.next = 7;
+					break;
+
+				case 32:
+					context$2$0.next = 38;
+					break;
+
+				case 34:
+					context$2$0.prev = 34;
+					context$2$0.t2 = context$2$0['catch'](5);
+					_didIteratorError9 = true;
+					_iteratorError9 = context$2$0.t2;
+
+				case 38:
+					context$2$0.prev = 38;
+					context$2$0.prev = 39;
+
+					if (!_iteratorNormalCompletion9 && _iterator9['return']) {
+						_iterator9['return']();
+					}
+
+				case 41:
+					context$2$0.prev = 41;
+
+					if (!_didIteratorError9) {
+						context$2$0.next = 44;
+						break;
+					}
+
+					throw _iteratorError9;
+
+				case 44:
+					return context$2$0.finish(41);
+
+				case 45:
+					return context$2$0.finish(38);
+
+				case 46:
+					if (!needProgress) {
+						context$2$0.next = 52;
+						break;
+					}
+
+					lastFuncs = null, promises = [new Promise(function (resolve, reject) {
+						return lastFuncs = { resolve: resolve, reject: reject };
+					})];
+
+					$ajax(form.action, { method: 'POST', data: formData, onprogress: function onprogress(e) {
+							lastFuncs.resolve({ done: false, data: { loaded: e.loaded, total: e.total } });
+							promises.push(new Promise(function (resolve, reject) {
+								return lastFuncs = { resolve: resolve, reject: reject };
+							}));
+						} }).then(function (xhr) {
+						return lastFuncs.resolve({ done: true, data: $DOM(xhr.responseText) });
+					}, function (xhr) {
+						return lastFuncs.reject(new AjaxError(xhr.status, xhr.statusText));
+					});
+					return context$2$0.abrupt('return', [hasFiles, function () {
+						return promises.shift();
+					}]);
+
+				case 52:
+					context$2$0.prev = 52;
+					context$2$0.next = 55;
+					return $ajax(form.action, { method: 'POST', data: formData });
+
+				case 55:
+					xhr = context$2$0.sent;
+					return context$2$0.abrupt('return', $DOM(xhr.responseText));
+
+				case 59:
+					context$2$0.prev = 59;
+					context$2$0.t3 = context$2$0['catch'](52);
+					return context$2$0.abrupt('return', Promise.reject(new AjaxError(context$2$0.t3.status, context$2$0.t3.statusText)));
+
+				case 62:
+				case 'end':
+					return context$2$0.stop();
+			}
+		}, marked1$0[6], this, [[5, 34, 38, 46], [39,, 41, 45], [52, 59]]);
+	}
 
 	function readFile(file, asText) {
 		return new Promise(function (resolve, reject) {
@@ -10033,26 +10010,26 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		    lIdx,
 		    jpgDat,
 		    img = nav.getUnsafeUint8Array(data),
-		    rand = Cfg.postSameImg && String(Math.round(Math.random() * 1000000)),
+		    rand = Cfg.postSameImg && String(Math.round(Math.random() * 1e6)),
 		    rExif = !!Cfg.removeEXIF,
 		    rv = extraData ? rand ? [img, extraData, rand] : [img, extraData] : rand ? [img, rand] : [img];
 		if (!rand && !rExif && !extraData) {
 			return rv;
 		}
 	
-		if (img[0] === 255 && img[1] === 216) {
+		if (img[0] === 0xFF && img[1] === 0xD8) {
 			var deep = 1;
 			for (i = 2, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len;) {
-				if (img[i] === 255) {
+				if (img[i] === 0xFF) {
 					if (rExif) {
 						if (!jpgDat && deep === 1) {
-							if (img[i + 1] === 225 && img[i + 4] === 69) {
+							if (img[i + 1] === 0xE1 && img[i + 4] === 0x45) {
 								jpgDat = readExif(data, i + 10, (img[i + 2] << 8) + img[i + 3]);
-							} else if (img[i + 1] === 224 && img[i + 7] === 70 && (img[i + 2] !== 0 || img[i + 3] >= 14 || img[i + 15] !== 255)) {
+							} else if (img[i + 1] === 0xE0 && img[i + 7] === 0x46 && (img[i + 2] !== 0 || img[i + 3] >= 0x0E || img[i + 15] !== 0xFF)) {
 								jpgDat = img.subarray(i + 11, i + 16);
 							}
 						}
-						if (img[i + 1] >> 4 === 14 && img[i + 1] !== 238 || img[i + 1] === 254) {
+						if (img[i + 1] >> 4 === 0xE && img[i + 1] !== 0xEE || img[i + 1] === 0xFE) {
 							if (lIdx !== i) {
 								val.push(img.subarray(lIdx, i));
 							}
@@ -10060,12 +10037,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							lIdx = i;
 							continue;
 						}
-					} else if (img[i + 1] === 216) {
+					} else if (img[i + 1] === 0xD8) {
 						deep++;
 						i++;
 						continue;
 					}
-					if (img[i + 1] === 217 && --deep === 0) {
+					if (img[i + 1] === 0xD9 && --deep === 0) {
 						break;
 					}
 				}
@@ -10081,7 +10058,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 				return rv;
 			}
-			val[0] = new Uint8Array([255, 216, 255, 224, 0, 14, 74, 70, 73, 70, 0, 1, 1]);
+			val[0] = new Uint8Array([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x0E, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1]);
 			val[1] = jpgDat || new Uint8Array([0, 0, 1, 0, 1]);
 			val.push(img.subarray(lIdx, i));
 			if (extraData) {
@@ -10093,8 +10070,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return val;
 		}
 	
-		if (img[0] === 137 && img[1] === 80) {
-			for (i = 0, len = img.length - 7; i < len && (img[i] !== 73 || img[i + 1] !== 69 || img[i + 2] !== 78 || img[i + 3] !== 68); i++) {}
+		if (img[0] === 0x89 && img[1] === 0x50) {
+			for (i = 0, len = img.length - 7; i < len && (img[i] !== 0x49 || img[i + 1] !== 0x45 || img[i + 2] !== 0x4E || img[i + 3] !== 0x44); i++) {}
 			i += 8;
 			if (i !== len && (extraData || len - i <= 75)) {
 				rv[0] = nav.getUnsafeUint8Array(data, 0, i);
@@ -10102,7 +10079,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return rv;
 		}
 	
-		if (img[0] === 26 && img[1] === 69 && img[2] === 223 && img[3] === 163) {
+		if (img[0] === 0x1a && img[1] === 0x45 && img[2] === 0xDF && img[3] === 0xA3) {
 			return new WebmParser(data).addData(rand).getData();
 		}
 		return null;
@@ -10114,8 +10091,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		    yRes = 0,
 		    resT = 0,
 		    dv = nav.getUnsafeDataView(data, off),
-		    le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== "MM";
-		if (dv.getUint16(2, le) !== 42) {
+		    le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== 'MM';
+		if (dv.getUint16(2, le) !== 0x2A) {
 			return null;
 		}
 		i = dv.getUint32(4, le);
@@ -10125,14 +10102,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		for (var j = 0, tgLen = dv.getUint16(i, le); j < tgLen; j++) {
 			var dE = i + 2 + 12 * j,
 			    tag = dv.getUint16(dE, le);
-			if (tag === 296) {
+			if (tag === 0x0128) {
 				resT = dv.getUint16(dE + 8, le) - 1;
-			} else if (tag === 282 || tag === 283) {
+			} else if (tag === 0x011A || tag === 0x011B) {
 				dE = dv.getUint32(dE + 8, le);
 				if (dE > len) {
 					return null;
 				}
-				if (tag === 282) {
+				if (tag === 0x11A) {
 					xRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
 				} else {
 					yRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
@@ -10141,13 +10118,13 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}
 		xRes = xRes || yRes;
 		yRes = yRes || xRes;
-		return new Uint8Array([resT & 255, xRes >> 8, xRes & 255, yRes >> 8, yRes & 255]);
+		return new Uint8Array([resT & 0xFF, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF]);
 	}
 
 	WebmParser = function (data) {
-		var EBMLId = 440786851,
-		    segmentId = 408125543,
-		    voidId = 236;
+		var EBMLId = 0x1A45DFA3,
+		    segmentId = 0x18538067,
+		    voidId = 0xEC;
 		function WebmElement(elData, dataLength, offset) {
 			if (offset + 4 >= dataLength) {
 				return;
@@ -10168,7 +10145,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			num = elData.getUint32(offset);
 			clz = Math.clz32(num);
 			if (clz > 3) {
-				if ((num & 4294967295 >>> clz + 1) !== 0) {
+				if ((num & 0xFFFFFFFF >>> clz + 1) !== 0) {
 					this.error = true;
 					return;
 				}
@@ -10221,10 +10198,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						this.segment = el;
 						break;
 					} else if (el.id === voidId) {
-						voids.push(el);
-					} else {
-						break error;
-					}
+							voids.push(el);
+						} else {
+							break error;
+						}
 					offset += el.headSize + el.size;
 				}
 				this.voids = voids;
@@ -10241,12 +10218,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				if (this.error || !data) {
 					return this;
 				}
-				var size = typeof data === "string" ? data.length : data.byteLength;
+				var size = typeof data === 'string' ? data.length : data.byteLength;
 				if (size > 127) {
 					this.error = true;
 					return;
 				}
-				this.rv.push(new Uint8Array([voidId, 128 | size]), data);
+				this.rv.push(new Uint8Array([voidId, 0x80 | size]), data);
 				return this;
 			},
 			getData: function getData() {
@@ -10271,7 +10248,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		    oldh = data[2],
 		    size = oldw * oldh;
 		for (var i = 0, j = 0; i < size; i++, j += 4) {
-			buf[i] = buf[j] * 0.3 + buf[j + 1] * 0.59 + buf[j + 2] * 0.11;
+			buf[i] = buf[j] * .3 + buf[j + 1] * .59 + buf[j + 2] * .11;
 		}
 		var newh = 8,
 		    neww = 8,
@@ -10288,7 +10265,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				var c = Math.min(tmp | 0, oldw - 2),
 				    t = tmp - c;
 				hash = (hash << 4) + Math.min(values * ((buf[l * oldw + c] * ((1 - t) * (1 - u)) + buf[l * oldw + c + 1] * (t * (1 - u)) + buf[(l + 1) * oldw + c + 1] * (t * u) + buf[(l + 1) * oldw + c] * ((1 - t) * u)) / areas | 0), 255);
-				var g = hash & 4026531840;
+				var g = hash & 0xF0000000;
 				if (g) {
 					hash ^= g >>> 24;
 				}
@@ -10298,19 +10275,19 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		return { hash: hash };
 	}
 	function ImgBtnsShowHider(nextFn, prevFn) {
-		dForm.el.insertAdjacentHTML("beforeend", "<div style=\"display: none;\">" + "<div id=\"de-img-btn-next\" de-title=\"" + Lng.nextImg[lang] + "\"></div>" + "<div id=\"de-img-btn-prev\" de-title=\"" + Lng.prevImg[lang] + "\"></div></div>");
+		dForm.el.insertAdjacentHTML('beforeend', '<div style="display: none;">' + '<div id="de-img-btn-next" de-title="' + Lng.nextImg[lang] + '"></div>' + '<div id="de-img-btn-prev" de-title="' + Lng.prevImg[lang] + '"></div></div>');
 		var btns = dForm.el.lastChild;
 		this._btns = btns;
 		this._btnsStyle = btns.style;
 		this._nextFn = nextFn;
 		this._prevFn = prevFn;
-		doc.defaultView.addEventListener("mousemove", this);
-		btns.addEventListener("mouseover", this);
+		doc.defaultView.addEventListener('mousemove', this);
+		btns.addEventListener('mouseover', this);
 	}
 	ImgBtnsShowHider.prototype = {
 		handleEvent: function handleEvent(e) {
 			switch (e.type) {
-				case "mousemove":
+				case 'mousemove':
 					var curX = e.clientX,
 					    curY = e.clientY;
 					if (this._oldX !== curX || this._oldY !== curY) {
@@ -10319,11 +10296,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						this.show();
 					}
 					return;
-				case "mouseover":
+				case 'mouseover':
 					if (!this.hasEvents) {
 						this.hasEvents = true;
-						this._btns.addEventListener("mouseout", this);
-						this._btns.addEventListener("click", this);
+						this._btns.addEventListener('mouseout', this);
+						this._btns.addEventListener('click', this);
 					}
 					if (!this._hidden) {
 						clearTimeout(this._hideTmt);
@@ -10331,30 +10308,30 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						KeyEditListener.setTitle(this._btns.lastChild, 4);
 					}
 					return;
-				case "mouseout":
+				case 'mouseout':
 					this._setHideTmt();return;
-				case "click":
+				case 'click':
 					switch (e.target.id) {
-						case "de-img-btn-next":
+						case 'de-img-btn-next':
 							this._nextFn();return;
-						case "de-img-btn-prev":
+						case 'de-img-btn-prev':
 							this._prevFn();
 					}
 			}
 		},
 		hide: function hide() {
-			this._btnsStyle.display = "none";
+			this._btnsStyle.display = 'none';
 			this._hidden = true;
 			this._oldX = this._oldY = -1;
 		},
 		remove: function remove() {
 			$del(this._btns);
-			doc.defaultView.removeEventListener("mousemove", this);
+			doc.defaultView.removeEventListener('mousemove', this);
 			clearTimeout(this._hideTmt);
 		},
 		show: function show() {
 			if (this._hidden) {
-				this._btnsStyle.display = "";
+				this._btnsStyle.display = '';
 				this._hidden = false;
 				this._setHideTmt();
 			}
@@ -10366,12 +10343,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		_oldX: -1,
 		_oldY: -1,
 		_setHideTmt: function _setHideTmt() {
-			var _this204 = this;
+			var _this20 = this;
 
 			clearTimeout(this._hideTmt);
 			this._hideTmt = setTimeout(function () {
-				return _this204.hide();
-			}, 2000);
+				return _this20.hide();
+			}, 2e3);
 		}
 	};
 
@@ -10382,9 +10359,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		data: null,
 		close: function close(e) {
 			if (this.data.inPview && this.data.post.sticked) {
-				$c("de-btn-stick-on", this.data.post.el).click();
+				$c('de-btn-stick-on', this.data.post.el).click();
 			}
-			if (this.hasOwnProperty("_btns")) {
+			if (this.hasOwnProperty('_btns')) {
 				this._btns.remove();
 			}
 			this._remove(e);
@@ -10392,31 +10369,31 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		handleEvent: function handleEvent(e) {
 			var isOverEvent = false;
 			switch (e.type) {
-				case "mousedown":
+				case 'mousedown':
 					if (this.data.isVideo && this.data.isControlClick(e, this._elStyle.height)) {
 						return;
 					}
 					this._oldX = e.clientX;
 					this._oldY = e.clientY;
-					doc.body.addEventListener("mousemove", this, true);
-					doc.body.addEventListener("mouseup", this, true);
+					doc.body.addEventListener('mousemove', this, true);
+					doc.body.addEventListener('mouseup', this, true);
 					break;
-				case "mousemove":
+				case 'mousemove':
 					var curX = e.clientX,
 					    curY = e.clientY;
 					if (curX !== this._oldX || curY !== this._oldY) {
-						this._elStyle.left = (this._oldL = parseInt(this._elStyle.left, 10) + curX - this._oldX) + "px";
-						this._elStyle.top = (this._oldT = parseInt(this._elStyle.top, 10) + curY - this._oldY) + "px";
+						this._elStyle.left = (this._oldL = parseInt(this._elStyle.left, 10) + curX - this._oldX) + 'px';
+						this._elStyle.top = (this._oldT = parseInt(this._elStyle.top, 10) + curY - this._oldY) + 'px';
 						this._oldX = curX;
 						this._oldY = curY;
 						this._moved = true;
 					}
 					return;
-				case "mouseup":
-					doc.body.removeEventListener("mousemove", this, true);
-					doc.body.removeEventListener("mouseup", this, true);
+				case 'mouseup':
+					doc.body.removeEventListener('mousemove', this, true);
+					doc.body.removeEventListener('mouseup', this, true);
 					return;
-				case "click":
+				case 'click':
 					if (this.data.isVideo && this.data.isControlClick(e, this._elStyle.height)) {
 						return;
 					}
@@ -10431,9 +10408,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						break;
 					}
 					return;
-				case "mouseover":
+				case 'mouseover':
 					isOverEvent = true;
-								case "mouseout":
+								case 'mouseout':
 					var temp = e.relatedTarget;
 					if (!temp || temp !== this._obj && !this._obj.contains(temp)) {
 						if (isOverEvent) {
@@ -10443,8 +10420,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						}
 					}
 					return;
-				case "mousewheel":
-					this._handleWheelEvent(e.clientX, e.clientY, -1 / 40 * ("wheelDeltaY" in e ? e.wheelDeltaY : e.wheelDelta));
+				case 'mousewheel':
+					this._handleWheelEvent(e.clientX, e.clientY, -1 / 40 * ('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta));
 					break;
 				default:
 				
@@ -10463,7 +10440,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		},
 		setWebmVolume: function setWebmVolume(val) {
 			var el = this._fullEl;
-			if (el.tagName === "VIDEO") {
+			if (el.tagName === 'VIDEO') {
 				if (val === 0) {
 					el.muted = true;
 				} else {
@@ -10489,6 +10466,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		_oldY: 0,
 		_minSize: 0,
 		_moved: false,
+
 		_getHolder: function _getHolder(el, data) {
 			var _data$computeFullSize = data.computeFullSize(false);
 
@@ -10503,9 +10481,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 			this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 			this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-			var obj = $add("<div class=\"de-img-center\" style=\"top:" + this._oldT + "px; left:" + this._oldL + "px; width:" + width + "px; height:" + height + "px; display: block\"></div>");
+			var obj = $add('<div class="de-img-center" style="top:' + this._oldT + 'px; left:' + this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
 			if (data.isImage) {
-				obj.insertAdjacentHTML("afterbegin", "<a href=\"" + data.src + "\"></a>");
+				obj.insertAdjacentHTML('afterbegin', '<a href="' + data.src + '"></a>');
 				obj.firstChild.appendChild(el);
 			} else {
 				obj.appendChild(el);
@@ -10532,10 +10510,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 			this._width = width;
 			this._height = height;
-			this._elStyle.width = width + "px";
-			this._elStyle.height = height + "px";
-			this._elStyle.left = (this._oldL = parseInt(clientX - width / oldW * (clientX - this._oldL), 10)) + "px";
-			this._elStyle.top = (this._oldT = parseInt(clientY - height / oldH * (clientY - this._oldT), 10)) + "px";
+			this._elStyle.width = width + 'px';
+			this._elStyle.height = height + 'px';
+			this._elStyle.left = (this._oldL = parseInt(clientX - width / oldW * (clientX - this._oldL), 10)) + 'px';
+			this._elStyle.top = (this._oldT = parseInt(clientY - height / oldH * (clientY - this._oldT), 10)) + 'px';
 		},
 		_show: function _show(data) {
 			var el = data.getFullObject(),
@@ -10544,33 +10522,33 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			this.data = data;
 			this._fullEl = el;
 			this._obj = obj;
-			if ("onwheel" in obj) {
-				obj.addEventListener("wheel", this, true);
+			if ('onwheel' in obj) {
+				obj.addEventListener('wheel', this, true);
 			} else {
-				obj.addEventListener("mousewheel", this, true);
+				obj.addEventListener('mousewheel', this, true);
 			}
-			obj.addEventListener("mousedown", this, true);
-			obj.addEventListener("click", this, true);
+			obj.addEventListener('mousedown', this, true);
+			obj.addEventListener('click', this, true);
 			if (data.inPview) {
-				obj.addEventListener("mouseover", this, true);
-				obj.addEventListener("mouseout", this, true);
+				obj.addEventListener('mouseover', this, true);
+				obj.addEventListener('mouseout', this, true);
 				if (!data.post.sticked) {
-					$c("de-btn-stick", data.post.el).click();
+					$c('de-btn-stick', data.post.el).click();
 				}
 			}
 			if (!data.inPview) {
 				this._btns.show();
-			} else if (this.hasOwnProperty("_btns")) {
+			} else if (this.hasOwnProperty('_btns')) {
 				this._btns.hide();
 			}
 			dForm.el.appendChild(obj);
 		},
 		_remove: function _remove(e) {
-			if (this.data.isVideo && this._fullEl.tagName === "VIDEO") {
+			if (this.data.isVideo && this._fullEl.tagName === 'VIDEO') {
 				this._fullEl.pause();
-				this._fullEl.removeAttribute("src");
+				this._fullEl.removeAttribute('src');
 			}
-			this._obj.style.display = "none";
+			this._obj.style.display = 'none';
 			setTimeout($del, 100, this._obj);
 			if (e && this.data.inPview) {
 				this.data.sendCloseEvent(e, false);
@@ -10578,18 +10556,18 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}
 	}, {
 		_btns: {
-			get: function () {
+			get: function get() {
 				var val = new ImgBtnsShowHider(this.navigate.bind(this, true), this.navigate.bind(this, false));
-				Object.defineProperty(this, "_btns", { value: val });
+				Object.defineProperty(this, '_btns', { value: val });
 				return val;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		_zoomFactor: {
-			get: function () {
+			get: function get() {
 				var val = 1 + Cfg.zoomFactor / 100;
-				Object.defineProperty(this, "_zoomFactor", { value: val });
+				Object.defineProperty(this, '_zoomFactor', { value: val });
 				return val;
 			},
 			configurable: true,
@@ -10612,359 +10590,352 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		}
 
-		_createClass(ExpandableMedia, {
-			inPview: {
-				get: function () {
-					var val = this.post.isPview;
-					Object.defineProperty(this, "inPview", { value: val });
-					return val;
-				}
-			},
-			isImage: {
-				get: function () {
-					var val = this.src && (/\.jpe?g|\.png|\.gif/i.test(this.src) || this.src.startsWith("blob:") && !this.el.hasAttribute("de-video"));
-					Object.defineProperty(this, "isImage", { value: val });
-					return val;
-				}
-			},
-			isVideo: {
-				get: function () {
-					var val = this.src && (/\.webm(?:&|$)/i.test(this.src) || this.src.startsWith("blob:") && this.el.hasAttribute("de-video"));
-					Object.defineProperty(this, "isVideo", { value: val });
-					return val;
-				}
-			},
-			height: {
-				get: function () {
-					var dat = this._getImageSize();
-					Object.defineProperties(this, {
-						width: { value: dat[0] },
-						height: { value: dat[1] }
-					});
-					return dat[1];
-				}
-			},
-			src: {
-				get: function () {
-					var val = this._getImageSrc();
-					Object.defineProperty(this, "src", { value: val });
-					return val;
-				}
-			},
-			width: {
-				get: function () {
-					var dat = this._getImageSize();
-					Object.defineProperties(this, {
-						width: { value: dat[0] },
-						height: { value: dat[1] }
-					});
-					return dat[0];
-				}
-			},
-			collapse: {
-				value: function collapse(e) {
-					if (!this.isVideo || !this.isControlClick(e, this._fullEl.style.height)) {
-						this.expanded = false;
-						$del(this._fullEl);
-						this._fullEl = null;
-						this.el.parentNode.style.display = "";
-						$del((aib.hasPicWrap ? this._getImageParent() : this.el.parentNode).nextSibling);
-						if (e && this.inPview) {
-							this.sendCloseEvent(e, true);
-						}
-						return true;
+		_createClass(ExpandableMedia, [{
+			key: 'collapse',
+			value: function collapse(e) {
+				if (!this.isVideo || !this.isControlClick(e, this._fullEl.style.height)) {
+					this.expanded = false;
+					$del(this._fullEl);
+					this._fullEl = null;
+					this.el.parentNode.style.display = '';
+					$del((aib.hasPicWrap ? this._getImageParent() : this.el.parentNode).nextSibling);
+					if (e && this.inPview) {
+						this.sendCloseEvent(e, true);
 					}
-					return false;
+					return true;
 				}
-			},
-			computeFullSize: {
-				value: function computeFullSize(inPost) {
-					var minSize = Cfg.minImgSize,
-					    width = this.width,
-					    height = this.height;
-					if (Cfg.resizeDPI) {
-						width /= Post.sizing.dPxRatio;
-						height /= Post.sizing.dPxRatio;
+				return false;
+			}
+		}, {
+			key: 'computeFullSize',
+			value: function computeFullSize(inPost) {
+				var minSize = Cfg.minImgSize,
+				    width = this.width,
+				    height = this.height;
+				if (Cfg.resizeDPI) {
+					width /= Post.sizing.dPxRatio;
+					height /= Post.sizing.dPxRatio;
+				}
+				if (width < minSize && height < minSize) {
+					var ar = width / height;
+					if (width > height) {
+						width = minSize;
+						height = width / ar;
+					} else {
+						height = minSize;
+						width = height * ar;
 					}
-					if (width < minSize && height < minSize) {
+				}
+				if (Cfg.resizeImgs) {
+					var maxWidth, maxHeight;
+					if (inPost) {
+						maxWidth = Post.sizing.wWidth - this._offset - 3;
+						maxHeight = Number.MAX_SAFE_INTEGER;
+					} else {
+						maxWidth = Post.sizing.wWidth - 2;
+						maxHeight = Post.sizing.wHeight - 2;
+					}
+					if (width > maxWidth || height > maxHeight) {
 						var ar = width / height;
-						if (width > height) {
-							width = minSize;
+						if (ar > maxWidth / maxHeight) {
+							width = maxWidth;
 							height = width / ar;
 						} else {
-							height = minSize;
+							height = maxHeight;
 							width = height * ar;
 						}
-					}
-					if (Cfg.resizeImgs) {
-						var maxWidth, maxHeight;
-						if (inPost) {
-							maxWidth = Post.sizing.wWidth - this._offset - 3;
-							maxHeight = Number.MAX_SAFE_INTEGER;
-						} else {
-							maxWidth = Post.sizing.wWidth - 2;
-							maxHeight = Post.sizing.wHeight - 2;
-						}
-						if (width > maxWidth || height > maxHeight) {
-							var ar = width / height;
-							if (ar > maxWidth / maxHeight) {
-								width = maxWidth;
-								height = width / ar;
-							} else {
-								height = maxHeight;
-								width = height * ar;
-							}
-							if (width < minSize || height < minSize) {
-								return [width, height, Math.max(width, height)];
-							}
+						if (width < minSize || height < minSize) {
+							return [width, height, Math.max(width, height)];
 						}
 					}
-					return [width, height, null];
 				}
-			},
-			expand: {
-				value: function expand(inPost, e) {
-					if (!inPost) {
-						if (Attachment.viewer) {
-							if (Attachment.viewer.data === this) {
-								Attachment.viewer.close(e);
-								Attachment.viewer = null;
-								return;
-							}
-							Attachment.viewer.update(this, e);
-						} else {
-							Attachment.viewer = new AttachmentViewer(this);
+				return [width, height, null];
+			}
+		}, {
+			key: 'expand',
+			value: function expand(inPost, e) {
+				if (!inPost) {
+					if (Attachment.viewer) {
+						if (Attachment.viewer.data === this) {
+							Attachment.viewer.close(e);
+							Attachment.viewer = null;
+							return;
 						}
-						return;
-					}
-					this.expanded = true;
-					var el = this.el,
-					    size = this.computeFullSize(inPost);
-					(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML("afterend", "<div class=\"de-after-fimg\"></div>");
-					el.parentNode.style.display = "none";
-					this._fullEl = this.getFullObject();
-					this._fullEl.className = "de-img-full";
-					this._fullEl.style.width = size[0] + "px";
-					this._fullEl.style.height = size[1] + "px";
-					$after(el.parentNode, this._fullEl);
-				}
-			},
-			getFollow: {
-				value: function getFollow(isForward) {
-					var nImage = isForward ? this.next : this.prev;
-					if (nImage) {
-						return nImage;
-					}
-					var imgs,
-					    post = this.post;
-					do {
-						post = post.getAdjacentVisPost(!isForward);
-						if (!post) {
-							post = isForward ? dForm.firstThr.op : dForm.lastThr.last;
-							if (post.hidden || post.thr.hidden) {
-								post = post.getAdjacentVisPost(!isForward);
-								if (!post) {
-									return null;
-								}
-							}
-						}
-						imgs = post.images;
-					} while (imgs.first === null);
-					return isForward ? imgs.first : imgs.last;
-				}
-			},
-			getFullObject: {
-				value: function getFullObject() {
-					var obj,
-					    src = this.src;
-					if (this.isVideo) {
-						if (aib.tiny) {
-							src = src.replace(/^.*?\?v=|&.*?$/g, "");
-						}
-						if (nav.canPlayWebm) {
-							obj = $add("<video style=\"width: 100%; height: 100%\" src=\"" + src + "\" loop autoplay " + (Cfg.webmControl ? "controls " : "") + (Cfg.webmVolume === 0 ? "muted " : "") + "></video>");
-							if (Cfg.webmVolume !== 0) {
-								obj.volume = Cfg.webmVolume / 100;
-							}
-							obj.onerror = function () {
-								if (!this.onceLoaded) {
-									this.load();
-									this.onceLoaded = true;
-								}
-							};
-							obj.onvolumechange = function () {
-								var val = this.muted ? 0 : Math.round(this.volume * 100);
-								saveCfg("webmVolume", val);
-								locStorage["__de-webmvolume"] = val;
-								locStorage.removeItem("__de-webmvolume");
-							};
-						} else {
-							obj = $add("<object style=\"width: 100%; height: 100%\" data=\"" + src + "\" type=\"application/x-vlc-plugin\">" + "<param name=\"pluginspage\" value=\"http://www.videolan.org/vlc/\" />" + "<param name=\"controls\" value=\"" + (Cfg.webmControl ? "true" : "false") + "\" />" + "<param name=\"loop\" value=\"true\" />" + "<param name=\"autoplay\" value=\"true\" />" + "<param name=\"wmode\" value=\"transparent\" /></object>");
-						}
+						Attachment.viewer.update(this, e);
 					} else {
-						obj = $add("<img style=\"width: 100%; height: 100%\" src=\"" + src + "\" alt=\"" + src + "\"></a>");
-						obj.onload = obj.onerror = function (e) {
-							if (this.naturalHeight + this.naturalWidth === 0 && !this.onceLoaded) {
-								this.src = this.src;
+						Attachment.viewer = new AttachmentViewer(this);
+					}
+					return;
+				}
+				this.expanded = true;
+				var el = this.el,
+				    size = this.computeFullSize(inPost);
+				(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend', '<div class="de-after-fimg"></div>');
+				el.parentNode.style.display = 'none';
+				this._fullEl = this.getFullObject();
+				this._fullEl.className = 'de-img-full';
+				this._fullEl.style.width = size[0] + 'px';
+				this._fullEl.style.height = size[1] + 'px';
+				$after(el.parentNode, this._fullEl);
+			}
+		}, {
+			key: 'getFollow',
+			value: function getFollow(isForward) {
+				var nImage = isForward ? this.next : this.prev;
+				if (nImage) {
+					return nImage;
+				}
+				var imgs,
+				    post = this.post;
+				do {
+					post = post.getAdjacentVisPost(!isForward);
+					if (!post) {
+						post = isForward ? dForm.firstThr.op : dForm.lastThr.last;
+						if (post.hidden || post.thr.hidden) {
+							post = post.getAdjacentVisPost(!isForward);
+							if (!post) {
+								return null;
+							}
+						}
+					}
+					imgs = post.images;
+				} while (imgs.first === null);
+				return isForward ? imgs.first : imgs.last;
+			}
+		}, {
+			key: 'getFullObject',
+			value: function getFullObject() {
+				var obj,
+				    src = this.src;
+				if (this.isVideo) {
+					if (aib.tiny) {
+						src = src.replace(/^.*?\?v=|&.*?$/g, '');
+					}
+					if (nav.canPlayWebm) {
+						obj = $add('<video style="width: 100%; height: 100%" src="' + src + '" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') + (Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>');
+						if (Cfg.webmVolume !== 0) {
+							obj.volume = Cfg.webmVolume / 100;
+						}
+						obj.onerror = function () {
+							if (!this.onceLoaded) {
+								this.load();
 								this.onceLoaded = true;
 							}
 						};
-					}
-					return obj;
-				}
-			},
-			isControlClick: {
-				value: function isControlClick(e, styleHeight) {
-					return Cfg.webmControl && e.clientY > e.target.getBoundingClientRect().top + parseInt(styleHeight, 10) - 30;
-				}
-			},
-			sendCloseEvent: {
-				value: function sendCloseEvent(e, inPost) {
-					var pv = this.post,
-					    cr = pv.el.getBoundingClientRect(),
-					    x = e.pageX - window.pageXOffset,
-					    y = e.pageY - window.pageYOffset;
-					if (!inPost) {
-						while (x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
-							pv = pv.parent;
-							if (pv) {
-								cr = pv.el.getBoundingClientRect();
-							} else {
-								if (Pview.top) {
-									Pview.top.markToDel();
-								}
-								return;
-							}
-						}
-						if (pv.kid) {
-							pv.kid.markToDel();
-						} else {
-							clearTimeout(Pview.delTO);
-						}
-					} else if (x > cr.right || y > cr.bottom && Pview.top) {
-						Pview.top.markToDel();
-					}
-				}
-			},
-			_offset: {
-				get: function () {
-					var val;
-					if (this.post.hidden) {
-						this.post.hideContent(false);
-						val = this.el.getBoundingClientRect().left + window.pageXOffset;
-						this.post.hideContent(true);
+						obj.onvolumechange = function () {
+							var val = this.muted ? 0 : Math.round(this.volume * 100);
+							saveCfg('webmVolume', val);
+							locStorage['__de-webmvolume'] = val;
+							locStorage.removeItem('__de-webmvolume');
+						};
 					} else {
-						val = this.el.getBoundingClientRect().left + window.pageXOffset;
+						obj = $add('<object style="width: 100%; height: 100%" data="' + src + '" type="application/x-vlc-plugin">' + '<param name="pluginspage" value="http://www.videolan.org/vlc/" />' + '<param name="controls" value="' + (Cfg.webmControl ? 'true' : 'false') + '" />' + '<param name="loop" value="true" />' + '<param name="autoplay" value="true" />' + '<param name="wmode" value="transparent" /></object>');
 					}
-					Object.defineProperty(this, "_offset", { value: val });
-					return val;
+				} else {
+					obj = $add('<img style="width: 100%; height: 100%" src="' + src + '" alt="' + src + '"></a>');
+					obj.onload = obj.onerror = function (e) {
+						if (this.naturalHeight + this.naturalWidth === 0 && !this.onceLoaded) {
+							this.src = this.src;
+							this.onceLoaded = true;
+						}
+					};
+				}
+				return obj;
+			}
+		}, {
+			key: 'isControlClick',
+			value: function isControlClick(e, styleHeight) {
+				return Cfg.webmControl && e.clientY > e.target.getBoundingClientRect().top + parseInt(styleHeight, 10) - 30;
+			}
+		}, {
+			key: 'sendCloseEvent',
+			value: function sendCloseEvent(e, inPost) {
+				var pv = this.post,
+				    cr = pv.el.getBoundingClientRect(),
+				    x = e.pageX - window.pageXOffset,
+				    y = e.pageY - window.pageYOffset;
+				if (!inPost) {
+					while (x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
+						pv = pv.parent;
+						if (pv) {
+							cr = pv.el.getBoundingClientRect();
+						} else {
+							if (Pview.top) {
+								Pview.top.markToDel();
+							}
+							return;
+						}
+					}
+					if (pv.kid) {
+						pv.kid.markToDel();
+					} else {
+						clearTimeout(Pview.delTO);
+					}
+				} else if (x > cr.right || y > cr.bottom && Pview.top) {
+					Pview.top.markToDel();
 				}
 			}
-		});
+		}, {
+			key: 'inPview',
+			get: function get() {
+				var val = this.post.isPview;
+				Object.defineProperty(this, 'inPview', { value: val });
+				return val;
+			}
+		}, {
+			key: 'isImage',
+			get: function get() {
+				var val = this.src && (/\.jpe?g|\.png|\.gif/i.test(this.src) || this.src.startsWith('blob:') && !this.el.hasAttribute('de-video'));
+				Object.defineProperty(this, 'isImage', { value: val });
+				return val;
+			}
+		}, {
+			key: 'isVideo',
+			get: function get() {
+				var val = this.src && (/\.webm(?:&|$)/i.test(this.src) || this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
+				Object.defineProperty(this, 'isVideo', { value: val });
+				return val;
+			}
+		}, {
+			key: 'height',
+			get: function get() {
+				var dat = this._getImageSize();
+				Object.defineProperties(this, {
+					'width': { value: dat[0] },
+					'height': { value: dat[1] }
+				});
+				return dat[1];
+			}
+		}, {
+			key: 'src',
+			get: function get() {
+				var val = this._getImageSrc();
+				Object.defineProperty(this, 'src', { value: val });
+				return val;
+			}
+		}, {
+			key: 'width',
+			get: function get() {
+				var dat = this._getImageSize();
+				Object.defineProperties(this, {
+					'width': { value: dat[0] },
+					'height': { value: dat[1] }
+				});
+				return dat[0];
+			}
+		}, {
+			key: '_offset',
+			get: function get() {
+				var val;
+				if (this.post.hidden) {
+					this.post.hideContent(false);
+					val = this.el.getBoundingClientRect().left + window.pageXOffset;
+					this.post.hideContent(true);
+				} else {
+					val = this.el.getBoundingClientRect().left + window.pageXOffset;
+				}
+				Object.defineProperty(this, '_offset', { value: val });
+				return val;
+			}
+		}]);
 
 		return ExpandableMedia;
 	})();
 
 	var EmbeddedImage = (function (_ExpandableMedia) {
+		_inherits(EmbeddedImage, _ExpandableMedia);
+
 		function EmbeddedImage() {
 			_classCallCheck(this, EmbeddedImage);
 
-			if (_ExpandableMedia != null) {
-				_ExpandableMedia.apply(this, arguments);
-			}
+			_get(Object.getPrototypeOf(EmbeddedImage.prototype), 'constructor', this).apply(this, arguments);
 		}
 
-		_inherits(EmbeddedImage, _ExpandableMedia);
-
-		_createClass(EmbeddedImage, {
-			_getImageSize: {
-				value: function _getImageSize() {
-					var iEl = new Image();
-					iEl.src = this.el.src;
-					return [iEl.width, iEl.height];
-				}
-			},
-			_getImageSrc: {
-				value: function _getImageSrc() {
-					return this.el.src;
-				}
-			},
-			_getImageParent: {
-				value: function _getImageParent() {
-					return this.el.parentNode;
-				}
+		_createClass(EmbeddedImage, [{
+			key: '_getImageSize',
+			value: function _getImageSize() {
+				var iEl = new Image();
+				iEl.src = this.el.src;
+				return [iEl.width, iEl.height];
 			}
-		});
+		}, {
+			key: '_getImageSrc',
+			value: function _getImageSrc() {
+				return this.el.src;
+			}
+		}, {
+			key: '_getImageParent',
+			value: function _getImageParent() {
+				return this.el.parentNode;
+			}
+		}]);
 
 		return EmbeddedImage;
 	})(ExpandableMedia);
 
 	var Attachment = (function (_ExpandableMedia2) {
+		_inherits(Attachment, _ExpandableMedia2);
+
 		function Attachment() {
 			_classCallCheck(this, Attachment);
 
-			if (_ExpandableMedia2 != null) {
-				_ExpandableMedia2.apply(this, arguments);
-			}
+			_get(Object.getPrototypeOf(Attachment.prototype), 'constructor', this).apply(this, arguments);
 		}
 
-		_inherits(Attachment, _ExpandableMedia2);
-
-		_createClass(Attachment, {
-			info: {
-				get: function () {
-					var val = aib.getFileInfo(aib.getImgWrap(this.el.parentNode));
-					Object.defineProperty(this, "info", { value: val });
-					return val;
+		_createClass(Attachment, [{
+			key: '_getImageSize',
+			value: function _getImageSize() {
+				if (this.info) {
+					var size = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
+					return [size[1], size[2]];
 				}
-			},
-			weight: {
-				get: function () {
-					var val = 0;
-					if (this.info) {
-						var w = this.info.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
-						val = w[2] === "M" ? w[1] * 1000 | 0 : !w[2] ? Math.round(w[1] / 1000) : w[1];
-					}
-					Object.defineProperty(this, "weight", { value: val });
-					return val;
-				}
-			},
-			_offset: {
-				get: function () {
-					var needCache = !this.inPview && !this.post.isOp && !this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4;
-					var value;
-					if (!needCache || Attachment.cachedOffset === -1) {
-						value = _get(Object.getPrototypeOf(Attachment.prototype), "_offset", this);
-						if (needCache) {
-							Attachment.cachedOffset = value;
-						}
-					} else {
-						value = Attachment.cachedOffset;
-						Object.defineProperty(this, "_offset", { value: value });
-					}
-					return value;
-				}
-			},
-			_getImageSize: {
-				value: function _getImageSize() {
-					if (this.info) {
-						var size = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
-						return [size[1], size[2]];
-					}
-					return [-1, -1];
-				}
-			},
-			_getImageSrc: {
-				value: function _getImageSrc() {
-					return aib.getImgLink(this.el).href;
-				}
-			},
-			_getImageParent: {
-				value: function _getImageParent() {
-					return aib.getImgParent(this.el.parentNode);
-				}
+				return [-1, -1];
 			}
-		});
+		}, {
+			key: '_getImageSrc',
+			value: function _getImageSrc() {
+				return aib.getImgLink(this.el).href;
+			}
+		}, {
+			key: '_getImageParent',
+			value: function _getImageParent() {
+				return aib.getImgParent(this.el.parentNode);
+			}
+		}, {
+			key: 'info',
+			get: function get() {
+				var val = aib.getFileInfo(aib.getImgWrap(this.el.parentNode));
+				Object.defineProperty(this, 'info', { value: val });
+				return val;
+			}
+		}, {
+			key: 'weight',
+			get: function get() {
+				var val = 0;
+				if (this.info) {
+					var w = this.info.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
+					val = w[2] === 'M' ? w[1] * 1e3 | 0 : !w[2] ? Math.round(w[1] / 1e3) : w[1];
+				}
+				Object.defineProperty(this, 'weight', { value: val });
+				return val;
+			}
+		}, {
+			key: '_offset',
+			get: function get() {
+				var needCache = !this.inPview && !this.post.isOp && !this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4;
+				var value;
+				if (!needCache || Attachment.cachedOffset === -1) {
+					value = _get(Object.getPrototypeOf(Attachment.prototype), '_offset', this);
+					if (needCache) {
+						Attachment.cachedOffset = value;
+					}
+				} else {
+					value = Attachment.cachedOffset;
+					Object.defineProperty(this, '_offset', { value: value });
+				}
+				return value;
+			}
+		}]);
 
 		return Attachment;
 	})(ExpandableMedia);
@@ -10974,30 +10945,30 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 	var ImagesHashStorage = Object.create(Object.defineProperties({
 		endFn: function endFn() {
-			if (this.hasOwnProperty("_storage")) {
-				sesStorage["de-imageshash"] = JSON.stringify(this._storage);
+			if (this.hasOwnProperty('_storage')) {
+				sesStorage['de-imageshash'] = JSON.stringify(this._storage);
 			}
-			if (this.hasOwnProperty("_workers")) {
+			if (this.hasOwnProperty('_workers')) {
 				this._workers.clear();
 				delete this._workers;
 			}
 		},
 
 		_getHashHelper: regeneratorRuntime.mark(function _getHashHelper(imgObj) {
-			var _this204 = this;
-
 			var el, src, data, buffer, val, w, h, imgData, cnv, ctx;
 			return regeneratorRuntime.wrap(function _getHashHelper$(context$2$0) {
+				var _this21 = this;
+
 				while (1) switch (context$2$0.prev = context$2$0.next) {
 					case 0:
 						el = imgObj.el, src = imgObj.src;
 
-						if (!(src in _this204._storage)) {
+						if (!(src in this._storage)) {
 							context$2$0.next = 3;
 							break;
 						}
 
-						return context$2$0.abrupt("return", _this204._storage[src]);
+						return context$2$0.abrupt('return', this._storage[src]);
 
 					case 3:
 						if (el.complete) {
@@ -11007,7 +10978,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 						context$2$0.next = 6;
 						return new Promise(function (resolve) {
-							return el.addEventListener("load", function () {
+							return el.addEventListener('load', function () {
 								return resolve();
 							});
 						});
@@ -11018,7 +10989,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							break;
 						}
 
-						return context$2$0.abrupt("return", -1);
+						return context$2$0.abrupt('return', -1);
 
 					case 8:
 						val = -1, w = el.naturalWidth, h = el.naturalHeight;
@@ -11041,11 +11012,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						break;
 
 					case 16:
-						cnv = _this204._canvas;
+						cnv = this._canvas;
 
 						cnv.width = w;
 						cnv.height = h;
-						ctx = cnv.getContext("2d");
+						ctx = cnv.getContext('2d');
 
 						ctx.drawImage(el, 0, 0);
 						buffer = ctx.getImageData(0, 0, w, h).data.buffer;
@@ -11058,7 +11029,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 						context$2$0.next = 25;
 						return new Promise(function (resolve) {
-							return _this204._workers.run([buffer, w, h], [buffer], function (val) {
+							return _this21._workers.run([buffer, w, h], [buffer], function (val) {
 								return resolve(val);
 							});
 						});
@@ -11066,48 +11037,49 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					case 25:
 						data = context$2$0.sent;
 
-						if (data && "hash" in data) {
+						if (data && 'hash' in data) {
 							val = data.hash;
 						}
 
 					case 27:
-						_this204._storage[src] = val;
-						return context$2$0.abrupt("return", val);
+						this._storage[src] = val;
+						return context$2$0.abrupt('return', val);
 
 					case 29:
-					case "end":
+					case 'end':
 						return context$2$0.stop();
 				}
 			}, _getHashHelper, this);
-		}) }, {
+		})
+	}, {
 		getHash: {
-			get: function () {
+			get: function get() {
 				var val = this._getHashHelper.bind(this);
-				Object.defineProperty(this, "getHash", { value: val });
+				Object.defineProperty(this, 'getHash', { value: val });
 				return val;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		_canvas: {
-			get: function () {
-				var val = doc.createElement("canvas");
-				Object.defineProperty(this, "_canvas", { value: val });
+			get: function get() {
+				var val = doc.createElement('canvas');
+				Object.defineProperty(this, '_canvas', { value: val });
 				return val;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		_storage: {
-			get: function () {
+			get: function get() {
 				var val = null;
 				try {
-					val = JSON.parse(sesStorage["de-imageshash"]);
+					val = JSON.parse(sesStorage['de-imageshash']);
 				} finally {
 					if (!val) {
 						val = {};
 					}
-					Object.defineProperty(this, "_storage", { value: val });
+					Object.defineProperty(this, '_storage', { value: val });
 					return val;
 				}
 			},
@@ -11115,9 +11087,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			enumerable: true
 		},
 		_workers: {
-			get: function () {
+			get: function get() {
 				var val = new WorkerPool(4, genImgHash, emptyFn);
-				Object.defineProperty(this, "_workers", { value: val, configurable: true });
+				Object.defineProperty(this, '_workers', { value: val, configurable: true });
 				return val;
 			},
 			configurable: true,
@@ -11141,11 +11113,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				continue;
 			}
 			if (addSrc) {
-				link.insertAdjacentHTML("beforebegin", "<span class=\"de-btn-src\" de-menu=\"imgsrc\"></span>");
+				link.insertAdjacentHTML('beforebegin', '<span class="de-btn-src" de-menu="imgsrc"></span>');
 			}
 			if (delNames) {
-				link.classList.add("de-img-name");
-				link.textContent = link.textContent.split(".").slice(-1)[0];
+				link.classList.add('de-img-name');
+				link.textContent = link.textContent.split('.').slice(-1)[0];
 			}
 		}
 	}
@@ -11153,12 +11125,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	function embedImagesLinks(el) {
 		for (var i = 0, els = $Q(aib.qMsgImgLink, el), len = els.length; i < len; ++i) {
 			var link = els[i];
-			if (link.parentNode.tagName === "SMALL") {
+			if (link.parentNode.tagName === 'SMALL') {
 				return;
 			}
 			var a = link.cloneNode(false);
-			a.target = "_blank";
-			a.innerHTML = "<img class=\"de-img-pre\" src=\"" + a.href + "\">";
+			a.target = '_blank';
+			a.innerHTML = '<img class="de-img-pre" src="' + a.href + '">';
 			$before(link, a);
 		}
 	}
@@ -11180,30 +11152,30 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return;
 		}
 		var refEl = $q(aib.qRef, el),
-		    html = "<span class=\"de-post-btns" + (isOp ? "" : " de-post-counter") + "\"><span class=\"de-btn-hide\" de-menu=\"hide\"></span><span class=\"de-btn-rep\"></span>";
+		    html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') + '"><span class="de-btn-hide" de-menu="hide"></span><span class="de-btn-rep"></span>';
 		this._pref = refEl;
 		this.ref = new Set();
 		el.post = this;
 		if (isOp) {
 			if (!aib.t) {
-				html += "<span class=\"de-btn-expthr\" de-menu=\"expand\"></span>";
+				html += '<span class="de-btn-expthr" de-menu="expand"></span>';
 			}
-			html += "<span class=\"de-btn-fav\"></span>";
+			html += '<span class="de-btn-fav"></span>';
 		}
 		this.sage = aib.getSage(el);
 		if (this.sage) {
-			html += "<span class=\"de-btn-sage\" title=\"SAGE\"></span>";
+			html += '<span class="de-btn-sage" title="SAGE"></span>';
 		}
-		refEl.insertAdjacentHTML("afterend", html + "</span>");
+		refEl.insertAdjacentHTML('afterend', html + '</span>');
 		this.btns = refEl.nextSibling;
 		if (Cfg.expandTrunc && this.trunc) {
 			this._getFull(this.trunc, true);
 		}
-		el.addEventListener("mouseover", this, true);
+		el.addEventListener('mouseover', this, true);
 	}
 	Post.hiddenNums = [];
 	Post.getWrds = function (text) {
-		return text.replace(/\s+/g, " ").replace(/[^a-zа-яё ]/ig, "").trim().substring(0, 800).split(" ");
+		return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').trim().substring(0, 800).split(' ');
 	};
 	Post.findSameText = function (oNum, oHid, oWords, date, post) {
 		var words = Post.getWrds(post.text),
@@ -11212,7 +11184,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		    olen = i,
 		    _olen = i,
 		    n = 0;
-		if (len < olen * 0.4 || len > olen * 3) {
+		if (len < olen * .4 || len > olen * 3) {
 			return;
 		}
 		while (i--) {
@@ -11227,11 +11199,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 			}
 		}
-		if (n < _olen * 0.4 || len > _olen * 3) {
+		if (n < _olen * .4 || len > _olen * 3) {
 			return;
 		}
 		if (oHid) {
-			post.setNote("");
+			post.setNote('');
 			if (!post.spellHidden) {
 				post.setVisib(false);
 			}
@@ -11241,7 +11213,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		} else {
 			post.setUserVisib(true, date, true);
-			post.setNote("similar to >>" + oNum);
+			post.setNote('similar to >>' + oNum);
 		}
 		return false;
 	};
@@ -11254,24 +11226,24 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		_enabled: false
 	}, {
 		dPxRatio: {
-			get: function () {
+			get: function get() {
 				var val = window.devicePixelRatio || 1;
-				Object.defineProperty(this, "dPxRatio", { value: val });
+				Object.defineProperty(this, 'dPxRatio', { value: val });
 				return val;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		wHeight: {
-			get: function () {
+			get: function get() {
 				var val = doc.documentElement.clientHeight;
 				if (!this._enabled) {
-					doc.defaultView.addEventListener("resize", this);
+					doc.defaultView.addEventListener('resize', this);
 					this._enabled = true;
 				}
 				Object.defineProperties(this, {
-					wWidth: { writable: true, configurable: true, value: doc.documentElement.clientWidth },
-					wHeight: { writable: true, configurable: true, value: val }
+					'wWidth': { writable: true, configurable: true, value: doc.documentElement.clientWidth },
+					'wHeight': { writable: true, configurable: true, value: val }
 				});
 				return val;
 			},
@@ -11279,15 +11251,15 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			enumerable: true
 		},
 		wWidth: {
-			get: function () {
+			get: function get() {
 				var val = doc.documentElement.clientWidth;
 				if (!this._enabled) {
-					doc.defaultView.addEventListener("resize", this);
+					doc.defaultView.addEventListener('resize', this);
 					this._enabled = true;
 				}
 				Object.defineProperties(this, {
-					wWidth: { writable: true, configurable: true, value: val },
-					wHeight: { writable: true, configurable: true, value: doc.documentElement.clientHeight }
+					'wWidth': { writable: true, configurable: true, value: val },
+					'wHeight': { writable: true, configurable: true, value: doc.documentElement.clientHeight }
 				});
 				return val;
 			},
@@ -11322,25 +11294,25 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		handleEvent: function handleEvent(e) {
-			var _this204 = this;
+			var _this22 = this;
 
 			var temp,
 			    el = e.target,
 			    type = e.type,
-			    isOutEvent = type === "mouseout";
-			if (type === "click") {
+			    isOutEvent = type === 'mouseout';
+			if (type === 'click') {
 				if (e.button !== 0) {
 					return;
 				}
 				switch (el.tagName) {
-					case "A":
-						if (el.classList.contains("de-video-link")) {
+					case 'A':
+						if (el.classList.contains('de-video-link')) {
 							this.videos.clickLink(el, Cfg.addYouTube);
 							$pd(e);
 							return;
 						}
 						temp = el.firstElementChild;
-						if (temp && temp.tagName === "IMG") {
+						if (temp && temp.tagName === 'IMG') {
 							el = temp;
 						} else {
 							temp = el.parentNode;
@@ -11354,11 +11326,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 								if (pr.isQuick || aib.t && pr.isHidden) {
 									pr.showQuickReply(this.isPview ? this.getTopParent() : this, this.num, false, true);
 								} else if (aib.t) {
-									$txtInsert(pr.txta, ">>" + this.num);
+									$txtInsert(pr.txta, '>>' + this.num);
 								} else {
-									window.location = el.href.replace(/#i/, "#");
+									window.location = el.href.replace(/#i/, '#');
 								}
-							} else if ((temp = el.textContent)[0] === ">" && temp[1] === ">" && !temp[2].includes("/")) {
+							} else if ((temp = el.textContent)[0] === '>' && temp[1] === '>' && !temp[2].includes('\/')) {
 								var num = temp.match(/\d+/),
 								    post = pByNum[num];
 								if (!post) {
@@ -11371,51 +11343,51 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							}
 							return;
 						}
-										case "IMG":
-						if (el.classList.contains("de-video-thumb")) {
+										case 'IMG':
+						if (el.classList.contains('de-video-thumb')) {
 							if (Cfg.addYouTube === 3) {
 								var vObject = this.videos;
-								vObject.currentLink.classList.add("de-current");
-								vObject.addPlayer(vObject.playerInfo, el.classList.contains("de-ytube"));
+								vObject.currentLink.classList.add('de-current');
+								vObject.addPlayer(vObject.playerInfo, el.classList.contains('de-ytube'));
 								$pd(e);
 							}
 						} else if (Cfg.expandImgs !== 0) {
 							this._clickImage(el, e);
 						}
 						return;
-					case "OBJECT":
-					case "VIDEO":
+					case 'OBJECT':
+					case 'VIDEO':
 						if (Cfg.expandImgs !== 0 && !(Cfg.webmControl && e.clientY > el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)) {
 							this._clickImage(el, e);
 						}
 						return;
 				}
-				if (aib.mak && el.classList.contains("expand-large-comment")) {
+				if (aib.mak && el.classList.contains('expand-large-comment')) {
 					this._getFull(el, false);
 					$pd(e);
 					e.stopPropagation();
 				}
 				switch (el.className) {
-					case "de-btn-expthr":
-						this.thr.load("all", false);
+					case 'de-btn-expthr':
+						this.thr.load('all', false);
 						if (this._menu) {
 							this._menu.remove();
 							this._menu = null;
 						}
 						return;
-					case "de-btn-fav":
-						this.thr.setFavorState(true, "user");return;
-					case "de-btn-fav-sel":
-						this.thr.setFavorState(false, "user");return;
-					case "de-btn-hide":
-					case "de-btn-hide-user":
+					case 'de-btn-fav':
+						this.thr.setFavorState(true, 'user');return;
+					case 'de-btn-fav-sel':
+						this.thr.setFavorState(false, 'user');return;
+					case 'de-btn-hide':
+					case 'de-btn-hide-user':
 						if (this.isPview) {
 							pByNum[this.num].toggleUserVisib();
-							this.btns.firstChild.className = "de-btn-hide-user";
+							this.btns.firstChild.className = 'de-btn-hide-user';
 							if (pByNum[this.num].hidden) {
-								this.btns.classList.add("de-post-hide");
+								this.btns.classList.add('de-post-hide');
 							} else {
-								this.btns.classList.remove("de-post-hide");
+								this.btns.classList.remove('de-post-hide');
 							}
 						} else {
 							this.toggleUserVisib();
@@ -11425,69 +11397,69 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							this._menu = null;
 						}
 						return;
-					case "de-btn-rep":
+					case 'de-btn-rep':
 						pr.showQuickReply(this.isPview ? this.getTopParent() : this, this.num, !this.isPview, false);
-						quotetxt = "";
+						quotetxt = '';
 						return;
-					case "de-btn-sage":
-						addSpell(9, "", false);return;
-					case "de-btn-stick":
-					case "de-btn-stick-on":
-						el.className = this.sticked ? "de-btn-stick" : "de-btn-stick-on";
+					case 'de-btn-sage':
+						addSpell(9, '', false);return;
+					case 'de-btn-stick':
+					case 'de-btn-stick-on':
+						el.className = this.sticked ? 'de-btn-stick' : 'de-btn-stick-on';
 						this.sticked = !this.sticked;
 						return;
 				}
 				return;
 			}
-			if (type === "mouseover" && Cfg.expandImgs && !el.classList.contains("de-img-full") && el.tagName === "IMG" && (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)) {
+			if (type === 'mouseover' && Cfg.expandImgs && !el.classList.contains('de-img-full') && el.tagName === 'IMG' && (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)) {
 				el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
 			}
 			if (!this._hasEvents) {
 				this._hasEvents = true;
-				this.el.addEventListener("click", this, true);
-				this.el.addEventListener("mouseout", this, true);
+				this.el.addEventListener('click', this, true);
+				this.el.addEventListener('mouseout', this, true);
 			} else if (this.isPview && isOutEvent) {
 				this._handleMouseEvents(e.relatedTarget, false);
 			}
 			switch (el.classList[0]) {
-				case "de-btn-expthr":
-				case "de-btn-hide":
-				case "de-btn-hide-user":
+				case 'de-btn-expthr':
+				case 'de-btn-hide':
+				case 'de-btn-hide-user':
 					this._addButtonTitle(el);
-								case "de-btn-src":
+								case 'de-btn-src':
 					if (isOutEvent) {
 						clearTimeout(this._menuDelay);
 					} else {
 						this._menuDelay = setTimeout(function () {
-							return _this204._addMenu(el);
+							return _this22._addMenu(el);
 						}, Cfg.linksOver);
 					}
 					return;
-				case "de-btn-rep":
+				case 'de-btn-rep':
 					this._addButtonTitle(el);
 					if (!isOutEvent) {
 						quotetxt = $txtSelect();
 					}
 					return;
-				case "de-btn-fav":
-				case "de-btn-fav-sel":
+				case 'de-btn-fav':
+				case 'de-btn-fav-sel':
 					this._addButtonTitle(el);
 					return;
 				default:
-					if (!Cfg.linksNavig || el.tagName !== "A" || el.lchecked) {
+					if (!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
 						if (this.isPview && !isOutEvent) {
 							this._handleMouseEvents(e.relatedTarget, true);
 						}
 						return;
 					}
-					if (!el.textContent.startsWith(">>")) {
+					if (!el.textContent.startsWith('>>')) {
 						el.lchecked = true;
 						return;
 					}
 				
-					el.className = "de-link-pref " + el.className;
-								case "de-link-ref":
-				case "de-link-pref":
+					el.className = 'de-link-pref ' + el.className;
+								case 'de-link-ref':
+				case 'de-link-pref':
 					if (Cfg.linksNavig) {
 						if (isOutEvent) {
 							clearTimeout(this._linkDelay);
@@ -11499,7 +11471,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						} else {
 							clearTimeout(Pview.delTO);
 							this._linkDelay = setTimeout(function () {
-								return _this204._addPview(el);
+								return _this22._addPview(el);
 							}, Cfg.linksOver);
 						}
 						$pd(e);
@@ -11509,19 +11481,19 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		},
 		hideContent: function hideContent(hide) {
 			if (hide) {
-				this.el.classList.add("de-post-hide");
+				this.el.classList.add('de-post-hide');
 			} else {
-				this.el.classList.remove("de-post-hide");
+				this.el.classList.remove('de-post-hide');
 			}
 			if (nav.Chrome) {
 				if (hide) {
-					this.el.classList.remove("de-post-unhide");
+					this.el.classList.remove('de-post-unhide');
 				} else {
-					this.el.classList.add("de-post-unhide");
+					this.el.classList.add('de-post-unhide');
 				}
 				if (!chromeCssUpd) {
 					chromeCssUpd = setTimeout(function () {
-						doc.head.insertAdjacentHTML("beforeend", "<style id=\"de-csshide\" type=\"text/css\">\n\t\t\t\t\t\t\t.de-post-hide > " + aib.qHide + " { display: none !important; }\n\t\t\t\t\t\t\t.de-post-unhide > " + aib.qHide + " { display: !important; }\n\t\t\t\t\t\t</style>");
+						doc.head.insertAdjacentHTML('beforeend', '<style id="de-csshide" type="text/css">\n\t\t\t\t\t\t\t.de-post-hide > ' + aib.qHide + ' { display: none !important; }\n\t\t\t\t\t\t\t.de-post-unhide > ' + aib.qHide + ' { display: !important; }\n\t\t\t\t\t\t</style>');
 						$del(doc.head.lastChild);
 						chromeCssUpd = null;
 					}, 200);
@@ -11529,7 +11501,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		},
 		hideRefs: function hideRefs() {
-			var _this204 = this;
+			var _this23 = this;
 
 			if (!Cfg.hideRefPsts || this.ref.size === 0) {
 				return;
@@ -11538,7 +11510,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				var pst = pByNum[num];
 				if (pst && !pst.userToggled) {
 					pst.setVisib(true);
-					pst.setNote("reference to >>" + _this204.num);
+					pst.setNote('reference to >>' + _this23.num);
 					pst.hideRefs();
 				}
 			});
@@ -11556,21 +11528,23 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 			return null;
 		},
+
 		setNote: function setNote(val) {
 			if (this.isOp) {
-				this.noteEl.textContent = val ? "(autohide: " + val + ")" : "(" + this.title + ")";
+				this.noteEl.textContent = val ? '(autohide: ' + val + ')' : '(' + this.title + ')';
 			} else if (!Cfg.delHiddPost) {
-				this.noteEl.textContent = val ? "autohide: " + val : "";
+				this.noteEl.textContent = val ? 'autohide: ' + val : '';
 			}
 		},
+
 		select: function select() {
 			if (this.isOp) {
 				if (this.hidden) {
-					this.thr.el.previousElementSibling.classList.add("de-selected");
+					this.thr.el.previousElementSibling.classList.add('de-selected');
 				}
-				this.thr.el.classList.add("de-selected");
+				this.thr.el.classList.add('de-selected');
 			} else {
-				this.el.classList.add("de-selected");
+				this.el.classList.add('de-selected');
 			}
 		},
 		selectCurrent: function selectCurrent() {
@@ -11580,7 +11554,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 				hKeys.cPost = this;
 			} else {
-				var el = $c("de-selected", doc);
+				var el = $c('de-selected', doc);
 				if (el) {
 					el.unselect();
 				}
@@ -11589,56 +11563,56 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		},
 		setUserVisib: function setUserVisib(hide, date, sync) {
 			this.setVisib(hide);
-			this.btns.firstChild.className = "de-btn-hide-user";
+			this.btns.firstChild.className = 'de-btn-hide-user';
 			this.userToggled = true;
 			if (hide) {
-				this.setNote("");
+				this.setNote('');
 				this.hideRefs();
 			} else {
 				this.unhideRefs();
 			}
 			uVis[this.num] = [+!hide, date];
 			if (sync) {
-				locStorage["__de-post"] = JSON.stringify({
-					brd: aib.b,
-					date: date,
-					isOp: this.isOp,
-					num: this.num,
-					hide: hide,
-					title: this.isOp ? this.title : ""
+				locStorage['__de-post'] = JSON.stringify({
+					'brd': aib.b,
+					'date': date,
+					'isOp': this.isOp,
+					'num': this.num,
+					'hide': hide,
+					'title': this.isOp ? this.title : ''
 				});
-				locStorage.removeItem("__de-post");
+				locStorage.removeItem('__de-post');
 			}
 		},
 		setVisib: function setVisib(hide) {
-			var _this204 = this;
+			var _this24 = this;
 
 			if (this.hidden === hide) {
 				return;
 			}
 			if (this.isOp) {
 				this.hidden = this.thr.hidden = hide;
-				var el = $id("de-thr-hid-" + this.num),
+				var el = $id('de-thr-hid-' + this.num),
 				    tEl = this.thr.el;
-				tEl.style.display = hide ? "none" : "";
+				tEl.style.display = hide ? 'none' : '';
 				if (el) {
-					el.style.display = hide ? "" : "none";
+					el.style.display = hide ? '' : 'none';
 					return;
 				}
-				tEl.insertAdjacentHTML("beforebegin", "<div class=\"" + aib.cReply + " de-thr-hid\" id=\"de-thr-hid-" + this.num + "\">" + Lng.hiddenThrd[lang] + " <a href=\"#\">№" + this.num + "</a> <span class=\"de-thread-note\"></span></div>");
-				el = $t("a", tEl.previousSibling);
+				tEl.insertAdjacentHTML('beforebegin', '<div class="' + aib.cReply + ' de-thr-hid" id="de-thr-hid-' + this.num + '">' + Lng.hiddenThrd[lang] + ' <a href="#">№' + this.num + '</a> <span class="de-thread-note"></span></div>');
+				el = $t('a', tEl.previousSibling);
 				el.onclick = el.onmouseover = el.onmouseout = function (e) {
 					switch (e.type) {
-						case "click":
-							_this204.toggleUserVisib();
+						case 'click':
+							_this24.toggleUserVisib();
 							$pd(e);
 							return;
-						case "mouseover":
-							_this204.thr.el.style.display = "";return;
+						case 'mouseover':
+							_this24.thr.el.style.display = '';return;
 						default:
 						
-							if (_this204.hidden) {
-								_this204.thr.el.style.display = "none";
+							if (_this24.hidden) {
+								_this24.thr.el.style.display = 'none';
 							}
 					}
 				};
@@ -11646,23 +11620,23 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 			if (Cfg.delHiddPost) {
 				if (hide) {
-					this.wrap.classList.add("de-hidden");
+					this.wrap.classList.add('de-hidden');
 				} else if (this.hidden) {
-					this.wrap.classList.remove("de-hidden");
+					this.wrap.classList.remove('de-hidden');
 				}
 			} else {
 				if (!hide) {
-					this.setNote("");
+					this.setNote('');
 				}
 				this._pref.onmouseover = this._pref.onmouseout = !hide ? null : function (e) {
-					return _this204.hideContent(e.type === "mouseout");
+					return _this24.hideContent(e.type === 'mouseout');
 				};
 			}
 			this.hidden = hide;
 			this.hideContent(hide);
 			if (Cfg.strikeHidd) {
 				setTimeout(function () {
-					return _this204._strikePostNum(hide);
+					return _this24._strikePostNum(hide);
 				}, 50);
 			}
 		},
@@ -11689,14 +11663,15 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				this.unhideRefs();
 			}
 		},
+
 		toggleImages: function toggleImages(expand) {
-			var _iteratorNormalCompletion = true;
-			var _didIteratorError = false;
-			var _iteratorError = undefined;
+			var _iteratorNormalCompletion10 = true;
+			var _didIteratorError10 = false;
+			var _iteratorError10 = undefined;
 
 			try {
-				for (var _iterator = this.images[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-					var image = _step.value;
+				for (var _iterator10 = this.images[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+					var image = _step10.value;
 
 					if (image.isImage && image.expanded ^ expand) {
 						if (expand) {
@@ -11707,16 +11682,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					}
 				}
 			} catch (err) {
-				_didIteratorError = true;
-				_iteratorError = err;
+				_didIteratorError10 = true;
+				_iteratorError10 = err;
 			} finally {
 				try {
-					if (!_iteratorNormalCompletion && _iterator["return"]) {
-						_iterator["return"]();
+					if (!_iteratorNormalCompletion10 && _iterator10['return']) {
+						_iterator10['return']();
 					}
 				} finally {
-					if (_didIteratorError) {
-						throw _iteratorError;
+					if (_didIteratorError10) {
+						throw _iteratorError10;
 					}
 				}
 			}
@@ -11737,6 +11712,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 			saveUserPosts();
 		},
+
 		unhideRefs: function unhideRefs() {
 			if (!Cfg.hideRefPsts || this.ref.size === 0) {
 				return;
@@ -11751,32 +11727,32 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		},
 		unselect: function unselect() {
 			if (this.isOp) {
-				var el = $id("de-thr-hid-" + this.num);
+				var el = $id('de-thr-hid-' + this.num);
 				if (el) {
-					el.classList.remove("de-selected");
+					el.classList.remove('de-selected');
 				}
-				this.thr.el.classList.remove("de-selected");
+				this.thr.el.classList.remove('de-selected');
 			} else {
-				this.el.classList.remove("de-selected");
+				this.el.classList.remove('de-selected');
 			}
 		},
 		updateMsg: function updateMsg(newMsg, sRunner) {
 			var origMsg = aib.dobr ? this.msg.firstElementChild : this.msg,
-			    videoExt = $c("de-video-ext", origMsg),
-			    videoLinks = $Q(":not(.de-video-ext) > .de-video-link", origMsg);
+			    videoExt = $c('de-video-ext', origMsg),
+			    videoLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);
 			origMsg.parentNode.replaceChild(newMsg, origMsg);
 			Object.defineProperties(this, {
-				msg: { configurable: true, value: newMsg },
-				trunc: { configurable: true, value: null }
+				'msg': { configurable: true, value: newMsg },
+				'trunc': { configurable: true, value: null }
 			});
 			PostContent.remove(this);
-			this.videos.updatePost(videoLinks, $Q("a[href*=\"youtu\"], a[href*=\"vimeo.com\"]", newMsg), false);
+			this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
 			if (videoExt) {
 				newMsg.appendChild(videoExt);
 			}
 			this.addFuncs();
 			sRunner.run(this);
-			closePopup("load-fullmsg");
+			closePopup('load-fullmsg');
 		},
 
 		_hasEvents: false,
@@ -11784,101 +11760,101 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		_menu: null,
 		_menuDelay: 0,
 		_selRange: null,
-		_selText: "",
+		_selText: '',
 		_addButtonTitle: function _addButtonTitle(el) {
 			if (el.hasTitle) {
 				return;
 			}
 			el.hasTitle = true;
 			switch (el.className) {
-				case "de-btn-hide":
-				case "de-btn-hide-user":
+				case 'de-btn-hide':
+				case 'de-btn-hide-user':
 					el.title = Lng.togglePost[lang];return;
-				case "de-btn-expthr":
+				case 'de-btn-expthr':
 					el.title = Lng.expandThrd[lang];return;
-				case "de-btn-rep":
+				case 'de-btn-rep':
 					el.title = Lng.replyToPost[lang];return;
-				case "de-btn-fav":
+				case 'de-btn-fav':
 					el.title = Lng.addFav[lang];return;
-				case "de-btn-fav-sel":
+				case 'de-btn-fav-sel':
 					el.title = Lng.delFav[lang];
 			}
 		},
 		_addMenu: function _addMenu(el) {
-			var _this204 = this;
+			var _this25 = this;
 
 			var html;
-			switch (el.getAttribute("de-menu")) {
-				case "hide":
+			switch (el.getAttribute('de-menu')) {
+				case 'hide':
 					if (!Cfg.menuHiddBtn) {
 						return;
 					}
 					html = this._addMenuHide();
 					break;
-				case "expand":
-					html = "<span class=\"de-menu-item\" info=\"thr-exp\">" + Lng.selExpandThr[lang].join("</span><span class=\"de-menu-item\" info=\"thr-exp\">") + "</span>";
+				case 'expand':
+					html = '<span class="de-menu-item" info="thr-exp">' + Lng.selExpandThr[lang].join('</span><span class="de-menu-item" info="thr-exp">') + '</span>';
 					break;
-				case "imgsrc":
+				case 'imgsrc':
 					html = this._addMenuImgSrc(el);
 			}
 			if (this._menu) {
 				this._menu.remove();
 			}
 			this._menu = new Menu(el, html, false, function (el) {
-				return _this204._clickMenu(el);
+				return _this25._clickMenu(el);
 			});
 			if (this.isPview) {
 				this._menu.onover = function () {
-					return _this204.mouseEnter();
+					return _this25.mouseEnter();
 				};
 				this._menu.onout = function () {
-					return _this204.markToDel();
+					return _this25.markToDel();
 				};
 			}
 		},
 		_addMenuHide: function _addMenuHide() {
-			var str = "",
+			var str = '',
 			    sel = nav.Presto ? doc.getSelection() : window.getSelection(),
 			    ssel = sel.toString(),
-			    getItem = function (name) {
-				return "<span info=\"spell-" + name + "\" class=\"de-menu-item\">" + Lng.selHiderMenu[name][lang] + "</span>";
+			    getItem = function getItem(name) {
+				return '<span info="spell-' + name + '" class="de-menu-item">' + Lng.selHiderMenu[name][lang] + '</span>';
 			};
 			if (ssel) {
 				this._selText = ssel;
 				this._selRange = sel.getRangeAt(0);
-				str += getItem("sel");
+				str += getItem('sel');
 			}
 			if (this.posterName) {
-				str += getItem("name");
+				str += getItem('name');
 			}
 			if (this.posterTrip) {
-				str += getItem("trip");
+				str += getItem('trip');
 			}
 			if (this.images.hasAttachments) {
-				str += getItem("img");
-				str += getItem("ihash");
+				str += getItem('img');
+				str += getItem('ihash');
 			} else {
-				str += getItem("noimg");
+				str += getItem('noimg');
 			}
 			if (this.text) {
-				str += getItem("text");
+				str += getItem('text');
 			} else {
-				str += getItem("notext");
+				str += getItem('notext');
 			}
 			return str;
 		},
 		_addMenuImgSrc: function _addMenuImgSrc(el) {
-			var p = el.nextSibling.href + "\" target=\"_blank\">" + Lng.search[lang],
-			    c = doc.body.getAttribute("de-image-search"),
-			    str = "";
+			var p = el.nextSibling.href + '" target="_blank">' + Lng.search[lang],
+			    c = doc.body.getAttribute('de-image-search'),
+			    str = '';
 			if (c) {
-				c = c.split(";");
+				c = c.split(';');
 				c.forEach(function (el) {
-					var info = el.split(",");
-					str += "<a class=\"de-src" + info[0] + (!info[1] ? "\" onclick=\"de_isearch(event, '" + info[0] + "')\" de-url=\"" : "\" href=\"" + info[1]) + p + info[0] + "</a>";
+					var info = el.split(',');
+					str += '<a class="de-src' + info[0] + (!info[1] ? '" onclick="de_isearch(event, \'' + info[0] + '\')" de-url="' : '" href="' + info[1]) + p + info[0] + '</a>';
 				});
 			}
-			return "<a class=\"de-menu-item de-src-google\" href=\"http://google.com/searchbyimage?image_url=" + p + "Google</a>" + "<a class=\"de-menu-item de-src-yandex\" href=\"http://yandex.ru/images/search?rpt=imageview&img_url=" + p + "Yandex</a>" + "<a class=\"de-menu-item de-src-tineye\" href=\"http://tineye.com/search/?url=" + p + "TinEye</a>" + "<a class=\"de-menu-item de-src-saucenao\" href=\"http://saucenao.com/search.php?url=" + p + "SauceNAO</a>" + "<a class=\"de-menu-item de-src-iqdb\" href=\"http://iqdb.org/?url=" + p + "IQDB</a>" + str;
+			return '<a class="de-menu-item de-src-google" href="http://google.com/searchbyimage?image_url=' + p + 'Google</a>' + '<a class="de-menu-item de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex</a>' + '<a class="de-menu-item de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' + '<a class="de-menu-item de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + '<a class="de-menu-item de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>' + str;
 		},
 		_addPview: function _addPview(link) {
 			var tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [, aib.getPostEl(link).post.tNum])[1],
@@ -11888,8 +11864,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				Pview.del(pv.kid);
 				setPviewPosition(link, pv.el, Cfg.animation);
 				if (pv.parent.num !== this.num) {
-					$each($C("de-link-pview", pv.el), function (el) {
-						el.classList.remove("de-link-pview");
+					$each($C('de-link-pview', pv.el), function (el) {
+						el.classList.remove('de-link-pview');
 					});
 					pv._markLink(this.num);
 				}
@@ -11901,7 +11877,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		},
 		_clickImage: function _clickImage(el, e) {
 			var data;
-			if (el.classList.contains("de-img-full")) {
+			if (el.classList.contains('de-img-full')) {
 				if (!this.images.getImageByEl(el.previousSibling.firstElementChild).collapse(e)) {
 					return;
 				}
@@ -11914,8 +11890,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			e.stopPropagation();
 		},
 		_clickMenu: function _clickMenu(el) {
-			switch (el.getAttribute("info")) {
-				case "spell-sel":
+			switch (el.getAttribute('info')) {
+				case 'spell-sel':
 					var start = this._selRange.startContainer,
 					    end = this._selRange.endContainer;
 					if (start.nodeType === 3) {
@@ -11924,40 +11900,40 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					if (end.nodeType === 3) {
 						end = end.parentNode;
 					}
-					var inMsgSel = aib.qMsg + ", " + aib.qMsg + " *";
-					if (nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel) || nav.matchesSelector(start, "." + aib.cSubj) && nav.matchesSelector(end, "." + aib.cSubj)) {
-						if (this._selText.includes("\n")) {
-							addSpell(1, "/" + regQuote(this._selText).replace(/\r?\n/g, "\\n") + "/", false);
+					var inMsgSel = aib.qMsg + ', ' + aib.qMsg + ' *';
+					if (nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel) || nav.matchesSelector(start, '.' + aib.cSubj) && nav.matchesSelector(end, '.' + aib.cSubj)) {
+						if (this._selText.includes('\n')) {
+							addSpell(1, '/' + regQuote(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
 						} else {
 							addSpell(0, this._selText.toLowerCase(), false);
 						}
 					} else {
-						dummy.innerHTML = "";
+						dummy.innerHTML = '';
 						dummy.appendChild(this._selRange.cloneContents());
-						addSpell(2, "/" + regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, "")) + "/", false);
+						addSpell(2, '/' + regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
 					}
 					return;
-				case "spell-name":
+				case 'spell-name':
 					addSpell(6, this.posterName, false);return;
-				case "spell-trip":
+				case 'spell-trip':
 					addSpell(7, this.posterTrip, false);return;
-				case "spell-img":
+				case 'spell-img':
 					var img = this.images.firstAttach,
 					    w = img.weight,
 					    wi = img.width,
 					    h = img.height;
 					addSpell(8, [0, [w, w], [wi, wi, h, h]], false);
 					return;
-				case "spell-ihash":
+				case 'spell-ihash':
 					spawn(ImagesHashStorage.getHash, this.images.firstAttach).then(function (hash) {
 						if (hash !== -1) {
 							addSpell(4, hash, false);
 						}
 					});
 					return;
-				case "spell-noimg":
-					addSpell(264, "", true);return;
-				case "spell-text":
+				case 'spell-noimg':
+					addSpell(0x108, '', true);return;
+				case 'spell-text':
 					var num = this.num,
 					    hidden = this.hidden,
 					    wrds = Post.getWrds(this.text),
@@ -11967,48 +11943,48 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					}
 					saveUserPosts();
 					return;
-				case "spell-notext":
-					addSpell(267, "", true);return;
-				case "thr-exp":
+				case 'spell-notext':
+					addSpell(0x10B, '', true);return;
+				case 'thr-exp':
 					var task = parseInt(el.textContent.match(/\d+/), 10);
-					this.thr.load(!task ? "all" : task === 10 ? "more" : task, false);
+					this.thr.load(!task ? 'all' : task === 10 ? 'more' : task, false);
 			}
 		},
 		_getFull: function _getFull(node, isInit) {
-			var _this204 = this;
+			var _this26 = this;
 
 			if (aib.dobr) {
 				$del(node.nextSibling);
 				$del(node.previousSibling);
 				$del(node);
 				if (isInit) {
-					this.msg.replaceChild($q(".alternate > div", this.el), this.msg.firstElementChild);
+					this.msg.replaceChild($q('.alternate > div', this.el), this.msg.firstElementChild);
 				} else {
 					var sRunner = new SpellsRunner();
-					this.updateMsg($q(".alternate > div", this.el), sRunner);
+					this.updateMsg($q('.alternate > div', this.el), sRunner);
 					sRunner.end();
 				}
 				return;
 			}
 			if (aib.mak) {
 				$del(node.previousSibling);
-				node.previousSibling.style.display = "";
+				node.previousSibling.style.display = '';
 				$del(node);
 				return;
 			}
 			if (!isInit) {
-				$popup(Lng.loading[lang], "load-fullmsg", true);
+				$popup(Lng.loading[lang], 'load-fullmsg', true);
 			}
 			ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(function (form) {
 				var maybeSpells = new Maybe(SpellsRunner);
-				if (_this204.isOp) {
-					_this204.updateMsg(replacePost($q(aib.qMsg, form)), maybeSpells.value);
+				if (_this26.isOp) {
+					_this26.updateMsg(replacePost($q(aib.qMsg, form)), maybeSpells.value);
 					$del(node);
 				} else {
 					var els = $Q(aib.qRPost, form);
 					for (var i = 0, len = els.length; i < len; i++) {
-						if (_this204.num === aib.getPNum(els[i])) {
-							_this204.updateMsg(replacePost($q(aib.qMsg, els[i])), maybeSpells.value);
+						if (_this26.num === aib.getPNum(els[i])) {
+							_this26.updateMsg(replacePost($q(aib.qMsg, els[i])), maybeSpells.value);
 							$del(node);
 							break;
 						}
@@ -12018,9 +11994,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}, emptyFn);
 		},
 		_markLink: function _markLink(pNum) {
-			$each($Q("a[href*=\"" + pNum + "\"]", this.el), (function (num, el) {
-				if (el.textContent.startsWith(">>" + num)) {
-					el.classList.add("de-link-pview");
+			$each($Q('a[href*="' + pNum + '"]', this.el), (function (num, el) {
+				if (el.textContent.startsWith('>>' + num)) {
+					el.classList.add('de-link-pview');
 				}
 			}).bind(null, pNum));
 		},
@@ -12034,62 +12010,62 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					Post.hiddenNums.splice(idx, 1);
 				}
 			}
-			$each($Q("a[href*=\"" + aib.anchor + num + "\"]", dForm.el), isHide ? function (el) {
-				el.classList.add("de-link-hid");
-				if (Cfg.removeHidd && el.classList.contains("de-link-ref")) {
+			$each($Q('a[href*="' + aib.anchor + num + '"]', dForm.el), isHide ? function (el) {
+				el.classList.add('de-link-hid');
+				if (Cfg.removeHidd && el.classList.contains('de-link-ref')) {
 					var refmap = el.parentNode;
-					if (!$q(".de-link-ref:not(.de-link-hid)", refmap)) {
-						refmap.style.display = "none";
+					if (!$q('.de-link-ref:not(.de-link-hid)', refmap)) {
+						refmap.style.display = 'none';
 					}
 				}
 			} : function (el) {
-				el.classList.remove("de-link-hid");
-				if (Cfg.removeHidd && el.classList.contains("de-link-ref")) {
+				el.classList.remove('de-link-hid');
+				if (Cfg.removeHidd && el.classList.contains('de-link-ref')) {
 					var refmap = el.parentNode;
-					if ($q(".de-link-ref:not(.de-link-hid)", refmap)) {
-						refmap.style.display = "";
+					if ($q('.de-link-ref:not(.de-link-hid)', refmap)) {
+						refmap.style.display = '';
 					}
 				}
 			});
 		}
 	}, {
 		html: {
-			get: function () {
+			get: function get() {
 				return PostContent.get(this).html;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		images: {
-			get: function () {
+			get: function get() {
 				var val = new PostImages(this);
-				Object.defineProperty(this, "images", { value: val });
+				Object.defineProperty(this, 'images', { value: val });
 				return val;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		mp3Obj: {
-			get: function () {
-				var val = $new("div", { "class": "de-mp3" }, null);
+			get: function get() {
+				var val = $new('div', { 'class': 'de-mp3' }, null);
 				$before(this.msg, val);
-				Object.defineProperty(this, "mp3Obj", { value: val });
+				Object.defineProperty(this, 'mp3Obj', { value: val });
 				return val;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		msg: {
-			get: function () {
+			get: function get() {
 				var val = $q(aib.qMsg, this.el);
-				Object.defineProperty(this, "msg", { configurable: true, value: val });
+				Object.defineProperty(this, 'msg', { configurable: true, value: val });
 				return val;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		nextInThread: {
-			get: function () {
+			get: function get() {
 				var post = this.next;
 				return !post || post.count === 0 ? null : post;
 			},
@@ -12097,7 +12073,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			enumerable: true
 		},
 		nextNotDeleted: {
-			get: function () {
+			get: function get() {
 				var post = this.nextInThread;
 				while (post && post.deleted) {
 					post = post.nextInThread;
@@ -12108,95 +12084,95 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			enumerable: true
 		},
 		noteEl: {
-			get: function () {
+			get: function get() {
 				var val;
 				if (this.isOp) {
 					val = this.thr.el.previousElementSibling.lastChild;
 				} else {
-					this.btns.insertAdjacentHTML("beforeend", "<span class=\"de-post-note\"></span>");
+					this.btns.insertAdjacentHTML('beforeend', '<span class="de-post-note"></span>');
 					val = this.btns.lastChild;
 				}
-				Object.defineProperty(this, "noteEl", { value: val });
+				Object.defineProperty(this, 'noteEl', { value: val });
 				return val;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		posterName: {
-			get: function () {
+			get: function get() {
 				return PostContent.get(this).posterName;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		posterTrip: {
-			get: function () {
+			get: function get() {
 				return PostContent.get(this).posterTrip;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		subj: {
-			get: function () {
+			get: function get() {
 				return PostContent.get(this).subj;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		text: {
-			get: function () {
+			get: function get() {
 				return PostContent.get(this).text;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		title: {
-			get: function () {
+			get: function get() {
 				return PostContent.get(this).title;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		tNum: {
-			get: function () {
+			get: function get() {
 				return this.thr.num;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		offsetTop: {
-			get: function () {
+			get: function get() {
 				return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el).offsetTop;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		trunc: {
-			get: function () {
+			get: function get() {
 				var el = aib.qTrunc && $q(aib.qTrunc, this.el),
 				    val = null;
 				if (el && /long|full comment|gekürzt|слишком|длинн|мног|полн/i.test(el.textContent)) {
 					val = el;
 				}
-				Object.defineProperty(this, "trunc", { configurable: true, value: val });
+				Object.defineProperty(this, 'trunc', { configurable: true, value: val });
 				return val;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		videos: {
-			get: function () {
+			get: function get() {
 				var val = Cfg.addYouTube ? new Videos(this) : null;
-				Object.defineProperty(this, "videos", { value: val });
+				Object.defineProperty(this, 'videos', { value: val });
 				return val;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		wrap: {
-			get: function () {
+			get: function get() {
 				var val = aib.getWrap(this.el, this.isOp);
-				Object.defineProperty(this, "wrap", { value: val });
+				Object.defineProperty(this, 'wrap', { value: val });
 				return val;
 			},
 			configurable: true,
@@ -12217,7 +12193,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			PostContent.data[pNum] = rv = new PostContent(post);
 		}
 		if (PostContent.purgeTO === null) {
-			PostContent.purgeTO = setTimeout(PostContent.purge, 60000);
+			PostContent.purgeTO = setTimeout(PostContent.purge, 6e4);
 		}
 		return rv;
 	};
@@ -12233,57 +12209,57 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	};
 	PostContent.prototype = Object.defineProperties({}, {
 		html: {
-			get: function () {
+			get: function get() {
 				var val = this.el.innerHTML;
-				Object.defineProperty(this, "html", { value: val });
+				Object.defineProperty(this, 'html', { value: val });
 				return val;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		posterName: {
-			get: function () {
+			get: function get() {
 				var pName = $q(aib.qName, this.el),
-				    val = pName ? pName.textContent.trim().replace(/\s/g, " ") : "";
-				Object.defineProperty(this, "posterName", { value: val });
+				    val = pName ? pName.textContent.trim().replace(/\s/g, ' ') : '';
+				Object.defineProperty(this, 'posterName', { value: val });
 				return val;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		posterTrip: {
-			get: function () {
+			get: function get() {
 				var pTrip = $c(aib.cTrip, this.el),
-				    val = pTrip ? pTrip.textContent : "";
-				Object.defineProperty(this, "posterTrip", { value: val });
+				    val = pTrip ? pTrip.textContent : '';
+				Object.defineProperty(this, 'posterTrip', { value: val });
 				return val;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		subj: {
-			get: function () {
+			get: function get() {
 				var subj = $c(aib.cSubj, this.el),
-				    val = subj ? subj.textContent : "";
-				Object.defineProperty(this, "subj", { value: val });
+				    val = subj ? subj.textContent : '';
+				Object.defineProperty(this, 'subj', { value: val });
 				return val;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		text: {
-			get: function () {
-				var val = this.post.msg.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi, "\n").replace(/<[^>]+?>/g, "").replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&nbsp;/g, " ");
-				Object.defineProperty(this, "text", { value: val });
+			get: function get() {
+				var val = this.post.msg.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n').replace(/<[^>]+?>/g, '').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&nbsp;/g, ' ');
+				Object.defineProperty(this, 'text', { value: val });
 				return val;
 			},
 			configurable: true,
 			enumerable: true
 		},
 		title: {
-			get: function () {
-				var val = this.subj || this.text.substring(0, 70).replace(/\s+/g, " ");
-				Object.defineProperty(this, "title", { value: val });
+			get: function get() {
+				var val = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ');
+				Object.defineProperty(this, 'title', { value: val });
 				return val;
 			},
 			configurable: true,
@@ -12307,7 +12283,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		}
 		if (Cfg.addImgs) {
-			els = aProto.slice.call($C("de-img-pre", post.el));
+			els = aProto.slice.call($C('de-img-pre', post.el));
 			for (var i = 0, len = els.length; i < len; ++i) {
 				var el = els[i];
 				last = new EmbeddedImage(post, el, last);
@@ -12322,30 +12298,25 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		this.hasAttachments = hasAttachments;
 		this._map = filesMap;
 	}
-	PostImages.prototype = Object.defineProperties((function () {
-		var _Object$defineProperties = {
-			getImageByEl: function getImageByEl(el) {
-				return this._map.get(el);
-			} };
-
-		_Object$defineProperties[Symbol.iterator] = function () {
-			return {
-				_img: this.first,
-				next: function next() {
-					var value = this._img;
-					if (value) {
-						this._img = value.next;
-						return { value: value, done: false };
-					}
-					return { done: true };
+	PostImages.prototype = Object.defineProperties(_defineProperty({
+		getImageByEl: function getImageByEl(el) {
+			return this._map.get(el);
+		}
+	}, Symbol.iterator, function () {
+		return {
+			_img: this.first,
+			next: function next() {
+				var value = this._img;
+				if (value) {
+					this._img = value.next;
+					return { value: value, done: false };
 				}
-			};
+				return { done: true };
+			}
 		};
-
-		return _Object$defineProperties;
-	})(), {
+	}), {
 		firstAttach: {
-			get: function () {
+			get: function get() {
 				return this.hasAttachments ? this.first : null;
 			},
 			configurable: true,
@@ -12357,29 +12328,29 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 	function Pview(parent, link, tNum, pNum) {
-		var _this204 = this;
+		var _this27 = this;
 
 		this.parent = parent;
 		this._link = link;
 		this.num = pNum;
 		this.thr = parent.thr;
-		Object.defineProperty(this, "tNum", { value: tNum });
+		Object.defineProperty(this, 'tNum', { value: tNum });
 		var post = pByNum[pNum];
 		if (post && (!post.isOp || !parent.isPview || !parent._loaded)) {
 			this._showPost(post);
 			return;
 		}
-		var b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, "").replace(/\/$/, "");
+		var b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
 		post = this._cache && this._cache[b + tNum] && this._cache[b + tNum].getPost(pNum);
 		if (post) {
 			this._loaded = true;
 			this._showPost(post);
 		} else {
-			this._showText("<span class=\"de-wait\">" + Lng.loading[lang] + "</span>");
+			this._showText('<span class="de-wait">' + Lng.loading[lang] + '</span>');
 			ajaxLoad(aib.getThrdUrl(b, tNum)).then(function (form) {
-				return _this204._onload(b, form);
+				return _this27._onload(b, form);
 			}, function (e) {
-				return _this204._onerror(e);
+				return _this27._onerror(e);
 			});
 		}
 	}
@@ -12391,7 +12362,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return;
 		}
 		pv.parent.kid = null;
-		pv._link.classList.remove("de-link-parent");
+		pv._link.classList.remove('de-link-parent');
 		if (!pv.parent.isPview) {
 			Pview.top = null;
 		}
@@ -12405,8 +12376,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			var el = pv.el;
 			if (Cfg.animation) {
 				nav.animEvent(el, $del);
-				el.classList.add("de-pview-anim");
-				el.style[nav.animName] = "de-post-close-" + (el.aTop ? "t" : "b") + (el.aLeft ? "l" : "r");
+				el.classList.add('de-pview-anim');
+				el.style[nav.animName] = 'de-post-close-' + (el.aTop ? 't' : 'b') + (el.aLeft ? 'l' : 'r');
 			} else {
 				$del(el);
 			}
@@ -12468,12 +12439,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				if (post && (aib.b !== b || post.ref.size === 0 || !post.ref.has(parentNum))) {
 					var rm;
 					if (post.ref.size !== 0) {
-						rm = $c("de-refmap", post.el);
+						rm = $c('de-refmap', post.el);
 					} else {
-						post.msg.insertAdjacentHTML("afterend", "<div class=\"de-refmap\"></div>");
+						post.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
 						rm = post.msg.nextSibling;
 					}
-					rm.insertAdjacentHTML("afterbegin", "<a class=\"de-link-ref\" href=\"" + aib.getThrdUrl(b, parent.tNum) + aib.anchor + parentNum + "\">&gt;&gt;" + (aib.b === b ? "" : "/" + aib.b + "/") + parentNum + "</a><span class=\"de-refcomma\">, </span>");
+					rm.insertAdjacentHTML('afterbegin', '<a class="de-link-ref" href="' + aib.getThrdUrl(b, parent.tNum) + aib.anchor + parentNum + '">&gt;&gt;' + (aib.b === b ? '' : '/' + aib.b + '/') + parentNum + '</a><span class="de-refcomma">, </span>');
 				}
 				if (parent.kid === this) {
 					Pview.del(this);
@@ -12487,58 +12458,58 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			} },
 		_showPost: { value: function value(post) {
 				var el = this.el = post.el.cloneNode(true),
-				    pText = "<span class=\"de-btn-rep\" title=\"" + Lng.replyToPost[lang] + "\"></span>" + (post.sage ? "<span class=\"de-btn-sage\" title=\"SAGE\"></span>" : "") + "<span class=\"de-btn-stick\" title=\"" + Lng.attachPview[lang] + "\"></span>" + (post.deleted ? "" : "<span style=\"margin-right: 4px; vertical-align: 1px; color: #4f7942; " + "font: bold 11px tahoma; cursor: default;\">" + (post.isOp ? "OP" : post.count + 1) + "</span>");
+				    pText = '<span class="de-btn-rep" title="' + Lng.replyToPost[lang] + '"></span>' + (post.sage ? '<span class="de-btn-sage" title="SAGE"></span>' : '') + '<span class="de-btn-stick" title="' + Lng.attachPview[lang] + '"></span>' + (post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' + 'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
 				el.post = this;
-				el.className = aib.cReply + " de-pview" + (post.viewed ? " de-viewed" : "");
-				el.style.display = "";
+				el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
+				el.style.display = '';
 				if (Cfg.linksNavig === 2) {
 					this._markLink(this.parent.num);
 				}
 				this._pref = $q(aib.qRef, el);
-				this._link.classList.add("de-link-parent");
+				this._link.classList.add('de-link-parent');
 				if (post.inited) {
-					var node = $c("de-post-btns", el);
+					var node = $c('de-post-btns', el);
 					this.btns = node;
 					this.isOp = post.isOp;
-					node.classList.remove("de-post-counter");
+					node.classList.remove('de-post-counter');
 					if (post.hidden) {
-						node.classList.add("de-post-hide");
+						node.classList.add('de-post-hide');
 					}
-					node.innerHTML = "<span class=\"de-btn-hide" + (post.userToggled ? "-user" : "") + "\" de-menu=\"hide\" title=\"" + Lng.togglePost[lang] + "\"></span>" + pText;
-					$each($Q((!aib.t && post.isOp ? aib.qOmitted + ", " : "") + ".de-img-full, .de-after-fimg", el), $del);
+					node.innerHTML = '<span class="de-btn-hide' + (post.userToggled ? '-user' : '') + '" de-menu="hide" title="' + Lng.togglePost[lang] + '"></span>' + pText;
+					$each($Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') + '.de-img-full, .de-after-fimg', el), $del);
 					$each($Q(aib.qThumbImages, el), function (el) {
-						el.parentNode.style.display = "";
+						el.parentNode.style.display = '';
 					});
-					node = $c("de-link-parent", el);
+					node = $c('de-link-parent', el);
 					if (node) {
-						node.classList.remove("de-link-parent");
+						node.classList.remove('de-link-parent');
 					}
 					if (Cfg.addYouTube && post.videos.hasLinks) {
 						if (post.videos.playerInfo !== null) {
-							Object.defineProperty(this, "videos", {
-								value: new Videos(this, $c("de-video-obj", el), post.videos.playerInfo)
+							Object.defineProperty(this, 'videos', {
+								value: new Videos(this, $c('de-video-obj', el), post.videos.playerInfo)
 							});
 						}
-						this.videos.updatePost($C("de-video-link", post.el), $C("de-video-link", el), true);
+						this.videos.updatePost($C('de-video-link', post.el), $C('de-video-link', el), true);
 					}
 					if (Cfg.addImgs) {
-						$each($C("de-img-pre", el), function (el) {
-							el.style.display = "";
+						$each($C('de-img-pre', el), function (el) {
+							el.style.display = '';
 						});
 					}
 					if (Cfg.markViewed) {
 						this._readDelay = setTimeout(function (pst) {
 							if (!pst.viewed) {
-								pst.el.classList.add("de-viewed");
+								pst.el.classList.add('de-viewed');
 								pst.viewed = true;
 							}
-							var arr = (sesStorage["de-viewed"] || "").split(",");
+							var arr = (sesStorage['de-viewed'] || '').split(',');
 							arr.push(pst.num);
-							sesStorage["de-viewed"] = arr;
-						}, post.text.length > 100 ? 2000 : 500, post);
+							sesStorage['de-viewed'] = arr;
+						}, post.text.length > 100 ? 2e3 : 500, post);
 					}
 				} else {
-					this._pref.insertAdjacentHTML("afterend", "<span class=\"de-post-btns\">" + pText + "</span");
+					this._pref.insertAdjacentHTML('afterend', '<span class="de-post-btns">' + pText + '</span');
 					embedMediaLinks(this);
 					if (Cfg.addYouTube) {
 						new VideosParser().parse(this).end();
@@ -12548,7 +12519,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					}
 					processImageNames(el);
 				}
-				el.addEventListener("click", this, true);
+				el.addEventListener('click', this, true);
 				this._showPview(el);
 			} },
 		_showPview: { value: function value(el, id) {
@@ -12559,22 +12530,23 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					Pview.top = this;
 				}
 				this.parent.kid = this;
-				el.addEventListener("mouseover", this, true);
-				el.addEventListener("mouseout", this, true);
+				el.addEventListener('mouseover', this, true);
+				el.addEventListener('mouseout', this, true);
 				dForm.el.appendChild(el);
 				setPviewPosition(this._link, el, false);
 				if (Cfg.animation) {
 					nav.animEvent(el, function (node) {
-						node.classList.remove("de-pview-anim");
-						node.style[nav.animName] = "";
+						node.classList.remove('de-pview-anim');
+						node.style[nav.animName] = '';
 					});
-					el.classList.add("de-pview-anim");
-					el.style[nav.animName] = "de-post-open-" + (el.aTop ? "t" : "b") + (el.aLeft ? "l" : "r");
+					el.classList.add('de-pview-anim');
+					el.style[nav.animName] = 'de-post-open-' + (el.aTop ? 't' : 'b') + (el.aLeft ? 'l' : 'r');
 				}
 			} },
 		_showText: { value: function value(txt) {
-				this._showPview(this.el = $add("<div class=\"" + aib.cReply + " de-pview-info de-pview\">" + txt + "</div>"));
-			} } });
+				this._showPview(this.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">' + txt + '</div>'));
+			} }
+	});
 
 	function PviewsCache(form, b, tNum) {
 		var pBn = {},
@@ -12621,9 +12593,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				pst.pvInited = true;
 			}
 			return pst;
-		} }, {
+		}
+	}, {
 		_op: {
-			get: function () {
+			get: function get() {
 				var oOp,
 				    op = this._opObj;
 				op.el = replacePost(aib.getOp(this._thr));
@@ -12636,7 +12609,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				if (op.ref.size !== 0) {
 					addRefMap(op, this._tUrl);
 				}
-				Object.defineProperty(this, "_op", { value: op });
+				Object.defineProperty(this, '_op', { value: op });
 				return op;
 			},
 			configurable: true,
@@ -12646,10 +12619,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 	function PviewMoved() {
 		if (this.style[nav.animName]) {
-			this.classList.remove("de-pview-anim");
+			this.classList.remove('de-pview-anim');
 			this.style.cssText = this.newPos;
 			this.newPos = false;
-			$each($C("de-css-move", doc.head), $del);
+			$each($C('de-css-move', doc.head), $del);
 			this.removeEventListener(nav.animEnd, PviewMoved);
 		}
 	}
@@ -12665,16 +12638,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		    bWidth = doc.documentElement.clientWidth,
 		    isLeft = offX < bWidth / 2,
 		    tmp = isLeft ? offX : offX - Math.min(parseInt(pView.offsetWidth, 10), offX - 10),
-		    lmw = "max-width:" + (bWidth - tmp - 10) + "px; left:" + tmp + "px;";
+		    lmw = 'max-width:' + (bWidth - tmp - 10) + 'px; left:' + tmp + 'px;';
 		if (isAnim) {
 			oldCSS = pView.style.cssText;
-			pView.style.cssText = "opacity: 0; " + lmw;
+			pView.style.cssText = 'opacity: 0; ' + lmw;
 		} else {
 			pView.style.cssText = lmw;
 		}
 		var top = pView.offsetHeight,
 		    isTop = top + cr.top + link.offsetHeight < doc.documentElement.clientHeight || cr.top - top < 5;
-		top = (isTop ? offY + link.offsetHeight : offY - top) + "px";
+		top = (isTop ? offY + link.offsetHeight : offY - top) + 'px';
 		pView.link = link;
 		pView.aLeft = isLeft;
 		pView.aTop = isTop;
@@ -12682,35 +12655,35 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			pView.style.top = top;
 			return;
 		}
-		var uId = "de-movecss-" + Math.round(Math.random() * 1000);
-		$css("@" + nav.cssFix + "keyframes " + uId + " {to { " + lmw + " top:" + top + "; }}").className = "de-css-move";
+		var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
+		$css('@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + '; }}').className = 'de-css-move';
 		if (pView.newPos) {
 			pView.style.cssText = pView.newPos;
 			pView.removeEventListener(nav.animEnd, PviewMoved);
 		} else {
 			pView.style.cssText = oldCSS;
 		}
-		pView.newPos = lmw + " top:" + top + ";";
+		pView.newPos = lmw + ' top:' + top + ';';
 		pView.addEventListener(nav.animEnd, PviewMoved);
-		pView.classList.add("de-pview-anim");
+		pView.classList.add('de-pview-anim');
 		pView.style[nav.animName] = uId;
 	}
 
 	function addRefMap(post, tUrl) {
-		var bStr = "<a href=\"" + tUrl + aib.anchor,
+		var bStr = '<a href="' + tUrl + aib.anchor,
 		    strNums = Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
-		    html = ["<div class=\"de-refmap\">"];
+		    html = ['<div class="de-refmap">'];
 		post.ref.forEach(function (num) {
-			return html.push(bStr, num, "\" class=\"de-link-ref ", strNums && strNums.indexOf(+num) !== -1 ? "de-link-hid" : "", "\">&gt;&gt;", num, "</a><span class=\"de-refcomma\">, </span>");
+			return html.push(bStr, num, '" class="de-link-ref ', strNums && strNums.indexOf(+num) !== -1 ? 'de-link-hid' : '', '">&gt;&gt;', num, '</a><span class="de-refcomma">, </span>');
 		});
-		html.push("</div>");
+		html.push('</div>');
 		if (aib.dobr) {
 			var el = post.msg.nextElementSibling;
 			if (el) {
-				el.insertAdjacentHTML("beforeend", html.join(""));
+				el.insertAdjacentHTML('beforeend', html.join(''));
 			}
 		} else {
-			post.msg.insertAdjacentHTML("afterend", html.join(""));
+			post.msg.insertAdjacentHTML('afterend', html.join(''));
 		}
 	}
 
@@ -12723,12 +12696,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 				posts[lNum].ref.add(pNum);
 				if (!aib.hasOPNum && opNums.indexOf(lNum) !== -1) {
-					link.classList.add("de-ref-op");
+					link.classList.add('de-ref-op');
 				}
 				if (thrURL) {
-					var url = link.getAttribute("href");
-					if (url[0] === "#") {
-						link.setAttribute("href", thrURL + url);
+					var url = link.getAttribute('href');
+					if (url[0] === '#') {
+						link.setAttribute('href', thrURL + url);
 					}
 				}
 			});
@@ -12745,14 +12718,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				return;
 			}
 			if (!isThr) {
-				link.href = "#" + (aib.fch ? "p" : "") + lNum;
+				link.href = '#' + (aib.fch ? 'p' : '') + lNum;
 			}
 			if (add) {
 				if (strNums && strNums.lastIndexOf(lNum) !== -1) {
-					link.classList.add("de-link-hid");
+					link.classList.add('de-link-hid');
 				}
 				if (!aib.hasOPNum && dForm.tNums.indexOf(lNum) !== -1) {
-					link.classList.add("de-ref-op");
+					link.classList.add('de-ref-op');
 				}
 				if (!lPost.ref.has(pNum)) {
 					lPost.ref.add(pNum);
@@ -12761,20 +12734,20 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							post.hideRefs();
 						}
 						post.setVisib(true);
-						post.setNote("reference to >>" + lNum);
+						post.setNote('reference to >>' + lNum);
 					}
 				} else {
 					return;
 				}
 			} else if (lPost.ref.size !== 0) {
-				lPost.ref["delete"](pNum);
+				lPost.ref['delete'](pNum);
 				if (lPost.ref.size === 0) {
-					$del($c("de-refmap", lPost.el));
+					$del($c('de-refmap', lPost.el));
 					return;
 				}
 			}
-			$del($c("de-refmap", lPost.el));
-			addRefMap(lPost, "");
+			$del($c('de-refmap', lPost.el));
+			addRefMap(lPost, '');
 		});
 	}
 
@@ -12782,7 +12755,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 	function Thread(el, prev, isLight) {
-		var _this204 = this;
+		var _this28 = this;
 
 		var els = $Q(aib.qRPost, el),
 		    len = els.length,
@@ -12806,34 +12779,34 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		if (isLight) {
 			return;
 		}
-		el.style.counterReset = "de-cnt " + omt;
-		el.removeAttribute("id");
-		el.setAttribute("de-thread", null);
+		el.style.counterReset = 'de-cnt ' + omt;
+		el.removeAttribute('id');
+		el.setAttribute('de-thread', null);
 		visPosts = Math.max(visPosts, len);
 		if (aib._420 || aib.tiny) {
 			var temp = el.lastChild;
 			if (temp !== this.op.el) {
 				$after(el, temp);
 			}
-			$del($c("clear", el));
+			$del($c('clear', el));
 		}
 		if (!aib.t) {
-			el.insertAdjacentHTML("beforeend", "<div class=\"de-thread-buttons\">" + "<span class=\"de-thread-updater\">[<a class=\"de-abtn\" href=\"#\"></a>]</span>");
+			el.insertAdjacentHTML('beforeend', '<div class="de-thread-buttons">' + '<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>]</span>');
 			this.btns = el.lastChild;
 			var updBtn = this.btns.firstElementChild;
 			updBtn.onclick = function (e) {
 				$pd(e);
-				_this204.load("new", false);
+				_this28.load('new', false);
 			};
 			if (Cfg.hideReplies) {
-				this.btns.insertAdjacentHTML("beforeend", " <span class=\"de-replies-btn\">[<a class=\"de-abtn\" href=\"#\"></a>]</span>");
+				this.btns.insertAdjacentHTML('beforeend', ' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
 				var repBtn = this.btns.lastChild;
 				repBtn.onclick = function (e) {
 					$pd(e);
-					var nextCoord = !_this204.next || _this204.last.omitted ? null : _this204.next.offsetTop - window.pageYOffset;
-					_this204._toggleReplies(repBtn, updBtn);
+					var nextCoord = !_this28.next || _this28.last.omitted ? null : _this28.next.offsetTop - window.pageYOffset;
+					_this28._toggleReplies(repBtn, updBtn);
 					if (nextCoord) {
-						scrollTo(window.pageXOffset, _this204.next.offsetTop - nextCoord);
+						scrollTo(window.pageXOffset, _this28.next.offsetTop - nextCoord);
 					}
 				};
 				this._toggleReplies(repBtn, updBtn);
@@ -12848,19 +12821,20 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		hidden: false,
 		loadedOnce: false,
 		next: null,
+
 		addPost: function addPost(parent, el, i, prev, maybeVParser) {
 			var post,
 			    num = aib.getPNum(el),
 			    wrap = aib.getWrap(el, false);
 			el = replacePost(el);
 			pByNum[num] = post = new Post(el, this, num, i, false, prev);
-			Object.defineProperty(post, "wrap", { value: wrap });
+			Object.defineProperty(post, 'wrap', { value: wrap });
 			parent.appendChild(wrap);
 			if (aib.t && !doc.hidden && Cfg.animation) {
 				nav.animEvent(post.el, function (node) {
-					node.classList.remove("de-post-new");
+					node.classList.remove('de-post-new');
 				});
-				post.el.classList.add("de-post-new");
+				post.el.classList.add('de-post-new');
 			}
 			if (maybeVParser.value) {
 				maybeVParser.value.parse(post);
@@ -12876,10 +12850,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		clearPostsMarks: function clearPostsMarks() {
 			if (this.hasNew) {
 				this.hasNew = false;
-				$each($Q(".de-new-post", this.el), function (el) {
-					el.classList.remove("de-new-post");
+				$each($Q('.de-new-post', this.el), function (el) {
+					el.classList.remove('de-new-post');
 				});
-				doc.removeEventListener("click", Thread.clearPostsMark, true);
+				doc.removeEventListener('click', Thread.clearPostsMark, true);
 			}
 		},
 		deletePost: function deletePost(post, delAll, removePost) {
@@ -12901,10 +12875,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					}
 				} else {
 					post.deleted = true;
-					post.btns.classList.remove("de-post-counter");
-					post.btns.classList.add("de-post-deleted");
-					post.wrap.classList.add("de-post-removed");
-					($q("input[type=\"checkbox\"]", post.el) || {}).disabled = true;
+					post.btns.classList.remove('de-post-counter');
+					post.btns.classList.add('de-post-deleted');
+					post.wrap.classList.add('de-post-removed');
+					($q('input[type="checkbox"]', post.el) || {}).disabled = true;
 				}
 				post = post.nextNotDeleted;
 				count++;
@@ -12919,21 +12893,21 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return post;
 		},
 		load: function load(last, smartScroll) {
-			var _this204 = this;
+			var _this29 = this;
 
-			var informUser = arguments[2] === undefined ? true : arguments[2];
+			var informUser = arguments.length <= 2 || arguments[2] === undefined ? true : arguments[2];
 
 			if (informUser) {
-				$popup(Lng.loading[lang], "load-thr", true);
+				$popup(Lng.loading[lang], 'load-thr', true);
 			}
 			return ajaxLoad(aib.getThrdUrl(aib.b, this.num)).then(function (form) {
-				return _this204.loadFromForm(last, smartScroll, form);
+				return _this29.loadFromForm(last, smartScroll, form);
 			}, function (e) {
-				return $popup(getErrorMessage(e), "load-thr", false);
+				return $popup(getErrorMessage(e), 'load-thr', false);
 			});
 		},
 		loadFromForm: function loadFromForm(last, smartScroll, form) {
-			var _this204 = this;
+			var _this30 = this;
 
 			var nextCoord,
 			    loadedPosts = $Q(aib.qRPost, form),
@@ -12948,7 +12922,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 			}
 			pr.closeReply();
-			$del($q(aib.qOmitted + ", .de-omitted", thrEl));
+			$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 			if (!this.loadedOnce) {
 				if (op.trunc) {
 					op.updateMsg(replacePost($q(aib.qMsg, form)), maybeSpells.value);
@@ -12966,20 +12940,20 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			    needRMUpdate = false,
 			    existed = this.pcount === 1 ? 0 : this.pcount - post.count;
 			switch (last) {
-				case "new":
+				case 'new':
 				
-					needToHide = $C("de-hidden", thrEl).length;
+					needToHide = $C('de-hidden', thrEl).length;
 					needToOmit = needToHide + post.count - 1;
 					needToShow = loadedPosts.length - needToOmit;
 					break;
-				case "all":
+				case 'all':
 				
 					needToHide = needToOmit = 0;
 					needToShow = loadedPosts.length;
 					break;
-				case "more":
+				case 'more':
 				
-					needToHide = $C("de-hidden", thrEl).length - 10;
+					needToHide = $C('de-hidden', thrEl).length - 10;
 					needToOmit = Math.max(needToHide + post.count - 1, 0);
 					needToHide = Math.max(needToHide, 0);
 					needToShow = loadedPosts.length - needToOmit;
@@ -12992,7 +12966,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 			if (needToHide) {
 				while (existed-- !== needToShow) {
-					post.wrap.classList.add("de-hidden");
+					post.wrap.classList.add('de-hidden');
 					post.omitted = true;
 					post = post.next;
 				}
@@ -13019,7 +12993,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					post.updateMsg(replacePost($q(aib.qMsg, loadedPosts[post.count - 1])), maybeSpells.value);
 				}
 				if (post.omitted) {
-					post.wrap.classList.remove("de-hidden");
+					post.wrap.classList.remove('de-hidden');
 					post.omitted = false;
 				}
 				if (needRMUpdate) {
@@ -13028,64 +13002,65 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				post = post.next;
 			}
 			maybeSpells.end();
-			thrEl.style.counterReset = "de-cnt " + (needToOmit - needToHide + 1);
+			thrEl.style.counterReset = 'de-cnt ' + (needToOmit - needToHide + 1);
 			var btn = this.btns;
 			if (btn !== thrEl.lastChild) {
 				thrEl.appendChild(btn);
 			}
-			if (!$c("de-thread-collapse", btn)) {
-				btn.insertAdjacentHTML("beforeend", "<span class=\"de-thread-collapse\"> [<a class=\"de-abtn\" href=\"#\"></a>]</span>");
+			if (!$c('de-thread-collapse', btn)) {
+				btn.insertAdjacentHTML('beforeend', '<span class="de-thread-collapse"> [<a class="de-abtn" href="#"></a>]</span>');
 				btn.lastChild.onclick = function (e) {
 					$pd(e);
-					_this204.load(visPosts, true);
+					_this30.load(visPosts, true);
 				};
 			}
-			btn.lastChild.style.display = needToShow > visPosts ? "" : "none";
+			btn.lastChild.style.display = needToShow > visPosts ? '' : 'none';
 			if (needToOmit > 0) {
-				op.el.insertAdjacentHTML("afterend", "<div class=\"de-omitted\">" + needToOmit + "</div>");
+				op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + needToOmit + '</div>');
 			}
 			if (smartScroll) {
 				scrollTo(window.pageXOffset, this.next.offsetTop - nextCoord);
 			}
 			if (Cfg.hideReplies) {
-				$c("de-replies-btn", this.btns).firstElementChild.className = "de-abtn de-replies-hide";
+				$c('de-replies-btn', this.btns).firstElementChild.className = 'de-abtn de-replies-hide';
 				if (Cfg.updThrBtns) {
-					btn.firstChild.style.display = "";
+					btn.firstChild.style.display = '';
 				}
 			}
-			closePopup("load-thr");
+			closePopup('load-thr');
 		},
 		loadNew: function loadNew(useAPI) {
-			var _this204 = this;
+			var _this31 = this;
 
 			if (aib.dobr && useAPI) {
-				return getJsonPosts("/api/thread/" + aib.b + "/" + aib.t + ".json").then(function (json) {
+				return getJsonPosts('/api/thread/' + aib.b + '/' + aib.t + '.json').then(function (json) {
 					if (json) {
 						if (json.error) {
 							return CancelablePromise.reject(new AjaxError(0, json.message));
 						}
-						if (_this204._lastModified !== json.last_modified || _this204.pcount !== json.posts_count) {
-							_this204._lastModified = json.last_modified;
-							return _this204.loadNew(false);
+						if (_this31._lastModified !== json.last_modified || _this31.pcount !== json.posts_count) {
+							_this31._lastModified = json.last_modified;
+							return _this31.loadNew(false);
 						}
 					}
 					return 0;
 				});
 			}
 			return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, !aib.dobr).then(function (form) {
-				return form ? _this204.loadNewFromForm(form) : 0;
+				return form ? _this31.loadNewFromForm(form) : 0;
 			});
 		},
 		loadNewFromForm: function loadNewFromForm(form) {
 			this._checkBans(form);
 			aib.checkForm(form, null);
 			var lastOffset = pr.isVisible ? pr.offsetTop - window.pageYOffset : null;
-			var _parsePosts = this._parsePosts($Q(aib.qRPost, form));
 
-			var _parsePosts2 = _slicedToArray(_parsePosts, 2);
+			var _parsePosts2 = this._parsePosts($Q(aib.qRPost, form));
 
-			var newPosts = _parsePosts2[0];
-			var newVisPosts = _parsePosts2[1];
+			var _parsePosts22 = _slicedToArray(_parsePosts2, 2);
+
+			var newPosts = _parsePosts22[0];
+			var newVisPosts = _parsePosts22[1];
 
 			if (lastOffset !== null) {
 				scrollTo(window.pageXOffset, pr.offsetTop - lastOffset);
@@ -13096,14 +13071,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return newVisPosts;
 		},
 		setFavBtn: function setFavBtn(state) {
-			var el = $c(state ? "de-btn-fav" : "de-btn-fav-sel", this.op.btns);
+			var el = $c(state ? 'de-btn-fav' : 'de-btn-fav-sel', this.op.btns);
 			if (el) {
-				el.className = state ? "de-btn-fav-sel" : "de-btn-fav";
+				el.className = state ? 'de-btn-fav-sel' : 'de-btn-fav';
 				el.title = state ? Lng.delFav[lang] : Lng.addFav[lang];
 			}
 		},
 		setFavorState: function setFavorState(val, type) {
-			var _this204 = this;
+			var _this32 = this;
 
 			this.setFavBtn(val);
 			readFav().then(function (fav) {
@@ -13116,17 +13091,17 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					if (!fav[h][b]) {
 						fav[h][b] = {};
 					}
-					fav[h][b].url = aib.prot + "//" + aib.host + aib.getPageUrl(b, 0);
-					fav[h][b][_this204.num] = {
-						cnt: _this204.pcount,
-						"new": 0,
-						txt: _this204.op.title,
-						url: aib.getThrdUrl(b, _this204.num),
-						last: aib.anchor + _this204.last.num,
-						type: type
+					fav[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
+					fav[h][b][_this32.num] = {
+						'cnt': _this32.pcount,
+						'new': 0,
+						'txt': _this32.op.title,
+						'url': aib.getThrdUrl(b, _this32.num),
+						'last': aib.anchor + _this32.last.num,
+						'type': type
 					};
 				} else {
-					removeFavoriteEntry(fav, h, b, _this204.num, false);
+					removeFavoriteEntry(fav, h, b, _this32.num, false);
 				}
 				saveFavorites(fav);
 			});
@@ -13147,16 +13122,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			} while (thr = thr.next);
 		},
 
-		_lastModified: "",
+		_lastModified: '',
 		_addPostMark: function _addPostMark(postEl, forced) {
 			if (!doc.hidden && !forced) {
 				this.clearPostsMarks();
 			} else {
 				if (!this.hasNew) {
 					this.hasNew = true;
-					doc.addEventListener("click", Thread.clearPostsMark, true);
+					doc.addEventListener('click', Thread.clearPostsMark, true);
 				}
-				postEl.classList.add("de-new-post");
+				postEl.classList.add('de-new-post');
 			}
 		},
 		_checkBans: function _checkBans(thrNode) {
@@ -13181,23 +13156,23 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			for (var i = 0, post = this.op; post !== this.last; i++) {
 				post = post.next;
 				if (isHide) {
-					post.wrap.classList.add("de-hidden");
+					post.wrap.classList.add('de-hidden');
 					post.omitted = true;
 				} else {
-					post.wrap.classList.remove("de-hidden");
+					post.wrap.classList.remove('de-hidden');
 					post.omitted = false;
 				}
 			}
-			repBtn.firstElementChild.className = "de-abtn " + (isHide ? "de-replies-show" : "de-replies-hide");
-			updBtn.style.display = isHide ? "none" : "";
-			var colBtn = $c("de-thread-collapse", this.el);
+			repBtn.firstElementChild.className = 'de-abtn ' + (isHide ? 'de-replies-show' : 'de-replies-hide');
+			updBtn.style.display = isHide ? 'none' : '';
+			var colBtn = $c('de-thread-collapse', this.el);
 			if (colBtn) {
-				colBtn.style.display = isHide ? "none" : "";
+				colBtn.style.display = isHide ? 'none' : '';
 			}
-			$del($q(aib.qOmitted + ", .de-omitted", this.el));
+			$del($q(aib.qOmitted + ', .de-omitted', this.el));
 			i = this.pcount - 1 - (isHide ? 0 : i);
 			if (i) {
-				this.op.el.insertAdjacentHTML("afterend", "<span class=\"de-omitted\">" + i + "</span> ");
+				this.op.el.insertAdjacentHTML('afterend', '<span class="de-omitted">' + i + '</span> ');
 			}
 		},
 		_importPosts: function _importPosts(last, newPosts, begin, end, maybeVParser, maybeSpells) {
@@ -13211,7 +13186,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			return [newCount, newVisCount, fragm, last];
 		},
 		_parsePosts: function _parsePosts(nPosts) {
-			var _this204 = this;
+			var _this33 = this;
 
 			var maybeSpells = new Maybe(SpellsRunner),
 			    newPosts = 0,
@@ -13283,19 +13258,19 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				if (!f || !f[aib.b]) {
 					return;
 				}
-				if (f = f[aib.b][_this204.op.num]) {
-					var el = $q("#de-win-fav > .de-win-body", doc);
+				if (f = f[aib.b][_this33.op.num]) {
+					var el = $q('#de-win-fav > .de-win-body', doc);
 					if (el && el.hasChildNodes()) {
-						el = $q(".de-fav-current > .de-entry[de-num=\"" + _this204.op.num + "\"] .de-fav-inf-new", el);
-						el.style.display = "none";
+						el = $q('.de-fav-current > .de-entry[de-num="' + _this33.op.num + '"] .de-fav-inf-new', el);
+						el.style.display = 'none';
 						el.textContent = 0;
 						el = el.nextElementSibling;
-						el.textContent = _this204.pcount;
+						el.textContent = _this33.pcount;
 					}
-					f.cnt = _this204.pcount;
-					f["new"] = 0;
-					f.last = aib.anchor + _this204.last.num;
-					setStored("DESU_Favorites", JSON.stringify(fav));
+					f.cnt = _this33.pcount;
+					f['new'] = 0;
+					f.last = aib.anchor + _this33.last.num;
+					setStored('DESU_Favorites', JSON.stringify(fav));
 				}
 			});
 			maybeVParser.end();
@@ -13304,7 +13279,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}
 	}, {
 		lastNotDeleted: {
-			get: function () {
+			get: function get() {
 				var post = this.last;
 				while (post.deleted) {
 					post = post.prev;
@@ -13315,7 +13290,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			enumerable: true
 		},
 		nextNotHidden: {
-			get: function () {
+			get: function get() {
 				for (var thr = this.next; thr && thr.hidden; thr = thr.next) {}
 				return thr;
 			},
@@ -13323,7 +13298,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			enumerable: true
 		},
 		prevNotHidden: {
-			get: function () {
+			get: function get() {
 				for (var thr = this.prev; thr && thr.hidden; thr = thr.prev) {}
 				return thr;
 			},
@@ -13331,7 +13306,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			enumerable: true
 		},
 		offsetTop: {
-			get: function () {
+			get: function get() {
 				return this.op.offsetTop;
 			},
 			configurable: true,
@@ -13346,42 +13321,42 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		try {
 			locStorage = window.localStorage;
 			sesStorage = window.sessionStorage;
-			sesStorage["__de-test"] = 1;
+			sesStorage['__de-test'] = 1;
 		} catch (e) {
-			if (typeof unsafeWindow !== "undefined") {
+			if (typeof unsafeWindow !== 'undefined') {
 				locStorage = unsafeWindow.localStorage;
 				sesStorage = unsafeWindow.sessionStorage;
 			}
 		}
-		if (!(locStorage && typeof locStorage === "object" && sesStorage)) {
-			console.log("WEBSTORAGE ERROR: please, enable webstorage!");
+		if (!(locStorage && typeof locStorage === 'object' && sesStorage)) {
+			console.log('WEBSTORAGE ERROR: please, enable webstorage!');
 			return false;
 		}
 		return true;
 	}
 
 	function initNavFuncs() {
-		if (!("includes" in String.prototype)) {
+		if (!('includes' in String.prototype)) {
 			String.prototype.includes = String.prototype.contains || function (s) {
 				return this.indexOf(s) !== -1;
 			};
 		}
-		if (!("startsWith" in String.prototype)) {
+		if (!('startsWith' in String.prototype)) {
 			String.prototype.startsWith = function (s) {
 				return this.indexOf(s) === 0;
 			};
 		}
-		if (!("repeat" in String.prototype)) {
+		if (!('repeat' in String.prototype)) {
 			String.prototype.repeat = function (nTimes) {
 				return new Array(nTimes + 1).join(this.valueOf());
 			};
 		}
-		if (!("clz32" in Math)) {
+		if (!('clz32' in Math)) {
 			Math.clz32 = function (x) {
 				return x < 1 ? x === 0 ? 32 : 0 : 31 - (Math.log(x) / Math.LN2 >> 0);
 			};
 		}
-		if (!("assign" in Object)) {
+		if (!('assign' in Object)) {
 			Object.assign = function (a, b) {
 				for (var i in b) {
 					a[i] = b[i];
@@ -13389,11 +13364,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				return a;
 			};
 		}
-		if ("toJSON" in aProto) {
+		if ('toJSON' in aProto) {
 			delete aProto.toJSON;
 		}
 		try {
-			new File([""], "");
+			new File([''], '');
 		} catch (e) {
 			window.File = function File(arr, name) {
 				var rv = new Blob(arr);
@@ -13405,25 +13380,25 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			File.prototype = new Blob();
 			var origAppend = FormData.prototype.append;
 			FormData.prototype.append = function append(name, value) {
-				var fileName = arguments[2] === undefined ? null : arguments[2];
+				var fileName = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
 
-				if (value instanceof Blob && "name" in value && fileName === null) {
+				if (value instanceof Blob && 'name' in value && fileName === null) {
 					return origAppend.call(this, name, value, value.name);
 				}
 				return origAppend.apply(this, arguments);
 			};
 		}
 		var ua = window.navigator.userAgent,
-		    firefox = ua.includes("Gecko/"),
+		    firefox = ua.includes('Gecko/'),
 		    presto = window.opera ? +window.opera.version() : 0,
-		    webkit = ua.includes("WebKit/"),
-		    chrome = webkit && ua.includes("Chrome/"),
+		    webkit = ua.includes('WebKit/'),
+		    chrome = webkit && ua.includes('Chrome/'),
 		    safari = webkit && !chrome,
 		    isGM = false,
 		    isChromeStorage = window.chrome && !!window.chrome.storage,
-		    isScriptStorage = !!scriptStorage && !ua.includes("Opera Mobi");
+		    isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 		try {
-			isGM = typeof GM_setValue === "function" && (!chrome || !GM_setValue.toString().includes("not supported"));
+			isGM = typeof GM_setValue === 'function' && (!chrome || !GM_setValue.toString().includes('not supported'));
 		} catch (e) {}
 		nav = Object.defineProperties({
 			Firefox: firefox,
@@ -13435,10 +13410,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			isChromeStorage: isChromeStorage,
 			isScriptStorage: isScriptStorage,
 			isGlobal: isGM || isChromeStorage || isScriptStorage,
-			scriptInstall: firefox ? typeof GM_info !== "undefined" ? "Greasemonkey" : "Scriptish" : isChromeStorage ? "Chrome extension" : isGM ? "Monkey" : "Native userscript",
-			cssFix: webkit ? "-webkit-" : "",
-			animName: webkit ? "webkitAnimationName" : "animationName",
-			animEnd: webkit ? "webkitAnimationEnd" : "animationend",
+			scriptInstall: firefox ? typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish' : isChromeStorage ? 'Chrome extension' : isGM ? 'Monkey' : 'Native userscript',
+			cssFix: webkit ? '-webkit-' : '',
+			animName: webkit ? 'webkitAnimationName' : 'animationName',
+			animEnd: webkit ? 'webkitAnimationEnd' : 'animationend',
 			animEvent: function animEvent(el, fn) {
 				el.addEventListener(this.animEnd, function aEvent() {
 					this.removeEventListener(nav.animEnd, aEvent);
@@ -13449,10 +13424,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			fixLink: safari ? getAbsLink : function fixLink(url) {
 				return url;
 			},
+
 		
 			getUnsafeUint8Array: function getUnsafeUint8Array(data) {
-				var i = arguments[1] === undefined ? 0 : arguments[1];
-				var len = arguments[2] === undefined ? null : arguments[2];
+				var i = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+				var len = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
 
 				var rv;
 				if (len === null) {
@@ -13468,50 +13444,50 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		}, {
 			ua: {
-				get: function () {
-					return navigator.userAgent + (this.Firefox ? " [" + navigator.buildID + "]" : "");
+				get: function get() {
+					return navigator.userAgent + (this.Firefox ? ' [' + navigator.buildID + ']' : '');
 				},
 				configurable: true,
 				enumerable: true
 			},
 			hasWorker: {
-				get: function () {
+				get: function get() {
 					var val = false;
 					try {
-						val = "Worker" in window && "URL" in window;
+						val = 'Worker' in window && 'URL' in window;
 					} catch (e) {}
 					if (val && this.Firefox) {
 						val = +(navigator.userAgent.match(/rv:(\d{2})/) || [])[1] >= 40;
 					}
-					Object.defineProperty(this, "hasWorker", { value: val });
+					Object.defineProperty(this, 'hasWorker', { value: val });
 					return val;
 				},
 				configurable: true,
 				enumerable: true
 			},
 			canPlayMP3: {
-				get: function () {
-					var val = !!new Audio().canPlayType("audio/mpeg;");
-					Object.defineProperty(this, "canPlayMP3", { value: val });
+				get: function get() {
+					var val = !!new Audio().canPlayType('audio/mpeg;');
+					Object.defineProperty(this, 'canPlayMP3', { value: val });
 					return val;
 				},
 				configurable: true,
 				enumerable: true
 			},
 			canPlayWebm: {
-				get: function () {
-					var val = !!new Audio().canPlayType("video/webm; codecs=\"vp8,vorbis\"");
-					Object.defineProperty(this, "canPlayWebm", { value: val });
+				get: function get() {
+					var val = !!new Audio().canPlayType('video/webm; codecs="vp8,vorbis"');
+					Object.defineProperty(this, 'canPlayWebm', { value: val });
 					return val;
 				},
 				configurable: true,
 				enumerable: true
 			},
 			matchesSelector: {
-				get: function () {
+				get: function get() {
 					var dE = doc.documentElement,
 					    val = Function.prototype.call.bind(dE.matches || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector);
-					Object.defineProperty(this, "matchesSelector", { value: val });
+					Object.defineProperty(this, 'matchesSelector', { value: val });
 					return val;
 				},
 				configurable: true,
@@ -13526,263 +13502,276 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	function getImageBoard(checkDomains, checkEngines) {
 		var prot = window.location.protocol;
 		var ibDomains = Object.defineProperties({
-			"02ch.net": [{
-				qPostRedir: { value: "input[name=\"gb2\"][value=\"thread\"]" },
+			'02ch.net': [{
+				qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
 				ru: { value: true },
-				timePattern: { value: "yyyy+nn+dd++w++hh+ii+ss" }
+				timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
 			}],
-			"2chru.net": [{
+			'2chru.net': [{
 				_2chru: { value: true },
 
-				css: { value: ".small { display: none; }" }
-			}, "form[action*=\"imgboard.php?delete\"]"],
-			"2--ch.ru": [{
+				css: { value: '.small { display: none; }' }
+			}, 'form[action*="imgboard.php?delete"]'],
+
+			'2--ch.ru': [{
 				tire: { value: true },
 
-				qPages: { value: "table[border=\"1\"] tr:first-of-type > td:first-of-type a" },
+				qPages: { value: 'table[border="1"] tr:first-of-type > td:first-of-type a' },
 				qPostRedir: { value: null },
-				qTable: { value: "table:not(.postfiles)" },
-				qThread: { value: ".threadz" },
+				qTable: { value: 'table:not(.postfiles)' },
+				qThread: { value: '.threadz' },
 				getCaptchaSrc: { value: function value(src, tNum) {
-						return "/" + this.b + "/captcha.fpl?" + Math.random();
+						return '/' + this.b + '/captcha.fpl?' + Math.random();
 					} },
 				getOmitted: { value: function value(el, len) {
 						var txt;
 						return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
 					} },
 				getPageUrl: { value: function value(b, p) {
-						return fixBrd(b) + (p > 0 ? p : 0) + ".memhtml";
+						return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
 					} },
-				css: { value: "span[id$=\"_display\"], #fastload { display: none; }" },
-				docExt: { value: ".html" },
+				css: { value: 'span[id$="_display"], #fastload { display: none; }' },
+				docExt: { value: '.html' },
 				fixFileInputs: { value: function value(el) {
-						var str = "><input name=\"file\" maxlength=\"4\" " + "accept=\"|sid|7z|bz2|m4a|flac|lzh|mo3|rar|spc|fla|nsf|jpg|mpp|aac|gz|xm|wav|" + "mp3|png|it|lha|torrent|swf|zip|mpc|ogg|jpeg|gif|mod\" type=\"file\"></input></div>";
-						el.parentNode.innerHTML = "<div" + str + ("<div style=\"display: none;\"" + str).repeat(3);
+						var str = '><input name="file" maxlength="4" ' + 'accept="|sid|7z|bz2|m4a|flac|lzh|mo3|rar|spc|fla|nsf|jpg|mpp|aac|gz|xm|wav|' + 'mp3|png|it|lha|torrent|swf|zip|mpc|ogg|jpeg|gif|mod" type="file"></input></div>';
+						el.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 					} },
 				hasPicWrap: { value: true },
 				markupBB: { value: true },
 				multiFile: { value: true },
 				ru: { value: true }
 			}],
-			"410chan.org": [{
+
+			'410chan.org': [{
 				_410: { value: true },
 
-				qPostRedir: { value: "input#noko" },
+				qPostRedir: { value: 'input#noko' },
 				getCaptchaSrc: { value: function value(src, tNum) {
-						return src.replace(/\?[^?]+$|$/, "?board=" + aib.b + "&" + Math.random());
+						return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
 					} },
 				getSage: { value: function value(post) {
-						var el = $c("filetitle", post);
-						return el && el.textContent.includes("⇩");
+						var el = $c('filetitle', post);
+						return el && el.textContent.includes('⇩');
 					} },
-				css: { value: "#resizer { display: none; }" },
+				css: { value: '#resizer { display: none; }' },
 				markupBB: { value: false },
-				markupTags: { value: ["**", "*", "__", "^^", "%%", "`", "", "", "q"] },
-				timePattern: { value: "dd+nn+yyyy++w++hh+ii+ss" }
-			}, "script[src*=\"kusaba\"]"],
-			"420chan.org": [{
+				markupTags: { value: ['**', '*', '__', '^^', '%%', '`', '', '', 'q'] },
+				timePattern: { value: 'dd+nn+yyyy++w++hh+ii+ss' }
+			}, 'script[src*="kusaba"]'],
+			'420chan.org': [{
 				_420: { value: true },
 
-				qBan: { value: ".ban" },
-				qError: { value: "pre" },
-				qHide: { value: ".replyheader ~ *" },
-				qPages: { value: ".pagelist > a:last-child" },
+				qBan: { value: '.ban' },
+				qError: { value: 'pre' },
+				qHide: { value: '.replyheader ~ *' },
+				qPages: { value: '.pagelist > a:last-child' },
 				qPostRedir: { value: null },
-				qThread: { value: "[id*=\"thread\"]" },
+				qThread: { value: '[id*="thread"]' },
 				getTNum: { value: function value(op) {
-						return $q("a[id]", op).id.match(/\d+/)[0];
+						return $q('a[id]', op).id.match(/\d+/)[0];
 					} },
-				css: { value: "#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }\t\t\t\t.de-thr-hid { margin: 1em 0; }" },
-				docExt: { value: ".php" },
+				css: { value: '#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }\
+				.de-thr-hid { margin: 1em 0; }' },
+				docExt: { value: '.php' },
 				markupBB: { value: true },
-				markupTags: { value: ["**", "*", "", "", "%", "pre", "", "", "q"] }
+				markupTags: { value: ['**', '*', '', '', '%', 'pre', '', '', 'q'] }
 			}],
-			"4chan.org": [{
+			'4chan.org': [{
 				fch: { value: true },
 
-				cFileInfo: { value: "fileText" },
-				cOPost: { value: "op" },
-				cReply: { value: "post reply" },
-				cSubj: { value: "subject" },
-				qBan: { value: "strong[style=\"color: red;\"]" },
-				qClosed: { value: ".archivedIcon" },
-				qDelBut: { value: ".deleteform > input[type=\"submit\"]" },
-				qError: { value: "#errmsg" },
-				qHide: { value: ".postInfo ~ *" },
-				qImgLink: { value: ".fileText > a" },
-				qName: { value: ".name" },
-				qOmitted: { value: ".summary.desktop" },
-				qPages: { value: ".pagelist > .pages:not(.cataloglink) > a:last-of-type" },
-				qPostForm: { value: "form[name=\"post\"]" },
+				cFileInfo: { value: 'fileText' },
+				cOPost: { value: 'op' },
+				cReply: { value: 'post reply' },
+				cSubj: { value: 'subject' },
+				qBan: { value: 'strong[style="color: red;"]' },
+				qClosed: { value: '.archivedIcon' },
+				qDelBut: { value: '.deleteform > input[type="submit"]' },
+				qError: { value: '#errmsg' },
+				qHide: { value: '.postInfo ~ *' },
+				qImgLink: { value: '.fileText > a' },
+				qName: { value: '.name' },
+				qOmitted: { value: '.summary.desktop' },
+				qPages: { value: '.pagelist > .pages:not(.cataloglink) > a:last-of-type' },
+				qPostForm: { value: 'form[name="post"]' },
 				qPostRedir: { value: null },
-				qRef: { value: ".postInfo > .postNum" },
-				qTable: { value: ".replyContainer" },
-				qThumbImages: { value: ".fileThumb > img" },
+				qRef: { value: '.postInfo > .postNum' },
+				qTable: { value: '.replyContainer' },
+				qThumbImages: { value: '.fileThumb > img' },
 				getFileInfo: { value: function value(wrap) {
 						var el = $c(this.cFileInfo, wrap);
-						return el ? el.lastChild.textContent : "";
+						return el ? el.lastChild.textContent : '';
 					} },
 				getPageUrl: { value: function value(b, p) {
-						return fixBrd(b) + (p > 1 ? p : "");
+						return fixBrd(b) + (p > 1 ? p : '');
 					} },
 				getSage: { value: function value(post) {
-						return !!$q(".id_Heaven, .useremail[href^=\"mailto:sage\"]", post);
+						return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
 					} },
 				getTNum: { value: function value(op) {
-						return $q("input[type=\"checkbox\"]", op).name.match(/\d+/)[0];
+						return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 					} },
 				getWrap: { value: function value(el, isOp) {
 						return el.parentNode;
 					} },
-				anchor: { value: "#p" },
-				css: { value: ".backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }\t\t\t\t.postForm { display: table !important; width: auto !important; }\t\t\t\ttextarea { margin-right: 0 !important; }" },
-				docExt: { value: "" },
+				anchor: { value: '#p' },
+				css: { value: '.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }\
+				.postForm { display: table !important; width: auto !important; }\
+				textarea { margin-right: 0 !important; }' },
+				docExt: { value: '' },
 				firstPage: { value: 1 },
 				init: { value: function value() {
 						Cfg.findImgFile = 0;
-						var el = $id("captchaFormPart");
+						var el = $id('captchaFormPart');
 						if (el) {
-							doc.body.insertAdjacentHTML("beforeend", "<div style=\"display: none;\">" + "<div onclick=\"initRecaptcha();\"></div></div>");
+							doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' + '<div onclick="initRecaptcha();"></div></div>');
 							this.updateCaptcha = (function (el, focus) {
-								$id("g-recaptcha").innerHTML = "";
+								$id('g-recaptcha').innerHTML = '';
 								this.click();
-								el.style.display = "";
+								el.style.display = '';
 							}).bind(doc.body.lastChild.firstChild, el);
 						}
 						return false;
 					} },
 				markupBB: { value: true },
-				markupTags: { value: ["", "", "", "", "spoiler", "", "", "", "q"] },
+				markupTags: { value: ['', '', '', '', 'spoiler', '', '', '', 'q'] },
 				rep: { value: true },
-				res: { value: "thread/" },
-				timePattern: { value: "nn+dd+yy+w+hh+ii-?s?s?" },
-				thrid: { value: "resto" }
+				res: { value: 'thread/' },
+				timePattern: { value: 'nn+dd+yy+w+hh+ii-?s?s?' },
+				thrid: { value: 'resto' }
 			}],
-			"7chan.org": [{
+			'7chan.org': [{
 				init: { value: function value() {
 						return true;
 					} }
 			}],
-			"8ch.net": [{
+			'8ch.net': [{
 				_8ch: { value: true },
 
-				css: { value: ".fileinfo { width: 250px; }\t\t\t\t.multifile { width: auto !important; }\t\t\t\t.post-btn { display: none !important; }" },
+				css: { value: '.fileinfo { width: 250px; }\
+				.multifile { width: auto !important; }\
+				.post-btn { display: none !important; }' },
 				earlyInit: { value: function value() {
-						if (locStorage.file_dragdrop === "true") {
-							locStorage.file_dragdrop = false;
+						if (locStorage['file_dragdrop'] === 'true') {
+							locStorage['file_dragdrop'] = false;
 							return true;
 						}
 						return false;
 					} },
 				init: { value: null },
 				fixFileInputs: { value: function value(el) {
-						var str = "";
+						var str = '';
 						for (var i = 0, len = 5; i < len; ++i) {
-							str += "<div" + (i === 0 ? "" : " style=\"display: none;\"") + "><input type=\"file\" name=\"file" + (i === 0 ? "" : i + 1) + "\"></div>";
+							str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"></div>';
 						}
-						$id("upload").lastChild.innerHTML = str;
+						$id('upload').lastChild.innerHTML = str;
 					} },
 				multiFile: { value: true }
-			}, "form[name*=\"postcontrols\"]"],
-			"arhivach.org": [{
-				cReply: { value: "post" },
-				qDForm: { value: "body > .container-fluid" },
-				qHide: { value: ".post_comment" },
-				qMsg: { value: ".post_comment_body" },
-				qRef: { value: ".post_id, .post_head > b" },
-				qRPost: { value: ".post:not(:first-child):not([postid=\"\"])" },
-				qThread: { value: ".thread_inner" },
+			}, 'form[name*="postcontrols"]'],
+			'arhivach.org': [{
+				cReply: { value: 'post' },
+				qDForm: { value: 'body > .container-fluid' },
+				qHide: { value: '.post_comment' },
+				qMsg: { value: '.post_comment_body' },
+				qRef: { value: '.post_id, .post_head > b' },
+				qRPost: { value: '.post:not(:first-child):not([postid=""])' },
+				qThread: { value: '.thread_inner' },
 				getOp: { value: function value(el) {
-						return $q(".post:first-child", el);
+						return $q('.post:first-child', el);
 					} },
 				getPNum: { value: function value(post) {
-						return post.getAttribute("postid");
+						return post.getAttribute('postid');
 					} },
 				getTNum: { value: function value(el) {
-						return this.getOp(el).getAttribute("postid");
+						return this.getOp(el).getAttribute('postid');
 					} },
 				getThrdUrl: { value: function value(b, tNum) {
-						return $q("link[rel=\"canonical\"]", doc.head).href;
+						return $q('link[rel="canonical"]', doc.head).href;
 					} },
 				init: { value: function value() {
 						setTimeout(function () {
-							var delPosts = $Q(".post[postid=\"\"]", doc);
+							var delPosts = $Q('.post[postid=""]', doc);
 							for (var i = 0, len = delPosts.length; i < len; ++i) {
 								try {
-									var post = pByNum[$q("blockquote", delPosts[i]).getAttribute("id").substring(1)];
+									var post = pByNum[$q('blockquote', delPosts[i]).getAttribute('id').substring(1)];
 									if (post) {
 										post.deleted = true;
-										post.btns.classList.remove("de-post-counter");
-										post.btns.classList.add("de-post-deleted");
-										post.wrap.classList.add("de-post-removed");
+										post.btns.classList.remove('de-post-counter');
+										post.btns.classList.add('de-post-deleted');
+										post.wrap.classList.add('de-post-removed');
 									}
 								} catch (e) {}
 							}
 						}, 0);
 						return false;
 					} },
-				css: { value: ".post_replies, .post[postid=\"\"] { display: none !important; }\t\t\t\t.post { overflow-x: auto !important; }" },
-				docExt: { value: "" },
-				res: { value: "thread/" }
+				css: { value: '.post_replies, .post[postid=""] { display: none !important; }\
+				.post { overflow-x: auto !important; }' },
+				docExt: { value: '' },
+				res: { value: 'thread/' }
 			}],
-			"diochan.com": [{
+			'diochan.com': [{
 				dio: { value: true },
 
-				css: { value: ".resize { display: none; }" }
-			}, "script[src*=\"kusaba\"]"],
-			"dobrochan.com": [{
+				css: { value: '.resize { display: none; }' }
+			}, 'script[src*="kusaba"]'],
+
+			'dobrochan.com': [{
 				dobr: { value: true },
 
-				anchor: { value: "#i" },
-				cFileInfo: { value: "fileinfo" },
-				cSubj: { value: "replytitle" },
-				qClosed: { value: "img[src=\"/images/locked.png\"]" },
-				qDForm: { value: "form[action*=\"delete\"]" },
-				qError: { value: ".post-error, h2" },
-				qMsg: { value: ".postbody" },
-				qOmitted: { value: ".abbrev > span:last-of-type" },
-				qPages: { value: ".pages > tbody > tr > td" },
-				qPostRedir: { value: "select[name=\"goto\"]" },
-				qTrunc: { value: ".abbrev > span:nth-last-child(2)" },
+				anchor: { value: '#i' },
+				cFileInfo: { value: 'fileinfo' },
+				cSubj: { value: 'replytitle' },
+				qClosed: { value: 'img[src="/images/locked.png"]' },
+				qDForm: { value: 'form[action*="delete"]' },
+				qError: { value: '.post-error, h2' },
+				qMsg: { value: '.postbody' },
+				qOmitted: { value: '.abbrev > span:last-of-type' },
+				qPages: { value: '.pages > tbody > tr > td' },
+				qPostRedir: { value: 'select[name="goto"]' },
+				qTrunc: { value: '.abbrev > span:nth-last-child(2)' },
 				getImgLink: { value: function value(img) {
 						var el = img.parentNode;
-						return el.tagName === "A" ? el : $q(".fileinfo > a", img.previousElementSibling ? el : el.parentNode);
+						return el.tagName === 'A' ? el : $q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
 					} },
 				getImgWrap: { value: function value(el) {
-						return el.tagName === "A" ? (el.previousElementSibling ? el : el.parentNode).parentNode : el.firstElementChild.tagName === "IMG" ? el.parentNode : el;
+						return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode : el.firstElementChild.tagName === 'IMG' ? el.parentNode : el;
 					} },
 				getPageUrl: { value: function value(b, p) {
-						return fixBrd(b) + (p > 0 ? p + this.docExt : "index.xhtml");
+						return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
 					} },
 				getTNum: { value: function value(op) {
-						return $q("a[name]", op).name.match(/\d+/)[0];
+						return $q('a[name]', op).name.match(/\d+/)[0];
 					} },
 				insertYtPlayer: { value: function value(msg, playerHtml) {
 						var prev = msg.previousElementSibling,
-						    node = prev.tagName === "BR" ? prev : msg;
-						node.insertAdjacentHTML("beforebegin", playerHtml);
+						    node = prev.tagName === 'BR' ? prev : msg;
+						node.insertAdjacentHTML('beforebegin', playerHtml);
 						return node.previousSibling;
 					} },
-				css: { value: ".delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none; }\t\t\t\t.delete { background: none; }\t\t\t\t.delete_checkbox { position: static !important; }\t\t\t\t.file + .de-video-obj { float: left; margin: 5px 20px 5px 5px; }\t\t\t\t.de-video-obj + div { clear: left; }" },
+				css: { value: '.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none; }\
+				.delete { background: none; }\
+				.delete_checkbox { position: static !important; }\
+				.file + .de-video-obj { float: left; margin: 5px 20px 5px 5px; }\
+				.de-video-obj + div { clear: left; }' },
 				disableRedirection: { value: function value(el) {
 						($q(this.qPostRedir, el) || {}).selectedIndex = 1;
 					} },
 				fixFileInputs: { value: function value(el) {
-						el = $id("files_parent");
-						$each($Q("input[type=\"file\"]", el), function (el) {
-							el.removeAttribute("onchange");
+						el = $id('files_parent');
+						$each($Q('input[type="file"]', el), function (el) {
+							el.removeAttribute('onchange');
 						});
 						el.firstElementChild.value = 1;
 					} },
 				hasPicWrap: { value: true },
 				init: { value: function value() {
-						if (window.location.pathname === "/settings") {
+						if (window.location.pathname === '/settings') {
 							if (!nav) {
 								initNavFuncs();
 							}
-							$q("input[type=\"button\"]", doc).addEventListener("click", function () {
+							$q('input[type="button"]', doc).addEventListener('click', function () {
 								spawn(readCfg).then(function () {
-									return saveCfg("__hanarating", $id("rating").value);
+									return saveCfg('__hanarating', $id('rating').value);
 								});
 							});
 							return true;
@@ -13791,78 +13780,87 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					} },
 				multiFile: { value: true },
 				ru: { value: true },
-				timePattern: { value: "dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?" }
+				timePattern: { value: 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?' }
 			}],
-			"dva-ch.net": [{
+
+			'dva-ch.net': [{
 				dvachnet: { value: true },
 
 				ru: { value: true }
 			}],
-			"iichan.hk": [{
+			'iichan.hk': [{
 				iich: { value: true },
 
 				css: { get: function get() {
-						return "" + (this.t ? "#de-main { margin-top: -37px; }\t\t\t\t\t.logo { margin-bottom: 14px; }" : "");
+						return '' + (this.t ? '#de-main { margin-top: -37px; }\
+					.logo { margin-bottom: 14px; }' : '');
 					} },
 				init: { value: function value() {
-						doc.body.insertAdjacentHTML("beforeend", "<div onclick=\"highlight = function() {}\"></div>");
+						doc.body.insertAdjacentHTML('beforeend', '<div onclick="highlight = function() {}"></div>');
 						doc.body.lastChild.click();
 						return false;
-					} } }],
-			"inach.org": [{
-				qPostRedir: { value: "input[name=\"fieldnoko\"]" },
-				markupBB: { value: true },
-				timePattern: { value: "nn+dd+yyyy++w++hh+ii+ss" }
+					} }
 			}],
-			"krautchan.net": [{
+			'inach.org': [{
+				qPostRedir: { value: 'input[name="fieldnoko"]' },
+				markupBB: { value: true },
+				timePattern: { value: 'nn+dd+yyyy++w++hh+ii+ss' }
+			}],
+			'krautchan.net': [{
 				krau: { value: true },
 
-				cFileInfo: { value: "fileinfo" },
-				cReply: { value: "postreply" },
-				cSubj: { value: "postsubject" },
-				qBan: { value: ".ban_mark" },
-				qClosed: { value: "img[src=\"/images/locked.gif\"]" },
-				qDForm: { value: "form[action*=\"delete\"]" },
-				qError: { value: ".message_text" },
-				qHide: { value: "div:not(.postheader)" },
-				qImgLink: { value: ".filename > a" },
-				qOmitted: { value: ".omittedinfo" },
-				qPages: { value: "table[border=\"1\"] > tbody > tr > td > a:nth-last-child(2) + a" },
-				qPostRedir: { value: "input#forward_thread" },
-				qRef: { value: ".postnumber" },
-				qRPost: { value: ".postreply" },
-				qThread: { value: ".thread_body" },
-				qThumbImages: { value: "img[id^=\"thumbnail_\"]" },
-				qTrunc: { value: "p[id^=\"post_truncated\"]" },
+				cFileInfo: { value: 'fileinfo' },
+				cReply: { value: 'postreply' },
+				cSubj: { value: 'postsubject' },
+				qBan: { value: '.ban_mark' },
+				qClosed: { value: 'img[src="/images/locked.gif"]' },
+				qDForm: { value: 'form[action*="delete"]' },
+				qError: { value: '.message_text' },
+				qHide: { value: 'div:not(.postheader)' },
+				qImgLink: { value: '.filename > a' },
+				qOmitted: { value: '.omittedinfo' },
+				qPages: { value: 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a' },
+				qPostRedir: { value: 'input#forward_thread' },
+				qRef: { value: '.postnumber' },
+				qRPost: { value: '.postreply' },
+				qThread: { value: '.thread_body' },
+				qThumbImages: { value: 'img[id^="thumbnail_"]' },
+				qTrunc: { value: 'p[id^="post_truncated"]' },
 				getImgWrap: { value: function value(el) {
 						return el.parentNode;
 					} },
 				getSage: { value: function value(post) {
-						return !!$c("sage", post);
+						return !!$c('sage', post);
 					} },
 				getTNum: { value: function value(op) {
-						return $q("input[type=\"checkbox\"]", op).name.match(/\d+/)[0];
+						return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 					} },
 				insertYtPlayer: { value: function value(msg, playerHtml) {
 						var pMsg = msg.parentNode,
 						    prev = pMsg.previousElementSibling,
-						    node = prev.hasAttribute("style") ? prev : pMsg;
-						node.insertAdjacentHTML("beforebegin", playerHtml);
+						    node = prev.hasAttribute('style') ? prev : pMsg;
+						node.insertAdjacentHTML('beforebegin', playerHtml);
 						return node.previousSibling;
 					} },
-				css: { value: "img[src$=\"button-expand.gif\"], img[src$=\"button-close.gif\"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none; }\t\t\t\tdiv[id^=\"Wz\"] { z-index: 10000 !important; }\t\t\t\t.de-thr-hid { float: none; }\t\t\t\t.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\t\t\t\t.de-video-obj + div { clear: left; }\t\t\t\tform[action=\"/paint\"] > select { width: 105px; }\t\t\t\tform[action=\"/paint\"] > input[type=\"text\"] { width: 24px !important; }" },
+				css: { value: 'img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none; }\
+				div[id^="Wz"] { z-index: 10000 !important; }\
+				.de-thr-hid { float: none; }\
+				.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\
+				.de-video-obj + div { clear: left; }\
+				form[action="/paint"] > select { width: 105px; }\
+				form[action="/paint"] > input[type="text"] { width: 24px !important; }' },
 				fixFileInputs: { value: function value(el) {
-						var str = "";
+						var str = '';
 						for (var i = 0, len = 4; i < len; ++i) {
-							str += "<div" + (i === 0 ? "" : " style=\"display: none;\"") + "><input type=\"file\" name=\"file_" + i + "\" tabindex=\"7\"></input></div>";
+							str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file_' + i + '" tabindex="7"></input></div>';
 						}
-						var node = $id("files_parent");
+						var node = $id('files_parent');
 						node.innerHTML = str;
-						node.removeAttribute("id");
+						node.removeAttribute('id');
 					} },
 				hasPicWrap: { value: true },
 				init: { value: function value() {
-						doc.body.insertAdjacentHTML("beforeend", "<div style=\"display: none;\">" + "<div onclick=\"window.lastUpdateTime = 0;\"></div>" + "<div onclick=\"if(boardRequiresCaptcha) { requestCaptcha(true); }\"></div>" + "<div onclick=\"setupProgressTracking();\"></div>" + "<div onclick=\"highlightPost = function() {}\"></div></div>" + "</div>");
+						doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' + '<div onclick="window.lastUpdateTime = 0;"></div>' + '<div onclick="if(boardRequiresCaptcha) { requestCaptcha(true); }"></div>' + '<div onclick="setupProgressTracking();"></div>' + '<div onclick="highlightPost = function() {}"></div></div>' + '</div>');
 						var els = doc.body.lastChild.children;
 						this.btnZeroLUTime = els[0];
 						this.initCaptcha = els[1];
@@ -13871,22 +13869,23 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						return false;
 					} },
 				markupBB: { value: true },
-				markupTags: { value: ["b", "i", "u", "s", "spoiler", "aa", "", "", "q"] },
+				markupTags: { value: ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'] },
 				multiFile: { value: true },
 				rep: { value: true },
-				res: { value: "thread-" },
-				timePattern: { value: "yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?" }
+				res: { value: 'thread-' },
+				timePattern: { value: 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?' }
 			}],
-			"lainchan.org": [{
-				cOPost: { value: "op" },
-				css: { value: ".sidearrows { display: none !important; }" }
-			}, "form[name*=\"postcontrols\"]"],
-			"mlpg.co": [{
-				cOPost: { value: "opContainer" }
-			}, "form[name*=\"postcontrols\"]"],
-			"ponya.ch": [{
+			'lainchan.org': [{
+				cOPost: { value: 'op' },
+				css: { value: '.sidearrows { display: none !important; }' }
+			}, 'form[name*="postcontrols"]'],
+			'mlpg.co': [{
+				cOPost: { value: 'opContainer' }
+			}, 'form[name*="postcontrols"]'],
+
+			'ponya.ch': [{
 				getPNum: { value: function value(post) {
-						return post.getAttribute("data-num");
+						return post.getAttribute('data-num');
 					} },
 				init: { value: function value() {
 						defaultCfg.postSameImg = 0;
@@ -13895,29 +13894,29 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					} },
 				modifiedPosts: { configurable: true, get: function get() {
 						var val = new WeakMap();
-						Object.defineProperty(this, "modifiedPosts", { value: val });
+						Object.defineProperty(this, 'modifiedPosts', { value: val });
 						return val;
 					} },
 				postMapInited: { writable: true, value: false },
 				checkForm: { value: function value(formEl, maybeSpells) {
-						var _this292 = this;
+						var _this34 = this;
 
 						var myMaybeSpells = maybeSpells || new Maybe(SpellsRunner),
 						    maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
 						if (!this.postMapInited) {
 							this.postMapInited = true;
-							$each($Q(".oppost[data-lastmodified], .reply[data-lastmodified]", dForm.el), function (pEl) {
-								return _this292.modifiedPosts.set(pEl, +pEl.getAttribute("data-lastmodified"));
+							$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', dForm.el), function (pEl) {
+								return _this34.modifiedPosts.set(pEl, +pEl.getAttribute('data-lastmodified'));
 							});
 						}
-						$each($Q(".oppost[data-lastmodified], .reply[data-lastmodified]", formEl), function (pEl) {
+						$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', formEl), function (pEl) {
 							var nPost,
-							    post = pByNum[_this292.getPNum(pEl)],
-							    pDate = +pEl.getAttribute("data-lastmodified");
-							if (post && (!_this292.modifiedPosts.has(pEl) || _this292.modifiedPosts.get(pEl) < pDate)) {
+							    post = pByNum[_this34.getPNum(pEl)],
+							    pDate = +pEl.getAttribute('data-lastmodified');
+							if (post && (!_this34.modifiedPosts.has(pEl) || _this34.modifiedPosts.get(pEl) < pDate)) {
 								var thr = post.thr,
 								    fragm = doc.createDocumentFragment();
-								_this292.modifiedPosts.set(pEl, pDate);
+								_this34.modifiedPosts.set(pEl, pDate);
 								nPost = thr.addPost(fragm, pEl, post.count, post.prev, maybeVParser);
 								if (thr.op === post) {
 									thr.op = nPost;
@@ -13931,7 +13930,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 								}
 								if (post.omitted) {
 									nPost.omitted = true;
-									nPost.wrap.classList.add("de-hidden");
+									nPost.wrap.classList.add('de-hidden');
 								}
 								myMaybeSpells.value.run(nPost);
 								$before(post.wrap, fragm);
@@ -13944,139 +13943,143 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						maybeVParser.end();
 					} },
 				multiFile: { value: true },
-				thrid: { value: "replythread" }
+				thrid: { value: 'replythread' }
 			}],
-			"ponychan.net": [{
-				cOPost: { value: "opContainer" },
-				css: { value: ".mature_thread { display: block !important; }\t\t\t\t.mature_warning { display: none; }" },
+
+			'ponychan.net': [{
+				cOPost: { value: 'opContainer' },
+				css: { value: '.mature_thread { display: block !important; }\
+				.mature_warning { display: none; }' },
 				init: { value: function value() {
-						$each($Q("img[data-mature-src]", doc.body), function (el) {
-							el.src = el.getAttribute("data-mature-src");
+						$each($Q('img[data-mature-src]', doc.body), function (el) {
+							el.src = el.getAttribute('data-mature-src');
 						});
 						return false;
 					} }
-			}, "form[name*=\"postcontrols\"]"],
-			"syn-ch.ru": [{
-				cFileInfo: { value: "unimportant" },
-				css: { value: ".fa-sort { display: none; }\t\t\t\ttime::after { content: none; }" },
+			}, 'form[name*="postcontrols"]'],
+			'syn-ch.ru': [{
+				cFileInfo: { value: 'unimportant' },
+				css: { value: '.fa-sort { display: none; }\
+				time::after { content: none; }' },
 				earlyInit: { value: function value() {
-						var val = "{\"simpleNavbar\":true,\"showInfo\":true}";
-						if (locStorage.settings !== val) {
-							locStorage.settings = val;
+						var val = '{"simpleNavbar":true,"showInfo":true}';
+						if (locStorage['settings'] !== val) {
+							locStorage['settings'] = val;
 							return true;
 						}
 						return false;
 					} },
 				init: { value: function value() {
-						defaultCfg.timePattern = "w+dd+m+yyyy+hh+ii+ss";
+						defaultCfg.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
 						defaultCfg.timeOffset = 4;
 						defaultCfg.correctTime = 1;
 						return false;
 					} },
 				markupBB: { value: true },
-				markupTags: { value: ["b", "i", "u", "s", "spoiler", "code", "sub", "sup", "q"] }
-			}, "form[name*=\"postcontrols\"]"] }, {
-			"2-chru.net": {
-				get: function () {
-					return this["2chru.net"];
+				markupTags: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'] }
+			}, 'form[name*="postcontrols"]']
+		}, {
+			'2-chru.net': {
+				get: function get() {
+					return this['2chru.net'];
 				},
 				configurable: true,
 				enumerable: true
 			},
-			"2-ch.su": {
-				get: function () {
-					return this["2--ch.ru"];
+			'2-ch.su': {
+				get: function get() {
+					return this['2--ch.ru'];
 				},
 				configurable: true,
 				enumerable: true
 			},
-			"2ch.hk": {
-				get: function () {
-					return [ibEngines["body.makaba"]];
+			'2ch.hk': {
+				get: function get() {
+					return [ibEngines['body.makaba']];
 				},
 				configurable: true,
 				enumerable: true
 			},
-			"2ch.pm": {
-				get: function () {
-					return [ibEngines["body.makaba"]];
+			'2ch.pm': {
+				get: function get() {
+					return [ibEngines['body.makaba']];
 				},
 				configurable: true,
 				enumerable: true
 			},
-			"dmirrgetyojz735v.onion": {
-				get: function () {
-					return this["2chru.net"];
+			'dmirrgetyojz735v.onion': {
+				get: function get() {
+					return this['2chru.net'];
 				},
 				configurable: true,
 				enumerable: true
 			},
-			"dobrochan.org": {
-				get: function () {
-					return this["dobrochan.com"];
+			'dobrochan.org': {
+				get: function get() {
+					return this['dobrochan.com'];
 				},
 				configurable: true,
 				enumerable: true
 			},
-			"dobrochan.ru": {
-				get: function () {
-					return this["dobrochan.com"];
+			'dobrochan.ru': {
+				get: function get() {
+					return this['dobrochan.com'];
 				},
 				configurable: true,
 				enumerable: true
 			},
-			"niuchan.org": {
-				get: function () {
-					return this["diochan.com"];
+			'niuchan.org': {
+				get: function get() {
+					return this['diochan.com'];
 				},
 				configurable: true,
 				enumerable: true
 			},
-			"ponyach.cf": {
-				get: function () {
-					return this["ponya.ch"];
+			'ponyach.cf': {
+				get: function get() {
+					return this['ponya.ch'];
 				},
 				configurable: true,
 				enumerable: true
 			},
-			"ponyach.ga": {
-				get: function () {
-					return this["ponya.ch"];
+			'ponyach.ga': {
+				get: function get() {
+					return this['ponya.ch'];
 				},
 				configurable: true,
 				enumerable: true
 			},
-			"ponyach.ml": {
-				get: function () {
-					return this["ponya.ch"];
+			'ponyach.ml': {
+				get: function get() {
+					return this['ponya.ch'];
 				},
 				configurable: true,
 				enumerable: true
 			},
-			"ponyach.ru": {
-				get: function () {
-					return this["ponya.ch"];
+			'ponyach.ru': {
+				get: function get() {
+					return this['ponya.ch'];
 				},
 				configurable: true,
 				enumerable: true
 			},
-			"ponychan.ru": {
-				get: function () {
-					return this["ponya.ch"];
+			'ponychan.ru': {
+				get: function get() {
+					return this['ponya.ch'];
 				},
 				configurable: true,
 				enumerable: true
 			},
-			"syn-ch.com": {
-				get: function () {
-					return this["syn-ch.ru"];
+			'syn-ch.com': {
+				get: function get() {
+					return this['syn-ch.ru'];
 				},
 				configurable: true,
 				enumerable: true
 			},
-			"syn-ch.org": {
-				get: function () {
-					return this["syn-ch.ru"];
+			'syn-ch.org': {
+				get: function get() {
+					return this['syn-ch.ru'];
 				},
 				configurable: true,
 				enumerable: true
@@ -14084,40 +14087,40 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		});
 
 		var ibEngines = Object.defineProperties({
-			"body.makaba": {
+			'body.makaba': {
 				mak: { value: true },
 
-				cReply: { value: "post reply" },
-				cSubj: { value: "post-title" },
-				qBan: { value: ".pomyanem" },
-				qClosed: { value: ".sticky-img[src$=\"locked.png\"]" },
-				qDForm: { value: "#posts-form" },
-				qHide: { value: ".post-details ~ *" },
-				qImgLink: { value: ".file-attr > .desktop" },
-				qMsg: { value: ".post-message" },
-				qName: { value: ".ananimas, .post-email" },
-				qOmitted: { value: ".mess-post" },
+				cReply: { value: 'post reply' },
+				cSubj: { value: 'post-title' },
+				qBan: { value: '.pomyanem' },
+				qClosed: { value: '.sticky-img[src$="locked.png"]' },
+				qDForm: { value: '#posts-form' },
+				qHide: { value: '.post-details ~ *' },
+				qImgLink: { value: '.file-attr > .desktop' },
+				qMsg: { value: '.post-message' },
+				qName: { value: '.ananimas, .post-email' },
+				qOmitted: { value: '.mess-post' },
 				qPostRedir: { value: null },
-				qRPost: { value: "div.reply" },
-				qThumbImages: { value: ".preview" },
+				qRPost: { value: 'div.reply' },
+				qThumbImages: { value: '.preview' },
 				qTrunc: { value: null },
-				nameSelector: { value: ".ananimas, .post-email, .ananimas > span, .post-email > span" },
+				nameSelector: { value: '.ananimas, .post-email, .ananimas > span, .post-email > span' },
 				getImgParent: { value: function value(node) {
-						var el = $parent(node, "FIGURE"),
+						var el = $parent(node, 'FIGURE'),
 						    parent = el.parentNode;
 						return parent.lastElementChild === el ? parent : el;
 					} },
 				getImgWrap: { value: function value(el) {
-						return $parent(el, "FIGURE");
+						return $parent(el, 'FIGURE');
 					} },
 				getPNum: { value: function value(post) {
-						return post.getAttribute("data-num");
+						return post.getAttribute('data-num');
 					} },
 				getSage: { writable: true, value: function value(post) {
 						if (this.hasNames) {
 							this.getSage = function (post) {
 								var name = $q(this.qName, post);
-								return name ? name.childElementCount === 0 && !$c("ophui", post) : false;
+								return name ? name.childElementCount === 0 && !$c('ophui', post) : false;
 							};
 						} else {
 							this.getSage = Object.getPrototypeOf(this).getSage;
@@ -14128,13 +14131,13 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						return el.parentNode;
 					} },
 				cssEn: { get: function get() {
-						return ".ABU-refmap, .box[onclick=\"ToggleSage()\"], img[alt=\"webm file\"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t.de-abtn { transition: none; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t\t" + (Cfg.expandTrunc ? ".expand-large-comment, div[id^=\"shrinked-post\"] { display: none !important; } div[id^=\"original-post\"] { display: block !important; }" : "") + "\n\t\t\t\t" + (Cfg.delImgNames ? ".filesize { display: inline !important; }" : "");
+						return '.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t.de-abtn { transition: none; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; }' : '');
 					} },
 				earlyInit: { value: function value() {
 						try {
 							var obj = JSON.parse(locStorage.store);
-							if (obj.other.navigation !== "page") {
-								obj.other.navigation = "page";
+							if (obj.other.navigation !== 'page') {
+								obj.other.navigation = 'page';
 								locStorage.store = JSON.stringify(obj);
 								return true;
 							}
@@ -14142,37 +14145,37 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						return false;
 					} },
 				forEachReflink: { value: function value(msg, fn) {
-						var links = $Q(".post-reply-link", msg);
+						var links = $Q('.post-reply-link', msg);
 						for (var i = 0, len = links.length; i < len; ++i) {
 							var link = links[i];
-							fn(link, +link.getAttribute("data-num"));
+							fn(link, +link.getAttribute('data-num'));
 						}
 					} },
 				hasNames: { configurable: true, get: function get() {
-						var val = !!$q(".ananimas > span[id^=\"id_tag_\"], .post-email > span[id^=\"id_tag_\"]", doc.body);
-						Object.defineProperty(this, "hasNames", { value: val });
+						var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
+						Object.defineProperty(this, 'hasNames', { value: val });
 						return val;
 					} },
 				hasOPNum: { value: true },
 				hasPicWrap: { value: true },
 				init: { value: function value() {
-						var _this292 = this;
+						var _this35 = this;
 
-						$script("window.FormData = void 0;");
-						$each($C("autorefresh", doc), $del);
-						var el = $q("td > .anoniconsselectlist", doc);
+						$script('window.FormData = void 0;');
+						$each($C('autorefresh', doc), $del);
+						var el = $q('td > .anoniconsselectlist', doc);
 						if (el) {
-							$q(".option-area > td:last-child", doc).appendChild(el);
+							$q('.option-area > td:last-child', doc).appendChild(el);
 						}
-						el = $q("tr:not([class])", doc.body);
+						el = $q('tr:not([class])', doc.body);
 						if (!el) {
 							return false;
 						}
-						doc.body.insertAdjacentHTML("beforeend", "<div style=\"display: none;\">" + "<div onclick=\"loadCaptcha();\"></div></div>");
+						doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' + '<div onclick="loadCaptcha();"></div></div>');
 						this.updateCaptcha = (function (el, focus) {
 							this.click();
-							el.style.display = "";
-							el = $id("captcha-value");
+							el.style.display = '';
+							el = $id('captcha-value');
 							if (el) {
 								pr.cap = el;
 								el.tabIndex = 999;
@@ -14181,97 +14184,99 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 								}
 							}
 						}).bind(doc.body.lastChild.firstChild, el);
-						el.addEventListener("click", function (e) {
-							if (e.target.tagName === "IMG") {
-								_this292.updateCaptcha(true);
+						el.addEventListener('click', function (e) {
+							if (e.target.tagName === 'IMG') {
+								_this35.updateCaptcha(true);
 								e.stopPropagation();
 							}
 						}, true);
 						return false;
 					} },
 				fixFileInputs: { value: function value(el) {
-						var str = "";
+						var str = '';
 						for (var i = 0, len = 4; i < len; ++i) {
-							str += "<div" + (i === 0 ? "" : " style=\"display: none;\"") + "><input type=\"file\" name=\"image" + (i + 1) + "\"></input></div>";
+							str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="image' + (i + 1) + '"></input></div>';
 						}
-						$q("#postform .images-area", doc).lastElementChild.innerHTML = str;
+						$q('#postform .images-area', doc).lastElementChild.innerHTML = str;
 					} },
 				lastPage: { configurable: true, get: function get() {
-						var els = $Q(".pager > a:not([class])", doc),
+						var els = $Q('.pager > a:not([class])', doc),
 						    val = els ? els.length : 1;
-						Object.defineProperty(this, "lastPage", { value: val });
+						Object.defineProperty(this, 'lastPage', { value: val });
 						return val;
 					} },
 				markupBB: { value: true },
-				markupTags: { value: ["B", "I", "U", "S", "SPOILER", "CODE", "SUP", "SUB", "q"] },
+				markupTags: { value: ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'] },
 				multiFile: { value: true },
-				timePattern: { value: "dd+nn+yy+w+hh+ii+ss" }
+				timePattern: { value: 'dd+nn+yy+w+hh+ii+ss' }
 			},
-			"form[action*=\"futaba.php\"]": {
+			'form[action*="futaba.php"]': {
 				futa: { value: true },
 
-				qDForm: { value: "form:not([enctype])" },
-				qImgLink: { value: "a[href$=\".jpg\"], a[href$=\".png\"], a[href$=\".gif\"]" },
-				qOmitted: { value: "font[color=\"#707070\"]" },
-				qPostForm: { value: "form:nth-of-type(1)" },
+				qDForm: { value: 'form:not([enctype])' },
+				qImgLink: { value: 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]' },
+				qOmitted: { value: 'font[color="#707070"]' },
+				qPostForm: { value: 'form:nth-of-type(1)' },
 				qPostRedir: { value: null },
-				qRef: { value: ".del" },
-				qRPost: { value: "td:nth-child(2)" },
-				qThumbImages: { value: "a[href$=\".jpg\"] > img, a[href$=\".png\"] > img, a[href$=\".gif\"] > img" },
+				qRef: { value: '.del' },
+				qRPost: { value: 'td:nth-child(2)' },
+				qThumbImages: { value: 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img' },
 				getPageUrl: { value: function value(b, p) {
-						return fixBrd(b) + (p > 0 ? p + this.docExt : "futaba.htm");
+						return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
 					} },
 				getPNum: { value: function value(post) {
-						return $t("input", post).name;
+						return $t('input', post).name;
 					} },
 				getPostEl: { value: function value(el) {
-						while (el && el.tagName !== "TD" && !el.hasAttribute("de-thread")) {
+						while (el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
 							el = el.parentElement;
 						}
 						return el;
 					} },
 				getTNum: { value: function value(op) {
-						return $q("input[type=\"checkbox\"]", op).name.match(/\d+/)[0];
+						return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 					} },
-				cssEn: { value: ".ftbl { width: auto; margin: 0; }\t\t\t\t.reply { background: #f0e0d6; }\t\t\t\tspan { font-size: inherit; }" },
-				docExt: { value: ".htm" },
-				thrid: { value: "resto" }
+				cssEn: { value: '.ftbl { width: auto; margin: 0; }\
+				.reply { background: #f0e0d6; }\
+				span { font-size: inherit; }' },
+				docExt: { value: '.htm' },
+				thrid: { value: 'resto' }
 			},
-			"form[action*=\"imgboard.php?delete\"]": {
+			'form[action*="imgboard.php?delete"]': {
 				tinyIb: { value: true },
 
 				qPostRedir: { value: null },
 				getCaptchaSrc: { value: function value(src, tNum) {
-						return src.replace(/\?[^?]+$|$/, "?" + Math.random());
+						return src.replace(/\?[^?]+$|$/, '?' + Math.random());
 					} },
 				ru: { value: true }
 			},
-			"form[name*=\"postcontrols\"]": {
+			'form[name*="postcontrols"]': {
 				tiny: { value: true },
 
-				cFileInfo: { value: "fileinfo" },
-				cReply: { value: "post reply" },
-				qClosed: { value: ".fa-lock" },
-				cSubj: { value: "subject" },
-				cTrip: { value: "trip" },
-				qDForm: { value: "form[name*=\"postcontrols\"]" },
-				qHide: { value: ".intro ~ *" },
-				qImgLink: { value: "p.fileinfo > a:first-of-type" },
-				qMsg: { value: ".body" },
-				qName: { value: ".name" },
-				qOmitted: { value: ".omitted" },
-				qPages: { value: ".pages > a:nth-last-of-type(2)" },
-				qPostForm: { value: "form[name=\"post\"]" },
+				cFileInfo: { value: 'fileinfo' },
+				cReply: { value: 'post reply' },
+				qClosed: { value: '.fa-lock' },
+				cSubj: { value: 'subject' },
+				cTrip: { value: 'trip' },
+				qDForm: { value: 'form[name*="postcontrols"]' },
+				qHide: { value: '.intro ~ *' },
+				qImgLink: { value: 'p.fileinfo > a:first-of-type' },
+				qMsg: { value: '.body' },
+				qName: { value: '.name' },
+				qOmitted: { value: '.omitted' },
+				qPages: { value: '.pages > a:nth-last-of-type(2)' },
+				qPostForm: { value: 'form[name="post"]' },
 				qPostRedir: { value: null },
-				qRef: { value: ".post_no + a" },
-				qTable: { value: ".post.reply" },
-				qTrunc: { value: ".toolong" },
+				qRef: { value: '.post_no + a' },
+				qTable: { value: '.post.reply' },
+				qTrunc: { value: '.toolong' },
 				fixVideo: { value: function value(post) {
 						var videos = [],
-						    els = $Q(".video-container, #ytplayer", post ? post.el : dForm.el);
+						    els = $Q('.video-container, #ytplayer', post ? post.el : dForm.el);
 						for (var i = 0, len = els.length; i < len; ++i) {
 							var el = els[i];
-							videos.push([post || this.getPostEl(el).post, el.id === "ytplayer" ? el.src.match(Videos.ytReg) : ["", el.getAttribute("data-video")], true]);
+							videos.push([post || this.getPostEl(el).post, el.id === 'ytplayer' ? el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true]);
 							$del(el);
 						}
 						return videos;
@@ -14280,82 +14285,84 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
 					} },
 				getTNum: { value: function value(op) {
-						return $q("input[type=\"checkbox\"]", op).name.match(/\d+/)[0];
+						return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 					} },
 				init: { value: function value() {
 						if (Cfg) {
 							Cfg.fileThumb = 0;
 						}
 						setTimeout(function () {
-							$del($id("updater"));
+							$del($id('updater'));
 						}, 0);
 						return false;
 					} },
 				firstPage: { value: 1 },
-				markupTags: { value: ["'''", "''", "__", "^H", "**", "`", "", "", "q"] },
+				markupTags: { value: ["'''", "''", '__', '^H', '**', '`', '', '', 'q'] },
 				cssEn: { get: function get() {
-						return ".banner, " + (this.t ? "" : ".de-btn-rep,") + " .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }\n\t\t\t\t\tform, form table { margin: 0; }";
+						return '.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }\n\t\t\t\t\tform, form table { margin: 0; }';
 					} },
-				timePattern: { value: "nn+dd+yy++w++hh+ii+ss" },
-				thrid: { value: "thread" }
+				timePattern: { value: 'nn+dd+yy++w++hh+ii+ss' },
+				thrid: { value: 'thread' }
 			},
-			"script[src*=\"kusaba\"]": {
+			'script[src*="kusaba"]': {
 				kus: { value: true },
 
-				cOPost: { value: "postnode" },
-				qError: { value: "h1, h2, div[style*=\"1.25em\"]" },
+				cOPost: { value: 'postnode' },
+				qError: { value: 'h1, h2, div[style*="1.25em"]' },
 				qPostRedir: { value: null },
 				getCaptchaSrc: { value: function value(src, tNum) {
-						return src.replace(/\?[^?]+$|$/, "?" + Math.random());
+						return src.replace(/\?[^?]+$|$/, '?' + Math.random());
 					} },
-				cssEn: { value: ".extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }\t\t\t\t.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }" },
+				cssEn: { value: '.extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }\
+				.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }' },
 				markupBB: { value: true }
 			},
-			"link[href$=\"phutaba.css\"]": {
-				cOPost: { value: "thread_OP" },
-				cReply: { value: "post" },
-				cSubj: { value: "subject" },
-				cTrip: { value: "tripcode" },
-				qError: { value: ".error" },
-				qHide: { value: ".post > .post_body" },
-				qImgLink: { value: ".filename > a" },
-				qMsg: { value: ".text" },
-				qPages: { value: ".pagelist > li:nth-last-child(2)" },
-				qPostRedir: { value: "input[name=\"gb2\"][value=\"thread\"]" },
-				qRPost: { value: ".thread_reply" },
-				qTrunc: { value: ".tldr" },
+
+			'link[href$="phutaba.css"]': {
+				cOPost: { value: 'thread_OP' },
+				cReply: { value: 'post' },
+				cSubj: { value: 'subject' },
+				cTrip: { value: 'tripcode' },
+				qError: { value: '.error' },
+				qHide: { value: '.post > .post_body' },
+				qImgLink: { value: '.filename > a' },
+				qMsg: { value: '.text' },
+				qPages: { value: '.pagelist > li:nth-last-child(2)' },
+				qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
+				qRPost: { value: '.thread_reply' },
+				qTrunc: { value: '.tldr' },
 				getImgWrap: { value: function value(el) {
 						return el.parentNode.parentNode;
 					} },
 				getSage: { value: function value(post) {
-						return !!$q(".sage", post);
+						return !!$q('.sage', post);
 					} },
-				cssEn: { value: ".content > hr, .de-parea > hr { display: none !important }" },
-				docExt: { value: "" },
+				cssEn: { value: '.content > hr, .de-parea > hr { display: none !important }' },
+				docExt: { value: '' },
 				fixFileInputs: { value: function value(el) {
-						var str = "><input name=\"file\" type=\"file\"></input></div>";
-						el.removeAttribute("onchange");
-						el.parentNode.parentNode.innerHTML = "<div" + str + ("<div style=\"display: none;\"" + str).repeat(3);
+						var str = '><input name="file" type="file"></input></div>';
+						el.removeAttribute('onchange');
+						el.parentNode.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 					} },
 				markupBB: { value: true },
 				multiFile: { value: true },
-				res: { value: "thread/" }
+				res: { value: 'thread/' }
 			},
-			"div#mainc": {
-				qDForm: { value: "#mainc" },
+			'div#mainc': {
+				qDForm: { value: '#mainc' },
 				getPageUrl: { value: function value(b, p) {
-						return fixBrd(b) + "?do=page&p=" + (p < 0 ? 0 : p);
+						return fixBrd(b) + '?do=page&p=' + (p < 0 ? 0 : p);
 					} },
 				getThrdUrl: { value: function value(b, tNum) {
-						return this.prot + "//" + this.host + fixBrd(b) + "?do=thread&id=" + tNum;
+						return this.prot + '//' + this.host + fixBrd(b) + '?do=thread&id=' + tNum;
 					} },
 				getTNum: { value: function value(op) {
-						return $q("a[name]", op).name.match(/\d+/)[0];
+						return $q('a[name]', op).name.match(/\d+/)[0];
 					} },
-				css: { value: ".reply { background-color: #e4e4d6; }" },
+				css: { value: '.reply { background-color: #e4e4d6; }' },
 				init: { value: function value() {
-						var el = $id("mainc"),
-						    pArea = $id("postarea");
+						var el = $id('mainc'),
+						    pArea = $id('postarea');
 						$del(el.firstElementChild);
 						$before(el, pArea.nextElementSibling);
 						$before(el, pArea);
@@ -14363,16 +14370,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					} },
 				parseURL: { value: function value() {
 						var url = window.location.search.match(/^\?do=(thread|page)&(id|p)=(\d+)$/);
-						this.b = window.location.pathname.replace(/\//g, "");
-						this.t = url[1] === "thread" ? url[3] : false;
-						this.page = url[1] === "page" ? +url[3] : 0;
-						this.docExt = "";
+						this.b = window.location.pathname.replace(/\//g, '');
+						this.t = url[1] === 'thread' ? url[3] : false;
+						this.page = url[1] === 'page' ? +url[3] : 0;
+						this.docExt = '';
 					} }
 			}
 		}, {
-			"form[action$=\"board.php\"]": {
-				get: function () {
-					return this["script[src*=\"kusaba\"]"];
+			'form[action$="board.php"]': {
+				get: function get() {
+					return this['script[src*="kusaba"]'];
 				},
 				configurable: true,
 				enumerable: true
@@ -14380,30 +14387,33 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		});
 
 		var ibBase = Object.defineProperties({
-			cFileInfo: "filesize",
-			cOPost: "oppost",
-			cReply: "reply",
-			cSubj: "filetitle",
-			cTrip: "postertrip",
-			qBan: "",
-			qDelBut: "input[type=\"submit\"]",
-			qDForm: "#delform, form[name=\"delform\"]",
-			qError: "h1, h2, font[size=\"5\"]",
-			qHide: ".de-post-btns ~ *",
-			qMsg: "blockquote",
-			qName: ".postername, .commentpostername",
-			qOmitted: ".omittedposts",
-			qPages: "table[border=\"1\"] > tbody > tr > td:nth-child(2) > a:last-of-type",
-			qPostForm: "#postform",
-			qPostRedir: "input[name=\"postredir\"][value=\"1\"]",
-			qRef: ".reflink",
-			qRPost: ".reply",
-			qTable: "form > table, div > table, div[id^=\"repl\"]",
-			qThumbImages: ".thumb, .de-thumb, .ca_thumb, img[src*=\"thumb\"], img[src*=\"/spoiler\"], img[src^=\"blob:\"]",
-			qTrunc: ".abbrev, .abbr, .shortened",
+			cFileInfo: 'filesize',
+			cOPost: 'oppost',
+			cReply: 'reply',
+			cSubj: 'filetitle',
+			cTrip: 'postertrip',
+			qBan: '',
+			qDelBut: 'input[type="submit"]',
+			qDForm: '#delform, form[name="delform"]',
+			qError: 'h1, h2, font[size="5"]',
+			qHide: '.de-post-btns ~ *',
+
+			qMsg: 'blockquote',
+
+			qName: '.postername, .commentpostername',
+			qOmitted: '.omittedposts',
+			qPages: 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type',
+			qPostForm: '#postform',
+			qPostRedir: 'input[name="postredir"][value="1"]',
+			qRef: '.reflink',
+			qRPost: '.reply',
+			qTable: 'form > table, div > table, div[id^="repl"]',
+			qThumbImages: '.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]',
+
+			qTrunc: '.abbrev, .abbr, .shortened',
 			fixVideo: function fixVideo(post) {
 				var videos = [],
-				    els = $Q("embed, object, iframe", post ? post.el : dForm.el);
+				    els = $Q('embed, object, iframe', post ? post.el : dForm.el);
 				for (var i = 0, len = els.length; i < len; ++i) {
 					var m,
 					    el = els[i],
@@ -14422,45 +14432,45 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				return videos;
 			},
 			forEachReflink: function forEachReflink(msg, fn) {
-				var links = $T("a", msg);
+				var links = $T('a', msg);
 				for (var i = 0, len = links.length; i < len; ++i) {
 					var lNum,
 					    tc = links[i].textContent;
-					if (tc[0] === ">" && tc[1] === ">" && (lNum = +tc.substr(2))) {
+					if (tc[0] === '>' && tc[1] === '>' && (lNum = +tc.substr(2))) {
 						fn(links[i], lNum);
 					}
 				}
 			},
 			getCaptchaSrc: function getCaptchaSrc(src, tNum) {
-				var tmp = src.replace(/pl$/, "pl?key=mainpage&amp;dummy=").replace(/dummy=[\d\.]*/, "dummy=" + Math.random());
-				return tNum ? tmp.replace(/mainpage|res\d+/, "res" + tNum) : tmp.replace(/res\d+/, "mainpage");
+				var tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=').replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
+				return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum) : tmp.replace(/res\d+/, 'mainpage');
 			},
 			getFileInfo: function getFileInfo(wrap) {
 				var el = $c(this.cFileInfo, wrap);
-				return el ? el.textContent : "";
+				return el ? el.textContent : '';
 			},
 			getImgLink: function getImgLink(img) {
 				var el = img.parentNode;
-				return el.tagName === "SPAN" ? el.parentNode : el;
+				return el.tagName === 'SPAN' ? el.parentNode : el;
 			},
 			getImgParent: function getImgParent(el) {
 				return this.getImgWrap(el);
 			},
 			getImgWrap: function getImgWrap(el) {
-				var node = (el.tagName === "SPAN" ? el.parentNode : el).parentNode;
-				return node.tagName === "SPAN" ? node.parentNode : node;
+				var node = (el.tagName === 'SPAN' ? el.parentNode : el).parentNode;
+				return node.tagName === 'SPAN' ? node.parentNode : node;
 			},
 			getOmitted: function getOmitted(el, len) {
 				var txt;
 				return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
 			},
 			getOp: function getOp(thr) {
-				var op = localRun ? $q("div[de-oppost]", thr) : $c(this.cOPost, thr);
+				var op = localRun ? $q('div[de-oppost]', thr) : $c(this.cOPost, thr);
 				if (op) {
 					return op;
 				}
-				op = thr.ownerDocument.createElement("div");
-				op.setAttribute("de-oppost", "");
+				op = thr.ownerDocument.createElement('div');
+				op.setAttribute('de-oppost', '');
 				var el,
 				    opEnd = $q(this.qTable, thr);
 				while ((el = thr.firstChild) !== opEnd) {
@@ -14477,54 +14487,54 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				return post.id.match(/\d+/)[0];
 			},
 			getPageUrl: function getPageUrl(b, p) {
-				return fixBrd(b) + (p > 0 ? p + this.docExt : "");
+				return fixBrd(b) + (p > 0 ? p + this.docExt : '');
 			},
 			getPostEl: function getPostEl(el) {
-				var sel = this.qRPost + ", [de-thread]";
+				var sel = this.qRPost + ', [de-thread]';
 				while (el && !nav.matchesSelector(el, sel)) {
 					el = el.parentElement;
 				}
 				return el;
 			},
 			getSage: function getSage(post) {
-				var a = $q("a[href^=\"mailto:\"], a[href=\"sage\"]", post);
+				var a = $q('a[href^="mailto:"], a[href="sage"]', post);
 				return !!a && /sage/i.test(a.href);
 			},
 			getThrdUrl: function getThrdUrl(b, tNum) {
-				return this.prot + "//" + this.host + fixBrd(b) + this.res + tNum + this.docExt;
+				return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
 			},
 			getTNum: function getTNum(op) {
-				return $q("input[type=\"checkbox\"]", op).value;
+				return $q('input[type="checkbox"]', op).value;
 			},
 			getWrap: function getWrap(el, isOp) {
 				if (isOp) {
 					return el;
 				}
-				if (el.tagName === "TD") {
-					Object.defineProperty(this, "getWrap", { value: function value(el, isOp) {
-							return isOp ? el : $parent(el, "TABLE");
+				if (el.tagName === 'TD') {
+					Object.defineProperty(this, 'getWrap', { value: function value(el, isOp) {
+							return isOp ? el : $parent(el, 'TABLE');
 						} });
 				} else {
-					Object.defineProperty(this, "getWrap", { value: function value(el, isOp) {
+					Object.defineProperty(this, 'getWrap', { value: function value(el, isOp) {
 							return el;
 						} });
 				}
 				return this.getWrap(el, isOp);
 			},
 			insertYtPlayer: function insertYtPlayer(msg, playerHtml) {
-				msg.insertAdjacentHTML("beforebegin", playerHtml);
+				msg.insertAdjacentHTML('beforebegin', playerHtml);
 				return msg.previousSibling;
 			},
-			anchor: "#",
-			css: "",
-			cssEn: "",
+			anchor: '#',
+			css: '',
+			cssEn: '',
 			disableRedirection: function disableRedirection(el) {
 				if (this.qPostRedir) {
 					($q(this.qPostRedir, el) || {}).checked = true;
 				}
 			},
-			dm: "",
-			docExt: ".html",
+			dm: '',
+			docExt: '.html',
 			LastModified: null,
 			earlyInit: null,
 			ETag: null,
@@ -14535,83 +14545,86 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			host: window.location.hostname,
 			init: null,
 			checkForm: emptyFn,
+
 			markupBB: false,
+
 			multiFile: false,
 			parseURL: function parseURL() {
-				var url = (window.location.pathname || "").match(new RegExp("^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?" + "(" + regQuote(this.res) + ")?" + "(\\d+|index|wakaba|futaba)?" + "(\\.(?:[a-z]+))?(?:\\/|$)"));
-				this.b = url[1].replace(/\/$/, "");
+				var url = (window.location.pathname || '').match(new RegExp('^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?' + '(' + regQuote(this.res) + ')?' + '(\\d+|index|wakaba|futaba)?' + '(\\.(?:[a-z]+))?(?:\\/|$)'));
+				this.b = url[1].replace(/\/$/, '');
 				this.t = url[2] ? url[3] : this.futa ? +(window.location.search.match(/\d+/) || [false])[0] : false;
 				this.page = url[3] && !this.t ? +url[3] || this.firstPage : this.firstPage;
-				if (!this.hasOwnProperty("docExt") && url[4]) {
+				if (!this.hasOwnProperty('docExt') && url[4]) {
 					this.docExt = url[4];
 				}
 			},
 			prot: prot,
-			res: "res/",
+
+			res: 'res/',
 			ru: false,
-			timePattern: "w+dd+m+yyyy+hh+ii+ss",
-			thrid: "parent"
+			timePattern: 'w+dd+m+yyyy+hh+ii+ss',
+			thrid: 'parent'
 		}, {
 			qImgLink: {
-				get: function () {
-					var val = "." + this.cFileInfo + " a[href$=\".jpg\"], " + "." + this.cFileInfo + " a[href$=\".jpeg\"], " + "." + this.cFileInfo + " a[href$=\".png\"], " + "." + this.cFileInfo + " a[href$=\".gif\"], " + "." + this.cFileInfo + " a[href$=\".webm\"]";
-					Object.defineProperty(this, "qImgLink", { value: val });
+				get: function get() {
+					var val = '.' + this.cFileInfo + ' a[href$=".jpg"], ' + '.' + this.cFileInfo + ' a[href$=".jpeg"], ' + '.' + this.cFileInfo + ' a[href$=".png"], ' + '.' + this.cFileInfo + ' a[href$=".gif"], ' + '.' + this.cFileInfo + ' a[href$=".webm"]';
+					Object.defineProperty(this, 'qImgLink', { value: val });
 					return val;
 				},
 				configurable: true,
 				enumerable: true
 			},
 			qMsgImgLink: {
-				get: function () {
-					var val = this.qMsg + " a[href*=\".jpg\"], " + this.qMsg + " a[href*=\".png\"], " + this.qMsg + " a[href*=\".gif\"], " + this.qMsg + " a[href*=\".jpeg\"]";
-					Object.defineProperty(this, "qMsgImgLink", { value: val });
+				get: function get() {
+					var val = this.qMsg + ' a[href*=".jpg"], ' + this.qMsg + ' a[href*=".png"], ' + this.qMsg + ' a[href*=".gif"], ' + this.qMsg + ' a[href*=".jpeg"]';
+					Object.defineProperty(this, 'qMsgImgLink', { value: val });
 					return val;
 				},
 				configurable: true,
 				enumerable: true
 			},
 			qThread: {
-				get: function () {
-					var val = $c("thread", doc) ? ".thread" : $q("div[id*=\"_info\"][style*=\"float\"]", doc) ? "div[id^=\"t\"]:not([style])" : "[id^=\"thread\"]";
-					Object.defineProperty(this, "qThread", { value: val });
+				get: function get() {
+					var val = $c('thread', doc) ? '.thread' : $q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' : '[id^="thread"]';
+					Object.defineProperty(this, 'qThread', { value: val });
 					return val;
 				},
 				configurable: true,
 				enumerable: true
 			},
 			lastPage: {
-				get: function () {
+				get: function get() {
 					var el = $q(this.qPages, doc),
 					    val = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
 					if (this.page === val + 1) {
 						val++;
 					}
-					Object.defineProperty(this, "lastPage", { value: val });
+					Object.defineProperty(this, 'lastPage', { value: val });
 					return val;
 				},
 				configurable: true,
 				enumerable: true
 			},
 			markupTags: {
-				get: function () {
-					return this.markupBB ? ["b", "i", "u", "s", "spoiler", "code", "", "", "q"] : ["**", "*", "", "^H", "%%", "`", "", "", "q"];
+				get: function get() {
+					return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] : ['**', '*', '', '^H', '%%', '`', '', '', 'q'];
 				},
 				configurable: true,
 				enumerable: true
 			},
 			reCrossLinks: {
-				get: function () {
-					var val = new RegExp(">https?:\\/\\/[^\\/]*" + this.dm + "\\/([a-z0-9]+)\\/" + regQuote(this.res) + "(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<", "g");
-					Object.defineProperty(this, "reCrossLinks", { value: val });
+				get: function get() {
+					var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' + regQuote(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
+					Object.defineProperty(this, 'reCrossLinks', { value: val });
 					return val;
 				},
 				configurable: true,
 				enumerable: true
 			},
 			rep: {
-				get: function () {
+				get: function get() {
 					var val = dTime || spells.haveReps || Cfg.crossLinks;
-					Object.defineProperty(this, "rep", { value: val });
+					Object.defineProperty(this, 'rep', { value: val });
 					return val;
 				},
 				configurable: true,
@@ -14619,9 +14632,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		});
 
-		localRun = prot === "file:";
+		localRun = prot === 'file:';
 		var ibObj = null,
-		    dm = localRun ? (window.location.pathname.match(/\/([^-]+)-[^-]+-[^\.]+\.[a-z]+$/) || [, ""])[1] : window.location.hostname.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
+		    dm = localRun ? (window.location.pathname.match(/\/([^-]+)-[^-]+-[^\.]+\.[a-z]+$/) || [, ''])[1] : window.location.hostname.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 		if (checkDomains) {
 			if (dm in ibDomains) {
 				ibObj = (function createBoard(info) {
@@ -14663,10 +14676,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				return null;
 			}
 		}
-		if (aib.init && aib.init() || $id("de-panel")) {
+		if (aib.init && aib.init() || $id('de-panel')) {
 			return null;
 		}
-		var formEl = $q(aib.qDForm + ", form[de-form]", doc);
+		var formEl = $q(aib.qDForm + ', form[de-form]', doc);
 		if (!formEl) {
 			return null;
 		}
@@ -14676,7 +14689,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		if (!nav) {
 			initNavFuncs();
 		}
-		doc.defaultView.addEventListener("storage", function (e) {
+		doc.defaultView.addEventListener('storage', function (e) {
 			var data,
 			    temp,
 			    post,
@@ -14685,18 +14698,18 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				return;
 			}
 			switch (e.key) {
-				case "__de-webmvolume":
+				case '__de-webmvolume':
 					val = +val || 0;
 					Cfg.webmVolume = val;
 					if (Attachment.viewer) {
 						Attachment.viewer.setWebmVolume(val);
 					}
-					temp = $q("input[info=\"webmVolume\"]", doc.body);
+					temp = $q('input[info="webmVolume"]', doc.body);
 					if (temp) {
 						temp.value = val;
 					}
 					break;
-				case "__de-post":
+				case '__de-post':
 					(function () {
 						try {
 							data = JSON.parse(val);
@@ -14714,7 +14727,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 								if (temp) {
 									hThr[data.brd] = {};
 								} else {
-									toggleWindow("hid", true);
+									toggleWindow('hid', true);
 									return;
 								}
 							}
@@ -14724,10 +14737,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 								delete hThr[data.brd][data.num];
 							}
 						}
-						toggleWindow("hid", true);
+						toggleWindow('hid', true);
 					})();
 					return;
-				case "__de-threads":
+				case '__de-threads':
 					(function () {
 						try {
 							hThr = JSON.parse(val);
@@ -14738,10 +14751,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							hThr[aib.b] = {};
 						}
 						dForm.firstThr.updateHidden(hThr[aib.b]);
-						toggleWindow("hid", true);
+						toggleWindow('hid', true);
 					})();
 					return;
-				case "__de-spells":
+				case '__de-spells':
 					(function () {
 						try {
 							data = JSON.parse(val);
@@ -14749,30 +14762,30 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							return;
 						}
 						Cfg.hideBySpell = data.hide;
-						temp = $q("input[info=\"hideBySpell\"]", doc);
+						temp = $q('input[info="hideBySpell"]', doc);
 						if (temp) {
 							temp.checked = data.hide;
 						}
-						doc.body.style.display = "none";
+						doc.body.style.display = 'none';
 						disableSpells();
 						if (data.data) {
 							spells.setSpells(data.data, false);
-							temp = $id("de-spell-txt");
+							temp = $id('de-spell-txt');
 							if (temp) {
 								temp.value = spells.list;
 							}
 						} else {
-							if (data.data === "") {
+							if (data.data === '') {
 								spells.disable();
-								temp = $id("de-spell-txt");
+								temp = $id('de-spell-txt');
 								if (temp) {
-									temp.value = "";
+									temp.value = '';
 								}
-								saveCfg("spells", "");
+								saveCfg('spells', '');
 							}
 							spells.enable = false;
 						}
-						doc.body.style.display = "";
+						doc.body.style.display = '';
 					})();
 								default:
 					return;
@@ -14781,23 +14794,23 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 		if (localRun) {
 			var url = window.location.pathname.match(/\/[^-]+-([^-]+)-([^\.]+)\.[a-z]+$/);
-			aib.prot = "http:";
+			aib.prot = 'http:';
 			aib.host = aib.dm;
-			aib.b = url ? url[1] : "";
-			aib.t = url ? url[2] : "";
+			aib.b = url ? url[1] : '';
+			aib.t = url ? url[2] : '';
 			aib.page = 0;
-			aib.docExt = ".html";
+			aib.docExt = '.html';
 		} else {
 			aib.parseURL();
 		}
 		if (aib.t) {
 			Cfg.stats.view++;
 			saveComCfg(aib.dm, Cfg);
-			doc.defaultView.addEventListener("beforeunload", function (e) {
-				sesStorage["de-scroll-" + aib.b + aib.t] = window.pageYOffset;
+			doc.defaultView.addEventListener('beforeunload', function (e) {
+				sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset;
 			});
 		}
-		dummy = doc.createElement("div");
+		dummy = doc.createElement('div');
 		return formEl;
 	}
 
@@ -14809,17 +14822,17 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		this.isLight = isLight;
 		this.tNums = [];
 		this.addFormContent(formEl, false);
-		formEl.setAttribute("de-form", "");
-		formEl.removeAttribute("id");
+		formEl.setAttribute('de-form', '');
+		formEl.removeAttribute('id');
 	}
 	DelForm.doReplace = function (formEl) {
 		if (aib.rep) {
-			formEl.insertAdjacentHTML("beforebegin", replaceString(formEl.outerHTML));
-			formEl.style.display = "none";
-			formEl.id = "de-dform-old";
+			formEl.insertAdjacentHTML('beforebegin', replaceString(formEl.outerHTML));
+			formEl.style.display = 'none';
+			formEl.id = 'de-dform-old';
 			formEl = formEl.previousSibling;
-			window.addEventListener("load", function () {
-				return $del($id("de-dform-old"));
+			window.addEventListener('load', function () {
+				return $del($id('de-dform-old'));
 			});
 		}
 		return formEl;
@@ -14833,10 +14846,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		addFormContent: function addFormContent(formEl, append) {
 			var threads = $Q(aib.qThread, formEl),
 			    len = threads.length;
-			$each($T("script", formEl), $del);
+			$each($T('script', formEl), $del);
 			if (len === 0) {
 				if (localRun) {
-					threads = $Q("div[de-thread]", doc);
+					threads = $Q('div[de-thread]', doc);
 					len = threads.length;
 				}
 				if (len === 0) {
@@ -14864,18 +14877,18 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			this.lastThr = thr;
 		},
 		clear: function clear() {
-			$each($Q("a[href^=\"blob:\"]", this.el), function (a) {
+			$each($Q('a[href^="blob:"]', this.el), function (a) {
 				window.URL.revokeObjectURL(a.href);
 			});
 			this.firstThr = this.lastThr = null;
 			this.tNums = [];
-			this.el.innerHTML = "";
+			this.el.innerHTML = '';
 		},
 		hide: function hide() {
-			this.el.style.display = "none";
+			this.el.style.display = 'none';
 		},
 		initAjax: function initAjax() {
-			var _this204 = this;
+			var _this36 = this;
 
 			if (Cfg.ajaxReply === 2) {
 				this.el.onsubmit = $pd;
@@ -14884,23 +14897,23 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					btn.onclick = function (e) {
 						$pd(e);
 						pr.closeReply();
-						$popup(Lng.deleting[lang], "delete", true);
-						spawn(html5Submit, _this204.el).then(checkDelete, function (e) {
-							return $popup(getErrorMessage(e), "delete", false);
+						$popup(Lng.deleting[lang], 'delete', true);
+						spawn(html5Submit, _this36.el).then(checkDelete, function (e) {
+							return $popup(getErrorMessage(e), 'delete', false);
 						});
 					};
 				}
 			} else if (Cfg.ajaxReply === 1) {
-				this.el.insertAdjacentHTML("beforeend", "<iframe name=\"de-iframe-pform\" src=\"about:blank\" style=\"display: none;\"></iframe>" + "<iframe name=\"de-iframe-dform\" src=\"about:blank\" style=\"display: none;\"></iframe>");
-				this.el.target = "de-iframe-dform";
+				this.el.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-pform" src="about:blank" style="display: none;"></iframe>' + '<iframe name="de-iframe-dform" src="about:blank" style="display: none;"></iframe>');
+				this.el.target = 'de-iframe-dform';
 				this.el.onsubmit = function () {
 					pr.closeReply();
-					$popup(Lng.deleting[lang], "deleting", true);
+					$popup(Lng.deleting[lang], 'deleting', true);
 				};
 			}
 		},
 		show: function show() {
-			this.el.style.display = "";
+			this.el.style.display = '';
 		},
 
 		_parseThreads: function _parseThreads(formEl) {
@@ -14908,18 +14921,18 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			    len,
 			    threads = [],
 			    fNodes = aProto.slice.call(formEl.childNodes),
-			    cThr = doc.createElement("div");
+			    cThr = doc.createElement('div');
 			for (i = 0, len = fNodes.length - 1; i < len; ++i) {
 				var node = fNodes[i];
-				if (node.tagName === "HR") {
+				if (node.tagName === 'HR') {
 					formEl.insertBefore(cThr, node);
 					formEl.insertBefore(cThr.lastElementChild, node);
 					var el = cThr.lastElementChild;
-					if (el.tagName === "BR") {
+					if (el.tagName === 'BR') {
 						formEl.insertBefore(el, node);
 					}
 					threads.push(cThr);
-					cThr = doc.createElement("div");
+					cThr = doc.createElement('div');
 				} else {
 					cThr.appendChild(node);
 				}
@@ -14936,13 +14949,13 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}
 		if (aib.fch || aib.krau) {
 			if (aib.fch) {
-				txt = txt.replace(/<\/?wbr>/g, "").replace(/ \(OP\)<\/a/g, "</a");
+				txt = txt.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
 			}
 			if (aib.krau) {
-				txt = txt.replace(/href="(#\d+)"/g, "href=\"/" + aib.b + "/thread-" + aib.t + ".html$1\"").replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g, "<a class=\"de-ref-del\" href=\"#$1\">&gt;&gt;$1</a>");
+				txt = txt.replace(/href="(#\d+)"/g, 'href="/' + aib.b + '/thread-' + aib.t + '.html$1"').replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g, '<a class="de-ref-del" href="#$1">&gt;&gt;$1</a>');
 			}
 			txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig, function (x, a, b, c) {
-				return c ? x : a + "<a href=\"" + b + "\">" + b + "</a>";
+				return c ? x : a + '<a href="' + b + '">' + b + '</a>';
 			});
 		}
 		if (spells.haveReps) {
@@ -14950,7 +14963,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}
 		if (Cfg.crossLinks) {
 			txt = txt.replace(aib.reCrossLinks, function (str, b, tNum, pNum) {
-				return ">&gt;&gt;/" + b + "/" + (pNum || tNum) + "<";
+				return '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<';
 			});
 		}
 		return txt;
@@ -14978,13 +14991,13 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			disable: function disable() {
 				this.stop();
 				this.enabled = false;
-				var btn = $id("de-panel-audio-on");
+				var btn = $id('de-panel-audio-on');
 				if (btn) {
-					btn.id = "de-panel-audio-off";
+					btn.id = 'de-panel-audio-off';
 				}
 			},
 			play: function play() {
-				var _this236 = this;
+				var _this37 = this;
 
 				this.stop();
 				if (this.repeatMS === 0) {
@@ -14992,7 +15005,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					return;
 				}
 				this._playInterval = setInterval(function () {
-					return _this236._el.play();
+					return _this37._el.play();
 				}, this.repeatMS);
 			},
 			stop: function stop() {
@@ -15003,11 +15016,11 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			},
 
 			_el: function _el() {
-				var value = $new("audio", {
-					preload: "auto",
-					src: "https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg"
+				var value = $new('audio', {
+					'preload': 'auto',
+					'src': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg'
 				}, null);
-				Object.defineProperty(this, "_el", { value: value });
+				Object.defineProperty(this, '_el', { value: value });
 				return value;
 			}
 		};
@@ -15015,15 +15028,15 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		var counter = Object.defineProperties({
 			enable: function enable() {
 				this._enabled = true;
-				this._el.style.removeProperty("display");
+				this._el.style.removeProperty('display');
 			},
 			disable: function disable() {
 				this._enabled = false;
 				this._stop();
-				this._el.style.display = "none";
+				this._el.style.display = 'none';
 			},
 			count: function count(delayMS, useCounter, callback) {
-				var _this236 = this;
+				var _this38 = this;
 
 				if (this._enabled && useCounter) {
 					var seconds = delayMS / 1000;
@@ -15031,15 +15044,15 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					this._countingIV = setInterval(function () {
 						seconds--;
 						if (seconds === 0) {
-							_this236._stop();
+							_this38._stop();
 							callback();
 						} else {
-							_this236._set(seconds);
+							_this38._set(seconds);
 						}
 					}, 1000);
 				} else {
 					this._countingTO = setTimeout(function () {
-						_this236._countingTO = null;
+						_this38._countingTO = null;
 						callback();
 					}, delayMS);
 				}
@@ -15047,7 +15060,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			setWait: function setWait() {
 				this._stop();
 				if (this._enabled) {
-					this._el.innerHTML = "<span class=\"de-wait\"></span>";
+					this._el.innerHTML = '<span class="de-wait"></span>';
 				}
 			},
 
@@ -15070,9 +15083,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 		}, {
 			_el: {
-				get: function () {
-					var value = $id("de-updater-count");
-					Object.defineProperty(this, "_el", { value: value });
+				get: function get() {
+					var value = $id('de-updater-count');
+					Object.defineProperty(this, '_el', { value: value });
 					return value;
 				},
 				configurable: true,
@@ -15101,16 +15114,17 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			_blinkInterval: null,
 			_blinkMS: 800,
 			_currentIcon: null,
-			_emptyIcon: "data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAAtJREFUCNdjIBEAAAAwAAFletZ8AAAAAElFTkSuQmCC",
-			_errorIcon: "data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==",
+			_emptyIcon: 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAAtJREFUCNdjIBEAAAAwAAFletZ8AAAAAElFTkSuQmCC',
+			_errorIcon: 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==',
+
 			_isOriginalIcon: true,
 			_setIcon: function _setIcon(iconUrl) {
 				$del(this._iconEl);
-				doc.head.insertAdjacentHTML("afterbegin", "<link rel=\"shortcut icon\" href=\"" + iconUrl + "\">");
+				doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' + iconUrl + '">');
 				this._iconEl = doc.head.firstChild;
 			},
 			_startBlink: function _startBlink(iconUrl) {
-				var _this236 = this;
+				var _this39 = this;
 
 				if (this._blinkInterval) {
 					if (this._currentIcon === iconUrl) {
@@ -15120,31 +15134,31 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 				this._currentIcon = iconUrl;
 				this._blinkInterval = setInterval(function () {
-					_this236._setIcon(_this236._isOriginalIcon ? _this236._currentIcon : _this236.originalIcon);
-					_this236._isOriginalIcon = !_this236._isOriginalIcon;
+					_this39._setIcon(_this39._isOriginalIcon ? _this39._currentIcon : _this39.originalIcon);
+					_this39._isOriginalIcon = !_this39._isOriginalIcon;
 				}, this._blinkMS);
 			}
 		}, {
 			canBlink: {
-				get: function () {
+				get: function get() {
 					return Cfg.favIcoBlink && !!this.originalIcon;
 				},
 				configurable: true,
 				enumerable: true
 			},
 			originalIcon: {
-				get: function () {
+				get: function get() {
 					return this._iconEl ? this._iconEl.href : null;
 				},
 				configurable: true,
 				enumerable: true
 			},
 			_iconEl: {
-				get: function () {
-					var el = $q("head link[rel=\"shortcut icon\"]", doc.head);
+				get: function get() {
+					var el = $q('head link[rel="shortcut icon"]', doc.head);
 					Object.defineProperties(this, {
-						_iconEl: { value: el, writable: true },
-						originalIcon: { value: el ? el.href : null }
+						'_iconEl': { value: el, writable: true },
+						'originalIcon': { value: el ? el.href : null }
 					});
 					return el;
 				},
@@ -15155,38 +15169,38 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 		var notification = Object.defineProperties({
 			checkPermission: function checkPermission() {
-				if (Cfg.desktNotif && "permission" in Notification) {
+				if (Cfg.desktNotif && 'permission' in Notification) {
 					switch (Notification.permission.toLowerCase()) {
-						case "default":
+						case 'default':
 							this._requestPermission();break;
-						case "denied":
-							saveCfg("desktNotif", 0);
+						case 'denied':
+							saveCfg('desktNotif', 0);
 					}
 				}
 			},
 
 			show: function show() {
-				var _this236 = this;
+				var _this40 = this;
 
 				var post = dForm.firstThr.last,
-				    notif = new Notification(aib.dm + "/" + aib.b + "/" + aib.t + ": " + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
-					body: post.text.substring(0, 250).replace(/\s+/g, " "),
-					tag: aib.dm + aib.b + aib.t,
-					icon: post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon
+				    notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
+					'body': post.text.substring(0, 250).replace(/\s+/g, ' '),
+					'tag': aib.dm + aib.b + aib.t,
+					'icon': post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon
 				});
 				notif.onshow = function () {
 					return setTimeout(function () {
-						if (notif === _this236._notifEl) {
-							_this236.close();
+						if (notif === _this40._notifEl) {
+							_this40.close();
 						}
-					}, 12000);
+					}, 12e3);
 				};
 				notif.onclick = function () {
 					return window.focus();
 				};
 				notif.onerror = function () {
 					window.focus();
-					_this236._requestPermission();
+					_this40._requestPermission();
 				};
 				this._notifEl = notif;
 			},
@@ -15202,20 +15216,20 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			_notifEl: null,
 
 			_requestPermission: function _requestPermission() {
-				var _this236 = this;
+				var _this41 = this;
 
 				this._granted = false;
 				Notification.requestPermission(function (state) {
-					if (state.toLowerCase() === "denied") {
-						saveCfg("desktNotif", 0);
+					if (state.toLowerCase() === 'denied') {
+						saveCfg('desktNotif', 0);
 					} else {
-						_this236._granted = true;
+						_this41._granted = true;
 					}
 				});
 			}
 		}, {
 			canShow: {
-				get: function () {
+				get: function get() {
 					return Cfg.desktNotif && this._granted;
 				},
 				configurable: true,
@@ -15225,20 +15239,20 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 		var updMachine = Object.defineProperties({
 			start: function start() {
-				var needSleep = arguments[0] === undefined ? false : arguments[0];
-				var loadOnce = arguments[1] === undefined ? false : arguments[1];
+				var needSleep = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+				var loadOnce = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
 
 				if (this._state !== -1) {
 					this.stop(false);
 				}
 				this._state = 0;
 				this._loadOnce = loadOnce;
-				this._delay = this._initDelay = Cfg.updThrDelay * 1000;
-				this._setUpdateStatus("on");
+				this._delay = this._initDelay = Cfg.updThrDelay * 1e3;
+				this._setUpdateStatus('on');
 				this._makeStep(needSleep);
 			},
 			stop: function stop() {
-				var updateStatus = arguments[0] === undefined ? true : arguments[0];
+				var updateStatus = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
 
 				if (this._state !== -1) {
 					this._state = -1;
@@ -15248,7 +15262,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					}
 					counter.setWait();
 					if (updateStatus) {
-						this._setUpdateStatus("off");
+						this._setUpdateStatus('off');
 					}
 				}
 			},
@@ -15272,7 +15286,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						disableUpdater();
 					} else {
 						lastECode = eCode;
-						this._setUpdateStatus("warn");
+						this._setUpdateStatus('warn');
 						if (!Cfg.noErrInTitle) {
 							updateTitle();
 						}
@@ -15282,7 +15296,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				}
 				if (lastECode !== 200) {
 					favicon.stopBlink();
-					this._setUpdateStatus("on");
+					this._setUpdateStatus('on');
 					if (!Cfg.noErrInTitle) {
 						updateTitle(eCode);
 					}
@@ -15302,23 +15316,23 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 							audio.play();
 						}
 						this._delay = this._initDelay;
-					} else if (this._delay !== 120000) {
-						this._delay = Math.min(this._delay + this._initDelay, 120000);
+					} else if (this._delay !== 12e4) {
+						this._delay = Math.min(this._delay + this._initDelay, 12e4);
 					}
 				}
 				this._makeStep();
 			},
 			_makeStep: function _makeStep() {
-				var _this236 = this;
+				var _this42 = this;
 
-				var needSleep = arguments[0] === undefined ? true : arguments[0];
+				var needSleep = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
 
 				while (true) switch (this._state) {
 					case 0:
 						if (needSleep) {
 							this._state = 1;
 							counter.count(this._delay, !doc.hidden, function () {
-								return _this236._makeStep();
+								return _this42._makeStep();
 							});
 							return;
 						}
@@ -15327,9 +15341,9 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 						this._loadPromise = dForm.firstThr.loadNew(true);
 						this._state = 2;
 						this._loadPromise.then(function (pCount) {
-							return _this236._handleNewPosts(pCount, AjaxError.Success);
+							return _this42._handleNewPosts(pCount, AjaxError.Success);
 						}, function (e) {
-							return _this236._handleNewPosts(0, e);
+							return _this42._handleNewPosts(0, e);
 						});
 						return;
 					case 2:
@@ -15344,16 +15358,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			},
 			_setUpdateStatus: function _setUpdateStatus(status) {
 				if (this._panelButton) {
-					this._panelButton.id = "de-panel-upd-" + status;
-					this._panelButton.title = Lng.panelBtn["upd-" + (status === "off" ? "off" : "on")][lang];
+					this._panelButton.id = 'de-panel-upd-' + status;
+					this._panelButton.title = Lng.panelBtn['upd-' + (status === 'off' ? 'off' : 'on')][lang];
 				}
 			}
 		}, {
 			_panelButton: {
-				get: function () {
-					var value = $q("a[id^=\"de-panel-upd\"]", doc);
+				get: function get() {
+					var value = $q('a[id^="de-panel-upd"]', doc);
 					if (value) {
-						Object.defineProperty(this, "_panelButton", { value: value });
+						Object.defineProperty(this, '_panelButton', { value: value });
 					}
 					return value;
 				},
@@ -15392,12 +15406,12 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 		}
 
 		function updateTitle() {
-			var eCode = arguments[0] === undefined ? lastECode : arguments[0];
+			var eCode = arguments.length <= 0 || arguments[0] === undefined ? lastECode : arguments[0];
 
-			doc.title = (sendError === true ? "{" + Lng.error[lang] + "} " : "") + (eCode === 200 ? "" : "{" + eCode + "} ") + (newPosts === 0 ? "" : "[" + newPosts + "] ") + title;
+			doc.title = (sendError === true ? '{' + Lng.error[lang] + '} ' : '') + (eCode === 200 ? '' : '{' + eCode + '} ') + (newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
 		}
 
-		doc.addEventListener("visibilitychange", function (e) {
+		doc.addEventListener('visibilitychange', function (e) {
 			if (!doc.hidden) {
 				var focusTime = e.timeStamp;
 				favicon.stopBlink();
@@ -15407,7 +15421,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				sendError = false;
 				setTimeout(function () {
 					updateTitle();
-					if (enabled && focusTime - focusLoadTime > 10000) {
+					if (enabled && focusTime - focusLoadTime > 1e4) {
 						focusLoadTime = focusTime;
 						forceLoadPosts();
 					}
@@ -15440,7 +15454,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				if (paused) {
 					return;
 				}
-				$popup(Lng.loading[lang], "newposts", true);
+				$popup(Lng.loading[lang], 'newposts', true);
 				forceLoadPosts();
 			},
 			pause: function pause() {
@@ -15449,7 +15463,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 					paused = true;
 				}
 			},
-			"continue": function _continue() {
+			'continue': function _continue() {
 				if (enabled && paused) {
 					updMachine.start();
 					paused = false;
@@ -15484,16 +15498,16 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 	function initPage() {
 		if (aib.t) {
 			if (Cfg.rePageTitle) {
-				doc.title = "/" + aib.b + " - " + dForm.firstThr.op.title;
+				doc.title = '/' + aib.b + ' - ' + dForm.firstThr.op.title;
 			}
 			if (!localRun) {
-				dForm.firstThr.el.insertAdjacentHTML("afterend", "<div class=\"de-thread-buttons\">" + "<span class=\"de-thread-updater\">[<a class=\"de-abtn\" href=\"#\"></a>" + "<span id=\"de-updater-count\" style=\"display: none;\"></span>]</span>" + (aib.mak ? "[<a class=\"de-abtn\" href=\"#\" onclick=\"UnbanShow();\">Реквест разбана</a>]" : "") + "</div>");
+				dForm.firstThr.el.insertAdjacentHTML('afterend', '<div class="de-thread-buttons">' + '<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>' + '<span id="de-updater-count" style="display: none;"></span>]</span>' + (aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '') + '</div>');
 			}
 		}
 		if (!localRun) {
 			updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr);
 			if (aib.t) {
-				dForm.firstThr.el.nextSibling.firstChild.firstElementChild.addEventListener("click", updater.forceLoad);
+				dForm.firstThr.el.nextSibling.firstChild.firstElementChild.addEventListener('click', updater.forceLoad);
 			}
 		}
 	}
@@ -15512,10 +15526,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			var post,
 			    num,
 			    hash,
-			    val = +sesStorage["de-scroll-" + aib.b + aib.t];
+			    val = +sesStorage['de-scroll-' + aib.b + aib.t];
 			if (val) {
 				window.scrollTo(0, val);
-				sesStorage.removeItem("de-scroll-" + aib.b + aib.t);
+				sesStorage.removeItem('de-scroll-' + aib.b + aib.t);
 			} else if ((hash = window.location.hash) && (num = hash.match(/#[ip]?(\d+)$/)) && (num = num[1]) && (post = pByNum[num])) {
 				post.el.scrollIntoView(true);
 				if (hKeys) {
@@ -15546,15 +15560,15 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 				return Promise.reject();
 			}
 		}
-		return $ajax("https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js", { "Content-Type": "text/plain" }, false).then(function (xhr) {
+		return $ajax('https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js', { 'Content-Type': 'text/plain' }, false).then(function (xhr) {
 			var m = xhr.responseText.match(/@version\s+([0-9.]+)/),
-			    dVer = m && m[1] ? m[1].split(".") : null;
+			    dVer = m && m[1] ? m[1].split('.') : null;
 			if (dVer) {
-				var cVer = version.split(".");
-				saveComCfg("lastUpd", Date.now());
+				var cVer = version.split('.');
+				saveComCfg('lastUpd', Date.now());
 				for (var i = 0, len = Math.max(cVer.length, dVer.length); i < len; ++i) {
 					if ((+dVer[i] || 0) > (+cVer[i] || 0)) {
-						return "<a style=\"color: blue; font-weight: bold;\" href=\"" + "https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/" + "Dollchan_Extension_Tools.user.js\">" + Lng.updAvail[lang] + "</a>";
+						return '<a style="color: blue; font-weight: bold;" href="' + 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/' + 'Dollchan_Extension_Tools.user.js">' + Lng.updAvail[lang] + '</a>';
 					} else if ((+dVer[i] || 0) < (+cVer[i] || 0)) {
 						break;
 					}
@@ -15565,7 +15579,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			}
 			return Promise.reject();
 		}, function () {
-			return isForce ? "<div style=\"color: red; font-weigth: bold;\">" + Lng.noConnect[lang] + "</div>" : Promise.reject();
+			return isForce ? '<div style="color: red; font-weigth: bold;">' + Lng.noConnect[lang] + '</div>' : Promise.reject();
 		});
 	}
 
@@ -15573,95 +15587,229 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 
 	function getThemeLang() {
-		return !Cfg.scriptStyle ? "fr" : Cfg.scriptStyle === 1 ? "en" : Cfg.scriptStyle === 2 ? "de" : "es";
+		return !Cfg.scriptStyle ? 'fr' : Cfg.scriptStyle === 1 ? 'en' : Cfg.scriptStyle === 2 ? 'de' : 'es';
 	}
 
 	function scriptCSS() {
 		function cont(id, src) {
-			return id + "::before { content: \"\"; padding-right: 16px; margin-right: 4px; background: url(" + src + ") no-repeat center; background-size: contain; }";
+			return id + '::before { content: ""; padding-right: 16px; margin-right: 4px; background: url(' + src + ') no-repeat center; background-size: contain; }';
 		}
 		function gif(id, src) {
-			return id + " { background-image: url(data:image/gif;base64," + src + "); background-repeat: no-repeat; background-position: center; }";
+			return id + ' { background-image: url(data:image/gif;base64,' + src + '); background-repeat: no-repeat; background-position: center; }';
 		}
 
 	
 		var p,
-		    x = "\t.de-btn-close::after { content: \"✖\"; }\t.de-btn-toggle::after { content: \"⇧\"; font-weight: bold; }\t.de-resizer { position: absolute; }\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\t.de-win > .de-win-head { cursor: move; }\t.de-win .de-btn-toggle::after { content: \"⇩\"; }\t.de-win-buttons { float: right; line-height: 16px; margin-top: 1px; cursor: pointer; }\t.de-win-buttons > span { margin-right: 4px; font-size: 15px; }\t.de-win-buttons > span:hover { color: #f66; }\t#de-win-cfg { width: 370px; }\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\t#de-win-fav input[type=\"checkbox\"] { flex: none; margin-left: 15px; }\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\t#de-win-vid .de-entry { white-space: normal; }\t.de-win-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\t.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\t.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\t.de-win-head:lang(de), #de-panel:lang(de) { background-color: #777; }\t.de-win-head:lang(es), #de-panel:lang(es) { background-color: rgba(0,20,80,.72); }\t.de-win-title { font: bold 14px arial; margin-left: 32px; }" +
+		    x = '\t.de-btn-close::after { content: "✖"; }\t.de-btn-toggle::after { content: "⇧"; font-weight: bold; }\t.de-resizer { position: absolute; }\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\t.de-win > .de-win-head { cursor: move; }\t.de-win .de-btn-toggle::after { content: "⇩"; }\t.de-win-buttons { float: right; line-height: 16px; margin-top: 1px; cursor: pointer; }\t.de-win-buttons > span { margin-right: 4px; font-size: 15px; }\t.de-win-buttons > span:hover { color: #f66; }\t#de-win-cfg { width: 370px; }\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\t#de-win-fav input[type="checkbox"] { flex: none; margin-left: 15px; }\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\t#de-win-vid .de-entry { white-space: normal; }\t.de-win-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\t.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\t.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\t.de-win-head:lang(de), #de-panel:lang(de) { background-color: #777; }\t.de-win-head:lang(es), #de-panel:lang(es) { background-color: rgba(0,20,80,.72); }\t.de-win-title { font: bold 14px arial; margin-left: 32px; }' +
 
 	
-		".de-block { display: block; }\t#de-btn-addspell { margin-left: auto; }\t.de-cfg-body { min-height: 309px; padding: 11px 7px 7px; margin-top: -1px; font: 13px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\t.de-cfg-body input[type=\"text\"], .de-cfg-body select { width: auto; padding: 1px 2px; margin: 1px 0; font: 13px arial; }\t.de-cfg-body input[type=\"checkbox\"] { " + (nav.Presto ? "" : "vertical-align: -1px; ") + "margin: 2px 1px; }\t.de-cfg-body label { padding: 0; margin: 0; }\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\t.de-cfg-body:lang(de), #de-cfg-buttons:lang(de) { border-color: #444; }\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; font-size: 13px; }\t.de-cfg-lang-select { flex: 1 0 auto; }\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\t#de-cfg-bar:lang(fr) { background-color: #1f2740; }\t#de-cfg-bar:lang(en) { background-color: #325f9e; }\t#de-cfg-bar:lang(de) { background-color: #777; }\t#de-cfg-bar:lang(es) { background-color: rgba(0,20,80,.72); }\t.de-cfg-depend { padding-left: 17px; }\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t.de-cfg-tab:lang(fr) { border-color: #121421 !important; }\t.de-cfg-tab:lang(en) { border-color: #183d77 !important; }\t.de-cfg-tab:lang(es) { border-color: #001450 !important; }\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\t.de-cfg-tab::" + (nav.Firefox ? "-moz-" : "") + "selection { background: transparent; }\t.de-cfg-unvis { display: none; }\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\t.de-info-name { flex: 1 0 auto; }\t.de-info-row { display: flex; }\t#de-info-table { display: flex; height: 257px; }\t.de-spell-btn { padding: 0 4px; }\t#de-spell-editor { display: flex; align-items: center; padding: 2px 0; }\t#de-spell-panel { display: flex; }\t#de-spell-txt { padding: 2px !important; width: 100%; height: 196px; border: none !important; outline: none !important; font: 12px courier new; " + (nav.Presto ? "" : "resize: none !important; ") + "}\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; width: 2em; height: 196px; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\t#de-spell-rowmeter:lang(de) { background-color: #777; }" +
+		'.de-block { display: block; }\
+	#de-btn-addspell { margin-left: auto; }\
+	.de-cfg-body { min-height: 309px; padding: 11px 7px 7px; margin-top: -1px; font: 13px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
+	.de-cfg-body input[type="text"], .de-cfg-body select { width: auto; padding: 1px 2px; margin: 1px 0; font: 13px arial; }\
+	.de-cfg-body input[type="checkbox"] { ' + (nav.Presto ? '' : 'vertical-align: -1px; ') + 'margin: 2px 1px; }\
+	.de-cfg-body label { padding: 0; margin: 0; }\
+	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\
+	.de-cfg-body:lang(de), #de-cfg-buttons:lang(de) { border-color: #444; }\
+	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; font-size: 13px; }\
+	.de-cfg-lang-select { flex: 1 0 auto; }\
+	#de-cfg-bar { display: flex; margin: 0; padding: 0; }\
+	#de-cfg-bar:lang(fr) { background-color: #1f2740; }\
+	#de-cfg-bar:lang(en) { background-color: #325f9e; }\
+	#de-cfg-bar:lang(de) { background-color: #777; }\
+	#de-cfg-bar:lang(es) { background-color: rgba(0,20,80,.72); }\
+	.de-cfg-depend { padding-left: 17px; }\
+	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
+	.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
+	.de-cfg-tab:lang(fr) { border-color: #121421 !important; }\
+	.de-cfg-tab:lang(en) { border-color: #183d77 !important; }\
+	.de-cfg-tab:lang(es) { border-color: #001450 !important; }\
+	.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\
+	.de-cfg-tab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\
+	.de-cfg-unvis { display: none; }\
+	#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\
+	#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\
+	.de-info-name { flex: 1 0 auto; }\
+	.de-info-row { display: flex; }\
+	#de-info-table { display: flex; height: 257px; }\
+	.de-spell-btn { padding: 0 4px; }\
+	#de-spell-editor { display: flex; align-items: center; padding: 2px 0; }\
+	#de-spell-panel { display: flex; }\
+	#de-spell-txt { padding: 2px !important; width: 100%; height: 196px; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
+	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; width: 2em; height: 196px; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\
+	#de-spell-rowmeter:lang(de) { background-color: #777; }' +
 
 	
-		"#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; }\t#de-panel-logo { flex: none; margin-right: 3px; cursor: pointer; min-height: 25px; width: 25px; }\t#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\t#de-panel-buttons:lang(en), #de-panel-info:lang(en) { border-color: #8fbbed; }\t#de-panel-buttons:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\t.de-panel-button { display: block; width: 25px; height: 25px; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; }\t.de-panel-button:lang(fr):hover, .de-panel-button:lang(en):hover, .de-panel-button:lang(es):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\t.de-panel-button:lang(de):hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }\t#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; color: #fff; font: 18px serif; }" + gif("#de-panel-logo", (p = "R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA") + "QAI5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=") + gif("#de-panel-cfg", p + "QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7") + gif("#de-panel-hid", p + "QAI5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=") + gif("#de-panel-fav", p + "QAIzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs=") + gif("#de-panel-vid", p + "AAI9jI+py+0Po5wTWEvN3VjyH20a6HDHB5TiaTIkuyov3MltEuM3nS5z8EPsgsIY6rE6QlA5JDMDbEKn1KqhAAA7") + gif("#de-panel-refresh", p + "AAJBjI+py+0Po5zUgItBxDZrmHUcGAbe15xiybCm5iYegsaHfY8Kvrb6/qPhZr7LgrcyJlHFE1LoVG6ilVewis1qDQUAOw==") + gif("#de-panel-goback", p + "QAIrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7") + gif("#de-panel-gonext", p + "QAIrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7") + gif("#de-panel-goup", p + "QAIsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==") + gif("#de-panel-godown", p + "QAItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=") + gif("#de-panel-expimg", p + "QAI9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7") + gif("#de-panel-preimg", p + "QAJFjI+pGwCcHJPGWdoe3Lz7qh1WFJLXiX4qgrbXVEIYadLLnMX4yve+7ErBYorRjXiEeXagGguZAbWaSdHLOow4j8Hrj1EAADs=") + gif("#de-panel-maskimg", p + "QAJQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==") + gif("#de-panel-savethr", p + "QAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs=") + gif("#de-panel-catalog", p + "QAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=") + gif("#de-panel-audio-off", p + "QAI7jI+pq+DO1psvQHOj3rxTik1dCIzmSZqfmGXIWlkiB6L2jedhPqOfCitVYolgKcUwyoQuSe3WwzV1kQIAOw==") + gif("#de-panel-audio-on", p + "QAJHjI+pq+AewJHs2WdoZLz7X11WRkEgNoHqimadOG7uAqOm+Y6atvb+D0TgfjHS6RIp8YQ1pbHRfA4n0eSTI7JqP8Wtahr0FAAAOw==") + gif("#de-panel-enable", p + "AAJAjI+py+0Po5wUWKoswOF27z2aMX6bo51lioal2bzwISPyHSZ1lts9fwKKfjQiyXgkslq95TAFnUCdUirnis0eCgA7") + gif("#de-panel-upd-on", "R0lGODlhGQAZAJEAADL/Mv" + (p = "Dw8P///wAAACH5BAEAAAIALAAAAAAZABkAQAJElI+pe2EBoxOTNYmr3bz7OwHiCDzQh6bq06QSCUhcZMCmNrfrzvf+XsF1MpjhCSainBg0AbKkFCJko6g0MSGyftwuowAAOw==")) + gif("#de-panel-upd-off", "R0lGODlhGQAZAJEAAP8yMv" + p) + gif("#de-panel-upd-warn", "R0lGODlhGQAZAJEAAP/0Qf" + p);
+		'#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; }\
+	#de-panel-logo { flex: none; margin-right: 3px; cursor: pointer; min-height: 25px; width: 25px; }\
+	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\
+	#de-panel-buttons:lang(en), #de-panel-info:lang(en) { border-color: #8fbbed; }\
+	#de-panel-buttons:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
+	.de-panel-button { display: block; width: 25px; height: 25px; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; }\
+	.de-panel-button:lang(fr):hover, .de-panel-button:lang(en):hover, .de-panel-button:lang(es):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
+	.de-panel-button:lang(de):hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }\
+	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; color: #fff; font: 18px serif; }' + gif('#de-panel-logo', (p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA') + 'QAI5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=') + gif('#de-panel-cfg', p + 'QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7') + gif('#de-panel-hid', p + 'QAI5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=') + gif('#de-panel-fav', p + 'QAIzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs=') + gif('#de-panel-vid', p + 'AAI9jI+py+0Po5wTWEvN3VjyH20a6HDHB5TiaTIkuyov3MltEuM3nS5z8EPsgsIY6rE6QlA5JDMDbEKn1KqhAAA7') + gif('#de-panel-refresh', p + 'AAJBjI+py+0Po5zUgItBxDZrmHUcGAbe15xiybCm5iYegsaHfY8Kvrb6/qPhZr7LgrcyJlHFE1LoVG6ilVewis1qDQUAOw==') + gif('#de-panel-goback', p + 'QAIrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7') + gif('#de-panel-gonext', p + 'QAIrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7') + gif('#de-panel-goup', p + 'QAIsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==') + gif('#de-panel-godown', p + 'QAItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=') + gif('#de-panel-expimg', p + 'QAI9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7') + gif('#de-panel-preimg', p + 'QAJFjI+pGwCcHJPGWdoe3Lz7qh1WFJLXiX4qgrbXVEIYadLLnMX4yve+7ErBYorRjXiEeXagGguZAbWaSdHLOow4j8Hrj1EAADs=') + gif('#de-panel-maskimg', p + 'QAJQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==') + gif('#de-panel-savethr', p + 'QAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs=') + gif('#de-panel-catalog', p + 'QAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=') + gif('#de-panel-audio-off', p + 'QAI7jI+pq+DO1psvQHOj3rxTik1dCIzmSZqfmGXIWlkiB6L2jedhPqOfCitVYolgKcUwyoQuSe3WwzV1kQIAOw==') + gif('#de-panel-audio-on', p + 'QAJHjI+pq+AewJHs2WdoZLz7X11WRkEgNoHqimadOG7uAqOm+Y6atvb+D0TgfjHS6RIp8YQ1pbHRfA4n0eSTI7JqP8Wtahr0FAAAOw==') + gif('#de-panel-enable', p + 'AAJAjI+py+0Po5wUWKoswOF27z2aMX6bo51lioal2bzwISPyHSZ1lts9fwKKfjQiyXgkslq95TAFnUCdUirnis0eCgA7') + gif('#de-panel-upd-on', 'R0lGODlhGQAZAJEAADL/Mv' + (p = 'Dw8P///wAAACH5BAEAAAIALAAAAAAZABkAQAJElI+pe2EBoxOTNYmr3bz7OwHiCDzQh6bq06QSCUhcZMCmNrfrzvf+XsF1MpjhCSainBg0AbKkFCJko6g0MSGyftwuowAAOw==')) + gif('#de-panel-upd-off', 'R0lGODlhGQAZAJEAAP8yMv' + p) + gif('#de-panel-upd-warn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
 
 		if (Cfg.disabled) {
-			$css(x).id = "de-css";
+			$css(x).id = 'de-css';
 			return;
 		}
 
 	
-		x += "\t.de-post-btns { margin-left: 4px; }\t.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\t.de-thread-note { font-style: italic; }\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on { transform:rotate(0deg); display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; " + (Cfg.postBtnsCSS === 0 ? "color: #4F7942; font-size: 14px; }\t\t.de-post-hide .de-btn-hide::after { content: \"✚\"; }\t\t.de-post-hide .de-btn-hide-user::after { content: \"✚\"; }\t\t.de-btn-expthr::after { content: \"⬍\"; }\t\t.de-btn-fav::after { content: \"★\"; }\t\t.de-btn-fav-sel::after { content: \"★\"; color: red; }\t\t.de-btn-hide::after { content: \"✖\"; }\t\t.de-btn-hide-user::after { content: \"✖\"; color: red; }\t\t.de-btn-rep::after { content: \"▶\"; }\t\t.de-btn-sage::after { content: \"❎\"; }\t\t.de-btn-src::after { content: \"🔎\"; }\t\t.de-btn-stick::after { content: \"◻\"; }\t\t.de-btn-stick-on::after { content: \"◼\"; }" : Cfg.postBtnsCSS === 1 ? "width: 14px; height: 14px; }" + gif(".de-post-hide .de-btn-hide", (p = "R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM") + "4SLLcqyHKGRe1E1cARPaSwIGVI3bOIAxc26oD7LqwusZcbMcNC9gLHsMHvFFixwFlGRgQdNAoIQEAOw==") + gif(".de-post-hide .de-btn-hide-user", "R0lGODlhDgAOAKIAAP+/v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM4SLLcqyHKGRe1E1cARPaSwIGVI3bOIAxc26oD7LqwusZcbMcNC9gLHsMHvFFixwFlGRgQdNAoIQEAOw==") + gif(".de-btn-expthr", p + "5SLLcqyHGJaeoAoAr6dQaF3gZGFpO6AzNoLHMAC8uMAty+7ZwbfYzny02qNSKElkloDQSZNAolJAAADs=") + gif(".de-btn-fav", p + "4SLLcqyHGJaeoAoAradec1Wigk5FoOQhDSq7DyrpyvLRpDb84AO++m+YXiVWMAWRlmSTEntAnIQEAOw==") + gif(".de-btn-fav-sel", "R0lGODlhDgAOAKIAAP/hAKCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM4SLLcqyHGJaeoAoAradec1Wigk5FoOQhDSq7DyrpyvLRpDb84AO++m+YXiVWMAWRlmSTEntAnIQEAOw==") + gif(".de-btn-hide", p + "7SLLcqyHKGZcUE1ctAPdb0AHeCDpkWi4DM6gtGwtvOg9xDcu0rbc4FiA3lEkGE2QER2kGBgScdColJAAAOw==") + gif(".de-btn-hide-user", "R0lGODlhDgAOAKIAAL//v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM7SLLcqyHKGZcUE1ctAPdb0AHeCDpkWi4DM6gtGwtvOg9xDcu0rbc4FiA3lEkGE2QER2kGBgScdColJAAAOw==") + gif(".de-btn-rep", p + "2SLLcqyHKGZe0NGABAL5C1XWfM47NsAznqA6qwLbAG8/nfeexvNe91UACywSKxsmAAGs6m4QEADs=") + gif(".de-btn-sage", "R0lGODlhDgAOAJEAAPDw8EtLS////wAAACH5BAEAAAIALAAAAAAOAA4AAAIZVI55pu0AgZs0SoqTzdnu5l1P1ImcwmBCAQA7") + gif(".de-btn-src", p + "/SLLcqyEuKWKYF4Cl6/VCF26UJHaUIzaDMGjA8Gqt7MJ47Naw3O832kxnay1sx11g6KMtBxEZ9DkdEKTYLCEBADs=") + gif(".de-btn-stick", p + "xSLLcqyHKGRe9wVYntQBgKGxMKDJDaQJouqzsMrgDTNO27Apzv88YCjAoGRB8yB4hAQA7") + gif(".de-btn-stick-on", "R0lGODlhDgAOAKIAAL//v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAMxSLLcqyHKGRe9wVYntQBgKGxMKDJDaQJouqzsMrgDTNO27Apzv88YCjAoGRB8yB4hAQA7") : "width: 14px; height: 14px; }" + gif(".de-post-hide .de-btn-hide", (p = "R0lGODlhDgAOAJEAAPDw8IyMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAI") + "ZVI55pu3vAIBI0mOf3LtxDmWUGE7XSTFpAQA7") + gif(".de-post-hide .de-btn-hide-user", "R0lGODlhDgAOAJEAAP+/v4yMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIZVI55pu3vAIBI0mOf3LtxDmWUGE7XSTFpAQA7 ") + gif(".de-btn-expthr", p + "bVI55pu0BwEMxzlonlHp331kXxjlYWH4KowkFADs=") + gif(".de-btn-fav", p + "dVI55pu0BwEtxnlgb3ljxrnHP54AgJSGZxT6MJRQAOw==") + gif(".de-btn-fav-sel", "R0lGODlhDgAOAJEAAP/hAIyMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIdVI55pu0BwEtxnlgb3ljxrnHP54AgJSGZxT6MJRQAOw==") + gif(".de-btn-hide", p + "dVI55pu2vQJIN2GNpzPdxGHwep01d5pQlyDoMKBQAOw==") + gif(".de-btn-hide-user", "R0lGODlhDgAOAJEAAL//v4yMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIdVI55pu2vQJIN2GNpzPdxGHwep01d5pQlyDoMKBQAOw==") + gif(".de-btn-rep", p + "aVI55pu2vAIBISmrty7rx63FbN1LmiTCUUAAAOw==") + gif(".de-btn-sage", "R0lGODlhDgAOAJEAAPDw8FBQUP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIZVI55pu0AgZs0SoqTzdnu5l1P1ImcwmBCAQA7") + gif(".de-btn-src", p + "fVI55pt0ADnRh1uispfvpLkEieGGiZ5IUGmJrw7xCAQA7") + gif(".de-btn-stick", p + "XVI55pu0PI5j00erutJpfj0XiKDKRUAAAOw==") + gif(".de-btn-stick-on", "R0lGODlhDgAOAJEAAL//v4yMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIXVI55pu0PI5j00erutJpfj0XiKDKRUAAAOw==")) + (pr.form || pr.oeForm ? "" : ".de-btn-rep { display: none; }") +
+		x += '\
+	.de-post-btns { margin-left: 4px; }\
+	.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
+	.de-thread-note { font-style: italic; }\
+	.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on { transform:rotate(0deg); display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ' + (Cfg.postBtnsCSS === 0 ? 'color: #4F7942; font-size: 14px; }\t\t.de-post-hide .de-btn-hide::after { content: "✚"; }\t\t.de-post-hide .de-btn-hide-user::after { content: "✚"; }\t\t.de-btn-expthr::after { content: "⬍"; }\t\t.de-btn-fav::after { content: "★"; }\t\t.de-btn-fav-sel::after { content: "★"; color: red; }\t\t.de-btn-hide::after { content: "✖"; }\t\t.de-btn-hide-user::after { content: "✖"; color: red; }\t\t.de-btn-rep::after { content: "▶"; }\t\t.de-btn-sage::after { content: "❎"; }\t\t.de-btn-src::after { content: "🔎"; }\t\t.de-btn-stick::after { content: "◻"; }\t\t.de-btn-stick-on::after { content: "◼"; }' : Cfg.postBtnsCSS === 1 ? 'width: 14px; height: 14px; }' + gif('.de-post-hide .de-btn-hide', (p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM') + '4SLLcqyHKGRe1E1cARPaSwIGVI3bOIAxc26oD7LqwusZcbMcNC9gLHsMHvFFixwFlGRgQdNAoIQEAOw==') + gif('.de-post-hide .de-btn-hide-user', 'R0lGODlhDgAOAKIAAP+/v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM4SLLcqyHKGRe1E1cARPaSwIGVI3bOIAxc26oD7LqwusZcbMcNC9gLHsMHvFFixwFlGRgQdNAoIQEAOw==') + gif('.de-btn-expthr', p + '5SLLcqyHGJaeoAoAr6dQaF3gZGFpO6AzNoLHMAC8uMAty+7ZwbfYzny02qNSKElkloDQSZNAolJAAADs=') + gif('.de-btn-fav', p + '4SLLcqyHGJaeoAoAradec1Wigk5FoOQhDSq7DyrpyvLRpDb84AO++m+YXiVWMAWRlmSTEntAnIQEAOw==') + gif('.de-btn-fav-sel', 'R0lGODlhDgAOAKIAAP/hAKCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM4SLLcqyHGJaeoAoAradec1Wigk5FoOQhDSq7DyrpyvLRpDb84AO++m+YXiVWMAWRlmSTEntAnIQEAOw==') + gif('.de-btn-hide', p + '7SLLcqyHKGZcUE1ctAPdb0AHeCDpkWi4DM6gtGwtvOg9xDcu0rbc4FiA3lEkGE2QER2kGBgScdColJAAAOw==') + gif('.de-btn-hide-user', 'R0lGODlhDgAOAKIAAL//v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM7SLLcqyHKGZcUE1ctAPdb0AHeCDpkWi4DM6gtGwtvOg9xDcu0rbc4FiA3lEkGE2QER2kGBgScdColJAAAOw==') + gif('.de-btn-rep', p + '2SLLcqyHKGZe0NGABAL5C1XWfM47NsAznqA6qwLbAG8/nfeexvNe91UACywSKxsmAAGs6m4QEADs=') + gif('.de-btn-sage', 'R0lGODlhDgAOAJEAAPDw8EtLS////wAAACH5BAEAAAIALAAAAAAOAA4AAAIZVI55pu0AgZs0SoqTzdnu5l1P1ImcwmBCAQA7') + gif('.de-btn-src', p + '/SLLcqyEuKWKYF4Cl6/VCF26UJHaUIzaDMGjA8Gqt7MJ47Naw3O832kxnay1sx11g6KMtBxEZ9DkdEKTYLCEBADs=') + gif('.de-btn-stick', p + 'xSLLcqyHKGRe9wVYntQBgKGxMKDJDaQJouqzsMrgDTNO27Apzv88YCjAoGRB8yB4hAQA7') + gif('.de-btn-stick-on', 'R0lGODlhDgAOAKIAAL//v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAMxSLLcqyHKGRe9wVYntQBgKGxMKDJDaQJouqzsMrgDTNO27Apzv88YCjAoGRB8yB4hAQA7') : 'width: 14px; height: 14px; }' + gif('.de-post-hide .de-btn-hide', (p = 'R0lGODlhDgAOAJEAAPDw8IyMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAI') + 'ZVI55pu3vAIBI0mOf3LtxDmWUGE7XSTFpAQA7') + gif('.de-post-hide .de-btn-hide-user', 'R0lGODlhDgAOAJEAAP+/v4yMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIZVI55pu3vAIBI0mOf3LtxDmWUGE7XSTFpAQA7 ') + gif('.de-btn-expthr', p + 'bVI55pu0BwEMxzlonlHp331kXxjlYWH4KowkFADs=') + gif('.de-btn-fav', p + 'dVI55pu0BwEtxnlgb3ljxrnHP54AgJSGZxT6MJRQAOw==') + gif('.de-btn-fav-sel', 'R0lGODlhDgAOAJEAAP/hAIyMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIdVI55pu0BwEtxnlgb3ljxrnHP54AgJSGZxT6MJRQAOw==') + gif('.de-btn-hide', p + 'dVI55pu2vQJIN2GNpzPdxGHwep01d5pQlyDoMKBQAOw==') + gif('.de-btn-hide-user', 'R0lGODlhDgAOAJEAAL//v4yMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIdVI55pu2vQJIN2GNpzPdxGHwep01d5pQlyDoMKBQAOw==') + gif('.de-btn-rep', p + 'aVI55pu2vAIBISmrty7rx63FbN1LmiTCUUAAAOw==') + gif('.de-btn-sage', 'R0lGODlhDgAOAJEAAPDw8FBQUP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIZVI55pu0AgZs0SoqTzdnu5l1P1ImcwmBCAQA7') + gif('.de-btn-src', p + 'fVI55pt0ADnRh1uispfvpLkEieGGiZ5IUGmJrw7xCAQA7') + gif('.de-btn-stick', p + 'XVI55pu0PI5j00erutJpfj0XiKDKRUAAAOw==') + gif('.de-btn-stick-on', 'R0lGODlhDgAOAJEAAL//v4yMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIXVI55pu0PI5j00erutJpfj0XiKDKRUAAAOw==')) + (pr.form || pr.oeForm ? '' : '.de-btn-rep { display: none; }') +
 
 	
-		cont(".de-src-google", "https://google.com/favicon.ico") + cont(".de-src-yandex", "https://yandex.ru/favicon.ico") + cont(".de-src-tineye", "https://tineye.com/favicon.ico") + cont(".de-src-saucenao", "https://saucenao.com/favicon.ico") + cont(".de-src-iqdb", "//iqdb.org/favicon.ico") +
+		cont('.de-src-google', 'https://google.com/favicon.ico') + cont('.de-src-yandex', 'https://yandex.ru/favicon.ico') + cont('.de-src-tineye', 'https://tineye.com/favicon.ico') + cont('.de-src-saucenao', 'https://saucenao.com/favicon.ico') + cont('.de-src-iqdb', '//iqdb.org/favicon.ico') +
 
 	
-		".de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); margin-right: 4px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\t.de-post-deleted::after { content: \"" + Lng.deleted[lang] + "\"; margin-right: 4px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }" +
+		'.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); margin-right: 4px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
+	.de-post-deleted::after { content: "' + Lng.deleted[lang] + '"; margin-right: 4px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }' +
 
 	
-		"#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\t#de-txt-panel > span:empty { display: inline-block; width: 23px; height: 22px; margin: 0 2px; }" + gif("#de-btn-bold:empty", (p = "R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ") + "T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==") + gif("#de-btn-italic:empty", p + "K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==") + gif("#de-btn-under:empty", p + "V3IKpq4YAoRARzAoV3hzoDnoJNlGSWSEHw7JrEHILiVp1NlZXtKe5XiptPrFh4NVKHh9FI5NX60WIJ6ATZoVeaVnf8xSU4r7NMRYcFk6pzYRD2TIUAAA7") + gif("#de-btn-strike:empty", p + "S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7") + gif("#de-btn-spoil:empty", "R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==") + gif("#de-btn-code:empty", p + "O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=") + gif("#de-btn-sup:empty", p + "Q3IKpq4YAgZiSQhGByrzn7YURGFGWhxzMuqqBGC7wRUNkeU7nnWNoMosFXKzi8BHs3EQnDRAHLY2e0BxnWfEJkRdT80NNTrliG3aWcBhZhgIAOw==") + gif("#de-btn-sub:empty", p + "R3IKpq4YAgZiSxquujtOCvIUayAkVZEoRcjCu2wbivMw2WaYi7vVYYqMFYq/i8BEM4ZIrYOmpdD49m2VFd2oiUZTORWcNYT9SpnZrTjiML0MBADs=") + gif("#de-btn-quote:empty", p + "L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=") +
+		'#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
+	#de-txt-panel > span:empty { display: inline-block; width: 23px; height: 22px; margin: 0 2px; }' + gif('#de-btn-bold:empty', (p = 'R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ') + 'T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==') + gif('#de-btn-italic:empty', p + 'K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==') + gif('#de-btn-under:empty', p + 'V3IKpq4YAoRARzAoV3hzoDnoJNlGSWSEHw7JrEHILiVp1NlZXtKe5XiptPrFh4NVKHh9FI5NX60WIJ6ATZoVeaVnf8xSU4r7NMRYcFk6pzYRD2TIUAAA7') + gif('#de-btn-strike:empty', p + 'S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7') + gif('#de-btn-spoil:empty', 'R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==') + gif('#de-btn-code:empty', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=') + gif('#de-btn-sup:empty', p + 'Q3IKpq4YAgZiSQhGByrzn7YURGFGWhxzMuqqBGC7wRUNkeU7nnWNoMosFXKzi8BHs3EQnDRAHLY2e0BxnWfEJkRdT80NNTrliG3aWcBhZhgIAOw==') + gif('#de-btn-sub:empty', p + 'R3IKpq4YAgZiSxquujtOCvIUayAkVZEoRcjCu2wbivMw2WaYi7vVYYqMFYq/i8BEM4ZIrYOmpdD49m2VFd2oiUZTORWcNYT9SpnZrTjiML0MBADs=') + gif('#de-btn-quote:empty', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=') +
 
 	
-		"@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }\t@keyframes de-close { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }\t@keyframes de-blink {\t\t0%, 100% { transform: translateX(0); }\t\t10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }\t\t20%, 40%, 60%, 80% { transform: translateX(10px); }\t}\t@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\t@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\t@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\t@keyframes de-post-open-br { from { transform: translate(50%,50%) scale(0); opacity: 0; } }\t@keyframes de-post-close-tl { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\t@keyframes de-post-close-bl { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\t@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\t@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\t@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\t@keyframes de-win-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\t@keyframes de-win-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\t.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\t.de-open { animation: de-open .15s ease-out both; }\t.de-close { animation: de-close .15s ease-in both; }\t.de-blink { animation: de-blink .7s ease-in-out both; }\t.de-post-new { animation: de-post-new .2s ease-out both; }\t.de-win-open { animation: de-win-open .2s ease-out backwards; }\t.de-win-close { animation: de-win-close .2s ease-in both; }" +
+		'@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }\
+	@keyframes de-close { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }\
+	@keyframes de-blink {\
+		0%, 100% { transform: translateX(0); }\
+		10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }\
+		20%, 40%, 60%, 80% { transform: translateX(10px); }\
+	}\
+	@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\
+	@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\
+	@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
+	@keyframes de-post-open-br { from { transform: translate(50%,50%) scale(0); opacity: 0; } }\
+	@keyframes de-post-close-tl { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\
+	@keyframes de-post-close-bl { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\
+	@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
+	@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\
+	@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\
+	@keyframes de-win-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
+	@keyframes de-win-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
+	.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\
+	.de-open { animation: de-open .15s ease-out both; }\
+	.de-close { animation: de-close .15s ease-in both; }\
+	.de-blink { animation: de-blink .7s ease-in-out both; }\
+	.de-post-new { animation: de-post-new .2s ease-out both; }\
+	.de-win-open { animation: de-win-open .2s ease-out backwards; }\
+	.de-win-close { animation: de-win-close .2s ease-in both; }' +
 
 	
-		cont(".de-video-link.de-ytube", "https://youtube.com/favicon.ico") + cont(".de-video-link.de-vimeo", "https://vimeo.com/favicon.ico") + cont(".de-img-arch", "data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==") + cont(".de-img-audio", "data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==") + ".de-current::after { content: \" ●\"; }\t.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\t.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\t.de-img-pre { max-width: 200px; max-height: 200px; }\t.de-img-full { float: left; }\t.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\t#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\t#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\t#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }\t.de-mp3, .de-video-obj { margin: 5px 20px; white-space: nowrap; }\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\t#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }\t.de-video-expanded { width: 854px !important; height: 480px !important; }\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\t.de-video-resizer::after { content: \"➕\"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\ta.de-video-player::after { content: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC\"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\t.de-video-title[de-time]::after { content: \" [\" attr(de-time) \"]\"; color: red; }\t.de-vocaroo > embed { display: inline-block; }\ttd > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\tvideo { background: black; }" +
+		cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') + cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico') + cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==') + '.de-current::after { content: " ●"; }\t.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\t.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\t.de-img-pre { max-width: 200px; max-height: 200px; }\t.de-img-full { float: left; }\t.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\t#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\t#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\t#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }\t.de-mp3, .de-video-obj { margin: 5px 20px; white-space: nowrap; }\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\t#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }\t.de-video-expanded { width: 854px !important; height: 480px !important; }\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\t.de-video-resizer::after { content: "➕"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\ta.de-video-player::after { content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\t.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }\t.de-vocaroo > embed { display: inline-block; }\ttd > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\tvideo { background: black; }' +
 
 	
-		".de-file { display: inline-block; margin: 1px; height: " + (p = aib.multiFile ? 90 : 130) + "px; width: " + p + "px; text-align: center; border: 1px dashed grey; }\t.de-file > .de-file-del, .de-file > .de-file-spoil { float: right; }\t.de-file > .de-file-rar { float: left; }\t.de-file > .de-file-rarmsg { float: left; padding: 0 4px 2px; color: #fff; background-color: rgba(55,55,55,.5); }\t.de-file > .de-file-utils { display: none; }\t.de-file > div { display: table; width: 100%; height: 100%; cursor: pointer; }\t.de-file > div > div { display: table-cell; vertical-align: middle; }\t.de-file + [type=\"file\"] { opacity: 0; margin: 1px 0 0 -" + (p + 2) + "px !important; vertical-align: top; width: " + (p + 2) + "px !important; height: " + (p + 2) + "px; border: none !important; cursor: pointer; }\t#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\t.de-file-drag { background: rgba(88,88,88,.4); border: 1px solid grey; }\t.de-file-hover > .de-file-utils { display: block !important; position: relative; margin: -18px 2px; }\t.de-file-hover > .de-file-spoil { margin: -16px 21px; }\t.de-file-img > img, .de-file-img > video { max-width: " + (p - 4) + "px; max-height: " + (p - 4) + "px; }\t.de-file-input { max-width: 300px; }\t.de-file-off > div > div::after { content: \"" + Lng.noFile[lang] + "\"; }\t.de-file-rarmsg { margin: 0 5px; font: bold 11px tahoma; cursor: default; }\t.de-file-del, .de-file-rar { display: inline-block; margin: 0 4px -3px; width: 16px; height: 16px; cursor: pointer; }\t.de-file-spoil { display: none; }" + gif(".de-file-del", "R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=") + gif(".de-file-rar", "R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==") +
+		'.de-file { display: inline-block; margin: 1px; height: ' + (p = aib.multiFile ? 90 : 130) + 'px; width: ' + p + 'px; text-align: center; border: 1px dashed grey; }\
+	.de-file > .de-file-del, .de-file > .de-file-spoil { float: right; }\
+	.de-file > .de-file-rar { float: left; }\
+	.de-file > .de-file-rarmsg { float: left; padding: 0 4px 2px; color: #fff; background-color: rgba(55,55,55,.5); }\
+	.de-file > .de-file-utils { display: none; }\
+	.de-file > div { display: table; width: 100%; height: 100%; cursor: pointer; }\
+	.de-file > div > div { display: table-cell; vertical-align: middle; }\
+	.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -' + (p + 2) + 'px !important; vertical-align: top; width: ' + (p + 2) + 'px !important; height: ' + (p + 2) + 'px; border: none !important; cursor: pointer; }\
+	#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\
+	.de-file-drag { background: rgba(88,88,88,.4); border: 1px solid grey; }\
+	.de-file-hover > .de-file-utils { display: block !important; position: relative; margin: -18px 2px; }\
+	.de-file-hover > .de-file-spoil { margin: -16px 21px; }\
+	.de-file-img > img, .de-file-img > video { max-width: ' + (p - 4) + 'px; max-height: ' + (p - 4) + 'px; }\
+	.de-file-input { max-width: 300px; }\
+	.de-file-off > div > div::after { content: "' + Lng.noFile[lang] + '"; }\
+	.de-file-rarmsg { margin: 0 5px; font: bold 11px tahoma; cursor: default; }\
+	.de-file-del, .de-file-rar { display: inline-block; margin: 0 4px -3px; width: 16px; height: 16px; cursor: pointer; }\
+	.de-file-spoil { display: none; }' + gif('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=') + gif('.de-file-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') +
 
 	
-		"#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: " + (nav.Presto ? "-2px -10px" : "0 0 -1px -11px") + "; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\t.de-parea { text-align: center; }\t.de-parea-btn-close::after { content: \"" + Lng.hideForm[lang] + "\"; }\t.de-parea-btn-thrd::after { content: \"" + Lng.makeThrd[lang] + "\"; }\t.de-parea-btn-reply::after { content: \"" + Lng.makeReply[lang] + "\"; }\t#de-pform > form { padding: 0; margin: 0; border: none; }\t#de-pform input[type=\"text\"], #de-pform input[type=\"file\"] { width: 200px; }\t.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\t.de-win-inpost > .de-resizer { display: none; }\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\t#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }" +
+		'#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ' + (nav.Presto ? '-2px -10px' : '0 0 -1px -11px') + '; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\
+	.de-parea { text-align: center; }\
+	.de-parea-btn-close::after { content: "' + Lng.hideForm[lang] + '"; }\
+	.de-parea-btn-thrd::after { content: "' + Lng.makeThrd[lang] + '"; }\
+	.de-parea-btn-reply::after { content: "' + Lng.makeReply[lang] + '"; }\
+	#de-pform > form { padding: 0; margin: 0; border: none; }\
+	#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }\
+	.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\
+	.de-win-inpost > .de-resizer { display: none; }\
+	.de-win-inpost > .de-win-head { background: none; color: inherit; }\
+	#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\
+	#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\
+	#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\
+	#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\
+	#de-win-reply.de-win #de-resizer-text { display: none !important; }\
+	#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\
+	.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }' +
 
 	
-		".de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t.de-content-block > input { margin: 0 4px; }\t.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 4px 0 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\t.de-entry > a { flex: none; text-decoration: none; border: none; }\t.de-entry > input { margin: 2px 4px; }\t.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\t.de-fav-inf { flex: none; padding-left: 10px; font: bold 14px serif; cursor: default; }\t.de-fav-inf-err { color: #c33; font-size: 12px; }\t.de-fav-inf-new { color: #424f79; }\t.de-fav-inf-new::after { content: \" +\"; }\t.de-fav-inf-old { color: #4f7942; }\t.de-fav-user::after { content: \"★\"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\t.de-fav-closed, .de-fav-unavail { display: inline-block; width: 16px; height: 16px; margin-bottom: -4px; }\t.de-fav-closed { background-image: url(data:image/gif;base64,R0lGODlhEAAQAKIAAP3rqPPOd+y6V+WmN+Dg4M7OzmZmZv///yH5BAEAAAcALAAAAAAQABAAAANCeLrWvZARUqqJkjiLj9FMcWHf6IldGZqM4zqRAcw0zXpAoO/6LfeNnS8XcAhjAIHSoFwim0wockCtUodWq+/1UiQAADs=); }\t.de-fav-unavail { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==); }" +
+		'.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t.de-content-block > input { margin: 0 4px; }\t.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 4px 0 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\t.de-entry > a { flex: none; text-decoration: none; border: none; }\t.de-entry > input { margin: 2px 4px; }\t.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\t.de-fav-inf { flex: none; padding-left: 10px; font: bold 14px serif; cursor: default; }\t.de-fav-inf-err { color: #c33; font-size: 12px; }\t.de-fav-inf-new { color: #424f79; }\t.de-fav-inf-new::after { content: " +"; }\t.de-fav-inf-old { color: #4f7942; }\t.de-fav-user::after { content: "★"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\t.de-fav-closed, .de-fav-unavail { display: inline-block; width: 16px; height: 16px; margin-bottom: -4px; }\t.de-fav-closed { background-image: url(data:image/gif;base64,R0lGODlhEAAQAKIAAP3rqPPOd+y6V+WmN+Dg4M7OzmZmZv///yH5BAEAAAcALAAAAAAQABAAAANCeLrWvZARUqqJkjiLj9FMcWHf6IldGZqM4zqRAcw0zXpAoO/6LfeNnS8XcAhjAIHSoFwim0wockCtUodWq+/1UiQAADs=); }\t.de-fav-unavail { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==); }' +
 
 	
-		cont(".de-wait", "data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7") + ".de-abtn { text-decoration: none !important; outline: none; }\t.de-after-fimg { clear: left; }\t#de-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\t#de-popup > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 8px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\t.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\t.de-popup-btn:not(.de-wait) + div { margin-top: .15em; }\t.de-popup-msg { display: inline-block; }\t.de-button { flex: none; padding: 0 " + (nav.Firefox ? "2" : "4") + "px !important; margin: 1px; height: 24px; font: 12px arial; }\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t.de-input-key { height: 12px }\t.de-link-hid { text-decoration: line-through !important; }\t.de-link-parent { outline: 1px dotted !important; }\t.de-link-pview { font-weight: bold; }\t.de-link-ref { text-decoration: none; }\t.de-list { padding-top: 4px; }\t.de-list::before { content: \"●\"; margin-right: 4px; }\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t.de-menu-item:hover { background-color: #222; color: #fff; }\t.de-new-post { " + (nav.Presto ? "border-left: 4px solid rgba(0,0,255,.7); border-right: 4px solid rgba(0,0,255,.7); }" : "box-shadow: 6px 0 2px -2px rgba(0,0,255,.8), -6px 0 2px -2px rgba(0,0,255,.8); }") + "\t.de-omitted { color: grey; }\t.de-omitted::before { content: \"" + Lng.postsOmitted[lang] + "\"; }\t.de-post-hide > " + aib.qHide + " { display: none !important; }\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\t.de-pview-info { padding: 3px 6px !important; }\t.de-ref-op::after { content: \" [OP]\"; }\t.de-ref-del::after { content: \" [del]\"; }\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\t.de-refmap::before { content: \"" + Lng.replies[lang] + " \"; }\t.de-refcomma:last-child { display: none; }\t.de-replies-hide::after { content: \"" + Lng.hidePosts[lang] + "\"; }\t.de-replies-show::after { content: \"" + Lng.showPosts[lang] + "\"; }\t.de-selected, .de-error-key { " + (nav.Presto ? "border-left: 4px solid rgba(255,0,0,.7); border-right: 4px solid rgba(255,0,0,.7); }" : "box-shadow: 6px 0 2px -2px rgba(255,0,0,.8), -6px 0 2px -2px rgba(255,0,0,.8); }") + "\t.de-thread-buttons { clear: left; margin-top: 5px; }\t.de-thread-collapse > a::after { content: \"" + Lng.collapseThrd[lang] + "\"; }\t.de-thread-updater > a::after { content: \"" + Lng.getNewPosts[lang] + "\"; }\t#de-updater-count::before { content: \": \"; }\t.de-viewed { color: #888 !important; }\tform > hr { clear: both }";
+		cont('.de-wait', 'data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7') + '.de-abtn { text-decoration: none !important; outline: none; }\
+	.de-after-fimg { clear: left; }\
+	#de-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
+	#de-popup > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 8px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
+	.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
+	.de-popup-btn:not(.de-wait) + div { margin-top: .15em; }\
+	.de-popup-msg { display: inline-block; }\
+	.de-button { flex: none; padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 1px; height: 24px; font: 12px arial; }\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t.de-input-key { height: 12px }\t.de-link-hid { text-decoration: line-through !important; }\t.de-link-parent { outline: 1px dotted !important; }\t.de-link-pview { font-weight: bold; }\t.de-link-ref { text-decoration: none; }\t.de-list { padding-top: 4px; }\t.de-list::before { content: "●"; margin-right: 4px; }\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t.de-menu-item:hover { background-color: #222; color: #fff; }\t.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(0,0,255,.7); border-right: 4px solid rgba(0,0,255,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(0,0,255,.8), -6px 0 2px -2px rgba(0,0,255,.8); }') + '\
+	.de-omitted { color: grey; }\
+	.de-omitted::before { content: "' + Lng.postsOmitted[lang] + '"; }\
+	.de-post-hide > ' + aib.qHide + ' { display: none !important; }\
+	.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
+	.de-pview-info { padding: 3px 6px !important; }\
+	.de-ref-op::after { content: " [OP]"; }\
+	.de-ref-del::after { content: " [del]"; }\
+	.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
+	.de-refmap::before { content: "' + Lng.replies[lang] + ' "; }\
+	.de-refcomma:last-child { display: none; }\
+	.de-replies-hide::after { content: "' + Lng.hidePosts[lang] + '"; }\
+	.de-replies-show::after { content: "' + Lng.showPosts[lang] + '"; }\
+	.de-selected, .de-error-key { ' + (nav.Presto ? 'border-left: 4px solid rgba(255,0,0,.7); border-right: 4px solid rgba(255,0,0,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(255,0,0,.8), -6px 0 2px -2px rgba(255,0,0,.8); }') + '\
+	.de-thread-buttons { clear: left; margin-top: 5px; }\
+	.de-thread-collapse > a::after { content: "' + Lng.collapseThrd[lang] + '"; }\
+	.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '"; }\
+	#de-updater-count::before { content: ": "; }\
+	.de-viewed { color: #888 !important; }\
+	form > hr { clear: both }';
 
-		$css(x).id = "de-css";
-		$css("").id = "de-css-dynamic";
-		$css("").id = "de-css-user";
+		$css(x).id = 'de-css';
+		$css('').id = 'de-css-dynamic';
+		$css('').id = 'de-css-user';
 		updateCSS();
 	}
 
 	function updateCSS() {
-		var x = ".de-video-obj { width: " + Cfg.YTubeWidth + "px; height: " + Cfg.YTubeHeigh + "px; }";
+		var x = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }';
 		if (Cfg.hideReplies || Cfg.updThrBtns) {
-			x += ".de-thread-buttons::before { content: \">> \"; }";
+			x += '.de-thread-buttons::before { content: ">> "; }';
 		}
 		if (Cfg.maskImgs) {
-			x += ".de-img-pre, .de-video-obj, .thumb, .ca_thumb, .fileThumb, img[src*=\"spoiler\"], img[src*=\"thumb\"], img[src^=\"blob\"] { opacity: .07 !important; }\t\t\t.de-img-pre:hover, .de-video-obj:hover, .thumb:hover, .ca_thumb:hover, .fileThumb:hover, img[src*=\"spoiler\"]:hover, img[src*=\"thumb\"]:hover, img[src^=\"blob\"]:hover { opacity: 1 !important; }";
+			x += '.de-img-pre, .de-video-obj, .thumb, .ca_thumb, .fileThumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: .07 !important; }\
+			.de-img-pre:hover, .de-video-obj:hover, .thumb:hover, .ca_thumb:hover, .fileThumb:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
 		}
 		if (Cfg.delImgNames) {
-			x += ".de-img-name { text-transform: capitalize; text-decoration: none; }";
+			x += '.de-img-name { text-transform: capitalize; text-decoration: none; }';
 		}
 		if (!aib.dobr && !aib.krau && !aib.mak) {
-			x += ".de-img-full { margin: 2px 5px; }";
+			x += '.de-img-full { margin: 2px 5px; }';
 		}
 		if (Cfg.noSpoilers) {
 			if (aib.krau || aib.fch || aib._8ch || aib._410 || aib.dio) {
-				x += ".spoiler, s { color: #fff !important; }\t\t\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }";
+				x += '.spoiler, s { color: #fff !important; }\
+				.spoiler > a, s > a:not(:hover) { color: inherit !important; }';
 			} else {
-				x += ".spoiler { color: inherit !important; }\t\t\t\t.spoiler > a { color: inherit !important; }";
+				x += '.spoiler { color: inherit !important; }\
+				.spoiler > a { color: inherit !important; }';
 			}
 		}
 		if (Cfg.widePosts) {
-			x += "." + aib.cReply.replace(/\s/, ".") + ":not(.de-pview) { float: none; width: 100%; }";
+			x += '.' + aib.cReply.replace(/\s/, '.') + ':not(.de-pview) { float: none; width: 100%; }';
 		}
-		x += ".postarea, .recaptcha_image_cell + td, .recaptcha_image_cell + td + td, small[id^=\"rfmap\"], .theader, .thumbnailmsg, " + (Cfg.panelCounter ? "" : "#de-panel-info, ") + (Cfg.imgNavBtns ? "" : "#de-img-btn-next, #de-img-btn-prev, ") + (Cfg.showHideBtn ? "" : ".de-btn-hide, ") + (Cfg.showRepBtn ? "" : ".de-btn-rep, ") + (Cfg.updThrBtns || aib.t ? "" : ".de-thread-updater, ") + (Cfg.removeHidd ? ".de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, " : "") + (Cfg.delHiddPost ? ".de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, " : "") + (Cfg.noPostNames ? aib.qName + ", ." + aib.cTrip + ", " : "") + (Cfg.noBoardRule ? (aib.mak ? ".rules-area" : aib.krau ? "#rules_row" : aib.futa ? ".chui" : ".rules, #rules") + ", " : "") + (!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? "#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, " : "") + "body > hr { display: none !important; }";
-		$id("de-css-dynamic").textContent = x + "\n" + aib.css + "\n" + aib.cssEn;
-		$id("de-css-user").textContent = Cfg.userCSS ? Cfg.userCSSTxt : "";
+		x += '.postarea, .recaptcha_image_cell + td, .recaptcha_image_cell + td + td, small[id^="rfmap"], .theader, .thumbnailmsg, ' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + (Cfg.imgNavBtns ? '' : '#de-img-btn-next, #de-img-btn-prev, ') + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + (Cfg.showRepBtn ? '' : '.de-btn-rep, ') + (Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (Cfg.delHiddPost ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (Cfg.noPostNames ? aib.qName + ', .' + aib.cTrip + ', ' : '') + (Cfg.noBoardRule ? (aib.mak ? '.rules-area' : aib.krau ? '#rules_row' : aib.futa ? '.chui' : '.rules, #rules') + ', ' : '') + (!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + 'body > hr { display: none !important; }';
+		$id('de-css-dynamic').textContent = x + '\n' + aib.css + '\n' + aib.cssEn;
+		$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 	}
 
 
@@ -15669,43 +15817,178 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 	function addDelformStuff() {
 		preloadImages(null);
-		new Logger().log("Preload images");
+		new Logger().log('Preload images');
 		embedMediaLinks(null);
-		new Logger().log("Audio links");
+		new Logger().log('Audio links');
 		if (Cfg.addYouTube) {
 			new VideosParser().parse(null).end();
-			new Logger().log("Video links");
+			new Logger().log('Video links');
 		}
 		if (Cfg.addImgs) {
 			embedImagesLinks(dForm.el);
-			new Logger().log("Image-links");
+			new Logger().log('Image-links');
 		}
 		processImageNames(dForm.el);
-		new Logger().log("Image names");
+		new Logger().log('Image names');
 		if (dForm.firstThr && Cfg.linksNavig === 2) {
-			genRefMap(pByNum, "");
+			genRefMap(pByNum, '');
 			for (var post = dForm.firstThr.op; post; post = post.next) {
 				if (post.ref.size !== 0) {
-					addRefMap(post, "");
+					addRefMap(post, '');
 				}
 			}
-			new Logger().log("Reflinks map");
+			new Logger().log('Reflinks map');
 		}
+	}
+
+	function initScript(checkDomains, readCfgPromise) {
+		var formEl, str;
+		return regeneratorRuntime.wrap(function initScript$(context$2$0) {
+			while (1) switch (context$2$0.prev = context$2$0.next) {
+				case 0:
+					new Logger().init();
+					formEl = Initialization(checkDomains);
+
+					if (formEl) {
+						context$2$0.next = 4;
+						break;
+					}
+
+					return context$2$0.abrupt('return');
+
+				case 4:
+					new Logger().log('Init');
+					return context$2$0.delegateYield(getStored('DESU_Exclude'), 't0', 6);
+
+				case 6:
+					str = context$2$0.t0;
+
+					if (!(str && str.includes(aib.dm))) {
+						context$2$0.next = 9;
+						break;
+					}
+
+					return context$2$0.abrupt('return');
+
+				case 9:
+					excludeList = str || '';
+
+					if (Cfg) {
+						context$2$0.next = 18;
+						break;
+					}
+
+					if (!readCfgPromise) {
+						context$2$0.next = 16;
+						break;
+					}
+
+					context$2$0.next = 14;
+					return readCfgPromise;
+
+				case 14:
+					context$2$0.next = 17;
+					break;
+
+				case 16:
+					return context$2$0.delegateYield(readCfg(), 't1', 17);
+
+				case 17:
+					new Logger().log('Config loading');
+
+				case 18:
+					if (Cfg.correctTime) {
+						dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, function (rp) {
+							return saveCfg('timeRPattern', rp);
+						});
+						new Logger().log('Time correction');
+					}
+
+					if (!Cfg.disabled) {
+						context$2$0.next = 23;
+						break;
+					}
+
+					panel.init(formEl);
+					scriptCSS();
+					return context$2$0.abrupt('return');
+
+				case 23:
+					spells = new Spells(!!Cfg.hideBySpell);
+					new Logger().log('Parsing spells');
+					doc.body.style.display = 'none';
+					formEl = DelForm.doReplace(formEl);
+					new Logger().log('Replace delform');
+					pByNum = Object.create(null);
+					context$2$0.prev = 29;
+
+					dForm = new DelForm(formEl, false);
+					context$2$0.next = 38;
+					break;
+
+				case 33:
+					context$2$0.prev = 33;
+					context$2$0.t2 = context$2$0['catch'](29);
+
+					console.log('DELFORM ERROR:\n' + getPrettyErrorMessage(context$2$0.t2));
+					doc.body.style.display = '';
+					return context$2$0.abrupt('return');
+
+				case 38:
+					if (!localRun) {
+						dForm.initAjax();
+					}
+					new Logger().log('Parse delform');
+					pr = new PostForm($q(aib.qPostForm, doc), false, doc);
+					new Logger().log('Parse postform');
+					if (Cfg.hotKeys) {
+						hKeys = new HotKeys();
+						new Logger().log('Init keybinds');
+					}
+					initPage();
+					new Logger().log('Init page');
+					panel.init(formEl);
+					new Logger().log('Add panel');
+					initMessageFunctions();
+					addDelformStuff();
+					readViewedPosts();
+					scriptCSS();
+					new Logger().log('Apply CSS');
+					doc.body.style.display = '';
+					new Logger().log('Display page');
+					scrollPage();
+					new Logger().log('Scroll page');
+					readPosts();
+					return context$2$0.delegateYield(readUserPosts(), 't3', 58);
+
+				case 58:
+					return context$2$0.delegateYield(readFavoritesPosts(), 't4', 59);
+
+				case 59:
+					setTimeout(PostContent.purge, 0);
+					new Logger().log('Apply spells');
+					new Logger().finish();
+
+				case 62:
+				case 'end':
+					return context$2$0.stop();
+			}
+		}, marked1$0[7], this, [[29, 33]]);
 	}
 
 	if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 		return;
 	}
 	switch (window.name) {
-		case "":
+		case '':
 			break;
-		case "de-iframe-pform":
-		case "de-iframe-dform":
-			$script("window.top.postMessage(\"" + window.name + "\" + document.documentElement.outerHTML, \"*\");");
+		case 'de-iframe-pform':
+		case 'de-iframe-dform':
+			$script('window.top.postMessage("' + window.name + '" + document.documentElement.outerHTML, "*");');
 			return;
 	}
 
-	if (doc.readyState === "interactive" || doc.readyState === "complete") {
+	if (doc.readyState === 'interactive' || doc.readyState === 'complete') {
 		needScroll = false;
 		async(initScript)(true, null);
 	} else {
@@ -15726,7 +16009,6 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 			needScroll = false;
 			doc.removeEventListener(e.type, wheelFunc);
 		});
-		doc.addEventListener("DOMContentLoaded", async(initScript.bind(null, false, cfgRead)));
+		doc.addEventListener('DOMContentLoaded', async(initScript.bind(null, false, cfgRead)));
 	}
-})(window.opera && window.opera.scriptStorage, window.FormData);
-                     })();
+})(window.opera && window.opera.scriptStorage, window.FormData);})();
