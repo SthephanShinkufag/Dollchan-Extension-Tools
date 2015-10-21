@@ -1198,6 +1198,8 @@ $define(GLOBAL + BIND, {
   }, weakMethods, false, true);
 }();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+
 !(function(global) {
   "use strict";
 
@@ -1882,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '0757c9d';
+	var commit = '2016ea6';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10785,14 +10787,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'isImage',
 			get: function get() {
-				var val = this.src && (/\.jpe?g|\.png|\.gif/i.test(this.src) || this.src.startsWith('blob:') && !this.el.hasAttribute('de-video'));
+				var val = /\.jpe?g|\.png|\.gif/i.test(this.src) || this.src.startsWith('blob:') && !this.el.hasAttribute('de-video');
 				Object.defineProperty(this, 'isImage', { value: val });
 				return val;
 			}
 		}, {
 			key: 'isVideo',
 			get: function get() {
-				var val = this.src && (/\.webm(?:&|$)/i.test(this.src) || this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
+				var val = /\.webm(?:&|$)/i.test(this.src) || this.src.startsWith('blob:') && this.el.hasAttribute('de-video');
 				Object.defineProperty(this, 'isVideo', { value: val });
 				return val;
 			}
@@ -13596,7 +13598,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				qPostRedir: { value: null },
 				qRef: { value: '.postInfo > .postNum' },
 				qTable: { value: '.replyContainer' },
-				qThumbImages: { value: '.fileThumb > img' },
+				qThumbImages: { value: '.fileThumb > img:not(.fileDeletedRes)' },
 				getFileInfo: { value: function value(wrap) {
 						var el = $c(this.cFileInfo, wrap);
 						return el ? el.lastChild.textContent : '';
