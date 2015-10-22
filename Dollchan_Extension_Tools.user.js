@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '7d43862';
+	var commit = '725a581';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -2815,25 +2815,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	
 		this.hasValue = false;
 	}
-	Maybe.prototype = Object.defineProperties({
+	Maybe.prototype = {
+		get value() {
+			var ctor = this._ctor;
+			this.hasValue = !!ctor;
+			var val = ctor ? new ctor() : null;
+			Object.defineProperty(this, 'value', { value: val });
+			return val;
+		},
 		end: function end() {
 			if (this.hasValue) {
 				this.value.end();
 			}
 		}
-	}, {
-		value: {
-			get: function get() {
-				var ctor = this._ctor;
-				this.hasValue = !!ctor;
-				var val = ctor ? new ctor() : null;
-				Object.defineProperty(this, 'value', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
-		}
-	});
+	};
 
 	function TasksPool(tasksCount, taskFunc, endFn) {
 		this.array = [];
@@ -3772,11 +3767,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-	var panel = Object.create(Object.defineProperties({
+	var panel = Object.create({
 		_hideTO: 0,
 		_menuTO: 0,
 		_el: null,
-
+		get _infoEl() {
+			var value = $id('de-panel-info');
+			Object.defineProperty(this, '_infoEl', { value: value, configurable: true });
+			return value;
+		},
 		_prepareToHide: function _prepareToHide() {
 			var _this3 = this;
 
@@ -3927,17 +3926,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		updateCounter: function updateCounter(postCount, imgsCount) {
 			this._infoEl.textContent = postCount + '/' + imgsCount;
 		}
-	}, {
-		_infoEl: {
-			get: function get() {
-				var value = $id('de-panel-info');
-				Object.defineProperty(this, '_infoEl', { value: value, configurable: true });
-				return value;
-			},
-			configurable: true,
-			enumerable: true
-		}
-	}));
+	});
 
 	function updateWinZ(style) {
 		if (style.zIndex < topWinZ) {
@@ -5780,11 +5769,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 		el.title = title;
 	};
-	KeyEditListener.prototype = Object.defineProperties({
+	KeyEditListener.prototype = {
 		cEl: null,
 		cKey: -1,
 		errorInput: false,
-
+		get saveButton() {
+			var val = $id('de-keys-save');
+			Object.defineProperty(this, 'saveButton', { value: val, configurable: true });
+			return val;
+		},
 		handleEvent: function handleEvent(e) {
 			var key,
 			    el = e.target;
@@ -5921,17 +5914,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			$pd(e);
 		}
-	}, {
-		saveButton: {
-			get: function get() {
-				var val = $id('de-keys-save');
-				Object.defineProperty(this, 'saveButton', { value: val, configurable: true });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
-		}
-	});
+	};
 
 
 
@@ -6464,22 +6447,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 		}
 	}
-	Videos._global = Object.defineProperties({}, {
-		vData: {
-			get: function get() {
-				var val;
-				try {
-					val = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data1'] || '[{}, {}]') : [{}, {}];
-				} catch (e) {
-					val = [{}, {}];
-				}
-				Object.defineProperty(this, 'vData', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
+	Videos._global = {
+		get vData() {
+			var val;
+			try {
+				val = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data1'] || '[{}, {}]') : [{}, {}];
+			} catch (e) {
+				val = [{}, {}];
+			}
+			Object.defineProperty(this, 'vData', { value: val });
+			return val;
 		}
-	});
+	};
 	Videos.ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 	Videos.vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
 	Videos.addPlayer = function (el, m, isYtube) {
@@ -6572,14 +6551,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			sesStorage['de-videos-data1'] = JSON.stringify(Videos._global.vData);
 		});
 	};
-	Videos.prototype = Object.defineProperties({
+	Videos.prototype = {
 		currentLink: null,
 		hasLinks: false,
 		playerInfo: null,
 		titleLoadFn: null,
 		linksCount: 0,
 		loadedLinksCount: 0,
-
+		get player() {
+			var val = aib.insertYtPlayer(this.post.msg, '<div class="de-video-obj"></div>');
+			Object.defineProperty(this, 'player', { value: val });
+			return val;
+		},
 		addLink: function addLink(m, loader, link, isYtube) {
 			var time, dataObj;
 			this.hasLinks = true;
@@ -6703,17 +6686,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				} catch (e) {}
 			});
 		}
-	}, {
-		player: {
-			get: function get() {
-				var val = aib.insertYtPlayer(this.post.msg, '<div class="de-video-obj"></div>');
-				Object.defineProperty(this, 'player', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
-		}
-	});
+	};
 
 	function VideosParser() {
 		this._loader = Videos._getTitlesLoader();
@@ -7036,7 +7009,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return spell + '(' + String(val) + ')';
 					}
 	};
-	Spells.prototype = Object.defineProperties({
+	Spells.prototype = {
 		_optimizeSpells: function _optimizeSpells(spells) {
 			var neg,
 			    lastSpell = -1,
@@ -7232,7 +7205,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		hash: 0,
 		hasNumSpell: false,
 		enable: false,
-
+		get list() {
+			return this._list || this._decompileSpells();
+		},
 		parseText: function parseText(str) {
 			var codeGen = new SpellsCodegen(str),
 			    data = codeGen.generate();
@@ -7364,15 +7339,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.update(spells, true, true);
 			idx = null;
 		}
-	}, {
-		list: {
-			get: function get() {
-				return this._list || this._decompileSpells();
-			},
-			configurable: true,
-			enumerable: true
-		}
-	});
+	};
 
 	function SpellsCodegen(sList) {
 		this._line = 1;
@@ -7380,7 +7347,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		this._sList = sList;
 		this.hasError = false;
 	}
-	SpellsCodegen.prototype = Object.defineProperties({
+	SpellsCodegen.prototype = {
 		TYPE_UNKNOWN: 0,
 		TYPE_ANDOR: 1,
 		TYPE_NOT: 2,
@@ -7390,6 +7357,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		generate: function generate() {
 			return this._sList ? this._generate(this._sList, false) : null;
+		},
+		get error() {
+			if (!this.hasError) {
+				return '';
+			}
+			return (this._errMsgArg ? this._errMsg.replace('%s', this._errMsgArg) : this._errMsg) + Lng.seRow[lang] + this._line + Lng.seCol[lang] + this._col + ')';
 		},
 
 		_errMsg: '',
@@ -7719,18 +7692,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._errMsg = msg;
 			this._errMsgArg = arg;
 		}
-	}, {
-		error: {
-			get: function get() {
-				if (!this.hasError) {
-					return '';
-				}
-				return (this._errMsgArg ? this._errMsg.replace('%s', this._errMsgArg) : this._errMsg) + Lng.seRow[lang] + this._line + Lng.seCol[lang] + this._col + ')';
-			},
-			configurable: true,
-			enumerable: true
-		}
-	});
+	};
 
 	function SpellsRunner() {
 		this._spells = spells._spells;
@@ -8796,7 +8758,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 		(pr.dpass || {}).value = pr.passw.value = Cfg.passwValue;
 	};
-	PostForm.prototype = Object.defineProperties({
+	PostForm.prototype = {
 		fileObj: null,
 		filesCount: 0,
 		isHidden: false,
@@ -8806,7 +8768,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		pForm: null,
 		pArea: [],
 		qArea: null,
-
+		get fileArea() {
+			var val;
+			if (aib.multiFile) {
+				val = $add('<tr><td></td><td><div id="de-file-area"></div></td></tr>');
+				$after(this.fileTd.parentNode, val);
+			} else {
+				val = $t(aib.tiny ? 'th' : 'td', $parent(this.txta, 'TR'));
+				val.innerHTML = '';
+			}
+			Object.defineProperty(this, 'fileArea', { value: val });
+			return val;
+		},
+		get rarInput() {
+			var val = doc.body.appendChild($new('input', { 'type': 'file', 'style': 'display: none;' }, null));
+			Object.defineProperty(this, 'rarInput', { value: val });
+			return val;
+		},
 		addTextPanel: function addTextPanel() {
 			var id,
 			    val,
@@ -8910,7 +8888,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				e.stopPropagation();
 			}
 		},
-
+		get isVisible() {
+			if (!this.isHidden && this.isBottom && $q(':focus', this.pForm)) {
+				var cr = this.pForm.getBoundingClientRect();
+				return cr.bottom > 0 && cr.top < doc.documentElement.clientHeight;
+			}
+			return false;
+		},
+		get offsetTop() {
+			return this.pForm.offsetTop;
+		},
 		showQuickReply: function showQuickReply(post, pNum, closeReply, isNumClick) {
 			var temp,
 			    isThr = aib.t,
@@ -9196,51 +9183,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			return [i === 1 && !m[2].length && tag !== '^H' ? m[1].length + tag.length : rv.length - 1, rv.slice(1)];
 		}
-	}, {
-		fileArea: {
-			get: function get() {
-				var val;
-				if (aib.multiFile) {
-					val = $add('<tr><td></td><td><div id="de-file-area"></div></td></tr>');
-					$after(this.fileTd.parentNode, val);
-				} else {
-					val = $t(aib.tiny ? 'th' : 'td', $parent(this.txta, 'TR'));
-					val.innerHTML = '';
-				}
-				Object.defineProperty(this, 'fileArea', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		rarInput: {
-			get: function get() {
-				var val = doc.body.appendChild($new('input', { 'type': 'file', 'style': 'display: none;' }, null));
-				Object.defineProperty(this, 'rarInput', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		isVisible: {
-			get: function get() {
-				if (!this.isHidden && this.isBottom && $q(':focus', this.pForm)) {
-					var cr = this.pForm.getBoundingClientRect();
-					return cr.bottom > 0 && cr.top < doc.documentElement.clientHeight;
-				}
-				return false;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		offsetTop: {
-			get: function get() {
-				return this.pForm.offsetTop;
-			},
-			configurable: true,
-			enumerable: true
-		}
-	});
+	};
 
 	function FileInput(form, el, prev) {
 		this.el = el;
@@ -9251,7 +9194,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			prev.next = this;
 		}
 	}
-	FileInput.prototype = Object.defineProperties({
+	FileInput.prototype = {
 		empty: true,
 		next: null,
 		imgFile: null,
@@ -9402,7 +9345,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_delUtil: null,
 		_spUtil: null,
 		_rjUtil: null,
-
+		get _buttonsPlace() {
+			return Cfg.fileThumb ? this.thumb.firstChild : this.el;
+		},
+		get _wrap() {
+			return aib.multiFile ? this.el.parentNode : this.el;
+		},
 		_addRarJpeg: function _addRarJpeg() {
 			var _this18 = this;
 
@@ -9503,22 +9451,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			});
 		}
-	}, {
-		_buttonsPlace: {
-			get: function get() {
-				return Cfg.fileThumb ? this.thumb.firstChild : this.el;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		_wrap: {
-			get: function get() {
-				return aib.multiFile ? this.el.parentNode : this.el;
-			},
-			configurable: true,
-			enumerable: true
-		}
-	});
+	};
 
 
 
@@ -10355,7 +10288,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function AttachmentViewer(data) {
 		this._show(data);
 	}
-	AttachmentViewer.prototype = Object.defineProperties({
+	AttachmentViewer.prototype = {
 		data: null,
 		close: function close(e) {
 			if (this.data.inPview && this.data.post.sticked) {
@@ -10466,7 +10399,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_oldY: 0,
 		_minSize: 0,
 		_moved: false,
-
+		get _btns() {
+			var val = new ImgBtnsShowHider(this.navigate.bind(this, true), this.navigate.bind(this, false));
+			Object.defineProperty(this, '_btns', { value: val });
+			return val;
+		},
+		get _zoomFactor() {
+			var val = 1 + Cfg.zoomFactor / 100;
+			Object.defineProperty(this, '_zoomFactor', { value: val });
+			return val;
+		},
 		_getHolder: function _getHolder(el, data) {
 			var _data$computeFullSize = data.computeFullSize(false);
 
@@ -10554,26 +10496,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.data.sendCloseEvent(e, false);
 			}
 		}
-	}, {
-		_btns: {
-			get: function get() {
-				var val = new ImgBtnsShowHider(this.navigate.bind(this, true), this.navigate.bind(this, false));
-				Object.defineProperty(this, '_btns', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		_zoomFactor: {
-			get: function get() {
-				var val = 1 + Cfg.zoomFactor / 100;
-				Object.defineProperty(this, '_zoomFactor', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
-		}
-	});
+	};
 
 	var ExpandableMedia = (function () {
 		function ExpandableMedia(post, el, prev) {
@@ -10943,7 +10866,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	Attachment.cachedOffset = -1;
 	Attachment.viewer = null;
 
-	var ImagesHashStorage = Object.create(Object.defineProperties({
+	var ImagesHashStorage = Object.create({
 		endFn: function endFn() {
 			if (this.hasOwnProperty('_storage')) {
 				sesStorage['de-imageshash'] = JSON.stringify(this._storage);
@@ -10952,6 +10875,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._workers.clear();
 				delete this._workers;
 			}
+		},
+		get getHash() {
+			var val = this._getHashHelper.bind(this);
+			Object.defineProperty(this, 'getHash', { value: val });
+			return val;
 		},
 
 		_getHashHelper: regeneratorRuntime.mark(function _getHashHelper(imgObj) {
@@ -11050,52 +10978,30 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return context$2$0.stop();
 				}
 			}, _getHashHelper, this);
-		})
-	}, {
-		getHash: {
-			get: function get() {
-				var val = this._getHashHelper.bind(this);
-				Object.defineProperty(this, 'getHash', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
+		}),
+		get _canvas() {
+			var val = doc.createElement('canvas');
+			Object.defineProperty(this, '_canvas', { value: val });
+			return val;
 		},
-		_canvas: {
-			get: function get() {
-				var val = doc.createElement('canvas');
-				Object.defineProperty(this, '_canvas', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		_storage: {
-			get: function get() {
-				var val = null;
-				try {
-					val = JSON.parse(sesStorage['de-imageshash']);
-				} finally {
-					if (!val) {
-						val = {};
-					}
-					Object.defineProperty(this, '_storage', { value: val });
-					return val;
+		get _storage() {
+			var val = null;
+			try {
+				val = JSON.parse(sesStorage['de-imageshash']);
+			} finally {
+				if (!val) {
+					val = {};
 				}
-			},
-			configurable: true,
-			enumerable: true
-		},
-		_workers: {
-			get: function get() {
-				var val = new WorkerPool(4, genImgHash, emptyFn);
-				Object.defineProperty(this, '_workers', { value: val, configurable: true });
+				Object.defineProperty(this, '_storage', { value: val });
 				return val;
-			},
-			configurable: true,
-			enumerable: true
+			}
+		},
+		get _workers() {
+			var val = new WorkerPool(4, genImgHash, emptyFn);
+			Object.defineProperty(this, '_workers', { value: val, configurable: true });
+			return val;
 		}
-	}));
+	});
 
 	function processImageNames(el) {
 		var addSrc = Cfg.imgSrcBtns,
@@ -11217,57 +11123,44 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 		return false;
 	};
-	Post.sizing = Object.defineProperties({
+	Post.sizing = {
+		get dPxRatio() {
+			var val = window.devicePixelRatio || 1;
+			Object.defineProperty(this, 'dPxRatio', { value: val });
+			return val;
+		},
+		get wHeight() {
+			var val = doc.documentElement.clientHeight;
+			if (!this._enabled) {
+				doc.defaultView.addEventListener('resize', this);
+				this._enabled = true;
+			}
+			Object.defineProperties(this, {
+				'wWidth': { writable: true, configurable: true, value: doc.documentElement.clientWidth },
+				'wHeight': { writable: true, configurable: true, value: val }
+			});
+			return val;
+		},
+		get wWidth() {
+			var val = doc.documentElement.clientWidth;
+			if (!this._enabled) {
+				doc.defaultView.addEventListener('resize', this);
+				this._enabled = true;
+			}
+			Object.defineProperties(this, {
+				'wWidth': { writable: true, configurable: true, value: val },
+				'wHeight': { writable: true, configurable: true, value: doc.documentElement.clientHeight }
+			});
+			return val;
+		},
 		handleEvent: function handleEvent() {
 			this.wHeight = doc.documentElement.clientHeight;
 			this.wWidth = doc.documentElement.clientWidth;
 		},
 
 		_enabled: false
-	}, {
-		dPxRatio: {
-			get: function get() {
-				var val = window.devicePixelRatio || 1;
-				Object.defineProperty(this, 'dPxRatio', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		wHeight: {
-			get: function get() {
-				var val = doc.documentElement.clientHeight;
-				if (!this._enabled) {
-					doc.defaultView.addEventListener('resize', this);
-					this._enabled = true;
-				}
-				Object.defineProperties(this, {
-					'wWidth': { writable: true, configurable: true, value: doc.documentElement.clientWidth },
-					'wHeight': { writable: true, configurable: true, value: val }
-				});
-				return val;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		wWidth: {
-			get: function get() {
-				var val = doc.documentElement.clientWidth;
-				if (!this._enabled) {
-					doc.defaultView.addEventListener('resize', this);
-					this._enabled = true;
-				}
-				Object.defineProperties(this, {
-					'wWidth': { writable: true, configurable: true, value: val },
-					'wHeight': { writable: true, configurable: true, value: doc.documentElement.clientHeight }
-				});
-				return val;
-			},
-			configurable: true,
-			enumerable: true
-		}
-	});
-	Post.prototype = Object.defineProperties({
+	};
+	Post.prototype = {
 		banned: false,
 		deleted: false,
 		hidden: false,
@@ -11528,7 +11421,36 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			return null;
 		},
-
+		get html() {
+			return PostContent.get(this).html;
+		},
+		get images() {
+			var val = new PostImages(this);
+			Object.defineProperty(this, 'images', { value: val });
+			return val;
+		},
+		get mp3Obj() {
+			var val = $new('div', { 'class': 'de-mp3' }, null);
+			$before(this.msg, val);
+			Object.defineProperty(this, 'mp3Obj', { value: val });
+			return val;
+		},
+		get msg() {
+			var val = $q(aib.qMsg, this.el);
+			Object.defineProperty(this, 'msg', { configurable: true, value: val });
+			return val;
+		},
+		get nextInThread() {
+			var post = this.next;
+			return !post || post.count === 0 ? null : post;
+		},
+		get nextNotDeleted() {
+			var post = this.nextInThread;
+			while (post && post.deleted) {
+				post = post.nextInThread;
+			}
+			return post;
+		},
 		setNote: function setNote(val) {
 			if (this.isOp) {
 				this.noteEl.textContent = val ? '(autohide: ' + val + ')' : '(' + this.title + ')';
@@ -11536,7 +11458,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.noteEl.textContent = val ? 'autohide: ' + val : '';
 			}
 		},
-
+		get noteEl() {
+			var val;
+			if (this.isOp) {
+				val = this.thr.el.previousElementSibling.lastChild;
+			} else {
+				this.btns.insertAdjacentHTML('beforeend', '<span class="de-post-note"></span>');
+				val = this.btns.lastChild;
+			}
+			Object.defineProperty(this, 'noteEl', { value: val });
+			return val;
+		},
+		get posterName() {
+			return PostContent.get(this).posterName;
+		},
+		get posterTrip() {
+			return PostContent.get(this).posterTrip;
+		},
 		select: function select() {
 			if (this.isOp) {
 				if (this.hidden) {
@@ -11663,7 +11601,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.unhideRefs();
 			}
 		},
-
+		get subj() {
+			return PostContent.get(this).subj;
+		},
+		get text() {
+			return PostContent.get(this).text;
+		},
+		get title() {
+			return PostContent.get(this).title;
+		},
+		get tNum() {
+			return this.thr.num;
+		},
 		toggleImages: function toggleImages(expand) {
 			var _iteratorNormalCompletion10 = true;
 			var _didIteratorError10 = false;
@@ -11712,7 +11661,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			saveUserPosts();
 		},
-
+		get offsetTop() {
+			return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el).offsetTop;
+		},
+		get trunc() {
+			var el = aib.qTrunc && $q(aib.qTrunc, this.el),
+			    val = null;
+			if (el && /long|full comment|gekürzt|слишком|длинн|мног|полн/i.test(el.textContent)) {
+				val = el;
+			}
+			Object.defineProperty(this, 'trunc', { configurable: true, value: val });
+			return val;
+		},
 		unhideRefs: function unhideRefs() {
 			if (!Cfg.hideRefPsts || this.ref.size === 0) {
 				return;
@@ -11753,6 +11713,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.addFuncs();
 			sRunner.run(this);
 			closePopup('load-fullmsg');
+		},
+		get videos() {
+			var val = Cfg.addYouTube ? new Videos(this) : null;
+			Object.defineProperty(this, 'videos', { value: val });
+			return val;
+		},
+		get wrap() {
+			var val = aib.getWrap(this.el, this.isOp);
+			Object.defineProperty(this, 'wrap', { value: val });
+			return val;
 		},
 
 		_hasEvents: false,
@@ -12028,157 +11998,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			});
 		}
-	}, {
-		html: {
-			get: function get() {
-				return PostContent.get(this).html;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		images: {
-			get: function get() {
-				var val = new PostImages(this);
-				Object.defineProperty(this, 'images', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		mp3Obj: {
-			get: function get() {
-				var val = $new('div', { 'class': 'de-mp3' }, null);
-				$before(this.msg, val);
-				Object.defineProperty(this, 'mp3Obj', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		msg: {
-			get: function get() {
-				var val = $q(aib.qMsg, this.el);
-				Object.defineProperty(this, 'msg', { configurable: true, value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		nextInThread: {
-			get: function get() {
-				var post = this.next;
-				return !post || post.count === 0 ? null : post;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		nextNotDeleted: {
-			get: function get() {
-				var post = this.nextInThread;
-				while (post && post.deleted) {
-					post = post.nextInThread;
-				}
-				return post;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		noteEl: {
-			get: function get() {
-				var val;
-				if (this.isOp) {
-					val = this.thr.el.previousElementSibling.lastChild;
-				} else {
-					this.btns.insertAdjacentHTML('beforeend', '<span class="de-post-note"></span>');
-					val = this.btns.lastChild;
-				}
-				Object.defineProperty(this, 'noteEl', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		posterName: {
-			get: function get() {
-				return PostContent.get(this).posterName;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		posterTrip: {
-			get: function get() {
-				return PostContent.get(this).posterTrip;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		subj: {
-			get: function get() {
-				return PostContent.get(this).subj;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		text: {
-			get: function get() {
-				return PostContent.get(this).text;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		title: {
-			get: function get() {
-				return PostContent.get(this).title;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		tNum: {
-			get: function get() {
-				return this.thr.num;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		offsetTop: {
-			get: function get() {
-				return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el).offsetTop;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		trunc: {
-			get: function get() {
-				var el = aib.qTrunc && $q(aib.qTrunc, this.el),
-				    val = null;
-				if (el && /long|full comment|gekürzt|слишком|длинн|мног|полн/i.test(el.textContent)) {
-					val = el;
-				}
-				Object.defineProperty(this, 'trunc', { configurable: true, value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		videos: {
-			get: function get() {
-				var val = Cfg.addYouTube ? new Videos(this) : null;
-				Object.defineProperty(this, 'videos', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		wrap: {
-			get: function get() {
-				var val = aib.getWrap(this.el, this.isOp);
-				Object.defineProperty(this, 'wrap', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
-		}
-	});
+	};
 
 	function PostContent(post) {
 		this.el = post.el;
@@ -12207,65 +12027,41 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	PostContent.remove = function (post) {
 		PostContent.data[post.num] = null;
 	};
-	PostContent.prototype = Object.defineProperties({}, {
-		html: {
-			get: function get() {
-				var val = this.el.innerHTML;
-				Object.defineProperty(this, 'html', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
+	PostContent.prototype = {
+		get html() {
+			var val = this.el.innerHTML;
+			Object.defineProperty(this, 'html', { value: val });
+			return val;
 		},
-		posterName: {
-			get: function get() {
-				var pName = $q(aib.qName, this.el),
-				    val = pName ? pName.textContent.trim().replace(/\s/g, ' ') : '';
-				Object.defineProperty(this, 'posterName', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
+		get posterName() {
+			var pName = $q(aib.qName, this.el),
+			    val = pName ? pName.textContent.trim().replace(/\s/g, ' ') : '';
+			Object.defineProperty(this, 'posterName', { value: val });
+			return val;
 		},
-		posterTrip: {
-			get: function get() {
-				var pTrip = $c(aib.cTrip, this.el),
-				    val = pTrip ? pTrip.textContent : '';
-				Object.defineProperty(this, 'posterTrip', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
+		get posterTrip() {
+			var pTrip = $c(aib.cTrip, this.el),
+			    val = pTrip ? pTrip.textContent : '';
+			Object.defineProperty(this, 'posterTrip', { value: val });
+			return val;
 		},
-		subj: {
-			get: function get() {
-				var subj = $c(aib.cSubj, this.el),
-				    val = subj ? subj.textContent : '';
-				Object.defineProperty(this, 'subj', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
+		get subj() {
+			var subj = $c(aib.cSubj, this.el),
+			    val = subj ? subj.textContent : '';
+			Object.defineProperty(this, 'subj', { value: val });
+			return val;
 		},
-		text: {
-			get: function get() {
-				var val = this.post.msg.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n').replace(/<[^>]+?>/g, '').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&nbsp;/g, ' ');
-				Object.defineProperty(this, 'text', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
+		get text() {
+			var val = this.post.msg.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n').replace(/<[^>]+?>/g, '').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&nbsp;/g, ' ');
+			Object.defineProperty(this, 'text', { value: val });
+			return val;
 		},
-		title: {
-			get: function get() {
-				var val = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ');
-				Object.defineProperty(this, 'title', { value: val });
-				return val;
-			},
-			configurable: true,
-			enumerable: true
+		get title() {
+			var val = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ');
+			Object.defineProperty(this, 'title', { value: val });
+			return val;
 		}
-	});
+	};
 
 	function PostImages(post) {
 		var els = $Q(aib.qThumbImages, post.el),
@@ -12298,7 +12094,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		this.hasAttachments = hasAttachments;
 		this._map = filesMap;
 	}
-	PostImages.prototype = Object.defineProperties(_defineProperty({
+	PostImages.prototype = _defineProperty({
+		get firstAttach() {
+			return this.hasAttachments ? this.first : null;
+		},
 		getImageByEl: function getImageByEl(el) {
 			return this._map.get(el);
 		}
@@ -12314,14 +12113,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return { done: true };
 			}
 		};
-	}), {
-		firstAttach: {
-			get: function get() {
-				return this.hasAttachments ? this.first : null;
-			},
-			configurable: true,
-			enumerable: true
-		}
 	});
 
 
@@ -12578,7 +12369,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			genRefMap(pBn, this._tUrl);
 		}
 	}
-	PviewsCache.prototype = Object.defineProperties({
+	PviewsCache.prototype = {
 		getPost: function getPost(num) {
 			if (num === this._tNum) {
 				return this._op;
@@ -12593,29 +12384,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				pst.pvInited = true;
 			}
 			return pst;
+		},
+		get _op() {
+			var oOp,
+			    op = this._opObj;
+			op.el = replacePost(aib.getOp(this._thr));
+			op.msg = $q(aib.qMsg, op.el);
+			if (this._b === aib.b && (oOp = pByNum[this._tNum])) {
+				oOp.ref.forEach(function (num) {
+					return op.ref.add(num);
+				});
+			}
+			if (op.ref.size !== 0) {
+				addRefMap(op, this._tUrl);
+			}
+			Object.defineProperty(this, '_op', { value: op });
+			return op;
 		}
-	}, {
-		_op: {
-			get: function get() {
-				var oOp,
-				    op = this._opObj;
-				op.el = replacePost(aib.getOp(this._thr));
-				op.msg = $q(aib.qMsg, op.el);
-				if (this._b === aib.b && (oOp = pByNum[this._tNum])) {
-					oOp.ref.forEach(function (num) {
-						return op.ref.add(num);
-					});
-				}
-				if (op.ref.size !== 0) {
-					addRefMap(op, this._tUrl);
-				}
-				Object.defineProperty(this, '_op', { value: op });
-				return op;
-			},
-			configurable: true,
-			enumerable: true
-		}
-	});
+	};
 
 	function PviewMoved() {
 		if (this.style[nav.animName]) {
@@ -12816,12 +12602,29 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	Thread.clearPostsMark = function () {
 		dForm.firstThr.clearPostsMarks();
 	};
-	Thread.prototype = Object.defineProperties({
+	Thread.prototype = {
 		hasNew: false,
 		hidden: false,
 		loadedOnce: false,
 		next: null,
-
+		get lastNotDeleted() {
+			var post = this.last;
+			while (post.deleted) {
+				post = post.prev;
+			}
+			return post;
+		},
+		get nextNotHidden() {
+			for (var thr = this.next; thr && thr.hidden; thr = thr.next) {}
+			return thr;
+		},
+		get prevNotHidden() {
+			for (var thr = this.prev; thr && thr.hidden; thr = thr.prev) {}
+			return thr;
+		},
+		get offsetTop() {
+			return this.op.offsetTop;
+		},
 		addPost: function addPost(parent, el, i, prev, maybeVParser) {
 			var post,
 			    num = aib.getPNum(el),
@@ -13277,42 +13080,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			maybeSpells.end();
 			return [newPosts, newVisPosts];
 		}
-	}, {
-		lastNotDeleted: {
-			get: function get() {
-				var post = this.last;
-				while (post.deleted) {
-					post = post.prev;
-				}
-				return post;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		nextNotHidden: {
-			get: function get() {
-				for (var thr = this.next; thr && thr.hidden; thr = thr.next) {}
-				return thr;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		prevNotHidden: {
-			get: function get() {
-				for (var thr = this.prev; thr && thr.hidden; thr = thr.prev) {}
-				return thr;
-			},
-			configurable: true,
-			enumerable: true
-		},
-		offsetTop: {
-			get: function get() {
-				return this.op.offsetTop;
-			},
-			configurable: true,
-			enumerable: true
-		}
-	});
+	};
 
 
 
@@ -13400,7 +13168,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		try {
 			isGM = typeof GM_setValue === 'function' && (!chrome || !GM_setValue.toString().includes('not supported'));
 		} catch (e) {}
-		nav = Object.defineProperties({
+		nav = {
+			get ua() {
+				return navigator.userAgent + (this.Firefox ? ' [' + navigator.buildID + ']' : '');
+			},
 			Firefox: firefox,
 			Presto: presto,
 			WebKit: webkit,
@@ -13424,7 +13195,33 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			fixLink: safari ? getAbsLink : function fixLink(url) {
 				return url;
 			},
-
+			get hasWorker() {
+				var val = false;
+				try {
+					val = 'Worker' in window && 'URL' in window;
+				} catch (e) {}
+				if (val && this.Firefox) {
+					val = +(navigator.userAgent.match(/rv:(\d{2})/) || [])[1] >= 40;
+				}
+				Object.defineProperty(this, 'hasWorker', { value: val });
+				return val;
+			},
+			get canPlayMP3() {
+				var val = !!new Audio().canPlayType('audio/mpeg;');
+				Object.defineProperty(this, 'canPlayMP3', { value: val });
+				return val;
+			},
+			get canPlayWebm() {
+				var val = !!new Audio().canPlayType('video/webm; codecs="vp8,vorbis"');
+				Object.defineProperty(this, 'canPlayWebm', { value: val });
+				return val;
+			},
+			get matchesSelector() {
+				var dE = doc.documentElement,
+				    val = Function.prototype.call.bind(dE.matches || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector);
+				Object.defineProperty(this, 'matchesSelector', { value: val });
+				return val;
+			},
 		
 			getUnsafeUint8Array: function getUnsafeUint8Array(data) {
 				var i = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
@@ -13442,58 +13239,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var rv = new DataView(data, offset || 0);
 				return rv instanceof DataView ? rv : new unsafeWindow.DataView(data, offset || 0);
 			}
-		}, {
-			ua: {
-				get: function get() {
-					return navigator.userAgent + (this.Firefox ? ' [' + navigator.buildID + ']' : '');
-				},
-				configurable: true,
-				enumerable: true
-			},
-			hasWorker: {
-				get: function get() {
-					var val = false;
-					try {
-						val = 'Worker' in window && 'URL' in window;
-					} catch (e) {}
-					if (val && this.Firefox) {
-						val = +(navigator.userAgent.match(/rv:(\d{2})/) || [])[1] >= 40;
-					}
-					Object.defineProperty(this, 'hasWorker', { value: val });
-					return val;
-				},
-				configurable: true,
-				enumerable: true
-			},
-			canPlayMP3: {
-				get: function get() {
-					var val = !!new Audio().canPlayType('audio/mpeg;');
-					Object.defineProperty(this, 'canPlayMP3', { value: val });
-					return val;
-				},
-				configurable: true,
-				enumerable: true
-			},
-			canPlayWebm: {
-				get: function get() {
-					var val = !!new Audio().canPlayType('video/webm; codecs="vp8,vorbis"');
-					Object.defineProperty(this, 'canPlayWebm', { value: val });
-					return val;
-				},
-				configurable: true,
-				enumerable: true
-			},
-			matchesSelector: {
-				get: function get() {
-					var dE = doc.documentElement,
-					    val = Function.prototype.call.bind(dE.matches || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector);
-					Object.defineProperty(this, 'matchesSelector', { value: val });
-					return val;
-				},
-				configurable: true,
-				enumerable: true
-			}
-		});
+		};
 	}
 
 
@@ -13501,7 +13247,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function getImageBoard(checkDomains, checkEngines) {
 		var prot = window.location.protocol;
-		var ibDomains = Object.defineProperties({
+		var ibDomains = {
 			'02ch.net': [{
 				qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
 				ru: { value: true },
@@ -13512,7 +13258,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				css: { value: '.small { display: none; }' }
 			}, 'form[action*="imgboard.php?delete"]'],
-
+			get '2-chru.net'() {
+				return this['2chru.net'];
+			},
+			get '2-ch.su'() {
+				return this['2--ch.ru'];
+			},
 			'2--ch.ru': [{
 				tire: { value: true },
 
@@ -13541,7 +13292,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				multiFile: { value: true },
 				ru: { value: true }
 			}],
-
+			get '2ch.hk'() {
+				return [ibEngines['body.makaba']];
+			},
+			get '2ch.pm'() {
+				return [ibEngines['body.makaba']];
+			},
 			'410chan.org': [{
 				_410: { value: true },
 
@@ -13714,7 +13470,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				css: { value: '.resize { display: none; }' }
 			}, 'script[src*="kusaba"]'],
-
+			get 'dmirrgetyojz735v.onion'() {
+				return this['2chru.net'];
+			},
 			'dobrochan.com': [{
 				dobr: { value: true },
 
@@ -13782,7 +13540,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				ru: { value: true },
 				timePattern: { value: 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?' }
 			}],
-
+			get 'dobrochan.org'() {
+				return this['dobrochan.com'];
+			},
+			get 'dobrochan.ru'() {
+				return this['dobrochan.com'];
+			},
 			'dva-ch.net': [{
 				dvachnet: { value: true },
 
@@ -13882,7 +13645,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'mlpg.co': [{
 				cOPost: { value: 'opContainer' }
 			}, 'form[name*="postcontrols"]'],
-
+			get 'niuchan.org'() {
+				return this['diochan.com'];
+			},
 			'ponya.ch': [{
 				getPNum: { value: function value(post) {
 						return post.getAttribute('data-num');
@@ -13945,7 +13710,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				multiFile: { value: true },
 				thrid: { value: 'replythread' }
 			}],
-
+			get 'ponyach.cf'() {
+				return this['ponya.ch'];
+			},
+			get 'ponyach.ga'() {
+				return this['ponya.ch'];
+			},
+			get 'ponyach.ml'() {
+				return this['ponya.ch'];
+			},
+			get 'ponyach.ru'() {
+				return this['ponya.ch'];
+			},
+			get 'ponychan.ru'() {
+				return this['ponya.ch'];
+			},
 			'ponychan.net': [{
 				cOPost: { value: 'opContainer' },
 				css: { value: '.mature_thread { display: block !important; }\
@@ -13977,116 +13756,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					} },
 				markupBB: { value: true },
 				markupTags: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'] }
-			}, 'form[name*="postcontrols"]']
-		}, {
-			'2-chru.net': {
-				get: function get() {
-					return this['2chru.net'];
-				},
-				configurable: true,
-				enumerable: true
+			}, 'form[name*="postcontrols"]'],
+			get 'syn-ch.com'() {
+				return this['syn-ch.ru'];
 			},
-			'2-ch.su': {
-				get: function get() {
-					return this['2--ch.ru'];
-				},
-				configurable: true,
-				enumerable: true
-			},
-			'2ch.hk': {
-				get: function get() {
-					return [ibEngines['body.makaba']];
-				},
-				configurable: true,
-				enumerable: true
-			},
-			'2ch.pm': {
-				get: function get() {
-					return [ibEngines['body.makaba']];
-				},
-				configurable: true,
-				enumerable: true
-			},
-			'dmirrgetyojz735v.onion': {
-				get: function get() {
-					return this['2chru.net'];
-				},
-				configurable: true,
-				enumerable: true
-			},
-			'dobrochan.org': {
-				get: function get() {
-					return this['dobrochan.com'];
-				},
-				configurable: true,
-				enumerable: true
-			},
-			'dobrochan.ru': {
-				get: function get() {
-					return this['dobrochan.com'];
-				},
-				configurable: true,
-				enumerable: true
-			},
-			'niuchan.org': {
-				get: function get() {
-					return this['diochan.com'];
-				},
-				configurable: true,
-				enumerable: true
-			},
-			'ponyach.cf': {
-				get: function get() {
-					return this['ponya.ch'];
-				},
-				configurable: true,
-				enumerable: true
-			},
-			'ponyach.ga': {
-				get: function get() {
-					return this['ponya.ch'];
-				},
-				configurable: true,
-				enumerable: true
-			},
-			'ponyach.ml': {
-				get: function get() {
-					return this['ponya.ch'];
-				},
-				configurable: true,
-				enumerable: true
-			},
-			'ponyach.ru': {
-				get: function get() {
-					return this['ponya.ch'];
-				},
-				configurable: true,
-				enumerable: true
-			},
-			'ponychan.ru': {
-				get: function get() {
-					return this['ponya.ch'];
-				},
-				configurable: true,
-				enumerable: true
-			},
-			'syn-ch.com': {
-				get: function get() {
-					return this['syn-ch.ru'];
-				},
-				configurable: true,
-				enumerable: true
-			},
-			'syn-ch.org': {
-				get: function get() {
-					return this['syn-ch.ru'];
-				},
-				configurable: true,
-				enumerable: true
+			get 'syn-ch.org'() {
+				return this['syn-ch.ru'];
 			}
-		});
+		};
 
-		var ibEngines = Object.defineProperties({
+		var ibEngines = {
 			'body.makaba': {
 				mak: { value: true },
 
@@ -14317,7 +13996,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }' },
 				markupBB: { value: true }
 			},
-
+			get 'form[action$="board.php"]'() {
+				return this['script[src*="kusaba"]'];
+			},
 			'link[href$="phutaba.css"]': {
 				cOPost: { value: 'thread_OP' },
 				cReply: { value: 'post' },
@@ -14376,17 +14057,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						this.docExt = '';
 					} }
 			}
-		}, {
-			'form[action$="board.php"]': {
-				get: function get() {
-					return this['script[src*="kusaba"]'];
-				},
-				configurable: true,
-				enumerable: true
-			}
-		});
+		};
 
-		var ibBase = Object.defineProperties({
+		var ibBase = {
 			cFileInfo: 'filesize',
 			cOPost: 'oppost',
 			cReply: 'reply',
@@ -14397,9 +14070,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			qDForm: '#delform, form[name="delform"]',
 			qError: 'h1, h2, font[size="5"]',
 			qHide: '.de-post-btns ~ *',
-
+			get qImgLink() {
+				var val = '.' + this.cFileInfo + ' a[href$=".jpg"], ' + '.' + this.cFileInfo + ' a[href$=".jpeg"], ' + '.' + this.cFileInfo + ' a[href$=".png"], ' + '.' + this.cFileInfo + ' a[href$=".gif"], ' + '.' + this.cFileInfo + ' a[href$=".webm"]';
+				Object.defineProperty(this, 'qImgLink', { value: val });
+				return val;
+			},
 			qMsg: 'blockquote',
-
+			get qMsgImgLink() {
+				var val = this.qMsg + ' a[href*=".jpg"], ' + this.qMsg + ' a[href*=".png"], ' + this.qMsg + ' a[href*=".gif"], ' + this.qMsg + ' a[href*=".jpeg"]';
+				Object.defineProperty(this, 'qMsgImgLink', { value: val });
+				return val;
+			},
 			qName: '.postername, .commentpostername',
 			qOmitted: '.omittedposts',
 			qPages: 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type',
@@ -14409,7 +14090,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			qRPost: '.reply',
 			qTable: 'form > table, div > table, div[id^="repl"]',
 			qThumbImages: '.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]',
-
+			get qThread() {
+				var val = $c('thread', doc) ? '.thread' : $q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' : '[id^="thread"]';
+				Object.defineProperty(this, 'qThread', { value: val });
+				return val;
+			},
 			qTrunc: '.abbrev, .abbr, .shortened',
 			fixVideo: function fixVideo(post) {
 				var videos = [],
@@ -14545,9 +14230,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			host: window.location.hostname,
 			init: null,
 			checkForm: emptyFn,
-
+			get lastPage() {
+				var el = $q(this.qPages, doc),
+				    val = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
+				if (this.page === val + 1) {
+					val++;
+				}
+				Object.defineProperty(this, 'lastPage', { value: val });
+				return val;
+			},
 			markupBB: false,
-
+			get markupTags() {
+				return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] : ['**', '*', '', '^H', '%%', '`', '', '', 'q'];
+			},
 			multiFile: false,
 			parseURL: function parseURL() {
 				var url = (window.location.pathname || '').match(new RegExp('^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?' + '(' + regQuote(this.res) + ')?' + '(\\d+|index|wakaba|futaba)?' + '(\\.(?:[a-z]+))?(?:\\/|$)'));
@@ -14559,78 +14254,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			},
 			prot: prot,
-
+			get reCrossLinks() {
+				var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' + regQuote(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
+				Object.defineProperty(this, 'reCrossLinks', { value: val });
+				return val;
+			},
+			get rep() {
+				var val = dTime || spells.haveReps || Cfg.crossLinks;
+				Object.defineProperty(this, 'rep', { value: val });
+				return val;
+			},
 			res: 'res/',
 			ru: false,
 			timePattern: 'w+dd+m+yyyy+hh+ii+ss',
 			thrid: 'parent'
-		}, {
-			qImgLink: {
-				get: function get() {
-					var val = '.' + this.cFileInfo + ' a[href$=".jpg"], ' + '.' + this.cFileInfo + ' a[href$=".jpeg"], ' + '.' + this.cFileInfo + ' a[href$=".png"], ' + '.' + this.cFileInfo + ' a[href$=".gif"], ' + '.' + this.cFileInfo + ' a[href$=".webm"]';
-					Object.defineProperty(this, 'qImgLink', { value: val });
-					return val;
-				},
-				configurable: true,
-				enumerable: true
-			},
-			qMsgImgLink: {
-				get: function get() {
-					var val = this.qMsg + ' a[href*=".jpg"], ' + this.qMsg + ' a[href*=".png"], ' + this.qMsg + ' a[href*=".gif"], ' + this.qMsg + ' a[href*=".jpeg"]';
-					Object.defineProperty(this, 'qMsgImgLink', { value: val });
-					return val;
-				},
-				configurable: true,
-				enumerable: true
-			},
-			qThread: {
-				get: function get() {
-					var val = $c('thread', doc) ? '.thread' : $q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' : '[id^="thread"]';
-					Object.defineProperty(this, 'qThread', { value: val });
-					return val;
-				},
-				configurable: true,
-				enumerable: true
-			},
-			lastPage: {
-				get: function get() {
-					var el = $q(this.qPages, doc),
-					    val = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
-					if (this.page === val + 1) {
-						val++;
-					}
-					Object.defineProperty(this, 'lastPage', { value: val });
-					return val;
-				},
-				configurable: true,
-				enumerable: true
-			},
-			markupTags: {
-				get: function get() {
-					return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] : ['**', '*', '', '^H', '%%', '`', '', '', 'q'];
-				},
-				configurable: true,
-				enumerable: true
-			},
-			reCrossLinks: {
-				get: function get() {
-					var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' + regQuote(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
-					Object.defineProperty(this, 'reCrossLinks', { value: val });
-					return val;
-				},
-				configurable: true,
-				enumerable: true
-			},
-			rep: {
-				get: function get() {
-					var val = dTime || spells.haveReps || Cfg.crossLinks;
-					Object.defineProperty(this, 'rep', { value: val });
-					return val;
-				},
-				configurable: true,
-				enumerable: true
-			}
-		});
+		};
 
 		localRun = prot === 'file:';
 		var ibObj = null,
@@ -15025,7 +14663,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		};
 
-		var counter = Object.defineProperties({
+		var counter = {
 			enable: function enable() {
 				this._enabled = true;
 				this._el.style.removeProperty('display');
@@ -15067,6 +14705,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_countingIV: null,
 			_countingTO: null,
 			_enabled: false,
+			get _el() {
+				var value = $id('de-updater-count');
+				Object.defineProperty(this, '_el', { value: value });
+				return value;
+			},
 
 			_set: function _set(seconds) {
 				this._el.innerHTML = seconds;
@@ -15081,19 +14724,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this._countingTO = null;
 				}
 			}
-		}, {
-			_el: {
-				get: function get() {
-					var value = $id('de-updater-count');
-					Object.defineProperty(this, '_el', { value: value });
-					return value;
-				},
-				configurable: true,
-				enumerable: true
-			}
-		});
+		};
 
-		var favicon = Object.defineProperties({
+		var favicon = {
+			get canBlink() {
+				return Cfg.favIcoBlink && !!this.originalIcon;
+			},
+			get originalIcon() {
+				return this._iconEl ? this._iconEl.href : null;
+			},
 			startBlinkEmpty: function startBlinkEmpty() {
 				this._startBlink(this._emptyIcon);
 			},
@@ -15116,7 +14755,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_currentIcon: null,
 			_emptyIcon: 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAAtJREFUCNdjIBEAAAAwAAFletZ8AAAAAElFTkSuQmCC',
 			_errorIcon: 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==',
-
+			get _iconEl() {
+				var el = $q('head link[rel="shortcut icon"]', doc.head);
+				Object.defineProperties(this, {
+					'_iconEl': { value: el, writable: true },
+					'originalIcon': { value: el ? el.href : null }
+				});
+				return el;
+			},
 			_isOriginalIcon: true,
 			_setIcon: function _setIcon(iconUrl) {
 				$del(this._iconEl);
@@ -15138,36 +14784,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					_this39._isOriginalIcon = !_this39._isOriginalIcon;
 				}, this._blinkMS);
 			}
-		}, {
-			canBlink: {
-				get: function get() {
-					return Cfg.favIcoBlink && !!this.originalIcon;
-				},
-				configurable: true,
-				enumerable: true
-			},
-			originalIcon: {
-				get: function get() {
-					return this._iconEl ? this._iconEl.href : null;
-				},
-				configurable: true,
-				enumerable: true
-			},
-			_iconEl: {
-				get: function get() {
-					var el = $q('head link[rel="shortcut icon"]', doc.head);
-					Object.defineProperties(this, {
-						'_iconEl': { value: el, writable: true },
-						'originalIcon': { value: el ? el.href : null }
-					});
-					return el;
-				},
-				configurable: true,
-				enumerable: true
-			}
-		});
+		};
 
-		var notification = Object.defineProperties({
+		var notification = {
+			get canShow() {
+				return Cfg.desktNotif && this._granted;
+			},
 			checkPermission: function checkPermission() {
 				if (Cfg.desktNotif && 'permission' in Notification) {
 					switch (Notification.permission.toLowerCase()) {
@@ -15227,17 +14849,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 				});
 			}
-		}, {
-			canShow: {
-				get: function get() {
-					return Cfg.desktNotif && this._granted;
-				},
-				configurable: true,
-				enumerable: true
-			}
-		});
+		};
 
-		var updMachine = Object.defineProperties({
+		var updMachine = {
 			start: function start() {
 				var needSleep = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
 				var loadOnce = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
@@ -15275,6 +14889,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_loadOnce: false,
 			_seconds: 0,
 			_state: -1,
+			get _panelButton() {
+				var value = $q('a[id^="de-panel-upd"]', doc);
+				if (value) {
+					Object.defineProperty(this, '_panelButton', { value: value });
+				}
+				return value;
+			},
 
 			_handleNewPosts: function _handleNewPosts(lPosts, error) {
 				infoLoadErrors(error, false);
@@ -15364,19 +14985,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this._panelButton.title = Lng.panelBtn['upd-' + (status === 'off' ? 'off' : 'on')][lang];
 				}
 			}
-		}, {
-			_panelButton: {
-				get: function get() {
-					var value = $q('a[id^="de-panel-upd"]', doc);
-					if (value) {
-						Object.defineProperty(this, '_panelButton', { value: value });
-					}
-					return value;
-				},
-				configurable: true,
-				enumerable: true
-			}
-		});
+		};
 
 		function enableUpdater() {
 			enabled = true;
