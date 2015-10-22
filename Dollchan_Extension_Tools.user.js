@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '7526a9b';
+	var commit = 'd59e09d';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15250,7 +15250,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._state = 0;
 				this._loadOnce = loadOnce;
 				this._delay = this._initDelay = Cfg.updThrDelay * 1e3;
-				this._setUpdateStatus('on');
+				if (!loadOnce) {
+					this._setUpdateStatus('on');
+				}
 				this._makeStep(needSleep);
 			},
 			stop: function stop() {
