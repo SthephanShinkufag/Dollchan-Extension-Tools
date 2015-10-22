@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'e34883b';
+	var commit = '7526a9b';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15380,7 +15380,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		function enableUpdater() {
 			enabled = true;
-			paused = disabledByUser = false;
+			disabledByUser = paused = false;
 			newPosts = focusLoadTime = 0;
 			notification.checkPermission();
 			if (Cfg.updCount) {
@@ -15398,7 +15398,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 
 		function forceLoadPosts() {
-			if (paused) {
+			if (enabled && paused) {
 				return;
 			}
 			if (!enabled && !disabledByUser) {
@@ -15453,7 +15453,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					$pd(e);
 				}
 				dForm.firstThr.clearPostsMarks();
-				if (paused) {
+				if (enabled && paused) {
 					return;
 				}
 				$popup(Lng.loading[lang], 'newposts', true);

@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'e34883b';
+var commit = '7526a9b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7311,7 +7311,7 @@ function checkUpload(dc) {
 		$id('postform_row_progress').style.display = 'none';
 		aib.btnZeroLUTime.click();
 	}
-	updater['continue']();
+	updater.continue();
 	var err = getSubmitError(dc);
 	if(err) {
 		if(pr.isQuick) {
@@ -12346,7 +12346,7 @@ function initThreadUpdater(title, enableUpdate) {
 
 	function enableUpdater() {
 		enabled = true;
-		paused = disabledByUser = false;
+		disabledByUser = paused = false;
 		newPosts = focusLoadTime = 0;
 		notification.checkPermission();
 		if(Cfg.updCount) {
@@ -12364,7 +12364,7 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function forceLoadPosts() {
-		if(paused) {
+		if(enabled && paused) {
 			return;
 		}
 		if(!enabled && !disabledByUser) {
@@ -12419,7 +12419,7 @@ function initThreadUpdater(title, enableUpdate) {
 				$pd(e);
 			}
 			dForm.firstThr.clearPostsMarks();
-			if(paused) {
+			if(enabled && paused) {
 				return;
 			}
 			$popup(Lng.loading[lang], 'newposts', true);
@@ -12431,7 +12431,7 @@ function initThreadUpdater(title, enableUpdate) {
 				paused = true;
 			}
 		},
-		'continue'() {
+		continue() {
 			if(enabled && paused) {
 				updMachine.start();
 				paused = false;
