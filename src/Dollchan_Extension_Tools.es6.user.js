@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'd59e09d';
+var commit = '7d43862';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1737,10 +1737,8 @@ var panel = Object.create({
 				break;
 			case 'de-panel-upd-on':
 			case 'de-panel-upd-warn':
-				updater.disable();
-				break;
 			case 'de-panel-upd-off':
-				updater.enable();
+				updater.toggle();
 				break;
 			case 'de-panel-audio-on':
 			case 'de-panel-audio-off':
@@ -12415,6 +12413,13 @@ function initThreadUpdater(title, enableUpdate) {
 		disable() {
 			disabledByUser = true;
 			disableUpdater()
+		},
+		toggle() {
+			if(enabled) {
+				this.disable();
+			} else {
+				this.enable();
+			}
 		},
 		forceLoad(e) {
 			if(e) {
