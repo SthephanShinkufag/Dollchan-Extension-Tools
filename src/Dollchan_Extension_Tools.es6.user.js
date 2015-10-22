@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '2016ea6';
+var commit = 'e34883b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -6570,7 +6570,7 @@ PostForm.prototype = {
 	},
 	addTextPanel() {
 		var id, val, btns, html = '', tPanel = $id('de-txt-panel');
-		if(!Cfg.addTextBtns) {
+		if(!Cfg.addTextBtns || aib.fch && !this.spoil) {
 			$del(tPanel);
 			return;
 		}

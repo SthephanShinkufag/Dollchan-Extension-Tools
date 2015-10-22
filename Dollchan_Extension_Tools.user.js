@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '2016ea6';
+	var commit = 'e34883b';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -8815,7 +8815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			    btns,
 			    html = '',
 			    tPanel = $id('de-txt-panel');
-			if (!Cfg.addTextBtns) {
+			if (!Cfg.addTextBtns || aib.fch && !this.spoil) {
 				$del(tPanel);
 				return;
 			}
