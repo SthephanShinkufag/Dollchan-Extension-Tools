@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '725a581';
+var commit = '68b8909';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11208,6 +11208,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				var el = $q('td > .anoniconsselectlist', doc);
 				if(el) {
 					$q('.option-area > td:last-child', doc).appendChild(el);
+				}
+				if(!aib.t) {
+					$before($c('menu', doc.body).firstChild, $c('search', doc.body));
 				}
 				el = $q('tr:not([class])', doc.body);
 				if(!el) {
