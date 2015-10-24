@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '0df6705';
+	var commit = '22cb212';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11295,9 +11295,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 						return;
 					case 'de-btn-rep':
-						$pd(e);
-						e.stopPropagation();
-						quotetxt = $txtSelect();
 						pr.showQuickReply(this.isPview ? this.getTopParent() : this, this.num, !this.isPview, false);
 						quotetxt = '';
 						return;
@@ -11336,7 +11333,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 					return;
 				case 'de-btn-rep':
-				case 'de-btn-fav':
+					if (!isOutEvent) {
+						quotetxt = $txtSelect();
+					}
+								case 'de-btn-fav':
 				case 'de-btn-fav-sel':
 					this._addButtonTitle(el);
 					return;
