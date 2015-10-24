@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '68b8909';
+var commit = '6d9c754';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11209,8 +11209,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				if(el) {
 					$q('.option-area > td:last-child', doc).appendChild(el);
 				}
-				if(!aib.t) {
-					$before($c('menu', doc.body).firstChild, $c('search', doc.body));
+				if((el = $c('search', doc.body))) {
+					$before($c('menu', doc.body).firstChild, el);
 				}
 				el = $q('tr:not([class])', doc.body);
 				if(!el) {
