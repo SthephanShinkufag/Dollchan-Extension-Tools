@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '218ac96';
+var commit = 'ff6869a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10643,6 +10643,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			css: { value: '.small { display: none; }' }
 		}, 'form[action*="imgboard.php?delete"]'],
 		get '2-chru.net'() { return this['2chru.net']; },
+		get '2chru.cafe'() { return this['2chru.net']; },
+		get '2-chru.cafe'() { return this['2chru.net']; },
 		get '2-ch.su'() { return this['2--ch.ru']; },
 		'2--ch.ru': [{
 			tire: { value: true },

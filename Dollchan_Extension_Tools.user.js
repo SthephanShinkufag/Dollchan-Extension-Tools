@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '218ac96';
+	var commit = 'ff6869a';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -13261,6 +13261,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				css: { value: '.small { display: none; }' }
 			}, 'form[action*="imgboard.php?delete"]'],
 			get '2-chru.net'() {
+				return this['2chru.net'];
+			},
+			get '2chru.cafe'() {
+				return this['2chru.net'];
+			},
+			get '2-chru.cafe'() {
 				return this['2chru.net'];
 			},
 			get '2-ch.su'() {
