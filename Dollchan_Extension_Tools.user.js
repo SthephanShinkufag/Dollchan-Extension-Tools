@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '15fcf60';
+	var commit = '025d689';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10353,8 +10353,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	AttachmentViewer.prototype = {
 		data: null,
 		close: function close(e) {
-			if (this.data.inPview && this.data.post.sticked) {
-				$c('de-btn-stick-on', this.data.post.el).click();
+			if (this.data.inPview && this.data.post.sticky) {
+				this.data.post.setSticky(false);
 			}
 			if (this.hasOwnProperty('_btns')) {
 				this._btns.remove();
@@ -11229,10 +11229,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 'de-btn-sage':
 							addSpell(9, '', false);return;
 						case 'de-btn-stick':
+							this.setSticky(true);return;
 						case 'de-btn-stick-on':
-							el.className = this._sticky ? 'de-btn-stick' : 'de-btn-stick-on';
-							this._sticky = !this._sticky;
-							return;
+							this.setSticky(false);return;
 					}
 					return;
 				}
@@ -12318,7 +12317,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._link = link;
 			this._loaded = false;
 			this._readDelay = 0;
-			this._sticky = false;
+			this.sticky = false;
 			this.parent = parent;
 			this.tNum = tNum;
 			var post = pByNum[pNum];
@@ -12382,7 +12381,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var lastSticky = null,
 				    pv = this;
 				do {
-					if (pv._sticky) {
+					if (pv.sticky) {
 						lastSticky = pv;
 					}
 				} while (pv = pv.kid);
@@ -12445,6 +12444,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				} else {
 					clearTimeout(Pview._delTO);
 				}
+			}
+		}, {
+			key: 'setSticky',
+			value: function setSticky(val) {
+				this.stickBtn.className = val ? 'de-btn-stick-on' : 'de-btn-stick';
+				this.sticky = val;
 			}
 		}, {
 			key: '_onerror',
@@ -12572,6 +12577,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					el.classList.add('de-pview-anim');
 					el.style[nav.animName] = 'de-post-open-' + (el.aTop ? 't' : 'b') + (el.aLeft ? 'l' : 'r');
 				}
+			}
+		}, {
+			key: 'stickBtn',
+			get: function get() {
+				var value = $c('de-btn-stick', this.el);
+				Object.defineProperty(this, 'stickBtn', { value: value });
+				return value;
 			}
 		}]);
 

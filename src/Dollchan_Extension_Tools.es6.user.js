@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '15fcf60';
+var commit = '025d689';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7862,8 +7862,8 @@ function AttachmentViewer(data) {
 AttachmentViewer.prototype = {
 	data: null,
 	close(e) {
-		if(this.data.inPview && this.data.post.sticked) {
-			$c('de-btn-stick-on', this.data.post.el).click();
+		if(this.data.inPview && this.data.post.sticky) {
+			this.data.post.setSticky(false);
 		}
 		if(this.hasOwnProperty('_btns')) {
 			this._btns.remove();
@@ -8652,11 +8652,8 @@ class AbstractPost {
 				quotetxt = '';
 				return;
 			case 'de-btn-sage': addSpell(9, '', false); return;
-			case 'de-btn-stick':
-			case 'de-btn-stick-on':
-				el.className = this._sticky ? 'de-btn-stick' : 'de-btn-stick-on';
-				this._sticky = !this._sticky;
-				return;
+			case 'de-btn-stick': this.setSticky(true); return;
+			case 'de-btn-stick-on': this.setSticky(false); return;
 			}
 			return;
 		}
@@ -9553,7 +9550,7 @@ class Pview extends AbstractPost {
 		this._link = link;
 		this._loaded = false;
 		this._readDelay = 0;
-		this._sticky = false;
+		this.sticky = false;
 		this.parent = parent;
 		this.tNum = tNum;
 		var post = pByNum[pNum];
@@ -9581,6 +9578,11 @@ class Pview extends AbstractPost {
 		// https://bugzilla.mozilla.org/show_bug.cgi?id=1169734
 		this._loadPromise = ajaxLoad(aib.getThrdUrl(b, tNum))
 			.then(function(form) { this._onload(b, form) }.bind(this), this._onerror.bind(this));
+	}
+	get stickBtn() {
+		var value = $c('de-btn-stick', this.el);
+		Object.defineProperty(this, 'stickBtn', { value });
+		return value;
 	}
 	delete() {
 		this.parent.kid = null;
@@ -9613,7 +9615,7 @@ class Pview extends AbstractPost {
 		var lastSticky = null,
 			pv = this;
 		do {
-			if(pv._sticky) {
+			if(pv.sticky) {
 				lastSticky = pv;
 			}
 		} while((pv = pv.kid));
@@ -9661,6 +9663,10 @@ class Pview extends AbstractPost {
 		} else {
 			clearTimeout(Pview._delTO);
 		}
+	}
+	setSticky(val) {
+		this.stickBtn.className = val ? 'de-btn-stick-on' : 'de-btn-stick';
+		this.sticky = val;
 	}
 
 	_onerror(e) {
