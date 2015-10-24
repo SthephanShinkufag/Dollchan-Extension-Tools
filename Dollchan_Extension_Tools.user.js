@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '22cb212';
+	var commit = '218ac96';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -14447,8 +14447,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			aib.parseURL();
 		}
 		if (aib.t) {
-			Cfg.stats.view++;
-			saveComCfg(aib.dm, Cfg);
 			doc.defaultView.addEventListener('beforeunload', function (e) {
 				sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset;
 			});
@@ -15124,6 +15122,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				doc.title = '/' + aib.b + ' - ' + dForm.firstThr.op.title;
 			}
 			if (!localRun) {
+				Cfg.stats.view++;
+				saveComCfg(aib.dm, Cfg);
 				dForm.firstThr.el.insertAdjacentHTML('afterend', '<div class="de-thread-buttons">' + '<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>' + '<span id="de-updater-count" style="display: none;"></span>]</span>' + (aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '') + '</div>');
 			}
 		}

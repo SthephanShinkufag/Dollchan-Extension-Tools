@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '22cb212';
+var commit = '218ac96';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11833,8 +11833,6 @@ function Initialization(checkDomains) {
 		aib.parseURL();
 	}
 	if(aib.t) {
-		Cfg.stats.view++;
-		saveComCfg(aib.dm, Cfg);
 		doc.defaultView.addEventListener('beforeunload', function(e) {
 			sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset;
 		});
@@ -12482,6 +12480,8 @@ function initPage() {
 			doc.title = '/' + aib.b + ' - ' + dForm.firstThr.op.title;
 		}
 		if(!localRun) {
+			Cfg.stats.view++;
+			saveComCfg(aib.dm, Cfg);
 			dForm.firstThr.el.insertAdjacentHTML('afterend', '<div class="de-thread-buttons">' +
 				'<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>' +
 				'<span id="de-updater-count" style="display: none;"></span>]</span>' +
