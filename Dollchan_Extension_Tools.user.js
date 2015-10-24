@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'b8a512d';
+	var commit = '0ecb3d0';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11210,7 +11210,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						$pd(e);
 						e.stopPropagation();
 					}
-					switch (el.className) {
+					switch (el.classList[0]) {
 						case 'de-btn-expthr':
 							this.thr.load('all', false);
 							return;
@@ -12489,12 +12489,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						this._moveY(height);
 					}
 				}
-				this.btns.firstChild.className = 'de-btn-hide-user';
-				if (post.hidden) {
-					this.btns.classList.add('de-post-hide');
-				} else {
-					this.btns.classList.remove('de-post-hide');
-				}
+				$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]', dForm.el), function (el) {
+					el.className = 'de-btn-hide-user de-btn-pview-hide';
+					if (post.hidden) {
+						el.parentNode.classList.add('de-post-hide');
+					} else {
+						el.parentNode.classList.remove('de-post-hide');
+					}
+				});
 			}
 		}, {
 			key: '_moveY',
@@ -12620,7 +12622,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (post.hidden) {
 						node.classList.add('de-post-hide');
 					}
-					node.innerHTML = '<span class="de-btn-hide' + (post.userToggled ? '-user' : '') + '" title="' + Lng.togglePost[lang] + '"></span>' + pText;
+					node.innerHTML = '<span class="de-btn-hide' + (post.userToggled ? '-user' : '') + ' de-btn-pview-hide" de-num="' + this.num + '" title="' + Lng.togglePost[lang] + '"></span>' + pText;
 					$each($Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') + '.de-img-full, .de-after-fimg', el), $del);
 					$each($Q(aib.qThumbImages, el), function (el) {
 						el.parentNode.style.display = '';
