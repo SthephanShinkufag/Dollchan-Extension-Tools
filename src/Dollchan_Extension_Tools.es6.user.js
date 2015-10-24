@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '025d689';
+var commit = '3efd8b6';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -4943,7 +4943,7 @@ function getJsonPosts(url) {
 var loadPages = async(function* (count) {
 	var hasError = false;
 	$popup(Lng.loading[lang], 'load-pages', true);
-	Pview.clearCache();
+	PviewsCache.purge();
 	isExpImg = false;
 	pByNum = Object.create(null);
 	Post.hiddenNums = [];
@@ -9503,9 +9503,6 @@ PostImages.prototype = {
 // ===========================================================================================================
 
 class Pview extends AbstractPost {
-	static clearCahce() {
-		Pview._cache = {};
-	}
 	static show(parent, link) {
 		var rv, tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,aib.getPostEl(link).post.tNum])[1],
 			pNum = (link.textContent.trim().match(/\d+$/) || [tNum])[0],
@@ -9537,7 +9534,6 @@ class Pview extends AbstractPost {
 		}
 		return pv;
 	}
-
 	static _markLink(el, num) {
 		$each($Q('a[href*="' + num + '"]', el), function(el) {
 			if(el.textContent.startsWith('>>' + num)) {
@@ -9791,7 +9787,6 @@ class Pview extends AbstractPost {
 	}
 }
 Pview.top = null;
-Pview._cache = {};
 Pview._delTO = null;
 
 class CacheItem {

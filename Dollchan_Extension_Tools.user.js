@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '025d689';
+	var commit = '3efd8b6';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -6877,7 +6877,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					hasError = false;
 
 					$popup(Lng.loading[lang], 'load-pages', true);
-					Pview.clearCache();
+					PviewsCache.purge();
 					isExpImg = false;
 					pByNum = Object.create(null);
 					Post.hiddenNums = [];
@@ -12261,11 +12261,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_inherits(Pview, _AbstractPost3);
 
 		_createClass(Pview, null, [{
-			key: 'clearCahce',
-			value: function clearCahce() {
-				Pview._cache = {};
-			}
-		}, {
 			key: 'show',
 			value: function show(parent, link) {
 				var rv,
@@ -12591,7 +12586,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	})(AbstractPost);
 
 	Pview.top = null;
-	Pview._cache = {};
 	Pview._delTO = null;
 
 	var CacheItem = (function () {
