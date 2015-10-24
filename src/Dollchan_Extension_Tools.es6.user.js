@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '2f62b0c';
+var commit = 'ce98728';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8586,10 +8586,10 @@ class AbstractPost {
 						e.stopPropagation();
 						if(!Cfg.showRepBtn) {
 							quotetxt = $txtSelect();
-							pr.showQuickReply(this instanceof Pview ? this.getTopParent() : this, this.num, !(this instanceof Pview), false);
+							pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, !(this instanceof Pview), false);
 							quotetxt = '';
 						} else if(pr.isQuick || (aib.t && pr.isHidden)) {
-							pr.showQuickReply(this instanceof Pview ? this.getTopParent() : this, this.num, false, true);
+							pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, false, true);
 						} else if(aib.t) {
 							$txtInsert(pr.txta, '>>' + this.num);
 						} else {
@@ -8648,7 +8648,7 @@ class AbstractPost {
 				this.toggleUserVisib();
 				return;
 			case 'de-btn-rep':
-				pr.showQuickReply(this instanceof Pview ? this.getTopParent() : this, this.num, !(this instanceof Pview), false);
+				pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, !(this instanceof Pview), false);
 				quotetxt = '';
 				return;
 			case 'de-btn-sage': addSpell(9, '', false); return;
@@ -9507,6 +9507,9 @@ PostImages.prototype = {
 // ===========================================================================================================
 
 class Pview extends AbstractPost {
+	static get topParent() {
+		return Pview.top ? Pview.top.parent : null;
+	}
 	static show(parent, link) {
 		var rv, tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,aib.getPostEl(link).post.tNum])[1],
 			pNum = (link.textContent.trim().match(/\d+$/) || [tNum])[0],
@@ -9542,6 +9545,22 @@ class Pview extends AbstractPost {
 			return null;
 		}
 		return pv;
+	}
+	static updatePosition(scroll) {
+		var pv = Pview.top;
+		if(pv) {
+			if(pv.parent.omitted) {
+				pv.delete();
+			} else {
+				var diff = pv._findScrollDiff();
+				if(diff > 1) {
+					if(scroll) {
+						scrollTo(window.pageXOffset, window.pageYOffset - diff);
+					}
+					pv._moveY(diff);
+				}
+			}
+		}
 	}
 	static _markLink(el, num) {
 		$each($Q('a[href*="' + num + '"]', el), function(el) {
@@ -9634,13 +9653,6 @@ class Pview extends AbstractPost {
 			lastSticky.kid.delete();
 		}
 	}
-	getTopParent() {
-		var post = this.parent;
-		while(post instanceof Pview) {
-			post = post.parent;
-		}
-		return post;
-	}
 	handleEvent(e) {
 		var isOverEvent = false;
 		checkMouse: do {
@@ -9678,22 +9690,17 @@ class Pview extends AbstractPost {
 		this.sticky = val;
 	}
 	toggleUserVisib() {
-		if(this.kid) {
-			this.kid.delete();
-		}
 		var post = pByNum[this.num];
-		var topParent = this.getTopParent();
-		var diff, kid = topParent.kid;
+		var diff, top = Pview.top;
 		post.toggleUserVisib();
-		if(post === topParent && post.hidden) {
-			diff = kid._isTop ? kid._offsetTop - (post.offsetTop + post.offsetHeight)
-			                  : (kid._offsetTop + kid.el.offsetHeight) - post.offsetTop;
+		if(post === top.parent && post.hidden) {
+			diff = top._isTop ? top._offsetTop - (post.offsetTop + post.offsetHeight)
+			                  : (top._offsetTop + top.el.offsetHeight) - post.offsetTop;
 		} else {
-			diff = kid._isTop ? kid._offsetTop - (kid._link.offsetTop + kid._link.offsetHeight)
-			                  : (kid._offsetTop + kid.el.offsetHeight) - (kid._link.offsetTop);
+			diff = top._findScrollDiff();
 		}
 		scrollTo(window.pageXOffset, window.pageYOffset - diff);
-		this._moveY(diff);
+		top._moveY(diff);
 		$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]', dForm.el), el => {
 			el.className = 'de-btn-hide-user de-btn-pview-hide';
 			if(post.hidden) {
@@ -9704,12 +9711,16 @@ class Pview extends AbstractPost {
 		});
 	}
 
+	_findScrollDiff() {
+		return this._isTop ? this._offsetTop - (this._link.offsetTop + this._link.offsetHeight)
+		                   : (this._offsetTop + this.el.offsetHeight) - (this._link.offsetTop)
+	}
 	_moveY(diff) {
 		var pv = this;
 		do {
 			pv._offsetTop -= diff;
 			pv.el.style.top = Math.max(pv._offsetTop, 0) + 'px';
-		} while((pv = pv.parent) && (pv instanceof Pview));
+		} while((pv = pv.kid));
 	}
 	_onerror(e) {
 		this.el.innerHTML = (e instanceof AjaxError) && e.code === 404 ?
@@ -10307,6 +10318,7 @@ Thread.prototype = {
 		if(needToOmit > 0) {
 			op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + needToOmit + '</div>');
 		}
+		Pview.updatePosition(false);
 		if(smartScroll) {
 			scrollTo(window.pageXOffset, this.next.offsetTop - nextCoord);
 		}
@@ -10346,6 +10358,7 @@ Thread.prototype = {
 		}
 		if(newPosts !== 0) {
 			panel.updateCounter(this.pcount, $Q(aib.qThumbImages, dForm.el).length);
+			Pview.updatePosition(true);
 		}
 		return newVisPosts;
 	},

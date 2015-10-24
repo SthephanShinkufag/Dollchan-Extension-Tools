@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '2f62b0c';
+	var commit = 'ce98728';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11164,10 +11164,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									e.stopPropagation();
 									if (!Cfg.showRepBtn) {
 										quotetxt = $txtSelect();
-										pr.showQuickReply(this instanceof Pview ? this.getTopParent() : this, this.num, !(this instanceof Pview), false);
+										pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, !(this instanceof Pview), false);
 										quotetxt = '';
 									} else if (pr.isQuick || aib.t && pr.isHidden) {
-										pr.showQuickReply(this instanceof Pview ? this.getTopParent() : this, this.num, false, true);
+										pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, false, true);
 									} else if (aib.t) {
 										$txtInsert(pr.txta, '>>' + this.num);
 									} else {
@@ -11223,7 +11223,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							this.toggleUserVisib();
 							return;
 						case 'de-btn-rep':
-							pr.showQuickReply(this instanceof Pview ? this.getTopParent() : this, this.num, !(this instanceof Pview), false);
+							pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, !(this instanceof Pview), false);
 							quotetxt = '';
 							return;
 						case 'de-btn-sage':
@@ -12305,6 +12305,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return pv;
 			}
 		}, {
+			key: 'updatePosition',
+			value: function updatePosition(scroll) {
+				var pv = Pview.top;
+				if (pv) {
+					if (pv.parent.omitted) {
+						pv['delete']();
+					} else {
+						var diff = pv._findScrollDiff();
+						if (diff > 1) {
+							if (scroll) {
+								scrollTo(window.pageXOffset, window.pageYOffset - diff);
+							}
+							pv._moveY(diff);
+						}
+					}
+				}
+			}
+		}, {
 			key: '_markLink',
 			value: function _markLink(el, num) {
 				$each($Q('a[href*="' + num + '"]', el), function (el) {
@@ -12312,6 +12330,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						el.classList.add('de-link-pview');
 					}
 				});
+			}
+		}, {
+			key: 'topParent',
+			get: function get() {
+				return Pview.top ? Pview.top.parent : null;
 			}
 		}]);
 
@@ -12401,15 +12424,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 		}, {
-			key: 'getTopParent',
-			value: function getTopParent() {
-				var post = this.parent;
-				while (post instanceof Pview) {
-					post = post.parent;
-				}
-				return post;
-			}
-		}, {
 			key: 'handleEvent',
 			value: function handleEvent(e) {
 				var isOverEvent = false;
@@ -12463,21 +12477,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'toggleUserVisib',
 			value: function toggleUserVisib() {
-				if (this.kid) {
-					this.kid['delete']();
-				}
 				var post = pByNum[this.num];
-				var topParent = this.getTopParent();
 				var diff,
-				    kid = topParent.kid;
+				    top = Pview.top;
 				post.toggleUserVisib();
-				if (post === topParent && post.hidden) {
-					diff = kid._isTop ? kid._offsetTop - (post.offsetTop + post.offsetHeight) : kid._offsetTop + kid.el.offsetHeight - post.offsetTop;
+				if (post === top.parent && post.hidden) {
+					diff = top._isTop ? top._offsetTop - (post.offsetTop + post.offsetHeight) : top._offsetTop + top.el.offsetHeight - post.offsetTop;
 				} else {
-					diff = kid._isTop ? kid._offsetTop - (kid._link.offsetTop + kid._link.offsetHeight) : kid._offsetTop + kid.el.offsetHeight - kid._link.offsetTop;
+					diff = top._findScrollDiff();
 				}
 				scrollTo(window.pageXOffset, window.pageYOffset - diff);
-				this._moveY(diff);
+				top._moveY(diff);
 				$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]', dForm.el), function (el) {
 					el.className = 'de-btn-hide-user de-btn-pview-hide';
 					if (post.hidden) {
@@ -12488,13 +12498,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 			}
 		}, {
+			key: '_findScrollDiff',
+			value: function _findScrollDiff() {
+				return this._isTop ? this._offsetTop - (this._link.offsetTop + this._link.offsetHeight) : this._offsetTop + this.el.offsetHeight - this._link.offsetTop;
+			}
+		}, {
 			key: '_moveY',
 			value: function _moveY(diff) {
 				var pv = this;
 				do {
 					pv._offsetTop -= diff;
 					pv.el.style.top = Math.max(pv._offsetTop, 0) + 'px';
-				} while ((pv = pv.parent) && pv instanceof Pview);
+				} while (pv = pv.kid);
 			}
 		}, {
 			key: '_onerror',
@@ -13150,6 +13165,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (needToOmit > 0) {
 				op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + needToOmit + '</div>');
 			}
+			Pview.updatePosition(false);
 			if (smartScroll) {
 				scrollTo(window.pageXOffset, this.next.offsetTop - nextCoord);
 			}
@@ -13199,6 +13215,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			if (newPosts !== 0) {
 				panel.updateCounter(this.pcount, $Q(aib.qThumbImages, dForm.el).length);
+				Pview.updatePosition(true);
 			}
 			return newVisPosts;
 		},
