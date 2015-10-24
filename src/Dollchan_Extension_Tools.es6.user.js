@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '94344ec';
+var commit = '0df6705';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8643,7 +8643,11 @@ Post.prototype = {
 					{
 						$pd(e);
 						e.stopPropagation();
-						if(pr.isQuick || (aib.t && pr.isHidden)) {
+						if(!Cfg.showRepBtn) {
+							quotetxt = $txtSelect();
+							pr.showQuickReply(this.isPview ? this.getTopParent() : this, this.num, !this.isPview, false);
+							quotetxt = '';
+						} else if(pr.isQuick || (aib.t && pr.isHidden)) {
 							pr.showQuickReply(this.isPview ? this.getTopParent() : this, this.num, false, true);
 						} else if(aib.t) {
 							$txtInsert(pr.txta, '>>' + this.num);
@@ -8721,6 +8725,9 @@ Post.prototype = {
 				}
 				return;
 			case 'de-btn-rep':
+				$pd(e);
+				e.stopPropagation();
+				quotetxt = $txtSelect();
 				pr.showQuickReply(this.isPview ? this.getTopParent() : this, this.num, !this.isPview, false);
 				quotetxt = '';
 				return;
@@ -8762,11 +8769,6 @@ Post.prototype = {
 			}
 			return;
 		case 'de-btn-rep':
-			this._addButtonTitle(el);
-			if(!isOutEvent) {
-				quotetxt = $txtSelect();
-			}
-			return;
 		case 'de-btn-fav':
 		case 'de-btn-fav-sel':
 			this._addButtonTitle(el);

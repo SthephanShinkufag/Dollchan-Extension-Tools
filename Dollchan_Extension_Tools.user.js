@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '94344ec';
+	var commit = '0df6705';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11216,7 +11216,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							} else if (Cfg.insertNum && pr.form && temp === this._pref && !/Reply|Ответ/.test(el.textContent)) {
 								$pd(e);
 								e.stopPropagation();
-								if (pr.isQuick || aib.t && pr.isHidden) {
+								if (!Cfg.showRepBtn) {
+									quotetxt = $txtSelect();
+									pr.showQuickReply(this.isPview ? this.getTopParent() : this, this.num, !this.isPview, false);
+									quotetxt = '';
+								} else if (pr.isQuick || aib.t && pr.isHidden) {
 									pr.showQuickReply(this.isPview ? this.getTopParent() : this, this.num, false, true);
 								} else if (aib.t) {
 									$txtInsert(pr.txta, '>>' + this.num);
@@ -11291,6 +11295,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 						return;
 					case 'de-btn-rep':
+						$pd(e);
+						e.stopPropagation();
+						quotetxt = $txtSelect();
 						pr.showQuickReply(this.isPview ? this.getTopParent() : this, this.num, !this.isPview, false);
 						quotetxt = '';
 						return;
@@ -11329,11 +11336,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 					return;
 				case 'de-btn-rep':
-					this._addButtonTitle(el);
-					if (!isOutEvent) {
-						quotetxt = $txtSelect();
-					}
-					return;
 				case 'de-btn-fav':
 				case 'de-btn-fav-sel':
 					this._addButtonTitle(el);
