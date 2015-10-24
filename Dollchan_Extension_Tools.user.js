@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '0ecb3d0';
+	var commit = '2f62b0c';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12468,27 +12468,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				var post = pByNum[this.num];
 				var topParent = this.getTopParent();
-				if (post === topParent) {
-					post.toggleUserVisib();
-					var diff,
-					    kid = post.kid;
-					if (post.hidden) {
-						diff = kid._isTop ? kid._offsetTop - (post.offsetTop + post.offsetHeight) : kid._offsetTop + kid.el.offsetHeight - post.offsetTop;
-					} else {
-						var cr = kid._link.getBoundingClientRect();
-						diff = kid._isTop ? kid._offsetTop - (window.pageYOffset + cr.bottom) : kid._offsetTop + kid.el.offsetHeight - (window.pageYOffset + cr.top);
-					}
-					scrollTo(window.pageXOffset, window.pageYOffset - diff);
-					this._moveY(diff);
+				var diff,
+				    kid = topParent.kid;
+				post.toggleUserVisib();
+				if (post === topParent && post.hidden) {
+					diff = kid._isTop ? kid._offsetTop - (post.offsetTop + post.offsetHeight) : kid._offsetTop + kid.el.offsetHeight - post.offsetTop;
 				} else {
-					var height = post.offsetHeight;
-					post.toggleUserVisib();
-					height -= post.offsetHeight;
-					if (topParent.kid.el.offsetTop > post.offsetTop) {
-						scrollTo(window.pageXOffset, window.pageYOffset - height);
-						this._moveY(height);
-					}
+					diff = kid._isTop ? kid._offsetTop - (kid._link.offsetTop + kid._link.offsetHeight) : kid._offsetTop + kid.el.offsetHeight - kid._link.offsetTop;
 				}
+				scrollTo(window.pageXOffset, window.pageYOffset - diff);
+				this._moveY(diff);
 				$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]', dForm.el), function (el) {
 					el.className = 'de-btn-hide-user de-btn-pview-hide';
 					if (post.hidden) {
