@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '6d9c754';
+	var commit = '94344ec';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15151,7 +15151,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (val) {
 				window.scrollTo(0, val);
 				sesStorage.removeItem('de-scroll-' + aib.b + aib.t);
-			} else if ((hash = window.location.hash) && (num = hash.match(/#[ip]?(\d+)$/)) && (num = num[1]) && (post = pByNum[num])) {
+			} else if ((hash = window.location.hash) && (num = hash.match(/#[ip]?(\d+)$/)) && (num = num[1]) && (post = pByNum[num]) && !post.isOp) {
 				post.el.scrollIntoView(true);
 				if (hKeys) {
 					hKeys.cPost = post;

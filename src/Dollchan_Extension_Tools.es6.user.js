@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '6d9c754';
+var commit = '94344ec';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12513,7 +12513,7 @@ function scrollPage() {
 			sesStorage.removeItem('de-scroll-' + aib.b + aib.t);
 		} else if((hash = window.location.hash) &&
 		          (num = hash.match(/#[ip]?(\d+)$/)) &&
-		          (num = num[1]) && (post = pByNum[num]))
+		          (num = num[1]) && (post = pByNum[num]) && !post.isOp)
 		{
 			post.el.scrollIntoView(true);
 			if(hKeys) {
