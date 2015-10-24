@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '3efd8b6';
+	var commit = '259328c';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12013,6 +12013,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return val;
 			}
 		}, {
+			key: 'offsetHeight',
+			get: function get() {
+				return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el).offsetHeight;
+			}
+		}, {
 			key: 'offsetTop',
 			get: function get() {
 				return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el).offsetTop;
@@ -12273,12 +12278,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (pv.kid) {
 						pv.kid['delete']();
 					}
-					setPviewPosition(link, pv.el, Cfg.animation);
-					if (pv.parent.num !== parent.num) {
-						$each($C('de-link-pview', pv.el), function (el) {
-							el.classList.remove('de-link-pview');
-						});
-						Pview._markLink(pv.el, parent.num);
+					if (pv._link !== link) {
+						pv._setPosition(link, Cfg.animation);
+						pv._link.classList.remove('de-link-parent');
+						link.classList.add('de-link-parent');
+						pv._link = link;
+						if (pv.parent.num !== parent.num) {
+							$each($C('de-link-pview', pv.el), function (el) {
+								el.classList.remove('de-link-pview');
+							});
+							Pview._markLink(pv.el, parent.num);
+						}
 					}
 					pv.parent = parent;
 				} else if (!Cfg.noNavigHidd || !pByNum[pNum] || !pByNum[pNum].hidden) {
@@ -12309,8 +12319,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_classCallCheck(this, Pview);
 
 			_get(Object.getPrototypeOf(Pview.prototype), 'constructor', this).call(this, parent.thr, pNum, pNum === tNum);
+			this._isLeft = false;
+			this._isTop = false;
 			this._link = link;
 			this._loaded = false;
+			this._newPos = null;
+			this._offsetTop = 0;
 			this._readDelay = 0;
 			this.sticky = false;
 			this.parent = parent;
@@ -12364,7 +12378,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (Cfg.animation) {
 						nav.animEvent(el, $del);
 						el.classList.add('de-pview-anim');
-						el.style[nav.animName] = 'de-post-close-' + (el.aTop ? 't' : 'b') + (el.aLeft ? 'l' : 'r');
+						el.style[nav.animName] = 'de-post-close-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
 					} else {
 						$del(el);
 					}
@@ -12447,6 +12461,51 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.sticky = val;
 			}
 		}, {
+			key: 'toggleUserVisib',
+			value: function toggleUserVisib() {
+				if (this.kid) {
+					this.kid['delete']();
+				}
+				var post = pByNum[this.num];
+				var topParent = this.getTopParent();
+				if (post === topParent) {
+					post.toggleUserVisib();
+					var diff,
+					    kid = post.kid;
+					if (post.hidden) {
+						diff = kid._isTop ? kid._offsetTop - (post.offsetTop + post.offsetHeight) : kid._offsetTop + kid.el.offsetHeight - post.offsetTop;
+					} else {
+						var cr = kid._link.getBoundingClientRect();
+						diff = kid._isTop ? kid._offsetTop - (window.pageYOffset + cr.bottom) : kid._offsetTop + kid.el.offsetHeight - (window.pageYOffset + cr.top);
+					}
+					scrollTo(window.pageXOffset, window.pageYOffset - diff);
+					this._moveY(diff);
+				} else {
+					var height = post.offsetHeight;
+					post.toggleUserVisib();
+					height -= post.offsetHeight;
+					if (topParent.kid.el.offsetTop > post.offsetTop) {
+						scrollTo(window.pageXOffset, window.pageYOffset - height);
+						this._moveY(height);
+					}
+				}
+				this.btns.firstChild.className = 'de-btn-hide-user';
+				if (post.hidden) {
+					this.btns.classList.add('de-post-hide');
+				} else {
+					this.btns.classList.remove('de-post-hide');
+				}
+			}
+		}, {
+			key: '_moveY',
+			value: function _moveY(diff) {
+				var pv = this;
+				do {
+					pv._offsetTop -= diff;
+					pv.el.style.top = Math.max(pv._offsetTop, 0) + 'px';
+				} while ((pv = pv.parent) && pv instanceof Pview);
+			}
+		}, {
 			key: '_onerror',
 			value: function _onerror(e) {
 				this.el.innerHTML = e instanceof AjaxError && e.code === 404 ? Lng.postNotFound[lang] : getErrorMessage(e);
@@ -12472,6 +12531,47 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				} else {
 					this.el.innerHTML = Lng.postNotFound[lang];
 				}
+			}
+		}, {
+			key: '_setPosition',
+			value: function _setPosition(link, isAnim) {
+				var oldCSS,
+				    pv = this.el,
+				    cr = link.getBoundingClientRect(),
+				    offX = cr.left + window.pageXOffset + cr.width / 2,
+				    offY = cr.top,
+				    bWidth = doc.documentElement.clientWidth,
+				    isLeft = offX < bWidth / 2,
+				    tmp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10),
+				    lmw = 'max-width:' + (bWidth - tmp - 10) + 'px; left:' + tmp + 'px;';
+				if (isAnim) {
+					oldCSS = pv.style.cssText;
+					pv.style.cssText = 'opacity: 0; ' + lmw;
+				} else {
+					pv.style.cssText = lmw;
+				}
+				var top = pv.offsetHeight,
+				    isTop = offY + top + cr.height < doc.documentElement.clientHeight || offY - top < 5;
+				top = window.pageYOffset + (isTop ? offY + cr.height : offY - top);
+				this._offsetTop = top;
+				this._isLeft = isLeft;
+				this._isTop = isTop;
+				if (!isAnim) {
+					pv.style.top = top + 'px';
+					return;
+				}
+				var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
+				$css('@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + 'px; }}').className = 'de-css-move';
+				if (this._newPos) {
+					pv.style.cssText = this._newPos;
+					pv.removeEventListener(nav.animEnd, PviewMoved);
+				} else {
+					pv.style.cssText = oldCSS;
+				}
+				this._newPos = lmw + ' top:' + top + 'px;';
+				pv.addEventListener(nav.animEnd, PviewMoved);
+				pv.classList.add('de-pview-anim');
+				pv.style[nav.animName] = uId;
 			}
 		}, {
 			key: '_showMenu',
@@ -12520,7 +12620,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (post.hidden) {
 						node.classList.add('de-post-hide');
 					}
-					node.innerHTML = pText;
+					node.innerHTML = '<span class="de-btn-hide' + (post.userToggled ? '-user' : '') + '" title="' + Lng.togglePost[lang] + '"></span>' + pText;
 					$each($Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') + '.de-img-full, .de-after-fimg', el), $del);
 					$each($Q(aib.qThumbImages, el), function (el) {
 						el.parentNode.style.display = '';
@@ -12563,14 +12663,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				el.addEventListener('mouseover', this, true);
 				el.addEventListener('mouseout', this, true);
 				dForm.el.appendChild(el);
-				setPviewPosition(this._link, el, false);
+				this._setPosition(this._link, false);
 				if (Cfg.animation) {
 					nav.animEvent(el, function (node) {
 						node.classList.remove('de-pview-anim');
 						node.style[nav.animName] = '';
 					});
 					el.classList.add('de-pview-anim');
-					el.style[nav.animName] = 'de-post-open-' + (el.aTop ? 't' : 'b') + (el.aLeft ? 'l' : 'r');
+					el.style[nav.animName] = 'de-post-open-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
 				}
 			}
 		}, {
@@ -12680,56 +12780,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	PviewsCache.purgeSecs = 3e5;
 
-	function PviewMoved() {
-		if (this.style[nav.animName]) {
-			this.classList.remove('de-pview-anim');
-			this.style.cssText = this.newPos;
-			this.newPos = false;
-			$each($C('de-css-move', doc.head), $del);
-			this.removeEventListener(nav.animEnd, PviewMoved);
-		}
-	}
+	function PviewMoved(_ref10) {
+		var el = _ref10.target;
 
-	function setPviewPosition(link, pView, isAnim) {
-		if (pView.link === link) {
-			return;
+		if (el.style[nav.animName]) {
+			el.classList.remove('de-pview-anim');
+			el.style.cssText = el.post._newPos;
+			el.post._newPos = null;
+			$each($C('de-css-move', doc.head), $del);
+			el.removeEventListener(nav.animEnd, PviewMoved);
 		}
-		var oldCSS,
-		    cr = link.getBoundingClientRect(),
-		    offX = cr.left + window.pageXOffset + link.offsetWidth / 2,
-		    offY = cr.top + window.pageYOffset,
-		    bWidth = doc.documentElement.clientWidth,
-		    isLeft = offX < bWidth / 2,
-		    tmp = isLeft ? offX : offX - Math.min(parseInt(pView.offsetWidth, 10), offX - 10),
-		    lmw = 'max-width:' + (bWidth - tmp - 10) + 'px; left:' + tmp + 'px;';
-		if (isAnim) {
-			oldCSS = pView.style.cssText;
-			pView.style.cssText = 'opacity: 0; ' + lmw;
-		} else {
-			pView.style.cssText = lmw;
-		}
-		var top = pView.offsetHeight,
-		    isTop = top + cr.top + link.offsetHeight < doc.documentElement.clientHeight || cr.top - top < 5;
-		top = (isTop ? offY + link.offsetHeight : offY - top) + 'px';
-		pView.link = link;
-		pView.aLeft = isLeft;
-		pView.aTop = isTop;
-		if (!isAnim) {
-			pView.style.top = top;
-			return;
-		}
-		var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
-		$css('@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + '; }}').className = 'de-css-move';
-		if (pView.newPos) {
-			pView.style.cssText = pView.newPos;
-			pView.removeEventListener(nav.animEnd, PviewMoved);
-		} else {
-			pView.style.cssText = oldCSS;
-		}
-		pView.newPos = lmw + ' top:' + top + ';';
-		pView.addEventListener(nav.animEnd, PviewMoved);
-		pView.classList.add('de-pview-anim');
-		pView.style[nav.animName] = uId;
 	}
 
 	function addRefMap(post, tUrl) {
@@ -12831,7 +12891,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (prev) {
 			prev.next = this;
 		}
-		var Ctor = isLight ? LightPost : Post;
+		var Ctor = isLight ? LitePost : Post;
 		var lastPost = this.op = el.post = new Ctor(aib.getOp(el), this, num, 0, true, prev ? prev.last : null);
 		pByNum[num] = lastPost;
 		for (var i = 0; i < len; i++) {
@@ -13537,6 +13597,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				css: { value: '.small { display: none; }' }
 			}, 'form[action*="imgboard.php?delete"]'],
 			get '2-chru.net'() {
+				return this['2chru.net'];
+			},
+			get '2chru.cafe'() {
+				return this['2chru.net'];
+			},
+			get '2-chru.cafe'() {
 				return this['2chru.net'];
 			},
 			get '2-ch.su'() {
