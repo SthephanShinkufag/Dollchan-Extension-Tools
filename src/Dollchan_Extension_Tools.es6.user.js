@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'ff6869a';
+var commit = '15fcf60';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1043,7 +1043,9 @@ class TemporaryContent {
 		this.data = null;
 	}
 	static remove(key) {
-		this.data.delete(key);
+		if(this.data) {
+			this.data.delete(key);
+		}
 	}
 }
 TemporaryContent.purgeSecs = 6e4;
