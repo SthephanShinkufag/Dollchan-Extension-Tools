@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'ff6869a';
+var commit = '9c31d3b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12808,7 +12808,8 @@ function scriptCSS() {
 	#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\
 	#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\
 	#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }\
-	.de-mp3, .de-video-obj { margin: 5px 20px; white-space: nowrap; }\
+	.de-mp3 { margin: 5px 20px; }\
+	.de-video-obj { margin: 5px 20px; white-space: nowrap; }\
 	#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\
 	#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\
 	#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }\
@@ -12958,7 +12959,7 @@ function updateCSS() {
 	if(Cfg.widePosts) {
 		x += '.' + aib.cReply.replace(/\s/, '.') + ':not(.de-pview) { float: none; width: 100%; }';
 	}
-	x += '.postarea, .recaptcha_image_cell + td, .recaptcha_image_cell + td + td, small[id^="rfmap"], .theader, .thumbnailmsg, ' +
+	x += '.postarea, .recaptcha_image_cell + td, .recaptcha_image_cell + td + td, small[id^="rfmap"], .theader, ' +
 		(Cfg.panelCounter ? '' : '#de-panel-info, ') +
 		(Cfg.imgNavBtns ? '' : '#de-img-btn-next, #de-img-btn-prev, ') +
 		(Cfg.showHideBtn ? '' : '.de-btn-hide, ') +
@@ -12968,6 +12969,7 @@ function updateCSS() {
 		(Cfg.delHiddPost ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') +
 		(Cfg.noPostNames ? aib.qName + ', .' + aib.cTrip + ', ' : '') +
 		(Cfg.noBoardRule ? (aib.mak ? '.rules-area' : aib.krau ? '#rules_row' : aib.futa ? '.chui' : '.rules, #rules') + ', ' : '') +
+		(aib._2chru ? '' : '.thumbnailmsg, ') +
 		(!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') +
 		'body > hr { display: none !important; }';
 	$id('de-css-dynamic').textContent = x + '\n' + aib.css + '\n' + aib.cssEn;
