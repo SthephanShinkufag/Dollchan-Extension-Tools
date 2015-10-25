@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'd8e3871';
+	var commit = 'bc7183f';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -13226,7 +13226,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				thrEl.appendChild(btn);
 			}
 			if (!$c('de-thread-collapse', btn)) {
-				btn.insertAdjacentHTML('beforeend', '<span class="de-thread-collapse"> [<a class="de-abtn" href="#"></a>]</span>');
+				btn.insertAdjacentHTML('beforeend', '<span class="de-thread-collapse"> [<a class="de-abtn" href="' + aib.getThrdUrl(aib.b, this.num) + '"></a>]</span>');
 				btn.lastChild.onclick = function (e) {
 					$pd(e);
 					_this34.load(visPosts, true);

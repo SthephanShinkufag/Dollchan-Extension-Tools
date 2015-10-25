@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'd8e3871';
+var commit = 'bc7183f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10324,7 +10324,8 @@ Thread.prototype = {
 		}
 		if(!$c('de-thread-collapse', btn)) {
 			btn.insertAdjacentHTML('beforeend',
-				'<span class="de-thread-collapse"> [<a class="de-abtn" href="#"></a>]</span>');
+				'<span class="de-thread-collapse"> [<a class="de-abtn" href="' +
+				aib.getThrdUrl(aib.b, this.num) + '"></a>]</span>');
 			btn.lastChild.onclick = e => {
 				$pd(e);
 				this.load(visPosts, true);
