@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '6a6b7df';
+var commit = 'e14c82c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10332,7 +10332,7 @@ Thread.prototype = {
 		}
 		if(needToShow > visPosts) {
 			navPanel.addThr(this);
-			btn.lastChild.style.display = 'inital';
+			btn.lastChild.style.display = 'initial';
 		} else {
 			navPanel.removeThr(this);
 			btn.lastChild.style.display = 'none';
