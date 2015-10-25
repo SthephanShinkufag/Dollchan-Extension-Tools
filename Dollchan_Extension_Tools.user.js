@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'bc7183f';
+	var commit = '84a6759';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3554,6 +3554,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		sVis = [];
 	}
 
+	function initPostUserVisib(post, num, hide, date) {
+		if (hide) {
+			post.setUserVisib(true, date, false);
+		} else {
+			uVis[num][1] = date;
+			post.btns.firstChild.className = 'de-btn-hide-user';
+			post.userToggled = true;
+		}
+	}
+
 	function readUserPosts() {
 		var b, date, spellsHide, update, globalUserVis, maybeSpells, post, num, hidePost, hideThread, vis;
 		return regeneratorRuntime.wrap(function readUserPosts$(context$2$0) {
@@ -3611,13 +3621,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							hidePost = hideThread;
 						}
 					}
-					if (hidePost) {
-						post.setUserVisib(true, date, false);
-					} else {
-						uVis[num][1] = date;
-						post.btns.firstChild.className = 'de-btn-hide-user';
-						post.userToggled = true;
-					}
+					initPostUserVisib(post, num, hidePost, date);
 					return context$2$0.abrupt('continue', 31);
 
 				case 21:
@@ -13054,6 +13058,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 				post.el.classList.add('de-post-new');
 			}
+			if (num in uVis) {
+				initPostUserVisib(post, num, uVis[num][0] === 0, Date.now());
+			}
 			if (maybeVParser.value) {
 				maybeVParser.value.parse(post);
 			}
@@ -13523,12 +13530,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var _this38 = this;
 
 			switch (e.type) {
-				case 'mouseover':
-					this._expandCollapse(true, e.relatedTarget);break;
-				case 'mouseout':
-					this._expandCollapse(false, e.relatedTarget);break;
-				case 'click':
-					this._handleClick(e);break;
 				case 'scroll':
 					window.requestAnimationFrame(function () {
 						var halfHeight = Post.sizing.wHeight / 2;
@@ -13547,6 +13548,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 					});
 					break;
+				case 'mouseover':
+					this._expandCollapse(true, e.relatedTarget);break;
+				case 'mouseout':
+					this._expandCollapse(false, e.relatedTarget);break;
+				case 'click':
+					this._handleClick(e);break;
 			}
 		},
 		init: function init() {
