@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'e14c82c';
+	var commit = 'b443147';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -13506,6 +13506,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	};
 
 	var navPanel = {
+		addThr: function addThr(thr) {
+			this._thrs.push(thr);
+			if (this._thrs.length === 1) {
+				doc.defaultView.addEventListener('scroll', this);
+			}
+			if (!this._visible) {
+				var halfHeight = Post.sizing.wHeight / 2;
+				if (thr.bottom > halfHeight && thr.top < halfHeight) {
+					this._showHide(true);
+					this._currentThr = thr;
+				}
+			}
+		},
 		handleEvent: function handleEvent(e) {
 			var _this38 = this;
 
@@ -13523,8 +13536,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							var thr = t[i];
 							if (thr.bottom > halfHeight && thr.top < halfHeight) {
 								if (!_this38._visible) {
-									_this38._showHide(true, thr);
+									_this38._showHide(true);
 								}
+								_this38._currentThr = thr;
 								return;
 							}
 						}
@@ -13533,18 +13547,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 					});
 					break;
-			}
-		},
-		addThr: function addThr(thr) {
-			this._thrs.push(thr);
-			if (this._thrs.length === 1) {
-				doc.defaultView.addEventListener('scroll', this);
-			}
-			if (!this._visible) {
-				var halfHeight = Post.sizing.wHeight / 2;
-				if (thr.bottom > halfHeight && thr.top < halfHeight) {
-					this._showHide(true, thr);
-				}
 			}
 		},
 		init: function init() {
@@ -13599,10 +13601,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}, Cfg.linksOver);
 			}
 		},
-		_showHide: function _showHide(show, thr) {
+		_showHide: function _showHide(show) {
 			this._el.style.display = show ? 'initial' : 'none';
 			this._visible = show;
-			this._currentThr = show ? thr : null;
 		}
 	};
 

@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'e14c82c';
+var commit = 'b443147';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10592,6 +10592,19 @@ Thread.prototype = {
 };
 
 var navPanel = {
+	addThr(thr) {
+		this._thrs.push(thr);
+		if(this._thrs.length === 1) {
+			doc.defaultView.addEventListener('scroll', this);
+		}
+		if(!this._visible) {
+			var halfHeight = Post.sizing.wHeight / 2;
+			if(thr.bottom > halfHeight && thr.top < halfHeight) {
+				this._showHide(true);
+				this._currentThr = thr;
+			}
+		}
+	},
 	handleEvent(e) {
 		switch(e.type) {
 		case 'mouseover': this._expandCollapse(true, e.relatedTarget); break;
@@ -10604,8 +10617,9 @@ var navPanel = {
 					var thr = t[i];
 					if(thr.bottom > halfHeight && thr.top < halfHeight) {
 						if(!this._visible) {
-							this._showHide(true, thr);
+							this._showHide(true);
 						}
+						this._currentThr = thr;
 						return;
 					}
 				}
@@ -10614,18 +10628,6 @@ var navPanel = {
 				}
 			});
 			break;
-		}
-	},
-	addThr(thr) {
-		this._thrs.push(thr);
-		if(this._thrs.length === 1) {
-			doc.defaultView.addEventListener('scroll', this);
-		}
-		if(!this._visible) {
-			var halfHeight = Post.sizing.wHeight / 2;
-			if(thr.bottom > halfHeight && thr.top < halfHeight) {
-				this._showHide(true, thr);
-			}
 		}
 	},
 	init() {
@@ -10693,10 +10695,9 @@ var navPanel = {
 			, Cfg.linksOver);
 		}
 	},
-	_showHide(show, thr) {
+	_showHide(show) {
 		this._el.style.display = show ? 'initial' : 'none';
 		this._visible = show;
-		this._currentThr = show ? thr : null;
 	}
 }
 
