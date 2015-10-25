@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'e0da760';
+var commit = 'ac5f1ad';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8038,8 +8038,8 @@ AttachmentViewer.prototype = {
 		if(data.inPview) {
 			obj.addEventListener('mouseover', this, true);
 			obj.addEventListener('mouseout', this, true);
-			if(!data.post.sticked) {
-				$c('de-btn-stick', data.post.el).click();
+			if(!data.post.sticky) {
+				this.data.post.setSticky(true);
 			}
 		}
 		if(!data.inPview) {
