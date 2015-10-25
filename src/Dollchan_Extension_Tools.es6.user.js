@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'c55457b';
+var commit = '475fd99';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1584,7 +1584,7 @@ function* readUserPosts() {
 		if(vis === '0') {
 			if(!post.hidden) {
 				post.setVisib(true);
-				post.hideRefs();
+				post.ref.hide();
 			}
 			post.spellHidden = true;
 		} else if(vis !== '1') {
@@ -3736,7 +3736,7 @@ HotKeys.prototype = {
 							post.thr.load('all', false);
 							post = post.thr.op;
 						}
-						scrollTo(0, post.offsetTop);
+						scrollTo(window.pageXOffset, window.pageYOffset + post.top);
 						if(this.cPost && this.cPost !== post) {
 							this.cPost.unselect();
 							this.cPost = post;
@@ -3767,7 +3767,7 @@ HotKeys.prototype = {
 	_getFirstVisPost(getThread, getFull) {
 		if(this.lastPageOffset !== window.pageYOffset) {
 			var post = getThread ? dForm.firstThr : dForm.firstThr.op;
-			while(post.offsetTop < pageYOffset + 1) {
+			while(post.top < 1) {
 				var tPost = post.next;
 				if(!tPost) {
 					break;
@@ -4946,7 +4946,7 @@ var loadPages = async(function* (count) {
 	PviewsCache.purge();
 	isExpImg = false;
 	pByNum = Object.create(null);
-	Post.hiddenNums = [];
+	Post.hiddenNums = new Set();
 	if(Attachment.viewer) {
 		Attachment.viewer.close(null);
 		Attachment.viewer = null;
@@ -6712,8 +6712,8 @@ PostForm.prototype = {
 		}
 		return false;
 	},
-	get offsetTop() {
-		return this.pForm.offsetTop;
+	get top() {
+		return this.pForm.getBoundingClientRect().top;
 	},
 	showQuickReply(post, pNum, closeReply, isNumClick) {
 		var temp, isThr = aib.t,
@@ -8073,28 +8073,7 @@ class ExpandableMedia {
 		if(prev) {
 			prev.next = this;
 		}
-	};
-
-	get inPview() {
-		var val = this.post instanceof Pview;
-		Object.defineProperty(this, 'inPview', { value: val });
-		return val;
-	};
-
-	get isImage() {
-		var val = /\.jpe?g|\.png|\.gif/i.test(this.src) ||
-			(this.src.startsWith('blob:') && !this.el.hasAttribute('de-video'));
-		Object.defineProperty(this, 'isImage', { value: val });
-		return val;
-	};
-
-	get isVideo() {
-		var val = /\.webm(?:&|$)/i.test(this.src) ||
-			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
-		Object.defineProperty(this, 'isVideo', { value: val });
-		return val;
-	};
-
+	}
 	get height() {
 		var dat = this._getImageSize();
 		Object.defineProperties(this, {
@@ -8102,14 +8081,29 @@ class ExpandableMedia {
 			'height': { value: dat[1] }
 		});
 		return dat[1];
-	};
-
+	}
+	get inPview() {
+		var val = this.post instanceof Pview;
+		Object.defineProperty(this, 'inPview', { value: val });
+		return val;
+	}
+	get isImage() {
+		var val = /\.jpe?g|\.png|\.gif/i.test(this.src) ||
+			(this.src.startsWith('blob:') && !this.el.hasAttribute('de-video'));
+		Object.defineProperty(this, 'isImage', { value: val });
+		return val;
+	}
+	get isVideo() {
+		var val = /\.webm(?:&|$)/i.test(this.src) ||
+			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
+		Object.defineProperty(this, 'isVideo', { value: val });
+		return val;
+	}
 	get src() {
 		var val = this._getImageSrc();
 		Object.defineProperty(this, 'src', { value: val });
 		return val;
-	};
-
+	}
 	get width() {
 		var dat = this._getImageSize();
 		Object.defineProperties(this, {
@@ -8117,8 +8111,7 @@ class ExpandableMedia {
 			'height': { value: dat[1] }
 		});
 		return dat[0];
-	};
-
+	}
 	collapse(e) {
 		if(!this.isVideo || !this.isControlClick(e, this._fullEl.style.height)) {
 			this.expanded = false;
@@ -8132,8 +8125,7 @@ class ExpandableMedia {
 			return true;
 		}
 		return false;
-	};
-
+	}
 	computeFullSize(inPost) {
 		var minSize = Cfg.minImgSize,
 			width = this.width,
@@ -8176,8 +8168,7 @@ class ExpandableMedia {
 			}
 		}
 		return [width, height, null];
-	};
-
+	}
 	expand(inPost, e) {
 		if(!inPost) {
 			if(Attachment.viewer) {
@@ -8203,8 +8194,7 @@ class ExpandableMedia {
 		this._fullEl.style.width = size[0] + 'px';
 		this._fullEl.style.height = size[1] + 'px';
 		$after(el.parentNode, this._fullEl);
-	};
-
+	}
 	getFollow(isForward) {
 		var nImage = isForward ? this.next : this.prev;
 		if(nImage) {
@@ -8225,8 +8215,7 @@ class ExpandableMedia {
 			imgs = post.images;
 		} while(imgs.first === null);
 		return isForward ? imgs.first : imgs.last;
-	};
-
+	}
 	getFullObject() {
 		var obj, src = this.src;
 		if(this.isVideo) {
@@ -8271,13 +8260,11 @@ class ExpandableMedia {
 			};
 		}
 		return obj;
-	};
-
+	}
 	isControlClick(e, styleHeight) {
 		return Cfg.webmControl && e.clientY >
 			(e.target.getBoundingClientRect().top + parseInt(styleHeight, 10) - 30);
-	};
-
+	}
 	sendCloseEvent(e, inPost) {
 		var pv = this.post,
 			cr = pv.el.getBoundingClientRect(),
@@ -8299,7 +8286,7 @@ class ExpandableMedia {
 		} else if(x > cr.right || y > cr.bottom && Pview.top) {
 			Pview.top.markToDel();
 		}
-	};
+	}
 
 	get _offset() {
 		var val;
@@ -8312,23 +8299,21 @@ class ExpandableMedia {
 		}
 		Object.defineProperty(this, '_offset', { value: val });
 		return val;
-	};
+	}
 }
 
 class EmbeddedImage extends ExpandableMedia {
+	_getImageParent() {
+		return this.el.parentNode;
+	}
 	_getImageSize() {
 		var iEl = new Image();
 		iEl.src = this.el.src;
 		return [iEl.width, iEl.height];
-	};
-
+	}
 	_getImageSrc() {
 		return this.el.src;
-	};
-
-	_getImageParent() {
-		return this.el.parentNode;
-	};
+	}
 }
 
 class Attachment extends ExpandableMedia {
@@ -8336,8 +8321,7 @@ class Attachment extends ExpandableMedia {
 		var val = aib.getFileInfo(aib.getImgWrap(this.el.parentNode));
 		Object.defineProperty(this, 'info', { value: val });
 		return val;
-	};
-
+	}
 	get weight() {
 		var val = 0;
 		if(this.info) {
@@ -8346,7 +8330,7 @@ class Attachment extends ExpandableMedia {
 		}
 		Object.defineProperty(this, 'weight', { value: val });
 		return val;
-	};
+	}
 
 	get _offset() {
 		var needCache = !this.inPview && !this.post.isOp &&
@@ -8362,23 +8346,20 @@ class Attachment extends ExpandableMedia {
 			Object.defineProperty(this, '_offset', { value });
 		}
 		return value;
-	};
-
+	}
+	_getImageParent() {
+		return aib.getImgParent(this.el.parentNode);
+	}
 	_getImageSize() {
 		if(this.info) {
 			var size = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
 			return [size[1], size[2]];
 		}
 		return [-1, -1];
-	};
-
+	}
 	_getImageSrc() {
 		return aib.getImgLink(this.el).href;
-	};
-
-	_getImageParent() {
-		return aib.getImgParent(this.el.parentNode);
-	};
+	}
 }
 Attachment.cachedOffset = -1;
 Attachment.viewer = null;
@@ -8512,7 +8493,7 @@ class AbstractPost {
 		this.isOp = isOp;
 		this.kid = null;
 		this.num = num;
-		this.ref = new Set();
+		this.ref = new RefMap(this);
 		this.thr = thr;
 	}
 	get images() {
@@ -8531,18 +8512,6 @@ class AbstractPost {
 		Object.defineProperty(this, 'msg', { configurable: true, value: val });
 		return val;
 	}
-	get refsEl() {
-		var el, value, html = '<div class="de-refmap"></div>';
-		if(aib.dobr && (el = this.msg.nextElementSibling)) {
-			el.insertAdjacentHTML('beforeend', html);
-			value = el.lastChild;
-		} else {
-			this.msg.insertAdjacentHTML('afterend', html);
-			value = this.msg.nextSibling;
-		}
-		Object.defineProperty(this, 'refsEl', { value });
-		return value;
-	}
 	get trunc() {
 		var el = aib.qTrunc && $q(aib.qTrunc, this.el), value = null;
 		if(el && /long|full comment|gekürzt|слишком|длинн|мног|полн/i.test(el.textContent)) {
@@ -8557,7 +8526,7 @@ class AbstractPost {
 		return value;
 	}
 	addFuncs() {
-		updRefMap(this, true);
+		RefMap.upd(this, true);
 		embedMediaLinks(this);
 		if(Cfg.addImgs) {
 			embedImagesLinks(this.el);
@@ -8888,7 +8857,6 @@ class Post extends AbstractPost {
 			html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') +
 				'"><span class="de-btn-hide" ></span><span class="de-btn-rep"></span>';
 		this._pref = refEl;
-		this.ref = new Set();
 		el.post = this;
 		if(isOp) {
 			if(!aib.t) {
@@ -8936,10 +8904,6 @@ class Post extends AbstractPost {
 		return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el)
 			.offsetHeight;
 	}
-	get offsetTop() {
-		return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el)
-			.offsetTop;
-	}
 	get posterName() {
 		return PostContent.get(this, this).posterName;
 	}
@@ -8957,6 +8921,10 @@ class Post extends AbstractPost {
 	}
 	get tNum() {
 		return this.thr.num;
+	}
+	get top() {
+		return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el)
+			.getBoundingClientRect().top;
 	}
 	get wrap() {
 		var val = aib.getWrap(this.el, this.isOp);
@@ -9007,19 +8975,6 @@ class Post extends AbstractPost {
 			}
 		}
 	}
-	hideRefs() {
-		if(!Cfg.hideRefPsts || this.ref.size === 0) {
-			return;
-		}
-		this.ref.forEach(num => {
-			var pst = pByNum[num];
-			if(pst && !pst.userToggled) {
-				pst.setVisib(true);
-				pst.setNote('reference to >>' + this.num);
-				pst.hideRefs();
-			}
-		});
-	}
 	select() {
 		if(this.isOp) {
 			if(this.hidden) {
@@ -9057,9 +9012,9 @@ class Post extends AbstractPost {
 		this.userToggled = true;
 		if(hide) {
 			this.setNote('');
-			this.hideRefs();
+			this.ref.hide();
 		} else {
-			this.unhideRefs();
+			this.ref.unhide();
 		}
 		uVis[this.num] = [+!hide, date];
 		if(sync) {
@@ -9132,7 +9087,7 @@ class Post extends AbstractPost {
 				sVis[this.count] = 0;
 			}
 			if(!this.hidden) {
-				this.hideRefs();
+				this.ref.hide();
 			}
 			this.setVisib(true);
 			this.setNote(note);
@@ -9145,7 +9100,7 @@ class Post extends AbstractPost {
 				sVis[this.count] = 1;
 			}
 			this.setVisib(false);
-			this.unhideRefs();
+			this.ref.unhide();
 		}
 	}
 	toggleImages(expand = !this.images.expanded) {
@@ -9172,18 +9127,6 @@ class Post extends AbstractPost {
 			saveHiddenThreads(false);
 		}
 		saveUserPosts();
-	}
-	unhideRefs() {
-		if(!Cfg.hideRefPsts || this.ref.size === 0) {
-			return;
-		}
-		this.ref.forEach(function(num) {
-			var pst = pByNum[num];
-			if(pst && pst.hidden && !pst.userToggled && !pst.spellHidden) {
-				pst.setVisib(false);
-				pst.unhideRefs();
-			}
-		});
 	}
 	unselect() {
 		if(this.isOp) {
@@ -9308,12 +9251,9 @@ class Post extends AbstractPost {
 	_strikePostNum(isHide) {
 		var num = this.num;
 		if(isHide) {
-			Post.hiddenNums.push(+num);
+			Post.hiddenNums.add(+num);
 		} else {
-			var idx = Post.hiddenNums.indexOf(+num);
-			if(idx !== -1) {
-				Post.hiddenNums.splice(idx, 1);
-			}
+			Post.hiddenNums.delete(+num);
 		}
 		$each($Q('a[href*="' + aib.anchor + num + '"]', dForm.el), isHide ? function(el) {
 			el.classList.add('de-link-hid');
@@ -9334,7 +9274,7 @@ class Post extends AbstractPost {
 		});
 	}
 }
-Post.hiddenNums = [];
+Post.hiddenNums = new Set();
 Post.getWrds = function(text) {
 	return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').trim().substring(0, 800).split(' ');
 };
@@ -9572,8 +9512,8 @@ class Pview extends AbstractPost {
 				pv.delete();
 				return;
 			}
-			if(parent.thr.loadCount === 1 && pv._link.ownerDocument !== doc) {
-				var el = $q('a[href$="' + pv.num + '"]', parent.refsEl);
+			if(parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
+				var el = parent.ref.getElByNum(pv.num);
 				if(el) {
 					pv._link = el;
 				} else {
@@ -9722,8 +9662,8 @@ class Pview extends AbstractPost {
 		var diff, top = Pview.top;
 		post.toggleUserVisib();
 		if(post === top.parent && post.hidden) {
-			diff = top._isTop ? top._offsetTop - (post.offsetTop + post.offsetHeight)
-			                  : (top._offsetTop + top.el.offsetHeight) - post.offsetTop;
+			diff = top._isTop ? top._offsetTop - (window.pageYOffset + post.top + post.offsetHeight)
+			                  : (top._offsetTop + top.el.offsetHeight) - (window.pageYOffset + post.top);
 		} else {
 			diff = top._findScrollDiff();
 		}
@@ -9740,8 +9680,9 @@ class Pview extends AbstractPost {
 	}
 
 	_findScrollDiff() {
-		return this._isTop ? this._offsetTop - (this._link.offsetTop + this._link.offsetHeight)
-		                   : (this._offsetTop + this.el.offsetHeight) - (this._link.offsetTop)
+		var cr = this._link.getBoundingClientRect();
+		return this._isTop ? this._offsetTop - (window.pageYOffset + cr.top + this._link.offsetHeight)
+		                   : (this._offsetTop + this.el.offsetHeight) - (window.pageYOffset + cr.top)
 	}
 	_moveY(diff) {
 		var pv = this;
@@ -9757,9 +9698,9 @@ class Pview extends AbstractPost {
 	_onload(b, form) {
 		var parentNum = this.parent.num,
 			post = PviewsCache.get(b + this.tNum, form, b, this.tNum).getPost(this.num);
-		if(post && (aib.b !== b || post.ref.size === 0 || !post.ref.has(parentNum))) {
+		if(post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(parentNum))) {
 			var rm;
-			if(post.ref.size !== 0) {
+			if(post.ref.hasMap) {
 				rm = $c('de-refmap', post.el);
 			} else {
 				post.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
@@ -9929,20 +9870,8 @@ class CacheItem {
 		return value;
 	}
 	get ref() {
-		var value = new Set();
+		var value = new RefMap(this);
 		Object.defineProperty(this, 'ref', { value });
-		return value;
-	}
-	get refsEl() {
-		var el, value, html = '<div class="de-refmap"></div>';
-		if(aib.dobr && (el = this.msg.nextElementSibling)) {
-			el.insertAdjacentHTML('beforeend', html);
-			value = el.lastChild;
-		} else {
-			this.msg.insertAdjacentHTML('afterend', html);
-			value = this.msg.nextSibling;
-		}
-		Object.defineProperty(this, 'refsEl', { value });
 		return value;
 	}
 	get sage() {
@@ -9968,7 +9897,7 @@ class PviewsCache extends TemporaryContent {
 		this._tUrl = aib.getThrdUrl(b, tNum);
 		this._posts = pBn;
 		if(Cfg.linksNavig === 2) {
-			genRefMap(pBn, this._tUrl);
+			RefMap.gen(pBn, this._tUrl);
 		}
 	}
 	getPost(num) {
@@ -9984,8 +9913,8 @@ class PviewsCache extends TemporaryContent {
 		}
 		pst.el = replacePost(pst.el);
 		delete pst.msg;
-		if(pst.ref.size !== 0) {
-			addRefMap(pst, this._tUrl);
+		if(pst.ref.hasMap) {
+			pst.ref.init(this._tUrl);
 		}
 		pst.itemInited = true;
 		return pst;
@@ -10003,81 +9932,154 @@ function PviewMoved({ target: el }) {
 	}
 }
 
-function addRefMap(post, tUrl) {
-	var bStr = '<a href="' + tUrl + aib.anchor,
-		strNums = Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
-		html = [];
-	post.ref.forEach(num => html.push(bStr, num, '" class="de-link-ref ',
-		(strNums && strNums.indexOf(+num) !== -1 ? 'de-link-hid' : ''),
-		'">&gt;&gt;', num, '</a><span class="de-refcomma">, </span>'));
-	post.refsEl.innerHTML = html.join('');
-}
 
-function genRefMap(posts, thrURL) {
-	var opNums = dForm.tNums;
-	for(var pNum in posts) {
-		aib.forEachReflink(posts[pNum].msg, (link, lNum) => {
-			if(!(lNum in posts)) {
+// REFERENCE MAP
+// ===========================================================================================================
+
+class RefMap {
+	static gen(posts, thrURL) {
+		var opNums = dForm.tNums;
+		for(var pNum in posts) {
+			aib.forEachReflink(posts[pNum].msg, (link, lNum) => {
+				if(!(lNum in posts)) {
+					return;
+				}
+				posts[lNum].ref.insert(pNum);
+				if(!aib.hasOPNum && opNums.indexOf(lNum) !== -1) {
+					link.classList.add('de-ref-op');
+				}
+				if(thrURL) {
+					var url = link.getAttribute('href');
+					if(url[0] === '#') {
+						link.setAttribute('href', thrURL + url);
+					}
+				}
+			});
+		}
+	}
+	static upd(post, add) {
+		var pNum = post.num,
+			strNums = add && Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
+			isThr = aib.t;
+		aib.forEachReflink(post.msg, (link, lNum) => {
+			var lPost = pByNum[lNum];
+			if(!lPost) {
 				return;
 			}
-			posts[lNum].ref.add(pNum);
-			if(!aib.hasOPNum && opNums.indexOf(lNum) !== -1) {
-				link.classList.add('de-ref-op');
+			if(!isThr) {
+				link.href = '#' + (aib.fch ? 'p' : '') + lNum;
 			}
-			if(thrURL) {
-				var url = link.getAttribute('href');
-				if(url[0] === '#') {
-					link.setAttribute('href', thrURL + url);
+			if(add) {
+				if(strNums && strNums.has(+lNum)) {
+					link.classList.add('de-link-hid');
 				}
+				if(!aib.hasOPNum && dForm.tNums.indexOf(lNum) !== -1) {
+					link.classList.add('de-ref-op');
+				}
+				lPost.ref.add(post, pNum, strNums && strNums.has(+pNum));
+			} else {
+				lPost.ref.remove(pNum);
 			}
 		});
 	}
-}
-
-function updRefMap(post, add) {
-	var pNum = post.num,
-		strNums = add && Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
-		isThr = aib.t;
-	aib.forEachReflink(post.msg, (link, lNum) => {
-		var lPost = pByNum[lNum];
-		if(!lPost) {
+	constructor(post) {
+		this._post = post;
+		this._set = new Set();
+	}
+	get hasMap() {
+		return this._set.size !== 0;
+	}
+	add(post, num, isHidden) {
+		if(!this._set.has(num)) {
+			this._set.add(num);
+			this._el.insertAdjacentHTML('beforeend', this._getHTML(num, '', isHidden));
+			if(Cfg.hideRefPsts && this._post.hidden) {
+				if(!post.hidden) {
+					post.ref.hide();
+				}
+				post.setVisib(true);
+				post.setNote('reference to >>' + lNum);
+			}
+		}
+	}
+	getElByNum(num) {
+		return $q('a[href$="' + num + '"]', this._el)
+	}
+	has(num) {
+		return this._set.has(num);
+	}
+	hide() {
+		if(!Cfg.hideRefPsts || !this.hasMap) {
 			return;
 		}
-		if(!isThr) {
-			link.href = '#' + (aib.fch ? 'p' : '') + lNum;
-		}
-		if(add) {
-			if(strNums && strNums.lastIndexOf(lNum) !== -1) {
-				link.classList.add('de-link-hid');
+		this._set.forEach(num => {
+			var pst = pByNum[num];
+			if(pst && !pst.userToggled) {
+				pst.setVisib(true);
+				pst.setNote('reference to >>' + this.num);
+				pst.ref.hide();
 			}
-			if(!aib.hasOPNum && dForm.tNums.indexOf(lNum) !== -1) {
-				link.classList.add('de-ref-op');
-			}
-			if(!lPost.ref.has(pNum)) {
-				lPost.ref.add(pNum);
-				lPost.refsEl.insertAdjacentHTML('beforeend', '<a href="' + aib.anchor + pNum +
-					'" class="de-link-ref' + (strNums && strNums.indexOf(+pNum) !== -1 ? ' de-link-hid' : '') +
-					'">&gt;&gt;' + pNum + '</a><span class="de-refcomma">, </span>');
-				if(Cfg.hideRefPsts && lPost.hidden) {
-					if(!post.hidden) {
-						post.hideRefs();
-					}
-					post.setVisib(true);
-					post.setNote('reference to >>' + lNum);
-				}
-			}
-		} else if(lPost.ref.size !== 0) {
-			lPost.ref.delete(pNum);
-			if(lPost.ref.size === 0) {
-				delete lPost.refsEl;
-				$del($c('de-refmap', lPost.el));
-			} else {
-				var el = $q('a[href$="' + pNum + '"]', lPost.refsEl);
+		});
+	}
+	init(tUrl) {
+		var bStr = '<a href="' + tUrl + aib.anchor,
+			strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null,
+			html = [];
+		this._set.forEach(num => html.push(this._getHTML(num, tUrl, strNums && strNums.has(+num))));
+		this._el.innerHTML = html.join('');
+	}
+	insert(num) {
+		this._set.add(num);
+	}
+	remove(num) {
+		this._set.delete(num);
+		if(this._set.size === 0) {
+			$del(this._el);
+			delete this._el;
+		} else {
+			var el = this.getElByNum(num);
+			if(el) {
 				$del(el.nextSibling);
 				$del(el);
 			}
 		}
-	});
+	}
+	removeMap() {
+		this._set = new Set();
+		$del(this._el);
+		delete this._el;
+	}
+	unhide() {
+		if(!Cfg.hideRefPsts || !this.hasMap) {
+			return;
+		}
+		this._set.forEach(num => {
+			var pst = pByNum[num];
+			if(pst && pst.hidden && !pst.userToggled && !pst.spellHidden) {
+				pst.setVisib(false);
+				pst.ref.unhide();
+			}
+		});
+	}
+
+	get _el() {
+		var el, value, html = '<div class="de-refmap"></div>',
+			msg = this._post.msg;
+		if(aib.dobr && (el = msg.nextElementSibling)) {
+			el.insertAdjacentHTML('beforeend', html);
+			value = el.lastChild;
+		} else {
+			msg.insertAdjacentHTML('afterend', html);
+			value = msg.nextSibling;
+		}
+		Object.defineProperty(this, '_el', { configurable: true, value });
+		return value;
+	}
+	_getHTML(num, tUrl, isHidden) {
+		return '<a href="' + tUrl + aib.anchor + num +
+			'" class="de-link-ref' + (isHidden ? ' de-link-hid' : '') +
+			'">&gt;&gt;' + num + '</a><span class="de-refcomma">, </span>'
+	}
 }
 
 
@@ -10135,11 +10137,10 @@ function Thread(el, prev, isLight) {
 			var repBtn = this.btns.lastChild;
 			repBtn.onclick = e => {
 				$pd(e);
-				var nextCoord = !this.next || this.last.omitted ? null :
-					this.next.offsetTop - window.pageYOffset;
+				var nextCoord = !this.next || this.last.omitted ? null :this.next.top;
 				this._toggleReplies(repBtn, updBtn);
 				if(nextCoord) {
-					scrollTo(window.pageXOffset, this.next.offsetTop - nextCoord);
+					scrollTo(window.pageXOffset, windows.pageYOffset + this.next.top - nextCoord);
 				}
 			}
 			this._toggleReplies(repBtn, updBtn);
@@ -10169,8 +10170,8 @@ Thread.prototype = {
 		for(var thr = this.prev; thr && thr.hidden; thr = thr.prev) {}
 		return thr;
 	},
-	get offsetTop() {
-		return this.op.offsetTop;
+	get top() {
+		return this.op.top;
 	},
 	addPost(parent, el, i, prev, maybeVParser) {
 		var post, num = aib.getPNum(el),
@@ -10213,9 +10214,9 @@ Thread.prototype = {
 				$del(post.wrap);
 				delete pByNum[post.num];
 				if(post.hidden) {
-					post.unhideRefs();
+					post.ref.unhide();
 				}
-				updRefMap(post, false);
+				RefMap.upd(post, false);
 				if((post.prev.next = post.next)) {
 					post.next.prev = post.prev;
 				}
@@ -10257,7 +10258,7 @@ Thread.prototype = {
 			thrEl = this.el;
 		if(smartScroll) {
 			if(this.next) {
-				nextCoord = this.next.offsetTop - window.pageYOffset;
+				nextCoord = this.next.top;
 			} else {
 				smartScroll = false;
 			}
@@ -10268,7 +10269,7 @@ Thread.prototype = {
 			if(op.trunc) {
 				op.updateMsg(replacePost($q(aib.qMsg, form)), maybeSpells.value);
 			}
-			op.ref = new Set();
+			op.ref.removeMap();
 		}
 		this.loadCount++;
 		this._checkBans(form);
@@ -10331,7 +10332,7 @@ Thread.prototype = {
 				post.omitted = false;
 			}
 			if(needRMUpdate) {
-				updRefMap(post, true);
+				RefMap.upd(post, true);
 			}
 			post = post.next;
 		}
@@ -10354,7 +10355,7 @@ Thread.prototype = {
 			op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + needToOmit + '</div>');
 		}
 		if(smartScroll) {
-			scrollTo(window.pageXOffset, this.next.offsetTop - nextCoord);
+			scrollTo(window.pageXOffset, window.pageYOffset + this.next.top - nextCoord);
 		}
 		Pview.updatePosition(false);
 		if(Cfg.hideReplies) {
@@ -10386,10 +10387,10 @@ Thread.prototype = {
 	loadNewFromForm(form) {
 		this._checkBans(form);
 		aib.checkForm(form, null);
-		var lastOffset = pr.isVisible ? pr.offsetTop - window.pageYOffset: null,
+		var lastOffset = pr.isVisible ? pr.top : null,
 			[newPosts, newVisPosts] = this._parsePosts($Q(aib.qRPost, form));
 		if(lastOffset !== null) {
-			scrollTo(window.pageXOffset, pr.offsetTop - lastOffset);
+			scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);
 		}
 		if(newPosts !== 0) {
 			panel.updateCounter(this.pcount, $Q(aib.qThumbImages, dForm.el).length);
@@ -10566,7 +10567,7 @@ Thread.prototype = {
 			}
 			if(newPosts !== 0) {
 				for(post = firstChangedPost; post; post = post.nextInThread) {
-					updRefMap(post, true);
+					RefMap.upd(post, true);
 				}
 			}
 		}
@@ -13134,10 +13135,10 @@ function addDelformStuff() {
 	processImageNames(dForm.el);
 	new Logger().log('Image names');
 	if(dForm.firstThr && Cfg.linksNavig === 2) {
-		genRefMap(pByNum, '');
+		RefMap.gen(pByNum, '');
 		for(var post = dForm.firstThr.op; post; post = post.next) {
-			if(post.ref.size !== 0) {
-				addRefMap(post, '');
+			if(post.ref.hasMap) {
+				post.ref.init('');
 			}
 		}
 		new Logger().log('Reflinks map');
