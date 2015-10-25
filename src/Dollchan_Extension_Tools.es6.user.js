@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'f36bded';
+var commit = 'c55457b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3660,7 +3660,7 @@ HotKeys.prototype = {
 			case 11: // Expand current image
 				post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 				if(post) {
-					post.toggleImages(!post.imagesExpanded);
+					post.toggleImages();
 				}
 				break;
 			case 12: // Bold text (txt)
@@ -8875,7 +8875,6 @@ class Post extends AbstractPost {
 		this.banned = false;
 		this.deleted = false;
 		this.hidden = false;
-		this.imagesExpanded = false;
 		this.omitted = false;
 		this.spellHidden = false;
 		this.userToggled = false;
@@ -9149,7 +9148,7 @@ class Post extends AbstractPost {
 			this.unhideRefs();
 		}
 	}
-	toggleImages(expand) {
+	toggleImages(expand = !this.images.expanded) {
 		for(var image of this.images) {
 			if(image.isImage && (image.expanded ^ expand)) {
 				if(expand) {
@@ -9159,7 +9158,6 @@ class Post extends AbstractPost {
 				}
 			}
 		}
-		this.imagesExpanded = expand;
 	}
 	toggleUserVisib() {
 		var isOp = this.isOp,
@@ -9493,6 +9491,14 @@ function PostImages(post) {
 	this._map = filesMap;
 }
 PostImages.prototype = {
+	get expanded() {
+		for(var img = this.first; img; img = img.next) {
+			if(img.expanded) {
+				return true;
+			}
+		}
+		return false;
+	},
 	get firstAttach() {
 		return this.hasAttachments ? this.first : null;
 	},

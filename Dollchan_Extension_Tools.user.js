@@ -1871,7 +1871,7 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
 
 var _bind = Function.prototype.bind;
 
-var _get = function get(_x24, _x25, _x26) { var _again = true; _function: while (_again) { var object = _x24, property = _x25, receiver = _x26; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x24 = parent; _x25 = property; _x26 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x25, _x26, _x27) { var _again = true; _function: while (_again) { var object = _x25, property = _x26, receiver = _x27; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x25 = parent; _x26 = property; _x27 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'f36bded';
+	var commit = 'c55457b';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -5600,7 +5600,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					
 						post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 						if (post) {
-							post.toggleImages(!post.imagesExpanded);
+							post.toggleImages();
 						}
 						break;
 					case 12:
@@ -11526,7 +11526,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.banned = false;
 			this.deleted = false;
 			this.hidden = false;
-			this.imagesExpanded = false;
 			this.omitted = false;
 			this.spellHidden = false;
 			this.userToggled = false;
@@ -11771,7 +11770,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: 'toggleImages',
-			value: function toggleImages(expand) {
+			value: function toggleImages() {
+				var expand = arguments.length <= 0 || arguments[0] === undefined ? !this.images.expanded : arguments[0];
 				var _iteratorNormalCompletion10 = true;
 				var _didIteratorError10 = false;
 				var _iteratorError10 = undefined;
@@ -11802,8 +11802,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 					}
 				}
-
-				this.imagesExpanded = expand;
 			}
 		}, {
 			key: 'toggleUserVisib',
@@ -12255,6 +12253,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		this._map = filesMap;
 	}
 	PostImages.prototype = _defineProperty({
+		get expanded() {
+			for (var img = this.first; img; img = img.next) {
+				if (img.expanded) {
+					return true;
+				}
+			}
+			return false;
+		},
 		get firstAttach() {
 			return this.hasAttachments ? this.first : null;
 		},
