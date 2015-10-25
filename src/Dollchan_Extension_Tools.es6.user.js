@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'b443147';
+var commit = 'd8e3871';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13124,7 +13124,7 @@ function scriptCSS() {
 	// Thread nav
 	'#de-thr-navpanel { height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\
 	.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\
-	#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); }\
+	#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px;}\
 	.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\
 	#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\
 	#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\
