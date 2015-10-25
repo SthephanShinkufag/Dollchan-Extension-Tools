@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '475fd99';
+var commit = 'e0da760';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9681,7 +9681,7 @@ class Pview extends AbstractPost {
 
 	_findScrollDiff() {
 		var cr = this._link.getBoundingClientRect();
-		return this._isTop ? this._offsetTop - (window.pageYOffset + cr.top + this._link.offsetHeight)
+		return this._isTop ? this._offsetTop - (window.pageYOffset + cr.bottom)
 		                   : (this._offsetTop + this.el.offsetHeight) - (window.pageYOffset + cr.top)
 	}
 	_moveY(diff) {

@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '475fd99';
+	var commit = 'e0da760';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12482,7 +12482,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: '_findScrollDiff',
 			value: function _findScrollDiff() {
 				var cr = this._link.getBoundingClientRect();
-				return this._isTop ? this._offsetTop - (window.pageYOffset + cr.top + this._link.offsetHeight) : this._offsetTop + this.el.offsetHeight - (window.pageYOffset + cr.top);
+				return this._isTop ? this._offsetTop - (window.pageYOffset + cr.bottom) : this._offsetTop + this.el.offsetHeight - (window.pageYOffset + cr.top);
 			}
 		}, {
 			key: '_moveY',
