@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'feec6fb';
+var commit = 'ab9a458';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10411,7 +10411,7 @@ Thread.prototype = {
 	setFavBtn(state) {
 		var el = $c(state ? 'de-btn-fav' : 'de-btn-fav-sel', this.op.btns);
 		if(el) {
-			el.setAttibute(state ? 'de-btn-fav-sel' : 'de-btn-fav');
+			el.setAttibute('class', state ? 'de-btn-fav-sel' : 'de-btn-fav');
 			el.title = state ? Lng.delFav[lang] : Lng.addFav[lang];
 		}
 	},
