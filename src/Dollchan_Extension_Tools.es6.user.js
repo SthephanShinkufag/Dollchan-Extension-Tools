@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '1689333';
+var commit = '6a6b7df';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8014,11 +8014,7 @@ AttachmentViewer.prototype = {
 		this.data = data;
 		this._fullEl = el;
 		this._obj = obj;
-		if('onwheel' in obj) {
-			obj.addEventListener('wheel', this, true);
-		} else {
-			obj.addEventListener('mousewheel', this, true);
-		}
+		obj.addEventListener('onwheel' in obj ? 'wheel' : 'mousewheel', this, true);
 		obj.addEventListener('mousedown', this, true);
 		obj.addEventListener('click', this, true);
 		if(data.inPview && !data.post.sticky) {
@@ -8857,6 +8853,10 @@ class Post extends AbstractPost {
 		}
 		el.addEventListener('mouseover', this, true);
 	}
+	get bottom() {
+		return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el)
+			.getBoundingClientRect().bottom;
+	}
 	get html() {
 		return PostContent.get(this, this).html;
 	}
@@ -8881,10 +8881,6 @@ class Post extends AbstractPost {
 		}
 		Object.defineProperty(this, 'noteEl', { value: val });
 		return val;
-	}
-	get offsetHeight() {
-		return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el)
-			.offsetHeight;
 	}
 	get posterName() {
 		return PostContent.get(this, this).posterName;
@@ -9524,7 +9520,7 @@ class Pview extends AbstractPost {
 		this._isLeft = false;
 		this._isTop = false;
 		this._link = link;
-		this._loaded = false;
+		this._fromCache = false;
 		this._newPos = null;
 		this._offsetTop = 0;
 		this._readDelay = 0;
@@ -9532,10 +9528,11 @@ class Pview extends AbstractPost {
 		this.parent = parent;
 		this.tNum = tNum;
 		var post = pByNum[pNum];
-		if(post && (!post.isOp || !(parent instanceof Pview) || !parent._loaded)) {
+		if(post && (!post.isOp || !(parent instanceof Pview) || !parent._fromCache)) {
 			this._showPost(post);
 			return;
 		}
+		this._fromCache = true;
 		var b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
 		if(PviewsCache.has(b + tNum)) {
 			this._loading = false;
@@ -9548,7 +9545,6 @@ class Pview extends AbstractPost {
 			}
 			return;
 		}
-		this._loaded = true;
 		this._loading = true;
 		this._showPview(this.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview"><span class="de-wait">'
 			+ Lng.loading[lang] + '</span></div>'));
@@ -9644,7 +9640,7 @@ class Pview extends AbstractPost {
 		var diff, top = Pview.top;
 		post.toggleUserVisib();
 		if(post === top.parent && post.hidden) {
-			diff = top._isTop ? top._offsetTop - (window.pageYOffset + post.top + post.offsetHeight)
+			diff = top._isTop ? top._offsetTop - (window.pageYOffset + post.bottom)
 			                  : (top._offsetTop + top.el.offsetHeight) - (window.pageYOffset + post.top);
 		} else {
 			diff = top._findScrollDiff();
@@ -9693,7 +9689,6 @@ class Pview extends AbstractPost {
 				parentNum + '">&gt;&gt;' + (aib.b === b ? '' : '/' + aib.b + '/') + parentNum +
 				'</a><span class="de-refcomma">, </span>');
 		}
-		this._loaded = true;
 		if(post) {
 			this._showPost(post);
 		} else {
@@ -10137,6 +10132,9 @@ Thread.prototype = {
 	hidden: false,
 	loadCount: 0,
 	next: null,
+	get bottom() {
+		return this.hidden ? this.op.bottom : this.last.bottom;
+	},
 	get lastNotDeleted() {
 		var post = this.last;
 		while(post.deleted) {
@@ -10332,7 +10330,13 @@ Thread.prototype = {
 				this.load(visPosts, true);
 			};
 		}
-		btn.lastChild.style.display = needToShow > visPosts ? '' : 'none';
+		if(needToShow > visPosts) {
+			navPanel.addThr(this);
+			btn.lastChild.style.display = 'inital';
+		} else {
+			navPanel.removeThr(this);
+			btn.lastChild.style.display = 'none';
+		}
 		if(needToOmit > 0) {
 			op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + needToOmit + '</div>');
 		}
@@ -10587,6 +10591,114 @@ Thread.prototype = {
 	}
 };
 
+var navPanel = {
+	handleEvent(e) {
+		switch(e.type) {
+		case 'mouseover': this._expandCollapse(true, e.relatedTarget); break;
+		case 'mouseout': this._expandCollapse(false, e.relatedTarget); break;
+		case 'click': this._handleClick(e); break;
+		case 'scroll':
+			window.requestAnimationFrame(() => {
+				var halfHeight = Post.sizing.wHeight / 2;
+				for(var t = this._thrs, i = 0, len = t.length; i < len; i++) {
+					var thr = t[i];
+					if(thr.bottom > halfHeight && thr.top < halfHeight) {
+						if(!this._visible) {
+							this._showHide(true, thr);
+						}
+						return;
+					}
+				}
+				if(this._visible) {
+					this._showHide(false);
+				}
+			});
+			break;
+		}
+	},
+	addThr(thr) {
+		this._thrs.push(thr);
+		if(this._thrs.length === 1) {
+			doc.defaultView.addEventListener('scroll', this);
+		}
+		if(!this._visible) {
+			var halfHeight = Post.sizing.wHeight / 2;
+			if(thr.bottom > halfHeight && thr.top < halfHeight) {
+				this._showHide(true, thr);
+			}
+		}
+	},
+	init() {
+		var html = `<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">
+			<svg id="de-thr-navarrow" viewBox="0 0 7 7" enable-background="new 0 0 7 7" version="1.1" xmlns="http://www.w3.org/2000/svg">
+				<polygon fill="#FFFFFF" points="6,3.5 2,0 2,7"/>
+			</svg>
+			<div id="de-thr-navup">
+				<svg viewBox="0 0 24 24" enable-background="new 0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+					<polyline fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" points="3,22.5 12,13.5 21,22.5"/>
+					<polyline fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" points="3,13.5 12,4.5 21,13.5"/>
+				</svg>
+			</div>
+			<div id="de-thr-navdown">
+				<svg viewBox="0 0 24 24" enable-background="new 0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+					<polyline fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" points="3,11.5 12,20.5 21,11.5"/>
+					<polyline fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" points="3,2.5 12,11.5 21,2.5"/>
+				</svg>
+			</div>
+		</div>`;
+		doc.body.insertAdjacentHTML('beforeend', html);
+		var el = doc.body.lastChild;
+		el.addEventListener('mouseover', this, true);
+		el.addEventListener('mouseout', this, true);
+		el.addEventListener('click', this, true);
+		this._el = el;
+	},
+	removeThr(thr) {
+		var i = this._thrs.indexOf(thr);
+		if(i !== -1) {
+			this._thrs.splice(i, 1);
+		}
+		if(this._thrs.length === 0) {
+			this._el.style.display = 'none';
+			this._currentThr = null;
+			this._visible = false;
+			doc.defaultView.removeEventListener('scroll', this);
+		}
+	},
+
+	_el: null,
+	_showhideTO: 0,
+	_thrs: [],
+	_currentThr: null,
+	_visible: false,
+	_handleClick(e) {
+		var target = e.target, svg = target.ownerSVGElement;
+		var el = svg ? svg.parentNode
+		             : (target.tagName.toLowerCase() === 'svg' ? target.parentNode : target);
+		switch(el.id) {
+		case 'de-thr-navup':
+			scrollTo(window.pageXOffset, window.pageYOffset + this._currentThr.top - (Post.sizing.wHeight / 2 - 1));
+			break;
+		case 'de-thr-navdown':
+			scrollTo(window.pageXOffset, window.pageYOffset + this._currentThr.bottom - (Post.sizing.wHeight / 2 + 1));
+			break;
+		}
+	},
+	_expandCollapse(expand, rt) {
+		if(!rt || !this._el.contains(rt)) {
+			clearTimeout(this._showhideTO);
+			this._showhideTO = setTimeout(
+				expand ? (() => this._el.classList.remove('de-thr-navpanel-hidden'))
+				     : (() => this._el.classList.add('de-thr-navpanel-hidden'))
+			, Cfg.linksOver);
+		}
+	},
+	_showHide(show, thr) {
+		this._el.style.display = show ? 'initial' : 'none';
+		this._visible = show;
+		this._currentThr = show ? thr : null;
+	}
+}
 
 // BROWSER
 // ===========================================================================================================
@@ -12613,6 +12725,8 @@ function initPage() {
 				(aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '') +
 				'</div>');
 		}
+	} else if('requestAnimationFrame' in doc.defaultView) {
+		navPanel.init();
 	}
 	if(!localRun){
 		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr);
@@ -13005,6 +13119,16 @@ function scriptCSS() {
 	.de-fav-closed, .de-fav-unavail { display: inline-block; width: 16px; height: 16px; margin-bottom: -4px; }\
 	.de-fav-closed { background-image: url(data:image/gif;base64,R0lGODlhEAAQAKIAAP3rqPPOd+y6V+WmN+Dg4M7OzmZmZv///yH5BAEAAAcALAAAAAAQABAAAANCeLrWvZARUqqJkjiLj9FMcWHf6IldGZqM4zqRAcw0zXpAoO/6LfeNnS8XcAhjAIHSoFwim0wockCtUodWq+/1UiQAADs=); }\
 	.de-fav-unavail { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==); }' +
+
+	// Thread nav
+	'#de-thr-navpanel { height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\
+	.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\
+	#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); }\
+	.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\
+	#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\
+	#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\
+	#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\
+	:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }' +
 
 	// Other
 	cont('.de-wait', 'data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7') +
