@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'ac5f1ad';
+var commit = 'c97ff21';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7871,7 +7871,6 @@ AttachmentViewer.prototype = {
 		this._remove(e);
 	},
 	handleEvent(e) {
-		var isOverEvent = false;
 		switch(e.type) {
 		case 'mousedown':
 			if(this.data.isVideo && this.data.isControlClick(e, this._elStyle.height)) {
@@ -7910,19 +7909,6 @@ AttachmentViewer.prototype = {
 				}
 				e.stopPropagation();
 				break;
-			}
-			return;
-		case 'mouseover':
-			isOverEvent = true;
-			/* falls through */
-		case 'mouseout':
-			var temp = e.relatedTarget;
-			if(!temp || (temp !== this._obj && !this._obj.contains(temp))) {
-				if(isOverEvent) {
-					this.data.post.mouseEnter();
-				} else if(Pview.top && this.data.post.el !== temp && !this.data.post.el.contains(temp)) {
-					Pview.top.markToDel();
-				}
 			}
 			return;
 		case 'mousewheel':
@@ -8035,12 +8021,8 @@ AttachmentViewer.prototype = {
 		}
 		obj.addEventListener('mousedown', this, true);
 		obj.addEventListener('click', this, true);
-		if(data.inPview) {
-			obj.addEventListener('mouseover', this, true);
-			obj.addEventListener('mouseout', this, true);
-			if(!data.post.sticky) {
-				this.data.post.setSticky(true);
-			}
+		if(data.inPview && !data.post.sticky) {
+			this.data.post.setSticky(true);
 		}
 		if(!data.inPview) {
 			this._btns.show();

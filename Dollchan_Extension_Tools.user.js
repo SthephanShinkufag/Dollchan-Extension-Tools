@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'ac5f1ad';
+	var commit = 'c97ff21';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10362,7 +10362,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._remove(e);
 		},
 		handleEvent: function handleEvent(e) {
-			var isOverEvent = false;
 			switch (e.type) {
 				case 'mousedown':
 					if (this.data.isVideo && this.data.isControlClick(e, this._elStyle.height)) {
@@ -10401,18 +10400,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 						e.stopPropagation();
 						break;
-					}
-					return;
-				case 'mouseover':
-					isOverEvent = true;
-								case 'mouseout':
-					var temp = e.relatedTarget;
-					if (!temp || temp !== this._obj && !this._obj.contains(temp)) {
-						if (isOverEvent) {
-							this.data.post.mouseEnter();
-						} else if (Pview.top && this.data.post.el !== temp && !this.data.post.el.contains(temp)) {
-							Pview.top.markToDel();
-						}
 					}
 					return;
 				case 'mousewheel':
@@ -10533,12 +10520,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			obj.addEventListener('mousedown', this, true);
 			obj.addEventListener('click', this, true);
-			if (data.inPview) {
-				obj.addEventListener('mouseover', this, true);
-				obj.addEventListener('mouseout', this, true);
-				if (!data.post.sticky) {
-					this.data.post.setSticky(true);
-				}
+			if (data.inPview && !data.post.sticky) {
+				this.data.post.setSticky(true);
 			}
 			if (!data.inPview) {
 				this._btns.show();
