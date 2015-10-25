@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'ce98728';
+	var commit = 'f36bded';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -5678,7 +5678,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						
 							post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 							if (post) {
-								if (post.thr.loadedOnce && post.thr.op.next.count === 1) {
+								if (post.thr.loadCount !== 0 && post.thr.op.next.count === 1) {
 									var nextThr = post.thr.nextNotHidden;
 									post.thr.load(visPosts, !!nextThr);
 									post = (nextThr || post.thr).op;
@@ -11442,10 +11442,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'mp3Obj',
 			get: function get() {
-				var val = $new('div', { 'class': 'de-mp3' }, null);
-				$before(this.msg, val);
-				Object.defineProperty(this, 'mp3Obj', { value: val });
-				return val;
+				this.msg.insertAdjacentHTML('beforebegin', '<div class="de-mp3"></div>');
+				var value = this.msg.previousSibling;
+				Object.defineProperty(this, 'mp3Obj', { value: value });
+				return value;
 			}
 		}, {
 			key: 'msg',
@@ -11453,6 +11453,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var val = $q(aib.qMsg, this.el);
 				Object.defineProperty(this, 'msg', { configurable: true, value: val });
 				return val;
+			}
+		}, {
+			key: 'refsEl',
+			get: function get() {
+				var el,
+				    value,
+				    html = '<div class="de-refmap"></div>';
+				if (aib.dobr && (el = this.msg.nextElementSibling)) {
+					el.insertAdjacentHTML('beforeend', html);
+					value = el.lastChild;
+				} else {
+					this.msg.insertAdjacentHTML('afterend', html);
+					value = this.msg.nextSibling;
+				}
+				Object.defineProperty(this, 'refsEl', { value: value });
+				return value;
 			}
 		}, {
 			key: 'trunc',
@@ -12309,16 +12325,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function updatePosition(scroll) {
 				var pv = Pview.top;
 				if (pv) {
-					if (pv.parent.omitted) {
+					var parent = pv.parent;
+					if (parent.omitted) {
 						pv['delete']();
-					} else {
-						var diff = pv._findScrollDiff();
-						if (diff > 1) {
-							if (scroll) {
-								scrollTo(window.pageXOffset, window.pageYOffset - diff);
-							}
-							pv._moveY(diff);
+						return;
+					}
+					if (parent.thr.loadCount === 1 && pv._link.ownerDocument !== doc) {
+						var el = $q('a[href$="' + pv.num + '"]', parent.refsEl);
+						if (el) {
+							pv._link = el;
+						} else {
+							pv['delete']();
+							return;
 						}
+					}
+					var diff = pv._findScrollDiff();
+					if (Math.abs(diff) > 1) {
+						if (scroll) {
+							scrollTo(window.pageXOffset, window.pageYOffset - diff);
+						}
+						pv._moveY(diff);
 					}
 				}
 			}
@@ -12721,6 +12747,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return value;
 			}
 		}, {
+			key: 'refsEl',
+			get: function get() {
+				var el,
+				    value,
+				    html = '<div class="de-refmap"></div>';
+				if (aib.dobr && (el = this.msg.nextElementSibling)) {
+					el.insertAdjacentHTML('beforeend', html);
+					value = el.lastChild;
+				} else {
+					this.msg.insertAdjacentHTML('afterend', html);
+					value = this.msg.nextSibling;
+				}
+				Object.defineProperty(this, 'refsEl', { value: value });
+				return value;
+			}
+		}, {
 			key: 'sage',
 			get: function get() {
 				var value = aib.getSage(this.el);
@@ -12801,19 +12843,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function addRefMap(post, tUrl) {
 		var bStr = '<a href="' + tUrl + aib.anchor,
 		    strNums = Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
-		    html = ['<div class="de-refmap">'];
+		    html = [];
 		post.ref.forEach(function (num) {
 			return html.push(bStr, num, '" class="de-link-ref ', strNums && strNums.indexOf(+num) !== -1 ? 'de-link-hid' : '', '">&gt;&gt;', num, '</a><span class="de-refcomma">, </span>');
 		});
-		html.push('</div>');
-		if (aib.dobr) {
-			var el = post.msg.nextElementSibling;
-			if (el) {
-				el.insertAdjacentHTML('beforeend', html.join(''));
-			}
-		} else {
-			post.msg.insertAdjacentHTML('afterend', html.join(''));
-		}
+		post.refsEl.innerHTML = html.join('');
 	}
 
 	function genRefMap(posts, thrURL) {
@@ -12858,6 +12892,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				if (!lPost.ref.has(pNum)) {
 					lPost.ref.add(pNum);
+					lPost.refsEl.insertAdjacentHTML('beforeend', '<a href="' + aib.anchor + pNum + '" class="de-link-ref' + (strNums && strNums.indexOf(+pNum) !== -1 ? ' de-link-hid' : '') + '">&gt;&gt;' + pNum + '</a><span class="de-refcomma">, </span>');
 					if (Cfg.hideRefPsts && lPost.hidden) {
 						if (!post.hidden) {
 							post.hideRefs();
@@ -12865,18 +12900,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						post.setVisib(true);
 						post.setNote('reference to >>' + lNum);
 					}
-				} else {
-					return;
 				}
 			} else if (lPost.ref.size !== 0) {
 				lPost.ref['delete'](pNum);
 				if (lPost.ref.size === 0) {
+					delete lPost.refsEl;
 					$del($c('de-refmap', lPost.el));
-					return;
+				} else {
+					var el = $q('a[href$="' + pNum + '"]', lPost.refsEl);
+					$del(el.nextSibling);
+					$del(el);
 				}
 			}
-			$del($c('de-refmap', lPost.el));
-			addRefMap(lPost, '');
 		});
 	}
 
@@ -12949,7 +12984,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	Thread.prototype = {
 		hasNew: false,
 		hidden: false,
-		loadedOnce: false,
+		loadCount: 0,
 		next: null,
 		get lastNotDeleted() {
 			var post = this.last;
@@ -13070,13 +13105,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			pr.closeReply();
 			$del($q(aib.qOmitted + ', .de-omitted', thrEl));
-			if (!this.loadedOnce) {
+			if (this.loadCount === 0) {
 				if (op.trunc) {
 					op.updateMsg(replacePost($q(aib.qMsg, form)), maybeSpells.value);
 				}
 				op.ref = new Set();
-				this.loadedOnce = true;
 			}
+			this.loadCount++;
 			this._checkBans(form);
 			aib.checkForm(form, maybeSpells);
 			this._parsePosts(loadedPosts);
@@ -13165,10 +13200,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (needToOmit > 0) {
 				op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + needToOmit + '</div>');
 			}
-			Pview.updatePosition(false);
 			if (smartScroll) {
 				scrollTo(window.pageXOffset, this.next.offsetTop - nextCoord);
 			}
+			Pview.updatePosition(false);
 			if (Cfg.hideReplies) {
 				$c('de-replies-btn', this.btns).firstElementChild.className = 'de-abtn de-replies-hide';
 				if (Cfg.updThrBtns) {
