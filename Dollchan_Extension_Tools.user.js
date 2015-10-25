@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '84a6759';
+	var commit = 'feec6fb';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3559,7 +3559,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			post.setUserVisib(true, date, false);
 		} else {
 			uVis[num][1] = date;
-			post.btns.firstChild.className = 'de-btn-hide-user';
+			post.hideBtn.setAttribute('class', 'de-btn-hide-user');
 			post.userToggled = true;
 		}
 	}
@@ -11203,6 +11203,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							this.thr.setFavorState(false, 'user');return;
 						case 'de-btn-hide':
 						case 'de-btn-hide-user':
+						case 'de-btn-unhide':
+						case 'de-btn-unhide-user':
 							this.toggleUserVisib();
 							return;
 						case 'de-btn-rep':
@@ -11234,6 +11236,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 										case 'de-btn-expthr':
 					case 'de-btn-hide':
 					case 'de-btn-hide-user':
+					case 'de-btn-unhide':
+					case 'de-btn-unhide-user':
 					case 'de-btn-src':
 					case 'de-btn-fav':
 					case 'de-btn-fav-sel':
@@ -11381,7 +11385,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: '_handleButtonEvent',
 			value: function _handleButtonEvent(el, isOutEvent) {
-				var cN = el.className;
+				var cN = el.getAttribute('class');
 				if (cN === 'de-btn-src') {
 					this._addMenu(el, isOutEvent, this._getMenuImgSrc);
 				}
@@ -11392,6 +11396,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				switch (cN) {
 					case 'de-btn-hide':
 					case 'de-btn-hide-user':
+					case 'de-btn-unhide':
+					case 'de-btn-unhide-user':
 						el.title = Lng.togglePost[lang];return;
 					case 'de-btn-expthr':
 						el.title = Lng.expandThrd[lang];return;
@@ -11414,6 +11420,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._menu = new Menu(el, htmlGetter.call(this, el), false, function (el) {
 					return _this26._clickMenu(el);
 				});
+			}
+		}, {
+			key: 'hideBtn',
+			get: function get() {
+				var value = this.btns.firstChild;
+				Object.defineProperty(this, 'hideBtn', { value: value });
+				return value;
 			}
 		}, {
 			key: 'images',
@@ -11552,8 +11565,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function hideContent(hide) {
 				if (hide) {
 					this.el.classList.add('de-post-hide');
+					this.hideBtn.setAttribute('class', this.userToggled ? 'de-btn-unhide-user' : 'de-btn-unhide');
 				} else {
 					this.el.classList.remove('de-post-hide');
+					this.hideBtn.setAttribute('class', this.userToggled ? 'de-btn-hide-user' : 'de-btn-hide');
 				}
 				if (nav.Chrome) {
 					if (hide) {
@@ -11610,9 +11625,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'setUserVisib',
 			value: function setUserVisib(hide, date, sync) {
-				this.setVisib(hide);
-				this.btns.firstChild.className = 'de-btn-hide-user';
 				this.userToggled = true;
+				this.setVisib(hide);
 				if (hide) {
 					this.setNote('');
 					this.ref.hide();
@@ -11886,9 +11900,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: '_handleButtonEvent',
 			value: function _handleButtonEvent(el, isOutEvent) {
 				_get(Object.getPrototypeOf(Post.prototype), '_handleButtonEvent', this).call(this, el, isOutEvent);
-				switch (el.className) {
+				switch (el.getAttribute('class')) {
 					case 'de-btn-hide':
 					case 'de-btn-hide-user':
+					case 'de-btn-unhide':
+					case 'de-btn-unhide-user':
 						if (Cfg.menuHiddBtn) {
 							this._addMenu(el, isOutEvent, this._getMenuHide);
 						}
@@ -12435,7 +12451,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'setSticky',
 			value: function setSticky(val) {
-				this.stickBtn.className = val ? 'de-btn-stick-on' : 'de-btn-stick';
+				this.stickBtn.setAttribute('class', val ? 'de-btn-stick-on' : 'de-btn-stick');
 				this.sticky = val;
 			}
 		}, {
@@ -12445,7 +12461,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var diff,
 				    top = Pview.top;
 				post.toggleUserVisib();
-				if (post === top.parent && post.hidden) {
+				var hidden = post.hidden;
+				if (post === top.parent && hidden) {
 					diff = top._isTop ? top._offsetTop - (window.pageYOffset + post.bottom) : top._offsetTop + top.el.offsetHeight - (window.pageYOffset + post.top);
 				} else {
 					diff = top._findScrollDiff();
@@ -12453,10 +12470,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				scrollTo(window.pageXOffset, window.pageYOffset - diff);
 				top._moveY(diff);
 				$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]', dForm.el), function (el) {
-					el.className = 'de-btn-hide-user de-btn-pview-hide';
-					if (post.hidden) {
+					if (hidden) {
+						el.setAttribute('class', 'de-btn-unhide-user de-btn-pview-hide');
 						el.parentNode.classList.add('de-post-hide');
 					} else {
+						el.setAttribute('class', 'de-btn-hide-user de-btn-pview-hide');
 						el.parentNode.classList.remove('de-post-hide');
 					}
 				});
@@ -13306,7 +13324,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		setFavBtn: function setFavBtn(state) {
 			var el = $c(state ? 'de-btn-fav' : 'de-btn-fav-sel', this.op.btns);
 			if (el) {
-				el.className = state ? 'de-btn-fav-sel' : 'de-btn-fav';
+				el.setAttibute(state ? 'de-btn-fav-sel' : 'de-btn-fav');
 				el.title = state ? Lng.delFav[lang] : Lng.addFav[lang];
 			}
 		},
@@ -15821,7 +15839,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-post-btns { margin-left: 4px; }\
 	.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
 	.de-thread-note { font-style: italic; }\
-	.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on { transform:rotate(0deg); display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ' + (Cfg.postBtnsCSS === 0 ? 'color: #4F7942; font-size: 14px; }\t\t.de-post-hide .de-btn-hide::after { content: "✚"; }\t\t.de-post-hide .de-btn-hide-user::after { content: "✚"; }\t\t.de-btn-expthr::after { content: "⬍"; }\t\t.de-btn-fav::after { content: "★"; }\t\t.de-btn-fav-sel::after { content: "★"; color: red; }\t\t.de-btn-hide::after { content: "✖"; }\t\t.de-btn-hide-user::after { content: "✖"; color: red; }\t\t.de-btn-rep::after { content: "▶"; }\t\t.de-btn-sage::after { content: "❎"; }\t\t.de-btn-src::after { content: "🔎"; }\t\t.de-btn-stick::after { content: "◻"; }\t\t.de-btn-stick-on::after { content: "◼"; }' : Cfg.postBtnsCSS === 1 ? 'width: 14px; height: 14px; }' + gif('.de-post-hide .de-btn-hide', (p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM') + '4SLLcqyHKGRe1E1cARPaSwIGVI3bOIAxc26oD7LqwusZcbMcNC9gLHsMHvFFixwFlGRgQdNAoIQEAOw==') + gif('.de-post-hide .de-btn-hide-user', 'R0lGODlhDgAOAKIAAP+/v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM4SLLcqyHKGRe1E1cARPaSwIGVI3bOIAxc26oD7LqwusZcbMcNC9gLHsMHvFFixwFlGRgQdNAoIQEAOw==') + gif('.de-btn-expthr', p + '5SLLcqyHGJaeoAoAr6dQaF3gZGFpO6AzNoLHMAC8uMAty+7ZwbfYzny02qNSKElkloDQSZNAolJAAADs=') + gif('.de-btn-fav', p + '4SLLcqyHGJaeoAoAradec1Wigk5FoOQhDSq7DyrpyvLRpDb84AO++m+YXiVWMAWRlmSTEntAnIQEAOw==') + gif('.de-btn-fav-sel', 'R0lGODlhDgAOAKIAAP/hAKCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM4SLLcqyHGJaeoAoAradec1Wigk5FoOQhDSq7DyrpyvLRpDb84AO++m+YXiVWMAWRlmSTEntAnIQEAOw==') + gif('.de-btn-hide', p + '7SLLcqyHKGZcUE1ctAPdb0AHeCDpkWi4DM6gtGwtvOg9xDcu0rbc4FiA3lEkGE2QER2kGBgScdColJAAAOw==') + gif('.de-btn-hide-user', 'R0lGODlhDgAOAKIAAL//v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM7SLLcqyHKGZcUE1ctAPdb0AHeCDpkWi4DM6gtGwtvOg9xDcu0rbc4FiA3lEkGE2QER2kGBgScdColJAAAOw==') + gif('.de-btn-rep', p + '2SLLcqyHKGZe0NGABAL5C1XWfM47NsAznqA6qwLbAG8/nfeexvNe91UACywSKxsmAAGs6m4QEADs=') + gif('.de-btn-sage', 'R0lGODlhDgAOAJEAAPDw8EtLS////wAAACH5BAEAAAIALAAAAAAOAA4AAAIZVI55pu0AgZs0SoqTzdnu5l1P1ImcwmBCAQA7') + gif('.de-btn-src', p + '/SLLcqyEuKWKYF4Cl6/VCF26UJHaUIzaDMGjA8Gqt7MJ47Naw3O832kxnay1sx11g6KMtBxEZ9DkdEKTYLCEBADs=') + gif('.de-btn-stick', p + 'xSLLcqyHKGRe9wVYntQBgKGxMKDJDaQJouqzsMrgDTNO27Apzv88YCjAoGRB8yB4hAQA7') + gif('.de-btn-stick-on', 'R0lGODlhDgAOAKIAAL//v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAMxSLLcqyHKGRe9wVYntQBgKGxMKDJDaQJouqzsMrgDTNO27Apzv88YCjAoGRB8yB4hAQA7') : 'width: 14px; height: 14px; }' + gif('.de-post-hide .de-btn-hide', (p = 'R0lGODlhDgAOAJEAAPDw8IyMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAI') + 'ZVI55pu3vAIBI0mOf3LtxDmWUGE7XSTFpAQA7') + gif('.de-post-hide .de-btn-hide-user', 'R0lGODlhDgAOAJEAAP+/v4yMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIZVI55pu3vAIBI0mOf3LtxDmWUGE7XSTFpAQA7 ') + gif('.de-btn-expthr', p + 'bVI55pu0BwEMxzlonlHp331kXxjlYWH4KowkFADs=') + gif('.de-btn-fav', p + 'dVI55pu0BwEtxnlgb3ljxrnHP54AgJSGZxT6MJRQAOw==') + gif('.de-btn-fav-sel', 'R0lGODlhDgAOAJEAAP/hAIyMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIdVI55pu0BwEtxnlgb3ljxrnHP54AgJSGZxT6MJRQAOw==') + gif('.de-btn-hide', p + 'dVI55pu2vQJIN2GNpzPdxGHwep01d5pQlyDoMKBQAOw==') + gif('.de-btn-hide-user', 'R0lGODlhDgAOAJEAAL//v4yMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIdVI55pu2vQJIN2GNpzPdxGHwep01d5pQlyDoMKBQAOw==') + gif('.de-btn-rep', p + 'aVI55pu2vAIBISmrty7rx63FbN1LmiTCUUAAAOw==') + gif('.de-btn-sage', 'R0lGODlhDgAOAJEAAPDw8FBQUP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIZVI55pu0AgZs0SoqTzdnu5l1P1ImcwmBCAQA7') + gif('.de-btn-src', p + 'fVI55pt0ADnRh1uispfvpLkEieGGiZ5IUGmJrw7xCAQA7') + gif('.de-btn-stick', p + 'XVI55pu0PI5j00erutJpfj0XiKDKRUAAAOw==') + gif('.de-btn-stick-on', 'R0lGODlhDgAOAJEAAL//v4yMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIXVI55pu0PI5j00erutJpfj0XiKDKRUAAAOw==')) + (pr.form || pr.oeForm ? '' : '.de-btn-rep { display: none; }') +
+	.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on { transform:rotate(0deg); display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ' + (Cfg.postBtnsCSS === 0 ? 'color: #4F7942; font-size: 14px; }\t\t.de-btn-unhide::after { content: "✚"; }\t\t.de-btn-unhide-user::after { content: "✚"; }\t\t.de-btn-expthr::after { content: "⬍"; }\t\t.de-btn-fav::after { content: "★"; }\t\t.de-btn-fav-sel::after { content: "★"; color: red; }\t\t.de-btn-hide::after { content: "✖"; }\t\t.de-btn-hide-user::after { content: "✖"; color: red; }\t\t.de-btn-rep::after { content: "▶"; }\t\t.de-btn-sage::after { content: "❎"; }\t\t.de-btn-src::after { content: "🔎"; }\t\t.de-btn-stick::after { content: "◻"; }\t\t.de-btn-stick-on::after { content: "◼"; }' : Cfg.postBtnsCSS === 1 ? 'width: 14px; height: 14px; }' + gif('.de-btn-unhide', (p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM') + '4SLLcqyHKGRe1E1cARPaSwIGVI3bOIAxc26oD7LqwusZcbMcNC9gLHsMHvFFixwFlGRgQdNAoIQEAOw==') + gif('.de-btn-unhide-user', 'R0lGODlhDgAOAKIAAP+/v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM4SLLcqyHKGRe1E1cARPaSwIGVI3bOIAxc26oD7LqwusZcbMcNC9gLHsMHvFFixwFlGRgQdNAoIQEAOw==') + gif('.de-btn-expthr', p + '5SLLcqyHGJaeoAoAr6dQaF3gZGFpO6AzNoLHMAC8uMAty+7ZwbfYzny02qNSKElkloDQSZNAolJAAADs=') + gif('.de-btn-fav', p + '4SLLcqyHGJaeoAoAradec1Wigk5FoOQhDSq7DyrpyvLRpDb84AO++m+YXiVWMAWRlmSTEntAnIQEAOw==') + gif('.de-btn-fav-sel', 'R0lGODlhDgAOAKIAAP/hAKCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM4SLLcqyHGJaeoAoAradec1Wigk5FoOQhDSq7DyrpyvLRpDb84AO++m+YXiVWMAWRlmSTEntAnIQEAOw==') + gif('.de-btn-hide', p + '7SLLcqyHKGZcUE1ctAPdb0AHeCDpkWi4DM6gtGwtvOg9xDcu0rbc4FiA3lEkGE2QER2kGBgScdColJAAAOw==') + gif('.de-btn-hide-user', 'R0lGODlhDgAOAKIAAL//v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM7SLLcqyHKGZcUE1ctAPdb0AHeCDpkWi4DM6gtGwtvOg9xDcu0rbc4FiA3lEkGE2QER2kGBgScdColJAAAOw==') + gif('.de-btn-rep', p + '2SLLcqyHKGZe0NGABAL5C1XWfM47NsAznqA6qwLbAG8/nfeexvNe91UACywSKxsmAAGs6m4QEADs=') + gif('.de-btn-sage', 'R0lGODlhDgAOAJEAAPDw8EtLS////wAAACH5BAEAAAIALAAAAAAOAA4AAAIZVI55pu0AgZs0SoqTzdnu5l1P1ImcwmBCAQA7') + gif('.de-btn-src', p + '/SLLcqyEuKWKYF4Cl6/VCF26UJHaUIzaDMGjA8Gqt7MJ47Naw3O832kxnay1sx11g6KMtBxEZ9DkdEKTYLCEBADs=') + gif('.de-btn-stick', p + 'xSLLcqyHKGRe9wVYntQBgKGxMKDJDaQJouqzsMrgDTNO27Apzv88YCjAoGRB8yB4hAQA7') + gif('.de-btn-stick-on', 'R0lGODlhDgAOAKIAAL//v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAMxSLLcqyHKGRe9wVYntQBgKGxMKDJDaQJouqzsMrgDTNO27Apzv88YCjAoGRB8yB4hAQA7') : 'width: 14px; height: 14px; }' + gif('.de-btn-unhide', (p = 'R0lGODlhDgAOAJEAAPDw8IyMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAI') + 'ZVI55pu3vAIBI0mOf3LtxDmWUGE7XSTFpAQA7') + gif('.de-btn-unhide-user', 'R0lGODlhDgAOAJEAAP+/v4yMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIZVI55pu3vAIBI0mOf3LtxDmWUGE7XSTFpAQA7 ') + gif('.de-btn-expthr', p + 'bVI55pu0BwEMxzlonlHp331kXxjlYWH4KowkFADs=') + gif('.de-btn-fav', p + 'dVI55pu0BwEtxnlgb3ljxrnHP54AgJSGZxT6MJRQAOw==') + gif('.de-btn-fav-sel', 'R0lGODlhDgAOAJEAAP/hAIyMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIdVI55pu0BwEtxnlgb3ljxrnHP54AgJSGZxT6MJRQAOw==') + gif('.de-btn-hide', p + 'dVI55pu2vQJIN2GNpzPdxGHwep01d5pQlyDoMKBQAOw==') + gif('.de-btn-hide-user', 'R0lGODlhDgAOAJEAAL//v4yMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIdVI55pu2vQJIN2GNpzPdxGHwep01d5pQlyDoMKBQAOw==') + gif('.de-btn-rep', p + 'aVI55pu2vAIBISmrty7rx63FbN1LmiTCUUAAAOw==') + gif('.de-btn-sage', 'R0lGODlhDgAOAJEAAPDw8FBQUP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIZVI55pu0AgZs0SoqTzdnu5l1P1ImcwmBCAQA7') + gif('.de-btn-src', p + 'fVI55pt0ADnRh1uispfvpLkEieGGiZ5IUGmJrw7xCAQA7') + gif('.de-btn-stick', p + 'XVI55pu0PI5j00erutJpfj0XiKDKRUAAAOw==') + gif('.de-btn-stick-on', 'R0lGODlhDgAOAJEAAL//v4yMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIXVI55pu0PI5j00erutJpfj0XiKDKRUAAAOw==')) + (pr.form || pr.oeForm ? '' : '.de-btn-rep { display: none; }') +
 
 	
 		cont('.de-src-google', 'https://google.com/favicon.ico') + cont('.de-src-yandex', 'https://yandex.ru/favicon.ico') + cont('.de-src-tineye', 'https://tineye.com/favicon.ico') + cont('.de-src-saucenao', 'https://saucenao.com/favicon.ico') + cont('.de-src-iqdb', '//iqdb.org/favicon.ico') +
