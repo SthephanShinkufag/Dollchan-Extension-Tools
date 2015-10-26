@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '67fc822';
+var commit = '1a5cc7b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12014,7 +12014,7 @@ function Initialization(checkDomains) {
 	if(!nav) {
 		initNavFuncs();
 	}
-	doc.body.insertAdjacentHTML('beforeend', `<div style="height: 0; width: 0; position: absolute; visibility: hidden;">
+	doc.body.insertAdjacentHTML('beforeend', `<div style="height: 0; width: 0; position: fixed;">
 	<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 		<defs>
 			<linearGradient id="de-btn-back-gradient" gradientUnits="userSpaceOnUse" x1="50%" y1="100%" x2="50%" y2="0">
