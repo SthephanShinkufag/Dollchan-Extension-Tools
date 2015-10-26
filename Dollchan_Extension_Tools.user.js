@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '47d52b3';
+	var commit = '251da22';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3314,7 +3314,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function checkCSSColor(color) {
-		if (!color || color === 'inherit') {
+		if (!color || color === 'inherit' || color === 'currentColor') {
 			return false;
 		}
 		if (color === 'transparent') {
@@ -14943,7 +14943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (!nav) {
 			initNavFuncs();
 		}
-		doc.body.insertAdjacentHTML('beforeend', '<div style="height: 0; width: 0; position: fixed;">\n\t<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n\t<defs>\n\t\t<linearGradient id="de-btn-back-gradient" gradientUnits="userSpaceOnUse" x1="50%" y1="100%" x2="50%">\n\t\t\t<stop offset="0%" stop-color="#A0A0A0"/>\n\t\t\t<stop offset="50%" stop-color="#505050"/>\n\t\t\t<stop offset="100%" stop-color="#A0A0A0"/>\n\t\t</linearGradient>\n\t\t<style><![CDATA[\n\t\t\t.de-btn-hide-line, .de-btn-unhide-line { stroke: inherit; }\n\t\t\t#de-btn-back, .de-btn-fav-poly, .de-btn-stick-rect, .de-btn-fav-text, .de-btn-stick-text { fill: inherit; }\n\t\t]]></style>\n\t</defs>\n\t<!-- POST ICONS -->\n\t<symbol viewBox="0 0 14 14" id="de-symbol-backbtn">\n\t\t<path id="de-btn-back" stroke="none" d="M11.2 14H2.8C1.3 14 0 12.7 0 11.2V2.8C0 1.3 1.3 0 2.8 0h8.4C12.7 0 14 1.3 14 2.8v8.4c0 1.5-1.3 2.8-2.8 2.8z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-hidebtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-hide-line" fill="none" stroke-width="2.5" stroke-miterlimit="10" d="M3.5 10.5l7-7M10.5 10.5l-7-7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-unhidebtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-unhide-line" fill="none" stroke-width="2" stroke-miterlimit="10" d="M7 3v8M3 7h8"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-repbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-rep-poly" d="M4.2 11.4L11.4 7 4.2 2.6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-expthrbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-expthr-poly" d="M3.5 5L7 2l3.5 3H8.25v4h2.25L7 12 3.5 9h2.25V5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-favbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-fav-poly" d="M7 1.8l1.5 3.1 3.3.5-2.4 2.4 1.1 3.5L7 9l-3.5 2.3 1.1-3.5-2.3-2.4 3.2-.5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-stickbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-stick-rect" d="M4 4h6v6H4z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-sagebtn">\n\t\t<use class="de-btn-sage-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-sage-poly" d="M3 8h8l-4 4.2z"/>\n\t\t<path class="de-btn-sage-line" fill="none" stroke-miterlimit="10" d="M5 6.5h4M5 4.5h4M5 2.5h4"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-srcbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<circle class="de-btn-src-line" fill="none" cx="6" cy="6" r="2.5" stroke-width="2"/>\n\t\t<path class="de-btn-src-line" fill="none" stroke-width="2" stroke-miterlimit="10" d="M8 8l3 3"/>\n\t</symbol>\n\t<!-- NAVIGATION PANEL ICONS -->\n\t<symbol viewBox="0 0 7 7" id="de-symbol-navarrow">\n\t\t<path fill="#FFF" d="M6 3.5L2 0v7z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-navup">\n\t\t<path fill="none" stroke="#FFF" stroke-width="3" stroke-miterlimit="10" d="M3 22.5l9-9 9 9M3 13.5l9-9 9 9"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-navdown">\n\t\t<path fill="none" stroke="#FFF" stroke-width="3" stroke-miterlimit="10" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>\n\t</symbol>\n\t</svg>\n\t</div>');
+		doc.body.insertAdjacentHTML('beforeend', '<div style="height: 0; width: 0; position: fixed;">\n\t<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n\t<defs>\n\t\t<linearGradient id="de-btn-back-gradient" gradientUnits="userSpaceOnUse" x1="50%" y1="100%" x2="50%">\n\t\t\t<stop offset="0%" stop-color="#A0A0A0"/>\n\t\t\t<stop offset="50%" stop-color="#505050"/>\n\t\t\t<stop offset="100%" stop-color="#A0A0A0"/>\n\t\t</linearGradient>\n\t\t<style><![CDATA[\n\t\t\t#de-btn-back { fill: inherit; stroke: none; }\n\t\t\t.de-svg-stroke { stroke: currentColor; fill: none; }\n\t\t\t.de-svg-fill { stroke: none; fill: currentColor; }\n\t\t]]></style>\n\t</defs>\n\t<!-- POST ICONS -->\n\t<symbol viewBox="0 0 14 14" id="de-symbol-backbtn">\n\t\t<path id="de-btn-back" d="M11.2 14H2.8C1.3 14 0 12.7 0 11.2V2.8C0 1.3 1.3 0 2.8 0h8.4C12.7 0 14 1.3 14 2.8v8.4c0 1.5-1.3 2.8-2.8 2.8z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-hidebtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-hide-icon de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" d="M3.5 10.5l7-7M10.5 10.5l-7-7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-unhidebtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-unhide-icon de-svg-stroke" stroke-width="2" stroke-miterlimit="10" d="M7 3v8M3 7h8"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-repbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-rep-icon de-svg-fill" d="M4.2 11.4L11.4 7 4.2 2.6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-expthrbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-expthr-icon de-svg-fill" d="M3.5 5L7 2l3.5 3H8.25v4h2.25L7 12 3.5 9h2.25V5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-favbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-fav-icon de-svg-fill" d="M7 1.8l1.5 3.1 3.3.5-2.4 2.4 1.1 3.5L7 9l-3.5 2.3 1.1-3.5-2.3-2.4 3.2-.5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-stickbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-stick-icon de-svg-fill" d="M4 4h6v6H4z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-sagebtn">\n\t\t<use class="de-btn-sage-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-sage-icon de-svg-fill" d="M3 8h8l-4 4.2z"/>\n\t\t<path class="de-btn-sage-icon de-svg-stroke" stroke-miterlimit="10" d="M5 6.5h4M5 4.5h4M5 2.5h4"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-srcbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<circle class="de-btn-src-icon" cx="6" cy="6" r="2.5" stroke-width="2"/>\n\t\t<path class="de-btn-src-icon" stroke-width="2" stroke-miterlimit="10" d="M8 8l3 3"/>\n\t</symbol>\n\t<!-- NAVIGATION PANEL ICONS -->\n\t<symbol viewBox="0 0 7 7" id="de-symbol-navarrow">\n\t\t<path class="de-thr-navicon de-svg-fill" d="M6 3.5L2 0v7z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-navup">\n\t\t<path class="de-thr-navicon de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 22.5l9-9 9 9M3 13.5l9-9 9 9"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-navdown">\n\t\t<path class="de-thr-navicon de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>\n\t</symbol>\n\t</svg>\n\t</div>');
 		doc.defaultView.addEventListener('storage', function (e) {
 			var data,
 			    temp,
@@ -15990,6 +15990,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\
 	#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\
 	#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\
+	.de-thr-navicon { color: #F5F5F5; }\
 	:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }' +
 
 	
@@ -16031,20 +16032,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var x = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }';
 		if (Cfg.postBtnsCSS === 0) {
 			x += '.de-btn-back, .de-btn-sage-back { display: none }\
-		.de-btn-fav > use, .de-btn-stick > use, .de-btn-expthr-poly, .de-btn-rep-poly { fill: #4F7942; }\
-		.de-btn-fav-sel > use, .de-btn-stick-on > use, .de-btn-sage-poly { fill: #F00; }\
-		.de-btn-hide-use, .de-btn-unhide-use, .de-btn-src-line { stroke: #4F7942; }\
-		.de-btn-hide-user > .de-btn-hide-use, .de-btn-unhide-user > .de-btn-unhide-use, .de-btn-sage-line { stroke: #F00; }';
+		.de-btn-fav > use, .de-btn-stick > use, .de-btn-expthr-icon, .de-btn-rep-icon, .de-btn-hide-use, .de-btn-unhide-use, .de-btn-src-icon { color: #4F7942; }\
+		.de-btn-fav-sel > use, .de-btn-stick-on > use, .de-btn-sage-icon, .de-btn-hide-user > .de-btn-hide-use, .de-btn-unhide-user > .de-btn-unhide-use, { color: #F00; }';
 		} else {
-			x += '.de-btn-hide-use, .de-btn-unhide-use, .de-btn-src-line { stroke: #FFF; }\
-		.de-btn-hide-user > .de-btn-hide-use { stroke: #BFFFBF; }\
-		.de-btn-unhide-user > .de-btn-unhide-use { stroke: #FFBFBF; }\
-		.de-btn-fav > use, .de-btn-stick > use, .de-btn-expthr-poly, .de-btn-rep-poly { fill: #FFF; }\
-		.de-btn-fav-sel > use { fill: #FFE100; }\
-		.de-btn-stick-on > use { fill: #BFFFBF; }\
-		.de-btn-sage-back { fill: #4B4B4B; }\
-		.de-btn-sage-poly { fill: #F0F0F0; }\
-		.de-btn-sage-line { stroke: #F0F0F0; }\
+			x += '.de-btn-hide-use, .de-btn-unhide-use, .de-btn-src-icon, .de-btn-sage-icon, .de-btn-fav > use, .de-btn-stick > use, .de-btn-expthr-icon, .de-btn-rep-icon { color: #F5F5F5; }\
+		.de-btn-hide-user > .de-btn-hide-use { color: #BFFFBF; }\
+		.de-btn-unhide-user > .de-btn-unhide-use { color: #FFBFBF; }\
+		.de-btn-fav-sel > use { color: #FFE100; }\
+		.de-btn-stick-on > use { color: #BFFFBF; }\
+		.de-btn-sage-back { color: #4B4B4B; }\
 		.de-btn-back { fill: ' + (Cfg.postBtnsCSS === 1 ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }';
 		}
 		if (Cfg.hideReplies || Cfg.updThrBtns) {

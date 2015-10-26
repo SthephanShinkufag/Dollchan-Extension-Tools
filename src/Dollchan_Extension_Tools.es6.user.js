@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '47d52b3';
+var commit = '251da22';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1373,7 +1373,7 @@ function downloadBlob(blob, name) {
 }
 
 function checkCSSColor(color) {
-	if(!color || color === 'inherit') {
+	if(!color || color === 'inherit' || color === 'currentColor') {
 		return false;
 	}
 	if(color === 'transparent') {
@@ -12051,57 +12051,58 @@ function Initialization(checkDomains) {
 			<stop offset="100%" stop-color="#A0A0A0"/>
 		</linearGradient>
 		<style><![CDATA[
-			.de-btn-hide-line, .de-btn-unhide-line { stroke: inherit; }
-			#de-btn-back, .de-btn-fav-poly, .de-btn-stick-rect, .de-btn-fav-text, .de-btn-stick-text { fill: inherit; }
+			#de-btn-back { fill: inherit; stroke: none; }
+			.de-svg-stroke { stroke: currentColor; fill: none; }
+			.de-svg-fill { stroke: none; fill: currentColor; }
 		]]></style>
 	</defs>
 	<!-- POST ICONS -->
 	<symbol viewBox="0 0 14 14" id="de-symbol-backbtn">
-		<path id="de-btn-back" stroke="none" d="M11.2 14H2.8C1.3 14 0 12.7 0 11.2V2.8C0 1.3 1.3 0 2.8 0h8.4C12.7 0 14 1.3 14 2.8v8.4c0 1.5-1.3 2.8-2.8 2.8z"/>
+		<path id="de-btn-back" d="M11.2 14H2.8C1.3 14 0 12.7 0 11.2V2.8C0 1.3 1.3 0 2.8 0h8.4C12.7 0 14 1.3 14 2.8v8.4c0 1.5-1.3 2.8-2.8 2.8z"/>
 	</symbol>
 	<symbol viewBox="0 0 14 14" id="de-symbol-hidebtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
-		<path class="de-btn-hide-line" fill="none" stroke-width="2.5" stroke-miterlimit="10" d="M3.5 10.5l7-7M10.5 10.5l-7-7"/>
+		<path class="de-btn-hide-icon de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" d="M3.5 10.5l7-7M10.5 10.5l-7-7"/>
 	</symbol>
 	<symbol viewBox="0 0 14 14" id="de-symbol-unhidebtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
-		<path class="de-btn-unhide-line" fill="none" stroke-width="2" stroke-miterlimit="10" d="M7 3v8M3 7h8"/>
+		<path class="de-btn-unhide-icon de-svg-stroke" stroke-width="2" stroke-miterlimit="10" d="M7 3v8M3 7h8"/>
 	</symbol>
 	<symbol viewBox="0 0 14 14" id="de-symbol-repbtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
-		<path class="de-btn-rep-poly" d="M4.2 11.4L11.4 7 4.2 2.6z"/>
+		<path class="de-btn-rep-icon de-svg-fill" d="M4.2 11.4L11.4 7 4.2 2.6z"/>
 	</symbol>
 	<symbol viewBox="0 0 14 14" id="de-symbol-expthrbtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
-		<path class="de-btn-expthr-poly" d="M3.5 5L7 2l3.5 3H8.25v4h2.25L7 12 3.5 9h2.25V5z"/>
+		<path class="de-btn-expthr-icon de-svg-fill" d="M3.5 5L7 2l3.5 3H8.25v4h2.25L7 12 3.5 9h2.25V5z"/>
 	</symbol>
 	<symbol viewBox="0 0 14 14" id="de-symbol-favbtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
-		<path class="de-btn-fav-poly" d="M7 1.8l1.5 3.1 3.3.5-2.4 2.4 1.1 3.5L7 9l-3.5 2.3 1.1-3.5-2.3-2.4 3.2-.5z"/>
+		<path class="de-btn-fav-icon de-svg-fill" d="M7 1.8l1.5 3.1 3.3.5-2.4 2.4 1.1 3.5L7 9l-3.5 2.3 1.1-3.5-2.3-2.4 3.2-.5z"/>
 	</symbol>
 	<symbol viewBox="0 0 14 14" id="de-symbol-stickbtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
-		<path class="de-btn-stick-rect" d="M4 4h6v6H4z"/>
+		<path class="de-btn-stick-icon de-svg-fill" d="M4 4h6v6H4z"/>
 	</symbol>
 	<symbol viewBox="0 0 14 14" id="de-symbol-sagebtn">
 		<use class="de-btn-sage-back" xlink:href="#de-symbol-backbtn"/>
-		<path class="de-btn-sage-poly" d="M3 8h8l-4 4.2z"/>
-		<path class="de-btn-sage-line" fill="none" stroke-miterlimit="10" d="M5 6.5h4M5 4.5h4M5 2.5h4"/>
+		<path class="de-btn-sage-icon de-svg-fill" d="M3 8h8l-4 4.2z"/>
+		<path class="de-btn-sage-icon de-svg-stroke" stroke-miterlimit="10" d="M5 6.5h4M5 4.5h4M5 2.5h4"/>
 	</symbol>
 	<symbol viewBox="0 0 14 14" id="de-symbol-srcbtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
-		<circle class="de-btn-src-line" fill="none" cx="6" cy="6" r="2.5" stroke-width="2"/>
-		<path class="de-btn-src-line" fill="none" stroke-width="2" stroke-miterlimit="10" d="M8 8l3 3"/>
+		<circle class="de-btn-src-icon" cx="6" cy="6" r="2.5" stroke-width="2"/>
+		<path class="de-btn-src-icon" stroke-width="2" stroke-miterlimit="10" d="M8 8l3 3"/>
 	</symbol>
 	<!-- NAVIGATION PANEL ICONS -->
 	<symbol viewBox="0 0 7 7" id="de-symbol-navarrow">
-		<path fill="#FFF" d="M6 3.5L2 0v7z"/>
+		<path class="de-thr-navicon de-svg-fill" d="M6 3.5L2 0v7z"/>
 	</symbol>
 	<symbol viewBox="0 0 24 24" id="de-symbol-navup">
-		<path fill="none" stroke="#FFF" stroke-width="3" stroke-miterlimit="10" d="M3 22.5l9-9 9 9M3 13.5l9-9 9 9"/>
+		<path class="de-thr-navicon de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 22.5l9-9 9 9M3 13.5l9-9 9 9"/>
 	</symbol>
 	<symbol viewBox="0 0 24 24" id="de-symbol-navdown">
-		<path fill="none" stroke="#FFF" stroke-width="3" stroke-miterlimit="10" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>
+		<path class="de-thr-navicon de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>
 	</symbol>
 	</svg>
 	</div>`);
@@ -13230,6 +13231,7 @@ function scriptCSS() {
 	#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\
 	#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\
 	#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\
+	.de-thr-navicon { color: #F5F5F5; }\
 	:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }' +
 
 	// Other
@@ -13285,20 +13287,15 @@ function updateCSS() {
 	var x = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }';
 	if(Cfg.postBtnsCSS === 0) {
 		x += '.de-btn-back, .de-btn-sage-back { display: none }\
-		.de-btn-fav > use, .de-btn-stick > use, .de-btn-expthr-poly, .de-btn-rep-poly { fill: #4F7942; }\
-		.de-btn-fav-sel > use, .de-btn-stick-on > use, .de-btn-sage-poly { fill: #F00; }\
-		.de-btn-hide-use, .de-btn-unhide-use, .de-btn-src-line { stroke: #4F7942; }\
-		.de-btn-hide-user > .de-btn-hide-use, .de-btn-unhide-user > .de-btn-unhide-use, .de-btn-sage-line { stroke: #F00; }';
+		.de-btn-fav > use, .de-btn-stick > use, .de-btn-expthr-icon, .de-btn-rep-icon, .de-btn-hide-use, .de-btn-unhide-use, .de-btn-src-icon { color: #4F7942; }\
+		.de-btn-fav-sel > use, .de-btn-stick-on > use, .de-btn-sage-icon, .de-btn-hide-user > .de-btn-hide-use, .de-btn-unhide-user > .de-btn-unhide-use, { color: #F00; }';
 	} else {
-		x += '.de-btn-hide-use, .de-btn-unhide-use, .de-btn-src-line { stroke: #FFF; }\
-		.de-btn-hide-user > .de-btn-hide-use { stroke: #BFFFBF; }\
-		.de-btn-unhide-user > .de-btn-unhide-use { stroke: #FFBFBF; }\
-		.de-btn-fav > use, .de-btn-stick > use, .de-btn-expthr-poly, .de-btn-rep-poly { fill: #FFF; }\
-		.de-btn-fav-sel > use { fill: #FFE100; }\
-		.de-btn-stick-on > use { fill: #BFFFBF; }\
-		.de-btn-sage-back { fill: #4B4B4B; }\
-		.de-btn-sage-poly { fill: #F0F0F0; }\
-		.de-btn-sage-line { stroke: #F0F0F0; }\
+		x += '.de-btn-hide-use, .de-btn-unhide-use, .de-btn-src-icon, .de-btn-sage-icon, .de-btn-fav > use, .de-btn-stick > use, .de-btn-expthr-icon, .de-btn-rep-icon { color: #F5F5F5; }\
+		.de-btn-hide-user > .de-btn-hide-use { color: #BFFFBF; }\
+		.de-btn-unhide-user > .de-btn-unhide-use { color: #FFBFBF; }\
+		.de-btn-fav-sel > use { color: #FFE100; }\
+		.de-btn-stick-on > use { color: #BFFFBF; }\
+		.de-btn-sage-back { color: #4B4B4B; }\
 		.de-btn-back { fill: ' + (Cfg.postBtnsCSS === 1 ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }';
 	}
 	if(Cfg.hideReplies || Cfg.updThrBtns) {
