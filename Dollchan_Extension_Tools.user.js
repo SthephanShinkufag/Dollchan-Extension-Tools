@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '2b385f0';
+	var commit = 'aac69c7';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15877,7 +15877,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-spell-btn { padding: 0 4px; }\
 	#de-spell-editor { display: flex; align-items: center; padding: 2px 0; }\
 	#de-spell-panel { display: flex; }\
-	#de-spell-txt { padding: 2px !important; width: 100%; height: 196px; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
+	#de-spell-txt { padding: 2px !important; width: 100%; min-height: 196px; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
 	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; width: 2em; height: 196px; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\
 	#de-spell-rowmeter:lang(de) { background-color: #777; }' +
 
