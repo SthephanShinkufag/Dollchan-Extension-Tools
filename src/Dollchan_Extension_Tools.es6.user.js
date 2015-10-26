@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '9ea1217';
+var commit = '1b8bd18';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1877,7 +1877,8 @@ var panel = Object.create({
 				Lng.panelBtn[id][lang] + '" href="' + href + '"></a>';
 		(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin',
 			'<div id="de-main" lang="' + getThemeLang() + '"><div id="de-panel">' +
-				'<svg id="de-panel-logo"><title>' + Lng.panelBtn.attach[lang] + '</title><use xlink:href="#de-symbol-panel-logo"/></svg>' +
+				// XXX: nav.Presto: remove div wrapper
+				'<div id="de-panel-logo-wrapper"><svg id="de-panel-logo"><title>' + Lng.panelBtn.attach[lang] + '</title><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
 				'<span id="de-panel-buttons"' + (Cfg.expandPanel ? '>' : ' style="display: none;">') +
 				(Cfg.disabled ? pButton('enable') :
 					pButton('cfg') +
@@ -12065,7 +12066,8 @@ function Initialization(checkDomains) {
 	</symbol>
 	<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-hidebtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
-		<path class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" d="M3.5 10.5l7-7M10.5 10.5l-7-7"/>
+		<line class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" x1="3.5" y1="10.5" x2="10.5" y2="3.5"/>
+		<line class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" x1="10.5" y1="10.5" x2="3.5" y2="3.5"/>
 	</symbol>
 	<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-unhidebtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
@@ -12095,7 +12097,7 @@ function Initialization(checkDomains) {
 	<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-srcbtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
 		<circle class="de-svg-stroke" cx="6" cy="6" r="2.5" stroke-width="2"/>
-		<path class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" d="M8 8l3 3"/>
+		<line class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" x1="8" y1="8" x2="11" y2="11"/>
 	</symbol>
 	<!-- NAVIGATION PANEL ICONS -->
 	<symbol enable-background="new 0 0 7 7" viewBox="0 0 7 7" id="de-symbol-navarrow">
@@ -13049,7 +13051,8 @@ function scriptCSS() {
 
 	// Main panel
 	'#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\
-	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; height: 25px; width: 25px; }\
+	#de-panel-logo-wrapper { flex: none; margin: auto 3px auto 0; }\
+	#de-panel-logo-wrapper, #de-panel-logo { cursor: pointer; height: 25px; width: 25px; }\
 	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\
 	#de-panel-buttons:lang(en), #de-panel-info:lang(en) { border-color: #8fbbed; }\
 	#de-panel-buttons:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
