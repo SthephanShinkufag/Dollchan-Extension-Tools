@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '17c7fc1';
+var commit = 'dc9c2d8';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12098,7 +12098,7 @@ function Initialization(checkDomains) {
 				<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="6" y1="5.5" x2="8" y2="5.5"/>
 				<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="6" y1="7.5" x2="8" y2="7.5"/>
 			</g>
-			<g class="de-btn-text"><text x="1" y="12" class="de-btn-src-text">&#xD83D;&#xDD0E;</text></g>
+			<g class="de-btn-text"><text x="1" y="12" class="de-btn-src-text">&#x1F50E;</text></g>
 		</symbol>
 	</svg>
 	</div>`);
