@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'b097eb9';
+	var commit = 'b465012';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3331,6 +3331,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return image.style.color !== 'rgb(255, 255, 255)';
 	}
 
+	function fixEventEl(el) {
+		var svg;
+		if (nav.Presto) {
+			svg = el.correspondingUseElement;
+			if (svg) {
+				svg = svg.ownerSVGElement;
+			}
+		} else {
+			svg = el.ownerSVGElement;
+		}
+		return svg || el;
+	}
+
 
 
 
@@ -3874,9 +3887,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		handleEvent: function handleEvent(e) {
 			var _this5 = this;
 
+			var el = fixEventEl(e.target);
 			switch (e.type) {
 				case 'click':
-					switch (e.target.id) {
+					switch (el.id) {
 						case 'de-panel-logo':
 							if (Cfg.expandPanel && !$c('de-win-active', doc)) {
 								this._el.lastChild.style.display = 'none';
@@ -3923,9 +3937,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 'de-panel-audio-off':
 							if (updater.toggleAudio(0)) {
 								updater.enable();
-								e.target.id = 'de-panel-audio-on';
+								el.id = 'de-panel-audio-on';
 							} else {
-								e.target.id = 'de-panel-audio-off';
+								el.id = 'de-panel-audio-off';
 							}
 							$del($c('de-menu', doc));
 							break;
@@ -3945,21 +3959,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						clearTimeout(this._hideTO);
 						this._el.lastChild.style.display = '';
 					}
-					switch (e.target.id) {
+					switch (el.id) {
 						case 'de-panel-cfg':
-							KeyEditListener.setTitle(e.target, 10);break;
+							KeyEditListener.setTitle(el, 10);break;
 						case 'de-panel-hid':
-							KeyEditListener.setTitle(e.target, 7);break;
+							KeyEditListener.setTitle(el, 7);break;
 						case 'de-panel-fav':
-							KeyEditListener.setTitle(e.target, 6);break;
+							KeyEditListener.setTitle(el, 6);break;
 						case 'de-panel-vid':
-							KeyEditListener.setTitle(e.target, 18);break;
+							KeyEditListener.setTitle(el, 18);break;
 						case 'de-panel-goback':
-							KeyEditListener.setTitle(e.target, 4);break;
+							KeyEditListener.setTitle(el, 4);break;
 						case 'de-panel-gonext':
-							KeyEditListener.setTitle(e.target, 17);break;
+							KeyEditListener.setTitle(el, 17);break;
 						case 'de-panel-maskimg':
-							KeyEditListener.setTitle(e.target, 9);break;
+							KeyEditListener.setTitle(el, 9);break;
 						case 'de-panel-refresh':
 							if (aib.t) {
 								return;
@@ -3967,7 +3981,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 												case 'de-panel-savethr':
 						case 'de-panel-audio-off':
 							this._menuTO = setTimeout(function () {
-								var menu = addMenu(e.target);
+								var menu = addMenu(el);
 								menu.onover = function () {
 									return clearTimeout(_this5._hideTO);
 								};
@@ -3980,7 +3994,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				default:
 				
 					this._prepareToHide();
-					switch (e.target.id) {
+					switch (el.id) {
 						case 'de-panel-refresh':
 						case 'de-panel-savethr':
 						case 'de-panel-audio-off':
@@ -3996,7 +4010,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var href = arguments.length <= 1 || arguments[1] === undefined ? '#' : arguments[1];
 				return '<a id="de-panel-' + id + '" class="de-abtn de-panel-button" title="' + Lng.panelBtn[id][lang] + '" href="' + href + '"></a>';
 			};
-			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '<div id="de-main" lang="' + getThemeLang() + '"><div id="de-panel">' + '<span id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '"></span>' + '<span id="de-panel-buttons"' + (Cfg.expandPanel ? '>' : ' style="display: none;">') + (Cfg.disabled ? pButton('enable') : pButton('cfg') + pButton('hid') + pButton('fav') + (!Cfg.addYouTube ? '' : pButton('vid')) + (localRun ? '' : pButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : pButton('goback', aib.getPageUrl(aib.b, aib.page - 1))) + (isThr || aib.page === aib.lastPage ? '' : pButton('gonext', aib.getPageUrl(aib.b, aib.page + 1)))) + pButton('goup') + pButton('godown') + (imgLen === 0 ? '' : pButton('expimg') + pButton('maskimg') + (nav.Presto || localRun ? '' : (Cfg.preLoadImgs ? '' : pButton('preimg')) + (!isThr ? '' : pButton('savethr')))) + (!isThr || localRun ? '' : pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') + (nav.Safari ? '' : pButton('audio-off'))) + (!aib.mak && !aib.tiny && !aib.fch && !aib.iich ? '' : pButton('catalog', aib.prot + '//' + aib.host + '/' + aib.b + '/catalog' + (aib.iich ? 'ue' : '') + '.html')) + pButton('enable') + (!isThr ? '' : '<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' + dForm.firstThr.pcount + '/' + imgLen + '</span>')) + '</span>' + '</div>' + (Cfg.disabled ? '' : '<div id="de-popup"></div><hr style="clear: both;">') + '</div>');
+			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '<div id="de-main" lang="' + getThemeLang() + '"><div id="de-panel">' + '<svg id="de-panel-logo"><title>' + Lng.panelBtn.attach[lang] + '</title><use xlink:href="#de-symbol-panel-logo"/></svg>' + '<span id="de-panel-buttons"' + (Cfg.expandPanel ? '>' : ' style="display: none;">') + (Cfg.disabled ? pButton('enable') : pButton('cfg') + pButton('hid') + pButton('fav') + (!Cfg.addYouTube ? '' : pButton('vid')) + (localRun ? '' : pButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : pButton('goback', aib.getPageUrl(aib.b, aib.page - 1))) + (isThr || aib.page === aib.lastPage ? '' : pButton('gonext', aib.getPageUrl(aib.b, aib.page + 1)))) + pButton('goup') + pButton('godown') + (imgLen === 0 ? '' : pButton('expimg') + pButton('maskimg') + (nav.Presto || localRun ? '' : (Cfg.preLoadImgs ? '' : pButton('preimg')) + (!isThr ? '' : pButton('savethr')))) + (!isThr || localRun ? '' : pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') + (nav.Safari ? '' : pButton('audio-off'))) + (!aib.mak && !aib.tiny && !aib.fch && !aib.iich ? '' : pButton('catalog', aib.prot + '//' + aib.host + '/' + aib.b + '/catalog' + (aib.iich ? 'ue' : '') + '.html')) + pButton('enable') + (!isThr ? '' : '<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' + dForm.firstThr.pcount + '/' + imgLen + '</span>')) + '</span>' + '</div>' + (Cfg.disabled ? '' : '<div id="de-popup"></div><hr style="clear: both;">') + '</div>');
 			this._el = $id('de-panel');
 			this._el.addEventListener('click', this, true);
 			this._el.addEventListener('mouseover', this);
@@ -11150,22 +11164,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function handleEvent(e) {
 				var _this23 = this;
 
-				var svg,
-				    temp,
-				    el = e.target,
+				var temp,
+				    el = fixEventEl(e.target),
 				    type = e.type,
 				    isOutEvent = type === 'mouseout';
-				if (nav.Presto) {
-					svg = el.correspondingUseElement;
-					if (svg) {
-						svg = svg.ownerSVGElement;
-					}
-				} else {
-					svg = el.ownerSVGElement;
-				}
-				if (svg) {
-					el = svg;
-				}
 				if (type === 'click') {
 					if (e.button !== 0) {
 						return;
@@ -13659,9 +13661,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_currentThr: null,
 		_visible: false,
 		_handleClick: function _handleClick(e) {
-			var target = e.target,
-			    svg = target.ownerSVGElement;
-			var el = svg ? svg.parentNode : target.tagName.toLowerCase() === 'svg' ? target.parentNode : target;
+			var el = fixEventEl(e.target);
+			if (el.tagName.toLowerCase() === 'svg') {
+				el = el.parentNode;
+			}
 			switch (el.id) {
 				case 'de-thr-navup':
 					scrollTo(window.pageXOffset, window.pageYOffset + this._currentThr.top - 50);
@@ -14943,7 +14946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (!nav) {
 			initNavFuncs();
 		}
-		doc.body.insertAdjacentHTML('beforeend', '<div style="height: 0; width: 0; position: fixed;">\n\t<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n\t<defs>\n\t\t<linearGradient id="de-btn-back-gradient" gradientUnits="userSpaceOnUse" x1="50%" y1="100%" x2="50%">\n\t\t\t<stop offset="0%" stop-color="#A0A0A0"/>\n\t\t\t<stop offset="50%" stop-color="#505050"/>\n\t\t\t<stop offset="100%" stop-color="#A0A0A0"/>\n\t\t</linearGradient>\n\t\t<style><![CDATA[\n\t\t\t#de-btn-back { fill: inherit; stroke: none; }\n\t\t\t.de-svg-stroke { stroke: currentColor; fill: none; }\n\t\t\t.de-svg-fill { stroke: none; fill: currentColor; }\n\t\t]]></style>\n\t</defs>\n\t<!-- POST ICONS -->\n\t<symbol viewBox="0 0 14 14" id="de-symbol-backbtn">\n\t\t<path id="de-btn-back" d="M11.2 14H2.8C1.3 14 0 12.7 0 11.2V2.8C0 1.3 1.3 0 2.8 0h8.4C12.7 0 14 1.3 14 2.8v8.4c0 1.5-1.3 2.8-2.8 2.8z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-hidebtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-hide-icon de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" d="M3.5 10.5l7-7M10.5 10.5l-7-7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-unhidebtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-unhide-icon de-svg-stroke" stroke-width="2" stroke-miterlimit="10" d="M7 3v8M3 7h8"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-repbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-rep-icon de-svg-fill" d="M4.2 11.4L11.4 7 4.2 2.6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-expthrbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-expthr-icon de-svg-fill" d="M3.5 5L7 2l3.5 3H8.25v4h2.25L7 12 3.5 9h2.25V5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-favbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-fav-icon de-svg-fill" d="M7 1.8l1.5 3.1 3.3.5-2.4 2.4 1.1 3.5L7 9l-3.5 2.3 1.1-3.5-2.3-2.4 3.2-.5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-stickbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-stick-icon de-svg-fill" d="M4 4h6v6H4z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-sagebtn">\n\t\t<use class="de-btn-sage-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-sage-icon de-svg-fill" d="M3 8h8l-4 4.2z"/>\n\t\t<path class="de-btn-sage-icon de-svg-stroke" stroke-miterlimit="10" d="M5 6.5h4M5 4.5h4M5 2.5h4"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-srcbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<circle class="de-btn-src-icon de-svg-stroke" cx="6" cy="6" r="2.5" stroke-width="2"/>\n\t\t<path class="de-btn-src-icon de-svg-stroke" stroke-width="2" stroke-miterlimit="10" d="M8 8l3 3"/>\n\t</symbol>\n\t<!-- NAVIGATION PANEL ICONS -->\n\t<symbol viewBox="0 0 7 7" id="de-symbol-navarrow">\n\t\t<path class="de-thr-navicon de-svg-fill" d="M6 3.5L2 0v7z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-navup">\n\t\t<path class="de-thr-navicon de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 22.5l9-9 9 9M3 13.5l9-9 9 9"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-navdown">\n\t\t<path class="de-thr-navicon de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>\n\t</symbol>\n\t</svg>\n\t</div>');
+		doc.body.insertAdjacentHTML('beforeend', '<div style="height: 0; width: 0; position: fixed;">\n\t<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n\t<defs>\n\t\t<linearGradient id="de-btn-back-gradient" gradientUnits="userSpaceOnUse" x1="50%" y1="100%" x2="50%">\n\t\t\t<stop offset="0%" stop-color="#A0A0A0"/>\n\t\t\t<stop offset="50%" stop-color="#505050"/>\n\t\t\t<stop offset="100%" stop-color="#A0A0A0"/>\n\t\t</linearGradient>\n\t\t<style><![CDATA[\n\t\t\t#de-btn-back { fill: inherit; stroke: none; }\n\t\t\t.de-svg-stroke { stroke: currentColor; fill: none; }\n\t\t\t.de-svg-fill { stroke: none; fill: currentColor; }\n\t\t]]></style>\n\t</defs>\n\t<!-- POST ICONS -->\n\t<symbol viewBox="0 0 14 14" id="de-symbol-backbtn">\n\t\t<path id="de-btn-back" d="M11.2 14H2.8C1.3 14 0 12.7 0 11.2V2.8C0 1.3 1.3 0 2.8 0h8.4C12.7 0 14 1.3 14 2.8v8.4c0 1.5-1.3 2.8-2.8 2.8z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-hidebtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" d="M3.5 10.5l7-7M10.5 10.5l-7-7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-unhidebtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" d="M7 3v8M3 7h8"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-repbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-btn-rep-icon de-svg-fill" d="M4.2 11.4L11.4 7 4.2 2.6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-expthrbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-svg-fill" d="M3.5 5L7 2l3.5 3H8.25v4h2.25L7 12 3.5 9h2.25V5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-favbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-svg-fill" d="M7 1.8l1.5 3.1 3.3.5-2.4 2.4 1.1 3.5L7 9l-3.5 2.3 1.1-3.5-2.3-2.4 3.2-.5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-stickbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-svg-fill" d="M4 4h6v6H4z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-sagebtn">\n\t\t<use class="de-btn-sage-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-svg-fill" d="M3 8h8l-4 4.2z"/>\n\t\t<path class="de-svg-stroke" stroke-miterlimit="10" d="M5 6.5h4M5 4.5h4M5 2.5h4"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-srcbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<circle class="de-svg-stroke" cx="6" cy="6" r="2.5" stroke-width="2"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" d="M8 8l3 3"/>\n\t</symbol>\n\t<!-- NAVIGATION PANEL ICONS -->\n\t<symbol viewBox="0 0 7 7" id="de-symbol-navarrow">\n\t\t<path class="de-svg-fill" d="M6 3.5L2 0v7z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-navup">\n\t\t<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 22.5l9-9 9 9M3 13.5l9-9 9 9"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-navdown">\n\t\t<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>\n\t</symbol>\n\t<!-- MAIN PANEL -->\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-logo">\n\t\t<path class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" d="M22 6h-8" style=""/>\n\t\t<path class="de-svg-stroke" stroke-width="4" stroke-miterlimit="10" d="M14 5v17" style=""/>\n\t\t<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" style="" d="M22 20.5H12c-2.8 0-5.7 0-5.7-4s2.8-4 5.7-4H21"/>\n\t</symbol>\n\t</svg>\n\t</div>');
 		doc.defaultView.addEventListener('storage', function (e) {
 			var data,
 			    temp,
@@ -15877,15 +15880,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	#de-spell-rowmeter:lang(de) { background-color: #777; }' +
 
 	
-		'#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; }\
-	#de-panel-logo { flex: none; margin-right: 3px; cursor: pointer; min-height: 25px; width: 25px; }\
+		'#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\
+	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; height: 25px; width: 25px; }\
 	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\
 	#de-panel-buttons:lang(en), #de-panel-info:lang(en) { border-color: #8fbbed; }\
 	#de-panel-buttons:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
 	.de-panel-button { display: block; width: 25px; height: 25px; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; }\
 	.de-panel-button:lang(fr):hover, .de-panel-button:lang(en):hover, .de-panel-button:lang(es):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
 	.de-panel-button:lang(de):hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }\
-	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; color: #fff; font: 18px serif; }' + gif('#de-panel-logo', (p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA') + 'QAI5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=') + gif('#de-panel-cfg', p + 'QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7') + gif('#de-panel-hid', p + 'QAI5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=') + gif('#de-panel-fav', p + 'QAIzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs=') + gif('#de-panel-vid', p + 'AAI9jI+py+0Po5wTWEvN3VjyH20a6HDHB5TiaTIkuyov3MltEuM3nS5z8EPsgsIY6rE6QlA5JDMDbEKn1KqhAAA7') + gif('#de-panel-refresh', p + 'AAJBjI+py+0Po5zUgItBxDZrmHUcGAbe15xiybCm5iYegsaHfY8Kvrb6/qPhZr7LgrcyJlHFE1LoVG6ilVewis1qDQUAOw==') + gif('#de-panel-goback', p + 'QAIrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7') + gif('#de-panel-gonext', p + 'QAIrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7') + gif('#de-panel-goup', p + 'QAIsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==') + gif('#de-panel-godown', p + 'QAItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=') + gif('#de-panel-expimg', p + 'QAI9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7') + gif('#de-panel-preimg', p + 'QAJFjI+pGwCcHJPGWdoe3Lz7qh1WFJLXiX4qgrbXVEIYadLLnMX4yve+7ErBYorRjXiEeXagGguZAbWaSdHLOow4j8Hrj1EAADs=') + gif('#de-panel-maskimg', p + 'QAJQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==') + gif('#de-panel-savethr', p + 'QAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs=') + gif('#de-panel-catalog', p + 'QAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=') + gif('#de-panel-audio-off', p + 'QAI7jI+pq+DO1psvQHOj3rxTik1dCIzmSZqfmGXIWlkiB6L2jedhPqOfCitVYolgKcUwyoQuSe3WwzV1kQIAOw==') + gif('#de-panel-audio-on', p + 'QAJHjI+pq+AewJHs2WdoZLz7X11WRkEgNoHqimadOG7uAqOm+Y6atvb+D0TgfjHS6RIp8YQ1pbHRfA4n0eSTI7JqP8Wtahr0FAAAOw==') + gif('#de-panel-enable', p + 'AAJAjI+py+0Po5wUWKoswOF27z2aMX6bo51lioal2bzwISPyHSZ1lts9fwKKfjQiyXgkslq95TAFnUCdUirnis0eCgA7') + gif('#de-panel-upd-on', 'R0lGODlhGQAZAJEAADL/Mv' + (p = 'Dw8P///wAAACH5BAEAAAIALAAAAAAZABkAQAJElI+pe2EBoxOTNYmr3bz7OwHiCDzQh6bq06QSCUhcZMCmNrfrzvf+XsF1MpjhCSainBg0AbKkFCJko6g0MSGyftwuowAAOw==')) + gif('#de-panel-upd-off', 'R0lGODlhGQAZAJEAAP8yMv' + p) + gif('#de-panel-upd-warn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
+	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }' + gif('#de-panel-cfg', (p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA') + 'QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7') + gif('#de-panel-hid', p + 'QAI5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=') + gif('#de-panel-fav', p + 'QAIzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs=') + gif('#de-panel-vid', p + 'AAI9jI+py+0Po5wTWEvN3VjyH20a6HDHB5TiaTIkuyov3MltEuM3nS5z8EPsgsIY6rE6QlA5JDMDbEKn1KqhAAA7') + gif('#de-panel-refresh', p + 'AAJBjI+py+0Po5zUgItBxDZrmHUcGAbe15xiybCm5iYegsaHfY8Kvrb6/qPhZr7LgrcyJlHFE1LoVG6ilVewis1qDQUAOw==') + gif('#de-panel-goback', p + 'QAIrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7') + gif('#de-panel-gonext', p + 'QAIrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7') + gif('#de-panel-goup', p + 'QAIsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==') + gif('#de-panel-godown', p + 'QAItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=') + gif('#de-panel-expimg', p + 'QAI9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7') + gif('#de-panel-preimg', p + 'QAJFjI+pGwCcHJPGWdoe3Lz7qh1WFJLXiX4qgrbXVEIYadLLnMX4yve+7ErBYorRjXiEeXagGguZAbWaSdHLOow4j8Hrj1EAADs=') + gif('#de-panel-maskimg', p + 'QAJQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==') + gif('#de-panel-savethr', p + 'QAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs=') + gif('#de-panel-catalog', p + 'QAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=') + gif('#de-panel-audio-off', p + 'QAI7jI+pq+DO1psvQHOj3rxTik1dCIzmSZqfmGXIWlkiB6L2jedhPqOfCitVYolgKcUwyoQuSe3WwzV1kQIAOw==') + gif('#de-panel-audio-on', p + 'QAJHjI+pq+AewJHs2WdoZLz7X11WRkEgNoHqimadOG7uAqOm+Y6atvb+D0TgfjHS6RIp8YQ1pbHRfA4n0eSTI7JqP8Wtahr0FAAAOw==') + gif('#de-panel-enable', p + 'AAJAjI+py+0Po5wUWKoswOF27z2aMX6bo51lioal2bzwISPyHSZ1lts9fwKKfjQiyXgkslq95TAFnUCdUirnis0eCgA7') + gif('#de-panel-upd-on', 'R0lGODlhGQAZAJEAADL/Mv' + (p = 'Dw8P///wAAACH5BAEAAAIALAAAAAAZABkAQAJElI+pe2EBoxOTNYmr3bz7OwHiCDzQh6bq06QSCUhcZMCmNrfrzvf+XsF1MpjhCSainBg0AbKkFCJko6g0MSGyftwuowAAOw==')) + gif('#de-panel-upd-off', 'R0lGODlhGQAZAJEAAP8yMv' + p) + gif('#de-panel-upd-warn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
 
 		if (Cfg.disabled) {
 			$css(x).id = 'de-css';
@@ -15983,14 +15986,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t.de-content-block > input { margin: 0 4px; }\t.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 4px 0 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\t.de-entry > a { flex: none; text-decoration: none; border: none; }\t.de-entry > input { margin: 2px 4px; }\t.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\t.de-fav-inf { flex: none; padding-left: 10px; font: bold 14px serif; cursor: default; }\t.de-fav-inf-err { color: #c33; font-size: 12px; }\t.de-fav-inf-new { color: #424f79; }\t.de-fav-inf-new::after { content: " +"; }\t.de-fav-inf-old { color: #4f7942; }\t.de-fav-user::after { content: "★"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\t.de-fav-closed, .de-fav-unavail { display: inline-block; width: 16px; height: 16px; margin-bottom: -4px; }\t.de-fav-closed { background-image: url(data:image/gif;base64,R0lGODlhEAAQAKIAAP3rqPPOd+y6V+WmN+Dg4M7OzmZmZv///yH5BAEAAAcALAAAAAAQABAAAANCeLrWvZARUqqJkjiLj9FMcWHf6IldGZqM4zqRAcw0zXpAoO/6LfeNnS8XcAhjAIHSoFwim0wockCtUodWq+/1UiQAADs=); }\t.de-fav-unavail { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==); }' +
 
 	
-		'#de-thr-navpanel { height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\
+		'#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\
 	.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\
 	#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px;}\
 	.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\
 	#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\
 	#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\
 	#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\
-	.de-thr-navicon { color: #F5F5F5; }\
 	:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }' +
 
 	
@@ -16032,14 +16034,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var x = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }';
 		if (Cfg.postBtnsCSS === 0) {
 			x += '.de-btn-back, .de-btn-sage-back { display: none }\
-		.de-btn-fav > use, .de-btn-stick > use, .de-btn-expthr-icon, .de-btn-rep-icon, .de-btn-hide-use, .de-btn-unhide-use, .de-btn-src-icon { color: #4F7942; }\
-		.de-btn-fav-sel > use, .de-btn-stick-on > use, .de-btn-sage-icon, .de-btn-hide-user > .de-btn-hide-use, .de-btn-unhide-user > .de-btn-unhide-use, { color: #F00; }';
+		.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { color: #4F7942; }\
+		.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { color: #F00; }';
 		} else {
-			x += '.de-btn-hide-use, .de-btn-unhide-use, .de-btn-src-icon, .de-btn-sage-icon, .de-btn-fav > use, .de-btn-stick > use, .de-btn-expthr-icon, .de-btn-rep-icon { color: #F5F5F5; }\
-		.de-btn-hide-user > .de-btn-hide-use { color: #BFFFBF; }\
-		.de-btn-unhide-user > .de-btn-unhide-use { color: #FFBFBF; }\
-		.de-btn-fav-sel > use { color: #FFE100; }\
-		.de-btn-stick-on > use { color: #BFFFBF; }\
+			x += '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\
+		.de-btn-hide-user { color: #BFFFBF; }\
+		.de-btn-unhide-user { color: #FFBFBF; }\
+		.de-btn-fav-sel { color: #FFE100; }\
+		.de-btn-stick-on { color: #BFFFBF; }\
 		.de-btn-sage-back { fill: #4B4B4B; }\
 		.de-btn-back { fill: ' + (Cfg.postBtnsCSS === 1 ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }';
 		}
