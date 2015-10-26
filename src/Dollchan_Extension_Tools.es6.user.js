@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'a4aff75';
+var commit = 'ab0f5db';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12054,14 +12054,14 @@ function Initialization(checkDomains) {
 			<stop offset="100%" stop-color="#A0A0A0"/>
 		</linearGradient>
 		<style><![CDATA[
-			#de-btn-back { fill: inherit; stroke: none; }
+			.de-btn-back { fill: inherit; stroke: none; }
 			.de-svg-stroke { stroke: currentColor; fill: none; }
 			.de-svg-fill { stroke: none; fill: currentColor; }
 		]]></style>
 	</defs>
 	<!-- POST ICONS -->
 	<symbol viewBox="0 0 14 14" id="de-symbol-backbtn">
-		<path id="de-btn-back" d="M11.2 14H2.8C1.3 14 0 12.7 0 11.2V2.8C0 1.3 1.3 0 2.8 0h8.4C12.7 0 14 1.3 14 2.8v8.4c0 1.5-1.3 2.8-2.8 2.8z"/>
+		<path class="de-btn-back" d="M11.2 14H2.8C1.3 14 0 12.7 0 11.2V2.8C0 1.3 1.3 0 2.8 0h8.4C12.7 0 14 1.3 14 2.8v8.4c0 1.5-1.3 2.8-2.8 2.8z"/>
 	</symbol>
 	<symbol viewBox="0 0 14 14" id="de-symbol-hidebtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
@@ -12088,7 +12088,7 @@ function Initialization(checkDomains) {
 		<path class="de-svg-fill" d="M4 4h6v6H4z"/>
 	</symbol>
 	<symbol viewBox="0 0 14 14" id="de-symbol-sagebtn">
-		<use class="de-btn-sage-back" xlink:href="#de-symbol-backbtn"/>
+		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
 		<path class="de-svg-fill" d="M3 8h8l-4 4.2z"/>
 		<path class="de-svg-stroke" stroke-miterlimit="10" d="M5 6.5h4M5 4.5h4M5 2.5h4"/>
 	</symbol>
@@ -13282,7 +13282,8 @@ function scriptCSS() {
 	.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '"; }\
 	#de-updater-count::before { content: ": "; }\
 	.de-viewed { color: #888 !important; }\
-	form > hr { clear: both }';
+	form > hr { clear: both }\
+	use { fill: inherit; }';
 
 	$css(x).id = 'de-css';
 	$css('').id = 'de-css-dynamic';
@@ -13302,8 +13303,8 @@ function updateCSS() {
 		.de-btn-unhide-user { color: #FFBFBF; }\
 		.de-btn-fav-sel { color: #FFE100; }\
 		.de-btn-stick-on { color: #BFFFBF; }\
-		.de-btn-sage-back { fill: #4B4B4B; }\
-		.de-btn-back { fill: ' + (Cfg.postBtnsCSS === 1 ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }';
+		.de-btn-sage { fill: #4B4B4B; }\
+		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }';
 	}
 	if(Cfg.hideReplies || Cfg.updThrBtns) {
 		x += '.de-thread-buttons::before { content: ">> "; }';
