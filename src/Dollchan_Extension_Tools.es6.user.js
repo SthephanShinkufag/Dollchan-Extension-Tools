@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '2d039c2';
+var commit = '17c7fc1';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -163,7 +163,7 @@ Lng = {
 		'expandTrunc':  ['Разворачивать сокращенные посты*', 'Auto expanding of truncated posts*'],
 		'postBtnsCSS': {
 			sel:        [['Text', 'Classic', 'Solid grey'], ['Text', 'Classic', 'Solid grey']],
-			txt:        ['Кнопки постов* ', 'Post buttons* ']
+			txt:        ['Кнопки постов ', 'Post buttons ']
 		},
 		'showHideBtn':  ['Скрытие ', 'Post hide '],
 		'showRepBtn':   ['Ответ', 'Post reply'],
@@ -2758,7 +2758,10 @@ function getCfgPosts() {
 		lBox('hideReplies', true, null),
 		lBox('updThrBtns', true, updateCSS),
 		lBox('expandTrunc', true, updateCSS),
-		optSel('postBtnsCSS', false, null),
+		optSel('postBtnsCSS', false, function() {
+			saveCfg('postBtnsCSS', this.selectedIndex);
+			updateCSS();
+		}),
 		lBox('showHideBtn', false, updateCSS),
 		lBox('showRepBtn', false, updateCSS),
 		lBox('noSpoilers', true, updateCSS),
@@ -12022,55 +12025,80 @@ function Initialization(checkDomains) {
 			</linearGradient>
 			<style type="text/css"><![CDATA[
 				.de-btn-hide-line, .de-btn-unhide-line { stroke: inherit; }
-				#de-btn-back, .de-btn-fav-poly, .de-btn-stick-rect { fill: inherit; }
+				#de-btn-back, .de-btn-fav-poly, .de-btn-stick-rect, .de-btn-fav-text, .de-btn-stick-text { fill: inherit; }
+				text { font-size: 14px; stroke: none; }
 			]]></style>
 		</defs>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-back-symbol">
 			<path id="de-btn-back" stroke="none" d="M11.2,14H2.8C1.3,14,0,12.7,0,11.2V2.8C0,1.3,1.3,0,2.8,0l8.4,0C12.7,0,14,1.3,14,2.8v8.4C14,12.7,12.7,14,11.2,14z"/>
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-hide-symbol">
-			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
-			<line class="de-btn-hide-line" fill="none" stroke-width="2.5" stroke-miterlimit="10" x1="3.5" y1="10.5" x2="10.5" y2="3.5"/>
-			<line class="de-btn-hide-line" fill="none" stroke-width="2.5" stroke-miterlimit="10" x1="10.5" y1="10.5" x2="3.5" y2="3.5"/>
+			<g class="de-btn-graph">
+				<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+				<line class="de-btn-hide-line" fill="none" stroke-width="2.5" stroke-miterlimit="10" x1="3.5" y1="10.5" x2="10.5" y2="3.5"/>
+				<line class="de-btn-hide-line" fill="none" stroke-width="2.5" stroke-miterlimit="10" x1="10.5" y1="10.5" x2="3.5" y2="3.5"/>
+			</g>
+			<g class="de-btn-text"><text x="1" y="12" class="de-btn-hide-text">&#x2716;</text></g>
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-unhide-symbol">
-			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
-			<line class="de-btn-unhide-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="7" y1="3" x2="7" y2="11"/>
-			<line class="de-btn-unhide-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="3" y1="7" x2="11" y2="7"/>
+			<g class="de-btn-graph">
+				<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+				<line class="de-btn-unhide-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="7" y1="3" x2="7" y2="11"/>
+				<line class="de-btn-unhide-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="3" y1="7" x2="11" y2="7"/>
+			</g>
+			<g class="de-btn-text"><text x="1" y="12" class="de-btn-unhide-text">&#x271A;</text></g>
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-rep-symbol">
-			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
-			<polygon class="de-btn-rep-poly" points="4.2,11.4 11.4,7 4.2,2.6"/>
+			<g class="de-btn-graph">
+				<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+				<polygon class="de-btn-rep-poly" points="4.2,11.4 11.4,7 4.2,2.6"/>
+			</g>
+			<g class="de-btn-text"><text x="1" y="12" class="de-btn-rep-text">&#x25B6;</text></g>
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-expthr-symbol">
-			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
-			<polygon class="de-btn-expthr-poly" points="3.5,5 7,2 10.5,5 8.25,5 8.25,9 10.5,9 7,12 3.5,9 5.75,9 5.75,5"/>
+			<g class="de-btn-graph">
+				<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+				<polygon class="de-btn-expthr-poly" points="3.5,5 7,2 10.5,5 8.25,5 8.25,9 10.5,9 7,12 3.5,9 5.75,9 5.75,5"/>
+			</g>
+			<g class="de-btn-text"><text x="1" y="12" class="de-btn-expthr-text">&#x2B0D;</text></g>
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-fav-symbol">
-			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
-			<polygon class="de-btn-fav-poly" points="7,1.8 8.5,4.9 11.8,5.4 9.4,7.8 10.5,11.3 7,9 3.5,11.3 4.6,7.8 2.3,5.4 5.5,4.9"/>
+			<g class="de-btn-graph">
+				<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+				<polygon class="de-btn-fav-poly" points="7,1.8 8.5,4.9 11.8,5.4 9.4,7.8 10.5,11.3 7,9 3.5,11.3 4.6,7.8 2.3,5.4 5.5,4.9"/>
+			</g>
+			<g class="de-btn-text"><text x="1" y="12" class="de-btn-fav-text">&#x2605;</text></g>
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-stick-symbol">
-			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
-			<rect class="de-btn-stick-rect" x="4" y="4" width="6" height="6"/>
+			<g class="de-btn-graph">
+				<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+				<rect class="de-btn-stick-rect" x="4" y="4" width="6" height="6"/>
+			</g>
+			<g class="de-btn-text"><text x="1" y="12" class="de-btn-stick-text">&#x25FC;</text></g>
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-sage-symbol">
-			<use class="de-btn-sage-back" xlink:href="#de-btn-back-symbol"/>
-			<polygon class="de-btn-sage-poly" points="3,8 11,8 7,12.2"/>
-			<line class="de-btn-sage-line" fill="none" stroke-miterlimit="10" x1="5" y1="6.5" x2="9" y2="6.5"/>
-			<line class="de-btn-sage-line" fill="none" stroke-miterlimit="10" x1="5" y1="4.5" x2="9" y2="4.5"/>
-			<line class="de-btn-sage-line" fill="none" stroke-miterlimit="10" x1="5" y1="2.5" x2="9" y2="2.5"/>
+			<g class="de-btn-graph">
+				<use class="de-btn-sage-back" xlink:href="#de-btn-back-symbol"/>
+				<polygon class="de-btn-sage-poly" points="3,8 11,8 7,12.2"/>
+				<line class="de-btn-sage-line" fill="none" stroke-miterlimit="10" x1="5" y1="6.5" x2="9" y2="6.5"/>
+				<line class="de-btn-sage-line" fill="none" stroke-miterlimit="10" x1="5" y1="4.5" x2="9" y2="4.5"/>
+				<line class="de-btn-sage-line" fill="none" stroke-miterlimit="10" x1="5" y1="2.5" x2="9" y2="2.5"/>
+			</g>
+			<g class="de-btn-text"><text x="1" y="12" class="de-btn-sage-text">&#x274E;</text></g>
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-src-symbol">
-			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
-			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="3" y1="11.5" x2="6" y2="11.5"/>
-			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="8" y1="11.5" x2="11" y2="11.5"/>
-			<line class="de-btn-src-line" fill="none" stroke-width="3" stroke-miterlimit="10" x1="4.5" y1="10" x2="4.5" y2="6"/>
-			<line class="de-btn-src-line" fill="none" stroke-width="3" stroke-miterlimit="10" x1="9.5" y1="10" x2="9.5" y2="6"/>
-			<line class="de-btn-src-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="5" y1="2" x2="5" y2="5"/>
-			<line class="de-btn-src-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="9" y1="2" x2="9" y2="5"/>
-			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="6" y1="5.5" x2="8" y2="5.5"/>
-			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="6" y1="7.5" x2="8" y2="7.5"/>
+			<g class="de-btn-graph">
+				<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+				<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="3" y1="11.5" x2="6" y2="11.5"/>
+				<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="8" y1="11.5" x2="11" y2="11.5"/>
+				<line class="de-btn-src-line" fill="none" stroke-width="3" stroke-miterlimit="10" x1="4.5" y1="10" x2="4.5" y2="6"/>
+				<line class="de-btn-src-line" fill="none" stroke-width="3" stroke-miterlimit="10" x1="9.5" y1="10" x2="9.5" y2="6"/>
+				<line class="de-btn-src-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="5" y1="2" x2="5" y2="5"/>
+				<line class="de-btn-src-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="9" y1="2" x2="9" y2="5"/>
+				<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="6" y1="5.5" x2="8" y2="5.5"/>
+				<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="6" y1="7.5" x2="8" y2="7.5"/>
+			</g>
+			<g class="de-btn-text"><text x="1" y="12" class="de-btn-src-text">&#xD83D;&#xDD0E;</text></g>
 		</symbol>
 	</svg>
 	</div>`);
@@ -13058,26 +13086,8 @@ function scriptCSS() {
 	.de-btn-sage-back { fill: #4B4B4B; }\
 	.de-btn-sage-poly { fill: #F0F0F0; }\
 	.de-btn-sage-line { stroke: #F0F0F0; }\
-	.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on { transform:rotate(0deg); display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
-	if(Cfg.postBtnsCSS === 0) {
-		x += 'color: #4F7942; font-size: 14px; }\
-		.de-btn-unhide::after { content: "\u271A"; }\
-		.de-btn-unhide-user::after { content: "\u271A"; }\
-		.de-btn-expthr::after { content: "\u2B0D"; }\
-		.de-btn-fav::after { content: "\u2605"; }\
-		.de-btn-fav-sel::after { content: "\u2605"; color: red; }\
-		.de-btn-hide::after { content: "\u2716"; }\
-		.de-btn-hide-user::after { content: "\u2716"; color: red; }\
-		.de-btn-rep::after { content: "\u25B6"; }\
-		.de-btn-sage::after { content: "\u274E"; }\
-		.de-btn-src::after { content: "\uD83D\uDD0E"; }\
-		.de-btn-stick::after { content: "\u25FB"; }\
-		.de-btn-stick-on::after { content: "\u25FC"; }';
-	} else {
-		x += 'width: 14px; height: 14px; }\
-		.de-btn-back { fill: ' + (Cfg.postBtnsCSS === 1 ? 'url(#de-btn-back-gradient)' : '#8C8C8C') + '; }';
-	}
-	x += (pr.form || pr.oeForm ? '' : '.de-btn-rep { display: none; }') +
+	.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on { transform:rotate(0deg); display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; width: 14px; height: 14px; }' +
+	(pr.form || pr.oeForm ? '' : '.de-btn-rep { display: none; }') +
 
 	// Sauce buttons
 	cont('.de-src-google', 'https://google.com/favicon.ico') +
@@ -13280,6 +13290,14 @@ function scriptCSS() {
 
 function updateCSS() {
 	var x = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }';
+	if(Cfg.postBtnsCSS === 0) {
+		x += '.de-btn-graph { display: none; }\
+		.de-btn-src-text, .de-btn-sage-text, .de-btn-expthr-text, .de-btn-rep-text, .de-btn-stick > use, .de-btn-fav >use, .de-btn-hide > use, .de-btn-unhide > use { fill: #4F7942; }\
+		.de-btn-stick-on > use, .de-btn-fav-sel > use, .de-btn-hide-user > use, .de-btn-unhide-user > use { fill: #F00; }';
+	} else {
+		x += '.de-btn-text { display: none; }\
+		.de-btn-back { fill: ' + (Cfg.postBtnsCSS === 1 ? 'url(#de-btn-back-gradient)' : '#8C8C8C') + '; }';
+	}
 	if(Cfg.hideReplies || Cfg.updThrBtns) {
 		x += '.de-thread-buttons::before { content: ">> "; }';
 	}
