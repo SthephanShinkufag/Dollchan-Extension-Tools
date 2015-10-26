@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '4a896b1';
+	var commit = 'e55f02c';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11436,11 +11436,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: '_handleButtonEvent',
 			value: function _handleButtonEvent(el, isOutEvent) {
-				var cN = el.getAttribute('class');
-				if (cN === 'de-btn-src') {
+				if (el.getAttribute('class') === 'de-btn-src') {
 					this._addMenu(el, isOutEvent, this._getMenuImgSrc);
 				}
-							}
+			}
 		}, {
 			key: '_showMenu',
 			value: function _showMenu(el, htmlGetter) {
@@ -11935,7 +11934,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: '_handleButtonEvent',
 			value: function _handleButtonEvent(el, isOutEvent) {
 				_get(Object.getPrototypeOf(Post.prototype), '_handleButtonEvent', this).call(this, el, isOutEvent);
-				switch (el.getAttribute('class')) {
+				var cN = el.getAttribute('class');
+				switch (cN) {
 					case 'de-btn-hide':
 					case 'de-btn-hide-user':
 					case 'de-btn-unhide':
@@ -11946,7 +11946,30 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 					case 'de-btn-expthr':
 						this._addMenu(el, isOutEvent, this._getMenuExpand);
-						break;
+				}
+				if (isOutEvent || el.hasTitle) {
+					return;
+				}
+				el.hasTitle = true;
+				var addTitle = function addTitle(svg, str) {
+					var el = doc.createElementNS('http://www.w3.org/2000/svg', 'title');
+					el.textContent = str;
+					svg.appendChild(el);
+				};
+				switch (cN) {
+					case 'de-btn-hide':
+					case 'de-btn-hide-user':
+					case 'de-btn-unhide':
+					case 'de-btn-unhide-user':
+						addTitle(el, Lng.togglePost[lang]);return;
+					case 'de-btn-expthr':
+						addTitle(el, Lng.expandThrd[lang]);return;
+					case 'de-btn-rep':
+						addTitle(el, Lng.replyToPost[lang]);return;
+					case 'de-btn-fav':
+						addTitle(el, Lng.addFav[lang]);return;
+					case 'de-btn-fav-sel':
+						addTitle(el, Lng.delFav[lang]);
 				}
 			}
 		}, {
@@ -12616,7 +12639,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					$del(this.el);
 				}
 				var el = this.el = post.el.cloneNode(true),
-				    pText = '<svg class="de-btn-rep" title="' + Lng.replyToPost[lang] + '"><use xlink:href="#de-symbol-repbtn"/></svg>' + (post.sage ? '<svg class="de-btn-sage" title="SAGE"><use xlink:href="#de-symbol-sagebtn"/></svg>' : '') + '<svg class="de-btn-stick" title="' + Lng.attachPview[lang] + '"><use xlink:href="#de-symbol-stickbtn"/></svg>' + (post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' + 'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
+				    pText = '<svg class="de-btn-rep"><title>' + Lng.replyToPost[lang] + '</title><use xlink:href="#de-symbol-repbtn"/></svg>' + (post.sage ? '<svg class="de-btn-sage"><title>SAGE</title><use xlink:href="#de-symbol-sagebtn"/></svg>' : '') + '<svg class="de-btn-stick"><title>' + Lng.attachPview[lang] + '</title><use xlink:href="#de-symbol-stickbtn"/></svg>' + (post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' + 'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
 				el.post = this;
 				el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
 				el.style.display = '';
@@ -12643,7 +12666,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (post.hidden) {
 						node.classList.add('de-post-hide');
 					}
-					node.innerHTML = '<svg class="de-btn-hide' + (post.userToggled ? '-user' : '') + ' de-btn-pview-hide" de-num="' + this.num + '" title="' + Lng.togglePost[lang] + '"><use class="de-btn-hide-use" xlink:href="#de-symbol-hidebtn"/>' + '<use class="de-btn-unhide-use" xlink:href="#de-symbol-unhidebtn"/></svg>' + pText;
+					node.innerHTML = '<svg class="de-btn-hide' + (post.userToggled ? '-user' : '') + ' de-btn-pview-hide" de-num="' + this.num + '"><title>' + Lng.togglePost[lang] + '</title><use class="de-btn-hide-use" xlink:href="#de-symbol-hidebtn"/>' + '<use class="de-btn-unhide-use" xlink:href="#de-symbol-unhidebtn"/></svg>' + pText;
 					$each($Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') + '.de-img-full, .de-after-fimg', el), $del);
 					$each($Q(aib.qThumbImages, el), function (el) {
 						el.parentNode.style.display = '';
