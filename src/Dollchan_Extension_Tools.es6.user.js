@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'cf78835';
+var commit = '1b504d0';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -162,7 +162,7 @@ Lng = {
 		'updThrBtns':   ['Кнопки получения новых постов в списке тредов', 'Get-new-posts buttons in threads list'],
 		'expandTrunc':  ['Разворачивать сокращенные посты*', 'Auto expanding of truncated posts*'],
 		'postBtnsCSS': {
-			sel:        [['Text', 'Classic', 'Solid grey'], ['Text', 'Classic', 'Solid grey']],
+			sel:        [['Simple green', 'Gradient grey', 'Solid grey'], ['Simple green', 'Gradient grey', 'Solid grey']],
 			txt:        ['Кнопки постов ', 'Post buttons ']
 		},
 		'showHideBtn':  ['Скрытие ', 'Post hide '],
@@ -12055,14 +12055,8 @@ function Initialization(checkDomains) {
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-srcbtn">
 			<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
-			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="3" y1="11.5" x2="6" y2="11.5"/>
-			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="8" y1="11.5" x2="11" y2="11.5"/>
-			<line class="de-btn-src-line" fill="none" stroke-width="3" stroke-miterlimit="10" x1="4.5" y1="10" x2="4.5" y2="6"/>
-			<line class="de-btn-src-line" fill="none" stroke-width="3" stroke-miterlimit="10" x1="9.5" y1="10" x2="9.5" y2="6"/>
-			<line class="de-btn-src-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="5" y1="2" x2="5" y2="5"/>
-			<line class="de-btn-src-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="9" y1="2" x2="9" y2="5"/>
-			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="6" y1="5.5" x2="8" y2="5.5"/>
-			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="6" y1="7.5" x2="8" y2="7.5"/>
+			<circle class="de-btn-src-line" fill="none" cx="6" cy="6" r="2.5" stroke-width="2" />
+			<line class="de-btn-src-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="8" y1="8" x2="11" y2="11"/>
 		</symbol>
 		<!-- NAVIGATION PANEL ICONS -->
 		<symbol enable-background="new 0 0 7 7" viewBox="0 0 7 7" id="de-symbol-navarrow">
@@ -13258,10 +13252,10 @@ function updateCSS() {
 	var x = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }';
 	if(Cfg.postBtnsCSS === 0) {
 		x += '.de-btn-back, .de-btn-sage-back { display: none }\
-		.de-btn-fav > use, .de-btn-stick > use, .de-btn-expthr-poly, .de-btn-rep-poly, .de-btn-sage-poly { fill: #4F7942; }\
-		.de-btn-fav-sel > use, .de-btn-stick-on > use { fill: #F00; }\
-		.de-btn-hide-use, .de-btn-unhide-use, .de-btn-src-line, .de-btn-sage-line { stroke: #4F7942; }\
-		.de-btn-hide-user > .de-btn-hide-use, .de-btn-unhide-user > .de-btn-unhide-use { stroke: #F00; }';
+		.de-btn-fav > use, .de-btn-stick > use, .de-btn-expthr-poly, .de-btn-rep-poly { fill: #4F7942; }\
+		.de-btn-fav-sel > use, .de-btn-stick-on > use, .de-btn-sage-poly { fill: #F00; }\
+		.de-btn-hide-use, .de-btn-unhide-use, .de-btn-src-line { stroke: #4F7942; }\
+		.de-btn-hide-user > .de-btn-hide-use, .de-btn-unhide-user > .de-btn-unhide-use, .de-btn-sage-line { stroke: #F00; }';
 	} else {
 		x += '.de-btn-hide-use, .de-btn-unhide-use, .de-btn-src-line { stroke: #FFF; }\
 		.de-btn-hide-user > .de-btn-hide-use { stroke: #BFFFBF; }\
