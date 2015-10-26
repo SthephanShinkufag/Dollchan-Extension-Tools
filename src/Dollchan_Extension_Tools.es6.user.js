@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '7428e45';
+var commit = '2d039c2';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12040,11 +12040,11 @@ function Initialization(checkDomains) {
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-rep-symbol">
 			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
-			<polygon fill="#FFFFFF" points="4.2,11.4 11.4,7 4.2,2.6"/>
+			<polygon class="de-btn-rep-poly" points="4.2,11.4 11.4,7 4.2,2.6"/>
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-expthr-symbol">
 			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
-			<polygon fill="#FFFFFF" points="3.5,5 7,2 10.5,5 8.25,5 8.25,9 10.5,9 7,12 3.5,9 5.75,9 5.75,5"/>
+			<polygon class="de-btn-expthr-poly" points="3.5,5 7,2 10.5,5 8.25,5 8.25,9 10.5,9 7,12 3.5,9 5.75,9 5.75,5"/>
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-fav-symbol">
 			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
@@ -12063,14 +12063,14 @@ function Initialization(checkDomains) {
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-src-symbol">
 			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
-			<line fill="none" stroke="#FFFFFF" stroke-miterlimit="10" x1="3" y1="11.5" x2="6" y2="11.5"/>
-			<line fill="none" stroke="#FFFFFF" stroke-miterlimit="10" x1="8" y1="11.5" x2="11" y2="11.5"/>
-			<line fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" x1="4.5" y1="10" x2="4.5" y2="6"/>
-			<line fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" x1="9.5" y1="10" x2="9.5" y2="6"/>
-			<line fill="none" stroke="#FFFFFF" stroke-width="2" stroke-miterlimit="10" x1="5" y1="2" x2="5" y2="5"/>
-			<line fill="none" stroke="#FFFFFF" stroke-width="2" stroke-miterlimit="10" x1="9" y1="2" x2="9" y2="5"/>
-			<line fill="none" stroke="#FFFFFF" stroke-miterlimit="10" x1="6" y1="5.5" x2="8" y2="5.5"/>
-			<line fill="none" stroke="#FFFFFF" stroke-miterlimit="10" x1="6" y1="7.5" x2="8" y2="7.5"/>
+			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="3" y1="11.5" x2="6" y2="11.5"/>
+			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="8" y1="11.5" x2="11" y2="11.5"/>
+			<line class="de-btn-src-line" fill="none" stroke-width="3" stroke-miterlimit="10" x1="4.5" y1="10" x2="4.5" y2="6"/>
+			<line class="de-btn-src-line" fill="none" stroke-width="3" stroke-miterlimit="10" x1="9.5" y1="10" x2="9.5" y2="6"/>
+			<line class="de-btn-src-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="5" y1="2" x2="5" y2="5"/>
+			<line class="de-btn-src-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="9" y1="2" x2="9" y2="5"/>
+			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="6" y1="5.5" x2="8" y2="5.5"/>
+			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="6" y1="7.5" x2="8" y2="7.5"/>
 		</symbol>
 	</svg>
 	</div>`);
@@ -13048,11 +13048,11 @@ function scriptCSS() {
 	.de-post-btns { margin-left: 4px; }\
 	.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
 	.de-thread-note { font-style: italic; }\
-	.de-btn-hide-use, .de-btn-unhide-use { stroke: #FFF; }\
+	.de-btn-hide-use, .de-btn-unhide-use, .de-btn-src-line { stroke: #FFF; }\
 	.de-btn-hide-user > .de-btn-hide-use { stroke: #BFFFBF; }\
 	.de-btn-unhide-user > .de-btn-unhide-use { stroke: #FFBFBF; }\
 	.de-btn-hide > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\
-	.de-btn-fav > use, .de-btn-stick > use { fill: #FFF; }\
+	.de-btn-fav > use, .de-btn-stick > use, .de-btn-expthr-poly, .de-btn-rep-poly { fill: #FFF; }\
 	.de-btn-fav-sel > use { fill: #FFE100; }\
 	.de-btn-stick-on > use { fill: #BFFFBF; }\
 	.de-btn-sage-back { fill: #4B4B4B; }\
