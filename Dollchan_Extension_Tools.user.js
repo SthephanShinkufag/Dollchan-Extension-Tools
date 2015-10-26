@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '09f8bc1';
+	var commit = 'b097eb9';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -16040,7 +16040,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		.de-btn-unhide-user > .de-btn-unhide-use { color: #FFBFBF; }\
 		.de-btn-fav-sel > use { color: #FFE100; }\
 		.de-btn-stick-on > use { color: #BFFFBF; }\
-		.de-btn-sage-back { color: #4B4B4B; }\
+		.de-btn-sage-back { fill: #4B4B4B; }\
 		.de-btn-back { fill: ' + (Cfg.postBtnsCSS === 1 ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }';
 		}
 		if (Cfg.hideReplies || Cfg.updThrBtns) {
