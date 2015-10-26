@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'da49768';
+var commit = 'b3c1557';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10684,24 +10684,11 @@ var navPanel = {
 		}
 	},
 	init() {
-		var html = `<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">
-			<svg id="de-thr-navarrow" viewBox="0 0 7 7" enable-background="new 0 0 7 7" version="1.1" xmlns="http://www.w3.org/2000/svg">
-				<polygon fill="#FFFFFF" points="6,3.5 2,0 2,7"/>
-			</svg>
-			<div id="de-thr-navup">
-				<svg viewBox="0 0 24 24" enable-background="new 0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-					<polyline fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" points="3,22.5 12,13.5 21,22.5"/>
-					<polyline fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" points="3,13.5 12,4.5 21,13.5"/>
-				</svg>
-			</div>
-			<div id="de-thr-navdown">
-				<svg viewBox="0 0 24 24" enable-background="new 0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-					<polyline fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" points="3,11.5 12,20.5 21,11.5"/>
-					<polyline fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" points="3,2.5 12,11.5 21,2.5"/>
-				</svg>
-			</div>
-		</div>`;
-		doc.body.insertAdjacentHTML('beforeend', html);
+		doc.body.insertAdjacentHTML('beforeend', `<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">
+			<svg id="de-thr-navarrow"><use xlink:href="#de-btn-navarrow-symbol"/></svg>
+			<div id="de-thr-navup"><svg viewBox="0 0 24 24"><use xlink:href="#de-btn-navup-symbol"/></svg></div>
+			<div id="de-thr-navdown"><svg viewBox="0 0 24 24"><use xlink:href="#de-btn-navdown-symbol"/></svg></div>
+		</div>`);
 		var el = doc.body.lastChild;
 		el.addEventListener('mouseover', this, true);
 		el.addEventListener('mouseout', this, true);
@@ -10732,10 +10719,11 @@ var navPanel = {
 		             : (target.tagName.toLowerCase() === 'svg' ? target.parentNode : target);
 		switch(el.id) {
 		case 'de-thr-navup':
-			scrollTo(window.pageXOffset, window.pageYOffset + this._currentThr.top - (Post.sizing.wHeight / 2 - 1));
+			scrollTo(window.pageXOffset, window.pageYOffset + this._currentThr.top - 50);
 			break;
 		case 'de-thr-navdown':
-			scrollTo(window.pageXOffset, window.pageYOffset + this._currentThr.bottom - (Post.sizing.wHeight / 2 + 1));
+			scrollTo(window.pageXOffset, window.pageYOffset +
+				this._currentThr.btns.getBoundingClientRect().bottom - Post.sizing.wHeight + 50);
 			break;
 		}
 	},
@@ -12029,6 +12017,7 @@ function Initialization(checkDomains) {
 				text { font-size: 14px; stroke: none; }
 			]]></style>
 		</defs>
+		<!-- POST ICONS -->
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-back-symbol">
 			<path id="de-btn-back" stroke="none" d="M11.2,14H2.8C1.3,14,0,12.7,0,11.2V2.8C0,1.3,1.3,0,2.8,0l8.4,0C12.7,0,14,1.3,14,2.8v8.4C14,12.7,12.7,14,11.2,14z"/>
 		</symbol>
@@ -12075,6 +12064,18 @@ function Initialization(checkDomains) {
 			<line class="de-btn-src-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="9" y1="2" x2="9" y2="5"/>
 			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="6" y1="5.5" x2="8" y2="5.5"/>
 			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="6" y1="7.5" x2="8" y2="7.5"/>
+		</symbol>
+		<!-- NAVIGATION PANEL ICONS -->
+		<symbol enable-background="new 0 0 7 7" viewBox="0 0 7 7" id="de-btn-navarrow-symbol">
+			<polygon fill="#FFFFFF" points="6,3.5 2,0 2,7"/>
+		</symbol>
+		<symbol enable-background="new 0 0 24 24" viewBox="0 0 24 24" id="de-btn-navup-symbol">
+			<polyline fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" points="3,22.5 12,13.5 21,22.5"/>
+			<polyline fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" points="3,13.5 12,4.5 21,13.5"/>
+		</symbol>
+		<symbol enable-background="new 0 0 24 24" viewBox="0 0 24 24" id="de-btn-navdown-symbol">
+			<polyline fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" points="3,11.5 12,20.5 21,11.5"/>
+			<polyline fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" points="3,2.5 12,11.5 21,2.5"/>
 		</symbol>
 	</svg>
 	</div>`);
