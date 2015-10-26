@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '8aaefb5';
+var commit = 'ef33e31';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -163,10 +163,10 @@ Lng = {
 		'updThrBtns':   ['Кнопки получения новых постов в списке тредов', 'Get-new-posts buttons in threads list'],
 		'expandTrunc':  ['Разворачивать сокращенные посты*', 'Auto expanding of truncated posts*'],
 		'postBtnsCSS': {
-			sel:        [['Упрощенные', 'Серый градиент', 'Выбранный цвет'], ['Simple green', 'Gradient grey', 'Custom fill']],
+			sel:        [['Упрощенные', 'Серый градиент', 'Настраиваемые'], ['Simple green', 'Gradient grey', 'Custom filled']],
 			txt:        ['Кнопки постов ', 'Post buttons ']
 		},
-		'postBtnsBack': [' Выборочный фон кнопок постов', ' Custom background for post buttons'],
+		'postBtnsBack': [' Пользовательский фон кнопок постов', ' Custom background for post buttons'],
 		'showHideBtn':  ['Скрытие ', 'Post hide '],
 		'showRepBtn':   ['Ответ', 'Post reply'],
 		'noSpoilers':   ['Раскрывать спойлеры ', 'Open text spoilers '],
@@ -203,8 +203,8 @@ Lng = {
 			sel:        [['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
 			txt:        ['Навигация по >>ссылкам* ', 'Navigation by >>links* ']
 		},
-		'linksOver':    [' Появление ', ' Appear. '],
-		'linksOut':     [' Пропадание (мс)', ' Disappear. (ms)'],
+		'linksOver':    [' Появление ', ' Appearance '],
+		'linksOut':     [' Пропадание (мс)', ' Disappearance (ms)'],
 		'markViewed':   ['Отмечать просмотренные посты*', 'Mark viewed posts*'],
 		'strikeHidd':   ['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
 		'removeHidd':   ['Удалять из карты ответов', 'Remove from replies map'],
@@ -1373,24 +1373,21 @@ function downloadBlob(blob, name) {
 }
 
 function checkCSSColor(color) {
-    if(!color) {
+	if(!color || color === 'inherit') {
 		return false;
 	}
-    if(color === 'inherit') {
-		return false;
-	}
-    if(color === 'transparent') {
+	if(color === 'transparent') {
 		return true;
 	}
-    var image = document.createElement('img');
-    image.style.color = 'rgb(0, 0, 0)';
-    image.style.color = color;
-    if(image.style.color !== 'rgb(0, 0, 0)') {
+	var image = document.createElement('img');
+	image.style.color = 'rgb(0, 0, 0)';
+	image.style.color = color;
+	if(image.style.color !== 'rgb(0, 0, 0)') {
 		return true;
 	}
-    image.style.color = 'rgb(255, 255, 255)';
-    image.style.color = color;
-    return image.style.color !== 'rgb(255, 255, 255)';
+	image.style.color = 'rgb(255, 255, 255)';
+	image.style.color = color;
+	return image.style.color !== 'rgb(255, 255, 255)';
 }
 
 
@@ -2453,7 +2450,7 @@ function showFavoritesWindow(body, data) {
 						'<span class="de-fav-user" title="' + Lng.setByUser[lang] + '"></span>') +
 						'<input type="checkbox">' +
 						'<a href="' + t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last :
-							h === aib.host ? aib.anchor + t.last : '') + '">' + tNum + '</a>' +
+							h === aib.host ? aib.anchor + t.last : '') + '" rel="noreferrer">' + tNum + '</a>' +
 					'<div class="de-entry-title">- ' + t.txt + '</div>' +
 					'<div class="de-fav-inf">' +
 						'<span class="de-fav-inf-err' + (!t['err'] ? '' :
@@ -2760,7 +2757,7 @@ function getCfgPosts() {
 				}
 			} : null),
 			$New('label', null, [
-				inpTxt('updThrDelay', 2, null),
+				inpTxt('updThrDelay', 1, null),
 				$txt(Lng.cfg.updThrDelay[lang])
 			]),
 			$New('div', {'class': 'de-cfg-depend'}, [
@@ -2832,18 +2829,18 @@ function getCfgImages() {
 			lBox('resizeImgs', true, null),
 			$if(Post.sizing.dPxRatio > 1, lBox('resizeDPI', true, null)),
 			$New('div', null, [
-				inpTxt('minImgSize', 4, function() {
+				inpTxt('minImgSize', 1, function() {
 					saveCfg('minImgSize', Math.max(+this.value, 1));
 				}),
 				$txt(Lng.cfg.minImgSize[lang])
 			]),
-			inpTxt('zoomFactor', 4, function() {
+			inpTxt('zoomFactor', 1, function() {
 				saveCfg('zoomFactor', Math.min(Math.max(+this.value, 1), 100));
 			}),
 			$txt(Lng.cfg.zoomFactor[lang]),
 			lBox('webmControl', true, null),
 			$if(nav.canPlayWebm, $New('div', null, [
-				inpTxt('webmVolume', 4, function() {
+				inpTxt('webmVolume', 1, function() {
 					var val = Math.min(+this.value || 0, 100);
 					if(Attachment.viewer) {
 						Attachment.viewer.setWebmVolume(val);
@@ -2870,11 +2867,11 @@ function getCfgLinks() {
 		optSel('linksNavig', true, null),
 		$New('div', {'class': 'de-cfg-depend'}, [
 			$New('div', null, [
-				inpTxt('linksOver', 4, function() {
+				inpTxt('linksOver', 1, function() {
 					saveCfg('linksOver', +this.value | 0);
 				}),
 				$txt(Lng.cfg.linksOver[lang]),
-				inpTxt('linksOut', 4, function() {
+				inpTxt('linksOut', 1, function() {
 					saveCfg('linksOut', +this.value | 0);
 				}),
 				$txt(Lng.cfg.linksOut[lang])
@@ -2896,9 +2893,9 @@ function getCfgLinks() {
 		$New('div', {'class': 'de-cfg-depend'}, [
 			$New('div', null, [
 				optSel('YTubeType', false, null),
-				inpTxt('YTubeWidth', 4, null),
+				inpTxt('YTubeWidth', 1, null),
 				$txt('\u00D7'),
-				inpTxt('YTubeHeigh', 4, null)
+				inpTxt('YTubeHeigh', 1, null)
 			]),
 			lBox('YTubeTitles', false, null),
 			$New('div', null, [
@@ -2960,7 +2957,7 @@ function getCfgForm() {
 			lBox('txtBtnsLoc', false, pr.addTextPanel.bind(pr))
 		])),
 		$if(pr.passw, $New('div', null, [
-			inpTxt('passwValue', 15, PostForm.setUserPassw),
+			inpTxt('passwValue', 9, PostForm.setUserPassw),
 			$txt(Lng.cfg.userPassw[lang]),
 			$btn(Lng.change[lang], '', function() {
 				$q('input[info="passwValue"]', doc).value = Math.round(Math.random() * 1e15).toString(32);
@@ -2968,7 +2965,7 @@ function getCfgForm() {
 			})
 		])),
 		$if(pr.name, $New('div', null, [
-			inpTxt('nameValue', 15, PostForm.setUserName),
+			inpTxt('nameValue', 9, PostForm.setUserName),
 			$txt(' '),
 			lBox('userName', false, PostForm.setUserName)
 		])),
@@ -3038,7 +3035,7 @@ function getCfgCommon() {
 			})
 		]),
 		$New('div', {'class': 'de-cfg-depend'}, [
-			inpTxt('loadPages', 2, null),
+			inpTxt('loadPages', 1, null),
 			$txt(Lng.cfg.loadPages[lang])
 		]),
 		$if(!nav.isChromeStorage && !nav.Presto || nav.isGM, $New('div', null, [

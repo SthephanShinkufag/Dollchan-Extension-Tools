@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '8aaefb5';
+	var commit = 'ef33e31';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -2027,10 +2027,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'updThrBtns': ['Кнопки получения новых постов в списке тредов', 'Get-new-posts buttons in threads list'],
 			'expandTrunc': ['Разворачивать сокращенные посты*', 'Auto expanding of truncated posts*'],
 			'postBtnsCSS': {
-				sel: [['Упрощенные', 'Серый градиент', 'Выбранный цвет'], ['Simple green', 'Gradient grey', 'Custom fill']],
+				sel: [['Упрощенные', 'Серый градиент', 'Настраиваемые'], ['Simple green', 'Gradient grey', 'Custom filled']],
 				txt: ['Кнопки постов ', 'Post buttons ']
 			},
-			'postBtnsBack': [' Выборочный фон кнопок постов', ' Custom background for post buttons'],
+			'postBtnsBack': [' Пользовательский фон кнопок постов', ' Custom background for post buttons'],
 			'showHideBtn': ['Скрытие ', 'Post hide '],
 			'showRepBtn': ['Ответ', 'Post reply'],
 			'noSpoilers': ['Раскрывать спойлеры ', 'Open text spoilers '],
@@ -2067,8 +2067,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				sel: [['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
 				txt: ['Навигация по >>ссылкам* ', 'Navigation by >>links* ']
 			},
-			'linksOver': [' Появление ', ' Appear. '],
-			'linksOut': [' Пропадание (мс)', ' Disappear. (ms)'],
+			'linksOver': [' Появление ', ' Appearance '],
+			'linksOut': [' Пропадание (мс)', ' Disappearance (ms)'],
 			'markViewed': ['Отмечать просмотренные посты*', 'Mark viewed posts*'],
 			'strikeHidd': ['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
 			'removeHidd': ['Удалять из карты ответов', 'Remove from replies map'],
@@ -3314,10 +3314,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function checkCSSColor(color) {
-		if (!color) {
-			return false;
-		}
-		if (color === 'inherit') {
+		if (!color || color === 'inherit') {
 			return false;
 		}
 		if (color === 'transparent') {
@@ -4508,7 +4505,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (!t.url.startsWith('http')) {
 						t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 					}
-					block.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">' + (t['type'] !== 'user' ? '' : '<span class="de-fav-user" title="' + Lng.setByUser[lang] + '"></span>') + '<input type="checkbox">' + '<a href="' + t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last : h === aib.host ? aib.anchor + t.last : '') + '">' + tNum + '</a>' + '<div class="de-entry-title">- ' + t.txt + '</div>' + '<div class="de-fav-inf">' + '<span class="de-fav-inf-err' + (!t['err'] ? '' : t['err'] === 'Closed' ? ' de-fav-closed" title="' + Lng.thrClosed[lang] : ' de-fav-unavail" title="' + t['err']) + '"></span> ' + '<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + (t['new'] ? '>' : ' style="display: none;">') + (t['new'] || 0) + '</span> ' + '[<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>] ' + '<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>' + '</span></div>');
+					block.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">' + (t['type'] !== 'user' ? '' : '<span class="de-fav-user" title="' + Lng.setByUser[lang] + '"></span>') + '<input type="checkbox">' + '<a href="' + t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last : h === aib.host ? aib.anchor + t.last : '') + '" rel="noreferrer">' + tNum + '</a>' + '<div class="de-entry-title">- ' + t.txt + '</div>' + '<div class="de-fav-inf">' + '<span class="de-fav-inf-err' + (!t['err'] ? '' : t['err'] === 'Closed' ? ' de-fav-closed" title="' + Lng.thrClosed[lang] : ' de-fav-unavail" title="' + t['err']) + '"></span> ' + '<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + (t['new'] ? '>' : ' style="display: none;">') + (t['new'] || 0) + '</span> ' + '[<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>] ' + '<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>' + '</span></div>');
 					$t('a', block.lastChild).onclick = function () {
 						sesStorage['de-win-fav'] = '1';
 						var el = this.parentNode;
@@ -4905,7 +4902,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			} else {
 				updater.disable();
 			}
-		} : null), $New('label', null, [inpTxt('updThrDelay', 2, null), $txt(Lng.cfg.updThrDelay[lang])]), $New('div', { 'class': 'de-cfg-depend' }, [lBox('noErrInTitle', true, null), lBox('favIcoBlink', true, null), lBox('markNewPosts', true, function () {
+		} : null), $New('label', null, [inpTxt('updThrDelay', 1, null), $txt(Lng.cfg.updThrDelay[lang])]), $New('div', { 'class': 'de-cfg-depend' }, [lBox('noErrInTitle', true, null), lBox('favIcoBlink', true, null), lBox('markNewPosts', true, function () {
 			dForm.firstThr.clearPostsMarks();
 		}), $if('Notification' in window, lBox('desktNotif', true, function () {
 			if (Cfg.desktNotif) {
@@ -4929,11 +4926,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function getCfgImages() {
-		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-images' }, [optSel('expandImgs', true, null), $New('div', { 'class': 'de-cfg-depend' }, [lBox('imgNavBtns', true, updateCSS), lBox('resizeImgs', true, null), $if(Post.sizing.dPxRatio > 1, lBox('resizeDPI', true, null)), $New('div', null, [inpTxt('minImgSize', 4, function () {
+		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-images' }, [optSel('expandImgs', true, null), $New('div', { 'class': 'de-cfg-depend' }, [lBox('imgNavBtns', true, updateCSS), lBox('resizeImgs', true, null), $if(Post.sizing.dPxRatio > 1, lBox('resizeDPI', true, null)), $New('div', null, [inpTxt('minImgSize', 1, function () {
 			saveCfg('minImgSize', Math.max(+this.value, 1));
-		}), $txt(Lng.cfg.minImgSize[lang])]), inpTxt('zoomFactor', 4, function () {
+		}), $txt(Lng.cfg.minImgSize[lang])]), inpTxt('zoomFactor', 1, function () {
 			saveCfg('zoomFactor', Math.min(Math.max(+this.value, 1), 100));
-		}), $txt(Lng.cfg.zoomFactor[lang]), lBox('webmControl', true, null), $if(nav.canPlayWebm, $New('div', null, [inpTxt('webmVolume', 4, function () {
+		}), $txt(Lng.cfg.zoomFactor[lang]), lBox('webmControl', true, null), $if(nav.canPlayWebm, $New('div', null, [inpTxt('webmVolume', 1, function () {
 			var val = Math.min(+this.value || 0, 100);
 			if (Attachment.viewer) {
 				Attachment.viewer.setWebmVolume(val);
@@ -4945,11 +4942,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function getCfgLinks() {
-		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-links' }, [optSel('linksNavig', true, null), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [inpTxt('linksOver', 4, function () {
+		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-links' }, [optSel('linksNavig', true, null), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [inpTxt('linksOver', 1, function () {
 			saveCfg('linksOver', +this.value | 0);
-		}), $txt(Lng.cfg.linksOver[lang]), inpTxt('linksOut', 4, function () {
+		}), $txt(Lng.cfg.linksOver[lang]), inpTxt('linksOut', 1, function () {
 			saveCfg('linksOut', +this.value | 0);
-		}), $txt(Lng.cfg.linksOut[lang])]), lBox('markViewed', true, null), lBox('strikeHidd', true, null), $New('div', { 'class': 'de-cfg-depend' }, [lBox('removeHidd', false, updateCSS)]), lBox('noNavigHidd', true, null)]), lBox('crossLinks', true, null), lBox('insertNum', true, null), lBox('addOPLink', true, null), lBox('addImgs', true, null), lBox('addMP3', false, null), $if(aib.prot === 'http:', lBox('addVocaroo', false, null)), optSel('addYouTube', true, null), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [optSel('YTubeType', false, null), inpTxt('YTubeWidth', 4, null), $txt('×'), inpTxt('YTubeHeigh', 4, null)]), lBox('YTubeTitles', false, null), $New('div', null, [inpTxt('ytApiKey', 25, function () {
+		}), $txt(Lng.cfg.linksOut[lang])]), lBox('markViewed', true, null), lBox('strikeHidd', true, null), $New('div', { 'class': 'de-cfg-depend' }, [lBox('removeHidd', false, updateCSS)]), lBox('noNavigHidd', true, null)]), lBox('crossLinks', true, null), lBox('insertNum', true, null), lBox('addOPLink', true, null), lBox('addImgs', true, null), lBox('addMP3', false, null), $if(aib.prot === 'http:', lBox('addVocaroo', false, null)), optSel('addYouTube', true, null), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [optSel('YTubeType', false, null), inpTxt('YTubeWidth', 1, null), $txt('×'), inpTxt('YTubeHeigh', 1, null)]), lBox('YTubeTitles', false, null), $New('div', null, [inpTxt('ytApiKey', 25, function () {
 			saveCfg('ytApiKey', this.value.trim());
 		}), $txt(' ' + Lng.cfg.ytApiKey[lang])]), lBox('addVimeo', true, null)])]);
 	}
@@ -4976,10 +4973,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		})), $if(!aib.iich && pr.mail, $New('div', null, [lBox('addSageBtn', false, null), lBox('saveSage', false, null)])), $if(pr.capTr, optSel('captchaLang', true, null)), $if(pr.txta, $New('div', null, [optSel('addTextBtns', false, function () {
 			saveCfg('addTextBtns', this.selectedIndex);
 			pr.addTextPanel();
-		}), lBox('txtBtnsLoc', false, pr.addTextPanel.bind(pr))])), $if(pr.passw, $New('div', null, [inpTxt('passwValue', 15, PostForm.setUserPassw), $txt(Lng.cfg.userPassw[lang]), $btn(Lng.change[lang], '', function () {
+		}), lBox('txtBtnsLoc', false, pr.addTextPanel.bind(pr))])), $if(pr.passw, $New('div', null, [inpTxt('passwValue', 9, PostForm.setUserPassw), $txt(Lng.cfg.userPassw[lang]), $btn(Lng.change[lang], '', function () {
 			$q('input[info="passwValue"]', doc).value = Math.round(Math.random() * 1e15).toString(32);
 			PostForm.setUserPassw();
-		})])), $if(pr.name, $New('div', null, [inpTxt('nameValue', 15, PostForm.setUserName), $txt(' '), lBox('userName', false, PostForm.setUserName)])), $New('div', null, [$txt(Lng.dontShow[lang]), lBox('noBoardRule', false, updateCSS), $if(pr.gothr, lBox('noGoto', false, function () {
+		})])), $if(pr.name, $New('div', null, [inpTxt('nameValue', 9, PostForm.setUserName), $txt(' '), lBox('userName', false, PostForm.setUserName)])), $New('div', null, [$txt(Lng.dontShow[lang]), lBox('noBoardRule', false, updateCSS), $if(pr.gothr, lBox('noGoto', false, function () {
 			$disp(pr.gothr);
 		})), $if(pr.passw, lBox('noPassword', false, function () {
 			$disp(pr.passw.parentNode.parentNode);
@@ -5023,7 +5020,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				el.addEventListener('keydown', fn, true);
 				el.addEventListener('keyup', fn, true);
 			});
-		})]), $New('div', { 'class': 'de-cfg-depend' }, [inpTxt('loadPages', 2, null), $txt(Lng.cfg.loadPages[lang])]), $if(!nav.isChromeStorage && !nav.Presto || nav.isGM, $New('div', null, [lBox('updScript', true, null), $New('div', { 'class': 'de-cfg-depend' }, [optSel('scrUpdIntrv', false, null), $btn(Lng.checkNow[lang], '', function () {
+		})]), $New('div', { 'class': 'de-cfg-depend' }, [inpTxt('loadPages', 1, null), $txt(Lng.cfg.loadPages[lang])]), $if(!nav.isChromeStorage && !nav.Presto || nav.isGM, $New('div', null, [lBox('updScript', true, null), $New('div', { 'class': 'de-cfg-depend' }, [optSel('scrUpdIntrv', false, null), $btn(Lng.checkNow[lang], '', function () {
 			$popup(Lng.loading[lang], 'updavail', true);
 			spawn(getStoredObj, 'DESU_Config').then(function (val) {
 				return checkForUpdates(true, val.lastUpd);
