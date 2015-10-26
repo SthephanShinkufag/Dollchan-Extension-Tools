@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '1b504d0';
+var commit = 'cb54f46';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -42,7 +42,8 @@ var defaultCfg = {
 	'hideReplies':      0,      // show only op-posts in threads list
 	'updThrBtns':       1,      // updater buttons in threads list
 	'expandTrunc':      0,      // auto expanding of truncated posts
-	'postBtnsCSS':      2,      // post buttons style [0=text, 1=classic, 2=solid grey]
+	'postBtnsCSS':      1,      // post buttons style [0=simple green, 1=gradient grey, 2=custom]
+	'postBtnsBack':     '#8C8C8C',      // custom background color
 	'showHideBtn':      1,      // show post hide button
 	'showRepBtn':       1,      // show post reply button
 	'noSpoilers':       1,      // open spoilers
@@ -162,9 +163,10 @@ Lng = {
 		'updThrBtns':   ['Кнопки получения новых постов в списке тредов', 'Get-new-posts buttons in threads list'],
 		'expandTrunc':  ['Разворачивать сокращенные посты*', 'Auto expanding of truncated posts*'],
 		'postBtnsCSS': {
-			sel:        [['Simple green', 'Gradient grey', 'Solid grey'], ['Simple green', 'Gradient grey', 'Solid grey']],
+			sel:        [['Упрощенные', 'Серый градиент', 'Выбранный цвет'], ['Simple green', 'Gradient grey', 'Custom fill']],
 			txt:        ['Кнопки постов ', 'Post buttons ']
 		},
+		'postBtnsBack': [' Выборочный фон кнопок постов', ' Custom background for post buttons'],
 		'showHideBtn':  ['Скрытие ', 'Post hide '],
 		'showRepBtn':   ['Ответ', 'Post reply'],
 		'noSpoilers':   ['Открывать текстовые спойлеры', 'Open text spoilers'],
@@ -2599,6 +2601,7 @@ function fixSettings() {
 		'input[info="updThrDelay"]', 'input[info="noErrInTitle"]', 'input[info="favIcoBlink"]',
 		'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="updCount"]'
 	]);
+	toggleBox(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
 	toggleBox(Cfg.expandImgs, [
 		'input[info="imgNavBtns"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]',
 		'input[info="minImgSize"]', 'input[info="zoomFactor"]',
@@ -2761,9 +2764,17 @@ function getCfgPosts() {
 		optSel('postBtnsCSS', false, function() {
 			saveCfg('postBtnsCSS', this.selectedIndex);
 			updateCSS();
+			fixSettings();
 		}),
 		lBox('showHideBtn', false, updateCSS),
 		lBox('showRepBtn', false, updateCSS),
+		$New('div', {'class': 'de-cfg-depend'}, [
+			inpTxt('postBtnsBack', 8, function() {
+				saveCfg('postBtnsBack', this.value);
+				updateCSS();
+			}),
+			$txt(Lng.cfg.postBtnsBack[lang])
+		]),
 		lBox('noSpoilers', true, updateCSS),
 		lBox('noPostNames', true, updateCSS),
 		lBox('widePosts', true, updateCSS),
@@ -12008,7 +12019,7 @@ function Initialization(checkDomains) {
 		<defs>
 			<linearGradient id="de-btn-back-gradient" gradientUnits="userSpaceOnUse" x1="50%" y1="100%" x2="50%" y2="0">
 				<stop offset="0%" stop-color="#A0A0A0"/>
-				<stop offset="50%" stop-color="#606060"/>
+				<stop offset="50%" stop-color="#505050"/>
 				<stop offset="100%" stop-color="#A0A0A0"/>
 			</linearGradient>
 			<style type="text/css"><![CDATA[
@@ -13266,7 +13277,7 @@ function updateCSS() {
 		.de-btn-sage-back { fill: #4B4B4B; }\
 		.de-btn-sage-poly { fill: #F0F0F0; }\
 		.de-btn-sage-line { stroke: #F0F0F0; }\
-		.de-btn-back { fill: ' + (Cfg.postBtnsCSS === 1 ? 'url(#de-btn-back-gradient)' : '#8C8C8C') + '; }';
+		.de-btn-back { fill: ' + (Cfg.postBtnsCSS === 1 ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }';
 	}
 	if(Cfg.hideReplies || Cfg.updThrBtns) {
 		x += '.de-thread-buttons::before { content: ">> "; }';
