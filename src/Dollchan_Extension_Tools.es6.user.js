@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'dc9c2d8';
+var commit = 'da49768';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12033,72 +12033,48 @@ function Initialization(checkDomains) {
 			<path id="de-btn-back" stroke="none" d="M11.2,14H2.8C1.3,14,0,12.7,0,11.2V2.8C0,1.3,1.3,0,2.8,0l8.4,0C12.7,0,14,1.3,14,2.8v8.4C14,12.7,12.7,14,11.2,14z"/>
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-hide-symbol">
-			<g class="de-btn-graph">
-				<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
-				<line class="de-btn-hide-line" fill="none" stroke-width="2.5" stroke-miterlimit="10" x1="3.5" y1="10.5" x2="10.5" y2="3.5"/>
-				<line class="de-btn-hide-line" fill="none" stroke-width="2.5" stroke-miterlimit="10" x1="10.5" y1="10.5" x2="3.5" y2="3.5"/>
-			</g>
-			<g class="de-btn-text"><text x="1" y="12" class="de-btn-hide-text">&#x2716;</text></g>
+			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+			<line class="de-btn-hide-line" fill="none" stroke-width="2.5" stroke-miterlimit="10" x1="3.5" y1="10.5" x2="10.5" y2="3.5"/>
+			<line class="de-btn-hide-line" fill="none" stroke-width="2.5" stroke-miterlimit="10" x1="10.5" y1="10.5" x2="3.5" y2="3.5"/>
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-unhide-symbol">
-			<g class="de-btn-graph">
-				<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
-				<line class="de-btn-unhide-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="7" y1="3" x2="7" y2="11"/>
-				<line class="de-btn-unhide-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="3" y1="7" x2="11" y2="7"/>
-			</g>
-			<g class="de-btn-text"><text x="1" y="12" class="de-btn-unhide-text">&#x271A;</text></g>
+			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+			<line class="de-btn-unhide-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="7" y1="3" x2="7" y2="11"/>
+			<line class="de-btn-unhide-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="3" y1="7" x2="11" y2="7"/>
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-rep-symbol">
-			<g class="de-btn-graph">
-				<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
-				<polygon class="de-btn-rep-poly" points="4.2,11.4 11.4,7 4.2,2.6"/>
-			</g>
-			<g class="de-btn-text"><text x="1" y="12" class="de-btn-rep-text">&#x25B6;</text></g>
+			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+			<polygon class="de-btn-rep-poly" points="4.2,11.4 11.4,7 4.2,2.6"/>
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-expthr-symbol">
-			<g class="de-btn-graph">
-				<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
-				<polygon class="de-btn-expthr-poly" points="3.5,5 7,2 10.5,5 8.25,5 8.25,9 10.5,9 7,12 3.5,9 5.75,9 5.75,5"/>
-			</g>
-			<g class="de-btn-text"><text x="1" y="12" class="de-btn-expthr-text">&#x2B0D;</text></g>
+			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+			<polygon class="de-btn-expthr-poly" points="3.5,5 7,2 10.5,5 8.25,5 8.25,9 10.5,9 7,12 3.5,9 5.75,9 5.75,5"/>
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-fav-symbol">
-			<g class="de-btn-graph">
-				<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
-				<polygon class="de-btn-fav-poly" points="7,1.8 8.5,4.9 11.8,5.4 9.4,7.8 10.5,11.3 7,9 3.5,11.3 4.6,7.8 2.3,5.4 5.5,4.9"/>
-			</g>
-			<g class="de-btn-text"><text x="1" y="12" class="de-btn-fav-text">&#x2605;</text></g>
+			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+			<polygon class="de-btn-fav-poly" points="7,1.8 8.5,4.9 11.8,5.4 9.4,7.8 10.5,11.3 7,9 3.5,11.3 4.6,7.8 2.3,5.4 5.5,4.9"/>
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-stick-symbol">
-			<g class="de-btn-graph">
-				<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
-				<rect class="de-btn-stick-rect" x="4" y="4" width="6" height="6"/>
-			</g>
-			<g class="de-btn-text"><text x="1" y="12" class="de-btn-stick-text">&#x25FC;</text></g>
+			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+			<rect class="de-btn-stick-rect" x="4" y="4" width="6" height="6"/>
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-sage-symbol">
-			<g class="de-btn-graph">
-				<use class="de-btn-sage-back" xlink:href="#de-btn-back-symbol"/>
-				<polygon class="de-btn-sage-poly" points="3,8 11,8 7,12.2"/>
-				<line class="de-btn-sage-line" fill="none" stroke-miterlimit="10" x1="5" y1="6.5" x2="9" y2="6.5"/>
-				<line class="de-btn-sage-line" fill="none" stroke-miterlimit="10" x1="5" y1="4.5" x2="9" y2="4.5"/>
-				<line class="de-btn-sage-line" fill="none" stroke-miterlimit="10" x1="5" y1="2.5" x2="9" y2="2.5"/>
-			</g>
-			<g class="de-btn-text"><text x="1" y="12" class="de-btn-sage-text">&#x274E;</text></g>
+			<use class="de-btn-sage-back" xlink:href="#de-btn-back-symbol"/>
+			<polygon class="de-btn-sage-poly" points="3,8 11,8 7,12.2"/>
+			<line class="de-btn-sage-line" fill="none" stroke-miterlimit="10" x1="5" y1="6.5" x2="9" y2="6.5"/>
+			<line class="de-btn-sage-line" fill="none" stroke-miterlimit="10" x1="5" y1="4.5" x2="9" y2="4.5"/>
+			<line class="de-btn-sage-line" fill="none" stroke-miterlimit="10" x1="5" y1="2.5" x2="9" y2="2.5"/>
 		</symbol>
 		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-src-symbol">
-			<g class="de-btn-graph">
-				<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
-				<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="3" y1="11.5" x2="6" y2="11.5"/>
-				<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="8" y1="11.5" x2="11" y2="11.5"/>
-				<line class="de-btn-src-line" fill="none" stroke-width="3" stroke-miterlimit="10" x1="4.5" y1="10" x2="4.5" y2="6"/>
-				<line class="de-btn-src-line" fill="none" stroke-width="3" stroke-miterlimit="10" x1="9.5" y1="10" x2="9.5" y2="6"/>
-				<line class="de-btn-src-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="5" y1="2" x2="5" y2="5"/>
-				<line class="de-btn-src-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="9" y1="2" x2="9" y2="5"/>
-				<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="6" y1="5.5" x2="8" y2="5.5"/>
-				<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="6" y1="7.5" x2="8" y2="7.5"/>
-			</g>
-			<g class="de-btn-text"><text x="1" y="12" class="de-btn-src-text">&#x1F50E;</text></g>
+			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="3" y1="11.5" x2="6" y2="11.5"/>
+			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="8" y1="11.5" x2="11" y2="11.5"/>
+			<line class="de-btn-src-line" fill="none" stroke-width="3" stroke-miterlimit="10" x1="4.5" y1="10" x2="4.5" y2="6"/>
+			<line class="de-btn-src-line" fill="none" stroke-width="3" stroke-miterlimit="10" x1="9.5" y1="10" x2="9.5" y2="6"/>
+			<line class="de-btn-src-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="5" y1="2" x2="5" y2="5"/>
+			<line class="de-btn-src-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="9" y1="2" x2="9" y2="5"/>
+			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="6" y1="5.5" x2="8" y2="5.5"/>
+			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="6" y1="7.5" x2="8" y2="7.5"/>
 		</symbol>
 	</svg>
 	</div>`);
@@ -13072,20 +13048,10 @@ function scriptCSS() {
 	}
 
 	// Post panel
-	x += '\
-	.de-post-btns { margin-left: 4px; }\
+	x += '.de-post-btns { margin-left: 4px; }\
 	.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
 	.de-thread-note { font-style: italic; }\
-	.de-btn-hide-use, .de-btn-unhide-use, .de-btn-src-line { stroke: #FFF; }\
-	.de-btn-hide-user > .de-btn-hide-use { stroke: #BFFFBF; }\
-	.de-btn-unhide-user > .de-btn-unhide-use { stroke: #FFBFBF; }\
 	.de-btn-hide > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\
-	.de-btn-fav > use, .de-btn-stick > use, .de-btn-expthr-poly, .de-btn-rep-poly { fill: #FFF; }\
-	.de-btn-fav-sel > use { fill: #FFE100; }\
-	.de-btn-stick-on > use { fill: #BFFFBF; }\
-	.de-btn-sage-back { fill: #4B4B4B; }\
-	.de-btn-sage-poly { fill: #F0F0F0; }\
-	.de-btn-sage-line { stroke: #F0F0F0; }\
 	.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on { transform:rotate(0deg); display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; width: 14px; height: 14px; }' +
 	(pr.form || pr.oeForm ? '' : '.de-btn-rep { display: none; }') +
 
@@ -13291,11 +13257,21 @@ function scriptCSS() {
 function updateCSS() {
 	var x = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }';
 	if(Cfg.postBtnsCSS === 0) {
-		x += '.de-btn-graph { display: none; }\
-		.de-btn-src-text, .de-btn-sage-text, .de-btn-expthr-text, .de-btn-rep-text, .de-btn-stick > use, .de-btn-fav >use, .de-btn-hide > use, .de-btn-unhide > use { fill: #4F7942; }\
-		.de-btn-stick-on > use, .de-btn-fav-sel > use, .de-btn-hide-user > use, .de-btn-unhide-user > use { fill: #F00; }';
+		x += '.de-btn-back, .de-btn-sage-back { display: none }\
+		.de-btn-fav > use, .de-btn-stick > use, .de-btn-expthr-poly, .de-btn-rep-poly, .de-btn-sage-poly { fill: #4F7942; }\
+		.de-btn-fav-sel > use, .de-btn-stick-on > use { fill: #F00; }\
+		.de-btn-hide-use, .de-btn-unhide-use, .de-btn-src-line, .de-btn-sage-line { stroke: #4F7942; }\
+		.de-btn-hide-user > .de-btn-hide-use, .de-btn-unhide-user > .de-btn-unhide-use { stroke: #F00; }';
 	} else {
-		x += '.de-btn-text { display: none; }\
+		x += '.de-btn-hide-use, .de-btn-unhide-use, .de-btn-src-line { stroke: #FFF; }\
+		.de-btn-hide-user > .de-btn-hide-use { stroke: #BFFFBF; }\
+		.de-btn-unhide-user > .de-btn-unhide-use { stroke: #FFBFBF; }\
+		.de-btn-fav > use, .de-btn-stick > use, .de-btn-expthr-poly, .de-btn-rep-poly { fill: #FFF; }\
+		.de-btn-fav-sel > use { fill: #FFE100; }\
+		.de-btn-stick-on > use { fill: #BFFFBF; }\
+		.de-btn-sage-back { fill: #4B4B4B; }\
+		.de-btn-sage-poly { fill: #F0F0F0; }\
+		.de-btn-sage-line { stroke: #F0F0F0; }\
 		.de-btn-back { fill: ' + (Cfg.postBtnsCSS === 1 ? 'url(#de-btn-back-gradient)' : '#8C8C8C') + '; }';
 	}
 	if(Cfg.hideReplies || Cfg.updThrBtns) {
