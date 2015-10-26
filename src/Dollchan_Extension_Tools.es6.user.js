@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'cb54f46';
+var commit = '67fc822';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -169,7 +169,7 @@ Lng = {
 		'postBtnsBack': [' Выборочный фон кнопок постов', ' Custom background for post buttons'],
 		'showHideBtn':  ['Скрытие ', 'Post hide '],
 		'showRepBtn':   ['Ответ', 'Post reply'],
-		'noSpoilers':   ['Открывать текстовые спойлеры', 'Open text spoilers'],
+		'noSpoilers':   ['Раскрывать спойлеры ', 'Open text spoilers '],
 		'noPostNames':  ['Скрывать имена в постах', 'Hide names in posts'],
 		'widePosts':    ['Растягивать посты по ширине экрана', 'Stretch posts to the screen width'],
 		'hotKeys':      ['Горячие клавиши ', 'Keyboard hotkeys '],
@@ -2775,8 +2775,8 @@ function getCfgPosts() {
 			}),
 			$txt(Lng.cfg.postBtnsBack[lang])
 		]),
-		lBox('noSpoilers', true, updateCSS),
-		lBox('noPostNames', true, updateCSS),
+		lBox('noSpoilers', false, updateCSS),
+		lBox('noPostNames', false, updateCSS),
 		lBox('widePosts', true, updateCSS),
 		$New('div', null, [
 			lBox('correctTime', false, DateTime.toggleSettings),

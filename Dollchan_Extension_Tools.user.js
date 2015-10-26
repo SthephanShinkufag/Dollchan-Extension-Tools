@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'cb54f46';
+	var commit = '67fc822';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -2033,7 +2033,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'postBtnsBack': [' Выборочный фон кнопок постов', ' Custom background for post buttons'],
 			'showHideBtn': ['Скрытие ', 'Post hide '],
 			'showRepBtn': ['Ответ', 'Post reply'],
-			'noSpoilers': ['Открывать текстовые спойлеры', 'Open text spoilers'],
+			'noSpoilers': ['Раскрывать спойлеры ', 'Open text spoilers '],
 			'noPostNames': ['Скрывать имена в постах', 'Hide names in posts'],
 			'widePosts': ['Растягивать посты по ширине экрана', 'Stretch posts to the screen width'],
 			'hotKeys': ['Горячие клавиши ', 'Keyboard hotkeys '],
@@ -4899,7 +4899,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}), lBox('showHideBtn', false, updateCSS), lBox('showRepBtn', false, updateCSS), $New('div', { 'class': 'de-cfg-depend' }, [inpTxt('postBtnsBack', 8, function () {
 			saveCfg('postBtnsBack', this.value);
 			updateCSS();
-		}), $txt(Lng.cfg.postBtnsBack[lang])]), lBox('noSpoilers', true, updateCSS), lBox('noPostNames', true, updateCSS), lBox('widePosts', true, updateCSS), $New('div', null, [lBox('correctTime', false, DateTime.toggleSettings), inpTxt('timeOffset', 2, null), $txt(Lng.cfg.timeOffset[lang]), $add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-' + (lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">[?]</a>')]), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [inpTxt('timePattern', 25, null), $txt(Lng.cfg.timePattern[lang])]), $New('div', null, [inpTxt('timeRPattern', 25, null), $txt(Lng.cfg.timeRPattern[lang])])])]);
+		}), $txt(Lng.cfg.postBtnsBack[lang])]), lBox('noSpoilers', false, updateCSS), lBox('noPostNames', false, updateCSS), lBox('widePosts', true, updateCSS), $New('div', null, [lBox('correctTime', false, DateTime.toggleSettings), inpTxt('timeOffset', 2, null), $txt(Lng.cfg.timeOffset[lang]), $add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-' + (lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">[?]</a>')]), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [inpTxt('timePattern', 25, null), $txt(Lng.cfg.timePattern[lang])]), $New('div', null, [inpTxt('timeRPattern', 25, null), $txt(Lng.cfg.timeRPattern[lang])])])]);
 	}
 
 	function getCfgImages() {
