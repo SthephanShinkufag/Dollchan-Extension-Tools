@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'ef33e31';
+	var commit = '4a896b1';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -5297,9 +5297,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var height = el.offsetHeight;
 		var yOffset = isFixed ? 0 : window.pageYOffset;
 		if (cr.bottom + height < Post.sizing.wHeight) {
-			mStyle.top = yOffset + cr.bottom + 1 + 'px';
+			mStyle.top = yOffset + cr.bottom + 'px';
+			el.classList.add('de-menu-down');
 		} else {
-			mStyle.top = yOffset + cr.top - height - 1 + 'px';
+			mStyle.top = yOffset + cr.top - height + 'px';
+			el.classList.add('de-menu-up');
 		}
 		mStyle.removeProperty('visibility');
 		this._clickFn = clickFn;

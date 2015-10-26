@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'ef33e31';
+var commit = '4a896b1';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3376,9 +3376,11 @@ function Menu(parentEl, html, isFixed, clickFn) {
 	var height = el.offsetHeight;
 	var yOffset = isFixed ? 0 : window.pageYOffset;
 	if(cr.bottom + height < Post.sizing.wHeight) {
-		mStyle.top = (yOffset + cr.bottom + 1) + 'px';
+		mStyle.top = (yOffset + cr.bottom) + 'px';
+		el.classList.add('de-menu-down');
 	} else {
-		mStyle.top = (yOffset + cr.top - height - 1) + 'px';
+		mStyle.top = (yOffset + cr.top - height) + 'px';
+		el.classList.add('de-menu-up');
 	}
 	mStyle.removeProperty('visibility');
 	this._clickFn = clickFn;
