@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'b3c1557';
+var commit = 'cf78835';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -6418,7 +6418,7 @@ function PostForm(form, ignoreForm, dc) {
 		} else {
 			$parent(this.mail, 'TR').style.display = 'none';
 		}
-		this.subm.insertAdjacentHTML('afterend', '<svg id="de-sagebtn" class="de-btn-sage" title="SAGE"><use xlink:href="#de-btn-sage-symbol"/></svg>');
+		this.subm.insertAdjacentHTML('afterend', '<svg id="de-sagebtn" class="de-btn-sage" title="SAGE"><use xlink:href="#de-symbol-sagebtn"/></svg>');
 		el = this.subm.nextSibling;
 		el.onclick = e => {
 			e.stopPropagation();
@@ -8446,7 +8446,7 @@ function processImageNames(el) {
 			continue;
 		}
 		if(addSrc) {
-			link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-src"><use xlink:href="#de-btn-src-symbol"/></svg>');
+			link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-src"><use xlink:href="#de-symbol-srcbtn"/></svg>');
 		}
 		if(delNames) {
 			link.classList.add('de-img-name');
@@ -8868,20 +8868,20 @@ class Post extends AbstractPost {
 		}
 		var refEl = $q(aib.qRef, el),
 			html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') +
-				'"><svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-btn-hide-symbol"/>' +
-				'<use class="de-btn-unhide-use" xlink:href="#de-btn-unhide-symbol"/></svg>' +
-				'<svg class="de-btn-rep"><use xlink:href="#de-btn-rep-symbol"/></svg>';
+				'"><svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-hidebtn"/>' +
+				'<use class="de-btn-unhide-use" xlink:href="#de-symbol-unhidebtn"/></svg>' +
+				'<svg class="de-btn-rep"><use xlink:href="#de-symbol-repbtn"/></svg>';
 		this._pref = refEl;
 		el.post = this;
 		if(isOp) {
 			if(!aib.t) {
-				html += '<svg class="de-btn-expthr"><use xlink:href="#de-btn-expthr-symbol"/></svg>';
+				html += '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-expthrbtn"/></svg>';
 			}
-			html += '<svg class="de-btn-fav"><use xlink:href="#de-btn-fav-symbol"/></svg>';
+			html += '<svg class="de-btn-fav"><use xlink:href="#de-symbol-favbtn"/></svg>';
 		}
 		this.sage = aib.getSage(el);
 		if(this.sage) {
-			html += '<svg class="de-btn-sage" title="SAGE"><use xlink:href="#de-btn-sage-symbol"/></svg>';
+			html += '<svg class="de-btn-sage" title="SAGE"><use xlink:href="#de-symbol-sagebtn"/></svg>';
 		}
 		refEl.insertAdjacentHTML('afterend', html + '</span>');
 		this.btns = refEl.nextSibling;
@@ -9790,10 +9790,10 @@ class Pview extends AbstractPost {
 		}
 		var el = this.el = post.el.cloneNode(true),
 			pText = '<svg class="de-btn-rep" title="' + Lng.replyToPost[lang] +
-				'"><use xlink:href="#de-btn-rep-symbol"/></svg>' +
-				(post.sage ? '<svg class="de-btn-sage" title="SAGE"><use xlink:href="#de-btn-sage-symbol"/></svg>' : '') +
+				'"><use xlink:href="#de-symbol-repbtn"/></svg>' +
+				(post.sage ? '<svg class="de-btn-sage" title="SAGE"><use xlink:href="#de-symbol-sagebtn"/></svg>' : '') +
 				'<svg class="de-btn-stick" title="' + Lng.attachPview[lang] +
-				'"><use xlink:href="#de-btn-stick-symbol"/></svg>' +
+				'"><use xlink:href="#de-symbol-stickbtn"/></svg>' +
 				(post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' +
 				'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
 		el.post = this;
@@ -9824,8 +9824,8 @@ class Pview extends AbstractPost {
 			}
 			node.innerHTML = '<svg class="de-btn-hide' + (post.userToggled ? '-user' : '') +
 				' de-btn-pview-hide" de-num="' + this.num + '" title="' + Lng.togglePost[lang] +
-				'"><use class="de-btn-hide-use" xlink:href="#de-btn-hide-symbol"/>' +
-				'<use class="de-btn-unhide-use" xlink:href="#de-btn-unhide-symbol"/></svg>' + pText;
+				'"><use class="de-btn-hide-use" xlink:href="#de-symbol-hidebtn"/>' +
+				'<use class="de-btn-unhide-use" xlink:href="#de-symbol-unhidebtn"/></svg>' + pText;
 			$each($Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') +
 				'.de-img-full, .de-after-fimg', el), $del);
 			$each($Q(aib.qThumbImages, el), function(el) {
@@ -10685,9 +10685,9 @@ var navPanel = {
 	},
 	init() {
 		doc.body.insertAdjacentHTML('beforeend', `<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">
-			<svg id="de-thr-navarrow"><use xlink:href="#de-btn-navarrow-symbol"/></svg>
-			<div id="de-thr-navup"><svg viewBox="0 0 24 24"><use xlink:href="#de-btn-navup-symbol"/></svg></div>
-			<div id="de-thr-navdown"><svg viewBox="0 0 24 24"><use xlink:href="#de-btn-navdown-symbol"/></svg></div>
+			<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-navarrow"/></svg>
+			<div id="de-thr-navup"><svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-navup"/></svg></div>
+			<div id="de-thr-navdown"><svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-navdown"/></svg></div>
 		</div>`);
 		var el = doc.body.lastChild;
 		el.addEventListener('mouseover', this, true);
@@ -12014,48 +12014,47 @@ function Initialization(checkDomains) {
 			<style type="text/css"><![CDATA[
 				.de-btn-hide-line, .de-btn-unhide-line { stroke: inherit; }
 				#de-btn-back, .de-btn-fav-poly, .de-btn-stick-rect, .de-btn-fav-text, .de-btn-stick-text { fill: inherit; }
-				text { font-size: 14px; stroke: none; }
 			]]></style>
 		</defs>
 		<!-- POST ICONS -->
-		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-back-symbol">
+		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-backbtn">
 			<path id="de-btn-back" stroke="none" d="M11.2,14H2.8C1.3,14,0,12.7,0,11.2V2.8C0,1.3,1.3,0,2.8,0l8.4,0C12.7,0,14,1.3,14,2.8v8.4C14,12.7,12.7,14,11.2,14z"/>
 		</symbol>
-		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-hide-symbol">
-			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-hidebtn">
+			<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
 			<line class="de-btn-hide-line" fill="none" stroke-width="2.5" stroke-miterlimit="10" x1="3.5" y1="10.5" x2="10.5" y2="3.5"/>
 			<line class="de-btn-hide-line" fill="none" stroke-width="2.5" stroke-miterlimit="10" x1="10.5" y1="10.5" x2="3.5" y2="3.5"/>
 		</symbol>
-		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-unhide-symbol">
-			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-unhidebtn">
+			<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
 			<line class="de-btn-unhide-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="7" y1="3" x2="7" y2="11"/>
 			<line class="de-btn-unhide-line" fill="none" stroke-width="2" stroke-miterlimit="10" x1="3" y1="7" x2="11" y2="7"/>
 		</symbol>
-		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-rep-symbol">
-			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-repbtn">
+			<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
 			<polygon class="de-btn-rep-poly" points="4.2,11.4 11.4,7 4.2,2.6"/>
 		</symbol>
-		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-expthr-symbol">
-			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-expthrbtn">
+			<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
 			<polygon class="de-btn-expthr-poly" points="3.5,5 7,2 10.5,5 8.25,5 8.25,9 10.5,9 7,12 3.5,9 5.75,9 5.75,5"/>
 		</symbol>
-		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-fav-symbol">
-			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-favbtn">
+			<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
 			<polygon class="de-btn-fav-poly" points="7,1.8 8.5,4.9 11.8,5.4 9.4,7.8 10.5,11.3 7,9 3.5,11.3 4.6,7.8 2.3,5.4 5.5,4.9"/>
 		</symbol>
-		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-stick-symbol">
-			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-stickbtn">
+			<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
 			<rect class="de-btn-stick-rect" x="4" y="4" width="6" height="6"/>
 		</symbol>
-		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-sage-symbol">
-			<use class="de-btn-sage-back" xlink:href="#de-btn-back-symbol"/>
+		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-sagebtn">
+			<use class="de-btn-sage-back" xlink:href="#de-symbol-backbtn"/>
 			<polygon class="de-btn-sage-poly" points="3,8 11,8 7,12.2"/>
 			<line class="de-btn-sage-line" fill="none" stroke-miterlimit="10" x1="5" y1="6.5" x2="9" y2="6.5"/>
 			<line class="de-btn-sage-line" fill="none" stroke-miterlimit="10" x1="5" y1="4.5" x2="9" y2="4.5"/>
 			<line class="de-btn-sage-line" fill="none" stroke-miterlimit="10" x1="5" y1="2.5" x2="9" y2="2.5"/>
 		</symbol>
-		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-btn-src-symbol">
-			<use class="de-btn-back" xlink:href="#de-btn-back-symbol"/>
+		<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-srcbtn">
+			<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
 			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="3" y1="11.5" x2="6" y2="11.5"/>
 			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="8" y1="11.5" x2="11" y2="11.5"/>
 			<line class="de-btn-src-line" fill="none" stroke-width="3" stroke-miterlimit="10" x1="4.5" y1="10" x2="4.5" y2="6"/>
@@ -12066,14 +12065,14 @@ function Initialization(checkDomains) {
 			<line class="de-btn-src-line" fill="none" stroke-miterlimit="10" x1="6" y1="7.5" x2="8" y2="7.5"/>
 		</symbol>
 		<!-- NAVIGATION PANEL ICONS -->
-		<symbol enable-background="new 0 0 7 7" viewBox="0 0 7 7" id="de-btn-navarrow-symbol">
+		<symbol enable-background="new 0 0 7 7" viewBox="0 0 7 7" id="de-symbol-navarrow">
 			<polygon fill="#FFFFFF" points="6,3.5 2,0 2,7"/>
 		</symbol>
-		<symbol enable-background="new 0 0 24 24" viewBox="0 0 24 24" id="de-btn-navup-symbol">
+		<symbol enable-background="new 0 0 24 24" viewBox="0 0 24 24" id="de-symbol-navup">
 			<polyline fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" points="3,22.5 12,13.5 21,22.5"/>
 			<polyline fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" points="3,13.5 12,4.5 21,13.5"/>
 		</symbol>
-		<symbol enable-background="new 0 0 24 24" viewBox="0 0 24 24" id="de-btn-navdown-symbol">
+		<symbol enable-background="new 0 0 24 24" viewBox="0 0 24 24" id="de-symbol-navdown">
 			<polyline fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" points="3,11.5 12,20.5 21,11.5"/>
 			<polyline fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" points="3,2.5 12,11.5 21,2.5"/>
 		</symbol>
