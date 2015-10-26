@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'f9fb75f';
+var commit = '9ea1217';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2330,7 +2330,7 @@ function showHiddenWindow(body) {
 		cln.className = aib.cReply + ' de-post-hide de-cloned-post';
 		cln.post = Object.create(cln.clone = post.post);
 		cln.post.el = cln;
-		cln.btn = $q('.de-btn-hide, .de-btn-hide-user', cln);
+		cln.btn = $q('.de-btn-unhide, .de-btn-unhide-user', cln);
 		cln.btn.parentNode.className = 'de-post-btns';
 		cln.btn.onclick = function() {
 			this.hideContent(this.hidden = !this.hidden);
