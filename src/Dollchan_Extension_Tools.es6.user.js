@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '1a5cc7b';
+var commit = '8aaefb5';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1370,6 +1370,27 @@ function downloadBlob(blob, name) {
 		window.URL.revokeObjectURL(url);
 		$del(link);
 	}, 1e5);
+}
+
+function checkCSSColor(color) {
+    if(!color) {
+		return false;
+	}
+    if(color === 'inherit') {
+		return false;
+	}
+    if(color === 'transparent') {
+		return true;
+	}
+    var image = document.createElement('img');
+    image.style.color = 'rgb(0, 0, 0)';
+    image.style.color = color;
+    if(image.style.color !== 'rgb(0, 0, 0)') {
+		return true;
+	}
+    image.style.color = 'rgb(255, 255, 255)';
+    image.style.color = color;
+    return image.style.color !== 'rgb(255, 255, 255)';
 }
 
 
@@ -2770,8 +2791,13 @@ function getCfgPosts() {
 		lBox('showRepBtn', false, updateCSS),
 		$New('div', {'class': 'de-cfg-depend'}, [
 			inpTxt('postBtnsBack', 8, function() {
-				saveCfg('postBtnsBack', this.value);
-				updateCSS();
+				if(checkCSSColor(this.value)) {
+					this.classList.remove('de-error-input');
+					saveCfg('postBtnsBack', this.value);
+					updateCSS();
+				} else {
+					this.classList.add('de-error-input');
+				}
 			}),
 			$txt(Lng.cfg.postBtnsBack[lang])
 		]),
@@ -3353,9 +3379,9 @@ function Menu(parentEl, html, isFixed, clickFn) {
 	var height = el.offsetHeight;
 	var yOffset = isFixed ? 0 : window.pageYOffset;
 	if(cr.bottom + height < Post.sizing.wHeight) {
-		mStyle.top = (yOffset + cr.bottom) + 'px';
+		mStyle.top = (yOffset + cr.bottom + 1) + 'px';
 	} else {
-		mStyle.top = (yOffset + cr.top - height) + 'px';
+		mStyle.top = (yOffset + cr.top - height - 1) + 'px';
 	}
 	mStyle.removeProperty('visibility');
 	this._clickFn = clickFn;
@@ -3849,8 +3875,8 @@ function KeyEditListener(popupEl, keys, allKeys) {
 		if(k !== 0) {
 			for(var j = i + 1; j < len; ++j) {
 				if(k === allKeys[j]) {
-					aInputs[i].classList.add('de-error-key');
-					aInputs[j].classList.add('de-error-key');
+					aInputs[i].classList.add('de-error-input');
+					aInputs[j].classList.add('de-error-input');
 					break;
 				}
 			}
@@ -3861,7 +3887,7 @@ function KeyEditListener(popupEl, keys, allKeys) {
 	this.initKeys = JSON.parse(JSON.stringify(keys));
 	this.allKeys = allKeys;
 	this.allInputs = aInputs;
-	this.errCount = $C('de-error-key', popupEl).length;
+	this.errCount = $C('de-error-input', popupEl).length;
 	if(this.errCount !== 0) {
 		this.saveButton.disabled = true;
 	}
@@ -4016,7 +4042,7 @@ KeyEditListener.prototype = {
 			if(!el || key === -1) {
 				return;
 			}
-			var rEl, isError = el.classList.contains('de-error-key');
+			var rEl, isError = el.classList.contains('de-error-input');
 			if(!this.errorInput && key !== -1) {
 				var idx = this.allInputs.indexOf(el),
 					oKey = this.allKeys[idx];
@@ -4030,14 +4056,14 @@ KeyEditListener.prototype = {
 					idx = this.allKeys.indexOf(oKey);
 					if(idx !== -1 && this.allKeys.indexOf(oKey, idx + 1) === -1) {
 						rEl = this.allInputs[idx];
-						if(rEl.classList.contains('de-error-key')) {
+						if(rEl.classList.contains('de-error-input')) {
 							this.errCount--;
-							rEl.classList.remove('de-error-key');
+							rEl.classList.remove('de-error-input');
 						}
 					}
 					if(rIdx === -1) {
 						this.errCount--;
-						el.classList.remove('de-error-key');
+						el.classList.remove('de-error-input');
 					}
 				}
 				if(rIdx === -1) {
@@ -4049,14 +4075,14 @@ KeyEditListener.prototype = {
 					break;
 				}
 				rEl = this.allInputs[rIdx];
-				if(!rEl.classList.contains('de-error-key')) {
+				if(!rEl.classList.contains('de-error-input')) {
 					this.errCount++;
-					rEl.classList.add('de-error-key');
+					rEl.classList.add('de-error-input');
 				}
 			}
 			if(!isError) {
 				this.errCount++;
-				el.classList.add('de-error-key');
+				el.classList.add('de-error-input');
 			}
 			if(this.errCount !== 0) {
 				this.saveButton.disabled = true;
@@ -13245,7 +13271,7 @@ function scriptCSS() {
 	.de-refcomma:last-child { display: none; }\
 	.de-replies-hide::after { content: "' + Lng.hidePosts[lang] + '"; }\
 	.de-replies-show::after { content: "' + Lng.showPosts[lang] + '"; }\
-	.de-selected, .de-error-key { ' + (nav.Presto ? 'border-left: 4px solid rgba(255,0,0,.7); border-right: 4px solid rgba(255,0,0,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(255,0,0,.8), -6px 0 2px -2px rgba(255,0,0,.8); }') + '\
+	.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(255,0,0,.7); border-right: 4px solid rgba(255,0,0,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(255,0,0,.8), -6px 0 2px -2px rgba(255,0,0,.8); }') + '\
 	.de-thread-buttons { clear: left; margin-top: 5px; }\
 	.de-thread-collapse > a::after { content: "' + Lng.collapseThrd[lang] + '"; }\
 	.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '"; }\
