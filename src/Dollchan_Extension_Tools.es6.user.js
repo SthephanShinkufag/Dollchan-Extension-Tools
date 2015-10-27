@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'f095e89';
+var commit = '736944f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -6315,6 +6315,7 @@ function addSpell(type, arg, isNeg) {
 		if(fld) {
 			chk.checked = !!(fld.value = val);
 		}
+		Pview.updatePosition(true);
 		return;
 	}
 	spells.enable = false;
@@ -9584,12 +9585,17 @@ class Pview extends AbstractPost {
 					return;
 				}
 			}
-			var diff = pv._findScrollDiff();
+			var cr = parent.hidden ? parent : pv._link.getBoundingClientRect();
+			var diff = pv._isTop ? pv._offsetTop - (window.pageYOffset + cr.bottom)
+			                     : (pv._offsetTop + pv.el.offsetHeight) - (window.pageYOffset + cr.top);
 			if(Math.abs(diff) > 1) {
 				if(scroll) {
 					scrollTo(window.pageXOffset, window.pageYOffset - diff);
 				}
-				pv._moveY(diff);
+				do {
+					pv._offsetTop -= diff;
+					pv.el.style.top = Math.max(pv._offsetTop, 0) + 'px';
+				} while((pv = pv.kid));
 			}
 		}
 	}
@@ -9722,19 +9728,10 @@ class Pview extends AbstractPost {
 	}
 	toggleUserVisib() {
 		var post = pByNum[this.num];
-		var diff, top = Pview.top;
 		post.toggleUserVisib();
-		var hidden = post.hidden;
-		if(post === top.parent && hidden) {
-			diff = top._isTop ? top._offsetTop - (window.pageYOffset + post.bottom)
-			                  : (top._offsetTop + top.el.offsetHeight) - (window.pageYOffset + post.top);
-		} else {
-			diff = top._findScrollDiff();
-		}
-		scrollTo(window.pageXOffset, window.pageYOffset - diff);
-		top._moveY(diff);
+		Pview.updatePosition(true);
 		$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]', dForm.el), el => {
-			if(hidden) {
+			if(post.hidden) {
 				el.setAttribute('class', 'de-btn-unhide-user de-btn-pview-hide');
 				el.parentNode.classList.add('de-post-hide');
 			} else {
@@ -9744,18 +9741,6 @@ class Pview extends AbstractPost {
 		});
 	}
 
-	_findScrollDiff() {
-		var cr = this._link.getBoundingClientRect();
-		return this._isTop ? this._offsetTop - (window.pageYOffset + cr.bottom)
-		                   : (this._offsetTop + this.el.offsetHeight) - (window.pageYOffset + cr.top)
-	}
-	_moveY(diff) {
-		var pv = this;
-		do {
-			pv._offsetTop -= diff;
-			pv.el.style.top = Math.max(pv._offsetTop, 0) + 'px';
-		} while((pv = pv.kid));
-	}
 	_onerror(e) {
 		this.el.innerHTML = (e instanceof AjaxError) && e.code === 404 ?
 			Lng.postNotFound[lang] : getErrorMessage(e);
