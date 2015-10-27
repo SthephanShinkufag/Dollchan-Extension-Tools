@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '416478a';
+var commit = '8a87d26';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -6360,8 +6360,8 @@ function PostForm(form, ignoreForm, dc) {
 		this.fileTd = $parent(this.file, 'TD');
 		this.spoil = $q('input[type="checkbox"][name="spoiler"]', this.fileTd);
 	}
-	this.passw = $q('tr input[type="password"]', form);
-	this.dpass = $q('input[type="password"], input[name="password"]', dForm.el);
+	this.passw = $q(aib.qPassw, form);
+	this.dpass = $q(aib.qDelPassw, dForm.el);
 	this.name = $x(p + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form);
 	this.mail = $x(p + (
 			aib._410 ? '@name="sage"]' :
@@ -7189,7 +7189,9 @@ FileInput.prototype = {
 	},
 	init(update) {
 		if(Cfg.fileThumb) {
-			this.form.fileTd.parentNode.style.display = 'none';
+			setTimeout(() => {
+				this.form.fileTd.parentNode.style.display = 'none';
+			}, 0);
 			this.form.fileArea.insertAdjacentHTML('beforeend',
 				'<div class="de-file de-file-off"><div class="de-file-img">' +
 				'<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
@@ -11085,35 +11087,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		'7chan.org': [{
 			init: { value() { return true; } }
 		}],
-		'8ch.net': [{
-			_8ch: { value: true },
-
-			css: { value: '.fileinfo { width: 250px; }\
-				.multifile { width: auto !important; }\
-				#expand-all-images, #expand-all-images + .unimportant, .post-btn, .watchThread { display: none !important; }' },
-			earlyInit: { value() {
-				if(locStorage['file_dragdrop'] === 'true') {
-					locStorage['file_dragdrop'] = false;
-					return true;
-				}
-				return false;
-			} },
-			init: { value() {
-				setTimeout(function() {
-					$del($id('thread-interactions'));
-				}, 0);
-				return false;
-			} },
-			fixFileInputs: { value(el) {
-				var str = '';
-				for(var i = 0, len = 5; i < len; ++i) {
-					str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
-						'><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"></div>';
-				}
-				$id('upload').lastChild.innerHTML = str;
-			} },
-			multiFile: { value: true }
-		}, 'form[name*="postcontrols"]'],
 		'arhivach.org': [{
 			cReply: { value: 'post' },
 			qDForm: { value: 'body > .container-fluid' },
@@ -11331,11 +11304,12 @@ function getImageBoard(checkDomains, checkEngines) {
 		}],
 		'lainchan.org': [{
 			cOPost: { value: 'op' },
-			css: { value: '.sidearrows { display: none !important; }' }
-		}, 'form[name*="postcontrols"]'],
+			css: { value: '.sidearrows { display: none !important; }\
+				.bar { position: static; }' }
+		}, 'tr#upload'],
 		'mlpg.co': [{
 			cOPost: { value: 'opContainer' }
-		}, 'form[name*="postcontrols"]'],
+		}, 'tr#upload'],
 		get 'niuchan.org'() { return this['diochan.com']; },
 		'ponya.ch': [{
 			getPNum: { value(post) {
@@ -11614,7 +11588,42 @@ function getImageBoard(checkDomains, checkEngines) {
 			} },
 			ru: { value: true }
 		},
-		'form[name*="postcontrols"]': {
+		get 'tr#upload'() { // Vichan
+			var val = this['form[name*="postcontrols"]'];
+			val.qDelPassw = { value: '#password' };
+			val.qPassw = { value: 'input[name="password"]' };
+			val.cssEn = { get() {
+				return `.banner, ${this.t ? '' : '.de-btn-rep,'} .hide-thread-link, .mentioned, .post-hover { display: none !important; }
+					div.post.reply { float: left; clear: left; display: block; }
+					.boardlist { position: static !important; }
+					body { padding: 0 5px !important; }
+					.fileinfo { width: 250px; }
+					.multifile { width: auto !important; }
+					#expand-all-images, #expand-all-images + .unimportant, .post-btn { display: none !important; }`;
+			} };
+			val.init = { value() {
+				setTimeout(function() {
+					$del($id('updater'));
+				}, 0);
+				if(checkStorage() && locStorage['file_dragdrop'] !== 'false') {
+					locStorage['file_dragdrop'] = false;
+					window.location.reload();
+					return true;
+				}
+				return false;
+			} };
+			val.fixFileInputs = { value(el) {
+				var str = '';
+				for(var i = 0, len = 5; i < len; ++i) {
+					str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
+						'><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"></div>';
+				}
+				$id('upload').lastChild.innerHTML = str;
+			} };
+			val.multiFile = { value: true };
+			return val;
+		},
+		'form[name*="postcontrols"]': { // Tinyboard
 			tiny: { value: true },
 
 			cFileInfo: { value: 'fileinfo' },
@@ -11655,17 +11664,13 @@ function getImageBoard(checkDomains, checkEngines) {
 				if(Cfg) {
 					Cfg.fileThumb = 0;
 				}
-				setTimeout(function() {
-					$del($id('updater'));
-				}, 0);
 				return false;
 			} },
 			firstPage: { value: 1 },
 			markupTags: { value: ["'''", "''", '__', '^H', '**', '`', '', '', 'q'] },
 			cssEn: { get() {
 				return `.banner, ${this.t ? '' : '.de-btn-rep,'} .hide-thread-link, .mentioned, .post-hover { display: none !important; }
-					div.post.reply { float: left; clear: left; display: block; }
-					form, form table { margin: 0; }`;
+					div.post.reply { float: left; clear: left; display: block; }`;
 			} },
 			timePattern: { value: 'nn+dd+yy++w++hh+ii+ss' },
 			thrid: { value: 'thread' }
@@ -11753,9 +11758,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		cTrip: 'postertrip',
 		qBan: '',
 		qDelBut: 'input[type="submit"]',
+		qDelPassw: 'input[type="password"], input[name="password"]',
 		qDForm: '#delform, form[name="delform"]',
 		qError: 'h1, h2, font[size="5"]',
 		qHide: '.de-post-btns ~ *',
+		qPassw: 'tr input[type="password"]',
 		get qImgLink() {
 			var val = '.' + this.cFileInfo + ' a[href$=".jpg"], ' +
 				'.' + this.cFileInfo + ' a[href$=".jpeg"], ' +
@@ -11943,7 +11950,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			var url = (window.location.pathname || '').match(new RegExp(
 				'^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?' +
 				'(' + regQuote(this.res) + ')?' +
-				'(\\d+|index|wakaba|futaba)?' +
+				'(\\d+(?:[a-z-]+)?)?' +
 				'(\\.(?:[a-z]+))?(?:\\/|$)'
 			));
 			this.b = url[1].replace(/\/$/, '');
@@ -12987,7 +12994,7 @@ function scriptCSS() {
 	.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\
 	.de-win > .de-win-head { cursor: move; }\
 	.de-win .de-btn-toggle::after { content: "\u21E9"; }\
-	.de-win-buttons { float: right; line-height: 16px; margin-top: 1px; cursor: pointer; }\
+	.de-win-buttons { line-height: 16px; margin-top: 1px; cursor: pointer; }\
 	.de-win-buttons > span { margin-right: 4px; font-size: 15px; }\
 	.de-win-buttons > span:hover { color: #f66; }\
 	#de-win-cfg { width: 370px; }\
@@ -12997,12 +13004,12 @@ function scriptCSS() {
 	#de-win-fav input[type="checkbox"] { flex: none; margin-left: 15px; }\
 	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\
 	#de-win-vid .de-entry { white-space: normal; }\
-	.de-win-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\
+	.de-win-head { display: flex; padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\
 	.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\
 	.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\
 	.de-win-head:lang(de), #de-panel:lang(de) { background-color: #777; }\
 	.de-win-head:lang(es), #de-panel:lang(es) { background-color: rgba(0,20,80,.72); }\
-	.de-win-title { font: bold 14px arial; margin-left: 32px; }' +
+	.de-win-title { width: 100%; font: bold 14px arial; margin-left: 32px; }' +
 
 	// Settings window
 	'.de-block { display: block; }\
@@ -13315,7 +13322,7 @@ function updateCSS() {
 		x += '.de-img-full { margin: 2px 5px; }';
 	}
 	if(Cfg.noSpoilers) {
-		if(aib.krau || aib.fch || aib._8ch || aib._410 || aib.dio) {
+		if(aib.krau || aib.fch || aib._410 || aib.dio) {
 			x += '.spoiler, s { color: #fff !important; }\
 				.spoiler > a, s > a:not(:hover) { color: inherit !important; }';
 		} else {
