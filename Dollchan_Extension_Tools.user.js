@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '736944f';
+	var commit = '7419cd1';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -2514,9 +2514,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function $DOM(html) {
-		var myDoc = doc.implementation.createHTMLDocument('');
-		myDoc.documentElement.innerHTML = html;
-		return myDoc;
+		try {
+			return new DOMParser().parseFromString(html, 'text/html');
+		} catch (e) {
+		
+			var myDoc = doc.implementation.createHTMLDocument('');
+			myDoc.documentElement.innerHTML = html;
+			return myDoc;
+		}
 	}
 
 	function $pd(e) {
@@ -14444,7 +14449,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				init: { value: function value() {
 						var _this41 = this;
 
-						$script('window.FormData = void 0;');
+						$script('window.FormData = void 0; $(function() { $(window).off(); });');
 						$each($C('autorefresh', doc), $del);
 						var el = $q('td > .anoniconsselectlist', doc);
 						if (el) {

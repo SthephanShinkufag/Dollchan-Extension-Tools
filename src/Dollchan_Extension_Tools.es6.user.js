@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '736944f';
+var commit = '7419cd1';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -729,9 +729,13 @@ function $del(el) {
 }
 
 function $DOM(html) {
-	var myDoc = doc.implementation.createHTMLDocument('');
-	myDoc.documentElement.innerHTML = html;
-	return myDoc;
+	try {
+		return new DOMParser().parseFromString(html, 'text/html');
+	} catch(e) { // XXX: nav.Presto
+		var myDoc = doc.implementation.createHTMLDocument('');
+		myDoc.documentElement.innerHTML = html;
+		return myDoc;
+	}
 }
 
 function $pd(e) {
@@ -11518,7 +11522,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			hasOPNum: { value: true },
 			hasPicWrap: { value: true },
 			init: { value() {
-				$script('window.FormData = void 0;');
+				$script('window.FormData = void 0; $(function() { $(window).off(); });');
 				$each($C('autorefresh', doc), $del);
 				var el = $q('td > .anoniconsselectlist', doc);
 				if(el) {
