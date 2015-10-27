@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '1455de6';
+var commit = '44ba30d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9625,7 +9625,7 @@ class Pview extends AbstractPost {
 			if(post) {
 				this._showPost(post);
 			} else {
-				this._showPview(this.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview"><span class="de-wait">'
+				this._showPview(this.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">'
 					+ Lng.postNotFound[lang] + '</span></div>'));
 			}
 			return;
@@ -12066,41 +12066,41 @@ function Initialization(checkDomains) {
 		]]></style>
 	</defs>
 	<!-- POST ICONS -->
-	<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-backbtn">
+	<symbol viewBox="0 0 14 14" id="de-symbol-backbtn">
 		<path class="de-btn-back" d="M11.2 14H2.8C1.3 14 0 12.7 0 11.2V2.8C0 1.3 1.3 0 2.8 0h8.4C12.7 0 14 1.3 14 2.8v8.4c0 1.5-1.3 2.8-2.8 2.8z"/>
 	</symbol>
-	<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-hidebtn">
+	<symbol viewBox="0 0 14 14" id="de-symbol-hidebtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
 		<line class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" x1="3.5" y1="10.5" x2="10.5" y2="3.5"/>
 		<line class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" x1="10.5" y1="10.5" x2="3.5" y2="3.5"/>
 	</symbol>
-	<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-unhidebtn">
+	<symbol viewBox="0 0 14 14" id="de-symbol-unhidebtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
 		<line class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" x1="7" y1="3" x2="7" y2="11"/>
 		<line class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" x1="3" y1="7" x2="11" y2="7"/>
 	</symbol>
-	<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-repbtn">
+	<symbol viewBox="0 0 14 14" id="de-symbol-repbtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
 		<path class="de-btn-rep-icon de-svg-fill" d="M4.2 11.4L11.4 7 4.2 2.6z"/>
 	</symbol>
-	<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-expthrbtn">
+	<symbol viewBox="0 0 14 14" id="de-symbol-expthrbtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
 		<path class="de-svg-fill" d="M3.5 5L7 2l3.5 3H8.25v4h2.25L7 12 3.5 9h2.25V5z"/>
 	</symbol>
-	<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-favbtn">
+	<symbol viewBox="0 0 14 14" id="de-symbol-favbtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
 		<path class="de-svg-fill" d="M7 1.8l1.5 3.1 3.3.5-2.4 2.4 1.1 3.5L7 9l-3.5 2.3 1.1-3.5-2.3-2.4 3.2-.5z"/>
 	</symbol>
-	<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-stickbtn">
+	<symbol viewBox="0 0 14 14" id="de-symbol-stickbtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
 		<path class="de-svg-fill" d="M4 4h6v6H4z"/>
 	</symbol>
-	<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-sagebtn">
+	<symbol viewBox="0 0 14 14" id="de-symbol-sagebtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
 		<path class="de-svg-fill" d="M3 8h8l-4 4.2z"/>
 		<path class="de-svg-stroke" stroke-miterlimit="10" d="M5 6.5h4M5 4.5h4M5 2.5h4"/>
 	</symbol>
-	<symbol enable-background="new 0 0 14 14" viewBox="0 0 14 14" id="de-symbol-srcbtn">
+	<symbol viewBox="0 0 14 14" id="de-symbol-srcbtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
 		<circle class="de-svg-stroke" cx="6" cy="6" r="2.5" stroke-width="2"/>
 		<line class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" x1="8" y1="8" x2="11" y2="11"/>
@@ -12109,14 +12109,14 @@ function Initialization(checkDomains) {
 	<symbol enable-background="new 0 0 7 7" viewBox="0 0 7 7" id="de-symbol-navarrow">
 		<path class="de-svg-fill" d="M6 3.5L2 0v7z"/>
 	</symbol>
-	<symbol enable-background="new 0 0 24 24" viewBox="0 0 24 24" id="de-symbol-navup">
+	<symbol viewBox="0 0 24 24" id="de-symbol-navup">
 		<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 22.5l9-9 9 9M3 13.5l9-9 9 9"/>
 	</symbol>
-	<symbol enable-background="new 0 0 24 24" viewBox="0 0 24 24" id="de-symbol-navdown">
+	<symbol viewBox="0 0 24 24" id="de-symbol-navdown">
 		<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>
 	</symbol>
 	<!-- MAIN PANEL -->
-	<symbol enable-background="new 0 0 25 25" viewBox="0 0 25 25" id="de-symbol-panel-logo">
+	<symbol viewBox="0 0 25 25" id="de-symbol-panel-logo">
 		<path class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" d="M22 6h-8"/>
 		<path class="de-svg-stroke" stroke-width="4" stroke-miterlimit="10" d="M14 5v16"/>
 		<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M22 20.5H12c-2.8 0-5.7 0-5.7-4s2.8-4 5.7-4H21"/>
