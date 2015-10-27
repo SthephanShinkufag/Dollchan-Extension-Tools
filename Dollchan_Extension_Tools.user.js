@@ -1869,7 +1869,11 @@ $define(GLOBAL + BIND, {
 
 var _bind = Function.prototype.bind;
 
+var _get = function get(_x25, _x26, _x27) { var _again = true; _function: while (_again) { var object = _x25, property = _x26, receiver = _x27; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x25 = parent; _x26 = property; _x27 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
@@ -1878,11 +1882,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 (function de_main_func_inner(scriptStorage, FormData) {
 	'use strict';
 
-	var _PostImages$prototype;
-
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'afa1a72';
+	var commit = '416478a';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -2840,49 +2842,55 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_classCallCheck(this, TemporaryContent);
 		}
 
-		TemporaryContent.get = function get(key) {
-			var _this2 = this;
+		_createClass(TemporaryContent, null, [{
+			key: 'get',
+			value: function get(key) {
+				var _this2 = this;
 
-			var rv = null;
-			if (this.data) {
-				rv = this.data.get(key);
-			} else {
-				this.data = new Map();
-			}
-			if (!rv) {
-				for (var _len4 = arguments.length, initArgs = Array(_len4 > 1 ? _len4 - 1 : 0), _key3 = 1; _key3 < _len4; _key3++) {
-					initArgs[_key3 - 1] = arguments[_key3];
+				var rv = null;
+				if (this.data) {
+					rv = this.data.get(key);
+				} else {
+					this.data = new Map();
 				}
+				if (!rv) {
+					for (var _len4 = arguments.length, initArgs = Array(_len4 > 1 ? _len4 - 1 : 0), _key3 = 1; _key3 < _len4; _key3++) {
+						initArgs[_key3 - 1] = arguments[_key3];
+					}
 
-				rv = new (_bind.apply(this, [null].concat(initArgs)))();
-				this.data.set(key, rv);
+					rv = new (_bind.apply(this, [null].concat(initArgs)))();
+					this.data.set(key, rv);
+				}
+				if (this.purgeTO) {
+					clearTimeout(this.purgeTO);
+				}
+				this.purgeTO = setTimeout(function () {
+					return _this2.purge();
+				}, this.purgeSecs);
+				return rv;
 			}
-			if (this.purgeTO) {
-				clearTimeout(this.purgeTO);
+		}, {
+			key: 'has',
+			value: function has(key) {
+				return this.data ? this.data.has(key) : false;
 			}
-			this.purgeTO = setTimeout(function () {
-				return _this2.purge();
-			}, this.purgeSecs);
-			return rv;
-		};
-
-		TemporaryContent.has = function has(key) {
-			return this.data ? this.data.has(key) : false;
-		};
-
-		TemporaryContent.purge = function purge() {
-			if (this.purgeTO) {
-				clearTimeout(this.purgeTO);
-				this.purgeTO = null;
+		}, {
+			key: 'purge',
+			value: function purge() {
+				if (this.purgeTO) {
+					clearTimeout(this.purgeTO);
+					this.purgeTO = null;
+				}
+				this.data = null;
 			}
-			this.data = null;
-		};
-
-		TemporaryContent.remove = function remove(key) {
-			if (this.data) {
-				this.data['delete'](key);
+		}, {
+			key: 'remove',
+			value: function remove(key) {
+				if (this.data) {
+					this.data['delete'](key);
+				}
 			}
-		};
+		}]);
 
 		return TemporaryContent;
 	})();
@@ -10484,181 +10492,188 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}
 
-		ExpandableMedia.prototype.collapse = function collapse(e) {
-			if (!this.isVideo || !this.isControlClick(e, this._fullEl.style.height)) {
-				this.expanded = false;
-				$del(this._fullEl);
-				this._fullEl = null;
-				this.el.parentNode.style.display = '';
-				$del((aib.hasPicWrap ? this._getImageParent() : this.el.parentNode).nextSibling);
-				if (e && this.inPview) {
-					this.sendCloseEvent(e, true);
+		_createClass(ExpandableMedia, [{
+			key: 'collapse',
+			value: function collapse(e) {
+				if (!this.isVideo || !this.isControlClick(e, this._fullEl.style.height)) {
+					this.expanded = false;
+					$del(this._fullEl);
+					this._fullEl = null;
+					this.el.parentNode.style.display = '';
+					$del((aib.hasPicWrap ? this._getImageParent() : this.el.parentNode).nextSibling);
+					if (e && this.inPview) {
+						this.sendCloseEvent(e, true);
+					}
+					return true;
 				}
-				return true;
+				return false;
 			}
-			return false;
-		};
-
-		ExpandableMedia.prototype.computeFullSize = function computeFullSize(inPost) {
-			var minSize = Cfg.minImgSize,
-			    width = this.width,
-			    height = this.height;
-			if (Cfg.resizeDPI) {
-				width /= Post.sizing.dPxRatio;
-				height /= Post.sizing.dPxRatio;
-			}
-			if (width < minSize && height < minSize) {
-				var ar = width / height;
-				if (width > height) {
-					width = minSize;
-					height = width / ar;
-				} else {
-					height = minSize;
-					width = height * ar;
+		}, {
+			key: 'computeFullSize',
+			value: function computeFullSize(inPost) {
+				var minSize = Cfg.minImgSize,
+				    width = this.width,
+				    height = this.height;
+				if (Cfg.resizeDPI) {
+					width /= Post.sizing.dPxRatio;
+					height /= Post.sizing.dPxRatio;
 				}
-			}
-			if (Cfg.resizeImgs) {
-				var maxWidth, maxHeight;
-				if (inPost) {
-					maxWidth = Post.sizing.wWidth - this._offset - 3;
-					maxHeight = Number.MAX_SAFE_INTEGER;
-				} else {
-					maxWidth = Post.sizing.wWidth - 2;
-					maxHeight = Post.sizing.wHeight - 2;
-				}
-				if (width > maxWidth || height > maxHeight) {
+				if (width < minSize && height < minSize) {
 					var ar = width / height;
-					if (ar > maxWidth / maxHeight) {
-						width = maxWidth;
+					if (width > height) {
+						width = minSize;
 						height = width / ar;
 					} else {
-						height = maxHeight;
+						height = minSize;
 						width = height * ar;
 					}
-					if (width < minSize || height < minSize) {
-						return [width, height, Math.max(width, height)];
-					}
 				}
-			}
-			return [width, height, null];
-		};
-
-		ExpandableMedia.prototype.expand = function expand(inPost, e) {
-			if (!inPost) {
-				if (Attachment.viewer) {
-					if (Attachment.viewer.data === this) {
-						Attachment.viewer.close(e);
-						Attachment.viewer = null;
-						return;
+				if (Cfg.resizeImgs) {
+					var maxWidth, maxHeight;
+					if (inPost) {
+						maxWidth = Post.sizing.wWidth - this._offset - 3;
+						maxHeight = Number.MAX_SAFE_INTEGER;
+					} else {
+						maxWidth = Post.sizing.wWidth - 2;
+						maxHeight = Post.sizing.wHeight - 2;
 					}
-					Attachment.viewer.update(this, e);
-				} else {
-					Attachment.viewer = new AttachmentViewer(this);
-				}
-				return;
-			}
-			this.expanded = true;
-			var el = this.el,
-			    size = this.computeFullSize(inPost);
-			(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend', '<div class="de-after-fimg"></div>');
-			el.parentNode.style.display = 'none';
-			this._fullEl = this.getFullObject();
-			this._fullEl.className = 'de-img-full';
-			this._fullEl.style.width = size[0] + 'px';
-			this._fullEl.style.height = size[1] + 'px';
-			$after(el.parentNode, this._fullEl);
-		};
-
-		ExpandableMedia.prototype.getFollow = function getFollow(isForward) {
-			var nImage = isForward ? this.next : this.prev;
-			if (nImage) {
-				return nImage;
-			}
-			var imgs,
-			    post = this.post;
-			do {
-				post = post.getAdjacentVisPost(!isForward);
-				if (!post) {
-					post = isForward ? dForm.firstThr.op : dForm.lastThr.last;
-					if (post.hidden || post.thr.hidden) {
-						post = post.getAdjacentVisPost(!isForward);
-						if (!post) {
-							return null;
+					if (width > maxWidth || height > maxHeight) {
+						var ar = width / height;
+						if (ar > maxWidth / maxHeight) {
+							width = maxWidth;
+							height = width / ar;
+						} else {
+							height = maxHeight;
+							width = height * ar;
+						}
+						if (width < minSize || height < minSize) {
+							return [width, height, Math.max(width, height)];
 						}
 					}
 				}
-				imgs = post.images;
-			} while (imgs.first === null);
-			return isForward ? imgs.first : imgs.last;
-		};
-
-		ExpandableMedia.prototype.getFullObject = function getFullObject() {
-			var obj,
-			    src = this.src;
-			if (this.isVideo) {
-				if (aib.tiny) {
-					src = src.replace(/^.*?\?v=|&.*?$/g, '');
-				}
-				if (nav.canPlayWebm) {
-					obj = $add('<video style="width: 100%; height: 100%" src="' + src + '" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') + (Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>');
-					if (Cfg.webmVolume !== 0) {
-						obj.volume = Cfg.webmVolume / 100;
+				return [width, height, null];
+			}
+		}, {
+			key: 'expand',
+			value: function expand(inPost, e) {
+				if (!inPost) {
+					if (Attachment.viewer) {
+						if (Attachment.viewer.data === this) {
+							Attachment.viewer.close(e);
+							Attachment.viewer = null;
+							return;
+						}
+						Attachment.viewer.update(this, e);
+					} else {
+						Attachment.viewer = new AttachmentViewer(this);
 					}
-					obj.onerror = function () {
-						if (!this.onceLoaded) {
-							this.load();
+					return;
+				}
+				this.expanded = true;
+				var el = this.el,
+				    size = this.computeFullSize(inPost);
+				(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend', '<div class="de-after-fimg"></div>');
+				el.parentNode.style.display = 'none';
+				this._fullEl = this.getFullObject();
+				this._fullEl.className = 'de-img-full';
+				this._fullEl.style.width = size[0] + 'px';
+				this._fullEl.style.height = size[1] + 'px';
+				$after(el.parentNode, this._fullEl);
+			}
+		}, {
+			key: 'getFollow',
+			value: function getFollow(isForward) {
+				var nImage = isForward ? this.next : this.prev;
+				if (nImage) {
+					return nImage;
+				}
+				var imgs,
+				    post = this.post;
+				do {
+					post = post.getAdjacentVisPost(!isForward);
+					if (!post) {
+						post = isForward ? dForm.firstThr.op : dForm.lastThr.last;
+						if (post.hidden || post.thr.hidden) {
+							post = post.getAdjacentVisPost(!isForward);
+							if (!post) {
+								return null;
+							}
+						}
+					}
+					imgs = post.images;
+				} while (imgs.first === null);
+				return isForward ? imgs.first : imgs.last;
+			}
+		}, {
+			key: 'getFullObject',
+			value: function getFullObject() {
+				var obj,
+				    src = this.src;
+				if (this.isVideo) {
+					if (aib.tiny) {
+						src = src.replace(/^.*?\?v=|&.*?$/g, '');
+					}
+					if (nav.canPlayWebm) {
+						obj = $add('<video style="width: 100%; height: 100%" src="' + src + '" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') + (Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>');
+						if (Cfg.webmVolume !== 0) {
+							obj.volume = Cfg.webmVolume / 100;
+						}
+						obj.onerror = function () {
+							if (!this.onceLoaded) {
+								this.load();
+								this.onceLoaded = true;
+							}
+						};
+						obj.onvolumechange = function () {
+							var val = this.muted ? 0 : Math.round(this.volume * 100);
+							saveCfg('webmVolume', val);
+							locStorage['__de-webmvolume'] = val;
+							locStorage.removeItem('__de-webmvolume');
+						};
+					} else {
+						obj = $add('<object style="width: 100%; height: 100%" data="' + src + '" type="application/x-vlc-plugin">' + '<param name="pluginspage" value="http://www.videolan.org/vlc/" />' + '<param name="controls" value="' + (Cfg.webmControl ? 'true' : 'false') + '" />' + '<param name="loop" value="true" />' + '<param name="autoplay" value="true" />' + '<param name="wmode" value="transparent" /></object>');
+					}
+				} else {
+					obj = $add('<img style="width: 100%; height: 100%" src="' + src + '" alt="' + src + '"></a>');
+					obj.onload = obj.onerror = function (e) {
+						if (this.naturalHeight + this.naturalWidth === 0 && !this.onceLoaded) {
+							this.src = this.src;
 							this.onceLoaded = true;
 						}
 					};
-					obj.onvolumechange = function () {
-						var val = this.muted ? 0 : Math.round(this.volume * 100);
-						saveCfg('webmVolume', val);
-						locStorage['__de-webmvolume'] = val;
-						locStorage.removeItem('__de-webmvolume');
-					};
-				} else {
-					obj = $add('<object style="width: 100%; height: 100%" data="' + src + '" type="application/x-vlc-plugin">' + '<param name="pluginspage" value="http://www.videolan.org/vlc/" />' + '<param name="controls" value="' + (Cfg.webmControl ? 'true' : 'false') + '" />' + '<param name="loop" value="true" />' + '<param name="autoplay" value="true" />' + '<param name="wmode" value="transparent" /></object>');
 				}
-			} else {
-				obj = $add('<img style="width: 100%; height: 100%" src="' + src + '" alt="' + src + '"></a>');
-				obj.onload = obj.onerror = function (e) {
-					if (this.naturalHeight + this.naturalWidth === 0 && !this.onceLoaded) {
-						this.src = this.src;
-						this.onceLoaded = true;
-					}
-				};
+				return obj;
 			}
-			return obj;
-		};
-
-		ExpandableMedia.prototype.isControlClick = function isControlClick(e, styleHeight) {
-			return Cfg.webmControl && e.clientY > e.target.getBoundingClientRect().top + parseInt(styleHeight, 10) - 30;
-		};
-
-		ExpandableMedia.prototype.sendCloseEvent = function sendCloseEvent(e, inPost) {
-			var pv = this.post,
-			    cr = pv.el.getBoundingClientRect(),
-			    x = e.pageX - window.pageXOffset,
-			    y = e.pageY - window.pageYOffset;
-			if (!inPost) {
-				while (x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
-					pv = pv.parent;
-					if (pv && pv instanceof Pview) {
-						cr = pv.el.getBoundingClientRect();
-					} else {
-						if (Pview.top) {
-							Pview.top.markToDel();
+		}, {
+			key: 'isControlClick',
+			value: function isControlClick(e, styleHeight) {
+				return Cfg.webmControl && e.clientY > e.target.getBoundingClientRect().top + parseInt(styleHeight, 10) - 30;
+			}
+		}, {
+			key: 'sendCloseEvent',
+			value: function sendCloseEvent(e, inPost) {
+				var pv = this.post,
+				    cr = pv.el.getBoundingClientRect(),
+				    x = e.pageX - window.pageXOffset,
+				    y = e.pageY - window.pageYOffset;
+				if (!inPost) {
+					while (x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
+						pv = pv.parent;
+						if (pv && pv instanceof Pview) {
+							cr = pv.el.getBoundingClientRect();
+						} else {
+							if (Pview.top) {
+								Pview.top.markToDel();
+							}
+							return;
 						}
-						return;
 					}
+					pv.mouseEnter();
+				} else if (x > cr.right || y > cr.bottom && Pview.top) {
+					Pview.top.markToDel();
 				}
-				pv.mouseEnter();
-			} else if (x > cr.right || y > cr.bottom && Pview.top) {
-				Pview.top.markToDel();
 			}
-		};
-
-		_createClass(ExpandableMedia, [{
+		}, {
 			key: 'height',
 			get: function get() {
 				var dat = this._getImageSize();
@@ -10731,22 +10746,27 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function EmbeddedImage() {
 			_classCallCheck(this, EmbeddedImage);
 
-			_ExpandableMedia.apply(this, arguments);
+			_get(Object.getPrototypeOf(EmbeddedImage.prototype), 'constructor', this).apply(this, arguments);
 		}
 
-		EmbeddedImage.prototype._getImageParent = function _getImageParent() {
-			return this.el.parentNode;
-		};
-
-		EmbeddedImage.prototype._getImageSize = function _getImageSize() {
-			var iEl = new Image();
-			iEl.src = this.el.src;
-			return [iEl.width, iEl.height];
-		};
-
-		EmbeddedImage.prototype._getImageSrc = function _getImageSrc() {
-			return this.el.src;
-		};
+		_createClass(EmbeddedImage, [{
+			key: '_getImageParent',
+			value: function _getImageParent() {
+				return this.el.parentNode;
+			}
+		}, {
+			key: '_getImageSize',
+			value: function _getImageSize() {
+				var iEl = new Image();
+				iEl.src = this.el.src;
+				return [iEl.width, iEl.height];
+			}
+		}, {
+			key: '_getImageSrc',
+			value: function _getImageSrc() {
+				return this.el.src;
+			}
+		}]);
 
 		return EmbeddedImage;
 	})(ExpandableMedia);
@@ -10757,26 +10777,29 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function Attachment() {
 			_classCallCheck(this, Attachment);
 
-			_ExpandableMedia2.apply(this, arguments);
+			_get(Object.getPrototypeOf(Attachment.prototype), 'constructor', this).apply(this, arguments);
 		}
 
-		Attachment.prototype._getImageParent = function _getImageParent() {
-			return aib.getImgParent(this.el.parentNode);
-		};
-
-		Attachment.prototype._getImageSize = function _getImageSize() {
-			if (this.info) {
-				var size = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
-				return [size[1], size[2]];
-			}
-			return [-1, -1];
-		};
-
-		Attachment.prototype._getImageSrc = function _getImageSrc() {
-			return aib.getImgLink(this.el).href;
-		};
-
 		_createClass(Attachment, [{
+			key: '_getImageParent',
+			value: function _getImageParent() {
+				return aib.getImgParent(this.el.parentNode);
+			}
+		}, {
+			key: '_getImageSize',
+			value: function _getImageSize() {
+				if (this.info) {
+					var size = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
+					return [size[1], size[2]];
+				}
+				return [-1, -1];
+			}
+		}, {
+			key: '_getImageSrc',
+			value: function _getImageSrc() {
+				return aib.getImgLink(this.el).href;
+			}
+		}, {
 			key: 'info',
 			get: function get() {
 				var val = aib.getFileInfo(aib.getImgWrap(this.el.parentNode));
@@ -10800,7 +10823,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var needCache = !this.inPview && !this.post.isOp && !this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4;
 				var value;
 				if (!needCache || Attachment.cachedOffset === -1) {
-					value = _ExpandableMedia2.prototype._offset;
+					value = _get(Object.getPrototypeOf(Attachment.prototype), '_offset', this);
 					if (needCache) {
 						Attachment.cachedOffset = value;
 					}
@@ -11011,302 +11034,311 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.thr = thr;
 		}
 
-		AbstractPost.prototype.addFuncs = function addFuncs() {
-			RefMap.upd(this, true);
-			embedMediaLinks(this);
-			if (Cfg.addImgs) {
-				embedImagesLinks(this.el);
+		_createClass(AbstractPost, [{
+			key: 'addFuncs',
+			value: function addFuncs() {
+				RefMap.upd(this, true);
+				embedMediaLinks(this);
+				if (Cfg.addImgs) {
+					embedImagesLinks(this.el);
+				}
 			}
-		};
+		}, {
+			key: 'handleEvent',
+			value: function handleEvent(e) {
+				var _this23 = this;
 
-		AbstractPost.prototype.handleEvent = function handleEvent(e) {
-			var _this23 = this;
-
-			var temp,
-			    el = fixEventEl(e.target),
-			    type = e.type,
-			    isOutEvent = type === 'mouseout';
-			if (type === 'click') {
-				if (e.button !== 0) {
+				var temp,
+				    el = fixEventEl(e.target),
+				    type = e.type,
+				    isOutEvent = type === 'mouseout';
+				if (type === 'click') {
+					if (e.button !== 0) {
+						return;
+					}
+					if (this._menu) {
+						this._menu.remove();
+						this._menu = null;
+					}
+					switch (el.tagName) {
+						case 'A':
+							if (el.classList.contains('de-video-link')) {
+								this.videos.clickLink(el, Cfg.addYouTube);
+								$pd(e);
+								return;
+							}
+							temp = el.firstElementChild;
+							if (temp && temp.tagName === 'IMG') {
+								el = temp;
+							} else {
+								temp = el.parentNode;
+								if (temp === this.trunc) {
+									this._getFull(temp, false);
+									$pd(e);
+									e.stopPropagation();
+								} else if (Cfg.insertNum && pr.form && temp === this._pref && !/Reply|Ответ/.test(el.textContent)) {
+									$pd(e);
+									e.stopPropagation();
+									if (!Cfg.showRepBtn) {
+										quotetxt = $txtSelect();
+										pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, !(this instanceof Pview), false);
+										quotetxt = '';
+									} else if (pr.isQuick || aib.t && pr.isHidden) {
+										pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, false, true);
+									} else if (aib.t) {
+										$txtInsert(pr.txta, '>>' + this.num);
+									} else {
+										window.location = el.href.replace(/#i/, '#');
+									}
+								} else if ((temp = el.textContent)[0] === '>' && temp[1] === '>' && !temp[2].includes('\/')) {
+									var num = temp.match(/\d+/),
+									    post = pByNum[num];
+									if (!post) {
+										return;
+									}
+									post.selectCurrent();
+									post.el.scrollIntoView(true);
+									window.location.href = aib.anchor + num;
+									$pd(e);
+								}
+								return;
+							}
+												case 'IMG':
+							if (el.classList.contains('de-video-thumb')) {
+								if (Cfg.addYouTube === 3) {
+									var vObject = this.videos;
+									vObject.currentLink.classList.add('de-current');
+									vObject.addPlayer(vObject.playerInfo, el.classList.contains('de-ytube'));
+									$pd(e);
+								}
+							} else if (Cfg.expandImgs !== 0) {
+								this._clickImage(el, e);
+							}
+							return;
+						case 'OBJECT':
+						case 'VIDEO':
+							if (Cfg.expandImgs !== 0 && !(Cfg.webmControl && e.clientY > el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)) {
+								this._clickImage(el, e);
+							}
+							return;
+					}
+					if (aib.mak && el.classList.contains('expand-large-comment')) {
+						this._getFull(el, false);
+						$pd(e);
+						e.stopPropagation();
+					}
+					switch (el.classList[0]) {
+						case 'de-btn-expthr':
+							this.thr.load('all', false);
+							return;
+						case 'de-btn-fav':
+							this.thr.setFavorState(true, 'user');return;
+						case 'de-btn-fav-sel':
+							this.thr.setFavorState(false, 'user');return;
+						case 'de-btn-hide':
+						case 'de-btn-hide-user':
+						case 'de-btn-unhide':
+						case 'de-btn-unhide-user':
+							this.toggleUserVisib();
+							return;
+						case 'de-btn-rep':
+							pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, !(this instanceof Pview), false);
+							quotetxt = '';
+							return;
+						case 'de-btn-sage':
+							addSpell(9, '', false);return;
+						case 'de-btn-stick':
+							this.setSticky(true);return;
+						case 'de-btn-stick-on':
+							this.setSticky(false);return;
+					}
 					return;
 				}
-				if (this._menu) {
-					this._menu.remove();
-					this._menu = null;
+				if (type === 'mouseover' && Cfg.expandImgs && !el.classList.contains('de-img-full') && el.tagName === 'IMG' && (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)) {
+					el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
 				}
-				switch (el.tagName) {
-					case 'A':
-						if (el.classList.contains('de-video-link')) {
-							this.videos.clickLink(el, Cfg.addYouTube);
-							$pd(e);
-							return;
-						}
-						temp = el.firstElementChild;
-						if (temp && temp.tagName === 'IMG') {
-							el = temp;
-						} else {
-							temp = el.parentNode;
-							if (temp === this.trunc) {
-								this._getFull(temp, false);
-								$pd(e);
-								e.stopPropagation();
-							} else if (Cfg.insertNum && pr.form && temp === this._pref && !/Reply|Ответ/.test(el.textContent)) {
-								$pd(e);
-								e.stopPropagation();
-								if (!Cfg.showRepBtn) {
-									quotetxt = $txtSelect();
-									pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, !(this instanceof Pview), false);
-									quotetxt = '';
-								} else if (pr.isQuick || aib.t && pr.isHidden) {
-									pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, false, true);
-								} else if (aib.t) {
-									$txtInsert(pr.txta, '>>' + this.num);
-								} else {
-									window.location = el.href.replace(/#i/, '#');
-								}
-							} else if ((temp = el.textContent)[0] === '>' && temp[1] === '>' && !temp[2].includes('\/')) {
-								var num = temp.match(/\d+/),
-								    post = pByNum[num];
-								if (!post) {
-									return;
-								}
-								post.selectCurrent();
-								post.el.scrollIntoView(true);
-								window.location.href = aib.anchor + num;
-								$pd(e);
-							}
-							return;
-						}
-										case 'IMG':
-						if (el.classList.contains('de-video-thumb')) {
-							if (Cfg.addYouTube === 3) {
-								var vObject = this.videos;
-								vObject.currentLink.classList.add('de-current');
-								vObject.addPlayer(vObject.playerInfo, el.classList.contains('de-ytube'));
-								$pd(e);
-							}
-						} else if (Cfg.expandImgs !== 0) {
-							this._clickImage(el, e);
-						}
-						return;
-					case 'OBJECT':
-					case 'VIDEO':
-						if (Cfg.expandImgs !== 0 && !(Cfg.webmControl && e.clientY > el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)) {
-							this._clickImage(el, e);
-						}
-						return;
-				}
-				if (aib.mak && el.classList.contains('expand-large-comment')) {
-					this._getFull(el, false);
-					$pd(e);
-					e.stopPropagation();
+				if (!this._hasEvents) {
+					this._hasEvents = true;
+					this.el.addEventListener('click', this, true);
+					this.el.addEventListener('mouseout', this, true);
 				}
 				switch (el.classList[0]) {
-					case 'de-btn-expthr':
-						this.thr.load('all', false);
-						return;
-					case 'de-btn-fav':
-						this.thr.setFavorState(true, 'user');return;
-					case 'de-btn-fav-sel':
-						this.thr.setFavorState(false, 'user');return;
+					case 'de-btn-rep':
+						if (!isOutEvent) {
+							quotetxt = $txtSelect();
+						}
+										case 'de-btn-expthr':
 					case 'de-btn-hide':
 					case 'de-btn-hide-user':
 					case 'de-btn-unhide':
 					case 'de-btn-unhide-user':
-						this.toggleUserVisib();
+					case 'de-btn-src':
+					case 'de-btn-fav':
+					case 'de-btn-fav-sel':
+						this._handleButtonEvent(el, isOutEvent);
 						return;
-					case 'de-btn-rep':
-						pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, !(this instanceof Pview), false);
-						quotetxt = '';
-						return;
-					case 'de-btn-sage':
-						addSpell(9, '', false);return;
-					case 'de-btn-stick':
-						this.setSticky(true);return;
-					case 'de-btn-stick-on':
-						this.setSticky(false);return;
-				}
-				return;
-			}
-			if (type === 'mouseover' && Cfg.expandImgs && !el.classList.contains('de-img-full') && el.tagName === 'IMG' && (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)) {
-				el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
-			}
-			if (!this._hasEvents) {
-				this._hasEvents = true;
-				this.el.addEventListener('click', this, true);
-				this.el.addEventListener('mouseout', this, true);
-			}
-			switch (el.classList[0]) {
-				case 'de-btn-rep':
-					if (!isOutEvent) {
-						quotetxt = $txtSelect();
-					}
-								case 'de-btn-expthr':
-				case 'de-btn-hide':
-				case 'de-btn-hide-user':
-				case 'de-btn-unhide':
-				case 'de-btn-unhide-user':
-				case 'de-btn-src':
-				case 'de-btn-fav':
-				case 'de-btn-fav-sel':
-					this._handleButtonEvent(el, isOutEvent);
-					return;
-				default:
-					if (!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
-						return;
-					}
-					if (!el.textContent.startsWith('>>')) {
-						el.lchecked = true;
-						return;
-					}
-				
-					el.className = 'de-link-pref ' + el.className;
-								case 'de-link-ref':
-				case 'de-link-pref':
-					if (Cfg.linksNavig) {
-						if (isOutEvent) {
-							clearTimeout(this._linkDelay);
-							if (this.kid) {
-								this.kid.markToDel();
-							} else if (!(this instanceof Pview) && Pview.top) {
-								Pview.top.markToDel();
+					default:
+						if (!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
+							return;
+						}
+						if (!el.textContent.startsWith('>>')) {
+							el.lchecked = true;
+							return;
+						}
+					
+						el.className = 'de-link-pref ' + el.className;
+										case 'de-link-ref':
+					case 'de-link-pref':
+						if (Cfg.linksNavig) {
+							if (isOutEvent) {
+								clearTimeout(this._linkDelay);
+								if (this.kid) {
+									this.kid.markToDel();
+								} else if (!(this instanceof Pview) && Pview.top) {
+									Pview.top.markToDel();
+								}
+							} else {
+								this._linkDelay = setTimeout(function () {
+									return _this23.kid = Pview.show(_this23, el);
+								}, Cfg.linksOver);
 							}
-						} else {
-							this._linkDelay = setTimeout(function () {
-								return _this23.kid = Pview.show(_this23, el);
-							}, Cfg.linksOver);
+							$pd(e);
+							e.stopPropagation();
 						}
-						$pd(e);
-						e.stopPropagation();
-					}
+				}
 			}
-		};
-
-		AbstractPost.prototype.updateMsg = function updateMsg(newMsg, sRunner) {
-			var origMsg = aib.dobr ? this.msg.firstElementChild : this.msg,
-			    videoExt = $c('de-video-ext', origMsg),
-			    videoLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);
-			origMsg.parentNode.replaceChild(newMsg, origMsg);
-			Object.defineProperties(this, {
-				'msg': { configurable: true, value: newMsg },
-				'trunc': { configurable: true, value: null }
-			});
-			PostContent.remove(this);
-			this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
-			if (videoExt) {
-				newMsg.appendChild(videoExt);
+		}, {
+			key: 'updateMsg',
+			value: function updateMsg(newMsg, sRunner) {
+				var origMsg = aib.dobr ? this.msg.firstElementChild : this.msg,
+				    videoExt = $c('de-video-ext', origMsg),
+				    videoLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);
+				origMsg.parentNode.replaceChild(newMsg, origMsg);
+				Object.defineProperties(this, {
+					'msg': { configurable: true, value: newMsg },
+					'trunc': { configurable: true, value: null }
+				});
+				PostContent.remove(this);
+				this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
+				if (videoExt) {
+					newMsg.appendChild(videoExt);
+				}
+				this.addFuncs();
+				sRunner.run(this);
+				closePopup('load-fullmsg');
 			}
-			this.addFuncs();
-			sRunner.run(this);
-			closePopup('load-fullmsg');
-		};
+		}, {
+			key: '_addMenu',
+			value: function _addMenu(el, isOutEvent, htmlGetter) {
+				var _this24 = this;
 
-		AbstractPost.prototype._addMenu = function _addMenu(el, isOutEvent, htmlGetter) {
-			var _this24 = this;
-
-			if (this.menu && this.menu.parentEl === el) {
-				return;
-			}
-			if (isOutEvent) {
-				clearTimeout(this._menuDelay);
-			} else {
-				this._menuDelay = setTimeout(function () {
-					return _this24._showMenu(el, htmlGetter);
-				}, Cfg.linksOver);
-			}
-		};
-
-		AbstractPost.prototype._clickImage = function _clickImage(el, e) {
-			var data;
-			if (el.classList.contains('de-img-full')) {
-				if (!this.images.getImageByEl(el.previousSibling.firstElementChild).collapse(e)) {
+				if (this.menu && this.menu.parentEl === el) {
 					return;
 				}
-			} else if ((data = this.images.getImageByEl(el)) && (data.isImage || data.isVideo)) {
-				data.expand(Cfg.expandImgs === 1 ^ e.ctrlKey, e);
-			} else {
-				return;
-			}
-			$pd(e);
-			e.stopPropagation();
-		};
-
-		AbstractPost.prototype._getFull = function _getFull(node, isInit) {
-			var _this25 = this;
-
-			if (aib.dobr) {
-				$del(node.nextSibling);
-				$del(node.previousSibling);
-				$del(node);
-				if (isInit) {
-					this.msg.replaceChild($q('.alternate > div', this.el), this.msg.firstElementChild);
+				if (isOutEvent) {
+					clearTimeout(this._menuDelay);
 				} else {
-					var sRunner = new SpellsRunner();
-					this.updateMsg($q('.alternate > div', this.el), sRunner);
-					sRunner.end();
+					this._menuDelay = setTimeout(function () {
+						return _this24._showMenu(el, htmlGetter);
+					}, Cfg.linksOver);
 				}
-				return;
 			}
-			if (aib.mak) {
-				$del(node.previousSibling);
-				node.previousSibling.style.display = '';
-				$del(node);
-				return;
-			}
-			if (!isInit) {
-				$popup(Lng.loading[lang], 'load-fullmsg', true);
-			}
-			ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(function (form) {
-				var maybeSpells = new Maybe(SpellsRunner);
-				if (_this25.isOp) {
-					_this25.updateMsg(replacePost($q(aib.qMsg, form)), maybeSpells.value);
-					$del(node);
+		}, {
+			key: '_clickImage',
+			value: function _clickImage(el, e) {
+				var data;
+				if (el.classList.contains('de-img-full')) {
+					if (!this.images.getImageByEl(el.previousSibling.firstElementChild).collapse(e)) {
+						return;
+					}
+				} else if ((data = this.images.getImageByEl(el)) && (data.isImage || data.isVideo)) {
+					data.expand(Cfg.expandImgs === 1 ^ e.ctrlKey, e);
 				} else {
-					var els = $Q(aib.qRPost, form);
-					for (var i = 0, len = els.length; i < len; i++) {
-						if (_this25.num === aib.getPNum(els[i])) {
-							_this25.updateMsg(replacePost($q(aib.qMsg, els[i])), maybeSpells.value);
-							$del(node);
-							break;
+					return;
+				}
+				$pd(e);
+				e.stopPropagation();
+			}
+		}, {
+			key: '_getFull',
+			value: function _getFull(node, isInit) {
+				var _this25 = this;
+
+				if (aib.dobr) {
+					$del(node.nextSibling);
+					$del(node.previousSibling);
+					$del(node);
+					if (isInit) {
+						this.msg.replaceChild($q('.alternate > div', this.el), this.msg.firstElementChild);
+					} else {
+						var sRunner = new SpellsRunner();
+						this.updateMsg($q('.alternate > div', this.el), sRunner);
+						sRunner.end();
+					}
+					return;
+				}
+				if (aib.mak) {
+					$del(node.previousSibling);
+					node.previousSibling.style.display = '';
+					$del(node);
+					return;
+				}
+				if (!isInit) {
+					$popup(Lng.loading[lang], 'load-fullmsg', true);
+				}
+				ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(function (form) {
+					var maybeSpells = new Maybe(SpellsRunner);
+					if (_this25.isOp) {
+						_this25.updateMsg(replacePost($q(aib.qMsg, form)), maybeSpells.value);
+						$del(node);
+					} else {
+						var els = $Q(aib.qRPost, form);
+						for (var i = 0, len = els.length; i < len; i++) {
+							if (_this25.num === aib.getPNum(els[i])) {
+								_this25.updateMsg(replacePost($q(aib.qMsg, els[i])), maybeSpells.value);
+								$del(node);
+								break;
+							}
 						}
 					}
+					maybeSpells.end();
+				}, emptyFn);
+			}
+		}, {
+			key: '_getMenuImgSrc',
+			value: function _getMenuImgSrc(el) {
+				var p = el.nextSibling.href + '" target="_blank">' + Lng.search[lang],
+				    c = doc.body.getAttribute('de-image-search'),
+				    str = '';
+				if (c) {
+					c = c.split(';');
+					c.forEach(function (el) {
+						var info = el.split(',');
+						str += '<a class="de-src' + info[0] + (!info[1] ? '" onclick="de_isearch(event, \'' + info[0] + '\')" de-url="' : '" href="' + info[1]) + p + info[0] + '</a>';
+					});
 				}
-				maybeSpells.end();
-			}, emptyFn);
-		};
+				return '<a class="de-menu-item de-src-google" href="http://google.com/searchbyimage?image_url=' + p + 'Google</a>' + '<a class="de-menu-item de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex</a>' + '<a class="de-menu-item de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' + '<a class="de-menu-item de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + '<a class="de-menu-item de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>' + str;
+			}
+		}, {
+			key: '_handleButtonEvent',
+			value: function _handleButtonEvent(el, isOutEvent) {
+				if (el.getAttribute('class') === 'de-btn-src') {
+					this._addMenu(el, isOutEvent, this._getMenuImgSrc);
+				}
+			}
+		}, {
+			key: '_showMenu',
+			value: function _showMenu(el, htmlGetter) {
+				var _this26 = this;
 
-		AbstractPost.prototype._getMenuImgSrc = function _getMenuImgSrc(el) {
-			var p = el.nextSibling.href + '" target="_blank">' + Lng.search[lang],
-			    c = doc.body.getAttribute('de-image-search'),
-			    str = '';
-			if (c) {
-				c = c.split(';');
-				c.forEach(function (el) {
-					var info = el.split(',');
-					str += '<a class="de-src' + info[0] + (!info[1] ? '" onclick="de_isearch(event, \'' + info[0] + '\')" de-url="' : '" href="' + info[1]) + p + info[0] + '</a>';
+				if (this._menu) {
+					this._menu.remove();
+				}
+				this._menu = new Menu(el, htmlGetter.call(this, el), false, function (el) {
+					return _this26._clickMenu(el);
 				});
 			}
-			return '<a class="de-menu-item de-src-google" href="http://google.com/searchbyimage?image_url=' + p + 'Google</a>' + '<a class="de-menu-item de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex</a>' + '<a class="de-menu-item de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' + '<a class="de-menu-item de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + '<a class="de-menu-item de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>' + str;
-		};
-
-		AbstractPost.prototype._handleButtonEvent = function _handleButtonEvent(el, isOutEvent) {
-			if (el.getAttribute('class') === 'de-btn-src') {
-				this._addMenu(el, isOutEvent, this._getMenuImgSrc);
-			}
-		};
-
-		AbstractPost.prototype._showMenu = function _showMenu(el, htmlGetter) {
-			var _this26 = this;
-
-			if (this._menu) {
-				this._menu.remove();
-			}
-			this._menu = new Menu(el, htmlGetter.call(this, el), false, function (el) {
-				return _this26._clickMenu(el);
-			});
-		};
-
-		_createClass(AbstractPost, [{
+		}, {
 			key: 'hideBtn',
 			get: function get() {
 				var value = this.btns.firstChild;
@@ -11364,7 +11396,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function LitePost(el, thr, num, count, isOp, prev) {
 			_classCallCheck(this, LitePost);
 
-			_AbstractPost.call(this, thr, num, isOp);
+			_get(Object.getPrototypeOf(LitePost.prototype), 'constructor', this).call(this, thr, num, isOp);
 			this.count = count;
 			this.el = el;
 			this.prev = prev;
@@ -11383,7 +11415,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function Post(el, thr, num, count, isOp, prev) {
 			_classCallCheck(this, Post);
 
-			_AbstractPost2.call(this, thr, num, isOp);
+			_get(Object.getPrototypeOf(Post.prototype), 'constructor', this).call(this, thr, num, isOp);
 			this.count = count;
 			this.el = el;
 			this.prev = prev;
@@ -11422,413 +11454,431 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			el.addEventListener('mouseover', this, true);
 		}
 
-		Post.prototype.addFuncs = function addFuncs() {
-			_AbstractPost2.prototype.addFuncs.call(this);
-			if (isExpImg) {
-				this.toggleImages(true);
-			}
-		};
-
-		Post.prototype.getAdjacentVisPost = function getAdjacentVisPost(toUp) {
-			var post = toUp ? this.prev : this.next;
-			while (post) {
-				if (post.thr.hidden) {
-					post = toUp ? post.thr.op.prev : post.thr.last.next;
-				} else if (post.hidden || post.omitted) {
-					post = toUp ? post.prev : post.next;
-				} else {
-					return post;
-				}
-			}
-			return null;
-		};
-
-		Post.prototype.hideContent = function hideContent(hide) {
-			if (hide) {
-				this.el.classList.add('de-post-hide');
-				this.hideBtn.setAttribute('class', this.userToggled ? 'de-btn-unhide-user' : 'de-btn-unhide');
-			} else {
-				this.el.classList.remove('de-post-hide');
-				this.hideBtn.setAttribute('class', this.userToggled ? 'de-btn-hide-user' : 'de-btn-hide');
-			}
-			if (nav.Chrome) {
-				if (hide) {
-					this.el.classList.remove('de-post-unhide');
-				} else {
-					this.el.classList.add('de-post-unhide');
-				}
-				if (!chromeCssUpd) {
-					chromeCssUpd = setTimeout(function () {
-						doc.head.insertAdjacentHTML('beforeend', '<style id="de-csshide" type="text/css">\n\t\t\t\t\t\t\t.de-post-hide > ' + aib.qHide + ' { display: none !important; }\n\t\t\t\t\t\t\t.de-post-unhide > ' + aib.qHide + ' { display: !important; }\n\t\t\t\t\t\t</style>');
-						$del(doc.head.lastChild);
-						chromeCssUpd = null;
-					}, 200);
-				}
-			}
-		};
-
-		Post.prototype.select = function select() {
-			if (this.isOp) {
-				if (this.hidden) {
-					this.thr.el.previousElementSibling.classList.add('de-selected');
-				}
-				this.thr.el.classList.add('de-selected');
-			} else {
-				this.el.classList.add('de-selected');
-			}
-		};
-
-		Post.prototype.selectCurrent = function selectCurrent() {
-			if (hKeys) {
-				if (hKeys.cPost) {
-					hKeys.cPost.unselect();
-				}
-				hKeys.cPost = this;
-			} else {
-				var el = $c('de-selected', doc);
-				if (el) {
-					el.unselect();
-				}
-			}
-			this.select();
-		};
-
-		Post.prototype.setNote = function setNote(val) {
-			if (this.isOp) {
-				this.noteEl.textContent = val ? '(autohide: ' + val + ')' : '(' + this.title + ')';
-			} else if (!Cfg.delHiddPost) {
-				this.noteEl.textContent = val ? 'autohide: ' + val : '';
-			}
-		};
-
-		Post.prototype.setUserVisib = function setUserVisib(hide, date, sync) {
-			this.userToggled = true;
-			this.setVisib(hide);
-			if (this.isOp) {
-				this.hideBtn.setAttribute('class', hide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
-			}
-			if (hide) {
-				this.setNote('');
-				this.ref.hide();
-			} else {
-				this.ref.unhide();
-			}
-			uVis[this.num] = [+!hide, date];
-			if (sync) {
-				locStorage['__de-post'] = JSON.stringify({
-					'brd': aib.b,
-					'date': date,
-					'isOp': this.isOp,
-					'num': this.num,
-					'hide': hide,
-					'title': this.isOp ? this.title : ''
-				});
-				locStorage.removeItem('__de-post');
-			}
-		};
-
-		Post.prototype.setVisib = function setVisib(hide) {
-			var _this27 = this;
-
-			if (this.hidden === hide) {
-				return;
-			}
-			if (this.isOp) {
-				this.hidden = this.thr.hidden = hide;
-				var el = $id('de-thr-hid-' + this.num),
-				    tEl = this.thr.el;
-				tEl.style.display = hide ? 'none' : '';
-				if (el) {
-					el.style.display = hide ? '' : 'none';
-					return;
-				}
-				tEl.insertAdjacentHTML('beforebegin', '<div class="' + aib.cReply + ' de-thr-hid" id="de-thr-hid-' + this.num + '">' + Lng.hiddenThrd[lang] + ' <a href="#">№' + this.num + '</a> <span class="de-thread-note"></span></div>');
-				el = $t('a', tEl.previousSibling);
-				el.onclick = el.onmouseover = el.onmouseout = function (e) {
-					switch (e.type) {
-						case 'click':
-							_this27.toggleUserVisib();
-							$pd(e);
-							return;
-						case 'mouseover':
-							_this27.thr.el.style.display = '';return;
-						default:
-						
-							if (_this27.hidden) {
-								_this27.thr.el.style.display = 'none';
-							}
-					}
-				};
-				return;
-			}
-			if (Cfg.delHiddPost) {
-				if (hide) {
-					this.wrap.classList.add('de-hidden');
-				} else if (this.hidden) {
-					this.wrap.classList.remove('de-hidden');
-				}
-			} else {
-				if (!hide) {
-					this.setNote('');
-				}
-				this._pref.onmouseover = this._pref.onmouseout = !hide ? null : function (e) {
-					return _this27.hideContent(e.type === 'mouseout');
-				};
-			}
-			this.hidden = hide;
-			this.hideContent(hide);
-			if (Cfg.strikeHidd) {
-				setTimeout(function () {
-					return _this27._strikePostNum(hide);
-				}, 50);
-			}
-		};
-
-		Post.prototype.spellHide = function spellHide(note) {
-			this.spellHidden = true;
-			if (!this.userToggled) {
-				if (aib.t && !this.deleted) {
-					sVis[this.count] = 0;
-				}
-				if (!this.hidden) {
-					this.ref.hide();
-				}
-				this.setVisib(true);
-				this.setNote(note);
-			}
-		};
-
-		Post.prototype.spellUnhide = function spellUnhide() {
-			this.spellHidden = false;
-			if (!this.userToggled) {
-				if (aib.t && !this.deleted) {
-					sVis[this.count] = 1;
-				}
-				this.setVisib(false);
-				this.ref.unhide();
-			}
-		};
-
-		Post.prototype.toggleImages = function toggleImages() {
-			var expand = arguments.length <= 0 || arguments[0] === undefined ? !this.images.expanded : arguments[0];
-
-			for (var _iterator10 = this.images, _isArray10 = Array.isArray(_iterator10), _i11 = 0, _iterator10 = _isArray10 ? _iterator10 : _iterator10[Symbol.iterator]();;) {
-				var _ref10;
-
-				if (_isArray10) {
-					if (_i11 >= _iterator10.length) break;
-					_ref10 = _iterator10[_i11++];
-				} else {
-					_i11 = _iterator10.next();
-					if (_i11.done) break;
-					_ref10 = _i11.value;
-				}
-
-				var image = _ref10;
-
-				if (image.isImage && image.expanded ^ expand) {
-					if (expand) {
-						image.expand(true, null);
-					} else {
-						image.collapse(null);
-					}
-				}
-			}
-		};
-
-		Post.prototype.toggleUserVisib = function toggleUserVisib() {
-			var isOp = this.isOp,
-			    hide = !this.hidden;
-			this.setUserVisib(hide, Date.now(), true);
-			if (isOp) {
-				if (hide) {
-					hThr[aib.b][this.num] = this.title;
-				} else {
-					delete hThr[aib.b][this.num];
-				}
-				saveHiddenThreads(false);
-			}
-			saveUserPosts();
-		};
-
-		Post.prototype.unselect = function unselect() {
-			if (this.isOp) {
-				var el = $id('de-thr-hid-' + this.num);
-				if (el) {
-					el.classList.remove('de-selected');
-				}
-				this.thr.el.classList.remove('de-selected');
-			} else {
-				this.el.classList.remove('de-selected');
-			}
-		};
-
-		Post.prototype._getMenuExpand = function _getMenuExpand(el) {
-			return '<span class="de-menu-item" info="thr-exp">' + Lng.selExpandThr[lang].join('</span><span class="de-menu-item" info="thr-exp">') + '</span>';
-		};
-
-		Post.prototype._getMenuHide = function _getMenuHide(el) {
-			var str = '',
-			    sel = nav.Presto ? doc.getSelection() : window.getSelection(),
-			    ssel = sel.toString(),
-			    getItem = function getItem(name) {
-				return '<span info="spell-' + name + '" class="de-menu-item">' + Lng.selHiderMenu[name][lang] + '</span>';
-			};
-			if (ssel) {
-				this._selText = ssel;
-				this._selRange = sel.getRangeAt(0);
-				str += getItem('sel');
-			}
-			if (this.posterName) {
-				str += getItem('name');
-			}
-			if (this.posterTrip) {
-				str += getItem('trip');
-			}
-			if (this.images.hasAttachments) {
-				str += getItem('img');
-				str += getItem('ihash');
-			} else {
-				str += getItem('noimg');
-			}
-			if (this.text) {
-				str += getItem('text');
-			} else {
-				str += getItem('notext');
-			}
-			return str;
-		};
-
-		Post.prototype._clickMenu = function _clickMenu(el) {
-			switch (el.getAttribute('info')) {
-				case 'spell-sel':
-					var start = this._selRange.startContainer,
-					    end = this._selRange.endContainer;
-					if (start.nodeType === 3) {
-						start = start.parentNode;
-					}
-					if (end.nodeType === 3) {
-						end = end.parentNode;
-					}
-					var inMsgSel = aib.qMsg + ', ' + aib.qMsg + ' *';
-					if (nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel) || nav.matchesSelector(start, '.' + aib.cSubj) && nav.matchesSelector(end, '.' + aib.cSubj)) {
-						if (this._selText.includes('\n')) {
-							addSpell(1, '/' + regQuote(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
-						} else {
-							addSpell(0, this._selText.toLowerCase(), false);
-						}
-					} else {
-						dummy.innerHTML = '';
-						dummy.appendChild(this._selRange.cloneContents());
-						addSpell(2, '/' + regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
-					}
-					return;
-				case 'spell-name':
-					addSpell(6, this.posterName, false);return;
-				case 'spell-trip':
-					addSpell(7, this.posterTrip, false);return;
-				case 'spell-img':
-					var img = this.images.firstAttach,
-					    w = img.weight,
-					    wi = img.width,
-					    h = img.height;
-					addSpell(8, [0, [w, w], [wi, wi, h, h]], false);
-					return;
-				case 'spell-ihash':
-					spawn(ImagesHashStorage.getHash, this.images.firstAttach).then(function (hash) {
-						if (hash !== -1) {
-							addSpell(4, hash, false);
-						}
-					});
-					return;
-				case 'spell-noimg':
-					addSpell(0x108, '', true);return;
-				case 'spell-text':
-					var num = this.num,
-					    hidden = this.hidden,
-					    wrds = Post.getWrds(this.text),
-					    time = Date.now();
-					for (var post = dForm.firstThr.op; post; post = post.next) {
-						Post.findSameText(num, hidden, wrds, time, post);
-					}
-					saveUserPosts();
-					return;
-				case 'spell-notext':
-					addSpell(0x10B, '', true);return;
-				case 'thr-exp':
-					var task = parseInt(el.textContent.match(/\d+/), 10);
-					this.thr.load(!task ? 'all' : task === 10 ? 'more' : task, false);
-			}
-		};
-
-		Post.prototype._handleButtonEvent = function _handleButtonEvent(el, isOutEvent) {
-			_AbstractPost2.prototype._handleButtonEvent.call(this, el, isOutEvent);
-			var cN = el.getAttribute('class');
-			switch (cN) {
-				case 'de-btn-hide':
-				case 'de-btn-hide-user':
-				case 'de-btn-unhide':
-				case 'de-btn-unhide-user':
-					if (Cfg.menuHiddBtn) {
-						this._addMenu(el, isOutEvent, this._getMenuHide);
-					}
-					break;
-				case 'de-btn-expthr':
-					this._addMenu(el, isOutEvent, this._getMenuExpand);
-			}
-			if (isOutEvent || el.hasTitle) {
-				return;
-			}
-			el.hasTitle = true;
-			var addTitle = function addTitle(svg, str) {
-				var el = doc.createElementNS('http://www.w3.org/2000/svg', 'title');
-				el.textContent = str;
-				svg.appendChild(el);
-			};
-			switch (cN) {
-				case 'de-btn-hide':
-				case 'de-btn-hide-user':
-				case 'de-btn-unhide':
-				case 'de-btn-unhide-user':
-					addTitle(el, Lng.togglePost[lang]);return;
-				case 'de-btn-expthr':
-					addTitle(el, Lng.expandThrd[lang]);return;
-				case 'de-btn-rep':
-					addTitle(el, Lng.replyToPost[lang]);return;
-				case 'de-btn-fav':
-					addTitle(el, Lng.addFav[lang]);return;
-				case 'de-btn-fav-sel':
-					addTitle(el, Lng.delFav[lang]);
-			}
-		};
-
-		Post.prototype._strikePostNum = function _strikePostNum(isHide) {
-			var num = this.num;
-			if (isHide) {
-				Post.hiddenNums.add(+num);
-			} else {
-				Post.hiddenNums['delete'](+num);
-			}
-			$each($Q('a[href*="' + aib.anchor + num + '"]', dForm.el), isHide ? function (el) {
-				el.classList.add('de-link-hid');
-				if (Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-					var refmap = el.parentNode;
-					if (!$q('.de-link-ref:not(.de-link-hid)', refmap)) {
-						refmap.style.display = 'none';
-					}
-				}
-			} : function (el) {
-				el.classList.remove('de-link-hid');
-				if (Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-					var refmap = el.parentNode;
-					if ($q('.de-link-ref:not(.de-link-hid)', refmap)) {
-						refmap.style.display = '';
-					}
-				}
-			});
-		};
-
 		_createClass(Post, [{
+			key: 'addFuncs',
+			value: function addFuncs() {
+				_get(Object.getPrototypeOf(Post.prototype), 'addFuncs', this).call(this);
+				if (isExpImg) {
+					this.toggleImages(true);
+				}
+			}
+		}, {
+			key: 'getAdjacentVisPost',
+			value: function getAdjacentVisPost(toUp) {
+				var post = toUp ? this.prev : this.next;
+				while (post) {
+					if (post.thr.hidden) {
+						post = toUp ? post.thr.op.prev : post.thr.last.next;
+					} else if (post.hidden || post.omitted) {
+						post = toUp ? post.prev : post.next;
+					} else {
+						return post;
+					}
+				}
+				return null;
+			}
+		}, {
+			key: 'hideContent',
+			value: function hideContent(hide) {
+				if (hide) {
+					this.el.classList.add('de-post-hide');
+					this.hideBtn.setAttribute('class', this.userToggled ? 'de-btn-unhide-user' : 'de-btn-unhide');
+				} else {
+					this.el.classList.remove('de-post-hide');
+					this.hideBtn.setAttribute('class', this.userToggled ? 'de-btn-hide-user' : 'de-btn-hide');
+				}
+				if (nav.Chrome) {
+					if (hide) {
+						this.el.classList.remove('de-post-unhide');
+					} else {
+						this.el.classList.add('de-post-unhide');
+					}
+					if (!chromeCssUpd) {
+						chromeCssUpd = setTimeout(function () {
+							doc.head.insertAdjacentHTML('beforeend', '<style id="de-csshide" type="text/css">\n\t\t\t\t\t\t\t.de-post-hide > ' + aib.qHide + ' { display: none !important; }\n\t\t\t\t\t\t\t.de-post-unhide > ' + aib.qHide + ' { display: !important; }\n\t\t\t\t\t\t</style>');
+							$del(doc.head.lastChild);
+							chromeCssUpd = null;
+						}, 200);
+					}
+				}
+			}
+		}, {
+			key: 'select',
+			value: function select() {
+				if (this.isOp) {
+					if (this.hidden) {
+						this.thr.el.previousElementSibling.classList.add('de-selected');
+					}
+					this.thr.el.classList.add('de-selected');
+				} else {
+					this.el.classList.add('de-selected');
+				}
+			}
+		}, {
+			key: 'selectCurrent',
+			value: function selectCurrent() {
+				if (hKeys) {
+					if (hKeys.cPost) {
+						hKeys.cPost.unselect();
+					}
+					hKeys.cPost = this;
+				} else {
+					var el = $c('de-selected', doc);
+					if (el) {
+						el.unselect();
+					}
+				}
+				this.select();
+			}
+		}, {
+			key: 'setNote',
+			value: function setNote(val) {
+				if (this.isOp) {
+					this.noteEl.textContent = val ? '(autohide: ' + val + ')' : '(' + this.title + ')';
+				} else if (!Cfg.delHiddPost) {
+					this.noteEl.textContent = val ? 'autohide: ' + val : '';
+				}
+			}
+		}, {
+			key: 'setUserVisib',
+			value: function setUserVisib(hide, date, sync) {
+				this.userToggled = true;
+				this.setVisib(hide);
+				if (this.isOp) {
+					this.hideBtn.setAttribute('class', hide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
+				}
+				if (hide) {
+					this.setNote('');
+					this.ref.hide();
+				} else {
+					this.ref.unhide();
+				}
+				uVis[this.num] = [+!hide, date];
+				if (sync) {
+					locStorage['__de-post'] = JSON.stringify({
+						'brd': aib.b,
+						'date': date,
+						'isOp': this.isOp,
+						'num': this.num,
+						'hide': hide,
+						'title': this.isOp ? this.title : ''
+					});
+					locStorage.removeItem('__de-post');
+				}
+			}
+		}, {
+			key: 'setVisib',
+			value: function setVisib(hide) {
+				var _this27 = this;
+
+				if (this.hidden === hide) {
+					return;
+				}
+				if (this.isOp) {
+					this.hidden = this.thr.hidden = hide;
+					var el = $id('de-thr-hid-' + this.num),
+					    tEl = this.thr.el;
+					tEl.style.display = hide ? 'none' : '';
+					if (el) {
+						el.style.display = hide ? '' : 'none';
+						return;
+					}
+					tEl.insertAdjacentHTML('beforebegin', '<div class="' + aib.cReply + ' de-thr-hid" id="de-thr-hid-' + this.num + '">' + Lng.hiddenThrd[lang] + ' <a href="#">№' + this.num + '</a> <span class="de-thread-note"></span></div>');
+					el = $t('a', tEl.previousSibling);
+					el.onclick = el.onmouseover = el.onmouseout = function (e) {
+						switch (e.type) {
+							case 'click':
+								_this27.toggleUserVisib();
+								$pd(e);
+								return;
+							case 'mouseover':
+								_this27.thr.el.style.display = '';return;
+							default:
+							
+								if (_this27.hidden) {
+									_this27.thr.el.style.display = 'none';
+								}
+						}
+					};
+					return;
+				}
+				if (Cfg.delHiddPost) {
+					if (hide) {
+						this.wrap.classList.add('de-hidden');
+					} else if (this.hidden) {
+						this.wrap.classList.remove('de-hidden');
+					}
+				} else {
+					if (!hide) {
+						this.setNote('');
+					}
+					this._pref.onmouseover = this._pref.onmouseout = !hide ? null : function (e) {
+						return _this27.hideContent(e.type === 'mouseout');
+					};
+				}
+				this.hidden = hide;
+				this.hideContent(hide);
+				if (Cfg.strikeHidd) {
+					setTimeout(function () {
+						return _this27._strikePostNum(hide);
+					}, 50);
+				}
+			}
+		}, {
+			key: 'spellHide',
+			value: function spellHide(note) {
+				this.spellHidden = true;
+				if (!this.userToggled) {
+					if (aib.t && !this.deleted) {
+						sVis[this.count] = 0;
+					}
+					if (!this.hidden) {
+						this.ref.hide();
+					}
+					this.setVisib(true);
+					this.setNote(note);
+				}
+			}
+		}, {
+			key: 'spellUnhide',
+			value: function spellUnhide() {
+				this.spellHidden = false;
+				if (!this.userToggled) {
+					if (aib.t && !this.deleted) {
+						sVis[this.count] = 1;
+					}
+					this.setVisib(false);
+					this.ref.unhide();
+				}
+			}
+		}, {
+			key: 'toggleImages',
+			value: function toggleImages() {
+				var expand = arguments.length <= 0 || arguments[0] === undefined ? !this.images.expanded : arguments[0];
+
+				for (var _iterator10 = this.images, _isArray10 = Array.isArray(_iterator10), _i11 = 0, _iterator10 = _isArray10 ? _iterator10 : _iterator10[Symbol.iterator]();;) {
+					var _ref10;
+
+					if (_isArray10) {
+						if (_i11 >= _iterator10.length) break;
+						_ref10 = _iterator10[_i11++];
+					} else {
+						_i11 = _iterator10.next();
+						if (_i11.done) break;
+						_ref10 = _i11.value;
+					}
+
+					var image = _ref10;
+
+					if (image.isImage && image.expanded ^ expand) {
+						if (expand) {
+							image.expand(true, null);
+						} else {
+							image.collapse(null);
+						}
+					}
+				}
+			}
+		}, {
+			key: 'toggleUserVisib',
+			value: function toggleUserVisib() {
+				var isOp = this.isOp,
+				    hide = !this.hidden;
+				this.setUserVisib(hide, Date.now(), true);
+				if (isOp) {
+					if (hide) {
+						hThr[aib.b][this.num] = this.title;
+					} else {
+						delete hThr[aib.b][this.num];
+					}
+					saveHiddenThreads(false);
+				}
+				saveUserPosts();
+			}
+		}, {
+			key: 'unselect',
+			value: function unselect() {
+				if (this.isOp) {
+					var el = $id('de-thr-hid-' + this.num);
+					if (el) {
+						el.classList.remove('de-selected');
+					}
+					this.thr.el.classList.remove('de-selected');
+				} else {
+					this.el.classList.remove('de-selected');
+				}
+			}
+		}, {
+			key: '_getMenuExpand',
+			value: function _getMenuExpand(el) {
+				return '<span class="de-menu-item" info="thr-exp">' + Lng.selExpandThr[lang].join('</span><span class="de-menu-item" info="thr-exp">') + '</span>';
+			}
+		}, {
+			key: '_getMenuHide',
+			value: function _getMenuHide(el) {
+				var str = '',
+				    sel = nav.Presto ? doc.getSelection() : window.getSelection(),
+				    ssel = sel.toString(),
+				    getItem = function getItem(name) {
+					return '<span info="spell-' + name + '" class="de-menu-item">' + Lng.selHiderMenu[name][lang] + '</span>';
+				};
+				if (ssel) {
+					this._selText = ssel;
+					this._selRange = sel.getRangeAt(0);
+					str += getItem('sel');
+				}
+				if (this.posterName) {
+					str += getItem('name');
+				}
+				if (this.posterTrip) {
+					str += getItem('trip');
+				}
+				if (this.images.hasAttachments) {
+					str += getItem('img');
+					str += getItem('ihash');
+				} else {
+					str += getItem('noimg');
+				}
+				if (this.text) {
+					str += getItem('text');
+				} else {
+					str += getItem('notext');
+				}
+				return str;
+			}
+		}, {
+			key: '_clickMenu',
+			value: function _clickMenu(el) {
+				switch (el.getAttribute('info')) {
+					case 'spell-sel':
+						var start = this._selRange.startContainer,
+						    end = this._selRange.endContainer;
+						if (start.nodeType === 3) {
+							start = start.parentNode;
+						}
+						if (end.nodeType === 3) {
+							end = end.parentNode;
+						}
+						var inMsgSel = aib.qMsg + ', ' + aib.qMsg + ' *';
+						if (nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel) || nav.matchesSelector(start, '.' + aib.cSubj) && nav.matchesSelector(end, '.' + aib.cSubj)) {
+							if (this._selText.includes('\n')) {
+								addSpell(1, '/' + regQuote(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
+							} else {
+								addSpell(0, this._selText.toLowerCase(), false);
+							}
+						} else {
+							dummy.innerHTML = '';
+							dummy.appendChild(this._selRange.cloneContents());
+							addSpell(2, '/' + regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
+						}
+						return;
+					case 'spell-name':
+						addSpell(6, this.posterName, false);return;
+					case 'spell-trip':
+						addSpell(7, this.posterTrip, false);return;
+					case 'spell-img':
+						var img = this.images.firstAttach,
+						    w = img.weight,
+						    wi = img.width,
+						    h = img.height;
+						addSpell(8, [0, [w, w], [wi, wi, h, h]], false);
+						return;
+					case 'spell-ihash':
+						spawn(ImagesHashStorage.getHash, this.images.firstAttach).then(function (hash) {
+							if (hash !== -1) {
+								addSpell(4, hash, false);
+							}
+						});
+						return;
+					case 'spell-noimg':
+						addSpell(0x108, '', true);return;
+					case 'spell-text':
+						var num = this.num,
+						    hidden = this.hidden,
+						    wrds = Post.getWrds(this.text),
+						    time = Date.now();
+						for (var post = dForm.firstThr.op; post; post = post.next) {
+							Post.findSameText(num, hidden, wrds, time, post);
+						}
+						saveUserPosts();
+						return;
+					case 'spell-notext':
+						addSpell(0x10B, '', true);return;
+					case 'thr-exp':
+						var task = parseInt(el.textContent.match(/\d+/), 10);
+						this.thr.load(!task ? 'all' : task === 10 ? 'more' : task, false);
+				}
+			}
+		}, {
+			key: '_handleButtonEvent',
+			value: function _handleButtonEvent(el, isOutEvent) {
+				_get(Object.getPrototypeOf(Post.prototype), '_handleButtonEvent', this).call(this, el, isOutEvent);
+				var cN = el.getAttribute('class');
+				switch (cN) {
+					case 'de-btn-hide':
+					case 'de-btn-hide-user':
+					case 'de-btn-unhide':
+					case 'de-btn-unhide-user':
+						if (Cfg.menuHiddBtn) {
+							this._addMenu(el, isOutEvent, this._getMenuHide);
+						}
+						break;
+					case 'de-btn-expthr':
+						this._addMenu(el, isOutEvent, this._getMenuExpand);
+				}
+				if (isOutEvent || el.hasTitle) {
+					return;
+				}
+				el.hasTitle = true;
+				var addTitle = function addTitle(svg, str) {
+					var el = doc.createElementNS('http://www.w3.org/2000/svg', 'title');
+					el.textContent = str;
+					svg.appendChild(el);
+				};
+				switch (cN) {
+					case 'de-btn-hide':
+					case 'de-btn-hide-user':
+					case 'de-btn-unhide':
+					case 'de-btn-unhide-user':
+						addTitle(el, Lng.togglePost[lang]);return;
+					case 'de-btn-expthr':
+						addTitle(el, Lng.expandThrd[lang]);return;
+					case 'de-btn-rep':
+						addTitle(el, Lng.replyToPost[lang]);return;
+					case 'de-btn-fav':
+						addTitle(el, Lng.addFav[lang]);return;
+					case 'de-btn-fav-sel':
+						addTitle(el, Lng.delFav[lang]);
+				}
+			}
+		}, {
+			key: '_strikePostNum',
+			value: function _strikePostNum(isHide) {
+				var num = this.num;
+				if (isHide) {
+					Post.hiddenNums.add(+num);
+				} else {
+					Post.hiddenNums['delete'](+num);
+				}
+				$each($Q('a[href*="' + aib.anchor + num + '"]', dForm.el), isHide ? function (el) {
+					el.classList.add('de-link-hid');
+					if (Cfg.removeHidd && el.classList.contains('de-link-ref')) {
+						var refmap = el.parentNode;
+						if (!$q('.de-link-ref:not(.de-link-hid)', refmap)) {
+							refmap.style.display = 'none';
+						}
+					}
+				} : function (el) {
+					el.classList.remove('de-link-hid');
+					if (Cfg.removeHidd && el.classList.contains('de-link-ref')) {
+						var refmap = el.parentNode;
+						if ($q('.de-link-ref:not(.de-link-hid)', refmap)) {
+							refmap.style.display = '';
+						}
+					}
+				});
+			}
+		}, {
 			key: 'bottom',
 			get: function get() {
 				return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el).getBoundingClientRect().bottom;
@@ -12001,7 +12051,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function PostContent(post) {
 			_classCallCheck(this, PostContent);
 
-			_TemporaryContent.call(this);
+			_get(Object.getPrototypeOf(PostContent.prototype), 'constructor', this).call(this);
 			this.el = post.el;
 			this.post = post;
 		}
@@ -12087,7 +12137,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		this.hasAttachments = hasAttachments;
 		this._map = filesMap;
 	}
-	PostImages.prototype = (_PostImages$prototype = {
+	PostImages.prototype = _defineProperty({
 		get expanded() {
 			for (var img = this.first; img; img = img.next) {
 				if (img.expanded) {
@@ -12102,7 +12152,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		getImageByEl: function getImageByEl(el) {
 			return this._map.get(el);
 		}
-	}, _PostImages$prototype[Symbol.iterator] = function () {
+	}, Symbol.iterator, function () {
 		return {
 			_img: this.first,
 			next: function next() {
@@ -12114,7 +12164,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return { done: true };
 			}
 		};
-	}, _PostImages$prototype);
+	});
 
 
 
@@ -12122,84 +12172,87 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var Pview = (function (_AbstractPost3) {
 		_inherits(Pview, _AbstractPost3);
 
-		Pview.show = function show(parent, link) {
-			var rv,
-			    tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [, aib.getPostEl(link).post.tNum])[1],
-			    pNum = (link.textContent.trim().match(/\d+$/) || [tNum])[0],
-			    isTop = !(parent instanceof Pview),
-			    pv = isTop ? Pview.top : parent.kid;
-			clearTimeout(Pview._delTO);
-			if (pv && pv.num === pNum) {
-				if (pv.kid) {
-					pv.kid['delete']();
-				}
-				if (pv._link !== link) {
-					pv._setPosition(link, Cfg.animation);
-					pv._link.classList.remove('de-link-parent');
-					link.classList.add('de-link-parent');
-					pv._link = link;
-					if (pv.parent.num !== parent.num) {
-						$each($C('de-link-pview', pv.el), function (el) {
-							el.classList.remove('de-link-pview');
-						});
-						Pview._markLink(pv.el, parent.num);
+		_createClass(Pview, null, [{
+			key: 'show',
+			value: function show(parent, link) {
+				var rv,
+				    tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [, aib.getPostEl(link).post.tNum])[1],
+				    pNum = (link.textContent.trim().match(/\d+$/) || [tNum])[0],
+				    isTop = !(parent instanceof Pview),
+				    pv = isTop ? Pview.top : parent.kid;
+				clearTimeout(Pview._delTO);
+				if (pv && pv.num === pNum) {
+					if (pv.kid) {
+						pv.kid['delete']();
 					}
+					if (pv._link !== link) {
+						pv._setPosition(link, Cfg.animation);
+						pv._link.classList.remove('de-link-parent');
+						link.classList.add('de-link-parent');
+						pv._link = link;
+						if (pv.parent.num !== parent.num) {
+							$each($C('de-link-pview', pv.el), function (el) {
+								el.classList.remove('de-link-pview');
+							});
+							Pview._markLink(pv.el, parent.num);
+						}
+					}
+					pv.parent = parent;
+				} else if (!Cfg.noNavigHidd || !pByNum[pNum] || !pByNum[pNum].hidden) {
+					if (pv) {
+						pv['delete']();
+					}
+					pv = new Pview(parent, link, pNum, tNum);
+					if (isTop) {
+						Pview.top = pv;
+					}
+				} else {
+					return null;
 				}
-				pv.parent = parent;
-			} else if (!Cfg.noNavigHidd || !pByNum[pNum] || !pByNum[pNum].hidden) {
-				if (pv) {
-					pv['delete']();
-				}
-				pv = new Pview(parent, link, pNum, tNum);
-				if (isTop) {
-					Pview.top = pv;
-				}
-			} else {
-				return null;
+				return pv;
 			}
-			return pv;
-		};
-
-		Pview.updatePosition = function updatePosition(scroll) {
-			var pv = Pview.top;
-			if (pv) {
-				var parent = pv.parent;
-				if (parent.omitted) {
-					pv['delete']();
-					return;
-				}
-				if (parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
-					var el = parent.ref.getElByNum(pv.num);
-					if (el) {
-						pv._link = el;
-					} else {
+		}, {
+			key: 'updatePosition',
+			value: function updatePosition(scroll) {
+				var pv = Pview.top;
+				if (pv) {
+					var parent = pv.parent;
+					if (parent.omitted) {
 						pv['delete']();
 						return;
 					}
-				}
-				var cr = parent.hidden ? parent : pv._link.getBoundingClientRect();
-				var diff = pv._isTop ? pv._offsetTop - (window.pageYOffset + cr.bottom) : pv._offsetTop + pv.el.offsetHeight - (window.pageYOffset + cr.top);
-				if (Math.abs(diff) > 1) {
-					if (scroll) {
-						scrollTo(window.pageXOffset, window.pageYOffset - diff);
+					if (parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
+						var el = parent.ref.getElByNum(pv.num);
+						if (el) {
+							pv._link = el;
+						} else {
+							pv['delete']();
+							return;
+						}
 					}
-					do {
-						pv._offsetTop -= diff;
-						pv.el.style.top = Math.max(pv._offsetTop, 0) + 'px';
-					} while (pv = pv.kid);
+					var cr = parent.hidden ? parent : pv._link.getBoundingClientRect();
+					var diff = pv._isTop ? pv._offsetTop - (window.pageYOffset + cr.bottom) : pv._offsetTop + pv.el.offsetHeight - (window.pageYOffset + cr.top);
+					if (Math.abs(diff) > 1) {
+						if (scroll) {
+							scrollTo(window.pageXOffset, window.pageYOffset - diff);
+						}
+						do {
+							pv._offsetTop -= diff;
+							pv.el.style.top = Math.max(pv._offsetTop, 0) + 'px';
+						} while (pv = pv.kid);
+					}
 				}
 			}
-		};
-
-		Pview._markLink = function _markLink(el, num) {
-			$each($Q('a[href*="' + num + '"]', el), function (el) {
-				if (el.textContent.startsWith('>>' + num)) {
-					el.classList.add('de-link-pview');
-				}
-			});
-		};
-
-		_createClass(Pview, null, [{
+		}, {
+			key: '_markLink',
+			value: function _markLink(el, num) {
+				$each($Q('a[href*="' + num + '"]', el), function (el) {
+					if (el.textContent.startsWith('>>' + num)) {
+						el.classList.add('de-link-pview');
+					}
+				});
+			}
+		}, {
 			key: 'topParent',
 			get: function get() {
 				return Pview.top ? Pview.top.parent : null;
@@ -12209,7 +12262,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function Pview(parent, link, pNum, tNum) {
 			_classCallCheck(this, Pview);
 
-			_AbstractPost3.call(this, parent.thr, pNum, pNum === tNum);
+			_get(Object.getPrototypeOf(Pview.prototype), 'constructor', this).call(this, parent.thr, pNum, pNum === tNum);
 			this._isLeft = false;
 			this._isTop = false;
 			this._link = link;
@@ -12246,273 +12299,286 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}).bind(this), this._onerror.bind(this));
 		}
 
-		Pview.prototype['delete'] = function _delete() {
-			this.parent.kid = null;
-			this._link.classList.remove('de-link-parent');
-			if (Pview.top === this) {
-				Pview.top = null;
-			}
-			if (this._loading) {
-				this._loadPromise.cancel();
-			}
-			var vPost = Attachment.viewer && Attachment.viewer.data.post;
-			var pv = this;
-			do {
-				clearTimeout(pv._readDelay);
-				if (vPost === pv) {
-					Attachment.viewer.close(null);
-					Attachment.viewer = vPost = null;
+		_createClass(Pview, [{
+			key: 'delete',
+			value: function _delete() {
+				this.parent.kid = null;
+				this._link.classList.remove('de-link-parent');
+				if (Pview.top === this) {
+					Pview.top = null;
 				}
-				var el = pv.el;
-				if (Cfg.animation) {
-					nav.animEvent(el, $del);
-					el.classList.add('de-pview-anim');
-					el.style[nav.animName] = 'de-post-close-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
-				} else {
-					$del(el);
+				if (this._loading) {
+					this._loadPromise.cancel();
 				}
-			} while (pv = pv.kid);
-		};
-
-		Pview.prototype.deleteNonSticky = function deleteNonSticky() {
-			var lastSticky = null,
-			    pv = this;
-			do {
-				if (pv.sticky) {
-					lastSticky = pv;
-				}
-			} while (pv = pv.kid);
-			if (!lastSticky) {
-				this['delete']();
-			} else if (lastSticky.kid) {
-				lastSticky.kid['delete']();
-			}
-		};
-
-		Pview.prototype.handleEvent = function handleEvent(e) {
-			var isOverEvent = false;
-			checkMouse: do {
-				switch (e.type) {
-					case 'mouseover':
-						isOverEvent = true;break;
-					case 'mouseout':
-						break;
-					default:
-						break checkMouse;
-				}
-				var el = e.relatedTarget;
-				if (!el || isOverEvent && (el.tagName !== 'A' || el.lchecked) || el !== this.el && !this.el.contains(el)) {
-					if (isOverEvent) {
-						this.mouseEnter();
-					} else if (Pview.top) {
-						Pview.top.markToDel();
+				var vPost = Attachment.viewer && Attachment.viewer.data.post;
+				var pv = this;
+				do {
+					clearTimeout(pv._readDelay);
+					if (vPost === pv) {
+						Attachment.viewer.close(null);
+						Attachment.viewer = vPost = null;
 					}
-				}
-			} while (false);
-			if (!this.loading) {
-				_AbstractPost3.prototype.handleEvent.call(this, e);
+					var el = pv.el;
+					if (Cfg.animation) {
+						nav.animEvent(el, $del);
+						el.classList.add('de-pview-anim');
+						el.style[nav.animName] = 'de-post-close-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
+					} else {
+						$del(el);
+					}
+				} while (pv = pv.kid);
 			}
-		};
+		}, {
+			key: 'deleteNonSticky',
+			value: function deleteNonSticky() {
+				var lastSticky = null,
+				    pv = this;
+				do {
+					if (pv.sticky) {
+						lastSticky = pv;
+					}
+				} while (pv = pv.kid);
+				if (!lastSticky) {
+					this['delete']();
+				} else if (lastSticky.kid) {
+					lastSticky.kid['delete']();
+				}
+			}
+		}, {
+			key: 'handleEvent',
+			value: function handleEvent(e) {
+				var isOverEvent = false;
+				checkMouse: do {
+					switch (e.type) {
+						case 'mouseover':
+							isOverEvent = true;break;
+						case 'mouseout':
+							break;
+						default:
+							break checkMouse;
+					}
+					var el = e.relatedTarget;
+					if (!el || isOverEvent && (el.tagName !== 'A' || el.lchecked) || el !== this.el && !this.el.contains(el)) {
+						if (isOverEvent) {
+							this.mouseEnter();
+						} else if (Pview.top) {
+							Pview.top.markToDel();
+						}
+					}
+				} while (false);
+				if (!this.loading) {
+					_get(Object.getPrototypeOf(Pview.prototype), 'handleEvent', this).call(this, e);
+				}
+			}
+		}, {
+			key: 'markToDel',
+			value: function markToDel() {
+				var _this28 = this;
 
-		Pview.prototype.markToDel = function markToDel() {
-			var _this28 = this;
-
-			clearTimeout(Pview._delTO);
-			Pview._delTO = setTimeout(function () {
-				return _this28.deleteNonSticky();
-			}, Cfg.linksOut);
-		};
-
-		Pview.prototype.mouseEnter = function mouseEnter() {
-			if (this.kid) {
-				this.kid.markToDel();
-			} else {
 				clearTimeout(Pview._delTO);
+				Pview._delTO = setTimeout(function () {
+					return _this28.deleteNonSticky();
+				}, Cfg.linksOut);
 			}
-		};
-
-		Pview.prototype.setSticky = function setSticky(val) {
-			this.stickBtn.setAttribute('class', val ? 'de-btn-stick-on' : 'de-btn-stick');
-			this.sticky = val;
-		};
-
-		Pview.prototype.toggleUserVisib = function toggleUserVisib() {
-			var post = pByNum[this.num];
-			post.toggleUserVisib();
-			Pview.updatePosition(true);
-			$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]', dForm.el), function (el) {
-				if (post.hidden) {
-					el.setAttribute('class', 'de-btn-unhide-user de-btn-pview-hide');
-					el.parentNode.classList.add('de-post-hide');
+		}, {
+			key: 'mouseEnter',
+			value: function mouseEnter() {
+				if (this.kid) {
+					this.kid.markToDel();
 				} else {
-					el.setAttribute('class', 'de-btn-hide-user de-btn-pview-hide');
-					el.parentNode.classList.remove('de-post-hide');
+					clearTimeout(Pview._delTO);
 				}
-			});
-		};
-
-		Pview.prototype._onerror = function _onerror(e) {
-			this.el.innerHTML = e instanceof AjaxError && e.code === 404 ? Lng.postNotFound[lang] : getErrorMessage(e);
-		};
-
-		Pview.prototype._onload = function _onload(b, form) {
-			var parentNum = this.parent.num,
-			    post = PviewsCache.get(b + this.tNum, form, b, this.tNum).getPost(this.num);
-			if (post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(parentNum))) {
-				var rm;
-				if (post.ref.hasMap) {
-					rm = $c('de-refmap', post.el);
-				} else {
-					post.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
-					rm = post.msg.nextSibling;
-				}
-				rm.insertAdjacentHTML('afterbegin', '<a class="de-link-ref" href="' + aib.getThrdUrl(b, this.parent.tNum) + aib.anchor + parentNum + '">&gt;&gt;' + (aib.b === b ? '' : '/' + aib.b + '/') + parentNum + '</a><span class="de-refcomma">, </span>');
 			}
-			if (post) {
-				this._showPost(post);
-			} else {
-				this.el.innerHTML = Lng.postNotFound[lang];
+		}, {
+			key: 'setSticky',
+			value: function setSticky(val) {
+				this.stickBtn.setAttribute('class', val ? 'de-btn-stick-on' : 'de-btn-stick');
+				this.sticky = val;
 			}
-		};
-
-		Pview.prototype._setPosition = function _setPosition(link, isAnim) {
-			var oldCSS,
-			    pv = this.el,
-			    cr = link.getBoundingClientRect(),
-			    offX = cr.left + window.pageXOffset + cr.width / 2,
-			    offY = cr.top,
-			    bWidth = doc.documentElement.clientWidth,
-			    isLeft = offX < bWidth / 2,
-			    tmp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10),
-			    lmw = 'max-width:' + (bWidth - tmp - 10) + 'px; left:' + tmp + 'px;';
-			if (isAnim) {
-				oldCSS = pv.style.cssText;
-				pv.style.cssText = 'opacity: 0; ' + lmw;
-			} else {
-				pv.style.cssText = lmw;
-			}
-			var top = pv.offsetHeight,
-			    isTop = offY + top + cr.height < doc.documentElement.clientHeight || offY - top < 5;
-			top = window.pageYOffset + (isTop ? offY + cr.height : offY - top);
-			this._offsetTop = top;
-			this._isLeft = isLeft;
-			this._isTop = isTop;
-			if (!isAnim) {
-				pv.style.top = top + 'px';
-				return;
-			}
-			var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
-			$css('@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + 'px; }}').className = 'de-css-move';
-			if (this._newPos) {
-				pv.style.cssText = this._newPos;
-				pv.removeEventListener(nav.animEnd, PviewMoved);
-			} else {
-				pv.style.cssText = oldCSS;
-			}
-			this._newPos = lmw + ' top:' + top + 'px;';
-			pv.addEventListener(nav.animEnd, PviewMoved);
-			pv.classList.add('de-pview-anim');
-			pv.style[nav.animName] = uId;
-		};
-
-		Pview.prototype._showMenu = function _showMenu(el, htmlGetter) {
-			var _this29 = this;
-
-			_AbstractPost3.prototype._showMenu.call(this, el, htmlGetter);
-			this._menu.onover = function () {
-				return _this29.mouseEnter();
-			};
-			this._menu.onout = function () {
-				return _this29.markToDel();
-			};
-		};
-
-		Pview.prototype._showPost = function _showPost(post) {
-			if (this.el) {
-				$del(this.el);
-			}
-			var el = this.el = post.el.cloneNode(true),
-			    pText = '<svg class="de-btn-rep"><title>' + Lng.replyToPost[lang] + '</title><use xlink:href="#de-symbol-repbtn"/></svg>' + (post.sage ? '<svg class="de-btn-sage"><title>SAGE</title><use xlink:href="#de-symbol-sagebtn"/></svg>' : '') + '<svg class="de-btn-stick"><title>' + Lng.attachPview[lang] + '</title><use xlink:href="#de-symbol-stickbtn"/></svg>' + (post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' + 'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
-			el.post = this;
-			el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
-			el.style.display = '';
-			if (Cfg.linksNavig === 2) {
-				Pview._markLink(el, this.parent.num);
-			}
-			this._pref = $q(aib.qRef, el);
-			this._link.classList.add('de-link-parent');
-			if (post instanceof CacheItem) {
-				this._pref.insertAdjacentHTML('afterend', '<span class="de-post-btns">' + pText + '</span');
-				embedMediaLinks(this);
-				if (Cfg.addYouTube) {
-					new VideosParser().parse(this).end();
-				}
-				if (Cfg.addImgs) {
-					embedImagesLinks(el);
-				}
-				processImageNames(el);
-			} else {
-				var node = $c('de-post-btns', el);
-				this.btns = node;
-				this.isOp = post.isOp;
-				node.classList.remove('de-post-counter');
-				if (post.hidden) {
-					node.classList.add('de-post-hide');
-				}
-				node.innerHTML = '<svg class="de-btn-hide' + (post.userToggled ? '-user' : '') + ' de-btn-pview-hide" de-num="' + this.num + '"><title>' + Lng.togglePost[lang] + '</title><use class="de-btn-hide-use" xlink:href="#de-symbol-hidebtn"/>' + '<use class="de-btn-unhide-use" xlink:href="#de-symbol-unhidebtn"/></svg>' + pText;
-				$each($Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') + '.de-img-full, .de-after-fimg', el), $del);
-				$each($Q(aib.qThumbImages, el), function (el) {
-					el.parentNode.style.display = '';
+		}, {
+			key: 'toggleUserVisib',
+			value: function toggleUserVisib() {
+				var post = pByNum[this.num];
+				post.toggleUserVisib();
+				Pview.updatePosition(true);
+				$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]', dForm.el), function (el) {
+					if (post.hidden) {
+						el.setAttribute('class', 'de-btn-unhide-user de-btn-pview-hide');
+						el.parentNode.classList.add('de-post-hide');
+					} else {
+						el.setAttribute('class', 'de-btn-hide-user de-btn-pview-hide');
+						el.parentNode.classList.remove('de-post-hide');
+					}
 				});
-				node = $c('de-link-parent', el);
-				if (node) {
-					node.classList.remove('de-link-parent');
+			}
+		}, {
+			key: '_onerror',
+			value: function _onerror(e) {
+				this.el.innerHTML = e instanceof AjaxError && e.code === 404 ? Lng.postNotFound[lang] : getErrorMessage(e);
+			}
+		}, {
+			key: '_onload',
+			value: function _onload(b, form) {
+				var parentNum = this.parent.num,
+				    post = PviewsCache.get(b + this.tNum, form, b, this.tNum).getPost(this.num);
+				if (post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(parentNum))) {
+					var rm;
+					if (post.ref.hasMap) {
+						rm = $c('de-refmap', post.el);
+					} else {
+						post.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
+						rm = post.msg.nextSibling;
+					}
+					rm.insertAdjacentHTML('afterbegin', '<a class="de-link-ref" href="' + aib.getThrdUrl(b, this.parent.tNum) + aib.anchor + parentNum + '">&gt;&gt;' + (aib.b === b ? '' : '/' + aib.b + '/') + parentNum + '</a><span class="de-refcomma">, </span>');
 				}
-				if (Cfg.addYouTube && post.videos.hasLinks) {
-					if (post.videos.playerInfo !== null) {
-						Object.defineProperty(this, 'videos', {
-							value: new Videos(this, $c('de-video-obj', el), post.videos.playerInfo)
+				if (post) {
+					this._showPost(post);
+				} else {
+					this.el.innerHTML = Lng.postNotFound[lang];
+				}
+			}
+		}, {
+			key: '_setPosition',
+			value: function _setPosition(link, isAnim) {
+				var oldCSS,
+				    pv = this.el,
+				    cr = link.getBoundingClientRect(),
+				    offX = cr.left + window.pageXOffset + cr.width / 2,
+				    offY = cr.top,
+				    bWidth = doc.documentElement.clientWidth,
+				    isLeft = offX < bWidth / 2,
+				    tmp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10),
+				    lmw = 'max-width:' + (bWidth - tmp - 10) + 'px; left:' + tmp + 'px;';
+				if (isAnim) {
+					oldCSS = pv.style.cssText;
+					pv.style.cssText = 'opacity: 0; ' + lmw;
+				} else {
+					pv.style.cssText = lmw;
+				}
+				var top = pv.offsetHeight,
+				    isTop = offY + top + cr.height < doc.documentElement.clientHeight || offY - top < 5;
+				top = window.pageYOffset + (isTop ? offY + cr.height : offY - top);
+				this._offsetTop = top;
+				this._isLeft = isLeft;
+				this._isTop = isTop;
+				if (!isAnim) {
+					pv.style.top = top + 'px';
+					return;
+				}
+				var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
+				$css('@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + 'px; }}').className = 'de-css-move';
+				if (this._newPos) {
+					pv.style.cssText = this._newPos;
+					pv.removeEventListener(nav.animEnd, PviewMoved);
+				} else {
+					pv.style.cssText = oldCSS;
+				}
+				this._newPos = lmw + ' top:' + top + 'px;';
+				pv.addEventListener(nav.animEnd, PviewMoved);
+				pv.classList.add('de-pview-anim');
+				pv.style[nav.animName] = uId;
+			}
+		}, {
+			key: '_showMenu',
+			value: function _showMenu(el, htmlGetter) {
+				var _this29 = this;
+
+				_get(Object.getPrototypeOf(Pview.prototype), '_showMenu', this).call(this, el, htmlGetter);
+				this._menu.onover = function () {
+					return _this29.mouseEnter();
+				};
+				this._menu.onout = function () {
+					return _this29.markToDel();
+				};
+			}
+		}, {
+			key: '_showPost',
+			value: function _showPost(post) {
+				if (this.el) {
+					$del(this.el);
+				}
+				var el = this.el = post.el.cloneNode(true),
+				    pText = '<svg class="de-btn-rep"><title>' + Lng.replyToPost[lang] + '</title><use xlink:href="#de-symbol-repbtn"/></svg>' + (post.sage ? '<svg class="de-btn-sage"><title>SAGE</title><use xlink:href="#de-symbol-sagebtn"/></svg>' : '') + '<svg class="de-btn-stick"><title>' + Lng.attachPview[lang] + '</title><use xlink:href="#de-symbol-stickbtn"/></svg>' + (post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' + 'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
+				el.post = this;
+				el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
+				el.style.display = '';
+				if (Cfg.linksNavig === 2) {
+					Pview._markLink(el, this.parent.num);
+				}
+				this._pref = $q(aib.qRef, el);
+				this._link.classList.add('de-link-parent');
+				if (post instanceof CacheItem) {
+					this._pref.insertAdjacentHTML('afterend', '<span class="de-post-btns">' + pText + '</span');
+					embedMediaLinks(this);
+					if (Cfg.addYouTube) {
+						new VideosParser().parse(this).end();
+					}
+					if (Cfg.addImgs) {
+						embedImagesLinks(el);
+					}
+					processImageNames(el);
+				} else {
+					var node = $c('de-post-btns', el);
+					this.btns = node;
+					this.isOp = post.isOp;
+					node.classList.remove('de-post-counter');
+					if (post.hidden) {
+						node.classList.add('de-post-hide');
+					}
+					node.innerHTML = '<svg class="de-btn-hide' + (post.userToggled ? '-user' : '') + ' de-btn-pview-hide" de-num="' + this.num + '"><title>' + Lng.togglePost[lang] + '</title><use class="de-btn-hide-use" xlink:href="#de-symbol-hidebtn"/>' + '<use class="de-btn-unhide-use" xlink:href="#de-symbol-unhidebtn"/></svg>' + pText;
+					$each($Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') + '.de-img-full, .de-after-fimg', el), $del);
+					$each($Q(aib.qThumbImages, el), function (el) {
+						el.parentNode.style.display = '';
+					});
+					node = $c('de-link-parent', el);
+					if (node) {
+						node.classList.remove('de-link-parent');
+					}
+					if (Cfg.addYouTube && post.videos.hasLinks) {
+						if (post.videos.playerInfo !== null) {
+							Object.defineProperty(this, 'videos', {
+								value: new Videos(this, $c('de-video-obj', el), post.videos.playerInfo)
+							});
+						}
+						this.videos.updatePost($C('de-video-link', post.el), $C('de-video-link', el), true);
+					}
+					if (Cfg.addImgs) {
+						$each($C('de-img-pre', el), function (el) {
+							el.style.display = '';
 						});
 					}
-					this.videos.updatePost($C('de-video-link', post.el), $C('de-video-link', el), true);
+					if (Cfg.markViewed) {
+						this._readDelay = setTimeout(function (pst) {
+							if (!pst.viewed) {
+								pst.el.classList.add('de-viewed');
+								pst.viewed = true;
+							}
+							var arr = (sesStorage['de-viewed'] || '').split(',');
+							arr.push(pst.num);
+							sesStorage['de-viewed'] = arr;
+						}, post.text.length > 100 ? 2e3 : 500, post);
+					}
 				}
-				if (Cfg.addImgs) {
-					$each($C('de-img-pre', el), function (el) {
-						el.style.display = '';
+				el.addEventListener('click', this, true);
+				this._showPview(el);
+			}
+		}, {
+			key: '_showPview',
+			value: function _showPview(el) {
+				el.addEventListener('mouseover', this, true);
+				el.addEventListener('mouseout', this, true);
+				dForm.el.appendChild(el);
+				this._setPosition(this._link, false);
+				if (Cfg.animation) {
+					nav.animEvent(el, function (node) {
+						node.classList.remove('de-pview-anim');
+						node.style[nav.animName] = '';
 					});
-				}
-				if (Cfg.markViewed) {
-					this._readDelay = setTimeout(function (pst) {
-						if (!pst.viewed) {
-							pst.el.classList.add('de-viewed');
-							pst.viewed = true;
-						}
-						var arr = (sesStorage['de-viewed'] || '').split(',');
-						arr.push(pst.num);
-						sesStorage['de-viewed'] = arr;
-					}, post.text.length > 100 ? 2e3 : 500, post);
+					el.classList.add('de-pview-anim');
+					el.style[nav.animName] = 'de-post-open-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
 				}
 			}
-			el.addEventListener('click', this, true);
-			this._showPview(el);
-		};
-
-		Pview.prototype._showPview = function _showPview(el) {
-			el.addEventListener('mouseover', this, true);
-			el.addEventListener('mouseout', this, true);
-			dForm.el.appendChild(el);
-			this._setPosition(this._link, false);
-			if (Cfg.animation) {
-				nav.animEvent(el, function (node) {
-					node.classList.remove('de-pview-anim');
-					node.style[nav.animName] = '';
-				});
-				el.classList.add('de-pview-anim');
-				el.style[nav.animName] = 'de-post-open-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
-			}
-		};
-
-		_createClass(Pview, [{
+		}, {
 			key: 'stickBtn',
 			get: function get() {
 				var value = $c('de-btn-stick', this.el);
@@ -12571,7 +12637,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function PviewsCache(form, b, tNum) {
 			_classCallCheck(this, PviewsCache);
 
-			_TemporaryContent2.call(this);
+			_get(Object.getPrototypeOf(PviewsCache.prototype), 'constructor', this).call(this);
 			var pBn = {},
 			    thr = $q(aib.qThread, form) || form,
 			    posts = $Q(aib.qRPost, thr);
@@ -12589,27 +12655,30 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}
 
-		PviewsCache.prototype.getPost = function getPost(num) {
-			var pst = this._posts[num];
-			if (!pst || pst.itemInited) {
+		_createClass(PviewsCache, [{
+			key: 'getPost',
+			value: function getPost(num) {
+				var pst = this._posts[num];
+				if (!pst || pst.itemInited) {
+					return pst;
+				}
+				if (num === this._tNum) {
+					var oOp;
+					if (this._b === aib.b && (oOp = pByNum[this._tNum])) {
+						oOp.ref.forEach(function (num) {
+							return pst.ref.add(num);
+						});
+					}
+				}
+				pst.el = replacePost(pst.el);
+				delete pst.msg;
+				if (pst.ref.hasMap) {
+					pst.ref.init(this._tUrl);
+				}
+				pst.itemInited = true;
 				return pst;
 			}
-			if (num === this._tNum) {
-				var oOp;
-				if (this._b === aib.b && (oOp = pByNum[this._tNum])) {
-					oOp.ref.forEach(function (num) {
-						return pst.ref.add(num);
-					});
-				}
-			}
-			pst.el = replacePost(pst.el);
-			delete pst.msg;
-			if (pst.ref.hasMap) {
-				pst.ref.init(this._tUrl);
-			}
-			pst.itemInited = true;
-			return pst;
-		};
+		}]);
 
 		return PviewsCache;
 	})(TemporaryContent);
@@ -12632,52 +12701,56 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 	var RefMap = (function () {
-		RefMap.gen = function gen(posts, thrURL) {
-			var opNums = dForm.tNums;
-			for (var pNum in posts) {
-				aib.forEachReflink(posts[pNum].msg, function (link, lNum) {
-					if (!(lNum in posts)) {
+		_createClass(RefMap, null, [{
+			key: 'gen',
+			value: function gen(posts, thrURL) {
+				var opNums = dForm.tNums;
+				for (var pNum in posts) {
+					aib.forEachReflink(posts[pNum].msg, function (link, lNum) {
+						if (!(lNum in posts)) {
+							return;
+						}
+						posts[lNum].ref.insert(pNum);
+						if (!aib.hasOPNum && opNums.indexOf(lNum) !== -1) {
+							link.classList.add('de-ref-op');
+						}
+						if (thrURL) {
+							var url = link.getAttribute('href');
+							if (url[0] === '#') {
+								link.setAttribute('href', thrURL + url);
+							}
+						}
+					});
+				}
+			}
+		}, {
+			key: 'upd',
+			value: function upd(post, add) {
+				var pNum = post.num,
+				    strNums = add && Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
+				    isThr = aib.t;
+				aib.forEachReflink(post.msg, function (link, lNum) {
+					var lPost = pByNum[lNum];
+					if (!lPost) {
 						return;
 					}
-					posts[lNum].ref.insert(pNum);
-					if (!aib.hasOPNum && opNums.indexOf(lNum) !== -1) {
-						link.classList.add('de-ref-op');
+					if (!isThr) {
+						link.href = '#' + (aib.fch ? 'p' : '') + lNum;
 					}
-					if (thrURL) {
-						var url = link.getAttribute('href');
-						if (url[0] === '#') {
-							link.setAttribute('href', thrURL + url);
+					if (add) {
+						if (strNums && strNums.has(+lNum)) {
+							link.classList.add('de-link-hid');
 						}
+						if (!aib.hasOPNum && dForm.tNums.indexOf(lNum) !== -1) {
+							link.classList.add('de-ref-op');
+						}
+						lPost.ref.add(post, pNum, strNums && strNums.has(+pNum));
+					} else {
+						lPost.ref.remove(pNum);
 					}
 				});
 			}
-		};
-
-		RefMap.upd = function upd(post, add) {
-			var pNum = post.num,
-			    strNums = add && Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
-			    isThr = aib.t;
-			aib.forEachReflink(post.msg, function (link, lNum) {
-				var lPost = pByNum[lNum];
-				if (!lPost) {
-					return;
-				}
-				if (!isThr) {
-					link.href = '#' + (aib.fch ? 'p' : '') + lNum;
-				}
-				if (add) {
-					if (strNums && strNums.has(+lNum)) {
-						link.classList.add('de-link-hid');
-					}
-					if (!aib.hasOPNum && dForm.tNums.indexOf(lNum) !== -1) {
-						link.classList.add('de-ref-op');
-					}
-					lPost.ref.add(post, pNum, strNums && strNums.has(+pNum));
-				} else {
-					lPost.ref.remove(pNum);
-				}
-			});
-		};
+		}]);
 
 		function RefMap(post) {
 			_classCallCheck(this, RefMap);
@@ -12689,98 +12762,108 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	
 	
 
-		RefMap.prototype.add = function add(post, num, isHidden) {
-			if (!this._set.has(num)) {
-				this._set.add(num);
-				this._el.insertAdjacentHTML('beforeend', this._getHTML(num, '', isHidden));
-				if (Cfg.hideRefPsts && this._post.hidden) {
-					if (!post.hidden) {
-						post.ref.hide();
+		_createClass(RefMap, [{
+			key: 'add',
+			value: function add(post, num, isHidden) {
+				if (!this._set.has(num)) {
+					this._set.add(num);
+					this._el.insertAdjacentHTML('beforeend', this._getHTML(num, '', isHidden));
+					if (Cfg.hideRefPsts && this._post.hidden) {
+						if (!post.hidden) {
+							post.ref.hide();
+						}
+						post.setVisib(true);
+						post.setNote('reference to >>' + lNum);
 					}
-					post.setVisib(true);
-					post.setNote('reference to >>' + lNum);
 				}
 			}
-		};
-
-		RefMap.prototype.getElByNum = function getElByNum(num) {
-			return $q('a[href$="' + num + '"]', this._el);
-		};
-
-		RefMap.prototype.has = function has(num) {
-			return this._set.has(num);
-		};
-
-		RefMap.prototype.hide = function hide() {
-			var _this30 = this;
-
-			if (!Cfg.hideRefPsts || !this.hasMap) {
-				return;
+		}, {
+			key: 'getElByNum',
+			value: function getElByNum(num) {
+				return $q('a[href$="' + num + '"]', this._el);
 			}
-			this._set.forEach(function (num) {
-				var pst = pByNum[num];
-				if (pst && !pst.userToggled) {
-					pst.setVisib(true);
-					pst.setNote('reference to >>' + _this30.num);
-					pst.ref.hide();
+		}, {
+			key: 'has',
+			value: function has(num) {
+				return this._set.has(num);
+			}
+		}, {
+			key: 'hide',
+			value: function hide() {
+				var _this30 = this;
+
+				if (!Cfg.hideRefPsts || !this.hasMap) {
+					return;
 				}
-			});
-		};
+				this._set.forEach(function (num) {
+					var pst = pByNum[num];
+					if (pst && !pst.userToggled) {
+						pst.setVisib(true);
+						pst.setNote('reference to >>' + _this30.num);
+						pst.ref.hide();
+					}
+				});
+			}
+		}, {
+			key: 'init',
+			value: function init(tUrl) {
+				var _this31 = this;
 
-		RefMap.prototype.init = function init(tUrl) {
-			var _this31 = this;
-
-			var bStr = '<a href="' + tUrl + aib.anchor,
-			    strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null,
-			    html = [];
-			this._set.forEach(function (num) {
-				return html.push(_this31._getHTML(num, tUrl, strNums && strNums.has(+num)));
-			});
-			this._el.innerHTML = html.join('');
-		};
-
-		RefMap.prototype.insert = function insert(num) {
-			this._set.add(num);
-		};
-
-		RefMap.prototype.remove = function remove(num) {
-			this._set['delete'](num);
-			if (this._set.size === 0) {
+				var bStr = '<a href="' + tUrl + aib.anchor,
+				    strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null,
+				    html = [];
+				this._set.forEach(function (num) {
+					return html.push(_this31._getHTML(num, tUrl, strNums && strNums.has(+num)));
+				});
+				this._el.innerHTML = html.join('');
+			}
+		}, {
+			key: 'insert',
+			value: function insert(num) {
+				this._set.add(num);
+			}
+		}, {
+			key: 'remove',
+			value: function remove(num) {
+				this._set['delete'](num);
+				if (this._set.size === 0) {
+					$del(this._el);
+					delete this._el;
+				} else {
+					var el = this.getElByNum(num);
+					if (el) {
+						$del(el.nextSibling);
+						$del(el);
+					}
+				}
+			}
+		}, {
+			key: 'removeMap',
+			value: function removeMap() {
+				this._set = new Set();
 				$del(this._el);
 				delete this._el;
-			} else {
-				var el = this.getElByNum(num);
-				if (el) {
-					$del(el.nextSibling);
-					$del(el);
-				}
 			}
-		};
-
-		RefMap.prototype.removeMap = function removeMap() {
-			this._set = new Set();
-			$del(this._el);
-			delete this._el;
-		};
-
-		RefMap.prototype.unhide = function unhide() {
-			if (!Cfg.hideRefPsts || !this.hasMap) {
-				return;
-			}
-			this._set.forEach(function (num) {
-				var pst = pByNum[num];
-				if (pst && pst.hidden && !pst.userToggled && !pst.spellHidden) {
-					pst.setVisib(false);
-					pst.ref.unhide();
+		}, {
+			key: 'unhide',
+			value: function unhide() {
+				if (!Cfg.hideRefPsts || !this.hasMap) {
+					return;
 				}
-			});
-		};
-
-		RefMap.prototype._getHTML = function _getHTML(num, tUrl, isHidden) {
-			return '<a href="' + tUrl + aib.anchor + num + '" class="de-link-ref' + (isHidden ? ' de-link-hid' : '') + '">&gt;&gt;' + num + '</a><span class="de-refcomma">, </span>';
-		};
-
-		_createClass(RefMap, [{
+				this._set.forEach(function (num) {
+					var pst = pByNum[num];
+					if (pst && pst.hidden && !pst.userToggled && !pst.spellHidden) {
+						pst.setVisib(false);
+						pst.ref.unhide();
+					}
+				});
+			}
+		}, {
+			key: '_getHTML',
+			value: function _getHTML(num, tUrl, isHidden) {
+				return '<a href="' + tUrl + aib.anchor + num + '" class="de-link-ref' + (isHidden ? ' de-link-hid' : '') + '">&gt;&gt;' + num + '</a><span class="de-refcomma">, </span>';
+			}
+		}, {
 			key: 'hasMap',
 			get: function get() {
 				return this._set.size !== 0;
