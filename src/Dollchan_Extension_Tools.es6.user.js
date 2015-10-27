@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'aac69c7';
+var commit = '1455de6';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -926,7 +926,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				'method': (params && params.method) || 'GET',
 				'url': nav.fixLink(url),
 				'onload'(e) {
-					if(e.status === 200) {
+					if(e.status === 200 || aib.tiny && e.status === 400) {
 						resolve(e);
 					} else {
 						reject(e);
@@ -952,7 +952,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 		}
 		xhr.onreadystatechange = ({ target }) => {
 			if(target.readyState === 4) {
-				if(target.status === 200) {
+				if(target.status === 200 || aib.tiny && target.status === 400) {
 					if(useCache) {
 						aib.LastModified = target.getResponseHeader('Last-Modified');
 						aib.ETag = xhr.getResponseHeader('Etag');
@@ -11104,7 +11104,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			css: { value: '.fileinfo { width: 250px; }\
 				.multifile { width: auto !important; }\
-				.post-btn { display: none !important; }' },
+				#expand-all-images, #expand-all-images + .unimportant, .post-btn, .watchThread { display: none !important; }' },
 			earlyInit: { value() {
 				if(locStorage['file_dragdrop'] === 'true') {
 					locStorage['file_dragdrop'] = false;
@@ -11112,7 +11112,12 @@ function getImageBoard(checkDomains, checkEngines) {
 				}
 				return false;
 			} },
-			init: { value: null }, // Don't run tinyboard init function
+			init: { value() {
+				setTimeout(function() {
+					$del($id('thread-interactions'));
+				}, 0);
+				return false;
+			} },
 			fixFileInputs: { value(el) {
 				var str = '';
 				for(var i = 0, len = 5; i < len; ++i) {
