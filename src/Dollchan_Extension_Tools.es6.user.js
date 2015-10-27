@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '44ba30d';
+var commit = 'f095e89';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10771,7 +10771,7 @@ var navPanel = {
 		}
 	},
 	_expandCollapse(expand, rt) {
-		if(!rt || !this._el.contains(rt)) {
+		if(!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
 			clearTimeout(this._showhideTO);
 			this._showhideTO = setTimeout(
 				expand ? (() => this._el.classList.remove('de-thr-navpanel-hidden'))

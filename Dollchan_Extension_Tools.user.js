@@ -1886,7 +1886,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '44ba30d';
+	var commit = 'f095e89';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -13679,7 +13679,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_expandCollapse: function _expandCollapse(expand, rt) {
 			var _this39 = this;
 
-			if (!rt || !this._el.contains(rt)) {
+			if (!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
 				clearTimeout(this._showhideTO);
 				this._showhideTO = setTimeout(expand ? function () {
 					return _this39._el.classList.remove('de-thr-navpanel-hidden');
