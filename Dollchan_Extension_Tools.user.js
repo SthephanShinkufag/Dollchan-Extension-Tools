@@ -1867,15 +1867,9 @@ $define(GLOBAL + BIND, {
 
 'use strict';
 
-var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
-
 var _bind = Function.prototype.bind;
 
-var _get = function get(_x25, _x26, _x27) { var _again = true; _function: while (_again) { var object = _x25, property = _x26, receiver = _x27; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x25 = parent; _x26 = property; _x27 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
@@ -1884,9 +1878,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 (function de_main_func_inner(scriptStorage, FormData) {
 	'use strict';
 
+	var _PostImages$prototype;
+
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '7419cd1';
+	var commit = 'afa1a72';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -2769,8 +2765,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (params && params.onprogress) {
 				xhr.upload.onprogress = params.onprogress;
 			}
-			xhr.onreadystatechange = function (_ref) {
-				var target = _ref.target;
+			xhr.onreadystatechange = function (_ref12) {
+				var target = _ref12.target;
 
 				if (target.readyState === 4) {
 					if (target.status === 200 || aib.tiny && target.status === 400) {
@@ -2844,55 +2840,49 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_classCallCheck(this, TemporaryContent);
 		}
 
-		_createClass(TemporaryContent, null, [{
-			key: 'get',
-			value: function get(key) {
-				var _this2 = this;
+		TemporaryContent.get = function get(key) {
+			var _this2 = this;
 
-				var rv = null;
-				if (this.data) {
-					rv = this.data.get(key);
-				} else {
-					this.data = new Map();
+			var rv = null;
+			if (this.data) {
+				rv = this.data.get(key);
+			} else {
+				this.data = new Map();
+			}
+			if (!rv) {
+				for (var _len4 = arguments.length, initArgs = Array(_len4 > 1 ? _len4 - 1 : 0), _key3 = 1; _key3 < _len4; _key3++) {
+					initArgs[_key3 - 1] = arguments[_key3];
 				}
-				if (!rv) {
-					for (var _len4 = arguments.length, initArgs = Array(_len4 > 1 ? _len4 - 1 : 0), _key3 = 1; _key3 < _len4; _key3++) {
-						initArgs[_key3 - 1] = arguments[_key3];
-					}
 
-					rv = new (_bind.apply(this, [null].concat(initArgs)))();
-					this.data.set(key, rv);
-				}
-				if (this.purgeTO) {
-					clearTimeout(this.purgeTO);
-				}
-				this.purgeTO = setTimeout(function () {
-					return _this2.purge();
-				}, this.purgeSecs);
-				return rv;
+				rv = new (_bind.apply(this, [null].concat(initArgs)))();
+				this.data.set(key, rv);
 			}
-		}, {
-			key: 'has',
-			value: function has(key) {
-				return this.data ? this.data.has(key) : false;
+			if (this.purgeTO) {
+				clearTimeout(this.purgeTO);
 			}
-		}, {
-			key: 'purge',
-			value: function purge() {
-				if (this.purgeTO) {
-					clearTimeout(this.purgeTO);
-					this.purgeTO = null;
-				}
-				this.data = null;
+			this.purgeTO = setTimeout(function () {
+				return _this2.purge();
+			}, this.purgeSecs);
+			return rv;
+		};
+
+		TemporaryContent.has = function has(key) {
+			return this.data ? this.data.has(key) : false;
+		};
+
+		TemporaryContent.purge = function purge() {
+			if (this.purgeTO) {
+				clearTimeout(this.purgeTO);
+				this.purgeTO = null;
 			}
-		}, {
-			key: 'remove',
-			value: function remove(key) {
-				if (this.data) {
-					this.data['delete'](key);
-				}
+			this.data = null;
+		};
+
+		TemporaryContent.remove = function remove(key) {
+			if (this.data) {
+				this.data['delete'](key);
 			}
-		}]);
+		};
 
 		return TemporaryContent;
 	})();
@@ -4428,7 +4418,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 		}));
 		body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function callee$2$0() {
-			var i, els, len, _els$i$getAttribute$split, _els$i$getAttribute$split2, board, tNum;
+			var i, els, len, _els$i$getAttribute$split, board, tNum;
 
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
@@ -4437,41 +4427,40 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					case 1:
 						if (!(i < len)) {
-							context$3$0.next = 17;
+							context$3$0.next = 16;
 							break;
 						}
 
 						_els$i$getAttribute$split = els[i].getAttribute('info').split(';');
-						_els$i$getAttribute$split2 = _slicedToArray(_els$i$getAttribute$split, 2);
-						board = _els$i$getAttribute$split2[0];
-						tNum = _els$i$getAttribute$split2[1];
-						context$3$0.prev = 6;
-						context$3$0.next = 9;
+						board = _els$i$getAttribute$split[0];
+						tNum = _els$i$getAttribute$split[1];
+						context$3$0.prev = 5;
+						context$3$0.next = 8;
 						return $ajax(aib.getThrdUrl(board, tNum));
 
-					case 9:
-						context$3$0.next = 14;
+					case 8:
+						context$3$0.next = 13;
 						break;
 
-					case 11:
-						context$3$0.prev = 11;
-						context$3$0.t0 = context$3$0['catch'](6);
+					case 10:
+						context$3$0.prev = 10;
+						context$3$0.t0 = context$3$0['catch'](5);
 
 						if (context$3$0.t0.status === 404) {
 							delete hThr[board][tNum];
 							saveHiddenThreads(true);
 						}
 
-					case 14:
+					case 13:
 						++i;
 						context$3$0.next = 1;
 						break;
 
-					case 17:
+					case 16:
 					case 'end':
 						return context$3$0.stop();
 				}
-			}, callee$2$0, this, [[6, 11]]);
+			}, callee$2$0, this, [[5, 10]]);
 		}))));
 		body.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function () {
 			$each($Q('.de-entry[info]', this.parentNode), (function (date, el) {
@@ -4712,7 +4701,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					case 24:
 						for (i = 0; i < infoCount; ++i) {
-							_postsInfo$i = _slicedToArray(postsInfo[i], 3);
+							_postsInfo$i = postsInfo[i];
 							node = _postsInfo$i[1];
 							isFound = _postsInfo$i[2];
 
@@ -4878,14 +4867,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'href': '#',
 			'class': 'de-abtn de-spell-btn' }, {
 			'click': $pd,
-			'mouseover': function mouseover(_ref2) {
-				var target = _ref2.target;
+			'mouseover': function mouseover(_ref13) {
+				var target = _ref13.target;
 				return target.odelay = setTimeout(function () {
 					return addMenu(target);
 				}, Cfg.linksOver);
 			},
-			'mouseout': function mouseout(_ref3) {
-				var target = _ref3.target;
+			'mouseout': function mouseout(_ref14) {
+				var target = _ref14.target;
 				return clearTimeout(target.odelay);
 			}
 		}), $new('a', { 'text': Lng.apply[lang], 'href': '#', 'class': 'de-abtn de-spell-btn' }, { 'click': function click(e) {
@@ -5219,10 +5208,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
 		})), $if(!nav.Presto, $btn(Lng.file[lang], '', function () {
 			$popup('<b>' + Lng.impexpCfg[lang] + ':</b>' + '<div class="de-list">' + Lng.fileToCfg[lang] + ':<br>' + '<input type="file" accept=".json" id="de-import-file" style="margin-left: 12px;"></div>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.cfgToFile[lang] + '</div>', 'cfg-file', false);
-			$id('de-import-file').onchange = function (_ref4) {
-				var _ref4$target$files = _slicedToArray(_ref4.target.files, 1);
-
-				var file = _ref4$target$files[0];
+			$id('de-import-file').onchange = function (_ref15) {
+				var _ref15$target$files = _ref15.target.files;
+				var file = _ref15$target$files[0];
 
 				if (file) {
 					readFile(file, true).then(function (val) {
@@ -6126,12 +6114,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			return new Promise(function (resolve, reject) {
 				var w = _this9._freeWorkers.pop();
-
-				var _data = _slicedToArray(data, 3);
-
-				var sendData = _data[0];
-				var transferObjs = _data[1];
-				var fn = _data[2];
+				var sendData = data[0];
+				var transferObjs = data[1];
+				var fn = data[2];
 
 				w.onmessage = function (e) {
 					fn(e.data);
@@ -6218,13 +6203,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 			pool = new TasksPool(mReqs, function (num, data) {
 				return downloadImgData(data[0]).then(function (imageData) {
-					var _data2 = _slicedToArray(data, 5);
-
-					var url = _data2[0];
-					var link = _data2[1];
-					var iType = _data2[2];
-					var nExp = _data2[3];
-					var el = _data2[4];
+					var url = data[0];
+					var link = data[1];
+					var iType = data[2];
+					var nExp = data[3];
+					var el = data[4];
 
 					if (imageData) {
 						var fName = url.substring(url.lastIndexOf("/") + 1),
@@ -6317,12 +6300,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		    dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
 		Images_.pool = new TasksPool(4, function (num, data) {
 			return downloadImgData(data[0]).then(function (imgData) {
-				var _data3 = _slicedToArray(data, 4);
-
-				var url = _data3[0];
-				var name = _data3[1];
-				var el = _data3[2];
-				var link = _data3[3];
+				var url = data[0];
+				var name = data[1];
+				var el = data[2];
+				var link = data[3];
 				var safeName = name.replace(/[\\\/:*?"<>|]/g, '_');
 				progress.value = current;
 				counter.innerHTML = current;
@@ -6603,13 +6584,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			};
 		}
 	};
-	Videos._titlesLoaderHelper = function (_ref5, num) {
-		var _ref52 = _slicedToArray(_ref5, 4);
-
-		var link = _ref52[0];
-		var isYtube = _ref52[1];
-		var videoObj = _ref52[2];
-		var id = _ref52[3];
+	Videos._titlesLoaderHelper = function (_ref16, num) {
+		var link = _ref16[0];
+		var isYtube = _ref16[1];
+		var videoObj = _ref16[2];
+		var id = _ref16[3];
 
 		for (var _len5 = arguments.length, data = Array(_len5 > 2 ? _len5 - 2 : 0), _key4 = 2; _key4 < _len5; _key4++) {
 			data[_key4 - 2] = arguments[_key4];
@@ -6655,10 +6634,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	};
 	Videos._getTitlesLoader = function () {
 		return Cfg.YTubeTitles && new TasksPool(4, function (num, info) {
-			var _info = _slicedToArray(info, 4);
-
-			var isYtube = _info[1];
-			var id = _info[3];
+			var isYtube = info[1];
+			var id = info[3];
 
 			if (isYtube) {
 				return Cfg.ytApiKey ? Videos._getYTInfoAPI(info, num, id) : Videos._getYTInfoOembed(info, num, id);
@@ -6849,8 +6826,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 			for (var i = 0, len = vids.length; i < len; ++i) {
-				var _vids$i = _slicedToArray(vids[i], 3);
-
+				var _vids$i = vids[i];
 				var pst = _vids$i[0];
 				var m = _vids$i[1];
 				var isYtube = _vids$i[2];
@@ -7083,12 +7059,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return spell;
 				}
 
-				var _ref6 = wipeMsg || [];
+				var _ref17 = wipeMsg || [];
 
-				var _ref62 = _slicedToArray(_ref6, 2);
-
-				var msgBit = _ref62[0];
-				var msgData = _ref62[1];
+				var msgBit = _ref17[0];
+				var msgData = _ref17[1];
 				var names = [];
 				var bits = { 1: 'samelines', 2: 'samewords', 4: 'longwords', 8: 'symbols',
 					16: 'capslock', 32: 'numbers', 64: 'whitespace'
@@ -7855,12 +7829,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 
 		_endPromise: null,
-		_checkRes: function _checkRes(post, _ref7) {
-			var _ref72 = _slicedToArray(_ref7, 3);
-
-			var hasNumSpell = _ref72[0];
-			var val = _ref72[1];
-			var msg = _ref72[2];
+		_checkRes: function _checkRes(post, _ref18) {
+			var hasNumSpell = _ref18[0];
+			var val = _ref18[1];
+			var msg = _ref18[2];
 
 			this.hasNumSpell |= hasNumSpell;
 			if (val) {
@@ -7923,10 +7895,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					var _checkRes2 = this._checkRes(scope[i], val, isNegScope);
 
-					var _checkRes22 = _slicedToArray(_checkRes2, 2);
-
-					rv = _checkRes22[0];
-					stopCheck = _checkRes22[1];
+					rv = _checkRes2[0];
+					stopCheck = _checkRes2[1];
 
 					if (!stopCheck) {
 						i++;
@@ -7957,10 +7927,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			var _checkRes3 = this._checkRes(spell, val, this._ctx[cl - 1]);
 
-			var _checkRes32 = _slicedToArray(_checkRes3, 2);
-
-			var rv = _checkRes32[0];
-			var stopCheck = _checkRes32[1];
+			var rv = _checkRes3[0];
+			var stopCheck = _checkRes3[1];
 
 			return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null] : this.run();
 		},
@@ -7977,57 +7945,39 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 		_getMsg: function _getMsg() {
 			var rv = [];
-			var _iteratorNormalCompletion = true;
-			var _didIteratorError = false;
-			var _iteratorError = undefined;
+			for (var _iterator = this._triggeredSpellsStack, _isArray = Array.isArray(_iterator), _i2 = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+				var _ref;
 
-			try {
-				for (var _iterator = this._triggeredSpellsStack[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-					var spellEls = _step.value;
-					var _iteratorNormalCompletion2 = true;
-					var _didIteratorError2 = false;
-					var _iteratorError2 = undefined;
-
-					try {
-						for (var _iterator2 = spellEls[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-							var _step2$value = _slicedToArray(_step2.value, 3);
-
-							var isNeg = _step2$value[0];
-							var spell = _step2$value[1];
-							var wipeMsg = _step2$value[2];
-
-							rv.push(Spells.decompileSpell(spell[0] & 0xFF, isNeg, spell[1], spell[2], wipeMsg));
-						}
-					} catch (err) {
-						_didIteratorError2 = true;
-						_iteratorError2 = err;
-					} finally {
-						try {
-							if (!_iteratorNormalCompletion2 && _iterator2['return']) {
-								_iterator2['return']();
-							}
-						} finally {
-							if (_didIteratorError2) {
-								throw _iteratorError2;
-							}
-						}
-					}
+				if (_isArray) {
+					if (_i2 >= _iterator.length) break;
+					_ref = _iterator[_i2++];
+				} else {
+					_i2 = _iterator.next();
+					if (_i2.done) break;
+					_ref = _i2.value;
 				}
-			} catch (err) {
-				_didIteratorError = true;
-				_iteratorError = err;
-			} finally {
-				try {
-					if (!_iteratorNormalCompletion && _iterator['return']) {
-						_iterator['return']();
+
+				var spellEls = _ref;
+
+				for (var _iterator2 = spellEls, _isArray2 = Array.isArray(_iterator2), _i3 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
+					var _ref2;
+
+					if (_isArray2) {
+						if (_i3 >= _iterator2.length) break;
+						_ref2 = _iterator2[_i3++];
+					} else {
+						_i3 = _iterator2.next();
+						if (_i3.done) break;
+						_ref2 = _i3.value;
 					}
-				} finally {
-					if (_didIteratorError) {
-						throw _iteratorError;
-					}
+
+					var isNeg = _ref2[0];
+					var spell = _ref2[1];
+					var wipeMsg = _ref2[2];
+
+					rv.push(Spells.decompileSpell(spell[0] & 0xFF, isNeg, spell[1], spell[2], wipeMsg));
 				}
 			}
-
 			return rv.join(' & ');
 		},
 		_runSpell: function _runSpell(spellId, val) {
@@ -8079,122 +8029,100 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return val.test(this._post.html);
 		},
 		_imgn: function _imgn(val) {
-			var _iteratorNormalCompletion3 = true;
-			var _didIteratorError3 = false;
-			var _iteratorError3 = undefined;
+			for (var _iterator3 = this._post.images, _isArray3 = Array.isArray(_iterator3), _i4 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
+				var _ref3;
 
-			try {
-				for (var _iterator3 = this._post.images[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-					var image = _step3.value;
-
-					if (image instanceof Attachment && val.test(image.info)) {
-						return true;
-					}
+				if (_isArray3) {
+					if (_i4 >= _iterator3.length) break;
+					_ref3 = _iterator3[_i4++];
+				} else {
+					_i4 = _iterator3.next();
+					if (_i4.done) break;
+					_ref3 = _i4.value;
 				}
-			} catch (err) {
-				_didIteratorError3 = true;
-				_iteratorError3 = err;
-			} finally {
-				try {
-					if (!_iteratorNormalCompletion3 && _iterator3['return']) {
-						_iterator3['return']();
-					}
-				} finally {
-					if (_didIteratorError3) {
-						throw _iteratorError3;
-					}
+
+				var image = _ref3;
+
+				if (image instanceof Attachment && val.test(image.info)) {
+					return true;
 				}
 			}
-
 			return false;
 		},
 		_ihash: async(regeneratorRuntime.mark(function callee$1$0(val) {
-			var _iteratorNormalCompletion4, _didIteratorError4, _iteratorError4, _iterator4, _step4, image, hash;
+			var _iterator4, _isArray4, _i5, _ref4, image, hash;
 
 			return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
 				while (1) switch (context$2$0.prev = context$2$0.next) {
 					case 0:
-						_iteratorNormalCompletion4 = true;
-						_didIteratorError4 = false;
-						_iteratorError4 = undefined;
-						context$2$0.prev = 3;
-						_iterator4 = this._post.images[Symbol.iterator]();
+						_iterator4 = this._post.images, _isArray4 = Array.isArray(_iterator4), _i5 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();
 
-					case 5:
-						if (_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done) {
-							context$2$0.next = 16;
+					case 1:
+						if (!_isArray4) {
+							context$2$0.next = 7;
 							break;
 						}
 
-						image = _step4.value;
-
-						if (image instanceof Attachment) {
-							context$2$0.next = 9;
+						if (!(_i5 >= _iterator4.length)) {
+							context$2$0.next = 4;
 							break;
 						}
 
-						return context$2$0.abrupt('continue', 13);
+						return context$2$0.abrupt('break', 20);
 
-					case 9:
-						return context$2$0.delegateYield(ImagesHashStorage.getHash(image), 't0', 10);
+					case 4:
+						_ref4 = _iterator4[_i5++];
+						context$2$0.next = 11;
+						break;
+
+					case 7:
+						_i5 = _iterator4.next();
+
+						if (!_i5.done) {
+							context$2$0.next = 10;
+							break;
+						}
+
+						return context$2$0.abrupt('break', 20);
 
 					case 10:
+						_ref4 = _i5.value;
+
+					case 11:
+						image = _ref4;
+
+						if (image instanceof Attachment) {
+							context$2$0.next = 14;
+							break;
+						}
+
+						return context$2$0.abrupt('continue', 18);
+
+					case 14:
+						return context$2$0.delegateYield(ImagesHashStorage.getHash(image), 't0', 15);
+
+					case 15:
 						hash = context$2$0.t0;
 
 						if (!(hash === val)) {
-							context$2$0.next = 13;
+							context$2$0.next = 18;
 							break;
 						}
 
 						return context$2$0.abrupt('return', true);
 
-					case 13:
-						_iteratorNormalCompletion4 = true;
-						context$2$0.next = 5;
-						break;
-
-					case 16:
-						context$2$0.next = 22;
-						break;
-
 					case 18:
-						context$2$0.prev = 18;
-						context$2$0.t1 = context$2$0['catch'](3);
-						_didIteratorError4 = true;
-						_iteratorError4 = context$2$0.t1;
+						context$2$0.next = 1;
+						break;
 
-					case 22:
-						context$2$0.prev = 22;
-						context$2$0.prev = 23;
-
-						if (!_iteratorNormalCompletion4 && _iterator4['return']) {
-							_iterator4['return']();
-						}
-
-					case 25:
-						context$2$0.prev = 25;
-
-						if (!_didIteratorError4) {
-							context$2$0.next = 28;
-							break;
-						}
-
-						throw _iteratorError4;
-
-					case 28:
-						return context$2$0.finish(25);
-
-					case 29:
-						return context$2$0.finish(22);
-
-					case 30:
+					case 20:
 						return context$2$0.abrupt('return', false);
 
-					case 31:
+					case 21:
 					case 'end':
 						return context$2$0.stop();
 				}
-			}, callee$1$0, this, [[3, 18, 22, 30], [23,, 25, 29]]);
+			}, callee$1$0, this);
 		})),
 		_subj: function _subj(val) {
 			var pSubj = this._post.subj;
@@ -8210,79 +8138,67 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 		_img: function _img(val) {
 			var hide;var images = this._post.images;
-
-			var _val = _slicedToArray(val, 3);
-
-			var compareRule = _val[0];
-			var weightVals = _val[1];
-			var sizeVals = _val[2];
+			var compareRule = val[0];
+			var weightVals = val[1];
+			var sizeVals = val[2];
 
 			if (!val) {
 				return images.hasAttachments;
 			}
-			var _iteratorNormalCompletion5 = true;
-			var _didIteratorError5 = false;
-			var _iteratorError5 = undefined;
+			for (var _iterator5 = images, _isArray5 = Array.isArray(_iterator5), _i6 = 0, _iterator5 = _isArray5 ? _iterator5 : _iterator5[Symbol.iterator]();;) {
+				var _ref5;
 
-			try {
-				for (var _iterator5 = images[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-					var image = _step5.value;
+				if (_isArray5) {
+					if (_i6 >= _iterator5.length) break;
+					_ref5 = _iterator5[_i6++];
+				} else {
+					_i6 = _iterator5.next();
+					if (_i6.done) break;
+					_ref5 = _i6.value;
+				}
 
-					if (!(image instanceof Attachment)) {
+				var image = _ref5;
+
+				if (!(image instanceof Attachment)) {
+					continue;
+				}
+				if (weightVals) {
+					var w = image.weight;
+					switch (compareRule) {
+						case 0:
+							hide = w >= weightVals[0] && w <= weightVals[1];break;
+						case 1:
+							hide = w < weightVals[0];break;
+						case 2:
+							hide = w > weightVals[0];break;
+					}
+					if (!hide) {
 						continue;
-					}
-					if (weightVals) {
-						var w = image.weight;
-						switch (compareRule) {
-							case 0:
-								hide = w >= weightVals[0] && w <= weightVals[1];break;
-							case 1:
-								hide = w < weightVals[0];break;
-							case 2:
-								hide = w > weightVals[0];break;
-						}
-						if (!hide) {
-							continue;
-						} else if (!sizeVals) {
-							return true;
-						}
-					}
-					if (sizeVals) {
-						var w = image.width,
-						    h = image.height;
-						switch (compareRule) {
-							case 0:
-								if (w >= sizeVals[0] && w <= sizeVals[1] && h >= sizeVals[2] && h <= sizeVals[3]) {
-									return true;
-								}
-								break;
-							case 1:
-								if (w < sizeVals[0] && h < sizeVals[3]) {
-									return true;
-								}
-								break;
-							case 2:
-								if (w > sizeVals[0] && h > sizeVals[3]) {
-									return true;
-								}
-						}
+					} else if (!sizeVals) {
+						return true;
 					}
 				}
-			} catch (err) {
-				_didIteratorError5 = true;
-				_iteratorError5 = err;
-			} finally {
-				try {
-					if (!_iteratorNormalCompletion5 && _iterator5['return']) {
-						_iterator5['return']();
-					}
-				} finally {
-					if (_didIteratorError5) {
-						throw _iteratorError5;
+				if (sizeVals) {
+					var w = image.width,
+					    h = image.height;
+					switch (compareRule) {
+						case 0:
+							if (w >= sizeVals[0] && w <= sizeVals[1] && h >= sizeVals[2] && h <= sizeVals[3]) {
+								return true;
+							}
+							break;
+						case 1:
+							if (w < sizeVals[0] && h < sizeVals[3]) {
+								return true;
+							}
+							break;
+						case 2:
+							if (w > sizeVals[0] && h > sizeVals[3]) {
+								return true;
+							}
 					}
 				}
 			}
-
 			return false;
 		},
 		_sage: function _sage(val) {
@@ -8443,55 +8359,39 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (!videos.hasLinks || !Cfg.YTubeTitles) {
 				return false;
 			}
-			var _iteratorNormalCompletion6 = true;
-			var _didIteratorError6 = false;
-			var _iteratorError6 = undefined;
+			for (var _iterator6 = videos.vData, _isArray6 = Array.isArray(_iterator6), _i7 = 0, _iterator6 = _isArray6 ? _iterator6 : _iterator6[Symbol.iterator]();;) {
+				var _ref6;
 
-			try {
-				for (var _iterator6 = videos.vData[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-					var siteData = _step6.value;
-					var _iteratorNormalCompletion7 = true;
-					var _didIteratorError7 = false;
-					var _iteratorError7 = undefined;
-
-					try {
-						for (var _iterator7 = siteData[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-							var data = _step7.value;
-
-							if (isAuthorSpell ? val === data[1] : val.test(data[0])) {
-								return true;
-							}
-						}
-					} catch (err) {
-						_didIteratorError7 = true;
-						_iteratorError7 = err;
-					} finally {
-						try {
-							if (!_iteratorNormalCompletion7 && _iterator7['return']) {
-								_iterator7['return']();
-							}
-						} finally {
-							if (_didIteratorError7) {
-								throw _iteratorError7;
-							}
-						}
-					}
+				if (_isArray6) {
+					if (_i7 >= _iterator6.length) break;
+					_ref6 = _iterator6[_i7++];
+				} else {
+					_i7 = _iterator6.next();
+					if (_i7.done) break;
+					_ref6 = _i7.value;
 				}
-			} catch (err) {
-				_didIteratorError6 = true;
-				_iteratorError6 = err;
-			} finally {
-				try {
-					if (!_iteratorNormalCompletion6 && _iterator6['return']) {
-						_iterator6['return']();
+
+				var siteData = _ref6;
+
+				for (var _iterator7 = siteData, _isArray7 = Array.isArray(_iterator7), _i8 = 0, _iterator7 = _isArray7 ? _iterator7 : _iterator7[Symbol.iterator]();;) {
+					var _ref7;
+
+					if (_isArray7) {
+						if (_i8 >= _iterator7.length) break;
+						_ref7 = _iterator7[_i8++];
+					} else {
+						_i8 = _iterator7.next();
+						if (_i8.done) break;
+						_ref7 = _i8.value;
 					}
-				} finally {
-					if (_didIteratorError6) {
-						throw _iteratorError6;
+
+					var data = _ref7;
+
+					if (isAuthorSpell ? val === data[1] : val.test(data[0])) {
+						return true;
 					}
 				}
 			}
-
 			if (videos.linksCount === videos.loadedLinksCount) {
 				return false;
 			}
@@ -9603,11 +9503,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return err;
 	}
 
-	var doUploading = async(regeneratorRuntime.mark(function callee$1$0(_ref8) {
-		var _ref82 = _slicedToArray(_ref8, 2);
-
-		var hasFiles = _ref82[0];
-		var getProgress = _ref82[1];
+	var doUploading = async(regeneratorRuntime.mark(function callee$1$0(_ref19) {
+		var hasFiles = _ref19[0];
+		var getProgress = _ref19[1];
 		var p, val, beginTime, inited, progress, counterWrap, counterEl, totalEl, speedEl, total, loaded;
 		return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
@@ -9761,7 +9659,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	var checkDelete = async(regeneratorRuntime.mark(function callee$1$0(dc) {
-		var err, _ref9, _ref92, num, post, els, threads, isThr, i, len, el, _iteratorNormalCompletion8, _didIteratorError8, _iteratorError8, _iterator8, _step8, thr;
+		var err, _ref20, num, post, els, threads, isThr, i, len, el, _iterator8, _isArray8, _i9, _ref8, thr;
 
 		return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
@@ -9778,9 +9676,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return context$2$0.abrupt('return');
 
 				case 5:
-					_ref9 = doc.location.hash.match(/\d+/) || [];
-					_ref92 = _slicedToArray(_ref9, 1);
-					num = _ref92[0];
+					_ref20 = doc.location.hash.match(/\d+/) || [];
+					num = _ref20[0];
 
 					if (num) {
 						post = pByNum[num];
@@ -9804,125 +9701,133 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 
 					if (!isThr) {
-						context$2$0.next = 23;
+						context$2$0.next = 22;
 						break;
 					}
 
 					dForm.firstThr.clearPostsMarks();
-					context$2$0.prev = 13;
-					context$2$0.next = 16;
+					context$2$0.prev = 12;
+					context$2$0.next = 15;
 					return dForm.firstThr.loadNew(false);
 
-				case 16:
-					context$2$0.next = 21;
+				case 15:
+					context$2$0.next = 20;
 					break;
 
-				case 18:
-					context$2$0.prev = 18;
-					context$2$0.t0 = context$2$0['catch'](13);
+				case 17:
+					context$2$0.prev = 17;
+					context$2$0.t0 = context$2$0['catch'](12);
 
 					infoLoadErrors(context$2$0.t0);
 
-				case 21:
-					context$2$0.next = 49;
+				case 20:
+					context$2$0.next = 38;
 					break;
+
+				case 22:
+					_iterator8 = threads, _isArray8 = Array.isArray(_iterator8), _i9 = 0, _iterator8 = _isArray8 ? _iterator8 : _iterator8[Symbol.iterator]();
 
 				case 23:
-					_iteratorNormalCompletion8 = true;
-					_didIteratorError8 = false;
-					_iteratorError8 = undefined;
-					context$2$0.prev = 26;
-					_iterator8 = threads[Symbol.iterator]();
-
-				case 28:
-					if (_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done) {
-						context$2$0.next = 35;
+					if (!_isArray8) {
+						context$2$0.next = 29;
 						break;
 					}
 
-					thr = _step8.value;
-					context$2$0.next = 32;
-					return thr.load(visPosts, false, false);
+					if (!(_i9 >= _iterator8.length)) {
+						context$2$0.next = 26;
+						break;
+					}
+
+					return context$2$0.abrupt('break', 38);
+
+				case 26:
+					_ref8 = _iterator8[_i9++];
+					context$2$0.next = 33;
+					break;
+
+				case 29:
+					_i9 = _iterator8.next();
+
+					if (!_i9.done) {
+						context$2$0.next = 32;
+						break;
+					}
+
+					return context$2$0.abrupt('break', 38);
 
 				case 32:
-					_iteratorNormalCompletion8 = true;
-					context$2$0.next = 28;
+					_ref8 = _i9.value;
+
+				case 33:
+					thr = _ref8;
+					context$2$0.next = 36;
+					return thr.load(visPosts, false, false);
+
+				case 36:
+					context$2$0.next = 23;
 					break;
 
-				case 35:
-					context$2$0.next = 41;
-					break;
-
-				case 37:
-					context$2$0.prev = 37;
-					context$2$0.t1 = context$2$0['catch'](26);
-					_didIteratorError8 = true;
-					_iteratorError8 = context$2$0.t1;
-
-				case 41:
-					context$2$0.prev = 41;
-					context$2$0.prev = 42;
-
-					if (!_iteratorNormalCompletion8 && _iterator8['return']) {
-						_iterator8['return']();
-					}
-
-				case 44:
-					context$2$0.prev = 44;
-
-					if (!_didIteratorError8) {
-						context$2$0.next = 47;
-						break;
-					}
-
-					throw _iteratorError8;
-
-				case 47:
-					return context$2$0.finish(44);
-
-				case 48:
-					return context$2$0.finish(41);
-
-				case 49:
+				case 38:
 					$popup(Lng.succDeleted[lang], 'delete', false);
 
-				case 50:
+				case 39:
 				case 'end':
 					return context$2$0.stop();
 			}
-		}, callee$1$0, this, [[13, 18], [26, 37, 41, 49], [42,, 44, 48]]);
+		}, callee$1$0, this, [[12, 17]]);
 	}));
 
 	function html5Submit(form) {
 		var needProgress = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
 
-		var formData, hasFiles, _iteratorNormalCompletion9, _didIteratorError9, _iteratorError9, _iterator9, _step9, _step9$value, name, value, type, el, fileName, newFileName, data, lastFuncs, promises, xhr;
+		var formData, hasFiles, _iterator9, _isArray9, _i10, _ref9, name, value, type, el, fileName, newFileName, data, lastFuncs, promises, xhr;
 
 		return regeneratorRuntime.wrap(function html5Submit$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
 					formData = new FormData();
 					hasFiles = false;
-					_iteratorNormalCompletion9 = true;
-					_didIteratorError9 = false;
-					_iteratorError9 = undefined;
-					context$2$0.prev = 5;
-					_iterator9 = getFormElements(form)[Symbol.iterator]();
+					_iterator9 = getFormElements(form), _isArray9 = Array.isArray(_iterator9), _i10 = 0, _iterator9 = _isArray9 ? _iterator9 : _iterator9[Symbol.iterator]();
 
-				case 7:
-					if (_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done) {
-						context$2$0.next = 32;
+				case 3:
+					if (!_isArray9) {
+						context$2$0.next = 9;
 						break;
 					}
 
-					_step9$value = _step9.value;
-					name = _step9$value.name;
-					value = _step9$value.value;
-					type = _step9$value.type;
-					el = _step9$value.el;
+					if (!(_i10 >= _iterator9.length)) {
+						context$2$0.next = 6;
+						break;
+					}
+
+					return context$2$0.abrupt('break', 35);
+
+				case 6:
+					_ref9 = _iterator9[_i10++];
+					context$2$0.next = 13;
+					break;
+
+				case 9:
+					_i10 = _iterator9.next();
+
+					if (!_i10.done) {
+						context$2$0.next = 12;
+						break;
+					}
+
+					return context$2$0.abrupt('break', 35);
+
+				case 12:
+					_ref9 = _i10.value;
+
+				case 13:
+					name = _ref9.name;
+					value = _ref9.value;
+					type = _ref9.type;
+					el = _ref9.el;
 
 					if (!(type === 'file')) {
-						context$2$0.next = 28;
+						context$2$0.next = 32;
 						break;
 					}
 
@@ -9930,80 +9835,45 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					fileName = value.name, newFileName = Cfg.removeFName ? ' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
 
 					if (!(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) && (Cfg.postSameImg || Cfg.removeEXIF))) {
-						context$2$0.next = 27;
+						context$2$0.next = 31;
 						break;
 					}
 
-					context$2$0.next = 19;
+					context$2$0.next = 23;
 					return readFile(value, false);
 
-				case 19:
+				case 23:
 					context$2$0.t0 = context$2$0.sent;
 					context$2$0.t1 = el.obj.imgFile;
 					data = cleanFile(context$2$0.t0, context$2$0.t1);
 
 					if (data) {
-						context$2$0.next = 24;
+						context$2$0.next = 28;
 						break;
 					}
 
 					return context$2$0.abrupt('return', Promise.reject(Lng.fileCorrupt[lang] + fileName));
 
-				case 24:
+				case 28:
 					value = new File(data, newFileName);
-					context$2$0.next = 28;
+					context$2$0.next = 32;
 					break;
 
-				case 27:
+				case 31:
 					if (Cfg.removeFName) {
 						value = new File([value], newFileName);
 					}
 
-				case 28:
+				case 32:
 					formData.append(name, value);
 
-				case 29:
-					_iteratorNormalCompletion9 = true;
-					context$2$0.next = 7;
+				case 33:
+					context$2$0.next = 3;
 					break;
 
-				case 32:
-					context$2$0.next = 38;
-					break;
-
-				case 34:
-					context$2$0.prev = 34;
-					context$2$0.t2 = context$2$0['catch'](5);
-					_didIteratorError9 = true;
-					_iteratorError9 = context$2$0.t2;
-
-				case 38:
-					context$2$0.prev = 38;
-					context$2$0.prev = 39;
-
-					if (!_iteratorNormalCompletion9 && _iterator9['return']) {
-						_iterator9['return']();
-					}
-
-				case 41:
-					context$2$0.prev = 41;
-
-					if (!_didIteratorError9) {
-						context$2$0.next = 44;
-						break;
-					}
-
-					throw _iteratorError9;
-
-				case 44:
-					return context$2$0.finish(41);
-
-				case 45:
-					return context$2$0.finish(38);
-
-				case 46:
+				case 35:
 					if (!needProgress) {
-						context$2$0.next = 52;
+						context$2$0.next = 41;
 						break;
 					}
 
@@ -10025,25 +9895,25 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return promises.shift();
 					}]);
 
-				case 52:
-					context$2$0.prev = 52;
-					context$2$0.next = 55;
+				case 41:
+					context$2$0.prev = 41;
+					context$2$0.next = 44;
 					return $ajax(form.action, { method: 'POST', data: formData });
 
-				case 55:
+				case 44:
 					xhr = context$2$0.sent;
 					return context$2$0.abrupt('return', $DOM(xhr.responseText));
 
-				case 59:
-					context$2$0.prev = 59;
-					context$2$0.t3 = context$2$0['catch'](52);
-					return context$2$0.abrupt('return', Promise.reject(new AjaxError(context$2$0.t3.status, context$2$0.t3.statusText)));
+				case 48:
+					context$2$0.prev = 48;
+					context$2$0.t2 = context$2$0['catch'](41);
+					return context$2$0.abrupt('return', Promise.reject(new AjaxError(context$2$0.t2.status, context$2$0.t2.statusText)));
 
-				case 62:
+				case 51:
 				case 'end':
 					return context$2$0.stop();
 			}
-		}, marked1$0[6], this, [[5, 34, 38, 46], [39,, 41, 45], [52, 59]]);
+		}, marked1$0[6], this, [[41, 48]]);
 	}
 
 	function readFile(file, asText) {
@@ -10523,11 +10393,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_getHolder: function _getHolder(el, data) {
 			var _data$computeFullSize = data.computeFullSize(false);
 
-			var _data$computeFullSize2 = _slicedToArray(_data$computeFullSize, 3);
-
-			var width = _data$computeFullSize2[0];
-			var height = _data$computeFullSize2[1];
-			var minSize = _data$computeFullSize2[2];
+			var width = _data$computeFullSize[0];
+			var height = _data$computeFullSize[1];
+			var minSize = _data$computeFullSize[2];
 
 			this._width = width;
 			this._height = height;
@@ -10616,188 +10484,181 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}
 
-		_createClass(ExpandableMedia, [{
-			key: 'collapse',
-			value: function collapse(e) {
-				if (!this.isVideo || !this.isControlClick(e, this._fullEl.style.height)) {
-					this.expanded = false;
-					$del(this._fullEl);
-					this._fullEl = null;
-					this.el.parentNode.style.display = '';
-					$del((aib.hasPicWrap ? this._getImageParent() : this.el.parentNode).nextSibling);
-					if (e && this.inPview) {
-						this.sendCloseEvent(e, true);
-					}
-					return true;
+		ExpandableMedia.prototype.collapse = function collapse(e) {
+			if (!this.isVideo || !this.isControlClick(e, this._fullEl.style.height)) {
+				this.expanded = false;
+				$del(this._fullEl);
+				this._fullEl = null;
+				this.el.parentNode.style.display = '';
+				$del((aib.hasPicWrap ? this._getImageParent() : this.el.parentNode).nextSibling);
+				if (e && this.inPview) {
+					this.sendCloseEvent(e, true);
 				}
-				return false;
+				return true;
 			}
-		}, {
-			key: 'computeFullSize',
-			value: function computeFullSize(inPost) {
-				var minSize = Cfg.minImgSize,
-				    width = this.width,
-				    height = this.height;
-				if (Cfg.resizeDPI) {
-					width /= Post.sizing.dPxRatio;
-					height /= Post.sizing.dPxRatio;
+			return false;
+		};
+
+		ExpandableMedia.prototype.computeFullSize = function computeFullSize(inPost) {
+			var minSize = Cfg.minImgSize,
+			    width = this.width,
+			    height = this.height;
+			if (Cfg.resizeDPI) {
+				width /= Post.sizing.dPxRatio;
+				height /= Post.sizing.dPxRatio;
+			}
+			if (width < minSize && height < minSize) {
+				var ar = width / height;
+				if (width > height) {
+					width = minSize;
+					height = width / ar;
+				} else {
+					height = minSize;
+					width = height * ar;
 				}
-				if (width < minSize && height < minSize) {
+			}
+			if (Cfg.resizeImgs) {
+				var maxWidth, maxHeight;
+				if (inPost) {
+					maxWidth = Post.sizing.wWidth - this._offset - 3;
+					maxHeight = Number.MAX_SAFE_INTEGER;
+				} else {
+					maxWidth = Post.sizing.wWidth - 2;
+					maxHeight = Post.sizing.wHeight - 2;
+				}
+				if (width > maxWidth || height > maxHeight) {
 					var ar = width / height;
-					if (width > height) {
-						width = minSize;
+					if (ar > maxWidth / maxHeight) {
+						width = maxWidth;
 						height = width / ar;
 					} else {
-						height = minSize;
+						height = maxHeight;
 						width = height * ar;
 					}
-				}
-				if (Cfg.resizeImgs) {
-					var maxWidth, maxHeight;
-					if (inPost) {
-						maxWidth = Post.sizing.wWidth - this._offset - 3;
-						maxHeight = Number.MAX_SAFE_INTEGER;
-					} else {
-						maxWidth = Post.sizing.wWidth - 2;
-						maxHeight = Post.sizing.wHeight - 2;
-					}
-					if (width > maxWidth || height > maxHeight) {
-						var ar = width / height;
-						if (ar > maxWidth / maxHeight) {
-							width = maxWidth;
-							height = width / ar;
-						} else {
-							height = maxHeight;
-							width = height * ar;
-						}
-						if (width < minSize || height < minSize) {
-							return [width, height, Math.max(width, height)];
-						}
+					if (width < minSize || height < minSize) {
+						return [width, height, Math.max(width, height)];
 					}
 				}
-				return [width, height, null];
 			}
-		}, {
-			key: 'expand',
-			value: function expand(inPost, e) {
-				if (!inPost) {
-					if (Attachment.viewer) {
-						if (Attachment.viewer.data === this) {
-							Attachment.viewer.close(e);
-							Attachment.viewer = null;
-							return;
-						}
-						Attachment.viewer.update(this, e);
-					} else {
-						Attachment.viewer = new AttachmentViewer(this);
+			return [width, height, null];
+		};
+
+		ExpandableMedia.prototype.expand = function expand(inPost, e) {
+			if (!inPost) {
+				if (Attachment.viewer) {
+					if (Attachment.viewer.data === this) {
+						Attachment.viewer.close(e);
+						Attachment.viewer = null;
+						return;
 					}
-					return;
-				}
-				this.expanded = true;
-				var el = this.el,
-				    size = this.computeFullSize(inPost);
-				(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend', '<div class="de-after-fimg"></div>');
-				el.parentNode.style.display = 'none';
-				this._fullEl = this.getFullObject();
-				this._fullEl.className = 'de-img-full';
-				this._fullEl.style.width = size[0] + 'px';
-				this._fullEl.style.height = size[1] + 'px';
-				$after(el.parentNode, this._fullEl);
-			}
-		}, {
-			key: 'getFollow',
-			value: function getFollow(isForward) {
-				var nImage = isForward ? this.next : this.prev;
-				if (nImage) {
-					return nImage;
-				}
-				var imgs,
-				    post = this.post;
-				do {
-					post = post.getAdjacentVisPost(!isForward);
-					if (!post) {
-						post = isForward ? dForm.firstThr.op : dForm.lastThr.last;
-						if (post.hidden || post.thr.hidden) {
-							post = post.getAdjacentVisPost(!isForward);
-							if (!post) {
-								return null;
-							}
-						}
-					}
-					imgs = post.images;
-				} while (imgs.first === null);
-				return isForward ? imgs.first : imgs.last;
-			}
-		}, {
-			key: 'getFullObject',
-			value: function getFullObject() {
-				var obj,
-				    src = this.src;
-				if (this.isVideo) {
-					if (aib.tiny) {
-						src = src.replace(/^.*?\?v=|&.*?$/g, '');
-					}
-					if (nav.canPlayWebm) {
-						obj = $add('<video style="width: 100%; height: 100%" src="' + src + '" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') + (Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>');
-						if (Cfg.webmVolume !== 0) {
-							obj.volume = Cfg.webmVolume / 100;
-						}
-						obj.onerror = function () {
-							if (!this.onceLoaded) {
-								this.load();
-								this.onceLoaded = true;
-							}
-						};
-						obj.onvolumechange = function () {
-							var val = this.muted ? 0 : Math.round(this.volume * 100);
-							saveCfg('webmVolume', val);
-							locStorage['__de-webmvolume'] = val;
-							locStorage.removeItem('__de-webmvolume');
-						};
-					} else {
-						obj = $add('<object style="width: 100%; height: 100%" data="' + src + '" type="application/x-vlc-plugin">' + '<param name="pluginspage" value="http://www.videolan.org/vlc/" />' + '<param name="controls" value="' + (Cfg.webmControl ? 'true' : 'false') + '" />' + '<param name="loop" value="true" />' + '<param name="autoplay" value="true" />' + '<param name="wmode" value="transparent" /></object>');
-					}
+					Attachment.viewer.update(this, e);
 				} else {
-					obj = $add('<img style="width: 100%; height: 100%" src="' + src + '" alt="' + src + '"></a>');
-					obj.onload = obj.onerror = function (e) {
-						if (this.naturalHeight + this.naturalWidth === 0 && !this.onceLoaded) {
-							this.src = this.src;
+					Attachment.viewer = new AttachmentViewer(this);
+				}
+				return;
+			}
+			this.expanded = true;
+			var el = this.el,
+			    size = this.computeFullSize(inPost);
+			(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend', '<div class="de-after-fimg"></div>');
+			el.parentNode.style.display = 'none';
+			this._fullEl = this.getFullObject();
+			this._fullEl.className = 'de-img-full';
+			this._fullEl.style.width = size[0] + 'px';
+			this._fullEl.style.height = size[1] + 'px';
+			$after(el.parentNode, this._fullEl);
+		};
+
+		ExpandableMedia.prototype.getFollow = function getFollow(isForward) {
+			var nImage = isForward ? this.next : this.prev;
+			if (nImage) {
+				return nImage;
+			}
+			var imgs,
+			    post = this.post;
+			do {
+				post = post.getAdjacentVisPost(!isForward);
+				if (!post) {
+					post = isForward ? dForm.firstThr.op : dForm.lastThr.last;
+					if (post.hidden || post.thr.hidden) {
+						post = post.getAdjacentVisPost(!isForward);
+						if (!post) {
+							return null;
+						}
+					}
+				}
+				imgs = post.images;
+			} while (imgs.first === null);
+			return isForward ? imgs.first : imgs.last;
+		};
+
+		ExpandableMedia.prototype.getFullObject = function getFullObject() {
+			var obj,
+			    src = this.src;
+			if (this.isVideo) {
+				if (aib.tiny) {
+					src = src.replace(/^.*?\?v=|&.*?$/g, '');
+				}
+				if (nav.canPlayWebm) {
+					obj = $add('<video style="width: 100%; height: 100%" src="' + src + '" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') + (Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>');
+					if (Cfg.webmVolume !== 0) {
+						obj.volume = Cfg.webmVolume / 100;
+					}
+					obj.onerror = function () {
+						if (!this.onceLoaded) {
+							this.load();
 							this.onceLoaded = true;
 						}
 					};
+					obj.onvolumechange = function () {
+						var val = this.muted ? 0 : Math.round(this.volume * 100);
+						saveCfg('webmVolume', val);
+						locStorage['__de-webmvolume'] = val;
+						locStorage.removeItem('__de-webmvolume');
+					};
+				} else {
+					obj = $add('<object style="width: 100%; height: 100%" data="' + src + '" type="application/x-vlc-plugin">' + '<param name="pluginspage" value="http://www.videolan.org/vlc/" />' + '<param name="controls" value="' + (Cfg.webmControl ? 'true' : 'false') + '" />' + '<param name="loop" value="true" />' + '<param name="autoplay" value="true" />' + '<param name="wmode" value="transparent" /></object>');
 				}
-				return obj;
-			}
-		}, {
-			key: 'isControlClick',
-			value: function isControlClick(e, styleHeight) {
-				return Cfg.webmControl && e.clientY > e.target.getBoundingClientRect().top + parseInt(styleHeight, 10) - 30;
-			}
-		}, {
-			key: 'sendCloseEvent',
-			value: function sendCloseEvent(e, inPost) {
-				var pv = this.post,
-				    cr = pv.el.getBoundingClientRect(),
-				    x = e.pageX - window.pageXOffset,
-				    y = e.pageY - window.pageYOffset;
-				if (!inPost) {
-					while (x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
-						pv = pv.parent;
-						if (pv && pv instanceof Pview) {
-							cr = pv.el.getBoundingClientRect();
-						} else {
-							if (Pview.top) {
-								Pview.top.markToDel();
-							}
-							return;
-						}
+			} else {
+				obj = $add('<img style="width: 100%; height: 100%" src="' + src + '" alt="' + src + '"></a>');
+				obj.onload = obj.onerror = function (e) {
+					if (this.naturalHeight + this.naturalWidth === 0 && !this.onceLoaded) {
+						this.src = this.src;
+						this.onceLoaded = true;
 					}
-					pv.mouseEnter();
-				} else if (x > cr.right || y > cr.bottom && Pview.top) {
-					Pview.top.markToDel();
-				}
+				};
 			}
-		}, {
+			return obj;
+		};
+
+		ExpandableMedia.prototype.isControlClick = function isControlClick(e, styleHeight) {
+			return Cfg.webmControl && e.clientY > e.target.getBoundingClientRect().top + parseInt(styleHeight, 10) - 30;
+		};
+
+		ExpandableMedia.prototype.sendCloseEvent = function sendCloseEvent(e, inPost) {
+			var pv = this.post,
+			    cr = pv.el.getBoundingClientRect(),
+			    x = e.pageX - window.pageXOffset,
+			    y = e.pageY - window.pageYOffset;
+			if (!inPost) {
+				while (x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
+					pv = pv.parent;
+					if (pv && pv instanceof Pview) {
+						cr = pv.el.getBoundingClientRect();
+					} else {
+						if (Pview.top) {
+							Pview.top.markToDel();
+						}
+						return;
+					}
+				}
+				pv.mouseEnter();
+			} else if (x > cr.right || y > cr.bottom && Pview.top) {
+				Pview.top.markToDel();
+			}
+		};
+
+		_createClass(ExpandableMedia, [{
 			key: 'height',
 			get: function get() {
 				var dat = this._getImageSize();
@@ -10870,27 +10731,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function EmbeddedImage() {
 			_classCallCheck(this, EmbeddedImage);
 
-			_get(Object.getPrototypeOf(EmbeddedImage.prototype), 'constructor', this).apply(this, arguments);
+			_ExpandableMedia.apply(this, arguments);
 		}
 
-		_createClass(EmbeddedImage, [{
-			key: '_getImageParent',
-			value: function _getImageParent() {
-				return this.el.parentNode;
-			}
-		}, {
-			key: '_getImageSize',
-			value: function _getImageSize() {
-				var iEl = new Image();
-				iEl.src = this.el.src;
-				return [iEl.width, iEl.height];
-			}
-		}, {
-			key: '_getImageSrc',
-			value: function _getImageSrc() {
-				return this.el.src;
-			}
-		}]);
+		EmbeddedImage.prototype._getImageParent = function _getImageParent() {
+			return this.el.parentNode;
+		};
+
+		EmbeddedImage.prototype._getImageSize = function _getImageSize() {
+			var iEl = new Image();
+			iEl.src = this.el.src;
+			return [iEl.width, iEl.height];
+		};
+
+		EmbeddedImage.prototype._getImageSrc = function _getImageSrc() {
+			return this.el.src;
+		};
 
 		return EmbeddedImage;
 	})(ExpandableMedia);
@@ -10901,29 +10757,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function Attachment() {
 			_classCallCheck(this, Attachment);
 
-			_get(Object.getPrototypeOf(Attachment.prototype), 'constructor', this).apply(this, arguments);
+			_ExpandableMedia2.apply(this, arguments);
 		}
 
+		Attachment.prototype._getImageParent = function _getImageParent() {
+			return aib.getImgParent(this.el.parentNode);
+		};
+
+		Attachment.prototype._getImageSize = function _getImageSize() {
+			if (this.info) {
+				var size = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
+				return [size[1], size[2]];
+			}
+			return [-1, -1];
+		};
+
+		Attachment.prototype._getImageSrc = function _getImageSrc() {
+			return aib.getImgLink(this.el).href;
+		};
+
 		_createClass(Attachment, [{
-			key: '_getImageParent',
-			value: function _getImageParent() {
-				return aib.getImgParent(this.el.parentNode);
-			}
-		}, {
-			key: '_getImageSize',
-			value: function _getImageSize() {
-				if (this.info) {
-					var size = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
-					return [size[1], size[2]];
-				}
-				return [-1, -1];
-			}
-		}, {
-			key: '_getImageSrc',
-			value: function _getImageSrc() {
-				return aib.getImgLink(this.el).href;
-			}
-		}, {
 			key: 'info',
 			get: function get() {
 				var val = aib.getFileInfo(aib.getImgWrap(this.el.parentNode));
@@ -10947,7 +10800,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var needCache = !this.inPview && !this.post.isOp && !this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4;
 				var value;
 				if (!needCache || Attachment.cachedOffset === -1) {
-					value = _get(Object.getPrototypeOf(Attachment.prototype), '_offset', this);
+					value = _ExpandableMedia2.prototype._offset;
 					if (needCache) {
 						Attachment.cachedOffset = value;
 					}
@@ -11158,311 +11011,302 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.thr = thr;
 		}
 
-		_createClass(AbstractPost, [{
-			key: 'addFuncs',
-			value: function addFuncs() {
-				RefMap.upd(this, true);
-				embedMediaLinks(this);
-				if (Cfg.addImgs) {
-					embedImagesLinks(this.el);
-				}
+		AbstractPost.prototype.addFuncs = function addFuncs() {
+			RefMap.upd(this, true);
+			embedMediaLinks(this);
+			if (Cfg.addImgs) {
+				embedImagesLinks(this.el);
 			}
-		}, {
-			key: 'handleEvent',
-			value: function handleEvent(e) {
-				var _this23 = this;
+		};
 
-				var temp,
-				    el = fixEventEl(e.target),
-				    type = e.type,
-				    isOutEvent = type === 'mouseout';
-				if (type === 'click') {
-					if (e.button !== 0) {
-						return;
-					}
-					if (this._menu) {
-						this._menu.remove();
-						this._menu = null;
-					}
-					switch (el.tagName) {
-						case 'A':
-							if (el.classList.contains('de-video-link')) {
-								this.videos.clickLink(el, Cfg.addYouTube);
-								$pd(e);
-								return;
-							}
-							temp = el.firstElementChild;
-							if (temp && temp.tagName === 'IMG') {
-								el = temp;
-							} else {
-								temp = el.parentNode;
-								if (temp === this.trunc) {
-									this._getFull(temp, false);
-									$pd(e);
-									e.stopPropagation();
-								} else if (Cfg.insertNum && pr.form && temp === this._pref && !/Reply|Ответ/.test(el.textContent)) {
-									$pd(e);
-									e.stopPropagation();
-									if (!Cfg.showRepBtn) {
-										quotetxt = $txtSelect();
-										pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, !(this instanceof Pview), false);
-										quotetxt = '';
-									} else if (pr.isQuick || aib.t && pr.isHidden) {
-										pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, false, true);
-									} else if (aib.t) {
-										$txtInsert(pr.txta, '>>' + this.num);
-									} else {
-										window.location = el.href.replace(/#i/, '#');
-									}
-								} else if ((temp = el.textContent)[0] === '>' && temp[1] === '>' && !temp[2].includes('\/')) {
-									var num = temp.match(/\d+/),
-									    post = pByNum[num];
-									if (!post) {
-										return;
-									}
-									post.selectCurrent();
-									post.el.scrollIntoView(true);
-									window.location.href = aib.anchor + num;
-									$pd(e);
-								}
-								return;
-							}
-												case 'IMG':
-							if (el.classList.contains('de-video-thumb')) {
-								if (Cfg.addYouTube === 3) {
-									var vObject = this.videos;
-									vObject.currentLink.classList.add('de-current');
-									vObject.addPlayer(vObject.playerInfo, el.classList.contains('de-ytube'));
-									$pd(e);
-								}
-							} else if (Cfg.expandImgs !== 0) {
-								this._clickImage(el, e);
-							}
-							return;
-						case 'OBJECT':
-						case 'VIDEO':
-							if (Cfg.expandImgs !== 0 && !(Cfg.webmControl && e.clientY > el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)) {
-								this._clickImage(el, e);
-							}
-							return;
-					}
-					if (aib.mak && el.classList.contains('expand-large-comment')) {
-						this._getFull(el, false);
-						$pd(e);
-						e.stopPropagation();
-					}
-					switch (el.classList[0]) {
-						case 'de-btn-expthr':
-							this.thr.load('all', false);
-							return;
-						case 'de-btn-fav':
-							this.thr.setFavorState(true, 'user');return;
-						case 'de-btn-fav-sel':
-							this.thr.setFavorState(false, 'user');return;
-						case 'de-btn-hide':
-						case 'de-btn-hide-user':
-						case 'de-btn-unhide':
-						case 'de-btn-unhide-user':
-							this.toggleUserVisib();
-							return;
-						case 'de-btn-rep':
-							pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, !(this instanceof Pview), false);
-							quotetxt = '';
-							return;
-						case 'de-btn-sage':
-							addSpell(9, '', false);return;
-						case 'de-btn-stick':
-							this.setSticky(true);return;
-						case 'de-btn-stick-on':
-							this.setSticky(false);return;
-					}
+		AbstractPost.prototype.handleEvent = function handleEvent(e) {
+			var _this23 = this;
+
+			var temp,
+			    el = fixEventEl(e.target),
+			    type = e.type,
+			    isOutEvent = type === 'mouseout';
+			if (type === 'click') {
+				if (e.button !== 0) {
 					return;
 				}
-				if (type === 'mouseover' && Cfg.expandImgs && !el.classList.contains('de-img-full') && el.tagName === 'IMG' && (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)) {
-					el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
+				if (this._menu) {
+					this._menu.remove();
+					this._menu = null;
 				}
-				if (!this._hasEvents) {
-					this._hasEvents = true;
-					this.el.addEventListener('click', this, true);
-					this.el.addEventListener('mouseout', this, true);
+				switch (el.tagName) {
+					case 'A':
+						if (el.classList.contains('de-video-link')) {
+							this.videos.clickLink(el, Cfg.addYouTube);
+							$pd(e);
+							return;
+						}
+						temp = el.firstElementChild;
+						if (temp && temp.tagName === 'IMG') {
+							el = temp;
+						} else {
+							temp = el.parentNode;
+							if (temp === this.trunc) {
+								this._getFull(temp, false);
+								$pd(e);
+								e.stopPropagation();
+							} else if (Cfg.insertNum && pr.form && temp === this._pref && !/Reply|Ответ/.test(el.textContent)) {
+								$pd(e);
+								e.stopPropagation();
+								if (!Cfg.showRepBtn) {
+									quotetxt = $txtSelect();
+									pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, !(this instanceof Pview), false);
+									quotetxt = '';
+								} else if (pr.isQuick || aib.t && pr.isHidden) {
+									pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, false, true);
+								} else if (aib.t) {
+									$txtInsert(pr.txta, '>>' + this.num);
+								} else {
+									window.location = el.href.replace(/#i/, '#');
+								}
+							} else if ((temp = el.textContent)[0] === '>' && temp[1] === '>' && !temp[2].includes('\/')) {
+								var num = temp.match(/\d+/),
+								    post = pByNum[num];
+								if (!post) {
+									return;
+								}
+								post.selectCurrent();
+								post.el.scrollIntoView(true);
+								window.location.href = aib.anchor + num;
+								$pd(e);
+							}
+							return;
+						}
+										case 'IMG':
+						if (el.classList.contains('de-video-thumb')) {
+							if (Cfg.addYouTube === 3) {
+								var vObject = this.videos;
+								vObject.currentLink.classList.add('de-current');
+								vObject.addPlayer(vObject.playerInfo, el.classList.contains('de-ytube'));
+								$pd(e);
+							}
+						} else if (Cfg.expandImgs !== 0) {
+							this._clickImage(el, e);
+						}
+						return;
+					case 'OBJECT':
+					case 'VIDEO':
+						if (Cfg.expandImgs !== 0 && !(Cfg.webmControl && e.clientY > el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)) {
+							this._clickImage(el, e);
+						}
+						return;
+				}
+				if (aib.mak && el.classList.contains('expand-large-comment')) {
+					this._getFull(el, false);
+					$pd(e);
+					e.stopPropagation();
 				}
 				switch (el.classList[0]) {
-					case 'de-btn-rep':
-						if (!isOutEvent) {
-							quotetxt = $txtSelect();
-						}
-										case 'de-btn-expthr':
+					case 'de-btn-expthr':
+						this.thr.load('all', false);
+						return;
+					case 'de-btn-fav':
+						this.thr.setFavorState(true, 'user');return;
+					case 'de-btn-fav-sel':
+						this.thr.setFavorState(false, 'user');return;
 					case 'de-btn-hide':
 					case 'de-btn-hide-user':
 					case 'de-btn-unhide':
 					case 'de-btn-unhide-user':
-					case 'de-btn-src':
-					case 'de-btn-fav':
-					case 'de-btn-fav-sel':
-						this._handleButtonEvent(el, isOutEvent);
+						this.toggleUserVisib();
 						return;
-					default:
-						if (!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
-							return;
-						}
-						if (!el.textContent.startsWith('>>')) {
-							el.lchecked = true;
-							return;
-						}
-					
-						el.className = 'de-link-pref ' + el.className;
-										case 'de-link-ref':
-					case 'de-link-pref':
-						if (Cfg.linksNavig) {
-							if (isOutEvent) {
-								clearTimeout(this._linkDelay);
-								if (this.kid) {
-									this.kid.markToDel();
-								} else if (!(this instanceof Pview) && Pview.top) {
-									Pview.top.markToDel();
-								}
-							} else {
-								this._linkDelay = setTimeout(function () {
-									return _this23.kid = Pview.show(_this23, el);
-								}, Cfg.linksOver);
-							}
-							$pd(e);
-							e.stopPropagation();
-						}
+					case 'de-btn-rep':
+						pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, !(this instanceof Pview), false);
+						quotetxt = '';
+						return;
+					case 'de-btn-sage':
+						addSpell(9, '', false);return;
+					case 'de-btn-stick':
+						this.setSticky(true);return;
+					case 'de-btn-stick-on':
+						this.setSticky(false);return;
 				}
+				return;
 			}
-		}, {
-			key: 'updateMsg',
-			value: function updateMsg(newMsg, sRunner) {
-				var origMsg = aib.dobr ? this.msg.firstElementChild : this.msg,
-				    videoExt = $c('de-video-ext', origMsg),
-				    videoLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);
-				origMsg.parentNode.replaceChild(newMsg, origMsg);
-				Object.defineProperties(this, {
-					'msg': { configurable: true, value: newMsg },
-					'trunc': { configurable: true, value: null }
-				});
-				PostContent.remove(this);
-				this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
-				if (videoExt) {
-					newMsg.appendChild(videoExt);
-				}
-				this.addFuncs();
-				sRunner.run(this);
-				closePopup('load-fullmsg');
+			if (type === 'mouseover' && Cfg.expandImgs && !el.classList.contains('de-img-full') && el.tagName === 'IMG' && (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)) {
+				el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
 			}
-		}, {
-			key: '_addMenu',
-			value: function _addMenu(el, isOutEvent, htmlGetter) {
-				var _this24 = this;
-
-				if (this.menu && this.menu.parentEl === el) {
+			if (!this._hasEvents) {
+				this._hasEvents = true;
+				this.el.addEventListener('click', this, true);
+				this.el.addEventListener('mouseout', this, true);
+			}
+			switch (el.classList[0]) {
+				case 'de-btn-rep':
+					if (!isOutEvent) {
+						quotetxt = $txtSelect();
+					}
+								case 'de-btn-expthr':
+				case 'de-btn-hide':
+				case 'de-btn-hide-user':
+				case 'de-btn-unhide':
+				case 'de-btn-unhide-user':
+				case 'de-btn-src':
+				case 'de-btn-fav':
+				case 'de-btn-fav-sel':
+					this._handleButtonEvent(el, isOutEvent);
 					return;
-				}
-				if (isOutEvent) {
-					clearTimeout(this._menuDelay);
-				} else {
-					this._menuDelay = setTimeout(function () {
-						return _this24._showMenu(el, htmlGetter);
-					}, Cfg.linksOver);
-				}
-			}
-		}, {
-			key: '_clickImage',
-			value: function _clickImage(el, e) {
-				var data;
-				if (el.classList.contains('de-img-full')) {
-					if (!this.images.getImageByEl(el.previousSibling.firstElementChild).collapse(e)) {
+				default:
+					if (!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
 						return;
 					}
-				} else if ((data = this.images.getImageByEl(el)) && (data.isImage || data.isVideo)) {
-					data.expand(Cfg.expandImgs === 1 ^ e.ctrlKey, e);
-				} else {
-					return;
-				}
-				$pd(e);
-				e.stopPropagation();
-			}
-		}, {
-			key: '_getFull',
-			value: function _getFull(node, isInit) {
-				var _this25 = this;
-
-				if (aib.dobr) {
-					$del(node.nextSibling);
-					$del(node.previousSibling);
-					$del(node);
-					if (isInit) {
-						this.msg.replaceChild($q('.alternate > div', this.el), this.msg.firstElementChild);
-					} else {
-						var sRunner = new SpellsRunner();
-						this.updateMsg($q('.alternate > div', this.el), sRunner);
-						sRunner.end();
+					if (!el.textContent.startsWith('>>')) {
+						el.lchecked = true;
+						return;
 					}
-					return;
-				}
-				if (aib.mak) {
-					$del(node.previousSibling);
-					node.previousSibling.style.display = '';
-					$del(node);
-					return;
-				}
-				if (!isInit) {
-					$popup(Lng.loading[lang], 'load-fullmsg', true);
-				}
-				ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(function (form) {
-					var maybeSpells = new Maybe(SpellsRunner);
-					if (_this25.isOp) {
-						_this25.updateMsg(replacePost($q(aib.qMsg, form)), maybeSpells.value);
-						$del(node);
-					} else {
-						var els = $Q(aib.qRPost, form);
-						for (var i = 0, len = els.length; i < len; i++) {
-							if (_this25.num === aib.getPNum(els[i])) {
-								_this25.updateMsg(replacePost($q(aib.qMsg, els[i])), maybeSpells.value);
-								$del(node);
-								break;
+				
+					el.className = 'de-link-pref ' + el.className;
+								case 'de-link-ref':
+				case 'de-link-pref':
+					if (Cfg.linksNavig) {
+						if (isOutEvent) {
+							clearTimeout(this._linkDelay);
+							if (this.kid) {
+								this.kid.markToDel();
+							} else if (!(this instanceof Pview) && Pview.top) {
+								Pview.top.markToDel();
 							}
+						} else {
+							this._linkDelay = setTimeout(function () {
+								return _this23.kid = Pview.show(_this23, el);
+							}, Cfg.linksOver);
+						}
+						$pd(e);
+						e.stopPropagation();
+					}
+			}
+		};
+
+		AbstractPost.prototype.updateMsg = function updateMsg(newMsg, sRunner) {
+			var origMsg = aib.dobr ? this.msg.firstElementChild : this.msg,
+			    videoExt = $c('de-video-ext', origMsg),
+			    videoLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);
+			origMsg.parentNode.replaceChild(newMsg, origMsg);
+			Object.defineProperties(this, {
+				'msg': { configurable: true, value: newMsg },
+				'trunc': { configurable: true, value: null }
+			});
+			PostContent.remove(this);
+			this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
+			if (videoExt) {
+				newMsg.appendChild(videoExt);
+			}
+			this.addFuncs();
+			sRunner.run(this);
+			closePopup('load-fullmsg');
+		};
+
+		AbstractPost.prototype._addMenu = function _addMenu(el, isOutEvent, htmlGetter) {
+			var _this24 = this;
+
+			if (this.menu && this.menu.parentEl === el) {
+				return;
+			}
+			if (isOutEvent) {
+				clearTimeout(this._menuDelay);
+			} else {
+				this._menuDelay = setTimeout(function () {
+					return _this24._showMenu(el, htmlGetter);
+				}, Cfg.linksOver);
+			}
+		};
+
+		AbstractPost.prototype._clickImage = function _clickImage(el, e) {
+			var data;
+			if (el.classList.contains('de-img-full')) {
+				if (!this.images.getImageByEl(el.previousSibling.firstElementChild).collapse(e)) {
+					return;
+				}
+			} else if ((data = this.images.getImageByEl(el)) && (data.isImage || data.isVideo)) {
+				data.expand(Cfg.expandImgs === 1 ^ e.ctrlKey, e);
+			} else {
+				return;
+			}
+			$pd(e);
+			e.stopPropagation();
+		};
+
+		AbstractPost.prototype._getFull = function _getFull(node, isInit) {
+			var _this25 = this;
+
+			if (aib.dobr) {
+				$del(node.nextSibling);
+				$del(node.previousSibling);
+				$del(node);
+				if (isInit) {
+					this.msg.replaceChild($q('.alternate > div', this.el), this.msg.firstElementChild);
+				} else {
+					var sRunner = new SpellsRunner();
+					this.updateMsg($q('.alternate > div', this.el), sRunner);
+					sRunner.end();
+				}
+				return;
+			}
+			if (aib.mak) {
+				$del(node.previousSibling);
+				node.previousSibling.style.display = '';
+				$del(node);
+				return;
+			}
+			if (!isInit) {
+				$popup(Lng.loading[lang], 'load-fullmsg', true);
+			}
+			ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(function (form) {
+				var maybeSpells = new Maybe(SpellsRunner);
+				if (_this25.isOp) {
+					_this25.updateMsg(replacePost($q(aib.qMsg, form)), maybeSpells.value);
+					$del(node);
+				} else {
+					var els = $Q(aib.qRPost, form);
+					for (var i = 0, len = els.length; i < len; i++) {
+						if (_this25.num === aib.getPNum(els[i])) {
+							_this25.updateMsg(replacePost($q(aib.qMsg, els[i])), maybeSpells.value);
+							$del(node);
+							break;
 						}
 					}
-					maybeSpells.end();
-				}, emptyFn);
-			}
-		}, {
-			key: '_getMenuImgSrc',
-			value: function _getMenuImgSrc(el) {
-				var p = el.nextSibling.href + '" target="_blank">' + Lng.search[lang],
-				    c = doc.body.getAttribute('de-image-search'),
-				    str = '';
-				if (c) {
-					c = c.split(';');
-					c.forEach(function (el) {
-						var info = el.split(',');
-						str += '<a class="de-src' + info[0] + (!info[1] ? '" onclick="de_isearch(event, \'' + info[0] + '\')" de-url="' : '" href="' + info[1]) + p + info[0] + '</a>';
-					});
 				}
-				return '<a class="de-menu-item de-src-google" href="http://google.com/searchbyimage?image_url=' + p + 'Google</a>' + '<a class="de-menu-item de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex</a>' + '<a class="de-menu-item de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' + '<a class="de-menu-item de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + '<a class="de-menu-item de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>' + str;
-			}
-		}, {
-			key: '_handleButtonEvent',
-			value: function _handleButtonEvent(el, isOutEvent) {
-				if (el.getAttribute('class') === 'de-btn-src') {
-					this._addMenu(el, isOutEvent, this._getMenuImgSrc);
-				}
-			}
-		}, {
-			key: '_showMenu',
-			value: function _showMenu(el, htmlGetter) {
-				var _this26 = this;
+				maybeSpells.end();
+			}, emptyFn);
+		};
 
-				if (this._menu) {
-					this._menu.remove();
-				}
-				this._menu = new Menu(el, htmlGetter.call(this, el), false, function (el) {
-					return _this26._clickMenu(el);
+		AbstractPost.prototype._getMenuImgSrc = function _getMenuImgSrc(el) {
+			var p = el.nextSibling.href + '" target="_blank">' + Lng.search[lang],
+			    c = doc.body.getAttribute('de-image-search'),
+			    str = '';
+			if (c) {
+				c = c.split(';');
+				c.forEach(function (el) {
+					var info = el.split(',');
+					str += '<a class="de-src' + info[0] + (!info[1] ? '" onclick="de_isearch(event, \'' + info[0] + '\')" de-url="' : '" href="' + info[1]) + p + info[0] + '</a>';
 				});
 			}
-		}, {
+			return '<a class="de-menu-item de-src-google" href="http://google.com/searchbyimage?image_url=' + p + 'Google</a>' + '<a class="de-menu-item de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex</a>' + '<a class="de-menu-item de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' + '<a class="de-menu-item de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + '<a class="de-menu-item de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>' + str;
+		};
+
+		AbstractPost.prototype._handleButtonEvent = function _handleButtonEvent(el, isOutEvent) {
+			if (el.getAttribute('class') === 'de-btn-src') {
+				this._addMenu(el, isOutEvent, this._getMenuImgSrc);
+			}
+		};
+
+		AbstractPost.prototype._showMenu = function _showMenu(el, htmlGetter) {
+			var _this26 = this;
+
+			if (this._menu) {
+				this._menu.remove();
+			}
+			this._menu = new Menu(el, htmlGetter.call(this, el), false, function (el) {
+				return _this26._clickMenu(el);
+			});
+		};
+
+		_createClass(AbstractPost, [{
 			key: 'hideBtn',
 			get: function get() {
 				var value = this.btns.firstChild;
@@ -11520,7 +11364,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function LitePost(el, thr, num, count, isOp, prev) {
 			_classCallCheck(this, LitePost);
 
-			_get(Object.getPrototypeOf(LitePost.prototype), 'constructor', this).call(this, thr, num, isOp);
+			_AbstractPost.call(this, thr, num, isOp);
 			this.count = count;
 			this.el = el;
 			this.prev = prev;
@@ -11539,7 +11383,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function Post(el, thr, num, count, isOp, prev) {
 			_classCallCheck(this, Post);
 
-			_get(Object.getPrototypeOf(Post.prototype), 'constructor', this).call(this, thr, num, isOp);
+			_AbstractPost2.call(this, thr, num, isOp);
 			this.count = count;
 			this.el = el;
 			this.prev = prev;
@@ -11578,438 +11422,413 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			el.addEventListener('mouseover', this, true);
 		}
 
-		_createClass(Post, [{
-			key: 'addFuncs',
-			value: function addFuncs() {
-				_get(Object.getPrototypeOf(Post.prototype), 'addFuncs', this).call(this);
-				if (isExpImg) {
-					this.toggleImages(true);
+		Post.prototype.addFuncs = function addFuncs() {
+			_AbstractPost2.prototype.addFuncs.call(this);
+			if (isExpImg) {
+				this.toggleImages(true);
+			}
+		};
+
+		Post.prototype.getAdjacentVisPost = function getAdjacentVisPost(toUp) {
+			var post = toUp ? this.prev : this.next;
+			while (post) {
+				if (post.thr.hidden) {
+					post = toUp ? post.thr.op.prev : post.thr.last.next;
+				} else if (post.hidden || post.omitted) {
+					post = toUp ? post.prev : post.next;
+				} else {
+					return post;
 				}
 			}
-		}, {
-			key: 'getAdjacentVisPost',
-			value: function getAdjacentVisPost(toUp) {
-				var post = toUp ? this.prev : this.next;
-				while (post) {
-					if (post.thr.hidden) {
-						post = toUp ? post.thr.op.prev : post.thr.last.next;
-					} else if (post.hidden || post.omitted) {
-						post = toUp ? post.prev : post.next;
-					} else {
-						return post;
-					}
-				}
-				return null;
+			return null;
+		};
+
+		Post.prototype.hideContent = function hideContent(hide) {
+			if (hide) {
+				this.el.classList.add('de-post-hide');
+				this.hideBtn.setAttribute('class', this.userToggled ? 'de-btn-unhide-user' : 'de-btn-unhide');
+			} else {
+				this.el.classList.remove('de-post-hide');
+				this.hideBtn.setAttribute('class', this.userToggled ? 'de-btn-hide-user' : 'de-btn-hide');
 			}
-		}, {
-			key: 'hideContent',
-			value: function hideContent(hide) {
+			if (nav.Chrome) {
 				if (hide) {
-					this.el.classList.add('de-post-hide');
-					this.hideBtn.setAttribute('class', this.userToggled ? 'de-btn-unhide-user' : 'de-btn-unhide');
+					this.el.classList.remove('de-post-unhide');
 				} else {
-					this.el.classList.remove('de-post-hide');
-					this.hideBtn.setAttribute('class', this.userToggled ? 'de-btn-hide-user' : 'de-btn-hide');
+					this.el.classList.add('de-post-unhide');
 				}
-				if (nav.Chrome) {
-					if (hide) {
-						this.el.classList.remove('de-post-unhide');
-					} else {
-						this.el.classList.add('de-post-unhide');
-					}
-					if (!chromeCssUpd) {
-						chromeCssUpd = setTimeout(function () {
-							doc.head.insertAdjacentHTML('beforeend', '<style id="de-csshide" type="text/css">\n\t\t\t\t\t\t\t.de-post-hide > ' + aib.qHide + ' { display: none !important; }\n\t\t\t\t\t\t\t.de-post-unhide > ' + aib.qHide + ' { display: !important; }\n\t\t\t\t\t\t</style>');
-							$del(doc.head.lastChild);
-							chromeCssUpd = null;
-						}, 200);
-					}
+				if (!chromeCssUpd) {
+					chromeCssUpd = setTimeout(function () {
+						doc.head.insertAdjacentHTML('beforeend', '<style id="de-csshide" type="text/css">\n\t\t\t\t\t\t\t.de-post-hide > ' + aib.qHide + ' { display: none !important; }\n\t\t\t\t\t\t\t.de-post-unhide > ' + aib.qHide + ' { display: !important; }\n\t\t\t\t\t\t</style>');
+						$del(doc.head.lastChild);
+						chromeCssUpd = null;
+					}, 200);
 				}
 			}
-		}, {
-			key: 'select',
-			value: function select() {
-				if (this.isOp) {
-					if (this.hidden) {
-						this.thr.el.previousElementSibling.classList.add('de-selected');
-					}
-					this.thr.el.classList.add('de-selected');
-				} else {
-					this.el.classList.add('de-selected');
-				}
-			}
-		}, {
-			key: 'selectCurrent',
-			value: function selectCurrent() {
-				if (hKeys) {
-					if (hKeys.cPost) {
-						hKeys.cPost.unselect();
-					}
-					hKeys.cPost = this;
-				} else {
-					var el = $c('de-selected', doc);
-					if (el) {
-						el.unselect();
-					}
-				}
-				this.select();
-			}
-		}, {
-			key: 'setNote',
-			value: function setNote(val) {
-				if (this.isOp) {
-					this.noteEl.textContent = val ? '(autohide: ' + val + ')' : '(' + this.title + ')';
-				} else if (!Cfg.delHiddPost) {
-					this.noteEl.textContent = val ? 'autohide: ' + val : '';
-				}
-			}
-		}, {
-			key: 'setUserVisib',
-			value: function setUserVisib(hide, date, sync) {
-				this.userToggled = true;
-				this.setVisib(hide);
-				if (this.isOp) {
-					this.hideBtn.setAttribute('class', hide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
-				}
-				if (hide) {
-					this.setNote('');
-					this.ref.hide();
-				} else {
-					this.ref.unhide();
-				}
-				uVis[this.num] = [+!hide, date];
-				if (sync) {
-					locStorage['__de-post'] = JSON.stringify({
-						'brd': aib.b,
-						'date': date,
-						'isOp': this.isOp,
-						'num': this.num,
-						'hide': hide,
-						'title': this.isOp ? this.title : ''
-					});
-					locStorage.removeItem('__de-post');
-				}
-			}
-		}, {
-			key: 'setVisib',
-			value: function setVisib(hide) {
-				var _this27 = this;
+		};
 
-				if (this.hidden === hide) {
-					return;
+		Post.prototype.select = function select() {
+			if (this.isOp) {
+				if (this.hidden) {
+					this.thr.el.previousElementSibling.classList.add('de-selected');
 				}
-				if (this.isOp) {
-					this.hidden = this.thr.hidden = hide;
-					var el = $id('de-thr-hid-' + this.num),
-					    tEl = this.thr.el;
-					tEl.style.display = hide ? 'none' : '';
-					if (el) {
-						el.style.display = hide ? '' : 'none';
-						return;
-					}
-					tEl.insertAdjacentHTML('beforebegin', '<div class="' + aib.cReply + ' de-thr-hid" id="de-thr-hid-' + this.num + '">' + Lng.hiddenThrd[lang] + ' <a href="#">№' + this.num + '</a> <span class="de-thread-note"></span></div>');
-					el = $t('a', tEl.previousSibling);
-					el.onclick = el.onmouseover = el.onmouseout = function (e) {
-						switch (e.type) {
-							case 'click':
-								_this27.toggleUserVisib();
-								$pd(e);
-								return;
-							case 'mouseover':
-								_this27.thr.el.style.display = '';return;
-							default:
-							
-								if (_this27.hidden) {
-									_this27.thr.el.style.display = 'none';
-								}
-						}
-					};
-					return;
-				}
-				if (Cfg.delHiddPost) {
-					if (hide) {
-						this.wrap.classList.add('de-hidden');
-					} else if (this.hidden) {
-						this.wrap.classList.remove('de-hidden');
-					}
-				} else {
-					if (!hide) {
-						this.setNote('');
-					}
-					this._pref.onmouseover = this._pref.onmouseout = !hide ? null : function (e) {
-						return _this27.hideContent(e.type === 'mouseout');
-					};
-				}
-				this.hidden = hide;
-				this.hideContent(hide);
-				if (Cfg.strikeHidd) {
-					setTimeout(function () {
-						return _this27._strikePostNum(hide);
-					}, 50);
-				}
+				this.thr.el.classList.add('de-selected');
+			} else {
+				this.el.classList.add('de-selected');
 			}
-		}, {
-			key: 'spellHide',
-			value: function spellHide(note) {
-				this.spellHidden = true;
-				if (!this.userToggled) {
-					if (aib.t && !this.deleted) {
-						sVis[this.count] = 0;
-					}
-					if (!this.hidden) {
-						this.ref.hide();
-					}
-					this.setVisib(true);
-					this.setNote(note);
-				}
-			}
-		}, {
-			key: 'spellUnhide',
-			value: function spellUnhide() {
-				this.spellHidden = false;
-				if (!this.userToggled) {
-					if (aib.t && !this.deleted) {
-						sVis[this.count] = 1;
-					}
-					this.setVisib(false);
-					this.ref.unhide();
-				}
-			}
-		}, {
-			key: 'toggleImages',
-			value: function toggleImages() {
-				var expand = arguments.length <= 0 || arguments[0] === undefined ? !this.images.expanded : arguments[0];
-				var _iteratorNormalCompletion10 = true;
-				var _didIteratorError10 = false;
-				var _iteratorError10 = undefined;
+		};
 
-				try {
-					for (var _iterator10 = this.images[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-						var image = _step10.value;
+		Post.prototype.selectCurrent = function selectCurrent() {
+			if (hKeys) {
+				if (hKeys.cPost) {
+					hKeys.cPost.unselect();
+				}
+				hKeys.cPost = this;
+			} else {
+				var el = $c('de-selected', doc);
+				if (el) {
+					el.unselect();
+				}
+			}
+			this.select();
+		};
 
-						if (image.isImage && image.expanded ^ expand) {
-							if (expand) {
-								image.expand(true, null);
-							} else {
-								image.collapse(null);
-							}
-						}
-					}
-				} catch (err) {
-					_didIteratorError10 = true;
-					_iteratorError10 = err;
-				} finally {
-					try {
-						if (!_iteratorNormalCompletion10 && _iterator10['return']) {
-							_iterator10['return']();
-						}
-					} finally {
-						if (_didIteratorError10) {
-							throw _iteratorError10;
-						}
-					}
-				}
+		Post.prototype.setNote = function setNote(val) {
+			if (this.isOp) {
+				this.noteEl.textContent = val ? '(autohide: ' + val + ')' : '(' + this.title + ')';
+			} else if (!Cfg.delHiddPost) {
+				this.noteEl.textContent = val ? 'autohide: ' + val : '';
 			}
-		}, {
-			key: 'toggleUserVisib',
-			value: function toggleUserVisib() {
-				var isOp = this.isOp,
-				    hide = !this.hidden;
-				this.setUserVisib(hide, Date.now(), true);
-				if (isOp) {
-					if (hide) {
-						hThr[aib.b][this.num] = this.title;
-					} else {
-						delete hThr[aib.b][this.num];
-					}
-					saveHiddenThreads(false);
-				}
-				saveUserPosts();
+		};
+
+		Post.prototype.setUserVisib = function setUserVisib(hide, date, sync) {
+			this.userToggled = true;
+			this.setVisib(hide);
+			if (this.isOp) {
+				this.hideBtn.setAttribute('class', hide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
 			}
-		}, {
-			key: 'unselect',
-			value: function unselect() {
-				if (this.isOp) {
-					var el = $id('de-thr-hid-' + this.num);
-					if (el) {
-						el.classList.remove('de-selected');
-					}
-					this.thr.el.classList.remove('de-selected');
-				} else {
-					this.el.classList.remove('de-selected');
-				}
+			if (hide) {
+				this.setNote('');
+				this.ref.hide();
+			} else {
+				this.ref.unhide();
 			}
-		}, {
-			key: '_getMenuExpand',
-			value: function _getMenuExpand(el) {
-				return '<span class="de-menu-item" info="thr-exp">' + Lng.selExpandThr[lang].join('</span><span class="de-menu-item" info="thr-exp">') + '</span>';
-			}
-		}, {
-			key: '_getMenuHide',
-			value: function _getMenuHide(el) {
-				var str = '',
-				    sel = nav.Presto ? doc.getSelection() : window.getSelection(),
-				    ssel = sel.toString(),
-				    getItem = function getItem(name) {
-					return '<span info="spell-' + name + '" class="de-menu-item">' + Lng.selHiderMenu[name][lang] + '</span>';
-				};
-				if (ssel) {
-					this._selText = ssel;
-					this._selRange = sel.getRangeAt(0);
-					str += getItem('sel');
-				}
-				if (this.posterName) {
-					str += getItem('name');
-				}
-				if (this.posterTrip) {
-					str += getItem('trip');
-				}
-				if (this.images.hasAttachments) {
-					str += getItem('img');
-					str += getItem('ihash');
-				} else {
-					str += getItem('noimg');
-				}
-				if (this.text) {
-					str += getItem('text');
-				} else {
-					str += getItem('notext');
-				}
-				return str;
-			}
-		}, {
-			key: '_clickMenu',
-			value: function _clickMenu(el) {
-				switch (el.getAttribute('info')) {
-					case 'spell-sel':
-						var start = this._selRange.startContainer,
-						    end = this._selRange.endContainer;
-						if (start.nodeType === 3) {
-							start = start.parentNode;
-						}
-						if (end.nodeType === 3) {
-							end = end.parentNode;
-						}
-						var inMsgSel = aib.qMsg + ', ' + aib.qMsg + ' *';
-						if (nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel) || nav.matchesSelector(start, '.' + aib.cSubj) && nav.matchesSelector(end, '.' + aib.cSubj)) {
-							if (this._selText.includes('\n')) {
-								addSpell(1, '/' + regQuote(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
-							} else {
-								addSpell(0, this._selText.toLowerCase(), false);
-							}
-						} else {
-							dummy.innerHTML = '';
-							dummy.appendChild(this._selRange.cloneContents());
-							addSpell(2, '/' + regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
-						}
-						return;
-					case 'spell-name':
-						addSpell(6, this.posterName, false);return;
-					case 'spell-trip':
-						addSpell(7, this.posterTrip, false);return;
-					case 'spell-img':
-						var img = this.images.firstAttach,
-						    w = img.weight,
-						    wi = img.width,
-						    h = img.height;
-						addSpell(8, [0, [w, w], [wi, wi, h, h]], false);
-						return;
-					case 'spell-ihash':
-						spawn(ImagesHashStorage.getHash, this.images.firstAttach).then(function (hash) {
-							if (hash !== -1) {
-								addSpell(4, hash, false);
-							}
-						});
-						return;
-					case 'spell-noimg':
-						addSpell(0x108, '', true);return;
-					case 'spell-text':
-						var num = this.num,
-						    hidden = this.hidden,
-						    wrds = Post.getWrds(this.text),
-						    time = Date.now();
-						for (var post = dForm.firstThr.op; post; post = post.next) {
-							Post.findSameText(num, hidden, wrds, time, post);
-						}
-						saveUserPosts();
-						return;
-					case 'spell-notext':
-						addSpell(0x10B, '', true);return;
-					case 'thr-exp':
-						var task = parseInt(el.textContent.match(/\d+/), 10);
-						this.thr.load(!task ? 'all' : task === 10 ? 'more' : task, false);
-				}
-			}
-		}, {
-			key: '_handleButtonEvent',
-			value: function _handleButtonEvent(el, isOutEvent) {
-				_get(Object.getPrototypeOf(Post.prototype), '_handleButtonEvent', this).call(this, el, isOutEvent);
-				var cN = el.getAttribute('class');
-				switch (cN) {
-					case 'de-btn-hide':
-					case 'de-btn-hide-user':
-					case 'de-btn-unhide':
-					case 'de-btn-unhide-user':
-						if (Cfg.menuHiddBtn) {
-							this._addMenu(el, isOutEvent, this._getMenuHide);
-						}
-						break;
-					case 'de-btn-expthr':
-						this._addMenu(el, isOutEvent, this._getMenuExpand);
-				}
-				if (isOutEvent || el.hasTitle) {
-					return;
-				}
-				el.hasTitle = true;
-				var addTitle = function addTitle(svg, str) {
-					var el = doc.createElementNS('http://www.w3.org/2000/svg', 'title');
-					el.textContent = str;
-					svg.appendChild(el);
-				};
-				switch (cN) {
-					case 'de-btn-hide':
-					case 'de-btn-hide-user':
-					case 'de-btn-unhide':
-					case 'de-btn-unhide-user':
-						addTitle(el, Lng.togglePost[lang]);return;
-					case 'de-btn-expthr':
-						addTitle(el, Lng.expandThrd[lang]);return;
-					case 'de-btn-rep':
-						addTitle(el, Lng.replyToPost[lang]);return;
-					case 'de-btn-fav':
-						addTitle(el, Lng.addFav[lang]);return;
-					case 'de-btn-fav-sel':
-						addTitle(el, Lng.delFav[lang]);
-				}
-			}
-		}, {
-			key: '_strikePostNum',
-			value: function _strikePostNum(isHide) {
-				var num = this.num;
-				if (isHide) {
-					Post.hiddenNums.add(+num);
-				} else {
-					Post.hiddenNums['delete'](+num);
-				}
-				$each($Q('a[href*="' + aib.anchor + num + '"]', dForm.el), isHide ? function (el) {
-					el.classList.add('de-link-hid');
-					if (Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-						var refmap = el.parentNode;
-						if (!$q('.de-link-ref:not(.de-link-hid)', refmap)) {
-							refmap.style.display = 'none';
-						}
-					}
-				} : function (el) {
-					el.classList.remove('de-link-hid');
-					if (Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-						var refmap = el.parentNode;
-						if ($q('.de-link-ref:not(.de-link-hid)', refmap)) {
-							refmap.style.display = '';
-						}
-					}
+			uVis[this.num] = [+!hide, date];
+			if (sync) {
+				locStorage['__de-post'] = JSON.stringify({
+					'brd': aib.b,
+					'date': date,
+					'isOp': this.isOp,
+					'num': this.num,
+					'hide': hide,
+					'title': this.isOp ? this.title : ''
 				});
+				locStorage.removeItem('__de-post');
 			}
-		}, {
+		};
+
+		Post.prototype.setVisib = function setVisib(hide) {
+			var _this27 = this;
+
+			if (this.hidden === hide) {
+				return;
+			}
+			if (this.isOp) {
+				this.hidden = this.thr.hidden = hide;
+				var el = $id('de-thr-hid-' + this.num),
+				    tEl = this.thr.el;
+				tEl.style.display = hide ? 'none' : '';
+				if (el) {
+					el.style.display = hide ? '' : 'none';
+					return;
+				}
+				tEl.insertAdjacentHTML('beforebegin', '<div class="' + aib.cReply + ' de-thr-hid" id="de-thr-hid-' + this.num + '">' + Lng.hiddenThrd[lang] + ' <a href="#">№' + this.num + '</a> <span class="de-thread-note"></span></div>');
+				el = $t('a', tEl.previousSibling);
+				el.onclick = el.onmouseover = el.onmouseout = function (e) {
+					switch (e.type) {
+						case 'click':
+							_this27.toggleUserVisib();
+							$pd(e);
+							return;
+						case 'mouseover':
+							_this27.thr.el.style.display = '';return;
+						default:
+						
+							if (_this27.hidden) {
+								_this27.thr.el.style.display = 'none';
+							}
+					}
+				};
+				return;
+			}
+			if (Cfg.delHiddPost) {
+				if (hide) {
+					this.wrap.classList.add('de-hidden');
+				} else if (this.hidden) {
+					this.wrap.classList.remove('de-hidden');
+				}
+			} else {
+				if (!hide) {
+					this.setNote('');
+				}
+				this._pref.onmouseover = this._pref.onmouseout = !hide ? null : function (e) {
+					return _this27.hideContent(e.type === 'mouseout');
+				};
+			}
+			this.hidden = hide;
+			this.hideContent(hide);
+			if (Cfg.strikeHidd) {
+				setTimeout(function () {
+					return _this27._strikePostNum(hide);
+				}, 50);
+			}
+		};
+
+		Post.prototype.spellHide = function spellHide(note) {
+			this.spellHidden = true;
+			if (!this.userToggled) {
+				if (aib.t && !this.deleted) {
+					sVis[this.count] = 0;
+				}
+				if (!this.hidden) {
+					this.ref.hide();
+				}
+				this.setVisib(true);
+				this.setNote(note);
+			}
+		};
+
+		Post.prototype.spellUnhide = function spellUnhide() {
+			this.spellHidden = false;
+			if (!this.userToggled) {
+				if (aib.t && !this.deleted) {
+					sVis[this.count] = 1;
+				}
+				this.setVisib(false);
+				this.ref.unhide();
+			}
+		};
+
+		Post.prototype.toggleImages = function toggleImages() {
+			var expand = arguments.length <= 0 || arguments[0] === undefined ? !this.images.expanded : arguments[0];
+
+			for (var _iterator10 = this.images, _isArray10 = Array.isArray(_iterator10), _i11 = 0, _iterator10 = _isArray10 ? _iterator10 : _iterator10[Symbol.iterator]();;) {
+				var _ref10;
+
+				if (_isArray10) {
+					if (_i11 >= _iterator10.length) break;
+					_ref10 = _iterator10[_i11++];
+				} else {
+					_i11 = _iterator10.next();
+					if (_i11.done) break;
+					_ref10 = _i11.value;
+				}
+
+				var image = _ref10;
+
+				if (image.isImage && image.expanded ^ expand) {
+					if (expand) {
+						image.expand(true, null);
+					} else {
+						image.collapse(null);
+					}
+				}
+			}
+		};
+
+		Post.prototype.toggleUserVisib = function toggleUserVisib() {
+			var isOp = this.isOp,
+			    hide = !this.hidden;
+			this.setUserVisib(hide, Date.now(), true);
+			if (isOp) {
+				if (hide) {
+					hThr[aib.b][this.num] = this.title;
+				} else {
+					delete hThr[aib.b][this.num];
+				}
+				saveHiddenThreads(false);
+			}
+			saveUserPosts();
+		};
+
+		Post.prototype.unselect = function unselect() {
+			if (this.isOp) {
+				var el = $id('de-thr-hid-' + this.num);
+				if (el) {
+					el.classList.remove('de-selected');
+				}
+				this.thr.el.classList.remove('de-selected');
+			} else {
+				this.el.classList.remove('de-selected');
+			}
+		};
+
+		Post.prototype._getMenuExpand = function _getMenuExpand(el) {
+			return '<span class="de-menu-item" info="thr-exp">' + Lng.selExpandThr[lang].join('</span><span class="de-menu-item" info="thr-exp">') + '</span>';
+		};
+
+		Post.prototype._getMenuHide = function _getMenuHide(el) {
+			var str = '',
+			    sel = nav.Presto ? doc.getSelection() : window.getSelection(),
+			    ssel = sel.toString(),
+			    getItem = function getItem(name) {
+				return '<span info="spell-' + name + '" class="de-menu-item">' + Lng.selHiderMenu[name][lang] + '</span>';
+			};
+			if (ssel) {
+				this._selText = ssel;
+				this._selRange = sel.getRangeAt(0);
+				str += getItem('sel');
+			}
+			if (this.posterName) {
+				str += getItem('name');
+			}
+			if (this.posterTrip) {
+				str += getItem('trip');
+			}
+			if (this.images.hasAttachments) {
+				str += getItem('img');
+				str += getItem('ihash');
+			} else {
+				str += getItem('noimg');
+			}
+			if (this.text) {
+				str += getItem('text');
+			} else {
+				str += getItem('notext');
+			}
+			return str;
+		};
+
+		Post.prototype._clickMenu = function _clickMenu(el) {
+			switch (el.getAttribute('info')) {
+				case 'spell-sel':
+					var start = this._selRange.startContainer,
+					    end = this._selRange.endContainer;
+					if (start.nodeType === 3) {
+						start = start.parentNode;
+					}
+					if (end.nodeType === 3) {
+						end = end.parentNode;
+					}
+					var inMsgSel = aib.qMsg + ', ' + aib.qMsg + ' *';
+					if (nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel) || nav.matchesSelector(start, '.' + aib.cSubj) && nav.matchesSelector(end, '.' + aib.cSubj)) {
+						if (this._selText.includes('\n')) {
+							addSpell(1, '/' + regQuote(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
+						} else {
+							addSpell(0, this._selText.toLowerCase(), false);
+						}
+					} else {
+						dummy.innerHTML = '';
+						dummy.appendChild(this._selRange.cloneContents());
+						addSpell(2, '/' + regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
+					}
+					return;
+				case 'spell-name':
+					addSpell(6, this.posterName, false);return;
+				case 'spell-trip':
+					addSpell(7, this.posterTrip, false);return;
+				case 'spell-img':
+					var img = this.images.firstAttach,
+					    w = img.weight,
+					    wi = img.width,
+					    h = img.height;
+					addSpell(8, [0, [w, w], [wi, wi, h, h]], false);
+					return;
+				case 'spell-ihash':
+					spawn(ImagesHashStorage.getHash, this.images.firstAttach).then(function (hash) {
+						if (hash !== -1) {
+							addSpell(4, hash, false);
+						}
+					});
+					return;
+				case 'spell-noimg':
+					addSpell(0x108, '', true);return;
+				case 'spell-text':
+					var num = this.num,
+					    hidden = this.hidden,
+					    wrds = Post.getWrds(this.text),
+					    time = Date.now();
+					for (var post = dForm.firstThr.op; post; post = post.next) {
+						Post.findSameText(num, hidden, wrds, time, post);
+					}
+					saveUserPosts();
+					return;
+				case 'spell-notext':
+					addSpell(0x10B, '', true);return;
+				case 'thr-exp':
+					var task = parseInt(el.textContent.match(/\d+/), 10);
+					this.thr.load(!task ? 'all' : task === 10 ? 'more' : task, false);
+			}
+		};
+
+		Post.prototype._handleButtonEvent = function _handleButtonEvent(el, isOutEvent) {
+			_AbstractPost2.prototype._handleButtonEvent.call(this, el, isOutEvent);
+			var cN = el.getAttribute('class');
+			switch (cN) {
+				case 'de-btn-hide':
+				case 'de-btn-hide-user':
+				case 'de-btn-unhide':
+				case 'de-btn-unhide-user':
+					if (Cfg.menuHiddBtn) {
+						this._addMenu(el, isOutEvent, this._getMenuHide);
+					}
+					break;
+				case 'de-btn-expthr':
+					this._addMenu(el, isOutEvent, this._getMenuExpand);
+			}
+			if (isOutEvent || el.hasTitle) {
+				return;
+			}
+			el.hasTitle = true;
+			var addTitle = function addTitle(svg, str) {
+				var el = doc.createElementNS('http://www.w3.org/2000/svg', 'title');
+				el.textContent = str;
+				svg.appendChild(el);
+			};
+			switch (cN) {
+				case 'de-btn-hide':
+				case 'de-btn-hide-user':
+				case 'de-btn-unhide':
+				case 'de-btn-unhide-user':
+					addTitle(el, Lng.togglePost[lang]);return;
+				case 'de-btn-expthr':
+					addTitle(el, Lng.expandThrd[lang]);return;
+				case 'de-btn-rep':
+					addTitle(el, Lng.replyToPost[lang]);return;
+				case 'de-btn-fav':
+					addTitle(el, Lng.addFav[lang]);return;
+				case 'de-btn-fav-sel':
+					addTitle(el, Lng.delFav[lang]);
+			}
+		};
+
+		Post.prototype._strikePostNum = function _strikePostNum(isHide) {
+			var num = this.num;
+			if (isHide) {
+				Post.hiddenNums.add(+num);
+			} else {
+				Post.hiddenNums['delete'](+num);
+			}
+			$each($Q('a[href*="' + aib.anchor + num + '"]', dForm.el), isHide ? function (el) {
+				el.classList.add('de-link-hid');
+				if (Cfg.removeHidd && el.classList.contains('de-link-ref')) {
+					var refmap = el.parentNode;
+					if (!$q('.de-link-ref:not(.de-link-hid)', refmap)) {
+						refmap.style.display = 'none';
+					}
+				}
+			} : function (el) {
+				el.classList.remove('de-link-hid');
+				if (Cfg.removeHidd && el.classList.contains('de-link-ref')) {
+					var refmap = el.parentNode;
+					if ($q('.de-link-ref:not(.de-link-hid)', refmap)) {
+						refmap.style.display = '';
+					}
+				}
+			});
+		};
+
+		_createClass(Post, [{
 			key: 'bottom',
 			get: function get() {
 				return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el).getBoundingClientRect().bottom;
@@ -12182,7 +12001,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function PostContent(post) {
 			_classCallCheck(this, PostContent);
 
-			_get(Object.getPrototypeOf(PostContent.prototype), 'constructor', this).call(this);
+			_TemporaryContent.call(this);
 			this.el = post.el;
 			this.post = post;
 		}
@@ -12268,7 +12087,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		this.hasAttachments = hasAttachments;
 		this._map = filesMap;
 	}
-	PostImages.prototype = _defineProperty({
+	PostImages.prototype = (_PostImages$prototype = {
 		get expanded() {
 			for (var img = this.first; img; img = img.next) {
 				if (img.expanded) {
@@ -12283,7 +12102,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		getImageByEl: function getImageByEl(el) {
 			return this._map.get(el);
 		}
-	}, Symbol.iterator, function () {
+	}, _PostImages$prototype[Symbol.iterator] = function () {
 		return {
 			_img: this.first,
 			next: function next() {
@@ -12295,7 +12114,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return { done: true };
 			}
 		};
-	});
+	}, _PostImages$prototype);
 
 
 
@@ -12303,87 +12122,84 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var Pview = (function (_AbstractPost3) {
 		_inherits(Pview, _AbstractPost3);
 
-		_createClass(Pview, null, [{
-			key: 'show',
-			value: function show(parent, link) {
-				var rv,
-				    tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [, aib.getPostEl(link).post.tNum])[1],
-				    pNum = (link.textContent.trim().match(/\d+$/) || [tNum])[0],
-				    isTop = !(parent instanceof Pview),
-				    pv = isTop ? Pview.top : parent.kid;
-				clearTimeout(Pview._delTO);
-				if (pv && pv.num === pNum) {
-					if (pv.kid) {
-						pv.kid['delete']();
-					}
-					if (pv._link !== link) {
-						pv._setPosition(link, Cfg.animation);
-						pv._link.classList.remove('de-link-parent');
-						link.classList.add('de-link-parent');
-						pv._link = link;
-						if (pv.parent.num !== parent.num) {
-							$each($C('de-link-pview', pv.el), function (el) {
-								el.classList.remove('de-link-pview');
-							});
-							Pview._markLink(pv.el, parent.num);
-						}
-					}
-					pv.parent = parent;
-				} else if (!Cfg.noNavigHidd || !pByNum[pNum] || !pByNum[pNum].hidden) {
-					if (pv) {
-						pv['delete']();
-					}
-					pv = new Pview(parent, link, pNum, tNum);
-					if (isTop) {
-						Pview.top = pv;
-					}
-				} else {
-					return null;
+		Pview.show = function show(parent, link) {
+			var rv,
+			    tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [, aib.getPostEl(link).post.tNum])[1],
+			    pNum = (link.textContent.trim().match(/\d+$/) || [tNum])[0],
+			    isTop = !(parent instanceof Pview),
+			    pv = isTop ? Pview.top : parent.kid;
+			clearTimeout(Pview._delTO);
+			if (pv && pv.num === pNum) {
+				if (pv.kid) {
+					pv.kid['delete']();
 				}
-				return pv;
-			}
-		}, {
-			key: 'updatePosition',
-			value: function updatePosition(scroll) {
-				var pv = Pview.top;
+				if (pv._link !== link) {
+					pv._setPosition(link, Cfg.animation);
+					pv._link.classList.remove('de-link-parent');
+					link.classList.add('de-link-parent');
+					pv._link = link;
+					if (pv.parent.num !== parent.num) {
+						$each($C('de-link-pview', pv.el), function (el) {
+							el.classList.remove('de-link-pview');
+						});
+						Pview._markLink(pv.el, parent.num);
+					}
+				}
+				pv.parent = parent;
+			} else if (!Cfg.noNavigHidd || !pByNum[pNum] || !pByNum[pNum].hidden) {
 				if (pv) {
-					var parent = pv.parent;
-					if (parent.omitted) {
+					pv['delete']();
+				}
+				pv = new Pview(parent, link, pNum, tNum);
+				if (isTop) {
+					Pview.top = pv;
+				}
+			} else {
+				return null;
+			}
+			return pv;
+		};
+
+		Pview.updatePosition = function updatePosition(scroll) {
+			var pv = Pview.top;
+			if (pv) {
+				var parent = pv.parent;
+				if (parent.omitted) {
+					pv['delete']();
+					return;
+				}
+				if (parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
+					var el = parent.ref.getElByNum(pv.num);
+					if (el) {
+						pv._link = el;
+					} else {
 						pv['delete']();
 						return;
 					}
-					if (parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
-						var el = parent.ref.getElByNum(pv.num);
-						if (el) {
-							pv._link = el;
-						} else {
-							pv['delete']();
-							return;
-						}
+				}
+				var cr = parent.hidden ? parent : pv._link.getBoundingClientRect();
+				var diff = pv._isTop ? pv._offsetTop - (window.pageYOffset + cr.bottom) : pv._offsetTop + pv.el.offsetHeight - (window.pageYOffset + cr.top);
+				if (Math.abs(diff) > 1) {
+					if (scroll) {
+						scrollTo(window.pageXOffset, window.pageYOffset - diff);
 					}
-					var cr = parent.hidden ? parent : pv._link.getBoundingClientRect();
-					var diff = pv._isTop ? pv._offsetTop - (window.pageYOffset + cr.bottom) : pv._offsetTop + pv.el.offsetHeight - (window.pageYOffset + cr.top);
-					if (Math.abs(diff) > 1) {
-						if (scroll) {
-							scrollTo(window.pageXOffset, window.pageYOffset - diff);
-						}
-						do {
-							pv._offsetTop -= diff;
-							pv.el.style.top = Math.max(pv._offsetTop, 0) + 'px';
-						} while (pv = pv.kid);
-					}
+					do {
+						pv._offsetTop -= diff;
+						pv.el.style.top = Math.max(pv._offsetTop, 0) + 'px';
+					} while (pv = pv.kid);
 				}
 			}
-		}, {
-			key: '_markLink',
-			value: function _markLink(el, num) {
-				$each($Q('a[href*="' + num + '"]', el), function (el) {
-					if (el.textContent.startsWith('>>' + num)) {
-						el.classList.add('de-link-pview');
-					}
-				});
-			}
-		}, {
+		};
+
+		Pview._markLink = function _markLink(el, num) {
+			$each($Q('a[href*="' + num + '"]', el), function (el) {
+				if (el.textContent.startsWith('>>' + num)) {
+					el.classList.add('de-link-pview');
+				}
+			});
+		};
+
+		_createClass(Pview, null, [{
 			key: 'topParent',
 			get: function get() {
 				return Pview.top ? Pview.top.parent : null;
@@ -12393,7 +12209,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function Pview(parent, link, pNum, tNum) {
 			_classCallCheck(this, Pview);
 
-			_get(Object.getPrototypeOf(Pview.prototype), 'constructor', this).call(this, parent.thr, pNum, pNum === tNum);
+			_AbstractPost3.call(this, parent.thr, pNum, pNum === tNum);
 			this._isLeft = false;
 			this._isTop = false;
 			this._link = link;
@@ -12430,286 +12246,273 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}).bind(this), this._onerror.bind(this));
 		}
 
-		_createClass(Pview, [{
-			key: 'delete',
-			value: function _delete() {
-				this.parent.kid = null;
-				this._link.classList.remove('de-link-parent');
-				if (Pview.top === this) {
-					Pview.top = null;
-				}
-				if (this._loading) {
-					this._loadPromise.cancel();
-				}
-				var vPost = Attachment.viewer && Attachment.viewer.data.post;
-				var pv = this;
-				do {
-					clearTimeout(pv._readDelay);
-					if (vPost === pv) {
-						Attachment.viewer.close(null);
-						Attachment.viewer = vPost = null;
-					}
-					var el = pv.el;
-					if (Cfg.animation) {
-						nav.animEvent(el, $del);
-						el.classList.add('de-pview-anim');
-						el.style[nav.animName] = 'de-post-close-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
-					} else {
-						$del(el);
-					}
-				} while (pv = pv.kid);
+		Pview.prototype['delete'] = function _delete() {
+			this.parent.kid = null;
+			this._link.classList.remove('de-link-parent');
+			if (Pview.top === this) {
+				Pview.top = null;
 			}
-		}, {
-			key: 'deleteNonSticky',
-			value: function deleteNonSticky() {
-				var lastSticky = null,
-				    pv = this;
-				do {
-					if (pv.sticky) {
-						lastSticky = pv;
-					}
-				} while (pv = pv.kid);
-				if (!lastSticky) {
-					this['delete']();
-				} else if (lastSticky.kid) {
-					lastSticky.kid['delete']();
-				}
+			if (this._loading) {
+				this._loadPromise.cancel();
 			}
-		}, {
-			key: 'handleEvent',
-			value: function handleEvent(e) {
-				var isOverEvent = false;
-				checkMouse: do {
-					switch (e.type) {
-						case 'mouseover':
-							isOverEvent = true;break;
-						case 'mouseout':
-							break;
-						default:
-							break checkMouse;
-					}
-					var el = e.relatedTarget;
-					if (!el || isOverEvent && (el.tagName !== 'A' || el.lchecked) || el !== this.el && !this.el.contains(el)) {
-						if (isOverEvent) {
-							this.mouseEnter();
-						} else if (Pview.top) {
-							Pview.top.markToDel();
-						}
-					}
-				} while (false);
-				if (!this.loading) {
-					_get(Object.getPrototypeOf(Pview.prototype), 'handleEvent', this).call(this, e);
+			var vPost = Attachment.viewer && Attachment.viewer.data.post;
+			var pv = this;
+			do {
+				clearTimeout(pv._readDelay);
+				if (vPost === pv) {
+					Attachment.viewer.close(null);
+					Attachment.viewer = vPost = null;
 				}
-			}
-		}, {
-			key: 'markToDel',
-			value: function markToDel() {
-				var _this28 = this;
+				var el = pv.el;
+				if (Cfg.animation) {
+					nav.animEvent(el, $del);
+					el.classList.add('de-pview-anim');
+					el.style[nav.animName] = 'de-post-close-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
+				} else {
+					$del(el);
+				}
+			} while (pv = pv.kid);
+		};
 
+		Pview.prototype.deleteNonSticky = function deleteNonSticky() {
+			var lastSticky = null,
+			    pv = this;
+			do {
+				if (pv.sticky) {
+					lastSticky = pv;
+				}
+			} while (pv = pv.kid);
+			if (!lastSticky) {
+				this['delete']();
+			} else if (lastSticky.kid) {
+				lastSticky.kid['delete']();
+			}
+		};
+
+		Pview.prototype.handleEvent = function handleEvent(e) {
+			var isOverEvent = false;
+			checkMouse: do {
+				switch (e.type) {
+					case 'mouseover':
+						isOverEvent = true;break;
+					case 'mouseout':
+						break;
+					default:
+						break checkMouse;
+				}
+				var el = e.relatedTarget;
+				if (!el || isOverEvent && (el.tagName !== 'A' || el.lchecked) || el !== this.el && !this.el.contains(el)) {
+					if (isOverEvent) {
+						this.mouseEnter();
+					} else if (Pview.top) {
+						Pview.top.markToDel();
+					}
+				}
+			} while (false);
+			if (!this.loading) {
+				_AbstractPost3.prototype.handleEvent.call(this, e);
+			}
+		};
+
+		Pview.prototype.markToDel = function markToDel() {
+			var _this28 = this;
+
+			clearTimeout(Pview._delTO);
+			Pview._delTO = setTimeout(function () {
+				return _this28.deleteNonSticky();
+			}, Cfg.linksOut);
+		};
+
+		Pview.prototype.mouseEnter = function mouseEnter() {
+			if (this.kid) {
+				this.kid.markToDel();
+			} else {
 				clearTimeout(Pview._delTO);
-				Pview._delTO = setTimeout(function () {
-					return _this28.deleteNonSticky();
-				}, Cfg.linksOut);
 			}
-		}, {
-			key: 'mouseEnter',
-			value: function mouseEnter() {
-				if (this.kid) {
-					this.kid.markToDel();
-				} else {
-					clearTimeout(Pview._delTO);
-				}
-			}
-		}, {
-			key: 'setSticky',
-			value: function setSticky(val) {
-				this.stickBtn.setAttribute('class', val ? 'de-btn-stick-on' : 'de-btn-stick');
-				this.sticky = val;
-			}
-		}, {
-			key: 'toggleUserVisib',
-			value: function toggleUserVisib() {
-				var post = pByNum[this.num];
-				post.toggleUserVisib();
-				Pview.updatePosition(true);
-				$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]', dForm.el), function (el) {
-					if (post.hidden) {
-						el.setAttribute('class', 'de-btn-unhide-user de-btn-pview-hide');
-						el.parentNode.classList.add('de-post-hide');
-					} else {
-						el.setAttribute('class', 'de-btn-hide-user de-btn-pview-hide');
-						el.parentNode.classList.remove('de-post-hide');
-					}
-				});
-			}
-		}, {
-			key: '_onerror',
-			value: function _onerror(e) {
-				this.el.innerHTML = e instanceof AjaxError && e.code === 404 ? Lng.postNotFound[lang] : getErrorMessage(e);
-			}
-		}, {
-			key: '_onload',
-			value: function _onload(b, form) {
-				var parentNum = this.parent.num,
-				    post = PviewsCache.get(b + this.tNum, form, b, this.tNum).getPost(this.num);
-				if (post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(parentNum))) {
-					var rm;
-					if (post.ref.hasMap) {
-						rm = $c('de-refmap', post.el);
-					} else {
-						post.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
-						rm = post.msg.nextSibling;
-					}
-					rm.insertAdjacentHTML('afterbegin', '<a class="de-link-ref" href="' + aib.getThrdUrl(b, this.parent.tNum) + aib.anchor + parentNum + '">&gt;&gt;' + (aib.b === b ? '' : '/' + aib.b + '/') + parentNum + '</a><span class="de-refcomma">, </span>');
-				}
-				if (post) {
-					this._showPost(post);
-				} else {
-					this.el.innerHTML = Lng.postNotFound[lang];
-				}
-			}
-		}, {
-			key: '_setPosition',
-			value: function _setPosition(link, isAnim) {
-				var oldCSS,
-				    pv = this.el,
-				    cr = link.getBoundingClientRect(),
-				    offX = cr.left + window.pageXOffset + cr.width / 2,
-				    offY = cr.top,
-				    bWidth = doc.documentElement.clientWidth,
-				    isLeft = offX < bWidth / 2,
-				    tmp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10),
-				    lmw = 'max-width:' + (bWidth - tmp - 10) + 'px; left:' + tmp + 'px;';
-				if (isAnim) {
-					oldCSS = pv.style.cssText;
-					pv.style.cssText = 'opacity: 0; ' + lmw;
-				} else {
-					pv.style.cssText = lmw;
-				}
-				var top = pv.offsetHeight,
-				    isTop = offY + top + cr.height < doc.documentElement.clientHeight || offY - top < 5;
-				top = window.pageYOffset + (isTop ? offY + cr.height : offY - top);
-				this._offsetTop = top;
-				this._isLeft = isLeft;
-				this._isTop = isTop;
-				if (!isAnim) {
-					pv.style.top = top + 'px';
-					return;
-				}
-				var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
-				$css('@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + 'px; }}').className = 'de-css-move';
-				if (this._newPos) {
-					pv.style.cssText = this._newPos;
-					pv.removeEventListener(nav.animEnd, PviewMoved);
-				} else {
-					pv.style.cssText = oldCSS;
-				}
-				this._newPos = lmw + ' top:' + top + 'px;';
-				pv.addEventListener(nav.animEnd, PviewMoved);
-				pv.classList.add('de-pview-anim');
-				pv.style[nav.animName] = uId;
-			}
-		}, {
-			key: '_showMenu',
-			value: function _showMenu(el, htmlGetter) {
-				var _this29 = this;
+		};
 
-				_get(Object.getPrototypeOf(Pview.prototype), '_showMenu', this).call(this, el, htmlGetter);
-				this._menu.onover = function () {
-					return _this29.mouseEnter();
-				};
-				this._menu.onout = function () {
-					return _this29.markToDel();
-				};
-			}
-		}, {
-			key: '_showPost',
-			value: function _showPost(post) {
-				if (this.el) {
-					$del(this.el);
-				}
-				var el = this.el = post.el.cloneNode(true),
-				    pText = '<svg class="de-btn-rep"><title>' + Lng.replyToPost[lang] + '</title><use xlink:href="#de-symbol-repbtn"/></svg>' + (post.sage ? '<svg class="de-btn-sage"><title>SAGE</title><use xlink:href="#de-symbol-sagebtn"/></svg>' : '') + '<svg class="de-btn-stick"><title>' + Lng.attachPview[lang] + '</title><use xlink:href="#de-symbol-stickbtn"/></svg>' + (post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' + 'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
-				el.post = this;
-				el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
-				el.style.display = '';
-				if (Cfg.linksNavig === 2) {
-					Pview._markLink(el, this.parent.num);
-				}
-				this._pref = $q(aib.qRef, el);
-				this._link.classList.add('de-link-parent');
-				if (post instanceof CacheItem) {
-					this._pref.insertAdjacentHTML('afterend', '<span class="de-post-btns">' + pText + '</span');
-					embedMediaLinks(this);
-					if (Cfg.addYouTube) {
-						new VideosParser().parse(this).end();
-					}
-					if (Cfg.addImgs) {
-						embedImagesLinks(el);
-					}
-					processImageNames(el);
+		Pview.prototype.setSticky = function setSticky(val) {
+			this.stickBtn.setAttribute('class', val ? 'de-btn-stick-on' : 'de-btn-stick');
+			this.sticky = val;
+		};
+
+		Pview.prototype.toggleUserVisib = function toggleUserVisib() {
+			var post = pByNum[this.num];
+			post.toggleUserVisib();
+			Pview.updatePosition(true);
+			$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]', dForm.el), function (el) {
+				if (post.hidden) {
+					el.setAttribute('class', 'de-btn-unhide-user de-btn-pview-hide');
+					el.parentNode.classList.add('de-post-hide');
 				} else {
-					var node = $c('de-post-btns', el);
-					this.btns = node;
-					this.isOp = post.isOp;
-					node.classList.remove('de-post-counter');
-					if (post.hidden) {
-						node.classList.add('de-post-hide');
-					}
-					node.innerHTML = '<svg class="de-btn-hide' + (post.userToggled ? '-user' : '') + ' de-btn-pview-hide" de-num="' + this.num + '"><title>' + Lng.togglePost[lang] + '</title><use class="de-btn-hide-use" xlink:href="#de-symbol-hidebtn"/>' + '<use class="de-btn-unhide-use" xlink:href="#de-symbol-unhidebtn"/></svg>' + pText;
-					$each($Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') + '.de-img-full, .de-after-fimg', el), $del);
-					$each($Q(aib.qThumbImages, el), function (el) {
-						el.parentNode.style.display = '';
-					});
-					node = $c('de-link-parent', el);
-					if (node) {
-						node.classList.remove('de-link-parent');
-					}
-					if (Cfg.addYouTube && post.videos.hasLinks) {
-						if (post.videos.playerInfo !== null) {
-							Object.defineProperty(this, 'videos', {
-								value: new Videos(this, $c('de-video-obj', el), post.videos.playerInfo)
-							});
-						}
-						this.videos.updatePost($C('de-video-link', post.el), $C('de-video-link', el), true);
-					}
-					if (Cfg.addImgs) {
-						$each($C('de-img-pre', el), function (el) {
-							el.style.display = '';
+					el.setAttribute('class', 'de-btn-hide-user de-btn-pview-hide');
+					el.parentNode.classList.remove('de-post-hide');
+				}
+			});
+		};
+
+		Pview.prototype._onerror = function _onerror(e) {
+			this.el.innerHTML = e instanceof AjaxError && e.code === 404 ? Lng.postNotFound[lang] : getErrorMessage(e);
+		};
+
+		Pview.prototype._onload = function _onload(b, form) {
+			var parentNum = this.parent.num,
+			    post = PviewsCache.get(b + this.tNum, form, b, this.tNum).getPost(this.num);
+			if (post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(parentNum))) {
+				var rm;
+				if (post.ref.hasMap) {
+					rm = $c('de-refmap', post.el);
+				} else {
+					post.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
+					rm = post.msg.nextSibling;
+				}
+				rm.insertAdjacentHTML('afterbegin', '<a class="de-link-ref" href="' + aib.getThrdUrl(b, this.parent.tNum) + aib.anchor + parentNum + '">&gt;&gt;' + (aib.b === b ? '' : '/' + aib.b + '/') + parentNum + '</a><span class="de-refcomma">, </span>');
+			}
+			if (post) {
+				this._showPost(post);
+			} else {
+				this.el.innerHTML = Lng.postNotFound[lang];
+			}
+		};
+
+		Pview.prototype._setPosition = function _setPosition(link, isAnim) {
+			var oldCSS,
+			    pv = this.el,
+			    cr = link.getBoundingClientRect(),
+			    offX = cr.left + window.pageXOffset + cr.width / 2,
+			    offY = cr.top,
+			    bWidth = doc.documentElement.clientWidth,
+			    isLeft = offX < bWidth / 2,
+			    tmp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10),
+			    lmw = 'max-width:' + (bWidth - tmp - 10) + 'px; left:' + tmp + 'px;';
+			if (isAnim) {
+				oldCSS = pv.style.cssText;
+				pv.style.cssText = 'opacity: 0; ' + lmw;
+			} else {
+				pv.style.cssText = lmw;
+			}
+			var top = pv.offsetHeight,
+			    isTop = offY + top + cr.height < doc.documentElement.clientHeight || offY - top < 5;
+			top = window.pageYOffset + (isTop ? offY + cr.height : offY - top);
+			this._offsetTop = top;
+			this._isLeft = isLeft;
+			this._isTop = isTop;
+			if (!isAnim) {
+				pv.style.top = top + 'px';
+				return;
+			}
+			var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
+			$css('@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + 'px; }}').className = 'de-css-move';
+			if (this._newPos) {
+				pv.style.cssText = this._newPos;
+				pv.removeEventListener(nav.animEnd, PviewMoved);
+			} else {
+				pv.style.cssText = oldCSS;
+			}
+			this._newPos = lmw + ' top:' + top + 'px;';
+			pv.addEventListener(nav.animEnd, PviewMoved);
+			pv.classList.add('de-pview-anim');
+			pv.style[nav.animName] = uId;
+		};
+
+		Pview.prototype._showMenu = function _showMenu(el, htmlGetter) {
+			var _this29 = this;
+
+			_AbstractPost3.prototype._showMenu.call(this, el, htmlGetter);
+			this._menu.onover = function () {
+				return _this29.mouseEnter();
+			};
+			this._menu.onout = function () {
+				return _this29.markToDel();
+			};
+		};
+
+		Pview.prototype._showPost = function _showPost(post) {
+			if (this.el) {
+				$del(this.el);
+			}
+			var el = this.el = post.el.cloneNode(true),
+			    pText = '<svg class="de-btn-rep"><title>' + Lng.replyToPost[lang] + '</title><use xlink:href="#de-symbol-repbtn"/></svg>' + (post.sage ? '<svg class="de-btn-sage"><title>SAGE</title><use xlink:href="#de-symbol-sagebtn"/></svg>' : '') + '<svg class="de-btn-stick"><title>' + Lng.attachPview[lang] + '</title><use xlink:href="#de-symbol-stickbtn"/></svg>' + (post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' + 'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
+			el.post = this;
+			el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
+			el.style.display = '';
+			if (Cfg.linksNavig === 2) {
+				Pview._markLink(el, this.parent.num);
+			}
+			this._pref = $q(aib.qRef, el);
+			this._link.classList.add('de-link-parent');
+			if (post instanceof CacheItem) {
+				this._pref.insertAdjacentHTML('afterend', '<span class="de-post-btns">' + pText + '</span');
+				embedMediaLinks(this);
+				if (Cfg.addYouTube) {
+					new VideosParser().parse(this).end();
+				}
+				if (Cfg.addImgs) {
+					embedImagesLinks(el);
+				}
+				processImageNames(el);
+			} else {
+				var node = $c('de-post-btns', el);
+				this.btns = node;
+				this.isOp = post.isOp;
+				node.classList.remove('de-post-counter');
+				if (post.hidden) {
+					node.classList.add('de-post-hide');
+				}
+				node.innerHTML = '<svg class="de-btn-hide' + (post.userToggled ? '-user' : '') + ' de-btn-pview-hide" de-num="' + this.num + '"><title>' + Lng.togglePost[lang] + '</title><use class="de-btn-hide-use" xlink:href="#de-symbol-hidebtn"/>' + '<use class="de-btn-unhide-use" xlink:href="#de-symbol-unhidebtn"/></svg>' + pText;
+				$each($Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') + '.de-img-full, .de-after-fimg', el), $del);
+				$each($Q(aib.qThumbImages, el), function (el) {
+					el.parentNode.style.display = '';
+				});
+				node = $c('de-link-parent', el);
+				if (node) {
+					node.classList.remove('de-link-parent');
+				}
+				if (Cfg.addYouTube && post.videos.hasLinks) {
+					if (post.videos.playerInfo !== null) {
+						Object.defineProperty(this, 'videos', {
+							value: new Videos(this, $c('de-video-obj', el), post.videos.playerInfo)
 						});
 					}
-					if (Cfg.markViewed) {
-						this._readDelay = setTimeout(function (pst) {
-							if (!pst.viewed) {
-								pst.el.classList.add('de-viewed');
-								pst.viewed = true;
-							}
-							var arr = (sesStorage['de-viewed'] || '').split(',');
-							arr.push(pst.num);
-							sesStorage['de-viewed'] = arr;
-						}, post.text.length > 100 ? 2e3 : 500, post);
-					}
+					this.videos.updatePost($C('de-video-link', post.el), $C('de-video-link', el), true);
 				}
-				el.addEventListener('click', this, true);
-				this._showPview(el);
-			}
-		}, {
-			key: '_showPview',
-			value: function _showPview(el) {
-				el.addEventListener('mouseover', this, true);
-				el.addEventListener('mouseout', this, true);
-				dForm.el.appendChild(el);
-				this._setPosition(this._link, false);
-				if (Cfg.animation) {
-					nav.animEvent(el, function (node) {
-						node.classList.remove('de-pview-anim');
-						node.style[nav.animName] = '';
+				if (Cfg.addImgs) {
+					$each($C('de-img-pre', el), function (el) {
+						el.style.display = '';
 					});
-					el.classList.add('de-pview-anim');
-					el.style[nav.animName] = 'de-post-open-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
+				}
+				if (Cfg.markViewed) {
+					this._readDelay = setTimeout(function (pst) {
+						if (!pst.viewed) {
+							pst.el.classList.add('de-viewed');
+							pst.viewed = true;
+						}
+						var arr = (sesStorage['de-viewed'] || '').split(',');
+						arr.push(pst.num);
+						sesStorage['de-viewed'] = arr;
+					}, post.text.length > 100 ? 2e3 : 500, post);
 				}
 			}
-		}, {
+			el.addEventListener('click', this, true);
+			this._showPview(el);
+		};
+
+		Pview.prototype._showPview = function _showPview(el) {
+			el.addEventListener('mouseover', this, true);
+			el.addEventListener('mouseout', this, true);
+			dForm.el.appendChild(el);
+			this._setPosition(this._link, false);
+			if (Cfg.animation) {
+				nav.animEvent(el, function (node) {
+					node.classList.remove('de-pview-anim');
+					node.style[nav.animName] = '';
+				});
+				el.classList.add('de-pview-anim');
+				el.style[nav.animName] = 'de-post-open-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
+			}
+		};
+
+		_createClass(Pview, [{
 			key: 'stickBtn',
 			get: function get() {
 				var value = $c('de-btn-stick', this.el);
@@ -12768,7 +12571,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function PviewsCache(form, b, tNum) {
 			_classCallCheck(this, PviewsCache);
 
-			_get(Object.getPrototypeOf(PviewsCache.prototype), 'constructor', this).call(this);
+			_TemporaryContent2.call(this);
 			var pBn = {},
 			    thr = $q(aib.qThread, form) || form,
 			    posts = $Q(aib.qRPost, thr);
@@ -12786,38 +12589,35 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}
 
-		_createClass(PviewsCache, [{
-			key: 'getPost',
-			value: function getPost(num) {
-				var pst = this._posts[num];
-				if (!pst || pst.itemInited) {
-					return pst;
-				}
-				if (num === this._tNum) {
-					var oOp;
-					if (this._b === aib.b && (oOp = pByNum[this._tNum])) {
-						oOp.ref.forEach(function (num) {
-							return pst.ref.add(num);
-						});
-					}
-				}
-				pst.el = replacePost(pst.el);
-				delete pst.msg;
-				if (pst.ref.hasMap) {
-					pst.ref.init(this._tUrl);
-				}
-				pst.itemInited = true;
+		PviewsCache.prototype.getPost = function getPost(num) {
+			var pst = this._posts[num];
+			if (!pst || pst.itemInited) {
 				return pst;
 			}
-		}]);
+			if (num === this._tNum) {
+				var oOp;
+				if (this._b === aib.b && (oOp = pByNum[this._tNum])) {
+					oOp.ref.forEach(function (num) {
+						return pst.ref.add(num);
+					});
+				}
+			}
+			pst.el = replacePost(pst.el);
+			delete pst.msg;
+			if (pst.ref.hasMap) {
+				pst.ref.init(this._tUrl);
+			}
+			pst.itemInited = true;
+			return pst;
+		};
 
 		return PviewsCache;
 	})(TemporaryContent);
 
 	PviewsCache.purgeSecs = 3e5;
 
-	function PviewMoved(_ref10) {
-		var el = _ref10.target;
+	function PviewMoved(_ref21) {
+		var el = _ref21.target;
 
 		if (el.style[nav.animName]) {
 			el.classList.remove('de-pview-anim');
@@ -12832,56 +12632,52 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 	var RefMap = (function () {
-		_createClass(RefMap, null, [{
-			key: 'gen',
-			value: function gen(posts, thrURL) {
-				var opNums = dForm.tNums;
-				for (var pNum in posts) {
-					aib.forEachReflink(posts[pNum].msg, function (link, lNum) {
-						if (!(lNum in posts)) {
-							return;
-						}
-						posts[lNum].ref.insert(pNum);
-						if (!aib.hasOPNum && opNums.indexOf(lNum) !== -1) {
-							link.classList.add('de-ref-op');
-						}
-						if (thrURL) {
-							var url = link.getAttribute('href');
-							if (url[0] === '#') {
-								link.setAttribute('href', thrURL + url);
-							}
-						}
-					});
-				}
-			}
-		}, {
-			key: 'upd',
-			value: function upd(post, add) {
-				var pNum = post.num,
-				    strNums = add && Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
-				    isThr = aib.t;
-				aib.forEachReflink(post.msg, function (link, lNum) {
-					var lPost = pByNum[lNum];
-					if (!lPost) {
+		RefMap.gen = function gen(posts, thrURL) {
+			var opNums = dForm.tNums;
+			for (var pNum in posts) {
+				aib.forEachReflink(posts[pNum].msg, function (link, lNum) {
+					if (!(lNum in posts)) {
 						return;
 					}
-					if (!isThr) {
-						link.href = '#' + (aib.fch ? 'p' : '') + lNum;
+					posts[lNum].ref.insert(pNum);
+					if (!aib.hasOPNum && opNums.indexOf(lNum) !== -1) {
+						link.classList.add('de-ref-op');
 					}
-					if (add) {
-						if (strNums && strNums.has(+lNum)) {
-							link.classList.add('de-link-hid');
+					if (thrURL) {
+						var url = link.getAttribute('href');
+						if (url[0] === '#') {
+							link.setAttribute('href', thrURL + url);
 						}
-						if (!aib.hasOPNum && dForm.tNums.indexOf(lNum) !== -1) {
-							link.classList.add('de-ref-op');
-						}
-						lPost.ref.add(post, pNum, strNums && strNums.has(+pNum));
-					} else {
-						lPost.ref.remove(pNum);
 					}
 				});
 			}
-		}]);
+		};
+
+		RefMap.upd = function upd(post, add) {
+			var pNum = post.num,
+			    strNums = add && Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
+			    isThr = aib.t;
+			aib.forEachReflink(post.msg, function (link, lNum) {
+				var lPost = pByNum[lNum];
+				if (!lPost) {
+					return;
+				}
+				if (!isThr) {
+					link.href = '#' + (aib.fch ? 'p' : '') + lNum;
+				}
+				if (add) {
+					if (strNums && strNums.has(+lNum)) {
+						link.classList.add('de-link-hid');
+					}
+					if (!aib.hasOPNum && dForm.tNums.indexOf(lNum) !== -1) {
+						link.classList.add('de-ref-op');
+					}
+					lPost.ref.add(post, pNum, strNums && strNums.has(+pNum));
+				} else {
+					lPost.ref.remove(pNum);
+				}
+			});
+		};
 
 		function RefMap(post) {
 			_classCallCheck(this, RefMap);
@@ -12893,108 +12689,98 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	
 	
 
-		_createClass(RefMap, [{
-			key: 'add',
-			value: function add(post, num, isHidden) {
-				if (!this._set.has(num)) {
-					this._set.add(num);
-					this._el.insertAdjacentHTML('beforeend', this._getHTML(num, '', isHidden));
-					if (Cfg.hideRefPsts && this._post.hidden) {
-						if (!post.hidden) {
-							post.ref.hide();
-						}
-						post.setVisib(true);
-						post.setNote('reference to >>' + lNum);
-					}
-				}
-			}
-		}, {
-			key: 'getElByNum',
-			value: function getElByNum(num) {
-				return $q('a[href$="' + num + '"]', this._el);
-			}
-		}, {
-			key: 'has',
-			value: function has(num) {
-				return this._set.has(num);
-			}
-		}, {
-			key: 'hide',
-			value: function hide() {
-				var _this30 = this;
-
-				if (!Cfg.hideRefPsts || !this.hasMap) {
-					return;
-				}
-				this._set.forEach(function (num) {
-					var pst = pByNum[num];
-					if (pst && !pst.userToggled) {
-						pst.setVisib(true);
-						pst.setNote('reference to >>' + _this30.num);
-						pst.ref.hide();
-					}
-				});
-			}
-		}, {
-			key: 'init',
-			value: function init(tUrl) {
-				var _this31 = this;
-
-				var bStr = '<a href="' + tUrl + aib.anchor,
-				    strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null,
-				    html = [];
-				this._set.forEach(function (num) {
-					return html.push(_this31._getHTML(num, tUrl, strNums && strNums.has(+num)));
-				});
-				this._el.innerHTML = html.join('');
-			}
-		}, {
-			key: 'insert',
-			value: function insert(num) {
+		RefMap.prototype.add = function add(post, num, isHidden) {
+			if (!this._set.has(num)) {
 				this._set.add(num);
-			}
-		}, {
-			key: 'remove',
-			value: function remove(num) {
-				this._set['delete'](num);
-				if (this._set.size === 0) {
-					$del(this._el);
-					delete this._el;
-				} else {
-					var el = this.getElByNum(num);
-					if (el) {
-						$del(el.nextSibling);
-						$del(el);
+				this._el.insertAdjacentHTML('beforeend', this._getHTML(num, '', isHidden));
+				if (Cfg.hideRefPsts && this._post.hidden) {
+					if (!post.hidden) {
+						post.ref.hide();
 					}
+					post.setVisib(true);
+					post.setNote('reference to >>' + lNum);
 				}
 			}
-		}, {
-			key: 'removeMap',
-			value: function removeMap() {
-				this._set = new Set();
+		};
+
+		RefMap.prototype.getElByNum = function getElByNum(num) {
+			return $q('a[href$="' + num + '"]', this._el);
+		};
+
+		RefMap.prototype.has = function has(num) {
+			return this._set.has(num);
+		};
+
+		RefMap.prototype.hide = function hide() {
+			var _this30 = this;
+
+			if (!Cfg.hideRefPsts || !this.hasMap) {
+				return;
+			}
+			this._set.forEach(function (num) {
+				var pst = pByNum[num];
+				if (pst && !pst.userToggled) {
+					pst.setVisib(true);
+					pst.setNote('reference to >>' + _this30.num);
+					pst.ref.hide();
+				}
+			});
+		};
+
+		RefMap.prototype.init = function init(tUrl) {
+			var _this31 = this;
+
+			var bStr = '<a href="' + tUrl + aib.anchor,
+			    strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null,
+			    html = [];
+			this._set.forEach(function (num) {
+				return html.push(_this31._getHTML(num, tUrl, strNums && strNums.has(+num)));
+			});
+			this._el.innerHTML = html.join('');
+		};
+
+		RefMap.prototype.insert = function insert(num) {
+			this._set.add(num);
+		};
+
+		RefMap.prototype.remove = function remove(num) {
+			this._set['delete'](num);
+			if (this._set.size === 0) {
 				$del(this._el);
 				delete this._el;
-			}
-		}, {
-			key: 'unhide',
-			value: function unhide() {
-				if (!Cfg.hideRefPsts || !this.hasMap) {
-					return;
+			} else {
+				var el = this.getElByNum(num);
+				if (el) {
+					$del(el.nextSibling);
+					$del(el);
 				}
-				this._set.forEach(function (num) {
-					var pst = pByNum[num];
-					if (pst && pst.hidden && !pst.userToggled && !pst.spellHidden) {
-						pst.setVisib(false);
-						pst.ref.unhide();
-					}
-				});
 			}
-		}, {
-			key: '_getHTML',
-			value: function _getHTML(num, tUrl, isHidden) {
-				return '<a href="' + tUrl + aib.anchor + num + '" class="de-link-ref' + (isHidden ? ' de-link-hid' : '') + '">&gt;&gt;' + num + '</a><span class="de-refcomma">, </span>';
+		};
+
+		RefMap.prototype.removeMap = function removeMap() {
+			this._set = new Set();
+			$del(this._el);
+			delete this._el;
+		};
+
+		RefMap.prototype.unhide = function unhide() {
+			if (!Cfg.hideRefPsts || !this.hasMap) {
+				return;
 			}
-		}, {
+			this._set.forEach(function (num) {
+				var pst = pByNum[num];
+				if (pst && pst.hidden && !pst.userToggled && !pst.spellHidden) {
+					pst.setVisib(false);
+					pst.ref.unhide();
+				}
+			});
+		};
+
+		RefMap.prototype._getHTML = function _getHTML(num, tUrl, isHidden) {
+			return '<a href="' + tUrl + aib.anchor + num + '" class="de-link-ref' + (isHidden ? ' de-link-hid' : '') + '">&gt;&gt;' + num + '</a><span class="de-refcomma">, </span>';
+		};
+
+		_createClass(RefMap, [{
 			key: 'hasMap',
 			get: function get() {
 				return this._set.size !== 0;
@@ -13355,10 +13141,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			var _parsePosts2 = this._parsePosts($Q(aib.qRPost, form));
 
-			var _parsePosts22 = _slicedToArray(_parsePosts2, 2);
-
-			var newPosts = _parsePosts22[0];
-			var newVisPosts = _parsePosts22[1];
+			var newPosts = _parsePosts2[0];
+			var newVisPosts = _parsePosts2[1];
 
 			if (lastOffset !== null) {
 				scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);
@@ -13580,8 +13364,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var navPanel = {
 		addThr: function addThr(thr) {
-			this._thrs.push(thr);
-			if (this._thrs.length === 1) {
+			this._thrs.add(thr);
+			if (this._thrs.size === 1) {
 				doc.defaultView.addEventListener('scroll', this);
 			}
 			if (!this._visible) {
@@ -13599,8 +13383,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				case 'scroll':
 					window.requestAnimationFrame(function () {
 						var halfHeight = Post.sizing.wHeight / 2;
-						for (var t = _this38._thrs, i = 0, len = t.length; i < len; i++) {
-							var thr = t[i];
+						for (var _iterator11 = _this38._thrs, _isArray11 = Array.isArray(_iterator11), _i12 = 0, _iterator11 = _isArray11 ? _iterator11 : _iterator11[Symbol.iterator]();;) {
+							var _ref11;
+
+							if (_isArray11) {
+								if (_i12 >= _iterator11.length) break;
+								_ref11 = _iterator11[_i12++];
+							} else {
+								_i12 = _iterator11.next();
+								if (_i12.done) break;
+								_ref11 = _i12.value;
+							}
+
+							var thr = _ref11;
+
 							if (thr.bottom > halfHeight && thr.top < halfHeight) {
 								if (!_this38._visible) {
 									_this38._showHide(true);
@@ -13629,13 +13425,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			el.addEventListener('mouseout', this, true);
 			el.addEventListener('click', this, true);
 			this._el = el;
+			this._thrs = new Set();
 		},
 		removeThr: function removeThr(thr) {
-			var i = this._thrs.indexOf(thr);
-			if (i !== -1) {
-				this._thrs.splice(i, 1);
-			}
-			if (this._thrs.length === 0) {
+			this._thrs['delete'](thr);
+			if (this._thrs.size === 0) {
 				this._el.style.display = 'none';
 				this._currentThr = null;
 				this._visible = false;
@@ -13645,7 +13439,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		_el: null,
 		_showhideTO: 0,
-		_thrs: [],
+		_thrs: null,
 		_currentThr: null,
 		_visible: false,
 		_handleClick: function _handleClick(e) {

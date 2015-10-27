@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '7419cd1';
+var commit = 'afa1a72';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10677,8 +10677,8 @@ Thread.prototype = {
 
 var navPanel = {
 	addThr(thr) {
-		this._thrs.push(thr);
-		if(this._thrs.length === 1) {
+		this._thrs.add(thr);
+		if(this._thrs.size === 1) {
 			doc.defaultView.addEventListener('scroll', this);
 		}
 		if(!this._visible) {
@@ -10694,8 +10694,7 @@ var navPanel = {
 		case 'scroll':
 			window.requestAnimationFrame(() => {
 				var halfHeight = Post.sizing.wHeight / 2;
-				for(var t = this._thrs, i = 0, len = t.length; i < len; i++) {
-					var thr = t[i];
+				for(var thr of this._thrs) {
 					if(thr.bottom > halfHeight && thr.top < halfHeight) {
 						if(!this._visible) {
 							this._showHide(true);
@@ -10725,13 +10724,11 @@ var navPanel = {
 		el.addEventListener('mouseout', this, true);
 		el.addEventListener('click', this, true);
 		this._el = el;
+		this._thrs = new Set();
 	},
 	removeThr(thr) {
-		var i = this._thrs.indexOf(thr);
-		if(i !== -1) {
-			this._thrs.splice(i, 1);
-		}
-		if(this._thrs.length === 0) {
+		this._thrs.delete(thr);
+		if(this._thrs.size === 0) {
 			this._el.style.display = 'none';
 			this._currentThr = null;
 			this._visible = false;
@@ -10741,7 +10738,7 @@ var navPanel = {
 
 	_el: null,
 	_showhideTO: 0,
-	_thrs: [],
+	_thrs: null,
 	_currentThr: null,
 	_visible: false,
 	_handleClick(e) {
