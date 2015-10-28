@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'b26e406';
+var commit = '7ddd2fa';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12038,7 +12038,7 @@ function Initialization(checkDomains) {
 	doc.body.insertAdjacentHTML('beforeend', `<div style="height: 0; width: 0; position: fixed;">
 	<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<defs>
-		<linearGradient id="de-btn-back-gradient" gradientUnits="userSpaceOnUse" x1="50%" y1="100%" x2="50%">
+		<linearGradient id="de-btn-back-gradient" x1="50%" y1="0%" y2="100%" x2="50%">
 			<stop offset="0%" stop-color="#A0A0A0"/>
 			<stop offset="50%" stop-color="#505050"/>
 			<stop offset="100%" stop-color="#A0A0A0"/>
@@ -12065,7 +12065,7 @@ function Initialization(checkDomains) {
 	</symbol>
 	<symbol viewBox="0 0 14 14" id="de-symbol-repbtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
-		<path class="de-btn-rep-icon de-svg-fill" d="M4.2 11.4L11.4 7 4.2 2.6z"/>
+		<path class="de-svg-fill" d="M4.2 11.4L11.4 7 4.2 2.6z"/>
 	</symbol>
 	<symbol viewBox="0 0 14 14" id="de-symbol-expthrbtn">
 		<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>
@@ -12090,7 +12090,7 @@ function Initialization(checkDomains) {
 		<line class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" x1="8" y1="8" x2="11" y2="11"/>
 	</symbol>
 	<!-- NAVIGATION PANEL ICONS -->
-	<symbol enable-background="new 0 0 7 7" viewBox="0 0 7 7" id="de-symbol-navarrow">
+	<symbol viewBox="0 0 7 7" id="de-symbol-navarrow">
 		<path class="de-svg-fill" d="M6 3.5L2 0v7z"/>
 	</symbol>
 	<symbol viewBox="0 0 24 24" id="de-symbol-navup">
