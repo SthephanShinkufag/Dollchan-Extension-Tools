@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '024bcc7';
+	var commit = 'b26e406';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -6220,6 +6220,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (imageData) {
 						var fName = url.substring(url.lastIndexOf("/") + 1),
 						    aEl = $q(aib.qImgLink, aib.getImgWrap(link));
+						aEl.setAttribute('de-href', aEl.href);
 						link.href = aEl.href = window.URL.createObjectURL(new Blob([imageData], { 'type': iType }));
 						link.setAttribute('download', fName);
 						aEl.setAttribute('download', fName);
@@ -11311,17 +11312,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: '_getMenuImgSrc',
 			value: function _getMenuImgSrc(el) {
-				var p = el.nextSibling.href + '" target="_blank">' + Lng.search[lang],
-				    c = doc.body.getAttribute('de-image-search'),
-				    str = '';
-				if (c) {
-					c = c.split(';');
-					c.forEach(function (el) {
-						var info = el.split(',');
-						str += '<a class="de-src' + info[0] + (!info[1] ? '" onclick="de_isearch(event, \'' + info[0] + '\')" de-url="' : '" href="' + info[1]) + p + info[0] + '</a>';
-					});
-				}
-				return '<a class="de-menu-item de-src-google" href="http://google.com/searchbyimage?image_url=' + p + 'Google</a>' + '<a class="de-menu-item de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex</a>' + '<a class="de-menu-item de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' + '<a class="de-menu-item de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + '<a class="de-menu-item de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>' + str;
+				var link = el.nextSibling,
+				    p = (link.getAttribute('de-href') || link.href) + '" target="_blank">' + Lng.search[lang];
+				return '<a class="de-menu-item de-src-google" href="http://google.com/searchbyimage?image_url=' + p + 'Google</a>' + '<a class="de-menu-item de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex</a>' + '<a class="de-menu-item de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' + '<a class="de-menu-item de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + '<a class="de-menu-item de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>';
 			}
 		}, {
 			key: '_handleButtonEvent',
