@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'a6ab993';
+var commit = 'e1e0e0c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13099,7 +13099,7 @@ function scriptCSS() {
 	cont('.de-src-iqdb', '//iqdb.org/favicon.ico') +
 
 	// Posts counter
-	'.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); margin: 0 2px 0 4px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
+	'.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); margin: 0 4px 0 2px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
 	.de-post-deleted::after { content: "' + Lng.deleted[lang] + '"; margin-right: 4px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }' +
 
 	// Text markup buttons
