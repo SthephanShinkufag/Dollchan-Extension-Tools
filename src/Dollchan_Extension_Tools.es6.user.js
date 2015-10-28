@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '8a87d26';
+var commit = '024bcc7';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11947,19 +11947,20 @@ function getImageBoard(checkDomains, checkEngines) {
 		},
 		multiFile: false,
 		parseURL() {
-			var url = (window.location.pathname || '').match(new RegExp(
-				'^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?' +
-				'(' + regQuote(this.res) + ')?' +
-				'(\\d+(?:[a-z-]+)?)?' +
-				'(\\.(?:[a-z]+))?(?:\\/|$)'
-			));
-			this.b = url[1].replace(/\/$/, '');
-			this.t = url[2] ? url[3] :
-				this.futa ? +(window.location.search.match(/\d+/) || [false])[0] :
-				false;
-			this.page = url[3] && !this.t ? +url[3] || this.firstPage : this.firstPage;
-			if(!this.hasOwnProperty('docExt') && url[4]) {
-				this.docExt = url[4];
+			var temp, url = (window.location.pathname || '').replace(/^\//, '');
+			if(url.match(this.res)) {
+				temp = url.split(this.res);
+				this.b = temp[0].replace(/\/$/, '');
+				this.t = temp[1].match(/^\d+/)[0];
+				this.page = this.firstPage;
+			} else {
+				temp = url.match(/\/?(\d+)[^\/]*?$/);
+				this.page = temp && +temp[1] || this.firstPage;
+				this.b = url.replace(temp && this.page ? temp[0] : /\/(?:[^\/]+\.[a-z]+)?$/, '');
+				this.t = false;
+			}
+			if(!this.hasOwnProperty('docExt') && (temp = url.match(/\.[a-z]+$/))) {
+				this.docExt = temp[0];
 			}
 		},
 		prot: prot,
