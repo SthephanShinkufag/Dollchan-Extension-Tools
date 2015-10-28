@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'e1e0e0c';
+	var commit = '3c822b0';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12495,7 +12495,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					$del(this.el);
 				}
 				var el = this.el = post.el.cloneNode(true),
-				    pText = '<svg class="de-btn-rep"><title>' + Lng.replyToPost[lang] + '</title><use xlink:href="#de-symbol-post-rep"/></svg>' + (post.sage ? '<svg class="de-btn-sage"><title>SAGE</title><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><title>' + Lng.attachPview[lang] + '</title><use xlink:href="#de-symbol-post-stick"/></svg>' + (post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' + 'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
+				    pText = '<svg class="de-btn-rep"><title>' + Lng.replyToPost[lang] + '</title><use xlink:href="#de-symbol-post-rep"/></svg>' + (post.sage ? '<svg class="de-btn-sage"><title>SAGE</title><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><title>' + Lng.attachPview[lang] + '</title><use xlink:href="#de-symbol-post-stick"/></svg>' + (post.deleted ? '' : '<span style="margin: 0 4px 0 2px; vertical-align: 1px; color: #4f7942; ' + 'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
 				el.post = this;
 				el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
 				el.style.display = '';
@@ -15806,7 +15806,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	
 		'.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); margin: 0 4px 0 2px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
-	.de-post-deleted::after { content: "' + Lng.deleted[lang] + '"; margin-right: 4px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }' +
+	.de-post-deleted::after { content: "' + Lng.deleted[lang] + '"; margin: 0 2px 0 4px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }' +
 
 	
 		'#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
