@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '910b331';
+var commit = 'a6ab993';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12093,13 +12093,13 @@ function Initialization(checkDomains) {
 		<line class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" x1="9" y1="9" x2="12" y2="12"/>
 	</symbol>
 	<!-- WINDOW ICONS -->
-	<symbol viewBox="0 0 14 14" id="de-symbol-win-arrow">
-		<line class="de-svg-stroke" stroke-width="3.5" stroke-miterlimit="10" x1="7" x2="7" y2="5" y1="12"/>
-		<path class="de-svg-fill" d="M2.5 6h9l-4.5 -4z"></path>
+	<symbol viewBox="0 0 16 16" id="de-symbol-win-arrow">
+		<line class="de-svg-stroke" stroke-width="3.5" stroke-miterlimit="11" x1="8" x2="8" y2="6" y1="13"/>
+		<path class="de-svg-fill" d="M3.5 7h9l-4.5 -4z"></path>
 	</symbol>
-	<symbol viewBox="0 0 14 14" id="de-symbol-win-close">
-		<line class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" x1="2.5" y1="11.5" x2="11.5" y2="3"/>
-		<line class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" x1="11.5" y1="11.5" x2="2.5" y2="3"/>
+	<symbol viewBox="0 0 16 16" id="de-symbol-win-close">
+		<line class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" x1="3.5" y1="12.5" x2="12.5" y2="4"/>
+		<line class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" x1="12.5" y1="12.5" x2="3.5" y2="4"/>
 	</symbol>
 	<!-- NAVIGATION PANEL ICONS -->
 	<symbol viewBox="0 0 7 7" id="de-symbol-nav-arrow">
@@ -13088,7 +13088,7 @@ function scriptCSS() {
 	.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
 	.de-thread-note { font-style: italic; }\
 	.de-btn-hide > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\
-	.de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }' +
+	.de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle { transform: rotate(0deg); margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }' +
 	(pr.form || pr.oeForm ? '' : '.de-btn-rep { display: none; }') +
 
 	// Sauce buttons
@@ -13099,7 +13099,7 @@ function scriptCSS() {
 	cont('.de-src-iqdb', '//iqdb.org/favicon.ico') +
 
 	// Posts counter
-	'.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); margin-right: 4px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
+	'.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); margin: 0 2px 0 4px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
 	.de-post-deleted::after { content: "' + Lng.deleted[lang] + '"; margin-right: 4px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }' +
 
 	// Text markup buttons
