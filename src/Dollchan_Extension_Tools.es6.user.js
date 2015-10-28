@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'e7acd30';
+var commit = '88e329a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2085,8 +2085,7 @@ function toggleWindow(name, isUpd, data, noAnim) {
 				(name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang]) + '</span>' +
 				'<span class="de-win-buttons">' +
 					'<svg class="de-btn-toggle" title="' + Lng.toggleWindow[lang] + '">' +
-						'<use class="de-btn-attach-use" xlink:href="#de-symbol-win-attach"/>' +
-						'<use class="de-btn-detach-use" xlink:href="#de-symbol-win-detach"/></svg>' +
+						'<use xlink:href="#de-symbol-win-arrow"/></svg>' +
 					'<svg class="de-btn-close" title="' + Lng.closeReply[lang] + '">' +
 						'<use xlink:href="#de-symbol-win-close"/></svg></span></div>' +
 			'<div class="de-win-body' + (name === 'cfg' ? ' ' + aib.cReply : '" style="background-color: ' +
@@ -6396,8 +6395,7 @@ function PostForm(form, ignoreForm, dc) {
 			'<span class="de-win-title"></span>' +
 			'<span class="de-win-buttons">' +
 				'<svg class="de-btn-toggle" title="' + Lng.toggleWindow[lang] + '">' +
-					'<use class="de-btn-attach-use" xlink:href="#de-symbol-win-attach"/>' +
-					'<use class="de-btn-detach-use" xlink:href="#de-symbol-win-detach"/></svg>' +
+					'<use xlink:href="#de-symbol-win-arrow"/></svg>' +
 				'<svg class="de-btn-close" title="' + Lng.closeReply[lang] + '">' +
 					'<use xlink:href="#de-symbol-win-close"/></svg></span></div>' +
 		'<div class="de-resizer de-resizer-top"></div>' +
@@ -12057,17 +12055,17 @@ function Initialization(checkDomains) {
 	</defs>
 	<!-- POST ICONS -->
 	<symbol viewBox="0 0 14 14" id="de-symbol-post-back">
-		<path class="de-btn-back" d="M11.2 14H2.8C1.3 14 0 12.7 0 11.2V2.8C0 1.3 1.3 0 2.8 0h8.4C12.7 0 14 1.3 14 2.8v8.4c0 1.5-1.3 2.8-2.8 2.8z"/>
+		<path class="de-btn-back" d="M3 0q-3 0,-3 3v8q0 3,3 3h8q3 0,3 -3v-8q0 -3,-3-3z"/>
 	</symbol>
 	<symbol viewBox="0 0 14 14" id="de-symbol-post-hide">
 		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
-		<line class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" x1="3.5" y1="10.5" x2="10.5" y2="3.5"/>
-		<line class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" x1="10.5" y1="10.5" x2="3.5" y2="3.5"/>
+		<line class="de-svg-stroke" stroke-width="2.5" x1="3.5" y1="10.5" x2="10.5" y2="3.5"/>
+		<line class="de-svg-stroke" stroke-width="2.5" x1="10.5" y1="10.5" x2="3.5" y2="3.5"/>
 	</symbol>
 	<symbol viewBox="0 0 14 14" id="de-symbol-post-unhide">
 		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
-		<line class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" x1="7" y1="3" x2="7" y2="11"/>
-		<line class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" x1="3" y1="7" x2="11" y2="7"/>
+		<line class="de-svg-stroke" stroke-width="2" x1="7" y1="3" x2="7" y2="11"/>
+		<line class="de-svg-stroke" stroke-width="2" x1="3" y1="7" x2="11" y2="7"/>
 	</symbol>
 	<symbol viewBox="0 0 14 14" id="de-symbol-post-rep">
 		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
@@ -12087,8 +12085,7 @@ function Initialization(checkDomains) {
 	</symbol>
 	<symbol viewBox="0 0 14 14" id="de-symbol-post-sage">
 		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
-		<path class="de-svg-fill" d="M3 8h8l-4 4.2z"/>
-		<path class="de-svg-stroke" stroke-miterlimit="10" d="M5 6.5h4M5 4.5h4M5 2.5h4"/>
+		<path class="de-svg-fill" d="M3 8h8l-4 4.5zM5 2h4v1h-4zM5 4h4v1h-4zM5 6h4v1h-4z"/>
 	</symbol>
 	<symbol viewBox="0 0 14 14" id="de-symbol-post-src">
 		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
@@ -12096,13 +12093,9 @@ function Initialization(checkDomains) {
 		<line class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" x1="8" y1="8" x2="11" y2="11"/>
 	</symbol>
 	<!-- WINDOW ICONS -->
-	<symbol viewBox="0 0 14 14" id="de-symbol-win-attach">
+	<symbol viewBox="0 0 14 14" id="de-symbol-win-arrow">
 		<line class="de-svg-stroke" stroke-width="3.5" stroke-miterlimit="10" x1="7" x2="7" y2="5" y1="12"/>
 		<path class="de-svg-fill" d="M2.5 6h9l-4.5 -4z"></path>
-	</symbol>
-	<symbol viewBox="0 0 14 14" id="de-symbol-win-detach">
-		<line class="de-svg-stroke" stroke-width="3.5" stroke-miterlimit="10" x1="7" y1="2" x2="7" y2="9"/>
-		<path class="de-svg-fill" d="M2.5 9h9l-4.5 4z"></path>
 	</symbol>
 	<symbol viewBox="0 0 14 14" id="de-symbol-win-close">
 		<line class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" x1="2.5" y1="11.5" x2="11.5" y2="3"/>
@@ -12120,9 +12113,8 @@ function Initialization(checkDomains) {
 	</symbol>
 	<!-- MAIN PANEL -->
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-logo">
-		<path class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" d="M22 6h-8"/>
-		<path class="de-svg-stroke" stroke-width="4" stroke-miterlimit="10" d="M14 5v16"/>
-		<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M22 20.5H12c-2.8 0-5.7 0-5.7-4s2.8-4 5.7-4H21"/>
+		<path class="de-svg-fill" d="M22 5h-10v16h4v-14h6z"/>
+		<path class="de-svg-stroke" stroke-width="3" d="M22 20.5H12c-2.8 0-5.7 0-5.7-4s2.8-4 5.7-4H21"/>
 	</symbol>
 	</svg>
 	</div>`);
@@ -12995,17 +12987,14 @@ function scriptCSS() {
 
 	// Windows
 	var p, x = '\
-	.de-btn-attach-use { display: inline-block; }\
-	.de-btn-detach-use { display: none; }\
+	.de-win .de-btn-toggle { transform: rotate(180deg); }\
 	.de-resizer { position: absolute; }\
 	.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\
 	.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\
 	.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\
 	.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\
 	.de-win > .de-win-head { cursor: move; }\
-	.de-win .de-btn-attach-use { display: none; }\
-	.de-win .de-btn-detach-use { display: inline-block; }\
-	.de-win-buttons { position: absolute; right: 0; margin: 2px 2px 0 0; cursor: pointer; }\
+	.de-win-buttons { position: absolute; right: 0; margin: 1px 2px 0 0; cursor: pointer; }\
 	#de-win-cfg { width: 370px; }\
 	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\
 	#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\
@@ -13013,7 +13002,7 @@ function scriptCSS() {
 	#de-win-fav input[type="checkbox"] { flex: none; margin-left: 15px; }\
 	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\
 	#de-win-vid .de-entry { white-space: normal; }\
-	.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\
+	.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; text-align: center; cursor: default; }\
 	.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\
 	.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\
 	.de-win-head:lang(de), #de-panel:lang(de) { background-color: #777; }\
