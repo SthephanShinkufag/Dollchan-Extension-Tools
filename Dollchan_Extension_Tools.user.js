@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '3c822b0';
+	var commit = 'a66a4f6';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15806,7 +15806,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	
 		'.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); margin: 0 4px 0 2px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
-	.de-post-deleted::after { content: "' + Lng.deleted[lang] + '"; margin: 0 2px 0 4px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }' +
+	.de-post-deleted::after { content: "' + Lng.deleted[lang] + '"; margin: 0 4px 0 2px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }' +
 
 	
 		'#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
