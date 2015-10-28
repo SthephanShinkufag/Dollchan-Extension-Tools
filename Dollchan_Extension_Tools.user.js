@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '7ddd2fa';
+	var commit = 'e7acd30';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4172,7 +4172,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return;
 		}
 		if (!win) {
-			main.insertAdjacentHTML('afterbegin', '<div id="de-win-' + name + '" class="' + (Cfg[name + 'WinDrag'] ? 'de-win" style="' + Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] : 'de-win-fixed" style="right: 0; bottom: 25px') + (name !== 'fav' ? '' : '; width: ' + Cfg.favWinWidth + 'px; ') + '; display: none;">' + '<div class="de-win-head"><span class="de-win-title">' + (name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang]) + '</span>' + '<span class="de-win-buttons">' + '<span class="de-btn-toggle" title="' + Lng.toggleWindow[lang] + '"></span>' + '<span class="de-btn-close" title="' + Lng.closeWindow[lang] + '"></span></span></div>' + '<div class="de-win-body' + (name === 'cfg' ? ' ' + aib.cReply : '" style="background-color: ' + getComputedStyle(doc.body).getPropertyValue('background-color')) + '"></div>' + (name !== 'fav' ? '' : '<div class="de-resizer de-resizer-left">' + '</div><div class="de-resizer de-resizer-right"></div>') + '</div>');
+			main.insertAdjacentHTML('afterbegin', '<div id="de-win-' + name + '" class="' + (Cfg[name + 'WinDrag'] ? 'de-win" style="' + Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] : 'de-win-fixed" style="right: 0; bottom: 25px') + (name !== 'fav' ? '' : '; width: ' + Cfg.favWinWidth + 'px; ') + '; display: none;">' + '<div class="de-win-head"><span class="de-win-title">' + (name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang]) + '</span>' + '<span class="de-win-buttons">' + '<svg class="de-btn-toggle" title="' + Lng.toggleWindow[lang] + '">' + '<use class="de-btn-attach-use" xlink:href="#de-symbol-win-attach"/>' + '<use class="de-btn-detach-use" xlink:href="#de-symbol-win-detach"/></svg>' + '<svg class="de-btn-close" title="' + Lng.closeReply[lang] + '">' + '<use xlink:href="#de-symbol-win-close"/></svg></span></div>' + '<div class="de-win-body' + (name === 'cfg' ? ' ' + aib.cReply : '" style="background-color: ' + getComputedStyle(doc.body).getPropertyValue('background-color')) + '"></div>' + (name !== 'fav' ? '' : '<div class="de-resizer de-resizer-left">' + '</div><div class="de-resizer de-resizer-right"></div>') + '</div>');
 			win = main.firstChild;
 			if (name === 'fav') {
 				new WinResizer('fav', 'left', 'favWinWidth', win, win);
@@ -8539,7 +8539,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		this.isBottom = Cfg.addPostForm === 1;
 		this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 		el = this.qArea;
-		el.insertAdjacentHTML('beforeend', '<div class="de-win-head">' + '<span class="de-win-title"></span>' + '<span class="de-win-buttons">' + '<span class="de-btn-toggle" title="' + Lng.toggleReply[lang] + '"></span>' + '<span class="de-btn-close" title="' + Lng.closeReply[lang] + '"></span></span></div>' + '<div class="de-resizer de-resizer-top"></div>' + '<div class="de-resizer de-resizer-left"></div>' + '<div class="de-resizer de-resizer-right"></div>' + '<div class="de-resizer de-resizer-bottom"></div>');
+		el.insertAdjacentHTML('beforeend', '<div class="de-win-head">' + '<span class="de-win-title"></span>' + '<span class="de-win-buttons">' + '<svg class="de-btn-toggle" title="' + Lng.toggleWindow[lang] + '">' + '<use class="de-btn-attach-use" xlink:href="#de-symbol-win-attach"/>' + '<use class="de-btn-detach-use" xlink:href="#de-symbol-win-detach"/></svg>' + '<svg class="de-btn-close" title="' + Lng.closeReply[lang] + '">' + '<use xlink:href="#de-symbol-win-close"/></svg></span></div>' + '<div class="de-resizer de-resizer-top"></div>' + '<div class="de-resizer de-resizer-left"></div>' + '<div class="de-resizer de-resizer-right"></div>' + '<div class="de-resizer de-resizer-bottom"></div>');
 		el = el.firstChild;
 		el.lang = getThemeLang();
 		makeDraggable(this.qArea, el, 'reply');
@@ -8617,7 +8617,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			} else {
 				$parent(this.mail, 'TR').style.display = 'none';
 			}
-			this.subm.insertAdjacentHTML('afterend', '<svg id="de-sagebtn" class="de-btn-sage" title="SAGE"><use xlink:href="#de-symbol-sagebtn"/></svg>');
+			this.subm.insertAdjacentHTML('afterend', '<svg id="de-sagebtn" class="de-btn-sage" title="SAGE"><use xlink:href="#de-symbol-post-sage"/></svg>');
 			el = this.subm.nextSibling;
 			el.onclick = function (e) {
 				e.stopPropagation();
@@ -10999,7 +10999,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				continue;
 			}
 			if (addSrc) {
-				link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-src"><use xlink:href="#de-symbol-srcbtn"/></svg>');
+				link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"/></svg>');
 			}
 			if (delNames) {
 				link.classList.add('de-img-name');
@@ -11430,18 +11430,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				prev.next = this;
 			}
 			var refEl = $q(aib.qRef, el),
-			    html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') + '"><svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-hidebtn"/>' + '<use class="de-btn-unhide-use" xlink:href="#de-symbol-unhidebtn"/></svg>' + '<svg class="de-btn-rep"><use xlink:href="#de-symbol-repbtn"/></svg>';
+			    html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') + '"><svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' + '<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' + '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>';
 			this._pref = refEl;
 			el.post = this;
 			if (isOp) {
 				if (!aib.t) {
-					html += '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-expthrbtn"/></svg>';
+					html += '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>';
 				}
-				html += '<svg class="de-btn-fav"><use xlink:href="#de-symbol-favbtn"/></svg>';
+				html += '<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>';
 			}
 			this.sage = aib.getSage(el);
 			if (this.sage) {
-				html += '<svg class="de-btn-sage" title="SAGE"><use xlink:href="#de-symbol-sagebtn"/></svg>';
+				html += '<svg class="de-btn-sage" title="SAGE"><use xlink:href="#de-symbol-post-sage"/></svg>';
 			}
 			refEl.insertAdjacentHTML('afterend', html + '</span>');
 			this.btns = refEl.nextSibling;
@@ -12495,7 +12495,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					$del(this.el);
 				}
 				var el = this.el = post.el.cloneNode(true),
-				    pText = '<svg class="de-btn-rep"><title>' + Lng.replyToPost[lang] + '</title><use xlink:href="#de-symbol-repbtn"/></svg>' + (post.sage ? '<svg class="de-btn-sage"><title>SAGE</title><use xlink:href="#de-symbol-sagebtn"/></svg>' : '') + '<svg class="de-btn-stick"><title>' + Lng.attachPview[lang] + '</title><use xlink:href="#de-symbol-stickbtn"/></svg>' + (post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' + 'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
+				    pText = '<svg class="de-btn-rep"><title>' + Lng.replyToPost[lang] + '</title><use xlink:href="#de-symbol-post-rep"/></svg>' + (post.sage ? '<svg class="de-btn-sage"><title>SAGE</title><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><title>' + Lng.attachPview[lang] + '</title><use xlink:href="#de-symbol-post-stick"/></svg>' + (post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' + 'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
 				el.post = this;
 				el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
 				el.style.display = '';
@@ -12522,7 +12522,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (post.hidden) {
 						node.classList.add('de-post-hide');
 					}
-					node.innerHTML = '<svg class="de-btn-hide' + (post.userToggled ? '-user' : '') + ' de-btn-pview-hide" de-num="' + this.num + '"><title>' + Lng.togglePost[lang] + '</title><use class="de-btn-hide-use" xlink:href="#de-symbol-hidebtn"/>' + '<use class="de-btn-unhide-use" xlink:href="#de-symbol-unhidebtn"/></svg>' + pText;
+					node.innerHTML = '<svg class="de-btn-hide' + (post.userToggled ? '-user' : '') + ' de-btn-pview-hide" de-num="' + this.num + '"><title>' + Lng.togglePost[lang] + '</title><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' + '<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' + pText;
 					$each($Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') + '.de-img-full, .de-after-fimg', el), $del);
 					$each($Q(aib.qThumbImages, el), function (el) {
 						el.parentNode.style.display = '';
@@ -13499,7 +13499,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		},
 		init: function init() {
-			doc.body.insertAdjacentHTML('beforeend', '<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">\n\t\t\t<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-navarrow"/></svg>\n\t\t\t<div id="de-thr-navup"><svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-navup"/></svg></div>\n\t\t\t<div id="de-thr-navdown"><svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-navdown"/></svg></div>\n\t\t</div>');
+			doc.body.insertAdjacentHTML('beforeend', '<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">\n\t\t\t<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-nav-arrow"/></svg>\n\t\t\t<div id="de-thr-navup"><svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-nav-up"/></svg></div>\n\t\t\t<div id="de-thr-navdown"><svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-nav-down"/></svg></div>\n\t\t</div>');
 			var el = doc.body.lastChild;
 			el.addEventListener('mouseover', this, true);
 			el.addEventListener('mouseout', this, true);
@@ -14823,7 +14823,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (!nav) {
 			initNavFuncs();
 		}
-		doc.body.insertAdjacentHTML('beforeend', '<div style="height: 0; width: 0; position: fixed;">\n\t<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n\t<defs>\n\t\t<linearGradient id="de-btn-back-gradient" x1="50%" y1="0%" y2="100%" x2="50%">\n\t\t\t<stop offset="0%" stop-color="#A0A0A0"/>\n\t\t\t<stop offset="50%" stop-color="#505050"/>\n\t\t\t<stop offset="100%" stop-color="#A0A0A0"/>\n\t\t</linearGradient>\n\t\t<style><![CDATA[\n\t\t\t.de-btn-back { fill: inherit; stroke: none; }\n\t\t\t.de-svg-stroke { stroke: currentColor; fill: none; }\n\t\t\t.de-svg-fill { stroke: none; fill: currentColor; }\n\t\t]]></style>\n\t</defs>\n\t<!-- POST ICONS -->\n\t<symbol viewBox="0 0 14 14" id="de-symbol-backbtn">\n\t\t<path class="de-btn-back" d="M11.2 14H2.8C1.3 14 0 12.7 0 11.2V2.8C0 1.3 1.3 0 2.8 0h8.4C12.7 0 14 1.3 14 2.8v8.4c0 1.5-1.3 2.8-2.8 2.8z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-hidebtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<line class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" x1="3.5" y1="10.5" x2="10.5" y2="3.5"/>\n\t\t<line class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" x1="10.5" y1="10.5" x2="3.5" y2="3.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-unhidebtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<line class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" x1="7" y1="3" x2="7" y2="11"/>\n\t\t<line class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" x1="3" y1="7" x2="11" y2="7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-repbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-svg-fill" d="M4.2 11.4L11.4 7 4.2 2.6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-expthrbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-svg-fill" d="M3.5 5L7 2l3.5 3H8.25v4h2.25L7 12 3.5 9h2.25V5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-favbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-svg-fill" d="M7 1.8l1.5 3.1 3.3.5-2.4 2.4 1.1 3.5L7 9l-3.5 2.3 1.1-3.5-2.3-2.4 3.2-.5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-stickbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-svg-fill" d="M4 4h6v6H4z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-sagebtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<path class="de-svg-fill" d="M3 8h8l-4 4.2z"/>\n\t\t<path class="de-svg-stroke" stroke-miterlimit="10" d="M5 6.5h4M5 4.5h4M5 2.5h4"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-srcbtn">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-backbtn"/>\n\t\t<circle class="de-svg-stroke" cx="6" cy="6" r="2.5" stroke-width="2"/>\n\t\t<line class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" x1="8" y1="8" x2="11" y2="11"/>\n\t</symbol>\n\t<!-- NAVIGATION PANEL ICONS -->\n\t<symbol viewBox="0 0 7 7" id="de-symbol-navarrow">\n\t\t<path class="de-svg-fill" d="M6 3.5L2 0v7z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-navup">\n\t\t<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 22.5l9-9 9 9M3 13.5l9-9 9 9"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-navdown">\n\t\t<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>\n\t</symbol>\n\t<!-- MAIN PANEL -->\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-logo">\n\t\t<path class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" d="M22 6h-8"/>\n\t\t<path class="de-svg-stroke" stroke-width="4" stroke-miterlimit="10" d="M14 5v16"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M22 20.5H12c-2.8 0-5.7 0-5.7-4s2.8-4 5.7-4H21"/>\n\t</symbol>\n\t</svg>\n\t</div>');
+		doc.body.insertAdjacentHTML('beforeend', '<div style="height: 0; width: 0; position: fixed;">\n\t<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n\t<defs>\n\t\t<linearGradient id="de-btn-back-gradient" x1="50%" y1="0%" y2="100%" x2="50%">\n\t\t\t<stop offset="0%" stop-color="#A0A0A0"/>\n\t\t\t<stop offset="50%" stop-color="#505050"/>\n\t\t\t<stop offset="100%" stop-color="#A0A0A0"/>\n\t\t</linearGradient>\n\t\t<style><![CDATA[\n\t\t\t.de-btn-back { fill: inherit; stroke: none; }\n\t\t\t.de-svg-stroke { stroke: currentColor; fill: none; }\n\t\t\t.de-svg-fill { stroke: none; fill: currentColor; }\n\t\t]]></style>\n\t</defs>\n\t<!-- POST ICONS -->\n\t<symbol viewBox="0 0 14 14" id="de-symbol-post-back">\n\t\t<path class="de-btn-back" d="M11.2 14H2.8C1.3 14 0 12.7 0 11.2V2.8C0 1.3 1.3 0 2.8 0h8.4C12.7 0 14 1.3 14 2.8v8.4c0 1.5-1.3 2.8-2.8 2.8z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-post-hide">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>\n\t\t<line class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" x1="3.5" y1="10.5" x2="10.5" y2="3.5"/>\n\t\t<line class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" x1="10.5" y1="10.5" x2="3.5" y2="3.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-post-unhide">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>\n\t\t<line class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" x1="7" y1="3" x2="7" y2="11"/>\n\t\t<line class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" x1="3" y1="7" x2="11" y2="7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-post-rep">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M4.2 11.4L11.4 7 4.2 2.6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-post-expthr">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M3.5 5L7 2l3.5 3H8.25v4h2.25L7 12 3.5 9h2.25V5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-post-fav">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M7 1.8l1.5 3.1 3.3.5-2.4 2.4 1.1 3.5L7 9l-3.5 2.3 1.1-3.5-2.3-2.4 3.2-.5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-post-stick">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M4 4h6v6H4z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-post-sage">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M3 8h8l-4 4.2z"/>\n\t\t<path class="de-svg-stroke" stroke-miterlimit="10" d="M5 6.5h4M5 4.5h4M5 2.5h4"/>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-post-src">\n\t\t<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>\n\t\t<circle class="de-svg-stroke" cx="6" cy="6" r="2.5" stroke-width="2"/>\n\t\t<line class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" x1="8" y1="8" x2="11" y2="11"/>\n\t</symbol>\n\t<!-- WINDOW ICONS -->\n\t<symbol viewBox="0 0 14 14" id="de-symbol-win-attach">\n\t\t<line class="de-svg-stroke" stroke-width="3.5" stroke-miterlimit="10" x1="7" x2="7" y2="5" y1="12"/>\n\t\t<path class="de-svg-fill" d="M2.5 6h9l-4.5 -4z"></path>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-win-detach">\n\t\t<line class="de-svg-stroke" stroke-width="3.5" stroke-miterlimit="10" x1="7" y1="2" x2="7" y2="9"/>\n\t\t<path class="de-svg-fill" d="M2.5 9h9l-4.5 4z"></path>\n\t</symbol>\n\t<symbol viewBox="0 0 14 14" id="de-symbol-win-close">\n\t\t<line class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" x1="2.5" y1="11.5" x2="11.5" y2="3"/>\n\t\t<line class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" x1="11.5" y1="11.5" x2="2.5" y2="3"/>\n\t</symbol>\n\t<!-- NAVIGATION PANEL ICONS -->\n\t<symbol viewBox="0 0 7 7" id="de-symbol-nav-arrow">\n\t\t<path class="de-svg-fill" d="M6 3.5L2 0v7z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-nav-up">\n\t\t<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 22.5l9-9 9 9M3 13.5l9-9 9 9"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-nav-down">\n\t\t<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>\n\t</symbol>\n\t<!-- MAIN PANEL -->\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-logo">\n\t\t<path class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" d="M22 6h-8"/>\n\t\t<path class="de-svg-stroke" stroke-width="4" stroke-miterlimit="10" d="M14 5v16"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M22 20.5H12c-2.8 0-5.7 0-5.7-4s2.8-4 5.7-4H21"/>\n\t</symbol>\n\t</svg>\n\t</div>');
 		doc.defaultView.addEventListener('storage', function (e) {
 			var data,
 			    temp,
@@ -15717,7 +15717,31 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	
 		var p,
-		    x = '\t.de-btn-close::after { content: "✖"; }\t.de-btn-toggle::after { content: "⇧"; font-weight: bold; }\t.de-resizer { position: absolute; }\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\t.de-win > .de-win-head { cursor: move; }\t.de-win .de-btn-toggle::after { content: "⇩"; }\t.de-win-buttons { line-height: 16px; margin-top: 1px; cursor: pointer; }\t.de-win-buttons > span { margin-right: 4px; font-size: 15px; }\t.de-win-buttons > span:hover { color: #f66; }\t#de-win-cfg { width: 370px; }\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\t#de-win-fav input[type="checkbox"] { flex: none; margin-left: 15px; }\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\t#de-win-vid .de-entry { white-space: normal; }\t.de-win-head { display: flex; padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\t.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\t.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\t.de-win-head:lang(de), #de-panel:lang(de) { background-color: #777; }\t.de-win-head:lang(es), #de-panel:lang(es) { background-color: rgba(0,20,80,.72); }\t.de-win-title { width: 100%; font: bold 14px arial; margin-left: 32px; }' +
+		    x = '\
+	.de-btn-attach-use { display: inline-block; }\
+	.de-btn-detach-use { display: none; }\
+	.de-resizer { position: absolute; }\
+	.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\
+	.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\
+	.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\
+	.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\
+	.de-win > .de-win-head { cursor: move; }\
+	.de-win .de-btn-attach-use { display: none; }\
+	.de-win .de-btn-detach-use { display: inline-block; }\
+	.de-win-buttons { position: absolute; right: 0; margin: 2px 2px 0 0; cursor: pointer; }\
+	#de-win-cfg { width: 370px; }\
+	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\
+	#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\
+	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\
+	#de-win-fav input[type="checkbox"] { flex: none; margin-left: 15px; }\
+	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\
+	#de-win-vid .de-entry { white-space: normal; }\
+	.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; cursor: default; }\
+	.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\
+	.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\
+	.de-win-head:lang(de), #de-panel:lang(de) { background-color: #777; }\
+	.de-win-head:lang(es), #de-panel:lang(es) { background-color: rgba(0,20,80,.72); }\
+	.de-win-title { font: bold 14px arial; }' +
 
 	
 		'.de-block { display: block; }\
@@ -15778,7 +15802,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
 	.de-thread-note { font-style: italic; }\
 	.de-btn-hide > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\
-	.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on { transform:rotate(0deg); display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; width: 14px; height: 14px; }' + (pr.form || pr.oeForm ? '' : '.de-btn-rep { display: none; }') +
+	.de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle { transform:rotate(0deg); display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; width: 14px; height: 14px; }' + (pr.form || pr.oeForm ? '' : '.de-btn-rep { display: none; }') +
 
 	
 		cont('.de-src-google', 'https://google.com/favicon.ico') + cont('.de-src-yandex', 'https://yandex.ru/favicon.ico') + cont('.de-src-tineye', 'https://tineye.com/favicon.ico') + cont('.de-src-saucenao', 'https://saucenao.com/favicon.ico') + cont('.de-src-iqdb', '//iqdb.org/favicon.ico') +
