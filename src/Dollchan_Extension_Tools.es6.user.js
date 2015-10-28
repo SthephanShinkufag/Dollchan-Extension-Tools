@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '88e329a';
+var commit = '910b331';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12054,43 +12054,43 @@ function Initialization(checkDomains) {
 		]]></style>
 	</defs>
 	<!-- POST ICONS -->
-	<symbol viewBox="0 0 14 14" id="de-symbol-post-back">
-		<path class="de-btn-back" d="M3 0q-3 0,-3 3v8q0 3,3 3h8q3 0,3 -3v-8q0 -3,-3-3z"/>
+	<symbol viewBox="0 0 16 16" id="de-symbol-post-back">
+		<path class="de-btn-back" d="M4 1q-3 0,-3 3v8q0 3,3 3h8q3 0,3 -3v-8q0 -3,-3-3z"/>
 	</symbol>
-	<symbol viewBox="0 0 14 14" id="de-symbol-post-hide">
+	<symbol viewBox="0 0 16 16" id="de-symbol-post-hide">
 		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
-		<line class="de-svg-stroke" stroke-width="2.5" x1="3.5" y1="10.5" x2="10.5" y2="3.5"/>
-		<line class="de-svg-stroke" stroke-width="2.5" x1="10.5" y1="10.5" x2="3.5" y2="3.5"/>
+		<line class="de-svg-stroke" stroke-width="2.5" x1="4.5" y1="11.5" x2="11.5" y2="4.5"/>
+		<line class="de-svg-stroke" stroke-width="2.5" x1="11.5" y1="11.5" x2="4.5" y2="4.5"/>
 	</symbol>
-	<symbol viewBox="0 0 14 14" id="de-symbol-post-unhide">
+	<symbol viewBox="0 0 16 16" id="de-symbol-post-unhide">
 		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
-		<line class="de-svg-stroke" stroke-width="2" x1="7" y1="3" x2="7" y2="11"/>
-		<line class="de-svg-stroke" stroke-width="2" x1="3" y1="7" x2="11" y2="7"/>
+		<line class="de-svg-stroke" stroke-width="2" x1="8" y1="4" x2="8" y2="12"/>
+		<line class="de-svg-stroke" stroke-width="2" x1="4" y1="8" x2="12" y2="8"/>
 	</symbol>
-	<symbol viewBox="0 0 14 14" id="de-symbol-post-rep">
+	<symbol viewBox="0 0 16 16" id="de-symbol-post-rep">
 		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
-		<path class="de-svg-fill" d="M4.2 11.4L11.4 7 4.2 2.6z"/>
+		<path class="de-svg-fill" d="M5.2 12.4L12.4 8 5.2 3.6z"/>
 	</symbol>
-	<symbol viewBox="0 0 14 14" id="de-symbol-post-expthr">
+	<symbol viewBox="0 0 16 16" id="de-symbol-post-expthr">
 		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
-		<path class="de-svg-fill" d="M3.5 5L7 2l3.5 3H8.25v4h2.25L7 12 3.5 9h2.25V5z"/>
+		<path class="de-svg-fill" d="M4.5 6L8 3l3.5 3H9.25v4h2.25L8 13 4.5 10h2.25V6z"/>
 	</symbol>
-	<symbol viewBox="0 0 14 14" id="de-symbol-post-fav">
+	<symbol viewBox="0 0 16 16" id="de-symbol-post-fav">
 		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
-		<path class="de-svg-fill" d="M7 1.8l1.5 3.1 3.3.5-2.4 2.4 1.1 3.5L7 9l-3.5 2.3 1.1-3.5-2.3-2.4 3.2-.5z"/>
+		<path class="de-svg-fill" d="M8 2.8l1.5 3.1 3.3.5-2.4 2.4 1.1 3.5L8 10l-3.5 2.3 1.1-3.5-2.3-2.4 3.2-.5z"/>
 	</symbol>
-	<symbol viewBox="0 0 14 14" id="de-symbol-post-stick">
+	<symbol viewBox="0 0 16 16" id="de-symbol-post-stick">
 		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
-		<path class="de-svg-fill" d="M4 4h6v6H4z"/>
+		<path class="de-svg-fill" d="M5 5h6v6H5z"/>
 	</symbol>
-	<symbol viewBox="0 0 14 14" id="de-symbol-post-sage">
+	<symbol viewBox="0 0 16 16" id="de-symbol-post-sage">
 		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
-		<path class="de-svg-fill" d="M3 8h8l-4 4.5zM5 2h4v1h-4zM5 4h4v1h-4zM5 6h4v1h-4z"/>
+		<path class="de-svg-fill" d="M4 9h8l-4 4.5zM6 3h4v1h-4zM6 5h4v1h-4zM6 7h4v1h-4z"/>
 	</symbol>
-	<symbol viewBox="0 0 14 14" id="de-symbol-post-src">
+	<symbol viewBox="0 0 16 16" id="de-symbol-post-src">
 		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
-		<circle class="de-svg-stroke" cx="6" cy="6" r="2.5" stroke-width="2"/>
-		<line class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" x1="8" y1="8" x2="11" y2="11"/>
+		<circle class="de-svg-stroke" cx="7" cy="7" r="2.5" stroke-width="2"/>
+		<line class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" x1="9" y1="9" x2="12" y2="12"/>
 	</symbol>
 	<!-- WINDOW ICONS -->
 	<symbol viewBox="0 0 14 14" id="de-symbol-win-arrow">
@@ -13088,7 +13088,7 @@ function scriptCSS() {
 	.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
 	.de-thread-note { font-style: italic; }\
 	.de-btn-hide > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\
-	.de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle { transform:rotate(0deg); display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; width: 14px; height: 14px; }' +
+	.de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }' +
 	(pr.form || pr.oeForm ? '' : '.de-btn-rep { display: none; }') +
 
 	// Sauce buttons
