@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'd9fbd72';
+var commit = 'cc8a5a8';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2457,7 +2457,7 @@ function showFavoritesWindow(body, data) {
 		for(var b in data[h]) {
 			var d = data[h][b],
 				block = addContentBlock(body, d.url ?
-					$new('a', {'href': d.url, 'text': h + '/' + b}, null) :
+					$new('a', {'href': d.url, 'text': h + '/' + b, 'rel': 'noreferer'}, null) :
 					$new('b', {'text': h + '/' + b}, null));
 			if(h === aib.host && b === aib.b) {
 				block.classList.add('de-fav-current');
@@ -7560,7 +7560,9 @@ function* html5Submit(form, needProgress = false) {
 				value = new File([value], newFileName);
 			}
 		}
-		formData.append(name, value);
+		if(!(aib.kus && name === 'reportpost')) {
+			formData.append(name, value);
+		}
 	}
 	if(needProgress) {
 		var lastFuncs = null,
@@ -11063,6 +11065,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		'7chan.org': [{
 			init: { value() { return true; } }
 		}],
+		'8ch.net': [{
+			markupTags: { value: ["'''", "''", '__', '~~', '**', '', '', '', 'q'] },
+		}, ['tr#upload']],
 		'arhivach.org': [{
 			cReply: { value: 'post' },
 			qDForm: { value: 'body > .container-fluid' },
@@ -12309,7 +12314,7 @@ DelForm.prototype = {
 			this.el.target = 'de-iframe-dform';
 			this.el.onsubmit = function() {
 				pr.closeReply();
-				$popup(Lng.deleting[lang], 'deleting', true);
+				$popup(Lng.deleting[lang], 'delete', true);
 			};
 		}
 	},

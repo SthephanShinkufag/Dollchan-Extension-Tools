@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'd9fbd72';
+	var commit = 'cc8a5a8';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4520,7 +4520,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		for (var h in data) {
 			for (var b in data[h]) {
 				var d = data[h][b],
-				    block = addContentBlock(body, d.url ? $new('a', { 'href': d.url, 'text': h + '/' + b }, null) : $new('b', { 'text': h + '/' + b }, null));
+				    block = addContentBlock(body, d.url ? $new('a', { 'href': d.url, 'text': h + '/' + b, 'rel': 'noreferer' }, null) : $new('b', { 'text': h + '/' + b }, null));
 				if (h === aib.host && b === aib.b) {
 					block.classList.add('de-fav-current');
 				}
@@ -9895,7 +9895,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 
 				case 32:
-					formData.append(name, value);
+					if (!(aib.kus && name === 'reportpost')) {
+						formData.append(name, value);
+					}
 
 				case 33:
 					context$2$0.next = 3;
@@ -13865,6 +13867,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return true;
 					} }
 			}],
+			'8ch.net': [{
+				markupTags: { value: ["'''", "''", '__', '~~', '**', '', '', '', 'q'] }
+			}, ['tr#upload']],
 			'arhivach.org': [{
 				cReply: { value: 'post' },
 				qDForm: { value: 'body > .container-fluid' },
@@ -15028,7 +15033,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.el.target = 'de-iframe-dform';
 				this.el.onsubmit = function () {
 					pr.closeReply();
-					$popup(Lng.deleting[lang], 'deleting', true);
+					$popup(Lng.deleting[lang], 'delete', true);
 				};
 			}
 		},
