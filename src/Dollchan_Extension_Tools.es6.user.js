@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'a66a4f6';
+var commit = '1ed41a7';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12095,11 +12095,10 @@ function Initialization(checkDomains) {
 	<!-- WINDOW ICONS -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-win-arrow">
 		<line class="de-svg-stroke" stroke-width="3.5" stroke-miterlimit="11" x1="8" x2="8" y2="6" y1="13"/>
-		<path class="de-svg-fill" d="M3.5 7h9l-4.5 -4z"></path>
+		<path class="de-svg-fill" d="M3.5 7h9l-4.5-4.5z"></path>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-win-close">
-		<line class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" x1="3.5" y1="12.5" x2="12.5" y2="4"/>
-		<line class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" x1="12.5" y1="12.5" x2="3.5" y2="4"/>
+		<path class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" d="M3.5 3.5l9 9M3.5 12.5l9-9"/>
 	</symbol>
 	<!-- NAVIGATION PANEL ICONS -->
 	<symbol viewBox="0 0 7 7" id="de-symbol-nav-arrow">
