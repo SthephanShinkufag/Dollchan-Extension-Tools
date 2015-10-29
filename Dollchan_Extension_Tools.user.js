@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '1ed41a7';
+	var commit = 'bb50b62';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4015,7 +4015,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			};
 			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '<div id="de-main" lang="' + getThemeLang() + '"><div id="de-panel">' +
 		
-			'<div id="de-panel-logo-wrapper"><svg id="de-panel-logo"><title>' + Lng.panelBtn.attach[lang] + '</title><use xlink:href="#de-symbol-panel-logo"/></svg></div>' + '<span id="de-panel-buttons"' + (Cfg.expandPanel ? '>' : ' style="display: none;">') + (Cfg.disabled ? pButton('enable') : pButton('cfg') + pButton('hid') + pButton('fav') + (!Cfg.addYouTube ? '' : pButton('vid')) + (localRun ? '' : pButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : pButton('goback', aib.getPageUrl(aib.b, aib.page - 1))) + (isThr || aib.page === aib.lastPage ? '' : pButton('gonext', aib.getPageUrl(aib.b, aib.page + 1)))) + pButton('goup') + pButton('godown') + (imgLen === 0 ? '' : pButton('expimg') + pButton('maskimg') + (nav.Presto || localRun ? '' : (Cfg.preLoadImgs ? '' : pButton('preimg')) + (!isThr ? '' : pButton('savethr')))) + (!isThr || localRun ? '' : pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') + (nav.Safari ? '' : pButton('audio-off'))) + (!aib.mak && !aib.tiny && !aib.fch && !aib.iich ? '' : pButton('catalog', aib.prot + '//' + aib.host + '/' + aib.b + '/catalog' + (aib.iich ? 'ue' : '') + '.html')) + pButton('enable') + (!isThr ? '' : '<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' + dForm.firstThr.pcount + '/' + imgLen + '</span>')) + '</span>' + '</div>' + (Cfg.disabled ? '' : '<div id="de-popup"></div><hr style="clear: both;">') + '</div>');
+			'<div id="de-panel-logo-wrapper" title="' + Lng.panelBtn.attach[lang] + '"><svg id="de-panel-logo"><use xlink:href="#de-symbol-panel-logo"/></svg></div>' + '<span id="de-panel-buttons"' + (Cfg.expandPanel ? '>' : ' style="display: none;">') + (Cfg.disabled ? pButton('enable') : pButton('cfg') + pButton('hid') + pButton('fav') + (!Cfg.addYouTube ? '' : pButton('vid')) + (localRun ? '' : pButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : pButton('goback', aib.getPageUrl(aib.b, aib.page - 1))) + (isThr || aib.page === aib.lastPage ? '' : pButton('gonext', aib.getPageUrl(aib.b, aib.page + 1)))) + pButton('goup') + pButton('godown') + (imgLen === 0 ? '' : pButton('expimg') + pButton('maskimg') + (nav.Presto || localRun ? '' : (Cfg.preLoadImgs ? '' : pButton('preimg')) + (!isThr ? '' : pButton('savethr')))) + (!isThr || localRun ? '' : pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') + (nav.Safari ? '' : pButton('audio-off'))) + (!aib.mak && !aib.tiny && !aib.fch && !aib.iich ? '' : pButton('catalog', aib.prot + '//' + aib.host + '/' + aib.b + '/catalog' + (aib.iich ? 'ue' : '') + '.html')) + pButton('enable') + (!isThr ? '' : '<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' + dForm.firstThr.pcount + '/' + imgLen + '</span>')) + '</span>' + '</div>' + (Cfg.disabled ? '' : '<div id="de-popup"></div><hr style="clear: both;">') + '</div>');
 			this._el = $id('de-panel');
 			this._el.addEventListener('click', this, true);
 			this._el.addEventListener('mouseover', this);
@@ -11168,20 +11168,37 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this.el.addEventListener('mouseout', this, true);
 				}
 				switch (el.classList[0]) {
+					case 'de-post-btns':
+						el.removeAttribute('title');return;
 					case 'de-btn-rep':
+						this.btns.title = Lng.replyToPost[lang];
 						if (!isOutEvent) {
 							quotetxt = $txtSelect();
 						}
-										case 'de-btn-expthr':
+						return;
 					case 'de-btn-hide':
 					case 'de-btn-hide-user':
 					case 'de-btn-unhide':
 					case 'de-btn-unhide-user':
-					case 'de-btn-src':
-					case 'de-btn-fav':
-					case 'de-btn-fav-sel':
-						this._handleButtonEvent(el, isOutEvent);
+						this.btns.title = Lng.togglePost[lang];
+						if (Cfg.menuHiddBtn && !(this instanceof Pview)) {
+							this._addMenu(el, isOutEvent, this._getMenuHide);
+						}
 						return;
+					case 'de-btn-expthr':
+						this.btns.title = Lng.expandThrd[lang];
+						if (!(this instanceof Pview)) {
+							this._addMenu(el, isOutEvent, this._getMenuExpand);
+						}
+						return;
+					case 'de-btn-fav':
+						this.btns.title = Lng.addFav[lang];return;
+					case 'de-btn-fav-sel':
+						this.btns.title = Lng.delFav[lang];return;
+					case 'de-btn-stick':
+						this.btns.title = Lng.attachPview[lang];return;
+					case 'de-btn-src':
+						this._addMenu(el, isOutEvent, this._getMenuImgSrc);return;
 					default:
 						if (!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
 							return;
@@ -11315,13 +11332,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var link = el.nextSibling,
 				    p = (link.getAttribute('de-href') || link.href) + '" target="_blank">' + Lng.search[lang];
 				return '<a class="de-menu-item de-src-google" href="http://google.com/searchbyimage?image_url=' + p + 'Google</a>' + '<a class="de-menu-item de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex</a>' + '<a class="de-menu-item de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' + '<a class="de-menu-item de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + '<a class="de-menu-item de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>';
-			}
-		}, {
-			key: '_handleButtonEvent',
-			value: function _handleButtonEvent(el, isOutEvent) {
-				if (el.getAttribute('class') === 'de-btn-src') {
-					this._addMenu(el, isOutEvent, this._getMenuImgSrc);
-				}
 			}
 		}, {
 			key: '_showMenu',
@@ -11804,48 +11814,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'thr-exp':
 						var task = parseInt(el.textContent.match(/\d+/), 10);
 						this.thr.load(!task ? 'all' : task === 10 ? 'more' : task, false);
-				}
-			}
-		}, {
-			key: '_handleButtonEvent',
-			value: function _handleButtonEvent(el, isOutEvent) {
-				_get(Object.getPrototypeOf(Post.prototype), '_handleButtonEvent', this).call(this, el, isOutEvent);
-				var cN = el.getAttribute('class');
-				switch (cN) {
-					case 'de-btn-hide':
-					case 'de-btn-hide-user':
-					case 'de-btn-unhide':
-					case 'de-btn-unhide-user':
-						if (Cfg.menuHiddBtn) {
-							this._addMenu(el, isOutEvent, this._getMenuHide);
-						}
-						break;
-					case 'de-btn-expthr':
-						this._addMenu(el, isOutEvent, this._getMenuExpand);
-				}
-				if (isOutEvent || el.hasTitle) {
-					return;
-				}
-				el.hasTitle = true;
-				var addTitle = function addTitle(svg, str) {
-					var el = doc.createElementNS('http://www.w3.org/2000/svg', 'title');
-					el.textContent = str;
-					svg.appendChild(el);
-				};
-				switch (cN) {
-					case 'de-btn-hide':
-					case 'de-btn-hide-user':
-					case 'de-btn-unhide':
-					case 'de-btn-unhide-user':
-						addTitle(el, Lng.togglePost[lang]);return;
-					case 'de-btn-expthr':
-						addTitle(el, Lng.expandThrd[lang]);return;
-					case 'de-btn-rep':
-						addTitle(el, Lng.replyToPost[lang]);return;
-					case 'de-btn-fav':
-						addTitle(el, Lng.addFav[lang]);return;
-					case 'de-btn-fav-sel':
-						addTitle(el, Lng.delFav[lang]);
 				}
 			}
 		}, {
@@ -12495,7 +12463,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					$del(this.el);
 				}
 				var el = this.el = post.el.cloneNode(true),
-				    pText = '<svg class="de-btn-rep"><title>' + Lng.replyToPost[lang] + '</title><use xlink:href="#de-symbol-post-rep"/></svg>' + (post.sage ? '<svg class="de-btn-sage"><title>SAGE</title><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><title>' + Lng.attachPview[lang] + '</title><use xlink:href="#de-symbol-post-stick"/></svg>' + (post.deleted ? '' : '<span style="margin: 0 4px 0 2px; vertical-align: 1px; color: #4f7942; ' + 'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
+				    pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' + (post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' + (post.deleted ? '' : '<span style="margin: 0 4px 0 2px; vertical-align: 1px; color: #4f7942; ' + 'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
 				el.post = this;
 				el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
 				el.style.display = '';
@@ -12506,6 +12474,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._link.classList.add('de-link-parent');
 				if (post instanceof CacheItem) {
 					this._pref.insertAdjacentHTML('afterend', '<span class="de-post-btns">' + pText + '</span');
+					this.btns = this._pref.nextSibling;
 					embedMediaLinks(this);
 					if (Cfg.addYouTube) {
 						new VideosParser().parse(this).end();
@@ -12515,14 +12484,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 					processImageNames(el);
 				} else {
-					var node = $c('de-post-btns', el);
+					var node = this._pref.nextSibling;
 					this.btns = node;
 					this.isOp = post.isOp;
 					node.classList.remove('de-post-counter');
 					if (post.hidden) {
 						node.classList.add('de-post-hide');
 					}
-					node.innerHTML = '<svg class="de-btn-hide' + (post.userToggled ? '-user' : '') + ' de-btn-pview-hide" de-num="' + this.num + '"><title>' + Lng.togglePost[lang] + '</title><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' + '<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' + pText;
+					node.innerHTML = '<svg class="de-btn-hide' + (post.userToggled ? '-user' : '') + ' de-btn-pview-hide" de-num="' + this.num + '">' + '<use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' + '<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' + pText;
 					$each($Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') + '.de-img-full, .de-after-fimg', el), $del);
 					$each($Q(aib.qThumbImages, el), function (el) {
 						el.parentNode.style.display = '';
@@ -13237,7 +13206,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var el = $c(state ? 'de-btn-fav' : 'de-btn-fav-sel', this.op.btns);
 			if (el) {
 				el.setAttribute('class', state ? 'de-btn-fav-sel' : 'de-btn-fav');
-				el.title = state ? Lng.delFav[lang] : Lng.addFav[lang];
 			}
 		},
 		setFavorState: function setFavorState(val, type) {
