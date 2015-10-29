@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'd7d178e';
+var commit = '8638dca';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7068,7 +7068,7 @@ PostForm.prototype = {
 	},
 	_wrapText(markupBB, tag, text) {
 		var m;
-		if(markupBB) {
+		if(markupBB || aib.tiny && tag === 'code') {
 			var str;
 			if(text.includes('\n')) {
 				str = '[' + tag + ']' + text + '[/' + tag + ']';
@@ -11067,9 +11067,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		'7chan.org': [{
 			init: { value() { return true; } }
 		}],
-		'8ch.net': [{
-			markupTags: { value: ["'''", "''", '__', '~~', '**', '', '', '', 'q'] },
-		}, ['tr#upload']],
 		'arhivach.org': [{
 			cReply: { value: 'post' },
 			qDForm: { value: 'body > .container-fluid' },
@@ -11650,7 +11647,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return false;
 			} },
 			firstPage: { value: 1 },
-			markupTags: { value: ["'''", "''", '__', '^H', '**', '`', '', '', 'q'] },
+			markupTags: { value: ["'''", "''", '__', '~~', '**', 'code', '', '', 'q'] },
 			cssEn: { get() {
 				return `.banner, ${this.t ? '' : '.de-btn-rep,'} .hide-thread-link, .mentioned, .post-hover { display: none !important; }
 					div.post.reply { float: left; clear: left; display: block; }`;

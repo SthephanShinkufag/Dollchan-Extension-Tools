@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'd7d178e';
+	var commit = '8638dca';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -9214,7 +9214,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 		_wrapText: function _wrapText(markupBB, tag, text) {
 			var m;
-			if (markupBB) {
+			if (markupBB || aib.tiny && tag === 'code') {
 				var str;
 				if (text.includes('\n')) {
 					str = '[' + tag + ']' + text + '[/' + tag + ']';
@@ -13865,9 +13865,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return true;
 					} }
 			}],
-			'8ch.net': [{
-				markupTags: { value: ["'''", "''", '__', '~~', '**', '', '', '', 'q'] }
-			}, ['tr#upload']],
 			'arhivach.org': [{
 				cReply: { value: 'post' },
 				qDForm: { value: 'body > .container-fluid' },
@@ -14451,7 +14448,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return false;
 					} },
 				firstPage: { value: 1 },
-				markupTags: { value: ["'''", "''", '__', '^H', '**', '`', '', '', 'q'] },
+				markupTags: { value: ["'''", "''", '__', '~~', '**', 'code', '', '', 'q'] },
 				cssEn: { get: function get() {
 						return '.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }';
 					} },
