@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'cc8a5a8';
+var commit = 'd7d178e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1239,7 +1239,7 @@ function toRegExp(str, noG) {
 }
 
 // https://html.spec.whatwg.org/multipage/forms.html#constructing-form-data-set
-function* getFormElements(form) {
+function* getFormElements(form, submitter) {
 	var controls = $Q('button, input, keygen, object, select, textarea', form),
 		fixName = name => name ? name.replace(/([^\r])\n|\r([^\n])/g, '$1\r\n$2') : '';
   constructSet:
@@ -1250,7 +1250,11 @@ function* getFormElements(form) {
 			name = field.getAttribute('name');
 		if($parent(field, 'DATALIST', form) ||
 		   isFormElDisabled(field) ||
-		   (tagName === 'button' && type !== 'submit') ||
+		   ((tagName === 'button' || (tagName === 'input' && (
+		       type === 'submit' ||
+		       type === 'reset' ||
+		       type ===  'button'
+		   ))) && field !== submitter) ||
 		   (tagName === 'input' && (
 		       (type === 'checkbox' && !field.checked) ||
 		       (type === 'radio' && !field.checked) ||
@@ -1335,8 +1339,8 @@ function* getFormElements(form) {
 	}
 }
 
+// https://html.spec.whatwg.org/multipage/forms.html#concept-fe-disabled
 function isFormElDisabled(el) {
-	// https://html.spec.whatwg.org/multipage/forms.html#concept-fe-disabled
 	switch(el.tagName.toLowerCase()) {
 	case 'button':
 	case 'input':
@@ -6625,11 +6629,11 @@ function PostForm(form, ignoreForm, dc) {
 						aib.b + '/csstest.foo"></iframe>');
 					doc.body.lastChild.onload = e => {
 						$del(e.target);
-						spawn(html5Submit, this.form, true).then(doUploading);
+						spawn(html5Submit, this.form, this.subm, true).then(doUploading);
 					};
 					return;
 				}
-				spawn(html5Submit, this.form, true).then(doUploading);
+				spawn(html5Submit, this.form, this.subm, true).then(doUploading);
 			};
 		}, 0);
 	} else if(Cfg.ajaxReply === 1) {
@@ -7540,10 +7544,10 @@ var checkDelete = async(function* (dc) {
 	$popup(Lng.succDeleted[lang], 'delete', false);
 });
 
-function* html5Submit(form, needProgress = false) {
+function* html5Submit(form, submitter, needProgress = false) {
 	var formData = new FormData();
 	var hasFiles = false;
-	for(var {name, value, type, el} of getFormElements(form)) {
+	for(var {name, value, type, el} of getFormElements(form, submitter)) {
 		if(type === 'file') {
 			hasFiles = true;
 			var fileName = value.name,
@@ -7560,9 +7564,7 @@ function* html5Submit(form, needProgress = false) {
 				value = new File([value], newFileName);
 			}
 		}
-		if(!(aib.kus && name === 'reportpost')) {
-			formData.append(name, value);
-		}
+		formData.append(name, value);
 	}
 	if(needProgress) {
 		var lastFuncs = null,
@@ -12302,7 +12304,7 @@ DelForm.prototype = {
 					$pd(e);
 					pr.closeReply();
 					$popup(Lng.deleting[lang], 'delete', true);
-					spawn(html5Submit, this.el)
+					spawn(html5Submit, this.el, e.target)
 						.then(checkDelete, e => $popup(getErrorMessage(e), 'delete', false));
 				};
 			}

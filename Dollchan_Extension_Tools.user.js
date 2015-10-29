@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'cc8a5a8';
+	var commit = 'd7d178e';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3086,7 +3086,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 
-	function getFormElements(form) {
+	function getFormElements(form, submitter) {
 		var controls, fixName, i, len, field, tagName, type, name, options, _i, _len, option, files, dirname, dir;
 
 		return regeneratorRuntime.wrap(function getFormElements$(context$2$0) {
@@ -3105,7 +3105,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					field = controls[i], tagName = field.tagName.toLowerCase(), type = field.getAttribute('type'), name = field.getAttribute('name');
 
-					if (!($parent(field, 'DATALIST', form) || isFormElDisabled(field) || tagName === 'button' && type !== 'submit' || tagName === 'input' && (type === 'checkbox' && !field.checked || type === 'radio' && !field.checked || type === 'image' && !name) || tagName === 'object')) {
+					if (!($parent(field, 'DATALIST', form) || isFormElDisabled(field) || (tagName === 'button' || tagName === 'input' && (type === 'submit' || type === 'reset' || type === 'button')) && field !== submitter || tagName === 'input' && (type === 'checkbox' && !field.checked || type === 'radio' && !field.checked || type === 'image' && !name) || tagName === 'object')) {
 						context$2$0.next = 6;
 						break;
 					}
@@ -3276,8 +3276,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, marked1$0[0], this);
 	}
 
+
 	function isFormElDisabled(el) {
-	
 		switch (el.tagName.toLowerCase()) {
 			case 'button':
 			case 'input':
@@ -8777,11 +8777,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						doc.body.insertAdjacentHTML('beforeend', '<iframe class="ninja" id="csstest" src="/' + aib.b + '/csstest.foo"></iframe>');
 						doc.body.lastChild.onload = function (e) {
 							$del(e.target);
-							spawn(html5Submit, _this14.form, true).then(doUploading);
+							spawn(html5Submit, _this14.form, _this14.subm, true).then(doUploading);
 						};
 						return;
 					}
-					spawn(html5Submit, _this14.form, true).then(doUploading);
+					spawn(html5Submit, _this14.form, _this14.subm, true).then(doUploading);
 				};
 			}, 0);
 		} else if (Cfg.ajaxReply === 1) {
@@ -9807,8 +9807,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, callee$1$0, this, [[12, 17]]);
 	}));
 
-	function html5Submit(form) {
-		var needProgress = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+	function html5Submit(form, submitter) {
+		var needProgress = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
 		var formData, hasFiles, _iterator9, _isArray9, _i10, _ref9, name, value, type, el, fileName, newFileName, data, lastFuncs, promises, xhr;
 
@@ -9817,7 +9817,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				case 0:
 					formData = new FormData();
 					hasFiles = false;
-					_iterator9 = getFormElements(form), _isArray9 = Array.isArray(_iterator9), _i10 = 0, _iterator9 = _isArray9 ? _iterator9 : _iterator9[Symbol.iterator]();
+					_iterator9 = getFormElements(form, submitter), _isArray9 = Array.isArray(_iterator9), _i10 = 0, _iterator9 = _isArray9 ? _iterator9 : _iterator9[Symbol.iterator]();
 
 				case 3:
 					if (!_isArray9) {
@@ -9895,9 +9895,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 
 				case 32:
-					if (!(aib.kus && name === 'reportpost')) {
-						formData.append(name, value);
-					}
+					formData.append(name, value);
 
 				case 33:
 					context$2$0.next = 3;
@@ -15023,7 +15021,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						$pd(e);
 						pr.closeReply();
 						$popup(Lng.deleting[lang], 'delete', true);
-						spawn(html5Submit, _this43.el).then(checkDelete, function (e) {
+						spawn(html5Submit, _this43.el, e.target).then(checkDelete, function (e) {
 							return $popup(getErrorMessage(e), 'delete', false);
 						});
 					};
