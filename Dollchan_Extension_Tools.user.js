@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'bb50b62';
+	var commit = 'c705922';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -2287,9 +2287,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		hideLnkList: ['Скрыть/Показать список ссылок', 'Hide/Unhide list of links'],
 		prevVideo: ['Предыдущее видео', 'Previous video'],
 		nextVideo: ['Следующее видео', 'Next video'],
-		toggleWindow: ['Закрепить на панели / Открепить', 'Attach to panel / Detach'],
+		toPanel: ['Закрепить на панели', 'Attach to panel'],
+		underPost: ['Поместить форму под пост', 'Move under post'],
+		makeDrag: ['Сделать перетаскиваемым окном', 'Make draggable window'],
 		closeWindow: ['Закрыть окно', 'Close window'],
-		toggleReply: ['Поместить под пост / Открепить', 'Move under post / Detach'],
 		closeReply: ['Закрыть форму', 'Close form'],
 		replies: ['Ответы:', 'Replies:'],
 		postsOmitted: ['Пропущено ответов: ', 'Posts omitted: '],
@@ -4172,13 +4173,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return;
 		}
 		if (!win) {
-			main.insertAdjacentHTML('afterbegin', '<div id="de-win-' + name + '" class="' + (Cfg[name + 'WinDrag'] ? 'de-win" style="' + Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] : 'de-win-fixed" style="right: 0; bottom: 25px') + (name !== 'fav' ? '' : '; width: ' + Cfg.favWinWidth + 'px; ') + '; display: none;">' + '<div class="de-win-head"><span class="de-win-title">' + (name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang]) + '</span>' + '<span class="de-win-buttons">' + '<svg class="de-btn-toggle" title="' + Lng.toggleWindow[lang] + '">' + '<use xlink:href="#de-symbol-win-arrow"/></svg>' + '<svg class="de-btn-close" title="' + Lng.closeReply[lang] + '">' + '<use xlink:href="#de-symbol-win-close"/></svg></span></div>' + '<div class="de-win-body' + (name === 'cfg' ? ' ' + aib.cReply : '" style="background-color: ' + getComputedStyle(doc.body).getPropertyValue('background-color')) + '"></div>' + (name !== 'fav' ? '' : '<div class="de-resizer de-resizer-left">' + '</div><div class="de-resizer de-resizer-right"></div>') + '</div>');
+			main.insertAdjacentHTML('afterbegin', '<div id="de-win-' + name + '" class="' + (Cfg[name + 'WinDrag'] ? 'de-win" style="' + Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] : 'de-win-fixed" style="right: 0; bottom: 25px') + (name !== 'fav' ? '' : '; width: ' + Cfg.favWinWidth + 'px; ') + '; display: none;">' + '<div class="de-win-head"><span class="de-win-title">' + (name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang]) + '</span>' + '<span class="de-win-buttons">' + '<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>' + '<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg></span></div>' + '<div class="de-win-body' + (name === 'cfg' ? ' ' + aib.cReply : '" style="background-color: ' + getComputedStyle(doc.body).getPropertyValue('background-color')) + '"></div>' + (name !== 'fav' ? '' : '<div class="de-resizer de-resizer-left">' + '</div><div class="de-resizer de-resizer-right"></div>') + '</div>');
 			win = main.firstChild;
 			if (name === 'fav') {
 				new WinResizer('fav', 'left', 'favWinWidth', win, win);
 				new WinResizer('fav', 'right', 'favWinWidth', win, win);
 			}
 			el = win.firstChild.lastChild;
+			el.onmouseover = function (e) {
+				switch (fixEventEl(e.target).classList[0]) {
+					case 'de-btn-close':
+						this.title = Lng.closeWindow[lang];break;
+					case 'de-btn-toggle':
+						this.title = Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
+				}
+			};
 			el.lastChild.onclick = toggleWindow.bind(null, name, false);
 			el.firstChild.onclick = function (e) {
 				var width = win.style.width,
@@ -8539,11 +8548,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		this.isBottom = Cfg.addPostForm === 1;
 		this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 		el = this.qArea;
-		el.insertAdjacentHTML('beforeend', '<div class="de-win-head">' + '<span class="de-win-title"></span>' + '<span class="de-win-buttons">' + '<svg class="de-btn-toggle" title="' + Lng.toggleWindow[lang] + '">' + '<use xlink:href="#de-symbol-win-arrow"/></svg>' + '<svg class="de-btn-close" title="' + Lng.closeReply[lang] + '">' + '<use xlink:href="#de-symbol-win-close"/></svg></span></div>' + '<div class="de-resizer de-resizer-top"></div>' + '<div class="de-resizer de-resizer-left"></div>' + '<div class="de-resizer de-resizer-right"></div>' + '<div class="de-resizer de-resizer-bottom"></div>');
+		el.insertAdjacentHTML('beforeend', '<div class="de-win-head">' + '<span class="de-win-title"></span>' + '<span class="de-win-buttons">' + '<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>' + '<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg></span></div>' + '<div class="de-resizer de-resizer-top"></div>' + '<div class="de-resizer de-resizer-left"></div>' + '<div class="de-resizer de-resizer-right"></div>' + '<div class="de-resizer de-resizer-bottom"></div>');
 		el = el.firstChild;
 		el.lang = getThemeLang();
 		makeDraggable(this.qArea, el, 'reply');
 		el = el.lastChild;
+		el.onmouseover = function (e) {
+			switch (fixEventEl(e.target).classList[0]) {
+				case 'de-btn-close':
+					this.title = Lng.closeReply[lang];break;
+				case 'de-btn-toggle':
+					this.title = Cfg['replyWinDrag'] ? Lng.underPost[lang] : Lng.makeDrag[lang];
+			}
+		};
 		el.firstChild.onclick = function () {
 			toggleCfg('replyWinDrag');
 			if (Cfg.replyWinDrag) {
@@ -8977,7 +8994,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			} else {
 				$txtInsert(this.txta, (isNumClick ? '>>' + pNum : (temp !== '' && temp.slice(-1) !== '\n' ? '\n' : '') + (this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : '>>' + pNum + '\n')) + (quotetxt ? quotetxt.replace(/^\n|\n$/g, '').replace(/(^|\n)(.)/gm, '$1>' + (Cfg.spacedQuote ? ' ' : '') + '$2') + '\n' : ''));
 			}
-			temp = pByNum[pNum].thr.op.title;
+			temp = pByNum[pNum].thr.op.title.trim();
 			if (temp.length > 27) {
 				temp = temp.substr(0, 30) + '…';
 			}

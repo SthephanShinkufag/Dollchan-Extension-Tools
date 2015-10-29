@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'bb50b62';
+var commit = 'c705922';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -523,9 +523,10 @@ Lng = {
 	hideLnkList:    ['Скрыть/Показать список ссылок', 'Hide/Unhide list of links'],
 	prevVideo:      ['Предыдущее видео', 'Previous video'],
 	nextVideo:      ['Следующее видео', 'Next video'],
-	toggleWindow:   ['Закрепить на панели / Открепить', 'Attach to panel / Detach'],
+	toPanel:        ['Закрепить на панели', 'Attach to panel'],
+	underPost:      ['Поместить форму под пост', 'Move under post'],
+	makeDrag:       ['Сделать перетаскиваемым окном', 'Make draggable window'],
 	closeWindow:    ['Закрыть окно', 'Close window'],
-	toggleReply:    ['Поместить под пост / Открепить', 'Move under post / Detach'],
 	closeReply:     ['Закрыть форму', 'Close form'],
 	replies:        ['Ответы:', 'Replies:'],
 	postsOmitted:   ['Пропущено ответов: ', 'Posts omitted: '],
@@ -2085,10 +2086,8 @@ function toggleWindow(name, isUpd, data, noAnim) {
 			'<div class="de-win-head"><span class="de-win-title">' +
 				(name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang]) + '</span>' +
 				'<span class="de-win-buttons">' +
-					'<svg class="de-btn-toggle" title="' + Lng.toggleWindow[lang] + '">' +
-						'<use xlink:href="#de-symbol-win-arrow"/></svg>' +
-					'<svg class="de-btn-close" title="' + Lng.closeReply[lang] + '">' +
-						'<use xlink:href="#de-symbol-win-close"/></svg></span></div>' +
+					'<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>' +
+					'<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg></span></div>' +
 			'<div class="de-win-body' + (name === 'cfg' ? ' ' + aib.cReply : '" style="background-color: ' +
 				getComputedStyle(doc.body).getPropertyValue('background-color')) + '"></div>' +
 			(name !== 'fav' ? '' : '<div class="de-resizer de-resizer-left">' +
@@ -2099,6 +2098,12 @@ function toggleWindow(name, isUpd, data, noAnim) {
 			new WinResizer('fav', 'right', 'favWinWidth', win, win);
 		}
 		el = win.firstChild.lastChild;
+		el.onmouseover = function(e) {
+			switch(fixEventEl(e.target).classList[0]) {
+			case 'de-btn-close': this.title = Lng.closeWindow[lang]; break;
+			case 'de-btn-toggle': this.title = Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
+			}
+		}
 		el.lastChild.onclick = toggleWindow.bind(null, name, false);
 		el.firstChild.onclick = e => {
 			var width = win.style.width,
@@ -6395,10 +6400,8 @@ function PostForm(form, ignoreForm, dc) {
 		'<div class="de-win-head">' +
 			'<span class="de-win-title"></span>' +
 			'<span class="de-win-buttons">' +
-				'<svg class="de-btn-toggle" title="' + Lng.toggleWindow[lang] + '">' +
-					'<use xlink:href="#de-symbol-win-arrow"/></svg>' +
-				'<svg class="de-btn-close" title="' + Lng.closeReply[lang] + '">' +
-					'<use xlink:href="#de-symbol-win-close"/></svg></span></div>' +
+				'<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>' +
+				'<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg></span></div>' +
 		'<div class="de-resizer de-resizer-top"></div>' +
 		'<div class="de-resizer de-resizer-left"></div>' +
 		'<div class="de-resizer de-resizer-right"></div>' +
@@ -6407,6 +6410,12 @@ function PostForm(form, ignoreForm, dc) {
 	el.lang = getThemeLang();
 	makeDraggable(this.qArea, el, 'reply');
 	el = el.lastChild;
+	el.onmouseover = function(e) {
+		switch(fixEventEl(e.target).classList[0]) {
+		case 'de-btn-close': this.title = Lng.closeReply[lang]; break;
+		case 'de-btn-toggle': this.title = Cfg['replyWinDrag'] ? Lng.underPost[lang] : Lng.makeDrag[lang];
+		}
+	}
 	el.firstChild.onclick = () => {
 		toggleCfg('replyWinDrag');
 		if(Cfg.replyWinDrag) {
@@ -6841,7 +6850,7 @@ PostForm.prototype = {
 				(quotetxt ? quotetxt.replace(/^\n|\n$/g, '')
 				.replace(/(^|\n)(.)/gm, '$1>' + (Cfg.spacedQuote ? ' ' : '') + '$2') + '\n': ''));
 		}
-		temp = pByNum[pNum].thr.op.title;
+		temp = pByNum[pNum].thr.op.title.trim();
 		if(temp.length > 27) {
 			temp = temp.substr(0, 30) + '\u2026';
 		}
