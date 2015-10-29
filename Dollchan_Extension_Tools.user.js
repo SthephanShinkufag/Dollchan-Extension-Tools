@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'c705922';
+	var commit = 'd9fbd72';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -8634,7 +8634,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			} else {
 				$parent(this.mail, 'TR').style.display = 'none';
 			}
-			this.subm.insertAdjacentHTML('afterend', '<svg id="de-sagebtn" class="de-btn-sage" title="SAGE"><use xlink:href="#de-symbol-post-sage"/></svg>');
+			this.subm.insertAdjacentHTML('afterend', '<svg id="de-sagebtn" class="de-btn-sage">' + '<use xlink:href="#de-symbol-post-sage"/></svg>');
 			el = this.subm.nextSibling;
 			el.onclick = function (e) {
 				e.stopPropagation();
@@ -11212,6 +11212,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						this.btns.title = Lng.addFav[lang];return;
 					case 'de-btn-fav-sel':
 						this.btns.title = Lng.delFav[lang];return;
+					case 'de-btn-sage':
+						this.btns.title = 'SAGE';return;
 					case 'de-btn-stick':
 						this.btns.title = Lng.attachPview[lang];return;
 					case 'de-btn-src':
@@ -11468,7 +11470,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			this.sage = aib.getSage(el);
 			if (this.sage) {
-				html += '<svg class="de-btn-sage" title="SAGE"><use xlink:href="#de-symbol-post-sage"/></svg>';
+				html += '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>';
 			}
 			refEl.insertAdjacentHTML('afterend', html + '</span>');
 			this.btns = refEl.nextSibling;

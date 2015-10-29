@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'c705922';
+var commit = 'd9fbd72';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -6488,7 +6488,8 @@ function PostForm(form, ignoreForm, dc) {
 		} else {
 			$parent(this.mail, 'TR').style.display = 'none';
 		}
-		this.subm.insertAdjacentHTML('afterend', '<svg id="de-sagebtn" class="de-btn-sage" title="SAGE"><use xlink:href="#de-symbol-post-sage"/></svg>');
+		this.subm.insertAdjacentHTML('afterend', '<svg id="de-sagebtn" class="de-btn-sage">' +
+			'<use xlink:href="#de-symbol-post-sage"/></svg>');
 		el = this.subm.nextSibling;
 		el.onclick = e => {
 			e.stopPropagation();
@@ -8743,6 +8744,7 @@ class AbstractPost {
 			return;
 		case 'de-btn-fav': this.btns.title = Lng.addFav[lang]; return;
 		case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
+		case 'de-btn-sage': this.btns.title = 'SAGE'; return;
 		case 'de-btn-stick': this.btns.title = Lng.attachPview[lang]; return;
 		case 'de-btn-src': this._addMenu(el, isOutEvent, this._getMenuImgSrc); return;
 		default:
@@ -8922,7 +8924,7 @@ class Post extends AbstractPost {
 		}
 		this.sage = aib.getSage(el);
 		if(this.sage) {
-			html += '<svg class="de-btn-sage" title="SAGE"><use xlink:href="#de-symbol-post-sage"/></svg>';
+			html += '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>';
 		}
 		refEl.insertAdjacentHTML('afterend', html + '</span>');
 		this.btns = refEl.nextSibling;
