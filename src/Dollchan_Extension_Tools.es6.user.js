@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '34ff54b';
+var commit = '9841ae9';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10775,6 +10775,15 @@ function checkStorage() {
 }
 
 function initNavFuncs() {
+	if(!('from' in Array)) { // XXX: nav.Presto
+		Array.from = function(iterable) {
+			var index = 0, rv = [];
+			for(var item of iterable) {
+				rv[index++] = item;
+			}
+			return rv;
+		};
+	}
 	if(!('includes' in String.prototype)) {
 		String.prototype.includes = String.prototype.contains || function(s) {
 			return this.indexOf(s) !== -1;
