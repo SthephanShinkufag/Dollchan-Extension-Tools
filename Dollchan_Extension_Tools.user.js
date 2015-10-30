@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '9eb8ace';
+	var commit = '8395a41';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12650,7 +12650,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (num === this._tNum) {
 					var oOp;
 					if (this._b === aib.b && (oOp = pByNum[this._tNum])) {
-						oOp.ref.forEach(function (num) {
+						oOp.ref._set.forEach(function (num) {
 							return pst.ref.add(num);
 						});
 					}

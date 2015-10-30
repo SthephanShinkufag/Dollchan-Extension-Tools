@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '9eb8ace';
+var commit = '8395a41';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9948,7 +9948,7 @@ class PviewsCache extends TemporaryContent {
 		if(num === this._tNum) {
 			var oOp;
 			if(this._b === aib.b && (oOp = pByNum[this._tNum])) {
-				oOp.ref.forEach(num => pst.ref.add(num));
+				oOp.ref._set.forEach(num => pst.ref.add(num));
 			}
 		}
 		pst.el = replacePost(pst.el);
