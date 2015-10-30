@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '8638dca';
+var commit = 'ba16690';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2461,7 +2461,7 @@ function showFavoritesWindow(body, data) {
 		for(var b in data[h]) {
 			var d = data[h][b],
 				block = addContentBlock(body, d.url ?
-					$new('a', {'href': d.url, 'text': h + '/' + b, 'rel': 'noreferer'}, null) :
+					$new('a', {'href': d.url, 'text': h + '/' + b, 'rel': 'noreferrer'}, null) :
 					$new('b', {'text': h + '/' + b}, null));
 			if(h === aib.host && b === aib.b) {
 				block.classList.add('de-fav-current');

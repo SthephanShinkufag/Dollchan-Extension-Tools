@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '8638dca';
+	var commit = 'ba16690';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4520,7 +4520,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		for (var h in data) {
 			for (var b in data[h]) {
 				var d = data[h][b],
-				    block = addContentBlock(body, d.url ? $new('a', { 'href': d.url, 'text': h + '/' + b, 'rel': 'noreferer' }, null) : $new('b', { 'text': h + '/' + b }, null));
+				    block = addContentBlock(body, d.url ? $new('a', { 'href': d.url, 'text': h + '/' + b, 'rel': 'noreferrer' }, null) : $new('b', { 'text': h + '/' + b }, null));
 				if (h === aib.host && b === aib.b) {
 					block.classList.add('de-fav-current');
 				}
