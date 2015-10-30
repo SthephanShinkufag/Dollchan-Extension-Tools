@@ -1888,7 +1888,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'c9c8de1';
+	var commit = '872ee8a';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4020,7 +4020,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			};
 			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '<div id="de-main" lang="' + getThemeLang() + '"><div id="de-panel">' +
 		
-			'<div id="de-panel-logo-wrapper" title="' + Lng.panelBtn.attach[lang] + '"><svg id="de-panel-logo"><use xlink:href="#de-symbol-panel-logo"/></svg></div>' + '<span id="de-panel-buttons"' + (Cfg.expandPanel ? '>' : ' style="display: none;">') + (Cfg.disabled ? pButton('enable') : pButton('cfg') + pButton('hid') + pButton('fav') + (!Cfg.addYouTube ? '' : pButton('vid')) + (localRun ? '' : pButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : pButton('goback', aib.getPageUrl(aib.b, aib.page - 1))) + (isThr || aib.page === aib.lastPage ? '' : pButton('gonext', aib.getPageUrl(aib.b, aib.page + 1)))) + pButton('goup') + pButton('godown') + (imgLen === 0 ? '' : pButton('expimg') + pButton('maskimg') + (nav.Presto || localRun ? '' : (Cfg.preLoadImgs ? '' : pButton('preimg')) + (!isThr ? '' : pButton('savethr')))) + (!isThr || localRun ? '' : pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') + (nav.Safari ? '' : pButton('audio-off'))) + (!aib.mak && !aib.tiny && !aib.fch && !aib.iich ? '' : pButton('catalog', aib.prot + '//' + aib.host + '/' + aib.b + '/catalog' + (aib.iich ? 'ue' : '') + '.html')) + pButton('enable') + (!isThr ? '' : '<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' + dForm.firstThr.pcount + '/' + imgLen + '</span>')) + '</span>' + '</div>' + (Cfg.disabled ? '' : '<div id="de-popup"></div><hr style="clear: both;">') + '</div>');
+			'<div id="de-panel-logo-wrapper" title="' + Lng.panelBtn.attach[lang] + '"><svg id="de-panel-logo"><use xlink:href="#de-symbol-panel-logo"/></svg></div>' + '<span id="de-panel-buttons"' + (Cfg.expandPanel ? '>' : ' style="display: none;">') + (Cfg.disabled ? pButton('enable') : pButton('cfg') + pButton('hid') + pButton('fav') + (!Cfg.addYouTube ? '' : pButton('vid')) + (localRun ? '' : pButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : pButton('goback', aib.getPageUrl(aib.b, aib.page - 1))) + (isThr || aib.page === aib.lastPage ? '' : pButton('gonext', aib.getPageUrl(aib.b, aib.page + 1)))) + pButton('goup') + pButton('godown') + (imgLen === 0 ? '' : pButton('expimg') + pButton('maskimg')) + (nav.Presto || localRun ? '' : (imgLen === 0 || Cfg.preLoadImgs ? '' : pButton('preimg')) + (!isThr ? '' : pButton('savethr'))) + (!isThr || localRun ? '' : pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') + (nav.Safari ? '' : pButton('audio-off'))) + (!aib.mak && !aib.tiny && !aib.fch && !aib.iich ? '' : pButton('catalog', aib.prot + '//' + aib.host + '/' + aib.b + '/catalog' + (aib.iich ? 'ue' : '') + '.html')) + pButton('enable') + (!isThr ? '' : '<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' + dForm.firstThr.pcount + '/' + imgLen + '</span>')) + '</span>' + '</div>' + (Cfg.disabled ? '' : '<div id="de-popup"></div><hr style="clear: both;">') + '</div>');
 			this._el = $id('de-panel');
 			this._el.addEventListener('click', this, true);
 			this._el.addEventListener('mouseover', this);
@@ -5407,7 +5407,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1);
 				});
 			case 'de-panel-savethr':
-				return new Menu(el, '<span class="de-menu-item">' + Lng.selSaveThr[lang].join('</span><span class="de-menu-item">') + '</span>', true, function (el) {
+				return new Menu(el, '<span class="de-menu-item">' + ($q(aib.qThumbImages, dForm.el) ? Lng.selSaveThr[lang].join('</span><span class="de-menu-item">') : Lng.selSaveThr[lang][0]) + '</span>', true, function (el) {
 					if (!$id('de-popup-savethr')) {
 						var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
 						if (Images_.preloading) {

@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'c9c8de1';
+var commit = '872ee8a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1905,10 +1905,10 @@ var panel = Object.create({
 					pButton('godown') +
 					(imgLen === 0 ? '' :
 						pButton('expimg') +
-						pButton('maskimg') +
-						(nav.Presto || localRun ? '' :
-							(Cfg.preLoadImgs ? '' : pButton('preimg')) +
-							(!isThr ? '' : pButton('savethr')))) +
+						pButton('maskimg')) +
+					(nav.Presto || localRun ? '' :
+						(imgLen === 0 || Cfg.preLoadImgs ? '' : pButton('preimg')) +
+						(!isThr ? '' : pButton('savethr'))) +
 					(!isThr || localRun ? '' :
 						pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') +
 						(nav.Safari ? '' : pButton('audio-off'))) +
@@ -3493,8 +3493,9 @@ function addMenu(el) {
 			loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1);
 		});
 	case 'de-panel-savethr':
-		return new Menu(el, '<span class="de-menu-item">' +
-			Lng.selSaveThr[lang].join('</span><span class="de-menu-item">') + '</span>', true,
+		return new Menu(el, '<span class="de-menu-item">' + ($q(aib.qThumbImages, dForm.el) ?
+			Lng.selSaveThr[lang].join('</span><span class="de-menu-item">') :
+			Lng.selSaveThr[lang][0]) + '</span>', true,
 		function(el) {
 			if(!$id('de-popup-savethr')) {
 				var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
