@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'edcfdad';
+var commit = 'c9c8de1';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10001,7 +10001,7 @@ class RefMap {
 		var pNum = post.num,
 			strNums = add && Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
 			isThr = aib.t;
-		for(var [link, lNum] of aib.getReflinks(pByNum[pNum].msg)) {
+		for(var [link, lNum] of aib.getReflinks(post.msg)) {
 			var lPost = pByNum[lNum];
 			if(!lPost) {
 				continue;
