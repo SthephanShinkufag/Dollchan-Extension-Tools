@@ -1873,6 +1873,10 @@ var _get = function get(_x25, _x26, _x27) { var _again = true; _function: while 
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
+function _slicedToArrayLoose(arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
@@ -1884,7 +1888,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '8395a41';
+	var commit = '34ff54b';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4435,7 +4439,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 		}));
 		body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function callee$2$0() {
-			var i, els, len, _els$i$getAttribute$split, board, tNum;
+			var i, els, len, _els$i$getAttribute$split, _els$i$getAttribute$split2, board, tNum;
 
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
@@ -4444,40 +4448,41 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					case 1:
 						if (!(i < len)) {
-							context$3$0.next = 16;
+							context$3$0.next = 17;
 							break;
 						}
 
 						_els$i$getAttribute$split = els[i].getAttribute('info').split(';');
-						board = _els$i$getAttribute$split[0];
-						tNum = _els$i$getAttribute$split[1];
-						context$3$0.prev = 5;
-						context$3$0.next = 8;
+						_els$i$getAttribute$split2 = _slicedToArrayLoose(_els$i$getAttribute$split, 2);
+						board = _els$i$getAttribute$split2[0];
+						tNum = _els$i$getAttribute$split2[1];
+						context$3$0.prev = 6;
+						context$3$0.next = 9;
 						return $ajax(aib.getThrdUrl(board, tNum));
 
-					case 8:
-						context$3$0.next = 13;
+					case 9:
+						context$3$0.next = 14;
 						break;
 
-					case 10:
-						context$3$0.prev = 10;
-						context$3$0.t0 = context$3$0['catch'](5);
+					case 11:
+						context$3$0.prev = 11;
+						context$3$0.t0 = context$3$0['catch'](6);
 
 						if (context$3$0.t0.status === 404) {
 							delete hThr[board][tNum];
 							saveHiddenThreads(true);
 						}
 
-					case 13:
+					case 14:
 						++i;
 						context$3$0.next = 1;
 						break;
 
-					case 16:
+					case 17:
 					case 'end':
 						return context$3$0.stop();
 				}
-			}, callee$2$0, this, [[5, 10]]);
+			}, callee$2$0, this, [[6, 11]]);
 		}))));
 		body.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function () {
 			$each($Q('.de-entry[info]', this.parentNode), (function (date, el) {
@@ -4718,7 +4723,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					case 24:
 						for (i = 0; i < infoCount; ++i) {
-							_postsInfo$i = postsInfo[i];
+							_postsInfo$i = _slicedToArrayLoose(postsInfo[i], 3);
 							node = _postsInfo$i[1];
 							isFound = _postsInfo$i[2];
 
@@ -5226,7 +5231,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		})), $if(!nav.Presto, $btn(Lng.file[lang], '', function () {
 			$popup('<b>' + Lng.impexpCfg[lang] + ':</b>' + '<div class="de-list">' + Lng.fileToCfg[lang] + ':<br>' + '<input type="file" accept=".json" id="de-import-file" style="margin-left: 12px;"></div>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.cfgToFile[lang] + '</div>', 'cfg-file', false);
 			$id('de-import-file').onchange = function (_ref15) {
-				var _ref15$target$files = _ref15.target.files;
+				var _ref15$target$files = _slicedToArrayLoose(_ref15.target.files, 1);
+
 				var file = _ref15$target$files[0];
 
 				if (file) {
@@ -6131,9 +6137,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			return new Promise(function (resolve, reject) {
 				var w = _this9._freeWorkers.pop();
-				var sendData = data[0];
-				var transferObjs = data[1];
-				var fn = data[2];
+
+				var _data = _slicedToArrayLoose(data, 3);
+
+				var sendData = _data[0];
+				var transferObjs = _data[1];
+				var fn = _data[2];
 
 				w.onmessage = function (e) {
 					fn(e.data);
@@ -6220,11 +6229,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 			pool = new TasksPool(mReqs, function (num, data) {
 				return downloadImgData(data[0]).then(function (imageData) {
-					var url = data[0];
-					var link = data[1];
-					var iType = data[2];
-					var nExp = data[3];
-					var el = data[4];
+					var _data2 = _slicedToArrayLoose(data, 5);
+
+					var url = _data2[0];
+					var link = _data2[1];
+					var iType = _data2[2];
+					var nExp = _data2[3];
+					var el = _data2[4];
 
 					if (imageData) {
 						var fName = url.substring(url.lastIndexOf("/") + 1),
@@ -6318,10 +6329,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		    dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
 		Images_.pool = new TasksPool(4, function (num, data) {
 			return downloadImgData(data[0]).then(function (imgData) {
-				var url = data[0];
-				var name = data[1];
-				var el = data[2];
-				var link = data[3];
+				var _data3 = _slicedToArrayLoose(data, 4);
+
+				var url = _data3[0];
+				var name = _data3[1];
+				var el = _data3[2];
+				var link = _data3[3];
 				var safeName = name.replace(/[\\\/:*?"<>|]/g, '_');
 				progress.value = current;
 				counter.innerHTML = current;
@@ -6603,10 +6616,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 	};
 	Videos._titlesLoaderHelper = function (_ref16, num) {
-		var link = _ref16[0];
-		var isYtube = _ref16[1];
-		var videoObj = _ref16[2];
-		var id = _ref16[3];
+		var _ref162 = _slicedToArrayLoose(_ref16, 4);
+
+		var link = _ref162[0];
+		var isYtube = _ref162[1];
+		var videoObj = _ref162[2];
+		var id = _ref162[3];
 
 		for (var _len5 = arguments.length, data = Array(_len5 > 2 ? _len5 - 2 : 0), _key4 = 2; _key4 < _len5; _key4++) {
 			data[_key4 - 2] = arguments[_key4];
@@ -6652,8 +6667,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	};
 	Videos._getTitlesLoader = function () {
 		return Cfg.YTubeTitles && new TasksPool(4, function (num, info) {
-			var isYtube = info[1];
-			var id = info[3];
+			var _info = _slicedToArrayLoose(info, 4);
+
+			var isYtube = _info[1];
+			var id = _info[3];
 
 			if (isYtube) {
 				return Cfg.ytApiKey ? Videos._getYTInfoAPI(info, num, id) : Videos._getYTInfoOembed(info, num, id);
@@ -6844,7 +6861,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 			for (var i = 0, len = vids.length; i < len; ++i) {
-				var _vids$i = vids[i];
+				var _vids$i = _slicedToArrayLoose(vids[i], 3);
+
 				var pst = _vids$i[0];
 				var m = _vids$i[1];
 				var isYtube = _vids$i[2];
@@ -7079,8 +7097,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				var _ref17 = wipeMsg || [];
 
-				var msgBit = _ref17[0];
-				var msgData = _ref17[1];
+				var _ref172 = _slicedToArrayLoose(_ref17, 2);
+
+				var msgBit = _ref172[0];
+				var msgData = _ref172[1];
 				var names = [];
 				var bits = { 1: 'samelines', 2: 'samewords', 4: 'longwords', 8: 'symbols',
 					16: 'capslock', 32: 'numbers', 64: 'whitespace'
@@ -7848,9 +7868,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		_endPromise: null,
 		_checkRes: function _checkRes(post, _ref18) {
-			var hasNumSpell = _ref18[0];
-			var val = _ref18[1];
-			var msg = _ref18[2];
+			var _ref182 = _slicedToArrayLoose(_ref18, 3);
+
+			var hasNumSpell = _ref182[0];
+			var val = _ref182[1];
+			var msg = _ref182[2];
 
 			this.hasNumSpell |= hasNumSpell;
 			if (val) {
@@ -7913,8 +7935,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					var _checkRes2 = this._checkRes(scope[i], val, isNegScope);
 
-					rv = _checkRes2[0];
-					stopCheck = _checkRes2[1];
+					var _checkRes22 = _slicedToArrayLoose(_checkRes2, 2);
+
+					rv = _checkRes22[0];
+					stopCheck = _checkRes22[1];
 
 					if (!stopCheck) {
 						i++;
@@ -7945,8 +7969,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			var _checkRes3 = this._checkRes(spell, val, this._ctx[cl - 1]);
 
-			var rv = _checkRes3[0];
-			var stopCheck = _checkRes3[1];
+			var _checkRes32 = _slicedToArrayLoose(_checkRes3, 2);
+
+			var rv = _checkRes32[0];
+			var stopCheck = _checkRes32[1];
 
 			return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null] : this.run();
 		},
@@ -7989,9 +8015,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						_ref2 = _i3.value;
 					}
 
-					var isNeg = _ref2[0];
-					var spell = _ref2[1];
-					var wipeMsg = _ref2[2];
+					var _ref22 = _slicedToArrayLoose(_ref2, 3);
+
+					var isNeg = _ref22[0];
+					var spell = _ref22[1];
+					var wipeMsg = _ref22[2];
 
 					rv.push(Spells.decompileSpell(spell[0] & 0xFF, isNeg, spell[1], spell[2], wipeMsg));
 				}
@@ -8156,9 +8184,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 		_img: function _img(val) {
 			var hide;var images = this._post.images;
-			var compareRule = val[0];
-			var weightVals = val[1];
-			var sizeVals = val[2];
+
+			var _val = _slicedToArrayLoose(val, 3);
+
+			var compareRule = _val[0];
+			var weightVals = _val[1];
+			var sizeVals = _val[2];
 
 			if (!val) {
 				return images.hasAttachments;
@@ -9534,8 +9565,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	var doUploading = async(regeneratorRuntime.mark(function callee$1$0(_ref19) {
-		var hasFiles = _ref19[0];
-		var getProgress = _ref19[1];
+		var _ref192 = _slicedToArrayLoose(_ref19, 2);
+
+		var hasFiles = _ref192[0];
+		var getProgress = _ref192[1];
 		var p, val, beginTime, inited, progress, counterWrap, counterEl, totalEl, speedEl, total, loaded;
 		return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
@@ -9689,7 +9722,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	var checkDelete = async(regeneratorRuntime.mark(function callee$1$0(dc) {
-		var err, _ref20, num, post, els, threads, isThr, i, len, el, _iterator8, _isArray8, _i9, _ref8, thr;
+		var err, _ref20, _ref202, num, post, els, threads, isThr, i, len, el, _iterator8, _isArray8, _i9, _ref8, thr;
 
 		return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
@@ -9707,7 +9740,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				case 5:
 					_ref20 = doc.location.hash.match(/\d+/) || [];
-					num = _ref20[0];
+					_ref202 = _slicedToArrayLoose(_ref20, 1);
+					num = _ref202[0];
 
 					if (num) {
 						post = pByNum[num];
@@ -9731,80 +9765,80 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 
 					if (!isThr) {
-						context$2$0.next = 22;
+						context$2$0.next = 23;
 						break;
 					}
 
 					dForm.firstThr.clearPostsMarks();
-					context$2$0.prev = 12;
-					context$2$0.next = 15;
+					context$2$0.prev = 13;
+					context$2$0.next = 16;
 					return dForm.firstThr.loadNew(false);
 
-				case 15:
-					context$2$0.next = 20;
+				case 16:
+					context$2$0.next = 21;
 					break;
 
-				case 17:
-					context$2$0.prev = 17;
-					context$2$0.t0 = context$2$0['catch'](12);
+				case 18:
+					context$2$0.prev = 18;
+					context$2$0.t0 = context$2$0['catch'](13);
 
 					infoLoadErrors(context$2$0.t0);
 
-				case 20:
-					context$2$0.next = 38;
+				case 21:
+					context$2$0.next = 39;
 					break;
 
-				case 22:
+				case 23:
 					_iterator8 = threads, _isArray8 = Array.isArray(_iterator8), _i9 = 0, _iterator8 = _isArray8 ? _iterator8 : _iterator8[Symbol.iterator]();
 
-				case 23:
+				case 24:
 					if (!_isArray8) {
-						context$2$0.next = 29;
+						context$2$0.next = 30;
 						break;
 					}
 
 					if (!(_i9 >= _iterator8.length)) {
-						context$2$0.next = 26;
+						context$2$0.next = 27;
 						break;
 					}
 
-					return context$2$0.abrupt('break', 38);
+					return context$2$0.abrupt('break', 39);
 
-				case 26:
+				case 27:
 					_ref8 = _iterator8[_i9++];
-					context$2$0.next = 33;
+					context$2$0.next = 34;
 					break;
 
-				case 29:
+				case 30:
 					_i9 = _iterator8.next();
 
 					if (!_i9.done) {
-						context$2$0.next = 32;
+						context$2$0.next = 33;
 						break;
 					}
 
-					return context$2$0.abrupt('break', 38);
-
-				case 32:
-					_ref8 = _i9.value;
+					return context$2$0.abrupt('break', 39);
 
 				case 33:
+					_ref8 = _i9.value;
+
+				case 34:
 					thr = _ref8;
-					context$2$0.next = 36;
+					context$2$0.next = 37;
 					return thr.load(visPosts, false, false);
 
-				case 36:
-					context$2$0.next = 23;
+				case 37:
+					context$2$0.next = 24;
 					break;
 
-				case 38:
+				case 39:
 					$popup(Lng.succDeleted[lang], 'delete', false);
 
-				case 39:
+				case 40:
 				case 'end':
 					return context$2$0.stop();
 			}
-		}, callee$1$0, this, [[12, 17]]);
+		}, callee$1$0, this, [[13, 18]]);
 	}));
 
 	function html5Submit(form, submitter) {
@@ -10423,9 +10457,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_getHolder: function _getHolder(el, data) {
 			var _data$computeFullSize = data.computeFullSize(false);
 
-			var width = _data$computeFullSize[0];
-			var height = _data$computeFullSize[1];
-			var minSize = _data$computeFullSize[2];
+			var _data$computeFullSize2 = _slicedToArrayLoose(_data$computeFullSize, 3);
+
+			var width = _data$computeFullSize2[0];
+			var height = _data$computeFullSize2[1];
+			var minSize = _data$computeFullSize2[2];
 
 			this._width = width;
 			this._height = height;
@@ -12650,9 +12686,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (num === this._tNum) {
 					var oOp;
 					if (this._b === aib.b && (oOp = pByNum[this._tNum])) {
-						oOp.ref._set.forEach(function (num) {
-							return pst.ref.add(num);
-						});
+						pst.ref.makeUnion(oOp.ref);
 					}
 				}
 				pst.el = replacePost(pst.el);
@@ -12695,7 +12729,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						if (!(lNum in posts)) {
 							return;
 						}
-						posts[lNum].ref.insert(pNum);
+						posts[lNum].ref._set.add(pNum);
 						if (!aib.hasOPNum && opNums.indexOf(lNum) !== -1) {
 							link.classList.add('de-ref-op');
 						}
@@ -12803,9 +12837,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._el.innerHTML = html.join('');
 			}
 		}, {
-			key: 'insert',
-			value: function insert(num) {
-				this._set.add(num);
+			key: 'makeUnion',
+			value: function makeUnion(oRef) {
+				this._set = new Set([].concat(_toConsumableArray(this._set), _toConsumableArray(oRef._set)).sort(function (a, b) {
+					return a - b;
+				}));
 			}
 		}, {
 			key: 'remove',
@@ -13209,8 +13245,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			var _parsePosts2 = this._parsePosts($Q(aib.qRPost, form));
 
-			var newPosts = _parsePosts2[0];
-			var newVisPosts = _parsePosts2[1];
+			var _parsePosts22 = _slicedToArrayLoose(_parsePosts2, 2);
+
+			var newPosts = _parsePosts22[0];
+			var newVisPosts = _parsePosts22[1];
 
 			if (lastOffset !== null) {
 				scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);

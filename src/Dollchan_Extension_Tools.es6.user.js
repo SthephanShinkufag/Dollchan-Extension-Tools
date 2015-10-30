@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '8395a41';
+var commit = '34ff54b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9948,7 +9948,7 @@ class PviewsCache extends TemporaryContent {
 		if(num === this._tNum) {
 			var oOp;
 			if(this._b === aib.b && (oOp = pByNum[this._tNum])) {
-				oOp.ref._set.forEach(num => pst.ref.add(num));
+				pst.ref.makeUnion(oOp.ref);
 			}
 		}
 		pst.el = replacePost(pst.el);
@@ -9984,7 +9984,7 @@ class RefMap {
 				if(!(lNum in posts)) {
 					return;
 				}
-				posts[lNum].ref.insert(pNum);
+				posts[lNum].ref._set.add(pNum);
 				if(!aib.hasOPNum && opNums.indexOf(lNum) !== -1) {
 					link.classList.add('de-ref-op');
 				}
@@ -10068,8 +10068,8 @@ class RefMap {
 		this._set.forEach(num => html.push(this._getHTML(num, tUrl, strNums && strNums.has(+num))));
 		this._el.innerHTML = html.join('');
 	}
-	insert(num) {
-		this._set.add(num);
+	makeUnion(oRef) {
+		this._set = new Set([...this._set, ...oRef._set].sort((a, b) => a - b));
 	}
 	remove(num) {
 		this._set.delete(num);
