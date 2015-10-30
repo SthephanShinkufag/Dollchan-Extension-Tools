@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'ba16690';
+var commit = '9eb8ace';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11064,6 +11064,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			timePattern: { value: 'nn+dd+yy+w+hh+ii-?s?s?' },
 			thrid: { value: 'resto' }
 		}],
+		'8ch.net': [{
+			css: { value: '#post-moderation-fields { display: initial !important; }' }
+		}, 'tr#upload'],
 		'7chan.org': [{
 			init: { value() { return true; } }
 		}],
@@ -12416,7 +12419,7 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		},
 
-		_el() {
+		get _el() {
 			var value = $new('audio', {
 				'preload': 'auto',
 				'src': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg'

@@ -1884,7 +1884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'ba16690';
+	var commit = '9eb8ace';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -13860,6 +13860,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				timePattern: { value: 'nn+dd+yy+w+hh+ii-?s?s?' },
 				thrid: { value: 'resto' }
 			}],
+			'8ch.net': [{
+				css: { value: '#post-moderation-fields { display: initial !important; }' }
+			}, 'tr#upload'],
 			'7chan.org': [{
 				init: { value: function value() {
 						return true;
@@ -15135,7 +15138,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			},
 
-			_el: function _el() {
+			get _el() {
 				var value = $new('audio', {
 					'preload': 'auto',
 					'src': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg'
