@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '9841ae9';
+var commit = '14f7fdb';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9980,9 +9980,9 @@ class RefMap {
 	static gen(posts, thrURL) {
 		var opNums = dForm.tNums;
 		for(var pNum in posts) {
-			aib.forEachReflink(posts[pNum].msg, (link, lNum) => {
+			for(var [link, lNum] of aib.getReflinks(posts[pNum].msg)) {
 				if(!(lNum in posts)) {
-					return;
+					continue;
 				}
 				posts[lNum].ref._set.add(pNum);
 				if(!aib.hasOPNum && opNums.indexOf(lNum) !== -1) {
@@ -9994,17 +9994,17 @@ class RefMap {
 						link.setAttribute('href', thrURL + url);
 					}
 				}
-			});
+			}
 		}
 	}
 	static upd(post, add) {
 		var pNum = post.num,
 			strNums = add && Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
 			isThr = aib.t;
-		aib.forEachReflink(post.msg, (link, lNum) => {
+		for(var [link, lNum] of aib.getReflinks(posts[pNum].msg)) {
 			var lPost = pByNum[lNum];
 			if(!lPost) {
-				return;
+				continue;
 			}
 			if(!isThr) {
 				link.href = '#' + (aib.fch ? 'p' : '') + lNum;
@@ -10020,7 +10020,7 @@ class RefMap {
 			} else {
 				lPost.ref.remove(pNum);
 			}
-		});
+		}
 	}
 	constructor(post) {
 		this._post = post;
@@ -10052,20 +10052,22 @@ class RefMap {
 		if(!Cfg.hideRefPsts || !this.hasMap) {
 			return;
 		}
-		this._set.forEach(num => {
+		for(var num of this._set) {
 			var pst = pByNum[num];
 			if(pst && !pst.userToggled) {
 				pst.setVisib(true);
 				pst.setNote('reference to >>' + this.num);
 				pst.ref.hide();
 			}
-		});
+		}
 	}
 	init(tUrl) {
 		var bStr = '<a href="' + tUrl + aib.anchor,
 			strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null,
 			html = [];
-		this._set.forEach(num => html.push(this._getHTML(num, tUrl, strNums && strNums.has(+num))));
+		for(var num of this._set) {
+			html.push(this._getHTML(num, tUrl, strNums && strNums.has(+num)));
+		}
 		this._el.innerHTML = html.join('');
 	}
 	makeUnion(oRef) {
@@ -10093,13 +10095,13 @@ class RefMap {
 		if(!Cfg.hideRefPsts || !this.hasMap) {
 			return;
 		}
-		this._set.forEach(num => {
+		for(var num of this._set) {
 			var pst = pByNum[num];
 			if(pst && pst.hidden && !pst.userToggled && !pst.spellHidden) {
 				pst.setVisib(false);
 				pst.ref.unhide();
 			}
-		});
+		}
 	}
 
 	get _el() {
@@ -11470,12 +11472,23 @@ function getImageBoard(checkDomains, checkEngines) {
 				} catch(e) {}
 				return false;
 			} },
-			forEachReflink: { value(msg, fn) {
+			getReflinks: { value(msg) {
 				var links = $Q('.post-reply-link', msg);
-				for(var i = 0, len = links.length; i < len; ++i) {
-					var link = links[i];
-					fn(link, +link.getAttribute('data-num'));
-				}
+				return {
+					_index: 0,
+					_length: links.length,
+					_links: links,
+					[Symbol.iterator]() {
+						return this;
+					},
+					next() {
+						if(this._index < this._length) {
+							var link = this._links[this._index++];
+							return { value: [link, +link.getAttribute('data-num')], done: false };
+						}
+						return { done: true };
+					}
+				};
 			} },
 			hasNames: { configurable: true, get() {
 				var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
@@ -11809,14 +11822,28 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return videos;
 		},
-		forEachReflink(msg, fn) {
-			var links = $T('a', msg);
-			for(var i = 0, len = links.length; i < len; ++i) {
-				var lNum, tc = links[i].textContent;
-				if(tc[0] === '>' && tc[1] === '>' && (lNum = +tc.substr(2))) {
-					fn(links[i], lNum);
+		getReflinks(msg, fn) {
+			var links = $Q('a', msg);
+			return {
+				_index: 0,
+				_length: links.length,
+				_links: links,
+				[Symbol.iterator]() {
+					return this;
+				},
+				next() {
+					var idx = this._index, len = this._length;
+					while(idx < len) {
+						var lNum, link = this._links[idx++],
+							tc = link.textContent;
+						if(tc[0] === '>' && tc[1] === '>' && (lNum = +tc.substr(2))) {
+							this._index = idx;
+							return { value: [link, lNum], done: false };
+						}
+					}
+					return { done: true };
 				}
-			}
+			};
 		},
 		getCaptchaSrc(src, tNum) {
 			var tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
