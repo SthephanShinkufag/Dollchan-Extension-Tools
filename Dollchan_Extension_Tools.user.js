@@ -1888,7 +1888,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '9a6065a';
+	var commit = 'c526ae3';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -13435,7 +13435,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);
 				}
 				if (newPosts !== 0) {
-					panel.updateCounter(this.pcount, $Q(aib.qThumbImages, this.thr.el).length);
+					panel.updateCounter(this.pcount, $Q(aib.qThumbImages, this.el).length);
 					Pview.updatePosition(true);
 				}
 				return newVisPosts;
