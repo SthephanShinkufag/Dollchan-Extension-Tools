@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '872ee8a';
+var commit = '8555245';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -119,6 +119,7 @@ var defaultCfg = {
 	'rePageTitle':      1,      // replace page title in threads
 	'animation':        1,      // CSS3 animation in script
 	'closePopups':      0,      // auto-close popups
+	'inftyScroll':      1,      // infinity scroll
 	'hotKeys':          1,      // enable hotkeys
 	'loadPages':        1,      //    number of pages that are loaded on F5
 	'updScript':        1,      // check for script's update
@@ -277,6 +278,7 @@ Lng = {
 		'rePageTitle':  ['Название треда в заголовке вкладки*', 'Thread title in page tab*'],
 		'animation':    ['CSS3 анимация в скрипте', 'CSS3 animation in script'],
 		'closePopups':  ['Автоматически закрывать уведомления', 'Close popups automatically'],
+		'inftyScroll':  ['Бесконечная прокрутка', 'Infinity scroll'],
 		'updScript':    ['Автоматически проверять обновления скрипта', 'Check for script update automatically'],
 		'scrUpdIntrv': {
 			sel:        [
@@ -599,7 +601,7 @@ doc = window.document, aProto = Array.prototype, locStorage, sesStorage,
 Cfg, hThr, pByNum, sVis, uVis, needScroll,
 aib, nav, updater, hKeys, dTime, visPosts = 2, topWinZ = 0,
 WebmParser, Logger,
-pr, dForm, dummy, spells,
+pr, dummy, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
 lang, quotetxt = '', localRun, isExpImg, isPreImg, chromeCssUpd, excludeList,
 $each = Function.prototype.call.bind(aProto.forEach),
@@ -650,7 +652,12 @@ function $before(el, node) {
 }
 
 function $after(el, node) {
-	el.parentNode.insertBefore(node, el.nextSibling);
+	var next = el.nextSibling;
+	if(next) {
+		el.parentNode.insertBefore(node, next);
+	} else {
+		el.parentNode.appendChild(node);
+	}
 }
 
 function $add(html) {
@@ -1596,11 +1603,11 @@ function* readUserPosts() {
 	if(!(b in hThr)) {
 		hThr[b] = {};
 	}
-	if(!dForm.firstThr) {
+	if(!Thread.first) {
 		return;
 	}
 	var maybeSpells = new Maybe(SpellsRunner);
-	for(var post = dForm.firstThr.op; post; post = post.next) {
+	for(var post = Thread.first.op; post; post = post.next) {
 		var num = post.num;
 		if(num in uVis) {
 			var hidePost = uVis[num][0] === 0;
@@ -1688,7 +1695,7 @@ function* readFavoritesPosts() {
 		return;
 	}
 	temp = temp[aib.b];
-	for(var thr = dForm.firstThr; thr; thr = thr.next) {
+	for(var thr = Thread.first; thr; thr = thr.next) {
 		var num = thr.num;
 		if(num in temp) {
 			var f = temp[num];
@@ -1803,14 +1810,16 @@ var panel = Object.create({
 			case 'de-panel-expimg':
 				isExpImg = !isExpImg;
 				$del($c('de-img-center', doc));
-				for(var post = dForm.firstThr.op; post; post = post.next) {
+				for(var post = Thread.first.op; post; post = post.next) {
 					post.toggleImages(isExpImg);
 				}
 				break;
 			case 'de-panel-preimg':
 				isPreImg = !isPreImg;
 				if(!e.ctrlKey) {
-					preloadImages(null);
+					for(var form of DelForm) {
+						preloadImages(form.el);
+					}
 				}
 			break;
 			case 'de-panel-maskimg':
@@ -1918,7 +1927,7 @@ var panel = Object.create({
 					pButton('enable') +
 					(!isThr ? '' :
 						'<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' +
-						dForm.firstThr.pcount + '/' + imgLen + '</span>')
+						Thread.first.pcount + '/' + imgLen + '</span>')
 				) + '</span>' +
 			'</div>' + (Cfg.disabled ? '' : '<div id="de-popup"></div><hr style="clear: both;">') + '</div>');
 		this._el = $id('de-panel');
@@ -2195,7 +2204,7 @@ function showWindow(win, body, name, isUpd, remove, data, isAnim) {
 }
 
 function showVideosWindow(body) {
-	var els = $C('de-video-link', dForm.el);
+	var els = $C('de-video-link', doc.body);
 	if(!els.length) {
 		body.innerHTML = '<b>' + Lng.noVideoLinks[lang] + '</b>';
 		return;
@@ -2335,7 +2344,7 @@ function addContentBlock(parent, title) {
 }
 
 function showHiddenWindow(body) {
-	var block, els = $C('de-post-hide', dForm.el);
+	var block, els = $C('de-post-hide', doc.body);
 	for(var i = 0, len = els.length; i < len; ++i) {
 		var post = els[i];
 		if(post.isOp) {
@@ -2399,7 +2408,7 @@ function showHiddenWindow(body) {
 			if(!(aib.b in hThr)) {
 				hThr[aib.b] = {};
 			}
-			dForm.firstThr.updateHidden(hThr[aib.b]);
+			Thread.first.updateHidden(hThr[aib.b]);
 			saveHiddenThreads(true);
 			locStorage['__de-threads'] = JSON.stringify(hThr);
 			locStorage.removeItem('__de-threads');
@@ -2577,15 +2586,16 @@ function showFavoritesWindow(body, data) {
 			el.classList.add('de-wait');
 		}
 		for(var page = 0, infoLoaded = 0, endPage = (aib.lastPage || 10) + 1; page < endPage; ++page) {
-			var form;
+			var tNums;
 			try {
-				form = new DelForm((yield ajaxLoad(aib.getPageUrl(aib.b, page))), true);
+				var form = yield ajaxLoad(aib.getPageUrl(aib.b, page));
+				tNums = new Set(Array.from(DelForm.getThreads(formEl)).map(thrEl => +aib.getTNum(thrEl)));
 			} catch(e) {
 				continue;
 			}
-			for(var i = 0, tNums = form.tNums; i < infoCount; ++i) {
+			for(var i = 0; i < infoCount; ++i) {
 				var pInfo = postsInfo[i];
-				if(tNums.indexOf(pInfo[0]) !== -1) {
+				if(tNums.has(pInfo[0])) {
 					pInfo[1].classList.remove('de-wait');
 					pInfo[1].textContent = '@' + page;
 					pInfo[2] = true;
@@ -2768,7 +2778,7 @@ function getCfgFilters() {
 		lBox('menuHiddBtn', true, null),
 		lBox('hideRefPsts', true, null),
 		lBox('delHiddPost', true, function() {
-			$each($C('de-post-hide', dForm.el), function(el) {
+			$each($C('de-post-hide', doc.body), function(el) {
 				el.post.wrap.classList.toggle('de-hidden');
 			});
 			updateCSS();
@@ -2794,7 +2804,7 @@ function getCfgPosts() {
 				lBox('noErrInTitle', true, null),
 				lBox('favIcoBlink', true, null),
 				lBox('markNewPosts', true, function() {
-					dForm.firstThr.clearPostsMarks();
+					Thread.first.clearPostsMarks();
 				}),
 				$if('Notification' in window, lBox('desktNotif', true, function() {
 					if(Cfg.desktNotif) {
@@ -3035,6 +3045,7 @@ function getCfgCommon() {
 		lBox('rePageTitle', true, null),
 		lBox('animation', true, null),
 		lBox('closePopups', true, null),
+		lBox('inftyScroll', true, null),
 		$New('div', null, [
 			lBox('hotKeys', false, function() {
 				if(Cfg.hotKeys) {
@@ -3242,7 +3253,7 @@ function addSettings(body, id) {
 			$del($id('de-css'));
 			$del($id('de-css-dynamic'));
 			scriptCSS();
-			panel.init(dForm.el);
+			panel.init(DelForm.first.el);
 			toggleWindow('cfg', false);
 		}, 'de-cfg-lang-select'),
 		addEditButton('cfg', function(fn) {
@@ -3493,7 +3504,7 @@ function addMenu(el) {
 			loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1);
 		});
 	case 'de-panel-savethr':
-		return new Menu(el, '<span class="de-menu-item">' + ($q(aib.qThumbImages, dForm.el) ?
+		return new Menu(el, '<span class="de-menu-item">' + ($q(aib.qThumbImages, DelForm.first.el) ?
 			Lng.selSaveThr[lang].join('</span><span class="de-menu-item">') :
 			Lng.selSaveThr[lang][0]) + '</span>', true,
 		function(el) {
@@ -3681,7 +3692,7 @@ HotKeys.prototype = {
 				this.cPost = null;
 			}
 			if(isThr) {
-				dForm.firstThr.clearPostsMarks();
+				Thread.first.clearPostsMarks();
 			}
 			this.lastPageOffset = 0;
 		} else if(kc === 0x801B) { // ESC (txt)
@@ -3691,7 +3702,7 @@ HotKeys.prototype = {
 			switch(globIdx) {
 			case 2: // Quick reply
 				if(pr.form) {
-					post = this.cPost || this._getFirstVisPost(false, true) || dForm.firstThr.op;
+					post = this.cPost || this._getFirstVisPost(false, true) || Thread.first.op;
 					this.cPost = post;
 					pr.showQuickReply(post, post.num, true, false);
 					post.select();
@@ -3842,7 +3853,7 @@ HotKeys.prototype = {
 
 	_getFirstVisPost(getThread, getFull) {
 		if(this.lastPageOffset !== window.pageYOffset) {
-			var post = getThread ? dForm.firstThr : dForm.firstThr.op;
+			var post = getThread ? Thread.first : Thread.first.op;
 			while(post.top < 1) {
 				var tPost = post.next;
 				if(!tPost) {
@@ -3861,11 +3872,11 @@ HotKeys.prototype = {
 	_getNextVisPost(cPost, isOp, toUp) {
 		if(isOp) {
 			var thr = cPost ? toUp ? cPost.thr.prevNotHidden : cPost.thr.nextNotHidden :
-				dForm.firstThr.hidden ? dForm.firstThr.nextNotHidden : dForm.firstThr;
+				Thread.first.hidden ? Thread.first.nextNotHidden : Thread.first;
 			return thr ? thr.op : null;
 		}
-		return cPost ? cPost.getAdjacentVisPost(toUp) : dForm.firstThr.hidden ||
-			dForm.firstThr.op.hidden ? dForm.firstThr.op.getAdjacentVisPost(toUp) : dForm.firstThr.op;
+		return cPost ? cPost.getAdjacentVisPost(toUp) : Thread.first.hidden ||
+			Thread.first.op.hidden ? Thread.first.op.getAdjacentVisPost(toUp) : Thread.first.op;
 	},
 	_init(keys) {
 		this.enabled = true;
@@ -4126,22 +4137,6 @@ KeyEditListener.prototype = {
 // CONTENT FEATURES
 // ===========================================================================================================
 
-function initMessageFunctions() {
-	doc.defaultView.addEventListener('message', function(e) {
-		if(typeof e.data === 'string') {
-			switch(e.data.substr(0, 15)) {
-			case 'de-iframe-pform':
-				checkUpload($DOM(e.data.substr(15)));
-				$q('iframe[name="de-iframe-pform"]', doc).src = 'about:blank';
-				return;
-			case 'de-iframe-dform':
-				checkDelete($DOM(e.data.substr(15)));
-				$q('iframe[name="de-iframe-dform"]', doc).src = 'about:blank';
-			}
-		}
-	});
-}
-
 function detectImgFile(ab) {
 	var i, j, dat = new Uint8Array(ab),
 		len = dat.length;
@@ -4296,14 +4291,14 @@ function downloadImgData(url, repeatOnError = true) {
 	});
 }
 
-function preloadImages(post) {
+function preloadImages(data) {
 	if(!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {
 		return;
 	}
-	var pool;
+	var pool, isPost = data instanceof AbstractPost;
 	if(isPreImg || Cfg.preLoadImgs) {
 		var cImg = 1,
-			mReqs = post ? 1 : 4,
+			mReqs = isPost ? 1 : 4,
 			rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile, function(e) {
 				console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
 			});
@@ -4344,7 +4339,7 @@ function preloadImages(post) {
 		});
 		Images_.preloading = true;
 	}
-	var els = $Q(aib.qThumbImages, post || dForm.el);
+	var els = $Q(aib.qThumbImages, isPost ? data.el : data);
 	for(var i = 0, len = els.length; i < len; ++i) {
 		var el = els[i],
 			link = $parent(el = els[i], 'A');
@@ -4918,27 +4913,28 @@ VideosParser.prototype = {
 			this._loader.complete();
 		}
 	},
-	parse(post = null) {
-		var loader = this._loader,
-			vids = aib.fixVideo(post),
-			links = $Q('a[href*="youtu"]', post ? post.el : dForm.el);
+	parse(data) {
+		var isPost = data instanceof AbstractPost,
+			loader = this._loader,
+			vids = aib.fixVideo(isPost, data),
+			links = $Q('a[href*="youtu"]', isPost ? data.el : data);
 		for(var i = 0, len = links.length; i < len; ++i) {
 			var link = links[i],
 				m = link.href.match(Videos.ytReg);
 			if(m) {
-				var mPost = post || (aib.getPostEl(link) || {}).post;
+				var mPost = isPost ? data : (aib.getPostEl(link) || {}).post;
 				if(mPost) {
 					mPost.videos.addLink(m, loader, link, true);
 				}
 			}
 		}
 		if(Cfg.addVimeo) {
-			links = $Q('a[href*="vimeo.com"]', post ? post.el : dForm.el);
+			links = $Q('a[href*="vimeo.com"]', isPost ? data.el : data);
 			for(var i = 0, len = links.length; i < len; ++i) {
 				var link = links[i],
 					m = link.href.match(Videos.vimReg);
 				if(m) {
-					var mPost = post || (aib.getPostEl(link) || {}).post;
+					var mPost = isPost ? data : (aib.getPostEl(link) || {}).post;
 					if(mPost) {
 						mPost.videos.addLink(m, loader, link, false);
 					}
@@ -4955,16 +4951,17 @@ VideosParser.prototype = {
 	}
 };
 
-function embedMediaLinks(post) {
+function embedMediaLinks(data) {
 	if(Cfg.addMP3) {
-		var els = $Q('a[href*=".mp3"]', post ? post.el : dForm.el);
+		var isPost = data instanceof AbstractPost;
+		var els = $Q('a[href*=".mp3"]', isPost ? data.el : data);
 		for(var i = 0, len = els.length; i < len; ++i) {
 			var link = els[i];
 			if(link.target !== '_blank' && link.rel !== 'nofollow') {
 				continue;
 			}
 			var src = link.href,
-				el = (post || aib.getPostEl(link).post).mp3Obj;
+				el = (isPost ? data : aib.getPostEl(link).post).mp3Obj;
 			if(nav.canPlayMP3) {
 				if(!$q('audio[src="' + src + '"]', el)) {
 					el.insertAdjacentHTML('beforeend',
@@ -4976,7 +4973,7 @@ function embedMediaLinks(post) {
 		}
 	}
 	if(Cfg.addVocaroo) {
-		var els = $Q('a[href*="vocaroo.com"]', post ? post.el : dForm.el);
+		var els = $Q('a[href*="vocaroo.com"]', isPost ? data.el : data);
 		for(var i = 0, len = els.length; i < len; ++i) {
 			var link = els[i],
 				src = link.href.split('\/').pop(),
@@ -5017,9 +5014,26 @@ function getJsonPosts(url) {
 	});
 }
 
+function doLoadedForm(pageNum, formEl, lastForm) {
+	formEl = replacePost(formEl);
+	if(pageNum != aib.page) {
+		formEl.insertAdjacentHTML('afterbegin', '<center style="font-size: 2em">' +
+			Lng.page[lang] + ' ' + pageNum + '</center><hr>');
+	}
+	formEl.style.display = 'none';
+	$after(lastForm.el, formEl);
+	lastForm = new DelForm(formEl, lastForm);
+	lastForm.addStuff();
+	formEl.style.removeProperty('display');
+	return lastForm;
+}
+
 var loadPages = async(function* (count) {
-	var hasError = false;
 	$popup(Lng.loading[lang], 'load-pages', true);
+	if(addPage.loadPromise) {
+		addPage.loadPromise.cancel();
+		addPage.clear();
+	}
 	PviewsCache.purge();
 	isExpImg = false;
 	pByNum = Object.create(null);
@@ -5028,50 +5042,75 @@ var loadPages = async(function* (count) {
 		Attachment.viewer.close(null);
 		Attachment.viewer = null;
 	}
-	dForm.hide();
-	dForm.clear();
 	if(pr.isQuick) {
 		if(pr.file) {
 			pr.delFilesUtils();
 		}
 		pr.txta.value = '';
 	}
-	for(var i = aib.page, len = Math.min(aib.lastPage + 1, aib.page + count); i < len; ++i) {
-		var content;
-		try {
-			content = replacePost(yield ajaxLoad(aib.getPageUrl(aib.b, i)));
-		} catch(e) {
-			content = $add('<div><center style="font-size: 2em">' +
-			               getErrorMessage(e) + '</center><hr></div>');
-		}
-		if(i != aib.page) {
-			dForm.el.insertAdjacentHTML('beforeend', '<center style="font-size: 2em">' +
-				Lng.page[lang] + ' ' + i + '</center><hr>');
-		}
-		try {
-			dForm.addFormContent(content, true);
-		} catch (e) {
-			$popup(getPrettyErrorMessage(e), 'load-pages', true);
-			hasError = true;
+	DelForm.tNums = new Set();
+	for(var form of DelForm) {
+		$each($Q('a[href^="blob:"]', form.el), a => URL.revokeObjectURL(a.href));
+		form.el.style.display = 'none';
+		if(form === DelForm.last) {
 			break;
 		}
+		$del(form.el);
 	}
-	if(!hasError) {
-		dForm.initAjax();
-		addDelformStuff();
+	var lastForm = DelForm.first = DelForm.last;
+	var len = Math.min(aib.lastPage + 1, aib.page + count);
+	for(var i = aib.page; i < len; ++i) {
+		try {
+			var el = yield ajaxLoad(aib.getPageUrl(aib.b, i));
+			lastForm = doLoadedForm(i, el, lastForm);
+		} catch (e) {
+			console.log(e);
+			$popup(getPrettyErrorMessage(e), 'load-pages', true);
+		}
+	}
+	var first = DelForm.first;
+	if(lastForm !== first) {
+		loadPages.last = len;
+		DelForm.last = lastForm;
+		DelForm.first = first.next;
+		$del(first.el);
 		yield* readUserPosts();
 		yield* readFavoritesPosts();
-		$each($Q('input[type="password"]', dForm.el), function(pEl) {
-			pr.dpass = pEl;
-			pEl.value = Cfg.passwValue;
-		});
+		if(pr.passw) {
+			PostForm.setUserPassw();
+		}
 		if(hKeys) {
 			hKeys.clear(aib.page + count - 1);
 		}
 		closePopup('load-pages');
 	}
-	dForm.show();
 });
+loadPages.last = null;
+
+function addPage() {
+	var pageNum = loadPages.last ? loadPages.last : aib.page + 1;
+	if(addPage.loading || pageNum > aib.lastPage) {
+		return;
+	}
+	addPage.loading = true;
+	DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr><div class="de-wait">'
+		+ Lng.loading[lang] + '</div></div>');
+	addPage.loadPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(form => {
+		doLoadedForm(pageNum, form, DelForm.last);
+		loadPages.last = pageNum + 1;
+		addPage.clear();
+	}).catch(e => {
+		$popup(getPrettyErrorMessage(e), 'add-page', true);
+		addPage.clear();
+	});
+}
+addPage.clear = function() {
+	$del($q('.de-addpage-wait', doc.body));
+	addPage.loading = false;
+	addPage.loadPromise = null;
+};
+addPage.loading = false;
+addPage.loadPromise = null;
 
 function infoLoadErrors(e, showError = true) {
 	var isAjax = e instanceof AjaxError,
@@ -5432,7 +5471,7 @@ Spells.prototype = {
 		this.update(spells, sync, Cfg.hideBySpell);
 		if(Cfg.hideBySpell) {
 			var sRunner = new SpellsRunner();
-			for(var post = dForm.firstThr.op; post; post = post.next) {
+			for(var post = Thread.first.op; post; post = post.next) {
 				sRunner.run(post);
 			}
 			sRunner.end();
@@ -5891,7 +5930,7 @@ SpellsRunner.prototype = {
 	_savePostsHelper() {
 		if(this._spells) {
 			if(aib.t) {
-				var lPost = dForm.firstThr.lastNotDeleted;
+				var lPost = Thread.first.lastNotDeleted;
 				sesStorage['de-hidden-' + aib.b + aib.t] = (Cfg.hideBySpell ? spells.hash : '0') +
 					';' + lPost.num + ';' + lPost.count + ';' + sVis.join();
 			}
@@ -6280,8 +6319,8 @@ SpellsInterpreter.prototype = {
 
 function disableSpells() {
 	if(spells.enable) {
-		sVis = aib.t ? '1'.repeat(dForm.firstThr.pcount).split('') : [];
-		for(var post = dForm.firstThr.op; post; post = post.next) {
+		sVis = aib.t ? '1'.repeat(Thread.first.pcount).split('') : [];
+		for(var post = Thread.first.op; post; post = post.next) {
 			if(post.spellHidden && !post.userToggled) {
 				post.spellUnhide();
 			}
@@ -6322,7 +6361,7 @@ function addSpell(type, arg, isNeg) {
 		saveCfg('hideBySpell', !!val);
 		if(val) {
 			var sRunner = new SpellsRunner();
-			for(var post = dForm.firstThr.op; post; post = post.next) {
+			for(var post = Thread.first.op; post; post = post.next) {
 				sRunner.run(post);
 			}
 			sRunner.end();
@@ -6350,7 +6389,7 @@ function PostForm(form, ignoreForm, dc) {
 	this.oeForm = $q('form[name="oeform"], form[action*="paint"]', dc);
 	if(!ignoreForm && !form) {
 		if(this.oeForm) {
-			ajaxLoad(aib.getThrdUrl(aib.b, dForm.firstThr.num), false).then(loadedDoc => {
+			ajaxLoad(aib.getThrdUrl(aib.b, Thread.first.num), false).then(loadedDoc => {
 				pr = new PostForm($q(aib.qPostForm, loadedDoc), true, loadedDoc);
 			}, () => {
 				pr = new PostForm(null, true, dc);
@@ -6375,7 +6414,6 @@ function PostForm(form, ignoreForm, dc) {
 		this.spoil = $q('input[type="checkbox"][name="spoiler"]', this.fileTd);
 	}
 	this.passw = $q(aib.qPassw, form);
-	this.dpass = $q(aib.qDelPassw, dForm.el);
 	this.name = $x(p + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form);
 	this.mail = $x(p + (
 			aib._410 ? '@name="sage"]' :
@@ -6385,12 +6423,12 @@ function PostForm(form, ignoreForm, dc) {
 	this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
 	this.gothr = aib.qPostRedir && (p = $q(aib.qPostRedir, form)) && $parent(p, 'TR');
 	this.pForm = $New('div', {'id': 'de-pform', 'class': 'de-win-body'}, [this.form, this.oeForm]);
-	dForm.el.insertAdjacentHTML('beforebegin',
+	DelForm.first.el.insertAdjacentHTML('beforebegin',
 		'<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
-	this.pArea[0] = dForm.el.previousSibling;
+	this.pArea[0] = DelForm.first.el.previousSibling;
 	this._pBtn[0] = this.pArea[0].firstChild;
 	this._pBtn[0].firstElementChild.onclick = this.showMainReply.bind(this, false);
-	var el = aib.fch ? $c('board', dForm.el) : dForm.el;
+	var el = aib.fch ? $c('board', DelForm.first.el) : DelForm.first.el;
 	el.insertAdjacentHTML('afterend', '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
 	this.pArea[1] = el.nextSibling;
 	this._pBtn[1] = this.pArea[1].firstChild;
@@ -6432,11 +6470,6 @@ function PostForm(form, ignoreForm, dc) {
 		}
 	};
 	el.lastChild.onclick = this.closeReply.bind(this);
-	if(aib.tire) {
-		$each($Q('input[type="hidden"]', dForm.el), $del);
-		dForm.el.appendChild($c('userdelete', doc.body));
-		this.dpass = $q('input[type="password"]', dForm.el);
-	}
 	if(!this.form || !this.txta) {
 		return;
 	}
@@ -6659,7 +6692,10 @@ PostForm.setUserPassw = function() {
 	if(el) {
 		saveCfg('passwValue', el.value);
 	}
-	(pr.dpass || {}).value = pr.passw.value = Cfg.passwValue;
+	var value = pr.passw.value = Cfg.passwValue;
+	for(var form of DelForm) {
+		(form.passEl || {}).value = value;
+	}
 };
 PostForm.prototype = {
 	fileObj: null,
@@ -7474,18 +7510,18 @@ function checkUpload(dc) {
 	var el = !aib.tiny && !aib.kus &&
 		(aib.qPostRedir === null || $q(aib.qPostRedir, dc)) ? $q(aib.qDForm, dc) : null;
 	if(aib.t) {
-		dForm.firstThr.clearPostsMarks();
+		Thread.first.clearPostsMarks();
 		if(el) {
-			dForm.firstThr.loadNewFromForm(el);
+			Thread.first.loadNewFromForm(el);
 			if(Cfg.scrAfterRep) {
-				scrollTo(0, window.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
+				scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 			}
 			closePopup('upload');
 		} else {
-			dForm.firstThr.loadNew(true).then(() => AjaxError.Success, e => e).then(e => {
+			Thread.first.loadNew(true).then(() => AjaxError.Success, e => e).then(e => {
 				infoLoadErrors(e);
 				if(Cfg.scrAfterRep) {
-					scrollTo(0, window.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
+					scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 				}
 				closePopup('upload');
 			});
@@ -7503,7 +7539,7 @@ function checkUpload(dc) {
 	pr.filesCount = 0;
 }
 
-var checkDelete = async(function* (dc) {
+var checkDelete = async(function* (form, dc) {
 	var err = getSubmitError(dc);
 	if(err) {
 		$popup(Lng.errDelete[lang] + err, 'delete', false);
@@ -7520,7 +7556,7 @@ var checkDelete = async(function* (dc) {
 			doc.location.hash = '';
 		}
 	}
-	var els = $Q(aib.qRPost + ' input:checked', dForm.el),
+	var els = $Q(aib.qRPost + ' input:checked', form.el),
 		threads = new Set(),
 		isThr = aib.t;
 	for(var i = 0, len = els.length; i < len; ++i) {
@@ -7531,9 +7567,9 @@ var checkDelete = async(function* (dc) {
 		}
 	}
 	if(isThr) {
-		dForm.firstThr.clearPostsMarks();
+		Thread.first.clearPostsMarks();
 		try {
-			yield dForm.firstThr.loadNew(false);
+			yield Thread.first.loadNew(false);
 		} catch(e) {
 			infoLoadErrors(e);
 		}
@@ -7872,10 +7908,10 @@ function genImgHash(data) {
 	return {hash: hash};
 }
 function ImgBtnsShowHider(nextFn, prevFn) {
-	dForm.el.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
+	doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
 		'<div id="de-img-btn-next" de-title="' + Lng.nextImg[lang] + '"></div>' +
 		'<div id="de-img-btn-prev" de-title="' + Lng.prevImg[lang] + '"></div></div>');
-	var btns = dForm.el.lastChild;
+	var btns = doc.body.lastChild;
 	this._btns = btns;
 	this._btnsStyle = btns.style;
 	this._nextFn = nextFn;
@@ -8113,7 +8149,7 @@ AttachmentViewer.prototype = {
 		} else if(this.hasOwnProperty('_btns')) {
 			this._btns.hide();
 		}
-		dForm.el.appendChild(obj);
+		doc.body.appendChild(obj);
 	},
 	_remove(e) {
 		if(this.data.isVideo && this._fullEl.tagName === 'VIDEO') {
@@ -8270,7 +8306,7 @@ class ExpandableMedia {
 		do {
 			post = post.getAdjacentVisPost(!isForward);
 			if(!post) {
-				post = isForward ? dForm.firstThr.op : dForm.lastThr.last;
+				post = isForward ? Thread.first.op : Thread.last.last;
 				if(post.hidden || post.thr.hidden) {
 					post = post.getAdjacentVisPost(!isForward);
 					if(!post) {
@@ -8882,19 +8918,6 @@ class AbstractPost {
 	}
 }
 
-class LitePost extends AbstractPost {
-	constructor(el, thr, num, count, isOp, prev) {
-		super(thr, num, isOp);
-		this.count = count;
-		this.el = el;
-		this.prev = prev;
-		this.next = null;
-		if(prev) {
-			prev.next = this;
-		}
-	}
-}
-
 class Post extends AbstractPost {
 	constructor(el, thr, num, count, isOp, prev) {
 		super(thr, num, isOp);
@@ -9290,7 +9313,7 @@ class Post extends AbstractPost {
 				hidden = this.hidden,
 				wrds = Post.getWrds(this.text),
 				time = Date.now();
-			for(var post = dForm.firstThr.op; post; post = post.next) {
+			for(var post = Thread.first.op; post; post = post.next) {
 				Post.findSameText(num, hidden, wrds, time, post);
 			}
 			saveUserPosts();
@@ -9308,7 +9331,7 @@ class Post extends AbstractPost {
 		} else {
 			Post.hiddenNums.delete(+num);
 		}
-		$each($Q('a[href*="' + aib.anchor + num + '"]', dForm.el), isHide ? function(el) {
+		$each($Q('[de-form] a[href*="' + aib.anchor + num + '"]', doc.body), isHide ? function(el) {
 			el.classList.add('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
 				var refmap = el.parentNode;
@@ -9719,7 +9742,7 @@ class Pview extends AbstractPost {
 		var post = pByNum[this.num];
 		post.toggleUserVisib();
 		Pview.updatePosition(true);
-		$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]', dForm.el), el => {
+		$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]', doc.body), el => {
 			if(post.hidden) {
 				el.setAttribute('class', 'de-btn-unhide-user de-btn-pview-hide');
 				el.parentNode.classList.add('de-post-hide');
@@ -9881,7 +9904,7 @@ class Pview extends AbstractPost {
 	_showPview(el) {
 		el.addEventListener('mouseover', this, true);
 		el.addEventListener('mouseout', this, true);
-		dForm.el.appendChild(el);
+		this.thr.form.el.appendChild(el);
 		this._setPosition(this._link, false);
 		if(Cfg.animation) {
 			nav.animEvent(el, function(node) {
@@ -9979,14 +10002,19 @@ function PviewMoved({ target: el }) {
 
 class RefMap {
 	static gen(posts, thrURL) {
-		var opNums = dForm.tNums;
+		var opNums = DelForm.tNums;
 		for(var pNum in posts) {
 			for(var [link, lNum] of aib.getReflinks(posts[pNum].msg)) {
 				if(!(lNum in posts)) {
 					continue;
 				}
-				posts[lNum].ref._set.add(pNum);
-				if(!aib.hasOPNum && opNums.indexOf(lNum) !== -1) {
+				var ref = posts[lNum].ref;
+				if(ref.inited) {
+					ref.add(posts[pNum], pNum);
+				} else {
+					ref._set.add(pNum);
+				}
+				if(!aib.hasOPNum && opNums.has(lNum)) {
 					link.classList.add('de-ref-op');
 				}
 				if(thrURL) {
@@ -9994,6 +10022,17 @@ class RefMap {
 					if(url[0] === '#') {
 						link.setAttribute('href', thrURL + url);
 					}
+				}
+			}
+		}
+	}
+	static init(form) {
+		var post = form.firstThr && form.firstThr.op;
+		if(post && Cfg.linksNavig === 2) {
+			this.gen(pByNum, '');
+			for(; post; post = post.next) {
+				if(post.ref.hasMap) {
+					post.ref.init('');
 				}
 			}
 		}
@@ -10014,7 +10053,7 @@ class RefMap {
 				if(strNums && strNums.has(+lNum)) {
 					link.classList.add('de-link-hid');
 				}
-				if(!aib.hasOPNum && dForm.tNums.indexOf(lNum) !== -1) {
+				if(!aib.hasOPNum && DelForm.tNums.has(lNum)) {
 					link.classList.add('de-ref-op');
 				}
 				lPost.ref.add(post, pNum, strNums && strNums.has(+pNum));
@@ -10024,13 +10063,18 @@ class RefMap {
 		}
 	}
 	constructor(post) {
+		this._inited = false;
 		this._post = post;
 		this._set = new Set();
 	}
 	get hasMap() {
 		return this._set.size !== 0;
 	}
-	add(post, num, isHidden) {
+	add(post, num, isHidden = null) {
+		if(isHidden === null) {
+			var strNums = Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null;
+			isHidden = strNums ? strNums.has(+num) : false;
+		}
 		if(!this._set.has(num)) {
 			this._set.add(num);
 			this._el.insertAdjacentHTML('beforeend', this._getHTML(num, '', isHidden));
@@ -10070,6 +10114,7 @@ class RefMap {
 			html.push(this._getHTML(num, tUrl, strNums && strNums.has(+num)));
 		}
 		this._el.innerHTML = html.join('');
+		this._inited = true;
 	}
 	makeUnion(oRef) {
 		this._set = new Set([...this._set, ...oRef._set].sort((a, b) => a - b));
@@ -10129,96 +10174,99 @@ class RefMap {
 // THREADS
 // ===========================================================================================================
 
-function Thread(el, prev, isLight) {
-	var els = $Q(aib.qRPost, el),
-		len = els.length,
-		num = aib.getTNum(el),
-		omt = aib.t ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
-	this.num = num;
-	this.pcount = omt + len;
-	this.el = el;
-	this.prev = prev;
-	if(prev) {
-		prev.next = this;
+class Thread {
+	static get first() {
+		return DelForm.first.firstThr;
 	}
-	var Ctor = isLight ? LitePost : Post;
-	var lastPost = this.op = el.post = new Ctor(aib.getOp(el), this, num, 0, true,
-		prev ? prev.last : null);
-	pByNum[num] = lastPost;
-	for(var i = 0; i < len; i++) {
-		var pEl = els[i];
-		num = aib.getPNum(pEl);
-		pByNum[num] = lastPost = new Ctor(pEl, this, num, omt + i, false, lastPost);
+	static get last() {
+		return DelForm.last.lastThr;
 	}
-	this.last = lastPost;
-	if(isLight) {
-		return;
+	static clearPostsMark() {
+		Thread.first.clearPostsMarks();
 	}
-	el.style.counterReset = 'de-cnt ' + omt;
-	el.removeAttribute('id');
-	el.setAttribute('de-thread', null);
-	visPosts = Math.max(visPosts, len);
-	if(aib._420 || aib.tiny) {
-		var temp = el.lastChild;
-		if(temp !== this.op.el) {
-			$after(el, temp);
+	constructor(el, num, prev, form) {
+		var els = $Q(aib.qRPost, el),
+			len = els.length,
+			omt = aib.t ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
+		this.hasNew = false;
+		this.hidden = false;
+		this.loadCount = 0;
+		this.next = null;
+		this.num = num;
+		this.pcount = omt + len;
+		this.el = el;
+		this.prev = prev;
+		this.form = form;
+		this._lastModified = '';
+		if(prev) {
+			prev.next = this;
 		}
-		$del($c('clear', el));
-	}
-	if(!aib.t) {
-		el.insertAdjacentHTML('beforeend', '<div class="de-thread-buttons">' +
-			'<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>]</span>');
-		this.btns = el.lastChild;
-		var updBtn = this.btns.firstElementChild;
-		updBtn.onclick = e => {
-			$pd(e);
-			this.load('new', false);
-		};
-		if(Cfg.hideReplies) {
-			this.btns.insertAdjacentHTML('beforeend',
-				' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
-			var repBtn = this.btns.lastChild;
-			repBtn.onclick = e => {
-				$pd(e);
-				var nextCoord = !this.next || this.last.omitted ? null :this.next.top;
-				this._toggleReplies(repBtn, updBtn);
-				if(nextCoord) {
-					scrollTo(window.pageXOffset, windows.pageYOffset + this.next.top - nextCoord);
-				}
+		var lastPost = this.op = el.post = new Post(aib.getOp(el), this, num, 0, true,
+			prev ? prev.last : null);
+		pByNum[num] = lastPost;
+		for(var i = 0; i < len; i++) {
+			var pEl = els[i];
+			num = aib.getPNum(pEl);
+			pByNum[num] = lastPost = new Post(pEl, this, num, omt + i, false, lastPost);
+		}
+		this.last = lastPost;
+		el.style.counterReset = 'de-cnt ' + omt;
+		el.removeAttribute('id');
+		el.setAttribute('de-thread', null);
+		visPosts = Math.max(visPosts, len);
+		if(aib._420 || aib.tiny) {
+			var temp = el.lastChild;
+			if(temp !== this.op.el) {
+				$after(el, temp);
 			}
-			this._toggleReplies(repBtn, updBtn);
+			$del($c('clear', el));
+		}
+		if(!aib.t) {
+			el.insertAdjacentHTML('beforeend', '<div class="de-thread-buttons">' +
+				'<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>]</span>');
+			this.btns = el.lastChild;
+			var updBtn = this.btns.firstElementChild;
+			updBtn.onclick = e => {
+				$pd(e);
+				this.load('new', false);
+			};
+			if(Cfg.hideReplies) {
+				this.btns.insertAdjacentHTML('beforeend',
+					' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
+				var repBtn = this.btns.lastChild;
+				repBtn.onclick = e => {
+					$pd(e);
+					var nextCoord = !this.next || this.last.omitted ? null :this.next.top;
+					this._toggleReplies(repBtn, updBtn);
+					if(nextCoord) {
+						scrollTo(window.pageXOffset, windows.pageYOffset + this.next.top - nextCoord);
+					}
+				}
+				this._toggleReplies(repBtn, updBtn);
+			}
 		}
 	}
-}
-Thread.clearPostsMark = function() {
-	dForm.firstThr.clearPostsMarks();
-};
-Thread.prototype = {
-	hasNew: false,
-	hidden: false,
-	loadCount: 0,
-	next: null,
 	get bottom() {
 		return this.hidden ? this.op.bottom : this.last.bottom;
-	},
+	}
 	get lastNotDeleted() {
 		var post = this.last;
 		while(post.deleted) {
 			post = post.prev;
 		}
 		return post;
-	},
+	}
 	get nextNotHidden() {
 		for(var thr = this.next; thr && thr.hidden; thr = thr.next) {}
 		return thr;
-	},
+	}
 	get prevNotHidden() {
 		for(var thr = this.prev; thr && thr.hidden; thr = thr.prev) {}
 		return thr;
-	},
+	}
 	get top() {
 		return this.op.top;
-	},
+	}
 	addPost(parent, el, i, prev, maybeVParser) {
 		var post, num = aib.getPNum(el),
 			wrap = aib.getWrap(el, false);
@@ -10240,12 +10288,12 @@ Thread.prototype = {
 		}
 		processImageNames(el);
 		post.addFuncs();
-		preloadImages(el);
+		preloadImages(post);
 		if(aib.t && Cfg.markNewPosts) {
 			this._addPostMark(el, false);
 		}
 		return post;
-	},
+	}
 	clearPostsMarks() {
 		if(this.hasNew) {
 			this.hasNew = false;
@@ -10254,7 +10302,7 @@ Thread.prototype = {
 			});
 			doc.removeEventListener('click', Thread.clearPostsMark, true);
 		}
-	},
+	}
 	deletePost(post, delAll, removePost) {
 		var count = 0,
 			idx = post.count;
@@ -10290,7 +10338,7 @@ Thread.prototype = {
 		}
 		this.pcount -= count;
 		return post;
-	},
+	}
 	load(last, smartScroll, informUser = true) {
 		if(informUser) {
 			$popup(Lng.loading[lang], 'load-thr', true);
@@ -10299,7 +10347,7 @@ Thread.prototype = {
 			form => this.loadFromForm(last, smartScroll, form),
 			e => $popup(getErrorMessage(e), 'load-thr', false)
 		);
-	},
+	}
 	loadFromForm(last, smartScroll, form) {
 		var nextCoord, loadedPosts = $Q(aib.qRPost, form),
 			maybeSpells = new Maybe(SpellsRunner),
@@ -10421,8 +10469,8 @@ Thread.prototype = {
 			}
 		}
 		closePopup('load-thr');
-	},
-	loadNew: function(useAPI) {
+	}
+	loadNew(useAPI) {
 		if(aib.dobr && useAPI) {
 			return getJsonPosts('/api/thread/' + aib.b + '/' + aib.t + '.json').then(json => {
 				if(json) {
@@ -10439,7 +10487,7 @@ Thread.prototype = {
 		}
 		return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, !aib.dobr)
 			.then(form => form ? this.loadNewFromForm(form) : 0);
-	},
+	}
 	loadNewFromForm(form) {
 		this._checkBans(form);
 		aib.checkForm(form, null);
@@ -10449,17 +10497,17 @@ Thread.prototype = {
 			scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);
 		}
 		if(newPosts !== 0) {
-			panel.updateCounter(this.pcount, $Q(aib.qThumbImages, dForm.el).length);
+			panel.updateCounter(this.pcount, $Q(aib.qThumbImages, this.thr.el).length);
 			Pview.updatePosition(true);
 		}
 		return newVisPosts;
-	},
+	}
 	setFavBtn(state) {
 		var el = $c(state ? 'de-btn-fav' : 'de-btn-fav-sel', this.op.btns);
 		if(el) {
 			el.setAttribute('class', state ? 'de-btn-fav-sel' : 'de-btn-fav');
 		}
-	},
+	}
 	setFavorState(val, type) {
 		this.setFavBtn(val);
 		readFav().then(fav => {
@@ -10486,7 +10534,7 @@ Thread.prototype = {
 			}
 			saveFavorites(fav);
 		});
-	},
+	}
 	updateHidden(data) {
 		var date = Date.now(),
 			thr = this;
@@ -10501,9 +10549,8 @@ Thread.prototype = {
 				}
 			}
 		} while((thr = thr.next));
-	},
+	}
 
-	_lastModified: '',
 	_addPostMark(postEl, forced) {
 		if(!doc.hidden && !forced) {
 			this.clearPostsMarks();
@@ -10514,7 +10561,7 @@ Thread.prototype = {
 			}
 			postEl.classList.add('de-new-post');
 		}
-	},
+	}
 	_checkBans(thrNode) {
 		if(!aib.qBan) {
 			return;
@@ -10531,7 +10578,7 @@ Thread.prototype = {
 				post.banned = true;
 			}
 		}
-	},
+	}
 	_toggleReplies(repBtn, updBtn) {
 		var isHide = !this.last.omitted;
 		for(var i = 0, post = this.op; post !== this.last; i++) {
@@ -10556,7 +10603,7 @@ Thread.prototype = {
 			this.op.el.insertAdjacentHTML('afterend',
 				'<span class="de-omitted">' + i + '</span> ');
 		}
-	},
+	}
 	_importPosts(last, newPosts, begin, end, maybeVParser, maybeSpells) {
 		var newCount = end - begin,
 			newVisCount = newCount,
@@ -10566,7 +10613,7 @@ Thread.prototype = {
 			newVisCount -= maybeSpells.value.run(last);
 		}
 		return [newCount, newVisCount, fragm, last];
-	},
+	}
 	_parsePosts(nPosts) {
 		var maybeSpells = new Maybe(SpellsRunner),
 			newPosts = 0,
@@ -10658,7 +10705,7 @@ Thread.prototype = {
 		maybeSpells.end();
 		return [newPosts, newVisPosts];
 	}
-};
+}
 
 var navPanel = {
 	addThr(thr) {
@@ -10778,6 +10825,9 @@ function checkStorage() {
 }
 
 function initNavFuncs() {
+	if(!('requestAnimationFrame' in window)) { // XXX: nav.Presto
+		window.requestAnimationFrame = (fn) => seTimeout(fn, 0);
+	}
 	if(!('from' in Array)) { // XXX: nav.Presto
 		Array.from = function(iterable) {
 			var index = 0, rv = [];
@@ -11326,7 +11376,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
 				if(!this.postMapInited) {
 					this.postMapInited = true;
-					$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', dForm.el),
+					$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', doc.body),
 					      pEl => this.modifiedPosts.set(pEl, +pEl.getAttribute('data-lastmodified')));
 				}
 				$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', formEl), pEl => {
@@ -11649,12 +11699,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			qRef: { value: '.post_no + a' },
 			qTable: { value: '.post.reply' },
 			qTrunc: { value: '.toolong' },
-			fixVideo: { value(post) {
+			fixVideo: { value(isPost, data) {
 				var videos = [],
-					els = $Q('.video-container, #ytplayer', post ? post.el : dForm.el);
+					els = $Q('.video-container, #ytplayer', isPost ? data.el : data);
 				for(var i = 0, len = els.length; i < len; ++i) {
 					var el = els[i];
-					videos.push([post || this.getPostEl(el).post, el.id === 'ytplayer' ?
+					videos.push([isPost ? data : this.getPostEl(el).post, el.id === 'ytplayer' ?
 						el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true]);
 					$del(el);
 				}
@@ -11804,19 +11854,19 @@ function getImageBoard(checkDomains, checkEngines) {
 			return val;
 		},
 		qTrunc: '.abbrev, .abbr, .shortened',
-		fixVideo(post) {
+		fixVideo(isPost, data) {
 			var videos = [],
-				els = $Q('embed, object, iframe', post ? post.el : dForm.el);
+				els = $Q('embed, object, iframe', isPost ? data.el : data);
 			for(var i = 0, len = els.length; i < len; ++i) {
 				var m, el = els[i],
 					src = el.src || el.data;
 				if(src) {
 					if((m = src.match(Videos.ytReg))) {
-						videos.push([post || this.getPostEl(el).post, m, true]);
+						videos.push([isPost ? data : this.getPostEl(el).post, m, true]);
 						$del(el);
 					}
 					if(Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
-						videos.push([post || this.getPostEl(el).post, m, false]);
+						videos.push([isPost ? data : this.getPostEl(el).post, m, false]);
 						$del(el);
 					}
 				}
@@ -12199,7 +12249,7 @@ function Initialization(checkDomains) {
 			if(!(aib.b in hThr)) {
 				hThr[aib.b] = {};
 			}
-			dForm.firstThr.updateHidden(hThr[aib.b]);
+			Thread.first.updateHidden(hThr[aib.b]);
 			toggleWindow('hid', true);
 		})();
 		return;
@@ -12264,104 +12314,46 @@ function Initialization(checkDomains) {
 // DELFORM
 // ===========================================================================================================
 
-function DelForm(formEl, isLight) {
-	this.el = formEl;
-	this.isLight = isLight;
-	this.tNums = [];
-	this.addFormContent(formEl, false);
-	formEl.setAttribute('de-form', '');
-	formEl.removeAttribute('id');
-}
-DelForm.doReplace = function(formEl) {
-	if(aib.rep) {
-		formEl.insertAdjacentHTML('beforebegin', replaceString(formEl.outerHTML));
-		formEl.style.display = 'none';
-		formEl.id = 'de-dform-old';
-		formEl = formEl.previousSibling;
-		window.addEventListener('load', () => $del($id('de-dform-old')));
+class DelForm {
+	static [Symbol.iterator]() {
+		return {
+			_data: this.first,
+			next() {
+				var value = this._data;
+				if(value) {
+					this._data = value.next;
+					return { value, done: false };
+				}
+				return { done: true };
+			}
+		};
 	}
-	return formEl;
-};
-DelForm.prototype = {
-	el: null,
-	firstThr: null,
-	isLight: false,
-	lastThr: null,
-	tNums: null,
-	addFormContent(formEl, append) {
+	static doReplace(formEl) {
+		if(aib.rep) {
+			formEl.insertAdjacentHTML('beforebegin', replaceString(formEl.outerHTML));
+			formEl.style.display = 'none';
+			formEl.id = 'de-dform-old';
+			formEl = formEl.previousSibling;
+			window.addEventListener('load', () => $del($id('de-dform-old')));
+		}
+		return formEl;
+	}
+	static getThreads(formEl) {
 		var threads = $Q(aib.qThread, formEl),
 			len = threads.length;
-		$each($T('script', formEl), $del);
 		if(len === 0) {
 			if(localRun) {
 				threads = $Q('div[de-thread]', doc);
 				len = threads.length;
 			}
 			if(len === 0) {
-				threads = this._parseThreads(formEl);
-				len = threads.length;
+				threads = DelForm._parseClasslessThreads(formEl);
 			}
 		}
-		if(len === 0) {
-			return;
-		}
-		if(append) {
-			while(formEl.firstChild) {
-				this.el.appendChild(formEl.firstChild);
-			}
-		}
-		var thr = new Thread(threads[0], this.lastThr, this.isLight);
-		if(this.firstThr === null) {
-			this.firstThr = thr;
-		}
-		for(var i = 1; i < len; ++i) {
-			this.tNums.push(+thr.num);
-			thr = new Thread(threads[i], thr, this.isLight);
-		}
-		this.tNums.push(+thr.num);
-		this.lastThr = thr;
-	},
-	clear() {
-		$each($Q('a[href^="blob:"]', this.el), function(a) {
-			window.URL.revokeObjectURL(a.href);
-		});
-		this.firstThr = this.lastThr = null;
-		this.tNums = [];
-		this.el.innerHTML = '';
-	},
-	hide() {
-		this.el.style.display = 'none';
-	},
-	initAjax() {
-		if(Cfg.ajaxReply === 2) {
-			this.el.onsubmit = $pd;
-			var btn = $q(aib.qDelBut, this.el);
-			if(btn) {
-				btn.onclick = e => {
-					$pd(e);
-					pr.closeReply();
-					$popup(Lng.deleting[lang], 'delete', true);
-					spawn(html5Submit, this.el, e.target)
-						.then(checkDelete, e => $popup(getErrorMessage(e), 'delete', false));
-				};
-			}
-		} else if(Cfg.ajaxReply === 1) {
-			this.el.insertAdjacentHTML('beforeend',
-				'<iframe name="de-iframe-pform" src="about:blank" style="display: none;"></iframe>' +
-				'<iframe name="de-iframe-dform" src="about:blank" style="display: none;"></iframe>'
-			);
-			this.el.target = 'de-iframe-dform';
-			this.el.onsubmit = function() {
-				pr.closeReply();
-				$popup(Lng.deleting[lang], 'delete', true);
-			};
-		}
-	},
-	show() {
-		this.el.style.display = '';
-	},
+		return threads;
+	}
 
-	_parseThreads(formEl) {
+	static _parseClasslessThreads(el) {
 		var i, len, threads = [],
 			fNodes = aProto.slice.call(formEl.childNodes),
 			cThr = doc.createElement('div');
@@ -12384,7 +12376,120 @@ DelForm.prototype = {
 		formEl.appendChild(cThr);
 		return threads;
 	}
-};
+	constructor(formEl, prev = null) {
+		var num, dNum, thr = null;
+		this.el = formEl;
+		this.firstThr = null;
+		this.lastThr = null;
+		this.next = null;
+		this.prev = prev;
+		if(prev) {
+			prev.next = this;
+			thr = prev.lastThr;
+		}
+		if(!DelForm.first) {
+			DelForm.first = this;
+		}
+		DelForm.last = this;
+		formEl.setAttribute('de-form', '');
+		formEl.removeAttribute('id');
+		$each($T('script', this.el), $del);
+		var threads = DelForm.getThreads(this.el),
+			len = threads.length;
+		for(var i = 0; i < len; ++i) {
+			num = aib.getTNum(threads[i]);
+			dNum = +num;
+			if(DelForm.tNums.has(dNum)) {
+				var el = threads[i],
+					thrNext = threads[i + 1],
+					elNext = el.nextSibling;
+				while(elNext && elNext !== thrNext) {
+					$del(elNext);
+					elNext = el.nextSibling;
+				}
+				$del(el);
+				console.log('Repeated thread ' + num + '.');
+			} else {
+				DelForm.tNums.add(dNum);
+				thr = new Thread(threads[i], num, thr, this);
+				if(this.firstThr === null) {
+					this.firstThr = thr;
+				}
+			}
+		}
+		if(this.firstThr === null) {
+			this.firstThr = thr;
+		}
+		this.lastThr = thr;
+	}
+	get passEl() {
+		var value;
+		if(aib.tire) {
+			$each($Q('input[type="hidden"]', this.el), $del);
+			this.el.appendChild($c('userdelete', doc.body));
+			value = $q('input[type="password"]', this.el);
+		} else {
+			value = $q(aib.qDelPassw, this.el);
+		}
+		Object.defineProperty(this, 'passEl', { value });
+		return value;
+	}
+	addStuff() {
+		var el = this.el;
+		if(!localRun) {
+			if(Cfg.ajaxReply === 2) {
+				el.onsubmit = $pd;
+				var btn = $q(aib.qDelBut, el);
+				if(btn) {
+					btn.onclick = e => {
+						$pd(e);
+						pr.closeReply();
+						$popup(Lng.deleting[lang], 'delete', true);
+						spawn(html5Submit, el, e.target)
+							.then(dc => checkDelete(this, dc), e => $popup(getErrorMessage(e), 'delete', false));
+					};
+				}
+			} else if(Cfg.ajaxReply === 1) {
+				el.insertAdjacentHTML('beforeend',
+					'<iframe name="de-iframe-pform" src="about:blank" style="display: none;"></iframe>' +
+					'<iframe name="de-iframe-dform" src="about:blank" style="display: none;"></iframe>'
+				);
+				var node = el.lastChild;
+				node.addEventListener('message', e => checkDelete(this, $DOM(e.data)))
+				node.previousSibling.addEventListener('message', e => {
+					checkUpload($DOM(e.data));
+					$q('iframe[name="de-iframe-pform"]', doc).src = 'about:blank';
+				});
+				el.target = 'de-iframe-dform';
+				el.onsubmit = function() {
+					pr.closeReply();
+					$popup(Lng.deleting[lang], 'delete', true);
+				};
+			}
+		}
+		new Logger().log('Init AJAX');
+		preloadImages(el);
+		new Logger().log('Preload images');
+		embedMediaLinks(el);
+		new Logger().log('Audio links');
+		if(Cfg.addYouTube) {
+			new VideosParser().parse(el).end();
+			new Logger().log('Video links');
+		}
+		if(Cfg.addImgs) {
+			embedImagesLinks(el);
+			new Logger().log('Image-links');
+		}
+		processImageNames(el);
+		new Logger().log('Image names');
+		RefMap.init(this);
+		new Logger().log('Reflinks map');
+	}
+	show() {
+		this.el.style.display = '';
+	}
+}
+DelForm.tNums = new Set();
 
 function replaceString(txt) {
 	if(dTime) {
@@ -12599,7 +12704,7 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		
 		show() {
-			var post = dForm.firstThr.last,
+			var post = Thread.first.last,
 				notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts +
 					Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : (newPosts % 10) > 4 ||
 					(newPosts % 10) === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
@@ -12744,7 +12849,7 @@ function initThreadUpdater(title, enableUpdate) {
 				/* falls through */
 			case 1:
 				counter.setWait();
-				this._loadPromise = dForm.firstThr.loadNew(true);
+				this._loadPromise = Thread.first.loadNew(true);
 				this._state = 2;
 				this._loadPromise.then(pCount => this._handleNewPosts(pCount, AjaxError.Success),
 				                       e => this._handleNewPosts(0, e));
@@ -12817,8 +12922,8 @@ function initThreadUpdater(title, enableUpdate) {
 					forceLoadPosts();
 				}
 			}, 200);
-		} else if(dForm.firstThr) {
-			dForm.firstThr.clearPostsMarks();
+		} else if(Thread.first) {
+			Thread.first.clearPostsMarks();
 		}
 	});
 	if(enableUpdate) {
@@ -12848,7 +12953,7 @@ function initThreadUpdater(title, enableUpdate) {
 			if(e) {
 				$pd(e);
 			}
-			dForm.firstThr.clearPostsMarks();
+			Thread.first.clearPostsMarks();
 			if(enabled && paused) {
 				return;
 			}
@@ -12896,24 +13001,24 @@ function initThreadUpdater(title, enableUpdate) {
 function initPage() {
 	if(aib.t) {
 		if(Cfg.rePageTitle) {
-			doc.title = '/' + aib.b + ' - ' + dForm.firstThr.op.title;
+			doc.title = '/' + aib.b + ' - ' + Thread.first.op.title;
 		}
 		if(!localRun) {
 			Cfg.stats.view++;
 			saveComCfg(aib.dm, Cfg);
-			dForm.firstThr.el.insertAdjacentHTML('afterend', '<div class="de-thread-buttons">' +
+			Thread.first.el.insertAdjacentHTML('afterend', '<div class="de-thread-buttons">' +
 				'<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>' +
 				'<span id="de-updater-count" style="display: none;"></span>]</span>' +
 				(aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '') +
 				'</div>');
 		}
-	} else if('requestAnimationFrame' in doc.defaultView) {
+	} else {
 		navPanel.init();
 	}
 	if(!localRun){
 		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr);
 		if(aib.t) {
-			dForm.firstThr.el.nextSibling.firstChild.firstElementChild
+			Thread.first.el.nextSibling.firstChild.firstElementChild
 				.addEventListener('click', updater.forceLoad);
 		}
 	}
@@ -13377,35 +13482,9 @@ function updateCSS() {
 // MAIN
 // ===========================================================================================================
 
-function addDelformStuff() {
-	preloadImages(null);
-	new Logger().log('Preload images');
-	embedMediaLinks(null);
-	new Logger().log('Audio links');
-	if(Cfg.addYouTube) {
-		new VideosParser().parse(null).end();
-		new Logger().log('Video links');
-	}
-	if(Cfg.addImgs) {
-		embedImagesLinks(dForm.el);
-		new Logger().log('Image-links');
-	}
-	processImageNames(dForm.el);
-	new Logger().log('Image names');
-	if(dForm.firstThr && Cfg.linksNavig === 2) {
-		RefMap.gen(pByNum, '');
-		for(var post = dForm.firstThr.op; post; post = post.next) {
-			if(post.ref.hasMap) {
-				post.ref.init('');
-			}
-		}
-		new Logger().log('Reflinks map');
-	}
-}
-
 function* initScript(checkDomains, readCfgPromise) {
 	new Logger().init();
-	var formEl = Initialization(checkDomains);
+	var dForm, formEl = Initialization(checkDomains);
 	if(!formEl) {
 		return;
 	}
@@ -13446,9 +13525,6 @@ function* initScript(checkDomains, readCfgPromise) {
 		doc.body.style.display = '';
 		return;
 	}
-	if(!localRun) {
-		dForm.initAjax();
-	}
 	new Logger().log('Parse delform');
 	pr = new PostForm($q(aib.qPostForm, doc), false, doc);
 	new Logger().log('Parse postform');
@@ -13460,8 +13536,7 @@ function* initScript(checkDomains, readCfgPromise) {
 	new Logger().log('Init page');
 	panel.init(formEl);
 	new Logger().log('Add panel');
-	initMessageFunctions();
-	addDelformStuff();
+	dForm.addStuff();
 	readViewedPosts();
 	scriptCSS();
 	new Logger().log('Apply CSS');
@@ -13469,6 +13544,16 @@ function* initScript(checkDomains, readCfgPromise) {
 	new Logger().log('Display page');
 	scrollPage();
 	new Logger().log('Scroll page');
+	if(Cfg.inftyScroll) {
+		doc.defaultView.addEventListener('scroll', () => {
+			window.requestAnimationFrame(() => {
+				if(Thread.last.bottom < Post.sizing.wHeight - 50) {
+					addPage();
+				}
+			});
+		});
+		new Logger().log('Infinity scroll');
+	}
 	readPosts();
 	yield* readUserPosts();
 	yield* readFavoritesPosts();
@@ -13484,7 +13569,7 @@ switch(window.name) {
 case '': break;
 case 'de-iframe-pform':
 case 'de-iframe-dform':
-	$script('window.top.postMessage("' + window.name + '" + document.documentElement.outerHTML, "*");');
+	$script('window.postMessage(document.documentElement.outerHTML, "*");');
 	return;
 }
 
