@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '246d92e';
+var commit = '55d6908';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13545,7 +13545,7 @@ function* initScript(checkDomains, readCfgPromise) {
 	scrollPage();
 	new Logger().log('Scroll page');
 	if(!aib.t && Cfg.inftyScroll) {
-		doc.defaultView.addEventListener('scroll', () => {
+		doc.defaultView.addEventListener('onwheel' in doc.body ? 'wheel' : 'mousewheel', () => {
 			window.requestAnimationFrame(() => {
 				if(Thread.last.bottom < Post.sizing.wHeight - 50) {
 					addPage();
