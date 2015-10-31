@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '0f6ae38';
+var commit = '5f89e8e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5141,12 +5141,16 @@ function toggleInfinityScroll() {
 		}
 	}
 }
-toggleInfinityScroll.onwheel = function() {
-	window.requestAnimationFrame(() => {
-		if(Thread.last.bottom < Post.sizing.wHeight) {
-			addPage();
-		}
-	});
+toggleInfinityScroll.onwheel = function(e) {
+	if((e.type === 'wheel' ? e.deltaY :
+	   -('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta)) > 0)
+	{
+		window.requestAnimationFrame(() => {
+			if(Thread.last.bottom < Post.sizing.wHeight) {
+				addPage();
+			}
+		});
+	}
 }
 
 // SPELLS
