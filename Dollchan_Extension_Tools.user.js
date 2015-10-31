@@ -1888,7 +1888,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'c526ae3';
+	var commit = '246d92e';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -16489,7 +16489,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					new Logger().log('Display page');
 					scrollPage();
 					new Logger().log('Scroll page');
-					if (Cfg.inftyScroll) {
+					if (!aib.t && Cfg.inftyScroll) {
 						doc.defaultView.addEventListener('scroll', function () {
 							window.requestAnimationFrame(function () {
 								if (Thread.last.bottom < Post.sizing.wHeight - 50) {
