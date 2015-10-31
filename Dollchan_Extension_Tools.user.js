@@ -1888,7 +1888,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '55d6908';
+	var commit = '0f6ae38';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -5050,7 +5050,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				updateCSS();
 				toggleWindow('cfg', true);
 			});
-		})]), lBox('panelCounter', true, updateCSS), lBox('rePageTitle', true, null), lBox('animation', true, null), lBox('closePopups', true, null), lBox('inftyScroll', true, null), $New('div', null, [lBox('hotKeys', false, function () {
+		})]), lBox('panelCounter', true, updateCSS), lBox('rePageTitle', true, null), lBox('animation', true, null), lBox('closePopups', true, null), lBox('inftyScroll', true, toggleInfinityScroll), $New('div', null, [lBox('hotKeys', false, function () {
 			if (Cfg.hotKeys) {
 				if (hKeys) {
 					hKeys.enable();
@@ -6949,6 +6949,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		});
 	}
 
+	function infoLoadErrors(e) {
+		var showError = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+
+		var isAjax = e instanceof AjaxError,
+		    eCode = isAjax ? e.code : 0;
+		if (eCode === 200) {
+			closePopup('newposts');
+		} else if (isAjax && eCode === 0) {
+			$popup(e.message || Lng.noConnect[lang], 'newposts', false);
+		} else {
+			$popup(Lng.thrNotFound[lang] + aib.t + '): \n' + getErrorMessage(e), 'newposts', false);
+			if (showError) {
+				doc.title = '{' + eCode + '} ' + doc.title;
+			}
+		}
+	}
+
+
+
+
 	function doLoadedForm(pageNum, formEl, lastForm) {
 		formEl = replacePost(formEl);
 		if (pageNum != aib.page) {
@@ -7135,22 +7155,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	addPage.loading = false;
 	addPage.loadPromise = null;
 
-	function infoLoadErrors(e) {
-		var showError = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
-
-		var isAjax = e instanceof AjaxError,
-		    eCode = isAjax ? e.code : 0;
-		if (eCode === 200) {
-			closePopup('newposts');
-		} else if (isAjax && eCode === 0) {
-			$popup(e.message || Lng.noConnect[lang], 'newposts', false);
-		} else {
-			$popup(Lng.thrNotFound[lang] + aib.t + '): \n' + getErrorMessage(e), 'newposts', false);
-			if (showError) {
-				doc.title = '{' + eCode + '} ' + doc.title;
+	function toggleInfinityScroll() {
+		if (!aib.t) {
+			var evtName = 'onwheel' in doc.body ? 'wheel' : 'mousewheel';
+			if (Cfg.inftyScroll) {
+				doc.defaultView.addEventListener(evtName, toggleInfinityScroll.onwheel);
+			} else {
+				doc.defaultView.removeEventListener(evtName, toggleInfinityScroll.onwheel);
 			}
 		}
 	}
+	toggleInfinityScroll.onwheel = function () {
+		window.requestAnimationFrame(function () {
+			if (Thread.last.bottom < Post.sizing.wHeight) {
+				addPage();
+			}
+		});
+	};
 
 
 
@@ -16489,28 +16510,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					new Logger().log('Display page');
 					scrollPage();
 					new Logger().log('Scroll page');
-					if (!aib.t && Cfg.inftyScroll) {
-						doc.defaultView.addEventListener('onwheel' in doc.body ? 'wheel' : 'mousewheel', function () {
-							window.requestAnimationFrame(function () {
-								if (Thread.last.bottom < Post.sizing.wHeight - 50) {
-									addPage();
-								}
-							});
-						});
-						new Logger().log('Infinity scroll');
-					}
+					toggleInfinityScroll();
+					new Logger().log('Infinity scroll');
 					readPosts();
-					return context$2$0.delegateYield(readUserPosts(), 't3', 57);
-
-				case 57:
-					return context$2$0.delegateYield(readFavoritesPosts(), 't4', 58);
+					return context$2$0.delegateYield(readUserPosts(), 't3', 58);
 
 				case 58:
+					return context$2$0.delegateYield(readFavoritesPosts(), 't4', 59);
+
+				case 59:
 					setTimeout(PostContent.purge, 0);
 					new Logger().log('Apply spells');
 					new Logger().finish();
 
-				case 61:
+				case 62:
 				case 'end':
 					return context$2$0.stop();
 			}

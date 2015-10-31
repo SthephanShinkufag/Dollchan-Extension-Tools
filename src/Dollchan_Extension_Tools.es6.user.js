@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '55d6908';
+var commit = '0f6ae38';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3045,7 +3045,7 @@ function getCfgCommon() {
 		lBox('rePageTitle', true, null),
 		lBox('animation', true, null),
 		lBox('closePopups', true, null),
-		lBox('inftyScroll', true, null),
+		lBox('inftyScroll', true, toggleInfinityScroll),
 		$New('div', null, [
 			lBox('hotKeys', false, function() {
 				if(Cfg.hotKeys) {
@@ -5014,6 +5014,25 @@ function getJsonPosts(url) {
 	});
 }
 
+function infoLoadErrors(e, showError = true) {
+	var isAjax = e instanceof AjaxError,
+		eCode = isAjax ? e.code : 0;
+	if(eCode === 200) {
+		closePopup('newposts');
+	} else if(isAjax && eCode === 0) {
+		$popup(e.message || Lng.noConnect[lang], 'newposts', false);
+	} else {
+		$popup(Lng.thrNotFound[lang] + aib.t + '): \n' + getErrorMessage(e), 'newposts', false);
+		if(showError) {
+			doc.title = '{' + eCode + '} ' + doc.title;
+		}
+	}
+}
+
+
+// PAGE LOADERS
+// ===========================================================================================================
+
 function doLoadedForm(pageNum, formEl, lastForm) {
 	formEl = replacePost(formEl);
 	if(pageNum != aib.page) {
@@ -5112,21 +5131,23 @@ addPage.clear = function() {
 addPage.loading = false;
 addPage.loadPromise = null;
 
-function infoLoadErrors(e, showError = true) {
-	var isAjax = e instanceof AjaxError,
-		eCode = isAjax ? e.code : 0;
-	if(eCode === 200) {
-		closePopup('newposts');
-	} else if(isAjax && eCode === 0) {
-		$popup(e.message || Lng.noConnect[lang], 'newposts', false);
-	} else {
-		$popup(Lng.thrNotFound[lang] + aib.t + '): \n' + getErrorMessage(e), 'newposts', false);
-		if(showError) {
-			doc.title = '{' + eCode + '} ' + doc.title;
+function toggleInfinityScroll() {
+	if(!aib.t) {
+		var evtName = 'onwheel' in doc.body ? 'wheel' : 'mousewheel';
+		if(Cfg.inftyScroll) {
+			doc.defaultView.addEventListener(evtName, toggleInfinityScroll.onwheel);
+		} else {
+			doc.defaultView.removeEventListener(evtName, toggleInfinityScroll.onwheel);
 		}
 	}
 }
-
+toggleInfinityScroll.onwheel = function() {
+	window.requestAnimationFrame(() => {
+		if(Thread.last.bottom < Post.sizing.wHeight) {
+			addPage();
+		}
+	});
+}
 
 // SPELLS
 // ===========================================================================================================
@@ -13544,16 +13565,8 @@ function* initScript(checkDomains, readCfgPromise) {
 	new Logger().log('Display page');
 	scrollPage();
 	new Logger().log('Scroll page');
-	if(!aib.t && Cfg.inftyScroll) {
-		doc.defaultView.addEventListener('onwheel' in doc.body ? 'wheel' : 'mousewheel', () => {
-			window.requestAnimationFrame(() => {
-				if(Thread.last.bottom < Post.sizing.wHeight - 50) {
-					addPage();
-				}
-			});
-		});
-		new Logger().log('Infinity scroll');
-	}
+	toggleInfinityScroll();
+	new Logger().log('Infinity scroll');
 	readPosts();
 	yield* readUserPosts();
 	yield* readFavoritesPosts();
