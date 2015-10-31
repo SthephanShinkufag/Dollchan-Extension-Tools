@@ -1888,7 +1888,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '8555245';
+	var commit = '9a6065a';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -13833,7 +13833,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (!('requestAnimationFrame' in window)) {
 		
 			window.requestAnimationFrame = function (fn) {
-				return seTimeout(fn, 0);
+				return setTimeout(fn, 0);
 			};
 		}
 		if (!('from' in Array)) {

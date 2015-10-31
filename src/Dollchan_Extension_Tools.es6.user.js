@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '8555245';
+var commit = '9a6065a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10826,7 +10826,7 @@ function checkStorage() {
 
 function initNavFuncs() {
 	if(!('requestAnimationFrame' in window)) { // XXX: nav.Presto
-		window.requestAnimationFrame = (fn) => seTimeout(fn, 0);
+		window.requestAnimationFrame = (fn) => setTimeout(fn, 0);
 	}
 	if(!('from' in Array)) { // XXX: nav.Presto
 		Array.from = function(iterable) {
