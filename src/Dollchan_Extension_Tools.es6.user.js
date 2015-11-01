@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '5f89e8e';
+var commit = '3c0c605';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1784,6 +1784,28 @@ var panel = Object.create({
 		Object.defineProperty(this, '_infoEl', { value, configurable: true });
 		return value;
 	},
+	_getButton(id, href = '#') {
+		var html = '<a id="de-panel-' + id + '" class="de-abtn de-panel-button" title="' +
+				Lng.panelBtn[id][lang] + '" href="' + href + '">';
+		var useId;
+		switch(id) {
+		case 'goup':
+		case 'godown':
+		case 'goback':
+		case 'gonext':
+			useId = 'arrow';
+			break;
+		case 'upd-on':
+		case 'upd-off':
+			useId = 'upd';
+			break;
+		case 'audio-off':
+			return html + '<svg class="de-panel-svg"><use class="de-use-audio-off" xlink:href="#de-symbol-panel-audio-off"/>' +
+				'<use class="de-use-audio-on" xlink:href="#de-symbol-panel-audio-on"/></svg></a>';
+		default: useId = id;
+		}
+		return html + '<svg class="de-panel-svg"><use xlink:href="#de-symbol-panel-' + useId + '"/></svg></a>';
+	},
 	_prepareToHide() {
 		if(!Cfg.expandPanel && !$c('de-win-active', doc)) {
 			this._hideTO = setTimeout(() => this._el.lastChild.style.display = 'none', 500);
@@ -1791,6 +1813,9 @@ var panel = Object.create({
 	},
 	handleEvent(e) {
 		var el = fixEventEl(e.target);
+		if(el.tagName.toLowerCase() === 'svg') {
+			el = el.parentNode;
+		}
 		switch(e.type) {
 		case 'click':
 			switch(el.id) {
@@ -1890,41 +1915,38 @@ var panel = Object.create({
 	},
 	init(formEl) {
 		var imgLen = $Q(aib.qThumbImages, formEl).length,
-			isThr = aib.t,
-			pButton = (id, href = '#') => '<a id="de-panel-' + id + '" class="de-abtn de-panel-button" title="' +
-				Lng.panelBtn[id][lang] + '" href="' + href + '"></a>';
+			isThr = aib.t;
 		(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin',
 			'<div id="de-main" lang="' + getThemeLang() + '"><div id="de-panel">' +
-				// XXX: nav.Presto: remove div wrapper
-				'<div id="de-panel-logo-wrapper" title="' + Lng.panelBtn.attach[lang] +
-					'"><svg id="de-panel-logo"><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
+				'<div id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] +
+					'"><svg class="de-panel-svg"><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
 				'<span id="de-panel-buttons"' + (Cfg.expandPanel ? '>' : ' style="display: none;">') +
-				(Cfg.disabled ? pButton('enable') :
-					pButton('cfg') +
-					pButton('hid') +
-					pButton('fav') +
-					(!Cfg.addYouTube ? '' : pButton('vid')) +
+				(Cfg.disabled ? this._getButton('enable') :
+					this._getButton('cfg') +
+					this._getButton('hid') +
+					this._getButton('fav') +
+					(!Cfg.addYouTube ? '' : this._getButton('vid')) +
 					(localRun ? '' :
-						pButton('refresh') +
+						this._getButton('refresh') +
 						(!isThr && (aib.page === aib.firstPage) ? '' :
-							pButton('goback', aib.getPageUrl(aib.b, aib.page - 1))) +
+							this._getButton('goback', aib.getPageUrl(aib.b, aib.page - 1))) +
 						(isThr || aib.page === aib.lastPage ? '' :
-							pButton('gonext', aib.getPageUrl(aib.b, aib.page + 1)))
-					) + pButton('goup') +
-					pButton('godown') +
+							this._getButton('gonext', aib.getPageUrl(aib.b, aib.page + 1)))
+					) + this._getButton('goup') +
+					this._getButton('godown') +
 					(imgLen === 0 ? '' :
-						pButton('expimg') +
-						pButton('maskimg')) +
+						this._getButton('expimg') +
+						this._getButton('maskimg')) +
 					(nav.Presto || localRun ? '' :
-						(imgLen === 0 || Cfg.preLoadImgs ? '' : pButton('preimg')) +
-						(!isThr ? '' : pButton('savethr'))) +
+						(imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) +
+						(!isThr ? '' : this._getButton('savethr'))) +
 					(!isThr || localRun ? '' :
-						pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') +
-						(nav.Safari ? '' : pButton('audio-off'))) +
+						this._getButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') +
+						(nav.Safari ? '' : this._getButton('audio-off'))) +
 					(!aib.mak && !aib.tiny && !aib.fch && !aib.iich ? '' :
-						pButton('catalog', aib.prot + '//' + aib.host + '/' + aib.b + '/catalog' +
+						this._getButton('catalog', aib.prot + '//' + aib.host + '/' + aib.b + '/catalog' +
 							(aib.iich ? 'ue' : '') + '.html')) +
-					pButton('enable') +
+					this._getButton('enable') +
 					(!isThr ? '' :
 						'<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' +
 						Thread.first.pcount + '/' + imgLen + '</span>')
@@ -5146,7 +5168,7 @@ toggleInfinityScroll.onwheel = function(e) {
 	   -('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta)) > 0)
 	{
 		window.requestAnimationFrame(() => {
-			if(Thread.last.bottom < Post.sizing.wHeight) {
+			if(Thread.last.bottom - 150 < Post.sizing.wHeight) {
 				addPage();
 			}
 		});
@@ -12149,57 +12171,57 @@ function Initialization(checkDomains) {
 			<stop offset="100%" stop-color="#A0A0A0"/>
 		</linearGradient>
 		<style><![CDATA[
-			.de-btn-back { fill: inherit; stroke: none; }
+			.de-svg-back { fill: inherit; stroke: none; }
 			.de-svg-stroke { stroke: currentColor; fill: none; }
 			.de-svg-fill { stroke: none; fill: currentColor; }
 		]]></style>
 	</defs>
 	<!-- POST ICONS -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-back">
-		<path class="de-btn-back" d="M4 1q-3 0,-3 3v8q0 3,3 3h8q3 0,3 -3v-8q0 -3,-3-3z"/>
+		<path class="de-svg-back" d="M4 1q-3 0,-3 3v8q0 3,3 3h8q3 0,3 -3v-8q0 -3,-3-3z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-hide">
-		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
 		<line class="de-svg-stroke" stroke-width="2.5" x1="4.5" y1="11.5" x2="11.5" y2="4.5"/>
 		<line class="de-svg-stroke" stroke-width="2.5" x1="11.5" y1="11.5" x2="4.5" y2="4.5"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-unhide">
-		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
 		<line class="de-svg-stroke" stroke-width="2" x1="8" y1="4" x2="8" y2="12"/>
 		<line class="de-svg-stroke" stroke-width="2" x1="4" y1="8" x2="12" y2="8"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-rep">
-		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
 		<path class="de-svg-fill" d="M5.2 12.4L12.4 8 5.2 3.6z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-expthr">
-		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
 		<path class="de-svg-fill" d="M4.5 6L8 3l3.5 3H9.25v4h2.25L8 13 4.5 10h2.25V6z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-fav">
-		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
 		<path class="de-svg-fill" d="M8 2.8l1.5 3.1 3.3.5-2.4 2.4 1.1 3.5L8 10l-3.5 2.3 1.1-3.5-2.3-2.4 3.2-.5z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-stick">
-		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
 		<path class="de-svg-fill" d="M5 5h6v6H5z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-sage">
-		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
 		<path class="de-svg-fill" d="M4 9h8l-4 4.5zM6 3h4v1h-4zM6 5h4v1h-4zM6 7h4v1h-4z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-src">
-		<use class="de-btn-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
 		<circle class="de-svg-stroke" cx="7" cy="7" r="2.5" stroke-width="2"/>
-		<line class="de-svg-stroke" stroke-width="2" stroke-miterlimit="10" x1="9" y1="9" x2="12" y2="12"/>
+		<line class="de-svg-stroke" stroke-width="2" x1="9" y1="9" x2="12" y2="12"/>
 	</symbol>
 	<!-- WINDOW ICONS -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-win-arrow">
-		<line class="de-svg-stroke" stroke-width="3.5" stroke-miterlimit="11" x1="8" x2="8" y2="6" y1="13"/>
+		<line class="de-svg-stroke" stroke-width="3.5" x1="8" x2="8" y2="6" y1="13"/>
 		<path class="de-svg-fill" d="M3.5 7h9l-4.5-4.5z"></path>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-win-close">
-		<path class="de-svg-stroke" stroke-width="2.5" stroke-miterlimit="10" d="M3.5 3.5l9 9M3.5 12.5l9-9"/>
+		<path class="de-svg-stroke" stroke-width="2.5" d="M3.5 3.5l9 9M3.5 12.5l9-9"/>
 	</symbol>
 	<!-- NAVIGATION PANEL ICONS -->
 	<symbol viewBox="0 0 7 7" id="de-symbol-nav-arrow">
@@ -12215,6 +12237,65 @@ function Initialization(checkDomains) {
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-logo">
 		<path class="de-svg-fill" d="M22 5h-10v16h4v-14h6z"/>
 		<path class="de-svg-stroke" stroke-width="3" d="M22 20.5H12c-2.8 0-5.7 0-5.7-4s2.8-4 5.7-4H21"/>
+	</symbol>
+	<symbol viewBox="0 0 25 25" id="de-symbol-panel-cfg">
+		<circle class="de-svg-stroke" stroke-width="2" cx="12.5" cy="12.5" r="5.5"/>
+		<path class="de-svg-stroke" stroke-width="3" d="M12.5 4v3M12.5 18v3M18 12.5h3M4 12.5h3M16.4 8.4l2.2-2.2M6.4 18.6l2.2-2.2M8.6 8.6l-2.2-2.2M18.6 18.6l-2.2-2.2"/>
+	</symbol>
+	<symbol viewBox="0 0 25 25" id="de-symbol-panel-hid">
+		<path class="de-svg-stroke" stroke-width="3" d="M6.25 6.25l12.5 12.5M6.25 18.75l12.5-12.5"/>
+	</symbol>
+	<symbol viewBox="0 0 25 25" id="de-symbol-panel-fav">
+		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAIzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs="/>
+	</symbol>
+	<symbol viewBox="0 0 25 25" id="de-symbol-panel-vid">
+		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAAAI9jI+py+0Po5wTWEvN3VjyH20a6HDHB5TiaTIkuyov3MltEuM3nS5z8EPsgsIY6rE6QlA5JDMDbEKn1KqhAAA7"/>
+	</symbol>
+	<symbol viewBox="0 0 25 25" id="de-symbol-panel-refresh">
+		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAAAJBjI+py+0Po5zUgItBxDZrmHUcGAbe15xiybCm5iYegsaHfY8Kvrb6/qPhZr7LgrcyJlHFE1LoVG6ilVewis1qDQUAOw=="/>
+	</symbol>
+	<symbol viewBox="0 0 25 25" id="de-symbol-panel-arrow">
+		<line class="de-svg-stroke" stroke-width="4" x1="12.5" x2="12.5" y2="21.25" y1="9"/>
+		<path class="de-svg-fill" d="M6.5 9.75h12l-6-6z"></path>
+	</symbol>
+	<symbol viewBox="0 0 25 25" id="de-symbol-panel-expimg">
+		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAI9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7"/>
+	</symbol>
+	<symbol viewBox="0 0 25 25" id="de-symbol-panel-maskimg">
+		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAJQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw=="/>
+	</symbol>
+	<symbol viewBox="0 0 25 25" id="de-symbol-panel-preimg">
+		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAJFjI+pGwCcHJPGWdoe3Lz7qh1WFJLXiX4qgrbXVEIYadLLnMX4yve+7ErBYorRjXiEeXagGguZAbWaSdHLOow4j8Hrj1EAADs="/>
+	</symbol>
+	<symbol viewBox="0 0 25 25" id="de-symbol-panel-savethr">
+		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs="/>
+	</symbol>
+	<symbol viewBox="0 0 25 25" id="de-symbol-panel-upd">
+		<path class="de-svg-back" d="M15.45,7.63c-0.82-0.82-1.8-1.23-2.95-1.23s-2.13,0.41-2.95,1.23s-1.23,1.8-1.23,2.95s0.41,2.13,1.23,2.95
+			s1.8,1.23,2.95,1.23s2.13-0.41,2.95-1.23s1.23-1.8,1.23-2.95S16.27,8.45,15.45,7.63z M12.82,8.51c-0.09,0.09-0.19,0.13-0.32,0.13
+			c-0.53,0-0.99,0.19-1.37,0.57c-0.38,0.38-0.57,0.84-0.57,1.37c0,0.12-0.04,0.23-0.13,0.32c-0.09,0.09-0.19,0.13-0.32,0.13
+			s-0.23-0.04-0.32-0.13c-0.09-0.09-0.13-0.19-0.13-0.32c0-0.78,0.28-1.44,0.83-2c0.56-0.56,1.22-0.83,2-0.83
+			c0.12,0,0.23,0.04,0.32,0.13c0.09,0.09,0.13,0.19,0.13,0.32S12.9,8.42,12.82,8.51z"/>
+		<path class="de-svg-fill" d="M22.77,11.69c-1.09-1.79-2.56-3.23-4.41-4.31c-1.85-1.09-3.8-1.63-5.85-1.63S8.49,6.29,6.65,7.38
+			C4.8,8.46,3.33,9.9,2.23,11.69C2.08,11.96,2,12.23,2,12.5c0,0.27,0.08,0.54,0.23,0.81c1.09,1.79,2.56,3.23,4.41,4.31
+			c1.85,1.09,3.8,1.63,5.85,1.63s4.01-0.54,5.85-1.62s3.32-2.52,4.41-4.32C22.92,13.04,23,12.77,23,12.5
+			C23,12.23,22.92,11.96,22.77,11.69z M17.2,15.85c-1.32,0.83-2.86,1.31-4.42,1.35c-1.75,0.05-3.36-0.37-4.85-1.27
+			c-1.4-0.85-2.57-1.99-3.5-3.43c0.93-1.44,2.1-2.58,3.5-3.43c1.48-0.9,3.1-1.32,4.85-1.27c1.56,0.05,3.09,0.53,4.42,1.35
+			c1.35,0.84,2.47,1.96,3.37,3.35C19.67,13.89,18.54,15.01,17.2,15.85z"/>
+	</symbol>
+	<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-off">
+		<polygon class="de-svg-fill" points="13.5,4 7.3,9.3 3.5,9.3 3.5,15.7 7.3,15.7 7.3,15.7 13.5,21 "/>
+		<path class="de-svg-stroke" stroke-width="2" d="M15 9.5l6 6M21 9.5l-6 6"></path>
+	</symbol>
+	<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-on">
+		<polygon class="de-svg-fill" points="13.5,4 7.3,9.3 3.5,9.3 3.5,15.7 7.3,15.7 7.3,15.7 13.5,21 "/>
+		<path class="de-svg-stroke" stroke-width="2" d="M15.5,7.5L15.5,7.5c1.7,3.1,1.7,6.9,0,10l0,0M18.5,5L18.5,5c2.1,4.8,2.1,10.2,0,15l0,0"/>
+	</symbol>
+	<symbol viewBox="0 0 25 25" id="de-symbol-panel-catalog">
+		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs="/>
+	</symbol>
+	<symbol viewBox="0 0 25 25" id="de-symbol-panel-enable">
+		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAAAJAjI+py+0Po5wUWKoswOF27z2aMX6bo51lioal2bzwISPyHSZ1lts9fwKKfjQiyXgkslq95TAFnUCdUirnis0eCgA7"/>
 	</symbol>
 	</svg>
 	</div>`);
@@ -13203,35 +13284,23 @@ function scriptCSS() {
 
 	// Main panel
 	'#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\
-	#de-panel-logo-wrapper { flex: none; margin: auto 3px auto 0; }\
-	#de-panel-logo-wrapper, #de-panel-logo { cursor: pointer; height: 25px; width: 25px; }\
+	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\
 	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\
 	#de-panel-buttons:lang(en), #de-panel-info:lang(en) { border-color: #8fbbed; }\
 	#de-panel-buttons:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
-	.de-panel-button { display: block; width: 25px; height: 25px; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; }\
+	.de-panel-button { display: block; width: 25px; height: 25px; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; color: inherit; }\
+	.de-panel-button:hover { color: inherit; }\
 	.de-panel-button:lang(fr):hover, .de-panel-button:lang(en):hover, .de-panel-button:lang(es):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
-	.de-panel-button:lang(de):hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }\
-	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }' +
-	gif('#de-panel-cfg', (p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA') + 'QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7') +
-	gif('#de-panel-hid', p + 'QAI5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=') +
-	gif('#de-panel-fav', p + 'QAIzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs=') +
-	gif('#de-panel-vid', p + 'AAI9jI+py+0Po5wTWEvN3VjyH20a6HDHB5TiaTIkuyov3MltEuM3nS5z8EPsgsIY6rE6QlA5JDMDbEKn1KqhAAA7') +
-	gif('#de-panel-refresh', p + 'AAJBjI+py+0Po5zUgItBxDZrmHUcGAbe15xiybCm5iYegsaHfY8Kvrb6/qPhZr7LgrcyJlHFE1LoVG6ilVewis1qDQUAOw==') +
-	gif('#de-panel-goback', p + 'QAIrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7') +
-	gif('#de-panel-gonext', p + 'QAIrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7') +
-	gif('#de-panel-goup', p + 'QAIsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==') +
-	gif('#de-panel-godown', p + 'QAItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=') +
-	gif('#de-panel-expimg', p + 'QAI9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7') +
-	gif('#de-panel-preimg', p + 'QAJFjI+pGwCcHJPGWdoe3Lz7qh1WFJLXiX4qgrbXVEIYadLLnMX4yve+7ErBYorRjXiEeXagGguZAbWaSdHLOow4j8Hrj1EAADs=') +
-	gif('#de-panel-maskimg', p + 'QAJQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==') +
-	gif('#de-panel-savethr', p + 'QAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs=') +
-	gif('#de-panel-catalog', p + 'QAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=') +
-	gif('#de-panel-audio-off', p + 'QAI7jI+pq+DO1psvQHOj3rxTik1dCIzmSZqfmGXIWlkiB6L2jedhPqOfCitVYolgKcUwyoQuSe3WwzV1kQIAOw==') +
-	gif('#de-panel-audio-on', p + 'QAJHjI+pq+AewJHs2WdoZLz7X11WRkEgNoHqimadOG7uAqOm+Y6atvb+D0TgfjHS6RIp8YQ1pbHRfA4n0eSTI7JqP8Wtahr0FAAAOw==') +
-	gif('#de-panel-enable', p + 'AAJAjI+py+0Po5wUWKoswOF27z2aMX6bo51lioal2bzwISPyHSZ1lts9fwKKfjQiyXgkslq95TAFnUCdUirnis0eCgA7') +
-	gif('#de-panel-upd-on', 'R0lGODlhGQAZAJEAADL/Mv' + (p = 'Dw8P///wAAACH5BAEAAAIALAAAAAAZABkAQAJElI+pe2EBoxOTNYmr3bz7OwHiCDzQh6bq06QSCUhcZMCmNrfrzvf+XsF1MpjhCSainBg0AbKkFCJko6g0MSGyftwuowAAOw==')) +
-	gif('#de-panel-upd-off', 'R0lGODlhGQAZAJEAAP8yMv' + p) +
-	gif('#de-panel-upd-warn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
+	.de-panel-svg:lang(de):hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }\
+	.de-panel-svg { width: 25px; height: 25px; }\
+	#de-panel-goback { transform: rotate(-90deg); }\
+	#de-panel-gonext { transform: rotate(90deg); }\
+	#de-panel-godown { transform: rotate(180deg); }\
+	#de-panel-upd-on { fill: #32ff32; }\
+	#de-panel-upd-warn { fill: #fff441; }\
+	#de-panel-upd-off { fill: #ff3232; }\
+	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }\
+	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }';
 
 	if(Cfg.disabled) {
 		$css(x).id = 'de-css';
