@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '5e2241e';
+var commit = '3e8ed13';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12270,17 +12270,8 @@ function Initialization(checkDomains) {
 		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs="/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-upd">
-		<path class="de-svg-back" d="M15.45,7.63c-0.82-0.82-1.8-1.23-2.95-1.23s-2.13,0.41-2.95,1.23s-1.23,1.8-1.23,2.95s0.41,2.13,1.23,2.95
-			s1.8,1.23,2.95,1.23s2.13-0.41,2.95-1.23s1.23-1.8,1.23-2.95S16.27,8.45,15.45,7.63z M12.82,8.51c-0.09,0.09-0.19,0.13-0.32,0.13
-			c-0.53,0-0.99,0.19-1.37,0.57c-0.38,0.38-0.57,0.84-0.57,1.37c0,0.12-0.04,0.23-0.13,0.32c-0.09,0.09-0.19,0.13-0.32,0.13
-			s-0.23-0.04-0.32-0.13c-0.09-0.09-0.13-0.19-0.13-0.32c0-0.78,0.28-1.44,0.83-2c0.56-0.56,1.22-0.83,2-0.83
-			c0.12,0,0.23,0.04,0.32,0.13c0.09,0.09,0.13,0.19,0.13,0.32S12.9,8.42,12.82,8.51z"/>
-		<path class="de-svg-fill" d="M22.77,11.69c-1.09-1.79-2.56-3.23-4.41-4.31c-1.85-1.09-3.8-1.63-5.85-1.63S8.49,6.29,6.65,7.38
-			C4.8,8.46,3.33,9.9,2.23,11.69C2.08,11.96,2,12.23,2,12.5c0,0.27,0.08,0.54,0.23,0.81c1.09,1.79,2.56,3.23,4.41,4.31
-			c1.85,1.09,3.8,1.63,5.85,1.63s4.01-0.54,5.85-1.62s3.32-2.52,4.41-4.32C22.92,13.04,23,12.77,23,12.5
-			C23,12.23,22.92,11.96,22.77,11.69z M17.2,15.85c-1.32,0.83-2.86,1.31-4.42,1.35c-1.75,0.05-3.36-0.37-4.85-1.27
-			c-1.4-0.85-2.57-1.99-3.5-3.43c0.93-1.44,2.1-2.58,3.5-3.43c1.48-0.9,3.1-1.32,4.85-1.27c1.56,0.05,3.09,0.53,4.42,1.35
-			c1.35,0.84,2.47,1.96,3.37,3.35C19.67,13.89,18.54,15.01,17.2,15.85z"/>
+		<path class="de-svg-back" d="M8.25 10.5a4.25,4.25 0 1,0 8.5,0a4.25,4.25 0 1,0-8.5,0 M10.5 10.5q-0.5 0.5,-1 0q0 -3,3 -3q0.5 0.5, 0 1q-2 0,-2 2"/>
+		<path class="de-svg-stroke" stroke-width="2.25" stroke-linejoin="round" d="M3.25 12.5q9.25-11.5,18.5 0q-9.25 11.5,-18.5 0z"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-off">
 		<polygon class="de-svg-fill" points="13.5,4 7.3,9.3 3.5,9.3 3.5,15.7 7.3,15.7 7.3,15.7 13.5,21 "/>
@@ -12288,7 +12279,7 @@ function Initialization(checkDomains) {
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-on">
 		<polygon class="de-svg-fill" points="13.5,4 7.3,9.3 3.5,9.3 3.5,15.7 7.3,15.7 7.3,15.7 13.5,21 "/>
-		<path class="de-svg-stroke" stroke-width="2" d="M15.5,7.5L15.5,7.5c1.7,3.1,1.7,6.9,0,10l0,0M18.5,5L18.5,5c2.1,4.8,2.1,10.2,0,15l0,0"/>
+		<path class="de-svg-stroke" stroke-width="2" d="M15.5,7.5Q18 12.5,15.5 17.5M18.5,5Q23 12.5,18.5 20"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-catalog">
 		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs="/>
