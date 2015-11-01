@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '29d0b94';
+var commit = '6b9ccdc';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1804,6 +1804,7 @@ var panel = Object.create({
 				'<use class="de-use-audio-on" xlink:href="#de-symbol-panel-audio-on"/></svg></a>';
 		default: useId = id;
 		}
+		// XXX nav.Presto: keep in sync with updMachine._setUpdateStatus
 		return html + '<svg class="de-panel-svg"><use xlink:href="#de-symbol-panel-' + useId + '"/></svg></a>';
 	},
 	_prepareToHide() {
@@ -2844,6 +2845,10 @@ function getCfgPosts() {
 		optSel('postBtnsCSS', false, function() {
 			saveCfg('postBtnsCSS', this.selectedIndex);
 			updateCSS();
+			if(nav.Presto) {
+				$del($c('de-svg-icons', doc.body));
+				addSVGIcons();
+			}
 			fixSettings();
 		}),
 		lBox('showHideBtn', false, updateCSS),
@@ -12161,7 +12166,126 @@ function Initialization(checkDomains) {
 	if(!nav) {
 		initNavFuncs();
 	}
-	doc.body.insertAdjacentHTML('beforeend', `<div style="height: 0; width: 0; position: fixed;">
+	addSVGIcons();
+	doc.defaultView.addEventListener('storage', function(e) {
+		var data, temp, post, val = e.newValue;
+		if(!val) {
+			return;
+		}
+		switch(e.key) {
+		case '__de-webmvolume':
+			val = +val || 0;
+			Cfg.webmVolume = val;
+			if(Attachment.viewer) {
+				Attachment.viewer.setWebmVolume(val);
+			}
+			temp = $q('input[info="webmVolume"]', doc.body);
+			if(temp) {
+				temp.value = val;
+			}
+			break;
+		case '__de-post': (() => {
+			try {
+				data = JSON.parse(val);
+			} catch(err) {
+				return;
+			}
+			temp = data.hide;
+			if(data.brd === aib.b && (post = pByNum[data.num]) && (post.hidden ^ temp)) {
+				post.setUserVisib(temp, data.date, false);
+			} else {
+				uVis[data.num] = [+!temp, data.date];
+			}
+			if(data.isOp) {
+				if(!(data.brd in hThr)) {
+					if(temp) {
+						hThr[data.brd] = {};
+					} else {
+						toggleWindow('hid', true);
+						return;
+					}
+				}
+				if(temp) {
+					hThr[data.brd][data.num] = data.title;
+				} else {
+					delete hThr[data.brd][data.num];
+				}
+			}
+			toggleWindow('hid', true);
+		})();
+		return;
+		case '__de-threads': (() => {
+			try {
+				hThr = JSON.parse(val);
+			} catch(err) {
+				return;
+			}
+			if(!(aib.b in hThr)) {
+				hThr[aib.b] = {};
+			}
+			Thread.first.updateHidden(hThr[aib.b]);
+			toggleWindow('hid', true);
+		})();
+		return;
+		case '__de-spells': (() => {
+			try {
+				data = JSON.parse(val);
+			} catch(err) {
+				return;
+			}
+			Cfg.hideBySpell = data.hide;
+			temp = $q('input[info="hideBySpell"]', doc);
+			if(temp) {
+				temp.checked = data.hide;
+			}
+			doc.body.style.display = 'none';
+			disableSpells();
+			if(data.data) {
+				spells.setSpells(data.data, false);
+				temp = $id('de-spell-txt');
+				if(temp) {
+					temp.value = spells.list;
+				}
+			} else {
+				if(data.data === '') {
+					spells.disable();
+					temp = $id('de-spell-txt');
+					if(temp) {
+						temp.value = '';
+					}
+					saveCfg('spells', '');
+				}
+				spells.enable = false;
+			}
+			doc.body.style.display = '';
+		})();
+		/* falls through */
+		default: return;
+		}
+	});
+
+	if(localRun) {
+		var url = window.location.pathname.match(/\/[^-]+-([^-]+)-([^\.]+)\.[a-z]+$/);
+		aib.prot = 'http:';
+		aib.host = aib.dm;
+		aib.b = url ? url[1] : '';
+		aib.t = url ? url[2] : '';
+		aib.page = 0;
+		aib.docExt = '.html';
+	} else {
+		aib.parseURL();
+	}
+	if(aib.t) {
+		doc.defaultView.addEventListener('beforeunload', function(e) {
+			sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset;
+		});
+	}
+	dummy = doc.createElement('div');
+	return formEl;
+}
+
+function addSVGIcons() {
+	doc.body.insertAdjacentHTML('beforeend', `<div id="de-svg-icons" style="height: 0; width: 0; position: fixed;">
 	<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<defs>
 		<linearGradient id="de-btn-back-gradient" x1="50%" y1="0%" y2="100%" x2="50%">
@@ -12289,121 +12413,6 @@ function Initialization(checkDomains) {
 	</symbol>
 	</svg>
 	</div>`);
-	doc.defaultView.addEventListener('storage', function(e) {
-		var data, temp, post, val = e.newValue;
-		if(!val) {
-			return;
-		}
-		switch(e.key) {
-		case '__de-webmvolume':
-			val = +val || 0;
-			Cfg.webmVolume = val;
-			if(Attachment.viewer) {
-				Attachment.viewer.setWebmVolume(val);
-			}
-			temp = $q('input[info="webmVolume"]', doc.body);
-			if(temp) {
-				temp.value = val;
-			}
-			break;
-		case '__de-post': (() => {
-			try {
-				data = JSON.parse(val);
-			} catch(err) {
-				return;
-			}
-			temp = data.hide;
-			if(data.brd === aib.b && (post = pByNum[data.num]) && (post.hidden ^ temp)) {
-				post.setUserVisib(temp, data.date, false);
-			} else {
-				uVis[data.num] = [+!temp, data.date];
-			}
-			if(data.isOp) {
-				if(!(data.brd in hThr)) {
-					if(temp) {
-						hThr[data.brd] = {};
-					} else {
-						toggleWindow('hid', true);
-						return;
-					}
-				}
-				if(temp) {
-					hThr[data.brd][data.num] = data.title;
-				} else {
-					delete hThr[data.brd][data.num];
-				}
-			}
-			toggleWindow('hid', true);
-		})();
-		return;
-		case '__de-threads': (() => {
-			try {
-				hThr = JSON.parse(val);
-			} catch(err) {
-				return;
-			}
-			if(!(aib.b in hThr)) {
-				hThr[aib.b] = {};
-			}
-			Thread.first.updateHidden(hThr[aib.b]);
-			toggleWindow('hid', true);
-		})();
-		return;
-		case '__de-spells': (() => {
-			try {
-				data = JSON.parse(val);
-			} catch(err) {
-				return;
-			}
-			Cfg.hideBySpell = data.hide;
-			temp = $q('input[info="hideBySpell"]', doc);
-			if(temp) {
-				temp.checked = data.hide;
-			}
-			doc.body.style.display = 'none';
-			disableSpells();
-			if(data.data) {
-				spells.setSpells(data.data, false);
-				temp = $id('de-spell-txt');
-				if(temp) {
-					temp.value = spells.list;
-				}
-			} else {
-				if(data.data === '') {
-					spells.disable();
-					temp = $id('de-spell-txt');
-					if(temp) {
-						temp.value = '';
-					}
-					saveCfg('spells', '');
-				}
-				spells.enable = false;
-			}
-			doc.body.style.display = '';
-		})();
-		/* falls through */
-		default: return;
-		}
-	});
-
-	if(localRun) {
-		var url = window.location.pathname.match(/\/[^-]+-([^-]+)-([^\.]+)\.[a-z]+$/);
-		aib.prot = 'http:';
-		aib.host = aib.dm;
-		aib.b = url ? url[1] : '';
-		aib.t = url ? url[2] : '';
-		aib.page = 0;
-		aib.docExt = '.html';
-	} else {
-		aib.parseURL();
-	}
-	if(aib.t) {
-		doc.defaultView.addEventListener('beforeunload', function(e) {
-			sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset;
-		});
-	}
-	dummy = doc.createElement('div');
-	return formEl;
 }
 
 
@@ -12964,6 +12973,9 @@ function initThreadUpdater(title, enableUpdate) {
 			if(this._panelButton) {
 				this._panelButton.id = 'de-panel-upd-' + status
 				this._panelButton.title = Lng.panelBtn['upd-' + (status === 'off' ? 'off' : 'on')][lang];
+				if(nav.Presto) {
+					this._panelButton.innerHTML = '<svg class="de-panel-svg"><use xlink:href="#de-symbol-panel-upd"/></svg>';
+				}
 			}
 		}
 	};
@@ -13508,8 +13520,8 @@ function scriptCSS() {
 function updateCSS() {
 	var x = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }';
 	if(Cfg.postBtnsCSS === 0) {
-		x += '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: transparent; color: #4F7942; }\
-		.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: transparent; color: #F00; }';
+		x += '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: #4F7942; }\
+		.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }';
 	} else {
 		x += '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\
 		.de-btn-hide-user { color: #BFFFBF; }\
