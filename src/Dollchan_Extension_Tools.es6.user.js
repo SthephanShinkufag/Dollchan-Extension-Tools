@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '45e88f0';
+var commit = '52d3743';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12407,12 +12407,11 @@ function addSVGIcons() {
 		<path class="de-svg-stroke" stroke-width="2" d="M15.5,7.5Q18 12.5,15.5 17.5M18.5,5Q23 12.5,18.5 20"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-catalog">
-		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs="/>
+		<path class="de-svg-fill" d="M5 5h3v3H5zM17 5h3v3h-3zM13 5h3v3h-3zM9 5h3v3H9zM5 9h3v3H5zM17 9h3v3h-3zM13 9h3v3h-3zM9 9h3v3H9zM5 13h3v3H5zM17 13h3v3h-3zM13 13h3v3h-3zM9 13h3v3H9zM5 17h3v3H5zM17 17h3v3h-3zM13 17h3v3h-3zM9 17h3v3H9z"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-enable">
 		<line class="de-svg-stroke" stroke-width="3" x1="12.5" y1="4" x2="12.5" y2="12"/>
-		<path class="de-svg-fill" d="M16,5.2c3,1.3,5,4.3,5,7.8c0,4.7-3.8,8.5-8.5,8.5S4,17.7,4,13c0-3.4,2-6.4,5-7.7l0,3.5c-1.2,1-2,2.5-2,4.2
-			c0,3,2.5,5.5,5.5,5.5S18,16,18,13c0-1.7-0.8-3.2-2-4.2V5.2z"/>
+		<path class="de-svg-fill" d="M16,5.2c3,1.3,5,4.3,5,7.8c0,4.7-3.8,8.5-8.5,8.5S4,17.7,4,13c0-3.4,2-6.4,5-7.7l0,3.5c-1.2,1-2,2.5-2,4.2c0,3,2.5,5.5,5.5,5.5S18,16,18,13c0-1.7-0.8-3.2-2-4.2V5.2z"/>
 	</symbol>
 	</svg>
 	</div>`);
