@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '8be3ce4';
+var commit = '45e88f0';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12394,13 +12394,13 @@ function addSVGIcons() {
 		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs="/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-upd">
-		<circle class="de-svg-back" cx="12.5" cy="11" r="3.5"/>
+		<circle class="de-svg-back" cx="12.5" cy="11.25" r="4"/>
 		<path class="de-svg-stroke" stroke-width="2" stroke-linejoin="round" d="M4.5 12.5q8-10,16 0q-8 10,-16 0z"/>
-		<path class="de-svg-stroke" stroke-width="1.5" d="M12.5 7v-3M12.5 18v3M7 9l-2.2-2.2M7 16l-2.2 2.2M18 9l2.2 -2.2M18 16l2.2 2.2"/>
+		<path class="de-svg-stroke" stroke-width="1" d="M11 7.5l-1.2-2M14 7.5l1.2-2M11 17.5l-1.2 2M14 17.5l1.2 2M7 9l-1.7-1.7M7 16l-1.7 1.7M18 9l1.7 -1.7M18 16l1.7 1.7"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-off">
 		<polygon class="de-svg-fill" points="13.5,4 7.3,9.3 3.5,9.3 3.5,15.7 7.3,15.7 7.3,15.7 13.5,21 "/>
-		<path class="de-svg-stroke" stroke-width="2" d="M15 9.5l6 6M21 9.5l-6 6"></path>
+		<path class="de-svg-stroke" stroke-width="2" d="M15 9.5l6 6M21 9.5l-6 6"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-on">
 		<polygon class="de-svg-fill" points="13.5,4 7.3,9.3 3.5,9.3 3.5,15.7 7.3,15.7 7.3,15.7 13.5,21 "/>
@@ -12410,7 +12410,9 @@ function addSVGIcons() {
 		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs="/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-enable">
-		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAAAJAjI+py+0Po5wUWKoswOF27z2aMX6bo51lioal2bzwISPyHSZ1lts9fwKKfjQiyXgkslq95TAFnUCdUirnis0eCgA7"/>
+		<line class="de-svg-stroke" stroke-width="3" x1="12.5" y1="4" x2="12.5" y2="12"/>
+		<path class="de-svg-fill" d="M16,5.2c3,1.3,5,4.3,5,7.8c0,4.7-3.8,8.5-8.5,8.5S4,17.7,4,13c0-3.4,2-6.4,5-7.7l0,3.5c-1.2,1-2,2.5-2,4.2
+			c0,3,2.5,5.5,5.5,5.5S18,16,18,13c0-1.7-0.8-3.2-2-4.2V5.2z"/>
 	</symbol>
 	</svg>
 	</div>`);
