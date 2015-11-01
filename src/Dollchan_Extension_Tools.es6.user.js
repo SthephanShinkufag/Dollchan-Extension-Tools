@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '7d04e3d';
+var commit = '29d0b94';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10130,7 +10130,7 @@ class RefMap {
 					post.ref.hide();
 				}
 				post.setVisib(true);
-				post.setNote('reference to >>' + lNum);
+				post.setNote('reference to >>' + num);
 			}
 		}
 	}
@@ -12473,7 +12473,7 @@ class DelForm {
 		return threads;
 	}
 	constructor(formEl, prev = null) {
-		var num, dNum, thr = null;
+		var thr = null;
 		this.el = formEl;
 		this.firstThr = null;
 		this.lastThr = null;
@@ -12493,8 +12493,8 @@ class DelForm {
 		var threads = DelForm.getThreads(this.el),
 			len = threads.length;
 		for(var i = 0; i < len; ++i) {
-			num = aib.getTNum(threads[i]);
-			dNum = +num;
+			var num = aib.getTNum(threads[i]),
+				dNum = +num;
 			if(DelForm.tNums.has(dNum)) {
 				var el = threads[i],
 					thrNext = threads[i + 1],
@@ -13508,9 +13508,8 @@ function scriptCSS() {
 function updateCSS() {
 	var x = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }';
 	if(Cfg.postBtnsCSS === 0) {
-		x += '.de-btn-back, .de-btn-sage-back { display: none }\
-		.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { color: #4F7942; }\
-		.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { color: #F00; }';
+		x += '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: transparent; color: #4F7942; }\
+		.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: transparent; color: #F00; }';
 	} else {
 		x += '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\
 		.de-btn-hide-user { color: #BFFFBF; }\
