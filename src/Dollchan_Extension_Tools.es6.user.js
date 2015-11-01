@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '3c0c605';
+var commit = '5e2241e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11549,7 +11549,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			cssEn: { get() {
 				return `.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }
 				.captcha-image > img { cursor: pointer; }
-				.de-abtn { transition: none; }
 				#de-txt-panel { font-size: 16px !important; }
 				.images-area input { float: none !important; display: inline !important; }
 				.images-single + .de-video-obj { display: inline-block; }
