@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '6b9ccdc';
+var commit = '80fce52';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12362,7 +12362,7 @@ function addSVGIcons() {
 		<path class="de-svg-stroke" stroke-width="3" d="M22 20.5H12c-2.8 0-5.7 0-5.7-4s2.8-4 5.7-4H21"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-cfg">
-		<circle class="de-svg-stroke" stroke-width="2" cx="12.5" cy="12.5" r="5.5"/>
+		<circle class="de-svg-stroke" stroke-width="2.5" cx="12.5" cy="12.5" r="5.25"/>
 		<path class="de-svg-stroke" stroke-width="3" d="M12.5 4v3M12.5 18v3M18 12.5h3M4 12.5h3M16.4 8.4l2.2-2.2M6.4 18.6l2.2-2.2M8.6 8.6l-2.2-2.2M18.6 18.6l-2.2-2.2"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-hid">
@@ -12394,8 +12394,9 @@ function addSVGIcons() {
 		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs="/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-upd">
-		<path class="de-svg-back" d="M8.25 10.5a4.25,4.25 0 1,0 8.5,0a4.25,4.25 0 1,0-8.5,0 M10.5 10.5q-0.5 0.5,-1 0q0 -3,3 -3q0.5 0.5, 0 1q-2 0,-2 2"/>
-		<path class="de-svg-stroke" stroke-width="2.25" stroke-linejoin="round" d="M3.25 12.5q9.25-11.5,18.5 0q-9.25 11.5,-18.5 0z"/>
+		<circle class="de-svg-back" cx="12.5" cy="11" r="3.5"/>
+		<path class="de-svg-stroke" stroke-width="2" stroke-linejoin="round" d="M4.5 12.5q8-10,16 0q-8 10,-16 0z"/>
+		<path class="de-svg-stroke" stroke-width="1.5" d="M12.5 7v-3M12.5 18v3M7 9l-2.2-2.2M7 16l-2.2 2.2M18 9l2.2 -2.2M18 16l2.2 2.2"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-off">
 		<polygon class="de-svg-fill" points="13.5,4 7.3,9.3 3.5,9.3 3.5,15.7 7.3,15.7 7.3,15.7 13.5,21 "/>
