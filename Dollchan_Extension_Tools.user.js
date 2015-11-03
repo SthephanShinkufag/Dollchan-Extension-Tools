@@ -1888,7 +1888,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '52d3743';
+	var commit = '4c3c038';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -6908,8 +6908,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	};
 
 	function embedMediaLinks(data) {
+		var isPost = data instanceof AbstractPost;
 		if (Cfg.addMP3) {
-			var isPost = data instanceof AbstractPost;
 			var els = $Q('a[href*=".mp3"]', isPost ? data.el : data);
 			for (var i = 0, len = els.length; i < len; ++i) {
 				var link = els[i];
