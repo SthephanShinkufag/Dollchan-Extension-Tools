@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '4c3c038';
+var commit = '0d5ec07';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -599,7 +599,7 @@ Lng = {
 
 doc = window.document, aProto = Array.prototype, locStorage, sesStorage,
 Cfg, hThr, pByNum, sVis, uVis, needScroll,
-aib, nav, updater, hKeys, dTime, visPosts = 2, topWinZ = 0,
+aib, nav, updater, dTime, visPosts = 2, topWinZ = 0,
 WebmParser, Logger,
 pr, dummy, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
@@ -1592,7 +1592,7 @@ function initPostUserVisib(post, num, hide, date) {
 	}
 }
 
-function* readUserPosts() {
+function* readUserPosts(form = DelForm.first) {
 	var b = aib.b,
 		date = Date.now(),
 		spellsHide = Cfg.hideBySpell,
@@ -1603,11 +1603,11 @@ function* readUserPosts() {
 	if(!(b in hThr)) {
 		hThr[b] = {};
 	}
-	if(!Thread.first) {
+	if(!form || !form.firstThr) {
 		return;
 	}
 	var maybeSpells = new Maybe(SpellsRunner);
-	for(var post = Thread.first.op; post; post = post.next) {
+	for(var post = form.firstThr.op; post; post = post.next) {
 		var num = post.num;
 		if(num in uVis) {
 			var hidePost = uVis[num][0] === 0;
@@ -1684,18 +1684,18 @@ function saveHiddenThreads(updWindow) {
 	}
 }
 
-function* readFavoritesPosts() {
+function* readFavoritesPosts(form = DelForm.first) {
 	var temp, update = false,
 		fav = yield* getStoredObj('DESU_Favorites');
 	if(!(aib.host in fav)) {
 		return;
 	}
 	temp = fav[aib.host];
-	if(!(aib.b in temp)) {
+	if(!(aib.b in temp) || !form) {
 		return;
 	}
 	temp = temp[aib.b];
-	for(var thr = Thread.first; thr; thr = thr.next) {
+	for(var thr = form.firstThr; thr; thr = thr.next) {
 		var num = thr.num;
 		if(num in temp) {
 			var f = temp[num];
@@ -3076,13 +3076,9 @@ function getCfgCommon() {
 		$New('div', null, [
 			lBox('hotKeys', false, function() {
 				if(Cfg.hotKeys) {
-					if(hKeys) {
-						hKeys.enable();
-					} else {
-						hKeys = new HotKeys();
-					}
-				} else if(hKeys) {
-					hKeys.disable();
+					HotKeys.enable()
+				} else {
+					HotKeys.disable();
 				}
 			}),
 			$btn(Lng.edit[lang], '', function(e) {
@@ -3528,7 +3524,7 @@ function addMenu(el) {
 		return new Menu(el, '<span class="de-menu-item">' +
 			Lng.selAjaxPages[lang].join('</span><span class="de-menu-item">') + '</span>', true,
 		function(el) {
-			loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1);
+			Pages.load(aProto.indexOf.call(el.parentNode.children, el) + 1);
 		});
 	case 'de-panel-savethr':
 		return new Menu(el, '<span class="de-menu-item">' + ($q(aib.qThumbImages, DelForm.first.el) ?
@@ -3562,136 +3558,77 @@ function addMenu(el) {
 // HOTKEYS
 // ===========================================================================================================
 
-function HotKeys() {
-	spawn(HotKeys.readKeys).then(keys => this._init(keys));
-}
-HotKeys.version = 7;
-HotKeys.readKeys = function* () {
-	var keys, str = yield* getStored('DESU_keys');
-	if(!str) {
-		return HotKeys.getDefaultKeys();
-	}
-	try {
-		keys = JSON.parse(str);
-	} finally {
-		if(!keys) {
-			return HotKeys.getDefaultKeys();
-		}
-		if(keys[0] !== HotKeys.version) {
-			var tKeys = HotKeys.getDefaultKeys();
-			switch(keys[0]) {
-			case 1:
-				keys[2][11] = tKeys[2][11];
-				keys[4] = tKeys[4];
-				/* falls through */
-			case 2:
-				keys[2][12] = tKeys[2][12];
-				keys[2][13] = tKeys[2][13];
-				keys[2][14] = tKeys[2][14];
-				keys[2][15] = tKeys[2][15];
-				keys[2][16] = tKeys[2][16];
-				/* falls through */
-			case 3:
-				keys[2][17] = keys[3][3];
-				keys[3][3] = keys[3].splice(4, 1)[0];
-				/* falls through */
-			case 4:
-			case 5:
-			case 6:
-				keys[2][18] = tKeys[2][18];
-			}
-			keys[0] = HotKeys.version;
-			setStored('DESU_keys', JSON.stringify(keys));
-		}
-		if(keys[1] ^ !!nav.Firefox) {
-			var mapFunc = nav.Firefox ? function mapFuncFF(key) {
-				switch(key) {
-				case 189: return 173;
-				case 187: return 61;
-				case 186: return 59;
-				default: return key;
-				}
-			} : function mapFuncNonFF(key) {
-				switch(key) {
-				case 173: return 189;
-				case 61: return 187;
-				case 59: return 186;
-				default: return key;
-				}
-			};
-			keys[1] = !!nav.Firefox;
-			keys[2] = keys[2].map(mapFunc);
-			keys[3] = keys[3].map(mapFunc);
-			setStored('DESU_keys', JSON.stringify(keys));
-		}
-		return keys;
-	}
-};
-HotKeys.getDefaultKeys = function() {
-	var globKeys = [
-		/* One post/thread above      */ 0x004B /* = K          */,
-		/* One post/thread below      */ 0x004A /* = J          */,
-		/* Reply or create thread     */ 0x0052 /* = R          */,
-		/* Hide selected thread/post  */ 0x0048 /* = H          */,
-		/* Open previous page/picture */ 0x1025 /* = Ctrl+Left  */,
-		/* Send post (txt)            */ 0xC00D /* = Alt+Enter  */,
-		/* Open/close "Favorites"     */ 0x4046 /* = Alt+F      */,
-		/* Open/close "Hidden"        */ 0x4048 /* = Alt+H      */,
-		/* Open/close panel           */ 0x0050 /* = P          */,
-		/* Mask/unmask images         */ 0x0042 /* = B          */,
-		/* Open/close "Settings"      */ 0x4053 /* = Alt+S      */,
-		/* Expand current image       */ 0x0049 /* = I          */,
-		/* Bold text                  */ 0xC042 /* = Alt+B      */,
-		/* Italic text                */ 0xC049 /* = Alt+I      */,
-		/* Strike text                */ 0xC054 /* = Alt+T      */,
-		/* Spoiler text               */ 0xC050 /* = Alt+P      */,
-		/* Code text                  */ 0xC043 /* = Alt+C      */,
-		/* Open next page/picture     */ 0x1027 /* = Ctrl+Right */,
-		/* Open/close "Video"         */ 0x4056 /* = Alt+V      */
-	];
-	var nonThrKeys = [
-		/* One post above */ 0x004D /* = M */,
-		/* One post below */ 0x004E /* = N */,
-		/* Open thread    */ 0x0056 /* = V */,
-		/* Expand thread  */ 0x0045 /* = E */
-	];
-	var thrKeys = [
-		/* Update thread  */ 0x0055 /* = U */
-	];
-	return [HotKeys.version, !!nav.Firefox, globKeys, nonThrKeys, thrKeys];
-};
-HotKeys.prototype = {
+var HotKeys = {
 	cPost: null,
 	enabled: false,
 	gKeys: null,
-	lastPage: 0,
-	lastPageOffset: 0,
 	ntKeys: null,
-	paused: false,
 	tKeys: null,
-	clear(lastPage) {
+	version: 7,
+	getDefaultKeys() {
+		var globKeys = [
+			/* One post/thread above      */ 0x004B /* = K          */,
+			/* One post/thread below      */ 0x004A /* = J          */,
+			/* Reply or create thread     */ 0x0052 /* = R          */,
+			/* Hide selected thread/post  */ 0x0048 /* = H          */,
+			/* Open previous page/picture */ 0x1025 /* = Ctrl+Left  */,
+			/* Send post (txt)            */ 0xC00D /* = Alt+Enter  */,
+			/* Open/close "Favorites"     */ 0x4046 /* = Alt+F      */,
+			/* Open/close "Hidden"        */ 0x4048 /* = Alt+H      */,
+			/* Open/close panel           */ 0x0050 /* = P          */,
+			/* Mask/unmask images         */ 0x0042 /* = B          */,
+			/* Open/close "Settings"      */ 0x4053 /* = Alt+S      */,
+			/* Expand current image       */ 0x0049 /* = I          */,
+			/* Bold text                  */ 0xC042 /* = Alt+B      */,
+			/* Italic text                */ 0xC049 /* = Alt+I      */,
+			/* Strike text                */ 0xC054 /* = Alt+T      */,
+			/* Spoiler text               */ 0xC050 /* = Alt+P      */,
+			/* Code text                  */ 0xC043 /* = Alt+C      */,
+			/* Open next page/picture     */ 0x1027 /* = Ctrl+Right */,
+			/* Open/close "Video"         */ 0x4056 /* = Alt+V      */
+		];
+		var nonThrKeys = [
+			/* One post above */ 0x004D /* = M */,
+			/* One post below */ 0x004E /* = N */,
+			/* Open thread    */ 0x0056 /* = V */,
+			/* Expand thread  */ 0x0045 /* = E */
+		];
+		var thrKeys = [
+			/* Update thread  */ 0x0055 /* = U */
+		];
+		return [HotKeys.version, !!nav.Firefox, globKeys, nonThrKeys, thrKeys];
+	},
+	clear() {
 		this.cPost = null;
-		this.lastPage = lastPage;
-		this.lastPageOffset = 0;
+		this._lastPageOffset = 0;
 	},
 	disable() {
 		if(this.enabled) {
+			this.enabled = false;
 			if(this.cPost) {
 				this.cPost.unselect();
 			}
+			this.clear();
+			this.gKeys = this.ntKeys = this.tKeys = null;
 			doc.removeEventListener('keydown', this, true);
-			this.enabled = false;
 		}
 	},
 	enable() {
 		if(!this.enabled) {
-			this.clear(aib.page);
-			doc.addEventListener('keydown', this, true);
 			this.enabled = true;
+			this._paused = false;
+			spawn(this.readKeys.bind(this)).then(keys => {
+				if(this.enabled) {
+					this.gKeys = keys[2];
+					this.ntKeys = keys[3];
+					this.tKeys = keys[4];
+					doc.addEventListener('keydown', this, true);
+				}
+			});
 		}
 	},
 	handleEvent(e) {
-		if(this.paused || e.metaKey) {
+		if(this._paused || e.metaKey) {
 			return;
 		}
 		var isThr = aib.t,
@@ -3707,7 +3644,7 @@ HotKeys.prototype = {
 				Attachment.viewer.close(null);
 				Attachment.viewer = null;
 			}
-			loadPages(+Cfg.loadPages);
+			Pages.load(+Cfg.loadPages);
 		} else if(kc === 0x1B) { // ESC
 			if(Attachment.viewer) {
 				Attachment.viewer.close(null);
@@ -3721,7 +3658,7 @@ HotKeys.prototype = {
 			if(isThr) {
 				Thread.first.clearPostsMarks();
 			}
-			this.lastPageOffset = 0;
+			this._lastPageOffset = 0;
 		} else if(kc === 0x801B) { // ESC (txt)
 			e.target.blur();
 		} else {
@@ -3810,8 +3747,11 @@ HotKeys.prototype = {
 			case 17: // Open next page/picture
 				if(Attachment.viewer) {
 					Attachment.viewer.navigate(true);
-				} else if(!isThr && this.lastPage !== aib.lastPage) {
-					window.location.pathname = aib.getPageUrl(aib.b, this.lastPage + 1);
+				} else if(!isThr) {
+					var pageNum = DelForm.last.pageNum + 1;
+					if(pageNum <= aib.lastPage) { 
+						window.location.pathname = aib.getPageUrl(aib.b, pageNum);
+					}
 				}
 				break;
 			case 18: // Open/close "Videos"
@@ -3869,17 +3809,80 @@ HotKeys.prototype = {
 		$pd(e);
 	},
 	pause() {
-		this.paused = true;
+		this._paused = true;
 	},
 	resume(keys) {
 		this.gKeys = keys[2];
 		this.ntKeys = keys[3];
 		this.tKeys = keys[4];
-		this.paused = false;
+		this._paused = false;
+	},
+	*readKeys() {
+		var keys, str = yield* getStored('DESU_keys');
+		if(!str) {
+			return this.getDefaultKeys();
+		}
+		try {
+			keys = JSON.parse(str);
+		} finally {
+			if(!keys) {
+				return this.getDefaultKeys();
+			}
+			if(keys[0] !== this.version) {
+				var tKeys = this.getDefaultKeys();
+				switch(keys[0]) {
+				case 1:
+					keys[2][11] = tKeys[2][11];
+					keys[4] = tKeys[4];
+					/* falls through */
+				case 2:
+					keys[2][12] = tKeys[2][12];
+					keys[2][13] = tKeys[2][13];
+					keys[2][14] = tKeys[2][14];
+					keys[2][15] = tKeys[2][15];
+					keys[2][16] = tKeys[2][16];
+					/* falls through */
+				case 3:
+					keys[2][17] = keys[3][3];
+					keys[3][3] = keys[3].splice(4, 1)[0];
+					/* falls through */
+				case 4:
+				case 5:
+				case 6:
+					keys[2][18] = tKeys[2][18];
+				}
+				keys[0] = this.version;
+				setStored('DESU_keys', JSON.stringify(keys));
+			}
+			if(keys[1] ^ !!nav.Firefox) {
+				var mapFunc = nav.Firefox ? function mapFuncFF(key) {
+					switch(key) {
+					case 189: return 173;
+					case 187: return 61;
+					case 186: return 59;
+					default: return key;
+					}
+				} : function mapFuncNonFF(key) {
+					switch(key) {
+					case 173: return 189;
+					case 61: return 187;
+					case 59: return 186;
+					default: return key;
+					}
+				};
+				keys[1] = !!nav.Firefox;
+				keys[2] = keys[2].map(mapFunc);
+				keys[3] = keys[3].map(mapFunc);
+				setStored('DESU_keys', JSON.stringify(keys));
+			}
+			return keys;
+		}
 	},
 
+	_lastPageOffset: 0,
+	_paused: false,
 	_getFirstVisPost(getThread, getFull) {
-		if(this.lastPageOffset !== window.pageYOffset) {
+		if(this._lastPageOffset !== window.pageYOffset) {
 			var post = getThread ? Thread.first : Thread.first.op;
 			while(post.top < 1) {
 				var tPost = post.next;
@@ -3892,7 +3895,7 @@ HotKeys.prototype = {
 				this.cPost.unselect();
 			}
 			this.cPost = getThread ? getFull ? post.op : post.op.prev : getFull ? post : post.prev;
-			this.lastPageOffset = window.pageYOffset;
+			this._lastPageOffset = window.pageYOffset;
 		}
 		return this.cPost;
 	},
@@ -3905,19 +3908,14 @@ HotKeys.prototype = {
 		return cPost ? cPost.getAdjacentVisPost(toUp) : Thread.first.hidden ||
 			Thread.first.op.hidden ? Thread.first.op.getAdjacentVisPost(toUp) : Thread.first.op;
 	},
-	_init(keys) {
-		this.enabled = true;
-		this.lastPage = aib.page;
-		this.gKeys = keys[2];
-		this.ntKeys = keys[3];
-		this.tKeys = keys[4];
-		doc.addEventListener('keydown', this, true);
-	},
 	_scroll(post, toUp, toThread) {
 		var next = this._getNextVisPost(post, toThread, toUp);
 		if(!next) {
-			if(!aib.t && (toUp ? aib.page > aib.firstPage : this.lastPage < aib.lastPage)) {
-				window.location.pathname = aib.getPageUrl(aib.b, toUp ? aib.page - 1 : this.lastPage + 1);
+			if(!aib.t) {
+				var pageNum = toUp ? DelForm.first.pageNum - 1 : DelForm.last.pageNum + 1;
+				if((toUp ? pageNum >= aib.firstPage : pageNum <= aib.lastPage)) {
+					window.location.pathname = aib.getPageUrl(aib.b, pageNum);
+				}
 			}
 			return;
 		}
@@ -3930,7 +3928,7 @@ HotKeys.prototype = {
 			scrollTo(0, window.pageYOffset + next.el.getBoundingClientRect().top -
 				Post.sizing.wHeight / 2 + next.el.clientHeight / 2);
 		}
-		this.lastPageOffset = window.pageYOffset;
+		this._lastPageOffset = window.pageYOffset;
 		next.select();
 		this.cPost = next;
 	}
@@ -4010,8 +4008,8 @@ KeyEditListener.setTitle = function(el, idx) {
 		title = el.getAttribute('title');
 		el.setAttribute('de-title', title);
 	}
-	if(hKeys && idx !== -1) {
-		title += ' [' + KeyEditListener.getStrKey(hKeys.gKeys[idx]) + ']';
+	if(HotKeys.enabled && idx !== -1) {
+		title += ' [' + KeyEditListener.getStrKey(HotKeys.gKeys[idx]) + ']';
 	}
 	el.title = title;
 };
@@ -4028,14 +4026,14 @@ KeyEditListener.prototype = {
 		var key, el = e.target;
 		switch(e.type) {
 		case 'blur':
-			if(hKeys && this.errCount === 0) {
-				hKeys.resume(this.keys);
+			if(HotKeys.enabled && this.errCount === 0) {
+				HotKeys.resume(this.keys);
 			}
 			this.cEl = null;
 			return;
 		case 'focus':
-			if(hKeys) {
-				hKeys.pause();
+			if(HotKeys.enabled) {
+				HotKeys.pause();
 			}
 			this.cEl = el;
 			return;
@@ -4044,8 +4042,8 @@ KeyEditListener.prototype = {
 			if(el.id === 'de-keys-reset') {
 				this.keys = HotKeys.getDefaultKeys();
 				this.initKeys = HotKeys.getDefaultKeys();
-				if(hKeys) {
-					hKeys.resume(this.keys);
+				if(HotKeys.enabled) {
+					HotKeys.resume(this.keys);
 				}
 				var temp = KeyEditListener.getEditMarkup(this.keys);
 				this.allKeys = temp[0];
@@ -4062,8 +4060,8 @@ KeyEditListener.prototype = {
 			} else {
 				return;
 			}
-			if(hKeys) {
-				hKeys.resume(keys);
+			if(HotKeys.enabled) {
+				HotKeys.resume(keys);
 			}
 			closePopup('edit-hotkeys');
 			break;
@@ -5060,103 +5058,102 @@ function infoLoadErrors(e, showError = true) {
 // PAGE LOADERS
 // ===========================================================================================================
 
-function doLoadedForm(pageNum, formEl, lastForm) {
-	formEl = replacePost(formEl);
-	if(pageNum != aib.page) {
-		formEl.insertAdjacentHTML('afterbegin', '<center style="font-size: 2em">' +
-			Lng.page[lang] + ' ' + pageNum + '</center><hr>');
-	}
-	formEl.style.display = 'none';
-	$after(lastForm.el, formEl);
-	lastForm = new DelForm(formEl, lastForm);
-	lastForm.addStuff();
-	formEl.style.removeProperty('display');
-	return lastForm;
-}
+var Pages = {
+	add() {
+		var pageNum = DelForm.last.pageNum + 1;
+		if(this._adding || pageNum > aib.lastPage) {
+			return;
+		}
+		this._adding = true;
+		DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr><div class="de-wait">' +
+			Lng.loading[lang] + '</div></div>');
+		this._addPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(formEl => {
+			this._addForm(formEl, pageNum);
+			return spawn(this._updateForms, DelForm.last);
+		}).then(() => this._endAdding()).catch(e => {
+			$popup(getPrettyErrorMessage(e), 'add-page', true);
+			this._endAdding();
+		});
+	},
+	load: async(function* (count) {
+		$popup(Lng.loading[lang], 'load-pages', true);
+		if(this._addPromise) {
+			this._addPromise.cancel();
+			this._endAdding();
+		}
+		PviewsCache.purge();
+		isExpImg = false;
+		pByNum = Object.create(null);
+		Post.hiddenNums = new Set();
+		if(Attachment.viewer) {
+			Attachment.viewer.close(null);
+			Attachment.viewer = null;
+		}
+		if(pr.isQuick) {
+			if(pr.file) {
+				pr.delFilesUtils();
+			}
+			pr.txta.value = '';
+		}
+		DelForm.tNums = new Set();
+		for(var form of DelForm) {
+			$each($Q('a[href^="blob:"]', form.el), a => URL.revokeObjectURL(a.href));
+			form.el.style.display = 'none';
+			if(form === DelForm.last) {
+				break;
+			}
+			$del(form.el);
+		}
+		DelForm.first = DelForm.last;
+		var len = Math.min(aib.lastPage + 1, aib.page + count);
+		for(var i = aib.page; i < len; ++i) {
+			try {
+				var el = yield ajaxLoad(aib.getPageUrl(aib.b, i));
+				this._addForm(el, i);
+			} catch (e) {
+				$popup(getPrettyErrorMessage(e), 'load-pages', true);
+			}
+		}
+		var first = DelForm.first;
+		if(first !== DelForm.last) {
+			DelForm.first = first.next;
+			$del(first.el);
+			yield* this._updateForms(DelForm.first);
+			closePopup('load-pages');
+		}
+	}),
 
-var loadPages = async(function* (count) {
-	$popup(Lng.loading[lang], 'load-pages', true);
-	if(addPage.loadPromise) {
-		addPage.loadPromise.cancel();
-		addPage.clear();
-	}
-	PviewsCache.purge();
-	isExpImg = false;
-	pByNum = Object.create(null);
-	Post.hiddenNums = new Set();
-	if(Attachment.viewer) {
-		Attachment.viewer.close(null);
-		Attachment.viewer = null;
-	}
-	if(pr.isQuick) {
-		if(pr.file) {
-			pr.delFilesUtils();
+	_adding: false,
+	_addPromise: null,
+	_addForm(formEl, pageNum) {
+		formEl = replacePost(formEl);
+		formEl.style.display = 'none';
+		if(pageNum != aib.page) {
+			formEl.insertAdjacentHTML('afterbegin', '<center style="font-size: 2em">' +
+				Lng.page[lang] + ' ' + pageNum + '</center><hr>');
 		}
-		pr.txta.value = '';
-	}
-	DelForm.tNums = new Set();
-	for(var form of DelForm) {
-		$each($Q('a[href^="blob:"]', form.el), a => URL.revokeObjectURL(a.href));
-		form.el.style.display = 'none';
-		if(form === DelForm.last) {
-			break;
-		}
-		$del(form.el);
-	}
-	var lastForm = DelForm.first = DelForm.last;
-	var len = Math.min(aib.lastPage + 1, aib.page + count);
-	for(var i = aib.page; i < len; ++i) {
-		try {
-			var el = yield ajaxLoad(aib.getPageUrl(aib.b, i));
-			lastForm = doLoadedForm(i, el, lastForm);
-		} catch (e) {
-			console.log(e);
-			$popup(getPrettyErrorMessage(e), 'load-pages', true);
-		}
-	}
-	var first = DelForm.first;
-	if(lastForm !== first) {
-		loadPages.last = len;
-		DelForm.last = lastForm;
-		DelForm.first = first.next;
-		$del(first.el);
-		yield* readUserPosts();
-		yield* readFavoritesPosts();
+		$after(DelForm.last.el, formEl);
+		var form = new DelForm(formEl, +pageNum, DelForm.last);
+		DelForm.last = form;
+		form.addStuff();
+		formEl.style.removeProperty('display');
+	},
+	_endAdding() {
+		$del($q('.de-addpage-wait', doc.body));
+		this._adding = false;
+		this._addPromise = null;
+	},
+	*_updateForms(newForm) {
+		yield* readUserPosts(newForm);
+		yield* readFavoritesPosts(newForm);
 		if(pr.passw) {
 			PostForm.setUserPassw();
 		}
-		if(hKeys) {
-			hKeys.clear(aib.page + count - 1);
+		if(HotKeys.enabled) {
+			HotKeys.clear();
 		}
-		closePopup('load-pages');
 	}
-});
-loadPages.last = null;
-
-function addPage() {
-	var pageNum = loadPages.last ? loadPages.last : aib.page + 1;
-	if(addPage.loading || pageNum > aib.lastPage) {
-		return;
-	}
-	addPage.loading = true;
-	DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr><div class="de-wait">'
-		+ Lng.loading[lang] + '</div></div>');
-	addPage.loadPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(form => {
-		doLoadedForm(pageNum, form, DelForm.last);
-		loadPages.last = pageNum + 1;
-		addPage.clear();
-	}).catch(e => {
-		$popup(getPrettyErrorMessage(e), 'add-page', true);
-		addPage.clear();
-	});
-}
-addPage.clear = function() {
-	$del($q('.de-addpage-wait', doc.body));
-	addPage.loading = false;
-	addPage.loadPromise = null;
 };
-addPage.loading = false;
-addPage.loadPromise = null;
 
 function toggleInfinityScroll() {
 	if(!aib.t) {
@@ -5174,11 +5171,12 @@ toggleInfinityScroll.onwheel = function(e) {
 	{
 		window.requestAnimationFrame(() => {
 			if(Thread.last.bottom - 150 < Post.sizing.wHeight) {
-				addPage();
+				Pages.add();
 			}
 		});
 	}
 }
+
 
 // SPELLS
 // ===========================================================================================================
@@ -6846,7 +6844,7 @@ PostForm.prototype = {
 					quotetxt = $txtSelect();
 				}
 				x = -1;
-				if(hKeys) {
+				if(HotKeys.enabled) {
 					switch(id.substr(7)) {
 					case 'bold': x = 12; break;
 					case 'italic': x = 13; break;
@@ -9126,11 +9124,11 @@ class Post extends AbstractPost {
 		}
 	}
 	selectCurrent() {
-		if(hKeys) {
-			if(hKeys.cPost) {
-				hKeys.cPost.unselect();
+		if(HotKeys.enabled) {
+			if(HotKeys.cPost) {
+				HotKeys.cPost.unselect();
 			}
-			hKeys.cPost = this;
+			HotKeys.cPost = this;
 		} else {
 			var el = $c('de-selected', doc);
 			if(el) {
@@ -12483,21 +12481,18 @@ class DelForm {
 		formEl.appendChild(cThr);
 		return threads;
 	}
-	constructor(formEl, prev = null) {
+	constructor(formEl, pageNum, prev = null) {
 		var thr = null;
 		this.el = formEl;
 		this.firstThr = null;
 		this.lastThr = null;
 		this.next = null;
+		this.pageNum = pageNum;
 		this.prev = prev;
 		if(prev) {
 			prev.next = this;
 			thr = prev.lastThr;
 		}
-		if(!DelForm.first) {
-			DelForm.first = this;
-		}
-		DelForm.last = this;
 		formEl.setAttribute('de-form', '');
 		formEl.removeAttribute('id');
 		$each($T('script', this.el), $del);
@@ -12525,7 +12520,7 @@ class DelForm {
 			}
 		}
 		if(this.firstThr === null) {
-			this.firstThr = thr;
+			return
 		}
 		this.lastThr = thr;
 	}
@@ -12591,9 +12586,6 @@ class DelForm {
 		new Logger().log('Image names');
 		RefMap.init(this);
 		new Logger().log('Reflinks map');
-	}
-	show() {
-		this.el.style.display = '';
 	}
 }
 DelForm.tNums = new Set();
@@ -13155,8 +13147,8 @@ function scrollPage() {
 		          (num = num[1]) && (post = pByNum[num]) && !post.isOp)
 		{
 			post.el.scrollIntoView(true);
-			if(hKeys) {
-				hKeys.cPost = post;
+			if(HotKeys.enabled) {
+				HotKeys.cPost = post;
 			}
 			post.select();
 		}
@@ -13581,7 +13573,7 @@ function updateCSS() {
 
 function* initScript(checkDomains, readCfgPromise) {
 	new Logger().init();
-	var dForm, formEl = Initialization(checkDomains);
+	var formEl = Initialization(checkDomains);
 	if(!formEl) {
 		return;
 	}
@@ -13616,7 +13608,7 @@ function* initScript(checkDomains, readCfgPromise) {
 	new Logger().log('Replace delform');
 	pByNum = Object.create(null);
 	try {
-		dForm = new DelForm(formEl, false);
+		DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
 	} catch(e) {
 		console.log('DELFORM ERROR:\n' + getPrettyErrorMessage(e));
 		doc.body.style.display = '';
@@ -13626,14 +13618,14 @@ function* initScript(checkDomains, readCfgPromise) {
 	pr = new PostForm($q(aib.qPostForm, doc), false, doc);
 	new Logger().log('Parse postform');
 	if(Cfg.hotKeys) {
-		hKeys = new HotKeys();
+		HotKeys.enable();
 		new Logger().log('Init keybinds');
 	}
 	initPage();
 	new Logger().log('Init page');
 	panel.init(formEl);
 	new Logger().log('Add panel');
-	dForm.addStuff();
+	DelForm.first.addStuff();
 	readViewedPosts();
 	scriptCSS();
 	new Logger().log('Apply CSS');
