@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '0d5ec07';
+var commit = '96f94c0';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -598,7 +598,7 @@ Lng = {
 },
 
 doc = window.document, aProto = Array.prototype, locStorage, sesStorage,
-Cfg, hThr, pByNum, sVis, uVis, needScroll,
+Cfg, hThr, pByEl, pByNum, sVis, uVis, needScroll,
 aib, nav, updater, dTime, visPosts = 2, topWinZ = 0,
 WebmParser, Logger,
 pr, dummy, spells,
@@ -1573,7 +1573,7 @@ function readPosts() {
 	if(typeof str === 'string') {
 		var data = str.split(';');
 		if(data.length === 4 && +data[0] === (Cfg.hideBySpell ? spells.hash : 0) &&
-		  (data[1] in pByNum) && pByNum[data[1]].count === +data[2])
+		  pByNum.has(data[1]) && pByNum.get(data[1]).count === +data[2])
 		{
 			sVis = data[3].split(',');
 			return;
@@ -1704,7 +1704,7 @@ function* readFavoritesPosts(form = DelForm.first) {
 				f.cnt = thr.pcount;
 				f['new'] = 0;
 				if(aib.t && Cfg.markNewPosts && f.last) {
-					var post = pByNum[f.last.match(/\d+/)];
+					var post = pByNum.get(f.last.match(/\d+/));
 					if(post) {
 						while(post = post.next) {
 							thr._addPostMark(post.el, true);
@@ -1750,8 +1750,8 @@ function removeFavoriteEntry(fav, h, b, num, clearPage) {
 			}
 		}
 	}
-	if(clearPage && h === aib.host && b === aib.b && (num in pByNum)) {
-		pByNum[num].thr.setFavBtn(false);
+	if(clearPage && h === aib.host && b === aib.b && pByNum.has(num)) {
+		pByNum.get(num).thr.setFavBtn(false);
 	}
 }
 
@@ -1762,7 +1762,7 @@ function readViewedPosts() {
 	var data = sesStorage['de-viewed'];
 	if(data) {
 		data.split(',').forEach(function(pNum) {
-			var post = pByNum[pNum];
+			var post = pByNum.get(pNum);
 			if(post) {
 				post.el.classList.add('de-viewed');
 				post.viewed = true;
@@ -2327,7 +2327,7 @@ function showVideosWindow(body) {
 				$pd(e);
 				return;
 			} else if(!el.classList.contains('de-video-link')) {
-				pByNum[+e.target.getAttribute('de-num')].selectCurrent();
+				pByNum.get(e.target.getAttribute('de-num')).selectCurrent();
 				return;
 			}
 			var m = el.videoInfo;
@@ -2345,7 +2345,7 @@ function showVideosWindow(body) {
 	}, true);
 	for(var i = 0, len = els.length; i < len; ++i) {
 		var el = els[i].cloneNode(true),
-			num = aib.getPostEl(els[i]).post.num;
+			num = aib.getPostOfEl(els[i]).num;
 		el.videoInfo = els[i].videoInfo;
 		linkList.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '">&nbsp;' +
 			'<a href="' + aib.anchor + num + '" de-num="' + num + '">&gt;</a></div>');
@@ -2454,8 +2454,8 @@ function showHiddenWindow(body) {
 		$each($Q('.de-entry[info]', this.parentNode), function(date, el) {
 			if($t('input', el).checked) {
 				var arr = el.getAttribute('info').split(';');
-				if(arr[1] in pByNum) {
-					pByNum[arr[1]].setUserVisib(false, date, true);
+				if(pByNum.has(arr[1])) {
+					pByNum.get(arr[1]).setUserVisib(false, date, true);
 				} else {
 					locStorage['__de-post'] = JSON.stringify({
 						'brd': arr[0],
@@ -4485,7 +4485,7 @@ function loadDocFiles(imgOnly) {
 			aib.qPostForm, dc), $del);
 		$each($T('a', dc), function(el) {
 			var num, tc = el.textContent;
-			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && (num in pByNum)) {
+			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
 				el.href = aib.anchor + num;
 			} else {
 				el.href = getAbsLink(el.href);
@@ -4947,7 +4947,7 @@ VideosParser.prototype = {
 			var link = links[i],
 				m = link.href.match(Videos.ytReg);
 			if(m) {
-				var mPost = isPost ? data : (aib.getPostEl(link) || {}).post;
+				var mPost = isPost ? data : aib.getPostOfEl(link);
 				if(mPost) {
 					mPost.videos.addLink(m, loader, link, true);
 				}
@@ -4959,7 +4959,7 @@ VideosParser.prototype = {
 				var link = links[i],
 					m = link.href.match(Videos.vimReg);
 				if(m) {
-					var mPost = isPost ? data : (aib.getPostEl(link) || {}).post;
+					var mPost = isPost ? data : aib.getPostOfEl(link);
 					if(mPost) {
 						mPost.videos.addLink(m, loader, link, false);
 					}
@@ -4986,7 +4986,7 @@ function embedMediaLinks(data) {
 				continue;
 			}
 			var src = link.href,
-				el = (isPost ? data : aib.getPostEl(link).post).mp3Obj;
+				el = (isPost ? data : aib.getPostOfEl(link)).mp3Obj;
 			if(nav.canPlayMP3) {
 				if(!$q('audio[src="' + src + '"]', el)) {
 					el.insertAdjacentHTML('beforeend',
@@ -5083,7 +5083,8 @@ var Pages = {
 		}
 		PviewsCache.purge();
 		isExpImg = false;
-		pByNum = Object.create(null);
+		pByEl = new Map();
+		pByNum = new Map();
 		Post.hiddenNums = new Set();
 		if(Attachment.viewer) {
 			Attachment.viewer.close(null);
@@ -6646,7 +6647,7 @@ function PostForm(form, ignoreForm, dc) {
 		if(spells.haveOutreps) {
 			val = spells.outReplace(val);
 		}
-		if(this.tNum && pByNum[this.tNum].subj === 'Dollchan Extension Tools') {
+		if(this.tNum && pByNum.get(this.tNum).subj === 'Dollchan Extension Tools') {
 			var temp = '\n\n' + this._wrapText(aib.markupBB, aib.markupTags[5],
 				'-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit +
 				' [' + nav.scriptInstall + ']')[1];
@@ -6942,7 +6943,7 @@ PostForm.prototype = {
 				(quotetxt ? quotetxt.replace(/^\n|\n$/g, '')
 				.replace(/(^|\n)(.)/gm, '$1>' + (Cfg.spacedQuote ? ' ' : '') + '$2') + '\n': ''));
 		}
-		temp = pByNum[pNum].thr.op.title.trim();
+		temp = pByNum.get(pNum).thr.op.title.trim();
 		if(temp.length > 27) {
 			temp = temp.substr(0, 30) + '\u2026';
 		}
@@ -7532,7 +7533,7 @@ function checkUpload(dc) {
 		updater.sendErrNotif();
 		return;
 	}
-	if(Cfg.favOnReply && pr.tNum && !$c('de-btn-fav-sel', pByNum[pr.tNum].el)) {
+	if(Cfg.favOnReply && pr.tNum && !$c('de-btn-fav-sel', pByNum.get(pr.tNum).el)) {
 		pByNum[pr.tNum].thr.setFavorState(true, 'onreply');
 	}
 	pr.txta.value = '';
@@ -7578,10 +7579,10 @@ function checkUpload(dc) {
 		}
 	} else {
 		if(el) {
-			pByNum[pr.tNum].thr.loadFromForm(visPosts, true, el);
+			pByNum.get(pr.tNum).thr.loadFromForm(visPosts, true, el);
 			closePopup('upload');
 		} else {
-			pByNum[pr.tNum].thr.load(visPosts, false, false).then(() => closePopup('upload'));
+			pByNum.get(pr.tNum).thr.load(visPosts, false, false).then(() => closePopup('upload'));
 		}
 	}
 	pr.closeReply();
@@ -7598,7 +7599,7 @@ var checkDelete = async(function* (form, dc) {
 	}
 	var [num] = doc.location.hash.match(/\d+/) || [];
 	if(num) {
-		var post = pByNum[num];
+		var post = pByNum.get(num);
 		if(post) {
 			if(!post.isOp) {
 				post.el.className = aib.cReply;
@@ -7613,7 +7614,7 @@ var checkDelete = async(function* (form, dc) {
 		var el = els[i];
 		el.checked = false;
 		if(!isThr) {
-			threads.add(aib.getPostEl(el).post.thr);
+			threads.add(aib.getPostOfEl(el).thr);
 		}
 	}
 	if(isThr) {
@@ -8737,7 +8738,7 @@ class AbstractPost {
 					          !temp[2].includes('\/'))
 					{
 						var num = temp.match(/\d+/),
-							post = pByNum[num];
+							post = pByNum.get(num);
 						if(!post) {
 							return;
 						}
@@ -8987,13 +8988,14 @@ class Post extends AbstractPost {
 		if(prev) {
 			prev.next = this;
 		}
+		pByEl.set(el, this);
+		pByNum.set(num, this);
 		var refEl = $q(aib.qRef, el),
 			html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') +
 				'"><svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
 				'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
 				'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>';
 		this._pref = refEl;
-		el.post = this;
 		if(isOp) {
 			if(!aib.t) {
 				html += '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>';
@@ -9595,7 +9597,7 @@ class Pview extends AbstractPost {
 		return Pview.top ? Pview.top.parent : null;
 	}
 	static show(parent, link) {
-		var rv, tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,aib.getPostEl(link).post.tNum])[1],
+		var rv, tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,aib.getPostOfEl(link).tNum])[1],
 			pNum = (link.textContent.trim().match(/\d+$/) || [tNum])[0],
 			isTop = !(parent instanceof Pview),
 			pv = isTop ? Pview.top : parent.kid;
@@ -9617,7 +9619,7 @@ class Pview extends AbstractPost {
 				}
 			}
 			pv.parent = parent;
-		} else if(!Cfg.noNavigHidd || !pByNum[pNum] || !pByNum[pNum].hidden) {
+		} else if(!Cfg.noNavigHidd || !pByNum.has(pNum) || !pByNum.get(pNum).hidden) {
 			if(pv) {
 				pv.delete();
 			}
@@ -9680,7 +9682,7 @@ class Pview extends AbstractPost {
 		this.sticky = false;
 		this.parent = parent;
 		this.tNum = tNum;
-		var post = pByNum[pNum];
+		var post = pByNum.get(pNum);
 		if(post && (!post.isOp || !(parent instanceof Pview) || !parent._fromCache)) {
 			this._showPost(post);
 			return;
@@ -9789,7 +9791,7 @@ class Pview extends AbstractPost {
 		this.sticky = val;
 	}
 	toggleUserVisib() {
-		var post = pByNum[this.num];
+		var post = pByNum.get(this.num);
 		post.toggleUserVisib();
 		Pview.updatePosition(true);
 		$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]', doc.body), el => {
@@ -9998,14 +10000,14 @@ class CacheItem {
 class PviewsCache extends TemporaryContent {
 	constructor(form, b, tNum) {
 		super();
-		var pBn = {},
+		var pBn = new Map(),
 			thr = $q(aib.qThread, form) || form,
 			posts = $Q(aib.qRPost, thr);
 		for(var i = 0, len = posts.length; i < len; ++i) {
 			var post = posts[i];
-			pBn[aib.getPNum(post)] = new CacheItem(post, i + 1);
+			pBn.set(aib.getPNum(post), new CacheItem(post, i + 1));
 		}
-		pBn[tNum] = this._opObj = new CacheItem(aib.getOp(thr), 0);
+		pBn.set(tNum, this._opObj = new CacheItem(aib.getOp(thr), 0));
 		this._b = b;
 		this._tNum = tNum;
 		this._tUrl = aib.getThrdUrl(b, tNum);
@@ -10015,14 +10017,13 @@ class PviewsCache extends TemporaryContent {
 		}
 	}
 	getPost(num) {
-		var pst = this._posts[num];
+		var pst = this._posts.get(num);
 		if(!pst || pst.itemInited) {
 			return pst;
 		}
 		if(num === this._tNum) {
-			var oOp;
-			if(this._b === aib.b && (oOp = pByNum[this._tNum])) {
-				pst.ref.makeUnion(oOp.ref);
+			if(this._b === aib.b && pByNum.has(this._tNum)) {
+				pst.ref.makeUnion(pByNum.get(this._tNum).ref);
 			}
 		}
 		pst.el = replacePost(pst.el);
@@ -10053,14 +10054,14 @@ function PviewMoved({ target: el }) {
 class RefMap {
 	static gen(posts, thrURL) {
 		var opNums = DelForm.tNums;
-		for(var pNum in posts) {
-			for(var [link, lNum] of aib.getReflinks(posts[pNum].msg)) {
-				if(!(lNum in posts)) {
+		for(var [pNum, post] of posts) {
+			for(var [link, lNum] of aib.getReflinks(post.msg)) {
+				if(!posts.has(lNum)) {
 					continue;
 				}
-				var ref = posts[lNum].ref;
+				var ref = posts.get(lNum).ref;
 				if(ref.inited) {
-					ref.add(posts[pNum], pNum);
+					ref.add(post, pNum);
 				} else {
 					ref._set.add(pNum);
 				}
@@ -10092,10 +10093,10 @@ class RefMap {
 			strNums = add && Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
 			isThr = aib.t;
 		for(var [link, lNum] of aib.getReflinks(post.msg)) {
-			var lPost = pByNum[lNum];
-			if(!lPost) {
+			if(!pByNum.has(lNum)) {
 				continue;
 			}
+			var lPost = pByNum.get(lNum);
 			if(!isThr) {
 				link.href = '#' + (aib.fch ? 'p' : '') + lNum;
 			}
@@ -10148,7 +10149,7 @@ class RefMap {
 			return;
 		}
 		for(var num of this._set) {
-			var pst = pByNum[num];
+			var pst = pByNum.get(num);
 			if(pst && !pst.userToggled) {
 				pst.setVisib(true);
 				pst.setNote('reference to >>' + this.num);
@@ -10192,7 +10193,7 @@ class RefMap {
 			return;
 		}
 		for(var num of this._set) {
-			var pst = pByNum[num];
+			var pst = pByNum.get(num);
 			if(pst && pst.hidden && !pst.userToggled && !pst.spellHidden) {
 				pst.setVisib(false);
 				pst.ref.unhide();
@@ -10253,11 +10254,10 @@ class Thread {
 		}
 		var lastPost = this.op = el.post = new Post(aib.getOp(el), this, num, 0, true,
 			prev ? prev.last : null);
-		pByNum[num] = lastPost;
 		for(var i = 0; i < len; i++) {
 			var pEl = els[i];
 			num = aib.getPNum(pEl);
-			pByNum[num] = lastPost = new Post(pEl, this, num, omt + i, false, lastPost);
+			lastPost = new Post(pEl, this, num, omt + i, false, lastPost);
 		}
 		this.last = lastPost;
 		el.style.counterReset = 'de-cnt ' + omt;
@@ -10321,7 +10321,7 @@ class Thread {
 		var post, num = aib.getPNum(el),
 			wrap = aib.getWrap(el, false);
 		el = replacePost(el);
-		pByNum[num] = post = new Post(el, this, num, i, false, prev);
+		post = new Post(el, this, num, i, false, prev);
 		Object.defineProperty(post, 'wrap', { value: wrap });
 		parent.appendChild(wrap);
 		if(aib.t && !doc.hidden && Cfg.animation) {
@@ -10359,7 +10359,8 @@ class Thread {
 		do {
 			if(removePost) {
 				$del(post.wrap);
-				delete pByNum[post.num];
+				pByEl.delete(post.el);
+				pByNum.delete(post.num);
 				if(post.hidden) {
 					post.ref.unhide();
 				}
@@ -10619,8 +10620,8 @@ class Thread {
 		var bEls = $Q(aib.qBan, thrNode);
 		for(var i = 0, len = bEls.length; i < len; ++i) {
 			var bEl = bEls[i],
-				pEl = aib.getPostEl(bEl),
-				post = pEl ? pByNum[aib.getPNum(pEl)] : this.op;
+				pEl = aib.getPostElOfEl(bEl),
+				post = pEl ? pByNum.get(aib.getPNum(pEl)) : this.op;
 			if(post && !post.banned) {
 				if(!$q(aib.qBan, post.el)) {
 					post.msg.appendChild(bEl);
@@ -11207,7 +11208,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					var delPosts = $Q('.post[postid=""]', doc);
 					for(var i = 0, len = delPosts.length; i < len; ++i) {
 						try {
-							var post = pByNum[$q('blockquote', delPosts[i]).getAttribute('id').substring(1)];
+							var post = pByNum.get($q('blockquote', delPosts[i]).getAttribute('id').substring(1));
 							if(post) {
 								post.deleted = true;
 								post.btns.classList.remove('de-post-counter');
@@ -11430,7 +11431,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					      pEl => this.modifiedPosts.set(pEl, +pEl.getAttribute('data-lastmodified')));
 				}
 				$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', formEl), pEl => {
-					var nPost, post = pByNum[this.getPNum(pEl)],
+					var nPost, post = pByNum.get(this.getPNum(pEl)),
 						pDate = +pEl.getAttribute('data-lastmodified');
 					if(post && (!this.modifiedPosts.has(pEl) || this.modifiedPosts.get(pEl) < pDate)) {
 						var thr = post.thr,
@@ -11669,7 +11670,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			getPNum: { value(post) {
 				return $t('input', post).name;
 			} },
-			getPostEl: { value(el) {
+			getPostElOfEl: { value(el) {
 				while(el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
 					el = el.parentElement;
 				}
@@ -11753,7 +11754,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					els = $Q('.video-container, #ytplayer', isPost ? data.el : data);
 				for(var i = 0, len = els.length; i < len; ++i) {
 					var el = els[i];
-					videos.push([isPost ? data : this.getPostEl(el).post, el.id === 'ytplayer' ?
+					videos.push([isPost ? data : this.getPostOfEl(el), el.id === 'ytplayer' ?
 						el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true]);
 					$del(el);
 				}
@@ -11911,11 +11912,11 @@ function getImageBoard(checkDomains, checkEngines) {
 					src = el.src || el.data;
 				if(src) {
 					if((m = src.match(Videos.ytReg))) {
-						videos.push([isPost ? data : this.getPostEl(el).post, m, true]);
+						videos.push([isPost ? data : this.getPostOfEl(el), m, true]);
 						$del(el);
 					}
 					if(Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
-						videos.push([isPost ? data : this.getPostEl(el).post, m, false]);
+						videos.push([isPost ? data : this.getPostOfEl(el), m, false]);
 						$del(el);
 					}
 				}
@@ -11994,12 +11995,15 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPageUrl(b, p) {
 			return fixBrd(b) + (p > 0 ? p + this.docExt : '');
 		},
-		getPostEl(el) {
+		getPostElOfEl(el) {
 			var sel = this.qRPost + ', [de-thread]';
 			while(el && !nav.matchesSelector(el, sel)) {
 				el = el.parentElement;
 			}
 			return el;
+		},
+		getPostOfEl(el) {
+			return pByEl.get(this.getPostElOfEl(el));
 		},
 		getSage(post) {
 			var a = $q('a[href^="mailto:"], a[href="sage"]', post);
@@ -12189,7 +12193,7 @@ function Initialization(checkDomains) {
 				return;
 			}
 			temp = data.hide;
-			if(data.brd === aib.b && (post = pByNum[data.num]) && (post.hidden ^ temp)) {
+			if(data.brd === aib.b && (post = pByNum.get(data.num)) && (post.hidden ^ temp)) {
 				post.setUserVisib(temp, data.date, false);
 			} else {
 				uVis[data.num] = [+!temp, data.date];
@@ -13144,7 +13148,7 @@ function scrollPage() {
 			sesStorage.removeItem('de-scroll-' + aib.b + aib.t);
 		} else if((hash = window.location.hash) &&
 		          (num = hash.match(/#[ip]?(\d+)$/)) &&
-		          (num = num[1]) && (post = pByNum[num]) && !post.isOp)
+		          (num = num[1]) && (post = pByNum.get(num)) && !post.isOp)
 		{
 			post.el.scrollIntoView(true);
 			if(HotKeys.enabled) {
@@ -13606,7 +13610,8 @@ function* initScript(checkDomains, readCfgPromise) {
 	doc.body.style.display = 'none';
 	formEl = DelForm.doReplace(formEl);
 	new Logger().log('Replace delform');
-	pByNum = Object.create(null);
+	pByEl = new Map();
+	pByNum = new Map();
 	try {
 		DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
 	} catch(e) {
