@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '96f94c0';
+var commit = 'e37741f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11585,7 +11585,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					next() {
 						if(this._index < this._length) {
 							var link = this._links[this._index++];
-							return { value: [link, +link.getAttribute('data-num')], done: false };
+							return { value: [link, link.getAttribute('data-num')], done: false };
 						}
 						return { done: true };
 					}
@@ -11937,9 +11937,12 @@ function getImageBoard(checkDomains, checkEngines) {
 					while(idx < len) {
 						var lNum, link = this._links[idx++],
 							tc = link.textContent;
-						if(tc[0] === '>' && tc[1] === '>' && (lNum = +tc.substr(2))) {
-							this._index = idx;
-							return { value: [link, lNum], done: false };
+						if(tc[0] === '>' && tc[1] === '>') {
+							var lNum = tc.substr(2);
+							if(+lNum) {
+								this._index = idx;
+								return { value: [link, lNum], done: false };
+							}
 						}
 					}
 					return { done: true };

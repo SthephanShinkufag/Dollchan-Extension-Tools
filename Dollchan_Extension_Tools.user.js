@@ -1888,7 +1888,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '96f94c0';
+	var commit = 'e37741f';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -14656,7 +14656,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}), _defineProperty(_ref22, 'next', function next() {
 							if (this._index < this._length) {
 								var link = this._links[this._index++];
-								return { value: [link, +link.getAttribute('data-num')], done: false };
+								return { value: [link, link.getAttribute('data-num')], done: false };
 							}
 							return { done: true };
 						}), _ref22);
@@ -14995,9 +14995,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						var lNum,
 						    link = this._links[idx++],
 						    tc = link.textContent;
-						if (tc[0] === '>' && tc[1] === '>' && (lNum = +tc.substr(2))) {
-							this._index = idx;
-							return { value: [link, lNum], done: false };
+						if (tc[0] === '>' && tc[1] === '>') {
+							var lNum = tc.substr(2);
+							if (+lNum) {
+								this._index = idx;
+								return { value: [link, lNum], done: false };
+							}
 						}
 					}
 					return { done: true };
