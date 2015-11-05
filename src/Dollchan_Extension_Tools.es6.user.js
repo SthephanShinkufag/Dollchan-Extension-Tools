@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'ce8c6ce';
+var commit = '5bac081';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9710,6 +9710,7 @@ class Pview extends AbstractPost {
 				Attachment.viewer = vPost = null;
 			}
 			var el = pv.el;
+			pByEl.delete(el);
 			if(Cfg.animation) {
 				nav.animEvent(el, $del);
 				el.classList.add('de-pview-anim');
@@ -9864,7 +9865,7 @@ class Pview extends AbstractPost {
 				'<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' +
 				(post.deleted ? '' : '<span style="margin: 0 4px 0 2px; vertical-align: 1px; color: #4f7942; ' +
 				'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
-		el.post = this;
+		pByEl.set(el, this);
 		el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
 		el.style.display = '';
 		if(Cfg.linksNavig === 2) {
@@ -13617,7 +13618,6 @@ function* initScript(checkDomains, readCfgPromise) {
 	Logger.log('Hide posts');
 	scrollPage();
 	Logger.log('Scroll page');
-	console.log(Spells);
 	Logger.finish();
 }
 

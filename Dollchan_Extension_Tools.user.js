@@ -1888,7 +1888,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'ce8c6ce';
+	var commit = '5bac081';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12555,6 +12555,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						Attachment.viewer = vPost = null;
 					}
 					var el = pv.el;
+					pByEl['delete'](el);
 					if (Cfg.animation) {
 						nav.animEvent(el, $del);
 						el.classList.add('de-pview-anim');
@@ -12735,7 +12736,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				var el = this.el = post.el.cloneNode(true),
 				    pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' + (post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' + (post.deleted ? '' : '<span style="margin: 0 4px 0 2px; vertical-align: 1px; color: #4f7942; ' + 'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
-				el.post = this;
+				pByEl.set(el, this);
 				el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
 				el.style.display = '';
 				if (Cfg.linksNavig === 2) {
@@ -16652,10 +16653,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					Logger.log('Hide posts');
 					scrollPage();
 					Logger.log('Scroll page');
-					console.log(Spells);
 					Logger.finish();
 
-				case 62:
+				case 61:
 				case 'end':
 					return context$2$0.stop();
 			}
