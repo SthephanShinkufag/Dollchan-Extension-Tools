@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'e31fdb1';
+var commit = 'ce8c6ce';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5176,8 +5176,6 @@ toggleInfinityScroll.onwheel = function(e) {
 // SPELLS
 // ===========================================================================================================
 
-
-
 var Spells = Object.create({
 	hash: null,
 	names: [
@@ -5207,7 +5205,7 @@ var Spells = Object.create({
 		try {
 			data = JSON.parse(Cfg.spells);
 		} catch(e) {
-			return '';
+			return '#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)';
 		}
 		str = data[1] ? this._decompileScope(data[1], '')[0].join('\n') : '';
 		reps = data[2];
@@ -5217,16 +5215,18 @@ var Spells = Object.create({
 				str += '\n\n';
 			}
 			if(reps) {
-				reps.forEach(rep => {
+				for(var rep of reps) {
 					str += this._decompileRep(rep, false) + '\n';
-				});
+				}
 			}
 			if(oreps) {
-				oreps.forEach(orep => {
+				for(var orep of oreps) {
 					str += this._decompileRep(orep, true) + '\n';
-				});
+				}
 			}
 			str = str.substr(0, str.length - 1);
+		} else if(!str) {
+			str = '#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)';
 		}
 		return str;
 	},
@@ -5431,9 +5431,6 @@ var Spells = Object.create({
 		closePopup('err-spell');
 	},
 
-	get _defaultSpells() {
-		return this.parseText('#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)');
-	},
 	_decompileScope(scope, indent) {
 		var dScope = [],
 			hScope = false;
@@ -5490,7 +5487,7 @@ var Spells = Object.create({
 		if(spells) {
 			this._optimize(spells);
 		} else {
-			this._optimize(this._defaultSpells);
+			this.disable();
 		}
 	},
 	_initHiders(data) {
@@ -10235,6 +10232,7 @@ class Thread {
 			prev.next = this;
 		}
 		var lastPost = this.op = new Post(aib.getOp(el), this, num, 0, true, prev ? prev.last : null);
+		pByEl.set(el, lastPost);
 		for(var i = 0; i < len; i++) {
 			var pEl = els[i];
 			lastPost = new Post(pEl, this, aib.getPNum(pEl), omt + i, false, lastPost);
