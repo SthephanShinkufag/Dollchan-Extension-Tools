@@ -1888,7 +1888,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'ac14537';
+	var commit = '2ef0692';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12982,6 +12982,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							ref.add(post, pNum);
 						} else {
 							ref._set.add(pNum);
+							ref.hasMap = true;
 						}
 						if (!aib.hasOPNum && opNums.has(lNum)) {
 							link.classList.add('de-ref-op');
@@ -13057,6 +13058,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function RefMap(post) {
 			_classCallCheck(this, RefMap);
 
+			this.hasMap = false;
 			this._inited = false;
 			this._post = post;
 			this._set = new Set();
@@ -13161,6 +13163,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (this._set.size === 0) {
 					$del(this._el);
 					delete this._el;
+					this.hasMap = false;
 				} else {
 					var el = this.getElByNum(num);
 					if (el) {
@@ -13219,11 +13222,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: '_getHTML',
 			value: function _getHTML(num, tUrl, isHidden) {
 				return '<a href="' + tUrl + aib.anchor + num + '" class="de-link-ref' + (isHidden ? ' de-link-hid' : '') + '">&gt;&gt;' + num + '</a><span class="de-refcomma">, </span>';
-			}
-		}, {
-			key: 'hasMap',
-			get: function get() {
-				return this._set.size !== 0;
 			}
 		}, {
 			key: '_el',

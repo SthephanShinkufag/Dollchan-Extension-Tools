@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'ac14537';
+var commit = '2ef0692';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10044,6 +10044,7 @@ class RefMap {
 					ref.add(post, pNum);
 				} else {
 					ref._set.add(pNum);
+					ref.hasMap = true;
 				}
 				if(!aib.hasOPNum && opNums.has(lNum)) {
 					link.classList.add('de-ref-op');
@@ -10095,12 +10096,10 @@ class RefMap {
 		}
 	}
 	constructor(post) {
+		this.hasMap = false;
 		this._inited = false;
 		this._post = post;
 		this._set = new Set();
-	}
-	get hasMap() {
-		return this._set.size !== 0;
 	}
 	add(post, num, isHidden = null) {
 		if(isHidden === null) {
@@ -10154,6 +10153,7 @@ class RefMap {
 		if(this._set.size === 0) {
 			$del(this._el);
 			delete this._el;
+			this.hasMap = false;
 		} else {
 			var el = this.getElByNum(num);
 			if(el) {
