@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'f731b46';
+var commit = '5ae17cf';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -600,7 +600,7 @@ Lng = {
 doc = window.document, aProto = Array.prototype, locStorage, sesStorage,
 Cfg, hThr, pByEl, pByNum, sVis, uVis, needScroll,
 aib, nav, updater, dTime, visPosts = 2, topWinZ = 0,
-pr, dummy, spells,
+pr, dummy,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
 lang, quotetxt = '', localRun, isExpImg, isPreImg, chromeCssUpd, excludeList,
 $each = Function.prototype.call.bind(aProto.forEach),
@@ -1565,7 +1565,7 @@ function readPosts() {
 	var str = aib.t ? sesStorage['de-hidden-' + aib.b + aib.t] : null;
 	if(typeof str === 'string') {
 		var data = str.split(';');
-		if(data.length === 4 && +data[0] === (Cfg.hideBySpell ? spells.hash : 0) &&
+		if(data.length === 4 && +data[0] === (Cfg.hideBySpell ? Spells.hash : 0) &&
 		  pByNum.has(+data[1]) && pByNum.get(+data[1]).count === +data[2])
 		{
 			sVis = data[3].split(',');
@@ -2756,7 +2756,7 @@ function updRowMeter(node) {
 function getCfgFilters() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-filters'}, [
 		$New('div', {'id': 'de-spell-panel'}, [
-			lBox('hideBySpell', false, toggleSpells),
+			lBox('hideBySpell', false, Spells.toggle.bind(Spells)),
 			$new('a', {
 				'id': 'de-btn-addspell',
 				'text': Lng.add[lang],
@@ -2770,12 +2770,12 @@ function getCfgFilters() {
 				$pd(e);
 				saveCfg('hideBySpell', 1);
 				$q('input[info="hideBySpell"]', doc).checked = true;
-				toggleSpells();
+				Spells.toggle();
 			}}),
 			$new('a', {'text': Lng.clear[lang], 'href': '#', 'class': 'de-abtn de-spell-btn'}, {'click'(e) {
 				$pd(e);
 				$id('de-spell-txt').value = '';
-				toggleSpells();
+				Spells.toggle();
 			}}),
 			$add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-' +
 				(lang ? 'en' : 'ru') + '" class="de-abtn de-spell-btn" target="_blank">[?]</a>')
@@ -2789,7 +2789,7 @@ function getCfgFilters() {
 		]),
 		lBox('sortSpells', true, function() {
 			if(Cfg.sortSpells) {
-				toggleSpells();
+				Spells.toggle();
 			}
 		}),
 		lBox('menuHiddBtn', true, null),
@@ -3170,7 +3170,7 @@ function getCfgInfo() {
 				'location': String(window.location),
 				'nav': nav,
 				'cfg': Cfg,
-				'sSpells': spells.list.split('\n'),
+				'sSpells': Spells.list.split('\n'),
 				'oSpells': sesStorage['de-spells-' + aib.b + (aib.t || '')],
 				'perf': Logger.getData(true)
 			}, function(key, value) {
@@ -3242,7 +3242,7 @@ function cfgTabClick(e) {
 	}
 	newTab.className = 'de-cfg-body';
 	if(id === 'filters') {
-		$id('de-spell-txt').value = spells.list;
+		$id('de-spell-txt').value = Spells.list;
 	}
 	fixSettings();
 }
@@ -5176,84 +5176,366 @@ toggleInfinityScroll.onwheel = function(e) {
 // SPELLS
 // ===========================================================================================================
 
-function Spells(read) {
-	if(read) {
-		this._read(true);
-	} else {
-		this.disable(false);
-	}
-}
-Spells.names = [
-	'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen',
-	'all', 'video', 'wipe', 'num', 'vauthor'
-];
-Spells.needArg = [
-	/* words */ true, /* exp */ true, /* exph */ true, /* imgn */ true, /* ihash */ true,
-	/* subj */ false, /* name */ true, /* trip */ false, /* img */ false, /* sage */ false,
-	/* op */ false, /* tlen */ false, /* all */ false, /* video */ false, /* wipe */ false,
-	/* num */ true, /* vauthor */ true
-];
-Spells.decompileSpell = function(type, neg, val, scope, wipeMsg = null) {
-	var spell = (neg ? '!#' : '#') + Spells.names[type] + (scope ? '[' +
-		scope[0] + (scope[1] ? ',' + (scope[1] === -1 ? '' : scope[1]) : '') + ']' : '');
-	if(!val) {
-		return spell;
-	}
-	// #img
-	if(type === 8) {
-		return spell + '(' + (val[0] === 2 ? '>' : val[0] === 1 ? '<' : '=') +
-			(val[1] ? val[1][0] + (val[1][1] === val[1][0] ? '' : '-' + val[1][1]) : '') +
-			(val[2] ? '@' + val[2][0] + (val[2][0] === val[2][1] ? '' : '-' + val[2][1]) + 'x' +
-			val[2][2] + (val[2][2] === val[2][3] ? '' : '-' + val[2][3]) : '') + ')';
-	}
-	// #wipe
-	else if(type === 14) {
-		if(val === 0x3F && !wipeMsg) {
+
+
+var Spells = Object.create({
+	hash: null,
+	names: [
+		'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen',
+		'all', 'video', 'wipe', 'num', 'vauthor'
+	],
+	needArg: [
+		/* words */ true, /* exp */ true, /* exph */ true, /* imgn */ true, /* ihash */ true,
+		/* subj */ false, /* name */ true, /* trip */ false, /* img */ false, /* sage */ false,
+		/* op */ false, /* tlen */ false, /* all */ false, /* video */ false, /* wipe */ false,
+		/* num */ true, /* vauthor */ true
+	],
+	get hiders() {
+		this._init();
+		return this.hiders;
+	},
+	get reps() {
+		this._init();
+		return this.reps;
+	},
+	get outreps() {
+		this._init();
+		return this.outreps;
+	},
+	get list() {
+		var str, reps, oreps, data;
+		try {
+			data = JSON.parse(Cfg.spells);
+		} catch(e) {
+			return '';
+		}
+		str = data[1] ? this._decompileScope(data[1], '')[0].join('\n') : '';
+		reps = data[2];
+		oreps = data[3];
+		if(reps || oreps) {
+			if(str) {
+				str += '\n\n';
+			}
+			if(reps) {
+				reps.forEach(rep => {
+					str += this._decompileRep(rep, false) + '\n';
+				});
+			}
+			if(oreps) {
+				oreps.forEach(orep => {
+					str += this._decompileRep(orep, true) + '\n';
+				});
+			}
+			str = str.substr(0, str.length - 1);
+		}
+		return str;
+	},
+	add(type, arg, isNeg) {
+		var temp, fld = $id('de-spell-txt'),
+			val = fld && fld.value,
+			chk = $q('input[info="hideBySpell"]', doc),
+			spells = val && this.parseText(val);
+		if(!val || spells) {
+			this.unhide();
+			if(!spells) {
+				try {
+					spells = JSON.parse(Cfg.spells);
+				} catch(e) {}
+				spells = spells || [Date.now(), [], null, null];
+			}
+			var idx, scope = aib.t ? [aib.b, aib.t] : null,
+				sScope = String(scope),
+				sArg = String(arg);
+			if(spells[1]) {
+				spells[1].some(scope && isNeg ? function(spell, i) {
+					var data;
+					if(spell[0] === 0xFF && ((data = spell[1]) instanceof Array) && data.length === 2 &&
+					   data[0][0] === 0x20C && data[1][0] === type && data[1][2] == null &&
+					   String(data[1][1]) === sArg && String(data[0][2]) === sScope)
+					{
+						idx = i;
+						return true;
+					}
+					return (spell[0] & 0x200) !== 0;
+				} : function(spell, i) {
+					if(spell[0] === type && String(spell[1]) === sArg && String(spell[2]) === sScope) {
+						idx = i;
+						return true;
+					}
+					return (spell[0] & 0x200) !== 0;
+				});
+			} else {
+				spells[1] = [];
+			}
+			if(typeof idx !== 'undefined') {
+				if(spells[1].length === 1) {
+					spells[1] = null;
+				} else {
+					spells[1].splice(idx, 1);
+				}
+			} else if(scope && isNeg) {
+				spells[1].splice(0, 0, [0xFF, [[0x20C, '', scope], [type, arg, void 0]], void 0]);
+			} else {
+				spells[1].splice(0, 0, [type, arg, scope]);
+			}
+			this.setSpells(spells, true);
+			var enabled = this.hiders || this.reps || this.outreps;
+			saveCfg('hideBySpell', enabled);
+			saveCfg('spells', JSON.stringify(spells));
+			if(fld) {
+				fld.value = this.list;
+				chk.checked = enabled;
+			}
+			Pview.updatePosition(true);
+			return;
+		}
+		if(chk) {
+			chk.checked = false;
+		}
+	},
+	decompileSpell(type, neg, val, scope, wipeMsg = null) {
+		var spell = (neg ? '!#' : '#') + Spells.names[type] + (scope ? '[' +
+			scope[0] + (scope[1] ? ',' + (scope[1] === -1 ? '' : scope[1]) : '') + ']' : '');
+		if(!val) {
 			return spell;
 		}
-		var [msgBit, msgData] = wipeMsg || [],
-			names = [],
-			bits = {1: 'samelines',2: 'samewords', 4: 'longwords', 8: 'symbols',
-			        16: 'capslock', 32: 'numbers', 64: 'whitespace'
-			};
-		for(var bit in bits) {
-			if(+bit !== msgBit) {
-				if(val & +bit) {
-					names.push(bits[bit]);
+		// #img
+		if(type === 8) {
+			return spell + '(' + (val[0] === 2 ? '>' : val[0] === 1 ? '<' : '=') +
+				(val[1] ? val[1][0] + (val[1][1] === val[1][0] ? '' : '-' + val[1][1]) : '') +
+				(val[2] ? '@' + val[2][0] + (val[2][0] === val[2][1] ? '' : '-' + val[2][1]) + 'x' +
+				val[2][2] + (val[2][2] === val[2][3] ? '' : '-' + val[2][3]) : '') + ')';
+		}
+		// #wipe
+		else if(type === 14) {
+			if(val === 0x3F && !wipeMsg) {
+				return spell;
+			}
+			var [msgBit, msgData] = wipeMsg || [],
+				names = [],
+				bits = {1: 'samelines',2: 'samewords', 4: 'longwords', 8: 'symbols',
+						16: 'capslock', 32: 'numbers', 64: 'whitespace'
+				};
+			for(var bit in bits) {
+				if(+bit !== msgBit) {
+					if(val & +bit) {
+						names.push(bits[bit]);
+					}
+				}
+			}
+			if(msgBit) {
+				names.push(bits[msgBit].toUpperCase() + (msgData ? ': ' + msgData : ''));
+			}
+			return spell + '(' + names.join(',') + ')';
+		}
+		// #num, #tlen
+		else if(type === 15 || type === 11) {
+			var temp_, temp = val[1].length - 1;
+			if(temp !== -1) {
+				for(temp_ = []; temp >= 0; --temp) {
+					temp_.push(val[1][temp][0] + '-' + val[1][temp][1]);
+				}
+				temp_.reverse();
+			}
+			spell += '(';
+			if(val[0].length) {
+				spell += val[0].join(',') + (temp_ ? ',' : '');
+			}
+			if(temp_) {
+				spell += temp_.join(',');
+			}
+			return spell + ')';
+		}
+		// #words, #name, #trip, #vauthor
+		else if(type === 0 || type === 6 || type === 7 || type === 16) {
+			return spell + '(' + val.replace(/\)/g, '\\)') + ')';
+		} else {
+			return spell + '(' + String(val) + ')';
+		}
+	},
+	disable() {
+		var value = null, configurable = true;
+		Object.defineProperties(this, {
+			hiders: { configurable, value },
+			reps: { configurable, value },
+			outreps: { configurable, value }
+		});
+		saveCfg('hideBySpell', false);
+	},
+	outReplace(txt) {
+		for(var orep of this.outreps) {
+			txt = txt.replace(orep[0], orep[1]);
+		}
+		return txt;
+	},
+	parseText(text) {
+		var codeGen = new SpellsCodegen(text),
+			data = codeGen.generate();
+		if(codeGen.hasError) {
+			$popup(Lng.error[lang] + ': ' + codeGen.error, 'err-spell', false);
+		} else if(data) {
+			if(data[0] && Cfg.sortSpells) {
+				this._sort(data[0]);
+			}
+			return [Date.now(), data[0], data[1], data[2]];
+		}
+		return null;
+	},
+	setSpells(spells, sync) {
+		this._optimize(spells);
+		if(sync) {
+			this._sync(spells);
+		}
+		if(this.hiders) {
+			var sRunner = new SpellsRunner();
+			for(var post = Thread.first.op; post; post = post.next) {
+				sRunner.run(post);
+			}
+			sRunner.end();
+		}
+	},
+	replace(txt) {
+		for(var orep of this.reps) {
+			txt = txt.replace(orep[0], orep[1]);
+		}
+		return txt;
+	},
+	toggle() {
+		var spells, fld = $id('de-spell-txt'),
+			val = fld.value;
+		if(val && (spells = this.parseText(val))) {
+			this.unhide();
+			this.setSpells(spells, true);
+			saveCfg('spells', JSON.stringify(spells));
+			fld.value = this.list;
+		} else {
+			if(val) {
+				locStorage['__de-spells'] = '{"hide": false, "data": null}';
+			} else {
+				this.unhide();
+				this.disable();
+				saveCfg('spells', '');
+				locStorage['__de-spells'] = '{"hide": false, "data": ""}';
+			}
+			locStorage.removeItem('__de-spells');
+			$q('input[info="hideBySpell"]', doc).checked = false;
+		}
+	},
+	unhide() {
+		sVis = aib.t ? '1'.repeat(Thread.first.pcount).split('') : [];
+		for(var post = Thread.first.op; post; post = post.next) {
+			if(post.spellHidden && !post.userToggled) {
+				post.spellUnhide();
+			}
+		}
+		closePopup('err-spell');
+	},
+
+	get _defaultSpells() {
+		return this.parseText('#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)');
+	},
+	_decompileScope(scope, indent) {
+		var dScope = [],
+			hScope = false;
+		for(var i = 0, j = 0, len = scope.length; i < len; i++, j++) {
+			var spell = scope[i],
+				type = spell[0] & 0xFF;
+			if(type === 0xFF) {
+				hScope = true;
+				var temp = this._decompileScope(spell[1], indent + '    ');
+				if(temp[1]) {
+					var str = ((spell[0] & 0x100) ? '!(\n' : '(\n') + indent + '    ' +
+						temp[0].join('\n' + indent + '    ') + '\n' + indent + ')';
+					if(j === 0) {
+						dScope[0] = str;
+					} else {
+						dScope[--j] += ' ' + str;
+					}
+				} else {
+					dScope[j] = ((spell[0] & 0x100) ? '!(' : '(') + temp[0].join(' ') + ')';
+				}
+			} else {
+				dScope[j] = this.decompileSpell(type, spell[0] & 0x100, spell[1], spell[2]);
+			}
+			if(i !== len - 1) {
+				dScope[j] += (spell[0] & 0x200) ? ' &' : ' |';
+			}
+		}
+		return [dScope, dScope.length > 2 || hScope];
+	},
+	_decompileRep(rep, isOrep) {
+		return (isOrep ? '#outrep' : '#rep') +
+			(rep[0] ? '[' + rep[0] + (rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '') +
+			'(' + rep[2] + ',' + rep[3].replace(/\)/g, '\\)') + ')';
+	},
+	_init() {
+		if(!Cfg.hideBySpell) {
+			var value = null, configurable = true;
+			Object.defineProperties(this, {
+				hiders: { configurable, value },
+				reps: { configurable, value },
+				outreps: { configurable, value }
+			});
+		}
+		var spells, data;
+		try {
+			spells = JSON.parse(Cfg.spells);
+			data = JSON.parse(sesStorage['de-spells-' + aib.b + (aib.t || '')]);
+		} catch(e) {}
+		if(data && spells && data[0] === spells[0]) {
+			this.hash = data[0];
+			this._setData(data[1], data[2], data[3]);
+			return;
+		}
+		if(spells) {
+			this._optimize(spells);
+		} else {
+			this._optimize(this._defaultSpells);
+		}
+	},
+	_initHiders(data) {
+		if(data) {
+			for(var item of data) {
+				var val = item[1];
+				if(val) {
+					switch(item[0] & 0xFF) {
+					case 1:
+					case 2:
+					case 3:
+					case 5:
+					case 13: item[1] = toRegExp(val, true); break;
+					case 0xFF: this._initHiders(val);
+					}
 				}
 			}
 		}
-		if(msgBit) {
-			names.push(bits[msgBit].toUpperCase() + (msgData ? ': ' + msgData : ''));
-		}
-		return spell + '(' + names.join(',') + ')';
-	}
-	// #num, #tlen
-	else if(type === 15 || type === 11) {
-		var temp_, temp = val[1].length - 1;
-		if(temp !== -1) {
-			for(temp_ = []; temp >= 0; --temp) {
-				temp_.push(val[1][temp][0] + '-' + val[1][temp][1]);
+		return data;
+	},
+	_initReps(data) {
+		if(data) {
+			for(var item of data) {
+				item[0] = toRegExp(item[0], false);
 			}
-			temp_.reverse();
 		}
-		spell += '(';
-		if(val[0].length) {
-			spell += val[0].join(',') + (temp_ ? ',' : '');
+		return data;
+	},
+	_optimize(data) {
+		var hiders = data[1] ? this._optimizeSpells(data[1]) : null,
+			reps = data[2] ? this._optimizeReps(data[2]) : null,
+			outreps = data[3] ? this._optimizeReps(data[3]) : null;
+		sesStorage['de-spells-' + aib.b + (aib.t || '')] = JSON.stringify([data[0], hiders, reps, outreps]);
+		this.hash = data[0];
+		this._setData(hiders, reps, outreps);
+	},
+	_optimizeReps(data) {
+		var rv = [];
+		for(var rep of data) {
+			if(!rep[0] || (rep[0] === aib.b && (rep[1] === -1 ? !aib.t : !rep[1] || rep[1] === aib.t))) {
+				rv.push([rep[2], rep[3]]);
+			}
 		}
-		if(temp_) {
-			spell += temp_.join(',');
-		}
-		return spell + ')';
-	}
-	// #words, #name, #trip, #vauthor
-	else if(type === 0 || type === 6 || type === 7 || type === 16) {
-		return spell + '(' + val.replace(/\)/g, '\\)') + ')';
-	} else {
-		return spell + '(' + String(val) + ')';
-	}
-};
-Spells.prototype = {
+		return !rv.length ? null : rv;
+	},
 	_optimizeSpells(spells) {
 		var neg, lastSpell = -1,
 			newSpells = [];
@@ -5306,163 +5588,15 @@ Spells.prototype = {
 		}
 		return lastSpell === -1 ? neg ? [[12, '']] : null : newSpells;
 	},
-	_initSpells(data) {
-		if(data) {
-			data.forEach(function initExps(item) {
-				var val = item[1];
-				if(val) {
-					switch(item[0] & 0xFF) {
-					case 1:
-					case 2:
-					case 3:
-					case 5:
-					case 13: item[1] = toRegExp(val, true); break;
-					case 0xFF: val.forEach(initExps);
-					}
-				}
-			});
-		}
-		return data;
-	},
-	_decompileScope(scope, indent) {
-		var dScope = [],
-			hScope = false;
-		for(var i = 0, j = 0, len = scope.length; i < len; i++, j++) {
-			var spell = scope[i],
-				type = spell[0] & 0xFF;
-			if(type === 0xFF) {
-				hScope = true;
-				var temp = this._decompileScope(spell[1], indent + '    ');
-				if(temp[1]) {
-					var str = ((spell[0] & 0x100) ? '!(\n' : '(\n') + indent + '    ' +
-						temp[0].join('\n' + indent + '    ') + '\n' + indent + ')';
-					if(j === 0) {
-						dScope[0] = str;
-					} else {
-						dScope[--j] += ' ' + str;
-					}
-				} else {
-					dScope[j] = ((spell[0] & 0x100) ? '!(' : '(') + temp[0].join(' ') + ')';
-				}
-			} else {
-				dScope[j] = Spells.decompileSpell(type, spell[0] & 0x100, spell[1], spell[2]);
-			}
-			if(i !== len - 1) {
-				dScope[j] += (spell[0] & 0x200) ? ' &' : ' |';
-			}
-		}
-		return [dScope, dScope.length > 2 || hScope];
-	},
-	_decompileSpells() {
-		var str, reps, oreps, data = this._data;
-		if(!data) {
-			this._read(false);
-			data = this._data;
-			if(!data) {
-				return (this._list = '');
-			}
-		}
-		str = data[1] ? this._decompileScope(data[1], '')[0].join('\n') : '';
-		reps = data[2];
-		oreps = data[3];
-		if(reps || oreps) {
-			if(str) {
-				str += '\n\n';
-			}
-			if(reps) {
-				reps.forEach(rep => {
-					str += this._decompileRep(rep, false) + '\n';
-				});
-			}
-			if(oreps) {
-				oreps.forEach(orep => {
-					str += this._decompileRep(orep, true) + '\n';
-				});
-			}
-			str = str.substr(0, str.length - 1);
-		}
-		this._data = null;
-		return (this._list = str);
-	},
-	_decompileRep(rep, isOrep) {
-		return (isOrep ? '#outrep' : '#rep') +
-			(rep[0] ? '[' + rep[0] + (rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '') +
-			'(' + rep[2] + ',' + rep[3].replace(/\)/g, '\\)') + ')';
-	},
-	_optimizeReps(data) {
-		if(!data) {
-			return false;
-		}
-		var nData = [];
-		data.forEach(function(temp) {
-			if(!temp[0] || (temp[0] === aib.b && (temp[1] === -1 ? !aib.t : !temp[1] || temp[1] === aib.t))) {
-				nData.push([temp[2], temp[3]]);
-			}
+	_setData(hiders, reps, outreps) {
+		var configurable = true;
+		Object.defineProperties(this, {
+			hiders: { configurable, value: this._initHiders(hiders) },
+			reps: { configurable, value: this._initReps(reps) },
+			outreps: { configurable, value: this._initReps(outreps) }
 		});
-		return !nData.length ? false : nData;
 	},
-	_initReps(data) {
-		if(data) {
-			for(var i = data.length - 1; i >= 0; i--) {
-				data[i][0] = toRegExp(data[i][0], false);
-			}
-		}
-		return data;
-	},
-	_init(spells, reps, outreps) {
-		this._spells = this._initSpells(spells);
-		this._reps = this._initReps(reps);
-		this._outreps = this._initReps(outreps);
-		this.enable = !!this._spells;
-		this.haveReps = !!reps;
-		this.haveOutreps = !!outreps;
-	},
-	_read(init) {
-		var spells, data;
-		try {
-			spells = JSON.parse(Cfg.spells);
-			data = JSON.parse(sesStorage['de-spells-' + aib.b + (aib.t || '')]);
-		} catch(e) {}
-		if(data && spells && data[0] === spells[0]) {
-			this._data = spells;
-			if(init) {
-				this.hash = data[0];
-				this._init(data[1], data[2], data[3]);
-			}
-			return;
-		}
-		if(!spells) {
-			spells = this.parseText('#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)');
-		}
-		if(init) {
-			this.update(spells, false, false);
-		} else {
-			this._data = spells;
-		}
-	},
-	_data: null,
-	_list: '',
-
-	hash: 0,
-	hasNumSpell: false,
-	enable: false,
-	get list() {
-		return this._list || this._decompileSpells();
-	},
-	parseText(str) {
-		var codeGen = new SpellsCodegen(str),
-			data = codeGen.generate();
-		if(codeGen.hasError) {
-			$popup(Lng.error[lang] + ': ' + codeGen.error, 'err-spell', false);
-		} else if(data) {
-			if(data[0] && Cfg.sortSpells) {
-				this.sort(data[0]);
-			}
-			return [Date.now(), data[0], data[1], data[2]];
-		}
-		return null;
-	},
-	sort(sp) {
+	_sort(sp) {
 		// Wraps AND-spells with brackets for proper sorting
 		for(var i = 0, len = sp.length-1; i < len; i++) {
 			if(sp[i][0] > 0x200) {
@@ -5494,96 +5628,14 @@ Spells.prototype = {
 			}
 		}
 	},
-	update(data, sync, isHide) {
-		var spells = data[1] ? this._optimizeSpells(data[1]) : false,
-			reps = this._optimizeReps(data[2]),
-			outreps = this._optimizeReps(data[3]);
-		saveCfg('spells', JSON.stringify(data));
-		sesStorage['de-spells-' + aib.b + (aib.t || '')] = JSON.stringify([data[0], spells, reps, outreps]);
-		this._data = data;
-		this._list = '';
-		this.hash = data[0];
-		if(sync) {
-			locStorage['__de-spells'] = JSON.stringify({
-				'hide': (!!this.list && !!isHide),
-				'data': data
-			});
-			locStorage.removeItem('__de-spells');
-		}
-		this._init(spells, reps, outreps);
-	},
-	setSpells(spells, sync) {
-		this.update(spells, sync, Cfg.hideBySpell);
-		if(Cfg.hideBySpell) {
-			var sRunner = new SpellsRunner();
-			for(var post = Thread.first.op; post; post = post.next) {
-				sRunner.run(post);
-			}
-			sRunner.end();
-		} else {
-			this.enable = false;
-		}
-	},
-	disable(sync) {
-		this.enable = false;
-		this._list = '';
-		this._data = null;
-		this.haveReps = this.haveOutreps = false;
-		saveCfg('hideBySpell', false);
-	},
-	replace(txt) {
-		for(var i = 0, len = this._reps.length; i < len; i++) {
-			txt = txt.replace(this._reps[i][0], this._reps[i][1]);
-		}
-		return txt;
-	},
-	outReplace(txt) {
-		for(var i = 0, len = this._outreps.length; i < len; i++) {
-			txt = txt.replace(this._outreps[i][0], this._outreps[i][1]);
-		}
-		return txt;
-	},
-	addSpell(type, arg, scope, isNeg, spells) {
-		if(!spells) {
-			if(!this._data) {
-				this._read(false);
-			}
-			spells = this._data || [Date.now(), [], false, false];
-		}
-		var idx, sScope = String(scope),
-			sArg = String(arg);
-		if(spells[1]) {
-			spells[1].some(scope && isNeg ? function(spell, i) {
-				var data;
-				if(spell[0] === 0xFF && ((data = spell[1]) instanceof Array) && data.length === 2 &&
-				   data[0][0] === 0x20C && data[1][0] === type && data[1][2] == null &&
-				   String(data[1][1]) === sArg && String(data[0][2]) === sScope)
-				{
-					idx = i;
-					return true;
-				}
-				return (spell[0] & 0x200) !== 0;
-			} : function(spell, i) {
-				if(spell[0] === type && String(spell[1]) === sArg && String(spell[2]) === sScope) {
-					idx = i;
-					return true;
-				}
-				return (spell[0] & 0x200) !== 0;
-			});
-		} else {
-			spells[1] = [];
-		}
-		if(typeof idx !== 'undefined') {
-			spells[1].splice(idx, 1);
-		} else if(scope && isNeg) {
-			spells[1].splice(0, 0, [0xFF, [[0x20C, '', scope], [type, arg, void 0]], void 0]);
-		} else {
-			spells[1].splice(0, 0, [type, arg, scope]);
-		}
-		this.update(spells, true, true);
-		idx = null;
+	_sync(data) {
+		locStorage['__de-spells'] = JSON.stringify({
+			'hide': !!Cfg.hideBySpell,
+			'data': data
+		});
+		locStorage.removeItem('__de-spells');
 	}
-};
+});
 
 function SpellsCodegen(sList) {
 	this._line = 1;
@@ -5935,7 +5987,7 @@ SpellsCodegen.prototype = {
 };
 
 function SpellsRunner() {
-	this._spells = spells._spells;
+	this._spells = Spells.hiders;
 	if(!this._spells) {
 		this.run = () => 0;
 	}
@@ -5976,7 +6028,7 @@ SpellsRunner.prototype = {
 		if(this._spells) {
 			if(aib.t) {
 				var lPost = Thread.first.lastNotDeleted;
-				sesStorage['de-hidden-' + aib.b + aib.t] = (Cfg.hideBySpell ? spells.hash : '0') +
+				sesStorage['de-hidden-' + aib.b + aib.t] = (Cfg.hideBySpell ? Spells.hash : '0') +
 					';' + lPost.num + ';' + lPost.count + ';' + sVis.join();
 			}
 			saveHiddenThreads(false);
@@ -6362,70 +6414,6 @@ SpellsInterpreter.prototype = {
 	}
 };
 
-function disableSpells() {
-	if(spells.enable) {
-		sVis = aib.t ? '1'.repeat(Thread.first.pcount).split('') : [];
-		for(var post = Thread.first.op; post; post = post.next) {
-			if(post.spellHidden && !post.userToggled) {
-				post.spellUnhide();
-			}
-		}
-	}
-	closePopup('err-spell');
-}
-
-function toggleSpells() {
-	var temp, fld = $id('de-spell-txt'),
-		val = fld.value;
-	if(val && (temp = spells.parseText(val))) {
-		disableSpells();
-		spells.setSpells(temp, true);
-		fld.value = spells.list;
-	} else {
-		if(val) {
-			locStorage['__de-spells'] = '{"hide": false, "data": null}';
-		} else {
-			disableSpells();
-			spells.disable();
-			saveCfg('spells', '');
-			locStorage['__de-spells'] = '{"hide": false, "data": ""}';
-		}
-		locStorage.removeItem('__de-spells');
-		$q('input[info="hideBySpell"]', doc).checked = spells.enable = false;
-	}
-}
-
-function addSpell(type, arg, isNeg) {
-	var temp, fld = $id('de-spell-txt'),
-		val = fld && fld.value,
-		chk = $q('input[info="hideBySpell"]', doc);
-	if(!val || (temp = spells.parseText(val))) {
-		disableSpells();
-		spells.addSpell(type, arg, aib.t ? [aib.b, aib.t] : null, isNeg, temp);
-		val = spells.list;
-		saveCfg('hideBySpell', !!val);
-		if(val) {
-			var sRunner = new SpellsRunner();
-			for(var post = Thread.first.op; post; post = post.next) {
-				sRunner.run(post);
-			}
-			sRunner.end();
-		} else {
-			saveCfg('spells', '');
-			spells.enable = false;
-		}
-		if(fld) {
-			chk.checked = !!(fld.value = val);
-		}
-		Pview.updatePosition(true);
-		return;
-	}
-	spells.enable = false;
-	if(chk) {
-		chk.checked = false;
-	}
-}
-
 
 // POSTFORM
 // ===========================================================================================================
@@ -6638,8 +6626,8 @@ function PostForm(form, ignoreForm, dc) {
 			return;
 		}
 		var val = this.txta.value;
-		if(spells.haveOutreps) {
-			val = spells.outReplace(val);
+		if(Spells.outreps) {
+			val = Spells.outReplace(val);
 		}
 		if(this.tNum && pByNum.get(this.tNum).subj === 'Dollchan Extension Tools') {
 			var temp = '\n\n' + this._wrapText(aib.markupBB, aib.markupTags[5],
@@ -8786,7 +8774,7 @@ class AbstractPost {
 				pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, !(this instanceof Pview), false);
 				quotetxt = '';
 				return;
-			case 'de-btn-sage': addSpell(9, '', false); return;
+			case 'de-btn-sage': Spells.add(9, '', false); return;
 			case 'de-btn-stick': this.setSticky(true); return;
 			case 'de-btn-stick-on': this.setSticky(false); return;
 			}
@@ -9325,35 +9313,35 @@ class Post extends AbstractPost {
 			   (nav.matchesSelector(start, '.' + aib.cSubj) && nav.matchesSelector(end, '.' + aib.cSubj)))
 			{
 				if(this._selText.includes('\n')) {
-					addSpell(1 /* #exp */, '/' +
+					Spells.add(1 /* #exp */, '/' +
 						regQuote(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
 				} else {
-					addSpell(0 /* #words */, this._selText.toLowerCase(), false);
+					Spells.add(0 /* #words */, this._selText.toLowerCase(), false);
 				}
 			} else {
 				dummy.innerHTML = '';
 				dummy.appendChild(this._selRange.cloneContents());
-				addSpell(2 /* #exph */, '/' +
+				Spells.add(2 /* #exph */, '/' +
 					regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
 			}
 			return;
-		case 'spell-name': addSpell(6 /* #name */, this.posterName, false); return;
-		case 'spell-trip': addSpell(7 /* #trip */, this.posterTrip, false); return;
+		case 'spell-name': Spells.add(6 /* #name */, this.posterName, false); return;
+		case 'spell-trip': Spells.add(7 /* #trip */, this.posterTrip, false); return;
 		case 'spell-img':
 			var img = this.images.firstAttach,
 				w = img.weight,
 				wi = img.width,
 				h = img.height;
-			addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
+			Spells.add(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
 			return;
 		case 'spell-ihash':
 			spawn(ImagesHashStorage.getHash, this.images.firstAttach).then(hash => {
 				if(hash !== -1) {
-					addSpell(4 /* #ihash */, hash, false);
+					Spells.add(4 /* #ihash */, hash, false);
 				}
 			});
 			return;
-		case 'spell-noimg': addSpell(0x108 /* (#all & !#img) */, '', true); return;
+		case 'spell-noimg': Spells.add(0x108 /* (#all & !#img) */, '', true); return;
 		case 'spell-text':
 			var num = this.num,
 				hidden = this.hidden,
@@ -9364,7 +9352,7 @@ class Post extends AbstractPost {
 			}
 			saveUserPosts();
 			return;
-		case 'spell-notext': addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
+		case 'spell-notext': Spells.add(0x10B /* (#all & !#tlen) */, '', true); return;
 		case 'thr-exp':
 			var task = parseInt(el.textContent.match(/\d+/), 10);
 			this.thr.load(!task ? 'all' : task === 10 ? 'more' : task, false);
@@ -10373,9 +10361,6 @@ class Thread {
 			post = post.nextNotDeleted;
 			count++;
 		} while(delAll && post);
-		if(!spells.hasNumSpell) {
-			sVis.splice(idx, count);
-		}
 		for(var tPost = post; tPost; tPost = tPost.nextInThread) {
 			tPost.count -= count;
 		}
@@ -10705,7 +10690,7 @@ class Thread {
 				this.deletePost(post, true, !aib.t);
 			}
 			if(firstChangedPost && maybeSpells.hasValue && maybeSpells.value.hasNumSpell) {
-				disableSpells();
+				Spells.unhide();
 				for(post = firstChangedPost.nextInThread; post; post = post.nextInThread) {
 					maybeSpells.value.run(post);
 				}
@@ -12086,7 +12071,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return val;
 		},
 		get rep() {
-			var val = dTime || spells.haveReps || Cfg.crossLinks;
+			var val = dTime || Spells.reps || Cfg.crossLinks;
 			Object.defineProperty(this, 'rep', { value: val });
 			return val;
 		},
@@ -12233,23 +12218,23 @@ function Initialization(checkDomains) {
 				temp.checked = data.hide;
 			}
 			doc.body.style.display = 'none';
-			disableSpells();
+			Spells.unhide();
 			if(data.data) {
-				spells.setSpells(data.data, false);
+				Spells.setSpells(data.data, false);
+				Cfg.spells = JSON.stringify(data.data);
 				temp = $id('de-spell-txt');
 				if(temp) {
-					temp.value = spells.list;
+					temp.value = Spells.list;
 				}
 			} else {
 				if(data.data === '') {
-					spells.disable();
+					Spells.disable();
 					temp = $id('de-spell-txt');
 					if(temp) {
 						temp.value = '';
 					}
 					saveCfg('spells', '');
 				}
-				spells.enable = false;
 			}
 			doc.body.style.display = '';
 		})();
@@ -12602,8 +12587,8 @@ function replaceString(txt) {
 			return c ? x : a + '<a href="' + b + '">' + b + '</a>';
 		});
 	}
-	if(spells.haveReps) {
-		txt = spells.replace(txt);
+	if(Spells.reps) {
+		txt = Spells.replace(txt);
 	}
 	if(Cfg.crossLinks) {
 		txt = txt.replace(aib.reCrossLinks, function(str, b, tNum, pNum) {
@@ -13123,7 +13108,7 @@ function initPage() {
 
 function scrollPage() {
 	if(!aib.t) {
-		if(doc.hidden || (needScroll && window.pageYOffset !== 0)) {
+		if(doc.hidden || needScroll) {
 			window.scrollTo(0, 0);
 		}
 		return;
@@ -13596,8 +13581,6 @@ function* initScript(checkDomains, readCfgPromise) {
 		scriptCSS();
 		return;
 	}
-	spells = new Spells(!!Cfg.hideBySpell);
-	Logger.log('Parsing spells');
 	doc.body.style.display = 'none';
 	formEl = DelForm.doReplace(formEl);
 	Logger.log('Replace delform');
@@ -13625,17 +13608,18 @@ function* initScript(checkDomains, readCfgPromise) {
 	readViewedPosts();
 	scriptCSS();
 	Logger.log('Apply CSS');
-	doc.body.style.display = '';
+	doc.body.style.removeProperty('display');
 	Logger.log('Display page');
-	scrollPage();
-	Logger.log('Scroll page');
 	toggleInfinityScroll();
 	Logger.log('Infinity scroll');
 	readPosts();
 	yield* readUserPosts();
 	yield* readFavoritesPosts();
 	setTimeout(PostContent.purge, 0);
-	Logger.log('Apply spells');
+	Logger.log('Hide posts');
+	scrollPage();
+	Logger.log('Scroll page');
+	console.log(Spells);
 	Logger.finish();
 }
 
@@ -13667,11 +13651,10 @@ if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 		cfgRead = spawn(readCfg);
 	}
 	needScroll = true;
-	doc.addEventListener(doc.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll",
-	                     function wheelFunc(e) {
-	                     	needScroll = false;
-	                     	doc.removeEventListener(e.type, wheelFunc);
-	                     });
+	doc.addEventListener('onwheel' in doc.body ? 'wheel' : 'mousewheel', function wFunc(e) {
+		needScroll = false;
+		doc.removeEventListener(e.type, wFunc);
+	});
 	doc.addEventListener('DOMContentLoaded', async(initScript.bind(null, false, cfgRead)));
 }
 

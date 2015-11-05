@@ -1888,7 +1888,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'f731b46';
+	var commit = '5ae17cf';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -2380,7 +2380,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	    topWinZ = 0,
 	    pr,
 	    dummy,
-	    spells,
 	    Images_ = { preloading: false, afterpreload: null, progressId: null, canvas: null },
 	    lang,
 	    quotetxt = '',
@@ -2768,8 +2767,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (params && params.onprogress) {
 				xhr.upload.onprogress = params.onprogress;
 			}
-			xhr.onreadystatechange = function (_ref24) {
-				var target = _ref24.target;
+			xhr.onreadystatechange = function (_ref29) {
+				var target = _ref29.target;
 
 				if (target.readyState === 4) {
 					if (target.status === 200 || aib.tiny && target.status === 400) {
@@ -3583,7 +3582,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var str = aib.t ? sesStorage['de-hidden-' + aib.b + aib.t] : null;
 		if (typeof str === 'string') {
 			var data = str.split(';');
-			if (data.length === 4 && +data[0] === (Cfg.hideBySpell ? spells.hash : 0) && pByNum.has(+data[1]) && pByNum.get(+data[1]).count === +data[2]) {
+			if (data.length === 4 && +data[0] === (Cfg.hideBySpell ? Spells.hash : 0) && pByNum.has(+data[1]) && pByNum.get(+data[1]).count === +data[2]) {
 				sVis = data[3].split(',');
 				return;
 			}
@@ -4920,31 +4919,31 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function getCfgFilters() {
-		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-filters' }, [$New('div', { 'id': 'de-spell-panel' }, [lBox('hideBySpell', false, toggleSpells), $new('a', {
+		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-filters' }, [$New('div', { 'id': 'de-spell-panel' }, [lBox('hideBySpell', false, Spells.toggle.bind(Spells)), $new('a', {
 			'id': 'de-btn-addspell',
 			'text': Lng.add[lang],
 			'href': '#',
 			'class': 'de-abtn de-spell-btn' }, {
 			'click': $pd,
-			'mouseover': function mouseover(_ref25) {
-				var target = _ref25.target;
+			'mouseover': function mouseover(_ref30) {
+				var target = _ref30.target;
 				return target.odelay = setTimeout(function () {
 					return addMenu(target);
 				}, Cfg.linksOver);
 			},
-			'mouseout': function mouseout(_ref26) {
-				var target = _ref26.target;
+			'mouseout': function mouseout(_ref31) {
+				var target = _ref31.target;
 				return clearTimeout(target.odelay);
 			}
 		}), $new('a', { 'text': Lng.apply[lang], 'href': '#', 'class': 'de-abtn de-spell-btn' }, { 'click': function click(e) {
 				$pd(e);
 				saveCfg('hideBySpell', 1);
 				$q('input[info="hideBySpell"]', doc).checked = true;
-				toggleSpells();
+				Spells.toggle();
 			} }), $new('a', { 'text': Lng.clear[lang], 'href': '#', 'class': 'de-abtn de-spell-btn' }, { 'click': function click(e) {
 				$pd(e);
 				$id('de-spell-txt').value = '';
-				toggleSpells();
+				Spells.toggle();
 			} }), $add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-' + (lang ? 'en' : 'ru') + '" class="de-abtn de-spell-btn" target="_blank">[?]</a>')]), $New('div', { 'id': 'de-spell-editor' }, [$add('<div id="de-spell-rowmeter"></div>'), $new('textarea', { 'id': 'de-spell-txt', 'wrap': 'off' }, {
 			'keydown': function keydown() {
 				updRowMeter(this);
@@ -4954,7 +4953,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		})]), lBox('sortSpells', true, function () {
 			if (Cfg.sortSpells) {
-				toggleSpells();
+				Spells.toggle();
 			}
 		}), lBox('menuHiddBtn', true, null), lBox('hideRefPsts', true, null), lBox('delHiddPost', true, function () {
 			$each($C('de-post-hide', doc.body), function (el) {
@@ -5136,7 +5135,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				'location': String(window.location),
 				'nav': nav,
 				'cfg': Cfg,
-				'sSpells': spells.list.split('\n'),
+				'sSpells': Spells.list.split('\n'),
 				'oSpells': sesStorage['de-spells-' + aib.b + (aib.t || '')],
 				'perf': Logger.getData(true)
 			}, function (key, value) {
@@ -5200,7 +5199,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 		newTab.className = 'de-cfg-body';
 		if (id === 'filters') {
-			$id('de-spell-txt').value = spells.list;
+			$id('de-spell-txt').value = Spells.list;
 		}
 		fixSettings();
 	}
@@ -5267,10 +5266,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
 		})), $if(!nav.Presto, $btn(Lng.file[lang], '', function () {
 			$popup('<b>' + Lng.impexpCfg[lang] + ':</b>' + '<div class="de-list">' + Lng.fileToCfg[lang] + ':<br>' + '<input type="file" accept=".json" id="de-import-file" style="margin-left: 12px;"></div>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.cfgToFile[lang] + '</div>', 'cfg-file', false);
-			$id('de-import-file').onchange = function (_ref27) {
-				var _ref27$target$files = _slicedToArrayLoose(_ref27.target.files, 1);
+			$id('de-import-file').onchange = function (_ref32) {
+				var _ref32$target$files = _slicedToArrayLoose(_ref32.target.files, 1);
 
-				var file = _ref27$target$files[0];
+				var file = _ref32$target$files[0];
 
 				if (file) {
 					readFile(file, true).then(function (val) {
@@ -6637,13 +6636,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			};
 		}
 	};
-	Videos._titlesLoaderHelper = function (_ref28, num) {
-		var _ref282 = _slicedToArrayLoose(_ref28, 4);
+	Videos._titlesLoaderHelper = function (_ref33, num) {
+		var _ref332 = _slicedToArrayLoose(_ref33, 4);
 
-		var link = _ref282[0];
-		var isYtube = _ref282[1];
-		var videoObj = _ref282[2];
-		var id = _ref282[3];
+		var link = _ref332[0];
+		var isYtube = _ref332[1];
+		var videoObj = _ref332[2];
+		var id = _ref332[3];
 
 		for (var _len5 = arguments.length, data = Array(_len5 > 2 ? _len5 - 2 : 0), _key4 = 2; _key4 < _len5; _key4++) {
 			data[_key4 - 2] = arguments[_key4];
@@ -7207,85 +7206,433 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-	function Spells(read) {
-		if (read) {
-			this._read(true);
-		} else {
-			this.disable(false);
-		}
-	}
-	Spells.names = ['words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all', 'video', 'wipe', 'num', 'vauthor'];
-	Spells.needArg = [
-	true, true, true, true, true,
-	false, true, false, false, false,
-	false, false, false, false, false,
-	true, true];
-	Spells.decompileSpell = function (type, neg, val, scope) {
-		var wipeMsg = arguments.length <= 4 || arguments[4] === undefined ? null : arguments[4];
+	var Spells = Object.create({
+		hash: null,
+		names: ['words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all', 'video', 'wipe', 'num', 'vauthor'],
+		needArg: [
+		true, true, true, true, true,
+		false, true, false, false, false,
+		false, false, false, false, false,
+		true, true],
+		get hiders() {
+			this._init();
+			return this.hiders;
+		},
+		get reps() {
+			this._init();
+			return this.reps;
+		},
+		get outreps() {
+			this._init();
+			return this.outreps;
+		},
+		get list() {
+			var _this12 = this;
 
-		var spell = (neg ? '!#' : '#') + Spells.names[type] + (scope ? '[' + scope[0] + (scope[1] ? ',' + (scope[1] === -1 ? '' : scope[1]) : '') + ']' : '');
-		if (!val) {
-			return spell;
-		}
-	
-		if (type === 8) {
-			return spell + '(' + (val[0] === 2 ? '>' : val[0] === 1 ? '<' : '=') + (val[1] ? val[1][0] + (val[1][1] === val[1][0] ? '' : '-' + val[1][1]) : '') + (val[2] ? '@' + val[2][0] + (val[2][0] === val[2][1] ? '' : '-' + val[2][1]) + 'x' + val[2][2] + (val[2][2] === val[2][3] ? '' : '-' + val[2][3]) : '') + ')';
-		}
-	
-		else if (type === 14) {
-				if (val === 0x3F && !wipeMsg) {
-					return spell;
+			var str, reps, oreps, data;
+			try {
+				data = JSON.parse(Cfg.spells);
+			} catch (e) {
+				return '';
+			}
+			str = data[1] ? this._decompileScope(data[1], '')[0].join('\n') : '';
+			reps = data[2];
+			oreps = data[3];
+			if (reps || oreps) {
+				if (str) {
+					str += '\n\n';
 				}
-
-				var _ref29 = wipeMsg || [];
-
-				var _ref292 = _slicedToArrayLoose(_ref29, 2);
-
-				var msgBit = _ref292[0];
-				var msgData = _ref292[1];
-				var names = [];
-				var bits = { 1: 'samelines', 2: 'samewords', 4: 'longwords', 8: 'symbols',
-					16: 'capslock', 32: 'numbers', 64: 'whitespace'
-				};
-				for (var bit in bits) {
-					if (+bit !== msgBit) {
-						if (val & +bit) {
-							names.push(bits[bit]);
+				if (reps) {
+					reps.forEach(function (rep) {
+						str += _this12._decompileRep(rep, false) + '\n';
+					});
+				}
+				if (oreps) {
+					oreps.forEach(function (orep) {
+						str += _this12._decompileRep(orep, true) + '\n';
+					});
+				}
+				str = str.substr(0, str.length - 1);
+			}
+			return str;
+		},
+		add: function add(type, arg, isNeg) {
+			var temp,
+			    fld = $id('de-spell-txt'),
+			    val = fld && fld.value,
+			    chk = $q('input[info="hideBySpell"]', doc),
+			    spells = val && this.parseText(val);
+			if (!val || spells) {
+				this.unhide();
+				if (!spells) {
+					try {
+						spells = JSON.parse(Cfg.spells);
+					} catch (e) {}
+					spells = spells || [Date.now(), [], null, null];
+				}
+				var idx,
+				    scope = aib.t ? [aib.b, aib.t] : null,
+				    sScope = String(scope),
+				    sArg = String(arg);
+				if (spells[1]) {
+					spells[1].some(scope && isNeg ? function (spell, i) {
+						var data;
+						if (spell[0] === 0xFF && (data = spell[1]) instanceof Array && data.length === 2 && data[0][0] === 0x20C && data[1][0] === type && data[1][2] == null && String(data[1][1]) === sArg && String(data[0][2]) === sScope) {
+							idx = i;
+							return true;
 						}
+						return (spell[0] & 0x200) !== 0;
+					} : function (spell, i) {
+						if (spell[0] === type && String(spell[1]) === sArg && String(spell[2]) === sScope) {
+							idx = i;
+							return true;
+						}
+						return (spell[0] & 0x200) !== 0;
+					});
+				} else {
+					spells[1] = [];
+				}
+				if (typeof idx !== 'undefined') {
+					if (spells[1].length === 1) {
+						spells[1] = null;
+					} else {
+						spells[1].splice(idx, 1);
 					}
+				} else if (scope && isNeg) {
+					spells[1].splice(0, 0, [0xFF, [[0x20C, '', scope], [type, arg, void 0]], void 0]);
+				} else {
+					spells[1].splice(0, 0, [type, arg, scope]);
 				}
-				if (msgBit) {
-					names.push(bits[msgBit].toUpperCase() + (msgData ? ': ' + msgData : ''));
+				this.setSpells(spells, true);
+				var enabled = this.hiders || this.reps || this.outreps;
+				saveCfg('hideBySpell', enabled);
+				saveCfg('spells', JSON.stringify(spells));
+				if (fld) {
+					fld.value = this.list;
+					chk.checked = enabled;
 				}
-				return spell + '(' + names.join(',') + ')';
+				Pview.updatePosition(true);
+				return;
+			}
+			if (chk) {
+				chk.checked = false;
+			}
+		},
+		decompileSpell: function decompileSpell(type, neg, val, scope) {
+			var wipeMsg = arguments.length <= 4 || arguments[4] === undefined ? null : arguments[4];
+
+			var spell = (neg ? '!#' : '#') + Spells.names[type] + (scope ? '[' + scope[0] + (scope[1] ? ',' + (scope[1] === -1 ? '' : scope[1]) : '') + ']' : '');
+			if (!val) {
+				return spell;
 			}
 		
-			else if (type === 15 || type === 11) {
-					var temp_,
-					    temp = val[1].length - 1;
-					if (temp !== -1) {
-						for (temp_ = []; temp >= 0; --temp) {
-							temp_.push(val[1][temp][0] + '-' + val[1][temp][1]);
+			if (type === 8) {
+				return spell + '(' + (val[0] === 2 ? '>' : val[0] === 1 ? '<' : '=') + (val[1] ? val[1][0] + (val[1][1] === val[1][0] ? '' : '-' + val[1][1]) : '') + (val[2] ? '@' + val[2][0] + (val[2][0] === val[2][1] ? '' : '-' + val[2][1]) + 'x' + val[2][2] + (val[2][2] === val[2][3] ? '' : '-' + val[2][3]) : '') + ')';
+			}
+		
+			else if (type === 14) {
+					if (val === 0x3F && !wipeMsg) {
+						return spell;
+					}
+
+					var _ref34 = wipeMsg || [];
+
+					var _ref342 = _slicedToArrayLoose(_ref34, 2);
+
+					var msgBit = _ref342[0];
+					var msgData = _ref342[1];
+					var names = [];
+					var bits = { 1: 'samelines', 2: 'samewords', 4: 'longwords', 8: 'symbols',
+						16: 'capslock', 32: 'numbers', 64: 'whitespace'
+					};
+					for (var bit in bits) {
+						if (+bit !== msgBit) {
+							if (val & +bit) {
+								names.push(bits[bit]);
+							}
 						}
-						temp_.reverse();
 					}
-					spell += '(';
-					if (val[0].length) {
-						spell += val[0].join(',') + (temp_ ? ',' : '');
+					if (msgBit) {
+						names.push(bits[msgBit].toUpperCase() + (msgData ? ': ' + msgData : ''));
 					}
-					if (temp_) {
-						spell += temp_.join(',');
-					}
-					return spell + ')';
+					return spell + '(' + names.join(',') + ')';
 				}
 			
-				else if (type === 0 || type === 6 || type === 7 || type === 16) {
-						return spell + '(' + val.replace(/\)/g, '\\)') + ')';
-					} else {
-						return spell + '(' + String(val) + ')';
+				else if (type === 15 || type === 11) {
+						var temp_,
+						    temp = val[1].length - 1;
+						if (temp !== -1) {
+							for (temp_ = []; temp >= 0; --temp) {
+								temp_.push(val[1][temp][0] + '-' + val[1][temp][1]);
+							}
+							temp_.reverse();
+						}
+						spell += '(';
+						if (val[0].length) {
+							spell += val[0].join(',') + (temp_ ? ',' : '');
+						}
+						if (temp_) {
+							spell += temp_.join(',');
+						}
+						return spell + ')';
 					}
-	};
-	Spells.prototype = {
+				
+					else if (type === 0 || type === 6 || type === 7 || type === 16) {
+							return spell + '(' + val.replace(/\)/g, '\\)') + ')';
+						} else {
+							return spell + '(' + String(val) + ')';
+						}
+		},
+		disable: function disable() {
+			var value = null,
+			    configurable = true;
+			Object.defineProperties(this, {
+				hiders: { configurable: configurable, value: value },
+				reps: { configurable: configurable, value: value },
+				outreps: { configurable: configurable, value: value }
+			});
+			saveCfg('hideBySpell', false);
+		},
+		outReplace: function outReplace(txt) {
+			for (var _iterator3 = this.outreps, _isArray3 = Array.isArray(_iterator3), _i4 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
+				var _ref3;
+
+				if (_isArray3) {
+					if (_i4 >= _iterator3.length) break;
+					_ref3 = _iterator3[_i4++];
+				} else {
+					_i4 = _iterator3.next();
+					if (_i4.done) break;
+					_ref3 = _i4.value;
+				}
+
+				var orep = _ref3;
+
+				txt = txt.replace(orep[0], orep[1]);
+			}
+			return txt;
+		},
+		parseText: function parseText(text) {
+			var codeGen = new SpellsCodegen(text),
+			    data = codeGen.generate();
+			if (codeGen.hasError) {
+				$popup(Lng.error[lang] + ': ' + codeGen.error, 'err-spell', false);
+			} else if (data) {
+				if (data[0] && Cfg.sortSpells) {
+					this._sort(data[0]);
+				}
+				return [Date.now(), data[0], data[1], data[2]];
+			}
+			return null;
+		},
+		setSpells: function setSpells(spells, sync) {
+			this._optimize(spells);
+			if (sync) {
+				this._sync(spells);
+			}
+			if (this.hiders) {
+				var sRunner = new SpellsRunner();
+				for (var post = Thread.first.op; post; post = post.next) {
+					sRunner.run(post);
+				}
+				sRunner.end();
+			}
+		},
+		replace: function replace(txt) {
+			for (var _iterator4 = this.reps, _isArray4 = Array.isArray(_iterator4), _i5 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
+				var _ref4;
+
+				if (_isArray4) {
+					if (_i5 >= _iterator4.length) break;
+					_ref4 = _iterator4[_i5++];
+				} else {
+					_i5 = _iterator4.next();
+					if (_i5.done) break;
+					_ref4 = _i5.value;
+				}
+
+				var orep = _ref4;
+
+				txt = txt.replace(orep[0], orep[1]);
+			}
+			return txt;
+		},
+		toggle: function toggle() {
+			var spells,
+			    fld = $id('de-spell-txt'),
+			    val = fld.value;
+			if (val && (spells = this.parseText(val))) {
+				this.unhide();
+				this.setSpells(spells, true);
+				saveCfg('spells', JSON.stringify(spells));
+				fld.value = this.list;
+			} else {
+				if (val) {
+					locStorage['__de-spells'] = '{"hide": false, "data": null}';
+				} else {
+					this.unhide();
+					this.disable();
+					saveCfg('spells', '');
+					locStorage['__de-spells'] = '{"hide": false, "data": ""}';
+				}
+				locStorage.removeItem('__de-spells');
+				$q('input[info="hideBySpell"]', doc).checked = false;
+			}
+		},
+		unhide: function unhide() {
+			sVis = aib.t ? '1'.repeat(Thread.first.pcount).split('') : [];
+			for (var post = Thread.first.op; post; post = post.next) {
+				if (post.spellHidden && !post.userToggled) {
+					post.spellUnhide();
+				}
+			}
+			closePopup('err-spell');
+		},
+
+		get _defaultSpells() {
+			return this.parseText('#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)');
+		},
+		_decompileScope: function _decompileScope(scope, indent) {
+			var dScope = [],
+			    hScope = false;
+			for (var i = 0, j = 0, len = scope.length; i < len; i++, j++) {
+				var spell = scope[i],
+				    type = spell[0] & 0xFF;
+				if (type === 0xFF) {
+					hScope = true;
+					var temp = this._decompileScope(spell[1], indent + '    ');
+					if (temp[1]) {
+						var str = (spell[0] & 0x100 ? '!(\n' : '(\n') + indent + '    ' + temp[0].join('\n' + indent + '    ') + '\n' + indent + ')';
+						if (j === 0) {
+							dScope[0] = str;
+						} else {
+							dScope[--j] += ' ' + str;
+						}
+					} else {
+						dScope[j] = (spell[0] & 0x100 ? '!(' : '(') + temp[0].join(' ') + ')';
+					}
+				} else {
+					dScope[j] = this.decompileSpell(type, spell[0] & 0x100, spell[1], spell[2]);
+				}
+				if (i !== len - 1) {
+					dScope[j] += spell[0] & 0x200 ? ' &' : ' |';
+				}
+			}
+			return [dScope, dScope.length > 2 || hScope];
+		},
+		_decompileRep: function _decompileRep(rep, isOrep) {
+			return (isOrep ? '#outrep' : '#rep') + (rep[0] ? '[' + rep[0] + (rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '') + '(' + rep[2] + ',' + rep[3].replace(/\)/g, '\\)') + ')';
+		},
+		_init: function _init() {
+			if (!Cfg.hideBySpell) {
+				var value = null,
+				    configurable = true;
+				Object.defineProperties(this, {
+					hiders: { configurable: configurable, value: value },
+					reps: { configurable: configurable, value: value },
+					outreps: { configurable: configurable, value: value }
+				});
+			}
+			var spells, data;
+			try {
+				spells = JSON.parse(Cfg.spells);
+				data = JSON.parse(sesStorage['de-spells-' + aib.b + (aib.t || '')]);
+			} catch (e) {}
+			if (data && spells && data[0] === spells[0]) {
+				this.hash = data[0];
+				this._setData(data[1], data[2], data[3]);
+				return;
+			}
+			if (spells) {
+				this._optimize(spells);
+			} else {
+				this._optimize(this._defaultSpells);
+			}
+		},
+		_initHiders: function _initHiders(data) {
+			if (data) {
+				for (var _iterator5 = data, _isArray5 = Array.isArray(_iterator5), _i6 = 0, _iterator5 = _isArray5 ? _iterator5 : _iterator5[Symbol.iterator]();;) {
+					var _ref5;
+
+					if (_isArray5) {
+						if (_i6 >= _iterator5.length) break;
+						_ref5 = _iterator5[_i6++];
+					} else {
+						_i6 = _iterator5.next();
+						if (_i6.done) break;
+						_ref5 = _i6.value;
+					}
+
+					var item = _ref5;
+
+					var val = item[1];
+					if (val) {
+						switch (item[0] & 0xFF) {
+							case 1:
+							case 2:
+							case 3:
+							case 5:
+							case 13:
+								item[1] = toRegExp(val, true);break;
+							case 0xFF:
+								this._initHiders(val);
+						}
+					}
+				}
+			}
+			return data;
+		},
+		_initReps: function _initReps(data) {
+			if (data) {
+				for (var _iterator6 = data, _isArray6 = Array.isArray(_iterator6), _i7 = 0, _iterator6 = _isArray6 ? _iterator6 : _iterator6[Symbol.iterator]();;) {
+					var _ref6;
+
+					if (_isArray6) {
+						if (_i7 >= _iterator6.length) break;
+						_ref6 = _iterator6[_i7++];
+					} else {
+						_i7 = _iterator6.next();
+						if (_i7.done) break;
+						_ref6 = _i7.value;
+					}
+
+					var item = _ref6;
+
+					item[0] = toRegExp(item[0], false);
+				}
+			}
+			return data;
+		},
+		_optimize: function _optimize(data) {
+			var hiders = data[1] ? this._optimizeSpells(data[1]) : null,
+			    reps = data[2] ? this._optimizeReps(data[2]) : null,
+			    outreps = data[3] ? this._optimizeReps(data[3]) : null;
+			sesStorage['de-spells-' + aib.b + (aib.t || '')] = JSON.stringify([data[0], hiders, reps, outreps]);
+			this.hash = data[0];
+			this._setData(hiders, reps, outreps);
+		},
+		_optimizeReps: function _optimizeReps(data) {
+			var rv = [];
+			for (var _iterator7 = data, _isArray7 = Array.isArray(_iterator7), _i8 = 0, _iterator7 = _isArray7 ? _iterator7 : _iterator7[Symbol.iterator]();;) {
+				var _ref7;
+
+				if (_isArray7) {
+					if (_i8 >= _iterator7.length) break;
+					_ref7 = _iterator7[_i8++];
+				} else {
+					_i8 = _iterator7.next();
+					if (_i8.done) break;
+					_ref7 = _i8.value;
+				}
+
+				var rep = _ref7;
+
+				if (!rep[0] || rep[0] === aib.b && (rep[1] === -1 ? !aib.t : !rep[1] || rep[1] === aib.t)) {
+					rv.push([rep[2], rep[3]]);
+				}
+			}
+			return !rv.length ? null : rv;
+		},
 		_optimizeSpells: function _optimizeSpells(spells) {
 			var neg,
 			    lastSpell = -1,
@@ -7337,167 +7684,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			return lastSpell === -1 ? neg ? [[12, '']] : null : newSpells;
 		},
-		_initSpells: function _initSpells(data) {
-			if (data) {
-				data.forEach(function initExps(item) {
-					var val = item[1];
-					if (val) {
-						switch (item[0] & 0xFF) {
-							case 1:
-							case 2:
-							case 3:
-							case 5:
-							case 13:
-								item[1] = toRegExp(val, true);break;
-							case 0xFF:
-								val.forEach(initExps);
-						}
-					}
-				});
-			}
-			return data;
-		},
-		_decompileScope: function _decompileScope(scope, indent) {
-			var dScope = [],
-			    hScope = false;
-			for (var i = 0, j = 0, len = scope.length; i < len; i++, j++) {
-				var spell = scope[i],
-				    type = spell[0] & 0xFF;
-				if (type === 0xFF) {
-					hScope = true;
-					var temp = this._decompileScope(spell[1], indent + '    ');
-					if (temp[1]) {
-						var str = (spell[0] & 0x100 ? '!(\n' : '(\n') + indent + '    ' + temp[0].join('\n' + indent + '    ') + '\n' + indent + ')';
-						if (j === 0) {
-							dScope[0] = str;
-						} else {
-							dScope[--j] += ' ' + str;
-						}
-					} else {
-						dScope[j] = (spell[0] & 0x100 ? '!(' : '(') + temp[0].join(' ') + ')';
-					}
-				} else {
-					dScope[j] = Spells.decompileSpell(type, spell[0] & 0x100, spell[1], spell[2]);
-				}
-				if (i !== len - 1) {
-					dScope[j] += spell[0] & 0x200 ? ' &' : ' |';
-				}
-			}
-			return [dScope, dScope.length > 2 || hScope];
-		},
-		_decompileSpells: function _decompileSpells() {
-			var _this12 = this;
-
-			var str,
-			    reps,
-			    oreps,
-			    data = this._data;
-			if (!data) {
-				this._read(false);
-				data = this._data;
-				if (!data) {
-					return this._list = '';
-				}
-			}
-			str = data[1] ? this._decompileScope(data[1], '')[0].join('\n') : '';
-			reps = data[2];
-			oreps = data[3];
-			if (reps || oreps) {
-				if (str) {
-					str += '\n\n';
-				}
-				if (reps) {
-					reps.forEach(function (rep) {
-						str += _this12._decompileRep(rep, false) + '\n';
-					});
-				}
-				if (oreps) {
-					oreps.forEach(function (orep) {
-						str += _this12._decompileRep(orep, true) + '\n';
-					});
-				}
-				str = str.substr(0, str.length - 1);
-			}
-			this._data = null;
-			return this._list = str;
-		},
-		_decompileRep: function _decompileRep(rep, isOrep) {
-			return (isOrep ? '#outrep' : '#rep') + (rep[0] ? '[' + rep[0] + (rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '') + '(' + rep[2] + ',' + rep[3].replace(/\)/g, '\\)') + ')';
-		},
-		_optimizeReps: function _optimizeReps(data) {
-			if (!data) {
-				return false;
-			}
-			var nData = [];
-			data.forEach(function (temp) {
-				if (!temp[0] || temp[0] === aib.b && (temp[1] === -1 ? !aib.t : !temp[1] || temp[1] === aib.t)) {
-					nData.push([temp[2], temp[3]]);
-				}
+		_setData: function _setData(hiders, reps, outreps) {
+			var configurable = true;
+			Object.defineProperties(this, {
+				hiders: { configurable: configurable, value: this._initHiders(hiders) },
+				reps: { configurable: configurable, value: this._initReps(reps) },
+				outreps: { configurable: configurable, value: this._initReps(outreps) }
 			});
-			return !nData.length ? false : nData;
 		},
-		_initReps: function _initReps(data) {
-			if (data) {
-				for (var i = data.length - 1; i >= 0; i--) {
-					data[i][0] = toRegExp(data[i][0], false);
-				}
-			}
-			return data;
-		},
-		_init: function _init(spells, reps, outreps) {
-			this._spells = this._initSpells(spells);
-			this._reps = this._initReps(reps);
-			this._outreps = this._initReps(outreps);
-			this.enable = !!this._spells;
-			this.haveReps = !!reps;
-			this.haveOutreps = !!outreps;
-		},
-		_read: function _read(init) {
-			var spells, data;
-			try {
-				spells = JSON.parse(Cfg.spells);
-				data = JSON.parse(sesStorage['de-spells-' + aib.b + (aib.t || '')]);
-			} catch (e) {}
-			if (data && spells && data[0] === spells[0]) {
-				this._data = spells;
-				if (init) {
-					this.hash = data[0];
-					this._init(data[1], data[2], data[3]);
-				}
-				return;
-			}
-			if (!spells) {
-				spells = this.parseText('#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)');
-			}
-			if (init) {
-				this.update(spells, false, false);
-			} else {
-				this._data = spells;
-			}
-		},
-		_data: null,
-		_list: '',
-
-		hash: 0,
-		hasNumSpell: false,
-		enable: false,
-		get list() {
-			return this._list || this._decompileSpells();
-		},
-		parseText: function parseText(str) {
-			var codeGen = new SpellsCodegen(str),
-			    data = codeGen.generate();
-			if (codeGen.hasError) {
-				$popup(Lng.error[lang] + ': ' + codeGen.error, 'err-spell', false);
-			} else if (data) {
-				if (data[0] && Cfg.sortSpells) {
-					this.sort(data[0]);
-				}
-				return [Date.now(), data[0], data[1], data[2]];
-			}
-			return null;
-		},
-		sort: function sort(sp) {
+		_sort: function _sort(sp) {
 		
 			for (var i = 0, len = sp.length - 1; i < len; i++) {
 				if (sp[i][0] > 0x200) {
@@ -7528,94 +7723,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 			}
 		},
-		update: function update(data, sync, isHide) {
-			var spells = data[1] ? this._optimizeSpells(data[1]) : false,
-			    reps = this._optimizeReps(data[2]),
-			    outreps = this._optimizeReps(data[3]);
-			saveCfg('spells', JSON.stringify(data));
-			sesStorage['de-spells-' + aib.b + (aib.t || '')] = JSON.stringify([data[0], spells, reps, outreps]);
-			this._data = data;
-			this._list = '';
-			this.hash = data[0];
-			if (sync) {
-				locStorage['__de-spells'] = JSON.stringify({
-					'hide': !!this.list && !!isHide,
-					'data': data
-				});
-				locStorage.removeItem('__de-spells');
-			}
-			this._init(spells, reps, outreps);
-		},
-		setSpells: function setSpells(spells, sync) {
-			this.update(spells, sync, Cfg.hideBySpell);
-			if (Cfg.hideBySpell) {
-				var sRunner = new SpellsRunner();
-				for (var post = Thread.first.op; post; post = post.next) {
-					sRunner.run(post);
-				}
-				sRunner.end();
-			} else {
-				this.enable = false;
-			}
-		},
-		disable: function disable(sync) {
-			this.enable = false;
-			this._list = '';
-			this._data = null;
-			this.haveReps = this.haveOutreps = false;
-			saveCfg('hideBySpell', false);
-		},
-		replace: function replace(txt) {
-			for (var i = 0, len = this._reps.length; i < len; i++) {
-				txt = txt.replace(this._reps[i][0], this._reps[i][1]);
-			}
-			return txt;
-		},
-		outReplace: function outReplace(txt) {
-			for (var i = 0, len = this._outreps.length; i < len; i++) {
-				txt = txt.replace(this._outreps[i][0], this._outreps[i][1]);
-			}
-			return txt;
-		},
-		addSpell: function addSpell(type, arg, scope, isNeg, spells) {
-			if (!spells) {
-				if (!this._data) {
-					this._read(false);
-				}
-				spells = this._data || [Date.now(), [], false, false];
-			}
-			var idx,
-			    sScope = String(scope),
-			    sArg = String(arg);
-			if (spells[1]) {
-				spells[1].some(scope && isNeg ? function (spell, i) {
-					var data;
-					if (spell[0] === 0xFF && (data = spell[1]) instanceof Array && data.length === 2 && data[0][0] === 0x20C && data[1][0] === type && data[1][2] == null && String(data[1][1]) === sArg && String(data[0][2]) === sScope) {
-						idx = i;
-						return true;
-					}
-					return (spell[0] & 0x200) !== 0;
-				} : function (spell, i) {
-					if (spell[0] === type && String(spell[1]) === sArg && String(spell[2]) === sScope) {
-						idx = i;
-						return true;
-					}
-					return (spell[0] & 0x200) !== 0;
-				});
-			} else {
-				spells[1] = [];
-			}
-			if (typeof idx !== 'undefined') {
-				spells[1].splice(idx, 1);
-			} else if (scope && isNeg) {
-				spells[1].splice(0, 0, [0xFF, [[0x20C, '', scope], [type, arg, void 0]], void 0]);
-			} else {
-				spells[1].splice(0, 0, [type, arg, scope]);
-			}
-			this.update(spells, true, true);
-			idx = null;
+		_sync: function _sync(data) {
+			locStorage['__de-spells'] = JSON.stringify({
+				'hide': !!Cfg.hideBySpell,
+				'data': data
+			});
+			locStorage.removeItem('__de-spells');
 		}
-	};
+	});
 
 	function SpellsCodegen(sList) {
 		this._line = 1;
@@ -7971,7 +8086,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	};
 
 	function SpellsRunner() {
-		this._spells = spells._spells;
+		this._spells = Spells.hiders;
 		if (!this._spells) {
 			this.run = function () {
 				return 0;
@@ -8009,12 +8124,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 
 		_endPromise: null,
-		_checkRes: function _checkRes(post, _ref30) {
-			var _ref302 = _slicedToArrayLoose(_ref30, 3);
+		_checkRes: function _checkRes(post, _ref35) {
+			var _ref352 = _slicedToArrayLoose(_ref35, 3);
 
-			var hasNumSpell = _ref302[0];
-			var val = _ref302[1];
-			var msg = _ref302[2];
+			var hasNumSpell = _ref352[0];
+			var val = _ref352[1];
+			var msg = _ref352[2];
 
 			this.hasNumSpell |= hasNumSpell;
 			if (val) {
@@ -8030,7 +8145,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (this._spells) {
 				if (aib.t) {
 					var lPost = Thread.first.lastNotDeleted;
-					sesStorage['de-hidden-' + aib.b + aib.t] = (Cfg.hideBySpell ? spells.hash : '0') + ';' + lPost.num + ';' + lPost.count + ';' + sVis.join();
+					sesStorage['de-hidden-' + aib.b + aib.t] = (Cfg.hideBySpell ? Spells.hash : '0') + ';' + lPost.num + ';' + lPost.count + ';' + sVis.join();
 				}
 				saveHiddenThreads(false);
 				toggleWindow('hid', true);
@@ -8131,37 +8246,37 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 		_getMsg: function _getMsg() {
 			var rv = [];
-			for (var _iterator3 = this._triggeredSpellsStack, _isArray3 = Array.isArray(_iterator3), _i4 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
-				var _ref3;
+			for (var _iterator8 = this._triggeredSpellsStack, _isArray8 = Array.isArray(_iterator8), _i9 = 0, _iterator8 = _isArray8 ? _iterator8 : _iterator8[Symbol.iterator]();;) {
+				var _ref8;
 
-				if (_isArray3) {
-					if (_i4 >= _iterator3.length) break;
-					_ref3 = _iterator3[_i4++];
+				if (_isArray8) {
+					if (_i9 >= _iterator8.length) break;
+					_ref8 = _iterator8[_i9++];
 				} else {
-					_i4 = _iterator3.next();
-					if (_i4.done) break;
-					_ref3 = _i4.value;
+					_i9 = _iterator8.next();
+					if (_i9.done) break;
+					_ref8 = _i9.value;
 				}
 
-				var spellEls = _ref3;
+				var spellEls = _ref8;
 
-				for (var _iterator4 = spellEls, _isArray4 = Array.isArray(_iterator4), _i5 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
-					var _ref4;
+				for (var _iterator9 = spellEls, _isArray9 = Array.isArray(_iterator9), _i10 = 0, _iterator9 = _isArray9 ? _iterator9 : _iterator9[Symbol.iterator]();;) {
+					var _ref9;
 
-					if (_isArray4) {
-						if (_i5 >= _iterator4.length) break;
-						_ref4 = _iterator4[_i5++];
+					if (_isArray9) {
+						if (_i10 >= _iterator9.length) break;
+						_ref9 = _iterator9[_i10++];
 					} else {
-						_i5 = _iterator4.next();
-						if (_i5.done) break;
-						_ref4 = _i5.value;
+						_i10 = _iterator9.next();
+						if (_i10.done) break;
+						_ref9 = _i10.value;
 					}
 
-					var _ref42 = _slicedToArrayLoose(_ref4, 3);
+					var _ref92 = _slicedToArrayLoose(_ref9, 3);
 
-					var isNeg = _ref42[0];
-					var spell = _ref42[1];
-					var wipeMsg = _ref42[2];
+					var isNeg = _ref92[0];
+					var spell = _ref92[1];
+					var wipeMsg = _ref92[2];
 
 					rv.push(Spells.decompileSpell(spell[0] & 0xFF, isNeg, spell[1], spell[2], wipeMsg));
 				}
@@ -8217,19 +8332,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return val.test(this._post.html);
 		},
 		_imgn: function _imgn(val) {
-			for (var _iterator5 = this._post.images, _isArray5 = Array.isArray(_iterator5), _i6 = 0, _iterator5 = _isArray5 ? _iterator5 : _iterator5[Symbol.iterator]();;) {
-				var _ref5;
+			for (var _iterator10 = this._post.images, _isArray10 = Array.isArray(_iterator10), _i11 = 0, _iterator10 = _isArray10 ? _iterator10 : _iterator10[Symbol.iterator]();;) {
+				var _ref10;
 
-				if (_isArray5) {
-					if (_i6 >= _iterator5.length) break;
-					_ref5 = _iterator5[_i6++];
+				if (_isArray10) {
+					if (_i11 >= _iterator10.length) break;
+					_ref10 = _iterator10[_i11++];
 				} else {
-					_i6 = _iterator5.next();
-					if (_i6.done) break;
-					_ref5 = _i6.value;
+					_i11 = _iterator10.next();
+					if (_i11.done) break;
+					_ref10 = _i11.value;
 				}
 
-				var image = _ref5;
+				var image = _ref10;
 
 				if (image instanceof Attachment && val.test(image.info)) {
 					return true;
@@ -8238,20 +8353,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return false;
 		},
 		_ihash: async(regeneratorRuntime.mark(function callee$1$0(val) {
-			var _iterator6, _isArray6, _i7, _ref6, image, hash;
+			var _iterator11, _isArray11, _i12, _ref11, image, hash;
 
 			return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
 				while (1) switch (context$2$0.prev = context$2$0.next) {
 					case 0:
-						_iterator6 = this._post.images, _isArray6 = Array.isArray(_iterator6), _i7 = 0, _iterator6 = _isArray6 ? _iterator6 : _iterator6[Symbol.iterator]();
+						_iterator11 = this._post.images, _isArray11 = Array.isArray(_iterator11), _i12 = 0, _iterator11 = _isArray11 ? _iterator11 : _iterator11[Symbol.iterator]();
 
 					case 1:
-						if (!_isArray6) {
+						if (!_isArray11) {
 							context$2$0.next = 7;
 							break;
 						}
 
-						if (!(_i7 >= _iterator6.length)) {
+						if (!(_i12 >= _iterator11.length)) {
 							context$2$0.next = 4;
 							break;
 						}
@@ -8259,14 +8374,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return context$2$0.abrupt('break', 20);
 
 					case 4:
-						_ref6 = _iterator6[_i7++];
+						_ref11 = _iterator11[_i12++];
 						context$2$0.next = 11;
 						break;
 
 					case 7:
-						_i7 = _iterator6.next();
+						_i12 = _iterator11.next();
 
-						if (!_i7.done) {
+						if (!_i12.done) {
 							context$2$0.next = 10;
 							break;
 						}
@@ -8274,10 +8389,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return context$2$0.abrupt('break', 20);
 
 					case 10:
-						_ref6 = _i7.value;
+						_ref11 = _i12.value;
 
 					case 11:
-						image = _ref6;
+						image = _ref11;
 
 						if (image instanceof Attachment) {
 							context$2$0.next = 14;
@@ -8336,19 +8451,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (!val) {
 				return images.hasAttachments;
 			}
-			for (var _iterator7 = images, _isArray7 = Array.isArray(_iterator7), _i8 = 0, _iterator7 = _isArray7 ? _iterator7 : _iterator7[Symbol.iterator]();;) {
-				var _ref7;
+			for (var _iterator12 = images, _isArray12 = Array.isArray(_iterator12), _i13 = 0, _iterator12 = _isArray12 ? _iterator12 : _iterator12[Symbol.iterator]();;) {
+				var _ref12;
 
-				if (_isArray7) {
-					if (_i8 >= _iterator7.length) break;
-					_ref7 = _iterator7[_i8++];
+				if (_isArray12) {
+					if (_i13 >= _iterator12.length) break;
+					_ref12 = _iterator12[_i13++];
 				} else {
-					_i8 = _iterator7.next();
-					if (_i8.done) break;
-					_ref7 = _i8.value;
+					_i13 = _iterator12.next();
+					if (_i13.done) break;
+					_ref12 = _i13.value;
 				}
 
-				var image = _ref7;
+				var image = _ref12;
 
 				if (!(image instanceof Attachment)) {
 					continue;
@@ -8550,33 +8665,33 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (!videos.hasLinks || !Cfg.YTubeTitles) {
 				return false;
 			}
-			for (var _iterator8 = videos.vData, _isArray8 = Array.isArray(_iterator8), _i9 = 0, _iterator8 = _isArray8 ? _iterator8 : _iterator8[Symbol.iterator]();;) {
-				var _ref8;
+			for (var _iterator13 = videos.vData, _isArray13 = Array.isArray(_iterator13), _i14 = 0, _iterator13 = _isArray13 ? _iterator13 : _iterator13[Symbol.iterator]();;) {
+				var _ref13;
 
-				if (_isArray8) {
-					if (_i9 >= _iterator8.length) break;
-					_ref8 = _iterator8[_i9++];
+				if (_isArray13) {
+					if (_i14 >= _iterator13.length) break;
+					_ref13 = _iterator13[_i14++];
 				} else {
-					_i9 = _iterator8.next();
-					if (_i9.done) break;
-					_ref8 = _i9.value;
+					_i14 = _iterator13.next();
+					if (_i14.done) break;
+					_ref13 = _i14.value;
 				}
 
-				var siteData = _ref8;
+				var siteData = _ref13;
 
-				for (var _iterator9 = siteData, _isArray9 = Array.isArray(_iterator9), _i10 = 0, _iterator9 = _isArray9 ? _iterator9 : _iterator9[Symbol.iterator]();;) {
-					var _ref9;
+				for (var _iterator14 = siteData, _isArray14 = Array.isArray(_iterator14), _i15 = 0, _iterator14 = _isArray14 ? _iterator14 : _iterator14[Symbol.iterator]();;) {
+					var _ref14;
 
-					if (_isArray9) {
-						if (_i10 >= _iterator9.length) break;
-						_ref9 = _iterator9[_i10++];
+					if (_isArray14) {
+						if (_i15 >= _iterator14.length) break;
+						_ref14 = _iterator14[_i15++];
 					} else {
-						_i10 = _iterator9.next();
-						if (_i10.done) break;
-						_ref9 = _i10.value;
+						_i15 = _iterator14.next();
+						if (_i15.done) break;
+						_ref14 = _i15.value;
 					}
 
-					var data = _ref9;
+					var data = _ref14;
 
 					if (isAuthorSpell ? val === data[1] : val.test(data[0])) {
 						return true;
@@ -8600,72 +8715,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 		}
 	};
-
-	function disableSpells() {
-		if (spells.enable) {
-			sVis = aib.t ? '1'.repeat(Thread.first.pcount).split('') : [];
-			for (var post = Thread.first.op; post; post = post.next) {
-				if (post.spellHidden && !post.userToggled) {
-					post.spellUnhide();
-				}
-			}
-		}
-		closePopup('err-spell');
-	}
-
-	function toggleSpells() {
-		var temp,
-		    fld = $id('de-spell-txt'),
-		    val = fld.value;
-		if (val && (temp = spells.parseText(val))) {
-			disableSpells();
-			spells.setSpells(temp, true);
-			fld.value = spells.list;
-		} else {
-			if (val) {
-				locStorage['__de-spells'] = '{"hide": false, "data": null}';
-			} else {
-				disableSpells();
-				spells.disable();
-				saveCfg('spells', '');
-				locStorage['__de-spells'] = '{"hide": false, "data": ""}';
-			}
-			locStorage.removeItem('__de-spells');
-			$q('input[info="hideBySpell"]', doc).checked = spells.enable = false;
-		}
-	}
-
-	function addSpell(type, arg, isNeg) {
-		var temp,
-		    fld = $id('de-spell-txt'),
-		    val = fld && fld.value,
-		    chk = $q('input[info="hideBySpell"]', doc);
-		if (!val || (temp = spells.parseText(val))) {
-			disableSpells();
-			spells.addSpell(type, arg, aib.t ? [aib.b, aib.t] : null, isNeg, temp);
-			val = spells.list;
-			saveCfg('hideBySpell', !!val);
-			if (val) {
-				var sRunner = new SpellsRunner();
-				for (var post = Thread.first.op; post; post = post.next) {
-					sRunner.run(post);
-				}
-				sRunner.end();
-			} else {
-				saveCfg('spells', '');
-				spells.enable = false;
-			}
-			if (fld) {
-				chk.checked = !!(fld.value = val);
-			}
-			Pview.updatePosition(true);
-			return;
-		}
-		spells.enable = false;
-		if (chk) {
-			chk.checked = false;
-		}
-	}
 
 
 
@@ -8873,8 +8922,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return;
 			}
 			var val = _this15.txta.value;
-			if (spells.haveOutreps) {
-				val = spells.outReplace(val);
+			if (Spells.outreps) {
+				val = Spells.outReplace(val);
 			}
 			if (_this15.tNum && pByNum.get(_this15.tNum).subj === 'Dollchan Extension Tools') {
 				var temp = '\n\n' + _this15._wrapText(aib.markupBB, aib.markupTags[5], '-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit + ' [' + nav.scriptInstall + ']')[1];
@@ -8974,19 +9023,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			saveCfg('passwValue', el.value);
 		}
 		var value = pr.passw.value = Cfg.passwValue;
-		for (var _iterator10 = DelForm, _isArray10 = Array.isArray(_iterator10), _i11 = 0, _iterator10 = _isArray10 ? _iterator10 : _iterator10[Symbol.iterator]();;) {
-			var _ref10;
+		for (var _iterator15 = DelForm, _isArray15 = Array.isArray(_iterator15), _i16 = 0, _iterator15 = _isArray15 ? _iterator15 : _iterator15[Symbol.iterator]();;) {
+			var _ref15;
 
-			if (_isArray10) {
-				if (_i11 >= _iterator10.length) break;
-				_ref10 = _iterator10[_i11++];
+			if (_isArray15) {
+				if (_i16 >= _iterator15.length) break;
+				_ref15 = _iterator15[_i16++];
 			} else {
-				_i11 = _iterator10.next();
-				if (_i11.done) break;
-				_ref10 = _i11.value;
+				_i16 = _iterator15.next();
+				if (_i16.done) break;
+				_ref15 = _i16.value;
 			}
 
-			var form = _ref10;
+			var form = _ref15;
 
 			(form.passEl || {}).value = value;
 		}
@@ -9716,11 +9765,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return err;
 	}
 
-	var doUploading = async(regeneratorRuntime.mark(function callee$1$0(_ref31) {
-		var _ref312 = _slicedToArrayLoose(_ref31, 2);
+	var doUploading = async(regeneratorRuntime.mark(function callee$1$0(_ref36) {
+		var _ref362 = _slicedToArrayLoose(_ref36, 2);
 
-		var hasFiles = _ref312[0];
-		var getProgress = _ref312[1];
+		var hasFiles = _ref362[0];
+		var getProgress = _ref362[1];
 		var p, val, beginTime, inited, progress, counterWrap, counterEl, totalEl, speedEl, total, loaded;
 		return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
@@ -9874,7 +9923,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	var checkDelete = async(regeneratorRuntime.mark(function callee$1$0(form, dc) {
-		var err, _ref32, _ref322, num, post, els, threads, isThr, i, len, el, _iterator11, _isArray11, _i12, _ref11, thr;
+		var err, _ref37, _ref372, num, post, els, threads, isThr, i, len, el, _iterator16, _isArray16, _i17, _ref16, thr;
 
 		return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
@@ -9891,9 +9940,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return context$2$0.abrupt('return');
 
 				case 5:
-					_ref32 = doc.location.hash.match(/\d+/) || [];
-					_ref322 = _slicedToArrayLoose(_ref32, 1);
-					num = _ref322[0];
+					_ref37 = doc.location.hash.match(/\d+/) || [];
+					_ref372 = _slicedToArrayLoose(_ref37, 1);
+					num = _ref372[0];
 
 					if (num) {
 						post = pByNum.get(+num);
@@ -9941,15 +9990,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					break;
 
 				case 23:
-					_iterator11 = threads, _isArray11 = Array.isArray(_iterator11), _i12 = 0, _iterator11 = _isArray11 ? _iterator11 : _iterator11[Symbol.iterator]();
+					_iterator16 = threads, _isArray16 = Array.isArray(_iterator16), _i17 = 0, _iterator16 = _isArray16 ? _iterator16 : _iterator16[Symbol.iterator]();
 
 				case 24:
-					if (!_isArray11) {
+					if (!_isArray16) {
 						context$2$0.next = 30;
 						break;
 					}
 
-					if (!(_i12 >= _iterator11.length)) {
+					if (!(_i17 >= _iterator16.length)) {
 						context$2$0.next = 27;
 						break;
 					}
@@ -9957,14 +10006,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return context$2$0.abrupt('break', 39);
 
 				case 27:
-					_ref11 = _iterator11[_i12++];
+					_ref16 = _iterator16[_i17++];
 					context$2$0.next = 34;
 					break;
 
 				case 30:
-					_i12 = _iterator11.next();
+					_i17 = _iterator16.next();
 
-					if (!_i12.done) {
+					if (!_i17.done) {
 						context$2$0.next = 33;
 						break;
 					}
@@ -9972,10 +10021,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return context$2$0.abrupt('break', 39);
 
 				case 33:
-					_ref11 = _i12.value;
+					_ref16 = _i17.value;
 
 				case 34:
-					thr = _ref11;
+					thr = _ref16;
 					context$2$0.next = 37;
 					return thr.load(visPosts, false, false);
 
@@ -9996,22 +10045,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function html5Submit(form, submitter) {
 		var needProgress = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
-		var formData, hasFiles, _iterator12, _isArray12, _i13, _ref12, name, value, type, el, fileName, newFileName, data, lastFuncs, promises, xhr;
+		var formData, hasFiles, _iterator17, _isArray17, _i18, _ref17, name, value, type, el, fileName, newFileName, data, lastFuncs, promises, xhr;
 
 		return regeneratorRuntime.wrap(function html5Submit$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
 					formData = new FormData();
 					hasFiles = false;
-					_iterator12 = getFormElements(form, submitter), _isArray12 = Array.isArray(_iterator12), _i13 = 0, _iterator12 = _isArray12 ? _iterator12 : _iterator12[Symbol.iterator]();
+					_iterator17 = getFormElements(form, submitter), _isArray17 = Array.isArray(_iterator17), _i18 = 0, _iterator17 = _isArray17 ? _iterator17 : _iterator17[Symbol.iterator]();
 
 				case 3:
-					if (!_isArray12) {
+					if (!_isArray17) {
 						context$2$0.next = 9;
 						break;
 					}
 
-					if (!(_i13 >= _iterator12.length)) {
+					if (!(_i18 >= _iterator17.length)) {
 						context$2$0.next = 6;
 						break;
 					}
@@ -10019,14 +10068,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return context$2$0.abrupt('break', 35);
 
 				case 6:
-					_ref12 = _iterator12[_i13++];
+					_ref17 = _iterator17[_i18++];
 					context$2$0.next = 13;
 					break;
 
 				case 9:
-					_i13 = _iterator12.next();
+					_i18 = _iterator17.next();
 
-					if (!_i13.done) {
+					if (!_i18.done) {
 						context$2$0.next = 12;
 						break;
 					}
@@ -10034,13 +10083,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return context$2$0.abrupt('break', 35);
 
 				case 12:
-					_ref12 = _i13.value;
+					_ref17 = _i18.value;
 
 				case 13:
-					name = _ref12.name;
-					value = _ref12.value;
-					type = _ref12.type;
-					el = _ref12.el;
+					name = _ref17.name;
+					value = _ref17.value;
+					type = _ref17.type;
+					el = _ref17.el;
 
 					if (!(type === 'file')) {
 						context$2$0.next = 32;
@@ -11366,7 +11415,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							quotetxt = '';
 							return;
 						case 'de-btn-sage':
-							addSpell(9, '', false);return;
+							Spells.add(9, '', false);return;
 						case 'de-btn-stick':
 							this.setSticky(true);return;
 						case 'de-btn-stick-on':
@@ -11862,19 +11911,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function toggleImages() {
 				var expand = arguments.length <= 0 || arguments[0] === undefined ? !this.images.expanded : arguments[0];
 
-				for (var _iterator13 = this.images, _isArray13 = Array.isArray(_iterator13), _i14 = 0, _iterator13 = _isArray13 ? _iterator13 : _iterator13[Symbol.iterator]();;) {
-					var _ref13;
+				for (var _iterator18 = this.images, _isArray18 = Array.isArray(_iterator18), _i19 = 0, _iterator18 = _isArray18 ? _iterator18 : _iterator18[Symbol.iterator]();;) {
+					var _ref18;
 
-					if (_isArray13) {
-						if (_i14 >= _iterator13.length) break;
-						_ref13 = _iterator13[_i14++];
+					if (_isArray18) {
+						if (_i19 >= _iterator18.length) break;
+						_ref18 = _iterator18[_i19++];
 					} else {
-						_i14 = _iterator13.next();
-						if (_i14.done) break;
-						_ref13 = _i14.value;
+						_i19 = _iterator18.next();
+						if (_i19.done) break;
+						_ref18 = _i19.value;
 					}
 
-					var image = _ref13;
+					var image = _ref18;
 
 					if (image.isImage && image.expanded ^ expand) {
 						if (expand) {
@@ -11968,36 +12017,36 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						var inMsgSel = aib.qMsg + ', ' + aib.qMsg + ' *';
 						if (nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel) || nav.matchesSelector(start, '.' + aib.cSubj) && nav.matchesSelector(end, '.' + aib.cSubj)) {
 							if (this._selText.includes('\n')) {
-								addSpell(1, '/' + regQuote(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
+								Spells.add(1, '/' + regQuote(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
 							} else {
-								addSpell(0, this._selText.toLowerCase(), false);
+								Spells.add(0, this._selText.toLowerCase(), false);
 							}
 						} else {
 							dummy.innerHTML = '';
 							dummy.appendChild(this._selRange.cloneContents());
-							addSpell(2, '/' + regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
+							Spells.add(2, '/' + regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
 						}
 						return;
 					case 'spell-name':
-						addSpell(6, this.posterName, false);return;
+						Spells.add(6, this.posterName, false);return;
 					case 'spell-trip':
-						addSpell(7, this.posterTrip, false);return;
+						Spells.add(7, this.posterTrip, false);return;
 					case 'spell-img':
 						var img = this.images.firstAttach,
 						    w = img.weight,
 						    wi = img.width,
 						    h = img.height;
-						addSpell(8, [0, [w, w], [wi, wi, h, h]], false);
+						Spells.add(8, [0, [w, w], [wi, wi, h, h]], false);
 						return;
 					case 'spell-ihash':
 						spawn(ImagesHashStorage.getHash, this.images.firstAttach).then(function (hash) {
 							if (hash !== -1) {
-								addSpell(4, hash, false);
+								Spells.add(4, hash, false);
 							}
 						});
 						return;
 					case 'spell-noimg':
-						addSpell(0x108, '', true);return;
+						Spells.add(0x108, '', true);return;
 					case 'spell-text':
 						var num = this.num,
 						    hidden = this.hidden,
@@ -12009,7 +12058,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						saveUserPosts();
 						return;
 					case 'spell-notext':
-						addSpell(0x10B, '', true);return;
+						Spells.add(0x10B, '', true);return;
 					case 'thr-exp':
 						var task = parseInt(el.textContent.match(/\d+/), 10);
 						this.thr.load(!task ? 'all' : task === 10 ? 'more' : task, false);
@@ -12847,8 +12896,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	PviewsCache.purgeSecs = 3e5;
 
-	function PviewMoved(_ref33) {
-		var el = _ref33.target;
+	function PviewMoved(_ref38) {
+		var el = _ref38.target;
 
 		if (el.style[nav.animName]) {
 			el.classList.remove('de-pview-anim');
@@ -12867,39 +12916,39 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'gen',
 			value: function gen(posts, thrURL) {
 				var opNums = DelForm.tNums;
-				for (var _iterator14 = posts, _isArray14 = Array.isArray(_iterator14), _i15 = 0, _iterator14 = _isArray14 ? _iterator14 : _iterator14[Symbol.iterator]();;) {
-					var _ref14;
+				for (var _iterator19 = posts, _isArray19 = Array.isArray(_iterator19), _i20 = 0, _iterator19 = _isArray19 ? _iterator19 : _iterator19[Symbol.iterator]();;) {
+					var _ref19;
 
-					if (_isArray14) {
-						if (_i15 >= _iterator14.length) break;
-						_ref14 = _iterator14[_i15++];
+					if (_isArray19) {
+						if (_i20 >= _iterator19.length) break;
+						_ref19 = _iterator19[_i20++];
 					} else {
-						_i15 = _iterator14.next();
-						if (_i15.done) break;
-						_ref14 = _i15.value;
+						_i20 = _iterator19.next();
+						if (_i20.done) break;
+						_ref19 = _i20.value;
 					}
 
-					var _ref142 = _slicedToArrayLoose(_ref14, 2);
+					var _ref192 = _slicedToArrayLoose(_ref19, 2);
 
-					var pNum = _ref142[0];
-					var post = _ref142[1];
+					var pNum = _ref192[0];
+					var post = _ref192[1];
 
-					for (var _iterator15 = aib.getReflinks(post.msg), _isArray15 = Array.isArray(_iterator15), _i16 = 0, _iterator15 = _isArray15 ? _iterator15 : _iterator15[Symbol.iterator]();;) {
-						var _ref15;
+					for (var _iterator20 = aib.getReflinks(post.msg), _isArray20 = Array.isArray(_iterator20), _i21 = 0, _iterator20 = _isArray20 ? _iterator20 : _iterator20[Symbol.iterator]();;) {
+						var _ref20;
 
-						if (_isArray15) {
-							if (_i16 >= _iterator15.length) break;
-							_ref15 = _iterator15[_i16++];
+						if (_isArray20) {
+							if (_i21 >= _iterator20.length) break;
+							_ref20 = _iterator20[_i21++];
 						} else {
-							_i16 = _iterator15.next();
-							if (_i16.done) break;
-							_ref15 = _i16.value;
+							_i21 = _iterator20.next();
+							if (_i21.done) break;
+							_ref20 = _i21.value;
 						}
 
-						var _ref152 = _slicedToArrayLoose(_ref15, 2);
+						var _ref202 = _slicedToArrayLoose(_ref20, 2);
 
-						var link = _ref152[0];
-						var lNum = _ref152[1];
+						var link = _ref202[0];
+						var lNum = _ref202[1];
 
 						if (!posts.has(lNum)) {
 							continue;
@@ -12941,22 +12990,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var pNum = post.num,
 				    strNums = add && Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
 				    isThr = aib.t;
-				for (var _iterator16 = aib.getReflinks(post.msg), _isArray16 = Array.isArray(_iterator16), _i17 = 0, _iterator16 = _isArray16 ? _iterator16 : _iterator16[Symbol.iterator]();;) {
-					var _ref16;
+				for (var _iterator21 = aib.getReflinks(post.msg), _isArray21 = Array.isArray(_iterator21), _i22 = 0, _iterator21 = _isArray21 ? _iterator21 : _iterator21[Symbol.iterator]();;) {
+					var _ref21;
 
-					if (_isArray16) {
-						if (_i17 >= _iterator16.length) break;
-						_ref16 = _iterator16[_i17++];
+					if (_isArray21) {
+						if (_i22 >= _iterator21.length) break;
+						_ref21 = _iterator21[_i22++];
 					} else {
-						_i17 = _iterator16.next();
-						if (_i17.done) break;
-						_ref16 = _i17.value;
+						_i22 = _iterator21.next();
+						if (_i22.done) break;
+						_ref21 = _i22.value;
 					}
 
-					var _ref162 = _slicedToArrayLoose(_ref16, 2);
+					var _ref212 = _slicedToArrayLoose(_ref21, 2);
 
-					var link = _ref162[0];
-					var lNum = _ref162[1];
+					var link = _ref212[0];
+					var lNum = _ref212[1];
 
 					if (!pByNum.has(lNum)) {
 						continue;
@@ -13028,19 +13077,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (!Cfg.hideRefPsts || !this.hasMap) {
 					return;
 				}
-				for (var _iterator17 = this._set, _isArray17 = Array.isArray(_iterator17), _i18 = 0, _iterator17 = _isArray17 ? _iterator17 : _iterator17[Symbol.iterator]();;) {
-					var _ref17;
+				for (var _iterator22 = this._set, _isArray22 = Array.isArray(_iterator22), _i23 = 0, _iterator22 = _isArray22 ? _iterator22 : _iterator22[Symbol.iterator]();;) {
+					var _ref22;
 
-					if (_isArray17) {
-						if (_i18 >= _iterator17.length) break;
-						_ref17 = _iterator17[_i18++];
+					if (_isArray22) {
+						if (_i23 >= _iterator22.length) break;
+						_ref22 = _iterator22[_i23++];
 					} else {
-						_i18 = _iterator17.next();
-						if (_i18.done) break;
-						_ref17 = _i18.value;
+						_i23 = _iterator22.next();
+						if (_i23.done) break;
+						_ref22 = _i23.value;
 					}
 
-					var num = _ref17;
+					var num = _ref22;
 
 					var pst = pByNum.get(num);
 					if (pst && !pst.userToggled) {
@@ -13056,19 +13105,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var bStr = '<a href="' + tUrl + aib.anchor,
 				    strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null,
 				    html = [];
-				for (var _iterator18 = this._set, _isArray18 = Array.isArray(_iterator18), _i19 = 0, _iterator18 = _isArray18 ? _iterator18 : _iterator18[Symbol.iterator]();;) {
-					var _ref18;
+				for (var _iterator23 = this._set, _isArray23 = Array.isArray(_iterator23), _i24 = 0, _iterator23 = _isArray23 ? _iterator23 : _iterator23[Symbol.iterator]();;) {
+					var _ref23;
 
-					if (_isArray18) {
-						if (_i19 >= _iterator18.length) break;
-						_ref18 = _iterator18[_i19++];
+					if (_isArray23) {
+						if (_i24 >= _iterator23.length) break;
+						_ref23 = _iterator23[_i24++];
 					} else {
-						_i19 = _iterator18.next();
-						if (_i19.done) break;
-						_ref18 = _i19.value;
+						_i24 = _iterator23.next();
+						if (_i24.done) break;
+						_ref23 = _i24.value;
 					}
 
-					var num = _ref18;
+					var num = _ref23;
 
 					html.push(this._getHTML(num, tUrl, strNums && strNums.has(+num)));
 				}
@@ -13110,19 +13159,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (!Cfg.hideRefPsts || !this.hasMap) {
 					return;
 				}
-				for (var _iterator19 = this._set, _isArray19 = Array.isArray(_iterator19), _i20 = 0, _iterator19 = _isArray19 ? _iterator19 : _iterator19[Symbol.iterator]();;) {
-					var _ref19;
+				for (var _iterator24 = this._set, _isArray24 = Array.isArray(_iterator24), _i25 = 0, _iterator24 = _isArray24 ? _iterator24 : _iterator24[Symbol.iterator]();;) {
+					var _ref24;
 
-					if (_isArray19) {
-						if (_i20 >= _iterator19.length) break;
-						_ref19 = _iterator19[_i20++];
+					if (_isArray24) {
+						if (_i25 >= _iterator24.length) break;
+						_ref24 = _iterator24[_i25++];
 					} else {
-						_i20 = _iterator19.next();
-						if (_i20.done) break;
-						_ref19 = _i20.value;
+						_i25 = _iterator24.next();
+						if (_i25.done) break;
+						_ref24 = _i25.value;
 					}
 
-					var num = _ref19;
+					var num = _ref24;
 
 					var pst = pByNum.get(num);
 					if (pst && pst.hidden && !pst.userToggled && !pst.spellHidden) {
@@ -13314,9 +13363,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					post = post.nextNotDeleted;
 					count++;
 				} while (delAll && post);
-				if (!spells.hasNumSpell) {
-					sVis.splice(idx, count);
-				}
 				for (var tPost = post; tPost; tPost = tPost.nextInThread) {
 					tPost.count -= count;
 				}
@@ -13694,7 +13740,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						this.deletePost(post, true, !aib.t);
 					}
 					if (firstChangedPost && maybeSpells.hasValue && maybeSpells.value.hasNumSpell) {
-						disableSpells();
+						Spells.unhide();
 						for (post = firstChangedPost.nextInThread; post; post = post.nextInThread) {
 							maybeSpells.value.run(post);
 						}
@@ -13794,19 +13840,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				case 'scroll':
 					window.requestAnimationFrame(function () {
 						var halfHeight = Post.sizing.wHeight / 2;
-						for (var _iterator20 = _this38._thrs, _isArray20 = Array.isArray(_iterator20), _i21 = 0, _iterator20 = _isArray20 ? _iterator20 : _iterator20[Symbol.iterator]();;) {
-							var _ref20;
+						for (var _iterator25 = _this38._thrs, _isArray25 = Array.isArray(_iterator25), _i26 = 0, _iterator25 = _isArray25 ? _iterator25 : _iterator25[Symbol.iterator]();;) {
+							var _ref25;
 
-							if (_isArray20) {
-								if (_i21 >= _iterator20.length) break;
-								_ref20 = _iterator20[_i21++];
+							if (_isArray25) {
+								if (_i26 >= _iterator25.length) break;
+								_ref25 = _iterator25[_i26++];
 							} else {
-								_i21 = _iterator20.next();
-								if (_i21.done) break;
-								_ref20 = _i21.value;
+								_i26 = _iterator25.next();
+								if (_i26.done) break;
+								_ref25 = _i26.value;
 							}
 
-							var thr = _ref20;
+							var thr = _ref25;
 
 							if (thr.bottom > halfHeight && thr.top < halfHeight) {
 								if (!_this38._visible) {
@@ -13918,19 +13964,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			Array.from = function (iterable) {
 				var index = 0,
 				    rv = [];
-				for (var _iterator21 = iterable, _isArray21 = Array.isArray(_iterator21), _i22 = 0, _iterator21 = _isArray21 ? _iterator21 : _iterator21[Symbol.iterator]();;) {
-					var _ref21;
+				for (var _iterator26 = iterable, _isArray26 = Array.isArray(_iterator26), _i27 = 0, _iterator26 = _isArray26 ? _iterator26 : _iterator26[Symbol.iterator]();;) {
+					var _ref26;
 
-					if (_isArray21) {
-						if (_i22 >= _iterator21.length) break;
-						_ref21 = _iterator21[_i22++];
+					if (_isArray26) {
+						if (_i27 >= _iterator26.length) break;
+						_ref26 = _iterator26[_i27++];
 					} else {
-						_i22 = _iterator21.next();
-						if (_i22.done) break;
-						_ref21 = _i22.value;
+						_i27 = _iterator26.next();
+						if (_i27.done) break;
+						_ref26 = _i27.value;
 					}
 
-					var item = _ref21;
+					var item = _ref26;
 
 					rv[index++] = item;
 				}
@@ -14644,22 +14690,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return false;
 					} },
 				getReflinks: { value: function value(msg) {
-						var _ref22;
+						var _ref27;
 
 						var links = $Q('.post-reply-link', msg);
-						return (_ref22 = {
+						return (_ref27 = {
 							_index: 0,
 							_length: links.length,
 							_links: links
-						}, _defineProperty(_ref22, Symbol.iterator, function () {
+						}, _defineProperty(_ref27, Symbol.iterator, function () {
 							return this;
-						}), _defineProperty(_ref22, 'next', function next() {
+						}), _defineProperty(_ref27, 'next', function next() {
 							if (this._index < this._length) {
 								var link = this._links[this._index++];
 								return { value: [link, +link.getAttribute('data-num')], done: false };
 							}
 							return { done: true };
-						}), _ref22);
+						}), _ref27);
 					} },
 				hasNames: { configurable: true, get: function get() {
 						var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
@@ -14979,16 +15025,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return videos;
 			},
 			getReflinks: function getReflinks(msg, fn) {
-				var _ref23;
+				var _ref28;
 
 				var links = $Q('a', msg);
-				return (_ref23 = {
+				return (_ref28 = {
 					_index: 0,
 					_length: links.length,
 					_links: links
-				}, _defineProperty(_ref23, Symbol.iterator, function () {
+				}, _defineProperty(_ref28, Symbol.iterator, function () {
 					return this;
-				}), _defineProperty(_ref23, 'next', function next() {
+				}), _defineProperty(_ref28, 'next', function next() {
 					var idx = this._index,
 					    len = this._length;
 					while (idx < len) {
@@ -15001,7 +15047,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 					}
 					return { done: true };
-				}), _ref23);
+				}), _ref28);
 			},
 			getCaptchaSrc: function getCaptchaSrc(src, tNum) {
 				var tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=').replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
@@ -15149,7 +15195,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return val;
 			},
 			get rep() {
-				var val = dTime || spells.haveReps || Cfg.crossLinks;
+				var val = dTime || Spells.reps || Cfg.crossLinks;
 				Object.defineProperty(this, 'rep', { value: val });
 				return val;
 			},
@@ -15295,23 +15341,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							temp.checked = data.hide;
 						}
 						doc.body.style.display = 'none';
-						disableSpells();
+						Spells.unhide();
 						if (data.data) {
-							spells.setSpells(data.data, false);
+							Spells.setSpells(data.data, false);
+							Cfg.spells = JSON.stringify(data.data);
 							temp = $id('de-spell-txt');
 							if (temp) {
-								temp.value = spells.list;
+								temp.value = Spells.list;
 							}
 						} else {
 							if (data.data === '') {
-								spells.disable();
+								Spells.disable();
 								temp = $id('de-spell-txt');
 								if (temp) {
 									temp.value = '';
 								}
 								saveCfg('spells', '');
 							}
-							spells.enable = false;
 						}
 						doc.body.style.display = '';
 					})();
@@ -15562,8 +15608,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return c ? x : a + '<a href="' + b + '">' + b + '</a>';
 			});
 		}
-		if (spells.haveReps) {
-			txt = spells.replace(txt);
+		if (Spells.reps) {
+			txt = Spells.replace(txt);
 		}
 		if (Cfg.crossLinks) {
 			txt = txt.replace(aib.reCrossLinks, function (str, b, tNum, pNum) {
@@ -16105,7 +16151,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function scrollPage() {
 		if (!aib.t) {
-			if (doc.hidden || needScroll && window.pageYOffset !== 0) {
+			if (doc.hidden || needScroll) {
 				window.scrollTo(0, 0);
 			}
 			return;
@@ -16532,28 +16578,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return context$2$0.abrupt('return');
 
 				case 23:
-					spells = new Spells(!!Cfg.hideBySpell);
-					Logger.log('Parsing spells');
 					doc.body.style.display = 'none';
 					formEl = DelForm.doReplace(formEl);
 					Logger.log('Replace delform');
 					pByEl = new Map();
 					pByNum = new Map();
-					context$2$0.prev = 30;
+					context$2$0.prev = 28;
 
 					DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
-					context$2$0.next = 39;
+					context$2$0.next = 37;
 					break;
 
-				case 34:
-					context$2$0.prev = 34;
-					context$2$0.t2 = context$2$0['catch'](30);
+				case 32:
+					context$2$0.prev = 32;
+					context$2$0.t2 = context$2$0['catch'](28);
 
 					console.log('DELFORM ERROR:\n' + getPrettyErrorMessage(context$2$0.t2));
 					doc.body.style.display = '';
 					return context$2$0.abrupt('return');
 
-				case 39:
+				case 37:
 					Logger.log('Parse delform');
 					pr = new PostForm($q(aib.qPostForm, doc), false, doc);
 					Logger.log('Parse postform');
@@ -16569,28 +16613,29 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					readViewedPosts();
 					scriptCSS();
 					Logger.log('Apply CSS');
-					doc.body.style.display = '';
+					doc.body.style.removeProperty('display');
 					Logger.log('Display page');
-					scrollPage();
-					Logger.log('Scroll page');
 					toggleInfinityScroll();
 					Logger.log('Infinity scroll');
 					readPosts();
-					return context$2$0.delegateYield(readUserPosts(), 't3', 59);
+					return context$2$0.delegateYield(readUserPosts(), 't3', 55);
 
-				case 59:
-					return context$2$0.delegateYield(readFavoritesPosts(), 't4', 60);
+				case 55:
+					return context$2$0.delegateYield(readFavoritesPosts(), 't4', 56);
 
-				case 60:
+				case 56:
 					setTimeout(PostContent.purge, 0);
-					Logger.log('Apply spells');
+					Logger.log('Hide posts');
+					scrollPage();
+					Logger.log('Scroll page');
+					console.log(Spells);
 					Logger.finish();
 
-				case 63:
+				case 62:
 				case 'end':
 					return context$2$0.stop();
 			}
-		}, marked1$0[7], this, [[30, 34]]);
+		}, marked1$0[7], this, [[28, 32]]);
 	}
 
 	if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
@@ -16622,9 +16667,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			cfgRead = spawn(readCfg);
 		}
 		needScroll = true;
-		doc.addEventListener(doc.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll", function wheelFunc(e) {
+		doc.addEventListener('onwheel' in doc.body ? 'wheel' : 'mousewheel', function wFunc(e) {
 			needScroll = false;
-			doc.removeEventListener(e.type, wheelFunc);
+			doc.removeEventListener(e.type, wFunc);
 		});
 		doc.addEventListener('DOMContentLoaded', async(initScript.bind(null, false, cfgRead)));
 	}
