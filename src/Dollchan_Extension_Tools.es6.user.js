@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '2ef0692';
+var commit = 'ce8373e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10035,7 +10035,13 @@ class RefMap {
 	static gen(posts, thrURL) {
 		var opNums = DelForm.tNums;
 		for(var [pNum, post] of posts) {
-			for(var [link, lNum] of aib.getReflinks(post.msg)) {
+			var links = $Q('a', post.msg);
+			for(var i = 0, len = links.length; i < len; ++i) {
+				var lNum, link = links[i],
+					tc = link.textContent;
+				if(tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10))) {
+					continue;
+				}
 				if(!posts.has(lNum)) {
 					continue;
 				}
@@ -10074,7 +10080,13 @@ class RefMap {
 		var pNum = post.num,
 			strNums = add && Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
 			isThr = aib.t;
-		for(var [link, lNum] of aib.getReflinks(post.msg)) {
+		var links = $Q('a', post.msg);
+		for(var i = 0, len = links.length; i < len; ++i) {
+			var lNum, link = links[i],
+				tc = link.textContent;
+			if(tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10))) {
+				continue;
+			}
 			if(!pByNum.has(lNum)) {
 				continue;
 			}
@@ -11553,24 +11565,6 @@ function getImageBoard(checkDomains, checkEngines) {
 				} catch(e) {}
 				return false;
 			} },
-			getReflinks: { value(msg) {
-				var links = $Q('.post-reply-link', msg);
-				return {
-					_index: 0,
-					_length: links.length,
-					_links: links,
-					[Symbol.iterator]() {
-						return this;
-					},
-					next() {
-						if(this._index < this._length) {
-							var link = this._links[this._index++];
-							return { value: [link, +link.getAttribute('data-num')], done: false };
-						}
-						return { done: true };
-					}
-				};
-			} },
 			hasNames: { configurable: true, get() {
 				var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
 				Object.defineProperty(this, 'hasNames', { value: val });
@@ -11902,29 +11896,6 @@ function getImageBoard(checkDomains, checkEngines) {
 				}
 			}
 			return videos;
-		},
-		getReflinks(msg, fn) {
-			var links = $Q('a', msg);
-			return {
-				_index: 0,
-				_length: links.length,
-				_links: links,
-				[Symbol.iterator]() {
-					return this;
-				},
-				next() {
-					var idx = this._index, len = this._length;
-					while(idx < len) {
-						var lNum, link = this._links[idx++],
-							tc = link.textContent;
-						if(tc[0] === '>' && tc[1] === '>' && (lNum = +tc.substr(2))) {
-							this._index = idx;
-							return { value: [link, lNum], done: false };
-						}
-					}
-					return { done: true };
-				}
-			};
 		},
 		getCaptchaSrc(src, tNum) {
 			var tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
