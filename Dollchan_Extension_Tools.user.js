@@ -1888,7 +1888,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'ce8373e';
+	var commit = 'bffd032';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -9884,7 +9884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return;
 		}
 		if (Cfg.favOnReply && pr.tNum && !$c('de-btn-fav-sel', pByNum.get(pr.tNum).el)) {
-			pByNum[pr.tNum].thr.setFavorState(true, 'onreply');
+			pByNum.get(pr.tNum).thr.setFavorState(true, 'onreply');
 		}
 		pr.txta.value = '';
 		if (pr.file) {

@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'ce8373e';
+var commit = 'bffd032';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7513,7 +7513,7 @@ function checkUpload(dc) {
 		return;
 	}
 	if(Cfg.favOnReply && pr.tNum && !$c('de-btn-fav-sel', pByNum.get(pr.tNum).el)) {
-		pByNum[pr.tNum].thr.setFavorState(true, 'onreply');
+		pByNum.get(pr.tNum).thr.setFavorState(true, 'onreply');
 	}
 	pr.txta.value = '';
 	if(pr.file) {
