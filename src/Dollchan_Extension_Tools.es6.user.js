@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '5ae17cf';
+var commit = 'e31fdb1';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5152,7 +5152,7 @@ var Pages = {
 
 function toggleInfinityScroll() {
 	if(!aib.t) {
-		var evtName = 'onwheel' in doc.body ? 'wheel' : 'mousewheel';
+		var evtName = 'onwheel' in doc.defaultView ? 'wheel' : 'mousewheel';
 		if(Cfg.inftyScroll) {
 			doc.defaultView.addEventListener(evtName, toggleInfinityScroll.onwheel);
 		} else {
@@ -13651,7 +13651,7 @@ if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 		cfgRead = spawn(readCfg);
 	}
 	needScroll = true;
-	doc.addEventListener('onwheel' in doc.body ? 'wheel' : 'mousewheel', function wFunc(e) {
+	doc.addEventListener('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', function wFunc(e) {
 		needScroll = false;
 		doc.removeEventListener(e.type, wFunc);
 	});
