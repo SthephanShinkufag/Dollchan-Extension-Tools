@@ -1888,7 +1888,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '5bac081';
+	var commit = 'ac14537';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12908,7 +12908,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				pst.el = replacePost(pst.el);
 				delete pst.msg;
 				if (pst.ref.hasMap) {
-					pst.ref.init(this._tUrl);
+					pst.ref.init(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
 				}
 				pst.itemInited = true;
 				return pst;
@@ -12978,7 +12978,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							continue;
 						}
 						var ref = posts.get(lNum).ref;
-						if (ref.inited) {
+						if (ref._inited) {
 							ref.add(post, pNum);
 						} else {
 							ref._set.add(pNum);
@@ -13001,9 +13001,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var post = form.firstThr && form.firstThr.op;
 				if (post && Cfg.linksNavig === 2) {
 					this.gen(pByNum, '');
+					var strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 					for (; post; post = post.next) {
 						if (post.ref.hasMap) {
-							post.ref.init('');
+							post.ref.init('', strNums);
 						}
 					}
 				}
@@ -13125,10 +13126,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: 'init',
-			value: function init(tUrl) {
-				var bStr = '<a href="' + tUrl + aib.anchor,
-				    strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null,
-				    html = [];
+			value: function init(tUrl, strNums) {
+				var html = '';
 				for (var _iterator25 = this._set, _isArray25 = Array.isArray(_iterator25), _i26 = 0, _iterator25 = _isArray25 ? _iterator25 : _iterator25[Symbol.iterator]();;) {
 					var _ref25;
 
@@ -13143,9 +13142,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					var num = _ref25;
 
-					html.push(this._getHTML(num, tUrl, strNums && strNums.has(+num)));
+					html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 				}
-				this._el.innerHTML = html.join('');
+				this._createEl(html);
 				this._inited = true;
 			}
 		}, {
@@ -13205,6 +13204,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 		}, {
+			key: '_createEl',
+			value: function _createEl(innerHTML) {
+				var el,
+				    html = '<div class="de-refmap">' + innerHTML + '</div>',
+				    msg = this._post.msg;
+				if (aib.dobr && (el = msg.nextElementSibling)) {
+					el.insertAdjacentHTML('beforeend', html);
+				} else {
+					msg.insertAdjacentHTML('afterend', html);
+				}
+			}
+		}, {
 			key: '_getHTML',
 			value: function _getHTML(num, tUrl, isHidden) {
 				return '<a href="' + tUrl + aib.anchor + num + '" class="de-link-ref' + (isHidden ? ' de-link-hid' : '') + '">&gt;&gt;' + num + '</a><span class="de-refcomma">, </span>';
@@ -13217,16 +13228,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: '_el',
 			get: function get() {
-				var el,
-				    value,
-				    html = '<div class="de-refmap"></div>',
-				    msg = this._post.msg;
-				if (aib.dobr && (el = msg.nextElementSibling)) {
-					el.insertAdjacentHTML('beforeend', html);
-					value = el.lastChild;
-				} else {
-					msg.insertAdjacentHTML('afterend', html);
-					value = msg.nextSibling;
+				var value = $c('de-refmap', this._post.el);
+				if (!value) {
+					this._createEl('');
+					value = $c('de-refmap', this._post.el);
 				}
 				Object.defineProperty(this, '_el', { configurable: true, value: value });
 				return value;

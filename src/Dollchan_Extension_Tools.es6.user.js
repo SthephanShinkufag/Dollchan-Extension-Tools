@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '5bac081';
+var commit = 'ac14537';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10009,7 +10009,7 @@ class PviewsCache extends TemporaryContent {
 		pst.el = replacePost(pst.el);
 		delete pst.msg;
 		if(pst.ref.hasMap) {
-			pst.ref.init(this._tUrl);
+			pst.ref.init(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
 		}
 		pst.itemInited = true;
 		return pst;
@@ -10040,7 +10040,7 @@ class RefMap {
 					continue;
 				}
 				var ref = posts.get(lNum).ref;
-				if(ref.inited) {
+				if(ref._inited) {
 					ref.add(post, pNum);
 				} else {
 					ref._set.add(pNum);
@@ -10061,9 +10061,10 @@ class RefMap {
 		var post = form.firstThr && form.firstThr.op;
 		if(post && Cfg.linksNavig === 2) {
 			this.gen(pByNum, '');
+			var strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null
 			for(; post; post = post.next) {
 				if(post.ref.hasMap) {
-					post.ref.init('');
+					post.ref.init('', strNums);
 				}
 			}
 		}
@@ -10137,14 +10138,12 @@ class RefMap {
 			}
 		}
 	}
-	init(tUrl) {
-		var bStr = '<a href="' + tUrl + aib.anchor,
-			strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null,
-			html = [];
+	init(tUrl, strNums) {
+		var html = '';
 		for(var num of this._set) {
-			html.push(this._getHTML(num, tUrl, strNums && strNums.has(+num)));
+			html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 		}
-		this._el.innerHTML = html.join('');
+		this._createEl(html);
 		this._inited = true;
 	}
 	makeUnion(oRef) {
@@ -10182,17 +10181,22 @@ class RefMap {
 	}
 
 	get _el() {
-		var el, value, html = '<div class="de-refmap"></div>',
-			msg = this._post.msg;
-		if(aib.dobr && (el = msg.nextElementSibling)) {
-			el.insertAdjacentHTML('beforeend', html);
-			value = el.lastChild;
-		} else {
-			msg.insertAdjacentHTML('afterend', html);
-			value = msg.nextSibling;
+		var value = $c('de-refmap', this._post.el);
+		if(!value) {
+			this._createEl('');
+			value = $c('de-refmap', this._post.el);
 		}
 		Object.defineProperty(this, '_el', { configurable: true, value });
 		return value;
+	}
+	_createEl(innerHTML) {
+		var el, html = '<div class="de-refmap">' + innerHTML + '</div>',
+			msg = this._post.msg;
+		if(aib.dobr && (el = msg.nextElementSibling)) {
+			el.insertAdjacentHTML('beforeend', html);
+		} else {
+			msg.insertAdjacentHTML('afterend', html);
+		}
 	}
 	_getHTML(num, tUrl, isHidden) {
 		return '<a href="' + tUrl + aib.anchor + num +
