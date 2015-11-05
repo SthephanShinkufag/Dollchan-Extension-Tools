@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'e37741f';
+var commit = 'f731b46';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -600,7 +600,6 @@ Lng = {
 doc = window.document, aProto = Array.prototype, locStorage, sesStorage,
 Cfg, hThr, pByEl, pByNum, sVis, uVis, needScroll,
 aib, nav, updater, dTime, visPosts = 2, topWinZ = 0,
-WebmParser, Logger,
 pr, dummy, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
 lang, quotetxt = '', localRun, isExpImg, isPreImg, chromeCssUpd, excludeList,
@@ -772,45 +771,39 @@ function $isEmpty(obj) {
 	return true;
 }
 
-Logger = new function() {
-	var instance, marks = [], finished = false;
-	function LoggerSingleton() {
-		if(instance) {
-			return instance;
-		}
-		instance = this;
-	}
-	LoggerSingleton.prototype = {
-		finish() {
-			finished = true;
-			marks.push(['LoggerFinish', Date.now()]);
-		},
-		getData(full) {
-			var duration, timeLog = [],
-				i = 1;
-			for(var len = marks.length - 1, lastExtra = 0; i < len; ++i) {
-				duration = marks[i][1] - marks[i - 1][1] + lastExtra;
-				if(full || duration > 1) {
-					lastExtra = 0;
-					timeLog.push([marks[i][0], duration]);
-				} else {
-					lastExtra = duration;
-				}
-			}
-			duration = marks[i][1] - marks[0][1];
-			timeLog.push([Lng.total[lang], duration]);
-			return timeLog;
-		},
-		init() {
-			marks.push(['LoggerInit', Date.now()]);
-		},
-		log(text) {
-			if(!finished) {
-				marks.push([text, Date.now()]);
+var Logger = {
+	finish() {
+		this._finished = true;
+		this._marks.push(['LoggerFinish', Date.now()]);
+	},
+	getData(full) {
+		var duration, marks = this._marks,
+			timeLog = [],
+			i = 1;
+		for(var len = marks.length - 1, lastExtra = 0; i < len; ++i) {
+			duration = marks[i][1] - marks[i - 1][1] + lastExtra;
+			if(full || duration > 1) {
+				lastExtra = 0;
+				timeLog.push([marks[i][0], duration]);
+			} else {
+				lastExtra = duration;
 			}
 		}
-	};
-	return LoggerSingleton;
+		duration = marks[i][1] - marks[0][1];
+		timeLog.push([Lng.total[lang], duration]);
+		return timeLog;
+	},
+	init() {
+		this._marks.push(['LoggerInit', Date.now()]);
+	},
+	log(text) {
+		if(!this._finished) {
+			this._marks.push([text, Date.now()]);
+		}
+	},
+
+	_finished: false,
+	_marks: []
 };
 
 function async(generatorFunc) {
@@ -977,34 +970,34 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 		};
 		try {
 			xhr.open((params && params.method) || 'GET', url, true);
+			if(params) {
+				if(params.responseType) {
+					xhr.responseType = params.responseType;
+				}
+				var headers = params.headers;
+				if(headers) {
+					for(var h in headers) {
+						if(headers.hasOwnProperty(h)) {
+							xhr.setRequestHeader(h, headers[h]);
+						}
+					}
+				}
+			}
+			if(useCache) {
+				if(aib.LastModified) {
+					xhr.setRequestHeader('If-Modified-Since', aib.LastModified);
+				}
+				if(aib.ETag) {
+					xhr.setRequestHeader('If-None-Match', aib.ETag);
+				}
+			}
+			xhr.send(params && params.data || null);
+			cancelFn(() => xhr.abort());
 		} catch(e) {
 			nativeXHRworks = false;
 			resolve($ajax(url, params, false));
 			return;
 		}
-		if(params) {
-			if(params.responseType) {
-				xhr.responseType = params.responseType;
-			}
-			var headers = params.headers;
-			if(headers) {
-				for(var h in headers) {
-					if(headers.hasOwnProperty(h)) {
-						xhr.setRequestHeader(h, headers[h]);
-					}
-				}
-			}
-		}
-		if(useCache) {
-			if(aib.LastModified) {
-				xhr.setRequestHeader('If-Modified-Since', aib.LastModified);
-			}
-			if(aib.ETag) {
-				xhr.setRequestHeader('If-None-Match', aib.ETag);
-			}
-		}
-		xhr.send(params && params.data || null);
-		cancelFn(() => xhr.abort());
 	});
 }
 
@@ -1573,7 +1566,7 @@ function readPosts() {
 	if(typeof str === 'string') {
 		var data = str.split(';');
 		if(data.length === 4 && +data[0] === (Cfg.hideBySpell ? spells.hash : 0) &&
-		  pByNum.has(data[1]) && pByNum.get(data[1]).count === +data[2])
+		  pByNum.has(+data[1]) && pByNum.get(+data[1]).count === +data[2])
 		{
 			sVis = data[3].split(',');
 			return;
@@ -1704,7 +1697,7 @@ function* readFavoritesPosts(form = DelForm.first) {
 				f.cnt = thr.pcount;
 				f['new'] = 0;
 				if(aib.t && Cfg.markNewPosts && f.last) {
-					var post = pByNum.get(f.last.match(/\d+/));
+					var post = pByNum.get(+f.last.match(/\d+/));
 					if(post) {
 						while(post = post.next) {
 							thr._addPostMark(post.el, true);
@@ -1762,7 +1755,7 @@ function readViewedPosts() {
 	var data = sesStorage['de-viewed'];
 	if(data) {
 		data.split(',').forEach(function(pNum) {
-			var post = pByNum.get(pNum);
+			var post = pByNum.get(+pNum);
 			if(post) {
 				post.el.classList.add('de-viewed');
 				post.viewed = true;
@@ -2327,7 +2320,7 @@ function showVideosWindow(body) {
 				$pd(e);
 				return;
 			} else if(!el.classList.contains('de-video-link')) {
-				pByNum.get(e.target.getAttribute('de-num')).selectCurrent();
+				pByNum.get(+e.target.getAttribute('de-num')).selectCurrent();
 				return;
 			}
 			var m = el.videoInfo;
@@ -2454,19 +2447,20 @@ function showHiddenWindow(body) {
 		$each($Q('.de-entry[info]', this.parentNode), function(date, el) {
 			if($t('input', el).checked) {
 				var arr = el.getAttribute('info').split(';');
-				if(pByNum.has(arr[1])) {
-					pByNum.get(arr[1]).setUserVisib(false, date, true);
+				var num = +arr[1];
+				if(pByNum.has(num)) {
+					pByNum.get(num).setUserVisib(false, date, true);
 				} else {
 					locStorage['__de-post'] = JSON.stringify({
 						'brd': arr[0],
 						'date': date,
 						'isOp': true,
-						'num': arr[1],
+						'num': num,
 						'hide': false
 					});
 					locStorage.removeItem('__de-post');
 				}
-				delete hThr[arr[0]][arr[1]];
+				delete hThr[arr[0]][num];
 			}
 		}.bind(null, Date.now()));
 		saveHiddenThreads(true);
@@ -2481,7 +2475,7 @@ function cleanFavorites() {
 			for(var i = 0; i < len; ++i) {
 				var el = els[i];
 				removeFavoriteEntry(fav, el.getAttribute('de-host'), el.getAttribute('de-board'),
-					el.getAttribute('de-num'), true);
+					+el.getAttribute('de-num'), true);
 			}
 			saveFavorites(fav);
 		});
@@ -2612,7 +2606,7 @@ function showFavoritesWindow(body, data) {
 			var tNums;
 			try {
 				var form = yield ajaxLoad(aib.getPageUrl(aib.b, page));
-				tNums = new Set(Array.from(DelForm.getThreads(formEl)).map(thrEl => +aib.getTNum(thrEl)));
+				tNums = new Set(Array.from(DelForm.getThreads(formEl)).map(thrEl => aib.getTNum(thrEl)));
 			} catch(e) {
 				continue;
 			}
@@ -3167,7 +3161,7 @@ function getCfgInfo() {
 				[Lng.thrHidden[lang], getHiddenThrCount()],
 				[Lng.postsSent[lang], Cfg.stats.reply]
 			], false) + '</div>' +
-			'<div id="de-info-log">' + getInfoTable(new Logger().getData(false), true) + '</div></div>'),
+			'<div id="de-info-log">' + getInfoTable(Logger.getData(false), true) + '</div></div>'),
 		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
 			$popup(Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>',
 			       'cfg-debug', false).firstElementChild.value = JSON.stringify(
@@ -3178,7 +3172,7 @@ function getCfgInfo() {
 				'cfg': Cfg,
 				'sSpells': spells.list.split('\n'),
 				'oSpells': sesStorage['de-spells-' + aib.b + (aib.t || '')],
-				'perf': new Logger().getData(true)
+				'perf': Logger.getData(true)
 			}, function(key, value) {
 				switch(key) {
 				case 'stats':
@@ -7599,7 +7593,7 @@ var checkDelete = async(function* (form, dc) {
 	}
 	var [num] = doc.location.hash.match(/\d+/) || [];
 	if(num) {
-		var post = pByNum.get(num);
+		var post = pByNum.get(+num);
 		if(post) {
 			if(!post.isOp) {
 				post.el.className = aib.cReply;
@@ -7801,7 +7795,7 @@ function readExif(data, off, len) {
 	return new Uint8Array([resT & 0xFF, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF]);
 }
 
-WebmParser = function(data) {
+var WebmParser = function(data) {
 	var EBMLId = 0x1A45DFA3,
 		segmentId = 0x18538067,
 		voidId = 0xEC;
@@ -8738,7 +8732,7 @@ class AbstractPost {
 					          !temp[2].includes('\/'))
 					{
 						var num = temp.match(/\d+/),
-							post = pByNum.get(num);
+							post = pByNum.get(+num);
 						if(!post) {
 							return;
 						}
@@ -9597,8 +9591,8 @@ class Pview extends AbstractPost {
 		return Pview.top ? Pview.top.parent : null;
 	}
 	static show(parent, link) {
-		var rv, tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,aib.getPostOfEl(link).tNum])[1],
-			pNum = (link.textContent.trim().match(/\d+$/) || [tNum])[0],
+		var rv, tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,aib.getPostOfEl(link).tNum])[1],
+			pNum = +(link.textContent.trim().match(/\d+$/) || [tNum])[0],
 			isTop = !(parent instanceof Pview),
 			pv = isTop ? Pview.top : parent.kid;
 		clearTimeout(Pview._delTO);
@@ -10101,13 +10095,13 @@ class RefMap {
 				link.href = '#' + (aib.fch ? 'p' : '') + lNum;
 			}
 			if(add) {
-				if(strNums && strNums.has(+lNum)) {
+				if(strNums && strNums.has(lNum)) {
 					link.classList.add('de-link-hid');
 				}
 				if(!aib.hasOPNum && DelForm.tNums.has(lNum)) {
 					link.classList.add('de-ref-op');
 				}
-				lPost.ref.add(post, pNum, strNums && strNums.has(+pNum));
+				lPost.ref.add(post, pNum, strNums && strNums.has(pNum));
 			} else {
 				lPost.ref.remove(pNum);
 			}
@@ -10252,12 +10246,10 @@ class Thread {
 		if(prev) {
 			prev.next = this;
 		}
-		var lastPost = this.op = el.post = new Post(aib.getOp(el), this, num, 0, true,
-			prev ? prev.last : null);
+		var lastPost = this.op = new Post(aib.getOp(el), this, num, 0, true, prev ? prev.last : null);
 		for(var i = 0; i < len; i++) {
 			var pEl = els[i];
-			num = aib.getPNum(pEl);
-			lastPost = new Post(pEl, this, num, omt + i, false, lastPost);
+			lastPost = new Post(pEl, this, aib.getPNum(pEl), omt + i, false, lastPost);
 		}
 		this.last = lastPost;
 		el.style.counterReset = 'de-cnt ' + omt;
@@ -10330,7 +10322,7 @@ class Thread {
 			});
 			post.el.classList.add('de-post-new');
 		}
-		if(num in uVis) {
+		if(uVis[num]) {
 			initPostUserVisib(post, num, uVis[num][0] === 0, Date.now());
 		}
 		if(maybeVParser.value) {
@@ -10683,7 +10675,7 @@ class Thread {
 					post = post.nextNotDeleted;
 					continue;
 				}
-				if(+post.num > +aib.getPNum(nPosts[i])) {
+				if(post.num > aib.getPNum(nPosts[i])) {
 					if(!firstChangedPost) {
 						firstChangedPost = post.prev;
 					}
@@ -10691,7 +10683,7 @@ class Thread {
 					do {
 						cnt++;
 						i++;
-					} while(+aib.getPNum(nPosts[i]) < +post.num);
+					} while(aib.getPNum(nPosts[i]) < post.num);
 					var res = this._importPosts(post.prev, nPosts, i - cnt, i, maybeVParser, maybeSpells);
 					newPosts += res[0];
 					this.pcount += res[0];
@@ -11105,7 +11097,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			qPostRedir: { value: null },
 			qThread: { value: '[id*="thread"]' },
 			getTNum: { value(op) {
-				return $q('a[id]', op).id.match(/\d+/)[0];
+				return +$q('a[id]', op).id.match(/\d+/)[0];
 			} },
 			css: { value: '#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }\
 				.de-thr-hid { margin: 1em 0; }' },
@@ -11145,7 +11137,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
 			} },
 			getTNum: { value(op) {
-				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
 			getWrap: { value(el, isOp) {
 				return el.parentNode;
@@ -11195,10 +11187,10 @@ function getImageBoard(checkDomains, checkEngines) {
 				return $q('.post:first-child', el);
 			} },
 			getPNum: { value(post) {
-				return post.getAttribute('postid');
+				return +post.getAttribute('postid');
 			} },
 			getTNum: { value(el) {
-				return this.getOp(el).getAttribute('postid');
+				return +this.getOp(el).getAttribute('postid');
 			} },
 			getThrdUrl: { value(b, tNum) {
 				return $q('link[rel="canonical"]', doc.head).href;
@@ -11208,7 +11200,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					var delPosts = $Q('.post[postid=""]', doc);
 					for(var i = 0, len = delPosts.length; i < len; ++i) {
 						try {
-							var post = pByNum.get($q('blockquote', delPosts[i]).getAttribute('id').substring(1));
+							var post = pByNum.get(+$q('blockquote', delPosts[i]).getAttribute('id').substring(1));
 							if(post) {
 								post.deleted = true;
 								post.btns.classList.remove('de-post-counter');
@@ -11258,7 +11250,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
 			} },
 			getTNum: { value(op) {
-				return $q('a[name]', op).name.match(/\d+/)[0];
+				return +$q('a[name]', op).name.match(/\d+/)[0];
 			} },
 			insertYtPlayer: { value(msg, playerHtml) {
 				var prev = msg.previousElementSibling,
@@ -11350,7 +11342,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return !!$c('sage', post);
 			} },
 			getTNum: { value(op) {
-				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
 			insertYtPlayer: { value(msg, playerHtml) {
 				var pMsg = msg.parentNode,
@@ -11409,7 +11401,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get 'niuchan.org'() { return this['diochan.com']; },
 		'ponya.ch': [{
 			getPNum: { value(post) {
-				return post.getAttribute('data-num');
+				return +post.getAttribute('data-num');
 			} },
 			init: { value() {
 				defaultCfg.postSameImg = 0;
@@ -11534,7 +11526,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return $parent(el, 'FIGURE');
 			} },
 			getPNum: { value(post) {
-				return post.getAttribute('data-num');
+				return +post.getAttribute('data-num');
 			} },
 			getSage: { writable: true, value(post) {
 				if(this.hasNames) {
@@ -11585,7 +11577,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					next() {
 						if(this._index < this._length) {
 							var link = this._links[this._index++];
-							return { value: [link, link.getAttribute('data-num')], done: false };
+							return { value: [link, +link.getAttribute('data-num')], done: false };
 						}
 						return { done: true };
 					}
@@ -11668,7 +11660,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
 			} },
 			getPNum: { value(post) {
-				return $t('input', post).name;
+				return +$t('input', post).name;
 			} },
 			getPostElOfEl: { value(el) {
 				while(el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
@@ -11677,7 +11669,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return el;
 			} },
 			getTNum: { value(op) {
-				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
 			cssEn: { value: '.ftbl { width: auto; margin: 0; }\
 				.reply { background: #f0e0d6; }\
@@ -11764,7 +11756,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
 			} },
 			getTNum: { value(op) {
-				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
 			init: { value() {
 				if(Cfg) {
@@ -11835,7 +11827,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return this.prot + '//' + this.host + fixBrd(b) + '?do=thread&id=' + tNum;
 			} },
 			getTNum: { value(op) {
-				return $q('a[name]', op).name.match(/\d+/)[0];
+				return +$q('a[name]', op).name.match(/\d+/)[0];
 			} },
 			css: { value: '.reply { background-color: #e4e4d6; }' },
 			init: { value() {
@@ -11849,7 +11841,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			parseURL: { value() {
 				var url = window.location.search.match(/^\?do=(thread|page)&(id|p)=(\d+)$/);
 				this.b = window.location.pathname.replace(/\//g, '');
-				this.t = url[1] === 'thread' ? url[3] : false;
+				this.t = url[1] === 'thread' ? +url[3] : false;
 				this.page = url[1] === 'page' ? +url[3] : 0;
 				this.docExt = '';
 			} }
@@ -11937,12 +11929,9 @@ function getImageBoard(checkDomains, checkEngines) {
 					while(idx < len) {
 						var lNum, link = this._links[idx++],
 							tc = link.textContent;
-						if(tc[0] === '>' && tc[1] === '>') {
-							var lNum = tc.substr(2);
-							if(+lNum) {
-								this._index = idx;
-								return { value: [link, lNum], done: false };
-							}
+						if(tc[0] === '>' && tc[1] === '>' && (lNum = +tc.substr(2))) {
+							this._index = idx;
+							return { value: [link, lNum], done: false };
 						}
 					}
 					return { done: true };
@@ -11993,7 +11982,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return op;
 		},
 		getPNum(post) {
-			return post.id.match(/\d+/)[0];
+			return +post.id.match(/\d+/)[0];
 		},
 		getPageUrl(b, p) {
 			return fixBrd(b) + (p > 0 ? p + this.docExt : '');
@@ -12016,7 +12005,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
 		},
 		getTNum(op) {
-			return $q('input[type="checkbox"]', op).value;
+			return +$q('input[type="checkbox"]', op).value;
 		},
 		getWrap(el, isOp) {
 			if(isOp) {
@@ -12077,7 +12066,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(url.match(this.res)) {
 				temp = url.split(this.res);
 				this.b = temp[0].replace(/\/$/, '');
-				this.t = temp[1].match(/^\d+/)[0];
+				this.t = +temp[1].match(/^\d+/)[0];
 				this.page = this.firstPage;
 			} else {
 				temp = url.match(/\/?(\d+)[^\/]*?$/);
@@ -12274,7 +12263,7 @@ function Initialization(checkDomains) {
 		aib.prot = 'http:';
 		aib.host = aib.dm;
 		aib.b = url ? url[1] : '';
-		aib.t = url ? url[2] : '';
+		aib.t = url ? +url[2] : '';
 		aib.page = 0;
 		aib.docExt = '.html';
 	} else {
@@ -12506,9 +12495,8 @@ class DelForm {
 		var threads = DelForm.getThreads(this.el),
 			len = threads.length;
 		for(var i = 0; i < len; ++i) {
-			var num = aib.getTNum(threads[i]),
-				dNum = +num;
-			if(DelForm.tNums.has(dNum)) {
+			var num = aib.getTNum(threads[i]);
+			if(DelForm.tNums.has(num)) {
 				var el = threads[i],
 					thrNext = threads[i + 1],
 					elNext = el.nextSibling;
@@ -12519,7 +12507,7 @@ class DelForm {
 				$del(el);
 				console.log('Repeated thread ' + num + '.');
 			} else {
-				DelForm.tNums.add(dNum);
+				DelForm.tNums.add(num);
 				thr = new Thread(threads[i], num, thr, this);
 				if(this.firstThr === null) {
 					this.firstThr = thr;
@@ -12576,23 +12564,23 @@ class DelForm {
 				};
 			}
 		}
-		new Logger().log('Init AJAX');
+		Logger.log('Init AJAX');
 		preloadImages(el);
-		new Logger().log('Preload images');
+		Logger.log('Preload images');
 		embedMediaLinks(el);
-		new Logger().log('Audio links');
+		Logger.log('Audio links');
 		if(Cfg.addYouTube) {
 			new VideosParser().parse(el).end();
-			new Logger().log('Video links');
+			Logger.log('Video links');
 		}
 		if(Cfg.addImgs) {
 			embedImagesLinks(el);
-			new Logger().log('Image-links');
+			Logger.log('Image-links');
 		}
 		processImageNames(el);
-		new Logger().log('Image names');
+		Logger.log('Image names');
 		RefMap.init(this);
-		new Logger().log('Reflinks map');
+		Logger.log('Reflinks map');
 	}
 }
 DelForm.tNums = new Set();
@@ -13151,7 +13139,7 @@ function scrollPage() {
 			sesStorage.removeItem('de-scroll-' + aib.b + aib.t);
 		} else if((hash = window.location.hash) &&
 		          (num = hash.match(/#[ip]?(\d+)$/)) &&
-		          (num = num[1]) && (post = pByNum.get(num)) && !post.isOp)
+		          (num = +num[1]) && (post = pByNum.get(num)) && !post.isOp)
 		{
 			post.el.scrollIntoView(true);
 			if(HotKeys.enabled) {
@@ -13579,12 +13567,12 @@ function updateCSS() {
 // ===========================================================================================================
 
 function* initScript(checkDomains, readCfgPromise) {
-	new Logger().init();
+	Logger.init();
 	var formEl = Initialization(checkDomains);
 	if(!formEl) {
 		return;
 	}
-	new Logger().log('Init');
+	Logger.log('Init');
 	var str = yield* getStored('DESU_Exclude');
 	if(str && str.includes(aib.dm)) {
 		return;
@@ -13596,12 +13584,12 @@ function* initScript(checkDomains, readCfgPromise) {
 		} else {
 			yield* readCfg();
 		}
-		new Logger().log('Config loading');
+		Logger.log('Config loading');
 	}
 	if(Cfg.correctTime) {
 		dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang,
 		                     rp => saveCfg('timeRPattern', rp));
-		new Logger().log('Time correction');
+		Logger.log('Time correction');
 	}
 	if(Cfg.disabled) {
 		panel.init(formEl);
@@ -13609,10 +13597,10 @@ function* initScript(checkDomains, readCfgPromise) {
 		return;
 	}
 	spells = new Spells(!!Cfg.hideBySpell);
-	new Logger().log('Parsing spells');
+	Logger.log('Parsing spells');
 	doc.body.style.display = 'none';
 	formEl = DelForm.doReplace(formEl);
-	new Logger().log('Replace delform');
+	Logger.log('Replace delform');
 	pByEl = new Map();
 	pByNum = new Map();
 	try {
@@ -13622,33 +13610,33 @@ function* initScript(checkDomains, readCfgPromise) {
 		doc.body.style.display = '';
 		return;
 	}
-	new Logger().log('Parse delform');
+	Logger.log('Parse delform');
 	pr = new PostForm($q(aib.qPostForm, doc), false, doc);
-	new Logger().log('Parse postform');
+	Logger.log('Parse postform');
 	if(Cfg.hotKeys) {
 		HotKeys.enable();
-		new Logger().log('Init keybinds');
+		Logger.log('Init keybinds');
 	}
 	initPage();
-	new Logger().log('Init page');
+	Logger.log('Init page');
 	panel.init(formEl);
-	new Logger().log('Add panel');
+	Logger.log('Add panel');
 	DelForm.first.addStuff();
 	readViewedPosts();
 	scriptCSS();
-	new Logger().log('Apply CSS');
+	Logger.log('Apply CSS');
 	doc.body.style.display = '';
-	new Logger().log('Display page');
+	Logger.log('Display page');
 	scrollPage();
-	new Logger().log('Scroll page');
+	Logger.log('Scroll page');
 	toggleInfinityScroll();
-	new Logger().log('Infinity scroll');
+	Logger.log('Infinity scroll');
 	readPosts();
 	yield* readUserPosts();
 	yield* readFavoritesPosts();
 	setTimeout(PostContent.purge, 0);
-	new Logger().log('Apply spells');
-	new Logger().finish();
+	Logger.log('Apply spells');
+	Logger.finish();
 }
 
 if(/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {

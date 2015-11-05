@@ -1869,7 +1869,7 @@ $define(GLOBAL + BIND, {
 
 var _bind = Function.prototype.bind;
 
-var _get = function get(_x28, _x29, _x30) { var _again = true; _function: while (_again) { var object = _x28, property = _x29, receiver = _x30; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x28 = parent; _x29 = property; _x30 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x29, _x30, _x31) { var _again = true; _function: while (_again) { var object = _x29, property = _x30, receiver = _x31; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x29 = parent; _x30 = property; _x31 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -1888,7 +1888,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'e37741f';
+	var commit = 'f731b46';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -2378,8 +2378,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	    dTime,
 	    visPosts = 2,
 	    topWinZ = 0,
-	    WebmParser,
-	    Logger,
 	    pr,
 	    dummy,
 	    spells,
@@ -2559,49 +2557,41 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return true;
 	}
 
-	Logger = new function () {
-		var instance,
-		    marks = [],
-		    finished = false;
-		function LoggerSingleton() {
-			if (instance) {
-				return instance;
-			}
-			instance = this;
-		}
-		LoggerSingleton.prototype = {
-			finish: function finish() {
-				finished = true;
-				marks.push(['LoggerFinish', Date.now()]);
-			},
-			getData: function getData(full) {
-				var duration,
-				    timeLog = [],
-				    i = 1;
-				for (var len = marks.length - 1, lastExtra = 0; i < len; ++i) {
-					duration = marks[i][1] - marks[i - 1][1] + lastExtra;
-					if (full || duration > 1) {
-						lastExtra = 0;
-						timeLog.push([marks[i][0], duration]);
-					} else {
-						lastExtra = duration;
-					}
-				}
-				duration = marks[i][1] - marks[0][1];
-				timeLog.push([Lng.total[lang], duration]);
-				return timeLog;
-			},
-			init: function init() {
-				marks.push(['LoggerInit', Date.now()]);
-			},
-			log: function log(text) {
-				if (!finished) {
-					marks.push([text, Date.now()]);
+	var Logger = {
+		finish: function finish() {
+			this._finished = true;
+			this._marks.push(['LoggerFinish', Date.now()]);
+		},
+		getData: function getData(full) {
+			var duration,
+			    marks = this._marks,
+			    timeLog = [],
+			    i = 1;
+			for (var len = marks.length - 1, lastExtra = 0; i < len; ++i) {
+				duration = marks[i][1] - marks[i - 1][1] + lastExtra;
+				if (full || duration > 1) {
+					lastExtra = 0;
+					timeLog.push([marks[i][0], duration]);
+				} else {
+					lastExtra = duration;
 				}
 			}
-		};
-		return LoggerSingleton;
-	}();
+			duration = marks[i][1] - marks[0][1];
+			timeLog.push([Lng.total[lang], duration]);
+			return timeLog;
+		},
+		init: function init() {
+			this._marks.push(['LoggerInit', Date.now()]);
+		},
+		log: function log(text) {
+			if (!this._finished) {
+				this._marks.push([text, Date.now()]);
+			}
+		},
+
+		_finished: false,
+		_marks: []
+	};
 
 	function async(generatorFunc) {
 		return function () {
@@ -2795,36 +2785,36 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			};
 			try {
 				xhr.open(params && params.method || 'GET', url, true);
+				if (params) {
+					if (params.responseType) {
+						xhr.responseType = params.responseType;
+					}
+					var headers = params.headers;
+					if (headers) {
+						for (var h in headers) {
+							if (headers.hasOwnProperty(h)) {
+								xhr.setRequestHeader(h, headers[h]);
+							}
+						}
+					}
+				}
+				if (useCache) {
+					if (aib.LastModified) {
+						xhr.setRequestHeader('If-Modified-Since', aib.LastModified);
+					}
+					if (aib.ETag) {
+						xhr.setRequestHeader('If-None-Match', aib.ETag);
+					}
+				}
+				xhr.send(params && params.data || null);
+				cancelFn(function () {
+					return xhr.abort();
+				});
 			} catch (e) {
 				nativeXHRworks = false;
 				resolve($ajax(url, params, false));
 				return;
 			}
-			if (params) {
-				if (params.responseType) {
-					xhr.responseType = params.responseType;
-				}
-				var headers = params.headers;
-				if (headers) {
-					for (var h in headers) {
-						if (headers.hasOwnProperty(h)) {
-							xhr.setRequestHeader(h, headers[h]);
-						}
-					}
-				}
-			}
-			if (useCache) {
-				if (aib.LastModified) {
-					xhr.setRequestHeader('If-Modified-Since', aib.LastModified);
-				}
-				if (aib.ETag) {
-					xhr.setRequestHeader('If-None-Match', aib.ETag);
-				}
-			}
-			xhr.send(params && params.data || null);
-			cancelFn(function () {
-				return xhr.abort();
-			});
 		});
 	}
 
@@ -3593,7 +3583,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var str = aib.t ? sesStorage['de-hidden-' + aib.b + aib.t] : null;
 		if (typeof str === 'string') {
 			var data = str.split(';');
-			if (data.length === 4 && +data[0] === (Cfg.hideBySpell ? spells.hash : 0) && pByNum.has(data[1]) && pByNum.get(data[1]).count === +data[2]) {
+			if (data.length === 4 && +data[0] === (Cfg.hideBySpell ? spells.hash : 0) && pByNum.has(+data[1]) && pByNum.get(+data[1]).count === +data[2]) {
 				sVis = data[3].split(',');
 				return;
 			}
@@ -3805,7 +3795,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								f.cnt = thr.pcount;
 								f['new'] = 0;
 								if (aib.t && Cfg.markNewPosts && f.last) {
-									post = pByNum.get(f.last.match(/\d+/));
+									post = pByNum.get(+f.last.match(/\d+/));
 
 									if (post) {
 										while (post = post.next) {
@@ -3870,7 +3860,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var data = sesStorage['de-viewed'];
 		if (data) {
 			data.split(',').forEach(function (pNum) {
-				var post = pByNum.get(pNum);
+				var post = pByNum.get(+pNum);
 				if (post) {
 					post.el.classList.add('de-viewed');
 					post.viewed = true;
@@ -4378,7 +4368,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					$pd(e);
 					return;
 				} else if (!el.classList.contains('de-video-link')) {
-					pByNum.get(e.target.getAttribute('de-num')).selectCurrent();
+					pByNum.get(+e.target.getAttribute('de-num')).selectCurrent();
 					return;
 				}
 				var m = el.videoInfo;
@@ -4532,19 +4522,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			$each($Q('.de-entry[info]', this.parentNode), (function (date, el) {
 				if ($t('input', el).checked) {
 					var arr = el.getAttribute('info').split(';');
-					if (pByNum.has(arr[1])) {
-						pByNum.get(arr[1]).setUserVisib(false, date, true);
+					var num = +arr[1];
+					if (pByNum.has(num)) {
+						pByNum.get(num).setUserVisib(false, date, true);
 					} else {
 						locStorage['__de-post'] = JSON.stringify({
 							'brd': arr[0],
 							'date': date,
 							'isOp': true,
-							'num': arr[1],
+							'num': num,
 							'hide': false
 						});
 						locStorage.removeItem('__de-post');
 					}
-					delete hThr[arr[0]][arr[1]];
+					delete hThr[arr[0]][num];
 				}
 			}).bind(null, Date.now()));
 			saveHiddenThreads(true);
@@ -4558,7 +4549,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			readFav().then(function (fav) {
 				for (var i = 0; i < len; ++i) {
 					var el = els[i];
-					removeFavoriteEntry(fav, el.getAttribute('de-host'), el.getAttribute('de-board'), el.getAttribute('de-num'), true);
+					removeFavoriteEntry(fav, el.getAttribute('de-host'), el.getAttribute('de-board'), +el.getAttribute('de-num'), true);
 				}
 				saveFavorites(fav);
 			});
@@ -4733,7 +4724,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						form = context$3$0.sent;
 
 						tNums = new Set(Array.from(DelForm.getThreads(formEl)).map(function (thrEl) {
-							return +aib.getTNum(thrEl);
+							return aib.getTNum(thrEl);
 						}));
 						context$3$0.next = 17;
 						break;
@@ -5139,7 +5130,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return '<div class="de-info-row">\n\t\t\t<span class="de-info-name">' + data[0] + '</span>\n\t\t\t<span>' + (data[1] + (needMs ? 'ms' : '')) + '</span>\n\t\t</div>';
 			}).join('');
 		}
-		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-info' }, [$add('<div style="padding-bottom: 10px;">' + '<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions" ' + 'target="_blank">v' + version + '.' + commit + '</a>&nbsp;|&nbsp;' + '<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;' + '<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' + (lang ? 'home-en/' : '') + '" target="_blank">Github</a></div>'), $add('<div id="de-info-table"><div id="de-info-stats">' + getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], getHiddenThrCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false) + '</div>' + '<div id="de-info-log">' + getInfoTable(new Logger().getData(false), true) + '</div></div>'), $btn(Lng.debug[lang], Lng.infoDebug[lang], function () {
+		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-info' }, [$add('<div style="padding-bottom: 10px;">' + '<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions" ' + 'target="_blank">v' + version + '.' + commit + '</a>&nbsp;|&nbsp;' + '<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;' + '<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' + (lang ? 'home-en/' : '') + '" target="_blank">Github</a></div>'), $add('<div id="de-info-table"><div id="de-info-stats">' + getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], getHiddenThrCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false) + '</div>' + '<div id="de-info-log">' + getInfoTable(Logger.getData(false), true) + '</div></div>'), $btn(Lng.debug[lang], Lng.infoDebug[lang], function () {
 			$popup(Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>', 'cfg-debug', false).firstElementChild.value = JSON.stringify({
 				'version': version,
 				'location': String(window.location),
@@ -5147,7 +5138,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				'cfg': Cfg,
 				'sSpells': spells.list.split('\n'),
 				'oSpells': sesStorage['de-spells-' + aib.b + (aib.t || '')],
-				'perf': new Logger().getData(true)
+				'perf': Logger.getData(true)
 			}, function (key, value) {
 				switch (key) {
 					case 'stats':
@@ -9905,7 +9896,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					num = _ref322[0];
 
 					if (num) {
-						post = pByNum.get(num);
+						post = pByNum.get(+num);
 
 						if (post) {
 							if (!post.isOp) {
@@ -10273,7 +10264,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return new Uint8Array([resT & 0xFF, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF]);
 	}
 
-	WebmParser = function (data) {
+	var WebmParser = (function (_WebmParser) {
+		function WebmParser(_x) {
+			return _WebmParser.apply(this, arguments);
+		}
+
+		WebmParser.toString = function () {
+			return _WebmParser.toString();
+		};
+
+		return WebmParser;
+	})(function (data) {
 		var EBMLId = 0x1A45DFA3,
 		    segmentId = 0x18538067,
 		    voidId = 0xEC;
@@ -10389,7 +10390,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		WebmParser = Parser;
 		return new Parser(data);
-	};
+	});
 
 
 
@@ -11311,7 +11312,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									}
 								} else if ((temp = el.textContent)[0] === '>' && temp[1] === '>' && !temp[2].includes('\/')) {
 									var num = temp.match(/\d+/),
-									    post = pByNum.get(num);
+									    post = pByNum.get(+num);
 									if (!post) {
 										return;
 									}
@@ -12339,8 +12340,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'show',
 			value: function show(parent, link) {
 				var rv,
-				    tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [, aib.getPostOfEl(link).tNum])[1],
-				    pNum = (link.textContent.trim().match(/\d+$/) || [tNum])[0],
+				    tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [, aib.getPostOfEl(link).tNum])[1],
+				    pNum = +(link.textContent.trim().match(/\d+$/) || [tNum])[0],
 				    isTop = !(parent instanceof Pview),
 				    pv = isTop ? Pview.top : parent.kid;
 				clearTimeout(Pview._delTO);
@@ -12965,13 +12966,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						link.href = '#' + (aib.fch ? 'p' : '') + lNum;
 					}
 					if (add) {
-						if (strNums && strNums.has(+lNum)) {
+						if (strNums && strNums.has(lNum)) {
 							link.classList.add('de-link-hid');
 						}
 						if (!aib.hasOPNum && DelForm.tNums.has(lNum)) {
 							link.classList.add('de-ref-op');
 						}
-						lPost.ref.add(post, pNum, strNums && strNums.has(+pNum));
+						lPost.ref.add(post, pNum, strNums && strNums.has(pNum));
 					} else {
 						lPost.ref.remove(pNum);
 					}
@@ -13201,11 +13202,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (prev) {
 				prev.next = this;
 			}
-			var lastPost = this.op = el.post = new Post(aib.getOp(el), this, num, 0, true, prev ? prev.last : null);
+			var lastPost = this.op = new Post(aib.getOp(el), this, num, 0, true, prev ? prev.last : null);
 			for (var i = 0; i < len; i++) {
 				var pEl = els[i];
-				num = aib.getPNum(pEl);
-				lastPost = new Post(pEl, this, num, omt + i, false, lastPost);
+				lastPost = new Post(pEl, this, aib.getPNum(pEl), omt + i, false, lastPost);
 			}
 			this.last = lastPost;
 			el.style.counterReset = 'de-cnt ' + omt;
@@ -13259,7 +13259,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					});
 					post.el.classList.add('de-post-new');
 				}
-				if (num in uVis) {
+				if (uVis[num]) {
 					initPostUserVisib(post, num, uVis[num][0] === 0, Date.now());
 				}
 				if (maybeVParser.value) {
@@ -13664,7 +13664,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							post = post.nextNotDeleted;
 							continue;
 						}
-						if (+post.num > +aib.getPNum(nPosts[i])) {
+						if (post.num > aib.getPNum(nPosts[i])) {
 							if (!firstChangedPost) {
 								firstChangedPost = post.prev;
 							}
@@ -13672,7 +13672,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							do {
 								cnt++;
 								i++;
-							} while (+aib.getPNum(nPosts[i]) < +post.num);
+							} while (aib.getPNum(nPosts[i]) < post.num);
 							var res = this._importPosts(post.prev, nPosts, i - cnt, i, maybeVParser, maybeSpells);
 							newPosts += res[0];
 							this.pcount += res[0];
@@ -14163,7 +14163,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				qPostRedir: { value: null },
 				qThread: { value: '[id*="thread"]' },
 				getTNum: { value: function value(op) {
-						return $q('a[id]', op).id.match(/\d+/)[0];
+						return +$q('a[id]', op).id.match(/\d+/)[0];
 					} },
 				css: { value: '#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }\
 				.de-thr-hid { margin: 1em 0; }' },
@@ -14203,7 +14203,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
 					} },
 				getTNum: { value: function value(op) {
-						return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+						return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 					} },
 				getWrap: { value: function value(el, isOp) {
 						return el.parentNode;
@@ -14254,10 +14254,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return $q('.post:first-child', el);
 					} },
 				getPNum: { value: function value(post) {
-						return post.getAttribute('postid');
+						return +post.getAttribute('postid');
 					} },
 				getTNum: { value: function value(el) {
-						return this.getOp(el).getAttribute('postid');
+						return +this.getOp(el).getAttribute('postid');
 					} },
 				getThrdUrl: { value: function value(b, tNum) {
 						return $q('link[rel="canonical"]', doc.head).href;
@@ -14267,7 +14267,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							var delPosts = $Q('.post[postid=""]', doc);
 							for (var i = 0, len = delPosts.length; i < len; ++i) {
 								try {
-									var post = pByNum.get($q('blockquote', delPosts[i]).getAttribute('id').substring(1));
+									var post = pByNum.get(+$q('blockquote', delPosts[i]).getAttribute('id').substring(1));
 									if (post) {
 										post.deleted = true;
 										post.btns.classList.remove('de-post-counter');
@@ -14317,7 +14317,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
 					} },
 				getTNum: { value: function value(op) {
-						return $q('a[name]', op).name.match(/\d+/)[0];
+						return +$q('a[name]', op).name.match(/\d+/)[0];
 					} },
 				insertYtPlayer: { value: function value(msg, playerHtml) {
 						var prev = msg.previousElementSibling,
@@ -14415,7 +14415,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return !!$c('sage', post);
 					} },
 				getTNum: { value: function value(op) {
-						return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+						return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 					} },
 				insertYtPlayer: { value: function value(msg, playerHtml) {
 						var pMsg = msg.parentNode,
@@ -14470,7 +14470,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			},
 			'ponya.ch': [{
 				getPNum: { value: function value(post) {
-						return post.getAttribute('data-num');
+						return +post.getAttribute('data-num');
 					} },
 				init: { value: function value() {
 						defaultCfg.postSameImg = 0;
@@ -14613,7 +14613,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return $parent(el, 'FIGURE');
 					} },
 				getPNum: { value: function value(post) {
-						return post.getAttribute('data-num');
+						return +post.getAttribute('data-num');
 					} },
 				getSage: { writable: true, value: function value(post) {
 						if (this.hasNames) {
@@ -14656,7 +14656,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}), _defineProperty(_ref22, 'next', function next() {
 							if (this._index < this._length) {
 								var link = this._links[this._index++];
-								return { value: [link, link.getAttribute('data-num')], done: false };
+								return { value: [link, +link.getAttribute('data-num')], done: false };
 							}
 							return { done: true };
 						}), _ref22);
@@ -14738,7 +14738,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
 					} },
 				getPNum: { value: function value(post) {
-						return $t('input', post).name;
+						return +$t('input', post).name;
 					} },
 				getPostElOfEl: { value: function value(el) {
 						while (el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
@@ -14747,7 +14747,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return el;
 					} },
 				getTNum: { value: function value(op) {
-						return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+						return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 					} },
 				cssEn: { value: '.ftbl { width: auto; margin: 0; }\
 				.reply { background: #f0e0d6; }\
@@ -14827,7 +14827,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
 					} },
 				getTNum: { value: function value(op) {
-						return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+						return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 					} },
 				init: { value: function value() {
 						if (Cfg) {
@@ -14898,7 +14898,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return this.prot + '//' + this.host + fixBrd(b) + '?do=thread&id=' + tNum;
 					} },
 				getTNum: { value: function value(op) {
-						return $q('a[name]', op).name.match(/\d+/)[0];
+						return +$q('a[name]', op).name.match(/\d+/)[0];
 					} },
 				css: { value: '.reply { background-color: #e4e4d6; }' },
 				init: { value: function value() {
@@ -14912,7 +14912,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				parseURL: { value: function value() {
 						var url = window.location.search.match(/^\?do=(thread|page)&(id|p)=(\d+)$/);
 						this.b = window.location.pathname.replace(/\//g, '');
-						this.t = url[1] === 'thread' ? url[3] : false;
+						this.t = url[1] === 'thread' ? +url[3] : false;
 						this.page = url[1] === 'page' ? +url[3] : 0;
 						this.docExt = '';
 					} }
@@ -14995,12 +14995,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						var lNum,
 						    link = this._links[idx++],
 						    tc = link.textContent;
-						if (tc[0] === '>' && tc[1] === '>') {
-							var lNum = tc.substr(2);
-							if (+lNum) {
-								this._index = idx;
-								return { value: [link, lNum], done: false };
-							}
+						if (tc[0] === '>' && tc[1] === '>' && (lNum = +tc.substr(2))) {
+							this._index = idx;
+							return { value: [link, lNum], done: false };
 						}
 					}
 					return { done: true };
@@ -15049,7 +15046,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return op;
 			},
 			getPNum: function getPNum(post) {
-				return post.id.match(/\d+/)[0];
+				return +post.id.match(/\d+/)[0];
 			},
 			getPageUrl: function getPageUrl(b, p) {
 				return fixBrd(b) + (p > 0 ? p + this.docExt : '');
@@ -15072,7 +15069,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
 			},
 			getTNum: function getTNum(op) {
-				return $q('input[type="checkbox"]', op).value;
+				return +$q('input[type="checkbox"]', op).value;
 			},
 			getWrap: function getWrap(el, isOp) {
 				if (isOp) {
@@ -15133,7 +15130,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (url.match(this.res)) {
 					temp = url.split(this.res);
 					this.b = temp[0].replace(/\/$/, '');
-					this.t = temp[1].match(/^\d+/)[0];
+					this.t = +temp[1].match(/^\d+/)[0];
 					this.page = this.firstPage;
 				} else {
 					temp = url.match(/\/?(\d+)[^\/]*?$/);
@@ -15328,7 +15325,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			aib.prot = 'http:';
 			aib.host = aib.dm;
 			aib.b = url ? url[1] : '';
-			aib.t = url ? url[2] : '';
+			aib.t = url ? +url[2] : '';
 			aib.page = 0;
 			aib.docExt = '.html';
 		} else {
@@ -15447,9 +15444,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var threads = DelForm.getThreads(this.el),
 			    len = threads.length;
 			for (var i = 0; i < len; ++i) {
-				var num = aib.getTNum(threads[i]),
-				    dNum = +num;
-				if (DelForm.tNums.has(dNum)) {
+				var num = aib.getTNum(threads[i]);
+				if (DelForm.tNums.has(num)) {
 					var el = threads[i],
 					    thrNext = threads[i + 1],
 					    elNext = el.nextSibling;
@@ -15460,7 +15456,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					$del(el);
 					console.log('Repeated thread ' + num + '.');
 				} else {
-					DelForm.tNums.add(dNum);
+					DelForm.tNums.add(num);
 					thr = new Thread(threads[i], num, thr, this);
 					if (this.firstThr === null) {
 						this.firstThr = thr;
@@ -15512,23 +15508,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						};
 					}
 				}
-				new Logger().log('Init AJAX');
+				Logger.log('Init AJAX');
 				preloadImages(el);
-				new Logger().log('Preload images');
+				Logger.log('Preload images');
 				embedMediaLinks(el);
-				new Logger().log('Audio links');
+				Logger.log('Audio links');
 				if (Cfg.addYouTube) {
 					new VideosParser().parse(el).end();
-					new Logger().log('Video links');
+					Logger.log('Video links');
 				}
 				if (Cfg.addImgs) {
 					embedImagesLinks(el);
-					new Logger().log('Image-links');
+					Logger.log('Image-links');
 				}
 				processImageNames(el);
-				new Logger().log('Image names');
+				Logger.log('Image names');
 				RefMap.init(this);
-				new Logger().log('Reflinks map');
+				Logger.log('Reflinks map');
 			}
 		}, {
 			key: 'passEl',
@@ -16125,7 +16121,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (val) {
 				window.scrollTo(0, val);
 				sesStorage.removeItem('de-scroll-' + aib.b + aib.t);
-			} else if ((hash = window.location.hash) && (num = hash.match(/#[ip]?(\d+)$/)) && (num = num[1]) && (post = pByNum.get(num)) && !post.isOp) {
+			} else if ((hash = window.location.hash) && (num = hash.match(/#[ip]?(\d+)$/)) && (num = +num[1]) && (post = pByNum.get(num)) && !post.isOp) {
 				post.el.scrollIntoView(true);
 				if (HotKeys.enabled) {
 					HotKeys.cPost = post;
@@ -16468,7 +16464,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return regeneratorRuntime.wrap(function initScript$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					new Logger().init();
+					Logger.init();
 					formEl = Initialization(checkDomains);
 
 					if (formEl) {
@@ -16479,7 +16475,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return context$2$0.abrupt('return');
 
 				case 4:
-					new Logger().log('Init');
+					Logger.log('Init');
 					return context$2$0.delegateYield(getStored('DESU_Exclude'), 't0', 6);
 
 				case 6:
@@ -16516,14 +16512,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return context$2$0.delegateYield(readCfg(), 't1', 17);
 
 				case 17:
-					new Logger().log('Config loading');
+					Logger.log('Config loading');
 
 				case 18:
 					if (Cfg.correctTime) {
 						dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, function (rp) {
 							return saveCfg('timeRPattern', rp);
 						});
-						new Logger().log('Time correction');
+						Logger.log('Time correction');
 					}
 
 					if (!Cfg.disabled) {
@@ -16537,10 +16533,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				case 23:
 					spells = new Spells(!!Cfg.hideBySpell);
-					new Logger().log('Parsing spells');
+					Logger.log('Parsing spells');
 					doc.body.style.display = 'none';
 					formEl = DelForm.doReplace(formEl);
-					new Logger().log('Replace delform');
+					Logger.log('Replace delform');
 					pByEl = new Map();
 					pByNum = new Map();
 					context$2$0.prev = 30;
@@ -16558,27 +16554,27 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return context$2$0.abrupt('return');
 
 				case 39:
-					new Logger().log('Parse delform');
+					Logger.log('Parse delform');
 					pr = new PostForm($q(aib.qPostForm, doc), false, doc);
-					new Logger().log('Parse postform');
+					Logger.log('Parse postform');
 					if (Cfg.hotKeys) {
 						HotKeys.enable();
-						new Logger().log('Init keybinds');
+						Logger.log('Init keybinds');
 					}
 					initPage();
-					new Logger().log('Init page');
+					Logger.log('Init page');
 					panel.init(formEl);
-					new Logger().log('Add panel');
+					Logger.log('Add panel');
 					DelForm.first.addStuff();
 					readViewedPosts();
 					scriptCSS();
-					new Logger().log('Apply CSS');
+					Logger.log('Apply CSS');
 					doc.body.style.display = '';
-					new Logger().log('Display page');
+					Logger.log('Display page');
 					scrollPage();
-					new Logger().log('Scroll page');
+					Logger.log('Scroll page');
 					toggleInfinityScroll();
-					new Logger().log('Infinity scroll');
+					Logger.log('Infinity scroll');
 					readPosts();
 					return context$2$0.delegateYield(readUserPosts(), 't3', 59);
 
@@ -16587,8 +16583,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				case 60:
 					setTimeout(PostContent.purge, 0);
-					new Logger().log('Apply spells');
-					new Logger().finish();
+					Logger.log('Apply spells');
+					Logger.finish();
 
 				case 63:
 				case 'end':
