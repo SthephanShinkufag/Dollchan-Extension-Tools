@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'bffd032';
+var commit = '27fe104';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10163,9 +10163,7 @@ class RefMap {
 	remove(num) {
 		this._set.delete(num);
 		if(this._set.size === 0) {
-			$del(this._el);
-			delete this._el;
-			this.hasMap = false;
+			this.removeMap();
 		} else {
 			var el = this.getElByNum(num);
 			if(el) {
@@ -10178,6 +10176,7 @@ class RefMap {
 		this._set = new Set();
 		$del(this._el);
 		delete this._el;
+		this.hasMap = false;
 	}
 	unhide() {
 		if(!Cfg.hideRefPsts || !this.hasMap) {

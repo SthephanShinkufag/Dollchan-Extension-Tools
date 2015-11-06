@@ -1888,7 +1888,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = 'bffd032';
+	var commit = '27fe104';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -13143,9 +13143,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function remove(num) {
 				this._set['delete'](num);
 				if (this._set.size === 0) {
-					$del(this._el);
-					delete this._el;
-					this.hasMap = false;
+					this.removeMap();
 				} else {
 					var el = this.getElByNum(num);
 					if (el) {
@@ -13160,6 +13158,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._set = new Set();
 				$del(this._el);
 				delete this._el;
+				this.hasMap = false;
 			}
 		}, {
 			key: 'unhide',
