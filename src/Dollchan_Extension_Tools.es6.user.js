@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '5ebd75e';
+var commit = '8f3de9c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -197,7 +197,7 @@ Lng = {
 			sel:        [['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'], ['Disable', 'All types', 'Only GIF', 'Non-GIF']],
 			txt:        ['Скачивать полные версии картинок*', 'Download full version of images*']
 		},
-		'imgSrcBtns':   ['Добавлять кнопки для поиска картинок*', 'Add image search buttons*'],
+		'imgSrcBtns':   ['Меню поиска по ссылкам на картинкм', 'Sauce search menu for image links'],
 		'delImgNames':  ['Скрывать имена картинок*', 'Hide names of images*'],
 
 		'linksNavig': {
@@ -4474,7 +4474,7 @@ function loadDocFiles(imgOnly) {
 		}
 	});
 	if(!imgOnly) {
-		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thread-buttons, ' +
+		$each($Q('#de-main, .de-parea, .de-post-btns, .de-refmap, .de-thread-buttons, ' +
 			'.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' +
 			aib.qPostForm, dc), $del);
 		$each($T('a', dc), function(el) {
@@ -8574,31 +8574,6 @@ var ImagesHashStorage = Object.create({
 	}
 });
 
-function processImageNames(el) {
-	var addSrc = Cfg.imgSrcBtns,
-		delNames = Cfg.delImgNames;
-	if(!addSrc && !delNames) {
-		return;
-	}
-	for(var i = 0, els = $Q(aib.qImgLink, el), len = els.length; i < len; i++) {
-		var link = els[i];
-		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
-			$del(link);
-			continue;
-		}
-		if(link.firstElementChild) {
-			continue;
-		}
-		if(addSrc) {
-			link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"/></svg>');
-		}
-		if(delNames) {
-			link.classList.add('de-img-name');
-			link.textContent = link.textContent.split('.').slice(-1)[0];
-		}
-	}
-}
-
 function embedImagesLinks(el) {
 	for(var i = 0, els = $Q(aib.qMsgImgLink, el), len = els.length; i < len; ++i) {
 		var link = els[i];
@@ -8778,7 +8753,7 @@ class AbstractPost {
 			return;
 		}
 		if(type === 'mouseover' && Cfg.expandImgs &&
-		   !el.classList.contains('de-img-full') && el.tagName === 'IMG' &&
+		   el.tagName === 'IMG' && !el.classList.contains('de-img-full') &&
 		   (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo))
 		{
 			el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
@@ -8815,9 +8790,13 @@ class AbstractPost {
 		case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
 		case 'de-btn-sage': this.btns.title = 'SAGE'; return;
 		case 'de-btn-stick': this.btns.title = Lng.attachPview[lang]; return;
-		case 'de-btn-src': this._addMenu(el, isOutEvent, this._getMenuImgSrc); return;
 		default:
-			if(!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
+			if(el.tagName === 'A') {
+				if(Cfg.imgSrcBtns && nav.matchesSelector(el, aib.qImgLink)) {
+					this._addMenu(el, isOutEvent, this._getMenuImgSrc);
+					return;
+				}
+			} else if(!Cfg.linksNavig || el.lchecked) {
 				return;
 			}
 			if(!el.textContent.startsWith('>>')) {
@@ -8929,9 +8908,8 @@ class AbstractPost {
 			maybeSpells.end();
 		}, emptyFn);
 	}
-	_getMenuImgSrc(el) {
-		var link = el.nextSibling,
-			p = (link.getAttribute('de-href') || link.href) + '" target="_blank">' + Lng.search[lang];
+	_getMenuImgSrc(link) {
+		var p = (link.getAttribute('de-href') || link.href) + '" target="_blank">' + Lng.search[lang];
 		return '<a class="de-menu-item de-src-google" href="http://google.com/searchbyimage?image_url=' + p + 'Google</a>' +
 			'<a class="de-menu-item de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex</a>' +
 			'<a class="de-menu-item de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' +
@@ -9881,7 +9859,6 @@ class Pview extends AbstractPost {
 			if(Cfg.addImgs) {
 				embedImagesLinks(el);
 			}
-			processImageNames(el);
 		} else {
 			var node = this._pref.nextSibling;
 			this.btns = node;
@@ -10328,7 +10305,6 @@ class Thread {
 		if(maybeVParser.value) {
 			maybeVParser.value.parse(post);
 		}
-		processImageNames(el);
 		post.addFuncs();
 		preloadImages(post);
 		if(aib.t && Cfg.markNewPosts) {
@@ -11513,7 +11489,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			qRPost: { value: 'div.reply' },
 			qThumbImages: { value: '.preview' },
 			qTrunc: { value: null },
-			nameSelector: { value: '.ananimas, .post-email, .ananimas > span, .post-email > span' },
 			getImgParent: { value(node) {
 				var el = $parent(node, 'FIGURE'),
 					parent = el.parentNode;
@@ -12283,11 +12258,6 @@ function addSVGIcons() {
 		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
 		<path class="de-svg-fill" d="M4 9h8l-4 4.5zM6 3h4v1h-4zM6 5h4v1h-4zM6 7h4v1h-4z"/>
 	</symbol>
-	<symbol viewBox="0 0 16 16" id="de-symbol-post-src">
-		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
-		<circle class="de-svg-stroke" cx="7" cy="7" r="2.5" stroke-width="2"/>
-		<line class="de-svg-stroke" stroke-width="2" x1="9" y1="9" x2="12" y2="12"/>
-	</symbol>
 	<!-- WINDOW ICONS -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-win-arrow">
 		<line class="de-svg-stroke" stroke-width="3.5" x1="8" x2="8" y2="6" y1="13"/>
@@ -12533,8 +12503,6 @@ class DelForm {
 			embedImagesLinks(el);
 			Logger.log('Image-links');
 		}
-		processImageNames(el);
-		Logger.log('Image names');
 		RefMap.init(this);
 		Logger.log('Reflinks map');
 	}
@@ -13259,7 +13227,7 @@ function scriptCSS() {
 	.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
 	.de-thread-note { font-style: italic; }\
 	.de-btn-hide > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\
-	.de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle { transform: rotate(0deg); margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }' +
+	.de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle { transform: rotate(0deg); margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }' +
 	(pr.form || pr.oeForm ? '' : '.de-btn-rep { display: none; }') +
 
 	// Sauce buttons
@@ -13465,16 +13433,16 @@ function scriptCSS() {
 function updateCSS() {
 	var x = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }';
 	if(Cfg.postBtnsCSS === 0) {
-		x += '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: #4F7942; }\
+		x += '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide { fill: rgba(0,0,0,0); color: #4F7942; }\
 		.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }';
 	} else {
-		x += '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\
+		x += '.de-btn-hide, .de-btn-unhide, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\
 		.de-btn-hide-user { color: #BFFFBF; }\
 		.de-btn-unhide-user { color: #FFBFBF; }\
 		.de-btn-fav-sel { color: #FFE100; }\
 		.de-btn-stick-on { color: #BFFFBF; }\
 		.de-btn-sage { fill: #4B4B4B; }\
-		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }';
+		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-stick, .de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }';
 	}
 	if(Cfg.hideReplies || Cfg.updThrBtns) {
 		x += '.de-thread-buttons::before { content: ">> "; }';
