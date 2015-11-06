@@ -1888,7 +1888,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var marked1$0 = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 	var version = '15.10.20.1';
-	var commit = '27fe104';
+	var commit = '5ebd75e';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11343,7 +11343,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var temp,
 				    el = fixEventEl(e.target),
 				    type = e.type,
-				    isOutEvent = type === 'mouseout';
+				    isOutEvent = type === 'mouseout',
+				    isPview = this instanceof Pview;
 				if (type === 'click') {
 					if (e.button !== 0) {
 						return;
@@ -11359,8 +11360,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								$pd(e);
 								return;
 							}
-							temp = el.firstElementChild;
-							if (temp && temp.tagName === 'IMG') {
+							if ((temp = el.firstElementChild) && temp.tagName === 'IMG') {
 								el = temp;
 							} else {
 								temp = el.parentNode;
@@ -11368,15 +11368,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									this._getFull(temp, false);
 									$pd(e);
 									e.stopPropagation();
-								} else if (Cfg.insertNum && pr.form && temp === this._pref && !/Reply|Ответ/.test(el.textContent)) {
+								} else if (Cfg.insertNum && pr.form && (aib.tiny ? el : temp) === this._pref && !/Reply|Ответ/.test(el.textContent)) {
 									$pd(e);
 									e.stopPropagation();
 									if (!Cfg.showRepBtn) {
 										quotetxt = $txtSelect();
-										pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, !(this instanceof Pview), false);
+										pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 										quotetxt = '';
 									} else if (pr.isQuick || aib.t && pr.isHidden) {
-										pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, false, true);
+										pr.showQuickReply(isPview ? Pview.topParent : this, this.num, false, true);
 									} else if (aib.t) {
 										$txtInsert(pr.txta, '>>' + this.num);
 									} else {
@@ -11434,7 +11434,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							this.toggleUserVisib();
 							return;
 						case 'de-btn-rep':
-							pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, !(this instanceof Pview), false);
+							pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 							quotetxt = '';
 							return;
 						case 'de-btn-sage':
@@ -14807,7 +14807,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				val.qDelPassw = { value: '#password' };
 				val.qPassw = { value: 'input[name="password"]' };
 				val.cssEn = { get: function get() {
-						return '.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }\n\t\t\t\t\t.boardlist { position: static !important; }\n\t\t\t\t\tbody { padding: 0 5px !important; }\n\t\t\t\t\t.fileinfo { width: 250px; }\n\t\t\t\t\t.multifile { width: auto !important; }\n\t\t\t\t\t#expand-all-images, #expand-all-images + .unimportant, .post-btn { display: none !important; }';
+						return '.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }\n\t\t\t\t\t.boardlist { position: static !important; }\n\t\t\t\t\tbody { padding: 0 5px !important; }\n\t\t\t\t\t.fileinfo { width: 250px; }\n\t\t\t\t\t.multifile { width: auto !important; }\n\t\t\t\t\t#expand-all-images, #expand-all-images + .unimportant, .post-btn, small { display: none !important; }';
 					} };
 				val.init = { value: function value() {
 						setTimeout(function () {
@@ -16402,8 +16402,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-post-hide > ' + aib.qHide + ' { display: none !important; }\
 	.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 	.de-pview-info { padding: 3px 6px !important; }\
-	.de-ref-op::after { content: " [OP]"; }\
-	.de-ref-del::after { content: " [del]"; }\
+	.de-ref-op::after { content: " (OP)"; }\
+	.de-ref-del::after { content: " (del)"; }\
 	.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
 	.de-refmap::before { content: "' + Lng.replies[lang] + ' "; }\
 	.de-refcomma:last-child { display: none; }\

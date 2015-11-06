@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '27fe104';
+var commit = '5ebd75e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8672,7 +8672,8 @@ class AbstractPost {
 	handleEvent(e) {
 		var temp, el = fixEventEl(e.target),
 			type = e.type,
-			isOutEvent = type === 'mouseout';
+			isOutEvent = type === 'mouseout',
+			isPview = this instanceof Pview;
 		if(type === 'click') {
 			if(e.button !== 0) {
 				return;
@@ -8688,8 +8689,7 @@ class AbstractPost {
 					$pd(e);
 					return;
 				}
-				temp = el.firstElementChild;
-				if(temp && temp.tagName === 'IMG') {
+				if((temp = el.firstElementChild) && temp.tagName === 'IMG') {
 					el = temp;
 				} else {
 					temp = el.parentNode;
@@ -8697,17 +8697,17 @@ class AbstractPost {
 						this._getFull(temp, false);
 						$pd(e);
 						e.stopPropagation();
-					} else if(Cfg.insertNum && pr.form && temp === this._pref &&
+					} else if(Cfg.insertNum && pr.form && (aib.tiny ? el : temp) === this._pref &&
 					          !/Reply|Ответ/.test(el.textContent))
 					{
 						$pd(e);
 						e.stopPropagation();
 						if(!Cfg.showRepBtn) {
 							quotetxt = $txtSelect();
-							pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, !(this instanceof Pview), false);
+							pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 							quotetxt = '';
 						} else if(pr.isQuick || (aib.t && pr.isHidden)) {
-							pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, false, true);
+							pr.showQuickReply(isPview ? Pview.topParent : this, this.num, false, true);
 						} else if(aib.t) {
 							$txtInsert(pr.txta, '>>' + this.num);
 						} else {
@@ -8768,7 +8768,7 @@ class AbstractPost {
 				this.toggleUserVisib();
 				return;
 			case 'de-btn-rep':
-				pr.showQuickReply(this instanceof Pview ? Pview.topParent : this, this.num, !(this instanceof Pview), false);
+				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				quotetxt = '';
 				return;
 			case 'de-btn-sage': Spells.add(9, '', false); return;
@@ -8778,10 +8778,8 @@ class AbstractPost {
 			return;
 		}
 		if(type === 'mouseover' && Cfg.expandImgs &&
-		   !el.classList.contains('de-img-full') &&
-		   el.tagName === 'IMG' &&
-		   (temp = this.images.getImageByEl(el)) &&
-		   (temp.isImage || temp.isVideo))
+		   !el.classList.contains('de-img-full') && el.tagName === 'IMG' &&
+		   (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo))
 		{
 			el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
 		}
@@ -11678,7 +11676,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					body { padding: 0 5px !important; }
 					.fileinfo { width: 250px; }
 					.multifile { width: auto !important; }
-					#expand-all-images, #expand-all-images + .unimportant, .post-btn { display: none !important; }`;
+					#expand-all-images, #expand-all-images + .unimportant, .post-btn, small { display: none !important; }`;
 			} };
 			val.init = { value() {
 				setTimeout(function() {
@@ -13442,8 +13440,8 @@ function scriptCSS() {
 	.de-post-hide > ' + aib.qHide + ' { display: none !important; }\
 	.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 	.de-pview-info { padding: 3px 6px !important; }\
-	.de-ref-op::after { content: " [OP]"; }\
-	.de-ref-del::after { content: " [del]"; }\
+	.de-ref-op::after { content: " (OP)"; }\
+	.de-ref-del::after { content: " (del)"; }\
 	.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
 	.de-refmap::before { content: "' + Lng.replies[lang] + ' "; }\
 	.de-refcomma:last-child { display: none; }\
