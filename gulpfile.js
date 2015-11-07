@@ -38,7 +38,7 @@ gulp.task('updatecommit', function(cb) {
 
 gulp.task('make', ['updatecommit'], function() {
 	return gulp.src('src/Dollchan_Extension_Tools.es6.user.js')
-		.pipe(babel({ compact: false, loose: ['es6.forOf'], blacklist: ['es5.properties.mutators'] }))
+		.pipe(babel({ compact: false, presets: ["es2015"], plugins: ["transform-es3-property-literals", "transform-es3-member-expression-literals", ["transform-es2015-for-of", { "loose": true }]] }))
 		.pipe(headerfooter.header('src/regenerator-runtime.js'))
 		.pipe(headerfooter.header('src/core-js.custom.js'))
 		.pipe(strip())
