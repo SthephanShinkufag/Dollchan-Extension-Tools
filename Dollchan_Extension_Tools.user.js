@@ -2807,7 +2807,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '585d590';
+	var commit = 'baf57b6';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -7876,7 +7876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return $ajax(url, { useCache: useCache }).then(function (xhr) {
 			var el,
 			    text = xhr.responseText;
-			if ((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
+			if ((aib.futa ? /<!--[^-]*-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
 				el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 			}
 			return el ? el : CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang]));

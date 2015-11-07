@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '585d590';
+var commit = 'baf57b6';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5020,7 +5020,7 @@ AjaxError.Success = new AjaxError(200, '');
 function ajaxLoad(url, returnForm = true, useCache = false) {
 	return $ajax(url, { useCache: useCache }).then(xhr => {
 		var el, text = xhr.responseText;
-		if((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
+		if((aib.futa ? /<!--[^-]*-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
 			el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 		}
 		return el ? el : CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
