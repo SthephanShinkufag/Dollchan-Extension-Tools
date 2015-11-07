@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'b72a81c';
+var commit = '585d590';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3080,7 +3080,7 @@ function getCfgCommon() {
 				if($id('de-popup-edit-hotkeys')) {
 					return;
 				}
-				spawn(HotKeys.readKeys).then(keys => {
+				Promise.resolve(HotKeys.readKeys()).then(keys => {
 					var temp = KeyEditListener.getEditMarkup(keys),
 						el = $popup(temp[1], 'edit-hotkeys', false),
 						fn = new KeyEditListener(el, keys, temp[0]);
@@ -3611,7 +3611,7 @@ var HotKeys = {
 		if(!this.enabled) {
 			this.enabled = true;
 			this._paused = false;
-			spawn(this.readKeys.bind(this)).then(keys => {
+			Promise.resolve(this.readKeys()).then(keys => {
 				if(this.enabled) {
 					this.gKeys = keys[2];
 					this.ntKeys = keys[3];
@@ -3811,7 +3811,7 @@ var HotKeys = {
 		this.tKeys = keys[4];
 		this._paused = false;
 	},
-	*readKeys() {
+	readKeys: async(function* () {
 		var keys, str = yield* getStored('DESU_keys');
 		if(!str) {
 			return this.getDefaultKeys();
@@ -3871,7 +3871,7 @@ var HotKeys = {
 			}
 			return keys;
 		}
-	},
+	}),
 
 	_lastPageOffset: 0,
 	_paused: false,
@@ -3985,13 +3985,13 @@ KeyEditListener.getEditMarkup = function(keys) {
 	var html = Lng.hotKeyEdit[lang].join('')
 		.replace(/%l/g, '<label class="de-block">')
 		.replace(/%\/l/g, '</label>')
-		.replace(/%i([2-4])([0-9]+)(t)?/g, function(aKeys, all, id1, id2, isText) {
-			var key = this[+id1][+id2];
-			aKeys.push(key);
+		.replace(/%i([2-4])([0-9]+)(t)?/g, function(all, id1, id2, isText) {
+			var key = keys[+id1][+id2];
+			allKeys.push(key);
 			return '<input class="de-input-key" type="text" de-id1="' + id1 + '" de-id2="' + id2 +
 				'" size="18" value="' + KeyEditListener.getStrKey(key) +
 				(isText ? '" de-text' : '"' ) + ' readonly></input>';
-		}.bind(keys, allKeys)) +
+		}) +
 	'<input type="button" id="de-keys-save" class="de-button" value="' + Lng.save[lang] + '"></input>' +
 	'<input type="button" id="de-keys-reset" class="de-button" value="' + Lng.reset[lang] + '"></input>';
 	return [allKeys, html];

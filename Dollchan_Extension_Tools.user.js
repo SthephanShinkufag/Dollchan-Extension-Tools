@@ -2807,7 +2807,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'b72a81c';
+	var commit = '585d590';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -6003,7 +6003,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if ($id('de-popup-edit-hotkeys')) {
 				return;
 			}
-			spawn(HotKeys.readKeys).then(function (keys) {
+			Promise.resolve(HotKeys.readKeys()).then(function (keys) {
 				var temp = KeyEditListener.getEditMarkup(keys),
 				    el = $popup(temp[1], 'edit-hotkeys', false),
 				    fn = new KeyEditListener(el, keys, temp[0]);
@@ -6432,7 +6432,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (!this.enabled) {
 				this.enabled = true;
 				this._paused = false;
-				spawn(this.readKeys.bind(this)).then(function (keys) {
+				Promise.resolve(this.readKeys()).then(function (keys) {
 					if (_this8.enabled) {
 						_this8.gKeys = keys[2];
 						_this8.ntKeys = keys[3];
@@ -6653,9 +6653,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.tKeys = keys[4];
 			this._paused = false;
 		},
-		readKeys: regeneratorRuntime.mark(function readKeys() {
+
+		readKeys: async(regeneratorRuntime.mark(function _callee5() {
 			var keys, str, tKeys, mapFunc;
-			return regeneratorRuntime.wrap(function readKeys$(_context11) {
+			return regeneratorRuntime.wrap(function _callee5$(_context11) {
 				while (1) switch (_context11.prev = _context11.next) {
 					case 0:
 						return _context11.delegateYield(getStored('DESU_keys'), 't0', 1);
@@ -6746,8 +6747,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'end':
 						return _context11.stop();
 				}
-			}, readKeys, this, [[4,, 6, 13]]);
-		}),
+			}, _callee5, this, [[4,, 6, 13]]);
+		})),
 
 		_lastPageOffset: 0,
 		_paused: false,
@@ -6847,11 +6848,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	};
 	KeyEditListener.getEditMarkup = function (keys) {
 		var allKeys = [];
-		var html = Lng.hotKeyEdit[lang].join('').replace(/%l/g, '<label class="de-block">').replace(/%\/l/g, '</label>').replace(/%i([2-4])([0-9]+)(t)?/g, (function (aKeys, all, id1, id2, isText) {
-			var key = this[+id1][+id2];
-			aKeys.push(key);
+		var html = Lng.hotKeyEdit[lang].join('').replace(/%l/g, '<label class="de-block">').replace(/%\/l/g, '</label>').replace(/%i([2-4])([0-9]+)(t)?/g, function (all, id1, id2, isText) {
+			var key = keys[+id1][+id2];
+			allKeys.push(key);
 			return '<input class="de-input-key" type="text" de-id1="' + id1 + '" de-id2="' + id2 + '" size="18" value="' + KeyEditListener.getStrKey(key) + (isText ? '" de-text' : '"') + ' readonly></input>';
-		}).bind(keys, allKeys)) + '<input type="button" id="de-keys-save" class="de-button" value="' + Lng.save[lang] + '"></input>' + '<input type="button" id="de-keys-reset" class="de-button" value="' + Lng.reset[lang] + '"></input>';
+		}) + '<input type="button" id="de-keys-save" class="de-button" value="' + Lng.save[lang] + '"></input>' + '<input type="button" id="de-keys-reset" class="de-button" value="' + Lng.reset[lang] + '"></input>';
 		return [allKeys, html];
 	};
 	KeyEditListener.setTitle = function (el, idx) {
@@ -7933,10 +7934,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 		},
 
-		load: async(regeneratorRuntime.mark(function _callee5(count) {
+		load: async(regeneratorRuntime.mark(function _callee6(count) {
 			var _iterator2, _isArray2, _i3, _ref8, form, len, i, el, first;
 
-			return regeneratorRuntime.wrap(function _callee5$(_context12) {
+			return regeneratorRuntime.wrap(function _callee6$(_context12) {
 				while (1) switch (_context12.prev = _context12.next) {
 					case 0:
 						$popup(Lng.loading[lang], 'load-pages', true);
@@ -8067,7 +8068,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'end':
 						return _context12.stop();
 				}
-			}, _callee5, this, [[33, 40]]);
+			}, _callee6, this, [[33, 40]]);
 		})),
 
 		_adding: false,
@@ -9307,10 +9308,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return false;
 		},
 
-		_ihash: async(regeneratorRuntime.mark(function _callee6(val) {
+		_ihash: async(regeneratorRuntime.mark(function _callee7(val) {
 			var _iterator13, _isArray13, _i14, _ref24, image, hash;
 
-			return regeneratorRuntime.wrap(function _callee6$(_context14) {
+			return regeneratorRuntime.wrap(function _callee7$(_context14) {
 				while (1) switch (_context14.prev = _context14.next) {
 					case 0:
 						_iterator13 = this._post.images, _isArray13 = Array.isArray(_iterator13), _i14 = 0, _iterator13 = _isArray13 ? _iterator13 : _iterator13[Symbol.iterator]();
@@ -9380,7 +9381,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'end':
 						return _context14.stop();
 				}
-			}, _callee6, this);
+			}, _callee7, this);
 		})),
 		_subj: function _subj(val) {
 			var pSubj = this._post.subj;
@@ -10721,13 +10722,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return err;
 	}
 
-	var doUploading = async(regeneratorRuntime.mark(function _callee7(_ref29) {
+	var doUploading = async(regeneratorRuntime.mark(function _callee8(_ref29) {
 		var _ref30 = _slicedToArray(_ref29, 2);
 
 		var hasFiles = _ref30[0];
 		var getProgress = _ref30[1];
 		var p, val, beginTime, inited, progress, counterWrap, counterEl, totalEl, speedEl, total, loaded;
-		return regeneratorRuntime.wrap(function _callee7$(_context15) {
+		return regeneratorRuntime.wrap(function _callee8$(_context15) {
 			while (1) switch (_context15.prev = _context15.next) {
 				case 0:
 					$popup(Lng.sendingPost[lang] + (hasFiles ? '<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' + '</progress><div style="display: none; font: bold 12px arial;">' + '<span></span> / <span></span> (<span></span>)</div>' : ''), 'upload', true);
@@ -10794,7 +10795,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				case 'end':
 					return _context15.stop();
 			}
-		}, _callee7, this, [[3, 9]]);
+		}, _callee8, this, [[3, 9]]);
 	}));
 
 	function checkUpload(dc) {
@@ -10878,10 +10879,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		pr.filesCount = 0;
 	}
 
-	var checkDelete = async(regeneratorRuntime.mark(function _callee8(form, dc) {
+	var checkDelete = async(regeneratorRuntime.mark(function _callee9(form, dc) {
 		var err, _ref31, _ref32, num, post, els, threads, isThr, i, len, el, _iterator18, _isArray18, _i19, _ref33, thr;
 
-		return regeneratorRuntime.wrap(function _callee8$(_context16) {
+		return regeneratorRuntime.wrap(function _callee9$(_context16) {
 			while (1) switch (_context16.prev = _context16.next) {
 				case 0:
 					err = getSubmitError(dc);
@@ -10995,7 +10996,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				case 'end':
 					return _context16.stop();
 			}
-		}, _callee8, this, [[13, 18]]);
+		}, _callee9, this, [[13, 18]]);
 	}));
 
 	function html5Submit(form, submitter) {
