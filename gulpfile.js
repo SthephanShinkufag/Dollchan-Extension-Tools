@@ -1,16 +1,17 @@
 var gulp = require('gulp');
-
 var jshint = require('gulp-jshint');
-var babel = require('gulp-babel');
 var strip = require('gulp-strip-comments');
 var headerfooter = require('gulp-headerfooter');
-var dest = require('gulp-dest');
 var replace = require('gulp-replace');
 var spawn = require('child_process').spawn;
+var source = require('vinyl-source-stream');
+var browserify = require('browserify');
+var babelify = require("babelify");
+var streamify = require('gulp-streamify');
 
 var paths = {
 	scripts: [
-		'src/browser-polyfill.js',
+		'src/es5-polyfills.js',
 		'src/Dollchan_Extension_Tools.es6.user.js',
 		'Dollchan_Extension_Tools.meta.js'
 	],
@@ -37,15 +38,13 @@ gulp.task('updatecommit', function(cb) {
 });
 
 gulp.task('make', ['updatecommit'], function() {
-	return gulp.src('src/Dollchan_Extension_Tools.es6.user.js')
-		.pipe(babel({ compact: false, presets: ["es2015"], plugins: ["transform-es3-property-literals", "transform-es3-member-expression-literals", ["transform-es2015-for-of", { "loose": true }]] }))
-		.pipe(headerfooter.header('src/regenerator-runtime.js'))
-		.pipe(headerfooter.header('src/core-js.custom.js'))
-		.pipe(strip())
-		.pipe(headerfooter.header('(function de_main_func_outer() {\n'))
-		.pipe(headerfooter.footer('})();'))
-		.pipe(headerfooter.header('Dollchan_Extension_Tools.meta.js'))
-		.pipe(dest('', {basename: 'Dollchan_Extension_Tools.user.'}))
+	return browserify(['./src/es5-polyfills.js', './src/Dollchan_Extension_Tools.es6.user.js'])
+		.transform(babelify)
+		.bundle()
+		.pipe(source('Dollchan_Extension_Tools.user.js'))
+		.pipe(streamify(strip()))
+		.pipe(streamify(headerfooter('(function de_main_func_outer() { \n', '})();')))
+		.pipe(streamify(headerfooter.header('Dollchan_Extension_Tools.meta.js')))
 		.pipe(gulp.dest('./'));
 });
 

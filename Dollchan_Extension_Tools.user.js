@@ -16,150 +16,689 @@
 // @grant           unsafeWindow
 // @include         *
 // ==/UserScript==
-(function de_main_func_outer() {
+(function de_main_func_outer() { 
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+require('../../modules/es6.string.iterator');
+require('../../modules/es6.array.from');
+module.exports = require('../../modules/$.core').Array.from;
+},{"../../modules/$.core":24,"../../modules/es6.array.from":77,"../../modules/es6.string.iterator":86}],2:[function(require,module,exports){
+require('../../modules/es6.array.iterator');
+module.exports = require('../../modules/$.core').Array.values;
+},{"../../modules/$.core":24,"../../modules/es6.array.iterator":78}],3:[function(require,module,exports){
+require('../modules/es6.object.to-string');
+require('../modules/es6.string.iterator');
+require('../modules/web.dom.iterable');
+require('../modules/es6.map');
+require('../modules/es7.map.to-json');
+module.exports = require('../modules/$.core').Map;
+},{"../modules/$.core":24,"../modules/es6.map":79,"../modules/es6.object.to-string":82,"../modules/es6.string.iterator":86,"../modules/es7.map.to-json":91,"../modules/web.dom.iterable":93}],4:[function(require,module,exports){
+require('../../modules/es6.math.clz32');
+module.exports = require('../../modules/$.core').Math.clz32;
+},{"../../modules/$.core":24,"../../modules/es6.math.clz32":80}],5:[function(require,module,exports){
+require('../../modules/es6.object.assign');
+module.exports = require('../../modules/$.core').Object.assign;
+},{"../../modules/$.core":24,"../../modules/es6.object.assign":81}],6:[function(require,module,exports){
+require('../modules/es6.object.to-string');
+require('../modules/es6.string.iterator');
+require('../modules/web.dom.iterable');
+require('../modules/es6.promise');
+module.exports = require('../modules/$.core').Promise;
+},{"../modules/$.core":24,"../modules/es6.object.to-string":82,"../modules/es6.promise":83,"../modules/es6.string.iterator":86,"../modules/web.dom.iterable":93}],7:[function(require,module,exports){
+require('../modules/es6.object.to-string');
+require('../modules/es6.string.iterator');
+require('../modules/web.dom.iterable');
+require('../modules/es6.set');
+require('../modules/es7.set.to-json');
+module.exports = require('../modules/$.core').Set;
+},{"../modules/$.core":24,"../modules/es6.object.to-string":82,"../modules/es6.set":84,"../modules/es6.string.iterator":86,"../modules/es7.set.to-json":92,"../modules/web.dom.iterable":93}],8:[function(require,module,exports){
+require('../../modules/es6.string.includes');
+module.exports = require('../../modules/$.core').String.includes;
+},{"../../modules/$.core":24,"../../modules/es6.string.includes":85}],9:[function(require,module,exports){
+require('../../modules/es6.string.repeat');
+module.exports = require('../../modules/$.core').String.repeat;
+},{"../../modules/$.core":24,"../../modules/es6.string.repeat":87}],10:[function(require,module,exports){
+require('../../modules/es6.string.starts-with');
+module.exports = require('../../modules/$.core').String.startsWith;
+},{"../../modules/$.core":24,"../../modules/es6.string.starts-with":88}],11:[function(require,module,exports){
+require('../../modules/es6.symbol');
+require('../../modules/es6.object.to-string');
+module.exports = require('../../modules/$.core').Symbol;
+},{"../../modules/$.core":24,"../../modules/es6.object.to-string":82,"../../modules/es6.symbol":89}],12:[function(require,module,exports){
+require('../modules/es6.object.to-string');
+require('../modules/web.dom.iterable');
+require('../modules/es6.weak-map');
+module.exports = require('../modules/$.core').WeakMap;
+},{"../modules/$.core":24,"../modules/es6.object.to-string":82,"../modules/es6.weak-map":90,"../modules/web.dom.iterable":93}],13:[function(require,module,exports){
+module.exports = function(it){
+  if(typeof it != 'function')throw TypeError(it + ' is not a function!');
+  return it;
+};
+},{}],14:[function(require,module,exports){
 
-!function(global, framework, undefined){
-'use strict';
+var UNSCOPABLES = require('./$.wks')('unscopables')
+  , ArrayProto  = Array.prototype;
+if(ArrayProto[UNSCOPABLES] == undefined)require('./$.hide')(ArrayProto, UNSCOPABLES, {});
+module.exports = function(key){
+  ArrayProto[UNSCOPABLES][key] = true;
+};
+},{"./$.hide":37,"./$.wks":75}],15:[function(require,module,exports){
+var isObject = require('./$.is-object');
+module.exports = function(it){
+  if(!isObject(it))throw TypeError(it + ' is not an object!');
+  return it;
+};
+},{"./$.is-object":43}],16:[function(require,module,exports){
 
 
 
+
+
+
+
+var ctx      = require('./$.ctx')
+  , IObject  = require('./$.iobject')
+  , toObject = require('./$.to-object')
+  , toLength = require('./$.to-length')
+  , asc      = require('./$.array-species-create');
+module.exports = function(TYPE){
+  var IS_MAP        = TYPE == 1
+    , IS_FILTER     = TYPE == 2
+    , IS_SOME       = TYPE == 3
+    , IS_EVERY      = TYPE == 4
+    , IS_FIND_INDEX = TYPE == 6
+    , NO_HOLES      = TYPE == 5 || IS_FIND_INDEX;
+  return function($this, callbackfn, that){
+    var O      = toObject($this)
+      , self   = IObject(O)
+      , f      = ctx(callbackfn, that, 3)
+      , length = toLength(self.length)
+      , index  = 0
+      , result = IS_MAP ? asc($this, length) : IS_FILTER ? asc($this, 0) : undefined
+      , val, res;
+    for(;length > index; index++)if(NO_HOLES || index in self){
+      val = self[index];
+      res = f(val, index, O);
+      if(TYPE){
+        if(IS_MAP)result[index] = res;           
+        else if(res)switch(TYPE){
+          case 3: return true;                   
+          case 5: return val;                    
+          case 6: return index;                  
+          case 2: result.push(val);              
+        } else if(IS_EVERY)return false;         
+      }
+    }
+    return IS_FIND_INDEX ? -1 : IS_SOME || IS_EVERY ? IS_EVERY : result;
+  };
+};
+},{"./$.array-species-create":17,"./$.ctx":25,"./$.iobject":40,"./$.to-length":72,"./$.to-object":73}],17:[function(require,module,exports){
+
+var isObject = require('./$.is-object')
+  , isArray  = require('./$.is-array')
+  , SPECIES  = require('./$.wks')('species');
+module.exports = function(original, length){
+  var C;
+  if(isArray(original)){
+    C = original.constructor;
+   
+    if(typeof C == 'function' && (C === Array || isArray(C.prototype)))C = undefined;
+    if(isObject(C)){
+      C = C[SPECIES];
+      if(C === null)C = undefined;
+    }
+  } return new (C === undefined ? Array : C)(length);
+};
+},{"./$.is-array":42,"./$.is-object":43,"./$.wks":75}],18:[function(require,module,exports){
+
+var cof = require('./$.cof')
+  , TAG = require('./$.wks')('toStringTag')
  
-var OBJECT          = 'Object'
-  , FUNCTION        = 'Function'
-  , ARRAY           = 'Array'
-  , STRING          = 'String'
-  , NUMBER          = 'Number'
-  , REGEXP          = 'RegExp'
-  , DATE            = 'Date'
-  , MAP             = 'Map'
-  , SET             = 'Set'
-  , WEAKMAP         = 'WeakMap'
-  , WEAKSET         = 'WeakSet'
-  , SYMBOL          = 'Symbol'
-  , PROMISE         = 'Promise'
-  , MATH            = 'Math'
-  , ARGUMENTS       = 'Arguments'
-  , PROTOTYPE       = 'prototype'
-  , CONSTRUCTOR     = 'constructor'
-  , TO_STRING       = 'toString'
-  , TO_STRING_TAG   = TO_STRING + 'Tag'
-  , TO_LOCALE       = 'toLocaleString'
-  , HAS_OWN         = 'hasOwnProperty'
-  , FOR_EACH        = 'forEach'
-  , ITERATOR        = 'iterator'
-  , FF_ITERATOR     = '@@' + ITERATOR
-  , PROCESS         = 'process'
-  , CREATE_ELEMENT  = 'createElement'
- 
-  , Function        = global[FUNCTION]
-  , Object          = global[OBJECT]
-  , Array           = global[ARRAY]
-  , String          = global[STRING]
-  , Number          = global[NUMBER]
-  , RegExp          = global[REGEXP]
-  , Date            = global[DATE]
-  , Map             = global[MAP]
-  , Set             = global[SET]
-  , WeakMap         = global[WEAKMAP]
-  , WeakSet         = global[WEAKSET]
-  , Symbol          = global[SYMBOL]
-  , Math            = global[MATH]
-  , TypeError       = global.TypeError
-  , RangeError      = global.RangeError
-  , setTimeout      = global.setTimeout
-  , setImmediate    = global.setImmediate
-  , clearImmediate  = global.clearImmediate
-  , parseInt        = global.parseInt
-  , isFinite        = global.isFinite
-  , process         = global[PROCESS]
-  , nextTick        = process && process.nextTick
-  , document        = global.document
-  , html            = document && document.documentElement
-  , navigator       = global.navigator
-  , define          = global.define
-  , ArrayProto      = Array[PROTOTYPE]
-  , ObjectProto     = Object[PROTOTYPE]
-  , FunctionProto   = Function[PROTOTYPE]
-  , Infinity        = 1 / 0
-  , DOT             = '.'
- 
-  , CONSOLE_METHODS = 'assert,clear,count,debug,dir,dirxml,error,exception,' +
-      'group,groupCollapsed,groupEnd,info,isIndependentlyComposed,log,' +
-      'markTimeline,profile,profileEnd,table,time,timeEnd,timeline,' +
-      'timelineEnd,timeStamp,trace,warn';
+  , ARG = cof(function(){ return arguments; }()) == 'Arguments';
 
+module.exports = function(it){
+  var O, T, B;
+  return it === undefined ? 'Undefined' : it === null ? 'Null'
+   
+    : typeof (T = (O = Object(it))[TAG]) == 'string' ? T
+   
+    : ARG ? cof(O)
+   
+    : (B = cof(O)) == 'Object' && typeof O.callee == 'function' ? 'Arguments' : B;
+};
+},{"./$.cof":19,"./$.wks":75}],19:[function(require,module,exports){
+var toString = {}.toString;
 
-function isObject(it){
-  return it !== null && (typeof it == 'object' || typeof it == 'function');
-}
-function isFunction(it){
-  return typeof it == 'function';
-}
-
-var isNative = ctx(/./.test, /\[native code\]\s*\}\s*$/, 1);
-
-
-
-var toString = ObjectProto[TO_STRING];
-function setToStringTag(it, tag, stat){
-  if(it && !has(it = stat ? it : it[PROTOTYPE], SYMBOL_TAG))hidden(it, SYMBOL_TAG, tag);
-}
-function cof(it){
+module.exports = function(it){
   return toString.call(it).slice(8, -1);
-}
-function classof(it){
-  var O, T;
-  return it == undefined ? it === undefined ? 'Undefined' : 'Null'
-    : typeof (T = (O = Object(it))[SYMBOL_TAG]) == 'string' ? T : cof(O);
-}
+};
+},{}],20:[function(require,module,exports){
+'use strict';
+var $            = require('./$')
+  , hide         = require('./$.hide')
+  , mix          = require('./$.mix')
+  , ctx          = require('./$.ctx')
+  , strictNew    = require('./$.strict-new')
+  , defined      = require('./$.defined')
+  , forOf        = require('./$.for-of')
+  , $iterDefine  = require('./$.iter-define')
+  , step         = require('./$.iter-step')
+  , ID           = require('./$.uid')('id')
+  , $has         = require('./$.has')
+  , isObject     = require('./$.is-object')
+  , setSpecies   = require('./$.set-species')
+  , DESCRIPTORS  = require('./$.descriptors')
+  , isExtensible = Object.isExtensible || isObject
+  , SIZE         = DESCRIPTORS ? '_s' : 'size'
+  , id           = 0;
 
+var fastKey = function(it, create){
+ 
+  if(!isObject(it))return typeof it == 'symbol' ? it : (typeof it == 'string' ? 'S' : 'P') + it;
+  if(!$has(it, ID)){
+   
+    if(!isExtensible(it))return 'F';
+   
+    if(!create)return 'E';
+   
+    hide(it, ID, ++id);
+ 
+  } return 'O' + it[ID];
+};
 
-var call  = FunctionProto.call
-  , apply = FunctionProto.apply
-  , REFERENCE_GET;
-
-function part(){
-  var fn     = assertFunction(this)
-    , length = arguments.length
-    , args   = Array(length)
-    , i      = 0
-    , _      = path._
-    , holder = false;
-  while(length > i)if((args[i] = arguments[i++]) === _)holder = true;
-  return function(){
-    var that    = this
-      , _length = arguments.length
-      , i = 0, j = 0, _args;
-    if(!holder && !_length)return invoke(fn, args, that);
-    _args = args.slice();
-    if(holder)for(;length > i; i++)if(_args[i] === _)_args[i] = arguments[j++];
-    while(_length > j)_args.push(arguments[j++]);
-    return invoke(fn, _args, that);
+var getEntry = function(that, key){
+ 
+  var index = fastKey(key), entry;
+  if(index !== 'F')return that._i[index];
+ 
+  for(entry = that._f; entry; entry = entry.n){
+    if(entry.k == key)return entry;
   }
-}
+};
 
-function ctx(fn, that, length){
-  assertFunction(fn);
-  if(~length && that === undefined)return fn;
+module.exports = {
+  getConstructor: function(wrapper, NAME, IS_MAP, ADDER){
+    var C = wrapper(function(that, iterable){
+      strictNew(that, C, NAME);
+      that._i = $.create(null);
+      that._f = undefined;     
+      that._l = undefined;     
+      that[SIZE] = 0;          
+      if(iterable != undefined)forOf(iterable, IS_MAP, that[ADDER], that);
+    });
+    mix(C.prototype, {
+     
+     
+      clear: function clear(){
+        for(var that = this, data = that._i, entry = that._f; entry; entry = entry.n){
+          entry.r = true;
+          if(entry.p)entry.p = entry.p.n = undefined;
+          delete data[entry.i];
+        }
+        that._f = that._l = undefined;
+        that[SIZE] = 0;
+      },
+     
+     
+      'delete': function(key){
+        var that  = this
+          , entry = getEntry(that, key);
+        if(entry){
+          var next = entry.n
+            , prev = entry.p;
+          delete that._i[entry.i];
+          entry.r = true;
+          if(prev)prev.n = next;
+          if(next)next.p = prev;
+          if(that._f == entry)that._f = next;
+          if(that._l == entry)that._l = prev;
+          that[SIZE]--;
+        } return !!entry;
+      },
+     
+     
+      forEach: function forEach(callbackfn ){
+        var f = ctx(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3)
+          , entry;
+        while(entry = entry ? entry.n : this._f){
+          f(entry.v, entry.k, this);
+         
+          while(entry && entry.r)entry = entry.p;
+        }
+      },
+     
+     
+      has: function has(key){
+        return !!getEntry(this, key);
+      }
+    });
+    if(DESCRIPTORS)$.setDesc(C.prototype, 'size', {
+      get: function(){
+        return defined(this[SIZE]);
+      }
+    });
+    return C;
+  },
+  def: function(that, key, value){
+    var entry = getEntry(that, key)
+      , prev, index;
+   
+    if(entry){
+      entry.v = value;
+   
+    } else {
+      that._l = entry = {
+        i: index = fastKey(key, true),
+        k: key,                       
+        v: value,                     
+        p: prev = that._l,            
+        n: undefined,                 
+        r: false                      
+      };
+      if(!that._f)that._f = entry;
+      if(prev)prev.n = entry;
+      that[SIZE]++;
+     
+      if(index !== 'F')that._i[index] = entry;
+    } return that;
+  },
+  getEntry: getEntry,
+  setStrong: function(C, NAME, IS_MAP){
+   
+   
+    $iterDefine(C, NAME, function(iterated, kind){
+      this._t = iterated; 
+      this._k = kind;     
+      this._l = undefined;
+    }, function(){
+      var that  = this
+        , kind  = that._k
+        , entry = that._l;
+     
+      while(entry && entry.r)entry = entry.p;
+     
+      if(!that._t || !(that._l = entry = entry ? entry.n : that._t._f)){
+       
+        that._t = undefined;
+        return step(1);
+      }
+     
+      if(kind == 'keys'  )return step(0, entry.k);
+      if(kind == 'values')return step(0, entry.v);
+      return step(0, [entry.k, entry.v]);
+    }, IS_MAP ? 'entries' : 'values' , !IS_MAP, true);
+
+   
+    setSpecies(NAME);
+  }
+};
+},{"./$":51,"./$.ctx":25,"./$.defined":27,"./$.descriptors":28,"./$.for-of":33,"./$.has":36,"./$.hide":37,"./$.is-object":43,"./$.iter-define":47,"./$.iter-step":49,"./$.mix":55,"./$.set-species":61,"./$.strict-new":65,"./$.uid":74}],21:[function(require,module,exports){
+
+var forOf   = require('./$.for-of')
+  , classof = require('./$.classof');
+module.exports = function(NAME){
+  return function toJSON(){
+    if(classof(this) != NAME)throw TypeError(NAME + "#toJSON isn't generic");
+    var arr = [];
+    forOf(this, false, arr.push, arr);
+    return arr;
+  };
+};
+},{"./$.classof":18,"./$.for-of":33}],22:[function(require,module,exports){
+'use strict';
+var hide         = require('./$.hide')
+  , mix          = require('./$.mix')
+  , anObject     = require('./$.an-object')
+  , strictNew    = require('./$.strict-new')
+  , forOf        = require('./$.for-of')
+  , method       = require('./$.array-methods')
+  , WEAK         = require('./$.uid')('weak')
+  , isObject     = require('./$.is-object')
+  , $has         = require('./$.has')
+  , isExtensible = Object.isExtensible || isObject
+  , find         = method(5)
+  , findIndex    = method(6)
+  , id           = 0;
+
+
+var frozenStore = function(that){
+  return that._l || (that._l = new FrozenStore);
+};
+var FrozenStore = function(){
+  this.a = [];
+};
+var findFrozen = function(store, key){
+  return find(store.a, function(it){
+    return it[0] === key;
+  });
+};
+FrozenStore.prototype = {
+  get: function(key){
+    var entry = findFrozen(this, key);
+    if(entry)return entry[1];
+  },
+  has: function(key){
+    return !!findFrozen(this, key);
+  },
+  set: function(key, value){
+    var entry = findFrozen(this, key);
+    if(entry)entry[1] = value;
+    else this.a.push([key, value]);
+  },
+  'delete': function(key){
+    var index = findIndex(this.a, function(it){
+      return it[0] === key;
+    });
+    if(~index)this.a.splice(index, 1);
+    return !!~index;
+  }
+};
+
+module.exports = {
+  getConstructor: function(wrapper, NAME, IS_MAP, ADDER){
+    var C = wrapper(function(that, iterable){
+      strictNew(that, C, NAME);
+      that._i = id++;     
+      that._l = undefined;
+      if(iterable != undefined)forOf(iterable, IS_MAP, that[ADDER], that);
+    });
+    mix(C.prototype, {
+     
+     
+      'delete': function(key){
+        if(!isObject(key))return false;
+        if(!isExtensible(key))return frozenStore(this)['delete'](key);
+        return $has(key, WEAK) && $has(key[WEAK], this._i) && delete key[WEAK][this._i];
+      },
+     
+     
+      has: function has(key){
+        if(!isObject(key))return false;
+        if(!isExtensible(key))return frozenStore(this).has(key);
+        return $has(key, WEAK) && $has(key[WEAK], this._i);
+      }
+    });
+    return C;
+  },
+  def: function(that, key, value){
+    if(!isExtensible(anObject(key))){
+      frozenStore(that).set(key, value);
+    } else {
+      $has(key, WEAK) || hide(key, WEAK, {});
+      key[WEAK][that._i] = value;
+    } return that;
+  },
+  frozenStore: frozenStore,
+  WEAK: WEAK
+};
+},{"./$.an-object":15,"./$.array-methods":16,"./$.for-of":33,"./$.has":36,"./$.hide":37,"./$.is-object":43,"./$.mix":55,"./$.strict-new":65,"./$.uid":74}],23:[function(require,module,exports){
+'use strict';
+var global         = require('./$.global')
+  , $def           = require('./$.def')
+  , $redef         = require('./$.redef')
+  , mix            = require('./$.mix')
+  , forOf          = require('./$.for-of')
+  , strictNew      = require('./$.strict-new')
+  , isObject       = require('./$.is-object')
+  , fails          = require('./$.fails')
+  , $iterDetect    = require('./$.iter-detect')
+  , setToStringTag = require('./$.set-to-string-tag');
+
+module.exports = function(NAME, wrapper, methods, common, IS_MAP, IS_WEAK){
+  var Base  = global[NAME]
+    , C     = Base
+    , ADDER = IS_MAP ? 'set' : 'add'
+    , proto = C && C.prototype
+    , O     = {};
+  var fixMethod = function(KEY){
+    var fn = proto[KEY];
+    $redef(proto, KEY,
+      KEY == 'delete' ? function(a){
+        return IS_WEAK && !isObject(a) ? false : fn.call(this, a === 0 ? 0 : a);
+      } : KEY == 'has' ? function has(a){
+        return IS_WEAK && !isObject(a) ? false : fn.call(this, a === 0 ? 0 : a);
+      } : KEY == 'get' ? function get(a){
+        return IS_WEAK && !isObject(a) ? undefined : fn.call(this, a === 0 ? 0 : a);
+      } : KEY == 'add' ? function add(a){ fn.call(this, a === 0 ? 0 : a); return this; }
+        : function set(a, b){ fn.call(this, a === 0 ? 0 : a, b); return this; }
+    );
+  };
+  if(typeof C != 'function' || !(IS_WEAK || proto.forEach && !fails(function(){
+    new C().entries().next();
+  }))){
+   
+    C = common.getConstructor(wrapper, NAME, IS_MAP, ADDER);
+    mix(C.prototype, methods);
+  } else {
+    var instance             = new C
+     
+      , HASNT_CHAINING       = instance[ADDER](IS_WEAK ? {} : -0, 1) != instance
+     
+      , THROWS_ON_PRIMITIVES = fails(function(){ instance.has(1); })
+     
+      , ACCEPT_ITERABLES     = $iterDetect(function(iter){ new C(iter); })
+     
+      , BUGGY_ZERO;
+    if(!ACCEPT_ITERABLES){ 
+      C = wrapper(function(target, iterable){
+        strictNew(target, C, NAME);
+        var that = new Base;
+        if(iterable != undefined)forOf(iterable, IS_MAP, that[ADDER], that);
+        return that;
+      });
+      C.prototype = proto;
+      proto.constructor = C;
+    }
+    IS_WEAK || instance.forEach(function(val, key){
+      BUGGY_ZERO = 1 / key === -Infinity;
+    });
+    if(THROWS_ON_PRIMITIVES || BUGGY_ZERO){
+      fixMethod('delete');
+      fixMethod('has');
+      IS_MAP && fixMethod('get');
+    }
+    if(BUGGY_ZERO || HASNT_CHAINING)fixMethod(ADDER);
+   
+    if(IS_WEAK && proto.clear)delete proto.clear;
+  }
+
+  setToStringTag(C, NAME);
+
+  O[NAME] = C;
+  $def($def.G + $def.W + $def.F * (C != Base), O);
+
+  if(!IS_WEAK)common.setStrong(C, NAME, IS_MAP);
+
+  return C;
+};
+},{"./$.def":26,"./$.fails":32,"./$.for-of":33,"./$.global":35,"./$.is-object":43,"./$.iter-detect":48,"./$.mix":55,"./$.redef":58,"./$.set-to-string-tag":62,"./$.strict-new":65}],24:[function(require,module,exports){
+var core = module.exports = {version: '1.2.5'};
+if(typeof __e == 'number')__e = core;
+},{}],25:[function(require,module,exports){
+
+var aFunction = require('./$.a-function');
+module.exports = function(fn, that, length){
+  aFunction(fn);
+  if(that === undefined)return fn;
   switch(length){
     case 1: return function(a){
       return fn.call(that, a);
-    }
+    };
     case 2: return function(a, b){
       return fn.call(that, a, b);
-    }
+    };
     case 3: return function(a, b, c){
       return fn.call(that, a, b, c);
-    }
-  } return function(){
-      return fn.apply(that, arguments);
+    };
   }
-}
+  return function(){
+    return fn.apply(that, arguments);
+  };
+};
+},{"./$.a-function":13}],26:[function(require,module,exports){
+var global     = require('./$.global')
+  , core       = require('./$.core')
+  , hide       = require('./$.hide')
+  , $redef     = require('./$.redef')
+  , PROTOTYPE  = 'prototype';
+var ctx = function(fn, that){
+  return function(){
+    return fn.apply(that, arguments);
+  };
+};
+var $def = function(type, name, source){
+  var key, own, out, exp
+    , isGlobal = type & $def.G
+    , isProto  = type & $def.P
+    , target   = isGlobal ? global : type & $def.S
+        ? global[name] || (global[name] = {}) : (global[name] || {})[PROTOTYPE]
+    , exports  = isGlobal ? core : core[name] || (core[name] = {});
+  if(isGlobal)source = name;
+  for(key in source){
+   
+    own = !(type & $def.F) && target && key in target;
+   
+    out = (own ? target : source)[key];
+   
+    if(type & $def.B && own)exp = ctx(out, global);
+    else exp = isProto && typeof out == 'function' ? ctx(Function.call, out) : out;
+   
+    if(target && !own)$redef(target, key, out);
+   
+    if(exports[key] != out)hide(exports, key, exp);
+    if(isProto)(exports[PROTOTYPE] || (exports[PROTOTYPE] = {}))[key] = out;
+  }
+};
+global.core = core;
 
+$def.F = 1; 
+$def.G = 2; 
+$def.S = 4; 
+$def.P = 8; 
+$def.B = 16;
+$def.W = 32;
+module.exports = $def;
+},{"./$.core":24,"./$.global":35,"./$.hide":37,"./$.redef":58}],27:[function(require,module,exports){
 
-function invoke(fn, args, that){
+module.exports = function(it){
+  if(it == undefined)throw TypeError("Can't call method on  " + it);
+  return it;
+};
+},{}],28:[function(require,module,exports){
+
+module.exports = !require('./$.fails')(function(){
+  return Object.defineProperty({}, 'a', {get: function(){ return 7; }}).a != 7;
+});
+},{"./$.fails":32}],29:[function(require,module,exports){
+var isObject = require('./$.is-object')
+  , document = require('./$.global').document
+ 
+  , is = isObject(document) && isObject(document.createElement);
+module.exports = function(it){
+  return is ? document.createElement(it) : {};
+};
+},{"./$.global":35,"./$.is-object":43}],30:[function(require,module,exports){
+
+var $ = require('./$');
+module.exports = function(it){
+  var keys       = $.getKeys(it)
+    , getSymbols = $.getSymbols;
+  if(getSymbols){
+    var symbols = getSymbols(it)
+      , isEnum  = $.isEnum
+      , i       = 0
+      , key;
+    while(symbols.length > i)if(isEnum.call(it, key = symbols[i++]))keys.push(key);
+  }
+  return keys;
+};
+},{"./$":51}],31:[function(require,module,exports){
+var MATCH = require('./$.wks')('match');
+module.exports = function(KEY){
+  var re = /./;
+  try {
+    '/./'[KEY](re);
+  } catch(e){
+    try {
+      re[MATCH] = false;
+      return !'/./'[KEY](re);
+    } catch(f){  }
+  } return true;
+};
+},{"./$.wks":75}],32:[function(require,module,exports){
+module.exports = function(exec){
+  try {
+    return !!exec();
+  } catch(e){
+    return true;
+  }
+};
+},{}],33:[function(require,module,exports){
+var ctx         = require('./$.ctx')
+  , call        = require('./$.iter-call')
+  , isArrayIter = require('./$.is-array-iter')
+  , anObject    = require('./$.an-object')
+  , toLength    = require('./$.to-length')
+  , getIterFn   = require('./core.get-iterator-method');
+module.exports = function(iterable, entries, fn, that){
+  var iterFn = getIterFn(iterable)
+    , f      = ctx(fn, that, entries ? 2 : 1)
+    , index  = 0
+    , length, step, iterator;
+  if(typeof iterFn != 'function')throw TypeError(iterable + ' is not iterable!');
+ 
+  if(isArrayIter(iterFn))for(length = toLength(iterable.length); length > index; index++){
+    entries ? f(anObject(step = iterable[index])[0], step[1]) : f(iterable[index]);
+  } else for(iterator = iterFn.call(iterable); !(step = iterator.next()).done; ){
+    call(iterator, f, step.value, entries);
+  }
+};
+},{"./$.an-object":15,"./$.ctx":25,"./$.is-array-iter":41,"./$.iter-call":45,"./$.to-length":72,"./core.get-iterator-method":76}],34:[function(require,module,exports){
+
+var toString  = {}.toString
+  , toIObject = require('./$.to-iobject')
+  , getNames  = require('./$').getNames;
+
+var windowNames = typeof window == 'object' && Object.getOwnPropertyNames
+  ? Object.getOwnPropertyNames(window) : [];
+
+var getWindowNames = function(it){
+  try {
+    return getNames(it);
+  } catch(e){
+    return windowNames.slice();
+  }
+};
+
+module.exports.get = function getOwnPropertyNames(it){
+  if(windowNames && toString.call(it) == '[object Window]')return getWindowNames(it);
+  return getNames(toIObject(it));
+};
+},{"./$":51,"./$.to-iobject":71}],35:[function(require,module,exports){
+
+var global = module.exports = typeof window != 'undefined' && window.Math == Math
+  ? window : typeof self != 'undefined' && self.Math == Math ? self : Function('return this')();
+if(typeof __g == 'number')__g = global;
+},{}],36:[function(require,module,exports){
+var hasOwnProperty = {}.hasOwnProperty;
+module.exports = function(it, key){
+  return hasOwnProperty.call(it, key);
+};
+},{}],37:[function(require,module,exports){
+var $          = require('./$')
+  , createDesc = require('./$.property-desc');
+module.exports = require('./$.descriptors') ? function(object, key, value){
+  return $.setDesc(object, key, createDesc(1, value));
+} : function(object, key, value){
+  object[key] = value;
+  return object;
+};
+},{"./$":51,"./$.descriptors":28,"./$.property-desc":57}],38:[function(require,module,exports){
+module.exports = require('./$.global').document && document.documentElement;
+},{"./$.global":35}],39:[function(require,module,exports){
+
+module.exports = function(fn, args, that){
   var un = that === undefined;
-  switch(args.length | 0){
+  switch(args.length){
     case 0: return un ? fn()
                       : fn.call(that);
     case 1: return un ? fn(args[0])
@@ -170,1043 +709,1406 @@ function invoke(fn, args, that){
                       : fn.call(that, args[0], args[1], args[2]);
     case 4: return un ? fn(args[0], args[1], args[2], args[3])
                       : fn.call(that, args[0], args[1], args[2], args[3]);
-    case 5: return un ? fn(args[0], args[1], args[2], args[3], args[4])
-                      : fn.call(that, args[0], args[1], args[2], args[3], args[4]);
   } return              fn.apply(that, args);
-}
-function construct(target, argumentsList ){
-  var proto    = assertFunction(arguments.length < 3 ? target : arguments[2])[PROTOTYPE]
-    , instance = create(isObject(proto) ? proto : ObjectProto)
-    , result   = apply.call(target, instance, argumentsList);
-  return isObject(result) ? result : instance;
-}
+};
+},{}],40:[function(require,module,exports){
 
+var cof = require('./$.cof');
+module.exports = Object('z').propertyIsEnumerable(0) ? Object : function(it){
+  return cof(it) == 'String' ? it.split('') : Object(it);
+};
+},{"./$.cof":19}],41:[function(require,module,exports){
 
-var create           = Object.create
-  , getPrototypeOf   = Object.getPrototypeOf
-  , setPrototypeOf   = Object.setPrototypeOf
-  , defineProperty   = Object.defineProperty
-  , defineProperties = Object.defineProperties
-  , getOwnDescriptor = Object.getOwnPropertyDescriptor
-  , getKeys          = Object.keys
-  , getNames         = Object.getOwnPropertyNames
-  , getSymbols       = Object.getOwnPropertySymbols
-  , isFrozen         = Object.isFrozen
-  , has              = ctx(call, ObjectProto[HAS_OWN], 2)
+var Iterators  = require('./$.iterators')
+  , ITERATOR   = require('./$.wks')('iterator')
+  , ArrayProto = Array.prototype;
+
+module.exports = function(it){
+  return (Iterators.Array || ArrayProto[ITERATOR]) === it;
+};
+},{"./$.iterators":50,"./$.wks":75}],42:[function(require,module,exports){
+
+var cof = require('./$.cof');
+module.exports = Array.isArray || function(arg){
+  return cof(arg) == 'Array';
+};
+},{"./$.cof":19}],43:[function(require,module,exports){
+module.exports = function(it){
+  return typeof it === 'object' ? it !== null : typeof it === 'function';
+};
+},{}],44:[function(require,module,exports){
+
+var isObject = require('./$.is-object')
+  , cof      = require('./$.cof')
+  , MATCH    = require('./$.wks')('match');
+module.exports = function(it){
+  var isRegExp;
+  return isObject(it) && ((isRegExp = it[MATCH]) !== undefined ? !!isRegExp : cof(it) == 'RegExp');
+};
+},{"./$.cof":19,"./$.is-object":43,"./$.wks":75}],45:[function(require,module,exports){
+
+var anObject = require('./$.an-object');
+module.exports = function(iterator, fn, value, entries){
+  try {
+    return entries ? fn(anObject(value)[0], value[1]) : fn(value);
  
-  , ES5Object        = Object
-  , Dict;
-function toObject(it){
-  return ES5Object(assertDefined(it));
-}
-function returnIt(it){
-  return it;
-}
-function returnThis(){
-  return this;
-}
-function get(object, key){
-  if(has(object, key))return object[key];
-}
-function ownKeys(it){
-  assertObject(it);
-  return getSymbols ? getNames(it).concat(getSymbols(it)) : getNames(it);
-}
-
-var assign = Object.assign || function(target, source){
-  var T = Object(assertDefined(target))
-    , l = arguments.length
-    , i = 1;
-  while(l > i){
-    var S      = ES5Object(arguments[i++])
-      , keys   = getKeys(S)
-      , length = keys.length
-      , j      = 0
-      , key;
-    while(length > j)T[key = keys[j++]] = S[key];
+  } catch(e){
+    var ret = iterator['return'];
+    if(ret !== undefined)anObject(ret.call(iterator));
+    throw e;
   }
-  return T;
-}
-function keyOf(object, el){
-  var O      = toObject(object)
-    , keys   = getKeys(O)
+};
+},{"./$.an-object":15}],46:[function(require,module,exports){
+'use strict';
+var $              = require('./$')
+  , descriptor     = require('./$.property-desc')
+  , setToStringTag = require('./$.set-to-string-tag')
+  , IteratorPrototype = {};
+
+
+require('./$.hide')(IteratorPrototype, require('./$.wks')('iterator'), function(){ return this; });
+
+module.exports = function(Constructor, NAME, next){
+  Constructor.prototype = $.create(IteratorPrototype, {next: descriptor(1, next)});
+  setToStringTag(Constructor, NAME + ' Iterator');
+};
+},{"./$":51,"./$.hide":37,"./$.property-desc":57,"./$.set-to-string-tag":62,"./$.wks":75}],47:[function(require,module,exports){
+'use strict';
+var LIBRARY         = require('./$.library')
+  , $def            = require('./$.def')
+  , $redef          = require('./$.redef')
+  , hide            = require('./$.hide')
+  , has             = require('./$.has')
+  , SYMBOL_ITERATOR = require('./$.wks')('iterator')
+  , Iterators       = require('./$.iterators')
+  , $iterCreate     = require('./$.iter-create')
+  , setToStringTag  = require('./$.set-to-string-tag')
+  , getProto        = require('./$').getProto
+  , BUGGY           = !([].keys && 'next' in [].keys())
+  , FF_ITERATOR     = '@@iterator'
+  , KEYS            = 'keys'
+  , VALUES          = 'values';
+var returnThis = function(){ return this; };
+module.exports = function(Base, NAME, Constructor, next, DEFAULT, IS_SET, FORCE){
+  $iterCreate(Constructor, NAME, next);
+  var getMethod = function(kind){
+    if(!BUGGY && kind in proto)return proto[kind];
+    switch(kind){
+      case KEYS: return function keys(){ return new Constructor(this, kind); };
+      case VALUES: return function values(){ return new Constructor(this, kind); };
+    } return function entries(){ return new Constructor(this, kind); };
+  };
+  var TAG      = NAME + ' Iterator'
+    , proto    = Base.prototype
+    , _native  = proto[SYMBOL_ITERATOR] || proto[FF_ITERATOR] || DEFAULT && proto[DEFAULT]
+    , _default = _native || getMethod(DEFAULT)
+    , methods, key;
+ 
+  if(_native){
+    var IteratorPrototype = getProto(_default.call(new Base));
+   
+    setToStringTag(IteratorPrototype, TAG, true);
+   
+    if(!LIBRARY && has(proto, FF_ITERATOR))hide(IteratorPrototype, SYMBOL_ITERATOR, returnThis);
+  }
+ 
+  if((!LIBRARY || FORCE) && (BUGGY || !(SYMBOL_ITERATOR in proto))){
+    hide(proto, SYMBOL_ITERATOR, _default);
+  }
+ 
+  Iterators[NAME] = _default;
+  Iterators[TAG]  = returnThis;
+  if(DEFAULT){
+    methods = {
+      values:  DEFAULT == VALUES ? _default : getMethod(VALUES),
+      keys:    IS_SET            ? _default : getMethod(KEYS),
+      entries: DEFAULT != VALUES ? _default : getMethod('entries')
+    };
+    if(FORCE)for(key in methods){
+      if(!(key in proto))$redef(proto, key, methods[key]);
+    } else $def($def.P + $def.F * BUGGY, NAME, methods);
+  }
+  return methods;
+};
+},{"./$":51,"./$.def":26,"./$.has":36,"./$.hide":37,"./$.iter-create":46,"./$.iterators":50,"./$.library":53,"./$.redef":58,"./$.set-to-string-tag":62,"./$.wks":75}],48:[function(require,module,exports){
+var ITERATOR     = require('./$.wks')('iterator')
+  , SAFE_CLOSING = false;
+
+try {
+  var riter = [7][ITERATOR]();
+  riter['return'] = function(){ SAFE_CLOSING = true; };
+  Array.from(riter, function(){ throw 2; });
+} catch(e){  }
+
+module.exports = function(exec, skipClosing){
+  if(!skipClosing && !SAFE_CLOSING)return false;
+  var safe = false;
+  try {
+    var arr  = [7]
+      , iter = arr[ITERATOR]();
+    iter.next = function(){ safe = true; };
+    arr[ITERATOR] = function(){ return iter; };
+    exec(arr);
+  } catch(e){  }
+  return safe;
+};
+},{"./$.wks":75}],49:[function(require,module,exports){
+module.exports = function(done, value){
+  return {value: value, done: !!done};
+};
+},{}],50:[function(require,module,exports){
+module.exports = {};
+},{}],51:[function(require,module,exports){
+var $Object = Object;
+module.exports = {
+  create:     $Object.create,
+  getProto:   $Object.getPrototypeOf,
+  isEnum:     {}.propertyIsEnumerable,
+  getDesc:    $Object.getOwnPropertyDescriptor,
+  setDesc:    $Object.defineProperty,
+  setDescs:   $Object.defineProperties,
+  getKeys:    $Object.keys,
+  getNames:   $Object.getOwnPropertyNames,
+  getSymbols: $Object.getOwnPropertySymbols,
+  each:       [].forEach
+};
+},{}],52:[function(require,module,exports){
+var $         = require('./$')
+  , toIObject = require('./$.to-iobject');
+module.exports = function(object, el){
+  var O      = toIObject(object)
+    , keys   = $.getKeys(O)
     , length = keys.length
     , index  = 0
     , key;
   while(length > index)if(O[key = keys[index++]] === el)return key;
-}
+};
+},{"./$":51,"./$.to-iobject":71}],53:[function(require,module,exports){
+module.exports = false;
+},{}],54:[function(require,module,exports){
+var global    = require('./$.global')
+  , macrotask = require('./$.task').set
+  , Observer  = global.MutationObserver || global.WebKitMutationObserver
+  , process   = global.process
+  , isNode    = require('./$.cof')(process) == 'process'
+  , head, last, notify;
 
-
-
-function array(it){
-  return String(it).split(',');
-}
-var push    = ArrayProto.push
-  , unshift = ArrayProto.unshift
-  , slice   = ArrayProto.slice
-  , splice  = ArrayProto.splice
-  , indexOf = ArrayProto.indexOf
-  , forEach = ArrayProto[FOR_EACH];
-
-function createArrayMethod(type){
-  var isMap       = type == 1
-    , isFilter    = type == 2
-    , isSome      = type == 3
-    , isEvery     = type == 4
-    , isFindIndex = type == 6
-    , noholes     = type == 5 || isFindIndex;
-  return function(callbackfn){
-    var O      = Object(assertDefined(this))
-      , that   = arguments[1]
-      , self   = ES5Object(O)
-      , f      = ctx(callbackfn, that, 3)
-      , length = toLength(self.length)
-      , index  = 0
-      , result = isMap ? Array(length) : isFilter ? [] : undefined
-      , val, res;
-    for(;length > index; index++)if(noholes || index in self){
-      val = self[index];
-      res = f(val, index, O);
-      if(type){
-        if(isMap)result[index] = res;            
-        else if(res)switch(type){
-          case 3: return true;                   
-          case 5: return val;                    
-          case 6: return index;                  
-          case 2: result.push(val);              
-        } else if(isEvery)return false;          
-      }
-    }
-    return isFindIndex ? -1 : isSome || isEvery ? isEvery : result;
+var flush = function(){
+  var parent, domain;
+  if(isNode && (parent = process.domain)){
+    process.domain = null;
+    parent.exit();
   }
+  while(head){
+    domain = head.domain;
+    if(domain)domain.enter();
+    head.fn.call();
+    if(domain)domain.exit();
+    head = head.next;
+  } last = undefined;
+  if(parent)parent.enter();
+};
+
+
+if(isNode){
+  notify = function(){
+    process.nextTick(flush);
+  };
+
+} else if(Observer){
+  var toggle = 1
+    , node   = document.createTextNode('');
+  new Observer(flush).observe(node, {characterData: true});
+  notify = function(){
+    node.data = toggle = -toggle;
+  };
+
+
+
+
+
+
+} else {
+  notify = function(){
+   
+    macrotask.call(global, flush);
+  };
 }
-function createArrayContains(isContains){
-  return function(el ){
-    var O      = toObject(this)
-      , length = toLength(O.length)
-      , index  = toIndex(arguments[1], length);
-    if(isContains && el != el){
-      for(;length > index; index++)if(sameNaN(O[index]))return isContains || index;
-    } else for(;length > index; index++)if(isContains || index in O){
-      if(O[index] === el)return isContains || index;
-    } return !isContains && -1;
+
+module.exports = function asap(fn){
+  var task = {fn: fn, next: undefined, domain: isNode && process.domain};
+  if(last)last.next = task;
+  if(!head){
+    head = task;
+    notify();
+  } last = task;
+};
+},{"./$.cof":19,"./$.global":35,"./$.task":69}],55:[function(require,module,exports){
+var $redef = require('./$.redef');
+module.exports = function(target, src){
+  for(var key in src)$redef(target, key, src[key]);
+  return target;
+};
+},{"./$.redef":58}],56:[function(require,module,exports){
+
+var $        = require('./$')
+  , toObject = require('./$.to-object')
+  , IObject  = require('./$.iobject');
+
+
+module.exports = require('./$.fails')(function(){
+  var a = Object.assign
+    , A = {}
+    , B = {}
+    , S = Symbol()
+    , K = 'abcdefghijklmnopqrst';
+  A[S] = 7;
+  K.split('').forEach(function(k){ B[k] = k; });
+  return a({}, A)[S] != 7 || Object.keys(a({}, B)).join('') != K;
+}) ? function assign(target, source){
+  var T     = toObject(target)
+    , $$    = arguments
+    , $$len = $$.length
+    , index = 1
+    , getKeys    = $.getKeys
+    , getSymbols = $.getSymbols
+    , isEnum     = $.isEnum;
+  while($$len > index){
+    var S      = IObject($$[index++])
+      , keys   = getSymbols ? getKeys(S).concat(getSymbols(S)) : getKeys(S)
+      , length = keys.length
+      , j      = 0
+      , key;
+    while(length > j)if(isEnum.call(S, key = keys[j++]))T[key] = S[key];
   }
-}
-function generic(A, B){
- 
-  return typeof A == 'function' ? A : B;
-}
-
-
-var MAX_SAFE_INTEGER = 0x1fffffffffffff
-  , pow    = Math.pow
-  , abs    = Math.abs
-  , ceil   = Math.ceil
-  , floor  = Math.floor
-  , max    = Math.max
-  , min    = Math.min
-  , random = Math.random
-  , trunc  = Math.trunc || function(it){
-      return (it > 0 ? floor : ceil)(it);
-    }
-
-function sameNaN(number){
-  return number != number;
-}
-
-function toInteger(it){
-  return isNaN(it) ? 0 : trunc(it);
-}
-
-function toLength(it){
-  return it > 0 ? min(toInteger(it), MAX_SAFE_INTEGER) : 0;
-}
-function toIndex(index, length){
-  var index = toInteger(index);
-  return index < 0 ? max(index + length, 0) : min(index, length);
-}
-function lz(num){
-  return num > 9 ? num : '0' + num;
-}
-
-function createReplacer(regExp, replace, isStatic){
-  var replacer = isObject(replace) ? function(part){
-    return replace[part];
-  } : replace;
-  return function(it){
-    return String(isStatic ? it : this).replace(regExp, replacer);
-  }
-}
-function createPointAt(toString){
-  return function(pos){
-    var s = String(assertDefined(this))
-      , i = toInteger(pos)
-      , l = s.length
-      , a, b;
-    if(i < 0 || i >= l)return toString ? '' : undefined;
-    a = s.charCodeAt(i);
-    return a < 0xd800 || a > 0xdbff || i + 1 === l || (b = s.charCodeAt(i + 1)) < 0xdc00 || b > 0xdfff
-      ? toString ? s.charAt(i) : a
-      : toString ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
-  }
-}
-
-
-var REDUCE_ERROR = 'Reduce of empty object with no initial value';
-function assert(condition, msg1, msg2){
-  if(!condition)throw TypeError(msg2 ? msg1 + msg2 : msg1);
-}
-function assertDefined(it){
-  if(it == undefined)throw TypeError('Function called on null or undefined');
-  return it;
-}
-function assertFunction(it){
-  assert(isFunction(it), it, ' is not a function!');
-  return it;
-}
-function assertObject(it){
-  assert(isObject(it), it, ' is not an object!');
-  return it;
-}
-function assertInstance(it, Constructor, name){
-  assert(it instanceof Constructor, name, ": use the 'new' operator!");
-}
-
-
-function descriptor(bitmap, value){
+  return T;
+} : Object.assign;
+},{"./$":51,"./$.fails":32,"./$.iobject":40,"./$.to-object":73}],57:[function(require,module,exports){
+module.exports = function(bitmap, value){
   return {
     enumerable  : !(bitmap & 1),
     configurable: !(bitmap & 2),
     writable    : !(bitmap & 4),
     value       : value
-  }
-}
-function simpleSet(object, key, value){
-  object[key] = value;
-  return object;
-}
-function createDefiner(bitmap){
-  return DESC ? function(object, key, value){
-    return defineProperty(object, key, descriptor(bitmap, value));
-  } : simpleSet;
-}
-function uid(key){
-  return SYMBOL + '(' + key + ')_' + (++sid + random())[TO_STRING](36);
-}
-function getWellKnownSymbol(name, setter){
-  return (Symbol && Symbol[name]) || (setter ? Symbol : safeSymbol)(SYMBOL + DOT + name);
-}
-
-var DESC = !!function(){
-      try {
-        return defineProperty({}, 'a', {get: function(){ return 2 }}).a == 2;
-      } catch(e){}
-    }()
-  , sid    = 0
-  , hidden = createDefiner(1)
-  , set    = Symbol ? simpleSet : hidden
-  , safeSymbol = Symbol || uid;
-function assignHidden(target, src){
-  for(var key in src)hidden(target, key, src[key]);
-  return target;
-}
-
-var SYMBOL_UNSCOPABLES = getWellKnownSymbol('unscopables')
-  , ArrayUnscopables   = ArrayProto[SYMBOL_UNSCOPABLES] || {}
-  , SYMBOL_SPECIES     = getWellKnownSymbol('species');
-function setSpecies(C){
-  if(framework || !isNative(C))defineProperty(C, SYMBOL_SPECIES, {
-    configurable: true,
-    get: returnThis
-  });
-}
-
-
-var SYMBOL_ITERATOR = getWellKnownSymbol(ITERATOR)
-  , SYMBOL_TAG      = getWellKnownSymbol(TO_STRING_TAG)
-  , SUPPORT_FF_ITER = FF_ITERATOR in ArrayProto
-  , ITER  = safeSymbol('iter')
-  , KEY   = 1
-  , VALUE = 2
-  , Iterators = {}
-  , IteratorPrototype = {}
-  , NATIVE_ITERATORS = SYMBOL_ITERATOR in ArrayProto
-   
-  , BUGGY_ITERATORS = 'keys' in ArrayProto && !('next' in [].keys());
-
-setIterator(IteratorPrototype, returnThis);
-function setIterator(O, value){
-  hidden(O, SYMBOL_ITERATOR, value);
- 
-  SUPPORT_FF_ITER && hidden(O, FF_ITERATOR, value);
-}
-function createIterator(Constructor, NAME, next, proto){
-  Constructor[PROTOTYPE] = create(proto || IteratorPrototype, {next: descriptor(1, next)});
-  setToStringTag(Constructor, NAME + ' Iterator');
-}
-function defineIterator(Constructor, NAME, value, DEFAULT){
-  var proto = Constructor[PROTOTYPE]
-    , iter  = get(proto, SYMBOL_ITERATOR) || get(proto, FF_ITERATOR) || (DEFAULT && get(proto, DEFAULT)) || value;
-  if(framework){
-   
-    setIterator(proto, iter);
-    if(iter !== value){
-      var iterProto = getPrototypeOf(iter.call(new Constructor));
-     
-      setToStringTag(iterProto, NAME + ' Iterator', true);
-     
-      has(proto, FF_ITERATOR) && setIterator(iterProto, returnThis);
-    }
-  }
- 
-  Iterators[NAME] = iter;
- 
-  Iterators[NAME + ' Iterator'] = returnThis;
-  return iter;
-}
-function defineStdIterators(Base, NAME, Constructor, next, DEFAULT, IS_SET){
-  function createIter(kind){
-    return function(){
-      return new Constructor(this, kind);
-    }
-  }
-  createIterator(Constructor, NAME, next);
-  var entries = createIter(KEY+VALUE)
-    , values  = createIter(VALUE);
-  if(DEFAULT == VALUE)values = defineIterator(Base, NAME, values, 'values');
-  else entries = defineIterator(Base, NAME, entries, 'entries');
-  if(DEFAULT){
-    $define(PROTO + FORCED * BUGGY_ITERATORS, NAME, {
-      entries: entries,
-      keys: IS_SET ? values : createIter(KEY),
-      values: values
-    });
-  }
-}
-function iterResult(done, value){
-  return {value: value, done: !!done};
-}
-function isIterable(it){
-  var O      = Object(it)
-    , Symbol = global[SYMBOL]
-    , hasExt = (Symbol && Symbol[ITERATOR] || FF_ITERATOR) in O;
-  return hasExt || SYMBOL_ITERATOR in O || has(Iterators, classof(O));
-}
-function getIterator(it){
-  var Symbol  = global[SYMBOL]
-    , ext     = it[Symbol && Symbol[ITERATOR] || FF_ITERATOR]
-    , getIter = ext || it[SYMBOL_ITERATOR] || Iterators[classof(it)];
-  return assertObject(getIter.call(it));
-}
-function stepCall(fn, value, entries){
-  return entries ? invoke(fn, value) : fn(value);
-}
-function forOf(iterable, entries, fn, that){
-  var iterator = getIterator(iterable)
-    , f        = ctx(fn, that, entries ? 2 : 1)
-    , step;
-  while(!(step = iterator.next()).done)if(stepCall(f, step.value, entries) === false)return;
-}
-
-
-var NODE = cof(process) == PROCESS
-  , core = {}
-  , path = framework ? global : core
-  , old  = global.core
-  , exportGlobal
- 
-  , FORCED = 1
-  , GLOBAL = 2
-  , STATIC = 4
-  , PROTO  = 8
-  , BIND   = 16
-  , WRAP   = 32
-  , SIMPLE = 64;
-function $define(type, name, source){
-  var key, own, out, exp
-    , isGlobal = type & GLOBAL
-    , target   = isGlobal ? global : (type & STATIC)
-        ? global[name] : (global[name] || ObjectProto)[PROTOTYPE]
-    , exports  = isGlobal ? core : core[name] || (core[name] = {});
-  if(isGlobal)source = name;
-  for(key in source){
-   
-    own = !(type & FORCED) && target && key in target
-      && (!isFunction(target[key]) || isNative(target[key]));
-   
-    out = (own ? target : source)[key];
-   
-    if(!framework && isGlobal && !isFunction(target[key]))exp = source[key];
-   
-    else if(type & BIND && own)exp = ctx(out, global);
-   
-    else if(type & WRAP && !framework && target[key] == out){
-      exp = function(param){
-        return this instanceof out ? new out(param) : out(param);
-      }
-      exp[PROTOTYPE] = out[PROTOTYPE];
-    } else exp = type & PROTO && isFunction(out) ? ctx(call, out) : out;
-   
-    if(framework && target && !own){
-      if(isGlobal || type & SIMPLE)target[key] = out;
-      else delete target[key] && hidden(target, key, out);
-    }
-   
-    if(exports[key] != out)hidden(exports, key, exp);
-  }
-}
-
-if(typeof module != 'undefined' && module.exports)module.exports = core;
-
-else if(isFunction(define) && define.amd)define(function(){return core});
-
-else exportGlobal = true;
-if(exportGlobal || framework){
-  core.noConflict = function(){
-    global.core = old;
-    return core;
-  }
-  global.core = core;
-}
-
-
-
-
-!function(TAG, SymbolRegistry, AllSymbols, setter){
- 
-  if(!isNative(Symbol)){
-    Symbol = function(description){
-      assert(!(this instanceof Symbol), SYMBOL + ' is not a ' + CONSTRUCTOR);
-      var tag = uid(description)
-        , sym = set(create(Symbol[PROTOTYPE]), TAG, tag);
-      AllSymbols[tag] = sym;
-      DESC && setter && defineProperty(ObjectProto, tag, {
-        configurable: true,
-        set: function(value){
-          hidden(this, tag, value);
-        }
-      });
-      return sym;
-    }
-    hidden(Symbol[PROTOTYPE], TO_STRING, function(){
-      return this[TAG];
-    });
-  }
-  $define(GLOBAL + WRAP, {Symbol: Symbol});
-  
-  var symbolStatics = {
-   
-    'for': function(key){
-      return has(SymbolRegistry, key += '')
-        ? SymbolRegistry[key]
-        : SymbolRegistry[key] = Symbol(key);
-    },
-   
-    iterator: SYMBOL_ITERATOR,
-   
-    keyFor: part.call(keyOf, SymbolRegistry),
-   
-    species: SYMBOL_SPECIES,
-   
-    toStringTag: SYMBOL_TAG = getWellKnownSymbol(TO_STRING_TAG, true),
-   
-    unscopables: SYMBOL_UNSCOPABLES,
-    pure: safeSymbol,
-    set: set,
-    useSetter: function(){setter = true},
-    useSimple: function(){setter = false}
   };
- 
- 
- 
- 
- 
- 
- 
-  forEach.call(array('hasInstance,isConcatSpreadable,match,replace,search,split,toPrimitive'),
-    function(it){
-      symbolStatics[it] = getWellKnownSymbol(it);
-    }
-  );
-  $define(STATIC, SYMBOL, symbolStatics);
-  
-  setToStringTag(Symbol, SYMBOL);
-  
-  $define(STATIC + FORCED * !isNative(Symbol), OBJECT, {
-   
-    getOwnPropertyNames: function(it){
-      var names = getNames(toObject(it)), result = [], key, i = 0;
-      while(names.length > i)has(AllSymbols, key = names[i++]) || result.push(key);
-      return result;
-    },
-   
-    getOwnPropertySymbols: function(it){
-      var names = getNames(toObject(it)), result = [], key, i = 0;
-      while(names.length > i)has(AllSymbols, key = names[i++]) && result.push(AllSymbols[key]);
-      return result;
-    }
+};
+},{}],58:[function(require,module,exports){
+
+
+var global    = require('./$.global')
+  , hide      = require('./$.hide')
+  , SRC       = require('./$.uid')('src')
+  , TO_STRING = 'toString'
+  , $toString = Function[TO_STRING]
+  , TPL       = ('' + $toString).split(TO_STRING);
+
+require('./$.core').inspectSource = function(it){
+  return $toString.call(it);
+};
+
+(module.exports = function(O, key, val, safe){
+  if(typeof val == 'function'){
+    val.hasOwnProperty(SRC) || hide(val, SRC, O[key] ? '' + O[key] : TPL.join(String(key)));
+    val.hasOwnProperty('name') || hide(val, 'name', key);
+  }
+  if(O === global){
+    O[key] = val;
+  } else {
+    if(!safe)delete O[key];
+    hide(O, key, val);
+  }
+})(Function.prototype, TO_STRING, function toString(){
+  return typeof this == 'function' && this[SRC] || $toString.call(this);
+});
+},{"./$.core":24,"./$.global":35,"./$.hide":37,"./$.uid":74}],59:[function(require,module,exports){
+
+module.exports = Object.is || function is(x, y){
+  return x === y ? x !== 0 || 1 / x === 1 / y : x != x && y != y;
+};
+},{}],60:[function(require,module,exports){
+
+var getDesc  = require('./$').getDesc
+  , isObject = require('./$.is-object')
+  , anObject = require('./$.an-object');
+var check = function(O, proto){
+  anObject(O);
+  if(!isObject(proto) && proto !== null)throw TypeError(proto + ": can't set as prototype!");
+};
+module.exports = {
+  set: Object.setPrototypeOf || ('__proto__' in {} ?
+    function(test, buggy, set){
+      try {
+        set = require('./$.ctx')(Function.call, getDesc(Object.prototype, '__proto__').set, 2);
+        set(test, []);
+        buggy = !(test instanceof Array);
+      } catch(e){ buggy = true; }
+      return function setPrototypeOf(O, proto){
+        check(O, proto);
+        if(buggy)O.__proto__ = proto;
+        else set(O, proto);
+        return O;
+      };
+    }({}, false) : undefined),
+  check: check
+};
+},{"./$":51,"./$.an-object":15,"./$.ctx":25,"./$.is-object":43}],61:[function(require,module,exports){
+'use strict';
+var global      = require('./$.global')
+  , $           = require('./$')
+  , DESCRIPTORS = require('./$.descriptors')
+  , SPECIES     = require('./$.wks')('species');
+
+module.exports = function(KEY){
+  var C = global[KEY];
+  if(DESCRIPTORS && C && !C[SPECIES])$.setDesc(C, SPECIES, {
+    configurable: true,
+    get: function(){ return this; }
   });
-}(safeSymbol('tag'), {}, {}, true);
+};
+},{"./$":51,"./$.descriptors":28,"./$.global":35,"./$.wks":75}],62:[function(require,module,exports){
+var def = require('./$').setDesc
+  , has = require('./$.has')
+  , TAG = require('./$.wks')('toStringTag');
+
+module.exports = function(it, tag, stat){
+  if(it && !has(it = stat ? it : it.prototype, TAG))def(it, TAG, {configurable: true, value: tag});
+};
+},{"./$":51,"./$.has":36,"./$.wks":75}],63:[function(require,module,exports){
+var global = require('./$.global')
+  , SHARED = '__core-js_shared__'
+  , store  = global[SHARED] || (global[SHARED] = {});
+module.exports = function(key){
+  return store[key] || (store[key] = {});
+};
+},{"./$.global":35}],64:[function(require,module,exports){
+
+var anObject  = require('./$.an-object')
+  , aFunction = require('./$.a-function')
+  , SPECIES   = require('./$.wks')('species');
+module.exports = function(O, D){
+  var C = anObject(O).constructor, S;
+  return C === undefined || (S = anObject(C)[SPECIES]) == undefined ? D : aFunction(S);
+};
+},{"./$.a-function":13,"./$.an-object":15,"./$.wks":75}],65:[function(require,module,exports){
+module.exports = function(it, Constructor, name){
+  if(!(it instanceof Constructor))throw TypeError(name + ": use the 'new' operator!");
+  return it;
+};
+},{}],66:[function(require,module,exports){
+var toInteger = require('./$.to-integer')
+  , defined   = require('./$.defined');
 
 
+module.exports = function(TO_STRING){
+  return function(that, pos){
+    var s = String(defined(that))
+      , i = toInteger(pos)
+      , l = s.length
+      , a, b;
+    if(i < 0 || i >= l)return TO_STRING ? '' : undefined;
+    a = s.charCodeAt(i);
+    return a < 0xd800 || a > 0xdbff || i + 1 === l
+      || (b = s.charCodeAt(i + 1)) < 0xdc00 || b > 0xdfff
+        ? TO_STRING ? s.charAt(i) : a
+        : TO_STRING ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
+  };
+};
+},{"./$.defined":27,"./$.to-integer":70}],67:[function(require,module,exports){
 
-!function(at){
- 
- 
- 
- 
-  defineStdIterators(Array, ARRAY, function(iterated, kind){
-    set(this, ITER, {o: toObject(iterated), i: 0, k: kind});
- 
-  }, function(){
-    var iter  = this[ITER]
-      , O     = iter.o
-      , kind  = iter.k
-      , index = iter.i++;
-    if(!O || index >= O.length){
-      iter.o = undefined;
-      return iterResult(1);
-    }
-    if(kind == KEY)  return iterResult(0, index);
-    if(kind == VALUE)return iterResult(0, O[index]);
-                     return iterResult(0, [index, O[index]]);
-  }, VALUE);
-  
- 
-  Iterators[ARGUMENTS] = Iterators[ARRAY];
-  
- 
-  defineStdIterators(String, STRING, function(iterated){
-    set(this, ITER, {o: String(iterated), i: 0});
- 
-  }, function(){
-    var iter  = this[ITER]
-      , O     = iter.o
-      , index = iter.i
-      , point;
-    if(index >= O.length)return iterResult(1);
-    point = at.call(O, index);
-    iter.i += point.length;
-    return iterResult(0, point);
-  });
-}(createPointAt(true));
+var isRegExp = require('./$.is-regexp')
+  , defined  = require('./$.defined');
 
+module.exports = function(that, searchString, NAME){
+  if(isRegExp(searchString))throw TypeError('String#' + NAME + " doesn't accept regex!");
+  return String(defined(that));
+};
+},{"./$.defined":27,"./$.is-regexp":44}],68:[function(require,module,exports){
+'use strict';
+var toInteger = require('./$.to-integer')
+  , defined   = require('./$.defined');
 
+module.exports = function repeat(count){
+  var str = String(defined(this))
+    , res = ''
+    , n   = toInteger(count);
+  if(n < 0 || n == Infinity)throw RangeError("Count can't be negative");
+  for(;n > 0; (n >>>= 1) && (str += str))if(n & 1)res += str;
+  return res;
+};
+},{"./$.defined":27,"./$.to-integer":70}],69:[function(require,module,exports){
+'use strict';
+var ctx                = require('./$.ctx')
+  , invoke             = require('./$.invoke')
+  , html               = require('./$.html')
+  , cel                = require('./$.dom-create')
+  , global             = require('./$.global')
+  , process            = global.process
+  , setTask            = global.setImmediate
+  , clearTask          = global.clearImmediate
+  , MessageChannel     = global.MessageChannel
+  , counter            = 0
+  , queue              = {}
+  , ONREADYSTATECHANGE = 'onreadystatechange'
+  , defer, channel, port;
+var run = function(){
+  var id = +this;
+  if(queue.hasOwnProperty(id)){
+    var fn = queue[id];
+    delete queue[id];
+    fn();
+  }
+};
+var listner = function(event){
+  run.call(event.data);
+};
 
-
-
-isFunction(setImmediate) && isFunction(clearImmediate) || function(ONREADYSTATECHANGE){
-  var postMessage      = global.postMessage
-    , addEventListener = global.addEventListener
-    , MessageChannel   = global.MessageChannel
-    , counter          = 0
-    , queue            = {}
-    , defer, channel, port;
-  setImmediate = function(fn){
+if(!setTask || !clearTask){
+  setTask = function setImmediate(fn){
     var args = [], i = 1;
     while(arguments.length > i)args.push(arguments[i++]);
     queue[++counter] = function(){
-      invoke(isFunction(fn) ? fn : Function(fn), args);
-    }
+      invoke(typeof fn == 'function' ? fn : Function(fn), args);
+    };
     defer(counter);
     return counter;
-  }
-  clearImmediate = function(id){
+  };
+  clearTask = function clearImmediate(id){
     delete queue[id];
-  }
-  function run(id){
-    if(has(queue, id)){
-      var fn = queue[id];
-      delete queue[id];
-      fn();
-    }
-  }
-  function listner(event){
-    run(event.data);
-  }
+  };
  
-  if(NODE){
+  if(require('./$.cof')(process) == 'process'){
     defer = function(id){
-      nextTick(part.call(run, id));
-    }
+      process.nextTick(ctx(run, id, 1));
+    };
  
- 
-  } else if(global.addEventListener && isFunction(postMessage) && !global.importScripts){
-    defer = function(id){
-      postMessage(id, '*');
-    }
-    global.addEventListener('message', listner, false);
- 
-  } else if(isFunction(MessageChannel)){
+  } else if(MessageChannel){
     channel = new MessageChannel;
     port    = channel.port2;
     channel.port1.onmessage = listner;
     defer = ctx(port.postMessage, port, 1);
  
-  } else if(document && ONREADYSTATECHANGE in document[CREATE_ELEMENT]('script')){
+ 
+  } else if(global.addEventListener && typeof postMessage == 'function' && !global.importScripts){
     defer = function(id){
-      html.appendChild(document[CREATE_ELEMENT]('script'))[ONREADYSTATECHANGE] = function(){
+      global.postMessage(id + '', '*');
+    };
+    global.addEventListener('message', listner, false);
+ 
+  } else if(ONREADYSTATECHANGE in cel('script')){
+    defer = function(id){
+      html.appendChild(cel('script'))[ONREADYSTATECHANGE] = function(){
         html.removeChild(this);
-        run(id);
-      }
-    }
+        run.call(id);
+      };
+    };
  
   } else {
     defer = function(id){
-      setTimeout(run, 0, id);
-    }
+      setTimeout(ctx(run, id, 1), 0);
+    };
   }
-}('onreadystatechange');
-$define(GLOBAL + BIND, {
-  setImmediate:   setImmediate,
-  clearImmediate: clearImmediate
+}
+module.exports = {
+  set:   setTask,
+  clear: clearTask
+};
+},{"./$.cof":19,"./$.ctx":25,"./$.dom-create":29,"./$.global":35,"./$.html":38,"./$.invoke":39}],70:[function(require,module,exports){
+
+var ceil  = Math.ceil
+  , floor = Math.floor;
+module.exports = function(it){
+  return isNaN(it = +it) ? 0 : (it > 0 ? floor : ceil)(it);
+};
+},{}],71:[function(require,module,exports){
+
+var IObject = require('./$.iobject')
+  , defined = require('./$.defined');
+module.exports = function(it){
+  return IObject(defined(it));
+};
+},{"./$.defined":27,"./$.iobject":40}],72:[function(require,module,exports){
+
+var toInteger = require('./$.to-integer')
+  , min       = Math.min;
+module.exports = function(it){
+  return it > 0 ? min(toInteger(it), 0x1fffffffffffff) : 0;
+};
+},{"./$.to-integer":70}],73:[function(require,module,exports){
+
+var defined = require('./$.defined');
+module.exports = function(it){
+  return Object(defined(it));
+};
+},{"./$.defined":27}],74:[function(require,module,exports){
+var id = 0
+  , px = Math.random();
+module.exports = function(key){
+  return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id + px).toString(36));
+};
+},{}],75:[function(require,module,exports){
+var store  = require('./$.shared')('wks')
+  , uid    = require('./$.uid')
+  , Symbol = require('./$.global').Symbol;
+module.exports = function(name){
+  return store[name] || (store[name] =
+    Symbol && Symbol[name] || (Symbol || uid)('Symbol.' + name));
+};
+},{"./$.global":35,"./$.shared":63,"./$.uid":74}],76:[function(require,module,exports){
+var classof   = require('./$.classof')
+  , ITERATOR  = require('./$.wks')('iterator')
+  , Iterators = require('./$.iterators');
+module.exports = require('./$.core').getIteratorMethod = function(it){
+  if(it != undefined)return it[ITERATOR]
+    || it['@@iterator']
+    || Iterators[classof(it)];
+};
+},{"./$.classof":18,"./$.core":24,"./$.iterators":50,"./$.wks":75}],77:[function(require,module,exports){
+'use strict';
+var ctx         = require('./$.ctx')
+  , $def        = require('./$.def')
+  , toObject    = require('./$.to-object')
+  , call        = require('./$.iter-call')
+  , isArrayIter = require('./$.is-array-iter')
+  , toLength    = require('./$.to-length')
+  , getIterFn   = require('./core.get-iterator-method');
+$def($def.S + $def.F * !require('./$.iter-detect')(function(iter){ Array.from(iter); }), 'Array', {
+ 
+  from: function from(arrayLike){
+    var O       = toObject(arrayLike)
+      , C       = typeof this == 'function' ? this : Array
+      , $$      = arguments
+      , $$len   = $$.length
+      , mapfn   = $$len > 1 ? $$[1] : undefined
+      , mapping = mapfn !== undefined
+      , index   = 0
+      , iterFn  = getIterFn(O)
+      , length, result, step, iterator;
+    if(mapping)mapfn = ctx(mapfn, $$len > 2 ? $$[2] : undefined, 2);
+   
+    if(iterFn != undefined && !(C == Array && isArrayIter(iterFn))){
+      for(iterator = iterFn.call(O), result = new C; !(step = iterator.next()).done; index++){
+        result[index] = mapping ? call(iterator, mapfn, [step.value, index], true) : step.value;
+      }
+    } else {
+      length = toLength(O.length);
+      for(result = new C(length); length > index; index++){
+        result[index] = mapping ? mapfn(O[index], index) : O[index];
+      }
+    }
+    result.length = index;
+    return result;
+  }
+});
+
+},{"./$.ctx":25,"./$.def":26,"./$.is-array-iter":41,"./$.iter-call":45,"./$.iter-detect":48,"./$.to-length":72,"./$.to-object":73,"./core.get-iterator-method":76}],78:[function(require,module,exports){
+'use strict';
+var addToUnscopables = require('./$.add-to-unscopables')
+  , step             = require('./$.iter-step')
+  , Iterators        = require('./$.iterators')
+  , toIObject        = require('./$.to-iobject');
+
+
+
+
+
+module.exports = require('./$.iter-define')(Array, 'Array', function(iterated, kind){
+  this._t = toIObject(iterated);
+  this._i = 0;                  
+  this._k = kind;               
+
+}, function(){
+  var O     = this._t
+    , kind  = this._k
+    , index = this._i++;
+  if(!O || index >= O.length){
+    this._t = undefined;
+    return step(1);
+  }
+  if(kind == 'keys'  )return step(0, index);
+  if(kind == 'values')return step(0, O[index]);
+  return step(0, [index, O[index]]);
+}, 'values');
+
+
+Iterators.Arguments = Iterators.Array;
+
+addToUnscopables('keys');
+addToUnscopables('values');
+addToUnscopables('entries');
+},{"./$.add-to-unscopables":14,"./$.iter-define":47,"./$.iter-step":49,"./$.iterators":50,"./$.to-iobject":71}],79:[function(require,module,exports){
+'use strict';
+var strong = require('./$.collection-strong');
+
+
+require('./$.collection')('Map', function(get){
+  return function Map(){ return get(this, arguments.length > 0 ? arguments[0] : undefined); };
+}, {
+ 
+  get: function get(key){
+    var entry = strong.getEntry(this, key);
+    return entry && entry.v;
+  },
+ 
+  set: function set(key, value){
+    return strong.def(this, key === 0 ? 0 : key, value);
+  }
+}, strong, true);
+},{"./$.collection":23,"./$.collection-strong":20}],80:[function(require,module,exports){
+
+var $def = require('./$.def');
+
+$def($def.S, 'Math', {
+  clz32: function clz32(x){
+    return (x >>>= 0) ? 31 - Math.floor(Math.log(x + 0.5) * Math.LOG2E) : 32;
+  }
+});
+},{"./$.def":26}],81:[function(require,module,exports){
+
+var $def = require('./$.def');
+
+$def($def.S + $def.F, 'Object', {assign: require('./$.object-assign')});
+},{"./$.def":26,"./$.object-assign":56}],82:[function(require,module,exports){
+'use strict';
+
+var classof = require('./$.classof')
+  , test    = {};
+test[require('./$.wks')('toStringTag')] = 'z';
+if(test + '' != '[object z]'){
+  require('./$.redef')(Object.prototype, 'toString', function toString(){
+    return '[object ' + classof(this) + ']';
+  }, true);
+}
+},{"./$.classof":18,"./$.redef":58,"./$.wks":75}],83:[function(require,module,exports){
+'use strict';
+var $          = require('./$')
+  , LIBRARY    = require('./$.library')
+  , global     = require('./$.global')
+  , ctx        = require('./$.ctx')
+  , classof    = require('./$.classof')
+  , $def       = require('./$.def')
+  , isObject   = require('./$.is-object')
+  , anObject   = require('./$.an-object')
+  , aFunction  = require('./$.a-function')
+  , strictNew  = require('./$.strict-new')
+  , forOf      = require('./$.for-of')
+  , setProto   = require('./$.set-proto').set
+  , same       = require('./$.same-value')
+  , SPECIES    = require('./$.wks')('species')
+  , speciesConstructor = require('./$.species-constructor')
+  , RECORD     = require('./$.uid')('record')
+  , asap       = require('./$.microtask')
+  , PROMISE    = 'Promise'
+  , process    = global.process
+  , isNode     = classof(process) == 'process'
+  , P          = global[PROMISE]
+  , Wrapper;
+
+var testResolve = function(sub){
+  var test = new P(function(){});
+  if(sub)test.constructor = Object;
+  return P.resolve(test) === test;
+};
+
+var useNative = function(){
+  var works = false;
+  function P2(x){
+    var self = new P(x);
+    setProto(self, P2.prototype);
+    return self;
+  }
+  try {
+    works = P && P.resolve && testResolve();
+    setProto(P2, P);
+    P2.prototype = $.create(P.prototype, {constructor: {value: P2}});
+   
+    if(!(P2.resolve(5).then(function(){}) instanceof P2)){
+      works = false;
+    }
+   
+    if(works && require('./$.descriptors')){
+      var thenableThenGotten = false;
+      P.resolve($.setDesc({}, 'then', {
+        get: function(){ thenableThenGotten = true; }
+      }));
+      works = thenableThenGotten;
+    }
+  } catch(e){ works = false; }
+  return works;
+}();
+
+
+var isPromise = function(it){
+  return isObject(it) && (useNative ? classof(it) == 'Promise' : RECORD in it);
+};
+var sameConstructor = function(a, b){
+ 
+  if(LIBRARY && a === P && b === Wrapper)return true;
+  return same(a, b);
+};
+var getConstructor = function(C){
+  var S = anObject(C)[SPECIES];
+  return S != undefined ? S : C;
+};
+var isThenable = function(it){
+  var then;
+  return isObject(it) && typeof (then = it.then) == 'function' ? then : false;
+};
+var notify = function(record, isReject){
+  if(record.n)return;
+  record.n = true;
+  var chain = record.c;
+  asap(function(){
+    var value = record.v
+      , ok    = record.s == 1
+      , i     = 0;
+    var run = function(react){
+      var cb = ok ? react.ok : react.fail
+        , ret, then;
+      try {
+        if(cb){
+          if(!ok)record.h = true;
+          ret = cb === true ? value : cb(value);
+          if(ret === react.P){
+            react.rej(TypeError('Promise-chain cycle'));
+          } else if(then = isThenable(ret)){
+            then.call(ret, react.res, react.rej);
+          } else react.res(ret);
+        } else react.rej(value);
+      } catch(err){
+        react.rej(err);
+      }
+    };
+    while(chain.length > i)run(chain[i++]);
+    chain.length = 0;
+    record.n = false;
+    if(isReject)setTimeout(function(){
+      var promise = record.p
+        , handler, console;
+      if(isUnhandled(promise)){
+        if(isNode){
+          process.emit('unhandledRejection', value, promise);
+        } else if(handler = global.onunhandledrejection){
+          handler({promise: promise, reason: value});
+        } else if((console = global.console) && console.error){
+          console.error('Unhandled promise rejection', value);
+        }
+      } record.a = undefined;
+    }, 1);
+  });
+};
+var isUnhandled = function(promise){
+  var record = promise[RECORD]
+    , chain  = record.a || record.c
+    , i      = 0
+    , react;
+  if(record.h)return false;
+  while(chain.length > i){
+    react = chain[i++];
+    if(react.fail || !isUnhandled(react.P))return false;
+  } return true;
+};
+var $reject = function(value){
+  var record = this;
+  if(record.d)return;
+  record.d = true;
+  record = record.r || record;
+  record.v = value;
+  record.s = 2;
+  record.a = record.c.slice();
+  notify(record, true);
+};
+var $resolve = function(value){
+  var record = this
+    , then;
+  if(record.d)return;
+  record.d = true;
+  record = record.r || record;
+  try {
+    if(then = isThenable(value)){
+      asap(function(){
+        var wrapper = {r: record, d: false};
+        try {
+          then.call(value, ctx($resolve, wrapper, 1), ctx($reject, wrapper, 1));
+        } catch(e){
+          $reject.call(wrapper, e);
+        }
+      });
+    } else {
+      record.v = value;
+      record.s = 1;
+      notify(record, false);
+    }
+  } catch(e){
+    $reject.call({r: record, d: false}, e);
+  }
+};
+
+
+if(!useNative){
+ 
+  P = function Promise(executor){
+    aFunction(executor);
+    var record = {
+      p: strictNew(this, P, PROMISE),        
+      c: [],                                 
+      a: undefined,                          
+      s: 0,                                  
+      d: false,                              
+      v: undefined,                          
+      h: false,                              
+      n: false                               
+    };
+    this[RECORD] = record;
+    try {
+      executor(ctx($resolve, record, 1), ctx($reject, record, 1));
+    } catch(err){
+      $reject.call(record, err);
+    }
+  };
+  require('./$.mix')(P.prototype, {
+   
+    then: function then(onFulfilled, onRejected){
+      var react = {
+        ok:   typeof onFulfilled == 'function' ? onFulfilled : true,
+        fail: typeof onRejected == 'function'  ? onRejected  : false
+      };
+      var promise = react.P = new (speciesConstructor(this, P))(function(res, rej){
+        react.res = res;
+        react.rej = rej;
+      });
+      aFunction(react.res);
+      aFunction(react.rej);
+      var record = this[RECORD];
+      record.c.push(react);
+      if(record.a)record.a.push(react);
+      if(record.s)notify(record, false);
+      return promise;
+    },
+   
+    'catch': function(onRejected){
+      return this.then(undefined, onRejected);
+    }
+  });
+}
+
+
+$def($def.G + $def.W + $def.F * !useNative, {Promise: P});
+require('./$.set-to-string-tag')(P, PROMISE);
+require('./$.set-species')(PROMISE);
+Wrapper = require('./$.core')[PROMISE];
+
+
+$def($def.S + $def.F * !useNative, PROMISE, {
+ 
+  reject: function reject(r){
+    return new this(function(res, rej){ rej(r); });
+  }
+});
+$def($def.S + $def.F * (!useNative || testResolve(true)), PROMISE, {
+ 
+  resolve: function resolve(x){
+    return isPromise(x) && sameConstructor(x.constructor, this)
+      ? x : new this(function(res){ res(x); });
+  }
+});
+$def($def.S + $def.F * !(useNative && require('./$.iter-detect')(function(iter){
+  P.all(iter)['catch'](function(){});
+})), PROMISE, {
+ 
+  all: function all(iterable){
+    var C      = getConstructor(this)
+      , values = [];
+    return new C(function(res, rej){
+      forOf(iterable, false, values.push, values);
+      var remaining = values.length
+        , results   = Array(remaining);
+      if(remaining)$.each.call(values, function(promise, index){
+        C.resolve(promise).then(function(value){
+          results[index] = value;
+          --remaining || res(results);
+        }, rej);
+      });
+      else res(results);
+    });
+  },
+ 
+  race: function race(iterable){
+    var C = getConstructor(this);
+    return new C(function(res, rej){
+      forOf(iterable, false, function(promise){
+        C.resolve(promise).then(res, rej);
+      });
+    });
+  }
+});
+},{"./$":51,"./$.a-function":13,"./$.an-object":15,"./$.classof":18,"./$.core":24,"./$.ctx":25,"./$.def":26,"./$.descriptors":28,"./$.for-of":33,"./$.global":35,"./$.is-object":43,"./$.iter-detect":48,"./$.library":53,"./$.microtask":54,"./$.mix":55,"./$.same-value":59,"./$.set-proto":60,"./$.set-species":61,"./$.set-to-string-tag":62,"./$.species-constructor":64,"./$.strict-new":65,"./$.uid":74,"./$.wks":75}],84:[function(require,module,exports){
+'use strict';
+var strong = require('./$.collection-strong');
+
+
+require('./$.collection')('Set', function(get){
+  return function Set(){ return get(this, arguments.length > 0 ? arguments[0] : undefined); };
+}, {
+ 
+  add: function add(value){
+    return strong.def(this, value = value === 0 ? 0 : value, value);
+  }
+}, strong);
+},{"./$.collection":23,"./$.collection-strong":20}],85:[function(require,module,exports){
+
+'use strict';
+var $def     = require('./$.def')
+  , context  = require('./$.string-context')
+  , INCLUDES = 'includes';
+
+$def($def.P + $def.F * require('./$.fails-is-regexp')(INCLUDES), 'String', {
+  includes: function includes(searchString ){
+    return !!~context(this, searchString, INCLUDES).indexOf(searchString, arguments.length > 1 ? arguments[1] : undefined);
+  }
+});
+},{"./$.def":26,"./$.fails-is-regexp":31,"./$.string-context":67}],86:[function(require,module,exports){
+'use strict';
+var $at  = require('./$.string-at')(true);
+
+
+require('./$.iter-define')(String, 'String', function(iterated){
+  this._t = String(iterated);
+  this._i = 0;               
+
+}, function(){
+  var O     = this._t
+    , index = this._i
+    , point;
+  if(index >= O.length)return {value: undefined, done: true};
+  point = $at(O, index);
+  this._i += point.length;
+  return {value: point, done: false};
+});
+},{"./$.iter-define":47,"./$.string-at":66}],87:[function(require,module,exports){
+var $def = require('./$.def');
+
+$def($def.P, 'String', {
+ 
+  repeat: require('./$.string-repeat')
+});
+},{"./$.def":26,"./$.string-repeat":68}],88:[function(require,module,exports){
+
+'use strict';
+var $def        = require('./$.def')
+  , toLength    = require('./$.to-length')
+  , context     = require('./$.string-context')
+  , STARTS_WITH = 'startsWith'
+  , $startsWith = ''[STARTS_WITH];
+
+$def($def.P + $def.F * require('./$.fails-is-regexp')(STARTS_WITH), 'String', {
+  startsWith: function startsWith(searchString ){
+    var that   = context(this, searchString, STARTS_WITH)
+      , $$     = arguments
+      , index  = toLength(Math.min($$.length > 1 ? $$[1] : undefined, that.length))
+      , search = String(searchString);
+    return $startsWith
+      ? $startsWith.call(that, search, index)
+      : that.slice(index, index + search.length) === search;
+  }
+});
+},{"./$.def":26,"./$.fails-is-regexp":31,"./$.string-context":67,"./$.to-length":72}],89:[function(require,module,exports){
+'use strict';
+
+var $              = require('./$')
+  , global         = require('./$.global')
+  , has            = require('./$.has')
+  , DESCRIPTORS    = require('./$.descriptors')
+  , $def           = require('./$.def')
+  , $redef         = require('./$.redef')
+  , $fails         = require('./$.fails')
+  , shared         = require('./$.shared')
+  , setToStringTag = require('./$.set-to-string-tag')
+  , uid            = require('./$.uid')
+  , wks            = require('./$.wks')
+  , keyOf          = require('./$.keyof')
+  , $names         = require('./$.get-names')
+  , enumKeys       = require('./$.enum-keys')
+  , isArray        = require('./$.is-array')
+  , anObject       = require('./$.an-object')
+  , toIObject      = require('./$.to-iobject')
+  , createDesc     = require('./$.property-desc')
+  , getDesc        = $.getDesc
+  , setDesc        = $.setDesc
+  , _create        = $.create
+  , getNames       = $names.get
+  , $Symbol        = global.Symbol
+  , $JSON          = global.JSON
+  , _stringify     = $JSON && $JSON.stringify
+  , setter         = false
+  , HIDDEN         = wks('_hidden')
+  , isEnum         = $.isEnum
+  , SymbolRegistry = shared('symbol-registry')
+  , AllSymbols     = shared('symbols')
+  , useNative      = typeof $Symbol == 'function'
+  , ObjectProto    = Object.prototype;
+
+
+var setSymbolDesc = DESCRIPTORS && $fails(function(){
+  return _create(setDesc({}, 'a', {
+    get: function(){ return setDesc(this, 'a', {value: 7}).a; }
+  })).a != 7;
+}) ? function(it, key, D){
+  var protoDesc = getDesc(ObjectProto, key);
+  if(protoDesc)delete ObjectProto[key];
+  setDesc(it, key, D);
+  if(protoDesc && it !== ObjectProto)setDesc(ObjectProto, key, protoDesc);
+} : setDesc;
+
+var wrap = function(tag){
+  var sym = AllSymbols[tag] = _create($Symbol.prototype);
+  sym._k = tag;
+  DESCRIPTORS && setter && setSymbolDesc(ObjectProto, tag, {
+    configurable: true,
+    set: function(value){
+      if(has(this, HIDDEN) && has(this[HIDDEN], tag))this[HIDDEN][tag] = false;
+      setSymbolDesc(this, tag, createDesc(1, value));
+    }
+  });
+  return sym;
+};
+
+var isSymbol = function(it){
+  return typeof it == 'symbol';
+};
+
+var $defineProperty = function defineProperty(it, key, D){
+  if(D && has(AllSymbols, key)){
+    if(!D.enumerable){
+      if(!has(it, HIDDEN))setDesc(it, HIDDEN, createDesc(1, {}));
+      it[HIDDEN][key] = true;
+    } else {
+      if(has(it, HIDDEN) && it[HIDDEN][key])it[HIDDEN][key] = false;
+      D = _create(D, {enumerable: createDesc(0, false)});
+    } return setSymbolDesc(it, key, D);
+  } return setDesc(it, key, D);
+};
+var $defineProperties = function defineProperties(it, P){
+  anObject(it);
+  var keys = enumKeys(P = toIObject(P))
+    , i    = 0
+    , l = keys.length
+    , key;
+  while(l > i)$defineProperty(it, key = keys[i++], P[key]);
+  return it;
+};
+var $create = function create(it, P){
+  return P === undefined ? _create(it) : $defineProperties(_create(it), P);
+};
+var $propertyIsEnumerable = function propertyIsEnumerable(key){
+  var E = isEnum.call(this, key);
+  return E || !has(this, key) || !has(AllSymbols, key) || has(this, HIDDEN) && this[HIDDEN][key]
+    ? E : true;
+};
+var $getOwnPropertyDescriptor = function getOwnPropertyDescriptor(it, key){
+  var D = getDesc(it = toIObject(it), key);
+  if(D && has(AllSymbols, key) && !(has(it, HIDDEN) && it[HIDDEN][key]))D.enumerable = true;
+  return D;
+};
+var $getOwnPropertyNames = function getOwnPropertyNames(it){
+  var names  = getNames(toIObject(it))
+    , result = []
+    , i      = 0
+    , key;
+  while(names.length > i)if(!has(AllSymbols, key = names[i++]) && key != HIDDEN)result.push(key);
+  return result;
+};
+var $getOwnPropertySymbols = function getOwnPropertySymbols(it){
+  var names  = getNames(toIObject(it))
+    , result = []
+    , i      = 0
+    , key;
+  while(names.length > i)if(has(AllSymbols, key = names[i++]))result.push(AllSymbols[key]);
+  return result;
+};
+var $stringify = function stringify(it){
+  if(it === undefined || isSymbol(it))return;
+  var args = [it]
+    , i    = 1
+    , $$   = arguments
+    , replacer, $replacer;
+  while($$.length > i)args.push($$[i++]);
+  replacer = args[1];
+  if(typeof replacer == 'function')$replacer = replacer;
+  if($replacer || !isArray(replacer))replacer = function(key, value){
+    if($replacer)value = $replacer.call(this, key, value);
+    if(!isSymbol(value))return value;
+  };
+  args[1] = replacer;
+  return _stringify.apply($JSON, args);
+};
+var buggyJSON = $fails(function(){
+  var S = $Symbol();
+ 
+ 
+ 
+  return _stringify([S]) != '[null]' || _stringify({a: S}) != '{}' || _stringify(Object(S)) != '{}';
 });
 
 
-
-
-
-!function(Promise, test){
-  isFunction(Promise) && isFunction(Promise.resolve)
-  && Promise.resolve(test = new Promise(function(){})) == test
-  || function(asap, DEF){
-    function isThenable(o){
-      var then;
-      if(isObject(o))then = o.then;
-      return isFunction(then) ? then : false;
-    }
-    function notify(def){
-      var chain = def.chain;
-      chain.length && asap(function(){
-        var msg = def.msg
-          , ok  = def.state == 1
-          , i   = 0;
-        while(chain.length > i)!function(react){
-          var cb = ok ? react.ok : react.fail
-            , ret, then;
-          try {
-            if(cb){
-              ret = cb === true ? msg : cb(msg);
-              if(ret === react.P){
-                react.rej(TypeError(PROMISE + '-chain cycle'));
-              } else if(then = isThenable(ret)){
-                then.call(ret, react.res, react.rej);
-              } else react.res(ret);
-            } else react.rej(msg);
-          } catch(err){
-            react.rej(err);
-          }
-        }(chain[i++]);
-        chain.length = 0;
-      });
-    }
-    function resolve(msg){
-      var def = this
-        , then, wrapper;
-      if(def.done)return;
-      def.done = true;
-      def = def.def || def;
-      try {
-        if(then = isThenable(msg)){
-          wrapper = {def: def, done: false};
-          then.call(msg, ctx(resolve, wrapper, 1), ctx(reject, wrapper, 1));
-        } else {
-          def.msg = msg;
-          def.state = 1;
-          notify(def);
-        }
-      } catch(err){
-        reject.call(wrapper || {def: def, done: false}, err);
-      }
-    }
-    function reject(msg){
-      var def = this;
-      if(def.done)return;
-      def.done = true;
-      def = def.def || def;
-      def.msg = msg;
-      def.state = 2;
-      notify(def);
-    }
-    function getConstructor(C){
-      var S = assertObject(C)[SYMBOL_SPECIES];
-      return S != undefined ? S : C;
-    }
-   
-    Promise = function(executor){
-      assertFunction(executor);
-      assertInstance(this, Promise, PROMISE);
-      var def = {chain: [], state: 0, done: false, msg: undefined};
-      hidden(this, DEF, def);
-      try {
-        executor(ctx(resolve, def, 1), ctx(reject, def, 1));
-      } catch(err){
-        reject.call(def, err);
-      }
-    }
-    assignHidden(Promise[PROTOTYPE], {
-     
-      then: function(onFulfilled, onRejected){
-        var S = assertObject(assertObject(this)[CONSTRUCTOR])[SYMBOL_SPECIES];
-        var react = {
-          ok:   isFunction(onFulfilled) ? onFulfilled : true,
-          fail: isFunction(onRejected)  ? onRejected  : false
-        } , P = react.P = new (S != undefined ? S : Promise)(function(resolve, reject){
-          react.res = assertFunction(resolve);
-          react.rej = assertFunction(reject);
-        }), def = this[DEF];
-        def.chain.push(react);
-        def.state && notify(def);
-        return P;
-      },
-     
-      'catch': function(onRejected){
-        return this.then(undefined, onRejected);
-      }
-    });
-    assignHidden(Promise, {
-     
-      all: function(iterable){
-        var Promise = getConstructor(this)
-          , values  = [];
-        return new Promise(function(resolve, reject){
-          forOf(iterable, false, push, values);
-          var remaining = values.length
-            , results   = Array(remaining);
-          if(remaining)forEach.call(values, function(promise, index){
-            Promise.resolve(promise).then(function(value){
-              results[index] = value;
-              --remaining || resolve(results);
-            }, reject);
-          });
-          else resolve(results);
-        });
-      },
-     
-      race: function(iterable){
-        var Promise = getConstructor(this);
-        return new Promise(function(resolve, reject){
-          forOf(iterable, false, function(promise){
-            Promise.resolve(promise).then(resolve, reject);
-          });
-        });
-      },
-     
-      reject: function(r){
-        return new (getConstructor(this))(function(resolve, reject){
-          reject(r);
-        });
-      },
-     
-      resolve: function(x){
-        return isObject(x) && DEF in x && getPrototypeOf(x) === this[PROTOTYPE]
-          ? x : new (getConstructor(this))(function(resolve, reject){
-            resolve(x);
-          });
-      }
-    });
-  }(nextTick || setImmediate, safeSymbol('def'));
-  setToStringTag(Promise, PROMISE);
-  setSpecies(Promise);
-  $define(GLOBAL + FORCED * !isNative(Promise), {Promise: Promise});
-}(global[PROMISE]);
-
-
-
-
-!function(){
-  var UID   = safeSymbol('uid')
-    , O1    = safeSymbol('O1')
-    , WEAK  = safeSymbol('weak')
-    , LEAK  = safeSymbol('leak')
-    , LAST  = safeSymbol('last')
-    , FIRST = safeSymbol('first')
-    , SIZE  = DESC ? safeSymbol('size') : 'size'
-    , uid   = 0
-    , tmp   = {};
-  
-  function getCollection(C, NAME, methods, commonMethods, isMap, isWeak){
-    var ADDER = isMap ? 'set' : 'add'
-      , proto = C && C[PROTOTYPE]
-      , O     = {};
-    function initFromIterable(that, iterable){
-      if(iterable != undefined)forOf(iterable, isMap, that[ADDER], that);
-      return that;
-    }
-    function fixSVZ(key, chain){
-      var method = proto[key];
-      if(framework)proto[key] = function(a, b){
-        var result = method.call(this, a === 0 ? 0 : a, b);
-        return chain ? this : result;
-      };
-    }
-    if(!isNative(C) || !(isWeak || (!BUGGY_ITERATORS && has(proto, FOR_EACH) && has(proto, 'entries')))){
-     
-      C = isWeak
-        ? function(iterable){
-            assertInstance(this, C, NAME);
-            set(this, UID, uid++);
-            initFromIterable(this, iterable);
-          }
-        : function(iterable){
-            var that = this;
-            assertInstance(that, C, NAME);
-            set(that, O1, create(null));
-            set(that, SIZE, 0);
-            set(that, LAST, undefined);
-            set(that, FIRST, undefined);
-            initFromIterable(that, iterable);
-          };
-      assignHidden(assignHidden(C[PROTOTYPE], methods), commonMethods);
-      isWeak || defineProperty(C[PROTOTYPE], 'size', {get: function(){
-        return assertDefined(this[SIZE]);
-      }});
-    } else {
-      var Native = C
-        , inst   = new C
-        , chain  = inst[ADDER](isWeak ? {} : -0, 1)
-        , buggyZero;
-     
-      if(!NATIVE_ITERATORS || !C.length){
-        C = function(iterable){
-          assertInstance(this, C, NAME);
-          return initFromIterable(new Native, iterable);
-        }
-        C[PROTOTYPE] = proto;
-        if(framework)proto[CONSTRUCTOR] = C;
-      }
-      isWeak || inst[FOR_EACH](function(val, key){
-        buggyZero = 1 / key === -Infinity;
-      });
-     
-      if(buggyZero){
-        fixSVZ('delete');
-        fixSVZ('has');
-        isMap && fixSVZ('get');
-      }
-     
-      if(buggyZero || chain !== inst)fixSVZ(ADDER, true);
-    }
-    setToStringTag(C, NAME);
-    setSpecies(C);
-    
-    O[NAME] = C;
-    $define(GLOBAL + WRAP + FORCED * !isNative(C), O);
-    
-   
-   
-    isWeak || defineStdIterators(C, NAME, function(iterated, kind){
-      set(this, ITER, {o: iterated, k: kind});
-    }, function(){
-      var iter  = this[ITER]
-        , kind  = iter.k
-        , entry = iter.l;
-     
-      while(entry && entry.r)entry = entry.p;
-     
-      if(!iter.o || !(iter.l = entry = entry ? entry.n : iter.o[FIRST])){
-       
-        iter.o = undefined;
-        return iterResult(1);
-      }
-     
-      if(kind == KEY)  return iterResult(0, entry.k);
-      if(kind == VALUE)return iterResult(0, entry.v);
-                       return iterResult(0, [entry.k, entry.v]);   
-    }, isMap ? KEY+VALUE : VALUE, !isMap);
-    
-    return C;
-  }
-  
-  function fastKey(it, create){
-   
-    if(!isObject(it))return (typeof it == 'string' ? 'S' : 'P') + it;
-   
-    if(isFrozen(it))return 'F';
-    if(!has(it, UID)){
-     
-      if(!create)return 'E';
-     
-      hidden(it, UID, ++uid);
-   
-    } return 'O' + it[UID];
-  }
-  function getEntry(that, key){
-   
-    var index = fastKey(key), entry;
-    if(index != 'F')return that[O1][index];
-   
-    for(entry = that[FIRST]; entry; entry = entry.n){
-      if(entry.k == key)return entry;
-    }
-  }
-  function def(that, key, value){
-    var entry = getEntry(that, key)
-      , prev, index;
-   
-    if(entry)entry.v = value;
-   
-    else {
-      that[LAST] = entry = {
-        i: index = fastKey(key, true),
-        k: key,                       
-        v: value,                     
-        p: prev = that[LAST],         
-        n: undefined,                 
-        r: false                      
-      };
-      if(!that[FIRST])that[FIRST] = entry;
-      if(prev)prev.n = entry;
-      that[SIZE]++;
-     
-      if(index != 'F')that[O1][index] = entry;
-    } return that;
-  }
-
-  var collectionMethods = {
-   
-   
-    clear: function(){
-      for(var that = this, data = that[O1], entry = that[FIRST]; entry; entry = entry.n){
-        entry.r = true;
-        if(entry.p)entry.p = entry.p.n = undefined;
-        delete data[entry.i];
-      }
-      that[FIRST] = that[LAST] = undefined;
-      that[SIZE] = 0;
-    },
-   
-   
-    'delete': function(key){
-      var that  = this
-        , entry = getEntry(that, key);
-      if(entry){
-        var next = entry.n
-          , prev = entry.p;
-        delete that[O1][entry.i];
-        entry.r = true;
-        if(prev)prev.n = next;
-        if(next)next.p = prev;
-        if(that[FIRST] == entry)that[FIRST] = next;
-        if(that[LAST] == entry)that[LAST] = prev;
-        that[SIZE]--;
-      } return !!entry;
-    },
-   
-   
-    forEach: function(callbackfn ){
-      var f = ctx(callbackfn, arguments[1], 3)
-        , entry;
-      while(entry = entry ? entry.n : this[FIRST]){
-        f(entry.v, entry.k, this);
-       
-        while(entry && entry.r)entry = entry.p;
-      }
-    },
-   
-   
-    has: function(key){
-      return !!getEntry(this, key);
-    }
-  }
-  
- 
-  Map = getCollection(Map, MAP, {
-   
-    get: function(key){
-      var entry = getEntry(this, key);
-      return entry && entry.v;
-    },
-   
-    set: function(key, value){
-      return def(this, key === 0 ? 0 : key, value);
-    }
-  }, collectionMethods, true);
-  
- 
-  Set = getCollection(Set, SET, {
-   
-    add: function(value){
-      return def(this, value = value === 0 ? 0 : value, value);
-    }
-  }, collectionMethods);
-  
-  function defWeak(that, key, value){
-    if(isFrozen(assertObject(key)))leakStore(that).set(key, value);
-    else {
-      has(key, WEAK) || hidden(key, WEAK, {});
-      key[WEAK][that[UID]] = value;
-    } return that;
-  }
-  function leakStore(that){
-    return that[LEAK] || hidden(that, LEAK, new Map)[LEAK];
-  }
-  
-  var weakMethods = {
-   
-   
-    'delete': function(key){
-      if(!isObject(key))return false;
-      if(isFrozen(key))return leakStore(this)['delete'](key);
-      return has(key, WEAK) && has(key[WEAK], this[UID]) && delete key[WEAK][this[UID]];
-    },
-   
-   
-    has: function(key){
-      if(!isObject(key))return false;
-      if(isFrozen(key))return leakStore(this).has(key);
-      return has(key, WEAK) && has(key[WEAK], this[UID]);
-    }
+if(!useNative){
+  $Symbol = function Symbol(){
+    if(isSymbol(this))throw TypeError('Symbol is not a constructor');
+    return wrap(uid(arguments.length > 0 ? arguments[0] : undefined));
   };
-  
- 
-  WeakMap = getCollection(WeakMap, WEAKMAP, {
-   
-    get: function(key){
-      if(isObject(key)){
-        if(isFrozen(key))return leakStore(this).get(key);
-        if(has(key, WEAK))return key[WEAK][this[UID]];
-      }
-    },
-   
-    set: function(key, value){
-      return defWeak(this, key, value);
-    }
-  }, weakMethods, true, true);
-  
- 
-  if(framework && new WeakMap().set(Object.freeze(tmp), 7).get(tmp) != 7){
-    forEach.call(array('delete,has,get,set'), function(key){
-      var method = WeakMap[PROTOTYPE][key];
-      WeakMap[PROTOTYPE][key] = function(a, b){
-       
-        if(isObject(a) && isFrozen(a)){
-          var result = leakStore(this)[key](a, b);
-          return key == 'set' ? this : result;
-       
-        } return method.call(this, a, b);
-      };
-    });
+  $redef($Symbol.prototype, 'toString', function toString(){
+    return this._k;
+  });
+
+  isSymbol = function(it){
+    return it instanceof $Symbol;
+  };
+
+  $.create     = $create;
+  $.isEnum     = $propertyIsEnumerable;
+  $.getDesc    = $getOwnPropertyDescriptor;
+  $.setDesc    = $defineProperty;
+  $.setDescs   = $defineProperties;
+  $.getNames   = $names.get = $getOwnPropertyNames;
+  $.getSymbols = $getOwnPropertySymbols;
+
+  if(DESCRIPTORS && !require('./$.library')){
+    $redef(ObjectProto, 'propertyIsEnumerable', $propertyIsEnumerable, true);
   }
-  
+}
+
+var symbolStatics = {
  
-  WeakSet = getCollection(WeakSet, WEAKSET, {
-   
-    add: function(value){
-      return defWeak(this, value, true);
+  'for': function(key){
+    return has(SymbolRegistry, key += '')
+      ? SymbolRegistry[key]
+      : SymbolRegistry[key] = $Symbol(key);
+  },
+ 
+  keyFor: function keyFor(key){
+    return keyOf(SymbolRegistry, key);
+  },
+  useSetter: function(){ setter = true; },
+  useSimple: function(){ setter = false; }
+};
+
+
+
+
+
+
+
+
+
+
+
+$.each.call((
+  'hasInstance,isConcatSpreadable,iterator,match,replace,search,' +
+  'species,split,toPrimitive,toStringTag,unscopables'
+).split(','), function(it){
+  var sym = wks(it);
+  symbolStatics[it] = useNative ? sym : wrap(sym);
+});
+
+setter = true;
+
+$def($def.G + $def.W, {Symbol: $Symbol});
+
+$def($def.S, 'Symbol', symbolStatics);
+
+$def($def.S + $def.F * !useNative, 'Object', {
+ 
+  create: $create,
+ 
+  defineProperty: $defineProperty,
+ 
+  defineProperties: $defineProperties,
+ 
+  getOwnPropertyDescriptor: $getOwnPropertyDescriptor,
+ 
+  getOwnPropertyNames: $getOwnPropertyNames,
+ 
+  getOwnPropertySymbols: $getOwnPropertySymbols
+});
+
+
+$JSON && $def($def.S + $def.F * (!useNative || buggyJSON), 'JSON', {stringify: $stringify});
+
+
+setToStringTag($Symbol, 'Symbol');
+
+setToStringTag(Math, 'Math', true);
+
+setToStringTag(global.JSON, 'JSON', true);
+},{"./$":51,"./$.an-object":15,"./$.def":26,"./$.descriptors":28,"./$.enum-keys":30,"./$.fails":32,"./$.get-names":34,"./$.global":35,"./$.has":36,"./$.is-array":42,"./$.keyof":52,"./$.library":53,"./$.property-desc":57,"./$.redef":58,"./$.set-to-string-tag":62,"./$.shared":63,"./$.to-iobject":71,"./$.uid":74,"./$.wks":75}],90:[function(require,module,exports){
+'use strict';
+var $            = require('./$')
+  , redef        = require('./$.redef')
+  , weak         = require('./$.collection-weak')
+  , isObject     = require('./$.is-object')
+  , has          = require('./$.has')
+  , frozenStore  = weak.frozenStore
+  , WEAK         = weak.WEAK
+  , isExtensible = Object.isExtensible || isObject
+  , tmp          = {};
+
+
+var $WeakMap = require('./$.collection')('WeakMap', function(get){
+  return function WeakMap(){ return get(this, arguments.length > 0 ? arguments[0] : undefined); };
+}, {
+ 
+  get: function get(key){
+    if(isObject(key)){
+      if(!isExtensible(key))return frozenStore(this).get(key);
+      if(has(key, WEAK))return key[WEAK][this._i];
     }
-  }, weakMethods, false, true);
-}();
-}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+  },
+ 
+  set: function set(key, value){
+    return weak.def(this, key, value);
+  }
+}, weak, true, true);
 
 
+if(new $WeakMap().set((Object.freeze || Object)(tmp), 7).get(tmp) != 7){
+  $.each.call(['delete', 'has', 'get', 'set'], function(key){
+    var proto  = $WeakMap.prototype
+      , method = proto[key];
+    redef(proto, key, function(a, b){
+     
+      if(isObject(a) && !isExtensible(a)){
+        var result = frozenStore(this)[key](a, b);
+        return key == 'set' ? this : result;
+     
+      } return method.call(this, a, b);
+    });
+  });
+}
+},{"./$":51,"./$.collection":23,"./$.collection-weak":22,"./$.has":36,"./$.is-object":43,"./$.redef":58}],91:[function(require,module,exports){
+
+var $def  = require('./$.def');
+
+$def($def.P, 'Map', {toJSON: require('./$.collection-to-json')('Map')});
+},{"./$.collection-to-json":21,"./$.def":26}],92:[function(require,module,exports){
+
+var $def  = require('./$.def');
+
+$def($def.P, 'Set', {toJSON: require('./$.collection-to-json')('Set')});
+},{"./$.collection-to-json":21,"./$.def":26}],93:[function(require,module,exports){
+require('./es6.array.iterator');
+var global      = require('./$.global')
+  , hide        = require('./$.hide')
+  , Iterators   = require('./$.iterators')
+  , ITERATOR    = require('./$.wks')('iterator')
+  , NL          = global.NodeList
+  , HTC         = global.HTMLCollection
+  , NLProto     = NL && NL.prototype
+  , HTCProto    = HTC && HTC.prototype
+  , ArrayValues = Iterators.NodeList = Iterators.HTMLCollection = Iterators.Array;
+if(NL && !(ITERATOR in NLProto))hide(NLProto, ITERATOR, ArrayValues);
+if(HTC && !(ITERATOR in HTCProto))hide(HTCProto, ITERATOR, ArrayValues);
+},{"./$.global":35,"./$.hide":37,"./$.iterators":50,"./$.wks":75,"./es6.array.iterator":78}],94:[function(require,module,exports){
+
+
+var process = module.exports = {};
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = setTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    clearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        setTimeout(drainQueue, 0);
+    }
+};
+
+
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = '';
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+},{}],95:[function(require,module,exports){
+(function (process,global){
 !(function(global) {
   "use strict";
 
   var hasOwn = Object.prototype.hasOwnProperty;
   var undefined;
-  var iteratorSymbol =
-    typeof Symbol === "function" && Symbol.iterator || "@@iterator";
+  var $Symbol = typeof Symbol === "function" ? Symbol : {};
+  var iteratorSymbol = $Symbol.iterator || "@@iterator";
+  var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
 
   var inModule = typeof module === "object";
   var runtime = global.regeneratorRuntime;
@@ -1276,7 +2178,7 @@ $define(GLOBAL + BIND, {
   var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
   GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
   GeneratorFunctionPrototype.constructor = GeneratorFunction;
-  GeneratorFunction.displayName = "GeneratorFunction";
+  GeneratorFunctionPrototype[toStringTagSymbol] = GeneratorFunction.displayName = "GeneratorFunction";
 
  
  
@@ -1303,6 +2205,9 @@ $define(GLOBAL + BIND, {
       Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
     } else {
       genFun.__proto__ = GeneratorFunctionPrototype;
+      if (!(toStringTagSymbol in genFun)) {
+        genFun[toStringTagSymbol] = "GeneratorFunction";
+      }
     }
     genFun.prototype = Object.create(Gp);
     return genFun;
@@ -1322,46 +2227,54 @@ $define(GLOBAL + BIND, {
   }
 
   function AsyncIterator(generator) {
-   
-   
-    function invoke(method, arg) {
-      var result = generator[method](arg);
-      var value = result.value;
-      return value instanceof AwaitArgument
-        ? Promise.resolve(value.arg).then(invokeNext, invokeThrow)
-        : Promise.resolve(value).then(function(unwrapped) {
-           
-           
-           
-           
-           
-           
-           
-           
-           
-           
-           
-           
-           
-           
-           
-            result.value = unwrapped;
-            return result;
+    function invoke(method, arg, resolve, reject) {
+      var record = tryCatch(generator[method], generator, arg);
+      if (record.type === "throw") {
+        reject(record.arg);
+      } else {
+        var result = record.arg;
+        var value = result.value;
+        if (value instanceof AwaitArgument) {
+          return Promise.resolve(value.arg).then(function(value) {
+            invoke("next", value, resolve, reject);
+          }, function(err) {
+            invoke("throw", err, resolve, reject);
           });
+        }
+
+        return Promise.resolve(value).then(function(unwrapped) {
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+          result.value = unwrapped;
+          resolve(result);
+        }, reject);
+      }
     }
 
     if (typeof process === "object" && process.domain) {
       invoke = process.domain.bind(invoke);
     }
 
-    var invokeNext = invoke.bind(generator, "next");
-    var invokeThrow = invoke.bind(generator, "throw");
-    var invokeReturn = invoke.bind(generator, "return");
     var previousPromise;
 
     function enqueue(method, arg) {
       function callInvokeWithMethodAndArg() {
-        return invoke(method, arg);
+        return new Promise(function(resolve, reject) {
+          invoke(method, arg, resolve, reject);
+        });
       }
 
       return previousPromise =
@@ -1382,9 +2295,7 @@ $define(GLOBAL + BIND, {
          
          
           callInvokeWithMethodAndArg
-        ) : new Promise(function (resolve) {
-          resolve(callInvokeWithMethodAndArg());
-        });
+        ) : callInvokeWithMethodAndArg();
     }
 
    
@@ -1558,6 +2469,8 @@ $define(GLOBAL + BIND, {
   Gp[iteratorSymbol] = function() {
     return this;
   };
+
+  Gp[toStringTagSymbol] = "Generator";
 
   Gp.toString = function() {
     return "[object Generator]";
@@ -1846,6 +2759,9 @@ $define(GLOBAL + BIND, {
   typeof window === "object" ? window :
   typeof self === "object" ? self : this
 );
+
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"_process":94}],96:[function(require,module,exports){
 'use strict';
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
@@ -1891,7 +2807,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '1633474';
+	var commit = 'b72a81c';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -13986,61 +14902,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return setTimeout(fn, 0);
 			};
 		}
-		if (!('from' in Array)) {
-		
-			Array.from = function (iterable) {
-				var index = 0,
-				    rv = [];
-				for (var _iterator26 = iterable, _isArray26 = Array.isArray(_iterator26), _i27 = 0, _iterator26 = _isArray26 ? _iterator26 : _iterator26[Symbol.iterator]();;) {
-					var _ref43;
-
-					if (_isArray26) {
-						if (_i27 >= _iterator26.length) break;
-						_ref43 = _iterator26[_i27++];
-					} else {
-						_i27 = _iterator26.next();
-						if (_i27.done) break;
-						_ref43 = _i27.value;
-					}
-
-					var item = _ref43;
-
-					rv[index++] = item;
-				}
-				return rv;
-			};
-		}
-		if (!('includes' in String.prototype)) {
-			String.prototype.includes = String.prototype.contains || function (s) {
-				return this.indexOf(s) !== -1;
-			};
-		}
-		if (!('startsWith' in String.prototype)) {
-			String.prototype.startsWith = function (s) {
-				return this.indexOf(s) === 0;
-			};
-		}
-		if (!('repeat' in String.prototype)) {
-			String.prototype.repeat = function (nTimes) {
-				return new Array(nTimes + 1).join(this.valueOf());
-			};
-		}
-		if (!('clz32' in Math)) {
-			Math.clz32 = function (x) {
-				return x < 1 ? x === 0 ? 32 : 0 : 31 - (Math.log(x) / Math.LN2 >> 0);
-			};
-		}
-		if (!('assign' in Object)) {
-			Object.assign = function (a, b) {
-				for (var i in b) {
-					a[i] = b[i];
-				}
-				return a;
-			};
-		}
-		if ('toJSON' in aProto) {
-			delete aProto.toJSON;
-		}
 		try {
 			new File([''], '');
 		} catch (e) {
@@ -14061,6 +14922,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				return origAppend.apply(this, arguments);
 			};
+		}
+		if ('toJSON' in aProto) {
+			delete aProto.toJSON;
 		}
 		var ua = window.navigator.userAgent,
 		    firefox = ua.includes('Gecko/'),
@@ -14084,6 +14948,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			Chrome: chrome,
 			Safari: safari,
 			isGM: isGM,
+			get isES6() {
+				return typeof de_main_func_outer === 'undefined';
+			},
 			isChromeStorage: isChromeStorage,
 			isScriptStorage: isScriptStorage,
 			isGlobal: isGM || isChromeStorage || isScriptStorage,
@@ -16809,4 +17676,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		});
 		doc.addEventListener('DOMContentLoaded', async(initScript.bind(null, false, cfgRead)));
 	}
-})(window.opera && window.opera.scriptStorage, window.FormData);})();
+})(window.opera && window.opera.scriptStorage, window.FormData);
+
+},{}],97:[function(require,module,exports){
+'use strict';
+
+require('core-js/fn/object/assign');
+require('core-js/fn/array/from');
+require('core-js/fn/array/iterator');
+require('core-js/fn/string/includes');
+require('core-js/fn/string/repeat');
+require('core-js/fn/string/starts-with');
+require('core-js/fn/math/clz32');
+require('core-js/fn/symbol');
+require('core-js/fn/map');
+require('core-js/fn/set');
+require('core-js/fn/weak-map');
+require('core-js/fn/promise');
+require('regenerator/runtime');
+
+},{"core-js/fn/array/from":1,"core-js/fn/array/iterator":2,"core-js/fn/map":3,"core-js/fn/math/clz32":4,"core-js/fn/object/assign":5,"core-js/fn/promise":6,"core-js/fn/set":7,"core-js/fn/string/includes":8,"core-js/fn/string/repeat":9,"core-js/fn/string/starts-with":10,"core-js/fn/symbol":11,"core-js/fn/weak-map":12,"regenerator/runtime":95}]},{},[97,96]);
+})();

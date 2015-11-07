@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '1633474';
+var commit = 'b72a81c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10868,46 +10868,6 @@ function initNavFuncs() {
 	if(!('requestAnimationFrame' in window)) { // XXX: nav.Presto
 		window.requestAnimationFrame = (fn) => setTimeout(fn, 0);
 	}
-	if(!('from' in Array)) { // XXX: nav.Presto
-		Array.from = function(iterable) {
-			var index = 0, rv = [];
-			for(var item of iterable) {
-				rv[index++] = item;
-			}
-			return rv;
-		};
-	}
-	if(!('includes' in String.prototype)) {
-		String.prototype.includes = String.prototype.contains || function(s) {
-			return this.indexOf(s) !== -1;
-		};
-	}
-	if(!('startsWith' in String.prototype)) {
-		String.prototype.startsWith = function(s) {
-			return this.indexOf(s) === 0;
-		};
-	}
-	if(!('repeat' in String.prototype)) {
-		String.prototype.repeat = function(nTimes) {
-			return new Array(nTimes + 1).join(this.valueOf());
-		};
-	}
-	if(!('clz32' in Math)) {
-		Math.clz32 = function(x) {
-			return x < 1 ? x === 0 ? 32 : 0 : 31 - ((Math.log(x) / Math.LN2) >> 0);
-		};
-	}
-	if(!('assign' in Object)) {
-		Object.assign = function(a, b) {
-			for(var i in b) {
-				a[i] = b[i];
-			}
-			return a;
-		};
-	}
-	if('toJSON' in aProto) {
-		delete aProto.toJSON;
-	}
 	try {
 		new File([''], '');
 	} catch(e) {
@@ -10926,6 +10886,9 @@ function initNavFuncs() {
 			}
 			return origAppend.apply(this, arguments);
 		};
+	}
+	if('toJSON' in aProto) {
+		delete aProto.toJSON;
 	}
 	var ua = window.navigator.userAgent,
 		firefox = ua.includes('Gecko/'),
@@ -10950,6 +10913,7 @@ function initNavFuncs() {
 		Chrome: chrome,
 		Safari: safari,
 		isGM: isGM,
+		get isES6() { return typeof de_main_func_outer === 'undefined'; },
 		isChromeStorage: isChromeStorage,
 		isScriptStorage: isScriptStorage,
 		isGlobal: isGM || isChromeStorage || isScriptStorage,
