@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'baf57b6';
+var commit = '6b20023';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8432,16 +8432,16 @@ class ExpandableMedia {
 		Object.defineProperty(this, '_offset', { value: val });
 		return val;
 	}
+	_getImageSize() {
+		var iEl = new Image();
+		iEl.src = this.el.src;
+		return [iEl.width, iEl.height];
+	}
 }
 
 class EmbeddedImage extends ExpandableMedia {
 	_getImageParent() {
 		return this.el.parentNode;
-	}
-	_getImageSize() {
-		var iEl = new Image();
-		iEl.src = this.el.src;
-		return [iEl.width, iEl.height];
 	}
 	_getImageSrc() {
 		return this.el.src;
@@ -8487,7 +8487,7 @@ class Attachment extends ExpandableMedia {
 			var size = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
 			return [size[1], size[2]];
 		}
-		return [-1, -1];
+		return super._getImageSize();
 	}
 	_getImageSrc() {
 		return aib.getImgLink(this.el).href;

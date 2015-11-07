@@ -2807,7 +2807,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'baf57b6';
+	var commit = '6b20023';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11891,6 +11891,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 		}, {
+			key: '_getImageSize',
+			value: function _getImageSize() {
+				var iEl = new Image();
+				iEl.src = this.el.src;
+				return [iEl.width, iEl.height];
+			}
+		}, {
 			key: 'height',
 			get: function get() {
 				var dat = this._getImageSize();
@@ -11972,13 +11979,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return this.el.parentNode;
 			}
 		}, {
-			key: '_getImageSize',
-			value: function _getImageSize() {
-				var iEl = new Image();
-				iEl.src = this.el.src;
-				return [iEl.width, iEl.height];
-			}
-		}, {
 			key: '_getImageSrc',
 			value: function _getImageSrc() {
 				return this.el.src;
@@ -12009,7 +12009,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var size = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
 					return [size[1], size[2]];
 				}
-				return [-1, -1];
+				return _get(Object.getPrototypeOf(Attachment.prototype), '_getImageSize', this).call(this);
 			}
 		}, {
 			key: '_getImageSrc',
