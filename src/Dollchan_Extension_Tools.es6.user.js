@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'b043345';
+var commit = '5a64b0a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1913,7 +1913,7 @@ var panel = Object.create({
 		(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin',
 			'<div id="de-main" lang="' + getThemeLang() + '"><div id="de-panel">' +
 				'<div id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] +
-					'"><svg class="de-panel-svg"><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
+					'"><svg class="de-panel-logo-svg"><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
 				'<span id="de-panel-buttons"' + (Cfg.expandPanel ? '>' : ' style="display: none;">') +
 				(Cfg.disabled ? this._getButton('enable') :
 					this._getButton('cfg') +
@@ -5527,7 +5527,7 @@ var Spells = Object.create({
 	_optimizeReps(data) {
 		var rv = [];
 		for(var rep of data) {
-			if(!rep[0] || (rep[0] === aib.b && (rep[1] === -1 ? !aib.t : !rep[1] || rep[1] === aib.t))) {
+			if(!rep[0] || (rep[0] === aib.b && (rep[1] === -1 ? !aib.t : !rep[1] || +rep[1] === aib.t))) {
 				rv.push([rep[2], rep[3]]);
 			}
 		}
@@ -5560,7 +5560,7 @@ var Spells = Object.create({
 			} else {
 				var scope = spell[2];
 				if(!scope || (scope[0] === aib.b &&
-				   (scope[1] === -1 ? !aib.t : (!scope[1] || scope[1] === aib.t))))
+				   (scope[1] === -1 ? !aib.t : (!scope[1] || +scope[1] === aib.t))))
 				{
 					if(type === 12) {
 						neg = !neg;
@@ -5823,7 +5823,7 @@ SpellsCodegen.prototype = {
 	_getScope(str) {
 		var m = str.match(/^\[([a-z0-9\/]+)(?:(,)|,(\s*[0-9]+))?\]/);
 		if(m) {
-			return [m[0].length, [m[1], m[3] ? m[3] : m[2] ? -1 : false]];
+			return [m[0].length, [m[1], m[3] ? +m[3] : m[2] ? -1 : false]];
 		}
 		return null;
 	},
@@ -12410,7 +12410,7 @@ class DelForm {
 		return threads;
 	}
 
-	static _parseClasslessThreads(el) {
+	static _parseClasslessThreads(formEl) {
 		var i, len, threads = [],
 			fNodes = aProto.slice.call(formEl.childNodes),
 			cThr = doc.createElement('div');
@@ -13238,8 +13238,8 @@ function scriptCSS() {
 	.de-panel-button { display: block; width: 25px; height: 25px; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; color: inherit !important; }\
 	.de-panel-button:hover { color: inherit !important; }\
 	.de-panel-button:lang(fr):hover, .de-panel-button:lang(en):hover, .de-panel-button:lang(es):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
+	.de-panel-svg, .de-panel-logo-svg { width: 25px; height: 25px; }\
 	.de-panel-svg:lang(de):hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }\
-	.de-panel-svg { width: 25px; height: 25px; }\
 	#de-panel-goback { transform: rotate(-90deg); }\
 	#de-panel-gonext { transform: rotate(90deg); }\
 	#de-panel-godown { transform: rotate(180deg); }\
