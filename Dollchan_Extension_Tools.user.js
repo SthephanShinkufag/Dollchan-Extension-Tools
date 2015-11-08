@@ -2106,9 +2106,8 @@ process.umask = function() { return 0; };
 
   var hasOwn = Object.prototype.hasOwnProperty;
   var undefined;
-  var $Symbol = typeof Symbol === "function" ? Symbol : {};
-  var iteratorSymbol = $Symbol.iterator || "@@iterator";
-  var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
+  var iteratorSymbol =
+    typeof Symbol === "function" && Symbol.iterator || "@@iterator";
 
   var inModule = typeof module === "object";
   var runtime = global.regeneratorRuntime;
@@ -2130,11 +2129,11 @@ process.umask = function() { return 0; };
   function wrap(innerFn, outerFn, self, tryLocsList) {
    
     var generator = Object.create((outerFn || Generator).prototype);
-    var context = new Context(tryLocsList || []);
 
-   
-   
-    generator._invoke = makeInvokeMethod(innerFn, self, context);
+    generator._invoke = makeInvokeMethod(
+      innerFn, self || null,
+      new Context(tryLocsList || [])
+    );
 
     return generator;
   }
@@ -2178,7 +2177,7 @@ process.umask = function() { return 0; };
   var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
   GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
   GeneratorFunctionPrototype.constructor = GeneratorFunction;
-  GeneratorFunctionPrototype[toStringTagSymbol] = GeneratorFunction.displayName = "GeneratorFunction";
+  GeneratorFunction.displayName = "GeneratorFunction";
 
  
  
@@ -2201,14 +2200,7 @@ process.umask = function() { return 0; };
   };
 
   runtime.mark = function(genFun) {
-    if (Object.setPrototypeOf) {
-      Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
-    } else {
-      genFun.__proto__ = GeneratorFunctionPrototype;
-      if (!(toStringTagSymbol in genFun)) {
-        genFun[toStringTagSymbol] = "GeneratorFunction";
-      }
-    }
+    genFun.__proto__ = GeneratorFunctionPrototype;
     genFun.prototype = Object.create(Gp);
     return genFun;
   };
@@ -2227,75 +2219,68 @@ process.umask = function() { return 0; };
   }
 
   function AsyncIterator(generator) {
-    function invoke(method, arg, resolve, reject) {
-      var record = tryCatch(generator[method], generator, arg);
-      if (record.type === "throw") {
-        reject(record.arg);
-      } else {
-        var result = record.arg;
-        var value = result.value;
-        if (value instanceof AwaitArgument) {
-          return Promise.resolve(value.arg).then(function(value) {
-            invoke("next", value, resolve, reject);
-          }, function(err) {
-            invoke("throw", err, resolve, reject);
+   
+   
+    function invoke(method, arg) {
+      var result = generator[method](arg);
+      var value = result.value;
+      return value instanceof AwaitArgument
+        ? Promise.resolve(value.arg).then(invokeNext, invokeThrow)
+        : Promise.resolve(value).then(function(unwrapped) {
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+            result.value = unwrapped;
+            return result;
           });
-        }
-
-        return Promise.resolve(value).then(function(unwrapped) {
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-          result.value = unwrapped;
-          resolve(result);
-        }, reject);
-      }
     }
 
     if (typeof process === "object" && process.domain) {
       invoke = process.domain.bind(invoke);
     }
 
+    var invokeNext = invoke.bind(generator, "next");
+    var invokeThrow = invoke.bind(generator, "throw");
+    var invokeReturn = invoke.bind(generator, "return");
     var previousPromise;
 
     function enqueue(method, arg) {
-      function callInvokeWithMethodAndArg() {
-        return new Promise(function(resolve, reject) {
-          invoke(method, arg, resolve, reject);
+      var enqueueResult =
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+        previousPromise ? previousPromise.then(function() {
+          return invoke(method, arg);
+        }) : new Promise(function(resolve) {
+          resolve(invoke(method, arg));
         });
-      }
 
-      return previousPromise =
-       
-       
-       
-       
-       
-       
-       
-       
-       
-       
-       
-       
-        previousPromise ? previousPromise.then(
-          callInvokeWithMethodAndArg,
-         
-         
-          callInvokeWithMethodAndArg
-        ) : callInvokeWithMethodAndArg();
+     
+     
+      previousPromise = enqueueResult["catch"](function(ignored){});
+
+      return enqueueResult;
     }
 
    
@@ -2469,8 +2454,6 @@ process.umask = function() { return 0; };
   Gp[iteratorSymbol] = function() {
     return this;
   };
-
-  Gp[toStringTagSymbol] = "Generator";
 
   Gp.toString = function() {
     return "[object Generator]";
@@ -2807,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '6b20023';
+	var commit = 'bcf54d6';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -5327,7 +5310,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function showHiddenWindow(body) {
 		var block,
-		    els = $C('de-post-hide', doc.body);
+		    els = $C('de-post-hide', DelForm.first.el);
 		for (var i = 0, len = els.length; i < len; ++i) {
 			var post = els[i];
 			if (post.isOp) {
@@ -5337,7 +5320,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			cln.removeAttribute('id');
 			cln.style.display = '';
 			cln.className = aib.cReply + ' de-post-hide de-cloned-post';
-			cln.post = Object.create(cln.clone = post.post);
+			cln.post = Object.create(cln.clone = pByNum.get(aib.getPNum(post)));
 			cln.post.el = cln;
 			cln.btn = $q('.de-btn-unhide, .de-btn-unhide-user', cln);
 			cln.btn.parentNode.className = 'de-post-btns';
@@ -5881,8 +5864,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				Spells.toggle();
 			}
 		}), lBox('menuHiddBtn', true, null), lBox('hideRefPsts', true, null), lBox('delHiddPost', true, function () {
-			$each($C('de-post-hide', doc.body), function (el) {
-				el.post.wrap.classList.toggle('de-hidden');
+			$each($C('de-post-hide', doc.body), function (post) {
+				pByNum.get(aib.getPNum(post)).wrap.classList.toggle('de-hidden');
 			});
 			updateCSS();
 		})]);

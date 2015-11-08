@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '6b20023';
+var commit = 'bcf54d6';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2360,7 +2360,7 @@ function addContentBlock(parent, title) {
 }
 
 function showHiddenWindow(body) {
-	var block, els = $C('de-post-hide', doc.body);
+	var block, els = $C('de-post-hide', DelForm.first.el);
 	for(var i = 0, len = els.length; i < len; ++i) {
 		var post = els[i];
 		if(post.isOp) {
@@ -2370,7 +2370,7 @@ function showHiddenWindow(body) {
 		cln.removeAttribute('id');
 		cln.style.display = '';
 		cln.className = aib.cReply + ' de-post-hide de-cloned-post';
-		cln.post = Object.create(cln.clone = post.post);
+		cln.post = Object.create(cln.clone = pByNum.get(aib.getPNum(post)));
 		cln.post.el = cln;
 		cln.btn = $q('.de-btn-unhide, .de-btn-unhide-user', cln);
 		cln.btn.parentNode.className = 'de-post-btns';
@@ -2795,8 +2795,8 @@ function getCfgFilters() {
 		lBox('menuHiddBtn', true, null),
 		lBox('hideRefPsts', true, null),
 		lBox('delHiddPost', true, function() {
-			$each($C('de-post-hide', doc.body), function(el) {
-				el.post.wrap.classList.toggle('de-hidden');
+			$each($C('de-post-hide', doc.body), function(post) {
+				pByNum.get(aib.getPNum(post)).wrap.classList.toggle('de-hidden');
 			});
 			updateCSS();
 		})
