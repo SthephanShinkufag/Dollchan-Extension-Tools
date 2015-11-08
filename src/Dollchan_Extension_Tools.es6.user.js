@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '49e17df';
+var commit = 'b529bbc';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13193,7 +13193,7 @@ function scriptCSS() {
 	.de-spell-btn { padding: 0 4px; }\
 	#de-spell-editor { display: flex; align-items: stretch; height: 196px; padding: 2px 0; }\
 	#de-spell-panel { display: flex; }\
-	#de-spell-txt { padding: 2px !important; width: 100%; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
+	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
 	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\
 	#de-spell-rowmeter:lang(de) { background-color: #777; }' +
 
