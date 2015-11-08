@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'bcf54d6';
+	var commit = 'b98d1f0';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -13500,6 +13500,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'handleEvent',
 			value: function handleEvent(e) {
+				var pv = e.target;
+				if (e.type === nav.animEnd && pv.style[nav.animName]) {
+					pv.classList.remove('de-pview-anim');
+					pv.style.cssText = this._newPos;
+					this._newPos = null;
+					$each($C('de-css-move', doc.head), $del);
+					pv.removeEventListener(nav.animEnd, this);
+					return;
+				}
 				var isOverEvent = false;
 				checkMouse: do {
 					switch (e.type) {
@@ -13622,12 +13631,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				$css('@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + 'px; }}').className = 'de-css-move';
 				if (this._newPos) {
 					pv.style.cssText = this._newPos;
-					pv.removeEventListener(nav.animEnd, PviewMoved);
+					pv.removeEventListener(nav.animEnd, this);
 				} else {
 					pv.style.cssText = oldCSS;
 				}
 				this._newPos = lmw + ' top:' + top + 'px;';
-				pv.addEventListener(nav.animEnd, PviewMoved);
+				pv.addEventListener(nav.animEnd, this);
 				pv.classList.add('de-pview-anim');
 				pv.style[nav.animName] = uId;
 			}
@@ -13838,18 +13847,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	PviewsCache.purgeSecs = 3e5;
 
-	function PviewMoved(_ref36) {
-		var el = _ref36.target;
-
-		if (el.style[nav.animName]) {
-			el.classList.remove('de-pview-anim');
-			el.style.cssText = el.post._newPos;
-			el.post._newPos = null;
-			$each($C('de-css-move', doc.head), $del);
-			el.removeEventListener(nav.animEnd, PviewMoved);
-		}
-	}
-
 
 
 
@@ -13859,21 +13856,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function gen(posts, thrURL) {
 				var opNums = DelForm.tNums;
 				for (var _iterator21 = posts, _isArray21 = Array.isArray(_iterator21), _i22 = 0, _iterator21 = _isArray21 ? _iterator21 : _iterator21[Symbol.iterator]();;) {
-					var _ref37;
+					var _ref36;
 
 					if (_isArray21) {
 						if (_i22 >= _iterator21.length) break;
-						_ref37 = _iterator21[_i22++];
+						_ref36 = _iterator21[_i22++];
 					} else {
 						_i22 = _iterator21.next();
 						if (_i22.done) break;
-						_ref37 = _i22.value;
+						_ref36 = _i22.value;
 					}
 
-					var _ref38 = _slicedToArray(_ref37, 2);
+					var _ref37 = _slicedToArray(_ref36, 2);
 
-					var pNum = _ref38[0];
-					var post = _ref38[1];
+					var pNum = _ref37[0];
+					var post = _ref37[1];
 
 					var links = $Q('a', post.msg);
 					for (var i = 0, len = links.length; i < len; ++i) {
@@ -14002,18 +13999,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return;
 				}
 				for (var _iterator22 = this._set, _isArray22 = Array.isArray(_iterator22), _i23 = 0, _iterator22 = _isArray22 ? _iterator22 : _iterator22[Symbol.iterator]();;) {
-					var _ref39;
+					var _ref38;
 
 					if (_isArray22) {
 						if (_i23 >= _iterator22.length) break;
-						_ref39 = _iterator22[_i23++];
+						_ref38 = _iterator22[_i23++];
 					} else {
 						_i23 = _iterator22.next();
 						if (_i23.done) break;
-						_ref39 = _i23.value;
+						_ref38 = _i23.value;
 					}
 
-					var num = _ref39;
+					var num = _ref38;
 
 					var pst = pByNum.get(num);
 					if (pst && !pst.userToggled) {
@@ -14028,18 +14025,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function init(tUrl, strNums) {
 				var html = '';
 				for (var _iterator23 = this._set, _isArray23 = Array.isArray(_iterator23), _i24 = 0, _iterator23 = _isArray23 ? _iterator23 : _iterator23[Symbol.iterator]();;) {
-					var _ref40;
+					var _ref39;
 
 					if (_isArray23) {
 						if (_i24 >= _iterator23.length) break;
-						_ref40 = _iterator23[_i24++];
+						_ref39 = _iterator23[_i24++];
 					} else {
 						_i24 = _iterator23.next();
 						if (_i24.done) break;
-						_ref40 = _i24.value;
+						_ref39 = _i24.value;
 					}
 
-					var num = _ref40;
+					var num = _ref39;
 
 					html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 				}
@@ -14082,18 +14079,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return;
 				}
 				for (var _iterator24 = this._set, _isArray24 = Array.isArray(_iterator24), _i25 = 0, _iterator24 = _isArray24 ? _iterator24 : _iterator24[Symbol.iterator]();;) {
-					var _ref41;
+					var _ref40;
 
 					if (_isArray24) {
 						if (_i25 >= _iterator24.length) break;
-						_ref41 = _iterator24[_i25++];
+						_ref40 = _iterator24[_i25++];
 					} else {
 						_i25 = _iterator24.next();
 						if (_i25.done) break;
-						_ref41 = _i25.value;
+						_ref40 = _i25.value;
 					}
 
-					var num = _ref41;
+					var num = _ref40;
 
 					var pst = pByNum.get(num);
 					if (pst && pst.hidden && !pst.userToggled && !pst.spellHidden) {
@@ -14768,18 +14765,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					window.requestAnimationFrame(function () {
 						var halfHeight = Post.sizing.wHeight / 2;
 						for (var _iterator25 = _this43._thrs, _isArray25 = Array.isArray(_iterator25), _i26 = 0, _iterator25 = _isArray25 ? _iterator25 : _iterator25[Symbol.iterator]();;) {
-							var _ref42;
+							var _ref41;
 
 							if (_isArray25) {
 								if (_i26 >= _iterator25.length) break;
-								_ref42 = _iterator25[_i26++];
+								_ref41 = _iterator25[_i26++];
 							} else {
 								_i26 = _iterator25.next();
 								if (_i26.done) break;
-								_ref42 = _i26.value;
+								_ref41 = _i26.value;
 							}
 
-							var thr = _ref42;
+							var thr = _ref41;
 
 							if (thr.bottom > halfHeight && thr.top < halfHeight) {
 								if (!_this43._visible) {

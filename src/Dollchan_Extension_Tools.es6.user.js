@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'bcf54d6';
+var commit = 'b98d1f0';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9733,6 +9733,15 @@ class Pview extends AbstractPost {
 		}
 	}
 	handleEvent(e) {
+		var pv = e.target;
+		if(e.type === nav.animEnd && pv.style[nav.animName]) {
+			pv.classList.remove('de-pview-anim');
+			pv.style.cssText = this._newPos;
+			this._newPos = null;
+			$each($C('de-css-move', doc.head), $del);
+			pv.removeEventListener(nav.animEnd, this);
+			return;
+		}
 		var isOverEvent = false;
 		checkMouse: do {
 			switch(e.type) {
@@ -9839,12 +9848,12 @@ class Pview extends AbstractPost {
 			'de-css-move';
 		if(this._newPos) {
 			pv.style.cssText = this._newPos;
-			pv.removeEventListener(nav.animEnd, PviewMoved);
+			pv.removeEventListener(nav.animEnd, this);
 		} else {
 			pv.style.cssText = oldCSS;
 		}
 		this._newPos = lmw + ' top:' + top + 'px;';
-		pv.addEventListener(nav.animEnd, PviewMoved);
+		pv.addEventListener(nav.animEnd, this);
 		pv.classList.add('de-pview-anim');
 		pv.style[nav.animName] = uId;
 	}
@@ -10014,16 +10023,6 @@ class PviewsCache extends TemporaryContent {
 	}
 }
 PviewsCache.purgeSecs = 3e5;
-
-function PviewMoved({ target: el }) {
-	if(el.style[nav.animName]) {
-		el.classList.remove('de-pview-anim');
-		el.style.cssText = el.post._newPos;
-		el.post._newPos = null;
-		$each($C('de-css-move', doc.head), $del);
-		el.removeEventListener(nav.animEnd, PviewMoved);
-	}
-}
 
 
 // REFERENCE MAP
