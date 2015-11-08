@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'f37256a';
+	var commit = 'b09f3d4';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10722,7 +10722,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				case 2:
 					if (!(p = getProgress())) {
-						_context15.next = 19;
+						_context15.next = 22;
 						break;
 					}
 
@@ -10732,7 +10732,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				case 6:
 					val = _context15.sent;
-					_context15.next = 13;
+					_context15.next = 16;
 					break;
 
 				case 9:
@@ -10740,18 +10740,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					_context15.t0 = _context15['catch'](3);
 
 					$popup(getErrorMessage(_context15.t0), 'upload', false);
+					updater['continue']();
+					updater.sendErrNotif();
+					if (pr.isQuick) {
+						pr.setReply(true, false);
+					}
 					return _context15.abrupt('return');
 
-				case 13:
+				case 16:
 					if (!val.done) {
-						_context15.next = 16;
+						_context15.next = 19;
 						break;
 					}
 
 					checkUpload(val.data);
 					return _context15.abrupt('return');
 
-				case 16:
+				case 19:
 					if (hasFiles) {
 						if (!inited) {
 							total = val.data.total;
@@ -10771,10 +10776,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					_context15.next = 2;
 					break;
 
-				case 19:
+				case 22:
 					$popup(Lng.internalError[lang] + getPrettyErrorMessage(new Error()), 'upload', false);
 
-				case 20:
+				case 23:
 				case 'end':
 					return _context15.stop();
 			}

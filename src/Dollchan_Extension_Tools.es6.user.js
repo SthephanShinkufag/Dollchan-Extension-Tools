@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'f37256a';
+var commit = 'b09f3d4';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7467,7 +7467,12 @@ var doUploading = async(function* ([hasFiles, getProgress]) {
 		try {
 			val = yield p;
 		} catch(e) {
-			$popup(getErrorMessage(e), 'upload', false)
+			$popup(getErrorMessage(e), 'upload', false);
+			updater.continue();
+			updater.sendErrNotif();
+			if(pr.isQuick) {
+				pr.setReply(true, false);
+			}
 			return;
 		}
 		if(val.done) {
