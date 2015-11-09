@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '0b7224a';
+var commit = '75b02b8';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1772,7 +1772,6 @@ var panel = Object.create({
 	_hideTO: 0,
 	_menuTO: 0,
 	_el: null,
-	_lastSVGEl: null,
 	get _infoEl() {
 		var value = $id('de-panel-info');
 		Object.defineProperty(this, '_infoEl', { value, configurable: true });
@@ -1807,16 +1806,14 @@ var panel = Object.create({
 		}
 	},
 	handleEvent(e) {
-		var el = fixEventEl(e.target),
-			type = e.type;
+		var el = fixEventEl(e.target);
+		if(el.id === 'de-panel-buttons') {
+			return;
+		}
 		if(el.tagName.toLowerCase() === 'svg') {
-			if(el === this._lastSVGEl && (type === 'mouseover' || type === 'mouseout')) {
-				return;
-			}
-			this._lastSVGEl = el;
 			el = el.parentNode;
 		}
-		switch(type) {
+		switch(e.type) {
 		case 'click':
 			switch(el.id) {
 			case 'de-panel-logo':

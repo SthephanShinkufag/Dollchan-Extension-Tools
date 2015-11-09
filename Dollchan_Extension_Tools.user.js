@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '0b7224a';
+	var commit = '75b02b8';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4775,7 +4775,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_hideTO: 0,
 		_menuTO: 0,
 		_el: null,
-		_lastSVGEl: null,
 		get _infoEl() {
 			var value = $id('de-panel-info');
 			Object.defineProperty(this, '_infoEl', { value: value, configurable: true });
@@ -4817,16 +4816,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		handleEvent: function handleEvent(e) {
 			var _this5 = this;
 
-			var el = fixEventEl(e.target),
-			    type = e.type;
+			var el = fixEventEl(e.target);
+			if (el.id === 'de-panel-buttons') {
+				return;
+			}
 			if (el.tagName.toLowerCase() === 'svg') {
-				if (el === this._lastSVGEl && (type === 'mouseover' || type === 'mouseout')) {
-					return;
-				}
-				this._lastSVGEl = el;
 				el = el.parentNode;
 			}
-			switch (type) {
+			switch (e.type) {
 				case 'click':
 					switch (el.id) {
 						case 'de-panel-logo':
