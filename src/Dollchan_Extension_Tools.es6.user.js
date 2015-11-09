@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '9a221d9';
+var commit = '70ac4d3';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3480,7 +3480,7 @@ Menu.prototype = {
 		this._el = null;
 	},
 	handleEvent(e) {
-		var el = e.target;
+		var isOverEvent = false, el = e.target;
 		switch(e.type) {
 		case 'click':
 			if(el.className === 'de-menu-item') {
@@ -3492,27 +3492,25 @@ Menu.prototype = {
 			}
 			break;
 		case 'mouseover':
-			if(!this._isInMenu(e.relatedTarget)) {
-				clearTimeout(this._closeTO);
-				if(this.onover) {
-					this.onover();
-				}
-			}
-			return;
+			isOverEvent = true;
+			/* fall through */
 		case 'mouseout':
 			clearTimeout(this._closeTO);
-			if(!this._isInMenu(e.relatedTarget)) {
-				this._closeTO = setTimeout(() => this.remove(), 75);
-				if(this.onout && el !== this.parentEl && !this.parentEl.contains(el)) {
-					this.onout();
+			var rt = e.relatedTarget;
+			rt = rt && rt.farthestViewportElement || rt;
+			if(!rt || (rt !== this._el && !this._el.contains(rt))) {
+				if(isOverEvent) {
+					if(this.onover) {
+						this.onover();
+					}
+				} else if(!rt || (rt !== this.parentEl && !this.parentEl.contains(rt))) {
+					this._closeTO = setTimeout(() => this.remove(), 75);
+					if(this.onout) {
+						this.onout();
+					}
 				}
 			}
-			return;
 		}
-	},
-	_isInMenu(el, checkParent) {
-		el = el.farthestViewportElement || el;
-		return !this._el || (el && (el === this._el || this._el.contains(el) || el === this.parentEl || this.parentEl.contains(el)));
 	}
 };
 
@@ -13252,10 +13250,10 @@ function scriptCSS() {
 	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\
 	#de-panel-buttons:lang(en), #de-panel-info:lang(en) { border-color: #8fbbed; }\
 	#de-panel-buttons:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
-	.de-panel-button { display: block; width: 25px; height: 25px; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; color: inherit !important; }\
+	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; color: inherit !important; }\
 	.de-panel-button:hover { color: inherit !important; }\
 	.de-panel-button:lang(fr):hover, .de-panel-button:lang(en):hover, .de-panel-button:lang(es):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
-	.de-panel-svg, #de-panel-logo, .de-panel-logo-svg { width: 25px; height: 25px; }\
+	.de-panel-svg, #de-panel-logo, .de-panel-logo-svg, .de-panel-button { width: 25px; height: 25px; }\
 	.de-panel-svg:lang(de):hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }\
 	#de-panel-goback { transform: rotate(-90deg); }\
 	#de-panel-gonext { transform: rotate(90deg); }\
