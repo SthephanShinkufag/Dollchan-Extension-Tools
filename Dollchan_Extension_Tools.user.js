@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '947fb44';
+	var commit = '715e449';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -5337,11 +5337,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 		if (block) {
 			body.appendChild($btn(Lng.expandAll[lang], '', function () {
+				var isHide = this.value === Lng.undo[lang];
 				$each($Q('.de-cloned-post', this.parentNode), function (el) {
 					var hData = el.hideData;
-					Post.hideContent(hData.el, hData.btn, true, hData.hidden = !hData.hidden);
+					Post.hideContent(hData.el, hData.btn, true, hData.hidden = isHide);
 				});
-				this.value = this.value === Lng.undo[lang] ? Lng.expandAll[lang] : Lng.undo[lang];
+				this.value = isHide ? Lng.expandAll[lang] : Lng.undo[lang];
 			}));
 			body.appendChild($btn(Lng.save[lang], '', function () {
 				$each($Q('.de-cloned-post', this.parentNode), (function (date, el) {
