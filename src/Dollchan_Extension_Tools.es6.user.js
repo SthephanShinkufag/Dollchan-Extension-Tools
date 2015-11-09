@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '9d15410';
+var commit = '4cc06d7';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8035,9 +8035,6 @@ function AttachmentViewer(data) {
 AttachmentViewer.prototype = {
 	data: null,
 	close(e) {
-		if(this.data.inPview && this.data.post.sticky) {
-			this.data.post.setSticky(false);
-		}
 		if(this.hasOwnProperty('_btns')) {
 			this._btns.remove();
 		}
@@ -8204,6 +8201,9 @@ AttachmentViewer.prototype = {
 		if(this.data.isVideo && this._fullEl.tagName === 'VIDEO') {
 			this._fullEl.pause();
 			this._fullEl.removeAttribute('src');
+		}
+		if(this.data.inPview && this.data.post.sticky) {
+			this.data.post.setSticky(false);
 		}
 		this._obj.style.display = 'none';
 		setTimeout($del, 100, this._obj);

@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '9d15410';
+	var commit = '4cc06d7';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11508,9 +11508,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	AttachmentViewer.prototype = {
 		data: null,
 		close: function close(e) {
-			if (this.data.inPview && this.data.post.sticky) {
-				this.data.post.setSticky(false);
-			}
 			if (this.hasOwnProperty('_btns')) {
 				this._btns.remove();
 			}
@@ -11686,6 +11683,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (this.data.isVideo && this._fullEl.tagName === 'VIDEO') {
 				this._fullEl.pause();
 				this._fullEl.removeAttribute('src');
+			}
+			if (this.data.inPview && this.data.post.sticky) {
+				this.data.post.setSticky(false);
 			}
 			this._obj.style.display = 'none';
 			setTimeout($del, 100, this._obj);
