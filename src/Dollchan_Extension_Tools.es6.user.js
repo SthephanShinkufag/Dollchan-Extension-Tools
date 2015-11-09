@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '75b02b8';
+var commit = '9a221d9';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1769,9 +1769,10 @@ function readViewedPosts() {
 // ===========================================================================================================
 
 var panel = Object.create({
-	_hideTO: 0,
-	_menuTO: 0,
 	_el: null,
+	_hideTO: 0,
+	_menu: null,
+	_menuTO: 0,
 	get _infoEl() {
 		var value = $id('de-panel-info');
 		Object.defineProperty(this, '_infoEl', { value, configurable: true });
@@ -1800,16 +1801,13 @@ var panel = Object.create({
 		// XXX nav.Presto: keep in sync with updMachine._setUpdateStatus
 		return html + '<svg class="de-panel-svg"><use xlink:href="#de-symbol-panel-' + useId + '"/></svg></a>';
 	},
-	_prepareToHide() {
-		if(!Cfg.expandPanel && !$c('de-win-active', doc)) {
+	_prepareToHide(rt) {
+		if(!Cfg.expandPanel && !$c('de-win-active', doc) && (!rt || !this._el.contains(rt.farthestViewportElement || rt))) {
 			this._hideTO = setTimeout(() => this._el.lastChild.style.display = 'none', 500);
 		}
 	},
 	handleEvent(e) {
 		var el = fixEventEl(e.target);
-		if(el.id === 'de-panel-buttons') {
-			return;
-		}
 		if(el.tagName.toLowerCase() === 'svg') {
 			el = el.parentNode;
 		}
@@ -1892,15 +1890,19 @@ var panel = Object.create({
 				/* falls through */
 			case 'de-panel-savethr':
 			case 'de-panel-audio-off':
+				if(this._menu && this._menu.parentEl === el) {
+					return;
+				}
 				this._menuTO = setTimeout(() => {
-					var menu = addMenu(el);
-					menu.onover = () => clearTimeout(this._hideTO);
-					menu.onout = () => this._prepareToHide();
-				}, Cfg.linksOver); 
+					this._menu = addMenu(el);
+					this._menu.onover = () => clearTimeout(this._hideTO);
+					this._menu.onout = () => this._prepareToHide(null);
+					this._menu.onremove = () => this._menu = null;
+				}, Cfg.linksOver);
 			}
 			return;
 		default: // mouseout
-			this._prepareToHide();
+			this._prepareToHide(e.relatedTarget);
 			switch(el.id) {
 			case 'de-panel-refresh':
 			case 'de-panel-savethr':
@@ -3445,11 +3447,9 @@ function Menu(parentEl, html, isFixed, clickFn) {
 	var height = el.offsetHeight;
 	var yOffset = isFixed ? 0 : window.pageYOffset;
 	if(cr.bottom + height < Post.sizing.wHeight) {
-		mStyle.top = (yOffset + cr.bottom) + 'px';
-		el.classList.add('de-menu-down');
+		mStyle.top = (yOffset + cr.bottom - .5) + 'px';
 	} else {
-		mStyle.top = (yOffset + cr.top - height) + 'px';
-		el.classList.add('de-menu-up');
+		mStyle.top = (yOffset + cr.top - height + .5) + 'px';
 	}
 	mStyle.removeProperty('visibility');
 	this._clickFn = clickFn;
@@ -3464,9 +3464,13 @@ Menu.prototype = {
 	_closeTO: 0,
 	onover: null,
 	onout: null,
+	onremove: null,
 	remove() {
 		if(!this._el) {
 			return;
+		}
+		if(this.onremove) {
+			this.onremove();
 		}
 		this._el.removeEventListener('mouseover', this, true);
 		this._el.removeEventListener('mouseout', this, true);
@@ -3488,24 +3492,27 @@ Menu.prototype = {
 			}
 			break;
 		case 'mouseover':
-			clearTimeout(this._closeTO);
-			if(this.onover) {
-				this.onover();
+			if(!this._isInMenu(e.relatedTarget)) {
+				clearTimeout(this._closeTO);
+				if(this.onover) {
+					this.onover();
+				}
 			}
 			return;
 		case 'mouseout':
 			clearTimeout(this._closeTO);
-			var rt = e.relatedTarget;
-			if(this._el && (!rt || (rt !== this.parentEl && rt.farthestViewportElement !== this.parentEl &&
-			   rt !== this._el && !this._el.contains(rt))))
-			{
+			if(!this._isInMenu(e.relatedTarget)) {
 				this._closeTO = setTimeout(() => this.remove(), 75);
-				if(el !== this.parentEl && this.onout) {
+				if(this.onout && el !== this.parentEl && !this.parentEl.contains(el)) {
 					this.onout();
 				}
 			}
 			return;
 		}
+	},
+	_isInMenu(el, checkParent) {
+		el = el.farthestViewportElement || el;
+		return !this._el || (el && (el === this._el || this._el.contains(el) || el === this.parentEl || this.parentEl.contains(el)));
 	}
 };
 
@@ -8986,6 +8993,7 @@ class AbstractPost {
 			this._menu.remove();
 		}
 		this._menu = new Menu(el, htmlGetter.call(this, el), false, el => this._clickMenu(el));
+		this._menu.onremove = () => this._menu = null;
 	}
 }
 
@@ -13247,7 +13255,7 @@ function scriptCSS() {
 	.de-panel-button { display: block; width: 25px; height: 25px; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; color: inherit !important; }\
 	.de-panel-button:hover { color: inherit !important; }\
 	.de-panel-button:lang(fr):hover, .de-panel-button:lang(en):hover, .de-panel-button:lang(es):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
-	.de-panel-svg, .de-panel-logo-svg { width: 25px; height: 25px; }\
+	.de-panel-svg, #de-panel-logo, .de-panel-logo-svg { width: 25px; height: 25px; }\
 	.de-panel-svg:lang(de):hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }\
 	#de-panel-goback { transform: rotate(-90deg); }\
 	#de-panel-gonext { transform: rotate(90deg); }\
