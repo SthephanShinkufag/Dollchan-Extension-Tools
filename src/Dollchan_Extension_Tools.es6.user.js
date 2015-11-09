@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '1bca1bf';
+var commit = '0b7224a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5362,7 +5362,7 @@ var Spells = Object.create({
 		}
 		// #words, #name, #trip, #vauthor
 		else if(type === 0 || type === 6 || type === 7 || type === 16) {
-			return spell + '(' + val.replace(/\)/g, '\\)') + ')';
+			return spell + '(' + val.replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') + ')';
 		} else {
 			return spell + '(' + String(val) + ')';
 		}
@@ -5863,14 +5863,37 @@ SpellsCodegen.prototype = {
 		return [m[0].length, val];
 	},
 	_getText(str, haveBracket) {
-		var m = str.match(/^(\()?(.*?[^\\])\)/);
-		if(!m) {
-			return null;
+		if(haveBracket && (str[0] !== '(')) {
+			return [0, ''];
 		}
-		if(haveBracket !== !!m[1]) {
-			return null;
+		var rv = '';
+		for(var i = haveBracket ? 1 : 0, len = str.length; i < len; ++i) {
+			var ch = str[i];
+			if(ch === '\\') {
+				if(i === len - 1) {
+					return null;
+				}
+				switch(str[i + 1]) {
+				case 'n': // \n
+					rv += '\n';
+					break;
+				case '\\': // \
+					rv += '\\';
+					break;
+				case ')': // )
+					rv += ')';
+					break;
+				default:
+					return null;
+				}
+				++i;
+			} else if(ch === ')') {
+				return [i + 1, rv];
+			} else {
+				rv += ch;
+			}
 		}
-		return [m[0].length, m[2].replace(/\\\)/g, ')')];
+		return null;
 	},
 	_doRep(name, str) {
 		var regex, scope = this._getScope(str);

@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '1bca1bf';
+	var commit = '0b7224a';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -8332,7 +8332,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 				
 					else if (type === 0 || type === 6 || type === 7 || type === 16) {
-							return spell + '(' + val.replace(/\)/g, '\\)') + ')';
+							return spell + '(' + val.replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') + ')';
 						} else {
 							return spell + '(' + String(val) + ')';
 						}
@@ -8893,14 +8893,40 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return [m[0].length, val];
 		},
 		_getText: function _getText(str, haveBracket) {
-			var m = str.match(/^(\()?(.*?[^\\])\)/);
-			if (!m) {
-				return null;
+			if (haveBracket && str[0] !== '(') {
+				return [0, ''];
 			}
-			if (haveBracket !== !!m[1]) {
-				return null;
+			var rv = '';
+			for (var i = haveBracket ? 1 : 0, len = str.length; i < len; ++i) {
+				var ch = str[i];
+				if (ch === '\\') {
+					if (i === len - 1) {
+						return null;
+					}
+					switch (str[i + 1]) {
+						case 'n':
+						
+							rv += '\n';
+							break;
+						case '\\':
+						
+							rv += '\\';
+							break;
+						case ')':
+						
+							rv += ')';
+							break;
+						default:
+							return null;
+					}
+					++i;
+				} else if (ch === ')') {
+					return [i + 1, rv];
+				} else {
+					rv += ch;
+				}
 			}
-			return [m[0].length, m[2].replace(/\\\)/g, ')')];
+			return null;
 		},
 		_doRep: function _doRep(name, str) {
 			var regex,
