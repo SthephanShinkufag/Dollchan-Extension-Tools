@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'b529bbc';
+var commit = '947fb44';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2360,42 +2360,47 @@ function addContentBlock(parent, title) {
 }
 
 function showHiddenWindow(body) {
-	var block, els = $C('de-post-hide', DelForm.first.el);
-	for(var i = 0, len = els.length; i < len; ++i) {
-		var post = els[i];
-		if(post.isOp) {
+	var block;
+	for(var post = Thread.first.op; post; post = post.next) {
+		if(!post.hidden || post.isOp) {
 			continue;
 		}
-		var cln = post.cloneNode(true);
-		cln.removeAttribute('id');
-		cln.style.display = '';
-		cln.className = aib.cReply + ' de-post-hide de-cloned-post';
-		cln.post = Object.create(cln.clone = pByNum.get(aib.getPNum(post)));
-		cln.post.el = cln;
-		cln.btn = $q('.de-btn-unhide, .de-btn-unhide-user', cln);
-		cln.btn.parentNode.className = 'de-post-btns';
-		cln.btn.onclick = function() {
-			this.hideContent(this.hidden = !this.hidden);
-		}.bind(cln.post);
+		var cloneEl = post.el.cloneNode(true);
+		var hideData = {
+			btn: $q('.de-btn-unhide, .de-btn-unhide-user', cloneEl),
+			el: cloneEl,
+			hidden: true,
+			origin: post,
+			handleEvent() {
+				Post.hideContent(this.el, this.btn, true, this.hidden = !this.hidden);
+			}
+		};
+		cloneEl.hideData = hideData;
+		cloneEl.removeAttribute('id');
+		cloneEl.style.display = '';
+		cloneEl.className = aib.cReply + ' de-post-hide de-cloned-post';
+		hideData.btn.parentNode.className = 'de-post-btns';
+		hideData.btn.addEventListener('click', hideData);
 		if(!block) {
 			block = body.appendChild(
 				$add('<div class="de-content-block"><b>' + Lng.hiddenPosts[lang] + ':</b></div>')
 			);
 		}
-		block.appendChild($New('div', {'class': 'de-entry'}, [cln]));
+		block.appendChild($New('div', {'class': 'de-entry'}, [cloneEl]));
 	}
 	if(block) {
 		body.appendChild($btn(Lng.expandAll[lang], '', function() {
 			$each($Q('.de-cloned-post', this.parentNode), function(el) {
-				var post = el.post;
-				post.hideContent(post.hidden = !post.hidden);
+				var hData = el.hideData;
+				Post.hideContent(hData.el, hData.btn, true, hData.hidden = !hData.hidden);
 			});
 			this.value = this.value === Lng.undo[lang] ? Lng.expandAll[lang] : Lng.undo[lang];
 		}));
 		body.appendChild($btn(Lng.save[lang], '', function() {
 			$each($Q('.de-cloned-post', this.parentNode), function(date, el) {
-				if(!el.post.hidden) {
-					el.clone.setUserVisib(false, date, true);
+				var hData = el.hideData;
+				if(!hData.hidden) {
+					hData.origin.setUserVisib(false, date, true);
 				}
 			}.bind(null, Date.now()));
 			saveUserPosts();
@@ -2795,9 +2800,11 @@ function getCfgFilters() {
 		lBox('menuHiddBtn', true, null),
 		lBox('hideRefPsts', true, null),
 		lBox('delHiddPost', true, function() {
-			$each($C('de-post-hide', doc.body), function(post) {
-				pByNum.get(aib.getPNum(post)).wrap.classList.toggle('de-hidden');
-			});
+			for(var post = Thread.first.op; post; post = post.next) {
+				if(post.hidden) {
+					post.wrap.classList.toggle('de-hidden');
+				}
+			}
 			updateCSS();
 		})
 	]);
@@ -8952,6 +8959,33 @@ class AbstractPost {
 }
 
 class Post extends AbstractPost {
+	static hideContent(postEl, hideBtn, isUser, hide) {
+		if(hide) {
+			postEl.classList.add('de-post-hide');
+			hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
+		} else {
+			postEl.classList.remove('de-post-hide');
+			hideBtn.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
+		}
+		if(nav.Chrome) {
+			if(hide) {
+				postEl.classList.remove('de-post-unhide');
+			} else {
+				postEl.classList.add('de-post-unhide');
+			}
+			if(!chromeCssUpd) {
+				chromeCssUpd = setTimeout(function() {
+					doc.head.insertAdjacentHTML('beforeend',
+						`<style id="de-csshide" type="text/css">
+							.de-post-hide > ${aib.qHide} { display: none !important; }
+							.de-post-unhide > ${aib.qHide} { display: !important; }
+						</style>`);
+					$del(doc.head.lastChild);
+					chromeCssUpd = null;
+				}, 200);
+			}
+		}
+	}
 	constructor(el, thr, num, count, isOp, prev) {
 		super(thr, num, isOp);
 		this.count = count;
@@ -9071,31 +9105,7 @@ class Post extends AbstractPost {
 		return null;
 	}
 	hideContent(hide) {
-		if(hide) {
-			this.el.classList.add('de-post-hide');
-			this.hideBtn.setAttribute('class', this.userToggled ? 'de-btn-unhide-user' : 'de-btn-unhide');
-		} else {
-			this.el.classList.remove('de-post-hide');
-			this.hideBtn.setAttribute('class', this.userToggled ? 'de-btn-hide-user' : 'de-btn-hide');
-		}
-		if(nav.Chrome) {
-			if(hide) {
-				this.el.classList.remove('de-post-unhide');
-			} else {
-				this.el.classList.add('de-post-unhide');
-			}
-			if(!chromeCssUpd) {
-				chromeCssUpd = setTimeout(function() {
-					doc.head.insertAdjacentHTML('beforeend',
-						`<style id="de-csshide" type="text/css">
-							.de-post-hide > ${aib.qHide} { display: none !important; }
-							.de-post-unhide > ${aib.qHide} { display: !important; }
-						</style>`);
-					$del(doc.head.lastChild);
-					chromeCssUpd = null;
-				}, 200);
-			}
-		}
+		Post.hideContent(this.el, this.hideBtn, this.userToggled, hide);
 	}
 	select() {
 		if(this.isOp) {
