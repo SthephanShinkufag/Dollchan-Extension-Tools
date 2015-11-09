@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '4cc06d7';
+	var commit = '1bca1bf';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -8380,10 +8380,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return null;
 		},
 		setSpells: function setSpells(spells, sync) {
-			this._optimize(spells);
 			if (sync) {
 				this._sync(spells);
 			}
+			if (!Cfg.hideBySpell) {
+				this.disable();
+				return;
+			}
+			this._optimize(spells);
 			if (this.hiders) {
 				var sRunner = new SpellsRunner();
 				for (var post = Thread.first.op; post; post = post.next) {

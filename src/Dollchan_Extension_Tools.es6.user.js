@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '4cc06d7';
+var commit = '1bca1bf';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5396,10 +5396,14 @@ var Spells = Object.create({
 		return null;
 	},
 	setSpells(spells, sync) {
-		this._optimize(spells);
 		if(sync) {
 			this._sync(spells);
 		}
+		if(!Cfg.hideBySpell) {
+			this.disable();
+			return;
+		}
+		this._optimize(spells);
 		if(this.hiders) {
 			var sRunner = new SpellsRunner();
 			for(var post = Thread.first.op; post; post = post.next) {
