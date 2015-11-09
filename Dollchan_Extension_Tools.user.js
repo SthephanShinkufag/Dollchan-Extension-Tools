@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '715e449';
+	var commit = '9d15410';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4775,6 +4775,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_hideTO: 0,
 		_menuTO: 0,
 		_el: null,
+		_lastSVGEl: null,
 		get _infoEl() {
 			var value = $id('de-panel-info');
 			Object.defineProperty(this, '_infoEl', { value: value, configurable: true });
@@ -4816,11 +4817,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		handleEvent: function handleEvent(e) {
 			var _this5 = this;
 
-			var el = fixEventEl(e.target);
+			var el = fixEventEl(e.target),
+			    type = e.type;
 			if (el.tagName.toLowerCase() === 'svg') {
+				if (el === this._lastSVGEl && (type === 'mouseover' || type === 'mouseout')) {
+					return;
+				}
+				this._lastSVGEl = el;
 				el = el.parentNode;
 			}
-			switch (e.type) {
+			switch (type) {
 				case 'click':
 					switch (el.id) {
 						case 'de-panel-logo':
@@ -12368,7 +12374,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 					return;
 				}
-				if (type === 'mouseover' && Cfg.expandImgs && el.tagName === 'IMG' && !el.classList.contains('de-img-full') && (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)) {
+				if (!isOutEvent && Cfg.expandImgs && el.tagName === 'IMG' && !el.classList.contains('de-img-full') && (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)) {
 					el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
 				}
 				if (!this._hasEvents) {

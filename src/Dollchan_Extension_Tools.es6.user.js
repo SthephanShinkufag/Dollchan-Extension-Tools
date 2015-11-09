@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '715e449';
+var commit = '9d15410';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1772,6 +1772,7 @@ var panel = Object.create({
 	_hideTO: 0,
 	_menuTO: 0,
 	_el: null,
+	_lastSVGEl: null,
 	get _infoEl() {
 		var value = $id('de-panel-info');
 		Object.defineProperty(this, '_infoEl', { value, configurable: true });
@@ -1806,11 +1807,16 @@ var panel = Object.create({
 		}
 	},
 	handleEvent(e) {
-		var el = fixEventEl(e.target);
+		var el = fixEventEl(e.target),
+			type = e.type;
 		if(el.tagName.toLowerCase() === 'svg') {
+			if(el === this._lastSVGEl && (type === 'mouseover' || type === 'mouseout')) {
+				return;
+			}
+			this._lastSVGEl = el;
 			el = el.parentNode;
 		}
-		switch(e.type) {
+		switch(type) {
 		case 'click':
 			switch(el.id) {
 			case 'de-panel-logo':
@@ -8790,7 +8796,7 @@ class AbstractPost {
 			}
 			return;
 		}
-		if(type === 'mouseover' && Cfg.expandImgs &&
+		if(!isOutEvent && Cfg.expandImgs &&
 		   el.tagName === 'IMG' && !el.classList.contains('de-img-full') &&
 		   (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo))
 		{
