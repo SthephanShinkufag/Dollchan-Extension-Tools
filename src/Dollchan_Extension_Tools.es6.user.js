@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '70ac4d3';
+var commit = 'cee0941';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12327,17 +12327,17 @@ function addSVGIcons() {
 		<path class="de-svg-stroke" stroke-width="3" d="M22 20.5H12c-2.8 0-5.7 0-5.7-4s2.8-4 5.7-4H21"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-cfg">
-		<circle class="de-svg-stroke" stroke-width="2.5" cx="12.5" cy="12.5" r="5.25"/>
-		<path class="de-svg-stroke" stroke-width="3" d="M12.5 4v3M12.5 18v3M18 12.5h3M4 12.5h3M16.4 8.4l2.2-2.2M6.4 18.6l2.2-2.2M8.6 8.6l-2.2-2.2M18.6 18.6l-2.2-2.2"/>
+		<circle class="de-svg-stroke" stroke-width="3" cx="12.5" cy="12.5" r="5.5"/>
+		<path class="de-svg-stroke" stroke-width="3" d="M12.5 7V3.5M18 12.5h3.5M12.5 18v3.5M7 12.5H3.5M16.4 8.6L19 6M16.4 16.4L19 19M8.6 16.4L6 19M8.6 8.6L6 6"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-hid">
-		<path class="de-svg-stroke" stroke-width="3" d="M6.25 6.25l12.5 12.5M6.25 18.75l12.5-12.5"/>
+		<path class="de-svg-stroke" stroke-width="4" d="M6 19L19 6M6 6l13 13"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-fav">
-		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAIzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs="/>
+		<path class="de-svg-fill" d="M12.5 3.5l2.5 6 6.5.5-5 4.2 1.6 6.3-5.5-3.4L7 20.6l1.5-6.3-5-4.2 6.5-.5z"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-vid">
-		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAAAI9jI+py+0Po5wTWEvN3VjyH20a6HDHB5TiaTIkuyov3MltEuM3nS5z8EPsgsIY6rE6QlA5JDMDbEKn1KqhAAA7"/>
+		<path class="de-svg-fill" d="M12.5 3.5a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12.2 17c-2 1-3.4.2-3.4-2v-5c0-2.2 1.5-3 3.4-2l4.3 2.5c2 1 2 3 0 4L12.2 17z"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-refresh">
 		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAAAJBjI+py+0Po5zUgItBxDZrmHUcGAbe15xiybCm5iYegsaHfY8Kvrb6/qPhZr7LgrcyJlHFE1LoVG6ilVewis1qDQUAOw=="/>
