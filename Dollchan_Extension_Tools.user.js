@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'beaa65b';
+	var commit = 'ae83b24';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15357,1435 +15357,1476 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	})();
 
 	function getImageBoard(checkDomains, checkEngines) {
-		var ibEngines = {
-			'body.makaba': (function (_BaseBoard) {
-				_inherits(Makaba, _BaseBoard);
+		var ibDomains = {};
+		var ibEngines = {};
 
-				function Makaba(prot, dm) {
-					_classCallCheck(this, Makaba);
+		var Makaba = (function (_BaseBoard) {
+			_inherits(Makaba, _BaseBoard);
 
-					var _this45 = _possibleConstructorReturn(this, Object.getPrototypeOf(Makaba).call(this, prot, dm));
+			function Makaba(prot, dm) {
+				_classCallCheck(this, Makaba);
 
-					_this45.mak = true;
+				var _this45 = _possibleConstructorReturn(this, Object.getPrototypeOf(Makaba).call(this, prot, dm));
 
-					_this45.cPostHeader = 'post-details';
-					_this45.cReply = 'post reply';
-					_this45.cSubj = 'post-title';
-					_this45.qBan = '.pomyanem';
-					_this45.qClosed = '.sticky-img[src$="locked.png"]';
-					_this45.qDForm = '#posts-form';
-					_this45.qMsg = '.post-message';
-					_this45.qName = '.ananimas, .post-email';
-					_this45.qOmitted = '.mess-post';
-					_this45.qPostRedir = null;
-					_this45.qRPost = 'div.reply';
-					_this45.qThumbImages = '.preview';
-					_this45.qTrunc = null;
+				_this45.mak = true;
 
-					_this45.hasOPNum = true;
-					_this45.hasPicWrap = true;
-					_this45.markupBB = true;
-					_this45.multiFile = true;
-					_this45.timePattern = 'dd+nn+yy+w+hh+ii+ss';
-					return _this45;
+				_this45.cPostHeader = 'post-details';
+				_this45.cReply = 'post reply';
+				_this45.cSubj = 'post-title';
+				_this45.qBan = '.pomyanem';
+				_this45.qClosed = '.sticky-img[src$="locked.png"]';
+				_this45.qDForm = '#posts-form';
+				_this45.qMsg = '.post-message';
+				_this45.qName = '.ananimas, .post-email';
+				_this45.qOmitted = '.mess-post';
+				_this45.qPostRedir = null;
+				_this45.qRPost = 'div.reply';
+				_this45.qThumbImages = '.preview';
+				_this45.qTrunc = null;
+
+				_this45.hasOPNum = true;
+				_this45.hasPicWrap = true;
+				_this45.markupBB = true;
+				_this45.multiFile = true;
+				_this45.timePattern = 'dd+nn+yy+w+hh+ii+ss';
+				return _this45;
+			}
+
+			_createClass(Makaba, [{
+				key: 'fixFileInputs',
+				value: function fixFileInputs(el) {
+					var str = '';
+					for (var i = 0, len = 4; i < len; ++i) {
+						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="image' + (i + 1) + '"></input></div>';
+					}
+					$q('#postform .images-area', doc).lastElementChild.innerHTML = str;
 				}
+			}, {
+				key: 'getImgParent',
+				value: function getImgParent(node) {
+					var el = $parent(node, 'FIGURE'),
+					    parent = el.parentNode;
+					return parent.lastElementChild === el ? parent : el;
+				}
+			}, {
+				key: 'getImgWrap',
+				value: function getImgWrap(el) {
+					return $parent(el, 'FIGURE');
+				}
+			}, {
+				key: 'getPNum',
+				value: function getPNum(post) {
+					return +post.getAttribute('data-num');
+				}
+			}, {
+				key: 'getSage',
+				value: function getSage(post) {
+					if (this.hasNames) {
+						this.getSage = function (post) {
+							var name = $q(this.qName, post);
+							return name ? name.childElementCount === 0 && !$c('ophui', post) : false;
+						};
+					} else {
+						this.getSage = _get(Object.getPrototypeOf(Makaba.prototype), 'getSage', this);
+					}
+					return this.getSage(post);
+				}
+			}, {
+				key: 'getWrap',
+				value: function getWrap(el) {
+					return el.parentNode;
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					var _this46 = this;
 
-				_createClass(Makaba, [{
-					key: 'fixFileInputs',
-					value: function fixFileInputs(el) {
-						var str = '';
-						for (var i = 0, len = 4; i < len; ++i) {
-							str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="image' + (i + 1) + '"></input></div>';
-						}
-						$q('#postform .images-area', doc).lastElementChild.innerHTML = str;
+					$script('window.FormData = void 0; $(function() { $(window).off(); });');
+					$each($C('autorefresh', doc), $del);
+					var el = $q('td > .anoniconsselectlist', doc);
+					if (el) {
+						$q('.option-area > td:last-child', doc).appendChild(el);
 					}
-				}, {
-					key: 'getImgParent',
-					value: function getImgParent(node) {
-						var el = $parent(node, 'FIGURE'),
-						    parent = el.parentNode;
-						return parent.lastElementChild === el ? parent : el;
+					if (el = $c('search', doc.body)) {
+						$before($c('menu', doc.body).firstChild, el);
 					}
-				}, {
-					key: 'getImgWrap',
-					value: function getImgWrap(el) {
-						return $parent(el, 'FIGURE');
+					el = $q('tr:not([class])', doc.body);
+					if (!el) {
+						return false;
 					}
-				}, {
-					key: 'getPNum',
-					value: function getPNum(post) {
-						return +post.getAttribute('data-num');
-					}
-				}, {
-					key: 'getSage',
-					value: function getSage(post) {
-						if (this.hasNames) {
-							this.getSage = function (post) {
-								var name = $q(this.qName, post);
-								return name ? name.childElementCount === 0 && !$c('ophui', post) : false;
-							};
-						} else {
-							this.getSage = _get(Object.getPrototypeOf(Makaba.prototype), 'getSage', this);
-						}
-						return this.getSage(post);
-					}
-				}, {
-					key: 'getWrap',
-					value: function getWrap(el) {
-						return el.parentNode;
-					}
-				}, {
-					key: 'init',
-					value: function init() {
-						var _this46 = this;
-
-						$script('window.FormData = void 0; $(function() { $(window).off(); });');
-						$each($C('autorefresh', doc), $del);
-						var el = $q('td > .anoniconsselectlist', doc);
+					doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' + '<div onclick="loadCaptcha();"></div></div>');
+					this.updateCaptcha = (function (el, focus) {
+						this.click();
+						el.style.display = '';
+						el = $id('captcha-value');
 						if (el) {
-							$q('.option-area > td:last-child', doc).appendChild(el);
-						}
-						if (el = $c('search', doc.body)) {
-							$before($c('menu', doc.body).firstChild, el);
-						}
-						el = $q('tr:not([class])', doc.body);
-						if (!el) {
-							return false;
-						}
-						doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' + '<div onclick="loadCaptcha();"></div></div>');
-						this.updateCaptcha = (function (el, focus) {
-							this.click();
-							el.style.display = '';
-							el = $id('captcha-value');
-							if (el) {
-								pr.cap = el;
-								el.tabIndex = 999;
-								if (focus) {
-									el.focus();
-								}
+							pr.cap = el;
+							el.tabIndex = 999;
+							if (focus) {
+								el.focus();
 							}
-						}).bind(doc.body.lastChild.firstChild, el);
-						el.addEventListener('click', function (e) {
-							if (e.target.tagName === 'IMG') {
-								_this46.updateCaptcha(true);
-								e.stopPropagation();
-							}
-						}, true);
-						return false;
-					}
-				}, {
-					key: 'css',
-					get: function get() {
-						return '.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; }' : '');
-					}
-				}, {
-					key: 'qImgLink',
-					get: function get() {
-						return '.file-attr > .desktop';
-					}
-				}, {
-					key: 'hasNames',
-					get: function get() {
-						var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
-						Object.defineProperty(this, 'hasNames', { value: val });
-						return val;
-					}
-				}, {
-					key: 'lastPage',
-					get: function get() {
-						var els = $Q('.pager > a:not([class])', doc),
-						    val = els ? els.length : 1;
-						Object.defineProperty(this, 'lastPage', { value: val });
-						return val;
-					}
-				}, {
-					key: 'markupTags',
-					get: function get() {
-						return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'];
-					}
-				}]);
-
-				return Makaba;
-			})(BaseBoard),
-			'form[action*="futaba.php"]': (function (_BaseBoard2) {
-				_inherits(Futaba, _BaseBoard2);
-
-				function Futaba(prot, dm) {
-					_classCallCheck(this, Futaba);
-
-					var _this47 = _possibleConstructorReturn(this, Object.getPrototypeOf(Futaba).call(this, prot, dm));
-
-					_this47.futa = true;
-
-					_this47.qDForm = 'form:not([enctype])';
-					_this47.qOmitted = 'font[color="#707070"]';
-					_this47.qPostForm = 'form:nth-of-type(1)';
-					_this47.qPostRedir = null;
-					_this47.qRef = '.del';
-					_this47.qRPost = 'td:nth-child(2)';
-					_this47.qThumbImages = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
-
-					_this47.docExt = '.htm';
-					_this47.thrid = 'resto';
-					return _this47;
-				}
-
-				_createClass(Futaba, [{
-					key: 'getPageUrl',
-					value: function getPageUrl(b, p) {
-						return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
-					}
-				}, {
-					key: 'getPNum',
-					value: function getPNum(post) {
-						return +$t('input', post).name;
-					}
-				}, {
-					key: 'getPostElOfEl',
-					value: function getPostElOfEl(el) {
-						while (el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
-							el = el.parentElement;
 						}
-						return el;
-					}
-				}, {
-					key: 'getTNum',
-					value: function getTNum(op) {
-						return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
-					}
-				}, {
-					key: 'css',
-					get: function get() {
-						return '.ftbl { width: auto; margin: 0; }\n\t\t\t\t\t.reply { background: #f0e0d6; }\n\t\t\t\t\tspan { font-size: inherit; }';
-					}
-				}, {
-					key: 'qImgLink',
-					get: function get() {
-						return 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
-					}
-				}]);
-
-				return Futaba;
-			})(BaseBoard),
-			'form[action*="imgboard.php?delete"]': (function (_BaseBoard3) {
-				_inherits(TinyIb, _BaseBoard3);
-
-				function TinyIb(prot, dm) {
-					_classCallCheck(this, TinyIb);
-
-					var _this48 = _possibleConstructorReturn(this, Object.getPrototypeOf(TinyIb).call(this, prot, dm));
-
-					_this48.tinyIb = true;
-
-					_this48.qPostRedir = null;
-
-					_this48.ru = true;
-					return _this48;
-				}
-
-				_createClass(TinyIb, [{
-					key: 'getCaptchaSrc',
-					value: function getCaptchaSrc(src, tNum) {
-						return src.replace(/\?[^?]+$|$/, '?' + Math.random());
-					}
-				}]);
-
-				return TinyIb;
-			})(BaseBoard),
-			get 'tr#upload'() {
-				return (function (_formNamePostcont) {
-					_inherits(Vichan, _formNamePostcont);
-
-					function Vichan(prot, dm) {
-						_classCallCheck(this, Vichan);
-
-						var _this49 = _possibleConstructorReturn(this, Object.getPrototypeOf(Vichan).call(this, prot, dm));
-
-						_this49.qDelPassw = '#password';
-						_this49.qPassw = 'input[name="password"]';
-
-						_this49.multiFile = true;
-						return _this49;
-					}
-
-					_createClass(Vichan, [{
-						key: 'fixFileInputs',
-						value: function fixFileInputs(el) {
-							var str = '';
-							for (var i = 0, len = 5; i < len; ++i) {
-								str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"></div>';
-							}
-							$id('upload').lastChild.innerHTML = str;
+					}).bind(doc.body.lastChild.firstChild, el);
+					el.addEventListener('click', function (e) {
+						if (e.target.tagName === 'IMG') {
+							_this46.updateCaptcha(true);
+							e.stopPropagation();
 						}
-					}, {
-						key: 'init',
-						value: function init() {
-							setTimeout(function () {
-								$del($id('updater'));
-							}, 0);
-							if (checkStorage() && locStorage['file_dragdrop'] !== 'false') {
-								locStorage['file_dragdrop'] = false;
-								window.location.reload();
-								return true;
-							}
-							return false;
-						}
-					}, {
-						key: 'css',
-						get: function get() {
-							return '.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }\n\t\t\t\t\t\t.boardlist { position: static !important; }\n\t\t\t\t\t\tbody { padding: 0 5px !important; }\n\t\t\t\t\t\t.fileinfo { width: 250px; }\n\t\t\t\t\t\t.multifile { width: auto !important; }\n\t\t\t\t\t\t#expand-all-images, #expand-all-images + .unimportant, .post-btn, small { display: none !important; }';
-						}
-					}]);
-
-					return Vichan;
-				})(this['form[name*="postcontrols"]']);
-			},
-			'form[name*="postcontrols"]': (function (_BaseBoard4) {
-				_inherits(Tinyboard, _BaseBoard4);
-
-				function Tinyboard(prot, dm) {
-					_classCallCheck(this, Tinyboard);
-
-					var _this50 = _possibleConstructorReturn(this, Object.getPrototypeOf(Tinyboard).call(this, prot, dm));
-
-					_this50.tiny = true;
-
-					_this50.cFileInfo = 'fileinfo';
-					_this50.cPostHeader = 'intro';
-					_this50.cReply = 'post reply';
-					_this50.qClosed = '.fa-lock';
-					_this50.cSubj = 'subject';
-					_this50.cTrip = 'trip';
-					_this50.qDForm = 'form[name*="postcontrols"]';
-					_this50.qMsg = '.body';
-					_this50.qName = '.name';
-					_this50.qOmitted = '.omitted';
-					_this50.qPages = '.pages > a:nth-last-of-type(2)';
-					_this50.qPostForm = 'form[name="post"]';
-					_this50.qPostRedir = null;
-					_this50.qRef = '.post_no + a';
-					_this50.qTable = '.post.reply';
-					_this50.qTrunc = '.toolong';
-
-					_this50.firstPage = 1;
-					_this50.timePattern = 'nn+dd+yy++w++hh+ii+ss';
-					_this50.thrid = 'thread';
-					return _this50;
+					}, true);
+					return false;
 				}
-
-				_createClass(Tinyboard, [{
-					key: 'fixVideo',
-					value: function fixVideo(isPost, data) {
-						var videos = [],
-						    els = $Q('.video-container, #ytplayer', isPost ? data.el : data);
-						for (var i = 0, len = els.length; i < len; ++i) {
-							var el = els[i];
-							videos.push([isPost ? data : this.getPostOfEl(el), el.id === 'ytplayer' ? el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true]);
-							$del(el);
-						}
-						return videos;
-					}
-				}, {
-					key: 'getPageUrl',
-					value: function getPageUrl(b, p) {
-						return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
-					}
-				}, {
-					key: 'getTNum',
-					value: function getTNum(op) {
-						return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
-					}
-				}, {
-					key: 'init',
-					value: function init() {
-						if (Cfg) {
-							Cfg.fileThumb = 0;
-						}
-						return false;
-					}
-				}, {
-					key: 'css',
-					get: function get() {
-						return '.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }';
-					}
-				}, {
-					key: 'qImgLink',
-					get: function get() {
-						return 'p.fileinfo > a:first-of-type';
-					}
-				}, {
-					key: 'markupTags',
-					get: function get() {
-						return ["'''", "''", '__', '~~', '**', 'code', '', '', 'q'];
-					}
-				}]);
-
-				return Tinyboard;
-			})(BaseBoard),
-			'script[src*="kusaba"]': (function (_BaseBoard5) {
-				_inherits(Kusaba, _BaseBoard5);
-
-				function Kusaba(prot, dm) {
-					_classCallCheck(this, Kusaba);
-
-					var _this51 = _possibleConstructorReturn(this, Object.getPrototypeOf(Kusaba).call(this, prot, dm));
-
-					_this51.kus = true;
-
-					_this51.cOPost = 'postnode';
-					_this51.qError = 'h1, h2, div[style*="1.25em"]';
-					_this51.qPostRedir = null;
-
-					_this51.markupBB = true;
-					return _this51;
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t.mess-post { display: block; }\n\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; }' : '');
 				}
-
-				_createClass(Kusaba, [{
-					key: 'getCaptchaSrc',
-					value: function getCaptchaSrc(src, tNum) {
-						return src.replace(/\?[^?]+$|$/, '?' + Math.random());
-					}
-				}, {
-					key: 'css',
-					get: function get() {
-						return '.extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }\n\t\t\t\t\t.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
-					}
-				}]);
-
-				return Kusaba;
-			})(BaseBoard),
-			get 'form[action$="board.php"]'() {
-				return this['script[src*="kusaba"]'];
-			},
-			'link[href$="phutaba.css"]': (function (_BaseBoard6) {
-				_inherits(Phutaba, _BaseBoard6);
-
-				function Phutaba(prot, dm) {
-					_classCallCheck(this, Phutaba);
-
-					var _this52 = _possibleConstructorReturn(this, Object.getPrototypeOf(Phutaba).call(this, prot, dm));
-
-					_this52.cOPost = 'thread_OP';
-					_this52.cPostHeader = 'post_head';
-					_this52.cReply = 'post';
-					_this52.cSubj = 'subject';
-					_this52.cTrip = 'tripcode';
-					_this52.qError = '.error';
-					_this52.qMsg = '.text';
-					_this52.qPages = '.pagelist > li:nth-last-child(2)';
-					_this52.qPostRedir = 'input[name="gb2"][value="thread"]';
-					_this52.qRPost = '.thread_reply';
-					_this52.qTrunc = '.tldr';
-
-					_this52.docExt = '';
-					_this52.markupBB = true;
-					_this52.multiFile = true;
-					_this52.res = 'thread/';
-					return _this52;
+			}, {
+				key: 'qImgLink',
+				get: function get() {
+					return '.file-attr > .desktop';
 				}
-
-				_createClass(Phutaba, [{
-					key: 'fixFileInputs',
-					value: function fixFileInputs(el) {
-						var str = '><input name="file" type="file"></input></div>';
-						el.removeAttribute('onchange');
-						el.parentNode.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-					}
-				}, {
-					key: 'getImgWrap',
-					value: function getImgWrap(el) {
-						return el.parentNode.parentNode;
-					}
-				}, {
-					key: 'getSage',
-					value: function getSage(post) {
-						return !!$q('.sage', post);
-					}
-				}, {
-					key: 'css',
-					get: function get() {
-						return '.content > hr, .de-parea > hr { display: none !important }';
-					}
-				}, {
-					key: 'qImgLink',
-					get: function get() {
-						return '.filename > a';
-					}
-				}]);
-
-				return Phutaba;
-			})(BaseBoard),
-			'div#mainc': (function (_BaseBoard7) {
-				_inherits(divMainc, _BaseBoard7);
-
-				function divMainc(prot, dm) {
-					_classCallCheck(this, divMainc);
-
-					var _this53 = _possibleConstructorReturn(this, Object.getPrototypeOf(divMainc).call(this, prot, dm));
-
-					_this53.qDForm = '#mainc';
-					return _this53;
+			}, {
+				key: 'hasNames',
+				get: function get() {
+					var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
+					Object.defineProperty(this, 'hasNames', { value: val });
+					return val;
 				}
-
-				_createClass(divMainc, [{
-					key: 'getPageUrl',
-					value: function getPageUrl(b, p) {
-						return fixBrd(b) + '?do=page&p=' + (p < 0 ? 0 : p);
-					}
-				}, {
-					key: 'getThrdUrl',
-					value: function getThrdUrl(b, tNum) {
-						return this.prot + '//' + this.host + fixBrd(b) + '?do=thread&id=' + tNum;
-					}
-				}, {
-					key: 'getTNum',
-					value: function getTNum(op) {
-						return +$q('a[name]', op).name.match(/\d+/)[0];
-					}
-				}, {
-					key: 'init',
-					value: function init() {
-						var el = $id('mainc'),
-						    pArea = $id('postarea');
-						$del(el.firstElementChild);
-						$before(el, pArea.nextElementSibling);
-						$before(el, pArea);
-						return false;
-					}
-				}, {
-					key: 'parseURL',
-					value: function parseURL() {
-						var url = window.location.search.match(/^\?do=(thread|page)&(id|p)=(\d+)$/);
-						this.b = window.location.pathname.replace(/\//g, '');
-						this.t = url[1] === 'thread' ? +url[3] : false;
-						this.page = url[1] === 'page' ? +url[3] : 0;
-						this.docExt = '';
-					}
-				}, {
-					key: 'css',
-					get: function get() {
-						return '.reply { background-color: #e4e4d6; }';
-					}
-				}]);
-
-				return divMainc;
-			})(BaseBoard)
-		};
-
-		var ibDomains = {
-			'02ch.net': (function (_BaseBoard8) {
-				_inherits(chNet, _BaseBoard8);
-
-				function chNet(prot, dm) {
-					_classCallCheck(this, chNet);
-
-					var _this54 = _possibleConstructorReturn(this, Object.getPrototypeOf(chNet).call(this, prot, dm));
-
-					_this54.qPostRedir = 'input[name="gb2"][value="thread"]';
-
-					_this54.ru = true;
-					_this54.timePattern = 'yyyy+nn+dd++w++hh+ii+ss';
-					return _this54;
+			}, {
+				key: 'lastPage',
+				get: function get() {
+					var els = $Q('.pager > a:not([class])', doc),
+					    val = els ? els.length : 1;
+					Object.defineProperty(this, 'lastPage', { value: val });
+					return val;
 				}
-
-				return chNet;
-			})(BaseBoard),
-			'2chru.net': (function (_ibEngines$formActio) {
-				_inherits(chruNet, _ibEngines$formActio);
-
-				function chruNet(prot, dm) {
-					_classCallCheck(this, chruNet);
-
-					var _this55 = _possibleConstructorReturn(this, Object.getPrototypeOf(chruNet).call(this, prot, dm));
-
-					_this55._2chru = true;
-					return _this55;
+			}, {
+				key: 'markupTags',
+				get: function get() {
+					return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'];
 				}
+			}]);
 
-				_createClass(chruNet, [{
-					key: 'css',
-					get: function get() {
-						return '.small { display: none; }';
-					}
-				}]);
+			return Makaba;
+		})(BaseBoard);
 
-				return chruNet;
-			})(ibEngines['form[action*="imgboard.php?delete"]']),
-			get '2-chru.net'() {
-				return this['2chru.net'];
-			},
-			get '2chru.cafe'() {
-				return this['2chru.net'];
-			},
-			get '2-chru.cafe'() {
-				return this['2chru.net'];
-			},
-			get '2-ch.su'() {
-				return this['2--ch.ru'];
-			},
-			'2--ch.ru': (function (_ibEngines$formActio2) {
-				_inherits(chRu, _ibEngines$formActio2);
+		ibEngines['body.makaba'] = Makaba;
+		ibDomains['2ch.hk'] = Makaba;
+		ibDomains['2ch.pm'] = Makaba;
 
-				function chRu(prot, dm) {
-					_classCallCheck(this, chRu);
+		var Futaba = (function (_BaseBoard2) {
+			_inherits(Futaba, _BaseBoard2);
 
-					var _this56 = _possibleConstructorReturn(this, Object.getPrototypeOf(chRu).call(this, prot, dm));
+			function Futaba(prot, dm) {
+				_classCallCheck(this, Futaba);
 
-					_this56.tire = true;
+				var _this47 = _possibleConstructorReturn(this, Object.getPrototypeOf(Futaba).call(this, prot, dm));
 
-					_this56.qPages = 'table[border="1"] tr:first-of-type > td:first-of-type a';
-					_this56.qPostRedir = null;
-					_this56.qTable = 'table:not(.postfiles)';
-					_this56.qThread = '.threadz';
+				_this47.futa = true;
 
-					_this56.docExt = '.html';
-					_this56.hasPicWrap = true;
-					_this56.markupBB = true;
-					_this56.multiFile = true;
-					_this56.ru = true;
-					return _this56;
+				_this47.qDForm = 'form:not([enctype])';
+				_this47.qOmitted = 'font[color="#707070"]';
+				_this47.qPostForm = 'form:nth-of-type(1)';
+				_this47.qPostRedir = null;
+				_this47.qRef = '.del';
+				_this47.qRPost = 'td:nth-child(2)';
+				_this47.qThumbImages = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
+
+				_this47.docExt = '.htm';
+				_this47.thrid = 'resto';
+				return _this47;
+			}
+
+			_createClass(Futaba, [{
+				key: 'getPageUrl',
+				value: function getPageUrl(b, p) {
+					return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
 				}
-
-				_createClass(chRu, [{
-					key: 'fixFileInputs',
-					value: function fixFileInputs(el) {
-						var str = '><input name="file" maxlength="4" ' + 'accept="|sid|7z|bz2|m4a|flac|lzh|mo3|rar|spc|fla|nsf|jpg|mpp|aac|gz|xm|wav|' + 'mp3|png|it|lha|torrent|swf|zip|mpc|ogg|jpeg|gif|mod" type="file"></input></div>';
-						el.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-					}
-				}, {
-					key: 'getCaptchaSrc',
-					value: function getCaptchaSrc(src, tNum) {
-						return '/' + this.b + '/captcha.fpl?' + Math.random();
-					}
-				}, {
-					key: 'getOmitted',
-					value: function getOmitted(el, len) {
-						var txt;
-						return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
-					}
-				}, {
-					key: 'getPageUrl',
-					value: function getPageUrl(b, p) {
-						return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
-					}
-				}, {
-					key: 'css',
-					get: function get() {
-						return 'span[id$="_display"], #fastload { display: none; }';
-					}
-				}]);
-
-				return chRu;
-			})(ibEngines['form[action*="imgboard.php?delete"]']),
-			get '2ch.hk'() {
-				return ibEngines['body.makaba'];
-			},
-			get '2ch.pm'() {
-				return ibEngines['body.makaba'];
-			},
-			'410chan.org': (function (_ibEngines$scriptSrc) {
-				_inherits(chanOrg, _ibEngines$scriptSrc);
-
-				function chanOrg(prot, dm) {
-					_classCallCheck(this, chanOrg);
-
-					var _this57 = _possibleConstructorReturn(this, Object.getPrototypeOf(chanOrg).call(this, prot, dm));
-
-					_this57._410 = true;
-
-					_this57.qPostRedir = 'input#noko';
-
-					_this57.markupBB = false;
-					_this57.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
-					return _this57;
+			}, {
+				key: 'getPNum',
+				value: function getPNum(post) {
+					return +$t('input', post).name;
 				}
-
-				_createClass(chanOrg, [{
-					key: 'getCaptchaSrc',
-					value: function getCaptchaSrc(src, tNum) {
-						return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
+			}, {
+				key: 'getPostElOfEl',
+				value: function getPostElOfEl(el) {
+					while (el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
+						el = el.parentElement;
 					}
-				}, {
-					key: 'getSage',
-					value: function getSage(post) {
-						var el = $c('filetitle', post);
-						return el && el.textContent.includes('⇩');
-					}
-				}, {
-					key: 'css',
-					get: function get() {
-						return '#resizer { display: none; }';
-					}
-				}, {
-					key: 'markupTags',
-					get: function get() {
-						return ['**', '*', '__', '^^', '%%', '`', '', '', 'q'];
-					}
-				}]);
-
-				return chanOrg;
-			})(ibEngines['script[src*="kusaba"]']),
-			'420chan.org': (function (_BaseBoard9) {
-				_inherits(chanOrg, _BaseBoard9);
-
-				function chanOrg(prot, dm) {
-					_classCallCheck(this, chanOrg);
-
-					var _this58 = _possibleConstructorReturn(this, Object.getPrototypeOf(chanOrg).call(this, prot, dm));
-
-					_this58._420 = true;
-
-					_this58.cPostHeader = 'replyheader';
-					_this58.qBan = '.ban';
-					_this58.qError = 'pre';
-					_this58.qPages = '.pagelist > a:last-child';
-					_this58.qPostRedir = null;
-					_this58.qThread = '[id*="thread"]';
-
-					_this58.docExt = '.php';
-					_this58.markupBB = true;
-					return _this58;
+					return el;
 				}
-
-				_createClass(chanOrg, [{
-					key: 'getTNum',
-					value: function getTNum(op) {
-						return +$q('a[id]', op).id.match(/\d+/)[0];
-					}
-				}, {
-					key: 'css',
-					get: function get() {
-						return '#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }\n\t\t\t\t\t.de-thr-hid { margin: 1em 0; }';
-					}
-				}, {
-					key: 'markupTags',
-					get: function get() {
-						return ['**', '*', '', '', '%', 'pre', '', '', 'q'];
-					}
-				}]);
-
-				return chanOrg;
-			})(BaseBoard),
-			'4chan.org': (function (_BaseBoard10) {
-				_inherits(chanOrg, _BaseBoard10);
-
-				function chanOrg(prot, dm) {
-					_classCallCheck(this, chanOrg);
-
-					var _this59 = _possibleConstructorReturn(this, Object.getPrototypeOf(chanOrg).call(this, prot, dm));
-
-					_this59.fch = true;
-
-					_this59.cFileInfo = 'fileText';
-					_this59.cOPost = 'op';
-					_this59.cPostHeader = 'postInfo';
-					_this59.cReply = 'post reply';
-					_this59.cSubj = 'subject';
-					_this59.qBan = 'strong[style="color: red;"]';
-					_this59.qClosed = '.archivedIcon';
-					_this59.qDelBut = '.deleteform > input[type="submit"]';
-					_this59.qError = '#errmsg';
-					_this59.qName = '.name';
-					_this59.qOmitted = '.summary.desktop';
-					_this59.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
-					_this59.qPostForm = 'form[name="post"]';
-					_this59.qPostRedir = null;
-					_this59.qRef = '.postInfo > .postNum';
-					_this59.qTable = '.replyContainer';
-					_this59.qThumbImages = '.fileThumb > img:not(.fileDeletedRes)';
-
-					_this59.anchor = '#p';
-					_this59.docExt = '';
-					_this59.firstPage = 1;
-					_this59.markupBB = true;
-					_this59.rep = true;
-					_this59.res = 'thread/';
-					_this59.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
-					_this59.thrid = 'resto';
-					return _this59;
+			}, {
+				key: 'getTNum',
+				value: function getTNum(op) {
+					return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 				}
-
-				_createClass(chanOrg, [{
-					key: 'getFileInfo',
-					value: function getFileInfo(wrap) {
-						var el = $c(this.cFileInfo, wrap);
-						return el ? el.lastChild.textContent : '';
-					}
-				}, {
-					key: 'getPageUrl',
-					value: function getPageUrl(b, p) {
-						return fixBrd(b) + (p > 1 ? p : '');
-					}
-				}, {
-					key: 'getSage',
-					value: function getSage(post) {
-						return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
-					}
-				}, {
-					key: 'getTNum',
-					value: function getTNum(op) {
-						return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
-					}
-				}, {
-					key: 'getWrap',
-					value: function getWrap(el, isOp) {
-						return el.parentNode;
-					}
-				}, {
-					key: 'init',
-					value: function init() {
-						Cfg.findImgFile = 0;
-						var el = $id('captchaFormPart');
-						if (el) {
-							doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' + '<div onclick="initRecaptcha();"></div></div>');
-							this.updateCaptcha = (function (el, focus) {
-								$id('g-recaptcha').innerHTML = '';
-								this.click();
-								el.style.display = '';
-							}).bind(doc.body.lastChild.firstChild, el);
-						}
-						return false;
-					}
-				}, {
-					key: 'css',
-					get: function get() {
-						return '.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }\n\t\t\t\t\t.postForm { display: table !important; width: auto !important; }\n\t\t\t\t\ttextarea { margin-right: 0 !important; }';
-					}
-				}, {
-					key: 'qImgLink',
-					get: function get() {
-						return '.fileText > a';
-					}
-				}, {
-					key: 'markupTags',
-					get: function get() {
-						return ['', '', '', '', 'spoiler', '', '', '', 'q'];
-					}
-				}]);
-
-				return chanOrg;
-			})(BaseBoard),
-			'8ch.net': (function (_ibEngines$trUpload) {
-				_inherits(chNet, _ibEngines$trUpload);
-
-				function chNet() {
-					_classCallCheck(this, chNet);
-
-					return _possibleConstructorReturn(this, Object.getPrototypeOf(chNet).apply(this, arguments));
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.ftbl { width: auto; margin: 0; }\n\t\t\t\t.reply { background: #f0e0d6; }\n\t\t\t\tspan { font-size: inherit; }';
 				}
-
-				_createClass(chNet, [{
-					key: 'css',
-					get: function get() {
-						return '#post-moderation-fields { display: initial !important; }';
-					}
-				}]);
-
-				return chNet;
-			})(ibEngines['tr#upload']),
-			'7chan.org': (function (_BaseBoard11) {
-				_inherits(chanOrg, _BaseBoard11);
-
-				function chanOrg() {
-					_classCallCheck(this, chanOrg);
-
-					return _possibleConstructorReturn(this, Object.getPrototypeOf(chanOrg).apply(this, arguments));
+			}, {
+				key: 'qImgLink',
+				get: function get() {
+					return 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
 				}
+			}]);
 
-				_createClass(chanOrg, [{
-					key: 'init',
-					value: function init() {
+			return Futaba;
+		})(BaseBoard);
+
+		ibEngines['form[action*="futaba.php"]'] = Futaba;
+
+		var TinyIb = (function (_BaseBoard3) {
+			_inherits(TinyIb, _BaseBoard3);
+
+			function TinyIb(prot, dm) {
+				_classCallCheck(this, TinyIb);
+
+				var _this48 = _possibleConstructorReturn(this, Object.getPrototypeOf(TinyIb).call(this, prot, dm));
+
+				_this48.tinyIb = true;
+
+				_this48.qPostRedir = null;
+
+				_this48.ru = true;
+				return _this48;
+			}
+
+			_createClass(TinyIb, [{
+				key: 'getCaptchaSrc',
+				value: function getCaptchaSrc(src, tNum) {
+					return src.replace(/\?[^?]+$|$/, '?' + Math.random());
+				}
+			}]);
+
+			return TinyIb;
+		})(BaseBoard);
+
+		ibEngines['form[action*="imgboard.php?delete"]'] = TinyIb;
+
+		var Tinyboard = (function (_BaseBoard4) {
+			_inherits(Tinyboard, _BaseBoard4);
+
+			function Tinyboard(prot, dm) {
+				_classCallCheck(this, Tinyboard);
+
+				var _this49 = _possibleConstructorReturn(this, Object.getPrototypeOf(Tinyboard).call(this, prot, dm));
+
+				_this49.tiny = true;
+
+				_this49.cFileInfo = 'fileinfo';
+				_this49.cPostHeader = 'intro';
+				_this49.cReply = 'post reply';
+				_this49.qClosed = '.fa-lock';
+				_this49.cSubj = 'subject';
+				_this49.cTrip = 'trip';
+				_this49.qDForm = 'form[name*="postcontrols"]';
+				_this49.qMsg = '.body';
+				_this49.qName = '.name';
+				_this49.qOmitted = '.omitted';
+				_this49.qPages = '.pages > a:nth-last-of-type(2)';
+				_this49.qPostForm = 'form[name="post"]';
+				_this49.qPostRedir = null;
+				_this49.qRef = '.post_no + a';
+				_this49.qTable = '.post.reply';
+				_this49.qTrunc = '.toolong';
+
+				_this49.firstPage = 1;
+				_this49.timePattern = 'nn+dd+yy++w++hh+ii+ss';
+				_this49.thrid = 'thread';
+				return _this49;
+			}
+
+			_createClass(Tinyboard, [{
+				key: 'fixVideo',
+				value: function fixVideo(isPost, data) {
+					var videos = [],
+					    els = $Q('.video-container, #ytplayer', isPost ? data.el : data);
+					for (var i = 0, len = els.length; i < len; ++i) {
+						var el = els[i];
+						videos.push([isPost ? data : this.getPostOfEl(el), el.id === 'ytplayer' ? el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true]);
+						$del(el);
+					}
+					return videos;
+				}
+			}, {
+				key: 'getPageUrl',
+				value: function getPageUrl(b, p) {
+					return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
+				}
+			}, {
+				key: 'getTNum',
+				value: function getTNum(op) {
+					return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					if (Cfg) {
+						Cfg.fileThumb = 0;
+					}
+					return false;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }';
+				}
+			}, {
+				key: 'qImgLink',
+				get: function get() {
+					return 'p.fileinfo > a:first-of-type';
+				}
+			}, {
+				key: 'markupTags',
+				get: function get() {
+					return ["'''", "''", '__', '~~', '**', 'code', '', '', 'q'];
+				}
+			}]);
+
+			return Tinyboard;
+		})(BaseBoard);
+
+		ibEngines['form[name*="postcontrols"]'] = Tinyboard;
+
+		var Vichan = (function (_Tinyboard) {
+			_inherits(Vichan, _Tinyboard);
+
+			function Vichan(prot, dm) {
+				_classCallCheck(this, Vichan);
+
+				var _this50 = _possibleConstructorReturn(this, Object.getPrototypeOf(Vichan).call(this, prot, dm));
+
+				_this50.qDelPassw = '#password';
+				_this50.qPassw = 'input[name="password"]';
+
+				_this50.multiFile = true;
+				return _this50;
+			}
+
+			_createClass(Vichan, [{
+				key: 'fixFileInputs',
+				value: function fixFileInputs(el) {
+					var str = '';
+					for (var i = 0, len = 5; i < len; ++i) {
+						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"></div>';
+					}
+					$id('upload').lastChild.innerHTML = str;
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					setTimeout(function () {
+						$del($id('updater'));
+					}, 0);
+					if (checkStorage() && locStorage['file_dragdrop'] !== 'false') {
+						locStorage['file_dragdrop'] = false;
+						window.location.reload();
 						return true;
 					}
-				}]);
-
-				return chanOrg;
-			})(BaseBoard),
-			'arhivach.org': (function (_BaseBoard12) {
-				_inherits(arhivachOrg, _BaseBoard12);
-
-				function arhivachOrg(prot, dm) {
-					_classCallCheck(this, arhivachOrg);
-
-					var _this62 = _possibleConstructorReturn(this, Object.getPrototypeOf(arhivachOrg).call(this, prot, dm));
-
-					_this62.cPostHeader = 'post_head';
-					_this62.cReply = 'post';
-					_this62.qDForm = 'body > .container-fluid';
-					_this62.qMsg = '.post_comment_body';
-					_this62.qRef = '.post_id, .post_head > b';
-					_this62.qRPost = '.post:not(:first-child):not([postid=""])';
-					_this62.qThread = '.thread_inner';
-
-					_this62.docExt = '';
-					_this62.res = 'thread/';
-					return _this62;
+					return false;
 				}
-
-				_createClass(arhivachOrg, [{
-					key: 'getOp',
-					value: function getOp(el) {
-						return $q('.post:first-child', el);
-					}
-				}, {
-					key: 'getPNum',
-					value: function getPNum(post) {
-						return +post.getAttribute('postid');
-					}
-				}, {
-					key: 'getTNum',
-					value: function getTNum(el) {
-						return +this.getOp(el).getAttribute('postid');
-					}
-				}, {
-					key: 'getThrdUrl',
-					value: function getThrdUrl(b, tNum) {
-						return $q('link[rel="canonical"]', doc.head).href;
-					}
-				}, {
-					key: 'init',
-					value: function init() {
-						setTimeout(function () {
-							var delPosts = $Q('.post[postid=""]', doc);
-							for (var i = 0, len = delPosts.length; i < len; ++i) {
-								try {
-									var post = pByNum.get(+$q('blockquote', delPosts[i]).getAttribute('id').substring(1));
-									if (post) {
-										post.deleted = true;
-										post.btns.classList.remove('de-post-counter');
-										post.btns.classList.add('de-post-deleted');
-										post.wrap.classList.add('de-post-removed');
-									}
-								} catch (e) {}
-							}
-						}, 0);
-						return false;
-					}
-				}, {
-					key: 'css',
-					get: function get() {
-						return '.post_replies, .post[postid=""] { display: none !important; }\n\t\t\t\t\t.post { overflow-x: auto !important; }';
-					}
-				}]);
-
-				return arhivachOrg;
-			})(BaseBoard),
-			'diochan.com': (function (_ibEngines$scriptSrc2) {
-				_inherits(diochanCom, _ibEngines$scriptSrc2);
-
-				function diochanCom(prot, dm) {
-					_classCallCheck(this, diochanCom);
-
-					var _this63 = _possibleConstructorReturn(this, Object.getPrototypeOf(diochanCom).call(this, prot, dm));
-
-					_this63.dio = true;
-					return _this63;
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }\n\t\t\t\t.boardlist { position: static !important; }\n\t\t\t\tbody { padding: 0 5px !important; }\n\t\t\t\t.fileinfo { width: 250px; }\n\t\t\t\t.multifile { width: auto !important; }\n\t\t\t\t#expand-all-images, #expand-all-images + .unimportant, .post-btn, small { display: none !important; }';
 				}
+			}]);
 
-				_createClass(diochanCom, [{
-					key: 'css',
-					get: function get() {
-						return '.resize { display: none; }';
-					}
-				}]);
+			return Vichan;
+		})(Tinyboard);
 
-				return diochanCom;
-			})(ibEngines['script[src*="kusaba"]']),
-			get 'dmirrgetyojz735v.onion'() {
-				return this['2chru.net'];
-			},
-			'dobrochan.com': (function (_BaseBoard13) {
-				_inherits(dobrochanCom, _BaseBoard13);
+		ibEngines['tr#upload'] = Vichan;
 
-				function dobrochanCom(prot, dm) {
-					_classCallCheck(this, dobrochanCom);
+		var Kusaba = (function (_BaseBoard5) {
+			_inherits(Kusaba, _BaseBoard5);
 
-					var _this64 = _possibleConstructorReturn(this, Object.getPrototypeOf(dobrochanCom).call(this, prot, dm));
+			function Kusaba(prot, dm) {
+				_classCallCheck(this, Kusaba);
 
-					_this64.dobr = true;
+				var _this51 = _possibleConstructorReturn(this, Object.getPrototypeOf(Kusaba).call(this, prot, dm));
 
-					_this64.cFileInfo = 'fileinfo';
-					_this64.cSubj = 'replytitle';
-					_this64.qClosed = 'img[src="/images/locked.png"]';
-					_this64.qDForm = 'form[action*="delete"]';
-					_this64.qError = '.post-error, h2';
-					_this64.qMsg = '.postbody';
-					_this64.qOmitted = '.abbrev > span:last-of-type';
-					_this64.qPages = '.pages > tbody > tr > td';
-					_this64.qPostRedir = 'select[name="goto"]';
-					_this64.qTrunc = '.abbrev > span:nth-last-child(2)';
+				_this51.kus = true;
 
-					_this64.anchor = '#i';
-					_this64.hasPicWrap = true;
-					_this64.multiFile = true;
-					_this64.ru = true;
-					_this64.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
-					return _this64;
-				}
+				_this51.cOPost = 'postnode';
+				_this51.qError = 'h1, h2, div[style*="1.25em"]';
+				_this51.qPostRedir = null;
 
-				_createClass(dobrochanCom, [{
-					key: 'fixFileInputs',
-					value: function fixFileInputs(el) {
-						el = $id('files_parent');
-						$each($Q('input[type="file"]', el), function (el) {
-							el.removeAttribute('onchange');
-						});
-						el.firstElementChild.value = 1;
-					}
-				}, {
-					key: 'getImgLink',
-					value: function getImgLink(img) {
-						var el = img.parentNode;
-						return el.tagName === 'A' ? el : $q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
-					}
-				}, {
-					key: 'getImgWrap',
-					value: function getImgWrap(el) {
-						return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode : el.firstElementChild.tagName === 'IMG' ? el.parentNode : el;
-					}
-				}, {
-					key: 'getPageUrl',
-					value: function getPageUrl(b, p) {
-						return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
-					}
-				}, {
-					key: 'getTNum',
-					value: function getTNum(op) {
-						return +$q('a[name]', op).name.match(/\d+/)[0];
-					}
-				}, {
-					key: 'insertYtPlayer',
-					value: function insertYtPlayer(msg, playerHtml) {
-						var prev = msg.previousElementSibling,
-						    node = prev.tagName === 'BR' ? prev : msg;
-						node.insertAdjacentHTML('beforebegin', playerHtml);
-						return node.previousSibling;
-					}
-				}, {
-					key: 'disableRedirection',
-					value: function disableRedirection(el) {
-						($q(this.qPostRedir, el) || {}).selectedIndex = 1;
-					}
-				}, {
-					key: 'init',
-					value: function init() {
-						if (window.location.pathname === '/settings') {
-							if (!nav) {
-								initNavFuncs();
-							}
-							$q('input[type="button"]', doc).addEventListener('click', function () {
-								spawn(readCfg).then(function () {
-									return saveCfg('__hanarating', $id('rating').value);
-								});
-							});
-							return true;
-						}
-						return false;
-					}
-				}, {
-					key: 'css',
-					get: function get() {
-						return '.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none; }\n\t\t\t\t\t.delete { background: none; }\n\t\t\t\t\t.delete_checkbox { position: static !important; }\n\t\t\t\t\t.file + .de-video-obj { float: left; margin: 5px 20px 5px 5px; }\n\t\t\t\t\t.de-video-obj + div { clear: left; }';
-					}
-				}]);
-
-				return dobrochanCom;
-			})(BaseBoard),
-			get 'dobrochan.org'() {
-				return this['dobrochan.com'];
-			},
-			get 'dobrochan.ru'() {
-				return this['dobrochan.com'];
-			},
-			'dva-ch.net': (function (_BaseBoard14) {
-				_inherits(dvaChNet, _BaseBoard14);
-
-				function dvaChNet(prot, dm) {
-					_classCallCheck(this, dvaChNet);
-
-					var _this65 = _possibleConstructorReturn(this, Object.getPrototypeOf(dvaChNet).call(this, prot, dm));
-
-					_this65.dvachnet = true;
-
-					_this65.ru = true;
-					return _this65;
-				}
-
-				return dvaChNet;
-			})(BaseBoard),
-			'iichan.hk': (function (_BaseBoard15) {
-				_inherits(iichanHk, _BaseBoard15);
-
-				function iichanHk(prot, dm) {
-					_classCallCheck(this, iichanHk);
-
-					var _this66 = _possibleConstructorReturn(this, Object.getPrototypeOf(iichanHk).call(this, prot, dm));
-
-					_this66.iich = true;
-					return _this66;
-				}
-
-				_createClass(iichanHk, [{
-					key: 'init',
-					value: function init() {
-						doc.body.insertAdjacentHTML('beforeend', '<div onclick="highlight = function() {}"></div>');
-						doc.body.lastChild.click();
-						return false;
-					}
-				}, {
-					key: 'css',
-					get: function get() {
-						return '' + (this.t ? '#de-main { margin-top: -37px; }\
-					.logo { margin-bottom: 14px; }' : '');
-					}
-				}]);
-
-				return iichanHk;
-			})(BaseBoard),
-			'inach.org': (function (_BaseBoard16) {
-				_inherits(inachOrg, _BaseBoard16);
-
-				function inachOrg(prot, dm) {
-					_classCallCheck(this, inachOrg);
-
-					var _this67 = _possibleConstructorReturn(this, Object.getPrototypeOf(inachOrg).call(this, prot, dm));
-
-					_this67.qPostRedir = 'input[name="fieldnoko"]';
-
-					_this67.markupBB = true;
-					_this67.timePattern = 'nn+dd+yyyy++w++hh+ii+ss';
-					return _this67;
-				}
-
-				return inachOrg;
-			})(BaseBoard),
-			'krautchan.net': (function (_BaseBoard17) {
-				_inherits(krautchanNet, _BaseBoard17);
-
-				function krautchanNet(prot, dm) {
-					_classCallCheck(this, krautchanNet);
-
-					var _this68 = _possibleConstructorReturn(this, Object.getPrototypeOf(krautchanNet).call(this, prot, dm));
-
-					_this68.krau = true;
-
-					_this68.cFileInfo = 'fileinfo';
-					_this68.cPostHeader = 'postheader';
-					_this68.cReply = 'postreply';
-					_this68.cSubj = 'postsubject';
-					_this68.qBan = '.ban_mark';
-					_this68.qClosed = 'img[src="/images/locked.gif"]';
-					_this68.qDForm = 'form[action*="delete"]';
-					_this68.qError = '.message_text';
-					_this68.qOmitted = '.omittedinfo';
-					_this68.qPages = 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a';
-					_this68.qPostRedir = 'input#forward_thread';
-					_this68.qRef = '.postnumber';
-					_this68.qRPost = '.postreply';
-					_this68.qThread = '.thread_body';
-					_this68.qThumbImages = 'img[id^="thumbnail_"]';
-					_this68.qTrunc = 'p[id^="post_truncated"]';
-
-					_this68.hasPicWrap = true;
-					_this68.markupBB = true;
-					_this68.multiFile = true;
-					_this68.rep = true;
-					_this68.res = 'thread-';
-					_this68.timePattern = 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?';
-					return _this68;
-				}
-
-				_createClass(krautchanNet, [{
-					key: 'fixFileInputs',
-					value: function fixFileInputs(el) {
-						var str = '';
-						for (var i = 0, len = 4; i < len; ++i) {
-							str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file_' + i + '" tabindex="7"></input></div>';
-						}
-						var node = $id('files_parent');
-						node.innerHTML = str;
-						node.removeAttribute('id');
-					}
-				}, {
-					key: 'getImgWrap',
-					value: function getImgWrap(el) {
-						return el.parentNode;
-					}
-				}, {
-					key: 'getSage',
-					value: function getSage(post) {
-						return !!$c('sage', post);
-					}
-				}, {
-					key: 'getTNum',
-					value: function getTNum(op) {
-						return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
-					}
-				}, {
-					key: 'init',
-					value: function init() {
-						doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' + '<div onclick="window.lastUpdateTime = 0;"></div>' + '<div onclick="if(boardRequiresCaptcha) { requestCaptcha(true); }"></div>' + '<div onclick="setupProgressTracking();"></div>' + '<div onclick="highlightPost = function() {}"></div></div>' + '</div>');
-						var els = doc.body.lastChild.children;
-						this.btnZeroLUTime = els[0];
-						this.initCaptcha = els[1];
-						this.addProgressTrack = els[2];
-						els[3].click();
-						return false;
-					}
-				}, {
-					key: 'insertYtPlayer',
-					value: function insertYtPlayer(msg, playerHtml) {
-						var pMsg = msg.parentNode,
-						    prev = pMsg.previousElementSibling,
-						    node = prev.hasAttribute('style') ? prev : pMsg;
-						node.insertAdjacentHTML('beforebegin', playerHtml);
-						return node.previousSibling;
-					}
-				}, {
-					key: 'css',
-					get: function get() {
-						return 'img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none; }\n\t\t\t\t\tdiv[id^="Wz"] { z-index: 10000 !important; }\n\t\t\t\t\t.de-thr-hid { float: none; }\n\t\t\t\t\t.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\n\t\t\t\t\t.de-video-obj + div { clear: left; }\n\t\t\t\t\tform[action="/paint"] > select { width: 105px; }\n\t\t\t\t\tform[action="/paint"] > input[type="text"] { width: 24px !important; }';
-					}
-				}, {
-					key: 'qImgLink',
-					get: function get() {
-						return '.filename > a';
-					}
-				}, {
-					key: 'markupTags',
-					get: function get() {
-						return ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'];
-					}
-				}]);
-
-				return krautchanNet;
-			})(BaseBoard),
-			'lainchan.org': (function (_ibEngines$trUpload2) {
-				_inherits(lainchanOrg, _ibEngines$trUpload2);
-
-				function lainchanOrg(prot, dm) {
-					_classCallCheck(this, lainchanOrg);
-
-					var _this69 = _possibleConstructorReturn(this, Object.getPrototypeOf(lainchanOrg).call(this, prot, dm));
-
-					_this69.cOPost = 'op';
-					return _this69;
-				}
-
-				_createClass(lainchanOrg, [{
-					key: 'css',
-					get: function get() {
-						return '.sidearrows { display: none !important; }\n\t\t\t\t\t.bar { position: static; }';
-					}
-				}]);
-
-				return lainchanOrg;
-			})(ibEngines['tr#upload']),
-			'mlpg.co': (function (_ibEngines$trUpload3) {
-				_inherits(mlpgCo, _ibEngines$trUpload3);
-
-				function mlpgCo(prot, dm) {
-					_classCallCheck(this, mlpgCo);
-
-					var _this70 = _possibleConstructorReturn(this, Object.getPrototypeOf(mlpgCo).call(this, prot, dm));
-
-					_this70.cOPost = 'opContainer';
-					return _this70;
-				}
-
-				return mlpgCo;
-			})(ibEngines['tr#upload']),
-			get 'niuchan.org'() {
-				return this['diochan.com'];
-			},
-			'ponya.ch': (function (_BaseBoard18) {
-				_inherits(ponyaCh, _BaseBoard18);
-
-				function ponyaCh(prot, dm) {
-					_classCallCheck(this, ponyaCh);
-
-					var _this71 = _possibleConstructorReturn(this, Object.getPrototypeOf(ponyaCh).call(this, prot, dm));
-
-					_this71.multiFile = true;
-					_this71.postMapInited = false;
-					_this71.thrid = 'replythread';
-					return _this71;
-				}
-
-				_createClass(ponyaCh, [{
-					key: 'checkForm',
-					value: function checkForm(formEl, maybeSpells) {
-						var _this72 = this;
-
-						var myMaybeSpells = maybeSpells || new Maybe(SpellsRunner),
-						    maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-						if (!this.postMapInited) {
-							this.postMapInited = true;
-							$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', doc.body), function (pEl) {
-								return _this72.modifiedPosts.set(pEl, +pEl.getAttribute('data-lastmodified'));
-							});
-						}
-						$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', formEl), function (pEl) {
-							var nPost,
-							    post = pByNum.get(_this72.getPNum(pEl)),
-							    pDate = +pEl.getAttribute('data-lastmodified');
-							if (post && (!_this72.modifiedPosts.has(pEl) || _this72.modifiedPosts.get(pEl) < pDate)) {
-								var thr = post.thr,
-								    fragm = doc.createDocumentFragment();
-								_this72.modifiedPosts.set(pEl, pDate);
-								nPost = thr.addPost(fragm, pEl, post.count, post.prev, maybeVParser);
-								if (thr.op === post) {
-									thr.op = nPost;
-								}
-								if (thr.last === post) {
-									thr.last = nPost;
-								}
-								if (post.next) {
-									post.next.prev = nPost;
-									nPost.next = post.next;
-								}
-								if (post.omitted) {
-									nPost.omitted = true;
-									nPost.wrap.classList.add('de-hidden');
-								}
-								myMaybeSpells.value.run(nPost);
-								$before(post.wrap, fragm);
-								$del(post.wrap);
-							}
-						});
-						if (!maybeSpells) {
-							myMaybeSpells.end();
-						}
-						maybeVParser.end();
-					}
-				}, {
-					key: 'getPNum',
-					value: function getPNum(post) {
-						return +post.getAttribute('data-num');
-					}
-				}, {
-					key: 'init',
-					value: function init() {
-						defaultCfg.postSameImg = 0;
-						defaultCfg.removeEXIF = 0;
-						return false;
-					}
-				}, {
-					key: 'modifiedPosts',
-					get: function get() {
-						var val = new WeakMap();
-						Object.defineProperty(this, 'modifiedPosts', { value: val });
-						return val;
-					}
-				}]);
-
-				return ponyaCh;
-			})(BaseBoard),
-			get 'ponyach.cf'() {
-				return this['ponya.ch'];
-			},
-			get 'ponyach.ga'() {
-				return this['ponya.ch'];
-			},
-			get 'ponyach.ml'() {
-				return this['ponya.ch'];
-			},
-			get 'ponyach.ru'() {
-				return this['ponya.ch'];
-			},
-			get 'ponychan.ru'() {
-				return this['ponya.ch'];
-			},
-			'ponychan.net': (function (_ibEngines$formName) {
-				_inherits(ponychanNet, _ibEngines$formName);
-
-				function ponychanNet(prot, dm) {
-					_classCallCheck(this, ponychanNet);
-
-					var _this73 = _possibleConstructorReturn(this, Object.getPrototypeOf(ponychanNet).call(this, prot, dm));
-
-					_this73.cOPost = 'opContainer';
-					return _this73;
-				}
-
-				_createClass(ponychanNet, [{
-					key: 'init',
-					value: function init() {
-						$each($Q('img[data-mature-src]', doc.body), function (el) {
-							el.src = el.getAttribute('data-mature-src');
-						});
-						return false;
-					}
-				}, {
-					key: 'css',
-					get: function get() {
-						return '.mature_thread { display: block !important; }\n\t\t\t\t\t.mature_warning { display: none; }';
-					}
-				}]);
-
-				return ponychanNet;
-			})(ibEngines['form[name*="postcontrols"]']),
-			'syn-ch.ru': (function (_ibEngines$formName2) {
-				_inherits(synChRu, _ibEngines$formName2);
-
-				function synChRu(prot, dm) {
-					_classCallCheck(this, synChRu);
-
-					var _this74 = _possibleConstructorReturn(this, Object.getPrototypeOf(synChRu).call(this, prot, dm));
-
-					_this74.cFileInfo = 'unimportant';
-
-					_this74.markupBB = true;
-					return _this74;
-				}
-
-				_createClass(synChRu, [{
-					key: 'earlyInit',
-					value: function earlyInit() {
-						var val = '{"simpleNavbar":true,"showInfo":true}';
-						if (locStorage['settings'] !== val) {
-							locStorage['settings'] = val;
-							return true;
-						}
-						return false;
-					}
-				}, {
-					key: 'init',
-					value: function init() {
-						defaultCfg.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
-						defaultCfg.timeOffset = 4;
-						defaultCfg.correctTime = 1;
-						return false;
-					}
-				}, {
-					key: 'css',
-					get: function get() {
-						return '.fa-sort { display: none; }\t\t\t\t\ttime::after { content: none; }';
-					}
-				}, {
-					key: 'markupTags',
-					get: function get() {
-						return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'];
-					}
-				}]);
-
-				return synChRu;
-			})(ibEngines['form[name*="postcontrols"]']),
-			get 'syn-ch.com'() {
-				return this['syn-ch.ru'];
-			},
-			get 'syn-ch.org'() {
-				return this['syn-ch.ru'];
+				_this51.markupBB = true;
+				return _this51;
 			}
-		};
+
+			_createClass(Kusaba, [{
+				key: 'getCaptchaSrc',
+				value: function getCaptchaSrc(src, tNum) {
+					return src.replace(/\?[^?]+$|$/, '?' + Math.random());
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }\n\t\t\t\t.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
+				}
+			}]);
+
+			return Kusaba;
+		})(BaseBoard);
+
+		ibEngines['script[src*="kusaba"]'] = Kusaba;
+		ibEngines['form[action$="board.php"]'] = Kusaba;
+
+		var Phutaba = (function (_BaseBoard6) {
+			_inherits(Phutaba, _BaseBoard6);
+
+			function Phutaba(prot, dm) {
+				_classCallCheck(this, Phutaba);
+
+				var _this52 = _possibleConstructorReturn(this, Object.getPrototypeOf(Phutaba).call(this, prot, dm));
+
+				_this52.cOPost = 'thread_OP';
+				_this52.cPostHeader = 'post_head';
+				_this52.cReply = 'post';
+				_this52.cSubj = 'subject';
+				_this52.cTrip = 'tripcode';
+				_this52.qError = '.error';
+				_this52.qMsg = '.text';
+				_this52.qPages = '.pagelist > li:nth-last-child(2)';
+				_this52.qPostRedir = 'input[name="gb2"][value="thread"]';
+				_this52.qRPost = '.thread_reply';
+				_this52.qTrunc = '.tldr';
+
+				_this52.docExt = '';
+				_this52.markupBB = true;
+				_this52.multiFile = true;
+				_this52.res = 'thread/';
+				return _this52;
+			}
+
+			_createClass(Phutaba, [{
+				key: 'fixFileInputs',
+				value: function fixFileInputs(el) {
+					var str = '><input name="file" type="file"></input></div>';
+					el.removeAttribute('onchange');
+					el.parentNode.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+				}
+			}, {
+				key: 'getImgWrap',
+				value: function getImgWrap(el) {
+					return el.parentNode.parentNode;
+				}
+			}, {
+				key: 'getSage',
+				value: function getSage(post) {
+					return !!$q('.sage', post);
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.content > hr, .de-parea > hr { display: none !important }';
+				}
+			}, {
+				key: 'qImgLink',
+				get: function get() {
+					return '.filename > a';
+				}
+			}]);
+
+			return Phutaba;
+		})(BaseBoard);
+
+		ibEngines['link[href$="phutaba.css"]'] = Phutaba;
+
+		var DivManic = (function (_BaseBoard7) {
+			_inherits(DivManic, _BaseBoard7);
+
+			function DivManic(prot, dm) {
+				_classCallCheck(this, DivManic);
+
+				var _this53 = _possibleConstructorReturn(this, Object.getPrototypeOf(DivManic).call(this, prot, dm));
+
+				_this53.qDForm = '#mainc';
+				return _this53;
+			}
+
+			_createClass(DivManic, [{
+				key: 'getPageUrl',
+				value: function getPageUrl(b, p) {
+					return fixBrd(b) + '?do=page&p=' + (p < 0 ? 0 : p);
+				}
+			}, {
+				key: 'getThrdUrl',
+				value: function getThrdUrl(b, tNum) {
+					return this.prot + '//' + this.host + fixBrd(b) + '?do=thread&id=' + tNum;
+				}
+			}, {
+				key: 'getTNum',
+				value: function getTNum(op) {
+					return +$q('a[name]', op).name.match(/\d+/)[0];
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					var el = $id('mainc'),
+					    pArea = $id('postarea');
+					$del(el.firstElementChild);
+					$before(el, pArea.nextElementSibling);
+					$before(el, pArea);
+					return false;
+				}
+			}, {
+				key: 'parseURL',
+				value: function parseURL() {
+					var url = window.location.search.match(/^\?do=(thread|page)&(id|p)=(\d+)$/);
+					this.b = window.location.pathname.replace(/\//g, '');
+					this.t = url[1] === 'thread' ? +url[3] : false;
+					this.page = url[1] === 'page' ? +url[3] : 0;
+					this.docExt = '';
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.reply { background-color: #e4e4d6; }';
+				}
+			}]);
+
+			return DivManic;
+		})(BaseBoard);
+
+		ibEngines['div#mainc'] = DivManic;
+
+		var _02chNet = (function (_BaseBoard8) {
+			_inherits(_02chNet, _BaseBoard8);
+
+			function _02chNet(prot, dm) {
+				_classCallCheck(this, _02chNet);
+
+				var _this54 = _possibleConstructorReturn(this, Object.getPrototypeOf(_02chNet).call(this, prot, dm));
+
+				_this54.qPostRedir = 'input[name="gb2"][value="thread"]';
+
+				_this54.ru = true;
+				_this54.timePattern = 'yyyy+nn+dd++w++hh+ii+ss';
+				return _this54;
+			}
+
+			return _02chNet;
+		})(BaseBoard);
+
+		ibDomains['02ch.net'] = _02chNet;
+
+		var _2chruNet = (function (_TinyIb) {
+			_inherits(_2chruNet, _TinyIb);
+
+			function _2chruNet(prot, dm) {
+				_classCallCheck(this, _2chruNet);
+
+				var _this55 = _possibleConstructorReturn(this, Object.getPrototypeOf(_2chruNet).call(this, prot, dm));
+
+				_this55._2chru = true;
+				return _this55;
+			}
+
+			_createClass(_2chruNet, [{
+				key: 'css',
+				get: function get() {
+					return '.small { display: none; }';
+				}
+			}]);
+
+			return _2chruNet;
+		})(TinyIb);
+
+		ibDomains['2chru.net'] = _2chruNet;
+		ibDomains['2-chru.net'] = _2chruNet;
+		ibDomains['2chru.cafe'] = _2chruNet;
+		ibDomains['2-chru.cafe'] = _2chruNet;
+		ibDomains['dmirrgetyojz735v.onion'] = _2chruNet;
+
+		var _2chRu = (function (_TinyIb2) {
+			_inherits(_2chRu, _TinyIb2);
+
+			function _2chRu(prot, dm) {
+				_classCallCheck(this, _2chRu);
+
+				var _this56 = _possibleConstructorReturn(this, Object.getPrototypeOf(_2chRu).call(this, prot, dm));
+
+				_this56.tire = true;
+
+				_this56.qPages = 'table[border="1"] tr:first-of-type > td:first-of-type a';
+				_this56.qPostRedir = null;
+				_this56.qTable = 'table:not(.postfiles)';
+				_this56.qThread = '.threadz';
+
+				_this56.docExt = '.html';
+				_this56.hasPicWrap = true;
+				_this56.markupBB = true;
+				_this56.multiFile = true;
+				_this56.ru = true;
+				return _this56;
+			}
+
+			_createClass(_2chRu, [{
+				key: 'fixFileInputs',
+				value: function fixFileInputs(el) {
+					var str = '><input name="file" maxlength="4" ' + 'accept="|sid|7z|bz2|m4a|flac|lzh|mo3|rar|spc|fla|nsf|jpg|mpp|aac|gz|xm|wav|' + 'mp3|png|it|lha|torrent|swf|zip|mpc|ogg|jpeg|gif|mod" type="file"></input></div>';
+					el.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+				}
+			}, {
+				key: 'getCaptchaSrc',
+				value: function getCaptchaSrc(src, tNum) {
+					return '/' + this.b + '/captcha.fpl?' + Math.random();
+				}
+			}, {
+				key: 'getOmitted',
+				value: function getOmitted(el, len) {
+					var txt;
+					return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
+				}
+			}, {
+				key: 'getPageUrl',
+				value: function getPageUrl(b, p) {
+					return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return 'span[id$="_display"], #fastload { display: none; }';
+				}
+			}]);
+
+			return _2chRu;
+		})(TinyIb);
+
+		ibDomains['2--ch.ru'] = _2chRu;
+		ibDomains['2-ch.su'] = _2chRu;
+
+		var _410chanOrg = (function (_Kusaba) {
+			_inherits(_410chanOrg, _Kusaba);
+
+			function _410chanOrg(prot, dm) {
+				_classCallCheck(this, _410chanOrg);
+
+				var _this57 = _possibleConstructorReturn(this, Object.getPrototypeOf(_410chanOrg).call(this, prot, dm));
+
+				_this57._410 = true;
+
+				_this57.qPostRedir = 'input#noko';
+
+				_this57.markupBB = false;
+				_this57.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
+				return _this57;
+			}
+
+			_createClass(_410chanOrg, [{
+				key: 'getCaptchaSrc',
+				value: function getCaptchaSrc(src, tNum) {
+					return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
+				}
+			}, {
+				key: 'getSage',
+				value: function getSage(post) {
+					var el = $c('filetitle', post);
+					return el && el.textContent.includes('⇩');
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '#resizer { display: none; }';
+				}
+			}, {
+				key: 'markupTags',
+				get: function get() {
+					return ['**', '*', '__', '^^', '%%', '`', '', '', 'q'];
+				}
+			}]);
+
+			return _410chanOrg;
+		})(Kusaba);
+
+		ibDomains['410chan.org'] = _410chanOrg;
+
+		var _420chanOrg = (function (_BaseBoard9) {
+			_inherits(_420chanOrg, _BaseBoard9);
+
+			function _420chanOrg(prot, dm) {
+				_classCallCheck(this, _420chanOrg);
+
+				var _this58 = _possibleConstructorReturn(this, Object.getPrototypeOf(_420chanOrg).call(this, prot, dm));
+
+				_this58._420 = true;
+
+				_this58.cPostHeader = 'replyheader';
+				_this58.qBan = '.ban';
+				_this58.qError = 'pre';
+				_this58.qPages = '.pagelist > a:last-child';
+				_this58.qPostRedir = null;
+				_this58.qThread = '[id*="thread"]';
+
+				_this58.docExt = '.php';
+				_this58.markupBB = true;
+				return _this58;
+			}
+
+			_createClass(_420chanOrg, [{
+				key: 'getTNum',
+				value: function getTNum(op) {
+					return +$q('a[id]', op).id.match(/\d+/)[0];
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }\n\t\t\t\t.de-thr-hid { margin: 1em 0; }';
+				}
+			}, {
+				key: 'markupTags',
+				get: function get() {
+					return ['**', '*', '', '', '%', 'pre', '', '', 'q'];
+				}
+			}]);
+
+			return _420chanOrg;
+		})(BaseBoard);
+
+		ibDomains['420chan.org'] = _420chanOrg;
+
+		var _4chanOrg = (function (_BaseBoard10) {
+			_inherits(_4chanOrg, _BaseBoard10);
+
+			function _4chanOrg(prot, dm) {
+				_classCallCheck(this, _4chanOrg);
+
+				var _this59 = _possibleConstructorReturn(this, Object.getPrototypeOf(_4chanOrg).call(this, prot, dm));
+
+				_this59.fch = true;
+
+				_this59.cFileInfo = 'fileText';
+				_this59.cOPost = 'op';
+				_this59.cPostHeader = 'postInfo';
+				_this59.cReply = 'post reply';
+				_this59.cSubj = 'subject';
+				_this59.qBan = 'strong[style="color: red;"]';
+				_this59.qClosed = '.archivedIcon';
+				_this59.qDelBut = '.deleteform > input[type="submit"]';
+				_this59.qError = '#errmsg';
+				_this59.qName = '.name';
+				_this59.qOmitted = '.summary.desktop';
+				_this59.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
+				_this59.qPostForm = 'form[name="post"]';
+				_this59.qPostRedir = null;
+				_this59.qRef = '.postInfo > .postNum';
+				_this59.qTable = '.replyContainer';
+				_this59.qThumbImages = '.fileThumb > img:not(.fileDeletedRes)';
+
+				_this59.anchor = '#p';
+				_this59.docExt = '';
+				_this59.firstPage = 1;
+				_this59.markupBB = true;
+				_this59.rep = true;
+				_this59.res = 'thread/';
+				_this59.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
+				_this59.thrid = 'resto';
+				return _this59;
+			}
+
+			_createClass(_4chanOrg, [{
+				key: 'getFileInfo',
+				value: function getFileInfo(wrap) {
+					var el = $c(this.cFileInfo, wrap);
+					return el ? el.lastChild.textContent : '';
+				}
+			}, {
+				key: 'getPageUrl',
+				value: function getPageUrl(b, p) {
+					return fixBrd(b) + (p > 1 ? p : '');
+				}
+			}, {
+				key: 'getSage',
+				value: function getSage(post) {
+					return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
+				}
+			}, {
+				key: 'getTNum',
+				value: function getTNum(op) {
+					return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				}
+			}, {
+				key: 'getWrap',
+				value: function getWrap(el, isOp) {
+					return el.parentNode;
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					Cfg.findImgFile = 0;
+					var el = $id('captchaFormPart');
+					if (el) {
+						doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' + '<div onclick="initRecaptcha();"></div></div>');
+						this.updateCaptcha = (function (el, focus) {
+							$id('g-recaptcha').innerHTML = '';
+							this.click();
+							el.style.display = '';
+						}).bind(doc.body.lastChild.firstChild, el);
+					}
+					return false;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }\n\t\t\t\t.postForm { display: table !important; width: auto !important; }\n\t\t\t\ttextarea { margin-right: 0 !important; }';
+				}
+			}, {
+				key: 'qImgLink',
+				get: function get() {
+					return '.fileText > a';
+				}
+			}, {
+				key: 'markupTags',
+				get: function get() {
+					return ['', '', '', '', 'spoiler', '', '', '', 'q'];
+				}
+			}]);
+
+			return _4chanOrg;
+		})(BaseBoard);
+
+		ibDomains['4chan.org'] = _4chanOrg;
+
+		var _8chNet = (function (_Vichan) {
+			_inherits(_8chNet, _Vichan);
+
+			function _8chNet() {
+				_classCallCheck(this, _8chNet);
+
+				return _possibleConstructorReturn(this, Object.getPrototypeOf(_8chNet).apply(this, arguments));
+			}
+
+			_createClass(_8chNet, [{
+				key: 'css',
+				get: function get() {
+					return '#post-moderation-fields { display: initial !important; }';
+				}
+			}]);
+
+			return _8chNet;
+		})(Vichan);
+
+		ibDomains['8ch.net'] = _8chNet;
+
+		var _7chanOrg = (function (_BaseBoard11) {
+			_inherits(_7chanOrg, _BaseBoard11);
+
+			function _7chanOrg() {
+				_classCallCheck(this, _7chanOrg);
+
+				return _possibleConstructorReturn(this, Object.getPrototypeOf(_7chanOrg).apply(this, arguments));
+			}
+
+			_createClass(_7chanOrg, [{
+				key: 'init',
+				value: function init() {
+					return true;
+				}
+			}]);
+
+			return _7chanOrg;
+		})(BaseBoard);
+
+		ibDomains['7chan.org'] = _7chanOrg;
+
+		var Arhivach = (function (_BaseBoard12) {
+			_inherits(Arhivach, _BaseBoard12);
+
+			function Arhivach(prot, dm) {
+				_classCallCheck(this, Arhivach);
+
+				var _this62 = _possibleConstructorReturn(this, Object.getPrototypeOf(Arhivach).call(this, prot, dm));
+
+				_this62.cPostHeader = 'post_head';
+				_this62.cReply = 'post';
+				_this62.qDForm = 'body > .container-fluid';
+				_this62.qMsg = '.post_comment_body';
+				_this62.qRef = '.post_id, .post_head > b';
+				_this62.qRPost = '.post:not(:first-child):not([postid=""])';
+				_this62.qThread = '.thread_inner';
+
+				_this62.docExt = '';
+				_this62.res = 'thread/';
+				return _this62;
+			}
+
+			_createClass(Arhivach, [{
+				key: 'getOp',
+				value: function getOp(el) {
+					return $q('.post:first-child', el);
+				}
+			}, {
+				key: 'getPNum',
+				value: function getPNum(post) {
+					return +post.getAttribute('postid');
+				}
+			}, {
+				key: 'getTNum',
+				value: function getTNum(el) {
+					return +this.getOp(el).getAttribute('postid');
+				}
+			}, {
+				key: 'getThrdUrl',
+				value: function getThrdUrl(b, tNum) {
+					return $q('link[rel="canonical"]', doc.head).href;
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					setTimeout(function () {
+						var delPosts = $Q('.post[postid=""]', doc);
+						for (var i = 0, len = delPosts.length; i < len; ++i) {
+							try {
+								var post = pByNum.get(+$q('blockquote', delPosts[i]).getAttribute('id').substring(1));
+								if (post) {
+									post.deleted = true;
+									post.btns.classList.remove('de-post-counter');
+									post.btns.classList.add('de-post-deleted');
+									post.wrap.classList.add('de-post-removed');
+								}
+							} catch (e) {}
+						}
+					}, 0);
+					return false;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.post_replies, .post[postid=""] { display: none !important; }\n\t\t\t\t.post { overflow-x: auto !important; }';
+				}
+			}]);
+
+			return Arhivach;
+		})(BaseBoard);
+
+		ibDomains['arhivach.org'] = Arhivach;
+
+		var Diochan = (function (_Kusaba2) {
+			_inherits(Diochan, _Kusaba2);
+
+			function Diochan(prot, dm) {
+				_classCallCheck(this, Diochan);
+
+				var _this63 = _possibleConstructorReturn(this, Object.getPrototypeOf(Diochan).call(this, prot, dm));
+
+				_this63.dio = true;
+				return _this63;
+			}
+
+			_createClass(Diochan, [{
+				key: 'css',
+				get: function get() {
+					return '.resize { display: none; }';
+				}
+			}]);
+
+			return Diochan;
+		})(Kusaba);
+
+		ibDomains['diochan.com'] = Diochan;
+		ibDomains['niuchan.org'] = Diochan;
+
+		var Dobrochan = (function (_BaseBoard13) {
+			_inherits(Dobrochan, _BaseBoard13);
+
+			function Dobrochan(prot, dm) {
+				_classCallCheck(this, Dobrochan);
+
+				var _this64 = _possibleConstructorReturn(this, Object.getPrototypeOf(Dobrochan).call(this, prot, dm));
+
+				_this64.dobr = true;
+
+				_this64.cFileInfo = 'fileinfo';
+				_this64.cSubj = 'replytitle';
+				_this64.qClosed = 'img[src="/images/locked.png"]';
+				_this64.qDForm = 'form[action*="delete"]';
+				_this64.qError = '.post-error, h2';
+				_this64.qMsg = '.postbody';
+				_this64.qOmitted = '.abbrev > span:last-of-type';
+				_this64.qPages = '.pages > tbody > tr > td';
+				_this64.qPostRedir = 'select[name="goto"]';
+				_this64.qTrunc = '.abbrev > span:nth-last-child(2)';
+
+				_this64.anchor = '#i';
+				_this64.hasPicWrap = true;
+				_this64.multiFile = true;
+				_this64.ru = true;
+				_this64.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+				return _this64;
+			}
+
+			_createClass(Dobrochan, [{
+				key: 'fixFileInputs',
+				value: function fixFileInputs(el) {
+					el = $id('files_parent');
+					$each($Q('input[type="file"]', el), function (el) {
+						el.removeAttribute('onchange');
+					});
+					el.firstElementChild.value = 1;
+				}
+			}, {
+				key: 'getImgLink',
+				value: function getImgLink(img) {
+					var el = img.parentNode;
+					return el.tagName === 'A' ? el : $q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
+				}
+			}, {
+				key: 'getImgWrap',
+				value: function getImgWrap(el) {
+					return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode : el.firstElementChild.tagName === 'IMG' ? el.parentNode : el;
+				}
+			}, {
+				key: 'getPageUrl',
+				value: function getPageUrl(b, p) {
+					return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
+				}
+			}, {
+				key: 'getTNum',
+				value: function getTNum(op) {
+					return +$q('a[name]', op).name.match(/\d+/)[0];
+				}
+			}, {
+				key: 'insertYtPlayer',
+				value: function insertYtPlayer(msg, playerHtml) {
+					var prev = msg.previousElementSibling,
+					    node = prev.tagName === 'BR' ? prev : msg;
+					node.insertAdjacentHTML('beforebegin', playerHtml);
+					return node.previousSibling;
+				}
+			}, {
+				key: 'disableRedirection',
+				value: function disableRedirection(el) {
+					($q(this.qPostRedir, el) || {}).selectedIndex = 1;
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					if (window.location.pathname === '/settings') {
+						if (!nav) {
+							initNavFuncs();
+						}
+						$q('input[type="button"]', doc).addEventListener('click', function () {
+							spawn(readCfg).then(function () {
+								return saveCfg('__hanarating', $id('rating').value);
+							});
+						});
+						return true;
+					}
+					return false;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none; }\n\t\t\t\t.delete { background: none; }\n\t\t\t\t.delete_checkbox { position: static !important; }\n\t\t\t\t.file + .de-video-obj { float: left; margin: 5px 20px 5px 5px; }\n\t\t\t\t.de-video-obj + div { clear: left; }';
+				}
+			}]);
+
+			return Dobrochan;
+		})(BaseBoard);
+
+		ibDomains['dobrochan.com'] = Dobrochan;
+		ibDomains['dobrochan.org'] = Dobrochan;
+		ibDomains['dobrochan.ru'] = Dobrochan;
+
+		var DvaChNet = (function (_BaseBoard14) {
+			_inherits(DvaChNet, _BaseBoard14);
+
+			function DvaChNet(prot, dm) {
+				_classCallCheck(this, DvaChNet);
+
+				var _this65 = _possibleConstructorReturn(this, Object.getPrototypeOf(DvaChNet).call(this, prot, dm));
+
+				_this65.dvachnet = true;
+
+				_this65.ru = true;
+				return _this65;
+			}
+
+			return DvaChNet;
+		})(BaseBoard);
+
+		ibDomains['dva-ch.net'] = DvaChNet;
+
+		var Iichan = (function (_BaseBoard15) {
+			_inherits(Iichan, _BaseBoard15);
+
+			function Iichan(prot, dm) {
+				_classCallCheck(this, Iichan);
+
+				var _this66 = _possibleConstructorReturn(this, Object.getPrototypeOf(Iichan).call(this, prot, dm));
+
+				_this66.iich = true;
+				return _this66;
+			}
+
+			_createClass(Iichan, [{
+				key: 'init',
+				value: function init() {
+					doc.body.insertAdjacentHTML('beforeend', '<div onclick="highlight = function() {}"></div>');
+					doc.body.lastChild.click();
+					return false;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '' + (this.t ? '#de-main { margin-top: -37px; }\
+				.logo { margin-bottom: 14px; }' : '');
+				}
+			}]);
+
+			return Iichan;
+		})(BaseBoard);
+
+		ibDomains['iichan.hk'] = Iichan;
+
+		var Inach = (function (_BaseBoard16) {
+			_inherits(Inach, _BaseBoard16);
+
+			function Inach(prot, dm) {
+				_classCallCheck(this, Inach);
+
+				var _this67 = _possibleConstructorReturn(this, Object.getPrototypeOf(Inach).call(this, prot, dm));
+
+				_this67.qPostRedir = 'input[name="fieldnoko"]';
+
+				_this67.markupBB = true;
+				_this67.timePattern = 'nn+dd+yyyy++w++hh+ii+ss';
+				return _this67;
+			}
+
+			return Inach;
+		})(BaseBoard);
+
+		ibDomains['inach.org'] = Inach;
+
+		var Krautchan = (function (_BaseBoard17) {
+			_inherits(Krautchan, _BaseBoard17);
+
+			function Krautchan(prot, dm) {
+				_classCallCheck(this, Krautchan);
+
+				var _this68 = _possibleConstructorReturn(this, Object.getPrototypeOf(Krautchan).call(this, prot, dm));
+
+				_this68.krau = true;
+
+				_this68.cFileInfo = 'fileinfo';
+				_this68.cPostHeader = 'postheader';
+				_this68.cReply = 'postreply';
+				_this68.cSubj = 'postsubject';
+				_this68.qBan = '.ban_mark';
+				_this68.qClosed = 'img[src="/images/locked.gif"]';
+				_this68.qDForm = 'form[action*="delete"]';
+				_this68.qError = '.message_text';
+				_this68.qOmitted = '.omittedinfo';
+				_this68.qPages = 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a';
+				_this68.qPostRedir = 'input#forward_thread';
+				_this68.qRef = '.postnumber';
+				_this68.qRPost = '.postreply';
+				_this68.qThread = '.thread_body';
+				_this68.qThumbImages = 'img[id^="thumbnail_"]';
+				_this68.qTrunc = 'p[id^="post_truncated"]';
+
+				_this68.hasPicWrap = true;
+				_this68.markupBB = true;
+				_this68.multiFile = true;
+				_this68.rep = true;
+				_this68.res = 'thread-';
+				_this68.timePattern = 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?';
+				return _this68;
+			}
+
+			_createClass(Krautchan, [{
+				key: 'fixFileInputs',
+				value: function fixFileInputs(el) {
+					var str = '';
+					for (var i = 0, len = 4; i < len; ++i) {
+						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file_' + i + '" tabindex="7"></input></div>';
+					}
+					var node = $id('files_parent');
+					node.innerHTML = str;
+					node.removeAttribute('id');
+				}
+			}, {
+				key: 'getImgWrap',
+				value: function getImgWrap(el) {
+					return el.parentNode;
+				}
+			}, {
+				key: 'getSage',
+				value: function getSage(post) {
+					return !!$c('sage', post);
+				}
+			}, {
+				key: 'getTNum',
+				value: function getTNum(op) {
+					return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' + '<div onclick="window.lastUpdateTime = 0;"></div>' + '<div onclick="if(boardRequiresCaptcha) { requestCaptcha(true); }"></div>' + '<div onclick="setupProgressTracking();"></div>' + '<div onclick="highlightPost = function() {}"></div></div>' + '</div>');
+					var els = doc.body.lastChild.children;
+					this.btnZeroLUTime = els[0];
+					this.initCaptcha = els[1];
+					this.addProgressTrack = els[2];
+					els[3].click();
+					return false;
+				}
+			}, {
+				key: 'insertYtPlayer',
+				value: function insertYtPlayer(msg, playerHtml) {
+					var pMsg = msg.parentNode,
+					    prev = pMsg.previousElementSibling,
+					    node = prev.hasAttribute('style') ? prev : pMsg;
+					node.insertAdjacentHTML('beforebegin', playerHtml);
+					return node.previousSibling;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return 'img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none; }\n\t\t\t\tdiv[id^="Wz"] { z-index: 10000 !important; }\n\t\t\t\t.de-thr-hid { float: none; }\n\t\t\t\t.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\n\t\t\t\t.de-video-obj + div { clear: left; }\n\t\t\t\tform[action="/paint"] > select { width: 105px; }\n\t\t\t\tform[action="/paint"] > input[type="text"] { width: 24px !important; }';
+				}
+			}, {
+				key: 'qImgLink',
+				get: function get() {
+					return '.filename > a';
+				}
+			}, {
+				key: 'markupTags',
+				get: function get() {
+					return ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'];
+				}
+			}]);
+
+			return Krautchan;
+		})(BaseBoard);
+
+		ibDomains['krautchan.net'] = Krautchan;
+
+		var Lainchan = (function (_Vichan2) {
+			_inherits(Lainchan, _Vichan2);
+
+			function Lainchan(prot, dm) {
+				_classCallCheck(this, Lainchan);
+
+				var _this69 = _possibleConstructorReturn(this, Object.getPrototypeOf(Lainchan).call(this, prot, dm));
+
+				_this69.cOPost = 'op';
+				return _this69;
+			}
+
+			_createClass(Lainchan, [{
+				key: 'css',
+				get: function get() {
+					return '.sidearrows { display: none !important; }\n\t\t\t\t.bar { position: static; }';
+				}
+			}]);
+
+			return Lainchan;
+		})(Vichan);
+
+		ibDomains['lainchan.org'] = Lainchan;
+
+		var MlpgCo = (function (_Vichan3) {
+			_inherits(MlpgCo, _Vichan3);
+
+			function MlpgCo(prot, dm) {
+				_classCallCheck(this, MlpgCo);
+
+				var _this70 = _possibleConstructorReturn(this, Object.getPrototypeOf(MlpgCo).call(this, prot, dm));
+
+				_this70.cOPost = 'opContainer';
+				return _this70;
+			}
+
+			return MlpgCo;
+		})(Vichan);
+
+		ibDomains['mlpg.co'] = MlpgCo;
+
+		var Ponyach = (function (_BaseBoard18) {
+			_inherits(Ponyach, _BaseBoard18);
+
+			function Ponyach(prot, dm) {
+				_classCallCheck(this, Ponyach);
+
+				var _this71 = _possibleConstructorReturn(this, Object.getPrototypeOf(Ponyach).call(this, prot, dm));
+
+				_this71.multiFile = true;
+				_this71.postMapInited = false;
+				_this71.thrid = 'replythread';
+				return _this71;
+			}
+
+			_createClass(Ponyach, [{
+				key: 'checkForm',
+				value: function checkForm(formEl, maybeSpells) {
+					var _this72 = this;
+
+					var myMaybeSpells = maybeSpells || new Maybe(SpellsRunner),
+					    maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
+					if (!this.postMapInited) {
+						this.postMapInited = true;
+						$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', doc.body), function (pEl) {
+							return _this72.modifiedPosts.set(pEl, +pEl.getAttribute('data-lastmodified'));
+						});
+					}
+					$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', formEl), function (pEl) {
+						var nPost,
+						    post = pByNum.get(_this72.getPNum(pEl)),
+						    pDate = +pEl.getAttribute('data-lastmodified');
+						if (post && (!_this72.modifiedPosts.has(pEl) || _this72.modifiedPosts.get(pEl) < pDate)) {
+							var thr = post.thr,
+							    fragm = doc.createDocumentFragment();
+							_this72.modifiedPosts.set(pEl, pDate);
+							nPost = thr.addPost(fragm, pEl, post.count, post.prev, maybeVParser);
+							if (thr.op === post) {
+								thr.op = nPost;
+							}
+							if (thr.last === post) {
+								thr.last = nPost;
+							}
+							if (post.next) {
+								post.next.prev = nPost;
+								nPost.next = post.next;
+							}
+							if (post.omitted) {
+								nPost.omitted = true;
+								nPost.wrap.classList.add('de-hidden');
+							}
+							myMaybeSpells.value.run(nPost);
+							$before(post.wrap, fragm);
+							$del(post.wrap);
+						}
+					});
+					if (!maybeSpells) {
+						myMaybeSpells.end();
+					}
+					maybeVParser.end();
+				}
+			}, {
+				key: 'getPNum',
+				value: function getPNum(post) {
+					return +post.getAttribute('data-num');
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					defaultCfg.postSameImg = 0;
+					defaultCfg.removeEXIF = 0;
+					return false;
+				}
+			}, {
+				key: 'modifiedPosts',
+				get: function get() {
+					var val = new WeakMap();
+					Object.defineProperty(this, 'modifiedPosts', { value: val });
+					return val;
+				}
+			}]);
+
+			return Ponyach;
+		})(BaseBoard);
+
+		ibDomains['ponya.ch'] = Ponyach;
+		ibDomains['ponyach.cf'] = Ponyach;
+		ibDomains['ponyach.ga'] = Ponyach;
+		ibDomains['ponyach.ml'] = Ponyach;
+		ibDomains['ponyach.ru'] = Ponyach;
+		ibDomains['ponychan.ru'] = Ponyach;
+
+		var Ponychan = (function (_Tinyboard2) {
+			_inherits(Ponychan, _Tinyboard2);
+
+			function Ponychan(prot, dm) {
+				_classCallCheck(this, Ponychan);
+
+				var _this73 = _possibleConstructorReturn(this, Object.getPrototypeOf(Ponychan).call(this, prot, dm));
+
+				_this73.cOPost = 'opContainer';
+				return _this73;
+			}
+
+			_createClass(Ponychan, [{
+				key: 'init',
+				value: function init() {
+					$each($Q('img[data-mature-src]', doc.body), function (el) {
+						el.src = el.getAttribute('data-mature-src');
+					});
+					return false;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.mature_thread { display: block !important; }\n\t\t\t\t.mature_warning { display: none; }';
+				}
+			}]);
+
+			return Ponychan;
+		})(Tinyboard);
+
+		ibDomains['ponychan.net'] = Ponychan;
+
+		var Synch = (function (_Tinyboard3) {
+			_inherits(Synch, _Tinyboard3);
+
+			function Synch(prot, dm) {
+				_classCallCheck(this, Synch);
+
+				var _this74 = _possibleConstructorReturn(this, Object.getPrototypeOf(Synch).call(this, prot, dm));
+
+				_this74.cFileInfo = 'unimportant';
+
+				_this74.markupBB = true;
+				return _this74;
+			}
+
+			_createClass(Synch, [{
+				key: 'earlyInit',
+				value: function earlyInit() {
+					var val = '{"simpleNavbar":true,"showInfo":true}';
+					if (locStorage['settings'] !== val) {
+						locStorage['settings'] = val;
+						return true;
+					}
+					return false;
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					defaultCfg.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
+					defaultCfg.timeOffset = 4;
+					defaultCfg.correctTime = 1;
+					return false;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.fa-sort { display: none; }\t\t\t\ttime::after { content: none; }';
+				}
+			}, {
+				key: 'markupTags',
+				get: function get() {
+					return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'];
+				}
+			}]);
+
+			return Synch;
+		})(Tinyboard);
+
+		ibDomains['syn-ch.ru'] = Synch;
+		ibDomains['syn-ch.com'] = Synch;
+		ibDomains['syn-ch.org'] = Synch;
 
 		var prot = window.location.protocol;
 		localRun = prot === 'file:';
 		var dm = localRun ? (window.location.pathname.match(/\/([^-]+)-[^-]+-[^\.]+\.[a-z]+$/) || [, ''])[1] : window.location.hostname.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
-		if (checkDomains) {
-			if (dm in ibDomains) {
-				return new ibDomains[dm](prot, dm);
-			}
+		if (checkDomains && dm in ibDomains) {
+			return new ibDomains[dm](prot, dm);
 		}
 		if (checkEngines) {
 			for (var i in ibEngines) {
@@ -16952,7 +16993,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function addSVGIcons() {
-		doc.body.insertAdjacentHTML('beforeend', '<div id="de-svg-icons" style="height: 0; width: 0; position: fixed;">\n\t<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n\t<defs>\n\t\t<linearGradient id="de-btn-back-gradient" x1="50%" y1="0%" y2="100%" x2="50%">\n\t\t\t<stop offset="0%" stop-color="#A0A0A0"/>\n\t\t\t<stop offset="50%" stop-color="#505050"/>\n\t\t\t<stop offset="100%" stop-color="#A0A0A0"/>\n\t\t</linearGradient>\n\t\t<style><![CDATA[\n\t\t\t.de-svg-back { fill: inherit; stroke: none; }\n\t\t\t.de-svg-stroke { stroke: currentColor; fill: none; }\n\t\t\t.de-svg-fill { stroke: none; fill: currentColor; }\n\t\t]]></style>\n\t</defs>\n\t<!-- POST ICONS -->\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-back">\n\t\t<path class="de-svg-back" d="M4 1q-3 0,-3 3v8q0 3,3 3h8q3 0,3 -3v-8q0 -3,-3-3z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-hide">\n\t\t<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>\n\t\t<line class="de-svg-stroke" stroke-width="2.5" x1="4.5" y1="11.5" x2="11.5" y2="4.5"/>\n\t\t<line class="de-svg-stroke" stroke-width="2.5" x1="11.5" y1="11.5" x2="4.5" y2="4.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-unhide">\n\t\t<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>\n\t\t<line class="de-svg-stroke" stroke-width="2" x1="8" y1="4" x2="8" y2="12"/>\n\t\t<line class="de-svg-stroke" stroke-width="2" x1="4" y1="8" x2="12" y2="8"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-rep">\n\t\t<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M5.2 12.4L12.4 8 5.2 3.6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-expthr">\n\t\t<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M4.5 6L8 3l3.5 3H9.25v4h2.25L8 13 4.5 10h2.25V6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-fav">\n\t\t<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M8 2.8l1.5 3.1 3.3.5-2.4 2.4 1.1 3.5L8 10l-3.5 2.3 1.1-3.5-2.3-2.4 3.2-.5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-stick">\n\t\t<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M5 5h6v6H5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-sage">\n\t\t<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M4 9h8l-4 4.5zM6 3h4v1h-4zM6 5h4v1h-4zM6 7h4v1h-4z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-src">\n\t\t<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>\n\t\t<circle class="de-svg-stroke" cx="7" cy="7" r="2.5" stroke-width="2"/>\n\t\t<line class="de-svg-stroke" stroke-width="2" x1="9" y1="9" x2="12" y2="12"/>\n\t</symbol>\n\t<!-- WINDOW ICONS -->\n\t<symbol viewBox="0 0 16 16" id="de-symbol-win-arrow">\n\t\t<line class="de-svg-stroke" stroke-width="3.5" x1="8" x2="8" y2="6" y1="13"/>\n\t\t<path class="de-svg-fill" d="M3.5 7h9l-4.5-4.5z"></path>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-win-close">\n\t\t<path class="de-svg-stroke" stroke-width="2.5" d="M3.5 3.5l9 9M3.5 12.5l9-9"/>\n\t</symbol>\n\t<!-- NAVIGATION PANEL ICONS -->\n\t<symbol viewBox="0 0 7 7" id="de-symbol-nav-arrow">\n\t\t<path class="de-svg-fill" d="M6 3.5L2 0v7z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-nav-up">\n\t\t<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 22.5l9-9 9 9M3 13.5l9-9 9 9"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-nav-down">\n\t\t<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>\n\t</symbol>\n\t<!-- MAIN PANEL -->\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-logo">\n\t\t<path class="de-svg-fill" d="M22 5h-10v16h4v-14h6z"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M22 20.5H12c-2.8 0-5.7 0-5.7-4s2.8-4 5.7-4H21"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-cfg">\n\t\t<circle class="de-svg-stroke" stroke-width="3" cx="12.5" cy="12.5" r="6"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M12.5 7V3.5M18 12.5h3.5M12.5 18v3.5M7 12.5H3.5M16.4 8.6L19 6M16.4 16.4L19 19M8.6 16.4L6 19M8.6 8.6L6 6"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-hid">\n\t\t<path class="de-svg-stroke" stroke-width="4" d="M6 19L19 6M6 6l13 13"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-fav">\n\t\t<path class="de-svg-fill" d="M12.5 3.5l2.5 6 6.5.5-5 4.2 1.6 6.3-5.5-3.4L7 20.6l1.5-6.3-5-4.2 6.5-.5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-vid">\n\t\t<path class="de-svg-fill" d="M12.5 4a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zm-1 13c-1.3 1-2.5.2-2.5-1.4V9.4C9 7.8 10.2 7 11.6 8l5.3 3c1.3.8 1.3 2.2 0 3l-5.4 3z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-refresh">\n\t\t<path class="de-svg-fill" d="M14 4v4.3a4.5 4.5 0 1 1-3 0V4a8.5 8.5 0 1 0 3 0z"/>\n\t\t<path class="de-svg-fill" d="M13 11V4h7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-arrow">\n\t\t<path class="de-svg-stroke" stroke-width="5" d="M4 12.5h10"/>\n\t\t<path class="de-svg-fill" d="M14 19V6l7 6.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-expimg">\n\t\t<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAI9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-maskimg">\n\t\t<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAJQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw=="/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-preimg">\n\t\t<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAJFjI+pGwCcHJPGWdoe3Lz7qh1WFJLXiX4qgrbXVEIYadLLnMX4yve+7ErBYorRjXiEeXagGguZAbWaSdHLOow4j8Hrj1EAADs="/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-savethr">\n\t\t<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs="/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-upd">\n\t\t<circle class="de-svg-back" cx="12.5" cy="11.25" r="4"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" stroke-linejoin="round" d="M4.5 12.5q8-10,16 0q-8 10,-16 0z"/>\n\t\t<path class="de-svg-stroke" stroke-width="1" d="M11 7.5l-1.2-2M14 7.5l1.2-2M11 17.5l-1.2 2M14 17.5l1.2 2M7 9l-1.7-1.7M7 16l-1.7 1.7M18 9l1.7 -1.7M18 16l1.7 1.7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-off">\n\t\t<polygon class="de-svg-fill" points="13.5,4 7.3,9.3 3.5,9.3 3.5,15.7 7.3,15.7 7.3,15.7 13.5,21 "/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M15 9.5l6 6M21 9.5l-6 6"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-on">\n\t\t<polygon class="de-svg-fill" points="13.5,4 7.3,9.3 3.5,9.3 3.5,15.7 7.3,15.7 7.3,15.7 13.5,21 "/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M15.5,7.5Q18 12.5,15.5 17.5M18.5,5Q23 12.5,18.5 20"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-catalog">\n\t\t<path class="de-svg-fill" d="M5 5h3v3H5zM17 5h3v3h-3zM13 5h3v3h-3zM9 5h3v3H9zM5 9h3v3H5zM17 9h3v3h-3zM13 9h3v3h-3zM9 9h3v3H9zM5 13h3v3H5zM17 13h3v3h-3zM13 13h3v3h-3zM9 13h3v3H9zM5 17h3v3H5zM17 17h3v3h-3zM13 17h3v3h-3zM9 17h3v3H9z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-enable">\n\t\t<line class="de-svg-stroke" stroke-width="3" x1="12.5" y1="4" x2="12.5" y2="12"/>\n\t\t<path class="de-svg-fill" d="M16,5.2c3,1.3,5,4.3,5,7.8c0,4.7-3.8,8.5-8.5,8.5S4,17.7,4,13c0-3.4,2-6.4,5-7.7l0,3.5c-1.2,1-2,2.5-2,4.2c0,3,2.5,5.5,5.5,5.5S18,16,18,13c0-1.7-0.8-3.2-2-4.2V5.2z"/>\n\t</symbol>\n\t</svg>\n\t</div>');
+		doc.body.insertAdjacentHTML('beforeend', '<div id="de-svg-icons" style="height: 0; width: 0; position: fixed;">\n\t<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n\t<defs>\n\t\t<linearGradient id="de-btn-back-gradient" x1="50%" y1="0%" y2="100%" x2="50%">\n\t\t\t<stop offset="0%" stop-color="#A0A0A0"/>\n\t\t\t<stop offset="50%" stop-color="#505050"/>\n\t\t\t<stop offset="100%" stop-color="#A0A0A0"/>\n\t\t</linearGradient>\n\t\t<style><![CDATA[\n\t\t\t.de-svg-back { fill: inherit; stroke: none; }\n\t\t\t.de-svg-stroke { stroke: currentColor; fill: none; }\n\t\t\t.de-svg-fill { stroke: none; fill: currentColor; }\n\t\t]]></style>\n\t</defs>\n\t<!-- POST ICONS -->\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-back">\n\t\t<path class="de-svg-back" d="M4 1q-3 0,-3 3v8q0 3,3 3h8q3 0,3 -3v-8q0 -3,-3-3z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-hide">\n\t\t<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>\n\t\t<line class="de-svg-stroke" stroke-width="2.5" x1="4.5" y1="11.5" x2="11.5" y2="4.5"/>\n\t\t<line class="de-svg-stroke" stroke-width="2.5" x1="11.5" y1="11.5" x2="4.5" y2="4.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-unhide">\n\t\t<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>\n\t\t<line class="de-svg-stroke" stroke-width="2" x1="8" y1="4" x2="8" y2="12"/>\n\t\t<line class="de-svg-stroke" stroke-width="2" x1="4" y1="8" x2="12" y2="8"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-rep">\n\t\t<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M5.2 12.4L12.4 8 5.2 3.6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-expthr">\n\t\t<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M4.5 6L8 3l3.5 3H9.25v4h2.25L8 13 4.5 10h2.25V6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-fav">\n\t\t<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M8 2.8l1.5 3.1 3.3.5-2.4 2.4 1.1 3.5L8 10l-3.5 2.3 1.1-3.5-2.3-2.4 3.2-.5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-stick">\n\t\t<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M5 5h6v6H5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-sage">\n\t\t<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M4 9h8l-4 4.5zM6 3h4v1h-4zM6 5h4v1h-4zM6 7h4v1h-4z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-src">\n\t\t<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>\n\t\t<circle class="de-svg-stroke" cx="7" cy="7" r="2.5" stroke-width="2"/>\n\t\t<line class="de-svg-stroke" stroke-width="2" x1="9" y1="9" x2="12" y2="12"/>\n\t</symbol>\n\t<!-- WINDOW ICONS -->\n\t<symbol viewBox="0 0 16 16" id="de-symbol-win-arrow">\n\t\t<line class="de-svg-stroke" stroke-width="3.5" x1="8" x2="8" y2="6" y1="13"/>\n\t\t<path class="de-svg-fill" d="M3.5 7h9l-4.5-4.5z"></path>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-win-close">\n\t\t<path class="de-svg-stroke" stroke-width="2.5" d="M3.5 3.5l9 9M3.5 12.5l9-9"/>\n\t</symbol>\n\t<!-- NAVIGATION PANEL ICONS -->\n\t<symbol viewBox="0 0 7 7" id="de-symbol-nav-arrow">\n\t\t<path class="de-svg-fill" d="M6 3.5L2 0v7z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-nav-up">\n\t\t<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 22.5l9-9 9 9M3 13.5l9-9 9 9"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-nav-down">\n\t\t<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>\n\t</symbol>\n\t<!-- MAIN PANEL -->\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-logo">\n\t\t<path class="de-svg-fill" d="M22 5h-10v16h4v-14h6z"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M22 20.5H12c-2.8 0-5.7 0-5.7-4s2.8-4 5.7-4H21"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-cfg">\n\t\t<circle class="de-svg-stroke" stroke-width="3" cx="12.5" cy="12.5" r="6"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M12.5 7V3.5M18 12.5h3.5M12.5 18v3.5M7 12.5H3.5M16.4 8.6L19 6M16.4 16.4L19 19M8.6 16.4L6 19M8.6 8.6L6 6"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-hid">\n\t\t<path class="de-svg-stroke" stroke-width="4" d="M6 19L19 6M6 6l13 13"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-fav">\n\t\t<path class="de-svg-fill" d="M12.5 3.5l2.5 6 6.5.5-5 4.2 1.6 6.3-5.5-3.4L7 20.6l1.5-6.3-5-4.2 6.5-.5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-vid">\n\t\t<path class="de-svg-fill" d="M12.5 4a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zm-1 13c-1.3 1-2.5.2-2.5-1.4V9.4C9 7.8 10.2 7 11.6 8l5.3 3c1.3.8 1.3 2.2 0 3l-5.4 3z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-refresh">\n\t\t<path class="de-svg-fill" d="M14 4v4.3a4.5 4.5 0 1 1-3 0V4a8.5 8.5 0 1 0 3 0z"/>\n\t\t<path class="de-svg-fill" d="M13 11V4h7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-arrow">\n\t\t<path class="de-svg-stroke" stroke-width="5" d="M4 12.5h11"/>\n\t\t<path class="de-svg-fill" d="M14 19V6l7 6.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-expimg">\n\t\t<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAI9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-maskimg">\n\t\t<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAJQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw=="/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-preimg">\n\t\t<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAJFjI+pGwCcHJPGWdoe3Lz7qh1WFJLXiX4qgrbXVEIYadLLnMX4yve+7ErBYorRjXiEeXagGguZAbWaSdHLOow4j8Hrj1EAADs="/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-savethr">\n\t\t<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs="/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-upd">\n\t\t<circle class="de-svg-back" cx="12.5" cy="11.25" r="4"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" stroke-linejoin="round" d="M4.5 12.5q8-10,16 0q-8 10,-16 0z"/>\n\t\t<path class="de-svg-stroke" stroke-width="1" d="M11 7.5l-1.2-2M14 7.5l1.2-2M11 17.5l-1.2 2M14 17.5l1.2 2M7 9l-1.7-1.7M7 16l-1.7 1.7M18 9l1.7 -1.7M18 16l1.7 1.7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-off">\n\t\t<polygon class="de-svg-fill" points="13.5,4 7.3,9.3 3.5,9.3 3.5,15.7 7.3,15.7 7.3,15.7 13.5,21 "/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M15 9.5l6 6M21 9.5l-6 6"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-on">\n\t\t<polygon class="de-svg-fill" points="13.5,4 7.3,9.3 3.5,9.3 3.5,15.7 7.3,15.7 7.3,15.7 13.5,21 "/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M15.5,7.5Q18 12.5,15.5 17.5M18.5,5Q23 12.5,18.5 20"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-catalog">\n\t\t<path class="de-svg-fill" d="M5 5h3v3H5zM17 5h3v3h-3zM13 5h3v3h-3zM9 5h3v3H9zM5 9h3v3H5zM17 9h3v3h-3zM13 9h3v3h-3zM9 9h3v3H9zM5 13h3v3H5zM17 13h3v3h-3zM13 13h3v3h-3zM9 13h3v3H9zM5 17h3v3H5zM17 17h3v3h-3zM13 17h3v3h-3zM9 17h3v3H9z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-enable">\n\t\t<line class="de-svg-stroke" stroke-width="3" x1="12.5" y1="4" x2="12.5" y2="12"/>\n\t\t<path class="de-svg-fill" d="M16,5.2c3,1.3,5,4.3,5,7.8c0,4.7-3.8,8.5-8.5,8.5S4,17.7,4,13c0-3.4,2-6.4,5-7.7l0,3.5c-1.2,1-2,2.5-2,4.2c0,3,2.5,5.5,5.5,5.5S18,16,18,13c0-1.7-0.8-3.2-2-4.2V5.2z"/>\n\t</symbol>\n\t</svg>\n\t</div>');
 	}
 
 
