@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '0e9614f';
+var commit = 'beaa65b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11350,7 +11350,6 @@ function getImageBoard(checkDomains, checkEngines) {
 				return el.parentNode;
 			}
 			init() {
-				alert('azaza');
 				$script('window.FormData = void 0; $(function() { $(window).off(); });');
 				$each($C('autorefresh', doc), $del);
 				var el = $q('td > .anoniconsselectlist', doc);

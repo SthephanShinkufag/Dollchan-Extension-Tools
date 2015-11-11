@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '0e9614f';
+	var commit = 'beaa65b';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15439,7 +15439,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					value: function init() {
 						var _this46 = this;
 
-						alert('azaza');
 						$script('window.FormData = void 0; $(function() { $(window).off(); });');
 						$each($C('autorefresh', doc), $del);
 						var el = $q('td > .anoniconsselectlist', doc);
