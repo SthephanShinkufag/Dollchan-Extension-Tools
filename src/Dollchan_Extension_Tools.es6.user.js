@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'e791e7a';
+var commit = 'b5a44b3';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11681,7 +11681,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPages = 'table[border="1"] tr:first-of-type > td:first-of-type a';
 			this.qPostRedir = null;
 			this.qTable = 'table:not(.postfiles)';
-			this.qThread = '.threadz';
 
 			this.docExt = '.html';
 			this.hasPicWrap = true;
@@ -11697,6 +11696,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				'accept="|sid|7z|bz2|m4a|flac|lzh|mo3|rar|spc|fla|nsf|jpg|mpp|aac|gz|xm|wav|' +
 				'mp3|png|it|lha|torrent|swf|zip|mpc|ogg|jpeg|gif|mod" type="file"></input></div>';
 			el.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+		}
+		get qThread() {
+			return '.threadz';
 		}
 		getCaptchaSrc(src, tNum) {
 			return '/' + this.b + '/captcha.fpl?' + Math.random();
@@ -11748,7 +11750,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qError = 'pre';
 			this.qPages = '.pagelist > a:last-child';
 			this.qPostRedir = null;
-			this.qThread = '[id*="thread"]';
 
 			this.docExt = '.php';
 			this.markupBB = true;
@@ -11756,6 +11757,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }
 				.de-thr-hid { margin: 1em 0; }`;
+		}
+		get qThread() {
+			return '[id*="thread"]';
 		}
 		get markupTags() {
 			return ['**', '*', '', '', '%', 'pre', '', '', 'q'];
@@ -11793,7 +11797,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.docExt = '';
 			this.firstPage = 1;
 			this.markupBB = true;
-			this.rep = true;
 			this.res = 'thread/';
 			this.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
 			this.thrid = 'resto';
@@ -11808,6 +11811,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get markupTags() {
 			return ['', '', '', '', 'spoiler', '', '', '', 'q'];
+		}
+		get rep() {
+			return true;
 		}
 		getFileInfo(wrap) {
 			var el = $c(this.cFileInfo, wrap);
@@ -11864,7 +11870,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qMsg = '.post_comment_body';
 			this.qRef = '.post_id, .post_head > b';
 			this.qRPost = '.post:not(:first-child):not([postid=""])';
-			this.qThread = '.thread_inner';
 
 			this.docExt = '';
 			this.res = 'thread/';
@@ -11872,6 +11877,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `.post_replies, .post[postid=""] { display: none !important; }
 				.post { overflow-x: auto !important; }`;
+		}
+		get qThread() {
+			return '.thread_inner';
 		}
 		getOp(el) {
 			return $q('.post:first-child', el);
@@ -12051,14 +12059,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostRedir = 'input#forward_thread';
 			this.qRef = '.postnumber';
 			this.qRPost = '.postreply';
-			this.qThread = '.thread_body';
 			this.qThumbImages = 'img[id^="thumbnail_"]';
 			this.qTrunc = 'p[id^="post_truncated"]';
 
 			this.hasPicWrap= true;
 			this.markupBB = true;
 			this.multiFile = true;
-			this.rep = true;
 			this.res = 'thread-';
 			this.timePattern = 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?';
 		}
@@ -12074,8 +12080,14 @@ function getImageBoard(checkDomains, checkEngines) {
 		get qImgLink() {
 			return '.filename > a';
 		}
+		get qThread() {
+			return '.thread_body';
+		}
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'];
+		}
+		get rep() {
+			return true;
 		}
 		fixFileInputs(el) {
 			var str = '';

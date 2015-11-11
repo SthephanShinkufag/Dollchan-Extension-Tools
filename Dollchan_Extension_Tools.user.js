@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'e791e7a';
+	var commit = 'b5a44b3';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15949,7 +15949,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_this56.qPages = 'table[border="1"] tr:first-of-type > td:first-of-type a';
 				_this56.qPostRedir = null;
 				_this56.qTable = 'table:not(.postfiles)';
-				_this56.qThread = '.threadz';
 
 				_this56.docExt = '.html';
 				_this56.hasPicWrap = true;
@@ -15985,6 +15984,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				key: 'css',
 				get: function get() {
 					return 'span[id$="_display"], #fastload { display: none; }';
+				}
+			}, {
+				key: 'qThread',
+				get: function get() {
+					return '.threadz';
 				}
 			}]);
 
@@ -16054,7 +16058,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_this58.qError = 'pre';
 				_this58.qPages = '.pagelist > a:last-child';
 				_this58.qPostRedir = null;
-				_this58.qThread = '[id*="thread"]';
 
 				_this58.docExt = '.php';
 				_this58.markupBB = true;
@@ -16070,6 +16073,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				key: 'css',
 				get: function get() {
 					return '#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }\n\t\t\t\t.de-thr-hid { margin: 1em 0; }';
+				}
+			}, {
+				key: 'qThread',
+				get: function get() {
+					return '[id*="thread"]';
 				}
 			}, {
 				key: 'markupTags',
@@ -16115,7 +16123,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_this59.docExt = '';
 				_this59.firstPage = 1;
 				_this59.markupBB = true;
-				_this59.rep = true;
 				_this59.res = 'thread/';
 				_this59.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
 				_this59.thrid = 'resto';
@@ -16177,6 +16184,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				key: 'markupTags',
 				get: function get() {
 					return ['', '', '', '', 'spoiler', '', '', '', 'q'];
+				}
+			}, {
+				key: 'rep',
+				get: function get() {
+					return true;
 				}
 			}]);
 
@@ -16241,7 +16253,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_this62.qMsg = '.post_comment_body';
 				_this62.qRef = '.post_id, .post_head > b';
 				_this62.qRPost = '.post:not(:first-child):not([postid=""])';
-				_this62.qThread = '.thread_inner';
 
 				_this62.docExt = '';
 				_this62.res = 'thread/';
@@ -16291,6 +16302,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				key: 'css',
 				get: function get() {
 					return '.post_replies, .post[postid=""] { display: none !important; }\n\t\t\t\t.post { overflow-x: auto !important; }';
+				}
+			}, {
+				key: 'qThread',
+				get: function get() {
+					return '.thread_inner';
 				}
 			}]);
 
@@ -16520,14 +16536,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_this68.qPostRedir = 'input#forward_thread';
 				_this68.qRef = '.postnumber';
 				_this68.qRPost = '.postreply';
-				_this68.qThread = '.thread_body';
 				_this68.qThumbImages = 'img[id^="thumbnail_"]';
 				_this68.qTrunc = 'p[id^="post_truncated"]';
 
 				_this68.hasPicWrap = true;
 				_this68.markupBB = true;
 				_this68.multiFile = true;
-				_this68.rep = true;
 				_this68.res = 'thread-';
 				_this68.timePattern = 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?';
 				return _this68;
@@ -16590,9 +16604,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return '.filename > a';
 				}
 			}, {
+				key: 'qThread',
+				get: function get() {
+					return '.thread_body';
+				}
+			}, {
 				key: 'markupTags',
 				get: function get() {
 					return ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'];
+				}
+			}, {
+				key: 'rep',
+				get: function get() {
+					return true;
 				}
 			}]);
 
