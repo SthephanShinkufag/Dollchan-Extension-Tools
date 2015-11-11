@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'ae83b24';
+var commit = 'e791e7a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9530,22 +9530,17 @@ class PostContent extends TemporaryContent {
 		return val;
 	}
 	get text() {
-		var value, msg = this.post.msg;
-		if('innerText' in msg) {
-			value = msg.innerText;
-		} else {
-			value = msg.innerHTML
+		var value = this.post.msg.innerHTML
 				.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
 				.replace(/<[^>]+?>/g,'')
 				.replace(/&gt;/g, '>')
 				.replace(/&lt;/g, '<')
 				.replace(/&nbsp;/g, '\u00A0');
-		}
 		Object.defineProperty(this, 'text', { value });
 		return value;
 	}
 	get title() {
-		var val = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ');
+		var val = this.subj || this.text.trim().substring(0, 70).replace(/\s+/g, ' ');
 		Object.defineProperty(this, 'title', { value: val });
 		return val;
 	}
@@ -13790,7 +13785,6 @@ function* initScript(checkDomains, readCfgPromise) {
 	readPosts();
 	yield* readUserPosts();
 	yield* readFavoritesPosts();
-	setTimeout(PostContent.purge, 0);
 	Logger.log('Hide posts');
 	scrollPage();
 	Logger.log('Scroll page');

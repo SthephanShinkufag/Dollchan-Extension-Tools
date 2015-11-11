@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'ae83b24';
+	var commit = 'e791e7a';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -13301,20 +13301,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'text',
 			get: function get() {
-				var value,
-				    msg = this.post.msg;
-				if ('innerText' in msg) {
-					value = msg.innerText;
-				} else {
-					value = msg.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n').replace(/<[^>]+?>/g, '').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&nbsp;/g, ' ');
-				}
+				var value = this.post.msg.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n').replace(/<[^>]+?>/g, '').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&nbsp;/g, ' ');
 				Object.defineProperty(this, 'text', { value: value });
 				return value;
 			}
 		}, {
 			key: 'title',
 			get: function get() {
-				var val = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ');
+				var val = this.subj || this.text.trim().substring(0, 70).replace(/\s+/g, ' ');
 				Object.defineProperty(this, 'title', { value: val });
 				return val;
 			}
@@ -18229,13 +18223,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return _context19.delegateYield(readFavoritesPosts(), 't4', 56);
 
 				case 56:
-					setTimeout(PostContent.purge, 0);
 					Logger.log('Hide posts');
 					scrollPage();
 					Logger.log('Scroll page');
 					Logger.finish();
 
-				case 61:
+				case 60:
 				case 'end':
 					return _context19.stop();
 			}
