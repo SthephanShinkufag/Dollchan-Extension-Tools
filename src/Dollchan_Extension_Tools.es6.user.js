@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'f003479';
+var commit = '235469b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8222,7 +8222,7 @@ AttachmentViewer.prototype = {
 		} else if(this.hasOwnProperty('_btns')) {
 			this._btns.hide();
 		}
-		doc.body.appendChild(obj);
+		data.post.thr.form.el.appendChild(obj);
 	},
 	_remove(e) {
 		if(this.data.isVideo && this._fullEl.tagName === 'VIDEO') {
@@ -9055,9 +9055,7 @@ class Post extends AbstractPost {
 			.getBoundingClientRect().bottom;
 	}
 	get headerEl() {
-		var value = $c(aib.cPostHeader, this.el);
-		Object.defineProperty(this, 'headerEl', { value });
-		return value;
+		return PostContent.get(this, this).headerEl;
 	}
 	get html() {
 		return PostContent.get(this, this).html;
@@ -9107,9 +9105,7 @@ class Post extends AbstractPost {
 			.getBoundingClientRect().top;
 	}
 	get wrap() {
-		var val = aib.getWrap(this.el, this.isOp);
-		Object.defineProperty(this, 'wrap', { value: val });
-		return val;
+		return PostContent.get(this, this).wrap;
 	}
 	addFuncs() {
 		super.addFuncs();
@@ -9508,6 +9504,11 @@ class PostContent extends TemporaryContent {
 		this.el = post.el;
 		this.post = post;
 	}
+	get headerEl() {
+		var value = $c(aib.cPostHeader, this.el);
+		Object.defineProperty(this, 'headerEl', { value });
+		return value;
+	}
 	get html() {
 		var val = this.el.innerHTML;
 		Object.defineProperty(this, 'html', { value: val });
@@ -9529,18 +9530,28 @@ class PostContent extends TemporaryContent {
 		return val;
 	}
 	get text() {
-		var val = this.post.msg.innerHTML
-			.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
-			.replace(/<[^>]+?>/g,'')
-			.replace(/&gt;/g, '>')
-			.replace(/&lt;/g, '<')
-			.replace(/&nbsp;/g, '\u00A0');
-		Object.defineProperty(this, 'text', { value: val });
-		return val;
+		var value, msg = this.post.msg;
+		if('innerText' in msg) {
+			value = msg.innerText;
+		} else {
+			value = msg.innerHTML
+				.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
+				.replace(/<[^>]+?>/g,'')
+				.replace(/&gt;/g, '>')
+				.replace(/&lt;/g, '<')
+				.replace(/&nbsp;/g, '\u00A0');
+		}
+		Object.defineProperty(this, 'text', { value });
+		return value;
 	}
 	get title() {
 		var val = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ');
 		Object.defineProperty(this, 'title', { value: val });
+		return val;
+	}
+	get wrap() {
+		var val = aib.getWrap(this.el, this.post.isOp);
+		Object.defineProperty(this, 'wrap', { value: val });
 		return val;
 	}
 }
@@ -10350,12 +10361,10 @@ class Thread {
 		return this.op.top;
 	}
 	addPost(parent, el, i, prev, maybeVParser) {
-		var post, num = aib.getPNum(el),
-			wrap = aib.getWrap(el, false);
+		var post, num = aib.getPNum(el);
 		el = replacePost(el);
 		post = new Post(el, this, num, i, false, prev);
-		Object.defineProperty(post, 'wrap', { value: wrap });
-		parent.appendChild(wrap);
+		parent.appendChild(aib.getWrap(el, false));
 		if(aib.t && !doc.hidden && Cfg.animation) {
 			nav.animEvent(post.el, function(node) {
 				node.classList.remove('de-post-new');

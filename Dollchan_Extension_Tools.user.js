@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'f003479';
+	var commit = '235469b';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11710,7 +11710,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			} else if (this.hasOwnProperty('_btns')) {
 				this._btns.hide();
 			}
-			doc.body.appendChild(obj);
+			data.post.thr.form.el.appendChild(obj);
 		},
 		_remove: function _remove(e) {
 			if (this.data.isVideo && this._fullEl.tagName === 'VIDEO') {
@@ -13085,9 +13085,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'headerEl',
 			get: function get() {
-				var value = $c(aib.cPostHeader, this.el);
-				Object.defineProperty(this, 'headerEl', { value: value });
-				return value;
+				return PostContent.get(this, this).headerEl;
 			}
 		}, {
 			key: 'html',
@@ -13160,9 +13158,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'wrap',
 			get: function get() {
-				var val = aib.getWrap(this.el, this.isOp);
-				Object.defineProperty(this, 'wrap', { value: val });
-				return val;
+				return PostContent.get(this, this).wrap;
 			}
 		}]);
 
@@ -13265,6 +13261,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 
 		_createClass(PostContent, [{
+			key: 'headerEl',
+			get: function get() {
+				var value = $c(aib.cPostHeader, this.el);
+				Object.defineProperty(this, 'headerEl', { value: value });
+				return value;
+			}
+		}, {
 			key: 'html',
 			get: function get() {
 				var val = this.el.innerHTML;
@@ -13298,15 +13301,28 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'text',
 			get: function get() {
-				var val = this.post.msg.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n').replace(/<[^>]+?>/g, '').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&nbsp;/g, ' ');
-				Object.defineProperty(this, 'text', { value: val });
-				return val;
+				var value,
+				    msg = this.post.msg;
+				if ('innerText' in msg) {
+					value = msg.innerText;
+				} else {
+					value = msg.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n').replace(/<[^>]+?>/g, '').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&nbsp;/g, ' ');
+				}
+				Object.defineProperty(this, 'text', { value: value });
+				return value;
 			}
 		}, {
 			key: 'title',
 			get: function get() {
 				var val = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ');
 				Object.defineProperty(this, 'title', { value: val });
+				return val;
+			}
+		}, {
+			key: 'wrap',
+			get: function get() {
+				var val = aib.getWrap(this.el, this.post.isOp);
+				Object.defineProperty(this, 'wrap', { value: val });
 				return val;
 			}
 		}]);
@@ -14278,12 +14294,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'addPost',
 			value: function addPost(parent, el, i, prev, maybeVParser) {
 				var post,
-				    num = aib.getPNum(el),
-				    wrap = aib.getWrap(el, false);
+				    num = aib.getPNum(el);
 				el = replacePost(el);
 				post = new Post(el, this, num, i, false, prev);
-				Object.defineProperty(post, 'wrap', { value: wrap });
-				parent.appendChild(wrap);
+				parent.appendChild(aib.getWrap(el, false));
 				if (aib.t && !doc.hidden && Cfg.animation) {
 					nav.animEvent(post.el, function (node) {
 						node.classList.remove('de-post-new');
