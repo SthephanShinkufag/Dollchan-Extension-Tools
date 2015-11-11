@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'cee0941';
+var commit = 'f003479';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -602,7 +602,7 @@ Cfg, hThr, pByEl, pByNum, sVis, uVis, needScroll,
 aib, nav, updater, dTime, visPosts = 2, topWinZ = 0,
 pr, dummy,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
-lang, quotetxt = '', localRun, isExpImg, isPreImg, chromeCssUpd, excludeList,
+lang, quotetxt = '', localRun, isExpImg, isPreImg, excludeList,
 $each = Function.prototype.call.bind(aProto.forEach),
 emptyFn = Function.prototype,
 nativeXHRworks = true;
@@ -2373,17 +2373,17 @@ function showHiddenWindow(body) {
 		var cloneEl = post.el.cloneNode(true);
 		var hideData = {
 			btn: $q('.de-btn-unhide, .de-btn-unhide-user', cloneEl),
-			el: cloneEl,
+			headerEl: $c(aib.cPostHeader, cloneEl),
 			hidden: true,
 			origin: post,
 			handleEvent() {
-				Post.hideContent(this.el, this.btn, true, this.hidden = !this.hidden);
+				Post.hideContent(this.headerEl, this.btn, true, this.hidden = !this.hidden);
 			}
 		};
 		cloneEl.hideData = hideData;
 		cloneEl.removeAttribute('id');
 		cloneEl.style.display = '';
-		cloneEl.className = aib.cReply + ' de-post-hide de-cloned-post';
+		cloneEl.className = aib.cReply + ' de-cloned-post';
 		hideData.btn.parentNode.className = 'de-post-btns';
 		hideData.btn.addEventListener('click', hideData);
 		if(!block) {
@@ -2398,7 +2398,7 @@ function showHiddenWindow(body) {
 			var isHide = this.value === Lng.undo[lang];
 			$each($Q('.de-cloned-post', this.parentNode), function(el) {
 				var hData = el.hideData;
-				Post.hideContent(hData.el, hData.btn, true, hData.hidden = isHide);
+				Post.hideContent(hData.headerEl, hData.btn, true, hData.hidden = isHide);
 			});
 			this.value = isHide ? Lng.expandAll[lang] : Lng.undo[lang];
 		}));
@@ -4678,10 +4678,8 @@ function Videos(post, player = null, playerInfo = null) {
 	this.post = post;
 	this.vData = [[], []];
 	if(player && playerInfo) {
-		Object.defineProperties(this, {
-			player: { value: player },
-			playerInfo: { writable: true, value: playerInfo }
-		});
+		Object.defineProperty(this, 'player', { value: player });
+		this.playerInfo = playerInfo;
 	}
 }
 Videos._global = {
@@ -8996,30 +8994,16 @@ class AbstractPost {
 }
 
 class Post extends AbstractPost {
-	static hideContent(postEl, hideBtn, isUser, hide) {
+	static hideContent(headerEl, hideBtn, isUser, hide) {
 		if(hide) {
-			postEl.classList.add('de-post-hide');
 			hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
 		} else {
-			postEl.classList.remove('de-post-hide');
 			hideBtn.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
 		}
-		if(nav.Chrome) {
-			if(hide) {
-				postEl.classList.remove('de-post-unhide');
-			} else {
-				postEl.classList.add('de-post-unhide');
-			}
-			if(!chromeCssUpd) {
-				chromeCssUpd = setTimeout(function() {
-					doc.head.insertAdjacentHTML('beforeend',
-						`<style id="de-csshide" type="text/css">
-							.de-post-hide > ${aib.qHide} { display: none !important; }
-							.de-post-unhide > ${aib.qHide} { display: !important; }
-						</style>`);
-					$del(doc.head.lastChild);
-					chromeCssUpd = null;
-				}, 200);
+		if(headerEl) {
+			var jobName = hide ? 'add' : 'remove';
+			for(var el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
+				el.classList[jobName]('de-post-hiddencontent');
 			}
 		}
 	}
@@ -9070,6 +9054,11 @@ class Post extends AbstractPost {
 		return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el)
 			.getBoundingClientRect().bottom;
 	}
+	get headerEl() {
+		var value = $c(aib.cPostHeader, this.el);
+		Object.defineProperty(this, 'headerEl', { value });
+		return value;
+	}
 	get html() {
 		return PostContent.get(this, this).html;
 	}
@@ -9085,15 +9074,15 @@ class Post extends AbstractPost {
 		return post;
 	}
 	get noteEl() {
-		var val;
+		var value;
 		if(this.isOp) {
-			val = this.thr.el.previousElementSibling.lastChild;
+			value = this.thr.el.previousElementSibling.lastChild;
 		} else {
 			this.btns.insertAdjacentHTML('beforeend', '<span class="de-post-note"></span>');
-			val = this.btns.lastChild;
+			value = this.btns.lastChild;
 		}
-		Object.defineProperty(this, 'noteEl', { value: val });
-		return val;
+		Object.defineProperty(this, 'noteEl', { value });
+		return value;
 	}
 	get posterName() {
 		return PostContent.get(this, this).posterName;
@@ -9142,7 +9131,7 @@ class Post extends AbstractPost {
 		return null;
 	}
 	hideContent(hide) {
-		Post.hideContent(this.el, this.hideBtn, this.userToggled, hide);
+		Post.hideContent(this.headerEl, this.hideBtn, this.userToggled, hide);
 	}
 	select() {
 		if(this.isOp) {
@@ -11102,9 +11091,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		'420chan.org': [{
 			_420: { value: true },
 
+			cPostHeader: { value: 'replyheader' },
 			qBan: { value: '.ban' },
 			qError: { value: 'pre' },
-			qHide: { value: '.replyheader ~ *' },
 			qPages: { value: '.pagelist > a:last-child' },
 			qPostRedir: { value: null },
 			qThread: { value: '[id*="thread"]' },
@@ -11122,13 +11111,13 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			cFileInfo: { value: 'fileText' },
 			cOPost: { value: 'op' },
+			cPostHeader: { value: 'postInfo' },
 			cReply: { value: 'post reply' },
 			cSubj: { value: 'subject' },
 			qBan: { value: 'strong[style="color: red;"]' },
 			qClosed: { value: '.archivedIcon' },
 			qDelBut: { value: '.deleteform > input[type="submit"]' },
 			qError: { value: '#errmsg' },
-			qHide: { value: '.postInfo ~ *' },
 			qImgLink: { value: '.fileText > a' },
 			qName: { value: '.name' },
 			qOmitted: { value: '.summary.desktop' },
@@ -11188,9 +11177,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			init: { value() { return true; } }
 		}],
 		'arhivach.org': [{
+			cPostHeader: { value: 'post_head' },
 			cReply: { value: 'post' },
 			qDForm: { value: 'body > .container-fluid' },
-			qHide: { value: '.post_comment' },
 			qMsg: { value: '.post_comment_body' },
 			qRef: { value: '.post_id, .post_head > b' },
 			qRPost: { value: '.post:not(:first-child):not([postid=""])' },
@@ -11331,13 +11320,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			krau: { value: true },
 
 			cFileInfo: { value: 'fileinfo' },
+			cPostHeader: { value: 'postheader' },
 			cReply: { value: 'postreply' },
 			cSubj: { value: 'postsubject' },
 			qBan: { value: '.ban_mark' },
 			qClosed: { value: 'img[src="/images/locked.gif"]' },
 			qDForm: { value: 'form[action*="delete"]' },
 			qError: { value: '.message_text' },
-			qHide: { value: 'div:not(.postheader)' },
 			qImgLink: { value: '.filename > a' },
 			qOmitted: { value: '.omittedinfo' },
 			qPages: { value: 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a' },
@@ -11514,12 +11503,12 @@ function getImageBoard(checkDomains, checkEngines) {
 		'body.makaba': {
 			mak: { value: true },
 
+			cPostHeader: { value: 'post-details' },
 			cReply: { value: 'post reply' },
 			cSubj: { value: 'post-title' },
 			qBan: { value: '.pomyanem' },
 			qClosed: { value: '.sticky-img[src$="locked.png"]' },
 			qDForm: { value: '#posts-form' },
-			qHide: { value: '.post-details ~ *' },
 			qImgLink: { value: '.file-attr > .desktop' },
 			qMsg: { value: '.post-message' },
 			qName: { value: '.ananimas, .post-email' },
@@ -11719,12 +11708,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			tiny: { value: true },
 
 			cFileInfo: { value: 'fileinfo' },
+			cPostHeader: { value: 'intro' },
 			cReply: { value: 'post reply' },
 			qClosed: { value: '.fa-lock' },
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'trip' },
 			qDForm: { value: 'form[name*="postcontrols"]' },
-			qHide: { value: '.intro ~ *' },
 			qImgLink: { value: 'p.fileinfo > a:first-of-type' },
 			qMsg: { value: '.body' },
 			qName: { value: '.name' },
@@ -11783,11 +11772,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		get 'form[action$="board.php"]'() { return this['script[src*="kusaba"]']; },
 		'link[href$="phutaba.css"]': {
 			cOPost: { value: 'thread_OP' },
+			cPostHeader: { value: 'post_head' },
 			cReply: { value: 'post' },
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'tripcode' },
 			qError: { value: '.error' },
-			qHide: { value: '.post > .post_body' },
 			qImgLink: { value: '.filename > a' },
 			qMsg: { value: '.text' },
 			qPages: { value: '.pagelist > li:nth-last-child(2)' },
@@ -11845,6 +11834,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	var ibBase = {
 		cFileInfo: 'filesize',
 		cOPost: 'oppost',
+		cPostHeader: 'de-post-btns',
 		cReply: 'reply',
 		cSubj: 'filetitle',
 		cTrip: 'postertrip',
@@ -11853,7 +11843,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		qDelPassw: 'input[type="password"], input[name="password"]',
 		qDForm: '#delform, form[name="delform"]',
 		qError: 'h1, h2, font[size="5"]',
-		qHide: '.de-post-btns ~ *',
 		qPassw: 'tr input[type="password"]',
 		get qImgLink() {
 			var val = '.' + this.cFileInfo + ' a[href$=".jpg"], ' +
@@ -13452,7 +13441,7 @@ function scriptCSS() {
 	.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(0,0,255,.7); border-right: 4px solid rgba(0,0,255,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(0,0,255,.8), -6px 0 2px -2px rgba(0,0,255,.8); }') + '\
 	.de-omitted { color: grey; }\
 	.de-omitted::before { content: "' + Lng.postsOmitted[lang] + '"; }\
-	.de-post-hide > ' + aib.qHide + ' { display: none !important; }\
+	.de-post-hiddencontent { display: none !important; }\
 	.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 	.de-pview-info { padding: 3px 6px !important; }\
 	.de-ref-op::after { content: " (OP)"; }\
