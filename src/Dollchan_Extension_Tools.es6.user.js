@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'ed43478';
+var commit = '0e9614f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11032,133 +11032,782 @@ function initNavFuncs() {
 // IMAGEBOARD
 // ===========================================================================================================
 
-function getImageBoard(checkDomains, checkEngines) {
-	var prot = window.location.protocol;
-	var ibDomains = {
-		'02ch.net': [{
-			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
-			ru: { value: true },
-			timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
-		}],
-		'2chru.net': [{
-			_2chru: { value: true },
+class BaseBoard {
+	constructor(prot, dm) {
+		// Query paths
+		this.cFileInfo = 'filesize';
+		this.cOPost = 'oppost';
+		this.cPostHeader = 'de-post-btns';
+		this.cReply = 'reply';
+		this.cSubj = 'filetitle';
+		this.cTrip = 'postertrip';
+		this.qBan = '';
+		this.qDelBut = 'input[type="submit"]';
+		this.qDelPassw = 'input[type="password"], input[name="password"]';
+		this.qDForm = '#delform, form[name="delform"]';
+		this.qError = 'h1, h2, font[size="5"]';
+		this.qPassw = 'tr input[type="password"]';
+		this.qMsg = 'blockquote';
+		this.qName = '.postername, .commentpostername';
+		this.qOmitted = '.omittedposts';
+		this.qPages = 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type';
+		this.qPostForm = '#postform';
+		this.qPostRedir = 'input[name="postredir"][value="1"]';
+		this.qRef = '.reflink';
+		this.qRPost = '.reply';
+		this.qTable = 'form > table, div > table, div[id^="repl"]';
+		this.qThumbImages = '.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]';
+		this.qTrunc = '.abbrev, .abbr, .shortened';
 
-			css: { value: '.small { display: none; }' }
-		}, 'form[action*="imgboard.php?delete"]'],
+		this.anchor = '#';
+		this.checkForm = emptyFn;
+		this.dm = dm;
+		this.docExt = '.html';
+		this.ETag = null;
+		this.firstPage = 0;
+		this.hasOPNum = false;
+		this.hasPicWrap = false;
+		this.host = window.location.hostname;
+		this.LastModified = null;
+		this.markupBB = false;
+		this.multiFile = false;
+		this.prot = prot;
+		this.res = 'res/';
+		this.ru = false;
+		this.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
+		this.thrid = 'parent';
+	}
+	get css() {
+		return '';
+	}
+	get qImgLink() {
+		var value = '.' + this.cFileInfo + ' a[href$=".jpg"], ' +
+			'.' + this.cFileInfo + ' a[href$=".jpeg"], ' +
+			'.' + this.cFileInfo + ' a[href$=".png"], ' +
+			'.' + this.cFileInfo + ' a[href$=".gif"], ' +
+			'.' + this.cFileInfo + ' a[href$=".webm"]';
+		Object.defineProperty(this, 'qImgLink', { value });
+		return value;
+	}
+	get qMsgImgLink() {
+		var value = this.qMsg + ' a[href*=".jpg"], ' +
+			this.qMsg + ' a[href*=".png"], ' +
+			this.qMsg + ' a[href*=".gif"], ' +
+			this.qMsg + ' a[href*=".jpeg"]';
+		Object.defineProperty(this, 'qMsgImgLink', { value });
+		return value;
+	}
+	get qThread() {
+		var val = $c('thread', doc) ? '.thread' :
+			$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
+			'[id^="thread"]';
+		Object.defineProperty(this, 'qThread', { value: val });
+		return val;
+	}
+	get lastPage() {
+		var el = $q(this.qPages, doc),
+			val = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
+		if(this.page === val + 1) {
+			val++;
+		}
+		Object.defineProperty(this, 'lastPage', { value: val });
+		return val;
+	}
+	get markupTags() {
+		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] :
+			['**', '*', '', '^H', '%%', '`', '', '', 'q'];
+	}
+	get reCrossLinks() {
+		var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' +
+			regQuote(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
+		Object.defineProperty(this, 'reCrossLinks', { value: val });
+		return val;
+	}
+	get rep() {
+		var val = dTime || Spells.reps || Cfg.crossLinks;
+		Object.defineProperty(this, 'rep', { value: val });
+		return val;
+	}
+	disableRedirection(el) {
+		if(this.qPostRedir) {
+			($q(this.qPostRedir, el) || {}).checked = true;
+		}
+	}
+	fixFileInputs() {}
+	fixVideo(isPost, data) {
+		var videos = [],
+			els = $Q('embed, object, iframe', isPost ? data.el : data);
+		for(var i = 0, len = els.length; i < len; ++i) {
+			var m, el = els[i],
+				src = el.src || el.data;
+			if(src) {
+				if((m = src.match(Videos.ytReg))) {
+					videos.push([isPost ? data : this.getPostOfEl(el), m, true]);
+					$del(el);
+				}
+				if(Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
+					videos.push([isPost ? data : this.getPostOfEl(el), m, false]);
+					$del(el);
+				}
+			}
+		}
+		return videos;
+	}
+	getCaptchaSrc(src, tNum) {
+		var tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
+					 .replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
+		return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum)
+					: tmp.replace(/res\d+/, 'mainpage');
+	}
+	getFileInfo(wrap) {
+		var el = $c(this.cFileInfo, wrap);
+		return el ? el.textContent : '';
+	}
+	getImgLink(img) {
+		var el = img.parentNode;
+		return el.tagName === 'SPAN' ? el.parentNode : el;
+	}
+	getImgParent(el) {
+		return this.getImgWrap(el);
+	}
+	getImgWrap(el) {
+		var node = (el.tagName === 'SPAN' ? el.parentNode : el).parentNode;
+		return node.tagName === 'SPAN' ? node.parentNode : node;
+	}
+	getOmitted(el, len) {
+		var txt;
+		return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
+	}
+	getOp(thr) {
+		var op = localRun ? $q('div[de-oppost]', thr) : $c(this.cOPost, thr);
+		if(op) {
+			return op;
+		}
+		op = thr.ownerDocument.createElement('div');
+		op.setAttribute('de-oppost', '');
+		var el, opEnd = $q(this.qTable, thr);
+		while((el = thr.firstChild) !== opEnd) {
+			op.appendChild(el);
+		}
+		if(thr.hasChildNodes()) {
+			thr.insertBefore(op, thr.firstChild);
+		} else {
+			thr.appendChild(op);
+		}
+		return op;
+	}
+	getPNum(post) {
+		return +post.id.match(/\d+/)[0];
+	}
+	getPageUrl(b, p) {
+		return fixBrd(b) + (p > 0 ? p + this.docExt : '');
+	}
+	getPostElOfEl(el) {
+		var sel = this.qRPost + ', [de-thread]';
+		while(el && !nav.matchesSelector(el, sel)) {
+			el = el.parentElement;
+		}
+		return el;
+	}
+	getPostOfEl(el) {
+		return pByEl.get(this.getPostElOfEl(el));
+	}
+	getSage(post) {
+		var a = $q('a[href^="mailto:"], a[href="sage"]', post);
+		return !!a && /sage/i.test(a.href);
+	}
+	getThrdUrl(b, tNum) {
+		return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
+	}
+	getTNum(op) {
+		return +$q('input[type="checkbox"]', op).value;
+	}
+	getWrap(el, isOp) {
+		if(isOp) {
+			return el;
+		}
+		if(el.tagName === 'TD') {
+			Object.defineProperty(this, 'getWrap', { value(el, isOp) {
+				return isOp ? el : $parent(el, 'TABLE');
+			}});
+		} else {
+			Object.defineProperty(this, 'getWrap', { value(el, isOp) {
+				return el;
+			}});
+		}
+		return this.getWrap(el, isOp);
+	}
+	insertYtPlayer(msg, playerHtml) {
+		msg.insertAdjacentHTML('beforebegin', playerHtml);
+		return msg.previousSibling;
+	}
+	parseURL() {
+		var temp, url = (window.location.pathname || '').replace(/^\//, '');
+		if(url.match(this.res)) {
+			temp = url.split(this.res);
+			this.b = temp[0].replace(/\/$/, '');
+			this.t = +temp[1].match(/^\d+/)[0];
+			this.page = this.firstPage;
+		} else {
+			temp = url.match(/\/?(\d+)[^\/]*?$/);
+			this.page = temp && +temp[1] || this.firstPage;
+			this.b = url.replace(temp && this.page ? temp[0] : /\/(?:[^\/]+\.[a-z]+)?$/, '');
+			this.t = false;
+		}
+		if(!this.hasOwnProperty('docExt') && (temp = url.match(/\.[a-z]+$/))) {
+			this.docExt = temp[0];
+		}
+	}
+}
+
+function getImageBoard(checkDomains, checkEngines) {
+	var ibEngines = {
+		'body.makaba': class Makaba extends BaseBoard {
+			constructor(prot, dm) {
+				super(prot, dm);
+				this.mak = true;
+
+				this.cPostHeader = 'post-details';
+				this.cReply = 'post reply';
+				this.cSubj = 'post-title';
+				this.qBan = '.pomyanem';
+				this.qClosed = '.sticky-img[src$="locked.png"]';
+				this.qDForm = '#posts-form';
+				this.qMsg = '.post-message';
+				this.qName = '.ananimas, .post-email';
+				this.qOmitted = '.mess-post';
+				this.qPostRedir = null;
+				this.qRPost = 'div.reply';
+				this.qThumbImages = '.preview';
+				this.qTrunc = null;
+
+				this.hasOPNum = true;
+				this.hasPicWrap = true;
+				this.markupBB = true;
+				this.multiFile = true;
+				this.timePattern = 'dd+nn+yy+w+hh+ii+ss';
+			}
+			get css() {
+				return `.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }
+				.captcha-image > img { cursor: pointer; }
+				#de-txt-panel { font-size: 16px !important; }
+				.images-area input { float: none !important; display: inline !important; }
+				.images-single + .de-video-obj { display: inline-block; }
+				.mess-post { display: block; }
+				.postbtn-reply-href { font-size: 0px; }
+				.postbtn-reply-href::after { font-size: 14px; content: attr(name); }
+				${Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : ''}
+				${Cfg.delImgNames ? '.filesize { display: inline !important; }' : ''}`;
+			}
+			get qImgLink() {
+				return '.file-attr > .desktop';
+			}
+			get hasNames() {
+				var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
+				Object.defineProperty(this, 'hasNames', { value: val });
+				return val;
+			}
+			get lastPage() {
+				var els = $Q('.pager > a:not([class])', doc),
+					val = els ? els.length : 1;
+				Object.defineProperty(this, 'lastPage', { value: val });
+				return val;
+			}
+			get markupTags() {
+				return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'];
+			}
+			fixFileInputs(el) {
+				var str = '';
+				for(var i = 0, len = 4; i < len; ++i) {
+					str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
+						'><input type="file" name="image' + (i + 1) + '"></input></div>';
+				}
+				$q('#postform .images-area', doc).lastElementChild.innerHTML = str;
+			}
+			getImgParent(node) {
+				var el = $parent(node, 'FIGURE'),
+					parent = el.parentNode;
+				return parent.lastElementChild === el ? parent : el;
+			}
+			getImgWrap(el) {
+				return $parent(el, 'FIGURE');
+			}
+			getPNum(post) {
+				return +post.getAttribute('data-num');
+			}
+			getSage(post) {
+				if(this.hasNames) {
+					this.getSage = function(post) {
+						var name = $q(this.qName, post);
+						return name ? name.childElementCount === 0 && !$c('ophui', post) : false;
+					};
+				} else {
+					this.getSage = super.getSage;
+				}
+				return this.getSage(post);
+			}
+			getWrap(el) {
+				return el.parentNode;
+			}
+			init() {
+				alert('azaza');
+				$script('window.FormData = void 0; $(function() { $(window).off(); });');
+				$each($C('autorefresh', doc), $del);
+				var el = $q('td > .anoniconsselectlist', doc);
+				if(el) {
+					$q('.option-area > td:last-child', doc).appendChild(el);
+				}
+				if((el = $c('search', doc.body))) {
+					$before($c('menu', doc.body).firstChild, el);
+				}
+				el = $q('tr:not([class])', doc.body);
+				if(!el) {
+					return false;
+				}
+				doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
+					'<div onclick="loadCaptcha();"></div></div>');
+				this.updateCaptcha = function(el, focus) {
+					this.click();
+					el.style.display = '';
+					el = $id('captcha-value');
+					if(el) {
+						pr.cap = el;
+						el.tabIndex = 999;
+						if(focus) {
+							el.focus();
+						}
+					}
+				}.bind(doc.body.lastChild.firstChild, el);
+				el.addEventListener('click', e => {
+					if(e.target.tagName === 'IMG') {
+						this.updateCaptcha(true);
+						e.stopPropagation();
+					}
+				}, true);
+				return false;
+			}
+		},
+		'form[action*="futaba.php"]': class Futaba extends BaseBoard {
+			constructor(prot, dm) {
+				super(prot, dm);
+				this.futa = true;
+
+				this.qDForm = 'form:not([enctype])';
+				this.qOmitted = 'font[color="#707070"]';
+				this.qPostForm = 'form:nth-of-type(1)';
+				this.qPostRedir = null;
+				this.qRef = '.del';
+				this.qRPost = 'td:nth-child(2)';
+				this.qThumbImages = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
+
+				this.docExt = '.htm';
+				this.thrid = 'resto';
+			}
+			get css() {
+				return `.ftbl { width: auto; margin: 0; }
+					.reply { background: #f0e0d6; }
+					span { font-size: inherit; }`;
+			}
+			get qImgLink() {
+				return 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
+			}
+			getPageUrl(b, p) {
+				return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
+			}
+			getPNum(post) {
+				return +$t('input', post).name;
+			}
+			getPostElOfEl(el) {
+				while(el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
+					el = el.parentElement;
+				}
+				return el;
+			}
+			getTNum(op) {
+				return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+			}
+		},
+		'form[action*="imgboard.php?delete"]': class TinyIb extends BaseBoard {
+			constructor(prot, dm) {
+				super(prot, dm);
+				this.tinyIb = true;
+
+				this.qPostRedir = null;
+
+				this.ru = true;
+			}
+			getCaptchaSrc(src, tNum) {
+				return src.replace(/\?[^?]+$|$/, '?' + Math.random());
+			}
+		},
+		get 'tr#upload'() {
+			return class Vichan extends this['form[name*="postcontrols"]'] {
+				constructor(prot, dm) {
+					super(prot, dm);
+
+					this.qDelPassw = '#password';
+					this.qPassw = 'input[name="password"]';
+
+					this.multiFile = true;
+				}
+				get css() {
+					return `.banner, ${this.t ? '' : '.de-btn-rep,'} .hide-thread-link, .mentioned, .post-hover { display: none !important; }
+						div.post.reply { float: left; clear: left; display: block; }
+						.boardlist { position: static !important; }
+						body { padding: 0 5px !important; }
+						.fileinfo { width: 250px; }
+						.multifile { width: auto !important; }
+						#expand-all-images, #expand-all-images + .unimportant, .post-btn, small { display: none !important; }`;
+				}
+				fixFileInputs(el) {
+					var str = '';
+					for(var i = 0, len = 5; i < len; ++i) {
+						str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
+							'><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"></div>';
+					}
+					$id('upload').lastChild.innerHTML = str;
+				}
+				init() {
+					setTimeout(function() {
+						$del($id('updater'));
+					}, 0);
+					if(checkStorage() && locStorage['file_dragdrop'] !== 'false') {
+						locStorage['file_dragdrop'] = false;
+						window.location.reload();
+						return true;
+					}
+					return false;
+				}
+			}
+		},
+		'form[name*="postcontrols"]': class Tinyboard extends BaseBoard {
+			constructor(prot, dm) {
+				super(prot, dm);
+				this.tiny = true;
+
+				this.cFileInfo = 'fileinfo';
+				this.cPostHeader = 'intro';
+				this.cReply = 'post reply';
+				this.qClosed = '.fa-lock';
+				this.cSubj = 'subject';
+				this.cTrip = 'trip';
+				this.qDForm = 'form[name*="postcontrols"]';
+				this.qMsg = '.body';
+				this.qName = '.name';
+				this.qOmitted = '.omitted';
+				this.qPages = '.pages > a:nth-last-of-type(2)';
+				this.qPostForm = 'form[name="post"]';
+				this.qPostRedir = null;
+				this.qRef = '.post_no + a';
+				this.qTable = '.post.reply';
+				this.qTrunc = '.toolong';
+
+				this.firstPage = 1;
+				this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
+				this.thrid = 'thread';
+			}
+			get css() {
+				return `.banner, ${this.t ? '' : '.de-btn-rep,'} .hide-thread-link, .mentioned, .post-hover { display: none !important; }
+					div.post.reply { float: left; clear: left; display: block; }`;
+			}
+			get qImgLink() {
+				return 'p.fileinfo > a:first-of-type';
+			}
+			get markupTags() {
+				return ["'''", "''", '__', '~~', '**', 'code', '', '', 'q'];
+			}
+			fixVideo(isPost, data) {
+				var videos = [],
+					els = $Q('.video-container, #ytplayer', isPost ? data.el : data);
+				for(var i = 0, len = els.length; i < len; ++i) {
+					var el = els[i];
+					videos.push([isPost ? data : this.getPostOfEl(el), el.id === 'ytplayer' ?
+						el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true]);
+					$del(el);
+				}
+				return videos;
+			}
+			getPageUrl(b, p) {
+				return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
+			}
+			getTNum(op) {
+				return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+			}
+			init() {
+				if(Cfg) {
+					Cfg.fileThumb = 0;
+				}
+				return false;
+			}
+		},
+		'script[src*="kusaba"]': class Kusaba extends BaseBoard {
+			constructor(prot, dm) {
+				super(prot, dm);
+				this.kus = true;
+
+				this.cOPost = 'postnode';
+				this.qError = 'h1, h2, div[style*="1.25em"]';
+				this.qPostRedir = null;
+
+				this.markupBB = true;
+			}
+			get css() {
+				return `.extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }
+					.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }`;
+			}
+			getCaptchaSrc(src, tNum) {
+				return src.replace(/\?[^?]+$|$/, '?' + Math.random());
+			}
+		},
+		get 'form[action$="board.php"]'() { return this['script[src*="kusaba"]']; },
+		'link[href$="phutaba.css"]': class Phutaba extends BaseBoard {
+			constructor(prot, dm) {
+				super(prot, dm);
+
+				this.cOPost = 'thread_OP';
+				this.cPostHeader = 'post_head';
+				this.cReply = 'post';
+				this.cSubj = 'subject';
+				this.cTrip = 'tripcode';
+				this.qError = '.error';
+				this.qMsg = '.text';
+				this.qPages = '.pagelist > li:nth-last-child(2)';
+				this.qPostRedir = 'input[name="gb2"][value="thread"]';
+				this.qRPost = '.thread_reply';
+				this.qTrunc = '.tldr';
+
+				this.docExt = '';
+				this.markupBB = true;
+				this.multiFile = true;
+				this.res = 'thread/';
+			}
+			get css() {
+				return '.content > hr, .de-parea > hr { display: none !important }';
+			}
+			fixFileInputs(el) {
+				var str = '><input name="file" type="file"></input></div>';
+				el.removeAttribute('onchange');
+				el.parentNode.parentNode.innerHTML =
+					'<div' + str + ('<div style="display: none;"' + str).repeat(3);
+			}
+			get qImgLink() {
+				return '.filename > a';
+			}
+			getImgWrap(el) {
+				return el.parentNode.parentNode;
+			}
+			getSage(post) {
+				return !!$q('.sage', post);
+			}
+		},
+		'div#mainc': class extends BaseBoard {
+			constructor(prot, dm) {
+				super(prot, dm);
+
+				this.qDForm = '#mainc';
+			}
+			get css() {
+				return '.reply { background-color: #e4e4d6; }';
+			}
+			getPageUrl(b, p) {
+				return fixBrd(b) + '?do=page&p=' + (p < 0 ? 0 : p);
+			}
+			getThrdUrl(b, tNum) {
+				return this.prot + '//' + this.host + fixBrd(b) + '?do=thread&id=' + tNum;
+			}
+			getTNum(op) {
+				return +$q('a[name]', op).name.match(/\d+/)[0];
+			}
+			init() {
+				var el = $id('mainc'),
+					pArea = $id('postarea');
+				$del(el.firstElementChild);
+				$before(el, pArea.nextElementSibling);
+				$before(el, pArea);
+				return false;
+			}
+			parseURL() {
+				var url = window.location.search.match(/^\?do=(thread|page)&(id|p)=(\d+)$/);
+				this.b = window.location.pathname.replace(/\//g, '');
+				this.t = url[1] === 'thread' ? +url[3] : false;
+				this.page = url[1] === 'page' ? +url[3] : 0;
+				this.docExt = '';
+			}
+		}
+	};
+
+	var ibDomains = {
+		'02ch.net': class extends BaseBoard {
+			constructor(prot, dm) {
+				super(prot, dm);
+
+				this.qPostRedir = 'input[name="gb2"][value="thread"]';
+
+				this.ru = true;
+				this.timePattern = 'yyyy+nn+dd++w++hh+ii+ss';
+			}
+		},
+		'2chru.net': class extends ibEngines['form[action*="imgboard.php?delete"]'] {
+			constructor(prot, dm) {
+				super(prot, dm);
+				this._2chru = true;
+			}
+			get css() {
+				return '.small { display: none; }';
+			}
+		},
 		get '2-chru.net'() { return this['2chru.net']; },
 		get '2chru.cafe'() { return this['2chru.net']; },
 		get '2-chru.cafe'() { return this['2chru.net']; },
 		get '2-ch.su'() { return this['2--ch.ru']; },
-		'2--ch.ru': [{
-			tire: { value: true },
+		'2--ch.ru': class extends ibEngines['form[action*="imgboard.php?delete"]'] {
+			constructor(prot, dm) {
+				super(prot, dm);
+				this.tire = true;
 
-			qPages: { value: 'table[border="1"] tr:first-of-type > td:first-of-type a' },
-			qPostRedir: { value: null },
-			qTable: { value: 'table:not(.postfiles)' },
-			qThread: { value: '.threadz' },
-			getCaptchaSrc: { value(src, tNum) {
-				return '/' + this.b + '/captcha.fpl?' + Math.random();
-			} },
-			getOmitted: { value(el, len) {
-				var txt;
-				return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
-			} },
-			getPageUrl: { value(b, p) {
-				return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
-			} },
-			css: { value: 'span[id$="_display"], #fastload { display: none; }' },
-			docExt: { value: '.html' },
-			fixFileInputs: { value(el) {
+				this.qPages = 'table[border="1"] tr:first-of-type > td:first-of-type a';
+				this.qPostRedir = null;
+				this.qTable = 'table:not(.postfiles)';
+				this.qThread = '.threadz';
+
+				this.docExt = '.html';
+				this.hasPicWrap = true;
+				this.markupBB = true;
+				this.multiFile = true;
+				this.ru = true;
+			}
+			get css() {
+				return 'span[id$="_display"], #fastload { display: none; }';
+			}
+			fixFileInputs(el) {
 				var str = '><input name="file" maxlength="4" ' +
 					'accept="|sid|7z|bz2|m4a|flac|lzh|mo3|rar|spc|fla|nsf|jpg|mpp|aac|gz|xm|wav|' +
 					'mp3|png|it|lha|torrent|swf|zip|mpc|ogg|jpeg|gif|mod" type="file"></input></div>';
 				el.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-			} },
-			hasPicWrap: { value: true },
-			markupBB: { value: true },
-			multiFile: { value: true },
-			ru: { value: true }
-		}],
-		get '2ch.hk'() { return [ibEngines['body.makaba']]; },
-		get '2ch.pm'() { return [ibEngines['body.makaba']]; },
-		'410chan.org': [{
-			_410: { value: true },
+			}
+			getCaptchaSrc(src, tNum) {
+				return '/' + this.b + '/captcha.fpl?' + Math.random();
+			}
+			getOmitted(el, len) {
+				var txt;
+				return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
+			}
+			getPageUrl(b, p) {
+				return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
+			}
+		},
+		get '2ch.hk'() { return ibEngines['body.makaba']; },
+		get '2ch.pm'() { return ibEngines['body.makaba']; },
+		'410chan.org': class extends ibEngines['script[src*="kusaba"]'] {
+			constructor(prot, dm) {
+				super(prot, dm);
+				this._410 = true;
 
-			qPostRedir: { value: 'input#noko' },
-			getCaptchaSrc: { value(src, tNum) {
+				this.qPostRedir = 'input#noko';
+
+				this.markupBB = false;
+				this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
+			}
+			get css() {
+				return '#resizer { display: none; }';
+			}
+			get markupTags() {
+				return ['**', '*', '__', '^^', '%%', '`', '', '', 'q'];
+			}
+			getCaptchaSrc(src, tNum) {
 				return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
-			} },
-			getSage: { value(post) {
+			}
+			getSage(post) {
 				var el = $c('filetitle', post);
 				return el && el.textContent.includes('\u21E9');
-			} },
-			css: { value: '#resizer { display: none; }' },
-			markupBB: { value: false },
-			markupTags: { value: ['**', '*', '__', '^^', '%%', '`', '', '', 'q'] },
-			timePattern: { value: 'dd+nn+yyyy++w++hh+ii+ss' }
-		}, 'script[src*="kusaba"]'],
-		'420chan.org': [{
-			_420: { value: true },
+			}
+		},
+		'420chan.org': class extends BaseBoard {
+			constructor(prot, dm) {
+				super(prot, dm);
+				this._420 = true;
 
-			cPostHeader: { value: 'replyheader' },
-			qBan: { value: '.ban' },
-			qError: { value: 'pre' },
-			qPages: { value: '.pagelist > a:last-child' },
-			qPostRedir: { value: null },
-			qThread: { value: '[id*="thread"]' },
-			getTNum: { value(op) {
+				this.cPostHeader = 'replyheader';
+				this.qBan = '.ban';
+				this.qError = 'pre';
+				this.qPages = '.pagelist > a:last-child';
+				this.qPostRedir = null;
+				this.qThread = '[id*="thread"]';
+
+				this.docExt = '.php';
+				this.markupBB = true;
+			}
+			get css() {
+				return `#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }
+					.de-thr-hid { margin: 1em 0; }`;
+			}
+			get markupTags() {
+				return ['**', '*', '', '', '%', 'pre', '', '', 'q'];
+			}
+			getTNum(op) {
 				return +$q('a[id]', op).id.match(/\d+/)[0];
-			} },
-			css: { value: '#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }\
-				.de-thr-hid { margin: 1em 0; }' },
-			docExt: { value: '.php' },
-			markupBB: { value: true },
-			markupTags: { value: ['**', '*', '', '', '%', 'pre', '', '', 'q'] }
-		}],
-		'4chan.org': [{
-			fch: { value: true },
+			}
+		},
+		'4chan.org': class extends BaseBoard {
+			constructor(prot, dm) {
+				super(prot, dm);
+				this.fch = true;
 
-			cFileInfo: { value: 'fileText' },
-			cOPost: { value: 'op' },
-			cPostHeader: { value: 'postInfo' },
-			cReply: { value: 'post reply' },
-			cSubj: { value: 'subject' },
-			qBan: { value: 'strong[style="color: red;"]' },
-			qClosed: { value: '.archivedIcon' },
-			qDelBut: { value: '.deleteform > input[type="submit"]' },
-			qError: { value: '#errmsg' },
-			qImgLink: { value: '.fileText > a' },
-			qName: { value: '.name' },
-			qOmitted: { value: '.summary.desktop' },
-			qPages: { value: '.pagelist > .pages:not(.cataloglink) > a:last-of-type' },
-			qPostForm: { value: 'form[name="post"]' },
-			qPostRedir: { value: null },
-			qRef: { value: '.postInfo > .postNum' },
-			qTable: { value: '.replyContainer' },
-			qThumbImages: { value: '.fileThumb > img:not(.fileDeletedRes)' },
-			getFileInfo: { value(wrap) {
+				this.cFileInfo = 'fileText';
+				this.cOPost = 'op';
+				this.cPostHeader = 'postInfo';
+				this.cReply = 'post reply';
+				this.cSubj = 'subject';
+				this.qBan = 'strong[style="color: red;"]';
+				this.qClosed = '.archivedIcon';
+				this.qDelBut = '.deleteform > input[type="submit"]';
+				this.qError = '#errmsg';
+				this.qName = '.name';
+				this.qOmitted = '.summary.desktop';
+				this.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
+				this.qPostForm = 'form[name="post"]';
+				this.qPostRedir = null;
+				this.qRef = '.postInfo > .postNum';
+				this.qTable = '.replyContainer';
+				this.qThumbImages = '.fileThumb > img:not(.fileDeletedRes)';
+
+				this.anchor = '#p';
+				this.docExt = '';
+				this.firstPage = 1;
+				this.markupBB = true;
+				this.rep = true;
+				this.res = 'thread/';
+				this.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
+				this.thrid = 'resto';
+			}
+			get css() {
+				return `.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }
+					.postForm { display: table !important; width: auto !important; }
+					textarea { margin-right: 0 !important; }`;
+			}
+			get qImgLink() {
+				return '.fileText > a';
+			}
+			get markupTags() {
+				return ['', '', '', '', 'spoiler', '', '', '', 'q'];
+			}
+			getFileInfo(wrap) {
 				var el = $c(this.cFileInfo, wrap);
 				return el ? el.lastChild.textContent : '';
-			} },
-			getPageUrl: { value(b, p) {
+			}
+			getPageUrl(b, p) {
 				return fixBrd(b) + (p > 1 ? p : '');
-			} },
-			getSage: { value(post) {
+			}
+			getSage(post) {
 				return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
-			} },
-			getTNum: { value(op) {
+			}
+			getTNum(op) {
 				return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
-			} },
-			getWrap: { value(el, isOp) {
+			}
+			getWrap(el, isOp) {
 				return el.parentNode;
-			} },
-			anchor: { value: '#p' },
-			css: { value: '.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }\
-				.postForm { display: table !important; width: auto !important; }\
-				textarea { margin-right: 0 !important; }' },
-			docExt: { value: '' },
-			firstPage: { value: 1 },
-			init: { value() {
+			}
+			init() {
 				Cfg.findImgFile = 0;
 				var el = $id('captchaFormPart');
 				if(el) {
@@ -11171,41 +11820,48 @@ function getImageBoard(checkDomains, checkEngines) {
 					}.bind(doc.body.lastChild.firstChild, el);
 				}
 				return false;
-			} },
-			markupBB: { value: true },
-			markupTags: { value: ['', '', '', '', 'spoiler', '', '', '', 'q'] },
-			rep: { value: true },
-			res: { value: 'thread/' },
-			timePattern: { value: 'nn+dd+yy+w+hh+ii-?s?s?' },
-			thrid: { value: 'resto' }
-		}],
-		'8ch.net': [{
-			css: { value: '#post-moderation-fields { display: initial !important; }' }
-		}, 'tr#upload'],
-		'7chan.org': [{
-			init: { value() { return true; } }
-		}],
-		'arhivach.org': [{
-			cPostHeader: { value: 'post_head' },
-			cReply: { value: 'post' },
-			qDForm: { value: 'body > .container-fluid' },
-			qMsg: { value: '.post_comment_body' },
-			qRef: { value: '.post_id, .post_head > b' },
-			qRPost: { value: '.post:not(:first-child):not([postid=""])' },
-			qThread: { value: '.thread_inner' },
-			getOp: { value(el) {
+			}
+		},
+		'8ch.net': class extends ibEngines['tr#upload'] {
+			get css() {
+				return '#post-moderation-fields { display: initial !important; }';
+			}
+		},
+		'7chan.org': class extends BaseBoard {
+			init() { return true; }
+		},
+		'arhivach.org': class extends BaseBoard {
+			constructor(prot, dm) {
+				super(prot, dm);
+
+				this.cPostHeader = 'post_head';
+				this.cReply = 'post';
+				this.qDForm = 'body > .container-fluid';
+				this.qMsg = '.post_comment_body';
+				this.qRef = '.post_id, .post_head > b';
+				this.qRPost = '.post:not(:first-child):not([postid=""])';
+				this.qThread = '.thread_inner';
+
+				this.docExt = '';
+				this.res = 'thread/';
+			}
+			get css() {
+				return `.post_replies, .post[postid=""] { display: none !important; }
+					.post { overflow-x: auto !important; }`;
+			}
+			getOp(el) {
 				return $q('.post:first-child', el);
-			} },
-			getPNum: { value(post) {
+			}
+			getPNum(post) {
 				return +post.getAttribute('postid');
-			} },
-			getTNum: { value(el) {
+			}
+			getTNum(el) {
 				return +this.getOp(el).getAttribute('postid');
-			} },
-			getThrdUrl: { value(b, tNum) {
+			}
+			getThrdUrl(b, tNum) {
 				return $q('link[rel="canonical"]', doc.head).href;
-			} },
-			init: { value() {
+			}
+			init() {
 				setTimeout(function() {
 					var delPosts = $Q('.post[postid=""]', doc);
 					for(var i = 0, len = delPosts.length; i < len; ++i) {
@@ -11221,70 +11877,79 @@ function getImageBoard(checkDomains, checkEngines) {
 					}
 				}, 0);
 				return false;
-			} },
-			css: { value: '.post_replies, .post[postid=""] { display: none !important; }\
-				.post { overflow-x: auto !important; }' },
-			docExt: { value: '' },
-			res: { value: 'thread/' }
-		}],
-		'diochan.com': [{
-			dio: { value: true },
-
-			css: { value: '.resize { display: none; }' }
-		}, 'script[src*="kusaba"]'],
+			}
+		},
+		'diochan.com': class extends ibEngines['script[src*="kusaba"]'] {
+			constructor(prot, dm) {
+				super(prot, dm);
+				this.dio = true;
+			}
+			get css() {
+				return '.resize { display: none; }';
+			}
+		},
 		get 'dmirrgetyojz735v.onion'() { return this['2chru.net']; },
-		'dobrochan.com': [{
-			dobr: { value: true },
+		'dobrochan.com': class extends BaseBoard {
+			constructor(prot, dm) {
+				super(prot, dm);
+				this.dobr = true;
 
-			anchor: { value: '#i' },
-			cFileInfo: { value: 'fileinfo' },
-			cSubj: { value: 'replytitle' },
-			qClosed: { value: 'img[src="/images/locked.png"]' },
-			qDForm: { value: 'form[action*="delete"]' },
-			qError: { value: '.post-error, h2' },
-			qMsg: { value: '.postbody' },
-			qOmitted: { value: '.abbrev > span:last-of-type' },
-			qPages: { value: '.pages > tbody > tr > td' },
-			qPostRedir: { value: 'select[name="goto"]' },
-			qTrunc: { value: '.abbrev > span:nth-last-child(2)' },
-			getImgLink: { value(img) {
-				var el = img.parentNode;
-				return el.tagName === 'A' ? el :
-					$q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
-			} },
-			getImgWrap: { value(el) {
-				return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode :
-					el.firstElementChild.tagName === 'IMG' ? el.parentNode : el;
-			} },
-			getPageUrl: { value(b, p) {
-				return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
-			} },
-			getTNum: { value(op) {
-				return +$q('a[name]', op).name.match(/\d+/)[0];
-			} },
-			insertYtPlayer: { value(msg, playerHtml) {
-				var prev = msg.previousElementSibling,
-					node = prev.tagName === 'BR' ? prev : msg;
-				node.insertAdjacentHTML('beforebegin', playerHtml);
-				return node.previousSibling;
-			} },
-			css: { value: '.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none; }\
-				.delete { background: none; }\
-				.delete_checkbox { position: static !important; }\
-				.file + .de-video-obj { float: left; margin: 5px 20px 5px 5px; }\
-				.de-video-obj + div { clear: left; }' },
-			disableRedirection: { value(el) {
-				($q(this.qPostRedir, el) || {}).selectedIndex = 1;
-			} },
-			fixFileInputs: { value(el) {
+				this.cFileInfo = 'fileinfo';
+				this.cSubj = 'replytitle';
+				this.qClosed = 'img[src="/images/locked.png"]';
+				this.qDForm = 'form[action*="delete"]';
+				this.qError = '.post-error, h2';
+				this.qMsg = '.postbody';
+				this.qOmitted = '.abbrev > span:last-of-type';
+				this.qPages = '.pages > tbody > tr > td';
+				this.qPostRedir = 'select[name="goto"]';
+				this.qTrunc = '.abbrev > span:nth-last-child(2)';
+
+				this.anchor = '#i';
+				this.hasPicWrap = true;
+				this.multiFile = true;
+				this.ru = true;
+				this.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+			}
+			get css() {
+				return `.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none; }
+					.delete { background: none; }
+					.delete_checkbox { position: static !important; }
+					.file + .de-video-obj { float: left; margin: 5px 20px 5px 5px; }
+					.de-video-obj + div { clear: left; }`;
+			}
+			fixFileInputs(el) {
 				el = $id('files_parent');
 				$each($Q('input[type="file"]', el), function(el) {
 					el.removeAttribute('onchange');
 				});
 				el.firstElementChild.value = 1;
-			} },
-			hasPicWrap: { value: true },
-			init: { value() {
+			}
+			getImgLink(img) {
+				var el = img.parentNode;
+				return el.tagName === 'A' ? el :
+					$q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
+			}
+			getImgWrap(el) {
+				return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode :
+					el.firstElementChild.tagName === 'IMG' ? el.parentNode : el;
+			}
+			getPageUrl(b, p) {
+				return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
+			}
+			getTNum(op) {
+				return +$q('a[name]', op).name.match(/\d+/)[0];
+			}
+			insertYtPlayer(msg, playerHtml) {
+				var prev = msg.previousElementSibling,
+					node = prev.tagName === 'BR' ? prev : msg;
+				node.insertAdjacentHTML('beforebegin', playerHtml);
+				return node.previousSibling;
+			}
+			disableRedirection(el) {
+				($q(this.qPostRedir, el) || {}).selectedIndex = 1;
+			}
+			init() {
 				if(window.location.pathname === '/settings') {
 					if(!nav) {
 						initNavFuncs();
@@ -11295,80 +11960,88 @@ function getImageBoard(checkDomains, checkEngines) {
 					return true;
 				}
 				return false;
-			} },
-			multiFile: { value: true },
-			ru: { value: true },
-			timePattern: { value: 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?' }
-		}],
+			}
+		},
 		get 'dobrochan.org'() { return this['dobrochan.com']; },
 		get 'dobrochan.ru'() { return this['dobrochan.com']; },
-		'dva-ch.net': [{
-			dvachnet: { value: true },
+		'dva-ch.net': class extends BaseBoard {
+			constructor(prot, dm) {
+				super(prot, dm);
+				this.dvachnet = true;
 
-			ru: { value: true }
-		}],
-		'iichan.hk': [{
-			iich: { value: true },
-
-			css: { get() {
+				this.ru = true;
+			}
+		},
+		'iichan.hk': class extends BaseBoard {
+			constructor(prot, dm) {
+				super(prot, dm);
+				this.iich = true;
+			}
+			get css() {
 				return `${this.t ? '#de-main { margin-top: -37px; }\
 					.logo { margin-bottom: 14px; }' : ''}`;
-			} },
-			init: { value() {
+			}
+			init() {
 				doc.body.insertAdjacentHTML('beforeend', '<div onclick="highlight = function() {}"></div>');
 				doc.body.lastChild.click();
 				return false;
-			} },
-		}],
-		'inach.org': [{
-			qPostRedir: { value: 'input[name="fieldnoko"]' },
-			markupBB: { value: true },
-			timePattern: { value: 'nn+dd+yyyy++w++hh+ii+ss' }
-		}],
-		'krautchan.net': [{
-			krau: { value: true },
+			}
+		},
+		'inach.org': class extends BaseBoard {
+			constructor(prot, dm) {
+				super(prot, dm);
 
-			cFileInfo: { value: 'fileinfo' },
-			cPostHeader: { value: 'postheader' },
-			cReply: { value: 'postreply' },
-			cSubj: { value: 'postsubject' },
-			qBan: { value: '.ban_mark' },
-			qClosed: { value: 'img[src="/images/locked.gif"]' },
-			qDForm: { value: 'form[action*="delete"]' },
-			qError: { value: '.message_text' },
-			qImgLink: { value: '.filename > a' },
-			qOmitted: { value: '.omittedinfo' },
-			qPages: { value: 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a' },
-			qPostRedir: { value: 'input#forward_thread' },
-			qRef: { value: '.postnumber' },
-			qRPost: { value: '.postreply' },
-			qThread: { value: '.thread_body' },
-			qThumbImages: { value: 'img[id^="thumbnail_"]' },
-			qTrunc: { value: 'p[id^="post_truncated"]' },
-			getImgWrap: { value(el) {
-				return el.parentNode;
-			} },
-			getSage: { value(post) {
-				return !!$c('sage', post);
-			} },
-			getTNum: { value(op) {
-				return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
-			} },
-			insertYtPlayer: { value(msg, playerHtml) {
-				var pMsg = msg.parentNode,
-					prev = pMsg.previousElementSibling,
-					node = prev.hasAttribute('style') ? prev : pMsg;
-				node.insertAdjacentHTML('beforebegin', playerHtml);
-				return node.previousSibling;
-			} },
-			css: { value: 'img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none; }\
-				div[id^="Wz"] { z-index: 10000 !important; }\
-				.de-thr-hid { float: none; }\
-				.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\
-				.de-video-obj + div { clear: left; }\
-				form[action="/paint"] > select { width: 105px; }\
-				form[action="/paint"] > input[type="text"] { width: 24px !important; }' },
-			fixFileInputs: { value(el) {
+				this.qPostRedir = 'input[name="fieldnoko"]';
+
+				this.markupBB = true;
+				this.timePattern = 'nn+dd+yyyy++w++hh+ii+ss';
+			}
+		},
+		'krautchan.net': class extends BaseBoard {
+			constructor(prot, dm) {
+				super(prot, dm);
+				this.krau = true;
+
+				this.cFileInfo = 'fileinfo';
+				this.cPostHeader = 'postheader';
+				this.cReply = 'postreply';
+				this.cSubj = 'postsubject';
+				this.qBan = '.ban_mark';
+				this.qClosed = 'img[src="/images/locked.gif"]';
+				this.qDForm = 'form[action*="delete"]';
+				this.qError = '.message_text';
+				this.qOmitted = '.omittedinfo';
+				this.qPages = 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a';
+				this.qPostRedir = 'input#forward_thread';
+				this.qRef = '.postnumber';
+				this.qRPost = '.postreply';
+				this.qThread = '.thread_body';
+				this.qThumbImages = 'img[id^="thumbnail_"]';
+				this.qTrunc = 'p[id^="post_truncated"]';
+
+				this.hasPicWrap= true;
+				this.markupBB = true;
+				this.multiFile = true;
+				this.rep = true;
+				this.res = 'thread-';
+				this.timePattern = 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?';
+			}
+			get css() {
+				return `img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none; }
+					div[id^="Wz"] { z-index: 10000 !important; }
+					.de-thr-hid { float: none; }
+					.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }
+					.de-video-obj + div { clear: left; }
+					form[action="/paint"] > select { width: 105px; }
+					form[action="/paint"] > input[type="text"] { width: 24px !important; }`;
+			}
+			get qImgLink() {
+				return '.filename > a';
+			}
+			get markupTags() {
+				return ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'];
+			}
+			fixFileInputs(el) {
 				var str = '';
 				for(var i = 0, len = 4; i < len; ++i) {
 					str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
@@ -11377,9 +12050,17 @@ function getImageBoard(checkDomains, checkEngines) {
 				var node = $id('files_parent');
 				node.innerHTML = str;
 				node.removeAttribute('id');
-			} },
-			hasPicWrap: { value: true },
-			init: { value() {
+			}
+			getImgWrap(el) {
+				return el.parentNode;
+			}
+			getSage(post) {
+				return !!$c('sage', post);
+			}
+			getTNum(op) {
+				return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+			}
+			init() {
 				doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
 					'<div onclick="window.lastUpdateTime = 0;"></div>' +
 					'<div onclick="if(boardRequiresCaptcha) { requestCaptcha(true); }"></div>' +
@@ -11392,39 +12073,48 @@ function getImageBoard(checkDomains, checkEngines) {
 				this.addProgressTrack = els[2];
 				els[3].click();
 				return false;
-			} },
-			markupBB: { value: true },
-			markupTags: { value: ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'] },
-			multiFile: { value: true },
-			rep: { value: true },
-			res: { value: 'thread-' },
-			timePattern: { value: 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?' }
-		}],
-		'lainchan.org': [{
-			cOPost: { value: 'op' },
-			css: { value: '.sidearrows { display: none !important; }\
-				.bar { position: static; }' }
-		}, 'tr#upload'],
-		'mlpg.co': [{
-			cOPost: { value: 'opContainer' }
-		}, 'tr#upload'],
+			}
+			insertYtPlayer(msg, playerHtml) {
+				var pMsg = msg.parentNode,
+					prev = pMsg.previousElementSibling,
+					node = prev.hasAttribute('style') ? prev : pMsg;
+				node.insertAdjacentHTML('beforebegin', playerHtml);
+				return node.previousSibling;
+			}
+		},
+		'lainchan.org': class extends ibEngines['tr#upload'] {
+			constructor(prot, dm) {
+				super(prot, dm);
+
+				this.cOPost = 'op';
+			}
+			get css() {
+				return `.sidearrows { display: none !important; }
+					.bar { position: static; }`;
+			}
+		},
+		'mlpg.co': class extends ibEngines['tr#upload'] {
+			constructor(prot, dm) {
+				super(prot, dm);
+
+				this.cOPost = 'opContainer';
+			}
+		},
 		get 'niuchan.org'() { return this['diochan.com']; },
-		'ponya.ch': [{
-			getPNum: { value(post) {
-				return +post.getAttribute('data-num');
-			} },
-			init: { value() {
-				defaultCfg.postSameImg = 0;
-				defaultCfg.removeEXIF = 0;
-				return false;
-			} },
-			modifiedPosts: { configurable: true, get() {
+		'ponya.ch': class extends BaseBoard {
+			constructor(prot, dm) {
+				super(prot, dm);
+
+				this.multiFile = true;
+				this.postMapInited = false;
+				this.thrid = 'replythread';
+			}
+			get modifiedPosts() {
 				var val = new WeakMap();
 				Object.defineProperty(this, 'modifiedPosts', { value: val });
 				return val;
-			} },
-			postMapInited: { writable: true, value: false },
-			checkForm: { value(formEl, maybeSpells) {
+			}
+			checkForm(formEl, maybeSpells) {
 				var myMaybeSpells = maybeSpells || new Maybe(SpellsRunner),
 					maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
 				if(!this.postMapInited) {
@@ -11463,640 +12153,92 @@ function getImageBoard(checkDomains, checkEngines) {
 					myMaybeSpells.end();
 				}
 				maybeVParser.end();
-			} },
-			multiFile: { value: true },
-			thrid: { value: 'replythread' }
-		}],
+			}
+			getPNum(post) {
+				return +post.getAttribute('data-num');
+			}
+			init() {
+				defaultCfg.postSameImg = 0;
+				defaultCfg.removeEXIF = 0;
+				return false;
+			}
+		},
 		get 'ponyach.cf'() { return this['ponya.ch']; },
 		get 'ponyach.ga'() { return this['ponya.ch']; },
 		get 'ponyach.ml'() { return this['ponya.ch']; },
 		get 'ponyach.ru'() { return this['ponya.ch']; },
 		get 'ponychan.ru'() { return this['ponya.ch']; },
-		'ponychan.net': [{
-			cOPost: { value: 'opContainer' },
-			css: { value: '.mature_thread { display: block !important; }\
-				.mature_warning { display: none; }' },
-			init: { value() {
+		'ponychan.net': class extends ibEngines['form[name*="postcontrols"]'] {
+			constructor(prot, dm) {
+				super(prot, dm);
+
+				this.cOPost = 'opContainer';
+			}
+			get css() {
+				return `.mature_thread { display: block !important; }
+					.mature_warning { display: none; }`;
+			}
+			init() {
 				$each($Q('img[data-mature-src]', doc.body), function(el) {
 					el.src = el.getAttribute('data-mature-src');
 				});
 				return false;
-			} }
-		}, 'form[name*="postcontrols"]'],
-		'syn-ch.ru': [{
-			cFileInfo: { value: 'unimportant' },
-			css: { value: '.fa-sort { display: none; }\
-				time::after { content: none; }' },
-			earlyInit: { value() {
+			}
+		},
+		'syn-ch.ru': class extends ibEngines['form[name*="postcontrols"]'] {
+			constructor(prot, dm) {
+				super(prot, dm);
+
+				this.cFileInfo = 'unimportant';
+
+				this.markupBB = true;
+			}
+			get css() {
+				return `.fa-sort { display: none; }\
+					time::after { content: none; }`;
+			}
+			get markupTags() {
+				return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'];
+			}
+			earlyInit() {
 				var val = '{"simpleNavbar":true,"showInfo":true}';
 				if(locStorage['settings'] !== val) {
 					locStorage['settings'] = val;
 					return true;
 				}
 				return false;
-			} },
-			init: { value() {
+			}
+			init() {
 				defaultCfg.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
 				defaultCfg.timeOffset = 4;
 				defaultCfg.correctTime = 1;
 				return false;
-			} },
-			markupBB: { value: true },
-			markupTags: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'] }
-		}, 'form[name*="postcontrols"]'],
+			}
+		},
 		get 'syn-ch.com'() { return this['syn-ch.ru']; },
 		get 'syn-ch.org'() { return this['syn-ch.ru']; }
 	};
 
-	var ibEngines = {
-		'body.makaba': {
-			mak: { value: true },
-
-			cPostHeader: { value: 'post-details' },
-			cReply: { value: 'post reply' },
-			cSubj: { value: 'post-title' },
-			qBan: { value: '.pomyanem' },
-			qClosed: { value: '.sticky-img[src$="locked.png"]' },
-			qDForm: { value: '#posts-form' },
-			qImgLink: { value: '.file-attr > .desktop' },
-			qMsg: { value: '.post-message' },
-			qName: { value: '.ananimas, .post-email' },
-			qOmitted: { value: '.mess-post' },
-			qPostRedir: { value: null },
-			qRPost: { value: 'div.reply' },
-			qThumbImages: { value: '.preview' },
-			qTrunc: { value: null },
-			nameSelector: { value: '.ananimas, .post-email, .ananimas > span, .post-email > span' },
-			getImgParent: { value(node) {
-				var el = $parent(node, 'FIGURE'),
-					parent = el.parentNode;
-				return parent.lastElementChild === el ? parent : el;
-			} },
-			getImgWrap: { value(el) {
-				return $parent(el, 'FIGURE');
-			} },
-			getPNum: { value(post) {
-				return +post.getAttribute('data-num');
-			} },
-			getSage: { writable: true, value(post) {
-				if(this.hasNames) {
-					this.getSage = function(post) {
-						var name = $q(this.qName, post);
-						return name ? name.childElementCount === 0 && !$c('ophui', post) : false;
-					};
-				} else {
-					this.getSage = Object.getPrototypeOf(this).getSage;
-				}
-				return this.getSage(post);
-			} },
-			getWrap: { value(el) {
-				return el.parentNode;
-			} },
-			cssEn: { get() {
-				return `.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }
-				.captcha-image > img { cursor: pointer; }
-				#de-txt-panel { font-size: 16px !important; }
-				.images-area input { float: none !important; display: inline !important; }
-				.images-single + .de-video-obj { display: inline-block; }
-				.mess-post { display: block; }
-				.postbtn-reply-href { font-size: 0px; }
-				.postbtn-reply-href::after { font-size: 14px; content: attr(name); }
-				${Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : ''}
-				${Cfg.delImgNames ? '.filesize { display: inline !important; }' : ''}`;
-			} },
-			earlyInit: { value() {
-				try {
-					var obj = JSON.parse(locStorage.store);
-					if(obj.other.navigation !== 'page') {
-						obj.other.navigation = 'page';
-						locStorage.store = JSON.stringify(obj);
-						return true;
-					}
-				} catch(e) {}
-				return false;
-			} },
-			hasNames: { configurable: true, get() {
-				var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
-				Object.defineProperty(this, 'hasNames', { value: val });
-				return val;
-			} },
-			hasOPNum: { value: true },
-			hasPicWrap: { value: true },
-			init: { value() {
-				$script('window.FormData = void 0; $(function() { $(window).off(); });');
-				$each($C('autorefresh', doc), $del);
-				var el = $q('td > .anoniconsselectlist', doc);
-				if(el) {
-					$q('.option-area > td:last-child', doc).appendChild(el);
-				}
-				if((el = $c('search', doc.body))) {
-					$before($c('menu', doc.body).firstChild, el);
-				}
-				el = $q('tr:not([class])', doc.body);
-				if(!el) {
-					return false;
-				}
-				doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
-					'<div onclick="loadCaptcha();"></div></div>');
-				this.updateCaptcha = function(el, focus) {
-					this.click();
-					el.style.display = '';
-					el = $id('captcha-value');
-					if(el) {
-						pr.cap = el;
-						el.tabIndex = 999;
-						if(focus) {
-							el.focus();
-						}
-					}
-				}.bind(doc.body.lastChild.firstChild, el);
-				el.addEventListener('click', e => {
-					if(e.target.tagName === 'IMG') {
-						this.updateCaptcha(true);
-						e.stopPropagation();
-					}
-				}, true);
-				return false;
-			} },
-			fixFileInputs: { value(el) {
-				var str = '';
-				for(var i = 0, len = 4; i < len; ++i) {
-					str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
-						'><input type="file" name="image' + (i + 1) + '"></input></div>';
-				}
-				$q('#postform .images-area', doc).lastElementChild.innerHTML = str;
-			} },
-			lastPage: { configurable: true, get() {
-				var els = $Q('.pager > a:not([class])', doc),
-					val = els ? els.length : 1;
-				Object.defineProperty(this, 'lastPage', { value: val });
-				return val;
-			} },
-			markupBB: { value: true },
-			markupTags: { value: ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'] },
-			multiFile: { value: true },
-			timePattern: { value: 'dd+nn+yy+w+hh+ii+ss' }
-		},
-		'form[action*="futaba.php"]': {
-			futa: { value: true },
-
-			qDForm: { value: 'form:not([enctype])' },
-			qImgLink: { value: 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]' },
-			qOmitted: { value: 'font[color="#707070"]' },
-			qPostForm: { value: 'form:nth-of-type(1)' },
-			qPostRedir: { value: null },
-			qRef: { value: '.del' },
-			qRPost: { value: 'td:nth-child(2)' },
-			qThumbImages: { value: 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img' },
-			getPageUrl: { value(b, p) {
-				return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
-			} },
-			getPNum: { value(post) {
-				return +$t('input', post).name;
-			} },
-			getPostElOfEl: { value(el) {
-				while(el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
-					el = el.parentElement;
-				}
-				return el;
-			} },
-			getTNum: { value(op) {
-				return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
-			} },
-			cssEn: { value: '.ftbl { width: auto; margin: 0; }\
-				.reply { background: #f0e0d6; }\
-				span { font-size: inherit; }' },
-			docExt: { value: '.htm' },
-			thrid: { value: 'resto' }
-		},
-		'form[action*="imgboard.php?delete"]': {
-			tinyIb: { value: true },
-
-			qPostRedir: { value: null },
-			getCaptchaSrc: { value(src, tNum) {
-				return src.replace(/\?[^?]+$|$/, '?' + Math.random());
-			} },
-			ru: { value: true }
-		},
-		get 'tr#upload'() { // Vichan
-			var val = this['form[name*="postcontrols"]'];
-			val.qDelPassw = { value: '#password' };
-			val.qPassw = { value: 'input[name="password"]' };
-			val.cssEn = { get() {
-				return `.banner, ${this.t ? '' : '.de-btn-rep,'} .hide-thread-link, .mentioned, .post-hover { display: none !important; }
-					div.post.reply { float: left; clear: left; display: block; }
-					.boardlist { position: static !important; }
-					body { padding: 0 5px !important; }
-					.fileinfo { width: 250px; }
-					.multifile { width: auto !important; }
-					#expand-all-images, #expand-all-images + .unimportant, .post-btn, small { display: none !important; }`;
-			} };
-			val.init = { value() {
-				setTimeout(function() {
-					$del($id('updater'));
-				}, 0);
-				if(checkStorage() && locStorage['file_dragdrop'] !== 'false') {
-					locStorage['file_dragdrop'] = false;
-					window.location.reload();
-					return true;
-				}
-				return false;
-			} };
-			val.fixFileInputs = { value(el) {
-				var str = '';
-				for(var i = 0, len = 5; i < len; ++i) {
-					str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
-						'><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"></div>';
-				}
-				$id('upload').lastChild.innerHTML = str;
-			} };
-			val.multiFile = { value: true };
-			return val;
-		},
-		'form[name*="postcontrols"]': { // Tinyboard
-			tiny: { value: true },
-
-			cFileInfo: { value: 'fileinfo' },
-			cPostHeader: { value: 'intro' },
-			cReply: { value: 'post reply' },
-			qClosed: { value: '.fa-lock' },
-			cSubj: { value: 'subject' },
-			cTrip: { value: 'trip' },
-			qDForm: { value: 'form[name*="postcontrols"]' },
-			qImgLink: { value: 'p.fileinfo > a:first-of-type' },
-			qMsg: { value: '.body' },
-			qName: { value: '.name' },
-			qOmitted: { value: '.omitted' },
-			qPages: { value: '.pages > a:nth-last-of-type(2)' },
-			qPostForm: { value: 'form[name="post"]' },
-			qPostRedir: { value: null },
-			qRef: { value: '.post_no + a' },
-			qTable: { value: '.post.reply' },
-			qTrunc: { value: '.toolong' },
-			fixVideo: { value(isPost, data) {
-				var videos = [],
-					els = $Q('.video-container, #ytplayer', isPost ? data.el : data);
-				for(var i = 0, len = els.length; i < len; ++i) {
-					var el = els[i];
-					videos.push([isPost ? data : this.getPostOfEl(el), el.id === 'ytplayer' ?
-						el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true]);
-					$del(el);
-				}
-				return videos;
-			} },
-			getPageUrl: { value(b, p) {
-				return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
-			} },
-			getTNum: { value(op) {
-				return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
-			} },
-			init: { value() {
-				if(Cfg) {
-					Cfg.fileThumb = 0;
-				}
-				return false;
-			} },
-			firstPage: { value: 1 },
-			markupTags: { value: ["'''", "''", '__', '~~', '**', 'code', '', '', 'q'] },
-			cssEn: { get() {
-				return `.banner, ${this.t ? '' : '.de-btn-rep,'} .hide-thread-link, .mentioned, .post-hover { display: none !important; }
-					div.post.reply { float: left; clear: left; display: block; }`;
-			} },
-			timePattern: { value: 'nn+dd+yy++w++hh+ii+ss' },
-			thrid: { value: 'thread' }
-		},
-		'script[src*="kusaba"]': {
-			kus: { value: true },
-
-			cOPost: { value: 'postnode' },
-			qError: { value: 'h1, h2, div[style*="1.25em"]' },
-			qPostRedir: { value: null },
-			getCaptchaSrc: { value(src, tNum) {
-				return src.replace(/\?[^?]+$|$/, '?' + Math.random());
-			} },
-			cssEn: { value: '.extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }\
-				.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }' },
-			markupBB: { value: true }
-		},
-		get 'form[action$="board.php"]'() { return this['script[src*="kusaba"]']; },
-		'link[href$="phutaba.css"]': {
-			cOPost: { value: 'thread_OP' },
-			cPostHeader: { value: 'post_head' },
-			cReply: { value: 'post' },
-			cSubj: { value: 'subject' },
-			cTrip: { value: 'tripcode' },
-			qError: { value: '.error' },
-			qImgLink: { value: '.filename > a' },
-			qMsg: { value: '.text' },
-			qPages: { value: '.pagelist > li:nth-last-child(2)' },
-			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
-			qRPost: { value: '.thread_reply' },
-			qTrunc: { value: '.tldr' },
-			getImgWrap: { value(el) {
-				return el.parentNode.parentNode;
-			} },
-			getSage: { value(post) {
-				return !!$q('.sage', post);
-			} },
-			cssEn: { value: '.content > hr, .de-parea > hr { display: none !important }' },
-			docExt: { value: '' },
-			fixFileInputs: { value(el) {
-				var str = '><input name="file" type="file"></input></div>';
-				el.removeAttribute('onchange');
-				el.parentNode.parentNode.innerHTML =
-					'<div' + str + ('<div style="display: none;"' + str).repeat(3);
-			} },
-			markupBB: { value: true },
-			multiFile: { value: true },
-			res: { value: 'thread/' }
-		},
-		'div#mainc': {
-			qDForm: { value: '#mainc' },
-			getPageUrl: { value(b, p) {
-				return fixBrd(b) + '?do=page&p=' + (p < 0 ? 0 : p);
-			} },
-			getThrdUrl: { value(b, tNum) {
-				return this.prot + '//' + this.host + fixBrd(b) + '?do=thread&id=' + tNum;
-			} },
-			getTNum: { value(op) {
-				return +$q('a[name]', op).name.match(/\d+/)[0];
-			} },
-			css: { value: '.reply { background-color: #e4e4d6; }' },
-			init: { value() {
-				var el = $id('mainc'),
-					pArea = $id('postarea');
-				$del(el.firstElementChild);
-				$before(el, pArea.nextElementSibling);
-				$before(el, pArea);
-				return false;
-			} },
-			parseURL: { value() {
-				var url = window.location.search.match(/^\?do=(thread|page)&(id|p)=(\d+)$/);
-				this.b = window.location.pathname.replace(/\//g, '');
-				this.t = url[1] === 'thread' ? +url[3] : false;
-				this.page = url[1] === 'page' ? +url[3] : 0;
-				this.docExt = '';
-			} }
-		}
-	};
-
-	var ibBase = {
-		cFileInfo: 'filesize',
-		cOPost: 'oppost',
-		cPostHeader: 'de-post-btns',
-		cReply: 'reply',
-		cSubj: 'filetitle',
-		cTrip: 'postertrip',
-		qBan: '',
-		qDelBut: 'input[type="submit"]',
-		qDelPassw: 'input[type="password"], input[name="password"]',
-		qDForm: '#delform, form[name="delform"]',
-		qError: 'h1, h2, font[size="5"]',
-		qPassw: 'tr input[type="password"]',
-		get qImgLink() {
-			var val = '.' + this.cFileInfo + ' a[href$=".jpg"], ' +
-				'.' + this.cFileInfo + ' a[href$=".jpeg"], ' +
-				'.' + this.cFileInfo + ' a[href$=".png"], ' +
-				'.' + this.cFileInfo + ' a[href$=".gif"], ' +
-				'.' + this.cFileInfo + ' a[href$=".webm"]';
-			Object.defineProperty(this, 'qImgLink', { value: val });
-			return val;
-		},
-		qMsg: 'blockquote',
-		get qMsgImgLink() {
-			var val = this.qMsg + ' a[href*=".jpg"], ' +
-				this.qMsg + ' a[href*=".png"], ' +
-				this.qMsg + ' a[href*=".gif"], ' +
-				this.qMsg + ' a[href*=".jpeg"]';
-			Object.defineProperty(this, 'qMsgImgLink', { value: val });
-			return val;
-		},
-		qName: '.postername, .commentpostername',
-		qOmitted: '.omittedposts',
-		qPages: 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type',
-		qPostForm: '#postform',
-		qPostRedir: 'input[name="postredir"][value="1"]',
-		qRef: '.reflink',
-		qRPost: '.reply',
-		qTable: 'form > table, div > table, div[id^="repl"]',
-		qThumbImages: '.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]',
-		get qThread() {
-			var val = $c('thread', doc) ? '.thread' :
-				$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
-				'[id^="thread"]';
-			Object.defineProperty(this, 'qThread', { value: val });
-			return val;
-		},
-		qTrunc: '.abbrev, .abbr, .shortened',
-		fixVideo(isPost, data) {
-			var videos = [],
-				els = $Q('embed, object, iframe', isPost ? data.el : data);
-			for(var i = 0, len = els.length; i < len; ++i) {
-				var m, el = els[i],
-					src = el.src || el.data;
-				if(src) {
-					if((m = src.match(Videos.ytReg))) {
-						videos.push([isPost ? data : this.getPostOfEl(el), m, true]);
-						$del(el);
-					}
-					if(Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
-						videos.push([isPost ? data : this.getPostOfEl(el), m, false]);
-						$del(el);
-					}
-				}
-			}
-			return videos;
-		},
-		getCaptchaSrc(src, tNum) {
-			var tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
-			             .replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
-			return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum)
-			            : tmp.replace(/res\d+/, 'mainpage');
-		},
-		getFileInfo(wrap) {
-			var el = $c(this.cFileInfo, wrap);
-			return el ? el.textContent : '';
-		},
-		getImgLink(img) {
-			var el = img.parentNode;
-			return el.tagName === 'SPAN' ? el.parentNode : el;
-		},
-		getImgParent(el) {
-			return this.getImgWrap(el);
-		},
-		getImgWrap(el) {
-			var node = (el.tagName === 'SPAN' ? el.parentNode : el).parentNode;
-			return node.tagName === 'SPAN' ? node.parentNode : node;
-		},
-		getOmitted(el, len) {
-			var txt;
-			return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
-		},
-		getOp(thr) {
-			var op = localRun ? $q('div[de-oppost]', thr) : $c(this.cOPost, thr);
-			if(op) {
-				return op;
-			}
-			op = thr.ownerDocument.createElement('div');
-			op.setAttribute('de-oppost', '');
-			var el, opEnd = $q(this.qTable, thr);
-			while((el = thr.firstChild) !== opEnd) {
-				op.appendChild(el);
-			}
-			if(thr.hasChildNodes()) {
-				thr.insertBefore(op, thr.firstChild);
-			} else {
-				thr.appendChild(op);
-			}
-			return op;
-		},
-		getPNum(post) {
-			return +post.id.match(/\d+/)[0];
-		},
-		getPageUrl(b, p) {
-			return fixBrd(b) + (p > 0 ? p + this.docExt : '');
-		},
-		getPostElOfEl(el) {
-			var sel = this.qRPost + ', [de-thread]';
-			while(el && !nav.matchesSelector(el, sel)) {
-				el = el.parentElement;
-			}
-			return el;
-		},
-		getPostOfEl(el) {
-			return pByEl.get(this.getPostElOfEl(el));
-		},
-		getSage(post) {
-			var a = $q('a[href^="mailto:"], a[href="sage"]', post);
-			return !!a && /sage/i.test(a.href);
-		},
-		getThrdUrl(b, tNum) {
-			return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
-		},
-		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).value;
-		},
-		getWrap(el, isOp) {
-			if(isOp) {
-				return el;
-			}
-			if(el.tagName === 'TD') {
-				Object.defineProperty(this, 'getWrap', { value(el, isOp) {
-					return isOp ? el : $parent(el, 'TABLE');
-				}});
-			} else {
-				Object.defineProperty(this, 'getWrap', { value(el, isOp) {
-					return el;
-				}});
-			}
-			return this.getWrap(el, isOp);
-		},
-		insertYtPlayer(msg, playerHtml) {
-			msg.insertAdjacentHTML('beforebegin', playerHtml);
-			return msg.previousSibling;
-		},
-		anchor: '#',
-		css: '',
-		cssEn: '',
-		disableRedirection(el) {
-			if(this.qPostRedir) {
-				($q(this.qPostRedir, el) || {}).checked = true;
-			}
-		},
-		dm: '',
-		docExt: '.html',
-		LastModified: null,
-		earlyInit: null,
-		ETag: null,
-		firstPage: 0,
-		fixFileInputs: emptyFn,
-		hasOPNum: false,
-		hasPicWrap: false,
-		host: window.location.hostname,
-		init: null,
-		checkForm: emptyFn,
-		get lastPage() {
-			var el = $q(this.qPages, doc),
-				val = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
-			if(this.page === val + 1) {
-				val++;
-			}
-			Object.defineProperty(this, 'lastPage', { value: val });
-			return val;
-		},
-		markupBB: false,
-		get markupTags() {
-			return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] :
-				['**', '*', '', '^H', '%%', '`', '', '', 'q'];
-		},
-		multiFile: false,
-		parseURL() {
-			var temp, url = (window.location.pathname || '').replace(/^\//, '');
-			if(url.match(this.res)) {
-				temp = url.split(this.res);
-				this.b = temp[0].replace(/\/$/, '');
-				this.t = +temp[1].match(/^\d+/)[0];
-				this.page = this.firstPage;
-			} else {
-				temp = url.match(/\/?(\d+)[^\/]*?$/);
-				this.page = temp && +temp[1] || this.firstPage;
-				this.b = url.replace(temp && this.page ? temp[0] : /\/(?:[^\/]+\.[a-z]+)?$/, '');
-				this.t = false;
-			}
-			if(!this.hasOwnProperty('docExt') && (temp = url.match(/\.[a-z]+$/))) {
-				this.docExt = temp[0];
-			}
-		},
-		prot: prot,
-		get reCrossLinks() {
-			var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' +
-				regQuote(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
-			Object.defineProperty(this, 'reCrossLinks', { value: val });
-			return val;
-		},
-		get rep() {
-			var val = dTime || Spells.reps || Cfg.crossLinks;
-			Object.defineProperty(this, 'rep', { value: val });
-			return val;
-		},
-		res: 'res/',
-		ru: false,
-		timePattern: 'w+dd+m+yyyy+hh+ii+ss',
-		thrid: 'parent'
-	};
-
+	var prot = window.location.protocol;
 	localRun = prot === 'file:';
-	var ibObj = null, dm = localRun ?
+	var dm = localRun ?
 		(window.location.pathname.match(/\/([^-]+)-[^-]+-[^\.]+\.[a-z]+$/) || [,''])[1] :
 		window.location.hostname
 			.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	if(checkDomains) {
 		if(dm in ibDomains) {
-			ibObj = (function createBoard(info) {
-				return Object.create(
-					info[2] ? createBoard(ibDomains[info[2]]) :
-					info[1] ? Object.create(ibBase, ibEngines[info[1]]) :
-					ibBase, info[0]
-				);
-			})(ibDomains[dm]);
-			checkEngines = false;
+			return new ibDomains[dm](prot, dm);
 		}
 	}
 	if(checkEngines) {
 		for(var i in ibEngines) {
 			if($q(i, doc)) {
-				ibObj = Object.create(ibBase, ibEngines[i]);
-				break;
+				return new ibEngines[i](prot, dm);
 			}
 		}
-		if(!ibObj) {
-			ibObj = ibBase;
-		}
+		return new BaseBoard(prot, dm);
 	}
-	if(ibObj) {
-		ibObj.dm = dm;
-	}
-	return ibObj;
+	return null;
 }
 
 
