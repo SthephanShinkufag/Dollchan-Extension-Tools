@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '0e9614f';
+	var commit = '3202455';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12658,14 +12658,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function hideContent(headerEl, hideBtn, isUser, hide) {
 				if (hide) {
 					hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
+					if (headerEl) {
+						for (var el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
+							el.classList.add('de-post-hiddencontent');
+						}
+					}
 				} else {
 					hideBtn.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
-				}
-				if (headerEl) {
-					var jobName = hide ? 'add' : 'remove';
-					for (var el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
-						el.classList[jobName]('de-post-hiddencontent');
-					}
+					$each($Q('.de-post-hiddencontent', headerEl.parentNode), function (el) {
+						return el.classList.remove('de-post-hiddencontent');
+					});
 				}
 			}
 		}]);
@@ -13301,20 +13303,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'text',
 			get: function get() {
-				var value,
-				    msg = this.post.msg;
-				if ('innerText' in msg) {
-					value = msg.innerText;
-				} else {
-					value = msg.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n').replace(/<[^>]+?>/g, '').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&nbsp;/g, ' ');
-				}
+				var value = this.post.msg.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n').replace(/<[^>]+?>/g, '').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&nbsp;/g, ' ');
 				Object.defineProperty(this, 'text', { value: value });
 				return value;
 			}
 		}, {
 			key: 'title',
 			get: function get() {
-				var val = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ');
+				var val = this.subj || this.text.trim().substring(0, 70).replace(/\s+/g, ' ');
 				Object.defineProperty(this, 'title', { value: val });
 				return val;
 			}
@@ -13738,6 +13734,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				pByEl.set(el, this);
 				el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
 				el.style.display = '';
+				$each($Q('.de-post-hiddencontent', el), function (node) {
+					return node.classList.remove('de-post-hiddencontent');
+				});
 				if (Cfg.linksNavig === 2) {
 					Pview._markLink(el, this.parent.num);
 				}
@@ -14114,7 +14113,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 				}
-				this._createEl(html);
+				this._createEl(html, false);
 				this._inited = true;
 			}
 		}, {
@@ -14175,10 +14174,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: '_createEl',
-			value: function _createEl(innerHTML) {
+			value: function _createEl(innerHTML, isHidden) {
 				var el,
-				    html = '<div class="de-refmap">' + innerHTML + '</div>',
-				    msg = this._post.msg;
+				    msg = this._post.msg,
+				    html = '<div class="de-refmap' + (isHidden ? ' de-post-hiddencontent' : '') + '">' + innerHTML + '</div>';
 				if (aib.dobr && (el = msg.nextElementSibling)) {
 					el.insertAdjacentHTML('beforeend', html);
 				} else {
@@ -14195,7 +14194,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			get: function get() {
 				var value = $c('de-refmap', this._post.el);
 				if (!value) {
-					this._createEl('');
+					this._createEl('', this._post.hidden);
 					value = $c('de-refmap', this._post.el);
 				}
 				Object.defineProperty(this, '_el', { configurable: true, value: value });
@@ -15072,1015 +15071,67 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-	function getImageBoard(checkDomains, checkEngines) {
-		var prot = window.location.protocol;
-		var ibDomains = {
-			'02ch.net': [{
-				qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
-				ru: { value: true },
-				timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
-			}],
-			'2chru.net': [{
-				_2chru: { value: true },
+	var BaseBoard = (function () {
+		function BaseBoard(prot, dm) {
+			_classCallCheck(this, BaseBoard);
 
-				css: { value: '.small { display: none; }' }
-			}, 'form[action*="imgboard.php?delete"]'],
-			get '2-chru.net'() {
-				return this['2chru.net'];
-			},
-			get '2chru.cafe'() {
-				return this['2chru.net'];
-			},
-			get '2-chru.cafe'() {
-				return this['2chru.net'];
-			},
-			get '2-ch.su'() {
-				return this['2--ch.ru'];
-			},
-			'2--ch.ru': [{
-				tire: { value: true },
+		
+			this.cFileInfo = 'filesize';
+			this.cOPost = 'oppost';
+			this.cPostHeader = 'de-post-btns';
+			this.cReply = 'reply';
+			this.cSubj = 'filetitle';
+			this.cTrip = 'postertrip';
+			this.qBan = '';
+			this.qDelBut = 'input[type="submit"]';
+			this.qDelPassw = 'input[type="password"], input[name="password"]';
+			this.qDForm = '#delform, form[name="delform"]';
+			this.qError = 'h1, h2, font[size="5"]';
+			this.qPassw = 'tr input[type="password"]';
+			this.qMsg = 'blockquote';
+			this.qName = '.postername, .commentpostername';
+			this.qOmitted = '.omittedposts';
+			this.qPages = 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type';
+			this.qPostForm = '#postform';
+			this.qPostRedir = 'input[name="postredir"][value="1"]';
+			this.qRef = '.reflink';
+			this.qRPost = '.reply';
+			this.qTable = 'form > table, div > table, div[id^="repl"]';
+			this.qThumbImages = '.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]';
+			this.qTrunc = '.abbrev, .abbr, .shortened';
 
-				qPages: { value: 'table[border="1"] tr:first-of-type > td:first-of-type a' },
-				qPostRedir: { value: null },
-				qTable: { value: 'table:not(.postfiles)' },
-				qThread: { value: '.threadz' },
-				getCaptchaSrc: {
-					value: function value(src, tNum) {
-						return '/' + this.b + '/captcha.fpl?' + Math.random();
-					}
-				},
-				getOmitted: {
-					value: function value(el, len) {
-						var txt;
-						return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
-					}
-				},
-				getPageUrl: {
-					value: function value(b, p) {
-						return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
-					}
-				},
-				css: { value: 'span[id$="_display"], #fastload { display: none; }' },
-				docExt: { value: '.html' },
-				fixFileInputs: {
-					value: function value(el) {
-						var str = '><input name="file" maxlength="4" ' + 'accept="|sid|7z|bz2|m4a|flac|lzh|mo3|rar|spc|fla|nsf|jpg|mpp|aac|gz|xm|wav|' + 'mp3|png|it|lha|torrent|swf|zip|mpc|ogg|jpeg|gif|mod" type="file"></input></div>';
-						el.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-					}
-				},
-				hasPicWrap: { value: true },
-				markupBB: { value: true },
-				multiFile: { value: true },
-				ru: { value: true }
-			}],
-			get '2ch.hk'() {
-				return [ibEngines['body.makaba']];
-			},
-			get '2ch.pm'() {
-				return [ibEngines['body.makaba']];
-			},
-			'410chan.org': [{
-				_410: { value: true },
+			this.anchor = '#';
+			this.checkForm = emptyFn;
+			this.dm = dm;
+			this.docExt = '.html';
+			this.ETag = null;
+			this.firstPage = 0;
+			this.hasOPNum = false;
+			this.hasPicWrap = false;
+			this.host = window.location.hostname;
+			this.LastModified = null;
+			this.markupBB = false;
+			this.multiFile = false;
+			this.prot = prot;
+			this.res = 'res/';
+			this.ru = false;
+			this.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
+			this.thrid = 'parent';
+		}
 
-				qPostRedir: { value: 'input#noko' },
-				getCaptchaSrc: {
-					value: function value(src, tNum) {
-						return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
-					}
-				},
-				getSage: {
-					value: function value(post) {
-						var el = $c('filetitle', post);
-						return el && el.textContent.includes('⇩');
-					}
-				},
-				css: { value: '#resizer { display: none; }' },
-				markupBB: { value: false },
-				markupTags: { value: ['**', '*', '__', '^^', '%%', '`', '', '', 'q'] },
-				timePattern: { value: 'dd+nn+yyyy++w++hh+ii+ss' }
-			}, 'script[src*="kusaba"]'],
-			'420chan.org': [{
-				_420: { value: true },
-
-				cPostHeader: { value: 'replyheader' },
-				qBan: { value: '.ban' },
-				qError: { value: 'pre' },
-				qPages: { value: '.pagelist > a:last-child' },
-				qPostRedir: { value: null },
-				qThread: { value: '[id*="thread"]' },
-				getTNum: {
-					value: function value(op) {
-						return +$q('a[id]', op).id.match(/\d+/)[0];
-					}
-				},
-				css: { value: '#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }\
-				.de-thr-hid { margin: 1em 0; }' },
-				docExt: { value: '.php' },
-				markupBB: { value: true },
-				markupTags: { value: ['**', '*', '', '', '%', 'pre', '', '', 'q'] }
-			}],
-			'4chan.org': [{
-				fch: { value: true },
-
-				cFileInfo: { value: 'fileText' },
-				cOPost: { value: 'op' },
-				cPostHeader: { value: 'postInfo' },
-				cReply: { value: 'post reply' },
-				cSubj: { value: 'subject' },
-				qBan: { value: 'strong[style="color: red;"]' },
-				qClosed: { value: '.archivedIcon' },
-				qDelBut: { value: '.deleteform > input[type="submit"]' },
-				qError: { value: '#errmsg' },
-				qImgLink: { value: '.fileText > a' },
-				qName: { value: '.name' },
-				qOmitted: { value: '.summary.desktop' },
-				qPages: { value: '.pagelist > .pages:not(.cataloglink) > a:last-of-type' },
-				qPostForm: { value: 'form[name="post"]' },
-				qPostRedir: { value: null },
-				qRef: { value: '.postInfo > .postNum' },
-				qTable: { value: '.replyContainer' },
-				qThumbImages: { value: '.fileThumb > img:not(.fileDeletedRes)' },
-				getFileInfo: {
-					value: function value(wrap) {
-						var el = $c(this.cFileInfo, wrap);
-						return el ? el.lastChild.textContent : '';
-					}
-				},
-				getPageUrl: {
-					value: function value(b, p) {
-						return fixBrd(b) + (p > 1 ? p : '');
-					}
-				},
-				getSage: {
-					value: function value(post) {
-						return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
-					}
-				},
-				getTNum: {
-					value: function value(op) {
-						return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
-					}
-				},
-				getWrap: {
-					value: function value(el, isOp) {
-						return el.parentNode;
-					}
-				},
-				anchor: { value: '#p' },
-				css: { value: '.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }\
-				.postForm { display: table !important; width: auto !important; }\
-				textarea { margin-right: 0 !important; }' },
-				docExt: { value: '' },
-				firstPage: { value: 1 },
-				init: {
-					value: function value() {
-						Cfg.findImgFile = 0;
-						var el = $id('captchaFormPart');
-						if (el) {
-							doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' + '<div onclick="initRecaptcha();"></div></div>');
-							this.updateCaptcha = (function (el, focus) {
-								$id('g-recaptcha').innerHTML = '';
-								this.click();
-								el.style.display = '';
-							}).bind(doc.body.lastChild.firstChild, el);
-						}
-						return false;
-					}
-				},
-				markupBB: { value: true },
-				markupTags: { value: ['', '', '', '', 'spoiler', '', '', '', 'q'] },
-				rep: { value: true },
-				res: { value: 'thread/' },
-				timePattern: { value: 'nn+dd+yy+w+hh+ii-?s?s?' },
-				thrid: { value: 'resto' }
-			}],
-			'8ch.net': [{
-				css: { value: '#post-moderation-fields { display: initial !important; }' }
-			}, 'tr#upload'],
-			'7chan.org': [{
-				init: {
-					value: function value() {
-						return true;
-					}
-				}
-			}],
-			'arhivach.org': [{
-				cPostHeader: { value: 'post_head' },
-				cReply: { value: 'post' },
-				qDForm: { value: 'body > .container-fluid' },
-				qMsg: { value: '.post_comment_body' },
-				qRef: { value: '.post_id, .post_head > b' },
-				qRPost: { value: '.post:not(:first-child):not([postid=""])' },
-				qThread: { value: '.thread_inner' },
-				getOp: {
-					value: function value(el) {
-						return $q('.post:first-child', el);
-					}
-				},
-				getPNum: {
-					value: function value(post) {
-						return +post.getAttribute('postid');
-					}
-				},
-				getTNum: {
-					value: function value(el) {
-						return +this.getOp(el).getAttribute('postid');
-					}
-				},
-				getThrdUrl: {
-					value: function value(b, tNum) {
-						return $q('link[rel="canonical"]', doc.head).href;
-					}
-				},
-				init: {
-					value: function value() {
-						setTimeout(function () {
-							var delPosts = $Q('.post[postid=""]', doc);
-							for (var i = 0, len = delPosts.length; i < len; ++i) {
-								try {
-									var post = pByNum.get(+$q('blockquote', delPosts[i]).getAttribute('id').substring(1));
-									if (post) {
-										post.deleted = true;
-										post.btns.classList.remove('de-post-counter');
-										post.btns.classList.add('de-post-deleted');
-										post.wrap.classList.add('de-post-removed');
-									}
-								} catch (e) {}
-							}
-						}, 0);
-						return false;
-					}
-				},
-				css: { value: '.post_replies, .post[postid=""] { display: none !important; }\
-				.post { overflow-x: auto !important; }' },
-				docExt: { value: '' },
-				res: { value: 'thread/' }
-			}],
-			'diochan.com': [{
-				dio: { value: true },
-
-				css: { value: '.resize { display: none; }' }
-			}, 'script[src*="kusaba"]'],
-			get 'dmirrgetyojz735v.onion'() {
-				return this['2chru.net'];
-			},
-			'dobrochan.com': [{
-				dobr: { value: true },
-
-				anchor: { value: '#i' },
-				cFileInfo: { value: 'fileinfo' },
-				cSubj: { value: 'replytitle' },
-				qClosed: { value: 'img[src="/images/locked.png"]' },
-				qDForm: { value: 'form[action*="delete"]' },
-				qError: { value: '.post-error, h2' },
-				qMsg: { value: '.postbody' },
-				qOmitted: { value: '.abbrev > span:last-of-type' },
-				qPages: { value: '.pages > tbody > tr > td' },
-				qPostRedir: { value: 'select[name="goto"]' },
-				qTrunc: { value: '.abbrev > span:nth-last-child(2)' },
-				getImgLink: {
-					value: function value(img) {
-						var el = img.parentNode;
-						return el.tagName === 'A' ? el : $q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
-					}
-				},
-				getImgWrap: {
-					value: function value(el) {
-						return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode : el.firstElementChild.tagName === 'IMG' ? el.parentNode : el;
-					}
-				},
-				getPageUrl: {
-					value: function value(b, p) {
-						return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
-					}
-				},
-				getTNum: {
-					value: function value(op) {
-						return +$q('a[name]', op).name.match(/\d+/)[0];
-					}
-				},
-				insertYtPlayer: {
-					value: function value(msg, playerHtml) {
-						var prev = msg.previousElementSibling,
-						    node = prev.tagName === 'BR' ? prev : msg;
-						node.insertAdjacentHTML('beforebegin', playerHtml);
-						return node.previousSibling;
-					}
-				},
-				css: { value: '.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none; }\
-				.delete { background: none; }\
-				.delete_checkbox { position: static !important; }\
-				.file + .de-video-obj { float: left; margin: 5px 20px 5px 5px; }\
-				.de-video-obj + div { clear: left; }' },
-				disableRedirection: {
-					value: function value(el) {
-						($q(this.qPostRedir, el) || {}).selectedIndex = 1;
-					}
-				},
-				fixFileInputs: {
-					value: function value(el) {
-						el = $id('files_parent');
-						$each($Q('input[type="file"]', el), function (el) {
-							el.removeAttribute('onchange');
-						});
-						el.firstElementChild.value = 1;
-					}
-				},
-				hasPicWrap: { value: true },
-				init: {
-					value: function value() {
-						if (window.location.pathname === '/settings') {
-							if (!nav) {
-								initNavFuncs();
-							}
-							$q('input[type="button"]', doc).addEventListener('click', function () {
-								spawn(readCfg).then(function () {
-									return saveCfg('__hanarating', $id('rating').value);
-								});
-							});
-							return true;
-						}
-						return false;
-					}
-				},
-				multiFile: { value: true },
-				ru: { value: true },
-				timePattern: { value: 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?' }
-			}],
-			get 'dobrochan.org'() {
-				return this['dobrochan.com'];
-			},
-			get 'dobrochan.ru'() {
-				return this['dobrochan.com'];
-			},
-			'dva-ch.net': [{
-				dvachnet: { value: true },
-
-				ru: { value: true }
-			}],
-			'iichan.hk': [{
-				iich: { value: true },
-
-				css: {
-					get: function get() {
-						return '' + (this.t ? '#de-main { margin-top: -37px; }\
-					.logo { margin-bottom: 14px; }' : '');
-					}
-				},
-				init: {
-					value: function value() {
-						doc.body.insertAdjacentHTML('beforeend', '<div onclick="highlight = function() {}"></div>');
-						doc.body.lastChild.click();
-						return false;
-					}
-				}
-			}],
-			'inach.org': [{
-				qPostRedir: { value: 'input[name="fieldnoko"]' },
-				markupBB: { value: true },
-				timePattern: { value: 'nn+dd+yyyy++w++hh+ii+ss' }
-			}],
-			'krautchan.net': [{
-				krau: { value: true },
-
-				cFileInfo: { value: 'fileinfo' },
-				cPostHeader: { value: 'postheader' },
-				cReply: { value: 'postreply' },
-				cSubj: { value: 'postsubject' },
-				qBan: { value: '.ban_mark' },
-				qClosed: { value: 'img[src="/images/locked.gif"]' },
-				qDForm: { value: 'form[action*="delete"]' },
-				qError: { value: '.message_text' },
-				qImgLink: { value: '.filename > a' },
-				qOmitted: { value: '.omittedinfo' },
-				qPages: { value: 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a' },
-				qPostRedir: { value: 'input#forward_thread' },
-				qRef: { value: '.postnumber' },
-				qRPost: { value: '.postreply' },
-				qThread: { value: '.thread_body' },
-				qThumbImages: { value: 'img[id^="thumbnail_"]' },
-				qTrunc: { value: 'p[id^="post_truncated"]' },
-				getImgWrap: {
-					value: function value(el) {
-						return el.parentNode;
-					}
-				},
-				getSage: {
-					value: function value(post) {
-						return !!$c('sage', post);
-					}
-				},
-				getTNum: {
-					value: function value(op) {
-						return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
-					}
-				},
-				insertYtPlayer: {
-					value: function value(msg, playerHtml) {
-						var pMsg = msg.parentNode,
-						    prev = pMsg.previousElementSibling,
-						    node = prev.hasAttribute('style') ? prev : pMsg;
-						node.insertAdjacentHTML('beforebegin', playerHtml);
-						return node.previousSibling;
-					}
-				},
-				css: { value: 'img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none; }\
-				div[id^="Wz"] { z-index: 10000 !important; }\
-				.de-thr-hid { float: none; }\
-				.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\
-				.de-video-obj + div { clear: left; }\
-				form[action="/paint"] > select { width: 105px; }\
-				form[action="/paint"] > input[type="text"] { width: 24px !important; }' },
-				fixFileInputs: {
-					value: function value(el) {
-						var str = '';
-						for (var i = 0, len = 4; i < len; ++i) {
-							str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file_' + i + '" tabindex="7"></input></div>';
-						}
-						var node = $id('files_parent');
-						node.innerHTML = str;
-						node.removeAttribute('id');
-					}
-				},
-				hasPicWrap: { value: true },
-				init: {
-					value: function value() {
-						doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' + '<div onclick="window.lastUpdateTime = 0;"></div>' + '<div onclick="if(boardRequiresCaptcha) { requestCaptcha(true); }"></div>' + '<div onclick="setupProgressTracking();"></div>' + '<div onclick="highlightPost = function() {}"></div></div>' + '</div>');
-						var els = doc.body.lastChild.children;
-						this.btnZeroLUTime = els[0];
-						this.initCaptcha = els[1];
-						this.addProgressTrack = els[2];
-						els[3].click();
-						return false;
-					}
-				},
-				markupBB: { value: true },
-				markupTags: { value: ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'] },
-				multiFile: { value: true },
-				rep: { value: true },
-				res: { value: 'thread-' },
-				timePattern: { value: 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?' }
-			}],
-			'lainchan.org': [{
-				cOPost: { value: 'op' },
-				css: { value: '.sidearrows { display: none !important; }\
-				.bar { position: static; }' }
-			}, 'tr#upload'],
-			'mlpg.co': [{
-				cOPost: { value: 'opContainer' }
-			}, 'tr#upload'],
-			get 'niuchan.org'() {
-				return this['diochan.com'];
-			},
-			'ponya.ch': [{
-				getPNum: {
-					value: function value(post) {
-						return +post.getAttribute('data-num');
-					}
-				},
-				init: {
-					value: function value() {
-						defaultCfg.postSameImg = 0;
-						defaultCfg.removeEXIF = 0;
-						return false;
-					}
-				},
-				modifiedPosts: { configurable: true, get: function get() {
-						var val = new WeakMap();
-						Object.defineProperty(this, 'modifiedPosts', { value: val });
-						return val;
-					}
-				},
-				postMapInited: { writable: true, value: false },
-				checkForm: {
-					value: function value(formEl, maybeSpells) {
-						var _this45 = this;
-
-						var myMaybeSpells = maybeSpells || new Maybe(SpellsRunner),
-						    maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-						if (!this.postMapInited) {
-							this.postMapInited = true;
-							$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', doc.body), function (pEl) {
-								return _this45.modifiedPosts.set(pEl, +pEl.getAttribute('data-lastmodified'));
-							});
-						}
-						$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', formEl), function (pEl) {
-							var nPost,
-							    post = pByNum.get(_this45.getPNum(pEl)),
-							    pDate = +pEl.getAttribute('data-lastmodified');
-							if (post && (!_this45.modifiedPosts.has(pEl) || _this45.modifiedPosts.get(pEl) < pDate)) {
-								var thr = post.thr,
-								    fragm = doc.createDocumentFragment();
-								_this45.modifiedPosts.set(pEl, pDate);
-								nPost = thr.addPost(fragm, pEl, post.count, post.prev, maybeVParser);
-								if (thr.op === post) {
-									thr.op = nPost;
-								}
-								if (thr.last === post) {
-									thr.last = nPost;
-								}
-								if (post.next) {
-									post.next.prev = nPost;
-									nPost.next = post.next;
-								}
-								if (post.omitted) {
-									nPost.omitted = true;
-									nPost.wrap.classList.add('de-hidden');
-								}
-								myMaybeSpells.value.run(nPost);
-								$before(post.wrap, fragm);
-								$del(post.wrap);
-							}
-						});
-						if (!maybeSpells) {
-							myMaybeSpells.end();
-						}
-						maybeVParser.end();
-					}
-				},
-				multiFile: { value: true },
-				thrid: { value: 'replythread' }
-			}],
-			get 'ponyach.cf'() {
-				return this['ponya.ch'];
-			},
-			get 'ponyach.ga'() {
-				return this['ponya.ch'];
-			},
-			get 'ponyach.ml'() {
-				return this['ponya.ch'];
-			},
-			get 'ponyach.ru'() {
-				return this['ponya.ch'];
-			},
-			get 'ponychan.ru'() {
-				return this['ponya.ch'];
-			},
-			'ponychan.net': [{
-				cOPost: { value: 'opContainer' },
-				css: { value: '.mature_thread { display: block !important; }\
-				.mature_warning { display: none; }' },
-				init: {
-					value: function value() {
-						$each($Q('img[data-mature-src]', doc.body), function (el) {
-							el.src = el.getAttribute('data-mature-src');
-						});
-						return false;
-					}
-				}
-			}, 'form[name*="postcontrols"]'],
-			'syn-ch.ru': [{
-				cFileInfo: { value: 'unimportant' },
-				css: { value: '.fa-sort { display: none; }\
-				time::after { content: none; }' },
-				earlyInit: {
-					value: function value() {
-						var val = '{"simpleNavbar":true,"showInfo":true}';
-						if (locStorage['settings'] !== val) {
-							locStorage['settings'] = val;
-							return true;
-						}
-						return false;
-					}
-				},
-				init: {
-					value: function value() {
-						defaultCfg.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
-						defaultCfg.timeOffset = 4;
-						defaultCfg.correctTime = 1;
-						return false;
-					}
-				},
-				markupBB: { value: true },
-				markupTags: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'] }
-			}, 'form[name*="postcontrols"]'],
-			get 'syn-ch.com'() {
-				return this['syn-ch.ru'];
-			},
-			get 'syn-ch.org'() {
-				return this['syn-ch.ru'];
-			}
-		};
-
-		var ibEngines = {
-			'body.makaba': {
-				mak: { value: true },
-
-				cPostHeader: { value: 'post-details' },
-				cReply: { value: 'post reply' },
-				cSubj: { value: 'post-title' },
-				qBan: { value: '.pomyanem' },
-				qClosed: { value: '.sticky-img[src$="locked.png"]' },
-				qDForm: { value: '#posts-form' },
-				qImgLink: { value: '.file-attr > .desktop' },
-				qMsg: { value: '.post-message' },
-				qName: { value: '.ananimas, .post-email' },
-				qOmitted: { value: '.mess-post' },
-				qPostRedir: { value: null },
-				qRPost: { value: 'div.reply' },
-				qThumbImages: { value: '.preview' },
-				qTrunc: { value: null },
-				nameSelector: { value: '.ananimas, .post-email, .ananimas > span, .post-email > span' },
-				getImgParent: {
-					value: function value(node) {
-						var el = $parent(node, 'FIGURE'),
-						    parent = el.parentNode;
-						return parent.lastElementChild === el ? parent : el;
-					}
-				},
-				getImgWrap: {
-					value: function value(el) {
-						return $parent(el, 'FIGURE');
-					}
-				},
-				getPNum: {
-					value: function value(post) {
-						return +post.getAttribute('data-num');
-					}
-				},
-				getSage: { writable: true, value: function value(post) {
-						if (this.hasNames) {
-							this.getSage = function (post) {
-								var name = $q(this.qName, post);
-								return name ? name.childElementCount === 0 && !$c('ophui', post) : false;
-							};
-						} else {
-							this.getSage = Object.getPrototypeOf(this).getSage;
-						}
-						return this.getSage(post);
-					}
-				},
-				getWrap: {
-					value: function value(el) {
-						return el.parentNode;
-					}
-				},
-				cssEn: {
-					get: function get() {
-						return '.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; }' : '');
-					}
-				},
-				earlyInit: {
-					value: function value() {
-						try {
-							var obj = JSON.parse(locStorage.store);
-							if (obj.other.navigation !== 'page') {
-								obj.other.navigation = 'page';
-								locStorage.store = JSON.stringify(obj);
-								return true;
-							}
-						} catch (e) {}
-						return false;
-					}
-				},
-				hasNames: { configurable: true, get: function get() {
-						var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
-						Object.defineProperty(this, 'hasNames', { value: val });
-						return val;
-					}
-				},
-				hasOPNum: { value: true },
-				hasPicWrap: { value: true },
-				init: {
-					value: function value() {
-						var _this46 = this;
-
-						$script('window.FormData = void 0; $(function() { $(window).off(); });');
-						$each($C('autorefresh', doc), $del);
-						var el = $q('td > .anoniconsselectlist', doc);
-						if (el) {
-							$q('.option-area > td:last-child', doc).appendChild(el);
-						}
-						if (el = $c('search', doc.body)) {
-							$before($c('menu', doc.body).firstChild, el);
-						}
-						el = $q('tr:not([class])', doc.body);
-						if (!el) {
-							return false;
-						}
-						doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' + '<div onclick="loadCaptcha();"></div></div>');
-						this.updateCaptcha = (function (el, focus) {
-							this.click();
-							el.style.display = '';
-							el = $id('captcha-value');
-							if (el) {
-								pr.cap = el;
-								el.tabIndex = 999;
-								if (focus) {
-									el.focus();
-								}
-							}
-						}).bind(doc.body.lastChild.firstChild, el);
-						el.addEventListener('click', function (e) {
-							if (e.target.tagName === 'IMG') {
-								_this46.updateCaptcha(true);
-								e.stopPropagation();
-							}
-						}, true);
-						return false;
-					}
-				},
-				fixFileInputs: {
-					value: function value(el) {
-						var str = '';
-						for (var i = 0, len = 4; i < len; ++i) {
-							str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="image' + (i + 1) + '"></input></div>';
-						}
-						$q('#postform .images-area', doc).lastElementChild.innerHTML = str;
-					}
-				},
-				lastPage: { configurable: true, get: function get() {
-						var els = $Q('.pager > a:not([class])', doc),
-						    val = els ? els.length : 1;
-						Object.defineProperty(this, 'lastPage', { value: val });
-						return val;
-					}
-				},
-				markupBB: { value: true },
-				markupTags: { value: ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'] },
-				multiFile: { value: true },
-				timePattern: { value: 'dd+nn+yy+w+hh+ii+ss' }
-			},
-			'form[action*="futaba.php"]': {
-				futa: { value: true },
-
-				qDForm: { value: 'form:not([enctype])' },
-				qImgLink: { value: 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]' },
-				qOmitted: { value: 'font[color="#707070"]' },
-				qPostForm: { value: 'form:nth-of-type(1)' },
-				qPostRedir: { value: null },
-				qRef: { value: '.del' },
-				qRPost: { value: 'td:nth-child(2)' },
-				qThumbImages: { value: 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img' },
-				getPageUrl: {
-					value: function value(b, p) {
-						return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
-					}
-				},
-				getPNum: {
-					value: function value(post) {
-						return +$t('input', post).name;
-					}
-				},
-				getPostElOfEl: {
-					value: function value(el) {
-						while (el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
-							el = el.parentElement;
-						}
-						return el;
-					}
-				},
-				getTNum: {
-					value: function value(op) {
-						return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
-					}
-				},
-				cssEn: { value: '.ftbl { width: auto; margin: 0; }\
-				.reply { background: #f0e0d6; }\
-				span { font-size: inherit; }' },
-				docExt: { value: '.htm' },
-				thrid: { value: 'resto' }
-			},
-			'form[action*="imgboard.php?delete"]': {
-				tinyIb: { value: true },
-
-				qPostRedir: { value: null },
-				getCaptchaSrc: {
-					value: function value(src, tNum) {
-						return src.replace(/\?[^?]+$|$/, '?' + Math.random());
-					}
-				},
-				ru: { value: true }
-			},
-			get 'tr#upload'() {
-			
-				var val = this['form[name*="postcontrols"]'];
-				val.qDelPassw = { value: '#password' };
-				val.qPassw = { value: 'input[name="password"]' };
-				val.cssEn = {
-					get: function get() {
-						return '.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }\n\t\t\t\t\t.boardlist { position: static !important; }\n\t\t\t\t\tbody { padding: 0 5px !important; }\n\t\t\t\t\t.fileinfo { width: 250px; }\n\t\t\t\t\t.multifile { width: auto !important; }\n\t\t\t\t\t#expand-all-images, #expand-all-images + .unimportant, .post-btn, small { display: none !important; }';
-					}
-				};
-				val.init = {
-					value: function value() {
-						setTimeout(function () {
-							$del($id('updater'));
-						}, 0);
-						if (checkStorage() && locStorage['file_dragdrop'] !== 'false') {
-							locStorage['file_dragdrop'] = false;
-							window.location.reload();
-							return true;
-						}
-						return false;
-					}
-				};
-				val.fixFileInputs = {
-					value: function value(el) {
-						var str = '';
-						for (var i = 0, len = 5; i < len; ++i) {
-							str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"></div>';
-						}
-						$id('upload').lastChild.innerHTML = str;
-					}
-				};
-				val.multiFile = { value: true };
-				return val;
-			},
-			'form[name*="postcontrols"]': {
-				tiny: { value: true },
-
-				cFileInfo: { value: 'fileinfo' },
-				cPostHeader: { value: 'intro' },
-				cReply: { value: 'post reply' },
-				qClosed: { value: '.fa-lock' },
-				cSubj: { value: 'subject' },
-				cTrip: { value: 'trip' },
-				qDForm: { value: 'form[name*="postcontrols"]' },
-				qImgLink: { value: 'p.fileinfo > a:first-of-type' },
-				qMsg: { value: '.body' },
-				qName: { value: '.name' },
-				qOmitted: { value: '.omitted' },
-				qPages: { value: '.pages > a:nth-last-of-type(2)' },
-				qPostForm: { value: 'form[name="post"]' },
-				qPostRedir: { value: null },
-				qRef: { value: '.post_no + a' },
-				qTable: { value: '.post.reply' },
-				qTrunc: { value: '.toolong' },
-				fixVideo: {
-					value: function value(isPost, data) {
-						var videos = [],
-						    els = $Q('.video-container, #ytplayer', isPost ? data.el : data);
-						for (var i = 0, len = els.length; i < len; ++i) {
-							var el = els[i];
-							videos.push([isPost ? data : this.getPostOfEl(el), el.id === 'ytplayer' ? el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true]);
-							$del(el);
-						}
-						return videos;
-					}
-				},
-				getPageUrl: {
-					value: function value(b, p) {
-						return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
-					}
-				},
-				getTNum: {
-					value: function value(op) {
-						return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
-					}
-				},
-				init: {
-					value: function value() {
-						if (Cfg) {
-							Cfg.fileThumb = 0;
-						}
-						return false;
-					}
-				},
-				firstPage: { value: 1 },
-				markupTags: { value: ["'''", "''", '__', '~~', '**', 'code', '', '', 'q'] },
-				cssEn: {
-					get: function get() {
-						return '.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }';
-					}
-				},
-				timePattern: { value: 'nn+dd+yy++w++hh+ii+ss' },
-				thrid: { value: 'thread' }
-			},
-			'script[src*="kusaba"]': {
-				kus: { value: true },
-
-				cOPost: { value: 'postnode' },
-				qError: { value: 'h1, h2, div[style*="1.25em"]' },
-				qPostRedir: { value: null },
-				getCaptchaSrc: {
-					value: function value(src, tNum) {
-						return src.replace(/\?[^?]+$|$/, '?' + Math.random());
-					}
-				},
-				cssEn: { value: '.extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }\
-				.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }' },
-				markupBB: { value: true }
-			},
-			get 'form[action$="board.php"]'() {
-				return this['script[src*="kusaba"]'];
-			},
-			'link[href$="phutaba.css"]': {
-				cOPost: { value: 'thread_OP' },
-				cPostHeader: { value: 'post_head' },
-				cReply: { value: 'post' },
-				cSubj: { value: 'subject' },
-				cTrip: { value: 'tripcode' },
-				qError: { value: '.error' },
-				qImgLink: { value: '.filename > a' },
-				qMsg: { value: '.text' },
-				qPages: { value: '.pagelist > li:nth-last-child(2)' },
-				qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
-				qRPost: { value: '.thread_reply' },
-				qTrunc: { value: '.tldr' },
-				getImgWrap: {
-					value: function value(el) {
-						return el.parentNode.parentNode;
-					}
-				},
-				getSage: {
-					value: function value(post) {
-						return !!$q('.sage', post);
-					}
-				},
-				cssEn: { value: '.content > hr, .de-parea > hr { display: none !important }' },
-				docExt: { value: '' },
-				fixFileInputs: {
-					value: function value(el) {
-						var str = '><input name="file" type="file"></input></div>';
-						el.removeAttribute('onchange');
-						el.parentNode.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-					}
-				},
-				markupBB: { value: true },
-				multiFile: { value: true },
-				res: { value: 'thread/' }
-			},
-			'div#mainc': {
-				qDForm: { value: '#mainc' },
-				getPageUrl: {
-					value: function value(b, p) {
-						return fixBrd(b) + '?do=page&p=' + (p < 0 ? 0 : p);
-					}
-				},
-				getThrdUrl: {
-					value: function value(b, tNum) {
-						return this.prot + '//' + this.host + fixBrd(b) + '?do=thread&id=' + tNum;
-					}
-				},
-				getTNum: {
-					value: function value(op) {
-						return +$q('a[name]', op).name.match(/\d+/)[0];
-					}
-				},
-				css: { value: '.reply { background-color: #e4e4d6; }' },
-				init: {
-					value: function value() {
-						var el = $id('mainc'),
-						    pArea = $id('postarea');
-						$del(el.firstElementChild);
-						$before(el, pArea.nextElementSibling);
-						$before(el, pArea);
-						return false;
-					}
-				},
-				parseURL: {
-					value: function value() {
-						var url = window.location.search.match(/^\?do=(thread|page)&(id|p)=(\d+)$/);
-						this.b = window.location.pathname.replace(/\//g, '');
-						this.t = url[1] === 'thread' ? +url[3] : false;
-						this.page = url[1] === 'page' ? +url[3] : 0;
-						this.docExt = '';
-					}
+		_createClass(BaseBoard, [{
+			key: 'disableRedirection',
+			value: function disableRedirection(el) {
+				if (this.qPostRedir) {
+					($q(this.qPostRedir, el) || {}).checked = true;
 				}
 			}
-		};
-
-		var ibBase = {
-			cFileInfo: 'filesize',
-			cOPost: 'oppost',
-			cPostHeader: 'de-post-btns',
-			cReply: 'reply',
-			cSubj: 'filetitle',
-			cTrip: 'postertrip',
-			qBan: '',
-			qDelBut: 'input[type="submit"]',
-			qDelPassw: 'input[type="password"], input[name="password"]',
-			qDForm: '#delform, form[name="delform"]',
-			qError: 'h1, h2, font[size="5"]',
-			qPassw: 'tr input[type="password"]',
-			get qImgLink() {
-				var val = '.' + this.cFileInfo + ' a[href$=".jpg"], ' + '.' + this.cFileInfo + ' a[href$=".jpeg"], ' + '.' + this.cFileInfo + ' a[href$=".png"], ' + '.' + this.cFileInfo + ' a[href$=".gif"], ' + '.' + this.cFileInfo + ' a[href$=".webm"]';
-				Object.defineProperty(this, 'qImgLink', { value: val });
-				return val;
-			},
-			qMsg: 'blockquote',
-			get qMsgImgLink() {
-				var val = this.qMsg + ' a[href*=".jpg"], ' + this.qMsg + ' a[href*=".png"], ' + this.qMsg + ' a[href*=".gif"], ' + this.qMsg + ' a[href*=".jpeg"]';
-				Object.defineProperty(this, 'qMsgImgLink', { value: val });
-				return val;
-			},
-			qName: '.postername, .commentpostername',
-			qOmitted: '.omittedposts',
-			qPages: 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type',
-			qPostForm: '#postform',
-			qPostRedir: 'input[name="postredir"][value="1"]',
-			qRef: '.reflink',
-			qRPost: '.reply',
-			qTable: 'form > table, div > table, div[id^="repl"]',
-			qThumbImages: '.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]',
-			get qThread() {
-				var val = $c('thread', doc) ? '.thread' : $q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' : '[id^="thread"]';
-				Object.defineProperty(this, 'qThread', { value: val });
-				return val;
-			},
-			qTrunc: '.abbrev, .abbr, .shortened',
-			fixVideo: function fixVideo(isPost, data) {
+		}, {
+			key: 'fixFileInputs',
+			value: function fixFileInputs() {}
+		}, {
+			key: 'fixVideo',
+			value: function fixVideo(isPost, data) {
 				var videos = [],
 				    els = $Q('embed, object, iframe', isPost ? data.el : data);
 				for (var i = 0, len = els.length; i < len; ++i) {
@@ -16099,31 +15150,45 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 				}
 				return videos;
-			},
-			getCaptchaSrc: function getCaptchaSrc(src, tNum) {
+			}
+		}, {
+			key: 'getCaptchaSrc',
+			value: function getCaptchaSrc(src, tNum) {
 				var tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=').replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
 				return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum) : tmp.replace(/res\d+/, 'mainpage');
-			},
-			getFileInfo: function getFileInfo(wrap) {
+			}
+		}, {
+			key: 'getFileInfo',
+			value: function getFileInfo(wrap) {
 				var el = $c(this.cFileInfo, wrap);
 				return el ? el.textContent : '';
-			},
-			getImgLink: function getImgLink(img) {
+			}
+		}, {
+			key: 'getImgLink',
+			value: function getImgLink(img) {
 				var el = img.parentNode;
 				return el.tagName === 'SPAN' ? el.parentNode : el;
-			},
-			getImgParent: function getImgParent(el) {
+			}
+		}, {
+			key: 'getImgParent',
+			value: function getImgParent(el) {
 				return this.getImgWrap(el);
-			},
-			getImgWrap: function getImgWrap(el) {
+			}
+		}, {
+			key: 'getImgWrap',
+			value: function getImgWrap(el) {
 				var node = (el.tagName === 'SPAN' ? el.parentNode : el).parentNode;
 				return node.tagName === 'SPAN' ? node.parentNode : node;
-			},
-			getOmitted: function getOmitted(el, len) {
+			}
+		}, {
+			key: 'getOmitted',
+			value: function getOmitted(el, len) {
 				var txt;
 				return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
-			},
-			getOp: function getOp(thr) {
+			}
+		}, {
+			key: 'getOp',
+			value: function getOp(thr) {
 				var op = localRun ? $q('div[de-oppost]', thr) : $c(this.cOPost, thr);
 				if (op) {
 					return op;
@@ -16141,34 +15206,50 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					thr.appendChild(op);
 				}
 				return op;
-			},
-			getPNum: function getPNum(post) {
+			}
+		}, {
+			key: 'getPNum',
+			value: function getPNum(post) {
 				return +post.id.match(/\d+/)[0];
-			},
-			getPageUrl: function getPageUrl(b, p) {
+			}
+		}, {
+			key: 'getPageUrl',
+			value: function getPageUrl(b, p) {
 				return fixBrd(b) + (p > 0 ? p + this.docExt : '');
-			},
-			getPostElOfEl: function getPostElOfEl(el) {
+			}
+		}, {
+			key: 'getPostElOfEl',
+			value: function getPostElOfEl(el) {
 				var sel = this.qRPost + ', [de-thread]';
 				while (el && !nav.matchesSelector(el, sel)) {
 					el = el.parentElement;
 				}
 				return el;
-			},
-			getPostOfEl: function getPostOfEl(el) {
+			}
+		}, {
+			key: 'getPostOfEl',
+			value: function getPostOfEl(el) {
 				return pByEl.get(this.getPostElOfEl(el));
-			},
-			getSage: function getSage(post) {
+			}
+		}, {
+			key: 'getSage',
+			value: function getSage(post) {
 				var a = $q('a[href^="mailto:"], a[href="sage"]', post);
 				return !!a && /sage/i.test(a.href);
-			},
-			getThrdUrl: function getThrdUrl(b, tNum) {
+			}
+		}, {
+			key: 'getThrdUrl',
+			value: function getThrdUrl(b, tNum) {
 				return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
-			},
-			getTNum: function getTNum(op) {
+			}
+		}, {
+			key: 'getTNum',
+			value: function getTNum(op) {
 				return +$q('input[type="checkbox"]', op).value;
-			},
-			getWrap: function getWrap(el, isOp) {
+			}
+		}, {
+			key: 'getWrap',
+			value: function getWrap(el, isOp) {
 				if (isOp) {
 					return el;
 				}
@@ -16186,48 +15267,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					});
 				}
 				return this.getWrap(el, isOp);
-			},
-			insertYtPlayer: function insertYtPlayer(msg, playerHtml) {
+			}
+		}, {
+			key: 'insertYtPlayer',
+			value: function insertYtPlayer(msg, playerHtml) {
 				msg.insertAdjacentHTML('beforebegin', playerHtml);
 				return msg.previousSibling;
-			},
-
-			anchor: '#',
-			css: '',
-			cssEn: '',
-			disableRedirection: function disableRedirection(el) {
-				if (this.qPostRedir) {
-					($q(this.qPostRedir, el) || {}).checked = true;
-				}
-			},
-
-			dm: '',
-			docExt: '.html',
-			LastModified: null,
-			earlyInit: null,
-			ETag: null,
-			firstPage: 0,
-			fixFileInputs: emptyFn,
-			hasOPNum: false,
-			hasPicWrap: false,
-			host: window.location.hostname,
-			init: null,
-			checkForm: emptyFn,
-			get lastPage() {
-				var el = $q(this.qPages, doc),
-				    val = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
-				if (this.page === val + 1) {
-					val++;
-				}
-				Object.defineProperty(this, 'lastPage', { value: val });
-				return val;
-			},
-			markupBB: false,
-			get markupTags() {
-				return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] : ['**', '*', '', '^H', '%%', '`', '', '', 'q'];
-			},
-			multiFile: false,
-			parseURL: function parseURL() {
+			}
+		}, {
+			key: 'parseURL',
+			value: function parseURL() {
 				var temp,
 				    url = (window.location.pathname || '').replace(/^\//, '');
 				if (url.match(this.res)) {
@@ -16244,51 +15293,1573 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (!this.hasOwnProperty('docExt') && (temp = url.match(/\.[a-z]+$/))) {
 					this.docExt = temp[0];
 				}
-			},
-
-			prot: prot,
-			get reCrossLinks() {
+			}
+		}, {
+			key: 'css',
+			get: function get() {
+				return '';
+			}
+		}, {
+			key: 'qImgLink',
+			get: function get() {
+				var value = '.' + this.cFileInfo + ' a[href$=".jpg"], ' + '.' + this.cFileInfo + ' a[href$=".jpeg"], ' + '.' + this.cFileInfo + ' a[href$=".png"], ' + '.' + this.cFileInfo + ' a[href$=".gif"], ' + '.' + this.cFileInfo + ' a[href$=".webm"]';
+				Object.defineProperty(this, 'qImgLink', { value: value });
+				return value;
+			}
+		}, {
+			key: 'qMsgImgLink',
+			get: function get() {
+				var value = this.qMsg + ' a[href*=".jpg"], ' + this.qMsg + ' a[href*=".png"], ' + this.qMsg + ' a[href*=".gif"], ' + this.qMsg + ' a[href*=".jpeg"]';
+				Object.defineProperty(this, 'qMsgImgLink', { value: value });
+				return value;
+			}
+		}, {
+			key: 'qThread',
+			get: function get() {
+				var val = $c('thread', doc) ? '.thread' : $q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' : '[id^="thread"]';
+				Object.defineProperty(this, 'qThread', { value: val });
+				return val;
+			}
+		}, {
+			key: 'lastPage',
+			get: function get() {
+				var el = $q(this.qPages, doc),
+				    val = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
+				if (this.page === val + 1) {
+					val++;
+				}
+				Object.defineProperty(this, 'lastPage', { value: val });
+				return val;
+			}
+		}, {
+			key: 'markupTags',
+			get: function get() {
+				return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] : ['**', '*', '', '^H', '%%', '`', '', '', 'q'];
+			}
+		}, {
+			key: 'reCrossLinks',
+			get: function get() {
 				var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' + regQuote(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
 				Object.defineProperty(this, 'reCrossLinks', { value: val });
 				return val;
-			},
-			get rep() {
+			}
+		}, {
+			key: 'rep',
+			get: function get() {
 				var val = dTime || Spells.reps || Cfg.crossLinks;
 				Object.defineProperty(this, 'rep', { value: val });
 				return val;
-			},
-			res: 'res/',
-			ru: false,
-			timePattern: 'w+dd+m+yyyy+hh+ii+ss',
-			thrid: 'parent'
-		};
-
-		localRun = prot === 'file:';
-		var ibObj = null,
-		    dm = localRun ? (window.location.pathname.match(/\/([^-]+)-[^-]+-[^\.]+\.[a-z]+$/) || [, ''])[1] : window.location.hostname.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
-		if (checkDomains) {
-			if (dm in ibDomains) {
-				ibObj = (function createBoard(info) {
-					return Object.create(info[2] ? createBoard(ibDomains[info[2]]) : info[1] ? Object.create(ibBase, ibEngines[info[1]]) : ibBase, info[0]);
-				})(ibDomains[dm]);
-				checkEngines = false;
 			}
+		}]);
+
+		return BaseBoard;
+	})();
+
+	function getImageBoard(checkDomains, checkEngines) {
+		var ibDomains = {};
+		var ibEngines = {};
+
+		var Makaba = (function (_BaseBoard) {
+			_inherits(Makaba, _BaseBoard);
+
+			function Makaba(prot, dm) {
+				_classCallCheck(this, Makaba);
+
+				var _this45 = _possibleConstructorReturn(this, Object.getPrototypeOf(Makaba).call(this, prot, dm));
+
+				_this45.mak = true;
+
+				_this45.cPostHeader = 'post-details';
+				_this45.cReply = 'post reply';
+				_this45.cSubj = 'post-title';
+				_this45.qBan = '.pomyanem';
+				_this45.qClosed = '.sticky-img[src$="locked.png"]';
+				_this45.qDForm = '#posts-form';
+				_this45.qMsg = '.post-message';
+				_this45.qName = '.ananimas, .post-email';
+				_this45.qOmitted = '.mess-post';
+				_this45.qPostRedir = null;
+				_this45.qRPost = 'div.reply';
+				_this45.qThumbImages = '.preview';
+				_this45.qTrunc = null;
+
+				_this45.hasOPNum = true;
+				_this45.hasPicWrap = true;
+				_this45.markupBB = true;
+				_this45.multiFile = true;
+				_this45.timePattern = 'dd+nn+yy+w+hh+ii+ss';
+				return _this45;
+			}
+
+			_createClass(Makaba, [{
+				key: 'fixFileInputs',
+				value: function fixFileInputs(el) {
+					var str = '';
+					for (var i = 0, len = 4; i < len; ++i) {
+						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="image' + (i + 1) + '"></input></div>';
+					}
+					$q('#postform .images-area', doc).lastElementChild.innerHTML = str;
+				}
+			}, {
+				key: 'getImgParent',
+				value: function getImgParent(node) {
+					var el = $parent(node, 'FIGURE'),
+					    parent = el.parentNode;
+					return parent.lastElementChild === el ? parent : el;
+				}
+			}, {
+				key: 'getImgWrap',
+				value: function getImgWrap(el) {
+					return $parent(el, 'FIGURE');
+				}
+			}, {
+				key: 'getPNum',
+				value: function getPNum(post) {
+					return +post.getAttribute('data-num');
+				}
+			}, {
+				key: 'getSage',
+				value: function getSage(post) {
+					if (this.hasNames) {
+						this.getSage = function (post) {
+							var name = $q(this.qName, post);
+							return name ? name.childElementCount === 0 && !$c('ophui', post) : false;
+						};
+					} else {
+						this.getSage = _get(Object.getPrototypeOf(Makaba.prototype), 'getSage', this);
+					}
+					return this.getSage(post);
+				}
+			}, {
+				key: 'getWrap',
+				value: function getWrap(el) {
+					return el.parentNode;
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					var _this46 = this;
+
+					$script('window.FormData = void 0; $(function() { $(window).off(); });');
+					$each($C('autorefresh', doc), $del);
+					var el = $q('td > .anoniconsselectlist', doc);
+					if (el) {
+						$q('.option-area > td:last-child', doc).appendChild(el);
+					}
+					if (el = $c('search', doc.body)) {
+						$before($c('menu', doc.body).firstChild, el);
+					}
+					el = $q('tr:not([class])', doc.body);
+					if (!el) {
+						return false;
+					}
+					doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' + '<div onclick="loadCaptcha();"></div></div>');
+					this.updateCaptcha = (function (el, focus) {
+						this.click();
+						el.style.display = '';
+						el = $id('captcha-value');
+						if (el) {
+							pr.cap = el;
+							el.tabIndex = 999;
+							if (focus) {
+								el.focus();
+							}
+						}
+					}).bind(doc.body.lastChild.firstChild, el);
+					el.addEventListener('click', function (e) {
+						if (e.target.tagName === 'IMG') {
+							_this46.updateCaptcha(true);
+							e.stopPropagation();
+						}
+					}, true);
+					return false;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t.mess-post { display: block; }\n\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; }' : '');
+				}
+			}, {
+				key: 'qImgLink',
+				get: function get() {
+					return '.file-attr > .desktop';
+				}
+			}, {
+				key: 'hasNames',
+				get: function get() {
+					var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
+					Object.defineProperty(this, 'hasNames', { value: val });
+					return val;
+				}
+			}, {
+				key: 'lastPage',
+				get: function get() {
+					var els = $Q('.pager > a:not([class])', doc),
+					    val = els ? els.length : 1;
+					Object.defineProperty(this, 'lastPage', { value: val });
+					return val;
+				}
+			}, {
+				key: 'markupTags',
+				get: function get() {
+					return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'];
+				}
+			}]);
+
+			return Makaba;
+		})(BaseBoard);
+
+		ibEngines['body.makaba'] = Makaba;
+		ibDomains['2ch.hk'] = Makaba;
+		ibDomains['2ch.pm'] = Makaba;
+
+		var Futaba = (function (_BaseBoard2) {
+			_inherits(Futaba, _BaseBoard2);
+
+			function Futaba(prot, dm) {
+				_classCallCheck(this, Futaba);
+
+				var _this47 = _possibleConstructorReturn(this, Object.getPrototypeOf(Futaba).call(this, prot, dm));
+
+				_this47.futa = true;
+
+				_this47.qDForm = 'form:not([enctype])';
+				_this47.qOmitted = 'font[color="#707070"]';
+				_this47.qPostForm = 'form:nth-of-type(1)';
+				_this47.qPostRedir = null;
+				_this47.qRef = '.del';
+				_this47.qRPost = 'td:nth-child(2)';
+				_this47.qThumbImages = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
+
+				_this47.docExt = '.htm';
+				_this47.thrid = 'resto';
+				return _this47;
+			}
+
+			_createClass(Futaba, [{
+				key: 'getPageUrl',
+				value: function getPageUrl(b, p) {
+					return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
+				}
+			}, {
+				key: 'getPNum',
+				value: function getPNum(post) {
+					return +$t('input', post).name;
+				}
+			}, {
+				key: 'getPostElOfEl',
+				value: function getPostElOfEl(el) {
+					while (el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
+						el = el.parentElement;
+					}
+					return el;
+				}
+			}, {
+				key: 'getTNum',
+				value: function getTNum(op) {
+					return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.ftbl { width: auto; margin: 0; }\n\t\t\t\t.reply { background: #f0e0d6; }\n\t\t\t\tspan { font-size: inherit; }';
+				}
+			}, {
+				key: 'qImgLink',
+				get: function get() {
+					return 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
+				}
+			}]);
+
+			return Futaba;
+		})(BaseBoard);
+
+		ibEngines['form[action*="futaba.php"]'] = Futaba;
+
+		var TinyIb = (function (_BaseBoard3) {
+			_inherits(TinyIb, _BaseBoard3);
+
+			function TinyIb(prot, dm) {
+				_classCallCheck(this, TinyIb);
+
+				var _this48 = _possibleConstructorReturn(this, Object.getPrototypeOf(TinyIb).call(this, prot, dm));
+
+				_this48.tinyIb = true;
+
+				_this48.qPostRedir = null;
+
+				_this48.ru = true;
+				return _this48;
+			}
+
+			_createClass(TinyIb, [{
+				key: 'getCaptchaSrc',
+				value: function getCaptchaSrc(src, tNum) {
+					return src.replace(/\?[^?]+$|$/, '?' + Math.random());
+				}
+			}]);
+
+			return TinyIb;
+		})(BaseBoard);
+
+		ibEngines['form[action*="imgboard.php?delete"]'] = TinyIb;
+
+		var Tinyboard = (function (_BaseBoard4) {
+			_inherits(Tinyboard, _BaseBoard4);
+
+			function Tinyboard(prot, dm) {
+				_classCallCheck(this, Tinyboard);
+
+				var _this49 = _possibleConstructorReturn(this, Object.getPrototypeOf(Tinyboard).call(this, prot, dm));
+
+				_this49.tiny = true;
+
+				_this49.cFileInfo = 'fileinfo';
+				_this49.cPostHeader = 'intro';
+				_this49.cReply = 'post reply';
+				_this49.qClosed = '.fa-lock';
+				_this49.cSubj = 'subject';
+				_this49.cTrip = 'trip';
+				_this49.qDForm = 'form[name*="postcontrols"]';
+				_this49.qMsg = '.body';
+				_this49.qName = '.name';
+				_this49.qOmitted = '.omitted';
+				_this49.qPages = '.pages > a:nth-last-of-type(2)';
+				_this49.qPostForm = 'form[name="post"]';
+				_this49.qPostRedir = null;
+				_this49.qRef = '.post_no + a';
+				_this49.qTable = '.post.reply';
+				_this49.qTrunc = '.toolong';
+
+				_this49.firstPage = 1;
+				_this49.timePattern = 'nn+dd+yy++w++hh+ii+ss';
+				_this49.thrid = 'thread';
+				return _this49;
+			}
+
+			_createClass(Tinyboard, [{
+				key: 'fixVideo',
+				value: function fixVideo(isPost, data) {
+					var videos = [],
+					    els = $Q('.video-container, #ytplayer', isPost ? data.el : data);
+					for (var i = 0, len = els.length; i < len; ++i) {
+						var el = els[i];
+						videos.push([isPost ? data : this.getPostOfEl(el), el.id === 'ytplayer' ? el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true]);
+						$del(el);
+					}
+					return videos;
+				}
+			}, {
+				key: 'getPageUrl',
+				value: function getPageUrl(b, p) {
+					return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
+				}
+			}, {
+				key: 'getTNum',
+				value: function getTNum(op) {
+					return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					if (Cfg) {
+						Cfg.fileThumb = 0;
+					}
+					return false;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }';
+				}
+			}, {
+				key: 'qImgLink',
+				get: function get() {
+					return 'p.fileinfo > a:first-of-type';
+				}
+			}, {
+				key: 'markupTags',
+				get: function get() {
+					return ["'''", "''", '__', '~~', '**', 'code', '', '', 'q'];
+				}
+			}]);
+
+			return Tinyboard;
+		})(BaseBoard);
+
+		ibEngines['form[name*="postcontrols"]'] = Tinyboard;
+
+		var Vichan = (function (_Tinyboard) {
+			_inherits(Vichan, _Tinyboard);
+
+			function Vichan(prot, dm) {
+				_classCallCheck(this, Vichan);
+
+				var _this50 = _possibleConstructorReturn(this, Object.getPrototypeOf(Vichan).call(this, prot, dm));
+
+				_this50.qDelPassw = '#password';
+				_this50.qPassw = 'input[name="password"]';
+
+				_this50.multiFile = true;
+				return _this50;
+			}
+
+			_createClass(Vichan, [{
+				key: 'fixFileInputs',
+				value: function fixFileInputs(el) {
+					var str = '';
+					for (var i = 0, len = 5; i < len; ++i) {
+						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"></div>';
+					}
+					$id('upload').lastChild.innerHTML = str;
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					setTimeout(function () {
+						$del($id('updater'));
+					}, 0);
+					if (checkStorage() && locStorage['file_dragdrop'] !== 'false') {
+						locStorage['file_dragdrop'] = false;
+						window.location.reload();
+						return true;
+					}
+					return false;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }\n\t\t\t\t.boardlist { position: static !important; }\n\t\t\t\tbody { padding: 0 5px !important; }\n\t\t\t\t.fileinfo { width: 250px; }\n\t\t\t\t.multifile { width: auto !important; }\n\t\t\t\t#expand-all-images, #expand-all-images + .unimportant, .post-btn, small { display: none !important; }';
+				}
+			}]);
+
+			return Vichan;
+		})(Tinyboard);
+
+		ibEngines['tr#upload'] = Vichan;
+
+		var Kusaba = (function (_BaseBoard5) {
+			_inherits(Kusaba, _BaseBoard5);
+
+			function Kusaba(prot, dm) {
+				_classCallCheck(this, Kusaba);
+
+				var _this51 = _possibleConstructorReturn(this, Object.getPrototypeOf(Kusaba).call(this, prot, dm));
+
+				_this51.kus = true;
+
+				_this51.cOPost = 'postnode';
+				_this51.qError = 'h1, h2, div[style*="1.25em"]';
+				_this51.qPostRedir = null;
+
+				_this51.markupBB = true;
+				return _this51;
+			}
+
+			_createClass(Kusaba, [{
+				key: 'getCaptchaSrc',
+				value: function getCaptchaSrc(src, tNum) {
+					return src.replace(/\?[^?]+$|$/, '?' + Math.random());
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }\n\t\t\t\t.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
+				}
+			}]);
+
+			return Kusaba;
+		})(BaseBoard);
+
+		ibEngines['script[src*="kusaba"]'] = Kusaba;
+		ibEngines['form[action$="board.php"]'] = Kusaba;
+
+		var Phutaba = (function (_BaseBoard6) {
+			_inherits(Phutaba, _BaseBoard6);
+
+			function Phutaba(prot, dm) {
+				_classCallCheck(this, Phutaba);
+
+				var _this52 = _possibleConstructorReturn(this, Object.getPrototypeOf(Phutaba).call(this, prot, dm));
+
+				_this52.cOPost = 'thread_OP';
+				_this52.cPostHeader = 'post_head';
+				_this52.cReply = 'post';
+				_this52.cSubj = 'subject';
+				_this52.cTrip = 'tripcode';
+				_this52.qError = '.error';
+				_this52.qMsg = '.text';
+				_this52.qPages = '.pagelist > li:nth-last-child(2)';
+				_this52.qPostRedir = 'input[name="gb2"][value="thread"]';
+				_this52.qRPost = '.thread_reply';
+				_this52.qTrunc = '.tldr';
+
+				_this52.docExt = '';
+				_this52.markupBB = true;
+				_this52.multiFile = true;
+				_this52.res = 'thread/';
+				return _this52;
+			}
+
+			_createClass(Phutaba, [{
+				key: 'fixFileInputs',
+				value: function fixFileInputs(el) {
+					var str = '><input name="file" type="file"></input></div>';
+					el.removeAttribute('onchange');
+					el.parentNode.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+				}
+			}, {
+				key: 'getImgWrap',
+				value: function getImgWrap(el) {
+					return el.parentNode.parentNode;
+				}
+			}, {
+				key: 'getSage',
+				value: function getSage(post) {
+					return !!$q('.sage', post);
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.content > hr, .de-parea > hr { display: none !important }';
+				}
+			}, {
+				key: 'qImgLink',
+				get: function get() {
+					return '.filename > a';
+				}
+			}]);
+
+			return Phutaba;
+		})(BaseBoard);
+
+		ibEngines['link[href$="phutaba.css"]'] = Phutaba;
+
+		var DivManic = (function (_BaseBoard7) {
+			_inherits(DivManic, _BaseBoard7);
+
+			function DivManic(prot, dm) {
+				_classCallCheck(this, DivManic);
+
+				var _this53 = _possibleConstructorReturn(this, Object.getPrototypeOf(DivManic).call(this, prot, dm));
+
+				_this53.qDForm = '#mainc';
+				return _this53;
+			}
+
+			_createClass(DivManic, [{
+				key: 'getPageUrl',
+				value: function getPageUrl(b, p) {
+					return fixBrd(b) + '?do=page&p=' + (p < 0 ? 0 : p);
+				}
+			}, {
+				key: 'getThrdUrl',
+				value: function getThrdUrl(b, tNum) {
+					return this.prot + '//' + this.host + fixBrd(b) + '?do=thread&id=' + tNum;
+				}
+			}, {
+				key: 'getTNum',
+				value: function getTNum(op) {
+					return +$q('a[name]', op).name.match(/\d+/)[0];
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					var el = $id('mainc'),
+					    pArea = $id('postarea');
+					$del(el.firstElementChild);
+					$before(el, pArea.nextElementSibling);
+					$before(el, pArea);
+					return false;
+				}
+			}, {
+				key: 'parseURL',
+				value: function parseURL() {
+					var url = window.location.search.match(/^\?do=(thread|page)&(id|p)=(\d+)$/);
+					this.b = window.location.pathname.replace(/\//g, '');
+					this.t = url[1] === 'thread' ? +url[3] : false;
+					this.page = url[1] === 'page' ? +url[3] : 0;
+					this.docExt = '';
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.reply { background-color: #e4e4d6; }';
+				}
+			}]);
+
+			return DivManic;
+		})(BaseBoard);
+
+		ibEngines['div#mainc'] = DivManic;
+
+		var _02chNet = (function (_BaseBoard8) {
+			_inherits(_02chNet, _BaseBoard8);
+
+			function _02chNet(prot, dm) {
+				_classCallCheck(this, _02chNet);
+
+				var _this54 = _possibleConstructorReturn(this, Object.getPrototypeOf(_02chNet).call(this, prot, dm));
+
+				_this54.qPostRedir = 'input[name="gb2"][value="thread"]';
+
+				_this54.ru = true;
+				_this54.timePattern = 'yyyy+nn+dd++w++hh+ii+ss';
+				return _this54;
+			}
+
+			return _02chNet;
+		})(BaseBoard);
+
+		ibDomains['02ch.net'] = _02chNet;
+
+		var _2chruNet = (function (_TinyIb) {
+			_inherits(_2chruNet, _TinyIb);
+
+			function _2chruNet(prot, dm) {
+				_classCallCheck(this, _2chruNet);
+
+				var _this55 = _possibleConstructorReturn(this, Object.getPrototypeOf(_2chruNet).call(this, prot, dm));
+
+				_this55._2chru = true;
+				return _this55;
+			}
+
+			_createClass(_2chruNet, [{
+				key: 'css',
+				get: function get() {
+					return '.small { display: none; }';
+				}
+			}]);
+
+			return _2chruNet;
+		})(TinyIb);
+
+		ibDomains['2chru.net'] = _2chruNet;
+		ibDomains['2-chru.net'] = _2chruNet;
+		ibDomains['2chru.cafe'] = _2chruNet;
+		ibDomains['2-chru.cafe'] = _2chruNet;
+		ibDomains['dmirrgetyojz735v.onion'] = _2chruNet;
+
+		var _2chRu = (function (_TinyIb2) {
+			_inherits(_2chRu, _TinyIb2);
+
+			function _2chRu(prot, dm) {
+				_classCallCheck(this, _2chRu);
+
+				var _this56 = _possibleConstructorReturn(this, Object.getPrototypeOf(_2chRu).call(this, prot, dm));
+
+				_this56.tire = true;
+
+				_this56.qPages = 'table[border="1"] tr:first-of-type > td:first-of-type a';
+				_this56.qPostRedir = null;
+				_this56.qTable = 'table:not(.postfiles)';
+
+				_this56.docExt = '.html';
+				_this56.hasPicWrap = true;
+				_this56.markupBB = true;
+				_this56.multiFile = true;
+				_this56.ru = true;
+				return _this56;
+			}
+
+			_createClass(_2chRu, [{
+				key: 'fixFileInputs',
+				value: function fixFileInputs(el) {
+					var str = '><input name="file" maxlength="4" ' + 'accept="|sid|7z|bz2|m4a|flac|lzh|mo3|rar|spc|fla|nsf|jpg|mpp|aac|gz|xm|wav|' + 'mp3|png|it|lha|torrent|swf|zip|mpc|ogg|jpeg|gif|mod" type="file"></input></div>';
+					el.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+				}
+			}, {
+				key: 'getCaptchaSrc',
+				value: function getCaptchaSrc(src, tNum) {
+					return '/' + this.b + '/captcha.fpl?' + Math.random();
+				}
+			}, {
+				key: 'getOmitted',
+				value: function getOmitted(el, len) {
+					var txt;
+					return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
+				}
+			}, {
+				key: 'getPageUrl',
+				value: function getPageUrl(b, p) {
+					return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return 'span[id$="_display"], #fastload { display: none; }';
+				}
+			}, {
+				key: 'qThread',
+				get: function get() {
+					return '.threadz';
+				}
+			}]);
+
+			return _2chRu;
+		})(TinyIb);
+
+		ibDomains['2--ch.ru'] = _2chRu;
+		ibDomains['2-ch.su'] = _2chRu;
+
+		var _410chanOrg = (function (_Kusaba) {
+			_inherits(_410chanOrg, _Kusaba);
+
+			function _410chanOrg(prot, dm) {
+				_classCallCheck(this, _410chanOrg);
+
+				var _this57 = _possibleConstructorReturn(this, Object.getPrototypeOf(_410chanOrg).call(this, prot, dm));
+
+				_this57._410 = true;
+
+				_this57.qPostRedir = 'input#noko';
+
+				_this57.markupBB = false;
+				_this57.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
+				return _this57;
+			}
+
+			_createClass(_410chanOrg, [{
+				key: 'getCaptchaSrc',
+				value: function getCaptchaSrc(src, tNum) {
+					return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
+				}
+			}, {
+				key: 'getSage',
+				value: function getSage(post) {
+					var el = $c('filetitle', post);
+					return el && el.textContent.includes('⇩');
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '#resizer { display: none; }';
+				}
+			}, {
+				key: 'markupTags',
+				get: function get() {
+					return ['**', '*', '__', '^^', '%%', '`', '', '', 'q'];
+				}
+			}]);
+
+			return _410chanOrg;
+		})(Kusaba);
+
+		ibDomains['410chan.org'] = _410chanOrg;
+
+		var _420chanOrg = (function (_BaseBoard9) {
+			_inherits(_420chanOrg, _BaseBoard9);
+
+			function _420chanOrg(prot, dm) {
+				_classCallCheck(this, _420chanOrg);
+
+				var _this58 = _possibleConstructorReturn(this, Object.getPrototypeOf(_420chanOrg).call(this, prot, dm));
+
+				_this58._420 = true;
+
+				_this58.cPostHeader = 'replyheader';
+				_this58.qBan = '.ban';
+				_this58.qError = 'pre';
+				_this58.qPages = '.pagelist > a:last-child';
+				_this58.qPostRedir = null;
+
+				_this58.docExt = '.php';
+				_this58.markupBB = true;
+				return _this58;
+			}
+
+			_createClass(_420chanOrg, [{
+				key: 'getTNum',
+				value: function getTNum(op) {
+					return +$q('a[id]', op).id.match(/\d+/)[0];
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }\n\t\t\t\t.de-thr-hid { margin: 1em 0; }';
+				}
+			}, {
+				key: 'qThread',
+				get: function get() {
+					return '[id*="thread"]';
+				}
+			}, {
+				key: 'markupTags',
+				get: function get() {
+					return ['**', '*', '', '', '%', 'pre', '', '', 'q'];
+				}
+			}]);
+
+			return _420chanOrg;
+		})(BaseBoard);
+
+		ibDomains['420chan.org'] = _420chanOrg;
+
+		var _4chanOrg = (function (_BaseBoard10) {
+			_inherits(_4chanOrg, _BaseBoard10);
+
+			function _4chanOrg(prot, dm) {
+				_classCallCheck(this, _4chanOrg);
+
+				var _this59 = _possibleConstructorReturn(this, Object.getPrototypeOf(_4chanOrg).call(this, prot, dm));
+
+				_this59.fch = true;
+
+				_this59.cFileInfo = 'fileText';
+				_this59.cOPost = 'op';
+				_this59.cPostHeader = 'postInfo';
+				_this59.cReply = 'post reply';
+				_this59.cSubj = 'subject';
+				_this59.qBan = 'strong[style="color: red;"]';
+				_this59.qClosed = '.archivedIcon';
+				_this59.qDelBut = '.deleteform > input[type="submit"]';
+				_this59.qError = '#errmsg';
+				_this59.qName = '.name';
+				_this59.qOmitted = '.summary.desktop';
+				_this59.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
+				_this59.qPostForm = 'form[name="post"]';
+				_this59.qPostRedir = null;
+				_this59.qRef = '.postInfo > .postNum';
+				_this59.qTable = '.replyContainer';
+				_this59.qThumbImages = '.fileThumb > img:not(.fileDeletedRes)';
+
+				_this59.anchor = '#p';
+				_this59.docExt = '';
+				_this59.firstPage = 1;
+				_this59.markupBB = true;
+				_this59.res = 'thread/';
+				_this59.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
+				_this59.thrid = 'resto';
+				return _this59;
+			}
+
+			_createClass(_4chanOrg, [{
+				key: 'getFileInfo',
+				value: function getFileInfo(wrap) {
+					var el = $c(this.cFileInfo, wrap);
+					return el ? el.lastChild.textContent : '';
+				}
+			}, {
+				key: 'getPageUrl',
+				value: function getPageUrl(b, p) {
+					return fixBrd(b) + (p > 1 ? p : '');
+				}
+			}, {
+				key: 'getSage',
+				value: function getSage(post) {
+					return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
+				}
+			}, {
+				key: 'getTNum',
+				value: function getTNum(op) {
+					return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				}
+			}, {
+				key: 'getWrap',
+				value: function getWrap(el, isOp) {
+					return el.parentNode;
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					Cfg.findImgFile = 0;
+					var el = $id('captchaFormPart');
+					if (el) {
+						doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' + '<div onclick="initRecaptcha();"></div></div>');
+						this.updateCaptcha = (function (el, focus) {
+							$id('g-recaptcha').innerHTML = '';
+							this.click();
+							el.style.display = '';
+						}).bind(doc.body.lastChild.firstChild, el);
+					}
+					return false;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }\n\t\t\t\t.postForm { display: table !important; width: auto !important; }\n\t\t\t\ttextarea { margin-right: 0 !important; }';
+				}
+			}, {
+				key: 'qImgLink',
+				get: function get() {
+					return '.fileText > a';
+				}
+			}, {
+				key: 'markupTags',
+				get: function get() {
+					return ['', '', '', '', 'spoiler', '', '', '', 'q'];
+				}
+			}, {
+				key: 'rep',
+				get: function get() {
+					return true;
+				}
+			}]);
+
+			return _4chanOrg;
+		})(BaseBoard);
+
+		ibDomains['4chan.org'] = _4chanOrg;
+
+		var _8chNet = (function (_Vichan) {
+			_inherits(_8chNet, _Vichan);
+
+			function _8chNet() {
+				_classCallCheck(this, _8chNet);
+
+				return _possibleConstructorReturn(this, Object.getPrototypeOf(_8chNet).apply(this, arguments));
+			}
+
+			_createClass(_8chNet, [{
+				key: 'css',
+				get: function get() {
+					return '#post-moderation-fields { display: initial !important; }';
+				}
+			}]);
+
+			return _8chNet;
+		})(Vichan);
+
+		ibDomains['8ch.net'] = _8chNet;
+
+		var _7chanOrg = (function (_BaseBoard11) {
+			_inherits(_7chanOrg, _BaseBoard11);
+
+			function _7chanOrg() {
+				_classCallCheck(this, _7chanOrg);
+
+				return _possibleConstructorReturn(this, Object.getPrototypeOf(_7chanOrg).apply(this, arguments));
+			}
+
+			_createClass(_7chanOrg, [{
+				key: 'init',
+				value: function init() {
+					return true;
+				}
+			}]);
+
+			return _7chanOrg;
+		})(BaseBoard);
+
+		ibDomains['7chan.org'] = _7chanOrg;
+
+		var Arhivach = (function (_BaseBoard12) {
+			_inherits(Arhivach, _BaseBoard12);
+
+			function Arhivach(prot, dm) {
+				_classCallCheck(this, Arhivach);
+
+				var _this62 = _possibleConstructorReturn(this, Object.getPrototypeOf(Arhivach).call(this, prot, dm));
+
+				_this62.cPostHeader = 'post_head';
+				_this62.cReply = 'post';
+				_this62.qDForm = 'body > .container-fluid';
+				_this62.qMsg = '.post_comment_body';
+				_this62.qRef = '.post_id, .post_head > b';
+				_this62.qRPost = '.post:not(:first-child):not([postid=""])';
+
+				_this62.docExt = '';
+				_this62.res = 'thread/';
+				return _this62;
+			}
+
+			_createClass(Arhivach, [{
+				key: 'getOp',
+				value: function getOp(el) {
+					return $q('.post:first-child', el);
+				}
+			}, {
+				key: 'getPNum',
+				value: function getPNum(post) {
+					return +post.getAttribute('postid');
+				}
+			}, {
+				key: 'getTNum',
+				value: function getTNum(el) {
+					return +this.getOp(el).getAttribute('postid');
+				}
+			}, {
+				key: 'getThrdUrl',
+				value: function getThrdUrl(b, tNum) {
+					return $q('link[rel="canonical"]', doc.head).href;
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					setTimeout(function () {
+						var delPosts = $Q('.post[postid=""]', doc);
+						for (var i = 0, len = delPosts.length; i < len; ++i) {
+							try {
+								var post = pByNum.get(+$q('blockquote', delPosts[i]).getAttribute('id').substring(1));
+								if (post) {
+									post.deleted = true;
+									post.btns.classList.remove('de-post-counter');
+									post.btns.classList.add('de-post-deleted');
+									post.wrap.classList.add('de-post-removed');
+								}
+							} catch (e) {}
+						}
+					}, 0);
+					return false;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.post_replies, .post[postid=""] { display: none !important; }\n\t\t\t\t.post { overflow-x: auto !important; }';
+				}
+			}, {
+				key: 'qThread',
+				get: function get() {
+					return '.thread_inner';
+				}
+			}]);
+
+			return Arhivach;
+		})(BaseBoard);
+
+		ibDomains['arhivach.org'] = Arhivach;
+
+		var Diochan = (function (_Kusaba2) {
+			_inherits(Diochan, _Kusaba2);
+
+			function Diochan(prot, dm) {
+				_classCallCheck(this, Diochan);
+
+				var _this63 = _possibleConstructorReturn(this, Object.getPrototypeOf(Diochan).call(this, prot, dm));
+
+				_this63.dio = true;
+				return _this63;
+			}
+
+			_createClass(Diochan, [{
+				key: 'css',
+				get: function get() {
+					return '.resize { display: none; }';
+				}
+			}]);
+
+			return Diochan;
+		})(Kusaba);
+
+		ibDomains['diochan.com'] = Diochan;
+		ibDomains['niuchan.org'] = Diochan;
+
+		var Dobrochan = (function (_BaseBoard13) {
+			_inherits(Dobrochan, _BaseBoard13);
+
+			function Dobrochan(prot, dm) {
+				_classCallCheck(this, Dobrochan);
+
+				var _this64 = _possibleConstructorReturn(this, Object.getPrototypeOf(Dobrochan).call(this, prot, dm));
+
+				_this64.dobr = true;
+
+				_this64.cFileInfo = 'fileinfo';
+				_this64.cSubj = 'replytitle';
+				_this64.qClosed = 'img[src="/images/locked.png"]';
+				_this64.qDForm = 'form[action*="delete"]';
+				_this64.qError = '.post-error, h2';
+				_this64.qMsg = '.postbody';
+				_this64.qOmitted = '.abbrev > span:last-of-type';
+				_this64.qPages = '.pages > tbody > tr > td';
+				_this64.qPostRedir = 'select[name="goto"]';
+				_this64.qTrunc = '.abbrev > span:nth-last-child(2)';
+
+				_this64.anchor = '#i';
+				_this64.hasPicWrap = true;
+				_this64.multiFile = true;
+				_this64.ru = true;
+				_this64.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+				return _this64;
+			}
+
+			_createClass(Dobrochan, [{
+				key: 'fixFileInputs',
+				value: function fixFileInputs(el) {
+					el = $id('files_parent');
+					$each($Q('input[type="file"]', el), function (el) {
+						el.removeAttribute('onchange');
+					});
+					el.firstElementChild.value = 1;
+				}
+			}, {
+				key: 'getImgLink',
+				value: function getImgLink(img) {
+					var el = img.parentNode;
+					return el.tagName === 'A' ? el : $q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
+				}
+			}, {
+				key: 'getImgWrap',
+				value: function getImgWrap(el) {
+					return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode : el.firstElementChild.tagName === 'IMG' ? el.parentNode : el;
+				}
+			}, {
+				key: 'getPageUrl',
+				value: function getPageUrl(b, p) {
+					return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
+				}
+			}, {
+				key: 'getTNum',
+				value: function getTNum(op) {
+					return +$q('a[name]', op).name.match(/\d+/)[0];
+				}
+			}, {
+				key: 'insertYtPlayer',
+				value: function insertYtPlayer(msg, playerHtml) {
+					var prev = msg.previousElementSibling,
+					    node = prev.tagName === 'BR' ? prev : msg;
+					node.insertAdjacentHTML('beforebegin', playerHtml);
+					return node.previousSibling;
+				}
+			}, {
+				key: 'disableRedirection',
+				value: function disableRedirection(el) {
+					($q(this.qPostRedir, el) || {}).selectedIndex = 1;
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					if (window.location.pathname === '/settings') {
+						if (!nav) {
+							initNavFuncs();
+						}
+						$q('input[type="button"]', doc).addEventListener('click', function () {
+							spawn(readCfg).then(function () {
+								return saveCfg('__hanarating', $id('rating').value);
+							});
+						});
+						return true;
+					}
+					return false;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none; }\n\t\t\t\t.delete { background: none; }\n\t\t\t\t.delete_checkbox { position: static !important; }\n\t\t\t\t.file + .de-video-obj { float: left; margin: 5px 20px 5px 5px; }\n\t\t\t\t.de-video-obj + div { clear: left; }';
+				}
+			}]);
+
+			return Dobrochan;
+		})(BaseBoard);
+
+		ibDomains['dobrochan.com'] = Dobrochan;
+		ibDomains['dobrochan.org'] = Dobrochan;
+		ibDomains['dobrochan.ru'] = Dobrochan;
+
+		var DvaChNet = (function (_BaseBoard14) {
+			_inherits(DvaChNet, _BaseBoard14);
+
+			function DvaChNet(prot, dm) {
+				_classCallCheck(this, DvaChNet);
+
+				var _this65 = _possibleConstructorReturn(this, Object.getPrototypeOf(DvaChNet).call(this, prot, dm));
+
+				_this65.dvachnet = true;
+
+				_this65.ru = true;
+				return _this65;
+			}
+
+			return DvaChNet;
+		})(BaseBoard);
+
+		ibDomains['dva-ch.net'] = DvaChNet;
+
+		var Iichan = (function (_BaseBoard15) {
+			_inherits(Iichan, _BaseBoard15);
+
+			function Iichan(prot, dm) {
+				_classCallCheck(this, Iichan);
+
+				var _this66 = _possibleConstructorReturn(this, Object.getPrototypeOf(Iichan).call(this, prot, dm));
+
+				_this66.iich = true;
+				return _this66;
+			}
+
+			_createClass(Iichan, [{
+				key: 'init',
+				value: function init() {
+					doc.body.insertAdjacentHTML('beforeend', '<div onclick="highlight = function() {}"></div>');
+					doc.body.lastChild.click();
+					return false;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '' + (this.t ? '#de-main { margin-top: -37px; }\
+				.logo { margin-bottom: 14px; }' : '');
+				}
+			}]);
+
+			return Iichan;
+		})(BaseBoard);
+
+		ibDomains['iichan.hk'] = Iichan;
+
+		var Inach = (function (_BaseBoard16) {
+			_inherits(Inach, _BaseBoard16);
+
+			function Inach(prot, dm) {
+				_classCallCheck(this, Inach);
+
+				var _this67 = _possibleConstructorReturn(this, Object.getPrototypeOf(Inach).call(this, prot, dm));
+
+				_this67.qPostRedir = 'input[name="fieldnoko"]';
+
+				_this67.markupBB = true;
+				_this67.timePattern = 'nn+dd+yyyy++w++hh+ii+ss';
+				return _this67;
+			}
+
+			return Inach;
+		})(BaseBoard);
+
+		ibDomains['inach.org'] = Inach;
+
+		var Krautchan = (function (_BaseBoard17) {
+			_inherits(Krautchan, _BaseBoard17);
+
+			function Krautchan(prot, dm) {
+				_classCallCheck(this, Krautchan);
+
+				var _this68 = _possibleConstructorReturn(this, Object.getPrototypeOf(Krautchan).call(this, prot, dm));
+
+				_this68.krau = true;
+
+				_this68.cFileInfo = 'fileinfo';
+				_this68.cPostHeader = 'postheader';
+				_this68.cReply = 'postreply';
+				_this68.cSubj = 'postsubject';
+				_this68.qBan = '.ban_mark';
+				_this68.qClosed = 'img[src="/images/locked.gif"]';
+				_this68.qDForm = 'form[action*="delete"]';
+				_this68.qError = '.message_text';
+				_this68.qOmitted = '.omittedinfo';
+				_this68.qPages = 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a';
+				_this68.qPostRedir = 'input#forward_thread';
+				_this68.qRef = '.postnumber';
+				_this68.qRPost = '.postreply';
+				_this68.qThumbImages = 'img[id^="thumbnail_"]';
+				_this68.qTrunc = 'p[id^="post_truncated"]';
+
+				_this68.hasPicWrap = true;
+				_this68.markupBB = true;
+				_this68.multiFile = true;
+				_this68.res = 'thread-';
+				_this68.timePattern = 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?';
+				return _this68;
+			}
+
+			_createClass(Krautchan, [{
+				key: 'fixFileInputs',
+				value: function fixFileInputs(el) {
+					var str = '';
+					for (var i = 0, len = 4; i < len; ++i) {
+						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file_' + i + '" tabindex="7"></input></div>';
+					}
+					var node = $id('files_parent');
+					node.innerHTML = str;
+					node.removeAttribute('id');
+				}
+			}, {
+				key: 'getImgWrap',
+				value: function getImgWrap(el) {
+					return el.parentNode;
+				}
+			}, {
+				key: 'getSage',
+				value: function getSage(post) {
+					return !!$c('sage', post);
+				}
+			}, {
+				key: 'getTNum',
+				value: function getTNum(op) {
+					return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' + '<div onclick="window.lastUpdateTime = 0;"></div>' + '<div onclick="if(boardRequiresCaptcha) { requestCaptcha(true); }"></div>' + '<div onclick="setupProgressTracking();"></div>' + '<div onclick="highlightPost = function() {}"></div></div>' + '</div>');
+					var els = doc.body.lastChild.children;
+					this.btnZeroLUTime = els[0];
+					this.initCaptcha = els[1];
+					this.addProgressTrack = els[2];
+					els[3].click();
+					return false;
+				}
+			}, {
+				key: 'insertYtPlayer',
+				value: function insertYtPlayer(msg, playerHtml) {
+					var pMsg = msg.parentNode,
+					    prev = pMsg.previousElementSibling,
+					    node = prev.hasAttribute('style') ? prev : pMsg;
+					node.insertAdjacentHTML('beforebegin', playerHtml);
+					return node.previousSibling;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return 'img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none; }\n\t\t\t\tdiv[id^="Wz"] { z-index: 10000 !important; }\n\t\t\t\t.de-thr-hid { float: none; }\n\t\t\t\t.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\n\t\t\t\t.de-video-obj + div { clear: left; }\n\t\t\t\tform[action="/paint"] > select { width: 105px; }\n\t\t\t\tform[action="/paint"] > input[type="text"] { width: 24px !important; }';
+				}
+			}, {
+				key: 'qImgLink',
+				get: function get() {
+					return '.filename > a';
+				}
+			}, {
+				key: 'qThread',
+				get: function get() {
+					return '.thread_body';
+				}
+			}, {
+				key: 'markupTags',
+				get: function get() {
+					return ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'];
+				}
+			}, {
+				key: 'rep',
+				get: function get() {
+					return true;
+				}
+			}]);
+
+			return Krautchan;
+		})(BaseBoard);
+
+		ibDomains['krautchan.net'] = Krautchan;
+
+		var Lainchan = (function (_Vichan2) {
+			_inherits(Lainchan, _Vichan2);
+
+			function Lainchan(prot, dm) {
+				_classCallCheck(this, Lainchan);
+
+				var _this69 = _possibleConstructorReturn(this, Object.getPrototypeOf(Lainchan).call(this, prot, dm));
+
+				_this69.cOPost = 'op';
+				return _this69;
+			}
+
+			_createClass(Lainchan, [{
+				key: 'css',
+				get: function get() {
+					return '.sidearrows { display: none !important; }\n\t\t\t\t.bar { position: static; }';
+				}
+			}]);
+
+			return Lainchan;
+		})(Vichan);
+
+		ibDomains['lainchan.org'] = Lainchan;
+
+		var MlpgCo = (function (_Vichan3) {
+			_inherits(MlpgCo, _Vichan3);
+
+			function MlpgCo(prot, dm) {
+				_classCallCheck(this, MlpgCo);
+
+				var _this70 = _possibleConstructorReturn(this, Object.getPrototypeOf(MlpgCo).call(this, prot, dm));
+
+				_this70.cOPost = 'opContainer';
+				return _this70;
+			}
+
+			return MlpgCo;
+		})(Vichan);
+
+		ibDomains['mlpg.co'] = MlpgCo;
+
+		var Ponyach = (function (_BaseBoard18) {
+			_inherits(Ponyach, _BaseBoard18);
+
+			function Ponyach(prot, dm) {
+				_classCallCheck(this, Ponyach);
+
+				var _this71 = _possibleConstructorReturn(this, Object.getPrototypeOf(Ponyach).call(this, prot, dm));
+
+				_this71.multiFile = true;
+				_this71.postMapInited = false;
+				_this71.thrid = 'replythread';
+				return _this71;
+			}
+
+			_createClass(Ponyach, [{
+				key: 'checkForm',
+				value: function checkForm(formEl, maybeSpells) {
+					var _this72 = this;
+
+					var myMaybeSpells = maybeSpells || new Maybe(SpellsRunner),
+					    maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
+					if (!this.postMapInited) {
+						this.postMapInited = true;
+						$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', doc.body), function (pEl) {
+							return _this72.modifiedPosts.set(pEl, +pEl.getAttribute('data-lastmodified'));
+						});
+					}
+					$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', formEl), function (pEl) {
+						var nPost,
+						    post = pByNum.get(_this72.getPNum(pEl)),
+						    pDate = +pEl.getAttribute('data-lastmodified');
+						if (post && (!_this72.modifiedPosts.has(pEl) || _this72.modifiedPosts.get(pEl) < pDate)) {
+							var thr = post.thr,
+							    fragm = doc.createDocumentFragment();
+							_this72.modifiedPosts.set(pEl, pDate);
+							nPost = thr.addPost(fragm, pEl, post.count, post.prev, maybeVParser);
+							if (thr.op === post) {
+								thr.op = nPost;
+							}
+							if (thr.last === post) {
+								thr.last = nPost;
+							}
+							if (post.next) {
+								post.next.prev = nPost;
+								nPost.next = post.next;
+							}
+							if (post.omitted) {
+								nPost.omitted = true;
+								nPost.wrap.classList.add('de-hidden');
+							}
+							myMaybeSpells.value.run(nPost);
+							$before(post.wrap, fragm);
+							$del(post.wrap);
+						}
+					});
+					if (!maybeSpells) {
+						myMaybeSpells.end();
+					}
+					maybeVParser.end();
+				}
+			}, {
+				key: 'getPNum',
+				value: function getPNum(post) {
+					return +post.getAttribute('data-num');
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					defaultCfg.postSameImg = 0;
+					defaultCfg.removeEXIF = 0;
+					return false;
+				}
+			}, {
+				key: 'modifiedPosts',
+				get: function get() {
+					var val = new WeakMap();
+					Object.defineProperty(this, 'modifiedPosts', { value: val });
+					return val;
+				}
+			}]);
+
+			return Ponyach;
+		})(BaseBoard);
+
+		ibDomains['ponya.ch'] = Ponyach;
+		ibDomains['ponyach.cf'] = Ponyach;
+		ibDomains['ponyach.ga'] = Ponyach;
+		ibDomains['ponyach.ml'] = Ponyach;
+		ibDomains['ponyach.ru'] = Ponyach;
+		ibDomains['ponychan.ru'] = Ponyach;
+
+		var Ponychan = (function (_Tinyboard2) {
+			_inherits(Ponychan, _Tinyboard2);
+
+			function Ponychan(prot, dm) {
+				_classCallCheck(this, Ponychan);
+
+				var _this73 = _possibleConstructorReturn(this, Object.getPrototypeOf(Ponychan).call(this, prot, dm));
+
+				_this73.cOPost = 'opContainer';
+				return _this73;
+			}
+
+			_createClass(Ponychan, [{
+				key: 'init',
+				value: function init() {
+					$each($Q('img[data-mature-src]', doc.body), function (el) {
+						el.src = el.getAttribute('data-mature-src');
+					});
+					return false;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.mature_thread { display: block !important; }\n\t\t\t\t.mature_warning { display: none; }';
+				}
+			}]);
+
+			return Ponychan;
+		})(Tinyboard);
+
+		ibDomains['ponychan.net'] = Ponychan;
+
+		var Synch = (function (_Tinyboard3) {
+			_inherits(Synch, _Tinyboard3);
+
+			function Synch(prot, dm) {
+				_classCallCheck(this, Synch);
+
+				var _this74 = _possibleConstructorReturn(this, Object.getPrototypeOf(Synch).call(this, prot, dm));
+
+				_this74.cFileInfo = 'unimportant';
+
+				_this74.markupBB = true;
+				return _this74;
+			}
+
+			_createClass(Synch, [{
+				key: 'earlyInit',
+				value: function earlyInit() {
+					var val = '{"simpleNavbar":true,"showInfo":true}';
+					if (locStorage['settings'] !== val) {
+						locStorage['settings'] = val;
+						return true;
+					}
+					return false;
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					defaultCfg.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
+					defaultCfg.timeOffset = 4;
+					defaultCfg.correctTime = 1;
+					return false;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.fa-sort { display: none; }\t\t\t\ttime::after { content: none; }';
+				}
+			}, {
+				key: 'markupTags',
+				get: function get() {
+					return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'];
+				}
+			}]);
+
+			return Synch;
+		})(Tinyboard);
+
+		ibDomains['syn-ch.ru'] = Synch;
+		ibDomains['syn-ch.com'] = Synch;
+		ibDomains['syn-ch.org'] = Synch;
+
+		var prot = window.location.protocol;
+		localRun = prot === 'file:';
+		var dm = localRun ? (window.location.pathname.match(/\/([^-]+)-[^-]+-[^\.]+\.[a-z]+$/) || [, ''])[1] : window.location.hostname.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
+		if (checkDomains && dm in ibDomains) {
+			return new ibDomains[dm](prot, dm);
 		}
 		if (checkEngines) {
 			for (var i in ibEngines) {
 				if ($q(i, doc)) {
-					ibObj = Object.create(ibBase, ibEngines[i]);
-					break;
+					return new ibEngines[i](prot, dm);
 				}
 			}
-			if (!ibObj) {
-				ibObj = ibBase;
-			}
+			return new BaseBoard(prot, dm);
 		}
-		if (ibObj) {
-			ibObj.dm = dm;
-		}
-		return ibObj;
+		return null;
 	}
 
 
@@ -16576,7 +17147,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_createClass(DelForm, [{
 			key: 'addStuff',
 			value: function addStuff() {
-				var _this47 = this;
+				var _this75 = this;
 
 				var el = this.el;
 				if (!localRun) {
@@ -16589,7 +17160,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								pr.closeReply();
 								$popup(Lng.deleting[lang], 'delete', true);
 								spawn(html5Submit, el, e.target).then(function (dc) {
-									return checkDelete(_this47, dc);
+									return checkDelete(_this75, dc);
 								}, function (e) {
 									return $popup(getErrorMessage(e), 'delete', false);
 								});
@@ -16599,7 +17170,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						el.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-pform" src="about:blank" style="display: none;"></iframe>' + '<iframe name="de-iframe-dform" src="about:blank" style="display: none;"></iframe>');
 						var node = el.lastChild;
 						node.addEventListener('message', function (e) {
-							return checkDelete(_this47, $DOM(e.data));
+							return checkDelete(_this75, $DOM(e.data));
 						});
 						node.previousSibling.addEventListener('message', function (e) {
 							checkUpload($DOM(e.data));
@@ -16705,7 +17276,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			},
 			play: function play() {
-				var _this48 = this;
+				var _this76 = this;
 
 				this.stop();
 				if (this.repeatMS === 0) {
@@ -16713,7 +17284,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return;
 				}
 				this._playInterval = setInterval(function () {
-					return _this48._el.play();
+					return _this76._el.play();
 				}, this.repeatMS);
 			},
 			stop: function stop() {
@@ -16744,7 +17315,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._el.style.display = 'none';
 			},
 			count: function count(delayMS, useCounter, callback) {
-				var _this49 = this;
+				var _this77 = this;
 
 				if (this._enabled && useCounter) {
 					var seconds = delayMS / 1000;
@@ -16752,15 +17323,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this._countingIV = setInterval(function () {
 						seconds--;
 						if (seconds === 0) {
-							_this49._stop();
+							_this77._stop();
 							callback();
 						} else {
-							_this49._set(seconds);
+							_this77._set(seconds);
 						}
 					}, 1000);
 				} else {
 					this._countingTO = setTimeout(function () {
-						_this49._countingTO = null;
+						_this77._countingTO = null;
 						callback();
 					}, delayMS);
 				}
@@ -16840,7 +17411,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._iconEl = doc.head.firstChild;
 			},
 			_startBlink: function _startBlink(iconUrl) {
-				var _this50 = this;
+				var _this78 = this;
 
 				if (this._blinkInterval) {
 					if (this._currentIcon === iconUrl) {
@@ -16850,8 +17421,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				this._currentIcon = iconUrl;
 				this._blinkInterval = setInterval(function () {
-					_this50._setIcon(_this50._isOriginalIcon ? _this50._currentIcon : _this50.originalIcon);
-					_this50._isOriginalIcon = !_this50._isOriginalIcon;
+					_this78._setIcon(_this78._isOriginalIcon ? _this78._currentIcon : _this78.originalIcon);
+					_this78._isOriginalIcon = !_this78._isOriginalIcon;
 				}, this._blinkMS);
 			}
 		};
@@ -16871,7 +17442,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			},
 			show: function show() {
-				var _this51 = this;
+				var _this79 = this;
 
 				var post = Thread.first.last,
 				    notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
@@ -16881,8 +17452,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 				notif.onshow = function () {
 					return setTimeout(function () {
-						if (notif === _this51._notifEl) {
-							_this51.close();
+						if (notif === _this79._notifEl) {
+							_this79.close();
 						}
 					}, 12e3);
 				};
@@ -16891,7 +17462,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				};
 				notif.onerror = function () {
 					window.focus();
-					_this51._requestPermission();
+					_this79._requestPermission();
 				};
 				this._notifEl = notif;
 			},
@@ -16907,14 +17478,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_notifEl: null,
 
 			_requestPermission: function _requestPermission() {
-				var _this52 = this;
+				var _this80 = this;
 
 				this._granted = false;
 				Notification.requestPermission(function (state) {
 					if (state.toLowerCase() === 'denied') {
 						saveCfg('desktNotif', 0);
 					} else {
-						_this52._granted = true;
+						_this80._granted = true;
 					}
 				});
 			}
@@ -17015,7 +17586,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._makeStep();
 			},
 			_makeStep: function _makeStep() {
-				var _this53 = this;
+				var _this81 = this;
 
 				var needSleep = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
 
@@ -17024,7 +17595,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						if (needSleep) {
 							this._state = 1;
 							counter.count(this._delay, !doc.hidden, function () {
-								return _this53._makeStep();
+								return _this81._makeStep();
 							});
 							return;
 						}
@@ -17033,9 +17604,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						this._loadPromise = Thread.first.loadNew(true);
 						this._state = 2;
 						this._loadPromise.then(function (pCount) {
-							return _this53._handleNewPosts(pCount, AjaxError.Success);
+							return _this81._handleNewPosts(pCount, AjaxError.Success);
 						}, function (e) {
-							return _this53._handleNewPosts(0, e);
+							return _this81._handleNewPosts(0, e);
 						});
 						return;
 					case 2:
@@ -17681,13 +18252,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return _context19.delegateYield(readFavoritesPosts(), 't4', 56);
 
 				case 56:
-					setTimeout(PostContent.purge, 0);
 					Logger.log('Hide posts');
 					scrollPage();
 					Logger.log('Scroll page');
 					Logger.finish();
 
-				case 61:
+				case 60:
 				case 'end':
 					return _context19.stop();
 			}
