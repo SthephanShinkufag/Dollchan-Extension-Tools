@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'ed43478';
+var commit = '0e9614f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12278,7 +12278,7 @@ function addSVGIcons() {
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-rep">
 		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
-		<path class="de-svg-fill" d="M5.2 12.4L12.4 8 5.2 3.6z"/>
+		<path class="de-svg-fill" d="M5 11c0 .8.6 1.2 1.3.7l5-3c.6-.4.6-1 0-1.5l-5-3C5.6 4 5 4.3 5 5v6z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-expthr">
 		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
@@ -12286,7 +12286,7 @@ function addSVGIcons() {
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-fav">
 		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
-		<path class="de-svg-fill" d="M8 2.8l1.5 3.1 3.3.5-2.4 2.4 1.1 3.5L8 10l-3.5 2.3 1.1-3.5-2.3-2.4 3.2-.5z"/>
+		<path class="de-svg-fill" d="M8 3l1.5 3 3.5.5-2.5 2.2 1 3.8-3.5-2-3.5 2 1-3.8L3 6.5 6.5 6 8 3z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-stick">
 		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
@@ -12303,11 +12303,11 @@ function addSVGIcons() {
 	</symbol>
 	<!-- WINDOW ICONS -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-win-arrow">
-		<line class="de-svg-stroke" stroke-width="3.5" x1="8" x2="8" y2="6" y1="13"/>
-		<path class="de-svg-fill" d="M3.5 7h9l-4.5-4.5z"></path>
+		<path class="de-svg-stroke" stroke-width="3.5" d="M8 13V6"/>
+		<path class="de-svg-fill"  d="M3.5 7h9L8 2.5 3.5 7z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-win-close">
-		<path class="de-svg-stroke" stroke-width="2.5" d="M3.5 3.5l9 9M3.5 12.5l9-9"/>
+		<path class="de-svg-stroke" stroke-width="2.5" d="M3.5 3.5l9 9m-9 0l9-9"/>
 	</symbol>
 	<!-- NAVIGATION PANEL ICONS -->
 	<symbol viewBox="0 0 7 7" id="de-symbol-nav-arrow">
@@ -12326,13 +12326,13 @@ function addSVGIcons() {
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-cfg">
 		<circle class="de-svg-stroke" stroke-width="3" cx="12.5" cy="12.5" r="6"/>
-		<path class="de-svg-stroke" stroke-width="3" d="M12.5 7V3.5M18 12.5h3.5M12.5 18v3.5M7 12.5H3.5M16.4 8.6L19 6M16.4 16.4L19 19M8.6 16.4L6 19M8.6 8.6L6 6"/>
+		<path class="de-svg-stroke" stroke-width="3" d="M12.5 6.5v-3M18.5 12.5h3M12.5 18.5v3M6.5 12.5h-3M16.7 8.3L19 6M16.7 16.7L19 19M8.3 16.7L6 19M8.3 8.3L6 6"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-hid">
 		<path class="de-svg-stroke" stroke-width="4" d="M6 19L19 6M6 6l13 13"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-fav">
-		<path class="de-svg-fill" d="M12.5 3.5l2.5 6 6.5.5-5 4.2 1.6 6.3-5.5-3.4L7 20.6l1.5-6.3-5-4.2 6.5-.5z"/>
+		<path class="de-svg-fill" d="M12.5 3.5l2.5 6 6.5.5-5 4.2 2 6.8-6-4-6 4 2-6.8-5-4.2 6.5-.5 2.5-6z"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-vid">
 		<path class="de-svg-fill" d="M12.5 4a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zm-1 13c-1.3 1-2.5.2-2.5-1.4V9.4C9 7.8 10.2 7 11.6 8l5.3 3c1.3.8 1.3 2.2 0 3l-5.4 3z"/>
@@ -12342,40 +12342,46 @@ function addSVGIcons() {
 		<path class="de-svg-fill" d="M13 11V4h7"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-arrow">
-		<path class="de-svg-stroke" stroke-width="5" d="M4 12.5h10"/>
+		<path class="de-svg-stroke" stroke-width="5" d="M4 12.5h12"/>
 		<path class="de-svg-fill" d="M14 19V6l7 6.5"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-expimg">
-		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAI9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7"/>
+		<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>
+		<path class="de-svg-stroke" stroke-width="3" d="M8 12.5h9"/>
+		<path class="de-svg-fill" d="M10 8v9l-5-4.5M15 17V8l5 4.5"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-maskimg">
-		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAJQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw=="/>
+		<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>
+		<path class="de-svg-stroke" d="M5 20L20 5M5 15.5L15.5 5M5 11l6-6M20 9.5L9.5 20M20 14l-6 6"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-preimg">
-		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAJFjI+pGwCcHJPGWdoe3Lz7qh1WFJLXiX4qgrbXVEIYadLLnMX4yve+7ErBYorRjXiEeXagGguZAbWaSdHLOow4j8Hrj1EAADs="/>
+		<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>
+		<path class="de-svg-stroke" stroke-width="3" d="M12.5 17V9"/>
+		<path class="de-svg-fill" d="M8 15h9l-4.5 5"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-savethr">
-		<image display="inline" width="25" height="25" xlink:href="data:image/gif;base64,R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs="/>
+		<path class="de-svg-fill" d="M17 4h-1v6H8V4H6C5 4 4 5 4 6v13c0 1 1 2 2 2h13c1 0 2-1 2-2V8zM6 20v-8h13v8H6z"/>
+		<path class="de-svg-stroke" stroke-width="3" d="M12.5 9V4"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-upd">
-		<circle class="de-svg-back" cx="12.5" cy="11.25" r="4"/>
-		<path class="de-svg-stroke" stroke-width="2" stroke-linejoin="round" d="M4.5 12.5q8-10,16 0q-8 10,-16 0z"/>
-		<path class="de-svg-stroke" stroke-width="1" d="M11 7.5l-1.2-2M14 7.5l1.2-2M11 17.5l-1.2 2M14 17.5l1.2 2M7 9l-1.7-1.7M7 16l-1.7 1.7M18 9l1.7 -1.7M18 16l1.7 1.7"/>
+		<circle cx="12.5" cy="10.8" r="4"/>
+		<path class="de-svg-stroke" stroke-width="2" stroke-linejoin="round" d="M4.5 12q8-10,16 0q-8 10,-16 0z"/>
+		<path class="de-svg-stroke" d="M11 7L9.8 5M14 7l1.2-2M11 17l-1.2 2m4.2-2l1.2 2M7 8.5L5.3 6.8M7 15.5l-1.7 1.7M18 8.5l1.7-1.7M18 15.5l1.7 1.7"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-off">
-		<polygon class="de-svg-fill" points="13.5,4 7.3,9.3 3.5,9.3 3.5,15.7 7.3,15.7 7.3,15.7 13.5,21 "/>
-		<path class="de-svg-stroke" stroke-width="2" d="M15 9.5l6 6M21 9.5l-6 6"/>
+		<path class="de-svg-fill" d="M13 21V4L8 9H4v7h4l5 5z"/>
+		<path class="de-svg-stroke" stroke-width="2" d="M15 9.5l6 6m0-6l-6 6"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-on">
-		<polygon class="de-svg-fill" points="13.5,4 7.3,9.3 3.5,9.3 3.5,15.7 7.3,15.7 7.3,15.7 13.5,21 "/>
-		<path class="de-svg-stroke" stroke-width="2" d="M15.5,7.5Q18 12.5,15.5 17.5M18.5,5Q23 12.5,18.5 20"/>
+		<path class="de-svg-fill" d="M13 21V4L8 9H4v7h4z"/>
+		<path class="de-svg-stroke" stroke-width="2" d="M15.5 7.5c1.7 3.3 1.7 6.7 0 10m3-12.5c3 5 3 10 0 15"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-catalog">
-		<path class="de-svg-fill" d="M5 5h3v3H5zM17 5h3v3h-3zM13 5h3v3h-3zM9 5h3v3H9zM5 9h3v3H5zM17 9h3v3h-3zM13 9h3v3h-3zM9 9h3v3H9zM5 13h3v3H5zM17 13h3v3h-3zM13 13h3v3h-3zM9 13h3v3H9zM5 17h3v3H5zM17 17h3v3h-3zM13 17h3v3h-3zM9 17h3v3H9z"/>
+		<path class="de-svg-fill" d="M5 5h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zM9 5h3v3H9zM5 9h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zM9 9h3v3H9zm-4 4h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zm-4 0h3v3H9zm-4 4h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zm-4 0h3v3H9z"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-enable">
-		<line class="de-svg-stroke" stroke-width="3" x1="12.5" y1="4" x2="12.5" y2="12"/>
-		<path class="de-svg-fill" d="M16,5.2c3,1.3,5,4.3,5,7.8c0,4.7-3.8,8.5-8.5,8.5S4,17.7,4,13c0-3.4,2-6.4,5-7.7l0,3.5c-1.2,1-2,2.5-2,4.2c0,3,2.5,5.5,5.5,5.5S18,16,18,13c0-1.7-0.8-3.2-2-4.2V5.2z"/>
+		<path class="de-svg-stroke" stroke-width="3" d="M12.5 4v8"/>
+		<path class="de-svg-fill" d="M16 4.8v4a5 5 0 0 1-3.5 8.7A5 5 0 0 1 9 9V4.7a8.5 8.5 0 1 0 7 0z"/>
 	</symbol>
 	</svg>
 	</div>`);
