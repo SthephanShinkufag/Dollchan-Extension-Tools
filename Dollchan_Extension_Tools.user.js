@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'e0a5367';
+	var commit = '89f7397';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12658,14 +12658,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function hideContent(headerEl, hideBtn, isUser, hide) {
 				if (hide) {
 					hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
+					if (headerEl) {
+						for (var el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
+							el.classList.add('de-post-hiddencontent');
+						}
+					}
 				} else {
 					hideBtn.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
-				}
-				if (headerEl) {
-					var jobName = hide ? 'add' : 'remove';
-					for (var el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
-						el.classList[jobName]('de-post-hiddencontent');
-					}
+					$each($Q('.de-post-hiddencontent', headerEl.parentNode), function (el) {
+						return el.classList.remove('de-post-hiddencontent');
+					});
 				}
 			}
 		}]);
@@ -13732,7 +13734,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				pByEl.set(el, this);
 				el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
 				el.style.display = '';
-				$each($C('de-post-hiddencontent', el), function (node) {
+				$each($Q('.de-post-hiddencontent', el), function (node) {
 					return node.classList.remove('de-post-hiddencontent');
 				});
 				if (Cfg.linksNavig === 2) {
@@ -14175,12 +14177,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function _createEl(innerHTML, isHidden) {
 				var el,
 				    msg = this._post.msg,
-				    isAfterMsg = !aib.dobr || !(el = msg.nextElementSibling),
-				    html = '<div class="de-refmap' + (isHidden && isAfterMsg ? ' de-post-hiddencontent' : '') + '">' + innerHTML + '</div>';
-				if (isAfterMsg) {
-					msg.insertAdjacentHTML('afterend', html);
-				} else {
+				    html = '<div class="de-refmap' + (isHidden ? ' de-post-hiddencontent' : '') + '">' + innerHTML + '</div>';
+				if (aib.dobr && (el = msg.nextElementSibling)) {
 					el.insertAdjacentHTML('beforeend', html);
+				} else {
+					msg.insertAdjacentHTML('afterend', html);
 				}
 			}
 		}, {

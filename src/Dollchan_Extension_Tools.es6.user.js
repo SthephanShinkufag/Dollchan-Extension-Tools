@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'e0a5367';
+var commit = '89f7397';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8997,14 +8997,14 @@ class Post extends AbstractPost {
 	static hideContent(headerEl, hideBtn, isUser, hide) {
 		if(hide) {
 			hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
+			if(headerEl) {
+				for(var el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
+					el.classList.add('de-post-hiddencontent');
+				}
+			}
 		} else {
 			hideBtn.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
-		}
-		if(headerEl) {
-			var jobName = hide ? 'add' : 'remove';
-			for(var el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
-				el.classList[jobName]('de-post-hiddencontent');
-			}
+			$each($Q('.de-post-hiddencontent', headerEl.parentNode), el => el.classList.remove('de-post-hiddencontent'));
 		}
 	}
 	constructor(el, thr, num, count, isOp, prev) {
@@ -9922,7 +9922,7 @@ class Pview extends AbstractPost {
 		pByEl.set(el, this);
 		el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
 		el.style.display = '';
-		$each($C('de-post-hiddencontent', el), node => node.classList.remove('de-post-hiddencontent'));
+		$each($Q('.de-post-hiddencontent', el), node => node.classList.remove('de-post-hiddencontent'));
 		if(Cfg.linksNavig === 2) {
 			Pview._markLink(el, this.parent.num);
 		}
@@ -10247,12 +10247,11 @@ class RefMap {
 	}
 	_createEl(innerHTML, isHidden) {
 		var el, msg = this._post.msg,
-			isAfterMsg = !aib.dobr || !(el = msg.nextElementSibling),
-			html = '<div class="de-refmap' + (isHidden && isAfterMsg ? ' de-post-hiddencontent' : '') + '">' + innerHTML + '</div>';
-		if(isAfterMsg) {
-			msg.insertAdjacentHTML('afterend', html);
-		} else {
+			html = '<div class="de-refmap' + (isHidden ? ' de-post-hiddencontent' : '') + '">' + innerHTML + '</div>';
+		if(aib.dobr && (el = msg.nextElementSibling)) {
 			el.insertAdjacentHTML('beforeend', html);
+		} else {
+			msg.insertAdjacentHTML('afterend', html);
 		}
 	}
 	_getHTML(num, tUrl, isHidden) {
