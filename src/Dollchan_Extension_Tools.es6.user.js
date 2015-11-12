@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '42ec96b';
+var commit = 'c563ee8';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1022,22 +1022,24 @@ Maybe.prototype = {
 };
 
 class TemporaryContent {
-	static get(key, ...initArgs) {
-		var rv = null;
-		if(this.data) {
-			rv = this.data.get(key);
+	constructor(key) {
+		var oClass = /*new.target*/this.constructor; // https://github.com/babel/babel/issues/1088
+		if(oClass.purgeTO) {
+			clearTimeout(oClass.purgeTO);
+		}
+		oClass.purgeTO = setTimeout(() => oClass.purge(), oClass.purgeSecs);
+		if(oClass.data) {
+			var rv = oClass.data.get(key);
+			if(rv) {
+				return rv;
+			}
 		} else {
-			this.data = new Map();
+			oClass.data = new Map();
 		}
-		if(!rv) {
-			rv = new this(...initArgs);
-			this.data.set(key, rv);
-		}
-		if(this.purgeTO) {
-			clearTimeout(this.purgeTO);
-		}
-		this.purgeTO = setTimeout(() => this.purge(), this.purgeSecs);
-		return rv;
+		oClass.data.set(key, this);
+	}
+	static get(key) {
+		return this.data ? this.data.get(key) : null;
 	}
 	static has(key) {
 		return this.data ? this.data.has(key) : false;
@@ -9055,10 +9057,10 @@ class Post extends AbstractPost {
 			.getBoundingClientRect().bottom;
 	}
 	get headerEl() {
-		return PostContent.get(this, this).headerEl;
+		return new PostContent(this).headerEl;
 	}
 	get html() {
-		return PostContent.get(this, this).html;
+		return new PostContent(this).html;
 	}
 	get nextInThread() {
 		var post = this.next;
@@ -9083,19 +9085,19 @@ class Post extends AbstractPost {
 		return value;
 	}
 	get posterName() {
-		return PostContent.get(this, this).posterName;
+		return new PostContent(this).posterName;
 	}
 	get posterTrip() {
-		return PostContent.get(this, this).posterTrip;
+		return new PostContent(this).posterTrip;
 	}
 	get subj() {
-		return PostContent.get(this, this).subj;
+		return new PostContent(this).subj;
 	}
 	get text() {
-		return PostContent.get(this, this).text;
+		return new PostContent(this).text;
 	}
 	get title() {
-		return PostContent.get(this, this).title;
+		return new PostContent(this).title;
 	}
 	get tNum() {
 		return this.thr.num;
@@ -9105,7 +9107,7 @@ class Post extends AbstractPost {
 			.getBoundingClientRect().top;
 	}
 	get wrap() {
-		return PostContent.get(this, this).wrap;
+		return new PostContent(this).wrap;
 	}
 	addFuncs() {
 		super.addFuncs();
@@ -9500,7 +9502,11 @@ Post.sizing = {
 
 class PostContent extends TemporaryContent {
 	constructor(post) {
-		super();
+		super(post);
+		if(this._inited) {
+			return;
+		}
+		this._inited = true;
 		this.el = post.el;
 		this.post = post;
 	}
@@ -9845,7 +9851,7 @@ class Pview extends AbstractPost {
 	}
 	_onload(b, form) {
 		var parentNum = this.parent.num,
-			post = PviewsCache.get(b + this.tNum, form, b, this.tNum).getPost(this.num);
+			post = new PviewsCache(form, b, this.tNum).getPost(this.num);
 		if(post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(parentNum))) {
 			var rm;
 			if(post.ref.hasMap) {
@@ -10034,7 +10040,11 @@ class CacheItem {
 
 class PviewsCache extends TemporaryContent {
 	constructor(form, b, tNum) {
-		super();
+		super(b + tNum);
+		if(this._inited) {
+			return;
+		}
+		this._inited = true;
 		var pBn = new Map(),
 			thr = $q(aib.qThread, form) || form,
 			posts = $Q(aib.qRPost, thr);
