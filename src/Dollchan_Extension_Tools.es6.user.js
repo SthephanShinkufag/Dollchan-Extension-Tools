@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '3202455';
+var commit = '42ec96b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12252,7 +12252,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 		}
 		get css() {
-			return `.fa-sort { display: none; }\
+			return `.fa-sort { display: none; }
 				time::after { content: none; }`;
 		}
 		get markupTags() {
@@ -12558,8 +12558,8 @@ function addSVGIcons() {
 		<path class="de-svg-fill" d="M8 15h9l-4.5 5"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-savethr">
-		<path class="de-svg-fill" d="M17 4h-1v6H8V4H6C5 4 4 5 4 6v13c0 1 1 2 2 2h13c1 0 2-1 2-2V8zM6 20v-8h13v8H6z"/>
-		<path class="de-svg-stroke" stroke-width="3" d="M12.5 9V4"/>
+		<path class="de-svg-fill" d="M18 4h-1v6H8V4H6C5 4 4 5 4 6v13c0 1 1 2 2 2h13c1 0 2-1 2-2V7l-3-3zM6 20v-8h13v8H6z"/>
+		<path class="de-svg-stroke" stroke-width="3" d="M13.5 9V4"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-upd">
 		<circle cx="12.5" cy="10.8" r="4"/>
