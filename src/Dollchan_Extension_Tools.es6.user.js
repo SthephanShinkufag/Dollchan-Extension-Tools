@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'c563ee8';
+var commit = 'ba3a9b4';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -319,17 +319,17 @@ Lng = {
 	},
 
 	panelBtn: {
-		'attach':       ['Прикрепить/Открепить', 'Attach/Detach'],
+		'attach':       ['Прикрепить/Открепить панель', 'Attach/Detach panel'],
 		'cfg':          ['Настройки', 'Settings'],
 		'hid':          ['Скрытое', 'Hidden'],
 		'fav':          ['Избранное', 'Favorites'],
 		'vid':          ['Видео-ссылки', 'Video links'],
 		'refresh':      ['Обновить', 'Refresh'],
-		'goback':       ['Назад', 'Go back'],
-		'gonext':       ['Следующая', 'Next'],
-		'goup':         ['Наверх', 'To the top'],
-		'godown':       ['В конец', 'To the bottom'],
-		'expimg':       ['Раскрыть картинки', 'Expand images'],
+		'goback':       ['Назад на доску', 'Return to board'],
+		'gonext':       ['На %s страницу', 'Go to %s page'],
+		'goup':         ['В начало страницы', 'To the top of page'],
+		'godown':       ['В конец страницы', 'To the bottom of page'],
+		'expimg':       ['Раскрыть все картинки', 'Expand all images'],
 		'preimg':       [
 			'Предзагрузка картинок ([Ctrl+Click] только для новых постов)',
 			'Preload images ([Ctrl+Click] for new posts only)'
@@ -338,7 +338,7 @@ Lng = {
 		'upd-on':       ['Выключить автообновление треда', 'Disable thread autoupdate'],
 		'upd-off':      ['Включить автообновление треда', 'Enable thread autoupdate'],
 		'audio-off':    ['Звуковое оповещение о новых постах', 'Sound notification about new posts'],
-		'catalog':      ['Каталог', 'Catalog'],
+		'catalog':      ['Перейти в каталог', 'Go to catalog'],
 		'counter':      ['Постов/картинок в треде', 'Posts/Images in thread'],
 		'savethr':      ['Сохранить на диск', 'Save to disk'],
 		'enable':       ['Включить/выключить скрипт', 'Turn on/off the script']
@@ -1780,28 +1780,39 @@ var panel = Object.create({
 		Object.defineProperty(this, '_infoEl', { value, configurable: true });
 		return value;
 	},
-	_getButton(id, href = '#') {
-		var html = '<a id="de-panel-' + id + '" class="de-abtn de-panel-button" title="' +
-				Lng.panelBtn[id][lang] + '" href="' + href + '">';
-		var useId;
+	_getButton(id) {
+		var p, href, title, useId;
 		switch(id) {
+		case 'goback':
+			p = Math.max(aib.page - 1, 0);
+			href = aib.getPageUrl(aib.b, p);
+			if(!aib.t) {
+				title = Lng.panelBtn.gonext[lang].replace('%s', p);
+			}
+			useId = 'arrow';
+			break;
+		case 'gonext':
+			p = aib.page + 1;
+			href = aib.getPageUrl(aib.b, p);
+			title = Lng.panelBtn.gonext[lang].replace('%s', p);
+			/* falls through */
 		case 'goup':
 		case 'godown':
-		case 'goback':
-		case 'gonext':
 			useId = 'arrow';
 			break;
 		case 'upd-on':
 		case 'upd-off':
 			useId = 'upd';
 			break;
-		case 'audio-off':
-			return html + '<svg class="de-panel-svg"><use class="de-use-audio-off" xlink:href="#de-symbol-panel-audio-off"/>' +
-				'<use class="de-use-audio-on" xlink:href="#de-symbol-panel-audio-on"/></svg></a>';
-		default: useId = id;
+		case 'catalog':
+			href = aib.prot + '//' + aib.host + '/' + aib.b + '/catalog' + (aib.iich ? 'ue' : '') + '.html';
 		}
 		// XXX nav.Presto: keep in sync with updMachine._setUpdateStatus
-		return html + '<svg class="de-panel-svg"><use xlink:href="#de-symbol-panel-' + useId + '"/></svg></a>';
+		return '<a id="de-panel-' + id + '" class="de-abtn de-panel-button" title="' +
+			(title || Lng.panelBtn[id][lang]) + '" href="' + (href || '#') + '"><svg class="de-panel-svg">' +
+			(id !== 'audio-off' ? '<use xlink:href="#de-symbol-panel-' + (useId || id) + '"/>' :
+				'<use class="de-use-audio-off" xlink:href="#de-symbol-panel-audio-off"/>' +
+				'<use class="de-use-audio-on" xlink:href="#de-symbol-panel-audio-on"/>') + '</svg></a>';
 	},
 	_prepareToHide(rt) {
 		if(!Cfg.expandPanel && !$c('de-win-active', doc) && (!rt || !this._el.contains(rt.farthestViewportElement || rt))) {
@@ -1929,11 +1940,9 @@ var panel = Object.create({
 					(!Cfg.addYouTube ? '' : this._getButton('vid')) +
 					(localRun ? '' :
 						this._getButton('refresh') +
-						(!isThr && (aib.page === aib.firstPage) ? '' :
-							this._getButton('goback', aib.getPageUrl(aib.b, aib.page - 1))) +
-						(isThr || aib.page === aib.lastPage ? '' :
-							this._getButton('gonext', aib.getPageUrl(aib.b, aib.page + 1)))
-					) + this._getButton('goup') +
+						(!isThr && (aib.page === aib.firstPage) ? '' : this._getButton('goback')) +
+						(isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) +
+					this._getButton('goup') +
 					this._getButton('godown') +
 					(imgLen === 0 ? '' :
 						this._getButton('expimg') +
@@ -1944,9 +1953,7 @@ var panel = Object.create({
 					(!isThr || localRun ? '' :
 						this._getButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') +
 						(nav.Safari ? '' : this._getButton('audio-off'))) +
-					(!aib.mak && !aib.tiny && !aib.fch && !aib.iich ? '' :
-						this._getButton('catalog', aib.prot + '//' + aib.host + '/' + aib.b + '/catalog' +
-							(aib.iich ? 'ue' : '') + '.html')) +
+					(!aib.mak && !aib.tiny && !aib.fch && !aib.iich ? '' : this._getButton('catalog')) +
 					this._getButton('enable') +
 					(!isThr ? '' :
 						'<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' +
