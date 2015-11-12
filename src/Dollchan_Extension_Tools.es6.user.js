@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'b5a44b3';
+var commit = 'e0a5367';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9922,6 +9922,7 @@ class Pview extends AbstractPost {
 		pByEl.set(el, this);
 		el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
 		el.style.display = '';
+		$each($C('de-post-hiddencontent', el), node => node.classList.remove('de-post-hiddencontent'));
 		if(Cfg.linksNavig === 2) {
 			Pview._markLink(el, this.parent.num);
 		}
@@ -10198,7 +10199,7 @@ class RefMap {
 		for(var num of this._set) {
 			html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 		}
-		this._createEl(html);
+		this._createEl(html, false);
 		this._inited = true;
 	}
 	makeUnion(oRef) {
@@ -10238,19 +10239,20 @@ class RefMap {
 	get _el() {
 		var value = $c('de-refmap', this._post.el);
 		if(!value) {
-			this._createEl('');
+			this._createEl('', this._post.hidden);
 			value = $c('de-refmap', this._post.el);
 		}
 		Object.defineProperty(this, '_el', { configurable: true, value });
 		return value;
 	}
-	_createEl(innerHTML) {
-		var el, html = '<div class="de-refmap">' + innerHTML + '</div>',
-			msg = this._post.msg;
-		if(aib.dobr && (el = msg.nextElementSibling)) {
-			el.insertAdjacentHTML('beforeend', html);
-		} else {
+	_createEl(innerHTML, isHidden) {
+		var el, msg = this._post.msg,
+			isAfterMsg = !aib.dobr || !(el = msg.nextElementSibling),
+			html = '<div class="de-refmap' + (isHidden && isAfterMsg ? ' de-post-hiddencontent' : '') + '">' + innerHTML + '</div>';
+		if(isAfterMsg) {
 			msg.insertAdjacentHTML('afterend', html);
+		} else {
+			el.insertAdjacentHTML('beforeend', html);
 		}
 	}
 	_getHTML(num, tUrl, isHidden) {

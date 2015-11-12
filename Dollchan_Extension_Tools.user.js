@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'b5a44b3';
+	var commit = 'e0a5367';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -13732,6 +13732,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				pByEl.set(el, this);
 				el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
 				el.style.display = '';
+				$each($C('de-post-hiddencontent', el), function (node) {
+					return node.classList.remove('de-post-hiddencontent');
+				});
 				if (Cfg.linksNavig === 2) {
 					Pview._markLink(el, this.parent.num);
 				}
@@ -14108,7 +14111,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 				}
-				this._createEl(html);
+				this._createEl(html, false);
 				this._inited = true;
 			}
 		}, {
@@ -14169,14 +14172,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: '_createEl',
-			value: function _createEl(innerHTML) {
+			value: function _createEl(innerHTML, isHidden) {
 				var el,
-				    html = '<div class="de-refmap">' + innerHTML + '</div>',
-				    msg = this._post.msg;
-				if (aib.dobr && (el = msg.nextElementSibling)) {
-					el.insertAdjacentHTML('beforeend', html);
-				} else {
+				    msg = this._post.msg,
+				    isAfterMsg = !aib.dobr || !(el = msg.nextElementSibling),
+				    html = '<div class="de-refmap' + (isHidden && isAfterMsg ? ' de-post-hiddencontent' : '') + '">' + innerHTML + '</div>';
+				if (isAfterMsg) {
 					msg.insertAdjacentHTML('afterend', html);
+				} else {
+					el.insertAdjacentHTML('beforeend', html);
 				}
 			}
 		}, {
@@ -14189,7 +14193,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			get: function get() {
 				var value = $c('de-refmap', this._post.el);
 				if (!value) {
-					this._createEl('');
+					this._createEl('', this._post.hidden);
 					value = $c('de-refmap', this._post.el);
 				}
 				Object.defineProperty(this, '_el', { configurable: true, value: value });
