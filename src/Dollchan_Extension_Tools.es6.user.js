@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'bbbf420';
+var commit = '0eeef9f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1623,8 +1623,8 @@ function* readUserPosts(form = DelForm.first) {
 		if(post.isOp) {
 			if(num in hThr[b]) {
 				vis = '0';
-			} else if(vis === '0') {
-				vis = null;
+			} else if(spellsHide) {
+				vis = sVis[post.count];
 			}
 		} else if(spellsHide) {
 			vis = sVis[post.count];
@@ -6509,7 +6509,13 @@ function PostForm(form, ignoreForm, dc) {
 	this.subj = $x(p + '(@name="field3" or @name="sub" or @name="subject" or @name="internal_s" or @name="nya3" or @name="kasumi")]', form);
 	this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
 	this.gothr = aib.qPostRedir && (p = $q(aib.qPostRedir, form)) && $parent(p, 'TR');
-	this.pForm = $New('div', {'id': 'de-pform', 'class': 'de-win-body'}, [this.form, this.oeForm]);
+	this.pForm = $add('<div id="de-pform" class="de-win-body"></div>');
+	if(this.form) {
+		this.pForm.appendChild(this.form);
+	}
+	if(this.oeForm) {
+		this.pForm.appendChild(this.oeForm);
+	}
 	DelForm.first.el.insertAdjacentHTML('beforebegin',
 		'<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
 	this.pArea[0] = DelForm.first.el.previousSibling;

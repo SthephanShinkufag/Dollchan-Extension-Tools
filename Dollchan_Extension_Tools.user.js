@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'bbbf420';
+	var commit = '0eeef9f';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4568,8 +4568,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					if (num in hThr[b]) {
 						vis = '0';
-					} else if (vis === '0') {
-						vis = null;
+					} else if (spellsHide) {
+						vis = sVis[post.count];
 					}
 					_context5.next = 30;
 					break;
@@ -9751,7 +9751,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		this.subj = $x(p + '(@name="field3" or @name="sub" or @name="subject" or @name="internal_s" or @name="nya3" or @name="kasumi")]', form);
 		this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
 		this.gothr = aib.qPostRedir && (p = $q(aib.qPostRedir, form)) && $parent(p, 'TR');
-		this.pForm = $New('div', { 'id': 'de-pform', 'class': 'de-win-body' }, [this.form, this.oeForm]);
+		this.pForm = $add('<div id="de-pform" class="de-win-body"></div>');
+		if (this.form) {
+			this.pForm.appendChild(this.form);
+		}
+		if (this.oeForm) {
+			this.pForm.appendChild(this.oeForm);
+		}
 		DelForm.first.el.insertAdjacentHTML('beforebegin', '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
 		this.pArea[0] = DelForm.first.el.previousSibling;
 		this._pBtn[0] = this.pArea[0].firstChild;
