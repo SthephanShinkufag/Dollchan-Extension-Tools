@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'ba3a9b4';
+var commit = '8054149';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -36,8 +36,8 @@ var defaultCfg = {
 	'updThrDelay':      20,     //    threads update interval in sec
 	'noErrInTitle':     0,      //    don't show error number in title except 404
 	'favIcoBlink':      0,      //    favicon blinking, if new posts detected
-	'markNewPosts':     1,      //    new posts marking on page focus
 	'desktNotif':       0,      //    desktop notifications, if new posts detected
+	'markNewPosts':     1,      //    new posts marking on page focus
 	'updCount':         1,      //    show countdown for thread updater
 	'hideReplies':      0,      // show only op-posts in threads list
 	'updThrBtns':       1,      // updater buttons in threads list
@@ -46,7 +46,7 @@ var defaultCfg = {
 	'postBtnsBack':     '#8C8C8C',      // custom background color
 	'showHideBtn':      1,      // show post hide button
 	'showRepBtn':       1,      // show post reply button
-	'noSpoilers':       1,      // open spoilers
+	'noSpoilers':       1,      // expand text spoilers [0=off, 1=grey, 2=native]
 	'noPostNames':      0,      // hide post names
 	'widePosts':        0,      // stretch posts to the screen width
 	'correctTime':      0,      // correct time in posts
@@ -147,7 +147,7 @@ var defaultCfg = {
 
 Lng = {
 	cfg: {
-		'hideBySpell':  ['Заклинания: ', 'Magic spells: '],
+		'hideBySpell':  ['Спеллы: ', 'Magic spells: '],
 		'sortSpells':   ['Сортировать спеллы и удалять дубликаты', 'Sort spells and delete duplicates'],
 		'menuHiddBtn':  ['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
 		'hideRefPsts':  ['Скрывать ответы на скрытые посты*', 'Hide replies to hidden posts*'],
@@ -156,9 +156,9 @@ Lng = {
 		'ajaxUpdThr':   ['AJAX обновление треда ', 'AJAX thread update '],
 		'updThrDelay':  [' (сек)', ' (sec)'],
 		'noErrInTitle': ['Не показывать номер ошибки в заголовке', 'Don\'t show error number in title'],
-		'favIcoBlink':  ['Мигать фавиконом при новых постах', 'Favicon blinking on new posts'],
+		'favIcoBlink':  ['Мигать фавиконом при новых постах', 'Favicon blinking for new posts'],
+		'desktNotif':   ['Уведомлять на рабочем столе при новых постах', 'Desktop notifications for new posts'],
 		'markNewPosts': ['Выделять новые посты при смене вкладки', 'Mark new posts when tab changes'],
-		'desktNotif':   ['Уведомления на рабочем столе', 'Desktop notifications'],
 		'updCount':     ['Обратный счетчик секунд до обновления', 'Show countdown to thread update'],
 		'hideReplies':  ['Показывать только оп-посты в списке тредов*', 'Show only op-posts in threads list*'],
 		'updThrBtns':   ['Кнопки получения новых постов в списке тредов', 'Get-new-posts buttons in threads list'],
@@ -170,7 +170,10 @@ Lng = {
 		'postBtnsBack': [' Пользовательский фон кнопок постов', ' Custom background for post buttons'],
 		'showHideBtn':  ['Скрытие ', 'Post hide '],
 		'showRepBtn':   ['Ответ', 'Post reply'],
-		'noSpoilers':   ['Раскрывать спойлеры ', 'Open text spoilers '],
+		'noSpoilers':{
+			sel:        [['Откл.', 'Серое', 'Родное'], ['Disable', 'Grey', 'Native']],
+			txt:        ['Раскрытие текстовых спойлеров', 'Text spoilers expanding']
+		},
 		'noPostNames':  ['Скрывать имена в постах', 'Hide names in posts'],
 		'widePosts':    ['Растягивать посты по ширине экрана', 'Stretch posts to the screen width'],
 		'hotKeys':      ['Горячие клавиши ', 'Keyboard hotkeys '],
@@ -326,9 +329,9 @@ Lng = {
 		'vid':          ['Видео-ссылки', 'Video links'],
 		'refresh':      ['Обновить', 'Refresh'],
 		'goback':       ['Назад на доску', 'Return to board'],
-		'gonext':       ['На %s страницу', 'Go to %s page'],
-		'goup':         ['В начало страницы', 'To the top of page'],
-		'godown':       ['В конец страницы', 'To the bottom of page'],
+		'gonext':       ['На страницу %s', 'Go to page %s'],
+		'goup':         ['В начало страницы', 'To top of page'],
+		'godown':       ['В конец страницы', 'To bottom of page'],
 		'expimg':       ['Раскрыть все картинки', 'Expand all images'],
 		'preimg':       [
 			'Предзагрузка картинок ([Ctrl+Click] только для новых постов)',
@@ -412,7 +415,7 @@ Lng = {
 		'%l%i26 – open/close "Favorites"%/l',
 		'%l%i27 – open/close "Hidden"%/l',
 		'%l%i218 – open/close "Videos"%/l',
-		'%l%i28 – open/close the main panel%/l',
+		'%l%i28 – open/close main panel%/l',
 		'%l%i29 – turn on/off masking images%/l',
 		'%l%i40 – update thread%/l',
 		'%l%i212t – bold%/l',
@@ -700,8 +703,8 @@ function $txt(el) {
 	return doc.createTextNode(el);
 }
 
-function $btn(val, ttl, Fn) {
-	return $new('input', {'type': 'button', 'class': 'de-button', 'value': val, 'title': ttl}, {'click': Fn});
+function $btn(val, ttl, Fn, className = 'de-button') {
+	return $new('input', {'type': 'button', 'class': className, 'value': val, 'title': ttl}, {'click': Fn});
 }
 
 function $script(text) {
@@ -2724,7 +2727,7 @@ function fixSettings() {
 }
 
 function lBox(id, isBlock, fn) {
-	var el = $new('input', {'info': id, 'type': 'checkbox'}, {'click'() {
+	var el = $new('input', {'class': 'de-cfg-chkbox', 'info': id, 'type': 'checkbox'}, {'click'() {
 		toggleCfg(this.getAttribute('info'));
 		fixSettings();
 		if(fn) {
@@ -2732,11 +2735,12 @@ function lBox(id, isBlock, fn) {
 		}
 	}});
 	el.checked = Cfg[id];
-	return $New('label', isBlock ? {'class': 'de-block'} : null, [el, $txt(' ' + Lng.cfg[id][lang])]);
+	return $New('label', {'class': 'de-cfg-label' + (isBlock ? ' de-block' : '')},
+		[el, $txt(' ' + Lng.cfg[id][lang])]);
 }
 
 function inpTxt(id, size, Fn) {
-	return $new('input', {'info': id, 'type': 'text', 'size': size, 'value': Cfg[id]}, {
+	return $new('input', {'class': 'de-cfg-inptxt', 'info': id, 'type': 'text', 'size': size, 'value': Cfg[id]}, {
 		'keyup': Fn ? Fn : function() {
 			saveCfg(this.getAttribute('info'), this.value);
 		}
@@ -2748,13 +2752,14 @@ function optSel(id, isBlock, Fn, className = '') {
 	for(var i = 0, len = x.sel[lang].length; i < len; i++) {
 		opt += '<option value="' + i + '">' + x.sel[lang][i] + '</option>';
 	}
-	el = $add('<select info="' + id + '">' + opt + '</select>');
+	el = $add('<select class="de-cfg-select" info="' + id + '">' + opt + '</select>');
 	el.addEventListener('change', Fn || function() {
 		saveCfg(this.getAttribute('info'), this.selectedIndex);
 		fixSettings();
 	});
 	el.selectedIndex = Cfg[id];
-	return $New('label', {'class': className + (isBlock ? ' de-block' : '')}, [el, $txt(' ' + x.txt[lang])]);
+	return $New('label', {'class': className + (isBlock ? ' de-block' : '') + ' de-cfg-label'},
+		[el, $txt(' ' + x.txt[lang])]);
 }
 
 function updRowMeter(node) {
@@ -2835,21 +2840,19 @@ function getCfgPosts() {
 					updater.disable();
 				}
 			} : null),
-			$New('label', null, [
-				inpTxt('updThrDelay', 1, null),
-				$txt(Lng.cfg.updThrDelay[lang])
-			]),
+			inpTxt('updThrDelay', 1, null),
+			$txt(Lng.cfg.updThrDelay[lang]),
 			$New('div', {'class': 'de-cfg-depend'}, [
 				lBox('noErrInTitle', true, null),
 				lBox('favIcoBlink', true, null),
-				lBox('markNewPosts', true, function() {
-					Thread.first.clearPostsMarks();
-				}),
 				$if('Notification' in window, lBox('desktNotif', true, function() {
 					if(Cfg.desktNotif) {
 						Notification.requestPermission();
 					}
 				})),
+				lBox('markNewPosts', true, function() {
+					Thread.first.clearPostsMarks();
+				}),
 				lBox('updCount', true, function() {
 					updater.toggleCounter(Cfg.updCount);
 				})
@@ -2881,8 +2884,11 @@ function getCfgPosts() {
 			}),
 			$txt(Lng.cfg.postBtnsBack[lang])
 		]),
-		lBox('noSpoilers', false, updateCSS),
-		lBox('noPostNames', false, updateCSS),
+		optSel('noSpoilers', true, function() {
+			saveCfg('noSpoilers', this.selectedIndex);
+			updateCSS();
+		}),
+		lBox('noPostNames', true, updateCSS),
 		lBox('widePosts', true, updateCSS),
 		$New('div', null, [
 			lBox('correctTime', false, DateTime.toggleSettings),
@@ -3045,7 +3051,7 @@ function getCfgForm() {
 			$btn(Lng.change[lang], '', function() {
 				$q('input[info="passwValue"]', doc).value = Math.round(Math.random() * 1e15).toString(32);
 				PostForm.setUserPassw();
-			})
+			}, 'de-cfg-button')
 		])),
 		$if(pr.name, $New('div', null, [
 			inpTxt('nameValue', 9, PostForm.setUserName),
@@ -3082,7 +3088,7 @@ function getCfgCommon() {
 					updateCSS();
 					toggleWindow('cfg', true);
 				});
-			})
+			}, 'de-cfg-button')
 		]),
 		lBox('panelCounter', true, updateCSS),
 		lBox('rePageTitle', true, null),
@@ -3112,7 +3118,7 @@ function getCfgCommon() {
 					el.addEventListener('keydown', fn, true);
 					el.addEventListener('keyup', fn, true);
 				});
-			})
+			}, 'de-cfg-button')
 		]),
 		$New('div', {'class': 'de-cfg-depend'}, [
 			inpTxt('loadPages', 1, null),
@@ -3127,12 +3133,13 @@ function getCfgCommon() {
 					spawn(getStoredObj, 'DESU_Config')
 						.then(val => checkForUpdates(true, val.lastUpd))
 						.then(html => $popup(html, 'updavail', false), emptyFn);
-				})
+				}, 'de-cfg-button')
 			])
 		])),
 		$if(nav.isGlobal, $New('div', null, [
 			$txt(Lng.cfg['excludeList'][lang]),
-			$new('input', {'type': 'text', 'id': 'de-exclude-edit', 'style': 'display: block; width: 80%;',
+			$new('input', {'type': 'text', 'id': 'de-exclude-edit', 'class': 'de-cfg-inptxt',
+				'style': 'display: block; width: 80%;',
 				'value': excludeList,
 				'placeholder': '4chan.org, 8ch.net, ...'}, {
 				'keyup'() {
@@ -3212,7 +3219,7 @@ function getCfgInfo() {
 	]);
 }
 
-function addEditButton(name, getDataFn) {
+function addEditButton(name, getDataFn, className = 'de-button') {
 	return $btn(Lng.edit[lang], Lng.editInTxt[lang], () => getDataFn(function(val, isJSON, saveFn) {
 		var el = $popup('<b>' + Lng.editor[name][lang] + '</b>' +
 				'<textarea class="de-editor"></textarea>', 'edit-' + name, false),
@@ -3232,7 +3239,7 @@ function addEditButton(name, getDataFn) {
 				}
 			}
 		}.bind(ta, saveFn) : saveFn.bind(ta)));
-	}));
+	}), className);
 }
 
 function cfgTabClick(e) {
@@ -11302,7 +11309,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 			this.timePattern = 'dd+nn+yy+w+hh+ii+ss';
 		}
-		get css() {
+		get cssEn() {
 			return `.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }
 			.captcha-image > img { cursor: pointer; }
 			#de-txt-panel { font-size: 16px !important; }
@@ -11421,7 +11428,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.docExt = '.htm';
 			this.thrid = 'resto';
 		}
-		get css() {
+		get cssEn() {
 			return `.ftbl { width: auto; margin: 0; }
 				.reply { background: #f0e0d6; }
 				span { font-size: inherit; }`;
@@ -11488,7 +11495,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 			this.thrid = 'thread';
 		}
-		get css() {
+		get cssEn() {
 			return `.banner, ${this.t ? '' : '.de-btn-rep,'} .hide-thread-link, .mentioned, .post-hover { display: none !important; }
 				div.post.reply { float: left; clear: left; display: block; }`;
 		}
@@ -11533,7 +11540,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.multiFile = true;
 		}
-		get css() {
+		get cssEn() {
 			return `.banner, ${this.t ? '' : '.de-btn-rep,'} .hide-thread-link, .mentioned, .post-hover { display: none !important; }
 				div.post.reply { float: left; clear: left; display: block; }
 				.boardlist { position: static !important; }
@@ -11575,7 +11582,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.markupBB = true;
 		}
-		get css() {
+		get cssEn() {
 			return `.extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }
 				.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }`;
 		}
@@ -11607,7 +11614,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 			this.res = 'thread/';
 		}
-		get css() {
+		get cssEn() {
 			return '.content > hr, .de-parea > hr { display: none !important }';
 		}
 		fixFileInputs(el) {
@@ -11628,13 +11635,13 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibEngines['link[href$="phutaba.css"]'] = Phutaba;
 
-	class DivManic extends BaseBoard {
+	class Claire extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
 
 			this.qDForm = '#mainc';
 		}
-		get css() {
+		get cssEn() {
 			return '.reply { background-color: #e4e4d6; }';
 		}
 		getPageUrl(b, p) {
@@ -11662,7 +11669,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.docExt = '';
 		}
 	}
-	ibEngines['div#mainc'] = DivManic;
+	ibEngines['div#mainc'] = Claire;
 
 	class _02chNet extends BaseBoard {
 		constructor(prot, dm) {
@@ -11932,10 +11939,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['arhivach.org'] = Arhivach;
 
 	class Diochan extends Kusaba {
-		constructor(prot, dm) {
-			super(prot, dm);
-			this.dio = true;
-		}
 		get css() {
 			return '.resize { display: none; }';
 		}
@@ -13430,20 +13433,22 @@ function scriptCSS() {
 	// Settings window
 	'.de-block { display: block; }\
 	#de-btn-addspell { margin-left: auto; }\
-	.de-cfg-body { min-height: 309px; padding: 11px 7px 7px; margin-top: -1px; font: 13px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
-	.de-cfg-body input[type="text"], .de-cfg-body select { width: auto; padding: 1px 2px; margin: 1px 0; font: 13px arial; }\
-	.de-cfg-body input[type="checkbox"] { ' + (nav.Presto ? '' : 'vertical-align: -1px; ') + 'margin: 2px 1px; }\
-	.de-cfg-body label { padding: 0; margin: 0; }\
-	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\
-	.de-cfg-body:lang(de), #de-cfg-buttons:lang(de) { border-color: #444; }\
-	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; font-size: 13px; }\
-	.de-cfg-lang-select { flex: 1 0 auto; }\
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }\
 	#de-cfg-bar:lang(fr) { background-color: #1f2740; }\
 	#de-cfg-bar:lang(en) { background-color: #325f9e; }\
 	#de-cfg-bar:lang(de) { background-color: #777; }\
 	#de-cfg-bar:lang(es) { background-color: rgba(0,20,80,.72); }\
+	.de-cfg-body { min-height: 315px; padding: 9px 7px 7px; margin-top: -1px; font: 13px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
+	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\
+	.de-cfg-body:lang(de), #de-cfg-buttons:lang(de) { border-color: #444; }\
+	.de-cfg-button { padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 0 2px; height: 22px; font: 12px arial; }\
+	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; font-size: 13px; }\
+	.de-cfg-chkbox { ' + (nav.Presto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\
 	.de-cfg-depend { padding-left: 17px; }\
+	.de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 0 !important; font: 13px arial !important; line-height: 15px !important; }\
+	.de-cfg-label { padding: 0; margin: 0; line-height: 17px; }\
+	.de-cfg-lang-select { flex: 1 0 auto; }\
+	.de-cfg-select { height: 17px; padding: 0 2px; margin: 1px 0; font: 13px arial; }\
 	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
 	.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
 	.de-cfg-tab:lang(fr) { border-color: #121421 !important; }\
@@ -13656,7 +13661,7 @@ function scriptCSS() {
 	.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
 	.de-popup-btn:not(.de-wait) + div { margin-top: .15em; }\
 	.de-popup-msg { display: inline-block; }\
-	.de-button { flex: none; padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 1px; height: 24px; font: 12px arial; }\
+	.de-button { flex: none; padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 0 2px; height: 24px; font: 12px arial; }\
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\
 	.de-input-key { height: 12px }\
@@ -13724,14 +13729,12 @@ function updateCSS() {
 	if(!aib.dobr && !aib.krau && !aib.mak) {
 		x += '.de-img-full { margin: 2px 5px; }';
 	}
-	if(Cfg.noSpoilers) {
-		if(aib.krau || aib.fch || aib._410 || aib.dio) {
-			x += '.spoiler, s { color: #fff !important; }\
-				.spoiler > a, s > a:not(:hover) { color: inherit !important; }';
-		} else {
-			x += '.spoiler { color: inherit !important; }\
-				.spoiler > a { color: inherit !important; }';
-		}
+	if(Cfg.noSpoilers === 1) {
+		x += '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\
+			.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }';
+	} else if(Cfg.noSpoilers === 2) {
+		x += '.spoiler, s { color: inherit !important; }\
+			.spoiler > a, s > a:not(:hover) { color: inherit !important; }';
 	}
 	if(Cfg.widePosts) {
 		x += '.' + aib.cReply.replace(/\s/, '.') + ':not(.de-pview) { float: none; width: 100%; }';
