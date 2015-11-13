@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '8054149';
+var commit = 'bbbf420';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11309,7 +11309,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 			this.timePattern = 'dd+nn+yy+w+hh+ii+ss';
 		}
-		get cssEn() {
+		get css() {
 			return `.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }
 			.captcha-image > img { cursor: pointer; }
 			#de-txt-panel { font-size: 16px !important; }
@@ -11428,7 +11428,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.docExt = '.htm';
 			this.thrid = 'resto';
 		}
-		get cssEn() {
+		get css() {
 			return `.ftbl { width: auto; margin: 0; }
 				.reply { background: #f0e0d6; }
 				span { font-size: inherit; }`;
@@ -11495,7 +11495,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 			this.thrid = 'thread';
 		}
-		get cssEn() {
+		get css() {
 			return `.banner, ${this.t ? '' : '.de-btn-rep,'} .hide-thread-link, .mentioned, .post-hover { display: none !important; }
 				div.post.reply { float: left; clear: left; display: block; }`;
 		}
@@ -11540,10 +11540,8 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.multiFile = true;
 		}
-		get cssEn() {
-			return `.banner, ${this.t ? '' : '.de-btn-rep,'} .hide-thread-link, .mentioned, .post-hover { display: none !important; }
-				div.post.reply { float: left; clear: left; display: block; }
-				.boardlist { position: static !important; }
+		get css() {
+			return super.css + `.boardlist { position: static !important; }
 				body { padding: 0 5px !important; }
 				.fileinfo { width: 250px; }
 				.multifile { width: auto !important; }
@@ -11582,7 +11580,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.markupBB = true;
 		}
-		get cssEn() {
+		get css() {
 			return `.extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }
 				.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }`;
 		}
@@ -11614,7 +11612,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 			this.res = 'thread/';
 		}
-		get cssEn() {
+		get css() {
 			return '.content > hr, .de-parea > hr { display: none !important }';
 		}
 		fixFileInputs(el) {
@@ -11641,7 +11639,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.qDForm = '#mainc';
 		}
-		get cssEn() {
+		get css() {
 			return '.reply { background-color: #e4e4d6; }';
 		}
 		getPageUrl(b, p) {
@@ -11750,7 +11748,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
 		}
 		get css() {
-			return '#resizer { display: none; }';
+			return super.css + '#resizer { display: none; }';
 		}
 		get markupTags() {
 			return ['**', '*', '__', '^^', '%%', '`', '', '', 'q'];
@@ -11875,7 +11873,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 	class _8chNet extends Vichan {
 		get css() {
-			return '#post-moderation-fields { display: initial !important; }';
+			return super.css + '#post-moderation-fields { display: initial !important; }';
 		}
 	}
 	ibDomains['8ch.net'] = _8chNet;
@@ -11940,7 +11938,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 	class Diochan extends Kusaba {
 		get css() {
-			return '.resize { display: none; }';
+			return super.css + '.resize { display: none; }';
 		}
 	}
 	ibDomains['diochan.com'] = Diochan;
@@ -12160,7 +12158,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.cOPost = 'op';
 		}
 		get css() {
-			return `.sidearrows { display: none !important; }
+			return super.css + `.sidearrows { display: none !important; }
 				.bar { position: static; }`;
 		}
 	}
@@ -12251,7 +12249,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.cOPost = 'opContainer';
 		}
 		get css() {
-			return `.mature_thread { display: block !important; }
+			return super.css + `.mature_thread { display: block !important; }
 				.mature_warning { display: none; }`;
 		}
 		init() {
@@ -12272,7 +12270,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 		}
 		get css() {
-			return `.fa-sort { display: none; }
+			return super.css + `.fa-sort { display: none; }
 				time::after { content: none; }`;
 		}
 		get markupTags() {
@@ -13752,7 +13750,7 @@ function updateCSS() {
 		(aib._2chru ? '' : '.thumbnailmsg, ') +
 		(!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') +
 		'body > hr { display: none !important; }';
-	$id('de-css-dynamic').textContent = x + '\n' + aib.css + '\n' + aib.cssEn;
+	$id('de-css-dynamic').textContent = x + '\n' + aib.css;
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 }
 

@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '8054149';
+	var commit = 'bbbf420';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15494,7 +15494,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return false;
 				}
 			}, {
-				key: 'cssEn',
+				key: 'css',
 				get: function get() {
 					return '.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t.mess-post { display: block; }\n\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; }' : '');
 				}
@@ -15579,7 +15579,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 				}
 			}, {
-				key: 'cssEn',
+				key: 'css',
 				get: function get() {
 					return '.ftbl { width: auto; margin: 0; }\n\t\t\t\t.reply { background: #f0e0d6; }\n\t\t\t\tspan { font-size: inherit; }';
 				}
@@ -15687,7 +15687,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return false;
 				}
 			}, {
-				key: 'cssEn',
+				key: 'css',
 				get: function get() {
 					return '.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }';
 				}
@@ -15746,9 +15746,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return false;
 				}
 			}, {
-				key: 'cssEn',
+				key: 'css',
 				get: function get() {
-					return '.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\tdiv.post.reply { float: left; clear: left; display: block; }\n\t\t\t\t.boardlist { position: static !important; }\n\t\t\t\tbody { padding: 0 5px !important; }\n\t\t\t\t.fileinfo { width: 250px; }\n\t\t\t\t.multifile { width: auto !important; }\n\t\t\t\t#expand-all-images, #expand-all-images + .unimportant, .post-btn, small { display: none !important; }';
+					return _get(Object.getPrototypeOf(Vichan.prototype), 'css', this) + '.boardlist { position: static !important; }\n\t\t\t\tbody { padding: 0 5px !important; }\n\t\t\t\t.fileinfo { width: 250px; }\n\t\t\t\t.multifile { width: auto !important; }\n\t\t\t\t#expand-all-images, #expand-all-images + .unimportant, .post-btn, small { display: none !important; }';
 				}
 			}]);
 
@@ -15781,7 +15781,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return src.replace(/\?[^?]+$|$/, '?' + Math.random());
 				}
 			}, {
-				key: 'cssEn',
+				key: 'css',
 				get: function get() {
 					return '.extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }\n\t\t\t\t.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
 				}
@@ -15838,7 +15838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return !!$q('.sage', post);
 				}
 			}, {
-				key: 'cssEn',
+				key: 'css',
 				get: function get() {
 					return '.content > hr, .de-parea > hr { display: none !important }';
 				}
@@ -15901,7 +15901,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this.docExt = '';
 				}
 			}, {
-				key: 'cssEn',
+				key: 'css',
 				get: function get() {
 					return '.reply { background-color: #e4e4d6; }';
 				}
@@ -16053,7 +16053,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'css',
 				get: function get() {
-					return '#resizer { display: none; }';
+					return _get(Object.getPrototypeOf(_410chanOrg.prototype), 'css', this) + '#resizer { display: none; }';
 				}
 			}, {
 				key: 'markupTags',
@@ -16233,7 +16233,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_createClass(_8chNet, [{
 				key: 'css',
 				get: function get() {
-					return '#post-moderation-fields { display: initial !important; }';
+					return _get(Object.getPrototypeOf(_8chNet.prototype), 'css', this) + '#post-moderation-fields { display: initial !important; }';
 				}
 			}]);
 
@@ -16351,7 +16351,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_createClass(Diochan, [{
 				key: 'css',
 				get: function get() {
-					return '.resize { display: none; }';
+					return _get(Object.getPrototypeOf(Diochan.prototype), 'css', this) + '.resize { display: none; }';
 				}
 			}]);
 
@@ -16661,7 +16661,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_createClass(Lainchan, [{
 				key: 'css',
 				get: function get() {
-					return '.sidearrows { display: none !important; }\n\t\t\t\t.bar { position: static; }';
+					return _get(Object.getPrototypeOf(Lainchan.prototype), 'css', this) + '.sidearrows { display: none !important; }\n\t\t\t\t.bar { position: static; }';
 				}
 			}]);
 
@@ -16801,7 +16801,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'css',
 				get: function get() {
-					return '.mature_thread { display: block !important; }\n\t\t\t\t.mature_warning { display: none; }';
+					return _get(Object.getPrototypeOf(Ponychan.prototype), 'css', this) + '.mature_thread { display: block !important; }\n\t\t\t\t.mature_warning { display: none; }';
 				}
 			}]);
 
@@ -16845,7 +16845,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'css',
 				get: function get() {
-					return '.fa-sort { display: none; }\n\t\t\t\ttime::after { content: none; }';
+					return _get(Object.getPrototypeOf(Synch.prototype), 'css', this) + '.fa-sort { display: none; }\n\t\t\t\ttime::after { content: none; }';
 				}
 			}, {
 				key: 'markupTags',
@@ -18142,7 +18142,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			x += '.' + aib.cReply.replace(/\s/, '.') + ':not(.de-pview) { float: none; width: 100%; }';
 		}
 		x += '.postarea, .recaptcha_image_cell + td, .recaptcha_image_cell + td + td, small[id^="rfmap"], .theader, ' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + (Cfg.imgNavBtns ? '' : '#de-img-btn-next, #de-img-btn-prev, ') + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + (Cfg.showRepBtn ? '' : '.de-btn-rep, ') + (Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (Cfg.delHiddPost ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (Cfg.noPostNames ? aib.qName + ', .' + aib.cTrip + ', ' : '') + (Cfg.noBoardRule ? (aib.mak ? '.rules-area' : aib.krau ? '#rules_row' : aib.futa ? '.chui' : '.rules, #rules') + ', ' : '') + (aib._2chru ? '' : '.thumbnailmsg, ') + (!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + 'body > hr { display: none !important; }';
-		$id('de-css-dynamic').textContent = x + '\n' + aib.css + '\n' + aib.cssEn;
+		$id('de-css-dynamic').textContent = x + '\n' + aib.css;
 		$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 	}
 
