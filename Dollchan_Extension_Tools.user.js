@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readUserPosts, readFavoritesPosts, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '0eeef9f';
+	var commit = '6b46f19';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4951,7 +4951,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return;
 				default:
 				
-					this._prepareToHide(e.relatedTarget);
+					this._prepareToHide(fixEventEl(e.relatedTarget));
 					switch (el.id) {
 						case 'de-panel-refresh':
 						case 'de-panel-savethr':
@@ -6350,7 +6350,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					isOverEvent = true;
 								case 'mouseout':
 					clearTimeout(this._closeTO);
-					var rt = e.relatedTarget;
+					var rt = fixEventEl(e.relatedTarget);
 					rt = rt && rt.farthestViewportElement || rt;
 					if (!rt || rt !== this._el && !this._el.contains(rt)) {
 						if (isOverEvent) {
@@ -14888,9 +14888,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					});
 					break;
 				case 'mouseover':
-					this._expandCollapse(true, e.relatedTarget);break;
+					this._expandCollapse(true, fixEventEl(e.relatedTarget));break;
 				case 'mouseout':
-					this._expandCollapse(false, e.relatedTarget);break;
+					this._expandCollapse(false, fixEventEl(e.relatedTarget));break;
 				case 'click':
 					this._handleClick(e);break;
 			}

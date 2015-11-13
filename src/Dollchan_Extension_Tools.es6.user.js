@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '0eeef9f';
+var commit = '6b46f19';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1918,7 +1918,7 @@ var panel = Object.create({
 			}
 			return;
 		default: // mouseout
-			this._prepareToHide(e.relatedTarget);
+			this._prepareToHide(fixEventEl(e.relatedTarget));
 			switch(el.id) {
 			case 'de-panel-refresh':
 			case 'de-panel-savethr':
@@ -3512,7 +3512,7 @@ Menu.prototype = {
 			/* fall through */
 		case 'mouseout':
 			clearTimeout(this._closeTO);
-			var rt = e.relatedTarget;
+			var rt = fixEventEl(e.relatedTarget);
 			rt = rt && rt.farthestViewportElement || rt;
 			if(!rt || (rt !== this._el && !this._el.contains(rt))) {
 				if(isOverEvent) {
@@ -10855,8 +10855,8 @@ var navPanel = {
 				}
 			});
 			break;
-		case 'mouseover': this._expandCollapse(true, e.relatedTarget); break;
-		case 'mouseout': this._expandCollapse(false, e.relatedTarget); break;
+		case 'mouseover': this._expandCollapse(true, fixEventEl(e.relatedTarget)); break;
+		case 'mouseout': this._expandCollapse(false, fixEventEl(e.relatedTarget)); break;
 		case 'click': this._handleClick(e); break;
 		}
 	},
