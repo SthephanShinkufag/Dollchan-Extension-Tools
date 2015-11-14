@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '8ddfc36';
+	var commit = '5d21c4d';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -13605,7 +13605,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						default:
 							break checkMouse;
 					}
-					var el = e.relatedTarget;
+					var el = fixEventEl(e.relatedTarget);
 					if (!el || isOverEvent && (el.tagName !== 'A' || el.lchecked) || el !== this.el && !this.el.contains(el)) {
 						if (isOverEvent) {
 							this.mouseEnter();
