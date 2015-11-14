@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '12b80e3';
+var commit = 'eeaffa3';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1654,11 +1654,11 @@ function* readPostsData(firstPost) {
 			continue;
 		}
 		if(vis === '0') {
-			if(!post.hidden) {
-				post.setVisib(true);
-				post.ref.hide();
+			if(post.hidden) {
+				post.spellHidden = true;
+			} else {
+				post.spellHide(null);
 			}
-			post.spellHidden = true;
 		} else if(vis !== '1') {
 			maybeSpells.value.run(post);
 		}
@@ -1735,7 +1735,7 @@ function removeFavoriteEntry(fav, h, b, num, clearPage) {
 		}
 	}
 	if(clearPage && h === aib.host && b === aib.b && pByNum.has(num)) {
-		pByNum.get(num).thr.setFavBtn(false);
+		pByNum.get(num).thr.op.setFavBtn(false);
 	}
 }
 
@@ -8898,6 +8898,12 @@ class AbstractPost {
 			}
 		}
 	}
+	setFavBtn(state) {
+		var el = $c(state ? 'de-btn-fav' : 'de-btn-fav-sel', this.btns);
+		if(el) {
+			el.setAttribute('class', state ? 'de-btn-fav-sel' : 'de-btn-fav');
+		}
+	}
 	updateMsg(newMsg, sRunner) {
 		var origMsg = aib.dobr ? this.msg.firstElementChild : this.msg,
 			videoExt = $c('de-video-ext', origMsg),
@@ -10613,14 +10619,8 @@ class Thread {
 		}
 		return newVisPosts;
 	}
-	setFavBtn(state) {
-		var el = $c(state ? 'de-btn-fav' : 'de-btn-fav-sel', this.op.btns);
-		if(el) {
-			el.setAttribute('class', state ? 'de-btn-fav-sel' : 'de-btn-fav');
-		}
-	}
 	setFavorState(val, type) {
-		this.setFavBtn(val);
+		this.op.setFavBtn(val);
 		readFav().then(fav => {
 			var b = aib.b,
 				h = aib.host;

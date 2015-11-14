@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '12b80e3';
+	var commit = 'eeaffa3';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4618,11 +4618,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				case 37:
 					if (vis === '0') {
-						if (!post.hidden) {
-							post.setVisib(true);
-							post.ref.hide();
+						if (post.hidden) {
+							post.spellHidden = true;
+						} else {
+							post.spellHide(null);
 						}
-						post.spellHidden = true;
 					} else if (vis !== '1') {
 						maybeSpells.value.run(post);
 					}
@@ -4711,7 +4711,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}
 		if (clearPage && h === aib.host && b === aib.b && pByNum.has(num)) {
-			pByNum.get(num).thr.setFavBtn(false);
+			pByNum.get(num).thr.op.setFavBtn(false);
 		}
 	}
 
@@ -12458,6 +12458,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 		}, {
+			key: 'setFavBtn',
+			value: function setFavBtn(state) {
+				var el = $c(state ? 'de-btn-fav' : 'de-btn-fav-sel', this.btns);
+				if (el) {
+					el.setAttribute('class', state ? 'de-btn-fav-sel' : 'de-btn-fav');
+				}
+			}
+		}, {
 			key: 'updateMsg',
 			value: function updateMsg(newMsg, sRunner) {
 				var origMsg = aib.dobr ? this.msg.firstElementChild : this.msg,
@@ -14570,19 +14578,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return newVisPosts;
 			}
 		}, {
-			key: 'setFavBtn',
-			value: function setFavBtn(state) {
-				var el = $c(state ? 'de-btn-fav' : 'de-btn-fav-sel', this.op.btns);
-				if (el) {
-					el.setAttribute('class', state ? 'de-btn-fav-sel' : 'de-btn-fav');
-				}
-			}
-		}, {
 			key: 'setFavorState',
 			value: function setFavorState(val, type) {
 				var _this41 = this;
 
-				this.setFavBtn(val);
+				this.op.setFavBtn(val);
 				readFav().then(function (fav) {
 					var b = aib.b,
 					    h = aib.host;
