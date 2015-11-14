@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '9595638';
+var commit = '12b80e3';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9186,13 +9186,6 @@ class Post extends AbstractPost {
 		if(this.hidden === hide) {
 			return;
 		}
-		if(hide) {
-			this.note.set(note);
-		} else {
-			this.note.hide();
-		}
-		this.hidden = hide;
-		this.hideContent(hide);
 		if(this.isOp) {
 			this.thr.hidden = hide;
 		} else {
@@ -9210,6 +9203,13 @@ class Post extends AbstractPost {
 		if(Cfg.strikeHidd) {
 			setTimeout(() => this._strikePostNum(hide), 50);
 		}
+		if(hide) {
+			this.note.set(note);
+		} else {
+			this.note.hide();
+		}
+		this.hidden = hide;
+		this.hideContent(hide);
 	}
 	spellHide(note) {
 		this.spellHidden = true;
@@ -9449,7 +9449,7 @@ Post.content = class PostContent extends TemporaryContent {
 Post.hiddenNums = new Set();
 Post.note = class PostNote {
 	constructor(post) {
-		var noteEl, textEl;
+		this._post = post;
 		if(post.isOp) {
 			var tEl = post.thr.el;
 			tEl.insertAdjacentHTML('beforebegin', `<div class="${ aib.cReply } de-thr-hid" id="de-thr-hid-${ post.num }">
@@ -9457,34 +9457,41 @@ Post.note = class PostNote {
 				 <a href="#">№${ post.num }</a>
 				 <span class="de-thread-note"></span>
 			</div>`);
-			noteEl = tEl.previousSibling;
-			var el = $t('a', noteEl);
-			el.onmouseover = el.onmouseout = e => post.hideContent(e.type === 'mouseout');
-			el.onclick = e => {
-				$pd(e);
-				post.toggleUserVisib();
-			};
-			textEl = el.nextElementSibling;
+			this._noteEl = tEl.previousSibling;
+			this._aEl = $t('a', this._noteEl);
+			this._textEl = this._aEl.nextElementSibling;
 		} else {
 			post.btns.insertAdjacentHTML('beforeend', '<span class="de-post-note"></span>');
-			noteEl = textEl = post.btns.lastChild;
+			this._noteEl = this._textEl = post.btns.lastChild;
 		}
-		this._isOp = post.isOp;
-		this._noteEl = noteEl;
-		this._textEl = textEl;
 	}
 	hide() {
+		if(this._post.isOp) {
+			this._aEl.onmouseover = this._aEl.onmouseout = this._aEl.onclick = null;
+		}
 		this._noteEl.style.display = 'none';
 	}
 	set(note) {
 		var text;
-		if(this._isOp) {
-			text = note ? '(autohide: ' + note + ')' : '(' + this.title + ')';
+		if(this._post.isOp) {
+			this._aEl.onmouseover = this._aEl.onmouseout = e => this._post.hideContent(e.type === 'mouseout');
+			this._aEl.onclick = e => {
+				$pd(e);
+				this._post.toggleUserVisib();
+			};
+			text = note ? '(autohide: ' + note + ')' : '(' + this._post.title + ')';
 		} else {
 			text = note ? 'autohide: ' + note : '';
 		}
 		this._textEl.textContent = text;
 		this._noteEl.style.removeProperty('display');
+	}
+	reset() {
+		if(this.isOp) {
+			this.set(null);
+		} else {
+			this.hide();
+		}
 	}
 };
 Post.getWrds = function(text) {
@@ -9517,7 +9524,7 @@ Post.findSameText = function(oNum, oHid, oWords, date, post) {
 	}
 	if(oHid) {
 		if(post.spellHidden) {
-			post.note.hide();
+			post.note.reset();
 		} else {
 			post.setVisib(false);
 		}
