@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '83ea6fc';
+var commit = '9595638';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8907,7 +8907,7 @@ class AbstractPost {
 			'msg': { configurable: true, value: newMsg },
 			'trunc': { configurable: true, value: null }
 		});
-		PostContent.remove(this);
+		Post.content.remove(this);
 		this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
 		if(videoExt) {
 			newMsg.appendChild(videoExt);
@@ -9062,10 +9062,10 @@ class Post extends AbstractPost {
 			.getBoundingClientRect().bottom;
 	}
 	get headerEl() {
-		return new PostContent(this).headerEl;
+		return new Post.content(this).headerEl;
 	}
 	get html() {
-		return new PostContent(this).html;
+		return new Post.content(this).html;
 	}
 	get nextInThread() {
 		var post = this.next;
@@ -9078,31 +9078,25 @@ class Post extends AbstractPost {
 		}
 		return post;
 	}
-	get noteEl() {
-		var value;
-		if(this.isOp) {
-			value = this.thr.el.previousElementSibling.lastChild;
-		} else {
-			this.btns.insertAdjacentHTML('beforeend', '<span class="de-post-note"></span>');
-			value = this.btns.lastChild;
-		}
-		Object.defineProperty(this, 'noteEl', { value });
+	get note() {
+		var value = new Post.note(this);
+		Object.defineProperty(this, 'note', { value });
 		return value;
 	}
 	get posterName() {
-		return new PostContent(this).posterName;
+		return new Post.content(this).posterName;
 	}
 	get posterTrip() {
-		return new PostContent(this).posterTrip;
+		return new Post.content(this).posterTrip;
 	}
 	get subj() {
-		return new PostContent(this).subj;
+		return new Post.content(this).subj;
 	}
 	get text() {
-		return new PostContent(this).text;
+		return new Post.content(this).text;
 	}
 	get title() {
-		return new PostContent(this).title;
+		return new Post.content(this).title;
 	}
 	get tNum() {
 		return this.thr.num;
@@ -9112,7 +9106,7 @@ class Post extends AbstractPost {
 			.getBoundingClientRect().top;
 	}
 	get wrap() {
-		return new PostContent(this).wrap;
+		return new Post.content(this).wrap;
 	}
 	addFuncs() {
 		super.addFuncs();
@@ -9134,7 +9128,11 @@ class Post extends AbstractPost {
 		return null;
 	}
 	hideContent(hide) {
-		Post.hideContent(this.headerEl, this.hideBtn, this.userToggled, hide);
+		if(this.isOp) {
+			this.thr.el.style.display = hide ? 'none' : '';
+		} else {
+			Post.hideContent(this.headerEl, this.hideBtn, this.userToggled, hide);
+		}
 	}
 	select() {
 		if(this.isOp) {
@@ -9160,24 +9158,11 @@ class Post extends AbstractPost {
 		}
 		this.select();
 	}
-	setNote(val) {
-		if(this.isOp) {
-			this.noteEl.textContent = val ? '(autohide: ' + val + ')' : '(' + this.title + ')';
-		} else if(!Cfg.delHiddPost) {
-			this.noteEl.textContent = val ? 'autohide: ' + val : '';
-		}
-	}
-	setUserVisib(hide, date, sync) {
+	setUserVisib(hide, date, sync, note = null) {
 		this.userToggled = true;
-		this.setVisib(hide);
+		this.setVisib(hide, note);
 		if(this.isOp) {
 			this.hideBtn.setAttribute('class', hide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
-		}
-		if(hide) {
-			this.setNote('');
-			this.ref.hide();
-		} else {
-			this.ref.unhide();
 		}
 		uVis[this.num] = [+!hide, date];
 		if(sync) {
@@ -9191,54 +9176,37 @@ class Post extends AbstractPost {
 			});
 			locStorage.removeItem('__de-post');
 		}
+		if(hide) {
+			this.ref.hide();
+		} else {
+			this.ref.unhide();
+		}
 	}
-	setVisib(hide) {
+	setVisib(hide, note = null) {
 		if(this.hidden === hide) {
 			return;
 		}
-		if(this.isOp) {
-			this.hidden = this.thr.hidden = hide;
-			var el = $id('de-thr-hid-' + this.num),
-				tEl = this.thr.el;
-			tEl.style.display = hide ? 'none' : '';
-			if(el) {
-				el.style.display = hide ? '' : 'none';
-				return;
-			}
-			tEl.insertAdjacentHTML('beforebegin', '<div class="' + aib.cReply +
-				' de-thr-hid" id="de-thr-hid-' + this.num + '">' + Lng.hiddenThrd[lang] +
-				' <a href="#">№' + this.num + '</a> <span class="de-thread-note"></span></div>');
-			el = $t('a', tEl.previousSibling);
-			el.onclick = el.onmouseover = el.onmouseout = e => {
-				switch(e.type) {
-				case 'click':
-					this.toggleUserVisib();
-					$pd(e);
-					return;
-				case 'mouseover': this.thr.el.style.display = ''; return;
-				default: // mouseout
-					if(this.hidden) {
-						this.thr.el.style.display = 'none';
-					}
-				}
-			};
-			return;
-		}
-		if(Cfg.delHiddPost) {
-			if(hide) {
-				this.wrap.classList.add('de-hidden');
-			} else if(this.hidden) {
-				this.wrap.classList.remove('de-hidden');
-			}
+		if(hide) {
+			this.note.set(note);
 		} else {
-			if(!hide) {
-				this.setNote('');
-			}
-			this._pref.onmouseover = this._pref.onmouseout = !hide ? null :
-				e => this.hideContent(e.type === 'mouseout');
+			this.note.hide();
 		}
 		this.hidden = hide;
 		this.hideContent(hide);
+		if(this.isOp) {
+			this.thr.hidden = hide;
+		} else {
+			if(Cfg.delHiddPost) {
+				if(hide) {
+					this.wrap.classList.add('de-hidden');
+				} else {
+					this.wrap.classList.remove('de-hidden');
+				}
+			} else {
+				this._pref.onmouseover = this._pref.onmouseout = !hide ? null :
+					e => this.hideContent(e.type === 'mouseout');
+			}
+		}
 		if(Cfg.strikeHidd) {
 			setTimeout(() => this._strikePostNum(hide), 50);
 		}
@@ -9246,23 +9214,22 @@ class Post extends AbstractPost {
 	spellHide(note) {
 		this.spellHidden = true;
 		if(!this.userToggled) {
+			this.setVisib(true, note);
 			if(aib.t && !this.deleted) {
 				sVis[this.count] = 0;
 			}
 			if(!this.hidden) {
 				this.ref.hide();
 			}
-			this.setVisib(true);
-			this.setNote(note);
 		}
 	}
 	spellUnhide() {
 		this.spellHidden = false;
 		if(!this.userToggled) {
+			this.setVisib(false);
 			if(aib.t && !this.deleted) {
 				sVis[this.count] = 1;
 			}
-			this.setVisib(false);
 			this.ref.unhide();
 		}
 	}
@@ -9423,89 +9390,7 @@ class Post extends AbstractPost {
 		});
 	}
 }
-Post.hiddenNums = new Set();
-Post.getWrds = function(text) {
-	return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').trim().substring(0, 800).split(' ');
-};
-Post.findSameText = function(oNum, oHid, oWords, date, post) {
-	var words = Post.getWrds(post.text),
-		len = words.length,
-		i = oWords.length,
-		olen = i,
-		_olen = i,
-		n = 0;
-	if(len < olen * .4 || len > olen * 3) {
-		return;
-	}
-	while(i--) {
-		if(olen > 6 && oWords[i].length < 3) {
-			_olen--;
-			continue;
-		}
-		var j = len;
-		while(j--) {
-			if(words[j] === oWords[i] || oWords[i].match(/>>\d+/) && words[j].match(/>>\d+/)) {
-				n++;
-			}
-		}
-	}
-	if(n < _olen * .4 || len > _olen * 3) {
-		return;
-	}
-	if(oHid) {
-		post.setNote('');
-		if(!post.spellHidden) {
-			post.setVisib(false);
-		}
-		if(post.userToggled) {
-			delete uVis[post.num];
-			post.userToggled = false;
-		}
-	} else {
-		post.setUserVisib(true, date, true);
-		post.setNote('similar to >>' + oNum);
-	}
-	return false;
-};
-Post.sizing = {
-	get dPxRatio() {
-		var val = window.devicePixelRatio || 1;
-		Object.defineProperty(this, 'dPxRatio', { value: val });
-		return val;
-	},
-	get wHeight() {
-		var val = doc.documentElement.clientHeight;
-		if(!this._enabled) {
-			doc.defaultView.addEventListener('resize', this);
-			this._enabled = true;
-		}
-		Object.defineProperties(this, {
-			'wWidth': { writable: true, configurable: true, value: doc.documentElement.clientWidth },
-			'wHeight': { writable: true, configurable: true, value: val }
-		});
-		return val;
-	},
-	get wWidth() {
-		var val = doc.documentElement.clientWidth;
-		if(!this._enabled) {
-			doc.defaultView.addEventListener('resize', this);
-			this._enabled = true;
-		}
-		Object.defineProperties(this, {
-			'wWidth': { writable: true, configurable: true, value: val },
-			'wHeight': { writable: true, configurable: true, value: doc.documentElement.clientHeight }
-		});
-		return val;
-	},
-	handleEvent() {
-		this.wHeight = doc.documentElement.clientHeight;
-		this.wWidth = doc.documentElement.clientWidth;
-	},
-
-	_enabled: false
-};
-
-class PostContent extends TemporaryContent {
+Post.content = class PostContent extends TemporaryContent {
 	constructor(post) {
 		super(post);
 		if(this._inited) {
@@ -9560,7 +9445,128 @@ class PostContent extends TemporaryContent {
 		Object.defineProperty(this, 'wrap', { value: val });
 		return val;
 	}
-}
+};
+Post.hiddenNums = new Set();
+Post.note = class PostNote {
+	constructor(post) {
+		var noteEl, textEl;
+		if(post.isOp) {
+			var tEl = post.thr.el;
+			tEl.insertAdjacentHTML('beforebegin', `<div class="${ aib.cReply } de-thr-hid" id="de-thr-hid-${ post.num }">
+				${ Lng.hiddenThrd[lang] }
+				 <a href="#">№${ post.num }</a>
+				 <span class="de-thread-note"></span>
+			</div>`);
+			noteEl = tEl.previousSibling;
+			var el = $t('a', noteEl);
+			el.onmouseover = el.onmouseout = e => post.hideContent(e.type === 'mouseout');
+			el.onclick = e => {
+				$pd(e);
+				post.toggleUserVisib();
+			};
+			textEl = el.nextElementSibling;
+		} else {
+			post.btns.insertAdjacentHTML('beforeend', '<span class="de-post-note"></span>');
+			noteEl = textEl = post.btns.lastChild;
+		}
+		this._isOp = post.isOp;
+		this._noteEl = noteEl;
+		this._textEl = textEl;
+	}
+	hide() {
+		this._noteEl.style.display = 'none';
+	}
+	set(note) {
+		var text;
+		if(this._isOp) {
+			text = note ? '(autohide: ' + note + ')' : '(' + this.title + ')';
+		} else {
+			text = note ? 'autohide: ' + note : '';
+		}
+		this._textEl.textContent = text;
+		this._noteEl.style.removeProperty('display');
+	}
+};
+Post.getWrds = function(text) {
+	return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').trim().substring(0, 800).split(' ');
+};
+Post.findSameText = function(oNum, oHid, oWords, date, post) {
+	var words = Post.getWrds(post.text),
+		len = words.length,
+		i = oWords.length,
+		olen = i,
+		_olen = i,
+		n = 0;
+	if(len < olen * .4 || len > olen * 3) {
+		return;
+	}
+	while(i--) {
+		if(olen > 6 && oWords[i].length < 3) {
+			_olen--;
+			continue;
+		}
+		var j = len;
+		while(j--) {
+			if(words[j] === oWords[i] || oWords[i].match(/>>\d+/) && words[j].match(/>>\d+/)) {
+				n++;
+			}
+		}
+	}
+	if(n < _olen * .4 || len > _olen * 3) {
+		return;
+	}
+	if(oHid) {
+		if(post.spellHidden) {
+			post.note.hide();
+		} else {
+			post.setVisib(false);
+		}
+		if(post.userToggled) {
+			delete uVis[post.num];
+			post.userToggled = false;
+		}
+	} else {
+		post.setUserVisib(true, date, true, 'similar to >>' + oNum);
+	}
+	return false;
+};
+Post.sizing = {
+	get dPxRatio() {
+		var val = window.devicePixelRatio || 1;
+		Object.defineProperty(this, 'dPxRatio', { value: val });
+		return val;
+	},
+	get wHeight() {
+		var val = doc.documentElement.clientHeight;
+		if(!this._enabled) {
+			doc.defaultView.addEventListener('resize', this);
+			this._enabled = true;
+		}
+		Object.defineProperties(this, {
+			'wWidth': { writable: true, configurable: true, value: doc.documentElement.clientWidth },
+			'wHeight': { writable: true, configurable: true, value: val }
+		});
+		return val;
+	},
+	get wWidth() {
+		var val = doc.documentElement.clientWidth;
+		if(!this._enabled) {
+			doc.defaultView.addEventListener('resize', this);
+			this._enabled = true;
+		}
+		Object.defineProperties(this, {
+			'wWidth': { writable: true, configurable: true, value: val },
+			'wHeight': { writable: true, configurable: true, value: doc.documentElement.clientHeight }
+		});
+		return val;
+	},
+	handleEvent() {
+		this.wHeight = doc.documentElement.clientHeight;
+		this.wWidth = doc.documentElement.clientWidth;
+	},
+
+	_enabled: false
+};
 
 function PostImages(post) {
 	var els = $Q(aib.qThumbImages, post.el),
@@ -10185,8 +10191,7 @@ class RefMap {
 				if(!post.hidden) {
 					post.ref.hide();
 				}
-				post.setVisib(true);
-				post.setNote('reference to >>' + num);
+				post.setVisib(true, 'reference to >>' + num);
 			}
 		}
 	}
@@ -10203,8 +10208,7 @@ class RefMap {
 		for(var num of this._set) {
 			var pst = pByNum.get(num);
 			if(pst && !pst.userToggled) {
-				pst.setVisib(true);
-				pst.setNote('reference to >>' + this.num);
+				pst.setVisib(true, 'reference to >>' + this.num);
 				pst.ref.hide();
 			}
 		}

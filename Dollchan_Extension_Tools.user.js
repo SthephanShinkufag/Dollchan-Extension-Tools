@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '83ea6fc';
+	var commit = '9595638';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12468,7 +12468,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					'msg': { configurable: true, value: newMsg },
 					'trunc': { configurable: true, value: null }
 				});
-				PostContent.remove(this);
+				Post.content.remove(this);
 				this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
 				if (videoExt) {
 					newMsg.appendChild(videoExt);
@@ -12721,7 +12721,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'hideContent',
 			value: function hideContent(hide) {
-				Post.hideContent(this.headerEl, this.hideBtn, this.userToggled, hide);
+				if (this.isOp) {
+					this.thr.el.style.display = hide ? 'none' : '';
+				} else {
+					Post.hideContent(this.headerEl, this.hideBtn, this.userToggled, hide);
+				}
 			}
 		}, {
 			key: 'select',
@@ -12752,27 +12756,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.select();
 			}
 		}, {
-			key: 'setNote',
-			value: function setNote(val) {
-				if (this.isOp) {
-					this.noteEl.textContent = val ? '(autohide: ' + val + ')' : '(' + this.title + ')';
-				} else if (!Cfg.delHiddPost) {
-					this.noteEl.textContent = val ? 'autohide: ' + val : '';
-				}
-			}
-		}, {
 			key: 'setUserVisib',
 			value: function setUserVisib(hide, date, sync) {
+				var note = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
+
 				this.userToggled = true;
-				this.setVisib(hide);
+				this.setVisib(hide, note);
 				if (this.isOp) {
 					this.hideBtn.setAttribute('class', hide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
-				}
-				if (hide) {
-					this.setNote('');
-					this.ref.hide();
-				} else {
-					this.ref.unhide();
 				}
 				uVis[this.num] = [+!hide, date];
 				if (sync) {
@@ -12786,59 +12777,44 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					});
 					locStorage.removeItem('__de-post');
 				}
+				if (hide) {
+					this.ref.hide();
+				} else {
+					this.ref.unhide();
+				}
 			}
 		}, {
 			key: 'setVisib',
 			value: function setVisib(hide) {
 				var _this30 = this;
 
+				var note = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
 				if (this.hidden === hide) {
 					return;
 				}
-				if (this.isOp) {
-					this.hidden = this.thr.hidden = hide;
-					var el = $id('de-thr-hid-' + this.num),
-					    tEl = this.thr.el;
-					tEl.style.display = hide ? 'none' : '';
-					if (el) {
-						el.style.display = hide ? '' : 'none';
-						return;
-					}
-					tEl.insertAdjacentHTML('beforebegin', '<div class="' + aib.cReply + ' de-thr-hid" id="de-thr-hid-' + this.num + '">' + Lng.hiddenThrd[lang] + ' <a href="#">№' + this.num + '</a> <span class="de-thread-note"></span></div>');
-					el = $t('a', tEl.previousSibling);
-					el.onclick = el.onmouseover = el.onmouseout = function (e) {
-						switch (e.type) {
-							case 'click':
-								_this30.toggleUserVisib();
-								$pd(e);
-								return;
-							case 'mouseover':
-								_this30.thr.el.style.display = '';return;
-							default:
-							
-								if (_this30.hidden) {
-									_this30.thr.el.style.display = 'none';
-								}
-						}
-					};
-					return;
-				}
-				if (Cfg.delHiddPost) {
-					if (hide) {
-						this.wrap.classList.add('de-hidden');
-					} else if (this.hidden) {
-						this.wrap.classList.remove('de-hidden');
-					}
+				if (hide) {
+					this.note.set(note);
 				} else {
-					if (!hide) {
-						this.setNote('');
-					}
-					this._pref.onmouseover = this._pref.onmouseout = !hide ? null : function (e) {
-						return _this30.hideContent(e.type === 'mouseout');
-					};
+					this.note.hide();
 				}
 				this.hidden = hide;
 				this.hideContent(hide);
+				if (this.isOp) {
+					this.thr.hidden = hide;
+				} else {
+					if (Cfg.delHiddPost) {
+						if (hide) {
+							this.wrap.classList.add('de-hidden');
+						} else {
+							this.wrap.classList.remove('de-hidden');
+						}
+					} else {
+						this._pref.onmouseover = this._pref.onmouseout = !hide ? null : function (e) {
+							return _this30.hideContent(e.type === 'mouseout');
+						};
+					}
+				}
 				if (Cfg.strikeHidd) {
 					setTimeout(function () {
 						return _this30._strikePostNum(hide);
@@ -12850,14 +12826,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function spellHide(note) {
 				this.spellHidden = true;
 				if (!this.userToggled) {
+					this.setVisib(true, note);
 					if (aib.t && !this.deleted) {
 						sVis[this.count] = 0;
 					}
 					if (!this.hidden) {
 						this.ref.hide();
 					}
-					this.setVisib(true);
-					this.setNote(note);
 				}
 			}
 		}, {
@@ -12865,10 +12840,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function spellUnhide() {
 				this.spellHidden = false;
 				if (!this.userToggled) {
+					this.setVisib(false);
 					if (aib.t && !this.deleted) {
 						sVis[this.count] = 1;
 					}
-					this.setVisib(false);
 					this.ref.unhide();
 				}
 			}
@@ -13065,12 +13040,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'headerEl',
 			get: function get() {
-				return new PostContent(this).headerEl;
+				return new Post.content(this).headerEl;
 			}
 		}, {
 			key: 'html',
 			get: function get() {
-				return new PostContent(this).html;
+				return new Post.content(this).html;
 			}
 		}, {
 			key: 'nextInThread',
@@ -13088,42 +13063,36 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return post;
 			}
 		}, {
-			key: 'noteEl',
+			key: 'note',
 			get: function get() {
-				var value;
-				if (this.isOp) {
-					value = this.thr.el.previousElementSibling.lastChild;
-				} else {
-					this.btns.insertAdjacentHTML('beforeend', '<span class="de-post-note"></span>');
-					value = this.btns.lastChild;
-				}
-				Object.defineProperty(this, 'noteEl', { value: value });
+				var value = new Post.note(this);
+				Object.defineProperty(this, 'note', { value: value });
 				return value;
 			}
 		}, {
 			key: 'posterName',
 			get: function get() {
-				return new PostContent(this).posterName;
+				return new Post.content(this).posterName;
 			}
 		}, {
 			key: 'posterTrip',
 			get: function get() {
-				return new PostContent(this).posterTrip;
+				return new Post.content(this).posterTrip;
 			}
 		}, {
 			key: 'subj',
 			get: function get() {
-				return new PostContent(this).subj;
+				return new Post.content(this).subj;
 			}
 		}, {
 			key: 'text',
 			get: function get() {
-				return new PostContent(this).text;
+				return new Post.content(this).text;
 			}
 		}, {
 			key: 'title',
 			get: function get() {
-				return new PostContent(this).title;
+				return new Post.content(this).title;
 			}
 		}, {
 			key: 'tNum',
@@ -13138,96 +13107,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'wrap',
 			get: function get() {
-				return new PostContent(this).wrap;
+				return new Post.content(this).wrap;
 			}
 		}]);
 
 		return Post;
 	})(AbstractPost);
 
-	Post.hiddenNums = new Set();
-	Post.getWrds = function (text) {
-		return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').trim().substring(0, 800).split(' ');
-	};
-	Post.findSameText = function (oNum, oHid, oWords, date, post) {
-		var words = Post.getWrds(post.text),
-		    len = words.length,
-		    i = oWords.length,
-		    olen = i,
-		    _olen = i,
-		    n = 0;
-		if (len < olen * .4 || len > olen * 3) {
-			return;
-		}
-		while (i--) {
-			if (olen > 6 && oWords[i].length < 3) {
-				_olen--;
-				continue;
-			}
-			var j = len;
-			while (j--) {
-				if (words[j] === oWords[i] || oWords[i].match(/>>\d+/) && words[j].match(/>>\d+/)) {
-					n++;
-				}
-			}
-		}
-		if (n < _olen * .4 || len > _olen * 3) {
-			return;
-		}
-		if (oHid) {
-			post.setNote('');
-			if (!post.spellHidden) {
-				post.setVisib(false);
-			}
-			if (post.userToggled) {
-				delete uVis[post.num];
-				post.userToggled = false;
-			}
-		} else {
-			post.setUserVisib(true, date, true);
-			post.setNote('similar to >>' + oNum);
-		}
-		return false;
-	};
-	Post.sizing = {
-		get dPxRatio() {
-			var val = window.devicePixelRatio || 1;
-			Object.defineProperty(this, 'dPxRatio', { value: val });
-			return val;
-		},
-		get wHeight() {
-			var val = doc.documentElement.clientHeight;
-			if (!this._enabled) {
-				doc.defaultView.addEventListener('resize', this);
-				this._enabled = true;
-			}
-			Object.defineProperties(this, {
-				'wWidth': { writable: true, configurable: true, value: doc.documentElement.clientWidth },
-				'wHeight': { writable: true, configurable: true, value: val }
-			});
-			return val;
-		},
-		get wWidth() {
-			var val = doc.documentElement.clientWidth;
-			if (!this._enabled) {
-				doc.defaultView.addEventListener('resize', this);
-				this._enabled = true;
-			}
-			Object.defineProperties(this, {
-				'wWidth': { writable: true, configurable: true, value: val },
-				'wHeight': { writable: true, configurable: true, value: doc.documentElement.clientHeight }
-			});
-			return val;
-		},
-		handleEvent: function handleEvent() {
-			this.wHeight = doc.documentElement.clientHeight;
-			this.wWidth = doc.documentElement.clientWidth;
-		},
-
-		_enabled: false
-	};
-
-	var PostContent = (function (_TemporaryContent) {
+	Post.content = (function (_TemporaryContent) {
 		_inherits(PostContent, _TemporaryContent);
 
 		function PostContent(post) {
@@ -13307,6 +13194,135 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		return PostContent;
 	})(TemporaryContent);
+	Post.hiddenNums = new Set();
+	Post.note = (function () {
+		function PostNote(post) {
+			_classCallCheck(this, PostNote);
+
+			var noteEl, textEl;
+			if (post.isOp) {
+				var tEl = post.thr.el;
+				tEl.insertAdjacentHTML('beforebegin', '<div class="' + aib.cReply + ' de-thr-hid" id="de-thr-hid-' + post.num + '">\n\t\t\t\t' + Lng.hiddenThrd[lang] + '\n\t\t\t\t <a href="#">№' + post.num + '</a>\n\t\t\t\t <span class="de-thread-note"></span>\n\t\t\t</div>');
+				noteEl = tEl.previousSibling;
+				var el = $t('a', noteEl);
+				el.onmouseover = el.onmouseout = function (e) {
+					return post.hideContent(e.type === 'mouseout');
+				};
+				el.onclick = function (e) {
+					$pd(e);
+					post.toggleUserVisib();
+				};
+				textEl = el.nextElementSibling;
+			} else {
+				post.btns.insertAdjacentHTML('beforeend', '<span class="de-post-note"></span>');
+				noteEl = textEl = post.btns.lastChild;
+			}
+			this._isOp = post.isOp;
+			this._noteEl = noteEl;
+			this._textEl = textEl;
+		}
+
+		_createClass(PostNote, [{
+			key: 'hide',
+			value: function hide() {
+				this._noteEl.style.display = 'none';
+			}
+		}, {
+			key: 'set',
+			value: function set(note) {
+				var text;
+				if (this._isOp) {
+					text = note ? '(autohide: ' + note + ')' : '(' + this.title + ')';
+				} else {
+					text = note ? 'autohide: ' + note : '';
+				}
+				this._textEl.textContent = text;
+				this._noteEl.style.removeProperty('display');
+			}
+		}]);
+
+		return PostNote;
+	})();
+	Post.getWrds = function (text) {
+		return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').trim().substring(0, 800).split(' ');
+	};
+	Post.findSameText = function (oNum, oHid, oWords, date, post) {
+		var words = Post.getWrds(post.text),
+		    len = words.length,
+		    i = oWords.length,
+		    olen = i,
+		    _olen = i,
+		    n = 0;
+		if (len < olen * .4 || len > olen * 3) {
+			return;
+		}
+		while (i--) {
+			if (olen > 6 && oWords[i].length < 3) {
+				_olen--;
+				continue;
+			}
+			var j = len;
+			while (j--) {
+				if (words[j] === oWords[i] || oWords[i].match(/>>\d+/) && words[j].match(/>>\d+/)) {
+					n++;
+				}
+			}
+		}
+		if (n < _olen * .4 || len > _olen * 3) {
+			return;
+		}
+		if (oHid) {
+			if (post.spellHidden) {
+				post.note.hide();
+			} else {
+				post.setVisib(false);
+			}
+			if (post.userToggled) {
+				delete uVis[post.num];
+				post.userToggled = false;
+			}
+		} else {
+			post.setUserVisib(true, date, true, 'similar to >>' + oNum);
+		}
+		return false;
+	};
+	Post.sizing = {
+		get dPxRatio() {
+			var val = window.devicePixelRatio || 1;
+			Object.defineProperty(this, 'dPxRatio', { value: val });
+			return val;
+		},
+		get wHeight() {
+			var val = doc.documentElement.clientHeight;
+			if (!this._enabled) {
+				doc.defaultView.addEventListener('resize', this);
+				this._enabled = true;
+			}
+			Object.defineProperties(this, {
+				'wWidth': { writable: true, configurable: true, value: doc.documentElement.clientWidth },
+				'wHeight': { writable: true, configurable: true, value: val }
+			});
+			return val;
+		},
+		get wWidth() {
+			var val = doc.documentElement.clientWidth;
+			if (!this._enabled) {
+				doc.defaultView.addEventListener('resize', this);
+				this._enabled = true;
+			}
+			Object.defineProperties(this, {
+				'wWidth': { writable: true, configurable: true, value: val },
+				'wHeight': { writable: true, configurable: true, value: doc.documentElement.clientHeight }
+			});
+			return val;
+		},
+		handleEvent: function handleEvent() {
+			this.wHeight = doc.documentElement.clientHeight;
+			this.wWidth = doc.documentElement.clientWidth;
+		},
+
+		_enabled: false
+	};
 
 	function PostImages(post) {
 		var els = $Q(aib.qThumbImages, post.el),
@@ -14036,8 +14052,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						if (!post.hidden) {
 							post.ref.hide();
 						}
-						post.setVisib(true);
-						post.setNote('reference to >>' + num);
+						post.setVisib(true, 'reference to >>' + num);
 					}
 				}
 			}
@@ -14073,8 +14088,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					var pst = pByNum.get(num);
 					if (pst && !pst.userToggled) {
-						pst.setVisib(true);
-						pst.setNote('reference to >>' + this.num);
+						pst.setVisib(true, 'reference to >>' + this.num);
 						pst.ref.hide();
 					}
 				}
