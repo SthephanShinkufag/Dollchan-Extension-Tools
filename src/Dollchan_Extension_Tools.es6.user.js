@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'cc6a877';
+var commit = '8ddfc36';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2245,11 +2245,11 @@ function showVideosWindow(body) {
 			'<a class="de-abtn" id="de-video-btn-next" href="#" title="' +
 				Lng.nextVideo[lang] + '">&#x25B6;</a>' +
 			'<a class="de-abtn" id="de-video-btn-hide" href="#" title="' +
-				Lng.hideLnkList[lang] + '">&#x25B2;</a></div>' +
-		'<div id="de-video-list" style="max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; max-height: ' +
-			(doc.documentElement.clientHeight * .92 - +Cfg.YTubeHeigh - 82) + 'px;"></div>';
-	var linkList = body.lastChild;
-	$before(linkList, $new('script', {'type': 'text/javascript', 'text':`
+				Lng.hideLnkList[lang] + '">&#x25B2;</a></div>';
+	var linkList = $add('<div id="de-video-list" style="max-width: ' +
+		(+Cfg.YTubeWidth + 40) + 'px; max-height: ' +
+		(doc.documentElement.clientHeight * .92 - +Cfg.YTubeHeigh - 82) + 'px;"></div>');
+	body.appendChild($new('script', {'type': 'text/javascript', 'text':`
 		(function() {
 			if('YT' in window && 'Player' in window.YT) {
 				onYouTubePlayerAPIReady();
@@ -2347,11 +2347,10 @@ function showVideosWindow(body) {
 		linkList.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '">&nbsp;' +
 			'<a href="' + aib.anchor + num + '" de-num="' + num + '">&gt;</a></div>');
 		linkList.lastChild.appendChild(el).classList.remove('de-current');
-		if(i === 0) {
-			el.click();
-		}
 		el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
 	}
+	body.appendChild(linkList);
+	$c('de-video-link', linkList).click();
 }
 
 function addContentBlock(parent, title) {

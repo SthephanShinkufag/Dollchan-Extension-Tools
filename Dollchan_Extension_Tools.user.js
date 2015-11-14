@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'cc6a877';
+	var commit = '8ddfc36';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -5200,9 +5200,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				'src': aib.prot + '//www.youtube.com/player_api'
 			}, null));
 		}
-		body.innerHTML = '<div de-disableautoplay class="de-video-obj"></div>' + '<div id="de-video-buttons">' + '<a class="de-abtn" id="de-video-btn-prev" href="#" title="' + Lng.prevVideo[lang] + '">&#x25C0;</a>' + '<a class="de-abtn" id="de-video-btn-resize" href="#" title="' + Lng.expandVideo[lang] + '"></a>' + '<a class="de-abtn" id="de-video-btn-next" href="#" title="' + Lng.nextVideo[lang] + '">&#x25B6;</a>' + '<a class="de-abtn" id="de-video-btn-hide" href="#" title="' + Lng.hideLnkList[lang] + '">&#x25B2;</a></div>' + '<div id="de-video-list" style="max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; max-height: ' + (doc.documentElement.clientHeight * .92 - +Cfg.YTubeHeigh - 82) + 'px;"></div>';
-		var linkList = body.lastChild;
-		$before(linkList, $new('script', { 'type': 'text/javascript', 'text': '\n\t\t(function() {\n\t\t\tif(\'YT\' in window && \'Player\' in window.YT) {\n\t\t\t\tonYouTubePlayerAPIReady();\n\t\t\t} else {\n\t\t\t\twindow.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;\n\t\t\t}\n\t\t\tfunction onYouTubePlayerAPIReady() {\n\t\t\t\twindow.de_addVideoEvents =\n\t\t\t\t\taddEvents.bind(document.querySelector(\'#de-win-vid > .de-win-body > .de-video-obj\'));\n\t\t\t\twindow.de_addVideoEvents();\n\t\t\t}\n\t\t\tfunction addEvents() {\n\t\t\t\tvar autoplay = true;\n\t\t\t\tif(this.hasAttribute(\'de-disableautoplay\')) {\n\t\t\t\t\tautoplay = false;\n\t\t\t\t\tthis.removeAttribute(\'de-disableautoplay\');\n\t\t\t\t}\n\t\t\t\tnew YT.Player(this.firstChild, { events: {\n\t\t\t\t\t\'onError\': gotoNextVideo,\n\t\t\t\t\t\'onReady\': autoplay ? function(e) {\n\t\t\t\t\t\te.target.playVideo();\n\t\t\t\t\t} : Function.prototype,\n\t\t\t\t\t\'onStateChange\': function(e) {\n\t\t\t\t\t\tif(e.data === 0) {\n\t\t\t\t\t\t\tgotoNextVideo();\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}});\n\t\t\t}\n\t\t\tfunction gotoNextVideo() {\n\t\t\t\tdocument.getElementById("de-video-btn-next").click();\n\t\t\t}\n\t\t})();\n\t' }));
+		body.innerHTML = '<div de-disableautoplay class="de-video-obj"></div>' + '<div id="de-video-buttons">' + '<a class="de-abtn" id="de-video-btn-prev" href="#" title="' + Lng.prevVideo[lang] + '">&#x25C0;</a>' + '<a class="de-abtn" id="de-video-btn-resize" href="#" title="' + Lng.expandVideo[lang] + '"></a>' + '<a class="de-abtn" id="de-video-btn-next" href="#" title="' + Lng.nextVideo[lang] + '">&#x25B6;</a>' + '<a class="de-abtn" id="de-video-btn-hide" href="#" title="' + Lng.hideLnkList[lang] + '">&#x25B2;</a></div>';
+		var linkList = $add('<div id="de-video-list" style="max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; max-height: ' + (doc.documentElement.clientHeight * .92 - +Cfg.YTubeHeigh - 82) + 'px;"></div>');
+		body.appendChild($new('script', { 'type': 'text/javascript', 'text': '\n\t\t(function() {\n\t\t\tif(\'YT\' in window && \'Player\' in window.YT) {\n\t\t\t\tonYouTubePlayerAPIReady();\n\t\t\t} else {\n\t\t\t\twindow.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;\n\t\t\t}\n\t\t\tfunction onYouTubePlayerAPIReady() {\n\t\t\t\twindow.de_addVideoEvents =\n\t\t\t\t\taddEvents.bind(document.querySelector(\'#de-win-vid > .de-win-body > .de-video-obj\'));\n\t\t\t\twindow.de_addVideoEvents();\n\t\t\t}\n\t\t\tfunction addEvents() {\n\t\t\t\tvar autoplay = true;\n\t\t\t\tif(this.hasAttribute(\'de-disableautoplay\')) {\n\t\t\t\t\tautoplay = false;\n\t\t\t\t\tthis.removeAttribute(\'de-disableautoplay\');\n\t\t\t\t}\n\t\t\t\tnew YT.Player(this.firstChild, { events: {\n\t\t\t\t\t\'onError\': gotoNextVideo,\n\t\t\t\t\t\'onReady\': autoplay ? function(e) {\n\t\t\t\t\t\te.target.playVideo();\n\t\t\t\t\t} : Function.prototype,\n\t\t\t\t\t\'onStateChange\': function(e) {\n\t\t\t\t\t\tif(e.data === 0) {\n\t\t\t\t\t\t\tgotoNextVideo();\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}});\n\t\t\t}\n\t\t\tfunction gotoNextVideo() {\n\t\t\t\tdocument.getElementById("de-video-btn-next").click();\n\t\t\t}\n\t\t})();\n\t' }));
 		body.addEventListener('click', {
 			linkList: linkList,
 			listHidden: false,
@@ -5264,11 +5264,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			el.videoInfo = els[i].videoInfo;
 			linkList.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '">&nbsp;' + '<a href="' + aib.anchor + num + '" de-num="' + num + '">&gt;</a></div>');
 			linkList.lastChild.appendChild(el).classList.remove('de-current');
-			if (i === 0) {
-				el.click();
-			}
 			el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
 		}
+		body.appendChild(linkList);
+		$c('de-video-link', linkList).click();
 	}
 
 	function addContentBlock(parent, title) {
