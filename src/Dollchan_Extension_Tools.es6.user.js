@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '6b46f19';
+var commit = '83ea6fc';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1566,20 +1566,6 @@ function readFav() {
 	return spawn(getStoredObj, 'DESU_Favorites');
 }
 
-function readPosts() {
-	var str = aib.t ? sesStorage['de-hidden-' + aib.b + aib.t] : null;
-	if(typeof str === 'string') {
-		var data = str.split(';');
-		if(data.length === 4 && +data[0] === (Cfg.hideBySpell ? Spells.hash : 0) &&
-		  pByNum.has(+data[1]) && pByNum.get(+data[1]).count === +data[2])
-		{
-			sVis = data[3].split(',');
-			return;
-		}
-	}
-	sVis = [];
-}
-
 function initPostUserVisib(post, num, hide, date) {
 	if(hide) {
 		post.setUserVisib(true, date, false);
@@ -1590,29 +1576,65 @@ function initPostUserVisib(post, num, hide, date) {
 	}
 }
 
-function* readUserPosts(form = DelForm.first) {
+function* readPostsData(firstPost) {
+	var data, str = aib.t ? sesStorage['de-hidden-' + aib.b + aib.t] : null;
+	if(typeof str === 'string') {
+		var data = str.split(';');
+		if(data.length === 4 && +data[0] === (Cfg.hideBySpell ? Spells.hash : 0) &&
+		  pByNum.has(+data[1]) && pByNum.get(+data[1]).count === +data[2])
+		{
+			sVis = data[3].split(',');
+		} else {
+			sVis = [];
+		}
+	} else {
+		sVis = [];
+	}
 	var b = aib.b,
 		date = Date.now(),
 		spellsHide = Cfg.hideBySpell,
-		update = false,
+		updatePosts = false,
 		globalUserVis = yield* getStoredObj('DESU_Posts_' + aib.dm);
 	hThr = yield* getStoredObj('DESU_Threads_' + aib.dm);
 	uVis = globalUserVis[b] || {};
 	if(!(b in hThr)) {
 		hThr[b] = {};
 	}
-	if(!form || !form.firstThr) {
+	if(!firstPost) {
 		return;
 	}
+	var updateFav = false,
+		fav = yield* getStoredObj('DESU_Favorites'),
+		favBrd = (aib.host in fav) && (b in fav[aib.host]) ? fav[aib.host][b] : {};
 	var maybeSpells = new Maybe(SpellsRunner);
-	for(var post = form.firstThr.op; post; post = post.next) {
+	for(var post = firstPost; post; post = post.next) {
 		var num = post.num;
+		if(post.isOp && (num in favBrd)) {
+			var f = favBrd[num];
+			post.setFavBtn(true);
+			if(aib.t) {
+				f.cnt = thr.pcount;
+				f['new'] = 0;
+				if(Cfg.markNewPosts && f.last) {
+					var lastPost = pByNum.get(+f.last.match(/\d+/));
+					if(lastPost) {
+						while(lastPost = lastPost.next) {
+							thr._addPostMark(lastPost.el, true);
+						}
+					}
+				}
+				f.last = aib.anchor + thr.last.num;
+			} else {
+				f['new'] = thr.pcount - f.cnt;
+			}
+			updateFav = true;
+		}
 		if(num in uVis) {
 			var hidePost = uVis[num][0] === 0;
 			if(post.isOp) {
 				var hideThread = !!(num in hThr[b]);
 				if(hidePost !== hideThread) {
-					update = true;
+					updatePosts = true;
 					hidePost = hideThread;
 				}
 			}
@@ -1641,11 +1663,18 @@ function* readUserPosts(form = DelForm.first) {
 			maybeSpells.value.run(post);
 		}
 	}
-	if(update) {
+	if(updatePosts) {
 		globalUserVis[b] = uVis;
 		setStored('DESU_Posts_' + aib.dm, JSON.stringify(globalUserVis));
 	}
 	maybeSpells.end();
+	if(updateFav) {
+		setStored('DESU_Favorites', JSON.stringify(fav));
+	}
+	if(sesStorage['de-win-fav'] === '1') {
+		toggleWindow('fav', false, null, true);
+		sesStorage.removeItem('de-win-fav');
+	}
 }
 
 function saveUserPosts() {
@@ -1679,49 +1708,6 @@ function saveHiddenThreads(updWindow) {
 	setStored('DESU_Threads_' + aib.dm, JSON.stringify(hThr));
 	if(updWindow) {
 		toggleWindow('hid', true);
-	}
-}
-
-function* readFavoritesPosts(form = DelForm.first) {
-	var temp, update = false,
-		fav = yield* getStoredObj('DESU_Favorites');
-	if(!(aib.host in fav)) {
-		return;
-	}
-	temp = fav[aib.host];
-	if(!(aib.b in temp) || !form) {
-		return;
-	}
-	temp = temp[aib.b];
-	for(var thr = form.firstThr; thr; thr = thr.next) {
-		var num = thr.num;
-		if(num in temp) {
-			var f = temp[num];
-			thr.setFavBtn(true);
-			if(aib.t) {
-				f.cnt = thr.pcount;
-				f['new'] = 0;
-				if(aib.t && Cfg.markNewPosts && f.last) {
-					var post = pByNum.get(+f.last.match(/\d+/));
-					if(post) {
-						while(post = post.next) {
-							thr._addPostMark(post.el, true);
-						}
-					}
-				}
-				f.last = aib.anchor + thr.last.num;
-			} else {
-				f['new'] = thr.pcount - f.cnt;
-			}
-			update = true;
-		}
-	}
-	if(update) {
-		setStored('DESU_Favorites', JSON.stringify(fav));
-	}
-	if(sesStorage['de-win-fav'] === '1') {
-		toggleWindow('fav', false, null, true);
-		sesStorage.removeItem('de-win-fav');
 	}
 }
 
@@ -5169,8 +5155,7 @@ var Pages = {
 		this._addPromise = null;
 	},
 	*_updateForms(newForm) {
-		yield* readUserPosts(newForm);
-		yield* readFavoritesPosts(newForm);
+		yield* readPostsData(newForm.firstThr.op);
 		if(pr.passw) {
 			PostForm.setUserPassw();
 		}
@@ -13825,9 +13810,7 @@ function* initScript(checkDomains, readCfgPromise) {
 	Logger.log('Display page');
 	toggleInfinityScroll();
 	Logger.log('Infinity scroll');
-	readPosts();
-	yield* readUserPosts();
-	yield* readFavoritesPosts();
+	yield* readPostsData(DelForm.first.firstThr.op);
 	Logger.log('Hide posts');
 	scrollPage();
 	Logger.log('Scroll page');
