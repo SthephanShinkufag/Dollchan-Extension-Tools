@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'eeaffa3';
+	var commit = 'cc6a877';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4488,7 +4488,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function readPostsData(firstPost) {
-		var data, str, b, date, spellsHide, updatePosts, globalUserVis, updateFav, fav, favBrd, maybeSpells, post, num, f, lastPost, hidePost, hideThread, vis;
+		var data, str, b, date, spellsHide, updatePosts, globalUserVis, updateFav, fav, favBrd, maybeSpells, post, num, f, thr, lastPost, hidePost, hideThread, vis;
 		return regeneratorRuntime.wrap(function readPostsData$(_context5) {
 			while (1) switch (_context5.prev = _context5.next) {
 				case 0:
@@ -4549,7 +4549,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					num = post.num;
 
 					if (post.isOp && num in favBrd) {
-						f = favBrd[num];
+						f = favBrd[num], thr = post.thr;
 
 						post.setFavBtn(true);
 						if (aib.t) {
@@ -18108,7 +18108,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		.de-btn-fav-sel { color: #FFE100; }\
 		.de-btn-stick-on { color: #BFFFBF; }\
 		.de-btn-sage { fill: #4B4B4B; }\
-		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }';
+		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }';
 		}
 		if (Cfg.hideReplies || Cfg.updThrBtns) {
 			x += '.de-thread-buttons::before { content: ">> "; }';

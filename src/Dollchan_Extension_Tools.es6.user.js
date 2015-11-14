@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'eeaffa3';
+var commit = 'cc6a877';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1610,7 +1610,8 @@ function* readPostsData(firstPost) {
 	for(var post = firstPost; post; post = post.next) {
 		var num = post.num;
 		if(post.isOp && (num in favBrd)) {
-			var f = favBrd[num];
+			var f = favBrd[num],
+				thr = post.thr;
 			post.setFavBtn(true);
 			if(aib.t) {
 				f.cnt = thr.pcount;
@@ -13714,7 +13715,7 @@ function updateCSS() {
 		.de-btn-fav-sel { color: #FFE100; }\
 		.de-btn-stick-on { color: #BFFFBF; }\
 		.de-btn-sage { fill: #4B4B4B; }\
-		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }';
+		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }';
 	}
 	if(Cfg.hideReplies || Cfg.updThrBtns) {
 		x += '.de-thread-buttons::before { content: ">> "; }';
