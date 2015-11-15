@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '51ef82b';
+var commit = '2e50c74';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -352,9 +352,10 @@ Lng = {
 		'trip':         ['Скрывать трип-код', 'Hide with trip-code'],
 		'img':          ['Скрывать картинку', 'Hide with image'],
 		'ihash':        ['Скрывать схожие картинки', 'Hide similar images'],
-		'text':         ['Скрыть схожий текст', 'Hide similar text'],
 		'noimg':        ['Скрывать без картинок', 'Hide without images'],
-		'notext':       ['Скрывать без текста', 'Hide without text']
+		'notext':       ['Скрывать без текста', 'Hide without text'],
+		'text':         ['Скрыть схожий текст', 'Hide similar text'],
+		'refs':         ['Скрыть с ответами', 'Hide with answers']
 	},
 	selExpandThr: [
 		['+10 постов', 'Последние 30', 'Последние 50', 'Последние 100', 'Весь тред'],
@@ -567,7 +568,7 @@ Lng = {
 	prevImg:        ['Предыдущая картинка', 'Previous image'],
 	togglePost:     ['Скрыть/Раскрыть пост', 'Hide/Unhide post'],
 	replyToPost:    ['Ответить на пост', 'Reply to post'],
-	expandThrd:     ['Раскрытие треда', 'Thread expanding'],
+	expandThrd:     ['Развернуть тред', 'Expand thread'],
 	addFav:         ['Добавить тред в Избранное', 'Add thread to Favorites'],
 	delFav:         ['Убрать тред из Избранного', 'Remove thread from Favorites'],
 	attachPview:    ['Закрепить превью', 'Attach preview'],
@@ -9288,7 +9289,7 @@ class Post extends AbstractPost {
 	_getMenuHide(el) {
 		var str = '', sel = nav.Presto ? doc.getSelection() : window.getSelection(),
 			ssel = sel.toString(),
-			getItem = name => '<span info="spell-' + name + '" class="de-menu-item">' +
+			getItem = name => '<span info="hide-' + name + '" class="de-menu-item">' +
 				Lng.selHiderMenu[name][lang] + '</span>';
 		if(ssel) {
 			this._selText = ssel;
@@ -9312,11 +9313,15 @@ class Post extends AbstractPost {
 		} else {
 			str += getItem('notext');
 		}
+		if(!Cfg.hideRefPsts) {
+			str += getItem('refs');
+		}
 		return str;
 	}
 	_clickMenu(el) {
+		var hidden = this.hidden;
 		switch(el.getAttribute('info')) {
-		case 'spell-sel':
+		case 'hide-sel':
 			var start = this._selRange.startContainer,
 				end = this._selRange.endContainer;
 			if(start.nodeType === 3) {
@@ -9342,26 +9347,25 @@ class Post extends AbstractPost {
 					regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
 			}
 			return;
-		case 'spell-name': Spells.add(6 /* #name */, this.posterName, false); return;
-		case 'spell-trip': Spells.add(7 /* #trip */, this.posterTrip, false); return;
-		case 'spell-img':
+		case 'hide-name': Spells.add(6 /* #name */, this.posterName, false); return;
+		case 'hide-trip': Spells.add(7 /* #trip */, this.posterTrip, false); return;
+		case 'hide-img':
 			var img = this.images.firstAttach,
 				w = img.weight,
 				wi = img.width,
 				h = img.height;
 			Spells.add(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
 			return;
-		case 'spell-ihash':
+		case 'hide-ihash':
 			spawn(ImagesHashStorage.getHash, this.images.firstAttach).then(hash => {
 				if(hash !== -1) {
 					Spells.add(4 /* #ihash */, hash, false);
 				}
 			});
 			return;
-		case 'spell-noimg': Spells.add(0x108 /* (#all & !#img) */, '', true); return;
-		case 'spell-text':
+		case 'hide-noimg': Spells.add(0x108 /* (#all & !#img) */, '', true); return;
+		case 'hide-text':
 			var num = this.num,
-				hidden = this.hidden,
 				wrds = Post.getWrds(this.text),
 				time = Date.now();
 			for(var post = Thread.first.op; post; post = post.next) {
@@ -9369,7 +9373,12 @@ class Post extends AbstractPost {
 			}
 			saveUserPosts();
 			return;
-		case 'spell-notext': Spells.add(0x10B /* (#all & !#tlen) */, '', true); return;
+		case 'hide-notext': Spells.add(0x10B /* (#all & !#tlen) */, '', true); return;
+		case 'hide-refs':
+			this.ref[hidden ? 'unhide' : 'hide'](true);
+			this.setUserVisib(!hidden, Date.now(), true);
+			saveUserPosts();
+			return;
 		case 'thr-exp':
 			var task = parseInt(el.textContent.match(/\d+/), 10);
 			this.thr.load(!task ? 'all' : task === 10 ? 'more' : task, false);
@@ -10219,15 +10228,24 @@ class RefMap {
 	has(num) {
 		return this._set.has(num);
 	}
-	hide() {
-		if(!Cfg.hideRefPsts || !this.hasMap) {
+	hide(canDo = Cfg.hideRefPsts) {
+		if(!canDo || !this.hasMap) {
 			return;
+		}
+		var date, isUser = canDo === true; // else canDo === 1
+		if(isUser) {
+			date = Date.now();
 		}
 		for(var num of this._set) {
 			var pst = pByNum.get(num);
-			if(pst && !pst.userToggled) {
-				pst.setVisib(true, 'reference to >>' + this.num);
-				pst.ref.hide();
+			if(pst && (isUser || !pst.userToggled)) {
+				if(isUser) {
+					pst.setUserVisib(true, date, true, 'reference to >>' + this._post.num);
+					pst.ref.hide(true);
+				} else {
+					pst.setVisib(true, 'reference to >>' + this._post.num);
+					pst.ref.hide();
+				}
 			}
 		}
 	}
@@ -10260,15 +10278,24 @@ class RefMap {
 		delete this._el;
 		this.hasMap = false;
 	}
-	unhide() {
-		if(!Cfg.hideRefPsts || !this.hasMap) {
+	unhide(canDo = Cfg.hideRefPsts) {
+		if(!canDo || !this.hasMap) {
 			return;
+		}
+		var date, isUser = canDo === true; // else canDo === 1
+		if(isUser) {
+			date = Date.now();
 		}
 		for(var num of this._set) {
 			var pst = pByNum.get(num);
-			if(pst && pst.hidden && !pst.userToggled && !pst.spellHidden) {
-				pst.setVisib(false);
-				pst.ref.unhide();
+			if(pst && pst.hidden && (isUser || !pst.userToggled) && !pst.spellHidden) {
+				if(isUser) {
+					pst.setUserVisib(false, date, true);
+					pst.ref.unhide(true);
+				} else {
+					pst.setVisib(false);
+					pst.ref.unhide();
+				}
 			}
 		}
 	}

@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '51ef82b';
+	var commit = '2e50c74';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3098,9 +3098,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'trip': ['Скрывать трип-код', 'Hide with trip-code'],
 			'img': ['Скрывать картинку', 'Hide with image'],
 			'ihash': ['Скрывать схожие картинки', 'Hide similar images'],
-			'text': ['Скрыть схожий текст', 'Hide similar text'],
 			'noimg': ['Скрывать без картинок', 'Hide without images'],
-			'notext': ['Скрывать без текста', 'Hide without text']
+			'notext': ['Скрывать без текста', 'Hide without text'],
+			'text': ['Скрыть схожий текст', 'Hide similar text'],
+			'refs': ['Скрыть с ответами', 'Hide with answers']
 		},
 		selExpandThr: [['+10 постов', 'Последние 30', 'Последние 50', 'Последние 100', 'Весь тред'], ['+10 posts', 'Last 30 posts', 'Last 50 posts', 'Last 100 posts', 'All thread']],
 		selAjaxPages: [['1 страница', '2 страницы', '3 страницы', '4 страницы', '5 страниц'], ['1 page', '2 pages', '3 pages', '4 pages', '5 pages']],
@@ -3237,7 +3238,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		prevImg: ['Предыдущая картинка', 'Previous image'],
 		togglePost: ['Скрыть/Раскрыть пост', 'Hide/Unhide post'],
 		replyToPost: ['Ответить на пост', 'Reply to post'],
-		expandThrd: ['Раскрытие треда', 'Thread expanding'],
+		expandThrd: ['Развернуть тред', 'Expand thread'],
 		addFav: ['Добавить тред в Избранное', 'Add thread to Favorites'],
 		delFav: ['Убрать тред из Избранного', 'Remove thread from Favorites'],
 		attachPview: ['Закрепить превью', 'Attach preview'],
@@ -12922,7 +12923,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				    sel = nav.Presto ? doc.getSelection() : window.getSelection(),
 				    ssel = sel.toString(),
 				    getItem = function getItem(name) {
-					return '<span info="spell-' + name + '" class="de-menu-item">' + Lng.selHiderMenu[name][lang] + '</span>';
+					return '<span info="hide-' + name + '" class="de-menu-item">' + Lng.selHiderMenu[name][lang] + '</span>';
 				};
 				if (ssel) {
 					this._selText = ssel;
@@ -12946,13 +12947,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				} else {
 					str += getItem('notext');
 				}
+				if (!Cfg.hideRefPsts) {
+					str += getItem('refs');
+				}
 				return str;
 			}
 		}, {
 			key: '_clickMenu',
 			value: function _clickMenu(el) {
+				var hidden = this.hidden;
 				switch (el.getAttribute('info')) {
-					case 'spell-sel':
+					case 'hide-sel':
 						var start = this._selRange.startContainer,
 						    end = this._selRange.endContainer;
 						if (start.nodeType === 3) {
@@ -12974,29 +12979,28 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							Spells.add(2 , '/' + regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
 						}
 						return;
-					case 'spell-name':
+					case 'hide-name':
 						Spells.add(6 , this.posterName, false);return;
-					case 'spell-trip':
+					case 'hide-trip':
 						Spells.add(7 , this.posterTrip, false);return;
-					case 'spell-img':
+					case 'hide-img':
 						var img = this.images.firstAttach,
 						    w = img.weight,
 						    wi = img.width,
 						    h = img.height;
 						Spells.add(8 , [0, [w, w], [wi, wi, h, h]], false);
 						return;
-					case 'spell-ihash':
+					case 'hide-ihash':
 						spawn(ImagesHashStorage.getHash, this.images.firstAttach).then(function (hash) {
 							if (hash !== -1) {
 								Spells.add(4 , hash, false);
 							}
 						});
 						return;
-					case 'spell-noimg':
+					case 'hide-noimg':
 						Spells.add(0x108 , '', true);return;
-					case 'spell-text':
+					case 'hide-text':
 						var num = this.num,
-						    hidden = this.hidden,
 						    wrds = Post.getWrds(this.text),
 						    time = Date.now();
 						for (var post = Thread.first.op; post; post = post.next) {
@@ -13004,8 +13008,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 						saveUserPosts();
 						return;
-					case 'spell-notext':
+					case 'hide-notext':
 						Spells.add(0x10B , '', true);return;
+					case 'hide-refs':
+						this.ref[hidden ? 'unhide' : 'hide'](true);
+						this.setUserVisib(!hidden, Date.now(), true);
+						saveUserPosts();
+						return;
 					case 'thr-exp':
 						var task = parseInt(el.textContent.match(/\d+/), 10);
 						this.thr.load(!task ? 'all' : task === 10 ? 'more' : task, false);
@@ -14086,8 +14095,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'hide',
 			value: function hide() {
-				if (!Cfg.hideRefPsts || !this.hasMap) {
+				var canDo = arguments.length <= 0 || arguments[0] === undefined ? Cfg.hideRefPsts : arguments[0];
+
+				if (!canDo || !this.hasMap) {
 					return;
+				}
+				var date,
+				    isUser = canDo === true;
+				if (isUser) {
+					date = Date.now();
 				}
 				for (var _iterator22 = this._set, _isArray22 = Array.isArray(_iterator22), _i23 = 0, _iterator22 = _isArray22 ? _iterator22 : _iterator22[Symbol.iterator]();;) {
 					var _ref38;
@@ -14104,9 +14120,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var num = _ref38;
 
 					var pst = pByNum.get(num);
-					if (pst && !pst.userToggled) {
-						pst.setVisib(true, 'reference to >>' + this.num);
-						pst.ref.hide();
+					if (pst && (isUser || !pst.userToggled)) {
+						if (isUser) {
+							pst.setUserVisib(true, date, true, 'reference to >>' + this._post.num);
+							pst.ref.hide(true);
+						} else {
+							pst.setVisib(true, 'reference to >>' + this._post.num);
+							pst.ref.hide();
+						}
 					}
 				}
 			}
@@ -14165,8 +14186,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'unhide',
 			value: function unhide() {
-				if (!Cfg.hideRefPsts || !this.hasMap) {
+				var canDo = arguments.length <= 0 || arguments[0] === undefined ? Cfg.hideRefPsts : arguments[0];
+
+				if (!canDo || !this.hasMap) {
 					return;
+				}
+				var date,
+				    isUser = canDo === true;
+				if (isUser) {
+					date = Date.now();
 				}
 				for (var _iterator24 = this._set, _isArray24 = Array.isArray(_iterator24), _i25 = 0, _iterator24 = _isArray24 ? _iterator24 : _iterator24[Symbol.iterator]();;) {
 					var _ref40;
@@ -14183,9 +14211,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var num = _ref40;
 
 					var pst = pByNum.get(num);
-					if (pst && pst.hidden && !pst.userToggled && !pst.spellHidden) {
-						pst.setVisib(false);
-						pst.ref.unhide();
+					if (pst && pst.hidden && (isUser || !pst.userToggled) && !pst.spellHidden) {
+						if (isUser) {
+							pst.setUserVisib(false, date, true);
+							pst.ref.unhide(true);
+						} else {
+							pst.setVisib(false);
+							pst.ref.unhide();
+						}
 					}
 				}
 			}
