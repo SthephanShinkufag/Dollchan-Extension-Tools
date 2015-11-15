@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'a7c58ab';
+var commit = '79439b0';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3438,7 +3438,7 @@ function $popup(txt, id, wait) {
 	if(Cfg.closePopups && !wait && !id.includes('edit') && !id.includes('cfg')) {
 		el.closeTimeout = setTimeout(closePopup, 4e3, el);
 	}
-	return el.lastChild;
+	return el.lastElementChild;
 }
 
 function Menu(parentEl, html, isFixed, clickFn) {
