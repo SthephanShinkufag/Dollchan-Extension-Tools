@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '304b1de';
+var commit = 'f2cc7fa';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1507,10 +1507,6 @@ function* readCfg() {
 	}
 	if(!Cfg.timePattern) {
 		Cfg.timePattern = aib.timePattern;
-	}
-	if(aib.fch && Cfg.ajaxReply === 2) {
-		Lng.cfg['ajaxReply'].sel.forEach(a => a.splice(-1));
-		Cfg.ajaxReply = 1;
 	}
 	if(aib.prot !== 'http:') {
 		Cfg.addVocaroo = 0;
@@ -5122,7 +5118,7 @@ var Pages = {
 			if(form === DelForm.last) {
 				break;
 			}
-			$del(form.el);
+			form.remove();
 		}
 		DelForm.first = DelForm.last;
 		var len = Math.min(aib.lastPage + 1, aib.page + count);
@@ -5137,7 +5133,7 @@ var Pages = {
 		var first = DelForm.first;
 		if(first !== DelForm.last) {
 			DelForm.first = first.next;
-			$del(first.el);
+			first.remove();
 			yield* this._updateForms(DelForm.first);
 			closePopup('load-pages');
 		}
@@ -12771,12 +12767,7 @@ class DelForm {
 					'<iframe name="de-iframe-pform" src="about:blank" style="display: none;"></iframe>' +
 					'<iframe name="de-iframe-dform" src="about:blank" style="display: none;"></iframe>'
 				);
-				var node = el.lastChild;
-				node.addEventListener('message', e => checkDelete(this, $DOM(e.data)))
-				node.previousSibling.addEventListener('message', e => {
-					checkUpload($DOM(e.data));
-					$q('iframe[name="de-iframe-pform"]', doc).src = 'about:blank';
-				});
+				doc.defaultView.addEventListener('message', this);
 				el.target = 'de-iframe-dform';
 				el.onsubmit = function() {
 					pr.closeReply();
@@ -12801,6 +12792,19 @@ class DelForm {
 		Logger.log('Image names');
 		RefMap.init(this);
 		Logger.log('Reflinks map');
+	}
+	handleEvent({ data }) {
+		switch(data.substr(0, 15)) {
+		case 'de-iframe-dform': checkDelete(this, $DOM(data.substr(15))); break;
+		case 'de-iframe-pform':
+			checkUpload($DOM(data.substr(15)));
+			$q('iframe[name="de-iframe-pform"]', doc).src = 'about:blank';
+			break;
+		}
+	}
+	remove() {
+		doc.defaultView.removeEventListener('message', this);
+		$del(this.el);
 	}
 }
 DelForm.tNums = new Set();
@@ -13683,7 +13687,7 @@ function scriptCSS() {
 	.de-abtn { text-decoration: none !important; outline: none; }\
 	.de-after-fimg { clear: left; }\
 	#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
-	.de-popup { overflow: visible !important; clear: both; width: auto; min-width: 0pt; padding: 8px; margin: 1px; border: 1px solid grey; display: block; float: right; }\
+	.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; }\
 	.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }\
 	.de-popup-msg { display: inline-block; white-space: pre-wrap; }\
 	.de-button { flex: none; padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 1px 2px; height: 24px; font: 13px arial; }\
@@ -13862,7 +13866,7 @@ switch(window.name) {
 case '': break;
 case 'de-iframe-pform':
 case 'de-iframe-dform':
-	$script('window.postMessage(document.documentElement.outerHTML, "*");');
+	window.parent.postMessage(window.name + document.documentElement.outerHTML, "*");
 	return;
 }
 
