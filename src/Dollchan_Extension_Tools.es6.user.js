@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '2a74bd2';
+var commit = '6f42532';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -391,7 +391,7 @@ Lng = {
 		'%l%i27 – открыть/закрыть "Скрытое"%/l',
 		'%l%i218 – открыть/закрыть "Видео"%/l',
 		'%l%i28 – открыть/закрыть панель%/l',
-		'%l%i29 – включить/выключить маскировку картинок%/l',
+		'%l%i29 – вкл./выкл. маскировку картинок%/l',
 		'%l%i40 – обновить тред (в треде)%/l',
 		'%l%i212t – жирный%/l',
 		'%l%i213t – курсив%/l',
@@ -4005,7 +4005,7 @@ KeyEditListener.getEditMarkup = function(keys) {
 			var key = keys[+id1][+id2];
 			allKeys.push(key);
 			return '<input class="de-input-key" type="text" de-id1="' + id1 + '" de-id2="' + id2 +
-				'" size="18" value="' + KeyEditListener.getStrKey(key) +
+				'" size="16" value="' + KeyEditListener.getStrKey(key) +
 				(isText ? '" de-text' : '"' ) + ' readonly></input>';
 		}) +
 	'<input type="button" id="de-keys-save" class="de-button" value="' + Lng.save[lang] + '"></input>' +
@@ -13662,7 +13662,7 @@ function scriptCSS() {
 	.de-button { flex: none; padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 1px 2px; height: 24px; font: 13px arial; }\
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\
-	.de-input-key { height: 12px }\
+	.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\
 	.de-link-parent { outline: 1px dotted !important; }\
 	.de-link-pview { font-weight: bold; }\
 	.de-link-ref { text-decoration: none; }\
