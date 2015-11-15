@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'f2cc7fa';
+var commit = '51ef82b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5118,7 +5118,7 @@ var Pages = {
 			if(form === DelForm.last) {
 				break;
 			}
-			form.remove();
+			$del(form.el);
 		}
 		DelForm.first = DelForm.last;
 		var len = Math.min(aib.lastPage + 1, aib.page + count);
@@ -5133,7 +5133,7 @@ var Pages = {
 		var first = DelForm.first;
 		if(first !== DelForm.last) {
 			DelForm.first = first.next;
-			first.remove();
+			$del(first.el);
 			yield* this._updateForms(DelForm.first);
 			closePopup('load-pages');
 		}
@@ -7627,7 +7627,7 @@ function checkUpload(dc) {
 	pr.filesCount = 0;
 }
 
-var checkDelete = async(function* (form, dc) {
+var checkDelete = async(function* (dc) {
 	var err = getSubmitError(dc);
 	if(err) {
 		$popup(Lng.errDelete[lang] + err, 'delete', false);
@@ -7644,7 +7644,7 @@ var checkDelete = async(function* (form, dc) {
 			doc.location.hash = '';
 		}
 	}
-	var els = $Q(aib.qRPost + ' input:checked', form.el),
+	var els = $Q('[de-form] ' + aib.qRPost + ' input:checked', doc.body),
 		threads = new Set(),
 		isThr = aib.t;
 	for(var i = 0, len = els.length; i < len; ++i) {
@@ -12759,15 +12759,10 @@ class DelForm {
 						pr.closeReply();
 						$popup(Lng.deleting[lang], 'delete', true);
 						spawn(html5Submit, el, e.target)
-							.then(dc => checkDelete(this, dc), e => $popup(getErrorMessage(e), 'delete', false));
+							.then(dc => checkDelete(dc), e => $popup(getErrorMessage(e), 'delete', false));
 					};
 				}
 			} else if(Cfg.ajaxReply === 1) {
-				el.insertAdjacentHTML('beforeend',
-					'<iframe name="de-iframe-pform" src="about:blank" style="display: none;"></iframe>' +
-					'<iframe name="de-iframe-dform" src="about:blank" style="display: none;"></iframe>'
-				);
-				doc.defaultView.addEventListener('message', this);
 				el.target = 'de-iframe-dform';
 				el.onsubmit = function() {
 					pr.closeReply();
@@ -12792,19 +12787,6 @@ class DelForm {
 		Logger.log('Image names');
 		RefMap.init(this);
 		Logger.log('Reflinks map');
-	}
-	handleEvent({ data }) {
-		switch(data.substr(0, 15)) {
-		case 'de-iframe-dform': checkDelete(this, $DOM(data.substr(15))); break;
-		case 'de-iframe-pform':
-			checkUpload($DOM(data.substr(15)));
-			$q('iframe[name="de-iframe-pform"]', doc).src = 'about:blank';
-			break;
-		}
-	}
-	remove() {
-		doc.defaultView.removeEventListener('message', this);
-		$del(this.el);
 	}
 }
 DelForm.tNums = new Set();
@@ -13320,6 +13302,21 @@ function initThreadUpdater(title, enableUpdate) {
 }
 
 function initPage() {
+	if(!localRun && Cfg.ajaxReply === 1) {
+		doc.body.insertAdjacentHTML('beforeend',
+			'<iframe name="de-iframe-pform" src="about:blank" style="display: none;"></iframe>' +
+			'<iframe name="de-iframe-dform" src="about:blank" style="display: none;"></iframe>'
+		);
+		doc.defaultView.addEventListener('message', ({ data }) => {
+			switch(data.substr(0, 15)) {
+			case 'de-iframe-pform':
+				checkUpload($DOM(data.substr(15)));
+				$q('iframe[name="de-iframe-pform"]', doc).src = 'about:blank';
+				break;
+			case 'de-iframe-dform': checkDelete($DOM(data.substr(15))); break;
+			}
+		});
+	}
 	if(aib.t) {
 		if(Cfg.rePageTitle) {
 			doc.title = '/' + aib.b + ' - ' + Thread.first.op.title;

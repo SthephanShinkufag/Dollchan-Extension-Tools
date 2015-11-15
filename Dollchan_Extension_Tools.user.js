@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'f2cc7fa';
+	var commit = '51ef82b';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -7982,7 +7982,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return _context11.abrupt('break', 29);
 
 					case 26:
-						form.remove();
+						$del(form.el);
 
 					case 27:
 						_context11.next = 11;
@@ -8030,7 +8030,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 
 						DelForm.first = first.next;
-						first.remove();
+						$del(first.el);
 						return _context11.delegateYield(this._updateForms(DelForm.first), 't1', 51);
 
 					case 51:
@@ -10889,7 +10889,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		pr.filesCount = 0;
 	}
 
-	var checkDelete = async(regeneratorRuntime.mark(function _callee9(form, dc) {
+	var checkDelete = async(regeneratorRuntime.mark(function _callee9(dc) {
 		var err, _ref31, _ref32, num, post, els, threads, isThr, i, len, el, _iterator18, _isArray18, _i19, _ref33, thr;
 
 		return regeneratorRuntime.wrap(function _callee9$(_context15) {
@@ -10921,7 +10921,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							doc.location.hash = '';
 						}
 					}
-					els = $Q(aib.qRPost + ' input:checked', form.el), threads = new Set(), isThr = aib.t;
+					els = $Q('[de-form] ' + aib.qRPost + ' input:checked', doc.body), threads = new Set(), isThr = aib.t;
 
 					for (i = 0, len = els.length; i < len; ++i) {
 						el = els[i];
@@ -17153,8 +17153,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_createClass(DelForm, [{
 			key: 'addStuff',
 			value: function addStuff() {
-				var _this75 = this;
-
 				var el = this.el;
 				if (!localRun) {
 					if (Cfg.ajaxReply === 2) {
@@ -17166,15 +17164,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								pr.closeReply();
 								$popup(Lng.deleting[lang], 'delete', true);
 								spawn(html5Submit, el, e.target).then(function (dc) {
-									return checkDelete(_this75, dc);
+									return checkDelete(dc);
 								}, function (e) {
 									return $popup(getErrorMessage(e), 'delete', false);
 								});
 							};
 						}
 					} else if (Cfg.ajaxReply === 1) {
-						el.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-pform" src="about:blank" style="display: none;"></iframe>' + '<iframe name="de-iframe-dform" src="about:blank" style="display: none;"></iframe>');
-						doc.defaultView.addEventListener('message', this);
 						el.target = 'de-iframe-dform';
 						el.onsubmit = function () {
 							pr.closeReply();
@@ -17199,26 +17195,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				Logger.log('Image names');
 				RefMap.init(this);
 				Logger.log('Reflinks map');
-			}
-		}, {
-			key: 'handleEvent',
-			value: function handleEvent(_ref42) {
-				var data = _ref42.data;
-
-				switch (data.substr(0, 15)) {
-					case 'de-iframe-dform':
-						checkDelete(this, $DOM(data.substr(15)));break;
-					case 'de-iframe-pform':
-						checkUpload($DOM(data.substr(15)));
-						$q('iframe[name="de-iframe-pform"]', doc).src = 'about:blank';
-						break;
-				}
-			}
-		}, {
-			key: 'remove',
-			value: function remove() {
-				doc.defaultView.removeEventListener('message', this);
-				$del(this.el);
 			}
 		}, {
 			key: 'passEl',
@@ -17295,7 +17271,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			},
 			play: function play() {
-				var _this76 = this;
+				var _this75 = this;
 
 				this.stop();
 				if (this.repeatMS === 0) {
@@ -17303,7 +17279,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return;
 				}
 				this._playInterval = setInterval(function () {
-					return _this76._el.play();
+					return _this75._el.play();
 				}, this.repeatMS);
 			},
 			stop: function stop() {
@@ -17334,7 +17310,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._el.style.display = 'none';
 			},
 			count: function count(delayMS, useCounter, callback) {
-				var _this77 = this;
+				var _this76 = this;
 
 				if (this._enabled && useCounter) {
 					var seconds = delayMS / 1000;
@@ -17342,15 +17318,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this._countingIV = setInterval(function () {
 						seconds--;
 						if (seconds === 0) {
-							_this77._stop();
+							_this76._stop();
 							callback();
 						} else {
-							_this77._set(seconds);
+							_this76._set(seconds);
 						}
 					}, 1000);
 				} else {
 					this._countingTO = setTimeout(function () {
-						_this77._countingTO = null;
+						_this76._countingTO = null;
 						callback();
 					}, delayMS);
 				}
@@ -17430,7 +17406,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._iconEl = doc.head.firstChild;
 			},
 			_startBlink: function _startBlink(iconUrl) {
-				var _this78 = this;
+				var _this77 = this;
 
 				if (this._blinkInterval) {
 					if (this._currentIcon === iconUrl) {
@@ -17440,8 +17416,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				this._currentIcon = iconUrl;
 				this._blinkInterval = setInterval(function () {
-					_this78._setIcon(_this78._isOriginalIcon ? _this78._currentIcon : _this78.originalIcon);
-					_this78._isOriginalIcon = !_this78._isOriginalIcon;
+					_this77._setIcon(_this77._isOriginalIcon ? _this77._currentIcon : _this77.originalIcon);
+					_this77._isOriginalIcon = !_this77._isOriginalIcon;
 				}, this._blinkMS);
 			}
 		};
@@ -17461,7 +17437,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			},
 			show: function show() {
-				var _this79 = this;
+				var _this78 = this;
 
 				var post = Thread.first.last,
 				    notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
@@ -17471,8 +17447,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 				notif.onshow = function () {
 					return setTimeout(function () {
-						if (notif === _this79._notifEl) {
-							_this79.close();
+						if (notif === _this78._notifEl) {
+							_this78.close();
 						}
 					}, 12e3);
 				};
@@ -17481,7 +17457,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				};
 				notif.onerror = function () {
 					window.focus();
-					_this79._requestPermission();
+					_this78._requestPermission();
 				};
 				this._notifEl = notif;
 			},
@@ -17497,14 +17473,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_notifEl: null,
 
 			_requestPermission: function _requestPermission() {
-				var _this80 = this;
+				var _this79 = this;
 
 				this._granted = false;
 				Notification.requestPermission(function (state) {
 					if (state.toLowerCase() === 'denied') {
 						saveCfg('desktNotif', 0);
 					} else {
-						_this80._granted = true;
+						_this79._granted = true;
 					}
 				});
 			}
@@ -17605,7 +17581,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._makeStep();
 			},
 			_makeStep: function _makeStep() {
-				var _this81 = this;
+				var _this80 = this;
 
 				var needSleep = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
 
@@ -17614,7 +17590,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						if (needSleep) {
 							this._state = 1;
 							counter.count(this._delay, !doc.hidden, function () {
-								return _this81._makeStep();
+								return _this80._makeStep();
 							});
 							return;
 						}
@@ -17623,9 +17599,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						this._loadPromise = Thread.first.loadNew(true);
 						this._state = 2;
 						this._loadPromise.then(function (pCount) {
-							return _this81._handleNewPosts(pCount, AjaxError.Success);
+							return _this80._handleNewPosts(pCount, AjaxError.Success);
 						}, function (e) {
-							return _this81._handleNewPosts(0, e);
+							return _this80._handleNewPosts(0, e);
 						});
 						return;
 					case 2:
@@ -17776,6 +17752,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function initPage() {
+		if (!localRun && Cfg.ajaxReply === 1) {
+			doc.body.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-pform" src="about:blank" style="display: none;"></iframe>' + '<iframe name="de-iframe-dform" src="about:blank" style="display: none;"></iframe>');
+			doc.defaultView.addEventListener('message', function (_ref42) {
+				var data = _ref42.data;
+
+				switch (data.substr(0, 15)) {
+					case 'de-iframe-pform':
+						checkUpload($DOM(data.substr(15)));
+						$q('iframe[name="de-iframe-pform"]', doc).src = 'about:blank';
+						break;
+					case 'de-iframe-dform':
+						checkDelete($DOM(data.substr(15)));break;
+				}
+			});
+		}
 		if (aib.t) {
 			if (Cfg.rePageTitle) {
 				doc.title = '/' + aib.b + ' - ' + Thread.first.op.title;
