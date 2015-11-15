@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '6f42532';
+var commit = '816ef2e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5137,14 +5137,14 @@ var Pages = {
 	_addForm(formEl, pageNum) {
 		formEl = replacePost(formEl);
 		formEl.style.display = 'none';
-		if(pageNum != aib.page) {
-			formEl.insertAdjacentHTML('afterbegin', '<center style="font-size: 2em">' +
-				Lng.page[lang] + ' ' + pageNum + '</center><hr>');
-		}
 		$after(DelForm.last.el, formEl);
 		var form = new DelForm(formEl, +pageNum, DelForm.last);
 		DelForm.last = form;
 		form.addStuff();
+		if(pageNum != aib.page) {
+			formEl.insertAdjacentHTML('afterbegin', '<center style="font-size: 2em">' +
+				Lng.page[lang] + ' ' + pageNum + '</center><hr>');
+		}
 		formEl.style.removeProperty('display');
 	},
 	_endAdding() {
