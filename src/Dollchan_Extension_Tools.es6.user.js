@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '816ef2e';
+var commit = 'd6cd630';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1948,7 +1948,7 @@ var panel = Object.create({
 						'<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' +
 						Thread.first.pcount + '/' + imgLen + '</span>')
 				) + '</span>' +
-			'</div>' + (Cfg.disabled ? '' : '<div id="de-popup"></div><hr style="clear: both;">') + '</div>');
+			'</div>' + (Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">') + '</div>');
 		this._el = $id('de-panel');
 		this._el.addEventListener('click', this, true);
 		this._el.addEventListener('mouseover', this);
@@ -2508,24 +2508,26 @@ function showFavoritesWindow(body, data) {
 				if(!t.url.startsWith('http')) {
 					t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 				}
-				block.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '" de-host="' +
-					h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">' +
-					(t['type'] !== 'user' ? '' :
-						'<span class="de-fav-user" title="' + Lng.setByUser[lang] + '"></span>') +
-						'<input type="checkbox">' +
-						'<a href="' + t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last :
-							h === aib.host ? aib.anchor + t.last : '') + '" rel="noreferrer">' + tNum + '</a>' +
-					'<div class="de-entry-title">- ' + t.txt + '</div>' +
-					'<div class="de-fav-inf">' +
-						'<span class="de-fav-inf-err' + (!t['err'] ? '' :
-							t['err'] === 'Closed' ? ' de-fav-closed" title="' + Lng.thrClosed[lang] :
-							' de-fav-unavail" title="' + t['err']) + '"></span> ' +
-						'<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' +
-							(t['new'] ? '>' : ' style="display: none;">') + (t['new'] || 0) + '</span> ' +
-						'[<span class="de-fav-inf-old" title="' +
-							Lng.oldPosts[lang] + '">' + t.cnt + '</span>] ' +
-						'<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>' +
-						'</span></div>');
+				block.insertAdjacentHTML('beforeend', `<div class="de-entry ${ aib.cReply }" de-host="${ h }" de-board="${ b }" de-num="${ tNum }" de-url="${ t.url }">
+					<svg class="de-wait" style="display: none;"><use xlink:href="#de-symbol-wait"/></svg>
+					${ t['type'] === 'user' ? '<span class="de-fav-user" title="' + Lng.setByUser[lang] + '"></span>' : '' }
+					<input type="checkbox">
+					<a href="${ t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last : h === aib.host ? aib.anchor + t.last : '') }" rel="noreferrer">
+						${ tNum }
+					</a>
+					<div class="de-entry-title">- ${ t.txt }</div>
+					<div class="de-fav-inf">
+						<svg class="de-fav-inf-err ${ !t['err'] ? '' : t['err'] === 'Closed' ? ' de-fav-closed" title="' + Lng.thrClosed[lang] : ' de-fav-unavail" title="' + t['err'] }">
+							<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>
+							<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>
+						</svg>
+						<span class="de-fav-inf-new" title="${ Lng.newPosts[lang] }"${ t['new'] ? '>' : ' style="display: none;">' }
+							${ t['new'] || 0 }
+						</span>
+						[<span class="de-fav-inf-old" title="${ Lng.oldPosts[lang] }">${ t.cnt }</span>]
+						<span class="de-fav-inf-page" title="${ Lng.thrPage[lang] }"></span>
+					</div>
+				</div>`);
 				$t('a', block.lastChild).onclick = function() {
 					sesStorage['de-win-fav'] = '1';
 					var el = this.parentNode;
@@ -2547,7 +2549,7 @@ function showFavoritesWindow(body, data) {
 			els = $C('de-entry', doc),
 			fav = yield* getStoredObj('DESU_Favorites');
 		for(var i = 0, len = els.length; i < len; ++i) {
-			var form, el = els[i],
+			var form, waitEl, el = els[i],
 				host = el.getAttribute('de-host'),
 				b = el.getAttribute('de-board'),
 				num = el.getAttribute('de-num'),
@@ -2555,14 +2557,13 @@ function showFavoritesWindow(body, data) {
 			if(host !== aib.host || f['err'] === 'Closed') {
 				continue;
 			}
+			waitEl = $c('de-wait', el);
 			el = $c('de-fav-inf-new', el);
-			el.style.display = '';
-			el.textContent = '';
-			el.className = 'de-wait';
+			waitEl.style.removeProperty('display');
 			try {
 				form = yield ajaxLoad(aib.getThrdUrl(b, num));
 			} catch(e) {
-				el.classList.remove('de-wait');
+				el.style.display = waitEl.style.display = 'none';
 				err = el.previousElementSibling;
 				err.classList.add('de-fav-unavail');
 				f['err'] = err.title = getErrorMessage(e);
@@ -2577,11 +2578,12 @@ function showFavoritesWindow(body, data) {
 				update = true;
 			}
 			var cnt = $Q(aib.qRPost, form).length + 1 - el.nextElementSibling.textContent;
+			waitEl.style.display = 'none';
 			el.textContent = cnt;
-			el.className = 'de-fav-inf-new';
 			if(cnt === 0) {
 				el.style.display = 'none';
 			} else {
+				el.style.removeProperty('display');
 				f['new'] = cnt;
 				update = true;
 			}
@@ -2606,24 +2608,30 @@ function showFavoritesWindow(body, data) {
 		}
 		$popup(Lng.loading[lang], 'load-pages', true);
 		for(var i = 0; i < infoCount; ++i) {
-			var el = els[i];
-			postsInfo.push([+el.getAttribute('de-num'), el = $c('de-fav-inf-page', el), false]);
-			el.classList.add('de-wait');
+			var el = els[i],
+				waitEl = $c('de-wait', el);
+			postsInfo.push({
+				found: false,
+				num: +el.getAttribute('de-num'),
+				pageEl: $c('de-fav-inf-page', el),
+				waitEl
+			});
+			waitEl.style.removeProperty('display');
 		}
 		for(var page = 0, infoLoaded = 0, endPage = (aib.lastPage || 10) + 1; page < endPage; ++page) {
 			var tNums;
 			try {
 				var form = yield ajaxLoad(aib.getPageUrl(aib.b, page));
-				tNums = new Set(Array.from(DelForm.getThreads(formEl)).map(thrEl => aib.getTNum(thrEl)));
+				tNums = new Set(Array.from(DelForm.getThreads(form)).map(thrEl => aib.getTNum(thrEl)));
 			} catch(e) {
 				continue;
 			}
 			for(var i = 0; i < infoCount; ++i) {
 				var pInfo = postsInfo[i];
-				if(tNums.has(pInfo[0])) {
-					pInfo[1].classList.remove('de-wait');
-					pInfo[1].textContent = '@' + page;
-					pInfo[2] = true;
+				if(tNums.has(pInfo.num)) {
+					pInfo.waitEl.style.display = 'none';
+					pInfo.pageEl.textContent = '@' + page;
+					pInfo.found = true;
 					infoLoaded++;
 				}
 			}
@@ -2632,10 +2640,10 @@ function showFavoritesWindow(body, data) {
 			}
 		}
 		for(var i = 0; i < infoCount; ++i) {
-			var [, node, isFound] = postsInfo[i];
-			if(!isFound) {
-				node.classList.remove('de-wait');
-				node.textContent = '@?';
+			var { found, pageEl, waitEl } = postsInfo[i];
+			if(!found) {
+				waitEl.style.display = 'none';
+				pageEl.textContent = '@?';
 			}
 		}
 		closePopup('load-pages');
@@ -2643,8 +2651,9 @@ function showFavoritesWindow(body, data) {
 	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
 		for(var i = 0, els = $C('de-entry', doc), len = els.length; i < len; ++i) {
 			var el = els[i],
-				node = $c('de-fav-inf-err', el);
-			node.classList.add('de-wait');
+				node = $c('de-fav-inf-err', el),
+				waitEl = $c('de-wait', el);
+			waitEl.style.removeProperty('display');
 			try {
 				yield $ajax(el.getAttribute('de-url'), null, false);
 			} catch(xhr) {
@@ -2654,7 +2663,7 @@ function showFavoritesWindow(body, data) {
 				node.classList.add('de-fav-unavail');
 				node.title = getErrorMessage(new AjaxError(xhr.status, xhr.statusText));
 			}
-			node.classList.remove('de-wait');
+			waitEl.style.display = 'none';
 		}
 		cleanFavorites();
 	})));
@@ -3376,8 +3385,8 @@ function addSettings(body, id) {
 // MENU & POPUP
 // ===========================================================================================================
 
-function closePopup(id) {
-	var el = $id('de-popup-' + id);
+function closePopup(data) {
+	var el = typeof data === 'string' ? $id('de-popup-' + data) : data;
 	if(el) {
 		el.closeTimeout = null;
 		if(!Cfg.animation) {
@@ -3396,13 +3405,10 @@ function closePopup(id) {
 
 function $popup(txt, id, wait) {
 	var node, el = $id('de-popup-' + id),
-		cBtn = 'de-popup-btn' + (wait ? ' de-wait' : ''),
-		tBtn = wait ? '' : '\u2716 ';
+		buttonHTML = wait ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '\u2716 ';
 	if(el) {
 		$t('div', el).innerHTML = txt.trim();
-		node = $t('span', el);
-		node.className = cBtn;
-		node.textContent = tBtn;
+		$t('span', el).innerHTML = buttonHTML;
 		clearTimeout(el.closeTimeout);
 		if(!wait && Cfg.animation) {
 			nav.animEvent(el, function(node) {
@@ -3411,12 +3417,17 @@ function $popup(txt, id, wait) {
 			el.classList.add('de-blink');
 		}
 	} else {
-		el = $id('de-popup').appendChild($New('div', {'class': aib.cReply, 'id': 'de-popup-' + id}, [
-			$new('span', {'class': cBtn, 'text': tBtn}, {'click'() {
-				closePopup(id);
-			}}),
-			$add('<div class="de-popup-msg">' + txt.trim() + '</div>')
-		]));
+		el = $id('de-wrapper-popup').appendChild($add(`<div class="${ aib.cReply } de-popup" id="de-popup-${ id }">
+			<span class="de-popup-btn">${ buttonHTML }</span>
+			<div class="de-popup-msg">${ txt.trim() }</div>
+		</div>`));
+		el.onclick = e => {
+			var el = fixEventEl(e.target);
+			el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
+			if(el.className === 'de-popup-btn') {
+				closePopup(el.parentNode);
+			}
+		};
 		if(Cfg.animation) {
 			nav.animEvent(el, function(node) {
 				node.classList.remove('de-open');
@@ -3425,7 +3436,7 @@ function $popup(txt, id, wait) {
 		}
 	}
 	if(Cfg.closePopups && !wait && !id.includes('edit') && !id.includes('cfg')) {
-		el.closeTimeout = setTimeout(closePopup, 4e3, id);
+		el.closeTimeout = setTimeout(closePopup, 4e3, el);
 	}
 	return el.lastChild;
 }
@@ -5073,8 +5084,8 @@ var Pages = {
 			return;
 		}
 		this._adding = true;
-		DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr><div class="de-wait">' +
-			Lng.loading[lang] + '</div></div>');
+		DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' +
+			'<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>');
 		this._addPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(formEl => {
 			this._addForm(formEl, pageNum);
 			return spawn(this._updateForms, DelForm.last);
@@ -7370,7 +7381,7 @@ FileInput.prototype = {
 		el.onchange = e => {
 			$del(this._rjUtil);
 			this._buttonsPlace.insertAdjacentHTML('afterend',
-				'<span><span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
+				'<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.wait[lang] + '</span>');
 			var myRjUtil = this._rjUtil = this._buttonsPlace.nextSibling,
 				file = e.target.files[0];
 			readFile(file, false).then(val => {
@@ -9753,8 +9764,8 @@ class Pview extends AbstractPost {
 			return;
 		}
 		this._loading = true;
-		this._showPview(this.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview"><span class="de-wait">'
-			+ Lng.loading[lang] + '</span></div>'));
+		this._showPview(this.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">'
+			+ '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
 		// Arrow functions disabled inside derived class constructors
 		// https://bugzilla.mozilla.org/show_bug.cgi?id=1169734
 		this._loadPromise = ajaxLoad(aib.getThrdUrl(b, tNum))
@@ -12599,6 +12610,22 @@ function addSVGIcons() {
 		<path class="de-svg-stroke" stroke-width="3" d="M12.5 4v8"/>
 		<path class="de-svg-fill" d="M16 4.8v4a5 5 0 0 1-3.5 8.7A5 5 0 0 1 9 9V4.7a8.5 8.5 0 1 0 7 0z"/>
 	</symbol>
+	<!-- ----------------- -->
+	<symbol viewBox="0 0 16 16" id="de-symbol-wait">
+		<circle fill="#929087" cx="8" cy="2" r="2"/>
+		<circle fill="#C5C2BA" cx="8" cy="14" r="2"/>
+		<circle fill="#ACAAA0" cx="2" cy="8" r="2"/>
+		<circle fill="#79766C" cx="14" cy="8" r="2"/>
+		<circle fill="#D2CFC6" cx="12.25" cy="12.25" r="2"/>
+		<circle fill="#9F9C93" cx="3.75" cy="3.75" r="2"/>
+		<circle fill="#B9B6AE" cx="3.75" cy="12.25" r="2"/>
+		<circle fill="#868379" cx="12.25" cy="3.75" r="2"/>
+	</symbol>
+	<symbol viewBox="0 0 16 16" id="de-symbol-closed">
+		<image display="inline" width="16" height="16" xlink:href="data:image/gif;base64,R0lGODlhEAAQAKIAAP3rqPPOd+y6V+WmN+Dg4M7OzmZmZv///yH5BAEAAAcALAAAAAAQABAAAANCeLrWvZARUqqJkjiLj9FMcWHf6IldGZqM4zqRAcw0zXpAoO/6LfeNnS8XcAhjAIHSoFwim0wockCtUodWq+/1UiQAADs="/>
+	</svg>
+	<symbol viewBox="0 0 16 16" id="de-symbol-unavail">
+		<image display="inline" width="16" height="16" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg=="/>
 	</svg>
 	</div>`);
 }
@@ -12890,7 +12917,7 @@ function initThreadUpdater(title, enableUpdate) {
 		setWait() {
 			this._stop();
 			if(this._enabled) {
-				this._el.innerHTML = '<span class="de-wait"></span>';
+				this._el.innerHTML = '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>';
 			}
 		},
 
@@ -13651,14 +13678,14 @@ function scriptCSS() {
 	:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }' +
 
 	// Other
-	cont('.de-wait', 'data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7') +
-	'.de-abtn { text-decoration: none !important; outline: none; }\
+	'@keyframes de-wait-anim { to { transform: rotate(360deg); } }\
+	.de-fav-wait, .de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; animation: de-wait-anim 1s linear infinite; }\
+	.de-abtn { text-decoration: none !important; outline: none; }\
 	.de-after-fimg { clear: left; }\
-	#de-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
-	#de-popup > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 8px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
-	.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
-	.de-popup-btn:not(.de-wait) + div { margin-top: .15em; }\
-	.de-popup-msg { display: inline-block; }\
+	#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
+	.de-popup { overflow: visible !important; clear: both; width: auto; min-width: 0pt; padding: 8px; margin: 1px; border: 1px solid grey; display: block; float: right; }\
+	.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }\
+	.de-popup-msg { display: inline-block; white-space: pre-wrap; }\
 	.de-button { flex: none; padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 1px 2px; height: 24px; font: 13px arial; }\
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\
