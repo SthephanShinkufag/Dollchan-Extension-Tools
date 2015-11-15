@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'fde052e';
+var commit = '2a74bd2';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2950,7 +2950,7 @@ function getCfgLinks() {
 				$txt(Lng.cfg.linksOut[lang])
 			]),
 			lBox('markViewed', true, null),
-			lBox('strikeHidd', true, null),
+			lBox('strikeHidd', true, updateCSS),
 			$New('div', {'class': 'de-cfg-depend'}, [
 				lBox('removeHidd', false, updateCSS)
 			]),
@@ -10155,7 +10155,7 @@ class RefMap {
 	}
 	static upd(post, add) {
 		var pNum = post.num,
-			strNums = add && Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null,
+			strNums = add && Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null,
 			isThr = aib.t;
 		var links = $Q('a', post.msg);
 		for(var i = 0, len = links.length; i < len; ++i) {
@@ -10192,7 +10192,7 @@ class RefMap {
 	}
 	add(post, num, isHidden = null) {
 		if(isHidden === null) {
-			var strNums = Cfg.strikeHidd && Post.hiddenNums.length ? Post.hiddenNums : null;
+			var strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 			isHidden = strNums ? strNums.has(+num) : false;
 		}
 		if(!this._set.has(num)) {
@@ -13663,7 +13663,6 @@ function scriptCSS() {
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\
 	.de-input-key { height: 12px }\
-	.de-link-hid { text-decoration: line-through !important; }\
 	.de-link-parent { outline: 1px dotted !important; }\
 	.de-link-pview { font-weight: bold; }\
 	.de-link-ref { text-decoration: none; }\
@@ -13736,6 +13735,9 @@ function updateCSS() {
 	}
 	if(Cfg.widePosts) {
 		x += '.' + aib.cReply.replace(/\s/, '.') + ':not(.de-pview) { float: none; width: 100%; }';
+	}
+	if(Cfg.strikeHidd) {
+		x+= '.de-link-hid { text-decoration: line-through !important; }';
 	}
 	x += '.postarea, .recaptcha_image_cell + td, .recaptcha_image_cell + td + td, small[id^="rfmap"], .theader, ' +
 		(Cfg.panelCounter ? '' : '#de-panel-info, ') +
