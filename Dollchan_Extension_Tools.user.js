@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '5d21c4d';
+	var commit = 'fde052e';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -2803,18 +2803,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'delHiddPost': 0,
 		'ajaxUpdThr': 1,
 		'updThrDelay': 20,
-		'noErrInTitle': 0,
+		'updCount': 1,
 		'favIcoBlink': 0,
 		'desktNotif': 0,
 		'markNewPosts': 1,
-		'updCount': 1,
+		'noErrInTitle': 0,
 		'hideReplies': 0,
-		'updThrBtns': 1,
 		'expandTrunc': 0,
-		'postBtnsCSS': 1,
-		'postBtnsBack': '#8C8C8C',
+		'updThrBtns': 1,
 		'showHideBtn': 1,
 		'showRepBtn': 1,
+		'postBtnsCSS': 1,
+		'postBtnsBack': '#8C8C8C',
 		'noSpoilers': 1,
 		'noPostNames': 0,
 		'widePosts': 0,
@@ -2922,34 +2922,33 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'delHiddPost': ['Удалять скрытые посты', 'Delete hidden posts'],
 
 			'ajaxUpdThr': ['AJAX обновление треда ', 'AJAX thread update '],
-			'updThrDelay': [' (сек)', ' (sec)'],
-			'noErrInTitle': ['Не показывать номер ошибки в заголовке', 'Don\'t show error number in title'],
-			'favIcoBlink': ['Мигать фавиконом при новых постах', 'Favicon blinking for new posts'],
-			'desktNotif': ['Уведомлять на рабочем столе при новых постах', 'Desktop notifications for new posts'],
-			'markNewPosts': ['Выделять новые посты при смене вкладки', 'Mark new posts when tab changes'],
+			'updThrDelay': ['(сек)', '(sec)'],
 			'updCount': ['Обратный счетчик секунд до обновления', 'Show countdown to thread update'],
+			'favIcoBlink': ['Мигать фавиконом при новых постах', 'Favicon blinking for new posts'],
+			'desktNotif': ['Уведомлять о новых постах на рабочем столе', 'Desktop notifications for new posts'],
+			'markNewPosts': ['Выделять новые посты при смене вкладки', 'Mark new posts when tab changes'],
+			'noErrInTitle': ['Не показывать номер ошибки в заголовке', 'Don\'t show error number in title'],
 			'hideReplies': ['Показывать только оп-посты в списке тредов*', 'Show only op-posts in threads list*'],
-			'updThrBtns': ['Кнопки получения новых постов в списке тредов', 'Get-new-posts buttons in threads list'],
 			'expandTrunc': ['Разворачивать сокращенные посты*', 'Auto expanding of truncated posts*'],
+			'updThrBtns': ['Кнопки получения новых постов в списке тредов', 'Get-new-posts buttons in threads list'],
+			'showHideBtn': ['Кнопки скрытия ', 'Hide buttons '],
+			'showRepBtn': ['Кнопки быстрого ответа', 'Quick reply buttons'],
 			'postBtnsCSS': {
 				sel: [['Упрощенные', 'Серый градиент', 'Настраиваемые'], ['Simple green', 'Gradient grey', 'Custom filled']],
 				txt: ['Кнопки постов ', 'Post buttons ']
 			},
-			'postBtnsBack': [' Пользовательский фон кнопок постов', ' Custom background for post buttons'],
-			'showHideBtn': ['Скрытие ', 'Post hide '],
-			'showRepBtn': ['Ответ', 'Post reply'],
 			'noSpoilers': {
 				sel: [['Откл.', 'Серое', 'Родное'], ['Disable', 'Grey', 'Native']],
 				txt: ['Раскрытие текстовых спойлеров', 'Text spoilers expanding']
 			},
 			'noPostNames': ['Скрывать имена в постах', 'Hide names in posts'],
-			'widePosts': ['Растягивать посты по ширине экрана', 'Stretch posts to the screen width'],
-			'hotKeys': ['Горячие клавиши ', 'Keyboard hotkeys '],
-			'loadPages': [' Количество страниц, загружаемых по F5', ' Number of pages that are loaded on F5 '],
+			'widePosts': ['Растягивать посты по ширине экрана', 'Stretch posts to screen width'],
+			'hotKeys': ['Горячие клавиши', 'Keyboard hotkeys'],
+			'loadPages': ['Количество страниц, загружаемых по F5', 'Number of pages that are loaded on F5 '],
 			'correctTime': ['Коррекция времени* ', 'Correct time* '],
-			'timeOffset': [' (ч) разница ', ' (h) difference '],
-			'timePattern': [' Шаблон поиска', ' Find pattern'],
-			'timeRPattern': [' Шаблон замены', ' Replace pattern'],
+			'timeOffset': ['(ч) разница ', '(h) difference '],
+			'timePattern': ['Шаблон поиска', 'Search pattern'],
+			'timeRPattern': ['Шаблон замены', 'Replace pattern'],
 
 			'expandImgs': {
 				sel: [['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center']],
@@ -2958,15 +2957,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'imgNavBtns': ['Добавлять кнопки навигации по картинкам', 'Add buttons for images navigation'],
 			'resizeDPI': ['Отображать картинки пиксель в пиксель', 'Don\'t upscale images on retina displays'],
 			'resizeImgs': ['Уменьшать в экран большие картинки', 'Resize large images to fit screen'],
-			'minImgSize': [' Минимальный размер картинок (px)', ' Minimal image\'s size (px)'],
-			'zoomFactor': [' Чувствительность зума картинок [1-100]', ' Sensibility of the images zoom [1-100]'],
+			'minImgSize': ['Минимальный размер картинок (px)', 'Minimal image\'s size (px)'],
+			'zoomFactor': ['Чувствительность зума картинок [1-100]', 'Sensibility of the images zoom [1-100]'],
 			'webmControl': ['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
-			'webmVolume': [' Громкость webm-файлов [0-100]', ' Default volume for webm files [0-100]'],
+			'webmVolume': ['Громкость webm-файлов [0-100]', 'Default volume for webm files [0-100]'],
 			'preLoadImgs': ['Предварительно загружать картинки*', 'Pre-load images*'],
 			'findImgFile': ['Распознавать встроенные файлы в картинках*', 'Detect built-in files in images*'],
 			'openImgs': {
 				sel: [['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'], ['Disable', 'All types', 'Only GIF', 'Non-GIF']],
-				txt: ['Скачивать полные версии картинок*', 'Download full version of images*']
+				txt: ['Заменять картинки на оригиналы*', 'Replace images with originals*']
 			},
 			'imgSrcBtns': ['Добавлять кнопки для поиска картинок*', 'Add image search buttons*'],
 			'delImgNames': ['Скрывать имена картинок*', 'Hide names of images*'],
@@ -2975,8 +2974,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				sel: [['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
 				txt: ['Навигация по >>ссылкам* ', 'Navigation by >>links* ']
 			},
-			'linksOver': [' Появление ', ' Appearance '],
-			'linksOut': [' Пропадание (мс)', ' Disappearance (ms)'],
+			'linksOver': ['Появление ', 'Appearance '],
+			'linksOut': ['Пропадание (мс)', 'Disappearance (ms)'],
 			'markViewed': ['Отмечать просмотренные посты*', 'Mark viewed posts*'],
 			'strikeHidd': ['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
 			'removeHidd': ['Удалять из карты ответов', 'Remove from replies map'],
@@ -3027,7 +3026,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				txt: ['Кнопки разметки текста ', 'Text format buttons ']
 			},
 			'txtBtnsLoc': ['Внизу', 'At bottom'],
-			'userPassw': [' Постоянный пароль ', ' Fixed password '],
+			'userPassw': ['Постоянный пароль', 'Fixed password'],
 			'userName': ['Постоянное имя', 'Fixed name'],
 			'noBoardRule': ['правила ', 'rules '],
 			'noGoto': ['поле goto ', 'goto field '],
@@ -3038,7 +3037,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				sel: [['Gradient black', 'Gradient blue', 'Solid grey', 'Transparent blue'], ['Gradient black', 'Gradient blue', 'Solid grey', 'Transparent blue']],
 				txt: ['Стиль скрипта', 'Script style']
 			},
-			'userCSS': ['Пользовательский CSS ', 'User CSS '],
+			'userCSS': ['Пользовательский CSS', 'User CSS'],
 			'panelCounter': ['Счетчик постов/картинок на главной панели', 'Counter of posts/images on main panel'],
 			'rePageTitle': ['Название треда в заголовке вкладки*', 'Thread title in page tab*'],
 			'animation': ['CSS3 анимация в скрипте', 'CSS3 animation in script'],
@@ -5729,7 +5728,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				($q(arr[i], doc) || {}).disabled = nState;
 			}
 		}
-		toggleBox(Cfg.ajaxUpdThr, ['input[info="updThrDelay"]', 'input[info="noErrInTitle"]', 'input[info="favIcoBlink"]', 'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="updCount"]']);
+		toggleBox(Cfg.ajaxUpdThr, ['input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]', 'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]']);
 		toggleBox(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
 		toggleBox(Cfg.expandImgs, ['input[info="imgNavBtns"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]', 'input[info="webmVolume"]']);
 		toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
@@ -5789,7 +5788,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var top = node.scrollTop,
 		    el = node.previousSibling,
 		    num = el.numLines || 1,
-		    i = 15;
+		    i = 17;
 		if (num - i < (top / 12 | 0 + 1)) {
 			var str = '';
 			while (i--) {
@@ -5859,15 +5858,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			} else {
 				updater.disable();
 			}
-		} : null), inpTxt('updThrDelay', 1, null), $txt(Lng.cfg.updThrDelay[lang]), $New('div', { 'class': 'de-cfg-depend' }, [lBox('noErrInTitle', true, null), lBox('favIcoBlink', true, null), $if('Notification' in window, lBox('desktNotif', true, function () {
+		} : null), inpTxt('updThrDelay', 2, null), $txt(Lng.cfg.updThrDelay[lang]), $New('div', { 'class': 'de-cfg-depend' }, [lBox('updCount', true, function () {
+			updater.toggleCounter(Cfg.updCount);
+		}), lBox('favIcoBlink', true, null), $if('Notification' in window, lBox('desktNotif', true, function () {
 			if (Cfg.desktNotif) {
 				Notification.requestPermission();
 			}
 		})), lBox('markNewPosts', true, function () {
 			Thread.first.clearPostsMarks();
-		}), lBox('updCount', true, function () {
-			updater.toggleCounter(Cfg.updCount);
-		})])])), lBox('hideReplies', true, null), lBox('updThrBtns', true, updateCSS), lBox('expandTrunc', true, updateCSS), optSel('postBtnsCSS', false, function () {
+		}), lBox('noErrInTitle', true, null)])])), lBox('hideReplies', true, null), lBox('expandTrunc', true, updateCSS), lBox('updThrBtns', true, updateCSS), $New('div', null, [lBox('showHideBtn', false, updateCSS), lBox('showRepBtn', false, updateCSS)]), optSel('postBtnsCSS', false, function () {
 			saveCfg('postBtnsCSS', this.selectedIndex);
 			updateCSS();
 			if (nav.Presto) {
@@ -5875,7 +5874,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				addSVGIcons();
 			}
 			fixSettings();
-		}), lBox('showHideBtn', false, updateCSS), lBox('showRepBtn', false, updateCSS), $New('div', { 'class': 'de-cfg-depend' }, [inpTxt('postBtnsBack', 8, function () {
+		}), inpTxt('postBtnsBack', 8, function () {
 			if (checkCSSColor(this.value)) {
 				this.classList.remove('de-error-input');
 				saveCfg('postBtnsBack', this.value);
@@ -5883,18 +5882,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			} else {
 				this.classList.add('de-error-input');
 			}
-		}), $txt(Lng.cfg.postBtnsBack[lang])]), optSel('noSpoilers', true, function () {
+		}), optSel('noSpoilers', true, function () {
 			saveCfg('noSpoilers', this.selectedIndex);
 			updateCSS();
-		}), lBox('noPostNames', true, updateCSS), lBox('widePosts', true, updateCSS), $New('div', null, [lBox('correctTime', false, DateTime.toggleSettings), inpTxt('timeOffset', 2, null), $txt(Lng.cfg.timeOffset[lang]), $add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-' + (lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">[?]</a>')]), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [inpTxt('timePattern', 25, null), $txt(Lng.cfg.timePattern[lang])]), $New('div', null, [inpTxt('timeRPattern', 25, null), $txt(Lng.cfg.timeRPattern[lang])])])]);
+		}), lBox('noPostNames', true, updateCSS), lBox('widePosts', true, updateCSS), $New('div', null, [lBox('correctTime', false, DateTime.toggleSettings), inpTxt('timeOffset', 2, null), $txt(Lng.cfg.timeOffset[lang]), $add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-' + (lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">[?]</a>')]), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [inpTxt('timePattern', 24, null), $txt(Lng.cfg.timePattern[lang])]), $New('div', null, [inpTxt('timeRPattern', 24, null), $txt(Lng.cfg.timeRPattern[lang])])])]);
 	}
 
 	function getCfgImages() {
-		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-images' }, [optSel('expandImgs', true, null), $New('div', { 'class': 'de-cfg-depend' }, [lBox('imgNavBtns', true, updateCSS), lBox('resizeImgs', true, null), $if(Post.sizing.dPxRatio > 1, lBox('resizeDPI', true, null)), $New('div', null, [inpTxt('minImgSize', 1, function () {
+		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-images' }, [optSel('expandImgs', true, null), $New('div', { 'class': 'de-cfg-depend' }, [lBox('imgNavBtns', true, updateCSS), lBox('resizeImgs', true, null), $if(Post.sizing.dPxRatio > 1, lBox('resizeDPI', true, null)), $New('div', null, [inpTxt('minImgSize', 2, function () {
 			saveCfg('minImgSize', Math.max(+this.value, 1));
-		}), $txt(Lng.cfg.minImgSize[lang])]), inpTxt('zoomFactor', 1, function () {
+		}), $txt(Lng.cfg.minImgSize[lang])]), inpTxt('zoomFactor', 2, function () {
 			saveCfg('zoomFactor', Math.min(Math.max(+this.value, 1), 100));
-		}), $txt(Lng.cfg.zoomFactor[lang]), lBox('webmControl', true, null), $if(nav.canPlayWebm, $New('div', null, [inpTxt('webmVolume', 1, function () {
+		}), $txt(Lng.cfg.zoomFactor[lang]), lBox('webmControl', true, null), $if(nav.canPlayWebm, $New('div', null, [inpTxt('webmVolume', 2, function () {
 			var val = Math.min(+this.value || 0, 100);
 			if (Attachment.viewer) {
 				Attachment.viewer.setWebmVolume(val);
@@ -5906,13 +5905,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function getCfgLinks() {
-		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-links' }, [optSel('linksNavig', true, null), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [inpTxt('linksOver', 1, function () {
+		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-links' }, [optSel('linksNavig', true, null), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [inpTxt('linksOver', 2, function () {
 			saveCfg('linksOver', +this.value | 0);
-		}), $txt(Lng.cfg.linksOver[lang]), inpTxt('linksOut', 1, function () {
+		}), $txt(Lng.cfg.linksOver[lang]), inpTxt('linksOut', 2, function () {
 			saveCfg('linksOut', +this.value | 0);
-		}), $txt(Lng.cfg.linksOut[lang])]), lBox('markViewed', true, null), lBox('strikeHidd', true, null), $New('div', { 'class': 'de-cfg-depend' }, [lBox('removeHidd', false, updateCSS)]), lBox('noNavigHidd', true, null)]), lBox('crossLinks', true, null), lBox('insertNum', true, null), lBox('addOPLink', true, null), lBox('addImgs', true, null), lBox('addMP3', false, null), $if(aib.prot === 'http:', lBox('addVocaroo', false, null)), optSel('addYouTube', true, null), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [optSel('YTubeType', false, null), inpTxt('YTubeWidth', 1, null), $txt('×'), inpTxt('YTubeHeigh', 1, null)]), lBox('YTubeTitles', false, null), $New('div', null, [inpTxt('ytApiKey', 25, function () {
+		}), $txt(Lng.cfg.linksOut[lang])]), lBox('markViewed', true, null), lBox('strikeHidd', true, null), $New('div', { 'class': 'de-cfg-depend' }, [lBox('removeHidd', false, updateCSS)]), lBox('noNavigHidd', true, null)]), lBox('crossLinks', true, null), lBox('insertNum', true, null), lBox('addOPLink', true, null), lBox('addImgs', true, null), lBox('addMP3', false, null), $if(aib.prot === 'http:', lBox('addVocaroo', false, null)), optSel('addYouTube', true, null), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [optSel('YTubeType', false, null), inpTxt('YTubeWidth', 2, null), $txt('×'), inpTxt('YTubeHeigh', 2, null)]), lBox('YTubeTitles', false, null), $New('div', null, [inpTxt('ytApiKey', 25, function () {
 			saveCfg('ytApiKey', this.value.trim());
-		}), $txt(' ' + Lng.cfg.ytApiKey[lang])]), lBox('addVimeo', true, null)])]);
+		}), $txt(Lng.cfg.ytApiKey[lang])]), lBox('addVimeo', true, null)])]);
 	}
 
 	function getCfgForm() {
@@ -5980,7 +5979,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				el.addEventListener('keydown', fn, true);
 				el.addEventListener('keyup', fn, true);
 			});
-		}, 'de-cfg-button')]), $New('div', { 'class': 'de-cfg-depend' }, [inpTxt('loadPages', 1, null), $txt(Lng.cfg.loadPages[lang])]), $if(!nav.isChromeStorage && !nav.Presto || nav.isGM, $New('div', null, [lBox('updScript', true, null), $New('div', { 'class': 'de-cfg-depend' }, [optSel('scrUpdIntrv', false, null), $btn(Lng.checkNow[lang], '', function () {
+		}, 'de-cfg-button')]), $New('div', { 'class': 'de-cfg-depend' }, [inpTxt('loadPages', 2, null), $txt(Lng.cfg.loadPages[lang])]), $if(!nav.isChromeStorage && !nav.Presto || nav.isGM, $New('div', null, [lBox('updScript', true, null), $New('div', { 'class': 'de-cfg-depend' }, [optSel('scrUpdIntrv', false, null), $btn(Lng.checkNow[lang], '', function () {
 			$popup(Lng.loading[lang], 'updavail', true);
 			spawn(getStoredObj, 'DESU_Config').then(function (val) {
 				return checkForUpdates(true, val.lastUpd);
@@ -17881,7 +17880,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\
 	.de-win > .de-win-head { cursor: move; }\
 	.de-win-buttons { position: absolute; right: 0; margin: 1px 2px 0 0; cursor: pointer; }\
-	#de-win-cfg { width: 370px; }\
+	#de-win-cfg { width: 355px; }\
 	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\
 	#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\
 	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\
@@ -17903,17 +17902,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	#de-cfg-bar:lang(en) { background-color: #325f9e; }\
 	#de-cfg-bar:lang(de) { background-color: #777; }\
 	#de-cfg-bar:lang(es) { background-color: rgba(0,20,80,.72); }\
-	.de-cfg-body { min-height: 315px; padding: 9px 7px 7px; margin-top: -1px; font: 13px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
+	.de-cfg-body { min-height: 315px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\
 	.de-cfg-body:lang(de), #de-cfg-buttons:lang(de) { border-color: #444; }\
-	.de-cfg-button { padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 0 2px; height: 22px; font: 12px arial; }\
-	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; font-size: 13px; }\
+	.de-cfg-button { padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\
+	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\
 	.de-cfg-chkbox { ' + (nav.Presto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\
 	.de-cfg-depend { padding-left: 17px; }\
-	.de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 0 !important; font: 13px arial !important; line-height: 15px !important; }\
-	.de-cfg-label { padding: 0; margin: 0; line-height: 17px; }\
+	.de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }\
+	.de-cfg-label { padding: 0; margin: 0; }\
 	.de-cfg-lang-select { flex: 1 0 auto; }\
-	.de-cfg-select { height: 17px; padding: 0 2px; margin: 1px 0; font: 13px arial; }\
+	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; }\
 	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
 	.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
 	.de-cfg-tab:lang(fr) { border-color: #121421 !important; }\
@@ -17928,7 +17927,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-info-row { display: flex; }\
 	#de-info-table { display: flex; height: 257px; }\
 	.de-spell-btn { padding: 0 4px; }\
-	#de-spell-editor { display: flex; align-items: stretch; height: 196px; padding: 2px 0; }\
+	#de-spell-editor { display: flex; align-items: stretch; height: 225px; padding: 2px 0; }\
 	#de-spell-panel { display: flex; }\
 	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
 	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\
@@ -18067,7 +18066,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
 	.de-popup-btn:not(.de-wait) + div { margin-top: .15em; }\
 	.de-popup-msg { display: inline-block; }\
-	.de-button { flex: none; padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 0 2px; height: 24px; font: 12px arial; }\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t.de-input-key { height: 12px }\t.de-link-hid { text-decoration: line-through !important; }\t.de-link-parent { outline: 1px dotted !important; }\t.de-link-pview { font-weight: bold; }\t.de-link-ref { text-decoration: none; }\t.de-list { padding-top: 4px; }\t.de-list::before { content: "●"; margin-right: 4px; }\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t.de-menu-item:hover { background-color: #222; color: #fff; }\t.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(0,0,255,.7); border-right: 4px solid rgba(0,0,255,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(0,0,255,.8), -6px 0 2px -2px rgba(0,0,255,.8); }') + '\
+	.de-button { flex: none; padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 1px 2px; height: 24px; font: 13px arial; }\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t.de-input-key { height: 12px }\t.de-link-hid { text-decoration: line-through !important; }\t.de-link-parent { outline: 1px dotted !important; }\t.de-link-pview { font-weight: bold; }\t.de-link-ref { text-decoration: none; }\t.de-list { padding-top: 4px; }\t.de-list::before { content: "●"; margin-right: 4px; }\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t.de-menu-item:hover { background-color: #222; color: #fff; }\t.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(0,0,255,.7); border-right: 4px solid rgba(0,0,255,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(0,0,255,.8), -6px 0 2px -2px rgba(0,0,255,.8); }') + '\
 	.de-omitted { color: grey; }\
 	.de-omitted::before { content: "' + Lng.postsOmitted[lang] + '"; }\
 	.de-post-hiddencontent { display: none !important; }\
