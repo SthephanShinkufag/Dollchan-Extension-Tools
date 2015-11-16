@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '822453e';
+	var commit = '78a32fe';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4554,7 +4554,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 								if (lastPost) {
 									while (lastPost = lastPost.next) {
-										thr._addPostMark(lastPost.el, true);
+										Post.addMark(lastPost.el, true);
 									}
 								}
 							}
@@ -5866,7 +5866,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				Notification.requestPermission();
 			}
 		})), lBox('markNewPosts', true, function () {
-			Thread.first.clearPostsMarks();
+			Post.clearMarks();
 		}), lBox('noErrInTitle', true, null)])])), lBox('hideReplies', true, null), lBox('expandTrunc', true, updateCSS), lBox('updThrBtns', true, updateCSS), $New('div', null, [lBox('showHideBtn', false, updateCSS), lBox('showRepBtn', false, updateCSS)]), optSel('postBtnsCSS', false, function () {
 			saveCfg('postBtnsCSS', this.selectedIndex);
 			updateCSS();
@@ -6446,7 +6446,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this.cPost = null;
 				}
 				if (isThr) {
-					Thread.first.clearPostsMarks();
+					Post.clearMarks();
 				}
 				this._lastPageOffset = 0;
 			} else if (kc === 0x801B) {
@@ -10855,7 +10855,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 		var el = !aib.tiny && !aib.kus && (aib.qPostRedir === null || $q(aib.qPostRedir, dc)) ? $q(aib.qDForm, dc) : null;
 		if (aib.t) {
-			Thread.first.clearPostsMarks();
+			Post.clearMarks();
 			if (el) {
 				Thread.first.loadNewFromForm(el);
 				if (Cfg.scrAfterRep) {
@@ -10938,7 +10938,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 					}
 
-					Thread.first.clearPostsMarks();
+					Post.clearMarks();
 					_context15.prev = 13;
 					_context15.next = 16;
 					return Thread.first.loadNew(false);
@@ -12639,6 +12639,30 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_inherits(Post, _AbstractPost);
 
 		_createClass(Post, null, [{
+			key: 'addMark',
+			value: function addMark(postEl, forced) {
+				if (!doc.hidden && !forced) {
+					Post.clearMarks();
+				} else {
+					if (!Post.hasNew) {
+						Post.hasNew = true;
+						doc.addEventListener('click', Post.clearMarks, true);
+					}
+					postEl.classList.add('de-new-post');
+				}
+			}
+		}, {
+			key: 'clearMarks',
+			value: function clearMarks() {
+				if (Post.hasNew) {
+					Post.hasNew = false;
+					$each($Q('.de-new-post', doc.body), function (el) {
+						return el.classList.remove('de-new-post');
+					});
+					doc.removeEventListener('click', Post.clearMarks, true);
+				}
+			}
+		}, {
 			key: 'hideContent',
 			value: function hideContent(headerEl, hideBtn, isUser, hide) {
 				if (hide) {
@@ -13209,6 +13233,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		return PostContent;
 	})(TemporaryContent);
+	Post.hasNew = false;
 	Post.hiddenNums = new Set();
 	Post.note = (function () {
 		function PostNote(post) {
@@ -14260,11 +14285,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var Thread = (function () {
 		_createClass(Thread, null, [{
-			key: 'clearPostsMark',
-			value: function clearPostsMark() {
-				Thread.first.clearPostsMarks();
-			}
-		}, {
 			key: 'first',
 			get: function get() {
 				return DelForm.first.firstThr;
@@ -14363,20 +14383,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				post.addFuncs();
 				preloadImages(post);
 				if (aib.t && Cfg.markNewPosts) {
-					this._addPostMark(el, false);
+					Post.addMark(el, false);
 				}
 				return post;
-			}
-		}, {
-			key: 'clearPostsMarks',
-			value: function clearPostsMarks() {
-				if (this.hasNew) {
-					this.hasNew = false;
-					$each($Q('.de-new-post', this.el), function (el) {
-						el.classList.remove('de-new-post');
-					});
-					doc.removeEventListener('click', Thread.clearPostsMark, true);
-				}
 			}
 		}, {
 			key: 'deletePost',
@@ -14655,19 +14664,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 					}
 				} while (thr = thr.next);
-			}
-		}, {
-			key: '_addPostMark',
-			value: function _addPostMark(postEl, forced) {
-				if (!doc.hidden && !forced) {
-					this.clearPostsMarks();
-				} else {
-					if (!this.hasNew) {
-						this.hasNew = true;
-						doc.addEventListener('click', Thread.clearPostsMark, true);
-					}
-					postEl.classList.add('de-new-post');
-				}
 			}
 		}, {
 			key: '_checkBans',
@@ -17709,7 +17705,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 				}, 200);
 			} else if (Thread.first) {
-				Thread.first.clearPostsMarks();
+				Post.clearMarks();
 			}
 		});
 		if (enableUpdate) {
@@ -17739,7 +17735,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (e) {
 					$pd(e);
 				}
-				Thread.first.clearPostsMarks();
+				Post.clearMarks();
 				if (enabled && paused) {
 					return;
 				}

@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '822453e';
+var commit = '78a32fe';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1616,7 +1616,7 @@ function* readPostsData(firstPost) {
 					var lastPost = pByNum.get(+f.last.match(/\d+/));
 					if(lastPost) {
 						while(lastPost = lastPost.next) {
-							thr._addPostMark(lastPost.el, true);
+							Post.addMark(lastPost.el, true);
 						}
 					}
 				}
@@ -2844,7 +2844,7 @@ function getCfgPosts() {
 					}
 				})),
 				lBox('markNewPosts', true, function() {
-					Thread.first.clearPostsMarks();
+					Post.clearMarks();
 				}),
 				lBox('noErrInTitle', true, null)
 			])
@@ -3674,7 +3674,7 @@ var HotKeys = {
 				this.cPost = null;
 			}
 			if(isThr) {
-				Thread.first.clearPostsMarks();
+				Post.clearMarks();
 			}
 			this._lastPageOffset = 0;
 		} else if(kc === 0x801B) { // ESC (txt)
@@ -7599,7 +7599,7 @@ function checkUpload(dc) {
 	var el = !aib.tiny && !aib.kus &&
 		(aib.qPostRedir === null || $q(aib.qPostRedir, dc)) ? $q(aib.qDForm, dc) : null;
 	if(aib.t) {
-		Thread.first.clearPostsMarks();
+		Post.clearMarks();
 		if(el) {
 			Thread.first.loadNewFromForm(el);
 			if(Cfg.scrAfterRep) {
@@ -7656,7 +7656,7 @@ var checkDelete = async(function* (dc) {
 		}
 	}
 	if(isThr) {
-		Thread.first.clearPostsMarks();
+		Post.clearMarks();
 		try {
 			yield Thread.first.loadNew(false);
 		} catch(e) {
@@ -9013,6 +9013,24 @@ class AbstractPost {
 }
 
 class Post extends AbstractPost {
+	static addMark(postEl, forced) {
+		if(!doc.hidden && !forced) {
+			Post.clearMarks();
+		} else {
+			if(!Post.hasNew) {
+				Post.hasNew = true;
+				doc.addEventListener('click', Post.clearMarks, true);
+			}
+			postEl.classList.add('de-new-post');
+		}
+	}
+	static clearMarks() {
+		if(Post.hasNew) {
+			Post.hasNew = false;
+			$each($Q('.de-new-post', doc.body), el => el.classList.remove('de-new-post'));
+			doc.removeEventListener('click', Post.clearMarks, true);
+		}
+	}
 	static hideContent(headerEl, hideBtn, isUser, hide) {
 		if(hide) {
 			hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
@@ -9466,6 +9484,7 @@ Post.content = class PostContent extends TemporaryContent {
 		return val;
 	}
 };
+Post.hasNew = false;
 Post.hiddenNums = new Set();
 Post.note = class PostNote {
 	constructor(post) {
@@ -10336,9 +10355,6 @@ class Thread {
 	static get last() {
 		return DelForm.last.lastThr;
 	}
-	static clearPostsMark() {
-		Thread.first.clearPostsMarks();
-	}
 	constructor(el, num, prev, form) {
 		var els = $Q(aib.qRPost, el),
 			len = els.length,
@@ -10441,18 +10457,9 @@ class Thread {
 		post.addFuncs();
 		preloadImages(post);
 		if(aib.t && Cfg.markNewPosts) {
-			this._addPostMark(el, false);
+			Post.addMark(el, false);
 		}
 		return post;
-	}
-	clearPostsMarks() {
-		if(this.hasNew) {
-			this.hasNew = false;
-			$each($Q('.de-new-post', this.el), function(el) {
-				el.classList.remove('de-new-post');
-			});
-			doc.removeEventListener('click', Thread.clearPostsMark, true);
-		}
 	}
 	deletePost(post, delAll, removePost) {
 		var count = 0,
@@ -10694,17 +10701,6 @@ class Thread {
 		} while((thr = thr.next));
 	}
 
-	_addPostMark(postEl, forced) {
-		if(!doc.hidden && !forced) {
-			this.clearPostsMarks();
-		} else {
-			if(!this.hasNew) {
-				this.hasNew = true;
-				doc.addEventListener('click', Thread.clearPostsMark, true);
-			}
-			postEl.classList.add('de-new-post');
-		}
-	}
 	_checkBans(thrNode) {
 		if(!aib.qBan) {
 			return;
@@ -13253,7 +13249,7 @@ function initThreadUpdater(title, enableUpdate) {
 				}
 			}, 200);
 		} else if(Thread.first) {
-			Thread.first.clearPostsMarks();
+			Post.clearMarks();
 		}
 	});
 	if(enableUpdate) {
@@ -13283,7 +13279,7 @@ function initThreadUpdater(title, enableUpdate) {
 			if(e) {
 				$pd(e);
 			}
-			Thread.first.clearPostsMarks();
+			Post.clearMarks();
 			if(enabled && paused) {
 				return;
 			}
