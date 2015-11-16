@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '8df8a0a';
+var commit = '763bc57';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1406,6 +1406,9 @@ function checkCSSColor(color) {
 }
 
 function fixEventEl(el) {
+	if(!el) {
+		return el;
+	}
 	var svg;
 	if(nav.Presto) {
 		svg = el.correspondingUseElement;
