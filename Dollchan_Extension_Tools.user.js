@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '78a32fe';
+	var commit = '8df8a0a';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3146,6 +3146,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		loading: ['Загрузка...', 'Loading...'],
 		checking: ['Проверка...', 'Checking...'],
 		deleting: ['Удаление...', 'Deleting...'],
+		updating: ['Обновление...', 'Updating...'],
 		error: ['Ошибка', 'Error'],
 		noConnect: ['Ошибка подключения', 'Connection failed'],
 		internalError: ['Ошибка скрипта:\n', 'Script error:\n'],
@@ -5446,7 +5447,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (!t.url.startsWith('http')) {
 						t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 					}
-					block.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t<svg class="de-wait" style="display: none;"><use xlink:href="#de-symbol-wait"/></svg>\n\t\t\t\t\t' + (t['type'] === 'user' ? '<span class="de-fav-user" title="' + Lng.setByUser[lang] + '"></span>' : '') + '\n\t\t\t\t\t<input type="checkbox">\n\t\t\t\t\t<a href="' + (t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last : h === aib.host ? aib.anchor + t.last : '')) + '" rel="noreferrer">\n\t\t\t\t\t\t' + tNum + '\n\t\t\t\t\t</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<svg class="de-fav-inf-err ' + (!t['err'] ? '' : t['err'] === 'Closed' ? ' de-fav-closed" title="' + Lng.thrClosed[lang] : ' de-fav-unavail" title="' + t['err']) + '">\n\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + (t['new'] ? '>' : ' style="display: none;">') + '\n\t\t\t\t\t\t\t' + (t['new'] || 0) + '\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t[<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>]\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>');
+					block.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t' + (t['type'] === 'user' ? '<span class="de-fav-user" title="' + Lng.setByUser[lang] + '"></span>' : '') + '\n\t\t\t\t\t<input type="checkbox">\n\t\t\t\t\t<a href="' + (t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last : h === aib.host ? aib.anchor + t.last : '')) + '" rel="noreferrer">\n\t\t\t\t\t\t' + tNum + '\n\t\t\t\t\t</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<span class="de-fav-inf-iwrap" ' + (!t['err'] ? '' : t['err'] === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' : 'title="' + t['err'] + '"') + '>\n\t\t\t\t\t\t\t<svg class="de-fav-inf-icon ' + (!t['err'] ? '' : t['err'] === 'Closed' ? 'de-fav-closed' : 'de-fav-unavail') + '">\n\t\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + (t['new'] ? '>' : ' style="display: none;">') + '\n\t\t\t\t\t\t\t' + (t['new'] || 0) + '\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t[<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>]\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>');
 					$t('a', block.lastChild).onclick = function () {
 						sesStorage['de-win-fav'] = '1';
 						var el = this.parentNode;
@@ -5465,7 +5466,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 		}));
 		body.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(regeneratorRuntime.mark(function _callee2() {
-			var err, update, els, fav, i, len, form, waitEl, el, host, b, num, f, cnt;
+			var update, els, fav, i, len, form, el, host, b, num, f, iconEl, titleEl, cnt;
 			return regeneratorRuntime.wrap(function _callee2$(_context7) {
 				while (1) switch (_context7.prev = _context7.next) {
 					case 0:
@@ -5479,7 +5480,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					case 5:
 						if (!(i < len)) {
-							_context7.next = 35;
+							_context7.next = 34;
 							break;
 						}
 
@@ -5490,43 +5491,49 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							break;
 						}
 
-						return _context7.abrupt('continue', 32);
+						return _context7.abrupt('continue', 31);
 
 					case 9:
-						waitEl = $c('de-wait', el);
+						iconEl = $c('de-fav-inf-icon', el), titleEl = iconEl.parentNode;
+
 						el = $c('de-fav-inf-new', el);
-						waitEl.style.removeProperty('display');
-						_context7.prev = 12;
-						_context7.next = 15;
+						iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+						titleEl.title = Lng.updating[lang];
+						_context7.prev = 13;
+						_context7.next = 16;
 						return ajaxLoad(aib.getThrdUrl(b, num));
 
-					case 15:
+					case 16:
 						form = _context7.sent;
 						_context7.next = 26;
 						break;
 
-					case 18:
-						_context7.prev = 18;
-						_context7.t1 = _context7['catch'](12);
+					case 19:
+						_context7.prev = 19;
+						_context7.t1 = _context7['catch'](13);
 
-						el.style.display = waitEl.style.display = 'none';
-						err = el.previousElementSibling;
-						err.classList.add('de-fav-unavail');
-						f['err'] = err.title = getErrorMessage(_context7.t1);
+						el.style.display = 'none';
+						iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
+						f['err'] = titleEl.title = getErrorMessage(_context7.t1);
 						update = true;
-						return _context7.abrupt('continue', 32);
+						return _context7.abrupt('continue', 31);
 
 					case 26:
 						if (f['err']) {
-							err = el.previousElementSibling;
-							err.classList.remove('de-fav-unavail');
-							err.title = '';
 							delete f['err'];
 							update = true;
 						}
+						if ($q(aib.qClosed, form)) {
+							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
+							titleEl.title = Lng.thrClosed[lang];
+							f['err'] = 'Closed';
+							update = true;
+						} else {
+							iconEl.setAttribute('class', 'de-fav-inf-icon');
+							titleEl.removeAttribute('title');
+						}
 						cnt = $Q(aib.qRPost, form).length + 1 - el.nextElementSibling.textContent;
 
-						waitEl.style.display = 'none';
 						el.textContent = cnt;
 						if (cnt === 0) {
 							el.style.display = 'none';
@@ -5535,32 +5542,25 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							f['new'] = cnt;
 							update = true;
 						}
-						if ($q(aib.qClosed, form)) {
-							err = el.previousElementSibling;
-							err.classList.add('de-fav-closed');
-							err.title = Lng.thrClosed[lang];
-							f['err'] = 'Closed';
-							update = true;
-						}
 
-					case 32:
+					case 31:
 						++i;
 						_context7.next = 5;
 						break;
 
-					case 35:
+					case 34:
 						if (update) {
 							setStored('DESU_Favorites', JSON.stringify(fav));
 						}
 
-					case 36:
+					case 35:
 					case 'end':
 						return _context7.stop();
 				}
-			}, _callee2, this, [[12, 18]]);
+			}, _callee2, this, [[13, 19]]);
 		}))));
 		body.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(regeneratorRuntime.mark(function _callee3() {
-			var els, infoCount, postsInfo, i, el, waitEl, page, infoLoaded, endPage, tNums, form, pInfo, _postsInfo$i, found, pageEl;
+			var infoCount, els, postsInfo, i, el, iconEl, titleEl, page, infoLoaded, endPage, tNums, form, pInfo, _postsInfo$i, found, pageEl, iconClass, iconTitle;
 
 			return regeneratorRuntime.wrap(function _callee3$(_context8) {
 				while (1) switch (_context8.prev = _context8.next) {
@@ -5577,15 +5577,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 3:
 						$popup(Lng.loading[lang], 'load-pages', true);
 						for (i = 0; i < infoCount; ++i) {
-							el = els[i], waitEl = $c('de-wait', el);
+							el = els[i], iconEl = $c('de-fav-inf-icon', el), titleEl = iconEl.parentNode;
 
 							postsInfo.push({
 								found: false,
 								num: +el.getAttribute('de-num'),
 								pageEl: $c('de-fav-inf-page', el),
-								waitEl: waitEl
+								iconClass: iconEl.getAttribute('class'),
+								iconEl: iconEl,
+								iconTitle: titleEl.getAttribute('title'),
+								titleEl: titleEl
 							});
-							waitEl.style.removeProperty('display');
+							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+							titleEl.title = Lng.updating[lang];
 						}
 						page = 0, infoLoaded = 0, endPage = (aib.lastPage || 10) + 1;
 
@@ -5618,7 +5622,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							pInfo = postsInfo[i];
 
 							if (tNums.has(pInfo.num)) {
-								pInfo.waitEl.style.display = 'none';
+								pInfo.iconEl.setAttribute('class', pInfo.iconClass);
+								if (pInfo.iconTitle) {
+									pInfo.titleEl.setAttribute('title', pInfo.iconTitle);
+								} else {
+									pInfo.titleEl.removeAttribute('title');
+								}
 								pInfo.pageEl.textContent = '@' + page;
 								pInfo.found = true;
 								infoLoaded++;
@@ -5642,10 +5651,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							_postsInfo$i = postsInfo[i];
 							found = _postsInfo$i.found;
 							pageEl = _postsInfo$i.pageEl;
-							waitEl = _postsInfo$i.waitEl;
+							iconClass = _postsInfo$i.iconClass;
+							iconEl = _postsInfo$i.iconEl;
+							iconTitle = _postsInfo$i.iconTitle;
+							titleEl = _postsInfo$i.titleEl;
 
 							if (!found) {
-								waitEl.style.display = 'none';
+								iconEl.setAttribute('class', iconClass);
+								if (iconTitle) {
+									titleEl.setAttribute('title', iconTitle);
+								} else {
+									titleEl.removeAttribute('title');
+								}
 								pageEl.textContent = '@?';
 							}
 						}
@@ -5658,7 +5675,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, _callee3, this, [[7, 14]]);
 		}))));
 		body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function _callee4() {
-			var i, els, len, el, node, waitEl;
+			var i, els, len, el, iconEl, titleEl;
 			return regeneratorRuntime.wrap(function _callee4$(_context9) {
 				while (1) switch (_context9.prev = _context9.next) {
 					case 0:
@@ -5666,47 +5683,47 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					case 1:
 						if (!(i < len)) {
-							_context9.next = 18;
+							_context9.next = 20;
 							break;
 						}
 
-						el = els[i], node = $c('de-fav-inf-err', el), waitEl = $c('de-wait', el);
+						el = els[i], iconEl = $c('de-fav-inf-icon', el), titleEl = iconEl.parentNode;
 
-						waitEl.style.removeProperty('display');
-						_context9.prev = 4;
-						_context9.next = 7;
+						iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+						titleEl.title = Lng.updating[lang];
+						_context9.prev = 5;
+						_context9.next = 8;
 						return $ajax(el.getAttribute('de-url'), null, false);
 
-					case 7:
-						_context9.next = 14;
+					case 8:
+						iconEl.setAttribute('class', 'de-fav-inf-icon');
+						titleEl.removeAttribute('title');
+						_context9.next = 17;
 						break;
 
-					case 9:
-						_context9.prev = 9;
-						_context9.t0 = _context9['catch'](4);
+					case 12:
+						_context9.prev = 12;
+						_context9.t0 = _context9['catch'](5);
 
 						if (_context9.t0.status === 404) {
 							el.setAttribute('de-removed', '');
 						}
-						node.classList.add('de-fav-unavail');
-						node.title = getErrorMessage(new AjaxError(_context9.t0.status, _context9.t0.statusText));
+						iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
+						titleEl.title = getErrorMessage(new AjaxError(_context9.t0.status, _context9.t0.statusText));
 
-					case 14:
-						waitEl.style.display = 'none';
-
-					case 15:
+					case 17:
 						++i;
 						_context9.next = 1;
 						break;
 
-					case 18:
+					case 20:
 						cleanFavorites();
 
-					case 19:
+					case 21:
 					case 'end':
 						return _context9.stop();
 				}
-			}, _callee4, this, [[4, 9]]);
+			}, _callee4, this, [[5, 12]]);
 		}))));
 		body.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function () {
 			$each($C('de-entry', doc), function (el) {
@@ -18080,7 +18097,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }' +
 
 	
-		'.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t.de-content-block > input { margin: 0 4px; }\t.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 4px 0 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\t.de-entry > a { flex: none; text-decoration: none; border: none; }\t.de-entry > input { margin: 2px 4px; }\t.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\t.de-fav-inf { flex: none; padding-left: 10px; font: bold 14px serif; cursor: default; }\t.de-fav-inf-err { color: #c33; font-size: 12px; }\t.de-fav-inf-new { color: #424f79; }\t.de-fav-inf-new::after { content: " +"; }\t.de-fav-inf-old { color: #4f7942; }\t.de-fav-user::after { content: "★"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\t.de-fav-inf-err:not(.de-fav-closed):not(.de-fav-unavail), .de-fav-closed > .de-fav-unavail-use, .de-fav-unavail > .de-fav-closed-use { display: none; }\t.de-fav-inf-err { display: inline-block; width: 16px; height: 16px; margin-bottom: -4px; }' +
+		'.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t.de-content-block > input { margin: 0 4px; }\t.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 4px 0 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\t.de-entry > a { flex: none; text-decoration: none; border: none; }\t.de-entry > input { margin: 2px 4px; }\t.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\t.de-fav-inf { flex: none; padding-left: 10px; font: bold 14px serif; cursor: default; }\t.de-fav-inf-new { color: #424f79; }\t.de-fav-inf-new::after { content: " +"; }\t.de-fav-inf-old { color: #4f7942; }\t.de-fav-user::after { content: "★"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\t.de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait),\t\t.de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use,\t\t.de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use,\t\t.de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }\t.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }\t.de-fav-inf-icon { margin-bottom: -3px; }' +
 
 	
 		'#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\
@@ -18094,7 +18111,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	
 		'@keyframes de-wait-anim { to { transform: rotate(360deg); } }\
-	.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; animation: de-wait-anim 1s linear infinite; }\
+	.de-wait, .de-fav-wait { animation: de-wait-anim 1s linear infinite; }\
+	.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\
 	.de-abtn { text-decoration: none !important; outline: none; }\
 	.de-after-fimg { clear: left; }\
 	#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\

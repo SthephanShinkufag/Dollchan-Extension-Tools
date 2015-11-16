@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '78a32fe';
+var commit = '8df8a0a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -473,6 +473,7 @@ Lng = {
 	loading:        ['Загрузка...', 'Loading...'],
 	checking:       ['Проверка...', 'Checking...'],
 	deleting:       ['Удаление...', 'Deleting...'],
+	updating:       ['Обновление...', 'Updating...'],
 	error:          ['Ошибка', 'Error'],
 	noConnect:      ['Ошибка подключения', 'Connection failed'],
 	internalError:	['Ошибка скрипта:\n', 'Script error:\n'],
@@ -2506,7 +2507,6 @@ function showFavoritesWindow(body, data) {
 					t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 				}
 				block.insertAdjacentHTML('beforeend', `<div class="de-entry ${ aib.cReply }" de-host="${ h }" de-board="${ b }" de-num="${ tNum }" de-url="${ t.url }">
-					<svg class="de-wait" style="display: none;"><use xlink:href="#de-symbol-wait"/></svg>
 					${ t['type'] === 'user' ? '<span class="de-fav-user" title="' + Lng.setByUser[lang] + '"></span>' : '' }
 					<input type="checkbox">
 					<a href="${ t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last : h === aib.host ? aib.anchor + t.last : '') }" rel="noreferrer">
@@ -2514,10 +2514,13 @@ function showFavoritesWindow(body, data) {
 					</a>
 					<div class="de-entry-title">- ${ t.txt }</div>
 					<div class="de-fav-inf">
-						<svg class="de-fav-inf-err ${ !t['err'] ? '' : t['err'] === 'Closed' ? ' de-fav-closed" title="' + Lng.thrClosed[lang] : ' de-fav-unavail" title="' + t['err'] }">
-							<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>
-							<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>
-						</svg>
+						<span class="de-fav-inf-iwrap" ${ !t['err'] ? '' : t['err'] === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' : 'title="' + t['err'] + '"' }>
+							<svg class="de-fav-inf-icon ${ !t['err'] ? '' : t['err'] === 'Closed' ? 'de-fav-closed' : 'de-fav-unavail' }">
+								<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>
+								<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>
+								<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>
+							</svg>
+						</span>
 						<span class="de-fav-inf-new" title="${ Lng.newPosts[lang] }"${ t['new'] ? '>' : ' style="display: none;">' }
 							${ t['new'] || 0 }
 						</span>
@@ -2542,11 +2545,11 @@ function showFavoritesWindow(body, data) {
 		readFav().then(val => fn(val, true, saveFavorites));
 	}));
 	body.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(function* () {
-		var err, update = false,
+		var update = false,
 			els = $C('de-entry', doc),
 			fav = yield* getStoredObj('DESU_Favorites');
 		for(var i = 0, len = els.length; i < len; ++i) {
-			var form, waitEl, el = els[i],
+			var form, el = els[i],
 				host = el.getAttribute('de-host'),
 				b = el.getAttribute('de-board'),
 				num = el.getAttribute('de-num'),
@@ -2554,28 +2557,34 @@ function showFavoritesWindow(body, data) {
 			if(host !== aib.host || f['err'] === 'Closed') {
 				continue;
 			}
-			waitEl = $c('de-wait', el);
+			var iconEl = $c('de-fav-inf-icon', el),
+				titleEl = iconEl.parentNode;
 			el = $c('de-fav-inf-new', el);
-			waitEl.style.removeProperty('display');
+			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+			titleEl.title = Lng.updating[lang];
 			try {
 				form = yield ajaxLoad(aib.getThrdUrl(b, num));
 			} catch(e) {
-				el.style.display = waitEl.style.display = 'none';
-				err = el.previousElementSibling;
-				err.classList.add('de-fav-unavail');
-				f['err'] = err.title = getErrorMessage(e);
+				el.style.display = 'none';
+				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
+				f['err'] = titleEl.title = getErrorMessage(e);
 				update = true;
 				continue;
 			}
 			if(f['err']) {
-				err = el.previousElementSibling;
-				err.classList.remove('de-fav-unavail');
-				err.title = '';
 				delete f['err'];
 				update = true;
 			}
+			if($q(aib.qClosed, form)) {
+				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
+				titleEl.title = Lng.thrClosed[lang];
+				f['err'] = 'Closed';
+				update = true;
+			} else {
+				iconEl.setAttribute('class', 'de-fav-inf-icon');
+				titleEl.removeAttribute('title');
+			}
 			var cnt = $Q(aib.qRPost, form).length + 1 - el.nextElementSibling.textContent;
-			waitEl.style.display = 'none';
 			el.textContent = cnt;
 			if(cnt === 0) {
 				el.style.display = 'none';
@@ -2584,20 +2593,13 @@ function showFavoritesWindow(body, data) {
 				f['new'] = cnt;
 				update = true;
 			}
-			if($q(aib.qClosed, form)) {
-				err = el.previousElementSibling;
-				err.classList.add('de-fav-closed');
-				err.title = Lng.thrClosed[lang];
-				f['err'] = 'Closed';
-				update = true;
-			}
 		}
 		if(update) {
 			setStored('DESU_Favorites', JSON.stringify(fav));
 		}
 	})));
 	body.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(function* () {
-		var els = $Q('.de-fav-current > .de-entry', doc),
+		var infoCount, els = $Q('.de-fav-current > .de-entry', doc),
 			infoCount = els.length,
 			postsInfo = [];
 		if(!infoCount) {
@@ -2606,14 +2608,19 @@ function showFavoritesWindow(body, data) {
 		$popup(Lng.loading[lang], 'load-pages', true);
 		for(var i = 0; i < infoCount; ++i) {
 			var el = els[i],
-				waitEl = $c('de-wait', el);
+				iconEl = $c('de-fav-inf-icon', el),
+				titleEl = iconEl.parentNode;
 			postsInfo.push({
 				found: false,
 				num: +el.getAttribute('de-num'),
 				pageEl: $c('de-fav-inf-page', el),
-				waitEl
+				iconClass: iconEl.getAttribute('class'),
+				iconEl,
+				iconTitle: titleEl.getAttribute('title'),
+				titleEl
 			});
-			waitEl.style.removeProperty('display');
+			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+			titleEl.title = Lng.updating[lang];
 		}
 		for(var page = 0, infoLoaded = 0, endPage = (aib.lastPage || 10) + 1; page < endPage; ++page) {
 			var tNums;
@@ -2626,7 +2633,12 @@ function showFavoritesWindow(body, data) {
 			for(var i = 0; i < infoCount; ++i) {
 				var pInfo = postsInfo[i];
 				if(tNums.has(pInfo.num)) {
-					pInfo.waitEl.style.display = 'none';
+					pInfo.iconEl.setAttribute('class', pInfo.iconClass);
+					if(pInfo.iconTitle) {
+						pInfo.titleEl.setAttribute('title', pInfo.iconTitle);
+					} else {
+						pInfo.titleEl.removeAttribute('title');
+					}
 					pInfo.pageEl.textContent = '@' + page;
 					pInfo.found = true;
 					infoLoaded++;
@@ -2637,9 +2649,14 @@ function showFavoritesWindow(body, data) {
 			}
 		}
 		for(var i = 0; i < infoCount; ++i) {
-			var { found, pageEl, waitEl } = postsInfo[i];
+			var { found, pageEl, iconClass, iconEl, iconTitle, titleEl } = postsInfo[i];
 			if(!found) {
-				waitEl.style.display = 'none';
+				iconEl.setAttribute('class', iconClass);
+				if(iconTitle) {
+					titleEl.setAttribute('title', iconTitle);
+				} else {
+					titleEl.removeAttribute('title');
+				}
 				pageEl.textContent = '@?';
 			}
 		}
@@ -2648,19 +2665,21 @@ function showFavoritesWindow(body, data) {
 	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
 		for(var i = 0, els = $C('de-entry', doc), len = els.length; i < len; ++i) {
 			var el = els[i],
-				node = $c('de-fav-inf-err', el),
-				waitEl = $c('de-wait', el);
-			waitEl.style.removeProperty('display');
+				iconEl = $c('de-fav-inf-icon', el),
+				titleEl = iconEl.parentNode;
+			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+			titleEl.title = Lng.updating[lang];
 			try {
 				yield $ajax(el.getAttribute('de-url'), null, false);
+				iconEl.setAttribute('class', 'de-fav-inf-icon');
+				titleEl.removeAttribute('title');
 			} catch(xhr) {
 				if(xhr.status === 404) {
 					el.setAttribute('de-removed', '');
 				}
-				node.classList.add('de-fav-unavail');
-				node.title = getErrorMessage(new AjaxError(xhr.status, xhr.statusText));
+				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
+				titleEl.title = getErrorMessage(new AjaxError(xhr.status, xhr.statusText));
 			}
-			waitEl.style.display = 'none';
 		}
 		cleanFavorites();
 	})));
@@ -13684,13 +13703,16 @@ function scriptCSS() {
 	.de-entry > input { margin: 2px 4px; }\
 	.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\
 	.de-fav-inf { flex: none; padding-left: 10px; font: bold 14px serif; cursor: default; }\
-	.de-fav-inf-err { color: #c33; font-size: 12px; }\
 	.de-fav-inf-new { color: #424f79; }\
 	.de-fav-inf-new::after { content: " +"; }\
 	.de-fav-inf-old { color: #4f7942; }\
 	.de-fav-user::after { content: "\u2605"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\
-	.de-fav-inf-err:not(.de-fav-closed):not(.de-fav-unavail), .de-fav-closed > .de-fav-unavail-use, .de-fav-unavail > .de-fav-closed-use { display: none; }\
-	.de-fav-inf-err { display: inline-block; width: 16px; height: 16px; margin-bottom: -4px; }' +
+	.de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait),\
+		.de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use,\
+		.de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use,\
+		.de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }\
+	.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }\
+	.de-fav-inf-icon { margin-bottom: -3px; }' +
 
 	// Thread nav
 	'#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\
@@ -13704,7 +13726,8 @@ function scriptCSS() {
 
 	// Other
 	'@keyframes de-wait-anim { to { transform: rotate(360deg); } }\
-	.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; animation: de-wait-anim 1s linear infinite; }\
+	.de-wait, .de-fav-wait { animation: de-wait-anim 1s linear infinite; }\
+	.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\
 	.de-abtn { text-decoration: none !important; outline: none; }\
 	.de-after-fimg { clear: left; }\
 	#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
