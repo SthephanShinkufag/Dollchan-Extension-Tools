@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '3b7f659';
+	var commit = '822453e';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12947,7 +12947,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				} else {
 					str += getItem('notext');
 				}
-				if (!Cfg.hideRefPsts) {
+				if (!Cfg.hideRefPsts && this.ref.hasMap) {
 					str += getItem('refs');
 				}
 				return str;
