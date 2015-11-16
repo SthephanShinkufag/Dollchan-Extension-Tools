@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '763bc57';
+	var commit = '77fa9a5';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15161,7 +15161,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.anchor = '#';
 			this.checkForm = emptyFn;
 			this.dm = dm;
-			this.docExt = '.html';
 			this.ETag = null;
 			this.firstPage = 0;
 			this.hasOPNum = false;
@@ -15348,8 +15347,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this.b = url.replace(temp && this.page ? temp[0] : /\/(?:[^\/]+\.[a-z]+)?$/, '');
 					this.t = false;
 				}
-				if (!this.hasOwnProperty('docExt') && (temp = url.match(/\.[a-z]+$/))) {
-					this.docExt = temp[0];
+				if (!this.hasOwnProperty('docExt')) {
+					temp = url.match(/\.[a-z]+$/);
+					this.docExt = temp ? temp[0] : '.html';
 				}
 			}
 		}, {
