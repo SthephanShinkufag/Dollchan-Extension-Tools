@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '169ef35';
+var commit = 'e282e17';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7365,7 +7365,6 @@ class Captcha {
 		}
 		this.textEl = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.trEl);
 		var initPromise = null;
-		console.log(aib.initCaptcha);
 		if(aib.initCaptcha) {
 			initPromise = aib.initCaptcha(this);
 		}
@@ -11730,6 +11729,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				this._initCapPromise.cancel();
 			}
 			return this._initCapPromise = $ajax('/' + this.b + '/api/requires-captcha').then(xhr => {
+				this._initCapPromise = null;
 				if(JSON.parse(xhr.responseText)['requires-captcha'] !== '1') {
 					return CancelablePromise.reject('нинужна!');
 				}
@@ -11749,8 +11749,12 @@ function getImageBoard(checkDomains, checkEngines) {
 						}, emptyFn);
 					}
 				}));
+			}, a => {
+				this._initCapPromise = null;
+				return CancelablePromise.reject(a);
 			});
 		}
+		updateCaptcha() {}
 	}
 	ibDomains['2chru.net'] = _2chruNet;
 	ibDomains['2-chru.net'] = _2chruNet;
@@ -12137,10 +12141,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			var img = $id('imgcaptcha');
 			if(img) {
 				this._capUpdPromise = $ajax('/cgi/captcha?task=get_id').then(xhr => {
+					this._capUpdPromise = null;
 					var id = xhr.responseText;
 					img.src = '/cgi/captcha?task=get_image&id=' + id;
 					$id('captchaid').value = id;
-				}, emptyFn);
+				}, () => this._capUpdPromise = null);
 			}
 		}
 	}
