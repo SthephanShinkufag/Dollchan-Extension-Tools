@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '2b01966';
+var commit = '129c564';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11764,42 +11764,49 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 			this._2chru = true;
 
-			this._initCapPromise = null;
+			this.capUpdAfterInit = false;
+
+			this._updCapPromise = null;
 		}
 		get css() {
-			return '.small { display: none; }';
+			return `.small { display: none; }
+				tr#captcha_tr { display: table-row; }`;
 		}
 		initCaptcha(cap) {
-			if(this._initCapPromise) {
-				this._initCapPromise.cancel();
+			return this.updateCaptcha(cap, true);
+		}
+		updateCaptcha(cap, isInit = false) {
+			if(this._updCapPromise) {
+				this._updCapPromise.cancel();
 			}
-			return this._initCapPromise = $ajax('/' + this.b + '/api/requires-captcha').then(xhr => {
-				this._initCapPromise = null;
+			return this._updCapPromise = $ajax('/' + this.b + '/api/requires-captcha').then(xhr => {
+				this._updCapPromise = null;
 				if(JSON.parse(xhr.responseText)['requires-captcha'] !== '1') {
 					return CancelablePromise.reject('нинужна!');
 				}
 				$id('captchaimage').src = '/' + this.b + '/captcha?' + Math.random();
-				$after(cap.textEl, $new('span', {
-					'class': 'shortened',
-					'style': 'margin: 0px .5em;',
-					'text': 'проверить капчу'}, {
-					'click'() {
+				if(!$id('de-_2chruNet-capchecker')) {
+					cap.textEl.insertAdjacentHTML('afterend', `<span id="de-_2chruNet-capchecker" class="shortened" style="margin: 0px .5em;">
+						проверить капчу
+					</span>`);
+					cap.textEl.nextSibling.onclick = ({ target }) => {
 						$ajax('/' + this.b + '/api/validate-captcha', { method: 'POST' }).then(xhr => {
 							if(JSON.parse(xhr.responseText).status === 'ok') {
-								this.innerHTML = 'можно постить';
+								target.innerHTML = 'можно постить';
 							} else {
-								this.innerHTML = 'неверная капча';
-								setTimeout(() => this.innerHTML = 'проверить капчу', 1e3);
+								target.innerHTML = 'неверная капча';
+								setTimeout(() => target.innerHTML = 'проверить капчу', 1e3);
 							}
 						}, emptyFn);
-					}
-				}));
-			}, a => {
-				this._initCapPromise = null;
-				return CancelablePromise.reject(a);
+					};
+				}
+			}, e => {
+				this._updCapPromise = null;
+				if(needError) {
+					return CancelablePromise.reject(e);
+				}
 			});
 		}
-		updateCaptcha() {}
 	}
 	ibDomains['2chru.net'] = _2chruNet;
 	ibDomains['2-chru.net'] = _2chruNet;
