@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '77fa9a5';
+	var commit = '7745a00';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10641,8 +10641,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			el.click();
 		},
 		_changeFilesCount: function _changeFilesCount(val) {
-			val = this.form.filesCount + val;
-			this.form.filesCount = val < 1 ? 1 : val;
+			this.form.filesCount = Math.max(this.form.filesCount + val, 0);
 			if (aib.dobr) {
 				this.form.fileTd.firstElementChild.value = this.form.filesCount + 1;
 			}
@@ -10730,12 +10729,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (dc.body.hasChildNodes() && !$q(aib.qDForm, dc)) {
 			if (aib.mak) {
 				try {
-					var json = JSON.parse(dc.body.innerHTML);
-					if (json.Status !== 'OK' && json.Status !== 'Redirect') {
-						return Lng.error[lang] + ":\n" + json.Reason;
-					} else {
-						return null;
-					}
+					var json = JSON.parse(dc.body.textContent);
+					return json.Status === 'OK' || json.Status === 'Redirect' ? null : Lng.error[lang] + ":\n" + json.Reason;
 				} catch (e) {}
 			}
 			var els = $Q(aib.qError, dc);
@@ -10863,7 +10858,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (!pr.tNum) {
 			if (aib.mak) {
 				try {
-					var json = JSON.parse(dc.body.innerHTML);
+					var json = JSON.parse(dc.body.textContent);
 					if (json.Status === 'Redirect') {
 						window.location = aib.getThrdUrl(aib.b, json.Target);
 					}
@@ -15161,6 +15156,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.anchor = '#';
 			this.checkForm = emptyFn;
 			this.dm = dm;
+			this.docExt = null;
 			this.ETag = null;
 			this.firstPage = 0;
 			this.hasOPNum = false;
@@ -15347,7 +15343,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this.b = url.replace(temp && this.page ? temp[0] : /\/(?:[^\/]+\.[a-z]+)?$/, '');
 					this.t = false;
 				}
-				if (!this.hasOwnProperty('docExt')) {
+				if (this.docExt === null) {
 					temp = url.match(/\.[a-z]+$/);
 					this.docExt = temp ? temp[0] : '.html';
 				}
@@ -16921,6 +16917,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 	function Initialization(checkDomains) {
+		switch (window.name) {
+			case '':
+				break;
+			case 'de-iframe-pform':
+			case 'de-iframe-dform':
+				window.parent.postMessage(window.name + document.documentElement.outerHTML, "*");
+				return null;
+		}
 		if (!aib) {
 			aib = getImageBoard(checkDomains, true);
 		}
@@ -18328,15 +18332,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 		return;
 	}
-	switch (window.name) {
-		case '':
-			break;
-		case 'de-iframe-pform':
-		case 'de-iframe-dform':
-			window.parent.postMessage(window.name + document.documentElement.outerHTML, "*");
-			return;
-	}
-
 	if (doc.readyState === 'interactive' || doc.readyState === 'complete') {
 		needScroll = false;
 		async(initScript)(true, null);
