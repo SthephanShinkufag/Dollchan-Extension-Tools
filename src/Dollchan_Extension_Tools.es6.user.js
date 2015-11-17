@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '459d95d';
+var commit = '2b01966';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7417,7 +7417,7 @@ class Captcha {
 		}
 	}
 	update(focus, isErr) {
-		if(!this._hasCaptcha) {
+		if(!this._hasCaptcha && !isErr) {
 			return;
 		}
 		if(!this._added) {
