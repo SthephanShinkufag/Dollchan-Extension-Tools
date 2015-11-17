@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'feb8b54';
+	var commit = 'a5a53be';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10585,7 +10585,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return;
 				}
 				this._added = true;
-				this._lastUpdate = Date.now();
 				if (!$id('recaptcha_widget_div')) {
 					this.trEl.innerHTML = this._originHTML;
 				}
@@ -10705,13 +10704,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				this.textEl.addEventListener('keypress', this);
 				this.textEl.onkeypress = null;
-				if (aib.krau || this.recap || !(img = $q('img', this.trEl))) {
-					this.trEl.style.removeProperty('display');
-					return;
-				}
 				if (!aib.kus && !aib.tinyIb) {
 					this.textEl.addEventListener('focus', this);
 					this.textEl.onfocus = null;
+				}
+				if (aib.krau || this.recap || !(img = $q('img', this.trEl))) {
+					this.update(focus);
+					this.trEl.style.removeProperty('display');
+					return;
 				}
 				img.title = Lng.refresh[lang];
 				img.alt = Lng.loading[lang];
