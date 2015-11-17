@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'a5a53be';
+var commit = '459d95d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7368,7 +7368,7 @@ class Captcha {
 			initPromise = aib.initCaptcha(this);
 		}
 		if(initPromise) {
-			initPromise.then(() => this._initCaptchaFuncs(focus), a => console.log(a));
+			initPromise.then(() => this._initCaptchaFuncs(focus), () => this._hasCaptcha = false);
 		} else {
 			this._initCaptchaFuncs(focus);
 		}
@@ -7405,10 +7405,11 @@ class Captcha {
 		e.stopPropagation();
 	}
 	init(el) {
-		this._added = false;
-		this._lastUpdate = null;
 		this.textEl = null;
 		this.trEl = $parent(el, 'TR');
+		this._added = false;
+		this._lastUpdate = null;
+		this._hasCaptcha = true;
 		this._originHTML = this.trEl.innerHTML;
 		this.trEl.style.display = 'none';
 		if(!$id('recaptcha_widget_div')) {
@@ -7416,6 +7417,9 @@ class Captcha {
 		}
 	}
 	update(focus, isErr) {
+		if(!this._hasCaptcha) {
+			return;
+		}
 		if(!this._added) {
 			this.add();
 			return;
@@ -7469,20 +7473,21 @@ class Captcha {
 			this.textEl.onfocus = null;
 		}
 		if(aib.krau || this.recap || !(img = $q('img', this.trEl))) {
-			this.update(focus);
 			this.trEl.style.removeProperty('display');
 			return;
 		}
 		img.title = Lng.refresh[lang];
 		img.alt = Lng.loading[lang];
 		img.style.cssText = 'vertical-align: text-bottom; border: none; cursor: pointer;';
-		img.onclick = () => this.update(true);
+		img.onclick = () => this.update(true, false);
 		var a = img.parentNode;
 		if(a.tagName === 'A') {
 			$after(a, img);
 			$del(a);
 		}
-		this.update(focus);
+		if(aib.capUpdAfterInit) {
+			this.update(focus, false);
+		}
 		this.trEl.style.removeProperty('display');
 	}
 }
@@ -11118,6 +11123,7 @@ class BaseBoard {
 		this.qTrunc = '.abbrev, .abbr, .shortened';
 
 		this.anchor = '#';
+		this.capUpdAfterInit = true;
 		this.dm = dm;
 		this.docExt = null;
 		this.ETag = null;
@@ -11348,11 +11354,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qThumbImages = '.preview';
 			this.qTrunc = null;
 
+			this.capUpdAfterInit = false;
 			this.hasOPNum = true;
 			this.hasPicWrap = true;
 			this.markupBB = true;
 			this.multiFile = true;
 			this.timePattern = 'dd+nn+yy+w+hh+ii+ss';
+
+			this._capUpdPromise = null;
 		}
 		get css() {
 			return `.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }
@@ -11383,13 +11392,49 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'];
 		}
-		get updateCaptcha() {
-			doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;" onclick="loadCaptcha();"></div>');
-			var value = function(focus) {
-				this.click();
-			}.bind(doc.body.lastChild);
-			Object.defineProperty(this, 'updateCaptcha', { value });
-			return value;
+		updateCaptcha(cap, needXHRErrors = false) {
+			if(this._capUpdPromise) {
+				this._capUpdPromise.cancel();
+			}
+			var url;
+			if(pr.tNum) {
+				url = '/makaba/captcha.fcgi?type=2chaptcha&action=thread';
+			} else {
+				url = '/makaba/captcha.fcgi?type=2chaptcha';
+			}
+			return this._capUpdPromise = $ajax(url).then(xhr => {
+				this._capUpdPromise = null;
+				var el = $q('.captcha-box', doc.body),
+					data = xhr.responseText;
+				if(data.includes('VIPFAIL')) {
+					el.innerHTML = 'Ваш пасс-код не действителен, пожалуйста, перелогиньтесь. <a href="#" id="renew-pass-btn">Обновить</a>';
+				} else if(data.includes('VIP')) {
+					el.innerHTML = 'Вам не нужно вводить капчу, у вас введен пасс-код.';
+				} else if(data.includes('DISABLED')) {
+					cap.trEl.style.display = 'none';
+					return CancelablePromise.reject();
+				} else if(data.includes('CHECK')) {
+					var key = data.substr(6);
+					var src = '/makaba/captcha.fcgi?type=2chaptcha&action=image&id=' + key;
+					var el = $id('de-image-captcha');
+					if(el) {
+						el.src = src;
+					} else {
+						el = $q('.captcha-image', cap.trEl);
+						el.innerHTML = '<img id="de-image-captcha" title="' + Lng.refresh[lang] + '" alt="' + Lng.loading[lang] + '" src="' + src + '">';
+						el.firstChild.onclick = () => cap.update(true, false);
+					}
+					//$q('input[name="captcha_type"]', cap.trEl).value = '2chaptcha';
+					$q('input[name="2chaptcha_id"]', cap.trEl).value = key;
+				} else {
+					el.textContent = data;
+				}
+			}, e => {
+				this._capUpdPromise = null;
+				if(needXHRErrors) {
+					return CancelablePromise.reject(e);
+				}
+			});
 		}
 		fixFileInputs(el) {
 			var str = '';
@@ -11438,7 +11483,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		initCaptcha(cap) {
 			cap.textEl.tabIndex = 999;
-			return null;
+			return this.updateCaptcha(cap, true);
 		}
 	}
 	ibEngines['body.makaba'] = Makaba;
