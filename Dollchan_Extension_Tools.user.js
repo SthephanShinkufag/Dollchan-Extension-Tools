@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '7745a00';
+	var commit = '5d94b1d';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -16482,6 +16482,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						});
 						return true;
 					}
+					$script('window.UploadProgress = function() {};');
 					return false;
 				}
 			}, {
@@ -16917,14 +16918,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 	function Initialization(checkDomains) {
-		switch (window.name) {
-			case '':
-				break;
-			case 'de-iframe-pform':
-			case 'de-iframe-dform':
-				window.parent.postMessage(window.name + document.documentElement.outerHTML, "*");
-				return null;
-		}
 		if (!aib) {
 			aib = getImageBoard(checkDomains, true);
 		}
@@ -17806,7 +17799,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function initPage() {
 		if (!localRun && Cfg.ajaxReply === 1) {
-			doc.body.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-pform" src="about:blank" style="display: none;"></iframe>' + '<iframe name="de-iframe-dform" src="about:blank" style="display: none;"></iframe>');
+			doc.body.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-pform" sandbox="" src="about:blank" style="display: none;"></iframe>' + '<iframe name="de-iframe-dform" sandbox="" src="about:blank" style="display: none;"></iframe>');
 			doc.defaultView.addEventListener('message', function (_ref42) {
 				var data = _ref42.data;
 
@@ -18331,6 +18324,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 		return;
+	}
+	switch (window.name) {
+		case '':
+			break;
+		case 'de-iframe-pform':
+		case 'de-iframe-dform':
+			if (doc.readyState === 'interactive' || doc.readyState === 'complete') {
+				window.parent.postMessage(window.name + document.documentElement.outerHTML, "*");
+			} else {
+				doc.addEventListener('DOMContentLoaded', function () {
+					return window.parent.postMessage(window.name + document.documentElement.outerHTML, "*");
+				});
+			}
+			return;
 	}
 	if (doc.readyState === 'interactive' || doc.readyState === 'complete') {
 		needScroll = false;

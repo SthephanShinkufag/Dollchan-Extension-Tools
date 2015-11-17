@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '7745a00';
+var commit = '5d94b1d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12063,6 +12063,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				});
 				return true;
 			}
+			$script('window.UploadProgress = function() {};');
 			return false;
 		}
 	}
@@ -12369,13 +12370,6 @@ function getImageBoard(checkDomains, checkEngines) {
 // ===========================================================================================================
 
 function Initialization(checkDomains) {
-	switch(window.name) {
-	case '': break;
-	case 'de-iframe-pform':
-	case 'de-iframe-dform':
-		window.parent.postMessage(window.name + document.documentElement.outerHTML, "*");
-		return null;
-	}
 	if(!aib) {
 		aib = getImageBoard(checkDomains, true);
 	}
@@ -13353,8 +13347,8 @@ function initThreadUpdater(title, enableUpdate) {
 function initPage() {
 	if(!localRun && Cfg.ajaxReply === 1) {
 		doc.body.insertAdjacentHTML('beforeend',
-			'<iframe name="de-iframe-pform" src="about:blank" style="display: none;"></iframe>' +
-			'<iframe name="de-iframe-dform" src="about:blank" style="display: none;"></iframe>'
+			'<iframe name="de-iframe-pform" sandbox="" src="about:blank" style="display: none;"></iframe>' +
+			'<iframe name="de-iframe-dform" sandbox="" src="about:blank" style="display: none;"></iframe>'
 		);
 		doc.defaultView.addEventListener('message', ({ data }) => {
 			switch(data.substr(0, 15)) {
@@ -13911,6 +13905,19 @@ function* initScript(checkDomains, readCfgPromise) {
 }
 
 if(/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
+	return;
+}
+switch(window.name) {
+case '': break;
+case 'de-iframe-pform':
+case 'de-iframe-dform':
+	if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
+		window.parent.postMessage(window.name + document.documentElement.outerHTML, "*");
+	} else {
+		doc.addEventListener('DOMContentLoaded',
+			() => window.parent.postMessage(window.name + document.documentElement.outerHTML, "*")
+		);
+	}
 	return;
 }
 if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
