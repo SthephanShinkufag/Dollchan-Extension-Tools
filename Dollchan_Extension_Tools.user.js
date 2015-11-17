@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'e282e17';
+	var commit = 'feb8b54';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10618,15 +10618,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						    code = e.charCode || e.keyCode,
 						    chr = String.fromCharCode(code).toLowerCase();
 						if (Cfg.captchaLang === 1) {
-							if (code < 0x0410 || code > 0x04FF || (i = this._ru.indexOf(chr)) === -1) {
+							if (code < 0x0410 || code > 0x04FF || (i = ru.indexOf(chr)) === -1) {
 								return;
 							}
-							chr = this._en[i];
+							chr = en[i];
 						} else {
-							if (code < 0x0021 || code > 0x007A || (i = this._en.indexOf(chr)) === -1) {
+							if (code < 0x0021 || code > 0x007A || (i = en.indexOf(chr)) === -1) {
 								return;
 							}
-							chr = this._ru[i];
+							chr = ru[i];
 						}
 						$txtInsert(e.target, chr);
 						break;
