@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '24a7033';
+var commit = '001789f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3049,7 +3049,7 @@ function getCfgForm() {
 			lBox('addSageBtn', false, null),
 			lBox('saveSage', false, null)
 		])),
-		$if(pr.capTr, optSel('captchaLang', true, null)),
+		$if(pr.cap, optSel('captchaLang', true, null)),
 		$if(pr.txta, $New('div', null, [
 			optSel('addTextBtns', false, function() {
 				saveCfg('addTextBtns', this.selectedIndex);
@@ -6505,7 +6505,6 @@ function PostForm(form, ignoreForm, dc) {
 	var p = './/tr[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
 	this.tNum = aib.t;
 	this.form = form;
-	this.cap = $q('input[type="text"][name*="aptcha"], div[id*="captcha"]', form);
 	this.txta = $q('tr:not([style*="none"]) textarea:not([style*="display:none"])', form);
 	this.subm = $q('tr input[type="submit"]', form);
 	this.file = $q('tr input[type="file"]', form);
@@ -6665,34 +6664,6 @@ function PostForm(form, ignoreForm, dc) {
 		this.subm.value = Lng.reply[lang];
 	}
 	this.subm.addEventListener('click', e => {
-		if(aib._2chru && !aib.reqCaptcha) {
-			$ajax('/' + aib.b + '/api/requires-captcha').then(xhr => {
-				aib.reqCaptcha = true;
-				if(JSON.parse(xhr.responseText)['requires-captcha'] !== '1') {
-					this.subm.click();
-					return;
-				}
-				$id('captcha_tr').style.display = 'table-row';
-				$id('captchaimage').src = '/' + aib.b + '/captcha?' + Math.random();
-				$after(this.cap, $new('span', {
-					'class': 'shortened',
-					'style': 'margin: 0px .5em;',
-					'text': 'проверить капчу'}, {
-					'click'() {
-						$ajax('/' + aib.b + '/api/validate-captcha', { method: 'POST' }).then(xhr => {
-							if(JSON.parse(xhr.responseText).status === 'ok') {
-								this.innerHTML = 'можно постить';
-							} else {
-								this.innerHTML = 'неверная капча';
-								setTimeout(() => this.innerHTML = 'проверить капчу', 1e3);
-							}
-						}, emptyFn);
-					}
-				}));
-			}, emptyFn);
-			$pd(e);
-			return;
-		}
 		if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
 			$pd(e);
 			$popup(Lng.subjHasTrip[lang], 'upload', false);
@@ -6741,17 +6712,12 @@ function PostForm(form, ignoreForm, dc) {
 			setTimeout(PostForm.setUserPassw, 1e3);
 		}
 	});
-	if(this.cap) {
-		this.capTr = $parent(this.cap, 'TR');
-		var html = this.capTr.innerHTML;
-		this.txta.addEventListener('focus', () => this._captchaInit(html));
-		this.form.addEventListener('click', () => this._captchaInit(html), true);
-		if(!aib.krau) {
-			this.capTr.style.display = 'none';
-		}
-		if(!aib.mak && !aib.fch && !$id('recaptcha_widget_div')) {
-			this.capTr.innerHTML = '';
-		}
+	var capEl = $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', form);
+	if(capEl) {
+		this.cap = new Captcha(capEl);
+		this.txta.addEventListener('focus', () => this.cap.add());
+		this.form.addEventListener('click', () => this.cap.add(), true);
+	} else {
 		this.cap = null;
 	}
 	if(Cfg.ajaxReply === 2) {
@@ -6977,9 +6943,7 @@ PostForm.prototype = {
 		if(!this.form) {
 			return;
 		}
-		if(this._lastCapUpdate &&
-		   ((!isThr && this.tNum !== qNum) || (Date.now() - this._lastCapUpdate > 3e5)))
-		{
+		if(!isThr && this.tNum !== qNum) {
 			this.tNum = qNum;
 			this.refreshCapImg(false);
 		}
@@ -7034,28 +6998,9 @@ PostForm.prototype = {
 			this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 		}
 	},
-	refreshCapImg(focus) {
-		this._lastCapUpdate = Date.now();
-		if(aib.mak || aib.fch) {
-			aib.updateCaptcha(focus);
-		} else {
-			if(!this.cap || (aib.krau && !$q('input[name="captcha_name"]', this.form).hasAttribute('value'))) {
-				return;
-			}
-			var img = this.recap ? $id('recaptcha_image') : $t('img', this.capTr);
-			if(aib.dobr || aib.krau || aib.dvachnet || this.recap) {
-				img.click();
-			} else if(img) {
-				var src = aib.getCaptchaSrc(img.getAttribute('src'), this.tNum);
-				img.src = '';
-				img.src = src;
-			}
-		}
+	refreshCapImg(focus, isErr = false) {
 		if(this.cap) {
-			this.cap.value = '';
-			if(focus) {
-				this.cap.focus();
-			}
+			this.cap.update(focus, isErr);
 		}
 	},
 	setReply(quick, hide) {
@@ -7084,7 +7029,6 @@ PostForm.prototype = {
 		$t('a', this._pBtn[+!this.isBottom]).className = txt + rep;
 	},
 
-	_lastCapUpdate: 0,
 	_pBtn: [],
 	_setSage() {
 		var el = $id('de-sagebtn'),
@@ -7104,100 +7048,6 @@ PostForm.prototype = {
 		if(this.form) {
 			$q('#de_thrid, input[name*="thread"]', this.form).value = tNum;
 		}
-	},
-	_captchaInit(html) {
-		if(this.capInited) {
-			return;
-		}
-		this._lastCapUpdate = Date.now();
-		if(aib.mak || aib.fch) {
-			aib.updateCaptcha(false);
-			if(aib.mak) {
-				this.capTr.style.display = '';
-			}
-			pr.txta.tabIndex = 999;
-			this.capInited = true;
-			return;
-		}
-		if(!$id('recaptcha_widget_div')) {
-			this.capTr.innerHTML = html;
-		}
-		this.cap = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.capTr);
-		if(aib.tire) {
-			$script('show_captcha()');
-		}
-		if(aib.krau) {
-			aib.initCaptcha.click();
-			$id('captcha_image').setAttribute('onclick', 'requestCaptcha(true);');
-		}
-		if(aib.dvachnet) {
-			$script('get_captcha()');
-		}
-		setTimeout(() => this._captchaUpd(), 100);
-	},
-	_captchaUpd() {
-		var img, a;
-		if((this.recap = $id('recaptcha_response_field')) && (img = $id('recaptcha_image'))) {
-			this.cap = this.recap;
-			img.setAttribute('onclick', 'Recaptcha.reload()');
-			img.style.cssText = 'width: 300px; cursor: pointer;';
-		}
-		this.capInited = true;
-		this.cap.autocomplete = 'off';
-		if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
-			this.cap.placeholder = Lng.cap[lang];
-		}
-		this.cap.onkeypress = (function() {
-			var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
-				en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
-			return function(e) {
-				if(!Cfg.captchaLang || e.which === 0) {
-					return;
-				}
-				var i, code = e.charCode || e.keyCode,
-					chr = String.fromCharCode(code).toLowerCase();
-				if(Cfg.captchaLang === 1) {
-					if(code < 0x0410 || code > 0x04FF || (i = ru.indexOf(chr)) === -1) {
-						return;
-					}
-					chr = en[i];
-				} else {
-					if(code < 0x0021 || code > 0x007A || (i = en.indexOf(chr)) === -1) {
-						return;
-					}
-					chr = ru[i];
-				}
-				$pd(e);
-				$txtInsert(e.target, chr);
-			};
-		})();
-		if(aib.krau) {
-			return;
-		}
-		if(aib.dobr || aib.dvachnet || this.recap || !(img = $q('img', this.capTr))) {
-			this.capTr.style.display = '';
-			return;
-		}
-		if(!aib.kus && !aib.tinyIb) {
-			this._lastCapUpdate = Date.now();
-			this.cap.onfocus = () => {
-				if(this._lastCapUpdate && (Date.now() - this._lastCapUpdate > 3e5)) {
-					this.refreshCapImg(false);
-				}
-			};
-			if(!aib.t && this.isQuick) {
-				this.refreshCapImg(false);
-			}
-		}
-		img.title = Lng.refresh[lang];
-		img.alt = Lng.loading[lang];
-		img.style.cssText = 'vertical-align: text-bottom; border: none; cursor: pointer;';
-		img.onclick = this.refreshCapImg.bind(this, true);
-		if((a = img.parentNode).tagName === 'A') {
-			$after(a, img);
-			$del(a);
-		}
-		this.capTr.style.display = '';
 	},
 	_setPlaceholder(val) {
 		var el = this[val];
@@ -7497,6 +7347,156 @@ FileInput.prototype = {
 };
 
 
+// CAPTCHA
+// ===========================================================================================================
+
+class Captcha {
+	constructor(el) {
+		this.init(el);
+	}
+	add(focus = false) {
+		if(this._added) {
+			return;
+		}
+		this._added = true;
+		if(!$id('recaptcha_widget_div')) {
+			this.trEl.innerHTML = this._originHTML;
+		}
+		this.textEl = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.trEl);
+		var initPromise = null;
+		if(aib.initCaptcha) {
+			initPromise = aib.initCaptcha(this);
+		}
+		if(initPromise) {
+			initPromise.then(() => this._initCaptchaFuncs(focus), () => this._hasCaptcha = false);
+		} else {
+			this._initCaptchaFuncs(focus);
+		}
+	}
+	handleEvent(e) {
+		switch(e.type) {
+		case 'keypress':
+			if(!Cfg.captchaLang || e.which === 0) {
+				return;
+			}
+			var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
+				en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
+			var i, code = e.charCode || e.keyCode,
+				chr = String.fromCharCode(code).toLowerCase();
+			if(Cfg.captchaLang === 1) {
+				if(code < 0x0410 || code > 0x04FF || (i = ru.indexOf(chr)) === -1) {
+					return;
+				}
+				chr = en[i];
+			} else {
+				if(code < 0x0021 || code > 0x007A || (i = en.indexOf(chr)) === -1) {
+					return;
+				}
+				chr = ru[i];
+			}
+			$txtInsert(e.target, chr);
+			break;
+		case 'focus':
+			if(this._lastUpdate && (Date.now() - this._lastUpdate > 3e5)) {
+				this.update(false);
+			}
+		}
+		$pd(e);
+		e.stopPropagation();
+	}
+	init(el) {
+		this.textEl = null;
+		this.trEl = el.tagName === 'TR' ? el : $parent(el, 'TR');
+		this._added = false;
+		this._lastUpdate = null;
+		this._hasCaptcha = true;
+		this._originHTML = this.trEl.innerHTML;
+		this.trEl.style.display = 'none';
+		if(!$id('recaptcha_widget_div')) {
+			this.trEl.innerHTML = '';
+		}
+	}
+	initImage(img) {
+		img.title = Lng.refresh[lang];
+		img.alt = Lng.loading[lang];
+		img.style.cssText = 'vertical-align: text-bottom; border: none; cursor: pointer;';
+		img.onclick = () => this.update(true, false);
+	}
+	update(focus, isErr) {
+		if(!this._hasCaptcha && !isErr) {
+			return;
+		}
+		if(!this._added) {
+			this.add();
+			return;
+		}
+		this._lastUpdate = Date.now();
+		if(aib.updateCaptcha) {
+			aib.updateCaptcha(this, isErr);
+		} else {
+			if(!this.textEl || (aib.krau && !$q('input[name="captcha_name"]', pr.form).hasAttribute('value'))) {
+				return;
+			}
+			var img = this.recap ? $id('recaptcha_image') : $t('img', this.trEl);
+			if(!aib.getCaptchaSrc || this.recap) {
+				img.click();
+			} else if(img) {
+				var src = aib.getCaptchaSrc(img.getAttribute('src'), pr.tNum);
+				img.src = '';
+				img.src = src;
+			}
+		}
+		if(this.textEl) {
+			this.textEl.value = '';
+			if(focus) {
+				this.textEl.focus();
+			}
+		}
+	}
+
+	_initCaptchaFuncs(focus) {
+		if(!this.textEl) {
+			this.trEl.style.removeProperty('display');
+			if(aib.updateCaptcha) {
+				aib.updateCaptcha(this, false);
+			}
+			return;
+		}
+		var img;
+		if((this.recap = $id('recaptcha_response_field')) && (img = $id('recaptcha_image'))) {
+			this.textEl = this.recap;
+			img.setAttribute('onclick', 'Recaptcha.reload()');
+			img.style.cssText = 'width: 300px; cursor: pointer;';
+		}
+		this.textEl.autocomplete = 'off';
+		if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
+			this.textEl.placeholder = Lng.cap[lang];
+		}
+		this.textEl.addEventListener('keypress', this);
+		this.textEl.onkeypress = null;
+		if(!aib.kus && !aib.tinyIb) {
+			this.textEl.addEventListener('focus', this);
+			this.textEl.onfocus = null;
+		}
+		if(aib.krau || this.recap || !(img = $q('img', this.trEl))) {
+			this.trEl.style.removeProperty('display');
+			return;
+		}
+		this.initImage(img);
+		var a = img.parentNode;
+		if(a.tagName === 'A') {
+			$after(a, img);
+			$del(a);
+		}
+		if(aib.capUpdAfterInit) {
+			this.update(focus, false);
+		} else {
+			this._lastUpdate = Date.now();
+		}
+		this.trEl.style.removeProperty('display');
+	}
+}
+
 // SUBMIT
 // ===========================================================================================================
 
@@ -7583,7 +7583,7 @@ function checkUpload(dc) {
 			pr.setReply(true, false);
 		}
 		if(/captch|капч|подтвер|verifizie/i.test(err)) {
-			pr.refreshCapImg(true);
+			pr.refreshCapImg(true, true);
 		}
 		$popup(err, 'upload', false);
 		updater.sendErrNotif();
@@ -9516,10 +9516,10 @@ Post.note = class PostNote {
 			</div>`);
 			this._noteEl = tEl.previousSibling;
 			this._aEl = $t('a', this._noteEl);
-			this._textEl = this._aEl.nextElementSibling;
+			this.textEl = this._aEl.nextElementSibling;
 		} else {
 			post.btns.insertAdjacentHTML('beforeend', '<span class="de-post-note"></span>');
-			this._noteEl = this._textEl = post.btns.lastChild;
+			this._noteEl = this.textEl = post.btns.lastChild;
 		}
 	}
 	hide() {
@@ -9540,7 +9540,7 @@ Post.note = class PostNote {
 		} else {
 			text = note ? 'autohide: ' + note : '';
 		}
-		this._textEl.textContent = text;
+		this.textEl.textContent = text;
 		this._noteEl.style.removeProperty('display');
 	}
 	reset() {
@@ -11127,7 +11127,7 @@ class BaseBoard {
 
 		this.anchor = '#';
 		this.b = '';
-		this.checkForm = emptyFn; // Sets in Ponyach only
+		this.capUpdAfterInit = true;
 		this.dm = dm;
 		this.docExt = null;
 		this.ETag = null; // Used for $ajax only
@@ -11173,6 +11173,9 @@ class BaseBoard {
 		Object.defineProperty(this, 'qThread', { value: val });
 		return val;
 	}
+	get initCaptcha() {
+		return null;
+	}
 	get lastPage() { // Differs Makaba only
 		var el = $q(this.qPages, doc),
 			val = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
@@ -11197,6 +11200,10 @@ class BaseBoard {
 		Object.defineProperty(this, 'rep', { value: val });
 		return val;
 	}
+	get updateCaptcha() {
+		return null;
+	}
+	checkForm() {} // Sets in Ponyach only
 	disableRedirection(el) { // Differs Dobrochan only
 		if(this.qPostRedir) {
 			($q(this.qPostRedir, el) || {}).checked = true;
@@ -11335,11 +11342,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qThumbImages = '.preview';
 			this.qTrunc = null;
 
+			this.capUpdAfterInit = false;
 			this.hasOPNum = true;
 			this.hasPicWrap = true;
 			this.markupBB = true;
 			this.multiFile = true;
 			this.timePattern = 'dd+nn+yy+w+hh+ii+ss';
+
+			this._capUpdPromise = null;
 		}
 		get css() {
 			return `.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }
@@ -11369,6 +11379,50 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get markupTags() {
 			return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'];
+		}
+		updateCaptcha(cap, needXHRErrors = false) {
+			if(this._capUpdPromise) {
+				this._capUpdPromise.cancel();
+			}
+			var url;
+			if(pr.tNum) {
+				url = '/makaba/captcha.fcgi?type=2chaptcha&action=thread';
+			} else {
+				url = '/makaba/captcha.fcgi?type=2chaptcha';
+			}
+			return this._capUpdPromise = $ajax(url).then(xhr => {
+				this._capUpdPromise = null;
+				var el = $q('.captcha-box', doc.body),
+					data = xhr.responseText;
+				if(data.includes('VIPFAIL')) {
+					el.innerHTML = 'Ваш пасс-код не действителен, пожалуйста, перелогиньтесь. <a href="#" id="renew-pass-btn">Обновить</a>';
+				} else if(data.includes('VIP')) {
+					el.innerHTML = 'Вам не нужно вводить капчу, у вас введен пасс-код.';
+				} else if(data.includes('DISABLED')) {
+					cap.trEl.style.display = 'none';
+					return CancelablePromise.reject();
+				} else if(data.includes('CHECK')) {
+					var key = data.substr(6);
+					var src = '/makaba/captcha.fcgi?type=2chaptcha&action=image&id=' + key;
+					var el = $id('de-image-captcha');
+					if(el) {
+						el.src = src;
+					} else {
+						el = $q('.captcha-image', cap.trEl);
+						el.innerHTML = '<img id="de-image-captcha" src="' + src + '">';
+						cap.initImage(el.firstChild);
+					}
+					//$q('input[name="captcha_type"]', cap.trEl).value = '2chaptcha';
+					$q('input[name="2chaptcha_id"]', cap.trEl).value = key;
+				} else {
+					el.textContent = data;
+				}
+			}, e => {
+				this._capUpdPromise = null;
+				if(needXHRErrors) {
+					return CancelablePromise.reject(e);
+				}
+			});
 		}
 		fixFileInputs(el) {
 			var str = '';
@@ -11413,31 +11467,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			if((el = $c('search', doc.body))) {
 				$before($c('menu', doc.body).firstChild, el);
 			}
-			el = $q('tr:not([class])', doc.body);
-			if(!el) {
-				return false;
-			}
-			doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
-				'<div onclick="loadCaptcha();"></div></div>');
-			this.updateCaptcha = function(el, focus) {
-				this.click();
-				el.style.display = '';
-				el = $id('captcha-value');
-				if(el) {
-					pr.cap = el;
-					el.tabIndex = 999;
-					if(focus) {
-						el.focus();
-					}
-				}
-			}.bind(doc.body.lastChild.firstChild, el);
-			el.addEventListener('click', e => {
-				if(e.target.tagName === 'IMG') {
-					this.updateCaptcha(true);
-					e.stopPropagation();
-				}
-			}, true);
 			return false;
+		}
+		initCaptcha(cap) {
+			cap.textEl.tabIndex = 999;
+			return this.updateCaptcha(cap, true);
 		}
 	}
 	ibEngines['body.makaba'] = Makaba;
@@ -11681,9 +11715,49 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 			this._2chru = true;
+
+			this.capUpdAfterInit = false;
+
+			this._capUpdPromise = null;
 		}
 		get css() {
-			return '.small { display: none; }';
+			return `.small { display: none; }
+				tr#captcha_tr { display: table-row; }`;
+		}
+		initCaptcha(cap) {
+			return this.updateCaptcha(cap, true);
+		}
+		updateCaptcha(cap, needError = false) {
+			if(this._capUpdPromise) {
+				this._capUpdPromise.cancel();
+			}
+			return this._capUpdPromise = $ajax('/' + this.b + '/api/requires-captcha').then(xhr => {
+				this._capUpdPromise = null;
+				if(JSON.parse(xhr.responseText)['requires-captcha'] !== '1') {
+					return CancelablePromise.reject();
+				}
+				$id('captchaimage').src = '/' + this.b + '/captcha?' + Math.random();
+				if(!$id('de-_2chruNet-capchecker')) {
+					cap.textEl.insertAdjacentHTML('afterend', `<span id="de-_2chruNet-capchecker" class="shortened" style="margin: 0px .5em;">
+						проверить капчу
+					</span>`);
+					cap.textEl.nextSibling.onclick = ({ target }) => {
+						$ajax('/' + this.b + '/api/validate-captcha', { method: 'POST' }).then(xhr => {
+							if(JSON.parse(xhr.responseText).status === 'ok') {
+								target.innerHTML = 'можно постить';
+							} else {
+								target.innerHTML = 'неверная капча';
+								setTimeout(() => target.innerHTML = 'проверить капчу', 1e3);
+							}
+						}, emptyFn);
+					};
+				}
+			}, e => {
+				this._capUpdPromise = null;
+				if(needError) {
+					return CancelablePromise.reject(e);
+				}
+			});
 		}
 	}
 	ibDomains['2chru.net'] = _2chruNet;
@@ -11728,6 +11802,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getPageUrl(b, p) {
 			return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
+		}
+		initCaptcha() {
+			$id('captchadiv').innerHTML = '<img style="vertical-align: bottom;" id="imgcaptcha" />';
+			return null;
 		}
 	}
 	ibDomains['2--ch.ru'] = _2chRu;
@@ -11834,6 +11912,21 @@ function getImageBoard(checkDomains, checkEngines) {
 		get rep() {
 			return true;
 		}
+		get updateCaptcha() {
+			var el = $id('captchaFormPart'),
+				value = null;
+			if(el) {
+				doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
+					'<div onclick="initRecaptcha();"></div></div>');
+				value = function(el) {
+					$id('g-recaptcha').innerHTML = '';
+					this.click();
+					el.style.removeProperty('display');
+				}.bind(doc.body.lastChild.firstChild, el);
+			}
+			Object.defineProperty(this, 'updateCaptcha', { value });
+			return value;
+		}
 		getFileInfo(wrap) {
 			var el = $c(this.cFileInfo, wrap);
 			return el ? el.lastChild.textContent : '';
@@ -11852,24 +11945,62 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			Cfg.findImgFile = 0;
-			var el = $id('captchaFormPart');
-			if(el) {
-				doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
-					'<div onclick="initRecaptcha();"></div></div>');
-				this.updateCaptcha = function(el, focus) {
-					$id('g-recaptcha').innerHTML = '';
-					this.click();
-					el.style.display = '';
-				}.bind(doc.body.lastChild.firstChild, el);
-			}
 			return false;
 		}
 	}
 	ibDomains['4chan.org'] = _4chanOrg;
 
 	class _8chNet extends Vichan {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.capUpdAfterInit = false;
+
+			this._capExtra = null;
+			this._capUrl = null;
+			this._capUpdPromise = null;
+		}
 		get css() {
 			return super.css + '#post-moderation-fields { display: initial !important; }';
+		}
+		earlyInit() {
+			$script('Object.defineProperty(window, "load_captcha", { get: function() { return function() {}; }, set: function() {} });');
+			return false;
+		}
+		initCaptcha(cap) {
+			var td = $t('td', cap.trEl);
+			var sm = $t('script', td).textContent.match(/load_captcha\("([^"]+)", *"([^"]+)"\)/);
+			if(sm) {
+				this._capUrl = sm[1].replace(/^https?:/, '');
+				this._capExtra = sm[2];
+			} else {
+				return Promise.reject();
+			}
+			td.innerHTML = `<input placeholder="Капча" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="6" autocomplete="off">
+				<input class="captcha_cookie" name="captcha_cookie" type="hidden">
+				<div class="captcha_html"></div>`;
+			cap.textEl = $q('.captcha_text', cap.trEl);
+			return this.updateCaptcha(cap, true);
+		}
+		updateCaptcha(cap, needXHRErrors = false) {
+			if(this._capUpdPromise) {
+				this._capUpdPromise.cancel();
+			}
+			return this._capUpdPromise = $ajax(this._capUrl + '?mode=get&extra=' + this._capExtra).then(xhr => {
+				this._capUpdPromise = null;
+				var resp = JSON.parse(xhr.responseText);
+				$q('.captcha_cookie', cap.trEl).value = resp.cookie;
+				$q('.captcha_html', cap.trEl).innerHTML = resp.captchahtml;
+				var img = $t('img', cap.trEl);
+				if(img) {
+					cap.initImage(img);
+				}
+			}).catch(e => {
+				this._capUpdPromise = null;
+				if(needXHRErrors) {
+					return CancelablePromise.reject(e);
+				}
+			});
 		}
 	}
 	ibDomains['8ch.net'] = _8chNet;
@@ -12013,6 +12144,34 @@ function getImageBoard(checkDomains, checkEngines) {
 			$script('window.UploadProgress = function() {};');
 			return false;
 		}
+		initCaptcha(cap) {
+			if(!cap.textEl) {
+				var img = $t('img', cap.trEl);
+				img.style.display = 'none';
+				cap.trEl.style.removeProperty('display');
+				return Promise.reject();
+			}
+			return null;
+		}
+		updateCaptcha(cap, isErr) {
+			var img = $t('img', cap.trEl);
+			if(img) {
+				if(cap.textEl) {
+					var src = img.getAttribute('src').split('/').slice(0,-1).join('/') + "/" + Date.now() + '.png';
+					img.src = '';
+					img.src = src;
+				} else if(isErr) {
+					var node = img.parentNode;
+					node.innerHTML = '';
+					node.appendChild(img);
+					img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off" id="captcha" name="captcha" size="35" type="text">');
+					img.style.removeProperty('display');
+					this.initCaptcha = null;
+					cap.init(img);
+					cap.add(true);
+				}
+			}
+		}
 	}
 	ibDomains['dobrochan.com'] = Dobrochan;
 	ibDomains['dobrochan.org'] = Dobrochan;
@@ -12021,9 +12180,25 @@ function getImageBoard(checkDomains, checkEngines) {
 	class DvaChNet extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this.dvachnet = true;
 
+			this.getCaptchaSrc = null;
 			this.ru = true;
+			this._capUpdPromise = null;
+		}
+		updateCaptcha() {
+			if(this._capUpdPromise) {
+				this._capUpdPromise.cancel();
+				this._capUpdPromise = null;
+			}
+			var img = $id('imgcaptcha');
+			if(img) {
+				this._capUpdPromise = $ajax('/cgi/captcha?task=get_id').then(xhr => {
+					this._capUpdPromise = null;
+					var id = xhr.responseText;
+					img.src = '/cgi/captcha?task=get_image&id=' + id;
+					$id('captchaid').value = id;
+				}, () => this._capUpdPromise = null);
+			}
 		}
 	}
 	ibDomains['dva-ch.net'] = DvaChNet;
@@ -12078,6 +12253,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qThumbImages = 'img[id^="thumbnail_"]';
 			this.qTrunc = 'p[id^="post_truncated"]';
 
+			this.getCaptchaSrc = null;
 			this.hasPicWrap= true;
 			this.markupBB = true;
 			this.multiFile = true;
@@ -12098,6 +12274,16 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get qThread() {
 			return '.thread_body';
+		}
+		get initCaptcha() {
+			doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;" onclick="if(boardRequiresCaptcha) { requestCaptcha(true); }"></div>');
+			var value = function() {
+				this.click();
+				$id('captcha_image').setAttribute('onclick', 'requestCaptcha(true);');
+				return null;
+			}.bind(doc.body.lastChild);
+			Object.defineProperty(this, 'initCaptcha', { value });
+			return value;
 		}
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'];
@@ -12127,15 +12313,13 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
 				'<div onclick="window.lastUpdateTime = 0;"></div>' +
-				'<div onclick="if(boardRequiresCaptcha) { requestCaptcha(true); }"></div>' +
 				'<div onclick="setupProgressTracking();"></div>' +
 				'<div onclick="highlightPost = function() {}"></div></div>' +
 			'</div>');
 			var els = doc.body.lastChild.children;
 			this.btnZeroLUTime = els[0];
-			this.initCaptcha = els[1];
-			this.addProgressTrack = els[2];
-			els[3].click();
+			this.addProgressTrack = els[1];
+			els[2].click();
 			return false;
 		}
 		insertYtPlayer(msg, playerHtml) {
