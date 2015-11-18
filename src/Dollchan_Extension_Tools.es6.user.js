@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '5490b24';
+var commit = '6000072';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -208,7 +208,7 @@ Lng = {
 		},
 		'linksOver':    ['Появление ', 'Appearance '],
 		'linksOut':     ['Пропадание (мс)', 'Disappearance (ms)'],
-		'markViewed':   ['Отмечать просмотренные посты*', 'Mark viewed posts*'],
+		'markViewed':   ['Отмечать просмотренные посты', 'Mark viewed posts'],
 		'strikeHidd':   ['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
 		'removeHidd':   ['Удалять из карты ответов', 'Remove from replies map'],
 		'noNavigHidd':  ['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
@@ -11110,11 +11110,11 @@ class BaseBoard {
 		this.cSubj = 'filetitle';
 		this.cTrip = 'postertrip';
 		this.qBan = '';
-		this.qDelBut = 'input[type="submit"]';
-		this.qDelPassw = 'input[type="password"], input[name="password"]';
+		this.qDelBut = 'input[type="submit"]'; // Differs _4chanOrg only
+		this.qDelPassw = 'input[type="password"], input[name="password"]'; // Differs Vichan only
 		this.qDForm = '#delform, form[name="delform"]';
 		this.qError = 'h1, h2, font[size="5"]';
-		this.qPassw = 'tr input[type="password"]';
+		this.qPassw = 'tr input[type="password"]'; // Differs Vichan only
 		this.qMsg = 'blockquote';
 		this.qName = '.postername, .commentpostername';
 		this.qOmitted = '.omittedposts';
@@ -11123,25 +11123,28 @@ class BaseBoard {
 		this.qPostRedir = 'input[name="postredir"][value="1"]';
 		this.qRef = '.reflink';
 		this.qRPost = '.reply';
-		this.qTable = 'form > table, div > table, div[id^="repl"]';
+		this._qTable = 'form > table, div > table, div[id^="repl"]';
 		this.qThumbImages = '.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]';
 		this.qTrunc = '.abbrev, .abbr, .shortened';
 
 		this.anchor = '#';
-		this.checkForm = emptyFn;
+		this.b = '';
+		this.checkForm = emptyFn; // Sets in Ponyach only
 		this.dm = dm;
 		this.docExt = null;
-		this.ETag = null;
+		this.ETag = null; // Used for $ajax only
 		this.firstPage = 0;
-		this.hasOPNum = false;
+		this.hasOPNum = false; // Sets in Makaba only
 		this.hasPicWrap = false;
 		this.host = window.location.hostname;
-		this.LastModified = null;
+		this.LastModified = null; // Used for $ajax only
 		this.markupBB = false;
 		this.multiFile = false;
+		this.page = 0;
 		this.prot = prot;
 		this.res = 'res/';
 		this.ru = false;
+		this.t = false;
 		this.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
 		this.thrid = 'parent';
 	}
@@ -11157,7 +11160,7 @@ class BaseBoard {
 		Object.defineProperty(this, 'qImgLink', { value });
 		return value;
 	}
-	get qMsgImgLink() {
+	get qMsgImgLink() { // Sets here only
 		var value = this.qMsg + ' a[href*=".jpg"], ' +
 			this.qMsg + ' a[href*=".png"], ' +
 			this.qMsg + ' a[href*=".gif"], ' +
@@ -11172,7 +11175,7 @@ class BaseBoard {
 		Object.defineProperty(this, 'qThread', { value: val });
 		return val;
 	}
-	get lastPage() {
+	get lastPage() { // Differs Makaba only
 		var el = $q(this.qPages, doc),
 			val = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
 		if(this.page === val + 1) {
@@ -11185,7 +11188,7 @@ class BaseBoard {
 		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] :
 			['**', '*', '', '^H', '%%', '`', '', '', 'q'];
 	}
-	get reCrossLinks() {
+	get reCrossLinks() { // Sets here only
 		var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' +
 			regQuote(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
 		Object.defineProperty(this, 'reCrossLinks', { value: val });
@@ -11196,13 +11199,13 @@ class BaseBoard {
 		Object.defineProperty(this, 'rep', { value: val });
 		return val;
 	}
-	disableRedirection(el) {
+	disableRedirection(el) { // Differs Dobrochan only
 		if(this.qPostRedir) {
 			($q(this.qPostRedir, el) || {}).checked = true;
 		}
 	}
 	fixFileInputs() {}
-	fixVideo(isPost, data) {
+	fixVideo(isPost, data) { // Differs Tinyboard only
 		var videos = [],
 			els = $Q('embed, object, iframe', isPost ? data.el : data);
 		for(var i = 0, len = els.length; i < len; ++i) {
@@ -11227,33 +11230,33 @@ class BaseBoard {
 		return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum)
 					: tmp.replace(/res\d+/, 'mainpage');
 	}
-	getFileInfo(wrap) {
+	getFileInfo(wrap) { // Differs _4chanOrg only
 		var el = $c(this.cFileInfo, wrap);
 		return el ? el.textContent : '';
 	}
-	getImgLink(img) {
+	getImgLink(img) { // Differs Dobrochan only
 		var el = img.parentNode;
 		return el.tagName === 'SPAN' ? el.parentNode : el;
 	}
-	getImgParent(el) {
+	getImgParent(el) { // Differs Makaba only
 		return this.getImgWrap(el);
 	}
 	getImgWrap(el) {
 		var node = (el.tagName === 'SPAN' ? el.parentNode : el).parentNode;
 		return node.tagName === 'SPAN' ? node.parentNode : node;
 	}
-	getOmitted(el, len) {
+	getOmitted(el, len) { // Differs _2chRu only
 		var txt;
 		return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
 	}
-	getOp(thr) {
+	getOp(thr) { // Differs Arhivach only
 		var op = localRun ? $q('div[de-oppost]', thr) : $c(this.cOPost, thr);
 		if(op) {
 			return op;
 		}
 		op = thr.ownerDocument.createElement('div');
 		op.setAttribute('de-oppost', '');
-		var el, opEnd = $q(this.qTable, thr);
+		var el, opEnd = $q(this._qTable, thr);
 		while((el = thr.firstChild) !== opEnd) {
 			op.appendChild(el);
 		}
@@ -11270,21 +11273,21 @@ class BaseBoard {
 	getPageUrl(b, p) {
 		return fixBrd(b) + (p > 0 ? p + this.docExt : '');
 	}
-	getPostElOfEl(el) {
+	getPostElOfEl(el) { // Differs Futaba only
 		var sel = this.qRPost + ', [de-thread]';
 		while(el && !nav.matchesSelector(el, sel)) {
 			el = el.parentElement;
 		}
 		return el;
 	}
-	getPostOfEl(el) {
+	getPostOfEl(el) { // Sets here only
 		return pByEl.get(this.getPostElOfEl(el));
 	}
 	getSage(post) {
 		var a = $q('a[href^="mailto:"], a[href="sage"]', post);
 		return !!a && /sage/i.test(a.href);
 	}
-	getThrdUrl(b, tNum) {
+	getThrdUrl(b, tNum) { // Differs Arhivach only
 		return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
 	}
 	getTNum(op) {
@@ -11308,24 +11311,6 @@ class BaseBoard {
 	insertYtPlayer(msg, playerHtml) {
 		msg.insertAdjacentHTML('beforebegin', playerHtml);
 		return msg.previousSibling;
-	}
-	parseURL() {
-		var temp, url = (window.location.pathname || '').replace(/^\//, '');
-		if(url.match(this.res)) {
-			temp = url.split(this.res);
-			this.b = temp[0].replace(/\/$/, '');
-			this.t = +temp[1].match(/^\d+/)[0];
-			this.page = this.firstPage;
-		} else {
-			temp = url.match(/\/?(\d+)[^\/]*?$/);
-			this.page = temp && +temp[1] || this.firstPage;
-			this.b = url.replace(temp && this.page ? temp[0] : /\/(?:[^\/]+\.[a-z]+)?$/, '');
-			this.t = false;
-		}
-		if(this.docExt === null) {
-			temp = url.match(/\.[a-z]+$/);
-			this.docExt = temp ? temp[0] : '.html';
-		}
 	}
 }
 
@@ -11373,9 +11358,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get qImgLink() {
 			return '.file-attr > .desktop';
 		}
-		get hasNames() {
+		get _hasNames() {
 			var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
-			Object.defineProperty(this, 'hasNames', { value: val });
+			Object.defineProperty(this, '_hasNames', { value: val });
 			return val;
 		}
 		get lastPage() {
@@ -11407,7 +11392,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +post.getAttribute('data-num');
 		}
 		getSage(post) {
-			if(this.hasNames) {
+			if(this._hasNames) {
 				this.getSage = function(post) {
 					var name = $q(this.qName, post);
 					return name ? name.childElementCount === 0 && !$c('ophui', post) : false;
@@ -11537,7 +11522,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostForm = 'form[name="post"]';
 			this.qPostRedir = null;
 			this.qRef = '.post_no + a';
-			this.qTable = '.post.reply';
+			this._qTable = '.post.reply';
 			this.qTrunc = '.toolong';
 
 			this.firstPage = 1;
@@ -11682,42 +11667,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibEngines['link[href$="phutaba.css"]'] = Phutaba;
 
-	class Claire extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.qDForm = '#mainc';
-		}
-		get css() {
-			return '.reply { background-color: #e4e4d6; }';
-		}
-		getPageUrl(b, p) {
-			return fixBrd(b) + '?do=page&p=' + (p < 0 ? 0 : p);
-		}
-		getThrdUrl(b, tNum) {
-			return this.prot + '//' + this.host + fixBrd(b) + '?do=thread&id=' + tNum;
-		}
-		getTNum(op) {
-			return +$q('a[name]', op).name.match(/\d+/)[0];
-		}
-		init() {
-			var el = $id('mainc'),
-				pArea = $id('postarea');
-			$del(el.firstElementChild);
-			$before(el, pArea.nextElementSibling);
-			$before(el, pArea);
-			return false;
-		}
-		parseURL() {
-			var url = window.location.search.match(/^\?do=(thread|page)&(id|p)=(\d+)$/);
-			this.b = window.location.pathname.replace(/\//g, '');
-			this.t = url[1] === 'thread' ? +url[3] : false;
-			this.page = url[1] === 'page' ? +url[3] : 0;
-			this.docExt = '';
-		}
-	}
-	ibEngines['div#mainc'] = Claire;
-
 	class _02chNet extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -11752,7 +11701,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.qPages = 'table[border="1"] tr:first-of-type > td:first-of-type a';
 			this.qPostRedir = null;
-			this.qTable = 'table:not(.postfiles)';
+			this._qTable = 'table:not(.postfiles)';
 
 			this.docExt = '.html';
 			this.hasPicWrap = true;
@@ -11862,7 +11811,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostForm = 'form[name="post"]';
 			this.qPostRedir = null;
 			this.qRef = '.postInfo > .postNum';
-			this.qTable = '.replyContainer';
+			this._qTable = '.replyContainer';
 			this.qThumbImages = '.fileThumb > img:not(.fileDeletedRes)';
 
 			this.anchor = '#p';
@@ -12493,16 +12442,31 @@ function Initialization(checkDomains) {
 		}
 	});
 
+	var url;
 	if(localRun) {
-		var url = window.location.pathname.match(/\/[^-]+-([^-]+)-([^\.]+)\.[a-z]+$/);
+		url = window.location.pathname.match(/\/[^-]+-([^-]+)-([^\.]+)\.[a-z]+$/);
 		aib.prot = 'http:';
 		aib.host = aib.dm;
 		aib.b = url ? url[1] : '';
 		aib.t = url ? +url[2] : '';
-		aib.page = 0;
 		aib.docExt = '.html';
 	} else {
-		aib.parseURL();
+		var temp;
+		url = (window.location.pathname || '').replace(/^\//, '');
+		if(url.match(aib.res)) {
+			temp = url.split(aib.res);
+			aib.b = temp[0].replace(/\/$/, '');
+			aib.t = +temp[1].match(/^\d+/)[0];
+			aib.page = aib.firstPage;
+		} else {
+			temp = url.match(/\/?(\d+)[^\/]*?$/);
+			aib.page = temp && +temp[1] || aib.firstPage;
+			aib.b = url.replace(temp && aib.page ? temp[0] : /\/(?:[^\/]+\.[a-z]+)?$/, '');
+		}
+		if(aib.docExt === null) {
+			temp = url.match(/\.[a-z]+$/);
+			aib.docExt = temp ? temp[0] : '.html';
+		}
 	}
 	if(aib.t) {
 		doc.defaultView.addEventListener('beforeunload', function(e) {
