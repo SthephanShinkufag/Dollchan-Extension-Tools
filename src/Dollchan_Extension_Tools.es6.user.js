@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '947a6d0';
+var commit = '9026608';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7490,6 +7490,8 @@ class Captcha {
 		}
 		if(aib.capUpdAfterInit) {
 			this.update(focus, false);
+		} else {
+			this._lastUpdate = Date.now();
 		}
 		this.trEl.style.removeProperty('display');
 	}
@@ -11769,7 +11771,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.capUpdAfterInit = false;
 
-			this._updCapPromise = null;
+			this._capUpdPromise = null;
 		}
 		get css() {
 			return `.small { display: none; }
@@ -11779,11 +11781,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.updateCaptcha(cap, true);
 		}
 		updateCaptcha(cap, needError = false) {
-			if(this._updCapPromise) {
-				this._updCapPromise.cancel();
+			if(this._capUpdPromise) {
+				this._capUpdPromise.cancel();
 			}
-			return this._updCapPromise = $ajax('/' + this.b + '/api/requires-captcha').then(xhr => {
-				this._updCapPromise = null;
+			return this._capUpdPromise = $ajax('/' + this.b + '/api/requires-captcha').then(xhr => {
+				this._capUpdPromise = null;
 				if(JSON.parse(xhr.responseText)['requires-captcha'] !== '1') {
 					return CancelablePromise.reject();
 				}
@@ -11804,7 +11806,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					};
 				}
 			}, e => {
-				this._updCapPromise = null;
+				this._capUpdPromise = null;
 				if(needError) {
 					return CancelablePromise.reject(e);
 				}

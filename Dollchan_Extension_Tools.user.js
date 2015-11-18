@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '947a6d0';
+	var commit = '9026608';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10734,6 +10734,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				if (aib.capUpdAfterInit) {
 					this.update(focus, false);
+				} else {
+					this._lastUpdate = Date.now();
 				}
 				this.trEl.style.removeProperty('display');
 			}
@@ -16047,7 +16049,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				_this54.capUpdAfterInit = false;
 
-				_this54._updCapPromise = null;
+				_this54._capUpdPromise = null;
 				return _this54;
 			}
 
@@ -16063,11 +16065,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					var needError = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
 
-					if (this._updCapPromise) {
-						this._updCapPromise.cancel();
+					if (this._capUpdPromise) {
+						this._capUpdPromise.cancel();
 					}
-					return this._updCapPromise = $ajax('/' + this.b + '/api/requires-captcha').then(function (xhr) {
-						_this55._updCapPromise = null;
+					return this._capUpdPromise = $ajax('/' + this.b + '/api/requires-captcha').then(function (xhr) {
+						_this55._capUpdPromise = null;
 						if (JSON.parse(xhr.responseText)['requires-captcha'] !== '1') {
 							return CancelablePromise.reject();
 						}
@@ -16090,7 +16092,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							};
 						}
 					}, function (e) {
-						_this55._updCapPromise = null;
+						_this55._capUpdPromise = null;
 						if (needError) {
 							return CancelablePromise.reject(e);
 						}
