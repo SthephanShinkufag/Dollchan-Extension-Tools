@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '6000072';
+	var commit = '24a7033';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -14748,7 +14748,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				    len = nPosts.length,
 				    post = this.lastNotDeleted,
 				    maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-				if (aib.dobr || post.count !== 0 && (post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)) {
+				if (post.count !== 0 && (post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)) {
 					post = this.op.nextNotDeleted;
 					var i,
 					    firstChangedPost = null;
@@ -15536,6 +15536,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: '_hasNames',
 				get: function get() {
+				
 					var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
 					Object.defineProperty(this, '_hasNames', { value: val });
 					return val;

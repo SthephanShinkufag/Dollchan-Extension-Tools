@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '6000072';
+var commit = '24a7033';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10778,9 +10778,7 @@ class Thread {
 			len = nPosts.length,
 			post = this.lastNotDeleted,
 			maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-		if(aib.dobr || (post.count !== 0 &&
-		   (post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)))
-		{
+		if(post.count !== 0 && (post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)) {
 			post = this.op.nextNotDeleted;
 			var i, firstChangedPost = null;
 			for(i = post.count - 1; i < len && post; ) {
@@ -11358,7 +11356,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get qImgLink() {
 			return '.file-attr > .desktop';
 		}
-		get _hasNames() {
+		get _hasNames() { // Makaba crutch. Sets here only
 			var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
 			Object.defineProperty(this, '_hasNames', { value: val });
 			return val;
