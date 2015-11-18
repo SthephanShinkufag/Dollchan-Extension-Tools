@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '9026608';
+var commit = '7f31439';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5510,7 +5510,7 @@ var Spells = Object.create({
 	_decompileRep(rep, isOrep) {
 		return (isOrep ? '#outrep' : '#rep') +
 			(rep[0] ? '[' + rep[0] + (rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '') +
-			'(' + rep[2] + ',' + rep[3].replace(/\)/g, '\\)') + ')';
+			'(' + rep[2] + ',' + rep[3].replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') + ')';
 	},
 	_init() {
 		if(!Cfg.hideBySpell) {

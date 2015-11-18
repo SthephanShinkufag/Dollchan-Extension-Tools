@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '9026608';
+	var commit = '7f31439';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -8469,7 +8469,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return [dScope, dScope.length > 2 || hScope];
 		},
 		_decompileRep: function _decompileRep(rep, isOrep) {
-			return (isOrep ? '#outrep' : '#rep') + (rep[0] ? '[' + rep[0] + (rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '') + '(' + rep[2] + ',' + rep[3].replace(/\)/g, '\\)') + ')';
+			return (isOrep ? '#outrep' : '#rep') + (rep[0] ? '[' + rep[0] + (rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '') + '(' + rep[2] + ',' + rep[3].replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') + ')';
 		},
 		_init: function _init() {
 			if (!Cfg.hideBySpell) {
