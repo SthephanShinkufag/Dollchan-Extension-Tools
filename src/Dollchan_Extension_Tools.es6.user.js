@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '129c564';
+var commit = '947a6d0';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -6712,7 +6712,7 @@ function PostForm(form, ignoreForm, dc) {
 			setTimeout(PostForm.setUserPassw, 1e3);
 		}
 	});
-	var capEl = $q('input[type="text"][name*="aptcha"], div[id*="captcha"], img[id*="captcha"]', form);
+	var capEl = $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', form);
 	if(capEl) {
 		this.cap = new Captcha(capEl);
 		this.txta.addEventListener('focus', () => this.cap.add());
@@ -7406,7 +7406,7 @@ class Captcha {
 	}
 	init(el) {
 		this.textEl = null;
-		this.trEl = $parent(el, 'TR');
+		this.trEl = el.tagName === 'TR' ? el : $parent(el, 'TR');
 		this._added = false;
 		this._lastUpdate = null;
 		this._hasCaptcha = true;
@@ -7415,6 +7415,12 @@ class Captcha {
 		if(!$id('recaptcha_widget_div')) {
 			this.trEl.innerHTML = '';
 		}
+	}
+	initImage(img) {
+		img.title = Lng.refresh[lang];
+		img.alt = Lng.loading[lang];
+		img.style.cssText = 'vertical-align: text-bottom; border: none; cursor: pointer;';
+		img.onclick = () => this.update(true, false);
 	}
 	update(focus, isErr) {
 		if(!this._hasCaptcha && !isErr) {
@@ -7476,10 +7482,7 @@ class Captcha {
 			this.trEl.style.removeProperty('display');
 			return;
 		}
-		img.title = Lng.refresh[lang];
-		img.alt = Lng.loading[lang];
-		img.style.cssText = 'vertical-align: text-bottom; border: none; cursor: pointer;';
-		img.onclick = () => this.update(true, false);
+		this.initImage(img);
 		var a = img.parentNode;
 		if(a.tagName === 'A') {
 			$after(a, img);
@@ -11421,8 +11424,8 @@ function getImageBoard(checkDomains, checkEngines) {
 						el.src = src;
 					} else {
 						el = $q('.captcha-image', cap.trEl);
-						el.innerHTML = '<img id="de-image-captcha" title="' + Lng.refresh[lang] + '" alt="' + Lng.loading[lang] + '" src="' + src + '">';
-						el.firstChild.onclick = () => cap.update(true, false);
+						el.innerHTML = '<img id="de-image-captcha" src="' + src + '">';
+						cap.initImage(el.firstChild);
 					}
 					//$q('input[name="captcha_type"]', cap.trEl).value = '2chaptcha';
 					$q('input[name="2chaptcha_id"]', cap.trEl).value = key;
@@ -11775,14 +11778,14 @@ function getImageBoard(checkDomains, checkEngines) {
 		initCaptcha(cap) {
 			return this.updateCaptcha(cap, true);
 		}
-		updateCaptcha(cap, isInit = false) {
+		updateCaptcha(cap, needError = false) {
 			if(this._updCapPromise) {
 				this._updCapPromise.cancel();
 			}
 			return this._updCapPromise = $ajax('/' + this.b + '/api/requires-captcha').then(xhr => {
 				this._updCapPromise = null;
 				if(JSON.parse(xhr.responseText)['requires-captcha'] !== '1') {
-					return CancelablePromise.reject('нинужна!');
+					return CancelablePromise.reject();
 				}
 				$id('captchaimage').src = '/' + this.b + '/captcha?' + Math.random();
 				if(!$id('de-_2chruNet-capchecker')) {
@@ -11999,8 +12002,56 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['4chan.org'] = _4chanOrg;
 
 	class _8chNet extends Vichan {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.capUpdAfterInit = false;
+
+			this._capExtra = null;
+			this._capUrl = null;
+			this._capUpdPromise = null;
+		}
 		get css() {
 			return super.css + '#post-moderation-fields { display: initial !important; }';
+		}
+		earlyInit() {
+			$script('Object.defineProperty(window, "load_captcha", { get: function() { return function() {}; }, set: function() {} });');
+			return false;
+		}
+		initCaptcha(cap) {
+			var td = $t('td', cap.trEl);
+			var sm = $t('script', td).textContent.match(/load_captcha\("([^"]+)", *"([^"]+)"\)/);
+			if(sm) {
+				this._capUrl = sm[1].replace(/^https?:/, '');
+				this._capExtra = sm[2];
+			} else {
+				return Promise.reject();
+			}
+			td.innerHTML = `<input placeholder="Капча" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="6" autocomplete="off">
+				<input class="captcha_cookie" name="captcha_cookie" type="hidden">
+				<div class="captcha_html"></div>`;
+			cap.textEl = $q('.captcha_text', cap.trEl);
+			return this.updateCaptcha(cap, true);
+		}
+		updateCaptcha(cap, needXHRErrors = false) {
+			if(this._capUpdPromise) {
+				this._capUpdPromise.cancel();
+			}
+			return this._capUpdPromise = $ajax(this._capUrl + '?mode=get&extra=' + this._capExtra).then(xhr => {
+				this._capUpdPromise = null;
+				var resp = JSON.parse(xhr.responseText);
+				$q('.captcha_cookie', cap.trEl).value = resp.cookie;
+				$q('.captcha_html', cap.trEl).innerHTML = resp.captchahtml;
+				var img = $t('img', cap.trEl);
+				if(img) {
+					cap.initImage(img);
+				}
+			}).catch(e => {
+				this._capUpdPromise = null;
+				if(needXHRErrors) {
+					return CancelablePromise.reject(e);
+				}
+			});
 		}
 	}
 	ibDomains['8ch.net'] = _8chNet;
