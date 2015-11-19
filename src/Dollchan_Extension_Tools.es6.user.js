@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '5240372';
+var commit = '46cc8ac';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -6692,7 +6692,7 @@ function PostForm(form, ignoreForm, dc) {
 			this._setSage();
 		};
 		setTimeout(() => this._setSage(), 0);
-		if(aib._2chru) {
+		if(aib._2chruNet) {
 			while(el.nextSibling) {
 				$del(el.nextSibling);
 			}
@@ -6781,7 +6781,7 @@ function PostForm(form, ignoreForm, dc) {
 				if(aib.krau) {
 					aib.addProgressTrack.click();
 				}
-				if(aib._2chru) {
+				if(aib._2chruNet) {
 					doc.body.insertAdjacentHTML('beforeend', '<iframe class="ninja" id="csstest" src="/' +
 						aib.b + '/csstest.foo"></iframe>');
 					doc.body.lastChild.onload = e => {
@@ -10823,7 +10823,7 @@ class Thread {
 			post = this.lastNotDeleted,
 			maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
 		if(post.count !== 0 &&
-		   (aib.dorb || post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num))
+		   (aib.dobr || post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num))
 		{
 			post = this.op.nextNotDeleted;
 			var i, firstChangedPost = null;
@@ -11770,7 +11770,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	class _2chruNet extends TinyIb {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this._2chru = true;
+			this._2chruNet = true;
 
 			this.capUpdAfterInit = false;
 
@@ -11827,7 +11827,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	class _2chRu extends TinyIb {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this.tire = true;
+			this._2chRu = true;
 
 			this.qPages = 'table[border="1"] tr:first-of-type > td:first-of-type a';
 			this.qPostRedir = null;
@@ -11864,6 +11864,14 @@ function getImageBoard(checkDomains, checkEngines) {
 		initCaptcha() {
 			$id('captchadiv').innerHTML = '<img style="vertical-align: bottom;" id="imgcaptcha" />';
 			return null;
+		}
+		init() {
+			var el = $q('#postform input[type="button"]', doc);
+			if(el) {
+				el.insertAdjacentHTML('afterend', '<input type="submit" value="Отправить" />');
+				$del(el);
+			};
+			return false;
 		}
 	}
 	ibDomains['2--ch.ru'] = _2chRu;
@@ -12994,7 +13002,7 @@ class DelForm {
 	}
 	get passEl() {
 		var value;
-		if(aib.tire) {
+		if(aib._2chRu) {
 			$each($Q('input[type="hidden"]', this.el), $del);
 			this.el.appendChild($c('userdelete', doc.body));
 			value = $q('input[type="password"]', this.el);
@@ -14040,7 +14048,7 @@ function updateCSS() {
 		(Cfg.delHiddPost ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') +
 		(Cfg.noPostNames ? aib.qName + ', .' + aib.cTrip + ', ' : '') +
 		(Cfg.noBoardRule ? (aib.mak ? '.rules-area' : aib.krau ? '#rules_row' : aib.futa ? '.chui' : '.rules, #rules') + ', ' : '') +
-		(aib._2chru ? '' : '.thumbnailmsg, ') +
+		(aib._2chruNet ? '' : '.thumbnailmsg, ') +
 		(!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') +
 		'body > hr { display: none !important; }';
 	$id('de-css-dynamic').textContent = x + '\n' + aib.css;

@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '5240372';
+	var commit = '46cc8ac';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -9858,7 +9858,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			setTimeout(function () {
 				return _this13._setSage();
 			}, 0);
-			if (aib._2chru) {
+			if (aib._2chruNet) {
 				while (el.nextSibling) {
 					$del(el.nextSibling);
 				}
@@ -9949,7 +9949,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (aib.krau) {
 						aib.addProgressTrack.click();
 					}
-					if (aib._2chru) {
+					if (aib._2chruNet) {
 						doc.body.insertAdjacentHTML('beforeend', '<iframe class="ninja" id="csstest" src="/' + aib.b + '/csstest.foo"></iframe>');
 						doc.body.lastChild.onload = function (e) {
 							$del(e.target);
@@ -14779,7 +14779,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				    len = nPosts.length,
 				    post = this.lastNotDeleted,
 				    maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-				if (post.count !== 0 && (aib.dorb || post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)) {
+				if (post.count !== 0 && (aib.dobr || post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)) {
 					post = this.op.nextNotDeleted;
 					var i,
 					    firstChangedPost = null;
@@ -15992,7 +15992,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				var _this53 = _possibleConstructorReturn(this, Object.getPrototypeOf(_2chruNet).call(this, prot, dm));
 
-				_this53._2chru = true;
+				_this53._2chruNet = true;
 
 				_this53.capUpdAfterInit = false;
 
@@ -16069,7 +16069,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				var _this55 = _possibleConstructorReturn(this, Object.getPrototypeOf(_2chRu).call(this, prot, dm));
 
-				_this55.tire = true;
+				_this55._2chRu = true;
 
 				_this55.qPages = 'table[border="1"] tr:first-of-type > td:first-of-type a';
 				_this55.qPostRedir = null;
@@ -16110,6 +16110,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				value: function initCaptcha() {
 					$id('captchadiv').innerHTML = '<img style="vertical-align: bottom;" id="imgcaptcha" />';
 					return null;
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					var el = $q('#postform input[type="button"]', doc);
+					if (el) {
+						el.insertAdjacentHTML('afterend', '<input type="submit" value="Отправить" />');
+						$del(el);
+					};
+					return false;
 				}
 			}, {
 				key: 'css',
@@ -17459,7 +17469,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'passEl',
 			get: function get() {
 				var value;
-				if (aib.tire) {
+				if (aib._2chRu) {
 					$each($Q('input[type="hidden"]', this.el), $del);
 					this.el.appendChild($c('userdelete', doc.body));
 					value = $q('input[type="password"]', this.el);
@@ -18400,7 +18410,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (Cfg.strikeHidd) {
 			x += '.de-link-hid { text-decoration: line-through !important; }';
 		}
-		x += '.postarea, .recaptcha_image_cell + td, .recaptcha_image_cell + td + td, small[id^="rfmap"], .theader, ' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + (Cfg.imgNavBtns ? '' : '#de-img-btn-next, #de-img-btn-prev, ') + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + (Cfg.showRepBtn ? '' : '.de-btn-rep, ') + (Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (Cfg.delHiddPost ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (Cfg.noPostNames ? aib.qName + ', .' + aib.cTrip + ', ' : '') + (Cfg.noBoardRule ? (aib.mak ? '.rules-area' : aib.krau ? '#rules_row' : aib.futa ? '.chui' : '.rules, #rules') + ', ' : '') + (aib._2chru ? '' : '.thumbnailmsg, ') + (!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + 'body > hr { display: none !important; }';
+		x += '.postarea, .recaptcha_image_cell + td, .recaptcha_image_cell + td + td, small[id^="rfmap"], .theader, ' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + (Cfg.imgNavBtns ? '' : '#de-img-btn-next, #de-img-btn-prev, ') + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + (Cfg.showRepBtn ? '' : '.de-btn-rep, ') + (Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (Cfg.delHiddPost ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (Cfg.noPostNames ? aib.qName + ', .' + aib.cTrip + ', ' : '') + (Cfg.noBoardRule ? (aib.mak ? '.rules-area' : aib.krau ? '#rules_row' : aib.futa ? '.chui' : '.rules, #rules') + ', ' : '') + (aib._2chruNet ? '' : '.thumbnailmsg, ') + (!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + 'body > hr { display: none !important; }';
 		$id('de-css-dynamic').textContent = x + '\n' + aib.css;
 		$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 	}
