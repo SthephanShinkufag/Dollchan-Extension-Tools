@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '4667753';
+var commit = 'a432026';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1568,7 +1568,8 @@ function* readCfg() {
 	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
 	if(Cfg.updScript) {
-		checkForUpdates(false, val.lastUpd).then(html => onDOMLoaded(() => $popup(html, 'updavail')), emptyFn);
+		checkForUpdates(false, val.lastUpd).then(html =>
+			onDOMLoaded(() => $popup(html, 'updavail')), emptyFn);
 	}
 }
 
@@ -1824,7 +1825,9 @@ var panel = Object.create({
 		</a>`;
 	},
 	_prepareToHide(rt) {
-		if(!Cfg.expandPanel && !$c('de-win-active', doc) && (!rt || !this._el.contains(rt.farthestViewportElement || rt))) {
+		if(!Cfg.expandPanel && !$c('de-win-active', doc) &&
+		  (!rt || !this._el.contains(rt.farthestViewportElement || rt)))
+		{
 			this._hideTO = setTimeout(() => $hide(this._buttons), 500);
 		}
 	},
@@ -2170,7 +2173,8 @@ function toggleWindow(name, isUpd, data, noAnim) {
 		el.onmouseover = function(e) {
 			switch(fixEventEl(e.target).classList[0]) {
 			case 'de-btn-close': this.title = Lng.closeWindow[lang]; break;
-			case 'de-btn-toggle': this.title = Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
+			case 'de-btn-toggle': this.title =
+				Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
 			}
 		}
 		el.lastElementChild.onclick = toggleWindow.bind(null, name, false);
@@ -2325,7 +2329,7 @@ function showVideosWindow(body) {
 	body.addEventListener('click', {
 		linkList: linkList,
 		listHidden: false,
-		player: body.firstChild,
+		player: body.firstElementChild,
 		playerInfo: null,
 		currentLink: null,
 		handleEvent(e) {
@@ -2344,13 +2348,13 @@ function showVideosWindow(body) {
 					break;
 				case 'de-video-btn-prev':
 					node = this.currentLink.parentNode;
-					node = node.previousSibling || node.parentNode.lastChild;
-					node.lastChild.click();
+					node = node.previousElementSibling || node.parentNode.lastElementChild;
+					node.lastElementChild.click();
 					break;
 				case 'de-video-btn-next':
 					node = this.currentLink.parentNode;
-					node = node.nextSibling || node.parentNode.firstChild;
-					node.lastChild.click();
+					node = node.nextElementSibling || node.parentNode.firstElementChild;
+					node.lastElementChild.click();
 					break;
 				case 'de-video-btn-resize':
 					var exp = this.player.className === 'de-video-obj';
@@ -2382,8 +2386,10 @@ function showVideosWindow(body) {
 		var el = els[i].cloneNode(true),
 			num = aib.getPostOfEl(els[i]).num;
 		el.videoInfo = els[i].videoInfo;
-		linkList.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '">&nbsp;' +
-			'<a href="' + aib.anchor + num + '" de-num="' + num + '">&gt;</a></div>');
+		linkList.insertAdjacentHTML('beforeend', `
+		<div class="de-entry ${ aib.cReply }">
+			<a class="de-video-refpost" href="${ aib.anchor + num }" de-num="${ num }">&gt;</a>
+		</div>`);
 		linkList.lastChild.appendChild(el).classList.remove('de-current');
 		el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
 	}
@@ -2423,9 +2429,10 @@ function showHiddenWindow(body) {
 		hideData.btn.parentNode.className = 'de-post-btns';
 		hideData.btn.addEventListener('click', hideData);
 		if(!block) {
-			block = body.appendChild(
-				$add('<div class="de-content-block"><b>' + Lng.hiddenPosts[lang] + ':</b></div>')
-			);
+			block = body.appendChild($add(`
+			<div class="de-content-block">
+				<b>${ Lng.hiddenPosts[lang] }:</b>
+			</div>`));
 		}
 		block.appendChild($New('div', {'class': 'de-entry'}, [cloneEl]));
 	}
@@ -2450,17 +2457,18 @@ function showHiddenWindow(body) {
 	} else {
 		body.insertAdjacentHTML('beforeend', '<b>' + Lng.noHidPosts[lang] + '</b>');
 	}
-	body.insertAdjacentHTML('beforeend', '<hr><b>' +
-		($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') + '</b>');
+	body.insertAdjacentHTML('beforeend', `
+	<hr><b>${ $isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':' }</b>`);
 	for(var b in hThr) {
 		if(!$isEmpty(hThr[b])) {
 			block = addContentBlock(body, $new('b', {'text': '/' + b}, null));
 			for(var tNum in hThr[b]) {
-				block.insertAdjacentHTML('beforeend',
-					'<div class="de-entry ' + aib.cReply + '" info="' + b + ';' + tNum + '">' +
-						'<input type="checkbox">' +
-						'<a href="' + aib.getThrdUrl(b, tNum) + '" target="_blank">' + tNum + '</a>' +
-						'<div class="de-entry-title">- ' + hThr[b][tNum] + '</div></div>');
+				block.insertAdjacentHTML('beforeend', `
+				<div class="de-entry ${ aib.cReply }" info="${ b + ';' + tNum }">
+					<input type="checkbox">
+					<a href="${ aib.getThrdUrl(b, tNum) }" target="_blank">${ tNum }</a>
+					<div class="de-entry-title">- ${ hThr[b][tNum] }</div>
+				</div>`);
 			}
 		}
 	}
@@ -2573,9 +2581,7 @@ function showFavoritesWindow(body, data) {
 							t['new'] ? '' : ' style="display: none;"' }>
 							${ t['new'] || 0 }
 						</span>
-						[<span class="de-fav-inf-old" title="${ Lng.oldPosts[lang] }">
-							${ t.cnt }
-						</span>]
+						[<span class="de-fav-inf-old" title="${ Lng.oldPosts[lang] }">${ t.cnt }</span>]
 						<span class="de-fav-inf-page" title="${ Lng.thrPage[lang] }"></span>
 					</div>
 				</div>`);
@@ -2589,7 +2595,7 @@ function showFavoritesWindow(body, data) {
 		}
 	}
 	if(!body.hasChildNodes()) {
-		body.insertAdjacentHTML('afterbegin', '<center><b>' + Lng.noFavThrds[lang] + '</b></center>');
+		body.insertAdjacentHTML('afterbegin', `<center><b>${ Lng.noFavThrds[lang] }</b></center>`);
 	}
 	body.insertAdjacentHTML('beforeend', '<hr>');
 	body.appendChild(addEditButton('favor', function(fn) {
@@ -2758,30 +2764,26 @@ function fixSettings() {
 	}
 	toggleBox(Cfg.ajaxUpdThr, [
 		'input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]',
-		'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]'
-	]);
+		'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]']);
 	toggleBox(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
 	toggleBox(Cfg.expandImgs, [
 		'input[info="imgNavBtns"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]',
-		'input[info="minImgSize"]', 'input[info="zoomFactor"]',
-		'input[info="webmControl"]', 'input[info="webmVolume"]'
-	]);
+		'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]',
+		'input[info="webmVolume"]']);
 	toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
 	toggleBox(Cfg.linksNavig, [
 		'input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]',
-		'input[info="strikeHidd"]', 'input[info="noNavigHidd"]'
-	]);
+		'input[info="strikeHidd"]', 'input[info="noNavigHidd"]']);
 	toggleBox(Cfg.strikeHidd && Cfg.linksNavig === 2, ['input[info="removeHidd"]']);
-	toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, ['select[info="YTubeType"]', 'input[info="addVimeo"]']);
+	toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, [
+		'select[info="YTubeType"]', 'input[info="addVimeo"]']);
 	toggleBox(Cfg.addYouTube, [
 		'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]',
-		'input[info="ytApiKey"]'
-	]);
+		'input[info="ytApiKey"]']);
 	toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
 	toggleBox(Cfg.ajaxReply, ['input[info="sendErrNotif"]', 'input[info="scrAfterRep"]']);
 	toggleBox(Cfg.ajaxReply === 2, [
-		'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]'
-	]);
+		'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]']);
 	toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
 	toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
 	toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
@@ -2801,7 +2803,8 @@ function lBox(id, isBlock, fn) {
 }
 
 function inpTxt(id, size, Fn) {
-	return $new('input', {'class': 'de-cfg-inptxt', 'info': id, 'type': 'text', 'size': size, 'value': Cfg[id]}, {
+	return $new('input', {'class': 'de-cfg-inptxt', 'info': id,
+		'type': 'text', 'size': size, 'value': Cfg[id]}, {
 		'keyup': Fn ? Fn : function() {
 			saveCfg(this.getAttribute('info'), this.value);
 		}
@@ -2811,9 +2814,9 @@ function inpTxt(id, size, Fn) {
 function optSel(id, isBlock, Fn, className = '') {
 	var el, opt = '', x = Lng.cfg[id];
 	for(var i = 0, len = x.sel[lang].length; i < len; i++) {
-		opt += '<option value="' + i + '">' + x.sel[lang][i] + '</option>';
+		opt += `<option value="${ i }">${ x.sel[lang][i] }</option>`;
 	}
-	el = $add('<select class="de-cfg-select" info="' + id + '">' + opt + '</select>');
+	el = $add(`<select class="de-cfg-select" info="${ id }">${ opt }</select>`);
 	el.addEventListener('change', Fn || function() {
 		saveCfg(this.getAttribute('info'), this.selectedIndex);
 		fixSettings();
@@ -3238,20 +3241,26 @@ function getCfgInfo() {
 			<span>${ data[1] + (needMs ? 'ms' : '') }</span>
 		</div>`).join('');
 	}
-	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-info'}, [
-		$add('<div style="padding-bottom: 10px;">' +
-			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions" ' +
-			'target="_blank">v' + version + '.' + commit + '</a>&nbsp;|&nbsp;' +
-			'<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;' +
-			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
-			(lang ? 'home-en/' : '') + '" target="_blank">Github</a></div>'),
-		$add('<div id="de-info-table"><div id="de-info-stats">' + getInfoTable([
+	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-info'}, [$add(`
+		<div style="padding-bottom: 10px;">
+			<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions" target="_blank">
+				v${ version }.${ commit }
+			</a>
+			&nbsp;|&nbsp;
+			<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>
+			&nbsp;|&nbsp;
+			<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/${
+				lang ? 'home-en/' : '' }" target="_blank">Github</a>
+		</div>`), $add(`
+		<div id="de-info-table">
+			<div id="de-info-stats">${ getInfoTable([
 				[Lng.thrViewed[lang], Cfg.stats.view],
 				[Lng.thrCreated[lang], Cfg.stats.op],
 				[Lng.thrHidden[lang], getHiddenThrCount()],
 				[Lng.postsSent[lang], Cfg.stats.reply]
-			], false) + '</div>' +
-			'<div id="de-info-log">' + getInfoTable(Logger.getData(false), true) + '</div></div>'),
+			], false) }</div>
+			<div id="de-info-log">${ getInfoTable(Logger.getData(false), true) }</div>
+		</div>`),
 		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
 			$popup(Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>',
 			       'cfg-debug', false).firstElementChild.value = JSON.stringify(
@@ -3271,10 +3280,7 @@ function getCfgInfo() {
 				case 'ytApiKey':
 					return void 0;
 				}
-				if(key in defaultCfg && value === defaultCfg[key]) {
-					return void 0;
-				}
-				return value;
+				return key in defaultCfg && value === defaultCfg[key] ? void 0 : value;
 			}, '\t');
 		})
 	]);
@@ -13691,7 +13697,7 @@ function scriptCSS() {
 	.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\
 	.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\
 	.de-win > .de-win-head { cursor: move; }\
-	.de-win-buttons { position: absolute; right: 0; margin: 1px 2px 0 0; cursor: pointer; }\
+	.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; cursor: pointer; }\
 	#de-win-cfg { width: 355px; }\
 	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\
 	#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\
@@ -13851,6 +13857,7 @@ function scriptCSS() {
 	#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }\
 	.de-video-expanded { width: 854px !important; height: 480px !important; }\
 	#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\
+	.de-video-refpost { margin: 0 2px; }\
 	.de-video-resizer::after { content: "\u2795"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\
 	.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\
 	a.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\

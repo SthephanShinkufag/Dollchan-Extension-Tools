@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '4667753';
+	var commit = 'a432026';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -5227,7 +5227,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		body.addEventListener('click', {
 			linkList: linkList,
 			listHidden: false,
-			player: body.firstChild,
+			player: body.firstElementChild,
 			playerInfo: null,
 			currentLink: null,
 			handleEvent: function handleEvent(e) {
@@ -5246,13 +5246,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							break;
 						case 'de-video-btn-prev':
 							node = this.currentLink.parentNode;
-							node = node.previousSibling || node.parentNode.lastChild;
-							node.lastChild.click();
+							node = node.previousElementSibling || node.parentNode.lastElementChild;
+							node.lastElementChild.click();
 							break;
 						case 'de-video-btn-next':
 							node = this.currentLink.parentNode;
-							node = node.nextSibling || node.parentNode.firstChild;
-							node.lastChild.click();
+							node = node.nextElementSibling || node.parentNode.firstElementChild;
+							node.lastElementChild.click();
 							break;
 						case 'de-video-btn-resize':
 							var exp = this.player.className === 'de-video-obj';
@@ -5283,7 +5283,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var el = els[i].cloneNode(true),
 			    num = aib.getPostOfEl(els[i]).num;
 			el.videoInfo = els[i].videoInfo;
-			linkList.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '">&nbsp;' + '<a href="' + aib.anchor + num + '" de-num="' + num + '">&gt;</a></div>');
+			linkList.insertAdjacentHTML('beforeend', '\n\t\t<div class="de-entry ' + aib.cReply + '">\n\t\t\t<a class="de-video-refpost" href="' + (aib.anchor + num) + '" de-num="' + num + '">&gt;</a>\n\t\t</div>');
 			linkList.lastChild.appendChild(el).classList.remove('de-current');
 			el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
 		}
@@ -5326,7 +5326,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			hideData.btn.parentNode.className = 'de-post-btns';
 			hideData.btn.addEventListener('click', hideData);
 			if (!block) {
-				block = body.appendChild($add('<div class="de-content-block"><b>' + Lng.hiddenPosts[lang] + ':</b></div>'));
+				block = body.appendChild($add('\n\t\t\t<div class="de-content-block">\n\t\t\t\t<b>' + Lng.hiddenPosts[lang] + ':</b>\n\t\t\t</div>'));
 			}
 			block.appendChild($New('div', { 'class': 'de-entry' }, [cloneEl]));
 		}
@@ -5351,12 +5351,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		} else {
 			body.insertAdjacentHTML('beforeend', '<b>' + Lng.noHidPosts[lang] + '</b>');
 		}
-		body.insertAdjacentHTML('beforeend', '<hr><b>' + ($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') + '</b>');
+		body.insertAdjacentHTML('beforeend', '\n\t<hr><b>' + ($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') + '</b>');
 		for (var b in hThr) {
 			if (!$isEmpty(hThr[b])) {
 				block = addContentBlock(body, $new('b', { 'text': '/' + b }, null));
 				for (var tNum in hThr[b]) {
-					block.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '" info="' + b + ';' + tNum + '">' + '<input type="checkbox">' + '<a href="' + aib.getThrdUrl(b, tNum) + '" target="_blank">' + tNum + '</a>' + '<div class="de-entry-title">- ' + hThr[b][tNum] + '</div></div>');
+					block.insertAdjacentHTML('beforeend', '\n\t\t\t\t<div class="de-entry ' + aib.cReply + '" info="' + (b + ';' + tNum) + '">\n\t\t\t\t\t<input type="checkbox">\n\t\t\t\t\t<a href="' + aib.getThrdUrl(b, tNum) + '" target="_blank">' + tNum + '</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + hThr[b][tNum] + '</div>\n\t\t\t\t</div>');
 				}
 			}
 		}
@@ -5473,7 +5473,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (!t.url.startsWith('http')) {
 						t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 					}
-					block.insertAdjacentHTML('beforeend', '\n\t\t\t\t<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t' + (t['type'] !== 'user' ? '' : '\n\t\t\t\t\t\t<span class="de-fav-user" title="' + Lng.setByUser[lang] + '"></span>') + '\n\t\t\t\t\t<input type="checkbox">\n\t\t\t\t\t<a href="' + (t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last : h === aib.host ? aib.anchor + t.last : '')) + '" rel="noreferrer">\n\t\t\t\t\t\t' + tNum + '\n\t\t\t\t\t</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<span class="de-fav-inf-iwrap" ' + (!t['err'] ? '' : t['err'] === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' : 'title="' + t['err'] + '"') + '>\n\t\t\t\t\t\t\t<svg class="de-fav-inf-icon ' + (!t['err'] ? '' : t['err'] === 'Closed' ? 'de-fav-closed' : 'de-fav-unavail') + '">\n\t\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + (t['new'] ? '' : ' style="display: none;"') + '>\n\t\t\t\t\t\t\t' + (t['new'] || 0) + '\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t[<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">\n\t\t\t\t\t\t\t' + t.cnt + '\n\t\t\t\t\t\t</span>]\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>');
+					block.insertAdjacentHTML('beforeend', '\n\t\t\t\t<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t' + (t['type'] !== 'user' ? '' : '\n\t\t\t\t\t\t<span class="de-fav-user" title="' + Lng.setByUser[lang] + '"></span>') + '\n\t\t\t\t\t<input type="checkbox">\n\t\t\t\t\t<a href="' + (t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last : h === aib.host ? aib.anchor + t.last : '')) + '" rel="noreferrer">\n\t\t\t\t\t\t' + tNum + '\n\t\t\t\t\t</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<span class="de-fav-inf-iwrap" ' + (!t['err'] ? '' : t['err'] === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' : 'title="' + t['err'] + '"') + '>\n\t\t\t\t\t\t\t<svg class="de-fav-inf-icon ' + (!t['err'] ? '' : t['err'] === 'Closed' ? 'de-fav-closed' : 'de-fav-unavail') + '">\n\t\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + (t['new'] ? '' : ' style="display: none;"') + '>\n\t\t\t\t\t\t\t' + (t['new'] || 0) + '\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t[<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>]\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>');
 					$t('a', block.lastChild).onclick = function () {
 						sesStorage['de-win-fav'] = '1';
 						var el = this.parentNode;
@@ -5803,7 +5803,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function inpTxt(id, size, Fn) {
-		return $new('input', { 'class': 'de-cfg-inptxt', 'info': id, 'type': 'text', 'size': size, 'value': Cfg[id] }, {
+		return $new('input', { 'class': 'de-cfg-inptxt', 'info': id,
+			'type': 'text', 'size': size, 'value': Cfg[id] }, {
 			'keyup': Fn ? Fn : function () {
 				saveCfg(this.getAttribute('info'), this.value);
 			}
@@ -6065,7 +6066,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return '\n\t\t<div class="de-info-row">\n\t\t\t<span class="de-info-name">' + data[0] + '</span>\n\t\t\t<span>' + (data[1] + (needMs ? 'ms' : '')) + '</span>\n\t\t</div>';
 			}).join('');
 		}
-		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-info' }, [$add('<div style="padding-bottom: 10px;">' + '<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions" ' + 'target="_blank">v' + version + '.' + commit + '</a>&nbsp;|&nbsp;' + '<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;' + '<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' + (lang ? 'home-en/' : '') + '" target="_blank">Github</a></div>'), $add('<div id="de-info-table"><div id="de-info-stats">' + getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], getHiddenThrCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false) + '</div>' + '<div id="de-info-log">' + getInfoTable(Logger.getData(false), true) + '</div></div>'), $btn(Lng.debug[lang], Lng.infoDebug[lang], function () {
+		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-info' }, [$add('\n\t\t<div style="padding-bottom: 10px;">\n\t\t\t<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions" target="_blank">\n\t\t\t\tv' + version + '.' + commit + '\n\t\t\t</a>\n\t\t\t&nbsp;|&nbsp;\n\t\t\t<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>\n\t\t\t&nbsp;|&nbsp;\n\t\t\t<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' + (lang ? 'home-en/' : '') + '" target="_blank">Github</a>\n\t\t</div>'), $add('\n\t\t<div id="de-info-table">\n\t\t\t<div id="de-info-stats">' + getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], getHiddenThrCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false) + '</div>\n\t\t\t<div id="de-info-log">' + getInfoTable(Logger.getData(false), true) + '</div>\n\t\t</div>'), $btn(Lng.debug[lang], Lng.infoDebug[lang], function () {
 			$popup(Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>', 'cfg-debug', false).firstElementChild.value = JSON.stringify({
 				'version': version,
 				'location': String(window.location),
@@ -6082,10 +6083,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'ytApiKey':
 						return void 0;
 				}
-				if (key in defaultCfg && value === defaultCfg[key]) {
-					return void 0;
-				}
-				return value;
+				return key in defaultCfg && value === defaultCfg[key] ? void 0 : value;
 			}, '\t');
 		})]);
 	}
@@ -18144,7 +18142,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\
 	.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\
 	.de-win > .de-win-head { cursor: move; }\
-	.de-win-buttons { position: absolute; right: 0; margin: 1px 2px 0 0; cursor: pointer; }\
+	.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; cursor: pointer; }\
 	#de-win-cfg { width: 355px; }\
 	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\
 	#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\
@@ -18270,7 +18268,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-win-close { animation: de-win-close .2s ease-in both; }' +
 
 	
-		cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') + cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico') + cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==') + '.de-current::after { content: " ●"; }\t.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\t.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\t.de-img-pre { max-width: 200px; max-height: 200px; }\t.de-img-full { float: left; }\t.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\t#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\t#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\t#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }\t.de-mp3 { margin: 5px 20px; }\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\t#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }\t.de-video-expanded { width: 854px !important; height: 480px !important; }\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\t.de-video-resizer::after { content: "➕"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\ta.de-video-player::after { content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\t.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }\t.de-vocaroo > embed { display: inline-block; }\ttd > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\tvideo { background: black; }' +
+		cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') + cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico') + cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==') + '.de-current::after { content: " ●"; }\t.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\t.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\t.de-img-pre { max-width: 200px; max-height: 200px; }\t.de-img-full { float: left; }\t.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\t#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\t#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\t#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }\t.de-mp3 { margin: 5px 20px; }\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\t#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }\t.de-video-expanded { width: 854px !important; height: 480px !important; }\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\t.de-video-refpost { margin: 0 2px; }\t.de-video-resizer::after { content: "➕"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\ta.de-video-player::after { content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\t.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }\t.de-vocaroo > embed { display: inline-block; }\ttd > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\tvideo { background: black; }' +
 
 	
 		'.de-file { display: inline-block; margin: 1px; height: ' + (p = aib.multiFile ? 90 : 130) + 'px; width: ' + p + 'px; text-align: center; border: 1px dashed grey; }\
