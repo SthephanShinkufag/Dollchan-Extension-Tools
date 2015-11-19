@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'a432026';
+var commit = '5240372';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10822,7 +10822,9 @@ class Thread {
 			len = nPosts.length,
 			post = this.lastNotDeleted,
 			maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-		if(post.count !== 0 && (post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)) {
+		if(post.count !== 0 &&
+		   (aib.dorb || post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num))
+		{
 			post = this.op.nextNotDeleted;
 			var i, firstChangedPost = null;
 			for(i = post.count - 1; i < len && post; ) {
