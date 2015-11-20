@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '6eca8e6';
+var commit = 'c9804b0';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11404,7 +11404,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `
-			.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }
+			.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }
 			.captcha-image > img { cursor: pointer; }
 			#de-txt-panel { font-size: 16px !important; }
 			.images-area input { float: none !important; display: inline !important; }
@@ -11772,6 +11772,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 			this._2chruNet = true;
 
+			this.qPages = '#pager > li:nth-last-child(2)';
+			
 			this.capUpdAfterInit = false;
 
 			this._capUpdPromise = null;
@@ -11829,7 +11831,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 			this._2chRu = true;
 
-			this.qPages = 'table[border="1"] tr:first-of-type > td:first-of-type a';
+			this.qPages = 'table[border="1"] td > a:last-of-type';
 			this.qPostRedir = null;
 			this._qTable = 'table:not(.postfiles)';
 
