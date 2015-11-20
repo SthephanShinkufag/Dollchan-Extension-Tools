@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '46cc8ac';
+	var commit = '6eca8e6';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -18152,7 +18152,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\
 	.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\
 	.de-win > .de-win-head { cursor: move; }\
-	.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; cursor: pointer; }\
+	.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\
 	#de-win-cfg { width: 355px; }\
 	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\
 	#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\
@@ -18161,12 +18161,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	#de-win-hid { max-width: 60%; }\
 	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\
 	#de-win-vid .de-entry { white-space: normal; }\
-	.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; text-align: center; cursor: default; }\
+	.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }\
 	.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\
 	.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\
 	.de-win-head:lang(de), #de-panel:lang(de) { background-color: #777; }\
-	.de-win-head:lang(es), #de-panel:lang(es) { background-color: rgba(0,20,80,.72); }\
-	.de-win-title { font: bold 14px arial; }' +
+	.de-win-head:lang(es), #de-panel:lang(es) { background-color: rgba(0,20,80,.72); }' +
 
 	
 		'.de-block { display: block; }\
@@ -18360,7 +18359,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-thread-collapse > a::after { content: "' + Lng.collapseThrd[lang] + '"; }\
 	.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '"; }\
 	#de-updater-count::before { content: ": "; }\
-	.de-viewed { color: #888 !important; }\
+	.de-viewed { color: #747488 !important; }\
 	form > hr { clear: both }\
 	use { fill: inherit; }';
 
