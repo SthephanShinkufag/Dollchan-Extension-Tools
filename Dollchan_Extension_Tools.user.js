@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '6bc166d';
+	var commit = 'b1c559d';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -16167,7 +16167,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(Object.getPrototypeOf(_410chanOrg.prototype), 'css', this) + '#resizer { display: none; }';
+					return _get(Object.getPrototypeOf(_410chanOrg.prototype), 'css', this) + '\n\t\t\tbody { margin: 0 }\n\t\t\t#resizer { display: none; }\n\t\t\t.topmenu { position: static; }';
 				}
 			}, {
 				key: 'markupTags',
@@ -18217,7 +18217,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	#de-spell-editor { display: flex; align-items: stretch; height: 225px; padding: 2px 0; }\
 	#de-spell-panel { display: flex; }\
 	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
-	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\
+	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\
 	#de-spell-rowmeter:lang(de) { background-color: #777; }' +
 
 	

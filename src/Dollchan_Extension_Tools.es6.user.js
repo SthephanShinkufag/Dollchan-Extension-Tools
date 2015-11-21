@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '6bc166d';
+var commit = 'b1c559d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11884,7 +11884,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
 		}
 		get css() {
-			return super.css + '#resizer { display: none; }';
+			return super.css + `
+			body { margin: 0 }
+			#resizer { display: none; }
+			.topmenu { position: static; }`;
 		}
 		get markupTags() {
 			return ['**', '*', '__', '^^', '%%', '`', '', '', 'q'];
@@ -13766,7 +13769,7 @@ function scriptCSS() {
 	#de-spell-editor { display: flex; align-items: stretch; height: 225px; padding: 2px 0; }\
 	#de-spell-panel { display: flex; }\
 	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
-	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\
+	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\
 	#de-spell-rowmeter:lang(de) { background-color: #777; }' +
 
 	// Main panel
