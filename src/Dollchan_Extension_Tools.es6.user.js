@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'f7c1633';
+var commit = '6bc166d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11384,7 +11384,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `
 			.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }
 			.captcha-image > img { cursor: pointer; }
-			.de-img-full { margin: 2px 5px; }
 			#de-txt-panel { font-size: 16px !important; }
 			.images-area input { float: none !important; display: inline !important; }
 			.images-single + .de-video-obj { display: inline-block; }
@@ -11682,6 +11681,14 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getCaptchaSrc(src, tNum) {
 			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
+		}
+		init() {
+			var el = $id('posttypeindicator');
+			if(el) {
+				$del(el.previousSibling);
+				$del(el.nextSibling);
+				$del(el);
+			}
 		}
 	}
 	ibEngines['script[src*="kusaba"]'] = Kusaba;
@@ -12159,7 +12166,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			.delete { background: none; }
 			.delete_checkbox { position: static !important; }
 			.file + .de-video-obj { float: left; margin: 5px 20px 5px 5px; }
-			.de-img-full { margin: 2px 5px; }
 			.de-video-obj + div { clear: left; }`;
 		}
 		disableRedirection(el) {
@@ -12317,7 +12323,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `
 			img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none; }
-			.de-img-full { margin: 2px 5px; }
 			.de-thr-hid { float: none; }
 			.de-video-obj + div { clear: left; }
 			div[id^="Wz"] { z-index: 10000 !important; }
@@ -13857,7 +13862,7 @@ function scriptCSS() {
 	.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\
 	.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
 	.de-img-pre { max-width: 200px; max-height: 200px; }\
-	.de-img-full { float: left; }\
+	.de-img-full { float: left; ' + (aib.multiFile ? '' : 'margin: 2px 5px; ') + '}\
 	.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
 	#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\
 	#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\
