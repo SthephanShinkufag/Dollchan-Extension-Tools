@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'c9804b0';
+var commit = '60c0b69';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -108,7 +108,6 @@ var defaultCfg = {
 	'userName':         0,      // user name
 	'nameValue':        '',     //    value
 	'noBoardRule':      1,      // hide board rules
-	'noGoto':           1,      // hide goto field
 	'noPassword':       1,      // hide password field
 	'noName':           0,      // hide name field
 	'scriptStyle':      0,      // script style [0=gradient black, 1=gradient blue, 2=solid grey, 3=transparent blue]
@@ -264,7 +263,6 @@ Lng = {
 		'userPassw':    ['Постоянный пароль', 'Fixed password'],
 		'userName':     ['Постоянное имя', 'Fixed name'],
 		'noBoardRule':  ['правила ', 'rules '],
-		'noGoto':       ['поле goto ', 'goto field '],
 		'noPassword':   ['пароль ', 'password '],
 		'noName':       ['имя', 'name'],
 
@@ -3121,19 +3119,16 @@ function getCfgForm() {
 			$txt(' '),
 			lBox('userName', false, PostForm.setUserName)
 		])),
-		$New('div', null, [
+		$if(pr.rules || pr.passw || pr.name, $New('div', null, [
 			$txt(Lng.dontShow[lang]),
-			lBox('noBoardRule', false, updateCSS),
-			$if(pr.gothr, lBox('noGoto', false, function() {
-				$toggle(pr.gothr);
-			})),
+			$if(pr.rules, lBox('noBoardRule', false, updateCSS)),
 			$if(pr.passw, lBox('noPassword', false, function() {
 				$toggle(pr.passw.parentNode.parentNode);
 			})),
 			$if(pr.name, lBox('noName', false, function() {
 				$toggle(pr.name.parentNode.parentNode);
 			}))
-		])
+		]))
 	]);
 }
 
@@ -6575,7 +6570,7 @@ function PostForm(form, ignoreForm, dc) {
 		), form);
 	this.subj = $x(p + '(@name="field3" or @name="sub" or @name="subject" or @name="internal_s" or @name="nya3" or @name="kasumi")]', form);
 	this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
-	this.gothr = aib.qPostRedir && (p = $q(aib.qPostRedir, form)) && $parent(p, 'TR');
+	this.rules = $q(aib.qRules, form);
 	this.pForm = $add('<div id="de-pform" class="de-win-body"></div>');
 	if(this.form) {
 		this.pForm.appendChild(this.form);
@@ -6640,7 +6635,6 @@ function PostForm(form, ignoreForm, dc) {
 	if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
 		this.setPlaceholders();
 	}
-	aib.disableRedirection(this.form);
 	this.form.style.display = 'inline-block';
 	this.form.style.textAlign = 'left';
 	if(nav.Firefox) {
@@ -6674,11 +6668,6 @@ function PostForm(form, ignoreForm, dc) {
 			}
 		});
 	}
-	if(aib.kus) {
-		while(this.subm.nextSibling) {
-			$del(this.subm.nextSibling);
-		}
-	}
 	if(!aib.iich && Cfg.addSageBtn && this.mail) {
 		el = $parent(this.mail, 'LABEL') || this.mail;
 		$hide(el.nextElementSibling || el.previousElementSibling ? el : $parent(this.mail, 'TR'));
@@ -6692,11 +6681,6 @@ function PostForm(form, ignoreForm, dc) {
 			this._setSage();
 		};
 		setTimeout(() => this._setSage(), 0);
-		if(aib._2chruNet) {
-			while(el.nextSibling) {
-				$del(el.nextSibling);
-			}
-		}
 	}
 	this.addTextPanel();
 	this.txta.classList.add('de-textarea');
@@ -6746,9 +6730,6 @@ function PostForm(form, ignoreForm, dc) {
 		}
 		updater.pause();
 	});
-	if(Cfg.noGoto && this.gothr) {
-		$hide(this.gothr);
-	}
 	if(Cfg.noPassword && this.passw) {
 		$hide($parent(this.passw, 'TR'));
 	}
@@ -6770,6 +6751,9 @@ function PostForm(form, ignoreForm, dc) {
 		this.form.addEventListener('click', () => this.cap.add(), true);
 	} else {
 		this.cap = null;
+	}
+	if(Cfg.ajaxReply && aib.qPostRedir && (el = $q(aib.qPostRedir, form))) {
+		aib.disableRedirection(el);
 	}
 	if(Cfg.ajaxReply === 2) {
 		if(aib.krau) {
@@ -7544,23 +7528,7 @@ class Captcha {
 // ===========================================================================================================
 
 function getSubmitError(dc) {
-	var err = '';
-	if(dc.body.hasChildNodes() && !$q(aib.qDForm, dc)) {
-		if(aib.mak) {
-			try {
-				var json = JSON.parse(dc.body.textContent);
-				return json.Status === 'OK' || json.Status === 'Redirect' ? null :
-					Lng.error[lang] + ":\n" + json.Reason;
-			} catch(e) {}
-		}
-		var els = $Q(aib.qError, dc);
-		for(var i = 0, len = els.length; i < len; ++i) {
-			err += els[i].innerHTML + '\n';
-		}
-		err = err.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
-		err = /:null|successful|uploaded|updating|обновл|удален[о\.]/i.test(err) ? '' : err.replace(/"/g, "'");
-	}
-	return err;
+	return dc.body.hasChildNodes() && !$q(aib.qDForm, dc) ? aib.getSubmitError(dc) : null;
 }
 
 var doUploading = async(function* ([hasFiles, getProgress]) {
@@ -11172,6 +11140,7 @@ class BaseBoard {
 		this.qPostRedir = 'input[name="postredir"][value="1"]';
 		this.qRef = '.reflink';
 		this.qRPost = '.reply';
+		this.qRules = '.rules, #rules';
 		this._qTable = 'form > table, div > table, div[id^="repl"]';
 		this.qThumbImages = '.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]';
 		this.qTrunc = '.abbrev, .abbr, .shortened';
@@ -11256,9 +11225,8 @@ class BaseBoard {
 	}
 	checkForm() {} // Sets in Ponyach only
 	disableRedirection(el) { // Differs Dobrochan only
-		if(this.qPostRedir) {
-			($q(this.qPostRedir, el) || {}).checked = true;
-		}
+		$hide($parent(el, 'TR'));
+		el.checked = true;
 	}
 	fixFileInputs() {}
 	fixVideo(isPost, data) { // Differs Tinyboard only
@@ -11343,6 +11311,14 @@ class BaseBoard {
 		var a = $q('a[href^="mailto:"], a[href="sage"]', post);
 		return !!a && /sage/i.test(a.href);
 	}
+	getSubmitError(dc) {
+		var err = '', els = $Q(aib.qError, dc);
+		for(var i = 0, len = els.length; i < len; ++i) {
+			err += els[i].innerHTML + '\n';
+		}
+		err = err.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
+		return /successful|uploaded|updating|обновл|удален[о\.]/i.test(err) ? null : err;
+	}
 	getThrdUrl(b, tNum) { // Differs Arhivach only
 		return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
 	}
@@ -11390,6 +11366,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qOmitted = '.mess-post';
 			this.qPostRedir = null;
 			this.qRPost = 'div.reply';
+			this.qRules = '.rules-area';
 			this.qThumbImages = '.preview';
 			this.qTrunc = null;
 
@@ -11406,6 +11383,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `
 			.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }
 			.captcha-image > img { cursor: pointer; }
+			.de-img-full { margin: 2px 5px; }
 			#de-txt-panel { font-size: 16px !important; }
 			.images-area input { float: none !important; display: inline !important; }
 			.images-single + .de-video-obj { display: inline-block; }
@@ -11506,6 +11484,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return this.getSage(post);
 		}
+		getSubmitError(dc) {
+			var err = Lng.error[lang] + ":\n";
+			try {
+				var json = JSON.parse(dc.body.textContent);
+				return json.Status === 'OK' || json.Status === 'Redirect' ? null : err + json.Reason;
+			} catch(e) {}
+			return err + dc.body.innerHTML;
+		}
 		getWrap(el) {
 			return el.parentNode;
 		}
@@ -11541,6 +11527,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostRedir = null;
 			this.qRef = '.del';
 			this.qRPost = 'td:nth-child(2)';
+			this.qRules = '.chui';
 			this.qThumbImages = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
 
 			this.docExt = '.htm';
@@ -11604,6 +11591,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qName = '.name';
 			this.qOmitted = '.omitted';
 			this.qPages = '.pages > a:nth-last-of-type(2)';
+			this.qPassw = 'input[name="password"]'
 			this.qPostForm = 'form[name="post"]';
 			this.qPostRedir = null;
 			this.qRef = '.post_no + a';
@@ -11656,7 +11644,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.qDelPassw = '#password';
-			this.qPassw = 'input[name="password"]';
 
 			this.multiFile = true;
 		}
@@ -11767,21 +11754,26 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['02ch.net'] = _02chNet;
 
-	class _2chruNet extends TinyIb {
+	class _2chruNet extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
 			this._2chruNet = true;
 
 			this.qPages = '#pager > li:nth-last-child(2)';
-			
+
 			this.capUpdAfterInit = false;
+			this.qPostRedir = 'input[name="noko"]';
 
 			this._capUpdPromise = null;
 		}
 		get css() {
 			return `
-			.small { display: none; }
+			${this.t ? '' : '#postform em, '}.small, .replymode { display: none; }
 			tr#captcha_tr { display: table-row; }`;
+		}
+		disableRedirection(el) {
+			$hide($parent(el, 'LABEL'));
+			el.checked = true;
 		}
 		initCaptcha(cap) {
 			return this.updateCaptcha(cap, true);
@@ -11832,7 +11824,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this._2chRu = true;
 
 			this.qPages = 'table[border="1"] td > a:last-of-type';
-			this.qPostRedir = null;
 			this._qTable = 'table:not(.postfiles)';
 
 			this.docExt = '.html';
@@ -11862,6 +11853,15 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getPageUrl(b, p) {
 			return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
+		}
+		getSubmitError(dc) {
+			var err = Lng.error[lang] + ":\n",
+				text = dc.body.innerHTML;
+			try {
+				var json = JSON.parse(text);
+				return json.post ? null : json.error ? err + json.error.text : err + text;
+			} catch(e) {}
+			return err + text;
 		}
 		initCaptcha() {
 			$id('captchadiv').innerHTML = '<img style="vertical-align: bottom;" id="imgcaptcha" />';
@@ -12171,6 +12171,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			.delete { background: none; }
 			.delete_checkbox { position: static !important; }
 			.file + .de-video-obj { float: left; margin: 5px 20px 5px 5px; }
+			.de-img-full { margin: 2px 5px; }
 			.de-video-obj + div { clear: left; }`;
 		}
 		fixFileInputs(el) {
@@ -12202,7 +12203,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return node.previousSibling;
 		}
 		disableRedirection(el) {
-			($q(this.qPostRedir, el) || {}).selectedIndex = 1;
+			$hide($parent(el, 'TR'));
+			el.selectedIndex = 1;
 		}
 		init() {
 			if(window.location.pathname === '/settings') {
@@ -12215,6 +12217,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return true;
 			}
 			$script('window.UploadProgress = function() {};');
+			$id('postform').appendChild($c('rules', doc));
 			return false;
 		}
 		initCaptcha(cap) {
@@ -12293,18 +12296,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['iichan.hk'] = Iichan;
 
-	class Inach extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.qPostRedir = 'input[name="fieldnoko"]';
-
-			this.markupBB = true;
-			this.timePattern = 'nn+dd+yyyy++w++hh+ii+ss';
-		}
-	}
-	ibDomains['inach.org'] = Inach;
-
 	class Krautchan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -12323,6 +12314,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostRedir = 'input#forward_thread';
 			this.qRef = '.postnumber';
 			this.qRPost = '.postreply';
+			this.qRules = '#rules_row';
 			this.qThumbImages = 'img[id^="thumbnail_"]';
 			this.qTrunc = 'p[id^="post_truncated"]';
 
@@ -12336,10 +12328,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `
 			img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none; }
-			div[id^="Wz"] { z-index: 10000 !important; }
+			.de-img-full { margin: 2px 5px; }
 			.de-thr-hid { float: none; }
-			.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }
 			.de-video-obj + div { clear: left; }
+			div[id^="Wz"] { z-index: 10000 !important; }
+			.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }
 			form[action="/paint"] > select { width: 105px; }
 			form[action="/paint"] > input[type="text"] { width: 24px !important; }`;
 		}
@@ -12552,6 +12545,21 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['syn-ch.ru'] = Synch;
 	ibDomains['syn-ch.com'] = Synch;
 	ibDomains['syn-ch.org'] = Synch;
+
+	class Uchan extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.qPostRedir = '#noko';
+		}
+		get css() {
+			return `
+			img[src="/tr.png"], small { display: none; }
+			form[action$="/paint.pl"] { width: 280px; }
+			input[name="oek_x"], input[name="oek_y"] { width: 30px !important; }`;
+		}
+	}
+	ibDomains['uchan.to'] = Uchan;
 
 	var prot = window.location.protocol;
 	localRun = prot === 'file:';
@@ -14023,9 +14031,6 @@ function updateCSS() {
 	if(Cfg.delImgNames) {
 		x += '.de-img-name { text-transform: capitalize; text-decoration: none; }';
 	}
-	if(!aib.dobr && !aib.krau && !aib.mak) {
-		x += '.de-img-full { margin: 2px 5px; }';
-	}
 	if(Cfg.noSpoilers === 1) {
 		x += '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\
 			.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }';
@@ -14048,7 +14053,7 @@ function updateCSS() {
 		(Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') +
 		(Cfg.delHiddPost ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') +
 		(Cfg.noPostNames ? aib.qName + ', .' + aib.cTrip + ', ' : '') +
-		(Cfg.noBoardRule ? (aib.mak ? '.rules-area' : aib.krau ? '#rules_row' : aib.futa ? '.chui' : '.rules, #rules') + ', ' : '') +
+		(Cfg.noBoardRule ? aib.qRules + ', ': '') +
 		(aib._2chruNet ? '' : '.thumbnailmsg, ') +
 		(!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') +
 		'body > hr { display: none !important; }';
