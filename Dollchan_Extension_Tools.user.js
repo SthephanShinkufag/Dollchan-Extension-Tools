@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '27818b6';
+	var commit = 'f7c1633';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -17092,6 +17092,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			_createClass(Uchan, [{
+				key: 'disableRedirection',
+				value: function disableRedirection(el) {
+					$hide($parent(el, 'TR'));
+					el.checked = false;
+				}
+			}, {
 				key: 'css',
 				get: function get() {
 					return '\n\t\t\timg[src="/tr.png"], small { display: none; }\n\t\t\tform[action$="/paint.pl"] { width: 280px; }\n\t\t\tinput[name="oek_x"], input[name="oek_y"] { width: 30px !important; }';

@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '27818b6';
+var commit = 'f7c1633';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11406,7 +11406,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'];
 		}
-		get _hasNames() { // Makaba crutch. Sets here only
+		get _hasNames() { // Makaba hack. Sets here only
 			var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
 			Object.defineProperty(this, '_hasNames', { value: val });
 			return val;
@@ -12014,8 +12014,8 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.capUpdAfterInit = false;
 
-			this._capExtra = null;
-			this._capUrl = null;
+			this._capExtra = null; // _8chNet hack
+			this._capUrl = null; // _8chNet hack
 			this._capUpdPromise = null;
 		}
 		get css() {
@@ -12419,12 +12419,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.postMapInited = false;
 			this.thrid = 'replythread';
 		}
-		get modifiedPosts() { // Ponyach crutch. Sets here only
+		get modifiedPosts() { // Ponyach hack. Sets here only
 			var val = new WeakMap();
 			Object.defineProperty(this, 'modifiedPosts', { value: val });
 			return val;
 		}
-		checkForm(formEl, maybeSpells) { // Ponyach crutch. Sets here only
+		checkForm(formEl, maybeSpells) { // Ponyach hack. Sets here only
 			var myMaybeSpells = maybeSpells || new Maybe(SpellsRunner),
 				maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
 			if(!this.postMapInited) {
@@ -12546,6 +12546,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			img[src="/tr.png"], small { display: none; }
 			form[action$="/paint.pl"] { width: 280px; }
 			input[name="oek_x"], input[name="oek_y"] { width: 30px !important; }`;
+		}
+		disableRedirection(el) {
+			$hide($parent(el, 'TR'));
+			el.checked = false;
 		}
 	}
 	ibDomains['uchan.to'] = Uchan;
