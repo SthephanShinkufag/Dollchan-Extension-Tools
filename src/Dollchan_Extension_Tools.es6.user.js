@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '60c0b69';
+var commit = '27818b6';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -6961,7 +6961,7 @@ PostForm.prototype = {
 				if(this.form) {
 					$del($q('input[name="' + aib.thrid + '"]', this.form));
 					this.form.insertAdjacentHTML('afterbegin',
-						'<input type="hidden" id="de_thrid" value="' + qNum + '" name="' + aib.thrid + '">');
+						'<input type="hidden" id="de-thrid" value="' + qNum + '" name="' + aib.thrid + '">');
 				}
 			}
 		} else if(closeReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
@@ -7028,7 +7028,7 @@ PostForm.prototype = {
 			this.lastQuickPNum = -1;
 			if(!aib.t) {
 				this._toggleQuickReply(0);
-				$del($id('de_thrid'));
+				$del($id('de-thrid'));
 			}
 			this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 		}
@@ -7081,7 +7081,7 @@ PostForm.prototype = {
 			$q('input[name="oek_parent"], input[name="replyto"]', this.oeForm).value = tNum;
 		}
 		if(this.form) {
-			$q('#de_thrid, input[name*="thread"]', this.form).value = tNum;
+			$q('#de-thrid, input[name*="thread"]', this.form).value = tNum;
 		}
 	},
 	_setPlaceholder(val) {
@@ -7501,7 +7501,7 @@ class Captcha {
 		}
 		this.textEl.addEventListener('keypress', this);
 		this.textEl.onkeypress = null;
-		if(!aib.kus && !aib.tinyIb) {
+		if(!aib.kus) {
 			this.textEl.addEventListener('focus', this);
 			this.textEl.onfocus = null;
 		}
@@ -11131,17 +11131,16 @@ class BaseBoard {
 		this.qDelPassw = 'input[type="password"], input[name="password"]'; // Differs Vichan only
 		this.qDForm = '#delform, form[name="delform"]';
 		this.qError = 'h1, h2, font[size="5"]';
-		this.qPassw = 'tr input[type="password"]'; // Differs Vichan only
 		this.qMsg = 'blockquote';
 		this.qName = '.postername, .commentpostername';
 		this.qOmitted = '.omittedposts';
 		this.qPages = 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type';
+		this.qPassw = 'tr input[type="password"]'; // Differs Vichan only
 		this.qPostForm = '#postform';
 		this.qPostRedir = 'input[name="postredir"][value="1"]';
 		this.qRef = '.reflink';
 		this.qRPost = '.reply';
 		this.qRules = '.rules, #rules';
-		this._qTable = 'form > table, div > table, div[id^="repl"]';
 		this.qThumbImages = '.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]';
 		this.qTrunc = '.abbrev, .abbr, .shortened';
 
@@ -11165,6 +11164,8 @@ class BaseBoard {
 		this.t = false;
 		this.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
 		this.thrid = 'parent';
+
+		this._qTable = 'form > table, div > table, div[id^="repl"]';
 	}
 	get css() {
 		return '';
@@ -11291,11 +11292,11 @@ class BaseBoard {
 		}
 		return op;
 	}
-	getPNum(post) {
-		return +post.id.match(/\d+/)[0];
-	}
 	getPageUrl(b, p) {
 		return fixBrd(b) + (p > 0 ? p + this.docExt : '');
+	}
+	getPNum(post) {
+		return +post.id.match(/\d+/)[0];
 	}
 	getPostElOfEl(el) { // Differs Futaba only
 		var sel = this.qRPost + ', [de-thread]';
@@ -11396,11 +11397,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		get qImgLink() {
 			return '.file-attr > .desktop';
 		}
-		get _hasNames() { // Makaba crutch. Sets here only
-			var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
-			Object.defineProperty(this, '_hasNames', { value: val });
-			return val;
-		}
 		get lastPage() {
 			var els = $Q('.pager > a:not([class])', doc),
 				val = els ? els.length : 1;
@@ -11410,49 +11406,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'];
 		}
-		updateCaptcha(cap, needXHRErrors = false) {
-			if(this._capUpdPromise) {
-				this._capUpdPromise.cancel();
-			}
-			var url;
-			if(pr.tNum) {
-				url = '/makaba/captcha.fcgi?type=2chaptcha&action=thread';
-			} else {
-				url = '/makaba/captcha.fcgi?type=2chaptcha';
-			}
-			return this._capUpdPromise = $ajax(url).then(xhr => {
-				this._capUpdPromise = null;
-				var el = $q('.captcha-box', doc.body),
-					data = xhr.responseText;
-				if(data.includes('VIPFAIL')) {
-					el.innerHTML = 'Ваш пасс-код не действителен, пожалуйста, перелогиньтесь. <a href="#" id="renew-pass-btn">Обновить</a>';
-				} else if(data.includes('VIP')) {
-					el.innerHTML = 'Вам не нужно вводить капчу, у вас введен пасс-код.';
-				} else if(data.includes('DISABLED')) {
-					$hide(cap.trEl);
-					return CancelablePromise.reject();
-				} else if(data.includes('CHECK')) {
-					var key = data.substr(6);
-					var src = '/makaba/captcha.fcgi?type=2chaptcha&action=image&id=' + key;
-					var el = $id('de-image-captcha');
-					if(el) {
-						el.src = src;
-					} else {
-						el = $q('.captcha-image', cap.trEl);
-						el.innerHTML = '<img id="de-image-captcha" src="' + src + '">';
-						cap.initImage(el.firstChild);
-					}
-					//$q('input[name="captcha_type"]', cap.trEl).value = '2chaptcha';
-					$q('input[name="2chaptcha_id"]', cap.trEl).value = key;
-				} else {
-					el.textContent = data;
-				}
-			}, e => {
-				this._capUpdPromise = null;
-				if(needXHRErrors) {
-					return CancelablePromise.reject(e);
-				}
-			});
+		get _hasNames() { // Makaba crutch. Sets here only
+			var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
+			Object.defineProperty(this, '_hasNames', { value: val });
+			return val;
 		}
 		fixFileInputs(el) {
 			var str = '';
@@ -11511,6 +11468,50 @@ function getImageBoard(checkDomains, checkEngines) {
 			cap.textEl.tabIndex = 999;
 			return this.updateCaptcha(cap, true);
 		}
+		updateCaptcha(cap, needXHRErrors = false) {
+			if(this._capUpdPromise) {
+				this._capUpdPromise.cancel();
+			}
+			var url;
+			if(pr.tNum) {
+				url = '/makaba/captcha.fcgi?type=2chaptcha&action=thread';
+			} else {
+				url = '/makaba/captcha.fcgi?type=2chaptcha';
+			}
+			return this._capUpdPromise = $ajax(url).then(xhr => {
+				this._capUpdPromise = null;
+				var el = $q('.captcha-box', doc.body),
+					data = xhr.responseText;
+				if(data.includes('VIPFAIL')) {
+					el.innerHTML = 'Ваш пасс-код не действителен, пожалуйста, перелогиньтесь. <a href="#" id="renew-pass-btn">Обновить</a>';
+				} else if(data.includes('VIP')) {
+					el.innerHTML = 'Вам не нужно вводить капчу, у вас введен пасс-код.';
+				} else if(data.includes('DISABLED')) {
+					$hide(cap.trEl);
+					return CancelablePromise.reject();
+				} else if(data.includes('CHECK')) {
+					var key = data.substr(6);
+					var src = '/makaba/captcha.fcgi?type=2chaptcha&action=image&id=' + key;
+					var el = $id('de-image-captcha');
+					if(el) {
+						el.src = src;
+					} else {
+						el = $q('.captcha-image', cap.trEl);
+						el.innerHTML = '<img id="de-image-captcha" src="' + src + '">';
+						cap.initImage(el.firstChild);
+					}
+					//$q('input[name="captcha_type"]', cap.trEl).value = '2chaptcha';
+					$q('input[name="2chaptcha_id"]', cap.trEl).value = key;
+				} else {
+					el.textContent = data;
+				}
+			}, e => {
+				this._capUpdPromise = null;
+				if(needXHRErrors) {
+					return CancelablePromise.reject(e);
+				}
+			});
+		}
 	}
 	ibEngines['body.makaba'] = Makaba;
 	ibDomains['2ch.hk'] = Makaba;
@@ -11560,21 +11561,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibEngines['form[action*="futaba.php"]'] = Futaba;
 
-	class TinyIb extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-			this.tinyIb = true;
-
-			this.qPostRedir = null;
-
-			this.ru = true;
-		}
-		getCaptchaSrc(src, tNum) {
-			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
-		}
-	}
-	ibEngines['form[action*="imgboard.php?delete"]'] = TinyIb;
-
 	class Tinyboard extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -11583,9 +11569,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.cFileInfo = 'fileinfo';
 			this.cPostHeader = 'intro';
 			this.cReply = 'post reply';
-			this.qClosed = '.fa-lock';
 			this.cSubj = 'subject';
 			this.cTrip = 'trip';
+			this.qClosed = '.fa-lock';
 			this.qDForm = 'form[name*="postcontrols"]';
 			this.qMsg = '.body';
 			this.qName = '.name';
@@ -11595,12 +11581,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostForm = 'form[name="post"]';
 			this.qPostRedir = null;
 			this.qRef = '.post_no + a';
-			this._qTable = '.post.reply';
 			this.qTrunc = '.toolong';
 
 			this.firstPage = 1;
 			this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 			this.thrid = 'thread';
+
+			this._qTable = '.post.reply';
 		}
 		get css() {
 			return `
@@ -11698,7 +11685,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibEngines['script[src*="kusaba"]'] = Kusaba;
-	ibEngines['form[action$="board.php"]'] = Kusaba;
 
 	class Phutaba extends BaseBoard {
 		constructor(prot, dm) {
@@ -11760,9 +11746,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			this._2chruNet = true;
 
 			this.qPages = '#pager > li:nth-last-child(2)';
+			this.qPostRedir = 'input[name="noko"]';
 
 			this.capUpdAfterInit = false;
-			this.qPostRedir = 'input[name="noko"]';
 
 			this._capUpdPromise = null;
 		}
@@ -11818,31 +11804,32 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2-chru.cafe'] = _2chruNet;
 	ibDomains['dmirrgetyojz735v.onion'] = _2chruNet;
 
-	class _2chRu extends TinyIb {
+	class _2chRu extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
 			this._2chRu = true;
 
 			this.qPages = 'table[border="1"] td > a:last-of-type';
-			this._qTable = 'table:not(.postfiles)';
 
 			this.docExt = '.html';
 			this.hasPicWrap = true;
 			this.markupBB = true;
 			this.multiFile = true;
 			this.ru = true;
+
+			this._qTable = 'table:not(.postfiles)';
 		}
 		get css() {
 			return 'span[id$="_display"], #fastload { display: none; }';
+		}
+		get qThread() {
+			return '.threadz';
 		}
 		fixFileInputs(el) {
 			var str = '><input name="file" maxlength="4" ' +
 				'accept="|sid|7z|bz2|m4a|flac|lzh|mo3|rar|spc|fla|nsf|jpg|mpp|aac|gz|xm|wav|' +
 				'mp3|png|it|lha|torrent|swf|zip|mpc|ogg|jpeg|gif|mod" type="file"></input></div>';
 			el.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-		}
-		get qThread() {
-			return '.threadz';
 		}
 		getCaptchaSrc(src, tNum) {
 			return '/' + this.b + '/captcha.fpl?' + Math.random();
@@ -11863,10 +11850,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			} catch(e) {}
 			return err + text;
 		}
-		initCaptcha() {
-			$id('captchadiv').innerHTML = '<img style="vertical-align: bottom;" id="imgcaptcha" />';
-			return null;
-		}
 		init() {
 			var el = $q('#postform input[type="button"]', doc);
 			if(el) {
@@ -11874,6 +11857,10 @@ function getImageBoard(checkDomains, checkEngines) {
 				$del(el);
 			};
 			return false;
+		}
+		initCaptcha() {
+			$id('captchadiv').innerHTML = '<img style="vertical-align: bottom;" id="imgcaptcha" />';
+			return null;
 		}
 	}
 	ibDomains['2--ch.ru'] = _2chRu;
@@ -11956,7 +11943,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostForm = 'form[name="post"]';
 			this.qPostRedir = null;
 			this.qRef = '.postInfo > .postNum';
-			this._qTable = '.replyContainer';
 			this.qThumbImages = '.fileThumb > img:not(.fileDeletedRes)';
 
 			this.anchor = '#p';
@@ -11966,6 +11952,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.res = 'thread/';
 			this.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
 			this.thrid = 'resto';
+
+			this._qTable = '.replyContainer';
 		}
 		get css() {
 			return `
@@ -12109,11 +12097,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPNum(post) {
 			return +post.getAttribute('postid');
 		}
-		getTNum(el) {
-			return +this.getOp(el).getAttribute('postid');
-		}
 		getThrdUrl(b, tNum) {
 			return $q('link[rel="canonical"]', doc.head).href;
+		}
+		getTNum(el) {
+			return +this.getOp(el).getAttribute('postid');
 		}
 		init() {
 			setTimeout(function() {
@@ -12174,6 +12162,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			.de-img-full { margin: 2px 5px; }
 			.de-video-obj + div { clear: left; }`;
 		}
+		disableRedirection(el) {
+			$hide($parent(el, 'TR'));
+			el.selectedIndex = 1;
+		}
 		fixFileInputs(el) {
 			el = $id('files_parent');
 			$each($Q('input[type="file"]', el), function(el) {
@@ -12196,16 +12188,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		getTNum(op) {
 			return +$q('a[name]', op).name.match(/\d+/)[0];
 		}
-		insertYtPlayer(msg, playerHtml) {
-			var prev = msg.previousElementSibling,
-				node = prev.tagName === 'BR' ? prev : msg;
-			node.insertAdjacentHTML('beforebegin', playerHtml);
-			return node.previousSibling;
-		}
-		disableRedirection(el) {
-			$hide($parent(el, 'TR'));
-			el.selectedIndex = 1;
-		}
 		init() {
 			if(window.location.pathname === '/settings') {
 				if(!nav) {
@@ -12227,6 +12209,12 @@ function getImageBoard(checkDomains, checkEngines) {
 				return Promise.reject();
 			}
 			return null;
+		}
+		insertYtPlayer(msg, playerHtml) {
+			var prev = msg.previousElementSibling,
+				node = prev.tagName === 'BR' ? prev : msg;
+			node.insertAdjacentHTML('beforebegin', playerHtml);
+			return node.previousSibling;
 		}
 		updateCaptcha(cap, isErr) {
 			var img = $t('img', cap.trEl);
@@ -12258,6 +12246,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.getCaptchaSrc = null;
 			this.ru = true;
+
 			this._capUpdPromise = null;
 		}
 		updateCaptcha() {
@@ -12430,12 +12419,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.postMapInited = false;
 			this.thrid = 'replythread';
 		}
-		get modifiedPosts() {
+		get modifiedPosts() { // Ponyach crutch. Sets here only
 			var val = new WeakMap();
 			Object.defineProperty(this, 'modifiedPosts', { value: val });
 			return val;
 		}
-		checkForm(formEl, maybeSpells) {
+		checkForm(formEl, maybeSpells) { // Ponyach crutch. Sets here only
 			var myMaybeSpells = maybeSpells || new Maybe(SpellsRunner),
 				maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
 			if(!this.postMapInited) {
