@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '289642f';
+var commit = '770e250';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7444,6 +7444,7 @@ class Captcha {
 		this._hasCaptcha = true;
 		this._originHTML = this.trEl.innerHTML;
 		$hide(this.trEl);
+		this.trEl.innerHTML = '';
 	}
 	initImage(img) {
 		img.title = Lng.refresh[lang];

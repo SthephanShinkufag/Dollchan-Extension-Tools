@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '289642f';
+	var commit = '770e250';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10658,6 +10658,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._hasCaptcha = true;
 				this._originHTML = this.trEl.innerHTML;
 				$hide(this.trEl);
+				this.trEl.innerHTML = '';
 			}
 		}, {
 			key: 'initImage',
