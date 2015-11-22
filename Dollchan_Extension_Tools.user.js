@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'bdd32d3';
+	var commit = '621a07e';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10752,8 +10752,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.initImage(img);
 				var a = img.parentNode;
 				if (a.tagName === 'A') {
-					$after(a, img);
-					$del(a);
+					a.parentNode.replaceChild(img, a);
 				}
 				if (updateImage) {
 					this.update(focus, false);
@@ -16236,9 +16235,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				value: function init() {
 					var el = $q('#postform input[type="button"]', doc);
 					if (el) {
-						el.insertAdjacentHTML('afterend', '<input type="submit" value="Отправить" />');
-						$del(el);
-					};
+						el.replaceChild($add('<input type="submit" value="Отправить" />'), el);
+					}
 					return false;
 				}
 			}, {
@@ -16455,12 +16453,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var el = $id('captchaFormPart'),
 					    value = null;
 					if (el) {
-						doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' + '<div onclick="initRecaptcha();"></div></div>');
+						doc.body.insertAdjacentHTML('beforeend', '<div onclick="initRecaptcha();"></div>');
 						value = (function (el) {
-							$id('g-recaptcha').innerHTML = '';
+							var old = $id('g-recaptcha');
+							old.parentNode.replaceChild($add('<div id="g-recaptcha"></div>'), old);
 							this.click();
 							$show(el);
-						}).bind(doc.body.lastChild.firstChild, el);
+						}).bind(doc.body.lastChild, el);
 					}
 					Object.defineProperty(this, 'updateCaptcha', { value: value });
 					return value;
@@ -16768,20 +16767,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap, isErr) {
 					var img = $t('img', cap.trEl);
-					if (img) {
-						if (cap.textEl) {
-							var src = img.getAttribute('src').split('/').slice(0, -1).join('/') + "/" + Date.now() + '.png';
-							img.src = '';
-							img.src = src;
-						} else if (isErr) {
-							var el = img.parentNode;
-							el.innerHTML = '';
-							el.appendChild(img);
-							img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off" id="captcha" name="captcha" size="35" type="text">');
-							$show(img);
-							cap.init(img);
-							cap.add(true);
-						}
+					if (!img) {
+						return;
+					}
+					if (cap.textEl) {
+						var src = img.getAttribute('src').split('/').slice(0, -1).join('/') + "/" + Date.now() + '.png';
+						img.src = '';
+						img.src = src;
+					} else if (isErr) {
+						var el = img.parentNode;
+						el.innerHTML = '';
+						el.appendChild(img);
+						img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off" id="captcha" name="captcha" size="35" type="text">');
+						$show(img);
+						cap.init(img);
+						cap.add(true);
 					}
 				}
 			}, {

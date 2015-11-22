@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'bdd32d3';
+var commit = '621a07e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7523,8 +7523,7 @@ class Captcha {
 		this.initImage(img);
 		var a = img.parentNode;
 		if(a.tagName === 'A') {
-			$after(a, img);
-			$del(a);
+			a.parentNode.replaceChild(img, a);
 		}
 		if(updateImage) {
 			this.update(focus, false);
@@ -8707,7 +8706,8 @@ function processImageNames(el) {
 			continue;
 		}
 		if(addSrc) {
-			link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"/></svg>');
+			link.insertAdjacentHTML('beforebegin',
+				'<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"/></svg>');
 		}
 		if(delNames) {
 			link.classList.add('de-img-name');
@@ -10798,8 +10798,7 @@ class Thread {
 		$del($q(aib.qOmitted + ', .de-omitted', this.el));
 		i = this.pcount - 1 - (isHide ? 0 : i);
 		if(i) {
-			this.op.el.insertAdjacentHTML('afterend',
-				'<span class="de-omitted">' + i + '</span> ');
+			this.op.el.insertAdjacentHTML('afterend', '<span class="de-omitted">' + i + '</span> ');
 		}
 	}
 	_importPosts(last, newPosts, begin, end, maybeVParser, maybeSpells) {
@@ -11934,9 +11933,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			var el = $q('#postform input[type="button"]', doc);
 			if(el) {
-				el.insertAdjacentHTML('afterend', '<input type="submit" value="Отправить" />');
-				$del(el);
-			};
+				el.replaceChild($add('<input type="submit" value="Отправить" />'), el);
+			}
 			return false;
 		}
 		initCaptcha() {
@@ -12058,13 +12056,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			var el = $id('captchaFormPart'),
 				value = null;
 			if(el) {
-				doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
-					'<div onclick="initRecaptcha();"></div></div>');
+				doc.body.insertAdjacentHTML('beforeend', '<div onclick="initRecaptcha();"></div>');
 				value = function(el) {
-					$id('g-recaptcha').innerHTML = '';
+					var old = $id('g-recaptcha');
+					old.parentNode.replaceChild($add('<div id="g-recaptcha"></div>'), old);
 					this.click();
 					$show(el);
-				}.bind(doc.body.lastChild.firstChild, el);
+				}.bind(doc.body.lastChild, el);
 			}
 			Object.defineProperty(this, 'updateCaptcha', { value });
 			return value;
@@ -12298,21 +12296,22 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		updateCaptcha(cap, isErr) {
 			var img = $t('img', cap.trEl);
-			if(img) {
-				if(cap.textEl) {
-					var src = img.getAttribute('src').split('/').slice(0,-1).join('/') + "/" + Date.now() + '.png';
-					img.src = '';
-					img.src = src;
-				} else if(isErr) {
-					var el = img.parentNode;
-					el.innerHTML = '';
-					el.appendChild(img);
-					img.insertAdjacentHTML('afterend',
-						'<br><input placeholder="Капча" autocomplete="off" id="captcha" name="captcha" size="35" type="text">');
-					$show(img);
-					cap.init(img);
-					cap.add(true);
-				}
+			if(!img) {
+				return;
+			}
+			if(cap.textEl) {
+				var src = img.getAttribute('src').split('/').slice(0,-1).join('/') + "/" + Date.now() + '.png';
+				img.src = '';
+				img.src = src;
+			} else if(isErr) {
+				var el = img.parentNode;
+				el.innerHTML = '';
+				el.appendChild(img);
+				img.insertAdjacentHTML('afterend',
+					'<br><input placeholder="Капча" autocomplete="off" id="captcha" name="captcha" size="35" type="text">');
+				$show(img);
+				cap.init(img);
+				cap.add(true);
 			}
 		}
 	}
