@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'eedecad';
+var commit = '140491d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7479,8 +7479,12 @@ class Captcha {
 		}
 		this._lastUpdate = Date.now();
 		if(aib.updateCaptcha) {
-			aib.updateCaptcha(this, isErr).then(() => this._updateTextEl(focus),
-			                                    e => this._setUpdateError(e));
+			if(aib.updateCaptcha instanceof Promise) {
+				aib.updateCaptcha(this, isErr)
+					.then(() => this._updateTextEl(focus), e => this._setUpdateError(e));
+			} else {
+				aib.updateCaptcha(this, isErr);
+			}
 		} else {
 			if(!this.textEl || (aib.krau && !$q('input[name="captcha_name"]', pr.form).hasAttribute('value'))) {
 				return;
@@ -11381,6 +11385,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	var ibDomains = {};
 	var ibEngines = {};
 
+	// Engines
 	class Makaba extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -11761,6 +11766,28 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibEngines['link[href$="phutaba.css"]'] = Phutaba;
+
+		// Domains
+	class _0chanSo extends Kusaba {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.qPostRedir = '#gotothread';
+
+			this.ru = true;
+		}
+		get css() {
+			return super.css + 'nobr { display: none; }';
+		}
+		earlyInit() {
+			if(this.dm === '0chan.so') {
+				window.location.hostname = window.location.hostname.replace('0chan.so', '0-chan.ru');
+			}
+			return false;
+		}
+	}
+	ibDomains['0-chan.ru'] = _0chanSo;
+	ibDomains['0chan.so'] = _0chanSo;
 
 	class _02chNet extends BaseBoard {
 		constructor(prot, dm) {
