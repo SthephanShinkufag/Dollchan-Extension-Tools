@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '90ce13f';
+var commit = '3ae1a2f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7533,12 +7533,14 @@ class Captcha {
 		$show(this.trEl);
 	}
 	_setUpdateError(e) {
-		this.trEl = e.toString();
-		this._added = false;
-		this.trEl.onclick = () => {
-			this.trEl.onclick = null;
-			this.add();
-		};
+		if(e) {
+			this.trEl = e.toString();
+			this._added = false;
+			this.trEl.onclick = () => {
+				this.trEl.onclick = null;
+				this.add();
+			};
+		}
 	}
 	_updateTextEl(focus) {
 		if(this.textEl) {
@@ -11503,13 +11505,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(this._capUpdPromise) {
 				this._capUpdPromise.cancel();
 			}
-			var url;
-			if(pr.tNum) {
-				url = '/makaba/captcha.fcgi?type=2chaptcha&action=thread';
-			} else {
-				url = '/makaba/captcha.fcgi?type=2chaptcha';
-			}
-			return this._capUpdPromise = $ajax(url).then(xhr => {
+			return this._capUpdPromise = $ajax(pr.tNum ?
+				'/makaba/captcha.fcgi?type=2chaptcha&action=thread' :
+				'/makaba/captcha.fcgi?type=2chaptcha').then(xhr =>
+			{
 				this._capUpdPromise = null;
 				var el = $q('.captcha-box', doc.body),
 					data = xhr.responseText;
@@ -11521,10 +11520,9 @@ function getImageBoard(checkDomains, checkEngines) {
 					$hide(cap.trEl);
 					return CancelablePromise.reject();
 				} else if(data.includes('CHECK')) {
-					var key = data.substr(6);
-					var src = '/makaba/captcha.fcgi?type=2chaptcha&action=image&id=' + key;
-					var el = $id('de-image-captcha');
-					if(el) {
+					var key = data.substr(6),
+						src = '/makaba/captcha.fcgi?type=2chaptcha&action=image&id=' + key;
+					if((el = $id('de-image-captcha'))) {
 						el.src = src;
 					} else {
 						el = $q('.captcha-image', cap.trEl);
@@ -11536,6 +11534,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				} else {
 					el.textContent = data;
 				}
+				$show(cap.trEl);
 			}, e => {
 				this._capUpdPromise = null;
 				return CancelablePromise.reject(e);
