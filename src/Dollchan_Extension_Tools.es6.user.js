@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'eb5dcaf';
+var commit = '82d0559';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12383,7 +12383,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return 'input[name="nya2"]';
 		}
 		get qFormName() {
-			return 'input[name="nya1"]';
+			return 'td > input[name="nya1"]';
 		}
 		get qFormSubj() {
 			return 'input[name="nya3"]';
