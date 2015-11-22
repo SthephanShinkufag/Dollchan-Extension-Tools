@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '32816ba';
+var commit = '6cf8ebd';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7399,11 +7399,12 @@ class Captcha {
 			this.trEl.innerHTML = this._originHTML;
 		}
 		this.textEl = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.trEl);
+		var initPromise = null;
 		if(aib.initCaptcha) {
-			this._hasPromise = aib.initCaptcha(this);
+			initPromise = aib.initCaptcha(this);
 		}
-		if(this._hasPromise) {
-			this._hasPromise.then(() => this._initCaptchaFuncs(focus, false), e => {
+		if(initPromise) {
+			initPromise.then(() => this._initCaptchaFuncs(focus, false), e => {
 				if(e instanceof AjaxError) {
 					this._setUpdateError(e);
 				} else {
@@ -7484,9 +7485,9 @@ class Captcha {
 		}
 		this._lastUpdate = Date.now();
 		if(aib.updateCaptcha) {
-			var result = aib.updateCaptcha(this, isErr);
-			if(this._hasPromise) {
-				result.then(() => this._updateTextEl(focus), e => this._setUpdateError(e));
+			var updatePromise = aib.updateCaptcha(this, isErr);
+			if(updatePromise) {
+				updatePromise.then(() => this._updateTextEl(focus), e => this._setUpdateError(e));
 				return;
 			}
 		} else {
@@ -12080,6 +12081,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					old.parentNode.replaceChild($add('<div id="g-recaptcha"></div>'), old);
 					this.click();
 					$show(el);
+					return null;
 				}.bind(doc.body.lastChild, el);
 			}
 			Object.defineProperty(this, 'updateCaptcha', { value });
@@ -12318,7 +12320,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		updateCaptcha(cap, isErr) {
 			var img = $t('img', cap.trEl);
 			if(!img) {
-				return;
+				return null;
 			}
 			if(cap.textEl) {
 				var src = img.getAttribute('src').split('/').slice(0,-1).join('/') + "/" + Date.now() + '.png';
@@ -12334,6 +12336,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				cap.init(img);
 				cap.add(true);
 			}
+			return null;
 		}
 	}
 	ibDomains['dobrochan.com'] = Dobrochan;
@@ -12354,15 +12357,12 @@ function getImageBoard(checkDomains, checkEngines) {
 				this._capUpdPromise.cancel();
 				this._capUpdPromise = null;
 			}
-			var img = $id('imgcaptcha');
-			if(img) {
-				this._capUpdPromise = $ajax('/cgi/captcha?task=get_id').then(xhr => {
-					this._capUpdPromise = null;
-					var id = xhr.responseText;
-					img.src = '/cgi/captcha?task=get_image&id=' + id;
-					$id('captchaid').value = id;
-				}, () => this._capUpdPromise = null);
-			}
+			return !$id('imgcaptcha') ? null : this._capUpdPromise = $ajax('/cgi/captcha?task=get_id').then(xhr => {
+				this._capUpdPromise = null;
+				var id = xhr.responseText;
+				$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
+				$id('captchaid').value = id;
+			}, () => this._capUpdPromise = null);
 		}
 	}
 	ibDomains['dva-ch.net'] = DvaChNet;

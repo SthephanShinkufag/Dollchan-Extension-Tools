@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '32816ba';
+	var commit = '6cf8ebd';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10603,11 +10603,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this.trEl.innerHTML = this._originHTML;
 				}
 				this.textEl = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.trEl);
+				var initPromise = null;
 				if (aib.initCaptcha) {
-					this._hasPromise = aib.initCaptcha(this);
+					initPromise = aib.initCaptcha(this);
 				}
-				if (this._hasPromise) {
-					this._hasPromise.then(function () {
+				if (initPromise) {
+					initPromise.then(function () {
 						return _this18._initCaptchaFuncs(focus, false);
 					}, function (e) {
 						if (e instanceof AjaxError) {
@@ -10708,9 +10709,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				this._lastUpdate = Date.now();
 				if (aib.updateCaptcha) {
-					var result = aib.updateCaptcha(this, isErr);
-					if (this._hasPromise) {
-						result.then(function () {
+					var updatePromise = aib.updateCaptcha(this, isErr);
+					if (updatePromise) {
+						updatePromise.then(function () {
 							return _this20._updateTextEl(focus);
 						}, function (e) {
 							return _this20._setUpdateError(e);
@@ -16482,6 +16483,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							old.parentNode.replaceChild($add('<div id="g-recaptcha"></div>'), old);
 							this.click();
 							$show(el);
+							return null;
 						}).bind(doc.body.lastChild, el);
 					}
 					Object.defineProperty(this, 'updateCaptcha', { value: value });
@@ -16791,7 +16793,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				value: function updateCaptcha(cap, isErr) {
 					var img = $t('img', cap.trEl);
 					if (!img) {
-						return;
+						return null;
 					}
 					if (cap.textEl) {
 						var src = img.getAttribute('src').split('/').slice(0, -1).join('/') + "/" + Date.now() + '.png';
@@ -16806,6 +16808,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						cap.init(img);
 						cap.add(true);
 					}
+					return null;
 				}
 			}, {
 				key: 'css',
@@ -16845,17 +16848,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						this._capUpdPromise.cancel();
 						this._capUpdPromise = null;
 					}
-					var img = $id('imgcaptcha');
-					if (img) {
-						this._capUpdPromise = $ajax('/cgi/captcha?task=get_id').then(function (xhr) {
-							_this70._capUpdPromise = null;
-							var id = xhr.responseText;
-							img.src = '/cgi/captcha?task=get_image&id=' + id;
-							$id('captchaid').value = id;
-						}, function () {
-							return _this70._capUpdPromise = null;
-						});
-					}
+					return !$id('imgcaptcha') ? null : this._capUpdPromise = $ajax('/cgi/captcha?task=get_id').then(function (xhr) {
+						_this70._capUpdPromise = null;
+						var id = xhr.responseText;
+						$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
+						$id('captchaid').value = id;
+					}, function () {
+						return _this70._capUpdPromise = null;
+					});
 				}
 			}]);
 
