@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'b1c559d';
+var commit = 'c97f613';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3778,7 +3778,7 @@ var HotKeys = {
 				}
 				break;
 			case 5: // Send post (txt)
-				if(e.target !== pr.txta && e.target !== pr.cap) {
+				if(e.target !== pr.txta && e.target !== pr.cap.textEl) {
 					return;
 				}
 				pr.subm.click();
@@ -7054,8 +7054,10 @@ PostForm.prototype = {
 		this._setPlaceholder('name');
 		this._setPlaceholder('subj');
 		this._setPlaceholder('mail');
-		this._setPlaceholder('cap');
 		this._setPlaceholder('video');
+		if(this.cap) {
+			this._setPlaceholder('cap');
+		}
 	},
 	updatePAreaBtns() {
 		var txt = 'de-abtn de-parea-btn-',
@@ -7085,7 +7087,7 @@ PostForm.prototype = {
 		}
 	},
 	_setPlaceholder(val) {
-		var el = this[val];
+		var el = val === 'cap' ? this.cap.textEl : this[val];
 		if(el) {
 			if(aib.multiFile || !Cfg.fileThumb) {
 				el.placeholder = Lng[val][lang];

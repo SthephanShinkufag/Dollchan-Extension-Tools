@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'b1c559d';
+	var commit = 'c97f613';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -6521,7 +6521,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 					case 5:
 					
-						if (e.target !== pr.txta && e.target !== pr.cap) {
+						if (e.target !== pr.txta && e.target !== pr.cap.textEl) {
 							return;
 						}
 						pr.subm.click();
@@ -10231,8 +10231,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._setPlaceholder('name');
 			this._setPlaceholder('subj');
 			this._setPlaceholder('mail');
-			this._setPlaceholder('cap');
 			this._setPlaceholder('video');
+			if (this.cap) {
+				this._setPlaceholder('cap');
+			}
 		},
 		updatePAreaBtns: function updatePAreaBtns() {
 			var txt = 'de-abtn de-parea-btn-',
@@ -10262,7 +10264,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		},
 		_setPlaceholder: function _setPlaceholder(val) {
-			var el = this[val];
+			var el = val === 'cap' ? this.cap.textEl : this[val];
 			if (el) {
 				if (aib.multiFile || !Cfg.fileThumb) {
 					el.placeholder = Lng[val][lang];
