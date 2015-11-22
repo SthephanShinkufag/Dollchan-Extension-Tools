@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '140491d';
+var commit = '90ce13f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7381,6 +7381,7 @@ FileInput.prototype = {
 class Captcha {
 	constructor(el) {
 		this.init(el);
+		this._hasPromise = null;
 	}
 	add(focus = false) {
 		if(this._added) {
@@ -7391,12 +7392,11 @@ class Captcha {
 			this.trEl.innerHTML = this._originHTML;
 		}
 		this.textEl = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.trEl);
-		var initPromise = null;
 		if(aib.initCaptcha) {
-			initPromise = aib.initCaptcha(this);
+			this._hasPromise = aib.initCaptcha(this);
 		}
-		if(initPromise) {
-			initPromise.then(() => this._initCaptchaFuncs(focus, false), e => {
+		if(this._hasPromise) {
+			this._hasPromise.then(() => this._initCaptchaFuncs(focus, false), e => {
 				if(e instanceof AjaxError) {
 					this._setUpdateError(e);
 				} else {
@@ -7479,11 +7479,9 @@ class Captcha {
 		}
 		this._lastUpdate = Date.now();
 		if(aib.updateCaptcha) {
-			if(aib.updateCaptcha instanceof Promise) {
-				aib.updateCaptcha(this, isErr)
-					.then(() => this._updateTextEl(focus), e => this._setUpdateError(e));
-			} else {
-				aib.updateCaptcha(this, isErr);
+			var result = aib.updateCaptcha(this, isErr);
+			if(this._hasPromise) {
+				result.then(() => this._updateTextEl(focus), e => this._setUpdateError(e));
 			}
 		} else {
 			if(!this.textEl || (aib.krau && !$q('input[name="captcha_name"]', pr.form).hasAttribute('value'))) {
@@ -11767,7 +11765,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibEngines['link[href$="phutaba.css"]'] = Phutaba;
 
-		// Domains
+	// Domains
 	class _0chanSo extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);

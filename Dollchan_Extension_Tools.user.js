@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '140491d';
+	var commit = '90ce13f';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10581,6 +10581,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_classCallCheck(this, Captcha);
 
 			this.init(el);
+			this._hasPromise = null;
 		}
 
 		_createClass(Captcha, [{
@@ -10598,12 +10599,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this.trEl.innerHTML = this._originHTML;
 				}
 				this.textEl = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.trEl);
-				var initPromise = null;
 				if (aib.initCaptcha) {
-					initPromise = aib.initCaptcha(this);
+					this._hasPromise = aib.initCaptcha(this);
 				}
-				if (initPromise) {
-					initPromise.then(function () {
+				if (this._hasPromise) {
+					this._hasPromise.then(function () {
 						return _this18._initCaptchaFuncs(focus, false);
 					}, function (e) {
 						if (e instanceof AjaxError) {
@@ -10705,14 +10705,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				this._lastUpdate = Date.now();
 				if (aib.updateCaptcha) {
-					if (aib.updateCaptcha instanceof Promise) {
-						aib.updateCaptcha(this, isErr).then(function () {
+					var result = aib.updateCaptcha(this, isErr);
+					if (this._hasPromise) {
+						result.then(function () {
 							return _this20._updateTextEl(focus);
 						}, function (e) {
 							return _this20._setUpdateError(e);
 						});
-					} else {
-						aib.updateCaptcha(this, isErr);
 					}
 				} else {
 					if (!this.textEl || aib.krau && !$q('input[name="captcha_name"]', pr.form).hasAttribute('value')) {
