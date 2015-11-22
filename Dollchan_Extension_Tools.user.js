@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'ca19828';
+	var commit = 'bdd32d3';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -16753,7 +16753,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (!cap.textEl) {
 						$hide($t('img', cap.trEl));
 						$show(cap.trEl);
-						return Promise.reject();
 					}
 					return null;
 				}
@@ -16761,9 +16760,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				key: 'insertYtPlayer',
 				value: function insertYtPlayer(msg, playerHtml) {
 					var prev = msg.previousElementSibling,
-					    node = prev.tagName === 'BR' ? prev : msg;
-					node.insertAdjacentHTML('beforebegin', playerHtml);
-					return node.previousSibling;
+					    el = prev.tagName === 'BR' ? prev : msg;
+					el.insertAdjacentHTML('beforebegin', playerHtml);
+					return el.previousSibling;
 				}
 			}, {
 				key: 'updateCaptcha',
@@ -16775,12 +16774,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							img.src = '';
 							img.src = src;
 						} else if (isErr) {
-							var node = img.parentNode;
-							node.innerHTML = '';
-							node.appendChild(img);
+							var el = img.parentNode;
+							el.innerHTML = '';
+							el.appendChild(img);
 							img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off" id="captcha" name="captcha" size="35" type="text">');
 							$show(img);
-							this.initCaptcha = null;
 							cap.init(img);
 							cap.add(true);
 						}

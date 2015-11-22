@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'ca19828';
+var commit = 'bdd32d3';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12287,15 +12287,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(!cap.textEl) {
 				$hide($t('img', cap.trEl));
 				$show(cap.trEl);
-				return Promise.reject();
 			}
 			return null;
 		}
 		insertYtPlayer(msg, playerHtml) {
 			var prev = msg.previousElementSibling,
-				node = prev.tagName === 'BR' ? prev : msg;
-			node.insertAdjacentHTML('beforebegin', playerHtml);
-			return node.previousSibling;
+				el = prev.tagName === 'BR' ? prev : msg;
+			el.insertAdjacentHTML('beforebegin', playerHtml);
+			return el.previousSibling;
 		}
 		updateCaptcha(cap, isErr) {
 			var img = $t('img', cap.trEl);
@@ -12305,12 +12304,12 @@ function getImageBoard(checkDomains, checkEngines) {
 					img.src = '';
 					img.src = src;
 				} else if(isErr) {
-					var node = img.parentNode;
-					node.innerHTML = '';
-					node.appendChild(img);
-					img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off" id="captcha" name="captcha" size="35" type="text">');
+					var el = img.parentNode;
+					el.innerHTML = '';
+					el.appendChild(img);
+					img.insertAdjacentHTML('afterend',
+						'<br><input placeholder="Капча" autocomplete="off" id="captcha" name="captcha" size="35" type="text">');
 					$show(img);
-					this.initCaptcha = null;
 					cap.init(img);
 					cap.add(true);
 				}
