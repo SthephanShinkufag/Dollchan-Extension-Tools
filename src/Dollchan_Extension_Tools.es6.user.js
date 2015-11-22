@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '3ae1a2f';
+var commit = 'ca19828';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7032,9 +7032,9 @@ PostForm.prototype = {
 			this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 		}
 	},
-	refreshCapImg(focus, isErr = false) {
+	refreshCapImg(isErr) {
 		if(this.cap) {
-			this.cap.update(focus, isErr);
+			this.cap.update(isErr, isErr);
 		}
 	},
 	setReply(isQuick, needToHide) {
@@ -7482,6 +7482,7 @@ class Captcha {
 			var result = aib.updateCaptcha(this, isErr);
 			if(this._hasPromise) {
 				result.then(() => this._updateTextEl(focus), e => this._setUpdateError(e));
+				return;
 			}
 		} else {
 			if(!this.textEl || (aib.krau && !$q('input[name="captcha_name"]', pr.form).hasAttribute('value'))) {
@@ -7501,8 +7502,8 @@ class Captcha {
 					img.click();
 				}
 			}
-			this._updateTextEl(focus);
 		}
+		this._updateTextEl(focus);
 	}
 
 	_initCaptchaFuncs(focus, updateImage) {
@@ -7622,7 +7623,7 @@ function checkUpload(dc) {
 			pr.setReply(true, false);
 		}
 		if(/captch|капч|подтвер|verifizie/i.test(err)) {
-			pr.refreshCapImg(true, true);
+			pr.refreshCapImg(true);
 		}
 		$popup(err, 'upload', false);
 		updater.sendErrNotif();
@@ -11505,10 +11506,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(this._capUpdPromise) {
 				this._capUpdPromise.cancel();
 			}
-			return this._capUpdPromise = $ajax(pr.tNum ?
-				'/makaba/captcha.fcgi?type=2chaptcha&action=thread' :
-				'/makaba/captcha.fcgi?type=2chaptcha').then(xhr =>
-			{
+			return this._capUpdPromise = $ajax(
+				'/makaba/captcha.fcgi?type=2chaptcha' + (pr.tNum ? '&action=thread' : '')
+			).then(xhr => {
 				this._capUpdPromise = null;
 				var el = $q('.captcha-box', doc.body),
 					data = xhr.responseText;

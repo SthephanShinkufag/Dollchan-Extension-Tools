@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '3ae1a2f';
+	var commit = 'ca19828';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10222,11 +10222,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 			}
 		},
-		refreshCapImg: function refreshCapImg(focus) {
-			var isErr = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
-
+		refreshCapImg: function refreshCapImg(isErr) {
 			if (this.cap) {
-				this.cap.update(focus, isErr);
+				this.cap.update(isErr, isErr);
 			}
 		},
 		setReply: function setReply(isQuick, needToHide) {
@@ -10712,6 +10710,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}, function (e) {
 							return _this20._setUpdateError(e);
 						});
+						return;
 					}
 				} else {
 					if (!this.textEl || aib.krau && !$q('input[name="captcha_name"]', pr.form).hasAttribute('value')) {
@@ -10731,8 +10730,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							img.click();
 						}
 					}
-					this._updateTextEl(focus);
 				}
+				this._updateTextEl(focus);
 			}
 		}, {
 			key: '_initCaptchaFuncs',
@@ -10893,7 +10892,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				pr.setReply(true, false);
 			}
 			if (/captch|капч|подтвер|verifizie/i.test(err)) {
-				pr.refreshCapImg(true, true);
+				pr.refreshCapImg(true);
 			}
 			$popup(err, 'upload', false);
 			updater.sendErrNotif();
@@ -15620,7 +15619,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (this._capUpdPromise) {
 						this._capUpdPromise.cancel();
 					}
-					return this._capUpdPromise = $ajax(pr.tNum ? '/makaba/captcha.fcgi?type=2chaptcha&action=thread' : '/makaba/captcha.fcgi?type=2chaptcha').then(function (xhr) {
+					return this._capUpdPromise = $ajax('/makaba/captcha.fcgi?type=2chaptcha' + (pr.tNum ? '&action=thread' : '')).then(function (xhr) {
 						_this47._capUpdPromise = null;
 						var el = $q('.captcha-box', doc.body),
 						    data = xhr.responseText;
