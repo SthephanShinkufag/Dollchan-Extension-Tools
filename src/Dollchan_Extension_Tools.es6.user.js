@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '5b0b215';
+var commit = '289642f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7387,6 +7387,7 @@ class Captcha {
 			return;
 		}
 		this._added = true;
+		this.trEl.innerHTML = this._originHTML;
 		this.textEl = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.trEl);
 		var initPromise = null;
 		if(aib.initCaptcha) {

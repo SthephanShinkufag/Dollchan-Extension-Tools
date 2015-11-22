@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '5b0b215';
+	var commit = '289642f';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10594,6 +10594,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return;
 				}
 				this._added = true;
+				this.trEl.innerHTML = this._originHTML;
 				this.textEl = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.trEl);
 				var initPromise = null;
 				if (aib.initCaptcha) {
