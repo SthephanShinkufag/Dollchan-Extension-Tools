@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'c97f613';
+var commit = '5b0b215';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -938,6 +938,19 @@ CancelablePromise.prototype = {
 	}
 }
 
+class AjaxError {
+	static get success() {
+		return new AjaxError(200, '');
+	}
+	constructor(code, message) {
+		this.code = code;
+		this.message = message;
+	}
+	toString() {
+		return this.code === 0 ? this.message || Lng.noConnect[lang] : 'HTTP [' + this.code + '] ' + this.message;
+	}
+}
+
 function $ajax(url, params = null, useNative = nativeXHRworks) {
 	return new CancelablePromise((resolve, reject, cancelFn) => {
 		if(!useNative && (typeof GM_xmlhttpRequest === 'function')) {
@@ -948,7 +961,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 					if(e.status === 200 || aib.tiny && e.status === 400) {
 						resolve(e);
 					} else {
-						reject(e);
+						reject(new AjaxError(e.status, e.statusText));
 					}
 				}
 			};
@@ -971,14 +984,17 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 		}
 		xhr.onreadystatechange = ({ target }) => {
 			if(target.readyState === 4) {
-				if(target.status === 200 || aib.tiny && target.status === 400) {
+				if(target.status === 200 ||
+				   (aib.tiny && target.status === 400) ||
+				   (target.status === 0 && target.responseType === 'arraybuffer'))
+				{
 					if(useCache) {
 						aib.LastModified = target.getResponseHeader('Last-Modified');
 						aib.ETag = xhr.getResponseHeader('Etag');
 					}
 					resolve(target);
 				} else {
-					reject(target);
+					reject(new AjaxError(target.status, target.statusText));
 				}
 			}
 		};
@@ -1234,7 +1250,7 @@ function getAbsLink(url) {
 
 function getErrorMessage(e) {
 	if(e instanceof AjaxError) {
-		return e.code === 0 ? e.message || Lng.noConnect[lang] : 'HTTP [' + e.code + '] ' + e.message;
+		return e.toString();
 	}
 	return (typeof e === 'string') ? e : Lng.internalError[lang] + getPrettyErrorMessage(e);
 }
@@ -2488,8 +2504,8 @@ function showHiddenWindow(body) {
 			var [board, tNum] = els[i].getAttribute('info').split(';');
 			try {
 				yield $ajax(aib.getThrdUrl(board, tNum));
-			} catch(xhr) {
-				if(xhr.status === 404) {
+			} catch(err) {
+				if(err.code === 404) {
 					delete hThr[board][tNum];
 					saveHiddenThreads(true);
 				}
@@ -2728,12 +2744,12 @@ function showFavoritesWindow(body, data) {
 				yield $ajax(el.getAttribute('de-url'), null, false);
 				iconEl.setAttribute('class', 'de-fav-inf-icon');
 				titleEl.removeAttribute('title');
-			} catch(xhr) {
-				if(xhr.status === 404) {
+			} catch(err) {
+				if(err.code === 404) {
 					el.setAttribute('de-removed', '');
 				}
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-				titleEl.title = getErrorMessage(new AjaxError(xhr.status, xhr.statusText));
+				titleEl.title = getErrorMessage(err);
 			}
 		}
 		cleanFavorites();
@@ -4387,6 +4403,9 @@ function downloadImgData(url, repeatOnError = true) {
 		responseType: 'arraybuffer',
 		overrideMimeType: 'text/plain; charset=x-user-defined'
 	}, !aib.fch || url.startsWith('blob')).then(xhr => {
+		if(xhr.status === 0 && xhr.responseType === 'arraybuffer') {
+			return new Uint8Array(xhr.response);
+		}
 		if('response' in xhr) {
 			return nav.getUnsafeUint8Array(xhr.response);
 		}
@@ -4396,15 +4415,7 @@ function downloadImgData(url, repeatOnError = true) {
 			rv[i] = txt.charCodeAt(i) & 0xFF;
 		}
 		return rv;
-	}, xhr => {
-		if(xhr instanceof Error || xhr.status === 404) {
-			return null;
-		}
-		if(xhr.status === 0 && xhr.responseType === 'arraybuffer') {
-			return new Uint8Array(xhr.response);
-		}
-		return repeatOnError ? downloadImgData(url, false) : null;
-	});
+	}, err => err.code !== 404 && repeatOnError ? downloadImgData(url, false) : null);
 }
 
 function preloadImages(data) {
@@ -5105,13 +5116,6 @@ function embedMediaLinks(data) {
 // AJAX
 // ===========================================================================================================
 
-function AjaxError(code, message) {
-	this.name = 'AjaxError';
-	this.code = code;
-	this.message = message;
-}
-AjaxError.Success = new AjaxError(200, '');
-
 function ajaxLoad(url, returnForm = true, useCache = false) {
 	return $ajax(url, { useCache: useCache }).then(xhr => {
 		var el, text = xhr.responseText;
@@ -5119,12 +5123,12 @@ function ajaxLoad(url, returnForm = true, useCache = false) {
 			el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 		}
 		return el ? el : CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
-	}, xhr => xhr.status === 304 ? null : CancelablePromise.reject(new AjaxError(xhr.status, xhr.statusText)));
+	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 
 function getJsonPosts(url) {
 	return $ajax(url, { useCache: true }).then(xhr => JSON.parse(xhr.responseText), xhr => {
-		return xhr.status === 304 ? null : CancelablePromise.reject(new AjaxError(xhr.status, xhr.statusText))
+		return err => err.code === 304 ? null : CancelablePromise.reject(err)
 	});
 }
 
@@ -6549,10 +6553,6 @@ function PostForm(form, ignoreForm, dc) {
 		}
 		return;
 	}
-	function $x(path, root) {
-		return dc.evaluate(path, root, null, 8, null).singleNodeValue;
-	}
-	var p = './/tr[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
 	this.tNum = aib.t;
 	this.form = form;
 	this.txta = $q('tr:not([style*="none"]) textarea:not([style*="display:none"])', form);
@@ -6563,12 +6563,11 @@ function PostForm(form, ignoreForm, dc) {
 		this.spoil = $q('input[type="checkbox"][name="spoiler"]', this.fileTd);
 	}
 	this.passw = $q(aib.qPassw, form);
-	this.name = $x(p + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form);
-	this.mail = $x(p + (
-			aib._410 ? '@name="sage"]' :
-			'(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nya2" or @name="nabiki" or @name="dont_bump")]'
-		), form);
-	this.subj = $x(p + '(@name="field3" or @name="sub" or @name="subject" or @name="internal_s" or @name="nya3" or @name="kasumi")]', form);
+	var leftSel = 'tr:not([style*="none"]) input:not([type="hidden"])';
+	this.name = $q(nav.cssMatches(leftSel, '[name="field1"]', '[name="name"]', '[name="internal_n"]', '[name="nya1"]', '[name="akane"]'), form);
+	this.mail = $q(aib._410 ? leftSel + '[name="sage"]' :
+		nav.cssMatches(leftSel, '[name="field2"]', '[name="em"]', '[name="sage"]', '[name="email"]', '[name="nya2"]', '[name="nabiki"]', '[name="dont_bump"]'), form);
+	this.subj = $q(nav.cssMatches(leftSel, '[name="field3"]', '[name="sub"]', '[name="subject"]', '[name="internal_s"]', '[name="nya3"]', '[name="kasumi"]'), form);
 	this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
 	this.rules = $q(aib.qRules, form);
 	this.pForm = $add('<div id="de-pform" class="de-win-body"></div>');
@@ -7388,18 +7387,21 @@ class Captcha {
 			return;
 		}
 		this._added = true;
-		if(!$id('recaptcha_widget_div')) {
-			this.trEl.innerHTML = this._originHTML;
-		}
 		this.textEl = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.trEl);
 		var initPromise = null;
 		if(aib.initCaptcha) {
 			initPromise = aib.initCaptcha(this);
 		}
 		if(initPromise) {
-			initPromise.then(() => this._initCaptchaFuncs(focus), () => this._hasCaptcha = false);
+			initPromise.then(() => this._initCaptchaFuncs(focus, false), e => {
+				if(e instanceof AjaxError) {
+					this._setUpdateError(e);
+				} else {
+					this._hasCaptcha = false;
+				}
+			});
 		} else {
-			this._initCaptchaFuncs(focus);
+			this._initCaptchaFuncs(focus, true);
 		}
 	}
 	handleEvent(e) {
@@ -7441,15 +7443,24 @@ class Captcha {
 		this._hasCaptcha = true;
 		this._originHTML = this.trEl.innerHTML;
 		$hide(this.trEl);
-		if(!$id('recaptcha_widget_div')) {
-			this.trEl.innerHTML = '';
-		}
 	}
 	initImage(img) {
 		img.title = Lng.refresh[lang];
 		img.alt = Lng.loading[lang];
 		img.style.cssText = 'vertical-align: text-bottom; border: none; cursor: pointer;';
 		img.onclick = () => this.update(true, false);
+	}
+	initTextEl() {
+		this.textEl.autocomplete = 'off';
+		if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
+			this.textEl.placeholder = Lng.cap[lang];
+		}
+		this.textEl.addEventListener('keypress', this);
+		this.textEl.onkeypress = null;
+		if(!aib.kus) {
+			this.textEl.addEventListener('focus', this);
+			this.textEl.onfocus = null;
+		}
 	}
 	update(focus, isErr) {
 		if(!this._hasCaptcha && !isErr) {
@@ -7461,29 +7472,27 @@ class Captcha {
 		}
 		this._lastUpdate = Date.now();
 		if(aib.updateCaptcha) {
-			aib.updateCaptcha(this, isErr);
+			aib.updateCaptcha(this, isErr).then(() => this._updateTextEl(focus),
+			                                    e => this._setUpdateError(e));
 		} else {
 			if(!this.textEl || (aib.krau && !$q('input[name="captcha_name"]', pr.form).hasAttribute('value'))) {
 				return;
 			}
-			var img = this.recap ? $id('recaptcha_image') : $t('img', this.trEl);
-			if(!aib.getCaptchaSrc || this.recap) {
-				img.click();
-			} else if(img) {
-				var src = aib.getCaptchaSrc(img.getAttribute('src'), pr.tNum);
-				img.src = '';
-				img.src = src;
+			var img = $t('img', this.trEl);
+			if(img) {
+				if(aib.getCaptchaSrc) {
+					var src = aib.getCaptchaSrc(img.getAttribute('src'), pr.tNum);
+					img.src = '';
+					img.src = src;
+				} else {
+					img.click();
+				}
 			}
-		}
-		if(this.textEl) {
-			this.textEl.value = '';
-			if(focus) {
-				this.textEl.focus();
-			}
+			this._updateTextEl(focus);
 		}
 	}
 
-	_initCaptchaFuncs(focus) {
+	_initCaptchaFuncs(focus, updateImage) {
 		if(!this.textEl) {
 			$show(this.trEl);
 			if(aib.updateCaptcha) {
@@ -7491,23 +7500,9 @@ class Captcha {
 			}
 			return;
 		}
+		this.initTextEl();
 		var img;
-		if((this.recap = $id('recaptcha_response_field')) && (img = $id('recaptcha_image'))) {
-			this.textEl = this.recap;
-			img.setAttribute('onclick', 'Recaptcha.reload()');
-			img.style.cssText = 'width: 300px; cursor: pointer;';
-		}
-		this.textEl.autocomplete = 'off';
-		if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
-			this.textEl.placeholder = Lng.cap[lang];
-		}
-		this.textEl.addEventListener('keypress', this);
-		this.textEl.onkeypress = null;
-		if(!aib.kus) {
-			this.textEl.addEventListener('focus', this);
-			this.textEl.onfocus = null;
-		}
-		if(aib.krau || this.recap || !(img = $q('img', this.trEl))) {
+		if(aib.krau || !(img = $q('img', this.trEl))) {
 			$show(this.trEl);
 			return;
 		}
@@ -7517,12 +7512,28 @@ class Captcha {
 			$after(a, img);
 			$del(a);
 		}
-		if(aib.capUpdAfterInit) {
+		if(updateImage) {
 			this.update(focus, false);
 		} else {
 			this._lastUpdate = Date.now();
 		}
 		$show(this.trEl);
+	}
+	_setUpdateError(e) {
+		this.trEl = e.toString();
+		this._added = false;
+		this.trEl.onclick = () => {
+			this.trEl.onclick = null;
+			this.add();
+		};
+	}
+	_updateTextEl(focus) {
+		if(this.textEl) {
+			this.textEl.value = '';
+			if(focus) {
+				this.textEl.focus();
+			}
+		}
 	}
 }
 
@@ -7638,7 +7649,7 @@ function checkUpload(dc) {
 			}
 			closePopup('upload');
 		} else {
-			Thread.first.loadNew(true).then(() => AjaxError.Success, e => e).then(e => {
+			Thread.first.loadNew(true).then(() => AjaxError.success, e => e).then(e => {
 				infoLoadErrors(e);
 				if(Cfg.scrAfterRep) {
 					scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
@@ -7730,14 +7741,14 @@ function* html5Submit(form, submitter, needProgress = false) {
 			lastFuncs.resolve({ done: false, data: {loaded: e.loaded, total: e.total} });
 			promises.push(new Promise((resolve, reject) => lastFuncs = {resolve, reject}));
 		}}).then(xhr => lastFuncs.resolve({done: true, data: $DOM(xhr.responseText)}),
-		         xhr => lastFuncs.reject(new AjaxError(xhr.status, xhr.statusText)));
+		         err => lastFuncs.reject(err));
 		return [hasFiles, () => promises.shift()];
 	} else {
 		try {
 			var xhr = yield $ajax(form.action, {method: 'POST', data: formData});
 			return $DOM(xhr.responseText);
-		} catch(xhr) {
-			return Promise.reject(new AjaxError(xhr.status, xhr.statusText));
+		} catch(err) {
+			return Promise.reject(err);
 		}
 	}
 }
@@ -11066,6 +11077,13 @@ function initNavFuncs() {
 				fn = null;
 			});
 		},
+		cssMatches(leftSel, ...rules) {
+			if(this.Presto) {
+				return leftSel + rules.join(', ' + leftSel);
+			} else {
+				return leftSel + (this.Firefox ? ':-moz-' : ':-webkit-') + 'any(' + rules.join(', ') + ')';
+			}
+		},
 		fixLink: safari ? getAbsLink : function fixLink(url) {
 			return url;
 		},
@@ -11148,7 +11166,6 @@ class BaseBoard {
 
 		this.anchor = '#';
 		this.b = '';
-		this.capUpdAfterInit = true;
 		this.dm = dm;
 		this.docExt = null;
 		this.ETag = null; // Used for $ajax only
@@ -11373,7 +11390,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qThumbImages = '.preview';
 			this.qTrunc = null;
 
-			this.capUpdAfterInit = false;
 			this.hasOPNum = true;
 			this.hasPicWrap = true;
 			this.markupBB = true;
@@ -11467,9 +11483,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		initCaptcha(cap) {
 			cap.textEl.tabIndex = 999;
-			return this.updateCaptcha(cap, true);
+			return this.updateCaptcha(cap);
 		}
-		updateCaptcha(cap, needXHRErrors = false) {
+		updateCaptcha(cap) {
 			if(this._capUpdPromise) {
 				this._capUpdPromise.cancel();
 			}
@@ -11508,9 +11524,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				}
 			}, e => {
 				this._capUpdPromise = null;
-				if(needXHRErrors) {
-					return CancelablePromise.reject(e);
-				}
+				return CancelablePromise.reject(e);
 			});
 		}
 	}
@@ -11749,6 +11763,33 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['02ch.net'] = _02chNet;
 
+	class _02chSu extends Kusaba {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this._capUpdPromise = null;
+		}
+		initCaptcha(cap) {
+			return this.updateCaptcha(cap);
+		}
+		updateCaptcha(cap) {
+			if(this._capUpdPromise) {
+				this._capUpdPromise.cancel();
+			}
+			return this._capUpdPromise = $ajax('/captcha_update.php').then(xhr => {
+				this._capUpdPromise = null;
+				cap.trEl.innerHTML = xhr.responseText;
+				cap.textEl = $id('recaptcha_response_field');
+				cap.initImage($t('img', cap.trEl));
+				cap.initTextEl();
+			}, e => {
+				this._capUpdPromise = null;
+				return CancelablePromise.reject(e);
+			});
+		}
+	}
+	ibDomains['02ch.su'] = _02chSu;
+
 	class _2chruNet extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -11756,8 +11797,6 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.qPages = '#pager > li:nth-last-child(2)';
 			this.qPostRedir = 'input[name="noko"]';
-
-			this.capUpdAfterInit = false;
 
 			this._capUpdPromise = null;
 		}
@@ -11771,9 +11810,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.checked = true;
 		}
 		initCaptcha(cap) {
-			return this.updateCaptcha(cap, true);
+			return this.updateCaptcha(cap);
 		}
-		updateCaptcha(cap, needError = false) {
+		updateCaptcha(cap) {
 			if(this._capUpdPromise) {
 				this._capUpdPromise.cancel();
 			}
@@ -11801,9 +11840,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				}
 			}, e => {
 				this._capUpdPromise = null;
-				if(needError) {
-					return CancelablePromise.reject(e);
-				}
+				return CancelablePromise.reject(e);
 			});
 		}
 	}
@@ -12023,8 +12060,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	class _8chNet extends Vichan {
 		constructor(prot, dm) {
 			super(prot, dm);
-
-			this.capUpdAfterInit = false;
 
 			this._capExtra = null; // _8chNet hack
 			this._capUrl = null; // _8chNet hack
@@ -13429,7 +13464,7 @@ function initThreadUpdater(title, enableUpdate) {
 				counter.setWait();
 				this._loadPromise = Thread.first.loadNew(true);
 				this._state = 2;
-				this._loadPromise.then(pCount => this._handleNewPosts(pCount, AjaxError.Success),
+				this._loadPromise.then(pCount => this._handleNewPosts(pCount, AjaxError.success),
 				                       e => this._handleNewPosts(0, e));
 				return;
 			case 2:
@@ -14047,7 +14082,7 @@ function updateCSS() {
 	if(Cfg.strikeHidd) {
 		x+= '.de-link-hid { text-decoration: line-through !important; }';
 	}
-	x += '.postarea, .recaptcha_image_cell + td, .recaptcha_image_cell + td + td, small[id^="rfmap"], .theader, ' +
+	x += '.postarea, small[id^="rfmap"], .theader, ' +
 		(Cfg.panelCounter ? '' : '#de-panel-info, ') +
 		(Cfg.imgNavBtns ? '' : '#de-img-btn-next, #de-img-btn-prev, ') +
 		(Cfg.showHideBtn ? '' : '.de-btn-hide, ') +
