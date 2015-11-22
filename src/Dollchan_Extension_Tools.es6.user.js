@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '621a07e';
+var commit = '32816ba';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -108,8 +108,9 @@ var defaultCfg = {
 	'userName':         0,      // user name
 	'nameValue':        '',     //    value
 	'noBoardRule':      1,      // hide board rules
-	'noPassword':       1,      // hide password field
-	'noName':           0,      // hide name field
+	'noPassword':       1,      // hide form password field
+	'noName':           0,      // hide form name field
+	'noSubj':           0,      // hide form subject field
 	'scriptStyle':      0,      // script style [0=gradient black, 1=gradient blue, 2=solid grey, 3=transparent blue]
 	'userCSS':          0,      // user style
 	'userCSSTxt':       '',     //    css text
@@ -262,9 +263,10 @@ Lng = {
 		'txtBtnsLoc':   ['Внизу', 'At bottom'],
 		'userPassw':    ['Постоянный пароль', 'Fixed password'],
 		'userName':     ['Постоянное имя', 'Fixed name'],
-		'noBoardRule':  ['правила ', 'rules '],
-		'noPassword':   ['пароль ', 'password '],
-		'noName':       ['имя', 'name'],
+		'noBoardRule':  ['Правила ', 'Rules '],
+		'noPassword':   ['Пароль ', 'Password '],
+		'noName':       ['Имя ', 'Name '],
+		'noSubj':       ['Тему', 'Subject'],
 
 		'scriptStyle': {
 			sel:        [
@@ -1952,7 +1954,7 @@ var panel = Object.create({
 		}
 	},
 	init(formEl) {
-		var imgLen = $Q(aib.qThumbImages, formEl).length,
+		var imgLen = $Q(aib.qPostImg, formEl).length,
 			isThr = aib.t;
 		(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `
 		<div id="de-main" lang="${ getThemeLang() }">
@@ -3139,11 +3141,16 @@ function getCfgForm() {
 			$txt(Lng.dontShow[lang]),
 			$if(pr.rules, lBox('noBoardRule', false, updateCSS)),
 			$if(pr.passw, lBox('noPassword', false, function() {
-				$toggle(pr.passw.parentNode.parentNode);
+				$toggle($parent(pr.passw, 'TR'));
 			})),
 			$if(pr.name, lBox('noName', false, function() {
-				$toggle(pr.name.parentNode.parentNode);
-			}))
+				$toggle(pr.name.nextElementSibling || pr.name.previousElementSibling ? pr.name :
+					$parent(pr.name, 'TR'));
+			})),
+			$if(pr.subj, lBox('noSubj', false, function() {
+				$toggle(pr.subj.nextElementSibling || pr.subj.previousElementSibling ? pr.subj :
+					$parent(pr.subj, 'TR'));
+			})),
 		]))
 	]);
 }
@@ -3634,7 +3641,7 @@ function addMenu(el) {
 			Pages.load(aProto.indexOf.call(el.parentNode.children, el) + 1);
 		});
 	case 'de-panel-savethr':
-		return new Menu(el, '<span class="de-menu-item">' + ($q(aib.qThumbImages, DelForm.first.el) ?
+		return new Menu(el, '<span class="de-menu-item">' + ($q(aib.qPostImg, DelForm.first.el) ?
 			Lng.selSaveThr[lang].join('</span><span class="de-menu-item">') :
 			Lng.selSaveThr[lang][0]) + '</span>', true,
 		function(el) {
@@ -4466,7 +4473,7 @@ function preloadImages(data) {
 		});
 		Images_.preloading = true;
 	}
-	var els = $Q(aib.qThumbImages, isPost ? data.el : data);
+	var els = $Q(aib.qPostImg, isPost ? data.el : data);
 	for(var i = 0, len = els.length; i < len; ++i) {
 		var el = els[i],
 			link = $parent(el = els[i], 'A');
@@ -4568,7 +4575,7 @@ function loadDocFiles(imgOnly) {
 		$del($id('de-popup-load-files'));
 		Images_.pool = tar = warnings = count = current = imgOnly = progress = counter = null;
 	});
-	els = aProto.slice.call($Q(aib.qThumbImages, $q('[de-form]', dc)));
+	els = aProto.slice.call($Q(aib.qPostImg, $q('[de-form]', dc)));
 	count += els.length;
 	els.forEach(function(el) {
 		var link = $parent(el, 'A');
@@ -4583,8 +4590,7 @@ function loadDocFiles(imgOnly) {
 	});
 	if(!imgOnly) {
 		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thread-buttons, ' +
-			'.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' +
-			aib.qPostForm, dc), $del);
+			'.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
 		$each($T('a', dc), function(el) {
 			var num, tc = el.textContent;
 			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
@@ -6544,7 +6550,7 @@ function PostForm(form, ignoreForm, dc) {
 	if(!ignoreForm && !form) {
 		if(this.oeForm) {
 			ajaxLoad(aib.getThrdUrl(aib.b, Thread.first.num), false).then(loadedDoc => {
-				pr = new PostForm($q(aib.qPostForm, loadedDoc), true, loadedDoc);
+				pr = new PostForm($q(aib.qForm, loadedDoc), true, loadedDoc);
 			}, () => {
 				pr = new PostForm(null, true, dc);
 			});
@@ -6562,14 +6568,12 @@ function PostForm(form, ignoreForm, dc) {
 		this.fileTd = $parent(this.file, 'TD');
 		this.spoil = $q('input[type="checkbox"][name="spoiler"]', this.fileTd);
 	}
-	this.passw = $q(aib.qPassw, form);
-	var leftSel = 'tr:not([style*="none"]) input:not([type="hidden"])';
-	this.name = $q(nav.cssMatches(leftSel, '[name="field1"]', '[name="name"]', '[name="internal_n"]', '[name="nya1"]', '[name="akane"]'), form);
-	this.mail = $q(aib._410 ? leftSel + '[name="sage"]' :
-		nav.cssMatches(leftSel, '[name="field2"]', '[name="em"]', '[name="sage"]', '[name="email"]', '[name="nya2"]', '[name="nabiki"]', '[name="dont_bump"]'), form);
-	this.subj = $q(nav.cssMatches(leftSel, '[name="field3"]', '[name="sub"]', '[name="subject"]', '[name="internal_s"]', '[name="nya3"]', '[name="kasumi"]'), form);
+	this.name = $q(aib.qFormName(), form);
+	this.mail = $q(aib.qFormMail(), form);
+	this.subj = $q(aib.qFormSubj(), form);
+	this.passw = $q(aib.qFormPassw, form);
+	this.rules = $q(aib.qFormRules, form);
 	this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
-	this.rules = $q(aib.qRules, form);
 	this.pForm = $add('<div id="de-pform" class="de-win-body"></div>');
 	if(this.form) {
 		this.pForm.appendChild(this.form);
@@ -6729,11 +6733,14 @@ function PostForm(form, ignoreForm, dc) {
 		}
 		updater.pause();
 	});
-	if(Cfg.noPassword && this.passw) {
-		$hide($parent(this.passw, 'TR'));
+	if(Cfg.noPassword && (el = this.passw)) {
+		$hide($parent(el, 'TR'));
 	}
-	if(Cfg.noName && this.name) {
-		$hide($parent(this.name, 'TR'));
+	if(Cfg.noName && (el = this.name)) {
+		$hide(el.nextElementSibling || el.previousElementSibling ? el : $parent(el, 'TR'));
+	}
+	if(Cfg.noSubj && (el = this.subj)) {
+		$hide(el.nextElementSibling || el.previousElementSibling ? el : $parent(el, 'TR'));
 	}
 	window.addEventListener('load', () => {
 		if(Cfg.userName && this.name) {
@@ -6751,7 +6758,7 @@ function PostForm(form, ignoreForm, dc) {
 	} else {
 		this.cap = null;
 	}
-	if(Cfg.ajaxReply && aib.qPostRedir && (el = $q(aib.qPostRedir, form))) {
+	if(Cfg.ajaxReply && aib.qFormRedir && (el = $q(aib.qFormRedir, form))) {
 		aib.disableRedirection(el);
 	}
 	if(Cfg.ajaxReply === 2) {
@@ -7431,7 +7438,7 @@ class Captcha {
 			$txtInsert(e.target, chr);
 			break;
 		case 'focus':
-			if(this._lastUpdate && (Date.now() - this._lastUpdate > 3e5)) {
+			if(this._lastUpdate && (Date.now() - this._lastUpdate > 3e5)) { // 5 min
 				this.update(false);
 			}
 		}
@@ -7464,10 +7471,8 @@ class Captcha {
 		}
 		this.textEl.addEventListener('keypress', this);
 		this.textEl.onkeypress = null;
-		if(!aib.kus) {
-			this.textEl.addEventListener('focus', this);
-			this.textEl.onfocus = null;
-		}
+		this.textEl.addEventListener('focus', this);
+		this.textEl.onfocus = null;
 	}
 	update(focus, isErr) {
 		if(!this._hasCaptcha && !isErr) {
@@ -7654,7 +7659,7 @@ function checkUpload(dc) {
 		return;
 	}
 	var el = !aib.tiny && !aib.kus &&
-		(aib.qPostRedir === null || $q(aib.qPostRedir, dc)) ? $q(aib.qDForm, dc) : null;
+		(aib.qFormRedir === null || $q(aib.qFormRedir, dc)) ? $q(aib.qDForm, dc) : null;
 	if(aib.t) {
 		Post.clearMarks();
 		if(el) {
@@ -8762,7 +8767,7 @@ class AbstractPost {
 		return value;
 	}
 	get msg() {
-		var val = $q(aib.qMsg, this.el);
+		var val = $q(aib.qPostMsg, this.el);
 		Object.defineProperty(this, 'msg', { configurable: true, value: val });
 		return val;
 	}
@@ -9037,13 +9042,13 @@ class AbstractPost {
 		ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(form => {
 			var maybeSpells = new Maybe(SpellsRunner);
 			if(this.isOp) {
-				this.updateMsg(replacePost($q(aib.qMsg, form)), maybeSpells.value);
+				this.updateMsg(replacePost($q(aib.qPostMsg, form)), maybeSpells.value);
 				$del(node);
 			} else {
 				var els = $Q(aib.qRPost, form);
 				for(var i = 0, len = els.length; i < len; i++) {
 					if(this.num === aib.getPNum(els[i])) {
-						this.updateMsg(replacePost($q(aib.qMsg, els[i])), maybeSpells.value);
+						this.updateMsg(replacePost($q(aib.qPostMsg, els[i])), maybeSpells.value);
 						$del(node);
 						break;
 					}
@@ -9122,7 +9127,7 @@ class Post extends AbstractPost {
 		}
 		pByEl.set(el, this);
 		pByNum.set(num, this);
-		var refEl = $q(aib.qRef, el),
+		var refEl = $q(aib.qPostRef, el),
 			html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') +
 				'"><svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
 				'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
@@ -9406,9 +9411,10 @@ class Post extends AbstractPost {
 			if(end.nodeType === 3) {
 				end = end.parentNode;
 			}
-			var inMsgSel = aib.qMsg + ', ' + aib.qMsg + ' *';
+			var inMsgSel = aib.qPostMsg + ', ' + aib.qPostMsg + ' *';
 			if((nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel)) ||
-			   (nav.matchesSelector(start, '.' + aib.cSubj) && nav.matchesSelector(end, '.' + aib.cSubj)))
+			   (nav.matchesSelector(start, '.' + aib.cPostSubj) &&
+			    nav.matchesSelector(end, '.' + aib.cPostSubj)))
 			{
 				if(this._selText.includes('\n')) {
 					Spells.add(1 /* #exp */, '/' +
@@ -9507,17 +9513,18 @@ Post.content = class PostContent extends TemporaryContent {
 		return val;
 	}
 	get posterName() {
-		var pName = $q(aib.qName, this.el), val = pName ? pName.textContent.trim().replace(/\s/g, ' ') : '';
+		var pName = $q(aib.qPostName, this.el),
+			val = pName ? pName.textContent.trim().replace(/\s/g, ' ') : '';
 		Object.defineProperty(this, 'posterName', { value: val });
 		return val;
 	}
 	get posterTrip() {
-		var pTrip = $c(aib.cTrip, this.el), val = pTrip ? pTrip.textContent : '';
+		var pTrip = $c(aib.cPostTrip, this.el), val = pTrip ? pTrip.textContent : '';
 		Object.defineProperty(this, 'posterTrip', { value: val });
 		return val;
 	}
 	get subj() {
-		var subj = $c(aib.cSubj, this.el), val = subj ? subj.textContent : '';
+		var subj = $c(aib.cPostSubj, this.el), val = subj ? subj.textContent : '';
 		Object.defineProperty(this, 'subj', { value: val });
 		return val;
 	}
@@ -9674,7 +9681,7 @@ Post.sizing = {
 };
 
 function PostImages(post) {
-	var els = $Q(aib.qThumbImages, post.el),
+	var els = $Q(aib.qPostImg, post.el),
 		filesMap = new Map(),
 		first = null,
 		hasAttachments = false,
@@ -10048,7 +10055,7 @@ class Pview extends AbstractPost {
 		if(Cfg.linksNavig === 2) {
 			Pview._markLink(el, this.parent.num);
 		}
-		this._pref = $q(aib.qRef, el);
+		this._pref = $q(aib.qPostRef, el);
 		this._link.classList.add('de-link-parent');
 		if(post instanceof CacheItem) {
 			this._pref.insertAdjacentHTML('afterend', '<span class="de-post-btns">' + pText + '</span');
@@ -10075,7 +10082,7 @@ class Pview extends AbstractPost {
 				'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' + pText;
 			$each($Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') +
 				'.de-img-full, .de-after-fimg', el), $del);
-			$each($Q(aib.qThumbImages, el), function(el) {
+			$each($Q(aib.qPostImg, el), function(el) {
 				$show(el.parentNode);
 			});
 			node = $c('de-link-parent', el);
@@ -10138,7 +10145,7 @@ class CacheItem {
 		this.viewed = false;
 	}
 	get msg() {
-		var value = $q(aib.qMsg, this.el);
+		var value = $q(aib.qPostMsg, this.el);
 		Object.defineProperty(this, 'msg', { configurable: true, value });
 		return value;
 	}
@@ -10579,7 +10586,7 @@ class Thread {
 		$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 		if(this.loadCount === 0) {
 			if(op.trunc) {
-				op.updateMsg(replacePost($q(aib.qMsg, form)), maybeSpells.value);
+				op.updateMsg(replacePost($q(aib.qPostMsg, form)), maybeSpells.value);
 			}
 			op.ref.removeMap();
 		}
@@ -10637,7 +10644,7 @@ class Thread {
 		}
 		while(existed-- !== 0) {
 			if(post.trunc) {
-				post.updateMsg(replacePost($q(aib.qMsg, loadedPosts[post.count - 1])), maybeSpells.value);
+				post.updateMsg(replacePost($q(aib.qPostMsg, loadedPosts[post.count - 1])), maybeSpells.value);
 			}
 			if(post.omitted) {
 				post.wrap.classList.remove('de-hidden');
@@ -10712,7 +10719,7 @@ class Thread {
 			scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);
 		}
 		if(newPosts !== 0) {
-			panel.updateCounter(this.pcount, $Q(aib.qThumbImages, this.el).length);
+			panel.updateCounter(this.pcount, $Q(aib.qPostImg, this.el).length);
 			Pview.updatePosition(true);
 		}
 		return newVisPosts;
@@ -11158,25 +11165,25 @@ class BaseBoard {
 		this.cFileInfo = 'filesize';
 		this.cOPost = 'oppost';
 		this.cPostHeader = 'de-post-btns';
+		this.cPostSubj = 'filetitle';
+		this.cPostTrip = 'postertrip';
 		this.cReply = 'reply';
-		this.cSubj = 'filetitle';
-		this.cTrip = 'postertrip';
 		this.qBan = '';
 		this.qDelBut = 'input[type="submit"]'; // Differs _4chanOrg only
 		this.qDelPassw = 'input[type="password"], input[name="password"]'; // Differs Vichan only
 		this.qDForm = '#delform, form[name="delform"]';
 		this.qError = 'h1, h2, font[size="5"]';
-		this.qMsg = 'blockquote';
-		this.qName = '.postername, .commentpostername';
+		this.qForm = '#postform';
+		this.qFormPassw = 'tr input[type="password"]'; // Differs Vichan only
+		this.qFormRedir = 'input[name="postredir"][value="1"]';
+		this.qFormRules = '.rules, #rules';
 		this.qOmitted = '.omittedposts';
 		this.qPages = 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type';
-		this.qPassw = 'tr input[type="password"]'; // Differs Vichan only
-		this.qPostForm = '#postform';
-		this.qPostRedir = 'input[name="postredir"][value="1"]';
-		this.qRef = '.reflink';
+		this.qPostImg = '.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]';
+		this.qPostMsg = 'blockquote';
+		this.qPostName = '.postername, .commentpostername';
+		this.qPostRef = '.reflink';
 		this.qRPost = '.reply';
-		this.qRules = '.rules, #rules';
-		this.qThumbImages = '.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]';
 		this.qTrunc = '.abbrev, .abbr, .shortened';
 
 		this.anchor = '#';
@@ -11214,10 +11221,10 @@ class BaseBoard {
 		return value;
 	}
 	get qMsgImgLink() { // Sets here only
-		var value = this.qMsg + ' a[href*=".jpg"], ' +
-			this.qMsg + ' a[href*=".png"], ' +
-			this.qMsg + ' a[href*=".gif"], ' +
-			this.qMsg + ' a[href*=".jpeg"]';
+		var value = this.qPostMsg + ' a[href*=".jpg"], ' +
+			this.qPostMsg + ' a[href*=".png"], ' +
+			this.qPostMsg + ' a[href*=".gif"], ' +
+			this.qPostMsg + ' a[href*=".jpeg"]';
 		Object.defineProperty(this, 'qMsgImgLink', { value });
 		return value;
 	}
@@ -11379,6 +11386,18 @@ class BaseBoard {
 		msg.insertAdjacentHTML('beforebegin', playerHtml);
 		return msg.previousSibling;
 	}
+	qFormMail() {
+		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"])',
+			'[name="email"]', '[name="em"]', '[name="field2"]',  '[name="sage"]');
+	}
+	qFormName() {
+		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"])',
+			'[name="name"]', '[name="field1"]');
+	}
+	qFormSubj() {
+		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"])',
+			'[name="subject"]', '[name="field3"]');
+	}
 }
 
 function getImageBoard(checkDomains, checkEngines) {
@@ -11392,18 +11411,18 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.mak = true;
 
 			this.cPostHeader = 'post-details';
+			this.cPostSubj = 'post-title';
 			this.cReply = 'post reply';
-			this.cSubj = 'post-title';
 			this.qBan = '.pomyanem';
 			this.qClosed = '.sticky-img[src$="locked.png"]';
 			this.qDForm = '#posts-form';
-			this.qMsg = '.post-message';
-			this.qName = '.ananimas, .post-email';
+			this.qFormRedir = null;
+			this.qFormRules = '.rules-area';
 			this.qOmitted = '.mess-post';
-			this.qPostRedir = null;
+			this.qPostImg = '.preview';
+			this.qPostMsg = '.post-message';
+			this.qPostName = '.ananimas, .post-email';
 			this.qRPost = 'div.reply';
-			this.qRules = '.rules-area';
-			this.qThumbImages = '.preview';
 			this.qTrunc = null;
 
 			this.hasOPNum = true;
@@ -11466,7 +11485,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSage(post) {
 			if(this._hasNames) {
 				this.getSage = function(post) {
-					var name = $q(this.qName, post);
+					var name = $q(this.qPostName, post);
 					return name ? name.childElementCount === 0 && !$c('ophui', post) : false;
 				};
 			} else {
@@ -11550,13 +11569,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.futa = true;
 
 			this.qDForm = 'form:not([enctype])';
+			this.qForm = 'form:nth-of-type(1)';
+			this.qFormRedir = null;
+			this.qFormRules = '.chui';
 			this.qOmitted = 'font[color="#707070"]';
-			this.qPostForm = 'form:nth-of-type(1)';
-			this.qPostRedir = null;
-			this.qRef = '.del';
+			this.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
+			this.qPostRef = '.del';
 			this.qRPost = 'td:nth-child(2)';
-			this.qRules = '.chui';
-			this.qThumbImages = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
 
 			this.docExt = '.htm';
 			this.thrid = 'resto';
@@ -11595,19 +11614,19 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.cFileInfo = 'fileinfo';
 			this.cPostHeader = 'intro';
+			this.cPostSubj = 'subject';
+			this.cPostTrip = 'trip';
 			this.cReply = 'post reply';
-			this.cSubj = 'subject';
-			this.cTrip = 'trip';
 			this.qClosed = '.fa-lock';
 			this.qDForm = 'form[name*="postcontrols"]';
-			this.qMsg = '.body';
-			this.qName = '.name';
+			this.qForm = 'form[name="post"]';
+			this.qFormPassw = 'input[name="password"]'
+			this.qFormRedir = null;
 			this.qOmitted = '.omitted';
 			this.qPages = '.pages > a:nth-last-of-type(2)';
-			this.qPassw = 'input[name="password"]'
-			this.qPostForm = 'form[name="post"]';
-			this.qPostRedir = null;
-			this.qRef = '.post_no + a';
+			this.qPostMsg = '.body';
+			this.qPostName = '.name';
+			this.qPostRef = '.post_no + a';
 			this.qTrunc = '.toolong';
 
 			this.firstPage = 1;
@@ -11697,8 +11716,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.kus = true;
 
 			this.cOPost = 'postnode';
+			this.qFormRedir = null;
 			this.qError = 'h1, h2, div[style*="1.25em"]';
-			this.qPostRedir = null;
 
 			this.markupBB = true;
 		}
@@ -11727,13 +11746,13 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.cOPost = 'thread_OP';
 			this.cPostHeader = 'post_head';
+			this.cPostSubj = 'subject';
+			this.cPostTrip = 'tripcode';
 			this.cReply = 'post';
-			this.cSubj = 'subject';
-			this.cTrip = 'tripcode';
 			this.qError = '.error';
-			this.qMsg = '.text';
+			this.qFormRedir = 'input[name="gb2"][value="thread"]';
 			this.qPages = '.pagelist > li:nth-last-child(2)';
-			this.qPostRedir = 'input[name="gb2"][value="thread"]';
+			this.qPostMsg = '.text';
 			this.qRPost = '.thread_reply';
 			this.qTrunc = '.tldr';
 
@@ -11768,7 +11787,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
-			this.qPostRedir = '#gotothread';
+			this.qFormRedir = '#gotothread';
 
 			this.ru = true;
 		}
@@ -11789,7 +11808,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
-			this.qPostRedir = 'input[name="gb2"][value="thread"]';
+			this.qFormRedir = 'input[name="gb2"][value="thread"]';
 
 			this.ru = true;
 			this.timePattern = 'yyyy+nn+dd++w++hh+ii+ss';
@@ -11829,8 +11848,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 			this._2chruNet = true;
 
+			this.qFormRedir = 'input[name="noko"]';
 			this.qPages = '#pager > li:nth-last-child(2)';
-			this.qPostRedir = 'input[name="noko"]';
 
 			this._capUpdPromise = null;
 		}
@@ -11948,9 +11967,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	class _410chanOrg extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this._410 = true;
 
-			this.qPostRedir = 'input#noko';
+			this.qFormRedir = 'input#noko';
 
 			this.markupBB = false;
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
@@ -11982,8 +12000,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.cPostHeader = 'replyheader';
 			this.qBan = '.ban';
 			this.qError = 'pre';
+			this.qFormRedir = null;
 			this.qPages = '.pagelist > a:last-child';
-			this.qPostRedir = null;
 
 			this.docExt = '.php';
 			this.markupBB = true;
@@ -12013,19 +12031,19 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.cFileInfo = 'fileText';
 			this.cOPost = 'op';
 			this.cPostHeader = 'postInfo';
+			this.cPostSubj = 'subject';
 			this.cReply = 'post reply';
-			this.cSubj = 'subject';
 			this.qBan = 'strong[style="color: red;"]';
 			this.qClosed = '.archivedIcon';
 			this.qDelBut = '.deleteform > input[type="submit"]';
 			this.qError = '#errmsg';
-			this.qName = '.name';
+			this.qForm = 'form[name="post"]';
+			this.qFormRedir = null;
 			this.qOmitted = '.summary.desktop';
 			this.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
-			this.qPostForm = 'form[name="post"]';
-			this.qPostRedir = null;
-			this.qRef = '.postInfo > .postNum';
-			this.qThumbImages = '.fileThumb > img:not(.fileDeletedRes)';
+			this.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
+			this.qPostName = '.name';
+			this.qPostRef = '.postInfo > .postNum';
 
 			this.anchor = '#p';
 			this.docExt = '';
@@ -12087,6 +12105,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			Cfg.findImgFile = 0;
 			return false;
 		}
+		qFormSubj() {
+			return 'input[name="sub"]';
+		}
 	}
 	ibDomains['4chan.org'] = _4chanOrg;
 
@@ -12115,7 +12136,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return Promise.reject();
 			}
 			td.innerHTML = `
-			<input placeholder="Капча" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="6" autocomplete="off">
+			<input placeholder="{ Lng.cap[lang] }" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="6" autocomplete="off">
 			<input class="captcha_cookie" name="captcha_cookie" type="hidden">
 			<div class="captcha_html"></div>`;
 			cap.textEl = $q('.captcha_text', cap.trEl);
@@ -12156,8 +12177,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.cPostHeader = 'post_head';
 			this.cReply = 'post';
 			this.qDForm = 'body > .container-fluid';
-			this.qMsg = '.post_comment_body';
-			this.qRef = '.post_id, .post_head > b';
+			this.qPostMsg = '.post_comment_body';
+			this.qPostRef = '.post_id, .post_head > b';
 			this.qRPost = '.post:not(:first-child):not([postid=""])';
 
 			this.docExt = '';
@@ -12217,14 +12238,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.dobr = true;
 
 			this.cFileInfo = 'fileinfo';
-			this.cSubj = 'replytitle';
+			this.cPostSubj = 'replytitle';
 			this.qClosed = 'img[src="/images/locked.png"]';
 			this.qDForm = 'form[action*="delete"]';
 			this.qError = '.post-error, h2';
-			this.qMsg = '.postbody';
+			this.qFormRedir = 'select[name="goto"]';
 			this.qOmitted = '.abbrev > span:last-of-type';
 			this.qPages = '.pages > tbody > tr > td';
-			this.qPostRedir = 'select[name="goto"]';
+			this.qPostMsg = '.postbody';
 			this.qTrunc = '.abbrev > span:nth-last-child(2)';
 
 			this.anchor = '#i';
@@ -12361,6 +12382,15 @@ function getImageBoard(checkDomains, checkEngines) {
 			doc.body.lastChild.click();
 			return false;
 		}
+		qFormMail() {
+			return 'input[name="nya2"]';
+		}
+		qFormName() {
+			return 'input[name="nya1"]';
+		}
+		qFormSubj() {
+			return 'input[name="nya3"]';
+		}
 	}
 	ibDomains['iichan.hk'] = Iichan;
 
@@ -12371,19 +12401,19 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.cFileInfo = 'fileinfo';
 			this.cPostHeader = 'postheader';
+			this.cPostSubj = 'postsubject';
 			this.cReply = 'postreply';
-			this.cSubj = 'postsubject';
 			this.qBan = '.ban_mark';
 			this.qClosed = 'img[src="/images/locked.gif"]';
 			this.qDForm = 'form[action*="delete"]';
 			this.qError = '.message_text';
+			this.qFormRedir = 'input#forward_thread';
+			this.qFormRules = '#rules_row';
 			this.qOmitted = '.omittedinfo';
 			this.qPages = 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a';
-			this.qPostRedir = 'input#forward_thread';
-			this.qRef = '.postnumber';
+			this.qPostImg = 'img[id^="thumbnail_"]';
+			this.qPostRef = '.postnumber';
 			this.qRPost = '.postreply';
-			this.qRules = '#rules_row';
-			this.qThumbImages = 'img[id^="thumbnail_"]';
 			this.qTrunc = 'p[id^="post_truncated"]';
 
 			this.getCaptchaSrc = null;
@@ -12462,6 +12492,12 @@ function getImageBoard(checkDomains, checkEngines) {
 				node = prev.hasAttribute('style') ? prev : pMsg;
 			node.insertAdjacentHTML('beforebegin', playerHtml);
 			return node.previousSibling;
+		}
+		qFormName() {
+			return 'input[name="internal_n"]';
+		}
+		qFormSubj() {
+			return 'input[name="internal_s"]';
 		}
 	}
 	ibDomains['krautchan.net'] = Krautchan;
@@ -12617,7 +12653,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
-			this.qPostRedir = '#noko';
+			this.qFormRedir = '#noko';
 		}
 		get css() {
 			return `
@@ -14123,8 +14159,8 @@ function updateCSS() {
 		(Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ') +
 		(Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') +
 		(Cfg.delHiddPost ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') +
-		(Cfg.noPostNames ? aib.qName + ', .' + aib.cTrip + ', ' : '') +
-		(Cfg.noBoardRule ? aib.qRules + ', ': '') +
+		(Cfg.noPostNames ? aib.qPostName + ', .' + aib.cPostTrip + ', ' : '') +
+		(Cfg.noBoardRule ? aib.qFormRules + ', ': '') +
 		(aib._2chruNet ? '' : '.thumbnailmsg, ') +
 		(!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') +
 		'body > hr { display: none !important; }';
@@ -14179,7 +14215,7 @@ function* initScript(checkDomains, readCfgPromise) {
 		return;
 	}
 	Logger.log('Parse delform');
-	pr = new PostForm($q(aib.qPostForm, doc), false, doc);
+	pr = new PostForm($q(aib.qForm, doc), false, doc);
 	Logger.log('Parse postform');
 	if(Cfg.hotKeys) {
 		HotKeys.enable();
