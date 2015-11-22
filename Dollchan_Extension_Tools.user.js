@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '412c09b';
+	var commit = 'eb5dcaf';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -9760,9 +9760,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.fileTd = $parent(this.file, 'TD');
 			this.spoil = $q('input[type="checkbox"][name="spoiler"]', this.fileTd);
 		}
-		this.name = $q(aib.qFormName(), form);
-		this.mail = $q(aib.qFormMail(), form);
-		this.subj = $q(aib.qFormSubj(), form);
+		this.name = $q(aib.qFormName, form);
+		this.mail = $q(aib.qFormMail, form);
+		this.subj = $q(aib.qFormSubj, form);
 		this.passw = $q(aib.qFormPassw, form);
 		this.rules = $q(aib.qFormRules, form);
 		this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
@@ -15432,24 +15432,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return msg.previousSibling;
 			}
 		}, {
+			key: 'css',
+			get: function get() {
+				return '';
+			}
+		}, {
 			key: 'qFormMail',
-			value: function qFormMail() {
+			get: function get() {
 				return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"])', '[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
 			}
 		}, {
 			key: 'qFormName',
-			value: function qFormName() {
+			get: function get() {
 				return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"])', '[name="name"]', '[name="field1"]');
 			}
 		}, {
 			key: 'qFormSubj',
-			value: function qFormSubj() {
-				return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"])', '[name="subject"]', '[name="field3"]');
-			}
-		}, {
-			key: 'css',
 			get: function get() {
-				return '';
+				return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"])', '[name="subject"]', '[name="field3"]');
 			}
 		}, {
 			key: 'qImgLink',
@@ -16451,14 +16451,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return false;
 				}
 			}, {
-				key: 'qFormSubj',
-				value: function qFormSubj() {
-					return 'input[name="sub"]';
-				}
-			}, {
 				key: 'css',
 				get: function get() {
 					return '\n\t\t\t.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }\n\t\t\t.postForm { display: table !important; width: auto !important; }\n\t\t\ttextarea { margin-right: 0 !important; }';
+				}
+			}, {
+				key: 'qFormSubj',
+				get: function get() {
+					return 'input[name="sub"]';
 				}
 			}, {
 				key: 'qImgLink',
@@ -16888,24 +16888,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return false;
 				}
 			}, {
+				key: 'css',
+				get: function get() {
+					return !this.t ? '' : '\n\t\t\t#de-main { margin-top: -37px; }\n\t\t\t.logo { margin-bottom: 14px; }';
+				}
+			}, {
 				key: 'qFormMail',
-				value: function qFormMail() {
+				get: function get() {
 					return 'input[name="nya2"]';
 				}
 			}, {
 				key: 'qFormName',
-				value: function qFormName() {
+				get: function get() {
 					return 'input[name="nya1"]';
 				}
 			}, {
 				key: 'qFormSubj',
-				value: function qFormSubj() {
-					return 'input[name="nya3"]';
-				}
-			}, {
-				key: 'css',
 				get: function get() {
-					return !this.t ? '' : '\n\t\t\t#de-main { margin-top: -37px; }\n\t\t\t.logo { margin-bottom: 14px; }';
+					return 'input[name="nya3"]';
 				}
 			}]);
 
@@ -16996,19 +16996,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return node.previousSibling;
 				}
 			}, {
+				key: 'css',
+				get: function get() {
+					return '\n\t\t\timg[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none; }\n\t\t\t.de-thr-hid { float: none; }\n\t\t\t.de-video-obj + div { clear: left; }\n\t\t\tdiv[id^="Wz"] { z-index: 10000 !important; }\n\t\t\t.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\n\t\t\tform[action="/paint"] > select { width: 105px; }\n\t\t\tform[action="/paint"] > input[type="text"] { width: 24px !important; }';
+				}
+			}, {
 				key: 'qFormName',
-				value: function qFormName() {
+				get: function get() {
 					return 'input[name="internal_n"]';
 				}
 			}, {
 				key: 'qFormSubj',
-				value: function qFormSubj() {
-					return 'input[name="internal_s"]';
-				}
-			}, {
-				key: 'css',
 				get: function get() {
-					return '\n\t\t\timg[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none; }\n\t\t\t.de-thr-hid { float: none; }\n\t\t\t.de-video-obj + div { clear: left; }\n\t\t\tdiv[id^="Wz"] { z-index: 10000 !important; }\n\t\t\t.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\n\t\t\tform[action="/paint"] > select { width: 105px; }\n\t\t\tform[action="/paint"] > input[type="text"] { width: 24px !important; }';
+					return 'input[name="internal_s"]';
 				}
 			}, {
 				key: 'qImgLink',

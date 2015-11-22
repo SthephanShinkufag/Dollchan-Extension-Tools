@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '412c09b';
+var commit = 'eb5dcaf';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -6569,9 +6569,9 @@ function PostForm(form, ignoreForm, dc) {
 		this.fileTd = $parent(this.file, 'TD');
 		this.spoil = $q('input[type="checkbox"][name="spoiler"]', this.fileTd);
 	}
-	this.name = $q(aib.qFormName(), form);
-	this.mail = $q(aib.qFormMail(), form);
-	this.subj = $q(aib.qFormSubj(), form);
+	this.name = $q(aib.qFormName, form);
+	this.mail = $q(aib.qFormMail, form);
+	this.subj = $q(aib.qFormSubj, form);
 	this.passw = $q(aib.qFormPassw, form);
 	this.rules = $q(aib.qFormRules, form);
 	this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
@@ -11214,6 +11214,18 @@ class BaseBoard {
 	get css() {
 		return '';
 	}
+	get qFormMail() {
+		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"])',
+			'[name="email"]', '[name="em"]', '[name="field2"]',  '[name="sage"]');
+	}
+	get qFormName() {
+		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"])',
+			'[name="name"]', '[name="field1"]');
+	}
+	get qFormSubj() {
+		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"])',
+			'[name="subject"]', '[name="field3"]');
+	}
 	get qImgLink() {
 		var value = '.' + this.cFileInfo + ' a[href$=".jpg"], ' +
 			'.' + this.cFileInfo + ' a[href$=".jpeg"], ' +
@@ -11388,18 +11400,6 @@ class BaseBoard {
 	insertYtPlayer(msg, playerHtml) {
 		msg.insertAdjacentHTML('beforebegin', playerHtml);
 		return msg.previousSibling;
-	}
-	qFormMail() {
-		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"])',
-			'[name="email"]', '[name="em"]', '[name="field2"]',  '[name="sage"]');
-	}
-	qFormName() {
-		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"])',
-			'[name="name"]', '[name="field1"]');
-	}
-	qFormSubj() {
-		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"])',
-			'[name="subject"]', '[name="field3"]');
 	}
 }
 
@@ -12064,6 +12064,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			.postForm { display: table !important; width: auto !important; }
 			textarea { margin-right: 0 !important; }`;
 		}
+		get qFormSubj() {
+			return 'input[name="sub"]';
+		}
 		get qImgLink() {
 			return '.fileText > a';
 		}
@@ -12108,9 +12111,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			Cfg.findImgFile = 0;
 			return false;
-		}
-		qFormSubj() {
-			return 'input[name="sub"]';
 		}
 	}
 	ibDomains['4chan.org'] = _4chanOrg;
@@ -12379,19 +12379,19 @@ function getImageBoard(checkDomains, checkEngines) {
 			#de-main { margin-top: -37px; }
 			.logo { margin-bottom: 14px; }`;
 		}
+		get qFormMail() {
+			return 'input[name="nya2"]';
+		}
+		get qFormName() {
+			return 'input[name="nya1"]';
+		}
+		get qFormSubj() {
+			return 'input[name="nya3"]';
+		}
 		init() {
 			doc.body.insertAdjacentHTML('beforeend', '<div onclick="highlight = function() {}"></div>');
 			doc.body.lastChild.click();
 			return false;
-		}
-		qFormMail() {
-			return 'input[name="nya2"]';
-		}
-		qFormName() {
-			return 'input[name="nya1"]';
-		}
-		qFormSubj() {
-			return 'input[name="nya3"]';
 		}
 	}
 	ibDomains['iichan.hk'] = Iichan;
@@ -12434,6 +12434,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }
 			form[action="/paint"] > select { width: 105px; }
 			form[action="/paint"] > input[type="text"] { width: 24px !important; }`;
+		}
+		get qFormName() {
+			return 'input[name="internal_n"]';
+		}
+		get qFormSubj() {
+			return 'input[name="internal_s"]';
 		}
 		get qImgLink() {
 			return '.filename > a';
@@ -12494,12 +12500,6 @@ function getImageBoard(checkDomains, checkEngines) {
 				node = prev.hasAttribute('style') ? prev : pMsg;
 			node.insertAdjacentHTML('beforebegin', playerHtml);
 			return node.previousSibling;
-		}
-		qFormName() {
-			return 'input[name="internal_n"]';
-		}
-		qFormSubj() {
-			return 'input[name="internal_s"]';
 		}
 	}
 	ibDomains['krautchan.net'] = Krautchan;
