@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '770e250';
+var commit = 'e82eef0';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7387,7 +7387,9 @@ class Captcha {
 			return;
 		}
 		this._added = true;
-		this.trEl.innerHTML = this._originHTML;
+		if(!this._isOldRecap) {
+			this.trEl.innerHTML = this._originHTML;
+		}
 		this.textEl = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.trEl);
 		var initPromise = null;
 		if(aib.initCaptcha) {
@@ -7443,8 +7445,11 @@ class Captcha {
 		this._lastUpdate = null;
 		this._hasCaptcha = true;
 		this._originHTML = this.trEl.innerHTML;
+		this._isOldRecap = $id('recaptcha_widget_div');
 		$hide(this.trEl);
-		this.trEl.innerHTML = '';
+		if(!this._isOldRecap) {
+			this.trEl.innerHTML = '';
+		}
 	}
 	initImage(img) {
 		img.title = Lng.refresh[lang];
@@ -7504,7 +7509,7 @@ class Captcha {
 		}
 		this.initTextEl();
 		var img;
-		if(aib.krau || !(img = $q('img', this.trEl))) {
+		if(aib.krau || this._isOldRecap || !(img = $q('img', this.trEl))) {
 			$show(this.trEl);
 			return;
 		}

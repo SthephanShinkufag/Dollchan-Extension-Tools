@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '770e250';
+	var commit = 'e82eef0';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10594,7 +10594,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return;
 				}
 				this._added = true;
-				this.trEl.innerHTML = this._originHTML;
+				if (!this._isOldRecap) {
+					this.trEl.innerHTML = this._originHTML;
+				}
 				this.textEl = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.trEl);
 				var initPromise = null;
 				if (aib.initCaptcha) {
@@ -10657,8 +10659,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._lastUpdate = null;
 				this._hasCaptcha = true;
 				this._originHTML = this.trEl.innerHTML;
+				this._isOldRecap = $id('recaptcha_widget_div');
 				$hide(this.trEl);
-				this.trEl.innerHTML = '';
+				if (!this._isOldRecap) {
+					this.trEl.innerHTML = '';
+				}
 			}
 		}, {
 			key: 'initImage',
@@ -10734,7 +10739,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				this.initTextEl();
 				var img;
-				if (aib.krau || !(img = $q('img', this.trEl))) {
+				if (aib.krau || this._isOldRecap || !(img = $q('img', this.trEl))) {
 					$show(this.trEl);
 					return;
 				}
