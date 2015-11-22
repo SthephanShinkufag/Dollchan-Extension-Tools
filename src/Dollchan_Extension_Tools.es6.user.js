@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '6cf8ebd';
+var commit = '056728c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3141,15 +3141,13 @@ function getCfgForm() {
 			$txt(Lng.dontShow[lang]),
 			$if(pr.rules, lBox('noBoardRule', false, updateCSS)),
 			$if(pr.passw, lBox('noPassword', false, function() {
-				$toggle($parent(pr.passw, 'TR'));
+				PostForm.hideField(pr.passw);
 			})),
 			$if(pr.name, lBox('noName', false, function() {
-				$toggle(pr.name.nextElementSibling || pr.name.previousElementSibling ? pr.name :
-					$parent(pr.name, 'TR'));
+				PostForm.hideField(pr.name);
 			})),
 			$if(pr.subj, lBox('noSubj', false, function() {
-				$toggle(pr.subj.nextElementSibling || pr.subj.previousElementSibling ? pr.subj :
-					$parent(pr.subj, 'TR'));
+				PostForm.hideField(pr.subj);
 			})),
 		]))
 	]);
@@ -6672,12 +6670,10 @@ function PostForm(form, ignoreForm, dc) {
 		});
 	}
 	if(!aib.iich && Cfg.addSageBtn && this.mail) {
-		el = $parent(this.mail, 'LABEL') || this.mail;
-		$hide(el.nextElementSibling || el.previousElementSibling ? el : $parent(this.mail, 'TR'));
+		PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
 		this.subm.insertAdjacentHTML('afterend', '<svg id="de-sagebtn" class="de-btn-sage">' +
 			'<use xlink:href="#de-symbol-post-sage"/></svg>');
-		el = this.subm.nextSibling;
-		el.onclick = e => {
+		this.subm.nextSibling.onclick = e => {
 			e.stopPropagation();
 			$pd(e);
 			toggleCfg('sageReply');
@@ -6734,13 +6730,13 @@ function PostForm(form, ignoreForm, dc) {
 		updater.pause();
 	});
 	if(Cfg.noPassword && (el = this.passw)) {
-		$hide($parent(el, 'TR'));
+		PostForm.hideField(el);
 	}
 	if(Cfg.noName && (el = this.name)) {
-		$hide(el.nextElementSibling || el.previousElementSibling ? el : $parent(el, 'TR'));
+		PostForm.hideField(el);
 	}
 	if(Cfg.noSubj && (el = this.subj)) {
-		$hide(el.nextElementSibling || el.previousElementSibling ? el : $parent(el, 'TR'));
+		PostForm.hideField(el);
 	}
 	window.addEventListener('load', () => {
 		if(Cfg.userName && this.name) {
@@ -6792,6 +6788,9 @@ function PostForm(form, ignoreForm, dc) {
 		aib.fixFileInputs(el);
 		this.eventFiles(true);
 	}
+}
+PostForm.hideField = function(el) {
+	$toggle(el.nextElementSibling || el.previousElementSibling ? el : $parent(el, 'TR'));
 }
 PostForm.setUserName = function() {
 	var el = $q('input[info="nameValue"]', doc);
