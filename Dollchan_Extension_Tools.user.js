@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '056728c';
+	var commit = '412c09b';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3015,7 +3015,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'favOnReply': ['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
 			'warnSubjTrip': ['Оповещать при наличии трип-кода в поле "Тема"', 'Warn if "Subject" field contains trip-code'],
 			'fileThumb': ['Область превью картинок вместо кнопки "Файл"', 'File thumbnail area instead of "File" button'],
-			'addSageBtn': ['Кнопка Sage вместо "E-mail"* ', 'Sage button instead of "E-mail"* '],
+			'addSageBtn': ['Кнопка Sage вместо "E-mail" ', 'Sage button instead of "E-mail" '],
 			'saveSage': ['Запоминать сажу', 'Remember sage'],
 			'captchaLang': {
 				sel: [['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus']],
@@ -6003,7 +6003,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				pr.setPlaceholders();
 			}
 			updateCSS();
-		})), $if(!aib.iich && pr.mail, $New('div', null, [lBox('addSageBtn', false, null), lBox('saveSage', false, null)])), $if(pr.cap, optSel('captchaLang', true, null)), $if(pr.txta, $New('div', null, [optSel('addTextBtns', false, function () {
+		})), $if(!aib.iich && pr.mail, $New('div', null, [lBox('addSageBtn', false, function () {
+			PostForm.hideField(pr.mail);
+			updateCSS();
+		}), lBox('saveSage', false, null)])), $if(pr.cap, optSel('captchaLang', true, null)), $if(pr.txta, $New('div', null, [optSel('addTextBtns', false, function () {
 			saveCfg('addTextBtns', this.selectedIndex);
 			pr.addTextPanel();
 		}), lBox('txtBtnsLoc', false, pr.addTextPanel.bind(pr))])), $if(pr.passw, $New('div', null, [inpTxt('passwValue', 9, PostForm.setUserPassw), $txt(Lng.cfg.userPassw[lang]), $btn(Lng.change[lang], '', function () {
@@ -18594,7 +18597,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (Cfg.strikeHidd) {
 			x += '.de-link-hid { text-decoration: line-through !important; }';
 		}
-		x += '.postarea, small[id^="rfmap"], .theader, ' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + (Cfg.imgNavBtns ? '' : '#de-img-btn-next, #de-img-btn-prev, ') + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + (Cfg.showRepBtn ? '' : '.de-btn-rep, ') + (Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (Cfg.delHiddPost ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (Cfg.noPostNames ? aib.qPostName + ', .' + aib.cPostTrip + ', ' : '') + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + (aib._2chruNet ? '' : '.thumbnailmsg, ') + (!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + 'body > hr { display: none !important; }';
+		x += '.postarea, small[id^="rfmap"], .theader, ' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + (Cfg.imgNavBtns ? '' : '#de-img-btn-next, #de-img-btn-prev, ') + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + (Cfg.showRepBtn ? '' : '.de-btn-rep, ') + (Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (Cfg.delHiddPost ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (Cfg.addSageBtn ? '' : '#de-sagebtn, ') + (Cfg.noPostNames ? aib.qPostName + ', .' + aib.cPostTrip + ', ' : '') + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + (aib._2chruNet ? '' : '.thumbnailmsg, ') + (!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + 'body > hr { display: none !important; }';
 		$id('de-css-dynamic').textContent = x + '\n' + aib.css;
 		$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 	}

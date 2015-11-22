@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '056728c';
+var commit = '412c09b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -250,7 +250,7 @@ Lng = {
 		'favOnReply':   ['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
 		'warnSubjTrip': ['Оповещать при наличии трип-кода в поле "Тема"', 'Warn if "Subject" field contains trip-code'],
 		'fileThumb':    ['Область превью картинок вместо кнопки "Файл"', 'File thumbnail area instead of "File" button'],
-		'addSageBtn':   ['Кнопка Sage вместо "E-mail"* ', 'Sage button instead of "E-mail"* '],
+		'addSageBtn':   ['Кнопка Sage вместо "E-mail" ', 'Sage button instead of "E-mail" '],
 		'saveSage':     ['Запоминать сажу', 'Remember sage'],
 		'captchaLang': {
 			sel:        [['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus']],
@@ -3113,7 +3113,10 @@ function getCfgForm() {
 			updateCSS();
 		})),
 		$if(!aib.iich && pr.mail, $New('div', null, [
-			lBox('addSageBtn', false, null),
+			lBox('addSageBtn', false, function() {
+				PostForm.hideField(pr.mail);
+				updateCSS();
+			}),
 			lBox('saveSage', false, null)
 		])),
 		$if(pr.cap, optSel('captchaLang', true, null)),
@@ -14158,6 +14161,7 @@ function updateCSS() {
 		(Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ') +
 		(Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') +
 		(Cfg.delHiddPost ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') +
+		(Cfg.addSageBtn ? '' : '#de-sagebtn, ') +
 		(Cfg.noPostNames ? aib.qPostName + ', .' + aib.cPostTrip + ', ' : '') +
 		(Cfg.noBoardRule ? aib.qFormRules + ', ': '') +
 		(aib._2chruNet ? '' : '.thumbnailmsg, ') +
