@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'dd28de8';
+	var commit = 'e913482';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4980,7 +4980,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		init: function init(formEl) {
 			var imgLen = $Q(aib.qPostImg, formEl).length,
 			    isThr = aib.t;
-			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '\n\t\t<div id="de-main" lang="' + getThemeLang() + '">\n\t\t\t<div id="de-panel">\n\t\t\t\t<div id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '">\n\t\t\t\t\t<svg class="de-panel-logo-svg">\n\t\t\t\t\t\t<use xlink:href="#de-symbol-panel-logo"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id="de-panel-buttons"' + (Cfg.expandPanel ? '' : ' style="display: none;"') + '>\n\t\t\t\t' + (Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (!Cfg.addYouTube ? '' : this._getButton('vid')) + (localRun ? '' : this._getButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : this._getButton('goback')) + (isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) + this._getButton('goup') + this._getButton('godown') + (imgLen === 0 ? '' : this._getButton('expimg') + this._getButton('maskimg')) + (nav.Presto || localRun ? '' : (imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) + (!isThr ? '' : this._getButton('savethr'))) + (!isThr || localRun ? '' : this._getButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') + (nav.Safari ? '' : this._getButton('audio-off'))) + (!aib.mak && !aib.tiny && !aib.fch && !aib.iich ? '' : this._getButton('catalog')) + this._getButton('enable') + (!isThr ? '' : '\n\t\t\t\t\t\t<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">\n\t\t\t\t\t\t\t' + Thread.first.pcount + '/' + imgLen + '\n\t\t\t\t\t\t</span>')) + '\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t' + (Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">') + '\n\t\t</div>');
+			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '\n\t\t<div id="de-main" lang="' + getThemeLang() + '">\n\t\t\t<div id="de-panel">\n\t\t\t\t<div id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '">\n\t\t\t\t\t<svg class="de-panel-logo-svg">\n\t\t\t\t\t\t<use xlink:href="#de-symbol-panel-logo"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id="de-panel-buttons"' + (Cfg.expandPanel ? '' : ' style="display: none;"') + '>\n\t\t\t\t' + (Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (!Cfg.addYouTube ? '' : this._getButton('vid')) + (localRun ? '' : this._getButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : this._getButton('goback')) + (isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) + this._getButton('goup') + this._getButton('godown') + (imgLen === 0 ? '' : this._getButton('expimg') + this._getButton('maskimg')) + (nav.Presto || localRun ? '' : (imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) + (!isThr ? '' : this._getButton('savethr'))) + (!isThr || localRun ? '' : this._getButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') + (nav.Safari ? '' : this._getButton('audio-off'))) + (!aib.hasCatalog ? '' : this._getButton('catalog')) + this._getButton('enable') + (!isThr ? '' : '\n\t\t\t\t\t\t<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">\n\t\t\t\t\t\t\t' + Thread.first.pcount + '/' + imgLen + '\n\t\t\t\t\t\t</span>')) + '\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t' + (Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">') + '\n\t\t</div>');
 			this._el = $id('de-panel');
 			this._el.addEventListener('click', this, true);
 			this._el.addEventListener('mouseover', this);
@@ -15235,6 +15235,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.docExt = null;
 			this.ETag = null;
 			this.firstPage = 0;
+			this.hasCatalog = false;
 			this.hasOPNum = false;
 			this.hasPicWrap = false;
 			this.hasTextLinks = false;
@@ -15557,6 +15558,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_this46.qRPost = 'div.reply';
 				_this46.qTrunc = null;
 
+				_this46.hasCatalog = true;
 				_this46.hasOPNum = true;
 				_this46.hasPicWrap = true;
 				_this46.markupBB = true;
@@ -15814,6 +15816,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_this49.qTrunc = '.toolong';
 
 				_this49.firstPage = 1;
+				_this49.hasCatalog = true;
 				_this49.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 				_this49.thrid = 'thread';
 
@@ -15976,6 +15979,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_this52.cOPost = 'postnode';
 				_this52.qFormRedir = '#gotothread';
 
+				_this52.hasCatalog = true;
 				_this52.ru = true;
 				return _this52;
 			}
@@ -16438,6 +16442,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_this63.anchor = '#p';
 				_this63.docExt = '';
 				_this63.firstPage = 1;
+				_this63.hasCatalog = true;
 				_this63.hasTextLinks = true;
 				_this63.markupBB = true;
 				_this63.res = 'thread/';
@@ -16901,6 +16906,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var _this72 = _possibleConstructorReturn(this, Object.getPrototypeOf(Iichan).call(this, prot, dm));
 
 				_this72.iich = true;
+
+				_this72.hasCatalog = true;
 				return _this72;
 			}
 

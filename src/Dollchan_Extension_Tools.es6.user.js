@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'dd28de8';
+var commit = 'e913482';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1994,8 +1994,7 @@ var panel = Object.create({
 					(!isThr || localRun ? '' :
 						this._getButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') +
 						(nav.Safari ? '' : this._getButton('audio-off'))) +
-					(!aib.mak && !aib.tiny && !aib.fch && !aib.iich ? '' :
-						this._getButton('catalog')) +
+					(!aib.hasCatalog ? '' : this._getButton('catalog')) +
 					this._getButton('enable') +
 					(!isThr ? '' : `
 						<span id="de-panel-info" title="${ Lng.panelBtn.counter[lang] }">
@@ -11196,6 +11195,7 @@ class BaseBoard {
 		this.docExt = null;
 		this.ETag = null; // Used for $ajax only
 		this.firstPage = 0;
+		this.hasCatalog = false;
 		this.hasOPNum = false; // Sets in Makaba only
 		this.hasPicWrap = false;
 		this.hasTextLinks = false;
@@ -11431,6 +11431,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qRPost = 'div.reply';
 			this.qTrunc = null;
 
+			this.hasCatalog = true;
 			this.hasOPNum = true;
 			this.hasPicWrap = true;
 			this.markupBB = true;
@@ -11637,6 +11638,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qTrunc = '.toolong';
 
 			this.firstPage = 1;
+			this.hasCatalog = true;
 			this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 			this.thrid = 'thread';
 
@@ -11753,6 +11755,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.cOPost = 'postnode';
 			this.qFormRedir = '#gotothread';
 
+			this.hasCatalog = true;
 			this.ru = true;
 		}
 		get css() {
@@ -12063,6 +12066,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.anchor = '#p';
 			this.docExt = '';
 			this.firstPage = 1;
+			this.hasCatalog = true;
 			this.hasTextLinks = true;
 			this.markupBB = true;
 			this.res = 'thread/';
@@ -12382,6 +12386,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 			this.iich = true;
+
+			this.hasCatalog = true;
 		}
 		get css() {
 			return !this.t ? '' : `
