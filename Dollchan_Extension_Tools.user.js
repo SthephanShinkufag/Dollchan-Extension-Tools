@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'e913482';
+	var commit = 'f862df9';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15529,7 +15529,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function getImageBoard(checkDomains, checkEngines) {
 		var ibDomains = {};
-		var ibEngines = {};
+		var ibEngines = [];
 
 	
 
@@ -15720,7 +15720,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return Makaba;
 		})(BaseBoard);
 
-		ibEngines['body.makaba'] = Makaba;
+		ibEngines.push(['body.makaba', Makaba]);
 		ibDomains['2ch.hk'] = Makaba;
 		ibDomains['2ch.pm'] = Makaba;
 
@@ -15786,7 +15786,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return Futaba;
 		})(BaseBoard);
 
-		ibEngines['form[action*="futaba.php"]'] = Futaba;
+		ibEngines.push(['form[action*="futaba.php"]', Futaba]);
 
 		var Tinyboard = (function (_BaseBoard3) {
 			_inherits(Tinyboard, _BaseBoard3);
@@ -15874,7 +15874,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return Tinyboard;
 		})(BaseBoard);
 
-		ibEngines['form[name*="postcontrols"]'] = Tinyboard;
+		ibEngines.push(['form[name*="postcontrols"]', Tinyboard]);
 
 		var Vichan = (function (_Tinyboard) {
 			_inherits(Vichan, _Tinyboard);
@@ -15922,7 +15922,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return Vichan;
 		})(Tinyboard);
 
-		ibEngines['tr#upload'] = Vichan;
+		ibEngines.push(['tr#upload', Vichan]);
 
 		var Kusaba = (function (_BaseBoard4) {
 			_inherits(Kusaba, _BaseBoard4);
@@ -15966,7 +15966,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return Kusaba;
 		})(BaseBoard);
 
-		ibEngines['script[src*="kusaba"]'] = Kusaba;
+		ibEngines.push(['script[src*="kusaba"]', Kusaba]);
 
 		var _0chan = (function (_Kusaba) {
 			_inherits(_0chan, _Kusaba);
@@ -15994,7 +15994,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return _0chan;
 		})(Kusaba);
 
-		ibEngines['.maintable[width="98%"]'] = _0chan;
+		ibEngines.push(['.maintable[width="98%"]', _0chan]);
 
 		var Phutaba = (function (_BaseBoard5) {
 			_inherits(Phutaba, _BaseBoard5);
@@ -16055,7 +16055,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return Phutaba;
 		})(BaseBoard);
 
-		ibEngines['link[href$="phutaba.css"]'] = Phutaba;
+		ibEngines.push(['link[href$="phutaba.css"]', Phutaba]);
 
 	
 
@@ -17370,14 +17370,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return new ibDomains[dm](prot, dm);
 		}
 		if (checkEngines) {
-			var i,
-			    arr = [];
-			for (i in ibEngines) {
-				arr.push(i);
-			}
-			for (i = arr.length; i--;) {
-				if ($q(arr[i], doc)) {
-					return new ibEngines[arr[i]](prot, dm);
+			for (var i = ibEngines.length - 1; i >= 0; --i) {
+				var _ibEngines$i = _slicedToArray(ibEngines[i], 2);
+
+				var path = _ibEngines$i[0];
+				var Ctor = _ibEngines$i[1];
+
+				if ($q(path, doc)) {
+					return new Ctor(prot, dm);
 				}
 			}
 			return new BaseBoard(prot, dm);

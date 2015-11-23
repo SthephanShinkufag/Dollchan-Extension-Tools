@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'e913482';
+var commit = 'f862df9';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11408,7 +11408,7 @@ class BaseBoard {
 
 function getImageBoard(checkDomains, checkEngines) {
 	var ibDomains = {};
-	var ibEngines = {};
+	var ibEngines = [];
 
 	// Engines
 	class Makaba extends BaseBoard {
@@ -11567,7 +11567,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 		}
 	}
-	ibEngines['body.makaba'] = Makaba;
+	ibEngines.push(['body.makaba', Makaba]);
 	ibDomains['2ch.hk'] = Makaba;
 	ibDomains['2ch.pm'] = Makaba;
 
@@ -11613,7 +11613,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 		}
 	}
-	ibEngines['form[action*="futaba.php"]'] = Futaba;
+	ibEngines.push(['form[action*="futaba.php"]', Futaba]);
 
 	class Tinyboard extends BaseBoard {
 		constructor(prot, dm) {
@@ -11679,7 +11679,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibEngines['form[name*="postcontrols"]'] = Tinyboard;
+	ibEngines.push(['form[name*="postcontrols"]', Tinyboard]);
 
 	class Vichan extends Tinyboard {
 		constructor(prot, dm) {
@@ -11717,7 +11717,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibEngines['tr#upload'] = Vichan;
+	ibEngines.push(['tr#upload', Vichan]);
 
 	class Kusaba extends BaseBoard {
 		constructor(prot, dm) {
@@ -11746,7 +11746,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 		}
 	}
-	ibEngines['script[src*="kusaba"]'] = Kusaba;
+	ibEngines.push(['script[src*="kusaba"]', Kusaba]);
 
 	class _0chan extends Kusaba {
 		constructor(prot, dm) {
@@ -11762,7 +11762,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return super.css + '.content-background > hr, .uibutton { display: none; }';
 		}
 	}
-	ibEngines['.maintable[width="98%"]'] = _0chan;
+	ibEngines.push(['.maintable[width="98%"]', _0chan]);
 
 	class Phutaba extends BaseBoard {
 		constructor(prot, dm) {
@@ -11804,7 +11804,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return !!$q('.sage', post);
 		}
 	}
-	ibEngines['link[href$="phutaba.css"]'] = Phutaba;
+	ibEngines.push(['link[href$="phutaba.css"]', Phutaba]);
 
 	// Domains
 	class _0chanSo extends _0chan {
@@ -12716,13 +12716,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		return new ibDomains[dm](prot, dm);
 	}
 	if(checkEngines) {
-		var i, arr = [];
-		for(i in ibEngines) {
-			arr.push(i);
-		}
-		for(i = arr.length; i--;) {
-			if($q(arr[i], doc)) {
-				return new ibEngines[arr[i]](prot, dm);
+		for(var i = ibEngines.length - 1; i >= 0; --i) {
+			var [path, Ctor] = ibEngines[i];
+			if($q(path, doc)) {
+				return new Ctor(prot, dm);
 			}
 		}
 		return new BaseBoard(prot, dm);
