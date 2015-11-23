@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '8db7a79';
+var commit = '3b454d1';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7423,7 +7423,7 @@ class Captcha {
 					this.hasCaptcha = false;
 				}
 			});
-		} else {
+		} else if(this.hasCaptcha) {
 			this.initCaptcha(focus, true);
 		}
 	}
@@ -12423,8 +12423,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 			this.res = 'thread-';
 			this.timePattern = 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?';
-
-			this._capInitPromise = null;
 		}
 		get css() {
 			return `
@@ -12475,29 +12473,17 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		initCaptcha(cap) {
-			if(this._capInitPromise) {
-				this._capInitPromise.cancel();
-			}
-			return this._capInitPromise = new CancelablePromise((res, rej, cFn) => {
-				var handler = ({ data }) => {
-					if(data.substr(0, 11) === 'de-krau-cap') {
-						if(data.substr(11) === '1') {
-							this.updateCaptcha(cap);
-							res();
-						} else {
-							rej();
-						}
-						clear();
+			var scripts = $Q('script:not([src])', doc);
+			for(var i = 0, len = scripts.length; i < len; ++i) {
+				var m = scripts[i].textContent.match(/var boardRequiresCaptcha = ([a-z]+);/);
+				if(m) {
+					if(m[1] === 'false') {
+						cap.hasCaptcha = false;
 					}
-				};
-				var clear = () => {
-					this._capInitPromise = null;
-					doc.defaultView.removeEventListener('message', handler);
-				};
-				doc.defaultView.addEventListener('message', handler);
-				$script('window.postMessage("de-krau-cap" + (boardRequiresCaptcha ? "1" : "0"), "*");');
-				cFn(clear);
-			});
+					break;
+				}
+			}
+			return null;
 		}
 		insertYtPlayer(msg, playerHtml) {
 			var pMsg = msg.parentNode,
