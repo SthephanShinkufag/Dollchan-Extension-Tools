@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'a9bb582';
+	var commit = 'f5e8d7f';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -9955,26 +9955,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			aib.disableRedirection(el);
 		}
 		if (Cfg.ajaxReply === 2) {
-			if (aib.krau) {
-				this.form.removeAttribute('onsubmit');
-			}
-			setTimeout(function () {
-				_this13.form.onsubmit = function (e) {
-					$pd(e);
-					if (aib.krau) {
-						aib.addProgressTrack.click();
-					}
-					if (aib._2chruNet) {
-						doc.body.insertAdjacentHTML('beforeend', '<iframe class="ninja" id="csstest" src="/' + aib.b + '/csstest.foo"></iframe>');
-						doc.body.lastChild.onload = function (e) {
-							$del(e.target);
-							spawn(html5Submit, _this13.form, _this13.subm, true).then(doUploading);
-						};
-						return;
-					}
-					spawn(html5Submit, _this13.form, _this13.subm, true).then(doUploading);
-				};
-			}, 0);
+			this.form.onsubmit = function (e) {
+				$pd(e);
+				if (aib._2chruNet) {
+					doc.body.insertAdjacentHTML('beforeend', '<iframe class="ninja" id="csstest" src="/' + aib.b + '/csstest.foo"></iframe>');
+					doc.body.lastChild.onload = function (e) {
+						$del(e.target);
+						spawn(html5Submit, _this13.form, _this13.subm, true).then(doUploading);
+					};
+					return;
+				}
+				spawn(html5Submit, _this13.form, _this13.subm, true).then(doUploading);
+			};
 		} else if (Cfg.ajaxReply === 1) {
 			this.form.target = 'de-iframe-pform';
 			this.form.onsubmit = null;
@@ -10597,8 +10589,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function Captcha(el) {
 			_classCallCheck(this, Captcha);
 
-			this.init(el);
-			this._hasPromise = null;
+			this.hasCaptcha = true;
+			this.textEl = null;
+			this.trEl = el.tagName === 'TR' ? el : $parent(el, 'TR');
+			this._added = false;
+			this._lastUpdate = null;
+			this._originHTML = this.trEl.innerHTML;
+			this._isOldRecap = $id('recaptcha_widget_div');
+			$hide(this.trEl);
+			if (!this._isOldRecap) {
+				this.trEl.innerHTML = '';
+			}
 		}
 
 		_createClass(Captcha, [{
@@ -10607,12 +10608,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var _this18 = this;
 
 				var focus = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+				var updateHTML = arguments.length <= 1 || arguments[1] === undefined ? !this._isOldRecap : arguments[1];
 
 				if (this._added) {
 					return;
 				}
 				this._added = true;
-				if (!this._isOldRecap) {
+				if (updateHTML) {
 					this.trEl.innerHTML = this._originHTML;
 				}
 				this.textEl = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.trEl);
@@ -10622,16 +10624,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				if (initPromise) {
 					initPromise.then(function () {
-						return _this18._initCaptchaFuncs(focus, false);
+						return _this18.initCaptcha(focus, false);
 					}, function (e) {
 						if (e instanceof AjaxError) {
 							_this18._setUpdateError(e);
 						} else {
-							_this18._hasCaptcha = false;
+							_this18.hasCaptcha = false;
 						}
 					});
 				} else {
-					this._initCaptchaFuncs(focus, true);
+					this.initCaptcha(focus, true);
 				}
 			}
 		}, {
@@ -10670,19 +10672,32 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				e.stopPropagation();
 			}
 		}, {
-			key: 'init',
-			value: function init(el) {
-				this.textEl = null;
-				this.trEl = el.tagName === 'TR' ? el : $parent(el, 'TR');
-				this._added = false;
-				this._lastUpdate = null;
-				this._hasCaptcha = true;
-				this._originHTML = this.trEl.innerHTML;
-				this._isOldRecap = $id('recaptcha_widget_div');
-				$hide(this.trEl);
-				if (!this._isOldRecap) {
-					this.trEl.innerHTML = '';
+			key: 'initCaptcha',
+			value: function initCaptcha(focus, updateImage) {
+				if (!this.textEl) {
+					$show(this.trEl);
+					if (aib.updateCaptcha) {
+						aib.updateCaptcha(this, false);
+					}
+					return;
 				}
+				this.initTextEl();
+				var img;
+				if (this._isOldRecap || !(img = $q('img', this.trEl))) {
+					$show(this.trEl);
+					return;
+				}
+				this.initImage(img);
+				var a = img.parentNode;
+				if (a.tagName === 'A') {
+					$replace(a, img);
+				}
+				if (updateImage) {
+					this.update(focus, false);
+				} else {
+					this._lastUpdate = Date.now();
+				}
+				$show(this.trEl);
 			}
 		}, {
 			key: 'initImage',
@@ -10709,11 +10724,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.textEl.onfocus = null;
 			}
 		}, {
+			key: 'renewew',
+			value: function renewew() {
+				this._added = false;
+				this._originHTML = this.trEl.innerHTML;
+				this.add(false, false);
+			}
+		}, {
 			key: 'update',
 			value: function update(focus, isErr) {
 				var _this20 = this;
 
-				if (!this._hasCaptcha && !isErr) {
+				if (!this.hasCaptcha && !isErr) {
 					return;
 				}
 				if (!this._added) {
@@ -10732,7 +10754,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return;
 					}
 				} else {
-					if (!this.textEl || aib.krau && !$q('input[name="captcha_name"]', pr.form).hasAttribute('value')) {
+					if (!this.textEl) {
 						return;
 					}
 					if (this._isOldRecap) {
@@ -10751,34 +10773,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 				}
 				this._updateTextEl(focus);
-			}
-		}, {
-			key: '_initCaptchaFuncs',
-			value: function _initCaptchaFuncs(focus, updateImage) {
-				if (!this.textEl) {
-					$show(this.trEl);
-					if (aib.updateCaptcha) {
-						aib.updateCaptcha(this, false);
-					}
-					return;
-				}
-				this.initTextEl();
-				var img;
-				if (aib.krau || this._isOldRecap || !(img = $q('img', this.trEl))) {
-					$show(this.trEl);
-					return;
-				}
-				this.initImage(img);
-				var a = img.parentNode;
-				if (a.tagName === 'A') {
-					$replace(a, img);
-				}
-				if (updateImage) {
-					this.update(focus, false);
-				} else {
-					this._lastUpdate = Date.now();
-				}
-				$show(this.trEl);
 			}
 		}, {
 			key: '_setUpdateError',
@@ -10898,11 +10892,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}));
 
 	function checkUpload(dc) {
-		if (aib.krau) {
-			pr.form.action = pr.form.action.split('?')[0];
-			$hide($id('postform_row_progress'));
-			aib.btnZeroLUTime.click();
-		}
 		updater['continue']();
 		var err = getSubmitError(dc);
 		if (err) {
@@ -15672,6 +15661,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							var key = data.substr(6),
 							    src = '/makaba/captcha.fcgi?type=2chaptcha&action=image&id=' + key;
 							if (el = $id('de-image-captcha')) {
+								el.src = '';
 								el.src = src;
 							} else {
 								el = $q('.captcha-image', cap.trEl);
@@ -16559,8 +16549,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				value: function updateCaptcha(cap) {
 					var _this64 = this;
 
-					var needXHRErrors = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
-
 					if (this._capUpdPromise) {
 						this._capUpdPromise.cancel();
 					}
@@ -16575,9 +16563,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 					})['catch'](function (e) {
 						_this64._capUpdPromise = null;
-						if (needXHRErrors) {
-							return CancelablePromise.reject(e);
-						}
+						return CancelablePromise.reject(e);
 					});
 				}
 			}, {
@@ -16828,8 +16814,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						el.appendChild(img);
 						img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off" id="captcha" name="captcha" size="35" type="text">');
 						$show(img);
-						cap.init(img);
-						cap.add(true);
+						cap.renew();
 					}
 					return null;
 				}
@@ -16941,8 +16926,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				var _this72 = _possibleConstructorReturn(this, Object.getPrototypeOf(Krautchan).call(this, prot, dm));
 
-				_this72.krau = true;
-
 				_this72.cFileInfo = 'fileinfo';
 				_this72.cPostHeader = 'postheader';
 				_this72.cPostSubj = 'postsubject';
@@ -16960,13 +16943,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_this72.qRPost = '.postreply';
 				_this72.qTrunc = 'p[id^="post_truncated"]';
 
-				_this72.getCaptchaSrc = null;
 				_this72.hasPicWrap = true;
 				_this72.hasTextLinks = true;
 				_this72.markupBB = true;
 				_this72.multiFile = true;
 				_this72.res = 'thread-';
 				_this72.timePattern = 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?';
+
+				_this72._capInitPromise = null;
 				return _this72;
 			}
 
@@ -16999,12 +16983,38 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'init',
 				value: function init() {
-					doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' + '<div onclick="window.lastUpdateTime = 0;"></div>' + '<div onclick="setupProgressTracking();"></div>' + '<div onclick="highlightPost = function() {}"></div></div>' + '</div>');
-					var els = doc.body.lastChild.children;
-					this.btnZeroLUTime = els[0];
-					this.addProgressTrack = els[1];
-					els[2].click();
+					$script('highlightPost = function() {}');
 					return false;
+				}
+			}, {
+				key: 'initCaptcha',
+				value: function initCaptcha(cap) {
+					var _this73 = this;
+
+					if (this._capInitPromise) {
+						this._capInitPromise.cancel();
+					}
+					return this._capInitPromise = new CancelablePromise(function (res, rej, cFn) {
+						var handler = function handler(_ref43) {
+							var data = _ref43.data;
+
+							if (data.substr(0, 11) === 'de-krau-cap') {
+								if (data.substr(11) === '1') {
+									_this73.updateCaptcha(cap);
+									res();
+								} else {
+									rej();
+								}
+								clear();
+							}
+						};
+						var clear = function clear() {
+							return doc.defaultView.removeEventListener('message', handler);
+						};
+						doc.defaultView.addEventListener('message', handler);
+						$script('window.postMessage("de-krau-cap" + (boardRequiresCaptcha ? "1" : "0"), "*");');
+						cFn(clear);
+					});
 				}
 			}, {
 				key: 'insertYtPlayer',
@@ -17019,6 +17029,44 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				key: 'repFn',
 				value: function repFn(str) {
 					return str.replace(/href="(#\d+)"/g, 'href="/' + aib.b + '/thread-' + aib.t + '.html$1"').replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g, '<a class="de-ref-del" href="#$1">&gt;&gt;$1</a>');
+				}
+			}, {
+				key: 'updateCaptcha',
+				value: function updateCaptcha(cap, isErr) {
+					if (isErr && !cap.hasCaptcha) {
+						cap.hasCaptcha = true;
+						cap.initCaptcha(false, false);
+					}
+					var sessionId = null;
+					var cookie = doc.cookie;
+					if (cookie.includes('desuchan.session')) {
+						for (var _iterator26 = cookie.split(';'), _isArray26 = Array.isArray(_iterator26), _i27 = 0, _iterator26 = _isArray26 ? _iterator26 : _iterator26[Symbol.iterator]();;) {
+							var _ref44;
+
+							if (_isArray26) {
+								if (_i27 >= _iterator26.length) break;
+								_ref44 = _iterator26[_i27++];
+							} else {
+								_i27 = _iterator26.next();
+								if (_i27.done) break;
+								_ref44 = _i27.value;
+							}
+
+							var c = _ref44;
+
+							var m = c.match(/^\s*desuchan\.session=(.*)$/);
+							if (m) {
+								sessionId = unescape(m[1].replace(/\+/g, ' '));
+								break;
+							}
+						}
+					}
+					var id = this.brd + (pr.tNum ? pr.tNum : '') + (sessionId ? '-' + sessionId : '') + '-' + new Date().getTime() + '-' + Math.round(100000000 * Math.random());
+					var img = $q('img', cap.trEl);
+					img.src = '';
+					img.src = '/captcha?id=' + id;
+					$q('input[name="captcha_name"]', cap.trEl).value = id;
+					return null;
 				}
 			}, {
 				key: 'css',
@@ -17046,18 +17094,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return '.thread_body';
 				}
 			}, {
-				key: 'initCaptcha',
-				get: function get() {
-					doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;" onclick="if(boardRequiresCaptcha) { requestCaptcha(true); }"></div>');
-					var value = (function () {
-						this.click();
-						$id('captcha_image').setAttribute('onclick', 'requestCaptcha(true);');
-						return null;
-					}).bind(doc.body.lastChild);
-					Object.defineProperty(this, 'initCaptcha', { value: value });
-					return value;
-				}
-			}, {
 				key: 'markupTags',
 				get: function get() {
 					return ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'];
@@ -17075,10 +17111,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			function Lainchan(prot, dm) {
 				_classCallCheck(this, Lainchan);
 
-				var _this73 = _possibleConstructorReturn(this, Object.getPrototypeOf(Lainchan).call(this, prot, dm));
+				var _this74 = _possibleConstructorReturn(this, Object.getPrototypeOf(Lainchan).call(this, prot, dm));
 
-				_this73.cOPost = 'op';
-				return _this73;
+				_this74.cOPost = 'op';
+				return _this74;
 			}
 
 			_createClass(Lainchan, [{
@@ -17099,10 +17135,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			function MlpgCo(prot, dm) {
 				_classCallCheck(this, MlpgCo);
 
-				var _this74 = _possibleConstructorReturn(this, Object.getPrototypeOf(MlpgCo).call(this, prot, dm));
+				var _this75 = _possibleConstructorReturn(this, Object.getPrototypeOf(MlpgCo).call(this, prot, dm));
 
-				_this74.cOPost = 'opContainer';
-				return _this74;
+				_this75.cOPost = 'opContainer';
+				return _this75;
 			}
 
 			return MlpgCo;
@@ -17116,18 +17152,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			function Ponyach(prot, dm) {
 				_classCallCheck(this, Ponyach);
 
-				var _this75 = _possibleConstructorReturn(this, Object.getPrototypeOf(Ponyach).call(this, prot, dm));
+				var _this76 = _possibleConstructorReturn(this, Object.getPrototypeOf(Ponyach).call(this, prot, dm));
 
-				_this75.multiFile = true;
-				_this75.postMapInited = false;
-				_this75.thrid = 'replythread';
-				return _this75;
+				_this76.multiFile = true;
+				_this76.postMapInited = false;
+				_this76.thrid = 'replythread';
+				return _this76;
 			}
 
 			_createClass(Ponyach, [{
 				key: 'checkForm',
 				value: function checkForm(formEl, maybeSpells) {
-					var _this76 = this;
+					var _this77 = this;
 
 				
 					var myMaybeSpells = maybeSpells || new Maybe(SpellsRunner),
@@ -17135,17 +17171,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (!this.postMapInited) {
 						this.postMapInited = true;
 						$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', doc.body), function (pEl) {
-							return _this76.modifiedPosts.set(pEl, +pEl.getAttribute('data-lastmodified'));
+							return _this77.modifiedPosts.set(pEl, +pEl.getAttribute('data-lastmodified'));
 						});
 					}
 					$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', formEl), function (pEl) {
 						var nPost,
-						    post = pByNum.get(_this76.getPNum(pEl)),
+						    post = pByNum.get(_this77.getPNum(pEl)),
 						    pDate = +pEl.getAttribute('data-lastmodified');
-						if (post && (!_this76.modifiedPosts.has(pEl) || _this76.modifiedPosts.get(pEl) < pDate)) {
+						if (post && (!_this77.modifiedPosts.has(pEl) || _this77.modifiedPosts.get(pEl) < pDate)) {
 							var thr = post.thr,
 							    fragm = doc.createDocumentFragment();
-							_this76.modifiedPosts.set(pEl, pDate);
+							_this77.modifiedPosts.set(pEl, pDate);
 							nPost = thr.addPost(fragm, pEl, post.count, post.prev, maybeVParser);
 							if (thr.op === post) {
 								thr.op = nPost;
@@ -17209,10 +17245,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			function Ponychan(prot, dm) {
 				_classCallCheck(this, Ponychan);
 
-				var _this77 = _possibleConstructorReturn(this, Object.getPrototypeOf(Ponychan).call(this, prot, dm));
+				var _this78 = _possibleConstructorReturn(this, Object.getPrototypeOf(Ponychan).call(this, prot, dm));
 
-				_this77.cOPost = 'opContainer';
-				return _this77;
+				_this78.cOPost = 'opContainer';
+				return _this78;
 			}
 
 			_createClass(Ponychan, [{
@@ -17241,12 +17277,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			function Synch(prot, dm) {
 				_classCallCheck(this, Synch);
 
-				var _this78 = _possibleConstructorReturn(this, Object.getPrototypeOf(Synch).call(this, prot, dm));
+				var _this79 = _possibleConstructorReturn(this, Object.getPrototypeOf(Synch).call(this, prot, dm));
 
-				_this78.cFileInfo = 'unimportant';
+				_this79.cFileInfo = 'unimportant';
 
-				_this78.markupBB = true;
-				return _this78;
+				_this79.markupBB = true;
+				return _this79;
 			}
 
 			_createClass(Synch, [{
@@ -17292,10 +17328,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			function Uchan(prot, dm) {
 				_classCallCheck(this, Uchan);
 
-				var _this79 = _possibleConstructorReturn(this, Object.getPrototypeOf(Uchan).call(this, prot, dm));
+				var _this80 = _possibleConstructorReturn(this, Object.getPrototypeOf(Uchan).call(this, prot, dm));
 
-				_this79.qFormRedir = '#noko';
-				return _this79;
+				_this80.qFormRedir = '#noko';
+				return _this80;
 			}
 
 			_createClass(Uchan, [{
@@ -17748,7 +17784,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			},
 			play: function play() {
-				var _this80 = this;
+				var _this81 = this;
 
 				this.stop();
 				if (this.repeatMS === 0) {
@@ -17756,7 +17792,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return;
 				}
 				this._playInterval = setInterval(function () {
-					return _this80._el.play();
+					return _this81._el.play();
 				}, this.repeatMS);
 			},
 			stop: function stop() {
@@ -17787,7 +17823,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				$hide(this._el);
 			},
 			count: function count(delayMS, useCounter, callback) {
-				var _this81 = this;
+				var _this82 = this;
 
 				if (this._enabled && useCounter) {
 					var seconds = delayMS / 1000;
@@ -17795,15 +17831,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this._countingIV = setInterval(function () {
 						seconds--;
 						if (seconds === 0) {
-							_this81._stop();
+							_this82._stop();
 							callback();
 						} else {
-							_this81._set(seconds);
+							_this82._set(seconds);
 						}
 					}, 1000);
 				} else {
 					this._countingTO = setTimeout(function () {
-						_this81._countingTO = null;
+						_this82._countingTO = null;
 						callback();
 					}, delayMS);
 				}
@@ -17883,7 +17919,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._iconEl = doc.head.firstChild;
 			},
 			_startBlink: function _startBlink(iconUrl) {
-				var _this82 = this;
+				var _this83 = this;
 
 				if (this._blinkInterval) {
 					if (this._currentIcon === iconUrl) {
@@ -17893,8 +17929,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				this._currentIcon = iconUrl;
 				this._blinkInterval = setInterval(function () {
-					_this82._setIcon(_this82._isOriginalIcon ? _this82._currentIcon : _this82.originalIcon);
-					_this82._isOriginalIcon = !_this82._isOriginalIcon;
+					_this83._setIcon(_this83._isOriginalIcon ? _this83._currentIcon : _this83.originalIcon);
+					_this83._isOriginalIcon = !_this83._isOriginalIcon;
 				}, this._blinkMS);
 			}
 		};
@@ -17914,7 +17950,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			},
 			show: function show() {
-				var _this83 = this;
+				var _this84 = this;
 
 				var post = Thread.first.last,
 				    notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
@@ -17924,8 +17960,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 				notif.onshow = function () {
 					return setTimeout(function () {
-						if (notif === _this83._notifEl) {
-							_this83.close();
+						if (notif === _this84._notifEl) {
+							_this84.close();
 						}
 					}, 12e3);
 				};
@@ -17934,7 +17970,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				};
 				notif.onerror = function () {
 					window.focus();
-					_this83._requestPermission();
+					_this84._requestPermission();
 				};
 				this._notifEl = notif;
 			},
@@ -17950,14 +17986,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_notifEl: null,
 
 			_requestPermission: function _requestPermission() {
-				var _this84 = this;
+				var _this85 = this;
 
 				this._granted = false;
 				Notification.requestPermission(function (state) {
 					if (state.toLowerCase() === 'denied') {
 						saveCfg('desktNotif', 0);
 					} else {
-						_this84._granted = true;
+						_this85._granted = true;
 					}
 				});
 			}
@@ -18058,7 +18094,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._makeStep();
 			},
 			_makeStep: function _makeStep() {
-				var _this85 = this;
+				var _this86 = this;
 
 				var needSleep = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
 
@@ -18067,7 +18103,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						if (needSleep) {
 							this._state = 1;
 							counter.count(this._delay, !doc.hidden, function () {
-								return _this85._makeStep();
+								return _this86._makeStep();
 							});
 							return;
 						}
@@ -18076,9 +18112,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						this._loadPromise = Thread.first.loadNew(true);
 						this._state = 2;
 						this._loadPromise.then(function (pCount) {
-							return _this85._handleNewPosts(pCount, AjaxError.success);
+							return _this86._handleNewPosts(pCount, AjaxError.success);
 						}, function (e) {
-							return _this85._handleNewPosts(0, e);
+							return _this86._handleNewPosts(0, e);
 						});
 						return;
 					case 2:
@@ -18231,8 +18267,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function initPage() {
 		if (!localRun && Cfg.ajaxReply === 1) {
 			doc.body.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-pform" sandbox="" src="about:blank" style="display: none;"></iframe>' + '<iframe name="de-iframe-dform" sandbox="" src="about:blank" style="display: none;"></iframe>');
-			doc.defaultView.addEventListener('message', function (_ref43) {
-				var data = _ref43.data;
+			doc.defaultView.addEventListener('message', function (_ref45) {
+				var data = _ref45.data;
 
 				switch (data.substr(0, 15)) {
 					case 'de-iframe-pform':
