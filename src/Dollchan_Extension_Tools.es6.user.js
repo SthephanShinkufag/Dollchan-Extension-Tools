@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'f5e8d7f';
+var commit = '8db7a79';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12490,7 +12490,10 @@ function getImageBoard(checkDomains, checkEngines) {
 						clear();
 					}
 				};
-				var clear = () => doc.defaultView.removeEventListener('message', handler);
+				var clear = () => {
+					this._capInitPromise = null;
+					doc.defaultView.removeEventListener('message', handler);
+				};
 				doc.defaultView.addEventListener('message', handler);
 				$script('window.postMessage("de-krau-cap" + (boardRequiresCaptcha ? "1" : "0"), "*");');
 				cFn(clear);
@@ -12524,7 +12527,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					}
 				}
 			}
-			var id = this.brd + (pr.tNum ? pr.tNum : '') + (sessionId ? '-' + sessionId : '') +
+			var id = this.b + (pr.tNum ? pr.tNum : '') + (sessionId ? '-' + sessionId : '') +
 				'-' + new Date().getTime() + '-' + Math.round(100000000 * Math.random());
 			var img = $q('img', cap.trEl);
 			img.src = '';
