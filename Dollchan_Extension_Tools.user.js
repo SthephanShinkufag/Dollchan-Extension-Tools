@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'c8fcad9';
+	var commit = 'a9bb582';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15245,6 +15245,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.firstPage = 0;
 			this.hasOPNum = false;
 			this.hasPicWrap = false;
+			this.hasTextLinks = false;
 			this.host = window.location.hostname;
 			this.LastModified = null;
 			this.markupBB = false;
@@ -15505,6 +15506,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] : ['**', '*', '', '^H', '%%', '`', '', '', 'q'];
 			}
 		}, {
+			key: 'needRep',
+			get: function get() {
+			
+				return dTime || Spells.reps || Cfg.crossLinks || this.repFn || this.hasTextLinks;
+			}
+		}, {
 			key: 'reCrossLinks',
 			get: function get() {
 			
@@ -15513,11 +15520,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return val;
 			}
 		}, {
-			key: 'rep',
+			key: 'repFn',
 			get: function get() {
-				var val = dTime || Spells.reps || Cfg.crossLinks;
-				Object.defineProperty(this, 'rep', { value: val });
-				return val;
+				return null;
 			}
 		}, {
 			key: 'updateCaptcha',
@@ -16280,6 +16285,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return null;
 				}
 			}, {
+				key: 'repFn',
+				value: function repFn(str) {
+					return str.replace(/data-original="\//g, 'src="/');
+				}
+			}, {
 				key: 'css',
 				get: function get() {
 					return 'span[id$="_display"], #fastload { display: none; }';
@@ -16418,6 +16428,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_this62.anchor = '#p';
 				_this62.docExt = '';
 				_this62.firstPage = 1;
+				_this62.hasTextLinks = true;
 				_this62.markupBB = true;
 				_this62.res = 'thread/';
 				_this62.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
@@ -16460,6 +16471,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return false;
 				}
 			}, {
+				key: 'repFn',
+				value: function repFn(str) {
+					return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
+				}
+			}, {
 				key: 'css',
 				get: function get() {
 					return '\n\t\t\t.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }\n\t\t\t.postForm { display: table !important; width: auto !important; }\n\t\t\ttextarea { margin-right: 0 !important; }';
@@ -16478,11 +16494,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				key: 'markupTags',
 				get: function get() {
 					return ['', '', '', '', 'spoiler', '', '', '', 'q'];
-				}
-			}, {
-				key: 'rep',
-				get: function get() {
-					return true;
 				}
 			}, {
 				key: 'updateCaptcha',
@@ -16951,6 +16962,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				_this72.getCaptchaSrc = null;
 				_this72.hasPicWrap = true;
+				_this72.hasTextLinks = true;
 				_this72.markupBB = true;
 				_this72.multiFile = true;
 				_this72.res = 'thread-';
@@ -17004,6 +17016,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return node.previousSibling;
 				}
 			}, {
+				key: 'repFn',
+				value: function repFn(str) {
+					return str.replace(/href="(#\d+)"/g, 'href="/' + aib.b + '/thread-' + aib.t + '.html$1"').replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g, '<a class="de-ref-del" href="#$1">&gt;&gt;$1</a>');
+				}
+			}, {
 				key: 'css',
 				get: function get() {
 					return '\n\t\t\timg[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none; }\n\t\t\t.de-thr-hid { float: none; }\n\t\t\t.de-video-obj + div { clear: left; }\n\t\t\tdiv[id^="Wz"] { z-index: 10000 !important; }\n\t\t\t.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\n\t\t\tform[action="/paint"] > select { width: 105px; }\n\t\t\tform[action="/paint"] > input[type="text"] { width: 24px !important; }';
@@ -17044,11 +17061,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				key: 'markupTags',
 				get: function get() {
 					return ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'];
-				}
-			}, {
-				key: 'rep',
-				get: function get() {
-					return true;
 				}
 			}]);
 
@@ -17515,7 +17527,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'doReplace',
 			value: function doReplace(formEl) {
-				if (aib.rep) {
+				if (aib.needRep) {
 					formEl.insertAdjacentHTML('beforebegin', replaceString(formEl.outerHTML));
 					$hide(formEl);
 					formEl.id = 'de-dform-old';
@@ -17689,15 +17701,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (dTime) {
 			txt = dTime.fix(txt);
 		}
-		if (aib.fch || aib.krau) {
-			if (aib.fch) {
-				txt = txt.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
-			}
-			if (aib.krau) {
-				txt = txt.replace(/href="(#\d+)"/g, 'href="/' + aib.b + '/thread-' + aib.t + '.html$1"').replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g, '<a class="de-ref-del" href="#$1">&gt;&gt;$1</a>');
-			}
+		if (aib.repFn) {
+			txt = aib.repFn(txt);
+		}
+		if (aib.hasTextLinks) {
 			txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig, function (x, a, b, c) {
-				return c ? x : a + '<a href="' + b + '">' + b + '</a>';
+				return c ? x : a + '<a rel="noreferrer" href="' + b + '">' + b + '</a>';
 			});
 		}
 		if (Spells.reps) {
@@ -17712,7 +17721,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function replacePost(el) {
-		if (aib.rep) {
+		if (aib.needRep) {
 			el.innerHTML = replaceString(el.innerHTML);
 		}
 		return el;

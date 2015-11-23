@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'c8fcad9';
+var commit = 'a9bb582';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11206,6 +11206,7 @@ class BaseBoard {
 		this.firstPage = 0;
 		this.hasOPNum = false; // Sets in Makaba only
 		this.hasPicWrap = false;
+		this.hasTextLinks = false;
 		this.host = window.location.hostname;
 		this.LastModified = null; // Used for $ajax only
 		this.markupBB = false;
@@ -11275,16 +11276,17 @@ class BaseBoard {
 		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] :
 			['**', '*', '', '^H', '%%', '`', '', '', 'q'];
 	}
+	get needRep() { // Sets here only
+		return dTime || Spells.reps || Cfg.crossLinks || this.repFn || this.hasTextLinks;
+	}
 	get reCrossLinks() { // Sets here only
 		var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' +
 			regQuote(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
 		Object.defineProperty(this, 'reCrossLinks', { value: val });
 		return val;
 	}
-	get rep() {
-		var val = dTime || Spells.reps || Cfg.crossLinks;
-		Object.defineProperty(this, 'rep', { value: val });
-		return val;
+	get repFn() {
+		return null;
 	}
 	get updateCaptcha() {
 		return null;
@@ -11972,6 +11974,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			$id('captchadiv').innerHTML = '<img style="vertical-align: bottom;" id="imgcaptcha" />';
 			return null;
 		}
+		repFn(str) {
+			return str.replace(/data-original="\//g, 'src="/');
+		}
 	}
 	ibDomains['2--ch.ru'] = _2chRu;
 	ibDomains['2-ch.su'] = _2chRu;
@@ -12060,6 +12065,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.anchor = '#p';
 			this.docExt = '';
 			this.firstPage = 1;
+			this.hasTextLinks = true;
 			this.markupBB = true;
 			this.res = 'thread/';
 			this.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
@@ -12081,9 +12087,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get markupTags() {
 			return ['', '', '', '', 'spoiler', '', '', '', 'q'];
-		}
-		get rep() {
-			return true;
 		}
 		get updateCaptcha() {
 			var el = $id('captchaFormPart'),
@@ -12119,6 +12122,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			Cfg.findImgFile = 0;
 			return false;
+		}
+		repFn(str) {
+			return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
 		}
 	}
 	ibDomains['4chan.org'] = _4chanOrg;
@@ -12428,6 +12434,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.getCaptchaSrc = null;
 			this.hasPicWrap= true;
+			this.hasTextLinks = true;
 			this.markupBB = true;
 			this.multiFile = true;
 			this.res = 'thread-';
@@ -12468,9 +12475,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'];
 		}
-		get rep() {
-			return true;
-		}
 		fixFileInputs(el) {
 			var str = '';
 			for(var i = 0, len = 4; i < len; ++i) {
@@ -12508,6 +12512,11 @@ function getImageBoard(checkDomains, checkEngines) {
 				node = prev.hasAttribute('style') ? prev : pMsg;
 			node.insertAdjacentHTML('beforebegin', playerHtml);
 			return node.previousSibling;
+		}
+		repFn(str) {
+			return str.replace(/href="(#\d+)"/g, 'href="/' + aib.b + '/thread-' + aib.t + '.html$1"')
+				.replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g,
+					'<a class="de-ref-del" href="#$1">&gt;&gt;$1</a>');
 		}
 	}
 	ibDomains['krautchan.net'] = Krautchan;
@@ -13038,7 +13047,7 @@ class DelForm {
 		};
 	}
 	static doReplace(formEl) {
-		if(aib.rep) {
+		if(aib.needRep) {
 			formEl.insertAdjacentHTML('beforebegin', replaceString(formEl.outerHTML));
 			$hide(formEl);
 			formEl.id = 'de-dform-old';
@@ -13187,17 +13196,12 @@ function replaceString(txt) {
 	if(dTime) {
 		txt = dTime.fix(txt);
 	}
-	if(aib.fch || aib.krau) {
-		if(aib.fch) {
-			txt = txt.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
-		}
-		if(aib.krau) {
-			txt = txt.replace(/href="(#\d+)"/g, 'href="/' + aib.b + '/thread-' + aib.t + '.html$1"').
-				replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g,
-					'<a class="de-ref-del" href="#$1">&gt;&gt;$1</a>');
-		}
+	if(aib.repFn) {
+		txt = aib.repFn(txt);
+	}
+	if(aib.hasTextLinks) {
 		txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig, function(x, a, b, c) {
-			return c ? x : a + '<a href="' + b + '">' + b + '</a>';
+			return c ? x : a + '<a rel="noreferrer" href="' + b + '">' + b + '</a>';
 		});
 	}
 	if(Spells.reps) {
@@ -13212,7 +13216,7 @@ function replaceString(txt) {
 }
 
 function replacePost(el) {
-	if(aib.rep) {
+	if(aib.needRep) {
 		el.innerHTML = replaceString(el.innerHTML);
 	}
 	return el;
