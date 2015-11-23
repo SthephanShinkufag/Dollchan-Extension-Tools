@@ -175,7 +175,7 @@ module.exports = function(it){
 'use strict';
 var $            = require('./$')
   , hide         = require('./$.hide')
-  , mix          = require('./$.mix')
+  , redefineAll  = require('./$.redefine-all')
   , ctx          = require('./$.ctx')
   , strictNew    = require('./$.strict-new')
   , defined      = require('./$.defined')
@@ -225,7 +225,7 @@ module.exports = {
       that[SIZE] = 0;          
       if(iterable != undefined)forOf(iterable, IS_MAP, that[ADDER], that);
     });
-    mix(C.prototype, {
+    redefineAll(C.prototype, {
      
      
       clear: function clear(){
@@ -331,7 +331,7 @@ module.exports = {
     setSpecies(NAME);
   }
 };
-},{"./$":51,"./$.ctx":25,"./$.defined":27,"./$.descriptors":28,"./$.for-of":33,"./$.has":36,"./$.hide":37,"./$.is-object":43,"./$.iter-define":47,"./$.iter-step":49,"./$.mix":55,"./$.set-species":61,"./$.strict-new":65,"./$.uid":74}],21:[function(require,module,exports){
+},{"./$":51,"./$.ctx":25,"./$.defined":26,"./$.descriptors":27,"./$.for-of":33,"./$.has":36,"./$.hide":37,"./$.is-object":43,"./$.iter-define":47,"./$.iter-step":49,"./$.redefine-all":57,"./$.set-species":61,"./$.strict-new":65,"./$.uid":74}],21:[function(require,module,exports){
 
 var forOf   = require('./$.for-of')
   , classof = require('./$.classof');
@@ -345,19 +345,19 @@ module.exports = function(NAME){
 };
 },{"./$.classof":18,"./$.for-of":33}],22:[function(require,module,exports){
 'use strict';
-var hide         = require('./$.hide')
-  , mix          = require('./$.mix')
-  , anObject     = require('./$.an-object')
-  , strictNew    = require('./$.strict-new')
-  , forOf        = require('./$.for-of')
-  , method       = require('./$.array-methods')
-  , WEAK         = require('./$.uid')('weak')
-  , isObject     = require('./$.is-object')
-  , $has         = require('./$.has')
-  , isExtensible = Object.isExtensible || isObject
-  , find         = method(5)
-  , findIndex    = method(6)
-  , id           = 0;
+var hide              = require('./$.hide')
+  , redefineAll       = require('./$.redefine-all')
+  , anObject          = require('./$.an-object')
+  , isObject          = require('./$.is-object')
+  , strictNew         = require('./$.strict-new')
+  , forOf             = require('./$.for-of')
+  , createArrayMethod = require('./$.array-methods')
+  , $has              = require('./$.has')
+  , WEAK              = require('./$.uid')('weak')
+  , isExtensible      = Object.isExtensible || isObject
+  , arrayFind         = createArrayMethod(5)
+  , arrayFindIndex    = createArrayMethod(6)
+  , id                = 0;
 
 
 var frozenStore = function(that){
@@ -367,7 +367,7 @@ var FrozenStore = function(){
   this.a = [];
 };
 var findFrozen = function(store, key){
-  return find(store.a, function(it){
+  return arrayFind(store.a, function(it){
     return it[0] === key;
   });
 };
@@ -385,7 +385,7 @@ FrozenStore.prototype = {
     else this.a.push([key, value]);
   },
   'delete': function(key){
-    var index = findIndex(this.a, function(it){
+    var index = arrayFindIndex(this.a, function(it){
       return it[0] === key;
     });
     if(~index)this.a.splice(index, 1);
@@ -401,7 +401,7 @@ module.exports = {
       that._l = undefined;
       if(iterable != undefined)forOf(iterable, IS_MAP, that[ADDER], that);
     });
-    mix(C.prototype, {
+    redefineAll(C.prototype, {
      
      
       'delete': function(key){
@@ -430,12 +430,12 @@ module.exports = {
   frozenStore: frozenStore,
   WEAK: WEAK
 };
-},{"./$.an-object":15,"./$.array-methods":16,"./$.for-of":33,"./$.has":36,"./$.hide":37,"./$.is-object":43,"./$.mix":55,"./$.strict-new":65,"./$.uid":74}],23:[function(require,module,exports){
+},{"./$.an-object":15,"./$.array-methods":16,"./$.for-of":33,"./$.has":36,"./$.hide":37,"./$.is-object":43,"./$.redefine-all":57,"./$.strict-new":65,"./$.uid":74}],23:[function(require,module,exports){
 'use strict';
 var global         = require('./$.global')
-  , $def           = require('./$.def')
-  , $redef         = require('./$.redef')
-  , mix            = require('./$.mix')
+  , $export        = require('./$.export')
+  , redefine       = require('./$.redefine')
+  , redefineAll    = require('./$.redefine-all')
   , forOf          = require('./$.for-of')
   , strictNew      = require('./$.strict-new')
   , isObject       = require('./$.is-object')
@@ -451,7 +451,7 @@ module.exports = function(NAME, wrapper, methods, common, IS_MAP, IS_WEAK){
     , O     = {};
   var fixMethod = function(KEY){
     var fn = proto[KEY];
-    $redef(proto, KEY,
+    redefine(proto, KEY,
       KEY == 'delete' ? function(a){
         return IS_WEAK && !isObject(a) ? false : fn.call(this, a === 0 ? 0 : a);
       } : KEY == 'has' ? function has(a){
@@ -467,7 +467,7 @@ module.exports = function(NAME, wrapper, methods, common, IS_MAP, IS_WEAK){
   }))){
    
     C = common.getConstructor(wrapper, NAME, IS_MAP, ADDER);
-    mix(C.prototype, methods);
+    redefineAll(C.prototype, methods);
   } else {
     var instance             = new C
      
@@ -504,14 +504,14 @@ module.exports = function(NAME, wrapper, methods, common, IS_MAP, IS_WEAK){
   setToStringTag(C, NAME);
 
   O[NAME] = C;
-  $def($def.G + $def.W + $def.F * (C != Base), O);
+  $export($export.G + $export.W + $export.F * (C != Base), O);
 
   if(!IS_WEAK)common.setStrong(C, NAME, IS_MAP);
 
   return C;
 };
-},{"./$.def":26,"./$.fails":32,"./$.for-of":33,"./$.global":35,"./$.is-object":43,"./$.iter-detect":48,"./$.mix":55,"./$.redef":58,"./$.set-to-string-tag":62,"./$.strict-new":65}],24:[function(require,module,exports){
-var core = module.exports = {version: '1.2.5'};
+},{"./$.export":30,"./$.fails":32,"./$.for-of":33,"./$.global":35,"./$.is-object":43,"./$.iter-detect":48,"./$.redefine":58,"./$.redefine-all":57,"./$.set-to-string-tag":62,"./$.strict-new":65}],24:[function(require,module,exports){
+var core = module.exports = {version: '1.2.6'};
 if(typeof __e == 'number')__e = core;
 },{}],25:[function(require,module,exports){
 
@@ -535,60 +535,17 @@ module.exports = function(fn, that, length){
   };
 };
 },{"./$.a-function":13}],26:[function(require,module,exports){
-var global     = require('./$.global')
-  , core       = require('./$.core')
-  , hide       = require('./$.hide')
-  , $redef     = require('./$.redef')
-  , PROTOTYPE  = 'prototype';
-var ctx = function(fn, that){
-  return function(){
-    return fn.apply(that, arguments);
-  };
-};
-var $def = function(type, name, source){
-  var key, own, out, exp
-    , isGlobal = type & $def.G
-    , isProto  = type & $def.P
-    , target   = isGlobal ? global : type & $def.S
-        ? global[name] || (global[name] = {}) : (global[name] || {})[PROTOTYPE]
-    , exports  = isGlobal ? core : core[name] || (core[name] = {});
-  if(isGlobal)source = name;
-  for(key in source){
-   
-    own = !(type & $def.F) && target && key in target;
-   
-    out = (own ? target : source)[key];
-   
-    if(type & $def.B && own)exp = ctx(out, global);
-    else exp = isProto && typeof out == 'function' ? ctx(Function.call, out) : out;
-   
-    if(target && !own)$redef(target, key, out);
-   
-    if(exports[key] != out)hide(exports, key, exp);
-    if(isProto)(exports[PROTOTYPE] || (exports[PROTOTYPE] = {}))[key] = out;
-  }
-};
-global.core = core;
-
-$def.F = 1; 
-$def.G = 2; 
-$def.S = 4; 
-$def.P = 8; 
-$def.B = 16;
-$def.W = 32;
-module.exports = $def;
-},{"./$.core":24,"./$.global":35,"./$.hide":37,"./$.redef":58}],27:[function(require,module,exports){
 
 module.exports = function(it){
   if(it == undefined)throw TypeError("Can't call method on  " + it);
   return it;
 };
-},{}],28:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 
 module.exports = !require('./$.fails')(function(){
   return Object.defineProperty({}, 'a', {get: function(){ return 7; }}).a != 7;
 });
-},{"./$.fails":32}],29:[function(require,module,exports){
+},{"./$.fails":32}],28:[function(require,module,exports){
 var isObject = require('./$.is-object')
   , document = require('./$.global').document
  
@@ -596,7 +553,7 @@ var isObject = require('./$.is-object')
 module.exports = function(it){
   return is ? document.createElement(it) : {};
 };
-},{"./$.global":35,"./$.is-object":43}],30:[function(require,module,exports){
+},{"./$.global":35,"./$.is-object":43}],29:[function(require,module,exports){
 
 var $ = require('./$');
 module.exports = function(it){
@@ -611,7 +568,49 @@ module.exports = function(it){
   }
   return keys;
 };
-},{"./$":51}],31:[function(require,module,exports){
+},{"./$":51}],30:[function(require,module,exports){
+var global    = require('./$.global')
+  , core      = require('./$.core')
+  , hide      = require('./$.hide')
+  , redefine  = require('./$.redefine')
+  , ctx       = require('./$.ctx')
+  , PROTOTYPE = 'prototype';
+
+var $export = function(type, name, source){
+  var IS_FORCED = type & $export.F
+    , IS_GLOBAL = type & $export.G
+    , IS_STATIC = type & $export.S
+    , IS_PROTO  = type & $export.P
+    , IS_BIND   = type & $export.B
+    , target    = IS_GLOBAL ? global : IS_STATIC ? global[name] || (global[name] = {}) : (global[name] || {})[PROTOTYPE]
+    , exports   = IS_GLOBAL ? core : core[name] || (core[name] = {})
+    , expProto  = exports[PROTOTYPE] || (exports[PROTOTYPE] = {})
+    , key, own, out, exp;
+  if(IS_GLOBAL)source = name;
+  for(key in source){
+   
+    own = !IS_FORCED && target && key in target;
+   
+    out = (own ? target : source)[key];
+   
+    exp = IS_BIND && own ? ctx(out, global) : IS_PROTO && typeof out == 'function' ? ctx(Function.call, out) : out;
+   
+    if(target && !own)redefine(target, key, out);
+   
+    if(exports[key] != out)hide(exports, key, exp);
+    if(IS_PROTO && expProto[key] != out)expProto[key] = out;
+  }
+};
+global.core = core;
+
+$export.F = 1; 
+$export.G = 2; 
+$export.S = 4; 
+$export.P = 8; 
+$export.B = 16;
+$export.W = 32;
+module.exports = $export;
+},{"./$.core":24,"./$.ctx":25,"./$.global":35,"./$.hide":37,"./$.redefine":58}],31:[function(require,module,exports){
 var MATCH = require('./$.wks')('match');
 module.exports = function(KEY){
   var re = /./;
@@ -654,9 +653,9 @@ module.exports = function(iterable, entries, fn, that){
 };
 },{"./$.an-object":15,"./$.ctx":25,"./$.is-array-iter":41,"./$.iter-call":45,"./$.to-length":72,"./core.get-iterator-method":76}],34:[function(require,module,exports){
 
-var toString  = {}.toString
-  , toIObject = require('./$.to-iobject')
-  , getNames  = require('./$').getNames;
+var toIObject = require('./$.to-iobject')
+  , getNames  = require('./$').getNames
+  , toString  = {}.toString;
 
 var windowNames = typeof window == 'object' && Object.getOwnPropertyNames
   ? Object.getOwnPropertyNames(window) : [];
@@ -692,7 +691,7 @@ module.exports = require('./$.descriptors') ? function(object, key, value){
   object[key] = value;
   return object;
 };
-},{"./$":51,"./$.descriptors":28,"./$.property-desc":57}],38:[function(require,module,exports){
+},{"./$":51,"./$.descriptors":27,"./$.property-desc":56}],38:[function(require,module,exports){
 module.exports = require('./$.global').document && document.documentElement;
 },{"./$.global":35}],39:[function(require,module,exports){
 
@@ -724,7 +723,7 @@ var Iterators  = require('./$.iterators')
   , ArrayProto = Array.prototype;
 
 module.exports = function(it){
-  return (Iterators.Array || ArrayProto[ITERATOR]) === it;
+  return it !== undefined && (Iterators.Array === it || ArrayProto[ITERATOR] === it);
 };
 },{"./$.iterators":50,"./$.wks":75}],42:[function(require,module,exports){
 
@@ -772,24 +771,26 @@ module.exports = function(Constructor, NAME, next){
   Constructor.prototype = $.create(IteratorPrototype, {next: descriptor(1, next)});
   setToStringTag(Constructor, NAME + ' Iterator');
 };
-},{"./$":51,"./$.hide":37,"./$.property-desc":57,"./$.set-to-string-tag":62,"./$.wks":75}],47:[function(require,module,exports){
+},{"./$":51,"./$.hide":37,"./$.property-desc":56,"./$.set-to-string-tag":62,"./$.wks":75}],47:[function(require,module,exports){
 'use strict';
-var LIBRARY         = require('./$.library')
-  , $def            = require('./$.def')
-  , $redef          = require('./$.redef')
-  , hide            = require('./$.hide')
-  , has             = require('./$.has')
-  , SYMBOL_ITERATOR = require('./$.wks')('iterator')
-  , Iterators       = require('./$.iterators')
-  , $iterCreate     = require('./$.iter-create')
-  , setToStringTag  = require('./$.set-to-string-tag')
-  , getProto        = require('./$').getProto
-  , BUGGY           = !([].keys && 'next' in [].keys())
-  , FF_ITERATOR     = '@@iterator'
-  , KEYS            = 'keys'
-  , VALUES          = 'values';
+var LIBRARY        = require('./$.library')
+  , $export        = require('./$.export')
+  , redefine       = require('./$.redefine')
+  , hide           = require('./$.hide')
+  , has            = require('./$.has')
+  , Iterators      = require('./$.iterators')
+  , $iterCreate    = require('./$.iter-create')
+  , setToStringTag = require('./$.set-to-string-tag')
+  , getProto       = require('./$').getProto
+  , ITERATOR       = require('./$.wks')('iterator')
+  , BUGGY          = !([].keys && 'next' in [].keys())
+  , FF_ITERATOR    = '@@iterator'
+  , KEYS           = 'keys'
+  , VALUES         = 'values';
+
 var returnThis = function(){ return this; };
-module.exports = function(Base, NAME, Constructor, next, DEFAULT, IS_SET, FORCE){
+
+module.exports = function(Base, NAME, Constructor, next, DEFAULT, IS_SET, FORCED){
   $iterCreate(Constructor, NAME, next);
   var getMethod = function(kind){
     if(!BUGGY && kind in proto)return proto[kind];
@@ -798,39 +799,46 @@ module.exports = function(Base, NAME, Constructor, next, DEFAULT, IS_SET, FORCE)
       case VALUES: return function values(){ return new Constructor(this, kind); };
     } return function entries(){ return new Constructor(this, kind); };
   };
-  var TAG      = NAME + ' Iterator'
-    , proto    = Base.prototype
-    , _native  = proto[SYMBOL_ITERATOR] || proto[FF_ITERATOR] || DEFAULT && proto[DEFAULT]
-    , _default = _native || getMethod(DEFAULT)
+  var TAG        = NAME + ' Iterator'
+    , DEF_VALUES = DEFAULT == VALUES
+    , VALUES_BUG = false
+    , proto      = Base.prototype
+    , $native    = proto[ITERATOR] || proto[FF_ITERATOR] || DEFAULT && proto[DEFAULT]
+    , $default   = $native || getMethod(DEFAULT)
     , methods, key;
  
-  if(_native){
-    var IteratorPrototype = getProto(_default.call(new Base));
+  if($native){
+    var IteratorPrototype = getProto($default.call(new Base));
    
     setToStringTag(IteratorPrototype, TAG, true);
    
-    if(!LIBRARY && has(proto, FF_ITERATOR))hide(IteratorPrototype, SYMBOL_ITERATOR, returnThis);
+    if(!LIBRARY && has(proto, FF_ITERATOR))hide(IteratorPrototype, ITERATOR, returnThis);
+   
+    if(DEF_VALUES && $native.name !== VALUES){
+      VALUES_BUG = true;
+      $default = function values(){ return $native.call(this); };
+    }
   }
  
-  if((!LIBRARY || FORCE) && (BUGGY || !(SYMBOL_ITERATOR in proto))){
-    hide(proto, SYMBOL_ITERATOR, _default);
+  if((!LIBRARY || FORCED) && (BUGGY || VALUES_BUG || !proto[ITERATOR])){
+    hide(proto, ITERATOR, $default);
   }
  
-  Iterators[NAME] = _default;
+  Iterators[NAME] = $default;
   Iterators[TAG]  = returnThis;
   if(DEFAULT){
     methods = {
-      values:  DEFAULT == VALUES ? _default : getMethod(VALUES),
-      keys:    IS_SET            ? _default : getMethod(KEYS),
-      entries: DEFAULT != VALUES ? _default : getMethod('entries')
+      values:  DEF_VALUES  ? $default : getMethod(VALUES),
+      keys:    IS_SET      ? $default : getMethod(KEYS),
+      entries: !DEF_VALUES ? $default : getMethod('entries')
     };
-    if(FORCE)for(key in methods){
-      if(!(key in proto))$redef(proto, key, methods[key]);
-    } else $def($def.P + $def.F * BUGGY, NAME, methods);
+    if(FORCED)for(key in methods){
+      if(!(key in proto))redefine(proto, key, methods[key]);
+    } else $export($export.P + $export.F * (BUGGY || VALUES_BUG), NAME, methods);
   }
   return methods;
 };
-},{"./$":51,"./$.def":26,"./$.has":36,"./$.hide":37,"./$.iter-create":46,"./$.iterators":50,"./$.library":53,"./$.redef":58,"./$.set-to-string-tag":62,"./$.wks":75}],48:[function(require,module,exports){
+},{"./$":51,"./$.export":30,"./$.has":36,"./$.hide":37,"./$.iter-create":46,"./$.iterators":50,"./$.library":53,"./$.redefine":58,"./$.set-to-string-tag":62,"./$.wks":75}],48:[function(require,module,exports){
 var ITERATOR     = require('./$.wks')('iterator')
   , SAFE_CLOSING = false;
 
@@ -890,19 +898,21 @@ var global    = require('./$.global')
   , macrotask = require('./$.task').set
   , Observer  = global.MutationObserver || global.WebKitMutationObserver
   , process   = global.process
+  , Promise   = global.Promise
   , isNode    = require('./$.cof')(process) == 'process'
   , head, last, notify;
 
 var flush = function(){
-  var parent, domain;
+  var parent, domain, fn;
   if(isNode && (parent = process.domain)){
     process.domain = null;
     parent.exit();
   }
   while(head){
     domain = head.domain;
+    fn     = head.fn;
     if(domain)domain.enter();
-    head.fn.call();
+    fn();
     if(domain)domain.exit();
     head = head.next;
   } last = undefined;
@@ -921,6 +931,11 @@ if(isNode){
   new Observer(flush).observe(node, {characterData: true});
   notify = function(){
     node.data = toggle = -toggle;
+  };
+
+} else if(Promise && Promise.resolve){
+  notify = function(){
+    Promise.resolve().then(flush);
   };
 
 
@@ -944,12 +959,6 @@ module.exports = function asap(fn){
   } last = task;
 };
 },{"./$.cof":19,"./$.global":35,"./$.task":69}],55:[function(require,module,exports){
-var $redef = require('./$.redef');
-module.exports = function(target, src){
-  for(var key in src)$redef(target, key, src[key]);
-  return target;
-};
-},{"./$.redef":58}],56:[function(require,module,exports){
 
 var $        = require('./$')
   , toObject = require('./$.to-object')
@@ -983,7 +992,7 @@ module.exports = require('./$.fails')(function(){
   }
   return T;
 } : Object.assign;
-},{"./$":51,"./$.fails":32,"./$.iobject":40,"./$.to-object":73}],57:[function(require,module,exports){
+},{"./$":51,"./$.fails":32,"./$.iobject":40,"./$.to-object":73}],56:[function(require,module,exports){
 module.exports = function(bitmap, value){
   return {
     enumerable  : !(bitmap & 1),
@@ -992,7 +1001,13 @@ module.exports = function(bitmap, value){
     value       : value
   };
 };
-},{}],58:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
+var redefine = require('./$.redefine');
+module.exports = function(target, src){
+  for(var key in src)redefine(target, key, src[key]);
+  return target;
+};
+},{"./$.redefine":58}],58:[function(require,module,exports){
 
 
 var global    = require('./$.global')
@@ -1065,7 +1080,7 @@ module.exports = function(KEY){
     get: function(){ return this; }
   });
 };
-},{"./$":51,"./$.descriptors":28,"./$.global":35,"./$.wks":75}],62:[function(require,module,exports){
+},{"./$":51,"./$.descriptors":27,"./$.global":35,"./$.wks":75}],62:[function(require,module,exports){
 var def = require('./$').setDesc
   , has = require('./$.has')
   , TAG = require('./$.wks')('toStringTag');
@@ -1107,13 +1122,12 @@ module.exports = function(TO_STRING){
       , a, b;
     if(i < 0 || i >= l)return TO_STRING ? '' : undefined;
     a = s.charCodeAt(i);
-    return a < 0xd800 || a > 0xdbff || i + 1 === l
-      || (b = s.charCodeAt(i + 1)) < 0xdc00 || b > 0xdfff
-        ? TO_STRING ? s.charAt(i) : a
-        : TO_STRING ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
+    return a < 0xd800 || a > 0xdbff || i + 1 === l || (b = s.charCodeAt(i + 1)) < 0xdc00 || b > 0xdfff
+      ? TO_STRING ? s.charAt(i) : a
+      : TO_STRING ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
   };
 };
-},{"./$.defined":27,"./$.to-integer":70}],67:[function(require,module,exports){
+},{"./$.defined":26,"./$.to-integer":70}],67:[function(require,module,exports){
 
 var isRegExp = require('./$.is-regexp')
   , defined  = require('./$.defined');
@@ -1122,7 +1136,7 @@ module.exports = function(that, searchString, NAME){
   if(isRegExp(searchString))throw TypeError('String#' + NAME + " doesn't accept regex!");
   return String(defined(that));
 };
-},{"./$.defined":27,"./$.is-regexp":44}],68:[function(require,module,exports){
+},{"./$.defined":26,"./$.is-regexp":44}],68:[function(require,module,exports){
 'use strict';
 var toInteger = require('./$.to-integer')
   , defined   = require('./$.defined');
@@ -1135,8 +1149,7 @@ module.exports = function repeat(count){
   for(;n > 0; (n >>>= 1) && (str += str))if(n & 1)res += str;
   return res;
 };
-},{"./$.defined":27,"./$.to-integer":70}],69:[function(require,module,exports){
-'use strict';
+},{"./$.defined":26,"./$.to-integer":70}],69:[function(require,module,exports){
 var ctx                = require('./$.ctx')
   , invoke             = require('./$.invoke')
   , html               = require('./$.html')
@@ -1212,7 +1225,7 @@ module.exports = {
   set:   setTask,
   clear: clearTask
 };
-},{"./$.cof":19,"./$.ctx":25,"./$.dom-create":29,"./$.global":35,"./$.html":38,"./$.invoke":39}],70:[function(require,module,exports){
+},{"./$.cof":19,"./$.ctx":25,"./$.dom-create":28,"./$.global":35,"./$.html":38,"./$.invoke":39}],70:[function(require,module,exports){
 
 var ceil  = Math.ceil
   , floor = Math.floor;
@@ -1226,7 +1239,7 @@ var IObject = require('./$.iobject')
 module.exports = function(it){
   return IObject(defined(it));
 };
-},{"./$.defined":27,"./$.iobject":40}],72:[function(require,module,exports){
+},{"./$.defined":26,"./$.iobject":40}],72:[function(require,module,exports){
 
 var toInteger = require('./$.to-integer')
   , min       = Math.min;
@@ -1239,7 +1252,7 @@ var defined = require('./$.defined');
 module.exports = function(it){
   return Object(defined(it));
 };
-},{"./$.defined":27}],74:[function(require,module,exports){
+},{"./$.defined":26}],74:[function(require,module,exports){
 var id = 0
   , px = Math.random();
 module.exports = function(key){
@@ -1265,13 +1278,13 @@ module.exports = require('./$.core').getIteratorMethod = function(it){
 },{"./$.classof":18,"./$.core":24,"./$.iterators":50,"./$.wks":75}],77:[function(require,module,exports){
 'use strict';
 var ctx         = require('./$.ctx')
-  , $def        = require('./$.def')
+  , $export     = require('./$.export')
   , toObject    = require('./$.to-object')
   , call        = require('./$.iter-call')
   , isArrayIter = require('./$.is-array-iter')
   , toLength    = require('./$.to-length')
   , getIterFn   = require('./core.get-iterator-method');
-$def($def.S + $def.F * !require('./$.iter-detect')(function(iter){ Array.from(iter); }), 'Array', {
+$export($export.S + $export.F * !require('./$.iter-detect')(function(iter){ Array.from(iter); }), 'Array', {
  
   from: function from(arrayLike){
     var O       = toObject(arrayLike)
@@ -1300,7 +1313,7 @@ $def($def.S + $def.F * !require('./$.iter-detect')(function(iter){ Array.from(it
   }
 });
 
-},{"./$.ctx":25,"./$.def":26,"./$.is-array-iter":41,"./$.iter-call":45,"./$.iter-detect":48,"./$.to-length":72,"./$.to-object":73,"./core.get-iterator-method":76}],78:[function(require,module,exports){
+},{"./$.ctx":25,"./$.export":30,"./$.is-array-iter":41,"./$.iter-call":45,"./$.iter-detect":48,"./$.to-length":72,"./$.to-object":73,"./core.get-iterator-method":76}],78:[function(require,module,exports){
 'use strict';
 var addToUnscopables = require('./$.add-to-unscopables')
   , step             = require('./$.iter-step')
@@ -1355,37 +1368,37 @@ require('./$.collection')('Map', function(get){
 }, strong, true);
 },{"./$.collection":23,"./$.collection-strong":20}],80:[function(require,module,exports){
 
-var $def = require('./$.def');
+var $export = require('./$.export');
 
-$def($def.S, 'Math', {
+$export($export.S, 'Math', {
   clz32: function clz32(x){
     return (x >>>= 0) ? 31 - Math.floor(Math.log(x + 0.5) * Math.LOG2E) : 32;
   }
 });
-},{"./$.def":26}],81:[function(require,module,exports){
+},{"./$.export":30}],81:[function(require,module,exports){
 
-var $def = require('./$.def');
+var $export = require('./$.export');
 
-$def($def.S + $def.F, 'Object', {assign: require('./$.object-assign')});
-},{"./$.def":26,"./$.object-assign":56}],82:[function(require,module,exports){
+$export($export.S + $export.F, 'Object', {assign: require('./$.object-assign')});
+},{"./$.export":30,"./$.object-assign":55}],82:[function(require,module,exports){
 'use strict';
 
 var classof = require('./$.classof')
   , test    = {};
 test[require('./$.wks')('toStringTag')] = 'z';
 if(test + '' != '[object z]'){
-  require('./$.redef')(Object.prototype, 'toString', function toString(){
+  require('./$.redefine')(Object.prototype, 'toString', function toString(){
     return '[object ' + classof(this) + ']';
   }, true);
 }
-},{"./$.classof":18,"./$.redef":58,"./$.wks":75}],83:[function(require,module,exports){
+},{"./$.classof":18,"./$.redefine":58,"./$.wks":75}],83:[function(require,module,exports){
 'use strict';
 var $          = require('./$')
   , LIBRARY    = require('./$.library')
   , global     = require('./$.global')
   , ctx        = require('./$.ctx')
   , classof    = require('./$.classof')
-  , $def       = require('./$.def')
+  , $export    = require('./$.export')
   , isObject   = require('./$.is-object')
   , anObject   = require('./$.an-object')
   , aFunction  = require('./$.a-function')
@@ -1395,7 +1408,6 @@ var $          = require('./$')
   , same       = require('./$.same-value')
   , SPECIES    = require('./$.wks')('species')
   , speciesConstructor = require('./$.species-constructor')
-  , RECORD     = require('./$.uid')('record')
   , asap       = require('./$.microtask')
   , PROMISE    = 'Promise'
   , process    = global.process
@@ -1409,7 +1421,7 @@ var testResolve = function(sub){
   return P.resolve(test) === test;
 };
 
-var useNative = function(){
+var USE_NATIVE = function(){
   var works = false;
   function P2(x){
     var self = new P(x);
@@ -1437,9 +1449,6 @@ var useNative = function(){
 }();
 
 
-var isPromise = function(it){
-  return isObject(it) && (useNative ? classof(it) == 'Promise' : RECORD in it);
-};
 var sameConstructor = function(a, b){
  
   if(LIBRARY && a === P && b === Wrapper)return true;
@@ -1453,6 +1462,23 @@ var isThenable = function(it){
   var then;
   return isObject(it) && typeof (then = it.then) == 'function' ? then : false;
 };
+var PromiseCapability = function(C){
+  var resolve, reject;
+  this.promise = new C(function($$resolve, $$reject){
+    if(resolve !== undefined || reject !== undefined)throw TypeError('Bad Promise constructor');
+    resolve = $$resolve;
+    reject  = $$reject;
+  });
+  this.resolve = aFunction(resolve),
+  this.reject  = aFunction(reject)
+};
+var perform = function(exec){
+  try {
+    exec();
+  } catch(e){
+    return {error: e};
+  }
+};
 var notify = function(record, isReject){
   if(record.n)return;
   record.n = true;
@@ -1461,21 +1487,23 @@ var notify = function(record, isReject){
     var value = record.v
       , ok    = record.s == 1
       , i     = 0;
-    var run = function(react){
-      var cb = ok ? react.ok : react.fail
-        , ret, then;
+    var run = function(reaction){
+      var handler = ok ? reaction.ok : reaction.fail
+        , resolve = reaction.resolve
+        , reject  = reaction.reject
+        , result, then;
       try {
-        if(cb){
+        if(handler){
           if(!ok)record.h = true;
-          ret = cb === true ? value : cb(value);
-          if(ret === react.P){
-            react.rej(TypeError('Promise-chain cycle'));
-          } else if(then = isThenable(ret)){
-            then.call(ret, react.res, react.rej);
-          } else react.res(ret);
-        } else react.rej(value);
-      } catch(err){
-        react.rej(err);
+          result = handler === true ? value : handler(value);
+          if(result === reaction.promise){
+            reject(TypeError('Promise-chain cycle'));
+          } else if(then = isThenable(result)){
+            then.call(result, resolve, reject);
+          } else resolve(result);
+        } else reject(value);
+      } catch(e){
+        reject(e);
       }
     };
     while(chain.length > i)run(chain[i++]);
@@ -1497,14 +1525,14 @@ var notify = function(record, isReject){
   });
 };
 var isUnhandled = function(promise){
-  var record = promise[RECORD]
+  var record = promise._d
     , chain  = record.a || record.c
     , i      = 0
-    , react;
+    , reaction;
   if(record.h)return false;
   while(chain.length > i){
-    react = chain[i++];
-    if(react.fail || !isUnhandled(react.P))return false;
+    reaction = chain[i++];
+    if(reaction.fail || !isUnhandled(reaction.promise))return false;
   } return true;
 };
 var $reject = function(value){
@@ -1524,6 +1552,7 @@ var $resolve = function(value){
   record.d = true;
   record = record.r || record;
   try {
+    if(record.p === value)throw TypeError("Promise can't be resolved itself");
     if(then = isThenable(value)){
       asap(function(){
         var wrapper = {r: record, d: false};
@@ -1544,11 +1573,11 @@ var $resolve = function(value){
 };
 
 
-if(!useNative){
+if(!USE_NATIVE){
  
   P = function Promise(executor){
     aFunction(executor);
-    var record = {
+    var record = this._d = {
       p: strictNew(this, P, PROMISE),        
       c: [],                                 
       a: undefined,                          
@@ -1558,29 +1587,22 @@ if(!useNative){
       h: false,                              
       n: false                               
     };
-    this[RECORD] = record;
     try {
       executor(ctx($resolve, record, 1), ctx($reject, record, 1));
     } catch(err){
       $reject.call(record, err);
     }
   };
-  require('./$.mix')(P.prototype, {
+  require('./$.redefine-all')(P.prototype, {
    
     then: function then(onFulfilled, onRejected){
-      var react = {
-        ok:   typeof onFulfilled == 'function' ? onFulfilled : true,
-        fail: typeof onRejected == 'function'  ? onRejected  : false
-      };
-      var promise = react.P = new (speciesConstructor(this, P))(function(res, rej){
-        react.res = res;
-        react.rej = rej;
-      });
-      aFunction(react.res);
-      aFunction(react.rej);
-      var record = this[RECORD];
-      record.c.push(react);
-      if(record.a)record.a.push(react);
+      var reaction = new PromiseCapability(speciesConstructor(this, P))
+        , promise  = reaction.promise
+        , record   = this._d;
+      reaction.ok   = typeof onFulfilled == 'function' ? onFulfilled : true;
+      reaction.fail = typeof onRejected == 'function' && onRejected;
+      record.c.push(reaction);
+      if(record.a)record.a.push(reaction);
       if(record.s)notify(record, false);
       return promise;
     },
@@ -1591,57 +1613,75 @@ if(!useNative){
   });
 }
 
-
-$def($def.G + $def.W + $def.F * !useNative, {Promise: P});
+$export($export.G + $export.W + $export.F * !USE_NATIVE, {Promise: P});
 require('./$.set-to-string-tag')(P, PROMISE);
 require('./$.set-species')(PROMISE);
 Wrapper = require('./$.core')[PROMISE];
 
 
-$def($def.S + $def.F * !useNative, PROMISE, {
+$export($export.S + $export.F * !USE_NATIVE, PROMISE, {
  
   reject: function reject(r){
-    return new this(function(res, rej){ rej(r); });
+    var capability = new PromiseCapability(this)
+      , $$reject   = capability.reject;
+    $$reject(r);
+    return capability.promise;
   }
 });
-$def($def.S + $def.F * (!useNative || testResolve(true)), PROMISE, {
+$export($export.S + $export.F * (!USE_NATIVE || testResolve(true)), PROMISE, {
  
   resolve: function resolve(x){
-    return isPromise(x) && sameConstructor(x.constructor, this)
-      ? x : new this(function(res){ res(x); });
+   
+    if(x instanceof P && sameConstructor(x.constructor, this))return x;
+    var capability = new PromiseCapability(this)
+      , $$resolve  = capability.resolve;
+    $$resolve(x);
+    return capability.promise;
   }
 });
-$def($def.S + $def.F * !(useNative && require('./$.iter-detect')(function(iter){
+$export($export.S + $export.F * !(USE_NATIVE && require('./$.iter-detect')(function(iter){
   P.all(iter)['catch'](function(){});
 })), PROMISE, {
  
   all: function all(iterable){
-    var C      = getConstructor(this)
-      , values = [];
-    return new C(function(res, rej){
+    var C          = getConstructor(this)
+      , capability = new PromiseCapability(C)
+      , resolve    = capability.resolve
+      , reject     = capability.reject
+      , values     = [];
+    var abrupt = perform(function(){
       forOf(iterable, false, values.push, values);
       var remaining = values.length
         , results   = Array(remaining);
       if(remaining)$.each.call(values, function(promise, index){
+        var alreadyCalled = false;
         C.resolve(promise).then(function(value){
+          if(alreadyCalled)return;
+          alreadyCalled = true;
           results[index] = value;
-          --remaining || res(results);
-        }, rej);
+          --remaining || resolve(results);
+        }, reject);
       });
-      else res(results);
+      else resolve(results);
     });
+    if(abrupt)reject(abrupt.error);
+    return capability.promise;
   },
  
   race: function race(iterable){
-    var C = getConstructor(this);
-    return new C(function(res, rej){
+    var C          = getConstructor(this)
+      , capability = new PromiseCapability(C)
+      , reject     = capability.reject;
+    var abrupt = perform(function(){
       forOf(iterable, false, function(promise){
-        C.resolve(promise).then(res, rej);
+        C.resolve(promise).then(capability.resolve, reject);
       });
     });
+    if(abrupt)reject(abrupt.error);
+    return capability.promise;
   }
 });
-},{"./$":51,"./$.a-function":13,"./$.an-object":15,"./$.classof":18,"./$.core":24,"./$.ctx":25,"./$.def":26,"./$.descriptors":28,"./$.for-of":33,"./$.global":35,"./$.is-object":43,"./$.iter-detect":48,"./$.library":53,"./$.microtask":54,"./$.mix":55,"./$.same-value":59,"./$.set-proto":60,"./$.set-species":61,"./$.set-to-string-tag":62,"./$.species-constructor":64,"./$.strict-new":65,"./$.uid":74,"./$.wks":75}],84:[function(require,module,exports){
+},{"./$":51,"./$.a-function":13,"./$.an-object":15,"./$.classof":18,"./$.core":24,"./$.ctx":25,"./$.descriptors":27,"./$.export":30,"./$.for-of":33,"./$.global":35,"./$.is-object":43,"./$.iter-detect":48,"./$.library":53,"./$.microtask":54,"./$.redefine-all":57,"./$.same-value":59,"./$.set-proto":60,"./$.set-species":61,"./$.set-to-string-tag":62,"./$.species-constructor":64,"./$.strict-new":65,"./$.wks":75}],84:[function(require,module,exports){
 'use strict';
 var strong = require('./$.collection-strong');
 
@@ -1657,16 +1697,17 @@ require('./$.collection')('Set', function(get){
 },{"./$.collection":23,"./$.collection-strong":20}],85:[function(require,module,exports){
 
 'use strict';
-var $def     = require('./$.def')
+var $export  = require('./$.export')
   , context  = require('./$.string-context')
   , INCLUDES = 'includes';
 
-$def($def.P + $def.F * require('./$.fails-is-regexp')(INCLUDES), 'String', {
+$export($export.P + $export.F * require('./$.fails-is-regexp')(INCLUDES), 'String', {
   includes: function includes(searchString ){
-    return !!~context(this, searchString, INCLUDES).indexOf(searchString, arguments.length > 1 ? arguments[1] : undefined);
+    return !!~context(this, searchString, INCLUDES)
+      .indexOf(searchString, arguments.length > 1 ? arguments[1] : undefined);
   }
 });
-},{"./$.def":26,"./$.fails-is-regexp":31,"./$.string-context":67}],86:[function(require,module,exports){
+},{"./$.export":30,"./$.fails-is-regexp":31,"./$.string-context":67}],86:[function(require,module,exports){
 'use strict';
 var $at  = require('./$.string-at')(true);
 
@@ -1685,22 +1726,22 @@ require('./$.iter-define')(String, 'String', function(iterated){
   return {value: point, done: false};
 });
 },{"./$.iter-define":47,"./$.string-at":66}],87:[function(require,module,exports){
-var $def = require('./$.def');
+var $export = require('./$.export');
 
-$def($def.P, 'String', {
+$export($export.P, 'String', {
  
   repeat: require('./$.string-repeat')
 });
-},{"./$.def":26,"./$.string-repeat":68}],88:[function(require,module,exports){
+},{"./$.export":30,"./$.string-repeat":68}],88:[function(require,module,exports){
 
 'use strict';
-var $def        = require('./$.def')
+var $export     = require('./$.export')
   , toLength    = require('./$.to-length')
   , context     = require('./$.string-context')
   , STARTS_WITH = 'startsWith'
   , $startsWith = ''[STARTS_WITH];
 
-$def($def.P + $def.F * require('./$.fails-is-regexp')(STARTS_WITH), 'String', {
+$export($export.P + $export.F * require('./$.fails-is-regexp')(STARTS_WITH), 'String', {
   startsWith: function startsWith(searchString ){
     var that   = context(this, searchString, STARTS_WITH)
       , $$     = arguments
@@ -1711,15 +1752,15 @@ $def($def.P + $def.F * require('./$.fails-is-regexp')(STARTS_WITH), 'String', {
       : that.slice(index, index + search.length) === search;
   }
 });
-},{"./$.def":26,"./$.fails-is-regexp":31,"./$.string-context":67,"./$.to-length":72}],89:[function(require,module,exports){
+},{"./$.export":30,"./$.fails-is-regexp":31,"./$.string-context":67,"./$.to-length":72}],89:[function(require,module,exports){
 'use strict';
 
 var $              = require('./$')
   , global         = require('./$.global')
   , has            = require('./$.has')
   , DESCRIPTORS    = require('./$.descriptors')
-  , $def           = require('./$.def')
-  , $redef         = require('./$.redef')
+  , $export        = require('./$.export')
+  , redefine       = require('./$.redefine')
   , $fails         = require('./$.fails')
   , shared         = require('./$.shared')
   , setToStringTag = require('./$.set-to-string-tag')
@@ -1855,7 +1896,7 @@ if(!useNative){
     if(isSymbol(this))throw TypeError('Symbol is not a constructor');
     return wrap(uid(arguments.length > 0 ? arguments[0] : undefined));
   };
-  $redef($Symbol.prototype, 'toString', function toString(){
+  redefine($Symbol.prototype, 'toString', function toString(){
     return this._k;
   });
 
@@ -1872,7 +1913,7 @@ if(!useNative){
   $.getSymbols = $getOwnPropertySymbols;
 
   if(DESCRIPTORS && !require('./$.library')){
-    $redef(ObjectProto, 'propertyIsEnumerable', $propertyIsEnumerable, true);
+    redefine(ObjectProto, 'propertyIsEnumerable', $propertyIsEnumerable, true);
   }
 }
 
@@ -1911,11 +1952,11 @@ $.each.call((
 
 setter = true;
 
-$def($def.G + $def.W, {Symbol: $Symbol});
+$export($export.G + $export.W, {Symbol: $Symbol});
 
-$def($def.S, 'Symbol', symbolStatics);
+$export($export.S, 'Symbol', symbolStatics);
 
-$def($def.S + $def.F * !useNative, 'Object', {
+$export($export.S + $export.F * !useNative, 'Object', {
  
   create: $create,
  
@@ -1931,7 +1972,7 @@ $def($def.S + $def.F * !useNative, 'Object', {
 });
 
 
-$JSON && $def($def.S + $def.F * (!useNative || buggyJSON), 'JSON', {stringify: $stringify});
+$JSON && $export($export.S + $export.F * (!useNative || buggyJSON), 'JSON', {stringify: $stringify});
 
 
 setToStringTag($Symbol, 'Symbol');
@@ -1939,10 +1980,10 @@ setToStringTag($Symbol, 'Symbol');
 setToStringTag(Math, 'Math', true);
 
 setToStringTag(global.JSON, 'JSON', true);
-},{"./$":51,"./$.an-object":15,"./$.def":26,"./$.descriptors":28,"./$.enum-keys":30,"./$.fails":32,"./$.get-names":34,"./$.global":35,"./$.has":36,"./$.is-array":42,"./$.keyof":52,"./$.library":53,"./$.property-desc":57,"./$.redef":58,"./$.set-to-string-tag":62,"./$.shared":63,"./$.to-iobject":71,"./$.uid":74,"./$.wks":75}],90:[function(require,module,exports){
+},{"./$":51,"./$.an-object":15,"./$.descriptors":27,"./$.enum-keys":29,"./$.export":30,"./$.fails":32,"./$.get-names":34,"./$.global":35,"./$.has":36,"./$.is-array":42,"./$.keyof":52,"./$.library":53,"./$.property-desc":56,"./$.redefine":58,"./$.set-to-string-tag":62,"./$.shared":63,"./$.to-iobject":71,"./$.uid":74,"./$.wks":75}],90:[function(require,module,exports){
 'use strict';
 var $            = require('./$')
-  , redef        = require('./$.redef')
+  , redefine     = require('./$.redefine')
   , weak         = require('./$.collection-weak')
   , isObject     = require('./$.is-object')
   , has          = require('./$.has')
@@ -1973,7 +2014,7 @@ if(new $WeakMap().set((Object.freeze || Object)(tmp), 7).get(tmp) != 7){
   $.each.call(['delete', 'has', 'get', 'set'], function(key){
     var proto  = $WeakMap.prototype
       , method = proto[key];
-    redef(proto, key, function(a, b){
+    redefine(proto, key, function(a, b){
      
       if(isObject(a) && !isExtensible(a)){
         var result = frozenStore(this)[key](a, b);
@@ -1983,17 +2024,17 @@ if(new $WeakMap().set((Object.freeze || Object)(tmp), 7).get(tmp) != 7){
     });
   });
 }
-},{"./$":51,"./$.collection":23,"./$.collection-weak":22,"./$.has":36,"./$.is-object":43,"./$.redef":58}],91:[function(require,module,exports){
+},{"./$":51,"./$.collection":23,"./$.collection-weak":22,"./$.has":36,"./$.is-object":43,"./$.redefine":58}],91:[function(require,module,exports){
 
-var $def  = require('./$.def');
+var $export  = require('./$.export');
 
-$def($def.P, 'Map', {toJSON: require('./$.collection-to-json')('Map')});
-},{"./$.collection-to-json":21,"./$.def":26}],92:[function(require,module,exports){
+$export($export.P, 'Map', {toJSON: require('./$.collection-to-json')('Map')});
+},{"./$.collection-to-json":21,"./$.export":30}],92:[function(require,module,exports){
 
-var $def  = require('./$.def');
+var $export  = require('./$.export');
 
-$def($def.P, 'Set', {toJSON: require('./$.collection-to-json')('Set')});
-},{"./$.collection-to-json":21,"./$.def":26}],93:[function(require,module,exports){
+$export($export.P, 'Set', {toJSON: require('./$.collection-to-json')('Set')});
+},{"./$.collection-to-json":21,"./$.export":30}],93:[function(require,module,exports){
 require('./es6.array.iterator');
 var global      = require('./$.global')
   , hide        = require('./$.hide')
@@ -2004,8 +2045,8 @@ var global      = require('./$.global')
   , NLProto     = NL && NL.prototype
   , HTCProto    = HTC && HTC.prototype
   , ArrayValues = Iterators.NodeList = Iterators.HTMLCollection = Iterators.Array;
-if(NL && !(ITERATOR in NLProto))hide(NLProto, ITERATOR, ArrayValues);
-if(HTC && !(ITERATOR in HTCProto))hide(HTCProto, ITERATOR, ArrayValues);
+if(NLProto && !NLProto[ITERATOR])hide(NLProto, ITERATOR, ArrayValues);
+if(HTCProto && !HTCProto[ITERATOR])hide(HTCProto, ITERATOR, ArrayValues);
 },{"./$.global":35,"./$.hide":37,"./$.iterators":50,"./$.wks":75,"./es6.array.iterator":78}],94:[function(require,module,exports){
 
 
@@ -2106,8 +2147,9 @@ process.umask = function() { return 0; };
 
   var hasOwn = Object.prototype.hasOwnProperty;
   var undefined;
-  var iteratorSymbol =
-    typeof Symbol === "function" && Symbol.iterator || "@@iterator";
+  var $Symbol = typeof Symbol === "function" ? Symbol : {};
+  var iteratorSymbol = $Symbol.iterator || "@@iterator";
+  var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
 
   var inModule = typeof module === "object";
   var runtime = global.regeneratorRuntime;
@@ -2129,11 +2171,11 @@ process.umask = function() { return 0; };
   function wrap(innerFn, outerFn, self, tryLocsList) {
    
     var generator = Object.create((outerFn || Generator).prototype);
+    var context = new Context(tryLocsList || []);
 
-    generator._invoke = makeInvokeMethod(
-      innerFn, self || null,
-      new Context(tryLocsList || [])
-    );
+   
+   
+    generator._invoke = makeInvokeMethod(innerFn, self, context);
 
     return generator;
   }
@@ -2177,7 +2219,7 @@ process.umask = function() { return 0; };
   var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
   GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
   GeneratorFunctionPrototype.constructor = GeneratorFunction;
-  GeneratorFunction.displayName = "GeneratorFunction";
+  GeneratorFunctionPrototype[toStringTagSymbol] = GeneratorFunction.displayName = "GeneratorFunction";
 
  
  
@@ -2200,7 +2242,14 @@ process.umask = function() { return 0; };
   };
 
   runtime.mark = function(genFun) {
-    genFun.__proto__ = GeneratorFunctionPrototype;
+    if (Object.setPrototypeOf) {
+      Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
+    } else {
+      genFun.__proto__ = GeneratorFunctionPrototype;
+      if (!(toStringTagSymbol in genFun)) {
+        genFun[toStringTagSymbol] = "GeneratorFunction";
+      }
+    }
     genFun.prototype = Object.create(Gp);
     return genFun;
   };
@@ -2219,68 +2268,75 @@ process.umask = function() { return 0; };
   }
 
   function AsyncIterator(generator) {
-   
-   
-    function invoke(method, arg) {
-      var result = generator[method](arg);
-      var value = result.value;
-      return value instanceof AwaitArgument
-        ? Promise.resolve(value.arg).then(invokeNext, invokeThrow)
-        : Promise.resolve(value).then(function(unwrapped) {
-           
-           
-           
-           
-           
-           
-           
-           
-           
-           
-           
-           
-           
-           
-           
-            result.value = unwrapped;
-            return result;
+    function invoke(method, arg, resolve, reject) {
+      var record = tryCatch(generator[method], generator, arg);
+      if (record.type === "throw") {
+        reject(record.arg);
+      } else {
+        var result = record.arg;
+        var value = result.value;
+        if (value instanceof AwaitArgument) {
+          return Promise.resolve(value.arg).then(function(value) {
+            invoke("next", value, resolve, reject);
+          }, function(err) {
+            invoke("throw", err, resolve, reject);
           });
+        }
+
+        return Promise.resolve(value).then(function(unwrapped) {
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+          result.value = unwrapped;
+          resolve(result);
+        }, reject);
+      }
     }
 
     if (typeof process === "object" && process.domain) {
       invoke = process.domain.bind(invoke);
     }
 
-    var invokeNext = invoke.bind(generator, "next");
-    var invokeThrow = invoke.bind(generator, "throw");
-    var invokeReturn = invoke.bind(generator, "return");
     var previousPromise;
 
     function enqueue(method, arg) {
-      var enqueueResult =
-       
-       
-       
-       
-       
-       
-       
-       
-       
-       
-       
-       
-        previousPromise ? previousPromise.then(function() {
-          return invoke(method, arg);
-        }) : new Promise(function(resolve) {
-          resolve(invoke(method, arg));
+      function callInvokeWithMethodAndArg() {
+        return new Promise(function(resolve, reject) {
+          invoke(method, arg, resolve, reject);
         });
+      }
 
-     
-     
-      previousPromise = enqueueResult["catch"](function(ignored){});
-
-      return enqueueResult;
+      return previousPromise =
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+        previousPromise ? previousPromise.then(
+          callInvokeWithMethodAndArg,
+         
+         
+          callInvokeWithMethodAndArg
+        ) : callInvokeWithMethodAndArg();
     }
 
    
@@ -2454,6 +2510,8 @@ process.umask = function() { return 0; };
   Gp[iteratorSymbol] = function() {
     return this;
   };
+
+  Gp[toStringTagSymbol] = "Generator";
 
   Gp.toString = function() {
     return "[object Generator]";
@@ -2755,7 +2813,7 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -2790,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'f862df9';
+	var commit = 'bd463bb';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -5411,45 +5469,47 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var i, els, len, _els$i$getAttribute$s, _els$i$getAttribute$s2, board, tNum;
 
 			return regeneratorRuntime.wrap(function _callee$(_context6) {
-				while (1) switch (_context6.prev = _context6.next) {
-					case 0:
-						i = 0, els = $Q('.de-entry[info]', this.parentNode), len = els.length;
+				while (1) {
+					switch (_context6.prev = _context6.next) {
+						case 0:
+							i = 0, els = $Q('.de-entry[info]', this.parentNode), len = els.length;
 
-					case 1:
-						if (!(i < len)) {
-							_context6.next = 17;
+						case 1:
+							if (!(i < len)) {
+								_context6.next = 17;
+								break;
+							}
+
+							_els$i$getAttribute$s = els[i].getAttribute('info').split(';');
+							_els$i$getAttribute$s2 = _slicedToArray(_els$i$getAttribute$s, 2);
+							board = _els$i$getAttribute$s2[0];
+							tNum = _els$i$getAttribute$s2[1];
+							_context6.prev = 6;
+							_context6.next = 9;
+							return $ajax(aib.getThrdUrl(board, tNum));
+
+						case 9:
+							_context6.next = 14;
 							break;
-						}
 
-						_els$i$getAttribute$s = els[i].getAttribute('info').split(';');
-						_els$i$getAttribute$s2 = _slicedToArray(_els$i$getAttribute$s, 2);
-						board = _els$i$getAttribute$s2[0];
-						tNum = _els$i$getAttribute$s2[1];
-						_context6.prev = 6;
-						_context6.next = 9;
-						return $ajax(aib.getThrdUrl(board, tNum));
+						case 11:
+							_context6.prev = 11;
+							_context6.t0 = _context6['catch'](6);
 
-					case 9:
-						_context6.next = 14;
-						break;
+							if (_context6.t0.code === 404) {
+								delete hThr[board][tNum];
+								saveHiddenThreads(true);
+							}
 
-					case 11:
-						_context6.prev = 11;
-						_context6.t0 = _context6['catch'](6);
+						case 14:
+							++i;
+							_context6.next = 1;
+							break;
 
-						if (_context6.t0.code === 404) {
-							delete hThr[board][tNum];
-							saveHiddenThreads(true);
-						}
-
-					case 14:
-						++i;
-						_context6.next = 1;
-						break;
-
-					case 17:
-					case 'end':
-						return _context6.stop();
+						case 17:
+						case 'end':
+							return _context6.stop();
+					}
 				}
 			}, _callee, this, [[6, 11]]);
 		}))));
@@ -5528,94 +5588,96 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		body.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(regeneratorRuntime.mark(function _callee2() {
 			var update, els, fav, i, len, form, el, host, b, num, f, iconEl, titleEl, cnt;
 			return regeneratorRuntime.wrap(function _callee2$(_context7) {
-				while (1) switch (_context7.prev = _context7.next) {
-					case 0:
-						update = false;
-						els = $C('de-entry', doc);
-						return _context7.delegateYield(getStoredObj('DESU_Favorites'), 't0', 3);
+				while (1) {
+					switch (_context7.prev = _context7.next) {
+						case 0:
+							update = false;
+							els = $C('de-entry', doc);
+							return _context7.delegateYield(getStoredObj('DESU_Favorites'), 't0', 3);
 
-					case 3:
-						fav = _context7.t0;
-						i = 0, len = els.length;
+						case 3:
+							fav = _context7.t0;
+							i = 0, len = els.length;
 
-					case 5:
-						if (!(i < len)) {
-							_context7.next = 34;
+						case 5:
+							if (!(i < len)) {
+								_context7.next = 34;
+								break;
+							}
+
+							el = els[i], host = el.getAttribute('de-host'), b = el.getAttribute('de-board'), num = el.getAttribute('de-num'), f = fav[host][b][num];
+
+							if (!(host !== aib.host || f['err'] === 'Closed')) {
+								_context7.next = 9;
+								break;
+							}
+
+							return _context7.abrupt('continue', 31);
+
+						case 9:
+							iconEl = $c('de-fav-inf-icon', el), titleEl = iconEl.parentNode;
+
+							el = $c('de-fav-inf-new', el);
+							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+							titleEl.title = Lng.updating[lang];
+							_context7.prev = 13;
+							_context7.next = 16;
+							return ajaxLoad(aib.getThrdUrl(b, num));
+
+						case 16:
+							form = _context7.sent;
+							_context7.next = 26;
 							break;
-						}
 
-						el = els[i], host = el.getAttribute('de-host'), b = el.getAttribute('de-board'), num = el.getAttribute('de-num'), f = fav[host][b][num];
+						case 19:
+							_context7.prev = 19;
+							_context7.t1 = _context7['catch'](13);
 
-						if (!(host !== aib.host || f['err'] === 'Closed')) {
-							_context7.next = 9;
-							break;
-						}
-
-						return _context7.abrupt('continue', 31);
-
-					case 9:
-						iconEl = $c('de-fav-inf-icon', el), titleEl = iconEl.parentNode;
-
-						el = $c('de-fav-inf-new', el);
-						iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
-						titleEl.title = Lng.updating[lang];
-						_context7.prev = 13;
-						_context7.next = 16;
-						return ajaxLoad(aib.getThrdUrl(b, num));
-
-					case 16:
-						form = _context7.sent;
-						_context7.next = 26;
-						break;
-
-					case 19:
-						_context7.prev = 19;
-						_context7.t1 = _context7['catch'](13);
-
-						$hide(el);
-						iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-						f['err'] = titleEl.title = getErrorMessage(_context7.t1);
-						update = true;
-						return _context7.abrupt('continue', 31);
-
-					case 26:
-						if (f['err']) {
-							delete f['err'];
-							update = true;
-						}
-						if ($q(aib.qClosed, form)) {
-							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
-							titleEl.title = Lng.thrClosed[lang];
-							f['err'] = 'Closed';
-							update = true;
-						} else {
-							iconEl.setAttribute('class', 'de-fav-inf-icon');
-							titleEl.removeAttribute('title');
-						}
-						cnt = $Q(aib.qRPost, form).length + 1 - el.nextElementSibling.textContent;
-
-						el.textContent = cnt;
-						if (cnt === 0) {
 							$hide(el);
-						} else {
-							$show(el);
-							f['new'] = cnt;
+							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
+							f['err'] = titleEl.title = getErrorMessage(_context7.t1);
 							update = true;
-						}
+							return _context7.abrupt('continue', 31);
 
-					case 31:
-						++i;
-						_context7.next = 5;
-						break;
+						case 26:
+							if (f['err']) {
+								delete f['err'];
+								update = true;
+							}
+							if ($q(aib.qClosed, form)) {
+								iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
+								titleEl.title = Lng.thrClosed[lang];
+								f['err'] = 'Closed';
+								update = true;
+							} else {
+								iconEl.setAttribute('class', 'de-fav-inf-icon');
+								titleEl.removeAttribute('title');
+							}
+							cnt = $Q(aib.qRPost, form).length + 1 - el.nextElementSibling.textContent;
 
-					case 34:
-						if (update) {
-							setStored('DESU_Favorites', JSON.stringify(fav));
-						}
+							el.textContent = cnt;
+							if (cnt === 0) {
+								$hide(el);
+							} else {
+								$show(el);
+								f['new'] = cnt;
+								update = true;
+							}
 
-					case 35:
-					case 'end':
-						return _context7.stop();
+						case 31:
+							++i;
+							_context7.next = 5;
+							break;
+
+						case 34:
+							if (update) {
+								setStored('DESU_Favorites', JSON.stringify(fav));
+							}
+
+						case 35:
+						case 'end':
+							return _context7.stop();
+					}
 				}
 			}, _callee2, this, [[13, 19]]);
 		}))));
@@ -5623,165 +5685,169 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var infoCount, els, postsInfo, i, el, iconEl, titleEl, page, infoLoaded, endPage, tNums, form, pInfo, _postsInfo$i, found, pageEl, iconClass, iconTitle;
 
 			return regeneratorRuntime.wrap(function _callee3$(_context8) {
-				while (1) switch (_context8.prev = _context8.next) {
-					case 0:
-						els = $Q('.de-fav-current > .de-entry', doc), infoCount = els.length, postsInfo = [];
+				while (1) {
+					switch (_context8.prev = _context8.next) {
+						case 0:
+							els = $Q('.de-fav-current > .de-entry', doc), infoCount = els.length, postsInfo = [];
 
-						if (infoCount) {
-							_context8.next = 3;
-							break;
-						}
-
-						return _context8.abrupt('return');
-
-					case 3:
-						$popup(Lng.loading[lang], 'load-pages', true);
-						for (i = 0; i < infoCount; ++i) {
-							el = els[i], iconEl = $c('de-fav-inf-icon', el), titleEl = iconEl.parentNode;
-
-							postsInfo.push({
-								found: false,
-								num: +el.getAttribute('de-num'),
-								pageEl: $c('de-fav-inf-page', el),
-								iconClass: iconEl.getAttribute('class'),
-								iconEl: iconEl,
-								iconTitle: titleEl.getAttribute('title'),
-								titleEl: titleEl
-							});
-							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
-							titleEl.title = Lng.updating[lang];
-						}
-						page = 0, infoLoaded = 0, endPage = (aib.lastPage || 10) + 1;
-
-					case 6:
-						if (!(page < endPage)) {
-							_context8.next = 23;
-							break;
-						}
-
-						_context8.prev = 7;
-						_context8.next = 10;
-						return ajaxLoad(aib.getPageUrl(aib.b, page));
-
-					case 10:
-						form = _context8.sent;
-
-						tNums = new Set(Array.from(DelForm.getThreads(form)).map(function (thrEl) {
-							return aib.getTNum(thrEl);
-						}));
-						_context8.next = 17;
-						break;
-
-					case 14:
-						_context8.prev = 14;
-						_context8.t0 = _context8['catch'](7);
-						return _context8.abrupt('continue', 20);
-
-					case 17:
-						for (i = 0; i < infoCount; ++i) {
-							pInfo = postsInfo[i];
-
-							if (tNums.has(pInfo.num)) {
-								pInfo.iconEl.setAttribute('class', pInfo.iconClass);
-								if (pInfo.iconTitle) {
-									pInfo.titleEl.setAttribute('title', pInfo.iconTitle);
-								} else {
-									pInfo.titleEl.removeAttribute('title');
-								}
-								pInfo.pageEl.textContent = '@' + page;
-								pInfo.found = true;
-								infoLoaded++;
+							if (infoCount) {
+								_context8.next = 3;
+								break;
 							}
-						}
 
-						if (!(infoLoaded === infoCount)) {
-							_context8.next = 20;
-							break;
-						}
+							return _context8.abrupt('return');
 
-						return _context8.abrupt('break', 23);
+						case 3:
+							$popup(Lng.loading[lang], 'load-pages', true);
+							for (i = 0; i < infoCount; ++i) {
+								el = els[i], iconEl = $c('de-fav-inf-icon', el), titleEl = iconEl.parentNode;
 
-					case 20:
-						++page;
-						_context8.next = 6;
-						break;
-
-					case 23:
-						for (i = 0; i < infoCount; ++i) {
-							_postsInfo$i = postsInfo[i];
-							found = _postsInfo$i.found;
-							pageEl = _postsInfo$i.pageEl;
-							iconClass = _postsInfo$i.iconClass;
-							iconEl = _postsInfo$i.iconEl;
-							iconTitle = _postsInfo$i.iconTitle;
-							titleEl = _postsInfo$i.titleEl;
-
-							if (!found) {
-								iconEl.setAttribute('class', iconClass);
-								if (iconTitle) {
-									titleEl.setAttribute('title', iconTitle);
-								} else {
-									titleEl.removeAttribute('title');
-								}
-								pageEl.textContent = '@?';
+								postsInfo.push({
+									found: false,
+									num: +el.getAttribute('de-num'),
+									pageEl: $c('de-fav-inf-page', el),
+									iconClass: iconEl.getAttribute('class'),
+									iconEl: iconEl,
+									iconTitle: titleEl.getAttribute('title'),
+									titleEl: titleEl
+								});
+								iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+								titleEl.title = Lng.updating[lang];
 							}
-						}
-						closePopup('load-pages');
+							page = 0, infoLoaded = 0, endPage = (aib.lastPage || 10) + 1;
 
-					case 25:
-					case 'end':
-						return _context8.stop();
+						case 6:
+							if (!(page < endPage)) {
+								_context8.next = 23;
+								break;
+							}
+
+							_context8.prev = 7;
+							_context8.next = 10;
+							return ajaxLoad(aib.getPageUrl(aib.b, page));
+
+						case 10:
+							form = _context8.sent;
+
+							tNums = new Set(Array.from(DelForm.getThreads(form)).map(function (thrEl) {
+								return aib.getTNum(thrEl);
+							}));
+							_context8.next = 17;
+							break;
+
+						case 14:
+							_context8.prev = 14;
+							_context8.t0 = _context8['catch'](7);
+							return _context8.abrupt('continue', 20);
+
+						case 17:
+							for (i = 0; i < infoCount; ++i) {
+								pInfo = postsInfo[i];
+
+								if (tNums.has(pInfo.num)) {
+									pInfo.iconEl.setAttribute('class', pInfo.iconClass);
+									if (pInfo.iconTitle) {
+										pInfo.titleEl.setAttribute('title', pInfo.iconTitle);
+									} else {
+										pInfo.titleEl.removeAttribute('title');
+									}
+									pInfo.pageEl.textContent = '@' + page;
+									pInfo.found = true;
+									infoLoaded++;
+								}
+							}
+
+							if (!(infoLoaded === infoCount)) {
+								_context8.next = 20;
+								break;
+							}
+
+							return _context8.abrupt('break', 23);
+
+						case 20:
+							++page;
+							_context8.next = 6;
+							break;
+
+						case 23:
+							for (i = 0; i < infoCount; ++i) {
+								_postsInfo$i = postsInfo[i];
+								found = _postsInfo$i.found;
+								pageEl = _postsInfo$i.pageEl;
+								iconClass = _postsInfo$i.iconClass;
+								iconEl = _postsInfo$i.iconEl;
+								iconTitle = _postsInfo$i.iconTitle;
+								titleEl = _postsInfo$i.titleEl;
+
+								if (!found) {
+									iconEl.setAttribute('class', iconClass);
+									if (iconTitle) {
+										titleEl.setAttribute('title', iconTitle);
+									} else {
+										titleEl.removeAttribute('title');
+									}
+									pageEl.textContent = '@?';
+								}
+							}
+							closePopup('load-pages');
+
+						case 25:
+						case 'end':
+							return _context8.stop();
+					}
 				}
 			}, _callee3, this, [[7, 14]]);
 		}))));
 		body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function _callee4() {
 			var i, els, len, el, iconEl, titleEl;
 			return regeneratorRuntime.wrap(function _callee4$(_context9) {
-				while (1) switch (_context9.prev = _context9.next) {
-					case 0:
-						i = 0, els = $C('de-entry', doc), len = els.length;
+				while (1) {
+					switch (_context9.prev = _context9.next) {
+						case 0:
+							i = 0, els = $C('de-entry', doc), len = els.length;
 
-					case 1:
-						if (!(i < len)) {
-							_context9.next = 20;
+						case 1:
+							if (!(i < len)) {
+								_context9.next = 20;
+								break;
+							}
+
+							el = els[i], iconEl = $c('de-fav-inf-icon', el), titleEl = iconEl.parentNode;
+
+							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+							titleEl.title = Lng.updating[lang];
+							_context9.prev = 5;
+							_context9.next = 8;
+							return $ajax(el.getAttribute('de-url'), null, false);
+
+						case 8:
+							iconEl.setAttribute('class', 'de-fav-inf-icon');
+							titleEl.removeAttribute('title');
+							_context9.next = 17;
 							break;
-						}
 
-						el = els[i], iconEl = $c('de-fav-inf-icon', el), titleEl = iconEl.parentNode;
+						case 12:
+							_context9.prev = 12;
+							_context9.t0 = _context9['catch'](5);
 
-						iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
-						titleEl.title = Lng.updating[lang];
-						_context9.prev = 5;
-						_context9.next = 8;
-						return $ajax(el.getAttribute('de-url'), null, false);
+							if (_context9.t0.code === 404) {
+								el.setAttribute('de-removed', '');
+							}
+							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
+							titleEl.title = getErrorMessage(_context9.t0);
 
-					case 8:
-						iconEl.setAttribute('class', 'de-fav-inf-icon');
-						titleEl.removeAttribute('title');
-						_context9.next = 17;
-						break;
+						case 17:
+							++i;
+							_context9.next = 1;
+							break;
 
-					case 12:
-						_context9.prev = 12;
-						_context9.t0 = _context9['catch'](5);
+						case 20:
+							cleanFavorites();
 
-						if (_context9.t0.code === 404) {
-							el.setAttribute('de-removed', '');
-						}
-						iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-						titleEl.title = getErrorMessage(_context9.t0);
-
-					case 17:
-						++i;
-						_context9.next = 1;
-						break;
-
-					case 20:
-						cleanFavorites();
-
-					case 21:
-					case 'end':
-						return _context9.stop();
+						case 21:
+						case 'end':
+							return _context9.stop();
+					}
 				}
 			}, _callee4, this, [[5, 12]]);
 		}))));
@@ -6710,95 +6776,97 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		readKeys: async(regeneratorRuntime.mark(function _callee5() {
 			var keys, str, tKeys, mapFunc;
 			return regeneratorRuntime.wrap(function _callee5$(_context10) {
-				while (1) switch (_context10.prev = _context10.next) {
-					case 0:
-						return _context10.delegateYield(getStored('DESU_keys'), 't0', 1);
+				while (1) {
+					switch (_context10.prev = _context10.next) {
+						case 0:
+							return _context10.delegateYield(getStored('DESU_keys'), 't0', 1);
 
-					case 1:
-						str = _context10.t0;
+						case 1:
+							str = _context10.t0;
 
-						if (str) {
-							_context10.next = 4;
-							break;
-						}
-
-						return _context10.abrupt('return', this.getDefaultKeys());
-
-					case 4:
-						_context10.prev = 4;
-
-						keys = JSON.parse(str);
-
-					case 6:
-						_context10.prev = 6;
-
-						if (keys) {
-							_context10.next = 9;
-							break;
-						}
-
-						return _context10.abrupt('return', this.getDefaultKeys());
-
-					case 9:
-						if (keys[0] !== this.version) {
-							tKeys = this.getDefaultKeys();
-
-							switch (keys[0]) {
-								case 1:
-									keys[2][11] = tKeys[2][11];
-									keys[4] = tKeys[4];
-																case 2:
-									keys[2][12] = tKeys[2][12];
-									keys[2][13] = tKeys[2][13];
-									keys[2][14] = tKeys[2][14];
-									keys[2][15] = tKeys[2][15];
-									keys[2][16] = tKeys[2][16];
-																case 3:
-									keys[2][17] = keys[3][3];
-									keys[3][3] = keys[3].splice(4, 1)[0];
-																case 4:
-								case 5:
-								case 6:
-									keys[2][18] = tKeys[2][18];
+							if (str) {
+								_context10.next = 4;
+								break;
 							}
-							keys[0] = this.version;
-							setStored('DESU_keys', JSON.stringify(keys));
-						}
-						if (keys[1] ^ !!nav.Firefox) {
-							mapFunc = nav.Firefox ? function mapFuncFF(key) {
-								switch (key) {
-									case 189:
-										return 173;
-									case 187:
-										return 61;
-									case 186:
-										return 59;
-									default:
-										return key;
-								}
-							} : function mapFuncNonFF(key) {
-								switch (key) {
-									case 173:
-										return 189;
-									case 61:
-										return 187;
-									case 59:
-										return 186;
-									default:
-										return key;
-								}
-							};
 
-							keys[1] = !!nav.Firefox;
-							keys[2] = keys[2].map(mapFunc);
-							keys[3] = keys[3].map(mapFunc);
-							setStored('DESU_keys', JSON.stringify(keys));
-						}
-						return _context10.abrupt('return', keys);
+							return _context10.abrupt('return', this.getDefaultKeys());
 
-					case 13:
-					case 'end':
-						return _context10.stop();
+						case 4:
+							_context10.prev = 4;
+
+							keys = JSON.parse(str);
+
+						case 6:
+							_context10.prev = 6;
+
+							if (keys) {
+								_context10.next = 9;
+								break;
+							}
+
+							return _context10.abrupt('return', this.getDefaultKeys());
+
+						case 9:
+							if (keys[0] !== this.version) {
+								tKeys = this.getDefaultKeys();
+
+								switch (keys[0]) {
+									case 1:
+										keys[2][11] = tKeys[2][11];
+										keys[4] = tKeys[4];
+																		case 2:
+										keys[2][12] = tKeys[2][12];
+										keys[2][13] = tKeys[2][13];
+										keys[2][14] = tKeys[2][14];
+										keys[2][15] = tKeys[2][15];
+										keys[2][16] = tKeys[2][16];
+																		case 3:
+										keys[2][17] = keys[3][3];
+										keys[3][3] = keys[3].splice(4, 1)[0];
+																		case 4:
+									case 5:
+									case 6:
+										keys[2][18] = tKeys[2][18];
+								}
+								keys[0] = this.version;
+								setStored('DESU_keys', JSON.stringify(keys));
+							}
+							if (keys[1] ^ !!nav.Firefox) {
+								mapFunc = nav.Firefox ? function mapFuncFF(key) {
+									switch (key) {
+										case 189:
+											return 173;
+										case 187:
+											return 61;
+										case 186:
+											return 59;
+										default:
+											return key;
+									}
+								} : function mapFuncNonFF(key) {
+									switch (key) {
+										case 173:
+											return 189;
+										case 61:
+											return 187;
+										case 59:
+											return 186;
+										default:
+											return key;
+									}
+								};
+
+								keys[1] = !!nav.Firefox;
+								keys[2] = keys[2].map(mapFunc);
+								keys[3] = keys[3].map(mapFunc);
+								setStored('DESU_keys', JSON.stringify(keys));
+							}
+							return _context10.abrupt('return', keys);
+
+						case 13:
+						case 'end':
+							return _context10.stop();
+					}
 				}
 			}, _callee5, this, [[4,, 6, 13]]);
 		})),
@@ -7981,135 +8049,137 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var _iterator2, _isArray2, _i3, _ref8, form, len, i, el, first;
 
 			return regeneratorRuntime.wrap(function _callee6$(_context11) {
-				while (1) switch (_context11.prev = _context11.next) {
-					case 0:
-						$popup(Lng.loading[lang], 'load-pages', true);
-						if (this._addPromise) {
-							this._addPromise.cancel();
-							this._endAdding();
-						}
-						PviewsCache.purge();
-						isExpImg = false;
-						pByEl = new Map();
-						pByNum = new Map();
-						Post.hiddenNums = new Set();
-						if (Attachment.viewer) {
-							Attachment.viewer.close(null);
-							Attachment.viewer = null;
-						}
-						if (pr.isQuick) {
-							if (pr.file) {
-								pr.delFilesUtils();
+				while (1) {
+					switch (_context11.prev = _context11.next) {
+						case 0:
+							$popup(Lng.loading[lang], 'load-pages', true);
+							if (this._addPromise) {
+								this._addPromise.cancel();
+								this._endAdding();
 							}
-							pr.txta.value = '';
-						}
-						DelForm.tNums = new Set();
-						_iterator2 = DelForm, _isArray2 = Array.isArray(_iterator2), _i3 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();
+							PviewsCache.purge();
+							isExpImg = false;
+							pByEl = new Map();
+							pByNum = new Map();
+							Post.hiddenNums = new Set();
+							if (Attachment.viewer) {
+								Attachment.viewer.close(null);
+								Attachment.viewer = null;
+							}
+							if (pr.isQuick) {
+								if (pr.file) {
+									pr.delFilesUtils();
+								}
+								pr.txta.value = '';
+							}
+							DelForm.tNums = new Set();
+							_iterator2 = DelForm, _isArray2 = Array.isArray(_iterator2), _i3 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();
 
-					case 11:
-						if (!_isArray2) {
-							_context11.next = 17;
+						case 11:
+							if (!_isArray2) {
+								_context11.next = 17;
+								break;
+							}
+
+							if (!(_i3 >= _iterator2.length)) {
+								_context11.next = 14;
+								break;
+							}
+
+							return _context11.abrupt('break', 29);
+
+						case 14:
+							_ref8 = _iterator2[_i3++];
+							_context11.next = 21;
 							break;
-						}
 
-						if (!(_i3 >= _iterator2.length)) {
-							_context11.next = 14;
+						case 17:
+							_i3 = _iterator2.next();
+
+							if (!_i3.done) {
+								_context11.next = 20;
+								break;
+							}
+
+							return _context11.abrupt('break', 29);
+
+						case 20:
+							_ref8 = _i3.value;
+
+						case 21:
+							form = _ref8;
+
+							$each($Q('a[href^="blob:"]', form.el), function (a) {
+								return URL.revokeObjectURL(a.href);
+							});
+							$hide(form.el);
+
+							if (!(form === DelForm.last)) {
+								_context11.next = 26;
+								break;
+							}
+
+							return _context11.abrupt('break', 29);
+
+						case 26:
+							$del(form.el);
+
+						case 27:
+							_context11.next = 11;
 							break;
-						}
 
-						return _context11.abrupt('break', 29);
+						case 29:
+							DelForm.first = DelForm.last;
+							len = Math.min(aib.lastPage + 1, aib.page + count);
+							i = aib.page;
 
-					case 14:
-						_ref8 = _iterator2[_i3++];
-						_context11.next = 21;
-						break;
+						case 32:
+							if (!(i < len)) {
+								_context11.next = 46;
+								break;
+							}
 
-					case 17:
-						_i3 = _iterator2.next();
+							_context11.prev = 33;
+							_context11.next = 36;
+							return ajaxLoad(aib.getPageUrl(aib.b, i));
 
-						if (!_i3.done) {
-							_context11.next = 20;
+						case 36:
+							el = _context11.sent;
+
+							this._addForm(el, i);
+							_context11.next = 43;
 							break;
-						}
 
-						return _context11.abrupt('break', 29);
+						case 40:
+							_context11.prev = 40;
+							_context11.t0 = _context11['catch'](33);
 
-					case 20:
-						_ref8 = _i3.value;
+							$popup(getPrettyErrorMessage(_context11.t0), 'load-pages', true);
 
-					case 21:
-						form = _ref8;
-
-						$each($Q('a[href^="blob:"]', form.el), function (a) {
-							return URL.revokeObjectURL(a.href);
-						});
-						$hide(form.el);
-
-						if (!(form === DelForm.last)) {
-							_context11.next = 26;
+						case 43:
+							++i;
+							_context11.next = 32;
 							break;
-						}
 
-						return _context11.abrupt('break', 29);
+						case 46:
+							first = DelForm.first;
 
-					case 26:
-						$del(form.el);
+							if (!(first !== DelForm.last)) {
+								_context11.next = 52;
+								break;
+							}
 
-					case 27:
-						_context11.next = 11;
-						break;
+							DelForm.first = first.next;
+							$del(first.el);
+							return _context11.delegateYield(this._updateForms(DelForm.first), 't1', 51);
 
-					case 29:
-						DelForm.first = DelForm.last;
-						len = Math.min(aib.lastPage + 1, aib.page + count);
-						i = aib.page;
+						case 51:
+							closePopup('load-pages');
 
-					case 32:
-						if (!(i < len)) {
-							_context11.next = 46;
-							break;
-						}
-
-						_context11.prev = 33;
-						_context11.next = 36;
-						return ajaxLoad(aib.getPageUrl(aib.b, i));
-
-					case 36:
-						el = _context11.sent;
-
-						this._addForm(el, i);
-						_context11.next = 43;
-						break;
-
-					case 40:
-						_context11.prev = 40;
-						_context11.t0 = _context11['catch'](33);
-
-						$popup(getPrettyErrorMessage(_context11.t0), 'load-pages', true);
-
-					case 43:
-						++i;
-						_context11.next = 32;
-						break;
-
-					case 46:
-						first = DelForm.first;
-
-						if (!(first !== DelForm.last)) {
-							_context11.next = 52;
-							break;
-						}
-
-						DelForm.first = first.next;
-						$del(first.el);
-						return _context11.delegateYield(this._updateForms(DelForm.first), 't1', 51);
-
-					case 51:
-						closePopup('load-pages');
-
-					case 52:
-					case 'end':
-						return _context11.stop();
+						case 52:
+						case 'end':
+							return _context11.stop();
+					}
 				}
 			}, _callee6, this, [[33, 40]]);
 		})),
@@ -8134,21 +8204,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 		_updateForms: regeneratorRuntime.mark(function _updateForms(newForm) {
 			return regeneratorRuntime.wrap(function _updateForms$(_context12) {
-				while (1) switch (_context12.prev = _context12.next) {
-					case 0:
-						return _context12.delegateYield(readPostsData(newForm.firstThr.op), 't0', 1);
+				while (1) {
+					switch (_context12.prev = _context12.next) {
+						case 0:
+							return _context12.delegateYield(readPostsData(newForm.firstThr.op), 't0', 1);
 
-					case 1:
-						if (pr.passw) {
-							PostForm.setUserPassw();
-						}
-						if (HotKeys.enabled) {
-							HotKeys.clear();
-						}
+						case 1:
+							if (pr.passw) {
+								PostForm.setUserPassw();
+							}
+							if (HotKeys.enabled) {
+								HotKeys.clear();
+							}
 
-					case 3:
-					case 'end':
-						return _context12.stop();
+						case 3:
+						case 'end':
+							return _context12.stop();
+					}
 				}
 			}, _updateForms, this);
 		})
@@ -9296,11 +9368,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						_ref21 = _i12.value;
 					}
 
-					var _ref22 = _slicedToArray(_ref21, 3);
+					var _ref22 = _ref21;
 
-					var isNeg = _ref22[0];
-					var spell = _ref22[1];
-					var wipeMsg = _ref22[2];
+					var _ref23 = _slicedToArray(_ref22, 3);
+
+					var isNeg = _ref23[0];
+					var spell = _ref23[1];
+					var wipeMsg = _ref23[2];
 
 					rv.push(Spells.decompileSpell(spell[0] & 0xFF, isNeg, spell[1], spell[2], wipeMsg));
 				}
@@ -9357,18 +9431,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 		_imgn: function _imgn(val) {
 			for (var _iterator12 = this._post.images, _isArray12 = Array.isArray(_iterator12), _i13 = 0, _iterator12 = _isArray12 ? _iterator12 : _iterator12[Symbol.iterator]();;) {
-				var _ref23;
+				var _ref24;
 
 				if (_isArray12) {
 					if (_i13 >= _iterator12.length) break;
-					_ref23 = _iterator12[_i13++];
+					_ref24 = _iterator12[_i13++];
 				} else {
 					_i13 = _iterator12.next();
 					if (_i13.done) break;
-					_ref23 = _i13.value;
+					_ref24 = _i13.value;
 				}
 
-				var image = _ref23;
+				var image = _ref24;
 
 				if (image instanceof Attachment && val.test(image.info)) {
 					return true;
@@ -9378,77 +9452,79 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 
 		_ihash: async(regeneratorRuntime.mark(function _callee7(val) {
-			var _iterator13, _isArray13, _i14, _ref24, image, hash;
+			var _iterator13, _isArray13, _i14, _ref25, image, hash;
 
 			return regeneratorRuntime.wrap(function _callee7$(_context13) {
-				while (1) switch (_context13.prev = _context13.next) {
-					case 0:
-						_iterator13 = this._post.images, _isArray13 = Array.isArray(_iterator13), _i14 = 0, _iterator13 = _isArray13 ? _iterator13 : _iterator13[Symbol.iterator]();
+				while (1) {
+					switch (_context13.prev = _context13.next) {
+						case 0:
+							_iterator13 = this._post.images, _isArray13 = Array.isArray(_iterator13), _i14 = 0, _iterator13 = _isArray13 ? _iterator13 : _iterator13[Symbol.iterator]();
 
-					case 1:
-						if (!_isArray13) {
-							_context13.next = 7;
+						case 1:
+							if (!_isArray13) {
+								_context13.next = 7;
+								break;
+							}
+
+							if (!(_i14 >= _iterator13.length)) {
+								_context13.next = 4;
+								break;
+							}
+
+							return _context13.abrupt('break', 20);
+
+						case 4:
+							_ref25 = _iterator13[_i14++];
+							_context13.next = 11;
 							break;
-						}
 
-						if (!(_i14 >= _iterator13.length)) {
-							_context13.next = 4;
+						case 7:
+							_i14 = _iterator13.next();
+
+							if (!_i14.done) {
+								_context13.next = 10;
+								break;
+							}
+
+							return _context13.abrupt('break', 20);
+
+						case 10:
+							_ref25 = _i14.value;
+
+						case 11:
+							image = _ref25;
+
+							if (image instanceof Attachment) {
+								_context13.next = 14;
+								break;
+							}
+
+							return _context13.abrupt('continue', 18);
+
+						case 14:
+							return _context13.delegateYield(ImagesHashStorage.getHash(image), 't0', 15);
+
+						case 15:
+							hash = _context13.t0;
+
+							if (!(hash === val)) {
+								_context13.next = 18;
+								break;
+							}
+
+							return _context13.abrupt('return', true);
+
+						case 18:
+							_context13.next = 1;
 							break;
-						}
 
-						return _context13.abrupt('break', 20);
+						case 20:
+							return _context13.abrupt('return', false);
 
-					case 4:
-						_ref24 = _iterator13[_i14++];
-						_context13.next = 11;
-						break;
-
-					case 7:
-						_i14 = _iterator13.next();
-
-						if (!_i14.done) {
-							_context13.next = 10;
-							break;
-						}
-
-						return _context13.abrupt('break', 20);
-
-					case 10:
-						_ref24 = _i14.value;
-
-					case 11:
-						image = _ref24;
-
-						if (image instanceof Attachment) {
-							_context13.next = 14;
-							break;
-						}
-
-						return _context13.abrupt('continue', 18);
-
-					case 14:
-						return _context13.delegateYield(ImagesHashStorage.getHash(image), 't0', 15);
-
-					case 15:
-						hash = _context13.t0;
-
-						if (!(hash === val)) {
-							_context13.next = 18;
-							break;
-						}
-
-						return _context13.abrupt('return', true);
-
-					case 18:
-						_context13.next = 1;
-						break;
-
-					case 20:
-						return _context13.abrupt('return', false);
-
-					case 21:
-					case 'end':
-						return _context13.stop();
+						case 21:
+						case 'end':
+							return _context13.stop();
+					}
 				}
 			}, _callee7, this);
 		})),
@@ -9477,18 +9553,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return images.hasAttachments;
 			}
 			for (var _iterator14 = images, _isArray14 = Array.isArray(_iterator14), _i15 = 0, _iterator14 = _isArray14 ? _iterator14 : _iterator14[Symbol.iterator]();;) {
-				var _ref25;
+				var _ref26;
 
 				if (_isArray14) {
 					if (_i15 >= _iterator14.length) break;
-					_ref25 = _iterator14[_i15++];
+					_ref26 = _iterator14[_i15++];
 				} else {
 					_i15 = _iterator14.next();
 					if (_i15.done) break;
-					_ref25 = _i15.value;
+					_ref26 = _i15.value;
 				}
 
-				var image = _ref25;
+				var image = _ref26;
 
 				if (!(image instanceof Attachment)) {
 					continue;
@@ -9691,32 +9767,32 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return false;
 			}
 			for (var _iterator15 = videos.vData, _isArray15 = Array.isArray(_iterator15), _i16 = 0, _iterator15 = _isArray15 ? _iterator15 : _iterator15[Symbol.iterator]();;) {
-				var _ref26;
+				var _ref27;
 
 				if (_isArray15) {
 					if (_i16 >= _iterator15.length) break;
-					_ref26 = _iterator15[_i16++];
+					_ref27 = _iterator15[_i16++];
 				} else {
 					_i16 = _iterator15.next();
 					if (_i16.done) break;
-					_ref26 = _i16.value;
+					_ref27 = _i16.value;
 				}
 
-				var siteData = _ref26;
+				var siteData = _ref27;
 
 				for (var _iterator16 = siteData, _isArray16 = Array.isArray(_iterator16), _i17 = 0, _iterator16 = _isArray16 ? _iterator16 : _iterator16[Symbol.iterator]();;) {
-					var _ref27;
+					var _ref28;
 
 					if (_isArray16) {
 						if (_i17 >= _iterator16.length) break;
-						_ref27 = _iterator16[_i17++];
+						_ref28 = _iterator16[_i17++];
 					} else {
 						_i17 = _iterator16.next();
 						if (_i17.done) break;
-						_ref27 = _i17.value;
+						_ref28 = _i17.value;
 					}
 
-					var data = _ref27;
+					var data = _ref28;
 
 					if (isAuthorSpell ? val === data[1] : val.test(data[0])) {
 						return true;
@@ -9995,18 +10071,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 		var value = pr.passw.value = Cfg.passwValue;
 		for (var _iterator17 = DelForm, _isArray17 = Array.isArray(_iterator17), _i18 = 0, _iterator17 = _isArray17 ? _iterator17 : _iterator17[Symbol.iterator]();;) {
-			var _ref28;
+			var _ref29;
 
 			if (_isArray17) {
 				if (_i18 >= _iterator17.length) break;
-				_ref28 = _iterator17[_i18++];
+				_ref29 = _iterator17[_i18++];
 			} else {
 				_i18 = _iterator17.next();
 				if (_i18.done) break;
-				_ref28 = _i18.value;
+				_ref29 = _i18.value;
 			}
 
-			var form = _ref28;
+			var form = _ref29;
 
 			(form.passEl || {}).value = value;
 		}
@@ -10813,83 +10889,85 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return dc.body.hasChildNodes() && !$q(aib.qDForm, dc) ? aib.getSubmitError(dc) : null;
 	}
 
-	var doUploading = async(regeneratorRuntime.mark(function _callee8(_ref29) {
-		var _ref30 = _slicedToArray(_ref29, 2);
+	var doUploading = async(regeneratorRuntime.mark(function _callee8(_ref30) {
+		var _ref31 = _slicedToArray(_ref30, 2);
 
-		var hasFiles = _ref30[0];
-		var getProgress = _ref30[1];
+		var hasFiles = _ref31[0];
+		var getProgress = _ref31[1];
 		var p, val, beginTime, inited, progress, counterWrap, counterEl, totalEl, speedEl, total, loaded;
 		return regeneratorRuntime.wrap(function _callee8$(_context14) {
-			while (1) switch (_context14.prev = _context14.next) {
-				case 0:
-					$popup(Lng.sendingPost[lang] + (hasFiles ? '<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' + '</progress><div style="display: none; font: bold 12px arial;">' + '<span></span> / <span></span> (<span></span>)</div>' : ''), 'upload', true);
+			while (1) {
+				switch (_context14.prev = _context14.next) {
+					case 0:
+						$popup(Lng.sendingPost[lang] + (hasFiles ? '<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' + '</progress><div style="display: none; font: bold 12px arial;">' + '<span></span> / <span></span> (<span></span>)</div>' : ''), 'upload', true);
 
-					if (hasFiles) {
-						beginTime = Date.now(), inited = false, progress = $id('de-uploadprogress'), counterWrap = progress.nextSibling, counterEl = counterWrap.firstChild, totalEl = counterEl.nextElementSibling, speedEl = totalEl.nextElementSibling;
-					}
-
-				case 2:
-					if (!(p = getProgress())) {
-						_context14.next = 22;
-						break;
-					}
-
-					_context14.prev = 3;
-					_context14.next = 6;
-					return p;
-
-				case 6:
-					val = _context14.sent;
-					_context14.next = 16;
-					break;
-
-				case 9:
-					_context14.prev = 9;
-					_context14.t0 = _context14['catch'](3);
-
-					$popup(getErrorMessage(_context14.t0), 'upload', false);
-					updater['continue']();
-					updater.sendErrNotif();
-					if (pr.isQuick) {
-						pr.setReply(true, false);
-					}
-					return _context14.abrupt('return');
-
-				case 16:
-					if (!val.done) {
-						_context14.next = 19;
-						break;
-					}
-
-					checkUpload(val.data);
-					return _context14.abrupt('return');
-
-				case 19:
-					if (hasFiles) {
-						if (!inited) {
-							total = val.data.total;
-
-							progress.setAttribute('max', total);
-							$show(progress);
-							totalEl.textContent = prettifySize(total);
-							$show(counterWrap);
-							inited = true;
+						if (hasFiles) {
+							beginTime = Date.now(), inited = false, progress = $id('de-uploadprogress'), counterWrap = progress.nextSibling, counterEl = counterWrap.firstChild, totalEl = counterEl.nextElementSibling, speedEl = totalEl.nextElementSibling;
 						}
-						loaded = val.data.loaded;
 
-						progress.value = loaded;
-						counterEl.textContent = prettifySize(loaded);
-						speedEl.textContent = prettifySize(loaded / (Date.now() - beginTime) * 1e3) + '/' + Lng.second[lang];
-					}
-					_context14.next = 2;
-					break;
+					case 2:
+						if (!(p = getProgress())) {
+							_context14.next = 22;
+							break;
+						}
 
-				case 22:
-					$popup(Lng.internalError[lang] + getPrettyErrorMessage(new Error()), 'upload', false);
+						_context14.prev = 3;
+						_context14.next = 6;
+						return p;
 
-				case 23:
-				case 'end':
-					return _context14.stop();
+					case 6:
+						val = _context14.sent;
+						_context14.next = 16;
+						break;
+
+					case 9:
+						_context14.prev = 9;
+						_context14.t0 = _context14['catch'](3);
+
+						$popup(getErrorMessage(_context14.t0), 'upload', false);
+						updater['continue']();
+						updater.sendErrNotif();
+						if (pr.isQuick) {
+							pr.setReply(true, false);
+						}
+						return _context14.abrupt('return');
+
+					case 16:
+						if (!val.done) {
+							_context14.next = 19;
+							break;
+						}
+
+						checkUpload(val.data);
+						return _context14.abrupt('return');
+
+					case 19:
+						if (hasFiles) {
+							if (!inited) {
+								total = val.data.total;
+
+								progress.setAttribute('max', total);
+								$show(progress);
+								totalEl.textContent = prettifySize(total);
+								$show(counterWrap);
+								inited = true;
+							}
+							loaded = val.data.loaded;
+
+							progress.value = loaded;
+							counterEl.textContent = prettifySize(loaded);
+							speedEl.textContent = prettifySize(loaded / (Date.now() - beginTime) * 1e3) + '/' + Lng.second[lang];
+						}
+						_context14.next = 2;
+						break;
+
+					case 22:
+						$popup(Lng.internalError[lang] + getPrettyErrorMessage(new Error()), 'upload', false);
+
+					case 23:
+					case 'end':
+						return _context14.stop();
+				}
 			}
 		}, _callee8, this, [[3, 9]]);
 	}));
@@ -10971,121 +11049,123 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	var checkDelete = async(regeneratorRuntime.mark(function _callee9(dc) {
-		var err, _ref31, _ref32, num, post, els, threads, isThr, i, len, el, _iterator18, _isArray18, _i19, _ref33, thr;
+		var err, _ref32, _ref33, num, post, els, threads, isThr, i, len, el, _iterator18, _isArray18, _i19, _ref34, thr;
 
 		return regeneratorRuntime.wrap(function _callee9$(_context15) {
-			while (1) switch (_context15.prev = _context15.next) {
-				case 0:
-					err = getSubmitError(dc);
+			while (1) {
+				switch (_context15.prev = _context15.next) {
+					case 0:
+						err = getSubmitError(dc);
 
-					if (!err) {
-						_context15.next = 5;
-						break;
-					}
+						if (!err) {
+							_context15.next = 5;
+							break;
+						}
 
-					$popup(Lng.errDelete[lang] + err, 'delete', false);
-					updater.sendErrNotif();
-					return _context15.abrupt('return');
+						$popup(Lng.errDelete[lang] + err, 'delete', false);
+						updater.sendErrNotif();
+						return _context15.abrupt('return');
 
-				case 5:
-					_ref31 = doc.location.hash.match(/\d+/) || [];
-					_ref32 = _slicedToArray(_ref31, 1);
-					num = _ref32[0];
+					case 5:
+						_ref32 = doc.location.hash.match(/\d+/) || [];
+						_ref33 = _slicedToArray(_ref32, 1);
+						num = _ref33[0];
 
-					if (num) {
-						post = pByNum.get(+num);
+						if (num) {
+							post = pByNum.get(+num);
 
-						if (post) {
-							if (!post.isOp) {
-								post.el.className = aib.cReply;
+							if (post) {
+								if (!post.isOp) {
+									post.el.className = aib.cReply;
+								}
+								doc.location.hash = '';
 							}
-							doc.location.hash = '';
 						}
-					}
-					els = $Q('[de-form] ' + aib.qRPost + ' input:checked', doc.body), threads = new Set(), isThr = aib.t;
+						els = $Q('[de-form] ' + aib.qRPost + ' input:checked', doc.body), threads = new Set(), isThr = aib.t;
 
-					for (i = 0, len = els.length; i < len; ++i) {
-						el = els[i];
+						for (i = 0, len = els.length; i < len; ++i) {
+							el = els[i];
 
-						el.checked = false;
+							el.checked = false;
+							if (!isThr) {
+								threads.add(aib.getPostOfEl(el).thr);
+							}
+						}
+
 						if (!isThr) {
-							threads.add(aib.getPostOfEl(el).thr);
+							_context15.next = 23;
+							break;
 						}
-					}
 
-					if (!isThr) {
-						_context15.next = 23;
+						Post.clearMarks();
+						_context15.prev = 13;
+						_context15.next = 16;
+						return Thread.first.loadNew(false);
+
+					case 16:
+						_context15.next = 21;
 						break;
-					}
 
-					Post.clearMarks();
-					_context15.prev = 13;
-					_context15.next = 16;
-					return Thread.first.loadNew(false);
+					case 18:
+						_context15.prev = 18;
+						_context15.t0 = _context15['catch'](13);
 
-				case 16:
-					_context15.next = 21;
-					break;
+						infoLoadErrors(_context15.t0);
 
-				case 18:
-					_context15.prev = 18;
-					_context15.t0 = _context15['catch'](13);
-
-					infoLoadErrors(_context15.t0);
-
-				case 21:
-					_context15.next = 39;
-					break;
-
-				case 23:
-					_iterator18 = threads, _isArray18 = Array.isArray(_iterator18), _i19 = 0, _iterator18 = _isArray18 ? _iterator18 : _iterator18[Symbol.iterator]();
-
-				case 24:
-					if (!_isArray18) {
-						_context15.next = 30;
+					case 21:
+						_context15.next = 39;
 						break;
-					}
 
-					if (!(_i19 >= _iterator18.length)) {
-						_context15.next = 27;
+					case 23:
+						_iterator18 = threads, _isArray18 = Array.isArray(_iterator18), _i19 = 0, _iterator18 = _isArray18 ? _iterator18 : _iterator18[Symbol.iterator]();
+
+					case 24:
+						if (!_isArray18) {
+							_context15.next = 30;
+							break;
+						}
+
+						if (!(_i19 >= _iterator18.length)) {
+							_context15.next = 27;
+							break;
+						}
+
+						return _context15.abrupt('break', 39);
+
+					case 27:
+						_ref34 = _iterator18[_i19++];
+						_context15.next = 34;
 						break;
-					}
 
-					return _context15.abrupt('break', 39);
+					case 30:
+						_i19 = _iterator18.next();
 
-				case 27:
-					_ref33 = _iterator18[_i19++];
-					_context15.next = 34;
-					break;
+						if (!_i19.done) {
+							_context15.next = 33;
+							break;
+						}
 
-				case 30:
-					_i19 = _iterator18.next();
+						return _context15.abrupt('break', 39);
 
-					if (!_i19.done) {
-						_context15.next = 33;
+					case 33:
+						_ref34 = _i19.value;
+
+					case 34:
+						thr = _ref34;
+						_context15.next = 37;
+						return thr.load(visPosts, false, false);
+
+					case 37:
+						_context15.next = 24;
 						break;
-					}
 
-					return _context15.abrupt('break', 39);
+					case 39:
+						$popup(Lng.succDeleted[lang], 'delete', false);
 
-				case 33:
-					_ref33 = _i19.value;
-
-				case 34:
-					thr = _ref33;
-					_context15.next = 37;
-					return thr.load(visPosts, false, false);
-
-				case 37:
-					_context15.next = 24;
-					break;
-
-				case 39:
-					$popup(Lng.succDeleted[lang], 'delete', false);
-
-				case 40:
-				case 'end':
-					return _context15.stop();
+					case 40:
+					case 'end':
+						return _context15.stop();
+				}
 			}
 		}, _callee9, this, [[13, 18]]);
 	}));
@@ -11093,7 +11173,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function html5Submit(form, submitter) {
 		var needProgress = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
-		var formData, hasFiles, _iterator19, _isArray19, _i20, _ref34, name, value, type, el, fileName, newFileName, data, lastFuncs, promises, xhr;
+		var formData, hasFiles, _iterator19, _isArray19, _i20, _ref35, _ref36, name, value, type, el, fileName, newFileName, data, lastFuncs, promises, xhr;
 
 		return regeneratorRuntime.wrap(function html5Submit$(_context16) {
 			while (1) switch (_context16.prev = _context16.next) {
@@ -11113,10 +11193,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 					}
 
-					return _context16.abrupt('break', 35);
+					return _context16.abrupt('break', 36);
 
 				case 6:
-					_ref34 = _iterator19[_i20++];
+					_ref35 = _iterator19[_i20++];
 					_context16.next = 13;
 					break;
 
@@ -11128,19 +11208,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 					}
 
-					return _context16.abrupt('break', 35);
+					return _context16.abrupt('break', 36);
 
 				case 12:
-					_ref34 = _i20.value;
+					_ref35 = _i20.value;
 
 				case 13:
-					name = _ref34.name;
-					value = _ref34.value;
-					type = _ref34.type;
-					el = _ref34.el;
+					_ref36 = _ref35;
+					name = _ref36.name;
+					value = _ref36.value;
+					type = _ref36.type;
+					el = _ref36.el;
 
 					if (!(type === 'file')) {
-						_context16.next = 32;
+						_context16.next = 33;
 						break;
 					}
 
@@ -11148,45 +11229,45 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					fileName = value.name, newFileName = Cfg.removeFName ? ' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
 
 					if (!(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) && (Cfg.postSameImg || Cfg.removeEXIF))) {
-						_context16.next = 31;
+						_context16.next = 32;
 						break;
 					}
 
-					_context16.next = 23;
+					_context16.next = 24;
 					return readFile(value, false);
 
-				case 23:
+				case 24:
 					_context16.t0 = _context16.sent;
 					_context16.t1 = el.obj.imgFile;
 					data = cleanFile(_context16.t0, _context16.t1);
 
 					if (data) {
-						_context16.next = 28;
+						_context16.next = 29;
 						break;
 					}
 
 					return _context16.abrupt('return', Promise.reject(Lng.fileCorrupt[lang] + fileName));
 
-				case 28:
+				case 29:
 					value = new File(data, newFileName);
-					_context16.next = 32;
+					_context16.next = 33;
 					break;
 
-				case 31:
+				case 32:
 					if (Cfg.removeFName) {
 						value = new File([value], newFileName);
 					}
 
-				case 32:
+				case 33:
 					formData.append(name, value);
 
-				case 33:
+				case 34:
 					_context16.next = 3;
 					break;
 
-				case 35:
+				case 36:
 					if (!needProgress) {
-						_context16.next = 41;
+						_context16.next = 42;
 						break;
 					}
 
@@ -11208,25 +11289,25 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return promises.shift();
 					}]);
 
-				case 41:
-					_context16.prev = 41;
-					_context16.next = 44;
+				case 42:
+					_context16.prev = 42;
+					_context16.next = 45;
 					return $ajax(form.action, { method: 'POST', data: formData });
 
-				case 44:
+				case 45:
 					xhr = _context16.sent;
 					return _context16.abrupt('return', $DOM(xhr.responseText));
 
-				case 48:
-					_context16.prev = 48;
-					_context16.t2 = _context16['catch'](41);
+				case 49:
+					_context16.prev = 49;
+					_context16.t2 = _context16['catch'](42);
 					return _context16.abrupt('return', Promise.reject(_context16.t2));
 
-				case 51:
+				case 52:
 				case 'end':
 					return _context16.stop();
 			}
-		}, _marked[5], this, [[41, 48]]);
+		}, _marked[5], this, [[42, 49]]);
 	}
 
 	function readFile(file, asText) {
@@ -12171,95 +12252,97 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			var el, src, data, buffer, val, w, h, imgData, cnv, ctx;
 			return regeneratorRuntime.wrap(function _getHashHelper$(_context17) {
-				while (1) switch (_context17.prev = _context17.next) {
-					case 0:
-						el = imgObj.el, src = imgObj.src;
+				while (1) {
+					switch (_context17.prev = _context17.next) {
+						case 0:
+							el = imgObj.el, src = imgObj.src;
 
-						if (!(src in this._storage)) {
-							_context17.next = 3;
-							break;
-						}
+							if (!(src in this._storage)) {
+								_context17.next = 3;
+								break;
+							}
 
-						return _context17.abrupt('return', this._storage[src]);
+							return _context17.abrupt('return', this._storage[src]);
 
-					case 3:
-						if (el.complete) {
+						case 3:
+							if (el.complete) {
+								_context17.next = 6;
+								break;
+							}
+
 							_context17.next = 6;
-							break;
-						}
-
-						_context17.next = 6;
-						return new Promise(function (resolve) {
-							return el.addEventListener('load', function () {
-								return resolve();
+							return new Promise(function (resolve) {
+								return el.addEventListener('load', function () {
+									return resolve();
+								});
 							});
-						});
 
-					case 6:
-						if (!(el.naturalWidth + el.naturalHeight === 0)) {
-							_context17.next = 8;
+						case 6:
+							if (!(el.naturalWidth + el.naturalHeight === 0)) {
+								_context17.next = 8;
+								break;
+							}
+
+							return _context17.abrupt('return', -1);
+
+						case 8:
+							val = -1, w = el.naturalWidth, h = el.naturalHeight;
+
+							if (!aib.fch) {
+								_context17.next = 16;
+								break;
+							}
+
+							_context17.next = 12;
+							return downloadImgData(el.src);
+
+						case 12:
+							imgData = _context17.sent;
+
+							if (imgData) {
+								buffer = imgData.buffer;
+							}
+							_context17.next = 22;
 							break;
-						}
 
-						return _context17.abrupt('return', -1);
+						case 16:
+							cnv = this._canvas;
 
-					case 8:
-						val = -1, w = el.naturalWidth, h = el.naturalHeight;
+							cnv.width = w;
+							cnv.height = h;
+							ctx = cnv.getContext('2d');
 
-						if (!aib.fch) {
-							_context17.next = 16;
-							break;
-						}
+							ctx.drawImage(el, 0, 0);
+							buffer = ctx.getImageData(0, 0, w, h).data.buffer;
 
-						_context17.next = 12;
-						return downloadImgData(el.src);
+						case 22:
+							if (!buffer) {
+								_context17.next = 27;
+								break;
+							}
 
-					case 12:
-						imgData = _context17.sent;
-
-						if (imgData) {
-							buffer = imgData.buffer;
-						}
-						_context17.next = 22;
-						break;
-
-					case 16:
-						cnv = this._canvas;
-
-						cnv.width = w;
-						cnv.height = h;
-						ctx = cnv.getContext('2d');
-
-						ctx.drawImage(el, 0, 0);
-						buffer = ctx.getImageData(0, 0, w, h).data.buffer;
-
-					case 22:
-						if (!buffer) {
-							_context17.next = 27;
-							break;
-						}
-
-						_context17.next = 25;
-						return new Promise(function (resolve) {
-							return _this25._workers.run([buffer, w, h], [buffer], function (val) {
-								return resolve(val);
+							_context17.next = 25;
+							return new Promise(function (resolve) {
+								return _this25._workers.run([buffer, w, h], [buffer], function (val) {
+									return resolve(val);
+								});
 							});
-						});
 
-					case 25:
-						data = _context17.sent;
+						case 25:
+							data = _context17.sent;
 
-						if (data && 'hash' in data) {
-							val = data.hash;
-						}
+							if (data && 'hash' in data) {
+								val = data.hash;
+							}
 
-					case 27:
-						this._storage[src] = val;
-						return _context17.abrupt('return', val);
+						case 27:
+							this._storage[src] = val;
+							return _context17.abrupt('return', val);
 
-					case 29:
-					case 'end':
-						return _context17.stop();
+						case 29:
+						case 'end':
+							return _context17.stop();
+					}
 				}
 			}, _getHashHelper, this);
 		}),
@@ -12964,18 +13047,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var expand = arguments.length <= 0 || arguments[0] === undefined ? !this.images.expanded : arguments[0];
 
 				for (var _iterator20 = this.images, _isArray20 = Array.isArray(_iterator20), _i21 = 0, _iterator20 = _isArray20 ? _iterator20 : _iterator20[Symbol.iterator]();;) {
-					var _ref35;
+					var _ref37;
 
 					if (_isArray20) {
 						if (_i21 >= _iterator20.length) break;
-						_ref35 = _iterator20[_i21++];
+						_ref37 = _iterator20[_i21++];
 					} else {
 						_i21 = _iterator20.next();
 						if (_i21.done) break;
-						_ref35 = _i21.value;
+						_ref37 = _i21.value;
 					}
 
-					var image = _ref35;
+					var image = _ref37;
 
 					if (image.isImage && image.expanded ^ expand) {
 						if (expand) {
@@ -14062,21 +14145,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function gen(posts, thrURL) {
 				var opNums = DelForm.tNums;
 				for (var _iterator21 = posts, _isArray21 = Array.isArray(_iterator21), _i22 = 0, _iterator21 = _isArray21 ? _iterator21 : _iterator21[Symbol.iterator]();;) {
-					var _ref36;
+					var _ref38;
 
 					if (_isArray21) {
 						if (_i22 >= _iterator21.length) break;
-						_ref36 = _iterator21[_i22++];
+						_ref38 = _iterator21[_i22++];
 					} else {
 						_i22 = _iterator21.next();
 						if (_i22.done) break;
-						_ref36 = _i22.value;
+						_ref38 = _i22.value;
 					}
 
-					var _ref37 = _slicedToArray(_ref36, 2);
+					var _ref39 = _ref38;
 
-					var pNum = _ref37[0];
-					var post = _ref37[1];
+					var _ref40 = _slicedToArray(_ref39, 2);
+
+					var pNum = _ref40[0];
+					var post = _ref40[1];
 
 					var links = $Q('a', post.msg);
 					for (var i = 0, len = links.length; i < len; ++i) {
@@ -14211,18 +14296,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					date = Date.now();
 				}
 				for (var _iterator22 = this._set, _isArray22 = Array.isArray(_iterator22), _i23 = 0, _iterator22 = _isArray22 ? _iterator22 : _iterator22[Symbol.iterator]();;) {
-					var _ref38;
+					var _ref41;
 
 					if (_isArray22) {
 						if (_i23 >= _iterator22.length) break;
-						_ref38 = _iterator22[_i23++];
+						_ref41 = _iterator22[_i23++];
 					} else {
 						_i23 = _iterator22.next();
 						if (_i23.done) break;
-						_ref38 = _i23.value;
+						_ref41 = _i23.value;
 					}
 
-					var num = _ref38;
+					var num = _ref41;
 
 					var pst = pByNum.get(num);
 					if (pst && (isUser || !pst.userToggled)) {
@@ -14241,18 +14326,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function init(tUrl, strNums) {
 				var html = '';
 				for (var _iterator23 = this._set, _isArray23 = Array.isArray(_iterator23), _i24 = 0, _iterator23 = _isArray23 ? _iterator23 : _iterator23[Symbol.iterator]();;) {
-					var _ref39;
+					var _ref42;
 
 					if (_isArray23) {
 						if (_i24 >= _iterator23.length) break;
-						_ref39 = _iterator23[_i24++];
+						_ref42 = _iterator23[_i24++];
 					} else {
 						_i24 = _iterator23.next();
 						if (_i24.done) break;
-						_ref39 = _i24.value;
+						_ref42 = _i24.value;
 					}
 
-					var num = _ref39;
+					var num = _ref42;
 
 					html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 				}
@@ -14302,18 +14387,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					date = Date.now();
 				}
 				for (var _iterator24 = this._set, _isArray24 = Array.isArray(_iterator24), _i25 = 0, _iterator24 = _isArray24 ? _iterator24 : _iterator24[Symbol.iterator]();;) {
-					var _ref40;
+					var _ref43;
 
 					if (_isArray24) {
 						if (_i25 >= _iterator24.length) break;
-						_ref40 = _iterator24[_i25++];
+						_ref43 = _iterator24[_i25++];
 					} else {
 						_i25 = _iterator24.next();
 						if (_i25.done) break;
-						_ref40 = _i25.value;
+						_ref43 = _i25.value;
 					}
 
-					var num = _ref40;
+					var num = _ref43;
 
 					var pst = pByNum.get(num);
 					if (pst && pst.hidden && (isUser || !pst.userToggled) && !pst.spellHidden) {
@@ -14954,18 +15039,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					window.requestAnimationFrame(function () {
 						var halfHeight = Post.sizing.wHeight / 2;
 						for (var _iterator25 = _this44._thrs, _isArray25 = Array.isArray(_iterator25), _i26 = 0, _iterator25 = _isArray25 ? _iterator25 : _iterator25[Symbol.iterator]();;) {
-							var _ref41;
+							var _ref44;
 
 							if (_isArray25) {
 								if (_i26 >= _iterator25.length) break;
-								_ref41 = _iterator25[_i26++];
+								_ref44 = _iterator25[_i26++];
 							} else {
 								_i26 = _iterator25.next();
 								if (_i26.done) break;
-								_ref41 = _i26.value;
+								_ref44 = _i26.value;
 							}
 
-							var thr = _ref41;
+							var thr = _ref44;
 
 							if (thr.bottom > halfHeight && thr.top < halfHeight) {
 								if (!_this44._visible) {
@@ -16191,8 +16276,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						$id('captchaimage').src = '/' + _this59.b + '/captcha?' + Math.random();
 						if (!$id('de-_2chruNet-capchecker')) {
 							cap.textEl.insertAdjacentHTML('afterend', '\n\t\t\t\t\t<span id="de-_2chruNet-capchecker" class="shortened" style="margin: 0px .5em;">\n\t\t\t\t\t\tпроверить капчу\n\t\t\t\t\t</span>');
-							cap.textEl.nextSibling.onclick = function (_ref42) {
-								var target = _ref42.target;
+							cap.textEl.nextSibling.onclick = function (_ref45) {
+								var target = _ref45.target;
 
 								$ajax('/' + _this59.b + '/api/validate-captcha', { method: 'POST' }).then(function (xhr) {
 									if (JSON.parse(xhr.responseText).status === 'ok') {
@@ -17052,18 +17137,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var cookie = doc.cookie;
 					if (cookie.includes('desuchan.session')) {
 						for (var _iterator26 = cookie.split(';'), _isArray26 = Array.isArray(_iterator26), _i27 = 0, _iterator26 = _isArray26 ? _iterator26 : _iterator26[Symbol.iterator]();;) {
-							var _ref43;
+							var _ref46;
 
 							if (_isArray26) {
 								if (_i27 >= _iterator26.length) break;
-								_ref43 = _iterator26[_i27++];
+								_ref46 = _iterator26[_i27++];
 							} else {
 								_i27 = _iterator26.next();
 								if (_i27.done) break;
-								_ref43 = _i27.value;
+								_ref46 = _i27.value;
 							}
 
-							var c = _ref43;
+							var c = _ref46;
 
 							var m = c.match(/^\s*desuchan\.session=(.*)$/);
 							if (m) {
@@ -18114,33 +18199,35 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				var needSleep = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
 
-				while (true) switch (this._state) {
-					case 0:
-						if (needSleep) {
-							this._state = 1;
-							counter.count(this._delay, !doc.hidden, function () {
-								return _this86._makeStep();
+				while (true) {
+					switch (this._state) {
+						case 0:
+							if (needSleep) {
+								this._state = 1;
+								counter.count(this._delay, !doc.hidden, function () {
+									return _this86._makeStep();
+								});
+								return;
+							}
+												case 1:
+							counter.setWait();
+							this._loadPromise = Thread.first.loadNew(true);
+							this._state = 2;
+							this._loadPromise.then(function (pCount) {
+								return _this86._handleNewPosts(pCount, AjaxError.success);
+							}, function (e) {
+								return _this86._handleNewPosts(0, e);
 							});
 							return;
-						}
-										case 1:
-						counter.setWait();
-						this._loadPromise = Thread.first.loadNew(true);
-						this._state = 2;
-						this._loadPromise.then(function (pCount) {
-							return _this86._handleNewPosts(pCount, AjaxError.success);
-						}, function (e) {
-							return _this86._handleNewPosts(0, e);
-						});
-						return;
-					case 2:
-						this._loadPromise = null;
-						if (this._loadOnce) {
-							this._state = -1;
-							return;
-						}
-						this._state = 0;
-						break;
+						case 2:
+							this._loadPromise = null;
+							if (this._loadOnce) {
+								this._state = -1;
+								return;
+							}
+							this._state = 0;
+							break;
+					}
 				}
 			},
 			_setUpdateStatus: function _setUpdateStatus(status) {
@@ -18283,8 +18370,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function initPage() {
 		if (!localRun && Cfg.ajaxReply === 1) {
 			doc.body.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-pform" sandbox="" src="about:blank" style="display: none;"></iframe>' + '<iframe name="de-iframe-dform" sandbox="" src="about:blank" style="display: none;"></iframe>');
-			doc.defaultView.addEventListener('message', function (_ref44) {
-				var data = _ref44.data;
+			doc.defaultView.addEventListener('message', function (_ref47) {
+				var data = _ref47.data;
 
 				switch (data.substr(0, 15)) {
 					case 'de-iframe-pform':
