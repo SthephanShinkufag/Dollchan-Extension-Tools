@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'f5b6ae5';
+var commit = '14669fc';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7500,7 +7500,7 @@ class Captcha {
 		this.textEl.addEventListener('focus', this);
 		this.textEl.onfocus = null;
 	}
-	renewew() {
+	renew() {
 		this._added = false;
 		this._originHTML = this.trEl.innerHTML;
 		this.add(false, false);
@@ -11437,7 +11437,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `
-			.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, header > :not(.logo) + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }
+			.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, .logo + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .prerekl-hr, .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }
 			.captcha-image > img { cursor: pointer; }
 			#de-txt-panel { font-size: 16px !important; }
 			.images-area input { float: none !important; display: inline !important; }
@@ -11532,7 +11532,6 @@ function getImageBoard(checkDomains, checkEngines) {
 				this._capUpdPromise = null;
 				var el = $q('.captcha-box', cap.trEl),
 					data = xhr.responseText;
-				cap.hasCaptcha = false;
 				if(data.includes('VIPFAIL')) {
 					el.innerHTML = 'Ваш пасс-код не действителен, пожалуйста, перелогиньтесь. <a href="#" id="renew-pass-btn">Обновить</a>';
 				} else if(data.includes('VIP')) {
@@ -11541,7 +11540,6 @@ function getImageBoard(checkDomains, checkEngines) {
 					$hide(cap.trEl);
 					return CancelablePromise.reject();
 				} else if(data.includes('CHECK')) {
-					cap.hasCaptcha = true;
 					var key = data.substr(6),
 						src = '/makaba/captcha.fcgi?type=2chaptcha&action=image&id=' + key;
 					if((el = $id('de-image-captcha'))) {
