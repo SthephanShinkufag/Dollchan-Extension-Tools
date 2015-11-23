@@ -2790,7 +2790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '3b454d1';
+	var commit = 'f5b6ae5';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15640,7 +15640,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}, {
 				key: 'updateCaptcha',
-				value: function updateCaptcha(cap) {
+				value: function updateCaptcha(cap, isErr) {
 					var _this47 = this;
 
 					if (this._capUpdPromise) {
@@ -15648,8 +15648,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 					return this._capUpdPromise = $ajax('/makaba/captcha.fcgi?type=2chaptcha' + (pr.tNum ? '&action=thread' : '')).then(function (xhr) {
 						_this47._capUpdPromise = null;
-						var el = $q('.captcha-box', doc.body),
+						var el = $q('.captcha-box', cap.trEl),
 						    data = xhr.responseText;
+						cap.hasCaptcha = false;
 						if (data.includes('VIPFAIL')) {
 							el.innerHTML = 'Ваш пасс-код не действителен, пожалуйста, перелогиньтесь. <a href="#" id="renew-pass-btn">Обновить</a>';
 						} else if (data.includes('VIP')) {
@@ -15658,6 +15659,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							$hide(cap.trEl);
 							return CancelablePromise.reject();
 						} else if (data.includes('CHECK')) {
+							cap.hasCaptcha = true;
 							var key = data.substr(6),
 							    src = '/makaba/captcha.fcgi?type=2chaptcha&action=image&id=' + key;
 							if (el = $id('de-image-captcha')) {
@@ -16987,12 +16989,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'initCaptcha',
 				value: function initCaptcha(cap) {
+					cap.hasCaptcha = false;
 					var scripts = $Q('script:not([src])', doc);
 					for (var i = 0, len = scripts.length; i < len; ++i) {
 						var m = scripts[i].textContent.match(/var boardRequiresCaptcha = ([a-z]+);/);
 						if (m) {
-							if (m[1] === 'false') {
-								cap.hasCaptcha = false;
+							if (m[1] === 'true') {
+								cap.hasCaptcha = true;
 							}
 							break;
 						}

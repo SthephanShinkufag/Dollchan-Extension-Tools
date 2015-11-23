@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '3b454d1';
+var commit = 'f5b6ae5';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11522,7 +11522,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			cap.textEl.tabIndex = 999;
 			return this.updateCaptcha(cap);
 		}
-		updateCaptcha(cap) {
+		updateCaptcha(cap, isErr) {
 			if(this._capUpdPromise) {
 				this._capUpdPromise.cancel();
 			}
@@ -11530,8 +11530,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				'/makaba/captcha.fcgi?type=2chaptcha' + (pr.tNum ? '&action=thread' : '')
 			).then(xhr => {
 				this._capUpdPromise = null;
-				var el = $q('.captcha-box', doc.body),
+				var el = $q('.captcha-box', cap.trEl),
 					data = xhr.responseText;
+				cap.hasCaptcha = false;
 				if(data.includes('VIPFAIL')) {
 					el.innerHTML = 'Ваш пасс-код не действителен, пожалуйста, перелогиньтесь. <a href="#" id="renew-pass-btn">Обновить</a>';
 				} else if(data.includes('VIP')) {
@@ -11540,6 +11541,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					$hide(cap.trEl);
 					return CancelablePromise.reject();
 				} else if(data.includes('CHECK')) {
+					cap.hasCaptcha = true;
 					var key = data.substr(6),
 						src = '/makaba/captcha.fcgi?type=2chaptcha&action=image&id=' + key;
 					if((el = $id('de-image-captcha'))) {
@@ -12473,12 +12475,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		initCaptcha(cap) {
+			cap.hasCaptcha = false;
 			var scripts = $Q('script:not([src])', doc);
 			for(var i = 0, len = scripts.length; i < len; ++i) {
 				var m = scripts[i].textContent.match(/var boardRequiresCaptcha = ([a-z]+);/);
 				if(m) {
-					if(m[1] === 'false') {
-						cap.hasCaptcha = false;
+					if(m[1] === 'true') {
+						cap.hasCaptcha = true;
 					}
 					break;
 				}
