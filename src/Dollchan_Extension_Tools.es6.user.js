@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '14669fc';
+var commit = 'dd28de8';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3123,7 +3123,7 @@ function getCfgForm() {
 		})),
 		$if(!aib.iich && pr.mail, $New('div', null, [
 			lBox('addSageBtn', false, function() {
-				PostForm.hideField(pr.mail);
+				PostForm.hideField($parent(pr.mail, 'LABEL') || pr.mail);
 				updateCSS();
 			}),
 			lBox('saveSage', false, null)
@@ -3153,7 +3153,7 @@ function getCfgForm() {
 			$txt(Lng.dontShow[lang]),
 			$if(pr.rules, lBox('noBoardRule', false, updateCSS)),
 			$if(pr.passw, lBox('noPassword', false, function() {
-				PostForm.hideField(pr.passw);
+				$toggle($parent(pr.passw, 'TR'));
 			})),
 			$if(pr.name, lBox('noName', false, function() {
 				PostForm.hideField(pr.name);
@@ -6742,7 +6742,7 @@ function PostForm(form, ignoreForm, dc) {
 		updater.pause();
 	});
 	if(Cfg.noPassword && (el = this.passw)) {
-		PostForm.hideField(el);
+		$hide($parent(el, 'TR'));
 	}
 	if(Cfg.noName && (el = this.name)) {
 		PostForm.hideField(el);
@@ -6794,7 +6794,9 @@ function PostForm(form, ignoreForm, dc) {
 	}
 }
 PostForm.hideField = function(el) {
-	$toggle(el.nextElementSibling || el.previousElementSibling ? el : $parent(el, 'TR'));
+	var next = el.nextElementSibling;
+	$toggle(next && (next.style.display !== 'none') ||
+		el.previousElementSibling ? el : $parent(el, 'TR'));
 }
 PostForm.setUserName = function() {
 	var el = $q('input[info="nameValue"]', doc);
@@ -7531,9 +7533,11 @@ class Captcha {
 			var img = $t('img', this.trEl);
 			if(img) {
 				if(aib.getCaptchaSrc) {
-					var src = aib.getCaptchaSrc(img.getAttribute('src'), pr.tNum);
-					img.src = '';
-					img.src = src;
+					var src = img.getAttribute('src');
+					if(src) {
+						img.src = '';
+						img.src = aib.getCaptchaSrc(src, pr.tNum);
+					}
 				} else {
 					img.click();
 				}
@@ -11213,15 +11217,15 @@ class BaseBoard {
 		return '';
 	}
 	get qFormMail() {
-		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"])',
-			'[name="email"]', '[name="em"]', '[name="field2"]',  '[name="sage"]');
+		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
+			'[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
 	}
 	get qFormName() {
-		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"])',
+		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="name"]', '[name="field1"]');
 	}
 	get qFormSubj() {
-		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"])',
+		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="subject"]', '[name="field3"]');
 	}
 	get qImgLink() {
@@ -11718,7 +11722,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 			this.kus = true;
 
-			this.cOPost = 'postnode';
 			this.qFormRedir = null;
 			this.qError = 'h1, h2, div[style*="1.25em"]';
 
@@ -11742,6 +11745,21 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibEngines['script[src*="kusaba"]'] = Kusaba;
+
+	class _0chan extends Kusaba {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.cOPost = 'postnode';
+			this.qFormRedir = '#gotothread';
+
+			this.ru = true;
+		}
+		get css() {
+			return super.css + '.content-background > hr, .uibutton { display: none; }';
+		}
+	}
+	ibEngines['.maintable[width="98%"]'] = _0chan;
 
 	class Phutaba extends BaseBoard {
 		constructor(prot, dm) {
@@ -11786,20 +11804,10 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines['link[href$="phutaba.css"]'] = Phutaba;
 
 	// Domains
-	class _0chanSo extends Kusaba {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.qFormRedir = '#gotothread';
-
-			this.ru = true;
-		}
-		get css() {
-			return super.css + 'nobr { display: none; }';
-		}
+	class _0chanSo extends _0chan {
 		earlyInit() {
-			if(this.dm === '0chan.so') {
-				window.location.hostname = window.location.hostname.replace('0chan.so', '0-chan.ru');
+			if(this.host !== 'www.0-chan.ru') {
+				window.location.hostname = 'www.0-chan.ru';
 			}
 			return false;
 		}
@@ -11975,6 +11983,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.qFormRedir = 'input#noko';
+			this.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)'
 
 			this.markupBB = false;
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
@@ -12701,9 +12710,13 @@ function getImageBoard(checkDomains, checkEngines) {
 		return new ibDomains[dm](prot, dm);
 	}
 	if(checkEngines) {
-		for(var i in ibEngines) {
-			if($q(i, doc)) {
-				return new ibEngines[i](prot, dm);
+		var i, arr = [];
+		for(i in ibEngines) {
+			arr.push(i);
+		}
+		for(i = arr.length; i--;) {
+			if($q(arr[i], doc)) {
+				return new ibEngines[arr[i]](prot, dm);
 			}
 		}
 		return new BaseBoard(prot, dm);
