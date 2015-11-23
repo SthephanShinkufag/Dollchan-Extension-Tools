@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '82d0559';
+var commit = 'c8fcad9';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -660,6 +660,15 @@ function $after(el, node) {
 		el.parentNode.insertBefore(node, next);
 	} else {
 		el.parentNode.appendChild(node);
+	}
+}
+
+function $replace(origEl, newEl) {
+	if(typeof newEl === 'string') {
+		origEl.insertAdjacentHTML('afterend', newEl);
+		origEl.parentNode.removeChild(origEl);
+	} else {
+		origEl.parentNode.replaceChild(newEl, origEl);
 	}
 }
 
@@ -7531,7 +7540,7 @@ class Captcha {
 		this.initImage(img);
 		var a = img.parentNode;
 		if(a.tagName === 'A') {
-			a.parentNode.replaceChild(img, a);
+			$replace(a, img);
 		}
 		if(updateImage) {
 			this.update(focus, false);
@@ -8980,7 +8989,7 @@ class AbstractPost {
 		var origMsg = aib.dobr ? this.msg.firstElementChild : this.msg,
 			videoExt = $c('de-video-ext', origMsg),
 			videoLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);
-		origMsg.parentNode.replaceChild(newMsg, origMsg);
+		$replace(origMsg, newMsg);
 		Object.defineProperties(this, {
 			'msg': { configurable: true, value: newMsg },
 			'trunc': { configurable: true, value: null }
@@ -9025,7 +9034,7 @@ class AbstractPost {
 			$del(node.previousSibling);
 			$del(node);
 			if(isInit) {
-				this.msg.replaceChild($q('.alternate > div', this.el), this.msg.firstElementChild);
+				$replace(this.msg.firstElementChild, $q('.alternate > div', this.el));
 			} else {
 				var sRunner = new SpellsRunner();
 				this.updateMsg($q('.alternate > div', this.el), sRunner);
@@ -11955,7 +11964,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			var el = $q('#postform input[type="button"]', doc);
 			if(el) {
-				el.replaceChild($add('<input type="submit" value="Отправить" />'), el);
+				$replace(el, '<input type="submit" value="Отправить" />');
 			}
 			return false;
 		}
@@ -12082,8 +12091,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(el) {
 				doc.body.insertAdjacentHTML('beforeend', '<div onclick="initRecaptcha();"></div>');
 				value = function(el) {
-					var old = $id('g-recaptcha');
-					old.parentNode.replaceChild($add('<div id="g-recaptcha"></div>'), old);
+					$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
 					this.click();
 					$show(el);
 					return null;
