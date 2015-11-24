@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'dec5e74';
+var commit = 'dbe39c8';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -6824,7 +6824,8 @@ PostForm.prototype = {
 			$after(this.fileTd.parentNode, val);
 		} else {
 			val = $t(aib.tiny ? 'th' : 'td', $parent(this.txta, 'TR'));
-			val.innerHTML = '';
+			val.innerHTML = '<div style="display: none;">' + val.innerHTML + '</div><div></div>';
+			val = val.lastChild;
 		}
 		Object.defineProperty(this, 'fileArea', { value: val });
 		return val;
@@ -11665,9 +11666,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script('window.FormData = void 0;');
-			if(Cfg) {
-				Cfg.fileThumb = 0;
-			}
 			return false;
 		}
 	}
