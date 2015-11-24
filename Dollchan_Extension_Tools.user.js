@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '657075c';
+	var commit = '310422c';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -16078,7 +16078,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_createClass(_0chan, [{
 				key: 'css',
 				get: function get() {
-					return _get(Object.getPrototypeOf(_0chan.prototype), 'css', this) + '.content-background > hr, .uibutton { display: none; }';
+					return _get(Object.getPrototypeOf(_0chan.prototype), 'css', this) + '.logo + hr, table[border="0"] + hr, .uibutton { display: none; }';
 				}
 			}]);
 

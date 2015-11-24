@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '657075c';
+var commit = '310422c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11747,7 +11747,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.ru = true;
 		}
 		get css() {
-			return super.css + '.content-background > hr, .uibutton { display: none; }';
+			return super.css + '.logo + hr, table[border="0"] + hr, .uibutton { display: none; }';
 		}
 	}
 	ibEngines.push(['.maintable[width="98%"]', _0chan]);
