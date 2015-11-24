@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'e2775dd';
+var commit = '82fec13';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11306,7 +11306,7 @@ class BaseBoard {
 		return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum)
 					: tmp.replace(/res\d+/, 'mainpage');
 	}
-	getFileInfo(wrap) { // Differs _4chanOrg only
+	getFileInfo(wrap) {
 		var el = $c(this.cFileInfo, wrap);
 		return el ? el.textContent : '';
 	}
@@ -11349,7 +11349,7 @@ class BaseBoard {
 	getPNum(post) {
 		return +post.id.match(/\d+/)[0];
 	}
-	getPostElOfEl(el) { // Differs Futaba only
+	getPostElOfEl(el) {
 		var sel = this.qRPost + ', [de-thread]';
 		while(el && !nav.matchesSelector(el, sel)) {
 			el = el.parentElement;
@@ -11783,7 +11783,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.res = 'thread/';
 		}
 		get css() {
-			return '.content > hr, .de-parea > hr { display: none !important }';
+			return `
+			.content > hr, .de-parea > hr, .de-pview > .doubledash { display: none !important }
+			.de-pview > .post { margin-left: 0; border: none; }
+			#de-win-reply { float:left; margin-left:2em }`;
 		}
 		fixFileInputs(el) {
 			var str = '><input name="file" type="file"></input></div>';
@@ -11799,6 +11802,12 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getPageUrl(b, p) {
 			return p > 1 ? fixBrd(b) + 'page/' + p : fixBrd(b);
+		}
+		getPostElOfEl(el) {
+			while(el && !nav.matchesSelector(el, '.post')) {
+				el = el.parentElement;
+			}
+			return el.parentNode;
 		}
 		getSage(post) {
 			return !!$q('.sage', post);
@@ -12166,6 +12175,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.cPostHeader = 'post_head';
 			this.cReply = 'post';
 			this.qDForm = 'body > .container-fluid';
+			this.qPostImg = '.post_image > img';
 			this.qPostMsg = '.post_comment_body';
 			this.qPostRef = '.post_id, .post_head > b';
 			this.qRPost = '.post:not(:first-child):not([postid=""])';
@@ -12178,8 +12188,25 @@ function getImageBoard(checkDomains, checkEngines) {
 			.post_replies, .post[postid=""] { display: none !important; }
 			.post { overflow-x: auto !important; }`;
 		}
+		get qImgLink() {
+			return '.img_filename';
+		}
 		get qThread() {
 			return '.thread_inner';
+		}
+		getFileInfo(wrap) {
+			var data = wrap.firstElementChild.getAttribute('onclick').replace(/'/g, '').split(',');
+			if(data[1].split('.')[2] === 'webm') {
+				var img = $t('img', wrap);
+				return img.width * 5 + 'x' + img.height * 5;
+			}
+			return data[2] + 'x' + data[3];
+		}
+		getImgLink(img) {
+			return img.parentNode.parentNode.parentNode.lastElementChild;
+		}
+		getImgWrap(el) {
+			return el.parentNode.parentNode;
 		}
 		getOp(el) {
 			return $q('.post:first-child', el);

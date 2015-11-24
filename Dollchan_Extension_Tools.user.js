@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'e2775dd';
+	var commit = '82fec13';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15403,7 +15403,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'getFileInfo',
 			value: function getFileInfo(wrap) {
-			
 				var el = $c(this.cFileInfo, wrap);
 				return el ? el.textContent : '';
 			}
@@ -15468,7 +15467,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'getPostElOfEl',
 			value: function getPostElOfEl(el) {
-			
 				var sel = this.qRPost + ', [de-thread]';
 				while (el && !nav.matchesSelector(el, sel)) {
 					el = el.parentElement;
@@ -16151,6 +16149,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return p > 1 ? fixBrd(b) + 'page/' + p : fixBrd(b);
 				}
 			}, {
+				key: 'getPostElOfEl',
+				value: function getPostElOfEl(el) {
+					while (el && !nav.matchesSelector(el, '.post')) {
+						el = el.parentElement;
+					}
+					return el.parentNode;
+				}
+			}, {
 				key: 'getSage',
 				value: function getSage(post) {
 					return !!$q('.sage', post);
@@ -16158,7 +16164,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'css',
 				get: function get() {
-					return '.content > hr, .de-parea > hr { display: none !important }';
+					return '\n\t\t\t.content > hr, .de-parea > hr, .de-pview > .doubledash { display: none !important }\n\t\t\t.de-pview > .post { margin-left: 0; border: none; }\n\t\t\t#de-win-reply { float:left; margin-left:2em }';
 				}
 			}, {
 				key: 'qImgLink',
@@ -16704,6 +16710,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_this66.cPostHeader = 'post_head';
 				_this66.cReply = 'post';
 				_this66.qDForm = 'body > .container-fluid';
+				_this66.qPostImg = '.post_image > img';
 				_this66.qPostMsg = '.post_comment_body';
 				_this66.qPostRef = '.post_id, .post_head > b';
 				_this66.qRPost = '.post:not(:first-child):not([postid=""])';
@@ -16714,6 +16721,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			_createClass(Arhivach, [{
+				key: 'getFileInfo',
+				value: function getFileInfo(wrap) {
+					var data = wrap.firstElementChild.getAttribute('onclick').replace(/'/g, '').split(',');
+					if (data[1].split('.')[2] === 'webm') {
+						var img = $t('img', wrap);
+						return img.width * 5 + 'x' + img.height * 5;
+					}
+					return data[2] + 'x' + data[3];
+				}
+			}, {
+				key: 'getImgLink',
+				value: function getImgLink(img) {
+					return img.parentNode.parentNode.parentNode.lastElementChild;
+				}
+			}, {
+				key: 'getImgWrap',
+				value: function getImgWrap(el) {
+					return el.parentNode.parentNode;
+				}
+			}, {
 				key: 'getOp',
 				value: function getOp(el) {
 					return $q('.post:first-child', el);
@@ -16756,6 +16783,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				key: 'css',
 				get: function get() {
 					return '\n\t\t\t.post_replies, .post[postid=""] { display: none !important; }\n\t\t\t.post { overflow-x: auto !important; }';
+				}
+			}, {
+				key: 'qImgLink',
+				get: function get() {
+					return '.img_filename';
 				}
 			}, {
 				key: 'qThread',
