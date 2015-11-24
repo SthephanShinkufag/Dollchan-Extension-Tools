@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '2e15a34';
+	var commit = '2682434';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10133,7 +10133,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				tPanel = $new('span', { 'id': 'de-txt-panel' }, { 'click': this, 'mouseover': this });
 			}
 			tPanel.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
-			$after(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : aib._420 ? $c('popup', this.form) : this.subm, tPanel);
+			$after(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : this.subm, tPanel);
 			id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub', 'quote'], val = ['B', 'i', 'U', 'S', '%', 'C', 'v', '^', '&gt;'];
 			btns = aib.markupTags;
 			for (var i = 0, len = btns.length; i < len; ++i) {
@@ -10270,9 +10270,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.refreshCapImg(false);
 			}
 			this.tNum = qNum;
-			if (aib._420 && this.txta.value === 'Comment') {
-				this.txta.value = '';
-			}
 			temp = this.txta.value;
 			if (!Cfg.addOPLink && !isThr && post.isOp && !isNumClick) {
 				this.txta.focus();
@@ -14498,7 +14495,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			el.removeAttribute('id');
 			el.setAttribute('de-thread', null);
 			visPosts = Math.max(visPosts, len);
-			if (aib._420 || aib.tiny) {
+			if (aib.tiny) {
 				var temp = el.lastChild;
 				if (temp !== this.op.el) {
 					$after(el, temp);
