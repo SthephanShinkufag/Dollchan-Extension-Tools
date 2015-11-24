@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '23cee7e';
+var commit = '657075c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11711,8 +11711,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 			this.kus = true;
 
-			this.qFormRedir = null;
 			this.qError = 'h1, h2, div[style*="1.25em"]';
+			this.qFormRedir = 'input[name="redirecttothread"][value="1"]';
 
 			this.markupBB = true;
 		}
@@ -11734,6 +11734,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibEngines.push(['script[src*="kusaba"]', Kusaba]);
+	ibEngines.push(['form#delform[action$="/board.php"]', Kusaba]);
 
 	class _0chan extends Kusaba {
 		constructor(prot, dm) {
@@ -11768,6 +11769,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qTrunc = '.tldr';
 
 			this.docExt = '';
+			this.firstPage = 1;
 			this.markupBB = true;
 			this.multiFile = true;
 			this.res = 'thread/';
@@ -11786,6 +11788,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getImgWrap(el) {
 			return el.parentNode.parentNode;
+		}
+		getPageUrl(b, p) {
+			return p > 1 ? fixBrd(b) + 'page/' + p : fixBrd(b);
 		}
 		getSage(post) {
 			return !!$q('.sage', post);
@@ -11820,6 +11825,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	class _02chSu extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
+
+			this.hasCatalog = true;
 
 			this._capUpdPromise = null;
 		}
@@ -12353,6 +12360,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.ru = true;
 
 			this._capUpdPromise = null;
+		}
+		init() {
+			var el = $id('submit_button');
+			if(el) {
+				$del(el.previousElementSibling);
+				$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ">');
+			}
+			return false;
 		}
 		updateCaptcha() {
 			if(this._capUpdPromise) {

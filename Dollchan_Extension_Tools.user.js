@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '23cee7e';
+	var commit = '657075c';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -16024,8 +16024,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				_this51.kus = true;
 
-				_this51.qFormRedir = null;
 				_this51.qError = 'h1, h2, div[style*="1.25em"]';
+				_this51.qFormRedir = 'input[name="redirecttothread"][value="1"]';
 
 				_this51.markupBB = true;
 				return _this51;
@@ -16057,6 +16057,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		})(BaseBoard);
 
 		ibEngines.push(['script[src*="kusaba"]', Kusaba]);
+		ibEngines.push(['form#delform[action$="/board.php"]', Kusaba]);
 
 		var _0chan = (function (_Kusaba) {
 			_inherits(_0chan, _Kusaba);
@@ -16107,6 +16108,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_this53.qTrunc = '.tldr';
 
 				_this53.docExt = '';
+				_this53.firstPage = 1;
 				_this53.markupBB = true;
 				_this53.multiFile = true;
 				_this53.res = 'thread/';
@@ -16124,6 +16126,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				key: 'getImgWrap',
 				value: function getImgWrap(el) {
 					return el.parentNode.parentNode;
+				}
+			}, {
+				key: 'getPageUrl',
+				value: function getPageUrl(b, p) {
+					return p > 1 ? fixBrd(b) + 'page/' + p : fixBrd(b);
 				}
 			}, {
 				key: 'getSage',
@@ -16201,6 +16208,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_classCallCheck(this, _02chSu);
 
 				var _this56 = _possibleConstructorReturn(this, Object.getPrototypeOf(_02chSu).call(this, prot, dm));
+
+				_this56.hasCatalog = true;
 
 				_this56._capUpdPromise = null;
 				return _this56;
@@ -16963,6 +16972,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			_createClass(DvaChNet, [{
+				key: 'init',
+				value: function init() {
+					var el = $id('submit_button');
+					if (el) {
+						$del(el.previousElementSibling);
+						$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ">');
+					}
+					return false;
+				}
+			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha() {
 					var _this71 = this;
