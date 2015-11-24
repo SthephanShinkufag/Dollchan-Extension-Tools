@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '2682434';
+	var commit = 'dec5e74';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3827,6 +3827,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				};
 			} catch (e) {
 				nativeXHRworks = false;
+				var headers = { Referer: window.location.toString() };
+				if (params.headers) {
+					Object.assign(params.headers, headers);
+				} else {
+					params.headers = headers;
+				}
 				return $ajax(url, params, false);
 			}
 		}
@@ -11195,7 +11201,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 					}
 
-					return _context16.abrupt('break', 36);
+					return _context16.abrupt('break', 39);
 
 				case 6:
 					_ref35 = _iterator19[_i20++];
@@ -11210,7 +11216,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 					}
 
-					return _context16.abrupt('break', 36);
+					return _context16.abrupt('break', 39);
 
 				case 12:
 					_ref35 = _i20.value;
@@ -11223,7 +11229,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					el = _ref36.el;
 
 					if (!(type === 'file')) {
-						_context16.next = 33;
+						_context16.next = 35;
 						break;
 					}
 
@@ -11261,15 +11267,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 
 				case 33:
+					_context16.next = 36;
+					break;
+
+				case 35:
+					if (type === 'application/octet-stream') {
+						value = new File([''], '');
+					}
+
+				case 36:
 					formData.append(name, value);
 
-				case 34:
+				case 37:
 					_context16.next = 3;
 					break;
 
-				case 36:
+				case 39:
 					if (!needProgress) {
-						_context16.next = 42;
+						_context16.next = 45;
 						break;
 					}
 
@@ -11291,25 +11306,25 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return promises.shift();
 					}]);
 
-				case 42:
-					_context16.prev = 42;
-					_context16.next = 45;
+				case 45:
+					_context16.prev = 45;
+					_context16.next = 48;
 					return $ajax(form.action, { method: 'POST', data: formData });
 
-				case 45:
+				case 48:
 					xhr = _context16.sent;
 					return _context16.abrupt('return', $DOM(xhr.responseText));
 
-				case 49:
-					_context16.prev = 49;
-					_context16.t2 = _context16['catch'](42);
+				case 52:
+					_context16.prev = 52;
+					_context16.t2 = _context16['catch'](45);
 					return _context16.abrupt('return', Promise.reject(_context16.t2));
 
-				case 52:
+				case 55:
 				case 'end':
 					return _context16.stop();
 			}
-		}, _marked[5], this, [[42, 49]]);
+		}, _marked[5], this, [[45, 52]]);
 	}
 
 	function readFile(file, asText) {
@@ -15936,6 +15951,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'init',
 				value: function init() {
+					$script('window.FormData = void 0;');
 					if (Cfg) {
 						Cfg.fileThumb = 0;
 					}
@@ -15989,6 +16005,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'init',
 				value: function init() {
+					_get(Object.getPrototypeOf(Vichan.prototype), 'init', this).call(this);
 					setTimeout(function () {
 						$del($id('updater'));
 					}, 0);
@@ -17323,6 +17340,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_createClass(Ponychan, [{
 				key: 'init',
 				value: function init() {
+					_get(Object.getPrototypeOf(Ponychan.prototype), 'init', this).call(this);
 					$each($Q('img[data-mature-src]', doc.body), function (el) {
 						el.src = el.getAttribute('data-mature-src');
 					});
@@ -17367,6 +17385,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'init',
 				value: function init() {
+					_get(Object.getPrototypeOf(Synch.prototype), 'init', this).call(this);
 					defaultCfg.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
 					defaultCfg.timeOffset = 4;
 					defaultCfg.correctTime = 1;

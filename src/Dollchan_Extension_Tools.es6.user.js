@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '2682434';
+var commit = 'dec5e74';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1020,6 +1020,12 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			cancelFn = () => xhr.abort();
 		} catch(e) {
 			nativeXHRworks = false;
+			var headers = { Referer: window.location.toString() };
+			if(params.headers) {
+				Object.assign(params.headers, headers);
+			} else {
+				params.headers = headers;
+			}
 			return $ajax(url, params, false);
 		}
 	}
@@ -7737,6 +7743,8 @@ function* html5Submit(form, submitter, needProgress = false) {
 			} else if(Cfg.removeFName) {
 				value = new File([value], newFileName);
 			}
+		} else if(type === 'application/octet-stream') {
+			value = new File([''], '');
 		}
 		formData.append(name, value);
 	}
@@ -11656,6 +11664,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 		}
 		init() {
+			$script('window.FormData = void 0;');
 			if(Cfg) {
 				Cfg.fileThumb = 0;
 			}
@@ -11689,6 +11698,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			$id('upload').lastChild.innerHTML = str;
 		}
 		init() {
+			super.init();
 			setTimeout(function() {
 				$del($id('updater'));
 			}, 0);
@@ -12611,6 +12621,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			.mature_warning { display: none; }`;
 		}
 		init() {
+			super.init();
 			$each($Q('img[data-mature-src]', doc.body), function(el) {
 				el.src = el.getAttribute('data-mature-src');
 			});
@@ -12644,6 +12655,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		init() {
+			super.init();
 			defaultCfg.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
 			defaultCfg.timeOffset = 4;
 			defaultCfg.correctTime = 1;
