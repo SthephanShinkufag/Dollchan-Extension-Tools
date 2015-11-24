@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '0013e8c';
+	var commit = 'db770cf';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -18784,7 +18784,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return regeneratorRuntime.wrap(function initScript$(_context18) {
 			while (1) switch (_context18.prev = _context18.next) {
 				case 0:
-					docBody = docBody;
+					docBody = doc.body;
 					Logger.init();
 					formEl = Initialization(checkDomains);
 
