@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '4b55736';
+var commit = '23cee7e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -866,14 +866,18 @@ class CancelablePromise {
 		return new CancelablePromise((res, rej) => res(val));
 	}
 	constructor(fn, cancelFn) {
-		this._promise = new Promise(fn);
+		this._promise = new Promise((res, rej) => {
+			this._resolve = res;
+			this._reject = rej;
+		});
 		this._cancelFn = cancelFn;
 		this._cancelled = false;
 		this._done = false;
 		this._parent = null;
+		fn(val => this._onResRej(val, true), val => this._onResRej(val, false));
 	}
 	then(onFulfilled, onRejected) {
-		if(this._done) {
+		if(this._cancelled) {
 			return null;
 		}
 		var rvRes, rvRej;
@@ -883,11 +887,6 @@ class CancelablePromise {
 		});
 		rv._parent = this;
 		var thenFunc = function(callback, isResolve, val) {
-			if(this._cancelled) {
-				return;
-			}
-			this._done = true;
-			this._parent = this._promise = null;
 			if(callback) {
 				try {
 					rvRes(callback(val));
@@ -911,16 +910,27 @@ class CancelablePromise {
 		if(this._done) {
 			return;
 		}
-		this._promise = null;
-		this._cancelled = this._done = true;
+		this._done = this._cancelled = true;
 		if(this._cancelFn) {
 			this._cancelFn();
-			this._cancelFn = null;
 		}
 		if(this._parent) {
 			this._parent.cancel();
-			this._parent = null;
 		}
+		this._parent = this._promise = this._cancelFn = this._reject = this._resolve = null;
+	}
+
+	_onResRej(val, isResolve) {
+		if(this.done) {
+			return;
+		}
+		this._done = true;
+		if(isResolve) {
+			this._resolve(val);
+		} else {
+			this._reject(val);
+		}
+		this._parent = this._cancelFn = this._reject = this._resolve = null;
 	}
 }
 
