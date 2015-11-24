@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'bd463bb';
+var commit = '4b55736';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -858,49 +858,22 @@ function sleep(ms) {
 	return new Promise((resolve, reject) => setTimeout(() => resolve(), ms));
 }
 
-function CancelablePromise(fn) {
-	this._promise = new Promise((res, rej) => {
-		this._oResFn = res;
-		this._oRejFn = rej;
-	});
-	fn(_ => this._resFn(_), _ => this._rejFn(_), cancelFn => {
-		if(!this._done) {
-			this._cancelFn = cancelFn
-		}
-	});
-}
-CancelablePromise.reject = function(val) {
-	return new CancelablePromise((res, rej) => rej(val));
-};
-CancelablePromise.resolve = function(val) {
-	return new CancelablePromise((res, rej) => res(val));
-};
-CancelablePromise.prototype = {
-	_cancelFn: null,
-	_done: false,
-	_kid: null,
-	_parent: null,
-	_rejFn(val) {
-		if(this._done) {
-			return;
-		}
-		this._cancelFn = null;
-		this._done = true;
-		this._oRejFn(val);
-	},
-	_resFn(val) {
-		if(this._done) {
-			return;
-		}
-		this._cancelFn = null;
-		this._done = true;
-		if(val instanceof CancelablePromise) {
-			this._kid = val;
-		}
-		this._oResFn(val);
-	},
+class CancelablePromise {
+	static reject(val) {
+		return new CancelablePromise((res, rej) => rej(val));
+	}
+	static resolve(val) {
+		return new CancelablePromise((res, rej) => res(val));
+	}
+	constructor(fn, cancelFn) {
+		this._promise = new Promise(fn);
+		this._cancelFn = cancelFn;
+		this._cancelled = false;
+		this._done = false;
+		this._parent = null;
+	}
 	then(onFulfilled, onRejected) {
-			if(!this._promise) {
+		if(this._done) {
 			return null;
 		}
 		var rvRes, rvRej;
@@ -910,10 +883,11 @@ CancelablePromise.prototype = {
 		});
 		rv._parent = this;
 		var thenFunc = function(callback, isResolve, val) {
-			rv._parent = this._kid = null;
-			if(rv._canceled) {
+			if(this._cancelled) {
 				return;
 			}
+			this._done = true;
+			this._parent = this._promise = null;
 			if(callback) {
 				try {
 					rvRes(callback(val));
@@ -926,25 +900,26 @@ CancelablePromise.prototype = {
 				rvRej(val);
 			}
 		};
-		this._promise.then(thenFunc.bind(this, onFulfilled, true), thenFunc.bind(this, onRejected, false));
+		this._promise.then(thenFunc.bind(this, onFulfilled, true),
+		                   thenFunc.bind(this, onRejected, false));
 		return rv;
-	},
+	}
 	catch(onRejected) {
 		return this.then(void 0, onRejected);
-	},
+	}
 	cancel() {
-		var done = this._done;
-		this._done = true;
+		if(this._done) {
+			return;
+		}
 		this._promise = null;
-		if(!done && this._cancelFn) {
+		this._cancelled = this._done = true;
+		if(this._cancelFn) {
 			this._cancelFn();
 			this._cancelFn = null;
 		}
-		if(this._kid) {
-			this._kid.cancel();
-		}
 		if(this._parent) {
 			this._parent.cancel();
+			this._parent = null;
 		}
 	}
 }
@@ -963,31 +938,30 @@ class AjaxError {
 }
 
 function $ajax(url, params = null, useNative = nativeXHRworks) {
-	return new CancelablePromise((resolve, reject, cancelFn) => {
-		if(!useNative && (typeof GM_xmlhttpRequest === 'function')) {
-			var obj = {
-				'method': (params && params.method) || 'GET',
-				'url': nav.fixLink(url),
-				'onload'(e) {
-					if(e.status === 200 || aib.tiny && e.status === 400) {
-						resolve(e);
-					} else {
-						reject(new AjaxError(e.status, e.statusText));
-					}
+	var resolve, reject, cancelFn;
+	if(!useNative && (typeof GM_xmlhttpRequest === 'function')) {
+		var obj = {
+			'method': (params && params.method) || 'GET',
+			'url': nav.fixLink(url),
+			'onload'(e) {
+				if(e.status === 200 || aib.tiny && e.status === 400) {
+					resolve(e);
+				} else {
+					reject(new AjaxError(e.status, e.statusText));
 				}
-			};
-			if(params) {
-				delete params.method;
-				Object.assign(obj, params);
 			}
-			var gmxhr = GM_xmlhttpRequest(obj);
-			cancelFn(() => {
-				try {
-					gmxhr.abort();
-				} catch(e) {}
-			});
-			return;
+		};
+		if(params) {
+			delete params.method;
+			Object.assign(obj, params);
 		}
+		var gmxhr = GM_xmlhttpRequest(obj);
+		cancelFn = () => {
+			try {
+				gmxhr.abort();
+			} catch(e) {}
+		};
+	} else {
 		var useCache = params && params.useCache;
 		var xhr = new XMLHttpRequest();
 		if(params && params.onprogress) {
@@ -1033,13 +1007,16 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				}
 			}
 			xhr.send(params && params.data || null);
-			cancelFn(() => xhr.abort());
+			cancelFn = () => xhr.abort();
 		} catch(e) {
 			nativeXHRworks = false;
-			resolve($ajax(url, params, false));
-			return;
+			return $ajax(url, params, false);
 		}
-	});
+	}
+	return new CancelablePromise((res, rej) => {
+		resolve = res;
+		reject = rej;
+	}, cancelFn);
 }
 
 function Maybe(ctor/*, ...args*/) {
