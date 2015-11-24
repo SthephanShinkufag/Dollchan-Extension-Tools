@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '310422c';
+var commit = '2e15a34';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12003,37 +12003,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['410chan.org'] = _410chanOrg;
-
-	class _420chanOrg extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-			this._420 = true;
-
-			this.cPostHeader = 'replyheader';
-			this.qBan = '.ban';
-			this.qError = 'pre';
-			this.qFormRedir = null;
-			this.qPages = '.pagelist > a:last-child';
-
-			this.docExt = '.php';
-			this.markupBB = true;
-		}
-		get css() {
-			return `
-			#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }
-			.de-thr-hid { margin: 1em 0; }`;
-		}
-		get qThread() {
-			return '[id*="thread"]';
-		}
-		get markupTags() {
-			return ['**', '*', '', '', '%', 'pre', '', '', 'q'];
-		}
-		getTNum(op) {
-			return +$q('a[id]', op).id.match(/\d+/)[0];
-		}
-	}
-	ibDomains['420chan.org'] = _420chanOrg;
 
 	class _4chanOrg extends BaseBoard {
 		constructor(prot, dm) {
