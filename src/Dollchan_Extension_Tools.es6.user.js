@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'c3f794d';
+var commit = '0013e8c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -601,7 +601,7 @@ Lng = {
 	second:			['с', 's']
 },
 
-doc = window.document, aProto = Array.prototype, locStorage, sesStorage,
+doc = window.document, docBody, aProto = Array.prototype, locStorage, sesStorage,
 Cfg, hThr, pByEl, pByNum, sVis, uVis, needScroll,
 aib, nav, updater, dTime, visPosts = 2, topWinZ = 0,
 pr, dummy,
@@ -615,11 +615,11 @@ nativeXHRworks = true;
 // UTILS
 // ===========================================================================================================
 
-function $Q(path, root) {
+function $Q(path, root = docBody) {
 	return root.querySelectorAll(path);
 }
 
-function $q(path, root) {
+function $q(path, root = docBody) {
 	return root.querySelector(path);
 }
 
@@ -711,7 +711,7 @@ function $css(text) {
 		if(!nav.Presto) {
 			text = text.replace(/\(to bottom/g, '(top').replace(/\(to top/g, '(bottom');
 		}
-		if(nav.Safari && !('flex' in document.body.style)) {
+		if(nav.Safari && !('flex' in docBody.style)) {
 			text = text.replace(/( flex|inline-flex|align-items)/g, ' -webkit-$1');
 		}
 	}
@@ -1393,7 +1393,7 @@ function prettifySize(val) {
 
 function downloadBlob(blob, name) {
 	var url = window.URL.createObjectURL(blob);
-	var link = doc.body.appendChild($add(`<a href="${ url }" download="${ name }"></a>`));
+	var link = docBody.appendChild($add(`<a href="${ url }" download="${ name }"></a>`));
 	link.click();
 	setTimeout(() => {
 		window.URL.revokeObjectURL(url);
@@ -1408,7 +1408,7 @@ function checkCSSColor(color) {
 	if(color === 'transparent') {
 		return true;
 	}
-	var image = document.createElement('img');
+	var image = doc.createElement('img');
 	image.style.color = 'rgb(0, 0, 0)';
 	image.style.color = color;
 	if(image.style.color !== 'rgb(0, 0, 0)') {
@@ -1827,7 +1827,7 @@ var panel = Object.create({
 		</a>`;
 	},
 	_prepareToHide(rt) {
-		if(!Cfg.expandPanel && !$q('.de-win-active', doc) &&
+		if(!Cfg.expandPanel && !$q('.de-win-active') &&
 		  (!rt || !this._el.contains(rt.farthestViewportElement || rt)))
 		{
 			this._hideTO = setTimeout(() => $hide(this._buttons), 500);
@@ -1842,7 +1842,7 @@ var panel = Object.create({
 		case 'click':
 			switch(el.id) {
 			case 'de-panel-logo':
-				if(Cfg.expandPanel && !$q('.de-win-active', doc)) {
+				if(Cfg.expandPanel && !$q('.de-win-active')) {
 					$hide(this._buttons);
 				}
 				toggleCfg('expandPanel');
@@ -1853,10 +1853,10 @@ var panel = Object.create({
 			case 'de-panel-vid': toggleWindow('vid', false); break;
 			case 'de-panel-refresh': window.location.reload(); break;
 			case 'de-panel-goup': scrollTo(0, 0); break;
-			case 'de-panel-godown': scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight); break;
+			case 'de-panel-godown': scrollTo(0, docBody.scrollHeight || docBody.offsetHeight); break;
 			case 'de-panel-expimg':
 				isExpImg = !isExpImg;
-				$del($q('.de-img-center', doc));
+				$del($q('.de-img-center'));
 				for(var post = Thread.first.op; post; post = post.next) {
 					post.toggleImages(isExpImg);
 				}
@@ -1886,7 +1886,7 @@ var panel = Object.create({
 				} else {
 					el.id = 'de-panel-audio-off';
 				}
-				$del($q('.de-menu', doc));
+				$del($q('.de-menu'));
 				break;
 			case 'de-panel-savethr': break;
 			case 'de-panel-enable':
@@ -2029,8 +2029,8 @@ function makeDraggable(win, head, name) {
 				if(this._Z < topWinZ) {
 					this._Z = this._wStyle.zIndex = ++topWinZ;
 				}
-				doc.body.addEventListener('mousemove', this);
-				doc.body.addEventListener('mouseup', this);
+				docBody.addEventListener('mousemove', this);
+				docBody.addEventListener('mouseup', this);
 				$pd(e);
 				return;
 			case 'mousemove':
@@ -2052,8 +2052,8 @@ function makeDraggable(win, head, name) {
 				this._oldY = curY;
 				return;
 			default: // mouseup
-				doc.body.removeEventListener('mousemove', this);
-				doc.body.removeEventListener('mouseup', this);
+				docBody.removeEventListener('mousemove', this);
+				docBody.removeEventListener('mouseup', this);
 				saveCfg(name + 'WinX', this._X);
 				saveCfg(name + 'WinY', this._Y);
 			}
@@ -2094,8 +2094,8 @@ WinResizer.prototype = {
 			case 'right': val = 'left: ' + cr.left + 'px; ' + y + z;
 			}
 			this.win.setAttribute('style', val);
-			doc.body.addEventListener('mousemove', this);
-			doc.body.addEventListener('mouseup', this);
+			docBody.addEventListener('mousemove', this);
+			docBody.addEventListener('mouseup', this);
 			$pd(e);
 			return;
 		case 'mousemove':
@@ -2116,8 +2116,8 @@ WinResizer.prototype = {
 			}
 			return;
 		default: // mouseup
-			doc.body.removeEventListener('mousemove', this);
-			doc.body.removeEventListener('mouseup', this);
+			docBody.removeEventListener('mousemove', this);
+			docBody.removeEventListener('mouseup', this);
 			saveCfg(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
 			if(this.win.classList.contains('de-win-fixed')) {
 				this.win.setAttribute('style', 'right: 0; bottom: 25px' + z);
@@ -2148,7 +2148,7 @@ function toggleWindow(name, isUpd, data, noAnim) {
 			'de-win-fixed" style="right: 0; bottom: 25px'
 		) + (name !== 'fav' ? '' : '; width: ' + Cfg.favWinWidth + 'px; ');
 		var bodyAttr = name === 'cfg' ? ' ' + aib.cReply : '" style="background-color: ' +
-			getComputedStyle(doc.body).getPropertyValue('background-color');
+			getComputedStyle(docBody).getPropertyValue('background-color');
 		main.insertAdjacentHTML('afterbegin', `
 		<div id="de-win-${ name }" class="${ winAttr }; display: none;">
 			<div class="de-win-head">
@@ -2231,7 +2231,7 @@ function showWindow(win, body, name, isUpd, remove, data, isAnim) {
 		win.classList.remove('de-win-active');
 		win.classList.remove('de-win-close');
 		$hide(win);
-		if(!Cfg.expandPanel && !$q('.de-win-active', doc)) {
+		if(!Cfg.expandPanel && !$q('.de-win-active')) {
 			$hide($id('de-panel-buttons'));
 		}
 		return;
@@ -2265,7 +2265,7 @@ function showWindow(win, body, name, isUpd, remove, data, isAnim) {
 }
 
 function showVideosWindow(body) {
-	var els = $Q('.de-video-link', doc.body);
+	var els = $Q('.de-video-link');
 	if(!els.length) {
 		body.innerHTML = '<b>' + Lng.noVideoLinks[lang] + '</b>';
 		return;
@@ -2524,7 +2524,7 @@ function showHiddenWindow(body) {
 }
 
 function cleanFavorites() {
-	var els = $Q('.de-entry[de-removed]', doc),
+	var els = $Q('.de-entry[de-removed]'),
 		len = els.length;
 	if(len > 0) {
 		readFav().then(fav => {
@@ -2604,7 +2604,7 @@ function showFavoritesWindow(body, data) {
 	}));
 	body.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(function* () {
 		var update = false,
-			els = $Q('.de-entry', doc),
+			els = $Q('.de-entry'),
 			fav = yield* getStoredObj('DESU_Favorites');
 		for(var i = 0, len = els.length; i < len; ++i) {
 			var form, el = els[i],
@@ -2657,7 +2657,7 @@ function showFavoritesWindow(body, data) {
 		}
 	})));
 	body.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(function* () {
-		var infoCount, els = $Q('.de-fav-current > .de-entry', doc),
+		var infoCount, els = $Q('.de-fav-current > .de-entry'),
 			infoCount = els.length,
 			postsInfo = [];
 		if(!infoCount) {
@@ -2721,7 +2721,7 @@ function showFavoritesWindow(body, data) {
 		closePopup('load-pages');
 	})));
 	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
-		for(var i = 0, els = $Q('.de-entry', doc), len = els.length; i < len; ++i) {
+		for(var i = 0, els = $Q('.de-entry'), len = els.length; i < len; ++i) {
 			var el = els[i],
 				iconEl = $q('.de-fav-inf-icon', el),
 				titleEl = iconEl.parentNode;
@@ -2742,7 +2742,7 @@ function showFavoritesWindow(body, data) {
 		cleanFavorites();
 	})));
 	body.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
-		$each($Q('.de-entry', doc), function(el) {
+		$each($Q('.de-entry'), function(el) {
 			if($q('input', el).checked) {
 				el.setAttribute('de-removed', '');
 			}
@@ -2760,7 +2760,7 @@ function fixSettings() {
 		var i = arr.length,
 			nState = !state;
 		while(i--) {
-			($q(arr[i], doc) || {}).disabled = nState;
+			($q(arr[i]) || {}).disabled = nState;
 		}
 	}
 	toggleBox(Cfg.ajaxUpdThr, [
@@ -2859,7 +2859,7 @@ function getCfgFilters() {
 			$new('a', {'text': Lng.apply[lang], 'href': '#', 'class': 'de-abtn de-spell-btn'}, {'click'(e) {
 				$pd(e);
 				saveCfg('hideBySpell', 1);
-				$q('input[info="hideBySpell"]', doc).checked = true;
+				$q('input[info="hideBySpell"]').checked = true;
 				Spells.toggle();
 			}}),
 			$new('a', {'text': Lng.clear[lang], 'href': '#', 'class': 'de-abtn de-spell-btn'}, {'click'(e) {
@@ -2934,7 +2934,7 @@ function getCfgPosts() {
 			saveCfg('postBtnsCSS', this.selectedIndex);
 			updateCSS();
 			if(nav.Presto) {
-				$del($q('.de-svg-icons', doc.body));
+				$del($q('.de-svg-icons'));
 				addSVGIcons();
 			}
 			fixSettings();
@@ -3116,7 +3116,7 @@ function getCfgForm() {
 			inpTxt('passwValue', 9, PostForm.setUserPassw),
 			$txt(Lng.cfg.userPassw[lang]),
 			$btn(Lng.change[lang], '', function() {
-				$q('input[info="passwValue"]', doc).value = Math.round(Math.random() * 1e15).toString(32);
+				$q('input[info="passwValue"]').value = Math.round(Math.random() * 1e15).toString(32);
 				PostForm.setUserPassw();
 			}, 'de-cfg-button')
 		])),
@@ -3145,7 +3145,7 @@ function getCfgCommon() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-common'}, [
 		optSel('scriptStyle', true, function() {
 			saveCfg('scriptStyle', this.selectedIndex);
-			$id('de-main').lang = $q('#de-win-reply > .de-win-head', doc).lang = getThemeLang();
+			$id('de-main').lang = $q('#de-win-reply > .de-win-head').lang = getThemeLang();
 		}),
 		$New('div', null, [
 			lBox('userCSS', false, updateCSS),
@@ -3318,10 +3318,10 @@ function cfgTabClick(e) {
 	if(el.hasAttribute('selected')) {
 		return;
 	}
-	var prefTab = $q('.de-cfg-body', doc);
+	var prefTab = $q('.de-cfg-body');
 	if(prefTab) {
 		prefTab.className = 'de-cfg-unvis';
-		$q('.de-cfg-tab[selected]', doc).removeAttribute('selected');
+		$q('.de-cfg-tab[selected]').removeAttribute('selected');
 	}
 	el.setAttribute('selected', '');
 	var id = el.getAttribute('info'),
@@ -3521,10 +3521,10 @@ function $popup(txt, id, wait) {
 }
 
 function Menu(parentEl, html, isFixed, clickFn) {
-	doc.body.insertAdjacentHTML('beforeend', '<div class="' + aib.cReply +
+	docBody.insertAdjacentHTML('beforeend', '<div class="' + aib.cReply +
 		' de-menu" style="position: ' + (isFixed ? 'fixed' : 'absolute') +
 		'; left: 0px; top: 0px; visibility: hidden;">' + html + '</div>');
-	var el = doc.body.lastChild;
+	var el = docBody.lastChild;
 	var mStyle = el.style;
 	var cr = parentEl.getBoundingClientRect();
 	var width = el.offsetWidth;
@@ -3576,7 +3576,7 @@ Menu.prototype = {
 			if(el.className === 'de-menu-item') {
 				this.remove();
 				this._clickFn(el);
-				if(!Cfg.expandPanel && !$q('.de-win-active', doc)) {
+				if(!Cfg.expandPanel && !$q('.de-win-active')) {
 					$hide($id('de-panel-buttons'));
 				}
 			}
@@ -5224,7 +5224,7 @@ var Pages = {
 		$show(formEl);
 	},
 	_endAdding() {
-		$del($q('.de-addpage-wait', doc.body));
+		$del($q('.de-addpage-wait'));
 		this._adding = false;
 		this._addPromise = null;
 	},
@@ -5322,7 +5322,7 @@ var Spells = Object.create({
 	add(type, arg, isNeg) {
 		var temp, fld = $id('de-spell-txt'),
 			val = fld && fld.value,
-			chk = $q('input[info="hideBySpell"]', doc),
+			chk = $q('input[info="hideBySpell"]'),
 			spells = val && this.parseText(val);
 		if(!val || spells) {
 			this.unhide();
@@ -5511,7 +5511,7 @@ var Spells = Object.create({
 				locStorage['__de-spells'] = '{"hide": false, "data": ""}';
 			}
 			locStorage.removeItem('__de-spells');
-			$q('input[info="hideBySpell"]', doc).checked = false;
+			$q('input[info="hideBySpell"]').checked = false;
 		}
 	},
 	unhide() {
@@ -6639,8 +6639,8 @@ function PostForm(form, ignoreForm, dc) {
 			handleEvent(e) {
 				switch(e.type) {
 				case 'mousedown':
-					doc.body.addEventListener('mousemove', this);
-					doc.body.addEventListener('mouseup', this);
+					docBody.addEventListener('mousemove', this);
+					docBody.addEventListener('mouseup', this);
 					$pd(e);
 					return;
 				case 'mousemove':
@@ -6649,8 +6649,8 @@ function PostForm(form, ignoreForm, dc) {
 					this._elStyle.height = (e.clientY - cr.top) + 'px';
 					return;
 				default: // mouseup
-					doc.body.removeEventListener('mousemove', this);
-					doc.body.removeEventListener('mouseup', this);
+					docBody.removeEventListener('mousemove', this);
+					docBody.removeEventListener('mouseup', this);
 					saveCfg('textaWidth', parseInt(this._elStyle.width, 10));
 					saveCfg('textaHeight', parseInt(this._elStyle.height, 10));
 				}
@@ -6749,9 +6749,9 @@ function PostForm(form, ignoreForm, dc) {
 		this.form.onsubmit = e => {
 			$pd(e);
 			if(aib._2chruNet) {
-				doc.body.insertAdjacentHTML('beforeend', '<iframe class="ninja" id="csstest" src="/' +
+				docBody.insertAdjacentHTML('beforeend', '<iframe class="ninja" id="csstest" src="/' +
 					aib.b + '/csstest.foo"></iframe>');
-				doc.body.lastChild.onload = e => {
+				docBody.lastChild.onload = e => {
 					$del(e.target);
 					spawn(html5Submit, this.form, this.subm, true).then(doUploading);
 				};
@@ -6775,14 +6775,14 @@ PostForm.hideField = function(el) {
 		el.previousElementSibling ? el : $parent(el, 'TR'));
 }
 PostForm.setUserName = function() {
-	var el = $q('input[info="nameValue"]', doc);
+	var el = $q('input[info="nameValue"]');
 	if(el) {
 		saveCfg('nameValue', el.value);
 	}
 	pr.name.value = Cfg.userName ? Cfg.nameValue : '';
 };
 PostForm.setUserPassw = function() {
-	var el = $q('input[info="passwValue"]', doc);
+	var el = $q('input[info="passwValue"]');
 	if(el) {
 		saveCfg('passwValue', el.value);
 	}
@@ -6815,7 +6815,7 @@ PostForm.prototype = {
 		return val;
 	},
 	get rarInput() {
-		var val = doc.body.appendChild($new('input', {'type': 'file', 'style': 'display: none;'}, null));
+		var val = docBody.appendChild($new('input', {'type': 'file', 'style': 'display: none;'}, null));
 		Object.defineProperty(this, 'rarInput', { value: val });
 		return val;
 	},
@@ -7684,7 +7684,7 @@ var checkDelete = async(function* (dc) {
 			doc.location.hash = '';
 		}
 	}
-	var els = $Q('[de-form] ' + aib.qRPost + ' input:checked', doc.body),
+	var els = $Q('[de-form] ' + aib.qRPost + ' input:checked'),
 		threads = new Set(),
 		isThr = aib.t;
 	for(var i = 0, len = els.length; i < len; ++i) {
@@ -8038,10 +8038,10 @@ function genImgHash(data) {
 	return {hash: hash};
 }
 function ImgBtnsShowHider(nextFn, prevFn) {
-	doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
+	docBody.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
 		'<div id="de-img-btn-next" de-title="' + Lng.nextImg[lang] + '"></div>' +
 		'<div id="de-img-btn-prev" de-title="' + Lng.prevImg[lang] + '"></div></div>');
-	var btns = doc.body.lastChild;
+	var btns = docBody.lastChild;
 	this._btns = btns;
 	this._btnsStyle = btns.style;
 	this._nextFn = nextFn;
@@ -8129,8 +8129,8 @@ AttachmentViewer.prototype = {
 			}
 			this._oldX = e.clientX;
 			this._oldY = e.clientY;
-			doc.body.addEventListener('mousemove', this, true);
-			doc.body.addEventListener('mouseup', this, true);
+			docBody.addEventListener('mousemove', this, true);
+			docBody.addEventListener('mouseup', this, true);
 			break;
 		case 'mousemove':
 			var curX = e.clientX,
@@ -8144,8 +8144,8 @@ AttachmentViewer.prototype = {
 			}
 			return;
 		case 'mouseup':
-			doc.body.removeEventListener('mousemove', this, true);
-			doc.body.removeEventListener('mouseup', this, true);
+			docBody.removeEventListener('mousemove', this, true);
+			docBody.removeEventListener('mouseup', this, true);
 			return;
 		case 'click':
 			if(this.data.isVideo && this.data.isControlClick(e, this._elStyle.height)) {
@@ -9069,7 +9069,7 @@ class Post extends AbstractPost {
 	static clearMarks() {
 		if(Post.hasNew) {
 			Post.hasNew = false;
-			$each($Q('.de-new-post', doc.body), el => el.classList.remove('de-new-post'));
+			$each($Q('.de-new-post'), el => el.classList.remove('de-new-post'));
 			doc.removeEventListener('click', Post.clearMarks, true);
 		}
 	}
@@ -9223,7 +9223,7 @@ class Post extends AbstractPost {
 			}
 			HotKeys.cPost = this;
 		} else {
-			var el = $q('.de-selected', doc);
+			var el = $q('.de-selected');
 			if(el) {
 				el.unselect();
 			}
@@ -9452,7 +9452,7 @@ class Post extends AbstractPost {
 		} else {
 			Post.hiddenNums.delete(+num);
 		}
-		$each($Q('[de-form] a[href*="' + aib.anchor + num + '"]', doc.body), isHide ? function(el) {
+		$each($Q('[de-form] a[href*="' + aib.anchor + num + '"]'), isHide ? function(el) {
 			el.classList.add('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
 				var refmap = el.parentNode;
@@ -9936,7 +9936,7 @@ class Pview extends AbstractPost {
 		var post = pByNum.get(this.num);
 		post.toggleUserVisib();
 		Pview.updatePosition(true);
-		$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]', doc.body), el => {
+		$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]'), el => {
 			if(post.hidden) {
 				el.setAttribute('class', 'de-btn-unhide-user de-btn-pview-hide');
 				el.parentNode.classList.add('de-post-hide');
@@ -10868,7 +10868,7 @@ class Thread {
 				return;
 			}
 			if((f = f[aib.b][this.op.num])) {
-				var el = $q('#de-win-fav > .de-win-body', doc);
+				var el = $q('#de-win-fav > .de-win-body');
 				if(el && el.hasChildNodes()) {
 					el = $q('.de-fav-current > .de-entry[de-num="' + this.op.num + '"] .de-fav-inf-new', el);
 					$hide(el);
@@ -10927,7 +10927,7 @@ var navPanel = {
 		}
 	},
 	init() {
-		doc.body.insertAdjacentHTML('beforeend', `
+		docBody.insertAdjacentHTML('beforeend', `
 		<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">
 			<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-nav-arrow"/></svg>
 			<div id="de-thr-navup">
@@ -10937,7 +10937,7 @@ var navPanel = {
 				<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-nav-down"/></svg>
 			</div>
 		</div>`);
-		var el = doc.body.lastChild;
+		var el = docBody.lastChild;
 		el.addEventListener('mouseover', this, true);
 		el.addEventListener('mouseout', this, true);
 		el.addEventListener('click', this, true);
@@ -11217,8 +11217,8 @@ class BaseBoard {
 		return value;
 	}
 	get qThread() {
-		var val = $q('.thread', doc) ? '.thread' :
-			$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
+		var val = $q('.thread') ? '.thread' :
+			$q('div[id*="_info"][style*="float"]') ? 'div[id^="t"]:not([style])' :
 			'[id^="thread"]';
 		Object.defineProperty(this, 'qThread', { value: val });
 		return val;
@@ -11227,7 +11227,7 @@ class BaseBoard {
 		return null;
 	}
 	get lastPage() { // Differs Makaba only
-		var el = $q(this.qPages, doc),
+		var el = $q(this.qPages),
 			val = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
 		if(this.page === val + 1) {
 			val++;
@@ -11428,7 +11428,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.file-attr > .desktop';
 		}
 		get lastPage() {
-			var els = $Q('.pager > a:not([class])', doc),
+			var els = $Q('.pager > a:not([class])'),
 				val = els ? els.length : 1;
 			Object.defineProperty(this, 'lastPage', { value: val });
 			return val;
@@ -11437,7 +11437,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'];
 		}
 		get _hasNames() { // Makaba hack. Sets here only
-			var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]', doc.body);
+			var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]');
 			Object.defineProperty(this, '_hasNames', { value: val });
 			return val;
 		}
@@ -11484,13 +11484,13 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script('window.FormData = void 0; $(function() { $(window).off(); });');
-			$each($Q('.autorefresh', doc), $del);
-			var el = $q('td > .anoniconsselectlist', doc);
+			$each($Q('.autorefresh'), $del);
+			var el = $q('td > .anoniconsselectlist');
 			if(el) {
-				$q('.option-area > td:last-child', doc).appendChild(el);
+				$q('.option-area > td:last-child').appendChild(el);
 			}
-			if((el = $q('.search', doc.body))) {
-				$before($q('.menu', doc.body).firstChild, el);
+			if((el = $q('.search'))) {
+				$before($q('.menu').firstChild, el);
 			}
 			return false;
 		}
@@ -11954,7 +11954,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return err + text;
 		}
 		init() {
-			var el = $q('#postform input[type="button"]', doc);
+			var el = $q('#postform input[type="button"]');
 			if(el) {
 				$replace(el, '<input type="submit" value="Отправить" />');
 			}
@@ -12053,13 +12053,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			var el = $id('captchaFormPart'),
 				value = null;
 			if(el) {
-				doc.body.insertAdjacentHTML('beforeend', '<div onclick="initRecaptcha();"></div>');
+				docBody.insertAdjacentHTML('beforeend', '<div onclick="initRecaptcha();"></div>');
 				value = function(el) {
 					$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
 					this.click();
 					$show(el);
 					return null;
-				}.bind(doc.body.lastChild, el);
+				}.bind(docBody.lastChild, el);
 			}
 			Object.defineProperty(this, 'updateCaptcha', { value });
 			return value;
@@ -12201,7 +12201,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			setTimeout(function() {
-				var delPosts = $Q('.post[postid=""]', doc);
+				var delPosts = $Q('.post[postid=""]');
 				for(var i = 0, len = delPosts.length; i < len; ++i) {
 					try {
 						var post = pByNum.get(+$q('blockquote', delPosts[i]).getAttribute('id').substring(1));
@@ -12288,13 +12288,13 @@ function getImageBoard(checkDomains, checkEngines) {
 				if(!nav) {
 					initNavFuncs();
 				}
-				$q('input[type="button"]', doc).addEventListener('click', function() {
+				$q('input[type="button"]').addEventListener('click', function() {
 					spawn(readCfg).then(() => saveCfg('__hanarating', $id('rating').value));
 				});
 				return true;
 			}
 			$script('window.UploadProgress = function() {};');
-			$id('postform').appendChild($q('.rules', doc));
+			$id('postform').appendChild($q('.rules'));
 			return false;
 		}
 		initCaptcha(cap) {
@@ -12389,8 +12389,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return 'input[name="nya3"]';
 		}
 		init() {
-			doc.body.insertAdjacentHTML('beforeend', '<div onclick="highlight = function() {}"></div>');
-			doc.body.lastChild.click();
+			docBody.insertAdjacentHTML('beforeend', '<div onclick="highlight = function() {}"></div>');
+			docBody.lastChild.click();
 			return false;
 		}
 	}
@@ -12566,7 +12566,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
 			if(!this.postMapInited) {
 				this.postMapInited = true;
-				$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', doc.body),
+				$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]'),
 					  pEl => this.modifiedPosts.set(pEl, +pEl.getAttribute('data-lastmodified')));
 			}
 			$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', formEl), pEl => {
@@ -12630,7 +12630,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$each($Q('img[data-mature-src]', doc.body), function(el) {
+			$each($Q('img[data-mature-src]'), function(el) {
 				el.src = el.getAttribute('data-mature-src');
 			});
 			return false;
@@ -12705,7 +12705,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	if(checkEngines) {
 		for(var i = ibEngines.length - 1; i >= 0; --i) {
 			var [path, Ctor] = ibEngines[i];
-			if($q(path, doc)) {
+			if($q(path)) {
 				return new Ctor(prot, dm);
 			}
 		}
@@ -12734,7 +12734,7 @@ function Initialization(checkDomains) {
 	if((aib.init && aib.init()) || $id('de-panel')) {
 		return null;
 	}
-	var formEl = $q(aib.qDForm + ', form[de-form]', doc);
+	var formEl = $q(aib.qDForm + ', form[de-form]');
 	if(!formEl) {
 		return null;
 	}
@@ -12757,7 +12757,7 @@ function Initialization(checkDomains) {
 			if(Attachment.viewer) {
 				Attachment.viewer.setWebmVolume(val);
 			}
-			temp = $q('input[info="webmVolume"]', doc.body);
+			temp = $q('input[info="webmVolume"]');
 			if(temp) {
 				temp.value = val;
 			}
@@ -12812,11 +12812,11 @@ function Initialization(checkDomains) {
 				return;
 			}
 			Cfg.hideBySpell = data.hide;
-			temp = $q('input[info="hideBySpell"]', doc);
+			temp = $q('input[info="hideBySpell"]');
 			if(temp) {
 				temp.checked = data.hide;
 			}
-			$hide(doc.body);
+			$hide(docBody);
 			Spells.unhide();
 			if(data.data) {
 				Spells.setSpells(data.data, false);
@@ -12835,7 +12835,7 @@ function Initialization(checkDomains) {
 					saveCfg('spells', '');
 				}
 			}
-			$show(doc.body);
+			$show(docBody);
 		})();
 		/* falls through */
 		default: return;
@@ -12878,7 +12878,7 @@ function Initialization(checkDomains) {
 }
 
 function addSVGIcons() {
-	doc.body.insertAdjacentHTML('beforeend', `
+	docBody.insertAdjacentHTML('beforeend', `
 	<div id="de-svg-icons" style="height: 0; width: 0; position: fixed;">
 	<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<defs>
@@ -13063,7 +13063,7 @@ class DelForm {
 			len = threads.length;
 		if(len === 0) {
 			if(localRun) {
-				threads = $Q('div[de-thread]', doc);
+				threads = $Q('div[de-thread]');
 				len = threads.length;
 			}
 			if(len === 0) {
@@ -13142,7 +13142,7 @@ class DelForm {
 		var value;
 		if(aib._2chRu) {
 			$each($Q('input[type="hidden"]', this.el), $del);
-			this.el.appendChild($q('.userdelete', doc.body));
+			this.el.appendChild($q('.userdelete'));
 			value = $q('input[type="password"]', this.el);
 		} else {
 			value = $q(aib.qDelPassw, this.el);
@@ -13481,7 +13481,7 @@ function initThreadUpdater(title, enableUpdate) {
 		_seconds: 0,
 		_state: -1,
 		get _panelButton() {
-			var value = $q('a[id^="de-panel-upd"]', doc);
+			var value = $q('a[id^="de-panel-upd"]');
 			if(value) {
 				Object.defineProperty(this, '_panelButton', { value });
 			}
@@ -13701,7 +13701,7 @@ function initThreadUpdater(title, enableUpdate) {
 
 function initPage() {
 	if(!localRun && Cfg.ajaxReply === 1) {
-		doc.body.insertAdjacentHTML('beforeend',
+		docBody.insertAdjacentHTML('beforeend',
 			'<iframe name="de-iframe-pform" sandbox="" src="about:blank" style="display: none;"></iframe>' +
 			'<iframe name="de-iframe-dform" sandbox="" src="about:blank" style="display: none;"></iframe>'
 		);
@@ -13709,7 +13709,7 @@ function initPage() {
 			switch(data.substr(0, 15)) {
 			case 'de-iframe-pform':
 				checkUpload($DOM(data.substr(15)));
-				$q('iframe[name="de-iframe-pform"]', doc).src = 'about:blank';
+				$q('iframe[name="de-iframe-pform"]').src = 'about:blank';
 				break;
 			case 'de-iframe-dform': checkDelete($DOM(data.substr(15))); break;
 			}
@@ -14193,6 +14193,7 @@ function updateCSS() {
 // ===========================================================================================================
 
 function* initScript(checkDomains, readCfgPromise) {
+	docBody = docBody;
 	Logger.init();
 	var formEl = Initialization(checkDomains);
 	if(!formEl) {
@@ -14222,7 +14223,7 @@ function* initScript(checkDomains, readCfgPromise) {
 		scriptCSS();
 		return;
 	}
-	$hide(doc.body);
+	$hide(docBody);
 	formEl = DelForm.doReplace(formEl);
 	Logger.log('Replace delform');
 	pByEl = new Map();
@@ -14231,11 +14232,11 @@ function* initScript(checkDomains, readCfgPromise) {
 		DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
 	} catch(e) {
 		console.log('DELFORM ERROR:\n' + getPrettyErrorMessage(e));
-		$show(doc.body);
+		$show(docBody);
 		return;
 	}
 	Logger.log('Parse delform');
-	pr = new PostForm($q(aib.qForm, doc), false, doc);
+	pr = new PostForm($q(aib.qForm), false, doc);
 	Logger.log('Parse postform');
 	if(Cfg.hotKeys) {
 		HotKeys.enable();
@@ -14249,7 +14250,7 @@ function* initScript(checkDomains, readCfgPromise) {
 	readViewedPosts();
 	scriptCSS();
 	Logger.log('Apply CSS');
-	$show(doc.body);
+	$show(docBody);
 	Logger.log('Display page');
 	toggleInfinityScroll();
 	Logger.log('Infinity scroll');
@@ -14267,7 +14268,7 @@ switch(window.name) {
 case '': break;
 case 'de-iframe-pform':
 case 'de-iframe-dform':
-	onDOMLoaded(() => window.parent.postMessage(window.name + document.documentElement.outerHTML, "*"));
+	onDOMLoaded(() => window.parent.postMessage(window.name + doc.documentElement.outerHTML, "*"));
 	return;
 }
 if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
