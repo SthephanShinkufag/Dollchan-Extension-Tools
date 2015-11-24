@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'dbe39c8';
+var commit = 'e2775dd';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11604,6 +11604,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		getTNum(op) {
 			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 		}
+		init() {
+			$del($q('base', doc.head));
+			return false;
+		}
 	}
 	ibEngines.push(['form[action*="futaba.php"]', Futaba]);
 
@@ -12877,11 +12881,6 @@ function addSVGIcons() {
 			<stop offset="50%" stop-color="#505050"/>
 			<stop offset="100%" stop-color="#A0A0A0"/>
 		</linearGradient>
-		<style><![CDATA[
-			.de-svg-back { fill: inherit; stroke: none; }
-			.de-svg-stroke { stroke: currentColor; fill: none; }
-			.de-svg-fill { stroke: none; fill: currentColor; }
-		]]></style>
 	</defs>
 	<!-- POST ICONS -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-back">
@@ -14116,6 +14115,9 @@ function scriptCSS() {
 	.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '"; }\
 	#de-updater-count::before { content: ": "; }\
 	.de-viewed { color: #747488 !important; }\
+	.de-svg-back { fill: inherit; stroke: none; }\
+	.de-svg-stroke { stroke: currentColor; fill: none; }\
+	.de-svg-fill { stroke: none; fill: currentColor; }\
 	form > hr { clear: both }\
 	use { fill: inherit; }';
 
