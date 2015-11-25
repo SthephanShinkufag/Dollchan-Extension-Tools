@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '3eb245e';
+	var commit = '3dcc40c';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -14262,6 +14262,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						if (tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10))) {
 							continue;
 						}
+						if (myPosts.has(lNum)) {
+							link.classList.add('de-ref-my');
+						}
 						if (!posts.has(lNum)) {
 							continue;
 						}
@@ -14274,9 +14277,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 						if (!aib.hasOPNum && opNums.has(lNum)) {
 							link.classList.add('de-ref-op');
-						}
-						if (myPosts.has(lNum)) {
-							link.classList.add('de-ref-my');
 						}
 						if (thrURL) {
 							var url = link.getAttribute('href');
@@ -14315,6 +14315,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10))) {
 						continue;
 					}
+					if (add && myPosts.has(lNum)) {
+						link.classList.add('de-ref-my');
+					}
 					if (!pByNum.has(lNum)) {
 						continue;
 					}
@@ -14328,9 +14331,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 						if (!aib.hasOPNum && DelForm.tNums.has(lNum)) {
 							link.classList.add('de-ref-op');
-						}
-						if (myPosts.has(lNum)) {
-							link.classList.add('de-ref-my');
 						}
 						lPost.ref.add(post, pNum, strNums && strNums.has(pNum));
 					} else {

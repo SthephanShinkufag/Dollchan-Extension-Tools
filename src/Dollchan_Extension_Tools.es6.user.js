@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '3eb245e';
+var commit = '3dcc40c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10260,6 +10260,9 @@ class RefMap {
 				if(tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10))) {
 					continue;
 				}
+				if(myPosts.has(lNum)) {
+					link.classList.add('de-ref-my');
+				}
 				if(!posts.has(lNum)) {
 					continue;
 				}
@@ -10272,9 +10275,6 @@ class RefMap {
 				}
 				if(!aib.hasOPNum && opNums.has(lNum)) {
 					link.classList.add('de-ref-op');
-				}
-				if(myPosts.has(lNum)) {
-					link.classList.add('de-ref-my');
 				}
 				if(thrURL) {
 					var url = link.getAttribute('href');
@@ -10308,6 +10308,9 @@ class RefMap {
 			if(tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10))) {
 				continue;
 			}
+			if(add && myPosts.has(lNum)) {
+				link.classList.add('de-ref-my');
+			}
 			if(!pByNum.has(lNum)) {
 				continue;
 			}
@@ -10321,9 +10324,6 @@ class RefMap {
 				}
 				if(!aib.hasOPNum && DelForm.tNums.has(lNum)) {
 					link.classList.add('de-ref-op');
-				}
-				if(myPosts.has(lNum)) {
-					link.classList.add('de-ref-my');
 				}
 				lPost.ref.add(post, pNum, strNums && strNums.has(pNum));
 			} else {
@@ -14406,4 +14406,3 @@ if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 }
 
 })(window.opera && window.opera.scriptStorage, window.FormData);
-
