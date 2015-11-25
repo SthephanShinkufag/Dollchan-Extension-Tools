@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '85ca66a';
+	var commit = '01d9d6b';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10669,9 +10669,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._added = false;
 			this._lastUpdate = null;
 			this._originHTML = this.trEl.innerHTML;
-			this._isOldRecap = $id('recaptcha_widget_div');
+			this._isRecap = $q('[id*="recaptcha"]', this.trEl);
+			this._isRecapOld = !!$id('recaptcha_widget_div');
 			$hide(this.trEl);
-			if (!this._isOldRecap) {
+			if (!this._isRecap) {
 				this.trEl.innerHTML = '';
 			}
 		}
@@ -10682,7 +10683,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var _this18 = this;
 
 				var focus = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
-				var updateHTML = arguments.length <= 1 || arguments[1] === undefined ? !this._isOldRecap : arguments[1];
+				var updateHTML = arguments.length <= 1 || arguments[1] === undefined ? !this._isRecap : arguments[1];
 
 				if (this._added) {
 					return;
@@ -10757,7 +10758,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				this.initTextEl();
 				var img;
-				if (this._isOldRecap || !(img = $q('img', this.trEl))) {
+				if (this._isRecap || !(img = $q('img', this.trEl))) {
 					$show(this.trEl);
 					return;
 				}
@@ -10831,8 +10832,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (!this.textEl) {
 						return;
 					}
-					if (this._isOldRecap) {
-						$script('Recaptcha.reload()');
+					if (this._isRecap) {
+						$script(this._isRecapOld ? 'Recaptcha.reload()' : 'grecaptcha.reset()');
 						return;
 					}
 					var img = $q('img', this.trEl);
@@ -15809,8 +15810,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_classCallCheck(this, Futaba);
 
 				var _this48 = _possibleConstructorReturn(this, Object.getPrototypeOf(Futaba).call(this, prot, dm));
-
-				_this48.futa = true;
 
 				_this48.qDForm = 'form:not([enctype])';
 				_this48.qForm = 'form:nth-of-type(1)';

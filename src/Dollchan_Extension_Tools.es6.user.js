@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '85ca66a';
+var commit = '01d9d6b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7370,13 +7370,14 @@ class Captcha {
 		this._added = false;
 		this._lastUpdate = null;
 		this._originHTML = this.trEl.innerHTML;
-		this._isOldRecap = $id('recaptcha_widget_div');
+		this._isRecap = $q('[id*="recaptcha"]', this.trEl);
+		this._isRecapOld = !!$id('recaptcha_widget_div');
 		$hide(this.trEl);
-		if(!this._isOldRecap) {
+		if(!this._isRecap) {
 			this.trEl.innerHTML = '';
 		}
 	}
-	add(focus = false, updateHTML = !this._isOldRecap) {
+	add(focus = false, updateHTML = !this._isRecap) {
 		if(this._added) {
 			return;
 		}
@@ -7442,7 +7443,7 @@ class Captcha {
 		}
 		this.initTextEl();
 		var img;
-		if(this._isOldRecap || !(img = $q('img', this.trEl))) {
+		if(this._isRecap || !(img = $q('img', this.trEl))) {
 			$show(this.trEl);
 			return;
 		}
@@ -7498,8 +7499,8 @@ class Captcha {
 			if(!this.textEl) {
 				return;
 			}
-			if(this._isOldRecap) {
-				$script('Recaptcha.reload()');
+			if(this._isRecap) {
+				$script(this._isRecapOld ? 'Recaptcha.reload()' : 'grecaptcha.reset()');
 				return;
 			}
 			var img = $q('img', this.trEl);
@@ -11542,7 +11543,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Futaba extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this.futa = true;
 
 			this.qDForm = 'form:not([enctype])';
 			this.qForm = 'form:nth-of-type(1)';
