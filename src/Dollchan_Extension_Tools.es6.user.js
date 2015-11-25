@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'f59c0a4';
+var commit = 'd3f501e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1005,10 +1005,12 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 		} catch(e) {
 			nativeXHRworks = false;
 			var headers = { Referer: window.location.toString() };
-			if(params.headers) {
+			if(params && params.headers) {
 				Object.assign(params.headers, headers);
-			} else {
+			} else if(params) {
 				params.headers = headers;
+			} else {
+				params = { headers };
 			}
 			return $ajax(url, params, false);
 		}
@@ -7365,15 +7367,19 @@ FileInput.prototype = {
 class Captcha {
 	constructor(el) {
 		this.hasCaptcha = true;
+		this._isRecap = !!$q('[id*="recaptcha"]', this.trEl);
 		this.textEl = null;
 		this.trEl = el.tagName === 'TR' ? el : $parent(el, 'TR');
 		this._added = false;
 		this._lastUpdate = null;
 		this._originHTML = this.trEl.innerHTML;
-		this._isRecap = $q('[id*="recaptcha"]', this.trEl);
-		this._isRecapOld = !!$id('recaptcha_widget_div');
 		$hide(this.trEl);
-		if(!this._isRecap) {
+		if(this._isRecap) {
+			docBody.insertAdjacentHTML('beforeend', '<div onclick="' +
+				($id('recaptcha_widget_div') ? 'Recaptcha.reload()' : 'grecaptcha.reset()') +
+				'"></div>');
+			this._recapUpdate = docBody.lastChild;
+		} else {
 			this.trEl.innerHTML = '';
 		}
 	}
@@ -7497,7 +7503,7 @@ class Captcha {
 			}
 		} else {
 			if(this._isRecap) {
-				$script(this._isRecapOld ? 'Recaptcha.reload()' : 'grecaptcha.reset()');
+				this._recapUpdate.click();
 				return;
 			}
 			if(!this.textEl) {
@@ -7527,6 +7533,7 @@ class Captcha {
 				this.trEl.onclick = null;
 				this.add();
 			};
+			$show(this.trEl);
 		}
 	}
 	_updateTextEl(focus) {

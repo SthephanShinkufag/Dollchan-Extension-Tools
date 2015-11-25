@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'f59c0a4';
+	var commit = 'd3f501e';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3817,10 +3817,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			} catch (e) {
 				nativeXHRworks = false;
 				var headers = { Referer: window.location.toString() };
-				if (params.headers) {
+				if (params && params.headers) {
 					Object.assign(params.headers, headers);
-				} else {
+				} else if (params) {
 					params.headers = headers;
+				} else {
+					params = { headers: headers };
 				}
 				return $ajax(url, params, false);
 			}
@@ -10664,15 +10666,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_classCallCheck(this, Captcha);
 
 			this.hasCaptcha = true;
+			this._isRecap = !!$q('[id*="recaptcha"]', this.trEl);
 			this.textEl = null;
 			this.trEl = el.tagName === 'TR' ? el : $parent(el, 'TR');
 			this._added = false;
 			this._lastUpdate = null;
 			this._originHTML = this.trEl.innerHTML;
-			this._isRecap = $q('[id*="recaptcha"]', this.trEl);
-			this._isRecapOld = !!$id('recaptcha_widget_div');
 			$hide(this.trEl);
-			if (!this._isRecap) {
+			if (this._isRecap) {
+				docBody.insertAdjacentHTML('beforeend', '<div onclick="' + ($id('recaptcha_widget_div') ? 'Recaptcha.reload()' : 'grecaptcha.reset()') + '"></div>');
+				this._recapUpdate = docBody.lastChild;
+			} else {
 				this.trEl.innerHTML = '';
 			}
 		}
@@ -10830,7 +10834,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 				} else {
 					if (this._isRecap) {
-						$script(this._isRecapOld ? 'Recaptcha.reload()' : 'grecaptcha.reset()');
+						this._recapUpdate.click();
 						return;
 					}
 					if (!this.textEl) {
@@ -10863,6 +10867,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						_this21.trEl.onclick = null;
 						_this21.add();
 					};
+					$show(this.trEl);
 				}
 			}
 		}, {
