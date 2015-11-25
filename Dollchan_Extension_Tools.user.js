@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '01d9d6b';
+	var commit = 'f59c0a4';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10829,11 +10829,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return;
 					}
 				} else {
-					if (!this.textEl) {
-						return;
-					}
 					if (this._isRecap) {
 						$script(this._isRecapOld ? 'Recaptcha.reload()' : 'grecaptcha.reset()');
+						return;
+					}
+					if (!this.textEl) {
 						return;
 					}
 					var img = $q('img', this.trEl);
@@ -10977,7 +10977,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (pr.isQuick) {
 				pr.setReply(true, false);
 			}
-			if (/captch|капч|подтвер|verifizie/i.test(err)) {
+			if (/captch|капч|подтвер|verifi/i.test(err)) {
 				pr.refreshCapImg(true);
 			}
 			$popup(err, 'upload', false);
