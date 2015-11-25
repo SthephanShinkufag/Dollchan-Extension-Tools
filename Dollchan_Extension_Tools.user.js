@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '537cd95';
+	var commit = '60099e2';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11074,9 +11074,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var error = null,
 		    postNum = null;
 		if (aib.getSubmitData) {
-			if (aib.jsonSubmit && isDocument) {
+			if (aib.jsonSubmit) {
 				try {
-					data = JSON.parse(data.body.textContent);
+					data = JSON.parse(isDocument ? data.body.textContent : data);
 				} catch (e) {
 					error = getErrorMessage(e);
 				}
@@ -11159,14 +11159,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		pr.filesCount = 0;
 	}
 
-	var checkDelete = async(regeneratorRuntime.mark(function _callee9(dc) {
+	var checkDelete = async(regeneratorRuntime.mark(function _callee9(data) {
 		var err, _ref32, _ref33, num, post, els, threads, isThr, i, len, el, _iterator18, _isArray18, _i19, _ref34, thr;
 
 		return regeneratorRuntime.wrap(function _callee9$(_context16) {
 			while (1) {
 				switch (_context16.prev = _context16.next) {
 					case 0:
-						err = getSubmitError(dc);
+						err = getSubmitError(data instanceof HTMLDocument ? data : $DOM(data));
 
 						if (!err) {
 							_context16.next = 5;
@@ -11392,7 +11392,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								return lastFuncs = { resolve: resolve, reject: reject };
 							}));
 						} }).then(function (xhr) {
-						return lastFuncs.resolve({ done: true, data: aib.jsonSubmit ? JSON.parse(xhr.responseText) : $DOM(xhr.responseText) });
+						return lastFuncs.resolve({ done: true, data: aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText) });
 					}, function (err) {
 						return lastFuncs.reject(err);
 					});
@@ -11407,7 +11407,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				case 45:
 					xhr = _context17.sent;
-					return _context17.abrupt('return', aib.jsonSubmit ? JSON.parse(xhr.responseText) : $DOM(xhr.responseText));
+					return _context17.abrupt('return', aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText));
 
 				case 49:
 					_context17.prev = 49;

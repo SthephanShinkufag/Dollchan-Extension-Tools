@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '537cd95';
+var commit = '60099e2';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7671,9 +7671,9 @@ function checkUpload(data) {
 	updater.continue();
 	var error = null, postNum = null;
 	if(aib.getSubmitData) {
-		if(aib.jsonSubmit && isDocument) {
+		if(aib.jsonSubmit) {
 			try {
-				data = JSON.parse(data.body.textContent);
+				data = JSON.parse(isDocument ? data.body.textContent : data);
 			} catch(e) {
 				error = getErrorMessage(e);
 			}
@@ -7748,8 +7748,8 @@ function checkUpload(data) {
 	pr.filesCount = 0;
 }
 
-var checkDelete = async(function* (dc) {
-	var err = getSubmitError(dc);
+var checkDelete = async(function* (data) {
+	var err = getSubmitError(data instanceof HTMLDocument ? data : $DOM(data));
 	if(err) {
 		$popup(Lng.errDelete[lang] + err, 'delete', false);
 		updater.sendErrNotif();
@@ -7818,13 +7818,13 @@ function* html5Submit(form, submitter, needProgress = false) {
 		$ajax(form.action, {method: 'POST', data: formData, onprogress: e => {
 			lastFuncs.resolve({ done: false, data: {loaded: e.loaded, total: e.total} });
 			promises.push(new Promise((resolve, reject) => lastFuncs = {resolve, reject}));
-		}}).then(xhr => lastFuncs.resolve({done: true, data: aib.jsonSubmit ? JSON.parse(xhr.responseText) : $DOM(xhr.responseText)}),
+		}}).then(xhr => lastFuncs.resolve({done: true, data: aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText)}),
 		         err => lastFuncs.reject(err));
 		return [hasFiles, () => promises.shift()];
 	} else {
 		try {
 			var xhr = yield $ajax(form.action, {method: 'POST', data: formData});
-			return aib.jsonSubmit ? JSON.parse(xhr.responseText) : $DOM(xhr.responseText);
+			return aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText);
 		} catch(err) {
 			return Promise.reject(err);
 		}
