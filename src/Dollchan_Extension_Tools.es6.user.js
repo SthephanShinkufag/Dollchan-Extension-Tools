@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'db770cf';
+var commit = '85ca66a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1240,11 +1240,10 @@ function getErrorMessage(e) {
 	if(e instanceof AjaxError) {
 		return e.toString();
 	}
-	return (typeof e === 'string') ? e : Lng.internalError[lang] + getPrettyErrorMessage(e);
-}
-
-function getPrettyErrorMessage(e) {
-	return e.stack ? (nav.WebKit ? e.stack :
+	if(typeof e === 'string') {
+		return e;
+	}
+	return Lng.internalError[lang] + e.stack ? (nav.WebKit ? e.stack :
 			e.name + ': ' + e.message + '\n' +
 			(nav.Firefox ? e.stack.replace(/^([^@]*).*\/(.+)$/gm, function(str, fName, line) {
 				return '    at ' + (fName ? fName + ' (' + line + ')' : line);
@@ -1324,7 +1323,7 @@ function* getFormElements(form, submitter) {
 					yield {
 						el: field,
 						name: fixName(name),
-						value: '',
+						value: new File([''], ''),
 						type: 'application/octet-stream'
 					};
 				}
@@ -5111,7 +5110,7 @@ function embedMediaLinks(data) {
 function ajaxLoad(url, returnForm = true, useCache = false) {
 	return $ajax(url, { useCache: useCache }).then(xhr => {
 		var el, text = xhr.responseText;
-		if((aib.futa ? /<!--[^-]*-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
+		if(text.includes('</html>')) {
 			el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 		}
 		return el ? el : CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
@@ -5156,7 +5155,7 @@ var Pages = {
 			this._addForm(formEl, pageNum);
 			return spawn(this._updateForms, DelForm.last);
 		}).then(() => this._endAdding()).catch(e => {
-			$popup(getPrettyErrorMessage(e), 'add-page', true);
+			$popup(getErrorMessage(e), 'add-page', false);
 			this._endAdding();
 		});
 	},
@@ -5197,7 +5196,7 @@ var Pages = {
 				var el = yield ajaxLoad(aib.getPageUrl(aib.b, i));
 				this._addForm(el, i);
 			} catch (e) {
-				$popup(getPrettyErrorMessage(e), 'load-pages', true);
+				$popup(getErrorMessage(e), 'load-pages', false);
 			}
 		}
 		var first = DelForm.first;
@@ -7593,7 +7592,7 @@ var doUploading = async(function* ([hasFiles, getProgress]) {
 			                                   '/' + Lng.second[lang];
 		}
 	}
-	$popup(Lng.internalError[lang] + getPrettyErrorMessage(new Error()), 'upload', false);
+	$popup(Lng.internalError[lang], 'upload', false);
 });
 
 function checkUpload(dc) {
@@ -7728,8 +7727,6 @@ function* html5Submit(form, submitter, needProgress = false) {
 			} else if(Cfg.removeFName) {
 				value = new File([value], newFileName);
 			}
-		} else if(type === 'application/octet-stream') {
-			value = new File([''], '');
 		}
 		formData.append(name, value);
 	}
@@ -14231,7 +14228,7 @@ function* initScript(checkDomains, readCfgPromise) {
 	try {
 		DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
 	} catch(e) {
-		console.log('DELFORM ERROR:\n' + getPrettyErrorMessage(e));
+		console.log('DELFORM ERROR:\n' + getErrorMessage(e));
 		$show(docBody);
 		return;
 	}

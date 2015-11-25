@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'db770cf';
+	var commit = '85ca66a';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4076,11 +4076,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (e instanceof AjaxError) {
 			return e.toString();
 		}
-		return typeof e === 'string' ? e : Lng.internalError[lang] + getPrettyErrorMessage(e);
-	}
-
-	function getPrettyErrorMessage(e) {
-		return e.stack ? nav.WebKit ? e.stack : e.name + ': ' + e.message + '\n' + (nav.Firefox ? e.stack.replace(/^([^@]*).*\/(.+)$/gm, function (str, fName, line) {
+		if (typeof e === 'string') {
+			return e;
+		}
+		return Lng.internalError[lang] + e.stack ? nav.WebKit ? e.stack : e.name + ': ' + e.message + '\n' + (nav.Firefox ? e.stack.replace(/^([^@]*).*\/(.+)$/gm, function (str, fName, line) {
 			return '    at ' + (fName ? fName + ' (' + line + ')' : line);
 		}) : e.stack) : e.name + ': ' + e.message;
 	}
@@ -4219,7 +4218,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return {
 						el: field,
 						name: fixName(name),
-						value: '',
+						value: new File([''], ''),
 						type: 'application/octet-stream'
 					};
 
@@ -7985,7 +7984,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return $ajax(url, { useCache: useCache }).then(function (xhr) {
 			var el,
 			    text = xhr.responseText;
-			if ((aib.futa ? /<!--[^-]*-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
+			if (text.includes('</html>')) {
 				el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 			}
 			return el ? el : CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
@@ -8040,7 +8039,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}).then(function () {
 				return _this10._endAdding();
 			})['catch'](function (e) {
-				$popup(getPrettyErrorMessage(e), 'add-page', true);
+				$popup(getErrorMessage(e), 'add-page', false);
 				_this10._endAdding();
 			});
 		},
@@ -8154,7 +8153,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							_context11.prev = 40;
 							_context11.t0 = _context11['catch'](33);
 
-							$popup(getPrettyErrorMessage(_context11.t0), 'load-pages', true);
+							$popup(getErrorMessage(_context11.t0), 'load-pages', false);
 
 						case 43:
 							++i;
@@ -10960,7 +10959,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 
 					case 22:
-						$popup(Lng.internalError[lang] + getPrettyErrorMessage(new Error()), 'upload', false);
+						$popup(Lng.internalError[lang], 'upload', false);
 
 					case 23:
 					case 'end':
@@ -11191,7 +11190,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 					}
 
-					return _context16.abrupt('break', 39);
+					return _context16.abrupt('break', 36);
 
 				case 6:
 					_ref35 = _iterator19[_i20++];
@@ -11206,7 +11205,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 					}
 
-					return _context16.abrupt('break', 39);
+					return _context16.abrupt('break', 36);
 
 				case 12:
 					_ref35 = _i20.value;
@@ -11219,7 +11218,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					el = _ref36.el;
 
 					if (!(type === 'file')) {
-						_context16.next = 35;
+						_context16.next = 33;
 						break;
 					}
 
@@ -11257,24 +11256,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 
 				case 33:
-					_context16.next = 36;
-					break;
-
-				case 35:
-					if (type === 'application/octet-stream') {
-						value = new File([''], '');
-					}
-
-				case 36:
 					formData.append(name, value);
 
-				case 37:
+				case 34:
 					_context16.next = 3;
 					break;
 
-				case 39:
+				case 36:
 					if (!needProgress) {
-						_context16.next = 45;
+						_context16.next = 42;
 						break;
 					}
 
@@ -11296,25 +11286,25 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return promises.shift();
 					}]);
 
-				case 45:
-					_context16.prev = 45;
-					_context16.next = 48;
+				case 42:
+					_context16.prev = 42;
+					_context16.next = 45;
 					return $ajax(form.action, { method: 'POST', data: formData });
 
-				case 48:
+				case 45:
 					xhr = _context16.sent;
 					return _context16.abrupt('return', $DOM(xhr.responseText));
 
-				case 52:
-					_context16.prev = 52;
-					_context16.t2 = _context16['catch'](45);
+				case 49:
+					_context16.prev = 49;
+					_context16.t2 = _context16['catch'](42);
 					return _context16.abrupt('return', Promise.reject(_context16.t2));
 
-				case 55:
+				case 52:
 				case 'end':
 					return _context16.stop();
 			}
-		}, _marked[5], this, [[45, 52]]);
+		}, _marked[5], this, [[42, 49]]);
 	}
 
 	function readFile(file, asText) {
@@ -18868,7 +18858,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					_context18.prev = 33;
 					_context18.t2 = _context18['catch'](29);
 
-					console.log('DELFORM ERROR:\n' + getPrettyErrorMessage(_context18.t2));
+					console.log('DELFORM ERROR:\n' + getErrorMessage(_context18.t2));
 					$show(docBody);
 					return _context18.abrupt('return');
 
