@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '7660dce';
+	var commit = '537cd95';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10735,12 +10735,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.tNum = initNum;
 			this.trEl = el.tagName === 'TR' ? el : $parent(el, 'TR');
 			this._added = false;
+			this._isOldRecap = !!$id('recaptcha_widget_div');
 			this._isRecap = !!$q('[id*="recaptcha"]', this.trEl);
 			this._lastUpdate = null;
 			this._originHTML = this.trEl.innerHTML;
 			$hide(this.trEl);
 			if (this._isRecap) {
-				docBody.insertAdjacentHTML('beforeend', '<div onclick="' + ($id('recaptcha_widget_div') ? 'Recaptcha.reload()' : 'grecaptcha.reset()') + '"></div>');
+				docBody.insertAdjacentHTML('beforeend', '<div onclick="' + (this._isOldRecap ? 'Recaptcha.reload()' : 'grecaptcha.reset()') + '"></div>');
 				this._recapUpdate = docBody.lastChild;
 			} else {
 				this.trEl.innerHTML = '';
@@ -10874,6 +10875,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				$hide(this.trEl);
 				if (!this._isRecap) {
 					this.trEl.innerHTML = '';
+				} else if (!this._isOldRecap) {
+					$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
 				}
 				this.hasCaptcha = true;
 				this.textEl = null;
@@ -16681,7 +16684,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'repFn',
 				value: function repFn(str) {
-					return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
+					return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a').replace(/<span class="deadlink">&gt;&gt;(\d+)<\/span>/g, '<a class="de-ref-del" href="#p$1">&gt;&gt;$1</a>');;
 				}
 			}, {
 				key: 'css',
