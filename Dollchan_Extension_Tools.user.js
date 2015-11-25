@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'ba8cb40';
+	var commit = 'b205d58';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -5258,7 +5258,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 		if (!win) {
 			var winAttr = (Cfg[name + 'WinDrag'] ? 'de-win" style="' + Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] : 'de-win-fixed" style="right: 0; bottom: 25px') + (name !== 'fav' ? '' : '; width: ' + Cfg.favWinWidth + 'px; ');
-			var bodyAttr = name === 'cfg' ? ' ' + aib.cReply : '" style="background-color: ' + getComputedStyle(docBody).getPropertyValue('background-color');
+			var backColor = getComputedStyle(docBody).getPropertyValue('background-color');
+			var bodyAttr = name === 'cfg' ? ' ' + aib.cReply : '" style="background-color: ' + (backColor !== 'transparent' ? backColor : '#EEE');
 			main.insertAdjacentHTML('afterbegin', '\n\t\t<div id="de-win-' + name + '" class="' + winAttr + '; display: none;">\n\t\t\t<div class="de-win-head">\n\t\t\t\t<span class="de-win-title">\n\t\t\t\t\t' + (name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang]) + '\n\t\t\t\t</span>\n\t\t\t\t<span class="de-win-buttons">\n\t\t\t\t\t<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>\n\t\t\t\t\t<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t<div class="de-win-body' + bodyAttr + '"></div>\n\t\t\t' + (name !== 'fav' ? '' : '\n\t\t\t\t<div class="de-resizer de-resizer-left"></div>\n\t\t\t\t<div class="de-resizer de-resizer-right"></div>') + '\n\t\t</div>');
 			win = main.firstElementChild;
 			if (name === 'fav') {
@@ -16687,7 +16688,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'repFn',
 				value: function repFn(str) {
-					return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a').replace(/<span class="deadlink">&gt;&gt;(\d+)<\/span>/g, '<a class="de-ref-del" href="#p$1">&gt;&gt;$1</a>');;
+					return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a').replace(/<span class="deadlink">&gt;&gt;(\d+)<\/span>/g, '<a class="de-ref-del" href="#p$1">&gt;&gt;$1</a>');
 				}
 			}, {
 				key: 'css',
@@ -16906,7 +16907,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'css',
 				get: function get() {
-					return '\n\t\t\t.post_replies, .post[postid=""] { display: none !important; }\n\t\t\t.post { overflow-x: auto !important; }';
+					return '\n\t\t\t.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }\n\t\t\t.de-cfg-label.de-block { display: block; }\n\t\t\t.post_replies, .post[postid=""] { display: none !important; }\n\t\t\t.post { overflow-x: auto !important; }';
 				}
 			}, {
 				key: 'qImgLink',
@@ -18720,7 +18721,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-spell-btn { padding: 0 4px; }\
 	#de-spell-editor { display: flex; align-items: stretch; height: 225px; padding: 2px 0; }\
 	#de-spell-panel { display: flex; }\
-	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
+	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
 	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\
 	#de-spell-rowmeter:lang(de) { background-color: #777; }' +
 
