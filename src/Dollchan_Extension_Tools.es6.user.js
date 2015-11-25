@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '3dcc40c';
+var commit = 'fb7e15d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -14217,7 +14217,8 @@ function scriptCSS() {
 	.de-ref-op::after { content: " (OP)"; }\
 	.de-ref-my::after { content: " (You)"; }\
 	.de-ref-del::after { content: " (Del)"; }\
-	.de-ref-del.de-ref-my::after { content: " (You)(Del)"; }\
+	.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\
+	.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }\
 	.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
 	.de-refmap::before { content: "' + Lng.replies[lang] + ' "; }\
 	.de-refcomma:last-child { display: none; }\
