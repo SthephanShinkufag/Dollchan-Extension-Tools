@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'fb7e15d';
+	var commit = '981d3b8';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10083,7 +10083,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		});
 		var capEl = $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', form);
 		if (capEl) {
-			this.cap = new Captcha(capEl);
+			this.cap = new Captcha(capEl, this.tNum);
 			this.txta.addEventListener('focus', function () {
 				return _this13.cap.add();
 			});
@@ -10376,7 +10376,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 		refreshCapImg: function refreshCapImg(isErr) {
 			if (this.cap) {
-				this.cap.update(isErr, isErr);
+				this.cap.update(isErr, isErr, this.tNum);
 			}
 		},
 		setReply: function setReply(isQuick, needToHide) {
@@ -10727,14 +10727,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 	var Captcha = (function () {
-		function Captcha(el) {
+		function Captcha(el, initNum) {
 			_classCallCheck(this, Captcha);
 
 			this.hasCaptcha = true;
-			this._isRecap = !!$q('[id*="recaptcha"]', this.trEl);
 			this.textEl = null;
+			this.tNum = initNum;
 			this.trEl = el.tagName === 'TR' ? el : $parent(el, 'TR');
 			this._added = false;
+			this._isRecap = !!$q('[id*="recaptcha"]', this.trEl);
 			this._lastUpdate = null;
 			this._originHTML = this.trEl.innerHTML;
 			$hide(this.trEl);
@@ -10868,6 +10869,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.textEl.onfocus = null;
 			}
 		}, {
+			key: 'remove',
+			value: function remove() {
+				$hide(this.trEl);
+				if (!this._isRecap) {
+					this.trEl.innerHTML = '';
+				}
+				this._added = false;
+			}
+		}, {
 			key: 'renew',
 			value: function renew() {
 				this._added = false;
@@ -10876,12 +10886,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: 'update',
-			value: function update(focus, isErr) {
+			value: function update(focus, isErr, tNum) {
 				var _this20 = this;
 
-				if (!this.hasCaptcha && !isErr) {
+				if (tNum !== this.tNum) {
+					this.remove();
+				} else if (!this.hasCaptcha && !isErr) {
 					return;
 				}
+				this.tNum = tNum;
 				if (!this._added) {
 					this.add();
 					return;
@@ -10911,7 +10924,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							var src = img.getAttribute('src');
 							if (src) {
 								img.src = '';
-								img.src = aib.getCaptchaSrc(src, pr.tNum);
+								img.src = aib.getCaptchaSrc(src, tNum);
 							}
 						} else {
 							img.click();
@@ -15839,7 +15852,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						} else if (data.includes('VIP')) {
 							el.innerHTML = 'Вам не нужно вводить капчу, у вас введен пасс-код.';
 						} else if (data.includes('DISABLED')) {
-							$hide(cap.trEl);
 							return CancelablePromise.reject();
 						} else if (data.includes('CHECK')) {
 							var key = data.substr(6),
@@ -15857,7 +15869,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						} else {
 							el.textContent = data;
 						}
-						$show(cap.trEl);
 					}, function (e) {
 						_this47._capUpdPromise = null;
 						return CancelablePromise.reject(e);

@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'fb7e15d';
+var commit = '981d3b8';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -6776,7 +6776,7 @@ function PostForm(form, ignoreForm, dc) {
 	});
 	var capEl = $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', form);
 	if(capEl) {
-		this.cap = new Captcha(capEl);
+		this.cap = new Captcha(capEl, this.tNum);
 		this.txta.addEventListener('focus', () => this.cap.add());
 		this.form.addEventListener('click', () => this.cap.add(), true);
 	} else {
@@ -7059,7 +7059,7 @@ PostForm.prototype = {
 	},
 	refreshCapImg(isErr) {
 		if(this.cap) {
-			this.cap.update(isErr, isErr);
+			this.cap.update(isErr, isErr, this.tNum);
 		}
 	},
 	setReply(isQuick, needToHide) {
@@ -7404,12 +7404,13 @@ FileInput.prototype = {
 // ===========================================================================================================
 
 class Captcha {
-	constructor(el) {
+	constructor(el, initNum) {
 		this.hasCaptcha = true;
-		this._isRecap = !!$q('[id*="recaptcha"]', this.trEl);
 		this.textEl = null;
+		this.tNum = initNum;
 		this.trEl = el.tagName === 'TR' ? el : $parent(el, 'TR');
 		this._added = false;
+		this._isRecap = !!$q('[id*="recaptcha"]', this.trEl);
 		this._lastUpdate = null;
 		this._originHTML = this.trEl.innerHTML;
 		$hide(this.trEl);
@@ -7520,15 +7521,25 @@ class Captcha {
 		this.textEl.addEventListener('focus', this);
 		this.textEl.onfocus = null;
 	}
+	remove() {
+		$hide(this.trEl);
+		if(!this._isRecap) {
+			this.trEl.innerHTML = '';
+		}
+		this._added = false;
+	}
 	renew() {
 		this._added = false;
 		this._originHTML = this.trEl.innerHTML;
 		this.add(false, false);
 	}
-	update(focus, isErr) {
-		if(!this.hasCaptcha && !isErr) {
+	update(focus, isErr, tNum) {
+		if(tNum !== this.tNum) {
+			this.remove();
+		} else if(!this.hasCaptcha && !isErr) {
 			return;
 		}
+		this.tNum = tNum;
 		if(!this._added) {
 			this.add();
 			return;
@@ -7554,7 +7565,7 @@ class Captcha {
 					var src = img.getAttribute('src');
 					if(src) {
 						img.src = '';
-						img.src = aib.getCaptchaSrc(src, pr.tNum);
+						img.src = aib.getCaptchaSrc(src, tNum);
 					}
 				} else {
 					img.click();
@@ -11582,7 +11593,6 @@ function getImageBoard(checkDomains, checkEngines) {
 				} else if(data.includes('VIP')) {
 					el.innerHTML = 'Вам не нужно вводить капчу, у вас введен пасс-код.';
 				} else if(data.includes('DISABLED')) {
-					$hide(cap.trEl);
 					return CancelablePromise.reject();
 				} else if(data.includes('CHECK')) {
 					var key = data.substr(6),
@@ -11600,7 +11610,6 @@ function getImageBoard(checkDomains, checkEngines) {
 				} else {
 					el.textContent = data;
 				}
-				$show(cap.trEl);
 			}, e => {
 				this._capUpdPromise = null;
 				return CancelablePromise.reject(e);
