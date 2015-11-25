@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'd3f501e';
+var commit = '5df52e6';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -604,7 +604,7 @@ Lng = {
 doc = window.document, docBody, aProto = Array.prototype, locStorage, sesStorage,
 Cfg, hThr, pByEl, pByNum, sVis, uVis, needScroll,
 aib, nav, updater, dTime, visPosts = 2, topWinZ = 0,
-pr, dummy,
+pr, dummy, myPosts,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
 lang, quotetxt = '', localRun, isExpImg, isPreImg, excludeList,
 $each = Function.prototype.call.bind(aProto.forEach),
@@ -1594,6 +1594,17 @@ function initPostUserVisib(post, num, hide, date) {
 	}
 }
 
+function* readMyPosts() {
+	var data = yield* getStoredObj('DESU_MyPosts_' + aib.dm);
+	if(aib.b in data) {
+		try {
+			myPosts = new Set(data[aib.b]);
+			return;
+		} catch(e) {}
+	}
+	myPosts = new Set();
+}
+
 function* readPostsData(firstPost) {
 	var data, str = aib.t ? sesStorage['de-hidden-' + aib.b + aib.t] : null;
 	if(typeof str === 'string') {
@@ -1694,6 +1705,31 @@ function* readPostsData(firstPost) {
 		toggleWindow('fav', false, null, true);
 		sesStorage.removeItem('de-win-fav');
 	}
+}
+
+function addMyPost(num) {
+	locStorage['__de-mypost'] = JSON.stringify([aib.b, num]);
+	locStorage.removeItem('__de-mypost');
+	myPosts.add(num);
+	spawn(getStored, 'DESU_MyPosts_' + aib.dm).then(str => {
+		var obj;
+		try {
+			obj = JSON.parse(str || '{}') || {};
+		} catch(e) {
+			obj = {};
+		}
+		var arr = obj[aib.b];
+		if(arr) {
+			arr.push(num);
+			if(arr.length > 1e4) {
+				arr = arr.slice(5e3);
+			}
+		} else {
+			arr = [num];
+		}
+		obj[aib.b] = arr;
+		setStored('DESU_MyPosts_' + aib.dm, JSON.stringify(obj));
+	});
 }
 
 function saveUserPosts() {
@@ -5153,7 +5189,9 @@ var Pages = {
 		this._adding = true;
 		DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' +
 			'<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>');
-		this._addPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(formEl => {
+		this._addPromise = spawn(readMyPosts).then(() =>{
+			return ajaxLoad(aib.getPageUrl(aib.b, pageNum));
+		}).then(formEl => {
 			this._addForm(formEl, pageNum);
 			return spawn(this._updateForms, DelForm.last);
 		}).then(() => this._endAdding()).catch(e => {
@@ -5193,6 +5231,7 @@ var Pages = {
 		}
 		DelForm.first = DelForm.last;
 		var len = Math.min(aib.lastPage + 1, aib.page + count);
+		yield* readMyPosts();
 		for(var i = aib.page; i < len; ++i) {
 			try {
 				var el = yield ajaxLoad(aib.getPageUrl(aib.b, i));
@@ -7550,7 +7589,15 @@ class Captcha {
 // ===========================================================================================================
 
 function getSubmitError(dc) {
-	return dc.body.hasChildNodes() && !$q(aib.qDForm, dc) ? aib.getSubmitError(dc) : null;
+	if(!dc.body.hasChildNodes() || $q(aib.qDForm, dc)) {
+		return null;
+	}
+	var err = '', els = $Q(aib.qError, dc);
+	for(var i = 0, len = els.length; i < len; ++i) {
+		err += els[i].innerHTML + '\n';
+	}
+	err = err.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
+	return /successful|uploaded|updating|обновл|удален[о\.]/i.test(err) ? null : err;
 }
 
 var doUploading = async(function* ([hasFiles, getProgress]) {
@@ -7603,20 +7650,36 @@ var doUploading = async(function* ([hasFiles, getProgress]) {
 	$popup(Lng.internalError[lang], 'upload', false);
 });
 
-function checkUpload(dc) {
+function checkUpload(data) {
+	var isDocument = data instanceof HTMLDocument;
 	updater.continue();
-	var err = getSubmitError(dc);
-	if(err) {
+	var error = null, postNum = null;
+	if(aib.getSubmitData) {
+		if(aib.jsonSubmit && isDocument) {
+			try {
+				data = JSON.parse(data.body.textContent);
+			} catch(e) {
+				error = getErrorMessage(e);
+			}
+		}
+		if(!error) {
+			({ error, postNum } = aib.getSubmitData(data));
+		}
+	} else {
+		error = getSubmitError(data);
+	}
+	if(error) {
 		if(pr.isQuick) {
 			pr.setReply(true, false);
 		}
-		if(/captch|капч|подтвер|verifi/i.test(err)) {
+		if(/captch|капч|подтвер|verifi/i.test(error)) {
 			pr.refreshCapImg(true);
 		}
-		$popup(err, 'upload', false);
+		$popup(error, 'upload', false);
 		updater.sendErrNotif();
 		return;
 	}
+	addMyPost(postNum);
 	if(Cfg.favOnReply && pr.tNum && !$q('.de-btn-fav-sel', pByNum.get(pr.tNum).el)) {
 		pByNum.get(pr.tNum).thr.setFavorState(true, 'onreply');
 	}
@@ -7630,20 +7693,15 @@ function checkUpload(dc) {
 	Cfg.stats[pr.tNum ? 'reply' : 'op']++;
 	saveComCfg(aib.dm, Cfg);
 	if(!pr.tNum) {
-		if(aib.mak) {
-			try {
-				var json = JSON.parse(dc.body.textContent);
-				if(json.Status === 'Redirect') {
-					window.location = aib.getThrdUrl(aib.b, json.Target);
-				}
-			} catch(e) {}
-		} else {
+		if(postNum) {
+			window.location = aib.getThrdUrl(aib.b, postNum);
+		} else if(isDocument) {
 			window.location = aib.getThrdUrl(aib.b, aib.getTNum($q(aib.qDForm, dc)));
 		}
 		return;
 	}
-	var el = !aib.tiny && !aib.kus &&
-		(aib.qFormRedir === null || $q(aib.qFormRedir, dc)) ? $q(aib.qDForm, dc) : null;
+	var el = isDocument && !aib.kus &&
+		(aib.qFormRedir === null || $q(aib.qFormRedir, data)) ? $q(aib.qDForm, data) : null;
 	if(aib.t) {
 		Post.clearMarks();
 		if(el) {
@@ -7744,13 +7802,13 @@ function* html5Submit(form, submitter, needProgress = false) {
 		$ajax(form.action, {method: 'POST', data: formData, onprogress: e => {
 			lastFuncs.resolve({ done: false, data: {loaded: e.loaded, total: e.total} });
 			promises.push(new Promise((resolve, reject) => lastFuncs = {resolve, reject}));
-		}}).then(xhr => lastFuncs.resolve({done: true, data: $DOM(xhr.responseText)}),
+		}}).then(xhr => lastFuncs.resolve({done: true, data: aib.jsonSubmit ? JSON.parse(xhr.responseText) : $DOM(xhr.responseText)}),
 		         err => lastFuncs.reject(err));
 		return [hasFiles, () => promises.shift()];
 	} else {
 		try {
 			var xhr = yield $ajax(form.action, {method: 'POST', data: formData});
-			return $DOM(xhr.responseText);
+			return aib.jsonSubmit ? JSON.parse(xhr.responseText) : $DOM(xhr.responseText);
 		} catch(err) {
 			return Promise.reject(err);
 		}
@@ -10215,6 +10273,9 @@ class RefMap {
 				if(!aib.hasOPNum && opNums.has(lNum)) {
 					link.classList.add('de-ref-op');
 				}
+				if(myPosts.has(lNum)) {
+					link.classList.add('de-ref-my');
+				}
 				if(thrURL) {
 					var url = link.getAttribute('href');
 					if(url[0] === '#') {
@@ -10260,6 +10321,9 @@ class RefMap {
 				}
 				if(!aib.hasOPNum && DelForm.tNums.has(lNum)) {
 					link.classList.add('de-ref-op');
+				}
+				if(myPosts.has(lNum)) {
+					link.classList.add('de-ref-my');
 				}
 				lPost.ref.add(post, pNum, strNums && strNums.has(pNum));
 			} else {
@@ -11179,6 +11243,7 @@ class BaseBoard {
 		this.hasPicWrap = false;
 		this.hasTextLinks = false;
 		this.host = window.location.hostname;
+		this.jsonSubmit = false;
 		this.LastModified = null; // Used for $ajax only
 		this.markupBB = false;
 		this.multiFile = false;
@@ -11194,6 +11259,9 @@ class BaseBoard {
 	}
 	get css() {
 		return '';
+	}
+	get getSubmitData() {
+		return null;
 	}
 	get qFormMail() {
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
@@ -11347,14 +11415,6 @@ class BaseBoard {
 		var a = $q('a[href^="mailto:"], a[href="sage"]', post);
 		return !!a && /sage/i.test(a.href);
 	}
-	getSubmitError(dc) {
-		var err = '', els = $Q(aib.qError, dc);
-		for(var i = 0, len = els.length; i < len; ++i) {
-			err += els[i].innerHTML + '\n';
-		}
-		err = err.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
-		return /successful|uploaded|updating|обновл|удален[о\.]/i.test(err) ? null : err;
-	}
 	getThrdUrl(b, tNum) { // Differs Arhivach only
 		return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
 	}
@@ -11410,6 +11470,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasCatalog = true;
 			this.hasOPNum = true;
 			this.hasPicWrap = true;
+			this.jsonSubmit = true;
 			this.markupBB = true;
 			this.multiFile = true;
 			this.timePattern = 'dd+nn+yy+w+hh+ii+ss';
@@ -11476,13 +11537,16 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return this.getSage(post);
 		}
-		getSubmitError(dc) {
-			var err = Lng.error[lang] + ":\n";
-			try {
-				var json = JSON.parse(dc.body.textContent);
-				return json.Status === 'OK' || json.Status === 'Redirect' ? null : err + json.Reason;
-			} catch(e) {}
-			return err + dc.body.innerHTML;
+		getSubmitData(json) {
+			var error = null, postNum = null;
+			if(json.Status === 'OK') {
+				postNum = +json.Num;
+			} else if(json.Status === 'Redirect') {
+				postNum = +json.Target;
+			} else {
+				error = Lng.error[lang] + ":\n" + json.Reason;
+			}
+			return { error, postNum };
 		}
 		getWrap(el) {
 			return el.parentNode;
@@ -11618,6 +11682,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.firstPage = 1;
 			this.hasCatalog = true;
+			this.jsonSubmit = true;
 			this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 			this.thrid = 'thread';
 
@@ -11648,11 +11713,18 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPageUrl(b, p) {
 			return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
 		}
+		getSubmitData(json) {
+			return { error: json.error, postNum: +json.id };
+		}
 		getTNum(op) {
 			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 		}
 		init() {
 			$script('window.FormData = void 0;');
+			var form = $q('form[name="post"][action="/post.php"]');
+			if(form) {
+				form.insertAdjacentHTML('beforeend', '<input name="json_response" value="1" type="hidden"></input');
+			}
 			return false;
 		}
 	}
@@ -11920,6 +11992,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.docExt = '.html';
 			this.hasPicWrap = true;
+			this.jsonSubmit = true;
 			this.markupBB = true;
 			this.multiFile = true;
 			this.ru = true;
@@ -11948,14 +12021,17 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPageUrl(b, p) {
 			return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
 		}
-		getSubmitError(dc) {
-			var err = Lng.error[lang] + ":\n",
-				text = dc.body.innerHTML;
-			try {
-				var json = JSON.parse(text);
-				return json.post ? null : json.error ? err + json.error.text : err + text;
-			} catch(e) {}
-			return err + text;
+		getSubmitData(json) {
+			var error, postNum;
+			if(json.post) {
+				postNum = +json.post;
+			} else {
+				error = Lng.error[lang];
+				if(json.error) {
+					error += ":\n" + json.error.text;
+				}
+			}
+			return { error, postNum };
 		}
 		init() {
 			var el = $q('#postform input[type="button"]');
@@ -11965,7 +12041,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		initCaptcha() {
-			$id('captchadiv').innerHTML = '<img style="vertical-align: bottom;" id="imgcaptcha" />';
+			$id('captchadiv').innerHTML = '<img src="' + this.getCaptchaSrc() +
+				'" style="vertical-align: bottom;" id="imgcaptcha" />';
 			return null;
 		}
 		repFn(str) {
@@ -12077,6 +12154,18 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getSage(post) {
 			return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
+		}
+		getSubmitData(data) {
+			var error = null, postNum = null;
+			var errEl = $q('#errmsg', data);
+			if(errEl) {
+				error = errEl.textContent;
+			} else {
+				try {
+					postNum = +$q('h1', data).nextSibling.textContent.match(/no:(\d+)/)[1];
+				} catch(e) {}
+			}
+			return { error, postNum };
 		}
 		getTNum(op) {
 			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
@@ -12755,6 +12844,19 @@ function Initialization(checkDomains) {
 			return;
 		}
 		switch(e.key) {
+		case '__de-mypost': (() => {
+			try {
+				data = JSON.parse(val);
+			} catch(err) {
+				return;
+			}
+			if(data[0] === aib.b) {
+				myPosts.add(data[1]);
+				$each($Q('[de-form] a[href*="' + aib.anchor + data[1] + '"]'), el => {
+					el.classList.add('de-ref-my');
+				});
+			}
+		})();
 		case '__de-webmvolume':
 			val = +val || 0;
 			Cfg.webmVolume = val;
@@ -14113,7 +14215,9 @@ function scriptCSS() {
 	.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 	.de-pview-info { padding: 3px 6px !important; }\
 	.de-ref-op::after { content: " (OP)"; }\
+	.de-ref-my::after { content: " (YOU)"; }\
 	.de-ref-del::after { content: " (del)"; }\
+	.de-ref-del.de-ref-my::after { content: " (YOU)(del)"; }\
 	.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
 	.de-refmap::before { content: "' + Lng.replies[lang] + ' "; }\
 	.de-refcomma:last-child { display: none; }\
@@ -14250,6 +14354,8 @@ function* initScript(checkDomains, readCfgPromise) {
 	Logger.log('Init page');
 	panel.init(formEl);
 	Logger.log('Add panel');
+	yield* readMyPosts();
+	Logger.log('Read my posts');
 	DelForm.first.addStuff();
 	readViewedPosts();
 	scriptCSS();
@@ -14300,3 +14406,4 @@ if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 }
 
 })(window.opera && window.opera.scriptStorage, window.FormData);
+
