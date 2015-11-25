@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '60099e2';
+	var commit = 'dc61dd9';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -17590,6 +17590,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				get: function get() {
 					return '\n\t\t\timg[src="/tr.png"], small { display: none; }\n\t\t\tform[action$="/paint.pl"] { width: 280px; }\n\t\t\tinput[name="oek_x"], input[name="oek_y"] { width: 30px !important; }';
 				}
+			}, {
+				key: 'qImgLink',
+				get: function get() {
+					return '.filesize > a:first-of-type';
+				}
 			}]);
 
 			return Uchan;
@@ -17610,7 +17615,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var path = _ibEngines$i[0];
 				var Ctor = _ibEngines$i[1];
 
-				if ($q(path)) {
+				if ($q(path, doc)) {
 					return new Ctor(prot, dm);
 				}
 			}

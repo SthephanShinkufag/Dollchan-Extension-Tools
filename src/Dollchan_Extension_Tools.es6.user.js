@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '60099e2';
+var commit = 'dc61dd9';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12795,6 +12795,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			form[action$="/paint.pl"] { width: 280px; }
 			input[name="oek_x"], input[name="oek_y"] { width: 30px !important; }`;
 		}
+		get qImgLink() {
+			return '.filesize > a:first-of-type';
+		}
 		disableRedirection(el) {
 			$hide($parent(el, 'TR'));
 			el.checked = false;
@@ -12814,7 +12817,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	if(checkEngines) {
 		for(var i = ibEngines.length - 1; i >= 0; --i) {
 			var [path, Ctor] = ibEngines[i];
-			if($q(path)) {
+			if($q(path, doc)) {
 				return new Ctor(prot, dm);
 			}
 		}
