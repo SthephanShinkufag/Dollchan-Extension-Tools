@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'dc61dd9';
+var commit = 'ba8cb40';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2640,7 +2640,7 @@ function showFavoritesWindow(body, data) {
 		readFav().then(val => fn(val, true, saveFavorites));
 	}));
 	body.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(function* () {
-		var update = false,
+		var isUpdate = false,
 			els = $Q('.de-entry'),
 			fav = yield* getStoredObj('DESU_Favorites');
 		for(var i = 0, len = els.length; i < len; ++i) {
@@ -2663,18 +2663,18 @@ function showFavoritesWindow(body, data) {
 				$hide(el);
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 				f['err'] = titleEl.title = getErrorMessage(e);
-				update = true;
+				isUpdate = true;
 				continue;
 			}
 			if(f['err']) {
 				delete f['err'];
-				update = true;
+				isUpdate = true;
 			}
 			if($q(aib.qClosed, form)) {
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 				titleEl.title = Lng.thrClosed[lang];
 				f['err'] = 'Closed';
-				update = true;
+				isUpdate = true;
 			} else {
 				iconEl.setAttribute('class', 'de-fav-inf-icon');
 				titleEl.removeAttribute('title');
@@ -2686,10 +2686,10 @@ function showFavoritesWindow(body, data) {
 			} else {
 				$show(el);
 				f['new'] = cnt;
-				update = true;
+				isUpdate = true;
 			}
 		}
-		if(update) {
+		if(isUpdate) {
 			setStored('DESU_Favorites', JSON.stringify(fav));
 		}
 	})));
@@ -7257,7 +7257,7 @@ FileInput.prototype = {
 			}
 		}
 	},
-	init(update) {
+	init(isUpdate) {
 		if(Cfg.fileThumb) {
 			setTimeout(() => {
 				$hide(this.form.fileTd.parentNode);
@@ -7272,12 +7272,12 @@ FileInput.prototype = {
 			this.thumb.addEventListener('dragover', this);
 			this.el.addEventListener('dragleave', this);
 			this.el.addEventListener('drop', this);
-			if(update) {
+			if(isUpdate) {
 				this._showPviewImage();
 			} else if(this.prev) {
 				$hide(this.thumb);
 			}
-		} else if(update) {
+		} else if(isUpdate) {
 			$show(this._wrap);
 			$show(this.form.fileTd.parentNode);
 			if(this._mediaE) {
@@ -7286,7 +7286,7 @@ FileInput.prototype = {
 			$del(this.thumb);
 			this.thumb = this._mediaEl = null;
 		}
-		if(!update) {
+		if(!isUpdate) {
 			this.el.classList.add('de-file-input');
 			this.el.addEventListener('change', this);
 		}
@@ -7500,7 +7500,7 @@ class Captcha {
 			$replace(a, img);
 		}
 		if(updateImage) {
-			this.update(focus, false);
+			this.update(focus);
 		} else {
 			this._lastUpdate = Date.now();
 		}
@@ -7510,7 +7510,7 @@ class Captcha {
 		img.title = Lng.refresh[lang];
 		img.alt = Lng.loading[lang];
 		img.style.cssText = 'vertical-align: text-bottom; border: none; cursor: pointer;';
-		img.onclick = () => this.update(true, false);
+		img.onclick = () => this.update(true);
 	}
 	initTextEl() {
 		this.textEl.autocomplete = 'off';
@@ -7538,7 +7538,7 @@ class Captcha {
 		this._originHTML = this.trEl.innerHTML;
 		this.add(false, false);
 	}
-	update(focus, isErr, tNum) {
+	update(focus, isErr = false, tNum = this.tNum) {
 		if(tNum !== this.tNum) {
 			this.remove();
 		} else if(!this.hasCaptcha && !isErr) {

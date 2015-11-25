@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'dc61dd9';
+	var commit = 'ba8cb40';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -5647,12 +5647,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 		}));
 		body.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(regeneratorRuntime.mark(function _callee2() {
-			var update, els, fav, i, len, form, el, host, b, num, f, iconEl, titleEl, cnt;
+			var isUpdate, els, fav, i, len, form, el, host, b, num, f, iconEl, titleEl, cnt;
 			return regeneratorRuntime.wrap(function _callee2$(_context8) {
 				while (1) {
 					switch (_context8.prev = _context8.next) {
 						case 0:
-							update = false;
+							isUpdate = false;
 							els = $Q('.de-entry');
 							return _context8.delegateYield(getStoredObj('DESU_Favorites'), 't0', 3);
 
@@ -5697,19 +5697,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							$hide(el);
 							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 							f['err'] = titleEl.title = getErrorMessage(_context8.t1);
-							update = true;
+							isUpdate = true;
 							return _context8.abrupt('continue', 31);
 
 						case 26:
 							if (f['err']) {
 								delete f['err'];
-								update = true;
+								isUpdate = true;
 							}
 							if ($q(aib.qClosed, form)) {
 								iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 								titleEl.title = Lng.thrClosed[lang];
 								f['err'] = 'Closed';
-								update = true;
+								isUpdate = true;
 							} else {
 								iconEl.setAttribute('class', 'de-fav-inf-icon');
 								titleEl.removeAttribute('title');
@@ -5722,7 +5722,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							} else {
 								$show(el);
 								f['new'] = cnt;
-								update = true;
+								isUpdate = true;
 							}
 
 						case 31:
@@ -5731,7 +5731,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							break;
 
 						case 34:
-							if (update) {
+							if (isUpdate) {
 								setStored('DESU_Favorites', JSON.stringify(fav));
 							}
 
@@ -10581,7 +10581,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 		},
-		init: function init(update) {
+		init: function init(isUpdate) {
 			var _this15 = this;
 
 			if (Cfg.fileThumb) {
@@ -10596,12 +10596,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.thumb.addEventListener('dragover', this);
 				this.el.addEventListener('dragleave', this);
 				this.el.addEventListener('drop', this);
-				if (update) {
+				if (isUpdate) {
 					this._showPviewImage();
 				} else if (this.prev) {
 					$hide(this.thumb);
 				}
-			} else if (update) {
+			} else if (isUpdate) {
 				$show(this._wrap);
 				$show(this.form.fileTd.parentNode);
 				if (this._mediaE) {
@@ -10610,7 +10610,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				$del(this.thumb);
 				this.thumb = this._mediaEl = null;
 			}
-			if (!update) {
+			if (!isUpdate) {
 				this.el.classList.add('de-file-input');
 				this.el.addEventListener('change', this);
 			}
@@ -10839,7 +10839,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					$replace(a, img);
 				}
 				if (updateImage) {
-					this.update(focus, false);
+					this.update(focus);
 				} else {
 					this._lastUpdate = Date.now();
 				}
@@ -10854,7 +10854,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				img.alt = Lng.loading[lang];
 				img.style.cssText = 'vertical-align: text-bottom; border: none; cursor: pointer;';
 				img.onclick = function () {
-					return _this19.update(true, false);
+					return _this19.update(true);
 				};
 			}
 		}, {
@@ -10891,8 +10891,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: 'update',
-			value: function update(focus, isErr, tNum) {
+			value: function update(focus) {
 				var _this20 = this;
+
+				var isErr = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+				var tNum = arguments.length <= 2 || arguments[2] === undefined ? this.tNum : arguments[2];
 
 				if (tNum !== this.tNum) {
 					this.remove();
