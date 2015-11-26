@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = '31a8539';
+	var commit = 'b6e941a';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -5653,7 +5653,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 5:
 							if (!(i < len)) {
-								_context8.next = 37;
+								_context8.next = 38;
 								break;
 							}
 
@@ -5664,7 +5664,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								break;
 							}
 
-							return _context8.abrupt('continue', 34);
+							return _context8.abrupt('continue', 35);
 
 						case 9:
 							iconEl = $q('.de-fav-inf-icon', el), titleEl = iconEl.parentNode;
@@ -5680,28 +5680,29 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							form = _context8.sent;
 
 							if (form) {
-								_context8.next = 20;
+								_context8.next = 21;
 								break;
 							}
 
 							iconEl.setAttribute('class', 'de-fav-inf-icon');
-							return _context8.abrupt('continue', 34);
+							titleEl.removeAttribute('title');
+							return _context8.abrupt('continue', 35);
 
-						case 20:
-							_context8.next = 29;
+						case 21:
+							_context8.next = 30;
 							break;
 
-						case 22:
-							_context8.prev = 22;
+						case 23:
+							_context8.prev = 23;
 							_context8.t1 = _context8['catch'](13);
 
 							$hide(el);
 							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 							f['err'] = titleEl.title = getErrorMessage(_context8.t1);
 							isUpdate = true;
-							return _context8.abrupt('continue', 34);
+							return _context8.abrupt('continue', 35);
 
-						case 29:
+						case 30:
 							if (f['err']) {
 								delete f['err'];
 								isUpdate = true;
@@ -5726,22 +5727,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								isUpdate = true;
 							}
 
-						case 34:
+						case 35:
 							++i;
 							_context8.next = 5;
 							break;
 
-						case 37:
+						case 38:
 							if (isUpdate) {
 								setStored('DESU_Favorites', JSON.stringify(fav));
 							}
 
-						case 38:
+						case 39:
 						case 'end':
 							return _context8.stop();
 					}
 				}
-			}, _callee2, this, [[13, 22]]);
+			}, _callee2, this, [[13, 23]]);
 		}))));
 		body.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(regeneratorRuntime.mark(function _callee3() {
 			var infoCount, els, postsInfo, i, el, iconEl, titleEl, page, infoLoaded, endPage, tNums, form, pInfo, _postsInfo$i, found, pageEl, iconClass, iconTitle;
