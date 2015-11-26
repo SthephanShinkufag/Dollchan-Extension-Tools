@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '0300ce6';
+	var commit = '77ddeb6';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -16524,8 +16524,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				var _this60 = _possibleConstructorReturn(this, Object.getPrototypeOf(_2chRu).call(this, prot, dm));
 
-				_this60._2chRu = true;
-
 				_this60.qPages = 'table[border="1"] td > a:last-of-type';
 
 				_this60.docExt = '.html';
@@ -16582,6 +16580,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (el) {
 						$replace(el, '<input type="submit" value="Отправить" />');
 					}
+					el = $q(this.qDForm);
+					$each($Q('input[type="hidden"]', el), $del);
+					el.appendChild($q('.userdelete'));
 					return false;
 				}
 			}, {
@@ -18048,14 +18049,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'passEl',
 			get: function get() {
-				var value;
-				if (aib._2chRu) {
-					$each($Q('input[type="hidden"]', this.el), $del);
-					this.el.appendChild($q('.userdelete'));
-					value = $q('input[type="password"]', this.el);
-				} else {
-					value = $q(aib.qDelPassw, this.el);
-				}
+				var value = $q(aib.qDelPassw, this.el);
 				Object.defineProperty(this, 'passEl', { value: value });
 				return value;
 			}

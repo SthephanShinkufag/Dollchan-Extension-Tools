@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '0300ce6';
+var commit = '77ddeb6';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12041,7 +12041,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	class _2chRu extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this._2chRu = true;
 
 			this.qPages = 'table[border="1"] td > a:last-of-type';
 
@@ -12093,6 +12092,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(el) {
 				$replace(el, '<input type="submit" value="Отправить" />');
 			}
+			el = $q(this.qDForm);
+			$each($Q('input[type="hidden"]', el), $del);
+			el.appendChild($q('.userdelete'));
 			return false;
 		}
 		initCaptcha() {
@@ -13307,14 +13309,7 @@ class DelForm {
 		this.lastThr = thr;
 	}
 	get passEl() {
-		var value;
-		if(aib._2chRu) {
-			$each($Q('input[type="hidden"]', this.el), $del);
-			this.el.appendChild($q('.userdelete'));
-			value = $q('input[type="password"]', this.el);
-		} else {
-			value = $q(aib.qDelPassw, this.el);
-		}
+		var value = $q(aib.qDelPassw, this.el);
 		Object.defineProperty(this, 'passEl', { value });
 		return value;
 	}
