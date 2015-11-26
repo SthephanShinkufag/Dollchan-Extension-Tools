@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '1820987';
+	var commit = '1d21c31';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3745,24 +3745,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var useNative = arguments.length <= 2 || arguments[2] === undefined ? nativeXHRworks : arguments[2];
 
 		var resolve, reject, cancelFn;
-		var useCache = params && params.useCache;
-		if (useCache) {
-			$ajax.addHeaders(params, {
-				'If-Modified-Since': aib.LastModified,
-				'If-None-Match': aib.ETag
-			});
-			if (aib.hasCacheBug) {
-				url += (url.includes('?') ? '&' : '?') + 'nocache=' + Math.random();
-			}
-		}
 		if (!useNative && typeof GM_xmlhttpRequest === 'function') {
 			var obj = {
 				'method': params && params.method || 'GET',
 				'url': nav.fixLink(url),
 				'onload': function onload(e) {
-					if (useCache) {
-						$ajax.readHeaders(e.responseHeaders);
-					}
 					if (e.status === 200 || aib.tiny && e.status === 400) {
 						resolve(e);
 					} else {
@@ -3790,9 +3777,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				if (target.readyState === 4) {
 					if (target.status === 200 || aib.tiny && target.status === 400 || target.status === 0 && target.responseType === 'arraybuffer') {
-						if (useCache) {
-							$ajax.readHeaders(target.getAllResponseHeaders());
-						}
 						resolve(target);
 					} else {
 						reject(new AjaxError(target.status, target.statusText));
@@ -3820,7 +3804,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				};
 			} catch (e) {
 				nativeXHRworks = false;
-				var newParams = $ajax.addHeaders(params, { Referer: window.location.toString() });
+				var newParams = null;
+				if (params) {
+					if (params.headers) {
+						Object.assign(params.headers, headers);
+					} else {
+						params.headers = headers;
+					}
+					newParams = params;
+				} else {
+					newParams = { headers: headers };
+				}
 				return $ajax(url, newParams, false);
 			}
 		}
@@ -3829,49 +3823,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			reject = rej;
 		}, cancelFn);
 	}
-	$ajax.addHeaders = function (params, headers) {
-		if (params) {
-			if (params.headers) {
-				return Object.assign(params.headers, headers);
-			}
-			params.headers = headers;
-			return params;
-		}
-		return { headers: headers };
-	};
-	$ajax.readHeaders = function (headers) {
-		var hasCacheControl = false,
-		    i = 0;
-		for (var _iterator = headers.split('\r\n'), _isArray = Array.isArray(_iterator), _i2 = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-			var _ref2;
-
-			if (_isArray) {
-				if (_i2 >= _iterator.length) break;
-				_ref2 = _iterator[_i2++];
-			} else {
-				_i2 = _iterator.next();
-				if (_i2.done) break;
-				_ref2 = _i2.value;
-			}
-
-			var header = _ref2;
-
-			if (header.startsWith('Last-Modified: ')) {
-				aib.LastModified = header.substr(15);
-				i++;
-			} else if (header.startsWith('Etag: ')) {
-				aib.ETag = header.substr(6);
-				i++;
-			} else if (header.startsWith('Cache-Control: ')) {
-				hasCacheControl = true;
-				i++;
-			}
-			if (i === 3) {
-				break;
-			}
-		}
-		aib.hasCacheBug = !hasCacheControl;
-	};
 
 	function Maybe(ctor ) {
 		this._ctor = ctor;
@@ -5032,19 +4983,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 'de-panel-preimg':
 							isPreImg = !isPreImg;
 							if (!e.ctrlKey) {
-								for (var _iterator2 = DelForm, _isArray2 = Array.isArray(_iterator2), _i3 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
-									var _ref3;
+								for (var _iterator = DelForm, _isArray = Array.isArray(_iterator), _i2 = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+									var _ref2;
 
-									if (_isArray2) {
-										if (_i3 >= _iterator2.length) break;
-										_ref3 = _iterator2[_i3++];
+									if (_isArray) {
+										if (_i2 >= _iterator.length) break;
+										_ref2 = _iterator[_i2++];
 									} else {
-										_i3 = _iterator2.next();
-										if (_i3.done) break;
-										_ref3 = _i3.value;
+										_i2 = _iterator.next();
+										if (_i2.done) break;
+										_ref2 = _i2.value;
 									}
 
-									var form = _ref3;
+									var form = _ref2;
 
 									preloadImages(form.el);
 								}
@@ -6053,14 +6004,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'href': '#',
 			'class': 'de-abtn de-spell-btn' }, {
 			'click': $pd,
-			'mouseover': function mouseover(_ref4) {
-				var target = _ref4.target;
+			'mouseover': function mouseover(_ref3) {
+				var target = _ref3.target;
 				return target.odelay = setTimeout(function () {
 					return addMenu(target);
 				}, Cfg.linksOver);
 			},
-			'mouseout': function mouseout(_ref5) {
-				var target = _ref5.target;
+			'mouseout': function mouseout(_ref4) {
+				var target = _ref4.target;
 				return clearTimeout(target.odelay);
 			}
 		}), $new('a', { 'text': Lng.apply[lang], 'href': '#', 'class': 'de-abtn de-spell-btn' }, {
@@ -6406,10 +6357,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
 		})), $if(!nav.Presto, $btn(Lng.file[lang], '', function () {
 			$popup('<b>' + Lng.impexpCfg[lang] + ':</b>' + '<div class="de-list">' + Lng.fileToCfg[lang] + ':<br>' + '<input type="file" accept=".json" id="de-import-file" style="margin-left: 12px;"></div>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.cfgToFile[lang] + '</div>', 'cfg-file', false);
-			$id('de-import-file').onchange = function (_ref6) {
-				var _ref6$target$files = _slicedToArray(_ref6.target.files, 1);
+			$id('de-import-file').onchange = function (_ref5) {
+				var _ref5$target$files = _slicedToArray(_ref5.target.files, 1);
 
-				var file = _ref6$target$files[0];
+				var file = _ref5$target$files[0];
 
 				if (file) {
 					readFile(file, true).then(function (val) {
@@ -7785,13 +7736,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			};
 		}
 	};
-	Videos._titlesLoaderHelper = function (_ref7, num) {
-		var _ref8 = _slicedToArray(_ref7, 4);
+	Videos._titlesLoaderHelper = function (_ref6, num) {
+		var _ref7 = _slicedToArray(_ref6, 4);
 
-		var link = _ref8[0];
-		var isYtube = _ref8[1];
-		var videoObj = _ref8[2];
-		var id = _ref8[3];
+		var link = _ref7[0];
+		var isYtube = _ref7[1];
+		var videoObj = _ref7[2];
+		var id = _ref7[3];
 
 		for (var _len5 = arguments.length, data = Array(_len5 > 2 ? _len5 - 2 : 0), _key4 = 2; _key4 < _len5; _key4++) {
 			data[_key4 - 2] = arguments[_key4];
@@ -8083,7 +8034,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var returnForm = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
 		var useCache = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
-		return $ajax(url, { useCache: useCache }).then(function (xhr) {
+		var cData = ajaxLoad.cacheData.get(url);
+		var ajaxURL = cData && !cData.hasCacheControl ? ajaxLoad.fixCachedURL(url) : url;
+		return $ajax(ajaxURL, cData && cData.params).then(function (xhr) {
+			var headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
+			var data = ajaxLoad.readCacheData(headers, useCache);
+			if (!data.hasCacheControl && !ajaxLoad.cacheData.has(url)) {
+				ajaxLoad.cacheData.set(url, data);
+				return $ajax(ajaxLoad.fixCachedURL(url), data.params);
+			}
+			ajaxLoad.cacheData.set(url, data);
+			return xhr;
+		}).then(function (xhr) {
 			var el,
 			    text = xhr.responseText;
 			if (text.includes('</html>')) {
@@ -8094,6 +8056,57 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return err.code === 304 ? null : CancelablePromise.reject(err);
 		});
 	}
+	ajaxLoad.cacheData = new Map();
+	ajaxLoad.fixCachedURL = function (url) {
+		return url + (url.includes('?') ? '&' : '?') + 'nocache=' + Math.random();
+	};
+	ajaxLoad.readCacheData = function (ajaxHeaders, needHeaders) {
+		var hasCacheControl = false,
+		    ETag = null,
+		    LastModified = null,
+		    headers = null,
+		    i = 0;
+		for (var _iterator2 = ajaxHeaders.split('\r\n'), _isArray2 = Array.isArray(_iterator2), _i3 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
+			var _ref8;
+
+			if (_isArray2) {
+				if (_i3 >= _iterator2.length) break;
+				_ref8 = _iterator2[_i3++];
+			} else {
+				_i3 = _iterator2.next();
+				if (_i3.done) break;
+				_ref8 = _i3.value;
+			}
+
+			var header = _ref8;
+
+			if (header.startsWith('Cache-Control: ')) {
+				hasCacheControl = true;
+				i++;
+			} else if (needHeaders) {
+				if (header.startsWith('Last-Modified: ')) {
+					LastModified = header.substr(15);
+					i++;
+				} else if (header.startsWith('Etag: ')) {
+					ETag = header.substr(6);
+					i++;
+				}
+			}
+			if (i === (needHeaders ? 3 : 1)) {
+				break;
+			}
+		}
+		if (ETag || LastModified) {
+			headers = {};
+			if (ETag) {
+				headers['If-None-Match'] = ETag;
+			}
+			if (LastModified) {
+				headers['If-Modified-Since'] = LastModified;
+			}
+		}
+		return { hasCacheControl: hasCacheControl, params: headers ? { headers: headers } : null };
+	};
 
 	function getJsonPosts(url) {
 		return $ajax(url, { useCache: true }).then(function (xhr) {
@@ -15476,16 +15489,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.b = '';
 			this.dm = dm;
 			this.docExt = null;
-			this.ETag = null;
 			this.firstPage = 0;
 			this.hasCatalog = false;
-			this.hasCacheBug = false;
 			this.hasOPNum = false;
 			this.hasPicWrap = false;
 			this.hasTextLinks = false;
 			this.host = window.location.hostname;
 			this.jsonSubmit = false;
-			this.LastModified = null;
 			this.markupBB = false;
 			this.multiFile = false;
 			this.page = 0;

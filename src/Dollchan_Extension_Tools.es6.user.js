@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '1820987';
+var commit = '1d21c31';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -933,24 +933,11 @@ class AjaxError {
 
 function $ajax(url, params = null, useNative = nativeXHRworks) {
 	var resolve, reject, cancelFn;
-	var useCache = params && params.useCache;
-	if(useCache) {
-		$ajax.addHeaders(params, {
-			'If-Modified-Since': aib.LastModified,
-			'If-None-Match': aib.ETag
-		});
-		if(aib.hasCacheBug) {
-			url += (url.includes('?') ? '&' : '?' ) + 'nocache=' + Math.random();
-		}
-	}
 	if(!useNative && (typeof GM_xmlhttpRequest === 'function')) {
 		var obj = {
 			'method': (params && params.method) || 'GET',
 			'url': nav.fixLink(url),
 			'onload'(e) {
-				if(useCache) {
-					$ajax.readHeaders(e.responseHeaders);
-				}
 				if(e.status === 200 || aib.tiny && e.status === 400) {
 					resolve(e);
 				} else {
@@ -979,9 +966,6 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				   (aib.tiny && target.status === 400) ||
 				   (target.status === 0 && target.responseType === 'arraybuffer'))
 				{
-					if(useCache) {
-						$ajax.readHeaders(target.getAllResponseHeaders());
-					}
 					resolve(target);
 				} else {
 					reject(new AjaxError(target.status, target.statusText));
@@ -1007,7 +991,17 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			cancelFn = () => xhr.abort();
 		} catch(e) {
 			nativeXHRworks = false;
-			var newParams = $ajax.addHeaders(params, { Referer: window.location.toString() });
+			var newParams = null;
+			if(params) {
+				if(params.headers) {
+					Object.assign(params.headers, headers);
+				} else {
+					params.headers = headers;
+				}
+				newParams = params;
+			} else {
+				newParams = { headers };
+			}
 			return $ajax(url, newParams, false);
 		}
 	}
@@ -1015,35 +1009,6 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 		resolve = res;
 		reject = rej;
 	}, cancelFn);
-}
-$ajax.addHeaders = function(params, headers) {
-	if(params) {
-		if(params.headers) {
-			return Object.assign(params.headers, headers);
-		}
-		params.headers = headers;
-		return params;
-	}
-	return { headers };
-};
-$ajax.readHeaders = function(headers) {
-	var hasCacheControl = false, i = 0;
-	for(var header of headers.split('\r\n')) {
-		if(header.startsWith('Last-Modified: ')) {
-			aib.LastModified = header.substr(15);
-			i++;
-		} else if(header.startsWith('Etag: ')) {
-			aib.ETag = header.substr(6);
-			i++;
-		} else if(header.startsWith('Cache-Control: ')) {
-			hasCacheControl = true;
-			i++;
-		}
-		if(i === 3) {
-			break;
-		}
-	}
-	aib.hasCacheBug = !hasCacheControl;
 }
 
 function Maybe(ctor/*, ...args*/) {
@@ -5172,13 +5137,63 @@ function embedMediaLinks(data) {
 // ===========================================================================================================
 
 function ajaxLoad(url, returnForm = true, useCache = false) {
-	return $ajax(url, { useCache: useCache }).then(xhr => {
+	var cData = ajaxLoad.cacheData.get(url);
+	var ajaxURL = cData && !cData.hasCacheControl ? ajaxLoad.fixCachedURL(url) : url;
+	return $ajax(ajaxURL, cData && cData.params).then(xhr => {
+		var headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders()
+		                                             : xhr.responseHeaders
+		var data = ajaxLoad.readCacheData(headers, useCache);
+		if(!data.hasCacheControl && !ajaxLoad.cacheData.has(url)) {
+			ajaxLoad.cacheData.set(url, data);
+			return $ajax(ajaxLoad.fixCachedURL(url), data.params);
+		}
+		ajaxLoad.cacheData.set(url, data);
+		return xhr;
+	}).then(xhr => {
 		var el, text = xhr.responseText;
 		if(text.includes('</html>')) {
 			el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 		}
 		return el ? el : CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
 	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
+}
+ajaxLoad.cacheData = new Map();
+ajaxLoad.fixCachedURL = function(url) {
+	return url + (url.includes('?') ? '&' : '?' ) + 'nocache=' + Math.random();
+};
+ajaxLoad.readCacheData = function(ajaxHeaders, needHeaders) {
+	var hasCacheControl = false,
+		ETag = null,
+		LastModified = null,
+		headers = null,
+		i = 0;
+	for(var header of ajaxHeaders.split('\r\n')) {
+		if(header.startsWith('Cache-Control: ')) {
+			hasCacheControl = true;
+			i++;
+		} else if(needHeaders) {
+			if(header.startsWith('Last-Modified: ')) {
+				LastModified = header.substr(15);
+				i++;
+			} else if(header.startsWith('Etag: ')) {
+				ETag = header.substr(6);
+				i++;
+			}
+		}
+		if(i === (needHeaders ? 3 : 1)) {
+			break;
+		}
+	}
+	if(ETag || LastModified) {
+		headers = {};
+		if(ETag) {
+			headers['If-None-Match'] = ETag;
+		}
+		if(LastModified) {
+			headers['If-Modified-Since'] = LastModified;
+		}
+	}
+	return { hasCacheControl, params: headers ? { headers } : null };
 }
 
 function getJsonPosts(url) {
@@ -11278,16 +11293,13 @@ class BaseBoard {
 		this.b = '';
 		this.dm = dm;
 		this.docExt = null;
-		this.ETag = null; // Used for $ajax only
 		this.firstPage = 0;
 		this.hasCatalog = false;
-		this.hasCacheBug = false; // Used for $ajax only
 		this.hasOPNum = false; // Sets in Makaba only
 		this.hasPicWrap = false;
 		this.hasTextLinks = false;
 		this.host = window.location.hostname;
 		this.jsonSubmit = false;
-		this.LastModified = null; // Used for $ajax only
 		this.markupBB = false;
 		this.multiFile = false;
 		this.page = 0;
