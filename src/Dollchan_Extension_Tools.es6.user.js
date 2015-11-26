@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = '7b2d940';
+var commit = 'acca53f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2650,10 +2650,6 @@ function showFavoritesWindow(body, data) {
 			titleEl.title = Lng.updating[lang];
 			try {
 				form = yield ajaxLoad(aib.getThrdUrl(b, num));
-				if(!form) {
-					iconEl.setAttribute('class', 'de-fav-inf-icon');
-					continue;
-				}
 			} catch(e) {
 				$hide(el);
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
@@ -5145,7 +5141,7 @@ function embedMediaLinks(data) {
 function ajaxLoad(url, returnForm = true, useCache = false) {
 	var cData = ajaxLoad.cacheData.get(url);
 	var ajaxURL = cData && !cData.hasCacheControl ? ajaxLoad.fixCachedURL(url) : url;
-	return $ajax(ajaxURL, cData && cData.params).then(xhr => {
+	return $ajax(ajaxURL, useCache && cData && cData.params).then(xhr => {
 		var headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders()
 		                                             : xhr.responseHeaders;
 		var data = ajaxLoad.readCacheData(headers, useCache);
