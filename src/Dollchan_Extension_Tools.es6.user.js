@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '3641736';
+var commit = '0300ce6';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3463,9 +3463,9 @@ function addSettings(body, id) {
 				'cfg-file', false);
 			$id('de-import-file').onchange = function({ target: { files: [file] } }) {
 				if(file) {
-					readFile(file, true).then(val => {
-						var dummy = JSON.parse(val);
-						setStored('DESU_Config', val);
+					readFile(file, true).then(({ data }) => {
+						var dummy = JSON.parse(data);
+						setStored('DESU_Config', data);
 						window.location.reload();
 					}).catch(() => $popup(Lng.invalidData[lang], 'err-invaliddata', false));
 				}
@@ -7352,13 +7352,13 @@ FileInput.prototype = {
 				'<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.wait[lang] + '</span>');
 			var myRjUtil = this._rjUtil = this._buttonsPlace.nextSibling,
 				file = e.target.files[0];
-			readFile(file, false).then(val => {
+			readFile(file).then(({ data }) => {
 				if(this._rjUtil === myRjUtil) {
 					myRjUtil.className = 'de-file-rarmsg de-file-utils';
 					myRjUtil.title = this.el.files[0].name + ' + ' + file.name;
 					myRjUtil.textContent = this.el.files[0].name.replace(/^.+\./, '') + ' + ' +
 						file.name.replace(/^.+\./, '');
-					this.imgFile = val;
+					this.imgFile = data;
 				}
 			});
 		};
@@ -7417,7 +7417,7 @@ FileInput.prototype = {
 		if(!files || !files[0]) {
 			return;
 		}
-		readFile(files[0], false).then(val => {
+		readFile(files[0]).then(({ data }) => {
 			this.form.eventFiles(false);
 			if(this.empty) {
 				return;
@@ -7431,7 +7431,7 @@ FileInput.prototype = {
 				'<video class="de-file-img" loop autoplay muted src=""></video>' :
 				'<img class="de-file-img" src="">');
 			this._mediaEl = thumb = thumb.firstChild;
-			thumb.src = window.URL.createObjectURL(new Blob([val]));
+			thumb.src = window.URL.createObjectURL(new Blob([data]));
 			thumb = thumb.nextSibling;
 			if(thumb) {
 				window.URL.revokeObjectURL(thumb.src);
@@ -7843,7 +7843,7 @@ function* html5Submit(form, submitter, needProgress = false) {
 			if(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) &&
 			   (Cfg.postSameImg || Cfg.removeEXIF))
 			{
-				var data = cleanFile((yield readFile(value, false)), el.obj.imgFile);
+				var data = cleanFile((yield readFile(value)).data, el.obj.imgFile);
 				if(!data) {
 					return Promise.reject(Lng.fileCorrupt[lang] + fileName);
 				}
@@ -7873,10 +7873,11 @@ function* html5Submit(form, submitter, needProgress = false) {
 	}
 }
 
-function readFile(file, asText) {
+function readFile(file, asText = false) {
 	return new Promise((resolve, reject) => {
 		var fr = new FileReader();
-		fr.onload = e => resolve(e.target.result);
+		// XXX: firefox hack to prevent 'XrayWrapper denied access to property "then"' errors
+		fr.onload = e => resolve({ data: e.target.result });
 		if(asText) {
 			fr.readAsText(file);
 		} else {
