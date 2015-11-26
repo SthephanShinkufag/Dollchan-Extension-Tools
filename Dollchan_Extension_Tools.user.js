@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'b205d58';
+	var commit = '1820987';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3745,11 +3745,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var useNative = arguments.length <= 2 || arguments[2] === undefined ? nativeXHRworks : arguments[2];
 
 		var resolve, reject, cancelFn;
+		var useCache = params && params.useCache;
+		if (useCache) {
+			$ajax.addHeaders(params, {
+				'If-Modified-Since': aib.LastModified,
+				'If-None-Match': aib.ETag
+			});
+			if (aib.hasCacheBug) {
+				url += (url.includes('?') ? '&' : '?') + 'nocache=' + Math.random();
+			}
+		}
 		if (!useNative && typeof GM_xmlhttpRequest === 'function') {
 			var obj = {
 				'method': params && params.method || 'GET',
 				'url': nav.fixLink(url),
 				'onload': function onload(e) {
+					if (useCache) {
+						$ajax.readHeaders(e.responseHeaders);
+					}
 					if (e.status === 200 || aib.tiny && e.status === 400) {
 						resolve(e);
 					} else {
@@ -3768,7 +3781,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				} catch (e) {}
 			};
 		} else {
-			var useCache = params && params.useCache;
 			var xhr = new XMLHttpRequest();
 			if (params && params.onprogress) {
 				xhr.upload.onprogress = params.onprogress;
@@ -3779,8 +3791,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (target.readyState === 4) {
 					if (target.status === 200 || aib.tiny && target.status === 400 || target.status === 0 && target.responseType === 'arraybuffer') {
 						if (useCache) {
-							aib.LastModified = target.getResponseHeader('Last-Modified');
-							aib.ETag = xhr.getResponseHeader('Etag');
+							$ajax.readHeaders(target.getAllResponseHeaders());
 						}
 						resolve(target);
 					} else {
@@ -3803,29 +3814,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 					}
 				}
-				if (useCache) {
-					if (aib.LastModified) {
-						xhr.setRequestHeader('If-Modified-Since', aib.LastModified);
-					}
-					if (aib.ETag) {
-						xhr.setRequestHeader('If-None-Match', aib.ETag);
-					}
-				}
 				xhr.send(params && params.data || null);
 				cancelFn = function () {
 					return xhr.abort();
 				};
 			} catch (e) {
 				nativeXHRworks = false;
-				var headers = { Referer: window.location.toString() };
-				if (params && params.headers) {
-					Object.assign(params.headers, headers);
-				} else if (params) {
-					params.headers = headers;
-				} else {
-					params = { headers: headers };
-				}
-				return $ajax(url, params, false);
+				var newParams = $ajax.addHeaders(params, { Referer: window.location.toString() });
+				return $ajax(url, newParams, false);
 			}
 		}
 		return new CancelablePromise(function (res, rej) {
@@ -3833,6 +3829,49 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			reject = rej;
 		}, cancelFn);
 	}
+	$ajax.addHeaders = function (params, headers) {
+		if (params) {
+			if (params.headers) {
+				return Object.assign(params.headers, headers);
+			}
+			params.headers = headers;
+			return params;
+		}
+		return { headers: headers };
+	};
+	$ajax.readHeaders = function (headers) {
+		var hasCacheControl = false,
+		    i = 0;
+		for (var _iterator = headers.split('\r\n'), _isArray = Array.isArray(_iterator), _i2 = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+			var _ref2;
+
+			if (_isArray) {
+				if (_i2 >= _iterator.length) break;
+				_ref2 = _iterator[_i2++];
+			} else {
+				_i2 = _iterator.next();
+				if (_i2.done) break;
+				_ref2 = _i2.value;
+			}
+
+			var header = _ref2;
+
+			if (header.startsWith('Last-Modified: ')) {
+				aib.LastModified = header.substr(15);
+				i++;
+			} else if (header.startsWith('Etag: ')) {
+				aib.ETag = header.substr(6);
+				i++;
+			} else if (header.startsWith('Cache-Control: ')) {
+				hasCacheControl = true;
+				i++;
+			}
+			if (i === 3) {
+				break;
+			}
+		}
+		aib.hasCacheBug = !hasCacheControl;
+	};
 
 	function Maybe(ctor ) {
 		this._ctor = ctor;
@@ -4993,19 +5032,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 'de-panel-preimg':
 							isPreImg = !isPreImg;
 							if (!e.ctrlKey) {
-								for (var _iterator = DelForm, _isArray = Array.isArray(_iterator), _i2 = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-									var _ref2;
+								for (var _iterator2 = DelForm, _isArray2 = Array.isArray(_iterator2), _i3 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
+									var _ref3;
 
-									if (_isArray) {
-										if (_i2 >= _iterator.length) break;
-										_ref2 = _iterator[_i2++];
+									if (_isArray2) {
+										if (_i3 >= _iterator2.length) break;
+										_ref3 = _iterator2[_i3++];
 									} else {
-										_i2 = _iterator.next();
-										if (_i2.done) break;
-										_ref2 = _i2.value;
+										_i3 = _iterator2.next();
+										if (_i3.done) break;
+										_ref3 = _i3.value;
 									}
 
-									var form = _ref2;
+									var form = _ref3;
 
 									preloadImages(form.el);
 								}
@@ -6014,14 +6053,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'href': '#',
 			'class': 'de-abtn de-spell-btn' }, {
 			'click': $pd,
-			'mouseover': function mouseover(_ref3) {
-				var target = _ref3.target;
+			'mouseover': function mouseover(_ref4) {
+				var target = _ref4.target;
 				return target.odelay = setTimeout(function () {
 					return addMenu(target);
 				}, Cfg.linksOver);
 			},
-			'mouseout': function mouseout(_ref4) {
-				var target = _ref4.target;
+			'mouseout': function mouseout(_ref5) {
+				var target = _ref5.target;
 				return clearTimeout(target.odelay);
 			}
 		}), $new('a', { 'text': Lng.apply[lang], 'href': '#', 'class': 'de-abtn de-spell-btn' }, {
@@ -6367,10 +6406,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
 		})), $if(!nav.Presto, $btn(Lng.file[lang], '', function () {
 			$popup('<b>' + Lng.impexpCfg[lang] + ':</b>' + '<div class="de-list">' + Lng.fileToCfg[lang] + ':<br>' + '<input type="file" accept=".json" id="de-import-file" style="margin-left: 12px;"></div>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.cfgToFile[lang] + '</div>', 'cfg-file', false);
-			$id('de-import-file').onchange = function (_ref5) {
-				var _ref5$target$files = _slicedToArray(_ref5.target.files, 1);
+			$id('de-import-file').onchange = function (_ref6) {
+				var _ref6$target$files = _slicedToArray(_ref6.target.files, 1);
 
-				var file = _ref5$target$files[0];
+				var file = _ref6$target$files[0];
 
 				if (file) {
 					readFile(file, true).then(function (val) {
@@ -7746,13 +7785,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			};
 		}
 	};
-	Videos._titlesLoaderHelper = function (_ref6, num) {
-		var _ref7 = _slicedToArray(_ref6, 4);
+	Videos._titlesLoaderHelper = function (_ref7, num) {
+		var _ref8 = _slicedToArray(_ref7, 4);
 
-		var link = _ref7[0];
-		var isYtube = _ref7[1];
-		var videoObj = _ref7[2];
-		var id = _ref7[3];
+		var link = _ref8[0];
+		var isYtube = _ref8[1];
+		var videoObj = _ref8[2];
+		var id = _ref8[3];
 
 		for (var _len5 = arguments.length, data = Array(_len5 > 2 ? _len5 - 2 : 0), _key4 = 2; _key4 < _len5; _key4++) {
 			data[_key4 - 2] = arguments[_key4];
@@ -8110,7 +8149,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 
 		load: async(regeneratorRuntime.mark(function _callee6(count) {
-			var _iterator2, _isArray2, _i3, _ref8, form, len, i, el, first;
+			var _iterator3, _isArray3, _i4, _ref9, form, len, i, el, first;
 
 			return regeneratorRuntime.wrap(function _callee6$(_context12) {
 				while (1) {
@@ -8137,15 +8176,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								pr.txta.value = '';
 							}
 							DelForm.tNums = new Set();
-							_iterator2 = DelForm, _isArray2 = Array.isArray(_iterator2), _i3 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();
+							_iterator3 = DelForm, _isArray3 = Array.isArray(_iterator3), _i4 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();
 
 						case 11:
-							if (!_isArray2) {
+							if (!_isArray3) {
 								_context12.next = 17;
 								break;
 							}
 
-							if (!(_i3 >= _iterator2.length)) {
+							if (!(_i4 >= _iterator3.length)) {
 								_context12.next = 14;
 								break;
 							}
@@ -8153,14 +8192,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return _context12.abrupt('break', 29);
 
 						case 14:
-							_ref8 = _iterator2[_i3++];
+							_ref9 = _iterator3[_i4++];
 							_context12.next = 21;
 							break;
 
 						case 17:
-							_i3 = _iterator2.next();
+							_i4 = _iterator3.next();
 
-							if (!_i3.done) {
+							if (!_i4.done) {
 								_context12.next = 20;
 								break;
 							}
@@ -8168,10 +8207,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return _context12.abrupt('break', 29);
 
 						case 20:
-							_ref8 = _i3.value;
+							_ref9 = _i4.value;
 
 						case 21:
-							form = _ref8;
+							form = _ref9;
 
 							$each($Q('a[href^="blob:"]', form.el), function (a) {
 								return URL.revokeObjectURL(a.href);
@@ -8351,25 +8390,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					str += '\n\n';
 				}
 				if (reps) {
-					for (var _iterator3 = reps, _isArray3 = Array.isArray(_iterator3), _i4 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
-						var _ref9;
-
-						if (_isArray3) {
-							if (_i4 >= _iterator3.length) break;
-							_ref9 = _iterator3[_i4++];
-						} else {
-							_i4 = _iterator3.next();
-							if (_i4.done) break;
-							_ref9 = _i4.value;
-						}
-
-						var rep = _ref9;
-
-						str += this._decompileRep(rep, false) + '\n';
-					}
-				}
-				if (oreps) {
-					for (var _iterator4 = oreps, _isArray4 = Array.isArray(_iterator4), _i5 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
+					for (var _iterator4 = reps, _isArray4 = Array.isArray(_iterator4), _i5 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
 						var _ref10;
 
 						if (_isArray4) {
@@ -8381,7 +8402,25 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							_ref10 = _i5.value;
 						}
 
-						var orep = _ref10;
+						var rep = _ref10;
+
+						str += this._decompileRep(rep, false) + '\n';
+					}
+				}
+				if (oreps) {
+					for (var _iterator5 = oreps, _isArray5 = Array.isArray(_iterator5), _i6 = 0, _iterator5 = _isArray5 ? _iterator5 : _iterator5[Symbol.iterator]();;) {
+						var _ref11;
+
+						if (_isArray5) {
+							if (_i6 >= _iterator5.length) break;
+							_ref11 = _iterator5[_i6++];
+						} else {
+							_i6 = _iterator5.next();
+							if (_i6.done) break;
+							_ref11 = _i6.value;
+						}
+
+						var orep = _ref11;
 
 						str += this._decompileRep(orep, true) + '\n';
 					}
@@ -8471,12 +8510,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return spell;
 					}
 
-					var _ref11 = wipeMsg || [];
+					var _ref12 = wipeMsg || [];
 
-					var _ref12 = _slicedToArray(_ref11, 2);
+					var _ref13 = _slicedToArray(_ref12, 2);
 
-					var msgBit = _ref12[0];
-					var msgData = _ref12[1];
+					var msgBit = _ref13[0];
+					var msgData = _ref13[1];
 					var names = [];
 					var bits = { 1: 'samelines', 2: 'samewords', 4: 'longwords', 8: 'symbols',
 						16: 'capslock', 32: 'numbers', 64: 'whitespace'
@@ -8530,19 +8569,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			saveCfg('hideBySpell', false);
 		},
 		outReplace: function outReplace(txt) {
-			for (var _iterator5 = this.outreps, _isArray5 = Array.isArray(_iterator5), _i6 = 0, _iterator5 = _isArray5 ? _iterator5 : _iterator5[Symbol.iterator]();;) {
-				var _ref13;
+			for (var _iterator6 = this.outreps, _isArray6 = Array.isArray(_iterator6), _i7 = 0, _iterator6 = _isArray6 ? _iterator6 : _iterator6[Symbol.iterator]();;) {
+				var _ref14;
 
-				if (_isArray5) {
-					if (_i6 >= _iterator5.length) break;
-					_ref13 = _iterator5[_i6++];
+				if (_isArray6) {
+					if (_i7 >= _iterator6.length) break;
+					_ref14 = _iterator6[_i7++];
 				} else {
-					_i6 = _iterator5.next();
-					if (_i6.done) break;
-					_ref13 = _i6.value;
+					_i7 = _iterator6.next();
+					if (_i7.done) break;
+					_ref14 = _i7.value;
 				}
 
-				var orep = _ref13;
+				var orep = _ref14;
 
 				txt = txt.replace(orep[0], orep[1]);
 			}
@@ -8579,19 +8618,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		},
 		replace: function replace(txt) {
-			for (var _iterator6 = this.reps, _isArray6 = Array.isArray(_iterator6), _i7 = 0, _iterator6 = _isArray6 ? _iterator6 : _iterator6[Symbol.iterator]();;) {
-				var _ref14;
+			for (var _iterator7 = this.reps, _isArray7 = Array.isArray(_iterator7), _i8 = 0, _iterator7 = _isArray7 ? _iterator7 : _iterator7[Symbol.iterator]();;) {
+				var _ref15;
 
-				if (_isArray6) {
-					if (_i7 >= _iterator6.length) break;
-					_ref14 = _iterator6[_i7++];
+				if (_isArray7) {
+					if (_i8 >= _iterator7.length) break;
+					_ref15 = _iterator7[_i8++];
 				} else {
-					_i7 = _iterator6.next();
-					if (_i7.done) break;
-					_ref14 = _i7.value;
+					_i8 = _iterator7.next();
+					if (_i8.done) break;
+					_ref15 = _i8.value;
 				}
 
-				var orep = _ref14;
+				var orep = _ref15;
 
 				txt = txt.replace(orep[0], orep[1]);
 			}
@@ -8687,19 +8726,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 		_initHiders: function _initHiders(data) {
 			if (data) {
-				for (var _iterator7 = data, _isArray7 = Array.isArray(_iterator7), _i8 = 0, _iterator7 = _isArray7 ? _iterator7 : _iterator7[Symbol.iterator]();;) {
-					var _ref15;
+				for (var _iterator8 = data, _isArray8 = Array.isArray(_iterator8), _i9 = 0, _iterator8 = _isArray8 ? _iterator8 : _iterator8[Symbol.iterator]();;) {
+					var _ref16;
 
-					if (_isArray7) {
-						if (_i8 >= _iterator7.length) break;
-						_ref15 = _iterator7[_i8++];
+					if (_isArray8) {
+						if (_i9 >= _iterator8.length) break;
+						_ref16 = _iterator8[_i9++];
 					} else {
-						_i8 = _iterator7.next();
-						if (_i8.done) break;
-						_ref15 = _i8.value;
+						_i9 = _iterator8.next();
+						if (_i9.done) break;
+						_ref16 = _i9.value;
 					}
 
-					var item = _ref15;
+					var item = _ref16;
 
 					var val = item[1];
 					if (val) {
@@ -8720,19 +8759,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 		_initReps: function _initReps(data) {
 			if (data) {
-				for (var _iterator8 = data, _isArray8 = Array.isArray(_iterator8), _i9 = 0, _iterator8 = _isArray8 ? _iterator8 : _iterator8[Symbol.iterator]();;) {
-					var _ref16;
+				for (var _iterator9 = data, _isArray9 = Array.isArray(_iterator9), _i10 = 0, _iterator9 = _isArray9 ? _iterator9 : _iterator9[Symbol.iterator]();;) {
+					var _ref17;
 
-					if (_isArray8) {
-						if (_i9 >= _iterator8.length) break;
-						_ref16 = _iterator8[_i9++];
+					if (_isArray9) {
+						if (_i10 >= _iterator9.length) break;
+						_ref17 = _iterator9[_i10++];
 					} else {
-						_i9 = _iterator8.next();
-						if (_i9.done) break;
-						_ref16 = _i9.value;
+						_i10 = _iterator9.next();
+						if (_i10.done) break;
+						_ref17 = _i10.value;
 					}
 
-					var item = _ref16;
+					var item = _ref17;
 
 					item[0] = toRegExp(item[0], false);
 				}
@@ -8749,19 +8788,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 		_optimizeReps: function _optimizeReps(data) {
 			var rv = [];
-			for (var _iterator9 = data, _isArray9 = Array.isArray(_iterator9), _i10 = 0, _iterator9 = _isArray9 ? _iterator9 : _iterator9[Symbol.iterator]();;) {
-				var _ref17;
+			for (var _iterator10 = data, _isArray10 = Array.isArray(_iterator10), _i11 = 0, _iterator10 = _isArray10 ? _iterator10 : _iterator10[Symbol.iterator]();;) {
+				var _ref18;
 
-				if (_isArray9) {
-					if (_i10 >= _iterator9.length) break;
-					_ref17 = _iterator9[_i10++];
+				if (_isArray10) {
+					if (_i11 >= _iterator10.length) break;
+					_ref18 = _iterator10[_i11++];
 				} else {
-					_i10 = _iterator9.next();
-					if (_i10.done) break;
-					_ref17 = _i10.value;
+					_i11 = _iterator10.next();
+					if (_i11.done) break;
+					_ref18 = _i11.value;
 				}
 
-				var rep = _ref17;
+				var rep = _ref18;
 
 				if (!rep[0] || rep[0] === aib.b && (rep[1] === -1 ? !aib.t : !rep[1] || +rep[1] === aib.t)) {
 					rv.push([rep[2], rep[3]]);
@@ -9287,12 +9326,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 
 		_endPromise: null,
-		_checkRes: function _checkRes(post, _ref18) {
-			var _ref19 = _slicedToArray(_ref18, 3);
+		_checkRes: function _checkRes(post, _ref19) {
+			var _ref20 = _slicedToArray(_ref19, 3);
 
-			var hasNumSpell = _ref19[0];
-			var val = _ref19[1];
-			var msg = _ref19[2];
+			var hasNumSpell = _ref20[0];
+			var val = _ref20[1];
+			var msg = _ref20[2];
 
 			this.hasNumSpell |= hasNumSpell;
 			if (val) {
@@ -9409,39 +9448,39 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 		_getMsg: function _getMsg() {
 			var rv = [];
-			for (var _iterator10 = this._triggeredSpellsStack, _isArray10 = Array.isArray(_iterator10), _i11 = 0, _iterator10 = _isArray10 ? _iterator10 : _iterator10[Symbol.iterator]();;) {
-				var _ref20;
+			for (var _iterator11 = this._triggeredSpellsStack, _isArray11 = Array.isArray(_iterator11), _i12 = 0, _iterator11 = _isArray11 ? _iterator11 : _iterator11[Symbol.iterator]();;) {
+				var _ref21;
 
-				if (_isArray10) {
-					if (_i11 >= _iterator10.length) break;
-					_ref20 = _iterator10[_i11++];
+				if (_isArray11) {
+					if (_i12 >= _iterator11.length) break;
+					_ref21 = _iterator11[_i12++];
 				} else {
-					_i11 = _iterator10.next();
-					if (_i11.done) break;
-					_ref20 = _i11.value;
+					_i12 = _iterator11.next();
+					if (_i12.done) break;
+					_ref21 = _i12.value;
 				}
 
-				var spellEls = _ref20;
+				var spellEls = _ref21;
 
-				for (var _iterator11 = spellEls, _isArray11 = Array.isArray(_iterator11), _i12 = 0, _iterator11 = _isArray11 ? _iterator11 : _iterator11[Symbol.iterator]();;) {
-					var _ref21;
+				for (var _iterator12 = spellEls, _isArray12 = Array.isArray(_iterator12), _i13 = 0, _iterator12 = _isArray12 ? _iterator12 : _iterator12[Symbol.iterator]();;) {
+					var _ref22;
 
-					if (_isArray11) {
-						if (_i12 >= _iterator11.length) break;
-						_ref21 = _iterator11[_i12++];
+					if (_isArray12) {
+						if (_i13 >= _iterator12.length) break;
+						_ref22 = _iterator12[_i13++];
 					} else {
-						_i12 = _iterator11.next();
-						if (_i12.done) break;
-						_ref21 = _i12.value;
+						_i13 = _iterator12.next();
+						if (_i13.done) break;
+						_ref22 = _i13.value;
 					}
 
-					var _ref22 = _ref21;
+					var _ref23 = _ref22;
 
-					var _ref23 = _slicedToArray(_ref22, 3);
+					var _ref24 = _slicedToArray(_ref23, 3);
 
-					var isNeg = _ref23[0];
-					var spell = _ref23[1];
-					var wipeMsg = _ref23[2];
+					var isNeg = _ref24[0];
+					var spell = _ref24[1];
+					var wipeMsg = _ref24[2];
 
 					rv.push(Spells.decompileSpell(spell[0] & 0xFF, isNeg, spell[1], spell[2], wipeMsg));
 				}
@@ -9497,19 +9536,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return val.test(this._post.html);
 		},
 		_imgn: function _imgn(val) {
-			for (var _iterator12 = this._post.images, _isArray12 = Array.isArray(_iterator12), _i13 = 0, _iterator12 = _isArray12 ? _iterator12 : _iterator12[Symbol.iterator]();;) {
-				var _ref24;
+			for (var _iterator13 = this._post.images, _isArray13 = Array.isArray(_iterator13), _i14 = 0, _iterator13 = _isArray13 ? _iterator13 : _iterator13[Symbol.iterator]();;) {
+				var _ref25;
 
-				if (_isArray12) {
-					if (_i13 >= _iterator12.length) break;
-					_ref24 = _iterator12[_i13++];
+				if (_isArray13) {
+					if (_i14 >= _iterator13.length) break;
+					_ref25 = _iterator13[_i14++];
 				} else {
-					_i13 = _iterator12.next();
-					if (_i13.done) break;
-					_ref24 = _i13.value;
+					_i14 = _iterator13.next();
+					if (_i14.done) break;
+					_ref25 = _i14.value;
 				}
 
-				var image = _ref24;
+				var image = _ref25;
 
 				if (image instanceof Attachment && val.test(image.info)) {
 					return true;
@@ -9519,21 +9558,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 
 		_ihash: async(regeneratorRuntime.mark(function _callee7(val) {
-			var _iterator13, _isArray13, _i14, _ref25, image, hash;
+			var _iterator14, _isArray14, _i15, _ref26, image, hash;
 
 			return regeneratorRuntime.wrap(function _callee7$(_context14) {
 				while (1) {
 					switch (_context14.prev = _context14.next) {
 						case 0:
-							_iterator13 = this._post.images, _isArray13 = Array.isArray(_iterator13), _i14 = 0, _iterator13 = _isArray13 ? _iterator13 : _iterator13[Symbol.iterator]();
+							_iterator14 = this._post.images, _isArray14 = Array.isArray(_iterator14), _i15 = 0, _iterator14 = _isArray14 ? _iterator14 : _iterator14[Symbol.iterator]();
 
 						case 1:
-							if (!_isArray13) {
+							if (!_isArray14) {
 								_context14.next = 7;
 								break;
 							}
 
-							if (!(_i14 >= _iterator13.length)) {
+							if (!(_i15 >= _iterator14.length)) {
 								_context14.next = 4;
 								break;
 							}
@@ -9541,14 +9580,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return _context14.abrupt('break', 20);
 
 						case 4:
-							_ref25 = _iterator13[_i14++];
+							_ref26 = _iterator14[_i15++];
 							_context14.next = 11;
 							break;
 
 						case 7:
-							_i14 = _iterator13.next();
+							_i15 = _iterator14.next();
 
-							if (!_i14.done) {
+							if (!_i15.done) {
 								_context14.next = 10;
 								break;
 							}
@@ -9556,10 +9595,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return _context14.abrupt('break', 20);
 
 						case 10:
-							_ref25 = _i14.value;
+							_ref26 = _i15.value;
 
 						case 11:
-							image = _ref25;
+							image = _ref26;
 
 							if (image instanceof Attachment) {
 								_context14.next = 14;
@@ -9619,19 +9658,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (!val) {
 				return images.hasAttachments;
 			}
-			for (var _iterator14 = images, _isArray14 = Array.isArray(_iterator14), _i15 = 0, _iterator14 = _isArray14 ? _iterator14 : _iterator14[Symbol.iterator]();;) {
-				var _ref26;
+			for (var _iterator15 = images, _isArray15 = Array.isArray(_iterator15), _i16 = 0, _iterator15 = _isArray15 ? _iterator15 : _iterator15[Symbol.iterator]();;) {
+				var _ref27;
 
-				if (_isArray14) {
-					if (_i15 >= _iterator14.length) break;
-					_ref26 = _iterator14[_i15++];
+				if (_isArray15) {
+					if (_i16 >= _iterator15.length) break;
+					_ref27 = _iterator15[_i16++];
 				} else {
-					_i15 = _iterator14.next();
-					if (_i15.done) break;
-					_ref26 = _i15.value;
+					_i16 = _iterator15.next();
+					if (_i16.done) break;
+					_ref27 = _i16.value;
 				}
 
-				var image = _ref26;
+				var image = _ref27;
 
 				if (!(image instanceof Attachment)) {
 					continue;
@@ -9833,33 +9872,33 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (!videos.hasLinks || !Cfg.YTubeTitles) {
 				return false;
 			}
-			for (var _iterator15 = videos.vData, _isArray15 = Array.isArray(_iterator15), _i16 = 0, _iterator15 = _isArray15 ? _iterator15 : _iterator15[Symbol.iterator]();;) {
-				var _ref27;
+			for (var _iterator16 = videos.vData, _isArray16 = Array.isArray(_iterator16), _i17 = 0, _iterator16 = _isArray16 ? _iterator16 : _iterator16[Symbol.iterator]();;) {
+				var _ref28;
 
-				if (_isArray15) {
-					if (_i16 >= _iterator15.length) break;
-					_ref27 = _iterator15[_i16++];
+				if (_isArray16) {
+					if (_i17 >= _iterator16.length) break;
+					_ref28 = _iterator16[_i17++];
 				} else {
-					_i16 = _iterator15.next();
-					if (_i16.done) break;
-					_ref27 = _i16.value;
+					_i17 = _iterator16.next();
+					if (_i17.done) break;
+					_ref28 = _i17.value;
 				}
 
-				var siteData = _ref27;
+				var siteData = _ref28;
 
-				for (var _iterator16 = siteData, _isArray16 = Array.isArray(_iterator16), _i17 = 0, _iterator16 = _isArray16 ? _iterator16 : _iterator16[Symbol.iterator]();;) {
-					var _ref28;
+				for (var _iterator17 = siteData, _isArray17 = Array.isArray(_iterator17), _i18 = 0, _iterator17 = _isArray17 ? _iterator17 : _iterator17[Symbol.iterator]();;) {
+					var _ref29;
 
-					if (_isArray16) {
-						if (_i17 >= _iterator16.length) break;
-						_ref28 = _iterator16[_i17++];
+					if (_isArray17) {
+						if (_i18 >= _iterator17.length) break;
+						_ref29 = _iterator17[_i18++];
 					} else {
-						_i17 = _iterator16.next();
-						if (_i17.done) break;
-						_ref28 = _i17.value;
+						_i18 = _iterator17.next();
+						if (_i18.done) break;
+						_ref29 = _i18.value;
 					}
 
-					var data = _ref28;
+					var data = _ref29;
 
 					if (isAuthorSpell ? val === data[1] : val.test(data[0])) {
 						return true;
@@ -10137,19 +10176,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			saveCfg('passwValue', el.value);
 		}
 		var value = pr.passw.value = Cfg.passwValue;
-		for (var _iterator17 = DelForm, _isArray17 = Array.isArray(_iterator17), _i18 = 0, _iterator17 = _isArray17 ? _iterator17 : _iterator17[Symbol.iterator]();;) {
-			var _ref29;
+		for (var _iterator18 = DelForm, _isArray18 = Array.isArray(_iterator18), _i19 = 0, _iterator18 = _isArray18 ? _iterator18 : _iterator18[Symbol.iterator]();;) {
+			var _ref30;
 
-			if (_isArray17) {
-				if (_i18 >= _iterator17.length) break;
-				_ref29 = _iterator17[_i18++];
+			if (_isArray18) {
+				if (_i19 >= _iterator18.length) break;
+				_ref30 = _iterator18[_i19++];
 			} else {
-				_i18 = _iterator17.next();
-				if (_i18.done) break;
-				_ref29 = _i18.value;
+				_i19 = _iterator18.next();
+				if (_i19.done) break;
+				_ref30 = _i19.value;
 			}
 
-			var form = _ref29;
+			var form = _ref30;
 
 			(form.passEl || {}).value = value;
 		}
@@ -10989,11 +11028,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		);
 	}
 
-	var doUploading = async(regeneratorRuntime.mark(function _callee8(_ref30) {
-		var _ref31 = _slicedToArray(_ref30, 2);
+	var doUploading = async(regeneratorRuntime.mark(function _callee8(_ref31) {
+		var _ref32 = _slicedToArray(_ref31, 2);
 
-		var hasFiles = _ref31[0];
-		var getProgress = _ref31[1];
+		var hasFiles = _ref32[0];
+		var getProgress = _ref32[1];
 		var p, val, beginTime, inited, progress, counterWrap, counterEl, totalEl, speedEl, total, loaded;
 		return regeneratorRuntime.wrap(function _callee8$(_context15) {
 			while (1) {
@@ -11164,7 +11203,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	var checkDelete = async(regeneratorRuntime.mark(function _callee9(data) {
-		var err, _ref32, _ref33, num, post, els, threads, isThr, i, len, el, _iterator18, _isArray18, _i19, _ref34, thr;
+		var err, _ref33, _ref34, num, post, els, threads, isThr, i, len, el, _iterator19, _isArray19, _i20, _ref35, thr;
 
 		return regeneratorRuntime.wrap(function _callee9$(_context16) {
 			while (1) {
@@ -11182,9 +11221,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return _context16.abrupt('return');
 
 					case 5:
-						_ref32 = doc.location.hash.match(/\d+/) || [];
-						_ref33 = _slicedToArray(_ref32, 1);
-						num = _ref33[0];
+						_ref33 = doc.location.hash.match(/\d+/) || [];
+						_ref34 = _slicedToArray(_ref33, 1);
+						num = _ref34[0];
 
 						if (num) {
 							post = pByNum.get(+num);
@@ -11232,15 +11271,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 
 					case 23:
-						_iterator18 = threads, _isArray18 = Array.isArray(_iterator18), _i19 = 0, _iterator18 = _isArray18 ? _iterator18 : _iterator18[Symbol.iterator]();
+						_iterator19 = threads, _isArray19 = Array.isArray(_iterator19), _i20 = 0, _iterator19 = _isArray19 ? _iterator19 : _iterator19[Symbol.iterator]();
 
 					case 24:
-						if (!_isArray18) {
+						if (!_isArray19) {
 							_context16.next = 30;
 							break;
 						}
 
-						if (!(_i19 >= _iterator18.length)) {
+						if (!(_i20 >= _iterator19.length)) {
 							_context16.next = 27;
 							break;
 						}
@@ -11248,14 +11287,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return _context16.abrupt('break', 39);
 
 					case 27:
-						_ref34 = _iterator18[_i19++];
+						_ref35 = _iterator19[_i20++];
 						_context16.next = 34;
 						break;
 
 					case 30:
-						_i19 = _iterator18.next();
+						_i20 = _iterator19.next();
 
-						if (!_i19.done) {
+						if (!_i20.done) {
 							_context16.next = 33;
 							break;
 						}
@@ -11263,10 +11302,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return _context16.abrupt('break', 39);
 
 					case 33:
-						_ref34 = _i19.value;
+						_ref35 = _i20.value;
 
 					case 34:
-						thr = _ref34;
+						thr = _ref35;
 						_context16.next = 37;
 						return thr.load(visPosts, false, false);
 
@@ -11288,22 +11327,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function html5Submit(form, submitter) {
 		var needProgress = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
-		var formData, hasFiles, _iterator19, _isArray19, _i20, _ref35, _ref36, name, value, type, el, fileName, newFileName, data, lastFuncs, promises, xhr;
+		var formData, hasFiles, _iterator20, _isArray20, _i21, _ref36, _ref37, name, value, type, el, fileName, newFileName, data, lastFuncs, promises, xhr;
 
 		return regeneratorRuntime.wrap(function html5Submit$(_context17) {
 			while (1) switch (_context17.prev = _context17.next) {
 				case 0:
 					formData = new FormData();
 					hasFiles = false;
-					_iterator19 = getFormElements(form, submitter), _isArray19 = Array.isArray(_iterator19), _i20 = 0, _iterator19 = _isArray19 ? _iterator19 : _iterator19[Symbol.iterator]();
+					_iterator20 = getFormElements(form, submitter), _isArray20 = Array.isArray(_iterator20), _i21 = 0, _iterator20 = _isArray20 ? _iterator20 : _iterator20[Symbol.iterator]();
 
 				case 3:
-					if (!_isArray19) {
+					if (!_isArray20) {
 						_context17.next = 9;
 						break;
 					}
 
-					if (!(_i20 >= _iterator19.length)) {
+					if (!(_i21 >= _iterator20.length)) {
 						_context17.next = 6;
 						break;
 					}
@@ -11311,14 +11350,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return _context17.abrupt('break', 36);
 
 				case 6:
-					_ref35 = _iterator19[_i20++];
+					_ref36 = _iterator20[_i21++];
 					_context17.next = 13;
 					break;
 
 				case 9:
-					_i20 = _iterator19.next();
+					_i21 = _iterator20.next();
 
-					if (!_i20.done) {
+					if (!_i21.done) {
 						_context17.next = 12;
 						break;
 					}
@@ -11326,14 +11365,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return _context17.abrupt('break', 36);
 
 				case 12:
-					_ref35 = _i20.value;
+					_ref36 = _i21.value;
 
 				case 13:
-					_ref36 = _ref35;
-					name = _ref36.name;
-					value = _ref36.value;
-					type = _ref36.type;
-					el = _ref36.el;
+					_ref37 = _ref36;
+					name = _ref37.name;
+					value = _ref37.value;
+					type = _ref37.type;
+					el = _ref37.el;
 
 					if (!(type === 'file')) {
 						_context17.next = 33;
@@ -13161,19 +13200,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function toggleImages() {
 				var expand = arguments.length <= 0 || arguments[0] === undefined ? !this.images.expanded : arguments[0];
 
-				for (var _iterator20 = this.images, _isArray20 = Array.isArray(_iterator20), _i21 = 0, _iterator20 = _isArray20 ? _iterator20 : _iterator20[Symbol.iterator]();;) {
-					var _ref37;
+				for (var _iterator21 = this.images, _isArray21 = Array.isArray(_iterator21), _i22 = 0, _iterator21 = _isArray21 ? _iterator21 : _iterator21[Symbol.iterator]();;) {
+					var _ref38;
 
-					if (_isArray20) {
-						if (_i21 >= _iterator20.length) break;
-						_ref37 = _iterator20[_i21++];
+					if (_isArray21) {
+						if (_i22 >= _iterator21.length) break;
+						_ref38 = _iterator21[_i22++];
 					} else {
-						_i21 = _iterator20.next();
-						if (_i21.done) break;
-						_ref37 = _i21.value;
+						_i22 = _iterator21.next();
+						if (_i22.done) break;
+						_ref38 = _i22.value;
 					}
 
-					var image = _ref37;
+					var image = _ref38;
 
 					if (image.isImage && image.expanded ^ expand) {
 						if (expand) {
@@ -14257,24 +14296,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'gen',
 			value: function gen(posts, thrURL) {
 				var opNums = DelForm.tNums;
-				for (var _iterator21 = posts, _isArray21 = Array.isArray(_iterator21), _i22 = 0, _iterator21 = _isArray21 ? _iterator21 : _iterator21[Symbol.iterator]();;) {
-					var _ref38;
+				for (var _iterator22 = posts, _isArray22 = Array.isArray(_iterator22), _i23 = 0, _iterator22 = _isArray22 ? _iterator22 : _iterator22[Symbol.iterator]();;) {
+					var _ref39;
 
-					if (_isArray21) {
-						if (_i22 >= _iterator21.length) break;
-						_ref38 = _iterator21[_i22++];
+					if (_isArray22) {
+						if (_i23 >= _iterator22.length) break;
+						_ref39 = _iterator22[_i23++];
 					} else {
-						_i22 = _iterator21.next();
-						if (_i22.done) break;
-						_ref38 = _i22.value;
+						_i23 = _iterator22.next();
+						if (_i23.done) break;
+						_ref39 = _i23.value;
 					}
 
-					var _ref39 = _ref38;
+					var _ref40 = _ref39;
 
-					var _ref40 = _slicedToArray(_ref39, 2);
+					var _ref41 = _slicedToArray(_ref40, 2);
 
-					var pNum = _ref40[0];
-					var post = _ref40[1];
+					var pNum = _ref41[0];
+					var post = _ref41[1];
 
 					var links = $Q('a', post.msg);
 					for (var i = 0, len = links.length; i < len; ++i) {
@@ -14414,19 +14453,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (isUser) {
 					date = Date.now();
 				}
-				for (var _iterator22 = this._set, _isArray22 = Array.isArray(_iterator22), _i23 = 0, _iterator22 = _isArray22 ? _iterator22 : _iterator22[Symbol.iterator]();;) {
-					var _ref41;
+				for (var _iterator23 = this._set, _isArray23 = Array.isArray(_iterator23), _i24 = 0, _iterator23 = _isArray23 ? _iterator23 : _iterator23[Symbol.iterator]();;) {
+					var _ref42;
 
-					if (_isArray22) {
-						if (_i23 >= _iterator22.length) break;
-						_ref41 = _iterator22[_i23++];
+					if (_isArray23) {
+						if (_i24 >= _iterator23.length) break;
+						_ref42 = _iterator23[_i24++];
 					} else {
-						_i23 = _iterator22.next();
-						if (_i23.done) break;
-						_ref41 = _i23.value;
+						_i24 = _iterator23.next();
+						if (_i24.done) break;
+						_ref42 = _i24.value;
 					}
 
-					var num = _ref41;
+					var num = _ref42;
 
 					var pst = pByNum.get(num);
 					if (pst && (isUser || !pst.userToggled)) {
@@ -14444,19 +14483,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'init',
 			value: function init(tUrl, strNums) {
 				var html = '';
-				for (var _iterator23 = this._set, _isArray23 = Array.isArray(_iterator23), _i24 = 0, _iterator23 = _isArray23 ? _iterator23 : _iterator23[Symbol.iterator]();;) {
-					var _ref42;
+				for (var _iterator24 = this._set, _isArray24 = Array.isArray(_iterator24), _i25 = 0, _iterator24 = _isArray24 ? _iterator24 : _iterator24[Symbol.iterator]();;) {
+					var _ref43;
 
-					if (_isArray23) {
-						if (_i24 >= _iterator23.length) break;
-						_ref42 = _iterator23[_i24++];
+					if (_isArray24) {
+						if (_i25 >= _iterator24.length) break;
+						_ref43 = _iterator24[_i25++];
 					} else {
-						_i24 = _iterator23.next();
-						if (_i24.done) break;
-						_ref42 = _i24.value;
+						_i25 = _iterator24.next();
+						if (_i25.done) break;
+						_ref43 = _i25.value;
 					}
 
-					var num = _ref42;
+					var num = _ref43;
 
 					html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 				}
@@ -14505,19 +14544,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (isUser) {
 					date = Date.now();
 				}
-				for (var _iterator24 = this._set, _isArray24 = Array.isArray(_iterator24), _i25 = 0, _iterator24 = _isArray24 ? _iterator24 : _iterator24[Symbol.iterator]();;) {
-					var _ref43;
+				for (var _iterator25 = this._set, _isArray25 = Array.isArray(_iterator25), _i26 = 0, _iterator25 = _isArray25 ? _iterator25 : _iterator25[Symbol.iterator]();;) {
+					var _ref44;
 
-					if (_isArray24) {
-						if (_i25 >= _iterator24.length) break;
-						_ref43 = _iterator24[_i25++];
+					if (_isArray25) {
+						if (_i26 >= _iterator25.length) break;
+						_ref44 = _iterator25[_i26++];
 					} else {
-						_i25 = _iterator24.next();
-						if (_i25.done) break;
-						_ref43 = _i25.value;
+						_i26 = _iterator25.next();
+						if (_i26.done) break;
+						_ref44 = _i26.value;
 					}
 
-					var num = _ref43;
+					var num = _ref44;
 
 					var pst = pByNum.get(num);
 					if (pst && pst.hidden && (isUser || !pst.userToggled) && !pst.spellHidden) {
@@ -15157,19 +15196,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				case 'scroll':
 					window.requestAnimationFrame(function () {
 						var halfHeight = Post.sizing.wHeight / 2;
-						for (var _iterator25 = _this44._thrs, _isArray25 = Array.isArray(_iterator25), _i26 = 0, _iterator25 = _isArray25 ? _iterator25 : _iterator25[Symbol.iterator]();;) {
-							var _ref44;
+						for (var _iterator26 = _this44._thrs, _isArray26 = Array.isArray(_iterator26), _i27 = 0, _iterator26 = _isArray26 ? _iterator26 : _iterator26[Symbol.iterator]();;) {
+							var _ref45;
 
-							if (_isArray25) {
-								if (_i26 >= _iterator25.length) break;
-								_ref44 = _iterator25[_i26++];
+							if (_isArray26) {
+								if (_i27 >= _iterator26.length) break;
+								_ref45 = _iterator26[_i27++];
 							} else {
-								_i26 = _iterator25.next();
-								if (_i26.done) break;
-								_ref44 = _i26.value;
+								_i27 = _iterator26.next();
+								if (_i27.done) break;
+								_ref45 = _i27.value;
 							}
 
-							var thr = _ref44;
+							var thr = _ref45;
 
 							if (thr.bottom > halfHeight && thr.top < halfHeight) {
 								if (!_this44._visible) {
@@ -15440,6 +15479,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.ETag = null;
 			this.firstPage = 0;
 			this.hasCatalog = false;
+			this.hasCacheBug = false;
 			this.hasOPNum = false;
 			this.hasPicWrap = false;
 			this.hasTextLinks = false;
@@ -16420,8 +16460,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						$id('captchaimage').src = '/' + _this59.b + '/captcha?' + Math.random();
 						if (!$id('de-_2chruNet-capchecker')) {
 							cap.textEl.insertAdjacentHTML('afterend', '\n\t\t\t\t\t<span id="de-_2chruNet-capchecker" class="shortened" style="margin: 0px .5em;">\n\t\t\t\t\t\tпроверить капчу\n\t\t\t\t\t</span>');
-							cap.textEl.nextSibling.onclick = function (_ref45) {
-								var target = _ref45.target;
+							cap.textEl.nextSibling.onclick = function (_ref46) {
+								var target = _ref46.target;
 
 								$ajax('/' + _this59.b + '/api/validate-captcha', { method: 'POST' }).then(function (xhr) {
 									if (JSON.parse(xhr.responseText).status === 'ok') {
@@ -17287,19 +17327,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var sessionId = null;
 					var cookie = doc.cookie;
 					if (cookie.includes('desuchan.session')) {
-						for (var _iterator26 = cookie.split(';'), _isArray26 = Array.isArray(_iterator26), _i27 = 0, _iterator26 = _isArray26 ? _iterator26 : _iterator26[Symbol.iterator]();;) {
-							var _ref46;
+						for (var _iterator27 = cookie.split(';'), _isArray27 = Array.isArray(_iterator27), _i28 = 0, _iterator27 = _isArray27 ? _iterator27 : _iterator27[Symbol.iterator]();;) {
+							var _ref47;
 
-							if (_isArray26) {
-								if (_i27 >= _iterator26.length) break;
-								_ref46 = _iterator26[_i27++];
+							if (_isArray27) {
+								if (_i28 >= _iterator27.length) break;
+								_ref47 = _iterator27[_i28++];
 							} else {
-								_i27 = _iterator26.next();
-								if (_i27.done) break;
-								_ref46 = _i27.value;
+								_i28 = _iterator27.next();
+								if (_i28.done) break;
+								_ref47 = _i28.value;
 							}
 
-							var c = _ref46;
+							var c = _ref47;
 
 							var m = c.match(/^\s*desuchan\.session=(.*)$/);
 							if (m) {
@@ -18542,8 +18582,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function initPage() {
 		if (!localRun && Cfg.ajaxReply === 1) {
 			docBody.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-pform" sandbox="" src="about:blank" style="display: none;"></iframe>' + '<iframe name="de-iframe-dform" sandbox="" src="about:blank" style="display: none;"></iframe>');
-			doc.defaultView.addEventListener('message', function (_ref47) {
-				var data = _ref47.data;
+			doc.defaultView.addEventListener('message', function (_ref48) {
+				var data = _ref48.data;
 
 				switch (data.substr(0, 15)) {
 					case 'de-iframe-pform':

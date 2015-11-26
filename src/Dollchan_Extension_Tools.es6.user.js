@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'b205d58';
+var commit = '1820987';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -933,11 +933,24 @@ class AjaxError {
 
 function $ajax(url, params = null, useNative = nativeXHRworks) {
 	var resolve, reject, cancelFn;
+	var useCache = params && params.useCache;
+	if(useCache) {
+		$ajax.addHeaders(params, {
+			'If-Modified-Since': aib.LastModified,
+			'If-None-Match': aib.ETag
+		});
+		if(aib.hasCacheBug) {
+			url += (url.includes('?') ? '&' : '?' ) + 'nocache=' + Math.random();
+		}
+	}
 	if(!useNative && (typeof GM_xmlhttpRequest === 'function')) {
 		var obj = {
 			'method': (params && params.method) || 'GET',
 			'url': nav.fixLink(url),
 			'onload'(e) {
+				if(useCache) {
+					$ajax.readHeaders(e.responseHeaders);
+				}
 				if(e.status === 200 || aib.tiny && e.status === 400) {
 					resolve(e);
 				} else {
@@ -956,7 +969,6 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			} catch(e) {}
 		};
 	} else {
-		var useCache = params && params.useCache;
 		var xhr = new XMLHttpRequest();
 		if(params && params.onprogress) {
 			xhr.upload.onprogress = params.onprogress;
@@ -968,8 +980,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				   (target.status === 0 && target.responseType === 'arraybuffer'))
 				{
 					if(useCache) {
-						aib.LastModified = target.getResponseHeader('Last-Modified');
-						aib.ETag = xhr.getResponseHeader('Etag');
+						$ajax.readHeaders(target.getAllResponseHeaders());
 					}
 					resolve(target);
 				} else {
@@ -992,33 +1003,47 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 					}
 				}
 			}
-			if(useCache) {
-				if(aib.LastModified) {
-					xhr.setRequestHeader('If-Modified-Since', aib.LastModified);
-				}
-				if(aib.ETag) {
-					xhr.setRequestHeader('If-None-Match', aib.ETag);
-				}
-			}
 			xhr.send(params && params.data || null);
 			cancelFn = () => xhr.abort();
 		} catch(e) {
 			nativeXHRworks = false;
-			var headers = { Referer: window.location.toString() };
-			if(params && params.headers) {
-				Object.assign(params.headers, headers);
-			} else if(params) {
-				params.headers = headers;
-			} else {
-				params = { headers };
-			}
-			return $ajax(url, params, false);
+			var newParams = $ajax.addHeaders(params, { Referer: window.location.toString() });
+			return $ajax(url, newParams, false);
 		}
 	}
 	return new CancelablePromise((res, rej) => {
 		resolve = res;
 		reject = rej;
 	}, cancelFn);
+}
+$ajax.addHeaders = function(params, headers) {
+	if(params) {
+		if(params.headers) {
+			return Object.assign(params.headers, headers);
+		}
+		params.headers = headers;
+		return params;
+	}
+	return { headers };
+};
+$ajax.readHeaders = function(headers) {
+	var hasCacheControl = false, i = 0;
+	for(var header of headers.split('\r\n')) {
+		if(header.startsWith('Last-Modified: ')) {
+			aib.LastModified = header.substr(15);
+			i++;
+		} else if(header.startsWith('Etag: ')) {
+			aib.ETag = header.substr(6);
+			i++;
+		} else if(header.startsWith('Cache-Control: ')) {
+			hasCacheControl = true;
+			i++;
+		}
+		if(i === 3) {
+			break;
+		}
+	}
+	aib.hasCacheBug = !hasCacheControl;
 }
 
 function Maybe(ctor/*, ...args*/) {
@@ -11256,6 +11281,7 @@ class BaseBoard {
 		this.ETag = null; // Used for $ajax only
 		this.firstPage = 0;
 		this.hasCatalog = false;
+		this.hasCacheBug = false; // Used for $ajax only
 		this.hasOPNum = false; // Sets in Makaba only
 		this.hasPicWrap = false;
 		this.hasTextLinks = false;
