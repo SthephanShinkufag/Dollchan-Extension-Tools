@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = 'eb05159';
+	var commit = '75176a3';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -7286,7 +7286,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 	};
 
-	function addImgFileIcon(link, fName, info) {
+	function addImgFileIcon(nameLink, fName, info) {
 		var app,
 		    ext,
 		    type = info.type;
@@ -7309,7 +7309,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			app = 'audio/mpeg';
 			ext = 'mp3';
 		}
-		link.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], { 'type': app })) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] + '" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>');
+		nameLink.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], { 'type': app })) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] + '" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>');
 	}
 
 	function downloadImgData(url) {
@@ -7353,26 +7353,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var _data2 = _slicedToArray(data, 5);
 
 					var url = _data2[0];
-					var link = _data2[1];
+					var imgLink = _data2[1];
 					var iType = _data2[2];
 					var nExp = _data2[3];
 					var el = _data2[4];
 
 					if (imageData) {
 						var fName = url.substring(url.lastIndexOf("/") + 1),
-						    aEl = $q(aib.qImgLink, aib.getImgWrap(link));
-						aEl.setAttribute('de-href', aEl.href);
-						link.href = aEl.href = window.URL.createObjectURL(new Blob([imageData], { 'type': iType }));
-						link.setAttribute('download', fName);
-						aEl.setAttribute('download', fName);
+						    nameLink = $q(aib.qImgName, aib.getImgWrap(imgLink));
+						imgLink.setAttribute('download', fName);
+						nameLink.setAttribute('download', fName);
+						nameLink.setAttribute('de-href', nameLink.href);
+						imgLink.href = nameLink.href = window.URL.createObjectURL(new Blob([imageData], { 'type': iType }));
 						if (iType === 'video/webm') {
 							el.setAttribute('de-video', '');
 						}
 						if (nExp) {
-							el.src = link.href;
+							el.src = imgLink.href;
 						}
 						if (rjf) {
-							rjf.run(imageData.buffer, [imageData.buffer], addImgFileIcon.bind(null, aEl, fName));
+							rjf.run(imageData.buffer, [imageData.buffer], addImgFileIcon.bind(null, nameLink, fName));
 						}
 					}
 					if (Images_.progressId) {
@@ -7395,12 +7395,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var els = $Q(aib.qPostImg, isPost ? data.el : data);
 		for (var i = 0, len = els.length; i < len; ++i) {
 			var el = els[i],
-			    link = $parent(el = els[i], 'A');
-			if (!link) {
+			    imgLink = $parent(el = els[i], 'A');
+			if (!imgLink) {
 				continue;
 			}
 			var iType,
-			    url = link.href,
+			    url = imgLink.href,
 			    nExp = !!Cfg.openImgs;
 			if (/\.gif$/i.test(url)) {
 				iType = 'image/gif';
@@ -7419,7 +7419,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				nExp &= Cfg.openImgs !== 2;
 			}
 			if (pool) {
-				pool.run([url, link, iType, nExp, el]);
+				pool.run([url, imgLink, iType, nExp, el]);
 			} else if (nExp) {
 				el.src = url;
 			}
@@ -7453,14 +7453,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var _data3 = _slicedToArray(data, 4);
 
 				var url = _data3[0];
-				var name = _data3[1];
+				var fName = _data3[1];
 				var el = _data3[2];
-				var link = _data3[3];
-				var safeName = name.replace(/[\\\/:*?"<>|]/g, '_');
+				var imgLink = _data3[3];
+				var safeName = fName.replace(/[\\\/:*?"<>|]/g, '_');
 				progress.value = current;
 				counter.innerHTML = current;
 				current++;
-				if (link) {
+				if (imgLink) {
 					if (!imgData) {
 						warnings += '<br>' + Lng.cantLoad[lang] + '<a href="' + url + '">' + url + '</a><br>' + Lng.willSavePview[lang];
 						$popup(Lng.loadErrors[lang] + warnings, 'err-files', false);
@@ -7468,8 +7468,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						imgData = getDataFromImg(el);
 					}
 					if (!imgOnly) {
-						el.classList.add('de-thumb');
-						link.href = $q(aib.qImgLink, aib.getImgWrap(link)).href = safeName = 'images/' + safeName;
+						imgLink.href = $q('a[de-href], ' + aib.qImgName, aib.getImgWrap(imgLink)).href = safeName = 'images/' + safeName;
 						if (safeName.match(/\.webm$/)) {
 							tar.addFile(el.src = safeName.replace(/\.webm$/, '.png'), getDataFromImg(el));
 						} else {
@@ -7484,27 +7483,27 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			});
 		}, function () {
-			var name = aib.dm + '-' + aib.b.replace(/[\\\/:*?"<>|]/g, '') + '-' + aib.t;
+			var docName = aib.dm + '-' + aib.b.replace(/[\\\/:*?"<>|]/g, '') + '-' + aib.t;
 			if (!imgOnly) {
 				var dt = doc.doctype;
 				$q('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js"></script>');
 				tar.addString('data/dollscript.js', '(' + String(typeof de_main_func_outer === 'undefined' ? de_main_func_inner : de_main_func_outer) + ')(null, true);');
-				tar.addString(name + '.html', '<!DOCTYPE ' + dt.name + (dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') + (dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML);
+				tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name + (dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') + (dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML);
 			}
-			downloadBlob(tar.get(), name + (imgOnly ? '-images.tar' : '.tar'));
+			downloadBlob(tar.get(), docName + (imgOnly ? '-images.tar' : '.tar'));
 			$del($id('de-popup-load-files'));
 			Images_.pool = tar = warnings = count = current = imgOnly = progress = counter = null;
 		});
 		els = Array.from($Q(aib.qPostImg, $q('[de-form]', dc)));
 		count += els.length;
 		els.forEach(function (el) {
-			var link = $parent(el, 'A');
-			if (link) {
-				var url = link.href;
+			var imgLink = $parent(el, 'A');
+			if (imgLink) {
+				var url = imgLink.href;
 				if (aib.tiny) {
 					url = url.replace(/^.*?\?v=|&.*?$/g, '');
 				}
-				Images_.pool.run([url, link.getAttribute('download') || url.substring(url.lastIndexOf("/") + 1), el, link]);
+				Images_.pool.run([url, imgLink.getAttribute('download') || url.substring(url.lastIndexOf("/") + 1), el, imgLink]);
 			}
 		});
 		if (!imgOnly) {
@@ -7529,28 +7528,28 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (els.indexOf(el) !== -1) {
 					return;
 				}
-				var name,
+				var fName,
 				    url = el.tagName === 'LINK' ? el.href : el.src;
 				if (!this.test(url)) {
 					$del(el);
 					return;
 				}
-				name = url.substring(url.lastIndexOf("/") + 1).replace(/[\\\/:*?"<>|]/g, '_').toLowerCase();
-				if (files.indexOf(name) !== -1) {
+				fName = url.substring(url.lastIndexOf("/") + 1).replace(/[\\\/:*?"<>|]/g, '_').toLowerCase();
+				if (files.indexOf(fName) !== -1) {
 					var temp = url.lastIndexOf('.'),
 					    ext = url.substring(temp);
 					url = url.substring(0, temp);
-					name = name.substring(0, name.lastIndexOf('.'));
+					fName = fName.substring(0, fName.lastIndexOf('.'));
 					for (var i = 0;; ++i) {
-						temp = name + '(' + i + ')' + ext;
+						temp = fName + '(' + i + ')' + ext;
 						if (files.indexOf(temp) === -1) {
 							break;
 						}
 					}
-					name = temp;
+					fName = temp;
 				}
-				files.push(name);
-				Images_.pool.run([url, name, el, null]);
+				files.push(fName);
+				Images_.pool.run([url, fName, el, null]);
 				count++;
 			}).bind(new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\.)?' + regQuote(aib.dm) + '\\/', 'i')));
 		}
@@ -12554,7 +12553,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (!addSrc && !delNames) {
 			return;
 		}
-		for (var i = 0, els = $Q(aib.qImgLink, el), len = els.length; i < len; i++) {
+		for (var i = 0, els = $Q(aib.qImgName, el), len = els.length; i < len; i++) {
 			var link = els[i];
 			if (/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 				$del(link);
@@ -15487,7 +15486,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.qOPost = '.oppost';
 			this.qPages = 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type';
 			this.qPostHeader = '.de-post-btns';
-			this.qPostImg = '.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]';
+			this.qPostImg = '.thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]';
 			this.qPostMsg = 'blockquote';
 			this.qPostName = '.postername, .commentpostername';
 			this.qPostSubj = '.filetitle';
@@ -15711,10 +15710,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])', '[name="subject"]', '[name="field3"]');
 			}
 		}, {
-			key: 'qImgLink',
+			key: 'qImgName',
 			get: function get() {
 				var value = nav.cssMatches(this.qFileInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".apng"]');
-				Object.defineProperty(this, 'qImgLink', { value: value });
+				Object.defineProperty(this, 'qImgName', { value: value });
 				return value;
 			}
 		}, {
@@ -15949,7 +15948,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return '\n\t\t\t.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, .logo + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .prerekl-hr, .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t.mess-post { display: block; }\n\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; }' : '');
 				}
 			}, {
-				key: 'qImgLink',
+				key: 'qImgName',
 				get: function get() {
 					return '.file-attr > .desktop';
 				}
@@ -16040,7 +16039,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return '\n\t\t\t.ftbl { width: auto; margin: 0; }\n\t\t\t.reply { background: #f0e0d6; }\n\t\t\tspan { font-size: inherit; }';
 				}
 			}, {
-				key: 'qImgLink',
+				key: 'qImgName',
 				get: function get() {
 					return 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
 				}
@@ -16131,7 +16130,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return '\n\t\t\t.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\tdiv.post.reply { float: left; clear: left; display: block; }';
 				}
 			}, {
-				key: 'qImgLink',
+				key: 'qImgName',
 				get: function get() {
 					return 'p.fileinfo > a:first-of-type';
 				}
@@ -16347,7 +16346,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return '\n\t\t\t.content > hr, .de-parea > hr, .de-pview > .doubledash { display: none !important }\n\t\t\t.de-pview > .post { margin-left: 0; border: none; }\n\t\t\t#de-win-reply { float:left; margin-left:2em }';
 				}
 			}, {
-				key: 'qImgLink',
+				key: 'qImgName',
 				get: function get() {
 					return '.filename > a';
 				}
@@ -16776,7 +16775,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return 'input[name="sub"]';
 				}
 			}, {
-				key: 'qImgLink',
+				key: 'qImgName',
 				get: function get() {
 					return '.fileText > a';
 				}
@@ -16985,7 +16984,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return '\n\t\t\t.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }\n\t\t\t.de-cfg-label.de-block { display: block; }\n\t\t\t.post_replies, .post[postid=""] { display: none !important; }\n\t\t\t.post { overflow-x: auto !important; }';
 				}
 			}, {
-				key: 'qImgLink',
+				key: 'qImgName',
 				get: function get() {
 					return '.img_filename';
 				}
@@ -17103,7 +17102,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return true;
 					}
 					$script('window.UploadProgress = function() {};');
-					$id('postform').appendChild($q('.rules'));
+					var el = $id('postform');
+					if (el) {
+						el.appendChild($q('.rules'));
+					}
 					return false;
 				}
 			}, {
@@ -17406,7 +17408,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return 'input[name="internal_s"]';
 				}
 			}, {
-				key: 'qImgLink',
+				key: 'qImgName',
 				get: function get() {
 					return '.filename > a';
 				}
@@ -17670,7 +17672,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return '\n\t\t\timg[src="/tr.png"], small { display: none; }\n\t\t\tform[action$="/paint.pl"] { width: 280px; }\n\t\t\tinput[name="oek_x"], input[name="oek_y"] { width: 30px !important; }';
 				}
 			}, {
-				key: 'qImgLink',
+				key: 'qImgName',
 				get: function get() {
 					return '.filesize > a:first-of-type';
 				}
@@ -18864,7 +18866,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-win-close { animation: de-win-close .2s ease-in both; }' +
 
 	
-		cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') + cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico') + cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==') + '.de-current::after { content: " ●"; }\t.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\t.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\t.de-img-pre { max-width: 200px; max-height: 200px; }\t.de-img-full { float: left; ' + (aib.multiFile ? '' : 'margin: 2px 5px; ') + '}\t.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\t#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\t#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\t#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }\t.de-mp3 { margin: 5px 20px; }\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\t#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }\t.de-video-expanded { width: 854px !important; height: 480px !important; }\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\t.de-video-refpost { margin: 0 2px; }\t.de-video-resizer::after { content: "➕"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\ta.de-video-player::after { content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\t.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }\t.de-vocaroo > embed { display: inline-block; }\ttd > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\tvideo { background: black; }' +
+		cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') + cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico') + cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==') + '.de-current::after { content: " ●"; }\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\t.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\t.de-img-pre { max-width: 200px; max-height: 200px; }\t.de-img-full { float: left; ' + (aib.multiFile ? '' : 'margin: 2px 5px; ') + '}\t.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\t#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\t#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\t#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }\t.de-mp3 { margin: 5px 20px; }\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\t#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }\t.de-video-expanded { width: 854px !important; height: 480px !important; }\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\t.de-video-refpost { margin: 0 2px; }\t.de-video-resizer::after { content: "➕"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\ta.de-video-player::after { content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\t.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }\t.de-vocaroo > embed { display: inline-block; }\ttd > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\tvideo { background: black; }' +
 
 	
 		'.de-file { display: inline-block; margin: 1px; height: ' + (p = aib.multiFile ? 90 : 130) + 'px; width: ' + p + 'px; text-align: center; border: 1px dashed grey; }\
@@ -18980,8 +18982,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			x += '.de-thread-buttons::before { content: ">> "; }';
 		}
 		if (Cfg.maskImgs) {
-			x += '.de-img-pre, .de-video-obj, .thumb, .ca_thumb, .fileThumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: .07 !important; }\
-			.de-img-pre:hover, .de-video-obj:hover, .thumb:hover, .ca_thumb:hover, .fileThumb:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
+			x += aib.qPostImg + ', .de-img-pre, .de-video-obj { opacity: .07 !important; } ' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }';
 		}
 		if (Cfg.delImgNames) {
 			x += '.de-img-name { text-transform: capitalize; text-decoration: none; }';

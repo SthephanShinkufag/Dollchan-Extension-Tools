@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = 'eb05159';
+var commit = '75176a3';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -4391,7 +4391,7 @@ WorkerPool.prototype = {
 	}
 };
 
-function addImgFileIcon(link, fName, info) {
+function addImgFileIcon(nameLink, fName, info) {
 	var app, ext, type = info.type;
 	if(typeof type === 'undefined') {
 		return;
@@ -4412,7 +4412,7 @@ function addImgFileIcon(link, fName, info) {
 		app = 'audio/mpeg';
 		ext = 'mp3';
 	}
-	link.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(
+	nameLink.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(
 			new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {'type': app})
 		) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
 		'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>'
@@ -4452,22 +4452,24 @@ function preloadImages(data) {
 			});
 		pool = new TasksPool(mReqs, function(num, data) {
 			return downloadImgData(data[0]).then(imageData => {
-				var [url, link, iType, nExp, el] = data;
+				var [url, imgLink, iType, nExp, el] = data;
 				if(imageData) {
 					var fName = url.substring(url.lastIndexOf("/") + 1),
-						aEl = $q(aib.qImgLink, aib.getImgWrap(link));
-					aEl.setAttribute('de-href', aEl.href);
-					link.href = aEl.href = window.URL.createObjectURL(new Blob([imageData], {'type': iType}));
-					link.setAttribute('download', fName);
-					aEl.setAttribute('download', fName);
+						nameLink = $q(aib.qImgName, aib.getImgWrap(imgLink));
+					imgLink.setAttribute('download', fName);
+					nameLink.setAttribute('download', fName);
+					nameLink.setAttribute('de-href', nameLink.href);
+					imgLink.href = nameLink.href =
+						window.URL.createObjectURL(new Blob([imageData], {'type': iType}));
 					if(iType === 'video/webm') {
 						el.setAttribute('de-video', '');
 					}
 					if(nExp) {
-						el.src = link.href;
+						el.src = imgLink.href;
 					}
 					if(rjf) {
-						rjf.run(imageData.buffer, [imageData.buffer], addImgFileIcon.bind(null, aEl, fName));
+						rjf.run(imageData.buffer, [imageData.buffer],
+						        addImgFileIcon.bind(null, nameLink, fName));
 					}
 				}
 				if(Images_.progressId) {
@@ -4490,11 +4492,11 @@ function preloadImages(data) {
 	var els = $Q(aib.qPostImg, isPost ? data.el : data);
 	for(var i = 0, len = els.length; i < len; ++i) {
 		var el = els[i],
-			link = $parent(el = els[i], 'A');
-		if(!link) {
+			imgLink = $parent(el = els[i], 'A');
+		if(!imgLink) {
 			continue;
 		}
-		var iType, url = link.href,
+		var iType, url = imgLink.href,
 			nExp = !!Cfg.openImgs;
 		if(/\.gif$/i.test(url)) {
 			iType = 'image/gif';
@@ -4513,7 +4515,7 @@ function preloadImages(data) {
 			nExp &= Cfg.openImgs !== 2;
 		}
 		if(pool) {
-			pool.run([url, link, iType, nExp, el]);
+			pool.run([url, imgLink, iType, nExp, el]);
 		} else if(nExp) {
 			el.src = url; // !
 		}
@@ -4541,12 +4543,12 @@ function loadDocFiles(imgOnly) {
 		dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
 	Images_.pool = new TasksPool(4, function(num, data) {
 		return downloadImgData(data[0]).then(imgData => {
-			var [url, name, el, link] = data,
-				safeName = name.replace(/[\\\/:*?"<>|]/g, '_');
+			var [url, fName, el, imgLink] = data,
+				safeName = fName.replace(/[\\\/:*?"<>|]/g, '_');
 			progress.value = current;
 			counter.innerHTML = current;
 			current++;
-			if(link) {
+			if(imgLink) {
 				if(!imgData) {
 					warnings += '<br>' + Lng.cantLoad[lang] + '<a href="' + url + '">' +
 						url + '</a><br>' + Lng.willSavePview[lang];
@@ -4555,8 +4557,8 @@ function loadDocFiles(imgOnly) {
 					imgData = getDataFromImg(el);
 				}
 				if(!imgOnly) {
-					el.classList.add('de-thumb');
-					link.href = $q(aib.qImgLink, aib.getImgWrap(link)).href = safeName = 'images/' + safeName;
+					imgLink.href = $q('a[de-href], ' + aib.qImgName, aib.getImgWrap(imgLink)).href =
+						safeName = 'images/' + safeName;
 					if(safeName.match(/\.webm$/)) {
 						tar.addFile(el.src = safeName.replace(/\.webm$/, '.png'), getDataFromImg(el));
 					} else {
@@ -4571,7 +4573,7 @@ function loadDocFiles(imgOnly) {
 			}
 		});
 	}, function() {
-		var name = aib.dm + '-' + aib.b.replace(/[\\\/:*?"<>|]/g, '') + '-' + aib.t;
+		var docName = aib.dm + '-' + aib.b.replace(/[\\\/:*?"<>|]/g, '') + '-' + aib.t;
 		if(!imgOnly) {
 			var dt = doc.doctype;
 			$q('head', dc).insertAdjacentHTML('beforeend',
@@ -4580,26 +4582,26 @@ function loadDocFiles(imgOnly) {
 				String(typeof de_main_func_outer === 'undefined' ? de_main_func_inner : de_main_func_outer) +
 			')(null, true);');
 			tar.addString(
-				name + '.html', '<!DOCTYPE ' + dt.name +
+				docName + '.html', '<!DOCTYPE ' + dt.name +
 				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') +
 				(dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML
 			);
 		}
-		downloadBlob(tar.get(), name + (imgOnly ? '-images.tar' : '.tar'));
+		downloadBlob(tar.get(), docName + (imgOnly ? '-images.tar' : '.tar'));
 		$del($id('de-popup-load-files'));
 		Images_.pool = tar = warnings = count = current = imgOnly = progress = counter = null;
 	});
 	els = Array.from($Q(aib.qPostImg, $q('[de-form]', dc)));
 	count += els.length;
 	els.forEach(function(el) {
-		var link = $parent(el, 'A');
-		if(link) {
-			var url = link.href;
+		var imgLink = $parent(el, 'A');
+		if(imgLink) {
+			var url = imgLink.href;
 			if(aib.tiny) {
 				url = url.replace(/^.*?\?v=|&.*?$/g, '');
 			}
-			Images_.pool.run([url, link.getAttribute('download') ||
-				url.substring(url.lastIndexOf("/") + 1), el, link]);
+			Images_.pool.run([url, imgLink.getAttribute('download') ||
+				url.substring(url.lastIndexOf("/") + 1), el, imgLink]);
 		}
 	});
 	if(!imgOnly) {
@@ -4624,27 +4626,27 @@ function loadDocFiles(imgOnly) {
 			if(els.indexOf(el) !== -1) {
 				return;
 			}
-			var name, url = el.tagName === 'LINK' ? el.href : el.src;
+			var fName, url = el.tagName === 'LINK' ? el.href : el.src;
 			if(!this.test(url)) {
 				$del(el);
 				return;
 			}
-			name = url.substring(url.lastIndexOf("/") + 1).replace(/[\\\/:*?"<>|]/g, '_').toLowerCase();
-			if(files.indexOf(name) !== -1) {
+			fName = url.substring(url.lastIndexOf("/") + 1).replace(/[\\\/:*?"<>|]/g, '_').toLowerCase();
+			if(files.indexOf(fName) !== -1) {
 				var temp = url.lastIndexOf('.'),
 					ext = url.substring(temp);
 				url = url.substring(0, temp);
-				name = name.substring(0, name.lastIndexOf('.'));
+				fName = fName.substring(0, fName.lastIndexOf('.'));
 				for(var i = 0; ; ++i) {
-					temp = name + '(' + i + ')' + ext;
+					temp = fName + '(' + i + ')' + ext;
 					if(files.indexOf(temp) === -1) {
 						break;
 					}
 				}
-				name = temp;
+				fName = temp;
 			}
-			files.push(name);
-			Images_.pool.run([url, name, el, null]);
+			files.push(fName);
+			Images_.pool.run([url, fName, el, null]);
 			count++;
 		}.bind(new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\.)?' + regQuote(aib.dm) + '\\/', 'i')));
 	}
@@ -8802,7 +8804,7 @@ function processImageNames(el) {
 	if(!addSrc && !delNames) {
 		return;
 	}
-	for(var i = 0, els = $Q(aib.qImgLink, el), len = els.length; i < len; i++) {
+	for(var i = 0, els = $Q(aib.qImgName, el), len = els.length; i < len; i++) {
 		var link = els[i];
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
@@ -11282,7 +11284,7 @@ class BaseBoard {
 		this.qOPost = '.oppost';
 		this.qPages = 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type';
 		this.qPostHeader = '.de-post-btns';
-		this.qPostImg = '.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]';
+		this.qPostImg = '.thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]';
 		this.qPostMsg = 'blockquote';
 		this.qPostName = '.postername, .commentpostername';
 		this.qPostSubj = '.filetitle';
@@ -11332,10 +11334,10 @@ class BaseBoard {
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="subject"]', '[name="field3"]');
 	}
-	get qImgLink() {
+	get qImgName() {
 		var value = nav.cssMatches(this.qFileInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]',
 			'[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".apng"]');
-		Object.defineProperty(this, 'qImgLink', { value });
+		Object.defineProperty(this, 'qImgName', { value });
 		return value;
 	}
 	get qMsgImgLink() { // Sets here only
@@ -11547,7 +11549,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			${ Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '' }
 			${ Cfg.delImgNames ? '.filesize { display: inline !important; }' : '' }`;
 		}
-		get qImgLink() {
+		get qImgName() {
 			return '.file-attr > .desktop';
 		}
 		get lastPage() {
@@ -11688,7 +11690,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			.reply { background: #f0e0d6; }
 			span { font-size: inherit; }`;
 		}
-		get qImgLink() {
+		get qImgName() {
 			return 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
 		}
 		getPageUrl(b, p) {
@@ -11748,7 +11750,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			.banner, ${ this.t ? '' : '.de-btn-rep,' } .hide-thread-link, .mentioned, .post-hover { display: none !important; }
 			div.post.reply { float: left; clear: left; display: block; }`;
 		}
-		get qImgLink() {
+		get qImgName() {
 			return 'p.fileinfo > a:first-of-type';
 		}
 		get markupTags() {
@@ -11916,7 +11918,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.parentNode.parentNode.innerHTML =
 				'<div' + str + ('<div style="display: none;"' + str).repeat(3);
 		}
-		get qImgLink() {
+		get qImgName() {
 			return '.filename > a';
 		}
 		getImgWrap(el) {
@@ -12193,7 +12195,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get qFormSubj() {
 			return 'input[name="sub"]';
 		}
-		get qImgLink() {
+		get qImgName() {
 			return '.fileText > a';
 		}
 		get markupTags() {
@@ -12333,7 +12335,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			.post_replies, .post[postid=""] { display: none !important; }
 			.post { overflow-x: auto !important; }`;
 		}
-		get qImgLink() {
+		get qImgName() {
 			return '.img_filename';
 		}
 		get qThread() {
@@ -12460,7 +12462,10 @@ function getImageBoard(checkDomains, checkEngines) {
 				return true;
 			}
 			$script('window.UploadProgress = function() {};');
-			$id('postform').appendChild($q('.rules'));
+			var el = $id('postform');
+			if(el) {
+				el.appendChild($q('.rules'));
+			}
 			return false;
 		}
 		initCaptcha(cap) {
@@ -12606,7 +12611,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get qFormSubj() {
 			return 'input[name="internal_s"]';
 		}
-		get qImgLink() {
+		get qImgName() {
 			return '.filename > a';
 		}
 		get qThread() {
@@ -12852,7 +12857,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			form[action$="/paint.pl"] { width: 280px; }
 			input[name="oek_x"], input[name="oek_y"] { width: 30px !important; }`;
 		}
-		get qImgLink() {
+		get qImgName() {
 			return '.filesize > a:first-of-type';
 		}
 		disableRedirection(el) {
@@ -14159,7 +14164,7 @@ function scriptCSS() {
 	cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') +
 	cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==') +
 	'.de-current::after { content: " \u25CF"; }\
-	.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\
+	.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\
 	.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
 	.de-img-pre { max-width: 200px; max-height: 200px; }\
 	.de-img-full { float: left; ' + (aib.multiFile ? '' : 'margin: 2px 5px; ') + '}\
@@ -14329,8 +14334,8 @@ function updateCSS() {
 		x += '.de-thread-buttons::before { content: ">> "; }';
 	}
 	if(Cfg.maskImgs) {
-		x += '.de-img-pre, .de-video-obj, .thumb, .ca_thumb, .fileThumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: .07 !important; }\
-			.de-img-pre:hover, .de-video-obj:hover, .thumb:hover, .ca_thumb:hover, .fileThumb:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
+		x += aib.qPostImg + ', .de-img-pre, .de-video-obj { opacity: .07 !important; } ' +
+			aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }';
 	}
 	if(Cfg.delImgNames) {
 		x += '.de-img-name { text-transform: capitalize; text-decoration: none; }';
