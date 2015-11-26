@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = '06dbef3';
+var commit = '7b2d940';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2650,6 +2650,10 @@ function showFavoritesWindow(body, data) {
 			titleEl.title = Lng.updating[lang];
 			try {
 				form = yield ajaxLoad(aib.getThrdUrl(b, num));
+				if(!form) {
+					iconEl.setAttribute('class', 'de-fav-inf-icon');
+					continue;
+				}
 			} catch(e) {
 				$hide(el);
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
