@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = 'b6e941a';
+	var commit = '84d27b3';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3699,7 +3699,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: '_onResRej',
 			value: function _onResRej(val, isResolve) {
-				if (this.done) {
+				if (this._done) {
 					return;
 				}
 				this._done = true;

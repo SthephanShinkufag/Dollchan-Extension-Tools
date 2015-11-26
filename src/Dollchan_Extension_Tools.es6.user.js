@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = 'b6e941a';
+var commit = '84d27b3';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -905,7 +905,7 @@ class CancelablePromise {
 	}
 
 	_onResRej(val, isResolve) {
-		if(this.done) {
+		if(this._done) {
 			return;
 		}
 		this._done = true;
