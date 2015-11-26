@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = 'acca53f';
+var commit = '6af49b8';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5144,7 +5144,7 @@ function ajaxLoad(url, returnForm = true, useCache = false) {
 	return $ajax(ajaxURL, useCache && cData && cData.params).then(xhr => {
 		var headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders()
 		                                             : xhr.responseHeaders;
-		var data = ajaxLoad.readCacheData(headers, useCache);
+		var data = ajaxLoad.readCacheData(headers);
 		if(!data.hasCacheControl && !ajaxLoad.cacheData.has(url)) {
 			ajaxLoad.cacheData.set(url, data);
 			return $ajax(ajaxLoad.fixCachedURL(url), data.params);
@@ -5163,7 +5163,7 @@ ajaxLoad.cacheData = new Map();
 ajaxLoad.fixCachedURL = function(url) {
 	return url + (url.includes('?') ? '&' : '?' ) + 'nocache=' + Math.random();
 };
-ajaxLoad.readCacheData = function(ajaxHeaders, needHeaders) {
+ajaxLoad.readCacheData = function(ajaxHeaders) {
 	var hasCacheControl = false,
 		ETag = null,
 		LastModified = null,
@@ -5173,16 +5173,14 @@ ajaxLoad.readCacheData = function(ajaxHeaders, needHeaders) {
 		if(header.startsWith('Cache-Control: ')) {
 			hasCacheControl = true;
 			i++;
-		} else if(needHeaders) {
-			if(header.startsWith('Last-Modified: ')) {
-				LastModified = header.substr(15);
-				i++;
-			} else if(header.startsWith('Etag: ')) {
-				ETag = header.substr(6);
-				i++;
-			}
+		} else if(header.startsWith('Last-Modified: ')) {
+			LastModified = header.substr(15);
+			i++;
+		} else if(header.startsWith('Etag: ')) {
+			ETag = header.substr(6);
+			i++;
 		}
-		if(i === (needHeaders ? 3 : 1)) {
+		if(i === 3) {
 			break;
 		}
 	}

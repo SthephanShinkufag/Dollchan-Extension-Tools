@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = 'acca53f';
+	var commit = '6af49b8';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -8039,7 +8039,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var ajaxURL = cData && !cData.hasCacheControl ? ajaxLoad.fixCachedURL(url) : url;
 		return $ajax(ajaxURL, useCache && cData && cData.params).then(function (xhr) {
 			var headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
-			var data = ajaxLoad.readCacheData(headers, useCache);
+			var data = ajaxLoad.readCacheData(headers);
 			if (!data.hasCacheControl && !ajaxLoad.cacheData.has(url)) {
 				ajaxLoad.cacheData.set(url, data);
 				return $ajax(ajaxLoad.fixCachedURL(url), data.params);
@@ -8061,7 +8061,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	ajaxLoad.fixCachedURL = function (url) {
 		return url + (url.includes('?') ? '&' : '?') + 'nocache=' + Math.random();
 	};
-	ajaxLoad.readCacheData = function (ajaxHeaders, needHeaders) {
+	ajaxLoad.readCacheData = function (ajaxHeaders) {
 		var hasCacheControl = false,
 		    ETag = null,
 		    LastModified = null,
@@ -8084,16 +8084,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (header.startsWith('Cache-Control: ')) {
 				hasCacheControl = true;
 				i++;
-			} else if (needHeaders) {
-				if (header.startsWith('Last-Modified: ')) {
-					LastModified = header.substr(15);
-					i++;
-				} else if (header.startsWith('Etag: ')) {
-					ETag = header.substr(6);
-					i++;
-				}
+			} else if (header.startsWith('Last-Modified: ')) {
+				LastModified = header.substr(15);
+				i++;
+			} else if (header.startsWith('Etag: ')) {
+				ETag = header.substr(6);
+				i++;
 			}
-			if (i === (needHeaders ? 3 : 1)) {
+			if (i === 3) {
 				break;
 			}
 		}
