@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = '6af49b8';
+var commit = '31a8539';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2649,7 +2649,11 @@ function showFavoritesWindow(body, data) {
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
 			try {
-				form = yield ajaxLoad(aib.getThrdUrl(b, num));
+				form = yield ajaxLoad(aib.getThrdUrl(b, num), true, true);
+				if(!form) {
+					iconEl.setAttribute('class', 'de-fav-inf-icon');
+					continue;
+				}
 			} catch(e) {
 				$hide(el);
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
