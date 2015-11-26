@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '77ddeb6';
+var commit = 'f82c0ee';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11390,7 +11390,7 @@ class BaseBoard {
 		el.checked = true;
 	}
 	fixFileInputs() {}
-	fixVideo(isPost, data) { // Differs Tinyboard only
+	fixVideo(isPost, data) {
 		var videos = [],
 			els = $Q('embed, object, iframe', isPost ? data.el : data);
 		for(var i = 0, len = els.length; i < len; ++i) {
@@ -11866,6 +11866,18 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return super.css + '.logo + hr, table[border="0"] + hr, .uibutton { display: none; }';
+		}
+		fixVideo(isPost, data) {
+			var videos = [],
+				els = $Q('.youtube.embed', isPost ? data.el : data);
+			for(var i = 0, len = els.length; i < len; ++i) {
+				var el = els[i];
+				var id = el.getAttribute('data-id');
+				var m = ['https://www.youtube.com/watch?v=' + id, id];
+				videos.push([isPost ? data : this.getPostOfEl(el), m, true]);
+				$del(el.parentNode);
+			}
+			return videos;
 		}
 	}
 	ibEngines.push(['.maintable[width="98%"]', _0chan]);

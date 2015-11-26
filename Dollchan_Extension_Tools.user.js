@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '77ddeb6';
+	var commit = 'f82c0ee';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15536,7 +15536,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'fixVideo',
 			value: function fixVideo(isPost, data) {
-			
 				var videos = [],
 				    els = $Q('embed, object, iframe', isPost ? data.el : data);
 				for (var i = 0, len = els.length; i < len; ++i) {
@@ -16258,6 +16257,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			_createClass(_0chan, [{
+				key: 'fixVideo',
+				value: function fixVideo(isPost, data) {
+					var videos = [],
+					    els = $Q('.youtube.embed', isPost ? data.el : data);
+					for (var i = 0, len = els.length; i < len; ++i) {
+						var el = els[i];
+						var id = el.getAttribute('data-id');
+						var m = ['https://www.youtube.com/watch?v=' + id, id];
+						videos.push([isPost ? data : this.getPostOfEl(el), m, true]);
+						$del(el.parentNode);
+					}
+					return videos;
+				}
+			}, {
 				key: 'css',
 				get: function get() {
 					return _get(Object.getPrototypeOf(_0chan.prototype), 'css', this) + '.logo + hr, table[border="0"] + hr, .uibutton { display: none; }';
