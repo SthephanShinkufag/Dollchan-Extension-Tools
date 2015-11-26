@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         15.10.20.1
+// @version         15.11.26.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       (c) 2015 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
@@ -20,8 +20,8 @@
 (function de_main_func_inner(scriptStorage, FormData) {
 'use strict';
 
-var version = '15.10.20.1';
-var commit = '75176a3';
+var version = '15.11.26.0';
+var commit = '06dbef3';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7756,7 +7756,7 @@ function checkUpload(data) {
 		if(postNum) {
 			window.location = aib.getThrdUrl(aib.b, postNum);
 		} else if(isDocument) {
-			window.location = aib.getThrdUrl(aib.b, aib.getTNum($q(aib.qDForm, dc)));
+			window.location = aib.getThrdUrl(aib.b, aib.getTNum($q(aib.qDForm, data)));
 		}
 		return;
 	}
@@ -14092,7 +14092,10 @@ function scriptCSS() {
 	#de-panel-upd-warn { fill: #fff441; }\
 	#de-panel-upd-off { fill: #ff3232; }\
 	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }\
-	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }';
+	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }\
+	.de-svg-back { fill: inherit; stroke: none; }\
+	.de-svg-stroke { stroke: currentColor; fill: none; }\
+	.de-svg-fill { stroke: none; fill: currentColor; }';
 
 	if(Cfg.disabled) {
 		$css(x).id = 'de-css';
@@ -14304,9 +14307,6 @@ function scriptCSS() {
 	.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '"; }\
 	#de-updater-count::before { content: ": "; }\
 	.de-viewed { color: #747488 !important; }\
-	.de-svg-back { fill: inherit; stroke: none; }\
-	.de-svg-stroke { stroke: currentColor; fill: none; }\
-	.de-svg-fill { stroke: none; fill: currentColor; }\
 	form > hr { clear: both }\
 	use { fill: inherit; }';
 
