@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '784da28';
+	var commit = 'eb05159';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12575,13 +12575,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function embedImagesLinks(el) {
 		for (var i = 0, els = $Q(aib.qMsgImgLink, el), len = els.length; i < len; ++i) {
-			var link = els[i];
-			if (link.parentNode.tagName === 'SMALL') {
+			var link = els[i],
+			    url = link.href;
+			if (link.parentNode.tagName === 'SMALL' || url.includes('?')) {
 				return;
 			}
 			var a = link.cloneNode(false);
 			a.target = '_blank';
-			a.innerHTML = '<img class="de-img-pre" src="' + a.href + '">';
+			a.innerHTML = '<img class="de-img-pre" src="' + url + '">';
 			$before(link, a);
 		}
 	}

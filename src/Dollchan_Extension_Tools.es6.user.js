@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '784da28';
+var commit = 'eb05159';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8824,13 +8824,13 @@ function processImageNames(el) {
 
 function embedImagesLinks(el) {
 	for(var i = 0, els = $Q(aib.qMsgImgLink, el), len = els.length; i < len; ++i) {
-		var link = els[i];
-		if(link.parentNode.tagName === 'SMALL') {
+		var link = els[i], url = link.href;
+		if(link.parentNode.tagName === 'SMALL' || url.includes('?')) {
 			return;
 		}
 		var a = link.cloneNode(false);
 		a.target = '_blank';
-		a.innerHTML = '<img class="de-img-pre" src="' + a.href + '">';
+		a.innerHTML = '<img class="de-img-pre" src="' + url + '">';
 		$before(link, a);
 	}
 }
