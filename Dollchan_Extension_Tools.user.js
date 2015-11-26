@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.10.20.1';
-	var commit = '1d21c31';
+	var commit = '3641736';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -8720,6 +8720,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					reps: { configurable: configurable, value: value },
 					outreps: { configurable: configurable, value: value }
 				});
+				return;
 			}
 			var spells, data;
 			try {

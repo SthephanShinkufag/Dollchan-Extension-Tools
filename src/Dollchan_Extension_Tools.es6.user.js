@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.10.20.1';
-var commit = '1d21c31';
+var commit = '3641736';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5141,7 +5141,7 @@ function ajaxLoad(url, returnForm = true, useCache = false) {
 	var ajaxURL = cData && !cData.hasCacheControl ? ajaxLoad.fixCachedURL(url) : url;
 	return $ajax(ajaxURL, cData && cData.params).then(xhr => {
 		var headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders()
-		                                             : xhr.responseHeaders
+		                                             : xhr.responseHeaders;
 		var data = ajaxLoad.readCacheData(headers, useCache);
 		if(!data.hasCacheControl && !ajaxLoad.cacheData.has(url)) {
 			ajaxLoad.cacheData.set(url, data);
@@ -5647,6 +5647,7 @@ var Spells = Object.create({
 				reps: { configurable, value },
 				outreps: { configurable, value }
 			});
+			return;
 		}
 		var spells, data;
 		try {
