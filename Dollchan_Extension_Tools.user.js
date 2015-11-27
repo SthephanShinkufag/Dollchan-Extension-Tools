@@ -2845,10 +2845,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 (function de_main_func_inner(scriptStorage, FormData) {
 	'use strict';
 
-	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
+	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = '05c8d17';
+	var commit = 'c32f7b1';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -17841,13 +17841,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				aib.docExt = temp ? temp[0] : '.html';
 			}
 		}
-		if (aib.t) {
-			doc.defaultView.addEventListener('beforeunload', function (e) {
-				sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset;
-			});
-		}
-		dummy = doc.createElement('div');
-		return true;
 	}
 
 	function addSVGIcons() {
@@ -18697,6 +18690,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	
 		var p,
 		    x = '#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\
+	#de-panel:lang(fr), .de-win-head:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\
+	#de-panel:lang(en), .de-win-head:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\
+	#de-panel:lang(de), .de-win-head:lang(de) { background-color: #777; }\
+	#de-panel:lang(es), .de-win-head:lang(es) { background-color: rgba(0,20,80,.72); }\
 	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\
 	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\
 	#de-panel-buttons:lang(en), #de-panel-info:lang(en) { border-color: #8fbbed; }\
@@ -18740,11 +18737,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	#de-win-hid { max-width: 60%; }\
 	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\
 	#de-win-vid .de-entry { white-space: normal; }\
-	.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }\
-	.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\
-	.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\
-	.de-win-head:lang(de), #de-panel:lang(de) { background-color: #777; }\
-	.de-win-head:lang(es), #de-panel:lang(es) { background-color: rgba(0,20,80,.72); }' +
+	.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }' +
 
 	
 		'.de-block { display: block; }\
@@ -18970,9 +18963,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-	function initScript(checkDomains, cfgPromise) {
+	function runMain(checkDomains, cfgPromise) {
 		var formEl, str;
-		return regeneratorRuntime.wrap(function initScript$(_context19) {
+		return regeneratorRuntime.wrap(function runMain$(_context19) {
 			while (1) switch (_context19.prev = _context19.next) {
 				case 0:
 					Logger.init();
@@ -19068,6 +19061,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				case 31:
 					initStorageEvent();
 					parseURL();
+					if (aib.t) {
+						doc.defaultView.addEventListener('beforeunload', function (e) {
+							sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset;
+						});
+					}
 					Logger.log('Init');
 					if (Cfg.correctTime) {
 						dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, function (rp) {
@@ -19076,25 +19074,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						Logger.log('Time correction');
 					}
 					$hide(docBody);
+					dummy = doc.createElement('div');
 					formEl = DelForm.doReplace(formEl);
 					Logger.log('Replace delform');
 					pByEl = new Map();
 					pByNum = new Map();
-					_context19.prev = 40;
+					_context19.prev = 42;
 
 					DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
-					_context19.next = 49;
+					_context19.next = 51;
 					break;
 
-				case 44:
-					_context19.prev = 44;
-					_context19.t2 = _context19['catch'](40);
+				case 46:
+					_context19.prev = 46;
+					_context19.t2 = _context19['catch'](42);
 
 					console.log('DELFORM ERROR:\n' + getErrorMessage(_context19.t2));
 					$show(docBody);
 					return _context19.abrupt('return');
 
-				case 49:
+				case 51:
 					Logger.log('Parse delform');
 					pr = new PostForm($q(aib.qForm), false, doc);
 					Logger.log('Parse postform');
@@ -19106,9 +19105,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					Logger.log('Init page');
 					panel.init(formEl);
 					Logger.log('Add panel');
-					return _context19.delegateYield(readMyPosts(), 't3', 58);
+					return _context19.delegateYield(readMyPosts(), 't3', 60);
 
-				case 58:
+				case 60:
 					Logger.log('Read my posts');
 					DelForm.first.addStuff();
 					readViewedPosts();
@@ -19118,19 +19117,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					Logger.log('Display page');
 					toggleInfinityScroll();
 					Logger.log('Infinity scroll');
-					return _context19.delegateYield(readPostsData(DelForm.first.firstThr.op), 't4', 68);
+					return _context19.delegateYield(readPostsData(DelForm.first.firstThr.op), 't4', 70);
 
-				case 68:
+				case 70:
 					Logger.log('Hide posts');
 					scrollPage();
 					Logger.log('Scroll page');
 					Logger.finish();
 
-				case 72:
+				case 74:
 				case 'end':
 					return _context19.stop();
 			}
-		}, _marked[7], this, [[40, 44]]);
+		}, _marked[7], this, [[42, 46]]);
 	}
 
 	if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
@@ -19148,7 +19147,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 	if (doc.readyState === 'interactive' || doc.readyState === 'complete') {
 		needScroll = false;
-		async(initScript)(true, null);
+		async(runMain)(true, null);
 	} else {
 		var cfgPromise = null;
 		if (aib = getImageBoard(true, false)) {
@@ -19163,7 +19162,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			needScroll = false;
 			doc.removeEventListener(e.type, wFunc);
 		});
-		doc.addEventListener('DOMContentLoaded', async(initScript.bind(null, false, cfgPromise)));
+		doc.addEventListener('DOMContentLoaded', async(runMain.bind(null, false, cfgPromise)));
 	}
 })(window.opera && window.opera.scriptStorage, window.FormData);
 

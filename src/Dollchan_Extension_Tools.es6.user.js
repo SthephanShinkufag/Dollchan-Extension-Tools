@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = '05c8d17';
+var commit = 'c32f7b1';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13016,13 +13016,6 @@ function parseURL() {
 			aib.docExt = temp ? temp[0] : '.html';
 		}
 	}
-	if(aib.t) {
-		doc.defaultView.addEventListener('beforeunload', function(e) {
-			sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset;
-		});
-	}
-	dummy = doc.createElement('div');
-	return true;
 }
 
 function addSVGIcons() {
@@ -13974,6 +13967,10 @@ function scriptCSS() {
 
 	// Main panel
 	var p, x = '#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\
+	#de-panel:lang(fr), .de-win-head:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\
+	#de-panel:lang(en), .de-win-head:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\
+	#de-panel:lang(de), .de-win-head:lang(de) { background-color: #777; }\
+	#de-panel:lang(es), .de-win-head:lang(es) { background-color: rgba(0,20,80,.72); }\
 	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\
 	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\
 	#de-panel-buttons:lang(en), #de-panel-info:lang(en) { border-color: #8fbbed; }\
@@ -14017,11 +14014,7 @@ function scriptCSS() {
 	#de-win-hid { max-width: 60%; }\
 	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\
 	#de-win-vid .de-entry { white-space: normal; }\
-	.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }\
-	.de-win-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\
-	.de-win-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\
-	.de-win-head:lang(de), #de-panel:lang(de) { background-color: #777; }\
-	.de-win-head:lang(es), #de-panel:lang(es) { background-color: rgba(0,20,80,.72); }' +
+	.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }' +
 
 	// Settings window
 	'.de-block { display: block; }\
@@ -14335,7 +14328,7 @@ function updateCSS() {
 // MAIN
 // ===========================================================================================================
 
-function* initScript(checkDomains, cfgPromise) {
+function* runMain(checkDomains, cfgPromise) {
 	Logger.init();
 	docBody = doc.body;
 	if(!aib) {
@@ -14376,6 +14369,11 @@ function* initScript(checkDomains, cfgPromise) {
 	}
 	initStorageEvent();
 	parseURL();
+	if(aib.t) {
+		doc.defaultView.addEventListener('beforeunload', function(e) {
+			sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset;
+		});
+	}
 	Logger.log('Init');
 	if(Cfg.correctTime) {
 		dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang,
@@ -14383,6 +14381,7 @@ function* initScript(checkDomains, cfgPromise) {
 		Logger.log('Time correction');
 	}
 	$hide(docBody);
+	dummy = doc.createElement('div');
 	formEl = DelForm.doReplace(formEl);
 	Logger.log('Replace delform');
 	pByEl = new Map();
@@ -14434,7 +14433,7 @@ case 'de-iframe-dform':
 }
 if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 	needScroll = false;
-	async(initScript)(true, null);
+	async(runMain)(true, null);
 } else {
 	var cfgPromise = null;
 	if((aib = getImageBoard(true, false))) {
@@ -14449,7 +14448,7 @@ if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 		needScroll = false;
 		doc.removeEventListener(e.type, wFunc);
 	});
-	doc.addEventListener('DOMContentLoaded', async(initScript.bind(null, false, cfgPromise)));
+	doc.addEventListener('DOMContentLoaded', async(runMain.bind(null, false, cfgPromise)));
 }
 
 })(window.opera && window.opera.scriptStorage, window.FormData);
