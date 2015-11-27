@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = 'c32f7b1';
+var commit = 'e38a54f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1315,7 +1315,7 @@ function* getFormElements(form, submitter) {
 					yield {
 						el: field,
 						name: fixName(name),
-						value: new File([''], ''),
+						value: (aib.tiny ? new File([''], '') : ''),
 						type: 'application/octet-stream'
 					};
 				}

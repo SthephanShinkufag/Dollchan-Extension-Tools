@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = 'c32f7b1';
+	var commit = 'e38a54f';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4211,7 +4211,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return {
 						el: field,
 						name: fixName(name),
-						value: new File([''], ''),
+						value: aib.tiny ? new File([''], '') : '',
 						type: 'application/octet-stream'
 					};
 
