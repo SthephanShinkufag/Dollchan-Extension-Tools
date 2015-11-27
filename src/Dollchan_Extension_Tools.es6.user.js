@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = '84d27b3';
+var commit = 'fabd06d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3243,7 +3243,7 @@ function getCfgCommon() {
 				'value': excludeList,
 				'placeholder': '4chan.org, 8ch.net, ...'}, {
 				'keyup'() {
-					setStored('DESU_Exclude', this.value);
+					setStored('DESU_Exclude', (excludeList = this.value));
 				}
 			}),
 			lBox('turnOff', true, function() {
@@ -11819,7 +11819,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			setTimeout(function() {
 				$del($id('updater'));
 			}, 0);
-			if(checkStorage() && locStorage['file_dragdrop'] !== 'false') {
+			if(locStorage['file_dragdrop'] !== 'false') {
 				locStorage['file_dragdrop'] = false;
 				window.location.reload();
 				return true;
@@ -12456,9 +12456,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			if(window.location.pathname === '/settings') {
-				if(!nav) {
-					initNavFuncs();
-				}
 				$q('input[type="button"]').addEventListener('click', function() {
 					spawn(readCfg).then(() => saveCfg('__hanarating', $id('rating').value));
 				});
@@ -12895,31 +12892,15 @@ function getImageBoard(checkDomains, checkEngines) {
 // INITIALIZATION
 // ===========================================================================================================
 
-function Initialization(checkDomains) {
-	if(!aib) {
-		aib = getImageBoard(checkDomains, true);
-	}
-	if(checkDomains && aib.earlyInit) {
-		if(!checkStorage()) {
-			return null;
-		}
-		if(aib.earlyInit()) {
+function Initialization(notInited) {
+	if(!Cfg.disabled) {
+		if(notInited && aib.earlyInit && aib.earlyInit()) {
 			window.location.reload();
 			return null;
 		}
-	}
-	if((aib.init && aib.init()) || $id('de-panel')) {
-		return null;
-	}
-	var formEl = $q(aib.qDForm + ', form[de-form]');
-	if(!formEl) {
-		return null;
-	}
-	if(!locStorage && !checkStorage()) {
-		return null;
-	}
-	if(!nav) {
-		initNavFuncs();
+		if((aib.init && aib.init()) || $id('de-panel')) {
+			return null;
+		}
 	}
 	addSVGIcons();
 	doc.defaultView.addEventListener('storage', function(e) {
@@ -13064,7 +13045,7 @@ function Initialization(checkDomains) {
 		});
 	}
 	dummy = doc.createElement('div');
-	return formEl;
+	return true;
 }
 
 function addSVGIcons() {
@@ -14378,36 +14359,49 @@ function updateCSS() {
 // MAIN
 // ===========================================================================================================
 
-function* initScript(checkDomains, readCfgPromise) {
-	docBody = doc.body;
+function* initScript(checkDomains, cfgPromise) {
 	Logger.init();
-	var formEl = Initialization(checkDomains);
+	docBody = doc.body;
+	if(!aib) {
+		aib = getImageBoard(checkDomains, true);
+	}
+	var formEl = $q(aib.qDForm + ', form[de-form]');
 	if(!formEl) {
 		return;
 	}
-	Logger.log('Init');
+	Logger.log('Imageboard check');
+	if(!locStorage) {
+		if(!checkStorage()) {
+			return;
+		}
+		initNavFuncs();
+	}
 	var str = yield* getStored('DESU_Exclude');
 	if(str && str.includes(aib.dm)) {
 		return;
 	}
 	excludeList = str || '';
 	if(!Cfg) {
-		if(readCfgPromise) {
-			yield readCfgPromise;
+		if(cfgPromise) {
+			yield cfgPromise;
 		} else {
 			yield* readCfg();
 		}
-		Logger.log('Config loading');
+	}
+	Logger.log('Config loading');
+	if(!Initialization(checkDomains)) {
+		return;
+	}
+	Logger.log('Init');
+	if(Cfg.disabled) {
+		panel.init(formEl);
+		scriptCSS();
+		return;
 	}
 	if(Cfg.correctTime) {
 		dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang,
 		                     rp => saveCfg('timeRPattern', rp));
 		Logger.log('Time correction');
-	}
-	if(Cfg.disabled) {
-		panel.init(formEl);
-		scriptCSS();
-		return;
 	}
 	$hide(docBody);
 	formEl = DelForm.doReplace(formEl);
@@ -14463,24 +14457,24 @@ if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 	needScroll = false;
 	async(initScript)(true, null);
 } else {
-	var cfgRead = null;
-	aib = getImageBoard(true, false);
-	if(aib) {
+	var cfgPromise = null;
+	if((aib = getImageBoard(true, false))) {
 		if(!checkStorage()) {
 			return;
 		}
-		if(aib.earlyInit) {
-			aib.earlyInit();
-		}
 		initNavFuncs();
-		cfgRead = spawn(readCfg);
+		cfgPromise = spawn(readCfg).then(() => {
+			if(!Cfg.disabled && aib.earlyInit) {
+				aib.earlyInit();
+			}
+		});
 	}
 	needScroll = true;
 	doc.addEventListener('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', function wFunc(e) {
 		needScroll = false;
 		doc.removeEventListener(e.type, wFunc);
 	});
-	doc.addEventListener('DOMContentLoaded', async(initScript.bind(null, false, cfgRead)));
+	doc.addEventListener('DOMContentLoaded', async(initScript.bind(null, false, cfgPromise)));
 }
 
 })(window.opera && window.opera.scriptStorage, window.FormData);

@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = '84d27b3';
+	var commit = 'fabd06d';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -6202,7 +6202,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'value': excludeList,
 			'placeholder': '4chan.org, 8ch.net, ...' }, {
 			'keyup': function keyup() {
-				setStored('DESU_Exclude', this.value);
+				setStored('DESU_Exclude', excludeList = this.value);
 			}
 		}), lBox('turnOff', true, function () {
 			spawn(getStoredObj, 'DESU_Config').then(function (val) {
@@ -16185,7 +16185,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					setTimeout(function () {
 						$del($id('updater'));
 					}, 0);
-					if (checkStorage() && locStorage['file_dragdrop'] !== 'false') {
+					if (locStorage['file_dragdrop'] !== 'false') {
 						locStorage['file_dragdrop'] = false;
 						window.location.reload();
 						return true;
@@ -17100,9 +17100,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				key: 'init',
 				value: function init() {
 					if (window.location.pathname === '/settings') {
-						if (!nav) {
-							initNavFuncs();
-						}
 						$q('input[type="button"]').addEventListener('click', function () {
 							spawn(readCfg).then(function () {
 								return saveCfg('__hanarating', $id('rating').value);
@@ -17717,31 +17714,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-	function Initialization(checkDomains) {
-		if (!aib) {
-			aib = getImageBoard(checkDomains, true);
-		}
-		if (checkDomains && aib.earlyInit) {
-			if (!checkStorage()) {
-				return null;
-			}
-			if (aib.earlyInit()) {
+	function Initialization(notInited) {
+		if (!Cfg.disabled) {
+			if (notInited && aib.earlyInit && aib.earlyInit()) {
 				window.location.reload();
 				return null;
 			}
-		}
-		if (aib.init && aib.init() || $id('de-panel')) {
-			return null;
-		}
-		var formEl = $q(aib.qDForm + ', form[de-form]');
-		if (!formEl) {
-			return null;
-		}
-		if (!locStorage && !checkStorage()) {
-			return null;
-		}
-		if (!nav) {
-			initNavFuncs();
+			if (aib.init && aib.init() || $id('de-panel')) {
+				return null;
+			}
 		}
 		addSVGIcons();
 		doc.defaultView.addEventListener('storage', function (e) {
@@ -17893,7 +17874,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 		}
 		dummy = doc.createElement('div');
-		return formEl;
+		return true;
 	}
 
 	function addSVGIcons() {
@@ -19017,30 +18998,34 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-	function initScript(checkDomains, readCfgPromise) {
+	function initScript(checkDomains, cfgPromise) {
 		var formEl, str;
 		return regeneratorRuntime.wrap(function initScript$(_context19) {
 			while (1) switch (_context19.prev = _context19.next) {
 				case 0:
-					docBody = doc.body;
 					Logger.init();
-					formEl = Initialization(checkDomains);
+					docBody = doc.body;
+					if (!aib) {
+						aib = getImageBoard(checkDomains, true);
+					}
+					formEl = $q(aib.qDForm + ', form[de-form]');
 
 					if (formEl) {
-						_context19.next = 5;
+						_context19.next = 6;
 						break;
 					}
 
 					return _context19.abrupt('return');
 
-				case 5:
-					Logger.log('Init');
-					return _context19.delegateYield(getStored('DESU_Exclude'), 't0', 7);
+				case 6:
+					Logger.log('Imageboard check');
 
-				case 7:
-					str = _context19.t0;
+					if (locStorage) {
+						_context19.next = 11;
+						break;
+					}
 
-					if (!(str && str.includes(aib.dm))) {
+					if (checkStorage()) {
 						_context19.next = 10;
 						break;
 					}
@@ -19048,41 +19033,59 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return _context19.abrupt('return');
 
 				case 10:
+					initNavFuncs();
+
+				case 11:
+					return _context19.delegateYield(getStored('DESU_Exclude'), 't0', 12);
+
+				case 12:
+					str = _context19.t0;
+
+					if (!(str && str.includes(aib.dm))) {
+						_context19.next = 15;
+						break;
+					}
+
+					return _context19.abrupt('return');
+
+				case 15:
 					excludeList = str || '';
 
 					if (Cfg) {
-						_context19.next = 19;
+						_context19.next = 23;
 						break;
 					}
 
-					if (!readCfgPromise) {
-						_context19.next = 17;
+					if (!cfgPromise) {
+						_context19.next = 22;
 						break;
 					}
 
-					_context19.next = 15;
-					return readCfgPromise;
+					_context19.next = 20;
+					return cfgPromise;
 
-				case 15:
-					_context19.next = 18;
+				case 20:
+					_context19.next = 23;
 					break;
 
-				case 17:
-					return _context19.delegateYield(readCfg(), 't1', 18);
+				case 22:
+					return _context19.delegateYield(readCfg(), 't1', 23);
 
-				case 18:
+				case 23:
 					Logger.log('Config loading');
 
-				case 19:
-					if (Cfg.correctTime) {
-						dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, function (rp) {
-							return saveCfg('timeRPattern', rp);
-						});
-						Logger.log('Time correction');
+					if (Initialization(checkDomains)) {
+						_context19.next = 26;
+						break;
 					}
 
+					return _context19.abrupt('return');
+
+				case 26:
+					Logger.log('Init');
+
 					if (!Cfg.disabled) {
-						_context19.next = 24;
+						_context19.next = 31;
 						break;
 					}
 
@@ -19090,27 +19093,33 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					scriptCSS();
 					return _context19.abrupt('return');
 
-				case 24:
+				case 31:
+					if (Cfg.correctTime) {
+						dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, function (rp) {
+							return saveCfg('timeRPattern', rp);
+						});
+						Logger.log('Time correction');
+					}
 					$hide(docBody);
 					formEl = DelForm.doReplace(formEl);
 					Logger.log('Replace delform');
 					pByEl = new Map();
 					pByNum = new Map();
-					_context19.prev = 29;
+					_context19.prev = 37;
 
 					DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
-					_context19.next = 38;
+					_context19.next = 46;
 					break;
 
-				case 33:
-					_context19.prev = 33;
-					_context19.t2 = _context19['catch'](29);
+				case 41:
+					_context19.prev = 41;
+					_context19.t2 = _context19['catch'](37);
 
 					console.log('DELFORM ERROR:\n' + getErrorMessage(_context19.t2));
 					$show(docBody);
 					return _context19.abrupt('return');
 
-				case 38:
+				case 46:
 					Logger.log('Parse delform');
 					pr = new PostForm($q(aib.qForm), false, doc);
 					Logger.log('Parse postform');
@@ -19122,9 +19131,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					Logger.log('Init page');
 					panel.init(formEl);
 					Logger.log('Add panel');
-					return _context19.delegateYield(readMyPosts(), 't3', 47);
+					return _context19.delegateYield(readMyPosts(), 't3', 55);
 
-				case 47:
+				case 55:
 					Logger.log('Read my posts');
 					DelForm.first.addStuff();
 					readViewedPosts();
@@ -19134,19 +19143,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					Logger.log('Display page');
 					toggleInfinityScroll();
 					Logger.log('Infinity scroll');
-					return _context19.delegateYield(readPostsData(DelForm.first.firstThr.op), 't4', 57);
+					return _context19.delegateYield(readPostsData(DelForm.first.firstThr.op), 't4', 65);
 
-				case 57:
+				case 65:
 					Logger.log('Hide posts');
 					scrollPage();
 					Logger.log('Scroll page');
 					Logger.finish();
 
-				case 61:
+				case 69:
 				case 'end':
 					return _context19.stop();
 			}
-		}, _marked[7], this, [[29, 33]]);
+		}, _marked[7], this, [[37, 41]]);
 	}
 
 	if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
@@ -19166,24 +19175,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		needScroll = false;
 		async(initScript)(true, null);
 	} else {
-		var cfgRead = null;
-		aib = getImageBoard(true, false);
-		if (aib) {
+		var cfgPromise = null;
+		if (aib = getImageBoard(true, false)) {
 			if (!checkStorage()) {
 				return;
 			}
-			if (aib.earlyInit) {
-				aib.earlyInit();
-			}
 			initNavFuncs();
-			cfgRead = spawn(readCfg);
+			cfgPromise = spawn(readCfg).then(function () {
+				if (!Cfg.disabled && aib.earlyInit) {
+					aib.earlyInit();
+				}
+			});
 		}
 		needScroll = true;
 		doc.addEventListener('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', function wFunc(e) {
 			needScroll = false;
 			doc.removeEventListener(e.type, wFunc);
 		});
-		doc.addEventListener('DOMContentLoaded', async(initScript.bind(null, false, cfgRead)));
+		doc.addEventListener('DOMContentLoaded', async(initScript.bind(null, false, cfgPromise)));
 	}
 })(window.opera && window.opera.scriptStorage, window.FormData);
 
