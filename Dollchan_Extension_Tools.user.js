@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = 'c3a7603';
+	var commit = 'e320904';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11441,11 +11441,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 
 				case 33:
-					if (!nav.hasFile && value instanceof Blob) {
-						formData.append(name, value, value.size === 0 ? '' : value.name);
-					} else {
-						formData.append(name, value);
-					}
+					formData.append(name, value);
 
 				case 34:
 					_context17.next = 3;
@@ -15351,10 +15347,27 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return setTimeout(fn, 0);
 			};
 		}
-		var hasFile = true;
 		try {
 			new File([''], '');
 		} catch (e) {
+			var origFormData = FormData;
+			var origAppend = FormData.prototype.append;
+			FormData = function FormData() {
+				for (var _len6 = arguments.length, args = Array(_len6), _key5 = 0; _key5 < _len6; _key5++) {
+					args[_key5] = arguments[_key5];
+				}
+
+				var rv = new (Function.prototype.bind.apply(origFormData, [null].concat(args)))();
+				rv.append = function append(name, value) {
+					var fileName = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+
+					if (value instanceof Blob && 'name' in value && fileName === null) {
+						return origAppend.call(this, name, value, value.name);
+					}
+					return origAppend.apply(this, arguments);
+				};
+				return rv;
+			};
 			window.File = function File(arr, name) {
 				var rv = new Blob(arr);
 				rv.name = name;
@@ -15363,7 +15376,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return rv;
 			};
 			File.prototype = new Blob();
-			hasFile = false;
 		}
 		if ('toJSON' in aProto) {
 			delete aProto.toJSON;
@@ -15397,7 +15409,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			isScriptStorage: isScriptStorage,
 			isGlobal: isGM || isChromeStorage || isScriptStorage,
 			scriptInstall: firefox ? typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish' : isChromeStorage ? 'Chrome extension' : isGM ? 'Monkey' : 'Native userscript',
-			hasFile: hasFile,
 			cssFix: webkit ? '-webkit-' : '',
 			animName: webkit ? 'webkitAnimationName' : 'animationName',
 			animEnd: webkit ? 'webkitAnimationEnd' : 'animationend',
@@ -15409,8 +15420,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 			},
 			cssMatches: function cssMatches(leftSel) {
-				for (var _len6 = arguments.length, rules = Array(_len6 > 1 ? _len6 - 1 : 0), _key5 = 1; _key5 < _len6; _key5++) {
-					rules[_key5 - 1] = arguments[_key5];
+				for (var _len7 = arguments.length, rules = Array(_len7 > 1 ? _len7 - 1 : 0), _key6 = 1; _key6 < _len7; _key6++) {
+					rules[_key6 - 1] = arguments[_key6];
 				}
 
 				if (this.Presto) {
