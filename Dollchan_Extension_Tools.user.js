@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = 'e38a54f';
+	var commit = '12c22fa';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4211,7 +4211,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return {
 						el: field,
 						name: fixName(name),
-						value: aib.tiny ? new File([''], '') : '',
+						value: nav.hasFile ? new File([''], '') : '',
 						type: 'application/octet-stream'
 					};
 
@@ -15347,6 +15347,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return setTimeout(fn, 0);
 			};
 		}
+		var hasFile = true;
 		try {
 			new File([''], '');
 		} catch (e) {
@@ -15367,6 +15368,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				return origAppend.apply(this, arguments);
 			};
+			hasFile = false;
 		}
 		if ('toJSON' in aProto) {
 			delete aProto.toJSON;
@@ -15400,6 +15402,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			isScriptStorage: isScriptStorage,
 			isGlobal: isGM || isChromeStorage || isScriptStorage,
 			scriptInstall: firefox ? typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish' : isChromeStorage ? 'Chrome extension' : isGM ? 'Monkey' : 'Native userscript',
+			hasFile: hasFile,
 			cssFix: webkit ? '-webkit-' : '',
 			animName: webkit ? 'webkitAnimationName' : 'animationName',
 			animEnd: webkit ? 'webkitAnimationEnd' : 'animationend',

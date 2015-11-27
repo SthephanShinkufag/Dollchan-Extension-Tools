@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = 'e38a54f';
+var commit = '12c22fa';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1315,7 +1315,7 @@ function* getFormElements(form, submitter) {
 					yield {
 						el: field,
 						name: fixName(name),
-						value: (aib.tiny ? new File([''], '') : ''),
+						value: (nav.hasFile ? new File([''], '') : ''),
 						type: 'application/octet-stream'
 					};
 				}
@@ -11147,6 +11147,7 @@ function initNavFuncs() {
 	if(!('requestAnimationFrame' in window)) { // XXX: nav.Presto
 		window.requestAnimationFrame = (fn) => setTimeout(fn, 0);
 	}
+	var hasFile = true;
 	try {
 		new File([''], '');
 	} catch(e) {
@@ -11165,6 +11166,7 @@ function initNavFuncs() {
 			}
 			return origAppend.apply(this, arguments);
 		};
+		hasFile = false;
 	}
 	if('toJSON' in aProto) {
 		delete aProto.toJSON;
@@ -11199,6 +11201,7 @@ function initNavFuncs() {
 		scriptInstall: (firefox ? (typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish') :
 			isChromeStorage ? 'Chrome extension' :
 			isGM ? 'Monkey' : 'Native userscript'),
+		hasFile: hasFile,
 		cssFix: webkit ? '-webkit-' : '',
 		animName: webkit ? 'webkitAnimationName' : 'animationName',
 		animEnd: webkit ? 'webkitAnimationEnd' : 'animationend',
