@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = 'fabd06d';
+var commit = '05c8d17';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11944,9 +11944,10 @@ function getImageBoard(checkDomains, checkEngines) {
 
 	// Domains
 	class _0chanSo extends _0chan {
-		earlyInit() {
+		init() {
 			if(this.host !== 'www.0-chan.ru') {
 				window.location.hostname = 'www.0-chan.ru';
+				return true;
 			}
 			return false;
 		}
@@ -12263,27 +12264,13 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
-			this._capExtra = null; // _8chNet hack
-			this._capUrl = null; // _8chNet hack
 			this._capUpdPromise = null;
 		}
 		get css() {
 			return super.css + '#post-moderation-fields { display: initial !important; }';
 		}
-		earlyInit() {
-			$script('Object.defineProperty(window, "load_captcha", { get: function() { return function() {}; }, set: function() {} });');
-			return false;
-		}
 		initCaptcha(cap) {
-			var td = $q('td', cap.trEl);
-			var sm = $q('script', td).textContent.match(/load_captcha\("([^"]+)", *"([^"]+)"\)/);
-			if(sm) {
-				this._capUrl = sm[1].replace(/^https?:/, '');
-				this._capExtra = sm[2];
-			} else {
-				return Promise.reject();
-			}
-			td.innerHTML = `
+			$q('td', cap.trEl).innerHTML = `
 			<input placeholder="{ Lng.cap[lang] }" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="6" autocomplete="off">
 			<input class="captcha_cookie" name="captcha_cookie" type="hidden">
 			<div class="captcha_html"></div>`;
@@ -12294,7 +12281,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(this._capUpdPromise) {
 				this._capUpdPromise.cancel();
 			}
-			return this._capUpdPromise = $ajax(this._capUrl + '?mode=get&extra=' + this._capExtra).then(xhr => {
+			return this._capUpdPromise = $ajax('/8chan-captcha/entrypoint.php?mode=get&extra=abcdefghijklmnopqrstuvwxyz').then(xhr => {
 				this._capUpdPromise = null;
 				var resp = JSON.parse(xhr.responseText);
 				$q('.captcha_cookie', cap.trEl).value = resp.cookie;
@@ -12825,15 +12812,13 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'];
 		}
-		earlyInit() {
+		init() {
 			var val = '{"simpleNavbar":true,"showInfo":true}';
 			if(locStorage['settings'] !== val) {
 				locStorage['settings'] = val;
+				window.location.reload();
 				return true;
 			}
-			return false;
-		}
-		init() {
 			super.init();
 			defaultCfg.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
 			defaultCfg.timeOffset = 4;
@@ -12892,17 +12877,7 @@ function getImageBoard(checkDomains, checkEngines) {
 // INITIALIZATION
 // ===========================================================================================================
 
-function Initialization(notInited) {
-	if(!Cfg.disabled) {
-		if(notInited && aib.earlyInit && aib.earlyInit()) {
-			window.location.reload();
-			return null;
-		}
-		if((aib.init && aib.init()) || $id('de-panel')) {
-			return null;
-		}
-	}
-	addSVGIcons();
+function initStorageEvent() {
 	doc.defaultView.addEventListener('storage', function(e) {
 		var data, temp, post, val = e.newValue;
 		if(!val) {
@@ -13012,7 +12987,9 @@ function Initialization(notInited) {
 		default: return;
 		}
 	});
+}
 
+function parseURL() {
 	var url;
 	if(localRun) {
 		url = window.location.pathname.match(/\/[^-]+-([^-]+)-([^\.]+)\.[a-z]+$/);
@@ -13995,9 +13972,36 @@ function scriptCSS() {
 		return id + ' { background-image: url(data:image/gif;base64,' + src + '); background-repeat: no-repeat; background-position: center; }';
 	}
 
+	// Main panel
+	var p, x = '#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\
+	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\
+	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\
+	#de-panel-buttons:lang(en), #de-panel-info:lang(en) { border-color: #8fbbed; }\
+	#de-panel-buttons:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
+	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; color: inherit !important; }\
+	.de-panel-button:hover { color: inherit !important; }\
+	.de-panel-button:lang(fr):hover, .de-panel-button:lang(en):hover, .de-panel-button:lang(es):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
+	.de-panel-svg, #de-panel-logo, .de-panel-logo-svg, .de-panel-button { width: 25px; height: 25px; }\
+	.de-panel-svg:lang(de):hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }\
+	#de-panel-goback { transform: rotate(180deg); }\
+	#de-panel-godown { transform: rotate(90deg); }\
+	#de-panel-goup { transform: rotate(-90deg); }\
+	#de-panel-upd-on { fill: #32ff32; }\
+	#de-panel-upd-warn { fill: #fff441; }\
+	#de-panel-upd-off { fill: #ff3232; }\
+	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }\
+	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }\
+	.de-svg-back { fill: inherit; stroke: none; }\
+	.de-svg-stroke { stroke: currentColor; fill: none; }\
+	.de-svg-fill { stroke: none; fill: currentColor; }';
+
+	if(Cfg.disabled) {
+		$css(x).id = 'de-css';
+		return;
+	}
+
 	// Windows
-	var p, x = '\
-	.de-win .de-btn-toggle { transform: rotate(180deg); }\
+	x += '.de-win .de-btn-toggle { transform: rotate(180deg); }\
 	.de-resizer { position: absolute; }\
 	.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\
 	.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\
@@ -14058,36 +14062,8 @@ function scriptCSS() {
 	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\
 	#de-spell-rowmeter:lang(de) { background-color: #777; }' +
 
-	// Main panel
-	'#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\
-	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\
-	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\
-	#de-panel-buttons:lang(en), #de-panel-info:lang(en) { border-color: #8fbbed; }\
-	#de-panel-buttons:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
-	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; color: inherit !important; }\
-	.de-panel-button:hover { color: inherit !important; }\
-	.de-panel-button:lang(fr):hover, .de-panel-button:lang(en):hover, .de-panel-button:lang(es):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
-	.de-panel-svg, #de-panel-logo, .de-panel-logo-svg, .de-panel-button { width: 25px; height: 25px; }\
-	.de-panel-svg:lang(de):hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }\
-	#de-panel-goback { transform: rotate(180deg); }\
-	#de-panel-godown { transform: rotate(90deg); }\
-	#de-panel-goup { transform: rotate(-90deg); }\
-	#de-panel-upd-on { fill: #32ff32; }\
-	#de-panel-upd-warn { fill: #fff441; }\
-	#de-panel-upd-off { fill: #ff3232; }\
-	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }\
-	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }\
-	.de-svg-back { fill: inherit; stroke: none; }\
-	.de-svg-stroke { stroke: currentColor; fill: none; }\
-	.de-svg-fill { stroke: none; fill: currentColor; }';
-
-	if(Cfg.disabled) {
-		$css(x).id = 'de-css';
-		return;
-	}
-
 	// Post panel
-	x += '.de-post-btns { margin-left: 4px; }\
+	'.de-post-btns { margin-left: 4px; }\
 	.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
 	.de-thread-note { font-style: italic; }\
 	.de-btn-hide > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\
@@ -14389,15 +14365,18 @@ function* initScript(checkDomains, cfgPromise) {
 		}
 	}
 	Logger.log('Config loading');
-	if(!Initialization(checkDomains)) {
+	if(!Cfg.disabled && ((aib.init && aib.init()) || $id('de-panel'))) {
 		return;
 	}
-	Logger.log('Init');
+	addSVGIcons();
 	if(Cfg.disabled) {
 		panel.init(formEl);
 		scriptCSS();
 		return;
 	}
+	initStorageEvent();
+	parseURL();
+	Logger.log('Init');
 	if(Cfg.correctTime) {
 		dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang,
 		                     rp => saveCfg('timeRPattern', rp));
@@ -14463,11 +14442,7 @@ if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 			return;
 		}
 		initNavFuncs();
-		cfgPromise = spawn(readCfg).then(() => {
-			if(!Cfg.disabled && aib.earlyInit) {
-				aib.earlyInit();
-			}
-		});
+		cfgPromise = spawn(readCfg);
 	}
 	needScroll = true;
 	doc.addEventListener('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', function wFunc(e) {

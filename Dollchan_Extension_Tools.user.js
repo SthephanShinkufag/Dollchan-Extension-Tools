@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, initScript].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = 'fabd06d';
+	var commit = '05c8d17';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -16378,10 +16378,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			_createClass(_0chanSo, [{
-				key: 'earlyInit',
-				value: function earlyInit() {
+				key: 'init',
+				value: function init() {
 					if (this.host !== 'www.0-chan.ru') {
 						window.location.hostname = 'www.0-chan.ru';
+						return true;
 					}
 					return false;
 				}
@@ -16825,30 +16826,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				var _this63 = _possibleConstructorReturn(this, Object.getPrototypeOf(_8chNet).call(this, prot, dm));
 
-				_this63._capExtra = null;
-				_this63._capUrl = null;
 				_this63._capUpdPromise = null;
 				return _this63;
 			}
 
 			_createClass(_8chNet, [{
-				key: 'earlyInit',
-				value: function earlyInit() {
-					$script('Object.defineProperty(window, "load_captcha", { get: function() { return function() {}; }, set: function() {} });');
-					return false;
-				}
-			}, {
 				key: 'initCaptcha',
 				value: function initCaptcha(cap) {
-					var td = $q('td', cap.trEl);
-					var sm = $q('script', td).textContent.match(/load_captcha\("([^"]+)", *"([^"]+)"\)/);
-					if (sm) {
-						this._capUrl = sm[1].replace(/^https?:/, '');
-						this._capExtra = sm[2];
-					} else {
-						return Promise.reject();
-					}
-					td.innerHTML = '\n\t\t\t<input placeholder="{ Lng.cap[lang] }" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="6" autocomplete="off">\n\t\t\t<input class="captcha_cookie" name="captcha_cookie" type="hidden">\n\t\t\t<div class="captcha_html"></div>';
+					$q('td', cap.trEl).innerHTML = '\n\t\t\t<input placeholder="{ Lng.cap[lang] }" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="6" autocomplete="off">\n\t\t\t<input class="captcha_cookie" name="captcha_cookie" type="hidden">\n\t\t\t<div class="captcha_html"></div>';
 					cap.textEl = $q('.captcha_text', cap.trEl);
 					return this.updateCaptcha(cap, true);
 				}
@@ -16860,7 +16845,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (this._capUpdPromise) {
 						this._capUpdPromise.cancel();
 					}
-					return this._capUpdPromise = $ajax(this._capUrl + '?mode=get&extra=' + this._capExtra).then(function (xhr) {
+					return this._capUpdPromise = $ajax('/8chan-captcha/entrypoint.php?mode=get&extra=abcdefghijklmnopqrstuvwxyz').then(function (xhr) {
 						_this64._capUpdPromise = null;
 						var resp = JSON.parse(xhr.responseText);
 						$q('.captcha_cookie', cap.trEl).value = resp.cookie;
@@ -17617,18 +17602,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			_createClass(Synch, [{
-				key: 'earlyInit',
-				value: function earlyInit() {
+				key: 'init',
+				value: function init() {
 					var val = '{"simpleNavbar":true,"showInfo":true}';
 					if (locStorage['settings'] !== val) {
 						locStorage['settings'] = val;
+						window.location.reload();
 						return true;
 					}
-					return false;
-				}
-			}, {
-				key: 'init',
-				value: function init() {
 					_get(Object.getPrototypeOf(Synch.prototype), 'init', this).call(this);
 					defaultCfg.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
 					defaultCfg.timeOffset = 4;
@@ -17714,17 +17695,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-	function Initialization(notInited) {
-		if (!Cfg.disabled) {
-			if (notInited && aib.earlyInit && aib.earlyInit()) {
-				window.location.reload();
-				return null;
-			}
-			if (aib.init && aib.init() || $id('de-panel')) {
-				return null;
-			}
-		}
-		addSVGIcons();
+	function initStorageEvent() {
 		doc.defaultView.addEventListener('storage', function (e) {
 			var data,
 			    temp,
@@ -17841,7 +17812,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return;
 			}
 		});
+	}
 
+	function parseURL() {
 		var url;
 		if (localRun) {
 			url = window.location.pathname.match(/\/[^-]+-([^-]+)-([^\.]+)\.[a-z]+$/);
@@ -18723,8 +18696,35 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	
 		var p,
-		    x = '\
-	.de-win .de-btn-toggle { transform: rotate(180deg); }\
+		    x = '#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\
+	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\
+	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\
+	#de-panel-buttons:lang(en), #de-panel-info:lang(en) { border-color: #8fbbed; }\
+	#de-panel-buttons:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
+	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; color: inherit !important; }\
+	.de-panel-button:hover { color: inherit !important; }\
+	.de-panel-button:lang(fr):hover, .de-panel-button:lang(en):hover, .de-panel-button:lang(es):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
+	.de-panel-svg, #de-panel-logo, .de-panel-logo-svg, .de-panel-button { width: 25px; height: 25px; }\
+	.de-panel-svg:lang(de):hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }\
+	#de-panel-goback { transform: rotate(180deg); }\
+	#de-panel-godown { transform: rotate(90deg); }\
+	#de-panel-goup { transform: rotate(-90deg); }\
+	#de-panel-upd-on { fill: #32ff32; }\
+	#de-panel-upd-warn { fill: #fff441; }\
+	#de-panel-upd-off { fill: #ff3232; }\
+	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }\
+	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }\
+	.de-svg-back { fill: inherit; stroke: none; }\
+	.de-svg-stroke { stroke: currentColor; fill: none; }\
+	.de-svg-fill { stroke: none; fill: currentColor; }';
+
+		if (Cfg.disabled) {
+			$css(x).id = 'de-css';
+			return;
+		}
+
+	
+		x += '.de-win .de-btn-toggle { transform: rotate(180deg); }\
 	.de-resizer { position: absolute; }\
 	.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\
 	.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\
@@ -18786,35 +18786,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	#de-spell-rowmeter:lang(de) { background-color: #777; }' +
 
 	
-		'#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\
-	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\
-	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\
-	#de-panel-buttons:lang(en), #de-panel-info:lang(en) { border-color: #8fbbed; }\
-	#de-panel-buttons:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
-	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; color: inherit !important; }\
-	.de-panel-button:hover { color: inherit !important; }\
-	.de-panel-button:lang(fr):hover, .de-panel-button:lang(en):hover, .de-panel-button:lang(es):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
-	.de-panel-svg, #de-panel-logo, .de-panel-logo-svg, .de-panel-button { width: 25px; height: 25px; }\
-	.de-panel-svg:lang(de):hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }\
-	#de-panel-goback { transform: rotate(180deg); }\
-	#de-panel-godown { transform: rotate(90deg); }\
-	#de-panel-goup { transform: rotate(-90deg); }\
-	#de-panel-upd-on { fill: #32ff32; }\
-	#de-panel-upd-warn { fill: #fff441; }\
-	#de-panel-upd-off { fill: #ff3232; }\
-	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }\
-	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }\
-	.de-svg-back { fill: inherit; stroke: none; }\
-	.de-svg-stroke { stroke: currentColor; fill: none; }\
-	.de-svg-fill { stroke: none; fill: currentColor; }';
-
-		if (Cfg.disabled) {
-			$css(x).id = 'de-css';
-			return;
-		}
-
-	
-		x += '.de-post-btns { margin-left: 4px; }\
+		'.de-post-btns { margin-left: 4px; }\
 	.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
 	.de-thread-note { font-style: italic; }\
 	.de-btn-hide > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\
@@ -19074,7 +19046,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				case 23:
 					Logger.log('Config loading');
 
-					if (Initialization(checkDomains)) {
+					if (!(!Cfg.disabled && (aib.init && aib.init() || $id('de-panel')))) {
 						_context19.next = 26;
 						break;
 					}
@@ -19082,7 +19054,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return _context19.abrupt('return');
 
 				case 26:
-					Logger.log('Init');
+					addSVGIcons();
 
 					if (!Cfg.disabled) {
 						_context19.next = 31;
@@ -19094,6 +19066,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return _context19.abrupt('return');
 
 				case 31:
+					initStorageEvent();
+					parseURL();
+					Logger.log('Init');
 					if (Cfg.correctTime) {
 						dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, function (rp) {
 							return saveCfg('timeRPattern', rp);
@@ -19105,21 +19080,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					Logger.log('Replace delform');
 					pByEl = new Map();
 					pByNum = new Map();
-					_context19.prev = 37;
+					_context19.prev = 40;
 
 					DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
-					_context19.next = 46;
+					_context19.next = 49;
 					break;
 
-				case 41:
-					_context19.prev = 41;
-					_context19.t2 = _context19['catch'](37);
+				case 44:
+					_context19.prev = 44;
+					_context19.t2 = _context19['catch'](40);
 
 					console.log('DELFORM ERROR:\n' + getErrorMessage(_context19.t2));
 					$show(docBody);
 					return _context19.abrupt('return');
 
-				case 46:
+				case 49:
 					Logger.log('Parse delform');
 					pr = new PostForm($q(aib.qForm), false, doc);
 					Logger.log('Parse postform');
@@ -19131,9 +19106,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					Logger.log('Init page');
 					panel.init(formEl);
 					Logger.log('Add panel');
-					return _context19.delegateYield(readMyPosts(), 't3', 55);
+					return _context19.delegateYield(readMyPosts(), 't3', 58);
 
-				case 55:
+				case 58:
 					Logger.log('Read my posts');
 					DelForm.first.addStuff();
 					readViewedPosts();
@@ -19143,19 +19118,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					Logger.log('Display page');
 					toggleInfinityScroll();
 					Logger.log('Infinity scroll');
-					return _context19.delegateYield(readPostsData(DelForm.first.firstThr.op), 't4', 65);
+					return _context19.delegateYield(readPostsData(DelForm.first.firstThr.op), 't4', 68);
 
-				case 65:
+				case 68:
 					Logger.log('Hide posts');
 					scrollPage();
 					Logger.log('Scroll page');
 					Logger.finish();
 
-				case 69:
+				case 72:
 				case 'end':
 					return _context19.stop();
 			}
-		}, _marked[7], this, [[37, 41]]);
+		}, _marked[7], this, [[40, 44]]);
 	}
 
 	if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
@@ -19181,11 +19156,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return;
 			}
 			initNavFuncs();
-			cfgPromise = spawn(readCfg).then(function () {
-				if (!Cfg.disabled && aib.earlyInit) {
-					aib.earlyInit();
-				}
-			});
+			cfgPromise = spawn(readCfg);
 		}
 		needScroll = true;
 		doc.addEventListener('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', function wFunc(e) {
