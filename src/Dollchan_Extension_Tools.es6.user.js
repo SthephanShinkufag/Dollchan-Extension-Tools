@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = 'fae29a9';
+var commit = 'c3a7603';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7857,7 +7857,7 @@ function* html5Submit(form, submitter, needProgress = false) {
 				value = new File([value], newFileName);
 			}
 		}
-		if(value instanceof Blob) {
+		if(!nav.hasFile && value instanceof Blob) {
 			formData.append(name, value, value.size === 0 ? '' : value.name);
 		} else {
 			formData.append(name, value);

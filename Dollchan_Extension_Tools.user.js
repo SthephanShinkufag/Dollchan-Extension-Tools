@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = 'fae29a9';
+	var commit = 'c3a7603';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11441,7 +11441,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 
 				case 33:
-					if (value instanceof Blob) {
+					if (!nav.hasFile && value instanceof Blob) {
 						formData.append(name, value, value.size === 0 ? '' : value.name);
 					} else {
 						formData.append(name, value);
