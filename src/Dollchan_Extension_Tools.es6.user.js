@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = '12c22fa';
+var commit = 'fae29a9';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1315,7 +1315,7 @@ function* getFormElements(form, submitter) {
 					yield {
 						el: field,
 						name: fixName(name),
-						value: (nav.hasFile ? new File([''], '') : ''),
+						value: new File([''], ''),
 						type: 'application/octet-stream'
 					};
 				}
@@ -7857,7 +7857,11 @@ function* html5Submit(form, submitter, needProgress = false) {
 				value = new File([value], newFileName);
 			}
 		}
-		formData.append(name, value);
+		if(value instanceof Blob) {
+			formData.append(name, value, value.size === 0 ? '' : value.name);
+		} else {
+			formData.append(name, value);
+		}
 	}
 	if(needProgress) {
 		var lastFuncs = null,
@@ -11159,13 +11163,6 @@ function initNavFuncs() {
 			return rv;
 		};
 		File.prototype = new Blob;
-		var origAppend = FormData.prototype.append;
-		FormData.prototype.append = function append(name, value, fileName = null) {
-			if((value instanceof Blob) && ('name' in value) && fileName === null) {
-				return origAppend.call(this, name, value, value.name);
-			}
-			return origAppend.apply(this, arguments);
-		};
 		hasFile = false;
 	}
 	if('toJSON' in aProto) {

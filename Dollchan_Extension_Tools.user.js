@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = '12c22fa';
+	var commit = 'fae29a9';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4211,7 +4211,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return {
 						el: field,
 						name: fixName(name),
-						value: nav.hasFile ? new File([''], '') : '',
+						value: new File([''], ''),
 						type: 'application/octet-stream'
 					};
 
@@ -11441,7 +11441,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 
 				case 33:
-					formData.append(name, value);
+					if (value instanceof Blob) {
+						formData.append(name, value, value.size === 0 ? '' : value.name);
+					} else {
+						formData.append(name, value);
+					}
 
 				case 34:
 					_context17.next = 3;
@@ -15359,15 +15363,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return rv;
 			};
 			File.prototype = new Blob();
-			var origAppend = FormData.prototype.append;
-			FormData.prototype.append = function append(name, value) {
-				var fileName = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
-
-				if (value instanceof Blob && 'name' in value && fileName === null) {
-					return origAppend.call(this, name, value, value.name);
-				}
-				return origAppend.apply(this, arguments);
-			};
 			hasFile = false;
 		}
 		if ('toJSON' in aProto) {
