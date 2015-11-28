@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = 'eb64809';
+var commit = '9403882';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5421,6 +5421,7 @@ var Spells = Object.create({
 			var idx, scope = aib.t ? [aib.b, aib.t] : null,
 				sScope = String(scope),
 				sArg = String(arg);
+			var isAdded = true;
 			if(spells[1]) {
 				spells[1].some(scope && isNeg ? function(spell, i) {
 					var data;
@@ -5442,24 +5443,30 @@ var Spells = Object.create({
 			} else {
 				spells[1] = [];
 			}
-			if(typeof idx !== 'undefined') {
+			if(typeof idx === 'undefined') {
+				if(scope && isNeg) {
+					spells[1].unshift([0xFF, [[0x20C, '', scope], [type, arg, void 0]], void 0]);
+				} else {
+					spells[1].unshift([type, arg, scope]);
+				}
+			} else if(Cfg.hideBySpell) {
 				if(spells[1].length === 1) {
 					spells[1] = null;
 				} else {
 					spells[1].splice(idx, 1);
 				}
-			} else if(scope && isNeg) {
-				spells[1].splice(0, 0, [0xFF, [[0x20C, '', scope], [type, arg, void 0]], void 0]);
-			} else {
-				spells[1].splice(0, 0, [type, arg, scope]);
+				isAdded = false;
 			}
-			var enabled = this.hiders || this.reps || this.outreps;
-			saveCfg('hideBySpell', enabled);
+			if(isAdded) {
+				saveCfg('hideBySpell', true);
+			}
 			saveCfg('spells', JSON.stringify(spells));
 			this.setSpells(spells, true);
 			if(fld) {
 				fld.value = this.list;
-				chk.checked = enabled;
+				if(isAdded) {
+					chk.checked = true;
+				}
 			}
 			Pview.updatePosition(true);
 			return;
