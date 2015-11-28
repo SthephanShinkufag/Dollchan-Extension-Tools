@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = '8e8354d';
+var commit = '7557e97';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -616,12 +616,10 @@ nativeXHRworks = true;
 // ===========================================================================================================
 
 function $Q(path, root = docBody) {
-	console.log(path);
 	return root.querySelectorAll(path);
 }
 
 function $q(path, root = docBody) {
-	console.log(path);
 	return root.querySelector(path);
 }
 

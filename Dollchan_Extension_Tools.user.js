@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = '8e8354d';
+	var commit = '7557e97';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3362,14 +3362,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function $Q(path) {
 		var root = arguments.length <= 1 || arguments[1] === undefined ? docBody : arguments[1];
 
-		console.log(path);
 		return root.querySelectorAll(path);
 	}
 
 	function $q(path) {
 		var root = arguments.length <= 1 || arguments[1] === undefined ? docBody : arguments[1];
 
-		console.log(path);
 		return root.querySelector(path);
 	}
 
