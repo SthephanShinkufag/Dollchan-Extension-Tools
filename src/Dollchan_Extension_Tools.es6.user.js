@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = 'f3dcf6a';
+var commit = '0547489';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5413,7 +5413,6 @@ var Spells = Object.create({
 			chk = $q('input[info="hideBySpell"]'),
 			spells = val && this.parseText(val);
 		if(!val || spells) {
-			this.unhide();
 			if(!spells) {
 				try {
 					spells = JSON.parse(Cfg.spells);
@@ -5455,10 +5454,10 @@ var Spells = Object.create({
 			} else {
 				spells[1].splice(0, 0, [type, arg, scope]);
 			}
-			this.setSpells(spells, true);
 			var enabled = this.hiders || this.reps || this.outreps;
 			saveCfg('hideBySpell', enabled);
 			saveCfg('spells', JSON.stringify(spells));
+			this.setSpells(spells, true);
 			if(fld) {
 				fld.value = this.list;
 				chk.checked = enabled;
@@ -5531,6 +5530,8 @@ var Spells = Object.create({
 		}
 	},
 	disable() {
+		this.unhide();
+		closePopup('err-spell');
 		var value = null, configurable = true;
 		Object.defineProperties(this, {
 			hiders: { configurable, value },
@@ -5573,6 +5574,8 @@ var Spells = Object.create({
 				sRunner.run(post);
 			}
 			sRunner.end();
+		} else {
+			this.unhide();
 		}
 	},
 	replace(txt) {
@@ -5585,15 +5588,15 @@ var Spells = Object.create({
 		var spells, fld = $id('de-spell-txt'),
 			val = fld.value;
 		if(val && (spells = this.parseText(val))) {
-			this.unhide();
+			closePopup('err-spell');
 			this.setSpells(spells, true);
 			saveCfg('spells', JSON.stringify(spells));
 			fld.value = this.list;
 		} else {
+			this.unhide();
 			if(val) {
 				locStorage['__de-spells'] = '{"hide": false, "data": null}';
 			} else {
-				this.unhide();
 				this.disable();
 				saveCfg('spells', '');
 				locStorage['__de-spells'] = '{"hide": false, "data": ""}';
@@ -5608,7 +5611,6 @@ var Spells = Object.create({
 				post.spellUnhide();
 			}
 		}
-		closePopup('err-spell');
 	},
 
 	_decompileScope(scope, indent) {
@@ -6187,21 +6189,22 @@ SpellsCodegen.prototype = {
 	}
 };
 
-function SpellsRunner() {
-	this._spells = Spells.hiders;
-	if(!this._spells) {
-		this.run = () => 0;
+class SpellsRunner {
+	constructor() {
+		this.hasNumSpell = false;
+		this._endPromise = null;
+		this._spells = Spells.hiders;
+		if(!this._spells) {
+			this.run = this._fakeRun;
+		}
 	}
-}
-SpellsRunner.prototype = {
-	hasNumSpell: false,
 	end() {
 		if(this._endPromise) {
 			this._endPromise.then(() => this._savePostsHelper());
 		} else {
 			this._savePostsHelper();
 		}
-	},
+	}
 	run(post) {
 		var interp = new SpellsInterpreter(post, this._spells);
 		var res = interp.run();
@@ -6211,17 +6214,24 @@ SpellsRunner.prototype = {
 			return 0;
 		}
 		return this._checkRes(post, res);
-	},
+	}
 
-	_endPromise: null,
 	_checkRes(post, [hasNumSpell, val, msg]) {
 		this.hasNumSpell |= hasNumSpell;
 		if(val) {
 			post.spellHide(msg);
 			return 1;
 		}
+		if(post.spellHidden) {
+			post.spellUnhide();
+		}
 		return 0;
-	},
+	}
+	_fakeRun(post) {
+		if(post.spellHidden) {
+			post.spellUnhide();
+		}
+	}
 	_savePostsHelper() {
 		if(this._spells) {
 			if(aib.t) {
@@ -6243,7 +6253,7 @@ SpellsRunner.prototype = {
 		}
 		ImagesHashStorage.endFn();
 	}
-};
+}
 
 function SpellsInterpreter(post, spells) {
 	this._post = post;
@@ -9390,6 +9400,9 @@ class Post extends AbstractPost {
 	}
 	setVisib(hide, note = null) {
 		if(this.hidden === hide) {
+			if(hide && note) {
+				this.note.set(note);
+			}
 			return;
 		}
 		if(this.isOp) {
@@ -10980,7 +10993,6 @@ class Thread {
 				this.deletePost(post, true, !aib.t);
 			}
 			if(firstChangedPost && maybeSpells.hasValue && maybeSpells.value.hasNumSpell) {
-				Spells.unhide();
 				for(post = firstChangedPost.nextInThread; post; post = post.nextInThread) {
 					maybeSpells.value.run(post);
 				}
@@ -12970,7 +12982,6 @@ function initStorageEvent() {
 				temp.checked = data.hide;
 			}
 			$hide(docBody);
-			Spells.unhide();
 			if(data.data) {
 				Spells.setSpells(data.data, false);
 				Cfg.spells = JSON.stringify(data.data);
@@ -12979,6 +12990,7 @@ function initStorageEvent() {
 					temp.value = Spells.list;
 				}
 			} else {
+				Spells.unhide();
 				if(data.data === '') {
 					Spells.disable();
 					temp = $id('de-spell-txt');
