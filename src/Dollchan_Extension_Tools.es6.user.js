@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = '74bfe03';
+var commit = 'eb64809';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5302,8 +5302,11 @@ var Pages = {
 		DelForm.last = form;
 		form.addStuff();
 		if(pageNum != aib.page) {
-			formEl.insertAdjacentHTML('afterbegin', '<center style="font-size: 2em">' +
-				Lng.page[lang] + ' ' + pageNum + '</center><hr>');
+			formEl.insertAdjacentHTML('afterbegin', `
+			<div class="de-page-num">
+				<center style="font-size: 2em">${ Lng.page[lang] } ${ pageNum }</center>
+				<hr>
+			</div>`);
 		}
 		$show(formEl);
 	},

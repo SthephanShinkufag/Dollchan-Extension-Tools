@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = '74bfe03';
+	var commit = 'eb64809';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -8317,7 +8317,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			DelForm.last = form;
 			form.addStuff();
 			if (pageNum != aib.page) {
-				formEl.insertAdjacentHTML('afterbegin', '<center style="font-size: 2em">' + Lng.page[lang] + ' ' + pageNum + '</center><hr>');
+				formEl.insertAdjacentHTML('afterbegin', '\n\t\t\t<div class="de-page-num">\n\t\t\t\t<center style="font-size: 2em">' + Lng.page[lang] + ' ' + pageNum + '</center>\n\t\t\t\t<hr>\n\t\t\t</div>');
 			}
 			$show(formEl);
 		},
