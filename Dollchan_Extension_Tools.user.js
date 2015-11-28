@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = 'e6491c7';
+	var commit = '74bfe03';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3518,11 +3518,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		el.setSelectionRange(start + txt.length, start + txt.length);
 		el.focus();
 		el.scrollTop = scrtop;
-	}
-
-	function $txtSelect() {
-	
-		return (nav.Presto ? doc.getSelection() : window.getSelection()).toString();
 	}
 
 	function $isEmpty(obj) {
@@ -10356,7 +10351,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var x;
 				if (e.type === 'mouseover') {
 					if (id === 'de-btn-quote') {
-						quotetxt = $txtSelect();
+						quotetxt = window.getSelection().toString();
 					}
 					x = -1;
 					if (HotKeys.enabled) {
@@ -12707,7 +12702,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									$pd(e);
 									e.stopPropagation();
 									if (!Cfg.showRepBtn) {
-										quotetxt = $txtSelect();
+										quotetxt = window.getSelection().toString();
 										pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 										quotetxt = '';
 									} else if (pr.isQuick || aib.t && pr.isHidden) {
@@ -12795,7 +12790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'de-btn-rep':
 						this.btns.title = Lng.replyToPost[lang];
 						if (!isOutEvent) {
-							quotetxt = $txtSelect();
+							quotetxt = window.getSelection().toString();
 						}
 						return;
 					case 'de-btn-hide':
@@ -13338,8 +13333,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: '_getMenuHide',
 			value: function _getMenuHide(el) {
 				var str = '',
-				    sel = nav.Presto ? doc.getSelection() : window.getSelection(),
-				    ssel = sel.toString(),
+				    sel = window.getSelection(),
+				    ssel = sel.toString().trim(),
 				    getItem = function getItem(name) {
 					return '<span info="hide-' + name + '" class="de-menu-item">' + Lng.selHiderMenu[name][lang] + '</span>';
 				};

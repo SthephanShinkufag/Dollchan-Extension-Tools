@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = 'e6491c7';
+var commit = '74bfe03';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -765,10 +765,6 @@ function $txtInsert(el, txt) {
 	el.setSelectionRange(start + txt.length, start + txt.length);
 	el.focus();
 	el.scrollTop = scrtop;
-}
-
-function $txtSelect() { // XXX: nav.Presto
-	return (nav.Presto ? doc.getSelection() : window.getSelection()).toString();
 }
 
 function $isEmpty(obj) {
@@ -7003,7 +6999,7 @@ PostForm.prototype = {
 			var x;
 			if(e.type === 'mouseover') {
 				if(id === 'de-btn-quote') {
-					quotetxt = $txtSelect();
+					quotetxt = window.getSelection().toString();
 				}
 				x = -1;
 				if(HotKeys.enabled) {
@@ -8962,7 +8958,7 @@ class AbstractPost {
 						$pd(e);
 						e.stopPropagation();
 						if(!Cfg.showRepBtn) {
-							quotetxt = $txtSelect();
+							quotetxt = window.getSelection().toString();
 							pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 							quotetxt = '';
 						} else if(pr.isQuick || (aib.t && pr.isHidden)) {
@@ -9052,7 +9048,7 @@ class AbstractPost {
 		case 'de-btn-rep':
 			this.btns.title = Lng.replyToPost[lang]
 			if(!isOutEvent) {
-				quotetxt = $txtSelect();
+				quotetxt = window.getSelection().toString();
 			}
 			return;
 		case 'de-btn-hide':
@@ -9502,8 +9498,8 @@ class Post extends AbstractPost {
 				.join('</span><span class="de-menu-item" info="thr-exp">') + '</span>';
 	}
 	_getMenuHide(el) {
-		var str = '', sel = nav.Presto ? doc.getSelection() : window.getSelection(),
-			ssel = sel.toString(),
+		var str = '', sel = window.getSelection(),
+			ssel = sel.toString().trim(),
 			getItem = name => '<span info="hide-' + name + '" class="de-menu-item">' +
 				Lng.selHiderMenu[name][lang] + '</span>';
 		if(ssel) {
