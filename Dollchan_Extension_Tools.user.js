@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = 'e320904';
+	var commit = 'f3dcf6a';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3334,7 +3334,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	    hThr,
 	    pByEl,
 	    pByNum,
-	    sVis,
 	    uVis,
 	    needScroll,
 	    aib,
@@ -4623,22 +4622,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function readPostsData(firstPost) {
-		var data, str, b, date, spellsHide, updatePosts, globalUserVis, updateFav, fav, favBrd, maybeSpells, post, num, f, thr, lastPost, hidePost, hideThread, vis;
+		var sVis, json, str, b, date, spellsHide, updatePosts, globalUserVis, updateFav, fav, favBrd, maybeSpells, post, num, f, thr, lastPost, hidePost, hideThread, hideData;
 		return regeneratorRuntime.wrap(function readPostsData$(_context6) {
 			while (1) switch (_context6.prev = _context6.next) {
 				case 0:
-					str = aib.t ? sesStorage['de-hidden-' + aib.b + aib.t] : null;
+					sVis = null;
 
-					if (typeof str === 'string') {
-						data = str.split(';');
+					try {
+						str = sesStorage['de-hidden-' + aib.b + aib.t];
 
-						if (data.length === 4 && +data[0] === (Cfg.hideBySpell ? Spells.hash : 0) && pByNum.has(+data[1]) && pByNum.get(+data[1]).count === +data[2]) {
-							sVis = data[3].split(',');
-						} else {
-							sVis = [];
+						if (str) {
+							json = JSON.parse(str);
+							if (json['hash'] === (Cfg.hideBySpell ? Spells.hash : 0) && pByNum.has(json['lastNum']) && pByNum.get(json['lastNum']).count === json['lastCount']) {
+								sVis = json['data'] && json['data'][0] instanceof Array ? json['data'] : null;
+							}
 						}
-					} else {
-						sVis = [];
+					} catch (e) {
+						sesStorage['de-hidden-' + aib.b + aib.t] = null;
 					}
 					b = aib.b;
 					date = Date.now();
@@ -4731,9 +4731,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 
 					if (num in hThr[b]) {
-						vis = '0';
+						hideData = [true, null];
 					} else if (spellsHide) {
-						vis = sVis[post.count];
+						hideData = sVis && sVis[post.count];
 					}
 					_context6.next = 37;
 					break;
@@ -4744,7 +4744,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 					}
 
-					vis = sVis[post.count];
+					hideData = sVis && sVis[post.count];
 					_context6.next = 37;
 					break;
 
@@ -4752,14 +4752,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return _context6.abrupt('continue', 38);
 
 				case 37:
-					if (vis === '0') {
+					if (!hideData) {
+						maybeSpells.value.run(post);
+					} else if (hideData[0]) {
 						if (post.hidden) {
 							post.spellHidden = true;
 						} else {
-							post.spellHide(null);
+							post.spellHide(hideData[1]);
 						}
-					} else if (vis !== '1') {
-						maybeSpells.value.run(post);
 					}
 
 				case 38:
@@ -8682,7 +8682,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		},
 		unhide: function unhide() {
-			sVis = aib.t ? '1'.repeat(Thread.first.pcount).split('') : [];
 			for (var post = Thread.first.op; post; post = post.next) {
 				if (post.spellHidden && !post.userToggled) {
 					post.spellUnhide();
@@ -9362,16 +9361,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				post.spellHide(msg);
 				return 1;
 			}
-			if (!post.deleted) {
-				sVis[post.count] = 1;
-			}
 			return 0;
 		},
 		_savePostsHelper: function _savePostsHelper() {
 			if (this._spells) {
 				if (aib.t) {
-					var lPost = Thread.first.lastNotDeleted;
-					sesStorage['de-hidden-' + aib.b + aib.t] = (Cfg.hideBySpell ? Spells.hash : '0') + ';' + lPost.num + ';' + lPost.count + ';' + sVis.join();
+					var lPost = Thread.first.lastNotDeleted,
+					    data = [];
+					for (var post = Thread.first.op; post; post = post.nextNotDeleted) {
+						var hidden = post.spellHidden;
+						data.push(hidden ? [true, post.note.text] : [false, null]);
+					}
+					sesStorage['de-hidden-' + aib.b + aib.t] = JSON.stringify({
+						'hash': Cfg.hideBySpell ? Spells.hash : 0,
+						'lastCount': lPost.count,
+						'lastNum': lPost.num,
+						'data': data
+					});
 				}
 				saveHiddenThreads(false);
 				toggleWindow('hid', true);
@@ -13207,9 +13213,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.spellHidden = true;
 				if (!this.userToggled) {
 					this.setVisib(true, note);
-					if (aib.t && !this.deleted) {
-						sVis[this.count] = 0;
-					}
 					if (!this.hidden) {
 						this.ref.hide();
 					}
@@ -13221,9 +13224,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.spellHidden = false;
 				if (!this.userToggled) {
 					this.setVisib(false);
-					if (aib.t && !this.deleted) {
-						sVis[this.count] = 1;
-					}
 					this.ref.unhide();
 				}
 			}
@@ -13588,6 +13588,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function PostNote(post) {
 			_classCallCheck(this, PostNote);
 
+			this.text = null;
 			this._post = post;
 			if (post.isOp) {
 				var tEl = post.thr.el;
@@ -13614,6 +13615,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function set(note) {
 				var _this33 = this;
 
+				this.text = note;
 				var text;
 				if (this._post.isOp) {
 					this._aEl.onmouseover = this._aEl.onmouseout = function (e) {
@@ -13633,6 +13635,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'reset',
 			value: function reset() {
+				this.text = null;
 				if (this.isOp) {
 					this.set(null);
 				} else {
@@ -15738,7 +15741,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'qMsgImgLink',
 			get: function get() {
 			
-				var value = this.qPostMsg + ' a[href*=".jpg"], ' + this.qPostMsg + ' a[href*=".png"], ' + this.qPostMsg + ' a[href*=".gif"], ' + this.qPostMsg + ' a[href*=".jpeg"]';
+				var value = nav.cssMatches(this.qPostMsg + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]');
 				Object.defineProperty(this, 'qMsgImgLink', { value: value });
 				return value;
 			}

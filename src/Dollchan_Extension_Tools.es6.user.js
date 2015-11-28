@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = 'e320904';
+var commit = 'f3dcf6a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -602,7 +602,7 @@ Lng = {
 },
 
 doc = window.document, docBody, aProto = Array.prototype, locStorage, sesStorage,
-Cfg, hThr, pByEl, pByNum, sVis, uVis, needScroll,
+Cfg, hThr, pByEl, pByNum, uVis, needScroll,
 aib, nav, updater, dTime, visPosts = 2, topWinZ = 0,
 pr, dummy, myPosts,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
@@ -1596,18 +1596,20 @@ function* readMyPosts() {
 }
 
 function* readPostsData(firstPost) {
-	var data, str = aib.t ? sesStorage['de-hidden-' + aib.b + aib.t] : null;
-	if(typeof str === 'string') {
-		var data = str.split(';');
-		if(data.length === 4 && +data[0] === (Cfg.hideBySpell ? Spells.hash : 0) &&
-		  pByNum.has(+data[1]) && pByNum.get(+data[1]).count === +data[2])
-		{
-			sVis = data[3].split(',');
-		} else {
-			sVis = [];
+	var sVis = null;
+	try {
+		var json, str = sesStorage['de-hidden-' + aib.b + aib.t];
+		if(str) {
+			json = JSON.parse(str);
+			if(json['hash'] === (Cfg.hideBySpell ? Spells.hash : 0) &&
+			   pByNum.has(json['lastNum']) &&
+			   pByNum.get(json['lastNum']).count === json['lastCount'])
+			{
+				sVis = json['data'] && json['data'][0] instanceof Array ? json['data'] : null;
+			}
 		}
-	} else {
-		sVis = [];
+	} catch(e) {
+		sesStorage['de-hidden-' + aib.b + aib.t] = null;
 	}
 	var b = aib.b,
 		date = Date.now(),
@@ -1661,26 +1663,26 @@ function* readPostsData(firstPost) {
 			initPostUserVisib(post, num, hidePost, date);
 			continue;
 		}
-		var vis;
+		var hideData;
 		if(post.isOp) {
 			if(num in hThr[b]) {
-				vis = '0';
+				hideData = [true, null];
 			} else if(spellsHide) {
-				vis = sVis[post.count];
+				hideData = sVis && sVis[post.count];
 			}
 		} else if(spellsHide) {
-			vis = sVis[post.count];
+			hideData = sVis && sVis[post.count];
 		} else {
 			continue;
 		}
-		if(vis === '0') {
+		if(!hideData) {
+			maybeSpells.value.run(post);
+		} else if(hideData[0]) {
 			if(post.hidden) {
 				post.spellHidden = true;
 			} else {
-				post.spellHide(null);
+				post.spellHide(hideData[1]);
 			}
-		} else if(vis !== '1') {
-			maybeSpells.value.run(post);
 		}
 	}
 	if(updatePosts) {
@@ -5601,7 +5603,6 @@ var Spells = Object.create({
 		}
 	},
 	unhide() {
-		sVis = aib.t ? '1'.repeat(Thread.first.pcount).split('') : [];
 		for(var post = Thread.first.op; post; post = post.next) {
 			if(post.spellHidden && !post.userToggled) {
 				post.spellUnhide();
@@ -6219,17 +6220,23 @@ SpellsRunner.prototype = {
 			post.spellHide(msg);
 			return 1;
 		}
-		if(!post.deleted) {
-			sVis[post.count] = 1;
-		}
 		return 0;
 	},
 	_savePostsHelper() {
 		if(this._spells) {
 			if(aib.t) {
-				var lPost = Thread.first.lastNotDeleted;
-				sesStorage['de-hidden-' + aib.b + aib.t] = (Cfg.hideBySpell ? Spells.hash : '0') +
-					';' + lPost.num + ';' + lPost.count + ';' + sVis.join();
+				var lPost = Thread.first.lastNotDeleted,
+					data = [];
+				for(var post = Thread.first.op; post; post = post.nextNotDeleted) {
+					var hidden = post.spellHidden;
+					data.push(hidden ? [true, post.note.text] : [false, null]);
+				}
+				sesStorage['de-hidden-' + aib.b + aib.t] = JSON.stringify({
+					'hash': Cfg.hideBySpell ? Spells.hash : 0,
+					'lastCount': lPost.count,
+					'lastNum': lPost.num,
+					'data': data
+				});
 			}
 			saveHiddenThreads(false);
 			toggleWindow('hid', true);
@@ -9414,9 +9421,6 @@ class Post extends AbstractPost {
 		this.spellHidden = true;
 		if(!this.userToggled) {
 			this.setVisib(true, note);
-			if(aib.t && !this.deleted) {
-				sVis[this.count] = 0;
-			}
 			if(!this.hidden) {
 				this.ref.hide();
 			}
@@ -9426,9 +9430,6 @@ class Post extends AbstractPost {
 		this.spellHidden = false;
 		if(!this.userToggled) {
 			this.setVisib(false);
-			if(aib.t && !this.deleted) {
-				sVis[this.count] = 1;
-			}
 			this.ref.unhide();
 		}
 	}
@@ -9659,6 +9660,7 @@ Post.hasNew = false;
 Post.hiddenNums = new Set();
 Post.note = class PostNote {
 	constructor(post) {
+		this.text = null;
 		this._post = post;
 		if(post.isOp) {
 			var tEl = post.thr.el;
@@ -9683,6 +9685,7 @@ Post.note = class PostNote {
 		$hide(this._noteEl);
 	}
 	set(note) {
+		this.text = note;
 		var text;
 		if(this._post.isOp) {
 			this._aEl.onmouseover = this._aEl.onmouseout = e => this._post.hideContent(e.type === 'mouseout');
@@ -9698,6 +9701,7 @@ Post.note = class PostNote {
 		$show(this._noteEl);
 	}
 	reset() {
+		this.text = null;
 		if(this.isOp) {
 			this.set(null);
 		} else {
@@ -11349,10 +11353,8 @@ class BaseBoard {
 		return value;
 	}
 	get qMsgImgLink() { // Sets here only
-		var value = this.qPostMsg + ' a[href*=".jpg"], ' +
-			this.qPostMsg + ' a[href*=".png"], ' +
-			this.qPostMsg + ' a[href*=".gif"], ' +
-			this.qPostMsg + ' a[href*=".jpeg"]';
+		var value = nav.cssMatches(this.qPostMsg + ' a', '[href$=".jpg"]', '[href$=".jpeg"]',
+			'[href$=".png"]', '[href$=".gif"]');
 		Object.defineProperty(this, 'qMsgImgLink', { value });
 		return value;
 	}
