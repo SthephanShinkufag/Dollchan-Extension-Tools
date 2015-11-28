@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = '442090c';
+var commit = 'e6491c7';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -6226,8 +6226,7 @@ class SpellsRunner {
 			}
 			return 1;
 		}
-		this._unhidePost(post);
-		return 0;
+		return this._unhidePost(post);
 	}
 	_unhidePost(post) {
 		if(post.spellHidden) {
@@ -6236,6 +6235,7 @@ class SpellsRunner {
 				SpellsRunner.cachedData[post.count] = [false, null];
 			}
 		}
+		return 0;
 	}
 	_savePostsHelper() {
 		if(this._spells) {

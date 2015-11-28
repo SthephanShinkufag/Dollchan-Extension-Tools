@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = '442090c';
+	var commit = 'e6491c7';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -9377,8 +9377,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 					return 1;
 				}
-				this._unhidePost(post);
-				return 0;
+				return this._unhidePost(post);
 			}
 		}, {
 			key: '_unhidePost',
@@ -9389,6 +9388,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						SpellsRunner.cachedData[post.count] = [false, null];
 					}
 				}
+				return 0;
 			}
 		}, {
 			key: '_savePostsHelper',
