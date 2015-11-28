@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = '0547489';
+	var commit = 'f92b152';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4629,7 +4629,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					sVis = null;
 
 					try {
-						str = sesStorage['de-hidden-' + aib.b + aib.t];
+						str = aib.t ? sesStorage['de-hidden-' + aib.b + aib.t] : null;
 
 						if (str) {
 							json = JSON.parse(str);
@@ -8581,7 +8581,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 		},
 		disable: function disable() {
-			this.unhide();
+			SpellsRunner.unhideAll();
 			closePopup('err-spell');
 			var value = null,
 			    configurable = true;
@@ -8640,7 +8640,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				sRunner.end();
 			} else {
-				this.unhide();
+				SpellsRunner.unhideAll();
 			}
 		},
 		replace: function replace(txt) {
@@ -8672,7 +8672,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				saveCfg('spells', JSON.stringify(spells));
 				fld.value = this.list;
 			} else {
-				this.unhide();
+				SpellsRunner.unhideAll();
 				if (val) {
 					locStorage['__de-spells'] = '{"hide": false, "data": null}';
 				} else {
@@ -8682,13 +8682,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				locStorage.removeItem('__de-spells');
 				$q('input[info="hideBySpell"]').checked = false;
-			}
-		},
-		unhide: function unhide() {
-			for (var post = Thread.first.op; post; post = post.next) {
-				if (post.spellHidden && !post.userToggled) {
-					post.spellUnhide();
-				}
 			}
 		},
 		_decompileScope: function _decompileScope(scope, indent) {
@@ -9313,6 +9306,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	};
 
 	var SpellsRunner = (function () {
+		_createClass(SpellsRunner, null, [{
+			key: 'unhideAll',
+			value: function unhideAll() {
+				if (aib.t) {
+					sesStorage['de-hidden-' + aib.b + aib.t] = null;
+				}
+				for (var post = Thread.first.op; post; post = post.next) {
+					if (post.spellHidden) {
+						post.spellUnhide();
+					}
+				}
+			}
+		}]);
+
 		function SpellsRunner() {
 			_classCallCheck(this, SpellsRunner);
 
@@ -9320,7 +9327,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._endPromise = null;
 			this._spells = Spells.hiders;
 			if (!this._spells) {
-				this.run = this._fakeRun;
+				this.run = this._unhidePost;
+				SpellsRunner.cachedData = null;
 			}
 		}
 
@@ -9367,18 +9375,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.hasNumSpell |= hasNumSpell;
 				if (val) {
 					post.spellHide(msg);
+					if (SpellsRunner.cachedData && !post.deleted) {
+						SpellsRunner.cachedData[post.count] = [true, msg];
+					}
 					return 1;
 				}
-				if (post.spellHidden) {
-					post.spellUnhide();
-				}
+				this._unhidePost(post);
 				return 0;
 			}
 		}, {
-			key: '_fakeRun',
-			value: function _fakeRun(post) {
+			key: '_unhidePost',
+			value: function _unhidePost(post) {
 				if (post.spellHidden) {
 					post.spellUnhide();
+					if (SpellsRunner.cachedData && !post.deleted) {
+						SpellsRunner.cachedData[post.count] = [false, null];
+					}
 				}
 			}
 		}, {
@@ -9387,12 +9399,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (this._spells) {
 					if (aib.t) {
 						var lPost = Thread.first.lastNotDeleted,
-						    data = [];
-						for (var post = Thread.first.op; post; post = post.nextNotDeleted) {
-							var hidden = post.spellHidden;
-							data.push(hidden ? [true, post.note.text] : [false, null]);
+						    data = null;
+						if (Spells.hiders) {
+							if (SpellsRunner.cachedData) {
+								data = SpellsRunner.cachedData;
+							} else {
+								data = [];
+								for (var post = Thread.first.op; post; post = post.nextNotDeleted) {
+									var hidden = post.spellHidden;
+									data.push(hidden ? [true, post.note.text] : [false, null]);
+								}
+								SpellsRunner.cachedData = data;
+							}
 						}
-						sesStorage['de-hidden-' + aib.b + aib.t] = JSON.stringify({
+						sesStorage['de-hidden-' + aib.b + aib.t] = !data ? null : JSON.stringify({
 							'hash': Cfg.hideBySpell ? Spells.hash : 0,
 							'lastCount': lPost.count,
 							'lastNum': lPost.num,
@@ -9408,6 +9428,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		return SpellsRunner;
 	})();
+
+	SpellsRunner.cachedData = null;
 
 	function SpellsInterpreter(post, spells) {
 		this._post = post;
@@ -14774,6 +14796,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'deletePost',
 			value: function deletePost(post, delAll, removePost) {
+				SpellsRunner.cachedData = null;
 				var count = 0,
 				    idx = post.count;
 				do {
@@ -17833,7 +17856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								temp.value = Spells.list;
 							}
 						} else {
-							Spells.unhide();
+							SpellsRunner.unhideAll();
 							if (data.data === '') {
 								Spells.disable();
 								temp = $id('de-spell-txt');

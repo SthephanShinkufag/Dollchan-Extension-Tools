@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = '0547489';
+var commit = 'f92b152';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1598,7 +1598,7 @@ function* readMyPosts() {
 function* readPostsData(firstPost) {
 	var sVis = null;
 	try {
-		var json, str = sesStorage['de-hidden-' + aib.b + aib.t];
+		var json, str = aib.t ? sesStorage['de-hidden-' + aib.b + aib.t] : null;
 		if(str) {
 			json = JSON.parse(str);
 			if(json['hash'] === (Cfg.hideBySpell ? Spells.hash : 0) &&
@@ -5530,7 +5530,7 @@ var Spells = Object.create({
 		}
 	},
 	disable() {
-		this.unhide();
+		SpellsRunner.unhideAll();
 		closePopup('err-spell');
 		var value = null, configurable = true;
 		Object.defineProperties(this, {
@@ -5575,7 +5575,7 @@ var Spells = Object.create({
 			}
 			sRunner.end();
 		} else {
-			this.unhide();
+			SpellsRunner.unhideAll();
 		}
 	},
 	replace(txt) {
@@ -5593,7 +5593,7 @@ var Spells = Object.create({
 			saveCfg('spells', JSON.stringify(spells));
 			fld.value = this.list;
 		} else {
-			this.unhide();
+			SpellsRunner.unhideAll();
 			if(val) {
 				locStorage['__de-spells'] = '{"hide": false, "data": null}';
 			} else {
@@ -5603,13 +5603,6 @@ var Spells = Object.create({
 			}
 			locStorage.removeItem('__de-spells');
 			$q('input[info="hideBySpell"]').checked = false;
-		}
-	},
-	unhide() {
-		for(var post = Thread.first.op; post; post = post.next) {
-			if(post.spellHidden && !post.userToggled) {
-				post.spellUnhide();
-			}
 		}
 	},
 
@@ -6190,12 +6183,23 @@ SpellsCodegen.prototype = {
 };
 
 class SpellsRunner {
+	static unhideAll() {
+		if(aib.t) {
+			sesStorage['de-hidden-' + aib.b + aib.t] = null;
+		}
+		for(var post = Thread.first.op; post; post = post.next) {
+			if(post.spellHidden) {
+				post.spellUnhide();
+			}
+		}
+	}
 	constructor() {
 		this.hasNumSpell = false;
 		this._endPromise = null;
 		this._spells = Spells.hiders;
 		if(!this._spells) {
-			this.run = this._fakeRun;
+			this.run = this._unhidePost;
+			SpellsRunner.cachedData = null;
 		}
 	}
 	end() {
@@ -6220,28 +6224,40 @@ class SpellsRunner {
 		this.hasNumSpell |= hasNumSpell;
 		if(val) {
 			post.spellHide(msg);
+			if(SpellsRunner.cachedData && !post.deleted) {
+				SpellsRunner.cachedData[post.count] = [true, msg];
+			}
 			return 1;
 		}
-		if(post.spellHidden) {
-			post.spellUnhide();
-		}
+		this._unhidePost(post);
 		return 0;
 	}
-	_fakeRun(post) {
+	_unhidePost(post) {
 		if(post.spellHidden) {
 			post.spellUnhide();
+			if(SpellsRunner.cachedData && !post.deleted) {
+				SpellsRunner.cachedData[post.count] = [false, null];
+			}
 		}
 	}
 	_savePostsHelper() {
 		if(this._spells) {
 			if(aib.t) {
 				var lPost = Thread.first.lastNotDeleted,
-					data = [];
-				for(var post = Thread.first.op; post; post = post.nextNotDeleted) {
-					var hidden = post.spellHidden;
-					data.push(hidden ? [true, post.note.text] : [false, null]);
+					data = null;
+				if(Spells.hiders) {
+					if(SpellsRunner.cachedData) {
+						data = SpellsRunner.cachedData;
+					} else {
+						data = []
+						for(var post = Thread.first.op; post; post = post.nextNotDeleted) {
+							var hidden = post.spellHidden;
+							data.push(hidden ? [true, post.note.text] : [false, null]);
+						}
+						SpellsRunner.cachedData = data;
+					}
 				}
-				sesStorage['de-hidden-' + aib.b + aib.t] = JSON.stringify({
+				sesStorage['de-hidden-' + aib.b + aib.t] = !data ? null : JSON.stringify({
 					'hash': Cfg.hideBySpell ? Spells.hash : 0,
 					'lastCount': lPost.count,
 					'lastNum': lPost.num,
@@ -6254,6 +6270,7 @@ class SpellsRunner {
 		ImagesHashStorage.endFn();
 	}
 }
+SpellsRunner.cachedData = null;
 
 function SpellsInterpreter(post, spells) {
 	this._post = post;
@@ -10655,6 +10672,7 @@ class Thread {
 		return post;
 	}
 	deletePost(post, delAll, removePost) {
+		SpellsRunner.cachedData = null;
 		var count = 0,
 			idx = post.count;
 		do {
@@ -12990,7 +13008,7 @@ function initStorageEvent() {
 					temp.value = Spells.list;
 				}
 			} else {
-				Spells.unhide();
+				SpellsRunner.unhideAll();
 				if(data.data === '') {
 					Spells.disable();
 					temp = $id('de-spell-txt');
