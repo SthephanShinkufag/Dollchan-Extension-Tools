@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = '2b374f8';
+var commit = 'dc8104a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5607,7 +5607,7 @@ var Spells = Object.create({
 		} else {
 			if(!val) {
 				this.disable();
-				saveCfg('spells', JSON.stringify([Date.now(), [], null, null]));
+				saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
 				locStorage['__de-spells'] = '{"hide": false, "data": null}';
 				locStorage.removeItem('__de-spells');
 			}
