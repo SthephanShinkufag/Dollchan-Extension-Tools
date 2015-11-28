@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = 'dc8104a';
+var commit = 'a3d0cf5';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -838,6 +838,8 @@ function sleep(ms) {
 	return new Promise((resolve, reject) => setTimeout(() => resolve(), ms));
 }
 
+function CancelError() {}
+
 class CancelablePromise {
 	static reject(val) {
 		return new CancelablePromise((res, rej) => rej(val));
@@ -845,72 +847,45 @@ class CancelablePromise {
 	static resolve(val) {
 		return new CancelablePromise((res, rej) => res(val));
 	}
-	constructor(fn, cancelFn) {
-		this._promise = new Promise((res, rej) => {
-			this._resolve = res;
-			this._reject = rej;
+	constructor(resolver, cancelFn) {
+		this._promise = new Promise((resolve, reject) => {
+			this._reject = reject;
+			var wrappedResolve = value => { resolve(value); this._isResolved = true; };
+			var wrappedReject = reason => { reject(reason); this._isResolved = true; };
+			resolver(wrappedResolve, wrappedReject);
 		});
 		this._cancelFn = cancelFn;
-		this._cancelled = false;
-		this._done = false;
-		this._parent = null;
-		fn(val => this._onResRej(val, true), val => this._onResRej(val, false));
+		this._isResolved = false;
 	}
-	then(onFulfilled, onRejected) {
-		if(this._cancelled) {
-			return null;
-		}
-		var rvRes, rvRej;
-		var rv = new CancelablePromise((res, rej) => {
-			rvRes = res;
-			rvRej = rej;
-		});
-		rv._parent = this;
-		var thenFunc = function(callback, isResolve, val) {
-			if(callback) {
-				try {
-					rvRes(callback(val));
-				} catch(e) {
-					rvRej(e);
+	then(cb, eb) {
+		var children = [];
+		function wrap(fn) {
+			return function(...args) {
+				var child = fn(...args);
+				if (child instanceof CancelablePromise) {
+					children.push(child);
 				}
-			} else if(isResolve) {
-				rvRes(val);
-			} else {
-				rvRej(val);
+				return child;
 			}
-		};
-		this._promise.then(thenFunc.bind(this, onFulfilled, true),
-		                   thenFunc.bind(this, onRejected, false));
-		return rv;
+		}
+		return new CancelablePromise(
+			resolve => resolve(this._promise.then(cb && wrap(cb), eb && wrap(eb))),
+			() => {
+				for(var child of children) {
+					child.cancel();
+				}
+				this.cancel();
+			}
+		);
 	}
-	catch(onRejected) {
-		return this.then(void 0, onRejected);
+	catch(eb) {
+		return this.then(void 0, eb);
 	}
 	cancel() {
-		if(this._done) {
-			return;
-		}
-		this._done = this._cancelled = true;
-		if(this._cancelFn) {
+		if(!this._isResolved && this._cancelFn) {
 			this._cancelFn();
 		}
-		if(this._parent) {
-			this._parent.cancel();
-		}
-		this._parent = this._promise = this._cancelFn = this._reject = this._resolve = null;
-	}
-
-	_onResRej(val, isResolve) {
-		if(this._done) {
-			return;
-		}
-		this._done = true;
-		if(isResolve) {
-			this._resolve(val);
-		} else {
-			this._reject(val);
-		}
-		this._parent = this._cancelFn = this._reject = this._resolve = null;
+		this._reject(new CancelError());
 	}
 }
 
@@ -5239,8 +5214,10 @@ var Pages = {
 			this._addForm(formEl, pageNum);
 			return spawn(this._updateForms, DelForm.last);
 		}).then(() => this._endAdding()).catch(e => {
-			$popup(getErrorMessage(e), 'add-page', false);
-			this._endAdding();
+			if(!(e instanceof CancelError)) {
+				$popup(getErrorMessage(e), 'add-page', false);
+				this._endAdding();
+			}
 		});
 	},
 	load: async(function* (count) {
@@ -10118,8 +10095,10 @@ class Pview extends AbstractPost {
 	}
 
 	_onerror(e) {
-		this.el.innerHTML = (e instanceof AjaxError) && e.code === 404 ?
-			Lng.postNotFound[lang] : getErrorMessage(e);
+		if(!(e instanceof CancelError)) {
+			this.el.innerHTML = (e instanceof AjaxError) && e.code === 404 ?
+				Lng.postNotFound[lang] : getErrorMessage(e);
+		}
 	}
 	_onload(b, form) {
 		var parentNum = this.parent.num,
@@ -11708,8 +11687,10 @@ function getImageBoard(checkDomains, checkEngines) {
 					el.textContent = data;
 				}
 			}, e => {
-				this._capUpdPromise = null;
-				return CancelablePromise.reject(e);
+				if(!(e instanceof CancelError)) {
+					this._capUpdPromise = null;
+					return CancelablePromise.reject(e);
+				}
 			});
 		}
 	}
@@ -12035,8 +12016,10 @@ function getImageBoard(checkDomains, checkEngines) {
 				cap.initImage($q('img', cap.trEl));
 				cap.initTextEl();
 			}, e => {
-				this._capUpdPromise = null;
-				return CancelablePromise.reject(e);
+				if(!(e instanceof CancelError)) {
+					this._capUpdPromise = null;
+					return CancelablePromise.reject(e);
+				}
 			});
 		}
 	}
@@ -12091,8 +12074,10 @@ function getImageBoard(checkDomains, checkEngines) {
 					};
 				}
 			}, e => {
-				this._capUpdPromise = null;
-				return CancelablePromise.reject(e);
+				if(!(e instanceof CancelError)) {
+					this._capUpdPromise = null;
+					return CancelablePromise.reject(e);
+				}
 			});
 		}
 	}
@@ -12337,8 +12322,10 @@ function getImageBoard(checkDomains, checkEngines) {
 					cap.initImage(img);
 				}
 			}).catch(e => {
-				this._capUpdPromise = null;
-				return CancelablePromise.reject(e);
+				if(!(e instanceof CancelError)) {
+					this._capUpdPromise = null;
+					return CancelablePromise.reject(e);
+				}
 			});
 		}
 	}
@@ -12566,7 +12553,11 @@ function getImageBoard(checkDomains, checkEngines) {
 				var id = xhr.responseText;
 				$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
 				$id('captchaid').value = id;
-			}, () => this._capUpdPromise = null);
+			}, e => {
+				if(!(e instanceof CancelError)) {
+					this._capUpdPromise = null;
+				}
+			});
 		}
 	}
 	ibDomains['dva-ch.net'] = DvaChNet;
@@ -13665,6 +13656,9 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 
 		_handleNewPosts(lPosts, error) {
+			if(error instanceof CancelError) {
+				return;
+			}
 			infoLoadErrors(error, false);
 			var eCode = (error instanceof AjaxError) ? error.code : 0;
 			if(eCode !== 200 && eCode !== 304) {
