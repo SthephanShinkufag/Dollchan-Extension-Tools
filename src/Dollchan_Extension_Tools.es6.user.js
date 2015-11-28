@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = 'f92b152';
+var commit = '442090c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5593,15 +5593,12 @@ var Spells = Object.create({
 			saveCfg('spells', JSON.stringify(spells));
 			fld.value = this.list;
 		} else {
-			SpellsRunner.unhideAll();
-			if(val) {
-				locStorage['__de-spells'] = '{"hide": false, "data": null}';
-			} else {
+			if(!val) {
 				this.disable();
 				saveCfg('spells', '');
-				locStorage['__de-spells'] = '{"hide": false, "data": ""}';
+				locStorage['__de-spells'] = '{"hide": false, "data": null}';
+				locStorage.removeItem('__de-spells');
 			}
-			locStorage.removeItem('__de-spells');
 			$q('input[info="hideBySpell"]').checked = false;
 		}
 	},
@@ -13008,15 +13005,12 @@ function initStorageEvent() {
 					temp.value = Spells.list;
 				}
 			} else {
-				SpellsRunner.unhideAll();
-				if(data.data === '') {
-					Spells.disable();
-					temp = $id('de-spell-txt');
-					if(temp) {
-						temp.value = '';
-					}
-					saveCfg('spells', '');
+				Spells.disable();
+				temp = $id('de-spell-txt');
+				if(temp) {
+					temp.value = '';
 				}
+				saveCfg('spells', '');
 			}
 			$show(docBody);
 		})();
