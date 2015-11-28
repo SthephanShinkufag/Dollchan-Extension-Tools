@@ -2848,13 +2848,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = 'f587618';
+	var commit = '2b374f8';
 
 	var defaultCfg = {
 		'disabled': 0,
 		'language': 0,
 		'hideBySpell': 1,
-		'spells': '',
+		'spells': null,
 		'sortSpells': 0,
 		'menuHiddBtn': 1,
 		'hideRefPsts': 0,
@@ -8395,10 +8395,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 		get list() {
 			var str, reps, oreps, data;
+			if (Cfg.spells === null) {
+				return '#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)';
+			}
 			try {
 				data = JSON.parse(Cfg.spells);
 			} catch (e) {
-				return '#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)';
+				return '';
 			}
 			str = data[1] ? this._decompileScope(data[1], '')[0].join('\n') : '';
 			reps = data[2];
@@ -8444,8 +8447,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 				}
 				str = str.substr(0, str.length - 1);
-			} else if (!str) {
-				str = '#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)';
 			}
 			return str;
 		},
@@ -8681,7 +8682,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			} else {
 				if (!val) {
 					this.disable();
-					saveCfg('spells', '');
+					saveCfg('spells', JSON.stringify([Date.now(), [], null, null]));
 					locStorage['__de-spells'] = '{"hide": false, "data": null}';
 					locStorage.removeItem('__de-spells');
 				}
@@ -17865,7 +17866,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							if (temp) {
 								temp.value = '';
 							}
-							saveCfg('spells', '');
 						}
 						$show(docBody);
 					})();

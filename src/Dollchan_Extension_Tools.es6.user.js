@@ -21,13 +21,13 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = 'f587618';
+var commit = '2b374f8';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
 	'language':         0,      // script language [0=ru, 1=en]
 	'hideBySpell':      1,      // hide posts by spells
-	'spells':           '',     // user defined spells
+	'spells':           null,     // user defined spells
 	'sortSpells':       0,      // sort spells when applying
 	'menuHiddBtn':      1,      // menu on hide button
 	'hideRefPsts':      0,      // hide posts referenced to hidden posts
@@ -5378,10 +5378,13 @@ var Spells = Object.create({
 	},
 	get list() {
 		var str, reps, oreps, data;
+		if(Cfg.spells === null) {
+			return '#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)';
+		}
 		try {
 			data = JSON.parse(Cfg.spells);
 		} catch(e) {
-			return '#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)';
+			return '';
 		}
 		str = data[1] ? this._decompileScope(data[1], '')[0].join('\n') : '';
 		reps = data[2];
@@ -5401,8 +5404,6 @@ var Spells = Object.create({
 				}
 			}
 			str = str.substr(0, str.length - 1);
-		} else if(!str) {
-			str = '#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)';
 		}
 		return str;
 	},
@@ -5606,7 +5607,7 @@ var Spells = Object.create({
 		} else {
 			if(!val) {
 				this.disable();
-				saveCfg('spells', '');
+				saveCfg('spells', JSON.stringify([Date.now(), [], null, null]));
 				locStorage['__de-spells'] = '{"hide": false, "data": null}';
 				locStorage.removeItem('__de-spells');
 			}
@@ -13021,7 +13022,6 @@ function initStorageEvent() {
 				if(temp) {
 					temp.value = '';
 				}
-				saveCfg('spells', '');
 			}
 			$show(docBody);
 		})();
