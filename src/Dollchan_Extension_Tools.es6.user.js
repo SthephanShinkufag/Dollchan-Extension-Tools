@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = '89b89d0';
+var commit = '7069b03';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5252,6 +5252,7 @@ var Pages = {
 		}
 		DelForm.first = DelForm.last;
 		var len = Math.min(aib.lastPage + 1, aib.page + count);
+		yield* readMyPosts();
 		for(var i = aib.page; i < len; ++i) {
 			try {
 				var el = yield ajaxLoad(aib.getPageUrl(aib.b, i));
@@ -14415,8 +14416,6 @@ function* runMain(checkDomains, cfgPromise) {
 		                     rp => saveCfg('timeRPattern', rp));
 		Logger.log('Time correction');
 	}
-	yield* readMyPosts();
-	Logger.log('Read my posts');
 	$hide(docBody);
 	dummy = doc.createElement('div');
 	formEl = DelForm.doReplace(formEl);
@@ -14441,6 +14440,8 @@ function* runMain(checkDomains, cfgPromise) {
 	Logger.log('Init page');
 	panel.init(formEl);
 	Logger.log('Add panel');
+	yield* readMyPosts();
+	Logger.log('Read my posts');
 	DelForm.first.addStuff();
 	readViewedPosts();
 	scriptCSS();

@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = '89b89d0';
+	var commit = '7069b03';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -8243,57 +8243,60 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 29:
 							DelForm.first = DelForm.last;
 							len = Math.min(aib.lastPage + 1, aib.page + count);
-							i = aib.page;
+							return _context12.delegateYield(readMyPosts(), 't0', 32);
 
 						case 32:
+							i = aib.page;
+
+						case 33:
 							if (!(i < len)) {
-								_context12.next = 46;
+								_context12.next = 47;
 								break;
 							}
 
-							_context12.prev = 33;
-							_context12.next = 36;
+							_context12.prev = 34;
+							_context12.next = 37;
 							return ajaxLoad(aib.getPageUrl(aib.b, i));
 
-						case 36:
+						case 37:
 							el = _context12.sent;
 
 							this._addForm(el, i);
-							_context12.next = 43;
+							_context12.next = 44;
 							break;
 
-						case 40:
-							_context12.prev = 40;
-							_context12.t0 = _context12['catch'](33);
+						case 41:
+							_context12.prev = 41;
+							_context12.t1 = _context12['catch'](34);
 
-							$popup(getErrorMessage(_context12.t0), 'load-pages', false);
+							$popup(getErrorMessage(_context12.t1), 'load-pages', false);
 
-						case 43:
+						case 44:
 							++i;
-							_context12.next = 32;
+							_context12.next = 33;
 							break;
 
-						case 46:
+						case 47:
 							first = DelForm.first;
 
 							if (!(first !== DelForm.last)) {
-								_context12.next = 52;
+								_context12.next = 53;
 								break;
 							}
 
 							DelForm.first = first.next;
 							$del(first.el);
-							return _context12.delegateYield(this._updateForms(DelForm.first), 't1', 51);
-
-						case 51:
-							closePopup('load-pages');
+							return _context12.delegateYield(this._updateForms(DelForm.first), 't2', 52);
 
 						case 52:
+							closePopup('load-pages');
+
+						case 53:
 						case 'end':
 							return _context12.stop();
 					}
 				}
-			}, _callee6, this, [[33, 40]]);
+			}, _callee6, this, [[34, 41]]);
 		})),
 
 		_adding: false,
@@ -19137,31 +19140,27 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						});
 						Logger.log('Time correction');
 					}
-					return _context19.delegateYield(readMyPosts(), 't2', 37);
-
-				case 37:
-					Logger.log('Read my posts');
 					$hide(docBody);
 					dummy = doc.createElement('div');
 					formEl = DelForm.doReplace(formEl);
 					Logger.log('Replace delform');
 					pByEl = new Map();
 					pByNum = new Map();
-					_context19.prev = 44;
+					_context19.prev = 42;
 
 					DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
-					_context19.next = 53;
+					_context19.next = 51;
 					break;
 
-				case 48:
-					_context19.prev = 48;
-					_context19.t3 = _context19['catch'](44);
+				case 46:
+					_context19.prev = 46;
+					_context19.t2 = _context19['catch'](42);
 
-					console.log('DELFORM ERROR:\n' + getErrorMessage(_context19.t3));
+					console.log('DELFORM ERROR:\n' + getErrorMessage(_context19.t2));
 					$show(docBody);
 					return _context19.abrupt('return');
 
-				case 53:
+				case 51:
 					Logger.log('Parse delform');
 					pr = new PostForm($q(aib.qForm), false, doc);
 					Logger.log('Parse postform');
@@ -19173,6 +19172,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					Logger.log('Init page');
 					panel.init(formEl);
 					Logger.log('Add panel');
+					return _context19.delegateYield(readMyPosts(), 't3', 60);
+
+				case 60:
+					Logger.log('Read my posts');
 					DelForm.first.addStuff();
 					readViewedPosts();
 					scriptCSS();
@@ -19193,7 +19196,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				case 'end':
 					return _context19.stop();
 			}
-		}, _marked[7], this, [[44, 48]]);
+		}, _marked[7], this, [[42, 46]]);
 	}
 
 	if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
