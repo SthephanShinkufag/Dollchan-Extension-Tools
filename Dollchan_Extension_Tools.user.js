@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = '7557e97';
+	var commit = '8e63d80';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -8034,7 +8034,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var ajaxURL = cData && !cData.hasCacheControl ? ajaxLoad.fixCachedURL(url) : url;
 		return $ajax(ajaxURL, useCache && cData && cData.params).then(function (xhr) {
 			var headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
-			var data = ajaxLoad.readCacheData(headers);
+			var data = ajaxLoad.readCacheData(headers, useCache);
 			if (!data.hasCacheControl && !ajaxLoad.cacheData.has(url)) {
 				ajaxLoad.cacheData.set(url, data);
 				return $ajax(ajaxLoad.fixCachedURL(url), data.params);
@@ -8056,7 +8056,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	ajaxLoad.fixCachedURL = function (url) {
 		return url + (url.includes('?') ? '&' : '?') + 'nocache=' + Math.random();
 	};
-	ajaxLoad.readCacheData = function (ajaxHeaders) {
+	ajaxLoad.readCacheData = function (ajaxHeaders, needHeaders) {
 		var hasCacheControl = false,
 		    ETag = null,
 		    LastModified = null,
@@ -8079,14 +8079,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (header.startsWith('Cache-Control: ')) {
 				hasCacheControl = true;
 				i++;
-			} else if (header.startsWith('Last-Modified: ')) {
-				LastModified = header.substr(15);
-				i++;
-			} else if (header.startsWith('Etag: ')) {
-				ETag = header.substr(6);
-				i++;
+			} else if (needHeaders) {
+				if (header.startsWith('Last-Modified: ')) {
+					LastModified = header.substr(15);
+					i++;
+				} else if (header.startsWith('Etag: ')) {
+					ETag = header.substr(6);
+					i++;
+				}
 			}
-			if (i === 3) {
+			if (i === (needHeaders ? 3 : 1)) {
 				break;
 			}
 		}
@@ -19032,87 +19034,96 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				case 0:
 					Logger.init();
 					docBody = doc.body;
+
+					if (docBody) {
+						_context19.next = 4;
+						break;
+					}
+
+					return _context19.abrupt('return');
+
+				case 4:
 					if (!aib) {
 						aib = getImageBoard(checkDomains, true);
 					}
 					formEl = $q(aib.qDForm + ', form[de-form]');
 
 					if (formEl) {
-						_context19.next = 6;
+						_context19.next = 8;
 						break;
 					}
 
 					return _context19.abrupt('return');
 
-				case 6:
+				case 8:
 					Logger.log('Imageboard check');
 
 					if (locStorage) {
-						_context19.next = 11;
+						_context19.next = 13;
 						break;
 					}
 
 					if (checkStorage()) {
-						_context19.next = 10;
+						_context19.next = 12;
 						break;
 					}
 
 					return _context19.abrupt('return');
 
-				case 10:
+				case 12:
 					initNavFuncs();
 
-				case 11:
-					return _context19.delegateYield(getStored('DESU_Exclude'), 't0', 12);
+				case 13:
+					return _context19.delegateYield(getStored('DESU_Exclude'), 't0', 14);
 
-				case 12:
+				case 14:
 					str = _context19.t0;
 
 					if (!(str && str.includes(aib.dm))) {
-						_context19.next = 15;
+						_context19.next = 17;
 						break;
 					}
 
 					return _context19.abrupt('return');
 
-				case 15:
+				case 17:
 					excludeList = str || '';
 
 					if (Cfg) {
-						_context19.next = 23;
+						_context19.next = 25;
 						break;
 					}
 
 					if (!cfgPromise) {
-						_context19.next = 22;
+						_context19.next = 24;
 						break;
 					}
 
-					_context19.next = 20;
+					_context19.next = 22;
 					return cfgPromise;
 
-				case 20:
-					_context19.next = 23;
+				case 22:
+					_context19.next = 25;
 					break;
 
-				case 22:
-					return _context19.delegateYield(readCfg(), 't1', 23);
+				case 24:
+					return _context19.delegateYield(readCfg(), 't1', 25);
 
-				case 23:
+				case 25:
 					Logger.log('Config loading');
 
 					if (!(!Cfg.disabled && (aib.init && aib.init() || $id('de-panel')))) {
-						_context19.next = 26;
+						_context19.next = 28;
 						break;
 					}
 
 					return _context19.abrupt('return');
 
-				case 26:
+				case 28:
 					addSVGIcons();
 
 					if (!Cfg.disabled) {
-						_context19.next = 31;
+						_context19.next = 33;
 						break;
 					}
 
@@ -19120,7 +19131,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					scriptCSS();
 					return _context19.abrupt('return');
 
-				case 31:
+				case 33:
 					initStorageEvent();
 					parseURL();
 					if (aib.t) {
@@ -19135,9 +19146,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						});
 						Logger.log('Time correction');
 					}
-					return _context19.delegateYield(readMyPosts(), 't2', 37);
+					return _context19.delegateYield(readMyPosts(), 't2', 39);
 
-				case 37:
+				case 39:
 					Logger.log('Read my posts');
 					$hide(docBody);
 					dummy = doc.createElement('div');
@@ -19145,21 +19156,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					Logger.log('Replace delform');
 					pByEl = new Map();
 					pByNum = new Map();
-					_context19.prev = 44;
+					_context19.prev = 46;
 
 					DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
-					_context19.next = 53;
+					_context19.next = 55;
 					break;
 
-				case 48:
-					_context19.prev = 48;
-					_context19.t3 = _context19['catch'](44);
+				case 50:
+					_context19.prev = 50;
+					_context19.t3 = _context19['catch'](46);
 
 					console.log('DELFORM ERROR:\n' + getErrorMessage(_context19.t3));
 					$show(docBody);
 					return _context19.abrupt('return');
 
-				case 53:
+				case 55:
 					Logger.log('Parse delform');
 					pr = new PostForm($q(aib.qForm), false, doc);
 					Logger.log('Parse postform');
@@ -19179,19 +19190,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					Logger.log('Display page');
 					toggleInfinityScroll();
 					Logger.log('Infinity scroll');
-					return _context19.delegateYield(readPostsData(DelForm.first.firstThr.op), 't4', 70);
+					return _context19.delegateYield(readPostsData(DelForm.first.firstThr.op), 't4', 72);
 
-				case 70:
+				case 72:
 					Logger.log('Hide posts');
 					scrollPage();
 					Logger.log('Scroll page');
 					Logger.finish();
 
-				case 74:
+				case 76:
 				case 'end':
 					return _context19.stop();
 			}
-		}, _marked[7], this, [[44, 48]]);
+		}, _marked[7], this, [[46, 50]]);
 	}
 
 	if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
