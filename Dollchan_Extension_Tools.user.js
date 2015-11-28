@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = 'fd859e0';
+	var commit = '8e8354d';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3362,12 +3362,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function $Q(path) {
 		var root = arguments.length <= 1 || arguments[1] === undefined ? docBody : arguments[1];
 
+		console.log(path);
 		return root.querySelectorAll(path);
 	}
 
 	function $q(path) {
 		var root = arguments.length <= 1 || arguments[1] === undefined ? docBody : arguments[1];
 
+		console.log(path);
 		return root.querySelector(path);
 	}
 
@@ -15471,11 +15473,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					rules[_key6 - 1] = arguments[_key6];
 				}
 
-				if (this.Presto) {
-					return leftSel + rules.join(', ' + leftSel);
-				} else {
-					return leftSel + (this.Firefox ? ':-moz-' : ':-webkit-') + 'any(' + rules.join(', ') + ')';
-				}
+				return leftSel + rules.join(', ' + leftSel);
 			},
 
 			fixLink: safari ? getAbsLink : function fixLink(url) {

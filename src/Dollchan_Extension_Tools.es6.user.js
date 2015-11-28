@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = 'fd859e0';
+var commit = '8e8354d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -616,10 +616,12 @@ nativeXHRworks = true;
 // ===========================================================================================================
 
 function $Q(path, root = docBody) {
+	console.log(path);
 	return root.querySelectorAll(path);
 }
 
 function $q(path, root = docBody) {
+	console.log(path);
 	return root.querySelector(path);
 }
 
@@ -11237,11 +11239,7 @@ function initNavFuncs() {
 			});
 		},
 		cssMatches(leftSel, ...rules) {
-			if(this.Presto) {
-				return leftSel + rules.join(', ' + leftSel);
-			} else {
-				return leftSel + (this.Firefox ? ':-moz-' : ':-webkit-') + 'any(' + rules.join(', ') + ')';
-			}
+			return leftSel + rules.join(', ' + leftSel);
 		},
 		fixLink: safari ? getAbsLink : function fixLink(url) {
 			return url;
