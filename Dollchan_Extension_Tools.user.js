@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = '9403882';
+	var commit = 'f587618';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -8501,14 +8501,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				if (isAdded) {
 					saveCfg('hideBySpell', true);
+					if (chk) {
+						chk.checked = true;
+					}
+				} else if (!spells[1] && !spells[2] && !spells[3]) {
+					saveCfg('hideBySpell', false);
+					if (chk) {
+						chk.checked = false;
+					}
 				}
 				saveCfg('spells', JSON.stringify(spells));
 				this.setSpells(spells, true);
 				if (fld) {
 					fld.value = this.list;
-					if (isAdded) {
-						chk.checked = true;
-					}
 				}
 				Pview.updatePosition(true);
 				return;
