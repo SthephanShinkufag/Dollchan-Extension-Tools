@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = '8e63d80';
+var commit = '0166a8d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -6805,7 +6805,7 @@ function PostForm(form, ignoreForm, dc) {
 			val = Spells.outReplace(val);
 		}
 		if(this.tNum && pByNum.get(this.tNum).subj === 'Dollchan Extension Tools') {
-			var temp = '\n\n' + this._wrapText(aib.markupBB, aib.markupTags[5],
+			var temp = '\n\n' + this._wrapText(aib.markupTags[5],
 				'-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit +
 				' [' + nav.scriptInstall + ']')[1];
 			if(!val.includes(temp)) {
@@ -6939,23 +6939,26 @@ PostForm.prototype = {
 		}
 		tPanel.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
 		$after(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : this.subm, tPanel);
-		id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub', 'quote'],
-		val = ['B', 'i', 'U', 'S', '%', 'C', 'v', '^', '&gt;']
+		id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'],
+		val = ['B', 'i', 'U', 'S', '%', 'C', 'v', '^']
 		btns = aib.markupTags;
 		for(var i = 0, len = btns.length; i < len; ++i) {
 			if(btns[i] === '') {
 				continue;
 			}
-			html += '<span id="de-btn-' + id[i] + '" de-title="' + Lng.txtBtn[i][lang] +
-				'" de-tag="' + btns[i] + '">' + (
-					Cfg.addTextBtns === 2 ?
-						(html === '' ? '[ ' : '') + '<a class="de-abtn" href="#">' + val[i] + '</a>' +
-						(i === len - 1 ? ' ]' : ' / ') :
-					Cfg.addTextBtns === 3 ?
-						'<button type="button" style="font-weight: bold;">' + val[i] + '</button>' : ''
-				) + '</span>';
+			html +=
+			`<span id="de-btn-${ id[i] }" de-title="${ Lng.txtBtn[i][lang] }" de-tag="${ btns[i] }">${
+				Cfg.addTextBtns === 2 ?
+					(html === '' ? '[ ' : '') + `<a class="de-abtn" href="#">${ val[i] }</a> / ` :
+				Cfg.addTextBtns === 3 ?
+					`<button type="button" style="font-weight: bold;">${ val[i] }</button>` : ''
+			}</span>`;
 		}
-		tPanel.innerHTML = html;
+		tPanel.innerHTML = html +
+		`<span id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
+			Cfg.addTextBtns === 2 ? '<a class="de-abtn" href="#">&gt;</a> ]' :
+			Cfg.addTextBtns === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' : ''
+		}</span>`;
 	},
 	delFilesUtils() {
 		for(var inp = this.fileObj; inp; inp = inp.next) {
@@ -7019,7 +7022,7 @@ PostForm.prototype = {
 				quotetxt = '';
 			} else {
 				var scrtop = x.scrollTop,
-					val = this._wrapText(aib.markupBB, el.getAttribute('de-tag'), x.value.substring(start, end)),
+					val = this._wrapText(el.getAttribute('de-tag'), x.value.substring(start, end)),
 					len = start + val[0];
 				x.value = x.value.substr(0, start) + val[1] + x.value.substr(end);
 				x.setSelectionRange(len, len);
@@ -7189,9 +7192,13 @@ PostForm.prototype = {
 			}
 		}
 	},
-	_wrapText(markupBB, tag, text) {
-		var m;
-		if(markupBB || aib.tiny && tag === 'code') {
+	_wrapText(tag, text) {
+		var m, isBB = aib.markupBB;
+		if(tag.startsWith('[')) {
+			tag = tag.substr(1);
+			isBB = true;
+		}
+		if(isBB) {
 			var str;
 			if(text.includes('\n')) {
 				str = '[' + tag + ']' + text + '[/' + tag + ']';
@@ -11394,8 +11401,7 @@ class BaseBoard {
 		return val;
 	}
 	get markupTags() {
-		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] :
-			['**', '*', '', '^H', '%%', '`', '', '', 'q'];
+		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
 	}
 	get needRep() { // Sets here only
 		return dTime || Spells.reps || Cfg.crossLinks || this.repFn || this.hasTextLinks;
@@ -11585,7 +11591,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return val;
 		}
 		get markupTags() {
-			return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'];
+			return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB'];
 		}
 		get _hasNames() { // Makaba hack. Sets here only
 			var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]');
@@ -11782,7 +11788,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return 'p.fileinfo > a:first-of-type';
 		}
 		get markupTags() {
-			return ["'''", "''", '__', '~~', '**', 'code', '', '', 'q'];
+			return ["'''", "''", '__', '~~', '**', '[code'];
 		}
 		fixVideo(isPost, data) {
 			var videos = [],
@@ -11968,6 +11974,18 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['link[href$="phutaba.css"]', Phutaba]);
 
 	// Domains
+	class _0chanCc extends _0chan {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.markupBB = false;
+		}
+		get markupTags() {
+			return ['**', '*', '[u', '[s', '%%', '[code'];
+		}
+	}
+	ibDomains['0chan.cc'] = _0chanCc;
+
 	class _0chanSo extends _0chan {
 		init() {
 			if(this.host !== 'www.0-chan.ru') {
@@ -12173,7 +12191,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			.topmenu { position: static; }`;
 		}
 		get markupTags() {
-			return ['**', '*', '__', '^^', '%%', '`', '', '', 'q'];
+			return ['**', '*', '__', '^^', '%%', '`'];
 		}
 		getCaptchaSrc(src, tNum) {
 			return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
@@ -12212,7 +12230,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.firstPage = 1;
 			this.hasCatalog = true;
 			this.hasTextLinks = true;
-			this.markupBB = true;
 			this.res = 'thread/';
 			this.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
 			this.thrid = 'resto';
@@ -12232,7 +12249,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.fileText > a';
 		}
 		get markupTags() {
-			return ['', '', '', '', 'spoiler', '', '', '', 'q'];
+			return ['', '', '', '', '[spoiler'];
 		}
 		get updateCaptcha() {
 			var el = $id('captchaFormPart'),
@@ -12640,7 +12657,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.thread_body';
 		}
 		get markupTags() {
-			return ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'];
+			return ['b', 'i', 'u', 's', 'spoiler', 'aa'];
 		}
 		fixFileInputs(el) {
 			var str = '';
@@ -12845,7 +12862,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			time::after { content: none; }`;
 		}
 		get markupTags() {
-			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'];
+			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup'];
 		}
 		init() {
 			var val = '{"simpleNavbar":true,"showInfo":true}';
