@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = '0166a8d';
+var commit = '65008e3';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -745,13 +745,9 @@ function $del(el) {
 }
 
 function $DOM(html) {
-	try {
-		return new DOMParser().parseFromString(html, 'text/html');
-	} catch(e) { // XXX: nav.Presto
-		var myDoc = doc.implementation.createHTMLDocument('');
-		myDoc.documentElement.innerHTML = html;
-		return myDoc;
-	}
+	var myDoc = doc.implementation.createHTMLDocument('');
+	myDoc.documentElement.innerHTML = html;
+	return myDoc;
 }
 
 function $pd(e) {
@@ -5122,10 +5118,10 @@ function ajaxLoad(url, returnForm = true, useCache = false) {
 	return $ajax(ajaxURL, useCache && cData && cData.params).then(xhr => {
 		var headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders()
 		                                             : xhr.responseHeaders;
-		var data = ajaxLoad.readCacheData(headers, useCache);
+		var data = ajaxLoad.readCacheData(headers);
 		if(!data.hasCacheControl && !ajaxLoad.cacheData.has(url)) {
 			ajaxLoad.cacheData.set(url, data);
-			return $ajax(ajaxLoad.fixCachedURL(url), data.params);
+			return $ajax(ajaxLoad.fixCachedURL(url), useCache && data.params);
 		}
 		ajaxLoad.cacheData.set(url, data);
 		return xhr;
@@ -5141,7 +5137,7 @@ ajaxLoad.cacheData = new Map();
 ajaxLoad.fixCachedURL = function(url) {
 	return url + (url.includes('?') ? '&' : '?' ) + 'nocache=' + Math.random();
 };
-ajaxLoad.readCacheData = function(ajaxHeaders, needHeaders) {
+ajaxLoad.readCacheData = function(ajaxHeaders) {
 	var hasCacheControl = false,
 		ETag = null,
 		LastModified = null,
@@ -5151,16 +5147,14 @@ ajaxLoad.readCacheData = function(ajaxHeaders, needHeaders) {
 		if(header.startsWith('Cache-Control: ')) {
 			hasCacheControl = true;
 			i++;
-		} else if(needHeaders) {
-			if(header.startsWith('Last-Modified: ')) {
-				LastModified = header.substr(15);
-				i++;
-			} else if(header.startsWith('Etag: ')) {
-				ETag = header.substr(6);
-				i++;
-			}
+		} else if(header.startsWith('Last-Modified: ')) {
+			LastModified = header.substr(15);
+			i++;
+		} else if(header.startsWith('Etag: ')) {
+			ETag = header.substr(6);
+			i++;
 		}
-		if(i === (needHeaders ? 3 : 1)) {
+		if(i === 3) {
 			break;
 		}
 	}
