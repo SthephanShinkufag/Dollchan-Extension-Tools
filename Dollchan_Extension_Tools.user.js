@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = 'c1319ef';
+	var commit = '1106f09';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12681,8 +12681,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				    isOutEvent = type === 'mouseout',
 				    isPview = this instanceof Pview;
 				if (type === 'click') {
-					if (e.button !== 0) {
-						return;
+					switch (e.button) {
+						case 0:
+							break;
+						case 1:
+							e.stopPropagation();
+												default:
+							return;
 					}
 					if (this._menu) {
 						this._menu.remove();
