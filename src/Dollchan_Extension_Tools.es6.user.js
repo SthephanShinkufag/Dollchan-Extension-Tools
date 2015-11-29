@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = '2ef0017';
+var commit = 'c1319ef';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8492,7 +8492,6 @@ class ExpandableMedia {
 		return dat[0];
 	}
 	collapse(e) {
-		console.log('COLLAPSE', e, new Error().stack);
 		if(!this.isVideo || !this.isControlClick(e, this._fullEl.style.height)) {
 			this.expanded = false;
 			$del(this._fullEl);
