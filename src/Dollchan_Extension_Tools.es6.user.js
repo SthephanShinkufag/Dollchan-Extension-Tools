@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.0';
-var commit = '61fd081';
+var commit = 'cf0d3f4';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3868,7 +3868,7 @@ var HotKeys = {
 				} else if(idx === 2) { // Open thread
 					post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 					if(post) {
-						if(nav.Firefox) {
+						if(typeof GM_openInTab === 'function') {
 							GM_openInTab(aib.getThrdUrl(aib.b, post.tNum), false, true);
 						} else {
 							window.open(aib.getThrdUrl(aib.b, post.tNum), '_blank');
@@ -11176,12 +11176,19 @@ function checkStorage() {
 }
 
 function initNavFuncs() {
+	var ua = window.navigator.userAgent,
+		firefox = +(navigator.userAgent.match(/rv:(\d{2,})\./) || [false])[1],
+		presto = window.opera ? +window.opera.version() : 0,
+		webkit = ua.includes('WebKit/'),
+		chrome = webkit && ua.includes('Chrome/'),
+		safari = webkit && !chrome,
+		isGM = false,
+		isChromeStorage = window.chrome && !!window.chrome.storage,
+		isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	if(!('requestAnimationFrame' in window)) { // XXX: nav.Presto
 		window.requestAnimationFrame = (fn) => setTimeout(fn, 0);
 	}
-	try {
-		new File([''], '');
-	} catch(e) {
+	if(presto || firefox < 31) {
 		var origFormData = FormData;
 		var origAppend = FormData.prototype.append;
 		FormData = function FormData(...args) {
@@ -11203,15 +11210,6 @@ function initNavFuncs() {
 	if('toJSON' in aProto) {
 		delete aProto.toJSON;
 	}
-	var ua = window.navigator.userAgent,
-		firefox = ua.includes('Gecko/'),
-		presto = window.opera ? +window.opera.version() : 0,
-		webkit = ua.includes('WebKit/'),
-		chrome = webkit && ua.includes('Chrome/'),
-		safari = webkit && !chrome,
-		isGM = false,
-		isChromeStorage = window.chrome && !!window.chrome.storage,
-		isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	try {
 		isGM = (typeof GM_setValue === 'function') &&
 			(!chrome || !GM_setValue.toString().includes('not supported'));
@@ -11254,8 +11252,8 @@ function initNavFuncs() {
 			try {
 				val = 'Worker' in window && 'URL' in window;
 			} catch(e) {}
-			if(val && this.Firefox) {
-				val = +(navigator.userAgent.match(/rv:(\d{2})/) || [])[1] >= 40;
+			if(val && this.Firefox && this.Firefox < 40) {
+				val = false;
 			}
 			Object.defineProperty(this, 'hasWorker', { value: val });
 			return val;
