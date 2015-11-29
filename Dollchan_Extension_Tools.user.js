@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = '65008e3';
+	var commit = 'fe476ed';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4312,19 +4312,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function fixEventEl(el) {
-		if (!el) {
-			return el;
-		}
-		var svg;
-		if (nav.Presto) {
-			svg = el.correspondingUseElement;
+		if (el && nav.Presto) {
+			var svg = el.correspondingUseElement;
 			if (svg) {
-				svg = svg.ownerSVGElement;
+				el = svg.ownerSVGElement;
 			}
-		} else {
-			svg = el.ownerSVGElement;
 		}
-		return svg || el;
+		return el;
 	}
 
 	function onDOMLoaded(fn) {
@@ -18807,7 +18801,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }\
 	.de-svg-back { fill: inherit; stroke: none; }\
 	.de-svg-stroke { stroke: currentColor; fill: none; }\
-	.de-svg-fill { stroke: none; fill: currentColor; }';
+	.de-svg-fill { stroke: none; fill: currentColor; }\
+	use { fill: inherit; pointer-events: none; }';
 
 		if (Cfg.disabled) {
 			$css(x).id = 'de-css';
@@ -19004,8 +18999,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '"; }\
 	#de-updater-count::before { content: ": "; }\
 	.de-viewed { color: #747488 !important; }\
-	form > hr { clear: both }\
-	use { fill: inherit; }';
+	form > hr { clear: both }';
 
 		$css(x).id = 'de-css';
 		$css('').id = 'de-css-dynamic';
