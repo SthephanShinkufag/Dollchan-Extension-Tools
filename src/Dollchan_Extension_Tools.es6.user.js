@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = '1106f09';
+var commit = '50fc2ae';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3668,7 +3668,7 @@ var HotKeys = {
 			/* Reply or create thread     */ 0x0052 /* = R          */,
 			/* Hide selected thread/post  */ 0x0048 /* = H          */,
 			/* Open previous page/picture */ 0x1025 /* = Ctrl+Left  */,
-			/* Send post (txt)            */ 0xC00D /* = Alt+Enter  */,
+			/* Send post (txt)            */ 0x900D /* = Ctrl+Enter */,
 			/* Open/close "Favorites"     */ 0x4046 /* = Alt+F      */,
 			/* Open/close "Hidden"        */ 0x4048 /* = Alt+H      */,
 			/* Open/close panel           */ 0x0050 /* = P          */,
@@ -11197,11 +11197,8 @@ function initNavFuncs() {
 		window.File = function File(arr, name) {
 			var rv = new Blob(arr);
 			rv.name = name;
-			rv.lastModifiedDate = new Date();
-			rv.__proto__ = File.prototype;
 			return rv;
 		};
-		File.prototype = new Blob;
 	}
 	if('toJSON' in aProto) {
 		delete aProto.toJSON;

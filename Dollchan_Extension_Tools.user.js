@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = '1106f09';
+	var commit = '50fc2ae';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -6561,7 +6561,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		version: 7,
 		getDefaultKeys: function getDefaultKeys() {
 			var globKeys = [
-			0x004B 			, 0x004A 			, 0x0052 			, 0x0048 			, 0x1025 			, 0xC00D 			, 0x4046 			, 0x4048 			, 0x0050 			, 0x0042 			, 0x4053 			, 0x0049 			, 0xC042 			, 0xC049 			, 0xC054 			, 0xC050 			, 0xC043 			, 0x1027 			, 0x4056 			];
+			0x004B 			, 0x004A 			, 0x0052 			, 0x0048 			, 0x1025 			, 0x900D 			, 0x4046 			, 0x4048 			, 0x0050 			, 0x0042 			, 0x4053 			, 0x0049 			, 0xC042 			, 0xC049 			, 0xC054 			, 0xC050 			, 0xC043 			, 0x1027 			, 0x4056 			];
 			var nonThrKeys = [
 			0x004D 			, 0x004E 			, 0x0056 			, 0x0045 			];
 			var thrKeys = [
@@ -15429,11 +15429,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			window.File = function File(arr, name) {
 				var rv = new Blob(arr);
 				rv.name = name;
-				rv.lastModifiedDate = new Date();
-				rv.__proto__ = File.prototype;
 				return rv;
 			};
-			File.prototype = new Blob();
 		}
 		if ('toJSON' in aProto) {
 			delete aProto.toJSON;
