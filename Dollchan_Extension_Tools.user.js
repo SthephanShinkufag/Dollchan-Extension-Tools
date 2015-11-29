@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = 'a95d277';
+	var commit = 'd2dde91';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -14877,7 +14877,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 				if (this.loadCount === 0) {
 					if (op.trunc) {
-						op.updateMsg(replacePost($q(aib.qPostMsg, form)), maybeSpells.value);
+						var newMsg = doc.adoptNode($q(aib.qPostMsg, form));
+						op.updateMsg(replacePost(newMsg), maybeSpells.value);
 					}
 					op.ref.removeMap();
 				}
@@ -15096,7 +15097,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					    post = pEl ? pByNum.get(aib.getPNum(pEl)) : this.op;
 					if (post && !post.banned) {
 						if (!$q(aib.qBan, post.el)) {
-							post.msg.appendChild(bEl);
+							post.msg.appendChild(doc.adoptNode(bEl));
 						}
 						post.banned = true;
 					}

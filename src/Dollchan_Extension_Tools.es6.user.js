@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = 'a95d277';
+var commit = '0166a8d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10732,7 +10732,8 @@ class Thread {
 		$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 		if(this.loadCount === 0) {
 			if(op.trunc) {
-				op.updateMsg(replacePost($q(aib.qPostMsg, form)), maybeSpells.value);
+				var newMsg = doc.adoptNode($q(aib.qPostMsg, form));
+				op.updateMsg(replacePost(newMsg), maybeSpells.value);
 			}
 			op.ref.removeMap();
 		}
@@ -10925,7 +10926,7 @@ class Thread {
 				post = pEl ? pByNum.get(aib.getPNum(pEl)) : this.op;
 			if(post && !post.banned) {
 				if(!$q(aib.qBan, post.el)) {
-					post.msg.appendChild(bEl);
+					post.msg.appendChild(doc.adoptNode(bEl));
 				}
 				post.banned = true;
 			}
