@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = '0166a8d';
+var commit = 'a95d277';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5274,6 +5274,7 @@ var Pages = {
 	_adding: false,
 	_addPromise: null,
 	_addForm(formEl, pageNum) {
+		formEl = doc.adoptNode(formEl);
 		$hide((formEl = replacePost(formEl)));
 		$after(DelForm.last.el, formEl);
 		var form = new DelForm(formEl, +pageNum, DelForm.last);
@@ -6640,14 +6641,15 @@ SpellsInterpreter.prototype = {
 // POSTFORM
 // ===========================================================================================================
 
-function PostForm(form, ignoreForm, dc) {
-	this.oeForm = $q('form[name="oeform"], form[action*="paint"]', dc);
+function PostForm(form, oeForm = null, ignoreForm = false) {
 	if(!ignoreForm && !form) {
 		if(this.oeForm) {
 			ajaxLoad(aib.getThrdUrl(aib.b, Thread.first.num), false).then(loadedDoc => {
-				pr = new PostForm($q(aib.qForm, loadedDoc), true, loadedDoc);
+				var form = $q(aib.qForm, loadedDoc),
+					oeForm = $q('form[name="oeform"], form[action*="paint"]', loadedDoc)
+				pr = new PostForm(form && doc.adoptNode(form), oeForm && doc.adoptNode(oeForm), true);
 			}, () => {
-				pr = new PostForm(null, true, dc);
+				pr = new PostForm(null, null, true);
 			});
 		} else {
 			this.form = null;
@@ -6656,6 +6658,7 @@ function PostForm(form, ignoreForm, dc) {
 	}
 	this.tNum = aib.t;
 	this.form = form;
+	this.oeForm = oeForm || $q('form[name="oeform"], form[action*="paint"]');
 	this.txta = $q('tr:not([style*="none"]) textarea:not([style*="display:none"])', form);
 	this.subm = $q('tr input[type="submit"]', form);
 	this.file = $q('tr input[type="file"]', form);
@@ -9177,13 +9180,13 @@ class AbstractPost {
 		ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(form => {
 			var maybeSpells = new Maybe(SpellsRunner);
 			if(this.isOp) {
-				this.updateMsg(replacePost($q(aib.qPostMsg, form)), maybeSpells.value);
+				this.updateMsg(replacePost(doc.adoptNode($q(aib.qPostMsg, form))), maybeSpells.value);
 				$del(node);
 			} else {
 				var els = $Q(aib.qRPost, form);
 				for(var i = 0, len = els.length; i < len; i++) {
 					if(this.num === aib.getPNum(els[i])) {
-						this.updateMsg(replacePost($q(aib.qPostMsg, els[i])), maybeSpells.value);
+						this.updateMsg(replacePost(doc.adoptNode($q(aib.qPostMsg, els[i]))), maybeSpells.value);
 						$del(node);
 						break;
 					}
@@ -10111,7 +10114,7 @@ class Pview extends AbstractPost {
 	}
 	_onload(b, form) {
 		var parentNum = this.parent.num,
-			post = new PviewsCache(form, b, this.tNum).getPost(this.num);
+			post = new PviewsCache(doc.adoptNode(form), b, this.tNum).getPost(this.num);
 		if(post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(parentNum))) {
 			var rm;
 			if(post.ref.hasMap) {
@@ -10644,10 +10647,11 @@ class Thread {
 		return this.op.top;
 	}
 	addPost(parent, el, i, prev, maybeVParser) {
-		var post, num = aib.getPNum(el);
+		var post, num = aib.getPNum(el),
+			wrap = doc.adoptNode(aib.getWrap(el, false));
 		el = replacePost(el);
 		post = new Post(el, this, num, i, false, prev);
-		parent.appendChild(aib.getWrap(el, false));
+		parent.appendChild(wrap);
 		if(aib.t && !doc.hidden && Cfg.animation) {
 			nav.animEvent(post.el, function(node) {
 				node.classList.remove('de-post-new');
@@ -10786,7 +10790,8 @@ class Thread {
 		}
 		while(existed-- !== 0) {
 			if(post.trunc) {
-				post.updateMsg(replacePost($q(aib.qPostMsg, loadedPosts[post.count - 1])), maybeSpells.value);
+				var newMsg = doc.adoptNode($q(aib.qPostMsg, loadedPosts[post.count - 1]));
+				post.updateMsg(replacePost(newMsg), maybeSpells.value);
 			}
 			if(post.omitted) {
 				post.wrap.classList.remove('de-hidden');
@@ -14451,7 +14456,7 @@ function* runMain(checkDomains, cfgPromise) {
 		return;
 	}
 	Logger.log('Parse delform');
-	pr = new PostForm($q(aib.qForm), false, doc);
+	pr = new PostForm($q(aib.qForm));
 	Logger.log('Parse postform');
 	if(Cfg.hotKeys) {
 		HotKeys.enable();

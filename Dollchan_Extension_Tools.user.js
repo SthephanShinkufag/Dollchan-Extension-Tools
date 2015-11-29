@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = '0166a8d';
+	var commit = 'a95d277';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -8301,6 +8301,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_adding: false,
 		_addPromise: null,
 		_addForm: function _addForm(formEl, pageNum) {
+			formEl = doc.adoptNode(formEl);
 			$hide(formEl = replacePost(formEl));
 			$after(DelForm.last.el, formEl);
 			var form = new DelForm(formEl, +pageNum, DelForm.last);
@@ -9997,16 +9998,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-	function PostForm(form, ignoreForm, dc) {
+	function PostForm(form) {
 		var _this14 = this;
 
-		this.oeForm = $q('form[name="oeform"], form[action*="paint"]', dc);
+		var oeForm = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+		var ignoreForm = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+
 		if (!ignoreForm && !form) {
 			if (this.oeForm) {
 				ajaxLoad(aib.getThrdUrl(aib.b, Thread.first.num), false).then(function (loadedDoc) {
-					pr = new PostForm($q(aib.qForm, loadedDoc), true, loadedDoc);
+					var form = $q(aib.qForm, loadedDoc),
+					    oeForm = $q('form[name="oeform"], form[action*="paint"]', loadedDoc);
+					pr = new PostForm(form && doc.adoptNode(form), oeForm && doc.adoptNode(oeForm), true);
 				}, function () {
-					pr = new PostForm(null, true, dc);
+					pr = new PostForm(null, null, true);
 				});
 			} else {
 				this.form = null;
@@ -10015,6 +10020,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 		this.tNum = aib.t;
 		this.form = form;
+		this.oeForm = oeForm || $q('form[name="oeform"], form[action*="paint"]');
 		this.txta = $q('tr:not([style*="none"]) textarea:not([style*="display:none"])', form);
 		this.subm = $q('tr input[type="submit"]', form);
 		this.file = $q('tr input[type="file"]', form);
@@ -12947,13 +12953,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(function (form) {
 					var maybeSpells = new Maybe(SpellsRunner);
 					if (_this29.isOp) {
-						_this29.updateMsg(replacePost($q(aib.qPostMsg, form)), maybeSpells.value);
+						_this29.updateMsg(replacePost(doc.adoptNode($q(aib.qPostMsg, form))), maybeSpells.value);
 						$del(node);
 					} else {
 						var els = $Q(aib.qRPost, form);
 						for (var i = 0, len = els.length; i < len; i++) {
 							if (_this29.num === aib.getPNum(els[i])) {
-								_this29.updateMsg(replacePost($q(aib.qPostMsg, els[i])), maybeSpells.value);
+								_this29.updateMsg(replacePost(doc.adoptNode($q(aib.qPostMsg, els[i]))), maybeSpells.value);
 								$del(node);
 								break;
 							}
@@ -14104,7 +14110,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: '_onload',
 			value: function _onload(b, form) {
 				var parentNum = this.parent.num,
-				    post = new PviewsCache(form, b, this.tNum).getPost(this.num);
+				    post = new PviewsCache(doc.adoptNode(form), b, this.tNum).getPost(this.num);
 				if (post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(parentNum))) {
 					var rm;
 					if (post.ref.hasMap) {
@@ -14772,10 +14778,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'addPost',
 			value: function addPost(parent, el, i, prev, maybeVParser) {
 				var post,
-				    num = aib.getPNum(el);
+				    num = aib.getPNum(el),
+				    wrap = doc.adoptNode(aib.getWrap(el, false));
 				el = replacePost(el);
 				post = new Post(el, this, num, i, false, prev);
-				parent.appendChild(aib.getWrap(el, false));
+				parent.appendChild(wrap);
 				if (aib.t && !doc.hidden && Cfg.animation) {
 					nav.animEvent(post.el, function (node) {
 						node.classList.remove('de-post-new');
@@ -14935,7 +14942,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				while (existed-- !== 0) {
 					if (post.trunc) {
-						post.updateMsg(replacePost($q(aib.qPostMsg, loadedPosts[post.count - 1])), maybeSpells.value);
+						var newMsg = doc.adoptNode($q(aib.qPostMsg, loadedPosts[post.count - 1]));
+						post.updateMsg(replacePost(newMsg), maybeSpells.value);
 					}
 					if (post.omitted) {
 						post.wrap.classList.remove('de-hidden');
@@ -19200,7 +19208,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				case 55:
 					Logger.log('Parse delform');
-					pr = new PostForm($q(aib.qForm), false, doc);
+					pr = new PostForm($q(aib.qForm));
 					Logger.log('Parse postform');
 					if (Cfg.hotKeys) {
 						HotKeys.enable();
