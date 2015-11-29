@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.26.0';
-var commit = '50fc2ae';
+var commit = '3960a5a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -4143,7 +4143,7 @@ KeyEditListener.prototype = {
 				}
 				var temp = KeyEditListener.getEditMarkup(this.keys);
 				this.allKeys = temp[0];
-				$q('.de-popup-msg', this.popupEl).innerHTML = temp[1];
+				this.popupEl.innerHTML = temp[1];
 				this.allInputs = Array.from($Q('.de-input-key', this.popupEl));
 				this.errCount = 0;
 				delete this.saveButton;
