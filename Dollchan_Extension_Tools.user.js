@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.26.0';
-	var commit = 'fe476ed';
+	var commit = '2ef0017';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12114,6 +12114,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_createClass(ExpandableMedia, [{
 			key: 'collapse',
 			value: function collapse(e) {
+				console.log('COLLAPSE', e, new Error().stack);
 				if (!this.isVideo || !this.isControlClick(e, this._fullEl.style.height)) {
 					this.expanded = false;
 					$del(this._fullEl);
@@ -12175,6 +12176,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'expand',
 			value: function expand(inPost, e) {
+				if (!e.bubbles) {
+					return;
+				}
 				if (!inPost) {
 					if (Attachment.viewer) {
 						if (Attachment.viewer.data === this) {
