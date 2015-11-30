@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'be65a18';
+	var commit = '4122e25';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15336,7 +15336,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function initNavFuncs() {
 		var ua = window.navigator.userAgent,
-		    firefox = +(navigator.userAgent.match(/rv:(\d{2,})\./) || [false])[1],
+		    firefox = ua.includes('Gecko/'),
 		    presto = window.opera ? +window.opera.version() : 0,
 		    webkit = ua.includes('WebKit/'),
 		    chrome = webkit && ua.includes('Chrome/'),
@@ -15353,7 +15353,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var needFileHack = false;
 		try {
 			new File([''], '');
-			needFileHack = firefox && firefox < 31;
+			if (firefox) {
+				needFileHack = !FormData.prototype.get;
+			}
 		} catch (e) {
 			needFileHack = true;
 		}
@@ -15431,8 +15433,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				try {
 					val = 'Worker' in window && 'URL' in window;
 				} catch (e) {}
-				if (val && this.Firefox && this.Firefox < 40) {
-					val = false;
+				if (val && this.Firefox) {
+					val = +(navigator.userAgent.match(/rv:(\d{2,})\./) || [])[1] >= 40;
 				}
 				Object.defineProperty(this, 'hasWorker', { value: val });
 				return val;
