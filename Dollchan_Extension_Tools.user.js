@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '9ca4199';
+	var commit = '0231d99';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15414,7 +15414,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return setTimeout(fn, 0);
 			};
 		}
-		if (presto || firefox < 31) {
+		if (presto || firefox && firefox < 31) {
 			var origFormData = FormData;
 			var origAppend = FormData.prototype.append;
 			FormData = function FormData() {

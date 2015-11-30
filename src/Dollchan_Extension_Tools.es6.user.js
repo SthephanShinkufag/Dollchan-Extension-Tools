@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '9ca4199';
+var commit = '0231d99';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11188,7 +11188,7 @@ function initNavFuncs() {
 	if(!('requestAnimationFrame' in window)) { // XXX: nav.Presto
 		window.requestAnimationFrame = (fn) => setTimeout(fn, 0);
 	}
-	if(presto || firefox < 31) {
+	if(presto || (firefox && firefox < 31)) {
 		var origFormData = FormData;
 		var origAppend = FormData.prototype.append;
 		FormData = function FormData(...args) {
