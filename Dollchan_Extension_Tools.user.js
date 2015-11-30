@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '4122e25';
+	var commit = 'efbd0f7';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4923,6 +4923,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		handleEvent: function handleEvent(e) {
 			var _this5 = this;
 
+			if (!e.isTrusted) {
+				return;
+			}
 			var el = fixEventEl(e.target);
 			if (el.tagName.toLowerCase() === 'svg') {
 				el = el.parentNode;
@@ -15337,7 +15340,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function initNavFuncs() {
 		var ua = window.navigator.userAgent,
 		    firefox = ua.includes('Gecko/'),
-		    presto = window.opera ? +window.opera.version() : 0,
+		    presto = !!window.opera,
 		    webkit = ua.includes('WebKit/'),
 		    chrome = webkit && ua.includes('Chrome/'),
 		    safari = webkit && !chrome,

@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '4122e25';
+var commit = 'efbd0f7';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1828,6 +1828,9 @@ var panel = Object.create({
 		}
 	},
 	handleEvent(e) {
+		if(!e.isTrusted) {
+			return;
+		}
 		var el = fixEventEl(e.target);
 		if(el.tagName.toLowerCase() === 'svg') {
 			el = el.parentNode;
@@ -11156,7 +11159,7 @@ function checkStorage() {
 function initNavFuncs() {
 	var ua = window.navigator.userAgent,
 		firefox = ua.includes('Gecko/'),
-		presto = window.opera ? +window.opera.version() : 0,
+		presto = !!window.opera,
 		webkit = ua.includes('WebKit/'),
 		chrome = webkit && ua.includes('Chrome/'),
 		safari = webkit && !chrome,
