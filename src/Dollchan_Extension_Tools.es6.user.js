@@ -913,6 +913,10 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			}
 		};
 		if(params) {
+			if(params.onprogress) {
+				obj.upload = { onprogress: params.onprogress };
+				delete params.onprogress;
+			}
 			delete params.method;
 			Object.assign(obj, params);
 		}
@@ -6848,16 +6852,19 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	if(Cfg.ajaxReply === 2) {
 		this.form.onsubmit = e => {
 			$pd(e);
+			$popup(Lng.sendingPost[lang], 'upload', true);
 			if(aib._2chruNet) {
 				docBody.insertAdjacentHTML('beforeend', '<iframe class="ninja" id="csstest" src="/' +
 					aib.b + '/csstest.foo"></iframe>');
 				docBody.lastChild.onload = e => {
 					$del(e.target);
-					spawn(html5Submit, this.form, this.subm, true).then(doUploading);
+					spawn(html5Submit, this.form, this.subm, true)
+						.then(dc => checkUpload(dc), e => $popup(getErrorMessage(e), 'upload', false));
 				};
 				return;
 			}
-			spawn(html5Submit, this.form, this.subm, true).then(doUploading);
+			spawn(html5Submit, this.form, this.subm, true)
+				.then(dc => checkUpload(dc), e => $popup(getErrorMessage(e), 'upload', false));
 		};
 	} else if(Cfg.ajaxReply === 1) {
 		this.form.target = 'de-iframe-pform';
@@ -7683,55 +7690,33 @@ function getSubmitError(dc) {
 	return /successful|uploaded|updating|обновл|удален[о\.]/i.test(err) ? null : err;
 }
 
-var doUploading = async(function* ([hasFiles, getProgress]) {
-	$popup(Lng.sendingPost[lang] + (hasFiles ?
-		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' +
+function getUploadFunc() {
+	$popup(Lng.sendingPost[lang] + '<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' +
 		'</progress><div style="display: none; font: bold 12px arial;">' +
-		'<span></span> / <span></span> (<span></span>)</div>' : ''), 'upload', true);
-	var p, val;
-	if(hasFiles) {
-		var beginTime = Date.now(),
-			inited = false,
-			progress = $id('de-uploadprogress'),
-			counterWrap = progress.nextSibling,
-			counterEl = counterWrap.firstChild,
-			totalEl = counterEl.nextElementSibling,
-			speedEl = totalEl.nextElementSibling;
-	}
-	while((p = getProgress())) {
-		try {
-			val = yield p;
-		} catch(e) {
-			$popup(getErrorMessage(e), 'upload', false);
-			updater.continue();
-			updater.sendErrNotif();
-			if(pr.isQuick) {
-				pr.setReply(true, false);
-			}
-			return;
+		'<span></span> / <span></span> (<span></span>)</div>', 'upload', true);
+	var beginTime = Date.now(),
+		inited = false,
+		progress = $id('de-uploadprogress'),
+		counterWrap = progress.nextElementSibling,
+		counterEl = counterWrap.firstElementChild,
+		totalEl = counterEl.nextElementSibling,
+		speedEl = totalEl.nextElementSibling;
+	return function(data) {
+		if(!inited) {
+			var total = data.total;
+			progress.setAttribute('max', total);
+			$show(progress);
+			totalEl.textContent = prettifySize(total);
+			$show(counterWrap);
+			inited = true;
 		}
-		if(val.done) {
-			checkUpload(val.data);
-			return;
-		}
-		if(hasFiles) {
-			if(!inited) {
-				var total = val.data.total;
-				progress.setAttribute('max', total);
-				$show(progress);
-				totalEl.textContent = prettifySize(total);
-				$show(counterWrap);
-				inited = true;
-			}
-			var loaded = val.data.loaded;
-			progress.value = loaded;
-			counterEl.textContent = prettifySize(loaded);
-			speedEl.textContent = prettifySize((loaded / (Date.now() - beginTime)) * 1e3) +
-			                                   '/' + Lng.second[lang];
-		}
-	}
-	$popup(Lng.internalError[lang], 'upload', false);
-});
+		var loaded = data.loaded;
+		progress.value = loaded;
+		counterEl.textContent = prettifySize(loaded);
+		speedEl.textContent = prettifySize((loaded / (Date.now() - beginTime)) * 1e3) +
+										   '/' + Lng.second[lang];
+	};
+}
 
 function checkUpload(data) {
 	var isDocument = data instanceof HTMLDocument;
@@ -7879,22 +7864,15 @@ function* html5Submit(form, submitter, needProgress = false) {
 		}
 		formData.append(name, value);
 	}
-	if(needProgress) {
-		var lastFuncs = null,
-			promises = [new Promise((resolve, reject) => lastFuncs = {resolve, reject})];
-		$ajax(form.action, {method: 'POST', data: formData, onprogress: e => {
-			lastFuncs.resolve({ done: false, data: {loaded: e.loaded, total: e.total} });
-			promises.push(new Promise((resolve, reject) => lastFuncs = {resolve, reject}));
-		}}).then(xhr => lastFuncs.resolve({done: true, data: aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText)}),
-		         err => lastFuncs.reject(err));
-		return [hasFiles, () => promises.shift()];
-	} else {
-		try {
-			var xhr = yield $ajax(form.action, {method: 'POST', data: formData});
-			return aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText);
-		} catch(err) {
-			return Promise.reject(err);
-		}
+	var ajaxParams = { method: 'POST', data: formData };
+	if(needProgress && hasFiles) {
+		ajaxParams.onprogress = getUploadFunc();
+	}
+	try {
+		var xhr = yield $ajax(form.action, ajaxParams);
+		return aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText);
+	} catch(err) {
+		return Promise.reject(err);
 	}
 }
 
@@ -11188,7 +11166,14 @@ function initNavFuncs() {
 	if(!('requestAnimationFrame' in window)) { // XXX: nav.Presto
 		window.requestAnimationFrame = (fn) => setTimeout(fn, 0);
 	}
-	if(presto || (firefox && firefox < 31)) {
+	var needFileHack = false;
+	try {
+		new File([''], '');
+		needFileHack = firefox && firefox < 31;
+	} catch(e) {
+		needFileHack = true;
+	}
+	if(needFileHack) {
 		var origFormData = FormData;
 		var origAppend = FormData.prototype.append;
 		FormData = function FormData(...args) {
