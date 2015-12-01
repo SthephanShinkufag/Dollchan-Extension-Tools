@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '7b5c266';
+var commit = '59634e3';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8757,13 +8757,10 @@ class Attachment extends ExpandableMedia {
 			value = Attachment.cachedOffset;
 		} else {
 			value = this._computeOffset();
+			value = this.prev ? value + this.post.images.first._computeOffset() : value * 2;
 			if(this.inPview) {
-				value = this.prev ? value + this.post.images.first._computeOffset() : value * 2;
 				value -= parseInt(this.post.el.style.left, 10) - 10;
-			} else {
-				value = this.prev ? value + this.post.images.first._computeOffset() : value * 2;
-			}
-			if(needCache) {
+			} else if(needCache) {
 				Attachment.cachedOffset = value;
 			}
 		}
