@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'a08d02d';
+	var commit = '4750e24';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12175,7 +12175,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.expanded = true;
 				var el = this.el;
 				(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend', '<div class="de-after-fimg"></div>');
-				$hide(el.parentNode);
 
 				var _getFullObject = this.getFullObject(true, function (el, val) {
 					if (el === _this25._fullEl) {
@@ -12195,6 +12194,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._fullEl.onclick = function (e) {
 					return _this25.collapse(e);
 				};
+				$hide(el.parentNode);
 				$after(el.parentNode, this._fullEl);
 			}
 		}, {
@@ -12361,15 +12361,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: '_offset',
 			get: function get() {
-				var val;
+				var val,
+				    el = this._fullEl || this.el;
 				if (this.post.hidden) {
 					this.post.hideContent(false);
-					val = this.el.getBoundingClientRect().left + window.pageXOffset;
+					val = el.getBoundingClientRect().left + window.pageXOffset;
 					this.post.hideContent(true);
 				} else {
-					val = this.el.getBoundingClientRect().left + window.pageXOffset;
+					val = el.getBoundingClientRect().left + window.pageXOffset;
 				}
-				return val;
+				return this.inPview ? val + 30 : val;
 			}
 		}, {
 			key: '_size',

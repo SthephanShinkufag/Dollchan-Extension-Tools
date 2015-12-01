@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'a08d02d';
+var commit = '4750e24';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8570,7 +8570,6 @@ class ExpandableMedia {
 		var el = this.el;
 		(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-after-fimg"></div>');
-		$hide(el.parentNode);
 		var [fullEl, size] = this.getFullObject(true, (el, val) => {
 			if(el === this._fullEl) {
 				fullEl.style.width = val[0] + 'px';
@@ -8581,6 +8580,7 @@ class ExpandableMedia {
 		fullEl.style.height = size[1] + 'px';
 		this._fullEl = fullEl;
 		this._fullEl.onclick = e => this.collapse(e);
+		$hide(el.parentNode);
 		$after(el.parentNode, this._fullEl);
 	}
 	getFollow(isForward) {
@@ -8696,15 +8696,15 @@ class ExpandableMedia {
 	}
 
 	get _offset() {
-		var val;
+		var val, el = this._fullEl || this.el;
 		if(this.post.hidden) {
 			this.post.hideContent(false);
-			val = this.el.getBoundingClientRect().left + window.pageXOffset;
+			val = el.getBoundingClientRect().left + window.pageXOffset;
 			this.post.hideContent(true);
 		} else {
-			val = this.el.getBoundingClientRect().left + window.pageXOffset;
+			val = el.getBoundingClientRect().left + window.pageXOffset;
 		}
-		return val;
+		return this.inPview ? val + 30 : val;
 	}
 	get _size() {
 		var value = this._getImageSize();
