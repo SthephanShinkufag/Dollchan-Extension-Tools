@@ -15,6 +15,7 @@ page.PageMod({
 				return;
 			}
 			console.log('No board.');
+			worker.destroy();
 		});
 	}
 });

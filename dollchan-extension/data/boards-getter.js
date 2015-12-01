@@ -5,7 +5,6 @@ var domains = ['0chan.cc', '0chan.so', '0-chan.ru', '02ch.net', '02ch.su', '2ch.
 if(domains.indexOf(domain) === -1) {
 	var qPath =
 		/* BaseBoard */ '#delform, form[name="delform"], ' +
-		/*    Kusaba */ 'script[src*="kusaba"], form#delform[action$="/board.php"], ' +
 		/*    Makaba */ '#posts-form, ' +
 		/*    Futaba */ 'form[action*="futaba.php"], ' +
 		/* Tinyboard */ 'form[name*="postcontrols"]';
