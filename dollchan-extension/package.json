@@ -1,0 +1,15 @@
+{
+  "title": "Dollchan Extension Tools",
+  "name": "dollchan-extension",
+  "version": "15.11.29",
+  "description": "Doing some profit for imageboards",
+  "author": "Sthephan Shi",
+  "homepage": "https://github.com/SthephanShinkufag/Dollchan-Extension-Tools",
+  "icon": "resource://@dollchan-extension/data/icon.png",
+  "id": "@dollchan-extension",
+  "main": "index.js",
+  "engines": {
+    "firefox": ">=38.0a1"
+  },
+  "license": "MIT"
+}

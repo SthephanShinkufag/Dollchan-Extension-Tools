@@ -48,6 +48,12 @@ gulp.task('make', ['updatecommit'], function() {
 		.pipe(gulp.dest('./'));
 });
 
+gulp.task('makeall', ['make'], function() {
+	return gulp.src('./Dollchan_Extension_Tools.user.js')
+		.pipe(replace('global.regenerator', 'window.regenerator'))
+		.pipe(gulp.dest('./dollchan-extension/data'))
+});
+
 gulp.task('lint', function() {
 	return gulp.src('src/Dollchan_Extension_Tools.es6.user.js')
 		.pipe(jshint({ esnext: true, elision: true, sub: true, supernew: true, curly: true }))

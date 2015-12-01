@@ -2152,7 +2152,7 @@ process.umask = function() { return 0; };
   var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
 
   var inModule = typeof module === "object";
-  var runtime = global.regeneratorRuntime;
+  var runtime = window.regeneratorRuntime;
   if (runtime) {
     if (inModule) {
      
@@ -2166,7 +2166,7 @@ process.umask = function() { return 0; };
 
  
  
-  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
+  runtime = window.regeneratorRuntime = inModule ? module.exports : {};
 
   function wrap(innerFn, outerFn, self, tryLocsList) {
    
