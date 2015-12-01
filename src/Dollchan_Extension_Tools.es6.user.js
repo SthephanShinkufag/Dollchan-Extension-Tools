@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'efbd0f7';
+var commit = '286e962';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1398,6 +1398,7 @@ function onDOMLoaded(fn) {
 		doc.addEventListener('DOMContentLoaded', fn);
 	}
 }
+
 
 // STORAGE
 // ===========================================================================================================
@@ -8346,23 +8347,6 @@ AttachmentViewer.prototype = {
 		Object.defineProperty(this, '_zoomFactor', { value: val });
 		return val;
 	},
-	_getHolder(el, data) {
-		var [width, height, minSize] = data.computeFullSize(false);
-		this._width = width;
-		this._height = height;
-		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
-		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
-		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-		var obj = $add('<div class="de-img-center" style="top:' + this._oldT + 'px; left:' +
-			this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
-		if(data.isImage) {
-			obj.insertAdjacentHTML('afterbegin', '<a href="' + data.src + '"></a>');
-			obj.firstChild.appendChild(el);
-		} else {
-			obj.appendChild(el);
-		}
-		return obj;
-	},
 	_handleWheelEvent(clientX, clientY, delta) {
 		if(delta === 0) {
 			return;
@@ -8387,11 +8371,25 @@ AttachmentViewer.prototype = {
 		this._elStyle.top = (this._oldT = parseInt(clientY - (height / oldH) * (clientY - this._oldT), 10)) + 'px';
 	},
 	_show(data) {
-		var el = data.getFullObject(),
-			obj = this._getHolder(el, data);
+		var [fullEl, [width, height, minSize]] = data.getFullObject(false, val => this._resize(val));
+		this._fullEl = fullEl;
+		this._width = width;
+		this._height = height;
+		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
+		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
+		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
+		console.log(width, height, minSize);
+		var obj = $add('<div class="de-img-center" style="top:' + this._oldT + 'px; left:' +
+			this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
+		if(data.isImage) {
+			obj.insertAdjacentHTML('afterbegin', '<a style="width: inherit; height: inherit;" href="' +
+				data.src + '"></a>');
+			obj.firstChild.appendChild(fullEl);
+		} else {
+			obj.appendChild(fullEl);
+		}
 		this._elStyle = obj.style;
 		this.data = data;
-		this._fullEl = el;
 		this._obj = obj;
 		obj.addEventListener('onwheel' in obj ? 'wheel' : 'mousewheel', this, true);
 		obj.addEventListener('mousedown', this, true);
@@ -8414,11 +8412,41 @@ AttachmentViewer.prototype = {
 		if(this.data.inPview && this.data.post.sticky) {
 			this.data.post.setSticky(false);
 		}
-		$hide(this._obj);
-		setTimeout($del, 100, this._obj);
+		$del(this._obj);
 		if(e && this.data.inPview) {
 			this.data.sendCloseEvent(e, false);
 		}
+	},
+	_resize([width, height, minSize]) {
+		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
+		if(Post.sizing.wWidth - this._oldL - this._width < 5 ||
+		   Post.sizing.wHeight - this._oldT - this._height < 5)
+		{
+			return;
+		}
+		var cPointX = this._oldL + this._width / 2,
+			cPointY = this._oldT + this._height / 2,
+			maxWidth = (Post.sizing.wWidth - cPointX - 2) * 2,
+			maxHeight = (Post.sizing.wHeight - cPointY - 2) * 2;
+		if(width > maxWidth || height > maxHeight) {
+			var ar = width / height;
+			if(ar > maxWidth / maxHeight) {
+				width = maxWidth;
+				height = width / ar;
+			} else {
+				height = maxHeight;
+				width = height * ar;
+			}
+			if(minSize && width < minSize || height < minSize) {
+				this._minSize = Math.max(width, height);
+			}
+		}
+		this._width = width;
+		this._height = height;
+		this._elStyle.width = width + 'px';
+		this._elStyle.height = height + 'px';
+		this._elStyle.left = (this._oldL = parseInt(cPointX - width / 2, 10)) + 'px';
+		this._elStyle.top = (this._oldT = parseInt(cPointY - height / 2, 10)) + 'px';
 	}
 };
 
@@ -8435,17 +8463,12 @@ class ExpandableMedia {
 		}
 	}
 	get height() {
-		var dat = this._getImageSize();
-		Object.defineProperties(this, {
-			'width': { value: dat[0] },
-			'height': { value: dat[1] }
-		});
-		return dat[1];
+		return (this._size || [-1, -1])[1];
 	}
 	get inPview() {
-		var val = this.post instanceof Pview;
-		Object.defineProperty(this, 'inPview', { value: val });
-		return val;
+		var value = this.post instanceof Pview;
+		Object.defineProperty(this, 'inPview', { value });
+		return value;
 	}
 	get isImage() {
 		var val = /\.jpe?g|\.png|\.gif/i.test(this.src) ||
@@ -8465,12 +8488,7 @@ class ExpandableMedia {
 		return val;
 	}
 	get width() {
-		var dat = this._getImageSize();
-		Object.defineProperties(this, {
-			'width': { value: dat[0] },
-			'height': { value: dat[1] }
-		});
-		return dat[0];
+		return (this._size || [-1, -1])[0];
 	}
 	collapse(e) {
 		if(!this.isVideo || !this.isControlClick(e, this._fullEl.style.height)) {
@@ -8486,10 +8504,10 @@ class ExpandableMedia {
 		}
 		return false;
 	}
-	computeFullSize(inPost) {
+	computeFullSize(size, inPost) {
 		var minSize = Cfg.minImgSize,
-			width = this.width,
-			height = this.height;
+			width = size[0],
+			height = size[1];
 		if(Cfg.resizeDPI) {
 			width /= Post.sizing.dPxRatio;
 			height /= Post.sizing.dPxRatio;
@@ -8547,15 +8565,18 @@ class ExpandableMedia {
 			return;
 		}
 		this.expanded = true;
-		var el = this.el,
-			size = this.computeFullSize(inPost);
+		var el = this.el;
 		(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-after-fimg"></div>');
 		$hide(el.parentNode);
-		this._fullEl = this.getFullObject();
-		this._fullEl.className = 'de-img-full';
-		this._fullEl.style.width = size[0] + 'px';
-		this._fullEl.style.height = size[1] + 'px';
+		var [fullEl, size] = this.getFullObject(true, val => {
+			fullEl.style.width = val[0] + 'px';
+			fullEl.style.height = val[1] + 'px';
+		})
+		fullEl.style.width = size[0] + 'px';
+		fullEl.style.height = size[1] + 'px';
+		this._fullEl = fullEl;
+		this._fullEl.onclick = e => this.collapse(e);
 		$after(el.parentNode, this._fullEl);
 	}
 	getFollow(isForward) {
@@ -8579,14 +8600,15 @@ class ExpandableMedia {
 		} while(imgs.first === null);
 		return isForward ? imgs.first : imgs.last;
 	}
-	getFullObject() {
-		var obj, src = this.src;
-		if(this.isVideo) {
+	getFullObject(inPost, onsizechange) {
+		var obj, src = this.src,
+			size = this._size;
+		if(this.isVideo) { // FIXME: handle null size videos
 			if(aib.tiny) {
 				src = src.replace(/^.*?\?v=|&.*?$/g, '');
 			}
 			if(nav.canPlayWebm) {
-				obj = $add('<video style="width: 100%; height: 100%" src="' + src +
+				obj = $add('<video style="width: inherit; height: inherit" src="' + src +
 					'" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') +
 					(Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>');
 				if(Cfg.webmVolume !== 0) {
@@ -8605,7 +8627,7 @@ class ExpandableMedia {
 					locStorage.removeItem('__de-webmvolume');
 				};
 			} else {
-				obj = $add('<object style="width: 100%; height: 100%" data="' + src +
+				obj = $add('<object style="width: inherit; height: inherit" data="' + src +
 					'" type="application/x-vlc-plugin">' +
 					'<param name="pluginspage" value="http://www.videolan.org/vlc/" />' +
 					'<param name="controls" value="' + (Cfg.webmControl ? 'true' : 'false') + '" />' +
@@ -8614,15 +8636,33 @@ class ExpandableMedia {
 					'<param name="wmode" value="transparent" /></object>');
 			}
 		} else {
-			obj = $add('<img style="width: 100%; height: 100%" src="' + src + '" alt="' + src + '"></a>');
-			obj.onload = obj.onerror = function(e) {
-				if(this.naturalHeight + this.naturalWidth === 0 && !this.onceLoaded) {
-					this.src = this.src;
-					this.onceLoaded = true;
+			var html = '<div class="de-img-wrapper' + (size ? '' : ' de-img-wrapper-nosize') +
+					(inPost ? ' de-img-wrapper-inpost' : '') + '">';
+			if(!size) {
+				html += '<svg class="de-img-load"><use xlink:href="#de-symbol-wait"/></svg>';
+			}
+			html += '<img class="de-img-full" src="' + src + '" alt="' + src + '"></div>';
+			obj = $add(html);
+			var img = obj.lastChild;
+			img.onload = img.onerror = ({ target }) => {
+				if(target.naturalHeight + target.naturalWidth === 0) {
+					if(!target.onceLoaded) {
+						target.src = target.src;
+						target.onceLoaded = true;
+					}
+				} else {
+					this._size = [target.naturalWidth, target.naturalHeight];
+					var el = target.previousElementSibling;
+					if(el) {
+						var p = el.parentNode;
+						$hide(el);
+						p.classList.remove('de-img-wrapper-nosize');
+						onsizechange(this.computeFullSize(this._size, inPost));
+					}
 				}
 			};
 		}
-		return obj;
+		return [obj, size ? this.computeFullSize(size, inPost) : this._getThumbSize()];
 	}
 	isControlClick(e, styleHeight) {
 		return Cfg.webmControl && e.clientY >
@@ -8660,19 +8700,26 @@ class ExpandableMedia {
 		} else {
 			val = this.el.getBoundingClientRect().left + window.pageXOffset;
 		}
-		Object.defineProperty(this, '_offset', { value: val });
 		return val;
 	}
-	_getImageSize() {
+	get _size() {
+		var value = this._getImageSize();
+		Object.defineProperty(this, '_size', { value, writable: true });
+		return value;
+	}
+	_getThumbSize() {
 		var iEl = new Image();
 		iEl.src = this.el.src;
-		return [iEl.width, iEl.height];
+		return this.isVideo ? [iEl.width * 5, iEl.height * 5] : [iEl.width, iEl.height, null];
 	}
 }
 
 class EmbeddedImage extends ExpandableMedia {
 	_getImageParent() {
 		return this.el.parentNode;
+	}
+	_getImageSize() {
+		return [this.el.naturalWidth, this.el.naturalHeight];
 	}
 	_getImageSrc() {
 		return this.el.src;
@@ -8718,7 +8765,7 @@ class Attachment extends ExpandableMedia {
 			var size = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
 			return [size[1], size[2]];
 		}
-		return super._getImageSize();
+		return null;
 	}
 	_getImageSrc() {
 		return aib.getImgLink(this.el).href;
@@ -9117,16 +9164,11 @@ class AbstractPost {
 		}
 	}
 	_clickImage(el, e) {
-		var data;
-		if(el.classList.contains('de-img-full')) {
-			if(!this.images.getImageByEl(el.previousSibling.firstElementChild).collapse(e)) {
-				return;
-			}
-		} else if((data = this.images.getImageByEl(el)) && (data.isImage || data.isVideo)) {
-			data.expand((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
-		} else {
+		var data = this.images.getImageByEl(el);
+		if(!data || (!data.isImage && !data.isVideo)) {
 			return;
 		}
+		data.expand((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
 		$pd(e);
 		e.stopPropagation();
 	}
@@ -10197,7 +10239,7 @@ class Pview extends AbstractPost {
 				'<use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
 				'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' + pText;
 			$each($Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') +
-				'.de-img-full, .de-after-fimg', el), $del);
+				'.de-img-wrapper, .de-after-fimg', el), $del);
 			$each($Q(aib.qPostImg, el), function(el) {
 				$show(el.parentNode);
 			});
@@ -12368,8 +12410,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		getFileInfo(wrap) {
 			var data = wrap.firstElementChild.getAttribute('onclick').replace(/'/g, '').split(',');
 			if(data[1].split('.')[2] === 'webm') {
-				var img = $t('img', wrap);
-				return img.width * 5 + 'x' + img.height * 5;
+				return null;
 			}
 			return data[2] + 'x' + data[3];
 		}
@@ -14153,6 +14194,19 @@ function scriptCSS() {
 	.de-win-open { animation: de-win-open .2s ease-out backwards; }\
 	.de-win-close { animation: de-win-close .2s ease-in both; }' +
 
+	// Full images
+	'.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
+	.de-img-pre { max-width: 200px; max-height: 200px; }\
+	.de-img-wrapper, .de-img-full, .de-img-load { width: inherit; height: inherit; }\
+	.de-img-wrapper-inpost { float: left; ' + (aib.multiFile ? '' : 'margin: 2px 5px; ') + '}\
+	.de-img-wrapper-nosize { position: relative; }\
+	.de-img-load { position: absolute; z-index: 2; }\
+	.de-img-wrapper-nosize > .de-img-full { position: absolute; z-index: 1; opacity: .3; }\
+	.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
+	#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\
+	#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\
+	#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }' +
+
 	// Embedders
 	cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') +
 	cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico') +
@@ -14160,13 +14214,6 @@ function scriptCSS() {
 	cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==') +
 	'.de-current::after { content: " \u25CF"; }\
 	.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\
-	.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
-	.de-img-pre { max-width: 200px; max-height: 200px; }\
-	.de-img-full { float: left; ' + (aib.multiFile ? '' : 'margin: 2px 5px; ') + '}\
-	.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
-	#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\
-	#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\
-	#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }\
 	.de-mp3 { margin: 5px 20px; }\
 	.de-video-obj { margin: 5px 20px; white-space: nowrap; }\
 	#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\
@@ -14257,7 +14304,7 @@ function scriptCSS() {
 
 	// Other
 	'@keyframes de-wait-anim { to { transform: rotate(360deg); } }\
-	.de-wait, .de-fav-wait { animation: de-wait-anim 1s linear infinite; }\
+	.de-wait, .de-fav-wait , .de-img-load { animation: de-wait-anim 1s linear infinite; }\
 	.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\
 	.de-abtn { text-decoration: none !important; outline: none; }\
 	.de-after-fimg { clear: left; }\
