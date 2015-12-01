@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '286e962';
+	var commit = '47e2347';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11999,7 +11999,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 			this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 			this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-			console.log(width, height, minSize);
 			var obj = $add('<div class="de-img-center" style="top:' + this._oldT + 'px; left:' + this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
 			if (data.isImage) {
 				obj.insertAdjacentHTML('afterbegin', '<a style="width: inherit; height: inherit;" href="' + data.src + '"></a>');
