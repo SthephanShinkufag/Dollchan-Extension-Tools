@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '47e2347';
+var commit = '57fbbc0';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8371,7 +8371,7 @@ AttachmentViewer.prototype = {
 		this._elStyle.top = (this._oldT = parseInt(clientY - (height / oldH) * (clientY - this._oldT), 10)) + 'px';
 	},
 	_show(data) {
-		var [fullEl, [width, height, minSize]] = data.getFullObject(false, val => this._resize(val));
+		var [fullEl, [width, height, minSize]] = data.getFullObject(false, (...a) => this._resize(...a));
 		this._fullEl = fullEl;
 		this._width = width;
 		this._height = height;
@@ -8416,7 +8416,10 @@ AttachmentViewer.prototype = {
 			this.data.sendCloseEvent(e, false);
 		}
 	},
-	_resize([width, height, minSize]) {
+	_resize(el, [width, height, minSize]) {
+		if(el !== this._fullEl) {
+			return;
+		}
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		if(Post.sizing.wWidth - this._oldL - this._width < 5 ||
 		   Post.sizing.wHeight - this._oldT - this._height < 5)
@@ -8568,9 +8571,11 @@ class ExpandableMedia {
 		(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-after-fimg"></div>');
 		$hide(el.parentNode);
-		var [fullEl, size] = this.getFullObject(true, val => {
-			fullEl.style.width = val[0] + 'px';
-			fullEl.style.height = val[1] + 'px';
+		var [fullEl, size] = this.getFullObject(true, (el, val) => {
+			if(el === this._fullEl) {
+				fullEl.style.width = val[0] + 'px';
+				fullEl.style.height = val[1] + 'px';
+			}
 		})
 		fullEl.style.width = size[0] + 'px';
 		fullEl.style.height = size[1] + 'px';
@@ -8656,7 +8661,7 @@ class ExpandableMedia {
 						var p = el.parentNode;
 						$hide(el);
 						p.classList.remove('de-img-wrapper-nosize');
-						onsizechange(this.computeFullSize(this._size, inPost));
+						onsizechange(p, this.computeFullSize(this._size, inPost));
 					}
 				}
 			};

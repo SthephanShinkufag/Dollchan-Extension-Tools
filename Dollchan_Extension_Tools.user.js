@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '47e2347';
+	var commit = '57fbbc0';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11979,8 +11979,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_show: function _show(data) {
 			var _this24 = this;
 
-			var _data$getFullObject = data.getFullObject(false, function (val) {
-				return _this24._resize(val);
+			var _data$getFullObject = data.getFullObject(false, function () {
+				return _this24._resize.apply(_this24, arguments);
 			});
 
 			var _data$getFullObject2 = _slicedToArray(_data$getFullObject, 2);
@@ -12035,13 +12035,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.data.sendCloseEvent(e, false);
 			}
 		},
-		_resize: function _resize(_ref40) {
+		_resize: function _resize(el, _ref40) {
 			var _ref41 = _slicedToArray(_ref40, 3);
 
 			var width = _ref41[0];
 			var height = _ref41[1];
 			var minSize = _ref41[2];
 
+			if (el !== this._fullEl) {
+				return;
+			}
 			this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 			if (Post.sizing.wWidth - this._oldL - this._width < 5 || Post.sizing.wHeight - this._oldT - this._height < 5) {
 				return;
@@ -12174,9 +12177,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend', '<div class="de-after-fimg"></div>');
 				$hide(el.parentNode);
 
-				var _getFullObject = this.getFullObject(true, function (val) {
-					fullEl.style.width = val[0] + 'px';
-					fullEl.style.height = val[1] + 'px';
+				var _getFullObject = this.getFullObject(true, function (el, val) {
+					if (el === _this25._fullEl) {
+						fullEl.style.width = val[0] + 'px';
+						fullEl.style.height = val[1] + 'px';
+					}
 				});
 
 				var _getFullObject2 = _slicedToArray(_getFullObject, 2);
@@ -12272,7 +12277,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								var p = el.parentNode;
 								$hide(el);
 								p.classList.remove('de-img-wrapper-nosize');
-								onsizechange(_this26.computeFullSize(_this26._size, inPost));
+								onsizechange(p, _this26.computeFullSize(_this26._size, inPost));
 							}
 						}
 					};
