@@ -12,9 +12,9 @@ page.PageMod({
 				worker.tab.attach({
 					contentScriptFile: data.url('Dollchan_Extension_Tools.user.js')
 				});
-				return;
+			} else {
+				console.log('No board.');
 			}
-			console.log('No board.');
 			worker.destroy();
 		});
 	}
