@@ -2848,7 +2848,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '4750e24';
+	var commit = '7b5c266';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12314,6 +12314,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 		}, {
+			key: '_computeOffset',
+			value: function _computeOffset() {
+				var el = this._fullEl || this.el;
+				if (this.post.hidden) {
+					this.post.hideContent(false);
+					var val = el.getBoundingClientRect().left + window.pageXOffset;
+					this.post.hideContent(true);
+					return val;
+				}
+				return el.getBoundingClientRect().left + window.pageXOffset;
+			}
+		}, {
 			key: '_getThumbSize',
 			value: function _getThumbSize() {
 				var iEl = new Image();
@@ -12359,20 +12371,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return (this._size || [-1, -1])[0];
 			}
 		}, {
-			key: '_offset',
-			get: function get() {
-				var val,
-				    el = this._fullEl || this.el;
-				if (this.post.hidden) {
-					this.post.hideContent(false);
-					val = el.getBoundingClientRect().left + window.pageXOffset;
-					this.post.hideContent(true);
-				} else {
-					val = el.getBoundingClientRect().left + window.pageXOffset;
-				}
-				return this.inPview ? val + 30 : val;
-			}
-		}, {
 			key: '_size',
 			get: function get() {
 				var value = this._getImageSize();
@@ -12407,6 +12405,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: '_getImageSrc',
 			value: function _getImageSrc() {
 				return this.el.src;
+			}
+		}, {
+			key: '_offset',
+			get: function get() {
+				return this._computeOffset();
 			}
 		}]);
 
@@ -12462,16 +12465,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: '_offset',
 			get: function get() {
-				var needCache = !this.inPview && !this.post.isOp && !this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4;
+				var needCache = !this.inPview && !this.post.isOp && !this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4 && (!this.prev || this.prev.expanded);
 				var value;
-				if (!needCache || Attachment.cachedOffset === -1) {
-					value = _get(Object.getPrototypeOf(Attachment.prototype), '_offset', this);
+				if (needCache && Attachment.cachedOffset !== -1) {
+					value = Attachment.cachedOffset;
+				} else {
+					value = this._computeOffset();
+					if (this.inPview) {
+						value = this.prev ? value + this.post.images.first._computeOffset() : value * 2;
+						value -= parseInt(this.post.el.style.left, 10) - 10;
+					} else {
+						value = this.prev ? value + this.post.images.first._computeOffset() : value * 2;
+					}
 					if (needCache) {
 						Attachment.cachedOffset = value;
 					}
-				} else {
-					value = Attachment.cachedOffset;
-					Object.defineProperty(this, '_offset', { value: value });
 				}
 				return value;
 			}

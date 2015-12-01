@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '4750e24';
+var commit = '7b5c266';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8695,21 +8695,20 @@ class ExpandableMedia {
 		}
 	}
 
-	get _offset() {
-		var val, el = this._fullEl || this.el;
-		if(this.post.hidden) {
-			this.post.hideContent(false);
-			val = el.getBoundingClientRect().left + window.pageXOffset;
-			this.post.hideContent(true);
-		} else {
-			val = el.getBoundingClientRect().left + window.pageXOffset;
-		}
-		return this.inPview ? val + 30 : val;
-	}
 	get _size() {
 		var value = this._getImageSize();
 		Object.defineProperty(this, '_size', { value, writable: true });
 		return value;
+	}
+	_computeOffset() {
+		var el = this._fullEl || this.el;
+		if(this.post.hidden) {
+			this.post.hideContent(false);
+			var val = el.getBoundingClientRect().left + window.pageXOffset;
+			this.post.hideContent(true);
+			return val;
+		}
+		return el.getBoundingClientRect().left + window.pageXOffset;
 	}
 	_getThumbSize() {
 		var iEl = new Image();
@@ -8719,6 +8718,9 @@ class ExpandableMedia {
 }
 
 class EmbeddedImage extends ExpandableMedia {
+	get _offset() {
+		return this._computeOffset();
+	}
 	_getImageParent() {
 		return this.el.parentNode;
 	}
@@ -8748,16 +8750,22 @@ class Attachment extends ExpandableMedia {
 
 	get _offset() {
 		var needCache = !this.inPview && !this.post.isOp &&
-			!this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4;
+			!this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4 &&
+			(!this.prev || this.prev.expanded);
 		var value;
-		if(!needCache || Attachment.cachedOffset === -1) {
-			value = super._offset;
+		if(needCache && Attachment.cachedOffset !== -1) {
+			value = Attachment.cachedOffset;
+		} else {
+			value = this._computeOffset();
+			if(this.inPview) {
+				value = this.prev ? value + this.post.images.first._computeOffset() : value * 2;
+				value -= parseInt(this.post.el.style.left, 10) - 10;
+			} else {
+				value = this.prev ? value + this.post.images.first._computeOffset() : value * 2;
+			}
 			if(needCache) {
 				Attachment.cachedOffset = value;
 			}
-		} else {
-			value = Attachment.cachedOffset;
-			Object.defineProperty(this, '_offset', { value });
 		}
 		return value;
 	}
