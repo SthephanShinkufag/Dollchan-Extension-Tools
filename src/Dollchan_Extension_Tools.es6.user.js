@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '917e345';
+var commit = '5e78cea';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8373,8 +8373,8 @@ AttachmentViewer.prototype = {
 		this._elStyle.top = (this._oldT = parseInt(clientY - (height / oldH) * (clientY - this._oldT), 10)) + 'px';
 	},
 	_show(data) {
-		var [fullEl, [width, height, minSize]] = data.getFullObject(false, (...a) => this._resize(...a));
-		this._fullEl = fullEl;
+		var [width, height, minSize] = data.computeFullSize();
+		this._fullEl = data.getFullObject(false, el => this._resize(el));
 		this._width = width;
 		this._height = height;
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
@@ -8385,9 +8385,9 @@ AttachmentViewer.prototype = {
 		if(data.isImage) {
 			obj.insertAdjacentHTML('afterbegin', '<a style="width: inherit; height: inherit;" href="' +
 				data.src + '"></a>');
-			obj.firstChild.appendChild(fullEl);
+			obj.firstChild.appendChild(this._fullEl);
 		} else {
-			obj.appendChild(fullEl);
+			obj.appendChild(this._fullEl);
 		}
 		this._elStyle = obj.style;
 		this.data = data;
@@ -8418,10 +8418,11 @@ AttachmentViewer.prototype = {
 			this.data.sendCloseEvent(e, false);
 		}
 	},
-	_resize(el, [width, height, minSize]) {
+	_resize(el) {
 		if(el !== this._fullEl) {
 			return;
 		}
+		var [width, height, minSize] = this.data.computeFullSize();
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		if(Post.sizing.wWidth - this._oldL - this._width < 5 ||
 		   Post.sizing.wHeight - this._oldT - this._height < 5)
@@ -8508,10 +8509,13 @@ class ExpandableMedia {
 		}
 		return false;
 	}
-	computeFullSize(size, inPost) {
+	computeFullSize() {
+		if(!this._size) {
+			return this._getThumbSize();
+		}
 		var minSize = Cfg.minImgSize,
-			width = size[0],
-			height = size[1];
+			width = this._size[0],
+			height = this._size[1];
 		if(Cfg.resizeDPI) {
 			width /= Post.sizing.dPxRatio;
 			height /= Post.sizing.dPxRatio;
@@ -8527,14 +8531,8 @@ class ExpandableMedia {
 			}
 		}
 		if(Cfg.resizeImgs) {
-			var maxWidth, maxHeight;
-			if(inPost) {
-				maxWidth = Post.sizing.wWidth - this._offset - 3;
-				maxHeight = Number.MAX_SAFE_INTEGER;
-			} else {
-				maxWidth = Post.sizing.wWidth - 2;
+			var maxWidth = Post.sizing.wWidth - 2,
 				maxHeight = Post.sizing.wHeight - 2;
-			}
 			if(width > maxWidth || height > maxHeight) {
 				var ar = width / height;
 				if(ar > maxWidth / maxHeight) {
@@ -8572,15 +8570,7 @@ class ExpandableMedia {
 		var el = this.el;
 		(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-after-fimg"></div>');
-		var [fullEl, size] = this.getFullObject(true, (el, val) => {
-			if(el === this._fullEl) {
-				fullEl.style.width = val[0] + 'px';
-				fullEl.style.height = val[1] + 'px';
-			}
-		})
-		fullEl.style.width = size[0] + 'px';
-		fullEl.style.height = size[1] + 'px';
-		this._fullEl = fullEl;
+		this._fullEl = this.getFullObject(true, null);
 		this._fullEl.onclick = e => this.collapse(e);
 		$hide(el.parentNode);
 		$after(el.parentNode, this._fullEl);
@@ -8663,12 +8653,12 @@ class ExpandableMedia {
 						var p = el.parentNode;
 						$hide(el);
 						p.classList.remove('de-img-wrapper-nosize');
-						onsizechange(p, this.computeFullSize(this._size, inPost));
+						onsizechange && onsizechange(p);
 					}
 				}
 			};
 		}
-		return [obj, size ? this.computeFullSize(size, inPost) : this._getThumbSize()];
+		return obj;
 	}
 	isControlClick(e, styleHeight) {
 		return Cfg.webmControl && e.clientY >
@@ -8702,25 +8692,6 @@ class ExpandableMedia {
 		Object.defineProperty(this, '_size', { value, writable: true });
 		return value;
 	}
-	_computeOffset() {
-		var val, el;
-		if(this._fullEl) {
-			el = this._fullEl;
-			val = 0;
-		} else {
-			el = this.el;
-			var temp = doc.defaultView.getComputedStyle(el).marginLeft;
-			val = temp ? -parseFloat(temp) + 5 : 0;
-		}
-		if(this.post.hidden) {
-			this.post.hideContent(false);
-			val += el.getBoundingClientRect().left + window.pageXOffset;
-			this.post.hideContent(true);
-		} else {
-			val += el.getBoundingClientRect().left + window.pageXOffset;
-		}
-		return val;
-	}
 	_getThumbSize() {
 		var iEl = new Image();
 		iEl.src = this.el.src;
@@ -8729,9 +8700,6 @@ class ExpandableMedia {
 }
 
 class EmbeddedImage extends ExpandableMedia {
-	get _offset() {
-		return this._computeOffset();
-	}
 	_getImageParent() {
 		return this.el.parentNode;
 	}
@@ -8759,27 +8727,6 @@ class Attachment extends ExpandableMedia {
 		return val;
 	}
 
-	get _offset() {
-		var needCache = !this.inPview && !this.post.isOp &&
-			!this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4 &&
-			(!this.prev || this.prev.expanded);
-		var value;
-		if(needCache && Attachment.cachedOffset !== -1) {
-			value = Attachment.cachedOffset;
-		} else {
-			value = this._computeOffset();
-			value = this.prev ? value + this.post.images.first._computeOffset() : value * 2;
-			if(this.inPview) {
-				value -= parseFloat(this.post.el.style.left, 10) - 10;
-			} else {
-				value -= this.post.el.getBoundingClientRect().left;
-			}
-			if(needCache) {
-				Attachment.cachedOffset = value;
-			}
-		}
-		return value;
-	}
 	_getImageParent() {
 		return aib.getImgParent(this.el.parentNode);
 	}
@@ -8794,7 +8741,6 @@ class Attachment extends ExpandableMedia {
 		return aib.getImgLink(this.el).href;
 	}
 }
-Attachment.cachedOffset = -1;
 Attachment.viewer = null;
 
 var ImagesHashStorage = Object.create({
@@ -14221,11 +14167,11 @@ function scriptCSS() {
 	// Full images
 	'.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
 	.de-img-pre { max-width: 200px; max-height: 200px; }\
-	.de-img-wrapper, .de-img-full, .de-img-load { width: inherit; height: inherit; }\
-	.de-img-wrapper-inpost { float: left; ' + (aib.multiFile ? '' : 'margin: 2px 5px; ') + '}\
-	.de-img-wrapper-nosize { position: relative; }\
-	.de-img-load { position: absolute; z-index: 2; }\
-	.de-img-wrapper-nosize > .de-img-full { position: absolute; z-index: 1; opacity: .3; }\
+	.de-img-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\
+	.de-img-full { width: 100%; height: 100%; }\
+	.de-img-wrapper-inpost { max-width: 100%; float: left; ' + (aib.multiFile ? '' : 'padding: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ') + '}\
+	.de-img-wrapper-nosize { position: relative; min-width: 60px; min-height: 60px; }\
+	.de-img-wrapper-nosize > .de-img-full { z-index: 1; opacity: .3; }\
 	.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
 	#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\
 	#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\

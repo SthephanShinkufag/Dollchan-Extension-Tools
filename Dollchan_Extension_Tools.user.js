@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '917e345';
+	var commit = '5e78cea';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11989,21 +11989,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_show: function _show(data) {
 			var _this24 = this;
 
-			var _data$getFullObject = data.getFullObject(false, function () {
-				return _this24._resize.apply(_this24, arguments);
+			var _data$computeFullSize = data.computeFullSize();
+
+			var _data$computeFullSize2 = _slicedToArray(_data$computeFullSize, 3);
+
+			var width = _data$computeFullSize2[0];
+			var height = _data$computeFullSize2[1];
+			var minSize = _data$computeFullSize2[2];
+
+			this._fullEl = data.getFullObject(false, function (el) {
+				return _this24._resize(el);
 			});
-
-			var _data$getFullObject2 = _slicedToArray(_data$getFullObject, 2);
-
-			var fullEl = _data$getFullObject2[0];
-
-			var _data$getFullObject2$ = _slicedToArray(_data$getFullObject2[1], 3);
-
-			var width = _data$getFullObject2$[0];
-			var height = _data$getFullObject2$[1];
-			var minSize = _data$getFullObject2$[2];
-
-			this._fullEl = fullEl;
 			this._width = width;
 			this._height = height;
 			this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
@@ -12012,9 +12008,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var obj = $add('<div class="de-img-center" style="top:' + this._oldT + 'px; left:' + this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
 			if (data.isImage) {
 				obj.insertAdjacentHTML('afterbegin', '<a style="width: inherit; height: inherit;" href="' + data.src + '"></a>');
-				obj.firstChild.appendChild(fullEl);
+				obj.firstChild.appendChild(this._fullEl);
 			} else {
-				obj.appendChild(fullEl);
+				obj.appendChild(this._fullEl);
 			}
 			this._elStyle = obj.style;
 			this.data = data;
@@ -12045,16 +12041,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.data.sendCloseEvent(e, false);
 			}
 		},
-		_resize: function _resize(el, _ref40) {
-			var _ref41 = _slicedToArray(_ref40, 3);
-
-			var width = _ref41[0];
-			var height = _ref41[1];
-			var minSize = _ref41[2];
-
+		_resize: function _resize(el) {
 			if (el !== this._fullEl) {
 				return;
 			}
+
+			var _data$computeFullSize3 = this.data.computeFullSize();
+
+			var _data$computeFullSize4 = _slicedToArray(_data$computeFullSize3, 3);
+
+			var width = _data$computeFullSize4[0];
+			var height = _data$computeFullSize4[1];
+			var minSize = _data$computeFullSize4[2];
+
 			this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 			if (Post.sizing.wWidth - this._oldL - this._width < 5 || Post.sizing.wHeight - this._oldT - this._height < 5) {
 				return;
@@ -12118,10 +12117,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: 'computeFullSize',
-			value: function computeFullSize(size, inPost) {
+			value: function computeFullSize() {
+				if (!this._size) {
+					return this._getThumbSize();
+				}
 				var minSize = Cfg.minImgSize,
-				    width = size[0],
-				    height = size[1];
+				    width = this._size[0],
+				    height = this._size[1];
 				if (Cfg.resizeDPI) {
 					width /= Post.sizing.dPxRatio;
 					height /= Post.sizing.dPxRatio;
@@ -12137,14 +12139,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 				}
 				if (Cfg.resizeImgs) {
-					var maxWidth, maxHeight;
-					if (inPost) {
-						maxWidth = Post.sizing.wWidth - this._offset - 3;
-						maxHeight = Number.MAX_SAFE_INTEGER;
-					} else {
-						maxWidth = Post.sizing.wWidth - 2;
-						maxHeight = Post.sizing.wHeight - 2;
-					}
+					var maxWidth = Post.sizing.wWidth - 2,
+					    maxHeight = Post.sizing.wHeight - 2;
 					if (width > maxWidth || height > maxHeight) {
 						var ar = width / height;
 						if (ar > maxWidth / maxHeight) {
@@ -12185,22 +12181,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.expanded = true;
 				var el = this.el;
 				(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend', '<div class="de-after-fimg"></div>');
-
-				var _getFullObject = this.getFullObject(true, function (el, val) {
-					if (el === _this25._fullEl) {
-						fullEl.style.width = val[0] + 'px';
-						fullEl.style.height = val[1] + 'px';
-					}
-				});
-
-				var _getFullObject2 = _slicedToArray(_getFullObject, 2);
-
-				var fullEl = _getFullObject2[0];
-				var size = _getFullObject2[1];
-
-				fullEl.style.width = size[0] + 'px';
-				fullEl.style.height = size[1] + 'px';
-				this._fullEl = fullEl;
+				this._fullEl = this.getFullObject(true, null);
 				this._fullEl.onclick = function (e) {
 					return _this25.collapse(e);
 				};
@@ -12272,8 +12253,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					html += '<img class="de-img-full" src="' + src + '" alt="' + src + '"></div>';
 					obj = $add(html);
 					var img = obj.lastChild;
-					img.onload = img.onerror = function (_ref42) {
-						var target = _ref42.target;
+					img.onload = img.onerror = function (_ref40) {
+						var target = _ref40.target;
 
 						if (target.naturalHeight + target.naturalWidth === 0) {
 							if (!target.onceLoaded) {
@@ -12287,12 +12268,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								var p = el.parentNode;
 								$hide(el);
 								p.classList.remove('de-img-wrapper-nosize');
-								onsizechange(p, _this26.computeFullSize(_this26._size, inPost));
+								onsizechange && onsizechange(p);
 							}
 						}
 					};
 				}
-				return [obj, size ? this.computeFullSize(size, inPost) : this._getThumbSize()];
+				return obj;
 			}
 		}, {
 			key: 'isControlClick',
@@ -12322,27 +12303,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				} else if (x > cr.right || y > cr.bottom && Pview.top) {
 					Pview.top.markToDel();
 				}
-			}
-		}, {
-			key: '_computeOffset',
-			value: function _computeOffset() {
-				var val, el;
-				if (this._fullEl) {
-					el = this._fullEl;
-					val = 0;
-				} else {
-					el = this.el;
-					var temp = doc.defaultView.getComputedStyle(el).marginLeft;
-					val = temp ? -parseFloat(temp) + 5 : 0;
-				}
-				if (this.post.hidden) {
-					this.post.hideContent(false);
-					val += el.getBoundingClientRect().left + window.pageXOffset;
-					this.post.hideContent(true);
-				} else {
-					val += el.getBoundingClientRect().left + window.pageXOffset;
-				}
-				return val;
 			}
 		}, {
 			key: '_getThumbSize',
@@ -12425,11 +12385,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function _getImageSrc() {
 				return this.el.src;
 			}
-		}, {
-			key: '_offset',
-			get: function get() {
-				return this._computeOffset();
-			}
 		}]);
 
 		return EmbeddedImage;
@@ -12481,33 +12436,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				Object.defineProperty(this, 'weight', { value: val });
 				return val;
 			}
-		}, {
-			key: '_offset',
-			get: function get() {
-				var needCache = !this.inPview && !this.post.isOp && !this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4 && (!this.prev || this.prev.expanded);
-				var value;
-				if (needCache && Attachment.cachedOffset !== -1) {
-					value = Attachment.cachedOffset;
-				} else {
-					value = this._computeOffset();
-					value = this.prev ? value + this.post.images.first._computeOffset() : value * 2;
-					if (this.inPview) {
-						value -= parseFloat(this.post.el.style.left, 10) - 10;
-					} else {
-						value -= this.post.el.getBoundingClientRect().left;
-					}
-					if (needCache) {
-						Attachment.cachedOffset = value;
-					}
-				}
-				return value;
-			}
 		}]);
 
 		return Attachment;
 	})(ExpandableMedia);
 
-	Attachment.cachedOffset = -1;
 	Attachment.viewer = null;
 
 	var ImagesHashStorage = Object.create({
@@ -13325,18 +13258,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var expand = arguments.length <= 0 || arguments[0] === undefined ? !this.images.expanded : arguments[0];
 
 				for (var _iterator22 = this.images, _isArray22 = Array.isArray(_iterator22), _i23 = 0, _iterator22 = _isArray22 ? _iterator22 : _iterator22[Symbol.iterator]();;) {
-					var _ref43;
+					var _ref41;
 
 					if (_isArray22) {
 						if (_i23 >= _iterator22.length) break;
-						_ref43 = _iterator22[_i23++];
+						_ref41 = _iterator22[_i23++];
 					} else {
 						_i23 = _iterator22.next();
 						if (_i23.done) break;
-						_ref43 = _i23.value;
+						_ref41 = _i23.value;
 					}
 
-					var image = _ref43;
+					var image = _ref41;
 
 					if (image.isImage && image.expanded ^ expand) {
 						if (expand) {
@@ -14426,23 +14359,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function gen(posts, thrURL) {
 				var opNums = DelForm.tNums;
 				for (var _iterator23 = posts, _isArray23 = Array.isArray(_iterator23), _i24 = 0, _iterator23 = _isArray23 ? _iterator23 : _iterator23[Symbol.iterator]();;) {
-					var _ref44;
+					var _ref42;
 
 					if (_isArray23) {
 						if (_i24 >= _iterator23.length) break;
-						_ref44 = _iterator23[_i24++];
+						_ref42 = _iterator23[_i24++];
 					} else {
 						_i24 = _iterator23.next();
 						if (_i24.done) break;
-						_ref44 = _i24.value;
+						_ref42 = _i24.value;
 					}
 
-					var _ref45 = _ref44;
+					var _ref43 = _ref42;
 
-					var _ref46 = _slicedToArray(_ref45, 2);
+					var _ref44 = _slicedToArray(_ref43, 2);
 
-					var pNum = _ref46[0];
-					var post = _ref46[1];
+					var pNum = _ref44[0];
+					var post = _ref44[1];
 
 					var links = $Q('a', post.msg);
 					for (var i = 0, len = links.length; i < len; ++i) {
@@ -14583,18 +14516,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					date = Date.now();
 				}
 				for (var _iterator24 = this._set, _isArray24 = Array.isArray(_iterator24), _i25 = 0, _iterator24 = _isArray24 ? _iterator24 : _iterator24[Symbol.iterator]();;) {
-					var _ref47;
+					var _ref45;
 
 					if (_isArray24) {
 						if (_i25 >= _iterator24.length) break;
-						_ref47 = _iterator24[_i25++];
+						_ref45 = _iterator24[_i25++];
 					} else {
 						_i25 = _iterator24.next();
 						if (_i25.done) break;
-						_ref47 = _i25.value;
+						_ref45 = _i25.value;
 					}
 
-					var num = _ref47;
+					var num = _ref45;
 
 					var pst = pByNum.get(num);
 					if (pst && (isUser || !pst.userToggled)) {
@@ -14613,18 +14546,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function init(tUrl, strNums) {
 				var html = '';
 				for (var _iterator25 = this._set, _isArray25 = Array.isArray(_iterator25), _i26 = 0, _iterator25 = _isArray25 ? _iterator25 : _iterator25[Symbol.iterator]();;) {
-					var _ref48;
+					var _ref46;
 
 					if (_isArray25) {
 						if (_i26 >= _iterator25.length) break;
-						_ref48 = _iterator25[_i26++];
+						_ref46 = _iterator25[_i26++];
 					} else {
 						_i26 = _iterator25.next();
 						if (_i26.done) break;
-						_ref48 = _i26.value;
+						_ref46 = _i26.value;
 					}
 
-					var num = _ref48;
+					var num = _ref46;
 
 					html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 				}
@@ -14674,18 +14607,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					date = Date.now();
 				}
 				for (var _iterator26 = this._set, _isArray26 = Array.isArray(_iterator26), _i27 = 0, _iterator26 = _isArray26 ? _iterator26 : _iterator26[Symbol.iterator]();;) {
-					var _ref49;
+					var _ref47;
 
 					if (_isArray26) {
 						if (_i27 >= _iterator26.length) break;
-						_ref49 = _iterator26[_i27++];
+						_ref47 = _iterator26[_i27++];
 					} else {
 						_i27 = _iterator26.next();
 						if (_i27.done) break;
-						_ref49 = _i27.value;
+						_ref47 = _i27.value;
 					}
 
-					var num = _ref49;
+					var num = _ref47;
 
 					var pst = pByNum.get(num);
 					if (pst && pst.hidden && (isUser || !pst.userToggled) && !pst.spellHidden) {
@@ -15329,18 +15262,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					window.requestAnimationFrame(function () {
 						var halfHeight = Post.sizing.wHeight / 2;
 						for (var _iterator27 = _this48._thrs, _isArray27 = Array.isArray(_iterator27), _i28 = 0, _iterator27 = _isArray27 ? _iterator27 : _iterator27[Symbol.iterator]();;) {
-							var _ref50;
+							var _ref48;
 
 							if (_isArray27) {
 								if (_i28 >= _iterator27.length) break;
-								_ref50 = _iterator27[_i28++];
+								_ref48 = _iterator27[_i28++];
 							} else {
 								_i28 = _iterator27.next();
 								if (_i28.done) break;
-								_ref50 = _i28.value;
+								_ref48 = _i28.value;
 							}
 
-							var thr = _ref50;
+							var thr = _ref48;
 
 							if (thr.bottom > halfHeight && thr.top < halfHeight) {
 								if (!_this48._visible) {
@@ -16640,8 +16573,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						$id('captchaimage').src = '/' + _this64.b + '/captcha?' + Math.random();
 						if (!$id('de-_2chruNet-capchecker')) {
 							cap.textEl.insertAdjacentHTML('afterend', '\n\t\t\t\t\t<span id="de-_2chruNet-capchecker" class="shortened" style="margin: 0px .5em;">\n\t\t\t\t\t\tпроверить капчу\n\t\t\t\t\t</span>');
-							cap.textEl.nextSibling.onclick = function (_ref51) {
-								var target = _ref51.target;
+							cap.textEl.nextSibling.onclick = function (_ref49) {
+								var target = _ref49.target;
 
 								$ajax('/' + _this64.b + '/api/validate-captcha', { method: 'POST' }).then(function (xhr) {
 									if (JSON.parse(xhr.responseText).status === 'ok') {
@@ -17498,18 +17431,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var cookie = doc.cookie;
 					if (cookie.includes('desuchan.session')) {
 						for (var _iterator28 = cookie.split(';'), _isArray28 = Array.isArray(_iterator28), _i29 = 0, _iterator28 = _isArray28 ? _iterator28 : _iterator28[Symbol.iterator]();;) {
-							var _ref52;
+							var _ref50;
 
 							if (_isArray28) {
 								if (_i29 >= _iterator28.length) break;
-								_ref52 = _iterator28[_i29++];
+								_ref50 = _iterator28[_i29++];
 							} else {
 								_i29 = _iterator28.next();
 								if (_i29.done) break;
-								_ref52 = _i29.value;
+								_ref50 = _i29.value;
 							}
 
-							var c = _ref52;
+							var c = _ref50;
 
 							var m = c.match(/^\s*desuchan\.session=(.*)$/);
 							if (m) {
@@ -18713,8 +18646,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function initPage() {
 		if (!localRun && Cfg.ajaxReply === 1) {
 			docBody.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-pform" sandbox="" src="about:blank" style="display: none;"></iframe>' + '<iframe name="de-iframe-dform" sandbox="" src="about:blank" style="display: none;"></iframe>');
-			doc.defaultView.addEventListener('message', function (_ref53) {
-				var data = _ref53.data;
+			doc.defaultView.addEventListener('message', function (_ref51) {
+				var data = _ref51.data;
 
 				switch (data.substr(0, 15)) {
 					case 'de-iframe-pform':
@@ -18972,11 +18905,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	
 		'.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
 	.de-img-pre { max-width: 200px; max-height: 200px; }\
-	.de-img-wrapper, .de-img-full, .de-img-load { width: inherit; height: inherit; }\
-	.de-img-wrapper-inpost { float: left; ' + (aib.multiFile ? '' : 'margin: 2px 5px; ') + '}\
-	.de-img-wrapper-nosize { position: relative; }\
-	.de-img-load { position: absolute; z-index: 2; }\
-	.de-img-wrapper-nosize > .de-img-full { position: absolute; z-index: 1; opacity: .3; }\
+	.de-img-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\
+	.de-img-full { width: 100%; height: 100%; }\
+	.de-img-wrapper-inpost { max-width: 100%; float: left; ' + (aib.multiFile ? '' : 'padding: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ') + '}\
+	.de-img-wrapper-nosize { position: relative; min-width: 60px; min-height: 60px; }\
+	.de-img-wrapper-nosize > .de-img-full { z-index: 1; opacity: .3; }\
 	.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
 	#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\
 	#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\
