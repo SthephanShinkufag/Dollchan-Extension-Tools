@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'ff8379b';
+var commit = '033241a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -878,10 +878,10 @@ class CancelablePromise {
 		return this.then(void 0, eb);
 	}
 	cancel() {
+		this._reject(new CancelError());
 		if(!this._isResolved && this._cancelFn) {
 			this._cancelFn();
 		}
-		this._reject(new CancelError());
 	}
 }
 

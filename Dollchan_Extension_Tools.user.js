@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'ff8379b';
+	var commit = '033241a';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3691,10 +3691,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'cancel',
 			value: function cancel() {
+				this._reject(new CancelError());
 				if (!this._isResolved && this._cancelFn) {
 					this._cancelFn();
 				}
-				this._reject(new CancelError());
 			}
 		}]);
 
