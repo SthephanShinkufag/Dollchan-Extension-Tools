@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '8065a92';
+var commit = '22f3d04';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10236,7 +10236,7 @@ class Pview extends AbstractPost {
 					var arr = (sesStorage['de-viewed'] || '').split(',');
 					arr.push(pst.num);
 					sesStorage['de-viewed'] = arr;
-				}, post.text.length > 100 ? 2e3 : 500, post);
+				}, post.text.trim().length > 100 ? 2e3 : 500, post);
 			}
 		}
 		el.addEventListener('click', this, true);
