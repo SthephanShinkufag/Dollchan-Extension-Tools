@@ -6675,16 +6675,20 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	if(this.oeForm) {
 		this.pForm.appendChild(this.oeForm);
 	}
-	DelForm.first.el.insertAdjacentHTML('beforebegin',
-		'<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
-	this.pArea[0] = DelForm.first.el.previousSibling;
-	this._pBtn[0] = this.pArea[0].firstChild;
-	this._pBtn[0].firstElementChild.onclick = this.showMainReply.bind(this, false);
+	var html = `
+	<div class="de-parea">
+		<div class="de-thread-btn ${ aib.cReply }"><a href="#"></a></div>
+		<hr>
+	</div>`;
+	DelForm.first.el.insertAdjacentHTML('beforebegin', html);
+	this.pArea[0] = DelForm.first.el.previousElementSibling;
+	this._pBtn[0] = this.pArea[0].firstElementChild;
+	this._pBtn[0].onclick = this.showMainReply.bind(this, false);
 	var el = aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el;
-	el.insertAdjacentHTML('afterend', '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
-	this.pArea[1] = el.nextSibling;
-	this._pBtn[1] = this.pArea[1].firstChild;
-	this._pBtn[1].firstElementChild.onclick = this.showMainReply.bind(this, true);
+	el.insertAdjacentHTML('afterend', html);
+	this.pArea[1] = el.nextElementSibling;
+	this._pBtn[1] = this.pArea[1].firstElementChild;
+	this._pBtn[1].onclick = this.showMainReply.bind(this, true);
 	this.qArea = $add('<div style="display: none; ' + Cfg.replyWinX + '; ' + Cfg.replyWinY +
 		'; z-index: ' + ++topWinZ + ';" id="de-win-reply" class="' + aib.cReply +
 		(Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost') + '"></div>');
@@ -12384,6 +12388,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['8ch.net'] = _8chNet;
+	ibDomains['oxwugzccvk3dk6tj.onion'] = _8chNet;
 
 	class _7chanOrg extends BaseBoard {
 		init() { return true; }
@@ -14352,6 +14357,8 @@ function scriptCSS() {
 	.de-replies-hide::after { content: "' + Lng.hidePosts[lang] + '"; }\
 	.de-replies-show::after { content: "' + Lng.showPosts[lang] + '"; }\
 	.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(255,0,0,.7); border-right: 4px solid rgba(255,0,0,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(255,0,0,.8), -6px 0 2px -2px rgba(255,0,0,.8); }') + '\
+	.de-thread-btn { display: inline-block; float: none; width: 100px; min-width: 0; padding: 4px 0; margin: 0; border: 1px solid rgba(170, 170, 170, 0.2); border-radius: 4px; background-image: linear-gradient(rgba(240, 240, 240, 0.3), rgba(160, 160, 160, 0.5)); font: 13px arial; cursor: pointer; }\
+	.de-thread-btn:hover { background-image: linear-gradient(rgba(160, 160, 160, 0.4), rgba(220, 220, 220, 0.3)); }\
 	.de-thread-buttons { clear: left; margin-top: 5px; }\
 	.de-thread-collapse > a::after { content: "' + Lng.collapseThrd[lang] + '"; }\
 	.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '"; }\
