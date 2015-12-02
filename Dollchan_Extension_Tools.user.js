@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'afcd925';
+	var commit = 'b39a3ea';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -9795,7 +9795,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return this._post.isOp;
 		},
 		_tlen: function _tlen(val) {
-			var text = this._post.text.replace(/^\s+|\s+$|\s+(?=\s)|\n/g, '');
+			var text = this._post.text.replace(/\s+(?=\s)|\n/g, '');
 			return !val ? !!text : this._tlenNum_helper(val, text.length);
 		},
 		_all: function _all(val) {
@@ -13585,14 +13585,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'text',
 			get: function get() {
-				var value = this.post.msg.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n').replace(/<[^>]+?>/g, '').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&nbsp;/g, ' ');
+				var value = this.post.msg.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n').replace(/<[^>]+?>/g, '').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&nbsp;/g, ' ').trim();
 				Object.defineProperty(this, 'text', { value: value });
 				return value;
 			}
 		}, {
 			key: 'title',
 			get: function get() {
-				var val = this.subj || this.text.trim().substring(0, 70).replace(/\s+/g, ' ');
+				var val = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ');
 				Object.defineProperty(this, 'title', { value: val });
 				return val;
 			}
@@ -14218,7 +14218,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							var arr = (sesStorage['de-viewed'] || '').split(',');
 							arr.push(pst.num);
 							sesStorage['de-viewed'] = arr;
-						}, post.text.trim().length > 100 ? 2e3 : 500, post);
+						}, post.text.length > 100 ? 2e3 : 500, post);
 					}
 				}
 				el.addEventListener('click', this, true);

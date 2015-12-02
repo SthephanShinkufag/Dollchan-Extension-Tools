@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'afcd925';
+var commit = 'b39a3ea';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -6458,7 +6458,7 @@ SpellsInterpreter.prototype = {
 		return this._post.isOp;
 	},
 	_tlen(val) {
-		var text = this._post.text.replace(/^\s+|\s+$|\s+(?=\s)|\n/g, '');
+		var text = this._post.text.replace(/\s+(?=\s)|\n/g, '');
 		return !val ? !!text : this._tlenNum_helper(val, text.length);
 	},
 	_all(val) {
@@ -9655,12 +9655,12 @@ Post.content = class PostContent extends TemporaryContent {
 				.replace(/<[^>]+?>/g,'')
 				.replace(/&gt;/g, '>')
 				.replace(/&lt;/g, '<')
-				.replace(/&nbsp;/g, '\u00A0');
+				.replace(/&nbsp;/g, '\u00A0').trim();
 		Object.defineProperty(this, 'text', { value });
 		return value;
 	}
 	get title() {
-		var val = this.subj || this.text.trim().substring(0, 70).replace(/\s+/g, ' ');
+		var val = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ');
 		Object.defineProperty(this, 'title', { value: val });
 		return val;
 	}
@@ -10235,7 +10235,7 @@ class Pview extends AbstractPost {
 					var arr = (sesStorage['de-viewed'] || '').split(',');
 					arr.push(pst.num);
 					sesStorage['de-viewed'] = arr;
-				}, post.text.trim().length > 100 ? 2e3 : 500, post);
+				}, post.text.length > 100 ? 2e3 : 500, post);
 			}
 		}
 		el.addEventListener('click', this, true);
