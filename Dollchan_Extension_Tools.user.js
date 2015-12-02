@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '259f073';
+	var commit = 'f835159';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10043,16 +10043,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (this.oeForm) {
 			this.pForm.appendChild(this.oeForm);
 		}
-		var html = '\n\t<div class="de-parea">\n\t\t<div class="de-thread-btn ' + aib.cReply + '"><b></b></div>\n\t\t<hr>\n\t</div>';
-		DelForm.first.el.insertAdjacentHTML('beforebegin', html);
-		this.pArea[0] = DelForm.first.el.previousElementSibling;
-		this._pBtn[0] = this.pArea[0].firstElementChild;
-		this._pBtn[0].onclick = this.showMainReply.bind(this, false);
+		DelForm.first.el.insertAdjacentHTML('beforebegin', '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
+		this.pArea[0] = DelForm.first.el.previousSibling;
+		this._pBtn[0] = this.pArea[0].firstChild;
+		this._pBtn[0].firstElementChild.onclick = this.showMainReply.bind(this, false);
 		var el = aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el;
-		el.insertAdjacentHTML('afterend', html);
-		this.pArea[1] = el.nextElementSibling;
-		this._pBtn[1] = this.pArea[1].firstElementChild;
-		this._pBtn[1].onclick = this.showMainReply.bind(this, true);
+		el.insertAdjacentHTML('afterend', '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
+		this.pArea[1] = el.nextSibling;
+		this._pBtn[1] = this.pArea[1].firstChild;
+		this._pBtn[1].firstElementChild.onclick = this.showMainReply.bind(this, true);
 		this.qArea = $add('<div style="display: none; ' + Cfg.replyWinX + '; ' + Cfg.replyWinY + '; z-index: ' + ++topWinZ + ';" id="de-win-reply" class="' + aib.cReply + (Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost') + '"></div>');
 		this.isBottom = Cfg.addPostForm === 1;
 		this.setReply(false, !aib.t || Cfg.addPostForm > 1);
@@ -10431,7 +10430,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (!this.isQuick) {
 				this.isQuick = true;
 				this.setReply(true, false);
-				$q('b', this._pBtn[+this.isBottom]).className = 'de-abtn de-parea-btn-' + (isThr ? 'reply' : 'thrd');
+				$q('a', this._pBtn[+this.isBottom]).className = 'de-abtn de-parea-btn-' + (isThr ? 'reply' : 'thrd');
 				if (!isThr && !aib.kus && !aib.dobr && !aib.mak) {
 					if (this.oeForm) {
 						$del($q('input[name="oek_parent"]', this.oeForm));
@@ -10532,8 +10531,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		updatePAreaBtns: function updatePAreaBtns() {
 			var txt = 'de-abtn de-parea-btn-',
 			    rep = aib.t ? 'reply' : 'thrd';
-			$q('b', this._pBtn[+this.isBottom]).className = txt + (!this.pForm.style.display ? 'close' : rep);
-			$q('b', this._pBtn[+!this.isBottom]).className = txt + rep;
+			$q('a', this._pBtn[+this.isBottom]).className = txt + (!this.pForm.style.display ? 'close' : rep);
+			$q('a', this._pBtn[+!this.isBottom]).className = txt + rep;
 		},
 
 		_pBtn: [],
@@ -19053,8 +19052,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-replies-hide::after { content: "' + Lng.hidePosts[lang] + '"; }\
 	.de-replies-show::after { content: "' + Lng.showPosts[lang] + '"; }\
 	.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(255,0,0,.7); border-right: 4px solid rgba(255,0,0,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(255,0,0,.8), -6px 0 2px -2px rgba(255,0,0,.8); }') + '\
-	.de-thread-btn { display: inline-block !important; float: none; width: 120px; min-width: 0; padding: 6px 0 !important; margin: 0 !important; border: 1px solid rgba(170, 170, 170, 0.4); border-left: none; border-top: none; border-radius: 4px; background-image: linear-gradient(rgba(240, 240, 240, 0.1), rgba(160, 160, 160, 0.25)); font: 13px arial; cursor: pointer; }\
-	.de-thread-btn:hover { background-image: linear-gradient(rgba(160, 160, 160, 0.4), rgba(220, 220, 220, 0.3)); }\
 	.de-thread-buttons { clear: left; margin-top: 5px; }\
 	.de-thread-collapse > a::after { content: "' + Lng.collapseThrd[lang] + '"; }\
 	.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '"; }\
