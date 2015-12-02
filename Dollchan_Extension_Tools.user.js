@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '3a8480b';
+	var commit = 'ff8379b';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -18187,7 +18187,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function initThreadUpdater(title, enableUpdate) {
-		var focusLoadTime = 0,
+		var focusLoadTime,
 		    paused = false,
 		    enabled = false,
 		    disabledByUser = true,
@@ -18569,7 +18569,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function enableUpdater() {
 			enabled = true;
 			disabledByUser = paused = false;
-			newPosts = focusLoadTime = 0;
+			newPosts = 0;
+			focusLoadTime = -1e4;
 			notification.checkPermission();
 			if (Cfg.updCount) {
 				counter.enable();
