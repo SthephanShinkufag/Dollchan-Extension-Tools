@@ -1,6 +1,7 @@
 require('core-js/fn/object/assign');
 require('core-js/fn/array/from');
 require('core-js/fn/array/iterator');
+require('core-js/fn/number/max-safe-integer');
 require('core-js/fn/string/includes');
 require('core-js/fn/string/repeat');
 require('core-js/fn/string/starts-with');
