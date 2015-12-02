@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '505b6eb';
+	var commit = '259f073';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10043,7 +10043,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (this.oeForm) {
 			this.pForm.appendChild(this.oeForm);
 		}
-		var html = '\n\t<div class="de-parea">\n\t\t<div class="de-thread-btn ' + aib.cReply + '"><a href="#"></a></div>\n\t\t<hr>\n\t</div>';
+		var html = '\n\t<div class="de-parea">\n\t\t<div class="de-thread-btn ' + aib.cReply + '"><b></b></div>\n\t\t<hr>\n\t</div>';
 		DelForm.first.el.insertAdjacentHTML('beforebegin', html);
 		this.pArea[0] = DelForm.first.el.previousElementSibling;
 		this._pBtn[0] = this.pArea[0].firstElementChild;
@@ -10431,7 +10431,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (!this.isQuick) {
 				this.isQuick = true;
 				this.setReply(true, false);
-				$q('a', this._pBtn[+this.isBottom]).className = 'de-abtn de-parea-btn-' + (isThr ? 'reply' : 'thrd');
+				$q('b', this._pBtn[+this.isBottom]).className = 'de-abtn de-parea-btn-' + (isThr ? 'reply' : 'thrd');
 				if (!isThr && !aib.kus && !aib.dobr && !aib.mak) {
 					if (this.oeForm) {
 						$del($q('input[name="oek_parent"]', this.oeForm));
@@ -10532,8 +10532,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		updatePAreaBtns: function updatePAreaBtns() {
 			var txt = 'de-abtn de-parea-btn-',
 			    rep = aib.t ? 'reply' : 'thrd';
-			$q('a', this._pBtn[+this.isBottom]).className = txt + (!this.pForm.style.display ? 'close' : rep);
-			$q('a', this._pBtn[+!this.isBottom]).className = txt + rep;
+			$q('b', this._pBtn[+this.isBottom]).className = txt + (!this.pForm.style.display ? 'close' : rep);
+			$q('b', this._pBtn[+!this.isBottom]).className = txt + rep;
 		},
 
 		_pBtn: [],

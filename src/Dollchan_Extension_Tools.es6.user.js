@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '505b6eb';
+var commit = '259f073';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -6677,7 +6677,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	}
 	var html = `
 	<div class="de-parea">
-		<div class="de-thread-btn ${ aib.cReply }"><a href="#"></a></div>
+		<div class="de-thread-btn ${ aib.cReply }"><b></b></div>
 		<hr>
 	</div>`;
 	DelForm.first.el.insertAdjacentHTML('beforebegin', html);
@@ -7055,7 +7055,7 @@ PostForm.prototype = {
 		if(!this.isQuick) {
 			this.isQuick = true;
 			this.setReply(true, false);
-			$q('a', this._pBtn[+this.isBottom]).className =
+			$q('b', this._pBtn[+this.isBottom]).className =
 				'de-abtn de-parea-btn-' + (isThr ? 'reply' : 'thrd');
 			if(!isThr && !aib.kus && !aib.dobr && !aib.mak) {
 				if(this.oeForm) {
@@ -7164,8 +7164,8 @@ PostForm.prototype = {
 	updatePAreaBtns() {
 		var txt = 'de-abtn de-parea-btn-',
 			rep = aib.t ? 'reply' : 'thrd';
-		$q('a', this._pBtn[+this.isBottom]).className = txt + (!this.pForm.style.display ? 'close' : rep);
-		$q('a', this._pBtn[+!this.isBottom]).className = txt + rep;
+		$q('b', this._pBtn[+this.isBottom]).className = txt + (!this.pForm.style.display ? 'close' : rep);
+		$q('b', this._pBtn[+!this.isBottom]).className = txt + rep;
 	},
 
 	_pBtn: [],
