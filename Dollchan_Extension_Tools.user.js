@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '033241a';
+	var commit = '430ad21';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11152,7 +11152,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function checkUpload(data) {
 		var isDocument = data instanceof HTMLDocument;
-		updater['continue']();
 		var error = null,
 		    postNum = null;
 		if (aib.getSubmitData) {
@@ -11181,6 +11180,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			$popup(error, 'upload', false);
 			updater.sendErrNotif();
+			updater['continue']();
 			return;
 		}
 		addMyPost(postNum);
@@ -11212,6 +11212,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (Cfg.scrAfterRep) {
 					scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 				}
+				updater['continue'](true);
 				closePopup('upload');
 			} else {
 				Thread.first.loadNew(true).then(function () {
@@ -11223,6 +11224,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (Cfg.scrAfterRep) {
 						scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 					}
+					updater['continue'](true);
 					closePopup('upload');
 				});
 			}
@@ -18662,8 +18664,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			},
 			'continue': function _continue() {
+				var needSleep = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
 				if (enabled && paused) {
-					updMachine.start();
+					updMachine.start(needSleep);
 					paused = false;
 				}
 			},

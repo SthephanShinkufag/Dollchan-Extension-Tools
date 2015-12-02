@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '033241a';
+var commit = '430ad21';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7724,7 +7724,6 @@ function getUploadFunc() {
 
 function checkUpload(data) {
 	var isDocument = data instanceof HTMLDocument;
-	updater.continue();
 	var error = null, postNum = null;
 	if(aib.getSubmitData) {
 		if(aib.jsonSubmit) {
@@ -7749,6 +7748,7 @@ function checkUpload(data) {
 		}
 		$popup(error, 'upload', false);
 		updater.sendErrNotif();
+		updater.continue();
 		return;
 	}
 	addMyPost(postNum);
@@ -7781,6 +7781,7 @@ function checkUpload(data) {
 			if(Cfg.scrAfterRep) {
 				scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 			}
+			updater.continue(true);
 			closePopup('upload');
 		} else {
 			Thread.first.loadNew(true).then(() => AjaxError.success, e => e).then(e => {
@@ -7788,6 +7789,7 @@ function checkUpload(data) {
 				if(Cfg.scrAfterRep) {
 					scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 				}
+				updater.continue(true);
 				closePopup('upload');
 			});
 		}
@@ -13889,9 +13891,9 @@ function initThreadUpdater(title, enableUpdate) {
 				paused = true;
 			}
 		},
-		continue() {
+		continue(needSleep = false) {
 			if(enabled && paused) {
-				updMachine.start();
+				updMachine.start(needSleep);
 				paused = false;
 			}
 		},
