@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'f835159';
+	var commit = '917e345';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12326,14 +12326,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: '_computeOffset',
 			value: function _computeOffset() {
-				var el = this._fullEl || this.el;
+				var val, el;
+				if (this._fullEl) {
+					el = this._fullEl;
+					val = 0;
+				} else {
+					el = this.el;
+					var temp = doc.defaultView.getComputedStyle(el).marginLeft;
+					val = temp ? -parseFloat(temp) + 5 : 0;
+				}
 				if (this.post.hidden) {
 					this.post.hideContent(false);
-					var val = el.getBoundingClientRect().left + window.pageXOffset;
+					val += el.getBoundingClientRect().left + window.pageXOffset;
 					this.post.hideContent(true);
-					return val;
+				} else {
+					val += el.getBoundingClientRect().left + window.pageXOffset;
 				}
-				return el.getBoundingClientRect().left + window.pageXOffset;
+				return val;
 			}
 		}, {
 			key: '_getThumbSize',
@@ -12483,8 +12492,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					value = this._computeOffset();
 					value = this.prev ? value + this.post.images.first._computeOffset() : value * 2;
 					if (this.inPview) {
-						value -= parseInt(this.post.el.style.left, 10) - 10;
-					} else if (needCache) {
+						value -= parseFloat(this.post.el.style.left, 10) - 10;
+					} else {
+						value -= this.post.el.getBoundingClientRect().left;
+					}
+					if (needCache) {
 						Attachment.cachedOffset = value;
 					}
 				}
