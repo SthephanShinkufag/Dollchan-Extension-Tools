@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'f664f8a';
+	var commit = '8065a92';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12246,8 +12246,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						obj = $add('<object style="width: inherit; height: inherit" data="' + src + '" type="application/x-vlc-plugin">' + '<param name="pluginspage" value="http://www.videolan.org/vlc/" />' + '<param name="controls" value="' + (Cfg.webmControl ? 'true' : 'false') + '" />' + '<param name="loop" value="true" />' + '<param name="autoplay" value="true" />' + '<param name="wmode" value="transparent" /></object>');
 					}
 				} else {
-					var html = '<div class="de-img-wrapper' + (size ? '' : ' de-img-wrapper-nosize') + (inPost ? ' de-img-wrapper-inpost' : '') + '">';
-					if (!size) {
+					var html = '<div class="de-img-wrapper' + (inPost ? ' de-img-wrapper-inpost' : size ? '' : ' de-img-wrapper-nosize') + '">';
+					if (!inPost && !size) {
 						html += '<svg class="de-img-load"><use xlink:href="#de-symbol-wait"/></svg>';
 					}
 					html += '<img class="de-img-full" src="' + src + '" alt="' + src + '"></div>';
@@ -18907,10 +18907,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		x += '.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
 	.de-img-pre { max-width: 200px; max-height: 200px; }\
 	.de-img-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\
-	.de-img-full { width: 100%; height: 100%; }\
+	.de-img-full, .de-img-wrapper-nosize { width: 100%; height: 100%; }\
 	.de-img-wrapper-inpost { min-width: ' + p + 'px; min-height: ' + p + 'px; float: left; ' + (aib.multiFile ? '' : 'padding: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ') + '}\
 	.de-img-wrapper-nosize { position: relative; }\
-	.de-img-wrapper-nosize > .de-img-full { z-index: 1; opacity: .3; }\
+	.de-img-wrapper-nosize > .de-img-full { position: absolute; z-index: 1; opacity: .3; }\
 	.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
 	#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\
 	#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\
