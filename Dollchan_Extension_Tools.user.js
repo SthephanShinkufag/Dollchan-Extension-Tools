@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '430ad21';
+	var commit = '505b6eb';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10043,15 +10043,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (this.oeForm) {
 			this.pForm.appendChild(this.oeForm);
 		}
-		DelForm.first.el.insertAdjacentHTML('beforebegin', '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
-		this.pArea[0] = DelForm.first.el.previousSibling;
-		this._pBtn[0] = this.pArea[0].firstChild;
-		this._pBtn[0].firstElementChild.onclick = this.showMainReply.bind(this, false);
+		var html = '\n\t<div class="de-parea">\n\t\t<div class="de-thread-btn ' + aib.cReply + '"><a href="#"></a></div>\n\t\t<hr>\n\t</div>';
+		DelForm.first.el.insertAdjacentHTML('beforebegin', html);
+		this.pArea[0] = DelForm.first.el.previousElementSibling;
+		this._pBtn[0] = this.pArea[0].firstElementChild;
+		this._pBtn[0].onclick = this.showMainReply.bind(this, false);
 		var el = aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el;
-		el.insertAdjacentHTML('afterend', '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
-		this.pArea[1] = el.nextSibling;
-		this._pBtn[1] = this.pArea[1].firstChild;
-		this._pBtn[1].firstElementChild.onclick = this.showMainReply.bind(this, true);
+		el.insertAdjacentHTML('afterend', html);
+		this.pArea[1] = el.nextElementSibling;
+		this._pBtn[1] = this.pArea[1].firstElementChild;
+		this._pBtn[1].onclick = this.showMainReply.bind(this, true);
 		this.qArea = $add('<div style="display: none; ' + Cfg.replyWinX + '; ' + Cfg.replyWinY + '; z-index: ' + ++topWinZ + ';" id="de-win-reply" class="' + aib.cReply + (Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost') + '"></div>');
 		this.isBottom = Cfg.addPostForm === 1;
 		this.setReply(false, !aib.t || Cfg.addPostForm > 1);
@@ -16998,6 +16999,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		})(Vichan);
 
 		ibDomains['8ch.net'] = _8chNet;
+		ibDomains['oxwugzccvk3dk6tj.onion'] = _8chNet;
 
 		var _7chanOrg = (function (_BaseBoard10) {
 			_inherits(_7chanOrg, _BaseBoard10);
@@ -19051,6 +19053,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-replies-hide::after { content: "' + Lng.hidePosts[lang] + '"; }\
 	.de-replies-show::after { content: "' + Lng.showPosts[lang] + '"; }\
 	.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(255,0,0,.7); border-right: 4px solid rgba(255,0,0,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(255,0,0,.8), -6px 0 2px -2px rgba(255,0,0,.8); }') + '\
+	.de-thread-btn { display: inline-block !important; float: none; width: 100px; min-width: 0; padding: 4px 0 !important; margin: 0 !important; border: 1px solid rgba(170, 170, 170, 0.4); border-left: none; border-top: none; border-radius: 4px; background-image: linear-gradient(rgba(240, 240, 240, 0.3), rgba(160, 160, 160, 0.5)); font: 13px arial; cursor: pointer; }\
+	.de-thread-btn:hover { background-image: linear-gradient(rgba(160, 160, 160, 0.4), rgba(220, 220, 220, 0.3)); }\
 	.de-thread-buttons { clear: left; margin-top: 5px; }\
 	.de-thread-collapse > a::after { content: "' + Lng.collapseThrd[lang] + '"; }\
 	.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '"; }\

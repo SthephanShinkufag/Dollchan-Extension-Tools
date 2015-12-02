@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '430ad21';
+var commit = '505b6eb';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -14357,7 +14357,7 @@ function scriptCSS() {
 	.de-replies-hide::after { content: "' + Lng.hidePosts[lang] + '"; }\
 	.de-replies-show::after { content: "' + Lng.showPosts[lang] + '"; }\
 	.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(255,0,0,.7); border-right: 4px solid rgba(255,0,0,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(255,0,0,.8), -6px 0 2px -2px rgba(255,0,0,.8); }') + '\
-	.de-thread-btn { display: inline-block; float: none; width: 100px; min-width: 0; padding: 4px 0; margin: 0; border: 1px solid rgba(170, 170, 170, 0.2); border-radius: 4px; background-image: linear-gradient(rgba(240, 240, 240, 0.3), rgba(160, 160, 160, 0.5)); font: 13px arial; cursor: pointer; }\
+	.de-thread-btn { display: inline-block !important; float: none; width: 100px; min-width: 0; padding: 4px 0 !important; margin: 0 !important; border: 1px solid rgba(170, 170, 170, 0.4); border-left: none; border-top: none; border-radius: 4px; background-image: linear-gradient(rgba(240, 240, 240, 0.3), rgba(160, 160, 160, 0.5)); font: 13px arial; cursor: pointer; }\
 	.de-thread-btn:hover { background-image: linear-gradient(rgba(160, 160, 160, 0.4), rgba(220, 220, 220, 0.3)); }\
 	.de-thread-buttons { clear: left; margin-top: 5px; }\
 	.de-thread-collapse > a::after { content: "' + Lng.collapseThrd[lang] + '"; }\
