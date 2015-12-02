@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '5e78cea';
+	var commit = 'f664f8a';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -6085,7 +6085,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function getCfgImages() {
-		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-images' }, [optSel('expandImgs', true, null), $New('div', { 'class': 'de-cfg-depend' }, [lBox('imgNavBtns', true, updateCSS), lBox('resizeImgs', true, null), $if(Post.sizing.dPxRatio > 1, lBox('resizeDPI', true, null)), $New('div', null, [inpTxt('minImgSize', 2, function () {
+		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-images' }, [optSel('expandImgs', true, null), $New('div', { 'class': 'de-cfg-depend' }, [lBox('imgNavBtns', true, updateCSS), lBox('resizeImgs', true, updateCSS), $if(Post.sizing.dPxRatio > 1, lBox('resizeDPI', true, null)), $New('div', null, [inpTxt('minImgSize', 2, function () {
 			saveCfg('minImgSize', Math.max(+this.value, 1));
 		}), $txt(Lng.cfg.minImgSize[lang])]), inpTxt('zoomFactor', 2, function () {
 			saveCfg('zoomFactor', Math.min(Math.max(+this.value, 1), 100));
@@ -18900,15 +18900,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-blink { animation: de-blink .7s ease-in-out both; }\
 	.de-post-new { animation: de-post-new .2s ease-out both; }\
 	.de-win-open { animation: de-win-open .2s ease-out backwards; }\
-	.de-win-close { animation: de-win-close .2s ease-in both; }' +
+	.de-win-close { animation: de-win-close .2s ease-in both; }';
 
 	
-		'.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
+		p = Math.max(Cfg.minImgSize || 0, 50);
+		x += '.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
 	.de-img-pre { max-width: 200px; max-height: 200px; }\
 	.de-img-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\
 	.de-img-full { width: 100%; height: 100%; }\
-	.de-img-wrapper-inpost { max-width: 100%; float: left; ' + (aib.multiFile ? '' : 'padding: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ') + '}\
-	.de-img-wrapper-nosize { position: relative; min-width: 60px; min-height: 60px; }\
+	.de-img-wrapper-inpost { min-width: ' + p + 'px; min-height: ' + p + 'px; float: left; ' + (aib.multiFile ? '' : 'padding: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ') + '}\
+	.de-img-wrapper-nosize { position: relative; }\
 	.de-img-wrapper-nosize > .de-img-full { z-index: 1; opacity: .3; }\
 	.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
 	#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\
@@ -19012,6 +19013,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function updateCSS() {
 		var x = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }';
+		if (!Cfg.resizeImgs) {
+			x += '.de-img-wrapper-inpost > .de-img-full { width: auto; }';
+		}
 		if (Cfg.postBtnsCSS === 0) {
 			x += '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: #4F7942; }\
 		.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }';
