@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '22f3d04';
+var commit = 'afcd925';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8255,7 +8255,7 @@ AttachmentViewer.prototype = {
 	handleEvent(e) {
 		switch(e.type) {
 		case 'mousedown':
-			if(this.data.isVideo && this.data.isControlClick(e, this._elStyle.height)) {
+			if(this.data.isVideo && this.data.isControlClick(e)) {
 				return;
 			}
 			this._oldX = e.clientX;
@@ -8279,7 +8279,7 @@ AttachmentViewer.prototype = {
 			docBody.removeEventListener('mouseup', this, true);
 			return;
 		case 'click':
-			if(this.data.isVideo && this.data.isControlClick(e, this._elStyle.height)) {
+			if(this.data.isVideo && this.data.isControlClick(e)) {
 				return;
 			}
 			if(e.button === 0) {
@@ -8496,7 +8496,7 @@ class ExpandableMedia {
 		return (this._size || [-1, -1])[0];
 	}
 	collapse(e) {
-		if(!this.isVideo || !this.isControlClick(e, this._fullEl.style.height)) {
+		if(!this.isVideo || !this.isControlClick(e)) {
 			this.expanded = false;
 			$del(this._fullEl);
 			this._fullEl = null;
@@ -8660,9 +8660,8 @@ class ExpandableMedia {
 		}
 		return obj;
 	}
-	isControlClick(e, styleHeight) {
-		return Cfg.webmControl && e.clientY >
-			(e.target.getBoundingClientRect().top + parseInt(styleHeight, 10) - 30);
+	isControlClick(e) {
+		return Cfg.webmControl && e.clientY > (e.target.getBoundingClientRect().bottom - 30);
 	}
 	sendCloseEvent(e, inPost) {
 		var pv = this.post,

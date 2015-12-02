@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '22f3d04';
+	var commit = 'afcd925';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11866,7 +11866,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		handleEvent: function handleEvent(e) {
 			switch (e.type) {
 				case 'mousedown':
-					if (this.data.isVideo && this.data.isControlClick(e, this._elStyle.height)) {
+					if (this.data.isVideo && this.data.isControlClick(e)) {
 						return;
 					}
 					this._oldX = e.clientX;
@@ -11890,7 +11890,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					docBody.removeEventListener('mouseup', this, true);
 					return;
 				case 'click':
-					if (this.data.isVideo && this.data.isControlClick(e, this._elStyle.height)) {
+					if (this.data.isVideo && this.data.isControlClick(e)) {
 						return;
 					}
 					if (e.button === 0) {
@@ -12102,7 +12102,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_createClass(ExpandableMedia, [{
 			key: 'collapse',
 			value: function collapse(e) {
-				if (!this.isVideo || !this.isControlClick(e, this._fullEl.style.height)) {
+				if (!this.isVideo || !this.isControlClick(e)) {
 					this.expanded = false;
 					$del(this._fullEl);
 					this._fullEl = null;
@@ -12277,8 +12277,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: 'isControlClick',
-			value: function isControlClick(e, styleHeight) {
-				return Cfg.webmControl && e.clientY > e.target.getBoundingClientRect().top + parseInt(styleHeight, 10) - 30;
+			value: function isControlClick(e) {
+				return Cfg.webmControl && e.clientY > e.target.getBoundingClientRect().bottom - 30;
 			}
 		}, {
 			key: 'sendCloseEvent',
