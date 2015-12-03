@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'b39a3ea';
+	var commit = '5fa6a55';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -2896,12 +2896,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'zoomFactor': 25,
 		'webmControl': 1,
 		'webmVolume': 100,
-		'maskImgs': 0,
 		'preLoadImgs': 0,
 		'findImgFile': 0,
 		'openImgs': 0,
 		'imgSrcBtns': 1,
 		'delImgNames': 0,
+		'maskImgs': 0,
+		'maskVisib': 7,
 		'linksNavig': 2,
 		'linksOver': 100,
 		'linksOut': 1500,
@@ -3035,6 +3036,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			},
 			'imgSrcBtns': ['Добавлять кнопки для поиска картинок*', 'Add image search buttons*'],
 			'delImgNames': ['Скрывать имена картинок*', 'Hide names of images*'],
+			'maskVisib': ['Видимость при маскировке [0-100]', 'Visibility for masked images [0-100]'],
 
 			'linksNavig': {
 				sel: [['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
@@ -6097,7 +6099,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			saveCfg('webmVolume', val);
 			locStorage['__de-webmvolume'] = val;
 			locStorage.removeItem('__de-webmvolume');
-		}), $txt(Lng.cfg.webmVolume[lang])]))]), $if(!nav.Presto, lBox('preLoadImgs', true, null)), $if(!nav.Presto && !aib.fch, $New('div', { 'class': 'de-cfg-depend' }, [lBox('findImgFile', true, null)])), optSel('openImgs', true, null), lBox('imgSrcBtns', true, null), lBox('delImgNames', true, null)]);
+		}), $txt(Lng.cfg.webmVolume[lang])]))]), $if(!nav.Presto, lBox('preLoadImgs', true, null)), $if(!nav.Presto && !aib.fch, $New('div', { 'class': 'de-cfg-depend' }, [lBox('findImgFile', true, null)])), optSel('openImgs', true, null), lBox('imgSrcBtns', true, null), lBox('delImgNames', true, null), $New('div', null, [inpTxt('maskVisib', 2, function () {
+			var val = Math.min(+this.value || 0, 100);
+			saveCfg('maskVisib', val);
+			updateCSS();
+		}), $txt(Lng.cfg.maskVisib[lang])])]);
 	}
 
 	function getCfgLinks() {
@@ -19032,7 +19038,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			x += '.de-thread-buttons::before { content: ">> "; }';
 		}
 		if (Cfg.maskImgs) {
-			x += aib.qPostImg + ', .de-img-pre, .de-video-obj { opacity: .07 !important; } ' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }';
+			x += aib.qPostImg + ', .de-img-pre, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; } ' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }';
 		}
 		if (Cfg.delImgNames) {
 			x += '.de-img-name { text-transform: capitalize; text-decoration: none; }';

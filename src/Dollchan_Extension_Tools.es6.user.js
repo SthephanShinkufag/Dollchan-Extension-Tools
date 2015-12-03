@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'b39a3ea';
+var commit = '5fa6a55';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -61,12 +61,13 @@ var defaultCfg = {
 	'zoomFactor':       25,     //    zoom images by this factor on every wheel event
 	'webmControl':      1,      //    control bar for webm files
 	'webmVolume':       100,    //    default volume for webm files
-	'maskImgs':         0,      // mask images
 	'preLoadImgs':      0,      // pre-load images
 	'findImgFile':      0,      //    detect built-in files in images
 	'openImgs':         0,      // open images in posts [0=off, 1=all images, 2=GIFs only, 3=non-GIFs]
 	'imgSrcBtns':       1,      // add image search buttons
 	'delImgNames':      0,      // remove names of images
+	'maskImgs':         0,      // mask images
+	'maskVisib':        7,      // visibility for masked images
 	'linksNavig':       2,      // navigation by >>links [0=off, 1=no map, 2=+refmap]
 	'linksOver':        100,    //    delay appearance in ms
 	'linksOut':         1500,   //    delay disappearance in ms
@@ -201,6 +202,7 @@ Lng = {
 		},
 		'imgSrcBtns':   ['Добавлять кнопки для поиска картинок*', 'Add image search buttons*'],
 		'delImgNames':  ['Скрывать имена картинок*', 'Hide names of images*'],
+		'maskVisib':    ['Видимость при маскировке [0-100]', 'Visibility for masked images [0-100]'],
 
 		'linksNavig': {
 			sel:        [['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
@@ -3015,7 +3017,15 @@ function getCfgImages() {
 		])),
 		optSel('openImgs', true, null),
 		lBox('imgSrcBtns', true, null),
-		lBox('delImgNames', true, null)
+		lBox('delImgNames', true, null),
+		$New('div', null, [
+			inpTxt('maskVisib', 2, function() {
+				var val = Math.min(+this.value || 0, 100);
+				saveCfg('maskVisib', val);
+				updateCSS();
+			}),
+			$txt(Lng.cfg.maskVisib[lang])
+		])
 	]);
 }
 
@@ -14345,7 +14355,7 @@ function updateCSS() {
 		x += '.de-thread-buttons::before { content: ">> "; }';
 	}
 	if(Cfg.maskImgs) {
-		x += aib.qPostImg + ', .de-img-pre, .de-video-obj { opacity: .07 !important; } ' +
+		x += aib.qPostImg + ', .de-img-pre, .de-video-obj { opacity: ' + (Cfg.maskVisib / 100) + ' !important; } ' +
 			aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }';
 	}
 	if(Cfg.delImgNames) {
