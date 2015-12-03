@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'abf327c';
+	var commit = '8048424';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -7935,6 +7935,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_addThumb: function _addThumb(m, isYtube) {
 			var el = this.player;
 			this.playerInfo = m;
+			$show(el);
 			if (isYtube) {
 				el.innerHTML = '<a class="de-video-player" href="' + aib.prot + '//www.youtube.com/watch?v=' + m[1] + '" target="_blank">' + '<img class="de-video-thumb de-ytube" src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg"></a>';
 				return;

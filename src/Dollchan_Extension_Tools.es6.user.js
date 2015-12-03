@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'abf327c';
+var commit = '8048424';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5021,6 +5021,7 @@ Videos.prototype = {
 	_addThumb(m, isYtube) {
 		var el = this.player;
 		this.playerInfo = m;
+		$show(el);
 		if(isYtube) {
 			el.innerHTML = '<a class="de-video-player" href="' +
 				aib.prot + '//www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
