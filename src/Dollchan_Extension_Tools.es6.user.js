@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '9a71683';
+var commit = 'c218f9a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8618,6 +8618,7 @@ class ExpandableMedia {
 					(Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>');
 				if(Cfg.webmVolume !== 0) {
 					obj.volume = Cfg.webmVolume / 100;
+					obj.dispatchEvent(new CustomEvent('volumechange'));
 				}
 				obj.addEventListener('error', function() {
 					if(!this.onceLoaded) {

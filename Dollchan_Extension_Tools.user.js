@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '9a71683';
+	var commit = 'c218f9a';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12234,6 +12234,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						obj = $add('<video style="width: inherit; height: inherit" src="' + src + '" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') + (Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>');
 						if (Cfg.webmVolume !== 0) {
 							obj.volume = Cfg.webmVolume / 100;
+							obj.dispatchEvent(new CustomEvent('volumechange'));
 						}
 						obj.addEventListener('error', function () {
 							if (!this.onceLoaded) {
