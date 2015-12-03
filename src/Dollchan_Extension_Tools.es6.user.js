@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '7b10c61';
+var commit = 'abf327c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3001,12 +3001,12 @@ function getCfgImages() {
 			$if(nav.canPlayWebm, $New('div', null, [
 				inpTxt('webmVolume', 2, function() {
 					var val = Math.min(+this.value || 0, 100);
-					if(Attachment.viewer) {
-						Attachment.viewer.setWebmVolume(val);
-					}
 					saveCfg('webmVolume', val);
 					locStorage['__de-webmvolume'] = val;
 					locStorage.removeItem('__de-webmvolume');
+					if(Attachment.viewer) {
+						Attachment.viewer.setWebmVolume(val);
+					}
 				}),
 				$txt(Lng.cfg.webmVolume[lang])
 			]))
@@ -8326,7 +8326,6 @@ AttachmentViewer.prototype = {
 		if(el.tagName === 'VIDEO') {
 			el.volume = val / 100;
 			el.muted = val === 0;
-			el.dispatchEvent(new CustomEvent('volumechange'));
 		}
 	},
 	update(data, showButtons, e) {
@@ -8623,11 +8622,13 @@ class ExpandableMedia {
 						this.onceLoaded = true;
 					}
 				});
-				obj.addEventListener('volumechange', function() {
+				obj.addEventListener('volumechange', function(e) {
 					var val = this.muted ? 0 : Math.round(this.volume * 100);
-					saveCfg('webmVolume', val);
-					locStorage['__de-webmvolume'] = val;
-					locStorage.removeItem('__de-webmvolume');
+					if(e.isTrusted && val !== Cfg.webmVolume) {
+						saveCfg('webmVolume', val);
+						locStorage['__de-webmvolume'] = val;
+						locStorage.removeItem('__de-webmvolume');
+					}
 				});
 			} else {
 				obj = $add('<object style="width: inherit; height: inherit" data="' + src +

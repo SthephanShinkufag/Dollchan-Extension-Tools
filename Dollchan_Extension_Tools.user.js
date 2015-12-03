@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '7b10c61';
+	var commit = 'abf327c';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -6093,12 +6093,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			saveCfg('zoomFactor', Math.min(Math.max(+this.value, 1), 100));
 		}), $txt(Lng.cfg.zoomFactor[lang]), lBox('webmControl', true, null), $if(nav.canPlayWebm, $New('div', null, [inpTxt('webmVolume', 2, function () {
 			var val = Math.min(+this.value || 0, 100);
-			if (Attachment.viewer) {
-				Attachment.viewer.setWebmVolume(val);
-			}
 			saveCfg('webmVolume', val);
 			locStorage['__de-webmvolume'] = val;
 			locStorage.removeItem('__de-webmvolume');
+			if (Attachment.viewer) {
+				Attachment.viewer.setWebmVolume(val);
+			}
 		}), $txt(Lng.cfg.webmVolume[lang])]))]), $if(!nav.Presto, lBox('preLoadImgs', true, null)), $if(!nav.Presto && !aib.fch, $New('div', { 'class': 'de-cfg-depend' }, [lBox('findImgFile', true, null)])), optSel('openImgs', true, null), lBox('imgSrcBtns', true, null), lBox('delImgNames', true, null), $New('div', null, [inpTxt('maskVisib', 2, function () {
 			var val = Math.min(+this.value || 0, 100);
 			saveCfg('maskVisib', val);
@@ -11934,7 +11934,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (el.tagName === 'VIDEO') {
 				el.volume = val / 100;
 				el.muted = val === 0;
-				el.dispatchEvent(new CustomEvent('volumechange'));
 			}
 		},
 		update: function update(data, showButtons, e) {
@@ -12241,11 +12240,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								this.onceLoaded = true;
 							}
 						});
-						obj.addEventListener('volumechange', function () {
+						obj.addEventListener('volumechange', function (e) {
 							var val = this.muted ? 0 : Math.round(this.volume * 100);
-							saveCfg('webmVolume', val);
-							locStorage['__de-webmvolume'] = val;
-							locStorage.removeItem('__de-webmvolume');
+							if (e.isTrusted && val !== Cfg.webmVolume) {
+								saveCfg('webmVolume', val);
+								locStorage['__de-webmvolume'] = val;
+								locStorage.removeItem('__de-webmvolume');
+							}
 						});
 					} else {
 						obj = $add('<object style="width: inherit; height: inherit" data="' + src + '" type="application/x-vlc-plugin">' + '<param name="pluginspage" value="http://www.videolan.org/vlc/" />' + '<param name="controls" value="' + (Cfg.webmControl ? 'true' : 'false') + '" />' + '<param name="loop" value="true" />' + '<param name="autoplay" value="true" />' + '<param name="wmode" value="transparent" /></object>');
