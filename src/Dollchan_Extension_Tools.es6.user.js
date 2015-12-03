@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '5fa6a55';
+var commit = '9a71683';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8507,6 +8507,7 @@ class ExpandableMedia {
 	}
 	collapse(e) {
 		if(!this.isVideo || !this.isControlClick(e)) {
+			$pd(e);
 			this.expanded = false;
 			$del(this._fullEl);
 			this._fullEl = null;
@@ -8515,9 +8516,7 @@ class ExpandableMedia {
 			if(e && this.inPview) {
 				this.sendCloseEvent(e, true);
 			}
-			return true;
 		}
-		return false;
 	}
 	computeFullSize() {
 		if(!this._size) {
@@ -8581,7 +8580,7 @@ class ExpandableMedia {
 		(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-after-fimg"></div>');
 		this._fullEl = this.getFullObject(true, null);
-		this._fullEl.onclick = e => this.collapse(e);
+		this._fullEl.addEventListener('click', e => this.collapse(e));
 		$hide(el.parentNode);
 		$after(el.parentNode, this._fullEl);
 	}
@@ -8620,18 +8619,18 @@ class ExpandableMedia {
 				if(Cfg.webmVolume !== 0) {
 					obj.volume = Cfg.webmVolume / 100;
 				}
-				obj.onerror = function() {
+				obj.addEventListener('error', function() {
 					if(!this.onceLoaded) {
 						this.load();
 						this.onceLoaded = true;
 					}
-				};
-				obj.onvolumechange = function() {
+				});
+				obj.addEventListener('volumechange', function() {
 					var val = this.muted ? 0 : Math.round(this.volume * 100);
 					saveCfg('webmVolume', val);
 					locStorage['__de-webmvolume'] = val;
 					locStorage.removeItem('__de-webmvolume');
-				};
+				});
 			} else {
 				obj = $add('<object style="width: inherit; height: inherit" data="' + src +
 					'" type="application/x-vlc-plugin">' +

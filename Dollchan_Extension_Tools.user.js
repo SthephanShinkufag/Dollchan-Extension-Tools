@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '5fa6a55';
+	var commit = '9a71683';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12109,6 +12109,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'collapse',
 			value: function collapse(e) {
 				if (!this.isVideo || !this.isControlClick(e)) {
+					$pd(e);
 					this.expanded = false;
 					$del(this._fullEl);
 					this._fullEl = null;
@@ -12117,9 +12118,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (e && this.inPview) {
 						this.sendCloseEvent(e, true);
 					}
-					return true;
 				}
-				return false;
 			}
 		}, {
 			key: 'computeFullSize',
@@ -12188,9 +12187,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var el = this.el;
 				(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend', '<div class="de-after-fimg"></div>');
 				this._fullEl = this.getFullObject(true, null);
-				this._fullEl.onclick = function (e) {
+				this._fullEl.addEventListener('click', function (e) {
 					return _this25.collapse(e);
-				};
+				});
 				$hide(el.parentNode);
 				$after(el.parentNode, this._fullEl);
 			}
@@ -12236,18 +12235,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						if (Cfg.webmVolume !== 0) {
 							obj.volume = Cfg.webmVolume / 100;
 						}
-						obj.onerror = function () {
+						obj.addEventListener('error', function () {
 							if (!this.onceLoaded) {
 								this.load();
 								this.onceLoaded = true;
 							}
-						};
-						obj.onvolumechange = function () {
+						});
+						obj.addEventListener('volumechange', function () {
 							var val = this.muted ? 0 : Math.round(this.volume * 100);
 							saveCfg('webmVolume', val);
 							locStorage['__de-webmvolume'] = val;
 							locStorage.removeItem('__de-webmvolume');
-						};
+						});
 					} else {
 						obj = $add('<object style="width: inherit; height: inherit" data="' + src + '" type="application/x-vlc-plugin">' + '<param name="pluginspage" value="http://www.videolan.org/vlc/" />' + '<param name="controls" value="' + (Cfg.webmControl ? 'true' : 'false') + '" />' + '<param name="loop" value="true" />' + '<param name="autoplay" value="true" />' + '<param name="wmode" value="transparent" /></object>');
 					}
