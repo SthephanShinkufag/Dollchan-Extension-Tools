@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'c218f9a';
+var commit = '7b10c61';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8324,12 +8324,9 @@ AttachmentViewer.prototype = {
 	setWebmVolume: function(val) {
 		var el = this._fullEl;
 		if(el.tagName === 'VIDEO') {
-			if(val === 0) {
-				el.muted = true;
-			} else {
-				el.muted = false;
-				el.volume = val / 100;
-			}
+			el.volume = val / 100;
+			el.muted = val === 0;
+			el.dispatchEvent(new CustomEvent('volumechange'));
 		}
 	},
 	update(data, showButtons, e) {
@@ -8618,7 +8615,7 @@ class ExpandableMedia {
 					(Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>');
 				if(Cfg.webmVolume !== 0) {
 					obj.volume = Cfg.webmVolume / 100;
-					obj.dispatchEvent(new CustomEvent('volumechange'));
+					setTimeout(() => obj.dispatchEvent(new CustomEvent('volumechange')), 150);
 				}
 				obj.addEventListener('error', function() {
 					if(!this.onceLoaded) {

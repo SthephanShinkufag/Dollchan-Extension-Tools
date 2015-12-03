@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readMyPosts, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'c218f9a';
+	var commit = '7b10c61';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11932,12 +11932,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		setWebmVolume: function setWebmVolume(val) {
 			var el = this._fullEl;
 			if (el.tagName === 'VIDEO') {
-				if (val === 0) {
-					el.muted = true;
-				} else {
-					el.muted = false;
-					el.volume = val / 100;
-				}
+				el.volume = val / 100;
+				el.muted = val === 0;
+				el.dispatchEvent(new CustomEvent('volumechange'));
 			}
 		},
 		update: function update(data, showButtons, e) {
@@ -12234,7 +12231,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						obj = $add('<video style="width: inherit; height: inherit" src="' + src + '" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') + (Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>');
 						if (Cfg.webmVolume !== 0) {
 							obj.volume = Cfg.webmVolume / 100;
-							obj.dispatchEvent(new CustomEvent('volumechange'));
+							setTimeout(function () {
+								return obj.dispatchEvent(new CustomEvent('volumechange'));
+							}, 150);
 						}
 						obj.addEventListener('error', function () {
 							if (!this.onceLoaded) {
