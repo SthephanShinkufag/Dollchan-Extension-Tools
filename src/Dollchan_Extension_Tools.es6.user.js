@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '8048424';
+var commit = '677bb9d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1462,6 +1462,14 @@ function* getStoredObj(id) {
 	return JSON.parse((yield* getStored(id)) || '{}') || {};
 }
 
+function getLocStoredObj(id) {
+	try {
+		return JSON.parse(locStorage[id] || '{}') || {};
+	} catch(e) {
+		return {};
+	}
+}
+
 function saveComCfg(dm, obj) {
 	spawn(getStoredObj, 'DESU_Config').then(val => {
 		if(obj) {
@@ -1552,17 +1560,6 @@ function initPostUserVisib(post, num, hide, date) {
 	}
 }
 
-function* readMyPosts() {
-	var data = yield* getStoredObj('DESU_MyPosts_' + aib.dm);
-	if(aib.b in data) {
-		try {
-			myPosts = new Set(data[aib.b]);
-			return;
-		} catch(e) {}
-	}
-	myPosts = new Set();
-}
-
 function* readPostsData(firstPost) {
 	var sVis = null;
 	try {
@@ -1583,8 +1580,8 @@ function* readPostsData(firstPost) {
 		date = Date.now(),
 		spellsHide = Cfg.hideBySpell,
 		updatePosts = false,
-		globalUserVis = yield* getStoredObj('DESU_Posts_' + aib.dm);
-	hThr = yield* getStoredObj('DESU_Threads_' + aib.dm);
+		globalUserVis = getLocStoredObj('de-posts');
+	hThr = getLocStoredObj('de-threads');
 	uVis = globalUserVis[b] || {};
 	if(!(b in hThr)) {
 		hThr[b] = {};
@@ -1655,7 +1652,7 @@ function* readPostsData(firstPost) {
 	}
 	if(updatePosts) {
 		globalUserVis[b] = uVis;
-		setStored('DESU_Posts_' + aib.dm, JSON.stringify(globalUserVis));
+		locStorage['de-posts'] = JSON.stringify(globalUserVis);
 	}
 	maybeSpells.end();
 	if(updateFav) {
@@ -1667,60 +1664,62 @@ function* readPostsData(firstPost) {
 	}
 }
 
+function readMyPosts() {
+	var data = getLocStoredObj('de-myposts');
+	if(aib.b in data) {
+		try {
+			myPosts = new Set(data[aib.b]);
+			return;
+		} catch(e) {}
+	}
+	myPosts = new Set();
+}
+
 function addMyPost(num) {
 	locStorage['__de-mypost'] = JSON.stringify([aib.b, num]);
 	locStorage.removeItem('__de-mypost');
 	myPosts.add(num);
-	spawn(getStored, 'DESU_MyPosts_' + aib.dm).then(str => {
-		var obj;
-		try {
-			obj = JSON.parse(str || '{}') || {};
-		} catch(e) {
-			obj = {};
+	var data = getLocStoredObj('de-myposts'),
+		arr = data[aib.b];
+	if(arr) {
+		arr.push(num);
+		if(arr.length > 1e4) {
+			arr = arr.slice(5e3);
 		}
-		var arr = obj[aib.b];
-		if(arr) {
-			arr.push(num);
-			if(arr.length > 1e4) {
-				arr = arr.slice(5e3);
-			}
-		} else {
-			arr = [num];
-		}
-		obj[aib.b] = arr;
-		setStored('DESU_MyPosts_' + aib.dm, JSON.stringify(obj));
-	});
+	} else {
+		arr = [num];
+	}
+	data[aib.b] = arr;
+	locStorage['de-myposts'] = JSON.stringify(data);
 }
 
 function saveUserPosts() {
-	spawn(getStored, 'DESU_Posts_' + aib.dm).then(str => {
-		var obj;
-		try {
-			obj = JSON.parse(str || '{}') || {};
-		} catch(e) {
-			obj = {};
-		}
-		if(str && str.length > 1e6) {
-			var minDate = Date.now() - 5 * 24 * 3600 * 1000;
-			for(var b in obj) {
-				if(obj.hasOwnProperty(b)) {
-					var vis = obj[b];
-					for(var key in vis) {
-						if(vis.hasOwnProperty(key) && vis[key][1] < minDate) {
-							delete vis[key];
-						}
+	var obj, data = locStorage['de-posts'];
+	try {
+		obj = JSON.parse(data || '{}') || {};
+	} catch(e) {
+		obj = {};
+	}
+	if(data && data.length > 1e6) {
+		var minDate = Date.now() - 5 * 24 * 3600 * 1000;
+		for(var b in obj) {
+			if(obj.hasOwnProperty(b)) {
+				var vis = obj[b];
+				for(var key in vis) {
+					if(vis.hasOwnProperty(key) && vis[key][1] < minDate) {
+						delete vis[key];
 					}
 				}
 			}
 		}
-		obj[aib.b] = uVis;
-		setStored('DESU_Posts_' + aib.dm, JSON.stringify(obj));
-		toggleWindow('hid', true);
-	});
+	}
+	obj[aib.b] = uVis;
+	locStorage['de-posts'] = JSON.stringify(obj);
+	toggleWindow('hid', true);
 }
 
 function saveHiddenThreads(updWindow) {
-	setStored('DESU_Threads_' + aib.dm, JSON.stringify(hThr));
+	locStorage['de-threads'] = JSON.stringify(hThr);
 	if(updWindow) {
 		toggleWindow('hid', true);
 	}
@@ -2483,8 +2482,6 @@ function showHiddenWindow(body) {
 			}
 			Thread.first.updateHidden(hThr[aib.b]);
 			saveHiddenThreads(true);
-			locStorage['__de-threads'] = JSON.stringify(hThr);
-			locStorage.removeItem('__de-threads');
 		});
 	}));
 	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
@@ -3397,8 +3394,6 @@ function addSettings(body, id) {
 			if(confirm(Lng.conReset[lang])) {
 				delStored('DESU_Config');
 				delStored('DESU_Favorites');
-				delStored('DESU_Posts_' + aib.dm);
-				delStored('DESU_Threads_' + aib.dm);
 				delStored('DESU_keys');
 				window.location.reload();
 			}
@@ -5217,9 +5212,8 @@ var Pages = {
 		this._adding = true;
 		DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' +
 			'<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>');
-		this._addPromise = spawn(readMyPosts).then(() =>{
-			return ajaxLoad(aib.getPageUrl(aib.b, pageNum));
-		}).then(formEl => {
+		readMyPosts();
+		this._addPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(formEl => {
 			this._addForm(formEl, pageNum);
 			return spawn(this._updateForms, DelForm.last);
 		}).then(() => this._endAdding()).catch(e => {
@@ -12995,11 +12989,11 @@ function initStorageEvent() {
 			toggleWindow('hid', true);
 		})();
 		return;
-		case '__de-threads': (() => {
+		case 'de-threads': (() => {
 			try {
-				hThr = JSON.parse(val);
+				hThr = JSON.parse(val || '{}') || {};
 			} catch(err) {
-				return;
+				hThr = {};
 			}
 			if(!(aib.b in hThr)) {
 				hThr[aib.b] = {};
@@ -14450,7 +14444,7 @@ function* runMain(checkDomains, cfgPromise) {
 		                     rp => saveCfg('timeRPattern', rp));
 		Logger.log('Time correction');
 	}
-	yield* readMyPosts();
+	readMyPosts();
 	Logger.log('Read my posts');
 	$hide(docBody);
 	dummy = doc.createElement('div');
