@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '6302ec7';
+var commit = 'c5740f2';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -896,7 +896,7 @@ class AjaxError {
 		return this.code === 0 ? this.message || Lng.noConnect[lang] : 'HTTP [' + this.code + '] ' + this.message;
 	}
 }
-AjaxError.S = new AjaxError(200, '')
+AjaxError.Success = new AjaxError(200, '')
 
 function $ajax(url, params = null, useNative = nativeXHRworks) {
 	var resolve, reject, cancelFn;
@@ -8605,10 +8605,8 @@ class ExpandableMedia {
 				obj = $add('<video style="width: inherit; height: inherit" src="' + src +
 					'" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') +
 					(Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>');
-				if(Cfg.webmVolume !== 0) {
-					obj.volume = Cfg.webmVolume / 100;
-					setTimeout(() => obj.dispatchEvent(new CustomEvent('volumechange')), 150);
-				}
+				obj.volume = Cfg.webmVolume / 100;
+				setTimeout(() => obj.dispatchEvent(new CustomEvent('volumechange')), 150);
 				obj.addEventListener('error', function() {
 					if(!this.onceLoaded) {
 						this.load();
@@ -13783,7 +13781,7 @@ function initThreadUpdater(title, enableUpdate) {
 			return;
 		}
 		if(!enabled && !disabledByUser) {
-			enable();
+			enableUpdater();
 		}
 		updMachine.start(false, !enabled);
 	}

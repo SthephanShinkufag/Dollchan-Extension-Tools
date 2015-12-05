@@ -17,7 +17,6 @@
 // @include         *
 // ==/UserScript==
 (function de_main_func_outer() { 
-window.Promise = null;
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('../../modules/es6.string.iterator');
 require('../../modules/es6.array.from');
@@ -2857,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '6302ec7';
+	var commit = 'c5740f2';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3705,13 +3704,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	})();
 
 	var AjaxError = (function () {
-		_createClass(AjaxError, null, [{
-			key: 'success',
-			get: function get() {
-				return new AjaxError(200, '');
-			}
-		}]);
-
 		function AjaxError(code, message) {
 			_classCallCheck(this, AjaxError);
 
@@ -3728,6 +3720,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		return AjaxError;
 	})();
+
+	AjaxError.Success = new AjaxError(200, '');
 
 	function $ajax(url) {
 		var params = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
@@ -11186,7 +11180,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				closePopup('upload');
 			} else {
 				Thread.first.loadNew(true).then(function () {
-					return AjaxError.success;
+					return AjaxError.Success;
 				}, function (e) {
 					return e;
 				}).then(function (e) {
@@ -12192,12 +12186,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 					if (nav.canPlayWebm) {
 						obj = $add('<video style="width: inherit; height: inherit" src="' + src + '" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') + (Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>');
-						if (Cfg.webmVolume !== 0) {
-							obj.volume = Cfg.webmVolume / 100;
-							setTimeout(function () {
-								return obj.dispatchEvent(new CustomEvent('volumechange'));
-							}, 150);
-						}
+						obj.volume = Cfg.webmVolume / 100;
+						setTimeout(function () {
+							return obj.dispatchEvent(new CustomEvent('volumechange'));
+						}, 150);
 						obj.addEventListener('error', function () {
 							if (!this.onceLoaded) {
 								this.load();
@@ -18456,7 +18448,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							counter.setWait();
 							this._state = 2;
 							this._loadPromise = Thread.first.loadNew(true).then(function (pCount) {
-								return _this90._handleNewPosts(pCount, AjaxError.success);
+								return _this90._handleNewPosts(pCount, AjaxError.Success);
 							}, function (e) {
 								return _this90._handleNewPosts(0, e);
 							});
@@ -18511,7 +18503,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return;
 			}
 			if (!enabled && !disabledByUser) {
-				enable();
+				enableUpdater();
 			}
 			updMachine.start(false, !enabled);
 		}
