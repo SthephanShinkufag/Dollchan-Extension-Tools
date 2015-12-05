@@ -888,9 +888,6 @@ class CancelablePromise {
 }
 
 class AjaxError {
-	static get success() {
-		return new AjaxError(200, '');
-	}
 	constructor(code, message) {
 		this.code = code;
 		this.message = message;
@@ -899,6 +896,7 @@ class AjaxError {
 		return this.code === 0 ? this.message || Lng.noConnect[lang] : 'HTTP [' + this.code + '] ' + this.message;
 	}
 }
+AjaxError.S = new AjaxError(200, '')
 
 function $ajax(url, params = null, useNative = nativeXHRworks) {
 	var resolve, reject, cancelFn;
@@ -7789,7 +7787,7 @@ function checkUpload(data) {
 			updater.continue(true);
 			closePopup('upload');
 		} else {
-			Thread.first.loadNew(true).then(() => AjaxError.success, e => e).then(e => {
+			Thread.first.loadNew(true).then(() => AjaxError.Success, e => e).then(e => {
 				infoLoadErrors(e);
 				if(Cfg.scrAfterRep) {
 					scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
@@ -13733,7 +13731,7 @@ function initThreadUpdater(title, enableUpdate) {
 				counter.setWait();
 				this._state = 2;
 				this._loadPromise = Thread.first.loadNew(true).then(
-					pCount => this._handleNewPosts(pCount, AjaxError.success),
+					pCount => this._handleNewPosts(pCount, AjaxError.Success),
 					e => this._handleNewPosts(0, e));
 				return;
 			case 2:
