@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '677bb9d';
+var commit = '6302ec7';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13731,10 +13731,10 @@ function initThreadUpdater(title, enableUpdate) {
 				/* falls through */
 			case 1:
 				counter.setWait();
-				this._loadPromise = Thread.first.loadNew(true);
 				this._state = 2;
-				this._loadPromise.then(pCount => this._handleNewPosts(pCount, AjaxError.success),
-				                       e => this._handleNewPosts(0, e));
+				this._loadPromise = Thread.first.loadNew(true).then(
+					pCount => this._handleNewPosts(pCount, AjaxError.success),
+					e => this._handleNewPosts(0, e));
 				return;
 			case 2:
 				this._loadPromise = null;
@@ -13744,6 +13744,9 @@ function initThreadUpdater(title, enableUpdate) {
 				}
 				this._state = 0;
 				break;
+			default:
+				console.error('Invalid State!', this._state, new Error().stack);
+				return;
 			}
 		},
 		_setUpdateStatus(status) {

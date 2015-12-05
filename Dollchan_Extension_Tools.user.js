@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '677bb9d';
+	var commit = '6302ec7';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -18453,9 +18453,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 												case 1:
 							counter.setWait();
-							this._loadPromise = Thread.first.loadNew(true);
 							this._state = 2;
-							this._loadPromise.then(function (pCount) {
+							this._loadPromise = Thread.first.loadNew(true).then(function (pCount) {
 								return _this90._handleNewPosts(pCount, AjaxError.success);
 							}, function (e) {
 								return _this90._handleNewPosts(0, e);
@@ -18469,6 +18468,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 							this._state = 0;
 							break;
+						default:
+							console.error('Invalid State!', this._state, new Error().stack);
+							return;
 					}
 				}
 			},
