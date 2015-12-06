@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'c5740f2';
+var commit = 'a43a9b6';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1460,9 +1460,19 @@ function* getStoredObj(id) {
 	return JSON.parse((yield* getStored(id)) || '{}') || {};
 }
 
-function getLocStoredObj(id) {
+function* getLocStoredObj(id) {
 	try {
-		return JSON.parse(locStorage[id] || '{}') || {};
+		var data = locStorage[id];
+		if(!data) {
+			var oldId = id === 'de-posts' ? 'DESU_Posts_' :
+				id === 'de-threads' ? 'DESU_Threads_' : 'DESU_MyPosts_';
+			data = yield* getStored(oldId + aib.dm);
+			if(data) {
+				locStorage[id] = data;
+				delStored(oldId + aib.dm);
+			}
+		}
+		return JSON.parse(data || '{}') || {};
 	} catch(e) {
 		return {};
 	}
@@ -1578,8 +1588,8 @@ function* readPostsData(firstPost) {
 		date = Date.now(),
 		spellsHide = Cfg.hideBySpell,
 		updatePosts = false,
-		globalUserVis = getLocStoredObj('de-posts');
-	hThr = getLocStoredObj('de-threads');
+		globalUserVis = yield* getLocStoredObj('de-posts');
+	hThr = yield* getLocStoredObj('de-threads');
 	uVis = globalUserVis[b] || {};
 	if(!(b in hThr)) {
 		hThr[b] = {};
@@ -1662,8 +1672,8 @@ function* readPostsData(firstPost) {
 	}
 }
 
-function readMyPosts() {
-	var data = getLocStoredObj('de-myposts');
+function* readMyPosts() {
+	var data = yield* getLocStoredObj('de-myposts');
 	if(aib.b in data) {
 		try {
 			myPosts = new Set(data[aib.b]);
@@ -1673,11 +1683,11 @@ function readMyPosts() {
 	myPosts = new Set();
 }
 
-function addMyPost(num) {
+function* addMyPost(num) {
 	locStorage['__de-mypost'] = JSON.stringify([aib.b, num]);
 	locStorage.removeItem('__de-mypost');
 	myPosts.add(num);
-	var data = getLocStoredObj('de-myposts'),
+	var data = yield* getLocStoredObj('de-myposts'),
 		arr = data[aib.b];
 	if(arr) {
 		arr.push(num);
@@ -5210,7 +5220,7 @@ var Pages = {
 		this._adding = true;
 		DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' +
 			'<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>');
-		readMyPosts();
+		spawn(readMyPosts);
 		this._addPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(formEl => {
 			this._addForm(formEl, pageNum);
 			return spawn(this._updateForms, DelForm.last);
@@ -7754,7 +7764,7 @@ function checkUpload(data) {
 		updater.continue();
 		return;
 	}
-	addMyPost(postNum);
+	spawn(addMyPost, postNum);
 	if(Cfg.favOnReply && pr.tNum && !$q('.de-btn-fav-sel', pByNum.get(pr.tNum).el)) {
 		pByNum.get(pr.tNum).thr.setFavorState(true, 'onreply');
 	}
@@ -14443,7 +14453,7 @@ function* runMain(checkDomains, cfgPromise) {
 		                     rp => saveCfg('timeRPattern', rp));
 		Logger.log('Time correction');
 	}
-	readMyPosts();
+	yield* readMyPosts();
 	Logger.log('Read my posts');
 	$hide(docBody);
 	dummy = doc.createElement('div');
