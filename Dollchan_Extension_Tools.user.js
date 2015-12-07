@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '9bf6b64';
+	var commit = '4a2f7db';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4469,38 +4469,38 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return regeneratorRuntime.wrap(function getLocStoredObj$(_context4) {
 			while (1) switch (_context4.prev = _context4.next) {
 				case 0:
-					_context4.prev = 0;
 					data = locStorage[id];
 
 					if (data) {
-						_context4.next = 7;
+						_context4.next = 6;
 						break;
 					}
 
-					oldId = id === 'de-posts' ? 'DESU_Posts_' : id === 'de-threads' ? 'DESU_Threads_' : 'DESU_MyPosts_';
-					return _context4.delegateYield(getStored(oldId + aib.dm), 't0', 5);
+					oldId = (id === 'de-posts' ? 'DESU_Posts_' : id === 'de-threads' ? 'DESU_Threads_' : 'DESU_MyPosts_') + aib.dm;
+					return _context4.delegateYield(getStored(oldId), 't0', 4);
 
-				case 5:
+				case 4:
 					data = _context4.t0;
 
 					if (data) {
 						locStorage[id] = data;
-						delStored(oldId + aib.dm);
+						delStored(oldId);
 					}
 
-				case 7:
+				case 6:
+					_context4.prev = 6;
 					return _context4.abrupt('return', JSON.parse(data || '{}') || {});
 
 				case 10:
 					_context4.prev = 10;
-					_context4.t1 = _context4['catch'](0);
+					_context4.t1 = _context4['catch'](6);
 					return _context4.abrupt('return', {});
 
 				case 13:
 				case 'end':
 					return _context4.stop();
 			}
-		}, _marked[3], this, [[0, 10]]);
+		}, _marked[3], this, [[6, 10]]);
 	}
 
 	function saveComCfg(dm, obj) {

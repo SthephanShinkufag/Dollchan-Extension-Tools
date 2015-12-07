@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '9bf6b64';
+var commit = '4a2f7db';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1460,17 +1460,17 @@ function* getStoredObj(id) {
 }
 
 function* getLocStoredObj(id) {
-	try {
-		var data = locStorage[id];
-		if(!data) {
-			var oldId = id === 'de-posts' ? 'DESU_Posts_' :
-				id === 'de-threads' ? 'DESU_Threads_' : 'DESU_MyPosts_';
-			data = yield* getStored(oldId + aib.dm);
-			if(data) {
-				locStorage[id] = data;
-				delStored(oldId + aib.dm);
-			}
+	var data = locStorage[id];
+	if(!data) {
+		var oldId = (id === 'de-posts' ? 'DESU_Posts_' :
+			id === 'de-threads' ? 'DESU_Threads_' : 'DESU_MyPosts_') + aib.dm;
+		data = yield* getStored(oldId);
+		if(data) {
+			locStorage[id] = data;
+			delStored(oldId);
 		}
+	}
+	try {
 		return JSON.parse(data || '{}') || {};
 	} catch(e) {
 		return {};
