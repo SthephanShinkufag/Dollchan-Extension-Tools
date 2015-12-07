@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '05c456c';
+	var commit = '146b72e';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -6385,13 +6385,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 5:
 							delStored('DESU_Favorites');break;
 						case 6:
-							delStored('DESU_Keys');break;
+							delStored('DESU_Keys');
 					}
 				}
 				if (els[4].checked) {
 					delStored('DESU_Config');
-				} else if (els[0].checked) {
 					delStored('DESU_Exclude');
+				} else if (els[0].checked) {
 					spawn(getStoredObj, 'DESU_Config').then(function (val) {
 						delete val[aib.dm];
 						setStored('DESU_Config', JSON.stringify(val));

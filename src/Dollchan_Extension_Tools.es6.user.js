@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '05c456c';
+var commit = '146b72e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3423,13 +3423,13 @@ function addSettings(body, id) {
 					case 2: locStorage.removeItem('de-threads'); break;
 					case 3: locStorage.removeItem('de-myposts'); break;
 					case 5: delStored('DESU_Favorites'); break;
-					case 6: delStored('DESU_Keys'); break;
+					case 6: delStored('DESU_Keys');
 					}
 				}
 				if(els[4].checked) {
 					delStored('DESU_Config');
+					delStored('DESU_Exclude');
 				} else if(els[0].checked) {
-					delStored('DESU_Exclude')
 					spawn(getStoredObj, 'DESU_Config').then(val => {
 						delete val[aib.dm];
 						setStored('DESU_Config', JSON.stringify(val));
