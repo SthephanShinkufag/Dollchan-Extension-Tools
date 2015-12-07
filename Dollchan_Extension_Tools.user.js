@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'b0b5f15';
+	var commit = '8eaa78b';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -6365,10 +6365,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				window.location.reload();
 			});
 		}), $btn(Lng.reset[lang], Lng.resetCfg[lang], function () {
-			var fn = function fn(arr) {
-				return $join(arr, '<label class="de-block"><input type="checkbox"/> ', '</label>');
-			};
-			var el = $popup('<b>' + Lng.resetData[lang] + ':</b>', 'cfg-reset', false);
+			var fn = function fn(a) {
+				return $join(a, '<label class="de-block"><input type="checkbox"/> ', '</label>');
+			},
+			    el = $popup('<b>' + Lng.resetData[lang] + ':</b>', 'cfg-reset', false);
 			el.insertAdjacentHTML('beforeend', '<div class="de-list"><b>' + aib.dm + '</b>:' + fn([Lng.panelBtn.cfg[lang], Lng.hiddenPosts[lang], Lng.hiddenThrds[lang], Lng.myPosts[lang]]) + '</div>' + '<div class="de-list"><b>' + Lng.allDomains[lang] + '</b>' + fn([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang], Lng.cfg.hotKeys[lang]]) + '</div>');
 			el.appendChild($btn(Lng.clear[lang], '', function () {
 				var els = $Q('input[type="checkbox"]', this.parentNode);
@@ -6609,8 +6609,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	};
 
 	function addMenu(el) {
-		var fn = function fn(arr) {
-			return $join(arr, '<span class="de-menu-item">', '</span>');
+		var fn = function fn(a) {
+			return $join(a, '<span class="de-menu-item">', '</span>');
 		};
 		switch (el.id) {
 			case 'de-btn-addspell':

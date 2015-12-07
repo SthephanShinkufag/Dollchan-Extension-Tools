@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'b0b5f15';
+var commit = '8eaa78b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3401,10 +3401,8 @@ function addSettings(body, id) {
 			});
 		}),
 		$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
-			var fn = function(arr) {
-				return $join(arr, '<label class="de-block"><input type="checkbox"/> ', '</label>');
-			}
-			var el = $popup('<b>' + Lng.resetData[lang] + ':</b>', 'cfg-reset', false);
+			var fn = a => $join(a, '<label class="de-block"><input type="checkbox"/> ', '</label>'),
+				el = $popup('<b>' + Lng.resetData[lang] + ':</b>', 'cfg-reset', false);
 			el.insertAdjacentHTML('beforeend',
 				'<div class="de-list"><b>' + aib.dm + '</b>:' +
 				fn([Lng.panelBtn.cfg[lang],
@@ -3659,9 +3657,7 @@ Menu.prototype = {
 };
 
 function addMenu(el) {
-	var fn = function(arr) {
-		return $join(arr, '<span class="de-menu-item">', '</span>');
-	}
+	var fn = a => $join(a, '<span class="de-menu-item">', '</span>');
 	switch(el.id) {
 	case 'de-btn-addspell':
 		return new Menu(el, '<div style="display: inline-block; border-right: 1px solid grey;">' +
