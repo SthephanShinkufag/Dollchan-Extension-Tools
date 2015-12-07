@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'c13615d';
+var commit = '80777ea';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9144,18 +9144,22 @@ class AbstractPost {
 		}
 	}
 	updateMsg(newMsg, sRunner) {
-		var origMsg = aib.dobr ? this.msg.firstElementChild : this.msg,
-			videoExt = $q('.de-video-ext', origMsg),
+		var videoExt, videoLinks, origMsg = aib.dobr ? this.msg.firstElementChild : this.msg;
+		if(Cfg.addYouTube) {
+			videoExt = $q('.de-video-ext', origMsg);
 			videoLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);
+		}
 		$replace(origMsg, newMsg);
 		Object.defineProperties(this, {
 			'msg': { configurable: true, value: newMsg },
 			'trunc': { configurable: true, value: null }
 		});
 		Post.content.remove(this);
-		this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
-		if(videoExt) {
-			newMsg.appendChild(videoExt);
+		if(Cfg.addYouTube) {
+			this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
+			if(videoExt) {
+				newMsg.appendChild(videoExt);
+			}
 		}
 		this.addFuncs();
 		sRunner.run(this);
