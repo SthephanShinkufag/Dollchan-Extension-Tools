@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '146b72e';
+var commit = 'af814d6';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3008,9 +3008,6 @@ function getCfgImages() {
 					saveCfg('webmVolume', val);
 					locStorage['__de-webmvolume'] = val;
 					locStorage.removeItem('__de-webmvolume');
-					if(Attachment.viewer) {
-						Attachment.viewer.setWebmVolume(val);
-					}
 				}),
 				$txt(Lng.cfg.webmVolume[lang])
 			]))
@@ -8358,13 +8355,6 @@ AttachmentViewer.prototype = {
 			this.update(data, true, null);
 		}
 	},
-	setWebmVolume: function(val) {
-		var el = this._fullEl;
-		if(el.tagName === 'VIDEO') {
-			el.volume = val / 100;
-			el.muted = val === 0;
-		}
-	},
 	update(data, showButtons, e) {
 		this._remove(e);
 		this._show(data, showButtons);
@@ -13006,9 +12996,6 @@ function initStorageEvent() {
 		case '__de-webmvolume':
 			val = +val || 0;
 			Cfg.webmVolume = val;
-			if(Attachment.viewer) {
-				Attachment.viewer.setWebmVolume(val);
-			}
 			temp = $q('input[info="webmVolume"]');
 			if(temp) {
 				temp.value = val;

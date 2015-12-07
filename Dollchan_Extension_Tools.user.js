@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '146b72e';
+	var commit = 'af814d6';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -6136,9 +6136,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			saveCfg('webmVolume', val);
 			locStorage['__de-webmvolume'] = val;
 			locStorage.removeItem('__de-webmvolume');
-			if (Attachment.viewer) {
-				Attachment.viewer.setWebmVolume(val);
-			}
 		}), $txt(Lng.cfg.webmVolume[lang])]))]), $if(!nav.Presto, lBox('preLoadImgs', true, null)), $if(!nav.Presto && !aib.fch, $New('div', { 'class': 'de-cfg-depend' }, [lBox('findImgFile', true, null)])), optSel('openImgs', true, null), lBox('imgSrcBtns', true, null), lBox('delImgNames', true, null), $New('div', null, [inpTxt('maskVisib', 2, function () {
 			var val = Math.min(+this.value || 0, 100);
 			saveCfg('maskVisib', val);
@@ -11995,14 +11992,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			} while (data && !data.isVideo && !data.isImage);
 			if (data) {
 				this.update(data, true, null);
-			}
-		},
-
-		setWebmVolume: function setWebmVolume(val) {
-			var el = this._fullEl;
-			if (el.tagName === 'VIDEO') {
-				el.volume = val / 100;
-				el.muted = val === 0;
 			}
 		},
 		update: function update(data, showButtons, e) {
@@ -17891,9 +17880,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				case '__de-webmvolume':
 					val = +val || 0;
 					Cfg.webmVolume = val;
-					if (Attachment.viewer) {
-						Attachment.viewer.setWebmVolume(val);
-					}
 					temp = $q('input[info="webmVolume"]');
 					if (temp) {
 						temp.value = val;
