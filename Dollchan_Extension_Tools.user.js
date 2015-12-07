@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '80777ea';
+	var commit = 'e267c42';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4957,7 +4957,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					useId = 'upd';
 					break;
 				case 'catalog':
-					href = aib.prot + ('//' + aib.host + '/' + aib.b + '/catalog' + (aib.iich ? 'ue' : '') + '.html');
+					href = aib.getCatalogUrl();
 			}
 			var panelTitle = title || Lng.panelBtn[id][lang];
 		
@@ -6175,7 +6175,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				pr.setPlaceholders();
 			}
 			updateCSS();
-		})), $if(!aib.iich && pr.mail, $New('div', null, [lBox('addSageBtn', false, function () {
+		})), $if(pr.mail, $New('div', null, [lBox('addSageBtn', false, function () {
 			PostForm.hideField($parent(pr.mail, 'LABEL') || pr.mail);
 			updateCSS();
 		}), lBox('saveSage', false, null)])), $if(pr.cap, optSel('captchaLang', true, null)), $if(pr.txta, $New('div', null, [optSel('addTextBtns', false, function () {
@@ -10199,7 +10199,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			});
 		}
-		if (!aib.iich && Cfg.addSageBtn && this.mail) {
+		if (Cfg.addSageBtn && this.mail) {
 			PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
 			this.subm.insertAdjacentHTML('afterend', '<svg id="de-sagebtn" class="de-btn-sage">' + '<use xlink:href="#de-symbol-post-sage"/></svg>');
 			this.subm.nextSibling.onclick = function (e) {
@@ -15692,6 +15692,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum) : tmp.replace(/res\d+/, 'mainpage');
 			}
 		}, {
+			key: 'getCatalogUrl',
+			value: function getCatalogUrl() {
+				return this.prot + '//' + this.host + '/' + this.b + '/catalog.html';
+			}
+		}, {
 			key: 'getFileInfo',
 			value: function getFileInfo(wrap) {
 				var el = $q(this.qFileInfo, wrap);
@@ -17363,15 +17368,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				var _this76 = _possibleConstructorReturn(this, Object.getPrototypeOf(Iichan).call(this, prot, dm));
 
-				_this76.iich = true;
-
 				_this76.hasCatalog = true;
 				return _this76;
 			}
 
 			_createClass(Iichan, [{
+				key: 'getCatalogUrl',
+				value: function getCatalogUrl() {
+					return this.prot + '//' + this.host + '/' + this.b + '/catalogue.html';
+				}
+			}, {
 				key: 'init',
 				value: function init() {
+					defaultCfg.addSageBtn = 0;
 					docBody.insertAdjacentHTML('beforeend', '<div onclick="highlight = function() {}"></div>');
 					docBody.lastChild.click();
 					return false;
@@ -17428,6 +17437,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_this77.qRPost = '.postreply';
 				_this77.qTrunc = 'p[id^="post_truncated"]';
 
+				_this77.hasCatalog = true;
 				_this77.hasPicWrap = true;
 				_this77.hasTextLinks = true;
 				_this77.markupBB = true;
@@ -17447,6 +17457,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var node = $id('files_parent');
 					node.innerHTML = str;
 					node.removeAttribute('id');
+				}
+			}, {
+				key: 'getCatalogUrl',
+				value: function getCatalogUrl() {
+					return this.prot + '//' + this.host + '/catalog/' + this.b;
 				}
 			}, {
 				key: 'getImgWrap',

@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '80777ea';
+var commit = 'e267c42';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1815,7 +1815,7 @@ var panel = Object.create({
 			useId = 'upd';
 			break;
 		case 'catalog':
-			href = aib.prot + `//${ aib.host }/${ aib.b }/catalog${ aib.iich ? 'ue' : '' }.html`;
+			href = aib.getCatalogUrl();
 		}
 		var panelTitle = title || Lng.panelBtn[id][lang];
 		// XXX nav.Presto: keep in sync with updMachine._setUpdateStatus
@@ -3115,7 +3115,7 @@ function getCfgForm() {
 			}
 			updateCSS();
 		})),
-		$if(!aib.iich && pr.mail, $New('div', null, [
+		$if(pr.mail, $New('div', null, [
 			lBox('addSageBtn', false, function() {
 				PostForm.hideField($parent(pr.mail, 'LABEL') || pr.mail);
 				updateCSS();
@@ -6810,7 +6810,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 			}
 		});
 	}
-	if(!aib.iich && Cfg.addSageBtn && this.mail) {
+	if(Cfg.addSageBtn && this.mail) {
 		PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
 		this.subm.insertAdjacentHTML('afterend', '<svg id="de-sagebtn" class="de-btn-sage">' +
 			'<use xlink:href="#de-symbol-post-sage"/></svg>');
@@ -11490,6 +11490,9 @@ class BaseBoard {
 		return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum)
 					: tmp.replace(/res\d+/, 'mainpage');
 	}
+	getCatalogUrl() {
+		return this.prot + '//' + this.host + '/' + this.b + '/catalog.html';
+	}
 	getFileInfo(wrap) {
 		var el = $q(this.qFileInfo, wrap);
 		return el ? el.textContent : '';
@@ -12621,7 +12624,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Iichan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this.iich = true;
 
 			this.hasCatalog = true;
 		}
@@ -12639,7 +12641,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		get qFormSubj() {
 			return 'input[name="nya3"]';
 		}
+		getCatalogUrl() {
+			return this.prot + '//' + this.host + '/' + this.b + '/catalogue.html';
+		}
 		init() {
+			defaultCfg.addSageBtn = 0;
 			docBody.insertAdjacentHTML('beforeend', '<div onclick="highlight = function() {}"></div>');
 			docBody.lastChild.click();
 			return false;
@@ -12668,6 +12674,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qRPost = '.postreply';
 			this.qTrunc = 'p[id^="post_truncated"]';
 
+			this.hasCatalog = true;
 			this.hasPicWrap= true;
 			this.hasTextLinks = true;
 			this.markupBB = true;
@@ -12709,6 +12716,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			var node = $id('files_parent');
 			node.innerHTML = str;
 			node.removeAttribute('id');
+		}
+		getCatalogUrl() {
+			return this.prot + '//' + this.host + '/catalog/' + this.b;
 		}
 		getImgWrap(el) {
 			return el.parentNode;
