@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'bb181c2';
+	var commit = '29776b9';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3534,6 +3534,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}
 		return true;
+	}
+
+	function $join(arr, start, end) {
+		return start + arr.join(end + start) + end;
 	}
 
 	var Logger = {
@@ -6362,7 +6366,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 		}), $btn(Lng.reset[lang], Lng.resetCfg[lang], function () {
 			var fn = function fn(arr) {
-				return '<label class="de-block"><input type="checkbox"/> ' + arr.join('</label><label class="de-block"><input type="checkbox"/> ') + '</label>';
+				return $join(arr, '<label class="de-block"><input type="checkbox"/> ', '</label>');
 			};
 			var el = $popup('<b>' + Lng.resetData[lang] + ':</b>', 'cfg-reset', false);
 			el.insertAdjacentHTML('beforeend', '<div class="de-list"><b>' + aib.dm + '</b>:' + fn([Lng.panelBtn.cfg[lang], Lng.hiddenPosts[lang], Lng.hiddenThrds[lang], Lng.myPosts[lang]]) + '</div>' + '<div class="de-list"><b>' + Lng.allDomains[lang] + '</b>' + fn([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang], Lng.cfg.hotKeys[lang]]) + '</div>');
@@ -6516,7 +6520,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return el.lastElementChild;
 	}
 
-	function Menu(parentEl, html, isFixed, clickFn) {
+	function Menu(parentEl, html, clickFn) {
+		var isFixed = arguments.length <= 3 || arguments[3] === undefined ? true : arguments[3];
+
 		docBody.insertAdjacentHTML('beforeend', '<div class="' + aib.cReply + ' de-menu" style="position: ' + (isFixed ? 'fixed' : 'absolute') + '; left: 0px; top: 0px; visibility: hidden;">' + html + '</div>');
 		var el = docBody.lastChild;
 		var mStyle = el.style;
@@ -6603,18 +6609,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	};
 
 	function addMenu(el) {
+		var fn = function fn(arr) {
+			return $join(arr, '<span class="de-menu-item">', '</span>');
+		};
 		switch (el.id) {
 			case 'de-btn-addspell':
-				return new Menu(el, '<div style="display: inline-block; border-right: 1px solid grey;">' + '<span class="de-menu-item">' + '#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,<br>'.split(',').join('</span><span class="de-menu-item">') + '</span></div><div style="display: inline-block;"><span class="de-menu-item">' + '#sage,#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep'.split(',').join('</span><span class="de-menu-item">') + '</span></div>', true, function (el) {
+				return new Menu(el, '<div style="display: inline-block; border-right: 1px solid grey;">' + fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(',')) + '</div><div style="display: inline-block;">' + fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')) + '</div>', function (el) {
 					var exp = el.textContent;
 					$txtInsert($id('de-spell-txt'), exp + (!aib.t || exp === '#op' || exp === '#rep' || exp === '#outrep' ? '' : '[' + aib.b + ',' + aib.t + ']') + (Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? '(' : ''));
 				});
 			case 'de-panel-refresh':
-				return new Menu(el, '<span class="de-menu-item">' + Lng.selAjaxPages[lang].join('</span><span class="de-menu-item">') + '</span>', true, function (el) {
+				return new Menu(el, fn(Lng.selAjaxPages[lang]), function (el) {
 					Pages.load(aProto.indexOf.call(el.parentNode.children, el) + 1);
 				});
 			case 'de-panel-savethr':
-				return new Menu(el, '<span class="de-menu-item">' + ($q(aib.qPostImg, DelForm.first.el) ? Lng.selSaveThr[lang].join('</span><span class="de-menu-item">') : Lng.selSaveThr[lang][0]) + '</span>', true, function (el) {
+				return new Menu(el, fn($q(aib.qPostImg, DelForm.first.el) ? Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]), function (el) {
 					if (!$id('de-popup-savethr')) {
 						var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
 						if (Images_.preloading) {
@@ -6627,7 +6636,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 				});
 			case 'de-panel-audio-off':
-				return new Menu(el, '<span class="de-menu-item">' + Lng.selAudioNotif[lang].join('</span><span class="de-menu-item">') + '</span>', true, function (el) {
+				return new Menu(el, fn(Lng.selAudioNotif[lang]), function (el) {
 					var i = aProto.indexOf.call(el.parentNode.children, el);
 					updater.enable();
 					updater.toggleAudio(i === 0 ? 3e4 : i === 1 ? 6e4 : i === 2 ? 12e4 : 3e5);
@@ -12857,13 +12866,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'de-btn-unhide-user':
 						this.btns.title = Lng.togglePost[lang];
 						if (Cfg.menuHiddBtn && !(this instanceof Pview)) {
-							this._addMenu(el, isOutEvent, this._getMenuHide);
+							this._addMenu(el, isOutEvent, this._getMenuHide.call(this, el));
 						}
 						return;
 					case 'de-btn-expthr':
 						this.btns.title = Lng.expandThrd[lang];
 						if (!(this instanceof Pview)) {
-							this._addMenu(el, isOutEvent, this._getMenuExpand);
+							this._addMenu(el, isOutEvent, $join(Lng.selExpandThr[lang], '<span class="de-menu-item" info="thr-exp">', '</span>'));
 						}
 						return;
 					case 'de-btn-fav':
@@ -12875,7 +12884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'de-btn-stick':
 						this.btns.title = Lng.attachPview[lang];return;
 					case 'de-btn-src':
-						this._addMenu(el, isOutEvent, this._getMenuImgSrc);return;
+						this._addMenu(el, isOutEvent, this._getMenuImgSrc.call(this, el));return;
 					default:
 						if (!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
 							return;
@@ -12942,7 +12951,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: '_addMenu',
-			value: function _addMenu(el, isOutEvent, htmlGetter) {
+			value: function _addMenu(el, isOutEvent, html) {
 				var _this31 = this;
 
 				if (this.menu && this.menu.parentEl === el) {
@@ -12952,7 +12961,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					clearTimeout(this._menuDelay);
 				} else {
 					this._menuDelay = setTimeout(function () {
-						return _this31._showMenu(el, htmlGetter);
+						return _this31._showMenu(el, html);
 					}, Cfg.linksOver);
 				}
 			}
@@ -13021,15 +13030,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: '_showMenu',
-			value: function _showMenu(el, htmlGetter) {
+			value: function _showMenu(el, html) {
 				var _this33 = this;
 
 				if (this._menu) {
 					this._menu.remove();
 				}
-				this._menu = new Menu(el, htmlGetter.call(this, el), false, function (el) {
+				this._menu = new Menu(el, html, function (el) {
 					return _this33._clickMenu(el);
-				});
+				}, false);
 				this._menu.onremove = function () {
 					return _this33._menu = null;
 				};
@@ -13382,11 +13391,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				} else {
 					this.el.classList.remove('de-selected');
 				}
-			}
-		}, {
-			key: '_getMenuExpand',
-			value: function _getMenuExpand(el) {
-				return '<span class="de-menu-item" info="thr-exp">' + Lng.selExpandThr[lang].join('</span><span class="de-menu-item" info="thr-exp">') + '</span>';
 			}
 		}, {
 			key: '_getMenuHide',
@@ -14214,10 +14218,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: '_showMenu',
-			value: function _showMenu(el, htmlGetter) {
+			value: function _showMenu(el, html) {
 				var _this40 = this;
 
-				_get(Object.getPrototypeOf(Pview.prototype), '_showMenu', this).call(this, el, htmlGetter);
+				_get(Object.getPrototypeOf(Pview.prototype), '_showMenu', this).call(this, el, html);
 				this._menu.onover = function () {
 					return _this40.mouseEnter();
 				};

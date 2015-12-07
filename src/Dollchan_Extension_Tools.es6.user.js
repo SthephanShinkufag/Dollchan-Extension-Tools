@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'bb181c2';
+var commit = '29776b9';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -771,6 +771,10 @@ function $isEmpty(obj) {
 		}
 	}
 	return true;
+}
+
+function $join(arr, start, end) {
+	return start + arr.join(end + start) + end;
 }
 
 var Logger = {
@@ -3398,8 +3402,7 @@ function addSettings(body, id) {
 		}),
 		$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
 			var fn = function(arr) {
-				return '<label class="de-block"><input type="checkbox"/> ' + arr
-					.join('</label><label class="de-block"><input type="checkbox"/> ') + '</label>';
+				return $join(arr, '<label class="de-block"><input type="checkbox"/> ', '</label>');
 			}
 			var el = $popup('<b>' + Lng.resetData[lang] + ':</b>', 'cfg-reset', false);
 			el.insertAdjacentHTML('beforeend',
@@ -3568,7 +3571,7 @@ function $popup(txt, id, wait) {
 	return el.lastElementChild;
 }
 
-function Menu(parentEl, html, isFixed, clickFn) {
+function Menu(parentEl, html, clickFn, isFixed = true) {
 	docBody.insertAdjacentHTML('beforeend', '<div class="' + aib.cReply +
 		' de-menu" style="position: ' + (isFixed ? 'fixed' : 'absolute') +
 		'; left: 0px; top: 0px; visibility: hidden;">' + html + '</div>');
@@ -3653,14 +3656,15 @@ Menu.prototype = {
 };
 
 function addMenu(el) {
+	var fn = function(arr) {
+		return $join(arr, '<span class="de-menu-item">', '</span>');
+	}
 	switch(el.id) {
 	case 'de-btn-addspell':
 		return new Menu(el, '<div style="display: inline-block; border-right: 1px solid grey;">' +
-			'<span class="de-menu-item">' + ('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,<br>')
-				.split(',').join('</span><span class="de-menu-item">') +
-			'</span></div><div style="display: inline-block;"><span class="de-menu-item">' +
-			('#sage,#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep')
-				.split(',').join('</span><span class="de-menu-item">') + '</span></div>', true,
+			fn(('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage').split(',')) +
+			'</div><div style="display: inline-block;">' +
+			fn(('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>').split(',')) + '</div>',
 		function(el) {
 			var exp = el.textContent;
 			$txtInsert($id('de-spell-txt'), exp +
@@ -3669,15 +3673,12 @@ function addMenu(el) {
 				(Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? '(' : ''));
 		});
 	case 'de-panel-refresh':
-		return new Menu(el, '<span class="de-menu-item">' +
-			Lng.selAjaxPages[lang].join('</span><span class="de-menu-item">') + '</span>', true,
-		function(el) {
+		return new Menu(el, fn(Lng.selAjaxPages[lang]), function(el) {
 			Pages.load(aProto.indexOf.call(el.parentNode.children, el) + 1);
 		});
 	case 'de-panel-savethr':
-		return new Menu(el, '<span class="de-menu-item">' + ($q(aib.qPostImg, DelForm.first.el) ?
-			Lng.selSaveThr[lang].join('</span><span class="de-menu-item">') :
-			Lng.selSaveThr[lang][0]) + '</span>', true,
+		return new Menu(el, fn($q(aib.qPostImg, DelForm.first.el) ?
+			Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]),
 		function(el) {
 			if(!$id('de-popup-savethr')) {
 				var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
@@ -3691,9 +3692,7 @@ function addMenu(el) {
 			}
 		});
 	case 'de-panel-audio-off':
-		return new Menu(el, '<span class="de-menu-item">' +
-			Lng.selAudioNotif[lang].join('</span><span class="de-menu-item">') + '</span>', true,
-		function(el) {
+		return new Menu(el, fn(Lng.selAudioNotif[lang]), function(el) {
 			var i = aProto.indexOf.call(el.parentNode.children, el);
 			updater.enable();
 			updater.toggleAudio(i === 0 ? 3e4 : i === 1 ? 6e4 : i === 2 ? 12e4 : 3e5);
@@ -9092,20 +9091,21 @@ class AbstractPost {
 		case 'de-btn-unhide-user':
 			this.btns.title = Lng.togglePost[lang];
 			if(Cfg.menuHiddBtn && !(this instanceof Pview)) {
-				this._addMenu(el, isOutEvent, this._getMenuHide);
+				this._addMenu(el, isOutEvent, this._getMenuHide.call(this, el));
 			}
 			return;
 		case 'de-btn-expthr':
 			this.btns.title = Lng.expandThrd[lang];
 			if(!(this instanceof Pview)) {
-				this._addMenu(el, isOutEvent, this._getMenuExpand);
+				this._addMenu(el, isOutEvent, $join(Lng.selExpandThr[lang],
+					'<span class="de-menu-item" info="thr-exp">', '</span>'));
 			}
 			return;
 		case 'de-btn-fav': this.btns.title = Lng.addFav[lang]; return;
 		case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
 		case 'de-btn-sage': this.btns.title = 'SAGE'; return;
 		case 'de-btn-stick': this.btns.title = Lng.attachPview[lang]; return;
-		case 'de-btn-src': this._addMenu(el, isOutEvent, this._getMenuImgSrc); return;
+		case 'de-btn-src': this._addMenu(el, isOutEvent, this._getMenuImgSrc.call(this, el)); return;
 		default:
 			if(!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
 				return;
@@ -9164,14 +9164,14 @@ class AbstractPost {
 		closePopup('load-fullmsg');
 	}
 
-	_addMenu(el, isOutEvent, htmlGetter) {
+	_addMenu(el, isOutEvent, html) {
 		if(this.menu && this.menu.parentEl === el) {
 			return;
 		}
 		if(isOutEvent) {
 			clearTimeout(this._menuDelay);
 		} else {
-			this._menuDelay = setTimeout(() => this._showMenu(el, htmlGetter), Cfg.linksOver);
+			this._menuDelay = setTimeout(() => this._showMenu(el, html), Cfg.linksOver);
 		}
 	}
 	_clickImage(el, e) {
@@ -9233,11 +9233,11 @@ class AbstractPost {
 			'<a class="de-menu-item de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' +
 			'<a class="de-menu-item de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>'
 	}
-	_showMenu(el, htmlGetter) {
+	_showMenu(el, html) {
 		if(this._menu) {
 			this._menu.remove();
 		}
-		this._menu = new Menu(el, htmlGetter.call(this, el), false, el => this._clickMenu(el));
+		this._menu = new Menu(el, html, el => this._clickMenu(el), false);
 		this._menu.onremove = () => this._menu = null;
 	}
 }
@@ -9527,10 +9527,6 @@ class Post extends AbstractPost {
 		}
 	}
 
-	_getMenuExpand(el) {
-		return '<span class="de-menu-item" info="thr-exp">' + Lng.selExpandThr[lang]
-				.join('</span><span class="de-menu-item" info="thr-exp">') + '</span>';
-	}
 	_getMenuHide(el) {
 		var str = '', sel = window.getSelection(),
 			ssel = sel.toString().trim(),
@@ -10202,8 +10198,8 @@ class Pview extends AbstractPost {
 		pv.classList.add('de-pview-anim');
 		pv.style[nav.animName] = uId;
 	}
-	_showMenu(el, htmlGetter) {
-		super._showMenu(el, htmlGetter);
+	_showMenu(el, html) {
+		super._showMenu(el, html);
 		this._menu.onover = () => this.mouseEnter();
 		this._menu.onout = () => this.markToDel();
 	}
