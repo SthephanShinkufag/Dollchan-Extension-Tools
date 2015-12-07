@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'e267c42';
+	var commit = '05c456c';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -6203,7 +6203,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				updateCSS();
 				toggleWindow('cfg', true);
 			});
-		}, 'de-cfg-button')]), lBox('panelCounter', true, updateCSS), lBox('rePageTitle', true, null), lBox('animation', true, null), lBox('closePopups', true, null), lBox('inftyScroll', true, toggleInfinityScroll), $New('div', null, [lBox('hotKeys', false, function () {
+		}, 'de-cfg-button'), $add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/css-tricks"' + ' class="de-abtn" target="_blank">[?]</a>')]), lBox('panelCounter', true, updateCSS), lBox('rePageTitle', true, null), lBox('animation', true, null), lBox('closePopups', true, null), lBox('inftyScroll', true, toggleInfinityScroll), $New('div', null, [lBox('hotKeys', false, function () {
 			if (Cfg.hotKeys) {
 				HotKeys.enable();
 			} else {
@@ -16082,7 +16082,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'css',
 				get: function get() {
-					return '\n\t\t\t.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, .logo + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .prerekl-hr, .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t.mess-post { display: block; }\n\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; }' : '');
+					return '\n\t\t\t.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, .logo + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .prerekl-hr, .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t.mess-post { display: block; }\n\t\t\t.post.reply .post-message { max-height: initial !important; }\n\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; }' : '');
 				}
 			}, {
 				key: 'qImgName',

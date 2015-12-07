@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'e267c42';
+var commit = '05c456c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3173,7 +3173,9 @@ function getCfgCommon() {
 					updateCSS();
 					toggleWindow('cfg', true);
 				});
-			}, 'de-cfg-button')
+			}, 'de-cfg-button'),
+			$add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/css-tricks"' +
+				' class="de-abtn" target="_blank">[?]</a>')
 		]),
 		lBox('panelCounter', true, updateCSS),
 		lBox('rePageTitle', true, null),
@@ -11620,6 +11622,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			.images-area input { float: none !important; display: inline !important; }
 			.images-single + .de-video-obj { display: inline-block; }
 			.mess-post { display: block; }
+			.post.reply .post-message { max-height: initial !important; }
 			.postbtn-reply-href { font-size: 0px; }
 			.postbtn-reply-href::after { font-size: 14px; content: attr(name); }
 			${ Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '' }
