@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '8eaa78b';
+var commit = 'bde0f72';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -860,14 +860,12 @@ class CancelablePromise {
 	}
 	then(cb, eb) {
 		var children = [];
-		function wrap(fn) {
-			return function(...args) {
-				var child = fn(...args);
-				if (child instanceof CancelablePromise) {
-					children.push(child);
-				}
-				return child;
+		var wrap = fn => function(...args) {
+			var child = fn(...args);
+			if(child instanceof CancelablePromise) {
+				children.push(child);
 			}
+			return child;
 		}
 		return new CancelablePromise(
 			resolve => resolve(this._promise.then(cb && wrap(cb), eb && wrap(eb))),
@@ -3253,19 +3251,16 @@ function getCfgInfo() {
 	function getHiddenThrCount() {
 		var count = 0;
 		for(var b in hThr) {
-			for(var tNum in hThr[b]) {
-				count++;
-			}
+			count += Object.keys(hThr[b]).length;
 		}
 		return count;
 	}
-	function getInfoTable(data, needMs) {
-		return data.map(data => `
+	var getInfoTable = (data, needMs) => data.map(data => `
 		<div class="de-info-row">
 			<span class="de-info-name">${ data[0] }</span>
 			<span>${ data[1] + (needMs ? 'ms' : '') }</span>
-		</div>`).join('');
-	}
+		</div>`
+	).join('');
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-info'}, [$add(`
 		<div style="padding-bottom: 10px;">
 			<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions" target="_blank">
@@ -3497,12 +3492,10 @@ function addSettings(body, id) {
 			$id('de-export-file').addEventListener('click', e => {
 				spawn(getStored, 'DESU_Config').then(val => {
 					var d = new Date(),
-						fn = function(i) {
-							return parseInt(i) < 10 ? '0' + i : i;
-						};
+						fn = i => parseInt(i) < 10 ? '0' + i : i;
 					downloadBlob(new Blob([val], { type: 'application/json' }),
 						'DE_Config_' + d.getFullYear() + fn(d.getMonth() + 1) +
-							fn(d.getDate()) + '_' + fn(d.getHours()) + fn(d.getMinutes()) + '.json')
+						fn(d.getDate()) + '_' + fn(d.getHours()) + fn(d.getMinutes()) + '.json')
 				});
 				$pd(e);
 			}, true);
@@ -4119,18 +4112,10 @@ KeyEditListener.keyCodes = ['',,,,,,,,'Backspace','Tab',,,,'Enter',,,'Shift','Ct
 	,,,,'-',,,,,,,,,,,,,';','=',',','-','.','/','`',,,,,,,,,,,,,,,,,,,,,,,,,,,'[','\\',']','\''
 ];
 KeyEditListener.getStrKey = function(key) {
-	var str = '';
-	if(key & 0x1000) {
-		str += 'Ctrl+';
-	}
-	if(key & 0x2000) {
-		str += 'Shift+';
-	}
-	if(key & 0x4000) {
-		str += 'Alt+';
-	}
-	str += KeyEditListener.keyCodes[key & 0xFFF];
-	return str;
+	return (key & 0x1000 ? 'Ctrl+' : '') +
+		(key & 0x2000 ? 'Shift+' : '') +
+		(key & 0x4000 ? 'Alt+' : '') +
+		KeyEditListener.keyCodes[key & 0xFFF];
 };
 KeyEditListener.getEditMarkup = function(keys) {
 	var allKeys = [];
@@ -4468,34 +4453,32 @@ function preloadImages(data) {
 			rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile, function(e) {
 				console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
 			});
-		pool = new TasksPool(mReqs, function(num, data) {
-			return downloadImgData(data[0]).then(imageData => {
-				var [url, imgLink, iType, nExp, el] = data;
-				if(imageData) {
-					var fName = url.substring(url.lastIndexOf("/") + 1),
-						nameLink = $q(aib.qImgName, aib.getImgWrap(imgLink));
-					imgLink.setAttribute('download', fName);
-					nameLink.setAttribute('download', fName);
-					nameLink.setAttribute('de-href', nameLink.href);
-					imgLink.href = nameLink.href =
-						window.URL.createObjectURL(new Blob([imageData], {'type': iType}));
-					if(iType === 'video/webm') {
-						el.setAttribute('de-video', '');
-					}
-					if(nExp) {
-						el.src = imgLink.href;
-					}
-					if(rjf) {
-						rjf.run(imageData.buffer, [imageData.buffer],
-						        addImgFileIcon.bind(null, nameLink, fName));
-					}
+		pool = new TasksPool(mReqs, (num, data) => downloadImgData(data[0]).then(imageData => {
+			var [url, imgLink, iType, nExp, el] = data;
+			if(imageData) {
+				var fName = url.substring(url.lastIndexOf("/") + 1),
+					nameLink = $q(aib.qImgName, aib.getImgWrap(imgLink));
+				imgLink.setAttribute('download', fName);
+				nameLink.setAttribute('download', fName);
+				nameLink.setAttribute('de-href', nameLink.href);
+				imgLink.href = nameLink.href =
+					window.URL.createObjectURL(new Blob([imageData], {'type': iType}));
+				if(iType === 'video/webm') {
+					el.setAttribute('de-video', '');
 				}
-				if(Images_.progressId) {
-					$popup(Lng.loadImage[lang] + cImg + '/' + len, Images_.progressId, true);
+				if(nExp) {
+					el.src = imgLink.href;
 				}
-				cImg++;
-			});
-		}, function() {
+				if(rjf) {
+					rjf.run(imageData.buffer, [imageData.buffer],
+						addImgFileIcon.bind(null, nameLink, fName));
+				}
+			}
+			if(Images_.progressId) {
+				$popup(Lng.loadImage[lang] + cImg + '/' + len, Images_.progressId, true);
+			}
+			cImg++;
+		}), function() {
 			Images_.preloading = false;
 			if(Images_.afterpreload) {
 				Images_.afterpreload();
@@ -4548,9 +4531,7 @@ function getDataFromImg(img) {
 	cnv.width = img.width;
 	cnv.height = img.height;
 	cnv.getContext('2d').drawImage(img, 0, 0);
-	return new Uint8Array(atob(cnv.toDataURL("image/png").split(',')[1]).split('').map(function(a) {
-		return a.charCodeAt();
-	}));
+	return new Uint8Array(atob(cnv.toDataURL("image/png").split(',')[1]).split('').map(a => a.charCodeAt()));
 }
 
 function loadDocFiles(imgOnly) {
@@ -4559,38 +4540,36 @@ function loadDocFiles(imgOnly) {
 		warnings = '',
 		tar = new TarBuilder(),
 		dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
-	Images_.pool = new TasksPool(4, function(num, data) {
-		return downloadImgData(data[0]).then(imgData => {
-			var [url, fName, el, imgLink] = data,
-				safeName = fName.replace(/[\\\/:*?"<>|]/g, '_');
-			progress.value = current;
-			counter.innerHTML = current;
-			current++;
-			if(imgLink) {
-				if(!imgData) {
-					warnings += '<br>' + Lng.cantLoad[lang] + '<a href="' + url + '">' +
-						url + '</a><br>' + Lng.willSavePview[lang];
-					$popup(Lng.loadErrors[lang] + warnings, 'err-files', false);
-					safeName = 'thumb-' + safeName.replace(/\.[a-z]+$/, '.png');
-					imgData = getDataFromImg(el);
-				}
-				if(!imgOnly) {
-					imgLink.href = $q('a[de-href], ' + aib.qImgName, aib.getImgWrap(imgLink)).href =
-						safeName = 'images/' + safeName;
-					if(safeName.match(/\.webm$/)) {
-						tar.addFile(el.src = safeName.replace(/\.webm$/, '.png'), getDataFromImg(el));
-					} else {
-						el.src = safeName;
-					}
-				}
-				tar.addFile(safeName, imgData);
-			} else if(imgData && imgData.length > 0) {
-				tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
-			} else {
-				$del(el);
+	Images_.pool = new TasksPool(4, (num, data) => downloadImgData(data[0]).then(imgData => {
+		var [url, fName, el, imgLink] = data,
+			safeName = fName.replace(/[\\\/:*?"<>|]/g, '_');
+		progress.value = current;
+		counter.innerHTML = current;
+		current++;
+		if(imgLink) {
+			if(!imgData) {
+				warnings += '<br>' + Lng.cantLoad[lang] + '<a href="' + url + '">' +
+					url + '</a><br>' + Lng.willSavePview[lang];
+				$popup(Lng.loadErrors[lang] + warnings, 'err-files', false);
+				safeName = 'thumb-' + safeName.replace(/\.[a-z]+$/, '.png');
+				imgData = getDataFromImg(el);
 			}
-		});
-	}, function() {
+			if(!imgOnly) {
+				imgLink.href = $q('a[de-href], ' + aib.qImgName, aib.getImgWrap(imgLink)).href =
+					safeName = 'images/' + safeName;
+				if(safeName.match(/\.webm$/)) {
+					tar.addFile(el.src = safeName.replace(/\.webm$/, '.png'), getDataFromImg(el));
+				} else {
+					el.src = safeName;
+				}
+			}
+			tar.addFile(safeName, imgData);
+		} else if(imgData && imgData.length > 0) {
+			tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
+		} else {
+			$del(el);
+		}
+	}), function() {
 		var docName = aib.dm + '-' + aib.b.replace(/[\\\/:*?"<>|]/g, '') + '-' + aib.t;
 		if(!imgOnly) {
 			var dt = doc.doctype;
@@ -4687,9 +4666,7 @@ function DateTime(pattern, rPattern, diff, dtLang, onRPat) {
 		return;
 	}
 	this.regex = pattern
-		.replace(/(?:[sihdny]\?){2,}/g, function(str) {
-			return '(?:' + str.replace(/\?/g, '') + ')?';
-		})
+		.replace(/(?:[sihdny]\?){2,}/g, str => '(?:' + str.replace(/\?/g, '') + ')?')
 		.replace(/\-/g, '[^<]')
 		.replace(/\+/g, '[^0-9]')
 		.replace(/([sihdny]+)/g, '($1)')
@@ -5183,11 +5160,8 @@ ajaxLoad.fixCachedURL = function(url) {
 	return url + (url.includes('?') ? '&' : '?' ) + 'nocache=' + Math.random();
 };
 ajaxLoad.readCacheData = function(ajaxHeaders) {
-	var hasCacheControl = false,
-		ETag = null,
-		LastModified = null,
-		headers = null,
-		i = 0;
+	var ETag = null, LastModified = null, headers = null, i = 0,
+		hasCacheControl = false;
 	for(var header of ajaxHeaders.split('\r\n')) {
 		if(header.startsWith('Cache-Control: ')) {
 			hasCacheControl = true;
@@ -5216,9 +5190,9 @@ ajaxLoad.readCacheData = function(ajaxHeaders) {
 }
 
 function getJsonPosts(url) {
-	return $ajax(url, { useCache: true }).then(xhr => JSON.parse(xhr.responseText), xhr => {
-		return err => err.code === 304 ? null : CancelablePromise.reject(err)
-	});
+	return $ajax(url, { useCache: true }).then(
+		xhr => JSON.parse(xhr.responseText),
+		xhr => err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 
 function infoLoadErrors(e, showError = true) {
@@ -6108,8 +6082,7 @@ SpellsCodegen.prototype = {
 		return null;
 	},
 	_doSpell(name, str, isNeg) {
-		var m, spellType, val, temp, i = 0,
-			scope = null,
+		var m, spellType, val, temp, scope = null, i = 0,
 			spellIdx = Spells.names.indexOf(name);
 		if(spellIdx === -1) {
 			this._setError(Lng.seUnknown[lang], name);
@@ -7016,8 +6989,7 @@ PostForm.prototype = {
 		}
 	},
 	eventFiles(clear) {
-		var last = null,
-			els = $Q('input[type="file"]', this.fileTd);
+		var last = null, els = $Q('input[type="file"]', this.fileTd);
 		for(var i = 0, len = els.length; i < len; ++i) {
 			var el = els[i],
 				inp = el.obj;
@@ -7385,9 +7357,7 @@ FileInput.prototype = {
 	},
 	init(isUpdate) {
 		if(Cfg.fileThumb) {
-			setTimeout(() => {
-				$hide(this.form.fileTd.parentNode);
-			}, 0);
+			setTimeout(() => $hide(this.form.fileTd.parentNode), 0);
 			this.form.fileArea.insertAdjacentHTML('beforeend',
 				'<div class="de-file de-file-off"><div class="de-file-img">' +
 				'<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
@@ -7771,8 +7741,7 @@ function getUploadFunc() {
 }
 
 function checkUpload(data) {
-	var isDocument = data instanceof HTMLDocument;
-	var error = null, postNum = null;
+	var error = null, postNum = null, isDocument = data instanceof HTMLDocument;
 	if(aib.getSubmitData) {
 		if(aib.jsonSubmit) {
 			try {
@@ -9689,11 +9658,11 @@ Post.content = class PostContent extends TemporaryContent {
 	}
 	get text() {
 		var value = this.post.msg.innerHTML
-				.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
-				.replace(/<[^>]+?>/g,'')
-				.replace(/&gt;/g, '>')
-				.replace(/&lt;/g, '<')
-				.replace(/&nbsp;/g, '\u00A0').trim();
+			.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
+			.replace(/<[^>]+?>/g,'')
+			.replace(/&gt;/g, '>')
+			.replace(/&lt;/g, '<')
+			.replace(/&nbsp;/g, '\u00A0').trim();
 		Object.defineProperty(this, 'text', { value });
 		return value;
 	}
@@ -9843,11 +9812,9 @@ Post.sizing = {
 };
 
 function PostImages(post) {
-	var els = $Q(aib.qPostImg, post.el),
+	var first = null, last = null, els = $Q(aib.qPostImg, post.el),
 		filesMap = new Map(),
-		first = null,
-		hasAttachments = false,
-		last = null;
+		hasAttachments = false;
 	for(var i = 0, len = els.length; i < len; ++i) {
 		var el = els[i];
 		last = new Attachment(post, el, last);
@@ -10057,8 +10024,7 @@ class Pview extends AbstractPost {
 		} while((pv = pv.kid));
 	}
 	deleteNonSticky() {
-		var lastSticky = null,
-			pv = this;
+		var lastSticky = null, pv = this;
 		do {
 			if(pv.sticky) {
 				lastSticky = pv;
@@ -11232,7 +11198,7 @@ function initNavFuncs() {
 		FormData = function FormData(...args) {
 			var rv = new origFormData(...args);
 			rv.append = function append(name, value, fileName = null) {
-				if (value instanceof Blob && 'name' in value && fileName === null) {
+				if(value instanceof Blob && 'name' in value && fileName === null) {
 					return origAppend.call(this, name, value, value.name);
 				}
 				return origAppend.apply(this, arguments);
@@ -12315,8 +12281,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
 		}
 		getSubmitData(data) {
-			var error = null, postNum = null;
-			var errEl = $q('#errmsg', data);
+			var error = null, postNum = null, errEl = $q('#errmsg', data);
 			if(errEl) {
 				error = errEl.textContent;
 			} else {
@@ -13430,17 +13395,15 @@ function replaceString(txt) {
 		txt = aib.repFn(txt);
 	}
 	if(aib.hasTextLinks) {
-		txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig, function(x, a, b, c) {
-			return c ? x : a + '<a rel="noreferrer" href="' + b + '">' + b + '</a>';
-		});
+		txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig,
+			(x, a, b, c) => c ? x : a + '<a rel="noreferrer" href="' + b + '">' + b + '</a>');
 	}
 	if(Spells.reps) {
 		txt = Spells.replace(txt);
 	}
 	if(Cfg.crossLinks) {
-		txt = txt.replace(aib.reCrossLinks, function(str, b, tNum, pNum) {
-			return '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<';
-		});
+		txt = txt.replace(aib.reCrossLinks,
+			(str, b, tNum, pNum) => '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<');
 	}
 	return txt;
 }
@@ -14058,12 +14021,8 @@ function getThemeLang() {
 }
 
 function scriptCSS() {
-	function cont(id, src) {
-		return id + '::before { content: ""; padding-right: 16px; margin-right: 4px; background: url(' + src + ') no-repeat center; background-size: contain; }';
-	}
-	function gif(id, src) {
-		return id + ' { background-image: url(data:image/gif;base64,' + src + '); background-repeat: no-repeat; background-position: center; }';
-	}
+	var cont = (id, src) => id + '::before { content: ""; padding-right: 16px; margin-right: 4px; background: url(' + src + ') no-repeat center; background-size: contain; }';
+	var gif = (id, src) => id + ' { background-image: url(data:image/gif;base64,' + src + '); background-repeat: no-repeat; background-position: center; }';
 
 	// Main panel
 	var p, x = '#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\

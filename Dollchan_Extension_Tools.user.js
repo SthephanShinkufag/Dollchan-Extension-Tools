@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '8eaa78b';
+	var commit = 'bde0f72';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3660,7 +3660,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var _this2 = this;
 
 				var children = [];
-				function wrap(fn) {
+				var wrap = function wrap(fn) {
 					return function () {
 						var child = fn.apply(undefined, arguments);
 						if (child instanceof CancelablePromise) {
@@ -3668,7 +3668,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 						return child;
 					};
-				}
+				};
 				return new CancelablePromise(function (resolve) {
 					return resolve(_this2._promise.then(cb && wrap(cb), eb && wrap(eb)));
 				}, function () {
@@ -6256,17 +6256,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function getHiddenThrCount() {
 			var count = 0;
 			for (var b in hThr) {
-				for (var tNum in hThr[b]) {
-					count++;
-				}
+				count += Object.keys(hThr[b]).length;
 			}
 			return count;
 		}
-		function getInfoTable(data, needMs) {
+		var getInfoTable = function getInfoTable(data, needMs) {
 			return data.map(function (data) {
 				return '\n\t\t<div class="de-info-row">\n\t\t\t<span class="de-info-name">' + data[0] + '</span>\n\t\t\t<span>' + (data[1] + (needMs ? 'ms' : '')) + '</span>\n\t\t</div>';
 			}).join('');
-		}
+		};
 		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-info' }, [$add('\n\t\t<div style="padding-bottom: 10px;">\n\t\t\t<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions" target="_blank">\n\t\t\t\tv' + version + '.' + commit + '\n\t\t\t</a>\n\t\t\t&nbsp;|&nbsp;\n\t\t\t<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>\n\t\t\t&nbsp;|&nbsp;\n\t\t\t<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' + (lang ? 'home-en/' : '') + '" target="_blank">Github</a>\n\t\t</div>'), $add('\n\t\t<div id="de-info-table">\n\t\t\t<div id="de-info-stats">' + getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], getHiddenThrCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false) + '</div>\n\t\t\t<div id="de-info-log">' + getInfoTable(Logger.getData(false), true) + '</div>\n\t\t</div>'), $btn(Lng.debug[lang], Lng.infoDebug[lang], function () {
 			$popup(Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>', 'cfg-debug', false).firstElementChild.value = JSON.stringify({
 				'version': version,
@@ -7088,18 +7086,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	  'Space',,,,, 	  '←', '↑', '→', '↓',,,,,,,,  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',, ';',, '=',,,, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',,,,,,  	'Numpad 0', 'Numpad 1', 'Numpad 2', 'Numpad 3', 'Numpad 4', 'Numpad 5', 'Numpad 6', 'Numpad 7', 'Numpad 8', 'Numpad 9', 'Numpad *', 'Numpad +',, 'Numpad -', 'Numpad .', 'Numpad /',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 	         	   '-',,,,,,,,,,,,, ';', '=', ',', '-', '.', '/', '`',,,,,,,,,,,,,,,,,,,,,,,,,,, '[', '\\', ']', '\''];
 	KeyEditListener.getStrKey = function (key) {
-		var str = '';
-		if (key & 0x1000) {
-			str += 'Ctrl+';
-		}
-		if (key & 0x2000) {
-			str += 'Shift+';
-		}
-		if (key & 0x4000) {
-			str += 'Alt+';
-		}
-		str += KeyEditListener.keyCodes[key & 0xFFF];
-		return str;
+		return (key & 0x1000 ? 'Ctrl+' : '') + (key & 0x2000 ? 'Shift+' : '') + (key & 0x4000 ? 'Alt+' : '') + KeyEditListener.keyCodes[key & 0xFFF];
 	};
 	KeyEditListener.getEditMarkup = function (keys) {
 		var allKeys = [];
@@ -8143,11 +8130,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return url + (url.includes('?') ? '&' : '?') + 'nocache=' + Math.random();
 	};
 	ajaxLoad.readCacheData = function (ajaxHeaders) {
-		var hasCacheControl = false,
-		    ETag = null,
+		var ETag = null,
 		    LastModified = null,
 		    headers = null,
-		    i = 0;
+		    i = 0,
+		    hasCacheControl = false;
 		for (var _iterator3 = ajaxHeaders.split('\r\n'), _isArray3 = Array.isArray(_iterator3), _i4 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
 			var _ref10;
 
@@ -9280,8 +9267,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			    spellType,
 			    val,
 			    temp,
-			    i = 0,
 			    scope = null,
+			    i = 0,
 			    spellIdx = Spells.names.indexOf(name);
 			if (spellIdx === -1) {
 				this._setError(Lng.seUnknown[lang], name);
@@ -10806,7 +10793,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			if (Cfg.fileThumb) {
 				setTimeout(function () {
-					$hide(_this16.form.fileTd.parentNode);
+					return $hide(_this16.form.fileTd.parentNode);
 				}, 0);
 				this.form.fileArea.insertAdjacentHTML('beforeend', '<div class="de-file de-file-off"><div class="de-file-img">' + '<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
 				this.thumb = this.form.fileArea.lastChild;
@@ -11238,9 +11225,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function checkUpload(data) {
-		var isDocument = data instanceof HTMLDocument;
 		var error = null,
-		    postNum = null;
+		    postNum = null,
+		    isDocument = data instanceof HTMLDocument;
 		if (aib.getSubmitData) {
 			if (aib.jsonSubmit) {
 				try {
@@ -13831,11 +13818,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	};
 
 	function PostImages(post) {
-		var els = $Q(aib.qPostImg, post.el),
+		var first = null,
+		    last = null,
+		    els = $Q(aib.qPostImg, post.el),
 		    filesMap = new Map(),
-		    first = null,
-		    hasAttachments = false,
-		    last = null;
+		    hasAttachments = false;
 		for (var i = 0, len = els.length; i < len; ++i) {
 			var el = els[i];
 			last = new Attachment(post, el, last);
@@ -16896,8 +16883,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				key: 'getSubmitData',
 				value: function getSubmitData(data) {
 					var error = null,
-					    postNum = null;
-					var errEl = $q('#errmsg', data);
+					    postNum = null,
+					    errEl = $q('#errmsg', data);
 					if (errEl) {
 						error = errEl.textContent;
 					} else {
@@ -18853,12 +18840,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function scriptCSS() {
-		function cont(id, src) {
+		var cont = function cont(id, src) {
 			return id + '::before { content: ""; padding-right: 16px; margin-right: 4px; background: url(' + src + ') no-repeat center; background-size: contain; }';
-		}
-		function gif(id, src) {
+		};
+		var gif = function gif(id, src) {
 			return id + ' { background-image: url(data:image/gif;base64,' + src + '); background-repeat: no-repeat; background-position: center; }';
-		}
+		};
 
 	
 		var p,
