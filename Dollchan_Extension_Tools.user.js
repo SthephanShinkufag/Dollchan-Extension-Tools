@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '29776b9';
+	var commit = 'b0b5f15';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12866,7 +12866,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'de-btn-unhide-user':
 						this.btns.title = Lng.togglePost[lang];
 						if (Cfg.menuHiddBtn && !(this instanceof Pview)) {
-							this._addMenu(el, isOutEvent, this._getMenuHide.call(this, el));
+							this._addMenu(el, isOutEvent, this._getMenuHide(el));
 						}
 						return;
 					case 'de-btn-expthr':
@@ -12884,7 +12884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'de-btn-stick':
 						this.btns.title = Lng.attachPview[lang];return;
 					case 'de-btn-src':
-						this._addMenu(el, isOutEvent, this._getMenuImgSrc.call(this, el));return;
+						this._addMenu(el, isOutEvent, this._getMenuImgSrc(el));return;
 					default:
 						if (!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
 							return;

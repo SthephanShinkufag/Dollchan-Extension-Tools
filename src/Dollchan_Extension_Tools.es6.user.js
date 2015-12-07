@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '29776b9';
+var commit = 'b0b5f15';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3406,12 +3406,15 @@ function addSettings(body, id) {
 			}
 			var el = $popup('<b>' + Lng.resetData[lang] + ':</b>', 'cfg-reset', false);
 			el.insertAdjacentHTML('beforeend',
-				'<div class="de-list"><b>' + (aib.dm) + '</b>:' +
-					fn([Lng.panelBtn.cfg[lang], Lng.hiddenPosts[lang],
-						Lng.hiddenThrds[lang], Lng.myPosts[lang]]) + '</div>' +
+				'<div class="de-list"><b>' + aib.dm + '</b>:' +
+				fn([Lng.panelBtn.cfg[lang],
+				    Lng.hiddenPosts[lang],
+				    Lng.hiddenThrds[lang],
+				    Lng.myPosts[lang]]) + '</div>' +
 				'<div class="de-list"><b>' + Lng.allDomains[lang] + '</b>' +
-					fn([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang], Lng.cfg.hotKeys[lang]]) +
-				'</div>');
+				fn([Lng.panelBtn.cfg[lang],
+				    Lng.panelBtn.fav[lang],
+				    Lng.cfg.hotKeys[lang]]) + '</div>');
 			el.appendChild($btn(Lng.clear[lang], '', function() {
 				var els = $Q('input[type="checkbox"]', this.parentNode);
 				for(var i = 0, len = els.length; i < len; ++i) {
@@ -9091,7 +9094,7 @@ class AbstractPost {
 		case 'de-btn-unhide-user':
 			this.btns.title = Lng.togglePost[lang];
 			if(Cfg.menuHiddBtn && !(this instanceof Pview)) {
-				this._addMenu(el, isOutEvent, this._getMenuHide.call(this, el));
+				this._addMenu(el, isOutEvent, this._getMenuHide(el));
 			}
 			return;
 		case 'de-btn-expthr':
@@ -9105,7 +9108,7 @@ class AbstractPost {
 		case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
 		case 'de-btn-sage': this.btns.title = 'SAGE'; return;
 		case 'de-btn-stick': this.btns.title = Lng.attachPview[lang]; return;
-		case 'de-btn-src': this._addMenu(el, isOutEvent, this._getMenuImgSrc.call(this, el)); return;
+		case 'de-btn-src': this._addMenu(el, isOutEvent, this._getMenuImgSrc(el)); return;
 		default:
 			if(!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
 				return;
