@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'af814d6';
+var commit = 'bb181c2';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5253,7 +5253,12 @@ var Pages = {
 			'<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>');
 		spawn(readMyPosts);
 		this._addPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(formEl => {
-			this._addForm(formEl, pageNum);
+			var form = this._addForm(formEl, pageNum);
+			if(!form.firstThr) {
+				this._endAdding();
+				this.add();
+				return CancelablePromise.reject(new CancelError);
+			}
 			return spawn(this._updateForms, DelForm.last);
 		}).then(() => this._endAdding()).catch(e => {
 			if(!(e instanceof CancelError)) {
@@ -5320,7 +5325,7 @@ var Pages = {
 		var form = new DelForm(formEl, +pageNum, DelForm.last);
 		DelForm.last = form;
 		form.addStuff();
-		if(pageNum != aib.page) {
+		if(pageNum != aib.page && form.firstThr) {
 			formEl.insertAdjacentHTML('afterbegin', `
 			<div class="de-page-num">
 				<center style="font-size: 2em">${ Lng.page[lang] } ${ pageNum }</center>
@@ -5328,6 +5333,7 @@ var Pages = {
 			</div>`);
 		}
 		$show(formEl);
+		return form;
 	},
 	_endAdding() {
 		$del($q('.de-addpage-wait'));
@@ -13365,6 +13371,9 @@ class DelForm {
 			}
 		}
 		if(this.firstThr === null) {
+			if(prev) {
+				this.lastThr = prev.lastThr;
+			}
 			return
 		}
 		this.lastThr = thr;

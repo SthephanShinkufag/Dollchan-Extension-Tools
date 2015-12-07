@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'af814d6';
+	var commit = 'bb181c2';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -8221,7 +8221,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' + '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>');
 			spawn(readMyPosts);
 			this._addPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(function (formEl) {
-				_this11._addForm(formEl, pageNum);
+				var form = _this11._addForm(formEl, pageNum);
+				if (!form.firstThr) {
+					_this11._endAdding();
+					_this11.add();
+					return CancelablePromise.reject(new CancelError());
+				}
 				return spawn(_this11._updateForms, DelForm.last);
 			}).then(function () {
 				return _this11._endAdding();
@@ -8381,10 +8386,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var form = new DelForm(formEl, +pageNum, DelForm.last);
 			DelForm.last = form;
 			form.addStuff();
-			if (pageNum != aib.page) {
+			if (pageNum != aib.page && form.firstThr) {
 				formEl.insertAdjacentHTML('afterbegin', '\n\t\t\t<div class="de-page-num">\n\t\t\t\t<center style="font-size: 2em">' + Lng.page[lang] + ' ' + pageNum + '</center>\n\t\t\t\t<hr>\n\t\t\t</div>');
 			}
 			$show(formEl);
+			return form;
 		},
 		_endAdding: function _endAdding() {
 			$del($q('.de-addpage-wait'));
@@ -18119,6 +18125,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 			if (this.firstThr === null) {
+				if (prev) {
+					this.lastThr = prev.lastThr;
+				}
 				return;
 			}
 			this.lastThr = thr;
