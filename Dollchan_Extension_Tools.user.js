@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'a43a9b6';
+	var commit = '9bf6b64';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3116,7 +3116,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				sel: [['Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'], ['Every day', 'Every 2 days', 'Every week', 'Every 2 week', 'Every month']],
 				txt: ['', '']
 			},
-			'excludeList': ['Список доменов, запрещающих запуск скрипта:', 'Domains list for preventing script launch:'],
+			'excludeList': ['Не запускать скрипт на:', 'Prevent script launch on:'],
 			'turnOff': ['Включать скрипт только на этом сайте', 'Enable script only on this site'],
 
 			'language': {
@@ -3229,7 +3229,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		checkNow: ['Проверить сейчас', 'Check now'],
 		updAvail: ['Доступно обновление!', 'Update available!'],
 		haveLatest: ['У вас стоит самая последняя версия!', 'You have latest version!'],
-		storage: ['Хранение: ', 'Storage: '],
 		thrViewed: ['Тредов посещено', 'Threads visited'],
 		thrCreated: ['Тредов создано', 'Threads created'],
 		thrHidden: ['Тредов скрыто', 'Threads hidden'],
@@ -3246,7 +3245,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		descrGlobal: ['Глобальные настройки будут по умолчанию применяться<br>при первом посещеннии других доменов', 'Global config will apply by default<br>at the first visit of other domains'],
 		editInTxt: ['Правка в текстовом формате', 'Edit in text format'],
 		resetCfg: ['Сбросить в настройки по умолчанию', 'Reset config to defaults'],
-		conReset: ['Данное действие удалит все ваши настройки и закладки. Продолжить?', 'This will delete all your preferences and favorites. Continue?'],
+		resetData: ['Очистить данные', 'Reset selected data'],
+		allDomains: ['Для всех доменов:', 'For all domains'],
 		clrSelected: ['Удалить выделенные записи', 'Remove selected notes'],
 		saveChanges: ['Сохранить внесенные изменения', 'Save your changes'],
 		infoCount: ['Обновить счетчики постов', 'Refresh posts counters'],
@@ -3256,8 +3256,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		oldPosts: ['Постов при последнем посещении', 'Posts at the last visit'],
 		newPosts: ['Количество новых постов', 'Number of new posts'],
 		thrPage: ['Тред на @странице', 'Thread on @page'],
-		hiddenPosts: ['Скрытые посты на странице', 'Hidden posts on the page'],
+		hiddenPosts: ['Скрытые посты', 'Hidden posts'],
+		onPage: [' на странице', ' on the page'],
 		hiddenThrds: ['Скрытые треды', 'Hidden threads'],
+		myPosts: ['Мои посты', 'My posts'],
 		noHidPosts: ['На этой странице нет скрытых постов...', 'No hidden posts on this page...'],
 		noHidThrds: ['Нет скрытых тредов...', 'No hidden threads...'],
 		expandAll: ['Раскрыть все', 'Expand all'],
@@ -5500,7 +5502,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			hideData.btn.parentNode.className = 'de-post-btns';
 			hideData.btn.addEventListener('click', hideData);
 			if (!block) {
-				block = body.appendChild($add('\n\t\t\t<div class="de-content-block">\n\t\t\t\t<b>' + Lng.hiddenPosts[lang] + ':</b>\n\t\t\t</div>'));
+				block = body.appendChild($add('\n\t\t\t<div class="de-content-block">\n\t\t\t\t<b>' + (Lng.hiddenPosts[lang] + Lng.onPage[lang]) + ':</b>\n\t\t\t</div>'));
 			}
 			block.appendChild($New('div', { 'class': 'de-entry' }, [cloneEl]));
 		}
@@ -5530,7 +5532,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (!$isEmpty(hThr[b])) {
 				block = addContentBlock(body, $new('b', { 'text': '/' + b }, null));
 				for (var tNum in hThr[b]) {
-					block.insertAdjacentHTML('beforeend', '\n\t\t\t\t<div class="de-entry ' + aib.cReply + '" info="' + (b + ';' + tNum) + '">\n\t\t\t\t\t<input type="checkbox">\n\t\t\t\t\t<a href="' + aib.getThrdUrl(b, tNum) + '" target="_blank">' + tNum + '</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + hThr[b][tNum] + '</div>\n\t\t\t\t</div>');
+					block.insertAdjacentHTML('beforeend', '\n\t\t\t\t<div class="de-entry ' + aib.cReply + '" info="' + (b + ';' + tNum) + '">\n\t\t\t\t\t<input type="checkbox"/>\n\t\t\t\t\t<a href="' + aib.getThrdUrl(b, tNum) + '" target="_blank">' + tNum + '</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + hThr[b][tNum] + '</div>\n\t\t\t\t</div>');
 				}
 			}
 		}
@@ -5647,7 +5649,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (!t.url.startsWith('http')) {
 						t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 					}
-					block.insertAdjacentHTML('beforeend', '\n\t\t\t\t<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t' + (t['type'] !== 'user' ? '' : '\n\t\t\t\t\t\t<span class="de-fav-user" title="' + Lng.setByUser[lang] + '"></span>') + '\n\t\t\t\t\t<input type="checkbox">\n\t\t\t\t\t<a href="' + (t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last : h === aib.host ? aib.anchor + t.last : '')) + '" rel="noreferrer">\n\t\t\t\t\t\t' + tNum + '\n\t\t\t\t\t</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<span class="de-fav-inf-iwrap" ' + (!t['err'] ? '' : t['err'] === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' : 'title="' + t['err'] + '"') + '>\n\t\t\t\t\t\t\t<svg class="de-fav-inf-icon ' + (!t['err'] ? '' : t['err'] === 'Closed' ? 'de-fav-closed' : 'de-fav-unavail') + '">\n\t\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + (t['new'] ? '' : ' style="display: none;"') + '>\n\t\t\t\t\t\t\t' + (t['new'] || 0) + '\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t[<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>]\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>');
+					block.insertAdjacentHTML('beforeend', '\n\t\t\t\t<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t' + (t['type'] !== 'user' ? '' : '\n\t\t\t\t\t\t<span class="de-fav-user" title="' + Lng.setByUser[lang] + '"></span>') + '\n\t\t\t\t\t<input type="checkbox"/>\n\t\t\t\t\t<a href="' + (t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last : h === aib.host ? aib.anchor + t.last : '')) + '" rel="noreferrer">\n\t\t\t\t\t\t' + tNum + '\n\t\t\t\t\t</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<span class="de-fav-inf-iwrap" ' + (!t['err'] ? '' : t['err'] === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' : 'title="' + t['err'] + '"') + '>\n\t\t\t\t\t\t\t<svg class="de-fav-inf-icon ' + (!t['err'] ? '' : t['err'] === 'Closed' ? 'de-fav-closed' : 'de-fav-unavail') + '">\n\t\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + (t['new'] ? '' : ' style="display: none;"') + '>\n\t\t\t\t\t\t\t' + (t['new'] || 0) + '\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t[<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>]\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>');
 					$q('a', block.lastChild).onclick = function () {
 						sesStorage['de-win-fav'] = '1';
 						var el = this.parentNode;
@@ -6362,12 +6364,43 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				window.location.reload();
 			});
 		}), $btn(Lng.reset[lang], Lng.resetCfg[lang], function () {
-			if (confirm(Lng.conReset[lang])) {
-				delStored('DESU_Config');
-				delStored('DESU_Favorites');
-				delStored('DESU_keys');
+			var fn = function fn(arr) {
+				return '<label class="de-block"><input type="checkbox"/>' + arr.join('</label><label class="de-block"><input type="checkbox"/>') + '</label>';
+			};
+			var el = $popup('<b>' + Lng.resetData[lang] + ':</b>', 'cfg-reset', false);
+			el.insertAdjacentHTML('beforeend', '<div class="de-list"><b>' + aib.dm + '</b>:' + fn([Lng.panelBtn.cfg[lang], Lng.hiddenPosts[lang], Lng.hiddenThrds[lang], Lng.myPosts[lang]]) + '</div>' + '<div class="de-list"><b>' + Lng.allDomains[lang] + '</b>' + fn([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang], Lng.cfg.hotKeys[lang]]) + '</div>');
+			el.appendChild($btn(Lng.clear[lang], '', function () {
+				var els = $Q('input[type="checkbox"]', this.parentNode);
+				for (var i = 0, len = els.length; i < len; ++i) {
+					if (!els[i].checked) {
+						continue;
+					}
+					switch (i) {
+						case 1:
+							locStorage.removeItem('de-posts');break;
+						case 2:
+							locStorage.removeItem('de-threads');break;
+						case 3:
+							locStorage.removeItem('de-myposts');break;
+						case 5:
+							delStored('DESU_Favorites');break;
+						case 6:
+							delStored('DESU_Keys');break;
+					}
+				}
+				if (els[4].checked) {
+					delStored('DESU_Config');
+				} else if (els[0].checked) {
+					delStored('DESU_Exclude');
+					spawn(getStoredObj, 'DESU_Config').then(function (val) {
+						delete val[aib.dm];
+						setStored('DESU_Config', JSON.stringify(val));
+						window.location.reload();
+					});
+					return;
+				}
 				window.location.reload();
-			}
+			}));
 		}), $if(nav.isGlobal, $btn(Lng.global[lang], Lng.globalCfg[lang], function () {
 			var el = $popup('<b>' + Lng.globalCfg[lang] + ':</b>', 'cfg-global', false);
 			el.appendChild($New('div', { 'class': 'de-list' }, [$btn(Lng.load[lang], '', function () {
@@ -6397,7 +6430,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}), $txt(Lng.saveGlobal[lang])]));
 			el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
 		})), $if(!nav.Presto, $btn(Lng.file[lang], '', function () {
-			$popup('<b>' + Lng.impexpCfg[lang] + ':</b>' + '<div class="de-list">' + Lng.fileToCfg[lang] + ':<br>' + '<input type="file" accept=".json" id="de-import-file" style="margin-left: 12px;"></div>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.cfgToFile[lang] + '</div>', 'cfg-file', false);
+			$popup('<b>' + Lng.impexpCfg[lang] + ':</b>' + '<div class="de-list">' + Lng.fileToCfg[lang] + ':<br>' + '<input type="file" accept=".json" id="de-import-file" style="margin-left: 12px;"/></div>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.cfgToFile[lang] + '</div>', 'cfg-file', false);
 			$id('de-import-file').onchange = function (_ref6) {
 				var _ref6$target$files = _slicedToArray(_ref6.target.files, 1);
 
@@ -7067,8 +7100,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var html = Lng.hotKeyEdit[lang].join('').replace(/%l/g, '<label class="de-block">').replace(/%\/l/g, '</label>').replace(/%i([2-4])([0-9]+)(t)?/g, function (all, id1, id2, isText) {
 			var key = keys[+id1][+id2];
 			allKeys.push(key);
-			return '<input class="de-input-key" type="text" de-id1="' + id1 + '" de-id2="' + id2 + '" size="16" value="' + KeyEditListener.getStrKey(key) + (isText ? '" de-text' : '"') + ' readonly></input>';
-		}) + '<input type="button" id="de-keys-save" class="de-button" value="' + Lng.save[lang] + '"></input>' + '<input type="button" id="de-keys-reset" class="de-button" value="' + Lng.reset[lang] + '"></input>';
+			return '<input class="de-input-key" type="text" de-id1="' + id1 + '" de-id2="' + id2 + '" size="16" value="' + KeyEditListener.getStrKey(key) + (isText ? '" de-text' : '"') + ' readonly/>';
+		}) + '<input type="button" id="de-keys-save" class="de-button" value="' + Lng.save[lang] + '"/>' + '<input type="button" id="de-keys-reset" class="de-button" value="' + Lng.reset[lang] + '"/>';
 		return [allKeys, html];
 	};
 	KeyEditListener.setTitle = function (el, idx) {
@@ -10476,11 +10509,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (!isThr && !aib.kus && !aib.dobr && !aib.mak) {
 					if (this.oeForm) {
 						$del($q('input[name="oek_parent"]', this.oeForm));
-						this.oeForm.insertAdjacentHTML('afterbegin', '<input type="hidden" value="' + qNum + '" name="oek_parent">');
+						this.oeForm.insertAdjacentHTML('afterbegin', '<input type="hidden" value="' + qNum + '" name="oek_parent"/>');
 					}
 					if (this.form) {
 						$del($q('input[name="' + aib.thrid + '"]', this.form));
-						this.form.insertAdjacentHTML('afterbegin', '<input type="hidden" id="de-thrid" value="' + qNum + '" name="' + aib.thrid + '">');
+						this.form.insertAdjacentHTML('afterbegin', '<input type="hidden" id="de-thrid" value="' + qNum + '" name="' + aib.thrid + '"/>');
 					}
 				}
 			} else if (closeReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
@@ -12283,7 +12316,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 						});
 					} else {
-						obj = $add('<object style="width: inherit; height: inherit" data="' + src + '" type="application/x-vlc-plugin">' + '<param name="pluginspage" value="http://www.videolan.org/vlc/" />' + '<param name="controls" value="' + (Cfg.webmControl ? 'true' : 'false') + '" />' + '<param name="loop" value="true" />' + '<param name="autoplay" value="true" />' + '<param name="wmode" value="transparent" /></object>');
+						obj = $add('<object style="width: inherit; height: inherit" data="' + src + '" type="application/x-vlc-plugin">' + '<param name="pluginspage" value="http://www.videolan.org/vlc/"/>' + '<param name="controls" value="' + (Cfg.webmControl ? 'true' : 'false') + '"/>' + '<param name="loop" value="true"/>' + '<param name="autoplay" value="true"/>' + '<param name="wmode" value="transparent"/></object>');
 					}
 				} else {
 					var html = '<div class="de-img-wrapper' + (inPost ? ' de-img-wrapper-inpost' : size ? '' : ' de-img-wrapper-nosize') + '">';
@@ -15921,7 +15954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				value: function fixFileInputs(el) {
 					var str = '';
 					for (var i = 0, len = 4; i < len; ++i) {
-						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="image' + (i + 1) + '"></input></div>';
+						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="image' + (i + 1) + '"/></div>';
 					}
 					$q('#postform .images-area', doc).lastElementChild.innerHTML = str;
 				}
@@ -16213,7 +16246,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					$script('window.FormData = void 0;');
 					var form = $q('form[name="post"][action="/post.php"]');
 					if (form) {
-						form.insertAdjacentHTML('beforeend', '<input name="json_response" value="1" type="hidden"></input');
+						form.insertAdjacentHTML('beforeend', '<input name="json_response" value="1" type="hidden"/>');
 					}
 					return false;
 				}
@@ -16258,7 +16291,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				value: function fixFileInputs(el) {
 					var str = '';
 					for (var i = 0, len = 5; i < len; ++i) {
-						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"></div>';
+						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"/></div>';
 					}
 					$id('upload').lastChild.innerHTML = str;
 				}
@@ -16406,7 +16439,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_createClass(Phutaba, [{
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
-					var str = '><input name="file" type="file"></input></div>';
+					var str = '><input name="file" type="file"/></div>';
 					el.removeAttribute('onchange');
 					el.parentNode.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 				}
@@ -16675,7 +16708,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_createClass(_2chRu, [{
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
-					var str = '><input name="file" maxlength="4" ' + 'accept="|sid|7z|bz2|m4a|flac|lzh|mo3|rar|spc|fla|nsf|jpg|mpp|aac|gz|xm|wav|' + 'mp3|png|it|lha|torrent|swf|zip|mpc|ogg|jpeg|gif|mod" type="file"></input></div>';
+					var str = '><input name="file" maxlength="4" ' + 'accept="|sid|7z|bz2|m4a|flac|lzh|mo3|rar|spc|fla|nsf|jpg|mpp|aac|gz|xm|wav|' + 'mp3|png|it|lha|torrent|swf|zip|mpc|ogg|jpeg|gif|mod" type="file"/></div>';
 					el.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 				}
 			}, {
@@ -16713,7 +16746,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				value: function init() {
 					var el = $q('#postform input[type="button"]');
 					if (el) {
-						$replace(el, '<input type="submit" value="Отправить" />');
+						$replace(el, '<input type="submit" value="Отправить"/>');
 					}
 					el = $q(this.qDForm);
 					$each($Q('input[type="hidden"]', el), $del);
@@ -16723,7 +16756,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'initCaptcha',
 				value: function initCaptcha() {
-					$id('captchadiv').innerHTML = '<img src="' + this.getCaptchaSrc() + '" style="vertical-align: bottom;" id="imgcaptcha" />';
+					$id('captchadiv').innerHTML = '<img src="' + this.getCaptchaSrc() + '" style="vertical-align: bottom;" id="imgcaptcha"/>';
 					return null;
 				}
 			}, {
@@ -16944,7 +16977,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_createClass(_8chNet, [{
 				key: 'initCaptcha',
 				value: function initCaptcha(cap) {
-					$q('td', cap.trEl).innerHTML = '\n\t\t\t<input placeholder="{ Lng.cap[lang] }" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="6" autocomplete="off">\n\t\t\t<input class="captcha_cookie" name="captcha_cookie" type="hidden">\n\t\t\t<div class="captcha_html"></div>';
+					$q('td', cap.trEl).innerHTML = '\n\t\t\t<input placeholder="{ Lng.cap[lang] }" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="6" autocomplete="off"/>\n\t\t\t<input class="captcha_cookie" name="captcha_cookie" type="hidden"/>\n\t\t\t<div class="captcha_html"></div>';
 					cap.textEl = $q('.captcha_text', cap.trEl);
 					return this.updateCaptcha(cap, true);
 				}
@@ -17244,7 +17277,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						var el = img.parentNode;
 						el.innerHTML = '';
 						el.appendChild(img);
-						img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off" id="captcha" name="captcha" size="35" type="text">');
+						img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off" id="captcha" name="captcha" size="35" type="text"/>');
 						$show(img);
 						cap.renew();
 					}
@@ -17285,7 +17318,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var el = $id('submit_button');
 					if (el) {
 						$del(el.previousElementSibling);
-						$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ">');
+						$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ"/>');
 					}
 					return false;
 				}
@@ -17403,7 +17436,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				value: function fixFileInputs(el) {
 					var str = '';
 					for (var i = 0, len = 4; i < len; ++i) {
-						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file_' + i + '" tabindex="7"></input></div>';
+						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file_' + i + '" tabindex="7"/></div>';
 					}
 					var node = $id('files_parent');
 					node.innerHTML = str;
