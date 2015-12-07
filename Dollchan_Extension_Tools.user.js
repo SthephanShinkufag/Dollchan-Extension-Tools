@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '4a2f7db';
+	var commit = 'c13615d';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -6365,7 +6365,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 		}), $btn(Lng.reset[lang], Lng.resetCfg[lang], function () {
 			var fn = function fn(arr) {
-				return '<label class="de-block"><input type="checkbox"/>' + arr.join('</label><label class="de-block"><input type="checkbox"/>') + '</label>';
+				return '<label class="de-block"><input type="checkbox"/> ' + arr.join('</label><label class="de-block"><input type="checkbox"/> ') + '</label>';
 			};
 			var el = $popup('<b>' + Lng.resetData[lang] + ':</b>', 'cfg-reset', false);
 			el.insertAdjacentHTML('beforeend', '<div class="de-list"><b>' + aib.dm + '</b>:' + fn([Lng.panelBtn.cfg[lang], Lng.hiddenPosts[lang], Lng.hiddenThrds[lang], Lng.myPosts[lang]]) + '</div>' + '<div class="de-list"><b>' + Lng.allDomains[lang] + '</b>' + fn([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang], Lng.cfg.hotKeys[lang]]) + '</div>');

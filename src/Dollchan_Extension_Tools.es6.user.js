@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '4a2f7db';
+var commit = 'c13615d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3399,8 +3399,8 @@ function addSettings(body, id) {
 		}),
 		$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
 			var fn = function(arr) {
-				return '<label class="de-block"><input type="checkbox"/>' + arr
-					.join('</label><label class="de-block"><input type="checkbox"/>') + '</label>';
+				return '<label class="de-block"><input type="checkbox"/> ' + arr
+					.join('</label><label class="de-block"><input type="checkbox"/> ') + '</label>';
 			}
 			var el = $popup('<b>' + Lng.resetData[lang] + ':</b>', 'cfg-reset', false);
 			el.insertAdjacentHTML('beforeend',
