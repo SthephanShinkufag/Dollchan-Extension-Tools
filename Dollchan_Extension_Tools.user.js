@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'bde0f72';
+	var commit = 'a4b588c';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3366,7 +3366,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	    excludeList,
 	    $each = Function.prototype.call.bind(aProto.forEach),
 	    emptyFn = Function.prototype,
-	    nativeXHRworks = true;
+	    nativeXHRworks = true,
+	    gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/',
+	    gitRaw = 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
 
 
@@ -5401,7 +5403,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				'src': aib.prot + '//www.youtube.com/player_api'
 			}, null));
 		}
-		body.innerHTML = '\n\t<div de-disableautoplay class="de-video-obj"></div>\n\t<div id="de-video-buttons">\n\t\t<a class="de-abtn" id="de-video-btn-prev" href="#" title="' + Lng.prevVideo[lang] + '">\n\t\t\t&#x25C0;\n\t\t</a>\n\t\t<a class="de-abtn" id="de-video-btn-resize" href="#" title="' + Lng.expandVideo[lang] + '"></a>\n\t\t<a class="de-abtn" id="de-video-btn-next" href="#" title="' + Lng.nextVideo[lang] + '">\n\t\t\t&#x25B6;\n\t\t</a>\n\t\t<a class="de-abtn" id="de-video-btn-hide" href="#" title="' + Lng.hideLnkList[lang] + '">\n\t\t\t&#x25B2;\n\t\t</a>\n\t</div>';
+		body.innerHTML = '\n\t<div de-disableautoplay class="de-video-obj"></div>\n\t<div id="de-video-buttons">\n\t\t<a class="de-abtn" id="de-video-btn-prev" href="#" title="' + Lng.prevVideo[lang] + '">&#x25C0;</a>\n\t\t<a class="de-abtn" id="de-video-btn-resize" href="#" title="' + Lng.expandVideo[lang] + '"></a>\n\t\t<a class="de-abtn" id="de-video-btn-next" href="#" title="' + Lng.nextVideo[lang] + '">&#x25B6;</a>\n\t\t<a class="de-abtn" id="de-video-btn-hide" href="#" title="' + Lng.hideLnkList[lang] + '">&#x25B2;</a>\n\t</div>';
 		var linkList = $new('div', { 'id': 'de-video-list', 'style': 'max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; ' + 'max-height: ' + (doc.documentElement.clientHeight * .92 - +Cfg.YTubeHeigh - 82) + 'px;' });
 		body.appendChild($new('script', { 'type': 'text/javascript', 'text': '(function() {\n\t\tif(\'YT\' in window && \'Player\' in window.YT) {\n\t\t\tonYouTubePlayerAPIReady();\n\t\t} else {\n\t\t\twindow.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;\n\t\t}\n\t\tfunction onYouTubePlayerAPIReady() {\n\t\t\twindow.de_addVideoEvents =\n\t\t\t\taddEvents.bind(document.querySelector(\'#de-win-vid > .de-win-body > .de-video-obj\'));\n\t\t\twindow.de_addVideoEvents();\n\t\t}\n\t\tfunction addEvents() {\n\t\t\tvar autoplay = true;\n\t\t\tif(this.hasAttribute(\'de-disableautoplay\')) {\n\t\t\t\tautoplay = false;\n\t\t\t\tthis.removeAttribute(\'de-disableautoplay\');\n\t\t\t}\n\t\t\tnew YT.Player(this.firstChild, { events: {\n\t\t\t\t\'onError\': gotoNextVideo,\n\t\t\t\t\'onReady\': autoplay ? function(e) {\n\t\t\t\t\te.target.playVideo();\n\t\t\t\t} : Function.prototype,\n\t\t\t\t\'onStateChange\': function(e) {\n\t\t\t\t\tif(e.data === 0) {\n\t\t\t\t\t\tgotoNextVideo();\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}});\n\t\t}\n\t\tfunction gotoNextVideo() {\n\t\t\tdocument.getElementById("de-video-btn-next").click();\n\t\t}\n\t})();' }));
 		body.addEventListener('click', {
@@ -5506,7 +5508,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			hideData.btn.parentNode.className = 'de-post-btns';
 			hideData.btn.addEventListener('click', hideData);
 			if (!block) {
-				block = body.appendChild($add('\n\t\t\t<div class="de-content-block">\n\t\t\t\t<b>' + (Lng.hiddenPosts[lang] + Lng.onPage[lang]) + ':</b>\n\t\t\t</div>'));
+				block = body.appendChild($add('<div class="de-content-block"><b>' + Lng.hiddenPosts[lang] + Lng.onPage[lang] + ':</b></div>'));
 			}
 			block.appendChild($New('div', { 'class': 'de-entry' }, [cloneEl]));
 		}
@@ -5531,7 +5533,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		} else {
 			body.insertAdjacentHTML('beforeend', '<b>' + Lng.noHidPosts[lang] + '</b>');
 		}
-		body.insertAdjacentHTML('beforeend', '\n\t<hr><b>' + ($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') + '</b>');
+		body.insertAdjacentHTML('beforeend', '<hr><b>' + ($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') + '</b>');
 		for (var b in hThr) {
 			if (!$isEmpty(hThr[b])) {
 				block = addContentBlock(body, $new('b', { 'text': '/' + b }, null));
@@ -6072,7 +6074,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				$id('de-spell-txt').value = '';
 				Spells.toggle();
 			}
-		}), $add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-' + (lang ? 'en' : 'ru') + '" class="de-abtn de-spell-btn" target="_blank">[?]</a>')]), $New('div', { 'id': 'de-spell-editor' }, [$add('<div id="de-spell-rowmeter"></div>'), $new('textarea', { 'id': 'de-spell-txt', 'wrap': 'off' }, {
+		}), $add('<a href="' + gitWiki + 'Spells-' + (lang ? 'en' : 'ru') + '" class="de-abtn de-spell-btn" target="_blank">[?]</a>')]), $New('div', { 'id': 'de-spell-editor' }, [$add('<div id="de-spell-rowmeter"></div>'), $new('textarea', { 'id': 'de-spell-txt', 'wrap': 'off' }, {
 			'keydown': function keydown() {
 				updRowMeter(this);
 			},
@@ -6127,7 +6129,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}), optSel('noSpoilers', true, function () {
 			saveCfg('noSpoilers', this.selectedIndex);
 			updateCSS();
-		}), lBox('noPostNames', true, updateCSS), lBox('widePosts', true, updateCSS), $New('div', null, [lBox('correctTime', false, DateTime.toggleSettings), inpTxt('timeOffset', 2, null), $txt(Lng.cfg.timeOffset[lang]), $add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-' + (lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">[?]</a>')]), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [inpTxt('timePattern', 24, null), $txt(Lng.cfg.timePattern[lang])]), $New('div', null, [inpTxt('timeRPattern', 24, null), $txt(Lng.cfg.timeRPattern[lang])])])]);
+		}), lBox('noPostNames', true, updateCSS), lBox('widePosts', true, updateCSS), $New('div', null, [lBox('correctTime', false, DateTime.toggleSettings), inpTxt('timeOffset', 2, null), $txt(Lng.cfg.timeOffset[lang]), $add('<a href="' + gitWiki + 'Settings-time-' + (lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">[?]</a>')]), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [inpTxt('timePattern', 24, null), $txt(Lng.cfg.timePattern[lang])]), $New('div', null, [inpTxt('timeRPattern', 24, null), $txt(Lng.cfg.timeRPattern[lang])])])]);
 	}
 
 	function getCfgImages() {
@@ -6204,7 +6206,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				updateCSS();
 				toggleWindow('cfg', true);
 			});
-		}, 'de-cfg-button'), $add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/css-tricks"' + ' class="de-abtn" target="_blank">[?]</a>')]), lBox('panelCounter', true, updateCSS), lBox('rePageTitle', true, null), lBox('animation', true, null), lBox('closePopups', true, null), lBox('inftyScroll', true, toggleInfinityScroll), $New('div', null, [lBox('hotKeys', false, function () {
+		}, 'de-cfg-button'), $add('<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a>')]), lBox('panelCounter', true, updateCSS), lBox('rePageTitle', true, null), lBox('animation', true, null), lBox('closePopups', true, null), lBox('inftyScroll', true, toggleInfinityScroll), $New('div', null, [lBox('hotKeys', false, function () {
 			if (Cfg.hotKeys) {
 				HotKeys.enable();
 			} else {
@@ -6265,7 +6267,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return '\n\t\t<div class="de-info-row">\n\t\t\t<span class="de-info-name">' + data[0] + '</span>\n\t\t\t<span>' + (data[1] + (needMs ? 'ms' : '')) + '</span>\n\t\t</div>';
 			}).join('');
 		};
-		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-info' }, [$add('\n\t\t<div style="padding-bottom: 10px;">\n\t\t\t<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions" target="_blank">\n\t\t\t\tv' + version + '.' + commit + '\n\t\t\t</a>\n\t\t\t&nbsp;|&nbsp;\n\t\t\t<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>\n\t\t\t&nbsp;|&nbsp;\n\t\t\t<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' + (lang ? 'home-en/' : '') + '" target="_blank">Github</a>\n\t\t</div>'), $add('\n\t\t<div id="de-info-table">\n\t\t\t<div id="de-info-stats">' + getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], getHiddenThrCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false) + '</div>\n\t\t\t<div id="de-info-log">' + getInfoTable(Logger.getData(false), true) + '</div>\n\t\t</div>'), $btn(Lng.debug[lang], Lng.infoDebug[lang], function () {
+		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-info' }, [$add('\n\t\t<div style="padding-bottom: 10px;">\n\t\t\t<a href="' + gitWiki + 'versions" target="_blank">v' + version + '.' + commit + '</a>\n\t\t\t&nbsp;|&nbsp;\n\t\t\t<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>\n\t\t\t&nbsp;|&nbsp;\n\t\t\t<a href="' + (gitWiki + (lang ? 'home-en/' : '')) + '" target="_blank">Github</a>\n\t\t</div>'), $add('\n\t\t<div id="de-info-table">\n\t\t\t<div id="de-info-stats">' + getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], getHiddenThrCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false) + '</div>\n\t\t\t<div id="de-info-log">' + getInfoTable(Logger.getData(false), true) + '</div>\n\t\t</div>'), $btn(Lng.debug[lang], Lng.infoDebug[lang], function () {
 			$popup(Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>', 'cfg-debug', false).firstElementChild.value = JSON.stringify({
 				'version': version,
 				'location': String(window.location),
@@ -10404,7 +10406,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (btns[i] === '') {
 					continue;
 				}
-				html += '<span id="de-btn-' + id[i] + '" de-title="' + Lng.txtBtn[i][lang] + '" de-tag="' + btns[i] + '">' + (Cfg.addTextBtns === 2 ? (html === '' ? '[ ' : '') + ('<a class="de-abtn" href="#">' + val[i] + '</a> / ') : Cfg.addTextBtns === 3 ? '<button type="button" style="font-weight: bold;">' + val[i] + '</button>' : '') + '</span>';
+				html += '<span id="de-btn-' + id[i] + '" de-title="' + Lng.txtBtn[i][lang] + '" de-tag="' + btns[i] + '">' + (Cfg.addTextBtns === 2 ? (html === '' ? '[ ' : '') + '<a class="de-abtn" href="#">' + val[i] + '</a> / ' : Cfg.addTextBtns === 3 ? '<button type="button" style="font-weight: bold;">' + val[i] + '</button>' : '') + '</span>';
 			}
 			tPanel.innerHTML = html + ('<span id="de-btn-quote" de-title="' + Lng.txtBtn[8][lang] + '" de-tag="q">' + (Cfg.addTextBtns === 2 ? '<a class="de-abtn" href="#">&gt;</a> ]' : Cfg.addTextBtns === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' : '') + '</span>');
 		},
@@ -14505,6 +14507,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 					if (add && myPosts.has(lNum)) {
 						link.classList.add('de-ref-my');
+						updater.refToYou();
 					}
 					if (!pByNum.has(lNum)) {
 						continue;
@@ -18221,7 +18224,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		    disabledByUser = true,
 		    lastECode = 200,
 		    sendError = false,
-		    newPosts = 0;
+		    newPosts = 0,
+		    hasMyRefs = false;
 
 		var audio = {
 			enabled: false,
@@ -18254,10 +18258,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			},
 
 			get _el() {
-				var value = $new('audio', {
-					'preload': 'auto',
-					'src': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg'
-				}, null);
+				var value = $new('audio', { 'preload': 'auto', 'src': gitRaw + 'signal.ogg' }, null);
 				Object.defineProperty(this, '_el', { value: value });
 				return value;
 			}
@@ -18600,6 +18601,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			enabled = true;
 			disabledByUser = paused = false;
 			newPosts = 0;
+			hasMyRefs = false;
 			focusLoadTime = -1e4;
 			notification.checkPermission();
 			if (Cfg.updCount) {
@@ -18629,7 +18631,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function updateTitle() {
 			var eCode = arguments.length <= 0 || arguments[0] === undefined ? lastECode : arguments[0];
 
-			doc.title = (sendError === true ? '{' + Lng.error[lang] + '} ' : '') + (eCode === 200 ? '' : '{' + eCode + '} ') + (newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
+			doc.title = (sendError === true ? '{' + Lng.error[lang] + '} ' : '') + (eCode === 200 ? '' : '{' + eCode + '} ') + (newPosts === 0 ? '' : '[' + newPosts + (hasMyRefs ? '!' : '') + '] ') + title;
 		}
 
 		doc.addEventListener('visibilitychange', function (e) {
@@ -18639,6 +18641,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				audio.stop();
 				notification.close();
 				newPosts = 0;
+				hasMyRefs = false;
 				sendError = false;
 				setTimeout(function () {
 					updateTitle();
@@ -18721,6 +18724,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					sendError = true;
 					updateTitle();
 				}
+			},
+			refToYou: function refToYou() {
+				hasMyRefs = true;
 			}
 		};
 	}
@@ -18809,7 +18815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return Promise.reject();
 			}
 		}
-		return $ajax('https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js', { 'Content-Type': 'text/plain' }, false).then(function (xhr) {
+		return $ajax(gitRaw + 'Dollchan_Extension_Tools.meta.js', { 'Content-Type': 'text/plain' }, false).then(function (xhr) {
 			var m = xhr.responseText.match(/@version\s+([0-9.]+)/),
 			    dVer = m && m[1] ? m[1].split('.') : null;
 			if (dVer) {
@@ -18817,7 +18823,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				saveComCfg('lastUpd', Date.now());
 				for (var i = 0, len = Math.max(cVer.length, dVer.length); i < len; ++i) {
 					if ((+dVer[i] || 0) > (+cVer[i] || 0)) {
-						return '<a style="color: blue; font-weight: bold;" href="' + 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/' + 'Dollchan_Extension_Tools.user.js">' + Lng.updAvail[lang] + '</a>';
+						return '<a style="color: blue; font-weight: bold;" href="' + gitRaw + 'Dollchan_Extension_Tools.user.js">' + Lng.updAvail[lang] + '</a>';
 					} else if ((+dVer[i] || 0) < (+cVer[i] || 0)) {
 						break;
 					}

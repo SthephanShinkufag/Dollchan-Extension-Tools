@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'bde0f72';
+var commit = 'a4b588c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -610,7 +610,9 @@ Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null
 lang, quotetxt = '', localRun, isExpImg, isPreImg, excludeList,
 $each = Function.prototype.call.bind(aProto.forEach),
 emptyFn = Function.prototype,
-nativeXHRworks = true;
+nativeXHRworks = true,
+gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/',
+gitRaw = 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
 
 // UTILS
@@ -1356,7 +1358,7 @@ function prettifySize(val) {
 
 function downloadBlob(blob, name) {
 	var url = window.URL.createObjectURL(blob);
-	var link = docBody.appendChild($add(`<a href="${ url }" download="${ name }"></a>`));
+	var link = docBody.appendChild($add('<a href="' + url + '" download="' + name + '"></a>'));
 	link.click();
 	setTimeout(() => {
 		window.URL.revokeObjectURL(url);
@@ -2289,16 +2291,10 @@ function showVideosWindow(body) {
 	body.innerHTML = `
 	<div de-disableautoplay class="de-video-obj"></div>
 	<div id="de-video-buttons">
-		<a class="de-abtn" id="de-video-btn-prev" href="#" title="${ Lng.prevVideo[lang] }">
-			&#x25C0;
-		</a>
+		<a class="de-abtn" id="de-video-btn-prev" href="#" title="${ Lng.prevVideo[lang] }">&#x25C0;</a>
 		<a class="de-abtn" id="de-video-btn-resize" href="#" title="${ Lng.expandVideo[lang] }"></a>
-		<a class="de-abtn" id="de-video-btn-next" href="#" title="${ Lng.nextVideo[lang] }">
-			&#x25B6;
-		</a>
-		<a class="de-abtn" id="de-video-btn-hide" href="#" title="${ Lng.hideLnkList[lang] }">
-			&#x25B2;
-		</a>
+		<a class="de-abtn" id="de-video-btn-next" href="#" title="${ Lng.nextVideo[lang] }">&#x25B6;</a>
+		<a class="de-abtn" id="de-video-btn-hide" href="#" title="${ Lng.hideLnkList[lang] }">&#x25B2;</a>
 	</div>`;
 	var linkList = $new('div', {'id': 'de-video-list', 'style':
 		'max-width: ' + (+Cfg.YTubeWidth + 40) +'px; ' +
@@ -2439,10 +2435,8 @@ function showHiddenWindow(body) {
 		hideData.btn.parentNode.className = 'de-post-btns';
 		hideData.btn.addEventListener('click', hideData);
 		if(!block) {
-			block = body.appendChild($add(`
-			<div class="de-content-block">
-				<b>${ Lng.hiddenPosts[lang] + Lng.onPage[lang] }:</b>
-			</div>`));
+			block = body.appendChild($add('<div class="de-content-block"><b>' +
+				Lng.hiddenPosts[lang] + Lng.onPage[lang] + ':</b></div>'));
 		}
 		block.appendChild($New('div', {'class': 'de-entry'}, [cloneEl]));
 	}
@@ -2467,8 +2461,8 @@ function showHiddenWindow(body) {
 	} else {
 		body.insertAdjacentHTML('beforeend', '<b>' + Lng.noHidPosts[lang] + '</b>');
 	}
-	body.insertAdjacentHTML('beforeend', `
-	<hr><b>${ $isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':' }</b>`);
+	body.insertAdjacentHTML('beforeend', '<hr><b>' +
+		($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') +'</b>');
 	for(var b in hThr) {
 		if(!$isEmpty(hThr[b])) {
 			block = addContentBlock(body, $new('b', {'text': '/' + b}, null));
@@ -2603,7 +2597,7 @@ function showFavoritesWindow(body, data) {
 		}
 	}
 	if(!body.hasChildNodes()) {
-		body.insertAdjacentHTML('afterbegin', `<center><b>${ Lng.noFavThrds[lang] }</b></center>`);
+		body.insertAdjacentHTML('afterbegin', '<center><b>' + Lng.noFavThrds[lang] + '</b></center>');
 	}
 	body.insertAdjacentHTML('beforeend', '<hr>');
 	body.appendChild(addEditButton('favor', function(fn) {
@@ -2827,9 +2821,9 @@ function inpTxt(id, size, Fn) {
 function optSel(id, isBlock, Fn, className = '') {
 	var el, opt = '', x = Lng.cfg[id];
 	for(var i = 0, len = x.sel[lang].length; i < len; i++) {
-		opt += `<option value="${ i }">${ x.sel[lang][i] }</option>`;
+		opt += '<option value="' + i + '">' + x.sel[lang][i] + '</option>';
 	}
-	el = $add(`<select class="de-cfg-select" info="${ id }">${ opt }</select>`);
+	el = $add('<select class="de-cfg-select" info="' + id + '">' + opt + '</select>');
 	el.addEventListener('change', Fn || function() {
 		saveCfg(this.getAttribute('info'), this.selectedIndex);
 		fixSettings();
@@ -2879,8 +2873,8 @@ function getCfgFilters() {
 				$id('de-spell-txt').value = '';
 				Spells.toggle();
 			}}),
-			$add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-' +
-				(lang ? 'en' : 'ru') + '" class="de-abtn de-spell-btn" target="_blank">[?]</a>')
+			$add('<a href="' + gitWiki + 'Spells-' + (lang ? 'en' : 'ru') +
+				'" class="de-abtn de-spell-btn" target="_blank">[?]</a>')
 		]),
 		$New('div', {'id': 'de-spell-editor'}, [
 			$add('<div id="de-spell-rowmeter"></div>'),
@@ -2970,8 +2964,8 @@ function getCfgPosts() {
 			lBox('correctTime', false, DateTime.toggleSettings),
 			inpTxt('timeOffset', 2, null),
 			$txt(Lng.cfg.timeOffset[lang]),
-			$add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-' +
-				(lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">[?]</a>')
+			$add('<a href="' + gitWiki + 'Settings-time-' + (lang ? 'en' : 'ru') +
+				'" class="de-abtn" target="_blank">[?]</a>')
 		]),
 		$New('div', {'class': 'de-cfg-depend'}, [
 			$New('div', null, [
@@ -3173,8 +3167,7 @@ function getCfgCommon() {
 					toggleWindow('cfg', true);
 				});
 			}, 'de-cfg-button'),
-			$add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/css-tricks"' +
-				' class="de-abtn" target="_blank">[?]</a>')
+			$add('<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a>')
 		]),
 		lBox('panelCounter', true, updateCSS),
 		lBox('rePageTitle', true, null),
@@ -3263,14 +3256,11 @@ function getCfgInfo() {
 	).join('');
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-info'}, [$add(`
 		<div style="padding-bottom: 10px;">
-			<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions" target="_blank">
-				v${ version }.${ commit }
-			</a>
+			<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit }</a>
 			&nbsp;|&nbsp;
 			<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>
 			&nbsp;|&nbsp;
-			<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/${
-				lang ? 'home-en/' : '' }" target="_blank">Github</a>
+			<a href="${ gitWiki + (lang ? 'home-en/' : '') }" target="_blank">Github</a>
 		</div>`), $add(`
 		<div id="de-info-table">
 			<div id="de-info-stats">${ getInfoTable([
@@ -6972,9 +6962,9 @@ PostForm.prototype = {
 			html +=
 			`<span id="de-btn-${ id[i] }" de-title="${ Lng.txtBtn[i][lang] }" de-tag="${ btns[i] }">${
 				Cfg.addTextBtns === 2 ?
-					(html === '' ? '[ ' : '') + `<a class="de-abtn" href="#">${ val[i] }</a> / ` :
+					(html === '' ? '[ ' : '') + '<a class="de-abtn" href="#">' + val[i] + '</a> / ' :
 				Cfg.addTextBtns === 3 ?
-					`<button type="button" style="font-weight: bold;">${ val[i] }</button>` : ''
+					'<button type="button" style="font-weight: bold;">' + val[i] + '</button>' : ''
 			}</span>`;
 		}
 		tPanel.innerHTML = html +
@@ -10398,6 +10388,7 @@ class RefMap {
 			}
 			if(add && myPosts.has(lNum)) {
 				link.classList.add('de-ref-my');
+				updater.refToYou();
 			}
 			if(!pByNum.has(lNum)) {
 				continue;
@@ -13421,7 +13412,8 @@ function initThreadUpdater(title, enableUpdate) {
 		disabledByUser = true,
 		lastECode = 200,
 		sendError = false,
-		newPosts = 0;
+		newPosts = 0,
+		hasMyRefs = false;
 
 	var audio = {
 		enabled: false,
@@ -13450,10 +13442,7 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 
 		get _el() {
-			var value = $new('audio', {
-				'preload': 'auto',
-				'src': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg'
-			}, null)
+			var value = $new('audio', {'preload': 'auto', 'src': gitRaw + 'signal.ogg'}, null);
 			Object.defineProperty(this, '_el', { value });
 			return value;
 		}
@@ -13773,6 +13762,7 @@ function initThreadUpdater(title, enableUpdate) {
 		enabled = true;
 		disabledByUser = paused = false;
 		newPosts = 0;
+		hasMyRefs = false;
 		focusLoadTime = -1e4
 		notification.checkPermission();
 		if(Cfg.updCount) {
@@ -13802,7 +13792,7 @@ function initThreadUpdater(title, enableUpdate) {
 	function updateTitle(eCode = lastECode) {
 		doc.title = (sendError === true ? '{' + Lng.error[lang] + '} ' : '') +
 			(eCode === 200 ? '' : '{' + eCode + '} ') +
-			(newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
+			(newPosts === 0 ? '' : '[' + newPosts + (hasMyRefs ? '!' : '') + '] ') + title;
 	}
 
 	doc.addEventListener('visibilitychange', e => {
@@ -13812,6 +13802,7 @@ function initThreadUpdater(title, enableUpdate) {
 			audio.stop();
 			notification.close();
 			newPosts = 0;
+			hasMyRefs = false;
 			sendError = false;
 			setTimeout(function() {
 				updateTitle();
@@ -13892,6 +13883,9 @@ function initThreadUpdater(title, enableUpdate) {
 				sendError = true;
 				updateTitle();
 			}
+		},
+		refToYou() {
+			hasMyRefs = true;
 		}
 	};
 }
@@ -13981,9 +13975,9 @@ function checkForUpdates(isForce, lastUpdateTime) {
 			return Promise.reject();
 		}
 	}
-	return $ajax('https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js',
-		 {'Content-Type': 'text/plain'},
-		 false
+	return $ajax(
+		gitRaw + 'Dollchan_Extension_Tools.meta.js',
+		{'Content-Type': 'text/plain'}, false
 	).then(xhr => {
 		var m = xhr.responseText.match(/@version\s+([0-9.]+)/),
 			dVer = m && m[1] ? m[1].split('.') : null;
@@ -13992,8 +13986,7 @@ function checkForUpdates(isForce, lastUpdateTime) {
 			saveComCfg('lastUpd', Date.now());
 			for(var i = 0, len = Math.max(cVer.length, dVer.length); i < len; ++i) {
 				if((+dVer[i] || 0) > (+cVer[i] || 0)) {
-					return '<a style="color: blue; font-weight: bold;" href="' +
-						'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/' +
+					return '<a style="color: blue; font-weight: bold;" href="' + gitRaw +
 						'Dollchan_Extension_Tools.user.js">' + Lng.updAvail[lang] + '</a>';
 				} else if((+dVer[i] || 0) < (+cVer[i] || 0)) {
 					break;
