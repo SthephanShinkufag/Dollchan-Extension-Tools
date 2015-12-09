@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '57f3ae3';
+var commit = '448be8a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13525,24 +13525,24 @@ function initThreadUpdater(title, enableUpdate) {
 				var wh = 16; // var wh = img.naturalHeight;
 				canvas.width = canvas.height = wh;
 				ctx.drawImage(e.target, 0, 0, wh, wh);
-				img.src = this._iconNew;
 				img.onload = () => {
 					var original = ctx.getImageData(0, 0, wh, wh);
 					ctx.drawImage(img, 0, 0);
 					this._iconNew = canvas.toDataURL('image/png');
 					ctx.putImageData(original, 0, 0); // undo changes
-					img.src = this._iconYou;
 					img.onload = () => {
 						ctx.drawImage(img, 0, 0);
 						this._iconYou = canvas.toDataURL('image/png');
 						ctx.putImageData(original, 0, 0);
-						img.src = this._iconError;
 						img.onload = () => {
 							ctx.drawImage(img, 0, 0);
 							this._iconError = canvas.toDataURL('image/png');
 						};
+						img.src = this._iconError;
 					};
+					img.src = this._iconYou;
 				};
+				img.src = this._iconNew;
 			};
 			img.src = this._iconEl.href;
 			this.isInited = true;

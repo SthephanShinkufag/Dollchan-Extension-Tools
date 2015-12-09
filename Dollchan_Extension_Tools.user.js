@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '57f3ae3';
+	var commit = '448be8a';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -18345,24 +18345,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var wh = 16;
 					canvas.width = canvas.height = wh;
 					ctx.drawImage(e.target, 0, 0, wh, wh);
-					img.src = _this87._iconNew;
 					img.onload = function () {
 						var original = ctx.getImageData(0, 0, wh, wh);
 						ctx.drawImage(img, 0, 0);
 						_this87._iconNew = canvas.toDataURL('image/png');
 						ctx.putImageData(original, 0, 0);
-						img.src = _this87._iconYou;
 						img.onload = function () {
 							ctx.drawImage(img, 0, 0);
 							_this87._iconYou = canvas.toDataURL('image/png');
 							ctx.putImageData(original, 0, 0);
-							img.src = _this87._iconError;
 							img.onload = function () {
 								ctx.drawImage(img, 0, 0);
 								_this87._iconError = canvas.toDataURL('image/png');
 							};
+							img.src = _this87._iconError;
 						};
+						img.src = _this87._iconYou;
 					};
+					img.src = _this87._iconNew;
 				};
 				img.src = this._iconEl.href;
 				this.isInited = true;
