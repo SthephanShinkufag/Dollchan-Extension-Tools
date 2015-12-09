@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'a4b588c';
+	var commit = '7d6a98b';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -7503,7 +7503,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		cnv.width = img.width;
 		cnv.height = img.height;
 		cnv.getContext('2d').drawImage(img, 0, 0);
-		return new Uint8Array(atob(cnv.toDataURL("image/png").split(',')[1]).split('').map(function (a) {
+		return new Uint8Array(atob(cnv.toDataURL('image/png').split(',')[1]).split('').map(function (a) {
 			return a.charCodeAt();
 		}));
 	}
@@ -18225,7 +18225,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		    lastECode = 200,
 		    sendError = false,
 		    newPosts = 0,
-		    hasMyRefs = false;
+		    hasYouRefs = false;
 
 		var audio = {
 			enabled: false,
@@ -18334,11 +18334,32 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			get originalIcon() {
 				return this._iconEl ? this._iconEl.href : null;
 			},
-			startBlinkEmpty: function startBlinkEmpty() {
-				this._startBlink(this._emptyIcon);
+			initIcons: function initIcons() {
+				var canvasNew = $new('canvas', { 'width': 16, 'height': 16 }),
+				    ctxNew = canvasNew.getContext('2d'),
+				    canvasYou = $new('canvas', { 'width': 16, 'height': 16 }),
+				    ctxYou = canvasYou.getContext('2d');
+				$new('img', { 'src': this._iconEl.href }, { 'load': (function (e) {
+						ctxNew.drawImage(e.target, 0, 0, 16, 16);
+						ctxYou.drawImage(e.target, 0, 0, 16, 16);
+						$new('img', { 'src': this._iconNew }, { 'load': (function (e) {
+								ctxNew.drawImage(e.target, 0, 0);
+								this._iconNew = canvasNew.toDataURL('image/png');
+							}).bind(this) });
+						$new('img', { 'src': this._iconYou }, { 'load': (function (e) {
+								ctxYou.drawImage(e.target, 0, 0);
+								this._iconYou = canvasYou.toDataURL('image/png');
+							}).bind(this) });
+					}).bind(this) });
+			},
+			updateIcon: function updateIcon() {
+				this._setIcon(!newPosts ? this.originalIcon : hasYouRefs ? this._iconYou : this._iconNew);
+			},
+			startBlinkNew: function startBlinkNew() {
+				this._startBlink(hasYouRefs ? this._iconYou : this._iconNew);
 			},
 			startBlinkError: function startBlinkError() {
-				this._startBlink(this._errorIcon);
+				this._startBlink(this._iconError);
 			},
 			stopBlink: function stopBlink() {
 				if (this._blinkInterval) {
@@ -18354,8 +18375,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_blinkInterval: null,
 			_blinkMS: 800,
 			_currentIcon: null,
-			_emptyIcon: 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAAtJREFUCNdjIBEAAAAwAAFletZ8AAAAAElFTkSuQmCC',
-			_errorIcon: 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==',
 			get _iconEl() {
 				var el = $q('head link[rel="shortcut icon"]', doc.head);
 				Object.defineProperties(this, {
@@ -18364,6 +18383,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 				return el;
 			},
+			_iconError: 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==',
+			_iconNew: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEUAAAA/PiLm4ACRdGIUAAAAAnRSTlMA3Y7xY1EAAAAgSURBVAjXYyAERB2AhBSMYI0KZWBgW7USTIC5CFmwYgCUIAYtJIiYtAAAAABJRU5ErkJggg==',
+			_iconYou: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEUAAAAcXyMA9RscHa/+AAAAAnRSTlMA4jiXTmwAAAAgSURBVAjXYyAERB2AhBSMYI0KZWBgW7USTIC5CFmwYgCUIAYtJIiYtAAAAABJRU5ErkJggg==',
 			_isOriginalIcon: true,
 			_setIcon: function _setIcon(iconUrl) {
 				$del(this._iconEl);
@@ -18533,7 +18555,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						newPosts += lPosts;
 						updateTitle();
 						if (favicon.canBlink) {
-							favicon.startBlinkEmpty();
+							favicon.startBlinkNew();
 						}
 						if (notification.canShow) {
 							notification.show();
@@ -18601,7 +18623,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			enabled = true;
 			disabledByUser = paused = false;
 			newPosts = 0;
-			hasMyRefs = false;
+			hasYouRefs = false;
 			focusLoadTime = -1e4;
 			notification.checkPermission();
 			if (Cfg.updCount) {
@@ -18631,7 +18653,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function updateTitle() {
 			var eCode = arguments.length <= 0 || arguments[0] === undefined ? lastECode : arguments[0];
 
-			doc.title = (sendError === true ? '{' + Lng.error[lang] + '} ' : '') + (eCode === 200 ? '' : '{' + eCode + '} ') + (newPosts === 0 ? '' : '[' + newPosts + (hasMyRefs ? '!' : '') + '] ') + title;
+			doc.title = (sendError === true ? '{' + Lng.error[lang] + '} ' : '') + (eCode === 200 ? '' : '{' + eCode + '} ') + (newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
+			favicon.updateIcon();
 		}
 
 		doc.addEventListener('visibilitychange', function (e) {
@@ -18641,7 +18664,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				audio.stop();
 				notification.close();
 				newPosts = 0;
-				hasMyRefs = false;
+				hasYouRefs = false;
 				sendError = false;
 				setTimeout(function () {
 					updateTitle();
@@ -18657,6 +18680,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (enableUpdate) {
 			enableUpdater();
 			updMachine.start(true);
+			favicon.initIcons();
 		}
 
 		return {
@@ -18726,7 +18750,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			},
 			refToYou: function refToYou() {
-				hasMyRefs = true;
+				hasYouRefs = true;
 			}
 		};
 	}
