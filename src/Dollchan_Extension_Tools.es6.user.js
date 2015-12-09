@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '7d6a98b';
+var commit = '57f3ae3';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13510,6 +13510,7 @@ function initThreadUpdater(title, enableUpdate) {
 	};
 
 	var favicon = {
+		isInited: false,
 		get canBlink() {
 			return Cfg.favIcoBlink && !!this.originalIcon;
 		},
@@ -13517,25 +13518,38 @@ function initThreadUpdater(title, enableUpdate) {
 			return this._iconEl ? this._iconEl.href : null;
 		},
 		initIcons() {
-			var canvasNew = $new('canvas', {'width': 16, 'height': 16}),
-				ctxNew = canvasNew.getContext('2d'),
-				canvasYou = $new('canvas', {'width': 16, 'height': 16}),
-				ctxYou = canvasYou.getContext('2d');
-			$new('img', {'src': this._iconEl.href}, {'load': function (e) {
-				ctxNew.drawImage(e.target, 0, 0, 16, 16);
-				ctxYou.drawImage(e.target, 0, 0, 16, 16);
-				$new('img', {'src': this._iconNew}, {'load': function(e) {
-					ctxNew.drawImage(e.target, 0, 0);
-					this._iconNew = canvasNew.toDataURL('image/png');
-				}.bind(this)});
-				$new('img', {'src': this._iconYou}, {'load': function(e) {
-					ctxYou.drawImage(e.target, 0, 0);
-					this._iconYou = canvasYou.toDataURL('image/png');
-				}.bind(this)});
-			}.bind(this)});
+			var canvas = doc.createElement('canvas'),
+				ctx = canvas.getContext('2d'),
+				img = new Image();
+			img.onload = e => {
+				var wh = 16; // var wh = img.naturalHeight;
+				canvas.width = canvas.height = wh;
+				ctx.drawImage(e.target, 0, 0, wh, wh);
+				img.src = this._iconNew;
+				img.onload = () => {
+					var original = ctx.getImageData(0, 0, wh, wh);
+					ctx.drawImage(img, 0, 0);
+					this._iconNew = canvas.toDataURL('image/png');
+					ctx.putImageData(original, 0, 0); // undo changes
+					img.src = this._iconYou;
+					img.onload = () => {
+						ctx.drawImage(img, 0, 0);
+						this._iconYou = canvas.toDataURL('image/png');
+						ctx.putImageData(original, 0, 0);
+						img.src = this._iconError;
+						img.onload = () => {
+							ctx.drawImage(img, 0, 0);
+							this._iconError = canvas.toDataURL('image/png');
+						};
+					};
+				};
+			};
+			img.src = this._iconEl.href;
+			this.isInited = true;
 		},
-		updateIcon() {
-			this._setIcon(!newPosts ? this.originalIcon : hasYouRefs ? this._iconYou : this._iconNew);
+		updateIcon(isError) {
+			this._setIcon(isError ? this._iconError : !newPosts ? this.originalIcon :
+				hasYouRefs ? this._iconYou : this._iconNew);
 		},
 		startBlinkNew() {
 			this._startBlink(hasYouRefs ? this._iconYou : this._iconNew);
@@ -13565,7 +13579,7 @@ function initThreadUpdater(title, enableUpdate) {
 			});
 			return el;
 		},
-		_iconError: 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==',
+		_iconError: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==',
 		_iconNew: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEUAAAA/PiLm4ACRdGIUAAAAAnRSTlMA3Y7xY1EAAAAgSURBVAjXYyAERB2AhBSMYI0KZWBgW7USTIC5CFmwYgCUIAYtJIiYtAAAAABJRU5ErkJggg==',
 		_iconYou: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEUAAAAcXyMA9RscHa/+AAAAAnRSTlMA4jiXTmwAAAAgSURBVAjXYyAERB2AhBSMYI0KZWBgW7USTIC5CFmwYgCUIAYtJIiYtAAAAABJRU5ErkJggg==',
 		_isOriginalIcon: true,
@@ -13785,10 +13799,13 @@ function initThreadUpdater(title, enableUpdate) {
 		disabledByUser = paused = false;
 		newPosts = 0;
 		hasYouRefs = false;
-		focusLoadTime = -1e4
+		focusLoadTime = -1e4;
 		notification.checkPermission();
 		if(Cfg.updCount) {
 			counter.enable();
+		}
+		if(!favicon.isInited) {
+			favicon.initIcons();
 		}
 	}
 
@@ -13815,7 +13832,7 @@ function initThreadUpdater(title, enableUpdate) {
 		doc.title = (sendError === true ? '{' + Lng.error[lang] + '} ' : '') +
 			(eCode === 200 ? '' : '{' + eCode + '} ') +
 			(newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
-		favicon.updateIcon();
+		favicon.updateIcon(eCode !== 200 && eCode !== 304);
 	}
 
 	doc.addEventListener('visibilitychange', e => {
@@ -13841,7 +13858,6 @@ function initThreadUpdater(title, enableUpdate) {
 	if(enableUpdate) {
 		enableUpdater();
 		updMachine.start(true);
-		favicon.initIcons();
 	}
 
 	return {

@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '7d6a98b';
+	var commit = '57f3ae3';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -18328,6 +18328,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		};
 
 		var favicon = {
+			isInited: false,
 			get canBlink() {
 				return Cfg.favIcoBlink && !!this.originalIcon;
 			},
@@ -18335,25 +18336,39 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return this._iconEl ? this._iconEl.href : null;
 			},
 			initIcons: function initIcons() {
-				var canvasNew = $new('canvas', { 'width': 16, 'height': 16 }),
-				    ctxNew = canvasNew.getContext('2d'),
-				    canvasYou = $new('canvas', { 'width': 16, 'height': 16 }),
-				    ctxYou = canvasYou.getContext('2d');
-				$new('img', { 'src': this._iconEl.href }, { 'load': (function (e) {
-						ctxNew.drawImage(e.target, 0, 0, 16, 16);
-						ctxYou.drawImage(e.target, 0, 0, 16, 16);
-						$new('img', { 'src': this._iconNew }, { 'load': (function (e) {
-								ctxNew.drawImage(e.target, 0, 0);
-								this._iconNew = canvasNew.toDataURL('image/png');
-							}).bind(this) });
-						$new('img', { 'src': this._iconYou }, { 'load': (function (e) {
-								ctxYou.drawImage(e.target, 0, 0);
-								this._iconYou = canvasYou.toDataURL('image/png');
-							}).bind(this) });
-					}).bind(this) });
+				var _this87 = this;
+
+				var canvas = doc.createElement('canvas'),
+				    ctx = canvas.getContext('2d'),
+				    img = new Image();
+				img.onload = function (e) {
+					var wh = 16;
+					canvas.width = canvas.height = wh;
+					ctx.drawImage(e.target, 0, 0, wh, wh);
+					img.src = _this87._iconNew;
+					img.onload = function () {
+						var original = ctx.getImageData(0, 0, wh, wh);
+						ctx.drawImage(img, 0, 0);
+						_this87._iconNew = canvas.toDataURL('image/png');
+						ctx.putImageData(original, 0, 0);
+						img.src = _this87._iconYou;
+						img.onload = function () {
+							ctx.drawImage(img, 0, 0);
+							_this87._iconYou = canvas.toDataURL('image/png');
+							ctx.putImageData(original, 0, 0);
+							img.src = _this87._iconError;
+							img.onload = function () {
+								ctx.drawImage(img, 0, 0);
+								_this87._iconError = canvas.toDataURL('image/png');
+							};
+						};
+					};
+				};
+				img.src = this._iconEl.href;
+				this.isInited = true;
 			},
-			updateIcon: function updateIcon() {
-				this._setIcon(!newPosts ? this.originalIcon : hasYouRefs ? this._iconYou : this._iconNew);
+			updateIcon: function updateIcon(isError) {
+				this._setIcon(isError ? this._iconError : !newPosts ? this.originalIcon : hasYouRefs ? this._iconYou : this._iconNew);
 			},
 			startBlinkNew: function startBlinkNew() {
 				this._startBlink(hasYouRefs ? this._iconYou : this._iconNew);
@@ -18383,7 +18398,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 				return el;
 			},
-			_iconError: 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==',
+			_iconError: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==',
 			_iconNew: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEUAAAA/PiLm4ACRdGIUAAAAAnRSTlMA3Y7xY1EAAAAgSURBVAjXYyAERB2AhBSMYI0KZWBgW7USTIC5CFmwYgCUIAYtJIiYtAAAAABJRU5ErkJggg==',
 			_iconYou: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEUAAAAcXyMA9RscHa/+AAAAAnRSTlMA4jiXTmwAAAAgSURBVAjXYyAERB2AhBSMYI0KZWBgW7USTIC5CFmwYgCUIAYtJIiYtAAAAABJRU5ErkJggg==',
 			_isOriginalIcon: true,
@@ -18393,7 +18408,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._iconEl = doc.head.firstChild;
 			},
 			_startBlink: function _startBlink(iconUrl) {
-				var _this87 = this;
+				var _this88 = this;
 
 				if (this._blinkInterval) {
 					if (this._currentIcon === iconUrl) {
@@ -18403,8 +18418,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				this._currentIcon = iconUrl;
 				this._blinkInterval = setInterval(function () {
-					_this87._setIcon(_this87._isOriginalIcon ? _this87._currentIcon : _this87.originalIcon);
-					_this87._isOriginalIcon = !_this87._isOriginalIcon;
+					_this88._setIcon(_this88._isOriginalIcon ? _this88._currentIcon : _this88.originalIcon);
+					_this88._isOriginalIcon = !_this88._isOriginalIcon;
 				}, this._blinkMS);
 			}
 		};
@@ -18424,7 +18439,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			},
 			show: function show() {
-				var _this88 = this;
+				var _this89 = this;
 
 				var post = Thread.first.last,
 				    notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
@@ -18434,8 +18449,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 				notif.onshow = function () {
 					return setTimeout(function () {
-						if (notif === _this88._notifEl) {
-							_this88.close();
+						if (notif === _this89._notifEl) {
+							_this89.close();
 						}
 					}, 12e3);
 				};
@@ -18444,7 +18459,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				};
 				notif.onerror = function () {
 					window.focus();
-					_this88._requestPermission();
+					_this89._requestPermission();
 				};
 				this._notifEl = notif;
 			},
@@ -18460,14 +18475,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_notifEl: null,
 
 			_requestPermission: function _requestPermission() {
-				var _this89 = this;
+				var _this90 = this;
 
 				this._granted = false;
 				Notification.requestPermission(function (state) {
 					if (state.toLowerCase() === 'denied') {
 						saveCfg('desktNotif', 0);
 					} else {
-						_this89._granted = true;
+						_this90._granted = true;
 					}
 				});
 			}
@@ -18571,7 +18586,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._makeStep();
 			},
 			_makeStep: function _makeStep() {
-				var _this90 = this;
+				var _this91 = this;
 
 				var needSleep = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
 
@@ -18581,7 +18596,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							if (needSleep) {
 								this._state = 1;
 								counter.count(this._delay, !doc.hidden, function () {
-									return _this90._makeStep();
+									return _this91._makeStep();
 								});
 								return;
 							}
@@ -18589,9 +18604,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							counter.setWait();
 							this._state = 2;
 							this._loadPromise = Thread.first.loadNew(true).then(function (pCount) {
-								return _this90._handleNewPosts(pCount, AjaxError.Success);
+								return _this91._handleNewPosts(pCount, AjaxError.Success);
 							}, function (e) {
-								return _this90._handleNewPosts(0, e);
+								return _this91._handleNewPosts(0, e);
 							});
 							return;
 						case 2:
@@ -18629,6 +18644,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (Cfg.updCount) {
 				counter.enable();
 			}
+			if (!favicon.isInited) {
+				favicon.initIcons();
+			}
 		}
 
 		function disableUpdater() {
@@ -18654,7 +18672,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var eCode = arguments.length <= 0 || arguments[0] === undefined ? lastECode : arguments[0];
 
 			doc.title = (sendError === true ? '{' + Lng.error[lang] + '} ' : '') + (eCode === 200 ? '' : '{' + eCode + '} ') + (newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
-			favicon.updateIcon();
+			favicon.updateIcon(eCode !== 200 && eCode !== 304);
 		}
 
 		doc.addEventListener('visibilitychange', function (e) {
@@ -18680,7 +18698,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (enableUpdate) {
 			enableUpdater();
 			updMachine.start(true);
-			favicon.initIcons();
 		}
 
 		return {
