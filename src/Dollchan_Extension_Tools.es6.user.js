@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '448be8a';
+var commit = '8d34f98';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -706,6 +706,12 @@ function $btn(val, ttl, Fn, className = 'de-button') {
 
 function $script(text) {
 	$del(doc.head.appendChild($new('script', {'type': 'text/javascript', 'text': text}, null)));
+}
+
+function $img(src, onload) {
+    var img = new Image();
+    img.onload = onload;
+    img.src = src;
 }
 
 function $css(text) {
@@ -13519,32 +13525,27 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		initIcons() {
 			var canvas = doc.createElement('canvas'),
-				ctx = canvas.getContext('2d'),
-				img = new Image();
-			img.onload = e => {
-				var wh = 16; // var wh = img.naturalHeight;
+				ctx = canvas.getContext('2d');
+			$img(this._iconEl.href, e => {
+				var img = e.target,
+					wh = 16; // var wh = img.naturalHeight;
 				canvas.width = canvas.height = wh;
-				ctx.drawImage(e.target, 0, 0, wh, wh);
-				img.onload = () => {
-					var original = ctx.getImageData(0, 0, wh, wh);
-					ctx.drawImage(img, 0, 0);
+				ctx.drawImage(img, 0, 0, wh, wh);
+				$img(this._iconNew, e => {
+					ctx.drawImage(e.target, 0, 0);
 					this._iconNew = canvas.toDataURL('image/png');
-					ctx.putImageData(original, 0, 0); // undo changes
-					img.onload = () => {
-						ctx.drawImage(img, 0, 0);
+					$img(this._iconYou, e => {
+						ctx.drawImage(img, 0, 0, wh, wh);
+						ctx.drawImage(e.target, 0, 0);
 						this._iconYou = canvas.toDataURL('image/png');
-						ctx.putImageData(original, 0, 0);
-						img.onload = () => {
-							ctx.drawImage(img, 0, 0);
+						$img(this._iconError, e => {
+							ctx.drawImage(img, 0, 0, wh, wh);
+							ctx.drawImage(e.target, 0, 0);
 							this._iconError = canvas.toDataURL('image/png');
-						};
-						img.src = this._iconError;
-					};
-					img.src = this._iconYou;
-				};
-				img.src = this._iconNew;
-			};
-			img.src = this._iconEl.href;
+						});
+					});
+				});
+			});
 			this.isInited = true;
 		},
 		updateIcon(isError) {

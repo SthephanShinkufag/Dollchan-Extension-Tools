@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '448be8a';
+	var commit = '8d34f98';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3467,6 +3467,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function $script(text) {
 		$del(doc.head.appendChild($new('script', { 'type': 'text/javascript', 'text': text }, null)));
+	}
+
+	function $img(src, onload) {
+		var img = new Image();
+		img.onload = onload;
+		img.src = src;
 	}
 
 	function $css(text) {
@@ -18339,32 +18345,27 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var _this87 = this;
 
 				var canvas = doc.createElement('canvas'),
-				    ctx = canvas.getContext('2d'),
-				    img = new Image();
-				img.onload = function (e) {
-					var wh = 16;
+				    ctx = canvas.getContext('2d');
+				$img(this._iconEl.href, function (e) {
+					var img = e.target,
+					    wh = 16;
 					canvas.width = canvas.height = wh;
-					ctx.drawImage(e.target, 0, 0, wh, wh);
-					img.onload = function () {
-						var original = ctx.getImageData(0, 0, wh, wh);
-						ctx.drawImage(img, 0, 0);
+					ctx.drawImage(img, 0, 0, wh, wh);
+					$img(_this87._iconNew, function (e) {
+						ctx.drawImage(e.target, 0, 0);
 						_this87._iconNew = canvas.toDataURL('image/png');
-						ctx.putImageData(original, 0, 0);
-						img.onload = function () {
-							ctx.drawImage(img, 0, 0);
+						$img(_this87._iconYou, function (e) {
+							ctx.drawImage(img, 0, 0, wh, wh);
+							ctx.drawImage(e.target, 0, 0);
 							_this87._iconYou = canvas.toDataURL('image/png');
-							ctx.putImageData(original, 0, 0);
-							img.onload = function () {
-								ctx.drawImage(img, 0, 0);
+							$img(_this87._iconError, function (e) {
+								ctx.drawImage(img, 0, 0, wh, wh);
+								ctx.drawImage(e.target, 0, 0);
 								_this87._iconError = canvas.toDataURL('image/png');
-							};
-							img.src = _this87._iconError;
-						};
-						img.src = _this87._iconYou;
-					};
-					img.src = _this87._iconNew;
-				};
-				img.src = this._iconEl.href;
+							});
+						});
+					});
+				});
 				this.isInited = true;
 			},
 			updateIcon: function updateIcon(isError) {
