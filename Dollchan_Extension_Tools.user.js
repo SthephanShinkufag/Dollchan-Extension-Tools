@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '8d34f98';
+	var commit = 'fdf899d';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -18355,10 +18355,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						ctx.drawImage(e.target, 0, 0);
 						_this87._iconNew = canvas.toDataURL('image/png');
 						$img(_this87._iconYou, function (e) {
+							ctx.clearRect(0, 0, wh, wh);
 							ctx.drawImage(img, 0, 0, wh, wh);
 							ctx.drawImage(e.target, 0, 0);
 							_this87._iconYou = canvas.toDataURL('image/png');
 							$img(_this87._iconError, function (e) {
+								ctx.clearRect(0, 0, wh, wh);
 								ctx.drawImage(img, 0, 0, wh, wh);
 								ctx.drawImage(e.target, 0, 0);
 								_this87._iconError = canvas.toDataURL('image/png');

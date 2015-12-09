@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '8d34f98';
+var commit = 'fdf899d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13535,10 +13535,12 @@ function initThreadUpdater(title, enableUpdate) {
 					ctx.drawImage(e.target, 0, 0);
 					this._iconNew = canvas.toDataURL('image/png');
 					$img(this._iconYou, e => {
+						ctx.clearRect(0, 0, wh, wh);
 						ctx.drawImage(img, 0, 0, wh, wh);
 						ctx.drawImage(e.target, 0, 0);
 						this._iconYou = canvas.toDataURL('image/png');
 						$img(this._iconError, e => {
+							ctx.clearRect(0, 0, wh, wh);
 							ctx.drawImage(img, 0, 0, wh, wh);
 							ctx.drawImage(e.target, 0, 0);
 							this._iconError = canvas.toDataURL('image/png');
