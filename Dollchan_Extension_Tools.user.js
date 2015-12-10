@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'ead8da7';
+	var commit = '96288e6';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -18415,8 +18415,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				canvas.width = canvas.height = wh;
 				ctx.drawImage(icon, 0, 0, wh, wh);
 				var original = ctx.getImageData(0, 0, wh, wh);
-				drawLines(ctx, [16, 16, 8, 8], [8, 16, 16, 8], '#780000', 3, scale);
-				drawLines(ctx, [15.5, 15.5, 8.5, 8.5], [8.5, 15.5, 15.5, 8.5], '#FA2020', 1.5, scale);
+				drawLines(ctx, [15, 15, 7, 7], [7, 15, 15, 7], '#780000', 3, scale);
+				drawLines(ctx, [14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5], '#FA2020', 1.5, scale);
 				this._iconError = canvas.toDataURL('image/png');
 				ctx.putImageData(original, 0, 0);
 				drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#404020', 4, scale);
