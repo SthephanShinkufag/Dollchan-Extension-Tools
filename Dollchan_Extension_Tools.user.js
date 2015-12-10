@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '5820221';
+	var commit = '5e34bac';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -18338,27 +18338,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			initIcons: function initIcons() {
 				var _this87 = this;
 
-				var drawLines = function drawLines(ctx, lines, color, width, scaleFactor) {
+				var drawLines = function drawLines(ctx, line1, line2, color, width, scaleFactor) {
 					ctx.beginPath();
 					ctx.strokeStyle = color;
 					ctx.lineWidth = width * scaleFactor;
-					for (var _iterator29 = lines, _isArray29 = Array.isArray(_iterator29), _i30 = 0, _iterator29 = _isArray29 ? _iterator29 : _iterator29[Symbol.iterator]();;) {
-						var _ref51;
-
-						if (_isArray29) {
-							if (_i30 >= _iterator29.length) break;
-							_ref51 = _iterator29[_i30++];
-						} else {
-							_i30 = _iterator29.next();
-							if (_i30.done) break;
-							_ref51 = _i30.value;
-						}
-
-						var line = _ref51;
-
-						ctx.moveTo(line[0] * scaleFactor, line[1] * scaleFactor);
-						ctx.lineTo(line[2] * scaleFactor, line[3] * scaleFactor);
-					}
+					ctx.moveTo(line1[0] * scaleFactor, line1[1] * scaleFactor);
+					ctx.lineTo(line1[2] * scaleFactor, line1[3] * scaleFactor);
+					ctx.moveTo(line2[0] * scaleFactor, line2[1] * scaleFactor);
+					ctx.lineTo(line2[2] * scaleFactor, line2[3] * scaleFactor);
 					ctx.stroke();
 				};
 				var icon = new Image();
@@ -18370,16 +18357,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					canvas.width = canvas.height = wh;
 					ctx.drawImage(e.target, 0, 0, wh, wh);
 					var original = ctx.getImageData(0, 0, wh, wh);
-					drawLines(ctx, [[15, 15, 7, 7], [7, 15, 15, 7]], '#780000', 3, scale);
-					drawLines(ctx, [[14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5]], '#FA2020', 1.5, scale);
+					drawLines(ctx, [16, 16, 8, 8], [8, 16, 16, 8], '#780000', 3, scale);
+					drawLines(ctx, [15.5, 15.5, 8.5, 8.5], [8.5, 15.5, 15.5, 8.5], '#FA2020', 1.5, scale);
 					_this87._iconError = canvas.toDataURL('image/png');
 					ctx.putImageData(original, 0, 0);
-					drawLines(ctx, [[5, 10, 15, 10], [10, 5, 10, 15]], '#404020', 4, scale);
-					drawLines(ctx, [[6, 10, 14, 10], [10, 6, 10, 14]], '#E6E000', 2, scale);
+					drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#404020', 4, scale);
+					drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#E6E000', 2, scale);
 					_this87._iconNew = canvas.toDataURL('image/png');
 					ctx.putImageData(original, 0, 0);
-					drawLines(ctx, [[5, 10, 15, 10], [10, 5, 10, 15]], '#1C5F23', 4, scale);
-					drawLines(ctx, [[6, 10, 14, 10], [10, 6, 10, 14]], '#00F51B', 2, scale);
+					drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#1C5F23', 4, scale);
+					drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#00F51B', 2, scale);
 					_this87._iconYou = canvas.toDataURL('image/png');
 					_this87.isInited = true;
 				};
@@ -18793,8 +18780,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function initPage() {
 		if (!localRun && Cfg.ajaxReply === 1) {
 			docBody.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-pform" sandbox="" src="about:blank" style="display: none;"></iframe>' + '<iframe name="de-iframe-dform" sandbox="" src="about:blank" style="display: none;"></iframe>');
-			doc.defaultView.addEventListener('message', function (_ref52) {
-				var data = _ref52.data;
+			doc.defaultView.addEventListener('message', function (_ref51) {
+				var data = _ref51.data;
 
 				switch (data.substr(0, 15)) {
 					case 'de-iframe-pform':

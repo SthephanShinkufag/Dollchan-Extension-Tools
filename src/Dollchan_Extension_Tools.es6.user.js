@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '5820221';
+var commit = '5e34bac';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13519,14 +13519,14 @@ function initThreadUpdater(title, enableUpdate) {
 			return this._iconEl ? this._iconEl.href : null;
 		},
 		initIcons() {
-			var drawLines = (ctx, lines, color, width, scaleFactor) => {
+			var drawLines = (ctx, line1, line2, color, width, scaleFactor) => {
 				ctx.beginPath();
 				ctx.strokeStyle = color;
 				ctx.lineWidth = width * scaleFactor;
-				for(var line of lines) {
-					ctx.moveTo(line[0] * scaleFactor, line[1] * scaleFactor);
-					ctx.lineTo(line[2] * scaleFactor, line[3] * scaleFactor);
-				}
+				ctx.moveTo(line1[0] * scaleFactor, line1[1] * scaleFactor);
+				ctx.lineTo(line1[2] * scaleFactor, line1[3] * scaleFactor);
+				ctx.moveTo(line2[0] * scaleFactor, line2[1] * scaleFactor);
+				ctx.lineTo(line2[2] * scaleFactor, line2[3] * scaleFactor);
 				ctx.stroke();
 			};
 			var icon = new Image();
@@ -13538,16 +13538,16 @@ function initThreadUpdater(title, enableUpdate) {
 				canvas.width = canvas.height = wh;
 				ctx.drawImage(e.target, 0, 0, wh, wh);
 				var original = ctx.getImageData(0, 0, wh, wh);
-				drawLines(ctx, [[15, 15, 7, 7], [7, 15, 15, 7]], '#780000', 3, scale);
-				drawLines(ctx, [[14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5]], '#FA2020', 1.5, scale);
+				drawLines(ctx, [16, 16, 8, 8], [8, 16, 16, 8], '#780000', 3, scale);
+				drawLines(ctx, [15.5, 15.5, 8.5, 8.5], [8.5, 15.5, 15.5, 8.5], '#FA2020', 1.5, scale);
 				this._iconError = canvas.toDataURL('image/png');
 				ctx.putImageData(original, 0, 0);
-				drawLines(ctx, [[5, 10, 15, 10], [10, 5, 10, 15]], '#404020', 4, scale);
-				drawLines(ctx, [[6, 10, 14, 10], [10, 6, 10, 14]], '#E6E000', 2, scale);
+				drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#404020', 4, scale);
+				drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#E6E000', 2, scale);
 				this._iconNew = canvas.toDataURL('image/png');
 				ctx.putImageData(original, 0, 0);
-				drawLines(ctx, [[5, 10, 15, 10], [10, 5, 10, 15]], '#1C5F23', 4, scale);
-				drawLines(ctx, [[6, 10, 14, 10], [10, 6, 10, 14]], '#00F51B', 2, scale);
+				drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#1C5F23', 4, scale);
+				drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#00F51B', 2, scale);
 				this._iconYou = canvas.toDataURL('image/png');
 				this.isInited = true;
 			};
