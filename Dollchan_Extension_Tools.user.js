@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '5b20c54';
+	var commit = 'fd06d8c';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -18365,7 +18365,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				icon.onload = function (e) {
 					var canvas = doc.createElement('canvas'),
 					    ctx = canvas.getContext('2d'),
-					    wh = Math.max(e.target.naturalHeight, 16 * window.devicePixelRatio || 1),
+					    wh = Math.max(e.target.naturalHeight, 16 * (window.devicePixelRatio || 1)),
 					    scale = wh / 16;
 					canvas.width = canvas.height = wh;
 					ctx.drawImage(e.target, 0, 0, wh, wh);

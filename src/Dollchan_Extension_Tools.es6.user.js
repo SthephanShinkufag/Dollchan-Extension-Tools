@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '5b20c54';
+var commit = 'fd06d8c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13533,7 +13533,7 @@ function initThreadUpdater(title, enableUpdate) {
 			icon.onload = e => {
 				var canvas = doc.createElement('canvas'),
 					ctx = canvas.getContext('2d'),
-					wh = Math.max(e.target.naturalHeight, 16 * window.devicePixelRatio || 1),
+					wh = Math.max(e.target.naturalHeight, 16 * (window.devicePixelRatio || 1)),
 					scale = wh / 16;
 				canvas.width = canvas.height = wh;
 				ctx.drawImage(e.target, 0, 0, wh, wh);
