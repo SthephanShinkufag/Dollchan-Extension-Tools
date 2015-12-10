@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '5e34bac';
+	var commit = 'ead8da7';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -18328,7 +18328,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		};
 
 		var favicon = {
-			isInited: false,
 			get canBlink() {
 				return Cfg.favIcoBlink && !!this.originalIcon;
 			},
@@ -18338,51 +18337,36 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			initIcons: function initIcons() {
 				var _this87 = this;
 
-				var drawLines = function drawLines(ctx, line1, line2, color, width, scaleFactor) {
-					ctx.beginPath();
-					ctx.strokeStyle = color;
-					ctx.lineWidth = width * scaleFactor;
-					ctx.moveTo(line1[0] * scaleFactor, line1[1] * scaleFactor);
-					ctx.lineTo(line1[2] * scaleFactor, line1[3] * scaleFactor);
-					ctx.moveTo(line2[0] * scaleFactor, line2[1] * scaleFactor);
-					ctx.lineTo(line2[2] * scaleFactor, line2[3] * scaleFactor);
-					ctx.stroke();
-				};
+				if (this._isInited) {
+					return;
+				}
+				this._isInited = true;
 				var icon = new Image();
 				icon.onload = function (e) {
-					var canvas = doc.createElement('canvas'),
-					    ctx = canvas.getContext('2d'),
-					    wh = Math.max(e.target.naturalHeight, 16 * (window.devicePixelRatio || 1)),
-					    scale = wh / 16;
-					canvas.width = canvas.height = wh;
-					ctx.drawImage(e.target, 0, 0, wh, wh);
-					var original = ctx.getImageData(0, 0, wh, wh);
-					drawLines(ctx, [16, 16, 8, 8], [8, 16, 16, 8], '#780000', 3, scale);
-					drawLines(ctx, [15.5, 15.5, 8.5, 8.5], [8.5, 15.5, 15.5, 8.5], '#FA2020', 1.5, scale);
-					_this87._iconError = canvas.toDataURL('image/png');
-					ctx.putImageData(original, 0, 0);
-					drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#404020', 4, scale);
-					drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#E6E000', 2, scale);
-					_this87._iconNew = canvas.toDataURL('image/png');
-					ctx.putImageData(original, 0, 0);
-					drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#1C5F23', 4, scale);
-					drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#00F51B', 2, scale);
-					_this87._iconYou = canvas.toDataURL('image/png');
-					_this87.isInited = true;
+					try {
+						_this87._initIconsHelper(e.target);
+					} catch (e) {
+						console.error('Icon error:', e);
+					}
 				};
 				icon.src = aib.fch ? '/favicon.ico' : this._iconEl.href;
 			},
 			updateIcon: function updateIcon(isError) {
-				if (!this.isInited) {
-					return;
+				if (!isError && !newPosts) {
+					this._setIcon(this.originalIcon);
+				} else if (this._hasIcons) {
+					this._setIcon(isError ? this._iconError : hasYouRefs ? this._iconYou : this._iconNew);
 				}
-				this._setIcon(isError ? this._iconError : !newPosts ? this.originalIcon : hasYouRefs ? this._iconYou : this._iconNew);
 			},
 			startBlinkNew: function startBlinkNew() {
-				this._startBlink(hasYouRefs ? this._iconYou : this._iconNew);
+				if (this._hasIcons) {
+					this._startBlink(hasYouRefs ? this._iconYou : this._iconNew);
+				} else {
+					this._startBlink(this._emptyIcon);
+				}
 			},
 			startBlinkError: function startBlinkError() {
-				this._startBlink(this._iconError);
+				this._startBlink(this._hasIcons ? this._iconError : this._emptyIcon);
 			},
 			stopBlink: function stopBlink() {
 				if (this._blinkInterval) {
@@ -18398,6 +18382,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_blinkInterval: null,
 			_blinkMS: 800,
 			_currentIcon: null,
+			_emptyIcon: 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
+			_hasIcons: false,
+			_iconError: null,
+			_iconNew: null,
+			_iconYou: null,
+			_isInited: false,
+			_isOriginalIcon: true,
 			get _iconEl() {
 				var el = $q('head link[rel="shortcut icon"]', doc.head);
 				Object.defineProperties(this, {
@@ -18406,7 +18397,37 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 				return el;
 			},
-			_isOriginalIcon: true,
+			_initIconsHelper: function _initIconsHelper(icon) {
+				function drawLines(ctx, line1, line2, color, width, scaleFactor) {
+					ctx.beginPath();
+					ctx.strokeStyle = color;
+					ctx.lineWidth = width * scaleFactor;
+					ctx.moveTo(line1[0] * scaleFactor, line1[1] * scaleFactor);
+					ctx.lineTo(line1[2] * scaleFactor, line1[3] * scaleFactor);
+					ctx.moveTo(line2[0] * scaleFactor, line2[1] * scaleFactor);
+					ctx.lineTo(line2[2] * scaleFactor, line2[3] * scaleFactor);
+					ctx.stroke();
+				}
+				var canvas = doc.createElement('canvas'),
+				    ctx = canvas.getContext('2d'),
+				    wh = Math.max(icon.naturalHeight, 16 * (window.devicePixelRatio || 1)),
+				    scale = wh / 16;
+				canvas.width = canvas.height = wh;
+				ctx.drawImage(icon, 0, 0, wh, wh);
+				var original = ctx.getImageData(0, 0, wh, wh);
+				drawLines(ctx, [16, 16, 8, 8], [8, 16, 16, 8], '#780000', 3, scale);
+				drawLines(ctx, [15.5, 15.5, 8.5, 8.5], [8.5, 15.5, 15.5, 8.5], '#FA2020', 1.5, scale);
+				this._iconError = canvas.toDataURL('image/png');
+				ctx.putImageData(original, 0, 0);
+				drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#404020', 4, scale);
+				drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#E6E000', 2, scale);
+				this._iconNew = canvas.toDataURL('image/png');
+				ctx.putImageData(original, 0, 0);
+				drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#1C5F23', 4, scale);
+				drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#00F51B', 2, scale);
+				this._iconYou = canvas.toDataURL('image/png');
+				this._hasIcons = true;
+			},
 			_setIcon: function _setIcon(iconUrl) {
 				$del(this._iconEl);
 				doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' + iconUrl + '">');
@@ -18649,9 +18670,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (Cfg.updCount) {
 				counter.enable();
 			}
-			if (!favicon.isInited) {
-				favicon.initIcons();
-			}
+			favicon.initIcons();
 		}
 
 		function disableUpdater() {
