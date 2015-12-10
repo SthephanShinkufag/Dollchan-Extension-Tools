@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'fd06d8c';
+var commit = '5820221';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13541,7 +13541,6 @@ function initThreadUpdater(title, enableUpdate) {
 				drawLines(ctx, [[15, 15, 7, 7], [7, 15, 15, 7]], '#780000', 3, scale);
 				drawLines(ctx, [[14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5]], '#FA2020', 1.5, scale);
 				this._iconError = canvas.toDataURL('image/png');
-				document.body.insertAdjacentHTML('beforeend', '<img width="300" src="' + this._iconError + '">');
 				ctx.putImageData(original, 0, 0);
 				drawLines(ctx, [[5, 10, 15, 10], [10, 5, 10, 15]], '#404020', 4, scale);
 				drawLines(ctx, [[6, 10, 14, 10], [10, 6, 10, 14]], '#E6E000', 2, scale);
