@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'fdf899d';
+var commit = 'cc437ba';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -706,12 +706,6 @@ function $btn(val, ttl, Fn, className = 'de-button') {
 
 function $script(text) {
 	$del(doc.head.appendChild($new('script', {'type': 'text/javascript', 'text': text}, null)));
-}
-
-function $img(src, onload) {
-    var img = new Image();
-    img.onload = onload;
-    img.src = src;
 }
 
 function $css(text) {
@@ -13218,7 +13212,8 @@ function addSVGIcons() {
 		<image display="inline" width="16" height="16" xlink:href="data:image/gif;base64,R0lGODlhEAAQAKIAAP3rqPPOd+y6V+WmN+Dg4M7OzmZmZv///yH5BAEAAAcALAAAAAAQABAAAANCeLrWvZARUqqJkjiLj9FMcWHf6IldGZqM4zqRAcw0zXpAoO/6LfeNnS8XcAhjAIHSoFwim0wockCtUodWq+/1UiQAADs="/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-unavail">
-		<image display="inline" width="16" height="16" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg=="/>
+		<circle fill="none" stroke="#CF4436" stroke-width="2" cx="8" cy="8" r="6"/>
+		<path stroke="#CF4436" stroke-width="2" d="M3.8 3.8l8.4 8.4"/>
 	</symbol>
 	</svg>
 	</div>`);
@@ -13524,26 +13519,38 @@ function initThreadUpdater(title, enableUpdate) {
 			return this._iconEl ? this._iconEl.href : null;
 		},
 		initIcons() {
+			var getImg = function(src, onload) {
+				var img = new Image();
+				img.onload = onload;
+				img.src = src;
+			};
+			var svgToUrl = data => window.URL.createObjectURL(new Blob([
+				'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">' + data +
+				'</svg>'], {type: 'image/svg+xml;charset=utf-8'}));
 			var canvas = doc.createElement('canvas'),
 				ctx = canvas.getContext('2d');
-			$img(this._iconEl.href, e => {
-				var img = e.target,
-					wh = 16; // var wh = img.naturalHeight;
+			getImg(this._iconEl.href, e => {
+				var wh = e.target.naturalHeight;
 				canvas.width = canvas.height = wh;
-				ctx.drawImage(img, 0, 0, wh, wh);
-				$img(this._iconNew, e => {
-					ctx.drawImage(e.target, 0, 0);
+				ctx.drawImage(e.target, 0, 0, wh, wh);
+				var url = svgToUrl(this._iconNew);
+				getImg(url, e => {
+					var original = ctx.getImageData(0, 0, wh, wh);
+					ctx.drawImage(e.target, 0, 0, wh, wh);
 					this._iconNew = canvas.toDataURL('image/png');
-					$img(this._iconYou, e => {
-						ctx.clearRect(0, 0, wh, wh);
-						ctx.drawImage(img, 0, 0, wh, wh);
-						ctx.drawImage(e.target, 0, 0);
+					ctx.putImageData(original, 0, 0);
+					window.URL.revokeObjectURL(url);
+					url = svgToUrl(this._iconYou);
+					getImg(url, e => {
+						ctx.drawImage(e.target, 0, 0, wh, wh);
 						this._iconYou = canvas.toDataURL('image/png');
-						$img(this._iconError, e => {
-							ctx.clearRect(0, 0, wh, wh);
-							ctx.drawImage(img, 0, 0, wh, wh);
-							ctx.drawImage(e.target, 0, 0);
+						ctx.putImageData(original, 0, 0);
+						window.URL.revokeObjectURL(url);
+						url = svgToUrl(this._iconError);
+						getImg(url, e => {
+							ctx.drawImage(e.target, 0, 0, wh, wh);
 							this._iconError = canvas.toDataURL('image/png');
+							window.URL.revokeObjectURL(url);
 						});
 					});
 				});
@@ -13582,9 +13589,10 @@ function initThreadUpdater(title, enableUpdate) {
 			});
 			return el;
 		},
-		_iconError: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEUAAADQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDdjm0XSAAAADnRSTlMA3e4zIndEzJkRiFW7ZqubnZUAAAB9SURBVAjXY0ACXkLqkSCaW+7du0cJQMa+Fw4scWoMDCx6DxMYmB86MHC9kFNmYIgLYGB8kgRU4VfAwPeAWU+YgU8AyGBIfGcAZLA/YWB+JwyU4nrKwGD4qO8CA6eeAQOz3sMJDAxJTx1Y+h4DTWYDWvHQAGSZ60HxSCQ3AAA+NiHF9jjXFAAAAABJRU5ErkJggg==',
-		_iconNew: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEUAAAA/PiLm4ACRdGIUAAAAAnRSTlMA3Y7xY1EAAAAgSURBVAjXYyAERB2AhBSMYI0KZWBgW7USTIC5CFmwYgCUIAYtJIiYtAAAAABJRU5ErkJggg==',
-		_iconYou: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEUAAAAcXyMA9RscHa/+AAAAAnRSTlMA4jiXTmwAAAAgSURBVAjXYyAERB2AhBSMYI0KZWBgW7USTIC5CFmwYgCUIAYtJIiYtAAAAABJRU5ErkJggg==',
+		_iconError: '<path stroke="#780000" stroke-width="3" d="M15 15L7 7M7 15l8-8"/>' +
+			'<path stroke="#FA2020" stroke-width="1.5" d="M14.5 14.5l-7-7M7.5 14.5l7-7"/>',
+		_iconNew: '<path fill="#E6E000" stroke="#404020" d="M15.5 9.5h-3v-3h-3v3h-3v3h3v3h3v-3h3v-3z"/>',
+		_iconYou: '<path fill="#00F51B" stroke="#1C5F23" d="M15.5 9.5h-3v-3h-3v3h-3v3h3v3h3v-3h3v-3z"/>',
 		_isOriginalIcon: true,
 		_setIcon(iconUrl) {
 			$del(this._iconEl);
