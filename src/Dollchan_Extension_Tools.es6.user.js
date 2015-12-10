@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'cc437ba';
+var commit = '5b20c54';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13519,45 +13519,45 @@ function initThreadUpdater(title, enableUpdate) {
 			return this._iconEl ? this._iconEl.href : null;
 		},
 		initIcons() {
-			var getImg = function(src, onload) {
-				var img = new Image();
-				img.onload = onload;
-				img.src = src;
+			var drawLines = (ctx, lines, color, width, scaleFactor) => {
+				ctx.beginPath();
+				ctx.strokeStyle = color;
+				ctx.lineWidth = width * scaleFactor;
+				for(var line of lines) {
+					ctx.moveTo(line[0] * scaleFactor, line[1] * scaleFactor);
+					ctx.lineTo(line[2] * scaleFactor, line[3] * scaleFactor);
+				}
+				ctx.stroke();
 			};
-			var svgToUrl = data => window.URL.createObjectURL(new Blob([
-				'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">' + data +
-				'</svg>'], {type: 'image/svg+xml;charset=utf-8'}));
-			var canvas = doc.createElement('canvas'),
-				ctx = canvas.getContext('2d');
-			getImg(this._iconEl.href, e => {
-				var wh = e.target.naturalHeight;
+			var icon = new Image();
+			icon.onload = e => {
+				var canvas = doc.createElement('canvas'),
+					ctx = canvas.getContext('2d'),
+					wh = Math.max(e.target.naturalHeight, 16 * window.devicePixelRatio || 1),
+					scale = wh / 16;
 				canvas.width = canvas.height = wh;
 				ctx.drawImage(e.target, 0, 0, wh, wh);
-				var url = svgToUrl(this._iconNew);
-				getImg(url, e => {
-					var original = ctx.getImageData(0, 0, wh, wh);
-					ctx.drawImage(e.target, 0, 0, wh, wh);
-					this._iconNew = canvas.toDataURL('image/png');
-					ctx.putImageData(original, 0, 0);
-					window.URL.revokeObjectURL(url);
-					url = svgToUrl(this._iconYou);
-					getImg(url, e => {
-						ctx.drawImage(e.target, 0, 0, wh, wh);
-						this._iconYou = canvas.toDataURL('image/png');
-						ctx.putImageData(original, 0, 0);
-						window.URL.revokeObjectURL(url);
-						url = svgToUrl(this._iconError);
-						getImg(url, e => {
-							ctx.drawImage(e.target, 0, 0, wh, wh);
-							this._iconError = canvas.toDataURL('image/png');
-							window.URL.revokeObjectURL(url);
-						});
-					});
-				});
-			});
-			this.isInited = true;
+				var original = ctx.getImageData(0, 0, wh, wh);
+				drawLines(ctx, [[15, 15, 7, 7], [7, 15, 15, 7]], '#780000', 3, scale);
+				drawLines(ctx, [[14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5]], '#FA2020', 1.5, scale);
+				this._iconError = canvas.toDataURL('image/png');
+				document.body.insertAdjacentHTML('beforeend', '<img width="300" src="' + this._iconError + '">');
+				ctx.putImageData(original, 0, 0);
+				drawLines(ctx, [[5, 10, 15, 10], [10, 5, 10, 15]], '#404020', 4, scale);
+				drawLines(ctx, [[6, 10, 14, 10], [10, 6, 10, 14]], '#E6E000', 2, scale);
+				this._iconNew = canvas.toDataURL('image/png');
+				ctx.putImageData(original, 0, 0);
+				drawLines(ctx, [[5, 10, 15, 10], [10, 5, 10, 15]], '#1C5F23', 4, scale);
+				drawLines(ctx, [[6, 10, 14, 10], [10, 6, 10, 14]], '#00F51B', 2, scale);
+				this._iconYou = canvas.toDataURL('image/png');
+				this.isInited = true;
+			};
+			icon.src = aib.fch ? '/favicon.ico' : this._iconEl.href;
 		},
 		updateIcon(isError) {
+			if(!this.isInited) {
+				return;
+			}
 			this._setIcon(isError ? this._iconError : !newPosts ? this.originalIcon :
 				hasYouRefs ? this._iconYou : this._iconNew);
 		},
@@ -13589,10 +13589,6 @@ function initThreadUpdater(title, enableUpdate) {
 			});
 			return el;
 		},
-		_iconError: '<path stroke="#780000" stroke-width="3" d="M15 15L7 7M7 15l8-8"/>' +
-			'<path stroke="#FA2020" stroke-width="1.5" d="M14.5 14.5l-7-7M7.5 14.5l7-7"/>',
-		_iconNew: '<path fill="#E6E000" stroke="#404020" d="M15.5 9.5h-3v-3h-3v3h-3v3h3v3h3v-3h3v-3z"/>',
-		_iconYou: '<path fill="#00F51B" stroke="#1C5F23" d="M15.5 9.5h-3v-3h-3v3h-3v3h3v3h3v-3h3v-3z"/>',
 		_isOriginalIcon: true,
 		_setIcon(iconUrl) {
 			$del(this._iconEl);
