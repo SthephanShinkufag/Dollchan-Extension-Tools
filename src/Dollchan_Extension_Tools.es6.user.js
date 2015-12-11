@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'db2d808';
+var commit = '7014007';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -4842,7 +4842,7 @@ Videos.setLinkData = function(link, [title, author, views, publ, duration]) {
 	link.title = Lng.author[lang] + author +
 		(views ? ', ' + Lng.views[lang] + views : '') +
 		(publ ? ', ' + Lng.published[lang] + publ : '') +
-		(duration ? ', ' + Lng.duration[lang] + duration : '');
+		(duration ? ',\n' + Lng.duration[lang] + duration : '');
 };
 Videos._titlesLoaderHelper = function([link, isYtube, videoObj, id], num, ...data) {
 	if(data.length !== 0) {
@@ -4869,7 +4869,7 @@ Videos._getYTInfoAPI = function(info, num, id) {
 		                                  items.snippet.channelTitle,
 		                                  items.statistics.viewCount,
 		                                  items.snippet.publishedAt.substr(0, 10),
-										  items.contentDetails.duration.substr(2).toLowerCase());
+		                                  items.contentDetails.duration.substr(2).toLowerCase());
 	}).catch(() => Videos._getYTInfoOembed(info, num, id));
 };
 Videos._getYTInfoOembed = function(info, num, id) {
@@ -4881,7 +4881,7 @@ Videos._getYTInfoOembed = function(info, num, id) {
 		                                  json.author_name,
 		                                  null,
 		                                  null,
-										  null);
+		                                  null);
 	}).catch(() => Videos._titlesLoaderHelper(info, num));
 };
 Videos._getTitlesLoader = function() {

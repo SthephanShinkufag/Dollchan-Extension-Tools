@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'db2d808';
+	var commit = '7014007';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -7822,7 +7822,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		link.textContent = title;
 		link.classList.add('de-video-title');
 		link.setAttribute('de-author', author);
-		link.title = Lng.author[lang] + author + (views ? ', ' + Lng.views[lang] + views : '') + (publ ? ', ' + Lng.published[lang] + publ : '') + (duration ? ', ' + Lng.duration[lang] + duration : '');
+		link.title = Lng.author[lang] + author + (views ? ', ' + Lng.views[lang] + views : '') + (publ ? ', ' + Lng.published[lang] + publ : '') + (duration ? ',\n' + Lng.duration[lang] + duration : '');
 	};
 	Videos._titlesLoaderHelper = function (_ref10, num) {
 		var _ref11 = _slicedToArray(_ref10, 4);
