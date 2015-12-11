@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'bc9e799';
+	var commit = 'c4c915f';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3316,10 +3316,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		delFav: ['Убрать тред из Избранного', 'Remove thread from Favorites'],
 		attachPview: ['Закрепить превью', 'Attach preview'],
 		expandVideo: ['Развернуть/Свернуть видео', 'Expand/Collapse video'],
-		author: ['автор: ', 'author: '],
-		views: ['просмотров: ', 'views: '],
+		duration: ['Продолжительность: ', 'Duration: '],
 		published: ['опубликовано: ', 'published: '],
-		duration: ['продолжительность: ', 'duration: '],
+		author: ['Автор: ', 'Author: '],
+		views: ['просмотров: ', 'views: '],
 
 		seSyntaxErr: ['синтаксическая ошибка в аргументе спелла: %s', 'syntax error in argument of spell: %s'],
 		seUnknown: ['неизвестный спелл: %s', 'unknown spell: %s'],
@@ -7822,7 +7822,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		link.textContent = title;
 		link.classList.add('de-video-title');
 		link.setAttribute('de-author', author);
-		link.title = (duration ? Lng.duration[lang] + duration + ', ' : '') + Lng.author[lang] + author + (views ? ', ' + Lng.views[lang] + views : '') + (publ ? ',\n' + Lng.published[lang] + publ : '');
+		link.title = (duration ? Lng.duration[lang] + duration : '') + (publ ? ', ' + Lng.published[lang] + publ + '\n' : '') + Lng.author[lang] + author + (views ? ', ' + Lng.views[lang] + views : '');
 	};
 	Videos._titlesLoaderHelper = function (_ref10, num) {
 		var _ref11 = _slicedToArray(_ref10, 4);

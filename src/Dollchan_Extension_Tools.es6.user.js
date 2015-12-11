@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'bc9e799';
+var commit = 'c4c915f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -577,10 +577,10 @@ Lng = {
 	delFav:         ['Убрать тред из Избранного', 'Remove thread from Favorites'],
 	attachPview:    ['Закрепить превью', 'Attach preview'],
 	expandVideo:    ['Развернуть/Свернуть видео', 'Expand/Collapse video'],
-	author:         ['автор: ', 'author: '],
-	views:          ['просмотров: ', 'views: '],
+	duration:       ['Продолжительность: ', 'Duration: '],
 	published:      ['опубликовано: ', 'published: '],
-	duration:       ['продолжительность: ', 'duration: '],
+	author:         ['Автор: ', 'Author: '],
+	views:          ['просмотров: ', 'views: '],
 
 	seSyntaxErr:    ['синтаксическая ошибка в аргументе спелла: %s', 'syntax error in argument of spell: %s'],
 	seUnknown:      ['неизвестный спелл: %s', 'unknown spell: %s'],
@@ -4839,10 +4839,10 @@ Videos.setLinkData = function(link, [title, author, views, publ, duration]) {
 	link.textContent = title;
 	link.classList.add('de-video-title');
 	link.setAttribute('de-author', author);
-	link.title = (duration ? Lng.duration[lang] + duration + ', ': '') +
+	link.title = (duration ? Lng.duration[lang] + duration : '') +
+		(publ ? ', ' + Lng.published[lang] + publ + '\n' : '') +
 		Lng.author[lang] + author +
-		(views ? ', ' + Lng.views[lang] + views : '') +
-		(publ ? ',\n' + Lng.published[lang] + publ : '');
+		(views ? ', ' + Lng.views[lang] + views : '');
 };
 Videos._titlesLoaderHelper = function([link, isYtube, videoObj, id], num, ...data) {
 	if(data.length !== 0) {
