@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '9359e08';
+var commit = 'e7bfc99';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7770,7 +7770,9 @@ function checkUpload(data) {
 		updater.continue();
 		return;
 	}
-	spawn(addMyPost, postNum);
+	if(postNum) {
+		spawn(addMyPost, postNum);
+	}
 	if(Cfg.favOnReply && pr.tNum && !$q('.de-btn-fav-sel', pByNum.get(pr.tNum).el)) {
 		pByNum.get(pr.tNum).thr.setFavorState(true, 'onreply');
 	}
@@ -9250,7 +9252,6 @@ class Post extends AbstractPost {
 		this.el = el;
 		this.prev = prev;
 		this.next = null;
-		this.banned = false;
 		this.deleted = false;
 		this.hidden = false;
 		this.omitted = false;
@@ -9286,6 +9287,11 @@ class Post extends AbstractPost {
 			this._getFull(this.trunc, true);
 		}
 		el.addEventListener('mouseover', this, true);
+	}
+	get banned() {
+		var value = aib.qBan ? !!$q(aib.qBan, this.el) : false;
+		Object.defineProperty(this, 'banned', { writable: true, value });
+		return value;
 	}
 	get bottom() {
 		return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el)
@@ -10918,9 +10924,7 @@ class Thread {
 				pEl = aib.getPostElOfEl(bEl),
 				post = pEl ? pByNum.get(aib.getPNum(pEl)) : this.op;
 			if(post && !post.banned) {
-				if(!$q(aib.qBan, post.el)) {
-					post.msg.appendChild(doc.adoptNode(bEl));
-				}
+				post.msg.appendChild(doc.adoptNode(bEl));
 				post.banned = true;
 			}
 		}
@@ -11308,7 +11312,7 @@ class BaseBoard {
 	constructor(prot, dm) {
 		// Query paths
 		this.cReply = 'reply';
-		this.qBan = '';
+		this.qBan = null;
 		this.qDelBut = 'input[type="submit"]'; // Differs _4chanOrg only
 		this.qDelPassw = 'input[type="password"], input[name="password"]'; // Differs Vichan only
 		this.qDForm = '#delform, form[name="delform"]';
@@ -11812,7 +11816,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
 		}
 		getSubmitData(json) {
-			return { error: json.error, postNum: +json.id };
+			return { error: json.error, postNum: json.id && +json.id };
 		}
 		getTNum(op) {
 			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
@@ -12775,9 +12779,12 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
+			this.qBan = 'font[color="#FF0000"]';
+
+			this.jsonSubmit = true;
 			this.multiFile = true;
-			this.postMapInited = false;
 			this.thrid = 'replythread';
+			this._postMapInited = false;
 		}
 		get modifiedPosts() { // Ponyach hack. Sets here only
 			var val = new WeakMap();
@@ -12787,8 +12794,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		checkForm(formEl, maybeSpells) { // Ponyach hack. Sets here only
 			var myMaybeSpells = maybeSpells || new Maybe(SpellsRunner),
 				maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-			if(!this.postMapInited) {
-				this.postMapInited = true;
+			if(!this._postMapInited) {
+				this._postMapInited = true;
 				$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]'),
 					  pEl => this.modifiedPosts.set(pEl, +pEl.getAttribute('data-lastmodified')));
 			}
@@ -12827,7 +12834,14 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPNum(post) {
 			return +post.getAttribute('data-num');
 		}
+		getSubmitData(json) {
+			return { error: json.error, postNum: json.id && +json.id };
+		}
 		init() {
+			var el = $id('postform');
+			if(el) {
+				el.setAttribute('action', el.getAttribute('action') + '?json=1');
+			}
 			defaultCfg.postSameImg = 0;
 			defaultCfg.removeEXIF = 0;
 			return false;

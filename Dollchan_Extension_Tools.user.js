@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '9359e08';
+	var commit = 'e7bfc99';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11266,7 +11266,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			updater['continue']();
 			return;
 		}
-		spawn(addMyPost, postNum);
+		if (postNum) {
+			spawn(addMyPost, postNum);
+		}
 		if (Cfg.favOnReply && pr.tNum && !$q('.de-btn-fav-sel', pByNum.get(pr.tNum).el)) {
 			pByNum.get(pr.tNum).thr.setFavorState(true, 'onreply');
 		}
@@ -13146,7 +13148,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_this34.el = el;
 			_this34.prev = prev;
 			_this34.next = null;
-			_this34.banned = false;
 			_this34.deleted = false;
 			_this34.hidden = false;
 			_this34.omitted = false;
@@ -13518,6 +13519,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 					}
 				});
+			}
+		}, {
+			key: 'banned',
+			get: function get() {
+				var value = aib.qBan ? !!$q(aib.qBan, this.el) : false;
+				Object.defineProperty(this, 'banned', { writable: true, value: value });
+				return value;
 			}
 		}, {
 			key: 'bottom',
@@ -15141,9 +15149,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					    pEl = aib.getPostElOfEl(bEl),
 					    post = pEl ? pByNum.get(aib.getPNum(pEl)) : this.op;
 					if (post && !post.banned) {
-						if (!$q(aib.qBan, post.el)) {
-							post.msg.appendChild(doc.adoptNode(bEl));
-						}
+						post.msg.appendChild(doc.adoptNode(bEl));
 						post.banned = true;
 					}
 				}
@@ -15598,7 +15604,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		
 			this.cReply = 'reply';
-			this.qBan = '';
+			this.qBan = null;
 			this.qDelBut = 'input[type="submit"]';
 			this.qDelPassw = 'input[type="password"], input[name="password"]';
 			this.qDForm = '#delform, form[name="delform"]';
@@ -16240,7 +16246,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'getSubmitData',
 				value: function getSubmitData(json) {
-					return { error: json.error, postNum: +json.id };
+					return { error: json.error, postNum: json.id && +json.id };
 				}
 			}, {
 				key: 'getTNum',
@@ -17634,9 +17640,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				var _this80 = _possibleConstructorReturn(this, Object.getPrototypeOf(Ponyach).call(this, prot, dm));
 
+				_this80.qBan = 'font[color="#FF0000"]';
+
+				_this80.jsonSubmit = true;
 				_this80.multiFile = true;
-				_this80.postMapInited = false;
 				_this80.thrid = 'replythread';
+				_this80._postMapInited = false;
 				return _this80;
 			}
 
@@ -17648,8 +17657,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				
 					var myMaybeSpells = maybeSpells || new Maybe(SpellsRunner),
 					    maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-					if (!this.postMapInited) {
-						this.postMapInited = true;
+					if (!this._postMapInited) {
+						this._postMapInited = true;
 						$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]'), function (pEl) {
 							return _this81.modifiedPosts.set(pEl, +pEl.getAttribute('data-lastmodified'));
 						});
@@ -17693,8 +17702,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return +post.getAttribute('data-num');
 				}
 			}, {
+				key: 'getSubmitData',
+				value: function getSubmitData(json) {
+					return { error: json.error, postNum: json.id && +json.id };
+				}
+			}, {
 				key: 'init',
 				value: function init() {
+					var el = $id('postform');
+					if (el) {
+						el.setAttribute('action', el.getAttribute('action') + '?json=1');
+					}
 					defaultCfg.postSameImg = 0;
 					defaultCfg.removeEXIF = 0;
 					return false;
