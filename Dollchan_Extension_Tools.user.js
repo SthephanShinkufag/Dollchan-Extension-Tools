@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'c4c915f';
+	var commit = '08871cd';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3410,6 +3410,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		} else {
 			el.parentNode.appendChild(node);
 		}
+	}
+
+	function $bBegin(sibling, html) {
+		sibling.insertAdjacentHTML('beforebegin', html);
+		return sibling.previousSibling;
+	}
+
+	function $aBegin(parent, html) {
+		parent.insertAdjacentHTML('afterbegin', html);
+		return parent.firstChild;
+	}
+
+	function $bEnd(parent, html) {
+		parent.insertAdjacentHTML('beforeend', html);
+		return parent.lastChild;
+	}
+
+	function $aEnd(sibling, html) {
+		sibling.insertAdjacentHTML('afterend', html);
+		return sibling.nextSibling;
 	}
 
 	function $replace(origEl, newEl) {
@@ -5155,7 +5175,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 	}
 
-	function makeDraggable(win, head, name) {
+	function makeDraggable(name, win, head) {
 		head.addEventListener('mousedown', {
 			_win: win,
 			_wStyle: win.style,
@@ -5291,8 +5311,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var winAttr = (Cfg[name + 'WinDrag'] ? 'de-win" style="' + Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] : 'de-win-fixed" style="right: 0; bottom: 25px') + (name !== 'fav' ? '' : '; width: ' + Cfg.favWinWidth + 'px; ');
 			var backColor = getComputedStyle(docBody).getPropertyValue('background-color');
 			var bodyAttr = name === 'cfg' ? ' ' + aib.cReply : '" style="background-color: ' + (backColor !== 'transparent' ? backColor : '#EEE');
-			main.insertAdjacentHTML('afterbegin', '\n\t\t<div id="de-win-' + name + '" class="' + winAttr + '; display: none;">\n\t\t\t<div class="de-win-head">\n\t\t\t\t<span class="de-win-title">\n\t\t\t\t\t' + (name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang]) + '\n\t\t\t\t</span>\n\t\t\t\t<span class="de-win-buttons">\n\t\t\t\t\t<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>\n\t\t\t\t\t<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t<div class="de-win-body' + bodyAttr + '"></div>\n\t\t\t' + (name !== 'fav' ? '' : '\n\t\t\t\t<div class="de-resizer de-resizer-left"></div>\n\t\t\t\t<div class="de-resizer de-resizer-right"></div>') + '\n\t\t</div>');
-			win = main.firstElementChild;
+			win = $aBegin(main, '<div id="de-win-' + name + '" class="' + winAttr + '; display: none;">\n\t\t\t<div class="de-win-head">\n\t\t\t\t<span class="de-win-title">\n\t\t\t\t\t' + (name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang]) + '\n\t\t\t\t</span>\n\t\t\t\t<span class="de-win-buttons">\n\t\t\t\t\t<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>\n\t\t\t\t\t<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t<div class="de-win-body' + bodyAttr + '"></div>\n\t\t\t' + (name !== 'fav' ? '' : '\n\t\t\t\t<div class="de-resizer de-resizer-left"></div>\n\t\t\t\t<div class="de-resizer de-resizer-right"></div>') + '\n\t\t</div>');
 			if (name === 'fav') {
 				new WinResizer('fav', 'left', 'favWinWidth', win, win);
 				new WinResizer('fav', 'right', 'favWinWidth', win, win);
@@ -5326,7 +5345,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				updateWinZ(win.style);
 			};
-			makeDraggable(win, $q('.de-win-head', win), name);
+			makeDraggable(name, win, $q('.de-win-head', win));
 		}
 		updateWinZ(win.style);
 		var remove = !isUpd && isActive;
@@ -5468,8 +5487,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var el = els[i].cloneNode(true),
 			    num = aib.getPostOfEl(els[i]).num;
 			el.videoInfo = els[i].videoInfo;
-			linkList.insertAdjacentHTML('beforeend', '\n\t\t<div class="de-entry ' + aib.cReply + '">\n\t\t\t<a class="de-video-refpost" href="' + (aib.anchor + num) + '" de-num="' + num + '">&gt;</a>\n\t\t</div>');
-			linkList.lastChild.appendChild(el).classList.remove('de-current');
+			$bEnd(linkList, '\n\t\t<div class="de-entry ' + aib.cReply + '">\n\t\t\t<a class="de-video-refpost" href="' + (aib.anchor + num) + '" de-num="' + num + '">&gt;</a>\n\t\t</div>').appendChild(el).classList.remove('de-current');
 			el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
 		}
 		body.appendChild(linkList);
@@ -5668,7 +5686,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}
 		if (!body.hasChildNodes()) {
-			body.insertAdjacentHTML('afterbegin', '<center><b>' + Lng.noFavThrds[lang] + '</b></center>');
+			body.insertAdjacentHTML('beforeend', '<center><b>' + Lng.noFavThrds[lang] + '</b></center>');
 		}
 		body.insertAdjacentHTML('beforeend', '<hr>');
 		body.appendChild(addEditButton('favor', function (fn) {
@@ -6526,12 +6544,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function Menu(parentEl, html, clickFn) {
 		var isFixed = arguments.length <= 3 || arguments[3] === undefined ? true : arguments[3];
 
-		docBody.insertAdjacentHTML('beforeend', '<div class="' + aib.cReply + ' de-menu" style="position: ' + (isFixed ? 'fixed' : 'absolute') + '; left: 0px; top: 0px; visibility: hidden;">' + html + '</div>');
-		var el = docBody.lastChild;
-		var mStyle = el.style;
-		var cr = parentEl.getBoundingClientRect();
-		var width = el.offsetWidth;
-		var xOffset = isFixed ? 0 : window.pageXOffset;
+		var el = $bEnd(docBody, '<div class="' + aib.cReply + ' de-menu" style="position: ' + (isFixed ? 'fixed' : 'absolute') + '; left: 0px; top: 0px; visibility: hidden;">' + html + '</div>');
+		var mStyle = el.style,
+		    cr = parentEl.getBoundingClientRect(),
+		    width = el.offsetWidth,
+		    xOffset = isFixed ? 0 : window.pageXOffset;
 		if (cr.left + width < Post.sizing.wWidth) {
 			mStyle.left = xOffset + cr.left + 'px';
 		} else {
@@ -7931,13 +7948,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					link.setAttribute('de-time', time);
 				}
 				link.className = 'de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo');
-				if (dataObj) {
-					Videos.setLinkData(link, dataObj);
-				}
 			} else {
 				var src = isYtube ? aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '') : aib.prot + '//vimeo.com/' + m[1];
-				this.post.msg.insertAdjacentHTML('beforeend', '<p class="de-video-ext"><a class="de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo') + (dataObj ? ' de-video-title" title="' + Lng.author[lang] + dataObj[1] + ', ' + Lng.views[lang] + dataObj[2] + ', ' + Lng.published[lang] + dataObj[3] + '" de-author="' + dataObj[1] : '') + (time ? '" de-time="' + time : '') + '" href="' + src + '">' + (dataObj ? dataObj[0] : src) + '</a></p>');
-				link = this.post.msg.lastChild.firstChild;
+				link = $bEnd(this.post.msg, '\n\t\t\t<p class="de-video-ext"><a class="de-video-link ' + ((isYtube ? 'de-ytube' : 'de-vimeo') + (time ? '" de-time="' + time : '')) + '" href="' + src + '">' + (dataObj ? '' : src) + '</a></p>').firstChild;
+			}
+			if (dataObj) {
+				Videos.setLinkData(link, dataObj);
 			}
 			if (this.playerInfo === null || this.playerInfo === m) {
 				this.currentLink = link;
@@ -10126,24 +10142,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (this.oeForm) {
 			this.pForm.appendChild(this.oeForm);
 		}
-		DelForm.first.el.insertAdjacentHTML('beforebegin', '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
-		this.pArea[0] = DelForm.first.el.previousSibling;
-		this._pBtn[0] = this.pArea[0].firstChild;
+		var html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
+		this.pArea = [$bBegin(DelForm.first.el, html), $aEnd(aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el, html)];
+		this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 		this._pBtn[0].firstElementChild.onclick = this.showMainReply.bind(this, false);
-		var el = aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el;
-		el.insertAdjacentHTML('afterend', '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
-		this.pArea[1] = el.nextSibling;
-		this._pBtn[1] = this.pArea[1].firstChild;
 		this._pBtn[1].firstElementChild.onclick = this.showMainReply.bind(this, true);
 		this.qArea = $add('<div style="display: none; ' + Cfg.replyWinX + '; ' + Cfg.replyWinY + '; z-index: ' + ++topWinZ + ';" id="de-win-reply" class="' + aib.cReply + (Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost') + '"></div>');
 		this.isBottom = Cfg.addPostForm === 1;
 		this.setReply(false, !aib.t || Cfg.addPostForm > 1);
-		el = this.qArea;
-		el.insertAdjacentHTML('beforeend', '<div class="de-win-head">' + '<span class="de-win-title"></span>' + '<span class="de-win-buttons">' + '<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>' + '<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg></span></div>' + '<div class="de-resizer de-resizer-top"></div>' + '<div class="de-resizer de-resizer-left"></div>' + '<div class="de-resizer de-resizer-right"></div>' + '<div class="de-resizer de-resizer-bottom"></div>');
-		el = el.firstChild;
-		el.lang = getThemeLang();
-		makeDraggable(this.qArea, el, 'reply');
-		el = el.lastChild;
+		makeDraggable('reply', this.qArea, $aBegin(this.qArea, '<div class="de-win-head" lang="' + getThemeLang() + '">\n\t\t<span class="de-win-title"></span>\n\t\t<span class="de-win-buttons">\n\t\t\t<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>\n\t\t\t<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>\n\t\t</span>\n\t</div>\n\t<div class="de-resizer de-resizer-top"></div>\n\t<div class="de-resizer de-resizer-left"></div>\n\t<div class="de-resizer de-resizer-right"></div>\n\t<div class="de-resizer de-resizer-bottom"></div>'));
+		var el = $q('.de-win-buttons', this.qArea);
 		el.onmouseover = function (e) {
 			switch (fixEventEl(e.target).classList[0]) {
 				case 'de-btn-close':
@@ -10152,7 +10160,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this.title = Cfg['replyWinDrag'] ? Lng.underPost[lang] : Lng.makeDrag[lang];
 			}
 		};
-		el.firstChild.onclick = function () {
+		el.firstElementChild.onclick = function () {
 			toggleCfg('replyWinDrag');
 			if (Cfg.replyWinDrag) {
 				_this14.qArea.className = aib.cReply + ' de-win';
@@ -10162,7 +10170,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_this14.txta.focus();
 			}
 		};
-		el.lastChild.onclick = this.closeReply.bind(this);
+		el.lastElementChild.onclick = this.closeReply.bind(this);
 		if (!this.form || !this.txta) {
 			return;
 		}
@@ -10181,8 +10189,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				saveCfg('textaHeight', parseInt(this.style.height, 10));
 			});
 		} else {
-			this.txta.insertAdjacentHTML('afterend', '<div id="de-resizer-text"></div>');
-			this.txta.nextSibling.addEventListener('mousedown', {
+			$aEnd(this.txta, '<div id="de-resizer-text"></div>').addEventListener('mousedown', {
 				_el: this.txta,
 				_elStyle: this.txta.style,
 				handleEvent: function handleEvent(e) {
@@ -10209,8 +10216,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 		if (Cfg.addSageBtn && this.mail) {
 			PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
-			this.subm.insertAdjacentHTML('afterend', '<svg id="de-sagebtn" class="de-btn-sage">' + '<use xlink:href="#de-symbol-post-sage"/></svg>');
-			this.subm.nextSibling.onclick = function (e) {
+			$aEnd(this.subm, '<svg id="de-sagebtn" class="de-btn-sage">' + '<use xlink:href="#de-symbol-post-sage"/></svg>').onclick = function (e) {
 				e.stopPropagation();
 				$pd(e);
 				toggleCfg('sageReply');
@@ -10304,8 +10310,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				$pd(e);
 				$popup(Lng.sendingPost[lang], 'upload', true);
 				if (aib._2chruNet) {
-					docBody.insertAdjacentHTML('beforeend', '<iframe class="ninja" id="csstest" src="/' + aib.b + '/csstest.foo"></iframe>');
-					docBody.lastChild.onload = function (e) {
+					$bEnd(docBody, '<iframe class="ninja" id="csstest" src="/' + aib.b + '/csstest.foo"></iframe>').onload = function (e) {
 						$del(e.target);
 						spawn(html5Submit, _this14.form, _this14.subm, true).then(function (dc) {
 							return checkUpload(dc);
@@ -10692,11 +10697,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		imgFile: null,
 		thumb: null,
 		clear: function clear() {
-			var newEl,
-			    form = this.form,
-			    oldEl = this.el;
-			oldEl.insertAdjacentHTML('afterend', oldEl.outerHTML);
-			newEl = this.el.nextSibling;
+			var form = this.form,
+			    oldEl = this.el,
+			    newEl = $aEnd(oldEl, oldEl.outerHTML);
 			newEl.obj = this;
 			newEl.addEventListener('change', this);
 			newEl.addEventListener('dragleave', this);
@@ -10805,8 +10808,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				setTimeout(function () {
 					return $hide(_this16.form.fileTd.parentNode);
 				}, 0);
-				this.form.fileArea.insertAdjacentHTML('beforeend', '<div class="de-file de-file-off"><div class="de-file-img">' + '<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
-				this.thumb = this.form.fileArea.lastChild;
+				this.thumb = $bEnd(this.form.fileArea, '<div class="de-file de-file-off"><div class="de-file-img">' + '<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
 				this.thumb.addEventListener('mouseover', this);
 				this.thumb.addEventListener('mouseout', this);
 				this.thumb.addEventListener('click', this);
@@ -10849,9 +10851,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var el = this.form.rarInput;
 			el.onchange = function (e) {
 				$del(_this17._rjUtil);
-				_this17._buttonsPlace.insertAdjacentHTML('afterend', '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.wait[lang] + '</span>');
-				var myRjUtil = _this17._rjUtil = _this17._buttonsPlace.nextSibling,
-				    file = e.target.files[0];
+				var myRjUtil = _this17._rjUtil = $aEnd(_this17._buttonsPlace, '<span><svg class="de-wait">' + '<use xlink:href="#de-symbol-wait"/></svg>' + Lng.wait[lang] + '</span>');
+				var file = e.target.files[0];
 				readFile(file).then(function (_ref35) {
 					var data = _ref35.data;
 
@@ -10928,17 +10929,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return;
 				}
 				var file = _this18.el.files[0],
-				    thumb = _this18.thumb;
-				thumb.classList.remove('de-file-off');
-				thumb = thumb.firstChild.firstChild;
-				thumb.title = file.name + ', ' + (file.size / 1024).toFixed(2) + 'KB';
-				thumb.insertAdjacentHTML('afterbegin', file.type === 'video/webm' ? '<video class="de-file-img" loop autoplay muted src=""></video>' : '<img class="de-file-img" src="">');
-				_this18._mediaEl = thumb = thumb.firstChild;
-				thumb.src = window.URL.createObjectURL(new Blob([data]));
-				thumb = thumb.nextSibling;
-				if (thumb) {
-					window.URL.revokeObjectURL(thumb.src);
-					$del(thumb);
+				    el = _this18.thumb;
+				el.classList.remove('de-file-off');
+				el = el.firstChild.firstChild;
+				el.title = file.name + ', ' + (file.size / 1024).toFixed(2) + 'KB';
+				_this18._mediaEl = el = $aBegin(el, file.type === 'video/webm' ? '<video class="de-file-img" loop autoplay muted src=""></video>' : '<img class="de-file-img" src="">');
+				el.src = window.URL.createObjectURL(new Blob([data]));
+				if (el = el.nextSibling) {
+					window.URL.revokeObjectURL(el.src);
+					$del(el);
 				}
 			});
 		}
@@ -10962,8 +10961,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._originHTML = this.trEl.innerHTML;
 			$hide(this.trEl);
 			if (this._isRecap) {
-				docBody.insertAdjacentHTML('beforeend', '<div onclick="' + (this._isOldRecap ? 'Recaptcha.reload()' : 'grecaptcha.reset()') + '"></div>');
-				this._recapUpdate = docBody.lastChild;
+				this._recapUpdate = $bEnd(docBody, '<div onclick="' + (this._isOldRecap ? 'Recaptcha.reload()' : 'grecaptcha.reset()') + '"></div>');
 			} else {
 				this.trEl.innerHTML = '';
 			}
@@ -11865,8 +11863,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return { hash: hash };
 	}
 	function ImgBtnsShowHider(nextFn, prevFn) {
-		docBody.insertAdjacentHTML('beforeend', '<div style="display: none;">' + '<div id="de-img-btn-next" de-title="' + Lng.nextImg[lang] + '"></div>' + '<div id="de-img-btn-prev" de-title="' + Lng.prevImg[lang] + '"></div></div>');
-		var btns = docBody.lastChild;
+		var btns = $bEnd(docBody, '<div style="display: none;">' + '<div id="de-img-btn-next" de-title="' + Lng.nextImg[lang] + '"></div>' + '<div id="de-img-btn-prev" de-title="' + Lng.prevImg[lang] + '"></div></div>');
 		this._btns = btns;
 		this._btnsStyle = btns.style;
 		this._nextFn = nextFn;
@@ -12085,8 +12082,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
 			var obj = $add('<div class="de-img-center" style="top:' + this._oldT + 'px; left:' + this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
 			if (data.isImage) {
-				obj.insertAdjacentHTML('afterbegin', '<a style="width: inherit; height: inherit;" href="' + data.src + '"></a>');
-				obj.firstChild.appendChild(this._fullEl);
+				$aBegin(obj, '<a style="width: inherit; height: inherit;" href="' + data.src + '"></a>').appendChild(this._fullEl);
 			} else {
 				obj.appendChild(this._fullEl);
 			}
@@ -13063,8 +13059,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'mp3Obj',
 			get: function get() {
-				this.msg.insertAdjacentHTML('beforebegin', '<div class="de-mp3"></div>');
-				var value = this.msg.previousSibling;
+				var value = $bBegin(this.msg, '<div class="de-mp3"></div>');
 				Object.defineProperty(this, 'mp3Obj', { value: value });
 				return value;
 			}
@@ -13179,8 +13174,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (_this34.sage) {
 				html += '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>';
 			}
-			refEl.insertAdjacentHTML('afterend', html + '</span>');
-			_this34.btns = refEl.nextSibling;
+			_this34.btns = $aEnd(refEl, html + '</span>');
 			if (Cfg.expandTrunc && _this34.trunc) {
 				_this34._getFull(_this34.trunc, true);
 			}
@@ -13703,14 +13697,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.text = null;
 			this._post = post;
 			if (post.isOp) {
-				var tEl = post.thr.el;
-				tEl.insertAdjacentHTML('beforebegin', '\n\t\t\t<div class="' + aib.cReply + ' de-thr-hid" id="de-thr-hid-' + post.num + '">\n\t\t\t\t' + Lng.hiddenThrd[lang] + '\n\t\t\t\t<a href="#">№' + post.num + '</a>\n\t\t\t\t<span class="de-thread-note"></span>\n\t\t\t</div>');
-				this._noteEl = tEl.previousSibling;
+				this._noteEl = $bBegin(post.thr.el, '\n\t\t\t<div class="' + aib.cReply + ' de-thr-hid" id="de-thr-hid-' + post.num + '">\n\t\t\t\t' + Lng.hiddenThrd[lang] + '\n\t\t\t\t<a href="#">№' + post.num + '</a>\n\t\t\t\t<span class="de-thread-note"></span>\n\t\t\t</div>');
 				this._aEl = $q('a', this._noteEl);
 				this.textEl = this._aEl.nextElementSibling;
 			} else {
-				post.btns.insertAdjacentHTML('beforeend', '<span class="de-post-note"></span>');
-				this._noteEl = this.textEl = post.btns.lastChild;
+				this._noteEl = this.textEl = $bEnd(post.btns, '<span class="de-post-note"></span>');
 			}
 		}
 
@@ -14169,14 +14160,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var parentNum = this.parent.num,
 				    post = new PviewsCache(doc.adoptNode(form), b, this.tNum).getPost(this.num);
 				if (post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(parentNum))) {
-					var rm;
-					if (post.ref.hasMap) {
-						rm = $q('.de-refmap', post.el);
-					} else {
-						post.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
-						rm = post.msg.nextSibling;
-					}
-					rm.insertAdjacentHTML('afterbegin', '<a class="de-link-ref" href="' + aib.getThrdUrl(b, this.parent.tNum) + aib.anchor + parentNum + '">&gt;&gt;' + (aib.b === b ? '' : '/' + aib.b + '/') + parentNum + '</a><span class="de-refcomma">, </span>');
+					(post.ref.hasMap ? $q('.de-refmap', post.el) : $aEnd(post.msg, '<div class="de-refmap"></div>')).insertAdjacentHTML('afterbegin', '<a class="de-link-ref" href="' + aib.getThrdUrl(b, this.parent.tNum) + aib.anchor + parentNum + '">&gt;&gt;' + (aib.b === b ? '' : '/' + aib.b + '/') + parentNum + '</a><span class="de-refcomma">, </span>');
 				}
 				if (post) {
 					this._showPost(post);
@@ -14258,8 +14242,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._pref = $q(aib.qPostRef, el);
 				this._link.classList.add('de-link-parent');
 				if (post instanceof CacheItem) {
-					this._pref.insertAdjacentHTML('afterend', '<span class="de-post-btns">' + pText + '</span');
-					this.btns = this._pref.nextSibling;
+					this.btns = $aEnd(this._pref, '<span class="de-post-btns">' + pText + '</span');
 					embedMediaLinks(this);
 					if (Cfg.addYouTube) {
 						new VideosParser().parse(this).end();
@@ -14809,16 +14792,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				$del($q('.clear', el));
 			}
 			if (!aib.t) {
-				el.insertAdjacentHTML('beforeend', '<div class="de-thread-buttons">' + '<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>]</span>');
-				this.btns = el.lastChild;
-				var updBtn = this.btns.firstElementChild;
+				this.btns = $bEnd(el, '<div class="de-thread-buttons">' + '<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>]</span></div>');
+				var updBtn = this.btns.firstChild;
 				updBtn.onclick = function (e) {
 					$pd(e);
 					_this42.load('new', false);
 				};
 				if (Cfg.hideReplies) {
-					this.btns.insertAdjacentHTML('beforeend', ' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
-					var repBtn = this.btns.lastChild;
+					var repBtn = $bEnd(this.btns, ' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
 					repBtn.onclick = function (e) {
 						$pd(e);
 						var nextCoord = !_this42.next || _this42.last.omitted ? null : _this42.next.top;
@@ -15020,8 +15001,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					thrEl.appendChild(btn);
 				}
 				if (!$q('.de-thread-collapse', btn)) {
-					btn.insertAdjacentHTML('beforeend', '<span class="de-thread-collapse"> [<a class="de-abtn" href="' + aib.getThrdUrl(aib.b, this.num) + '"></a>]</span>');
-					btn.lastChild.onclick = function (e) {
+					$bEnd(btn, '<span class="de-thread-collapse"> [<a class="de-abtn" href="' + aib.getThrdUrl(aib.b, this.num) + '"></a>]</span>').onclick = function (e) {
 						$pd(e);
 						_this44.load(visPosts, true);
 					};
@@ -15383,8 +15363,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		},
 		init: function init() {
-			docBody.insertAdjacentHTML('beforeend', '\n\t\t<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">\n\t\t\t<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-nav-arrow"/></svg>\n\t\t\t<div id="de-thr-navup">\n\t\t\t\t<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-nav-up"/></svg>\n\t\t\t</div>\n\t\t\t<div id="de-thr-navdown">\n\t\t\t\t<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-nav-down"/></svg>\n\t\t\t</div>\n\t\t</div>');
-			var el = docBody.lastChild;
+			var el = $bEnd(docBody, '\n\t\t<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">\n\t\t\t<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-nav-arrow"/></svg>\n\t\t\t<div id="de-thr-navup">\n\t\t\t\t<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-nav-up"/></svg>\n\t\t\t</div>\n\t\t\t<div id="de-thr-navdown">\n\t\t\t\t<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-nav-down"/></svg>\n\t\t\t</div>\n\t\t</div>');
 			el.addEventListener('mouseover', this, true);
 			el.addEventListener('mouseout', this, true);
 			el.addEventListener('click', this, true);
@@ -15823,8 +15802,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'insertYtPlayer',
 			value: function insertYtPlayer(msg, playerHtml) {
-				msg.insertAdjacentHTML('beforebegin', playerHtml);
-				return msg.previousSibling;
+				return $bBegin(msg, playerHtml);
 			}
 		}, {
 			key: 'css',
@@ -16662,23 +16640,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return CancelablePromise.reject();
 						}
 						$id('captchaimage').src = '/' + _this64.b + '/captcha?' + Math.random();
-						if (!$id('de-_2chruNet-capchecker')) {
-							cap.textEl.insertAdjacentHTML('afterend', '\n\t\t\t\t\t<span id="de-_2chruNet-capchecker" class="shortened" style="margin: 0px .5em;">\n\t\t\t\t\t\tпроверить капчу\n\t\t\t\t\t</span>');
-							cap.textEl.nextSibling.onclick = function (_ref51) {
-								var target = _ref51.target;
-
-								$ajax('/' + _this64.b + '/api/validate-captcha', { method: 'POST' }).then(function (xhr) {
-									if (JSON.parse(xhr.responseText).status === 'ok') {
-										target.innerHTML = 'можно постить';
-									} else {
-										target.innerHTML = 'неверная капча';
-										setTimeout(function () {
-											return target.innerHTML = 'проверить капчу';
-										}, 1e3);
-									}
-								}, emptyFn);
-							};
+						if ($id('de-_2chruNet-capchecker')) {
+							return;
 						}
+						$aEnd(cap.textEl, '<span id="de-_2chruNet-capchecker" class="shortened" style="margin: 0px .5em;">\n\t\t\t\t\tпроверить капчу\n\t\t\t\t</span>').onclick = function (_ref51) {
+							var target = _ref51.target;
+
+							$ajax('/' + _this64.b + '/api/validate-captcha', { method: 'POST' }).then(function (xhr) {
+								if (JSON.parse(xhr.responseText).status === 'ok') {
+									target.innerHTML = 'можно постить';
+								} else {
+									target.innerHTML = 'неверная капча';
+									setTimeout(function () {
+										return target.innerHTML = 'проверить капчу';
+									}, 1e3);
+								}
+							}, emptyFn);
+						};
 					}, function (e) {
 						if (!(e instanceof CancelError)) {
 							_this64._capUpdPromise = null;
@@ -16962,13 +16940,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var el = $id('captchaFormPart'),
 					    value = null;
 					if (el) {
-						docBody.insertAdjacentHTML('beforeend', '<div onclick="initRecaptcha();"></div>');
 						value = (function (el) {
 							$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
 							this.click();
 							$show(el);
 							return null;
-						}).bind(docBody.lastChild, el);
+						}).bind($bEnd(docBody, '<div onclick="initRecaptcha();"></div>'), el);
 					}
 					Object.defineProperty(this, 'updateCaptcha', { value: value });
 					return value;
@@ -17275,10 +17252,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'insertYtPlayer',
 				value: function insertYtPlayer(msg, playerHtml) {
-					var prev = msg.previousElementSibling,
-					    el = prev.tagName === 'BR' ? prev : msg;
-					el.insertAdjacentHTML('beforebegin', playerHtml);
-					return el.previousSibling;
+					var prev = msg.previousElementSibling;
+					return $bBegin(prev.tagName === 'BR' ? prev : msg, playerHtml);
 				}
 			}, {
 				key: 'updateCaptcha',
@@ -17295,7 +17270,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						var el = img.parentNode;
 						el.innerHTML = '';
 						el.appendChild(img);
-						img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off" id="captcha" name="captcha" size="35" type="text"/>');
+						img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off"' + ' id="captcha" name="captcha" size="35" type="text"/>');
 						$show(img);
 						cap.renew();
 					}
@@ -17388,8 +17363,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				key: 'init',
 				value: function init() {
 					defaultCfg.addSageBtn = 0;
-					docBody.insertAdjacentHTML('beforeend', '<div onclick="highlight = function() {}"></div>');
-					docBody.lastChild.click();
+					$bEnd(docBody, '<div onclick="highlight = function() {}"></div>').click();
 					return false;
 				}
 			}, {
@@ -17511,10 +17485,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				key: 'insertYtPlayer',
 				value: function insertYtPlayer(msg, playerHtml) {
 					var pMsg = msg.parentNode,
-					    prev = pMsg.previousElementSibling,
-					    node = prev.hasAttribute('style') ? prev : pMsg;
-					node.insertAdjacentHTML('beforebegin', playerHtml);
-					return node.previousSibling;
+					    prev = pMsg.previousElementSibling;
+					return $bBegin(prev.hasAttribute('style') ? prev : pMsg, playerHtml);
 				}
 			}, {
 				key: 'repFn',
@@ -18052,10 +18024,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'doReplace',
 			value: function doReplace(formEl) {
 				if (aib.needRep) {
-					formEl.insertAdjacentHTML('beforebegin', replaceString(formEl.outerHTML));
-					$hide(formEl);
 					formEl.id = 'de-dform-old';
-					formEl = formEl.previousSibling;
+					formEl = $bBegin(formEl, replaceString(formEl.outerHTML));
+					$hide(formEl.nextSibling);
 					window.addEventListener('load', function () {
 						return $del($id('de-dform-old'));
 					});
@@ -18460,8 +18431,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			},
 			_setIcon: function _setIcon(iconUrl) {
 				$del(this._iconEl);
-				doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' + iconUrl + '">');
-				this._iconEl = doc.head.firstChild;
+				this._iconEl = $aBegin(doc.head, '<link rel="shortcut icon" href="' + iconUrl + '">');
 			},
 			_startBlink: function _startBlink(iconUrl) {
 				var _this88 = this;

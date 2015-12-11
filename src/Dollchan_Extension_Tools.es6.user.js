@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'c4c915f';
+var commit = '08871cd';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -653,6 +653,26 @@ function $after(el, node) {
 	}
 }
 
+function $bBegin(sibling, html) {
+	sibling.insertAdjacentHTML('beforebegin', html);
+	return sibling.previousSibling;
+}
+
+function $aBegin(parent, html) {
+	parent.insertAdjacentHTML('afterbegin', html);
+	return parent.firstChild;
+}
+
+function $bEnd(parent, html) {
+	parent.insertAdjacentHTML('beforeend', html);
+	return parent.lastChild;
+}
+
+function $aEnd(sibling, html) {
+	sibling.insertAdjacentHTML('afterend', html);
+	return sibling.nextSibling;
+}
+
 function $replace(origEl, newEl) {
 	if(typeof newEl === 'string') {
 		origEl.insertAdjacentHTML('afterend', newEl);
@@ -879,8 +899,7 @@ class CancelablePromise {
 					child.cancel();
 				}
 				this.cancel();
-			}
-		);
+			});
 	}
 	catch(eb) {
 		return this.then(void 0, eb);
@@ -2018,7 +2037,7 @@ function updateWinZ(style) {
 	}
 }
 
-function makeDraggable(win, head, name) {
+function makeDraggable(name, win, head) {
 	head.addEventListener('mousedown', {
 		_win: win,
 		_wStyle: win.style,
@@ -2163,8 +2182,8 @@ function toggleWindow(name, isUpd, data, noAnim) {
 		var backColor = getComputedStyle(docBody).getPropertyValue('background-color');
 		var bodyAttr = name === 'cfg' ? ' ' + aib.cReply : '" style="background-color: ' +
 			(backColor !== 'transparent' ? backColor : '#EEE');
-		main.insertAdjacentHTML('afterbegin', `
-		<div id="de-win-${ name }" class="${ winAttr }; display: none;">
+		win = $aBegin(main,
+		`<div id="de-win-${ name }" class="${ winAttr }; display: none;">
 			<div class="de-win-head">
 				<span class="de-win-title">
 					${ name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang] }
@@ -2179,7 +2198,6 @@ function toggleWindow(name, isUpd, data, noAnim) {
 				<div class="de-resizer de-resizer-left"></div>
 				<div class="de-resizer de-resizer-right"></div>` }
 		</div>`);
-		win = main.firstElementChild;
 		if(name === 'fav') {
 			new WinResizer('fav', 'left', 'favWinWidth', win, win);
 			new WinResizer('fav', 'right', 'favWinWidth', win, win);
@@ -2212,7 +2230,7 @@ function toggleWindow(name, isUpd, data, noAnim) {
 			}
 			updateWinZ(win.style);
 		};
-		makeDraggable(win, $q('.de-win-head', win), name);
+		makeDraggable(name, win, $q('.de-win-head', win));
 	}
 	updateWinZ(win.style);
 	var remove = !isUpd && isActive;
@@ -2395,11 +2413,10 @@ function showVideosWindow(body) {
 		var el = els[i].cloneNode(true),
 			num = aib.getPostOfEl(els[i]).num;
 		el.videoInfo = els[i].videoInfo;
-		linkList.insertAdjacentHTML('beforeend', `
+		$bEnd(linkList, `
 		<div class="de-entry ${ aib.cReply }">
 			<a class="de-video-refpost" href="${ aib.anchor + num }" de-num="${ num }">&gt;</a>
-		</div>`);
-		linkList.lastChild.appendChild(el).classList.remove('de-current');
+		</div>`).appendChild(el).classList.remove('de-current');
 		el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
 	}
 	body.appendChild(linkList);
@@ -2600,7 +2617,7 @@ function showFavoritesWindow(body, data) {
 		}
 	}
 	if(!body.hasChildNodes()) {
-		body.insertAdjacentHTML('afterbegin', '<center><b>' + Lng.noFavThrds[lang] + '</b></center>');
+		body.insertAdjacentHTML('beforeend', '<center><b>' + Lng.noFavThrds[lang] + '</b></center>');
 	}
 	body.insertAdjacentHTML('beforeend', '<hr>');
 	body.appendChild(addEditButton('favor', function(fn) {
@@ -3348,8 +3365,7 @@ function cfgTabClick(e) {
 			id === 'links' ? getCfgLinks() :
 			id === 'form' ? getCfgForm() :
 			id === 'common' ? getCfgCommon() :
-			getCfgInfo()
-		);
+			getCfgInfo());
 		if(id === 'filters') {
 			updRowMeter($id('de-spell-txt'));
 		}
@@ -3564,14 +3580,12 @@ function $popup(txt, id, wait) {
 }
 
 function Menu(parentEl, html, clickFn, isFixed = true) {
-	docBody.insertAdjacentHTML('beforeend', '<div class="' + aib.cReply +
-		' de-menu" style="position: ' + (isFixed ? 'fixed' : 'absolute') +
-		'; left: 0px; top: 0px; visibility: hidden;">' + html + '</div>');
-	var el = docBody.lastChild;
-	var mStyle = el.style;
-	var cr = parentEl.getBoundingClientRect();
-	var width = el.offsetWidth;
-	var xOffset = isFixed ? 0 : window.pageXOffset;
+	var el = $bEnd(docBody, `<div class="${ aib.cReply } de-menu" style="position: ${
+		isFixed ? 'fixed' : 'absolute' }; left: 0px; top: 0px; visibility: hidden;">${ html }</div>`);
+	var mStyle = el.style,
+		cr = parentEl.getBoundingClientRect(),
+		width = el.offsetWidth,
+		xOffset = isFixed ? 0 : window.pageXOffset;
 	if(cr.left + width < Post.sizing.wWidth) {
 		mStyle.left = (xOffset + cr.left) + 'px';
 	} else {
@@ -4416,8 +4430,7 @@ function addImgFileIcon(nameLink, fName, info) {
 	nameLink.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(
 			new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {'type': app})
 		) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
-		'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>'
-	);
+		'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>');
 }
 
 function downloadImgData(url, repeatOnError = true) {
@@ -4576,11 +4589,9 @@ function loadDocFiles(imgOnly) {
 			tar.addString('data/dollscript.js', '(' +
 				String(typeof de_main_func_outer === 'undefined' ? de_main_func_inner : de_main_func_outer) +
 			')(null, true);');
-			tar.addString(
-				docName + '.html', '<!DOCTYPE ' + dt.name +
+			tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name +
 				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') +
-				(dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML
-			);
+				(dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML);
 		}
 		downloadBlob(tar.get(), docName + (imgOnly ? '-images.tar' : '.tar'));
 		$del($id('de-popup-load-files'));
@@ -4705,8 +4716,7 @@ DateTime.genRFunc = function(rPattern, diff) {
 		.replace('_m', '\' + this.arrM[dtime.getMonth()] + \'')
 		.replace('_M', '\' + this.arrFM[dtime.getMonth()] + \'')
 		.replace('_y', '\' + (\'\' + dtime.getFullYear()).substring(2) + \'')
-		.replace('_Y', '\' + dtime.getFullYear() + \'') + '\';'
-	);
+		.replace('_Y', '\' + dtime.getFullYear() + \'') + '\';');
 };
 DateTime.prototype = {
 	genDateTime: null,
@@ -4947,19 +4957,17 @@ Videos.prototype = {
 				link.setAttribute('de-time', time);
 			}
 			link.className = 'de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo');
-			if(dataObj) {
-				Videos.setLinkData(link, dataObj);
-			}
 		} else {
-			var src = isYtube ? aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '')
-				: aib.prot + '//vimeo.com/' + m[1];
-			this.post.msg.insertAdjacentHTML('beforeend',
-				'<p class="de-video-ext"><a class="de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo') +
-					(dataObj ? ' de-video-title" title="' + Lng.author[lang] + dataObj[1] + ', ' +
-						Lng.views[lang] + dataObj[2] + ', ' + Lng.published[lang] + dataObj[3] +
-						'" de-author="' + dataObj[1] : '') + (time ? '" de-time="' + time : '') +
-					'" href="' + src + '">' + (dataObj ? dataObj[0] : src) + '</a></p>');
-			link = this.post.msg.lastChild.firstChild;
+			var src = isYtube ?
+				aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '') :
+				aib.prot + '//vimeo.com/' + m[1];
+			link = $bEnd(this.post.msg, `
+			<p class="de-video-ext"><a class="de-video-link ${
+				(isYtube ? 'de-ytube' : 'de-vimeo') + (time ? '" de-time="' + time : '')
+			}" href="${ src }">${ dataObj ? '' : src }</a></p>`).firstChild;
+		}
+		if(dataObj) {
+			Videos.setLinkData(link, dataObj);
 		}
 		if(this.playerInfo === null || this.playerInfo === m) {
 			this.currentLink = link;
@@ -6695,43 +6703,37 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	if(this.oeForm) {
 		this.pForm.appendChild(this.oeForm);
 	}
-	DelForm.first.el.insertAdjacentHTML('beforebegin',
-		'<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
-	this.pArea[0] = DelForm.first.el.previousSibling;
-	this._pBtn[0] = this.pArea[0].firstChild;
+	var html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
+	this.pArea = [$bBegin(DelForm.first.el, html),
+	              $aEnd(aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el, html)];
+	this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 	this._pBtn[0].firstElementChild.onclick = this.showMainReply.bind(this, false);
-	var el = aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el;
-	el.insertAdjacentHTML('afterend', '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
-	this.pArea[1] = el.nextSibling;
-	this._pBtn[1] = this.pArea[1].firstChild;
 	this._pBtn[1].firstElementChild.onclick = this.showMainReply.bind(this, true);
 	this.qArea = $add('<div style="display: none; ' + Cfg.replyWinX + '; ' + Cfg.replyWinY +
 		'; z-index: ' + ++topWinZ + ';" id="de-win-reply" class="' + aib.cReply +
 		(Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost') + '"></div>');
 	this.isBottom = Cfg.addPostForm === 1;
 	this.setReply(false, !aib.t || Cfg.addPostForm > 1);
-	el = this.qArea;
-	el.insertAdjacentHTML('beforeend',
-		'<div class="de-win-head">' +
-			'<span class="de-win-title"></span>' +
-			'<span class="de-win-buttons">' +
-				'<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>' +
-				'<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg></span></div>' +
-		'<div class="de-resizer de-resizer-top"></div>' +
-		'<div class="de-resizer de-resizer-left"></div>' +
-		'<div class="de-resizer de-resizer-right"></div>' +
-		'<div class="de-resizer de-resizer-bottom"></div>');
-	el = el.firstChild;
-	el.lang = getThemeLang();
-	makeDraggable(this.qArea, el, 'reply');
-	el = el.lastChild;
+	makeDraggable('reply', this.qArea, $aBegin(this.qArea,
+	`<div class="de-win-head" lang="${ getThemeLang() }">
+		<span class="de-win-title"></span>
+		<span class="de-win-buttons">
+			<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>
+			<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>
+		</span>
+	</div>
+	<div class="de-resizer de-resizer-top"></div>
+	<div class="de-resizer de-resizer-left"></div>
+	<div class="de-resizer de-resizer-right"></div>
+	<div class="de-resizer de-resizer-bottom"></div>`));
+	var el = $q('.de-win-buttons', this.qArea);
 	el.onmouseover = function(e) {
 		switch(fixEventEl(e.target).classList[0]) {
 		case 'de-btn-close': this.title = Lng.closeReply[lang]; break;
 		case 'de-btn-toggle': this.title = Cfg['replyWinDrag'] ? Lng.underPost[lang] : Lng.makeDrag[lang];
 		}
 	}
-	el.firstChild.onclick = () => {
+	el.firstElementChild.onclick = () => {
 		toggleCfg('replyWinDrag');
 		if(Cfg.replyWinDrag) {
 			this.qArea.className = aib.cReply + ' de-win';
@@ -6741,7 +6743,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 			this.txta.focus();
 		}
 	};
-	el.lastChild.onclick = this.closeReply.bind(this);
+	el.lastElementChild.onclick = this.closeReply.bind(this);
 	if(!this.form || !this.txta) {
 		return;
 	}
@@ -6760,8 +6762,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 			saveCfg('textaHeight', parseInt(this.style.height, 10));
 		});
 	} else {
-		this.txta.insertAdjacentHTML('afterend', '<div id="de-resizer-text"></div>');
-		this.txta.nextSibling.addEventListener('mousedown', {
+		$aEnd(this.txta, '<div id="de-resizer-text"></div>').addEventListener('mousedown', {
 			_el: this.txta,
 			_elStyle: this.txta.style,
 			handleEvent(e) {
@@ -6787,9 +6788,9 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	}
 	if(Cfg.addSageBtn && this.mail) {
 		PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
-		this.subm.insertAdjacentHTML('afterend', '<svg id="de-sagebtn" class="de-btn-sage">' +
-			'<use xlink:href="#de-symbol-post-sage"/></svg>');
-		this.subm.nextSibling.onclick = e => {
+		$aEnd(this.subm, '<svg id="de-sagebtn" class="de-btn-sage">' +
+			'<use xlink:href="#de-symbol-post-sage"/></svg>'
+		).onclick = e => {
 			e.stopPropagation();
 			$pd(e);
 			toggleCfg('sageReply');
@@ -6881,9 +6882,9 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 			$pd(e);
 			$popup(Lng.sendingPost[lang], 'upload', true);
 			if(aib._2chruNet) {
-				docBody.insertAdjacentHTML('beforeend', '<iframe class="ninja" id="csstest" src="/' +
-					aib.b + '/csstest.foo"></iframe>');
-				docBody.lastChild.onload = e => {
+				$bEnd(docBody, '<iframe class="ninja" id="csstest" src="/' +
+					aib.b + '/csstest.foo"></iframe>'
+				).onload = e => {
 					$del(e.target);
 					spawn(html5Submit, this.form, this.subm, true)
 						.then(dc => checkUpload(dc), e => $popup(getErrorMessage(e), 'upload', false));
@@ -7259,10 +7260,9 @@ FileInput.prototype = {
 	imgFile: null,
 	thumb: null,
 	clear() {
-		var newEl, form = this.form,
-			oldEl = this.el;
-		oldEl.insertAdjacentHTML('afterend', oldEl.outerHTML);
-		newEl = this.el.nextSibling;
+		var form = this.form,
+			oldEl = this.el,
+			newEl = $aEnd(oldEl, oldEl.outerHTML);
 		newEl.obj = this;
 		newEl.addEventListener('change', this);
 		newEl.addEventListener('dragleave', this);
@@ -7360,10 +7360,9 @@ FileInput.prototype = {
 	init(isUpdate) {
 		if(Cfg.fileThumb) {
 			setTimeout(() => $hide(this.form.fileTd.parentNode), 0);
-			this.form.fileArea.insertAdjacentHTML('beforeend',
+			this.thumb = $bEnd(this.form.fileArea,
 				'<div class="de-file de-file-off"><div class="de-file-img">' +
 				'<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
-			this.thumb = this.form.fileArea.lastChild;
 			this.thumb.addEventListener('mouseover', this);
 			this.thumb.addEventListener('mouseout', this);
 			this.thumb.addEventListener('click', this);
@@ -7404,10 +7403,9 @@ FileInput.prototype = {
 		var el = this.form.rarInput;
 		el.onchange = e => {
 			$del(this._rjUtil);
-			this._buttonsPlace.insertAdjacentHTML('afterend',
-				'<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.wait[lang] + '</span>');
-			var myRjUtil = this._rjUtil = this._buttonsPlace.nextSibling,
-				file = e.target.files[0];
+			var myRjUtil = this._rjUtil = $aEnd(this._buttonsPlace, '<span><svg class="de-wait">' +
+				'<use xlink:href="#de-symbol-wait"/></svg>' + Lng.wait[lang] + '</span>');
+			var file = e.target.files[0];
 			readFile(file).then(({ data }) => {
 				if(this._rjUtil === myRjUtil) {
 					myRjUtil.className = 'de-file-rarmsg de-file-utils';
@@ -7479,19 +7477,17 @@ FileInput.prototype = {
 				return;
 			}
 			var file = this.el.files[0],
-				thumb = this.thumb;
-			thumb.classList.remove('de-file-off');
-			thumb = thumb.firstChild.firstChild;
-			thumb.title = file.name + ', ' + (file.size/1024).toFixed(2) + 'KB';
-			thumb.insertAdjacentHTML('afterbegin', file.type === 'video/webm' ?
+				el = this.thumb;
+			el.classList.remove('de-file-off');
+			el = el.firstChild.firstChild;
+			el.title = file.name + ', ' + (file.size/1024).toFixed(2) + 'KB';
+			this._mediaEl = el = $aBegin(el, file.type === 'video/webm' ?
 				'<video class="de-file-img" loop autoplay muted src=""></video>' :
 				'<img class="de-file-img" src="">');
-			this._mediaEl = thumb = thumb.firstChild;
-			thumb.src = window.URL.createObjectURL(new Blob([data]));
-			thumb = thumb.nextSibling;
-			if(thumb) {
-				window.URL.revokeObjectURL(thumb.src);
-				$del(thumb);
+			el.src = window.URL.createObjectURL(new Blob([data]));
+			if((el = el.nextSibling)) {
+				window.URL.revokeObjectURL(el.src);
+				$del(el);
 			}
 		});
 	}
@@ -7514,10 +7510,8 @@ class Captcha {
 		this._originHTML = this.trEl.innerHTML;
 		$hide(this.trEl);
 		if(this._isRecap) {
-			docBody.insertAdjacentHTML('beforeend', '<div onclick="' +
-				(this._isOldRecap ? 'Recaptcha.reload()' : 'grecaptcha.reset()') +
-				'"></div>');
-			this._recapUpdate = docBody.lastChild;
+			this._recapUpdate = $bEnd(docBody, '<div onclick="' +
+				(this._isOldRecap ? 'Recaptcha.reload()' : 'grecaptcha.reset()') + '"></div>');
 		} else {
 			this.trEl.innerHTML = '';
 		}
@@ -8192,10 +8186,9 @@ function genImgHash(data) {
 	return {hash: hash};
 }
 function ImgBtnsShowHider(nextFn, prevFn) {
-	docBody.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
+	var btns = $bEnd(docBody, '<div style="display: none;">' +
 		'<div id="de-img-btn-next" de-title="' + Lng.nextImg[lang] + '"></div>' +
 		'<div id="de-img-btn-prev" de-title="' + Lng.prevImg[lang] + '"></div></div>');
-	var btns = docBody.lastChild;
 	this._btns = btns;
 	this._btnsStyle = btns.style;
 	this._nextFn = nextFn;
@@ -8395,9 +8388,8 @@ AttachmentViewer.prototype = {
 		var obj = $add('<div class="de-img-center" style="top:' + this._oldT + 'px; left:' +
 			this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
 		if(data.isImage) {
-			obj.insertAdjacentHTML('afterbegin', '<a style="width: inherit; height: inherit;" href="' +
-				data.src + '"></a>');
-			obj.firstChild.appendChild(this._fullEl);
+			$aBegin(obj, '<a style="width: inherit; height: inherit;" href="' +
+				data.src + '"></a>').appendChild(this._fullEl);
 		} else {
 			obj.appendChild(this._fullEl);
 		}
@@ -8898,8 +8890,7 @@ class AbstractPost {
 		return value;
 	}
 	get mp3Obj() {
-		this.msg.insertAdjacentHTML('beforebegin', '<div class="de-mp3"></div>');
-		var value = this.msg.previousSibling;
+		var value = $bBegin(this.msg, '<div class="de-mp3"></div>');
 		Object.defineProperty(this, 'mp3Obj', { value });
 		return value;
 	}
@@ -9283,8 +9274,7 @@ class Post extends AbstractPost {
 		if(this.sage) {
 			html += '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>';
 		}
-		refEl.insertAdjacentHTML('afterend', html + '</span>');
-		this.btns = refEl.nextSibling;
+		this.btns = $aEnd(refEl, html + '</span>');
 		if(Cfg.expandTrunc && this.trunc) {
 			this._getFull(this.trunc, true);
 		}
@@ -9694,19 +9684,16 @@ Post.note = class PostNote {
 		this.text = null;
 		this._post = post;
 		if(post.isOp) {
-			var tEl = post.thr.el;
-			tEl.insertAdjacentHTML('beforebegin', `
+			this._noteEl = $bBegin(post.thr.el, `
 			<div class="${ aib.cReply } de-thr-hid" id="de-thr-hid-${ post.num }">
 				${ Lng.hiddenThrd[lang] }
 				<a href="#">№${ post.num }</a>
 				<span class="de-thread-note"></span>
 			</div>`);
-			this._noteEl = tEl.previousSibling;
 			this._aEl = $q('a', this._noteEl);
 			this.textEl = this._aEl.nextElementSibling;
 		} else {
-			post.btns.insertAdjacentHTML('beforeend', '<span class="de-post-note"></span>');
-			this._noteEl = this.textEl = post.btns.lastChild;
+			this._noteEl = this.textEl = $bEnd(post.btns, '<span class="de-post-note"></span>');
 		}
 	}
 	hide() {
@@ -10116,17 +10103,11 @@ class Pview extends AbstractPost {
 		var parentNum = this.parent.num,
 			post = new PviewsCache(doc.adoptNode(form), b, this.tNum).getPost(this.num);
 		if(post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(parentNum))) {
-			var rm;
-			if(post.ref.hasMap) {
-				rm = $q('.de-refmap', post.el);
-			} else {
-				post.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
-				rm = post.msg.nextSibling;
-			}
-			rm.insertAdjacentHTML('afterbegin', '<a class="de-link-ref" href="' +
-				aib.getThrdUrl(b, this.parent.tNum) + aib.anchor +
-				parentNum + '">&gt;&gt;' + (aib.b === b ? '' : '/' + aib.b + '/') + parentNum +
-				'</a><span class="de-refcomma">, </span>');
+			(post.ref.hasMap ? $q('.de-refmap', post.el) : $aEnd(post.msg, '<div class="de-refmap"></div>'))
+				.insertAdjacentHTML('afterbegin', '<a class="de-link-ref" href="' +
+					aib.getThrdUrl(b, this.parent.tNum) + aib.anchor +
+					parentNum + '">&gt;&gt;' + (aib.b === b ? '' : '/' + aib.b + '/') + parentNum +
+					'</a><span class="de-refcomma">, </span>');
 		}
 		if(post) {
 			this._showPost(post);
@@ -10198,8 +10179,7 @@ class Pview extends AbstractPost {
 		this._pref = $q(aib.qPostRef, el);
 		this._link.classList.add('de-link-parent');
 		if(post instanceof CacheItem) {
-			this._pref.insertAdjacentHTML('afterend', '<span class="de-post-btns">' + pText + '</span');
-			this.btns = this._pref.nextSibling;
+			this.btns = $aEnd(this._pref, '<span class="de-post-btns">' + pText + '</span');
 			embedMediaLinks(this);
 			if(Cfg.addYouTube) {
 				new VideosParser().parse(this).end();
@@ -10602,18 +10582,16 @@ class Thread {
 			$del($q('.clear', el));
 		}
 		if(!aib.t) {
-			el.insertAdjacentHTML('beforeend', '<div class="de-thread-buttons">' +
-				'<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>]</span>');
-			this.btns = el.lastChild;
-			var updBtn = this.btns.firstElementChild;
+			this.btns = $bEnd(el, '<div class="de-thread-buttons">' +
+				'<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>]</span></div>');
+			var updBtn = this.btns.firstChild;
 			updBtn.onclick = e => {
 				$pd(e);
 				this.load('new', false);
 			};
 			if(Cfg.hideReplies) {
-				this.btns.insertAdjacentHTML('beforeend',
+				var repBtn = $bEnd(this.btns,
 					' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
-				var repBtn = this.btns.lastChild;
 				repBtn.onclick = e => {
 					$pd(e);
 					var nextCoord = !this.next || this.last.omitted ? null :this.next.top;
@@ -10714,8 +10692,7 @@ class Thread {
 		}
 		return ajaxLoad(aib.getThrdUrl(aib.b, this.num)).then(
 			form => this.loadFromForm(last, smartScroll, form),
-			e => $popup(getErrorMessage(e), 'load-thr', false)
-		);
+			e => $popup(getErrorMessage(e), 'load-thr', false));
 	}
 	loadFromForm(last, smartScroll, form) {
 		var nextCoord, loadedPosts = $Q(aib.qRPost, form),
@@ -10811,10 +10788,9 @@ class Thread {
 			thrEl.appendChild(btn);
 		}
 		if(!$q('.de-thread-collapse', btn)) {
-			btn.insertAdjacentHTML('beforeend',
-				'<span class="de-thread-collapse"> [<a class="de-abtn" href="' +
-				aib.getThrdUrl(aib.b, this.num) + '"></a>]</span>');
-			btn.lastChild.onclick = e => {
+			$bEnd(btn, '<span class="de-thread-collapse"> [<a class="de-abtn" href="' +
+				aib.getThrdUrl(aib.b, this.num) + '"></a>]</span>'
+			).onclick = e => {
 				$pd(e);
 				this.load(visPosts, true);
 			};
@@ -11096,7 +11072,7 @@ var navPanel = {
 		}
 	},
 	init() {
-		docBody.insertAdjacentHTML('beforeend', `
+		var el = $bEnd(docBody, `
 		<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">
 			<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-nav-arrow"/></svg>
 			<div id="de-thr-navup">
@@ -11106,7 +11082,6 @@ var navPanel = {
 				<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-nav-down"/></svg>
 			</div>
 		</div>`);
-		var el = docBody.lastChild;
 		el.addEventListener('mouseover', this, true);
 		el.addEventListener('mouseout', this, true);
 		el.addEventListener('click', this, true);
@@ -11540,8 +11515,7 @@ class BaseBoard {
 		return this.getWrap(el, isOp);
 	}
 	insertYtPlayer(msg, playerHtml) {
-		msg.insertAdjacentHTML('beforebegin', playerHtml);
-		return msg.previousSibling;
+		return $bBegin(msg, playerHtml);
 	}
 }
 
@@ -12086,22 +12060,22 @@ function getImageBoard(checkDomains, checkEngines) {
 					return CancelablePromise.reject();
 				}
 				$id('captchaimage').src = '/' + this.b + '/captcha?' + Math.random();
-				if(!$id('de-_2chruNet-capchecker')) {
-					cap.textEl.insertAdjacentHTML('afterend', `
-					<span id="de-_2chruNet-capchecker" class="shortened" style="margin: 0px .5em;">
-						проверить капчу
-					</span>`);
-					cap.textEl.nextSibling.onclick = ({ target }) => {
-						$ajax('/' + this.b + '/api/validate-captcha', { method: 'POST' }).then(xhr => {
-							if(JSON.parse(xhr.responseText).status === 'ok') {
-								target.innerHTML = 'можно постить';
-							} else {
-								target.innerHTML = 'неверная капча';
-								setTimeout(() => target.innerHTML = 'проверить капчу', 1e3);
-							}
-						}, emptyFn);
-					};
+				if($id('de-_2chruNet-capchecker')) {
+					return;
 				}
+				$aEnd(cap.textEl,
+				`<span id="de-_2chruNet-capchecker" class="shortened" style="margin: 0px .5em;">
+					проверить капчу
+				</span>`).onclick = ({ target }) => {
+					$ajax('/' + this.b + '/api/validate-captcha', { method: 'POST' }).then(xhr => {
+						if(JSON.parse(xhr.responseText).status === 'ok') {
+							target.innerHTML = 'можно постить';
+						} else {
+							target.innerHTML = 'неверная капча';
+							setTimeout(() => target.innerHTML = 'проверить капчу', 1e3);
+						}
+					}, emptyFn);
+				};
 			}, e => {
 				if(!(e instanceof CancelError)) {
 					this._capUpdPromise = null;
@@ -12268,13 +12242,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			var el = $id('captchaFormPart'),
 				value = null;
 			if(el) {
-				docBody.insertAdjacentHTML('beforeend', '<div onclick="initRecaptcha();"></div>');
 				value = function(el) {
 					$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
 					this.click();
 					$show(el);
 					return null;
-				}.bind(docBody.lastChild, el);
+				}.bind($bEnd(docBody, '<div onclick="initRecaptcha();"></div>'), el);
 			}
 			Object.defineProperty(this, 'updateCaptcha', { value });
 			return value;
@@ -12523,10 +12496,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		insertYtPlayer(msg, playerHtml) {
-			var prev = msg.previousElementSibling,
-				el = prev.tagName === 'BR' ? prev : msg;
-			el.insertAdjacentHTML('beforebegin', playerHtml);
-			return el.previousSibling;
+			var prev = msg.previousElementSibling;
+			return $bBegin(prev.tagName === 'BR' ? prev : msg, playerHtml);
 		}
 		updateCaptcha(cap, isErr) {
 			var img = $q('img', cap.trEl);
@@ -12541,8 +12512,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				var el = img.parentNode;
 				el.innerHTML = '';
 				el.appendChild(img);
-				img.insertAdjacentHTML('afterend',
-					'<br><input placeholder="Капча" autocomplete="off" id="captcha" name="captcha" size="35" type="text"/>');
+				img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off"' +
+					' id="captcha" name="captcha" size="35" type="text"/>');
 				$show(img);
 				cap.renew();
 			}
@@ -12614,8 +12585,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			defaultCfg.addSageBtn = 0;
-			docBody.insertAdjacentHTML('beforeend', '<div onclick="highlight = function() {}"></div>');
-			docBody.lastChild.click();
+			$bEnd(docBody, '<div onclick="highlight = function() {}"></div>').click();
 			return false;
 		}
 	}
@@ -12717,10 +12687,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		insertYtPlayer(msg, playerHtml) {
 			var pMsg = msg.parentNode,
-				prev = pMsg.previousElementSibling,
-				node = prev.hasAttribute('style') ? prev : pMsg;
-			node.insertAdjacentHTML('beforebegin', playerHtml);
-			return node.previousSibling;
+				prev = pMsg.previousElementSibling;
+			return $bBegin(prev.hasAttribute('style') ? prev : pMsg, playerHtml);
 		}
 		repFn(str) {
 			return str.replace(/href="(#\d+)"/g, 'href="/' + aib.b + '/thread-' + aib.t + '.html$1"')
@@ -13267,10 +13235,9 @@ class DelForm {
 	}
 	static doReplace(formEl) {
 		if(aib.needRep) {
-			formEl.insertAdjacentHTML('beforebegin', replaceString(formEl.outerHTML));
-			$hide(formEl);
 			formEl.id = 'de-dform-old';
-			formEl = formEl.previousSibling;
+			formEl = $bBegin(formEl, replaceString(formEl.outerHTML));
+			$hide(formEl.nextSibling);
 			window.addEventListener('load', () => $del($id('de-dform-old')));
 		}
 		return formEl;
@@ -13639,8 +13606,7 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		_setIcon(iconUrl) {
 			$del(this._iconEl);
-			doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' + iconUrl + '">');
-			this._iconEl = doc.head.firstChild;
+			this._iconEl = $aBegin(doc.head, '<link rel="shortcut icon" href="' + iconUrl + '">');
 		},
 		_startBlink(iconUrl) {
 			if(this._blinkInterval) {
@@ -13986,8 +13952,7 @@ function initPage() {
 	if(!localRun && Cfg.ajaxReply === 1) {
 		docBody.insertAdjacentHTML('beforeend',
 			'<iframe name="de-iframe-pform" sandbox="" src="about:blank" style="display: none;"></iframe>' +
-			'<iframe name="de-iframe-dform" sandbox="" src="about:blank" style="display: none;"></iframe>'
-		);
+			'<iframe name="de-iframe-dform" sandbox="" src="about:blank" style="display: none;"></iframe>');
 		doc.defaultView.addEventListener('message', ({ data }) => {
 			switch(data.substr(0, 15)) {
 			case 'de-iframe-pform':
