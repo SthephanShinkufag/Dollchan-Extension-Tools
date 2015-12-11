@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '7014007';
+var commit = 'bc9e799';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -4839,10 +4839,10 @@ Videos.setLinkData = function(link, [title, author, views, publ, duration]) {
 	link.textContent = title;
 	link.classList.add('de-video-title');
 	link.setAttribute('de-author', author);
-	link.title = Lng.author[lang] + author +
+	link.title = (duration ? Lng.duration[lang] + duration + ', ': '') +
+		Lng.author[lang] + author +
 		(views ? ', ' + Lng.views[lang] + views : '') +
-		(publ ? ', ' + Lng.published[lang] + publ : '') +
-		(duration ? ',\n' + Lng.duration[lang] + duration : '');
+		(publ ? ',\n' + Lng.published[lang] + publ : '');
 };
 Videos._titlesLoaderHelper = function([link, isYtube, videoObj, id], num, ...data) {
 	if(data.length !== 0) {
