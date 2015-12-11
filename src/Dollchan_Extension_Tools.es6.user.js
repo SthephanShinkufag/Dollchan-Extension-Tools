@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'e7bfc99';
+var commit = 'db2d808';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -580,6 +580,7 @@ Lng = {
 	author:         ['автор: ', 'author: '],
 	views:          ['просмотров: ', 'views: '],
 	published:      ['опубликовано: ', 'published: '],
+	duration:       ['продолжительность: ', 'duration: '],
 
 	seSyntaxErr:    ['синтаксическая ошибка в аргументе спелла: %s', 'syntax error in argument of spell: %s'],
 	seUnknown:      ['неизвестный спелл: %s', 'unknown spell: %s'],
@@ -4792,7 +4793,8 @@ Videos._global = {
 	get vData() {
 		var val;
 		try {
-			val = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data1'] || '[{}, {}]') : [{}, {}];
+			sesStorage.removeItem('de-videos-data1');
+			val = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data2'] || '[{}, {}]') : [{}, {}];
 		} catch(e) {
 			val = [{}, {}];
 		}
@@ -4833,15 +4835,18 @@ Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
 		};
 	}
 };
+Videos.setLinkData = function(link, [title, author, views, publ, duration]) {
+	link.textContent = title;
+	link.classList.add('de-video-title');
+	link.setAttribute('de-author', author);
+	link.title = Lng.author[lang] + author +
+		(views ? ', ' + Lng.views[lang] + views : '') +
+		(publ ? ', ' + Lng.published[lang] + publ : '') +
+		(duration ? ', ' + Lng.duration[lang] + duration : '');
+};
 Videos._titlesLoaderHelper = function([link, isYtube, videoObj, id], num, ...data) {
 	if(data.length !== 0) {
-		var [title, author, views, publ] = data;
-		link.textContent = title;
-		link.setAttribute('de-author', author);
-		link.classList.add('de-video-title');
-		link.title = Lng.author[lang] + author +
-			(views ? ', ' + Lng.views[lang] + views : '') +
-			(publ ? ', ' + Lng.published[lang] + publ : '');
+		Videos.setLinkData(link, data);
 		Videos._global.vData[isYtube ? 0 : 1][id] = data;
 		videoObj.vData[isYtube ? 0 : 1].push(data);
 		if(videoObj.titleLoadFn) {
@@ -4856,14 +4861,15 @@ Videos._titlesLoaderHelper = function([link, isYtube, videoObj, id], num, ...dat
 };
 Videos._getYTInfoAPI = function(info, num, id) {
 	return $ajax('https://www.googleapis.com/youtube/v3/videos?key=' + Cfg.ytApiKey + '&id=' + id +
-	             '&part=snippet,statistics&fields=items/snippet/title,items/snippet/publishedAt,items/snippet/channelTitle,items/statistics/viewCount',
+	             '&part=snippet,statistics,contentDetails&fields=items/snippet/title,items/snippet/publishedAt,items/snippet/channelTitle,items/statistics/viewCount,items/contentDetails/duration',
 	             null, false).then(xhr => {
 		var items = JSON.parse(xhr.responseText).items[0];
 		return Videos._titlesLoaderHelper(info, num,
 		                                  items.snippet.title,
 		                                  items.snippet.channelTitle,
 		                                  items.statistics.viewCount,
-		                                  items.snippet.publishedAt.substr(0, 10));
+		                                  items.snippet.publishedAt.substr(0, 10),
+										  items.contentDetails.duration.substr(2).toLowerCase());
 	}).catch(() => Videos._getYTInfoOembed(info, num, id));
 };
 Videos._getYTInfoOembed = function(info, num, id) {
@@ -4874,7 +4880,8 @@ Videos._getYTInfoOembed = function(info, num, id) {
 		                                  json.title,
 		                                  json.author_name,
 		                                  null,
-		                                  null);
+		                                  null,
+										  null);
 	}).catch(() => Videos._titlesLoaderHelper(info, num));
 };
 Videos._getTitlesLoader = function() {
@@ -4892,7 +4899,7 @@ Videos._getTitlesLoader = function() {
 			                                  (/(.*)\s(.*)?/.exec(entry["upload_date"]))[1]);
 		}).catch(() => Videos._titlesLoaderHelper(info, num));
 	}, () => {
-		sesStorage['de-videos-data1'] = JSON.stringify(Videos._global.vData);
+		sesStorage['de-videos-data2'] = JSON.stringify(Videos._global.vData);
 	});
 };
 Videos.prototype = {
@@ -4941,12 +4948,7 @@ Videos.prototype = {
 			}
 			link.className = 'de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo');
 			if(dataObj) {
-				link.textContent = dataObj[0];
-				link.classList.add('de-video-title');
-				link.setAttribute('de-author', dataObj[1]);
-				link.title = Lng.author[lang] + dataObj[1] +
-					(dataObj[2] ? ', ' + Lng.views[lang] + dataObj[2] : '') +
-					(dataObj[3] ? ', ' + Lng.published[lang] + dataObj[3] : '');
+				Videos.setLinkData(link, dataObj);
 			}
 		} else {
 			var src = isYtube ? aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '')
