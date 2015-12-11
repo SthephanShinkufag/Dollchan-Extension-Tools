@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '96288e6';
+var commit = '9359e08';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -33,7 +33,7 @@ var defaultCfg = {
 	'hideRefPsts':      0,      // hide posts referenced to hidden posts
 	'delHiddPost':      0,      // delete hidden posts
 	'ajaxUpdThr':       1,      // threads updater
-	'updThrDelay':      20,     //    update interval in sec
+	'updThrDelay':      20,     //    update interval (sec)
 	'updCount':         1,      //    show countdown for thread updater
 	'favIcoBlink':      0,      //    favicon blinking for new posts
 	'desktNotif':       0,      //    desktop notifications for new posts
@@ -50,27 +50,27 @@ var defaultCfg = {
 	'noPostNames':      0,      // hide post names
 	'widePosts':        0,      // stretch posts to screen width
 	'correctTime':      0,      // correct time in posts
-	'timeOffset':       '+0',   //    offset in hours
+	'timeOffset':       '+0',   //    time offset (hours)
 	'timePattern':      '',     //    search pattern
 	'timeRPattern':     '',     //    replace pattern
 	'expandImgs':       2,      // expand images by click [0=off, 1=in post, 2=by center]
 	'imgNavBtns':       1,      //    add image navigation for full images
 	'resizeDPI':        0,      //    honor dpi settings
 	'resizeImgs':       1,      //    resize large images
-	'minImgSize':       100,    //    minimal image's size
-	'zoomFactor':       25,     //    zoom images by this factor on every wheel event
+	'minImgSize':       100,    //    minimal image's size for expanding by center (px)
+	'zoomFactor':       25,     //    zoom images by this factor on every wheel event (%)
 	'webmControl':      1,      //    control bar for webm files
-	'webmVolume':       100,    //    default volume for webm files
+	'webmVolume':       100,    //    default volume for webm files (%)
 	'preLoadImgs':      0,      // pre-load images
 	'findImgFile':      0,      //    detect built-in files in images
 	'openImgs':         0,      // open images in posts [0=off, 1=all images, 2=GIFs only, 3=non-GIFs]
 	'imgSrcBtns':       1,      // add image search buttons
 	'delImgNames':      0,      // remove names of images
 	'maskImgs':         0,      // mask images
-	'maskVisib':        7,      // visibility for masked images
+	'maskVisib':        7,      // visibility for masked images (%)
 	'linksNavig':       2,      // navigation by >>links [0=off, 1=no map, 2=+refmap]
-	'linksOver':        100,    //    delay appearance in ms
-	'linksOut':         1500,   //    delay disappearance in ms
+	'linksOver':        100,    //    delay appearance (ms)
+	'linksOut':         1500,   //    delay disappearance (ms)
 	'markViewed':       0,      //    mark viewed posts
 	'strikeHidd':       0,      //    strike >>links to hidden posts
 	'removeHidd':       0,      //        remove from refmap
@@ -83,8 +83,8 @@ var defaultCfg = {
 	'addVocaroo':       1,      // embed Vocaroo links
 	'addYouTube':       3,      // embed YouTube links [0=off, 1=onclick, 2=player, 3=preview+player, 4=preview]
 	'YTubeType':        0,      //    player type [0=flash, 1=HTML5]
-	'YTubeWidth':       360,    //    player width
-	'YTubeHeigh':       270,    //    player height
+	'YTubeWidth':       360,    //    player width (px)
+	'YTubeHeigh':       270,    //    player height (px)
 	'YTubeTitles':      0,      //    convert links to titles
 	'ytApiKey':         '',     //    public key for youtube API
 	'addVimeo':         1,      //    embed vimeo links
@@ -102,6 +102,7 @@ var defaultCfg = {
 	'addSageBtn':       1,      // email field -> sage button
 	'saveSage':         1,      // remember sage
 	'sageReply':        0,      //    reply with sage
+	'capUpdTime':       300,    // captcha update interval (sec)
 	'captchaLang':      1,      // language input in captcha [0=off, 1=en, 2=ru]
 	'addTextBtns':      1,      // text format buttons [0=off, 1=graphics, 2=text, 3=usual]
 	'txtBtnsLoc':       1,      //    located at [0=top, 1=bottom]
@@ -126,8 +127,8 @@ var defaultCfg = {
 	'updScript':        1,      // check for script's update
 	'scrUpdIntrv':      1,      //    check interval in days (every val+1 day)
 	'turnOff':          0,      // enable script only for this site
-	'textaWidth':       300,    // textarea size
-	'textaHeight':      115,
+	'textaWidth':       300,    // textarea width (px)
+	'textaHeight':      115,    // textarea height (px)
 	'replyWinDrag':     0,      // draggable Quick Reply form
 	'replyWinX':        'right: 0',     // Quick Reply form position
 	'replyWinY':        'top: 0',
@@ -191,9 +192,9 @@ Lng = {
 		'resizeDPI':    ['Отображать картинки пиксель в пиксель', 'Don\'t upscale images on retina displays'],
 		'resizeImgs':   ['Уменьшать в экран большие картинки', 'Resize large images to fit screen'],
 		'minImgSize':   ['Минимальный размер картинок (px)', 'Minimal image\'s size (px)'],
-		'zoomFactor':   ['Чувствительность зума картинок [1-100]', 'Sensibility of the images zoom [1-100]'],
+		'zoomFactor':   ['Чувствительность зума картинок [1-100%]', 'Sensibility of the images zoom [1-100%]'],
 		'webmControl':  ['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
-		'webmVolume':   ['Громкость webm-файлов [0-100]', 'Default volume for webm files [0-100]'],
+		'webmVolume':   ['Громкость webm-файлов [0-100%]', 'Default volume for webm files [0-100%]'],
 		'preLoadImgs':  ['Предварительно загружать картинки*', 'Pre-load images*'],
 		'findImgFile':  ['Распознавать встроенные файлы в картинках*', 'Detect built-in files in images*'],
 		'openImgs': {
@@ -202,7 +203,7 @@ Lng = {
 		},
 		'imgSrcBtns':   ['Добавлять кнопки для поиска картинок*', 'Add image search buttons*'],
 		'delImgNames':  ['Скрывать имена картинок*', 'Hide names of images*'],
-		'maskVisib':    ['Видимость при маскировке [0-100]', 'Visibility for masked images [0-100]'],
+		'maskVisib':    ['Видимость при маскировке [0-100%]', 'Visibility for masked images [0-100%]'],
 
 		'linksNavig': {
 			sel:        [['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
@@ -254,6 +255,7 @@ Lng = {
 		'fileThumb':    ['Область превью картинок вместо кнопки "Файл"', 'File thumbnail area instead of "File" button'],
 		'addSageBtn':   ['Кнопка Sage вместо "E-mail" ', 'Sage button instead of "E-mail" '],
 		'saveSage':     ['Запоминать сажу', 'Remember sage'],
+		'capUpdTime':   ['Интервал обновления капчи (сек)', 'Captcha update interval (sec)'],
 		'captchaLang': {
 			sel:        [['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus']],
 			txt:        ['Язык ввода капчи', 'Language input in captcha']
@@ -3059,7 +3061,8 @@ function getCfgLinks() {
 				optSel('YTubeType', false, null),
 				inpTxt('YTubeWidth', 2, null),
 				$txt('\u00D7'),
-				inpTxt('YTubeHeigh', 2, null)
+				inpTxt('YTubeHeigh', 2, null),
+				$txt('(px)')
 			]),
 			lBox('YTubeTitles', false, null),
 			$New('div', null, [
@@ -3115,7 +3118,11 @@ function getCfgForm() {
 			}),
 			lBox('saveSage', false, null)
 		])),
-		$if(pr.cap, optSel('captchaLang', true, null)),
+		$if(pr.cap, $New('div', null, [
+			inpTxt('capUpdTime', 2, null),
+			$txt(Lng.cfg.capUpdTime[lang]),
+			optSel('captchaLang', true, null)
+		])),
 		$if(pr.txta, $New('div', null, [
 			optSel('addTextBtns', false, function() {
 				saveCfg('addTextBtns', this.selectedIndex);
@@ -6856,7 +6863,10 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	var capEl = $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', form);
 	if(capEl) {
 		this.cap = new Captcha(capEl, this.tNum);
-		this.txta.addEventListener('focus', () => this.cap.add());
+		this.txta.addEventListener('focus', () => {
+			this.cap.add();
+			this.cap.updOutdated();
+		});
 		this.form.addEventListener('click', () => this.cap.add(), true);
 	} else {
 		this.cap = null;
@@ -7558,10 +7568,7 @@ class Captcha {
 			}
 			$txtInsert(e.target, chr);
 			break;
-		case 'focus':
-			if(this._lastUpdate && (Date.now() - this._lastUpdate > 3e5)) { // 5 min
-				this.update(false);
-			}
+		case 'focus': this.updOutdated();
 		}
 		$pd(e);
 		e.stopPropagation();
@@ -7664,6 +7671,11 @@ class Captcha {
 			}
 		}
 		this._updateTextEl(focus);
+	}
+	updOutdated() {
+		if(this._lastUpdate && (Date.now() - this._lastUpdate > Cfg.capUpdTime * 1e3)) {
+			this.update(false);
+		}
 	}
 
 	_setUpdateError(e) {

@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '96288e6';
+	var commit = '9359e08';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -2937,6 +2937,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'addSageBtn': 1,
 		'saveSage': 1,
 		'sageReply': 0,
+		'capUpdTime': 300,
 		'captchaLang': 1,
 		'addTextBtns': 1,
 		'txtBtnsLoc': 1,
@@ -3025,9 +3026,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'resizeDPI': ['Отображать картинки пиксель в пиксель', 'Don\'t upscale images on retina displays'],
 			'resizeImgs': ['Уменьшать в экран большие картинки', 'Resize large images to fit screen'],
 			'minImgSize': ['Минимальный размер картинок (px)', 'Minimal image\'s size (px)'],
-			'zoomFactor': ['Чувствительность зума картинок [1-100]', 'Sensibility of the images zoom [1-100]'],
+			'zoomFactor': ['Чувствительность зума картинок [1-100%]', 'Sensibility of the images zoom [1-100%]'],
 			'webmControl': ['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
-			'webmVolume': ['Громкость webm-файлов [0-100]', 'Default volume for webm files [0-100]'],
+			'webmVolume': ['Громкость webm-файлов [0-100%]', 'Default volume for webm files [0-100%]'],
 			'preLoadImgs': ['Предварительно загружать картинки*', 'Pre-load images*'],
 			'findImgFile': ['Распознавать встроенные файлы в картинках*', 'Detect built-in files in images*'],
 			'openImgs': {
@@ -3036,7 +3037,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			},
 			'imgSrcBtns': ['Добавлять кнопки для поиска картинок*', 'Add image search buttons*'],
 			'delImgNames': ['Скрывать имена картинок*', 'Hide names of images*'],
-			'maskVisib': ['Видимость при маскировке [0-100]', 'Visibility for masked images [0-100]'],
+			'maskVisib': ['Видимость при маскировке [0-100%]', 'Visibility for masked images [0-100%]'],
 
 			'linksNavig': {
 				sel: [['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
@@ -3085,6 +3086,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'fileThumb': ['Область превью картинок вместо кнопки "Файл"', 'File thumbnail area instead of "File" button'],
 			'addSageBtn': ['Кнопка Sage вместо "E-mail" ', 'Sage button instead of "E-mail" '],
 			'saveSage': ['Запоминать сажу', 'Remember sage'],
+			'capUpdTime': ['Интервал обновления капчи (сек)', 'Captcha update interval (sec)'],
 			'captchaLang': {
 				sel: [['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus']],
 				txt: ['Язык ввода капчи', 'Language input in captcha']
@@ -6154,7 +6156,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			saveCfg('linksOver', +this.value | 0);
 		}), $txt(Lng.cfg.linksOver[lang]), inpTxt('linksOut', 2, function () {
 			saveCfg('linksOut', +this.value | 0);
-		}), $txt(Lng.cfg.linksOut[lang])]), lBox('markViewed', true, null), lBox('strikeHidd', true, updateCSS), $New('div', { 'class': 'de-cfg-depend' }, [lBox('removeHidd', false, updateCSS)]), lBox('noNavigHidd', true, null)]), lBox('crossLinks', true, null), lBox('insertNum', true, null), lBox('addOPLink', true, null), lBox('addImgs', true, null), lBox('addMP3', false, null), $if(aib.prot === 'http:', lBox('addVocaroo', false, null)), optSel('addYouTube', true, null), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [optSel('YTubeType', false, null), inpTxt('YTubeWidth', 2, null), $txt('×'), inpTxt('YTubeHeigh', 2, null)]), lBox('YTubeTitles', false, null), $New('div', null, [inpTxt('ytApiKey', 25, function () {
+		}), $txt(Lng.cfg.linksOut[lang])]), lBox('markViewed', true, null), lBox('strikeHidd', true, updateCSS), $New('div', { 'class': 'de-cfg-depend' }, [lBox('removeHidd', false, updateCSS)]), lBox('noNavigHidd', true, null)]), lBox('crossLinks', true, null), lBox('insertNum', true, null), lBox('addOPLink', true, null), lBox('addImgs', true, null), lBox('addMP3', false, null), $if(aib.prot === 'http:', lBox('addVocaroo', false, null)), optSel('addYouTube', true, null), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [optSel('YTubeType', false, null), inpTxt('YTubeWidth', 2, null), $txt('×'), inpTxt('YTubeHeigh', 2, null), $txt('(px)')]), lBox('YTubeTitles', false, null), $New('div', null, [inpTxt('ytApiKey', 25, function () {
 			saveCfg('ytApiKey', this.value.trim());
 		}), $txt(Lng.cfg.ytApiKey[lang])]), lBox('addVimeo', true, null)])]);
 	}
@@ -6181,7 +6183,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		})), $if(pr.mail, $New('div', null, [lBox('addSageBtn', false, function () {
 			PostForm.hideField($parent(pr.mail, 'LABEL') || pr.mail);
 			updateCSS();
-		}), lBox('saveSage', false, null)])), $if(pr.cap, optSel('captchaLang', true, null)), $if(pr.txta, $New('div', null, [optSel('addTextBtns', false, function () {
+		}), lBox('saveSage', false, null)])), $if(pr.cap, $New('div', null, [inpTxt('capUpdTime', 2, null), $txt(Lng.cfg.capUpdTime[lang]), optSel('captchaLang', true, null)])), $if(pr.txta, $New('div', null, [optSel('addTextBtns', false, function () {
 			saveCfg('addTextBtns', this.selectedIndex);
 			pr.addTextPanel();
 		}), lBox('txtBtnsLoc', false, pr.addTextPanel.bind(pr))])), $if(pr.passw, $New('div', null, [inpTxt('passwValue', 9, PostForm.setUserPassw), $txt(Lng.cfg.userPassw[lang]), $btn(Lng.change[lang], '', function () {
@@ -10280,7 +10282,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (capEl) {
 			this.cap = new Captcha(capEl, this.tNum);
 			this.txta.addEventListener('focus', function () {
-				return _this14.cap.add();
+				_this14.cap.add();
+				_this14.cap.updOutdated();
 			});
 			this.form.addEventListener('click', function () {
 				return _this14.cap.add();
@@ -11022,10 +11025,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						$txtInsert(e.target, chr);
 						break;
 					case 'focus':
-						if (this._lastUpdate && Date.now() - this._lastUpdate > 3e5) {
-						
-							this.update(false);
-						}
+						this.updOutdated();
 				}
 				$pd(e);
 				e.stopPropagation();
@@ -11153,6 +11153,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 				}
 				this._updateTextEl(focus);
+			}
+		}, {
+			key: 'updOutdated',
+			value: function updOutdated() {
+				if (this._lastUpdate && Date.now() - this._lastUpdate > Cfg.capUpdTime * 1e3) {
+					this.update(false);
+				}
 			}
 		}, {
 			key: '_setUpdateError',
