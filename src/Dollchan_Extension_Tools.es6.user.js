@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '08871cd';
+var commit = '4a043e7';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12347,6 +12347,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostImg = '.post_image > img';
 			this.qPostMsg = '.post_comment_body';
 			this.qPostRef = '.post_id, .post_head > b';
+			this.qPostSubj = '.post_subject';
 			this.qRPost = '.post:not(:first-child):not([postid=""])';
 
 			this.docExt = '';
@@ -14352,7 +14353,7 @@ function scriptCSS() {
 	.de-link-ref { text-decoration: none; }\
 	.de-list { padding-top: 4px; }\
 	.de-list::before { content: "\u25CF"; margin-right: 4px; }\
-	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\
+	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 9999; border: 1px solid grey !important;}\
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
 	.de-menu-item:hover { background-color: #222; color: #fff; }\
 	.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(0,0,255,.7); border-right: 4px solid rgba(0,0,255,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(0,0,255,.8), -6px 0 2px -2px rgba(0,0,255,.8); }') + '\
