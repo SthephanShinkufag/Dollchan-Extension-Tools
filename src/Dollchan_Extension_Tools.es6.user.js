@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '4a043e7';
+var commit = '7dd04c2';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13567,7 +13567,8 @@ function initThreadUpdater(title, enableUpdate) {
 		_isInited: false,
 		_isOriginalIcon: true,
 		get _iconEl() {
-			var el = $q('head link[rel="shortcut icon"]', doc.head);
+			var el = $q('head link[rel="shortcut icon"]', doc.head) ||
+				$bEnd(doc.head, '<link href="/favicon.ico" rel="shortcut icon"/>');
 			Object.defineProperties(this, {
 				'_iconEl': { value: el, writable: true },
 				'originalIcon': { value: el ? el.href : null }
