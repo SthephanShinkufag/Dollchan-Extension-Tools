@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = '4a88289';
+var commit = 'da05354';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11176,9 +11176,9 @@ function initNavFuncs() {
 	} catch(e) {
 		needFileHack = true;
 	}
-	if(needFileHack) {
-		var origFormData = FormData;
-		var origAppend = FormData.prototype.append;
+	if(needFileHack && FormData.prototype) {
+		var origFormData = FormData,
+			origAppend = FormData.prototype.append;
 		FormData = function FormData(...args) {
 			var rv = new origFormData(...args);
 			rv.append = function append(name, value, fileName = null) {
@@ -12902,12 +12902,16 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['uchan.to'] = Uchan;
 
-	var prot = window.location.protocol;
-	localRun = prot === 'file:';
-	var dm = localRun ?
-		(window.location.pathname.match(/\/([^-]+)-[^-]+-[^\.]+\.[a-z]+$/) || [,''])[1] :
-		window.location.hostname
+	var dm = window.location.pathname.match(/\/([^-]+)-[^-]+-[^\.]+\.[a-z]+$/);
+	if(dm) {
+		dm = dm[1];
+		localRun = true;
+	} else {
+		dm = window.location.hostname
 			.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
+		localRun = false;
+	}
+	var prot = window.location.protocol;
 	if(checkDomains && (dm in ibDomains)) {
 		return new ibDomains[dm](prot, dm);
 	}
