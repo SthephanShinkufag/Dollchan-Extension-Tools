@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'da05354';
+var commit = 'e2ca441';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12902,7 +12902,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['uchan.to'] = Uchan;
 
-	var dm = window.location.pathname.match(/\/([^-]+)-[^-]+-[^\.]+\.[a-z]+$/);
+	var dm = window.location.pathname.match(/\/([^\/]+)-[^-\/]+-\d+\.[a-z]+$/);
 	if(dm) {
 		dm = dm[1];
 		localRun = true;
@@ -13040,7 +13040,7 @@ function initStorageEvent() {
 function parseURL() {
 	var url;
 	if(localRun) {
-		url = window.location.pathname.match(/\/[^-]+-([^-]+)-([^\.]+)\.[a-z]+$/);
+		url = window.location.pathname.match(/\/[^\/]+-([^-\/]+)-(\d+)\.[a-z]+$/);
 		aib.prot = 'http:';
 		aib.host = aib.dm;
 		aib.b = url ? url[1] : '';

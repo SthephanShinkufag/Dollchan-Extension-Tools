@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'da05354';
+	var commit = 'e2ca441';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -17831,7 +17831,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		ibDomains['uchan.to'] = Uchan;
 
-		var dm = window.location.pathname.match(/\/([^-]+)-[^-]+-[^\.]+\.[a-z]+$/);
+		var dm = window.location.pathname.match(/\/([^\/]+)-[^-\/]+-\d+\.[a-z]+$/);
 		if (dm) {
 			dm = dm[1];
 			localRun = true;
@@ -17978,7 +17978,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function parseURL() {
 		var url;
 		if (localRun) {
-			url = window.location.pathname.match(/\/[^-]+-([^-]+)-([^\.]+)\.[a-z]+$/);
+			url = window.location.pathname.match(/\/[^\/]+-([^-\/]+)-(\d+)\.[a-z]+$/);
 			aib.prot = 'http:';
 			aib.host = aib.dm;
 			aib.b = url ? url[1] : '';
