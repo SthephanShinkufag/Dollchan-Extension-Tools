@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = '7dd04c2';
+	var commit = '4a88289';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -18392,10 +18392,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_isInited: false,
 			_isOriginalIcon: true,
 			get _iconEl() {
-				var el = $q('head link[rel="shortcut icon"]', doc.head) || $bEnd(doc.head, '<link href="/favicon.ico" rel="shortcut icon"/>');
+				var el = $q('link[rel="shortcut icon"]', doc.head) || $bEnd(doc.head, '<link href="/favicon.ico" rel="shortcut icon"/>');
 				Object.defineProperties(this, {
 					'_iconEl': { value: el, writable: true },
-					'originalIcon': { value: el ? el.href : null }
+					'originalIcon': { value: el.href }
 				});
 				return el;
 			},
