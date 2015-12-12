@@ -16,7 +16,7 @@
 // @grant           unsafeWindow
 // @include         *
 // ==/UserScript==
-(function de_main_func_outer() { 
+(function de_main_func_outer(___a, ___b, localData) { 
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('../../modules/es6.string.iterator');
 require('../../modules/es6.array.from');
@@ -2850,13 +2850,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-(function de_main_func_inner(scriptStorage, FormData) {
+(function de_main_func_inner(scriptStorage, FormData, localData) {
 	'use strict';
 
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'e2ca441';
+	var commit = 'a5c3491';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3363,7 +3363,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	    Images_ = { preloading: false, afterpreload: null, progressId: null, canvas: null },
 	    lang,
 	    quotetxt = '',
-	    localRun,
 	    isExpImg,
 	    isPreImg,
 	    excludeList,
@@ -5150,7 +5149,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		init: function init(formEl) {
 			var imgLen = $Q(aib.qPostImg, formEl).length,
 			    isThr = aib.t;
-			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '\n\t\t<div id="de-main" lang="' + getThemeLang() + '">\n\t\t\t<div id="de-panel">\n\t\t\t\t<div id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '">\n\t\t\t\t\t<svg class="de-panel-logo-svg">\n\t\t\t\t\t\t<use xlink:href="#de-symbol-panel-logo"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id="de-panel-buttons"' + (Cfg.expandPanel ? '' : ' style="display: none;"') + '>\n\t\t\t\t' + (Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (!Cfg.addYouTube ? '' : this._getButton('vid')) + (localRun ? '' : this._getButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : this._getButton('goback')) + (isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) + this._getButton('goup') + this._getButton('godown') + (imgLen === 0 ? '' : this._getButton('expimg') + this._getButton('maskimg')) + (nav.Presto || localRun ? '' : (imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) + (!isThr ? '' : this._getButton('savethr'))) + (!isThr || localRun ? '' : this._getButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') + (nav.Safari ? '' : this._getButton('audio-off'))) + (!aib.hasCatalog ? '' : this._getButton('catalog')) + this._getButton('enable') + (!isThr ? '' : '\n\t\t\t\t\t\t<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">\n\t\t\t\t\t\t\t' + Thread.first.pcount + '/' + imgLen + '\n\t\t\t\t\t\t</span>')) + '\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t' + (Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">') + '\n\t\t</div>');
+			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '\n\t\t<div id="de-main" lang="' + getThemeLang() + '">\n\t\t\t<div id="de-panel">\n\t\t\t\t<div id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '">\n\t\t\t\t\t<svg class="de-panel-logo-svg">\n\t\t\t\t\t\t<use xlink:href="#de-symbol-panel-logo"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id="de-panel-buttons"' + (Cfg.expandPanel ? '' : ' style="display: none;"') + '>\n\t\t\t\t' + (Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (!Cfg.addYouTube ? '' : this._getButton('vid')) + (localData ? '' : this._getButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : this._getButton('goback')) + (isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) + this._getButton('goup') + this._getButton('godown') + (imgLen === 0 ? '' : this._getButton('expimg') + this._getButton('maskimg')) + (nav.Presto || localData ? '' : (imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) + (!isThr ? '' : this._getButton('savethr'))) + (!isThr || localData ? '' : this._getButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') + (nav.Safari ? '' : this._getButton('audio-off'))) + (!aib.hasCatalog ? '' : this._getButton('catalog')) + this._getButton('enable') + (!isThr ? '' : '\n\t\t\t\t\t\t<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">\n\t\t\t\t\t\t\t' + Thread.first.pcount + '/' + imgLen + '\n\t\t\t\t\t\t</span>')) + '\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t' + (Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">') + '\n\t\t</div>');
 			this._el = $id('de-panel');
 			this._el.addEventListener('click', this, true);
 			this._el.addEventListener('mouseover', this);
@@ -6117,7 +6116,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function getCfgPosts() {
-		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-posts' }, [$if(!localRun, $New('div', null, [lBox('ajaxUpdThr', false, aib.t ? function () {
+		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-posts' }, [$if(!localData, $New('div', null, [lBox('ajaxUpdThr', false, aib.t ? function () {
 			if (Cfg.ajaxUpdThr) {
 				updater.enable();
 			} else {
@@ -7576,7 +7575,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (!imgOnly) {
 				var dt = doc.doctype;
 				$q('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js"></script>');
-				tar.addString('data/dollscript.js', '(' + String(typeof de_main_func_outer === 'undefined' ? de_main_func_inner : de_main_func_outer) + ')(null, true);');
+				$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
+				tar.addString('data/dollscript.js', '(' + String(typeof de_main_func_outer === 'undefined' ? de_main_func_inner : de_main_func_outer) + ')(null, null, { dm: "' + aib.dm + '", b: "' + aib.b + '", t: "' + aib.t + '" });');
 				tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name + (dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') + (dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML);
 			}
 			downloadBlob(tar.get(), docName + (imgOnly ? '-images.tar' : '.tar'));
@@ -15463,7 +15463,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		} catch (e) {
 			needFileHack = true;
 		}
-		if (needFileHack && FormData.prototype) {
+		if (needFileHack && FormData) {
 			var origFormData = FormData,
 			    origAppend = FormData.prototype.append;
 			FormData = function FormData() {
@@ -15718,7 +15718,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'getOp',
 			value: function getOp(thr) {
 			
-				var op = localRun ? $q('div[de-oppost]', thr) : $q(this.qOPost, thr);
+				var op = localData ? $q('div[de-oppost]', thr) : $q(this.qOPost, thr);
 				if (op) {
 					return op;
 				}
@@ -17831,14 +17831,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		ibDomains['uchan.to'] = Uchan;
 
-		var dm = window.location.pathname.match(/\/([^\/]+)-[^-\/]+-\d+\.[a-z]+$/);
-		if (dm) {
-			dm = dm[1];
-			localRun = true;
-		} else {
-			dm = window.location.hostname.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
-			localRun = false;
-		}
+		var dm = localData ? localData.dm : window.location.hostname.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 		var prot = window.location.protocol;
 		if (checkDomains && dm in ibDomains) {
 			return new ibDomains[dm](prot, dm);
@@ -17977,12 +17970,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function parseURL() {
 		var url;
-		if (localRun) {
-			url = window.location.pathname.match(/\/[^\/]+-([^-\/]+)-(\d+)\.[a-z]+$/);
+		if (localData) {
 			aib.prot = 'http:';
 			aib.host = aib.dm;
-			aib.b = url ? url[1] : '';
-			aib.t = url ? +url[2] : '';
+			aib.b = localData.b;
+			aib.t = localData.t;
 			aib.docExt = '.html';
 		} else {
 			var temp;
@@ -18046,7 +18038,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var threads = $Q(aib.qThread, formEl),
 				    len = threads.length;
 				if (len === 0) {
-					if (localRun) {
+					if (localData) {
 						threads = $Q('div[de-thread]');
 						len = threads.length;
 					}
@@ -18139,7 +18131,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'addStuff',
 			value: function addStuff() {
 				var el = this.el;
-				if (!localRun) {
+				if (!localData) {
 					if (Cfg.ajaxReply === 2) {
 						el.onsubmit = $pd;
 						var btn = $q(aib.qDelBut, el);
@@ -18804,7 +18796,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function initPage() {
-		if (!localRun && Cfg.ajaxReply === 1) {
+		if (!localData && Cfg.ajaxReply === 1) {
 			docBody.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-pform" sandbox="" src="about:blank" style="display: none;"></iframe>' + '<iframe name="de-iframe-dform" sandbox="" src="about:blank" style="display: none;"></iframe>');
 			doc.defaultView.addEventListener('message', function (_ref53) {
 				var data = _ref53.data;
@@ -18823,7 +18815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (Cfg.rePageTitle) {
 				doc.title = '/' + aib.b + ' - ' + Thread.first.op.title;
 			}
-			if (!localRun) {
+			if (!localData) {
 				Cfg.stats.view++;
 				saveComCfg(aib.dm, Cfg);
 				Thread.first.el.insertAdjacentHTML('afterend', '<div class="de-thread-buttons">' + '<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>' + '<span id="de-updater-count" style="display: none;"></span>]</span>' + (aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '') + '</div>');
@@ -18831,7 +18823,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		} else {
 			navPanel.init();
 		}
-		if (!localRun) {
+		if (!localData) {
 			updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr);
 			if (aib.t) {
 				Thread.first.el.nextSibling.firstChild.firstElementChild.addEventListener('click', updater.forceLoad);
@@ -19428,7 +19420,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		});
 		doc.addEventListener('DOMContentLoaded', async(runMain.bind(null, false, cfgPromise)));
 	}
-})(window.opera && window.opera.scriptStorage, window.FormData);
+})(window.opera && window.opera.scriptStorage, window.FormData, (typeof localData === 'undefined' ? 'undefined' : _typeof(localData)) === 'object' ? localData : null);
 
 },{}],99:[function(require,module,exports){
 'use strict';
@@ -19449,4 +19441,4 @@ require('core-js/fn/promise');
 require('regenerator/runtime');
 
 },{"core-js/fn/array/from":1,"core-js/fn/array/iterator":2,"core-js/fn/map":3,"core-js/fn/math/clz32":4,"core-js/fn/number/max-safe-integer":5,"core-js/fn/object/assign":6,"core-js/fn/promise":7,"core-js/fn/set":8,"core-js/fn/string/includes":9,"core-js/fn/string/repeat":10,"core-js/fn/string/starts-with":11,"core-js/fn/symbol":12,"core-js/fn/weak-map":13,"regenerator/runtime":97}]},{},[99,98]);
-})();
+})(null, null, null);

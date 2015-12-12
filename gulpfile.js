@@ -43,7 +43,7 @@ gulp.task('make', ['updatecommit'], function() {
 		.bundle()
 		.pipe(source('Dollchan_Extension_Tools.user.js'))
 		.pipe(streamify(strip()))
-		.pipe(streamify(headerfooter('(function de_main_func_outer() { \n', '})();')))
+		.pipe(streamify(headerfooter('(function de_main_func_outer(___a, ___b, localData) { \n', '})(null, null, null);')))
 		.pipe(streamify(headerfooter.header('Dollchan_Extension_Tools.meta.js')))
 		.pipe(gulp.dest('./'));
 });

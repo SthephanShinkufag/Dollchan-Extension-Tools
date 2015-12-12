@@ -17,11 +17,11 @@
 // @include         *
 // ==/UserScript==
 
-(function de_main_func_inner(scriptStorage, FormData) {
+(function de_main_func_inner(scriptStorage, FormData, localData) {
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'e2ca441';
+var commit = 'a5c3491';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -610,7 +610,7 @@ Cfg, hThr, pByEl, pByNum, uVis, needScroll,
 aib, nav, updater, dTime, visPosts = 2, topWinZ = 0,
 pr, dummy, myPosts,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
-lang, quotetxt = '', localRun, isExpImg, isPreImg, excludeList,
+lang, quotetxt = '', isExpImg, isPreImg, excludeList,
 $each = Function.prototype.call.bind(aProto.forEach),
 emptyFn = Function.prototype,
 nativeXHRworks = true,
@@ -1988,7 +1988,7 @@ var panel = Object.create({
 					this._getButton('hid') +
 					this._getButton('fav') +
 					(!Cfg.addYouTube ? '' : this._getButton('vid')) +
-					(localRun ? '' :
+					(localData ? '' :
 						this._getButton('refresh') +
 						(!isThr && (aib.page === aib.firstPage) ? '' : this._getButton('goback')) +
 						(isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) +
@@ -1997,10 +1997,10 @@ var panel = Object.create({
 					(imgLen === 0 ? '' :
 						this._getButton('expimg') +
 						this._getButton('maskimg')) +
-					(nav.Presto || localRun ? '' :
+					(nav.Presto || localData ? '' :
 						(imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) +
 						(!isThr ? '' : this._getButton('savethr'))) +
-					(!isThr || localRun ? '' :
+					(!isThr || localData ? '' :
 						this._getButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') +
 						(nav.Safari ? '' : this._getButton('audio-off'))) +
 					(!aib.hasCatalog ? '' : this._getButton('catalog')) +
@@ -2923,7 +2923,7 @@ function getCfgFilters() {
 
 function getCfgPosts() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-posts'}, [
-		$if(!localRun, $New('div', null, [
+		$if(!localData, $New('div', null, [
 			lBox('ajaxUpdThr', false, aib.t ? function() {
 				if(Cfg.ajaxUpdThr) {
 					updater.enable();
@@ -4586,9 +4586,10 @@ function loadDocFiles(imgOnly) {
 			var dt = doc.doctype;
 			$q('head', dc).insertAdjacentHTML('beforeend',
 				'<script type="text/javascript" src="data/dollscript.js"></script>');
+			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
 			tar.addString('data/dollscript.js', '(' +
 				String(typeof de_main_func_outer === 'undefined' ? de_main_func_inner : de_main_func_outer) +
-			')(null, true);');
+			')(null, null, { dm: "' + aib.dm + '", b: "' + aib.b + '", t: "' + aib.t + '" });');
 			tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name +
 				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') +
 				(dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML);
@@ -11176,7 +11177,7 @@ function initNavFuncs() {
 	} catch(e) {
 		needFileHack = true;
 	}
-	if(needFileHack && FormData.prototype) {
+	if(needFileHack && FormData) {
 		var origFormData = FormData,
 			origAppend = FormData.prototype.append;
 		FormData = function FormData(...args) {
@@ -11456,7 +11457,7 @@ class BaseBoard {
 		return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
 	}
 	getOp(thr) { // Differs Arhivach only
-		var op = localRun ? $q('div[de-oppost]', thr) : $q(this.qOPost, thr);
+		var op = localData ? $q('div[de-oppost]', thr) : $q(this.qOPost, thr);
 		if(op) {
 			return op;
 		}
@@ -12902,15 +12903,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['uchan.to'] = Uchan;
 
-	var dm = window.location.pathname.match(/\/([^\/]+)-[^-\/]+-\d+\.[a-z]+$/);
-	if(dm) {
-		dm = dm[1];
-		localRun = true;
-	} else {
-		dm = window.location.hostname
-			.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
-		localRun = false;
-	}
+	var dm = localData ? localData.dm : window.location.hostname
+		.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	var prot = window.location.protocol;
 	if(checkDomains && (dm in ibDomains)) {
 		return new ibDomains[dm](prot, dm);
@@ -13039,12 +13033,11 @@ function initStorageEvent() {
 
 function parseURL() {
 	var url;
-	if(localRun) {
-		url = window.location.pathname.match(/\/[^\/]+-([^-\/]+)-(\d+)\.[a-z]+$/);
+	if(localData) {
 		aib.prot = 'http:';
 		aib.host = aib.dm;
-		aib.b = url ? url[1] : '';
-		aib.t = url ? +url[2] : '';
+		aib.b = localData.b;
+		aib.t = localData.t;
 		aib.docExt = '.html';
 	} else {
 		var temp;
@@ -13251,7 +13244,7 @@ class DelForm {
 		var threads = $Q(aib.qThread, formEl),
 			len = threads.length;
 		if(len === 0) {
-			if(localRun) {
+			if(localData) {
 				threads = $Q('div[de-thread]');
 				len = threads.length;
 			}
@@ -13337,7 +13330,7 @@ class DelForm {
 	}
 	addStuff() {
 		var el = this.el;
-		if(!localRun) {
+		if(!localData) {
 			if(Cfg.ajaxReply === 2) {
 				el.onsubmit = $pd;
 				var btn = $q(aib.qDelBut, el);
@@ -13955,7 +13948,7 @@ function initThreadUpdater(title, enableUpdate) {
 }
 
 function initPage() {
-	if(!localRun && Cfg.ajaxReply === 1) {
+	if(!localData && Cfg.ajaxReply === 1) {
 		docBody.insertAdjacentHTML('beforeend',
 			'<iframe name="de-iframe-pform" sandbox="" src="about:blank" style="display: none;"></iframe>' +
 			'<iframe name="de-iframe-dform" sandbox="" src="about:blank" style="display: none;"></iframe>');
@@ -13973,7 +13966,7 @@ function initPage() {
 		if(Cfg.rePageTitle) {
 			doc.title = '/' + aib.b + ' - ' + Thread.first.op.title;
 		}
-		if(!localRun) {
+		if(!localData) {
 			Cfg.stats.view++;
 			saveComCfg(aib.dm, Cfg);
 			Thread.first.el.insertAdjacentHTML('afterend', '<div class="de-thread-buttons">' +
@@ -13985,7 +13978,7 @@ function initPage() {
 	} else {
 		navPanel.init();
 	}
-	if(!localRun){
+	if(!localData){
 		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr);
 		if(aib.t) {
 			Thread.first.el.nextSibling.firstChild.firstElementChild
@@ -14579,4 +14572,4 @@ if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 	doc.addEventListener('DOMContentLoaded', async(runMain.bind(null, false, cfgPromise)));
 }
 
-})(window.opera && window.opera.scriptStorage, window.FormData);
+})(window.opera && window.opera.scriptStorage, window.FormData, typeof localData === 'object' ? localData : null);
