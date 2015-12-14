@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.11.29.1';
-var commit = 'a5c3491';
+var commit = '5a37394';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -4537,12 +4537,17 @@ function preloadImages(data) {
 	}
 }
 
-function getDataFromImg(img) {
-	var cnv = Images_.canvas || (Images_.canvas = doc.createElement('canvas'));
-	cnv.width = img.width;
-	cnv.height = img.height;
-	cnv.getContext('2d').drawImage(img, 0, 0);
-	return new Uint8Array(atob(cnv.toDataURL('image/png').split(',')[1]).split('').map(a => a.charCodeAt()));
+function getDataFromImg(el) {
+	try {
+		var cnv = Images_.canvas || (Images_.canvas = doc.createElement('canvas'));
+		cnv.width = el.width;
+		cnv.height = el.height;
+		cnv.getContext('2d').drawImage(el, 0, 0);
+		return Promise.resolve(new Uint8Array(atob(cnv.toDataURL('image/png').split(',')[1])
+			.split('').map(a => a.charCodeAt())));
+	} catch(e) {
+		return downloadImgData(el.src);
+	}
 }
 
 function loadDocFiles(imgOnly) {
@@ -4558,23 +4563,30 @@ function loadDocFiles(imgOnly) {
 		counter.innerHTML = current;
 		current++;
 		if(imgLink) {
-			if(!imgData) {
-				warnings += '<br>' + Lng.cantLoad[lang] + '<a href="' + url + '">' +
-					url + '</a><br>' + Lng.willSavePview[lang];
+			var safeName = fName.replace(/[\\\/:*?"<>|]/g, '_'),
+				thumbName = safeName.replace(/\.[a-z]+$/, '.png');
+			if(imgOnly) {
+				thumbName = 'thumb-' + thumbName;
+			} else {
+				thumbName = 'thumbs/' + thumbName;
+				safeName = imgData ? 'images/' + safeName : thumbName;
+				imgLink.href = $q('a[de-href], ' + aib.qImgName, aib.getImgWrap(imgLink)).href = safeName;
+			} 
+			if(imgData) {
+				tar.addFile(safeName, imgData);
+			} else {
+				warnings += '<br>' + Lng.cantLoad[lang] + '<a href="' + url + '">' + url +
+					'</a><br>' + Lng.willSavePview[lang];
 				$popup(Lng.loadErrors[lang] + warnings, 'err-files', false);
-				safeName = 'thumb-' + safeName.replace(/\.[a-z]+$/, '.png');
-				imgData = getDataFromImg(el);
-			}
-			if(!imgOnly) {
-				imgLink.href = $q('a[de-href], ' + aib.qImgName, aib.getImgWrap(imgLink)).href =
-					safeName = 'images/' + safeName;
-				if(safeName.match(/\.webm$/)) {
-					tar.addFile(el.src = safeName.replace(/\.webm$/, '.png'), getDataFromImg(el));
-				} else {
-					el.src = safeName;
+				if(imgOnly) {
+					return getDataFromImg(el).then(data => tar.addFile(thumbName, data), emptyFn);
 				}
 			}
-			tar.addFile(safeName, imgData);
+			return getDataFromImg(el).then(data => {
+				el.src = thumbName;
+				tar.addFile(thumbName, data);
+			}, () => { el.src = safeName });
+			
 		} else if(imgData && imgData.length > 0) {
 			tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
 		} else {
@@ -4583,13 +4595,17 @@ function loadDocFiles(imgOnly) {
 	}), function() {
 		var docName = aib.dm + '-' + aib.b.replace(/[\\\/:*?"<>|]/g, '') + '-' + aib.t;
 		if(!imgOnly) {
-			var dt = doc.doctype;
 			$q('head', dc).insertAdjacentHTML('beforeend',
 				'<script type="text/javascript" src="data/dollscript.js"></script>');
 			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
-			tar.addString('data/dollscript.js', '(' +
-				String(typeof de_main_func_outer === 'undefined' ? de_main_func_inner : de_main_func_outer) +
-			')(null, null, { dm: "' + aib.dm + '", b: "' + aib.b + '", t: "' + aib.t + '" });');
+			var scriptStr, localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
+			if(typeof de_main_func_outer === 'undefined') {
+				scriptStr = '(' + String(de_main_func_inner) + ')(null, null, ' + localData + ');';
+			} else {
+				scriptStr = '(' + String(de_main_func_outer) + ')(' + localData + ');';
+			}
+			tar.addString('data/dollscript.js', scriptStr);
+			var dt = doc.doctype;
 			tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name +
 				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') +
 				(dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML);
@@ -4618,23 +4634,24 @@ function loadDocFiles(imgOnly) {
 			var num, tc = el.textContent;
 			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
 				el.href = aib.anchor + num;
+				if(!el.classList.contains('de-link-pref')) {
+					el.className = 'de-link-pref ' + el.className;
+				}
 			} else {
 				el.href = getAbsLink(el.href);
-			}
-			if(!el.classList.contains('de-link-pref')) {
-				el.className = 'de-link-pref ' + el.className;
 			}
 		});
 		$each($Q(aib.qRPost, dc), function(post, i) {
 			post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post));
 		});
 		var files = [];
+		var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\.)?' + regQuote(aib.dm) + '\\/', 'i');
 		$each($Q('link, *[src]', dc), function(el) {
 			if(els.indexOf(el) !== -1) {
 				return;
 			}
 			var fName, url = el.tagName === 'LINK' ? el.href : el.src;
-			if(!this.test(url)) {
+			if(!urlRegex.test(url)) {
 				$del(el);
 				return;
 			}
@@ -4655,7 +4672,7 @@ function loadDocFiles(imgOnly) {
 			files.push(fName);
 			Images_.pool.run([url, fName, el, null]);
 			count++;
-		}.bind(new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\.)?' + regQuote(aib.dm) + '\\/', 'i')));
+		});
 	}
 	$popup((imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) +
 		'<br><progress id="de-loadprogress" value="0" max="' + count +
@@ -9343,6 +9360,27 @@ class Post extends AbstractPost {
 			this.toggleImages(true);
 		}
 	}
+	delete(removeEl) {
+		if(removeEl) {
+			$del(this.wrap);
+			pByEl.delete(this.el);
+			pByNum.delete(this.num);
+			if(this.hidden) {
+				this.ref.unhide();
+			}
+			RefMap.upd(this, false);
+			if((this.prev.next = this.next)) {
+				this.next.prev = this.prev;
+			}
+		} else {
+			this.deleted = true;
+			this.btns.classList.remove('de-post-counter');
+			this.btns.classList.add('de-post-deleted');
+			this.el.classList.add('de-post-removed');
+			this.wrap.classList.add('de-wrap-removed');
+			($q('input[type="checkbox"]', this.el) || {}).disabled = true;
+		}
+	}
 	getAdjacentVisPost(toUp) {
 		var post = toUp ? this.prev : this.next;
 		while(post) {
@@ -10657,27 +10695,10 @@ class Thread {
 		var count = 0,
 			idx = post.count;
 		do {
-			if(removePost) {
-				$del(post.wrap);
-				pByEl.delete(post.el);
-				pByNum.delete(post.num);
-				if(post.hidden) {
-					post.ref.unhide();
-				}
-				RefMap.upd(post, false);
-				if((post.prev.next = post.next)) {
-					post.next.prev = post.prev;
-				}
-				if(this.last === post) {
-					this.last = post.prev;
-				}
-			} else {
-				post.deleted = true;
-				post.btns.classList.remove('de-post-counter');
-				post.btns.classList.add('de-post-deleted');
-				post.wrap.classList.add('de-post-removed');
-				($q('input[type="checkbox"]', post.el) || {}).disabled = true;
+			if(removePost && this.last === post) {
+				this.last = post.prev;
 			}
+			post.delete(removePost);
 			post = post.nextNotDeleted;
 			count++;
 		} while(delAll && post);
@@ -14446,6 +14467,15 @@ function updateCSS() {
 // MAIN
 // ===========================================================================================================
 
+function doLocalChangings() {
+	$each($Q('.de-post-removed'), el => {
+		var post = pByEl.get(el);
+		if(post) {
+			post.delete(false);
+		}
+	});
+}
+
 function* runMain(checkDomains, cfgPromise) {
 	Logger.init();
 	docBody = doc.body;
@@ -14539,6 +14569,10 @@ function* runMain(checkDomains, cfgPromise) {
 	Logger.log('Hide posts');
 	scrollPage();
 	Logger.log('Scroll page');
+	if(localData) {
+		doLocalChangings();
+		Logger.log('Local changings');
+	}
 	Logger.finish();
 }
 

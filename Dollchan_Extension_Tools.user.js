@@ -16,7 +16,7 @@
 // @grant           unsafeWindow
 // @include         *
 // ==/UserScript==
-(function de_main_func_outer(___a, ___b, localData) { 
+(function de_main_func_outer(localData) {
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('../../modules/es6.string.iterator');
 require('../../modules/es6.array.from');
@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.11.29.1';
-	var commit = 'a5c3491';
+	var commit = '5a37394';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -7517,14 +7517,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 	}
 
-	function getDataFromImg(img) {
-		var cnv = Images_.canvas || (Images_.canvas = doc.createElement('canvas'));
-		cnv.width = img.width;
-		cnv.height = img.height;
-		cnv.getContext('2d').drawImage(img, 0, 0);
-		return new Uint8Array(atob(cnv.toDataURL('image/png').split(',')[1]).split('').map(function (a) {
-			return a.charCodeAt();
-		}));
+	function getDataFromImg(el) {
+		try {
+			var cnv = Images_.canvas || (Images_.canvas = doc.createElement('canvas'));
+			cnv.width = el.width;
+			cnv.height = el.height;
+			cnv.getContext('2d').drawImage(el, 0, 0);
+			return Promise.resolve(new Uint8Array(atob(cnv.toDataURL('image/png').split(',')[1]).split('').map(function (a) {
+				return a.charCodeAt();
+			})));
+		} catch (e) {
+			return downloadImgData(el.src);
+		}
 	}
 
 	function loadDocFiles(imgOnly) {
@@ -7549,21 +7553,32 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				counter.innerHTML = current;
 				current++;
 				if (imgLink) {
-					if (!imgData) {
+					var safeName = fName.replace(/[\\\/:*?"<>|]/g, '_'),
+					    thumbName = safeName.replace(/\.[a-z]+$/, '.png');
+					if (imgOnly) {
+						thumbName = 'thumb-' + thumbName;
+					} else {
+						thumbName = 'thumbs/' + thumbName;
+						safeName = imgData ? 'images/' + safeName : thumbName;
+						imgLink.href = $q('a[de-href], ' + aib.qImgName, aib.getImgWrap(imgLink)).href = safeName;
+					}
+					if (imgData) {
+						tar.addFile(safeName, imgData);
+					} else {
 						warnings += '<br>' + Lng.cantLoad[lang] + '<a href="' + url + '">' + url + '</a><br>' + Lng.willSavePview[lang];
 						$popup(Lng.loadErrors[lang] + warnings, 'err-files', false);
-						safeName = 'thumb-' + safeName.replace(/\.[a-z]+$/, '.png');
-						imgData = getDataFromImg(el);
-					}
-					if (!imgOnly) {
-						imgLink.href = $q('a[de-href], ' + aib.qImgName, aib.getImgWrap(imgLink)).href = safeName = 'images/' + safeName;
-						if (safeName.match(/\.webm$/)) {
-							tar.addFile(el.src = safeName.replace(/\.webm$/, '.png'), getDataFromImg(el));
-						} else {
-							el.src = safeName;
+						if (imgOnly) {
+							return getDataFromImg(el).then(function (data) {
+								return tar.addFile(thumbName, data);
+							}, emptyFn);
 						}
 					}
-					tar.addFile(safeName, imgData);
+					return getDataFromImg(el).then(function (data) {
+						el.src = thumbName;
+						tar.addFile(thumbName, data);
+					}, function () {
+						el.src = safeName;
+					});
 				} else if (imgData && imgData.length > 0) {
 					tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
 				} else {
@@ -7573,10 +7588,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, function () {
 			var docName = aib.dm + '-' + aib.b.replace(/[\\\/:*?"<>|]/g, '') + '-' + aib.t;
 			if (!imgOnly) {
-				var dt = doc.doctype;
 				$q('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js"></script>');
 				$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
-				tar.addString('data/dollscript.js', '(' + String(typeof de_main_func_outer === 'undefined' ? de_main_func_inner : de_main_func_outer) + ')(null, null, { dm: "' + aib.dm + '", b: "' + aib.b + '", t: "' + aib.t + '" });');
+				var scriptStr,
+				    localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
+				if (typeof de_main_func_outer === 'undefined') {
+					scriptStr = '(' + String(de_main_func_inner) + ')(null, null, ' + localData + ');';
+				} else {
+					scriptStr = '(' + String(de_main_func_outer) + ')(' + localData + ');';
+				}
+				tar.addString('data/dollscript.js', scriptStr);
+				var dt = doc.doctype;
 				tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name + (dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') + (dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML);
 			}
 			downloadBlob(tar.get(), docName + (imgOnly ? '-images.tar' : '.tar'));
@@ -7602,24 +7624,25 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				    tc = el.textContent;
 				if (tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
 					el.href = aib.anchor + num;
+					if (!el.classList.contains('de-link-pref')) {
+						el.className = 'de-link-pref ' + el.className;
+					}
 				} else {
 					el.href = getAbsLink(el.href);
-				}
-				if (!el.classList.contains('de-link-pref')) {
-					el.className = 'de-link-pref ' + el.className;
 				}
 			});
 			$each($Q(aib.qRPost, dc), function (post, i) {
 				post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post));
 			});
 			var files = [];
-			$each($Q('link, *[src]', dc), (function (el) {
+			var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\.)?' + regQuote(aib.dm) + '\\/', 'i');
+			$each($Q('link, *[src]', dc), function (el) {
 				if (els.indexOf(el) !== -1) {
 					return;
 				}
 				var fName,
 				    url = el.tagName === 'LINK' ? el.href : el.src;
-				if (!this.test(url)) {
+				if (!urlRegex.test(url)) {
 					$del(el);
 					return;
 				}
@@ -7640,7 +7663,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				files.push(fName);
 				Images_.pool.run([url, fName, el, null]);
 				count++;
-			}).bind(new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\.)?' + regQuote(aib.dm) + '\\/', 'i')));
+			});
 		}
 		$popup((imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) + '<br><progress id="de-loadprogress" value="0" max="' + count + '"></progress> <span>1</span>/' + count, 'load-files', true);
 		progress = $id('de-loadprogress');
@@ -13191,6 +13214,29 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 		}, {
+			key: 'delete',
+			value: function _delete(removeEl) {
+				if (removeEl) {
+					$del(this.wrap);
+					pByEl['delete'](this.el);
+					pByNum['delete'](this.num);
+					if (this.hidden) {
+						this.ref.unhide();
+					}
+					RefMap.upd(this, false);
+					if (this.prev.next = this.next) {
+						this.next.prev = this.prev;
+					}
+				} else {
+					this.deleted = true;
+					this.btns.classList.remove('de-post-counter');
+					this.btns.classList.add('de-post-deleted');
+					this.el.classList.add('de-post-removed');
+					this.wrap.classList.add('de-wrap-removed');
+					($q('input[type="checkbox"]', this.el) || {}).disabled = true;
+				}
+			}
+		}, {
 			key: 'getAdjacentVisPost',
 			value: function getAdjacentVisPost(toUp) {
 				var post = toUp ? this.prev : this.next;
@@ -14849,27 +14895,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var count = 0,
 				    idx = post.count;
 				do {
-					if (removePost) {
-						$del(post.wrap);
-						pByEl['delete'](post.el);
-						pByNum['delete'](post.num);
-						if (post.hidden) {
-							post.ref.unhide();
-						}
-						RefMap.upd(post, false);
-						if (post.prev.next = post.next) {
-							post.next.prev = post.prev;
-						}
-						if (this.last === post) {
-							this.last = post.prev;
-						}
-					} else {
-						post.deleted = true;
-						post.btns.classList.remove('de-post-counter');
-						post.btns.classList.add('de-post-deleted');
-						post.wrap.classList.add('de-post-removed');
-						($q('input[type="checkbox"]', post.el) || {}).disabled = true;
+					if (removePost && this.last === post) {
+						this.last = post.prev;
 					}
+					post['delete'](removePost);
 					post = post.nextNotDeleted;
 					count++;
 				} while (delAll && post);
@@ -19210,6 +19239,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
+	function doLocalChangings() {
+		$each($Q('.de-post-removed'), function (el) {
+			var post = pByEl.get(el);
+			if (post) {
+				post['delete'](false);
+			}
+		});
+	}
+
 	function runMain(checkDomains, cfgPromise) {
 		var formEl, str;
 		return regeneratorRuntime.wrap(function runMain$(_context20) {
@@ -19379,9 +19417,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					Logger.log('Hide posts');
 					scrollPage();
 					Logger.log('Scroll page');
+					if (localData) {
+						doLocalChangings();
+						Logger.log('Local changings');
+					}
 					Logger.finish();
 
-				case 76:
+				case 77:
 				case 'end':
 					return _context20.stop();
 			}
@@ -19441,4 +19483,4 @@ require('core-js/fn/promise');
 require('regenerator/runtime');
 
 },{"core-js/fn/array/from":1,"core-js/fn/array/iterator":2,"core-js/fn/map":3,"core-js/fn/math/clz32":4,"core-js/fn/number/max-safe-integer":5,"core-js/fn/object/assign":6,"core-js/fn/promise":7,"core-js/fn/set":8,"core-js/fn/string/includes":9,"core-js/fn/string/repeat":10,"core-js/fn/string/starts-with":11,"core-js/fn/symbol":12,"core-js/fn/weak-map":13,"regenerator/runtime":97}]},{},[99,98]);
-})(null, null, null);
+})(null);
