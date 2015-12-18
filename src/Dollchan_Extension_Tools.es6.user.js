@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.12.16.0';
-var commit = '0ceefb5';
+var commit = 'e37b8fa';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -4582,7 +4582,7 @@ function loadDocFiles(imgOnly) {
 					return getDataFromImg(el).then(data => tar.addFile(thumbName, data), emptyFn);
 				}
 			}
-			return getDataFromImg(el).then(data => {
+			return imgOnly ? null : getDataFromImg(el).then(data => {
 				el.src = thumbName;
 				tar.addFile(thumbName, data);
 			}, () => { el.src = safeName });

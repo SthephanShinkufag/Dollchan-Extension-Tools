@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.12.16.0';
-	var commit = '0ceefb5';
+	var commit = 'e37b8fa';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -7573,7 +7573,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}, emptyFn);
 						}
 					}
-					return getDataFromImg(el).then(function (data) {
+					return imgOnly ? null : getDataFromImg(el).then(function (data) {
 						el.src = thumbName;
 						tar.addFile(thumbName, data);
 					}, function () {
