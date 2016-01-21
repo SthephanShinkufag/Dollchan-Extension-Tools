@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.12.16.0';
-var commit = '1d6794e';
+var commit = 'f35e4ed';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12965,6 +12965,7 @@ function initStorageEvent() {
 				});
 			}
 		})();
+		return;
 		case '__de-webmvolume':
 			val = +val || 0;
 			Cfg.webmVolume = val;
@@ -12972,7 +12973,7 @@ function initStorageEvent() {
 			if(temp) {
 				temp.value = val;
 			}
-			break;
+			return;
 		case '__de-post': (() => {
 			try {
 				data = JSON.parse(val);
@@ -13045,8 +13046,6 @@ function initStorageEvent() {
 			}
 			$show(docBody);
 		})();
-		/* falls through */
-		default: return;
 		}
 	});
 }

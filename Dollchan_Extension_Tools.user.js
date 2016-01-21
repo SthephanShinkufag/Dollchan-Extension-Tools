@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.12.16.0';
-	var commit = '1d6794e';
+	var commit = 'f35e4ed';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -17907,6 +17907,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							});
 						}
 					})();
+					return;
 				case '__de-webmvolume':
 					val = +val || 0;
 					Cfg.webmVolume = val;
@@ -17914,7 +17915,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (temp) {
 						temp.value = val;
 					}
-					break;
+					return;
 				case '__de-post':
 					(function () {
 						try {
@@ -17990,8 +17991,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 						$show(docBody);
 					})();
-								default:
-					return;
 			}
 		});
 	}
