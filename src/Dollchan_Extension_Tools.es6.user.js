@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.12.16.0';
-var commit = 'e37b8fa';
+var commit = '1d6794e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8065,27 +8065,28 @@ var WebmParser = function(data) {
 			this.error = true;
 			return;
 		}
-		var id = num >>> (8 * (3 - clz)),
-			headSize = clz + 1;
+		this.id = num >>> (8 * (3 - clz));
+		this.headSize = clz + 1;
 		num = elData.getUint32(offset);
 		clz = Math.clz32(num);
+		var size = num & (0xFFFFFFFF >>> (clz + 1));
 		if(clz > 3) {
-			if((num & (0xFFFFFFFF >>> (clz + 1))) !== 0) {
+			if(clz !== 4 || (size & 0xF000000) !== 0) {
 				this.error = true;
 				return; // We cannot handle webm-files with size greater than 4Gb :(
 			}
-			if(offset + 8 >= dataLength) {
+			if(offset + 5 >= dataLength) {
 				this.error = true;
 				return;
 			}
-			headSize += 4;
-			offset += 4;
-			num = elData.getUint32(offset);
-			clz -= 4;
+			size = (size << 8) | elData.getUint8(offset + 4)
+			this.headSize += 5;
+			offset += 5;
+		} else {
+			size >>>= 8 * (3 - clz);
+			this.headSize += clz + 1;
+			offset += clz + 1;
 		}
-		var size = num >>> (8 * (3 - clz));
-		headSize += clz + 1;
-		offset += clz + 1;
 		if(offset + size > dataLength) {
 			this.error = true;
 			return;
@@ -8093,8 +8094,6 @@ var WebmParser = function(data) {
 		this.data = elData;
 		this.offset = offset;
 		this.endOffset = offset + size;
-		this.id = id;
-		this.headSize = headSize;
 		this.size = size;
 	}
 	WebmElement.prototype = {
