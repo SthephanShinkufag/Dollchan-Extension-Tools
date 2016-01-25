@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.12.16.0';
-	var commit = 'bee673e';
+	var commit = 'c17ddad';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3821,18 +3821,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				};
 			} catch (e) {
 				nativeXHRworks = false;
-				var newParams = null;
-				if (params) {
-					if (params.headers) {
-						Object.assign(params.headers, headers);
-					} else {
-						params.headers = headers;
-					}
-					newParams = params;
-				} else {
-					newParams = { headers: headers };
-				}
-				return $ajax(url, newParams, false);
+				return $ajax(url, params, false);
 			}
 		}
 		return new CancelablePromise(function (res, rej) {
@@ -11741,38 +11730,33 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return;
 			}
 			var num = elData.getUint32(offset),
-			    clz = Math.clz32(num);
-			if (clz > 3) {
+			    leadZeroes = Math.clz32(num);
+			if (leadZeroes > 3) {
 				this.error = true;
 				return;
 			}
-			offset += clz + 1;
-			if (offset + 4 >= dataLength) {
+			offset += leadZeroes + 1;
+			if (offset >= dataLength) {
 				this.error = true;
 				return;
 			}
-			this.id = num >>> 8 * (3 - clz);
-			this.headSize = clz + 1;
+			this.id = num >>> 8 * (3 - leadZeroes);
+			this.headSize = leadZeroes + 1;
 			num = elData.getUint32(offset);
-			clz = Math.clz32(num);
-			var size = num & 0xFFFFFFFF >>> clz + 1;
-			if (clz > 3) {
-				if (clz !== 4 || (size & 0xF000000) !== 0) {
+			leadZeroes = Math.clz32(num);
+			var size = num & 0xFFFFFFFF >>> leadZeroes + 1;
+			if (leadZeroes > 3) {
+				var shift = 8 * (7 - leadZeroes);
+				if (size >>> shift !== 0 || offset + 4 > dataLength) {
 					this.error = true;
 					return;
 				}
-				if (offset + 5 >= dataLength) {
-					this.error = true;
-					return;
-				}
-				size = size << 8 | elData.getUint8(offset + 4);
-				this.headSize += 5;
-				offset += 5;
+				size = size << 32 - shift | elData.getUint32(offset + 4) >>> shift;
 			} else {
-				size >>>= 8 * (3 - clz);
-				this.headSize += clz + 1;
-				offset += clz + 1;
+				size >>>= 8 * (3 - leadZeroes);
 			}
+			this.headSize += leadZeroes + 1;
+			offset += leadZeroes + 1;
 			if (offset + size > dataLength) {
 				this.error = true;
 				return;
