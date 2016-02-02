@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.12.16.0';
-	var commit = 'c17ddad';
+	var commit = '0ace03f';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -14857,7 +14857,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					});
 					post.el.classList.add('de-post-new');
 				}
-				if (uVis[num]) {
+				if (uVis && uVis[num]) {
 					initPostUserVisib(post, num, uVis[num][0] === 0, Date.now());
 				}
 				if (maybeVParser.value) {
@@ -16043,7 +16043,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (this._capUpdPromise) {
 						this._capUpdPromise.cancel();
 					}
-					return this._capUpdPromise = $ajax('/makaba/captcha.fcgi?type=2chaptcha' + (pr.tNum ? '&action=thread' : '')).then(function (xhr) {
+					return this._capUpdPromise = $ajax('/makaba/captcha.fcgi?type=2chaptcha&board=' + this.b + (pr.tNum ? '&action=thread' : '')).then(function (xhr) {
 						_this51._capUpdPromise = null;
 						var el = $q('.captcha-box', cap.trEl),
 						    data = xhr.responseText;
@@ -18434,8 +18434,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#E6E000', 2, scale);
 				this._iconNew = canvas.toDataURL('image/png');
 				ctx.putImageData(original, 0, 0);
-				drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#1C5F23', 4, scale);
-				drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#00F51B', 2, scale);
+				drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#1c375f', 4, scale);
+				drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#0063f5', 2, scale);
 				this._iconYou = canvas.toDataURL('image/png');
 				this._hasIcons = true;
 			},
