@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.12.16.0';
-var commit = '0ace03f';
+var commit = '63a071b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7119,7 +7119,7 @@ PostForm.prototype = {
 			this.txta.focus();
 		} else {
 			$txtInsert(this.txta, (
-				isNumClick ? '>>' + pNum :
+				isNumClick ? '>>' + pNum + '\n' :
 					(temp !== '' && temp.slice(-1) !== '\n' ? '\n' : '') +
 					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : '>>' + pNum + '\n')) +
 				(quotetxt ? quotetxt.replace(/^\n|\n$/g, '')
@@ -8964,7 +8964,7 @@ class AbstractPost {
 						} else if(pr.isQuick || (aib.t && pr.isHidden)) {
 							pr.showQuickReply(isPview ? Pview.topParent : this, this.num, false, true);
 						} else if(aib.t) {
-							$txtInsert(pr.txta, '>>' + this.num);
+							$txtInsert(pr.txta, '>>' + this.num + '\n');
 						} else {
 							window.location = el.href.replace(/#i/, '#');
 						}
@@ -13819,9 +13819,8 @@ function initThreadUpdater(title, enableUpdate) {
 
 	function enableUpdater() {
 		enabled = true;
-		disabledByUser = paused = false;
+		disabledByUser = paused = hasYouRefs = false;
 		newPosts = 0;
-		hasYouRefs = false;
 		focusLoadTime = -1e4;
 		notification.checkPermission();
 		if(Cfg.updCount) {
