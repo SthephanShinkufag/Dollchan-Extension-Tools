@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.12.16.0';
-	var commit = '63a071b';
+	var commit = '2091fb4';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -5761,7 +5761,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								iconEl.setAttribute('class', 'de-fav-inf-icon');
 								titleEl.removeAttribute('title');
 							}
-							cnt = $Q(aib.qRPost, form).length + 1 - el.nextElementSibling.textContent;
+							cnt = $Q(aib.qRPost, form).length + 1 - f.cnt;
 
 							el.textContent = cnt;
 							if (cnt === 0) {
@@ -10565,7 +10565,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (!Cfg.addOPLink && !isThr && post.isOp && !isNumClick) {
 				this.txta.focus();
 			} else {
-				$txtInsert(this.txta, (isNumClick ? '>>' + pNum + '\n' : (temp !== '' && temp.slice(-1) !== '\n' ? '\n' : '') + (this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : '>>' + pNum + '\n')) + (quotetxt ? quotetxt.replace(/^\n|\n$/g, '').replace(/(^|\n)(.)/gm, '$1>' + (Cfg.spacedQuote ? ' ' : '') + '$2') + '\n' : ''));
+				var isOnNewLine = temp === '' || temp.slice(-1) === '\n';
+				$txtInsert(this.txta, (isNumClick ? '>>' + pNum + (isOnNewLine ? '\n' : '') : (isOnNewLine ? '' : '\n') + (this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : '>>' + pNum + '\n')) + (quotetxt ? quotetxt.replace(/^\n|\n$/g, '').replace(/(^|\n)(.)/gm, '$1>' + (Cfg.spacedQuote ? ' ' : '') + '$2') + '\n' : ''));
 			}
 			temp = pByNum.get(pNum).thr.op.title.trim();
 			if (temp.length > 27) {
@@ -12182,14 +12183,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_createClass(ExpandableMedia, [{
 			key: 'collapse',
 			value: function collapse(e) {
-				if (!this.isVideo || !this.isControlClick(e)) {
+				if (e && this.isVideo && this.isControlClick(e)) {
+					return;
+				}
+				this.expanded = false;
+				$del(this._fullEl);
+				this._fullEl = null;
+				$show(this.el.parentNode);
+				$del((aib.hasPicWrap ? this._getImageParent() : this.el.parentNode).nextSibling);
+				if (e) {
 					$pd(e);
-					this.expanded = false;
-					$del(this._fullEl);
-					this._fullEl = null;
-					$show(this.el.parentNode);
-					$del((aib.hasPicWrap ? this._getImageParent() : this.el.parentNode).nextSibling);
-					if (e && this.inPview) {
+					if (this.inPview) {
 						this.sendCloseEvent(e, true);
 					}
 				}
@@ -12780,7 +12784,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									} else if (pr.isQuick || aib.t && pr.isHidden) {
 										pr.showQuickReply(isPview ? Pview.topParent : this, this.num, false, true);
 									} else if (aib.t) {
-										$txtInsert(pr.txta, '>>' + this.num + '\n');
+										var formText = pr.txta.value,
+										    isOnNewLine = formText === '' || formText.slice(-1) === '\n';
+										$txtInsert(pr.txta, '>>' + this.num + (isOnNewLine ? '\n' : ''));
 									} else {
 										window.location = el.href.replace(/#i/, '#');
 									}
