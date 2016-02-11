@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.12.16.0';
-	var commit = 'fc73506';
+	var commit = 'f70ce15';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -5146,7 +5146,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		init: function init(formEl) {
 			var imgLen = $Q(aib.qPostImg, formEl).length,
 			    isThr = aib.t;
-			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '\n\t\t<div id="de-main" lang="' + getThemeLang() + '">\n\t\t\t<div id="de-panel">\n\t\t\t\t<div id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '">\n\t\t\t\t\t<svg class="de-panel-logo-svg">\n\t\t\t\t\t\t<use xlink:href="#de-symbol-panel-logo"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id="de-panel-buttons"' + (Cfg.expandPanel ? '' : ' style="display: none;"') + '>\n\t\t\t\t' + (Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (!Cfg.addYouTube ? '' : this._getButton('vid')) + (localData ? '' : this._getButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : this._getButton('goback')) + (isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) + this._getButton('goup') + this._getButton('godown') + (imgLen === 0 ? '' : this._getButton('expimg') + this._getButton('maskimg')) + (nav.Presto || localData ? '' : (imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) + (!isThr ? '' : this._getButton('savethr'))) + (!isThr || localData ? '' : this._getButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') + (nav.Safari ? '' : this._getButton('audio-off'))) + (!aib.hasCatalog ? '' : this._getButton('catalog')) + this._getButton('enable') + (!isThr ? '' : '\n\t\t\t\t\t\t<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">\n\t\t\t\t\t\t\t' + Thread.first.pcount + '/' + imgLen + '\n\t\t\t\t\t\t</span>')) + '\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t' + (Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">') + '\n\t\t</div>');
+			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '\n\t\t<div id="de-main">\n\t\t\t<div id="de-panel">\n\t\t\t\t<div id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '">\n\t\t\t\t\t<svg class="de-panel-logo-svg">\n\t\t\t\t\t\t<use xlink:href="#de-symbol-panel-logo"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id="de-panel-buttons"' + (Cfg.expandPanel ? '' : ' style="display: none;"') + '>\n\t\t\t\t' + (Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (!Cfg.addYouTube ? '' : this._getButton('vid')) + (localData ? '' : this._getButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : this._getButton('goback')) + (isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) + this._getButton('goup') + this._getButton('godown') + (imgLen === 0 ? '' : this._getButton('expimg') + this._getButton('maskimg')) + (nav.Presto || localData ? '' : (imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) + (!isThr ? '' : this._getButton('savethr'))) + (!isThr || localData ? '' : this._getButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') + (nav.Safari ? '' : this._getButton('audio-off'))) + (!aib.hasCatalog ? '' : this._getButton('catalog')) + this._getButton('enable') + (!isThr ? '' : '\n\t\t\t\t\t\t<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">\n\t\t\t\t\t\t\t' + Thread.first.pcount + '/' + imgLen + '\n\t\t\t\t\t\t</span>')) + '\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t' + (Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">') + '\n\t\t</div>');
 			this._el = $id('de-panel');
 			this._el.addEventListener('click', this, true);
 			this._el.addEventListener('mouseover', this);
@@ -6217,7 +6217,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function getCfgCommon() {
 		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-common' }, [optSel('scriptStyle', true, function () {
 			saveCfg('scriptStyle', this.selectedIndex);
-			$id('de-main').lang = $q('#de-win-reply > .de-win-head').lang = getThemeLang();
+			$del($id('de-css'));
+			$del($id('de-css-dynamic'));
+			$del($id('de-css-user'));
+			scriptCSS();
 		}), $New('div', null, [lBox('userCSS', false, updateCSS), addEditButton('css', function (fn) {
 			fn(Cfg.userCSSTxt, false, function () {
 				saveCfg('userCSSTxt', this.value);
@@ -6374,6 +6377,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			panel.remove();
 			$del($id('de-css'));
 			$del($id('de-css-dynamic'));
+			$del($id('de-css-user'));
 			scriptCSS();
 			panel.init(DelForm.first.el);
 			toggleWindow('cfg', false);
@@ -10159,7 +10163,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		this.qArea = $add('<div style="display: none; ' + Cfg.replyWinX + '; ' + Cfg.replyWinY + '; z-index: ' + ++topWinZ + ';" id="de-win-reply" class="' + aib.cReply + (Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost') + '"></div>');
 		this.isBottom = Cfg.addPostForm === 1;
 		this.setReply(false, !aib.t || Cfg.addPostForm > 1);
-		makeDraggable('reply', this.qArea, $aBegin(this.qArea, '<div class="de-win-head" lang="' + getThemeLang() + '">\n\t\t<span class="de-win-title"></span>\n\t\t<span class="de-win-buttons">\n\t\t\t<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>\n\t\t\t<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>\n\t\t</span>\n\t</div>\n\t<div class="de-resizer de-resizer-top"></div>\n\t<div class="de-resizer de-resizer-left"></div>\n\t<div class="de-resizer de-resizer-right"></div>\n\t<div class="de-resizer de-resizer-bottom"></div>'));
+		makeDraggable('reply', this.qArea, $aBegin(this.qArea, '<div class="de-win-head">\n\t\t<span class="de-win-title"></span>\n\t\t<span class="de-win-buttons">\n\t\t\t<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>\n\t\t\t<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>\n\t\t</span>\n\t</div>\n\t<div class="de-resizer de-resizer-top"></div>\n\t<div class="de-resizer de-resizer-left"></div>\n\t<div class="de-resizer de-resizer-right"></div>\n\t<div class="de-resizer de-resizer-bottom"></div>'));
 		var el = $q('.de-win-buttons', this.qArea);
 		el.onmouseover = function (e) {
 			switch (fixEventEl(e.target).classList[0]) {
@@ -18905,10 +18909,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-	function getThemeLang() {
-		return !Cfg.scriptStyle ? 'fr' : Cfg.scriptStyle === 1 ? 'en' : Cfg.scriptStyle === 2 ? 'de' : 'es';
-	}
-
 	function scriptCSS() {
 		var cont = function cont(id, src) {
 			return id + '::before { content: ""; padding-right: 16px; margin-right: 4px; background: url(' + src + ') no-repeat center; background-size: contain; }';
@@ -18920,19 +18920,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	
 		var p,
 		    x = '#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\
-	#de-panel:lang(fr), .de-win-head:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\
-	#de-panel:lang(en), .de-win-head:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\
-	#de-panel:lang(de), .de-win-head:lang(de) { background-color: #777; }\
-	#de-panel:lang(es), .de-win-head:lang(es) { background-color: rgba(0,20,80,.72); }\
 	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\
 	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\
-	#de-panel-buttons:lang(en), #de-panel-info:lang(en) { border-color: #8fbbed; }\
-	#de-panel-buttons:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
 	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; color: inherit !important; }\
 	.de-panel-button:hover { color: inherit !important; }\
-	.de-panel-button:lang(fr):hover, .de-panel-button:lang(en):hover, .de-panel-button:lang(es):hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
 	.de-panel-svg, #de-panel-logo, .de-panel-logo-svg, .de-panel-button { width: 25px; height: 25px; }\
-	.de-panel-svg:lang(de):hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }\
 	#de-panel-goback { transform: rotate(180deg); }\
 	#de-panel-godown { transform: rotate(90deg); }\
 	#de-panel-goup { transform: rotate(-90deg); }\
@@ -18945,6 +18937,30 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-svg-stroke { stroke: currentColor; fill: none; }\
 	.de-svg-fill { stroke: none; fill: currentColor; }\
 	use { fill: inherit; pointer-events: none; }';
+
+		switch (Cfg.scriptStyle) {
+			case 0:
+			
+				x += '#de-panel, .de-win-head { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\
+			.de-panel-button:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }';
+				break;
+			case 1:
+			
+				x += '#de-panel, .de-win-head { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\
+			#de-panel-buttons, #de-panel-info { border-color: #8fbbed; }\
+			.de-panel-button:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }';
+				break;
+			case 2:
+			
+				x += '#de-panel, .de-win-head { background-color: #777; }\
+			#de-panel-buttons, #de-panel-info { border-color: #ccc; }\
+			.de-panel-svg:hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }';
+				break;
+			default:
+			
+				x += '#de-panel, .de-win-head { background-color: rgba(0,20,80,.72); }\
+			.de-panel-button:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }';
+		}
 
 		if (Cfg.disabled) {
 			$css(x).id = 'de-css';
@@ -18974,13 +18990,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'.de-block { display: block; }\
 	#de-btn-addspell { margin-left: auto; }\
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }\
-	#de-cfg-bar:lang(fr) { background-color: #1f2740; }\
-	#de-cfg-bar:lang(en) { background-color: #325f9e; }\
-	#de-cfg-bar:lang(de) { background-color: #777; }\
-	#de-cfg-bar:lang(es) { background-color: rgba(0,20,80,.72); }\
 	.de-cfg-body { min-height: 315px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\
-	.de-cfg-body:lang(de), #de-cfg-buttons:lang(de) { border-color: #444; }\
 	.de-cfg-button { padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\
 	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\
 	.de-cfg-chkbox { ' + (nav.Presto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\
@@ -18991,9 +19002,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; }\
 	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
 	.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
-	.de-cfg-tab:lang(fr) { border-color: #121421 !important; }\
-	.de-cfg-tab:lang(en) { border-color: #183d77 !important; }\
-	.de-cfg-tab:lang(es) { border-color: #001450 !important; }\
 	.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\
 	.de-cfg-tab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\
 	.de-cfg-unvis { display: none; }\
@@ -19006,11 +19014,32 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	#de-spell-editor { display: flex; align-items: stretch; height: 225px; padding: 2px 0; }\
 	#de-spell-panel { display: flex; }\
 	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
-	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\
-	#de-spell-rowmeter:lang(de) { background-color: #777; }' +
+	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }';
+
+		switch (Cfg.scriptStyle) {
+			case 0:
+			
+				x += '#de-cfg-bar { background-color: #1f2740; }\
+			.de-cfg-tab { border-color: #121421 !important; }';
+				break;
+			case 1:
+			
+				x += '#de-cfg-bar { background-color: #325f9e; }\
+			.de-cfg-tab { border-color: #183d77 !important; }';
+				break;
+			case 2:
+			
+				x += '#de-cfg-bar, #de-spell-rowmeter { background-color: #777; }\
+			.de-cfg-body, #de-cfg-buttons { border-color: #444; }';
+				break;
+			default:
+			
+				x += '#de-cfg-bar { background-color: rgba(0,20,80,.72); }\
+			.de-cfg-tab { border-color: #001450 !important; }';
+		}
 
 	
-		'.de-post-btns { margin-left: 4px; }\
+		x += '.de-post-btns { margin-left: 4px; }\
 	.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
 	.de-thread-note { font-style: italic; }\
 	.de-btn-hide > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\
