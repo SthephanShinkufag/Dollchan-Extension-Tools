@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.12.16.0';
-	var commit = '2091fb4';
+	var commit = 'fc73506';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3434,7 +3434,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function $replace(origEl, newEl) {
 		if (typeof newEl === 'string') {
 			origEl.insertAdjacentHTML('afterend', newEl);
-			origEl.parentNode.removeChild(origEl);
+			origEl.remove();
 		} else {
 			origEl.parentNode.replaceChild(newEl, origEl);
 		}
@@ -3492,14 +3492,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function $css(text) {
-		if (!nav.Firefox) {
-			text = text.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + '$1');
-			if (!nav.Presto) {
-				text = text.replace(/\(to bottom/g, '(top').replace(/\(to top/g, '(bottom');
-			}
-			if (nav.Safari && !('flex' in docBody.style)) {
-				text = text.replace(/( flex|inline-flex|align-items)/g, ' -webkit-$1');
-			}
+		if (nav.Safari && !('flex' in docBody.style)) {
+			text = text.replace(/( flex|inline-flex|align-items)/g, ' -webkit-$1');
 		}
 		return doc.head.appendChild($new('style', { 'type': 'text/css', 'text': text }, null));
 	}
@@ -3528,7 +3522,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function $del(el) {
 		if (el) {
-			el.parentNode.removeChild(el);
+			el.remove();
 		}
 	}
 
@@ -3562,6 +3556,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function $join(arr, start, end) {
 		return start + arr.join(end + start) + end;
+	}
+
+	function $animate(el, cName) {
+		var remove = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+
+		el.addEventListener('animationend', function aEvent() {
+			el.removeEventListener('animationend', aEvent);
+			if (remove) {
+				el.remove();
+			} else {
+				el.classList.remove(cName);
+			}
+		});
+		el.classList.add(cName);
 	}
 
 	var Logger = {
@@ -5343,9 +5351,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var isAnim = !noAnim && !isUpd && Cfg.animation,
 		    body = $q('.de-win-body', win);
 		if (isAnim && body.hasChildNodes()) {
-			nav.animEvent(win, function (node) {
-				showWindow(node, body, name, false, remove, data, Cfg.animation);
-				body = name = remove = data = null;
+			win.addEventListener('animationend', function aEvent() {
+				this.removeEventListener('animationend', aEvent);
+				showWindow(win, body, name, false, remove, data, Cfg.animation);
+				win = body = name = remove = data = null;
 			});
 			win.classList.remove('de-win-open');
 			win.classList.add('de-win-close');
@@ -6479,17 +6488,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var el = typeof data === 'string' ? $id('de-popup-' + data) : data;
 		if (el) {
 			el.closeTimeout = null;
-			if (!Cfg.animation) {
-				$del(el);
-				return;
+			if (Cfg.animation) {
+				$animate(el, 'de-close', true);
+			} else {
+				el.remove();
 			}
-			nav.animEvent(el, function (node) {
-				var p = node && node.parentNode;
-				if (p) {
-					p.removeChild(node);
-				}
-			});
-			el.classList.add('de-close');
 		}
 	}
 
@@ -6502,10 +6505,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			$q('span', el).innerHTML = buttonHTML;
 			clearTimeout(el.closeTimeout);
 			if (!wait && Cfg.animation) {
-				nav.animEvent(el, function (node) {
-					node.classList.remove('de-blink');
-				});
-				el.classList.add('de-blink');
+				$animate(el, 'de-blink');
 			}
 		} else {
 			el = $id('de-wrapper-popup').appendChild($add('\n\t\t<div class="' + aib.cReply + ' de-popup" id="de-popup-' + id + '">\n\t\t\t<span class="de-popup-btn">' + buttonHTML + '</span>\n\t\t\t<div class="de-popup-msg">' + txt.trim() + '</div>\n\t\t</div>'));
@@ -6517,10 +6517,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			};
 			if (Cfg.animation) {
-				nav.animEvent(el, function (node) {
-					node.classList.remove('de-open');
-				});
-				el.classList.add('de-open');
+				$animate(el, 'de-open');
 			}
 		}
 		if (Cfg.closePopups && !wait && !id.includes('edit') && !id.includes('cfg')) {
@@ -14082,11 +14079,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var el = pv.el;
 					pByEl['delete'](el);
 					if (Cfg.animation) {
-						nav.animEvent(el, $del);
-						el.classList.add('de-pview-anim');
-						el.style[nav.animName] = 'de-post-close-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
+						$animate(el, 'de-pview-anim', true);
+						el.style.animationName = 'de-post-close-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
 					} else {
-						$del(el);
+						el.remove();
 					}
 				} while (pv = pv.kid);
 			}
@@ -14110,12 +14106,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'handleEvent',
 			value: function handleEvent(e) {
 				var pv = e.target;
-				if (e.type === nav.animEnd && pv.style[nav.animName]) {
+				if (e.type === 'animationend' && pv.style.animationName) {
 					pv.classList.remove('de-pview-anim');
 					pv.style.cssText = this._newPos;
 					this._newPos = null;
 					$each($Q('.de-css-move', doc.head), $del);
-					pv.removeEventListener(nav.animEnd, this);
+					pv.removeEventListener('animationend', this);
 					return;
 				}
 				var isOverEvent = false;
@@ -14232,17 +14228,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return;
 				}
 				var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
-				$css('@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + 'px; }}').className = 'de-css-move';
+				$css('@keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + 'px; }}').className = 'de-css-move';
 				if (this._newPos) {
 					pv.style.cssText = this._newPos;
-					pv.removeEventListener(nav.animEnd, this);
+					pv.removeEventListener('animationend', this);
 				} else {
 					pv.style.cssText = oldCSS;
 				}
 				this._newPos = lmw + ' top:' + top + 'px;';
-				pv.addEventListener(nav.animEnd, this);
+				pv.addEventListener('animationend', this);
 				pv.classList.add('de-pview-anim');
-				pv.style[nav.animName] = uId;
+				pv.style.animationName = uId;
 			}
 		}, {
 			key: '_showMenu',
@@ -14337,12 +14333,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.thr.form.el.appendChild(el);
 				this._setPosition(this._link, false);
 				if (Cfg.animation) {
-					nav.animEvent(el, function (node) {
-						node.classList.remove('de-pview-anim');
-						node.style[nav.animName] = '';
+					el.addEventListener('animationend', function aEvent() {
+						el.removeEventListener('animationend', aEvent);
+						el.classList.remove('de-pview-anim');
+						el.style.animationName = '';
 					});
 					el.classList.add('de-pview-anim');
-					el.style[nav.animName] = 'de-post-open-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
+					el.style.animationName = 'de-post-open-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
 				}
 			}
 		}, {
@@ -14858,10 +14855,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				post = new Post(el, this, num, i, false, prev);
 				parent.appendChild(wrap);
 				if (aib.t && !doc.hidden && Cfg.animation) {
-					nav.animEvent(post.el, function (node) {
-						node.classList.remove('de-post-new');
-					});
-					post.el.classList.add('de-post-new');
+					$animate(post.el, 'de-post-new');
 				}
 				if (uVis && uVis[num]) {
 					initPostUserVisib(post, num, uVis[num][0] === 0, Date.now());
@@ -15529,16 +15523,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			isScriptStorage: isScriptStorage,
 			isGlobal: isGM || isChromeStorage || isScriptStorage,
 			scriptInstall: firefox ? typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish' : isChromeStorage ? 'Chrome extension' : isGM ? 'Monkey' : 'Native userscript',
-			cssFix: webkit ? '-webkit-' : '',
-			animName: webkit ? 'webkitAnimationName' : 'animationName',
-			animEnd: webkit ? 'webkitAnimationEnd' : 'animationend',
-			animEvent: function animEvent(el, fn) {
-				el.addEventListener(this.animEnd, function aEvent() {
-					this.removeEventListener(nav.animEnd, aEvent);
-					fn(this);
-					fn = null;
-				});
-			},
 			cssMatches: function cssMatches(leftSel) {
 				for (var _len7 = arguments.length, rules = Array(_len7 > 1 ? _len7 - 1 : 0), _key6 = 1; _key6 < _len7; _key6++) {
 					rules[_key6 - 1] = arguments[_key6];
