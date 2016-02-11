@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.12.16.0';
-var commit = 'f70ce15';
+var commit = 'a00092e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11208,7 +11208,9 @@ function initNavFuncs() {
 	try {
 		isGM = (typeof GM_setValue === 'function') &&
 			(!chrome || !GM_setValue.toString().includes('not supported'));
-	} catch(e) {}
+	} catch(e) {
+		isGM = e.message === 'Permission denied to access property "toString"';
+	}
 	nav = {
 		get ua() {
 			return navigator.userAgent + (this.Firefox ? ' [' + navigator.buildID + ']' : '');
