@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.12.16.0';
-var commit = 'a00092e';
+var commit = 'c3c6e28';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11042,37 +11042,17 @@ class Thread {
 
 var navPanel = {
 	addThr(thr) {
-		this._thrs.add(thr);
+		this._thrs.add(thr.el);
 		if(this._thrs.size === 1) {
 			doc.defaultView.addEventListener('scroll', this);
 		}
 		if(!this._visible) {
-			var halfHeight = Post.sizing.wHeight / 2;
-			if(thr.bottom > halfHeight && thr.top < halfHeight) {
-				this._showHide(true);
-				this._currentThr = thr;
-			}
+			this._checkThreads();
 		}
 	},
 	handleEvent(e) {
 		switch(e.type) {
-		case 'scroll':
-			window.requestAnimationFrame(() => {
-				var halfHeight = Post.sizing.wHeight / 2;
-				for(var thr of this._thrs) {
-					if(thr.bottom > halfHeight && thr.top < halfHeight) {
-						if(!this._visible) {
-							this._showHide(true);
-						}
-						this._currentThr = thr;
-						return;
-					}
-				}
-				if(this._visible) {
-					this._showHide(false);
-				}
-			});
-			break;
+		case 'scroll': window.requestAnimationFrame(() => this._checkThreads()); break;
 		case 'mouseover': this._expandCollapse(true, fixEventEl(e.relatedTarget)); break;
 		case 'mouseout': this._expandCollapse(false, fixEventEl(e.relatedTarget)); break;
 		case 'click': this._handleClick(e); break;
@@ -11110,6 +11090,22 @@ var navPanel = {
 	_thrs: null,
 	_currentThr: null,
 	_visible: false,
+	_checkThreads() {
+		var el = document.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
+		while(el) {
+			if(this._thrs.has(el)) {
+				if(!this._visible) {
+					this._showHide(true);
+				}
+				this._currentThr = el;
+				return;
+			}
+			el = el.parentElement;
+		}
+		if(this._visible) {
+			this._showHide(false);
+		}
+	},
 	_handleClick(e) {
 		var el = fixEventEl(e.target);
 		if(el.tagName.toLowerCase() === 'svg') {
@@ -11117,11 +11113,12 @@ var navPanel = {
 		}
 		switch(el.id) {
 		case 'de-thr-navup':
-			scrollTo(window.pageXOffset, window.pageYOffset + this._currentThr.top - 50);
+			scrollTo(window.pageXOffset, window.pageYOffset +
+				this._currentThr.getBoundingClientRect().top - 50);
 			break;
 		case 'de-thr-navdown':
 			scrollTo(window.pageXOffset, window.pageYOffset +
-				this._currentThr.btns.getBoundingClientRect().bottom - Post.sizing.wHeight + 50);
+				this._currentThr.getBoundingClientRect().bottom - Post.sizing.wHeight + 50);
 			break;
 		}
 	},
@@ -11138,7 +11135,7 @@ var navPanel = {
 		this._el.style.display = show ? 'initial' : 'none';
 		this._visible = show;
 	}
-}
+};
 
 // BROWSER
 // ===========================================================================================================

@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.12.16.0';
-	var commit = 'a00092e';
+	var commit = 'c3c6e28';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15324,16 +15324,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var navPanel = {
 		addThr: function addThr(thr) {
-			this._thrs.add(thr);
+			this._thrs.add(thr.el);
 			if (this._thrs.size === 1) {
 				doc.defaultView.addEventListener('scroll', this);
 			}
 			if (!this._visible) {
-				var halfHeight = Post.sizing.wHeight / 2;
-				if (thr.bottom > halfHeight && thr.top < halfHeight) {
-					this._showHide(true);
-					this._currentThr = thr;
-				}
+				this._checkThreads();
 			}
 		},
 		handleEvent: function handleEvent(e) {
@@ -15342,34 +15338,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			switch (e.type) {
 				case 'scroll':
 					window.requestAnimationFrame(function () {
-						var halfHeight = Post.sizing.wHeight / 2;
-						for (var _iterator27 = _this48._thrs, _isArray27 = Array.isArray(_iterator27), _i28 = 0, _iterator27 = _isArray27 ? _iterator27 : _iterator27[Symbol.iterator]();;) {
-							var _ref50;
-
-							if (_isArray27) {
-								if (_i28 >= _iterator27.length) break;
-								_ref50 = _iterator27[_i28++];
-							} else {
-								_i28 = _iterator27.next();
-								if (_i28.done) break;
-								_ref50 = _i28.value;
-							}
-
-							var thr = _ref50;
-
-							if (thr.bottom > halfHeight && thr.top < halfHeight) {
-								if (!_this48._visible) {
-									_this48._showHide(true);
-								}
-								_this48._currentThr = thr;
-								return;
-							}
-						}
-						if (_this48._visible) {
-							_this48._showHide(false);
-						}
-					});
-					break;
+						return _this48._checkThreads();
+					});break;
 				case 'mouseover':
 					this._expandCollapse(true, fixEventEl(e.relatedTarget));break;
 				case 'mouseout':
@@ -15401,6 +15371,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_thrs: null,
 		_currentThr: null,
 		_visible: false,
+		_checkThreads: function _checkThreads() {
+			var el = document.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
+			while (el) {
+				if (this._thrs.has(el)) {
+					if (!this._visible) {
+						this._showHide(true);
+					}
+					this._currentThr = el;
+					return;
+				}
+				el = el.parentElement;
+			}
+			if (this._visible) {
+				this._showHide(false);
+			}
+		},
 		_handleClick: function _handleClick(e) {
 			var el = fixEventEl(e.target);
 			if (el.tagName.toLowerCase() === 'svg') {
@@ -15408,10 +15394,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			switch (el.id) {
 				case 'de-thr-navup':
-					scrollTo(window.pageXOffset, window.pageYOffset + this._currentThr.top - 50);
+					scrollTo(window.pageXOffset, window.pageYOffset + this._currentThr.getBoundingClientRect().top - 50);
 					break;
 				case 'de-thr-navdown':
-					scrollTo(window.pageXOffset, window.pageYOffset + this._currentThr.btns.getBoundingClientRect().bottom - Post.sizing.wHeight + 50);
+					scrollTo(window.pageXOffset, window.pageYOffset + this._currentThr.getBoundingClientRect().bottom - Post.sizing.wHeight + 50);
 					break;
 			}
 		},
@@ -16651,8 +16637,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						if ($id('de-_2chruNet-capchecker')) {
 							return;
 						}
-						$aEnd(cap.textEl, '<span id="de-_2chruNet-capchecker" class="shortened" style="margin: 0px .5em;">\n\t\t\t\t\tпроверить капчу\n\t\t\t\t</span>').onclick = function (_ref51) {
-							var target = _ref51.target;
+						$aEnd(cap.textEl, '<span id="de-_2chruNet-capchecker" class="shortened" style="margin: 0px .5em;">\n\t\t\t\t\tпроверить капчу\n\t\t\t\t</span>').onclick = function (_ref50) {
+							var target = _ref50.target;
 
 							$ajax('/' + _this64.b + '/api/validate-captcha', { method: 'POST' }).then(function (xhr) {
 								if (JSON.parse(xhr.responseText).status === 'ok') {
@@ -17512,19 +17498,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var sessionId = null;
 					var cookie = doc.cookie;
 					if (cookie.includes('desuchan.session')) {
-						for (var _iterator28 = cookie.split(';'), _isArray28 = Array.isArray(_iterator28), _i29 = 0, _iterator28 = _isArray28 ? _iterator28 : _iterator28[Symbol.iterator]();;) {
-							var _ref52;
+						for (var _iterator27 = cookie.split(';'), _isArray27 = Array.isArray(_iterator27), _i28 = 0, _iterator27 = _isArray27 ? _iterator27 : _iterator27[Symbol.iterator]();;) {
+							var _ref51;
 
-							if (_isArray28) {
-								if (_i29 >= _iterator28.length) break;
-								_ref52 = _iterator28[_i29++];
+							if (_isArray27) {
+								if (_i28 >= _iterator27.length) break;
+								_ref51 = _iterator27[_i28++];
 							} else {
-								_i29 = _iterator28.next();
-								if (_i29.done) break;
-								_ref52 = _i29.value;
+								_i28 = _iterator27.next();
+								if (_i28.done) break;
+								_ref51 = _i28.value;
 							}
 
-							var c = _ref52;
+							var c = _ref51;
 
 							var m = c.match(/^\s*desuchan\.session=(.*)$/);
 							if (m) {
@@ -18804,8 +18790,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function initPage() {
 		if (!localData && Cfg.ajaxReply === 1) {
 			docBody.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-pform" sandbox="" src="about:blank" style="display: none;"></iframe>' + '<iframe name="de-iframe-dform" sandbox="" src="about:blank" style="display: none;"></iframe>');
-			doc.defaultView.addEventListener('message', function (_ref53) {
-				var data = _ref53.data;
+			doc.defaultView.addEventListener('message', function (_ref52) {
+				var data = _ref52.data;
 
 				switch (data.substr(0, 15)) {
 					case 'de-iframe-pform':
