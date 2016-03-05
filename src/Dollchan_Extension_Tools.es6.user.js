@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.12.16.0';
-var commit = 'c3c6e28';
+var commit = '82cf63a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8828,10 +8828,20 @@ var ImagesHashStorage = Object.create({
 	}
 });
 
-function processImageNames(el) {
+function fixRelativeLinks(el, aName) {
+	var str = el.getAttribute(aName);
+	if(str[0] === '.') {
+		el.setAttribute(aName, '/' + aib.b + str.substr(2));
+	}
+}
+
+function processImageNames(el, fixLink) {
 	var addSrc = Cfg.imgSrcBtns,
 		delNames = Cfg.delImgNames;
-	if(!addSrc && !delNames) {
+	if(!aib.mak) {
+		fixLink = false;
+	}
+	if(!fixLink && !addSrc && !delNames) {
 		return;
 	}
 	for(var i = 0, els = $Q(aib.qImgName, el), len = els.length; i < len; i++) {
@@ -8843,6 +8853,9 @@ function processImageNames(el) {
 		if(link.firstElementChild) {
 			continue;
 		}
+		if(fixLink) {
+			fixRelativeLinks(link, 'href');
+		}
 		if(addSrc) {
 			link.insertAdjacentHTML('beforebegin',
 				'<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"/></svg>');
@@ -8850,6 +8863,13 @@ function processImageNames(el) {
 		if(delNames) {
 			link.classList.add('de-img-name');
 			link.textContent = link.textContent.split('.').slice(-1)[0];
+		}
+	}
+	if(fixLink) {
+		for(var i = 0, els = $Q(aib.qPostImg, el), len = els.length; i < len; i++) {
+			var img = els[i];
+			fixRelativeLinks(img, 'src');
+			fixRelativeLinks(img.parentNode, 'href');
 		}
 	}
 }
@@ -10213,7 +10233,7 @@ class Pview extends AbstractPost {
 			if(Cfg.addImgs) {
 				embedImagesLinks(el);
 			}
-			processImageNames(el);
+			processImageNames(el, true);
 		} else {
 			var node = this._pref.nextSibling;
 			this.btns = node;
@@ -10667,7 +10687,7 @@ class Thread {
 		if(maybeVParser.value) {
 			maybeVParser.value.parse(post);
 		}
-		processImageNames(el);
+		processImageNames(el, !aib.t);
 		post.addFuncs();
 		preloadImages(post);
 		if(aib.t && Cfg.markNewPosts) {
@@ -13359,7 +13379,7 @@ class DelForm {
 			embedImagesLinks(el);
 			Logger.log('Image-links');
 		}
-		processImageNames(el);
+		processImageNames(el, false);
 		Logger.log('Image names');
 		RefMap.init(this);
 		Logger.log('Reflinks map');
