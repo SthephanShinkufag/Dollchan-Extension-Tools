@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.12.16.0';
-var commit = 'c3c6e28';
+var commit = '9028714';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
