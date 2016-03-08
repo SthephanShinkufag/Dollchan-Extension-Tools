@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.12.16.0';
-	var commit = 'd9beb4a';
+	var commit = '0178d57';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -12671,20 +12671,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 	});
 
-	function fixRelativeLinks(el, aName) {
+	function fixRelativeLinks(el, aName, linkBoard) {
 		var str = el.getAttribute(aName);
 		if (str[0] === '.') {
-			el.setAttribute(aName, '/' + aib.b + str.substr(2));
+			el.setAttribute(aName, '/' + linkBoard + str.substr(2));
 		}
 	}
 
-	function processImageNames(el, fixLink) {
+	function processImagesLinks(el, linkBoard) {
 		var addSrc = Cfg.imgSrcBtns,
 		    delNames = Cfg.delImgNames;
 		if (!aib.mak) {
-			fixLink = false;
+			linkBoard = null;
 		}
-		if (!fixLink && !addSrc && !delNames) {
+		if (!linkBoard && !addSrc && !delNames) {
 			return;
 		}
 		for (var i = 0, els = $Q(aib.qImgName, el), len = els.length; i < len; i++) {
@@ -12696,8 +12696,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (link.firstElementChild) {
 				continue;
 			}
-			if (fixLink) {
-				fixRelativeLinks(link, 'href');
+			if (linkBoard) {
+				fixRelativeLinks(link, 'href', linkBoard);
 			}
 			if (addSrc) {
 				link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"/></svg>');
@@ -12707,11 +12707,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				link.textContent = link.textContent.split('.').slice(-1)[0];
 			}
 		}
-		if (fixLink) {
+		if (linkBoard) {
 			for (var i = 0, els = $Q(aib.qPostImg, el), len = els.length; i < len; i++) {
 				var img = els[i];
-				fixRelativeLinks(img, 'src');
-				fixRelativeLinks(img.parentNode, 'href');
+				fixRelativeLinks(img, 'src', linkBoard);
+				fixRelativeLinks(img.parentNode, 'href', linkBoard);
 			}
 		}
 	}
@@ -14060,10 +14060,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return _possibleConstructorReturn(_this38);
 			}
 			_this38._fromCache = true;
-			var b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
-			if (PviewsCache.has(b + tNum)) {
+			_this38._brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
+			if (PviewsCache.has(_this38._brd + tNum)) {
 				_this38._loading = false;
-				post = PviewsCache.get(b + tNum).getPost(pNum);
+				post = PviewsCache.get(_this38._brd + tNum).getPost(pNum);
 				if (post) {
 					_this38._showPost(post);
 				} else {
@@ -14075,8 +14075,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_this38._showPview(_this38.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">' + '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
 		
 		
-			_this38._loadPromise = ajaxLoad(aib.getThrdUrl(b, tNum)).then((function (form) {
-				this._onload(b, form);
+			_this38._loadPromise = ajaxLoad(aib.getThrdUrl(_this38._brd, tNum)).then((function (form) {
+				this._onload(form);
 			}).bind(_this38), _this38._onerror.bind(_this38));
 			return _this38;
 		}
@@ -14211,11 +14211,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: '_onload',
-			value: function _onload(b, form) {
+			value: function _onload(form) {
 				var parentNum = this.parent.num,
-				    post = new PviewsCache(doc.adoptNode(form), b, this.tNum).getPost(this.num);
-				if (post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(parentNum))) {
-					(post.ref.hasMap ? $q('.de-refmap', post.el) : $aEnd(post.msg, '<div class="de-refmap"></div>')).insertAdjacentHTML('afterbegin', '<a class="de-link-ref" href="' + aib.getThrdUrl(b, this.parent.tNum) + aib.anchor + parentNum + '">&gt;&gt;' + (aib.b === b ? '' : '/' + aib.b + '/') + parentNum + '</a><span class="de-refcomma">, </span>');
+				    post = new PviewsCache(doc.adoptNode(form), this._brd, this.tNum).getPost(this.num);
+				if (post && (aib.b !== this._brd || !post.ref.hasMap || !post.ref.has(parentNum))) {
+					(post.ref.hasMap ? $q('.de-refmap', post.el) : $aEnd(post.msg, '<div class="de-refmap"></div>')).insertAdjacentHTML('afterbegin', '<a class="de-link-ref" href="' + aib.getThrdUrl(this._brd, this.parent.tNum) + aib.anchor + parentNum + '">&gt;&gt;' + (aib.b === this._brd ? '' : '/' + aib.b + '/') + parentNum + '</a><span class="de-refcomma">, </span>');
 				}
 				if (post) {
 					this._showPost(post);
@@ -14305,7 +14305,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (Cfg.addImgs) {
 						embedImagesLinks(el);
 					}
-					processImageNames(el, true);
+					processImagesLinks(el, this._brd);
 				} else {
 					var node = this._pref.nextSibling;
 					this.btns = node;
@@ -14887,7 +14887,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (maybeVParser.value) {
 					maybeVParser.value.parse(post);
 				}
-				processImageNames(el, !aib.t);
+				processImagesLinks(el, aib.t ? null : aib.b);
 				post.addFuncs();
 				preloadImages(post);
 				if (aib.t && Cfg.markNewPosts) {
@@ -18203,7 +18203,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					embedImagesLinks(el);
 					Logger.log('Image-links');
 				}
-				processImageNames(el, false);
+				processImagesLinks(el, null);
 				Logger.log('Image names');
 				RefMap.init(this);
 				Logger.log('Reflinks map');

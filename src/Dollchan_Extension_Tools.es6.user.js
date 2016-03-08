@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.12.16.0';
-var commit = 'd9beb4a';
+var commit = 'c3c6e28';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8828,20 +8828,20 @@ var ImagesHashStorage = Object.create({
 	}
 });
 
-function fixRelativeLinks(el, aName) {
+function fixRelativeLinks(el, aName, linkBoard) {
 	var str = el.getAttribute(aName);
 	if(str[0] === '.') {
-		el.setAttribute(aName, '/' + aib.b + str.substr(2));
+		el.setAttribute(aName, '/' + linkBoard + str.substr(2));
 	}
 }
 
-function processImageNames(el, fixLink) {
+function processImagesLinks(el, linkBoard) {
 	var addSrc = Cfg.imgSrcBtns,
 		delNames = Cfg.delImgNames;
 	if(!aib.mak) {
-		fixLink = false;
+		linkBoard = null;
 	}
-	if(!fixLink && !addSrc && !delNames) {
+	if(!linkBoard && !addSrc && !delNames) {
 		return;
 	}
 	for(var i = 0, els = $Q(aib.qImgName, el), len = els.length; i < len; i++) {
@@ -8853,8 +8853,8 @@ function processImageNames(el, fixLink) {
 		if(link.firstElementChild) {
 			continue;
 		}
-		if(fixLink) {
-			fixRelativeLinks(link, 'href');
+		if(linkBoard) {
+			fixRelativeLinks(link, 'href', linkBoard);
 		}
 		if(addSrc) {
 			link.insertAdjacentHTML('beforebegin',
@@ -8865,11 +8865,11 @@ function processImageNames(el, fixLink) {
 			link.textContent = link.textContent.split('.').slice(-1)[0];
 		}
 	}
-	if(fixLink) {
+	if(linkBoard) {
 		for(var i = 0, els = $Q(aib.qPostImg, el), len = els.length; i < len; i++) {
 			var img = els[i];
-			fixRelativeLinks(img, 'src');
-			fixRelativeLinks(img.parentNode, 'href');
+			fixRelativeLinks(img, 'src', linkBoard);
+			fixRelativeLinks(img.parentNode, 'href', linkBoard);
 		}
 	}
 }
@@ -10014,10 +10014,10 @@ class Pview extends AbstractPost {
 			return;
 		}
 		this._fromCache = true;
-		var b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
-		if(PviewsCache.has(b + tNum)) {
+		this._brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
+		if(PviewsCache.has(this._brd + tNum)) {
 			this._loading = false;
-			post = PviewsCache.get(b + tNum).getPost(pNum);
+			post = PviewsCache.get(this._brd + tNum).getPost(pNum);
 			if(post) {
 				this._showPost(post);
 			} else {
@@ -10031,8 +10031,8 @@ class Pview extends AbstractPost {
 			+ '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
 		// Arrow functions disabled inside derived class constructors
 		// https://bugzilla.mozilla.org/show_bug.cgi?id=1169734
-		this._loadPromise = ajaxLoad(aib.getThrdUrl(b, tNum))
-			.then(function(form) { this._onload(b, form) }.bind(this), this._onerror.bind(this));
+		this._loadPromise = ajaxLoad(aib.getThrdUrl(this._brd, tNum))
+			.then(function(form) { this._onload(form) }.bind(this), this._onerror.bind(this));
 	}
 	get stickBtn() {
 		var value = $q('.de-btn-stick', this.el);
@@ -10145,15 +10145,15 @@ class Pview extends AbstractPost {
 				Lng.postNotFound[lang] : getErrorMessage(e);
 		}
 	}
-	_onload(b, form) {
+	_onload(form) {
 		var parentNum = this.parent.num,
-			post = new PviewsCache(doc.adoptNode(form), b, this.tNum).getPost(this.num);
-		if(post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(parentNum))) {
+			post = new PviewsCache(doc.adoptNode(form), this._brd, this.tNum).getPost(this.num);
+		if(post && (aib.b !== this._brd || !post.ref.hasMap || !post.ref.has(parentNum))) {
 			(post.ref.hasMap ? $q('.de-refmap', post.el) : $aEnd(post.msg, '<div class="de-refmap"></div>'))
 				.insertAdjacentHTML('afterbegin', '<a class="de-link-ref" href="' +
-					aib.getThrdUrl(b, this.parent.tNum) + aib.anchor +
-					parentNum + '">&gt;&gt;' + (aib.b === b ? '' : '/' + aib.b + '/') + parentNum +
-					'</a><span class="de-refcomma">, </span>');
+					aib.getThrdUrl(this._brd, this.parent.tNum) + aib.anchor +
+					parentNum + '">&gt;&gt;' + (aib.b === this._brd ? '' : '/' + aib.b + '/') +
+					parentNum +	'</a><span class="de-refcomma">, </span>');
 		}
 		if(post) {
 			this._showPost(post);
@@ -10233,7 +10233,7 @@ class Pview extends AbstractPost {
 			if(Cfg.addImgs) {
 				embedImagesLinks(el);
 			}
-			processImageNames(el, true);
+			processImagesLinks(el, this._brd);
 		} else {
 			var node = this._pref.nextSibling;
 			this.btns = node;
@@ -10687,7 +10687,7 @@ class Thread {
 		if(maybeVParser.value) {
 			maybeVParser.value.parse(post);
 		}
-		processImageNames(el, !aib.t);
+		processImagesLinks(el, aib.t ? null : aib.b);
 		post.addFuncs();
 		preloadImages(post);
 		if(aib.t && Cfg.markNewPosts) {
@@ -13394,7 +13394,7 @@ class DelForm {
 			embedImagesLinks(el);
 			Logger.log('Image-links');
 		}
-		processImageNames(el, false);
+		processImagesLinks(el, null);
 		Logger.log('Image names');
 		RefMap.init(this);
 		Logger.log('Reflinks map');
@@ -13971,7 +13971,9 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		},
 		refToYou() {
-			hasYouRefs = true;
+			if(doc.hidden) {
+				hasYouRefs = true;
+			}
 		}
 	};
 }
