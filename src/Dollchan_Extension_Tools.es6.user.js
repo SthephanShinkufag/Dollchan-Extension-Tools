@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.12.16.0';
-var commit = '82cf63a';
+var commit = 'd9beb4a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11111,20 +11111,35 @@ var navPanel = {
 	_currentThr: null,
 	_visible: false,
 	_checkThreads() {
-		var el = document.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
-		while(el) {
-			if(this._thrs.has(el)) {
-				if(!this._visible) {
-					this._showHide(true);
-				}
-				this._currentThr = el;
-				return;
+		var el = this._findCurrentThread();
+		if(el) {
+			if(!this._visible) {
+				this._showHide(true);
 			}
-			el = el.parentElement;
-		}
-		if(this._visible) {
+			this._currentThr = el;
+		} else if(this._visible) {
 			this._showHide(false);
 		}
+	},
+	_findCurrentThread() {
+		if('elementsFromPoint' in doc) {
+			Object.defineProperty(this, '_findCurrentThread', { value() {
+				return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2)
+					.find(el => this._thrs.has(el))
+			} });
+			return this._findCurrentThread();
+		}
+		Object.defineProperty(this, '_findCurrentThread', {	value() {
+			var el = document.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
+			while(el) {
+				if(this._thrs.has(el)) {
+					return el;
+				}
+				el = el.parentElement;
+			}
+			return undefined;
+		} });
+		return this._findCurrentThread();
 	},
 	_handleClick(e) {
 		var el = fixEventEl(e.target);
