@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.12.16.0';
-var commit = '9028714';
+var commit = '3846e05';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2622,7 +2622,8 @@ function showFavoritesWindow(body, data) {
 	body.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(function* () {
 		var isUpdate = false,
 			els = $Q('.de-entry'),
-			fav = yield* getStoredObj('DESU_Favorites');
+			fav = yield* getStoredObj('DESU_Favorites'),
+			last404 = false;
 		for(var i = 0, len = els.length; i < len; ++i) {
 			var form, el = els[i],
 				host = el.getAttribute('de-host'),
@@ -2639,12 +2640,23 @@ function showFavoritesWindow(body, data) {
 			titleEl.title = Lng.updating[lang];
 			try {
 				form = yield ajaxLoad(aib.getThrdUrl(b, num), true, true);
+				last404 = false;
 				if(!form) {
 					iconEl.setAttribute('class', 'de-fav-inf-icon');
 					titleEl.removeAttribute('title');
 					continue;
 				}
 			} catch(e) {
+				if((e instanceof AjaxError) && e.code === 404) { // Check for 404 error twice
+					if(last404) {
+						Thread.removeSavedData(b, num);
+					} else {
+						last404 = true;
+						--i;
+						continue;
+					}
+				}
+				last404 = false;
 				$hide(el);
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 				f['err'] = titleEl.title = getErrorMessage(e);
@@ -2743,6 +2755,7 @@ function showFavoritesWindow(body, data) {
 		closePopup('load-pages');
 	})));
 	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
+		var last404 = false;
 		for(var i = 0, els = $Q('.de-entry'), len = els.length; i < len; ++i) {
 			var el = els[i],
 				iconEl = $q('.de-fav-inf-icon', el),
@@ -2750,16 +2763,28 @@ function showFavoritesWindow(body, data) {
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
 			try {
+				if(+el.getAttribute('de-num') === 81045876) {
+					throw new AjaxError(404, 'azaza');
+				}
 				yield $ajax(el.getAttribute('de-url'), null, false);
 				iconEl.setAttribute('class', 'de-fav-inf-icon');
 				titleEl.removeAttribute('title');
 			} catch(err) {
-				if(err.code === 404) {
-					el.setAttribute('de-removed', '');
+				if(err.code === 404) { // Check for 404 error twice
+					if(last404) {
+						Thread.removeSavedData(el.getAttribute('de-board'),
+							+el.getAttribute('de-num'));
+						el.setAttribute('de-removed', '');
+					} else {
+						last404 = true;
+						--i;
+						continue;
+					}
 				}
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 				titleEl.title = getErrorMessage(err);
 			}
+			last404 = false;
 		}
 		cleanFavorites();
 	})));
@@ -3110,16 +3135,8 @@ function getCfgForm() {
 		$if(pr.txta, lBox('spacedQuote', true, null)),
 		lBox('favOnReply', true, null),
 		$if(pr.subj, lBox('warnSubjTrip', false, null)),
-		$if(pr.file && !nav.Presto, lBox('fileThumb', true, function() {
-			for(var inp = pr.fileObj; true; inp = inp.next) {
-				inp.updateUtils();
-				if(!inp.next) {
-					break;
-				}
-			}
-			if(inp.empty) {
-				inp.hideInputs();
-			}
+		$if(pr.files && !nav.Presto, lBox('fileThumb', true, function() {
+			pr.files.changeView();
 			if(!aib.kus && !aib.multiFile) {
 				pr.setPlaceholders();
 			}
@@ -5268,10 +5285,7 @@ var Pages = {
 			Attachment.viewer = null;
 		}
 		if(pr.isQuick) {
-			if(pr.file) {
-				pr.delFilesUtils();
-			}
-			pr.txta.value = '';
+			pr.clearForm();
 		}
 		DelForm.tNums = new Set();
 		for(var form of DelForm) {
@@ -6691,10 +6705,10 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	this.oeForm = oeForm || $q('form[name="oeform"], form[action*="paint"]');
 	this.txta = $q('tr:not([style*="none"]) textarea:not([style*="display:none"])', form);
 	this.subm = $q('tr input[type="submit"]', form);
-	this.file = $q('tr input[type="file"]', form);
-	if(this.file) {
-		this.fileTd = $parent(this.file, 'TD');
-		this.spoil = $q('input[type="checkbox"][name="spoiler"]', this.fileTd);
+	var fileEl = $q('tr input[type="file"]', form);
+	if(fileEl) {
+		aib.fixFileInputs(fileEl);
+		this.files = new Files(this, $q('tr input[type="file"]', form));
 	}
 	this.name = $q(aib.qFormName, form);
 	this.mail = $q(aib.qFormMail, form);
@@ -6904,11 +6918,6 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		this.form.target = 'de-iframe-pform';
 		this.form.onsubmit = null;
 	}
-	el = this.file;
-	if(el) {
-		aib.fixFileInputs(el);
-		this.eventFiles(true);
-	}
 }
 PostForm.hideField = function(el) {
 	var next = el.nextElementSibling;
@@ -6933,8 +6942,6 @@ PostForm.setUserPassw = function() {
 	}
 };
 PostForm.prototype = {
-	fileObj: null,
-	filesCount: 0,
 	isHidden: false,
 	isQuick: false,
 	isBottom: false,
@@ -6942,27 +6949,9 @@ PostForm.prototype = {
 	pForm: null,
 	pArea: [],
 	qArea: null,
-	get fileArea() {
-		var val;
-		if(aib.multiFile) {
-			val = $add('<tr><td></td><td><div id="de-file-area"></div></td></tr>');
-			$after(this.fileTd.parentNode, val);
-		} else {
-			val = $q(aib.tiny ? 'th' : 'td', $parent(this.txta, 'TR'));
-			val.innerHTML = '<div style="display: none;">' + val.innerHTML + '</div><div></div>';
-			val = val.lastChild;
-		}
-		Object.defineProperty(this, 'fileArea', { value: val });
-		return val;
-	},
-	get rarInput() {
-		var val = docBody.appendChild($new('input', {'type': 'file', 'style': 'display: none;'}, null));
-		Object.defineProperty(this, 'rarInput', { value: val });
-		return val;
-	},
 	addTextPanel() {
 		var id, val, btns, html = '', tPanel = $id('de-txt-panel');
-		if(!Cfg.addTextBtns || aib.fch && !this.spoil) {
+		if(!Cfg.addTextBtns || (aib.fch && !$q('input[type="checkbox"][name="spoiler"]', this.form))) {
 			$del(tPanel);
 			return;
 		}
@@ -6992,31 +6981,16 @@ PostForm.prototype = {
 			Cfg.addTextBtns === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' : ''
 		}</span>`;
 	},
-	delFilesUtils() {
-		for(var inp = this.fileObj; inp; inp = inp.next) {
-			inp.delUtils();
+	clearForm() {
+		if(this.txta) {
+			this.txta.value = '';
 		}
-	},
-	eventFiles(clear) {
-		var last = null, els = $Q('input[type="file"]', this.fileTd);
-		for(var i = 0, len = els.length; i < len; ++i) {
-			var el = els[i],
-				inp = el.obj;
-			if(inp) {
-				inp.prev = last;
-				if(last) {
-					last.next = inp;
-				}
-				last = inp;
-			} else {
-				el.obj = last = new FileInput(this, el, last);
-				last.init(false);
-				if(clear && el.files && el.files.length) {
-					last.clear();
-				}
-			}
+		if(this.files) {
+			this.files.clear();
 		}
-		this.fileObj = els[0].obj;
+		if(this.video) {
+			this.video.value = '';
+		}
 	},
 	handleEvent(e) {
 		var id, el = e.target;
@@ -7252,39 +7226,110 @@ PostForm.prototype = {
 	}
 };
 
-function FileInput(form, el, prev) {
-	this.el = el;
-	this.place = el.parentNode;
-	this.form = form;
-	this.prev = prev;
-	if(prev) {
-		prev.next = this;
+class Files {
+	constructor(form, fileEl) {
+		this.filesCount = 0;
+		this.fileTd = $parent(fileEl, 'TD');
+		this._form = form;
+		var inputs = [];
+		var els = $Q('input[type="file"]', this.fileTd);
+		for(var i = 0, len = els.length; i < len; ++i) {
+			inputs.push(new FileInput(this, els[i]));
+		}
+		this._inputs = inputs;
+		this.hide();
+	}
+	get rarInput() {
+		var value = docBody.appendChild($new('input', {'type': 'file', 'style': 'display: none;'}, null));
+		Object.defineProperty(this, 'rarInput', { value });
+		return value;
+	}
+	get thumbsEl() {
+		var value;
+		if(aib.multiFile) {
+			value = $add('<tr><td></td><td><div id="de-file-area"></div></td></tr>');
+			$after(this.fileTd.parentNode, value);
+		} else {
+			value = $q(aib.tiny ? 'th' : 'td', $parent(this._form.txta, 'TR'));
+			value.innerHTML = '<div style="display: none;">' + value.innerHTML + '</div><div></div>';
+			value = value.lastChild;
+		}
+		Object.defineProperty(this, 'thumbsEl', { value });
+		return value;
+	}
+	changeView() {
+		var cfg = !!Cfg.fileThumb;
+		for(let inp of this._inputs) {
+			inp.changeView(cfg);
+		}
+		this.hide();
+	}
+	clear() {
+		for(let inp of this._inputs) {
+			inp.clear();
+		}
+		this.hide();
+	}
+	hide() {
+		for(var els = this._inputs, i = els.length - 1; i > 0; --i) {
+			let inp = els[i];
+			if(inp.hasFile) {
+				break;
+			} else if(els[i - 1].hasFile) {
+				inp.show();
+				break;
+			}
+			inp.hide();
+		}
 	}
 }
-FileInput.prototype = {
-	empty: true,
-	next: null,
-	imgFile: null,
-	thumb: null,
-	clear() {
-		var form = this.form,
-			oldEl = this.el,
-			newEl = $aEnd(oldEl, oldEl.outerHTML);
-		newEl.obj = this;
-		newEl.addEventListener('change', this);
-		newEl.addEventListener('dragleave', this);
-		newEl.addEventListener('drop', this);
-		if(form.file === oldEl) {
-			form.file = newEl;
+
+class FileInput {
+	constructor(parent, el) {
+		this.hasFile = false;
+		this.imgFile = null;
+		this._btnDel = null;
+		this._btnSpoil = null;
+		this._btnRarJpg = null;
+		this._dragCount = 0;
+		this._input = el;
+		this._inputAfter = el.nextSibling;
+		this._inputParent = el.parentNode;
+		this._mediaEl = null;
+		this._parent = parent;
+		this._spoilEl = $q('input[type="checkbox"][name="spoiler"]', el.parentNode)
+		this._thumb = null;
+		el.classList.add('de-file-input');
+		el.addEventListener('change', this);
+		if(el.files && el.files[0]) {
+			this._removeFile();
 		}
-		this.el = newEl;
-		$del(oldEl);
-		this.empty = true;
-		this.hideInputs();
-	},
-	delUtils() {
 		if(Cfg.fileThumb) {
-			this.thumb.classList.add('de-file-off');
+			this._initThumbs();
+		}
+		el.obj = this;
+	}
+	changeView(showThumbs) {
+		if(showThumbs ^ !!this._thumb) {
+			if(showThumbs) {
+				this._initThumbs();
+			} else {
+				this._removeThumbs();
+			}
+			if(this._btnDel) {
+				$after(this._buttonsPlace, this._btnDel);
+			}
+			if(this._btnSpoil) {
+				$after(this._buttonsPlace, this._btnSpoil);
+			}
+			if(this._btnRarJpg) {
+				$after(this._buttonsPlace, this._btnRarJpg);
+			}
+		}
+	}
+	clear() {
+		if(Cfg.fileThumb) {
+			this._thumb.classList.add('de-file-off');
 			if(this._mediaEl) {
 				window.URL.revokeObjectURL(this._mediaEl.src);
 				this._mediaEl.parentNode.title = Lng.clickToAdd[lang];
@@ -7292,199 +7337,183 @@ FileInput.prototype = {
 				this._mediaEl = null;
 			}
 		}
-		$del(this._delUtil);
-		$del(this._spUtil);
-		$del(this._rjUtil);
-		this.imgFile = this._delUtil = this._spUtil = this._rjUtil = null;
+		$del(this._btnDel);
+		$del(this._btnSpoil);
+		$del(this._btnRarJpg);
+		this.imgFile = this._btnDel = this._btnSpoil = this._btnRarJpg = null;
 		this._changeFilesCount(-1);
-		this.clear();
-	},
-	updateUtils() {
-		this.init(true);
-		if(this._delUtil) {
-			$after(this._buttonsPlace, this._delUtil);
-		}
-		if(this._spUtil) {
-			$after(this._buttonsPlace, this._spUtil);
-		}
-		if(this._rjUtil) {
-			$after(this._buttonsPlace, this._rjUtil);
-		}
-	},
+		this._removeFile();
+	}
 	handleEvent(e) {
 		switch(e.type) {
 		case 'change': setTimeout(() => this._onFileChange(), 20); return;
 		case 'click':
-			if(e.target === this._delUtil) {
-				this.delUtils();
-			} else if(e.target === this._spUtil) {
-				this.form.spoil.checked = this._spUtil.checked;
+			if(e.target === this._btnDel) {
+				this.clear();
+				this._parent.hide();
+			} else if(e.target === this._btnSpoil) {
+				this._spoilEl.checked = this._btnSpoil.checked;
 				return;
-			} else if(e.target === this._rjUtil) {
+			} else if(e.target === this._btnRarJpg) {
 				this._addRarJpeg();
 			} else if(e.target.className === 'de-file-img') {
-				this.el.click();
+				this._input.click();
 			}
 			e.stopPropagation();
 			$pd(e);
 			return;
-		case 'dragover':
-			this.thumb.classList.add('de-file-drag');
-			$after(this.thumb, this.el);
+		case 'dragenter':
+			$pd(e);
+			if(e.target === this._input) {
+				this._dragCount++;
+			} else {
+				$after(this._thumb, this._input);
+				this._thumb.classList.add('de-file-drag');
+			}
 			return;
 		case 'dragleave':
-		case 'drop':
-			setTimeout(() => {
-				this.thumb.classList.remove('de-file-drag');
-				var el = this.place.firstChild;
-				if(el) {
-					$before(el, this.el);
-				} else {
-					this.place.appendChild(this.el);
-				}
-			}, 10);
+			if(--this._dragCount === 0) {
+				this._removeDropzone();
+			}
 			return;
-		case 'mouseover': this.thumb.classList.add('de-file-hover'); return;
-		case 'mouseout': this.thumb.classList.remove('de-file-hover');
+		case 'drop':
+			this._dragCount = 0;
+			setTimeout(() => this._removeDropzone(), 10);
+			return;
 		}
-	},
-	hideInputs() {
-		var inp = this.next;
-		while(inp && inp.empty) {
-			inp = inp.next;
-		}
-		if(!inp) {
-			inp = this;
-			while(inp.prev && inp.prev.empty) {
-				inp = inp.prev;
-			}
-			var hideThumbs = Cfg.fileThumb;
-			while((inp = inp.next)) {
-				$hide(hideThumbs ? inp.thumb : inp._wrap);
-			}
-		}
-	},
-	init(isUpdate) {
-		if(Cfg.fileThumb) {
-			setTimeout(() => $hide(this.form.fileTd.parentNode), 0);
-			this.thumb = $bEnd(this.form.fileArea,
-				'<div class="de-file de-file-off"><div class="de-file-img">' +
-				'<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
-			this.thumb.addEventListener('mouseover', this);
-			this.thumb.addEventListener('mouseout', this);
-			this.thumb.addEventListener('click', this);
-			this.thumb.addEventListener('dragover', this);
-			this.el.addEventListener('dragleave', this);
-			this.el.addEventListener('drop', this);
-			if(isUpdate) {
-				this._showPviewImage();
-			} else if(this.prev) {
-				$hide(this.thumb);
-			}
-		} else if(isUpdate) {
-			$show(this._wrap);
-			$show(this.form.fileTd.parentNode);
-			if(this._mediaE) {
-				window.URL.revokeObjectURL(this._mediaE.src);
-			}
-			$del(this.thumb);
-			this.thumb = this._mediaEl = null;
-		}
-		if(!isUpdate) {
-			this.el.classList.add('de-file-input');
-			this.el.addEventListener('change', this);
-		}
-	},
+	}
+	hide() {
+		$hide(Cfg.fileThumb ? this._thumb : this._wrap);
+	}
+	show() {
+		$show(Cfg.fileThumb ? this._thumb : this._wrap);
+	}
 
-	_mediaEl: null,
-	_delUtil: null,
-	_spUtil: null,
-	_rjUtil: null,
 	get _buttonsPlace() {
-		return Cfg.fileThumb ? this.thumb.firstChild : this.el;
-	},
+		return Cfg.fileThumb ? this._thumb.firstChild : this._input;
+	}
 	get _wrap() {
-		return aib.multiFile ? this.el.parentNode : this.el;
-	},
+		return aib.multiFile ? this._input.parentNode : this._input;
+	}
 	_addRarJpeg() {
-		var el = this.form.rarInput;
+		var el = this._parent.rarInput;
 		el.onchange = e => {
-			$del(this._rjUtil);
-			var myRjUtil = this._rjUtil = $aEnd(this._buttonsPlace, '<span><svg class="de-wait">' +
+			$del(this._btnRarJpg);
+			var myBtn = this._btnRarJpg = $aEnd(this._buttonsPlace, '<span><svg class="de-wait">' +
 				'<use xlink:href="#de-symbol-wait"/></svg>' + Lng.wait[lang] + '</span>');
 			var file = e.target.files[0];
 			readFile(file).then(({ data }) => {
-				if(this._rjUtil === myRjUtil) {
-					myRjUtil.className = 'de-file-rarmsg de-file-utils';
-					myRjUtil.title = this.el.files[0].name + ' + ' + file.name;
-					myRjUtil.textContent = this.el.files[0].name.replace(/^.+\./, '') + ' + ' +
+				if(this._btnRarJpg === myBtn) {
+					myBtn.className = 'de-file-rarmsg de-file-utils';
+					myBtn.title = this.el.files[0].name + ' + ' + file.name;
+					myBtn.textContent = this.el.files[0].name.replace(/^.+\./, '') + ' + ' +
 						file.name.replace(/^.+\./, '');
 					this.imgFile = data;
 				}
 			});
 		};
 		el.click();
-	},
+	}
 	_changeFilesCount(val) {
-		this.form.filesCount = Math.max(this.form.filesCount + val, 0);
+		this._parent.filesCount = Math.max(this._parent.filesCount + val, 0);
 		if(aib.dobr) {
-			this.form.fileTd.firstElementChild.value = this.form.filesCount + 1;
+			this._parent.fileTd.firstElementChild.value = this._parent.filesCount + 1;
 		}
-	},
+	}
+	_eventInput(el, add) {
+		var name = add ? 'addEventListener' : 'removeEventListener';
+		el[name]('dragover', $pd);
+		el[name]('dragenter', this);
+		el[name]('dragleave', this);
+		el[name]('drop', this);
+	}
+	_initThumbs() {
+		$hide(this._parent.fileTd.parentNode);
+		var thumb = $bEnd(this._parent.thumbsEl,
+			'<div class="de-file de-file-off"><div class="de-file-img">' +
+			'<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
+		this._thumb = thumb;
+		thumb.addEventListener('click', this);
+		thumb.addEventListener('dragenter', this);
+		this._eventInput(this._input, true);
+		if(this.hasFile) {
+			this._showPviewImage();
+		}
+	}
 	_onFileChange() {
 		if(Cfg.fileThumb) {
 			this._showPviewImage();
-		} else {
-			this.form.eventFiles(false);
 		}
-		if(this.empty) {
-			this.empty = false;
+		if(!this.hasFile) {
+			this.hasFile = true;
 			this._changeFilesCount(+1);
-			$after(this._buttonsPlace, this._delUtil = $new('span', {
+			$after(this._buttonsPlace, this._btnDel = $new('span', {
 				'class': 'de-file-del de-file-utils',
 				'title': Lng.removeFile[lang]}, {
 				'click': this
 			}));
-			if(this.form.spoil) {
-				$after(this._buttonsPlace, this._spUtil = $new('input', {
+			if(this._spoilEl) {
+				$after(this._buttonsPlace, this._btnSpoil = $new('input', {
 					'class': 'de-file-spoil de-file-utils',
 					'type': 'checkbox',
 					'title': Lng.spoilFile[lang]}, {
 					'click': this
 				}));
-				this._spUtil.checked = this.form.spoil.checked;
+				this._btnSpoil.checked = this._spoilEl.checked;
 			}
 		} else if(this.imgFile) {
 			this.imgFile = null;
 		}
-		if(this.next) {
-			$show(Cfg.fileThumb ? this.next.thumb : this.next._wrap);
-		}
-		if(nav.Presto || aib.fch || !/^image\/(?:png|jpeg)$/.test(this.el.files[0].type)) {
+		this._parent.hide();
+		if(nav.Presto || aib.fch || !/^image\/(?:png|jpeg)$/.test(this._input.files[0].type)) {
 			return;
 		}
-		if(this._rjUtil) {
-			$del(this._rjUtil);
-			this._rjUtil = null;
-		}
-		$after(this._buttonsPlace, this._rjUtil = $new('span', {
+		$del(this._btnRarJpg);
+		$after(this._buttonsPlace, this._btnRarJpg = $new('span', {
 			'class': 'de-file-rar de-file-utils',
 			'title': Lng.helpAddFile[lang]}, {
 			'click': this
 		}));
-	},
+	}
+	_removeFile() {
+		var oldEl = this._input,
+			newEl = $aEnd(oldEl, oldEl.outerHTML);
+		this._eventInput(oldEl, false);
+		oldEl.removeEventListener('change', this);
+		this._eventInput(newEl, true);
+		newEl.addEventListener('change', this);
+		this._input = newEl;
+		$del(oldEl);
+		this.hasFile = false;
+	}
+	_removeDropzone() {
+		this._thumb.classList.remove('de-file-drag');
+		if(this._inputAfter) {
+			$before(this._inputAfter, this._input);
+		} else {
+			this._inputParent.appendChild(this._input);
+		}
+	}
+	_removeThumbs() {
+		$show(this._wrap);
+		$show(this._parent.fileTd.parentNode);
+		if(this._mediaEl) {
+			window.URL.revokeObjectURL(this._mediaEl.src);
+		}
+		$del(this._thumb);
+		this._thumb = this._mediaEl = null;
+	}
 	_showPviewImage() {
-		var files = this.el.files;
-		if(!files || !files[0]) {
+		var file = this._input.files[0];
+		if(!file) {
 			return;
 		}
-		readFile(files[0]).then(({ data }) => {
-			this.form.eventFiles(false);
-			if(this.empty) {
+		readFile(file).then(({ data }) => {
+			var newFile = this._input.files[0];
+			if(newFile !== file) {
 				return;
 			}
-			var file = this.el.files[0],
-				el = this.thumb;
+			var el = this._thumb;
 			el.classList.remove('de-file-off');
 			el = el.firstChild.firstChild;
 			el.title = file.name + ', ' + (file.size/1024).toFixed(2) + 'KB';
@@ -7498,7 +7527,7 @@ FileInput.prototype = {
 			}
 		});
 	}
-};
+}
 
 
 // CAPTCHA
@@ -7702,6 +7731,7 @@ class Captcha {
 	}
 }
 
+
 // SUBMIT
 // ===========================================================================================================
 
@@ -7779,13 +7809,7 @@ function checkUpload(data) {
 	if(Cfg.favOnReply && pr.tNum && !$q('.de-btn-fav-sel', pByNum.get(pr.tNum).el)) {
 		pByNum.get(pr.tNum).thr.setFavorState(true, 'onreply');
 	}
-	pr.txta.value = '';
-	if(pr.file) {
-		pr.delFilesUtils();
-	}
-	if(pr.video) {
-		pr.video.value = '';
-	}
+	pr.clearForm();
 	Cfg.stats[pr.tNum ? 'reply' : 'op']++;
 	saveComCfg(aib.dm, Cfg);
 	if(!pr.tNum) {
@@ -7827,7 +7851,6 @@ function checkUpload(data) {
 	}
 	pr.closeReply();
 	pr.refreshCapImg(false);
-	pr.filesCount = 0;
 }
 
 var checkDelete = async(function* (data) {
@@ -10593,6 +10616,9 @@ class Thread {
 	static get last() {
 		return DelForm.last.lastThr;
 	}
+	static removeSavedData(brd, num) {
+		// TODO: remove relevant spells, hidden posts and user posts
+	}
 	constructor(el, num, prev, form) {
 		var els = $Q(aib.qRPost, el),
 			len = els.length,
@@ -11993,18 +12019,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['link[href$="phutaba.css"]', Phutaba]);
 
 	// Domains
-	class _0chanCc extends _0chan {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.markupBB = false;
-		}
-		get markupTags() {
-			return ['**', '*', '[u', '[s', '%%', '[code'];
-		}
-	}
-	ibDomains['0chan.cc'] = _0chanCc;
-
 	class _0chanSo extends _0chan {
 		init() {
 			if(this.host !== 'www.0-chan.ru') {
@@ -12072,11 +12086,14 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `
-			${this.t ? '' : '#postform em, '}.small, .replymode { display: none; }
+			${this.t ? '' : '#postform em, '}.small, .replymode, #updated { display: none; }
 			tr#captcha_tr { display: table-row; }`;
 		}
 		disableRedirection(el) {
-			$hide($parent(el, 'LABEL'));
+			var p = $parent(el, 'LABEL');
+			if(p) {
+				$hide(p);
+			}
 			el.checked = true;
 		}
 		initCaptcha(cap) {
@@ -13763,6 +13780,7 @@ function initThreadUpdater(title, enableUpdate) {
 					favicon.startBlinkError();
 				}
 				if(eCode === 404 && lastECode === 404) {
+					Thread.removeSavedData(aib.b, aib.t);
 					updateTitle(eCode);
 					disableUpdater();
 				} else {
@@ -14318,9 +14336,9 @@ function scriptCSS() {
 	.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -' + (p + 2) + 'px !important; vertical-align: top; width: ' + (p + 2) + 'px !important; height: ' + (p + 2) + 'px; border: none !important; cursor: pointer; }\
 	#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\
 	.de-file-drag { background: rgba(88,88,88,.4); border: 1px solid grey; }\
-	.de-file-hover > .de-file-utils { display: block !important; position: relative; margin: -18px 2px; }\
-	.de-file-hover > .de-file-spoil { margin: -16px 21px; }\
-	.de-file-img > img, .de-file-img > video { max-width: ' + (p - 4) + 'px; max-height: ' + (p - 4) + 'px; }\
+	.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; position: relative; margin: -18px 2px; }\
+	.de-file:hover:not(.de-file-drag) > .de-file-spoil { margin: -16px 21px; }\
+	img.de-file-img, video.de-file-img { max-width: ' + (p - 4) + 'px; max-height: ' + (p - 4) + 'px; }\
 	.de-file-input { max-width: 300px; }\
 	.de-file-off > div > div::after { content: "' + Lng.noFile[lang] + '"; }\
 	.de-file-rarmsg { margin: 0 5px; font: bold 11px tahoma; cursor: default; }\
