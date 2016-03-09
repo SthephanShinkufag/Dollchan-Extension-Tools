@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.12.16.0';
-	var commit = '5ce3089';
+	var commit = '3878c1b';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -18718,7 +18718,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					} else {
 						this._setUpdateStatus('warn');
 						if (!Cfg.noErrInTitle) {
-							updateTitle();
+							updateTitle(eCode);
 						}
 						this._makeStep();
 					}

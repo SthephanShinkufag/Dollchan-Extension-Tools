@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.12.16.0';
-var commit = '5ce3089';
+var commit = '3878c1b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13786,7 +13786,7 @@ function initThreadUpdater(title, enableUpdate) {
 				} else {
 					this._setUpdateStatus('warn');
 					if(!Cfg.noErrInTitle) {
-						updateTitle();
+						updateTitle(eCode);
 					}
 					this._makeStep();
 				}
