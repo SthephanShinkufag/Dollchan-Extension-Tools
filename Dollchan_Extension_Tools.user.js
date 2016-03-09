@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '0589e4e';
+	var commit = 'e685d4c';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -2957,6 +2957,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'animation': 1,
 		'closePopups': 0,
 		'inftyScroll': 1,
+		'scrollToTop': 0,
 		'hotKeys': 1,
 		'loadPages': 1,
 		'updScript': 1,
@@ -3113,6 +3114,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'animation': ['CSS3 анимация в скрипте', 'CSS3 animation in script'],
 			'closePopups': ['Автоматически закрывать уведомления', 'Close popups automatically'],
 			'inftyScroll': ['Бесконечная прокрутка', 'Infinity scroll'],
+			'scrollToTop': ['Всегда скроллить в топ на доске', 'Always scroll to top in threads list'],
 			'updScript': ['Автоматически проверять обновления скрипта', 'Check for script update automatically'],
 			'scrUpdIntrv': {
 				sel: [['Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'], ['Every day', 'Every 2 days', 'Every week', 'Every 2 week', 'Every month']],
@@ -6270,7 +6272,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				updateCSS();
 				toggleWindow('cfg', true);
 			});
-		}, 'de-cfg-button'), $add('<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a>')]), lBox('panelCounter', true, updateCSS), lBox('rePageTitle', true, null), lBox('animation', true, null), lBox('closePopups', true, null), lBox('inftyScroll', true, toggleInfinityScroll), $New('div', null, [lBox('hotKeys', false, function () {
+		}, 'de-cfg-button'), $add('<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a>')]), lBox('panelCounter', true, updateCSS), lBox('rePageTitle', true, null), lBox('animation', true, null), lBox('closePopups', true, null), lBox('inftyScroll', true, toggleInfinityScroll), lBox('scrollToTop', true, null), $New('div', null, [lBox('hotKeys', false, function () {
 			if (Cfg.hotKeys) {
 				HotKeys.enable();
 			} else {
@@ -18978,7 +18980,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function scrollPage() {
-		if (!aib.t) {
+		if (!aib.t && Cfg.scrollToTop) {
 			if (doc.hidden || needScroll) {
 				window.scrollTo(0, 0);
 			}
@@ -19497,7 +19499,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				case 33:
 					initStorageEvent();
 					parseURL();
-					if (aib.t) {
+					if (aib.t || !Cfg.scrollToTop) {
 						doc.defaultView.addEventListener('beforeunload', function (e) {
 							sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset;
 						});

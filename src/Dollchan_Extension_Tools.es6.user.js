@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '0589e4e';
+var commit = 'e685d4c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -122,6 +122,7 @@ var defaultCfg = {
 	'animation':        1,      // CSS3 animation in script
 	'closePopups':      0,      // auto-close popups
 	'inftyScroll':      1,      // infinity scroll
+	'scrollToTop':      0,      // scroll to top in threads list
 	'hotKeys':          1,      // enable hotkeys
 	'loadPages':        1,      //    number of pages that are loaded on F5
 	'updScript':        1,      // check for script's update
@@ -285,6 +286,7 @@ Lng = {
 		'animation':    ['CSS3 анимация в скрипте', 'CSS3 animation in script'],
 		'closePopups':  ['Автоматически закрывать уведомления', 'Close popups automatically'],
 		'inftyScroll':  ['Бесконечная прокрутка', 'Infinity scroll'],
+		'scrollToTop':  ['Всегда скроллить в топ на доске', 'Always scroll to top in threads list'],
 		'updScript':    ['Автоматически проверять обновления скрипта', 'Check for script update automatically'],
 		'scrUpdIntrv': {
 			sel:        [
@@ -3214,6 +3216,7 @@ function getCfgCommon() {
 		lBox('animation', true, null),
 		lBox('closePopups', true, null),
 		lBox('inftyScroll', true, toggleInfinityScroll),
+		lBox('scrollToTop', true, null),
 		$New('div', null, [
 			lBox('hotKeys', false, function() {
 				if(Cfg.hotKeys) {
@@ -14037,7 +14040,7 @@ function initPage() {
 }
 
 function scrollPage() {
-	if(!aib.t) {
+	if(!aib.t && Cfg.scrollToTop) {
 		if(doc.hidden || needScroll) {
 			window.scrollTo(0, 0);
 		}
@@ -14562,7 +14565,7 @@ function* runMain(checkDomains, cfgPromise) {
 	}
 	initStorageEvent();
 	parseURL();
-	if(aib.t) {
+	if(aib.t || !Cfg.scrollToTop) {
 		doc.defaultView.addEventListener('beforeunload', function(e) {
 			sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset;
 		});
