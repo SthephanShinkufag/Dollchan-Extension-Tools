@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.12.16.0';
-	var commit = '140878c';
+	var commit = '30976af';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3752,14 +3752,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_createClass(AjaxError, [{
 			key: 'toString',
 			value: function toString() {
-				return this.code === 0 ? this.message || Lng.noConnect[lang] : 'HTTP [' + this.code + '] ' + this.message;
+				return this.code <= 0 ? String(this.message) || Lng.noConnect[lang] : 'HTTP [' + this.code + '] ' + this.message;
 			}
 		}]);
 
 		return AjaxError;
 	})();
 
-	AjaxError.Success = new AjaxError(200, '');
+	AjaxError.Success = new AjaxError(200, 'OK');
+	AjaxError.Locked = new AjaxError(-1, {
+		toString: function toString() {
+			return Lng.thrClosed[lang];
+		}
+	});
 
 	function $ajax(url) {
 		var params = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
@@ -11013,6 +11018,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				oldEl.removeEventListener('change', this);
 				this._eventInput(newEl, true);
 				newEl.addEventListener('change', this);
+				newEl.obj = this;
 				this._input = newEl;
 				$del(oldEl);
 				this.hasFile = false;
@@ -15202,7 +15208,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								return _this44.loadNew(false);
 							}
 						}
-						return 0;
+						return { newCount: 0, locked: false };
 					});
 				}
 				return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, !aib.dobr).then(function (form) {
@@ -15230,7 +15236,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					panel.updateCounter(this.pcount, $Q(aib.qPostImg, this.el).length);
 					Pview.updatePosition(true);
 				}
-				return newVisPosts;
+				return { newCount: newVisPosts, locked: !!$q(aib.qClosed, form) };
 			}
 		}, {
 			key: 'setFavorState',
@@ -18705,7 +18711,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (doc.hidden && favicon.canBlink) {
 						favicon.startBlinkError();
 					}
-					if (eCode === 404 && lastECode === 404) {
+					if (eCode === -1 || eCode === 404 && lastECode === 404) {
 						Thread.removeSavedData(aib.b, aib.t);
 						updateTitle(eCode);
 						disableUpdater();
@@ -18765,8 +18771,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 												case 1:
 							counter.setWait();
 							this._state = 2;
-							this._loadPromise = Thread.first.loadNew(true).then(function (pCount) {
-								return _this90._handleNewPosts(pCount, AjaxError.Success);
+							this._loadPromise = Thread.first.loadNew(true).then(function (_ref54) {
+								var newCount = _ref54.newCount;
+								var locked = _ref54.locked;
+								return _this90._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (e) {
 								return _this90._handleNewPosts(0, e);
 							});
@@ -18830,7 +18838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function updateTitle() {
 			var eCode = arguments.length <= 0 || arguments[0] === undefined ? lastECode : arguments[0];
 
-			doc.title = (sendError === true ? '{' + Lng.error[lang] + '} ' : '') + (eCode === 200 ? '' : '{' + eCode + '} ') + (newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
+			doc.title = (sendError === true ? '{' + Lng.error[lang] + '} ' : '') + (eCode <= 0 || eCode === 200 ? '' : '{' + eCode + '} ') + (newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
 			favicon.updateIcon(eCode !== 200 && eCode !== 304);
 		}
 
@@ -18936,8 +18944,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function initPage() {
 		if (!localData && Cfg.ajaxReply === 1) {
 			docBody.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-pform" sandbox="" src="about:blank" style="display: none;"></iframe>' + '<iframe name="de-iframe-dform" sandbox="" src="about:blank" style="display: none;"></iframe>');
-			doc.defaultView.addEventListener('message', function (_ref54) {
-				var data = _ref54.data;
+			doc.defaultView.addEventListener('message', function (_ref55) {
+				var data = _ref55.data;
 
 				switch (data.substr(0, 15)) {
 					case 'de-iframe-pform':

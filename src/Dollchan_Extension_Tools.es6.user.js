@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.12.16.0';
-var commit = '140878c';
+var commit = '30976af';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -924,10 +924,12 @@ class AjaxError {
 		this.message = message;
 	}
 	toString() {
-		return this.code === 0 ? this.message || Lng.noConnect[lang] : 'HTTP [' + this.code + '] ' + this.message;
+		return this.code <= 0 ? String(this.message) || Lng.noConnect[lang]
+		                      : 'HTTP [' + this.code + '] ' + this.message;
 	}
 }
-AjaxError.Success = new AjaxError(200, '')
+AjaxError.Success = new AjaxError(200, 'OK');
+AjaxError.Locked = new AjaxError(-1, { toString() { return Lng.thrClosed[lang]; } });
 
 function $ajax(url, params = null, useNative = nativeXHRworks) {
 	var resolve, reject, cancelFn;
@@ -7479,6 +7481,7 @@ class FileInput {
 		oldEl.removeEventListener('change', this);
 		this._eventInput(newEl, true);
 		newEl.addEventListener('change', this);
+		newEl.obj = this;
 		this._input = newEl;
 		$del(oldEl);
 		this.hasFile = false;
@@ -10879,7 +10882,7 @@ class Thread {
 						return this.loadNew(false);
 					}
 				}
-				return 0;
+				return { newCount: 0, locked: false };
 			});
 		}
 		return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, !aib.dobr)
@@ -10897,7 +10900,7 @@ class Thread {
 			panel.updateCounter(this.pcount, $Q(aib.qPostImg, this.el).length);
 			Pview.updatePosition(true);
 		}
-		return newVisPosts;
+		return { newCount: newVisPosts, locked: !!$q(aib.qClosed, form) };
 	}
 	setFavorState(val, type) {
 		this.op.setFavBtn(val);
@@ -13776,7 +13779,7 @@ function initThreadUpdater(title, enableUpdate) {
 				if(doc.hidden && favicon.canBlink) {
 					favicon.startBlinkError();
 				}
-				if(eCode === 404 && lastECode === 404) {
+				if(eCode === -1 || (eCode === 404 && lastECode === 404)) {
 					Thread.removeSavedData(aib.b, aib.t);
 					updateTitle(eCode);
 					disableUpdater();
@@ -13831,7 +13834,7 @@ function initThreadUpdater(title, enableUpdate) {
 				counter.setWait();
 				this._state = 2;
 				this._loadPromise = Thread.first.loadNew(true).then(
-					pCount => this._handleNewPosts(pCount, AjaxError.Success),
+					({ newCount, locked}) => this._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success),
 					e => this._handleNewPosts(0, e));
 				return;
 			case 2:
@@ -13891,7 +13894,7 @@ function initThreadUpdater(title, enableUpdate) {
 
 	function updateTitle(eCode = lastECode) {
 		doc.title = (sendError === true ? '{' + Lng.error[lang] + '} ' : '') +
-			(eCode === 200 ? '' : '{' + eCode + '} ') +
+			(eCode <= 0 || eCode === 200 ? '' : '{' + eCode + '} ') +
 			(newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
 		favicon.updateIcon(eCode !== 200 && eCode !== 304);
 	}
