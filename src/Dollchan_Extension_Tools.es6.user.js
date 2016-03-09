@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.12.16.0';
-var commit = '3846e05';
+var commit = '140878c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2763,9 +2763,6 @@ function showFavoritesWindow(body, data) {
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
 			try {
-				if(+el.getAttribute('de-num') === 81045876) {
-					throw new AjaxError(404, 'azaza');
-				}
 				yield $ajax(el.getAttribute('de-url'), null, false);
 				iconEl.setAttribute('class', 'de-fav-inf-icon');
 				titleEl.removeAttribute('title');

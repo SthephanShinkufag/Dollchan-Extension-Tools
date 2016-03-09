@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.12.16.0';
-	var commit = '3846e05';
+	var commit = '140878c';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -5950,7 +5950,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 2:
 							if (!(i < len)) {
-								_context12.next = 32;
+								_context12.next = 30;
 								break;
 							}
 
@@ -5959,69 +5959,60 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 							titleEl.title = Lng.updating[lang];
 							_context12.prev = 6;
-
-							if (!(+el.getAttribute('de-num') === 81045876)) {
-								_context12.next = 9;
-								break;
-							}
-
-							throw new AjaxError(404, 'azaza');
-
-						case 9:
-							_context12.next = 11;
+							_context12.next = 9;
 							return $ajax(el.getAttribute('de-url'), null, false);
 
-						case 11:
+						case 9:
 							iconEl.setAttribute('class', 'de-fav-inf-icon');
 							titleEl.removeAttribute('title');
-							_context12.next = 28;
+							_context12.next = 26;
 							break;
 
-						case 15:
-							_context12.prev = 15;
+						case 13:
+							_context12.prev = 13;
 							_context12.t0 = _context12['catch'](6);
 
 							if (!(_context12.t0.code === 404)) {
-								_context12.next = 26;
+								_context12.next = 24;
 								break;
 							}
 
 							if (!last404) {
-								_context12.next = 23;
+								_context12.next = 21;
 								break;
 							}
 
 							Thread.removeSavedData(el.getAttribute('de-board'), +el.getAttribute('de-num'));
 							el.setAttribute('de-removed', '');
-							_context12.next = 26;
+							_context12.next = 24;
 							break;
 
-						case 23:
+						case 21:
 							last404 = true;
 							--i;
-							return _context12.abrupt('continue', 29);
+							return _context12.abrupt('continue', 27);
 
-						case 26:
+						case 24:
 							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 							titleEl.title = getErrorMessage(_context12.t0);
 
-						case 28:
+						case 26:
 							last404 = false;
 
-						case 29:
+						case 27:
 							++i;
 							_context12.next = 2;
 							break;
 
-						case 32:
+						case 30:
 							cleanFavorites();
 
-						case 33:
+						case 31:
 						case 'end':
 							return _context12.stop();
 					}
 				}
-			}, _callee4, this, [[6, 15]]);
+			}, _callee4, this, [[6, 13]]);
 		}))));
 		body.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function () {
 			$each($Q('.de-entry'), function (el) {
