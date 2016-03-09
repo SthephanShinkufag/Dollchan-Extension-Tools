@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'e685d4c';
+var commit = 'cfe36ad';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3299,7 +3299,7 @@ function getCfgInfo() {
 	).join('');
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-info'}, [$add(`
 		<div style="padding-bottom: 10px;">
-			<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit }</a>
+			<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit + (nav.isES6 ? '.es6' : '')}</a>
 			&nbsp;|&nbsp;
 			<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>
 			&nbsp;|&nbsp;
@@ -6849,7 +6849,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		if(this.tNum && pByNum.get(this.tNum).subj === 'Dollchan Extension Tools') {
 			var temp = '\n\n' + this._wrapText(aib.markupTags[5],
 				'-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit +
-				' [' + nav.scriptInstall + ']')[1];
+				(nav.isES6 ? '.es6' : '') + ' [' + nav.scriptInstall + ']')[1];
 			if(!val.includes(temp)) {
 				val += temp;
 			}
