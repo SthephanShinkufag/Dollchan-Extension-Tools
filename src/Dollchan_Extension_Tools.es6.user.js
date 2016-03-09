@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.12.16.0';
-var commit = '30976af';
+var commit = 'fdd5074';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -924,7 +924,7 @@ class AjaxError {
 		this.message = message;
 	}
 	toString() {
-		return this.code <= 0 ? String(this.message) || Lng.noConnect[lang]
+		return this.code <= 0 ? String(this.message || Lng.noConnect[lang])
 		                      : 'HTTP [' + this.code + '] ' + this.message;
 	}
 }

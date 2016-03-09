@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.12.16.0';
-	var commit = '30976af';
+	var commit = 'fdd5074';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3752,7 +3752,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_createClass(AjaxError, [{
 			key: 'toString',
 			value: function toString() {
-				return this.code <= 0 ? String(this.message) || Lng.noConnect[lang] : 'HTTP [' + this.code + '] ' + this.message;
+				return this.code <= 0 ? String(this.message || Lng.noConnect[lang]) : 'HTTP [' + this.code + '] ' + this.message;
 			}
 		}]);
 
