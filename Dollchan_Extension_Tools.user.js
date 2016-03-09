@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '15.12.16.0';
-	var commit = 'fdd5074';
+	var commit = '5ce3089';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15212,7 +15212,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					});
 				}
 				return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, !aib.dobr).then(function (form) {
-					return form ? _this44.loadNewFromForm(form) : 0;
+					return form ? _this44.loadNewFromForm(form) : { newCount: 0, locked: false };
 				});
 			}
 		}, {
@@ -18716,13 +18716,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						updateTitle(eCode);
 						disableUpdater();
 					} else {
-						lastECode = eCode;
 						this._setUpdateStatus('warn');
 						if (!Cfg.noErrInTitle) {
 							updateTitle();
 						}
 						this._makeStep();
 					}
+					lastECode = eCode;
 					return;
 				}
 				if (lastECode !== 200) {

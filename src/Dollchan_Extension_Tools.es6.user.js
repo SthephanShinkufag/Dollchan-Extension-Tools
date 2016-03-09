@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '15.12.16.0';
-var commit = 'fdd5074';
+var commit = '5ce3089';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10886,7 +10886,7 @@ class Thread {
 			});
 		}
 		return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, !aib.dobr)
-			.then(form => form ? this.loadNewFromForm(form) : 0);
+			.then(form => form ? this.loadNewFromForm(form) : { newCount: 0, locked: false });
 	}
 	loadNewFromForm(form) {
 		this._checkBans(form);
@@ -13784,13 +13784,13 @@ function initThreadUpdater(title, enableUpdate) {
 					updateTitle(eCode);
 					disableUpdater();
 				} else {
-					lastECode = eCode;
 					this._setUpdateStatus('warn');
 					if(!Cfg.noErrInTitle) {
 						updateTitle();
 					}
 					this._makeStep();
 				}
+				lastECode = eCode;
 				return;
 			}
 			if(lastECode !== 200) {
