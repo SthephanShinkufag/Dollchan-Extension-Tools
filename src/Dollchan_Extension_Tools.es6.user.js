@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'a6ed515';
+var commit = '43537f2';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1929,10 +1929,6 @@ class MyPosts extends PostsStorage {
 		var rv = super._readStorage();
 		this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b])) : new Set();
 		return rv;
-	}
-	static _saveStorageHelper() {
-		toggleWindow('hid', true);
-		super._saveStorageHelper();
 	}
 }
 HiddenPosts.storageName = 'de-myposts-new';

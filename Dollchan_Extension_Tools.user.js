@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = 'a6ed515';
+	var commit = '43537f2';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -5112,12 +5112,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var rv = _get(Object.getPrototypeOf(MyPosts), '_readStorage', this).call(this);
 				this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b])) : new Set();
 				return rv;
-			}
-		}, {
-			key: '_saveStorageHelper',
-			value: function _saveStorageHelper() {
-				toggleWindow('hid', true);
-				_get(Object.getPrototypeOf(MyPosts), '_saveStorageHelper', this).call(this);
 			}
 		}]);
 
