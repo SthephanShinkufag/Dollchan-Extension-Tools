@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = 'cfe36ad';
+	var commit = '49a8ca9';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -4568,6 +4568,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						obj.captchaLang = aib.ru ? 2 : 1;
 						obj.correctTime = 0;
 					}
+					defaultCfg.language = +!String(navigator.language).toLowerCase().startsWith('ru');
 					Cfg = Object.assign(Object.create(defaultCfg), obj);
 					if (!Cfg.timeOffset) {
 						Cfg.timeOffset = '+0';
@@ -4617,7 +4618,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}, emptyFn);
 					}
 
-				case 17:
+				case 18:
 				case 'end':
 					return _context5.stop();
 			}

@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'cfe36ad';
+var commit = '49a8ca9';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1527,6 +1527,7 @@ function* readCfg() {
 		obj.captchaLang = aib.ru ? 2 : 1;
 		obj.correctTime = 0;
 	}
+	defaultCfg.language = +!String(navigator.language).toLowerCase().startsWith('ru');
 	Cfg = Object.assign(Object.create(defaultCfg), obj);
 	if(!Cfg.timeOffset) {
 		Cfg.timeOffset = '+0';
