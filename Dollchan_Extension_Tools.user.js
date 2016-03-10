@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = 'bac9989';
+	var commit = 'a6ed515';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -6611,7 +6611,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 1:
 							locStorage.removeItem('de-posts-new');break;
 						case 2:
-							locStorage.removeItem('de-threads');break;
+							locStorage.removeItem('de-threads-new');break;
 						case 3:
 							locStorage.removeItem('de-myposts-new');break;
 						case 5:

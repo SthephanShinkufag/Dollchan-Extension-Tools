@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'bac9989';
+var commit = 'a6ed515';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3575,7 +3575,7 @@ function addSettings(body, id) {
 					}
 					switch(i) {
 					case 1: locStorage.removeItem('de-posts-new'); break;
-					case 2: locStorage.removeItem('de-threads'); break;
+					case 2: locStorage.removeItem('de-threads-new'); break;
 					case 3: locStorage.removeItem('de-myposts-new'); break;
 					case 5: delStored('DESU_Favorites'); break;
 					case 6: delStored('DESU_Keys');
