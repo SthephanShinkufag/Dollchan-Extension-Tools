@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '85173e3';
+var commit = '4e8c4da';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1753,7 +1753,6 @@ class PostsStorage extends null {
 		storage[aib.b][num] = [this._cachedTime, thrNum, data];
 		this._saveStorage();
 	}
-
 	
 	static get _cachedTime() {
 		return this.__cachedTime || (this.__cachedTime = Date.now());
@@ -1899,6 +1898,7 @@ class MyPosts extends PostsStorage {
 	}
 	static set(num, thrNum) {
 		super.set(num, thrNum);
+		this._cachedData.add(+num);
 		locStorage['__de-mypost'] = 1;
 		locStorage.removeItem('__de-mypost');
 	}
@@ -1927,12 +1927,12 @@ class MyPosts extends PostsStorage {
 			}
 		}
 		var rv = super._readStorage();
-		this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b])) : new Set();
+		this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(_ => +_)) : new Set();
 		return rv;
 	}
 }
-HiddenPosts.storageName = 'de-myposts-new';
-PostsStorage._cachedData = null;
+MyPosts.storageName = 'de-myposts-new';
+MyPosts._cachedData = null;
 
 
 // PANEL & WINDOWS

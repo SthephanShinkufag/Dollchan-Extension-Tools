@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '85173e3';
+	var commit = '4e8c4da';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -5068,6 +5068,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'set',
 			value: function set(num, thrNum) {
 				_get(Object.getPrototypeOf(MyPosts), 'set', this).call(this, num, thrNum);
+				this._cachedData.add(+num);
 				locStorage['__de-mypost'] = 1;
 				locStorage.removeItem('__de-mypost');
 			}
@@ -5110,7 +5111,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 				}
 				var rv = _get(Object.getPrototypeOf(MyPosts), '_readStorage', this).call(this);
-				this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b])) : new Set();
+				this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(function (_) {
+					return +_;
+				})) : new Set();
 				return rv;
 			}
 		}]);
@@ -5118,8 +5121,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return MyPosts;
 	})(PostsStorage);
 
-	HiddenPosts.storageName = 'de-myposts-new';
-	PostsStorage._cachedData = null;
+	MyPosts.storageName = 'de-myposts-new';
+	MyPosts._cachedData = null;
 
 
 
