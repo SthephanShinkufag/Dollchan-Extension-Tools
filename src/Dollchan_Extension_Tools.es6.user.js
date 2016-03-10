@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '49a8ca9';
+var commit = 'bac9989';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -608,9 +608,8 @@ Lng = {
 },
 
 doc = window.document, docBody, aProto = Array.prototype, locStorage, sesStorage,
-Cfg, hThr, pByEl, pByNum, uVis, needScroll,
+Cfg, pByEl, pByNum, needScroll, pr, dummy,
 aib, nav, updater, dTime, visPosts = 2, topWinZ = 0,
-pr, dummy, myPosts,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
 lang, quotetxt = '', isExpImg, isPreImg, excludeList,
 $each = Function.prototype.call.bind(aProto.forEach),
@@ -1484,24 +1483,6 @@ function* getStoredObj(id) {
 	return JSON.parse((yield* getStored(id)) || '{}') || {};
 }
 
-function* getLocStoredObj(id) {
-	var data = locStorage[id];
-	if(!data) {
-		var oldId = (id === 'de-posts' ? 'DESU_Posts_' :
-			id === 'de-threads' ? 'DESU_Threads_' : 'DESU_MyPosts_') + aib.dm;
-		data = yield* getStored(oldId);
-		if(data) {
-			locStorage[id] = data;
-			delStored(oldId);
-		}
-	}
-	try {
-		return JSON.parse(data || '{}') || {};
-	} catch(e) {
-		return {};
-	}
-}
-
 function saveComCfg(dm, obj) {
 	spawn(getStoredObj, 'DESU_Config').then(val => {
 		if(obj) {
@@ -1583,16 +1564,6 @@ function readFav() {
 	return spawn(getStoredObj, 'DESU_Favorites');
 }
 
-function initPostUserVisib(post, num, hide, date) {
-	if(hide) {
-		post.setUserVisib(true, date, false);
-	} else {
-		uVis[num][1] = date;
-		post.hideBtn.setAttribute('class', 'de-btn-hide-user');
-		post.userToggled = true;
-	}
-}
-
 function* readPostsData(firstPost) {
 	var sVis = null;
 	try {
@@ -1610,15 +1581,7 @@ function* readPostsData(firstPost) {
 		sesStorage['de-hidden-' + aib.b + aib.t] = null;
 	}
 	var b = aib.b,
-		date = Date.now(),
-		spellsHide = Cfg.hideBySpell,
-		updatePosts = false,
-		globalUserVis = yield* getLocStoredObj('de-posts');
-	hThr = yield* getLocStoredObj('de-threads');
-	uVis = globalUserVis[b] || {};
-	if(!(b in hThr)) {
-		hThr[b] = {};
-	}
+		spellsHide = Cfg.hideBySpell;
 	if(!firstPost) {
 		return;
 	}
@@ -1649,21 +1612,18 @@ function* readPostsData(firstPost) {
 			}
 			updateFav = true;
 		}
-		if(num in uVis) {
-			var hidePost = uVis[num][0] === 0;
-			if(post.isOp) {
-				var hideThread = !!(num in hThr[b]);
-				if(hidePost !== hideThread) {
-					updatePosts = true;
-					hidePost = hideThread;
-				}
+		if(HiddenPosts.has(num)) {
+			var uHideData = HiddenPosts.get(num);
+			if(!uHideData && post.isOp && HiddenThreads.has(num)) {
+				post.setUserVisib(true);
+			} else {
+				post.setUserVisib(uHideData, false);
 			}
-			initPostUserVisib(post, num, hidePost, date);
 			continue;
 		}
 		var hideData;
 		if(post.isOp) {
-			if(num in hThr[b]) {
+			if(HiddenThreads.has(num)) {
 				hideData = [true, null];
 			} else if(spellsHide) {
 				hideData = sVis && sVis[post.count];
@@ -1683,10 +1643,6 @@ function* readPostsData(firstPost) {
 			}
 		}
 	}
-	if(updatePosts) {
-		globalUserVis[b] = uVis;
-		locStorage['de-posts'] = JSON.stringify(globalUserVis);
-	}
 	maybeSpells.end();
 	if(updateFav) {
 		setStored('DESU_Favorites', JSON.stringify(fav));
@@ -1694,67 +1650,6 @@ function* readPostsData(firstPost) {
 	if(sesStorage['de-win-fav'] === '1') {
 		toggleWindow('fav', false, null, true);
 		sesStorage.removeItem('de-win-fav');
-	}
-}
-
-function* readMyPosts() {
-	var data = yield* getLocStoredObj('de-myposts');
-	if(aib.b in data) {
-		try {
-			myPosts = new Set(data[aib.b]);
-			return;
-		} catch(e) {}
-	}
-	myPosts = new Set();
-}
-
-function* addMyPost(num) {
-	locStorage['__de-mypost'] = JSON.stringify([aib.b, num]);
-	locStorage.removeItem('__de-mypost');
-	myPosts.add(num);
-	var data = yield* getLocStoredObj('de-myposts'),
-		arr = data[aib.b];
-	if(arr) {
-		arr.push(num);
-		if(arr.length > 1e4) {
-			arr = arr.slice(5e3);
-		}
-	} else {
-		arr = [num];
-	}
-	data[aib.b] = arr;
-	locStorage['de-myposts'] = JSON.stringify(data);
-}
-
-function saveUserPosts() {
-	var obj, data = locStorage['de-posts'];
-	try {
-		obj = JSON.parse(data || '{}') || {};
-	} catch(e) {
-		obj = {};
-	}
-	if(data && data.length > 1e6) {
-		var minDate = Date.now() - 5 * 24 * 3600 * 1000;
-		for(var b in obj) {
-			if(obj.hasOwnProperty(b)) {
-				var vis = obj[b];
-				for(var key in vis) {
-					if(vis.hasOwnProperty(key) && vis[key][1] < minDate) {
-						delete vis[key];
-					}
-				}
-			}
-		}
-	}
-	obj[aib.b] = uVis;
-	locStorage['de-posts'] = JSON.stringify(obj);
-	toggleWindow('hid', true);
-}
-
-function saveHiddenThreads(updWindow) {
-	locStorage['de-threads'] = JSON.stringify(hThr);
-	if(updWindow) {
-		toggleWindow('hid', true);
 	}
 }
 
@@ -1801,6 +1696,247 @@ function readViewedPosts() {
 		});
 	}
 }
+
+
+// HIDDEN AND MY POSTS STORAGE
+// ===========================================================================================================
+
+class PostsStorage extends null {
+	static get(num) {
+		var storage = this._readStorage()[aib.b];
+		if(storage) {
+			var val = storage[num];
+			return val ? val[2] : null;
+		}
+		return null;
+	}
+	static has(num) {
+		var storage = this._readStorage()[aib.b];
+		return storage ? storage.hasOwnProperty(num) : false;
+	}
+	static purge() {
+		this._cacheTO = null;
+		this.__cachedTime = null;
+		this._cachedStorage = null;
+	}
+	static remove(num, board = aib.b) {
+		var storage = this._readStorage()[board];
+		if(storage && storage.hasOwnProperty(num)) {
+			delete storage[num];
+			this._saveStorage();
+		}
+	}
+	static removeThread(tNum) {
+		var storage = this._readStorage()[aib.b];
+		if(!storage) {
+			return;
+		}
+		var isChanged = false;
+		for(var key in storage) {
+			if(storage.hasOwnProperty(key) && storage[key][1] === tNum) {
+				delete storage[key];
+				isChanged = true;
+			}
+		}
+		if(isChanged) {
+			this._saveStorage();
+		}
+	}
+	static set(num, thrNum, data = true) {
+		var storage = this._readStorage();
+		if(storage && storage['$count'] > 5000) {
+			this._removeOldPosts(storage);
+		}
+		if(!storage[aib.b]) {
+			storage[aib.b] = {};
+		}
+		storage[aib.b][num] = [this._cachedTime, thrNum, data];
+		this._saveStorage();
+	}
+
+	
+	static get _cachedTime() {
+		return this.__cachedTime || (this.__cachedTime = Date.now());
+	}
+	static _removeOldPosts(storage) {
+		var minDate = Date.now() - 5 * 24 * 3600 * 1000;
+		for(var b in storage) {
+			if(storage.hasOwnProperty(b)) {
+				var data = storage[b];
+				for(var key in data) {
+					if(data.hasOwnProperty(key) && data[key][0] < minDate) {
+						delete data[key];
+					}
+				}
+			}
+		}
+	}
+	static _readStorage() {
+		if(this._cachedStorage) {
+			return this._cachedStorage;
+		}
+		var data = locStorage[this.storageName];
+		if(data) {
+			try {
+				return this._cachedStorage = JSON.parse(data);
+			} catch(e) {}
+		}
+		return this._cachedStorage = {};
+	}
+	static _saveStorage() {
+		if(this._cacheTO === null) {
+			this._cacheTO = setTimeout(() => {
+				if(this._cachedStorage) {
+					locStorage[this.storageName] = JSON.stringify(this._cachedStorage);
+				}
+				this.purge();
+			}, 0);
+		}
+	}
+}
+PostsStorage.storageName = '';
+PostsStorage.__cachedTime = null;
+PostsStorage._cachedStorage = null;
+PostsStorage._cacheTO = null;
+
+class HiddenPosts extends PostsStorage {
+	static _readStorage() {
+		if(!this._cachedStorage && !locStorage.hasOwnProperty(this.storageName)) {
+			var data = locStorage['de-posts'];
+			if(data) {
+				locStorage.removeItem('de-posts');
+				try {
+					var oldObj = JSON.parse(data),
+						newObj = {};
+					for(var b in oldObj) {
+						if(oldObj.hasOwnProperty(b)) {
+							var oldData = oldObj[b],
+								newData = newObj[b] = {};
+							for(var key in oldData) {
+								if(oldData.hasOwnProperty(key)) {
+									var pData = oldData[key];
+									newData[key] = [pData[1], null, !pData[0]];
+								}
+							}
+						}
+					}
+					locStorage[this.storageName] = JSON.stringify(newObj);
+					return this._cachedStorage = newObj;
+				} catch(e) {}
+			}
+		}
+		return super._readStorage();
+	}
+	static _saveStorageHelper() {
+		toggleWindow('hid', true);
+		super._saveStorageHelper();
+	}
+}
+HiddenPosts.storageName = 'de-posts-new';
+
+class HiddenThreads extends PostsStorage {
+	static getCount() {
+		var storage = this._readStorage();
+		var rv = 0;
+		for(var b in storage) {
+			rv += Object.keys(storage[b]).length;
+		}
+		return rv;
+	}
+	static getRawData() {
+		return this._readStorage();
+	}
+	static saveRawData(data) {
+		locStorage[this.storageName] = JSON.stringify(data);
+		this.purge();
+	}
+
+	static _readStorage() {
+		if(!this._cachedStorage && !locStorage.hasOwnProperty(this.storageName)) {
+			var data = locStorage['de-threads'];
+			if(data) {
+				locStorage.removeItem('de-threads');
+				try {
+					var oldObj = JSON.parse(data),
+						newObj = {};
+					for(var b in oldObj) {
+						if(oldObj.hasOwnProperty(b)) {
+							var oldData = oldObj[b],
+								newData = newObj[b] = {};
+							for(var key in oldData) {
+								if(oldData.hasOwnProperty(key)) {
+									var pData = oldData[key];
+									newData[key] = [this._cachedTime, key, pData];
+								}
+							}
+						}
+					}
+					locStorage[this.storageName] = JSON.stringify(newObj);
+					return this._cachedStorage = newObj;
+				} catch(e) {}
+			}
+		}
+		return super._readStorage();
+	}
+	static _saveStorageHelper() {
+		toggleWindow('hid', true);
+		super._saveStorageHelper();
+	}
+}
+HiddenPosts.storageName = 'de-threads-new';
+
+class MyPosts extends PostsStorage {
+	static has(num) {
+		return this._cachedData.has(num);
+	}
+	static purge() {
+		super.purge();
+		this._cachedData = null;
+		this._readStorage();
+	}
+	static read() {
+		this._readStorage();
+	}
+	static set(num, thrNum) {
+		super.set(num, thrNum);
+		locStorage['__de-mypost'] = 1;
+		locStorage.removeItem('__de-mypost');
+	}
+
+	static _readStorage() {
+		if(!this._cachedStorage && !locStorage.hasOwnProperty(this.storageName)) {
+			var data = locStorage['de-myposts'];
+			if(data) {
+				locStorage.removeItem('de-myposts');
+				try {
+					var oldObj = JSON.parse(data),
+						newObj = {};
+					for(var b in oldObj) {
+						if(oldObj.hasOwnProperty(b)) {
+							var newData = newObj[b] = {};
+							for(var num of oldObj[b]) {
+								newData[num] = [this._cachedTime, null, true];
+							}
+						}
+					}
+					var setData = oldObj[aib.b];
+					this._cachedData = setData ? new Set(setData) : new Set();
+					locStorage[this.storageName] = JSON.stringify(newObj);
+					return this._cachedStorage = newObj;
+				} catch(e) {}
+			}
+		}
+		var rv = super._readStorage();
+		this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b])) : new Set();
+		return rv;
+	}
+	static _saveStorageHelper() {
+		toggleWindow('hid', true);
+		super._saveStorageHelper();
+	}
+}
+HiddenPosts.storageName = 'de-myposts-new';
+PostsStorage._cachedData = null;
 
 
 // PANEL & WINDOWS
@@ -2471,17 +2607,17 @@ function showHiddenWindow(body) {
 			this.value = isHide ? Lng.expandAll[lang] : Lng.undo[lang];
 		}));
 		body.appendChild($btn(Lng.save[lang], '', function() {
-			$each($Q('.de-cloned-post', this.parentNode), function(date, el) {
+			$each($Q('.de-cloned-post', this.parentNode), function(el) {
 				var hData = el.hideData;
 				if(!hData.hidden) {
-					hData.origin.setUserVisib(false, date, true);
+					hData.origin.setUserVisib(false);
 				}
-			}.bind(null, Date.now()));
-			saveUserPosts();
+			});
 		}));
 	} else {
 		body.insertAdjacentHTML('beforeend', '<b>' + Lng.noHidPosts[lang] + '</b>');
 	}
+	var hThr = HiddenThreads.getRawData();
 	body.insertAdjacentHTML('beforeend', '<hr><b>' +
 		($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') +'</b>');
 	for(var b in hThr) {
@@ -2499,13 +2635,10 @@ function showHiddenWindow(body) {
 	}
 	body.insertAdjacentHTML('beforeend', '<hr>');
 	body.appendChild(addEditButton('hidden', function(fn) {
-		fn(hThr, true, function(data) {
-			hThr = data;
-			if(!(aib.b in hThr)) {
-				hThr[aib.b] = {};
-			}
-			Thread.first.updateHidden(hThr[aib.b]);
-			saveHiddenThreads(true);
+		fn(HiddenThreads.getRawData(), true, function(data) {
+			HiddenThreads.saveRawData(data);
+			Thread.first.updateHidden(data[aib.b]);
+			toggleWindow('hid', true);
 		});
 	}));
 	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
@@ -2515,33 +2648,32 @@ function showHiddenWindow(body) {
 				yield $ajax(aib.getThrdUrl(board, tNum));
 			} catch(err) {
 				if(err.code === 404) {
-					delete hThr[board][tNum];
-					saveHiddenThreads(true);
+					HiddenThreads.remove(tNum, board);
+					toggleWindow('hid', true);
 				}
 			}
 		}
 	})));
 	body.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
-		$each($Q('.de-entry[info]', this.parentNode), function(date, el) {
+		$each($Q('.de-entry[info]', this.parentNode), function(el) {
 			if($q('input', el).checked) {
 				var arr = el.getAttribute('info').split(';');
 				var num = +arr[1];
 				if(pByNum.has(num)) {
-					pByNum.get(num).setUserVisib(false, date, true);
+					pByNum.get(num).setUserVisib(false);
 				} else {
 					locStorage['__de-post'] = JSON.stringify({
 						'brd': arr[0],
-						'date': date,
-						'isOp': true,
 						'num': num,
+						'thrNum': num,
 						'hide': false
 					});
 					locStorage.removeItem('__de-post');
 				}
-				delete hThr[arr[0]][num];
+				HiddenThreads.remove(num, arr[0]);
 			}
-		}.bind(null, Date.now()));
-		saveHiddenThreads(true);
+		});
+		toggleWindow('hid', true);
 	}));
 }
 
@@ -3285,13 +3417,6 @@ function getCfgCommon() {
 }
 
 function getCfgInfo() {
-	function getHiddenThrCount() {
-		var count = 0;
-		for(var b in hThr) {
-			count += Object.keys(hThr[b]).length;
-		}
-		return count;
-	}
 	var getInfoTable = (data, needMs) => data.map(data => `
 		<div class="de-info-row">
 			<span class="de-info-name">${ data[0] }</span>
@@ -3310,7 +3435,7 @@ function getCfgInfo() {
 			<div id="de-info-stats">${ getInfoTable([
 				[Lng.thrViewed[lang], Cfg.stats.view],
 				[Lng.thrCreated[lang], Cfg.stats.op],
-				[Lng.thrHidden[lang], getHiddenThrCount()],
+				[Lng.thrHidden[lang], HiddenThreads.getCount()],
 				[Lng.postsSent[lang], Cfg.stats.reply]
 			], false) }</div>
 			<div id="de-info-log">${ getInfoTable(Logger.getData(false), true) }</div>
@@ -3449,9 +3574,9 @@ function addSettings(body, id) {
 						continue;
 					}
 					switch(i) {
-					case 1: locStorage.removeItem('de-posts'); break;
+					case 1: locStorage.removeItem('de-posts-new'); break;
 					case 2: locStorage.removeItem('de-threads'); break;
-					case 3: locStorage.removeItem('de-myposts'); break;
+					case 3: locStorage.removeItem('de-myposts-new'); break;
 					case 5: delStored('DESU_Favorites'); break;
 					case 6: delStored('DESU_Keys');
 					}
@@ -3834,7 +3959,7 @@ var HotKeys = {
 			case 3: // Hide selected thread/post
 				post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 				if(post) {
-					post.toggleUserVisib();
+					post.setUserVisib(!post.hidden);
 					this._scroll(post, false, post.isOp);
 				}
 				break;
@@ -5256,7 +5381,7 @@ var Pages = {
 		this._adding = true;
 		DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' +
 			'<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>');
-		spawn(readMyPosts);
+		MyPosts.purge();
 		this._addPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(formEl => {
 			var form = this._addForm(formEl, pageNum);
 			if(!form.firstThr) {
@@ -6300,7 +6425,6 @@ class SpellsRunner {
 					'data': data
 				});
 			}
-			saveHiddenThreads(false);
 			toggleWindow('hid', true);
 		}
 		ImagesHashStorage.endFn();
@@ -7808,7 +7932,7 @@ function checkUpload(data) {
 		return;
 	}
 	if(postNum) {
-		spawn(addMyPost, postNum);
+		MyPost.set(postNum, pr.tNum || postNum);
 	}
 	if(Cfg.favOnReply && pr.tNum && !$q('.de-btn-fav-sel', pByNum.get(pr.tNum).el)) {
 		pByNum.get(pr.tNum).thr.setFavorState(true, 'onreply');
@@ -9072,7 +9196,7 @@ class AbstractPost {
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide':
 			case 'de-btn-unhide-user':
-				this.toggleUserVisib();
+				this.setUserVisib(!this.hidden);
 				return;
 			case 'de-btn-rep':
 				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
@@ -9460,19 +9584,25 @@ class Post extends AbstractPost {
 		}
 		this.select();
 	}
-	setUserVisib(hide, date, sync, note = null) {
+	setUserVisib(hide, save = true, note = null) {
 		this.userToggled = true;
 		this.setVisib(hide, note);
-		if(this.isOp) {
+		if(this.isOp || this.hidden === hide) {
 			this.hideBtn.setAttribute('class', hide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
 		}
-		uVis[this.num] = [+!hide, date];
-		if(sync) {
+		if(save) {
+			HiddenPosts.set(this.num, this.thr.num, hide);
+			if(this.isOp) {
+				if(hide) {
+					HiddenThreads.set(this.num, this.num, this.title);
+				} else {
+					HiddenThreads.remove(this.num);
+				}
+			}
 			locStorage['__de-post'] = JSON.stringify({
 				'brd': aib.b,
-				'date': date,
-				'isOp': this.isOp,
 				'num': this.num,
+				'thrNum': this.thr.num,
 				'hide': hide,
 				'title': this.isOp ? this.title : ''
 			});
@@ -9542,20 +9672,6 @@ class Post extends AbstractPost {
 				}
 			}
 		}
-	}
-	toggleUserVisib() {
-		var isOp = this.isOp,
-			hide = !this.hidden;
-		this.setUserVisib(hide, Date.now(), true);
-		if(isOp) {
-			if(hide) {
-				hThr[aib.b][this.num] = this.title;
-			} else {
-				delete hThr[aib.b][this.num];
-			}
-			saveHiddenThreads(false);
-		}
-		saveUserPosts();
 	}
 	unselect() {
 		if(this.isOp) {
@@ -9650,18 +9766,15 @@ class Post extends AbstractPost {
 		case 'hide-noimg': Spells.add(0x108 /* (#all & !#img) */, '', true); return;
 		case 'hide-text':
 			var num = this.num,
-				wrds = Post.getWrds(this.text),
-				time = Date.now();
+				wrds = Post.getWrds(this.text);
 			for(var post = Thread.first.op; post; post = post.next) {
-				Post.findSameText(num, hidden, wrds, time, post);
+				Post.findSameText(num, hidden, wrds, post);
 			}
-			saveUserPosts();
 			return;
 		case 'hide-notext': Spells.add(0x10B /* (#all & !#tlen) */, '', true); return;
 		case 'hide-refs':
 			this.ref[hidden ? 'unhide' : 'hide'](true);
-			this.setUserVisib(!hidden, Date.now(), true);
-			saveUserPosts();
+			this.setUserVisib(!hidden);
 			return;
 		case 'thr-exp':
 			var task = parseInt(el.textContent.match(/\d+/), 10);
@@ -9783,7 +9896,7 @@ Post.note = class PostNote {
 			this._aEl.onmouseover = this._aEl.onmouseout = e => this._post.hideContent(e.type === 'mouseout');
 			this._aEl.onclick = e => {
 				$pd(e);
-				this._post.toggleUserVisib();
+				this._post.setUserVisib(!this._post.hidden);
 			};
 			text = note ? '(autohide: ' + note + ')' : '(' + this._post.title + ')';
 		} else {
@@ -9804,7 +9917,7 @@ Post.note = class PostNote {
 Post.getWrds = function(text) {
 	return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').trim().substring(0, 800).split(' ');
 };
-Post.findSameText = function(oNum, oHid, oWords, date, post) {
+Post.findSameText = function(oNum, oHid, oWords, post) {
 	var words = Post.getWrds(post.text),
 		len = words.length,
 		i = oWords.length,
@@ -9836,11 +9949,11 @@ Post.findSameText = function(oNum, oHid, oWords, date, post) {
 			post.setVisib(false);
 		}
 		if(post.userToggled) {
-			delete uVis[post.num];
+			HiddenPosts.remove(post.num);
 			post.userToggled = false;
 		}
 	} else {
-		post.setUserVisib(true, date, true, 'similar to >>' + oNum);
+		post.setUserVisib(true, true, 'similar to >>' + oNum);
 	}
 	return false;
 };
@@ -10151,9 +10264,9 @@ class Pview extends AbstractPost {
 		this.stickBtn.setAttribute('class', val ? 'de-btn-stick-on' : 'de-btn-stick');
 		this.sticky = val;
 	}
-	toggleUserVisib() {
+	setUserVisib() {
 		var post = pByNum.get(this.num);
-		post.toggleUserVisib();
+		post.setUserVisib(!post.hidden);
 		Pview.updatePosition(true);
 		$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]'), el => {
 			if(post.hidden) {
@@ -10412,7 +10525,7 @@ class RefMap {
 				if(tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10))) {
 					continue;
 				}
-				if(myPosts.has(lNum)) {
+				if(MyPosts.has(lNum)) {
 					link.classList.add('de-ref-my');
 				}
 				if(!posts.has(lNum)) {
@@ -10460,7 +10573,7 @@ class RefMap {
 			if(tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10))) {
 				continue;
 			}
-			if(add && myPosts.has(lNum)) {
+			if(add && MyPosts.has(lNum)) {
 				link.classList.add('de-ref-my');
 				updater.refToYou();
 			}
@@ -10486,6 +10599,7 @@ class RefMap {
 	}
 	constructor(post) {
 		this.hasMap = false;
+		this._hidden = false;
 		this._inited = false;
 		this._post = post;
 		this._set = new Set();
@@ -10513,18 +10627,19 @@ class RefMap {
 		return this._set.has(num);
 	}
 	hide(canDo = Cfg.hideRefPsts) {
+		if(this._hidden) {
+			return;
+		}
+		this._hidden = true;
 		if(!canDo || !this.hasMap) {
 			return;
 		}
-		var date, isUser = canDo === true; // else canDo === 1
-		if(isUser) {
-			date = Date.now();
-		}
+		var isUser = canDo === true; // else canDo === 1
 		for(var num of this._set) {
 			var pst = pByNum.get(num);
 			if(pst && (isUser || !pst.userToggled)) {
 				if(isUser) {
-					pst.setUserVisib(true, date, true, 'reference to >>' + this._post.num);
+					pst.setUserVisib(true, true, 'reference to >>' + this._post.num);
 					pst.ref.hide(true);
 				} else {
 					pst.setVisib(true, 'reference to >>' + this._post.num);
@@ -10563,18 +10678,19 @@ class RefMap {
 		this.hasMap = false;
 	}
 	unhide(canDo = Cfg.hideRefPsts) {
+		if(!this._hidden) {
+			return;
+		}
+		this._hidden = false;
 		if(!canDo || !this.hasMap) {
 			return;
 		}
-		var date, isUser = canDo === true; // else canDo === 1
-		if(isUser) {
-			date = Date.now();
-		}
+		var isUser = canDo === true; // else canDo === 1
 		for(var num of this._set) {
 			var pst = pByNum.get(num);
 			if(pst && pst.hidden && (isUser || !pst.userToggled) && !pst.spellHidden) {
 				if(isUser) {
-					pst.setUserVisib(false, date, true);
+					pst.setUserVisib(false);
 					pst.ref.unhide(true);
 				} else {
 					pst.setVisib(false);
@@ -10699,6 +10815,11 @@ class Thread {
 		for(var thr = this.prev; thr && thr.hidden; thr = thr.prev) {}
 		return thr;
 	}
+	get userTouched() {
+		var value = new Map();
+		Object.defineProperty(this, 'userTouched', { value });
+		return value;
+	}
 	get top() {
 		return this.op.top;
 	}
@@ -10711,8 +10832,9 @@ class Thread {
 		if(aib.t && !doc.hidden && Cfg.animation) {
 			$animate(post.el, 'de-post-new');
 		}
-		if(uVis && uVis[num]) {
-			initPostUserVisib(post, num, uVis[num][0] === 0, Date.now());
+		if(this.userTouched.has(num)) {
+			post.setUserVisib(this.userTouched.get(num), false);
+			this.userTouched.delete(num);
 		}
 		if(maybeVParser.value) {
 			maybeVParser.value.parse(post);
@@ -10934,16 +11056,15 @@ class Thread {
 		});
 	}
 	updateHidden(data) {
-		var date = Date.now(),
-			thr = this;
+		var thr = this;
 		do {
 			var realHid = thr.num in data;
 			if(thr.hidden ^ realHid) {
 				if(realHid) {
-					thr.op.setUserVisib(true, date, false);
+					thr.op.setUserVisib(true, false);
 					data[thr.num] = thr.op.title;
 				} else if(thr.hidden) {
-					thr.op.setUserVisib(false, date, false);
+					thr.op.setUserVisib(false, false);
 				}
 			}
 		} while((thr = thr.next));
@@ -12984,20 +13105,7 @@ function initStorageEvent() {
 			return;
 		}
 		switch(e.key) {
-		case '__de-mypost': (() => {
-			try {
-				data = JSON.parse(val);
-			} catch(err) {
-				return;
-			}
-			if(data[0] === aib.b) {
-				myPosts.add(data[1]);
-				$each($Q('[de-form] a[href*="' + aib.anchor + data[1] + '"]'), el => {
-					el.classList.add('de-ref-my');
-				});
-			}
-		})();
-		return;
+		case '__de-mypost': MyPosts.purge(); return;
 		case '__de-webmvolume':
 			val = +val || 0;
 			Cfg.webmVolume = val;
@@ -13012,43 +13120,23 @@ function initStorageEvent() {
 			} catch(err) {
 				return;
 			}
-			temp = data.hide;
-			if(data.brd === aib.b && (post = pByNum.get(data.num)) && (post.hidden ^ temp)) {
-				post.setUserVisib(temp, data.date, false);
-			} else {
-				uVis[data.num] = [+!temp, data.date];
-			}
-			if(data.isOp) {
-				if(!(data.brd in hThr)) {
-					if(temp) {
-						hThr[data.brd] = {};
-					} else {
-						toggleWindow('hid', true);
-						return;
-					}
-				}
-				if(temp) {
-					hThr[data.brd][data.num] = data.title;
-				} else {
-					delete hThr[data.brd][data.num];
+			HiddenThreads.purge();
+			HiddenPosts.purge();
+			if(data.brd === aib.b) {
+				if((post = pByNum.get(data.num)) && (post.hidden ^ data.hide)) {
+					post.setUserVisib(data.hide, false);
+				} else if((post = pByNum.get(data.thrNum))) {
+					post.thr.userTouched.set(data.num, data.hide);
 				}
 			}
 			toggleWindow('hid', true);
 		})();
 		return;
-		case 'de-threads': (() => {
-			try {
-				hThr = JSON.parse(val || '{}') || {};
-			} catch(err) {
-				hThr = {};
-			}
-			if(!(aib.b in hThr)) {
-				hThr[aib.b] = {};
-			}
-			Thread.first.updateHidden(hThr[aib.b]);
+		case 'de-threads-new':
+			HiddenThreads.purge();
+			Thread.first.updateHidden(HiddenThreads.getRawData()[aib.b]);
 			toggleWindow('hid', true);
-		})();
-		return;
+			return;
 		case '__de-spells': (() => {
 			try {
 				data = JSON.parse(val);
@@ -14577,7 +14665,7 @@ function* runMain(checkDomains, cfgPromise) {
 		                     rp => saveCfg('timeRPattern', rp));
 		Logger.log('Time correction');
 	}
-	yield* readMyPosts();
+	MyPosts.read();
 	Logger.log('Read my posts');
 	$hide(docBody);
 	dummy = doc.createElement('div');
