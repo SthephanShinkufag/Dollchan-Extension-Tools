@@ -2856,11 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-<<<<<<< HEAD
-	var commit = '8cfd022';
-=======
-	var commit = 'f6f7f30';
->>>>>>> b39fa2a003e4a300a1a779d3d6f6be4dbb8eb46c
+	var commit = 'd8b9b5a';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -2991,7 +2987,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'hideBySpell': ['Спеллы: ', 'Magic spells: '],
 			'sortSpells': ['Сортировать спеллы и удалять дубликаты', 'Sort spells and delete duplicates'],
 			'menuHiddBtn': ['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
-			'hideRefPsts': ['Скрывать ответы на скрытые посты*', 'Hide replies to hidden posts*'],
+			'hideRefPsts': ['Скрывать ответы на скрытые посты', 'Hide replies to hidden posts'],
 			'delHiddPost': ['Удалять скрытые посты', 'Delete hidden posts'],
 
 			'ajaxUpdThr': ['AJAX обновление треда ', 'AJAX thread update '],
@@ -6318,7 +6314,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (Cfg.sortSpells) {
 				Spells.toggle();
 			}
-		}), lBox('menuHiddBtn', true, null), lBox('hideRefPsts', true, null), lBox('delHiddPost', true, function () {
+		}), lBox('menuHiddBtn', true, null), lBox('hideRefPsts', true, function () {
+			for (var post = Thread.first.op; post; post = post.next) {
+				if (!Cfg.hideRefPsts) {
+					post.ref.unhide();
+				} else if (post.hidden) {
+					post.ref.hide();
+				}
+			}
+		}), lBox('delHiddPost', true, function () {
 			for (var post = Thread.first.op; post; post = post.next) {
 				if (post.hidden) {
 					post.wrap.classList.toggle('de-hidden');
@@ -14884,10 +14888,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this._set.add(num);
 					this._el.insertAdjacentHTML('beforeend', this._getHTML(num, '', isHidden));
 					if (Cfg.hideRefPsts && this._post.hidden) {
-						if (!post.hidden) {
-							post.ref.hide();
-						}
 						post.setVisib(true, 'reference to >>' + num);
+						post.ref.hide();
 					}
 				}
 			}
@@ -14904,16 +14906,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'hide',
 			value: function hide() {
-				var canDo = arguments.length <= 0 || arguments[0] === undefined ? Cfg.hideRefPsts : arguments[0];
-
-				if (this._hidden) {
+				if (!Cfg.hideRefPsts || !this.hasMap || this._hidden) {
 					return;
 				}
 				this._hidden = true;
-				if (!canDo || !this.hasMap) {
-					return;
-				}
-				var isUser = canDo === true;
 				for (var _iterator27 = this._set, _isArray27 = Array.isArray(_iterator27), _i28 = 0, _iterator27 = _isArray27 ? _iterator27 : _iterator27[Symbol.iterator]();;) {
 					var _ref51;
 
@@ -14929,14 +14925,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var num = _ref51;
 
 					var pst = pByNum.get(num);
-					if (pst && (isUser || !pst.userToggled)) {
-						if (isUser) {
-							pst.setUserVisib(true, true, 'reference to >>' + this._post.num);
-							pst.ref.hide(true);
-						} else {
+					if (pst && !pst.hidden) {
+						if (!pst.userToggled) {
 							pst.setVisib(true, 'reference to >>' + this._post.num);
-							pst.ref.hide();
 						}
+						pst.ref.hide();
 					}
 				}
 			}
@@ -14995,16 +14988,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'unhide',
 			value: function unhide() {
-				var canDo = arguments.length <= 0 || arguments[0] === undefined ? Cfg.hideRefPsts : arguments[0];
-
-				if (!this._hidden) {
+				if (this._hidden && !this.hasMap) {
 					return;
 				}
 				this._hidden = false;
-				if (!canDo || !this.hasMap) {
-					return;
-				}
-				var isUser = canDo === true;
 				for (var _iterator29 = this._set, _isArray29 = Array.isArray(_iterator29), _i30 = 0, _iterator29 = _isArray29 ? _iterator29 : _iterator29[Symbol.iterator]();;) {
 					var _ref53;
 
@@ -15020,14 +15007,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var num = _ref53;
 
 					var pst = pByNum.get(num);
-					if (pst && pst.hidden && (isUser || !pst.userToggled) && !pst.spellHidden) {
-						if (isUser) {
-							pst.setUserVisib(false);
-							pst.ref.unhide(true);
-						} else {
+					if (pst && pst.hidden) {
+						if (!pst.userToggled && !pst.spellHidden) {
 							pst.setVisib(false);
-							pst.ref.unhide();
 						}
+						pst.ref.unhide();
 					}
 				}
 			}

@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '8cfd022';
+var commit = 'd8b9b5a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -153,7 +153,7 @@ Lng = {
 		'hideBySpell':  ['Спеллы: ', 'Magic spells: '],
 		'sortSpells':   ['Сортировать спеллы и удалять дубликаты', 'Sort spells and delete duplicates'],
 		'menuHiddBtn':  ['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
-		'hideRefPsts':  ['Скрывать ответы на скрытые посты*', 'Hide replies to hidden posts*'],
+		'hideRefPsts':  ['Скрывать ответы на скрытые посты', 'Hide replies to hidden posts'],
 		'delHiddPost':  ['Удалять скрытые посты', 'Delete hidden posts'],
 
 		'ajaxUpdThr':   ['AJAX обновление треда ', 'AJAX thread update '],
@@ -3056,7 +3056,15 @@ function getCfgFilters() {
 			}
 		}),
 		lBox('menuHiddBtn', true, null),
-		lBox('hideRefPsts', true, null),
+		lBox('hideRefPsts', true, function() {
+			for(var post = Thread.first.op; post; post = post.next) {
+				if(!Cfg.hideRefPsts) {
+					post.ref.unhide();
+				} else if(post.hidden) {
+					post.ref.hide();
+				}
+			}
+		}),
 		lBox('delHiddPost', true, function() {
 			for(var post = Thread.first.op; post; post = post.next) {
 				if(post.hidden) {
@@ -10609,10 +10617,8 @@ class RefMap {
 			this._set.add(num);
 			this._el.insertAdjacentHTML('beforeend', this._getHTML(num, '', isHidden));
 			if(Cfg.hideRefPsts && this._post.hidden) {
-				if(!post.hidden) {
-					post.ref.hide();
-				}
 				post.setVisib(true, 'reference to >>' + num);
+				post.ref.hide();
 			}
 		}
 	}
@@ -10622,25 +10628,18 @@ class RefMap {
 	has(num) {
 		return this._set.has(num);
 	}
-	hide(canDo = Cfg.hideRefPsts) {
-		if(this._hidden) {
+	hide() {
+		if(!Cfg.hideRefPsts || !this.hasMap || this._hidden) {
 			return;
 		}
 		this._hidden = true;
-		if(!canDo || !this.hasMap) {
-			return;
-		}
-		var isUser = canDo === true; // else canDo === 1
 		for(var num of this._set) {
 			var pst = pByNum.get(num);
-			if(pst && (isUser || !pst.userToggled)) {
-				if(isUser) {
-					pst.setUserVisib(true, true, 'reference to >>' + this._post.num);
-					pst.ref.hide(true);
-				} else {
+			if(pst && !pst.hidden) {
+				if(!pst.userToggled) {
 					pst.setVisib(true, 'reference to >>' + this._post.num);
-					pst.ref.hide();
 				}
+				pst.ref.hide();
 			}
 		}
 	}
@@ -10673,25 +10672,18 @@ class RefMap {
 		delete this._el;
 		this.hasMap = false;
 	}
-	unhide(canDo = Cfg.hideRefPsts) {
-		if(!this._hidden) {
+	unhide() {
+		if(this._hidden && !this.hasMap) {
 			return;
 		}
 		this._hidden = false;
-		if(!canDo || !this.hasMap) {
-			return;
-		}
-		var isUser = canDo === true; // else canDo === 1
 		for(var num of this._set) {
 			var pst = pByNum.get(num);
-			if(pst && pst.hidden && (isUser || !pst.userToggled) && !pst.spellHidden) {
-				if(isUser) {
-					pst.setUserVisib(false);
-					pst.ref.unhide(true);
-				} else {
+			if(pst && pst.hidden) {
+				if(!pst.userToggled && !pst.spellHidden) {
 					pst.setVisib(false);
-					pst.ref.unhide();
 				}
+				pst.ref.unhide();
 			}
 		}
 	}
