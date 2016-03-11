@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '49a8ca9';
+	var commit = 'bac9989';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -5716,7 +5716,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 6:
 							if (!(i < len)) {
-								_context10.next = 49;
+								_context10.next = 45;
 								break;
 							}
 
@@ -5727,7 +5727,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								break;
 							}
 
-							return _context10.abrupt('continue', 46);
+							return _context10.abrupt('continue', 42);
 
 						case 10:
 							iconEl = $q('.de-fav-inf-icon', el), titleEl = iconEl.parentNode;
@@ -5737,58 +5737,47 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							titleEl.title = Lng.updating[lang];
 							_context10.prev = 14;
 							_context10.next = 17;
-							return ajaxLoad(aib.getThrdUrl(b, num), true, true);
+							return ajaxLoad(aib.getThrdUrl(b, num), true);
 
 						case 17:
 							form = _context10.sent;
 
 							last404 = false;
-
-							if (form) {
-								_context10.next = 23;
-								break;
-							}
-
-							iconEl.setAttribute('class', 'de-fav-inf-icon');
-							titleEl.removeAttribute('title');
-							return _context10.abrupt('continue', 46);
-
-						case 23:
-							_context10.next = 41;
+							_context10.next = 37;
 							break;
 
-						case 25:
-							_context10.prev = 25;
+						case 21:
+							_context10.prev = 21;
 							_context10.t1 = _context10['catch'](14);
 
 							if (!(_context10.t1 instanceof AjaxError && _context10.t1.code === 404)) {
-								_context10.next = 35;
+								_context10.next = 31;
 								break;
 							}
 
 							if (!last404) {
-								_context10.next = 32;
+								_context10.next = 28;
 								break;
 							}
 
 							Thread.removeSavedData(b, num);
-							_context10.next = 35;
+							_context10.next = 31;
 							break;
 
-						case 32:
+						case 28:
 							last404 = true;
 							--i;
-							return _context10.abrupt('continue', 46);
+							return _context10.abrupt('continue', 42);
 
-						case 35:
+						case 31:
 							last404 = false;
 							$hide(el);
 							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 							f['err'] = titleEl.title = getErrorMessage(_context10.t1);
 							isUpdate = true;
-							return _context10.abrupt('continue', 46);
+							return _context10.abrupt('continue', 42);
 
-						case 41:
+						case 37:
 							if (f['err']) {
 								delete f['err'];
 								isUpdate = true;
@@ -5813,22 +5802,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								isUpdate = true;
 							}
 
-						case 46:
+						case 42:
 							++i;
 							_context10.next = 6;
 							break;
 
-						case 49:
+						case 45:
+							ajaxLoad.clearCache();
 							if (isUpdate) {
 								setStored('DESU_Favorites', JSON.stringify(fav));
 							}
 
-						case 50:
+						case 47:
 						case 'end':
 							return _context10.stop();
 					}
 				}
-			}, _callee2, this, [[14, 25]]);
+			}, _callee2, this, [[14, 21]]);
 		}))));
 		body.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(regeneratorRuntime.mark(function _callee3() {
 			var infoCount, els, postsInfo, i, el, iconEl, titleEl, page, infoLoaded, endPage, tNums, form, pInfo, _postsInfo$i, found, pageEl, iconClass, iconTitle;
@@ -8187,16 +8177,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var returnForm = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
 		var useCache = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
-		var cData = ajaxLoad.cacheData.get(url);
-		var ajaxURL = cData && !cData.hasCacheControl ? ajaxLoad.fixCachedURL(url) : url;
+		var cData = ajaxLoad._cacheData.get(url);
+		var ajaxURL = cData && !cData.hasCacheControl ? ajaxLoad._fixCachedURL(url) : url;
 		return $ajax(ajaxURL, useCache && cData && cData.params).then(function (xhr) {
 			var headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
-			var data = ajaxLoad.readCacheData(headers);
-			if (!data.hasCacheControl && !ajaxLoad.cacheData.has(url)) {
-				ajaxLoad.cacheData.set(url, data);
-				return $ajax(ajaxLoad.fixCachedURL(url), useCache && data.params);
+			var data = ajaxLoad._readCacheData(headers);
+			if (!data.hasCacheControl && !ajaxLoad._cacheData.has(url)) {
+				ajaxLoad._cacheData.set(url, data);
+				return $ajax(ajaxLoad._fixCachedURL(url), useCache && data.params);
 			}
-			ajaxLoad.cacheData.set(url, data);
+			ajaxLoad._cacheData.set(url, data);
 			return xhr;
 		}).then(function (xhr) {
 			var el,
@@ -8209,11 +8199,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return err.code === 304 ? null : CancelablePromise.reject(err);
 		});
 	}
-	ajaxLoad.cacheData = new Map();
-	ajaxLoad.fixCachedURL = function (url) {
+	ajaxLoad.clearCache = function () {
+		ajaxLoad._cacheData = new Map();
+	};
+	ajaxLoad._cacheData = new Map();
+	ajaxLoad._fixCachedURL = function (url) {
 		return url + (url.includes('?') ? '&' : '?') + 'nocache=' + Math.random();
 	};
-	ajaxLoad.readCacheData = function (ajaxHeaders) {
+	ajaxLoad._readCacheData = function (ajaxHeaders) {
 		var ETag = null,
 		    LastModified = null,
 		    headers = null,
@@ -8233,13 +8226,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			var header = _ref12;
 
-			if (header.startsWith('Cache-Control: ')) {
+			var lHeader = header.toLowerCase();
+			if (lHeader.startsWith('cache-control: ')) {
 				hasCacheControl = true;
 				i++;
-			} else if (header.startsWith('Last-Modified: ')) {
+			} else if (lHeader.startsWith('last-modified: ')) {
 				LastModified = header.substr(15);
 				i++;
-			} else if (header.startsWith('Etag: ')) {
+			} else if (lHeader.startsWith('etag: ')) {
 				ETag = header.substr(6);
 				i++;
 			}
