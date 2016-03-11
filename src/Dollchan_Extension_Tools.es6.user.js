@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'bac9989';
+var commit = 'd01e97f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10904,7 +10904,11 @@ class Thread {
 			panel.updateCounter(this.pcount, $Q(aib.qPostImg, this.el).length);
 			Pview.updatePosition(true);
 		}
-		return { newCount: newVisPosts, locked: !!$q(aib.qClosed, form) };
+		if($q(aib.qClosed, form)) {
+			ajaxLoad.clearCache();
+			return { newCount: newVisPosts, locked: true };
+		}
+		return { newCount: newVisPosts, locked: false };
 	}
 	setFavorState(val, type) {
 		this.op.setFavBtn(val);
