@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'd01e97f';
+var commit = '08a105a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7366,7 +7366,6 @@ class FileInput {
 			$pd(e);
 			return;
 		case 'dragenter':
-			$pd(e);
 			if(e.target === this._input) {
 				this._dragCount++;
 			} else {
@@ -7483,7 +7482,9 @@ class FileInput {
 			newEl = $aEnd(oldEl, oldEl.outerHTML);
 		this._eventInput(oldEl, false);
 		oldEl.removeEventListener('change', this);
-		this._eventInput(newEl, true);
+		if(Cfg.fileThumb) {
+			this._eventInput(newEl, true);
+		}
 		newEl.addEventListener('change', this);
 		newEl.obj = this;
 		this._input = newEl;
@@ -7504,6 +7505,7 @@ class FileInput {
 		if(this._mediaEl) {
 			window.URL.revokeObjectURL(this._mediaEl.src);
 		}
+		this._eventInput(this._input, false);
 		$del(this._thumb);
 		this._thumb = this._mediaEl = null;
 	}
