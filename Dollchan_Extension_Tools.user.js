@@ -2856,7 +2856,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
+<<<<<<< HEAD
 	var commit = '8cfd022';
+=======
+	var commit = 'f6f7f30';
+>>>>>>> b39fa2a003e4a300a1a779d3d6f6be4dbb8eb46c
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -11044,7 +11048,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						$pd(e);
 						return;
 					case 'dragenter':
-						$pd(e);
 						if (e.target === this._input) {
 							this._dragCount++;
 						} else {
@@ -11172,7 +11175,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				    newEl = $aEnd(oldEl, oldEl.outerHTML);
 				this._eventInput(oldEl, false);
 				oldEl.removeEventListener('change', this);
-				this._eventInput(newEl, true);
+				if (Cfg.fileThumb) {
+					this._eventInput(newEl, true);
+				}
 				newEl.addEventListener('change', this);
 				newEl.obj = this;
 				this._input = newEl;
@@ -11197,6 +11202,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (this._mediaEl) {
 					window.URL.revokeObjectURL(this._mediaEl.src);
 				}
+				this._eventInput(this._input, false);
 				$del(this._thumb);
 				this._thumb = this._mediaEl = null;
 			}
@@ -13659,9 +13665,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.spellHidden = true;
 				if (!this.userToggled) {
 					this.setVisib(true, note);
-					if (!this.hidden) {
-						this.ref.hide();
-					}
+					this.ref.hide();
 				}
 			}
 		}, {

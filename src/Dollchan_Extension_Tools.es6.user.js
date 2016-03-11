@@ -7486,7 +7486,6 @@ class FileInput {
 			$pd(e);
 			return;
 		case 'dragenter':
-			$pd(e);
 			if(e.target === this._input) {
 				this._dragCount++;
 			} else {
@@ -7603,7 +7602,9 @@ class FileInput {
 			newEl = $aEnd(oldEl, oldEl.outerHTML);
 		this._eventInput(oldEl, false);
 		oldEl.removeEventListener('change', this);
-		this._eventInput(newEl, true);
+		if(Cfg.fileThumb) {
+			this._eventInput(newEl, true);
+		}
 		newEl.addEventListener('change', this);
 		newEl.obj = this;
 		this._input = newEl;
@@ -7624,6 +7625,7 @@ class FileInput {
 		if(this._mediaEl) {
 			window.URL.revokeObjectURL(this._mediaEl.src);
 		}
+		this._eventInput(this._input, false);
 		$del(this._thumb);
 		this._thumb = this._mediaEl = null;
 	}
@@ -9646,9 +9648,7 @@ class Post extends AbstractPost {
 		this.spellHidden = true;
 		if(!this.userToggled) {
 			this.setVisib(true, note);
-			if(!this.hidden) {
-				this.ref.hide();
-			}
+			this.ref.hide();
 		}
 	}
 	spellUnhide() {
