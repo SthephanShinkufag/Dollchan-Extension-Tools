@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = 'b75282b';
+	var commit = '8cfd022';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15382,7 +15382,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					panel.updateCounter(this.pcount, $Q(aib.qPostImg, this.el).length);
 					Pview.updatePosition(true);
 				}
-				return { newCount: newVisPosts, locked: !!$q(aib.qClosed, form) };
+				if ($q(aib.qClosed, form)) {
+					ajaxLoad.clearCache();
+					return { newCount: newVisPosts, locked: true };
+				}
+				return { newCount: newVisPosts, locked: false };
 			}
 		}, {
 			key: 'setFavorState',
