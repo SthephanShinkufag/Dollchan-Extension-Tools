@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '4e8c4da';
+var commit = 'b75282b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2772,13 +2772,8 @@ function showFavoritesWindow(body, data) {
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
 			try {
-				form = yield ajaxLoad(aib.getThrdUrl(b, num), true, true);
+				form = yield ajaxLoad(aib.getThrdUrl(b, num), true);
 				last404 = false;
-				if(!form) {
-					iconEl.setAttribute('class', 'de-fav-inf-icon');
-					titleEl.removeAttribute('title');
-					continue;
-				}
 			} catch(e) {
 				if((e instanceof AjaxError) && e.code === 404) { // Check for 404 error twice
 					if(last404) {
@@ -2819,6 +2814,7 @@ function showFavoritesWindow(body, data) {
 				isUpdate = true;
 			}
 		}
+		ajaxLoad.clearCache();
 		if(isUpdate) {
 			setStored('DESU_Favorites', JSON.stringify(fav));
 		}
@@ -5289,17 +5285,17 @@ function embedMediaLinks(data) {
 // ===========================================================================================================
 
 function ajaxLoad(url, returnForm = true, useCache = false) {
-	var cData = ajaxLoad.cacheData.get(url);
-	var ajaxURL = cData && !cData.hasCacheControl ? ajaxLoad.fixCachedURL(url) : url;
+	var cData = ajaxLoad._cacheData.get(url);
+	var ajaxURL = cData && !cData.hasCacheControl ? ajaxLoad._fixCachedURL(url) : url;
 	return $ajax(ajaxURL, useCache && cData && cData.params).then(xhr => {
 		var headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders()
 		                                             : xhr.responseHeaders;
-		var data = ajaxLoad.readCacheData(headers);
-		if(!data.hasCacheControl && !ajaxLoad.cacheData.has(url)) {
-			ajaxLoad.cacheData.set(url, data);
-			return $ajax(ajaxLoad.fixCachedURL(url), useCache && data.params);
+		var data = ajaxLoad._readCacheData(headers);
+		if(!data.hasCacheControl && !ajaxLoad._cacheData.has(url)) {
+			ajaxLoad._cacheData.set(url, data);
+			return $ajax(ajaxLoad._fixCachedURL(url), useCache && data.params);
 		}
-		ajaxLoad.cacheData.set(url, data);
+		ajaxLoad._cacheData.set(url, data);
 		return xhr;
 	}).then(xhr => {
 		var el, text = xhr.responseText;
@@ -5309,21 +5305,25 @@ function ajaxLoad(url, returnForm = true, useCache = false) {
 		return el ? el : CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
 	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
-ajaxLoad.cacheData = new Map();
-ajaxLoad.fixCachedURL = function(url) {
+ajaxLoad.clearCache = function() {
+	ajaxLoad._cacheData = new Map();
+};
+ajaxLoad._cacheData = new Map();
+ajaxLoad._fixCachedURL = function(url) {
 	return url + (url.includes('?') ? '&' : '?' ) + 'nocache=' + Math.random();
 };
-ajaxLoad.readCacheData = function(ajaxHeaders) {
+ajaxLoad._readCacheData = function(ajaxHeaders) {
 	var ETag = null, LastModified = null, headers = null, i = 0,
 		hasCacheControl = false;
 	for(var header of ajaxHeaders.split('\r\n')) {
-		if(header.startsWith('Cache-Control: ')) {
+		let lHeader = header.toLowerCase();
+		if(lHeader.startsWith('cache-control: ')) {
 			hasCacheControl = true;
 			i++;
-		} else if(header.startsWith('Last-Modified: ')) {
+		} else if(lHeader.startsWith('last-modified: ')) {
 			LastModified = header.substr(15);
 			i++;
-		} else if(header.startsWith('Etag: ')) {
+		} else if(lHeader.startsWith('etag: ')) {
 			ETag = header.substr(6);
 			i++;
 		}
