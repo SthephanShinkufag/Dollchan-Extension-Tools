@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, getLocStoredObj, readCfg, readPostsData, readMyPosts, addMyPost, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '08a105a';
+	var commit = 'f6f7f30';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -13495,9 +13495,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.spellHidden = true;
 				if (!this.userToggled) {
 					this.setVisib(true, note);
-					if (!this.hidden) {
-						this.ref.hide();
-					}
+					this.ref.hide();
 				}
 			}
 		}, {

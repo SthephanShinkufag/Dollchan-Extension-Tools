@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '08a105a';
+var commit = 'f6f7f30';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9522,9 +9522,7 @@ class Post extends AbstractPost {
 		this.spellHidden = true;
 		if(!this.userToggled) {
 			this.setVisib(true, note);
-			if(!this.hidden) {
-				this.ref.hide();
-			}
+			this.ref.hide();
 		}
 	}
 	spellUnhide() {
