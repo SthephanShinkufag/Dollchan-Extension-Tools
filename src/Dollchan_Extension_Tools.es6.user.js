@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'd8b9b5a';
+var commit = '95850a2';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10635,10 +10635,8 @@ class RefMap {
 		this._hidden = true;
 		for(var num of this._set) {
 			var pst = pByNum.get(num);
-			if(pst && !pst.hidden) {
-				if(!pst.userToggled) {
-					pst.setVisib(true, 'reference to >>' + this._post.num);
-				}
+			if(pst && !pst.hidden && !pst.userToggled) {
+				pst.setVisib(true, 'reference to >>' + this._post.num);
 				pst.ref.hide();
 			}
 		}
@@ -10679,10 +10677,8 @@ class RefMap {
 		this._hidden = false;
 		for(var num of this._set) {
 			var pst = pByNum.get(num);
-			if(pst && pst.hidden) {
-				if(!pst.userToggled && !pst.spellHidden) {
-					pst.setVisib(false);
-				}
+			if(pst && pst.hidden && !pst.userToggled && !pst.spellHidden) {
+				pst.setVisib(false);
 				pst.ref.unhide();
 			}
 		}
