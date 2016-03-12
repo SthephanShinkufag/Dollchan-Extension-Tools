@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '95850a2';
+	var commit = 'f3e92cf';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -10509,10 +10509,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var capEl = $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', form);
 		if (capEl) {
 			this.cap = new Captcha(capEl, this.tNum);
-			this.txta.addEventListener('focus', function () {
+			var updCapFn = function updCapFn() {
 				_this19.cap.add();
 				_this19.cap.updOutdated();
-			});
+			};
+			this.txta.addEventListener('focus', updCapFn);
+			if (this.files) {
+				this.files.onchange = updCapFn;
+			}
 			this.form.addEventListener('click', function () {
 				return _this19.cap.add();
 			}, true);
@@ -10865,6 +10869,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			this.filesCount = 0;
 			this.fileTd = $parent(fileEl, 'TD');
+			this.onchange = null;
 			this._form = form;
 			var inputs = [];
 			var els = $Q('input[type="file"]', this.fileTd);
@@ -11138,6 +11143,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: '_onFileChange',
 			value: function _onFileChange() {
+				if (this._parent.onchange) {
+					this._parent.onchange();
+				}
 				if (Cfg.fileThumb) {
 					this._showPviewImage();
 				}

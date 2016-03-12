@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '95850a2';
+var commit = 'f3e92cf';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7017,10 +7017,14 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	var capEl = $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', form);
 	if(capEl) {
 		this.cap = new Captcha(capEl, this.tNum);
-		this.txta.addEventListener('focus', () => {
+		let updCapFn = () => {
 			this.cap.add();
 			this.cap.updOutdated();
-		});
+		};
+		this.txta.addEventListener('focus', updCapFn);
+		if(this.files) {
+			this.files.onchange = updCapFn;
+		}
 		this.form.addEventListener('click', () => this.cap.add(), true);
 	} else {
 		this.cap = null;
@@ -7361,6 +7365,7 @@ class Files {
 	constructor(form, fileEl) {
 		this.filesCount = 0;
 		this.fileTd = $parent(fileEl, 'TD');
+		this.onchange = null;
 		this._form = form;
 		var inputs = [];
 		var els = $Q('input[type="file"]', this.fileTd);
@@ -7571,6 +7576,9 @@ class FileInput {
 		}
 	}
 	_onFileChange() {
+		if(this._parent.onchange) {
+			this._parent.onchange();
+		}
 		if(Cfg.fileThumb) {
 			this._showPviewImage();
 		}
