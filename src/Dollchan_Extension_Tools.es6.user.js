@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '3ea064b';
+var commit = 'e1f354c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3067,7 +3067,7 @@ function getCfgFilters() {
 		}),
 		lBox('delHiddPost', true, function() {
 			for(var post = Thread.first.op; post; post = post.next) {
-				if(post.hidden) {
+				if(post.hidden && !post.isOp) {
 					post.wrap.classList.toggle('de-hidden');
 				}
 			}
@@ -11054,7 +11054,7 @@ class Thread {
 	updateHidden(data) {
 		var thr = this;
 		do {
-			var realHid = thr.num in data;
+			var realHid = data.hasOwnProperty(thr.num);
 			if(thr.hidden ^ realHid) {
 				if(realHid) {
 					thr.op.setUserVisib(true, false);

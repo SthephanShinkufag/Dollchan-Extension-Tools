@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '3ea064b';
+	var commit = 'e1f354c';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -6324,7 +6324,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}), lBox('delHiddPost', true, function () {
 			for (var post = Thread.first.op; post; post = post.next) {
-				if (post.hidden) {
+				if (post.hidden && !post.isOp) {
 					post.wrap.classList.toggle('de-hidden');
 				}
 			}
@@ -15416,7 +15416,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function updateHidden(data) {
 				var thr = this;
 				do {
-					var realHid = thr.num in data;
+					var realHid = data.hasOwnProperty(thr.num);
 					if (thr.hidden ^ realHid) {
 						if (realHid) {
 							thr.op.setUserVisib(true, false);
