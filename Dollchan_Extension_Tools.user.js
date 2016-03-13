@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = 'f3e92cf';
+	var commit = '3ea064b';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -7786,7 +7786,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
 				var scriptStr,
 				    localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
-				if (typeof de_main_func_outer === 'undefined') {
+				if (nav.isES6) {
 					scriptStr = '(' + String(de_main_func_inner) + ')(null, null, ' + localData + ');';
 				} else {
 					scriptStr = '(' + String(de_main_func_outer) + ')(' + localData + ');';
@@ -19144,10 +19144,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			    dVer = m && m[1] ? m[1].split('.') : null;
 			if (dVer) {
 				var cVer = version.split('.');
+				var src = gitRaw + (nav.isES6 ? 'src/' : '') + 'Dollchan_Extension_Tools.' + (nav.isES6 ? 'es6.' : '') + 'user.js';
 				saveComCfg('lastUpd', Date.now());
 				for (var i = 0, len = Math.max(cVer.length, dVer.length); i < len; ++i) {
 					if ((+dVer[i] || 0) > (+cVer[i] || 0)) {
-						return '<a style="color: blue; font-weight: bold;" href="' + gitRaw + 'Dollchan_Extension_Tools.user.js">' + Lng.updAvail[lang] + '</a>';
+						return '<a style="color: blue; font-weight: bold;" href="' + src + '">' + Lng.updAvail[lang] + '</a>';
 					} else if ((+dVer[i] || 0) < (+cVer[i] || 0)) {
 						break;
 					}
