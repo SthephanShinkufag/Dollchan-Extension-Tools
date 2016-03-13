@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'e1f354c';
+var commit = '74c7cf3';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11052,6 +11052,9 @@ class Thread {
 		});
 	}
 	updateHidden(data) {
+		if(!data) {
+			return;
+		}
 		var thr = this;
 		do {
 			var realHid = data.hasOwnProperty(thr.num);
