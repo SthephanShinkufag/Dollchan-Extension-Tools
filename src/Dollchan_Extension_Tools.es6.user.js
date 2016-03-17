@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '74c7cf3';
+var commit = '6a1ab4a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8793,6 +8793,28 @@ class ExpandableMedia {
 						saveCfg('webmVolume', val);
 						locStorage['__de-webmvolume'] = val;
 						locStorage.removeItem('__de-webmvolume');
+					}
+				});
+				downloadImgData(obj.src).then(data => {
+					var title = '', d = (new WebmParser(data.buffer)).getData();
+					if(d) {
+						d = d[0];
+						for(var i = 0, len = d.length; i < len; i++) {
+							// Segment Info = 0x1549A966
+							// Title = 0x7BA9[length | 0x80]
+							if(d[i] === 0x49 && d[i + 1] === 0xA9 && d[i + 2] === 0x66 &&
+							   d[i + 18] === 0x7B && d[i + 19] === 0xA9)
+							{
+								i += 20;
+								for(var end = (d[i++] & 0x7F) + i; i < end; i++) {
+									title += String.fromCharCode(d[i]);
+								}
+								break;
+							}
+						}
+						if(title) {
+							obj.title = decodeURIComponent(escape(title));
+						}
 					}
 				});
 			} else {
