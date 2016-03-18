@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'd255b81';
+var commit = '0b19584';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12093,7 +12093,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.ru = true;
 		}
 		get css() {
-			return super.css + '.logo + hr, table[border="0"] + hr, .uibutton { display: none; }';
+			return super.css + '.logo + hr, .replieslist, table[border="0"] + hr, .uibutton { display: none; }';
 		}
 		fixVideo(isPost, data) {
 			var videos = [],
