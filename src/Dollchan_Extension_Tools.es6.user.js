@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '0b19584';
+var commit = '0563492';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11075,12 +11075,9 @@ class Thread {
 		});
 	}
 	updateHidden(data) {
-		if(!data) {
-			return;
-		}
 		var thr = this;
 		do {
-			var realHid = data.hasOwnProperty(thr.num);
+			var realHid = data ? data.hasOwnProperty(thr.num) : false;
 			if(thr.hidden ^ realHid) {
 				if(realHid) {
 					thr.op.setUserVisib(true, false);
@@ -11377,7 +11374,14 @@ function initNavFuncs() {
 		isChromeStorage = window.chrome && !!window.chrome.storage,
 		isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	if(!('requestAnimationFrame' in window)) { // XXX: nav.Presto
-		window.requestAnimationFrame = (fn) => setTimeout(fn, 0);
+		window.requestAnimationFrame = fn => setTimeout(fn, 0);
+	}
+	if(!('remove' in Element.prototype)) { // XXX: nav.Presto
+		Element.prototype.remove = function() {
+			if (this.parentNode) {
+				this.parentNode.removeChild(this);
+			}
+		};
 	}
 	var needFileHack = false;
 	try {

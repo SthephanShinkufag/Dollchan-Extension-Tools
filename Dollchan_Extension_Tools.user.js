@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '0b19584';
+	var commit = '0563492';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -15436,12 +15436,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'updateHidden',
 			value: function updateHidden(data) {
-				if (!data) {
-					return;
-				}
 				var thr = this;
 				do {
-					var realHid = data.hasOwnProperty(thr.num);
+					var realHid = data ? data.hasOwnProperty(thr.num) : false;
 					if (thr.hidden ^ realHid) {
 						if (realHid) {
 							thr.op.setUserVisib(true, false);
@@ -15797,6 +15794,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		
 			window.requestAnimationFrame = function (fn) {
 				return setTimeout(fn, 0);
+			};
+		}
+		if (!('remove' in Element.prototype)) {
+		
+			Element.prototype.remove = function () {
+				if (this.parentNode) {
+					this.parentNode.removeChild(this);
+				}
 			};
 		}
 		var needFileHack = false;
