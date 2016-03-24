@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'd0bc79a';
+var commit = '5803aa3';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5453,7 +5453,7 @@ var Pages = {
 	_addPromise: null,
 	_addForm(formEl, pageNum) {
 		formEl = doc.adoptNode(formEl);
-		$hide((formEl = replacePost(formEl)));
+		$hide((formEl = aib.fixHTML(formEl)));
 		$after(DelForm.last.el, formEl);
 		var form = new DelForm(formEl, +pageNum, DelForm.last);
 		DelForm.last = form;
@@ -9390,13 +9390,13 @@ class AbstractPost {
 		ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(form => {
 			var maybeSpells = new Maybe(SpellsRunner);
 			if(this.isOp) {
-				this.updateMsg(replacePost(doc.adoptNode($q(aib.qPostMsg, form))), maybeSpells.value);
+				this.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, form))), maybeSpells.value);
 				$del(node);
 			} else {
 				var els = $Q(aib.qRPost, form);
 				for(var i = 0, len = els.length; i < len; i++) {
 					if(this.num === aib.getPNum(els[i])) {
-						this.updateMsg(replacePost(doc.adoptNode($q(aib.qPostMsg, els[i]))), maybeSpells.value);
+						this.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, els[i]))), maybeSpells.value);
 						$del(node);
 						break;
 					}
@@ -10536,7 +10536,7 @@ class PviewsCache extends TemporaryContent {
 				pst.ref.makeUnion(pByNum.get(this._tNum).ref);
 			}
 		}
-		pst.el = replacePost(pst.el);
+		pst.el = aib.fixHTML(pst.el);
 		delete pst.msg;
 		if(pst.ref.hasMap) {
 			pst.ref.init(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
@@ -10843,7 +10843,7 @@ class Thread {
 	addPost(parent, el, i, prev, maybeVParser) {
 		var post, num = aib.getPNum(el),
 			wrap = doc.adoptNode(aib.getWrap(el, false));
-		el = replacePost(el);
+		el = aib.fixHTML(el);
 		post = new Post(el, this, num, i, false, prev);
 		parent.appendChild(wrap);
 		if(aib.t && !doc.hidden && Cfg.animation) {
@@ -10907,7 +10907,7 @@ class Thread {
 		if(this.loadCount === 0) {
 			if(op.trunc) {
 				var newMsg = doc.adoptNode($q(aib.qPostMsg, form));
-				op.updateMsg(replacePost(newMsg), maybeSpells.value);
+				op.updateMsg(aib.fixHTML(newMsg), maybeSpells.value);
 			}
 			op.ref.removeMap();
 		}
@@ -10966,7 +10966,7 @@ class Thread {
 		while(existed-- !== 0) {
 			if(post.trunc) {
 				var newMsg = doc.adoptNode($q(aib.qPostMsg, loadedPosts[post.count - 1]));
-				post.updateMsg(replacePost(newMsg), maybeSpells.value);
+				post.updateMsg(aib.fixHTML(newMsg), maybeSpells.value);
 			}
 			if(post.omitted) {
 				post.wrap.classList.remove('de-hidden');
@@ -11548,6 +11548,12 @@ class BaseBoard {
 	get css() {
 		return '';
 	}
+	get fixDeadLinks() {
+		return null;
+	}
+	get fixHTMLHelper() {
+		return null;
+	}
 	get getSubmitData() {
 		return null;
 	}
@@ -11597,17 +11603,11 @@ class BaseBoard {
 	get markupTags() {
 		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
 	}
-	get needRep() { // Sets here only
-		return dTime || Spells.reps || Cfg.crossLinks || this.repFn || this.hasTextLinks;
-	}
 	get reCrossLinks() { // Sets here only
 		var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' +
 			regQuote(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
 		Object.defineProperty(this, 'reCrossLinks', { value: val });
 		return val;
-	}
-	get repFn() {
-		return null;
 	}
 	get updateCaptcha() {
 		return null;
@@ -11618,6 +11618,48 @@ class BaseBoard {
 		el.checked = true;
 	}
 	fixFileInputs() {}
+	fixHTML(data, isForm = false) {
+		if(!(dTime || Spells.reps || Cfg.crossLinks || this.fixHTMLHelper || this.fixDeadLinks ||
+			this.hasTextLinks))
+		{
+			return data;
+		}
+		var str;
+		if(isForm) {
+			data.id = 'de-dform-old';
+			str = data.outerHTML;
+		} else {
+			str = data.innerHTML;
+		}
+		if(dTime) {
+			str = dTime.fix(str);
+		}
+		if(this.fixHTMLHelper) {
+			str = this.fixHTMLHelper(str);
+		}
+		if(this.fixDeadLinks) {
+			str = this.fixDeadLinks(str);
+		}
+		if(this.hasTextLinks) {
+			str = str.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig,
+				(x, a, b, c) => c ? x : a + '<a rel="noreferrer" href="' + b + '">' + b + '</a>');
+		}
+		if(Spells.reps) {
+			str = Spells.replace(str);
+		}
+		if(Cfg.crossLinks) {
+			str = str.replace(aib.reCrossLinks,
+				(str, b, tNum, pNum) => '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<');
+		}
+		if(isForm) {
+			let newForm = $bBegin(data, str);
+			$hide(data);
+			window.addEventListener('load', () => $del($id('de-dform-old')));
+			return newForm;
+		}
+		data.innerHTML = str;
+		return data;
+	}
 	fixVideo(isPost, data) {
 		var videos = [],
 			els = $Q('embed, object, iframe', isPost ? data.el : data);
@@ -12319,6 +12361,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				'mp3|png|it|lha|torrent|swf|zip|mpc|ogg|jpeg|gif|mod" type="file"/></div>';
 			el.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 		}
+		fixHTMLHelper(str) {
+			return str.replace(/data-original="\//g, 'src="/');
+		}
 		getCaptchaSrc(src, tNum) {
 			return '/' + this.b + '/captcha.fpl?' + Math.random();
 		}
@@ -12355,9 +12400,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			$id('captchadiv').innerHTML = '<img src="' + this.getCaptchaSrc() +
 				'" style="vertical-align: bottom;" id="imgcaptcha"/>';
 			return null;
-		}
-		repFn(str) {
-			return str.replace(/data-original="\//g, 'src="/');
 		}
 	}
 	ibDomains['2--ch.ru'] = _2chRu;
@@ -12454,6 +12496,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			Object.defineProperty(this, 'updateCaptcha', { value });
 			return value;
 		}
+		fixDeadLinks(str) {
+			return str.replace(/<span class="deadlink">&gt;&gt;(\d+)<\/span>/g,
+					'<a class="de-ref-del" href="#p$1">&gt;&gt;$1</a>');
+		}
+		fixHTMLHelper() {
+			return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
+		}
 		getFileInfo(wrap) {
 			var el = $q(this.qFileInfo, wrap);
 			return el ? el.lastChild.textContent : '';
@@ -12484,11 +12533,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			Cfg.findImgFile = 0;
 			return false;
-		}
-		repFn(str) {
-			return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a')
-				.replace(/<span class="deadlink">&gt;&gt;(\d+)<\/span>/g,
-					'<a class="de-ref-del" href="#p$1">&gt;&gt;$1</a>');
 		}
 	}
 	ibDomains['4chan.org'] = _4chanOrg;
@@ -12568,12 +12612,26 @@ function getImageBoard(checkDomains, checkEngines) {
 		get qThread() {
 			return '.thread_inner';
 		}
-		getFileInfo(wrap) {
-			var data = wrap.firstElementChild.getAttribute('onclick').replace(/'/g, '').split(',');
-			if(data[1].split('.')[2] === 'webm') {
-				return null;
-			}
-			return data[2] + 'x' + data[3];
+		fixHTML(data, isForm) {
+			const el = super.fixHTML(data, isForm);
+			try {
+				const thumbs = $Q('.expand_image', el);
+				const tLen = thumbs.length;
+				for(let i = 0; i < tLen; ++i) {
+					const thumb = thumbs[i];
+					const link = thumb.getAttribute('onclick').match(/http:\/[^']+/)[0];
+					const div = thumb.firstElementChild;
+					const iframe = div.firstElementChild;
+					thumb.removeAttribute('onclick');
+					thumb.href = thumb.nextElementSibling.href = link;
+					div.innerHTML = '<img src="' + link.replace('/img/', '/thumb/') + '" width="' +
+						iframe.width + '" height="' + iframe.height + '">';
+				}
+			} catch(e) {}
+			return el;
+		}
+		getFileInfo() {
+			return null;
 		}
 		getImgLink(img) {
 			return img.parentNode.parentNode.parentNode.lastElementChild;
@@ -12594,6 +12652,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +this.getOp(el).getAttribute('postid');
 		}
 		init() {
+			defaultCfg.ajaxUpdThr = 0;
 			setTimeout(function() {
 				var delPosts = $Q('.post[postid=""]');
 				for(var i = 0, len = delPosts.length; i < len; ++i) {
@@ -12858,6 +12917,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			node.innerHTML = str;
 			node.removeAttribute('id');
 		}
+		fixDeadLinks(str) {
+			return str.replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g,
+					'<a class="de-ref-del" href="#$1">&gt;&gt;$1</a>');
+		}
+		fixHTMLHelper(str) {
+			return str.replace(/href="(#\d+)"/g, 'href="/' + aib.b + '/thread-' + aib.t + '.html$1"');
+		}
 		getCatalogUrl() {
 			return this.prot + '//' + this.host + '/catalog/' + this.b;
 		}
@@ -12892,11 +12958,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			var pMsg = msg.parentNode,
 				prev = pMsg.previousElementSibling;
 			return $bBegin(prev.hasAttribute('style') ? prev : pMsg, playerHtml);
-		}
-		repFn(str) {
-			return str.replace(/href="(#\d+)"/g, 'href="/' + aib.b + '/thread-' + aib.t + '.html$1"')
-				.replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g,
-					'<a class="de-ref-del" href="#$1">&gt;&gt;$1</a>');
 		}
 		updateCaptcha(cap, isErr) {
 			if(isErr && !cap.hasCaptcha) {
@@ -13398,15 +13459,6 @@ class DelForm {
 			}
 		};
 	}
-	static doReplace(formEl) {
-		if(aib.needRep) {
-			formEl.id = 'de-dform-old';
-			formEl = $bBegin(formEl, replaceString(formEl.outerHTML));
-			$hide(formEl.nextSibling);
-			window.addEventListener('load', () => $del($id('de-dform-old')));
-		}
-		return formEl;
-	}
 	static getThreads(formEl) {
 		var threads = $Q(aib.qThread, formEl),
 			len = threads.length;
@@ -13538,34 +13590,6 @@ class DelForm {
 	}
 }
 DelForm.tNums = new Set();
-
-function replaceString(txt) {
-	if(dTime) {
-		txt = dTime.fix(txt);
-	}
-	if(aib.repFn) {
-		txt = aib.repFn(txt);
-	}
-	if(aib.hasTextLinks) {
-		txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig,
-			(x, a, b, c) => c ? x : a + '<a rel="noreferrer" href="' + b + '">' + b + '</a>');
-	}
-	if(Spells.reps) {
-		txt = Spells.replace(txt);
-	}
-	if(Cfg.crossLinks) {
-		txt = txt.replace(aib.reCrossLinks,
-			(str, b, tNum, pNum) => '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<');
-	}
-	return txt;
-}
-
-function replacePost(el) {
-	if(aib.needRep) {
-		el.innerHTML = replaceString(el.innerHTML);
-	}
-	return el;
-}
 
 function initThreadUpdater(title, enableUpdate) {
 	var focusLoadTime, paused = false,
@@ -14699,7 +14723,7 @@ function* runMain(checkDomains, cfgPromise) {
 	Logger.log('Read my posts');
 	$hide(docBody);
 	dummy = doc.createElement('div');
-	formEl = DelForm.doReplace(formEl);
+	formEl = aib.fixHTML(formEl, true);
 	Logger.log('Replace delform');
 	pByEl = new Map();
 	pByNum = new Map();

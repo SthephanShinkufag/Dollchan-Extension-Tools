@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = 'd0bc79a';
+	var commit = '5803aa3';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -8620,7 +8620,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_addPromise: null,
 		_addForm: function _addForm(formEl, pageNum) {
 			formEl = doc.adoptNode(formEl);
-			$hide(formEl = replacePost(formEl));
+			$hide(formEl = aib.fixHTML(formEl));
 			$after(DelForm.last.el, formEl);
 			var form = new DelForm(formEl, +pageNum, DelForm.last);
 			DelForm.last = form;
@@ -13357,13 +13357,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(function (form) {
 					var maybeSpells = new Maybe(SpellsRunner);
 					if (_this36.isOp) {
-						_this36.updateMsg(replacePost(doc.adoptNode($q(aib.qPostMsg, form))), maybeSpells.value);
+						_this36.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, form))), maybeSpells.value);
 						$del(node);
 					} else {
 						var els = $Q(aib.qRPost, form);
 						for (var i = 0, len = els.length; i < len; i++) {
 							if (_this36.num === aib.getPNum(els[i])) {
-								_this36.updateMsg(replacePost(doc.adoptNode($q(aib.qPostMsg, els[i]))), maybeSpells.value);
+								_this36.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, els[i]))), maybeSpells.value);
 								$del(node);
 								break;
 							}
@@ -14766,7 +14766,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						pst.ref.makeUnion(pByNum.get(this._tNum).ref);
 					}
 				}
-				pst.el = replacePost(pst.el);
+				pst.el = aib.fixHTML(pst.el);
 				delete pst.msg;
 				if (pst.ref.hasMap) {
 					pst.ref.init(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
@@ -15162,7 +15162,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var post,
 				    num = aib.getPNum(el),
 				    wrap = doc.adoptNode(aib.getWrap(el, false));
-				el = replacePost(el);
+				el = aib.fixHTML(el);
 				post = new Post(el, this, num, i, false, prev);
 				parent.appendChild(wrap);
 				if (aib.t && !doc.hidden && Cfg.animation) {
@@ -15241,7 +15241,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (this.loadCount === 0) {
 					if (op.trunc) {
 						var newMsg = doc.adoptNode($q(aib.qPostMsg, form));
-						op.updateMsg(replacePost(newMsg), maybeSpells.value);
+						op.updateMsg(aib.fixHTML(newMsg), maybeSpells.value);
 					}
 					op.ref.removeMap();
 				}
@@ -15307,7 +15307,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				while (existed-- !== 0) {
 					if (post.trunc) {
 						var newMsg = doc.adoptNode($q(aib.qPostMsg, loadedPosts[post.count - 1]));
-						post.updateMsg(replacePost(newMsg), maybeSpells.value);
+						post.updateMsg(aib.fixHTML(newMsg), maybeSpells.value);
 					}
 					if (post.omitted) {
 						post.wrap.classList.remove('de-hidden');
@@ -15992,6 +15992,54 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'fixFileInputs',
 			value: function fixFileInputs() {}
 		}, {
+			key: 'fixHTML',
+			value: function fixHTML(data) {
+				var isForm = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+
+				if (!(dTime || Spells.reps || Cfg.crossLinks || this.fixHTMLHelper || this.fixDeadLinks || this.hasTextLinks)) {
+					return data;
+				}
+				var str;
+				if (isForm) {
+					data.id = 'de-dform-old';
+					str = data.outerHTML;
+				} else {
+					str = data.innerHTML;
+				}
+				if (dTime) {
+					str = dTime.fix(str);
+				}
+				if (this.fixHTMLHelper) {
+					str = this.fixHTMLHelper(str);
+				}
+				if (this.fixDeadLinks) {
+					str = this.fixDeadLinks(str);
+				}
+				if (this.hasTextLinks) {
+					str = str.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig, function (x, a, b, c) {
+						return c ? x : a + '<a rel="noreferrer" href="' + b + '">' + b + '</a>';
+					});
+				}
+				if (Spells.reps) {
+					str = Spells.replace(str);
+				}
+				if (Cfg.crossLinks) {
+					str = str.replace(aib.reCrossLinks, function (str, b, tNum, pNum) {
+						return '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<';
+					});
+				}
+				if (isForm) {
+					var newForm = $bBegin(data, str);
+					$hide(data);
+					window.addEventListener('load', function () {
+						return $del($id('de-dform-old'));
+					});
+					return newForm;
+				}
+				data.innerHTML = str;
+				return data;
+			}
+		}, {
 			key: 'fixVideo',
 			value: function fixVideo(isPost, data) {
 				var videos = [],
@@ -16152,6 +16200,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return '';
 			}
 		}, {
+			key: 'fixDeadLinks',
+			get: function get() {
+				return null;
+			}
+		}, {
+			key: 'fixHTMLHelper',
+			get: function get() {
+				return null;
+			}
+		}, {
 			key: 'getSubmitData',
 			get: function get() {
 				return null;
@@ -16216,23 +16274,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
 			}
 		}, {
-			key: 'needRep',
-			get: function get() {
-			
-				return dTime || Spells.reps || Cfg.crossLinks || this.repFn || this.hasTextLinks;
-			}
-		}, {
 			key: 'reCrossLinks',
 			get: function get() {
 			
 				var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' + regQuote(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
 				Object.defineProperty(this, 'reCrossLinks', { value: val });
 				return val;
-			}
-		}, {
-			key: 'repFn',
-			get: function get() {
-				return null;
 			}
 		}, {
 			key: 'updateCaptcha',
@@ -17029,6 +17076,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					el.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 				}
 			}, {
+				key: 'fixHTMLHelper',
+				value: function fixHTMLHelper(str) {
+					return str.replace(/data-original="\//g, 'src="/');
+				}
+			}, {
 				key: 'getCaptchaSrc',
 				value: function getCaptchaSrc(src, tNum) {
 					return '/' + this.b + '/captcha.fpl?' + Math.random();
@@ -17075,11 +17127,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				value: function initCaptcha() {
 					$id('captchadiv').innerHTML = '<img src="' + this.getCaptchaSrc() + '" style="vertical-align: bottom;" id="imgcaptcha"/>';
 					return null;
-				}
-			}, {
-				key: 'repFn',
-				value: function repFn(str) {
-					return str.replace(/data-original="\//g, 'src="/');
 				}
 			}, {
 				key: 'css',
@@ -17184,6 +17231,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			_createClass(_4chanOrg, [{
+				key: 'fixDeadLinks',
+				value: function fixDeadLinks(str) {
+					return str.replace(/<span class="deadlink">&gt;&gt;(\d+)<\/span>/g, '<a class="de-ref-del" href="#p$1">&gt;&gt;$1</a>');
+				}
+			}, {
+				key: 'fixHTMLHelper',
+				value: function fixHTMLHelper() {
+					return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
+				}
+			}, {
 				key: 'getFileInfo',
 				value: function getFileInfo(wrap) {
 					var el = $q(this.qFileInfo, wrap);
@@ -17229,11 +17286,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				value: function init() {
 					Cfg.findImgFile = 0;
 					return false;
-				}
-			}, {
-				key: 'repFn',
-				value: function repFn(str) {
-					return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a').replace(/<span class="deadlink">&gt;&gt;(\d+)<\/span>/g, '<a class="de-ref-del" href="#p$1">&gt;&gt;$1</a>');
 				}
 			}, {
 				key: 'css',
@@ -17378,13 +17430,28 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			_createClass(Arhivach, [{
+				key: 'fixHTML',
+				value: function fixHTML(data, isForm) {
+					var el = _get(Object.getPrototypeOf(Arhivach.prototype), 'fixHTML', this).call(this, data, isForm);
+					try {
+						var thumbs = $Q('.expand_image', el);
+						var tLen = thumbs.length;
+						for (var _i31 = 0; _i31 < tLen; ++_i31) {
+							var thumb = thumbs[_i31];
+							var link = thumb.getAttribute('onclick').match(/http:\/[^']+/)[0];
+							var div = thumb.firstElementChild;
+							var iframe = div.firstElementChild;
+							thumb.removeAttribute('onclick');
+							thumb.href = thumb.nextElementSibling.href = link;
+							div.innerHTML = '<img src="' + link.replace('/img/', '/thumb/') + '" width="' + iframe.width + '" height="' + iframe.height + '">';
+						}
+					} catch (e) {}
+					return el;
+				}
+			}, {
 				key: 'getFileInfo',
-				value: function getFileInfo(wrap) {
-					var data = wrap.firstElementChild.getAttribute('onclick').replace(/'/g, '').split(',');
-					if (data[1].split('.')[2] === 'webm') {
-						return null;
-					}
-					return data[2] + 'x' + data[3];
+				value: function getFileInfo() {
+					return null;
 				}
 			}, {
 				key: 'getImgLink',
@@ -17419,6 +17486,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'init',
 				value: function init() {
+					defaultCfg.ajaxUpdThr = 0;
 					setTimeout(function () {
 						var delPosts = $Q('.post[postid=""]');
 						for (var i = 0, len = delPosts.length; i < len; ++i) {
@@ -17762,6 +17830,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					node.removeAttribute('id');
 				}
 			}, {
+				key: 'fixDeadLinks',
+				value: function fixDeadLinks(str) {
+					return str.replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g, '<a class="de-ref-del" href="#$1">&gt;&gt;$1</a>');
+				}
+			}, {
+				key: 'fixHTMLHelper',
+				value: function fixHTMLHelper(str) {
+					return str.replace(/href="(#\d+)"/g, 'href="/' + aib.b + '/thread-' + aib.t + '.html$1"');
+				}
+			}, {
 				key: 'getCatalogUrl',
 				value: function getCatalogUrl() {
 					return this.prot + '//' + this.host + '/catalog/' + this.b;
@@ -17811,11 +17889,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return $bBegin(prev.hasAttribute('style') ? prev : pMsg, playerHtml);
 				}
 			}, {
-				key: 'repFn',
-				value: function repFn(str) {
-					return str.replace(/href="(#\d+)"/g, 'href="/' + aib.b + '/thread-' + aib.t + '.html$1"').replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g, '<a class="de-ref-del" href="#$1">&gt;&gt;$1</a>');
-				}
-			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap, isErr) {
 					if (isErr && !cap.hasCaptcha) {
@@ -17825,16 +17898,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var sessionId = null;
 					var cookie = doc.cookie;
 					if (cookie.includes('desuchan.session')) {
-						for (var _iterator30 = cookie.split(';'), _isArray30 = Array.isArray(_iterator30), _i31 = 0, _iterator30 = _isArray30 ? _iterator30 : _iterator30[Symbol.iterator]();;) {
+						for (var _iterator30 = cookie.split(';'), _isArray30 = Array.isArray(_iterator30), _i32 = 0, _iterator30 = _isArray30 ? _iterator30 : _iterator30[Symbol.iterator]();;) {
 							var _ref55;
 
 							if (_isArray30) {
-								if (_i31 >= _iterator30.length) break;
-								_ref55 = _iterator30[_i31++];
+								if (_i32 >= _iterator30.length) break;
+								_ref55 = _iterator30[_i32++];
 							} else {
-								_i31 = _iterator30.next();
-								if (_i31.done) break;
-								_ref55 = _i31.value;
+								_i32 = _iterator30.next();
+								if (_i32.done) break;
+								_ref55 = _i32.value;
 							}
 
 							var c = _ref55;
@@ -18306,19 +18379,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				};
 			}
 		}, {
-			key: 'doReplace',
-			value: function doReplace(formEl) {
-				if (aib.needRep) {
-					formEl.id = 'de-dform-old';
-					formEl = $bBegin(formEl, replaceString(formEl.outerHTML));
-					$hide(formEl.nextSibling);
-					window.addEventListener('load', function () {
-						return $del($id('de-dform-old'));
-					});
-				}
-				return formEl;
-			}
-		}, {
 			key: 'getThreads',
 			value: function getThreads(formEl) {
 				var threads = $Q(aib.qThread, formEl),
@@ -18472,36 +18532,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	})();
 
 	DelForm.tNums = new Set();
-
-	function replaceString(txt) {
-		if (dTime) {
-			txt = dTime.fix(txt);
-		}
-		if (aib.repFn) {
-			txt = aib.repFn(txt);
-		}
-		if (aib.hasTextLinks) {
-			txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig, function (x, a, b, c) {
-				return c ? x : a + '<a rel="noreferrer" href="' + b + '">' + b + '</a>';
-			});
-		}
-		if (Spells.reps) {
-			txt = Spells.replace(txt);
-		}
-		if (Cfg.crossLinks) {
-			txt = txt.replace(aib.reCrossLinks, function (str, b, tNum, pNum) {
-				return '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<';
-			});
-		}
-		return txt;
-	}
-
-	function replacePost(el) {
-		if (aib.needRep) {
-			el.innerHTML = replaceString(el.innerHTML);
-		}
-		return el;
-	}
 
 	function initThreadUpdater(title, enableUpdate) {
 		var focusLoadTime,
@@ -19658,7 +19688,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					Logger.log('Read my posts');
 					$hide(docBody);
 					dummy = doc.createElement('div');
-					formEl = DelForm.doReplace(formEl);
+					formEl = aib.fixHTML(formEl, true);
 					Logger.log('Replace delform');
 					pByEl = new Map();
 					pByNum = new Map();
