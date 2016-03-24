@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '0563492';
+	var commit = 'd0bc79a';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -8311,7 +8311,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var els = $Q('a[href*=".mp3"]', isPost ? data.el : data);
 			for (var i = 0, len = els.length; i < len; ++i) {
 				var link = els[i];
-				if (link.target !== '_blank' && link.rel !== 'nofollow') {
+				if (link.target !== '_blank' && link.rel !== 'nofollow' || !link.pathname.includes('.mp3')) {
 					continue;
 				}
 				var src = link.href,

@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '0563492';
+var commit = 'd0bc79a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5258,7 +5258,9 @@ function embedMediaLinks(data) {
 		var els = $Q('a[href*=".mp3"]', isPost ? data.el : data);
 		for(var i = 0, len = els.length; i < len; ++i) {
 			var link = els[i];
-			if(link.target !== '_blank' && link.rel !== 'nofollow') {
+			if((link.target !== '_blank' && link.rel !== 'nofollow') ||
+			   !link.pathname.includes('.mp3'))
+			{
 				continue;
 			}
 			var src = link.href,
@@ -11378,7 +11380,7 @@ function initNavFuncs() {
 	}
 	if(!('remove' in Element.prototype)) { // XXX: nav.Presto
 		Element.prototype.remove = function() {
-			if (this.parentNode) {
+			if(this.parentNode) {
 				this.parentNode.removeChild(this);
 			}
 		};
