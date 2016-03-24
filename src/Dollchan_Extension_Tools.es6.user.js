@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '011c73d';
+var commit = '444a80b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12500,7 +12500,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return str.replace(/<span class="deadlink">&gt;&gt;(\d+)<\/span>/g,
 					'<a class="de-ref-del" href="#p$1">&gt;&gt;$1</a>');
 		}
-		fixHTMLHelper() {
+		fixHTMLHelper(str) {
 			return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
 		}
 		getFileInfo(wrap) {

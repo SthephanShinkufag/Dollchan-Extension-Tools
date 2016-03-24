@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '011c73d';
+	var commit = '444a80b';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -17237,7 +17237,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}, {
 				key: 'fixHTMLHelper',
-				value: function fixHTMLHelper() {
+				value: function fixHTMLHelper(str) {
 					return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
 				}
 			}, {
