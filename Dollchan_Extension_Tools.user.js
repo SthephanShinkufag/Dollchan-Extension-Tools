@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '5803aa3';
+	var commit = '011c73d';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -17474,6 +17474,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return +post.getAttribute('postid');
 				}
 			}, {
+				key: 'getSage',
+				value: function getSage(post) {
+					return !!$q('.poster_sage', post);
+				}
+			}, {
 				key: 'getThrdUrl',
 				value: function getThrdUrl(b, tNum) {
 					return $q('link[rel="canonical"]', doc.head).href;
@@ -17506,7 +17511,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'css',
 				get: function get() {
-					return '\n\t\t\t.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }\n\t\t\t.de-cfg-label.de-block { display: block; }\n\t\t\t.post_replies, .post[postid=""] { display: none !important; }\n\t\t\t.post { overflow-x: auto !important; }';
+					return '\n\t\t\t.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }\n\t\t\t.de-cfg-label.de-block { display: block; }\n\t\t\t.post_replies, .post_num, .poster_sage, .post[postid=""] { display: none !important; }\n\t\t\t.post { overflow-x: auto !important; }';
 				}
 			}, {
 				key: 'qImgName',

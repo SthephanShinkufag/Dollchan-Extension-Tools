@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '5803aa3';
+var commit = '011c73d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12603,7 +12603,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `
 			.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }
 			.de-cfg-label.de-block { display: block; }
-			.post_replies, .post[postid=""] { display: none !important; }
+			.post_replies, .post_num, .poster_sage, .post[postid=""] { display: none !important; }
 			.post { overflow-x: auto !important; }`;
 		}
 		get qImgName() {
@@ -12644,6 +12644,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getPNum(post) {
 			return +post.getAttribute('postid');
+		}
+		getSage(post) {
+			return !!$q('.poster_sage', post);
 		}
 		getThrdUrl(b, tNum) {
 			return $q('link[rel="canonical"]', doc.head).href;
