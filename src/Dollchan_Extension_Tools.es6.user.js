@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '444a80b';
+var commit = 'de0b393';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -14271,9 +14271,9 @@ function scriptCSS() {
 	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; color: inherit !important; }\
 	.de-panel-button:hover { color: inherit !important; }\
 	.de-panel-svg, #de-panel-logo, .de-panel-logo-svg, .de-panel-button { width: 25px; height: 25px; }\
-	#de-panel-goback { transform: rotate(180deg); }\
-	#de-panel-godown { transform: rotate(90deg); }\
-	#de-panel-goup { transform: rotate(-90deg); }\
+	#de-panel-goback { transform: rotate(180deg); will-change: transform; }\
+	#de-panel-godown { transform: rotate(90deg); will-change: transform; }\
+	#de-panel-goup { transform: rotate(-90deg); will-change: transform; }\
 	#de-panel-upd-on { fill: #32ff32; }\
 	#de-panel-upd-warn { fill: #fff441; }\
 	#de-panel-upd-off { fill: #ff3232; }\
@@ -14381,8 +14381,13 @@ function scriptCSS() {
 	.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
 	.de-thread-note { font-style: italic; }\
 	.de-btn-hide > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\
-	.de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle { transform: rotate(0deg); margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }' +
-	(pr.form || pr.oeForm ? '' : '.de-btn-rep { display: none; }') +
+	.de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }';
+
+	if(nav.Firefox && !nav.isES6) {
+		x += '.de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle { transform: rotate(0deg); will-change: transform; }';
+	}
+
+	x += (pr.form || pr.oeForm ? '' : '.de-btn-rep { display: none; }') +
 
 	// Sauce buttons
 	cont('.de-src-google', 'https://google.com/favicon.ico') +
