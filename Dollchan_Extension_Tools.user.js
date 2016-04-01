@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = 'de0b393';
+	var commit = '36fabc0';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -19245,7 +19245,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\
 	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\
 	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; color: inherit !important; }\
-	.de-panel-button:hover { color: inherit !important; }\
+	a.de-panel-button, a.de-panel-button:hover { color: inherit !important; }\
 	.de-panel-svg, #de-panel-logo, .de-panel-logo-svg, .de-panel-button { width: 25px; height: 25px; }\
 	#de-panel-goback { transform: rotate(180deg); will-change: transform; }\
 	#de-panel-godown { transform: rotate(90deg); will-change: transform; }\
