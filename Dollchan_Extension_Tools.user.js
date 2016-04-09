@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '91f3a35';
+	var commit = 'c853bd2';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -8058,6 +8058,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		link.setAttribute('de-author', author);
 		link.title = (duration ? Lng.duration[lang] + duration : '') + (publ ? ', ' + Lng.published[lang] + publ + '\n' : '') + Lng.author[lang] + author + (views ? ', ' + Lng.views[lang] + views : '');
 	};
+	Videos._fixTime = function () {
+		var seconds = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+		var minutes = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+		var hours = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+
+		if (seconds >= 60) {
+			minutes += Math.floor(seconds / 60);
+			seconds %= 60;
+		}
+		if (minutes >= 60) {
+			hours += Math.floor(seconds / 60);
+			minutes %= 60;
+		}
+		var timeStr = (hours ? hours + 'h' : '') + (minutes ? minutes + 'm' : '') + (seconds ? seconds + 's' : '');
+		return [timeStr, hours, minutes, seconds];
+	};
 	Videos._titlesLoaderHelper = function (_ref12, num) {
 		var _ref13 = _slicedToArray(_ref12, 4);
 
@@ -8112,7 +8128,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			return $ajax(aib.prot + '//vimeo.com/api/v2/video/' + id + '.json', null, false).then(function (xhr) {
 				var entry = JSON.parse(xhr.responseText)[0];
-				return Videos._titlesLoaderHelper(info, num, entry["title"], entry["user_name"], entry["stats_number_of_plays"], /(.*)\s(.*)?/.exec(entry["upload_date"])[1]);
+				return Videos._titlesLoaderHelper(info, num, entry['title'], entry['user_name'], entry['stats_number_of_plays'], /(.*)\s(.*)?/.exec(entry["upload_date"])[1], Videos._fixTime(entry['duration'])[0]);
 			})['catch'](function () {
 				return Videos._titlesLoaderHelper(info, num);
 			});
@@ -8148,17 +8164,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (loader && (dataObj = Videos._global.vData[isYtube ? 0 : 1][m[1]])) {
 				this.vData[isYtube ? 0 : 1].push(dataObj);
 			}
-			if (m[4] || m[3] || m[2]) {
-				if (m[4] >= 60) {
-					m[3] = (m[3] || 0) + Math.floor(m[4] / 60);
-					m[4] %= 60;
-				}
-				if (m[3] >= 60) {
-					m[2] = (m[2] || 0) + Math.floor(m[3] / 60);
-					m[3] %= 60;
-				}
-				time = (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
-			}
+
+			var _Videos$_fixTime = Videos._fixTime(m[4], m[3], m[2]);
+
+			var _Videos$_fixTime2 = _slicedToArray(_Videos$_fixTime, 4);
+
+			time = _Videos$_fixTime2[0];
+			m[2] = _Videos$_fixTime2[1];
+			m[3] = _Videos$_fixTime2[2];
+			m[4] = _Videos$_fixTime2[3];
+
 			if (link) {
 				link.href = link.href.replace(/^http:/, 'https:');
 				if (time) {
@@ -14378,11 +14393,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			_this42._loading = true;
 			_this42._showPview(_this42.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">' + '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
-		
-		
-			_this42._loadPromise = ajaxLoad(aib.getThrdUrl(_this42._brd, tNum)).then((function (form) {
-				this._onload(form);
-			}).bind(_this42), _this42._onerror.bind(_this42));
+			_this42._loadPromise = ajaxLoad(aib.getThrdUrl(_this42._brd, tNum)).then(function (form) {
+				return _this42._onload(form);
+			}, function () {
+				return _this42._onerror();
+			});
 			return _this42;
 		}
 

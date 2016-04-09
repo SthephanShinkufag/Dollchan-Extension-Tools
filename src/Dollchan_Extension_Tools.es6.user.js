@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '91f3a35';
+var commit = 'c853bd2';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5005,6 +5005,20 @@ Videos.setLinkData = function(link, [title, author, views, publ, duration]) {
 		Lng.author[lang] + author +
 		(views ? ', ' + Lng.views[lang] + views : '');
 };
+Videos._fixTime = function(seconds = 0, minutes = 0, hours = 0) {
+	if(seconds >= 60) {
+		minutes += Math.floor(seconds / 60);
+		seconds %= 60;
+	}
+	if(minutes >= 60) {
+		hours += Math.floor(seconds / 60);
+		minutes %= 60;
+	}
+	var timeStr = (hours   ? hours   + 'h' : '') +
+	              (minutes ? minutes + 'm' : '') +
+	              (seconds ? seconds + 's' : '');
+	return [timeStr, hours, minutes, seconds];
+};
 Videos._titlesLoaderHelper = function([link, isYtube, videoObj, id], num, ...data) {
 	if(data.length !== 0) {
 		Videos.setLinkData(link, data);
@@ -5054,10 +5068,11 @@ Videos._getTitlesLoader = function() {
 		return $ajax(aib.prot + '//vimeo.com/api/v2/video/' + id + '.json', null, false).then(xhr => {
 			var entry = JSON.parse(xhr.responseText)[0];
 			return Videos._titlesLoaderHelper(info, num,
-			                                  entry["title"],
-			                                  entry["user_name"],
-			                                  entry["stats_number_of_plays"],
-			                                  (/(.*)\s(.*)?/.exec(entry["upload_date"]))[1]);
+			                                  entry['title'],
+			                                  entry['user_name'],
+			                                  entry['stats_number_of_plays'],
+			                                  (/(.*)\s(.*)?/.exec(entry["upload_date"]))[1],
+											  Videos._fixTime(entry['duration'])[0]);
 		}).catch(() => Videos._titlesLoaderHelper(info, num));
 	}, () => {
 		sesStorage['de-videos-data2'] = JSON.stringify(Videos._global.vData);
@@ -5091,17 +5106,7 @@ Videos.prototype = {
 		if(loader && (dataObj = Videos._global.vData[isYtube ? 0 : 1][m[1]])) {
 			this.vData[isYtube ? 0 : 1].push(dataObj);
 		}
-		if(m[4] || m[3] || m[2]) {
-			if(m[4] >= 60) {
-				m[3] = (m[3] || 0) + Math.floor(m[4] / 60);
-				m[4] %= 60;
-			}
-			if(m[3] >= 60) {
-				m[2] = (m[2] || 0) + Math.floor(m[3] / 60);
-				m[3] %= 60;
-			}
-			time = (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
-		}
+		[time, m[2], m[3], m[4]] = Videos._fixTime(m[4], m[3], m[2]);
 		if(link) {
 			link.href = link.href.replace(/^http:/, 'https:');
 			if(time) {
@@ -10206,10 +10211,8 @@ class Pview extends AbstractPost {
 		this._loading = true;
 		this._showPview(this.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">'
 			+ '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
-		// Arrow functions disabled inside derived class constructors
-		// https://bugzilla.mozilla.org/show_bug.cgi?id=1169734
 		this._loadPromise = ajaxLoad(aib.getThrdUrl(this._brd, tNum))
-			.then(function(form) { this._onload(form) }.bind(this), this._onerror.bind(this));
+			.then(form => this._onload(form), () => this._onerror());
 	}
 	get stickBtn() {
 		var value = $q('.de-btn-stick', this.el);
