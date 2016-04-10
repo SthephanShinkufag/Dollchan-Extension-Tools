@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '48e3edb';
+	var commit = 'e17f28e';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -17449,24 +17449,32 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				value: function fixHTML(data, isForm) {
 					var el = _get(Object.getPrototypeOf(Arhivach.prototype), 'fixHTML', this).call(this, data, isForm);
 					try {
+						var links = $Q('.post-reply-link', el);
+						var lLen = links.length;
+						for (var _i31 = 0; _i31 < lLen; ++_i31) {
+							var link = links[_i31];
+							link.textContent = '>>' + link.getAttribute('data-num');
+						}
 						var thumbs = $Q('.expand_image', el);
 						var tLen = thumbs.length;
-						for (var _i31 = 0; _i31 < tLen; ++_i31) {
-							var thumb = thumbs[_i31];
+						for (var _i32 = 0; _i32 < tLen; ++_i32) {
+							var thumb = thumbs[_i32];
 							var link = thumb.getAttribute('onclick').match(/http:\/[^']+/)[0];
 							var div = thumb.firstElementChild;
 							var iframe = div.firstElementChild;
-							thumb.removeAttribute('onclick');
 							thumb.href = thumb.nextElementSibling.href = link;
-							div.innerHTML = '<img src="' + link.replace('/img/', '/thumb/') + '" width="' + iframe.width + '" height="' + iframe.height + '">';
+							if (iframe.tagName === 'IFRAME') {
+								div.innerHTML = '<img src="' + link.replace('/img/', '/thumb/') + '" width="' + iframe.width + '" height="' + iframe.height + '">';
+							}
 						}
 					} catch (e) {}
 					return el;
 				}
 			}, {
 				key: 'getFileInfo',
-				value: function getFileInfo() {
-					return null;
+				value: function getFileInfo(wrap) {
+					var data = wrap.firstElementChild.getAttribute('onclick').match(/'([1-9]\d*)','([1-9]\d*)'/);
+					return data ? data[1] + 'x' + data[2] : null;
 				}
 			}, {
 				key: 'getImgLink',
@@ -17918,16 +17926,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var sessionId = null;
 					var cookie = doc.cookie;
 					if (cookie.includes('desuchan.session')) {
-						for (var _iterator30 = cookie.split(';'), _isArray30 = Array.isArray(_iterator30), _i32 = 0, _iterator30 = _isArray30 ? _iterator30 : _iterator30[Symbol.iterator]();;) {
+						for (var _iterator30 = cookie.split(';'), _isArray30 = Array.isArray(_iterator30), _i33 = 0, _iterator30 = _isArray30 ? _iterator30 : _iterator30[Symbol.iterator]();;) {
 							var _ref55;
 
 							if (_isArray30) {
-								if (_i32 >= _iterator30.length) break;
-								_ref55 = _iterator30[_i32++];
+								if (_i33 >= _iterator30.length) break;
+								_ref55 = _iterator30[_i33++];
 							} else {
-								_i32 = _iterator30.next();
-								if (_i32.done) break;
-								_ref55 = _i32.value;
+								_i33 = _iterator30.next();
+								if (_i33.done) break;
+								_ref55 = _i33.value;
 							}
 
 							var c = _ref55;
