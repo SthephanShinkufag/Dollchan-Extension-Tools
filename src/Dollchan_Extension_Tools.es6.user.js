@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'e17f28e';
+var commit = '83c51f4';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -202,8 +202,8 @@ Lng = {
 			sel:        [['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'], ['Disable', 'All types', 'Only GIF', 'Non-GIF']],
 			txt:        ['Заменять картинки на оригиналы*', 'Replace images with originals*']
 		},
-		'imgSrcBtns':   ['Добавлять кнопки для поиска картинок*', 'Add image search buttons*'],
-		'delImgNames':  ['Скрывать имена картинок*', 'Hide names of images*'],
+		'imgSrcBtns':   ['Добавлять кнопки для поиска картинок', 'Add image search buttons'],
+		'delImgNames':  ['Скрывать имена картинок', 'Hide names of images'],
 		'maskVisib':    ['Видимость при маскировке [0-100%]', 'Visibility for masked images [0-100%]'],
 
 		'linksNavig': {
@@ -3188,8 +3188,29 @@ function getCfgImages() {
 			lBox('findImgFile', true, null)
 		])),
 		optSel('openImgs', true, null),
-		lBox('imgSrcBtns', true, null),
-		lBox('delImgNames', true, null),
+		lBox('imgSrcBtns', true, function() {
+			if(Cfg.imgSrcBtns) {
+				for(let form of DelForm) {
+					processImagesLinks(form.el, null, 1, 0);
+				}
+			} else {
+				$each($Q('.de-btn-src'), el => el.remove());
+			}
+		}),
+		lBox('delImgNames', true, function() {
+			if(Cfg.delImgNames) {
+				for(let form of DelForm) {
+					processImagesLinks(form.el, null, 0, 1);
+				}
+			} else {
+				$each($Q('.de-img-name'), link => {
+					link.classList.remove('de-img-name');
+					link.textContent = link.title;
+					link.removeAttribute('title');
+				});
+			}
+			updateCSS();
+		}),
 		$New('div', null, [
 			inpTxt('maskVisib', 2, function() {
 				var val = Math.min(+this.value || 0, 100);
@@ -9030,9 +9051,7 @@ function fixRelativeLinks(el, aName, linkBoard) {
 	}
 }
 
-function processImagesLinks(el, linkBoard) {
-	var addSrc = Cfg.imgSrcBtns,
-		delNames = Cfg.delImgNames;
+function processImagesLinks(el, linkBoard, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgNames) {
 	if(!aib.mak) {
 		linkBoard = null;
 	}
@@ -9057,7 +9076,9 @@ function processImagesLinks(el, linkBoard) {
 		}
 		if(delNames) {
 			link.classList.add('de-img-name');
-			link.textContent = link.textContent.split('.').slice(-1)[0];
+			let text = link.textContent;
+			link.textContent = text.split('.').pop();
+			link.title = text;
 		}
 	}
 	if(linkBoard) {
