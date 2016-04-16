@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '83c51f4';
+var commit = 'f977e21';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3157,7 +3157,13 @@ function getCfgPosts() {
 
 function getCfgImages() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-images'}, [
-		optSel('expandImgs', true, null),
+		optSel('expandImgs', true, function() {
+			saveCfg('expandImgs', this.selectedIndex);
+			updateCSS();
+			if(Attachment.viewer) {
+				Attachment.viewer.close();
+			}
+		}),
 		$New('div', {'class': 'de-cfg-depend'}, [
 			lBox('imgNavBtns', true, updateCSS),
 			lBox('resizeImgs', true, updateCSS),
@@ -11842,7 +11848,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			.postbtn-reply-href { font-size: 0px; }
 			.postbtn-reply-href::after { font-size: 14px; content: attr(name); }
 			${ Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '' }
-			${ Cfg.delImgNames ? '.filesize { display: inline !important; }' : '' }`;
+			${ Cfg.delImgNames ? '.filesize { display: inline !important; } .file-attr { margin-bottom: 1px; }' : '' }
+			${ Cfg.expandImgs ? '#fullscreen-container { display: none !important; }' : '' }`;
 		}
 		get qImgName() {
 			return '.file-attr > .desktop';

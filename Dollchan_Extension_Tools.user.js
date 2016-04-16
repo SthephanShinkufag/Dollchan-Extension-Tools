@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '83c51f4';
+	var commit = 'f977e21';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -6370,7 +6370,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function getCfgImages() {
-		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-images' }, [optSel('expandImgs', true, null), $New('div', { 'class': 'de-cfg-depend' }, [lBox('imgNavBtns', true, updateCSS), lBox('resizeImgs', true, updateCSS), $if(Post.sizing.dPxRatio > 1, lBox('resizeDPI', true, null)), $New('div', null, [inpTxt('minImgSize', 2, function () {
+		return $New('div', { 'class': 'de-cfg-unvis', 'id': 'de-cfg-images' }, [optSel('expandImgs', true, function () {
+			saveCfg('expandImgs', this.selectedIndex);
+			updateCSS();
+			if (Attachment.viewer) {
+				Attachment.viewer.close();
+			}
+		}), $New('div', { 'class': 'de-cfg-depend' }, [lBox('imgNavBtns', true, updateCSS), lBox('resizeImgs', true, updateCSS), $if(Post.sizing.dPxRatio > 1, lBox('resizeDPI', true, null)), $New('div', null, [inpTxt('minImgSize', 2, function () {
 			saveCfg('minImgSize', Math.max(+this.value, 1));
 		}), $txt(Lng.cfg.minImgSize[lang])]), inpTxt('zoomFactor', 2, function () {
 			saveCfg('zoomFactor', Math.min(Math.max(+this.value, 1), 100));
@@ -16523,7 +16529,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, {
 				key: 'css',
 				get: function get() {
-					return '\n\t\t\t.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, .logo + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .prerekl-hr, .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t.mess-post { display: block; }\n\t\t\t.post.reply .post-message { max-height: initial !important; }\n\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; }' : '');
+					return '\n\t\t\t.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, .logo + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .prerekl-hr, .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t.mess-post { display: block; }\n\t\t\t.post.reply .post-message { max-height: initial !important; }\n\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; } .file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t' + (Cfg.expandImgs ? '#fullscreen-container { display: none !important; }' : '');
 				}
 			}, {
 				key: 'qImgName',
