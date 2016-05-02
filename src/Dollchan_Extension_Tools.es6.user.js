@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'f977e21';
+var commit = '6d19bf1';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -14435,20 +14435,7 @@ function scriptCSS() {
 	cont('.de-src-tineye', 'https://tineye.com/favicon.ico') +
 	cont('.de-src-saucenao', 'https://saucenao.com/favicon.ico') +
 	cont('.de-src-iqdb', '//iqdb.org/favicon.ico') +
-	cont('.de-src-whatanime',
-	    `data:image/png;base64,iVBORw0KGgoA
-	    AAANSUhEUgAAABAAAAAPCAMAAADarb8dAAA
-	    AWlBMVEX////29fbT1NOOj44dGx0SEhIHCA
-	    fX2NfQ0NDBwcGztLOwsbA7Ozs4ODgeHh7/2
-	    Nf/1dTMsbGpkZGWZWRyRUQ8NTYoIyMZAAAA
-	    AAAGBASBaGeBZ2Z2XVtmTUw2fryxAAAAGHR
-	    STlP+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v
-	    4W3wyUAAAAZElEQVQI152OSQ6AMBRCadU6z
-	    xN1uP81/Y2NSY0r2fBgA+BL/wrbWEcewEqr
-	    rHa5zpSuCJMC0IY0WiA1iJW4ikkPYCFeUlQ
-	    KFASTKI8SyTc8s8sc/rBDvwbF1LVjUJzbft
-	    jv6xfbkBHGT8GSnQAAAABJRU5ErkJggg==`
-	) +
+	cont('.de-src-whatanime', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAMAAADarb8dAAAAWlBMVEX////29fbT1NOOj44dGx0SEhIHCAfX2NfQ0NDBwcGztLOwsbA7Ozs4ODgeHh7/2Nf/1dTMsbGpkZGWZWRyRUQ8NTYoIyMZAAAAAAAGBASBaGeBZ2Z2XVtmTUw2fryxAAAAGHRSTlP+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v4W3wyUAAAAZElEQVQI152OSQ6AMBRCadU6zxN1uP81/Y2NSY0r2fBgA+BL/wrbWEcewEqrrHa5zpSuCJMC0IY0WiA1iJW4ikkPYCFeUlQKFASTKI8SyTc8s8sc/rBDvwbF1LVjUJzbftjv6xfbkBHGT8GSnQAAAABJRU5ErkJggg==') +
 
 	// Posts counter
 	'.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); margin: 0 4px 0 2px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
