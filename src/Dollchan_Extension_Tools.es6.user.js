@@ -9444,7 +9444,8 @@ class AbstractPost {
 			'<a class="de-menu-item de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex</a>' +
 			'<a class="de-menu-item de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' +
 			'<a class="de-menu-item de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' +
-			'<a class="de-menu-item de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>'
+			'<a class="de-menu-item de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>' +
+			'<a class="de-menu-item de-src-whatanime" href="http://whatanime.ga/?auto&url=' + (aib.constructor.name === 'Iichan' ? 'http://reho.st/' + p : p) + 'WhatAnime</a>';
 	}
 	_showMenu(el, html) {
 		if(this._menu) {
@@ -14434,6 +14435,20 @@ function scriptCSS() {
 	cont('.de-src-tineye', 'https://tineye.com/favicon.ico') +
 	cont('.de-src-saucenao', 'https://saucenao.com/favicon.ico') +
 	cont('.de-src-iqdb', '//iqdb.org/favicon.ico') +
+	cont('.de-src-whatanime',
+	    `data:image/png;base64,iVBORw0KGgoA
+	    AAANSUhEUgAAABAAAAAPCAMAAADarb8dAAA
+	    AWlBMVEX////29fbT1NOOj44dGx0SEhIHCA
+	    fX2NfQ0NDBwcGztLOwsbA7Ozs4ODgeHh7/2
+	    Nf/1dTMsbGpkZGWZWRyRUQ8NTYoIyMZAAAA
+	    AAAGBASBaGeBZ2Z2XVtmTUw2fryxAAAAGHR
+	    STlP+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v
+	    4W3wyUAAAAZElEQVQI152OSQ6AMBRCadU6z
+	    xN1uP81/Y2NSY0r2fBgA+BL/wrbWEcewEqr
+	    rHa5zpSuCJMC0IY0WiA1iJW4ikkPYCFeUlQ
+	    KFASTKI8SyTc8s8sc/rBDvwbF1LVjUJzbft
+	    jv6xfbkBHGT8GSnQAAAABJRU5ErkJggg==`
+	) +
 
 	// Posts counter
 	'.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); margin: 0 4px 0 2px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
