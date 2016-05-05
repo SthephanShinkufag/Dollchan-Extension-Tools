@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '6d19bf1';
+var commit = 'abc12e8';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -931,18 +931,31 @@ class AjaxError {
 }
 AjaxError.Success = new AjaxError(200, 'OK');
 AjaxError.Locked = new AjaxError(-1, { toString() { return Lng.thrClosed[lang]; } });
+AjaxError.Timeout = new AjaxError(0, { toString() { return Lng.noConnect[lang] + ' (timeout)'; } });
 
 function $ajax(url, params = null, useNative = nativeXHRworks) {
 	var resolve, reject, cancelFn;
 	if(!useNative && (typeof GM_xmlhttpRequest === 'function')) {
+		var toFunc = () => {
+			reject(AjaxError.Timeout);
+			try {
+				gmxhr.abort();
+			} catch(e) {}
+		};
+		var loadTO = setTimeout(toFunc, 1e4);
 		var obj = {
 			'method': (params && params.method) || 'GET',
 			'url': nav.fixLink(url),
-			'onload'(e) {
-				if(e.status === 200 || aib.tiny && e.status === 400) {
-					resolve(e);
+			'onreadystatechange'(e) {
+				clearTimeout(loadTO);
+				if(e.readyState === 4) {
+					if(e.status === 200 || aib.tiny && e.status === 400) {
+						resolve(e);
+					} else {
+						reject(new AjaxError(e.status, e.statusText));
+					}
 				} else {
-					reject(new AjaxError(e.status, e.statusText));
+					loadTO = setTimeout(toFunc, 1e4);
 				}
 			}
 		};
@@ -956,16 +969,23 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 		}
 		var gmxhr = GM_xmlhttpRequest(obj);
 		cancelFn = () => {
+			clearTimeout(loadTO);
 			try {
 				gmxhr.abort();
 			} catch(e) {}
 		};
 	} else {
 		var xhr = new XMLHttpRequest();
+		var toFunc = () => {
+			reject(AjaxError.Timeout);
+			xhr.abort();
+		};
+		var loadTO = setTimeout(toFunc, 1e4);
 		if(params && params.onprogress) {
 			xhr.upload.onprogress = params.onprogress;
 		}
 		xhr.onreadystatechange = ({ target }) => {
+			clearTimeout(loadTO);
 			if(target.readyState === 4) {
 				if(target.status === 200 ||
 				   (aib.tiny && target.status === 400) ||
@@ -975,6 +995,8 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				} else {
 					reject(new AjaxError(target.status, target.statusText));
 				}
+			} else {
+				loadTO = setTimeout(toFunc, 1e4);
 			}
 		};
 		try {
@@ -993,8 +1015,12 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				}
 			}
 			xhr.send(params && params.data || null);
-			cancelFn = () => xhr.abort();
+			cancelFn = () => {
+				clearTimeout(loadTO);
+				xhr.abort();
+			};
 		} catch(e) {
+			clearTimeout(loadTO);
 			nativeXHRworks = false;
 			return $ajax(url, params, false);
 		}
@@ -5397,7 +5423,7 @@ function infoLoadErrors(e, showError = true) {
 	if(eCode === 200) {
 		closePopup('newposts');
 	} else if(isAjax && eCode === 0) {
-		$popup(e.message || Lng.noConnect[lang], 'newposts', false);
+		$popup(e.message ? String(e.message) : Lng.noConnect[lang], 'newposts', false);
 	} else {
 		$popup(Lng.thrNotFound[lang] + aib.t + '): \n' + getErrorMessage(e), 'newposts', false);
 		if(showError) {

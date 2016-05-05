@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '6d19bf1';
+	var commit = 'abc12e8';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3764,6 +3764,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return Lng.thrClosed[lang];
 		}
 	});
+	AjaxError.Timeout = new AjaxError(0, {
+		toString: function toString() {
+			return Lng.noConnect[lang] + ' (timeout)';
+		}
+	});
 
 	function $ajax(url) {
 		var params = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
@@ -3771,14 +3776,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		var resolve, reject, cancelFn;
 		if (!useNative && typeof GM_xmlhttpRequest === 'function') {
+			var toFunc = function toFunc() {
+				reject(AjaxError.Timeout);
+				try {
+					gmxhr.abort();
+				} catch (e) {}
+			};
+			var loadTO = setTimeout(toFunc, 1e4);
 			var obj = {
 				'method': params && params.method || 'GET',
 				'url': nav.fixLink(url),
-				'onload': function onload(e) {
-					if (e.status === 200 || aib.tiny && e.status === 400) {
-						resolve(e);
+				'onreadystatechange': function onreadystatechange(e) {
+					clearTimeout(loadTO);
+					if (e.readyState === 4) {
+						if (e.status === 200 || aib.tiny && e.status === 400) {
+							resolve(e);
+						} else {
+							reject(new AjaxError(e.status, e.statusText));
+						}
 					} else {
-						reject(new AjaxError(e.status, e.statusText));
+						loadTO = setTimeout(toFunc, 1e4);
 					}
 				}
 			};
@@ -3792,24 +3809,33 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			var gmxhr = GM_xmlhttpRequest(obj);
 			cancelFn = function () {
+				clearTimeout(loadTO);
 				try {
 					gmxhr.abort();
 				} catch (e) {}
 			};
 		} else {
 			var xhr = new XMLHttpRequest();
+			var toFunc = function toFunc() {
+				reject(AjaxError.Timeout);
+				xhr.abort();
+			};
+			var loadTO = setTimeout(toFunc, 1e4);
 			if (params && params.onprogress) {
 				xhr.upload.onprogress = params.onprogress;
 			}
 			xhr.onreadystatechange = function (_ref2) {
 				var target = _ref2.target;
 
+				clearTimeout(loadTO);
 				if (target.readyState === 4) {
 					if (target.status === 200 || aib.tiny && target.status === 400 || target.status === 0 && target.responseType === 'arraybuffer') {
 						resolve(target);
 					} else {
 						reject(new AjaxError(target.status, target.statusText));
 					}
+				} else {
+					loadTO = setTimeout(toFunc, 1e4);
 				}
 			};
 			try {
@@ -3829,9 +3855,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				xhr.send(params && params.data || null);
 				cancelFn = function () {
-					return xhr.abort();
+					clearTimeout(loadTO);
+					xhr.abort();
 				};
 			} catch (e) {
+				clearTimeout(loadTO);
 				nativeXHRworks = false;
 				return $ajax(url, params, false);
 			}
@@ -8509,7 +8537,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (eCode === 200) {
 			closePopup('newposts');
 		} else if (isAjax && eCode === 0) {
-			$popup(e.message || Lng.noConnect[lang], 'newposts', false);
+			$popup(e.message ? String(e.message) : Lng.noConnect[lang], 'newposts', false);
 		} else {
 			$popup(Lng.thrNotFound[lang] + aib.t + '): \n' + getErrorMessage(e), 'newposts', false);
 			if (showError) {
