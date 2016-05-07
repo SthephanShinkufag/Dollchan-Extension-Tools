@@ -5101,8 +5101,12 @@ Videos._getYTInfoAPI = function(info, num, id) {
 	}).catch(() => Videos._getYTInfoOembed(info, num, id));
 };
 Videos._getYTInfoOembed = function(info, num, id) {
-	return $ajax('http://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&format=json',
-	             null, false).then(xhr => {
+	return (nav.isGM ?
+		$ajax('http://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&format=json', null, false)
+	:
+		$ajax('http://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&callback=?', null, false)
+	).then(xhr =>
+	{
 		var json = JSON.parse(xhr.responseText);
 		return Videos._titlesLoaderHelper(info, num,
 		                                  json.title,
