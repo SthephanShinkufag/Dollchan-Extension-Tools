@@ -1,5 +1,4 @@
 var gulp = require('gulp');
-var jshint = require('gulp-jshint');
 var strip = require('gulp-strip-comments');
 var headerfooter = require('gulp-headerfooter');
 var replace = require('gulp-replace');
@@ -52,12 +51,6 @@ gulp.task('makeall', ['make'], function() {
 	return gulp.src('./Dollchan_Extension_Tools.user.js')
 		.pipe(replace('global.regenerator', 'window.regenerator'))
 		.pipe(gulp.dest('./dollchan-extension/data'))
-});
-
-gulp.task('lint', function() {
-	return gulp.src('src/Dollchan_Extension_Tools.es6.user.js')
-		.pipe(jshint({ esnext: true, elision: true, sub: true, supernew: true, curly: true }))
-		.pipe(jshint.reporter('default'));
 });
 
 gulp.task('watch', function() {
