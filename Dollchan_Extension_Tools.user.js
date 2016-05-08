@@ -2813,13 +2813,13 @@ process.umask = function() { return 0; };
 },{"_process":96}],98:[function(require,module,exports){
 'use strict';
 
-var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; })();
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -2856,7 +2856,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = 'abc12e8';
+	var commit = 'b4ce224';
 
 	var defaultCfg = {
 		'disabled': 0,
@@ -3603,6 +3603,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		},
 
+
 		_finished: false,
 		_marks: []
 	};
@@ -3649,7 +3650,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function CancelError() {}
 
-	var CancelablePromise = (function () {
+	var CancelablePromise = function () {
 		_createClass(CancelablePromise, null, [{
 			key: 'reject',
 			value: function reject(val) {
@@ -3738,9 +3739,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return CancelablePromise;
-	})();
+	}();
 
-	var AjaxError = (function () {
+	var AjaxError = function () {
 		function AjaxError(code, message) {
 			_classCallCheck(this, AjaxError);
 
@@ -3756,7 +3757,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return AjaxError;
-	})();
+	}();
 
 	AjaxError.Success = new AjaxError(200, 'OK');
 	AjaxError.Locked = new AjaxError(-1, {
@@ -3808,7 +3809,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				Object.assign(obj, params);
 			}
 			var gmxhr = GM_xmlhttpRequest(obj);
-			cancelFn = function () {
+			cancelFn = function cancelFn() {
 				clearTimeout(loadTO);
 				try {
 					gmxhr.abort();
@@ -3854,7 +3855,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 				}
 				xhr.send(params && params.data || null);
-				cancelFn = function () {
+				cancelFn = function cancelFn() {
 					clearTimeout(loadTO);
 					xhr.abort();
 				};
@@ -3890,7 +3891,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 	};
 
-	var TemporaryContent = (function () {
+	var TemporaryContent = function () {
 		function TemporaryContent(key) {
 			_classCallCheck(this, TemporaryContent);
 
@@ -3941,7 +3942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return TemporaryContent;
-	})();
+	}();
 
 	TemporaryContent.purgeSecs = 6e4;
 
@@ -4134,188 +4135,190 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var controls, fixName, i, len, field, tagName, type, name, options, _i, _len, option, files, dirname, dir;
 
 		return regeneratorRuntime.wrap(function getFormElements$(_context) {
-			while (1) switch (_context.prev = _context.next) {
-				case 0:
-					controls = $Q('button, input, keygen, object, select, textarea', form), fixName = function fixName(name) {
-						return name ? name.replace(/([^\r])\n|\r([^\n])/g, '$1\r\n$2') : '';
-					};
-					i = 0, len = controls.length;
+			while (1) {
+				switch (_context.prev = _context.next) {
+					case 0:
+						controls = $Q('button, input, keygen, object, select, textarea', form), fixName = function fixName(name) {
+							return name ? name.replace(/([^\r])\n|\r([^\n])/g, '$1\r\n$2') : '';
+						};
+						i = 0, len = controls.length;
 
-				case 2:
-					if (!(i < len)) {
-						_context.next = 56;
-						break;
-					}
+					case 2:
+						if (!(i < len)) {
+							_context.next = 56;
+							break;
+						}
 
-					field = controls[i], tagName = field.tagName.toLowerCase(), type = field.getAttribute('type'), name = field.getAttribute('name');
+						field = controls[i], tagName = field.tagName.toLowerCase(), type = field.getAttribute('type'), name = field.getAttribute('name');
 
-					if (!($parent(field, 'DATALIST', form) || isFormElDisabled(field) || (tagName === 'button' || tagName === 'input' && (type === 'submit' || type === 'reset' || type === 'button')) && field !== submitter || tagName === 'input' && (type === 'checkbox' && !field.checked || type === 'radio' && !field.checked || type === 'image' && !name) || tagName === 'object')) {
-						_context.next = 6;
-						break;
-					}
+						if (!($parent(field, 'DATALIST', form) || isFormElDisabled(field) || (tagName === 'button' || tagName === 'input' && (type === 'submit' || type === 'reset' || type === 'button')) && field !== submitter || tagName === 'input' && (type === 'checkbox' && !field.checked || type === 'radio' && !field.checked || type === 'image' && !name) || tagName === 'object')) {
+							_context.next = 6;
+							break;
+						}
 
-					return _context.abrupt('continue', 53);
+						return _context.abrupt('continue', 53);
 
-				case 6:
-					if (!(tagName === 'select')) {
-						_context.next = 19;
-						break;
-					}
+					case 6:
+						if (!(tagName === 'select')) {
+							_context.next = 19;
+							break;
+						}
 
-					options = $Q('select > option, select > optgrout > option', field);
-					_i = 0, _len = options.length;
+						options = $Q('select > option, select > optgrout > option', field);
+						_i = 0, _len = options.length;
 
-				case 9:
-					if (!(_i < _len)) {
-						_context.next = 17;
-						break;
-					}
+					case 9:
+						if (!(_i < _len)) {
+							_context.next = 17;
+							break;
+						}
 
-					option = options[_i];
+						option = options[_i];
 
-					if (!(option.selected && !isFormElDisabled(option))) {
+						if (!(option.selected && !isFormElDisabled(option))) {
+							_context.next = 14;
+							break;
+						}
+
 						_context.next = 14;
+						return {
+							el: field,
+							name: fixName(name),
+							value: option.value,
+							type: type
+						};
+
+					case 14:
+						++_i;
+						_context.next = 9;
 						break;
-					}
 
-					_context.next = 14;
-					return {
-						el: field,
-						name: fixName(name),
-						value: option.value,
-						type: type
-					};
-
-				case 14:
-					++_i;
-					_context.next = 9;
-					break;
-
-				case 17:
-					_context.next = 41;
-					break;
-
-				case 19:
-					if (!(tagName === 'input')) {
+					case 17:
 						_context.next = 41;
 						break;
-					}
 
-					_context.t0 = type;
-					_context.next = _context.t0 === 'image' ? 23 : _context.t0 === 'checkbox' ? 24 : _context.t0 === 'radio' ? 24 : _context.t0 === 'file' ? 27 : 41;
-					break;
+					case 19:
+						if (!(tagName === 'input')) {
+							_context.next = 41;
+							break;
+						}
 
-				case 23:
-					throw new Error('input[type="image"] is not supported');
-
-				case 24:
-					_context.next = 26;
-					return {
-						el: field,
-						name: fixName(name),
-						value: field.value || 'on',
-						type: type
-					};
-
-				case 26:
-					return _context.abrupt('continue', 53);
-
-				case 27:
-					if (!(field.files.length > 0)) {
-						_context.next = 38;
+						_context.t0 = type;
+						_context.next = _context.t0 === 'image' ? 23 : _context.t0 === 'checkbox' ? 24 : _context.t0 === 'radio' ? 24 : _context.t0 === 'file' ? 27 : 41;
 						break;
-					}
 
-					files = field.files;
-					_i = 0, _len = files.length;
+					case 23:
+						throw new Error('input[type="image"] is not supported');
 
-				case 30:
-					if (!(_i < _len)) {
-						_context.next = 36;
+					case 24:
+						_context.next = 26;
+						return {
+							el: field,
+							name: fixName(name),
+							value: field.value || 'on',
+							type: type
+						};
+
+					case 26:
+						return _context.abrupt('continue', 53);
+
+					case 27:
+						if (!(field.files.length > 0)) {
+							_context.next = 38;
+							break;
+						}
+
+						files = field.files;
+						_i = 0, _len = files.length;
+
+					case 30:
+						if (!(_i < _len)) {
+							_context.next = 36;
+							break;
+						}
+
+						_context.next = 33;
+						return {
+							el: field,
+							name: name,
+							value: files[_i],
+							type: type
+						};
+
+					case 33:
+						++_i;
+						_context.next = 30;
 						break;
-					}
 
-					_context.next = 33;
-					return {
-						el: field,
-						name: name,
-						value: files[_i],
-						type: type
-					};
-
-				case 33:
-					++_i;
-					_context.next = 30;
-					break;
-
-				case 36:
-					_context.next = 40;
-					break;
-
-				case 38:
-					_context.next = 40;
-					return {
-						el: field,
-						name: fixName(name),
-						value: new File([''], ''),
-						type: 'application/octet-stream'
-					};
-
-				case 40:
-					return _context.abrupt('continue', 53);
-
-				case 41:
-					if (!(type === 'textarea')) {
-						_context.next = 46;
+					case 36:
+						_context.next = 40;
 						break;
-					}
 
-					_context.next = 44;
-					return {
-						el: field,
-						name: name || '',
-						value: field.value,
-						type: type
-					};
+					case 38:
+						_context.next = 40;
+						return {
+							el: field,
+							name: fixName(name),
+							value: new File([''], ''),
+							type: 'application/octet-stream'
+						};
 
-				case 44:
-					_context.next = 48;
-					break;
+					case 40:
+						return _context.abrupt('continue', 53);
 
-				case 46:
-					_context.next = 48;
-					return {
-						el: field,
-						name: fixName(name),
-						value: field.value,
-						type: type
-					};
+					case 41:
+						if (!(type === 'textarea')) {
+							_context.next = 46;
+							break;
+						}
 
-				case 48:
-					dirname = field.getAttribute('dirname');
+						_context.next = 44;
+						return {
+							el: field,
+							name: name || '',
+							value: field.value,
+							type: type
+						};
 
-					if (!dirname) {
+					case 44:
+						_context.next = 48;
+						break;
+
+					case 46:
+						_context.next = 48;
+						return {
+							el: field,
+							name: fixName(name),
+							value: field.value,
+							type: type
+						};
+
+					case 48:
+						dirname = field.getAttribute('dirname');
+
+						if (!dirname) {
+							_context.next = 53;
+							break;
+						}
+
+						dir = nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr';
 						_context.next = 53;
+						return {
+							el: field,
+							name: fixName(dirname),
+							value: dir,
+							type: 'direction'
+						};
+
+					case 53:
+						++i;
+						_context.next = 2;
 						break;
-					}
 
-					dir = nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr';
-					_context.next = 53;
-					return {
-						el: field,
-						name: fixName(dirname),
-						value: dir,
-						type: 'direction'
-					};
-
-				case 53:
-					++i;
-					_context.next = 2;
-					break;
-
-				case 56:
-				case 'end':
-					return _context.stop();
+					case 56:
+					case 'end':
+						return _context.stop();
+				}
 			}
 		}, _marked[0], this);
 	}
@@ -4402,51 +4405,53 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function getStored(id) {
 		return regeneratorRuntime.wrap(function getStored$(_context2) {
-			while (1) switch (_context2.prev = _context2.next) {
-				case 0:
-					if (!nav.isGM) {
-						_context2.next = 4;
-						break;
-					}
+			while (1) {
+				switch (_context2.prev = _context2.next) {
+					case 0:
+						if (!nav.isGM) {
+							_context2.next = 4;
+							break;
+						}
 
-					return _context2.abrupt('return', GM_getValue(id));
+						return _context2.abrupt('return', GM_getValue(id));
 
-				case 4:
-					if (!nav.isChromeStorage) {
-						_context2.next = 10;
-						break;
-					}
+					case 4:
+						if (!nav.isChromeStorage) {
+							_context2.next = 10;
+							break;
+						}
 
-					_context2.next = 7;
-					return new Promise(function (resolve, reject) {
-						chrome.storage.local.get(id, function (obj) {
-							if (Object.keys(obj).length) {
-								resolve(obj[id]);
-							} else {
-								chrome.storage.sync.get(id, function (obj) {
+						_context2.next = 7;
+						return new Promise(function (resolve, reject) {
+							chrome.storage.local.get(id, function (obj) {
+								if (Object.keys(obj).length) {
 									resolve(obj[id]);
-								});
-							}
+								} else {
+									chrome.storage.sync.get(id, function (obj) {
+										resolve(obj[id]);
+									});
+								}
+							});
 						});
-					});
 
-				case 7:
-					return _context2.abrupt('return', _context2.sent);
+					case 7:
+						return _context2.abrupt('return', _context2.sent);
 
-				case 10:
-					if (!nav.isScriptStorage) {
-						_context2.next = 12;
-						break;
-					}
+					case 10:
+						if (!nav.isScriptStorage) {
+							_context2.next = 12;
+							break;
+						}
 
-					return _context2.abrupt('return', scriptStorage.getItem(id));
+						return _context2.abrupt('return', scriptStorage.getItem(id));
 
-				case 12:
-					return _context2.abrupt('return', locStorage[id]);
+					case 12:
+						return _context2.abrupt('return', locStorage[id]);
 
-				case 13:
-				case 'end':
-					return _context2.stop();
+					case 13:
+					case 'end':
+						return _context2.stop();
+				}
 			}
 		}, _marked[1], this);
 	}
@@ -4485,38 +4490,40 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function getStoredObj(id) {
 		return regeneratorRuntime.wrap(function getStoredObj$(_context3) {
-			while (1) switch (_context3.prev = _context3.next) {
-				case 0:
-					_context3.t1 = JSON;
-					return _context3.delegateYield(getStored(id), 't3', 2);
+			while (1) {
+				switch (_context3.prev = _context3.next) {
+					case 0:
+						_context3.t1 = JSON;
+						return _context3.delegateYield(getStored(id), 't3', 2);
 
-				case 2:
-					_context3.t2 = _context3.t3;
+					case 2:
+						_context3.t2 = _context3.t3;
 
-					if (_context3.t2) {
-						_context3.next = 5;
-						break;
-					}
+						if (_context3.t2) {
+							_context3.next = 5;
+							break;
+						}
 
-					_context3.t2 = '{}';
+						_context3.t2 = '{}';
 
-				case 5:
-					_context3.t4 = _context3.t2;
-					_context3.t0 = _context3.t1.parse.call(_context3.t1, _context3.t4);
+					case 5:
+						_context3.t4 = _context3.t2;
+						_context3.t0 = _context3.t1.parse.call(_context3.t1, _context3.t4);
 
-					if (_context3.t0) {
-						_context3.next = 9;
-						break;
-					}
+						if (_context3.t0) {
+							_context3.next = 9;
+							break;
+						}
 
-					_context3.t0 = {};
+						_context3.t0 = {};
 
-				case 9:
-					return _context3.abrupt('return', _context3.t0);
+					case 9:
+						return _context3.abrupt('return', _context3.t0);
 
-				case 10:
-				case 'end':
-					return _context3.stop();
+					case 10:
+					case 'end':
+						return _context3.stop();
+				}
 			}
 		}, _marked[2], this);
 	}
@@ -4542,71 +4549,73 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function readCfg() {
 		var obj, val;
 		return regeneratorRuntime.wrap(function readCfg$(_context4) {
-			while (1) switch (_context4.prev = _context4.next) {
-				case 0:
-					return _context4.delegateYield(getStoredObj('DESU_Config'), 't0', 1);
+			while (1) {
+				switch (_context4.prev = _context4.next) {
+					case 0:
+						return _context4.delegateYield(getStoredObj('DESU_Config'), 't0', 1);
 
-				case 1:
-					val = _context4.t0;
+					case 1:
+						val = _context4.t0;
 
-					if (!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
-						obj = nav.isGlobal ? val.global || {} : {};
-						obj.captchaLang = aib.ru ? 2 : 1;
-						obj.correctTime = 0;
-					}
-					defaultCfg.language = +!String(navigator.language).toLowerCase().startsWith('ru');
-					Cfg = Object.assign(Object.create(defaultCfg), obj);
-					if (!Cfg.timeOffset) {
-						Cfg.timeOffset = '+0';
-					}
-					if (!Cfg.timePattern) {
-						Cfg.timePattern = aib.timePattern;
-					}
-					if (aib.prot !== 'http:') {
-						Cfg.addVocaroo = 0;
-					}
-					if (!('Notification' in window)) {
-						Cfg.desktNotif = 0;
-					}
-					if (nav.Presto) {
-						if (Cfg.YTubeType === 2) {
-							Cfg.YTubeType = 1;
+						if (!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
+							obj = nav.isGlobal ? val.global || {} : {};
+							obj.captchaLang = aib.ru ? 2 : 1;
+							obj.correctTime = 0;
 						}
-						Cfg.preLoadImgs = 0;
-						Cfg.findImgFile = 0;
-						if (!nav.isGM) {
+						defaultCfg.language = +!String(navigator.language).toLowerCase().startsWith('ru');
+						Cfg = Object.assign(Object.create(defaultCfg), obj);
+						if (!Cfg.timeOffset) {
+							Cfg.timeOffset = '+0';
+						}
+						if (!Cfg.timePattern) {
+							Cfg.timePattern = aib.timePattern;
+						}
+						if (aib.prot !== 'http:') {
+							Cfg.addVocaroo = 0;
+						}
+						if (!('Notification' in window)) {
+							Cfg.desktNotif = 0;
+						}
+						if (nav.Presto) {
+							if (Cfg.YTubeType === 2) {
+								Cfg.YTubeType = 1;
+							}
+							Cfg.preLoadImgs = 0;
+							Cfg.findImgFile = 0;
+							if (!nav.isGM) {
+								Cfg.updScript = 0;
+							}
+							Cfg.fileThumb = 0;
+						}
+						if (nav.isChromeStorage) {
 							Cfg.updScript = 0;
 						}
-						Cfg.fileThumb = 0;
-					}
-					if (nav.isChromeStorage) {
-						Cfg.updScript = 0;
-					}
-					if (Cfg.updThrDelay < 10) {
-						Cfg.updThrDelay = 10;
-					}
-					if (!Cfg.saveSage) {
-						Cfg.sageReply = 0;
-					}
-					if (!Cfg.passwValue) {
-						Cfg.passwValue = Math.round(Math.random() * 1e15).toString(32);
-					}
-					if (!Cfg.stats) {
-						Cfg.stats = { 'view': 0, 'op': 0, 'reply': 0 };
-					}
-					setStored('DESU_Config', JSON.stringify(val));
-					lang = Cfg.language;
-					if (Cfg.updScript) {
-						checkForUpdates(false, val.lastUpd).then(function (html) {
-							return onDOMLoaded(function () {
-								return $popup(html, 'updavail');
-							});
-						}, emptyFn);
-					}
+						if (Cfg.updThrDelay < 10) {
+							Cfg.updThrDelay = 10;
+						}
+						if (!Cfg.saveSage) {
+							Cfg.sageReply = 0;
+						}
+						if (!Cfg.passwValue) {
+							Cfg.passwValue = Math.round(Math.random() * 1e15).toString(32);
+						}
+						if (!Cfg.stats) {
+							Cfg.stats = { 'view': 0, 'op': 0, 'reply': 0 };
+						}
+						setStored('DESU_Config', JSON.stringify(val));
+						lang = Cfg.language;
+						if (Cfg.updScript) {
+							checkForUpdates(false, val.lastUpd).then(function (html) {
+								return onDOMLoaded(function () {
+									return $popup(html, 'updavail');
+								});
+							}, emptyFn);
+						}
 
-				case 18:
-				case 'end':
-					return _context4.stop();
+					case 18:
+					case 'end':
+						return _context4.stop();
+				}
 			}
 		}, _marked[3], this);
 	}
@@ -4622,142 +4631,144 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function readPostsData(firstPost) {
 		var sVis, json, str, b, spellsHide, updateFav, fav, favBrd, maybeSpells, post, num, f, thr, lastPost, uHideData, hideData;
 		return regeneratorRuntime.wrap(function readPostsData$(_context5) {
-			while (1) switch (_context5.prev = _context5.next) {
-				case 0:
-					sVis = null;
+			while (1) {
+				switch (_context5.prev = _context5.next) {
+					case 0:
+						sVis = null;
 
-					try {
-						str = aib.t ? sesStorage['de-hidden-' + aib.b + aib.t] : null;
+						try {
+							str = aib.t ? sesStorage['de-hidden-' + aib.b + aib.t] : null;
 
-						if (str) {
-							json = JSON.parse(str);
-							if (json['hash'] === (Cfg.hideBySpell ? Spells.hash : 0) && pByNum.has(json['lastNum']) && pByNum.get(json['lastNum']).count === json['lastCount']) {
-								sVis = json['data'] && json['data'][0] instanceof Array ? json['data'] : null;
-							}
-						}
-					} catch (e) {
-						sesStorage['de-hidden-' + aib.b + aib.t] = null;
-					}
-					b = aib.b, spellsHide = Cfg.hideBySpell;
-
-					if (firstPost) {
-						_context5.next = 5;
-						break;
-					}
-
-					return _context5.abrupt('return');
-
-				case 5:
-					updateFav = false;
-					return _context5.delegateYield(getStoredObj('DESU_Favorites'), 't0', 7);
-
-				case 7:
-					fav = _context5.t0;
-					favBrd = aib.host in fav && b in fav[aib.host] ? fav[aib.host][b] : {};
-					maybeSpells = new Maybe(SpellsRunner);
-					post = firstPost;
-
-				case 11:
-					if (!post) {
-						_context5.next = 31;
-						break;
-					}
-
-					num = post.num;
-
-					if (post.isOp && num in favBrd) {
-						f = favBrd[num], thr = post.thr;
-
-						post.setFavBtn(true);
-						if (aib.t) {
-							f.cnt = thr.pcount;
-							f['new'] = 0;
-							if (Cfg.markNewPosts && f.last) {
-								lastPost = pByNum.get(+f.last.match(/\d+/));
-
-								if (lastPost) {
-									while (lastPost = lastPost.next) {
-										Post.addMark(lastPost.el, true);
-									}
+							if (str) {
+								json = JSON.parse(str);
+								if (json['hash'] === (Cfg.hideBySpell ? Spells.hash : 0) && pByNum.has(json['lastNum']) && pByNum.get(json['lastNum']).count === json['lastCount']) {
+									sVis = json['data'] && json['data'][0] instanceof Array ? json['data'] : null;
 								}
 							}
-							f.last = aib.anchor + thr.last.num;
-						} else {
-							f['new'] = thr.pcount - f.cnt;
+						} catch (e) {
+							sesStorage['de-hidden-' + aib.b + aib.t] = null;
 						}
-						updateFav = true;
-					}
+						b = aib.b, spellsHide = Cfg.hideBySpell;
 
-					if (!HiddenPosts.has(num)) {
-						_context5.next = 18;
+						if (firstPost) {
+							_context5.next = 5;
+							break;
+						}
+
+						return _context5.abrupt('return');
+
+					case 5:
+						updateFav = false;
+						return _context5.delegateYield(getStoredObj('DESU_Favorites'), 't0', 7);
+
+					case 7:
+						fav = _context5.t0;
+						favBrd = aib.host in fav && b in fav[aib.host] ? fav[aib.host][b] : {};
+						maybeSpells = new Maybe(SpellsRunner);
+						post = firstPost;
+
+					case 11:
+						if (!post) {
+							_context5.next = 31;
+							break;
+						}
+
+						num = post.num;
+
+						if (post.isOp && num in favBrd) {
+							f = favBrd[num], thr = post.thr;
+
+							post.setFavBtn(true);
+							if (aib.t) {
+								f.cnt = thr.pcount;
+								f['new'] = 0;
+								if (Cfg.markNewPosts && f.last) {
+									lastPost = pByNum.get(+f.last.match(/\d+/));
+
+									if (lastPost) {
+										while (lastPost = lastPost.next) {
+											Post.addMark(lastPost.el, true);
+										}
+									}
+								}
+								f.last = aib.anchor + thr.last.num;
+							} else {
+								f['new'] = thr.pcount - f.cnt;
+							}
+							updateFav = true;
+						}
+
+						if (!HiddenPosts.has(num)) {
+							_context5.next = 18;
+							break;
+						}
+
+						uHideData = HiddenPosts.get(num);
+
+						if (!uHideData && post.isOp && HiddenThreads.has(num)) {
+							post.setUserVisib(true);
+						} else {
+							post.setUserVisib(uHideData, false);
+						}
+						return _context5.abrupt('continue', 28);
+
+					case 18:
+						if (!post.isOp) {
+							_context5.next = 22;
+							break;
+						}
+
+						if (HiddenThreads.has(num)) {
+							hideData = [true, null];
+						} else if (spellsHide) {
+							hideData = sVis && sVis[post.count];
+						}
+						_context5.next = 27;
 						break;
-					}
 
-					uHideData = HiddenPosts.get(num);
+					case 22:
+						if (!spellsHide) {
+							_context5.next = 26;
+							break;
+						}
 
-					if (!uHideData && post.isOp && HiddenThreads.has(num)) {
-						post.setUserVisib(true);
-					} else {
-						post.setUserVisib(uHideData, false);
-					}
-					return _context5.abrupt('continue', 28);
-
-				case 18:
-					if (!post.isOp) {
-						_context5.next = 22;
-						break;
-					}
-
-					if (HiddenThreads.has(num)) {
-						hideData = [true, null];
-					} else if (spellsHide) {
 						hideData = sVis && sVis[post.count];
-					}
-					_context5.next = 27;
-					break;
-
-				case 22:
-					if (!spellsHide) {
-						_context5.next = 26;
+						_context5.next = 27;
 						break;
-					}
 
-					hideData = sVis && sVis[post.count];
-					_context5.next = 27;
-					break;
+					case 26:
+						return _context5.abrupt('continue', 28);
 
-				case 26:
-					return _context5.abrupt('continue', 28);
-
-				case 27:
-					if (!hideData) {
-						maybeSpells.value.run(post);
-					} else if (hideData[0]) {
-						if (post.hidden) {
-							post.spellHidden = true;
-						} else {
-							post.spellHide(hideData[1]);
+					case 27:
+						if (!hideData) {
+							maybeSpells.value.run(post);
+						} else if (hideData[0]) {
+							if (post.hidden) {
+								post.spellHidden = true;
+							} else {
+								post.spellHide(hideData[1]);
+							}
 						}
-					}
 
-				case 28:
-					post = post.next;
-					_context5.next = 11;
-					break;
+					case 28:
+						post = post.next;
+						_context5.next = 11;
+						break;
 
-				case 31:
-					maybeSpells.end();
-					if (updateFav) {
-						setStored('DESU_Favorites', JSON.stringify(fav));
-					}
-					if (sesStorage['de-win-fav'] === '1') {
-						toggleWindow('fav', false, null, true);
-						sesStorage.removeItem('de-win-fav');
-					}
+					case 31:
+						maybeSpells.end();
+						if (updateFav) {
+							setStored('DESU_Favorites', JSON.stringify(fav));
+						}
+						if (sesStorage['de-win-fav'] === '1') {
+							toggleWindow('fav', false, null, true);
+							sesStorage.removeItem('de-win-fav');
+						}
 
-				case 34:
-				case 'end':
-					return _context5.stop();
+					case 34:
+					case 'end':
+						return _context5.stop();
+				}
 			}
 		}, _marked[4], this);
 	}
@@ -4809,7 +4820,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-	var PostsStorage = (function (_ref3) {
+	var PostsStorage = function (_ref3) {
 		_inherits(PostsStorage, _ref3);
 
 		function PostsStorage() {
@@ -4936,14 +4947,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return PostsStorage;
-	})(null);
+	}(null);
 
 	PostsStorage.storageName = '';
 	PostsStorage.__cachedTime = null;
 	PostsStorage._cachedStorage = null;
 	PostsStorage._cacheTO = null;
 
-	var HiddenPosts = (function (_PostsStorage) {
+	var HiddenPosts = function (_PostsStorage) {
 		_inherits(HiddenPosts, _PostsStorage);
 
 		function HiddenPosts() {
@@ -4990,11 +5001,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return HiddenPosts;
-	})(PostsStorage);
+	}(PostsStorage);
 
 	HiddenPosts.storageName = 'de-posts-new';
 
-	var HiddenThreads = (function (_PostsStorage2) {
+	var HiddenThreads = function (_PostsStorage2) {
 		_inherits(HiddenThreads, _PostsStorage2);
 
 		function HiddenThreads() {
@@ -5062,11 +5073,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return HiddenThreads;
-	})(PostsStorage);
+	}(PostsStorage);
 
 	HiddenPosts.storageName = 'de-threads-new';
 
-	var MyPosts = (function (_PostsStorage3) {
+	var MyPosts = function (_PostsStorage3) {
 		_inherits(MyPosts, _PostsStorage3);
 
 		function MyPosts() {
@@ -5147,7 +5158,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return MyPosts;
-	})(PostsStorage);
+	}(PostsStorage);
 
 	MyPosts.storageName = 'de-myposts-new';
 	MyPosts._cachedData = null;
@@ -6605,7 +6616,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var el = $popup('<b>' + Lng.editor[name][lang] + '</b>' + '<textarea class="de-editor"></textarea>', 'edit-' + name, false),
 				    ta = el.lastChild;
 				ta.value = isJSON ? JSON.stringify(val, null, '\t') : val;
-				el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], isJSON ? (function (fun) {
+				el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], isJSON ? function (fun) {
 					var data;
 					try {
 						data = JSON.parse(this.value.trim().replace(/[\n\r\t]/g, '') || '{}');
@@ -6618,7 +6629,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							$popup(Lng.invalidData[lang], 'err-invaliddata', false);
 						}
 					}
-				}).bind(ta, saveFn) : saveFn.bind(ta)));
+				}.bind(ta, saveFn) : saveFn.bind(ta)));
 			});
 		}, className);
 	}
@@ -8192,7 +8203,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		});
 	};
 	Videos._getYTInfoOembed = function (info, num, id) {
-		return $ajax('http://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&format=json', null, false).then(function (xhr) {
+		return (nav.isGM ? $ajax('http://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&format=json', null, false) : $ajax('http://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&callback=?')).then(function (xhr) {
 			var json = JSON.parse(xhr.responseText);
 			return Videos._titlesLoaderHelper(info, num, json.title, json.author_name, null, null, null);
 		})['catch'](function () {
@@ -9719,7 +9730,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 	};
 
-	var SpellsRunner = (function () {
+	var SpellsRunner = function () {
 		_createClass(SpellsRunner, null, [{
 			key: 'unhideAll',
 			value: function unhideAll() {
@@ -9840,7 +9851,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return SpellsRunner;
-	})();
+	}();
 
 	SpellsRunner.cachedData = null;
 
@@ -9908,6 +9919,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return [this.hasNumSpell, rv, rv ? this._getMsg() : null];
 			}
 		},
+
 
 		_wipeMsg: null,
 		_asyncContinue: function _asyncContinue(val) {
@@ -10903,6 +10915,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			$q('a', this._pBtn[+!this.isBottom]).className = txt + rep;
 		},
 
+
 		_pBtn: [],
 		_setSage: function _setSage() {
 			var el = $id('de-sagebtn'),
@@ -10961,7 +10974,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 	};
 
-	var Files = (function () {
+	var Files = function () {
 		function Files(form, fileEl) {
 			_classCallCheck(this, Files);
 
@@ -11060,9 +11073,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return Files;
-	})();
+	}();
 
-	var FileInput = (function () {
+	var FileInput = function () {
 		function FileInput(parent, el) {
 			_classCallCheck(this, FileInput);
 
@@ -11357,12 +11370,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return FileInput;
-	})();
+	}();
 
 
 
 
-	var Captcha = (function () {
+	var Captcha = function () {
 		function Captcha(el, initNum) {
 			_classCallCheck(this, Captcha);
 
@@ -11608,7 +11621,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return Captcha;
-	})();
+	}();
 
 
 
@@ -11868,117 +11881,119 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var formData, hasFiles, _iterator26, _isArray26, _i27, _ref46, _ref47, name, value, type, el, fileName, newFileName, data, ajaxParams, xhr;
 
 		return regeneratorRuntime.wrap(function html5Submit$(_context15) {
-			while (1) switch (_context15.prev = _context15.next) {
-				case 0:
-					formData = new FormData();
-					hasFiles = false;
-					_iterator26 = getFormElements(form, submitter), _isArray26 = Array.isArray(_iterator26), _i27 = 0, _iterator26 = _isArray26 ? _iterator26 : _iterator26[Symbol.iterator]();
+			while (1) {
+				switch (_context15.prev = _context15.next) {
+					case 0:
+						formData = new FormData();
+						hasFiles = false;
+						_iterator26 = getFormElements(form, submitter), _isArray26 = Array.isArray(_iterator26), _i27 = 0, _iterator26 = _isArray26 ? _iterator26 : _iterator26[Symbol.iterator]();
 
-				case 3:
-					if (!_isArray26) {
-						_context15.next = 9;
+					case 3:
+						if (!_isArray26) {
+							_context15.next = 9;
+							break;
+						}
+
+						if (!(_i27 >= _iterator26.length)) {
+							_context15.next = 6;
+							break;
+						}
+
+						return _context15.abrupt('break', 36);
+
+					case 6:
+						_ref46 = _iterator26[_i27++];
+						_context15.next = 13;
 						break;
-					}
 
-					if (!(_i27 >= _iterator26.length)) {
-						_context15.next = 6;
-						break;
-					}
+					case 9:
+						_i27 = _iterator26.next();
 
-					return _context15.abrupt('break', 36);
+						if (!_i27.done) {
+							_context15.next = 12;
+							break;
+						}
 
-				case 6:
-					_ref46 = _iterator26[_i27++];
-					_context15.next = 13;
-					break;
+						return _context15.abrupt('break', 36);
 
-				case 9:
-					_i27 = _iterator26.next();
+					case 12:
+						_ref46 = _i27.value;
 
-					if (!_i27.done) {
-						_context15.next = 12;
-						break;
-					}
+					case 13:
+						_ref47 = _ref46;
+						name = _ref47.name;
+						value = _ref47.value;
+						type = _ref47.type;
+						el = _ref47.el;
 
-					return _context15.abrupt('break', 36);
+						if (!(type === 'file')) {
+							_context15.next = 33;
+							break;
+						}
 
-				case 12:
-					_ref46 = _i27.value;
+						hasFiles = true;
+						fileName = value.name, newFileName = Cfg.removeFName ? ' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
 
-				case 13:
-					_ref47 = _ref46;
-					name = _ref47.name;
-					value = _ref47.value;
-					type = _ref47.type;
-					el = _ref47.el;
+						if (!(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) && (Cfg.postSameImg || Cfg.removeEXIF))) {
+							_context15.next = 32;
+							break;
+						}
 
-					if (!(type === 'file')) {
+						_context15.next = 24;
+						return readFile(value);
+
+					case 24:
+						_context15.t0 = _context15.sent.data;
+						_context15.t1 = el.obj.imgFile;
+						data = cleanFile(_context15.t0, _context15.t1);
+
+						if (data) {
+							_context15.next = 29;
+							break;
+						}
+
+						return _context15.abrupt('return', Promise.reject(Lng.fileCorrupt[lang] + fileName));
+
+					case 29:
+						value = new File(data, newFileName);
 						_context15.next = 33;
 						break;
-					}
 
-					hasFiles = true;
-					fileName = value.name, newFileName = Cfg.removeFName ? ' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
+					case 32:
+						if (Cfg.removeFName) {
+							value = new File([value], newFileName);
+						}
 
-					if (!(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) && (Cfg.postSameImg || Cfg.removeEXIF))) {
-						_context15.next = 32;
+					case 33:
+						formData.append(name, value);
+
+					case 34:
+						_context15.next = 3;
 						break;
-					}
 
-					_context15.next = 24;
-					return readFile(value);
+					case 36:
+						ajaxParams = { method: 'POST', data: formData };
 
-				case 24:
-					_context15.t0 = _context15.sent.data;
-					_context15.t1 = el.obj.imgFile;
-					data = cleanFile(_context15.t0, _context15.t1);
+						if (needProgress && hasFiles) {
+							ajaxParams.onprogress = getUploadFunc();
+						}
+						_context15.prev = 38;
+						_context15.next = 41;
+						return $ajax(form.action, ajaxParams);
 
-					if (data) {
-						_context15.next = 29;
-						break;
-					}
+					case 41:
+						xhr = _context15.sent;
+						return _context15.abrupt('return', aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText));
 
-					return _context15.abrupt('return', Promise.reject(Lng.fileCorrupt[lang] + fileName));
+					case 45:
+						_context15.prev = 45;
+						_context15.t2 = _context15['catch'](38);
+						return _context15.abrupt('return', Promise.reject(_context15.t2));
 
-				case 29:
-					value = new File(data, newFileName);
-					_context15.next = 33;
-					break;
-
-				case 32:
-					if (Cfg.removeFName) {
-						value = new File([value], newFileName);
-					}
-
-				case 33:
-					formData.append(name, value);
-
-				case 34:
-					_context15.next = 3;
-					break;
-
-				case 36:
-					ajaxParams = { method: 'POST', data: formData };
-
-					if (needProgress && hasFiles) {
-						ajaxParams.onprogress = getUploadFunc();
-					}
-					_context15.prev = 38;
-					_context15.next = 41;
-					return $ajax(form.action, ajaxParams);
-
-				case 41:
-					xhr = _context15.sent;
-					return _context15.abrupt('return', aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText));
-
-				case 45:
-					_context15.prev = 45;
-					_context15.t2 = _context15['catch'](38);
-					return _context15.abrupt('return', Promise.reject(_context15.t2));
-
-				case 48:
-				case 'end':
-					return _context15.stop();
+					case 48:
+					case 'end':
+						return _context15.stop();
+				}
 			}
 		}, _marked[5], this, [[38, 45]]);
 	}
@@ -12327,6 +12342,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		},
 
+
 		_hasEvents: false,
 		_hideTmt: 0,
 		_hidden: true,
@@ -12416,6 +12432,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._remove(e);
 			this._show(data, showButtons);
 		},
+
 
 		_data: null,
 		_elStyle: null,
@@ -12561,7 +12578,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 	};
 
-	var ExpandableMedia = (function () {
+	var ExpandableMedia = function () {
 		function ExpandableMedia(post, el, prev) {
 			_classCallCheck(this, ExpandableMedia);
 
@@ -12863,9 +12880,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return ExpandableMedia;
-	})();
+	}();
 
-	var EmbeddedImage = (function (_ExpandableMedia) {
+	var EmbeddedImage = function (_ExpandableMedia) {
 		_inherits(EmbeddedImage, _ExpandableMedia);
 
 		function EmbeddedImage() {
@@ -12892,9 +12909,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return EmbeddedImage;
-	})(ExpandableMedia);
+	}(ExpandableMedia);
 
-	var Attachment = (function (_ExpandableMedia2) {
+	var Attachment = function (_ExpandableMedia2) {
 		_inherits(Attachment, _ExpandableMedia2);
 
 		function Attachment() {
@@ -12943,7 +12960,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return Attachment;
-	})(ExpandableMedia);
+	}(ExpandableMedia);
 
 	Attachment.viewer = null;
 
@@ -13153,7 +13170,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-	var AbstractPost = (function () {
+	var AbstractPost = function () {
 		function AbstractPost(thr, num, isOp) {
 			_classCallCheck(this, AbstractPost);
 
@@ -13544,9 +13561,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return AbstractPost;
-	})();
+	}();
 
-	var Post = (function (_AbstractPost) {
+	var Post = function (_AbstractPost) {
 		_inherits(Post, _AbstractPost);
 
 		_createClass(Post, null, [{
@@ -14068,9 +14085,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return Post;
-	})(AbstractPost);
+	}(AbstractPost);
 
-	Post.content = (function (_TemporaryContent) {
+	Post.content = function (_TemporaryContent) {
 		_inherits(PostContent, _TemporaryContent);
 
 		function PostContent(post) {
@@ -14149,10 +14166,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return PostContent;
-	})(TemporaryContent);
+	}(TemporaryContent);
 	Post.hasNew = false;
 	Post.hiddenNums = new Set();
-	Post.note = (function () {
+	Post.note = function () {
 		function PostNote(post) {
 			_classCallCheck(this, PostNote);
 
@@ -14210,7 +14227,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return PostNote;
-	})();
+	}();
 	Post.getWrds = function (text) {
 		return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').trim().substring(0, 800).split(' ');
 	};
@@ -14289,6 +14306,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.wWidth = doc.documentElement.clientWidth;
 		},
 
+
 		_enabled: false
 	};
 
@@ -14355,7 +14373,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-	var Pview = (function (_AbstractPost2) {
+	var Pview = function (_AbstractPost2) {
 		_inherits(Pview, _AbstractPost2);
 
 		_createClass(Pview, null, [{
@@ -14782,12 +14800,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return Pview;
-	})(AbstractPost);
+	}(AbstractPost);
 
 	Pview.top = null;
 	Pview._delTO = null;
 
-	var CacheItem = (function () {
+	var CacheItem = function () {
 		function CacheItem(el, count) {
 			_classCallCheck(this, CacheItem);
 
@@ -14823,9 +14841,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return CacheItem;
-	})();
+	}();
 
-	var PviewsCache = (function (_TemporaryContent2) {
+	var PviewsCache = function (_TemporaryContent2) {
 		_inherits(PviewsCache, _TemporaryContent2);
 
 		function PviewsCache(form, b, tNum) {
@@ -14878,14 +14896,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return PviewsCache;
-	})(TemporaryContent);
+	}(TemporaryContent);
 
 	PviewsCache.purgeSecs = 3e5;
 
 
 
 
-	var RefMap = (function () {
+	var RefMap = function () {
 		_createClass(RefMap, null, [{
 			key: 'gen',
 			value: function gen(posts, thrURL) {
@@ -15173,12 +15191,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return RefMap;
-	})();
+	}();
 
 
 
 
-	var Thread = (function () {
+	var Thread = function () {
 		_createClass(Thread, null, [{
 			key: 'removeSavedData',
 			value: function removeSavedData(brd, num) {
@@ -15739,7 +15757,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return Thread;
-	})();
+	}();
 
 	var navPanel = {
 		addThr: function addThr(thr) {
@@ -15784,6 +15802,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				doc.defaultView.removeEventListener('scroll', this);
 			}
 		},
+
 
 		_el: null,
 		_showhideTO: 0,
@@ -16025,7 +16044,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-	var BaseBoard = (function () {
+	var BaseBoard = function () {
 		function BaseBoard(prot, dm) {
 			_classCallCheck(this, BaseBoard);
 
@@ -16390,7 +16409,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return BaseBoard;
-	})();
+	}();
 
 	function getImageBoard(checkDomains, checkEngines) {
 		var ibDomains = {};
@@ -16398,7 +16417,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	
 
-		var Makaba = (function (_BaseBoard) {
+		var Makaba = function (_BaseBoard) {
 			_inherits(Makaba, _BaseBoard);
 
 			function Makaba(prot, dm) {
@@ -16588,13 +16607,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return Makaba;
-		})(BaseBoard);
+		}(BaseBoard);
 
 		ibEngines.push(['body.makaba', Makaba]);
 		ibDomains['2ch.hk'] = Makaba;
 		ibDomains['2ch.pm'] = Makaba;
 
-		var Futaba = (function (_BaseBoard2) {
+		var Futaba = function (_BaseBoard2) {
 			_inherits(Futaba, _BaseBoard2);
 
 			function Futaba(prot, dm) {
@@ -16658,11 +16677,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return Futaba;
-		})(BaseBoard);
+		}(BaseBoard);
 
 		ibEngines.push(['form[action*="futaba.php"]', Futaba]);
 
-		var Tinyboard = (function (_BaseBoard3) {
+		var Tinyboard = function (_BaseBoard3) {
 			_inherits(Tinyboard, _BaseBoard3);
 
 			function Tinyboard(prot, dm) {
@@ -16754,11 +16773,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return Tinyboard;
-		})(BaseBoard);
+		}(BaseBoard);
 
 		ibEngines.push(['form[name*="postcontrols"]', Tinyboard]);
 
-		var Vichan = (function (_Tinyboard) {
+		var Vichan = function (_Tinyboard) {
 			_inherits(Vichan, _Tinyboard);
 
 			function Vichan(prot, dm) {
@@ -16803,11 +16822,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return Vichan;
-		})(Tinyboard);
+		}(Tinyboard);
 
 		ibEngines.push(['tr#upload', Vichan]);
 
-		var Kusaba = (function (_BaseBoard4) {
+		var Kusaba = function (_BaseBoard4) {
 			_inherits(Kusaba, _BaseBoard4);
 
 			function Kusaba(prot, dm) {
@@ -16847,12 +16866,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return Kusaba;
-		})(BaseBoard);
+		}(BaseBoard);
 
 		ibEngines.push(['script[src*="kusaba"]', Kusaba]);
 		ibEngines.push(['form#delform[action$="/board.php"]', Kusaba]);
 
-		var _0chan = (function (_Kusaba) {
+		var _0chan = function (_Kusaba) {
 			_inherits(_0chan, _Kusaba);
 
 			function _0chan(prot, dm) {
@@ -16890,11 +16909,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return _0chan;
-		})(Kusaba);
+		}(Kusaba);
 
 		ibEngines.push(['.maintable[width="98%"]', _0chan]);
 
-		var Phutaba = (function (_BaseBoard5) {
+		var Phutaba = function (_BaseBoard5) {
 			_inherits(Phutaba, _BaseBoard5);
 
 			function Phutaba(prot, dm) {
@@ -16965,13 +16984,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return Phutaba;
-		})(BaseBoard);
+		}(BaseBoard);
 
 		ibEngines.push(['link[href$="phutaba.css"]', Phutaba]);
 
 	
 
-		var _0chanSo = (function (_chan) {
+		var _0chanSo = function (_chan) {
 			_inherits(_0chanSo, _chan);
 
 			function _0chanSo() {
@@ -16992,12 +17011,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return _0chanSo;
-		})(_0chan);
+		}(_0chan);
 
 		ibDomains['0-chan.ru'] = _0chanSo;
 		ibDomains['0chan.so'] = _0chanSo;
 
-		var _02chNet = (function (_BaseBoard6) {
+		var _02chNet = function (_BaseBoard6) {
 			_inherits(_02chNet, _BaseBoard6);
 
 			function _02chNet(prot, dm) {
@@ -17013,11 +17032,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			return _02chNet;
-		})(BaseBoard);
+		}(BaseBoard);
 
 		ibDomains['02ch.net'] = _02chNet;
 
-		var _02chSu = (function (_Kusaba2) {
+		var _02chSu = function (_Kusaba2) {
 			_inherits(_02chSu, _Kusaba2);
 
 			function _02chSu(prot, dm) {
@@ -17060,11 +17079,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return _02chSu;
-		})(Kusaba);
+		}(Kusaba);
 
 		ibDomains['02ch.su'] = _02chSu;
 
-		var _2chruNet = (function (_BaseBoard7) {
+		var _2chruNet = function (_BaseBoard7) {
 			_inherits(_2chruNet, _BaseBoard7);
 
 			function _2chruNet(prot, dm) {
@@ -17141,7 +17160,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return _2chruNet;
-		})(BaseBoard);
+		}(BaseBoard);
 
 		ibDomains['2chru.net'] = _2chruNet;
 		ibDomains['2-chru.net'] = _2chruNet;
@@ -17149,7 +17168,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		ibDomains['2-chru.cafe'] = _2chruNet;
 		ibDomains['dmirrgetyojz735v.onion'] = _2chruNet;
 
-		var _2chRu = (function (_BaseBoard8) {
+		var _2chRu = function (_BaseBoard8) {
 			_inherits(_2chRu, _BaseBoard8);
 
 			function _2chRu(prot, dm) {
@@ -17242,12 +17261,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return _2chRu;
-		})(BaseBoard);
+		}(BaseBoard);
 
 		ibDomains['2--ch.ru'] = _2chRu;
 		ibDomains['2-ch.su'] = _2chRu;
 
-		var _410chanOrg = (function (_Kusaba3) {
+		var _410chanOrg = function (_Kusaba3) {
 			_inherits(_410chanOrg, _Kusaba3);
 
 			function _410chanOrg(prot, dm) {
@@ -17287,11 +17306,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return _410chanOrg;
-		})(Kusaba);
+		}(Kusaba);
 
 		ibDomains['410chan.org'] = _410chanOrg;
 
-		var _4chanOrg = (function (_BaseBoard9) {
+		var _4chanOrg = function (_BaseBoard9) {
 			_inherits(_4chanOrg, _BaseBoard9);
 
 			function _4chanOrg(prot, dm) {
@@ -17414,12 +17433,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var el = $id('captchaFormPart'),
 					    value = null;
 					if (el) {
-						value = (function (el) {
+						value = function (el) {
 							$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
 							this.click();
 							$show(el);
 							return null;
-						}).bind($bEnd(docBody, '<div onclick="initRecaptcha();"></div>'), el);
+						}.bind($bEnd(docBody, '<div onclick="initRecaptcha();"></div>'), el);
 					}
 					Object.defineProperty(this, 'updateCaptcha', { value: value });
 					return value;
@@ -17427,11 +17446,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return _4chanOrg;
-		})(BaseBoard);
+		}(BaseBoard);
 
 		ibDomains['4chan.org'] = _4chanOrg;
 
-		var _8chNet = (function (_Vichan) {
+		var _8chNet = function (_Vichan) {
 			_inherits(_8chNet, _Vichan);
 
 			function _8chNet(prot, dm) {
@@ -17482,12 +17501,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return _8chNet;
-		})(Vichan);
+		}(Vichan);
 
 		ibDomains['8ch.net'] = _8chNet;
 		ibDomains['oxwugzccvk3dk6tj.onion'] = _8chNet;
 
-		var _7chanOrg = (function (_BaseBoard10) {
+		var _7chanOrg = function (_BaseBoard10) {
 			_inherits(_7chanOrg, _BaseBoard10);
 
 			function _7chanOrg() {
@@ -17504,11 +17523,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return _7chanOrg;
-		})(BaseBoard);
+		}(BaseBoard);
 
 		ibDomains['7chan.org'] = _7chanOrg;
 
-		var Arhivach = (function (_BaseBoard11) {
+		var Arhivach = function (_BaseBoard11) {
 			_inherits(Arhivach, _BaseBoard11);
 
 			function Arhivach(prot, dm) {
@@ -17545,12 +17564,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						var tLen = thumbs.length;
 						for (var _i34 = 0; _i34 < tLen; ++_i34) {
 							var thumb = thumbs[_i34];
-							var link = thumb.getAttribute('onclick').match(/http:\/[^']+/)[0];
+							var _link = thumb.getAttribute('onclick').match(/http:\/[^']+/)[0];
 							var div = thumb.firstElementChild;
 							var iframe = div.firstElementChild;
-							thumb.href = thumb.nextElementSibling.href = link;
+							thumb.href = thumb.nextElementSibling.href = _link;
 							if (iframe.tagName === 'IFRAME') {
-								div.innerHTML = '<img src="' + link.replace('/img/', '/thumb/') + '" width="' + iframe.width + '" height="' + iframe.height + '">';
+								div.innerHTML = '<img src="' + _link.replace('/img/', '/thumb/') + '" width="' + iframe.width + '" height="' + iframe.height + '">';
 							}
 						}
 					} catch (e) {}
@@ -17635,11 +17654,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return Arhivach;
-		})(BaseBoard);
+		}(BaseBoard);
 
 		ibDomains['arhivach.org'] = Arhivach;
 
-		var Diochan = (function (_Kusaba4) {
+		var Diochan = function (_Kusaba4) {
 			_inherits(Diochan, _Kusaba4);
 
 			function Diochan() {
@@ -17656,12 +17675,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return Diochan;
-		})(Kusaba);
+		}(Kusaba);
 
 		ibDomains['diochan.com'] = Diochan;
 		ibDomains['niuchan.org'] = Diochan;
 
-		var Dobrochan = (function (_BaseBoard12) {
+		var Dobrochan = function (_BaseBoard12) {
 			_inherits(Dobrochan, _BaseBoard12);
 
 			function Dobrochan(prot, dm) {
@@ -17788,13 +17807,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return Dobrochan;
-		})(BaseBoard);
+		}(BaseBoard);
 
 		ibDomains['dobrochan.com'] = Dobrochan;
 		ibDomains['dobrochan.org'] = Dobrochan;
 		ibDomains['dobrochan.ru'] = Dobrochan;
 
-		var DvaChNet = (function (_BaseBoard13) {
+		var DvaChNet = function (_BaseBoard13) {
 			_inherits(DvaChNet, _BaseBoard13);
 
 			function DvaChNet(prot, dm) {
@@ -17842,11 +17861,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return DvaChNet;
-		})(BaseBoard);
+		}(BaseBoard);
 
 		ibDomains['dva-ch.net'] = DvaChNet;
 
-		var Iichan = (function (_BaseBoard14) {
+		var Iichan = function (_BaseBoard14) {
 			_inherits(Iichan, _BaseBoard14);
 
 			function Iichan(prot, dm) {
@@ -17893,11 +17912,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return Iichan;
-		})(BaseBoard);
+		}(BaseBoard);
 
 		ibDomains['iichan.hk'] = Iichan;
 
-		var Krautchan = (function (_BaseBoard15) {
+		var Krautchan = function (_BaseBoard15) {
 			_inherits(Krautchan, _BaseBoard15);
 
 			function Krautchan(prot, dm) {
@@ -18073,11 +18092,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return Krautchan;
-		})(BaseBoard);
+		}(BaseBoard);
 
 		ibDomains['krautchan.net'] = Krautchan;
 
-		var Lainchan = (function (_Vichan2) {
+		var Lainchan = function (_Vichan2) {
 			_inherits(Lainchan, _Vichan2);
 
 			function Lainchan(prot, dm) {
@@ -18097,11 +18116,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return Lainchan;
-		})(Vichan);
+		}(Vichan);
 
 		ibDomains['lainchan.org'] = Lainchan;
 
-		var MlpgCo = (function (_Vichan3) {
+		var MlpgCo = function (_Vichan3) {
 			_inherits(MlpgCo, _Vichan3);
 
 			function MlpgCo(prot, dm) {
@@ -18114,11 +18133,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			return MlpgCo;
-		})(Vichan);
+		}(Vichan);
 
 		ibDomains['mlpg.co'] = MlpgCo;
 
-		var Ponyach = (function (_BaseBoard16) {
+		var Ponyach = function (_BaseBoard16) {
 			_inherits(Ponyach, _BaseBoard16);
 
 			function Ponyach(prot, dm) {
@@ -18214,7 +18233,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return Ponyach;
-		})(BaseBoard);
+		}(BaseBoard);
 
 		ibDomains['ponya.ch'] = Ponyach;
 		ibDomains['ponyach.cf'] = Ponyach;
@@ -18223,7 +18242,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		ibDomains['ponyach.ru'] = Ponyach;
 		ibDomains['ponychan.ru'] = Ponyach;
 
-		var Ponychan = (function (_Tinyboard2) {
+		var Ponychan = function (_Tinyboard2) {
 			_inherits(Ponychan, _Tinyboard2);
 
 			function Ponychan(prot, dm) {
@@ -18252,11 +18271,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return Ponychan;
-		})(Tinyboard);
+		}(Tinyboard);
 
 		ibDomains['ponychan.net'] = Ponychan;
 
-		var Synch = (function (_Tinyboard3) {
+		var Synch = function (_Tinyboard3) {
 			_inherits(Synch, _Tinyboard3);
 
 			function Synch(prot, dm) {
@@ -18298,13 +18317,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return Synch;
-		})(Tinyboard);
+		}(Tinyboard);
 
 		ibDomains['syn-ch.ru'] = Synch;
 		ibDomains['syn-ch.com'] = Synch;
 		ibDomains['syn-ch.org'] = Synch;
 
-		var Uchan = (function (_BaseBoard17) {
+		var Uchan = function (_BaseBoard17) {
 			_inherits(Uchan, _BaseBoard17);
 
 			function Uchan(prot, dm) {
@@ -18335,7 +18354,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}]);
 
 			return Uchan;
-		})(BaseBoard);
+		}(BaseBoard);
 
 		ibDomains['uchan.to'] = Uchan;
 
@@ -18476,7 +18495,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-	var DelForm = (function () {
+	var DelForm = function () {
 		_createClass(DelForm, null, [{
 			key: Symbol.iterator,
 			value: function value() {
@@ -18643,7 +18662,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}]);
 
 		return DelForm;
-	})();
+	}();
 
 	DelForm.tNums = new Set();
 
@@ -18686,6 +18705,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this._playInterval = null;
 				}
 			},
+
 
 			get _el() {
 				var value = $new('audio', { 'preload': 'auto', 'src': gitRaw + 'signal.ogg' }, null);
@@ -18732,6 +18752,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this._el.innerHTML = '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>';
 				}
 			},
+
 
 			_countingIV: null,
 			_countingTO: null,
@@ -18808,6 +18829,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this._isOriginalIcon = true;
 				}
 			},
+
 
 			_blinkInterval: null,
 			_blinkMS: 800,
@@ -18925,6 +18947,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			},
 
+
 			_granted: true,
 			_closeTO: null,
 			_notifEl: null,
@@ -18974,6 +18997,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 				}
 			},
+
 
 			_delay: 0,
 			_initDelay: 0,
@@ -19688,179 +19712,181 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function runMain(checkDomains, cfgPromise) {
 		var formEl, str;
 		return regeneratorRuntime.wrap(function runMain$(_context17) {
-			while (1) switch (_context17.prev = _context17.next) {
-				case 0:
-					Logger.init();
-					docBody = doc.body;
+			while (1) {
+				switch (_context17.prev = _context17.next) {
+					case 0:
+						Logger.init();
+						docBody = doc.body;
 
-					if (docBody) {
-						_context17.next = 4;
-						break;
-					}
+						if (docBody) {
+							_context17.next = 4;
+							break;
+						}
 
-					return _context17.abrupt('return');
+						return _context17.abrupt('return');
 
-				case 4:
-					if (!aib) {
-						aib = getImageBoard(checkDomains, true);
-					}
-					formEl = $q(aib.qDForm + ', form[de-form]');
+					case 4:
+						if (!aib) {
+							aib = getImageBoard(checkDomains, true);
+						}
+						formEl = $q(aib.qDForm + ', form[de-form]');
 
-					if (formEl) {
-						_context17.next = 8;
-						break;
-					}
+						if (formEl) {
+							_context17.next = 8;
+							break;
+						}
 
-					return _context17.abrupt('return');
+						return _context17.abrupt('return');
 
-				case 8:
-					Logger.log('Imageboard check');
+					case 8:
+						Logger.log('Imageboard check');
 
-					if (locStorage) {
-						_context17.next = 13;
-						break;
-					}
+						if (locStorage) {
+							_context17.next = 13;
+							break;
+						}
 
-					if (checkStorage()) {
-						_context17.next = 12;
-						break;
-					}
+						if (checkStorage()) {
+							_context17.next = 12;
+							break;
+						}
 
-					return _context17.abrupt('return');
+						return _context17.abrupt('return');
 
-				case 12:
-					initNavFuncs();
+					case 12:
+						initNavFuncs();
 
-				case 13:
-					return _context17.delegateYield(getStored('DESU_Exclude'), 't0', 14);
+					case 13:
+						return _context17.delegateYield(getStored('DESU_Exclude'), 't0', 14);
 
-				case 14:
-					str = _context17.t0;
+					case 14:
+						str = _context17.t0;
 
-					if (!(str && str.includes(aib.dm))) {
-						_context17.next = 17;
-						break;
-					}
+						if (!(str && str.includes(aib.dm))) {
+							_context17.next = 17;
+							break;
+						}
 
-					return _context17.abrupt('return');
+						return _context17.abrupt('return');
 
-				case 17:
-					excludeList = str || '';
+					case 17:
+						excludeList = str || '';
 
-					if (Cfg) {
+						if (Cfg) {
+							_context17.next = 25;
+							break;
+						}
+
+						if (!cfgPromise) {
+							_context17.next = 24;
+							break;
+						}
+
+						_context17.next = 22;
+						return cfgPromise;
+
+					case 22:
 						_context17.next = 25;
 						break;
-					}
 
-					if (!cfgPromise) {
-						_context17.next = 24;
+					case 24:
+						return _context17.delegateYield(readCfg(), 't1', 25);
+
+					case 25:
+						Logger.log('Config loading');
+
+						if (!(!Cfg.disabled && (aib.init && aib.init() || $id('de-panel')))) {
+							_context17.next = 28;
+							break;
+						}
+
+						return _context17.abrupt('return');
+
+					case 28:
+						addSVGIcons();
+
+						if (!Cfg.disabled) {
+							_context17.next = 33;
+							break;
+						}
+
+						panel.init(formEl);
+						scriptCSS();
+						return _context17.abrupt('return');
+
+					case 33:
+						initStorageEvent();
+						parseURL();
+						if (aib.t || !Cfg.scrollToTop) {
+							doc.defaultView.addEventListener('beforeunload', function (e) {
+								sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset;
+							});
+						}
+						Logger.log('Init');
+						if (Cfg.correctTime) {
+							dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, function (rp) {
+								return saveCfg('timeRPattern', rp);
+							});
+							Logger.log('Time correction');
+						}
+						MyPosts.read();
+						Logger.log('Read my posts');
+						$hide(docBody);
+						dummy = doc.createElement('div');
+						formEl = aib.fixHTML(formEl, true);
+						Logger.log('Replace delform');
+						pByEl = new Map();
+						pByNum = new Map();
+						_context17.prev = 46;
+
+						DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
+						_context17.next = 55;
 						break;
-					}
 
-					_context17.next = 22;
-					return cfgPromise;
+					case 50:
+						_context17.prev = 50;
+						_context17.t2 = _context17['catch'](46);
 
-				case 22:
-					_context17.next = 25;
-					break;
+						console.log('DELFORM ERROR:\n' + getErrorMessage(_context17.t2));
+						$show(docBody);
+						return _context17.abrupt('return');
 
-				case 24:
-					return _context17.delegateYield(readCfg(), 't1', 25);
+					case 55:
+						Logger.log('Parse delform');
+						pr = new PostForm($q(aib.qForm));
+						Logger.log('Parse postform');
+						if (Cfg.hotKeys) {
+							HotKeys.enable();
+							Logger.log('Init keybinds');
+						}
+						initPage();
+						Logger.log('Init page');
+						panel.init(formEl);
+						Logger.log('Add panel');
+						DelForm.first.addStuff();
+						readViewedPosts();
+						scriptCSS();
+						Logger.log('Apply CSS');
+						$show(docBody);
+						Logger.log('Display page');
+						toggleInfinityScroll();
+						Logger.log('Infinity scroll');
+						return _context17.delegateYield(readPostsData(DelForm.first.firstThr.op), 't3', 72);
 
-				case 25:
-					Logger.log('Config loading');
+					case 72:
+						Logger.log('Hide posts');
+						scrollPage();
+						Logger.log('Scroll page');
+						if (localData) {
+							doLocalChangings();
+							Logger.log('Local changings');
+						}
+						Logger.finish();
 
-					if (!(!Cfg.disabled && (aib.init && aib.init() || $id('de-panel')))) {
-						_context17.next = 28;
-						break;
-					}
-
-					return _context17.abrupt('return');
-
-				case 28:
-					addSVGIcons();
-
-					if (!Cfg.disabled) {
-						_context17.next = 33;
-						break;
-					}
-
-					panel.init(formEl);
-					scriptCSS();
-					return _context17.abrupt('return');
-
-				case 33:
-					initStorageEvent();
-					parseURL();
-					if (aib.t || !Cfg.scrollToTop) {
-						doc.defaultView.addEventListener('beforeunload', function (e) {
-							sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset;
-						});
-					}
-					Logger.log('Init');
-					if (Cfg.correctTime) {
-						dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, function (rp) {
-							return saveCfg('timeRPattern', rp);
-						});
-						Logger.log('Time correction');
-					}
-					MyPosts.read();
-					Logger.log('Read my posts');
-					$hide(docBody);
-					dummy = doc.createElement('div');
-					formEl = aib.fixHTML(formEl, true);
-					Logger.log('Replace delform');
-					pByEl = new Map();
-					pByNum = new Map();
-					_context17.prev = 46;
-
-					DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
-					_context17.next = 55;
-					break;
-
-				case 50:
-					_context17.prev = 50;
-					_context17.t2 = _context17['catch'](46);
-
-					console.log('DELFORM ERROR:\n' + getErrorMessage(_context17.t2));
-					$show(docBody);
-					return _context17.abrupt('return');
-
-				case 55:
-					Logger.log('Parse delform');
-					pr = new PostForm($q(aib.qForm));
-					Logger.log('Parse postform');
-					if (Cfg.hotKeys) {
-						HotKeys.enable();
-						Logger.log('Init keybinds');
-					}
-					initPage();
-					Logger.log('Init page');
-					panel.init(formEl);
-					Logger.log('Add panel');
-					DelForm.first.addStuff();
-					readViewedPosts();
-					scriptCSS();
-					Logger.log('Apply CSS');
-					$show(docBody);
-					Logger.log('Display page');
-					toggleInfinityScroll();
-					Logger.log('Infinity scroll');
-					return _context17.delegateYield(readPostsData(DelForm.first.firstThr.op), 't3', 72);
-
-				case 72:
-					Logger.log('Hide posts');
-					scrollPage();
-					Logger.log('Scroll page');
-					if (localData) {
-						doLocalChangings();
-						Logger.log('Local changings');
-					}
-					Logger.finish();
-
-				case 77:
-				case 'end':
-					return _context17.stop();
+					case 77:
+					case 'end':
+						return _context17.stop();
+				}
 			}
 		}, _marked[6], this, [[46, 50]]);
 	}
