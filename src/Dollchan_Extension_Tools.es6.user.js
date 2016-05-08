@@ -5104,7 +5104,7 @@ Videos._getYTInfoOembed = function(info, num, id) {
 	return (nav.isGM ?
 		$ajax('http://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&format=json', null, false)
 	:
-		$ajax('http://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&callback=?', null, false)
+		$ajax('http://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&callback=?')
 	).then(xhr =>
 	{
 		var json = JSON.parse(xhr.responseText);
