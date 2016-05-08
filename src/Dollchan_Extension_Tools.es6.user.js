@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '8bc601e';
+var commit = '31f0e97';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -942,7 +942,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				gmxhr.abort();
 			} catch(e) {}
 		};
-		var loadTO = setTimeout(toFunc, 1e4);
+		var loadTO = setTimeout(toFunc, 3e4);
 		var obj = {
 			'method': (params && params.method) || 'GET',
 			'url': nav.fixLink(url),
@@ -955,7 +955,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 						reject(new AjaxError(e.status, e.statusText));
 					}
 				} else {
-					loadTO = setTimeout(toFunc, 1e4);
+					loadTO = setTimeout(toFunc, 3e4);
 				}
 			}
 		};
@@ -980,7 +980,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			reject(AjaxError.Timeout);
 			xhr.abort();
 		};
-		var loadTO = setTimeout(toFunc, 1e4);
+		var loadTO = setTimeout(toFunc, 3e4);
 		if(params && params.onprogress) {
 			xhr.upload.onprogress = params.onprogress;
 		}
@@ -996,7 +996,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 					reject(new AjaxError(target.status, target.statusText));
 				}
 			} else {
-				loadTO = setTimeout(toFunc, 1e4);
+				loadTO = setTimeout(toFunc, 3e4);
 			}
 		};
 		try {
