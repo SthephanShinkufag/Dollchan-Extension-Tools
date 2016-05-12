@@ -2879,7 +2879,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '31f0e97';
+	var commit = 'e16d0c2';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3797,6 +3797,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var useNative = arguments.length <= 2 || arguments[2] === undefined ? nativeXHRworks : arguments[2];
 
 		var resolve, reject, cancelFn;
+		var needTO = params ? params.useTimeout : false;
 		if (!useNative && typeof GM_xmlhttpRequest === 'function') {
 			var toFunc = function toFunc() {
 				reject(AjaxError.Timeout);
@@ -3804,20 +3805,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					gmxhr.abort();
 				} catch (e) {}
 			};
-			var loadTO = setTimeout(toFunc, 3e4);
+			var loadTO = needTO && setTimeout(toFunc, 5e3);
 			var obj = {
 				'method': params && params.method || 'GET',
 				'url': nav.fixLink(url),
 				'onreadystatechange': function onreadystatechange(e) {
-					clearTimeout(loadTO);
+					if (needTO) {
+						clearTimeout(loadTO);
+					}
 					if (e.readyState === 4) {
 						if (e.status === 200 || aib.tiny && e.status === 400) {
 							resolve(e);
 						} else {
 							reject(new AjaxError(e.status, e.statusText));
 						}
-					} else {
-						loadTO = setTimeout(toFunc, 3e4);
+					} else if (needTO) {
+						loadTO = setTimeout(toFunc, 5e3);
 					}
 				}
 			};
@@ -3831,7 +3834,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			var gmxhr = GM_xmlhttpRequest(obj);
 			cancelFn = function cancelFn() {
-				clearTimeout(loadTO);
+				if (needTO) {
+					clearTimeout(loadTO);
+				}
 				try {
 					gmxhr.abort();
 				} catch (e) {}
@@ -3842,22 +3847,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				reject(AjaxError.Timeout);
 				xhr.abort();
 			};
-			var loadTO = setTimeout(toFunc, 3e4);
+			var loadTO = needTO && setTimeout(toFunc, 5e3);
 			if (params && params.onprogress) {
 				xhr.upload.onprogress = params.onprogress;
 			}
 			xhr.onreadystatechange = function (_ref2) {
 				var target = _ref2.target;
 
-				clearTimeout(loadTO);
+				if (needTO) {
+					clearTimeout(loadTO);
+				}
 				if (target.readyState === 4) {
 					if (target.status === 200 || aib.tiny && target.status === 400 || target.status === 0 && target.responseType === 'arraybuffer') {
 						resolve(target);
 					} else {
 						reject(new AjaxError(target.status, target.statusText));
 					}
-				} else {
-					loadTO = setTimeout(toFunc, 3e4);
+				} else if (needTO) {
+					loadTO = setTimeout(toFunc, 5e3);
 				}
 			};
 			try {
@@ -3877,7 +3884,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				xhr.send(params && params.data || null);
 				cancelFn = function cancelFn() {
-					clearTimeout(loadTO);
+					if (needTO) {
+						clearTimeout(loadTO);
+					}
 					xhr.abort();
 				};
 			} catch (e) {
@@ -8441,7 +8450,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		var cData = ajaxLoad._cacheData.get(url);
 		var ajaxURL = cData && !cData.hasCacheControl ? ajaxLoad._fixCachedURL(url) : url;
-		return $ajax(ajaxURL, useCache && cData && cData.params).then(function (xhr) {
+		return $ajax(ajaxURL, useCache && cData && cData.params || { useTimeout: true }).then(function (xhr) {
 			var headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
 			var data = ajaxLoad._readCacheData(headers);
 			if (!data.hasCacheControl && !ajaxLoad._cacheData.has(url)) {
@@ -8512,11 +8521,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				headers['If-Modified-Since'] = LastModified;
 			}
 		}
-		return { hasCacheControl: hasCacheControl, params: headers ? { headers: headers } : null };
+		return { hasCacheControl: hasCacheControl, params: headers ? { headers: headers, useTimeout: true } : { useTimeout: true } };
 	};
 
 	function getJsonPosts(url) {
-		return $ajax(url, { useCache: true }).then(function (xhr) {
+		return $ajax(url, { useCache: true, useTimeout: true }).then(function (xhr) {
 			return JSON.parse(xhr.responseText);
 		}, function (xhr) {
 			return function (err) {

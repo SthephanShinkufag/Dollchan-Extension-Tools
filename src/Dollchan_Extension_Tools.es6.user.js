@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '31f0e97';
+var commit = 'e16d0c2';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -935,6 +935,7 @@ AjaxError.Timeout = new AjaxError(0, { toString() { return Lng.noConnect[lang] +
 
 function $ajax(url, params = null, useNative = nativeXHRworks) {
 	var resolve, reject, cancelFn;
+	var needTO = params ? params.useTimeout : false;
 	if(!useNative && (typeof GM_xmlhttpRequest === 'function')) {
 		var toFunc = () => {
 			reject(AjaxError.Timeout);
@@ -942,20 +943,22 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				gmxhr.abort();
 			} catch(e) {}
 		};
-		var loadTO = setTimeout(toFunc, 3e4);
+		var loadTO = needTO && setTimeout(toFunc, 5e3);
 		var obj = {
 			'method': (params && params.method) || 'GET',
 			'url': nav.fixLink(url),
 			'onreadystatechange'(e) {
-				clearTimeout(loadTO);
+				if(needTO) {
+					clearTimeout(loadTO);
+				}
 				if(e.readyState === 4) {
 					if(e.status === 200 || aib.tiny && e.status === 400) {
 						resolve(e);
 					} else {
 						reject(new AjaxError(e.status, e.statusText));
 					}
-				} else {
-					loadTO = setTimeout(toFunc, 3e4);
+				} else if(needTO) {
+					loadTO = setTimeout(toFunc, 5e3);
 				}
 			}
 		};
@@ -969,7 +972,9 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 		}
 		var gmxhr = GM_xmlhttpRequest(obj);
 		cancelFn = () => {
-			clearTimeout(loadTO);
+			if(needTO) {
+				clearTimeout(loadTO);
+			}
 			try {
 				gmxhr.abort();
 			} catch(e) {}
@@ -980,12 +985,14 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			reject(AjaxError.Timeout);
 			xhr.abort();
 		};
-		var loadTO = setTimeout(toFunc, 3e4);
+		var loadTO = needTO && setTimeout(toFunc, 5e3);
 		if(params && params.onprogress) {
 			xhr.upload.onprogress = params.onprogress;
 		}
 		xhr.onreadystatechange = ({ target }) => {
-			clearTimeout(loadTO);
+			if(needTO) {
+				clearTimeout(loadTO);
+			}
 			if(target.readyState === 4) {
 				if(target.status === 200 ||
 				   (aib.tiny && target.status === 400) ||
@@ -995,8 +1002,8 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				} else {
 					reject(new AjaxError(target.status, target.statusText));
 				}
-			} else {
-				loadTO = setTimeout(toFunc, 3e4);
+			} else if(needTO) {
+				loadTO = setTimeout(toFunc, 5e3);
 			}
 		};
 		try {
@@ -1016,7 +1023,9 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			}
 			xhr.send(params && params.data || null);
 			cancelFn = () => {
-				clearTimeout(loadTO);
+				if(needTO) {
+					clearTimeout(loadTO);
+				}
 				xhr.abort();
 			};
 		} catch(e) {
@@ -5359,7 +5368,7 @@ function embedMediaLinks(data) {
 function ajaxLoad(url, returnForm = true, useCache = false) {
 	var cData = ajaxLoad._cacheData.get(url);
 	var ajaxURL = cData && !cData.hasCacheControl ? ajaxLoad._fixCachedURL(url) : url;
-	return $ajax(ajaxURL, useCache && cData && cData.params).then(xhr => {
+	return $ajax(ajaxURL, useCache && cData && cData.params || { useTimeout: true }).then(xhr => {
 		var headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders()
 		                                             : xhr.responseHeaders;
 		var data = ajaxLoad._readCacheData(headers);
@@ -5412,11 +5421,11 @@ ajaxLoad._readCacheData = function(ajaxHeaders) {
 			headers['If-Modified-Since'] = LastModified;
 		}
 	}
-	return { hasCacheControl, params: headers ? { headers } : null };
+	return { hasCacheControl, params: headers ? { headers, useTimeout: true } : { useTimeout: true } };
 }
 
 function getJsonPosts(url) {
-	return $ajax(url, { useCache: true }).then(
+	return $ajax(url, { useCache: true, useTimeout: true }).then(
 		xhr => JSON.parse(xhr.responseText),
 		xhr => err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
