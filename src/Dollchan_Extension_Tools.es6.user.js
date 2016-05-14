@@ -13205,7 +13205,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			time::after { content: none; }`;
 		}
 		get markupTags() {
-			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup'];
+			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub'];
 		}
 		init() {
 			var val = '{"simpleNavbar":true,"showInfo":true}';

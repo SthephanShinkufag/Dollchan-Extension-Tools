@@ -18223,7 +18223,7 @@ true, true],
 			}, {
 				key: 'markupTags',
 				get: function get() {
-					return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup'];
+					return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub'];
 				}
 			}]);
 
