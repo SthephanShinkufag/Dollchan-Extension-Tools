@@ -2879,7 +2879,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '007b44f';
+	var commit = '683603d';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -15117,7 +15117,7 @@ true, true],
 		}, {
 			key: '_getHTML',
 			value: function _getHTML(num, tUrl, isHidden) {
-				return '<a href="' + tUrl + aib.anchor + num + '" class="de-link-ref' + (isHidden ? ' de-link-hid' : '') + '">&gt;&gt;' + num + '</a><span class="de-refcomma">, </span>';
+				return '<a href="' + tUrl + aib.anchor + num + '" class="de-link-ref' + (isHidden ? ' de-link-hid' : '') + (MyPosts.has(num) ? ' de-ref-my' : '') + '">&gt;&gt;' + num + '</a><span class="de-refcomma">, </span>';
 			}
 		}, {
 			key: '_el',
@@ -16355,7 +16355,7 @@ true, true],
 				_this55.qPostMsg = '.post-message';
 				_this55.qPostName = '.ananimas, .post-email';
 				_this55.qPostSubj = '.post-title';
-				_this55.qRPost = 'div.reply';
+				_this55.qRPost = '.post.reply';
 				_this55.qTrunc = null;
 
 				_this55.hasCatalog = true;

@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '007b44f';
+var commit = '683603d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10808,6 +10808,7 @@ class RefMap {
 	_getHTML(num, tUrl, isHidden) {
 		return '<a href="' + tUrl + aib.anchor + num +
 			'" class="de-link-ref' + (isHidden ? ' de-link-hid' : '') +
+			(MyPosts.has(num) ? ' de-ref-my' : '') +
 			'">&gt;&gt;' + num + '</a><span class="de-refcomma">, </span>'
 	}
 }
@@ -11863,7 +11864,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostMsg = '.post-message';
 			this.qPostName = '.ananimas, .post-email';
 			this.qPostSubj = '.post-title';
-			this.qRPost = 'div.reply';
+			this.qRPost = '.post.reply';
 			this.qTrunc = null;
 
 			this.hasCatalog = true;
