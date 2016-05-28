@@ -7798,8 +7798,8 @@ class Captcha {
 			if(!Cfg.captchaLang || e.which === 0) {
 				return;
 			}
-			var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
-				en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
+			var ru = 'йцукенгшщзхъїфыівапролджэєячсмитьбюёґ',
+				en = 'qwertyuiop[]]assdfghjkl;\'\'zxcvbnm,.`\\';
 			var i, code = e.charCode || e.keyCode,
 				chr = String.fromCharCode(code).toLowerCase();
 			if(Cfg.captchaLang === 1) {
