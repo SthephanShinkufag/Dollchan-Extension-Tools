@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'e16d0c2';
+var commit = '007b44f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7798,12 +7798,12 @@ class Captcha {
 			if(!Cfg.captchaLang || e.which === 0) {
 				return;
 			}
-			var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
-				en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
+			var ruUa = 'йцукенгшщзхъїфыівапролджэєячсмитьбюёґ',
+				en = 'qwertyuiop[]]assdfghjkl;\'\'zxcvbnm,.`\\';
 			var i, code = e.charCode || e.keyCode,
 				chr = String.fromCharCode(code).toLowerCase();
 			if(Cfg.captchaLang === 1) {
-				if(code < 0x0410 || code > 0x04FF || (i = ru.indexOf(chr)) === -1) {
+				if(code < 0x0410 || code > 0x04FF || (i = ruUa.indexOf(chr)) === -1) {
 					return;
 				}
 				chr = en[i];
@@ -7811,7 +7811,7 @@ class Captcha {
 				if(code < 0x0021 || code > 0x007A || (i = en.indexOf(chr)) === -1) {
 					return;
 				}
-				chr = ru[i];
+				chr = ruUa[i];
 			}
 			$txtInsert(e.target, chr);
 			break;
