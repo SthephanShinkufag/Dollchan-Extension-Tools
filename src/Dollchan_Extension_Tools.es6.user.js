@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '683603d';
+var commit = '7ecc80e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2724,15 +2724,11 @@ function cleanFavorites() {
 }
 
 function showFavoritesWindow(body, data) {
+	var html = '';
 	for(var h in data) {
 		for(var b in data[h]) {
-			var d = data[h][b],
-				block = addContentBlock(body, d.url ?
-					$new('a', {'href': d.url, 'text': h + '/' + b, 'rel': 'noreferrer'}, null) :
-					$new('b', {'text': h + '/' + b}, null));
-			if(h === aib.host && b === aib.b) {
-				block.classList.add('de-fav-current');
-			}
+			var d = data[h][b];
+			var innerHtml = '';
 			for(var tNum in d) {
 				if(tNum === 'url') {
 					continue;
@@ -2741,12 +2737,12 @@ function showFavoritesWindow(body, data) {
 				if(!t.url.startsWith('http')) {
 					t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 				}
-				block.insertAdjacentHTML('beforeend', `
+				innerHtml += `
 				<div class="de-entry ${ aib.cReply }" de-host="${ h }" de-board="${ b }" de-num="${ tNum }" de-url="${ t.url }">
 					${ t['type'] !== 'user' ? '' : `
 						<span class="de-fav-user" title="${ Lng.setByUser[lang] }"></span>` }
-					<input type="checkbox"/>
-					<a href="${ t.url + (!t.last ? '' :
+					<input class="de-fav-switch" type="checkbox">
+					<a class="de-fav-link" href="${ t.url + (!t.last ? '' :
 						t.last.startsWith('#') ? t.last :
 						h === aib.host ? aib.anchor + t.last : '') }" rel="noreferrer">
 						${ tNum }
@@ -2770,18 +2766,70 @@ function showFavoritesWindow(body, data) {
 						[<span class="de-fav-inf-old" title="${ Lng.oldPosts[lang] }">${ t.cnt }</span>]
 						<span class="de-fav-inf-page" title="${ Lng.thrPage[lang] }"></span>
 					</div>
-				</div>`);
-				$q('a', block.lastChild).onclick = function() {
-					sesStorage['de-win-fav'] = '1';
-					var el = this.parentNode;
-					sesStorage.removeItem('de-scroll-' +
-						el.getAttribute('de-board') + el.getAttribute('de-num'));
-				}
+				</div>`;
 			}
+			if(innerHtml === '') {
+				continue;
+			}
+			var isCurrent = h === aib.host && b === aib.b;
+			html += `
+			<div class="de-fav-block${isCurrent ? ' de-fav-current' : ''}">
+				<div class="de-fav-header">
+					<input class="de-fav-header-switch" type="checkbox"></input>
+					<a class="de-fav-header-link" href="${d.url}" rel="noreferrer">${h + '/' + b}</a>
+				</div>
+				<div class="de-fav-entries"${ isCurrent ? '' : 'style="display: none;"' }>
+					${ innerHtml }
+				</div>
+			</div>`;
 		}
 	}
-	if(!body.hasChildNodes()) {
+	if(html === '') {
 		body.insertAdjacentHTML('beforeend', '<center><b>' + Lng.noFavThrds[lang] + '</b></center>');
+	} else {
+		body.insertAdjacentHTML('beforeend', '<div class="de-fav-content">' + html + '</div>');
+		var el = body.lastChild;
+		el.addEventListener('click', {
+			openedBlock: $q('.de-fav-current > .de-fav-entries', body),
+			closeBlock(el) {
+				if(!el) {
+					return;
+				}
+				el.style.cssText = 'display: none;';
+			},
+			handleEvent(e) {
+				var el = e.target;
+				switch(el.className) {
+				case 'de-fav-link':
+					sesStorage['de-win-fav'] = '1';
+					el = el.parentNode;
+					sesStorage.removeItem('de-scroll-' +
+						el.getAttribute('de-board') + el.getAttribute('de-num'));
+					break;
+				case 'de-fav-header-switch':
+					var checked = el.checked;
+					$each($Q('.de-entry > input', el.parentNode.nextElementSibling), el => el.checked = checked);
+					var entries = el.parentNode.nextElementSibling;
+					if(checked && entries !== this.openedBlock) {
+						this.openBlock(entries);
+					}
+					break;
+				case 'de-fav-header-link':
+					this.openBlock(el.parentNode.nextElementSibling);
+					$pd(e);
+					break;
+				}
+			},
+			openBlock(el) {
+				this.closeBlock(this.openedBlock);
+				if(el === this.openedBlock) {
+					this.openedBlock = null;
+				} else {
+					el.style.cssText = '';
+					this.openedBlock = el;
+				}
+			}
+		});
 	}
 	body.insertAdjacentHTML('beforeend', '<hr>');
 	body.appendChild(addEditButton('favor', function(fn) {
@@ -14402,7 +14450,6 @@ function scriptCSS() {
 	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\
 	#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\
 	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\
-	#de-win-fav input[type="checkbox"] { flex: none; margin-left: 15px; }\
 	#de-win-hid { max-width: 60%; }\
 	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\
 	#de-win-vid .de-entry { white-space: normal; }\
@@ -14602,11 +14649,13 @@ function scriptCSS() {
 	.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }' +
 
 	// Favorites
-	'.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\
-	.de-content-block > input { margin: 0 4px; }\
+	'.de-fav-block { border: 1px solid gray; border-radius: 2px; margin-bottom: 3px; }\
+	.de-fav-header { margin-top: 0; margin-bottom: 0; padding: 5px 0; display: flex; }\
+	.de-fav-entries { border-top: 1px solid gray; padding-top: 5px; }\
+	.de-fav-header-link { color: inherit; font-weight: bold; font-size: 14px; flex: auto; }\
 	.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 4px 0 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\
-	.de-entry > a { flex: none; text-decoration: none; border: none; }\
-	.de-entry > input { margin: 2px 4px; }\
+	.de-fav-link { flex: none; text-decoration: none; border: none; }\
+	.de-fav-header-switch, .de-fav-switch { margin: 2px 4px !important; flex: none; }\
 	.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\
 	.de-fav-inf { flex: none; padding-left: 10px; font: bold 14px serif; cursor: default; }\
 	.de-fav-inf-new { color: #424f79; }\

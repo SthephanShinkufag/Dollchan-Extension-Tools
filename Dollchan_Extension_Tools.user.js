@@ -2879,7 +2879,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '683603d';
+	var commit = '7ecc80e';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -5881,13 +5881,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function showFavoritesWindow(body, data) {
+		var html = '';
 		for (var h in data) {
 			for (var b in data[h]) {
-				var d = data[h][b],
-				    block = addContentBlock(body, d.url ? $new('a', { 'href': d.url, 'text': h + '/' + b, 'rel': 'noreferrer' }, null) : $new('b', { 'text': h + '/' + b }, null));
-				if (h === aib.host && b === aib.b) {
-					block.classList.add('de-fav-current');
-				}
+				var d = data[h][b];
+				var innerHtml = '';
 				for (var tNum in d) {
 					if (tNum === 'url') {
 						continue;
@@ -5896,17 +5894,62 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (!t.url.startsWith('http')) {
 						t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 					}
-					block.insertAdjacentHTML('beforeend', '\n\t\t\t\t<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t' + (t['type'] !== 'user' ? '' : '\n\t\t\t\t\t\t<span class="de-fav-user" title="' + Lng.setByUser[lang] + '"></span>') + '\n\t\t\t\t\t<input type="checkbox"/>\n\t\t\t\t\t<a href="' + (t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last : h === aib.host ? aib.anchor + t.last : '')) + '" rel="noreferrer">\n\t\t\t\t\t\t' + tNum + '\n\t\t\t\t\t</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<span class="de-fav-inf-iwrap" ' + (!t['err'] ? '' : t['err'] === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' : 'title="' + t['err'] + '"') + '>\n\t\t\t\t\t\t\t<svg class="de-fav-inf-icon ' + (!t['err'] ? '' : t['err'] === 'Closed' ? 'de-fav-closed' : 'de-fav-unavail') + '">\n\t\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + (t['new'] ? '' : ' style="display: none;"') + '>\n\t\t\t\t\t\t\t' + (t['new'] || 0) + '\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t[<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>]\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>');
-					$q('a', block.lastChild).onclick = function () {
-						sesStorage['de-win-fav'] = '1';
-						var el = this.parentNode;
-						sesStorage.removeItem('de-scroll-' + el.getAttribute('de-board') + el.getAttribute('de-num'));
-					};
+					innerHtml += '\n\t\t\t\t<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t' + (t['type'] !== 'user' ? '' : '\n\t\t\t\t\t\t<span class="de-fav-user" title="' + Lng.setByUser[lang] + '"></span>') + '\n\t\t\t\t\t<input class="de-fav-switch" type="checkbox">\n\t\t\t\t\t<a class="de-fav-link" href="' + (t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last : h === aib.host ? aib.anchor + t.last : '')) + '" rel="noreferrer">\n\t\t\t\t\t\t' + tNum + '\n\t\t\t\t\t</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<span class="de-fav-inf-iwrap" ' + (!t['err'] ? '' : t['err'] === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' : 'title="' + t['err'] + '"') + '>\n\t\t\t\t\t\t\t<svg class="de-fav-inf-icon ' + (!t['err'] ? '' : t['err'] === 'Closed' ? 'de-fav-closed' : 'de-fav-unavail') + '">\n\t\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + (t['new'] ? '' : ' style="display: none;"') + '>\n\t\t\t\t\t\t\t' + (t['new'] || 0) + '\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t[<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>]\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>';
 				}
+				if (innerHtml === '') {
+					continue;
+				}
+				var isCurrent = h === aib.host && b === aib.b;
+				html += '\n\t\t\t<div class="de-fav-block' + (isCurrent ? ' de-fav-current' : '') + '">\n\t\t\t\t<div class="de-fav-header">\n\t\t\t\t\t<input class="de-fav-header-switch" type="checkbox"></input>\n\t\t\t\t\t<a class="de-fav-header-link" href="' + d.url + '" rel="noreferrer">' + (h + '/' + b) + '</a>\n\t\t\t\t</div>\n\t\t\t\t<div class="de-fav-entries"' + (isCurrent ? '' : 'style="display: none;"') + '>\n\t\t\t\t\t' + innerHtml + '\n\t\t\t\t</div>\n\t\t\t</div>';
 			}
 		}
-		if (!body.hasChildNodes()) {
+		if (html === '') {
 			body.insertAdjacentHTML('beforeend', '<center><b>' + Lng.noFavThrds[lang] + '</b></center>');
+		} else {
+			body.insertAdjacentHTML('beforeend', '<div class="de-fav-content">' + html + '</div>');
+			var el = body.lastChild;
+			el.addEventListener('click', {
+				openedBlock: $q('.de-fav-current > .de-fav-entries', body),
+				closeBlock: function closeBlock(el) {
+					if (!el) {
+						return;
+					}
+					el.style.cssText = 'display: none;';
+				},
+				handleEvent: function handleEvent(e) {
+					var el = e.target;
+					switch (el.className) {
+						case 'de-fav-link':
+							sesStorage['de-win-fav'] = '1';
+							el = el.parentNode;
+							sesStorage.removeItem('de-scroll-' + el.getAttribute('de-board') + el.getAttribute('de-num'));
+							break;
+						case 'de-fav-header-switch':
+							var checked = el.checked;
+							$each($Q('.de-entry > input', el.parentNode.nextElementSibling), function (el) {
+								return el.checked = checked;
+							});
+							var entries = el.parentNode.nextElementSibling;
+							if (checked && entries !== this.openedBlock) {
+								this.openBlock(entries);
+							}
+							break;
+						case 'de-fav-header-link':
+							this.openBlock(el.parentNode.nextElementSibling);
+							$pd(e);
+							break;
+					}
+				},
+				openBlock: function openBlock(el) {
+					this.closeBlock(this.openedBlock);
+					if (el === this.openedBlock) {
+						this.openedBlock = null;
+					} else {
+						el.style.cssText = '';
+						this.openedBlock = el;
+					}
+				}
+			});
 		}
 		body.insertAdjacentHTML('beforeend', '<hr>');
 		body.appendChild(addEditButton('favor', function (fn) {
@@ -19334,7 +19377,6 @@ true, true],
 	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\
 	#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\
 	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\
-	#de-win-fav input[type="checkbox"] { flex: none; margin-left: 15px; }\
 	#de-win-hid { max-width: 60%; }\
 	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\
 	#de-win-vid .de-entry { white-space: normal; }\
@@ -19485,7 +19527,7 @@ true, true],
 	#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\
 	.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }' +
 
-		'.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t.de-content-block > input { margin: 0 4px; }\t.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 4px 0 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\t.de-entry > a { flex: none; text-decoration: none; border: none; }\t.de-entry > input { margin: 2px 4px; }\t.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\t.de-fav-inf { flex: none; padding-left: 10px; font: bold 14px serif; cursor: default; }\t.de-fav-inf-new { color: #424f79; }\t.de-fav-inf-new::after { content: " +"; }\t.de-fav-inf-old { color: #4f7942; }\t.de-fav-user::after { content: "★"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\t.de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait),\t\t.de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use,\t\t.de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use,\t\t.de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }\t.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }\t.de-fav-inf-icon { margin-bottom: -3px; }' +
+		'.de-fav-block { border: 1px solid gray; border-radius: 2px; margin-bottom: 3px; }\t.de-fav-header { margin-top: 0; margin-bottom: 0; padding: 5px 0; display: flex; }\t.de-fav-entries { border-top: 1px solid gray; padding-top: 5px; }\t.de-fav-header-link { color: inherit; font-weight: bold; font-size: 14px; flex: auto; }\t.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 4px 0 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\t.de-fav-link { flex: none; text-decoration: none; border: none; }\t.de-fav-header-switch, .de-fav-switch { margin: 2px 4px !important; flex: none; }\t.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\t.de-fav-inf { flex: none; padding-left: 10px; font: bold 14px serif; cursor: default; }\t.de-fav-inf-new { color: #424f79; }\t.de-fav-inf-new::after { content: " +"; }\t.de-fav-inf-old { color: #4f7942; }\t.de-fav-user::after { content: "★"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\t.de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait),\t\t.de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use,\t\t.de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use,\t\t.de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }\t.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }\t.de-fav-inf-icon { margin-bottom: -3px; }' +
 
 		'#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\
 	.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\
