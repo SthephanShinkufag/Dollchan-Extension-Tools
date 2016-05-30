@@ -21,7 +21,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '7ecc80e';
+var commit = '057761c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2771,14 +2771,13 @@ function showFavoritesWindow(body, data) {
 			if(innerHtml === '') {
 				continue;
 			}
-			var isCurrent = h === aib.host && b === aib.b;
 			html += `
-			<div class="de-fav-block${isCurrent ? ' de-fav-current' : ''}">
+			<div class="de-fav-block${h === aib.host && b === aib.b ? ' de-fav-current' : ''}">
 				<div class="de-fav-header">
 					<input class="de-fav-header-switch" type="checkbox"></input>
 					<a class="de-fav-header-link" href="${d.url}" rel="noreferrer">${h + '/' + b}</a>
 				</div>
-				<div class="de-fav-entries"${ isCurrent ? '' : 'style="display: none;"' }>
+				<div class="de-fav-entries"${ h === aib.host ? ' de-opened' : ' style="display: none;"' }>
 					${ innerHtml }
 				</div>
 			</div>`;
@@ -2789,45 +2788,35 @@ function showFavoritesWindow(body, data) {
 	} else {
 		body.insertAdjacentHTML('beforeend', '<div class="de-fav-content">' + html + '</div>');
 		var el = body.lastChild;
-		el.addEventListener('click', {
-			openedBlock: $q('.de-fav-current > .de-fav-entries', body),
-			closeBlock(el) {
-				if(!el) {
+		el.addEventListener('click', e => {
+			var el = e.target;
+			switch(el.className) {
+			case 'de-fav-link':
+				sesStorage['de-win-fav'] = '1';
+				el = el.parentNode;
+				sesStorage.removeItem('de-scroll-' +
+					el.getAttribute('de-board') + el.getAttribute('de-num'));
+				break;
+			case 'de-fav-header-switch':
+				var checked = el.checked;
+				$each($Q('.de-entry > input', el.parentNode.nextElementSibling), el => el.checked = checked);
+				el = el.parentNode.nextElementSibling;
+				if(!checked || el.hasAttribute('de-opened')) {
 					return;
 				}
+				break;
+			case 'de-fav-header-link':
+				el = el.parentNode.nextElementSibling;
+				$pd(e);
+				break;
+			default: return;
+			}
+			if(el.hasAttribute('de-opened')) {
 				el.style.cssText = 'display: none;';
-			},
-			handleEvent(e) {
-				var el = e.target;
-				switch(el.className) {
-				case 'de-fav-link':
-					sesStorage['de-win-fav'] = '1';
-					el = el.parentNode;
-					sesStorage.removeItem('de-scroll-' +
-						el.getAttribute('de-board') + el.getAttribute('de-num'));
-					break;
-				case 'de-fav-header-switch':
-					var checked = el.checked;
-					$each($Q('.de-entry > input', el.parentNode.nextElementSibling), el => el.checked = checked);
-					var entries = el.parentNode.nextElementSibling;
-					if(checked && entries !== this.openedBlock) {
-						this.openBlock(entries);
-					}
-					break;
-				case 'de-fav-header-link':
-					this.openBlock(el.parentNode.nextElementSibling);
-					$pd(e);
-					break;
-				}
-			},
-			openBlock(el) {
-				this.closeBlock(this.openedBlock);
-				if(el === this.openedBlock) {
-					this.openedBlock = null;
-				} else {
-					el.style.cssText = '';
-					this.openedBlock = el;
-				}
+				el.removeAttribute('de-opened')
+			} else {
+				el.style.cssText = '';
+				el.setAttribute('de-opened', '')
 			}
 		});
 	}

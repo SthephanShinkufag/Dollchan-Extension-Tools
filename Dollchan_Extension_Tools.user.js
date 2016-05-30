@@ -2879,7 +2879,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '7ecc80e';
+	var commit = '057761c';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -5899,8 +5899,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (innerHtml === '') {
 					continue;
 				}
-				var isCurrent = h === aib.host && b === aib.b;
-				html += '\n\t\t\t<div class="de-fav-block' + (isCurrent ? ' de-fav-current' : '') + '">\n\t\t\t\t<div class="de-fav-header">\n\t\t\t\t\t<input class="de-fav-header-switch" type="checkbox"></input>\n\t\t\t\t\t<a class="de-fav-header-link" href="' + d.url + '" rel="noreferrer">' + (h + '/' + b) + '</a>\n\t\t\t\t</div>\n\t\t\t\t<div class="de-fav-entries"' + (isCurrent ? '' : 'style="display: none;"') + '>\n\t\t\t\t\t' + innerHtml + '\n\t\t\t\t</div>\n\t\t\t</div>';
+				html += '\n\t\t\t<div class="de-fav-block' + (h === aib.host && b === aib.b ? ' de-fav-current' : '') + '">\n\t\t\t\t<div class="de-fav-header">\n\t\t\t\t\t<input class="de-fav-header-switch" type="checkbox"></input>\n\t\t\t\t\t<a class="de-fav-header-link" href="' + d.url + '" rel="noreferrer">' + (h + '/' + b) + '</a>\n\t\t\t\t</div>\n\t\t\t\t<div class="de-fav-entries"' + (h === aib.host ? ' de-opened' : ' style="display: none;"') + '>\n\t\t\t\t\t' + innerHtml + '\n\t\t\t\t</div>\n\t\t\t</div>';
 			}
 		}
 		if (html === '') {
@@ -5908,46 +5907,37 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		} else {
 			body.insertAdjacentHTML('beforeend', '<div class="de-fav-content">' + html + '</div>');
 			var el = body.lastChild;
-			el.addEventListener('click', {
-				openedBlock: $q('.de-fav-current > .de-fav-entries', body),
-				closeBlock: function closeBlock(el) {
-					if (!el) {
+			el.addEventListener('click', function (e) {
+				var el = e.target;
+				switch (el.className) {
+					case 'de-fav-link':
+						sesStorage['de-win-fav'] = '1';
+						el = el.parentNode;
+						sesStorage.removeItem('de-scroll-' + el.getAttribute('de-board') + el.getAttribute('de-num'));
+						break;
+					case 'de-fav-header-switch':
+						var checked = el.checked;
+						$each($Q('.de-entry > input', el.parentNode.nextElementSibling), function (el) {
+							return el.checked = checked;
+						});
+						el = el.parentNode.nextElementSibling;
+						if (!checked || el.hasAttribute('de-opened')) {
+							return;
+						}
+						break;
+					case 'de-fav-header-link':
+						el = el.parentNode.nextElementSibling;
+						$pd(e);
+						break;
+					default:
 						return;
-					}
+				}
+				if (el.hasAttribute('de-opened')) {
 					el.style.cssText = 'display: none;';
-				},
-				handleEvent: function handleEvent(e) {
-					var el = e.target;
-					switch (el.className) {
-						case 'de-fav-link':
-							sesStorage['de-win-fav'] = '1';
-							el = el.parentNode;
-							sesStorage.removeItem('de-scroll-' + el.getAttribute('de-board') + el.getAttribute('de-num'));
-							break;
-						case 'de-fav-header-switch':
-							var checked = el.checked;
-							$each($Q('.de-entry > input', el.parentNode.nextElementSibling), function (el) {
-								return el.checked = checked;
-							});
-							var entries = el.parentNode.nextElementSibling;
-							if (checked && entries !== this.openedBlock) {
-								this.openBlock(entries);
-							}
-							break;
-						case 'de-fav-header-link':
-							this.openBlock(el.parentNode.nextElementSibling);
-							$pd(e);
-							break;
-					}
-				},
-				openBlock: function openBlock(el) {
-					this.closeBlock(this.openedBlock);
-					if (el === this.openedBlock) {
-						this.openedBlock = null;
-					} else {
-						el.style.cssText = '';
-						this.openedBlock = el;
-					}
+					el.removeAttribute('de-opened');
+				} else {
+					el.style.cssText = '';
+					el.setAttribute('de-opened', '');
 				}
 			});
 		}
