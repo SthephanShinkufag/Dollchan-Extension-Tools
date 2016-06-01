@@ -15,4 +15,5 @@
 // @grant           GM_xmlhttpRequest
 // @grant           unsafeWindow
 // @include         *
+// @nocompat        Chrome
 // ==/UserScript==

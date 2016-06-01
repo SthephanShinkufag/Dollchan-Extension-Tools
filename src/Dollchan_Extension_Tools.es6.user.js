@@ -15,13 +15,16 @@
 // @grant           GM_xmlhttpRequest
 // @grant           unsafeWindow
 // @include         *
+// @nocompat        Chrome
 // ==/UserScript==
+
+/* jshint esnext:true */
 
 (function de_main_func_inner(scriptStorage, FormData, localData) {
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '057761c';
+var commit = '5b43140';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
