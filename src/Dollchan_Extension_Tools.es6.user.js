@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '6a5436f';
+var commit = 'a2cfe31';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5484,9 +5484,15 @@ ajaxLoad._readCacheData = function(ajaxHeaders) {
 	return { hasCacheControl, params: headers ? { headers, useTimeout: true } : { useTimeout: true } };
 }
 
-function getJsonPosts(url) {
-	return $ajax(url, { useCache: true, useTimeout: true }).then(
-		xhr => JSON.parse(xhr.responseText),
+function getJsonPosts(brd, tNum, useCache = true) {
+	return $ajax(aib.getJsonApiUrl(brd, tNum), { useCache, useTimeout: true }).then(
+		xhr => {
+			try {
+				return new aib.jsonBuilder(JSON.parse(xhr.responseText), brd);
+			} catch(e) {
+				return CancelablePromise.reject(e);
+			}
+		},
 		xhr => err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 
@@ -8095,34 +8101,18 @@ function checkUpload(data) {
 		}
 		return;
 	}
-	var el = isDocument && !aib.kus &&
-		(aib.qFormRedir === null || $q(aib.qFormRedir, data)) ? $q(aib.qDForm, data) : null;
 	if(aib.t) {
 		Post.clearMarks();
-		if(el) {
-			Thread.first.loadNewFromForm(el);
+		Thread.first.loadNew().then(() => AjaxError.Success, e => e).then(e => {
+			infoLoadErrors(e);
 			if(Cfg.scrAfterRep) {
 				scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 			}
 			updater.continue(true);
 			closePopup('upload');
-		} else {
-			Thread.first.loadNew().then(() => AjaxError.Success, e => e).then(e => {
-				infoLoadErrors(e);
-				if(Cfg.scrAfterRep) {
-					scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
-				}
-				updater.continue(true);
-				closePopup('upload');
-			});
-		}
+		});
 	} else {
-		if(el) {
-			pByNum.get(pr.tNum).thr.loadFromForm(visPosts, true, el);
-			closePopup('upload');
-		} else {
-			pByNum.get(pr.tNum).thr.load(visPosts, false, false).then(() => closePopup('upload'));
-		}
+		pByNum.get(pr.tNum).thr.load(visPosts, false, false).then(() => closePopup('upload'));
 	}
 	pr.closeReply();
 	pr.refreshCapImg(false);
@@ -9629,7 +9619,7 @@ class Post extends AbstractPost {
 		el.addEventListener('mouseover', this, true);
 	}
 	get banned() {
-		var value = aid.getBanId(this.el);
+		var value = aib.getBanId(this.el);
 		Object.defineProperty(this, 'banned', { writable: true, value });
 		return value;
 	}
@@ -10887,6 +10877,9 @@ class DOMPostsBuilder {
 	get isClosed() {
 		return !!$q(aib.qClosed, this._form);
 	}
+	getOpMessage() {
+		return aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, this._form)));
+	}
 	getPostEl(i) {
 		return aib.fixHTML(this._posts[i]);
 	}
@@ -10911,6 +10904,10 @@ class _4chanPostsBuilder {
 	}
 	get isClosed() {
 		return !!(this._posts[0].closed || this._posts[0].archived);
+	}
+	getOpMessage() {
+		let data = this._posts[0];
+		return $add(aib.fixHTML(`<blockquote class="postMessage" id="m${ data.no }"> ${ data.com }</blockquote>`));
 	}
 	getPostEl(i) {
 		// TODO: handle capcode and probably image spoilers
@@ -10984,6 +10981,10 @@ class DobrochanPostsBuilder {
 	}
 	get isClosed() {
 		return !!this._json.threads[0].archived;
+	}
+	getOpMessage() {
+		let data = this._posts[0];
+		return $add(aib.fixHTML(`<div class="postbody"> ${ data.message_html }</div>`));
 	}
 	getPostEl(i) {
 		const data = this._posts[i + 1];
@@ -11089,10 +11090,11 @@ class MakabaPostsBuilder {
 	get isClosed() {
 		return this._json.is_closed;
 	}
+	getOpMessage() {
+		return $add(aib.fixHTML(this._getPostMsg(this._posts[0])));
+	}
 	getPostEl(i) {
 		const data = this._posts[i + 1];
-		const comment = data.comment.replace(/<script /ig, '<!--<textarea ')
-			.replace(/<\/script>/ig, '</textarea>-->');
 		const num = data.num;
 		const brd = this._brd;
 		
@@ -11157,14 +11159,7 @@ class MakabaPostsBuilder {
 					<br class="turnmeoff">
 				</div>
 				${ filesHTML }
-				<blockquote id="m${ num }" class="post-message">
-					${ comment }
-					${ _switch(data.banned, {
-					   1:           '<br/><span class="pomyanem">(Автор этого поста был забанен. Помянем.)</span>',
-					   2:           '<br/><span class="pomyanem">(Автор этого поста был предупрежден.)</span>',
-					   '@@default': ''
-					}) }
-				</blockquote>
+				${ this._getPostMsg(data) }
 			</div>
 		</div>`;
 		return $add(aib.fixHTML(rv)).firstElementChild;
@@ -11183,6 +11178,20 @@ class MakabaPostsBuilder {
 				break;
 			}
 		}
+	}
+	
+	_getPostMsg(data) {
+		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
+		const comment = data.comment.replace(/<script /ig, '<!--<textarea ')
+			.replace(/<\/script>/ig, '</textarea>-->');
+		return `<blockquote id="m${ data.num }" class="post-message">
+			${ comment }
+			${ _switch(data.banned, {
+			   1:           '<br/><span class="pomyanem">(Автор этого поста был забанен. Помянем.)</span>',
+			   2:           '<br/><span class="pomyanem">(Автор этого поста был предупрежден.)</span>',
+			   '@@default': ''
+			}) }
+		</blockquote>`;
 	}
 }
 
@@ -11329,13 +11338,116 @@ class Thread {
 		if(informUser) {
 			$popup(Lng.loading[lang], 'load-thr', true);
 		}
+		if(aib.jsonAPI) {
+			return getJsonPosts(aib.b, this.num, false).then(
+				pBuilder => this._loadFromBuilder(last, smartScroll, pBuilder),
+				e => $popup(getErrorMessage(e), 'load-thr', false));
+		}
 		return ajaxLoad(aib.getThrdUrl(aib.b, this.num)).then(
-			form => this.loadFromForm(last, smartScroll, form),
+			form => this._loadFromBuilder(last, smartScroll, new DOMPostsBuilder(form)),
 			e => $popup(getErrorMessage(e), 'load-thr', false));
 	}
-	loadFromForm(last, smartScroll, form) {
-		var nextCoord, pBuilder = new DOMPostsBuilder(form),
-			maybeSpells = new Maybe(SpellsRunner),
+	loadNew() {
+		if(aib.jsonAPI) {
+			return getJsonPosts(aib.b, aib.t).then(pBuilder => pBuilder
+				? this._loadNewFromBuilder(pBuilder)
+				: { newCount: 0, locked: false });
+		}
+		return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, true).then(form => form
+			? this._loadNewFromBuilder(new DOMPostsBuilder(form))
+			: { newCount: 0, locked: false });
+	}
+	setFavorState(val, type) {
+		this.op.setFavBtn(val);
+		readFav().then(fav => {
+			var b = aib.b,
+				h = aib.host;
+			if(val) {
+				if(!fav[h]) {
+					fav[h] = {};
+				}
+				if(!fav[h][b]) {
+					fav[h][b] = {};
+				}
+				fav[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
+				fav[h][b][this.num] = {
+					'cnt': this.pcount,
+					'new': 0,
+					'txt': this.op.title,
+					'url': aib.getThrdUrl(b, this.num),
+					'last': aib.anchor + this.last.num,
+					'type': type
+				};
+			} else {
+				removeFavoriteEntry(fav, h, b, this.num, false);
+			}
+			saveFavorites(fav);
+		});
+	}
+	updateHidden(data) {
+		var thr = this;
+		do {
+			var realHid = data ? data.hasOwnProperty(thr.num) : false;
+			if(thr.hidden ^ realHid) {
+				if(realHid) {
+					thr.op.setUserVisib(true, false);
+					data[thr.num] = thr.op.title;
+				} else if(thr.hidden) {
+					thr.op.setUserVisib(false, false);
+				}
+			}
+		} while((thr = thr.next));
+	}
+
+	_checkBans(pBuilder) {
+		if(!aib.qBan) {
+			return;
+		}
+		for(let [banId, bNum, bEl] of pBuilder.bannedPostsData()) {
+			let post = bNum ? pByNum.get(bNum) : this.op;
+			if(post && post.banned !== banId) {
+				$remove($q(aib.qBan, post.el));
+				post.msg.appendChild(bEl);
+				post.banned = banId;
+			}
+		}
+	}
+	_toggleReplies(repBtn, updBtn) {
+		var isHide = !this.last.omitted;
+		for(var i = 0, post = this.op; post !== this.last; i++) {
+			post = post.next;
+			if(isHide) {
+				post.wrap.classList.add('de-hidden');
+				post.omitted = true;
+			} else {
+				post.wrap.classList.remove('de-hidden');
+				post.omitted = false;
+			}
+		}
+		repBtn.firstElementChild.className = 'de-abtn ' + (isHide ? 'de-replies-show' : 'de-replies-hide');
+		$toggle(updBtn, !isHide);
+		var colBtn = $q('.de-thread-collapse', this.el);
+		if(colBtn) {
+			$toggle(colBtn, !isHide);
+		}
+		$del($q(aib.qOmitted + ', .de-omitted', this.el));
+		i = this.pcount - 1 - (isHide ? 0 : i);
+		if(i) {
+			this.op.el.insertAdjacentHTML('afterend', '<span class="de-omitted">' + i + '</span> ');
+		}
+	}
+	_importPosts(last, pBuilder, begin, end, maybeVParser, maybeSpells) {
+		var newCount = end - begin,
+			newVisCount = newCount,
+			fragm = doc.createDocumentFragment();
+		for(; begin < end; ++begin) {
+			last = this.addPost(fragm, pBuilder.getPostEl(begin), begin + 1, last, maybeVParser);
+			newVisCount -= maybeSpells.value.run(last);
+		}
+		return [newCount, newVisCount, fragm, last];
+	}
+	_loadFromBuilder(last, smartScroll, pBuilder) {
+		var nextCoord, maybeSpells = new Maybe(SpellsRunner),
 			op = this.op,
 			thrEl = this.el;
 		if(smartScroll) {
@@ -11349,13 +11461,12 @@ class Thread {
 		$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 		if(this.loadCount === 0) {
 			if(op.trunc) {
-				var newMsg = doc.adoptNode($q(aib.qPostMsg, form));
-				op.updateMsg(aib.fixHTML(newMsg), maybeSpells.value);
+				var newMsg = pBuilder.getOpMessage();
+				op.updateMsg(newMsg, maybeSpells.value);
 			}
 			op.ref.removeMap();
 		}
 		this.loadCount++;
-		aib.checkForm(form, maybeSpells);
 		this._parsePosts(pBuilder);
 		var needToHide, needToOmit, needToShow, post = op.next,
 			needRMUpdate = false,
@@ -11454,117 +11565,6 @@ class Thread {
 			}
 		}
 		closePopup('load-thr');
-	}
-	loadNew() {
-		if(aib.jsonAPI) {
-			return getJsonPosts(aib.getJsonApiUrl(aib.b, aib.t)).then(json => {
-				if(json) {
-					var builder;
-					try {
-						builder = new aib.jsonBuilder(json, aib.b);
-					} catch(e) {
-						return CancelablePromise.reject(e);
-					}
-					return this._loadNewFromBuilder(builder);
-				}
-				return { newCount: 0, locked: false };
-			});
-		}
-		return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, !aib.dobr)
-			.then(form => form ? this.loadNewFromForm(form) : { newCount: 0, locked: false });
-	}
-	loadNewFromForm(form) {
-		aib.checkForm(form, null);
-		return this._loadNewFromBuilder(new DOMPostsBuilder(form));
-	}
-	setFavorState(val, type) {
-		this.op.setFavBtn(val);
-		readFav().then(fav => {
-			var b = aib.b,
-				h = aib.host;
-			if(val) {
-				if(!fav[h]) {
-					fav[h] = {};
-				}
-				if(!fav[h][b]) {
-					fav[h][b] = {};
-				}
-				fav[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
-				fav[h][b][this.num] = {
-					'cnt': this.pcount,
-					'new': 0,
-					'txt': this.op.title,
-					'url': aib.getThrdUrl(b, this.num),
-					'last': aib.anchor + this.last.num,
-					'type': type
-				};
-			} else {
-				removeFavoriteEntry(fav, h, b, this.num, false);
-			}
-			saveFavorites(fav);
-		});
-	}
-	updateHidden(data) {
-		var thr = this;
-		do {
-			var realHid = data ? data.hasOwnProperty(thr.num) : false;
-			if(thr.hidden ^ realHid) {
-				if(realHid) {
-					thr.op.setUserVisib(true, false);
-					data[thr.num] = thr.op.title;
-				} else if(thr.hidden) {
-					thr.op.setUserVisib(false, false);
-				}
-			}
-		} while((thr = thr.next));
-	}
-
-	_checkBans(pBuilder) {
-		if(!aib.qBan) {
-			return;
-		}
-		for(let [banId, bNum, bEl] of pBuilder.bannedPostsData()) {
-			let post = bNum ? pByNum.get(bNum) : this.op;
-			if(post && post.banned !== banId) {
-				$remove($q(aib.qBan, post.el));
-				post.msg.appendChild(bEl);
-				post.banned = banId;
-			}
-		}
-	}
-	_toggleReplies(repBtn, updBtn) {
-		var isHide = !this.last.omitted;
-		for(var i = 0, post = this.op; post !== this.last; i++) {
-			post = post.next;
-			if(isHide) {
-				post.wrap.classList.add('de-hidden');
-				post.omitted = true;
-			} else {
-				post.wrap.classList.remove('de-hidden');
-				post.omitted = false;
-			}
-		}
-		repBtn.firstElementChild.className = 'de-abtn ' + (isHide ? 'de-replies-show' : 'de-replies-hide');
-		$toggle(updBtn, !isHide);
-		var colBtn = $q('.de-thread-collapse', this.el);
-		if(colBtn) {
-			$toggle(colBtn, !isHide);
-		}
-		$del($q(aib.qOmitted + ', .de-omitted', this.el));
-		i = this.pcount - 1 - (isHide ? 0 : i);
-		if(i) {
-			this.op.el.insertAdjacentHTML('afterend', '<span class="de-omitted">' + i + '</span> ');
-		}
-	}
-	_importPosts(last, pBuilder, begin, end, maybeVParser, maybeSpells) {
-		var newCount = end - begin,
-			newVisCount = newCount,
-			fragm = doc.createDocumentFragment();
-		for(; begin < end; ++begin) {
-			last = this.addPost(fragm, pBuilder.getPostEl(begin), begin + 1, last, maybeVParser);
-			newVisCount -= maybeSpells.value.run(last);
-		}
-		return [newCount, newVisCount, fragm, last];
 	}
 	_loadNewFromBuilder(pBuilder) {
 		var lastOffset = pr.isVisible ? pr.top : null,
@@ -11711,7 +11711,7 @@ var navPanel = {
 		this._thrs = new Set();
 	},
 	removeThr(thr) {
-		this._thrs.delete(thr);
+		this._thrs.delete(thr.el);
 		if(this._thrs.size === 0) {
 			$hide(this._el);
 			this._currentThr = null;
