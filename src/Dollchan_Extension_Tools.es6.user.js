@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'ae4c457';
+var commit = '8eccfca';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2674,7 +2674,7 @@ function showHiddenWindow(body) {
 				<div class="de-entry ${ aib.cReply }" info="${ b + ';' + tNum }">
 					<input type="checkbox"/>
 					<a href="${ aib.getThrdUrl(b, tNum) }" target="_blank">${ tNum }</a>
-					<div class="de-entry-title">- ${ hThr[b][tNum] }</div>
+					<div class="de-entry-title">- ${ hThr[b][tNum][2] }</div>
 				</div>`);
 			}
 		}

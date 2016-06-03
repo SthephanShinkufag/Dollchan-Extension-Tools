@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = 'ae4c457';
+	var commit = '8eccfca';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -5796,7 +5796,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (!$isEmpty(hThr[b])) {
 				block = addContentBlock(body, $new('b', { 'text': '/' + b }, null));
 				for (var tNum in hThr[b]) {
-					block.insertAdjacentHTML('beforeend', '\n\t\t\t\t<div class="de-entry ' + aib.cReply + '" info="' + (b + ';' + tNum) + '">\n\t\t\t\t\t<input type="checkbox"/>\n\t\t\t\t\t<a href="' + aib.getThrdUrl(b, tNum) + '" target="_blank">' + tNum + '</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + hThr[b][tNum] + '</div>\n\t\t\t\t</div>');
+					block.insertAdjacentHTML('beforeend', '\n\t\t\t\t<div class="de-entry ' + aib.cReply + '" info="' + (b + ';' + tNum) + '">\n\t\t\t\t\t<input type="checkbox"/>\n\t\t\t\t\t<a href="' + aib.getThrdUrl(b, tNum) + '" target="_blank">' + tNum + '</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + hThr[b][tNum][2] + '</div>\n\t\t\t\t</div>');
 				}
 			}
 		}
