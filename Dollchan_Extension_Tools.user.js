@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '38f7ba9';
+	var commit = '6a5436f';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -15196,7 +15196,6 @@ true, true],
 			this._form = form;
 			this._posts = $Q(aib.qRPost, form);
 			this.length = this._posts.length;
-			this.filesCount = $Q(aib.qPostImg, form).length;
 			this.postersCount = '';
 		}
 
@@ -15260,7 +15259,6 @@ true, true],
 			this._posts = json.posts;
 			this._brd = brd;
 			this.length = json.posts.length - 1;
-			this.filesCount = this._posts[0].images;
 			this.postersCount = this._posts[0].unique_ips;
 		}
 
@@ -15325,7 +15323,6 @@ true, true],
 			this._brd = brd;
 			this._posts = json.result.threads[0].posts;
 			this.length = this._posts.length - 1;
-			this.filesCount = json.result.threads[0].files_count;
 			this.postersCount = '';
 		}
 
@@ -15433,7 +15430,6 @@ true, true],
 			this._brd = brd;
 			this._posts = json.threads[0].posts;
 			this.length = json.posts_count;
-			this.filesCount = json.files_count;
 			this.postersCount = json.unique_posters;
 		}
 
@@ -16014,7 +16010,7 @@ true, true],
 					scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);
 				}
 				if (newPosts !== 0 || panel.isNew) {
-					panel.updateCounter(pBuilder.length + 1, pBuilder.filesCount, pBuilder.postersCount);
+					panel.updateCounter(pBuilder.length + 1, $Q(aib.qPostImg, this.el).length, pBuilder.postersCount);
 					Pview.updatePosition(true);
 				}
 				if (pBuilder.isClosed) {
