@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '5b43140';
+var commit = 'ae4c457';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -350,7 +350,9 @@ Lng = {
 		'upd-off':      ['Включить автообновление треда', 'Enable thread autoupdate'],
 		'audio-off':    ['Звуковое оповещение о новых постах', 'Sound notification about new posts'],
 		'catalog':      ['Перейти в каталог', 'Go to catalog'],
-		'counter':      ['Постов/картинок в треде', 'Posts/Images in thread'],
+		'pcount':       ['Постов в треде', 'Posts in thread'],
+		'imglen':       ['Картинок в треде', 'Images in thread'],
+		'posters':      ['Постящих в треде', 'Posters in thread'],
 		'savethr':      ['Сохранить на диск', 'Save to disk'],
 		'enable':       ['Включить/выключить скрипт', 'Turn on/off the script']
 	},
@@ -2175,14 +2177,24 @@ var panel = Object.create({
 						(nav.Safari ? '' : this._getButton('audio-off'))) +
 					(!aib.hasCatalog ? '' : this._getButton('catalog')) +
 					this._getButton('enable') +
-					(!isThr ? '' : `
-						<span id="de-panel-info" title="${ Lng.panelBtn.counter[lang] }">
-							${ Thread.first.pcount }/${ imgLen }
-						</span>`)) }
+					(!isThr ? '' : '<span id="de-panel-info">' +
+						'<span title="' + Lng.panelBtn.pcount[lang] + '">' +
+							Thread.first.pcount + '</span>/' +
+						'<span title="' + Lng.panelBtn.imglen[lang] + '">' + imgLen + '</span>' +
+						(aib.mak ? '/<span title="' + Lng.panelBtn.posters[lang] +
+							'">' + $q('.post-posters').textContent + '</span>' : '') + '</span>')) }
 				</span>
 			</div>
 			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">' }
 		</div>`);
+		if(aib.fch && isThr && Cfg.panelCounter) {
+			$ajax('//a.4cdn.org/' + aib.b + '/thread/' + aib.t + '.json').then(xhr => {
+				try {
+					this._infoEl.innerHTML += '/<span title="' + Lng.panelBtn.posters[lang] +
+						'">' + JSON.parse(xhr.responseText).posts[0].unique_ips + '</span>';
+				} catch(e) {}
+			});
+		}
 		this._el = $id('de-panel');
 		this._el.addEventListener('click', this, true);
 		this._el.addEventListener('mouseover', this);
