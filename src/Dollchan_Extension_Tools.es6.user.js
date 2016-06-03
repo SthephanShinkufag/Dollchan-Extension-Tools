@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'a2cfe31';
+var commit = '73d193d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11338,7 +11338,7 @@ class Thread {
 		if(informUser) {
 			$popup(Lng.loading[lang], 'load-thr', true);
 		}
-		if(aib.jsonAPI) {
+		if(aib.jsonBuilder) {
 			return getJsonPosts(aib.b, this.num, false).then(
 				pBuilder => this._loadFromBuilder(last, smartScroll, pBuilder),
 				e => $popup(getErrorMessage(e), 'load-thr', false));
@@ -11348,7 +11348,7 @@ class Thread {
 			e => $popup(getErrorMessage(e), 'load-thr', false));
 	}
 	loadNew() {
-		if(aib.jsonAPI) {
+		if(aib.jsonBuilder) {
 			return getJsonPosts(aib.b, aib.t).then(pBuilder => pBuilder
 				? this._loadNewFromBuilder(pBuilder)
 				: { newCount: 0, locked: false });
@@ -11975,7 +11975,6 @@ class BaseBoard {
 		this.hasPicWrap = false;
 		this.hasTextLinks = false;
 		this.host = window.location.hostname;
-		this.jsonAPI = false;
 		this.jsonBuilder = null;
 		this.jsonSubmit = false;
 		this.markupBB = false;
@@ -12253,7 +12252,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasCatalog = true;
 			this.hasOPNum = true;
 			this.hasPicWrap = true;
-			this.jsonAPI = true;
 			this.jsonBuilder = MakabaPostsBuilder;
 			this.jsonSubmit = true;
 			this.markupBB = true;
@@ -12928,7 +12926,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.firstPage = 1;
 			this.hasCatalog = true;
 			this.hasTextLinks = true;
-			this.jsonAPI = true;
 			this.jsonBuilder = _4chanPostsBuilder;
 			this.res = 'thread/';
 			this.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
@@ -13181,7 +13178,6 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.anchor = '#i';
 			this.hasPicWrap = true;
-			this.jsonAPI = true;
 			this.jsonBuilder = DobrochanPostsBuilder;
 			this.multiFile = true;
 			this.ru = true;

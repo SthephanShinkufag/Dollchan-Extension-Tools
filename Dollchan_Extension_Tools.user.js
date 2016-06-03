@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = 'a2cfe31';
+	var commit = '73d193d';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -15733,7 +15733,7 @@ true, true],
 				if (informUser) {
 					$popup(Lng.loading[lang], 'load-thr', true);
 				}
-				if (aib.jsonAPI) {
+				if (aib.jsonBuilder) {
 					return getJsonPosts(aib.b, this.num, false).then(function (pBuilder) {
 						return _this47._loadFromBuilder(last, smartScroll, pBuilder);
 					}, function (e) {
@@ -15751,7 +15751,7 @@ true, true],
 			value: function loadNew() {
 				var _this48 = this;
 
-				if (aib.jsonAPI) {
+				if (aib.jsonBuilder) {
 					return getJsonPosts(aib.b, aib.t).then(function (pBuilder) {
 						return pBuilder ? _this48._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false };
 					});
@@ -16483,7 +16483,6 @@ true, true],
 			this.hasPicWrap = false;
 			this.hasTextLinks = false;
 			this.host = window.location.hostname;
-			this.jsonAPI = false;
 			this.jsonBuilder = null;
 			this.jsonSubmit = false;
 			this.markupBB = false;
@@ -16849,7 +16848,6 @@ true, true],
 				_this55.hasCatalog = true;
 				_this55.hasOPNum = true;
 				_this55.hasPicWrap = true;
-				_this55.jsonAPI = true;
 				_this55.jsonBuilder = MakabaPostsBuilder;
 				_this55.jsonSubmit = true;
 				_this55.markupBB = true;
@@ -17759,7 +17757,6 @@ true, true],
 				_this71.firstPage = 1;
 				_this71.hasCatalog = true;
 				_this71.hasTextLinks = true;
-				_this71.jsonAPI = true;
 				_this71.jsonBuilder = _4chanPostsBuilder;
 				_this71.res = 'thread/';
 				_this71.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
@@ -18127,7 +18124,6 @@ true, true],
 
 				_this77.anchor = '#i';
 				_this77.hasPicWrap = true;
-				_this77.jsonAPI = true;
 				_this77.jsonBuilder = DobrochanPostsBuilder;
 				_this77.multiFile = true;
 				_this77.ru = true;
