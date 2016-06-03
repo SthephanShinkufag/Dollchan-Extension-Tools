@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '73d193d';
+var commit = '38cc52f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5485,15 +5485,13 @@ ajaxLoad._readCacheData = function(ajaxHeaders) {
 }
 
 function getJsonPosts(brd, tNum, useCache = true) {
-	return $ajax(aib.getJsonApiUrl(brd, tNum), { useCache, useTimeout: true }).then(
-		xhr => {
-			try {
-				return new aib.jsonBuilder(JSON.parse(xhr.responseText), brd);
-			} catch(e) {
-				return CancelablePromise.reject(e);
-			}
-		},
-		xhr => err => err.code === 304 ? null : CancelablePromise.reject(err));
+	return $ajax(aib.getJsonApiUrl(brd, tNum), { useCache, useTimeout: true }).then(xhr => {
+		try {
+			return new aib.jsonBuilder(JSON.parse(xhr.responseText), brd);
+		} catch(e) {
+			return CancelablePromise.reject(e);
+		}
+	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 
 function infoLoadErrors(e, showError = true) {
