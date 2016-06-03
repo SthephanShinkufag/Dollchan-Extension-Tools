@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '8eccfca';
+var commit = '38f7ba9';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1983,8 +1983,18 @@ var panel = Object.create({
 	_hideTO: 0,
 	_menu: null,
 	_menuTO: 0,
-	get _infoEl() {
-		var value = $id('de-panel-info');
+	get _pcountEl() {
+		var value = $id('de-panel-info-pcount');
+		Object.defineProperty(this, '_infoEl', { value, configurable: true });
+		return value;
+	},
+	get _icountEl() {
+		var value = $id('de-panel-info-icount');
+		Object.defineProperty(this, '_infoEl', { value, configurable: true });
+		return value;
+	},
+	get _acountEl() {
+		var value = $id('de-panel-info-acount');
 		Object.defineProperty(this, '_infoEl', { value, configurable: true });
 		return value;
 	},
@@ -2178,38 +2188,36 @@ var panel = Object.create({
 					(!aib.hasCatalog ? '' : this._getButton('catalog')) +
 					this._getButton('enable') +
 					(!isThr ? '' : '<span id="de-panel-info">' +
-						'<span title="' + Lng.panelBtn.pcount[lang] + '">' +
-							Thread.first.pcount + '</span>/' +
-						'<span title="' + Lng.panelBtn.imglen[lang] + '">' + imgLen + '</span>' +
-						(aib.mak ? '/<span title="' + Lng.panelBtn.posters[lang] +
-							'">' + $q('.post-posters').textContent + '</span>' : '') + '</span>')) }
+						'<span id="de-panel-info-pcount" title="' + Lng.panelBtn.pcount[lang] + '">' +
+							Thread.first.pcount + '</span>' +
+						'<span id="de-panel-info-icount" title="' + Lng.panelBtn.imglen[lang] + '">' + imgLen + '</span>' +
+						'<span id="de-panel-info-acount" title="' + Lng.panelBtn.posters[lang] + '"></span>' +
+					'</span>')) }
 				</span>
 			</div>
 			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">' }
 		</div>`);
-		if(aib.fch && isThr && Cfg.panelCounter) {
-			$ajax('//a.4cdn.org/' + aib.b + '/thread/' + aib.t + '.json').then(xhr => {
-				try {
-					this._infoEl.innerHTML += '/<span title="' + Lng.panelBtn.posters[lang] +
-						'">' + JSON.parse(xhr.responseText).posts[0].unique_ips + '</span>';
-				} catch(e) {}
-			});
-		}
 		this._el = $id('de-panel');
 		this._el.addEventListener('click', this, true);
 		this._el.addEventListener('mouseover', this);
 		this._el.addEventListener('mouseout', this);
 		this._buttons = $id('de-panel-buttons');
+		this.isNew = true;
 	},
 	remove() {
 		this._el.removeEventListener('click', this, true);
 		this._el.removeEventListener('mouseover', this);
 		this._el.removeEventListener('mouseout', this);
-		delete this._infoEl;
+		delete this._pcountEl;
+		delete this._icountEl;
+		delete this._acountEl;
 		$del($id('de-main'));
 	},
-	updateCounter(postCount, imgsCount) {
-		this._infoEl.textContent = postCount + '/' + imgsCount;
+	updateCounter(postCount, imgsCount, postersCount) {
+		this._pcountEl.textContent = postCount;
+		this._icountEl.textContent = imgsCount;
+		this._acountEl.textContent = postersCount;
+		this.isNew = false;
 	}
 });
 
@@ -8099,7 +8107,7 @@ function checkUpload(data) {
 			updater.continue(true);
 			closePopup('upload');
 		} else {
-			Thread.first.loadNew(true).then(() => AjaxError.Success, e => e).then(e => {
+			Thread.first.loadNew().then(() => AjaxError.Success, e => e).then(e => {
 				infoLoadErrors(e);
 				if(Cfg.scrAfterRep) {
 					scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
@@ -8150,7 +8158,7 @@ var checkDelete = async(function* (data) {
 	if(isThr) {
 		Post.clearMarks();
 		try {
-			yield Thread.first.loadNew(false);
+			yield Thread.first.loadNew();
 		} catch(e) {
 			infoLoadErrors(e);
 		}
@@ -9621,7 +9629,7 @@ class Post extends AbstractPost {
 		el.addEventListener('mouseover', this, true);
 	}
 	get banned() {
-		var value = aib.qBan ? !!$q(aib.qBan, this.el) : false;
+		var value = aid.getBanId(this.el);
 		Object.defineProperty(this, 'banned', { writable: true, value });
 		return value;
 	}
@@ -10866,6 +10874,323 @@ class RefMap {
 }
 
 
+// NEW POSTS BUILDERS
+// ===========================================================================================================
+
+class DOMPostsBuilder {
+	constructor(form) {
+		this._form = form;
+		this._posts = $Q(aib.qRPost, form);
+		this.length = this._posts.length;
+		this.filesCount = $Q(aib.qPostImg, form).length;
+		this.postersCount = '';
+	}
+	get isClosed() {
+		return !!$q(aib.qClosed, this._form);
+	}
+	getPostEl(i) {
+		return aib.fixHTML(this._posts[i]);
+	}
+	getPNum(i) {
+		return aib.getPNum(this._posts[i]);
+	}
+	* bannedPostsData() {
+		var bEls = $Q(aib.qBan, this._form);
+		for(let i = 0, len = bEls.length; i < len; ++i) {
+			let pEl = aib.getPostElOfEl(bEl);
+			yield [1, pEl ? aib.getPNum(pEl) : null, doc.adoptNode(bEl)];
+		}
+	}
+}
+
+class _4chanPostsBuilder {
+	constructor(json, brd) {
+		this._posts = json.posts;
+		this._brd = brd;
+		this.length = json.posts.length - 1;
+		this.filesCount = this._posts[0].images;
+		this.postersCount = this._posts[0].unique_ips;
+	}
+	get isClosed() {
+		return !!(this._posts[0].closed || this._posts[0].archived);
+	}
+	getPostEl(i) {
+		// TODO: handle capcode and probably image spoilers
+		const data = this._posts[i + 1];
+		const num = data.no;
+		const brd = this._brd;
+		
+		const _if = (cond, strTrue, strFalse = '') => cond ? strTrue : strFalse;
+		
+		let filesHTML;
+		if(data.filename && !data.filedeleted) {
+			const size = prettifySize(data.fsize);
+			filesHTML = `<div class="file" id="f${ num }">
+				<div class="fileText" id="fT${ num }">File: <a href="//i.4cdn.org/${ brd }/${ data.tim }${ data.ext }" target="_blank">${ data.filename }${ data.ext }</a> (${ size }, ${ data.w }x${ data.h })</div>
+				<a class="fileThumb" href="//i.4cdn.org/${ brd }/${ data.tim }${ data.ext }" target="_blank">
+					<img src="//i.4cdn.org/${ brd }/${ data.tim }s.jpg" alt="${ size }" data-md5="${ data.md5 }" style="height: ${ data.tn_h }px; width: ${ data.tn_w }px;">
+					<div data-tip="" data-tip-cb="mShowFull" class="mFileInfo mobile">${ size } ${ data.ext.substr(1).toUpperCase() }</div>
+				</a>
+			</div>`;
+		} else {
+			filesHTML = '';
+		}
+		let rv = `<div class="postContainer replyContainer" id="pc${ num }">
+			<div class="sideArrows" id="sa${ num }">&gt;&gt;</div>
+			<div id="p${ num }" class="post reply">
+				<div class="postInfoM mobile" id="pim${ num }">
+					<span class="nameBlock">
+						<span class="name">${ data.name }</span>
+						${ _if(data.trip, `<span class="postertrip">${ data.trip }</span>`) }
+						${ _if(data.id, `<span class="posteruid id_${ data.id }">(ID: <span class="hand" title="Highlight posts by this ID">${ data.id }</span>)</span>`) }
+						${ _if(data.country, `<span title="${ data.country_name }" class="flag flag-${ data.country.toLowerCase() }"></span>`) }
+						<br>
+						<span class="subject">${ data.sub || '' }</span>
+					</span>
+					<span class="dateTime postNum" data-utc="${ data.time }">${ data.now } <a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('${ num }');" title="Reply to this post">${ num }</a></span>
+				</div>
+				<div class="postInfo desktop" id="pi75970976">
+					<input name="75970976" value="delete" type="checkbox">
+					<span class="subject">${ data.sub || '' }</span>
+					<span class="nameBlock">
+						<span class="name">${ data.name }</span>
+						${ _if(data.trip, `<span class="postertrip">${ data.trip }</span>`) }
+						${ _if(data.id, `<span class="posteruid id_${ data.id }">(ID: <span class="hand" title="Highlight posts by this ID">${ data.id }</span>)</span>`) }
+						${ _if(data.country, `<span title="${ data.country_name }" class="flag flag-${ data.country.toLowerCase() }"></span>`) }
+					</span>
+					<span class="dateTime" data-utc="${ data.time }">${ data.now }</span>
+					<span class="postNum desktop"><a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('${ num }');" title="Reply to this post">${ num }</a></span>
+				</div>
+				${ filesHTML }
+				<blockquote class="postMessage" id="m${ num }"> ${ data.com }</blockquote>
+			</div>
+		</div>`;
+		return $add(aib.fixHTML(rv)).lastElementChild;
+	}
+	getPNum(i) {
+		return this._posts[i + 1].no;
+	}
+	* bannedPostsData() {}
+}
+
+class DobrochanPostsBuilder {
+	constructor(json, brd) {
+		if(json.error) {
+			throw new AjaxError(0, `API ${ json.message }`);
+		}
+		this._json = json.result;
+		this._brd = brd;
+		this._posts = json.result.threads[0].posts;
+		this.length = this._posts.length - 1;
+		this.filesCount = json.result.threads[0].files_count;
+		this.postersCount = '';
+	}
+	get isClosed() {
+		return !!this._json.threads[0].archived;
+	}
+	getPostEl(i) {
+		const data = this._posts[i + 1];
+		const num = data.display_id;
+		const brd = this._brd;
+		const tNum = this._json.threads[0].display_id;
+		
+		const _if = (cond, strTrue, strFalse = '') => cond ? strTrue : strFalse;
+		
+		let filesHTML;
+		if(data.files.length !== 0) {
+			filesHTML = '';
+			for(let file of data.files) {
+				let fileName, thumb, thumb_w = 200,
+					thumb_h = 200,
+					size = prettifySize(file.size);
+				if(brd == 'b' || brd == 'rf') {
+					fileName = file.thumb.substring(file.thumb.lastIndexOf("/") + 1);
+				} else {
+					fileName = file.src.substring(file.src.lastIndexOf("/") + 1);
+				}
+				const max_rating = 'r15'; // FIXME: read from settings
+				if(file.rating === 'r-18g' && max_rating !== "r-18g") {
+					thumb = "images/r-18g.png";
+				} else if(file.rating === 'r-18' && (max_rating !== 'r-18g' || max_rating !== 'r-18')) {
+					thumb = "images/r-18.png";
+				} else if(file.rating === 'r-15' && max_rating == 'sfw') {
+					thumb = "images/r-15.png";
+				} else if(file.rating === 'illegal') {
+					thumb = "images/illegal.png";
+				} else {
+					thumb = file.thumb;
+					thumb_w = file.thumb_width;
+					thumb_h = file.thumb_height;
+				}
+				filesHTML += `<div class="file">
+					<div class="fileinfo">Файл:
+						<a href="/${ file.src }" target="_blank">${ fileName }</a>
+						<br>
+						<em>${ file.thumb.substring(file.thumb.lastIndexOf('.') + 1) }, ${ size }, ${ file.metadata.width }x${ file.metadata.height } - Нажмите на картинку для увеличения</em>
+						<br>
+						<a class="edit_ icon"  href="/utils/image/edit/${ file.file_id }/${ num }"><img title="edit" alt="edit" src="/images/blank.png"></a>
+						<a class="search_google icon" href="http://www.google.com/searchbyimage?image_url=http://dobrochan.ru/${ file.src }"><img title="edit" alt="edit" src="/images/blank.png"></a>
+						<a class="search_iqdb icon" href="http://iqdb.org/?url=http://dobrochan.ru/${ file.src }"><img title="edit" alt="edit" src="/images/blank.png"></a>
+					</div>
+					<a href="/${ file.src }" target="_blank">
+						<img class="thumb" src="/${ thumb }" width="${ thumb_w }" height="${ thumb_h }">
+					</a>
+				</div>`;
+			}
+		} else {
+			filesHTML = '';
+		}
+		
+		let rv = `<table id="post_${ num }" class="replypost post"><tbody><tr>
+			<td class="doubledash">&gt;&gt;</td>
+			<td class="reply" id="reply${ num }">
+				<a name="i${ num }"></a>
+				<label>
+					<a class="delete icon">
+						<input name="${ num }" value="${ data.post_id }" class="delete_checkbox" id="delbox_${ num }" type="checkbox">
+						<img src="/images/blank.png" title="Mark to delete" alt="Удалить">
+					</a>
+					<span class="postername">${ data.name || 'Анонимус' }</span>
+					${ data.date.replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/, (_, y, mo, d, h, m, s) =>
+					       `${ d } ${ Lng.fullMonth[1][mo]} ${ y } (${ new Date(y, mo, d, h, m, s).getDay() }) ${ h }:${ m }`)
+					}
+				</label>
+				<span class="reflink">
+					<a onclick="Highlight(0, ${ num })" href="/${ brd }/res/${ tNum }.xhtml#i${ num }"> No.${ num }</a>
+				</span>
+				<span class="cpanel">
+					<a class="reply_icon" onclick="GetReplyForm(event, '${ brd }', ${ tNum }, ${ num })">
+						<img src="/images/blank-double.png" style="vertical-align:sub" title="Ответ" alt="Ответ">
+					</a>
+				</span>
+				<br>
+				${ filesHTML }
+				${ _if(filesHTML !== '', '<div style="clear: both;"></div>') }
+				<div class="postbody"> ${ data.message_html }</div>
+				<div class="abbrev"></div>
+			</td>
+		</tr></tbody></table>`;
+		return $add(aib.fixHTML(rv)).firstChild.firstChild.lastElementChild;
+	}
+	getPNum(i) {
+		return this._posts[i + 1].display_id;
+	}
+	* bannedPostsData() {}
+}
+
+class MakabaPostsBuilder {
+	constructor(json, brd) {
+		if(json.Error) {
+			throw new AjaxError(0, `API ${ json.Error } (${ json.Code })`);
+		}
+		this._json = json;
+		this._brd = brd;
+		this._posts = json.threads[0].posts;
+		this.length = json.posts_count;
+		this.filesCount = json.files_count;
+		this.postersCount = json.unique_posters;
+	}
+	get isClosed() {
+		return this._json.is_closed;
+	}
+	getPostEl(i) {
+		const data = this._posts[i + 1];
+		const comment = data.comment.replace(/<script /ig, '<!--<textarea ')
+			.replace(/<\/script>/ig, '</textarea>-->');
+		const num = data.num;
+		const brd = this._brd;
+		
+		const _if = (cond, strTrue, strFalse = '') => cond ? strTrue : strFalse;
+		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
+		
+		let filesHTML;
+		if(data.files) {
+			filesHTML = `<div class="images${ data.files.length === 1 ? ' images-single' : '' }">`;
+			for(let file of data.files) {
+				let isWebm = file.name.endsWith('.webm');
+				filesHTML += `<figure class="image">
+					<figcaption class="file-attr">
+						<a class="desktop" target="_blank" href="/${ brd }/${ file.path }">${ file.name }</a>
+						${ _if(isWebm, `<img src="/makaba/templates/img/webm-logo.png" width="50px" alt="webm file" id="webm-icon-${ num }-${ file.md5 }">`) }
+						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }${ _if(isWebm, ', ' + file.duration) })</span>
+					</figcaption>
+					<div id="exlink-${ num }-${ file.md5 }">
+						<a href="/${ brd }/${ file.path }" name="expandfunc" onclick="expand('${ num }-${ file.md5 }','/${ brd }/${ file.path }','/${ brd }/${ file.thumbnail }',${ file.width },${ file.height },${ file.tn_width },${ file.tn_height }); return false;">
+							<img src="/${ brd }/${ file.thumbnail }" width="${ file.tn_width }" height="${ file.tn_height }" alt="${ file.size }" class="img preview${ _if(isWebm, ' webm-file') }">
+						</a>
+					</div>
+				</figure>`;
+			}
+			filesHTML += '</div>';
+		} else if(data.video) {
+			filesHTML = `<div class="images">
+				<div style="float: left; margin: 5px; margin-right:10px">
+					${ post.video }
+				</div>
+			</div>`;
+		} else {
+			filesHTML = '';
+		}
+		
+		let rv = `<div id="post-${ num }" class="post-wrapper">
+			<div class="post reply" id="post-body-${ num }" data-num="${ num }">
+				<div id="post-details-${ num }" class="post-details">
+					<input type="checkbox" name="delete"  class="turnmeoff" value="${ num }" />
+					${ _if(data.subject && this._json.enable_sublect,
+						`<span class="post-title">${ data.subject + ( data.tags ? ' /' + data.tags + '/' : '') }</span>`
+					) }
+					${ _if(data.email,
+						`<a href="${ data.email }" class="post-email">${ data.name }</a>`,
+						`<span class="ananimas">${ data.name }</span>`
+					) }
+					${ _if(data.icon, `<span class="post-icon">${ data.icon }</span>`) }
+					${ _switch(data.trip, {
+					   '!!%adm%!!':        '<span class="adm">## Abu ##<\/span>',
+					   '!!%mod%!!':        '<span class="mod">## Mod ##<\/span>',
+					   '!!%Inquisitor%!!': '<span class="inquisitor">## Applejack ##<\/span>',
+					   '!!%coder%!!':      '<span class="mod">## Кодер ##<\/span>',
+					   '@@default':        '<span class="postertrip">' + data.trip + '<\/span>'
+					}) }
+					${ _if(data.op === 1, '<span class="ophui"># OP</span>&nbsp;') }
+					<span class="posttime-reflink">
+						<span class="posttime">${ data.date }&nbsp;</span>
+						<span class="reflink">
+							<a href="/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }">№</a><a href="/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }" class="postbtn-reply-href" name="${ num }">${ num }</a>
+						</span>
+					</span>
+					<br class="turnmeoff">
+				</div>
+				${ filesHTML }
+				<blockquote id="m${ num }" class="post-message">
+					${ comment }
+					${ _switch(data.banned, {
+					   1:           '<br/><span class="pomyanem">(Автор этого поста был забанен. Помянем.)</span>',
+					   2:           '<br/><span class="pomyanem">(Автор этого поста был предупрежден.)</span>',
+					   '@@default': ''
+					}) }
+				</blockquote>
+			</div>
+		</div>`;
+		return $add(aib.fixHTML(rv)).firstElementChild;
+	}
+	getPNum(i) {
+		return this._posts[i + 1].num;
+	}
+	* bannedPostsData() {
+		for(let post of this._posts) {
+			switch(post.banned) {
+			case 1:
+				yield [1, post.num, $add('<span class="pomyanem">(Автор этого поста был забанен. Помянем.)</span>')];
+				break;
+			case 2:
+				yield [2, post.num, $add('<span class="pomyanem">(Автор этого поста был предупрежден.)</span>')];
+				break;
+			}
+		}
+	}
+}
+
+
 // THREADS
 // ===========================================================================================================
 
@@ -10966,7 +11291,6 @@ class Thread {
 	addPost(parent, el, i, prev, maybeVParser) {
 		var post, num = aib.getPNum(el),
 			wrap = doc.adoptNode(aib.getWrap(el, false));
-		el = aib.fixHTML(el);
 		post = new Post(el, this, num, i, false, prev);
 		parent.appendChild(wrap);
 		if(aib.t && !doc.hidden && Cfg.animation) {
@@ -11014,7 +11338,7 @@ class Thread {
 			e => $popup(getErrorMessage(e), 'load-thr', false));
 	}
 	loadFromForm(last, smartScroll, form) {
-		var nextCoord, loadedPosts = $Q(aib.qRPost, form),
+		var nextCoord, pBuilder = new DOMPostsBuilder(form),
 			maybeSpells = new Maybe(SpellsRunner),
 			op = this.op,
 			thrEl = this.el;
@@ -11035,9 +11359,8 @@ class Thread {
 			op.ref.removeMap();
 		}
 		this.loadCount++;
-		this._checkBans(form);
 		aib.checkForm(form, maybeSpells);
-		this._parsePosts(loadedPosts);
+		this._parsePosts(pBuilder);
 		var needToHide, needToOmit, needToShow, post = op.next,
 			needRMUpdate = false,
 			existed = this.pcount === 1 ? 0 : this.pcount - post.count;
@@ -11045,21 +11368,21 @@ class Thread {
 		case 'new': // get new posts
 			needToHide = $Q('.de-hidden', thrEl).length;
 			needToOmit = needToHide + post.count - 1;
-			needToShow = loadedPosts.length - needToOmit;
+			needToShow = pBuilder.length - needToOmit;
 			break;
 		case 'all': // get all posts
 			needToHide = needToOmit = 0;
-			needToShow = loadedPosts.length;
+			needToShow = pBuilder.length;
 			break;
 		case 'more': // show 10 omitted posts + get new posts
 			needToHide = $Q('.de-hidden', thrEl).length - 10;
 			needToOmit = Math.max(needToHide + post.count - 1, 0);
 			needToHide = Math.max(needToHide, 0);
-			needToShow = loadedPosts.length - needToOmit;
+			needToShow = pBuilder.length - needToOmit;
 			break;
 		default: // get last posts
 			needToHide = Math.max(existed - last, 0);
-			needToOmit = Math.max(loadedPosts.length - last, 0);
+			needToOmit = Math.max(pBuilder.length - last, 0);
 			needToShow = last;
 		}
 		if(needToHide) {
@@ -11071,10 +11394,10 @@ class Thread {
 		} else {
 			var fragm = doc.createDocumentFragment(),
 				tPost = op,
-				nonExisted = loadedPosts.length - existed,
+				nonExisted = pBuilder.length - existed,
 				maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
 			for(var i = Math.max(0, nonExisted + existed - needToShow); i < nonExisted; ++i) {
-				tPost = this.addPost(fragm, loadedPosts[i], i + 1, tPost, maybeVParser);
+				tPost = this.addPost(fragm, pBuilder.getPostEl(i), i + 1, tPost, maybeVParser);
 				maybeSpells.value.run(tPost);
 			}
 			maybeVParser.end();
@@ -11088,7 +11411,7 @@ class Thread {
 		}
 		while(existed-- !== 0) {
 			if(post.trunc) {
-				var newMsg = doc.adoptNode($q(aib.qPostMsg, loadedPosts[post.count - 1]));
+				var newMsg = doc.adoptNode($q(aib.qPostMsg, pBuilder.getPostEl(post.count - 1)));
 				post.updateMsg(aib.fixHTML(newMsg), maybeSpells.value);
 			}
 			if(post.omitted) {
@@ -11136,17 +11459,17 @@ class Thread {
 		}
 		closePopup('load-thr');
 	}
-	loadNew(useAPI) {
-		if(aib.dobr && useAPI) {
-			return getJsonPosts('/api/thread/' + aib.b + '/' + aib.t + '.json').then(json => {
+	loadNew() {
+		if(aib.jsonAPI) {
+			return getJsonPosts(aib.getJsonApiUrl(aib.b, aib.t)).then(json => {
 				if(json) {
-					if(json.error) {
-						return CancelablePromise.reject(new AjaxError(0, json.message));
+					var builder;
+					try {
+						builder = new aib.jsonBuilder(json, aib.b);
+					} catch(e) {
+						return CancelablePromise.reject(e);
 					}
-					if(this._lastModified !== json.last_modified || this.pcount !== json.posts_count) {
-						this._lastModified = json.last_modified;
-						return this.loadNew(false);
-					}
+					return this._loadNewFromBuilder(builder);
 				}
 				return { newCount: 0, locked: false };
 			});
@@ -11155,22 +11478,8 @@ class Thread {
 			.then(form => form ? this.loadNewFromForm(form) : { newCount: 0, locked: false });
 	}
 	loadNewFromForm(form) {
-		this._checkBans(form);
 		aib.checkForm(form, null);
-		var lastOffset = pr.isVisible ? pr.top : null,
-			[newPosts, newVisPosts] = this._parsePosts($Q(aib.qRPost, form));
-		if(lastOffset !== null) {
-			scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);
-		}
-		if(newPosts !== 0) {
-			panel.updateCounter(this.pcount, $Q(aib.qPostImg, this.el).length);
-			Pview.updatePosition(true);
-		}
-		if($q(aib.qClosed, form)) {
-			ajaxLoad.clearCache();
-			return { newCount: newVisPosts, locked: true };
-		}
-		return { newCount: newVisPosts, locked: false };
+		return this._loadNewFromBuilder(new DOMPostsBuilder(form));
 	}
 	setFavorState(val, type) {
 		this.op.setFavBtn(val);
@@ -11214,18 +11523,16 @@ class Thread {
 		} while((thr = thr.next));
 	}
 
-	_checkBans(thrNode) {
+	_checkBans(pBuilder) {
 		if(!aib.qBan) {
 			return;
 		}
-		var bEls = $Q(aib.qBan, thrNode);
-		for(var i = 0, len = bEls.length; i < len; ++i) {
-			var bEl = bEls[i],
-				pEl = aib.getPostElOfEl(bEl),
-				post = pEl ? pByNum.get(aib.getPNum(pEl)) : this.op;
-			if(post && !post.banned) {
-				post.msg.appendChild(doc.adoptNode(bEl));
-				post.banned = true;
+		for(let [banId, bNum, bEl] of pBuilder.bannedPostsData()) {
+			let post = bNum ? pByNum.get(bNum) : this.op;
+			if(post && post.banned !== banId) {
+				$remove($q(aib.qBan, post.el));
+				post.msg.appendChild(bEl);
+				post.banned = banId;
 			}
 		}
 	}
@@ -11253,35 +11560,52 @@ class Thread {
 			this.op.el.insertAdjacentHTML('afterend', '<span class="de-omitted">' + i + '</span> ');
 		}
 	}
-	_importPosts(last, newPosts, begin, end, maybeVParser, maybeSpells) {
+	_importPosts(last, pBuilder, begin, end, maybeVParser, maybeSpells) {
 		var newCount = end - begin,
 			newVisCount = newCount,
 			fragm = doc.createDocumentFragment();
 		for(; begin < end; ++begin) {
-			last = this.addPost(fragm, newPosts[begin], begin + 1, last, maybeVParser);
+			last = this.addPost(fragm, pBuilder.getPostEl(begin), begin + 1, last, maybeVParser);
 			newVisCount -= maybeSpells.value.run(last);
 		}
 		return [newCount, newVisCount, fragm, last];
 	}
-	_parsePosts(nPosts) {
+	_loadNewFromBuilder(pBuilder) {
+		var lastOffset = pr.isVisible ? pr.top : null,
+			[newPosts, newVisPosts] = this._parsePosts(pBuilder);
+		if(lastOffset !== null) {
+			scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);
+		}
+		if(newPosts !== 0 || panel.isNew) {
+			panel.updateCounter(pBuilder.length + 1, pBuilder.filesCount, pBuilder.postersCount);
+			Pview.updatePosition(true);
+		}
+		if(pBuilder.isClosed) {
+			ajaxLoad.clearCache();
+			return { newCount: newVisPosts, locked: true };
+		}
+		return { newCount: newVisPosts, locked: false };
+	}
+	_parsePosts(pBuilder) {
+		this._checkBans(pBuilder);
 		var maybeSpells = new Maybe(SpellsRunner),
 			newPosts = 0,
 			newVisPosts = 0,
-			len = nPosts.length,
+			len = pBuilder.length,
 			post = this.lastNotDeleted,
 			maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
 		if(post.count !== 0 &&
-		   (aib.dobr || post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num))
+		   (aib.dobr || post.count > len || pBuilder.getPNum(post.count - 1) !== post.num))
 		{
 			post = this.op.nextNotDeleted;
 			var i, firstChangedPost = null;
 			for(i = post.count - 1; i < len && post; ) {
-				if(post.num === aib.getPNum(nPosts[i])) {
+				if(post.num === pBuilder.getPNum(i)) {
 					i++;
 					post = post.nextNotDeleted;
 					continue;
 				}
-				if(post.num > aib.getPNum(nPosts[i])) {
+				if(post.num > pBuilder.getPNum(i)) {
 					if(!firstChangedPost) {
 						firstChangedPost = post.prev;
 					}
@@ -11289,8 +11613,8 @@ class Thread {
 					do {
 						cnt++;
 						i++;
-					} while(aib.getPNum(nPosts[i]) < post.num);
-					var res = this._importPosts(post.prev, nPosts, i - cnt, i, maybeVParser, maybeSpells);
+					} while(pBuilder.getPNum(i) < post.num);
+					var res = this._importPosts(post.prev, pBuilder, i - cnt, i, maybeVParser, maybeSpells);
 					newPosts += res[0];
 					this.pcount += res[0];
 					newVisPosts += res[1];
@@ -11322,7 +11646,7 @@ class Thread {
 			}
 		}
 		if(len + 1 > this.pcount) {
-			var res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len, maybeVParser, maybeSpells);
+			var res = this._importPosts(this.last, pBuilder, this.lastNotDeleted.count, len, maybeVParser, maybeSpells);
 			newPosts += res[0];
 			newVisPosts += res[1];
 			this.el.appendChild(res[2]);
@@ -11655,6 +11979,8 @@ class BaseBoard {
 		this.hasPicWrap = false;
 		this.hasTextLinks = false;
 		this.host = window.location.hostname;
+		this.jsonAPI = false;
+		this.jsonBuilder = null;
 		this.jsonSubmit = false;
 		this.markupBB = false;
 		this.multiFile = false;
@@ -11748,7 +12074,9 @@ class BaseBoard {
 			return data;
 		}
 		var str;
-		if(isForm) {
+		if(typeof data === 'string') {
+			str = data;
+		} else if(isForm) {
 			data.id = 'de-dform-old';
 			str = data.outerHTML;
 		} else {
@@ -11773,6 +12101,9 @@ class BaseBoard {
 		if(Cfg.crossLinks) {
 			str = str.replace(aib.reCrossLinks,
 				(str, b, tNum, pNum) => '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<');
+		}
+		if(typeof data === 'string') {
+			return str;
 		}
 		if(isForm) {
 			let newForm = $bBegin(data, str);
@@ -11802,6 +12133,9 @@ class BaseBoard {
 		}
 		return videos;
 	}
+	getBanId(postEl) {
+		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
+	}
 	getCaptchaSrc(src, tNum) {
 		var tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
 					 .replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
@@ -11826,6 +12160,7 @@ class BaseBoard {
 		var node = (el.tagName === 'SPAN' ? el.parentNode : el).parentNode;
 		return node.tagName === 'SPAN' ? node.parentNode : node;
 	}
+	getJsonApiUrl(brd, tNum) {}
 	getOmitted(el, len) { // Differs _2chRu only
 		var txt;
 		return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
@@ -11922,6 +12257,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasCatalog = true;
 			this.hasOPNum = true;
 			this.hasPicWrap = true;
+			this.jsonAPI = true;
+			this.jsonBuilder = MakabaPostsBuilder;
 			this.jsonSubmit = true;
 			this.markupBB = true;
 			this.multiFile = true;
@@ -11969,6 +12306,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			$q('#postform .images-area', doc).lastElementChild.innerHTML = str;
 		}
+		getBanId(postEl) {
+			var el = $q(this.qBan, postEl);
+			if(!el) {
+				return 0;
+			}
+			return el.textContent.contains('предупрежден') ? 2 : 1;
+		}
 		getImgParent(node) {
 			var el = $parent(node, 'FIGURE'),
 				parent = el.parentNode;
@@ -11976,6 +12320,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getImgWrap(el) {
 			return $parent(el, 'FIGURE');
+		}
+		getJsonApiUrl(brd, tNum) {
+			return `/${ brd }/res/${ tNum }.json`;
 		}
 		getPNum(post) {
 			return +post.getAttribute('data-num');
@@ -12585,6 +12932,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.firstPage = 1;
 			this.hasCatalog = true;
 			this.hasTextLinks = true;
+			this.jsonAPI = true;
+			this.jsonBuilder = _4chanPostsBuilder;
 			this.res = 'thread/';
 			this.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
 			this.thrid = 'resto';
@@ -12630,6 +12979,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		getFileInfo(wrap) {
 			var el = $q(this.qFileInfo, wrap);
 			return el ? el.lastChild.textContent : '';
+		}
+		getJsonApiUrl(brd, tNum) {
+			return `//a.4cdn.org/${ brd }/thread/${ tNum }.json`;
 		}
 		getPageUrl(b, p) {
 			return fixBrd(b) + (p > 1 ? p : '');
@@ -12833,6 +13185,8 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.anchor = '#i';
 			this.hasPicWrap = true;
+			this.jsonAPI = true;
+			this.jsonBuilder = DobrochanPostsBuilder;
 			this.multiFile = true;
 			this.ru = true;
 			this.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
@@ -12864,6 +13218,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		getImgWrap(el) {
 			return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode :
 				el.firstElementChild.tagName === 'IMG' ? el.parentNode : el;
+		}
+		getJsonApiUrl(brd, tNum) {
+			return `/api/thread/${ brd }/${ tNum }/all.json?new_format&message_html&board`;
 		}
 		getPageUrl(b, p) {
 			return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
@@ -14112,7 +14469,7 @@ function initThreadUpdater(title, enableUpdate) {
 			case 1:
 				counter.setWait();
 				this._state = 2;
-				this._loadPromise = Thread.first.loadNew(true).then(
+				this._loadPromise = Thread.first.loadNew().then(
 					({ newCount, locked}) => this._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success),
 					e => this._handleNewPosts(0, e));
 				return;
@@ -14411,6 +14768,7 @@ function scriptCSS() {
 	#de-panel-upd-off { fill: #ff3232; }\
 	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }\
 	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }\
+	#de-panel-info-icount::before, #de-panel-info-acount:not(:empty)::before { content: "/"; }\
 	.de-svg-back { fill: inherit; stroke: none; }\
 	.de-svg-stroke { stroke: currentColor; fill: none; }\
 	.de-svg-fill { stroke: none; fill: currentColor; }\
