@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'b182ec4';
+var commit = 'e491e2b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2909,7 +2909,7 @@ function showFavoritesWindow(body, data) {
 				isUpdate = true;
 			}
 		}
-		ajaxLoad.clearCache();
+		AjaxCache.clear();
 		if(isUpdate) {
 			setStored('DESU_Favorites', JSON.stringify(fav));
 		}
@@ -5425,20 +5425,60 @@ function embedMediaLinks(data) {
 // AJAX
 // ===========================================================================================================
 
-function ajaxLoad(url, returnForm = true, useCache = false) {
-	var cData = ajaxLoad._cacheData.get(url);
-	var ajaxURL = cData && !cData.hasCacheControl ? ajaxLoad._fixCachedURL(url) : url;
-	return $ajax(ajaxURL, useCache && cData && cData.params || { useTimeout: true }).then(xhr => {
-		var headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders()
-		                                             : xhr.responseHeaders;
-		var data = ajaxLoad._readCacheData(headers);
-		if(!data.hasCacheControl && !ajaxLoad._cacheData.has(url)) {
-			ajaxLoad._cacheData.set(url, data);
-			return $ajax(ajaxLoad._fixCachedURL(url), useCache && data.params);
+class AjaxCache extends null {
+	static clear() {
+		AjaxCache._data = new Map();
+	}
+	static fixUrl(url) {
+		return url + (url.includes('?') ? '&' : '?' ) + 'nocache=' + Math.random();
+	}
+	static runCachedAjax(url, useCache) {
+		var { hasCacheControl, params } = AjaxCache._data.get(url) || {};
+		var ajaxURL = hasCacheControl === false ? AjaxCache.fixURL(url) : url;
+		return $ajax(ajaxURL, useCache && params || { useTimeout: true }).then(xhr =>
+			AjaxCache.saveData(url, xhr) ? xhr : $ajax(AjaxCache.fixURL(url), useCache && data.params)
+		);
+	}
+	static saveData(url, xhr) {
+		var ETag = null, LastModified = null, i = 0,
+			hasCacheControl = false,
+			ajaxHeaders = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders()
+			                                             : xhr.responseHeaders;
+		for(var header of ajaxHeaders.split('\r\n')) {
+			let lHeader = header.toLowerCase();
+			if(lHeader.startsWith('cache-control: ')) {
+				hasCacheControl = true;
+				i++;
+			} else if(lHeader.startsWith('last-modified: ')) {
+				LastModified = header.substr(15);
+				i++;
+			} else if(lHeader.startsWith('etag: ')) {
+				ETag = header.substr(6);
+				i++;
+			}
+			if(i === 3) {
+				break;
+			}
 		}
-		ajaxLoad._cacheData.set(url, data);
-		return xhr;
-	}).then(xhr => {
+		let headers = null;
+		if(ETag || LastModified) {
+			headers = {};
+			if(ETag) {
+				headers['If-None-Match'] = ETag;
+			}
+			if(LastModified) {
+				headers['If-Modified-Since'] = LastModified;
+			}
+		}
+		let hasUrl = AjaxCache._data.has(url);
+		AjaxCache._data.set(url, { hasCacheControl, params: headers ? { headers, useTimeout: true } : { useTimeout: true } });
+		return hasUrl || hasCacheControl;
+	}
+}
+AjaxCache._data = new Map();
+
+function ajaxLoad(url, returnForm = true, useCache = false) {
+	return AjaxCache.runCachedAjax(url, useCache).then(xhr => {
 		var el, text = xhr.responseText;
 		if(text.includes('</html>')) {
 			el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
@@ -5446,52 +5486,26 @@ function ajaxLoad(url, returnForm = true, useCache = false) {
 		return el ? el : CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
 	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
-ajaxLoad.clearCache = function() {
-	ajaxLoad._cacheData = new Map();
-};
-ajaxLoad._cacheData = new Map();
-ajaxLoad._fixCachedURL = function(url) {
-	return url + (url.includes('?') ? '&' : '?' ) + 'nocache=' + Math.random();
-};
-ajaxLoad._readCacheData = function(ajaxHeaders) {
-	var ETag = null, LastModified = null, headers = null, i = 0,
-		hasCacheControl = false;
-	for(var header of ajaxHeaders.split('\r\n')) {
-		let lHeader = header.toLowerCase();
-		if(lHeader.startsWith('cache-control: ')) {
-			hasCacheControl = true;
-			i++;
-		} else if(lHeader.startsWith('last-modified: ')) {
-			LastModified = header.substr(15);
-			i++;
-		} else if(lHeader.startsWith('etag: ')) {
-			ETag = header.substr(6);
-			i++;
-		}
-		if(i === 3) {
-			break;
-		}
-	}
-	if(ETag || LastModified) {
-		headers = {};
-		if(ETag) {
-			headers['If-None-Match'] = ETag;
-		}
-		if(LastModified) {
-			headers['If-Modified-Since'] = LastModified;
-		}
-	}
-	return { hasCacheControl, params: headers ? { headers, useTimeout: true } : { useTimeout: true } };
-}
 
-function getJsonPosts(brd, tNum, useCache = true) {
-	return $ajax(aib.getJsonApiUrl(brd, tNum), { useCache, useTimeout: true }).then(xhr => {
-		try {
-			return new aib.jsonBuilder(JSON.parse(xhr.responseText), brd);
-		} catch(e) {
-			return CancelablePromise.reject(e);
-		}
-	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
+function ajaxPostsLoad(brd, tNum, useCache) {
+	if(aib.jsonBuilder) {
+		return AjaxCache.runCachedAjax(aib.getJsonApiUrl(brd, tNum), useCache).then(xhr => {
+			try {
+				return new aib.jsonBuilder(JSON.parse(xhr.responseText), brd);
+			} catch(e) {
+				return CancelablePromise.reject(e);
+			}
+		}).catch(e => {
+			if(!(e instanceof AjaxError) || e.code === 404) {
+				console.warn(`API Error ${ e }. Switching to DOM parsing.`);
+				aib.jsonBuilder = null;
+				return ajaxPostsLoad(brd, tNum, useCache);
+			}
+			return e => e.code === 304 ? null : CancelablePromise.reject(e);
+		});
+	}
+	return ajaxLoad(aib.getThrdUrl(brd, tNum), true, useCache)
+		.then(form => form ? new DOMPostsBuilder(form) : null);
 }
 
 function infoLoadErrors(e, showError = true) {
@@ -11340,24 +11354,14 @@ class Thread {
 		if(informUser) {
 			$popup(Lng.loading[lang], 'load-thr', true);
 		}
-		if(aib.jsonBuilder) {
-			return getJsonPosts(aib.b, this.num, false).then(
-				pBuilder => this._loadFromBuilder(last, smartScroll, pBuilder),
-				e => $popup(getErrorMessage(e), 'load-thr', false));
-		}
-		return ajaxLoad(aib.getThrdUrl(aib.b, this.num)).then(
-			form => this._loadFromBuilder(last, smartScroll, new DOMPostsBuilder(form)),
+		return ajaxPostsLoad(aib.b, this.num, false).then(
+			pBuilder => this._loadFromBuilder(last, smartScroll, pBuilder),
 			e => $popup(getErrorMessage(e), 'load-thr', false));
 	}
 	loadNew() {
-		if(aib.jsonBuilder) {
-			return getJsonPosts(aib.b, aib.t).then(pBuilder => pBuilder
-				? this._loadNewFromBuilder(pBuilder)
-				: { newCount: 0, locked: false });
-		}
-		return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, true).then(form => form
-			? this._loadNewFromBuilder(new DOMPostsBuilder(form))
-			: { newCount: 0, locked: false });
+		return ajaxPostsLoad(aib.b, this.num, true).then(pBuilder => pBuilder
+			? this._loadNewFromBuilder(pBuilder)
+			: { newCount: 0, locked: false })
 	}
 	setFavorState(val, type) {
 		this.op.setFavBtn(val);
@@ -11579,7 +11583,7 @@ class Thread {
 			Pview.updatePosition(true);
 		}
 		if(pBuilder.isClosed) {
-			ajaxLoad.clearCache();
+			AjaxCache.clear();
 			return { newCount: newVisPosts, locked: true };
 		}
 		return { newCount: newVisPosts, locked: false };
@@ -14474,7 +14478,7 @@ function initThreadUpdater(title, enableUpdate) {
 				counter.setWait();
 				this._state = 2;
 				this._loadPromise = Thread.first.loadNew().then(
-					({ newCount, locked}) => this._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success),
+					({ newCount, locked }) => this._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success),
 					e => this._handleNewPosts(0, e));
 				return;
 			case 2:
