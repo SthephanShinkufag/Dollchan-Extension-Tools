@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'e491e2b';
+var commit = '7ab57ee';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10908,11 +10908,25 @@ class DOMPostsBuilder {
 }
 
 class _4chanPostsBuilder {
+	static _setCustomSpoiler(board, val) {
+		if(!this.customSpoiler[board] && (val = parseInt(val))) {
+			let s;
+			if(board == aib.brd && (s = $q('.imgspoiler'))) {
+				_4chanPostsBuilder.customSpoiler.set(board,
+					s.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
+			}
+		} else {
+			_4chanPostsBuilder._customSpoiler.set(board, '-' + board + (Math.floor(Math.random() * val) + 1));
+		}
+	}
 	constructor(json, brd) {
 		this._posts = json.posts;
 		this._brd = brd;
 		this.length = json.posts.length - 1;
 		this.postersCount = this._posts[0].unique_ips;
+		if(this._posts[0].custom_spoiler) {
+			_4chanPostsBuilder._setCustomSpoiler(brd, this._posts[0].custom_spoiler);
+		}
 	}
 	get isClosed() {
 		return !!(this._posts[0].closed || this._posts[0].archived);
@@ -10922,35 +10936,115 @@ class _4chanPostsBuilder {
 		return $add(aib.fixHTML(`<blockquote class="postMessage" id="m${ data.no }"> ${ data.com }</blockquote>`));
 	}
 	getPostEl(i) {
-		// TODO: handle capcode and probably image spoilers
 		const data = this._posts[i + 1];
 		const num = data.no;
 		const brd = this._brd;
 		
-		const _if = (cond, strTrue, strFalse = '') => cond ? strTrue : strFalse;
+		const _icon = id => `//s.4cdn.org/image/${ id }${ window.devicePixelRatio >= 2 ? '@2x.gif' : '.gif'}`;
+		const _decode = str => str.replace(/&amp;/g, '&')
+			.replace(/&quot;/g, '"')
+			.replace(/&#039;/g, "'")
+			.replace(/&lt;/g, '<')
+			.replace(/&gt;/g, '>');
+		const _encode = str => str.replace(/&/g, '&amp;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#039;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;');
 		
-		let filesHTML;
-		if(data.filename && !data.filedeleted) {
+		// --- FILE ---
+		let fileHTML;
+		if(data.filedeleted) {
+			fileHTML = `<div id="f${ num }" class="file"><span class="fileThumb">
+				<img src="${ _icon('filedeleted-res') }" class="fileDeletedRes" alt="File deleted.">
+			</span></div>`;
+		} else if(data.filename) {
+			let name = data.filename + data.ext,
+				needTitle = false;
+			const decodedName = _decode(data.filename);
+			if(decodedName.length > 30) {
+				name = _encode(decodedName.slice(0, 25)) + '(...)' + data.ext;
+				needTitle = true;
+			}
+			if(!data.tn_w && !data.tn_h && data.ext == '.gif') {
+				data.tn_w = data.w;
+				data.tn_h = data.h;
+			}
+			const isSpoiler = data.spoiler && !Cfg.noSpoilers;
+			if(isSpoiler) {
+				name = 'Spoiler Image';
+				data.tn_w = 100;
+				data.tn_h = 100;
+				needTitle = false;
+			}
 			const size = prettifySize(data.fsize);
-			filesHTML = `<div class="file" id="f${ num }">
-				<div class="fileText" id="fT${ num }">File: <a href="//i.4cdn.org/${ brd }/${ data.tim }${ data.ext }" target="_blank">${ data.filename }${ data.ext }</a> (${ size }, ${ data.w }x${ data.h })</div>
-				<a class="fileThumb" href="//i.4cdn.org/${ brd }/${ data.tim }${ data.ext }" target="_blank">
-					<img src="//i.4cdn.org/${ brd }/${ data.tim }s.jpg" alt="${ size }" data-md5="${ data.md5 }" style="height: ${ data.tn_h }px; width: ${ data.tn_w }px;">
+			fileHTML = `<div class="file" id="f${ num }">
+				<div class="fileText" id="fT${ num }" ${
+					isSpoiler ? `title="${ data.filename + data.ext }"` : ''
+				}>File: <a href="//i.4cdn.org/${ brd }/${ data.tim + data.ext }" ${
+					needTitle ? `title="${ data.filename + data.ext }"` : ''
+				} target="_blank">${ name }</a> (${ size }, ${
+					data.ext === '.pdf' ? 'PDF' : data.w + 'x' + data.h
+				})</div>
+				<a class="fileThumb ${ isSpoiler ? 'imgSpoiler' : '' }" href="//i.4cdn.org/${ brd }/${ data.tim + data.ext }" target="_blank">
+					<img src="${ isSpoiler
+						? '//s.4cdn.org/image/spoiler' + _4chanPostsBuilder._customSpoiler.get(brd) || '' + '.png'
+						: '//i.4cdn.org/' + brd + '/' + data.tim + 's.jpg'
+					}" alt="${ size }" data-md5="${ data.md5 }" style="height: ${ data.tn_h }px; width: ${ data.tn_w }px;">
 					<div data-tip="" data-tip-cb="mShowFull" class="mFileInfo mobile">${ size } ${ data.ext.substr(1).toUpperCase() }</div>
 				</a>
 			</div>`;
 		} else {
-			filesHTML = '';
+			fileHTML = '';
 		}
+		
+		// --- CAPCODE ---
+		let highlight = '', capcodeText = '', capcodeClass = '', capcodeImg = '';
+		switch(data.capcode) {
+		case 'admin_highlight':
+			highlight = ' highlightPost';
+			/* falls through */
+		case 'admin':
+			capcodeText = '<strong class="capcode hand id_admin" title="Highlight posts by Administrators">## Admin</strong>';
+			capcodeClass = 'capcodeAdmin';
+			capcodeImg = `<img src="${ _icon('adminicon') }" alt="This user is a 4chan Administrator." title="This user is a 4chan Administrator." class="identityIcon">`;
+			break;
+		case 'mod':
+			capcodeText = '<strong class="capcode hand id_mod" title="Highlight posts by Moderators">## Mod</strong>';
+			capcodeClass = 'capcodeMod';
+			capcodeImg = `<img src="${ _icon('modicon') }" alt="This user is a 4chan Moderator." title="This user is a 4chan Moderator." class="identityIcon">`;
+			break;
+		case 'developer':
+			capcodeText = '<strong class="capcode hand id_developer" title="Highlight posts by Developers">## Developer</strong>';
+			capcodeClass = 'capcodeDeveloper';
+			capcodeImg = `<img src="${ _icon('developericon') }" alt="This user is a 4chan Developer." title="This user is a 4chan Developer." class="identityIcon">`;
+			break;
+		case 'manager':
+			capcodeText = '<strong class="capcode hand id_manager" title="Highlight posts by Managers">## Manager</strong>';
+			capcodeClass = 'capcodeManager';
+			capcodeImg = `<img src="${ _icon('managericon') }" alt="This user is a 4chan Manager." title="This user is a 4chan Manager." class="identityIcon">`;
+			break;
+		case 'founder':
+			capcodeText = '<strong class="capcode hand id_admin" title="Highlight posts by the Founder">## Founder</strong>';
+			capcodeClass = ' capcodeAdmin';
+			capcodeImg = `<img src="${ _icon('foundericon') }" alt="This user is 4chan\'s Founder." title="This user is 4chan\'s Founder." class="identityIcon">`;
+			break;
+		}
+		
 		let rv = `<div class="postContainer replyContainer" id="pc${ num }">
 			<div class="sideArrows" id="sa${ num }">&gt;&gt;</div>
-			<div id="p${ num }" class="post reply">
+			<div id="p${ num }" class="post reply ${ highlight }">
 				<div class="postInfoM mobile" id="pim${ num }">
-					<span class="nameBlock">
-						<span class="name">${ data.name }</span>
-						${ _if(data.trip, `<span class="postertrip">${ data.trip }</span>`) }
-						${ _if(data.id, `<span class="posteruid id_${ data.id }">(ID: <span class="hand" title="Highlight posts by this ID">${ data.id }</span>)</span>`) }
-						${ _if(data.country, `<span title="${ data.country_name }" class="flag flag-${ data.country.toLowerCase() }"></span>`) }
+					<span class="nameBlock ${ capcodeClass }">
+						${ data.name.length > 30
+							? '<span class="name" data-tip data-tip-cb="mShowFull">' + data.name.substring(30) + '(...)</span>'
+							: '<span class="name">' + data.name + '</span>'
+						}
+						${ data.trip ? `<span class="postertrip">${ data.trip }</span>` : '' }
+						${ capcodeText }
+						${ capcodeImg }
+						${ data.id && !data.capcode ? `<span class="posteruid id_${ data.id }">(ID: <span class="hand" title="Highlight posts by this ID">${ data.id }</span>)</span>` : '' }
+						${ data.country ? `<span title="${ data.country_name }" class="flag flag-${ data.country.toLowerCase() }"></span>` : '' }
 						<br>
 						<span class="subject">${ data.sub || '' }</span>
 					</span>
@@ -10959,26 +11053,31 @@ class _4chanPostsBuilder {
 				<div class="postInfo desktop" id="pi75970976">
 					<input name="75970976" value="delete" type="checkbox">
 					<span class="subject">${ data.sub || '' }</span>
-					<span class="nameBlock">
-						<span class="name">${ data.name }</span>
-						${ _if(data.trip, `<span class="postertrip">${ data.trip }</span>`) }
-						${ _if(data.id, `<span class="posteruid id_${ data.id }">(ID: <span class="hand" title="Highlight posts by this ID">${ data.id }</span>)</span>`) }
-						${ _if(data.country, `<span title="${ data.country_name }" class="flag flag-${ data.country.toLowerCase() }"></span>`) }
+					<span class="nameBlock ${ capcodeClass }">
+						${ data.email? `<a href="mailto:${ data.email.replace(/ /g, '%20') }" class="useremail">` : '' }
+							<span class="name">${ data.name }</span>
+							${ data.trip ? `<span class="postertrip">${ data.trip }</span>` : '' }
+							${ capcodeText }
+						${ data.email ? '</a>' : '' }
+						${ capcodeImg }
+						${ data.id && !data.capcode ? `<span class="posteruid id_${ data.id }">(ID: <span class="hand" title="Highlight posts by this ID">${ data.id }</span>)</span>` : '' }
+						${ data.country ? `<span title="${ data.country_name }" class="flag flag-${ data.country.toLowerCase() }"></span>` : '' }
 					</span>
 					<span class="dateTime" data-utc="${ data.time }">${ data.now }</span>
 					<span class="postNum desktop"><a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('${ num }');" title="Reply to this post">${ num }</a></span>
 				</div>
-				${ filesHTML }
+				${ fileHTML }
 				<blockquote class="postMessage" id="m${ num }"> ${ data.com }</blockquote>
 			</div>
 		</div>`;
 		return $add(aib.fixHTML(rv)).lastElementChild;
 	}
 	getPNum(i) {
-		return this._posts[i + 1].no;
+		return this._posts[i + 1]._no;
 	}
 	* bannedPostsData() {}
 }
+_4chanPostsBuilder._customSpoiler = new Map();
 
 class DobrochanPostsBuilder {
 	constructor(json, brd) {
@@ -11004,8 +11103,6 @@ class DobrochanPostsBuilder {
 		const brd = this._brd;
 		const tNum = this._json.threads[0].display_id;
 		const multiFile = data.files.length > 1;
-		
-		const _if = (cond, strTrue, strFalse = '') => cond ? strTrue : strFalse;
 		
 		let filesHTML = '';
 		for(let file of data.files) {
@@ -11035,7 +11132,7 @@ class DobrochanPostsBuilder {
 				thumb_w = file.thumb_width;
 				thumb_h = file.thumb_height;
 			}
-			let fileInfo = `<div class="fileinfo${ _if(multiFile, ' limited') }">Файл:
+			let fileInfo = `<div class="fileinfo${ multiFile ? ' limited' : '' }">Файл:
 				<a href="/${ file.src }" title="${ fullFileName }" target="_blank">${ fileName }</a>
 				<br>
 				<em>${ file.thumb.substring(file.thumb.lastIndexOf('.') + 1) }, ${ size }, ${ file.metadata.width }x${ file.metadata.height }</em>${ _if(!multiFile, ' - Нажмите на картинку для увеличения') }
@@ -11044,9 +11141,9 @@ class DobrochanPostsBuilder {
 				<a class="search_google icon" href="http://www.google.com/searchbyimage?image_url=http://dobrochan.ru/${ file.src }"><img title="edit" alt="edit" src="/images/blank.png"></a>
 				<a class="search_iqdb icon" href="http://iqdb.org/?url=http://dobrochan.ru/${ file.src }"><img title="edit" alt="edit" src="/images/blank.png"></a>
 			</div>`;
-			filesHTML += `${ _if(!multiFile, fileInfo) }
+			filesHTML += `${ multiFile ? '' : fileInfo }
 			<div id="file_${ num }_${ file.file_id }" class="file">
-				${ _if(multiFile, fileInfo) }
+				${ multiFile ? fileInfo : '' }
 				<a href="/${ file.src }" target="_blank">
 					<img class="thumb" src="/${ thumb }" width="${ thumb_w }" height="${ thumb_h }">
 				</a>
@@ -11079,7 +11176,7 @@ class DobrochanPostsBuilder {
 				</span>
 				<br>
 				${ filesHTML }
-				${ _if(multiFile, '<div style="clear: both;"></div>') }
+				${ multiFile ? '<div style="clear: both;"></div>' : '' }
 				<div class="postbody"> ${ data.message_html }</div>
 				<div class="abbrev"></div>
 			</td>
@@ -11114,7 +11211,6 @@ class MakabaPostsBuilder {
 		const num = data.num;
 		const brd = this._brd;
 		
-		const _if = (cond, strTrue, strFalse = '') => cond ? strTrue : strFalse;
 		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
 		
 		let filesHTML;
@@ -11125,7 +11221,7 @@ class MakabaPostsBuilder {
 				filesHTML += `<figure class="image">
 					<figcaption class="file-attr">
 						<a class="desktop" target="_blank" href="/${ brd }/${ file.path }">${ file.name }</a>
-						${ _if(isWebm, `<img src="/makaba/templates/img/webm-logo.png" width="50px" alt="webm file" id="webm-icon-${ num }-${ file.md5 }">`) }
+						${ isWebm ? `<img src="/makaba/templates/img/webm-logo.png" width="50px" alt="webm file" id="webm-icon-${ num }-${ file.md5 }">` : '' }
 						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }${ _if(isWebm, ', ' + file.duration) })</span>
 					</figcaption>
 					<div id="exlink-${ num }-${ file.md5 }">
@@ -11150,14 +11246,15 @@ class MakabaPostsBuilder {
 			<div class="post reply" id="post-body-${ num }" data-num="${ num }">
 				<div id="post-details-${ num }" class="post-details">
 					<input type="checkbox" name="delete"  class="turnmeoff" value="${ num }" />
-					${ _if(data.subject && this._json.enable_sublect,
-						`<span class="post-title">${ data.subject + ( data.tags ? ' /' + data.tags + '/' : '') }</span>`
-					) }
-					${ _if(data.email,
-						`<a href="${ data.email }" class="post-email">${ data.name }</a>`,
-						`<span class="ananimas">${ data.name }</span>`
-					) }
-					${ _if(data.icon, `<span class="post-icon">${ data.icon }</span>`) }
+					${ data.subject && this._json.enable_sublect
+						? `<span class="post-title">${ data.subject + ( data.tags ? ' /' + data.tags + '/' : '') }</span>`
+						: ''
+					}
+					${ data.email
+						? `<a href="${ data.email }" class="post-email">${ data.name }</a>`
+						: `<span class="ananimas">${ data.name }</span>`
+					}
+					${ data.icon ? `<span class="post-icon">${ data.icon }</span>` : '' }
 					${ _switch(data.trip, {
 					   '!!%adm%!!':        '<span class="adm">## Abu ##<\/span>',
 					   '!!%mod%!!':        '<span class="mod">## Mod ##<\/span>',
@@ -11165,7 +11262,7 @@ class MakabaPostsBuilder {
 					   '!!%coder%!!':      '<span class="mod">## Кодер ##<\/span>',
 					   '@@default':        '<span class="postertrip">' + data.trip + '<\/span>'
 					}) }
-					${ _if(data.op === 1, '<span class="ophui"># OP</span>&nbsp;') }
+					${ data.op === 1 ? '<span class="ophui"># OP</span>&nbsp;' : '' }
 					<span class="posttime-reflink">
 						<span class="posttime">${ data.date }&nbsp;</span>
 						<span class="reflink">

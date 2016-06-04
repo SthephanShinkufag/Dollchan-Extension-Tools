@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = 'e491e2b';
+	var commit = '7ab57ee';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -15283,6 +15283,20 @@ true, true],
 	}();
 
 	var _4chanPostsBuilder = function () {
+		_createClass(_4chanPostsBuilder, null, [{
+			key: '_setCustomSpoiler',
+			value: function _setCustomSpoiler(board, val) {
+				if (!this.customSpoiler[board] && (val = parseInt(val))) {
+					var s = void 0;
+					if (board == aib.brd && (s = $q('.imgspoiler'))) {
+						_4chanPostsBuilder.customSpoiler.set(board, s.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
+					}
+				} else {
+					_4chanPostsBuilder._customSpoiler.set(board, '-' + board + (Math.floor(Math.random() * val) + 1));
+				}
+			}
+		}]);
+
 		function _4chanPostsBuilder(json, brd) {
 			_classCallCheck(this, _4chanPostsBuilder);
 
@@ -15290,6 +15304,9 @@ true, true],
 			this._brd = brd;
 			this.length = json.posts.length - 1;
 			this.postersCount = this._posts[0].unique_ips;
+			if (this._posts[0].custom_spoiler) {
+				_4chanPostsBuilder._setCustomSpoiler(brd, this._posts[0].custom_spoiler);
+			}
 		}
 
 		_createClass(_4chanPostsBuilder, [{
@@ -15305,25 +15322,85 @@ true, true],
 				var num = data.no;
 				var brd = this._brd;
 
-				var _if = function _if(cond, strTrue) {
-					var strFalse = arguments.length <= 2 || arguments[2] === undefined ? '' : arguments[2];
-					return cond ? strTrue : strFalse;
+				var _icon = function _icon(id) {
+					return '//s.4cdn.org/image/' + id + (window.devicePixelRatio >= 2 ? '@2x.gif' : '.gif');
+				};
+				var _decode = function _decode(str) {
+					return str.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+				};
+				var _encode = function _encode(str) {
+					return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#039;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 				};
 
-				var filesHTML = void 0;
-				if (data.filename && !data.filedeleted) {
+				var fileHTML = void 0;
+				if (data.filedeleted) {
+					fileHTML = '<div id="f' + num + '" class="file"><span class="fileThumb">\n\t\t\t\t<img src="' + _icon('filedeleted-res') + '" class="fileDeletedRes" alt="File deleted.">\n\t\t\t</span></div>';
+				} else if (data.filename) {
+					var name = data.filename + data.ext,
+					    needTitle = false;
+					var decodedName = _decode(data.filename);
+					if (decodedName.length > 30) {
+						name = _encode(decodedName.slice(0, 25)) + '(...)' + data.ext;
+						needTitle = true;
+					}
+					if (!data.tn_w && !data.tn_h && data.ext == '.gif') {
+						data.tn_w = data.w;
+						data.tn_h = data.h;
+					}
+					var isSpoiler = data.spoiler && !Cfg.noSpoilers;
+					if (isSpoiler) {
+						name = 'Spoiler Image';
+						data.tn_w = 100;
+						data.tn_h = 100;
+						needTitle = false;
+					}
 					var size = prettifySize(data.fsize);
-					filesHTML = '<div class="file" id="f' + num + '">\n\t\t\t\t<div class="fileText" id="fT' + num + '">File: <a href="//i.4cdn.org/' + brd + '/' + data.tim + data.ext + '" target="_blank">' + data.filename + data.ext + '</a> (' + size + ', ' + data.w + 'x' + data.h + ')</div>\n\t\t\t\t<a class="fileThumb" href="//i.4cdn.org/' + brd + '/' + data.tim + data.ext + '" target="_blank">\n\t\t\t\t\t<img src="//i.4cdn.org/' + brd + '/' + data.tim + 's.jpg" alt="' + size + '" data-md5="' + data.md5 + '" style="height: ' + data.tn_h + 'px; width: ' + data.tn_w + 'px;">\n\t\t\t\t\t<div data-tip="" data-tip-cb="mShowFull" class="mFileInfo mobile">' + size + ' ' + data.ext.substr(1).toUpperCase() + '</div>\n\t\t\t\t</a>\n\t\t\t</div>';
+					fileHTML = '<div class="file" id="f' + num + '">\n\t\t\t\t<div class="fileText" id="fT' + num + '" ' + (isSpoiler ? 'title="' + (data.filename + data.ext) + '"' : '') + '>File: <a href="//i.4cdn.org/' + brd + '/' + (data.tim + data.ext) + '" ' + (needTitle ? 'title="' + (data.filename + data.ext) + '"' : '') + ' target="_blank">' + name + '</a> (' + size + ', ' + (data.ext === '.pdf' ? 'PDF' : data.w + 'x' + data.h) + ')</div>\n\t\t\t\t<a class="fileThumb ' + (isSpoiler ? 'imgSpoiler' : '') + '" href="//i.4cdn.org/' + brd + '/' + (data.tim + data.ext) + '" target="_blank">\n\t\t\t\t\t<img src="' + (isSpoiler ? '//s.4cdn.org/image/spoiler' + _4chanPostsBuilder._customSpoiler.get(brd) || '' + '.png' : '//i.4cdn.org/' + brd + '/' + data.tim + 's.jpg') + '" alt="' + size + '" data-md5="' + data.md5 + '" style="height: ' + data.tn_h + 'px; width: ' + data.tn_w + 'px;">\n\t\t\t\t\t<div data-tip="" data-tip-cb="mShowFull" class="mFileInfo mobile">' + size + ' ' + data.ext.substr(1).toUpperCase() + '</div>\n\t\t\t\t</a>\n\t\t\t</div>';
 				} else {
-					filesHTML = '';
+					fileHTML = '';
 				}
-				var rv = '<div class="postContainer replyContainer" id="pc' + num + '">\n\t\t\t<div class="sideArrows" id="sa' + num + '">&gt;&gt;</div>\n\t\t\t<div id="p' + num + '" class="post reply">\n\t\t\t\t<div class="postInfoM mobile" id="pim' + num + '">\n\t\t\t\t\t<span class="nameBlock">\n\t\t\t\t\t\t<span class="name">' + data.name + '</span>\n\t\t\t\t\t\t' + _if(data.trip, '<span class="postertrip">' + data.trip + '</span>') + '\n\t\t\t\t\t\t' + _if(data.id, '<span class="posteruid id_' + data.id + '">(ID: <span class="hand" title="Highlight posts by this ID">' + data.id + '</span>)</span>') + '\n\t\t\t\t\t\t' + _if(data.country, '<span title="' + data.country_name + '" class="flag flag-' + data.country.toLowerCase() + '"></span>') + '\n\t\t\t\t\t\t<br>\n\t\t\t\t\t\t<span class="subject">' + (data.sub || '') + '</span>\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class="dateTime postNum" data-utc="' + data.time + '">' + data.now + ' <a href="#p' + num + '" title="Link to this post">No.</a><a href="javascript:quote(\'' + num + '\');" title="Reply to this post">' + num + '</a></span>\n\t\t\t\t</div>\n\t\t\t\t<div class="postInfo desktop" id="pi75970976">\n\t\t\t\t\t<input name="75970976" value="delete" type="checkbox">\n\t\t\t\t\t<span class="subject">' + (data.sub || '') + '</span>\n\t\t\t\t\t<span class="nameBlock">\n\t\t\t\t\t\t<span class="name">' + data.name + '</span>\n\t\t\t\t\t\t' + _if(data.trip, '<span class="postertrip">' + data.trip + '</span>') + '\n\t\t\t\t\t\t' + _if(data.id, '<span class="posteruid id_' + data.id + '">(ID: <span class="hand" title="Highlight posts by this ID">' + data.id + '</span>)</span>') + '\n\t\t\t\t\t\t' + _if(data.country, '<span title="' + data.country_name + '" class="flag flag-' + data.country.toLowerCase() + '"></span>') + '\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class="dateTime" data-utc="' + data.time + '">' + data.now + '</span>\n\t\t\t\t\t<span class="postNum desktop"><a href="#p' + num + '" title="Link to this post">No.</a><a href="javascript:quote(\'' + num + '\');" title="Reply to this post">' + num + '</a></span>\n\t\t\t\t</div>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t<blockquote class="postMessage" id="m' + num + '"> ' + data.com + '</blockquote>\n\t\t\t</div>\n\t\t</div>';
+
+				var highlight = '',
+				    capcodeText = '',
+				    capcodeClass = '',
+				    capcodeImg = '';
+				switch (data.capcode) {
+					case 'admin_highlight':
+						highlight = ' highlightPost';
+					case 'admin':
+						capcodeText = '<strong class="capcode hand id_admin" title="Highlight posts by Administrators">## Admin</strong>';
+						capcodeClass = 'capcodeAdmin';
+						capcodeImg = '<img src="' + _icon('adminicon') + '" alt="This user is a 4chan Administrator." title="This user is a 4chan Administrator." class="identityIcon">';
+						break;
+					case 'mod':
+						capcodeText = '<strong class="capcode hand id_mod" title="Highlight posts by Moderators">## Mod</strong>';
+						capcodeClass = 'capcodeMod';
+						capcodeImg = '<img src="' + _icon('modicon') + '" alt="This user is a 4chan Moderator." title="This user is a 4chan Moderator." class="identityIcon">';
+						break;
+					case 'developer':
+						capcodeText = '<strong class="capcode hand id_developer" title="Highlight posts by Developers">## Developer</strong>';
+						capcodeClass = 'capcodeDeveloper';
+						capcodeImg = '<img src="' + _icon('developericon') + '" alt="This user is a 4chan Developer." title="This user is a 4chan Developer." class="identityIcon">';
+						break;
+					case 'manager':
+						capcodeText = '<strong class="capcode hand id_manager" title="Highlight posts by Managers">## Manager</strong>';
+						capcodeClass = 'capcodeManager';
+						capcodeImg = '<img src="' + _icon('managericon') + '" alt="This user is a 4chan Manager." title="This user is a 4chan Manager." class="identityIcon">';
+						break;
+					case 'founder':
+						capcodeText = '<strong class="capcode hand id_admin" title="Highlight posts by the Founder">## Founder</strong>';
+						capcodeClass = ' capcodeAdmin';
+						capcodeImg = '<img src="' + _icon('foundericon') + '" alt="This user is 4chan\'s Founder." title="This user is 4chan\'s Founder." class="identityIcon">';
+						break;
+				}
+
+				var rv = '<div class="postContainer replyContainer" id="pc' + num + '">\n\t\t\t<div class="sideArrows" id="sa' + num + '">&gt;&gt;</div>\n\t\t\t<div id="p' + num + '" class="post reply ' + highlight + '">\n\t\t\t\t<div class="postInfoM mobile" id="pim' + num + '">\n\t\t\t\t\t<span class="nameBlock ' + capcodeClass + '">\n\t\t\t\t\t\t' + (data.name.length > 30 ? '<span class="name" data-tip data-tip-cb="mShowFull">' + data.name.substring(30) + '(...)</span>' : '<span class="name">' + data.name + '</span>') + '\n\t\t\t\t\t\t' + (data.trip ? '<span class="postertrip">' + data.trip + '</span>' : '') + '\n\t\t\t\t\t\t' + capcodeText + '\n\t\t\t\t\t\t' + capcodeImg + '\n\t\t\t\t\t\t' + (data.id && !data.capcode ? '<span class="posteruid id_' + data.id + '">(ID: <span class="hand" title="Highlight posts by this ID">' + data.id + '</span>)</span>' : '') + '\n\t\t\t\t\t\t' + (data.country ? '<span title="' + data.country_name + '" class="flag flag-' + data.country.toLowerCase() + '"></span>' : '') + '\n\t\t\t\t\t\t<br>\n\t\t\t\t\t\t<span class="subject">' + (data.sub || '') + '</span>\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class="dateTime postNum" data-utc="' + data.time + '">' + data.now + ' <a href="#p' + num + '" title="Link to this post">No.</a><a href="javascript:quote(\'' + num + '\');" title="Reply to this post">' + num + '</a></span>\n\t\t\t\t</div>\n\t\t\t\t<div class="postInfo desktop" id="pi75970976">\n\t\t\t\t\t<input name="75970976" value="delete" type="checkbox">\n\t\t\t\t\t<span class="subject">' + (data.sub || '') + '</span>\n\t\t\t\t\t<span class="nameBlock ' + capcodeClass + '">\n\t\t\t\t\t\t' + (data.email ? '<a href="mailto:' + data.email.replace(/ /g, '%20') + '" class="useremail">' : '') + '\n\t\t\t\t\t\t\t<span class="name">' + data.name + '</span>\n\t\t\t\t\t\t\t' + (data.trip ? '<span class="postertrip">' + data.trip + '</span>' : '') + '\n\t\t\t\t\t\t\t' + capcodeText + '\n\t\t\t\t\t\t' + (data.email ? '</a>' : '') + '\n\t\t\t\t\t\t' + capcodeImg + '\n\t\t\t\t\t\t' + (data.id && !data.capcode ? '<span class="posteruid id_' + data.id + '">(ID: <span class="hand" title="Highlight posts by this ID">' + data.id + '</span>)</span>' : '') + '\n\t\t\t\t\t\t' + (data.country ? '<span title="' + data.country_name + '" class="flag flag-' + data.country.toLowerCase() + '"></span>' : '') + '\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class="dateTime" data-utc="' + data.time + '">' + data.now + '</span>\n\t\t\t\t\t<span class="postNum desktop"><a href="#p' + num + '" title="Link to this post">No.</a><a href="javascript:quote(\'' + num + '\');" title="Reply to this post">' + num + '</a></span>\n\t\t\t\t</div>\n\t\t\t\t' + fileHTML + '\n\t\t\t\t<blockquote class="postMessage" id="m' + num + '"> ' + data.com + '</blockquote>\n\t\t\t</div>\n\t\t</div>';
 				return $add(aib.fixHTML(rv)).lastElementChild;
 			}
 		}, {
 			key: 'getPNum',
 			value: function getPNum(i) {
-				return this._posts[i + 1].no;
+				return this._posts[i + 1]._no;
 			}
 		}, {
 			key: 'bannedPostsData',
@@ -15347,6 +15424,8 @@ true, true],
 
 		return _4chanPostsBuilder;
 	}();
+
+	_4chanPostsBuilder._customSpoiler = new Map();
 
 	var DobrochanPostsBuilder = function () {
 		function DobrochanPostsBuilder(json, brd) {
@@ -15376,11 +15455,6 @@ true, true],
 				var brd = this._brd;
 				var tNum = this._json.threads[0].display_id;
 				var multiFile = data.files.length > 1;
-
-				var _if = function _if(cond, strTrue) {
-					var strFalse = arguments.length <= 2 || arguments[2] === undefined ? '' : arguments[2];
-					return cond ? strTrue : strFalse;
-				};
 
 				var filesHTML = '';
 				for (var _iterator32 = data.files, _isArray32 = Array.isArray(_iterator32), _i33 = 0, _iterator32 = _isArray32 ? _iterator32 : _iterator32[Symbol.iterator]();;) {
@@ -15426,8 +15500,8 @@ true, true],
 						thumb_w = file.thumb_width;
 						thumb_h = file.thumb_height;
 					}
-					var fileInfo = '<div class="fileinfo' + _if(multiFile, ' limited') + '">Файл:\n\t\t\t\t<a href="/' + file.src + '" title="' + fullFileName + '" target="_blank">' + fileName + '</a>\n\t\t\t\t<br>\n\t\t\t\t<em>' + file.thumb.substring(file.thumb.lastIndexOf('.') + 1) + ', ' + size + ', ' + file.metadata.width + 'x' + file.metadata.height + '</em>' + _if(!multiFile, ' - Нажмите на картинку для увеличения') + '\n\t\t\t\t<br>\n\t\t\t\t<a class="edit_ icon"  href="/utils/image/edit/' + file.file_id + '/' + num + '"><img title="edit" alt="edit" src="/images/blank.png"></a>\n\t\t\t\t<a class="search_google icon" href="http://www.google.com/searchbyimage?image_url=http://dobrochan.ru/' + file.src + '"><img title="edit" alt="edit" src="/images/blank.png"></a>\n\t\t\t\t<a class="search_iqdb icon" href="http://iqdb.org/?url=http://dobrochan.ru/' + file.src + '"><img title="edit" alt="edit" src="/images/blank.png"></a>\n\t\t\t</div>';
-					filesHTML += _if(!multiFile, fileInfo) + '\n\t\t\t<div id="file_' + num + '_' + file.file_id + '" class="file">\n\t\t\t\t' + _if(multiFile, fileInfo) + '\n\t\t\t\t<a href="/' + file.src + '" target="_blank">\n\t\t\t\t\t<img class="thumb" src="/' + thumb + '" width="' + thumb_w + '" height="' + thumb_h + '">\n\t\t\t\t</a>\n\t\t\t</div>';
+					var fileInfo = '<div class="fileinfo' + (multiFile ? ' limited' : '') + '">Файл:\n\t\t\t\t<a href="/' + file.src + '" title="' + fullFileName + '" target="_blank">' + fileName + '</a>\n\t\t\t\t<br>\n\t\t\t\t<em>' + file.thumb.substring(file.thumb.lastIndexOf('.') + 1) + ', ' + size + ', ' + file.metadata.width + 'x' + file.metadata.height + '</em>' + _if(!multiFile, ' - Нажмите на картинку для увеличения') + '\n\t\t\t\t<br>\n\t\t\t\t<a class="edit_ icon"  href="/utils/image/edit/' + file.file_id + '/' + num + '"><img title="edit" alt="edit" src="/images/blank.png"></a>\n\t\t\t\t<a class="search_google icon" href="http://www.google.com/searchbyimage?image_url=http://dobrochan.ru/' + file.src + '"><img title="edit" alt="edit" src="/images/blank.png"></a>\n\t\t\t\t<a class="search_iqdb icon" href="http://iqdb.org/?url=http://dobrochan.ru/' + file.src + '"><img title="edit" alt="edit" src="/images/blank.png"></a>\n\t\t\t</div>';
+					filesHTML += (multiFile ? '' : fileInfo) + '\n\t\t\t<div id="file_' + num + '_' + file.file_id + '" class="file">\n\t\t\t\t' + (multiFile ? fileInfo : '') + '\n\t\t\t\t<a href="/' + file.src + '" target="_blank">\n\t\t\t\t\t<img class="thumb" src="/' + thumb + '" width="' + thumb_w + '" height="' + thumb_h + '">\n\t\t\t\t</a>\n\t\t\t</div>';
 				}
 
 				var rv = '<table id="post_' + num + '" class="replypost post"><tbody><tr>\n\t\t\t<td class="doubledash">&gt;&gt;</td>\n\t\t\t<td class="reply" id="reply' + num + '">\n\t\t\t\t<a name="i' + num + '"></a>\n\t\t\t\t<label>\n\t\t\t\t\t<a class="delete icon">\n\t\t\t\t\t\t<input name="' + num + '" value="' + data.post_id + '" class="delete_checkbox" id="delbox_' + num + '" type="checkbox">\n\t\t\t\t\t\t<img src="/images/blank.png" title="Mark to delete" alt="Удалить">\n\t\t\t\t\t</a>\n\t\t\t\t\t<span class="postername">' + (data.name || 'Анонимус') + '</span>\n\t\t\t\t\t' + data.date.replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/, function (_, y, mo, d, h, m, s) {
@@ -15436,7 +15510,7 @@ true, true],
 						return n < 10 ? '0' + n : String(n);
 					};
 					return pad2(dt.getDate()) + ' ' + Lng.fullMonth[1][dt.getMonth()] + ' ' + dt.getFullYear() + ' (' + Lng.week[1][dt.getDay()] + ') ' + pad2(dt.getHours()) + ':' + pad2(dt.getMinutes());
-				}) + '\n\t\t\t\t</label>\n\t\t\t\t<span class="reflink">\n\t\t\t\t\t<a onclick="Highlight(0, ' + num + ')" href="/' + brd + '/res/' + tNum + '.xhtml#i' + num + '"> No.' + num + '</a>\n\t\t\t\t</span>\n\t\t\t\t<span class="cpanel">\n\t\t\t\t\t<a class="reply_icon" onclick="GetReplyForm(event, \'' + brd + '\', ' + tNum + ', ' + num + ')">\n\t\t\t\t\t\t<img src="/images/blank-double.png" style="vertical-align:sub" title="Ответ" alt="Ответ">\n\t\t\t\t\t</a>\n\t\t\t\t</span>\n\t\t\t\t<br>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + _if(multiFile, '<div style="clear: both;"></div>') + '\n\t\t\t\t<div class="postbody"> ' + data.message_html + '</div>\n\t\t\t\t<div class="abbrev"></div>\n\t\t\t</td>\n\t\t</tr></tbody></table>';
+				}) + '\n\t\t\t\t</label>\n\t\t\t\t<span class="reflink">\n\t\t\t\t\t<a onclick="Highlight(0, ' + num + ')" href="/' + brd + '/res/' + tNum + '.xhtml#i' + num + '"> No.' + num + '</a>\n\t\t\t\t</span>\n\t\t\t\t<span class="cpanel">\n\t\t\t\t\t<a class="reply_icon" onclick="GetReplyForm(event, \'' + brd + '\', ' + tNum + ', ' + num + ')">\n\t\t\t\t\t\t<img src="/images/blank-double.png" style="vertical-align:sub" title="Ответ" alt="Ответ">\n\t\t\t\t\t</a>\n\t\t\t\t</span>\n\t\t\t\t<br>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + (multiFile ? '<div style="clear: both;"></div>' : '') + '\n\t\t\t\t<div class="postbody"> ' + data.message_html + '</div>\n\t\t\t\t<div class="abbrev"></div>\n\t\t\t</td>\n\t\t</tr></tbody></table>';
 				return $add(aib.fixHTML(rv)).firstChild.firstChild.lastElementChild;
 			}
 		}, {
@@ -15493,10 +15567,6 @@ true, true],
 				var num = data.num;
 				var brd = this._brd;
 
-				var _if = function _if(cond, strTrue) {
-					var strFalse = arguments.length <= 2 || arguments[2] === undefined ? '' : arguments[2];
-					return cond ? strTrue : strFalse;
-				};
 				var _switch = function _switch(val, obj) {
 					return val in obj ? obj[val] : obj['@@default'];
 				};
@@ -15519,7 +15589,7 @@ true, true],
 						var file = _ref59;
 
 						var isWebm = file.name.endsWith('.webm');
-						filesHTML += '<figure class="image">\n\t\t\t\t\t<figcaption class="file-attr">\n\t\t\t\t\t\t<a class="desktop" target="_blank" href="/' + brd + '/' + file.path + '">' + file.name + '</a>\n\t\t\t\t\t\t' + _if(isWebm, '<img src="/makaba/templates/img/webm-logo.png" width="50px" alt="webm file" id="webm-icon-' + num + '-' + file.md5 + '">') + '\n\t\t\t\t\t\t<span class="filesize">(' + file.size + 'Кб, ' + file.width + 'x' + file.height + _if(isWebm, ', ' + file.duration) + ')</span>\n\t\t\t\t\t</figcaption>\n\t\t\t\t\t<div id="exlink-' + num + '-' + file.md5 + '">\n\t\t\t\t\t\t<a href="/' + brd + '/' + file.path + '" name="expandfunc" onclick="expand(\'' + num + '-' + file.md5 + '\',\'/' + brd + '/' + file.path + '\',\'/' + brd + '/' + file.thumbnail + '\',' + file.width + ',' + file.height + ',' + file.tn_width + ',' + file.tn_height + '); return false;">\n\t\t\t\t\t\t\t<img src="/' + brd + '/' + file.thumbnail + '" width="' + file.tn_width + '" height="' + file.tn_height + '" alt="' + file.size + '" class="img preview' + _if(isWebm, ' webm-file') + '">\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</div>\n\t\t\t\t</figure>';
+						filesHTML += '<figure class="image">\n\t\t\t\t\t<figcaption class="file-attr">\n\t\t\t\t\t\t<a class="desktop" target="_blank" href="/' + brd + '/' + file.path + '">' + file.name + '</a>\n\t\t\t\t\t\t' + (isWebm ? '<img src="/makaba/templates/img/webm-logo.png" width="50px" alt="webm file" id="webm-icon-' + num + '-' + file.md5 + '">' : '') + '\n\t\t\t\t\t\t<span class="filesize">(' + file.size + 'Кб, ' + file.width + 'x' + file.height + _if(isWebm, ', ' + file.duration) + ')</span>\n\t\t\t\t\t</figcaption>\n\t\t\t\t\t<div id="exlink-' + num + '-' + file.md5 + '">\n\t\t\t\t\t\t<a href="/' + brd + '/' + file.path + '" name="expandfunc" onclick="expand(\'' + num + '-' + file.md5 + '\',\'/' + brd + '/' + file.path + '\',\'/' + brd + '/' + file.thumbnail + '\',' + file.width + ',' + file.height + ',' + file.tn_width + ',' + file.tn_height + '); return false;">\n\t\t\t\t\t\t\t<img src="/' + brd + '/' + file.thumbnail + '" width="' + file.tn_width + '" height="' + file.tn_height + '" alt="' + file.size + '" class="img preview' + _if(isWebm, ' webm-file') + '">\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</div>\n\t\t\t\t</figure>';
 					}
 					filesHTML += '</div>';
 				} else if (data.video) {
@@ -15528,13 +15598,13 @@ true, true],
 					filesHTML = '';
 				}
 
-				var rv = '<div id="post-' + num + '" class="post-wrapper">\n\t\t\t<div class="post reply" id="post-body-' + num + '" data-num="' + num + '">\n\t\t\t\t<div id="post-details-' + num + '" class="post-details">\n\t\t\t\t\t<input type="checkbox" name="delete"  class="turnmeoff" value="' + num + '" />\n\t\t\t\t\t' + _if(data.subject && this._json.enable_sublect, '<span class="post-title">' + (data.subject + (data.tags ? ' /' + data.tags + '/' : '')) + '</span>') + '\n\t\t\t\t\t' + _if(data.email, '<a href="' + data.email + '" class="post-email">' + data.name + '</a>', '<span class="ananimas">' + data.name + '</span>') + '\n\t\t\t\t\t' + _if(data.icon, '<span class="post-icon">' + data.icon + '</span>') + '\n\t\t\t\t\t' + _switch(data.trip, {
+				var rv = '<div id="post-' + num + '" class="post-wrapper">\n\t\t\t<div class="post reply" id="post-body-' + num + '" data-num="' + num + '">\n\t\t\t\t<div id="post-details-' + num + '" class="post-details">\n\t\t\t\t\t<input type="checkbox" name="delete"  class="turnmeoff" value="' + num + '" />\n\t\t\t\t\t' + (data.subject && this._json.enable_sublect ? '<span class="post-title">' + (data.subject + (data.tags ? ' /' + data.tags + '/' : '')) + '</span>' : '') + '\n\t\t\t\t\t' + (data.email ? '<a href="' + data.email + '" class="post-email">' + data.name + '</a>' : '<span class="ananimas">' + data.name + '</span>') + '\n\t\t\t\t\t' + (data.icon ? '<span class="post-icon">' + data.icon + '</span>' : '') + '\n\t\t\t\t\t' + _switch(data.trip, {
 					'!!%adm%!!': '<span class="adm">## Abu ##<\/span>',
 					'!!%mod%!!': '<span class="mod">## Mod ##<\/span>',
 					'!!%Inquisitor%!!': '<span class="inquisitor">## Applejack ##<\/span>',
 					'!!%coder%!!': '<span class="mod">## Кодер ##<\/span>',
 					'@@default': '<span class="postertrip">' + data.trip + '<\/span>'
-				}) + '\n\t\t\t\t\t' + _if(data.op === 1, '<span class="ophui"># OP</span>&nbsp;') + '\n\t\t\t\t\t<span class="posttime-reflink">\n\t\t\t\t\t\t<span class="posttime">' + data.date + '&nbsp;</span>\n\t\t\t\t\t\t<span class="reflink">\n\t\t\t\t\t\t\t<a href="/' + brd + '/res/' + (parseInt(data.parent) || num) + '.html#' + num + '">№</a><a href="/' + brd + '/res/' + (parseInt(data.parent) || num) + '.html#' + num + '" class="postbtn-reply-href" name="' + num + '">' + num + '</a>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</span>\n\t\t\t\t\t<br class="turnmeoff">\n\t\t\t\t</div>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + this._getPostMsg(data) + '\n\t\t\t</div>\n\t\t</div>';
+				}) + '\n\t\t\t\t\t' + (data.op === 1 ? '<span class="ophui"># OP</span>&nbsp;' : '') + '\n\t\t\t\t\t<span class="posttime-reflink">\n\t\t\t\t\t\t<span class="posttime">' + data.date + '&nbsp;</span>\n\t\t\t\t\t\t<span class="reflink">\n\t\t\t\t\t\t\t<a href="/' + brd + '/res/' + (parseInt(data.parent) || num) + '.html#' + num + '">№</a><a href="/' + brd + '/res/' + (parseInt(data.parent) || num) + '.html#' + num + '" class="postbtn-reply-href" name="' + num + '">' + num + '</a>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</span>\n\t\t\t\t\t<br class="turnmeoff">\n\t\t\t\t</div>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + this._getPostMsg(data) + '\n\t\t\t</div>\n\t\t</div>';
 				return $add(aib.fixHTML(rv)).firstElementChild;
 			}
 		}, {
