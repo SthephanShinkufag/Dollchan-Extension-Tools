@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'f8de6c1';
+var commit = '06a7496';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11237,7 +11237,7 @@ class MakabaPostsBuilder {
 					</figcaption>
 					<div id="exlink-${ num }-${ file.md5 }">
 						<a href="/${ brd }/${ file.path }" name="expandfunc" onclick="expand('${ num }-${ file.md5 }','/${ brd }/${ file.path }','/${ brd }/${ file.thumbnail }',${ file.width },${ file.height },${ file.tn_width },${ file.tn_height }); return false;">
-							<img src="/${ brd }/${ file.thumbnail }" width="${ file.tn_width }" height="${ file.tn_height }" alt="${ file.size }" class="img preview${ isWebm ? '' : ' webm-file' }">
+							<img src="/${ brd }/${ file.thumbnail }" width="${ file.tn_width }" height="${ file.tn_height }" alt="${ file.size }" class="img preview${ isWebm ? ' webm-file' : '' }">
 						</a>
 					</div>
 				</figure>`;
