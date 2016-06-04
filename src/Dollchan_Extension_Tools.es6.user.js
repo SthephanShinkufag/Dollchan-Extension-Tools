@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '84e2df4';
+var commit = 'fdb0567';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10885,6 +10885,7 @@ class DOMPostsBuilder {
 		this._posts = $Q(aib.qRPost, form);
 		this.length = this._posts.length;
 		this.postersCount = '';
+		this.hasHTML = false;
 	}
 	get isClosed() {
 		return !!$q(aib.qClosed, this._form);
@@ -10924,6 +10925,7 @@ class _4chanPostsBuilder {
 		this._brd = brd;
 		this.length = json.posts.length - 1;
 		this.postersCount = this._posts[0].unique_ips;
+		this.hasHTML = true;
 		if(this._posts[0].custom_spoiler) {
 			_4chanPostsBuilder._setCustomSpoiler(brd, this._posts[0].custom_spoiler);
 		}
@@ -10936,6 +10938,9 @@ class _4chanPostsBuilder {
 		return $add(aib.fixHTML(`<blockquote class="postMessage" id="m${ data.no }"> ${ data.com }</blockquote>`));
 	}
 	getPostEl(i) {
+		return $add(aib.fixHTML(this.getPostHTML(i))).lastElementChild;
+	}
+	getPostHTML(i) {
 		const data = this._posts[i + 1];
 		const num = data.no;
 		const brd = this._brd;
@@ -11070,7 +11075,7 @@ class _4chanPostsBuilder {
 				<blockquote class="postMessage" id="m${ num }"> ${ data.com }</blockquote>
 			</div>
 		</div>`;
-		return $add(aib.fixHTML(rv)).lastElementChild;
+		return rv;
 	}
 	getPNum(i) {
 		return this._posts[i + 1].no;
@@ -11089,6 +11094,7 @@ class DobrochanPostsBuilder {
 		this._posts = json.result.threads[0].posts;
 		this.length = this._posts.length - 1;
 		this.postersCount = '';
+		this.hasHTML = true;
 	}
 	get isClosed() {
 		return !!this._json.threads[0].archived;
@@ -11098,6 +11104,9 @@ class DobrochanPostsBuilder {
 		return $add(aib.fixHTML(`<div class="postbody"> ${ data.message_html }</div>`));
 	}
 	getPostEl(i) {
+		return $add(aib.fixHTML(this.getPostHTML(i))).firstChild.firstChild.lastElementChild;
+	}
+	getPostHTML(i) {
 		const data = this._posts[i + 1];
 		const num = data.display_id;
 		const brd = this._brd;
@@ -11181,7 +11190,7 @@ class DobrochanPostsBuilder {
 				<div class="abbrev"></div>
 			</td>
 		</tr></tbody></table>`;
-		return $add(aib.fixHTML(rv)).firstChild.firstChild.lastElementChild;
+		return rv;
 	}
 	getPNum(i) {
 		return this._posts[i + 1].display_id;
@@ -11199,6 +11208,7 @@ class MakabaPostsBuilder {
 		this._posts = json.threads[0].posts;
 		this.length = json.posts_count;
 		this.postersCount = json.unique_posters;
+		this.hasHTML = true;
 	}
 	get isClosed() {
 		return this._json.is_closed;
@@ -11207,6 +11217,9 @@ class MakabaPostsBuilder {
 		return $add(aib.fixHTML(this._getPostMsg(this._posts[0])));
 	}
 	getPostEl(i) {
+		return $add(aib.fixHTML(this.getPostHTML(i))).firstElementChild;
+	}
+	getPostHTML(i) {
 		const data = this._posts[i + 1];
 		const num = data.num;
 		const brd = this._brd;
@@ -11275,7 +11288,7 @@ class MakabaPostsBuilder {
 				${ this._getPostMsg(data) }
 			</div>
 		</div>`;
-		return $add(aib.fixHTML(rv)).firstElementChild;
+		return rv;
 	}
 	getPNum(i) {
 		return this._posts[i + 1].num;
@@ -11406,29 +11419,6 @@ class Thread {
 	get top() {
 		return this.op.top;
 	}
-	addPost(parent, el, i, prev, maybeVParser) {
-		var post, num = aib.getPNum(el),
-			wrap = doc.adoptNode(aib.getWrap(el, false));
-		post = new Post(el, this, num, i, false, prev);
-		parent.appendChild(wrap);
-		if(aib.t && !doc.hidden && Cfg.animation) {
-			$animate(post.el, 'de-post-new');
-		}
-		if(this.userTouched.has(num)) {
-			post.setUserVisib(this.userTouched.get(num), false);
-			this.userTouched.delete(num);
-		}
-		if(maybeVParser.value) {
-			maybeVParser.value.parse(post);
-		}
-		processImagesLinks(el, aib.t ? null : aib.b);
-		post.addFuncs();
-		preloadImages(post);
-		if(aib.t && Cfg.markNewPosts) {
-			Post.addMark(el, false);
-		}
-		return post;
-	}
 	deletePost(post, delAll, removePost) {
 		SpellsRunner.cachedData = null;
 		var count = 0,
@@ -11502,6 +11492,29 @@ class Thread {
 		} while((thr = thr.next));
 	}
 
+	_addPost(parent, el, i, prev, maybeVParser) {
+		var post, num = aib.getPNum(el),
+			wrap = doc.adoptNode(aib.getWrap(el, false));
+		post = new Post(el, this, num, i, false, prev);
+		parent.appendChild(wrap);
+		if(aib.t && !doc.hidden && Cfg.animation) {
+			$animate(post.el, 'de-post-new');
+		}
+		if(this.userTouched.has(num)) {
+			post.setUserVisib(this.userTouched.get(num), false);
+			this.userTouched.delete(num);
+		}
+		if(maybeVParser.value) {
+			maybeVParser.value.parse(post);
+		}
+		processImagesLinks(el, aib.t ? null : aib.b);
+		post.addFuncs();
+		preloadImages(post);
+		if(aib.t && Cfg.markNewPosts) {
+			Post.addMark(el, false);
+		}
+		return post;
+	}
 	_checkBans(pBuilder) {
 		if(!aib.qBan) {
 			return;
@@ -11540,12 +11553,27 @@ class Thread {
 		}
 	}
 	_importPosts(last, pBuilder, begin, end, maybeVParser, maybeSpells) {
-		var newCount = end - begin,
-			newVisCount = newCount,
+		var fragm, newCount = end - begin,
+			newVisCount = newCount;
+		if(pBuilder.hasHTML && nav.hasTemplate) {
+			let temp = document.createElement('template');
+			let html = [];
+			for(let i = begin; i < end; ++i) {
+				html.push(pBuilder.getPostHTML(i));
+			}
+			temp.innerHTML = aib.fixHTML(html.join(''));
+			fragm = temp.content;
+			let posts = $Q(aib.qRPost, fragm);
+			for(let i = 0, len = posts.length; i < len; ++i) {
+				last = this._addPost(fragm, posts[i], begin + i + 1, last, maybeVParser);
+				newVisCount -= maybeSpells.value.run(last);
+			}
+		} else {
 			fragm = doc.createDocumentFragment();
-		for(; begin < end; ++begin) {
-			last = this.addPost(fragm, pBuilder.getPostEl(begin), begin + 1, last, maybeVParser);
-			newVisCount -= maybeSpells.value.run(last);
+			for(; begin < end; ++begin) {
+				last = this._addPost(fragm, pBuilder.getPostEl(begin), begin + 1, last, maybeVParser);
+				newVisCount -= maybeSpells.value.run(last);
+			}
 		}
 		return [newCount, newVisCount, fragm, last];
 	}
@@ -11602,19 +11630,19 @@ class Thread {
 				post = post.next;
 			}
 		} else {
-			var fragm = doc.createDocumentFragment(),
-				tPost = op,
-				nonExisted = pBuilder.length - existed,
-				maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-			for(var i = Math.max(0, nonExisted + existed - needToShow); i < nonExisted; ++i) {
-				tPost = this.addPost(fragm, pBuilder.getPostEl(i), i + 1, tPost, maybeVParser);
-				maybeSpells.value.run(tPost);
-			}
+			let nonExisted = pBuilder.length - existed,
+				maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null),
+				[,,fragm,last] = this._importPosts(op,
+				                                   pBuilder,
+				                                   Math.max(0, nonExisted + existed - needToShow),
+				                                   nonExisted,
+				                                   maybeVParser,
+				                                   maybeSpells);
 			maybeVParser.end();
 			$after(op.wrap, fragm);
-			tPost.next = post;
+			last.next = post;
 			if(post) {
-				post.prev = tPost;
+				post.prev = last;
 			}
 			needRMUpdate = true;
 			needToShow = Math.min(nonExisted + existed, needToShow);
@@ -11991,6 +12019,11 @@ function initNavFuncs() {
 		fixLink: safari ? getAbsLink : function fixLink(url) {
 			return url;
 		},
+		get hasTemplate() {
+			var value = 'content' in document.createElement('template');
+			Object.defineProperty(this, 'hasTemplate', { value });
+			return value;
+		},
 		get hasWorker() {
 			var val = false;
 			try {
@@ -12159,7 +12192,6 @@ class BaseBoard {
 	get updateCaptcha() {
 		return null;
 	}
-	checkForm() {} // Sets in Ponyach only
 	disableRedirection(el) { // Differs Dobrochan only
 		$hide($parent(el, 'TR'));
 		el.checked = true;
@@ -13621,46 +13653,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			var val = new WeakMap();
 			Object.defineProperty(this, 'modifiedPosts', { value: val });
 			return val;
-		}
-		checkForm(formEl, maybeSpells) { // Ponyach hack. Sets here only
-			var myMaybeSpells = maybeSpells || new Maybe(SpellsRunner),
-				maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-			if(!this._postMapInited) {
-				this._postMapInited = true;
-				$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]'),
-					  pEl => this.modifiedPosts.set(pEl, +pEl.getAttribute('data-lastmodified')));
-			}
-			$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', formEl), pEl => {
-				var nPost, post = pByNum.get(this.getPNum(pEl)),
-					pDate = +pEl.getAttribute('data-lastmodified');
-				if(post && (!this.modifiedPosts.has(pEl) || this.modifiedPosts.get(pEl) < pDate)) {
-					var thr = post.thr,
-						fragm = doc.createDocumentFragment();
-					this.modifiedPosts.set(pEl, pDate);
-					nPost = thr.addPost(fragm, pEl, post.count, post.prev, maybeVParser);
-					if(thr.op === post) {
-						thr.op = nPost;
-					}
-					if(thr.last === post) {
-						thr.last = nPost;
-					}
-					if(post.next) {
-						post.next.prev = nPost;
-						nPost.next = post.next;
-					}
-					if(post.omitted) {
-						nPost.omitted = true;
-						nPost.wrap.classList.add('de-hidden');
-					}
-					myMaybeSpells.value.run(nPost);
-					$before(post.wrap, fragm);
-					$del(post.wrap);
-				}
-			});
-			if(!maybeSpells) {
-				myMaybeSpells.end();
-			}
-			maybeVParser.end();
 		}
 		getPNum(post) {
 			return +post.getAttribute('data-num');

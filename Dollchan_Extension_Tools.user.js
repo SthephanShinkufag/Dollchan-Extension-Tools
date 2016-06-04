@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '84e2df4';
+	var commit = 'fdb0567';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -15220,6 +15220,7 @@ true, true],
 			this._posts = $Q(aib.qRPost, form);
 			this.length = this._posts.length;
 			this.postersCount = '';
+			this.hasHTML = false;
 		}
 
 		_createClass(DOMPostsBuilder, [{
@@ -15302,6 +15303,7 @@ true, true],
 			this._brd = brd;
 			this.length = json.posts.length - 1;
 			this.postersCount = this._posts[0].unique_ips;
+			this.hasHTML = true;
 			if (this._posts[0].custom_spoiler) {
 				_4chanPostsBuilder._setCustomSpoiler(brd, this._posts[0].custom_spoiler);
 			}
@@ -15316,6 +15318,11 @@ true, true],
 		}, {
 			key: 'getPostEl',
 			value: function getPostEl(i) {
+				return $add(aib.fixHTML(this.getPostHTML(i))).lastElementChild;
+			}
+		}, {
+			key: 'getPostHTML',
+			value: function getPostHTML(i) {
 				var data = this._posts[i + 1];
 				var num = data.no;
 				var brd = this._brd;
@@ -15393,7 +15400,7 @@ true, true],
 				}
 
 				var rv = '<div class="postContainer replyContainer" id="pc' + num + '">\n\t\t\t<div class="sideArrows" id="sa' + num + '">&gt;&gt;</div>\n\t\t\t<div id="p' + num + '" class="post reply ' + highlight + '">\n\t\t\t\t<div class="postInfoM mobile" id="pim' + num + '">\n\t\t\t\t\t<span class="nameBlock ' + capcodeClass + '">\n\t\t\t\t\t\t' + (data.name.length > 30 ? '<span class="name" data-tip data-tip-cb="mShowFull">' + data.name.substring(30) + '(...)</span>' : '<span class="name">' + data.name + '</span>') + '\n\t\t\t\t\t\t' + (data.trip ? '<span class="postertrip">' + data.trip + '</span>' : '') + '\n\t\t\t\t\t\t' + capcodeText + '\n\t\t\t\t\t\t' + capcodeImg + '\n\t\t\t\t\t\t' + (data.id && !data.capcode ? '<span class="posteruid id_' + data.id + '">(ID: <span class="hand" title="Highlight posts by this ID">' + data.id + '</span>)</span>' : '') + '\n\t\t\t\t\t\t' + (data.country ? '<span title="' + data.country_name + '" class="flag flag-' + data.country.toLowerCase() + '"></span>' : '') + '\n\t\t\t\t\t\t<br>\n\t\t\t\t\t\t<span class="subject">' + (data.sub || '') + '</span>\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class="dateTime postNum" data-utc="' + data.time + '">' + data.now + ' <a href="#p' + num + '" title="Link to this post">No.</a><a href="javascript:quote(\'' + num + '\');" title="Reply to this post">' + num + '</a></span>\n\t\t\t\t</div>\n\t\t\t\t<div class="postInfo desktop" id="pi75970976">\n\t\t\t\t\t<input name="75970976" value="delete" type="checkbox">\n\t\t\t\t\t<span class="subject">' + (data.sub || '') + '</span>\n\t\t\t\t\t<span class="nameBlock ' + capcodeClass + '">\n\t\t\t\t\t\t' + (data.email ? '<a href="mailto:' + data.email.replace(/ /g, '%20') + '" class="useremail">' : '') + '\n\t\t\t\t\t\t\t<span class="name">' + data.name + '</span>\n\t\t\t\t\t\t\t' + (data.trip ? '<span class="postertrip">' + data.trip + '</span>' : '') + '\n\t\t\t\t\t\t\t' + capcodeText + '\n\t\t\t\t\t\t' + (data.email ? '</a>' : '') + '\n\t\t\t\t\t\t' + capcodeImg + '\n\t\t\t\t\t\t' + (data.id && !data.capcode ? '<span class="posteruid id_' + data.id + '">(ID: <span class="hand" title="Highlight posts by this ID">' + data.id + '</span>)</span>' : '') + '\n\t\t\t\t\t\t' + (data.country ? '<span title="' + data.country_name + '" class="flag flag-' + data.country.toLowerCase() + '"></span>' : '') + '\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class="dateTime" data-utc="' + data.time + '">' + data.now + '</span>\n\t\t\t\t\t<span class="postNum desktop"><a href="#p' + num + '" title="Link to this post">No.</a><a href="javascript:quote(\'' + num + '\');" title="Reply to this post">' + num + '</a></span>\n\t\t\t\t</div>\n\t\t\t\t' + fileHTML + '\n\t\t\t\t<blockquote class="postMessage" id="m' + num + '"> ' + data.com + '</blockquote>\n\t\t\t</div>\n\t\t</div>';
-				return $add(aib.fixHTML(rv)).lastElementChild;
+				return rv;
 			}
 		}, {
 			key: 'getPNum',
@@ -15437,6 +15444,7 @@ true, true],
 			this._posts = json.result.threads[0].posts;
 			this.length = this._posts.length - 1;
 			this.postersCount = '';
+			this.hasHTML = true;
 		}
 
 		_createClass(DobrochanPostsBuilder, [{
@@ -15448,6 +15456,11 @@ true, true],
 		}, {
 			key: 'getPostEl',
 			value: function getPostEl(i) {
+				return $add(aib.fixHTML(this.getPostHTML(i))).firstChild.firstChild.lastElementChild;
+			}
+		}, {
+			key: 'getPostHTML',
+			value: function getPostHTML(i) {
 				var data = this._posts[i + 1];
 				var num = data.display_id;
 				var brd = this._brd;
@@ -15509,7 +15522,7 @@ true, true],
 					};
 					return pad2(dt.getDate()) + ' ' + Lng.fullMonth[1][dt.getMonth()] + ' ' + dt.getFullYear() + ' (' + Lng.week[1][dt.getDay()] + ') ' + pad2(dt.getHours()) + ':' + pad2(dt.getMinutes());
 				}) + '\n\t\t\t\t</label>\n\t\t\t\t<span class="reflink">\n\t\t\t\t\t<a onclick="Highlight(0, ' + num + ')" href="/' + brd + '/res/' + tNum + '.xhtml#i' + num + '"> No.' + num + '</a>\n\t\t\t\t</span>\n\t\t\t\t<span class="cpanel">\n\t\t\t\t\t<a class="reply_icon" onclick="GetReplyForm(event, \'' + brd + '\', ' + tNum + ', ' + num + ')">\n\t\t\t\t\t\t<img src="/images/blank-double.png" style="vertical-align:sub" title="Ответ" alt="Ответ">\n\t\t\t\t\t</a>\n\t\t\t\t</span>\n\t\t\t\t<br>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + (multiFile ? '<div style="clear: both;"></div>' : '') + '\n\t\t\t\t<div class="postbody"> ' + data.message_html + '</div>\n\t\t\t\t<div class="abbrev"></div>\n\t\t\t</td>\n\t\t</tr></tbody></table>';
-				return $add(aib.fixHTML(rv)).firstChild.firstChild.lastElementChild;
+				return rv;
 			}
 		}, {
 			key: 'getPNum',
@@ -15551,6 +15564,7 @@ true, true],
 			this._posts = json.threads[0].posts;
 			this.length = json.posts_count;
 			this.postersCount = json.unique_posters;
+			this.hasHTML = true;
 		}
 
 		_createClass(MakabaPostsBuilder, [{
@@ -15561,6 +15575,11 @@ true, true],
 		}, {
 			key: 'getPostEl',
 			value: function getPostEl(i) {
+				return $add(aib.fixHTML(this.getPostHTML(i))).firstElementChild;
+			}
+		}, {
+			key: 'getPostHTML',
+			value: function getPostHTML(i) {
 				var data = this._posts[i + 1];
 				var num = data.num;
 				var brd = this._brd;
@@ -15603,7 +15622,7 @@ true, true],
 					'!!%coder%!!': '<span class="mod">## Кодер ##<\/span>',
 					'@@default': '<span class="postertrip">' + data.trip + '<\/span>'
 				}) + '\n\t\t\t\t\t' + (data.op === 1 ? '<span class="ophui"># OP</span>&nbsp;' : '') + '\n\t\t\t\t\t<span class="posttime-reflink">\n\t\t\t\t\t\t<span class="posttime">' + data.date + '&nbsp;</span>\n\t\t\t\t\t\t<span class="reflink">\n\t\t\t\t\t\t\t<a href="/' + brd + '/res/' + (parseInt(data.parent) || num) + '.html#' + num + '">№</a><a href="/' + brd + '/res/' + (parseInt(data.parent) || num) + '.html#' + num + '" class="postbtn-reply-href" name="' + num + '">' + num + '</a>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</span>\n\t\t\t\t\t<br class="turnmeoff">\n\t\t\t\t</div>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + this._getPostMsg(data) + '\n\t\t\t</div>\n\t\t</div>';
-				return $add(aib.fixHTML(rv)).firstElementChild;
+				return rv;
 			}
 		}, {
 			key: 'getPNum',
@@ -15786,32 +15805,6 @@ true, true],
 		}
 
 		_createClass(Thread, [{
-			key: 'addPost',
-			value: function addPost(parent, el, i, prev, maybeVParser) {
-				var post,
-				    num = aib.getPNum(el),
-				    wrap = doc.adoptNode(aib.getWrap(el, false));
-				post = new Post(el, this, num, i, false, prev);
-				parent.appendChild(wrap);
-				if (aib.t && !doc.hidden && Cfg.animation) {
-					$animate(post.el, 'de-post-new');
-				}
-				if (this.userTouched.has(num)) {
-					post.setUserVisib(this.userTouched.get(num), false);
-					this.userTouched['delete'](num);
-				}
-				if (maybeVParser.value) {
-					maybeVParser.value.parse(post);
-				}
-				processImagesLinks(el, aib.t ? null : aib.b);
-				post.addFuncs();
-				preloadImages(post);
-				if (aib.t && Cfg.markNewPosts) {
-					Post.addMark(el, false);
-				}
-				return post;
-			}
-		}, {
 			key: 'deletePost',
 			value: function deletePost(post, delAll, removePost) {
 				SpellsRunner.cachedData = null;
@@ -15904,6 +15897,32 @@ true, true],
 				} while (thr = thr.next);
 			}
 		}, {
+			key: '_addPost',
+			value: function _addPost(parent, el, i, prev, maybeVParser) {
+				var post,
+				    num = aib.getPNum(el),
+				    wrap = doc.adoptNode(aib.getWrap(el, false));
+				post = new Post(el, this, num, i, false, prev);
+				parent.appendChild(wrap);
+				if (aib.t && !doc.hidden && Cfg.animation) {
+					$animate(post.el, 'de-post-new');
+				}
+				if (this.userTouched.has(num)) {
+					post.setUserVisib(this.userTouched.get(num), false);
+					this.userTouched['delete'](num);
+				}
+				if (maybeVParser.value) {
+					maybeVParser.value.parse(post);
+				}
+				processImagesLinks(el, aib.t ? null : aib.b);
+				post.addFuncs();
+				preloadImages(post);
+				if (aib.t && Cfg.markNewPosts) {
+					Post.addMark(el, false);
+				}
+				return post;
+			}
+		}, {
 			key: '_checkBans',
 			value: function _checkBans(pBuilder) {
 				if (!aib.qBan) {
@@ -15966,12 +15985,28 @@ true, true],
 		}, {
 			key: '_importPosts',
 			value: function _importPosts(last, pBuilder, begin, end, maybeVParser, maybeSpells) {
-				var newCount = end - begin,
-				    newVisCount = newCount,
-				    fragm = doc.createDocumentFragment();
-				for (; begin < end; ++begin) {
-					last = this.addPost(fragm, pBuilder.getPostEl(begin), begin + 1, last, maybeVParser);
-					newVisCount -= maybeSpells.value.run(last);
+				var fragm,
+				    newCount = end - begin,
+				    newVisCount = newCount;
+				if (pBuilder.hasHTML && nav.hasTemplate) {
+					var temp = document.createElement('template');
+					var html = [];
+					for (var i = begin; i < end; ++i) {
+						html.push(pBuilder.getPostHTML(i));
+					}
+					temp.innerHTML = aib.fixHTML(html.join(''));
+					fragm = temp.content;
+					var posts = $Q(aib.qRPost, fragm);
+					for (var _i37 = 0, len = posts.length; _i37 < len; ++_i37) {
+						last = this._addPost(fragm, posts[_i37], begin + _i37 + 1, last, maybeVParser);
+						newVisCount -= maybeSpells.value.run(last);
+					}
+				} else {
+					fragm = doc.createDocumentFragment();
+					for (; begin < end; ++begin) {
+						last = this._addPost(fragm, pBuilder.getPostEl(begin), begin + 1, last, maybeVParser);
+						newVisCount -= maybeSpells.value.run(last);
+					}
 				}
 				return [newCount, newVisCount, fragm, last];
 			}
@@ -16036,19 +16071,21 @@ true, true],
 						post = post.next;
 					}
 				} else {
-					var fragm = doc.createDocumentFragment(),
-					    tPost = op,
-					    nonExisted = pBuilder.length - existed,
-					    maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-					for (var i = Math.max(0, nonExisted + existed - needToShow); i < nonExisted; ++i) {
-						tPost = this.addPost(fragm, pBuilder.getPostEl(i), i + 1, tPost, maybeVParser);
-						maybeSpells.value.run(tPost);
-					}
+					var nonExisted = pBuilder.length - existed;
+					var maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
+
+					var _importPosts2 = this._importPosts(op, pBuilder, Math.max(0, nonExisted + existed - needToShow), nonExisted, maybeVParser, maybeSpells);
+
+					var _importPosts3 = _slicedToArray(_importPosts2, 4);
+
+					var fragm = _importPosts3[2];
+					var _last = _importPosts3[3];
+
 					maybeVParser.end();
 					$after(op.wrap, fragm);
-					tPost.next = post;
+					_last.next = post;
 					if (post) {
-						post.prev = tPost;
+						post.prev = _last;
 					}
 					needRMUpdate = true;
 					needToShow = Math.min(nonExisted + existed, needToShow);
@@ -16494,6 +16531,11 @@ true, true],
 			fixLink: safari ? getAbsLink : function fixLink(url) {
 				return url;
 			},
+			get hasTemplate() {
+				var value = 'content' in document.createElement('template');
+				Object.defineProperty(this, 'hasTemplate', { value: value });
+				return value;
+			},
 			get hasWorker() {
 				var val = false;
 				try {
@@ -16595,10 +16637,6 @@ true, true],
 		}
 
 		_createClass(BaseBoard, [{
-			key: 'checkForm',
-			value: function checkForm() {} 
-
-		}, {
 			key: 'disableRedirection',
 			value: function disableRedirection(el) {
 				$hide($parent(el, 'TR'));
@@ -18073,14 +18111,14 @@ true, true],
 					try {
 						var links = $Q('.post-reply-link', el);
 						var lLen = links.length;
-						for (var _i37 = 0; _i37 < lLen; ++_i37) {
-							var link = links[_i37];
+						for (var _i38 = 0; _i38 < lLen; ++_i38) {
+							var link = links[_i38];
 							link.textContent = '>>' + link.getAttribute('data-num');
 						}
 						var thumbs = $Q('.expand_image', el);
 						var tLen = thumbs.length;
-						for (var _i38 = 0; _i38 < tLen; ++_i38) {
-							var thumb = thumbs[_i38];
+						for (var _i39 = 0; _i39 < tLen; ++_i39) {
+							var thumb = thumbs[_i39];
 							var _link = thumb.getAttribute('onclick').match(/http:\/[^']+/)[0];
 							var div = thumb.firstElementChild;
 							var iframe = div.firstElementChild;
@@ -18566,16 +18604,16 @@ true, true],
 					var sessionId = null;
 					var cookie = doc.cookie;
 					if (cookie.includes('desuchan.session')) {
-						for (var _iterator36 = cookie.split(';'), _isArray36 = Array.isArray(_iterator36), _i39 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
+						for (var _iterator36 = cookie.split(';'), _isArray36 = Array.isArray(_iterator36), _i40 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
 							var _ref65;
 
 							if (_isArray36) {
-								if (_i39 >= _iterator36.length) break;
-								_ref65 = _iterator36[_i39++];
+								if (_i40 >= _iterator36.length) break;
+								_ref65 = _iterator36[_i40++];
 							} else {
-								_i39 = _iterator36.next();
-								if (_i39.done) break;
-								_ref65 = _i39.value;
+								_i40 = _iterator36.next();
+								if (_i40.done) break;
+								_ref65 = _i40.value;
 							}
 
 							var c = _ref65;
@@ -18690,52 +18728,6 @@ true, true],
 			}
 
 			_createClass(Ponyach, [{
-				key: 'checkForm',
-				value: function checkForm(formEl, maybeSpells) {
-					var _this86 = this;
-
-					var myMaybeSpells = maybeSpells || new Maybe(SpellsRunner),
-					    maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-					if (!this._postMapInited) {
-						this._postMapInited = true;
-						$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]'), function (pEl) {
-							return _this86.modifiedPosts.set(pEl, +pEl.getAttribute('data-lastmodified'));
-						});
-					}
-					$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', formEl), function (pEl) {
-						var nPost,
-						    post = pByNum.get(_this86.getPNum(pEl)),
-						    pDate = +pEl.getAttribute('data-lastmodified');
-						if (post && (!_this86.modifiedPosts.has(pEl) || _this86.modifiedPosts.get(pEl) < pDate)) {
-							var thr = post.thr,
-							    fragm = doc.createDocumentFragment();
-							_this86.modifiedPosts.set(pEl, pDate);
-							nPost = thr.addPost(fragm, pEl, post.count, post.prev, maybeVParser);
-							if (thr.op === post) {
-								thr.op = nPost;
-							}
-							if (thr.last === post) {
-								thr.last = nPost;
-							}
-							if (post.next) {
-								post.next.prev = nPost;
-								nPost.next = post.next;
-							}
-							if (post.omitted) {
-								nPost.omitted = true;
-								nPost.wrap.classList.add('de-hidden');
-							}
-							myMaybeSpells.value.run(nPost);
-							$before(post.wrap, fragm);
-							$del(post.wrap);
-						}
-					});
-					if (!maybeSpells) {
-						myMaybeSpells.end();
-					}
-					maybeVParser.end();
-				}
-			}, {
 				key: 'getPNum',
 				value: function getPNum(post) {
 					return +post.getAttribute('data-num');
@@ -18781,10 +18773,10 @@ true, true],
 			function Ponychan(prot, dm) {
 				_classCallCheck(this, Ponychan);
 
-				var _this87 = _possibleConstructorReturn(this, Object.getPrototypeOf(Ponychan).call(this, prot, dm));
+				var _this86 = _possibleConstructorReturn(this, Object.getPrototypeOf(Ponychan).call(this, prot, dm));
 
-				_this87.qOPost = '.opContainer';
-				return _this87;
+				_this86.qOPost = '.opContainer';
+				return _this86;
 			}
 
 			_createClass(Ponychan, [{
@@ -18814,12 +18806,12 @@ true, true],
 			function Synch(prot, dm) {
 				_classCallCheck(this, Synch);
 
-				var _this88 = _possibleConstructorReturn(this, Object.getPrototypeOf(Synch).call(this, prot, dm));
+				var _this87 = _possibleConstructorReturn(this, Object.getPrototypeOf(Synch).call(this, prot, dm));
 
-				_this88.qFileInfo = '.unimportant';
+				_this87.qFileInfo = '.unimportant';
 
-				_this88.markupBB = true;
-				return _this88;
+				_this87.markupBB = true;
+				return _this87;
 			}
 
 			_createClass(Synch, [{
@@ -18862,10 +18854,10 @@ true, true],
 			function Uchan(prot, dm) {
 				_classCallCheck(this, Uchan);
 
-				var _this89 = _possibleConstructorReturn(this, Object.getPrototypeOf(Uchan).call(this, prot, dm));
+				var _this88 = _possibleConstructorReturn(this, Object.getPrototypeOf(Uchan).call(this, prot, dm));
 
-				_this89.qFormRedir = '#noko';
-				return _this89;
+				_this88.qFormRedir = '#noko';
+				return _this88;
 			}
 
 			_createClass(Uchan, [{
@@ -19217,7 +19209,7 @@ true, true],
 				}
 			},
 			play: function play() {
-				var _this90 = this;
+				var _this89 = this;
 
 				this.stop();
 				if (this.repeatMS === 0) {
@@ -19225,7 +19217,7 @@ true, true],
 					return;
 				}
 				this._playInterval = setInterval(function () {
-					return _this90._el.play();
+					return _this89._el.play();
 				}, this.repeatMS);
 			},
 			stop: function stop() {
@@ -19254,7 +19246,7 @@ true, true],
 				$hide(this._el);
 			},
 			count: function count(delayMS, useCounter, callback) {
-				var _this91 = this;
+				var _this90 = this;
 
 				if (this._enabled && useCounter) {
 					var seconds = delayMS / 1000;
@@ -19262,15 +19254,15 @@ true, true],
 					this._countingIV = setInterval(function () {
 						seconds--;
 						if (seconds === 0) {
-							_this91._stop();
+							_this90._stop();
 							callback();
 						} else {
-							_this91._set(seconds);
+							_this90._set(seconds);
 						}
 					}, 1000);
 				} else {
 					this._countingTO = setTimeout(function () {
-						_this91._countingTO = null;
+						_this90._countingTO = null;
 						callback();
 					}, delayMS);
 				}
@@ -19315,7 +19307,7 @@ true, true],
 				return this._iconEl ? this._iconEl.href : null;
 			},
 			initIcons: function initIcons() {
-				var _this92 = this;
+				var _this91 = this;
 
 				if (this._isInited) {
 					return;
@@ -19324,7 +19316,7 @@ true, true],
 				var icon = new Image();
 				icon.onload = function (e) {
 					try {
-						_this92._initIconsHelper(e.target);
+						_this91._initIconsHelper(e.target);
 					} catch (e) {
 						console.error('Icon error:', e);
 					}
@@ -19414,7 +19406,7 @@ true, true],
 				this._iconEl = $aBegin(doc.head, '<link rel="shortcut icon" href="' + iconUrl + '">');
 			},
 			_startBlink: function _startBlink(iconUrl) {
-				var _this93 = this;
+				var _this92 = this;
 
 				if (this._blinkInterval) {
 					if (this._currentIcon === iconUrl) {
@@ -19424,8 +19416,8 @@ true, true],
 				}
 				this._currentIcon = iconUrl;
 				this._blinkInterval = setInterval(function () {
-					_this93._setIcon(_this93._isOriginalIcon ? _this93._currentIcon : _this93.originalIcon);
-					_this93._isOriginalIcon = !_this93._isOriginalIcon;
+					_this92._setIcon(_this92._isOriginalIcon ? _this92._currentIcon : _this92.originalIcon);
+					_this92._isOriginalIcon = !_this92._isOriginalIcon;
 				}, this._blinkMS);
 			}
 		};
@@ -19445,7 +19437,7 @@ true, true],
 				}
 			},
 			show: function show() {
-				var _this94 = this;
+				var _this93 = this;
 
 				var post = Thread.first.last,
 				    notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
@@ -19455,8 +19447,8 @@ true, true],
 				});
 				notif.onshow = function () {
 					return setTimeout(function () {
-						if (notif === _this94._notifEl) {
-							_this94.close();
+						if (notif === _this93._notifEl) {
+							_this93.close();
 						}
 					}, 12e3);
 				};
@@ -19465,7 +19457,7 @@ true, true],
 				};
 				notif.onerror = function () {
 					window.focus();
-					_this94._requestPermission();
+					_this93._requestPermission();
 				};
 				this._notifEl = notif;
 			},
@@ -19482,14 +19474,14 @@ true, true],
 			_notifEl: null,
 
 			_requestPermission: function _requestPermission() {
-				var _this95 = this;
+				var _this94 = this;
 
 				this._granted = false;
 				Notification.requestPermission(function (state) {
 					if (state.toLowerCase() === 'denied') {
 						saveCfg('desktNotif', 0);
 					} else {
-						_this95._granted = true;
+						_this94._granted = true;
 					}
 				});
 			}
@@ -19595,7 +19587,7 @@ true, true],
 				this._makeStep();
 			},
 			_makeStep: function _makeStep() {
-				var _this96 = this;
+				var _this95 = this;
 
 				var needSleep = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
 
@@ -19605,7 +19597,7 @@ true, true],
 							if (needSleep) {
 								this._state = 1;
 								counter.count(this._delay, !doc.hidden, function () {
-									return _this96._makeStep();
+									return _this95._makeStep();
 								});
 								return;
 							}
@@ -19615,9 +19607,9 @@ true, true],
 							this._loadPromise = Thread.first.loadNew().then(function (_ref66) {
 								var newCount = _ref66.newCount;
 								var locked = _ref66.locked;
-								return _this96._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
+								return _this95._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (e) {
-								return _this96._handleNewPosts(0, e);
+								return _this95._handleNewPosts(0, e);
 							});
 							return;
 						case 2:
