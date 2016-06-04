@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'ae76abf';
+var commit = 'f8de6c1';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5493,16 +5493,14 @@ function ajaxPostsLoad(brd, tNum, useCache) {
 			try {
 				return new aib.jsonBuilder(JSON.parse(xhr.responseText), brd);
 			} catch(e) {
-				return CancelablePromise.reject(e);
+				if(e instanceof AjaxError) {
+					return CancelablePromise.reject(e);
+				}
+				console.warn(`API Error ${ e }. Switching to DOM parsing.`);
+				aib.jsonBuilder = null;
+				return ajaxPostsLoad(brd, tNum, useCache);
 			}
-		}).catch(e => {
-			if(e instanceof AjaxError) {
-				return e.code === 304 ? null : CancelablePromise.reject(e);
-			}
-			console.warn(`API Error ${ e }. Switching to DOM parsing.`);
-			aib.jsonBuilder = null;
-			return ajaxPostsLoad(brd, tNum, useCache);
-		});
+		}, e => e.code === 304 ? null : CancelablePromise.reject(e));
 	}
 	return ajaxLoad(aib.getThrdUrl(brd, tNum), true, useCache)
 		.then(form => form ? new DOMPostsBuilder(form) : null);

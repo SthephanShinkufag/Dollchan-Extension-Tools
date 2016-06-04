@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = 'ae76abf';
+	var commit = 'f8de6c1';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -8609,15 +8609,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				try {
 					return new aib.jsonBuilder(JSON.parse(xhr.responseText), brd);
 				} catch (e) {
-					return CancelablePromise.reject(e);
+					if (e instanceof AjaxError) {
+						return CancelablePromise.reject(e);
+					}
+					console.warn('API Error ' + e + '. Switching to DOM parsing.');
+					aib.jsonBuilder = null;
+					return ajaxPostsLoad(brd, tNum, useCache);
 				}
-			})['catch'](function (e) {
-				if (e instanceof AjaxError) {
-					return e.code === 304 ? null : CancelablePromise.reject(e);
-				}
-				console.warn('API Error ' + e + '. Switching to DOM parsing.');
-				aib.jsonBuilder = null;
-				return ajaxPostsLoad(brd, tNum, useCache);
+			}, function (e) {
+				return e.code === 304 ? null : CancelablePromise.reject(e);
 			});
 		}
 		return ajaxLoad(aib.getThrdUrl(brd, tNum), true, useCache).then(function (form) {
