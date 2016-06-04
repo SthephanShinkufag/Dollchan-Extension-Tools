@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '7ab57ee';
+var commit = 'e453ff3';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11073,7 +11073,7 @@ class _4chanPostsBuilder {
 		return $add(aib.fixHTML(rv)).lastElementChild;
 	}
 	getPNum(i) {
-		return this._posts[i + 1]._no;
+		return this._posts[i + 1].no;
 	}
 	* bannedPostsData() {}
 }

@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '7ab57ee';
+	var commit = 'e453ff3';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -15400,7 +15400,7 @@ true, true],
 		}, {
 			key: 'getPNum',
 			value: function getPNum(i) {
-				return this._posts[i + 1]._no;
+				return this._posts[i + 1].no;
 			}
 		}, {
 			key: 'bannedPostsData',
