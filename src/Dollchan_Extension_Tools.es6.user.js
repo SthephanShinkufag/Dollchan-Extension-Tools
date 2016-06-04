@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'b7de881';
+var commit = '84e2df4';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11222,7 +11222,7 @@ class MakabaPostsBuilder {
 					<figcaption class="file-attr">
 						<a class="desktop" target="_blank" href="/${ brd }/${ file.path }">${ file.name }</a>
 						${ isWebm ? `<img src="/makaba/templates/img/webm-logo.png" width="50px" alt="webm file" id="webm-icon-${ num }-${ file.md5 }">` : '' }
-						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }${ _isWebm ? ', ' + file.duration : '' })</span>
+						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }${ isWebm ? ', ' + file.duration : '' })</span>
 					</figcaption>
 					<div id="exlink-${ num }-${ file.md5 }">
 						<a href="/${ brd }/${ file.path }" name="expandfunc" onclick="expand('${ num }-${ file.md5 }','/${ brd }/${ file.path }','/${ brd }/${ file.thumbnail }',${ file.width },${ file.height },${ file.tn_width },${ file.tn_height }); return false;">
