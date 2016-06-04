@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = 'e453ff3';
+	var commit = '2db5efa';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -8617,9 +8617,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					aib.jsonBuilder = null;
 					return ajaxPostsLoad(brd, tNum, useCache);
 				}
-				return function (e) {
-					return e.code === 304 ? null : CancelablePromise.reject(e);
-				};
+				return e.code === 304 ? null : CancelablePromise.reject(e);
 			});
 		}
 		return ajaxLoad(aib.getThrdUrl(brd, tNum), true, useCache).then(function (form) {

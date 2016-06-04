@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'e453ff3';
+var commit = '2db5efa';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5501,7 +5501,7 @@ function ajaxPostsLoad(brd, tNum, useCache) {
 				aib.jsonBuilder = null;
 				return ajaxPostsLoad(brd, tNum, useCache);
 			}
-			return e => e.code === 304 ? null : CancelablePromise.reject(e);
+			return e.code === 304 ? null : CancelablePromise.reject(e);
 		});
 	}
 	return ajaxLoad(aib.getThrdUrl(brd, tNum), true, useCache)
