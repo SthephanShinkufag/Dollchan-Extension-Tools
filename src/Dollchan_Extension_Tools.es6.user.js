@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '2db5efa';
+var commit = 'b7de881';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11135,7 +11135,7 @@ class DobrochanPostsBuilder {
 			let fileInfo = `<div class="fileinfo${ multiFile ? ' limited' : '' }">Файл:
 				<a href="/${ file.src }" title="${ fullFileName }" target="_blank">${ fileName }</a>
 				<br>
-				<em>${ file.thumb.substring(file.thumb.lastIndexOf('.') + 1) }, ${ size }, ${ file.metadata.width }x${ file.metadata.height }</em>${ _if(!multiFile, ' - Нажмите на картинку для увеличения') }
+				<em>${ file.thumb.substring(file.thumb.lastIndexOf('.') + 1) }, ${ size }, ${ file.metadata.width }x${ file.metadata.height }</em>${ multiFile ? '' : ' - Нажмите на картинку для увеличения' }
 				<br>
 				<a class="edit_ icon"  href="/utils/image/edit/${ file.file_id }/${ num }"><img title="edit" alt="edit" src="/images/blank.png"></a>
 				<a class="search_google icon" href="http://www.google.com/searchbyimage?image_url=http://dobrochan.ru/${ file.src }"><img title="edit" alt="edit" src="/images/blank.png"></a>
@@ -11222,11 +11222,11 @@ class MakabaPostsBuilder {
 					<figcaption class="file-attr">
 						<a class="desktop" target="_blank" href="/${ brd }/${ file.path }">${ file.name }</a>
 						${ isWebm ? `<img src="/makaba/templates/img/webm-logo.png" width="50px" alt="webm file" id="webm-icon-${ num }-${ file.md5 }">` : '' }
-						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }${ _if(isWebm, ', ' + file.duration) })</span>
+						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }${ _isWebm ? ', ' + file.duration : '' })</span>
 					</figcaption>
 					<div id="exlink-${ num }-${ file.md5 }">
 						<a href="/${ brd }/${ file.path }" name="expandfunc" onclick="expand('${ num }-${ file.md5 }','/${ brd }/${ file.path }','/${ brd }/${ file.thumbnail }',${ file.width },${ file.height },${ file.tn_width },${ file.tn_height }); return false;">
-							<img src="/${ brd }/${ file.thumbnail }" width="${ file.tn_width }" height="${ file.tn_height }" alt="${ file.size }" class="img preview${ _if(isWebm, ' webm-file') }">
+							<img src="/${ brd }/${ file.thumbnail }" width="${ file.tn_width }" height="${ file.tn_height }" alt="${ file.size }" class="img preview${ isWebm ? '' : ' webm-file' }">
 						</a>
 					</div>
 				</figure>`;
