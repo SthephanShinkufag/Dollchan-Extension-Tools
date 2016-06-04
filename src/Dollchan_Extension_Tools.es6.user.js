@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '5f1c8fc';
+var commit = 'b182ec4';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12158,7 +12158,7 @@ class BaseBoard {
 		return node.tagName === 'SPAN' ? node.parentNode : node;
 	}
 	getJsonApiUrl(brd, tNum) {}
-	getOmitted(el, len) { // Differs _2chRu only
+	getOmitted(el, len) {
 		var txt;
 		return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
 	}
@@ -13176,7 +13176,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPages = '.pages > tbody > tr > td';
 			this.qPostMsg = '.postbody';
 			this.qPostSubj = '.replytitle';
-			this.qTrunc = '.abbrev > span:nth-last-child(2)';
+			this.qTrunc = '.abbrev > span:first-of-type';
 
 			this.anchor = '#i';
 			this.hasPicWrap = true;
@@ -13215,6 +13215,16 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getJsonApiUrl(brd, tNum) {
 			return `/api/thread/${ brd }/${ tNum }/all.json?new_format&message_html&board`;
+		}
+		getOmitted(el, len) {
+			while(el) {
+				let m = el.textContent.match(/(\d+) posts are omitted/);
+				if(m) {
+					return +m[1] + 1;
+				}
+				el = el.previousElementSibling;
+			}
+			return 1;
 		}
 		getPageUrl(b, p) {
 			return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');

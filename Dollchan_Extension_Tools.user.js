@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '5f1c8fc';
+	var commit = 'b182ec4';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -18124,7 +18124,7 @@ true, true],
 				_this77.qPages = '.pages > tbody > tr > td';
 				_this77.qPostMsg = '.postbody';
 				_this77.qPostSubj = '.replytitle';
-				_this77.qTrunc = '.abbrev > span:nth-last-child(2)';
+				_this77.qTrunc = '.abbrev > span:first-of-type';
 
 				_this77.anchor = '#i';
 				_this77.hasPicWrap = true;
@@ -18165,6 +18165,18 @@ true, true],
 				key: 'getJsonApiUrl',
 				value: function getJsonApiUrl(brd, tNum) {
 					return '/api/thread/' + brd + '/' + tNum + '/all.json?new_format&message_html&board';
+				}
+			}, {
+				key: 'getOmitted',
+				value: function getOmitted(el, len) {
+					while (el) {
+						var m = el.textContent.match(/(\d+) posts are omitted/);
+						if (m) {
+							return +m[1] + 1;
+						}
+						el = el.previousElementSibling;
+					}
+					return 1;
 				}
 			}, {
 				key: 'getPageUrl',
