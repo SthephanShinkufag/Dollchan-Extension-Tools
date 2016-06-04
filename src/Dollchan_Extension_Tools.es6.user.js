@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '38cc52f';
+var commit = '5f1c8fc';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1985,17 +1985,17 @@ var panel = Object.create({
 	_menuTO: 0,
 	get _pcountEl() {
 		var value = $id('de-panel-info-pcount');
-		Object.defineProperty(this, '_infoEl', { value, configurable: true });
+		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
 		return value;
 	},
 	get _icountEl() {
 		var value = $id('de-panel-info-icount');
-		Object.defineProperty(this, '_infoEl', { value, configurable: true });
+		Object.defineProperty(this, '_icountEl', { value, configurable: true });
 		return value;
 	},
 	get _acountEl() {
 		var value = $id('de-panel-info-acount');
-		Object.defineProperty(this, '_infoEl', { value, configurable: true });
+		Object.defineProperty(this, '_acountEl', { value, configurable: true });
 		return value;
 	},
 	_getButton(id) {
@@ -10989,52 +10989,54 @@ class DobrochanPostsBuilder {
 		const num = data.display_id;
 		const brd = this._brd;
 		const tNum = this._json.threads[0].display_id;
+		const multiFile = data.files.length > 1;
 		
 		const _if = (cond, strTrue, strFalse = '') => cond ? strTrue : strFalse;
 		
-		let filesHTML;
-		if(data.files.length !== 0) {
-			filesHTML = '';
-			for(let file of data.files) {
-				let fileName, thumb, thumb_w = 200,
-					thumb_h = 200,
-					size = prettifySize(file.size);
-				if(brd == 'b' || brd == 'rf') {
-					fileName = file.thumb.substring(file.thumb.lastIndexOf("/") + 1);
-				} else {
-					fileName = file.src.substring(file.src.lastIndexOf("/") + 1);
+		let filesHTML = '';
+		for(let file of data.files) {
+			let fileName, fullFileName, thumb, thumb_w = 200,
+				thumb_h = 200,
+				size = prettifySize(file.size);
+			if(brd == 'b' || brd == 'rf') {
+				fileName = fullFileName = file.thumb.substring(file.thumb.lastIndexOf('/') + 1);
+			} else {
+				fileName = fullFileName = file.src.substring(file.src.lastIndexOf('/') + 1);
+				if(multiFile && fileName.length > 20) {
+					let ext = fileName.substring(fileName.lastIndexOf('.'));
+					fileName = fileName.substr(0, 20 - ext.length) + '(...)' + ext;
 				}
-				const max_rating = 'r15'; // FIXME: read from settings
-				if(file.rating === 'r-18g' && max_rating !== "r-18g") {
-					thumb = "images/r-18g.png";
-				} else if(file.rating === 'r-18' && (max_rating !== 'r-18g' || max_rating !== 'r-18')) {
-					thumb = "images/r-18.png";
-				} else if(file.rating === 'r-15' && max_rating == 'sfw') {
-					thumb = "images/r-15.png";
-				} else if(file.rating === 'illegal') {
-					thumb = "images/illegal.png";
-				} else {
-					thumb = file.thumb;
-					thumb_w = file.thumb_width;
-					thumb_h = file.thumb_height;
-				}
-				filesHTML += `<div class="file">
-					<div class="fileinfo">Файл:
-						<a href="/${ file.src }" target="_blank">${ fileName }</a>
-						<br>
-						<em>${ file.thumb.substring(file.thumb.lastIndexOf('.') + 1) }, ${ size }, ${ file.metadata.width }x${ file.metadata.height } - Нажмите на картинку для увеличения</em>
-						<br>
-						<a class="edit_ icon"  href="/utils/image/edit/${ file.file_id }/${ num }"><img title="edit" alt="edit" src="/images/blank.png"></a>
-						<a class="search_google icon" href="http://www.google.com/searchbyimage?image_url=http://dobrochan.ru/${ file.src }"><img title="edit" alt="edit" src="/images/blank.png"></a>
-						<a class="search_iqdb icon" href="http://iqdb.org/?url=http://dobrochan.ru/${ file.src }"><img title="edit" alt="edit" src="/images/blank.png"></a>
-					</div>
-					<a href="/${ file.src }" target="_blank">
-						<img class="thumb" src="/${ thumb }" width="${ thumb_w }" height="${ thumb_h }">
-					</a>
-				</div>`;
 			}
-		} else {
-			filesHTML = '';
+			const max_rating = 'r15'; // FIXME: read from settings
+			if(file.rating === 'r-18g' && max_rating !== "r-18g") {
+				thumb = "images/r-18g.png";
+			} else if(file.rating === 'r-18' && (max_rating !== 'r-18g' || max_rating !== 'r-18')) {
+				thumb = "images/r-18.png";
+			} else if(file.rating === 'r-15' && max_rating == 'sfw') {
+				thumb = "images/r-15.png";
+			} else if(file.rating === 'illegal') {
+				thumb = "images/illegal.png";
+			} else {
+				thumb = file.thumb;
+				thumb_w = file.thumb_width;
+				thumb_h = file.thumb_height;
+			}
+			let fileInfo = `<div class="fileinfo${ _if(multiFile, ' limited') }">Файл:
+				<a href="/${ file.src }" title="${ fullFileName }" target="_blank">${ fileName }</a>
+				<br>
+				<em>${ file.thumb.substring(file.thumb.lastIndexOf('.') + 1) }, ${ size }, ${ file.metadata.width }x${ file.metadata.height }</em>${ _if(!multiFile, ' - Нажмите на картинку для увеличения') }
+				<br>
+				<a class="edit_ icon"  href="/utils/image/edit/${ file.file_id }/${ num }"><img title="edit" alt="edit" src="/images/blank.png"></a>
+				<a class="search_google icon" href="http://www.google.com/searchbyimage?image_url=http://dobrochan.ru/${ file.src }"><img title="edit" alt="edit" src="/images/blank.png"></a>
+				<a class="search_iqdb icon" href="http://iqdb.org/?url=http://dobrochan.ru/${ file.src }"><img title="edit" alt="edit" src="/images/blank.png"></a>
+			</div>`;
+			filesHTML += `${ _if(!multiFile, fileInfo) }
+			<div id="file_${ num }_${ file.file_id }" class="file">
+				${ _if(multiFile, fileInfo) }
+				<a href="/${ file.src }" target="_blank">
+					<img class="thumb" src="/${ thumb }" width="${ thumb_w }" height="${ thumb_h }">
+				</a>
+			</div>`;
 		}
 		
 		let rv = `<table id="post_${ num }" class="replypost post"><tbody><tr>
@@ -11047,9 +11049,11 @@ class DobrochanPostsBuilder {
 						<img src="/images/blank.png" title="Mark to delete" alt="Удалить">
 					</a>
 					<span class="postername">${ data.name || 'Анонимус' }</span>
-					${ data.date.replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/, (_, y, mo, d, h, m, s) =>
-					       `${ d } ${ Lng.fullMonth[1][mo]} ${ y } (${ new Date(y, mo, d, h, m, s).getDay() }) ${ h }:${ m }`)
-					}
+					${ data.date.replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/, (_, y, mo, d, h, m, s) => {
+						let dt = new Date(y, +mo - 1, d, h, m, s);
+						const pad2 = n => n < 10 ? '0' + n : String(n);
+						return `${ pad2(dt.getDate()) } ${ Lng.fullMonth[1][dt.getMonth()]} ${ dt.getFullYear() } (${ Lng.week[1][dt.getDay()] }) ${ pad2(dt.getHours()) }:${ pad2(dt.getMinutes()) }`;
+					}) }
 				</label>
 				<span class="reflink">
 					<a onclick="Highlight(0, ${ num })" href="/${ brd }/res/${ tNum }.xhtml#i${ num }"> No.${ num }</a>
@@ -11061,7 +11065,7 @@ class DobrochanPostsBuilder {
 				</span>
 				<br>
 				${ filesHTML }
-				${ _if(filesHTML !== '', '<div style="clear: both;"></div>') }
+				${ _if(multiFile, '<div style="clear: both;"></div>') }
 				<div class="postbody"> ${ data.message_html }</div>
 				<div class="abbrev"></div>
 			</td>

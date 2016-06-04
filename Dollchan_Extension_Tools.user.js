@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '38cc52f';
+	var commit = '5f1c8fc';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -5190,17 +5190,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_menuTO: 0,
 		get _pcountEl() {
 			var value = $id('de-panel-info-pcount');
-			Object.defineProperty(this, '_infoEl', { value: value, configurable: true });
+			Object.defineProperty(this, '_pcountEl', { value: value, configurable: true });
 			return value;
 		},
 		get _icountEl() {
 			var value = $id('de-panel-info-icount');
-			Object.defineProperty(this, '_infoEl', { value: value, configurable: true });
+			Object.defineProperty(this, '_icountEl', { value: value, configurable: true });
 			return value;
 		},
 		get _acountEl() {
 			var value = $id('de-panel-info-acount');
-			Object.defineProperty(this, '_infoEl', { value: value, configurable: true });
+			Object.defineProperty(this, '_acountEl', { value: value, configurable: true });
 			return value;
 		},
 		_getButton: function _getButton(id) {
@@ -15339,62 +15339,68 @@ true, true],
 				var num = data.display_id;
 				var brd = this._brd;
 				var tNum = this._json.threads[0].display_id;
+				var multiFile = data.files.length > 1;
 
 				var _if = function _if(cond, strTrue) {
 					var strFalse = arguments.length <= 2 || arguments[2] === undefined ? '' : arguments[2];
 					return cond ? strTrue : strFalse;
 				};
 
-				var filesHTML = void 0;
-				if (data.files.length !== 0) {
-					filesHTML = '';
-					for (var _iterator32 = data.files, _isArray32 = Array.isArray(_iterator32), _i33 = 0, _iterator32 = _isArray32 ? _iterator32 : _iterator32[Symbol.iterator]();;) {
-						var _ref56;
+				var filesHTML = '';
+				for (var _iterator32 = data.files, _isArray32 = Array.isArray(_iterator32), _i33 = 0, _iterator32 = _isArray32 ? _iterator32 : _iterator32[Symbol.iterator]();;) {
+					var _ref56;
 
-						if (_isArray32) {
-							if (_i33 >= _iterator32.length) break;
-							_ref56 = _iterator32[_i33++];
-						} else {
-							_i33 = _iterator32.next();
-							if (_i33.done) break;
-							_ref56 = _i33.value;
-						}
-
-						var file = _ref56;
-
-						var fileName = void 0,
-						    thumb = void 0,
-						    thumb_w = 200,
-						    thumb_h = 200,
-						    size = prettifySize(file.size);
-						if (brd == 'b' || brd == 'rf') {
-							fileName = file.thumb.substring(file.thumb.lastIndexOf("/") + 1);
-						} else {
-							fileName = file.src.substring(file.src.lastIndexOf("/") + 1);
-						}
-						var max_rating = 'r15'; 
-						if (file.rating === 'r-18g' && max_rating !== "r-18g") {
-							thumb = "images/r-18g.png";
-						} else if (file.rating === 'r-18' && (max_rating !== 'r-18g' || max_rating !== 'r-18')) {
-							thumb = "images/r-18.png";
-						} else if (file.rating === 'r-15' && max_rating == 'sfw') {
-							thumb = "images/r-15.png";
-						} else if (file.rating === 'illegal') {
-							thumb = "images/illegal.png";
-						} else {
-							thumb = file.thumb;
-							thumb_w = file.thumb_width;
-							thumb_h = file.thumb_height;
-						}
-						filesHTML += '<div class="file">\n\t\t\t\t\t<div class="fileinfo">Файл:\n\t\t\t\t\t\t<a href="/' + file.src + '" target="_blank">' + fileName + '</a>\n\t\t\t\t\t\t<br>\n\t\t\t\t\t\t<em>' + file.thumb.substring(file.thumb.lastIndexOf('.') + 1) + ', ' + size + ', ' + file.metadata.width + 'x' + file.metadata.height + ' - Нажмите на картинку для увеличения</em>\n\t\t\t\t\t\t<br>\n\t\t\t\t\t\t<a class="edit_ icon"  href="/utils/image/edit/' + file.file_id + '/' + num + '"><img title="edit" alt="edit" src="/images/blank.png"></a>\n\t\t\t\t\t\t<a class="search_google icon" href="http://www.google.com/searchbyimage?image_url=http://dobrochan.ru/' + file.src + '"><img title="edit" alt="edit" src="/images/blank.png"></a>\n\t\t\t\t\t\t<a class="search_iqdb icon" href="http://iqdb.org/?url=http://dobrochan.ru/' + file.src + '"><img title="edit" alt="edit" src="/images/blank.png"></a>\n\t\t\t\t\t</div>\n\t\t\t\t\t<a href="/' + file.src + '" target="_blank">\n\t\t\t\t\t\t<img class="thumb" src="/' + thumb + '" width="' + thumb_w + '" height="' + thumb_h + '">\n\t\t\t\t\t</a>\n\t\t\t\t</div>';
+					if (_isArray32) {
+						if (_i33 >= _iterator32.length) break;
+						_ref56 = _iterator32[_i33++];
+					} else {
+						_i33 = _iterator32.next();
+						if (_i33.done) break;
+						_ref56 = _i33.value;
 					}
-				} else {
-					filesHTML = '';
+
+					var file = _ref56;
+
+					var fileName = void 0,
+					    fullFileName = void 0,
+					    thumb = void 0,
+					    thumb_w = 200,
+					    thumb_h = 200,
+					    size = prettifySize(file.size);
+					if (brd == 'b' || brd == 'rf') {
+						fileName = fullFileName = file.thumb.substring(file.thumb.lastIndexOf('/') + 1);
+					} else {
+						fileName = fullFileName = file.src.substring(file.src.lastIndexOf('/') + 1);
+						if (multiFile && fileName.length > 20) {
+							var ext = fileName.substring(fileName.lastIndexOf('.'));
+							fileName = fileName.substr(0, 20 - ext.length) + '(...)' + ext;
+						}
+					}
+					var max_rating = 'r15'; 
+					if (file.rating === 'r-18g' && max_rating !== "r-18g") {
+						thumb = "images/r-18g.png";
+					} else if (file.rating === 'r-18' && (max_rating !== 'r-18g' || max_rating !== 'r-18')) {
+						thumb = "images/r-18.png";
+					} else if (file.rating === 'r-15' && max_rating == 'sfw') {
+						thumb = "images/r-15.png";
+					} else if (file.rating === 'illegal') {
+						thumb = "images/illegal.png";
+					} else {
+						thumb = file.thumb;
+						thumb_w = file.thumb_width;
+						thumb_h = file.thumb_height;
+					}
+					var fileInfo = '<div class="fileinfo' + _if(multiFile, ' limited') + '">Файл:\n\t\t\t\t<a href="/' + file.src + '" title="' + fullFileName + '" target="_blank">' + fileName + '</a>\n\t\t\t\t<br>\n\t\t\t\t<em>' + file.thumb.substring(file.thumb.lastIndexOf('.') + 1) + ', ' + size + ', ' + file.metadata.width + 'x' + file.metadata.height + '</em>' + _if(!multiFile, ' - Нажмите на картинку для увеличения') + '\n\t\t\t\t<br>\n\t\t\t\t<a class="edit_ icon"  href="/utils/image/edit/' + file.file_id + '/' + num + '"><img title="edit" alt="edit" src="/images/blank.png"></a>\n\t\t\t\t<a class="search_google icon" href="http://www.google.com/searchbyimage?image_url=http://dobrochan.ru/' + file.src + '"><img title="edit" alt="edit" src="/images/blank.png"></a>\n\t\t\t\t<a class="search_iqdb icon" href="http://iqdb.org/?url=http://dobrochan.ru/' + file.src + '"><img title="edit" alt="edit" src="/images/blank.png"></a>\n\t\t\t</div>';
+					filesHTML += _if(!multiFile, fileInfo) + '\n\t\t\t<div id="file_' + num + '_' + file.file_id + '" class="file">\n\t\t\t\t' + _if(multiFile, fileInfo) + '\n\t\t\t\t<a href="/' + file.src + '" target="_blank">\n\t\t\t\t\t<img class="thumb" src="/' + thumb + '" width="' + thumb_w + '" height="' + thumb_h + '">\n\t\t\t\t</a>\n\t\t\t</div>';
 				}
 
 				var rv = '<table id="post_' + num + '" class="replypost post"><tbody><tr>\n\t\t\t<td class="doubledash">&gt;&gt;</td>\n\t\t\t<td class="reply" id="reply' + num + '">\n\t\t\t\t<a name="i' + num + '"></a>\n\t\t\t\t<label>\n\t\t\t\t\t<a class="delete icon">\n\t\t\t\t\t\t<input name="' + num + '" value="' + data.post_id + '" class="delete_checkbox" id="delbox_' + num + '" type="checkbox">\n\t\t\t\t\t\t<img src="/images/blank.png" title="Mark to delete" alt="Удалить">\n\t\t\t\t\t</a>\n\t\t\t\t\t<span class="postername">' + (data.name || 'Анонимус') + '</span>\n\t\t\t\t\t' + data.date.replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/, function (_, y, mo, d, h, m, s) {
-					return d + ' ' + Lng.fullMonth[1][mo] + ' ' + y + ' (' + new Date(y, mo, d, h, m, s).getDay() + ') ' + h + ':' + m;
-				}) + '\n\t\t\t\t</label>\n\t\t\t\t<span class="reflink">\n\t\t\t\t\t<a onclick="Highlight(0, ' + num + ')" href="/' + brd + '/res/' + tNum + '.xhtml#i' + num + '"> No.' + num + '</a>\n\t\t\t\t</span>\n\t\t\t\t<span class="cpanel">\n\t\t\t\t\t<a class="reply_icon" onclick="GetReplyForm(event, \'' + brd + '\', ' + tNum + ', ' + num + ')">\n\t\t\t\t\t\t<img src="/images/blank-double.png" style="vertical-align:sub" title="Ответ" alt="Ответ">\n\t\t\t\t\t</a>\n\t\t\t\t</span>\n\t\t\t\t<br>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + _if(filesHTML !== '', '<div style="clear: both;"></div>') + '\n\t\t\t\t<div class="postbody"> ' + data.message_html + '</div>\n\t\t\t\t<div class="abbrev"></div>\n\t\t\t</td>\n\t\t</tr></tbody></table>';
+					var dt = new Date(y, +mo - 1, d, h, m, s);
+					var pad2 = function pad2(n) {
+						return n < 10 ? '0' + n : String(n);
+					};
+					return pad2(dt.getDate()) + ' ' + Lng.fullMonth[1][dt.getMonth()] + ' ' + dt.getFullYear() + ' (' + Lng.week[1][dt.getDay()] + ') ' + pad2(dt.getHours()) + ':' + pad2(dt.getMinutes());
+				}) + '\n\t\t\t\t</label>\n\t\t\t\t<span class="reflink">\n\t\t\t\t\t<a onclick="Highlight(0, ' + num + ')" href="/' + brd + '/res/' + tNum + '.xhtml#i' + num + '"> No.' + num + '</a>\n\t\t\t\t</span>\n\t\t\t\t<span class="cpanel">\n\t\t\t\t\t<a class="reply_icon" onclick="GetReplyForm(event, \'' + brd + '\', ' + tNum + ', ' + num + ')">\n\t\t\t\t\t\t<img src="/images/blank-double.png" style="vertical-align:sub" title="Ответ" alt="Ответ">\n\t\t\t\t\t</a>\n\t\t\t\t</span>\n\t\t\t\t<br>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + _if(multiFile, '<div style="clear: both;"></div>') + '\n\t\t\t\t<div class="postbody"> ' + data.message_html + '</div>\n\t\t\t\t<div class="abbrev"></div>\n\t\t\t</td>\n\t\t</tr></tbody></table>';
 				return $add(aib.fixHTML(rv)).firstChild.firstChild.lastElementChild;
 			}
 		}, {
