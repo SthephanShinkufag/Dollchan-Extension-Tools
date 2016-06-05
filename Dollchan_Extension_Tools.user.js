@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '06a7496';
+	var commit = 'e733b28';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -17008,7 +17008,7 @@ true, true],
 					if (!el) {
 						return 0;
 					}
-					return el.textContent.contains('предупрежден') ? 2 : 1;
+					return el.textContent.includes('предупрежден') ? 2 : 1;
 				}
 			}, {
 				key: 'getImgParent',

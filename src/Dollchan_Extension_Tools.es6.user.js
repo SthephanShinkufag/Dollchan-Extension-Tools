@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '06a7496';
+var commit = 'e733b28';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12438,7 +12438,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(!el) {
 				return 0;
 			}
-			return el.textContent.contains('предупрежден') ? 2 : 1;
+			return el.textContent.includes('предупрежден') ? 2 : 1;
 		}
 		getImgParent(node) {
 			var el = $parent(node, 'FIGURE'),
