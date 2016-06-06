@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'd258c93';
+var commit = 'd8c8304';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2912,7 +2912,7 @@ function showFavoritesWindow(body, data) {
 		}
 	})));
 	body.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(function* () {
-		var infoCount, els = $Q('.de-fav-current > .de-entry'),
+		var infoCount, els = $Q('.de-fav-current > .de-fav-entries > .de-entry'),
 			infoCount = els.length,
 			postsInfo = [];
 		if(!infoCount) {

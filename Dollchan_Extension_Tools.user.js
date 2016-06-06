@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = 'd258c93';
+	var commit = 'd8c8304';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -6094,7 +6094,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				while (1) {
 					switch (_context8.prev = _context8.next) {
 						case 0:
-							els = $Q('.de-fav-current > .de-entry'), infoCount = els.length, postsInfo = [];
+							els = $Q('.de-fav-current > .de-fav-entries > .de-entry'), infoCount = els.length, postsInfo = [];
 
 							if (infoCount) {
 								_context8.next = 3;
