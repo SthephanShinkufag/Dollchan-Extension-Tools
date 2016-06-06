@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '2dd8b21';
+var commit = 'd258c93';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -476,7 +476,7 @@ Lng = {
 	file:           ['Файл', 'File'],
 	global:         ['Глобальные', 'Global'],
 	reset:          ['Сброс', 'Reset'],
-	remove:         ['Удалить', 'Remove'],
+	remove:         ['Удаление', 'Removing'],
 	info:           ['Инфо', 'Info'],
 	undo:           ['Отмена', 'Undo'],
 	change:         ['Сменить', 'Change'],
@@ -522,7 +522,6 @@ Lng = {
 	infoCount:      ['Обновить счетчики постов', 'Refresh posts counters'],
 	infoPage:       ['Проверить актуальность тредов (до 5 страницы)', 'Check for threads actuality (up to 5 page)'],
 	clrDeleted:     ['Очистить недоступные (404) треды', 'Clear inaccessible (404) threads'],
-	setByUser:      ['Выбрано пользователем', 'Set by user'],
 	oldPosts:       ['Постов при последнем посещении', 'Posts at the last visit'],
 	newPosts:       ['Количество новых постов', 'Number of new posts'],
 	thrPage:        ['Тред на @странице', 'Thread on @page'],
@@ -2762,8 +2761,6 @@ function showFavoritesWindow(body, data) {
 				}
 				innerHtml += `
 				<div class="de-entry ${ aib.cReply }" de-host="${ h }" de-board="${ b }" de-num="${ tNum }" de-url="${ t.url }">
-					${ t['type'] !== 'user' ? '' : `
-						<span class="de-fav-user" title="${ Lng.setByUser[lang] }"></span>` }
 					<input class="de-fav-switch" type="checkbox">
 					<a class="de-fav-link" href="${ t.url + (!t.last ? '' :
 						t.last.startsWith('#') ? t.last :
@@ -3010,12 +3007,20 @@ function showFavoritesWindow(body, data) {
 		cleanFavorites();
 	})));
 	body.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
-		$each($Q('.de-entry'), function(el) {
-			if($q('input', el).checked) {
-				el.setAttribute('de-removed', '');
-			}
-		});
-		cleanFavorites();
+		var el = body.firstElementChild;
+		if(el.className === 'de-fav-content-del') {
+			$each($Q('.de-entry'), function(el) {
+				if($q('input', el).checked) {
+					el.setAttribute('de-removed', '');
+				}
+			});
+			cleanFavorites();
+			el.className = 'de-fav-content';
+			this.value = Lng.remove[lang];
+		} else {
+			el.className = 'de-fav-content-del';
+			this.value = 'OK!';
+		}
 	}));
 }
 
@@ -15053,7 +15058,7 @@ function scriptCSS() {
 	#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }\
 	.de-video-expanded { width: 854px !important; height: 480px !important; }\
 	#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\
-	.de-video-refpost { margin: 0 2px; }\
+	.de-video-refpost { margin: 0 2px; text-decoration: none; }\
 	.de-video-resizer::after { content: "\u2795"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\
 	.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\
 	a.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\
@@ -15107,18 +15112,18 @@ function scriptCSS() {
 
 	// Favorites
 	'.de-fav-block { border: 1px solid gray; border-radius: 2px; margin-bottom: -1px; }\
+	.de-fav-content .de-fav-header-switch, .de-fav-content .de-fav-switch { display: none; }\
 	.de-fav-header { margin-top: 0; margin-bottom: 0; padding: 1px 0; display: flex; }\
 	.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }\
-	.de-fav-header-link { color: inherit; font-weight: bold; font-size: 14px; flex: auto; text-decoration: none; }\
-	.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 4px 0 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\
-	.de-fav-link { flex: none; text-decoration: none; border: none; }\
-	.de-fav-header-switch, .de-fav-switch { margin: 2px 4px !important; flex: none; }\
+	.de-fav-header-link { margin-left: 4px; color: inherit; font-weight: bold; font-size: 14px; flex: auto; text-decoration: none; outline: none; }\
+	.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\
+	.de-fav-link { flex: none; margin-left: 4px; text-decoration: none; border: none; }\
+	.de-fav-header-switch, .de-fav-switch { margin: 2px 0 2px 4px !important; flex: none; }\
 	.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\
-	.de-fav-inf { flex: none; padding-left: 10px; font: bold 14px serif; cursor: default; }\
+	.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }\
 	.de-fav-inf-new { color: #424f79; }\
 	.de-fav-inf-new::after { content: " +"; }\
 	.de-fav-inf-old { color: #4f7942; }\
-	.de-fav-user::after { content: "\u2605"; display: inline-block; font-size: 13px; margin: -1px -13px 0 2px; vertical-align: 1px; cursor: default; }\
 	.de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait),\
 		.de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use,\
 		.de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use,\
