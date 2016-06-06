@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'e733b28';
+var commit = '2dd8b21';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -15106,10 +15106,10 @@ function scriptCSS() {
 	.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }' +
 
 	// Favorites
-	'.de-fav-block { border: 1px solid gray; border-radius: 2px; margin-bottom: 3px; }\
-	.de-fav-header { margin-top: 0; margin-bottom: 0; padding: 5px 0; display: flex; }\
-	.de-fav-entries { border-top: 1px solid gray; padding-top: 5px; }\
-	.de-fav-header-link { color: inherit; font-weight: bold; font-size: 14px; flex: auto; }\
+	'.de-fav-block { border: 1px solid gray; border-radius: 2px; margin-bottom: -1px; }\
+	.de-fav-header { margin-top: 0; margin-bottom: 0; padding: 1px 0; display: flex; }\
+	.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }\
+	.de-fav-header-link { color: inherit; font-weight: bold; font-size: 14px; flex: auto; text-decoration: none; }\
 	.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 4px 0 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\
 	.de-fav-link { flex: none; text-decoration: none; border: none; }\
 	.de-fav-header-switch, .de-fav-switch { margin: 2px 4px !important; flex: none; }\
