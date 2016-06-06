@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '8eccfca';
+var commit = 'e733b28';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1983,9 +1983,19 @@ var panel = Object.create({
 	_hideTO: 0,
 	_menu: null,
 	_menuTO: 0,
-	get _infoEl() {
-		var value = $id('de-panel-info');
-		Object.defineProperty(this, '_infoEl', { value, configurable: true });
+	get _pcountEl() {
+		var value = $id('de-panel-info-pcount');
+		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
+		return value;
+	},
+	get _icountEl() {
+		var value = $id('de-panel-info-icount');
+		Object.defineProperty(this, '_icountEl', { value, configurable: true });
+		return value;
+	},
+	get _acountEl() {
+		var value = $id('de-panel-info-acount');
+		Object.defineProperty(this, '_acountEl', { value, configurable: true });
 		return value;
 	},
 	_getButton(id) {
@@ -2178,38 +2188,36 @@ var panel = Object.create({
 					(!aib.hasCatalog ? '' : this._getButton('catalog')) +
 					this._getButton('enable') +
 					(!isThr ? '' : '<span id="de-panel-info">' +
-						'<span title="' + Lng.panelBtn.pcount[lang] + '">' +
-							Thread.first.pcount + '</span>/' +
-						'<span title="' + Lng.panelBtn.imglen[lang] + '">' + imgLen + '</span>' +
-						(aib.mak ? '/<span title="' + Lng.panelBtn.posters[lang] +
-							'">' + $q('.post-posters').textContent + '</span>' : '') + '</span>')) }
+						'<span id="de-panel-info-pcount" title="' + Lng.panelBtn.pcount[lang] + '">' +
+							Thread.first.pcount + '</span>' +
+						'<span id="de-panel-info-icount" title="' + Lng.panelBtn.imglen[lang] + '">' + imgLen + '</span>' +
+						'<span id="de-panel-info-acount" title="' + Lng.panelBtn.posters[lang] + '"></span>' +
+					'</span>')) }
 				</span>
 			</div>
 			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">' }
 		</div>`);
-		if(aib.fch && isThr && Cfg.panelCounter) {
-			$ajax('//a.4cdn.org/' + aib.b + '/thread/' + aib.t + '.json').then(xhr => {
-				try {
-					this._infoEl.innerHTML += '/<span title="' + Lng.panelBtn.posters[lang] +
-						'">' + JSON.parse(xhr.responseText).posts[0].unique_ips + '</span>';
-				} catch(e) {}
-			});
-		}
 		this._el = $id('de-panel');
 		this._el.addEventListener('click', this, true);
 		this._el.addEventListener('mouseover', this);
 		this._el.addEventListener('mouseout', this);
 		this._buttons = $id('de-panel-buttons');
+		this.isNew = true;
 	},
 	remove() {
 		this._el.removeEventListener('click', this, true);
 		this._el.removeEventListener('mouseover', this);
 		this._el.removeEventListener('mouseout', this);
-		delete this._infoEl;
+		delete this._pcountEl;
+		delete this._icountEl;
+		delete this._acountEl;
 		$del($id('de-main'));
 	},
-	updateCounter(postCount, imgsCount) {
-		this._infoEl.textContent = postCount + '/' + imgsCount;
+	updateCounter(postCount, imgsCount, postersCount) {
+		this._pcountEl.textContent = postCount;
+		this._icountEl.textContent = imgsCount;
+		this._acountEl.textContent = postersCount;
+		this.isNew = false;
 	}
 });
 
@@ -2901,7 +2909,7 @@ function showFavoritesWindow(body, data) {
 				isUpdate = true;
 			}
 		}
-		ajaxLoad.clearCache();
+		AjaxCache.clear();
 		if(isUpdate) {
 			setStored('DESU_Favorites', JSON.stringify(fav));
 		}
@@ -5417,20 +5425,60 @@ function embedMediaLinks(data) {
 // AJAX
 // ===========================================================================================================
 
-function ajaxLoad(url, returnForm = true, useCache = false) {
-	var cData = ajaxLoad._cacheData.get(url);
-	var ajaxURL = cData && !cData.hasCacheControl ? ajaxLoad._fixCachedURL(url) : url;
-	return $ajax(ajaxURL, useCache && cData && cData.params || { useTimeout: true }).then(xhr => {
-		var headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders()
-		                                             : xhr.responseHeaders;
-		var data = ajaxLoad._readCacheData(headers);
-		if(!data.hasCacheControl && !ajaxLoad._cacheData.has(url)) {
-			ajaxLoad._cacheData.set(url, data);
-			return $ajax(ajaxLoad._fixCachedURL(url), useCache && data.params);
+class AjaxCache extends null {
+	static clear() {
+		AjaxCache._data = new Map();
+	}
+	static fixUrl(url) {
+		return url + (url.includes('?') ? '&' : '?' ) + 'nocache=' + Math.random();
+	}
+	static runCachedAjax(url, useCache) {
+		var { hasCacheControl, params } = AjaxCache._data.get(url) || {};
+		var ajaxURL = hasCacheControl === false ? AjaxCache.fixURL(url) : url;
+		return $ajax(ajaxURL, useCache && params || { useTimeout: true }).then(xhr =>
+			AjaxCache.saveData(url, xhr) ? xhr : $ajax(AjaxCache.fixURL(url), useCache && data.params)
+		);
+	}
+	static saveData(url, xhr) {
+		var ETag = null, LastModified = null, i = 0,
+			hasCacheControl = false,
+			ajaxHeaders = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders()
+			                                             : xhr.responseHeaders;
+		for(var header of ajaxHeaders.split('\r\n')) {
+			let lHeader = header.toLowerCase();
+			if(lHeader.startsWith('cache-control: ')) {
+				hasCacheControl = true;
+				i++;
+			} else if(lHeader.startsWith('last-modified: ')) {
+				LastModified = header.substr(15);
+				i++;
+			} else if(lHeader.startsWith('etag: ')) {
+				ETag = header.substr(6);
+				i++;
+			}
+			if(i === 3) {
+				break;
+			}
 		}
-		ajaxLoad._cacheData.set(url, data);
-		return xhr;
-	}).then(xhr => {
+		let headers = null;
+		if(ETag || LastModified) {
+			headers = {};
+			if(ETag) {
+				headers['If-None-Match'] = ETag;
+			}
+			if(LastModified) {
+				headers['If-Modified-Since'] = LastModified;
+			}
+		}
+		let hasUrl = AjaxCache._data.has(url);
+		AjaxCache._data.set(url, { hasCacheControl, params: headers ? { headers, useTimeout: true } : { useTimeout: true } });
+		return hasUrl || hasCacheControl;
+	}
+}
+AjaxCache._data = new Map();
+
+function ajaxLoad(url, returnForm = true, useCache = false) {
+	return AjaxCache.runCachedAjax(url, useCache).then(xhr => {
 		var el, text = xhr.responseText;
 		if(text.includes('</html>')) {
 			el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
@@ -5438,48 +5486,24 @@ function ajaxLoad(url, returnForm = true, useCache = false) {
 		return el ? el : CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
 	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
-ajaxLoad.clearCache = function() {
-	ajaxLoad._cacheData = new Map();
-};
-ajaxLoad._cacheData = new Map();
-ajaxLoad._fixCachedURL = function(url) {
-	return url + (url.includes('?') ? '&' : '?' ) + 'nocache=' + Math.random();
-};
-ajaxLoad._readCacheData = function(ajaxHeaders) {
-	var ETag = null, LastModified = null, headers = null, i = 0,
-		hasCacheControl = false;
-	for(var header of ajaxHeaders.split('\r\n')) {
-		let lHeader = header.toLowerCase();
-		if(lHeader.startsWith('cache-control: ')) {
-			hasCacheControl = true;
-			i++;
-		} else if(lHeader.startsWith('last-modified: ')) {
-			LastModified = header.substr(15);
-			i++;
-		} else if(lHeader.startsWith('etag: ')) {
-			ETag = header.substr(6);
-			i++;
-		}
-		if(i === 3) {
-			break;
-		}
-	}
-	if(ETag || LastModified) {
-		headers = {};
-		if(ETag) {
-			headers['If-None-Match'] = ETag;
-		}
-		if(LastModified) {
-			headers['If-Modified-Since'] = LastModified;
-		}
-	}
-	return { hasCacheControl, params: headers ? { headers, useTimeout: true } : { useTimeout: true } };
-}
 
-function getJsonPosts(url) {
-	return $ajax(url, { useCache: true, useTimeout: true }).then(
-		xhr => JSON.parse(xhr.responseText),
-		xhr => err => err.code === 304 ? null : CancelablePromise.reject(err));
+function ajaxPostsLoad(brd, tNum, useCache) {
+	if(aib.jsonBuilder) {
+		return AjaxCache.runCachedAjax(aib.getJsonApiUrl(brd, tNum), useCache).then(xhr => {
+			try {
+				return new aib.jsonBuilder(JSON.parse(xhr.responseText), brd);
+			} catch(e) {
+				if(e instanceof AjaxError) {
+					return CancelablePromise.reject(e);
+				}
+				console.warn(`API Error ${ e }. Switching to DOM parsing.`);
+				aib.jsonBuilder = null;
+				return ajaxPostsLoad(brd, tNum, useCache);
+			}
+		}, e => e.code === 304 ? null : CancelablePromise.reject(e));
+	}
+	return ajaxLoad(aib.getThrdUrl(brd, tNum), true, useCache)
+		.then(form => form ? new DOMPostsBuilder(form) : null);
 }
 
 function infoLoadErrors(e, showError = true) {
@@ -8087,34 +8111,18 @@ function checkUpload(data) {
 		}
 		return;
 	}
-	var el = isDocument && !aib.kus &&
-		(aib.qFormRedir === null || $q(aib.qFormRedir, data)) ? $q(aib.qDForm, data) : null;
 	if(aib.t) {
 		Post.clearMarks();
-		if(el) {
-			Thread.first.loadNewFromForm(el);
+		Thread.first.loadNew().then(() => AjaxError.Success, e => e).then(e => {
+			infoLoadErrors(e);
 			if(Cfg.scrAfterRep) {
 				scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 			}
 			updater.continue(true);
 			closePopup('upload');
-		} else {
-			Thread.first.loadNew(true).then(() => AjaxError.Success, e => e).then(e => {
-				infoLoadErrors(e);
-				if(Cfg.scrAfterRep) {
-					scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
-				}
-				updater.continue(true);
-				closePopup('upload');
-			});
-		}
+		});
 	} else {
-		if(el) {
-			pByNum.get(pr.tNum).thr.loadFromForm(visPosts, true, el);
-			closePopup('upload');
-		} else {
-			pByNum.get(pr.tNum).thr.load(visPosts, false, false).then(() => closePopup('upload'));
-		}
+		pByNum.get(pr.tNum).thr.load(visPosts, false, false).then(() => closePopup('upload'));
 	}
 	pr.closeReply();
 	pr.refreshCapImg(false);
@@ -8150,7 +8158,7 @@ var checkDelete = async(function* (data) {
 	if(isThr) {
 		Post.clearMarks();
 		try {
-			yield Thread.first.loadNew(false);
+			yield Thread.first.loadNew();
 		} catch(e) {
 			infoLoadErrors(e);
 		}
@@ -9621,7 +9629,7 @@ class Post extends AbstractPost {
 		el.addEventListener('mouseover', this, true);
 	}
 	get banned() {
-		var value = aib.qBan ? !!$q(aib.qBan, this.el) : false;
+		var value = aib.getBanId(this.el);
 		Object.defineProperty(this, 'banned', { writable: true, value });
 		return value;
 	}
@@ -10866,6 +10874,452 @@ class RefMap {
 }
 
 
+// NEW POSTS BUILDERS
+// ===========================================================================================================
+
+class DOMPostsBuilder {
+	constructor(form) {
+		this._form = form;
+		this._posts = $Q(aib.qRPost, form);
+		this.length = this._posts.length;
+		this.postersCount = '';
+		this.hasHTML = false;
+	}
+	get isClosed() {
+		return !!$q(aib.qClosed, this._form);
+	}
+	getOpMessage() {
+		return aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, this._form)));
+	}
+	getPostEl(i) {
+		return aib.fixHTML(this._posts[i]);
+	}
+	getPNum(i) {
+		return aib.getPNum(this._posts[i]);
+	}
+	* bannedPostsData() {
+		var bEls = $Q(aib.qBan, this._form);
+		for(let i = 0, len = bEls.length; i < len; ++i) {
+			let pEl = aib.getPostElOfEl(bEl);
+			yield [1, pEl ? aib.getPNum(pEl) : null, doc.adoptNode(bEl)];
+		}
+	}
+}
+
+class _4chanPostsBuilder {
+	static _setCustomSpoiler(board, val) {
+		if(!this.customSpoiler[board] && (val = parseInt(val))) {
+			let s;
+			if(board == aib.brd && (s = $q('.imgspoiler'))) {
+				_4chanPostsBuilder.customSpoiler.set(board,
+					s.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
+			}
+		} else {
+			_4chanPostsBuilder._customSpoiler.set(board, '-' + board + (Math.floor(Math.random() * val) + 1));
+		}
+	}
+	constructor(json, brd) {
+		this._posts = json.posts;
+		this._brd = brd;
+		this.length = json.posts.length - 1;
+		this.postersCount = this._posts[0].unique_ips;
+		this.hasHTML = true;
+		if(this._posts[0].custom_spoiler) {
+			_4chanPostsBuilder._setCustomSpoiler(brd, this._posts[0].custom_spoiler);
+		}
+	}
+	get isClosed() {
+		return !!(this._posts[0].closed || this._posts[0].archived);
+	}
+	getOpMessage() {
+		let data = this._posts[0];
+		return $add(aib.fixHTML(`<blockquote class="postMessage" id="m${ data.no }"> ${ data.com }</blockquote>`));
+	}
+	getPostEl(i) {
+		return $add(aib.fixHTML(this.getPostHTML(i))).lastElementChild;
+	}
+	getPostHTML(i) {
+		const data = this._posts[i + 1];
+		const num = data.no;
+		const brd = this._brd;
+		
+		const _icon = id => `//s.4cdn.org/image/${ id }${ window.devicePixelRatio >= 2 ? '@2x.gif' : '.gif'}`;
+		const _decode = str => str.replace(/&amp;/g, '&')
+			.replace(/&quot;/g, '"')
+			.replace(/&#039;/g, "'")
+			.replace(/&lt;/g, '<')
+			.replace(/&gt;/g, '>');
+		const _encode = str => str.replace(/&/g, '&amp;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#039;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;');
+		
+		// --- FILE ---
+		let fileHTML;
+		if(data.filedeleted) {
+			fileHTML = `<div id="f${ num }" class="file"><span class="fileThumb">
+				<img src="${ _icon('filedeleted-res') }" class="fileDeletedRes" alt="File deleted.">
+			</span></div>`;
+		} else if(data.filename) {
+			let name = data.filename + data.ext,
+				needTitle = false;
+			const decodedName = _decode(data.filename);
+			if(decodedName.length > 30) {
+				name = _encode(decodedName.slice(0, 25)) + '(...)' + data.ext;
+				needTitle = true;
+			}
+			if(!data.tn_w && !data.tn_h && data.ext == '.gif') {
+				data.tn_w = data.w;
+				data.tn_h = data.h;
+			}
+			const isSpoiler = data.spoiler && !Cfg.noSpoilers;
+			if(isSpoiler) {
+				name = 'Spoiler Image';
+				data.tn_w = 100;
+				data.tn_h = 100;
+				needTitle = false;
+			}
+			const size = prettifySize(data.fsize);
+			fileHTML = `<div class="file" id="f${ num }">
+				<div class="fileText" id="fT${ num }" ${
+					isSpoiler ? `title="${ data.filename + data.ext }"` : ''
+				}>File: <a href="//i.4cdn.org/${ brd }/${ data.tim + data.ext }" ${
+					needTitle ? `title="${ data.filename + data.ext }"` : ''
+				} target="_blank">${ name }</a> (${ size }, ${
+					data.ext === '.pdf' ? 'PDF' : data.w + 'x' + data.h
+				})</div>
+				<a class="fileThumb ${ isSpoiler ? 'imgSpoiler' : '' }" href="//i.4cdn.org/${ brd }/${ data.tim + data.ext }" target="_blank">
+					<img src="${ isSpoiler
+						? '//s.4cdn.org/image/spoiler' + _4chanPostsBuilder._customSpoiler.get(brd) || '' + '.png'
+						: '//i.4cdn.org/' + brd + '/' + data.tim + 's.jpg'
+					}" alt="${ size }" data-md5="${ data.md5 }" style="height: ${ data.tn_h }px; width: ${ data.tn_w }px;">
+					<div data-tip="" data-tip-cb="mShowFull" class="mFileInfo mobile">${ size } ${ data.ext.substr(1).toUpperCase() }</div>
+				</a>
+			</div>`;
+		} else {
+			fileHTML = '';
+		}
+		
+		// --- CAPCODE ---
+		let highlight = '', capcodeText = '', capcodeClass = '', capcodeImg = '';
+		switch(data.capcode) {
+		case 'admin_highlight':
+			highlight = ' highlightPost';
+			/* falls through */
+		case 'admin':
+			capcodeText = '<strong class="capcode hand id_admin" title="Highlight posts by Administrators">## Admin</strong>';
+			capcodeClass = 'capcodeAdmin';
+			capcodeImg = `<img src="${ _icon('adminicon') }" alt="This user is a 4chan Administrator." title="This user is a 4chan Administrator." class="identityIcon">`;
+			break;
+		case 'mod':
+			capcodeText = '<strong class="capcode hand id_mod" title="Highlight posts by Moderators">## Mod</strong>';
+			capcodeClass = 'capcodeMod';
+			capcodeImg = `<img src="${ _icon('modicon') }" alt="This user is a 4chan Moderator." title="This user is a 4chan Moderator." class="identityIcon">`;
+			break;
+		case 'developer':
+			capcodeText = '<strong class="capcode hand id_developer" title="Highlight posts by Developers">## Developer</strong>';
+			capcodeClass = 'capcodeDeveloper';
+			capcodeImg = `<img src="${ _icon('developericon') }" alt="This user is a 4chan Developer." title="This user is a 4chan Developer." class="identityIcon">`;
+			break;
+		case 'manager':
+			capcodeText = '<strong class="capcode hand id_manager" title="Highlight posts by Managers">## Manager</strong>';
+			capcodeClass = 'capcodeManager';
+			capcodeImg = `<img src="${ _icon('managericon') }" alt="This user is a 4chan Manager." title="This user is a 4chan Manager." class="identityIcon">`;
+			break;
+		case 'founder':
+			capcodeText = '<strong class="capcode hand id_admin" title="Highlight posts by the Founder">## Founder</strong>';
+			capcodeClass = ' capcodeAdmin';
+			capcodeImg = `<img src="${ _icon('foundericon') }" alt="This user is 4chan\'s Founder." title="This user is 4chan\'s Founder." class="identityIcon">`;
+			break;
+		}
+		
+		let rv = `<div class="postContainer replyContainer" id="pc${ num }">
+			<div class="sideArrows" id="sa${ num }">&gt;&gt;</div>
+			<div id="p${ num }" class="post reply ${ highlight }">
+				<div class="postInfoM mobile" id="pim${ num }">
+					<span class="nameBlock ${ capcodeClass }">
+						${ data.name.length > 30
+							? '<span class="name" data-tip data-tip-cb="mShowFull">' + data.name.substring(30) + '(...)</span>'
+							: '<span class="name">' + data.name + '</span>'
+						}
+						${ data.trip ? `<span class="postertrip">${ data.trip }</span>` : '' }
+						${ capcodeText }
+						${ capcodeImg }
+						${ data.id && !data.capcode ? `<span class="posteruid id_${ data.id }">(ID: <span class="hand" title="Highlight posts by this ID">${ data.id }</span>)</span>` : '' }
+						${ data.country ? `<span title="${ data.country_name }" class="flag flag-${ data.country.toLowerCase() }"></span>` : '' }
+						<br>
+						<span class="subject">${ data.sub || '' }</span>
+					</span>
+					<span class="dateTime postNum" data-utc="${ data.time }">${ data.now } <a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('${ num }');" title="Reply to this post">${ num }</a></span>
+				</div>
+				<div class="postInfo desktop" id="pi75970976">
+					<input name="75970976" value="delete" type="checkbox">
+					<span class="subject">${ data.sub || '' }</span>
+					<span class="nameBlock ${ capcodeClass }">
+						${ data.email? `<a href="mailto:${ data.email.replace(/ /g, '%20') }" class="useremail">` : '' }
+							<span class="name">${ data.name }</span>
+							${ data.trip ? `<span class="postertrip">${ data.trip }</span>` : '' }
+							${ capcodeText }
+						${ data.email ? '</a>' : '' }
+						${ capcodeImg }
+						${ data.id && !data.capcode ? `<span class="posteruid id_${ data.id }">(ID: <span class="hand" title="Highlight posts by this ID">${ data.id }</span>)</span>` : '' }
+						${ data.country ? `<span title="${ data.country_name }" class="flag flag-${ data.country.toLowerCase() }"></span>` : '' }
+					</span>
+					<span class="dateTime" data-utc="${ data.time }">${ data.now }</span>
+					<span class="postNum desktop"><a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('${ num }');" title="Reply to this post">${ num }</a></span>
+				</div>
+				${ fileHTML }
+				<blockquote class="postMessage" id="m${ num }"> ${ data.com }</blockquote>
+			</div>
+		</div>`;
+		return rv;
+	}
+	getPNum(i) {
+		return this._posts[i + 1].no;
+	}
+	* bannedPostsData() {}
+}
+_4chanPostsBuilder._customSpoiler = new Map();
+
+class DobrochanPostsBuilder {
+	constructor(json, brd) {
+		if(json.error) {
+			throw new AjaxError(0, `API ${ json.message }`);
+		}
+		this._json = json.result;
+		this._brd = brd;
+		this._posts = json.result.threads[0].posts;
+		this.length = this._posts.length - 1;
+		this.postersCount = '';
+		this.hasHTML = true;
+	}
+	get isClosed() {
+		return !!this._json.threads[0].archived;
+	}
+	getOpMessage() {
+		let data = this._posts[0];
+		return $add(aib.fixHTML(`<div class="postbody"> ${ data.message_html }</div>`));
+	}
+	getPostEl(i) {
+		return $add(aib.fixHTML(this.getPostHTML(i))).firstChild.firstChild.lastElementChild;
+	}
+	getPostHTML(i) {
+		const data = this._posts[i + 1];
+		const num = data.display_id;
+		const brd = this._brd;
+		const tNum = this._json.threads[0].display_id;
+		const multiFile = data.files.length > 1;
+		
+		let filesHTML = '';
+		for(let file of data.files) {
+			let fileName, fullFileName, thumb, thumb_w = 200,
+				thumb_h = 200,
+				size = prettifySize(file.size);
+			if(brd == 'b' || brd == 'rf') {
+				fileName = fullFileName = file.thumb.substring(file.thumb.lastIndexOf('/') + 1);
+			} else {
+				fileName = fullFileName = file.src.substring(file.src.lastIndexOf('/') + 1);
+				if(multiFile && fileName.length > 20) {
+					let ext = fileName.substring(fileName.lastIndexOf('.'));
+					fileName = fileName.substr(0, 20 - ext.length) + '(...)' + ext;
+				}
+			}
+			const max_rating = 'r15'; // FIXME: read from settings
+			if(file.rating === 'r-18g' && max_rating !== "r-18g") {
+				thumb = "images/r-18g.png";
+			} else if(file.rating === 'r-18' && (max_rating !== 'r-18g' || max_rating !== 'r-18')) {
+				thumb = "images/r-18.png";
+			} else if(file.rating === 'r-15' && max_rating == 'sfw') {
+				thumb = "images/r-15.png";
+			} else if(file.rating === 'illegal') {
+				thumb = "images/illegal.png";
+			} else {
+				thumb = file.thumb;
+				thumb_w = file.thumb_width;
+				thumb_h = file.thumb_height;
+			}
+			let fileInfo = `<div class="fileinfo${ multiFile ? ' limited' : '' }">Файл:
+				<a href="/${ file.src }" title="${ fullFileName }" target="_blank">${ fileName }</a>
+				<br>
+				<em>${ file.thumb.substring(file.thumb.lastIndexOf('.') + 1) }, ${ size }, ${ file.metadata.width }x${ file.metadata.height }</em>${ multiFile ? '' : ' - Нажмите на картинку для увеличения' }
+				<br>
+				<a class="edit_ icon"  href="/utils/image/edit/${ file.file_id }/${ num }"><img title="edit" alt="edit" src="/images/blank.png"></a>
+				<a class="search_google icon" href="http://www.google.com/searchbyimage?image_url=http://dobrochan.ru/${ file.src }"><img title="edit" alt="edit" src="/images/blank.png"></a>
+				<a class="search_iqdb icon" href="http://iqdb.org/?url=http://dobrochan.ru/${ file.src }"><img title="edit" alt="edit" src="/images/blank.png"></a>
+			</div>`;
+			filesHTML += `${ multiFile ? '' : fileInfo }
+			<div id="file_${ num }_${ file.file_id }" class="file">
+				${ multiFile ? fileInfo : '' }
+				<a href="/${ file.src }" target="_blank">
+					<img class="thumb" src="/${ thumb }" width="${ thumb_w }" height="${ thumb_h }">
+				</a>
+			</div>`;
+		}
+		
+		let rv = `<table id="post_${ num }" class="replypost post"><tbody><tr>
+			<td class="doubledash">&gt;&gt;</td>
+			<td class="reply" id="reply${ num }">
+				<a name="i${ num }"></a>
+				<label>
+					<a class="delete icon">
+						<input name="${ num }" value="${ data.post_id }" class="delete_checkbox" id="delbox_${ num }" type="checkbox">
+						<img src="/images/blank.png" title="Mark to delete" alt="Удалить">
+					</a>
+					<span class="postername">${ data.name || 'Анонимус' }</span>
+					${ data.date.replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/, (_, y, mo, d, h, m, s) => {
+						let dt = new Date(y, +mo - 1, d, h, m, s);
+						const pad2 = n => n < 10 ? '0' + n : String(n);
+						return `${ pad2(dt.getDate()) } ${ Lng.fullMonth[1][dt.getMonth()]} ${ dt.getFullYear() } (${ Lng.week[1][dt.getDay()] }) ${ pad2(dt.getHours()) }:${ pad2(dt.getMinutes()) }`;
+					}) }
+				</label>
+				<span class="reflink">
+					<a onclick="Highlight(0, ${ num })" href="/${ brd }/res/${ tNum }.xhtml#i${ num }"> No.${ num }</a>
+				</span>
+				<span class="cpanel">
+					<a class="reply_icon" onclick="GetReplyForm(event, '${ brd }', ${ tNum }, ${ num })">
+						<img src="/images/blank-double.png" style="vertical-align:sub" title="Ответ" alt="Ответ">
+					</a>
+				</span>
+				<br>
+				${ filesHTML }
+				${ multiFile ? '<div style="clear: both;"></div>' : '' }
+				<div class="postbody"> ${ data.message_html }</div>
+				<div class="abbrev"></div>
+			</td>
+		</tr></tbody></table>`;
+		return rv;
+	}
+	getPNum(i) {
+		return this._posts[i + 1].display_id;
+	}
+	* bannedPostsData() {}
+}
+
+class MakabaPostsBuilder {
+	constructor(json, brd) {
+		if(json.Error) {
+			throw new AjaxError(0, `API ${ json.Error } (${ json.Code })`);
+		}
+		this._json = json;
+		this._brd = brd;
+		this._posts = json.threads[0].posts;
+		this.length = json.posts_count;
+		this.postersCount = json.unique_posters;
+		this.hasHTML = true;
+	}
+	get isClosed() {
+		return this._json.is_closed;
+	}
+	getOpMessage() {
+		return $add(aib.fixHTML(this._getPostMsg(this._posts[0])));
+	}
+	getPostEl(i) {
+		return $add(aib.fixHTML(this.getPostHTML(i))).firstElementChild;
+	}
+	getPostHTML(i) {
+		const data = this._posts[i + 1];
+		const num = data.num;
+		const brd = this._brd;
+		
+		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
+		
+		let filesHTML;
+		if(data.files) {
+			filesHTML = `<div class="images${ data.files.length === 1 ? ' images-single' : '' }">`;
+			for(let file of data.files) {
+				let isWebm = file.name.endsWith('.webm');
+				filesHTML += `<figure class="image">
+					<figcaption class="file-attr">
+						<a class="desktop" target="_blank" href="/${ brd }/${ file.path }">${ file.name }</a>
+						${ isWebm ? `<img src="/makaba/templates/img/webm-logo.png" width="50px" alt="webm file" id="webm-icon-${ num }-${ file.md5 }">` : '' }
+						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }${ isWebm ? ', ' + file.duration : '' })</span>
+					</figcaption>
+					<div id="exlink-${ num }-${ file.md5 }">
+						<a href="/${ brd }/${ file.path }" name="expandfunc" onclick="expand('${ num }-${ file.md5 }','/${ brd }/${ file.path }','/${ brd }/${ file.thumbnail }',${ file.width },${ file.height },${ file.tn_width },${ file.tn_height }); return false;">
+							<img src="/${ brd }/${ file.thumbnail }" width="${ file.tn_width }" height="${ file.tn_height }" alt="${ file.size }" class="img preview${ isWebm ? ' webm-file' : '' }">
+						</a>
+					</div>
+				</figure>`;
+			}
+			filesHTML += '</div>';
+		} else if(data.video) {
+			filesHTML = `<div class="images">
+				<div style="float: left; margin: 5px; margin-right:10px">
+					${ post.video }
+				</div>
+			</div>`;
+		} else {
+			filesHTML = '';
+		}
+		
+		let rv = `<div id="post-${ num }" class="post-wrapper">
+			<div class="post reply" id="post-body-${ num }" data-num="${ num }">
+				<div id="post-details-${ num }" class="post-details">
+					<input type="checkbox" name="delete"  class="turnmeoff" value="${ num }" />
+					${ data.subject && this._json.enable_sublect
+						? `<span class="post-title">${ data.subject + ( data.tags ? ' /' + data.tags + '/' : '') }</span>`
+						: ''
+					}
+					${ data.email
+						? `<a href="${ data.email }" class="post-email">${ data.name }</a>`
+						: `<span class="ananimas">${ data.name }</span>`
+					}
+					${ data.icon ? `<span class="post-icon">${ data.icon }</span>` : '' }
+					${ _switch(data.trip, {
+					   '!!%adm%!!':        '<span class="adm">## Abu ##<\/span>',
+					   '!!%mod%!!':        '<span class="mod">## Mod ##<\/span>',
+					   '!!%Inquisitor%!!': '<span class="inquisitor">## Applejack ##<\/span>',
+					   '!!%coder%!!':      '<span class="mod">## Кодер ##<\/span>',
+					   '@@default':        '<span class="postertrip">' + data.trip + '<\/span>'
+					}) }
+					${ data.op === 1 ? '<span class="ophui"># OP</span>&nbsp;' : '' }
+					<span class="posttime-reflink">
+						<span class="posttime">${ data.date }&nbsp;</span>
+						<span class="reflink">
+							<a href="/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }">№</a><a href="/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }" class="postbtn-reply-href" name="${ num }">${ num }</a>
+						</span>
+					</span>
+					<br class="turnmeoff">
+				</div>
+				${ filesHTML }
+				${ this._getPostMsg(data) }
+			</div>
+		</div>`;
+		return rv;
+	}
+	getPNum(i) {
+		return this._posts[i + 1].num;
+	}
+	* bannedPostsData() {
+		for(let post of this._posts) {
+			switch(post.banned) {
+			case 1:
+				yield [1, post.num, $add('<span class="pomyanem">(Автор этого поста был забанен. Помянем.)</span>')];
+				break;
+			case 2:
+				yield [2, post.num, $add('<span class="pomyanem">(Автор этого поста был предупрежден.)</span>')];
+				break;
+			}
+		}
+	}
+	
+	_getPostMsg(data) {
+		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
+		const comment = data.comment.replace(/<script /ig, '<!--<textarea ')
+			.replace(/<\/script>/ig, '</textarea>-->');
+		return `<blockquote id="m${ data.num }" class="post-message">
+			${ comment }
+			${ _switch(data.banned, {
+			   1:           '<br/><span class="pomyanem">(Автор этого поста был забанен. Помянем.)</span>',
+			   2:           '<br/><span class="pomyanem">(Автор этого поста был предупрежден.)</span>',
+			   '@@default': ''
+			}) }
+		</blockquote>`;
+	}
+}
+
+
 // THREADS
 // ===========================================================================================================
 
@@ -10963,30 +11417,6 @@ class Thread {
 	get top() {
 		return this.op.top;
 	}
-	addPost(parent, el, i, prev, maybeVParser) {
-		var post, num = aib.getPNum(el),
-			wrap = doc.adoptNode(aib.getWrap(el, false));
-		el = aib.fixHTML(el);
-		post = new Post(el, this, num, i, false, prev);
-		parent.appendChild(wrap);
-		if(aib.t && !doc.hidden && Cfg.animation) {
-			$animate(post.el, 'de-post-new');
-		}
-		if(this.userTouched.has(num)) {
-			post.setUserVisib(this.userTouched.get(num), false);
-			this.userTouched.delete(num);
-		}
-		if(maybeVParser.value) {
-			maybeVParser.value.parse(post);
-		}
-		processImagesLinks(el, aib.t ? null : aib.b);
-		post.addFuncs();
-		preloadImages(post);
-		if(aib.t && Cfg.markNewPosts) {
-			Post.addMark(el, false);
-		}
-		return post;
-	}
 	deletePost(post, delAll, removePost) {
 		SpellsRunner.cachedData = null;
 		var count = 0,
@@ -11009,13 +11439,144 @@ class Thread {
 		if(informUser) {
 			$popup(Lng.loading[lang], 'load-thr', true);
 		}
-		return ajaxLoad(aib.getThrdUrl(aib.b, this.num)).then(
-			form => this.loadFromForm(last, smartScroll, form),
+		return ajaxPostsLoad(aib.b, this.num, false).then(
+			pBuilder => this._loadFromBuilder(last, smartScroll, pBuilder),
 			e => $popup(getErrorMessage(e), 'load-thr', false));
 	}
-	loadFromForm(last, smartScroll, form) {
-		var nextCoord, loadedPosts = $Q(aib.qRPost, form),
-			maybeSpells = new Maybe(SpellsRunner),
+	loadNew() {
+		return ajaxPostsLoad(aib.b, this.num, true).then(pBuilder => pBuilder
+			? this._loadNewFromBuilder(pBuilder)
+			: { newCount: 0, locked: false })
+	}
+	setFavorState(val, type) {
+		this.op.setFavBtn(val);
+		readFav().then(fav => {
+			var b = aib.b,
+				h = aib.host;
+			if(val) {
+				if(!fav[h]) {
+					fav[h] = {};
+				}
+				if(!fav[h][b]) {
+					fav[h][b] = {};
+				}
+				fav[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
+				fav[h][b][this.num] = {
+					'cnt': this.pcount,
+					'new': 0,
+					'txt': this.op.title,
+					'url': aib.getThrdUrl(b, this.num),
+					'last': aib.anchor + this.last.num,
+					'type': type
+				};
+			} else {
+				removeFavoriteEntry(fav, h, b, this.num, false);
+			}
+			saveFavorites(fav);
+		});
+	}
+	updateHidden(data) {
+		var thr = this;
+		do {
+			var realHid = data ? data.hasOwnProperty(thr.num) : false;
+			if(thr.hidden ^ realHid) {
+				if(realHid) {
+					thr.op.setUserVisib(true, false);
+					data[thr.num] = thr.op.title;
+				} else if(thr.hidden) {
+					thr.op.setUserVisib(false, false);
+				}
+			}
+		} while((thr = thr.next));
+	}
+
+	_addPost(parent, el, i, prev, maybeVParser) {
+		var post, num = aib.getPNum(el),
+			wrap = doc.adoptNode(aib.getWrap(el, false));
+		post = new Post(el, this, num, i, false, prev);
+		parent.appendChild(wrap);
+		if(aib.t && !doc.hidden && Cfg.animation) {
+			$animate(post.el, 'de-post-new');
+		}
+		if(this.userTouched.has(num)) {
+			post.setUserVisib(this.userTouched.get(num), false);
+			this.userTouched.delete(num);
+		}
+		if(maybeVParser.value) {
+			maybeVParser.value.parse(post);
+		}
+		processImagesLinks(el, aib.t ? null : aib.b);
+		post.addFuncs();
+		preloadImages(post);
+		if(aib.t && Cfg.markNewPosts) {
+			Post.addMark(el, false);
+		}
+		return post;
+	}
+	_checkBans(pBuilder) {
+		if(!aib.qBan) {
+			return;
+		}
+		for(let [banId, bNum, bEl] of pBuilder.bannedPostsData()) {
+			let post = bNum ? pByNum.get(bNum) : this.op;
+			if(post && post.banned !== banId) {
+				$remove($q(aib.qBan, post.el));
+				post.msg.appendChild(bEl);
+				post.banned = banId;
+			}
+		}
+	}
+	_toggleReplies(repBtn, updBtn) {
+		var isHide = !this.last.omitted;
+		for(var i = 0, post = this.op; post !== this.last; i++) {
+			post = post.next;
+			if(isHide) {
+				post.wrap.classList.add('de-hidden');
+				post.omitted = true;
+			} else {
+				post.wrap.classList.remove('de-hidden');
+				post.omitted = false;
+			}
+		}
+		repBtn.firstElementChild.className = 'de-abtn ' + (isHide ? 'de-replies-show' : 'de-replies-hide');
+		$toggle(updBtn, !isHide);
+		var colBtn = $q('.de-thread-collapse', this.el);
+		if(colBtn) {
+			$toggle(colBtn, !isHide);
+		}
+		$del($q(aib.qOmitted + ', .de-omitted', this.el));
+		i = this.pcount - 1 - (isHide ? 0 : i);
+		if(i) {
+			this.op.el.insertAdjacentHTML('afterend', '<span class="de-omitted">' + i + '</span> ');
+		}
+	}
+	_importPosts(last, pBuilder, begin, end, maybeVParser, maybeSpells) {
+		var fragm, newCount = end - begin,
+			newVisCount = newCount;
+		if(pBuilder.hasHTML && nav.hasTemplate) {
+			let temp = document.createElement('template');
+			let html = [];
+			for(let i = begin; i < end; ++i) {
+				html.push(pBuilder.getPostHTML(i));
+			}
+			temp.innerHTML = aib.fixHTML(html.join(''));
+			fragm = temp.content;
+			let posts = $Q(aib.qRPost, fragm);
+			for(let i = 0, len = posts.length; i < len; ++i) {
+				last = this._addPost(fragm, posts[i], begin + i + 1, last, maybeVParser);
+				newVisCount -= maybeSpells.value.run(last);
+			}
+		} else {
+			fragm = doc.createDocumentFragment();
+			for(; begin < end; ++begin) {
+				last = this._addPost(fragm, pBuilder.getPostEl(begin), begin + 1, last, maybeVParser);
+				newVisCount -= maybeSpells.value.run(last);
+			}
+		}
+		return [newCount, newVisCount, fragm, last];
+	}
+	_loadFromBuilder(last, smartScroll, pBuilder) {
+		var nextCoord, maybeSpells = new Maybe(SpellsRunner),
 			op = this.op,
 			thrEl = this.el;
 		if(smartScroll) {
@@ -11029,15 +11590,13 @@ class Thread {
 		$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 		if(this.loadCount === 0) {
 			if(op.trunc) {
-				var newMsg = doc.adoptNode($q(aib.qPostMsg, form));
-				op.updateMsg(aib.fixHTML(newMsg), maybeSpells.value);
+				var newMsg = pBuilder.getOpMessage();
+				op.updateMsg(newMsg, maybeSpells.value);
 			}
 			op.ref.removeMap();
 		}
 		this.loadCount++;
-		this._checkBans(form);
-		aib.checkForm(form, maybeSpells);
-		this._parsePosts(loadedPosts);
+		this._parsePosts(pBuilder);
 		var needToHide, needToOmit, needToShow, post = op.next,
 			needRMUpdate = false,
 			existed = this.pcount === 1 ? 0 : this.pcount - post.count;
@@ -11045,21 +11604,21 @@ class Thread {
 		case 'new': // get new posts
 			needToHide = $Q('.de-hidden', thrEl).length;
 			needToOmit = needToHide + post.count - 1;
-			needToShow = loadedPosts.length - needToOmit;
+			needToShow = pBuilder.length - needToOmit;
 			break;
 		case 'all': // get all posts
 			needToHide = needToOmit = 0;
-			needToShow = loadedPosts.length;
+			needToShow = pBuilder.length;
 			break;
 		case 'more': // show 10 omitted posts + get new posts
 			needToHide = $Q('.de-hidden', thrEl).length - 10;
 			needToOmit = Math.max(needToHide + post.count - 1, 0);
 			needToHide = Math.max(needToHide, 0);
-			needToShow = loadedPosts.length - needToOmit;
+			needToShow = pBuilder.length - needToOmit;
 			break;
 		default: // get last posts
 			needToHide = Math.max(existed - last, 0);
-			needToOmit = Math.max(loadedPosts.length - last, 0);
+			needToOmit = Math.max(pBuilder.length - last, 0);
 			needToShow = last;
 		}
 		if(needToHide) {
@@ -11069,26 +11628,26 @@ class Thread {
 				post = post.next;
 			}
 		} else {
-			var fragm = doc.createDocumentFragment(),
-				tPost = op,
-				nonExisted = loadedPosts.length - existed,
-				maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-			for(var i = Math.max(0, nonExisted + existed - needToShow); i < nonExisted; ++i) {
-				tPost = this.addPost(fragm, loadedPosts[i], i + 1, tPost, maybeVParser);
-				maybeSpells.value.run(tPost);
-			}
+			let nonExisted = pBuilder.length - existed,
+				maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null),
+				[,,fragm,last] = this._importPosts(op,
+				                                   pBuilder,
+				                                   Math.max(0, nonExisted + existed - needToShow),
+				                                   nonExisted,
+				                                   maybeVParser,
+				                                   maybeSpells);
 			maybeVParser.end();
 			$after(op.wrap, fragm);
-			tPost.next = post;
+			last.next = post;
 			if(post) {
-				post.prev = tPost;
+				post.prev = last;
 			}
 			needRMUpdate = true;
 			needToShow = Math.min(nonExisted + existed, needToShow);
 		}
 		while(existed-- !== 0) {
 			if(post.trunc) {
-				var newMsg = doc.adoptNode($q(aib.qPostMsg, loadedPosts[post.count - 1]));
+				var newMsg = doc.adoptNode($q(aib.qPostMsg, pBuilder.getPostEl(post.count - 1)));
 				post.updateMsg(aib.fixHTML(newMsg), maybeSpells.value);
 			}
 			if(post.omitted) {
@@ -11136,152 +11695,42 @@ class Thread {
 		}
 		closePopup('load-thr');
 	}
-	loadNew(useAPI) {
-		if(aib.dobr && useAPI) {
-			return getJsonPosts('/api/thread/' + aib.b + '/' + aib.t + '.json').then(json => {
-				if(json) {
-					if(json.error) {
-						return CancelablePromise.reject(new AjaxError(0, json.message));
-					}
-					if(this._lastModified !== json.last_modified || this.pcount !== json.posts_count) {
-						this._lastModified = json.last_modified;
-						return this.loadNew(false);
-					}
-				}
-				return { newCount: 0, locked: false };
-			});
-		}
-		return ajaxLoad(aib.getThrdUrl(aib.b, aib.t), true, !aib.dobr)
-			.then(form => form ? this.loadNewFromForm(form) : { newCount: 0, locked: false });
-	}
-	loadNewFromForm(form) {
-		this._checkBans(form);
-		aib.checkForm(form, null);
+	_loadNewFromBuilder(pBuilder) {
 		var lastOffset = pr.isVisible ? pr.top : null,
-			[newPosts, newVisPosts] = this._parsePosts($Q(aib.qRPost, form));
+			[newPosts, newVisPosts] = this._parsePosts(pBuilder);
 		if(lastOffset !== null) {
 			scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);
 		}
-		if(newPosts !== 0) {
-			panel.updateCounter(this.pcount, $Q(aib.qPostImg, this.el).length);
+		if(newPosts !== 0 || panel.isNew) {
+			panel.updateCounter(pBuilder.length + 1, $Q(aib.qPostImg, this.el).length, pBuilder.postersCount);
 			Pview.updatePosition(true);
 		}
-		if($q(aib.qClosed, form)) {
-			ajaxLoad.clearCache();
+		if(pBuilder.isClosed) {
+			AjaxCache.clear();
 			return { newCount: newVisPosts, locked: true };
 		}
 		return { newCount: newVisPosts, locked: false };
 	}
-	setFavorState(val, type) {
-		this.op.setFavBtn(val);
-		readFav().then(fav => {
-			var b = aib.b,
-				h = aib.host;
-			if(val) {
-				if(!fav[h]) {
-					fav[h] = {};
-				}
-				if(!fav[h][b]) {
-					fav[h][b] = {};
-				}
-				fav[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
-				fav[h][b][this.num] = {
-					'cnt': this.pcount,
-					'new': 0,
-					'txt': this.op.title,
-					'url': aib.getThrdUrl(b, this.num),
-					'last': aib.anchor + this.last.num,
-					'type': type
-				};
-			} else {
-				removeFavoriteEntry(fav, h, b, this.num, false);
-			}
-			saveFavorites(fav);
-		});
-	}
-	updateHidden(data) {
-		var thr = this;
-		do {
-			var realHid = data ? data.hasOwnProperty(thr.num) : false;
-			if(thr.hidden ^ realHid) {
-				if(realHid) {
-					thr.op.setUserVisib(true, false);
-					data[thr.num] = thr.op.title;
-				} else if(thr.hidden) {
-					thr.op.setUserVisib(false, false);
-				}
-			}
-		} while((thr = thr.next));
-	}
-
-	_checkBans(thrNode) {
-		if(!aib.qBan) {
-			return;
-		}
-		var bEls = $Q(aib.qBan, thrNode);
-		for(var i = 0, len = bEls.length; i < len; ++i) {
-			var bEl = bEls[i],
-				pEl = aib.getPostElOfEl(bEl),
-				post = pEl ? pByNum.get(aib.getPNum(pEl)) : this.op;
-			if(post && !post.banned) {
-				post.msg.appendChild(doc.adoptNode(bEl));
-				post.banned = true;
-			}
-		}
-	}
-	_toggleReplies(repBtn, updBtn) {
-		var isHide = !this.last.omitted;
-		for(var i = 0, post = this.op; post !== this.last; i++) {
-			post = post.next;
-			if(isHide) {
-				post.wrap.classList.add('de-hidden');
-				post.omitted = true;
-			} else {
-				post.wrap.classList.remove('de-hidden');
-				post.omitted = false;
-			}
-		}
-		repBtn.firstElementChild.className = 'de-abtn ' + (isHide ? 'de-replies-show' : 'de-replies-hide');
-		$toggle(updBtn, !isHide);
-		var colBtn = $q('.de-thread-collapse', this.el);
-		if(colBtn) {
-			$toggle(colBtn, !isHide);
-		}
-		$del($q(aib.qOmitted + ', .de-omitted', this.el));
-		i = this.pcount - 1 - (isHide ? 0 : i);
-		if(i) {
-			this.op.el.insertAdjacentHTML('afterend', '<span class="de-omitted">' + i + '</span> ');
-		}
-	}
-	_importPosts(last, newPosts, begin, end, maybeVParser, maybeSpells) {
-		var newCount = end - begin,
-			newVisCount = newCount,
-			fragm = doc.createDocumentFragment();
-		for(; begin < end; ++begin) {
-			last = this.addPost(fragm, newPosts[begin], begin + 1, last, maybeVParser);
-			newVisCount -= maybeSpells.value.run(last);
-		}
-		return [newCount, newVisCount, fragm, last];
-	}
-	_parsePosts(nPosts) {
+	_parsePosts(pBuilder) {
+		this._checkBans(pBuilder);
 		var maybeSpells = new Maybe(SpellsRunner),
 			newPosts = 0,
 			newVisPosts = 0,
-			len = nPosts.length,
+			len = pBuilder.length,
 			post = this.lastNotDeleted,
 			maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
 		if(post.count !== 0 &&
-		   (aib.dobr || post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num))
+		   (aib.dobr || post.count > len || pBuilder.getPNum(post.count - 1) !== post.num))
 		{
 			post = this.op.nextNotDeleted;
 			var i, firstChangedPost = null;
 			for(i = post.count - 1; i < len && post; ) {
-				if(post.num === aib.getPNum(nPosts[i])) {
+				if(post.num === pBuilder.getPNum(i)) {
 					i++;
 					post = post.nextNotDeleted;
 					continue;
 				}
-				if(post.num > aib.getPNum(nPosts[i])) {
+				if(post.num > pBuilder.getPNum(i)) {
 					if(!firstChangedPost) {
 						firstChangedPost = post.prev;
 					}
@@ -11289,8 +11738,8 @@ class Thread {
 					do {
 						cnt++;
 						i++;
-					} while(aib.getPNum(nPosts[i]) < post.num);
-					var res = this._importPosts(post.prev, nPosts, i - cnt, i, maybeVParser, maybeSpells);
+					} while(pBuilder.getPNum(i) < post.num);
+					var res = this._importPosts(post.prev, pBuilder, i - cnt, i, maybeVParser, maybeSpells);
 					newPosts += res[0];
 					this.pcount += res[0];
 					newVisPosts += res[1];
@@ -11322,7 +11771,7 @@ class Thread {
 			}
 		}
 		if(len + 1 > this.pcount) {
-			var res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len, maybeVParser, maybeSpells);
+			var res = this._importPosts(this.last, pBuilder, this.lastNotDeleted.count, len, maybeVParser, maybeSpells);
 			newPosts += res[0];
 			newVisPosts += res[1];
 			this.el.appendChild(res[2]);
@@ -11391,7 +11840,7 @@ var navPanel = {
 		this._thrs = new Set();
 	},
 	removeThr(thr) {
-		this._thrs.delete(thr);
+		this._thrs.delete(thr.el);
 		if(this._thrs.size === 0) {
 			$hide(this._el);
 			this._currentThr = null;
@@ -11568,6 +12017,11 @@ function initNavFuncs() {
 		fixLink: safari ? getAbsLink : function fixLink(url) {
 			return url;
 		},
+		get hasTemplate() {
+			var value = 'content' in document.createElement('template');
+			Object.defineProperty(this, 'hasTemplate', { value });
+			return value;
+		},
 		get hasWorker() {
 			var val = false;
 			try {
@@ -11655,6 +12109,7 @@ class BaseBoard {
 		this.hasPicWrap = false;
 		this.hasTextLinks = false;
 		this.host = window.location.hostname;
+		this.jsonBuilder = null;
 		this.jsonSubmit = false;
 		this.markupBB = false;
 		this.multiFile = false;
@@ -11735,7 +12190,6 @@ class BaseBoard {
 	get updateCaptcha() {
 		return null;
 	}
-	checkForm() {} // Sets in Ponyach only
 	disableRedirection(el) { // Differs Dobrochan only
 		$hide($parent(el, 'TR'));
 		el.checked = true;
@@ -11748,7 +12202,9 @@ class BaseBoard {
 			return data;
 		}
 		var str;
-		if(isForm) {
+		if(typeof data === 'string') {
+			str = data;
+		} else if(isForm) {
 			data.id = 'de-dform-old';
 			str = data.outerHTML;
 		} else {
@@ -11773,6 +12229,9 @@ class BaseBoard {
 		if(Cfg.crossLinks) {
 			str = str.replace(aib.reCrossLinks,
 				(str, b, tNum, pNum) => '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<');
+		}
+		if(typeof data === 'string') {
+			return str;
 		}
 		if(isForm) {
 			let newForm = $bBegin(data, str);
@@ -11802,6 +12261,9 @@ class BaseBoard {
 		}
 		return videos;
 	}
+	getBanId(postEl) {
+		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
+	}
 	getCaptchaSrc(src, tNum) {
 		var tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
 					 .replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
@@ -11826,7 +12288,8 @@ class BaseBoard {
 		var node = (el.tagName === 'SPAN' ? el.parentNode : el).parentNode;
 		return node.tagName === 'SPAN' ? node.parentNode : node;
 	}
-	getOmitted(el, len) { // Differs _2chRu only
+	getJsonApiUrl(brd, tNum) {}
+	getOmitted(el, len) {
 		var txt;
 		return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
 	}
@@ -11922,6 +12385,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasCatalog = true;
 			this.hasOPNum = true;
 			this.hasPicWrap = true;
+			this.jsonBuilder = MakabaPostsBuilder;
 			this.jsonSubmit = true;
 			this.markupBB = true;
 			this.multiFile = true;
@@ -11969,6 +12433,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			$q('#postform .images-area', doc).lastElementChild.innerHTML = str;
 		}
+		getBanId(postEl) {
+			var el = $q(this.qBan, postEl);
+			if(!el) {
+				return 0;
+			}
+			return el.textContent.includes('предупрежден') ? 2 : 1;
+		}
 		getImgParent(node) {
 			var el = $parent(node, 'FIGURE'),
 				parent = el.parentNode;
@@ -11976,6 +12447,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getImgWrap(el) {
 			return $parent(el, 'FIGURE');
+		}
+		getJsonApiUrl(brd, tNum) {
+			return `/${ brd }/res/${ tNum }.json`;
 		}
 		getPNum(post) {
 			return +post.getAttribute('data-num');
@@ -12585,6 +13059,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.firstPage = 1;
 			this.hasCatalog = true;
 			this.hasTextLinks = true;
+			this.jsonBuilder = _4chanPostsBuilder;
 			this.res = 'thread/';
 			this.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
 			this.thrid = 'resto';
@@ -12630,6 +13105,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		getFileInfo(wrap) {
 			var el = $q(this.qFileInfo, wrap);
 			return el ? el.lastChild.textContent : '';
+		}
+		getJsonApiUrl(brd, tNum) {
+			return `//a.4cdn.org/${ brd }/thread/${ tNum }.json`;
 		}
 		getPageUrl(b, p) {
 			return fixBrd(b) + (p > 1 ? p : '');
@@ -12829,10 +13307,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPages = '.pages > tbody > tr > td';
 			this.qPostMsg = '.postbody';
 			this.qPostSubj = '.replytitle';
-			this.qTrunc = '.abbrev > span:nth-last-child(2)';
+			this.qTrunc = '.abbrev > span:first-of-type';
 
 			this.anchor = '#i';
 			this.hasPicWrap = true;
+			this.jsonBuilder = DobrochanPostsBuilder;
 			this.multiFile = true;
 			this.ru = true;
 			this.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
@@ -12864,6 +13343,19 @@ function getImageBoard(checkDomains, checkEngines) {
 		getImgWrap(el) {
 			return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode :
 				el.firstElementChild.tagName === 'IMG' ? el.parentNode : el;
+		}
+		getJsonApiUrl(brd, tNum) {
+			return `/api/thread/${ brd }/${ tNum }/all.json?new_format&message_html&board`;
+		}
+		getOmitted(el, len) {
+			while(el) {
+				let m = el.textContent.match(/(\d+) posts are omitted/);
+				if(m) {
+					return +m[1] + 1;
+				}
+				el = el.previousElementSibling;
+			}
+			return 1;
 		}
 		getPageUrl(b, p) {
 			return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
@@ -13159,46 +13651,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			var val = new WeakMap();
 			Object.defineProperty(this, 'modifiedPosts', { value: val });
 			return val;
-		}
-		checkForm(formEl, maybeSpells) { // Ponyach hack. Sets here only
-			var myMaybeSpells = maybeSpells || new Maybe(SpellsRunner),
-				maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-			if(!this._postMapInited) {
-				this._postMapInited = true;
-				$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]'),
-					  pEl => this.modifiedPosts.set(pEl, +pEl.getAttribute('data-lastmodified')));
-			}
-			$each($Q('.oppost[data-lastmodified], .reply[data-lastmodified]', formEl), pEl => {
-				var nPost, post = pByNum.get(this.getPNum(pEl)),
-					pDate = +pEl.getAttribute('data-lastmodified');
-				if(post && (!this.modifiedPosts.has(pEl) || this.modifiedPosts.get(pEl) < pDate)) {
-					var thr = post.thr,
-						fragm = doc.createDocumentFragment();
-					this.modifiedPosts.set(pEl, pDate);
-					nPost = thr.addPost(fragm, pEl, post.count, post.prev, maybeVParser);
-					if(thr.op === post) {
-						thr.op = nPost;
-					}
-					if(thr.last === post) {
-						thr.last = nPost;
-					}
-					if(post.next) {
-						post.next.prev = nPost;
-						nPost.next = post.next;
-					}
-					if(post.omitted) {
-						nPost.omitted = true;
-						nPost.wrap.classList.add('de-hidden');
-					}
-					myMaybeSpells.value.run(nPost);
-					$before(post.wrap, fragm);
-					$del(post.wrap);
-				}
-			});
-			if(!maybeSpells) {
-				myMaybeSpells.end();
-			}
-			maybeVParser.end();
 		}
 		getPNum(post) {
 			return +post.getAttribute('data-num');
@@ -14112,8 +14564,8 @@ function initThreadUpdater(title, enableUpdate) {
 			case 1:
 				counter.setWait();
 				this._state = 2;
-				this._loadPromise = Thread.first.loadNew(true).then(
-					({ newCount, locked}) => this._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success),
+				this._loadPromise = Thread.first.loadNew().then(
+					({ newCount, locked }) => this._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success),
 					e => this._handleNewPosts(0, e));
 				return;
 			case 2:
@@ -14411,6 +14863,7 @@ function scriptCSS() {
 	#de-panel-upd-off { fill: #ff3232; }\
 	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }\
 	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }\
+	#de-panel-info-icount::before, #de-panel-info-acount:not(:empty)::before { content: "/"; }\
 	.de-svg-back { fill: inherit; stroke: none; }\
 	.de-svg-stroke { stroke: currentColor; fill: none; }\
 	.de-svg-fill { stroke: none; fill: currentColor; }\
