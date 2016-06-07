@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '2dbe1e5';
+var commit = '55543cf';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12555,53 +12555,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2ch.hk'] = Makaba;
 	ibDomains['2ch.pm'] = Makaba;
 
-	class Futaba extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.qDForm = 'form:not([enctype])';
-			this.qForm = 'form:nth-of-type(1)';
-			this.qFormRedir = null;
-			this.qFormRules = '.chui';
-			this.qOmitted = 'font[color="#707070"]';
-			this.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
-			this.qPostRef = '.del';
-			this.qRPost = 'td:nth-child(2)';
-
-			this.docExt = '.htm';
-			this.thrid = 'resto';
-		}
-		get css() {
-			return `
-			.ftbl { width: auto; margin: 0; }
-			.reply { background: #f0e0d6; }
-			span { font-size: inherit; }`;
-		}
-		get qImgName() {
-			return 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
-		}
-		getPageUrl(b, p) {
-			return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
-		}
-		getPNum(post) {
-			return +$q('input', post).name;
-		}
-		getPostElOfEl(el) {
-			while(el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
-				el = el.parentElement;
-			}
-			return el;
-		}
-		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
-		}
-		init() {
-			$del($q('base', doc.head));
-			return false;
-		}
-	}
-	ibEngines.push(['form[action*="futaba.php"]', Futaba]);
-
 	class Tinyboard extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -12838,6 +12791,56 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['0-chan.ru'] = _0chanSo;
 	ibDomains['0chan.so'] = _0chanSo;
+
+	class _2chan extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.qDForm = 'form:not([enctype])';
+			this.qForm = 'form:nth-of-type(1)';
+			this.qFormRedir = null;
+			this.qFormRules = '.chui';
+			this.qOmitted = 'font[color="#707070"]';
+			this.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
+			this.qPostRef = '.del';
+			this.qRPost = 'td:nth-child(2)';
+
+			this.docExt = '.htm';
+			this.thrid = 'resto';
+		}
+		get css() {
+			return `
+			.ftbl { width: auto; margin: 0; }
+			.reply { background: #f0e0d6; }
+			span { font-size: inherit; }`;
+		}
+		get qImgName() {
+			return 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
+		}
+		get qThread() {
+			return '.thre';
+		}
+		getPageUrl(b, p) {
+			return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
+		}
+		getPNum(post) {
+			return +$q('input', post).name;
+		}
+		getPostElOfEl(el) {
+			while(el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
+				el = el.parentElement;
+			}
+			return el;
+		}
+		getTNum(op) {
+			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+		}
+		init() {
+			$del($q('base', doc.head));
+			return false;
+		}
+	}
+	ibDomains['2chan.net'] = _2chan;
 
 	class _02chNet extends BaseBoard {
 		constructor(prot, dm) {

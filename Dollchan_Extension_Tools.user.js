@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '2dbe1e5';
+	var commit = '55543cf';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -17184,109 +17184,41 @@ true, true],
 		ibDomains['2ch.hk'] = Makaba;
 		ibDomains['2ch.pm'] = Makaba;
 
-		var Futaba = function (_BaseBoard2) {
-			_inherits(Futaba, _BaseBoard2);
-
-			function Futaba(prot, dm) {
-				_classCallCheck(this, Futaba);
-
-				var _this58 = _possibleConstructorReturn(this, Object.getPrototypeOf(Futaba).call(this, prot, dm));
-
-				_this58.qDForm = 'form:not([enctype])';
-				_this58.qForm = 'form:nth-of-type(1)';
-				_this58.qFormRedir = null;
-				_this58.qFormRules = '.chui';
-				_this58.qOmitted = 'font[color="#707070"]';
-				_this58.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
-				_this58.qPostRef = '.del';
-				_this58.qRPost = 'td:nth-child(2)';
-
-				_this58.docExt = '.htm';
-				_this58.thrid = 'resto';
-				return _this58;
-			}
-
-			_createClass(Futaba, [{
-				key: 'getPageUrl',
-				value: function getPageUrl(b, p) {
-					return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
-				}
-			}, {
-				key: 'getPNum',
-				value: function getPNum(post) {
-					return +$q('input', post).name;
-				}
-			}, {
-				key: 'getPostElOfEl',
-				value: function getPostElOfEl(el) {
-					while (el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
-						el = el.parentElement;
-					}
-					return el;
-				}
-			}, {
-				key: 'getTNum',
-				value: function getTNum(op) {
-					return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
-				}
-			}, {
-				key: 'init',
-				value: function init() {
-					$del($q('base', doc.head));
-					return false;
-				}
-			}, {
-				key: 'css',
-				get: function get() {
-					return '\n\t\t\t.ftbl { width: auto; margin: 0; }\n\t\t\t.reply { background: #f0e0d6; }\n\t\t\tspan { font-size: inherit; }';
-				}
-			}, {
-				key: 'qImgName',
-				get: function get() {
-					return 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
-				}
-			}]);
-
-			return Futaba;
-		}(BaseBoard);
-
-		ibEngines.push(['form[action*="futaba.php"]', Futaba]);
-
-		var Tinyboard = function (_BaseBoard3) {
-			_inherits(Tinyboard, _BaseBoard3);
+		var Tinyboard = function (_BaseBoard2) {
+			_inherits(Tinyboard, _BaseBoard2);
 
 			function Tinyboard(prot, dm) {
 				_classCallCheck(this, Tinyboard);
 
-				var _this59 = _possibleConstructorReturn(this, Object.getPrototypeOf(Tinyboard).call(this, prot, dm));
+				var _this58 = _possibleConstructorReturn(this, Object.getPrototypeOf(Tinyboard).call(this, prot, dm));
 
-				_this59.tiny = true;
+				_this58.tiny = true;
 
-				_this59.cReply = 'post reply';
-				_this59.qClosed = '.fa-lock';
-				_this59.qDForm = 'form[name*="postcontrols"]';
-				_this59.qFileInfo = '.fileinfo';
-				_this59.qForm = 'form[name="post"]';
-				_this59.qFormPassw = 'input[name="password"]';
-				_this59.qFormRedir = null;
-				_this59.qOmitted = '.omitted';
-				_this59.qPages = '.pages > a:nth-last-of-type(2)';
-				_this59.qPostHeader = '.intro';
-				_this59.qPostMsg = '.body';
-				_this59.qPostName = '.name';
-				_this59.qPostSubj = '.subject';
-				_this59.qPostTrip = '.trip';
-				_this59.qPostRef = '.post_no + a';
-				_this59.qTrunc = '.toolong';
+				_this58.cReply = 'post reply';
+				_this58.qClosed = '.fa-lock';
+				_this58.qDForm = 'form[name*="postcontrols"]';
+				_this58.qFileInfo = '.fileinfo';
+				_this58.qForm = 'form[name="post"]';
+				_this58.qFormPassw = 'input[name="password"]';
+				_this58.qFormRedir = null;
+				_this58.qOmitted = '.omitted';
+				_this58.qPages = '.pages > a:nth-last-of-type(2)';
+				_this58.qPostHeader = '.intro';
+				_this58.qPostMsg = '.body';
+				_this58.qPostName = '.name';
+				_this58.qPostSubj = '.subject';
+				_this58.qPostTrip = '.trip';
+				_this58.qPostRef = '.post_no + a';
+				_this58.qTrunc = '.toolong';
 
-				_this59.firstPage = 1;
-				_this59.hasCatalog = true;
-				_this59.jsonSubmit = true;
-				_this59.timePattern = 'nn+dd+yy++w++hh+ii+ss';
-				_this59.thrid = 'thread';
+				_this58.firstPage = 1;
+				_this58.hasCatalog = true;
+				_this58.jsonSubmit = true;
+				_this58.timePattern = 'nn+dd+yy++w++hh+ii+ss';
+				_this58.thrid = 'thread';
 
-				_this59._qTable = '.post.reply';
-				return _this59;
+				_this58._qTable = '.post.reply';
+				return _this58;
 			}
 
 			_createClass(Tinyboard, [{
@@ -17354,12 +17286,12 @@ true, true],
 			function Vichan(prot, dm) {
 				_classCallCheck(this, Vichan);
 
-				var _this60 = _possibleConstructorReturn(this, Object.getPrototypeOf(Vichan).call(this, prot, dm));
+				var _this59 = _possibleConstructorReturn(this, Object.getPrototypeOf(Vichan).call(this, prot, dm));
 
-				_this60.qDelPassw = '#password';
+				_this59.qDelPassw = '#password';
 
-				_this60.multiFile = true;
-				return _this60;
+				_this59.multiFile = true;
+				return _this59;
 			}
 
 			_createClass(Vichan, [{
@@ -17397,21 +17329,21 @@ true, true],
 
 		ibEngines.push(['tr#upload', Vichan]);
 
-		var Kusaba = function (_BaseBoard4) {
-			_inherits(Kusaba, _BaseBoard4);
+		var Kusaba = function (_BaseBoard3) {
+			_inherits(Kusaba, _BaseBoard3);
 
 			function Kusaba(prot, dm) {
 				_classCallCheck(this, Kusaba);
 
-				var _this61 = _possibleConstructorReturn(this, Object.getPrototypeOf(Kusaba).call(this, prot, dm));
+				var _this60 = _possibleConstructorReturn(this, Object.getPrototypeOf(Kusaba).call(this, prot, dm));
 
-				_this61.kus = true;
+				_this60.kus = true;
 
-				_this61.qError = 'h1, h2, div[style*="1.25em"]';
-				_this61.qFormRedir = 'input[name="redirecttothread"][value="1"]';
+				_this60.qError = 'h1, h2, div[style*="1.25em"]';
+				_this60.qFormRedir = 'input[name="redirecttothread"][value="1"]';
 
-				_this61.markupBB = true;
-				return _this61;
+				_this60.markupBB = true;
+				return _this60;
 			}
 
 			_createClass(Kusaba, [{
@@ -17448,14 +17380,14 @@ true, true],
 			function _0chan(prot, dm) {
 				_classCallCheck(this, _0chan);
 
-				var _this62 = _possibleConstructorReturn(this, Object.getPrototypeOf(_0chan).call(this, prot, dm));
+				var _this61 = _possibleConstructorReturn(this, Object.getPrototypeOf(_0chan).call(this, prot, dm));
 
-				_this62.qFormRedir = '#gotothread';
-				_this62.qOPost = '.postnode';
+				_this61.qFormRedir = '#gotothread';
+				_this61.qOPost = '.postnode';
 
-				_this62.hasCatalog = true;
-				_this62.ru = true;
-				return _this62;
+				_this61.hasCatalog = true;
+				_this61.ru = true;
+				return _this61;
 			}
 
 			_createClass(_0chan, [{
@@ -17484,32 +17416,32 @@ true, true],
 
 		ibEngines.push(['.maintable[width="98%"]', _0chan]);
 
-		var Phutaba = function (_BaseBoard5) {
-			_inherits(Phutaba, _BaseBoard5);
+		var Phutaba = function (_BaseBoard4) {
+			_inherits(Phutaba, _BaseBoard4);
 
 			function Phutaba(prot, dm) {
 				_classCallCheck(this, Phutaba);
 
-				var _this63 = _possibleConstructorReturn(this, Object.getPrototypeOf(Phutaba).call(this, prot, dm));
+				var _this62 = _possibleConstructorReturn(this, Object.getPrototypeOf(Phutaba).call(this, prot, dm));
 
-				_this63.cReply = 'post';
-				_this63.qError = '.error';
-				_this63.qFormRedir = 'input[name="gb2"][value="thread"]';
-				_this63.qOPost = '.thread_OP';
-				_this63.qPages = '.pagelist > li:nth-last-child(2)';
-				_this63.qPostHeader = '.post_head';
-				_this63.qPostMsg = '.text';
-				_this63.qPostSubj = '.subject';
-				_this63.qPostTrip = '.tripcode';
-				_this63.qRPost = '.thread_reply';
-				_this63.qTrunc = '.tldr';
+				_this62.cReply = 'post';
+				_this62.qError = '.error';
+				_this62.qFormRedir = 'input[name="gb2"][value="thread"]';
+				_this62.qOPost = '.thread_OP';
+				_this62.qPages = '.pagelist > li:nth-last-child(2)';
+				_this62.qPostHeader = '.post_head';
+				_this62.qPostMsg = '.text';
+				_this62.qPostSubj = '.subject';
+				_this62.qPostTrip = '.tripcode';
+				_this62.qRPost = '.thread_reply';
+				_this62.qTrunc = '.tldr';
 
-				_this63.docExt = '';
-				_this63.firstPage = 1;
-				_this63.markupBB = true;
-				_this63.multiFile = true;
-				_this63.res = 'thread/';
-				return _this63;
+				_this62.docExt = '';
+				_this62.firstPage = 1;
+				_this62.markupBB = true;
+				_this62.multiFile = true;
+				_this62.res = 'thread/';
+				return _this62;
 			}
 
 			_createClass(Phutaba, [{
@@ -17585,6 +17517,79 @@ true, true],
 
 		ibDomains['0-chan.ru'] = _0chanSo;
 		ibDomains['0chan.so'] = _0chanSo;
+
+		var _2chan = function (_BaseBoard5) {
+			_inherits(_2chan, _BaseBoard5);
+
+			function _2chan(prot, dm) {
+				_classCallCheck(this, _2chan);
+
+				var _this64 = _possibleConstructorReturn(this, Object.getPrototypeOf(_2chan).call(this, prot, dm));
+
+				_this64.qDForm = 'form:not([enctype])';
+				_this64.qForm = 'form:nth-of-type(1)';
+				_this64.qFormRedir = null;
+				_this64.qFormRules = '.chui';
+				_this64.qOmitted = 'font[color="#707070"]';
+				_this64.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
+				_this64.qPostRef = '.del';
+				_this64.qRPost = 'td:nth-child(2)';
+
+				_this64.docExt = '.htm';
+				_this64.thrid = 'resto';
+				return _this64;
+			}
+
+			_createClass(_2chan, [{
+				key: 'getPageUrl',
+				value: function getPageUrl(b, p) {
+					return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
+				}
+			}, {
+				key: 'getPNum',
+				value: function getPNum(post) {
+					return +$q('input', post).name;
+				}
+			}, {
+				key: 'getPostElOfEl',
+				value: function getPostElOfEl(el) {
+					while (el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
+						el = el.parentElement;
+					}
+					return el;
+				}
+			}, {
+				key: 'getTNum',
+				value: function getTNum(op) {
+					return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					$del($q('base', doc.head));
+					return false;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '\n\t\t\t.ftbl { width: auto; margin: 0; }\n\t\t\t.reply { background: #f0e0d6; }\n\t\t\tspan { font-size: inherit; }';
+				}
+			}, {
+				key: 'qImgName',
+				get: function get() {
+					return 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
+				}
+			}, {
+				key: 'qThread',
+				get: function get() {
+					return '.thre';
+				}
+			}]);
+
+			return _2chan;
+		}(BaseBoard);
+
+		ibDomains['2chan.net'] = _2chan;
 
 		var _02chNet = function (_BaseBoard6) {
 			_inherits(_02chNet, _BaseBoard6);
