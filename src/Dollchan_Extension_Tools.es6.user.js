@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'da8cfb4';
+var commit = '2dbe1e5';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8040,7 +8040,7 @@ function getSubmitError(dc) {
 		err += els[i].innerHTML + '\n';
 	}
 	err = err.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
-	return /successful|uploaded|updating|обновл|удален[о\.]/i.test(err) ? null : err;
+	return /successful|uploaded|updating|deleted|обновл|удален[о\.]/i.test(err) ? null : err;
 }
 
 function getUploadFunc() {
@@ -12602,16 +12602,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibEngines.push(['form[action*="futaba.php"]', Futaba]);
 
-	class TinyIb extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-			this.tinyib = true;
-
-			this.qPostMsg = '.message';
-		}
-	}
-	ibEngines.push(['form[action$="imgboard.php?delete"]', TinyIb]);
-
 	class Tinyboard extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -12675,7 +12665,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script('window.FormData = void 0;');
-			var form = $q('form[name="post"][action="https://sys.8ch.net/post.php"]');
+			var form = $q('form[name="post"]');
 			if(form) {
 				form.insertAdjacentHTML('beforeend', '<input name="json_response" value="1" type="hidden"/>');
 			}
@@ -13754,6 +13744,27 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['syn-ch.ru'] = Synch;
 	ibDomains['syn-ch.com'] = Synch;
 	ibDomains['syn-ch.org'] = Synch;
+
+	class TinyIb extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+			this.tinyib = true;
+
+			this.qError = 'body[align=center] div';
+			this.qPostMsg = '.message';
+		}
+		get css() {
+			return '.replymode { display: none; }';
+		}
+		init() {
+			$each($Q('.message > .omittedposts'), el => {
+				$bBegin(el, '<span class="abbrev">Post too long. <a href="#">Click to view.</a>');
+				$del(el);
+			})
+			return false;
+		}
+	}
+	ibDomains['d3w.org'] = TinyIb;
 
 	class Uchan extends BaseBoard {
 		constructor(prot, dm) {
