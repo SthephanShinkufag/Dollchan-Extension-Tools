@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'd8c8304';
+var commit = '3e4be4e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10796,16 +10796,21 @@ class RefMap {
 	has(num) {
 		return this._set.has(num);
 	}
-	hide() {
-		if(!Cfg.hideRefPsts || !this.hasMap || this._hidden) {
+	hide(isForced = false) {
+		if(!isForced && !Cfg.hideRefPsts || !this.hasMap || this._hidden) {
 			return;
 		}
 		this._hidden = true;
 		for(var num of this._set) {
 			var pst = pByNum.get(num);
-			if(pst && !pst.hidden && !pst.userToggled) {
-				pst.setVisib(true, 'reference to >>' + this._post.num);
-				pst.ref.hide();
+			if(pst && !pst.hidden) {
+				if(isForced) {
+					pst.setUserVisib(true, true, 'reference to >>' + this._post.num);
+					pst.ref.hide(true);
+				} else if(!pst.userToggled) {
+					pst.setVisib(true, 'reference to >>' + this._post.num);
+					pst.ref.hide();
+				}
 			}
 		}
 	}
@@ -10838,16 +10843,21 @@ class RefMap {
 		delete this._el;
 		this.hasMap = false;
 	}
-	unhide() {
+	unhide(isForced = false) {
 		if(this._hidden && !this.hasMap) {
 			return;
 		}
 		this._hidden = false;
 		for(var num of this._set) {
 			var pst = pByNum.get(num);
-			if(pst && pst.hidden && !pst.userToggled && !pst.spellHidden) {
-				pst.setVisib(false);
-				pst.ref.unhide();
+			if(pst && pst.hidden && !pst.spellHidden) {
+				if(isForced) {
+					pst.setUserVisib(false);
+					pst.ref.unhide(true);
+				} else if(!pst.userToggled) {
+					pst.setVisib(false);
+					pst.ref.unhide();
+				}
 			}
 		}
 	}

@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = 'd8c8304';
+	var commit = '3e4be4e';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -15080,7 +15080,9 @@ true, true],
 		}, {
 			key: 'hide',
 			value: function hide() {
-				if (!Cfg.hideRefPsts || !this.hasMap || this._hidden) {
+				var isForced = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
+				if (!isForced && !Cfg.hideRefPsts || !this.hasMap || this._hidden) {
 					return;
 				}
 				this._hidden = true;
@@ -15099,9 +15101,14 @@ true, true],
 					var num = _ref55;
 
 					var pst = pByNum.get(num);
-					if (pst && !pst.hidden && !pst.userToggled) {
-						pst.setVisib(true, 'reference to >>' + this._post.num);
-						pst.ref.hide();
+					if (pst && !pst.hidden) {
+						if (isForced) {
+							pst.setUserVisib(true, true, 'reference to >>' + this._post.num);
+							pst.ref.hide(true);
+						} else if (!pst.userToggled) {
+							pst.setVisib(true, 'reference to >>' + this._post.num);
+							pst.ref.hide();
+						}
 					}
 				}
 			}
@@ -15160,6 +15167,8 @@ true, true],
 		}, {
 			key: 'unhide',
 			value: function unhide() {
+				var isForced = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
 				if (this._hidden && !this.hasMap) {
 					return;
 				}
@@ -15179,9 +15188,14 @@ true, true],
 					var num = _ref57;
 
 					var pst = pByNum.get(num);
-					if (pst && pst.hidden && !pst.userToggled && !pst.spellHidden) {
-						pst.setVisib(false);
-						pst.ref.unhide();
+					if (pst && pst.hidden && !pst.spellHidden) {
+						if (isForced) {
+							pst.setUserVisib(false);
+							pst.ref.unhide(true);
+						} else if (!pst.userToggled) {
+							pst.setVisib(false);
+							pst.ref.unhide();
+						}
 					}
 				}
 			}
