@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '3e4be4e';
+var commit = '852e2f4';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5434,14 +5434,14 @@ class AjaxCache extends null {
 	static clear() {
 		AjaxCache._data = new Map();
 	}
-	static fixUrl(url) {
-		return url + (url.includes('?') ? '&' : '?' ) + 'nocache=' + Math.random();
+	static fixURL(url) {
+		return url + (url.includes('?') ? '&' : '?') + 'nocache=' + Math.random();
 	}
 	static runCachedAjax(url, useCache) {
 		var { hasCacheControl, params } = AjaxCache._data.get(url) || {};
 		var ajaxURL = hasCacheControl === false ? AjaxCache.fixURL(url) : url;
 		return $ajax(ajaxURL, useCache && params || { useTimeout: true }).then(xhr =>
-			AjaxCache.saveData(url, xhr) ? xhr : $ajax(AjaxCache.fixURL(url), useCache && data.params)
+			AjaxCache.saveData(url, xhr) ? xhr : $ajax(AjaxCache.fixURL(url), useCache && params)
 		);
 	}
 	static saveData(url, xhr) {
@@ -12602,6 +12602,16 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibEngines.push(['form[action*="futaba.php"]', Futaba]);
 
+	class TinyIb extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+			this.tinyib = true;
+
+			this.qPostMsg = '.message';
+		}
+	}
+	ibEngines.push(['form[action$="imgboard.php?delete"]', TinyIb]);
+
 	class Tinyboard extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -14084,7 +14094,9 @@ class DelForm {
 			var node = fNodes[i];
 			if(node.tagName === 'HR') {
 				formEl.insertBefore(cThr, node);
-				formEl.insertBefore(cThr.lastElementChild, node);
+				if(!aib.tinyib) {
+					formEl.insertBefore(cThr.lastElementChild, node);
+				}
 				var el = cThr.lastElementChild;
 				if(el.tagName === 'BR') {
 					formEl.insertBefore(el, node);
