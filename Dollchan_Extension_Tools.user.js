@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '852e2f4';
+	var commit = 'da8cfb4';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -17339,7 +17339,7 @@ true, true],
 				key: 'init',
 				value: function init() {
 					$script('window.FormData = void 0;');
-					var form = $q('form[name="post"][action="/post.php"]');
+					var form = $q('form[name="post"][action="https://sys.8ch.net/post.php"]');
 					if (form) {
 						form.insertAdjacentHTML('beforeend', '<input name="json_response" value="1" type="hidden"/>');
 					}
