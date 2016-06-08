@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '8c2f521';
+var commit = 'db7ff78';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11243,7 +11243,7 @@ class MakabaPostsBuilder {
 		if(data.files) {
 			filesHTML = `<div class="images${ data.files.length === 1 ? ' images-single' : '' }">`;
 			for(let file of data.files) {
-				let isWebm = file.name.endsWith('.webm');
+				let isWebm = !!file.name.match(/\.webm$/i);
 				filesHTML += `<figure class="image">
 					<figcaption class="file-attr">
 						<a class="desktop" target="_blank" href="/${ brd }/${ file.path }">${ file.name }</a>
