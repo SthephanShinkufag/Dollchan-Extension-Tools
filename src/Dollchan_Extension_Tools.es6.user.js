@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'ecb420a';
+var commit = '5efb08c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -549,6 +549,8 @@ Lng = {
 	hidePosts:      ['Скрыть посты', 'Hide posts'],
 	collapseThrd:   ['Свернуть тред', 'Collapse thread'],
 	deleted:        ['удалён', 'deleted'],
+	you:            ['Вы', 'You'],
+	op:             ['ОП', 'OP'],
 	getNewPosts:    ['Получить новые посты', 'Get new posts'],
 	page:           ['Страница', 'Page'],
 	hiddenThrd:     ['Скрытый тред:', 'Hidden thread:'],
@@ -9612,7 +9614,8 @@ class Post extends AbstractPost {
 		pByEl.set(el, this);
 		pByNum.set(num, this);
 		var refEl = $q(aib.qPostRef, el),
-			html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') +
+			html = '<span class="de-post-btns' +
+				(isOp ? '' : ' de-post-counter') + (MyPosts.has(num) ? ' de-mypost' : '') +
 				'"><svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
 				'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
 				'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>';
@@ -15030,7 +15033,9 @@ function scriptCSS() {
 
 	// Posts counter
 	'.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); margin: 0 4px 0 2px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
-	.de-post-deleted::after { content: "' + Lng.deleted[lang] + '"; margin: 0 4px 0 2px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }' +
+	.de-post-deleted::after { content: "' + Lng.deleted[lang] + '"; margin: 0 4px 0 2px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }\
+	.de-post-counter.de-mypost::after { content: counter(de-cnt) " (' + Lng.you[lang] + ')"; }\
+	.de-post-deleted.de-mypost::after { content: "' + Lng.deleted[lang] + ' (' + Lng.you[lang] + ')"; }' +
 
 	// Text markup buttons
 	'#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
@@ -15211,11 +15216,11 @@ function scriptCSS() {
 	.de-post-hiddencontent { display: none !important; }\
 	.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 	.de-pview-info { padding: 3px 6px !important; }\
-	.de-ref-op::after { content: " (OP)"; }\
-	.de-ref-my::after { content: " (You)"; }\
+	.de-ref-op::after { content: " (' + Lng.op[lang] + ')"; }\
+	.de-ref-my::after { content: " (' + Lng.you[lang] + ')"; }\
 	.de-ref-del::after { content: " (Del)"; }\
-	.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\
-	.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }\
+	.de-ref-del.de-ref-my::after { content: " (Del)(' + Lng.you[lang] + ')"; }\
+	.de-ref-op.de-ref-my::after { content: " (' + Lng.op[lang] + ')(' + Lng.you[lang] + ')"; }\
 	.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
 	.de-refmap::before { content: "' + Lng.replies[lang] + ' "; }\
 	.de-refcomma:last-child { display: none; }\
