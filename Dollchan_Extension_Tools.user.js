@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '55543cf';
+	var commit = '7f5a046';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -18884,7 +18884,7 @@ true, true],
 
 				_this88.tinyib = true;
 
-				_this88.qError = 'body[align=center] div';
+				_this88.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
 				_this88.qPostMsg = '.message';
 				return _this88;
 			}
@@ -18909,6 +18909,8 @@ true, true],
 		}(BaseBoard);
 
 		ibDomains['d3w.org'] = TinyIb;
+		ibDomains['lampach.net'] = TinyIb;
+		ibDomains['ozuchan.ru'] = TinyIb;
 
 		var Uchan = function (_BaseBoard18) {
 			_inherits(Uchan, _BaseBoard18);
@@ -19129,7 +19131,10 @@ true, true],
 						if (el.tagName === 'BR') {
 							formEl.insertBefore(el, node);
 						}
-						threads.push(cThr);
+						try {
+							aib.getTNum(cThr);
+							threads.push(cThr);
+						} catch (e) {}
 						cThr = doc.createElement('div');
 					} else {
 						cThr.appendChild(node);

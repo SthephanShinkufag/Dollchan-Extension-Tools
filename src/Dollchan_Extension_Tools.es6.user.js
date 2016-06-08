@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '55543cf';
+var commit = '7f5a046';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13753,7 +13753,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 			this.tinyib = true;
 
-			this.qError = 'body[align=center] div';
+			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
 			this.qPostMsg = '.message';
 		}
 		get css() {
@@ -13768,6 +13768,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['d3w.org'] = TinyIb;
+	ibDomains['lampach.net'] = TinyIb;
+	ibDomains['ozuchan.ru'] = TinyIb;
 
 	class Uchan extends BaseBoard {
 		constructor(prot, dm) {
@@ -14115,7 +14117,10 @@ class DelForm {
 				if(el.tagName === 'BR') {
 					formEl.insertBefore(el, node);
 				}
-				threads.push(cThr);
+				try {
+					aib.getTNum(cThr);
+					threads.push(cThr);
+				} catch(e) {}
 				cThr = doc.createElement('div');
 			} else {
 				cThr.appendChild(node);
