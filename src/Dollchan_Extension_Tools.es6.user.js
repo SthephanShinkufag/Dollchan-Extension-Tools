@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '93017c9';
+var commit = '7b9f1d1';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3210,7 +3210,7 @@ function getCfgPosts() {
 				})
 			])
 		])),
-		lBox('markMyPosts', true, updateCSS),
+		$if(aib.jsonSubmit, lBox('markMyPosts', true, updateCSS)),
 		lBox('hideReplies', true, null),
 		lBox('expandTrunc', true, updateCSS),
 		lBox('updThrBtns', true, updateCSS),
@@ -3356,7 +3356,7 @@ function getCfgLinks() {
 			]),
 			lBox('noNavigHidd', true, null)
 		]),
-		lBox('markMyLinks', true, updateCSS),
+		$if(aib.jsonSubmit, lBox('markMyLinks', true, updateCSS)),
 		lBox('crossLinks', true, null),
 		lBox('insertNum', true, null),
 		lBox('addOPLink', true, null),
