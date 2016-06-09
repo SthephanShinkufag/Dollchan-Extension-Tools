@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = 'f9c4079';
+var commit = '9917eb4';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -553,7 +553,6 @@ Lng = {
 	hidePosts:      ['Скрыть посты', 'Hide posts'],
 	collapseThrd:   ['Свернуть тред', 'Collapse thread'],
 	deleted:        ['удалён', 'deleted'],
-	op:             ['ОП', 'OP'],
 	getNewPosts:    ['Получить новые посты', 'Get new posts'],
 	page:           ['Страница', 'Page'],
 	hiddenThrd:     ['Скрытый тред:', 'Hidden thread:'],
@@ -15220,7 +15219,7 @@ function scriptCSS() {
 	.de-post-hiddencontent { display: none !important; }\
 	.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 	.de-pview-info { padding: 3px 6px !important; }\
-	.de-ref-op::after { content: " (' + Lng.op[lang] + ')"; }\
+	.de-ref-op::after { content: " (OP)"; }\
 	.de-ref-del::after { content: " (Del)"; }\
 	.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
 	.de-refmap::before { content: "' + Lng.replies[lang] + ' "; }\
@@ -15245,7 +15244,7 @@ function updateCSS() {
 	if(Cfg.markMyLinks) {
 		x += '.de-ref-my::after { content: " (You)"; }\
 		.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\
-		.de-ref-op.de-ref-my::after { content: " (' + Lng.op[lang] + ')(You)"; }';
+		.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }';
 	}
 	if(Cfg.markMyPosts) {
 		x += '.de-mypost {' + (nav.Presto ? 'border-left: 4px solid rgba(79,121,66,.7); ' : 'box-shadow: 6px 0 2px -2px rgba(79,121,66,.7), -6px 0 2px -2px rgba(79,121,66,.7); }') + '\
