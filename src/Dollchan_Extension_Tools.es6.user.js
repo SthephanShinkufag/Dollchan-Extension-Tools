@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '5efb08c';
+var commit = '7360326';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -549,7 +549,7 @@ Lng = {
 	hidePosts:      ['Скрыть посты', 'Hide posts'],
 	collapseThrd:   ['Свернуть тред', 'Collapse thread'],
 	deleted:        ['удалён', 'deleted'],
-	you:            ['Вы', 'You'],
+	you:            ['Вам', 'You'],
 	op:             ['ОП', 'OP'],
 	getNewPosts:    ['Получить новые посты', 'Get new posts'],
 	page:           ['Страница', 'Page'],
@@ -9613,9 +9613,11 @@ class Post extends AbstractPost {
 		}
 		pByEl.set(el, this);
 		pByNum.set(num, this);
+		if(MyPosts.has(num)) {
+			this.el.classList.add('de-mypost');
+		}
 		var refEl = $q(aib.qPostRef, el),
-			html = '<span class="de-post-btns' +
-				(isOp ? '' : ' de-post-counter') + (MyPosts.has(num) ? ' de-mypost' : '') +
+			html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') +
 				'"><svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
 				'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
 				'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>';
@@ -15033,9 +15035,7 @@ function scriptCSS() {
 
 	// Posts counter
 	'.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); margin: 0 4px 0 2px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
-	.de-post-deleted::after { content: "' + Lng.deleted[lang] + '"; margin: 0 4px 0 2px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }\
-	.de-post-counter.de-mypost::after { content: counter(de-cnt) " (' + Lng.you[lang] + ')"; }\
-	.de-post-deleted.de-mypost::after { content: "' + Lng.deleted[lang] + ' (' + Lng.you[lang] + ')"; }' +
+	.de-post-deleted::after { content: "' + Lng.deleted[lang] + '"; margin: 0 4px 0 2px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }' +
 
 	// Text markup buttons
 	'#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
@@ -15210,7 +15210,8 @@ function scriptCSS() {
 	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 9999; border: 1px solid grey !important;}\
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
 	.de-menu-item:hover { background-color: #222; color: #fff; }\
-	.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(0,0,255,.7); border-right: 4px solid rgba(0,0,255,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(0,0,255,.8), -6px 0 2px -2px rgba(0,0,255,.8); }') + '\
+	.de-mypost {' + (nav.Presto ? 'border-left: 4px solid rgba(79,121,66,.7); }' : 'box-shadow: -6px 0 2px -2px rgba(79,121,66,.8); }') + '\
+	.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(0,0,200,.7); border-right: 4px solid rgba(0,0,200,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(0,0,200,.8), -6px 0 2px -2px rgba(0,0,200,.8); }') + '\
 	.de-omitted { color: grey; }\
 	.de-omitted::before { content: "' + Lng.postsOmitted[lang] + '"; }\
 	.de-post-hiddencontent { display: none !important; }\
@@ -15226,7 +15227,7 @@ function scriptCSS() {
 	.de-refcomma:last-child { display: none; }\
 	.de-replies-hide::after { content: "' + Lng.hidePosts[lang] + '"; }\
 	.de-replies-show::after { content: "' + Lng.showPosts[lang] + '"; }\
-	.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(255,0,0,.7); border-right: 4px solid rgba(255,0,0,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(255,0,0,.8), -6px 0 2px -2px rgba(255,0,0,.8); }') + '\
+	.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8); }') + '\
 	.de-thread-buttons { clear: left; margin-top: 5px; }\
 	.de-thread-collapse > a::after { content: "' + Lng.collapseThrd[lang] + '"; }\
 	.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '"; }\
