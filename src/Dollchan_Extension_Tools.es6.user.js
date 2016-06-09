@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '281114a';
+var commit = '93017c9';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -79,6 +79,7 @@ var defaultCfg = {
 	'strikeHidd':       0,      //    strike >>links to hidden posts
 	'removeHidd':       0,      //        remove from refmap
 	'noNavigHidd':      0,      //    don't show previews for hidden posts
+	'markMyLinks':      1,      // mark links to my posts with (You)
 	'crossLinks':       0,      // replace http: with >>/b/links
 	'insertNum':        1,      // insert >>link on postnumber click
 	'addOPLink':        0,      // insert >>link for reply to op-posts on board
@@ -221,6 +222,7 @@ Lng = {
 		'strikeHidd':   ['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
 		'removeHidd':   ['Удалять из карты ответов', 'Remove from replies map'],
 		'noNavigHidd':  ['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
+		'markMyLinks':  ['Помечать ссылки на мои посты как "(Вам)"', 'Mark links to my posts with "(You)"'],
 		'crossLinks':   ['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
 		'insertNum':    ['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
 		'addOPLink':    ['>>ссылка при ответе на оп-пост на доске', 'Insert >>link for reply to op-posts on board'],
@@ -3354,6 +3356,7 @@ function getCfgLinks() {
 			]),
 			lBox('noNavigHidd', true, null)
 		]),
+		lBox('markMyLinks', true, updateCSS),
 		lBox('crossLinks', true, null),
 		lBox('insertNum', true, null),
 		lBox('addOPLink', true, null),
@@ -15219,10 +15222,7 @@ function scriptCSS() {
 	.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 	.de-pview-info { padding: 3px 6px !important; }\
 	.de-ref-op::after { content: " (' + Lng.op[lang] + ')"; }\
-	.de-ref-my::after { content: " (' + Lng.you[lang] + ')"; }\
 	.de-ref-del::after { content: " (Del)"; }\
-	.de-ref-del.de-ref-my::after { content: " (Del)(' + Lng.you[lang] + ')"; }\
-	.de-ref-op.de-ref-my::after { content: " (' + Lng.op[lang] + ')(' + Lng.you[lang] + ')"; }\
 	.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
 	.de-refmap::before { content: "' + Lng.replies[lang] + ' "; }\
 	.de-refcomma:last-child { display: none; }\
@@ -15243,8 +15243,13 @@ function scriptCSS() {
 
 function updateCSS() {
 	var x = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }';
+	if(Cfg.markMyLinks) {
+		x += '.de-ref-my::after { content: " (' + Lng.you[lang] + ')"; }\
+		.de-ref-del.de-ref-my::after { content: " (Del)(' + Lng.you[lang] + ')"; }\
+		.de-ref-op.de-ref-my::after { content: " (' + Lng.op[lang] + ')(' + Lng.you[lang] + ')"; }';
+	}
 	if(Cfg.markMyPosts) {
-	 x += '.de-mypost {' + (nav.Presto ? 'border-left: 4px solid rgba(79,121,66,.7); }' : 'box-shadow: -6px 0 2px -2px rgba(79,121,66,.8); }');
+		x += '.de-mypost {' + (nav.Presto ? 'border-left: 4px solid rgba(79,121,66,.7); }' : 'box-shadow: -6px 0 2px -2px rgba(79,121,66,.8); }');
 	}
 	x += '.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(0,0,200,.7); border-right: 4px solid rgba(0,0,200,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(0,0,200,.8), -6px 0 2px -2px rgba(0,0,200,.8); }') + '\
 	.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8); }');
