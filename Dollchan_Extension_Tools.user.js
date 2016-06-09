@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '7360326';
+	var commit = '281114a';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -2897,8 +2897,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'updCount': 1, 
 		'favIcoBlink': 0, 
 		'desktNotif': 0, 
-		'markNewPosts': 1, 
 		'noErrInTitle': 0, 
+		'markNewPosts': 1, 
+		'markMyPosts': 1, 
 		'hideReplies': 0, 
 		'expandTrunc': 0, 
 		'updThrBtns': 1, 
@@ -3020,8 +3021,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'updCount': ['Обратный счетчик секунд до обновления', 'Show countdown to thread update'],
 			'favIcoBlink': ['Мигать фавиконом при новых постах', 'Favicon blinking for new posts'],
 			'desktNotif': ['Уведомлять о новых постах на рабочем столе', 'Desktop notifications for new posts'],
-			'markNewPosts': ['Выделять новые посты при смене вкладки', 'Mark new posts when tab changes'],
 			'noErrInTitle': ['Не показывать номер ошибки в заголовке', 'Don\'t show error number in title'],
+			'markNewPosts': ['Выделять синим новые посты при смене вкладки', 'Mark new posts with blue when tab changes'],
+			'markMyPosts': ['Выделять зеленым мои посты', 'Mark my posts with green'],
 			'hideReplies': ['Показывать только оп-посты в списке тредов*', 'Show only op-posts in threads list*'],
 			'expandTrunc': ['Разворачивать сокращенные посты*', 'Auto expanding of truncated posts*'],
 			'updThrBtns': ['Кнопки получения новых постов в списке тредов', 'Get-new-posts buttons in threads list'],
@@ -3138,7 +3140,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'rePageTitle': ['Название треда в заголовке вкладки*', 'Thread title in page tab*'],
 			'animation': ['CSS3 анимация в скрипте', 'CSS3 animation in script'],
 			'closePopups': ['Автоматически закрывать уведомления', 'Close popups automatically'],
-			'inftyScroll': ['Бесконечная прокрутка', 'Infinity scroll'],
+			'inftyScroll': ['Бесконечная прокрутка страниц', 'Infinity scroll for pages'],
 			'scrollToTop': ['Всегда скроллить в топ на доске', 'Always scroll to top in threads list'],
 			'updScript': ['Автоматически проверять обновления скрипта', 'Check for script update automatically'],
 			'scrUpdIntrv': {
@@ -6453,9 +6455,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (Cfg.desktNotif) {
 				Notification.requestPermission();
 			}
-		})), lBox('markNewPosts', true, function () {
+		})), lBox('noErrInTitle', true, null), lBox('markNewPosts', true, function () {
 			Post.clearMarks();
-		}), lBox('noErrInTitle', true, null)])])), lBox('hideReplies', true, null), lBox('expandTrunc', true, updateCSS), lBox('updThrBtns', true, updateCSS), $New('div', null, [lBox('showHideBtn', false, updateCSS), lBox('showRepBtn', false, updateCSS)]), optSel('postBtnsCSS', false, function () {
+		})])])), lBox('markMyPosts', true, updateCSS), lBox('hideReplies', true, null), lBox('expandTrunc', true, updateCSS), lBox('updThrBtns', true, updateCSS), $New('div', null, [lBox('showHideBtn', false, updateCSS), lBox('showRepBtn', false, updateCSS)]), optSel('postBtnsCSS', false, function () {
 			saveCfg('postBtnsCSS', this.selectedIndex);
 			updateCSS();
 			if (nav.Presto) {
@@ -20031,7 +20033,7 @@ true, true],
 		'.de-block { display: block; }\
 	#de-btn-addspell { margin-left: auto; }\
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }\
-	.de-cfg-body { min-height: 315px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
+	.de-cfg-body { min-height: 325px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\
 	.de-cfg-button { padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\
 	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\
@@ -20050,9 +20052,9 @@ true, true],
 	#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\
 	.de-info-name { flex: 1 0 auto; }\
 	.de-info-row { display: flex; }\
-	#de-info-table { display: flex; height: 257px; }\
+	#de-info-table { display: flex; height: 267px; }\
 	.de-spell-btn { padding: 0 4px; }\
-	#de-spell-editor { display: flex; align-items: stretch; height: 225px; padding: 2px 0; }\
+	#de-spell-editor { display: flex; align-items: stretch; height: 235px; padding: 2px 0; }\
 	#de-spell-panel { display: flex; }\
 	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
 	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }';
@@ -20211,10 +20213,7 @@ true, true],
 	.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }\
 	.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }\
 	.de-popup-msg { display: inline-block; white-space: pre-wrap; }\
-	.de-button { flex: none; padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 1px 2px; height: 24px; font: 13px arial; }\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\t.de-link-parent { outline: 1px dotted !important; }\t.de-link-pview { font-weight: bold; }\t.de-link-ref { text-decoration: none; }\t.de-list { padding-top: 4px; }\t.de-list::before { content: "●"; margin-right: 4px; }\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 9999; border: 1px solid grey !important;}\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t.de-menu-item:hover { background-color: #222; color: #fff; }\t.de-mypost {' + (nav.Presto ? 'border-left: 4px solid rgba(79,121,66,.7); }' : 'box-shadow: -6px 0 2px -2px rgba(79,121,66,.8); }') + '\
-	.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(0,0,200,.7); border-right: 4px solid rgba(0,0,200,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(0,0,200,.8), -6px 0 2px -2px rgba(0,0,200,.8); }') + '\
-	.de-omitted { color: grey; }\
-	.de-omitted::before { content: "' + Lng.postsOmitted[lang] + '"; }\
+	.de-button { flex: none; padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 1px 2px; height: 24px; font: 13px arial; }\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\t.de-link-parent { outline: 1px dotted !important; }\t.de-link-pview { font-weight: bold; }\t.de-link-ref { text-decoration: none; }\t.de-list { padding-top: 4px; }\t.de-list::before { content: "●"; margin-right: 4px; }\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 9999; border: 1px solid grey !important;}\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t.de-menu-item:hover { background-color: #222; color: #fff; }\t.de-omitted { color: grey; }\t.de-omitted::before { content: "' + Lng.postsOmitted[lang] + '"; }\
 	.de-post-hiddencontent { display: none !important; }\
 	.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 	.de-pview-info { padding: 3px 6px !important; }\
@@ -20228,7 +20227,6 @@ true, true],
 	.de-refcomma:last-child { display: none; }\
 	.de-replies-hide::after { content: "' + Lng.hidePosts[lang] + '"; }\
 	.de-replies-show::after { content: "' + Lng.showPosts[lang] + '"; }\
-	.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8); }') + '\
 	.de-thread-buttons { clear: left; margin-top: 5px; }\
 	.de-thread-collapse > a::after { content: "' + Lng.collapseThrd[lang] + '"; }\
 	.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '"; }\
@@ -20244,6 +20242,11 @@ true, true],
 
 	function updateCSS() {
 		var x = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }';
+		if (Cfg.markMyPosts) {
+			x += '.de-mypost {' + (nav.Presto ? 'border-left: 4px solid rgba(79,121,66,.7); }' : 'box-shadow: -6px 0 2px -2px rgba(79,121,66,.8); }');
+		}
+		x += '.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(0,0,200,.7); border-right: 4px solid rgba(0,0,200,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(0,0,200,.8), -6px 0 2px -2px rgba(0,0,200,.8); }') + '\
+	.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8); }');
 		if (!Cfg.resizeImgs) {
 			x += '.de-img-wrapper-inpost > .de-img-full { width: auto; }';
 		}

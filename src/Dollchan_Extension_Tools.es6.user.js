@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.3.9.0';
-var commit = '7360326';
+var commit = '281114a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -40,8 +40,9 @@ var defaultCfg = {
 	'updCount':         1,      //    show countdown for thread updater
 	'favIcoBlink':      0,      //    favicon blinking for new posts
 	'desktNotif':       0,      //    desktop notifications for new posts
-	'markNewPosts':     1,      //    new posts marking on page focus
 	'noErrInTitle':     0,      //    don't show error number in title (except 404)
+	'markNewPosts':     1,      //    mark new posts with blue when tab changes
+	'markMyPosts':      1,      // mark my posts with green
 	'hideReplies':      0,      // show only op-posts in threads list
 	'expandTrunc':      0,      // auto expanding of truncated posts
 	'updThrBtns':       1,      // updater buttons in threads list
@@ -78,7 +79,7 @@ var defaultCfg = {
 	'strikeHidd':       0,      //    strike >>links to hidden posts
 	'removeHidd':       0,      //        remove from refmap
 	'noNavigHidd':      0,      //    don't show previews for hidden posts
-	'crossLinks':       0,      // replace http: to >>/b/links
+	'crossLinks':       0,      // replace http: with >>/b/links
 	'insertNum':        1,      // insert >>link on postnumber click
 	'addOPLink':        0,      // insert >>link for reply to op-posts on board
 	'addImgs':          0,      // embed links to images
@@ -164,8 +165,9 @@ Lng = {
 		'updCount':     ['Обратный счетчик секунд до обновления', 'Show countdown to thread update'],
 		'favIcoBlink':  ['Мигать фавиконом при новых постах', 'Favicon blinking for new posts'],
 		'desktNotif':   ['Уведомлять о новых постах на рабочем столе', 'Desktop notifications for new posts'],
-		'markNewPosts': ['Выделять новые посты при смене вкладки', 'Mark new posts when tab changes'],
 		'noErrInTitle': ['Не показывать номер ошибки в заголовке', 'Don\'t show error number in title'],
+		'markNewPosts': ['Выделять синим новые посты при смене вкладки', 'Mark new posts with blue when tab changes'],
+		'markMyPosts':  ['Выделять зеленым мои посты', 'Mark my posts with green'],
 		'hideReplies':  ['Показывать только оп-посты в списке тредов*', 'Show only op-posts in threads list*'],
 		'expandTrunc':  ['Разворачивать сокращенные посты*', 'Auto expanding of truncated posts*'],
 		'updThrBtns':   ['Кнопки получения новых постов в списке тредов', 'Get-new-posts buttons in threads list'],
@@ -288,7 +290,7 @@ Lng = {
 		'rePageTitle':  ['Название треда в заголовке вкладки*', 'Thread title in page tab*'],
 		'animation':    ['CSS3 анимация в скрипте', 'CSS3 animation in script'],
 		'closePopups':  ['Автоматически закрывать уведомления', 'Close popups automatically'],
-		'inftyScroll':  ['Бесконечная прокрутка', 'Infinity scroll'],
+		'inftyScroll':  ['Бесконечная прокрутка страниц', 'Infinity scroll for pages'],
 		'scrollToTop':  ['Всегда скроллить в топ на доске', 'Always scroll to top in threads list'],
 		'updScript':    ['Автоматически проверять обновления скрипта', 'Check for script update automatically'],
 		'scrUpdIntrv': {
@@ -3200,12 +3202,13 @@ function getCfgPosts() {
 						Notification.requestPermission();
 					}
 				})),
+				lBox('noErrInTitle', true, null),
 				lBox('markNewPosts', true, function() {
 					Post.clearMarks();
-				}),
-				lBox('noErrInTitle', true, null)
+				})
 			])
 		])),
+		lBox('markMyPosts', true, updateCSS),
 		lBox('hideReplies', true, null),
 		lBox('expandTrunc', true, updateCSS),
 		lBox('updThrBtns', true, updateCSS),
@@ -14968,7 +14971,7 @@ function scriptCSS() {
 	'.de-block { display: block; }\
 	#de-btn-addspell { margin-left: auto; }\
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }\
-	.de-cfg-body { min-height: 315px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
+	.de-cfg-body { min-height: 325px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\
 	.de-cfg-button { padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\
 	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\
@@ -14987,9 +14990,9 @@ function scriptCSS() {
 	#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\
 	.de-info-name { flex: 1 0 auto; }\
 	.de-info-row { display: flex; }\
-	#de-info-table { display: flex; height: 257px; }\
+	#de-info-table { display: flex; height: 267px; }\
 	.de-spell-btn { padding: 0 4px; }\
-	#de-spell-editor { display: flex; align-items: stretch; height: 225px; padding: 2px 0; }\
+	#de-spell-editor { display: flex; align-items: stretch; height: 235px; padding: 2px 0; }\
 	#de-spell-panel { display: flex; }\
 	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
 	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }';
@@ -15210,8 +15213,6 @@ function scriptCSS() {
 	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 9999; border: 1px solid grey !important;}\
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
 	.de-menu-item:hover { background-color: #222; color: #fff; }\
-	.de-mypost {' + (nav.Presto ? 'border-left: 4px solid rgba(79,121,66,.7); }' : 'box-shadow: -6px 0 2px -2px rgba(79,121,66,.8); }') + '\
-	.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(0,0,200,.7); border-right: 4px solid rgba(0,0,200,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(0,0,200,.8), -6px 0 2px -2px rgba(0,0,200,.8); }') + '\
 	.de-omitted { color: grey; }\
 	.de-omitted::before { content: "' + Lng.postsOmitted[lang] + '"; }\
 	.de-post-hiddencontent { display: none !important; }\
@@ -15227,7 +15228,6 @@ function scriptCSS() {
 	.de-refcomma:last-child { display: none; }\
 	.de-replies-hide::after { content: "' + Lng.hidePosts[lang] + '"; }\
 	.de-replies-show::after { content: "' + Lng.showPosts[lang] + '"; }\
-	.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8); }') + '\
 	.de-thread-buttons { clear: left; margin-top: 5px; }\
 	.de-thread-collapse > a::after { content: "' + Lng.collapseThrd[lang] + '"; }\
 	.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '"; }\
@@ -15243,6 +15243,11 @@ function scriptCSS() {
 
 function updateCSS() {
 	var x = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }';
+	if(Cfg.markMyPosts) {
+	 x += '.de-mypost {' + (nav.Presto ? 'border-left: 4px solid rgba(79,121,66,.7); }' : 'box-shadow: -6px 0 2px -2px rgba(79,121,66,.8); }');
+	}
+	x += '.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(0,0,200,.7); border-right: 4px solid rgba(0,0,200,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(0,0,200,.8), -6px 0 2px -2px rgba(0,0,200,.8); }') + '\
+	.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8); }');
 	if(!Cfg.resizeImgs) {
 		x += '.de-img-wrapper-inpost > .de-img-full { width: auto; }';
 	}
