@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.3.9.0';
-	var commit = '7b9f1d1';
+	var commit = 'f9c4079';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3078,7 +3078,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'strikeHidd': ['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
 			'removeHidd': ['Удалять из карты ответов', 'Remove from replies map'],
 			'noNavigHidd': ['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
-			'markMyLinks': ['Помечать ссылки на мои посты как "(Вам)"', 'Mark links to my posts with "(You)"'],
+			'markMyLinks': ['Помечать ссылки на мои посты как (You)', 'Mark links to my posts with (You)'],
 			'crossLinks': ['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
 			'insertNum': ['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
 			'addOPLink': ['>>ссылка при ответе на оп-пост на доске', 'Insert >>link for reply to op-posts on board'],
@@ -3314,7 +3314,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		hidePosts: ['Скрыть посты', 'Hide posts'],
 		collapseThrd: ['Свернуть тред', 'Collapse thread'],
 		deleted: ['удалён', 'deleted'],
-		you: ['Вам', 'You'],
 		op: ['ОП', 'OP'],
 		getNewPosts: ['Получить новые посты', 'Get new posts'],
 		page: ['Страница', 'Page'],
@@ -20242,12 +20241,14 @@ true, true],
 	function updateCSS() {
 		var x = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }';
 		if (Cfg.markMyLinks) {
-			x += '.de-ref-my::after { content: " (' + Lng.you[lang] + ')"; }\
-		.de-ref-del.de-ref-my::after { content: " (Del)(' + Lng.you[lang] + ')"; }\
-		.de-ref-op.de-ref-my::after { content: " (' + Lng.op[lang] + ')(' + Lng.you[lang] + ')"; }';
+			x += '.de-ref-my::after { content: " (You)"; }\
+		.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\
+		.de-ref-op.de-ref-my::after { content: " (' + Lng.op[lang] + ')(You)"; }';
 		}
 		if (Cfg.markMyPosts) {
-			x += '.de-mypost {' + (nav.Presto ? 'border-left: 4px solid rgba(79,121,66,.7); }' : 'box-shadow: -6px 0 2px -2px rgba(79,121,66,.8); }');
+			x += '.de-mypost {' + (nav.Presto ? 'border-left: 4px solid rgba(79,121,66,.7); ' : 'box-shadow: 6px 0 2px -2px rgba(79,121,66,.7), -6px 0 2px -2px rgba(79,121,66,.7); }') + '\
+		.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }\
+-		.de-mypost .de-post-deleted::after { content: "' + Lng.deleted[lang] + ' (You)"; }';
 		}
 		x += '.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(0,0,200,.7); border-right: 4px solid rgba(0,0,200,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(0,0,200,.8), -6px 0 2px -2px rgba(0,0,200,.8); }') + '\
 	.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8); }');
