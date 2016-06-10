@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.9.0';
-	var commit = '4fa6676';
+	var commit = '0532140';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3023,8 +3023,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'favIcoBlink': ['Мигать фавиконом при новых постах', 'Favicon blinking for new posts'],
 			'desktNotif': ['Уведомлять о новых постах на рабочем столе', 'Desktop notifications for new posts'],
 			'noErrInTitle': ['Не показывать номер ошибки в заголовке', 'Don\'t show error number in title'],
-			'markNewPosts': ['Выделять синим новые посты при смене вкладки', 'Mark new posts with blue when tab changes'],
-			'markMyPosts': ['Выделять зеленым мои посты', 'Mark my posts with green'],
+			'markNewPosts': ['Выделять цветом новые посты при смене вкладки', 'Mark new posts with color when tab changes'],
+			'markMyPosts': ['Выделять цветом мои посты', 'Mark my posts with color'],
 			'hideReplies': ['Показывать только оп-посты в списке тредов*', 'Show only op-posts in threads list*'],
 			'expandTrunc': ['Разворачивать сокращенные посты*', 'Auto expanding of truncated posts*'],
 			'updThrBtns': ['Кнопки получения новых постов в списке тредов', 'Get-new-posts buttons in threads list'],
@@ -14742,9 +14742,10 @@ true, true],
 					$del(this.el);
 				}
 				var el = this.el = post.el.cloneNode(true),
-				    pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' + (post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' + (post.deleted ? '' : '<span style="margin: 0 4px 0 2px; vertical-align: 1px; color: #4f7942; ' + 'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
+				    isMyPost = MyPosts.has(this.num),
+				    pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' + (post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' + (post.deleted ? '' : '<span style="margin: 0 4px 0 2px; vertical-align: 1px; ' + 'color: #4f7942; font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + (isMyPost ? ' (You)' : '') + '</span>');
 				pByEl.set(el, this);
-				el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
+				el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '') + (isMyPost ? ' de-mypost' : '');
 				$show(el);
 				$each($Q('.de-post-hiddencontent', el), function (node) {
 					return node.classList.remove('de-post-hiddencontent');
@@ -17155,7 +17156,7 @@ true, true],
 			}, {
 				key: 'css',
 				get: function get() {
-					return '\n\t\t\t.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, .logo + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .prerekl-hr, .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t.mess-post { display: block; }\n\t\t\t.post.reply .post-message { max-height: initial !important; }\n\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; } .file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t' + (Cfg.expandImgs ? '#fullscreen-container { display: none !important; }' : '');
+					return '\n\t\t\t.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, .logo + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .prerekl-hr, .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t.images-single + .de-video-obj { display: inline-block; }\n\t\t\t.mess-post { display: block; }\n\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t.post.reply .post-message { max-height: initial !important; }\n\t\t\t.postbtn-reply-href { font-size: 0px; }\n\t\t\t.postbtn-reply-href::after { font-size: 14px; content: attr(name); }\n\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; } .file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t' + (Cfg.expandImgs ? '#fullscreen-container { display: none !important; }' : '');
 				}
 			}, {
 				key: 'qImgName',
@@ -20251,11 +20252,11 @@ true, true],
 		.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }';
 		}
 		if (Cfg.markMyPosts) {
-			x += '.de-mypost {' + (nav.Presto ? 'border-left: 4px solid rgba(79,121,66,.7); ' : 'box-shadow: 6px 0 2px -2px rgba(79,121,66,.7), -6px 0 2px -2px rgba(79,121,66,.7); }') + '\
+			x += '.de-mypost {' + (nav.Presto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8); }') + '\
 		.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }\
 -		.de-mypost .de-post-deleted::after { content: "' + Lng.deleted[lang] + ' (You)"; }';
 		}
-		x += '.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(0,0,200,.7); border-right: 4px solid rgba(0,0,200,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(0,0,200,.8), -6px 0 2px -2px rgba(0,0,200,.8); }') + '\
+		x += '.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8); }') + '\
 	.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8); }');
 		if (!Cfg.resizeImgs) {
 			x += '.de-img-wrapper-inpost > .de-img-full { width: auto; }';
