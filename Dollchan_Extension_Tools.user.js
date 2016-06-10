@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.9.0';
-	var commit = '1318442';
+	var commit = '4fa6676';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -18022,11 +18022,17 @@ true, true],
 					    value = null;
 					if (el) {
 						value = function (el) {
-							$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
-							this.click();
-							$show(el);
+							var container = $id('qrCaptchaContainerAlt');
+							if (!container) {
+								$replace($id('g-recaptcha'), '<div id="qrCaptchaContainerAlt"></div>');
+								this.click();
+								$show(el);
+								el.setAttribute('onclick', 'if(event.target.tagName !== \'INPUT\') { Recaptcha.reload(); }');
+							} else {
+								container.click();
+							}
 							return null;
-						}.bind($bEnd(docBody, '<div onclick="initRecaptcha();"></div>'), el);
+						}.bind($bEnd(docBody, '<div onclick="QR.initCaptchaAlt();"></div>'), el);
 					}
 					Object.defineProperty(this, 'updateCaptcha', { value: value });
 					return value;
