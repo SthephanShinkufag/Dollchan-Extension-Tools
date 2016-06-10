@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.9.0';
-var commit = '8fa380c';
+var commit = '5d82f92';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -167,7 +167,7 @@ Lng = {
 		'favIcoBlink':  ['Мигать фавиконом при новых постах', 'Favicon blinking for new posts'],
 		'desktNotif':   ['Уведомлять о новых постах на рабочем столе', 'Desktop notifications for new posts'],
 		'noErrInTitle': ['Не показывать номер ошибки в заголовке', 'Don\'t show error number in title'],
-		'markNewPosts': ['Выделять цветом новые посты при смене вкладки', 'Mark new posts with color when tab changes'],
+		'markNewPosts': ['Выделять цветом новые посты', 'Mark new posts with color'],
 		'markMyPosts':  ['Выделять цветом мои посты', 'Mark my posts with color'],
 		'hideReplies':  ['Показывать только оп-посты в списке тредов*', 'Show only op-posts in threads list*'],
 		'expandTrunc':  ['Разворачивать сокращенные посты*', 'Auto expanding of truncated posts*'],
