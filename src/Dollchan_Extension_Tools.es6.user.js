@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.9.0';
-var commit = '5d82f92';
+var commit = 'c2ab934';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -15173,7 +15173,8 @@ function scriptCSS() {
 	.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }' +
 
 	// Favorites
-	'.de-fav-block { border: 1px solid gray; border-radius: 2px; margin-bottom: -1px; }\
+	'.de-fav-block { border: 1px solid rgba(120,120,120,.8); border-top: none; }\
+	.de-fav-content { border-top: 1px solid rgba(120,120,120,.8); }\
 	.de-fav-content .de-fav-header-switch, .de-fav-content .de-fav-switch { display: none; }\
 	.de-fav-header { margin-top: 0; margin-bottom: 0; padding: 1px 0; display: flex; }\
 	.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }\
