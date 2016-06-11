@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.9.0';
-var commit = 'd222e6e';
+var commit = '7e165cb';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10935,7 +10935,7 @@ class DOMPostsBuilder {
 
 class _4chanPostsBuilder {
 	static _setCustomSpoiler(board, val) {
-		if(!this._customSpoiler[board] && (val = parseInt(val))) {
+		if(!_4chanPostsBuilder._customSpoiler[board] && (val = parseInt(val))) {
 			let s;
 			if(board == aib.brd && (s = $q('.imgspoiler'))) {
 				_4chanPostsBuilder._customSpoiler.set(board,
