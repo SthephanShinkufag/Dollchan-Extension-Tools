@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.9.0';
-var commit = '7e165cb';
+var commit = '58da8d2';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -524,7 +524,7 @@ Lng = {
 	clrSelected:    ['Удалить выделенные записи', 'Remove selected notes'],
 	saveChanges:    ['Сохранить внесенные изменения', 'Save your changes'],
 	infoCount:      ['Обновить счетчики постов', 'Refresh posts counters'],
-	infoPage:       ['Проверить актуальность тредов (до 5 страницы)', 'Check for threads actuality (up to 5 page)'],
+	infoPage:       ['Проверить актуальность тредов (до 10 страницы)', 'Check for threads actuality (up to 10 page)'],
 	clrDeleted:     ['Очистить недоступные (404) треды', 'Clear inaccessible (404) threads'],
 	oldPosts:       ['Постов при последнем посещении', 'Posts at the last visit'],
 	newPosts:       ['Количество новых постов', 'Number of new posts'],
@@ -2787,7 +2787,7 @@ function showFavoritesWindow(body, data) {
 							t['new'] ? '' : ' style="display: none;"' }>
 							${ t['new'] || 0 }
 						</span>
-						[<span class="de-fav-inf-old" title="${ Lng.oldPosts[lang] }">${ t.cnt }</span>]
+						<span class="de-fav-inf-old" title="${ Lng.oldPosts[lang] }">${ t.cnt }</span>
 						<span class="de-fav-inf-page" title="${ Lng.thrPage[lang] }"></span>
 					</div>
 				</div>`;
