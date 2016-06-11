@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.9.0';
-	var commit = '75ac4fa';
+	var commit = 'd222e6e';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -19398,7 +19398,6 @@ true, true],
 				this._isInited = true;
 				var icon = new Image();
 				icon.onload = function (e) {
-					console.log(1);
 					try {
 						_this92._initIconsHelper(e.target);
 					} catch (e) {

@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.9.0';
-var commit = '75ac4fa';
+var commit = 'd222e6e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -14362,7 +14362,6 @@ function initThreadUpdater(title, enableUpdate) {
 			this._isInited = true;
 			var icon = new Image();
 			icon.onload = e => {
-				console.log(1)
 				try {
 					this._initIconsHelper(e.target);
 				} catch(e) {
