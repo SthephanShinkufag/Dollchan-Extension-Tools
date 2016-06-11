@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.9.0';
-var commit = '05b09c8';
+var commit = '75ac4fa';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10935,10 +10935,10 @@ class DOMPostsBuilder {
 
 class _4chanPostsBuilder {
 	static _setCustomSpoiler(board, val) {
-		if(!this.customSpoiler[board] && (val = parseInt(val))) {
+		if(!this._customSpoiler[board] && (val = parseInt(val))) {
 			let s;
 			if(board == aib.brd && (s = $q('.imgspoiler'))) {
-				_4chanPostsBuilder.customSpoiler.set(board,
+				_4chanPostsBuilder._customSpoiler.set(board,
 					s.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
 			}
 		} else {
@@ -14362,13 +14362,22 @@ function initThreadUpdater(title, enableUpdate) {
 			this._isInited = true;
 			var icon = new Image();
 			icon.onload = e => {
+				console.log(1)
 				try {
 					this._initIconsHelper(e.target);
 				} catch(e) {
 					console.error('Icon error:', e);
 				}
 			};
-			icon.src = aib.fch ? '/favicon.ico' : this._iconEl.href;
+			if(aib.fch) {
+				// Due to CORS we cannot apply href to icon.src directly
+				$ajax(this._iconEl.href, { responseType: 'blob' }, false).then(xhr => {
+					icon.src = 'response' in xhr ?
+						window.URL.createObjectURL(xhr.response) : '/favicon.ico';
+				}, emptyFn);
+				return;
+			}
+			icon.src = this._iconEl.href;
 		},
 		updateIcon(isError) {
 			if(!isError && !newPosts) {

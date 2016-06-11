@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.9.0';
-	var commit = '05b09c8';
+	var commit = '75ac4fa';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -15314,10 +15314,10 @@ true, true],
 		_createClass(_4chanPostsBuilder, null, [{
 			key: '_setCustomSpoiler',
 			value: function _setCustomSpoiler(board, val) {
-				if (!this.customSpoiler[board] && (val = parseInt(val))) {
+				if (!this._customSpoiler[board] && (val = parseInt(val))) {
 					var s = void 0;
 					if (board == aib.brd && (s = $q('.imgspoiler'))) {
-						_4chanPostsBuilder.customSpoiler.set(board, s.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
+						_4chanPostsBuilder._customSpoiler.set(board, s.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
 					}
 				} else {
 					_4chanPostsBuilder._customSpoiler.set(board, '-' + board + (Math.floor(Math.random() * val) + 1));
@@ -19398,13 +19398,20 @@ true, true],
 				this._isInited = true;
 				var icon = new Image();
 				icon.onload = function (e) {
+					console.log(1);
 					try {
 						_this92._initIconsHelper(e.target);
 					} catch (e) {
 						console.error('Icon error:', e);
 					}
 				};
-				icon.src = aib.fch ? '/favicon.ico' : this._iconEl.href;
+				if (aib.fch) {
+					$ajax(this._iconEl.href, { responseType: 'blob' }, false).then(function (xhr) {
+						icon.src = 'response' in xhr ? window.URL.createObjectURL(xhr.response) : '/favicon.ico';
+					}, emptyFn);
+					return;
+				}
+				icon.src = this._iconEl.href;
 			},
 			updateIcon: function updateIcon(isError) {
 				if (!isError && !newPosts) {
