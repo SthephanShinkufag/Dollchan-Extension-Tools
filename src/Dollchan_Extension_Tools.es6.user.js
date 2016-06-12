@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.9.0';
-var commit = '58da8d2';
+var commit = '3403b84';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -64,6 +64,7 @@ var defaultCfg = {
 	'minImgSize':       100,    //    minimal image's size for expanding by center (px)
 	'zoomFactor':       25,     //    zoom images by this factor on every wheel event (%)
 	'webmControl':      1,      //    control bar for webm files
+	'webmTitles':       0,      //    get webm titles from metadata
 	'webmVolume':       100,    //    default volume for webm files (%)
 	'preLoadImgs':      0,      // pre-load images
 	'findImgFile':      0,      //    detect built-in files in images
@@ -201,6 +202,7 @@ Lng = {
 		'minImgSize':   ['Минимальный размер картинок (px)', 'Minimal image\'s size (px)'],
 		'zoomFactor':   ['Чувствительность зума картинок [1-100%]', 'Sensibility of the images zoom [1-100%]'],
 		'webmControl':  ['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
+		'webmTitles':   ['Получать заголовки webm из метаданных', 'Get webm titles from metadata'],
 		'webmVolume':   ['Громкость webm-файлов [0-100%]', 'Default volume for webm files [0-100%]'],
 		'preLoadImgs':  ['Предварительно загружать картинки*', 'Pre-load images*'],
 		'findImgFile':  ['Распознавать встроенные файлы в картинках*', 'Detect built-in files in images*'],
@@ -3047,7 +3049,7 @@ function fixSettings() {
 	toggleBox(Cfg.expandImgs, [
 		'input[info="imgNavBtns"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]',
 		'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]',
-		'input[info="webmVolume"]']);
+		'input[info="webmTitles"]', 'input[info="webmVolume"]']);
 	toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
 	toggleBox(Cfg.linksNavig, [
 		'input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]',
@@ -3284,6 +3286,7 @@ function getCfgImages() {
 			}),
 			$txt(Lng.cfg.zoomFactor[lang]),
 			lBox('webmControl', true, null),
+			lBox('webmTitles', true, null),
 			$if(nav.canPlayWebm, $New('div', null, [
 				inpTxt('webmVolume', 2, function() {
 					var val = Math.min(+this.value || 0, 100);
@@ -8939,29 +8942,31 @@ class ExpandableMedia {
 						locStorage.removeItem('__de-webmvolume');
 					}
 				});
-				downloadImgData(obj.src).then(data => {
-					var title = '', d = (new WebmParser(data.buffer)).getData();
-					if(!d) {
-						return;
-					}
-					d = d[0];
-					for(var i = 0, len = d.length; i < len; i++) {
-						// Segment Info = 0x1549A966
-						// Title = 0x7BA9[length | 0x80]
-						if(d[i] === 0x49 && d[i + 1] === 0xA9 && d[i + 2] === 0x66 &&
-						   d[i + 18] === 0x7B && d[i + 19] === 0xA9)
-						{
-							i += 20;
-							for(var end = (d[i++] & 0x7F) + i; i < end; i++) {
-								title += String.fromCharCode(d[i]);
-							}
-							if(title) {
-								obj.title = decodeURIComponent(escape(title));
-							}
-							break;
+				if(Cfg.webmTitles) {
+					downloadImgData(obj.src).then(data => {
+						var title = '', d = (new WebmParser(data.buffer)).getData();
+						if(!d) {
+							return;
 						}
-					}
-				});
+						d = d[0];
+						for(var i = 0, len = d.length; i < len; i++) {
+							// Segment Info = 0x1549A966
+							// Title = 0x7BA9[length | 0x80]
+							if(d[i] === 0x49 && d[i + 1] === 0xA9 && d[i + 2] === 0x66 &&
+							   d[i + 18] === 0x7B && d[i + 19] === 0xA9)
+							{
+								i += 20;
+								for(var end = (d[i++] & 0x7F) + i; i < end; i++) {
+									title += String.fromCharCode(d[i]);
+								}
+								if(title) {
+									obj.title = decodeURIComponent(escape(title));
+								}
+								break;
+							}
+						}
+					});
+				}
 			} else {
 				obj = $add('<object style="width: inherit; height: inherit" data="' + src +
 					'" type="application/x-vlc-plugin">' +

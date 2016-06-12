@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.9.0';
-	var commit = '58da8d2';
+	var commit = '3403b84';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -2921,6 +2921,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'minImgSize': 100, 
 		'zoomFactor': 25, 
 		'webmControl': 1, 
+		'webmTitles': 0, 
 		'webmVolume': 100, 
 		'preLoadImgs': 0, 
 		'findImgFile': 0, 
@@ -3057,6 +3058,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'minImgSize': ['Минимальный размер картинок (px)', 'Minimal image\'s size (px)'],
 			'zoomFactor': ['Чувствительность зума картинок [1-100%]', 'Sensibility of the images zoom [1-100%]'],
 			'webmControl': ['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
+			'webmTitles': ['Получать заголовки webm из метаданных', 'Get webm titles from metadata'],
 			'webmVolume': ['Громкость webm-файлов [0-100%]', 'Default volume for webm files [0-100%]'],
 			'preLoadImgs': ['Предварительно загружать картинки*', 'Pre-load images*'],
 			'findImgFile': ['Распознавать встроенные файлы в картинках*', 'Detect built-in files in images*'],
@@ -6312,7 +6314,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 		toggleBox(Cfg.ajaxUpdThr, ['input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]', 'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]']);
 		toggleBox(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
-		toggleBox(Cfg.expandImgs, ['input[info="imgNavBtns"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]', 'input[info="webmVolume"]']);
+		toggleBox(Cfg.expandImgs, ['input[info="imgNavBtns"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]']);
 		toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
 		toggleBox(Cfg.linksNavig, ['input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]', 'input[info="strikeHidd"]', 'input[info="noNavigHidd"]']);
 		toggleBox(Cfg.strikeHidd && Cfg.linksNavig === 2, ['input[info="removeHidd"]']);
@@ -6490,7 +6492,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			saveCfg('minImgSize', Math.max(+this.value, 1));
 		}), $txt(Lng.cfg.minImgSize[lang])]), inpTxt('zoomFactor', 2, function () {
 			saveCfg('zoomFactor', Math.min(Math.max(+this.value, 1), 100));
-		}), $txt(Lng.cfg.zoomFactor[lang]), lBox('webmControl', true, null), $if(nav.canPlayWebm, $New('div', null, [inpTxt('webmVolume', 2, function () {
+		}), $txt(Lng.cfg.zoomFactor[lang]), lBox('webmControl', true, null), lBox('webmTitles', true, null), $if(nav.canPlayWebm, $New('div', null, [inpTxt('webmVolume', 2, function () {
 			var val = Math.min(+this.value || 0, 100);
 			saveCfg('webmVolume', val);
 			locStorage['__de-webmvolume'] = val;
@@ -12779,26 +12781,28 @@ true, true],
 								locStorage.removeItem('__de-webmvolume');
 							}
 						});
-						downloadImgData(obj.src).then(function (data) {
-							var title = '',
-							    d = new _WebmParser(data.buffer).getData();
-							if (!d) {
-								return;
-							}
-							d = d[0];
-							for (var i = 0, len = d.length; i < len; i++) {
-								if (d[i] === 0x49 && d[i + 1] === 0xA9 && d[i + 2] === 0x66 && d[i + 18] === 0x7B && d[i + 19] === 0xA9) {
-									i += 20;
-									for (var end = (d[i++] & 0x7F) + i; i < end; i++) {
-										title += String.fromCharCode(d[i]);
-									}
-									if (title) {
-										obj.title = decodeURIComponent(escape(title));
-									}
-									break;
+						if (Cfg.webmTitles) {
+							downloadImgData(obj.src).then(function (data) {
+								var title = '',
+								    d = new _WebmParser(data.buffer).getData();
+								if (!d) {
+									return;
 								}
-							}
-						});
+								d = d[0];
+								for (var i = 0, len = d.length; i < len; i++) {
+									if (d[i] === 0x49 && d[i + 1] === 0xA9 && d[i + 2] === 0x66 && d[i + 18] === 0x7B && d[i + 19] === 0xA9) {
+										i += 20;
+										for (var end = (d[i++] & 0x7F) + i; i < end; i++) {
+											title += String.fromCharCode(d[i]);
+										}
+										if (title) {
+											obj.title = decodeURIComponent(escape(title));
+										}
+										break;
+									}
+								}
+							});
+						}
 					} else {
 						obj = $add('<object style="width: inherit; height: inherit" data="' + src + '" type="application/x-vlc-plugin">' + '<param name="pluginspage" value="http://www.videolan.org/vlc/"/>' + '<param name="controls" value="' + (Cfg.webmControl ? 'true' : 'false') + '"/>' + '<param name="loop" value="true"/>' + '<param name="autoplay" value="true"/>' + '<param name="wmode" value="transparent"/></object>');
 					}
