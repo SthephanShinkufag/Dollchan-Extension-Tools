@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.9.0';
-	var commit = '6780f70';
+	var commit = '8472874';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -12467,6 +12467,8 @@ true, true],
 			} while (data && !data.isVideo && !data.isImage);
 			if (data) {
 				this.update(data, true, null);
+				data.post.el.scrollIntoView();
+				data.post.selectCurrent();
 			}
 		},
 		update: function update(data, showButtons, e) {
@@ -13293,7 +13295,7 @@ true, true],
 										return;
 									}
 									post.selectCurrent();
-									post.el.scrollIntoView(true);
+									post.el.scrollIntoView();
 									window.location.href = aib.anchor + num;
 									$pd(e);
 								}
@@ -19922,7 +19924,7 @@ true, true],
 				window.scrollTo(0, val);
 				sesStorage.removeItem('de-scroll-' + aib.b + aib.t);
 			} else if ((hash = window.location.hash) && (num = hash.match(/#[ip]?(\d+)$/)) && (num = +num[1]) && (post = pByNum.get(num)) && !post.isOp) {
-				post.el.scrollIntoView(true);
+				post.el.scrollIntoView();
 				if (HotKeys.enabled) {
 					HotKeys.cPost = post;
 				}

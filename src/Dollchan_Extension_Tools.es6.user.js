@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.9.0';
-var commit = '6780f70';
+var commit = '8472874';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8638,6 +8638,8 @@ AttachmentViewer.prototype = {
 		} while(data && !data.isVideo && !data.isImage);
 		if(data) {
 			this.update(data, true, null);
+			data.post.el.scrollIntoView();
+			data.post.selectCurrent();
 		}
 	},
 	update(data, showButtons, e) {
@@ -9339,7 +9341,7 @@ class AbstractPost {
 							return;
 						}
 						post.selectCurrent();
-						post.el.scrollIntoView(true);
+						post.el.scrollIntoView();
 						window.location.href = aib.anchor + num;
 						$pd(e);
 					}
@@ -14866,7 +14868,7 @@ function scrollPage() {
 		          (num = hash.match(/#[ip]?(\d+)$/)) &&
 		          (num = +num[1]) && (post = pByNum.get(num)) && !post.isOp)
 		{
-			post.el.scrollIntoView(true);
+			post.el.scrollIntoView();
 			if(HotKeys.enabled) {
 				HotKeys.cPost = post;
 			}
