@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.9.0';
-var commit = '3403b84';
+var commit = 'eca0e76';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12436,8 +12436,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			.mess-post { display: block; }
 			.oekaki-height, .oekaki-width { width: 36px !important; }
 			.post.reply .post-message { max-height: initial !important; }
-			.postbtn-reply-href { font-size: 0px; }
-			.postbtn-reply-href::after { font-size: 14px; content: attr(name); }
 			${ Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '' }
 			${ Cfg.delImgNames ? '.filesize { display: inline !important; } .file-attr { margin-bottom: 1px; }' : '' }
 			${ Cfg.expandImgs ? '#fullscreen-container { display: none !important; }' : '' }`;
