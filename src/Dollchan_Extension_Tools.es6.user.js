@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.9.0';
-var commit = '5e17308';
+var commit = '50319c9';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2589,7 +2589,7 @@ function showVideosWindow(body) {
 				$pd(e);
 				return;
 			} else if(!el.classList.contains('de-video-link')) {
-				pByNum.get(+e.target.getAttribute('de-num')).selectCurrent();
+				pByNum.get(+e.target.getAttribute('de-num')).selectAndScrollTo();
 				return;
 			}
 			var m = el.videoInfo;
@@ -8638,7 +8638,7 @@ AttachmentViewer.prototype = {
 		} while(data && !data.isVideo && !data.isImage);
 		if(data) {
 			this.update(data, true, null);
-			data.post.selectCurrent(data.post.images.first);
+			data.post.selectAndScrollTo(data.post.images.first.el);
 		}
 	},
 	update(data, showButtons, e) {
@@ -9334,12 +9334,10 @@ class AbstractPost {
 					} else if((temp = el.textContent)[0] === '>' && temp[1] === '>' &&
 					          !temp[2].includes('\/'))
 					{
-						var num = temp.match(/\d+/),
-							post = pByNum.get(+num);
-						if(!post) {
-							return;
+						var post = pByNum.get(+temp.match(/\d+/));
+						if(post) {
+							post.selectAndScrollTo();
 						}
-						post.selectCurrent();
 					}
 					return;
 				}
@@ -9758,9 +9756,9 @@ class Post extends AbstractPost {
 			this.el.classList.add('de-selected');
 		}
 	}
-	selectCurrent(node = this) {
-		scrollTo(0, window.pageYOffset + node.el.getBoundingClientRect().top -
-			Post.sizing.wHeight / 2 + node.el.clientHeight / 2);
+	selectAndScrollTo(scrollNode = this.el) {
+		scrollTo(0, window.pageYOffset + scrollNode.getBoundingClientRect().top -
+			Post.sizing.wHeight / 2 + scrollNode.clientHeight / 2);
 		if(HotKeys.enabled) {
 			if(HotKeys.cPost) {
 				HotKeys.cPost.unselect();
@@ -9768,7 +9766,7 @@ class Post extends AbstractPost {
 			HotKeys.cPost = this;
 			HotKeys.lastPageOffset = window.pageYOffset;
 		} else {
-			el = $q('.de-selected');
+			var el = $q('.de-selected');
 			if(el) {
 				el.unselect();
 			}
@@ -14867,7 +14865,7 @@ function scrollPage() {
 		          (num = hash.match(/#[ip]?(\d+)$/)) &&
 		          (num = +num[1]) && (post = pByNum.get(num)) && !post.isOp)
 		{
-			post.selectCurrent();
+			post.selectAndScrollTo();
 		}
 	}, 0);
 }
