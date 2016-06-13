@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.9.0';
-var commit = '8472874';
+var commit = '5e17308';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2611,7 +2611,7 @@ function showVideosWindow(body) {
 		el.videoInfo = els[i].videoInfo;
 		$bEnd(linkList, `
 		<div class="de-entry ${ aib.cReply }">
-			<a class="de-video-refpost" href="${ aib.anchor + num }" de-num="${ num }">&gt;</a>
+			<a class="de-video-refpost" title="${ '>>' + num }" de-num="${ num }">&gt;</a>
 		</div>`).appendChild(el).classList.remove('de-current');
 		el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
 	}
@@ -3982,6 +3982,7 @@ var HotKeys = {
 	cPost: null,
 	enabled: false,
 	gKeys: null,
+	lastPageOffset: 0,
 	ntKeys: null,
 	tKeys: null,
 	version: 7,
@@ -4020,7 +4021,7 @@ var HotKeys = {
 	},
 	clear() {
 		this.cPost = null;
-		this._lastPageOffset = 0;
+		this.lastPageOffset = 0;
 	},
 	disable() {
 		if(this.enabled) {
@@ -4078,7 +4079,7 @@ var HotKeys = {
 			if(isThr) {
 				Post.clearMarks();
 			}
-			this._lastPageOffset = 0;
+			this.lastPageOffset = 0;
 		} else if(kc === 0x801B) { // ESC (txt)
 			e.target.blur();
 		} else {
@@ -4299,10 +4300,9 @@ var HotKeys = {
 		}
 	}),
 
-	_lastPageOffset: 0,
 	_paused: false,
 	_getFirstVisPost(getThread, getFull) {
-		if(this._lastPageOffset !== window.pageYOffset) {
+		if(this.lastPageOffset !== window.pageYOffset) {
 			var post = getThread ? Thread.first : Thread.first.op;
 			while(post.top < 1) {
 				var tPost = post.next;
@@ -4315,7 +4315,7 @@ var HotKeys = {
 				this.cPost.unselect();
 			}
 			this.cPost = getThread ? getFull ? post.op : post.op.prev : getFull ? post : post.prev;
-			this._lastPageOffset = window.pageYOffset;
+			this.lastPageOffset = window.pageYOffset;
 		}
 		return this.cPost;
 	},
@@ -4348,7 +4348,7 @@ var HotKeys = {
 			scrollTo(0, window.pageYOffset + next.el.getBoundingClientRect().top -
 				Post.sizing.wHeight / 2 + next.el.clientHeight / 2);
 		}
-		this._lastPageOffset = window.pageYOffset;
+		this.lastPageOffset = window.pageYOffset;
 		next.select();
 		this.cPost = next;
 	}
@@ -8638,8 +8638,7 @@ AttachmentViewer.prototype = {
 		} while(data && !data.isVideo && !data.isImage);
 		if(data) {
 			this.update(data, true, null);
-			data.post.el.scrollIntoView();
-			data.post.selectCurrent();
+			data.post.selectCurrent(data.post.images.first);
 		}
 	},
 	update(data, showButtons, e) {
@@ -9341,9 +9340,6 @@ class AbstractPost {
 							return;
 						}
 						post.selectCurrent();
-						post.el.scrollIntoView();
-						window.location.href = aib.anchor + num;
-						$pd(e);
 					}
 					return;
 				}
@@ -9762,14 +9758,17 @@ class Post extends AbstractPost {
 			this.el.classList.add('de-selected');
 		}
 	}
-	selectCurrent() {
+	selectCurrent(node = this) {
+		scrollTo(0, window.pageYOffset + node.el.getBoundingClientRect().top -
+			Post.sizing.wHeight / 2 + node.el.clientHeight / 2);
 		if(HotKeys.enabled) {
 			if(HotKeys.cPost) {
 				HotKeys.cPost.unselect();
 			}
 			HotKeys.cPost = this;
+			HotKeys.lastPageOffset = window.pageYOffset;
 		} else {
-			var el = $q('.de-selected');
+			el = $q('.de-selected');
 			if(el) {
 				el.unselect();
 			}
@@ -14868,11 +14867,7 @@ function scrollPage() {
 		          (num = hash.match(/#[ip]?(\d+)$/)) &&
 		          (num = +num[1]) && (post = pByNum.get(num)) && !post.isOp)
 		{
-			post.el.scrollIntoView();
-			if(HotKeys.enabled) {
-				HotKeys.cPost = post;
-			}
-			post.select();
+			post.selectCurrent();
 		}
 	}, 0);
 }
@@ -15116,7 +15111,7 @@ function scriptCSS() {
 	.de-img-wrapper-nosize { position: relative; }\
 	.de-img-wrapper-nosize > .de-img-full { position: absolute; z-index: 1; opacity: .3; }\
 	.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
-	#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\
+	#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; margin-top: -18px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\
 	#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\
 	#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }' +
 
