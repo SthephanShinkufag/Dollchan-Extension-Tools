@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.9.0';
-var commit = '50319c9';
+var commit = 'f5b15a6';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2611,7 +2611,7 @@ function showVideosWindow(body) {
 		el.videoInfo = els[i].videoInfo;
 		$bEnd(linkList, `
 		<div class="de-entry ${ aib.cReply }">
-			<a class="de-video-refpost" title="${ '>>' + num }" de-num="${ num }">&gt;</a>
+			<a class="de-video-refpost" title=">>${ num }" de-num="${ num }">&gt;</a>
 		</div>`).appendChild(el).classList.remove('de-current');
 		el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
 	}
@@ -15127,7 +15127,7 @@ function scriptCSS() {
 	#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }\
 	.de-video-expanded { width: 854px !important; height: 480px !important; }\
 	#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\
-	.de-video-refpost { margin: 0 2px; text-decoration: none; }\
+	.de-video-refpost { margin: 0 3px; text-decoration: none; cursor: pointer; }\
 	.de-video-resizer::after { content: "\u2795"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\
 	.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\
 	a.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\
