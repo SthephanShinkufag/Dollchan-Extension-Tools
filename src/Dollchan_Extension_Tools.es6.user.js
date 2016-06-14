@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.9.0';
-var commit = 'f5b15a6';
+var commit = 'aba0995';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12458,7 +12458,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixFileInputs(el) {
 			var str = '';
-			for(var i = 0, len = 4; i < len; ++i) {
+			for(var i = 0, len = 8; i < len; ++i) {
 				str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
 					'><input type="file" name="image' + (i + 1) + '"/></div>';
 			}

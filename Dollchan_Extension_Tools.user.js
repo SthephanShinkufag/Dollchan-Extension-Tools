@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.9.0';
-	var commit = 'f5b15a6';
+	var commit = 'aba0995';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -17029,7 +17029,7 @@ true, true],
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
 					var str = '';
-					for (var i = 0, len = 4; i < len; ++i) {
+					for (var i = 0, len = 8; i < len; ++i) {
 						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="image' + (i + 1) + '"/></div>';
 					}
 					$q('#postform .images-area', doc).lastElementChild.innerHTML = str;
