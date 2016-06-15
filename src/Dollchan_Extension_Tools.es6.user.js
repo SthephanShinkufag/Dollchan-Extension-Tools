@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.9.0';
-var commit = 'aba0995';
+var commit = 'c179593';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -4974,7 +4974,7 @@ function DateTime(pattern, rPattern, diff, dtLang, onRPat) {
 	this.arrM = Lng.month[dtLang];
 	this.arrFM = Lng.fullMonth[dtLang];
 	if(rPattern) {
-		this.genDateTime = DateTime.genRFunc(rPattern, diff);
+		this.genDateTime = this.genRFunc(rPattern);
 	} else {
 		this.onRPat = onRPat;
 	}
@@ -4991,23 +4991,23 @@ DateTime.checkPattern = function(val) {
 		!(val.includes('n') || val.includes('m')) ||
 		/[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 };
-DateTime.genRFunc = function(rPattern, diff) {
-	return new Function('dtime', 'return \'' +
-		rPattern.replace('_o', (diff < 0 ? '' : '+') + diff)
-		.replace('_s', '\' + this.pad2(dtime.getSeconds()) + \'')
-		.replace('_i', '\' + this.pad2(dtime.getMinutes()) + \'')
-		.replace('_h', '\' + this.pad2(dtime.getHours()) + \'')
-		.replace('_d', '\' + this.pad2(dtime.getDate()) + \'')
-		.replace('_w', '\' + this.arrW[dtime.getDay()] + \'')
-		.replace('_n', '\' + this.pad2(dtime.getMonth() + 1) + \'')
-		.replace('_m', '\' + this.arrM[dtime.getMonth()] + \'')
-		.replace('_M', '\' + this.arrFM[dtime.getMonth()] + \'')
-		.replace('_y', '\' + (\'\' + dtime.getFullYear()).substring(2) + \'')
-		.replace('_Y', '\' + dtime.getFullYear() + \'') + '\';');
-};
 DateTime.prototype = {
 	genDateTime: null,
 	onRPat: null,
+	genRFunc(rPattern) {
+		return new Function('dtime', 'return \'' +
+			rPattern.replace('_o', (this.diff < 0 ? '' : '+') + this.diff)
+			.replace('_s', '\' + this.pad2(dtime.getSeconds()) + \'')
+			.replace('_i', '\' + this.pad2(dtime.getMinutes()) + \'')
+			.replace('_h', '\' + this.pad2(dtime.getHours()) + \'')
+			.replace('_d', '\' + this.pad2(dtime.getDate()) + \'')
+			.replace('_w', '\' + this.arrW[dtime.getDay()] + \'')
+			.replace('_n', '\' + this.pad2(dtime.getMonth() + 1) + \'')
+			.replace('_m', '\' + this.arrM[dtime.getMonth()] + \'')
+			.replace('_M', '\' + this.arrFM[dtime.getMonth()] + \'')
+			.replace('_y', '\' + (\'\' + dtime.getFullYear()).substring(2) + \'')
+			.replace('_Y', '\' + dtime.getFullYear() + \'') + '\';');
+	},
 	getRPattern(txt) {
 		var m = txt.match(new RegExp(this.regex));
 		if(!m) {
@@ -5028,7 +5028,7 @@ DateTime.prototype = {
 		if(this.onRPat) {
 			this.onRPat(rPattern);
 		}
-		this.genDateTime = DateTime.genRFunc(rPattern, this.diff);
+		this.genDateTime = this.genRFunc(rPattern);
 		return true;
 	},
 	pad2(num) {
@@ -12458,7 +12458,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixFileInputs(el) {
 			var str = '';
-			for(var i = 0, len = 8; i < len; ++i) {
+			for(var i = 0; i < 8; ++i) {
 				str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
 					'><input type="file" name="image' + (i + 1) + '"/></div>';
 			}
@@ -12661,7 +12661,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixFileInputs(el) {
 			var str = '';
-			for(var i = 0, len = 5; i < len; ++i) {
+			for(var i = 0; i < 5; ++i) {
 				str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
 					'><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"/></div>';
 			}
@@ -13578,7 +13578,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixFileInputs(el) {
 			var str = '';
-			for(var i = 0, len = 4; i < len; ++i) {
+			for(var i = 0; i < 4; ++i) {
 				str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
 					'><input type="file" name="file_' + i + '" tabindex="7"/></div>';
 			}
