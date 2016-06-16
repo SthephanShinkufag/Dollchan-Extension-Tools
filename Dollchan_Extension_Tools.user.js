@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.9.0';
-	var commit = '0ec121d';
+	var commit = 'c95a561';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -17009,7 +17009,7 @@ true, true],
 				_this56.qPostMsg = '.post-message';
 				_this56.qPostName = '.ananimas, .post-email';
 				_this56.qPostSubj = '.post-title';
-				_this56.qRPost = '.post-wrapper > .post.reply';
+				_this56.qRPost = '.post.reply[data-num]';
 				_this56.qTrunc = null;
 
 				_this56.hasCatalog = true;
@@ -17100,7 +17100,7 @@ true, true],
 			}, {
 				key: 'init',
 				value: function init() {
-					$script('window.FormData = void 0; $(function() { $(window).off(); });');
+					$script('$alert = function() {};\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });');
 					$each($Q('.autorefresh'), $del);
 					var el = $q('td > .anoniconsselectlist');
 					if (el) {

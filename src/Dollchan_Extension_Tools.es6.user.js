@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.9.0';
-var commit = '0ec121d';
+var commit = 'c95a561';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1798,7 +1798,7 @@ class PostsStorage extends null {
 		storage[aib.b][num] = [this._cachedTime, thrNum, data];
 		this._saveStorage();
 	}
-	
+
 	static get _cachedTime() {
 		return this.__cachedTime || (this.__cachedTime = Date.now());
 	}
@@ -4840,7 +4840,7 @@ function loadDocFiles(imgOnly) {
 				thumbName = 'thumbs/' + thumbName;
 				safeName = imgData ? 'images/' + safeName : thumbName;
 				imgLink.href = $q('a[de-href], ' + aib.qImgName, aib.getImgWrap(imgLink)).href = safeName;
-			} 
+			}
 			if(imgData) {
 				tar.addFile(safeName, imgData);
 			} else {
@@ -4855,7 +4855,7 @@ function loadDocFiles(imgOnly) {
 				el.src = thumbName;
 				tar.addFile(thumbName, data);
 			}, () => { el.src = safeName });
-			
+
 		} else if(imgData && imgData.length > 0) {
 			tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
 		} else {
@@ -8978,7 +8978,7 @@ class ExpandableMedia {
 					'<param name="wmode" value="transparent"/></object>');
 			}
 		} else {
-			var html = '<div class="de-img-wrapper' + 
+			var html = '<div class="de-img-wrapper' +
 				(inPost ? ' de-img-wrapper-inpost' : (size ? '' : ' de-img-wrapper-nosize')) + '">';
 			if(!inPost && !size) {
 				html += '<svg class="de-img-load"><use xlink:href="#de-symbol-wait"/></svg>';
@@ -10974,7 +10974,7 @@ class _4chanPostsBuilder {
 		const data = this._posts[i + 1];
 		const num = data.no;
 		const brd = this._brd;
-		
+
 		const _icon = id => `//s.4cdn.org/image/${ id }${ window.devicePixelRatio >= 2 ? '@2x.gif' : '.gif'}`;
 		const _decode = str => str.replace(/&amp;/g, '&')
 			.replace(/&quot;/g, '"')
@@ -10986,7 +10986,7 @@ class _4chanPostsBuilder {
 			.replace(/'/g, '&#039;')
 			.replace(/</g, '&lt;')
 			.replace(/>/g, '&gt;');
-		
+
 		// --- FILE ---
 		let fileHTML;
 		if(data.filedeleted) {
@@ -11032,7 +11032,7 @@ class _4chanPostsBuilder {
 		} else {
 			fileHTML = '';
 		}
-		
+
 		// --- CAPCODE ---
 		let highlight = '', capcodeText = '', capcodeClass = '', capcodeImg = '';
 		switch(data.capcode) {
@@ -11065,7 +11065,7 @@ class _4chanPostsBuilder {
 			capcodeImg = `<img src="${ _icon('foundericon') }" alt="This user is 4chan\'s Founder." title="This user is 4chan\'s Founder." class="identityIcon">`;
 			break;
 		}
-		
+
 		let rv = `<div class="postContainer replyContainer" id="pc${ num }">
 			<div class="sideArrows" id="sa${ num }">&gt;&gt;</div>
 			<div id="p${ num }" class="post reply ${ highlight }">
@@ -11142,7 +11142,7 @@ class DobrochanPostsBuilder {
 		const brd = this._brd;
 		const tNum = this._json.threads[0].display_id;
 		const multiFile = data.files.length > 1;
-		
+
 		let filesHTML = '';
 		for(let file of data.files) {
 			let fileName, fullFileName, thumb, thumb_w = 200,
@@ -11188,7 +11188,7 @@ class DobrochanPostsBuilder {
 				</a>
 			</div>`;
 		}
-		
+
 		let rv = `<table id="post_${ num }" class="replypost post"><tbody><tr>
 			<td class="doubledash">&gt;&gt;</td>
 			<td class="reply" id="reply${ num }">
@@ -11253,9 +11253,9 @@ class MakabaPostsBuilder {
 		const data = this._posts[i + 1];
 		const num = data.num;
 		const brd = this._brd;
-		
+
 		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
-		
+
 		let filesHTML;
 		if(data.files) {
 			filesHTML = `<div class="images${ data.files.length === 1 ? ' images-single' : '' }">`;
@@ -11284,7 +11284,7 @@ class MakabaPostsBuilder {
 		} else {
 			filesHTML = '';
 		}
-		
+
 		let rv = `<div id="post-${ num }" class="post-wrapper">
 			<div class="post reply" id="post-body-${ num }" data-num="${ num }">
 				<div id="post-details-${ num }" class="post-details">
@@ -11335,7 +11335,7 @@ class MakabaPostsBuilder {
 			}
 		}
 	}
-	
+
 	_getPostMsg(data) {
 		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
 		const comment = data.comment.replace(/<script /ig, '<!--<textarea ')
@@ -12412,7 +12412,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostMsg = '.post-message';
 			this.qPostName = '.ananimas, .post-email';
 			this.qPostSubj = '.post-title';
-			this.qRPost = '.post-wrapper > .post.reply';
+			this.qRPost = '.post.reply[data-num]';
 			this.qTrunc = null;
 
 			this.hasCatalog = true;
@@ -12512,7 +12512,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el.parentNode;
 		}
 		init() {
-			$script('window.FormData = void 0; $(function() { $(window).off(); });');
+			$script(`$alert = function() {};
+				window.FormData = void 0;
+				$(function() { $(window).off(); });`);
 			$each($Q('.autorefresh'), $del);
 			var el = $q('td > .anoniconsselectlist');
 			if(el) {
