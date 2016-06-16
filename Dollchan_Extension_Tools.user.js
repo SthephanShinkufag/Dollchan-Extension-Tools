@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.9.0';
-	var commit = '8982fc2';
+	var commit = '642d58d';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -15274,7 +15274,7 @@ true, true],
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				var bEls, i, len, pEl;
+				var bEls, i, len, bEl, pEl;
 				return regeneratorRuntime.wrap(function bannedPostsData$(_context17) {
 					while (1) {
 						switch (_context17.prev = _context17.next) {
@@ -15288,7 +15288,7 @@ true, true],
 									break;
 								}
 
-								pEl = aib.getPostElOfEl(bEl);
+								bEl = bEls[i], pEl = aib.getPostElOfEl(bEl);
 								_context17.next = 6;
 								return [1, pEl ? aib.getPNum(pEl) : null, doc.adoptNode(bEl)];
 
@@ -15979,12 +15979,12 @@ true, true],
 
 					var banId = _ref63[0];
 					var bNum = _ref63[1];
-					var _bEl = _ref63[2];
+					var bEl = _ref63[2];
 
 					var _post2 = bNum ? pByNum.get(bNum) : this.op;
 					if (_post2 && _post2.banned !== banId) {
 						$remove($q(aib.qBan, _post2.el));
-						_post2.msg.appendChild(_bEl);
+						_post2.msg.appendChild(bEl);
 						_post2.banned = banId;
 					}
 				}

@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.9.0';
-var commit = '8982fc2';
+var commit = '642d58d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10931,7 +10931,8 @@ class DOMPostsBuilder {
 	* bannedPostsData() {
 		var bEls = $Q(aib.qBan, this._form);
 		for(let i = 0, len = bEls.length; i < len; ++i) {
-			let pEl = aib.getPostElOfEl(bEl);
+			let bEl = bEls[i],
+				pEl = aib.getPostElOfEl(bEl);
 			yield [1, pEl ? aib.getPNum(pEl) : null, doc.adoptNode(bEl)];
 		}
 	}
