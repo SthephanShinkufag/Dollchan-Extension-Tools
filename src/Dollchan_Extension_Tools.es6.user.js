@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.9.0';
-var commit = '642d58d';
+var commit = '0ec121d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12294,7 +12294,7 @@ class BaseBoard {
 		}
 		return videos;
 	}
-	getBanId(postEl) {
+	getBanId(postEl) { // Differs Makaba only
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
 	}
 	getCaptchaSrc(src, tNum) {
@@ -12412,7 +12412,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostMsg = '.post-message';
 			this.qPostName = '.ananimas, .post-email';
 			this.qPostSubj = '.post-title';
-			this.qRPost = '.post.reply';
+			this.qRPost = '.post-wrapper > .post.reply';
 			this.qTrunc = null;
 
 			this.hasCatalog = true;

@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.9.0';
-	var commit = '642d58d';
+	var commit = '0ec121d';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -17009,7 +17009,7 @@ true, true],
 				_this56.qPostMsg = '.post-message';
 				_this56.qPostName = '.ananimas, .post-email';
 				_this56.qPostSubj = '.post-title';
-				_this56.qRPost = '.post.reply';
+				_this56.qRPost = '.post-wrapper > .post.reply';
 				_this56.qTrunc = null;
 
 				_this56.hasCatalog = true;
