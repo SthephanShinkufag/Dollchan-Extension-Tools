@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.9.0';
-var commit = 'c179593';
+var commit = '8982fc2';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11084,8 +11084,8 @@ class _4chanPostsBuilder {
 					</span>
 					<span class="dateTime postNum" data-utc="${ data.time }">${ data.now } <a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('${ num }');" title="Reply to this post">${ num }</a></span>
 				</div>
-				<div class="postInfo desktop" id="pi75970976">
-					<input name="75970976" value="delete" type="checkbox">
+				<div class="postInfo desktop" id="pi${ num }">
+					<input name="${ num }" value="delete" type="checkbox">
 					<span class="subject">${ data.sub || '' }</span>
 					<span class="nameBlock ${ capcodeClass }">
 						${ data.email? `<a href="mailto:${ data.email.replace(/ /g, '%20') }" class="useremail">` : '' }
@@ -11101,7 +11101,7 @@ class _4chanPostsBuilder {
 					<span class="postNum desktop"><a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('${ num }');" title="Reply to this post">${ num }</a></span>
 				</div>
 				${ fileHTML }
-				<blockquote class="postMessage" id="m${ num }"> ${ data.com }</blockquote>
+				<blockquote class="postMessage" id="m${ num }">${ data.com || '' }</blockquote>
 			</div>
 		</div>`;
 		return rv;
@@ -13103,6 +13103,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `
 			.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }
+			#bottomReportBtn { display: initial !important; }
 			.file + .de-video-obj { display: inline-block; }
 			.postForm { display: table !important; width: auto !important; }
 			textarea { margin-right: 0 !important; }`;
