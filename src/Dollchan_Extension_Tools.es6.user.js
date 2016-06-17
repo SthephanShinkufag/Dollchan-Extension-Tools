@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         16.6.9.0
+// @version         16.6.17.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       (c) 2015 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
@@ -23,8 +23,8 @@
 (function de_main_func_inner(scriptStorage, FormData, localData) {
 'use strict';
 
-var version = '16.6.9.0';
-var commit = 'c95a561';
+var version = '16.6.17.0';
+var commit = '81c1c93';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
