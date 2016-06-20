@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = '81c1c93';
+var commit = 'c37b51b';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11289,7 +11289,7 @@ class MakabaPostsBuilder {
 			<div class="post reply" id="post-body-${ num }" data-num="${ num }">
 				<div id="post-details-${ num }" class="post-details">
 					<input type="checkbox" name="delete"  class="turnmeoff" value="${ num }" />
-					${ data.subject && this._json.enable_sublect
+					${ data.subject
 						? `<span class="post-title">${ data.subject + ( data.tags ? ' /' + data.tags + '/' : '') }</span>`
 						: ''
 					}
