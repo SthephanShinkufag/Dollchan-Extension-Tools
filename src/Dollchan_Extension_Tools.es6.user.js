@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = 'c37b51b';
+var commit = '4c4fea2';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11552,7 +11552,7 @@ class Thread {
 		for(let [banId, bNum, bEl] of pBuilder.bannedPostsData()) {
 			let post = bNum ? pByNum.get(bNum) : this.op;
 			if(post && post.banned !== banId) {
-				$remove($q(aib.qBan, post.el));
+				$del($q(aib.qBan, post.el));
 				post.msg.appendChild(bEl);
 				post.banned = banId;
 			}
