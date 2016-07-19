@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = '4c4fea2';
+	var commit = 'cf3e965';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -14746,7 +14746,7 @@ true, true],
 					$del(this.el);
 				}
 				var el = this.el = post.el.cloneNode(true),
-				    isMyPost = MyPosts.has(this.num),
+				    isMyPost = Cfg.markMyPosts && MyPosts.has(this.num),
 				    pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' + (post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' + (post.deleted ? '' : '<span style="margin: 0 4px 0 2px; vertical-align: 1px; ' + 'color: #4f7942; font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + (isMyPost ? ' (You)' : '') + '</span>');
 				pByEl.set(el, this);
 				el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '') + (isMyPost ? ' de-mypost' : '');

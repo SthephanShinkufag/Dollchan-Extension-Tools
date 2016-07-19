@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = '4c4fea2';
+var commit = 'cf3e965';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10535,7 +10535,7 @@ class Pview extends AbstractPost {
 			$del(this.el);
 		}
 		var el = this.el = post.el.cloneNode(true),
-			isMyPost = MyPosts.has(this.num),
+			isMyPost = Cfg.markMyPosts && MyPosts.has(this.num),
 			pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
 				(post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
 				'<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' +
