@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = 'cf3e965';
+var commit = '7747176';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1844,33 +1844,6 @@ PostsStorage._cachedStorage = null;
 PostsStorage._cacheTO = null;
 
 class HiddenPosts extends PostsStorage {
-	static _readStorage() {
-		if(!this._cachedStorage && !locStorage.hasOwnProperty(this.storageName)) {
-			var data = locStorage['de-posts'];
-			if(data) {
-				locStorage.removeItem('de-posts');
-				try {
-					var oldObj = JSON.parse(data),
-						newObj = {};
-					for(var b in oldObj) {
-						if(oldObj.hasOwnProperty(b)) {
-							var oldData = oldObj[b],
-								newData = newObj[b] = {};
-							for(var key in oldData) {
-								if(oldData.hasOwnProperty(key)) {
-									var pData = oldData[key];
-									newData[key] = [pData[1], null, !pData[0]];
-								}
-							}
-						}
-					}
-					locStorage[this.storageName] = JSON.stringify(newObj);
-					return this._cachedStorage = newObj;
-				} catch(e) {}
-			}
-		}
-		return super._readStorage();
-	}
 	static _saveStorageHelper() {
 		toggleWindow('hid', true);
 		super._saveStorageHelper();
@@ -1895,33 +1868,6 @@ class HiddenThreads extends PostsStorage {
 		this.purge();
 	}
 
-	static _readStorage() {
-		if(!this._cachedStorage && !locStorage.hasOwnProperty(this.storageName)) {
-			var data = locStorage['de-threads'];
-			if(data) {
-				locStorage.removeItem('de-threads');
-				try {
-					var oldObj = JSON.parse(data),
-						newObj = {};
-					for(var b in oldObj) {
-						if(oldObj.hasOwnProperty(b)) {
-							var oldData = oldObj[b],
-								newData = newObj[b] = {};
-							for(var key in oldData) {
-								if(oldData.hasOwnProperty(key)) {
-									var pData = oldData[key];
-									newData[key] = [this._cachedTime, key, pData];
-								}
-							}
-						}
-					}
-					locStorage[this.storageName] = JSON.stringify(newObj);
-					return this._cachedStorage = newObj;
-				} catch(e) {}
-			}
-		}
-		return super._readStorage();
-	}
 	static _saveStorageHelper() {
 		toggleWindow('hid', true);
 		super._saveStorageHelper();
@@ -1949,27 +1895,8 @@ class MyPosts extends PostsStorage {
 	}
 
 	static _readStorage() {
-		if(!this._cachedStorage && !locStorage.hasOwnProperty(this.storageName)) {
-			var data = locStorage['de-myposts'];
-			if(data) {
-				locStorage.removeItem('de-myposts');
-				try {
-					var oldObj = JSON.parse(data),
-						newObj = {};
-					for(var b in oldObj) {
-						if(oldObj.hasOwnProperty(b)) {
-							var newData = newObj[b] = {};
-							for(var num of oldObj[b]) {
-								newData[num] = [this._cachedTime, null, true];
-							}
-						}
-					}
-					var setData = oldObj[aib.b];
-					this._cachedData = setData ? new Set(setData) : new Set();
-					locStorage[this.storageName] = JSON.stringify(newObj);
-					return this._cachedStorage = newObj;
-				} catch(e) {}
-			}
+		if(this._cachedData && this._cachedStorage) {
+			return this._cachedStorage;
 		}
 		var rv = super._readStorage();
 		this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(_ => +_)) : new Set();
