@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = 'fcb680e';
+	var commit = 'aa88c1f';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3243,7 +3243,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		file: ['Файл', 'File'],
 		global: ['Глобальные', 'Global'],
 		reset: ['Сброс', 'Reset'],
-		remove: ['Удаление', 'Removing'],
+		remove: ['Удалить', 'Remove'],
 		info: ['Инфо', 'Info'],
 		undo: ['Отмена', 'Undo'],
 		change: ['Сменить', 'Change'],
@@ -3284,7 +3284,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		resetCfg: ['Сбросить в настройки по умолчанию', 'Reset config to defaults'],
 		resetData: ['Очистить данные', 'Reset selected data'],
 		allDomains: ['Для всех доменов:', 'For all domains'],
-		clrSelected: ['Удалить выделенные записи', 'Remove selected notes'],
+		clrSelected: ['Удаление выделенных записей', 'Removing of selected notes'],
 		saveChanges: ['Сохранить внесенные изменения', 'Save your changes'],
 		infoCount: ['Обновить счетчики постов', 'Refresh posts counters'],
 		infoPage: ['Проверить актуальность тредов (до 10 страницы)', 'Check for threads actuality (up to 10 page)'],
@@ -5436,7 +5436,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						this.tStyle.height = Math.max(parseInt(this.tStyle.height, 10) + (this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) : (val > maxY - 45 ? maxY - 25 : val) - cr.bottom), 90) + 'px';
 					} else {
 						val = e.clientX;
-						this.tStyle.width = Math.max(parseInt(this.tStyle.width, 10) + (this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) : (val > maxX - 20 ? maxX : val) - cr.right), this.name === 'reply' ? 275 : 380) + 'px';
+						this.tStyle.width = Math.max(parseInt(this.tStyle.width, 10) + (this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) : (val > maxX - 20 ? maxX : val) - cr.right), this.name === 'reply' ? 275 : 400) + 'px';
 					}
 					return;
 				default:
@@ -5829,7 +5829,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (!t.url.startsWith('http')) {
 						t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 					}
-					innerHtml += '\n\t\t\t\t<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t<input class="de-fav-switch" type="checkbox">\n\t\t\t\t\t<a class="de-fav-link" href="' + (t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last : h === aib.host ? aib.anchor + t.last : '')) + '" rel="noreferrer">\n\t\t\t\t\t\t' + tNum + '\n\t\t\t\t\t</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<span class="de-fav-inf-iwrap" ' + (!t['err'] ? '' : t['err'] === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' : 'title="' + t['err'] + '"') + '>\n\t\t\t\t\t\t\t<svg class="de-fav-inf-icon ' + (!t['err'] ? '' : t['err'] === 'Closed' ? 'de-fav-closed' : 'de-fav-unavail') + '">\n\t\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + (t['new'] ? '' : ' style="display: none;"') + '>\n\t\t\t\t\t\t\t' + (t['new'] || 0) + '\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>';
+					innerHtml += '\n\t\t\t\t<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t<input class="de-fav-switch" type="checkbox">\n\t\t\t\t\t<a class="de-fav-link" href="' + (t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last : h === aib.host ? aib.anchor + t.last : '')) + '" rel="noreferrer">\n\t\t\t\t\t\t' + tNum + '\n\t\t\t\t\t</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<span class="de-fav-inf-iwrap" ' + (!t.err ? '' : t.err === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' : 'title="' + t.err + '"') + '>\n\t\t\t\t\t\t\t<svg class="de-fav-inf-icon ' + (!t.err ? '' : t.err === 'Closed' ? 'de-fav-closed' : 'de-fav-unavail') + '">\n\t\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + (t['new'] ? '' : ' style="display: none;"') + '>\n\t\t\t\t\t\t\t' + (t['new'] || 0) + '\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>';
 				}
 				if (innerHtml === '') {
 					continue;
@@ -6195,7 +6195,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}, _callee4, this, [[6, 13]]);
 		}))));
-		body.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function () {
+		body.appendChild($btn(Lng.deleting[lang], Lng.clrSelected[lang], function () {
 			var el = body.firstElementChild;
 			if (el.className === 'de-fav-content-del') {
 				$each($Q('.de-entry'), function (el) {
@@ -6205,10 +6205,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 				cleanFavorites();
 				el.className = 'de-fav-content';
-				this.value = Lng.remove[lang];
+				this.value = Lng.deleting[lang];
 			} else {
 				el.className = 'de-fav-content-del';
-				this.value = 'OK!';
+				this.value = Lng.apply[lang];
 			}
 		}));
 	}
@@ -6679,7 +6679,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				saveComCfg(aib.dm, data);
 				window.location.reload();
 			});
-		}), $btn(Lng.reset[lang], Lng.resetCfg[lang], function () {
+		}), $btn(Lng.reset[lang] + '...', Lng.resetCfg[lang], function () {
 			var fn = function fn(a) {
 				return $join(a, '<label class="de-block"><input type="checkbox"/> ', '</label>');
 			},
@@ -16508,7 +16508,7 @@ true, true],
 				return val;
 			},
 			get canPlayWebm() {
-				var val = !nav.Safari || !!new Audio().canPlayType('video/webm; codecs="vp8,vorbis"');
+				var val = !this.Safari || !!new Audio().canPlayType('video/webm; codecs="vp8,vorbis"');
 				Object.defineProperty(this, 'canPlayWebm', { value: val });
 				return val;
 			},

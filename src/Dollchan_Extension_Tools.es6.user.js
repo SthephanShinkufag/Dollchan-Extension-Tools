@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = 'fcb680e';
+var commit = 'aa88c1f';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -482,7 +482,7 @@ Lng = {
 	file:           ['Файл', 'File'],
 	global:         ['Глобальные', 'Global'],
 	reset:          ['Сброс', 'Reset'],
-	remove:         ['Удаление', 'Removing'],
+	remove:         ['Удалить', 'Remove'],
 	info:           ['Инфо', 'Info'],
 	undo:           ['Отмена', 'Undo'],
 	change:         ['Сменить', 'Change'],
@@ -523,7 +523,7 @@ Lng = {
 	resetCfg:       ['Сбросить в настройки по умолчанию', 'Reset config to defaults'],
 	resetData:      ['Очистить данные', 'Reset selected data'],
 	allDomains:     ['Для всех доменов:', 'For all domains'],
-	clrSelected:    ['Удалить выделенные записи', 'Remove selected notes'],
+	clrSelected:    ['Удаление выделенных записей', 'Removing of selected notes'],
 	saveChanges:    ['Сохранить внесенные изменения', 'Save your changes'],
 	infoCount:      ['Обновить счетчики постов', 'Refresh posts counters'],
 	infoPage:       ['Проверить актуальность тредов (до 10 страницы)', 'Check for threads actuality (up to 10 page)'],
@@ -2266,7 +2266,7 @@ WinResizer.prototype = {
 					parseInt(this.tStyle.width, 10) + (
 						this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
 							(val > maxX - 20 ? maxX : val) - cr.right
-				), this.name === 'reply' ? 275 : 380) + 'px';
+				), this.name === 'reply' ? 275 : 400) + 'px';
 			}
 			return;
 		default: // mouseup
@@ -2702,11 +2702,11 @@ function showFavoritesWindow(body, data) {
 					</a>
 					<div class="de-entry-title">- ${ t.txt }</div>
 					<div class="de-fav-inf">
-						<span class="de-fav-inf-iwrap" ${ !t['err'] ? '' :
-							t['err'] === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' :
-							'title="' + t['err'] + '"' }>
-							<svg class="de-fav-inf-icon ${ !t['err'] ? '' :
-								t['err'] === 'Closed' ? 'de-fav-closed' : 'de-fav-unavail' }">
+						<span class="de-fav-inf-iwrap" ${ !t.err ? '' :
+							t.err === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' :
+							'title="' + t.err + '"' }>
+							<svg class="de-fav-inf-icon ${ !t.err ? '' :
+								t.err === 'Closed' ? 'de-fav-closed' : 'de-fav-unavail' }">
 								<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>
 								<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>
 								<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>
@@ -2939,7 +2939,7 @@ function showFavoritesWindow(body, data) {
 		}
 		cleanFavorites();
 	})));
-	body.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
+	body.appendChild($btn(Lng.deleting[lang], Lng.clrSelected[lang], function() {
 		var el = body.firstElementChild;
 		if(el.className === 'de-fav-content-del') {
 			$each($Q('.de-entry'), function(el) {
@@ -2949,10 +2949,10 @@ function showFavoritesWindow(body, data) {
 			});
 			cleanFavorites();
 			el.className = 'de-fav-content';
-			this.value = Lng.remove[lang];
+			this.value = Lng.deleting[lang];
 		} else {
 			el.className = 'de-fav-content-del';
-			this.value = 'OK!';
+			this.value = Lng.apply[lang];
 		}
 	}));
 }
@@ -3629,7 +3629,7 @@ function addSettings(body, id) {
 				window.location.reload();
 			});
 		}),
-		$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
+		$btn(Lng.reset[lang] + '...', Lng.resetCfg[lang], function() {
 			var fn = a => $join(a, '<label class="de-block"><input type="checkbox"/> ', '</label>'),
 				el = $popup('<b>' + Lng.resetData[lang] + ':</b>', 'cfg-reset', false);
 			el.insertAdjacentHTML('beforeend',
@@ -12013,7 +12013,7 @@ function initNavFuncs() {
 			return val;
 		},
 		get canPlayWebm() {
-			var val = !nav.Safari || !!new Audio().canPlayType('video/webm; codecs="vp8,vorbis"');
+			var val = !this.Safari || !!new Audio().canPlayType('video/webm; codecs="vp8,vorbis"');
 			Object.defineProperty(this, 'canPlayWebm', { value: val });
 			return val;
 		},
