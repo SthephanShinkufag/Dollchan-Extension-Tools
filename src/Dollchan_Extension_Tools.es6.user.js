@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = 'd56303f';
+var commit = 'fcb680e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3220,7 +3220,7 @@ function getCfgImages() {
 			$txt(Lng.cfg.zoomFactor[lang]),
 			lBox('webmControl', true, null),
 			lBox('webmTitles', true, null),
-			$if(!nav.Safari, $New('div', null, [
+			$if(nav.canPlayWebm, $New('div', null, [
 				inpTxt('webmVolume', 2, function() {
 					var val = Math.min(+this.value || 0, 100);
 					saveCfg('webmVolume', val);
@@ -8862,7 +8862,7 @@ class ExpandableMedia {
 			if(aib.tiny) {
 				src = src.replace(/^.*?\?v=|&.*?$/g, '');
 			}
-			if(!nav.Safari) {
+			if(nav.canPlayWebm) {
 				obj = $add('<video style="width: inherit; height: inherit" src="' + src +
 					'" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') +
 					(Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>');
@@ -12010,6 +12010,11 @@ function initNavFuncs() {
 		get canPlayMP3() {
 			var val = !!new Audio().canPlayType('audio/mpeg;');
 			Object.defineProperty(this, 'canPlayMP3', { value: val });
+			return val;
+		},
+		get canPlayWebm() {
+			var val = !nav.Safari || !!new Audio().canPlayType('video/webm; codecs="vp8,vorbis"');
+			Object.defineProperty(this, 'canPlayWebm', { value: val });
 			return val;
 		},
 		get matchesSelector() {
