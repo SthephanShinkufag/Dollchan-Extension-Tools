@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = '0b73e36';
+	var commit = 'd56303f';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -6408,7 +6408,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			saveCfg('minImgSize', Math.max(+this.value, 1));
 		}), $txt(Lng.cfg.minImgSize[lang])]), inpTxt('zoomFactor', 2, function () {
 			saveCfg('zoomFactor', Math.min(Math.max(+this.value, 1), 100));
-		}), $txt(Lng.cfg.zoomFactor[lang]), lBox('webmControl', true, null), lBox('webmTitles', true, null), $if(nav.canPlayWebm, $New('div', null, [inpTxt('webmVolume', 2, function () {
+		}), $txt(Lng.cfg.zoomFactor[lang]), lBox('webmControl', true, null), lBox('webmTitles', true, null), $if(!nav.Safari, $New('div', null, [inpTxt('webmVolume', 2, function () {
 			var val = Math.min(+this.value || 0, 100);
 			saveCfg('webmVolume', val);
 			locStorage['__de-webmvolume'] = val;
@@ -12684,7 +12684,7 @@ true, true],
 					if (aib.tiny) {
 						src = src.replace(/^.*?\?v=|&.*?$/g, '');
 					}
-					if (nav.canPlayWebm) {
+					if (!nav.Safari) {
 						obj = $add('<video style="width: inherit; height: inherit" src="' + src + '" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') + (Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>');
 						obj.volume = Cfg.webmVolume / 100;
 						setTimeout(function () {
@@ -16505,11 +16505,6 @@ true, true],
 			get canPlayMP3() {
 				var val = !!new Audio().canPlayType('audio/mpeg;');
 				Object.defineProperty(this, 'canPlayMP3', { value: val });
-				return val;
-			},
-			get canPlayWebm() {
-				var val = !!new Audio().canPlayType('video/webm; codecs="vp8,vorbis"');
-				Object.defineProperty(this, 'canPlayWebm', { value: val });
 				return val;
 			},
 			get matchesSelector() {
