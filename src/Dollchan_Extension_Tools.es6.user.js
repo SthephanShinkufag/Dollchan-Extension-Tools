@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = '7747176';
+var commit = '0b73e36';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3137,7 +3137,13 @@ function getCfgPosts() {
 				})
 			])
 		])),
-		$if(aib.jsonSubmit || aib.fch, lBox('markMyPosts', true, updateCSS)),
+		$if(aib.jsonSubmit || aib.fch, lBox('markMyPosts', true, function() {
+			if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
+				locStorage.removeItem('de-myposts-new');
+				MyPosts.purge();
+			}
+			updateCSS();
+		})),
 		lBox('hideReplies', true, null),
 		lBox('expandTrunc', true, updateCSS),
 		lBox('updThrBtns', true, updateCSS),
@@ -3284,7 +3290,13 @@ function getCfgLinks() {
 			]),
 			lBox('noNavigHidd', true, null)
 		]),
-		$if(aib.jsonSubmit || aib.fch, lBox('markMyLinks', true, updateCSS)),
+		$if(aib.jsonSubmit || aib.fch, lBox('markMyLinks', true, function() {
+			if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
+				locStorage.removeItem('de-myposts-new');
+				MyPosts.purge();
+			}
+			updateCSS();
+		})),
 		lBox('crossLinks', true, null),
 		lBox('insertNum', true, null),
 		lBox('addOPLink', true, null),
@@ -8035,7 +8047,7 @@ function checkUpload(data) {
 		updater.continue();
 		return;
 	}
-	if(postNum) {
+	if((Cfg.markMyPosts || Cfg.markMyLinks) && postNum) {
 		MyPosts.set(postNum, pr.tNum || postNum);
 	}
 	if(Cfg.favOnReply && pr.tNum && !$q('.de-btn-fav-sel', pByNum.get(pr.tNum).el)) {

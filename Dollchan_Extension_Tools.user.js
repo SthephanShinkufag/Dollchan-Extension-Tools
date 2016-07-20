@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = '7747176';
+	var commit = '0b73e36';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -6369,7 +6369,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		})), lBox('noErrInTitle', true, null), lBox('markNewPosts', true, function () {
 			Post.clearMarks();
-		})])])), $if(aib.jsonSubmit || aib.fch, lBox('markMyPosts', true, updateCSS)), lBox('hideReplies', true, null), lBox('expandTrunc', true, updateCSS), lBox('updThrBtns', true, updateCSS), $New('div', null, [lBox('showHideBtn', false, updateCSS), lBox('showRepBtn', false, updateCSS)]), optSel('postBtnsCSS', false, function () {
+		})])])), $if(aib.jsonSubmit || aib.fch, lBox('markMyPosts', true, function () {
+			if (!Cfg.markMyPosts && !Cfg.markMyLinks) {
+				locStorage.removeItem('de-myposts-new');
+				MyPosts.purge();
+			}
+			updateCSS();
+		})), lBox('hideReplies', true, null), lBox('expandTrunc', true, updateCSS), lBox('updThrBtns', true, updateCSS), $New('div', null, [lBox('showHideBtn', false, updateCSS), lBox('showRepBtn', false, updateCSS)]), optSel('postBtnsCSS', false, function () {
 			saveCfg('postBtnsCSS', this.selectedIndex);
 			updateCSS();
 			if (nav.Presto) {
@@ -6468,7 +6474,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			saveCfg('linksOver', +this.value | 0);
 		}), $txt(Lng.cfg.linksOver[lang]), inpTxt('linksOut', 2, function () {
 			saveCfg('linksOut', +this.value | 0);
-		}), $txt(Lng.cfg.linksOut[lang])]), lBox('markViewed', true, null), lBox('strikeHidd', true, updateCSS), $New('div', { 'class': 'de-cfg-depend' }, [lBox('removeHidd', false, updateCSS)]), lBox('noNavigHidd', true, null)]), $if(aib.jsonSubmit || aib.fch, lBox('markMyLinks', true, updateCSS)), lBox('crossLinks', true, null), lBox('insertNum', true, null), lBox('addOPLink', true, null), lBox('addImgs', true, null), lBox('addMP3', false, null), $if(aib.prot === 'http:', lBox('addVocaroo', false, null)), optSel('addYouTube', true, null), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [optSel('YTubeType', false, null), inpTxt('YTubeWidth', 2, null), $txt('×'), inpTxt('YTubeHeigh', 2, null), $txt('(px)')]), lBox('YTubeTitles', false, null), $New('div', null, [inpTxt('ytApiKey', 25, function () {
+		}), $txt(Lng.cfg.linksOut[lang])]), lBox('markViewed', true, null), lBox('strikeHidd', true, updateCSS), $New('div', { 'class': 'de-cfg-depend' }, [lBox('removeHidd', false, updateCSS)]), lBox('noNavigHidd', true, null)]), $if(aib.jsonSubmit || aib.fch, lBox('markMyLinks', true, function () {
+			if (!Cfg.markMyPosts && !Cfg.markMyLinks) {
+				locStorage.removeItem('de-myposts-new');
+				MyPosts.purge();
+			}
+			updateCSS();
+		})), lBox('crossLinks', true, null), lBox('insertNum', true, null), lBox('addOPLink', true, null), lBox('addImgs', true, null), lBox('addMP3', false, null), $if(aib.prot === 'http:', lBox('addVocaroo', false, null)), optSel('addYouTube', true, null), $New('div', { 'class': 'de-cfg-depend' }, [$New('div', null, [optSel('YTubeType', false, null), inpTxt('YTubeWidth', 2, null), $txt('×'), inpTxt('YTubeHeigh', 2, null), $txt('(px)')]), lBox('YTubeTitles', false, null), $New('div', null, [inpTxt('ytApiKey', 25, function () {
 			saveCfg('ytApiKey', this.value.trim());
 		}), $txt(Lng.cfg.ytApiKey[lang])]), lBox('addVimeo', true, null)])]);
 	}
@@ -11671,7 +11683,7 @@ true, true],
 			updater['continue']();
 			return;
 		}
-		if (postNum) {
+		if ((Cfg.markMyPosts || Cfg.markMyLinks) && postNum) {
 			MyPosts.set(postNum, pr.tNum || postNum);
 		}
 		if (Cfg.favOnReply && pr.tNum && !$q('.de-btn-fav-sel', pByNum.get(pr.tNum).el)) {
