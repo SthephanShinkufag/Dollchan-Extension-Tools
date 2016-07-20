@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = 'aa88c1f';
+var commit = 'adf2391';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -512,9 +512,10 @@ Lng = {
 	total:          ['Всего', 'Total'],
 	debug:          ['Отладка', 'Debug'],
 	infoDebug:      ['Информация для отладки', 'Information for debugging'],
-	impexpCfg:      ['Импорт/экспорт настроек', 'Config import/export'],
-	fileToCfg:      ['Загрузить настройки из файла', 'Load config from a file'],
-	cfgToFile:      ['Сохранить файл</a> с настройками', 'Get config file</a>'],
+	fileImpExp:     ['Импорт/экспорт настроек в файл', 'Import/export config to file'],
+	cfgImpExp:      ['Импорт/экспорт настроек', 'Import/export of config'],
+	fileToData:     ['Загрузить данные из файла', 'Load data from a file'],
+	dataToFile:     ['Получить файл</a> с данными:', 'Get the file</a> with data:'],
 	globalCfg:      ['Глобальные настройки', 'Global config'],
 	loadGlobal:     [' и применить к этому домену', ' and apply to this domain'],
 	saveGlobal:     [' текущие настройки как глобальные', ' current config as global'],
@@ -3708,31 +3709,60 @@ function addSettings(body, id) {
 			]));
 			el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
 		})),
-		$if(!nav.Presto, $btn(Lng.file[lang], '', function() {
-			$popup('<b>' + Lng.impexpCfg[lang] + ':</b>' +
-				'<div class="de-list">' + Lng.fileToCfg[lang] + ':<br>' +
-					'<input type="file" accept=".json" id="de-import-file" style="margin-left: 12px;"/></div>' +
-				'<div class="de-list"><a id="de-export-file" href="#">' + Lng.cfgToFile[lang] + '</div>',
+		$if(!nav.Presto, $btn(Lng.file[lang], Lng.fileImpExp[lang], function() {
+			var fn = a => $join(a, '<label class="de-block de-cfg-depend"><input type="checkbox"/> ', '</label>')
+			$popup('<b>' + Lng.cfgImpExp[lang] + ':</b>' +
+				'<hr><div class="de-list">' + Lng.fileToData[lang] + ':<br>' +
+					'<input type="file" accept=".json" id="de-import-file" class="de-cfg-depend"/></div>' +
+				'<hr><div class="de-list"><a id="de-export-file" href="#">' + Lng.dataToFile[lang] + '<br>' +
+					fn([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div>',
 				'cfg-file', false);
 			$id('de-import-file').onchange = function({ target: { files: [file] } }) {
-				if(file) {
-					readFile(file, true).then(({ data }) => {
-						var dummy = JSON.parse(data);
-						setStored('DESU_Config', data);
-						window.location.reload();
-					}).catch(() => $popup(Lng.invalidData[lang], 'err-invaliddata', false));
+				if(!file) {
+					return;
 				}
-			}
-			$id('de-export-file').addEventListener('click', e => {
-				spawn(getStored, 'DESU_Config').then(val => {
-					var d = new Date(),
-						fn = i => parseInt(i) < 10 ? '0' + i : i;
-					downloadBlob(new Blob([val], { type: 'application/json' }),
-						'DE_Config_' + d.getFullYear() + fn(d.getMonth() + 1) +
-						fn(d.getDate()) + '_' + fn(d.getHours()) + fn(d.getMinutes()) + '.json')
+				readFile(file, true).then(({ data }) => {
+					try {
+						var obj = JSON.parse(data);
+					} catch(e) {
+						$popup(Lng.invalidData[lang], 'err-invaliddata', false)
+					}
+					var cfgObj = obj.settings,
+						favObj = obj.favorites;
+					if(favObj) {
+						saveFavorites(favObj);
+					}
+					if(cfgObj || !cfgObj && !favObj) {
+						setStored('DESU_Config', cfgObj ? JSON.stringify(cfgObj) : data);
+						$popup(Lng.updating[lang], 'cfg-file', true);
+						window.location.reload();
+						return;
+					}
+					closePopup('cfg-file');
 				});
+			}
+			var expFile = $id('de-export-file'),
+				[chkCfg, chkFav] = $Q('input', expFile.parentNode);
+			chkCfg.checked = true;
+			expFile.addEventListener('click', async(function* (e) {
+				var val, str = '', d = new Date(),
+					fn = i => parseInt(i) < 10 ? '0' + i : i,
+					isCfg = chkCfg.checked,
+					isFav = chkFav.checked;
+				if(isCfg) {
+					val = yield* getStored('DESU_Config');
+					str += (str ? ',' : '') + '"settings":' + val;
+				}
+				if(chkFav.checked) {
+					val = yield* getStored('DESU_Favorites');
+					str += (str ? ',' : '') + '"favorites":' + val;
+				}
+				downloadBlob(new Blob(['{' + str + '}'], { type: 'application/json' }),
+					'DE_' + (isCfg ? 'Config_' : '') + (isFav ? 'Favorites_' : '') +
+					d.getFullYear() + fn(d.getMonth() + 1) + fn(d.getDate()) + '_' +
+					fn(d.getHours()) + fn(d.getMinutes()) + '.json')
 				$pd(e);
-			}, true);
+			}), true);
 		}))
 	]));
 	$q('.de-cfg-tab[info="' + (id || 'filters') + '"]', body).click();

@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = 'aa88c1f';
+	var commit = 'adf2391';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3273,9 +3273,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		total: ['Всего', 'Total'],
 		debug: ['Отладка', 'Debug'],
 		infoDebug: ['Информация для отладки', 'Information for debugging'],
-		impexpCfg: ['Импорт/экспорт настроек', 'Config import/export'],
-		fileToCfg: ['Загрузить настройки из файла', 'Load config from a file'],
-		cfgToFile: ['Сохранить файл</a> с настройками', 'Get config file</a>'],
+		fileImpExp: ['Импорт/экспорт настроек в файл', 'Import/export config to file'],
+		cfgImpExp: ['Импорт/экспорт настроек', 'Import/export of config'],
+		fileToData: ['Загрузить данные из файла', 'Load data from a file'],
+		dataToFile: ['Получить файл</a> с данными:', 'Get the file</a> with data:'],
 		globalCfg: ['Глобальные настройки', 'Global config'],
 		loadGlobal: [' и применить к этому домену', ' and apply to this domain'],
 		saveGlobal: [' текущие настройки как глобальные', ' current config as global'],
@@ -6745,35 +6746,97 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 			}), $txt(Lng.saveGlobal[lang])]));
 			el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
-		})), $if(!nav.Presto, $btn(Lng.file[lang], '', function () {
-			$popup('<b>' + Lng.impexpCfg[lang] + ':</b>' + '<div class="de-list">' + Lng.fileToCfg[lang] + ':<br>' + '<input type="file" accept=".json" id="de-import-file" style="margin-left: 12px;"/></div>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.cfgToFile[lang] + '</div>', 'cfg-file', false);
+		})), $if(!nav.Presto, $btn(Lng.file[lang], Lng.fileImpExp[lang], function () {
+			var fn = function fn(a) {
+				return $join(a, '<label class="de-block de-cfg-depend"><input type="checkbox"/> ', '</label>');
+			};
+			$popup('<b>' + Lng.cfgImpExp[lang] + ':</b>' + '<hr><div class="de-list">' + Lng.fileToData[lang] + ':<br>' + '<input type="file" accept=".json" id="de-import-file" class="de-cfg-depend"/></div>' + '<hr><div class="de-list"><a id="de-export-file" href="#">' + Lng.dataToFile[lang] + '<br>' + fn([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div>', 'cfg-file', false);
 			$id('de-import-file').onchange = function (_ref9) {
 				var _ref9$target$files = _slicedToArray(_ref9.target.files, 1);
 
 				var file = _ref9$target$files[0];
 
-				if (file) {
-					readFile(file, true).then(function (_ref10) {
-						var data = _ref10.data;
-
-						var dummy = JSON.parse(data);
-						setStored('DESU_Config', data);
-						window.location.reload();
-					})['catch'](function () {
-						return $popup(Lng.invalidData[lang], 'err-invaliddata', false);
-					});
+				if (!file) {
+					return;
 				}
-			};
-			$id('de-export-file').addEventListener('click', function (e) {
-				spawn(getStored, 'DESU_Config').then(function (val) {
-					var d = new Date(),
-					    fn = function fn(i) {
-						return parseInt(i) < 10 ? '0' + i : i;
-					};
-					downloadBlob(new Blob([val], { type: 'application/json' }), 'DE_Config_' + d.getFullYear() + fn(d.getMonth() + 1) + fn(d.getDate()) + '_' + fn(d.getHours()) + fn(d.getMinutes()) + '.json');
+				readFile(file, true).then(function (_ref10) {
+					var data = _ref10.data;
+
+					try {
+						var obj = JSON.parse(data);
+					} catch (e) {
+						$popup(Lng.invalidData[lang], 'err-invaliddata', false);
+					}
+					var cfgObj = obj.settings,
+					    favObj = obj.favorites;
+					if (favObj) {
+						saveFavorites(favObj);
+					}
+					if (cfgObj || !cfgObj && !favObj) {
+						setStored('DESU_Config', cfgObj ? JSON.stringify(cfgObj) : data);
+						$popup(Lng.updating[lang], 'cfg-file', true);
+						window.location.reload();
+						return;
+					}
+					closePopup('cfg-file');
 				});
-				$pd(e);
-			}, true);
+			};
+			var expFile = $id('de-export-file');
+
+			var _$Q = $Q('input', expFile.parentNode);
+
+			var _$Q2 = _slicedToArray(_$Q, 2);
+
+			var chkCfg = _$Q2[0];
+			var chkFav = _$Q2[1];
+
+			chkCfg.checked = true;
+			expFile.addEventListener('click', async(regeneratorRuntime.mark(function _callee5(e) {
+				var val, str, d, fn, isCfg, isFav;
+				return regeneratorRuntime.wrap(function _callee5$(_context10) {
+					while (1) {
+						switch (_context10.prev = _context10.next) {
+							case 0:
+								str = '', d = new Date(), fn = function fn(i) {
+									return parseInt(i) < 10 ? '0' + i : i;
+								}, isCfg = chkCfg.checked, isFav = chkFav.checked;
+
+								if (!isCfg) {
+									_context10.next = 5;
+									break;
+								}
+
+								return _context10.delegateYield(getStored('DESU_Config'), 't0', 3);
+
+							case 3:
+								val = _context10.t0;
+
+								str += (str ? ',' : '') + '"settings":' + val;
+
+							case 5:
+								if (!chkFav.checked) {
+									_context10.next = 9;
+									break;
+								}
+
+								return _context10.delegateYield(getStored('DESU_Favorites'), 't1', 7);
+
+							case 7:
+								val = _context10.t1;
+
+								str += (str ? ',' : '') + '"favorites":' + val;
+
+							case 9:
+								downloadBlob(new Blob(['{' + str + '}'], { type: 'application/json' }), 'DE_' + (isCfg ? 'Config_' : '') + (isFav ? 'Favorites_' : '') + d.getFullYear() + fn(d.getMonth() + 1) + fn(d.getDate()) + '_' + fn(d.getHours()) + fn(d.getMinutes()) + '.json');
+								$pd(e);
+
+							case 11:
+							case 'end':
+								return _context10.stop();
+						}
+					}
+				}, _callee5, this);
+			})), true);
 		}))]));
 		$q('.de-cfg-tab[info="' + (id || 'filters') + '"]', body).click();
 	}
@@ -7207,38 +7270,38 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._paused = false;
 		},
 
-		readKeys: async(regeneratorRuntime.mark(function _callee5() {
+		readKeys: async(regeneratorRuntime.mark(function _callee6() {
 			var keys, str, tKeys, mapFunc;
-			return regeneratorRuntime.wrap(function _callee5$(_context10) {
+			return regeneratorRuntime.wrap(function _callee6$(_context11) {
 				while (1) {
-					switch (_context10.prev = _context10.next) {
+					switch (_context11.prev = _context11.next) {
 						case 0:
-							return _context10.delegateYield(getStored('DESU_keys'), 't0', 1);
+							return _context11.delegateYield(getStored('DESU_keys'), 't0', 1);
 
 						case 1:
-							str = _context10.t0;
+							str = _context11.t0;
 
 							if (str) {
-								_context10.next = 4;
+								_context11.next = 4;
 								break;
 							}
 
-							return _context10.abrupt('return', this.getDefaultKeys());
+							return _context11.abrupt('return', this.getDefaultKeys());
 
 						case 4:
-							_context10.prev = 4;
+							_context11.prev = 4;
 
 							keys = JSON.parse(str);
 
 						case 6:
-							_context10.prev = 6;
+							_context11.prev = 6;
 
 							if (keys) {
-								_context10.next = 9;
+								_context11.next = 9;
 								break;
 							}
 
-							return _context10.abrupt('return', this.getDefaultKeys());
+							return _context11.abrupt('return', this.getDefaultKeys());
 
 						case 9:
 							if (keys[0] !== this.version) {
@@ -7295,14 +7358,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								keys[3] = keys[3].map(mapFunc);
 								setStored('DESU_keys', JSON.stringify(keys));
 							}
-							return _context10.abrupt('return', keys);
+							return _context11.abrupt('return', keys);
 
 						case 13:
 						case 'end':
-							return _context10.stop();
+							return _context11.stop();
 					}
 				}
-			}, _callee5, this, [[4,, 6, 13]]);
+			}, _callee6, this, [[4,, 6, 13]]);
 		})),
 
 		_paused: false,
@@ -8607,12 +8670,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 		},
 
-		load: async(regeneratorRuntime.mark(function _callee6(count) {
+		load: async(regeneratorRuntime.mark(function _callee7(count) {
 			var _iterator6, _isArray6, _i7, _ref18, form, len, i, el, first;
 
-			return regeneratorRuntime.wrap(function _callee6$(_context11) {
+			return regeneratorRuntime.wrap(function _callee7$(_context12) {
 				while (1) {
-					switch (_context11.prev = _context11.next) {
+					switch (_context12.prev = _context12.next) {
 						case 0:
 							$popup(Lng.loading[lang], 'load-pages', true);
 							if (this._addPromise) {
@@ -8636,31 +8699,31 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 11:
 							if (!_isArray6) {
-								_context11.next = 17;
+								_context12.next = 17;
 								break;
 							}
 
 							if (!(_i7 >= _iterator6.length)) {
-								_context11.next = 14;
+								_context12.next = 14;
 								break;
 							}
 
-							return _context11.abrupt('break', 29);
+							return _context12.abrupt('break', 29);
 
 						case 14:
 							_ref18 = _iterator6[_i7++];
-							_context11.next = 21;
+							_context12.next = 21;
 							break;
 
 						case 17:
 							_i7 = _iterator6.next();
 
 							if (!_i7.done) {
-								_context11.next = 20;
+								_context12.next = 20;
 								break;
 							}
 
-							return _context11.abrupt('break', 29);
+							return _context12.abrupt('break', 29);
 
 						case 20:
 							_ref18 = _i7.value;
@@ -8674,17 +8737,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							$hide(form.el);
 
 							if (!(form === DelForm.last)) {
-								_context11.next = 26;
+								_context12.next = 26;
 								break;
 							}
 
-							return _context11.abrupt('break', 29);
+							return _context12.abrupt('break', 29);
 
 						case 26:
 							$del(form.el);
 
 						case 27:
-							_context11.next = 11;
+							_context12.next = 11;
 							break;
 
 						case 29:
@@ -8694,53 +8757,53 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 32:
 							if (!(i < len)) {
-								_context11.next = 46;
+								_context12.next = 46;
 								break;
 							}
 
-							_context11.prev = 33;
-							_context11.next = 36;
+							_context12.prev = 33;
+							_context12.next = 36;
 							return ajaxLoad(aib.getPageUrl(aib.b, i));
 
 						case 36:
-							el = _context11.sent;
+							el = _context12.sent;
 
 							this._addForm(el, i);
-							_context11.next = 43;
+							_context12.next = 43;
 							break;
 
 						case 40:
-							_context11.prev = 40;
-							_context11.t0 = _context11['catch'](33);
+							_context12.prev = 40;
+							_context12.t0 = _context12['catch'](33);
 
-							$popup(getErrorMessage(_context11.t0), 'load-pages', false);
+							$popup(getErrorMessage(_context12.t0), 'load-pages', false);
 
 						case 43:
 							++i;
-							_context11.next = 32;
+							_context12.next = 32;
 							break;
 
 						case 46:
 							first = DelForm.first;
 
 							if (!(first !== DelForm.last)) {
-								_context11.next = 52;
+								_context12.next = 52;
 								break;
 							}
 
 							DelForm.first = first.next;
 							$del(first.el);
-							return _context11.delegateYield(this._updateForms(DelForm.first), 't1', 51);
+							return _context12.delegateYield(this._updateForms(DelForm.first), 't1', 51);
 
 						case 51:
 							closePopup('load-pages');
 
 						case 52:
 						case 'end':
-							return _context11.stop();
+							return _context12.stop();
 					}
 				}
-			}, _callee6, this, [[33, 40]]);
+			}, _callee7, this, [[33, 40]]);
 		})),
 
 		_adding: false,
@@ -8764,11 +8827,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._addPromise = null;
 		},
 		_updateForms: regeneratorRuntime.mark(function _updateForms(newForm) {
-			return regeneratorRuntime.wrap(function _updateForms$(_context12) {
+			return regeneratorRuntime.wrap(function _updateForms$(_context13) {
 				while (1) {
-					switch (_context12.prev = _context12.next) {
+					switch (_context13.prev = _context13.next) {
 						case 0:
-							return _context12.delegateYield(readPostsData(newForm.firstThr.op), 't0', 1);
+							return _context13.delegateYield(readPostsData(newForm.firstThr.op), 't0', 1);
 
 						case 1:
 							if (pr.passw) {
@@ -8780,7 +8843,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 3:
 						case 'end':
-							return _context12.stop();
+							return _context13.stop();
 					}
 				}
 			}, _updateForms, this);
@@ -10056,42 +10119,42 @@ true, true],
 			return false;
 		},
 
-		_ihash: async(regeneratorRuntime.mark(function _callee7(val) {
+		_ihash: async(regeneratorRuntime.mark(function _callee8(val) {
 			var _iterator17, _isArray17, _i18, _ref35, image, hash;
 
-			return regeneratorRuntime.wrap(function _callee7$(_context13) {
+			return regeneratorRuntime.wrap(function _callee8$(_context14) {
 				while (1) {
-					switch (_context13.prev = _context13.next) {
+					switch (_context14.prev = _context14.next) {
 						case 0:
 							_iterator17 = this._post.images, _isArray17 = Array.isArray(_iterator17), _i18 = 0, _iterator17 = _isArray17 ? _iterator17 : _iterator17[Symbol.iterator]();
 
 						case 1:
 							if (!_isArray17) {
-								_context13.next = 7;
+								_context14.next = 7;
 								break;
 							}
 
 							if (!(_i18 >= _iterator17.length)) {
-								_context13.next = 4;
+								_context14.next = 4;
 								break;
 							}
 
-							return _context13.abrupt('break', 20);
+							return _context14.abrupt('break', 20);
 
 						case 4:
 							_ref35 = _iterator17[_i18++];
-							_context13.next = 11;
+							_context14.next = 11;
 							break;
 
 						case 7:
 							_i18 = _iterator17.next();
 
 							if (!_i18.done) {
-								_context13.next = 10;
+								_context14.next = 10;
 								break;
 							}
 
-							return _context13.abrupt('break', 20);
+							return _context14.abrupt('break', 20);
 
 						case 10:
 							_ref35 = _i18.value;
@@ -10100,38 +10163,38 @@ true, true],
 							image = _ref35;
 
 							if (image instanceof Attachment) {
-								_context13.next = 14;
+								_context14.next = 14;
 								break;
 							}
 
-							return _context13.abrupt('continue', 18);
+							return _context14.abrupt('continue', 18);
 
 						case 14:
-							return _context13.delegateYield(ImagesHashStorage.getHash(image), 't0', 15);
+							return _context14.delegateYield(ImagesHashStorage.getHash(image), 't0', 15);
 
 						case 15:
-							hash = _context13.t0;
+							hash = _context14.t0;
 
 							if (!(hash === val)) {
-								_context13.next = 18;
+								_context14.next = 18;
 								break;
 							}
 
-							return _context13.abrupt('return', true);
+							return _context14.abrupt('return', true);
 
 						case 18:
-							_context13.next = 1;
+							_context14.next = 1;
 							break;
 
 						case 20:
-							return _context13.abrupt('return', false);
+							return _context14.abrupt('return', false);
 
 						case 21:
 						case 'end':
-							return _context13.stop();
+							return _context14.stop();
 					}
 				}
-			}, _callee7, this);
+			}, _callee8, this);
 		})),
 		_subj: function _subj(val) {
 			var pSubj = this._post.subj;
@@ -11723,23 +11786,23 @@ true, true],
 		pr.refreshCapImg(false);
 	}
 
-	var checkDelete = async(regeneratorRuntime.mark(function _callee8(data) {
+	var checkDelete = async(regeneratorRuntime.mark(function _callee9(data) {
 		var err, _ref44, _ref45, num, post, els, threads, isThr, i, len, el, _iterator24, _isArray24, _i25, _ref46, thr;
 
-		return regeneratorRuntime.wrap(function _callee8$(_context14) {
+		return regeneratorRuntime.wrap(function _callee9$(_context15) {
 			while (1) {
-				switch (_context14.prev = _context14.next) {
+				switch (_context15.prev = _context15.next) {
 					case 0:
 						err = getSubmitError(data instanceof HTMLDocument ? data : $DOM(data));
 
 						if (!err) {
-							_context14.next = 5;
+							_context15.next = 5;
 							break;
 						}
 
 						$popup(Lng.errDelete[lang] + err, 'delete', false);
 						updater.sendErrNotif();
-						return _context14.abrupt('return');
+						return _context15.abrupt('return');
 
 					case 5:
 						_ref44 = doc.location.hash.match(/\d+/) || [];
@@ -11768,27 +11831,27 @@ true, true],
 						}
 
 						if (!isThr) {
-							_context14.next = 23;
+							_context15.next = 23;
 							break;
 						}
 
 						Post.clearMarks();
-						_context14.prev = 13;
-						_context14.next = 16;
+						_context15.prev = 13;
+						_context15.next = 16;
 						return Thread.first.loadNew();
 
 					case 16:
-						_context14.next = 21;
+						_context15.next = 21;
 						break;
 
 					case 18:
-						_context14.prev = 18;
-						_context14.t0 = _context14['catch'](13);
+						_context15.prev = 18;
+						_context15.t0 = _context15['catch'](13);
 
-						infoLoadErrors(_context14.t0);
+						infoLoadErrors(_context15.t0);
 
 					case 21:
-						_context14.next = 39;
+						_context15.next = 39;
 						break;
 
 					case 23:
@@ -11796,42 +11859,42 @@ true, true],
 
 					case 24:
 						if (!_isArray24) {
-							_context14.next = 30;
+							_context15.next = 30;
 							break;
 						}
 
 						if (!(_i25 >= _iterator24.length)) {
-							_context14.next = 27;
+							_context15.next = 27;
 							break;
 						}
 
-						return _context14.abrupt('break', 39);
+						return _context15.abrupt('break', 39);
 
 					case 27:
 						_ref46 = _iterator24[_i25++];
-						_context14.next = 34;
+						_context15.next = 34;
 						break;
 
 					case 30:
 						_i25 = _iterator24.next();
 
 						if (!_i25.done) {
-							_context14.next = 33;
+							_context15.next = 33;
 							break;
 						}
 
-						return _context14.abrupt('break', 39);
+						return _context15.abrupt('break', 39);
 
 					case 33:
 						_ref46 = _i25.value;
 
 					case 34:
 						thr = _ref46;
-						_context14.next = 37;
+						_context15.next = 37;
 						return thr.load(visPosts, false, false);
 
 					case 37:
-						_context14.next = 24;
+						_context15.next = 24;
 						break;
 
 					case 39:
@@ -11839,10 +11902,10 @@ true, true],
 
 					case 40:
 					case 'end':
-						return _context14.stop();
+						return _context15.stop();
 				}
 			}
-		}, _callee8, this, [[13, 18]]);
+		}, _callee9, this, [[13, 18]]);
 	}));
 
 	function html5Submit(form, submitter) {
@@ -11850,9 +11913,9 @@ true, true],
 
 		var formData, hasFiles, _iterator25, _isArray25, _i26, _ref47, _ref48, name, value, type, el, fileName, newFileName, data, ajaxParams, xhr;
 
-		return regeneratorRuntime.wrap(function html5Submit$(_context15) {
+		return regeneratorRuntime.wrap(function html5Submit$(_context16) {
 			while (1) {
-				switch (_context15.prev = _context15.next) {
+				switch (_context16.prev = _context16.next) {
 					case 0:
 						formData = new FormData();
 						hasFiles = false;
@@ -11860,31 +11923,31 @@ true, true],
 
 					case 3:
 						if (!_isArray25) {
-							_context15.next = 9;
+							_context16.next = 9;
 							break;
 						}
 
 						if (!(_i26 >= _iterator25.length)) {
-							_context15.next = 6;
+							_context16.next = 6;
 							break;
 						}
 
-						return _context15.abrupt('break', 36);
+						return _context16.abrupt('break', 36);
 
 					case 6:
 						_ref47 = _iterator25[_i26++];
-						_context15.next = 13;
+						_context16.next = 13;
 						break;
 
 					case 9:
 						_i26 = _iterator25.next();
 
 						if (!_i26.done) {
-							_context15.next = 12;
+							_context16.next = 12;
 							break;
 						}
 
-						return _context15.abrupt('break', 36);
+						return _context16.abrupt('break', 36);
 
 					case 12:
 						_ref47 = _i26.value;
@@ -11897,7 +11960,7 @@ true, true],
 						el = _ref48.el;
 
 						if (!(type === 'file')) {
-							_context15.next = 33;
+							_context16.next = 33;
 							break;
 						}
 
@@ -11905,28 +11968,28 @@ true, true],
 						fileName = value.name, newFileName = Cfg.removeFName ? ' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
 
 						if (!(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) && (Cfg.postSameImg || Cfg.removeEXIF))) {
-							_context15.next = 32;
+							_context16.next = 32;
 							break;
 						}
 
-						_context15.next = 24;
+						_context16.next = 24;
 						return readFile(value);
 
 					case 24:
-						_context15.t0 = _context15.sent.data;
-						_context15.t1 = el.obj.imgFile;
-						data = cleanFile(_context15.t0, _context15.t1);
+						_context16.t0 = _context16.sent.data;
+						_context16.t1 = el.obj.imgFile;
+						data = cleanFile(_context16.t0, _context16.t1);
 
 						if (data) {
-							_context15.next = 29;
+							_context16.next = 29;
 							break;
 						}
 
-						return _context15.abrupt('return', Promise.reject(Lng.fileCorrupt[lang] + fileName));
+						return _context16.abrupt('return', Promise.reject(Lng.fileCorrupt[lang] + fileName));
 
 					case 29:
 						value = new File(data, newFileName);
-						_context15.next = 33;
+						_context16.next = 33;
 						break;
 
 					case 32:
@@ -11938,7 +12001,7 @@ true, true],
 						formData.append(name, value);
 
 					case 34:
-						_context15.next = 3;
+						_context16.next = 3;
 						break;
 
 					case 36:
@@ -11947,22 +12010,22 @@ true, true],
 						if (needProgress && hasFiles) {
 							ajaxParams.onprogress = getUploadFunc();
 						}
-						_context15.prev = 38;
-						_context15.next = 41;
+						_context16.prev = 38;
+						_context16.next = 41;
 						return $ajax(form.action, ajaxParams);
 
 					case 41:
-						xhr = _context15.sent;
-						return _context15.abrupt('return', aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText));
+						xhr = _context16.sent;
+						return _context16.abrupt('return', aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText));
 
 					case 45:
-						_context15.prev = 45;
-						_context15.t2 = _context15['catch'](38);
-						return _context15.abrupt('return', Promise.reject(_context15.t2));
+						_context16.prev = 45;
+						_context16.t2 = _context16['catch'](38);
+						return _context16.abrupt('return', Promise.reject(_context16.t2));
 
 					case 48:
 					case 'end':
-						return _context15.stop();
+						return _context16.stop();
 				}
 			}
 		}, _marked[5], this, [[38, 45]]);
@@ -12948,26 +13011,26 @@ true, true],
 			var _this34 = this;
 
 			var el, src, data, buffer, val, w, h, imgData, cnv, ctx;
-			return regeneratorRuntime.wrap(function _getHashHelper$(_context16) {
+			return regeneratorRuntime.wrap(function _getHashHelper$(_context17) {
 				while (1) {
-					switch (_context16.prev = _context16.next) {
+					switch (_context17.prev = _context17.next) {
 						case 0:
 							el = imgObj.el, src = imgObj.src;
 
 							if (!(src in this._storage)) {
-								_context16.next = 3;
+								_context17.next = 3;
 								break;
 							}
 
-							return _context16.abrupt('return', this._storage[src]);
+							return _context17.abrupt('return', this._storage[src]);
 
 						case 3:
 							if (el.complete) {
-								_context16.next = 6;
+								_context17.next = 6;
 								break;
 							}
 
-							_context16.next = 6;
+							_context17.next = 6;
 							return new Promise(function (resolve) {
 								return el.addEventListener('load', function () {
 									return resolve();
@@ -12976,30 +13039,30 @@ true, true],
 
 						case 6:
 							if (!(el.naturalWidth + el.naturalHeight === 0)) {
-								_context16.next = 8;
+								_context17.next = 8;
 								break;
 							}
 
-							return _context16.abrupt('return', -1);
+							return _context17.abrupt('return', -1);
 
 						case 8:
 							val = -1, w = el.naturalWidth, h = el.naturalHeight;
 
 							if (!aib.fch) {
-								_context16.next = 16;
+								_context17.next = 16;
 								break;
 							}
 
-							_context16.next = 12;
+							_context17.next = 12;
 							return downloadImgData(el.src);
 
 						case 12:
-							imgData = _context16.sent;
+							imgData = _context17.sent;
 
 							if (imgData) {
 								buffer = imgData.buffer;
 							}
-							_context16.next = 22;
+							_context17.next = 22;
 							break;
 
 						case 16:
@@ -13014,11 +13077,11 @@ true, true],
 
 						case 22:
 							if (!buffer) {
-								_context16.next = 27;
+								_context17.next = 27;
 								break;
 							}
 
-							_context16.next = 25;
+							_context17.next = 25;
 							return new Promise(function (resolve) {
 								return _this34._workers.run([buffer, w, h], [buffer], function (val) {
 									return resolve(val);
@@ -13026,7 +13089,7 @@ true, true],
 							});
 
 						case 25:
-							data = _context16.sent;
+							data = _context17.sent;
 
 							if (data && 'hash' in data) {
 								val = data.hash;
@@ -13034,11 +13097,11 @@ true, true],
 
 						case 27:
 							this._storage[src] = val;
-							return _context16.abrupt('return', val);
+							return _context17.abrupt('return', val);
 
 						case 29:
 						case 'end':
-							return _context16.stop();
+							return _context17.stop();
 					}
 				}
 			}, _getHashHelper, this);
@@ -15197,31 +15260,31 @@ true, true],
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
 				var bEls, i, len, bEl, pEl;
-				return regeneratorRuntime.wrap(function bannedPostsData$(_context17) {
+				return regeneratorRuntime.wrap(function bannedPostsData$(_context18) {
 					while (1) {
-						switch (_context17.prev = _context17.next) {
+						switch (_context18.prev = _context18.next) {
 							case 0:
 								bEls = $Q(aib.qBan, this._form);
 								i = 0, len = bEls.length;
 
 							case 2:
 								if (!(i < len)) {
-									_context17.next = 9;
+									_context18.next = 9;
 									break;
 								}
 
 								bEl = bEls[i], pEl = aib.getPostElOfEl(bEl);
-								_context17.next = 6;
+								_context18.next = 6;
 								return [1, pEl ? aib.getPNum(pEl) : null, doc.adoptNode(bEl)];
 
 							case 6:
 								++i;
-								_context17.next = 2;
+								_context18.next = 2;
 								break;
 
 							case 9:
 							case 'end':
-								return _context17.stop();
+								return _context18.stop();
 						}
 					}
 				}, bannedPostsData, this);
@@ -15365,12 +15428,12 @@ true, true],
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				return regeneratorRuntime.wrap(function bannedPostsData$(_context18) {
+				return regeneratorRuntime.wrap(function bannedPostsData$(_context19) {
 					while (1) {
-						switch (_context18.prev = _context18.next) {
+						switch (_context19.prev = _context19.next) {
 							case 0:
 							case 'end':
-								return _context18.stop();
+								return _context19.stop();
 						}
 					}
 				}, bannedPostsData, this);
@@ -15487,12 +15550,12 @@ true, true],
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				return regeneratorRuntime.wrap(function bannedPostsData$(_context19) {
+				return regeneratorRuntime.wrap(function bannedPostsData$(_context20) {
 					while (1) {
-						switch (_context19.prev = _context19.next) {
+						switch (_context20.prev = _context20.next) {
 							case 0:
 							case 'end':
-								return _context19.stop();
+								return _context20.stop();
 						}
 					}
 				}, bannedPostsData, this);
@@ -15589,70 +15652,70 @@ true, true],
 			value: regeneratorRuntime.mark(function bannedPostsData() {
 				var _iterator33, _isArray33, _i34, _ref59, _post;
 
-				return regeneratorRuntime.wrap(function bannedPostsData$(_context20) {
+				return regeneratorRuntime.wrap(function bannedPostsData$(_context21) {
 					while (1) {
-						switch (_context20.prev = _context20.next) {
+						switch (_context21.prev = _context21.next) {
 							case 0:
 								_iterator33 = this._posts, _isArray33 = Array.isArray(_iterator33), _i34 = 0, _iterator33 = _isArray33 ? _iterator33 : _iterator33[Symbol.iterator]();
 
 							case 1:
 								if (!_isArray33) {
-									_context20.next = 7;
+									_context21.next = 7;
 									break;
 								}
 
 								if (!(_i34 >= _iterator33.length)) {
-									_context20.next = 4;
+									_context21.next = 4;
 									break;
 								}
 
-								return _context20.abrupt('break', 23);
+								return _context21.abrupt('break', 23);
 
 							case 4:
 								_ref59 = _iterator33[_i34++];
-								_context20.next = 11;
+								_context21.next = 11;
 								break;
 
 							case 7:
 								_i34 = _iterator33.next();
 
 								if (!_i34.done) {
-									_context20.next = 10;
+									_context21.next = 10;
 									break;
 								}
 
-								return _context20.abrupt('break', 23);
+								return _context21.abrupt('break', 23);
 
 							case 10:
 								_ref59 = _i34.value;
 
 							case 11:
 								_post = _ref59;
-								_context20.t0 = _post.banned;
-								_context20.next = _context20.t0 === 1 ? 15 : _context20.t0 === 2 ? 18 : 21;
+								_context21.t0 = _post.banned;
+								_context21.next = _context21.t0 === 1 ? 15 : _context21.t0 === 2 ? 18 : 21;
 								break;
 
 							case 15:
-								_context20.next = 17;
+								_context21.next = 17;
 								return [1, _post.num, $add('<span class="pomyanem">(Автор этого поста был забанен. Помянем.)</span>')];
 
 							case 17:
-								return _context20.abrupt('break', 21);
+								return _context21.abrupt('break', 21);
 
 							case 18:
-								_context20.next = 20;
+								_context21.next = 20;
 								return [2, _post.num, $add('<span class="pomyanem">(Автор этого поста был предупрежден.)</span>')];
 
 							case 20:
-								return _context20.abrupt('break', 21);
+								return _context21.abrupt('break', 21);
 
 							case 21:
-								_context20.next = 1;
+								_context21.next = 1;
 								break;
 
 							case 23:
 							case 'end':
-								return _context20.stop();
+								return _context21.stop();
 						}
 					}
 				}, bannedPostsData, this);
@@ -20241,19 +20304,19 @@ true, true],
 
 	function runMain(checkDomains, cfgPromise) {
 		var formEl, str;
-		return regeneratorRuntime.wrap(function runMain$(_context21) {
+		return regeneratorRuntime.wrap(function runMain$(_context22) {
 			while (1) {
-				switch (_context21.prev = _context21.next) {
+				switch (_context22.prev = _context22.next) {
 					case 0:
 						Logger.init();
 						docBody = doc.body;
 
 						if (docBody) {
-							_context21.next = 4;
+							_context22.next = 4;
 							break;
 						}
 
-						return _context21.abrupt('return');
+						return _context22.abrupt('return');
 
 					case 4:
 						if (!aib) {
@@ -20262,87 +20325,87 @@ true, true],
 						formEl = $q(aib.qDForm + ', form[de-form]');
 
 						if (formEl) {
-							_context21.next = 8;
+							_context22.next = 8;
 							break;
 						}
 
-						return _context21.abrupt('return');
+						return _context22.abrupt('return');
 
 					case 8:
 						Logger.log('Imageboard check');
 
 						if (locStorage) {
-							_context21.next = 13;
+							_context22.next = 13;
 							break;
 						}
 
 						if (checkStorage()) {
-							_context21.next = 12;
+							_context22.next = 12;
 							break;
 						}
 
-						return _context21.abrupt('return');
+						return _context22.abrupt('return');
 
 					case 12:
 						initNavFuncs();
 
 					case 13:
-						return _context21.delegateYield(getStored('DESU_Exclude'), 't0', 14);
+						return _context22.delegateYield(getStored('DESU_Exclude'), 't0', 14);
 
 					case 14:
-						str = _context21.t0;
+						str = _context22.t0;
 
 						if (!(str && str.includes(aib.dm))) {
-							_context21.next = 17;
+							_context22.next = 17;
 							break;
 						}
 
-						return _context21.abrupt('return');
+						return _context22.abrupt('return');
 
 					case 17:
 						excludeList = str || '';
 
 						if (Cfg) {
-							_context21.next = 25;
+							_context22.next = 25;
 							break;
 						}
 
 						if (!cfgPromise) {
-							_context21.next = 24;
+							_context22.next = 24;
 							break;
 						}
 
-						_context21.next = 22;
+						_context22.next = 22;
 						return cfgPromise;
 
 					case 22:
-						_context21.next = 25;
+						_context22.next = 25;
 						break;
 
 					case 24:
-						return _context21.delegateYield(readCfg(), 't1', 25);
+						return _context22.delegateYield(readCfg(), 't1', 25);
 
 					case 25:
 						Logger.log('Config loading');
 
 						if (!(!Cfg.disabled && (aib.init && aib.init() || $id('de-panel')))) {
-							_context21.next = 28;
+							_context22.next = 28;
 							break;
 						}
 
-						return _context21.abrupt('return');
+						return _context22.abrupt('return');
 
 					case 28:
 						addSVGIcons();
 
 						if (!Cfg.disabled) {
-							_context21.next = 33;
+							_context22.next = 33;
 							break;
 						}
 
 						panel.init(formEl);
 						scriptCSS();
-						return _context21.abrupt('return');
+						return _context22.abrupt('return');
 
 					case 33:
 						initStorageEvent();
@@ -20367,19 +20430,19 @@ true, true],
 						Logger.log('Replace delform');
 						pByEl = new Map();
 						pByNum = new Map();
-						_context21.prev = 46;
+						_context22.prev = 46;
 
 						DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
-						_context21.next = 55;
+						_context22.next = 55;
 						break;
 
 					case 50:
-						_context21.prev = 50;
-						_context21.t2 = _context21['catch'](46);
+						_context22.prev = 50;
+						_context22.t2 = _context22['catch'](46);
 
-						console.log('DELFORM ERROR:\n' + getErrorMessage(_context21.t2));
+						console.log('DELFORM ERROR:\n' + getErrorMessage(_context22.t2));
 						$show(docBody);
-						return _context21.abrupt('return');
+						return _context22.abrupt('return');
 
 					case 55:
 						Logger.log('Parse delform');
@@ -20401,7 +20464,7 @@ true, true],
 						Logger.log('Display page');
 						toggleInfinityScroll();
 						Logger.log('Infinity scroll');
-						return _context21.delegateYield(readPostsData(DelForm.first.firstThr.op), 't3', 72);
+						return _context22.delegateYield(readPostsData(DelForm.first.firstThr.op), 't3', 72);
 
 					case 72:
 						Logger.log('Hide posts');
@@ -20415,7 +20478,7 @@ true, true],
 
 					case 77:
 					case 'end':
-						return _context21.stop();
+						return _context22.stop();
 				}
 			}
 		}, _marked[6], this, [[46, 50]]);
