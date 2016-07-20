@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = 'adf2391';
+var commit = '2ce78d1';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3725,7 +3725,8 @@ function addSettings(body, id) {
 					try {
 						var obj = JSON.parse(data);
 					} catch(e) {
-						$popup(Lng.invalidData[lang], 'err-invaliddata', false)
+						$popup(Lng.invalidData[lang], 'err-invaliddata', false);
+						return;
 					}
 					var cfgObj = obj.settings,
 						favObj = obj.favorites;
@@ -3757,10 +3758,12 @@ function addSettings(body, id) {
 					val = yield* getStored('DESU_Favorites');
 					str += (str ? ',' : '') + '"favorites":' + val;
 				}
-				downloadBlob(new Blob(['{' + str + '}'], { type: 'application/json' }),
-					'DE_' + (isCfg ? 'Config_' : '') + (isFav ? 'Favorites_' : '') +
-					d.getFullYear() + fn(d.getMonth() + 1) + fn(d.getDate()) + '_' +
-					fn(d.getHours()) + fn(d.getMinutes()) + '.json')
+				if(str) {
+					downloadBlob(new Blob(['{' + str + '}'], { type: 'application/json' }),
+						'DE_' + (isCfg ? 'Config_' : '') + (isFav ? 'Favorites_' : '') +
+						d.getFullYear() + fn(d.getMonth() + 1) + fn(d.getDate()) + '_' +
+						fn(d.getHours()) + fn(d.getMinutes()) + '.json');
+				}
 				$pd(e);
 			}), true);
 		}))

@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = 'adf2391';
+	var commit = '2ce78d1';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -6766,6 +6766,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						var obj = JSON.parse(data);
 					} catch (e) {
 						$popup(Lng.invalidData[lang], 'err-invaliddata', false);
+						return;
 					}
 					var cfgObj = obj.settings,
 					    favObj = obj.favorites;
@@ -6827,7 +6828,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								str += (str ? ',' : '') + '"favorites":' + val;
 
 							case 9:
-								downloadBlob(new Blob(['{' + str + '}'], { type: 'application/json' }), 'DE_' + (isCfg ? 'Config_' : '') + (isFav ? 'Favorites_' : '') + d.getFullYear() + fn(d.getMonth() + 1) + fn(d.getDate()) + '_' + fn(d.getHours()) + fn(d.getMinutes()) + '.json');
+								if (str) {
+									downloadBlob(new Blob(['{' + str + '}'], { type: 'application/json' }), 'DE_' + (isCfg ? 'Config_' : '') + (isFav ? 'Favorites_' : '') + d.getFullYear() + fn(d.getMonth() + 1) + fn(d.getDate()) + '_' + fn(d.getHours()) + fn(d.getMinutes()) + '.json');
+								}
 								$pd(e);
 
 							case 11:
