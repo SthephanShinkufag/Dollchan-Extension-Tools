@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = '2ce78d1';
+var commit = 'ba993e5';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -515,7 +515,7 @@ Lng = {
 	fileImpExp:     ['Импорт/экспорт настроек в файл', 'Import/export config to file'],
 	cfgImpExp:      ['Импорт/экспорт настроек', 'Import/export of config'],
 	fileToData:     ['Загрузить данные из файла', 'Load data from a file'],
-	dataToFile:     ['Получить файл</a> с данными:', 'Get the file</a> with data:'],
+	dataToFile:     ['Получить файл</a> с данными', 'Get the file</a> with data'],
 	globalCfg:      ['Глобальные настройки', 'Global config'],
 	loadGlobal:     [' и применить к этому домену', ' and apply to this domain'],
 	saveGlobal:     [' текущие настройки как глобальные', ' current config as global'],
@@ -523,7 +523,7 @@ Lng = {
 	editInTxt:      ['Правка в текстовом формате', 'Edit in text format'],
 	resetCfg:       ['Сбросить в настройки по умолчанию', 'Reset config to defaults'],
 	resetData:      ['Очистить данные', 'Reset selected data'],
-	allDomains:     ['Для всех доменов:', 'For all domains'],
+	allDomains:     ['для всех доменов', 'for all domains'],
 	clrSelected:    ['Удаление выделенных записей', 'Removing of selected notes'],
 	saveChanges:    ['Сохранить внесенные изменения', 'Save your changes'],
 	infoCount:      ['Обновить счетчики постов', 'Refresh posts counters'],
@@ -535,6 +535,7 @@ Lng = {
 	hiddenPosts:    ['Скрытые посты', 'Hidden posts'],
 	onPage:         [' на странице', ' on the page'],
 	hiddenThrds:    ['Скрытые треды', 'Hidden threads'],
+	hidPstThrds:    ['Скрытые посты и треды', 'Hidden posts and threads'],
 	myPosts:        ['Мои посты', 'My posts'],
 	noHidPosts:     ['На этой странице нет скрытых постов...', 'No hidden posts on this page...'],
 	noHidThrds:     ['Нет скрытых тредов...', 'No hidden threads...'],
@@ -1874,7 +1875,7 @@ class HiddenThreads extends PostsStorage {
 		super._saveStorageHelper();
 	}
 }
-HiddenPosts.storageName = 'de-threads-new';
+HiddenThreads.storageName = 'de-threads-new';
 
 class MyPosts extends PostsStorage {
 	static has(num) {
@@ -2658,6 +2659,7 @@ function showHiddenWindow(body) {
 					locStorage.removeItem('__de-post');
 				}
 				HiddenThreads.remove(num, arr[0]);
+				HiddenPosts.set(num, num, false);
 			}
 		});
 		toggleWindow('hid', true);
@@ -3635,39 +3637,38 @@ function addSettings(body, id) {
 				el = $popup('<b>' + Lng.resetData[lang] + ':</b>', 'cfg-reset', false);
 			el.insertAdjacentHTML('beforeend',
 				'<div class="de-list"><b>' + aib.dm + '</b>:' +
-				fn([Lng.panelBtn.cfg[lang],
-				    Lng.hiddenPosts[lang],
-				    Lng.hiddenThrds[lang],
-				    Lng.myPosts[lang]]) + '</div>' +
-				'<div class="de-list"><b>' + Lng.allDomains[lang] + '</b>' +
-				fn([Lng.panelBtn.cfg[lang],
-				    Lng.panelBtn.fav[lang],
-				    Lng.cfg.hotKeys[lang]]) + '</div>');
+					fn([Lng.panelBtn.cfg[lang], Lng.hidPstThrds[lang], Lng.myPosts[lang]]) + '</div>' +
+				'<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' +
+					fn([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div>');
 			el.appendChild($btn(Lng.clear[lang], '', function() {
 				var els = $Q('input[type="checkbox"]', this.parentNode);
-				for(var i = 0, len = els.length; i < len; ++i) {
+				for(var i = 1, len = els.length; i < len; i++) {
 					if(!els[i].checked) {
 						continue;
 					}
 					switch(i) {
-					case 1: locStorage.removeItem('de-posts-new'); break;
-					case 2: locStorage.removeItem('de-threads-new'); break;
-					case 3: locStorage.removeItem('de-myposts-new'); break;
-					case 5: delStored('DESU_Favorites'); break;
-					case 6: delStored('DESU_Keys');
+					case 1:
+						locStorage.removeItem('de-posts-new');
+						locStorage.removeItem('de-threads-new');
+						break;
+					case 2: locStorage.removeItem('de-myposts-new'); break;
+					case 4: delStored('DESU_Favorites');
 					}
 				}
-				if(els[4].checked) {
+				if(els[3].checked) {
 					delStored('DESU_Config');
+					delStored('DESU_keys');
 					delStored('DESU_Exclude');
 				} else if(els[0].checked) {
 					spawn(getStoredObj, 'DESU_Config').then(val => {
 						delete val[aib.dm];
 						setStored('DESU_Config', JSON.stringify(val));
+						$popup(Lng.updating[lang], 'cfg-reset', true);
 						window.location.reload();
 					});
 					return;
 				}
+				$popup(Lng.updating[lang], 'cfg-reset', true);
 				window.location.reload();
 			}));
 		}),
@@ -3710,12 +3711,16 @@ function addSettings(body, id) {
 			el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
 		})),
 		$if(!nav.Presto, $btn(Lng.file[lang], Lng.fileImpExp[lang], function() {
-			var fn = a => $join(a, '<label class="de-block de-cfg-depend"><input type="checkbox"/> ', '</label>')
-			$popup('<b>' + Lng.cfgImpExp[lang] + ':</b>' +
-				'<hr><div class="de-list">' + Lng.fileToData[lang] + ':<br>' +
-					'<input type="file" accept=".json" id="de-import-file" class="de-cfg-depend"/></div>' +
-				'<hr><div class="de-list"><a id="de-export-file" href="#">' + Lng.dataToFile[lang] + '<br>' +
-					fn([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div>',
+			var fn = a => $join(a, '<label class="de-block"><input type="checkbox"/> ', '</label>');
+			$popup('<b>' + Lng.cfgImpExp[lang] + ':</b><hr>' +
+				'<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' +
+					'<input type="file" accept=".json" id="de-import-file"/></div></div><hr>' +
+				'<div class="de-list"><a id="de-export-file" href="#">' +
+					Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + fn([
+					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
+					Lng.panelBtn.fav[lang],
+					Lng.hidPstThrds[lang] + ' (' + aib.dm + ')',
+					Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>',
 				'cfg-file', false);
 			$id('de-import-file').onchange = function({ target: { files: [file] } }) {
 				if(!file) {
@@ -3729,12 +3734,34 @@ function addSettings(body, id) {
 						return;
 					}
 					var cfgObj = obj.settings,
-						favObj = obj.favorites;
+						favObj = obj.favorites,
+						dmObj = obj[aib.dm],
+						isOldCfg = !cfgObj && !favObj && !dmObj;
+					if(isOldCfg) {
+						setStored('DESU_Config', data);
+					}
+					if(cfgObj) {
+						try {
+							setStored('DESU_Config', JSON.stringify(cfgObj));
+							setStored('DESU_keys', JSON.stringify(obj.hotkeys));
+							setStored('DESU_Exclude', JSON.stringify(obj.exclude));
+						} catch(e) {}
+					}
 					if(favObj) {
 						saveFavorites(favObj);
 					}
-					if(cfgObj || !cfgObj && !favObj) {
-						setStored('DESU_Config', cfgObj ? JSON.stringify(cfgObj) : data);
+					if(dmObj) {
+						if(dmObj.posts) {
+							locStorage['de-posts-new'] = JSON.stringify(dmObj.posts);
+						}
+						if(dmObj.threads) {
+							locStorage['de-threads-new'] = JSON.stringify(dmObj.threads);
+						}
+						if(dmObj.myposts) {
+							locStorage['de-myposts-new'] = JSON.stringify(dmObj.myposts);
+						}
+					}
+					if(cfgObj || dmObj || isOldCfg) {
 						$popup(Lng.updating[lang], 'cfg-file', true);
 						window.location.reload();
 						return;
@@ -3743,26 +3770,40 @@ function addSettings(body, id) {
 				});
 			}
 			var expFile = $id('de-export-file'),
-				[chkCfg, chkFav] = $Q('input', expFile.parentNode);
-			chkCfg.checked = true;
+				els = $Q('input', expFile.nextElementSibling);
+			els[0].checked = true;
 			expFile.addEventListener('click', async(function* (e) {
-				var val, str = '', d = new Date(),
-					fn = i => parseInt(i) < 10 ? '0' + i : i,
-					isCfg = chkCfg.checked,
-					isFav = chkFav.checked;
-				if(isCfg) {
-					val = yield* getStored('DESU_Config');
-					str += (str ? ',' : '') + '"settings":' + val;
+				var name = [], nameDm = [], val = [], valDm = [], d = new Date(),
+					fn = i => parseInt(i) < 10 ? '0' + i : i;
+				for(let i = 0, len = els.length; i < len; i++) {
+					if(!els[i].checked) {
+						continue;
+					}
+					switch(i) {
+					case 0: name.push('Cfg');
+						val.push('"settings":' + (yield* getStored('DESU_Config')));
+						val.push('"hotkeys":' + ((yield* getStored('DESU_keys')) || '""'));
+						val.push('"exclude":' + ((yield* getStored('DESU_Exclude')) || '""'));
+						break;
+					case 1: name.push('Fav');
+						val.push('"favorites":' + ((yield* getStored('DESU_Favorites')) || '{}'));
+						break;
+					case 2: nameDm.push('Hid');
+						valDm.push('"posts":' + (locStorage['de-posts-new'] || '{}'));
+						valDm.push('"threads":' + (locStorage['de-threads-new'] || '{}'));
+						break;
+					case 3: nameDm.push('You');
+						valDm.push('"myposts":' + (locStorage['de-myposts-new'] || '{}'));
+					}
 				}
-				if(chkFav.checked) {
-					val = yield* getStored('DESU_Favorites');
-					str += (str ? ',' : '') + '"favorites":' + val;
+				if((valDm = valDm.join(','))) {
+					val.push('"' + aib.dm + '":{' + valDm + '}');
+					name.push(aib.dm + '(' + nameDm.join('+') + ')');
 				}
-				if(str) {
-					downloadBlob(new Blob(['{' + str + '}'], { type: 'application/json' }),
-						'DE_' + (isCfg ? 'Config_' : '') + (isFav ? 'Favorites_' : '') +
-						d.getFullYear() + fn(d.getMonth() + 1) + fn(d.getDate()) + '_' +
-						fn(d.getHours()) + fn(d.getMinutes()) + '.json');
+				if((val = val.join(','))) {
+					downloadBlob(new Blob(['{' + val + '}'], { type: 'application/json' }),
+						'DE_' + d.getFullYear() + fn(d.getMonth() + 1) + fn(d.getDate()) + '_' +
+						fn(d.getHours()) + fn(d.getMinutes()) + '_' + name.join('+') + '.json');
 				}
 				$pd(e);
 			}), true);

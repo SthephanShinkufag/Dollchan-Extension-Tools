@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = '2ce78d1';
+	var commit = 'ba993e5';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3276,7 +3276,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		fileImpExp: ['Импорт/экспорт настроек в файл', 'Import/export config to file'],
 		cfgImpExp: ['Импорт/экспорт настроек', 'Import/export of config'],
 		fileToData: ['Загрузить данные из файла', 'Load data from a file'],
-		dataToFile: ['Получить файл</a> с данными:', 'Get the file</a> with data:'],
+		dataToFile: ['Получить файл</a> с данными', 'Get the file</a> with data'],
 		globalCfg: ['Глобальные настройки', 'Global config'],
 		loadGlobal: [' и применить к этому домену', ' and apply to this domain'],
 		saveGlobal: [' текущие настройки как глобальные', ' current config as global'],
@@ -3284,7 +3284,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		editInTxt: ['Правка в текстовом формате', 'Edit in text format'],
 		resetCfg: ['Сбросить в настройки по умолчанию', 'Reset config to defaults'],
 		resetData: ['Очистить данные', 'Reset selected data'],
-		allDomains: ['Для всех доменов:', 'For all domains'],
+		allDomains: ['для всех доменов', 'for all domains'],
 		clrSelected: ['Удаление выделенных записей', 'Removing of selected notes'],
 		saveChanges: ['Сохранить внесенные изменения', 'Save your changes'],
 		infoCount: ['Обновить счетчики постов', 'Refresh posts counters'],
@@ -3296,6 +3296,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		hiddenPosts: ['Скрытые посты', 'Hidden posts'],
 		onPage: [' на странице', ' on the page'],
 		hiddenThrds: ['Скрытые треды', 'Hidden threads'],
+		hidPstThrds: ['Скрытые посты и треды', 'Hidden posts and threads'],
 		myPosts: ['Мои посты', 'My posts'],
 		noHidPosts: ['На этой странице нет скрытых постов...', 'No hidden posts on this page...'],
 		noHidThrds: ['Нет скрытых тредов...', 'No hidden threads...'],
@@ -5042,7 +5043,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return HiddenThreads;
 	}(PostsStorage);
 
-	HiddenPosts.storageName = 'de-threads-new';
+	HiddenThreads.storageName = 'de-threads-new';
 
 	var MyPosts = function (_PostsStorage3) {
 		_inherits(MyPosts, _PostsStorage3);
@@ -5796,6 +5797,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						locStorage.removeItem('__de-post');
 					}
 					HiddenThreads.remove(num, arr[0]);
+					HiddenPosts.set(num, num, false);
 				}
 			});
 			toggleWindow('hid', true);
@@ -6685,37 +6687,38 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return $join(a, '<label class="de-block"><input type="checkbox"/> ', '</label>');
 			},
 			    el = $popup('<b>' + Lng.resetData[lang] + ':</b>', 'cfg-reset', false);
-			el.insertAdjacentHTML('beforeend', '<div class="de-list"><b>' + aib.dm + '</b>:' + fn([Lng.panelBtn.cfg[lang], Lng.hiddenPosts[lang], Lng.hiddenThrds[lang], Lng.myPosts[lang]]) + '</div>' + '<div class="de-list"><b>' + Lng.allDomains[lang] + '</b>' + fn([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang], Lng.cfg.hotKeys[lang]]) + '</div>');
+			el.insertAdjacentHTML('beforeend', '<div class="de-list"><b>' + aib.dm + '</b>:' + fn([Lng.panelBtn.cfg[lang], Lng.hidPstThrds[lang], Lng.myPosts[lang]]) + '</div>' + '<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' + fn([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div>');
 			el.appendChild($btn(Lng.clear[lang], '', function () {
 				var els = $Q('input[type="checkbox"]', this.parentNode);
-				for (var i = 0, len = els.length; i < len; ++i) {
+				for (var i = 1, len = els.length; i < len; i++) {
 					if (!els[i].checked) {
 						continue;
 					}
 					switch (i) {
 						case 1:
-							locStorage.removeItem('de-posts-new');break;
+							locStorage.removeItem('de-posts-new');
+							locStorage.removeItem('de-threads-new');
+							break;
 						case 2:
-							locStorage.removeItem('de-threads-new');break;
-						case 3:
 							locStorage.removeItem('de-myposts-new');break;
-						case 5:
-							delStored('DESU_Favorites');break;
-						case 6:
-							delStored('DESU_Keys');
+						case 4:
+							delStored('DESU_Favorites');
 					}
 				}
-				if (els[4].checked) {
+				if (els[3].checked) {
 					delStored('DESU_Config');
+					delStored('DESU_keys');
 					delStored('DESU_Exclude');
 				} else if (els[0].checked) {
 					spawn(getStoredObj, 'DESU_Config').then(function (val) {
 						delete val[aib.dm];
 						setStored('DESU_Config', JSON.stringify(val));
+						$popup(Lng.updating[lang], 'cfg-reset', true);
 						window.location.reload();
 					});
 					return;
 				}
+				$popup(Lng.updating[lang], 'cfg-reset', true);
 				window.location.reload();
 			}));
 		}), $if(nav.isGlobal, $btn(Lng.global[lang], Lng.globalCfg[lang], function () {
@@ -6748,9 +6751,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
 		})), $if(!nav.Presto, $btn(Lng.file[lang], Lng.fileImpExp[lang], function () {
 			var fn = function fn(a) {
-				return $join(a, '<label class="de-block de-cfg-depend"><input type="checkbox"/> ', '</label>');
+				return $join(a, '<label class="de-block"><input type="checkbox"/> ', '</label>');
 			};
-			$popup('<b>' + Lng.cfgImpExp[lang] + ':</b>' + '<hr><div class="de-list">' + Lng.fileToData[lang] + ':<br>' + '<input type="file" accept=".json" id="de-import-file" class="de-cfg-depend"/></div>' + '<hr><div class="de-list"><a id="de-export-file" href="#">' + Lng.dataToFile[lang] + '<br>' + fn([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div>', 'cfg-file', false);
+			$popup('<b>' + Lng.cfgImpExp[lang] + ':</b><hr>' + '<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' + '<input type="file" accept=".json" id="de-import-file"/></div></div><hr>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + fn([Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang], Lng.panelBtn.fav[lang], Lng.hidPstThrds[lang] + ' (' + aib.dm + ')', Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>', 'cfg-file', false);
 			$id('de-import-file').onchange = function (_ref9) {
 				var _ref9$target$files = _slicedToArray(_ref9.target.files, 1);
 
@@ -6769,12 +6772,34 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return;
 					}
 					var cfgObj = obj.settings,
-					    favObj = obj.favorites;
+					    favObj = obj.favorites,
+					    dmObj = obj[aib.dm],
+					    isOldCfg = !cfgObj && !favObj && !dmObj;
+					if (isOldCfg) {
+						setStored('DESU_Config', data);
+					}
+					if (cfgObj) {
+						try {
+							setStored('DESU_Config', JSON.stringify(cfgObj));
+							setStored('DESU_keys', JSON.stringify(obj.hotkeys));
+							setStored('DESU_Exclude', JSON.stringify(obj.exclude));
+						} catch (e) {}
+					}
 					if (favObj) {
 						saveFavorites(favObj);
 					}
-					if (cfgObj || !cfgObj && !favObj) {
-						setStored('DESU_Config', cfgObj ? JSON.stringify(cfgObj) : data);
+					if (dmObj) {
+						if (dmObj.posts) {
+							locStorage['de-posts-new'] = JSON.stringify(dmObj.posts);
+						}
+						if (dmObj.threads) {
+							locStorage['de-threads-new'] = JSON.stringify(dmObj.threads);
+						}
+						if (dmObj.myposts) {
+							locStorage['de-myposts-new'] = JSON.stringify(dmObj.myposts);
+						}
+					}
+					if (cfgObj || dmObj || isOldCfg) {
 						$popup(Lng.updating[lang], 'cfg-file', true);
 						window.location.reload();
 						return;
@@ -6782,58 +6807,138 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					closePopup('cfg-file');
 				});
 			};
-			var expFile = $id('de-export-file');
-
-			var _$Q = $Q('input', expFile.parentNode);
-
-			var _$Q2 = _slicedToArray(_$Q, 2);
-
-			var chkCfg = _$Q2[0];
-			var chkFav = _$Q2[1];
-
-			chkCfg.checked = true;
+			var expFile = $id('de-export-file'),
+			    els = $Q('input', expFile.nextElementSibling);
+			els[0].checked = true;
 			expFile.addEventListener('click', async(regeneratorRuntime.mark(function _callee5(e) {
-				var val, str, d, fn, isCfg, isFav;
+				var name, nameDm, val, valDm, d, fn, i, len;
 				return regeneratorRuntime.wrap(function _callee5$(_context10) {
 					while (1) {
 						switch (_context10.prev = _context10.next) {
 							case 0:
-								str = '', d = new Date(), fn = function fn(i) {
+								name = [], nameDm = [], val = [], valDm = [], d = new Date(), fn = function fn(i) {
 									return parseInt(i) < 10 ? '0' + i : i;
-								}, isCfg = chkCfg.checked, isFav = chkFav.checked;
+								};
+								i = 0, len = els.length;
 
-								if (!isCfg) {
+							case 2:
+								if (!(i < len)) {
+									_context10.next = 50;
+									break;
+								}
+
+								if (els[i].checked) {
 									_context10.next = 5;
 									break;
 								}
 
-								return _context10.delegateYield(getStored('DESU_Config'), 't0', 3);
-
-							case 3:
-								val = _context10.t0;
-
-								str += (str ? ',' : '') + '"settings":' + val;
+								return _context10.abrupt('continue', 47);
 
 							case 5:
-								if (!chkFav.checked) {
-									_context10.next = 9;
+								_context10.t0 = i;
+								_context10.next = _context10.t0 === 0 ? 8 : _context10.t0 === 1 ? 31 : _context10.t0 === 2 ? 41 : _context10.t0 === 3 ? 45 : 47;
+								break;
+
+							case 8:
+								name.push('Cfg');
+								_context10.t1 = val;
+								return _context10.delegateYield(getStored('DESU_Config'), 't2', 11);
+
+							case 11:
+								_context10.t3 = _context10.t2;
+								_context10.t4 = '"settings":' + _context10.t3;
+
+								_context10.t1.push.call(_context10.t1, _context10.t4);
+
+								_context10.t5 = val;
+								return _context10.delegateYield(getStored('DESU_keys'), 't7', 16);
+
+							case 16:
+								_context10.t6 = _context10.t7;
+
+								if (_context10.t6) {
+									_context10.next = 19;
 									break;
 								}
 
-								return _context10.delegateYield(getStored('DESU_Favorites'), 't1', 7);
+								_context10.t6 = '""';
 
-							case 7:
-								val = _context10.t1;
+							case 19:
+								_context10.t8 = _context10.t6;
+								_context10.t9 = '"hotkeys":' + _context10.t8;
 
-								str += (str ? ',' : '') + '"favorites":' + val;
+								_context10.t5.push.call(_context10.t5, _context10.t9);
 
-							case 9:
-								if (str) {
-									downloadBlob(new Blob(['{' + str + '}'], { type: 'application/json' }), 'DE_' + (isCfg ? 'Config_' : '') + (isFav ? 'Favorites_' : '') + d.getFullYear() + fn(d.getMonth() + 1) + fn(d.getDate()) + '_' + fn(d.getHours()) + fn(d.getMinutes()) + '.json');
+								_context10.t10 = val;
+								return _context10.delegateYield(getStored('DESU_Exclude'), 't12', 24);
+
+							case 24:
+								_context10.t11 = _context10.t12;
+
+								if (_context10.t11) {
+									_context10.next = 27;
+									break;
+								}
+
+								_context10.t11 = '""';
+
+							case 27:
+								_context10.t13 = _context10.t11;
+								_context10.t14 = '"exclude":' + _context10.t13;
+
+								_context10.t10.push.call(_context10.t10, _context10.t14);
+
+								return _context10.abrupt('break', 47);
+
+							case 31:
+								name.push('Fav');
+								_context10.t15 = val;
+								return _context10.delegateYield(getStored('DESU_Favorites'), 't17', 34);
+
+							case 34:
+								_context10.t16 = _context10.t17;
+
+								if (_context10.t16) {
+									_context10.next = 37;
+									break;
+								}
+
+								_context10.t16 = '{}';
+
+							case 37:
+								_context10.t18 = _context10.t16;
+								_context10.t19 = '"favorites":' + _context10.t18;
+
+								_context10.t15.push.call(_context10.t15, _context10.t19);
+
+								return _context10.abrupt('break', 47);
+
+							case 41:
+								nameDm.push('Hid');
+								valDm.push('"posts":' + (locStorage['de-posts-new'] || '{}'));
+								valDm.push('"threads":' + (locStorage['de-threads-new'] || '{}'));
+								return _context10.abrupt('break', 47);
+
+							case 45:
+								nameDm.push('You');
+								valDm.push('"myposts":' + (locStorage['de-myposts-new'] || '{}'));
+
+							case 47:
+								i++;
+								_context10.next = 2;
+								break;
+
+							case 50:
+								if (valDm = valDm.join(',')) {
+									val.push('"' + aib.dm + '":{' + valDm + '}');
+									name.push(aib.dm + '(' + nameDm.join('+') + ')');
+								}
+								if (val = val.join(',')) {
+									downloadBlob(new Blob(['{' + val + '}'], { type: 'application/json' }), 'DE_' + d.getFullYear() + fn(d.getMonth() + 1) + fn(d.getDate()) + '_' + fn(d.getHours()) + fn(d.getMinutes()) + '_' + name.join('+') + '.json');
 								}
 								$pd(e);
 
-							case 11:
+							case 53:
 							case 'end':
 								return _context10.stop();
 						}
