@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = 'ba993e5';
+	var commit = 'd0cbd2a';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -4990,6 +4990,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 
 		_createClass(HiddenPosts, null, [{
+			key: '_readStorage',
+			value: function _readStorage() {
+				if (locStorage.hasOwnProperty('de-threads-new')) {
+					locStorage['de-posts'] = locStorage['de-threads-new'];
+					locStorage.removeItem('de-threads-new');
+				}
+				return _get(Object.getPrototypeOf(HiddenPosts), '_readStorage', this).call(this);
+			}
+		}, {
 			key: '_saveStorageHelper',
 			value: function _saveStorageHelper() {
 				toggleWindow('hid', true);
@@ -5000,7 +5009,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return HiddenPosts;
 	}(PostsStorage);
 
-	HiddenPosts.storageName = 'de-posts-new';
+	HiddenPosts.storageName = 'de-posts';
 
 	var HiddenThreads = function (_PostsStorage2) {
 		_inherits(HiddenThreads, _PostsStorage2);
@@ -5012,6 +5021,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 
 		_createClass(HiddenThreads, null, [{
+			key: '_readStorage',
+			value: function _readStorage() {
+				if (locStorage.hasOwnProperty('')) {
+					locStorage['de-threads'] = locStorage[''];
+					locStorage.removeItem('');
+				}
+				return _get(Object.getPrototypeOf(HiddenThreads), '_readStorage', this).call(this);
+			}
+		}, {
 			key: 'getCount',
 			value: function getCount() {
 				var storage = this._readStorage();
@@ -5043,7 +5061,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return HiddenThreads;
 	}(PostsStorage);
 
-	HiddenThreads.storageName = 'de-threads-new';
+	HiddenThreads.storageName = 'de-threads';
 
 	var MyPosts = function (_PostsStorage3) {
 		_inherits(MyPosts, _PostsStorage3);
@@ -5055,6 +5073,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 
 		_createClass(MyPosts, null, [{
+			key: '_readStorage',
+			value: function _readStorage() {
+				if (locStorage.hasOwnProperty('de-myposts-new')) {
+					locStorage['de-myposts'] = locStorage['de-myposts-new'];
+					locStorage.removeItem('de-myposts-new');
+				}
+				return _get(Object.getPrototypeOf(MyPosts), '_readStorage', this).call(this);
+			}
+		}, {
 			key: 'has',
 			value: function has(num) {
 				return this._cachedData.has(num);
@@ -5096,7 +5123,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return MyPosts;
 	}(PostsStorage);
 
-	MyPosts.storageName = 'de-myposts-new';
+	MyPosts.storageName = 'de-myposts';
 	MyPosts._cachedData = null;
 
 
@@ -6374,7 +6401,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			Post.clearMarks();
 		})])])), $if(aib.jsonSubmit || aib.fch, lBox('markMyPosts', true, function () {
 			if (!Cfg.markMyPosts && !Cfg.markMyLinks) {
-				locStorage.removeItem('de-myposts-new');
+				locStorage.removeItem('de-myposts');
 				MyPosts.purge();
 			}
 			updateCSS();
@@ -6479,7 +6506,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			saveCfg('linksOut', +this.value | 0);
 		}), $txt(Lng.cfg.linksOut[lang])]), lBox('markViewed', true, null), lBox('strikeHidd', true, updateCSS), $New('div', { 'class': 'de-cfg-depend' }, [lBox('removeHidd', false, updateCSS)]), lBox('noNavigHidd', true, null)]), $if(aib.jsonSubmit || aib.fch, lBox('markMyLinks', true, function () {
 			if (!Cfg.markMyPosts && !Cfg.markMyLinks) {
-				locStorage.removeItem('de-myposts-new');
+				locStorage.removeItem('de-myposts');
 				MyPosts.purge();
 			}
 			updateCSS();
@@ -6696,11 +6723,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 					switch (i) {
 						case 1:
-							locStorage.removeItem('de-posts-new');
-							locStorage.removeItem('de-threads-new');
+							locStorage.removeItem('de-posts');
+							locStorage.removeItem('de-threads');
 							break;
 						case 2:
-							locStorage.removeItem('de-myposts-new');break;
+							locStorage.removeItem('de-myposts');break;
 						case 4:
 							delStored('DESU_Favorites');
 					}
@@ -6790,13 +6817,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 					if (dmObj) {
 						if (dmObj.posts) {
-							locStorage['de-posts-new'] = JSON.stringify(dmObj.posts);
+							locStorage['de-posts'] = JSON.stringify(dmObj.posts);
 						}
 						if (dmObj.threads) {
-							locStorage['de-threads-new'] = JSON.stringify(dmObj.threads);
+							locStorage['de-threads'] = JSON.stringify(dmObj.threads);
 						}
 						if (dmObj.myposts) {
-							locStorage['de-myposts-new'] = JSON.stringify(dmObj.myposts);
+							locStorage['de-myposts'] = JSON.stringify(dmObj.myposts);
 						}
 					}
 					if (cfgObj || dmObj || isOldCfg) {
@@ -6915,13 +6942,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 							case 41:
 								nameDm.push('Hid');
-								valDm.push('"posts":' + (locStorage['de-posts-new'] || '{}'));
-								valDm.push('"threads":' + (locStorage['de-threads-new'] || '{}'));
+								valDm.push('"posts":' + (locStorage['de-posts'] || '{}'));
+								valDm.push('"threads":' + (locStorage['de-threads'] || '{}'));
 								return _context10.abrupt('break', 47);
 
 							case 45:
 								nameDm.push('You');
-								valDm.push('"myposts":' + (locStorage['de-myposts-new'] || '{}'));
+								valDm.push('"myposts":' + (locStorage['de-myposts'] || '{}'));
 
 							case 47:
 								i++;
@@ -19119,7 +19146,7 @@ true, true],
 						toggleWindow('hid', true);
 					})();
 					return;
-				case 'de-threads-new':
+				case 'de-threads':
 					HiddenThreads.purge();
 					Thread.first.updateHidden(HiddenThreads.getRawData()[aib.b]);
 					toggleWindow('hid', true);

@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = 'ba993e5';
+var commit = 'd0cbd2a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1846,14 +1846,28 @@ PostsStorage._cachedStorage = null;
 PostsStorage._cacheTO = null;
 
 class HiddenPosts extends PostsStorage {
+	static _readStorage() {
+		if(locStorage.hasOwnProperty('de-threads-new')) {
+			locStorage['de-posts'] = locStorage['de-threads-new'];
+			locStorage.removeItem('de-threads-new');
+		}
+		return super._readStorage();
+	}
 	static _saveStorageHelper() {
 		toggleWindow('hid', true);
 		super._saveStorageHelper();
 	}
 }
-HiddenPosts.storageName = 'de-posts-new';
+HiddenPosts.storageName = 'de-posts';
 
 class HiddenThreads extends PostsStorage {
+	static _readStorage() {
+		if(locStorage.hasOwnProperty('')) {
+			locStorage['de-threads'] = locStorage[''];
+			locStorage.removeItem('');
+		}
+		return super._readStorage();
+	}
 	static getCount() {
 		var storage = this._readStorage();
 		var rv = 0;
@@ -1875,9 +1889,16 @@ class HiddenThreads extends PostsStorage {
 		super._saveStorageHelper();
 	}
 }
-HiddenThreads.storageName = 'de-threads-new';
+HiddenThreads.storageName = 'de-threads';
 
 class MyPosts extends PostsStorage {
+	static _readStorage() {
+		if(locStorage.hasOwnProperty('de-myposts-new')) {
+			locStorage['de-myposts'] = locStorage['de-myposts-new'];
+			locStorage.removeItem('de-myposts-new');
+		}
+		return super._readStorage();
+	}
 	static has(num) {
 		return this._cachedData.has(num);
 	}
@@ -1905,7 +1926,7 @@ class MyPosts extends PostsStorage {
 		return rv;
 	}
 }
-MyPosts.storageName = 'de-myposts-new';
+MyPosts.storageName = 'de-myposts';
 MyPosts._cachedData = null;
 
 
@@ -3142,7 +3163,7 @@ function getCfgPosts() {
 		])),
 		$if(aib.jsonSubmit || aib.fch, lBox('markMyPosts', true, function() {
 			if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
-				locStorage.removeItem('de-myposts-new');
+				locStorage.removeItem('de-myposts');
 				MyPosts.purge();
 			}
 			updateCSS();
@@ -3295,7 +3316,7 @@ function getCfgLinks() {
 		]),
 		$if(aib.jsonSubmit || aib.fch, lBox('markMyLinks', true, function() {
 			if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
-				locStorage.removeItem('de-myposts-new');
+				locStorage.removeItem('de-myposts');
 				MyPosts.purge();
 			}
 			updateCSS();
@@ -3648,10 +3669,10 @@ function addSettings(body, id) {
 					}
 					switch(i) {
 					case 1:
-						locStorage.removeItem('de-posts-new');
-						locStorage.removeItem('de-threads-new');
+						locStorage.removeItem('de-posts');
+						locStorage.removeItem('de-threads');
 						break;
-					case 2: locStorage.removeItem('de-myposts-new'); break;
+					case 2: locStorage.removeItem('de-myposts'); break;
 					case 4: delStored('DESU_Favorites');
 					}
 				}
@@ -3752,13 +3773,13 @@ function addSettings(body, id) {
 					}
 					if(dmObj) {
 						if(dmObj.posts) {
-							locStorage['de-posts-new'] = JSON.stringify(dmObj.posts);
+							locStorage['de-posts'] = JSON.stringify(dmObj.posts);
 						}
 						if(dmObj.threads) {
-							locStorage['de-threads-new'] = JSON.stringify(dmObj.threads);
+							locStorage['de-threads'] = JSON.stringify(dmObj.threads);
 						}
 						if(dmObj.myposts) {
-							locStorage['de-myposts-new'] = JSON.stringify(dmObj.myposts);
+							locStorage['de-myposts'] = JSON.stringify(dmObj.myposts);
 						}
 					}
 					if(cfgObj || dmObj || isOldCfg) {
@@ -3789,11 +3810,11 @@ function addSettings(body, id) {
 						val.push('"favorites":' + ((yield* getStored('DESU_Favorites')) || '{}'));
 						break;
 					case 2: nameDm.push('Hid');
-						valDm.push('"posts":' + (locStorage['de-posts-new'] || '{}'));
-						valDm.push('"threads":' + (locStorage['de-threads-new'] || '{}'));
+						valDm.push('"posts":' + (locStorage['de-posts'] || '{}'));
+						valDm.push('"threads":' + (locStorage['de-threads'] || '{}'));
 						break;
 					case 3: nameDm.push('You');
-						valDm.push('"myposts":' + (locStorage['de-myposts-new'] || '{}'));
+						valDm.push('"myposts":' + (locStorage['de-myposts'] || '{}'));
 					}
 				}
 				if((valDm = valDm.join(','))) {
@@ -13892,7 +13913,7 @@ function initStorageEvent() {
 			toggleWindow('hid', true);
 		})();
 		return;
-		case 'de-threads-new':
+		case 'de-threads':
 			HiddenThreads.purge();
 			Thread.first.updateHidden(HiddenThreads.getRawData()[aib.b]);
 			toggleWindow('hid', true);
