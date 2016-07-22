@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = 'd0cbd2a';
+var commit = '431a46a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3653,46 +3653,6 @@ function addSettings(body, id) {
 				window.location.reload();
 			});
 		}),
-		$btn(Lng.reset[lang] + '...', Lng.resetCfg[lang], function() {
-			var fn = a => $join(a, '<label class="de-block"><input type="checkbox"/> ', '</label>'),
-				el = $popup('<b>' + Lng.resetData[lang] + ':</b>', 'cfg-reset', false);
-			el.insertAdjacentHTML('beforeend',
-				'<div class="de-list"><b>' + aib.dm + '</b>:' +
-					fn([Lng.panelBtn.cfg[lang], Lng.hidPstThrds[lang], Lng.myPosts[lang]]) + '</div>' +
-				'<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' +
-					fn([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div>');
-			el.appendChild($btn(Lng.clear[lang], '', function() {
-				var els = $Q('input[type="checkbox"]', this.parentNode);
-				for(var i = 1, len = els.length; i < len; i++) {
-					if(!els[i].checked) {
-						continue;
-					}
-					switch(i) {
-					case 1:
-						locStorage.removeItem('de-posts');
-						locStorage.removeItem('de-threads');
-						break;
-					case 2: locStorage.removeItem('de-myposts'); break;
-					case 4: delStored('DESU_Favorites');
-					}
-				}
-				if(els[3].checked) {
-					delStored('DESU_Config');
-					delStored('DESU_keys');
-					delStored('DESU_Exclude');
-				} else if(els[0].checked) {
-					spawn(getStoredObj, 'DESU_Config').then(val => {
-						delete val[aib.dm];
-						setStored('DESU_Config', JSON.stringify(val));
-						$popup(Lng.updating[lang], 'cfg-reset', true);
-						window.location.reload();
-					});
-					return;
-				}
-				$popup(Lng.updating[lang], 'cfg-reset', true);
-				window.location.reload();
-			}));
-		}),
 		$if(nav.isGlobal, $btn(Lng.global[lang], Lng.globalCfg[lang], function() {
 			var el = $popup('<b>' + Lng.globalCfg[lang] + ':</b>', 'cfg-global', false);
 			el.appendChild($New('div', {'class': 'de-list'}, [
@@ -3828,7 +3788,48 @@ function addSettings(body, id) {
 				}
 				$pd(e);
 			}), true);
-		}))
+		})),
+		$btn(Lng.reset[lang] + '...', Lng.resetCfg[lang], function() {
+			var fn = a => $join(a, '<label class="de-block"><input type="checkbox"/> ', '</label>');
+			var el = $popup('<b>' + Lng.resetData[lang] + ':</b><hr>' +
+				'<div class="de-list"><b>' + aib.dm + ':</b>' +
+					fn([Lng.panelBtn.cfg[lang], Lng.hidPstThrds[lang], Lng.myPosts[lang]]) +
+				'</div><hr>' +
+				'<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' +
+					fn([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div><hr>',
+				'cfg-reset', false);
+			el.appendChild($btn(Lng.clear[lang], '', function() {
+				var els = $Q('input[type="checkbox"]', this.parentNode);
+				for(var i = 1, len = els.length; i < len; i++) {
+					if(!els[i].checked) {
+						continue;
+					}
+					switch(i) {
+					case 1:
+						locStorage.removeItem('de-posts');
+						locStorage.removeItem('de-threads');
+						break;
+					case 2: locStorage.removeItem('de-myposts'); break;
+					case 4: delStored('DESU_Favorites');
+					}
+				}
+				if(els[3].checked) {
+					delStored('DESU_Config');
+					delStored('DESU_keys');
+					delStored('DESU_Exclude');
+				} else if(els[0].checked) {
+					spawn(getStoredObj, 'DESU_Config').then(val => {
+						delete val[aib.dm];
+						setStored('DESU_Config', JSON.stringify(val));
+						$popup(Lng.updating[lang], 'cfg-reset', true);
+						window.location.reload();
+					});
+					return;
+				}
+				$popup(Lng.updating[lang], 'cfg-reset', true);
+				window.location.reload();
+			}));
+		})
 	]));
 	$q('.de-cfg-tab[info="' + (id || 'filters') + '"]', body).click();
 }
@@ -5812,12 +5813,12 @@ var Spells = Object.create({
 				isAdded = false;
 			}
 			if(isAdded) {
-				saveCfg('hideBySpell', true);
+				saveCfg('hideBySpell', 1);
 				if(chk) {
 					chk.checked = true;
 				}
 			} else if(!spells[1] && !spells[2] && !spells[3]) {
-				saveCfg('hideBySpell', false);
+				saveCfg('hideBySpell', 0);
 				if(chk) {
 					chk.checked = false;
 				}
@@ -5901,7 +5902,7 @@ var Spells = Object.create({
 			reps: { configurable, value },
 			outreps: { configurable, value }
 		});
-		saveCfg('hideBySpell', false);
+		saveCfg('hideBySpell', 0);
 	},
 	outReplace(txt) {
 		for(var orep of this.outreps) {
@@ -13924,7 +13925,7 @@ function initStorageEvent() {
 			} catch(err) {
 				return;
 			}
-			Cfg.hideBySpell = data.hide;
+			Cfg.hideBySpell = +data.hide;
 			temp = $q('input[info="hideBySpell"]');
 			if(temp) {
 				temp.checked = data.hide;
