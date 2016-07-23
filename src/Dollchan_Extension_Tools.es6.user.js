@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = 'adfa17d';
+var commit = '2a033ff';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2974,9 +2974,11 @@ function showFavoritesWindow(body, data) {
 			cleanFavorites();
 			el.className = 'de-fav-content';
 			this.value = Lng.deleting[lang];
+			this.removeAttribute('style');
 		} else {
 			el.className = 'de-fav-content-del';
 			this.value = Lng.apply[lang];
+			this.style.fontWeight = 'bold';
 		}
 	}));
 }
@@ -11502,7 +11504,7 @@ class Thread {
 			e => $popup(getErrorMessage(e), 'load-thr', false));
 	}
 	loadNew() {
-		return ajaxPostsLoad(aib.b, this.num, true).then(pBuilder => pBuilder
+		return ajaxPostsLoad(aib.b, this.num, !aib.dobr).then(pBuilder => pBuilder
 			? this._loadNewFromBuilder(pBuilder)
 			: { newCount: 0, locked: false })
 	}

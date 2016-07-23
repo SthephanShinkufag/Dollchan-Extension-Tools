@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = 'adfa17d';
+	var commit = '2a033ff';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -6236,9 +6236,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				cleanFavorites();
 				el.className = 'de-fav-content';
 				this.value = Lng.deleting[lang];
+				this.removeAttribute('style');
 			} else {
 				el.className = 'de-fav-content-del';
 				this.value = Lng.apply[lang];
+				this.style.fontWeight = 'bold';
 			}
 		}));
 	}
@@ -15994,7 +15996,7 @@ true, true],
 			value: function loadNew() {
 				var _this49 = this;
 
-				return ajaxPostsLoad(aib.b, this.num, true).then(function (pBuilder) {
+				return ajaxPostsLoad(aib.b, this.num, !aib.dobr).then(function (pBuilder) {
 					return pBuilder ? _this49._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false };
 				});
 			}
