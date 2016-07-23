@@ -2845,14 +2845,6 @@ process.umask = function() { return 0; };
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"_process":119}],121:[function(require,module,exports){
-console.warn(
-  "The regenerator/runtime module is deprecated; " +
-    "please import regenerator-runtime/runtime instead."
-);
-
-module.exports = require("regenerator-runtime/runtime");
-
-},{"regenerator-runtime/runtime":120}],122:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -2881,7 +2873,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = '2a033ff';
+	var commit = '84d07b8';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -20651,7 +20643,7 @@ true, true],
 	}
 })(window.opera && window.opera.scriptStorage, window.FormData, (typeof localData === 'undefined' ? 'undefined' : _typeof(localData)) === 'object' ? localData : null);
 
-},{}],123:[function(require,module,exports){
+},{}],122:[function(require,module,exports){
 'use strict';
 
 require('core-js/fn/object/assign');
@@ -20667,7 +20659,7 @@ require('core-js/fn/map');
 require('core-js/fn/set');
 require('core-js/fn/weak-map');
 require('core-js/fn/promise');
-require('regenerator/runtime');
+require('regenerator-runtime/runtime');
 
-},{"core-js/fn/array/from":1,"core-js/fn/array/iterator":2,"core-js/fn/map":3,"core-js/fn/math/clz32":4,"core-js/fn/number/max-safe-integer":5,"core-js/fn/object/assign":6,"core-js/fn/promise":7,"core-js/fn/set":8,"core-js/fn/string/includes":9,"core-js/fn/string/repeat":10,"core-js/fn/string/starts-with":11,"core-js/fn/symbol":12,"core-js/fn/weak-map":13,"regenerator/runtime":121}]},{},[123,122]);
+},{"core-js/fn/array/from":1,"core-js/fn/array/iterator":2,"core-js/fn/map":3,"core-js/fn/math/clz32":4,"core-js/fn/number/max-safe-integer":5,"core-js/fn/object/assign":6,"core-js/fn/promise":7,"core-js/fn/set":8,"core-js/fn/string/includes":9,"core-js/fn/string/repeat":10,"core-js/fn/string/starts-with":11,"core-js/fn/symbol":12,"core-js/fn/weak-map":13,"regenerator-runtime/runtime":120}]},{},[122,121]);
 })(null);
