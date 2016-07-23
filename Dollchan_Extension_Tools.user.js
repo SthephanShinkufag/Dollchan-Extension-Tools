@@ -2881,7 +2881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = '431a46a';
+	var commit = 'adfa17d';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -15602,8 +15602,7 @@ true, true],
 		_createClass(DobrochanPostsBuilder, [{
 			key: 'getOpMessage',
 			value: function getOpMessage() {
-				var data = this._posts[0];
-				return $add(aib.fixHTML('<div class="postbody"> ' + data.message_html + '</div>'));
+				return $add(aib.fixHTML('<div class="postbody"> ' + this._posts[0].message_html + '</div>'));
 			}
 		}, {
 			key: 'getPostEl',
@@ -15616,7 +15615,6 @@ true, true],
 				var data = this._posts[i + 1];
 				var num = data.display_id;
 				var brd = this._brd;
-				var tNum = this._json.threads[0].display_id;
 				var multiFile = data.files.length > 1;
 
 				var filesHTML = '';
@@ -15636,16 +15634,15 @@ true, true],
 
 					var fileName = void 0,
 					    fullFileName = void 0,
-					    thumb = void 0,
+					    ext = file.src.split('.').pop(),
+					    thumb = file.thumb,
 					    thumb_w = 200,
-					    thumb_h = 200,
-					    size = prettifySize(file.size);
+					    thumb_h = 200;
 					if (brd == 'b' || brd == 'rf') {
-						fileName = fullFileName = file.thumb.substring(file.thumb.lastIndexOf('/') + 1);
+						fileName = fullFileName = thumb.split('/').pop();
 					} else {
-						fileName = fullFileName = file.src.substring(file.src.lastIndexOf('/') + 1);
+						fileName = fullFileName = file.src.split('/').pop();
 						if (multiFile && fileName.length > 20) {
-							var ext = fileName.substring(fileName.lastIndexOf('.'));
 							fileName = fileName.substr(0, 20 - ext.length) + '(...)' + ext;
 						}
 					}
@@ -15659,21 +15656,21 @@ true, true],
 					} else if (file.rating === 'illegal') {
 						thumb = "images/illegal.png";
 					} else {
-						thumb = file.thumb;
 						thumb_w = file.thumb_width;
 						thumb_h = file.thumb_height;
 					}
-					var fileInfo = '<div class="fileinfo' + (multiFile ? ' limited' : '') + '">Файл:\n\t\t\t\t<a href="/' + file.src + '" title="' + fullFileName + '" target="_blank">' + fileName + '</a>\n\t\t\t\t<br>\n\t\t\t\t<em>' + file.thumb.substring(file.thumb.lastIndexOf('.') + 1) + ', ' + size + ', ' + file.metadata.width + 'x' + file.metadata.height + '</em>' + (multiFile ? '' : ' - Нажмите на картинку для увеличения') + '\n\t\t\t\t<br>\n\t\t\t\t<a class="edit_ icon"  href="/utils/image/edit/' + file.file_id + '/' + num + '"><img title="edit" alt="edit" src="/images/blank.png"></a>\n\t\t\t\t<a class="search_google icon" href="http://www.google.com/searchbyimage?image_url=http://dobrochan.ru/' + file.src + '"><img title="edit" alt="edit" src="/images/blank.png"></a>\n\t\t\t\t<a class="search_iqdb icon" href="http://iqdb.org/?url=http://dobrochan.ru/' + file.src + '"><img title="edit" alt="edit" src="/images/blank.png"></a>\n\t\t\t</div>';
-					filesHTML += (multiFile ? '' : fileInfo) + '\n\t\t\t<div id="file_' + num + '_' + file.file_id + '" class="file">\n\t\t\t\t' + (multiFile ? fileInfo : '') + '\n\t\t\t\t<a href="/' + file.src + '" target="_blank">\n\t\t\t\t\t<img class="thumb" src="/' + thumb + '" width="' + thumb_w + '" height="' + thumb_h + '">\n\t\t\t\t</a>\n\t\t\t</div>';
+					var fileInfo = '<div class="fileinfo' + (multiFile ? ' limited' : '') + '">Файл:\n\t\t\t\t<a href="/' + file.src + '" title="' + fullFileName + '" target="_blank">' + fileName + '</a><br>\n\t\t\t\t<em>' + ext + ', ' + prettifySize(file.size) + ', ' + file.metadata.width + 'x' + file.metadata.height + '</em>' + (multiFile ? '' : ' - Нажмите на картинку для увеличения') + '<br>\n\t\t\t\t<a class="edit_ icon" href="/utils/image/edit/' + file.file_id + '/' + num + '">\n\t\t\t\t\t<img title="edit" alt="edit" src="/images/blank.png">\n\t\t\t\t</a>\n\t\t\t</div>';
+					filesHTML += (multiFile ? '' : fileInfo) + '\n\t\t\t<div id="file_' + num + '_' + file.file_id + '" class="file">' + (multiFile ? fileInfo : '') + '\n\t\t\t\t<a href="/' + file.src + '" target="_blank">\n\t\t\t\t\t<img class="thumb" src="/' + thumb + '" width="' + thumb_w + '" height="' + thumb_h + '">\n\t\t\t\t</a>\n\t\t\t</div>';
 				}
 
-				var rv = '<table id="post_' + num + '" class="replypost post"><tbody><tr>\n\t\t\t<td class="doubledash">&gt;&gt;</td>\n\t\t\t<td class="reply" id="reply' + num + '">\n\t\t\t\t<a name="i' + num + '"></a>\n\t\t\t\t<label>\n\t\t\t\t\t<a class="delete icon">\n\t\t\t\t\t\t<input name="' + num + '" value="' + data.post_id + '" class="delete_checkbox" id="delbox_' + num + '" type="checkbox">\n\t\t\t\t\t\t<img src="/images/blank.png" title="Mark to delete" alt="Удалить">\n\t\t\t\t\t</a>\n\t\t\t\t\t<span class="postername">' + (data.name || 'Анонимус') + '</span>\n\t\t\t\t\t' + data.date.replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/, function (_, y, mo, d, h, m, s) {
+				var date = data.date.replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/, function (_, y, mo, d, h, m, s) {
 					var dt = new Date(y, +mo - 1, d, h, m, s);
 					var pad2 = function pad2(n) {
 						return n < 10 ? '0' + n : String(n);
 					};
 					return pad2(dt.getDate()) + ' ' + Lng.fullMonth[1][dt.getMonth()] + ' ' + dt.getFullYear() + ' (' + Lng.week[1][dt.getDay()] + ') ' + pad2(dt.getHours()) + ':' + pad2(dt.getMinutes());
-				}) + '\n\t\t\t\t</label>\n\t\t\t\t<span class="reflink">\n\t\t\t\t\t<a onclick="Highlight(0, ' + num + ')" href="/' + brd + '/res/' + tNum + '.xhtml#i' + num + '"> No.' + num + '</a>\n\t\t\t\t</span>\n\t\t\t\t<span class="cpanel">\n\t\t\t\t\t<a class="reply_icon" onclick="GetReplyForm(event, \'' + brd + '\', ' + tNum + ', ' + num + ')">\n\t\t\t\t\t\t<img src="/images/blank-double.png" style="vertical-align:sub" title="Ответ" alt="Ответ">\n\t\t\t\t\t</a>\n\t\t\t\t</span>\n\t\t\t\t<br>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + (multiFile ? '<div style="clear: both;"></div>' : '') + '\n\t\t\t\t<div class="postbody"> ' + data.message_html + '</div>\n\t\t\t\t<div class="abbrev"></div>\n\t\t\t</td>\n\t\t</tr></tbody></table>';
+				});
+				var rv = '<table id="post_' + num + '" class="replypost post"><tbody><tr>\n\t\t\t<td class="doubledash">&gt;&gt;</td>\n\t\t\t<td class="reply" id="reply' + num + '">\n\t\t\t\t<a name="i' + num + '"></a>\n\t\t\t\t<label>\n\t\t\t\t\t<input name="' + num + '" value="' + data.thread_id + '" class="delete_checkbox" id="delbox_' + num + '" type="checkbox">\n\t\t\t\t\t' + (data.subject ? '<span class="replytitle">' + data.subject + '</span>' : '') + '\n\t\t\t\t\t<span class="postername">' + (data.name || 'Анонимус') + '</span> ' + date + '\n\t\t\t\t</label>\n\t\t\t\t<span class="reflink">\n\t\t\t\t\t<a onclick="Highlight(0, ' + num + ')" href="/' + brd + '/res/' + data.thread_id + '.xhtml#i' + num + '"> No.' + num + '</a>\n\t\t\t\t</span><br>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + (multiFile ? '<div style="clear: both;"></div>' : '') + '\n\t\t\t\t<div class="postbody"> ' + data.message_html + '</div>\n\t\t\t</td>\n\t\t</tr></tbody></table>';
 				return rv;
 			}
 		}, {
