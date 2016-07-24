@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = '84d07b8';
+var commit = '40792f7';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -474,6 +474,7 @@ Lng = {
 	video:          ['Видео', 'Video'],
 	add:            ['Добавить', 'Add'],
 	apply:          ['Применить', 'Apply'],
+	cancel:         ['Отмена', 'Cancel'],
 	clear:          ['Очистить', 'Clear'],
 	refresh:        ['Обновить', 'Refresh'],
 	load:           ['Загрузить', 'Load'],
@@ -524,7 +525,7 @@ Lng = {
 	resetCfg:       ['Сбросить в настройки по умолчанию', 'Reset config to defaults'],
 	resetData:      ['Очистить данные', 'Reset selected data'],
 	allDomains:     ['для всех доменов', 'for all domains'],
-	clrSelected:    ['Удаление выделенных записей', 'Removing of selected notes'],
+	delNotes:       ['Удаление выделенных записей', 'Deleting of selected notes'],
 	saveChanges:    ['Сохранить внесенные изменения', 'Save your changes'],
 	infoCount:      ['Обновить счетчики постов', 'Refresh posts counters'],
 	infoPage:       ['Проверить актуальность тредов (до 10 страницы)', 'Check for threads actuality (up to 10 page)'],
@@ -2663,7 +2664,7 @@ function showHiddenWindow(body) {
 			}
 		}
 	})));
-	body.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
+	body.appendChild($btn(Lng.remove[lang], Lng.delNotes[lang], function() {
 		$each($Q('.de-entry[info]', this.parentNode), function(el) {
 			if($q('input', el).checked) {
 				var arr = el.getAttribute('info').split(';');
@@ -2702,22 +2703,27 @@ function cleanFavorites() {
 	}
 }
 
+// FAVORITES WINDOW
 function showFavoritesWindow(body, data) {
-	var html = '';
-	for(var h in data) {
-		for(var b in data[h]) {
-			var d = data[h][b];
-			var innerHtml = '';
-			for(var tNum in d) {
-				if(tNum === 'url') {
+	let html = '';
+
+	// Create the list of favorite threads
+	for(let h in data) {
+		for(let b in data[h]) {
+			let d = data[h][b];
+			let innerHtml = '';
+			for(let tNum in d) {
+				if(tNum === 'url') { // Ignore keys with board url's
 					continue;
 				}
-				var t = d[tNum];
-				if(!t.url.startsWith('http')) {
+				let t = d[tNum];
+				if(!t.url.startsWith('http')) { // XXX: compatibility with older versions
 					t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 				}
-				innerHtml += `
-				<div class="de-entry ${ aib.cReply }" de-host="${ h }" de-board="${ b }" de-num="${ tNum }" de-url="${ t.url }">
+
+				// Generate DOM for separate entry
+				innerHtml += `<div class="de-entry ${ aib.cReply }" de-host="${ h }" de-board="${ b
+					}" de-num="${ tNum }" de-url="${ t.url }">
 					<input class="de-fav-switch" type="checkbox">
 					<a class="de-fav-link" href="${ t.url + (!t.last ? '' :
 						t.last.startsWith('#') ? t.last :
@@ -2745,14 +2751,15 @@ function showFavoritesWindow(body, data) {
 					</div>
 				</div>`;
 			}
-			if(innerHtml === '') {
+			if(!innerHtml) {
 				continue;
 			}
-			html += `
-			<div class="de-fav-block${h === aib.host && b === aib.b ? ' de-fav-current' : ''}">
+
+			// Building a foldable block for specific board
+			html += `<div class="de-fav-block${h === aib.host && b === aib.b ? ' de-fav-current' : ''}">
 				<div class="de-fav-header">
 					<input class="de-fav-header-switch" type="checkbox"></input>
-					<a class="de-fav-header-link" href="${d.url}" rel="noreferrer">${h + '/' + b}</a>
+					<a class="de-fav-header-link" href="${ d.url }" rel="noreferrer">${h + '/' + b}</a>
 				</div>
 				<div class="de-fav-entries"${ h === aib.host ? ' de-opened' : ' style="display: none;"' }>
 					${ innerHtml }
@@ -2760,22 +2767,22 @@ function showFavoritesWindow(body, data) {
 			</div>`;
 		}
 	}
-	if(html === '') {
-		body.insertAdjacentHTML('beforeend', '<center><b>' + Lng.noFavThrds[lang] + '</b></center>');
-	} else {
-		body.insertAdjacentHTML('beforeend', '<div class="de-fav-content">' + html + '</div>');
-		var el = body.lastChild;
-		el.addEventListener('click', e => {
-			var el = e.target;
+
+	// Appending DOM and events
+	if(html) {
+		$bEnd(body, '<div class="de-fav-content">' + html + '</div>').addEventListener('click', e => {
+			let el = e.target;
 			switch(el.className) {
 			case 'de-fav-link':
-				sesStorage['de-win-fav'] = '1';
+				sesStorage['de-win-fav'] = '1'; // Favorites will open again after following a link
 				el = el.parentNode;
-				sesStorage.removeItem('de-scroll-' +
-					el.getAttribute('de-board') + el.getAttribute('de-num'));
+				// We need to scroll to last seen post after following a link,
+				// remembering of scroll position is no longer needed
+				sesStorage.removeItem('de-scroll-' + el.getAttribute('de-board') + el.getAttribute('de-num'));
 				break;
 			case 'de-fav-header-switch':
-				var checked = el.checked;
+				const checked = el.checked;
+				// Select/unselect all checkboxes in board block
 				$each($Q('.de-entry > input', el.parentNode.nextElementSibling), el => el.checked = checked);
 				el = el.parentNode.nextElementSibling;
 				if(!checked || el.hasAttribute('de-opened')) {
@@ -2784,81 +2791,98 @@ function showFavoritesWindow(body, data) {
 				break;
 			case 'de-fav-header-link':
 				el = el.parentNode.nextElementSibling;
-				$pd(e);
+				$pd(e); // TODO: remove and make it possible to follow a board link
 				break;
 			default: return;
 			}
+
+			// Fold/unfold the board block
 			if(el.hasAttribute('de-opened')) {
-				el.style.cssText = 'display: none;';
-				el.removeAttribute('de-opened')
+				el.style.display = 'none';
+				el.removeAttribute('de-opened');
 			} else {
-				el.style.cssText = '';
-				el.setAttribute('de-opened', '')
+				el.removeAttribute('style');
+				el.setAttribute('de-opened', '');
 			}
 		});
+	} else {
+		$bEnd(body, '<center><b>' + Lng.noFavThrds[lang] + '</b></center>');
 	}
-	body.insertAdjacentHTML('beforeend', '<hr>');
-	body.appendChild(addEditButton('favor', function(fn) {
-		readFav().then(val => fn(val, true, saveFavorites));
-	}));
-	body.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(function* () {
-		var isUpdate = false,
-			els = $Q('.de-entry'),
-			fav = yield* getStoredObj('DESU_Favorites'),
-			last404 = false;
-		for(var i = 0, len = els.length; i < len; ++i) {
-			var form, el = els[i],
-				host = el.getAttribute('de-host'),
-				b = el.getAttribute('de-board'),
-				num = el.getAttribute('de-num'),
-				f = fav[host][b][num];
-			if(host !== aib.host || f['err'] === 'Closed') {
+
+	let div = $bEnd(body, '<hr><div id="de-fav-buttons"></div>');
+
+	// "Edit" button. Calls the text editor to edit Favorites manually.
+	div.appendChild(addEditButton('favor', fn => readFav().then(val => fn(val, true, saveFavorites))));
+
+	// "Refresh" button. Updates counters of new posts for each thread entry.
+	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(function* () {
+		let fav = yield* getStoredObj('DESU_Favorites');
+		let isUpdate = false;
+		let last404 = false;
+		const els = $Q('.de-entry');
+		for(let i = 0, len = els.length; i < len; ++i) {
+			const el = els[i];
+			const host = el.getAttribute('de-host');
+			const b = el.getAttribute('de-board');
+			const num = el.getAttribute('de-num');
+			let f = fav[host][b][num];
+
+			// Updating doesn't works for other domains because of different posts structure
+			// Updating is not needed in closed threads
+			if(host !== aib.host || f.err === 'Closed') {
 				continue;
 			}
-			var iconEl = $q('.de-fav-inf-icon', el),
-				titleEl = iconEl.parentNode;
-			el = $q('.de-fav-inf-new', el);
+
+			const countEl = $q('.de-fav-inf-new', el);
+			const iconEl = $q('.de-fav-inf-icon', el);
+			const titleEl = iconEl.parentNode;
+			// setAttribute for class is used because of SVG (for correct work in some browsers)
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
+			let form;
 			try {
 				form = yield ajaxLoad(aib.getThrdUrl(b, num), true);
 				last404 = false;
 			} catch(e) {
 				if((e instanceof AjaxError) && e.code === 404) { // Check for 404 error twice
 					if(last404) {
-						Thread.removeSavedData(b, num);
+						Thread.removeSavedData(b, num); // Doesn't work. Not done now.
 					} else {
 						last404 = true;
-						--i;
+						--i; // Repeat this cycle again
 						continue;
 					}
 				}
 				last404 = false;
-				$hide(el);
+				$hide(countEl);
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-				f['err'] = titleEl.title = getErrorMessage(e);
+				f.err = titleEl.title = getErrorMessage(e);
 				isUpdate = true;
 				continue;
 			}
-			if(f['err']) {
-				delete f['err'];
-				isUpdate = true;
-			}
-			if($q(aib.qClosed, form)) {
+
+			if($q(aib.qClosed, form)) { // Check for closed thread
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 				titleEl.title = Lng.thrClosed[lang];
-				f['err'] = 'Closed';
+				f.err = 'Closed';
 				isUpdate = true;
 			} else {
+				// Thread is available and not closed
 				iconEl.setAttribute('class', 'de-fav-inf-icon');
 				titleEl.removeAttribute('title');
+				if(f.err) { // Cancel error status if existed
+					delete f.err;
+					isUpdate = true;
+				}
 			}
-			var cnt = $Q(aib.qRPost, form).length + 1 - f.cnt;
-			el.textContent = cnt;
+
+			// Updating a counter of new posts
+			const cnt = $Q(aib.qRPost, form).length + 1 - f.cnt;
+			countEl.textContent = cnt;
 			if(cnt === 0) {
-				$hide(el);
+				$hide(countEl); // Hide counter if no new posts
 			} else {
-				$show(el);
+				$show(countEl);
 				f['new'] = cnt;
 				isUpdate = true;
 			}
@@ -2868,19 +2892,23 @@ function showFavoritesWindow(body, data) {
 			setStored('DESU_Favorites', JSON.stringify(fav));
 		}
 	})));
-	body.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(function* () {
-		var infoCount, els = $Q('.de-fav-current > .de-fav-entries > .de-entry'),
-			infoCount = els.length,
-			postsInfo = [];
-		if(!infoCount) {
+
+	// "Page" button. Shows on which page every thread is existed.
+	div.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(function* () {
+		const els = $Q('.de-fav-current > .de-fav-entries > .de-entry');
+		const len = els.length;
+		let thrInfo = [];
+		if(!len) { // Cancel if no existed entries
 			return;
 		}
 		$popup(Lng.loading[lang], 'load-pages', true);
-		for(var i = 0; i < infoCount; ++i) {
-			var el = els[i],
-				iconEl = $q('.de-fav-inf-icon', el),
-				titleEl = iconEl.parentNode;
-			postsInfo.push({
+
+		// Create indexed array of entries and "waiting" SVG icon for each entry
+		for(let i = 0; i < len; ++i) {
+			const el = els[i];
+			const iconEl = $q('.de-fav-inf-icon', el);
+			const titleEl = iconEl.parentNode;
+			thrInfo.push({
 				found: false,
 				num: +el.getAttribute('de-num'),
 				pageEl: $q('.de-fav-inf-page', el),
@@ -2892,52 +2920,68 @@ function showFavoritesWindow(body, data) {
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
 		}
-		for(var page = 0, infoLoaded = 0, endPage = (aib.lastPage || 10) + 1; page < endPage; ++page) {
-			var tNums;
+
+		// Sequentially load pages and search for favorites threads
+		// We cannot know a count of pages while in the thread
+		const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we don't know
+		for(let page = 0, infoLoaded = 0; page < endPage; ++page) {
+			let tNums;
 			try {
-				var form = yield ajaxLoad(aib.getPageUrl(aib.b, page));
+				let form = yield ajaxLoad(aib.getPageUrl(aib.b, page));
 				tNums = new Set(Array.from(DelForm.getThreads(form)).map(thrEl => aib.getTNum(thrEl)));
 			} catch(e) {
 				continue;
 			}
-			for(var i = 0; i < infoCount; ++i) {
-				var pInfo = postsInfo[i];
-				if(tNums.has(pInfo.num)) {
+
+			// Search for threads on current page
+			for(let i = 0; i < len; ++i) {
+				const pInfo = thrInfo[i];
+				if(tNums.has(pInfo.num)) { // Check for matched thread numbers
+					// Restore old icon and title status
 					pInfo.iconEl.setAttribute('class', pInfo.iconClass);
 					if(pInfo.iconTitle) {
 						pInfo.titleEl.setAttribute('title', pInfo.iconTitle);
 					} else {
 						pInfo.titleEl.removeAttribute('title');
 					}
-					pInfo.pageEl.textContent = '@' + page;
+					pInfo.pageEl.textContent = '@' + page; // Shows page counter for current entry
 					pInfo.found = true;
 					infoLoaded++;
 				}
 			}
-			if(infoLoaded === infoCount) {
+
+			if(infoLoaded === len) { // Stop pages loading when all favorite threads checked
 				break;
 			}
 		}
-		for(var i = 0; i < infoCount; ++i) {
-			var { found, pageEl, iconClass, iconEl, iconTitle, titleEl } = postsInfo[i];
+
+		// Process missed threads that not found
+		for(let i = 0; i < len; ++i) {
+			const { found, pageEl, iconClass, iconEl, iconTitle, titleEl } = thrInfo[i];
 			if(!found) {
+				// Restore old icon and title status
 				iconEl.setAttribute('class', iconClass);
 				if(iconTitle) {
 					titleEl.setAttribute('title', iconTitle);
 				} else {
 					titleEl.removeAttribute('title');
 				}
-				pageEl.textContent = '@?';
+				pageEl.textContent = '@?'; // Indicates that thread not found
 			}
 		}
+
 		closePopup('load-pages');
 	})));
-	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
-		var last404 = false;
-		for(var i = 0, els = $Q('.de-entry'), len = els.length; i < len; ++i) {
-			var el = els[i],
-				iconEl = $q('.de-fav-inf-icon', el),
-				titleEl = iconEl.parentNode;
+
+	// "Clear" button. Allows to clear 404'd threads.
+	div.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
+		const els = $Q('.de-entry');
+		const len = els.length;
+		// Sequentially load threads, and remove inaccessible
+		for(let i = 0, last404 = false; i < len; ++i) {
+			const el = els[i];
+			const iconEl = $q('.de-fav-inf-icon', el);
+			const titleEl = iconEl.parentNode;
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
 			try {
@@ -2947,12 +2991,12 @@ function showFavoritesWindow(body, data) {
 			} catch(err) {
 				if(err.code === 404) { // Check for 404 error twice
 					if(last404) {
-						Thread.removeSavedData(el.getAttribute('de-board'),
+						Thread.removeSavedData(el.getAttribute('de-board'), // Doesn't work. Not done now.
 							+el.getAttribute('de-num'));
-						el.setAttribute('de-removed', '');
+						el.setAttribute('de-removed', ''); // Mark an entry as deleted
 					} else {
 						last404 = true;
-						--i;
+						--i; // Repeat this cycle again
 						continue;
 					}
 				}
@@ -2961,25 +3005,28 @@ function showFavoritesWindow(body, data) {
 			}
 			last404 = false;
 		}
-		cleanFavorites();
+		cleanFavorites(); // Delete marked entries
 	})));
-	body.appendChild($btn(Lng.deleting[lang], Lng.clrSelected[lang], function() {
-		var el = body.firstElementChild;
-		if(el.className === 'de-fav-content-del') {
-			$each($Q('.de-entry'), function(el) {
-				if($q('input', el).checked) {
-					el.setAttribute('de-removed', '');
-				}
-			});
-			cleanFavorites();
-			el.className = 'de-fav-content';
-			this.value = Lng.deleting[lang];
-			this.removeAttribute('style');
-		} else {
-			el.className = 'de-fav-content-del';
-			this.value = Lng.apply[lang];
-			this.style.fontWeight = 'bold';
-		}
+
+	// "Deleting..." button. Hides all control buttons, shows "Apply" and "Cancel" buttons
+	div.appendChild($btn(Lng.deleting[lang], Lng.delNotes[lang], () => body.classList.add('de-fav-del')));
+	div = $bEnd(body, '<div id="de-fav-delbuttons"></div>');
+
+	// "Apply" button, depends to "Deleting..."
+	div.appendChild($btn(Lng.apply[lang], Lng.delNotes[lang], () => {
+		$each($Q('.de-entry > input[type="checkbox"]', body), el => { // Mark checked entries as deleted
+			if(el.checked) {
+				el.parentNode.setAttribute('de-removed', '');
+			}
+		});
+		cleanFavorites(); // Delete marked entries
+		body.classList.remove('de-fav-del'); // Show all control buttons
+	}));
+
+	// "Cancel" button, depends to "Deleting..."
+	div.appendChild($btn(Lng.cancel[lang], '', () => {
+		$each($Q('input[type="checkbox"]', body), el => el.checked = false); // Unselect all checkboxes
+		body.classList.remove('de-fav-del'); // Show all control buttons
 	}));
 }
 
@@ -15216,13 +15263,16 @@ function scriptCSS() {
 	// Favorites
 	'.de-fav-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }\
 	.de-fav-block:not(:first-child) { border-top: none; }\
-	.de-fav-content .de-fav-header-switch, .de-fav-content .de-fav-switch { display: none; }\
+	.de-fav-del > #de-fav-buttons { display: none; }\
+	.de-fav-del > #de-fav-delbuttons { display: block !important; }\
+	.de-fav-del .de-fav-header-switch, .de-fav-del .de-fav-switch { display: block !important; margin: 2px 0 2px 4px !important; flex: none; }\
+	#de-fav-delbuttons { display: none; }\
+	.de-fav-header-switch, .de-fav-switch { display: none; }\
 	.de-fav-header { margin-top: 0; margin-bottom: 0; padding: 1px 0; display: flex; }\
 	.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }\
 	.de-fav-header-link { margin-left: 4px; color: inherit; font-weight: bold; font-size: 14px; flex: auto; text-decoration: none; outline: none; }\
 	.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\
 	.de-fav-link { flex: none; margin-left: 4px; text-decoration: none; border: none; }\
-	.de-fav-header-switch, .de-fav-switch { margin: 2px 0 2px 4px !important; flex: none; }\
 	.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\
 	.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }\
 	.de-fav-inf-new { color: #424f79; }\
