@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = 'b8dc4aa';
+var commit = '943ff0e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -535,12 +535,9 @@ Lng = {
 	thrPage:        ['Тред на @странице', 'Thread on @page'],
 	hiddenPosts:    ['Скрытые посты', 'Hidden posts'],
 	onPage:         [' на странице', ' on the page'],
-	hiddenThrds:    ['Скрытые треды', 'Hidden threads'],
 	hidPstThrds:    ['Скрытые посты и треды', 'Hidden posts and threads'],
 	myPosts:        ['Мои посты', 'My posts'],
-	noHidPosts:     ['На этой странице нет скрытых постов...', 'No hidden posts on this page...'],
 	noHidThrds:     ['Нет скрытых тредов...', 'No hidden threads...'],
-	expandAll:      ['Раскрыть все', 'Expand all'],
 	invalidData:    ['Некорректный формат данных', 'Incorrect data format'],
 	noFavThrds:     ['Нет избранных тредов...', 'Favorites is empty...'],
 	noVideoLinks:   ['Нет ссылок на видео...', 'No video links...'],
@@ -1768,25 +1765,13 @@ class PostsStorage extends null {
 		this._cachedStorage = null;
 	}
 	static remove(num, board = aib.b) {
-		var storage = this._readStorage()[board];
-		if(storage && storage.hasOwnProperty(num)) {
-			delete storage[num];
-			this._saveStorage();
-		}
-	}
-	static removeThread(tNum) {
-		var storage = this._readStorage()[aib.b];
-		if(!storage) {
-			return;
-		}
-		var isChanged = false;
-		for(var key in storage) {
-			if(storage.hasOwnProperty(key) && storage[key][1] === tNum) {
-				delete storage[key];
-				isChanged = true;
+		let storage = this._readStorage();
+		let bStorage = storage[board];
+		if(bStorage && bStorage.hasOwnProperty(num)) {
+			delete bStorage[num];
+			if($isEmpty(bStorage)) {
+				delete storage[board];
 			}
-		}
-		if(isChanged) {
 			this._saveStorage();
 		}
 	}
@@ -2570,131 +2555,90 @@ function showVideosWindow(body) {
 	$q('.de-video-link', linkList).click();
 }
 
-function addContentBlock(parent, title) {
-	return parent.appendChild($New('div', {'class': 'de-content-block'}, [
-		$new('input', {'type': 'checkbox'}, {'click'() {
-			$each($Q('.de-entry > input', this.parentNode), el => el.checked = this.checked);
-		}}),
-		title
-	]));
-}
-
+// HIDDEN THREADS WINDOW
 function showHiddenWindow(body) {
-	var block;
-	for(var post = Thread.first.op; post; post = post.next) {
-		if(!post.hidden || post.isOp) {
-			continue;
-		}
-		var cloneEl = post.el.cloneNode(true);
-		var hideData = {
-			btn: $q('.de-btn-unhide, .de-btn-unhide-user', cloneEl),
-			headerEl: $q(aib.qPostHeader, cloneEl),
-			hidden: true,
-			origin: post,
-			handleEvent() {
-				Post.hideContent(this.headerEl, this.btn, true, this.hidden = !this.hidden);
+	const hThr = HiddenThreads.getRawData();
+	const hasThreads = !$isEmpty(hThr);
+	if(hasThreads) {
+		// Generate DOM for the list of hidden threads
+		for(let b in hThr) {
+			if($isEmpty(hThr[b])) {
+				continue;
 			}
-		};
-		cloneEl.hideData = hideData;
-		cloneEl.removeAttribute('id');
-		cloneEl.className = aib.cReply + ' de-cloned-post';
-		$show(cloneEl);
-		hideData.btn.parentNode.className = 'de-post-btns';
-		hideData.btn.addEventListener('click', hideData);
-		if(!block) {
-			block = body.appendChild($add('<div class="de-content-block"><b>' +
-				Lng.hiddenPosts[lang] + Lng.onPage[lang] + ':</b></div>'));
-		}
-		block.appendChild($New('div', {'class': 'de-entry'}, [cloneEl]));
-	}
-	if(block) {
-		body.appendChild($btn(Lng.expandAll[lang], '', function() {
-			var isHide = this.value === Lng.undo[lang];
-			$each($Q('.de-cloned-post', this.parentNode), function(el) {
-				var hData = el.hideData;
-				Post.hideContent(hData.headerEl, hData.btn, true, hData.hidden = isHide);
-			});
-			this.value = isHide ? Lng.expandAll[lang] : Lng.undo[lang];
-		}));
-		body.appendChild($btn(Lng.save[lang], '', function() {
-			$each($Q('.de-cloned-post', this.parentNode), function(el) {
-				var hData = el.hideData;
-				if(!hData.hidden) {
-					hData.origin.setUserVisib(false);
-				}
-			});
-		}));
-	} else {
-		body.insertAdjacentHTML('beforeend', '<b>' + Lng.noHidPosts[lang] + '</b>');
-	}
-	var hThr = HiddenThreads.getRawData();
-	body.insertAdjacentHTML('beforeend', '<hr><b>' +
-		($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') +'</b>');
-	for(var b in hThr) {
-		if(!$isEmpty(hThr[b])) {
-			block = addContentBlock(body, $new('b', {'text': '/' + b}, null));
-			for(var tNum in hThr[b]) {
-				block.insertAdjacentHTML('beforeend', `
-				<div class="de-entry ${ aib.cReply }" info="${ b + ';' + tNum }">
-					<input type="checkbox"/>
+			let block = $bEnd(body, `<div class="de-fold-block"><input type="checkbox"><b>/${ b }</b></div>`);
+			block.firstChild.onclick = (e) =>
+				$each($Q('.de-entry > input', block), el => el.checked = e.target.checked);
+			for(let tNum in hThr[b]) {
+				$bEnd(block, `<div class="de-entry ${ aib.cReply }" info="${ b + ';' + tNum }">
+					<input type="checkbox">
 					<a href="${ aib.getThrdUrl(b, tNum) }" target="_blank">${ tNum }</a>
 					<div class="de-entry-title">- ${ hThr[b][tNum][2] }</div>
 				</div>`);
 			}
 		}
 	}
-	body.insertAdjacentHTML('beforeend', '<hr>');
-	body.appendChild(addEditButton('hidden', function(fn) {
-		fn(HiddenThreads.getRawData(), true, function(data) {
-			HiddenThreads.saveRawData(data);
-			Thread.first.updateHidden(data[aib.b]);
-			toggleWindow('hid', true);
-		});
-	}));
+	$bEnd(body, hasThreads ? '<hr>' : '<center><b>' + Lng.noHidThrds[lang] + '</b></center><hr>');
+
+	// "Edit" button. Calls the text editor to edit Hidden manually.
+	body.appendChild(addEditButton('hidden', fn => fn(HiddenThreads.getRawData(), true, data => {
+		HiddenThreads.saveRawData(data);
+		Thread.first.updateHidden(data[aib.b]);
+		toggleWindow('hid', true);
+	})));
+
+	// "Clear" button. Allows to clear 404'd threads.
 	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
-		for(var i = 0, els = $Q('.de-entry[info]', this.parentNode), len = els.length; i < len; ++i) {
-			var [board, tNum] = els[i].getAttribute('info').split(';');
+		// Sequentially load threads, and remove inaccessible
+		for(let i = 0, els = $Q('.de-entry[info]', this.parentNode), len = els.length; i < len; ++i) {
+			const [b, tNum] = els[i].getAttribute('info').split(';');
 			try {
-				yield $ajax(aib.getThrdUrl(board, tNum));
-			} catch(err) {
-				if(err.code === 404) {
-					HiddenThreads.remove(tNum, board);
-					toggleWindow('hid', true);
+				yield $ajax(aib.getThrdUrl(b, tNum));
+			} catch(e) {
+				if(e.code === 404) {
+					HiddenThreads.remove(tNum, b); // Remove thread from threads storage
+					HiddenPosts.remove(tNum, b); // Remove oppost from posts storage
 				}
 			}
 		}
+		toggleWindow('hid', true);
 	})));
-	body.appendChild($btn(Lng.remove[lang], Lng.delNotes[lang], function() {
-		$each($Q('.de-entry[info]', this.parentNode), function(el) {
-			if($q('input', el).checked) {
-				var arr = el.getAttribute('info').split(';');
-				var num = +arr[1];
-				if(pByNum.has(num)) {
-					pByNum.get(num).setUserVisib(false);
-				} else {
-					locStorage['__de-post'] = JSON.stringify({
-						'brd': arr[0],
-						'num': num,
-						'thrNum': num,
-						'hide': false
-					});
-					locStorage.removeItem('__de-post');
-				}
-				HiddenThreads.remove(num, arr[0]);
-				HiddenPosts.set(num, num, false);
+
+	// "Delete" button. Allows to delete selected threads
+	body.appendChild($btn(Lng.remove[lang], Lng.delNotes[lang], () => {
+		$each($Q('.de-entry[info]', body), el => {
+			if(!$q('input', el).checked) {
+				return;
 			}
+			const [b, tNum] = el.getAttribute('info').split(';');
+			const num = +tNum;
+			if(pByNum.has(num)) {
+				pByNum.get(num).setUserVisib(false);
+			} else {
+				// Synchronize current hidden thread in other tabs
+				// Storage event listeners are loacted at initStorageEvent()
+				locStorage['__de-post'] = JSON.stringify({
+					'brd': b,
+					'num': num,
+					'thrNum': num,
+					'hide': false
+				});
+				locStorage.removeItem('__de-post');
+			}
+			HiddenThreads.remove(num, b); // Remove thread from hidden threads storage
+			HiddenPosts.set(num, num, false); // Actually unhide thread by its oppost
 		});
 		toggleWindow('hid', true);
 	}));
 }
 
+// Clean previously marked threads
 function cleanFavorites() {
-	var els = $Q('.de-entry[de-removed]'),
-		len = els.length;
-	if(len > 0) {
+	const els = $Q('.de-entry[de-removed]');
+	const len = els.length;
+	if(len) {
 		readFav().then(fav => {
-			for(var i = 0; i < len; ++i) {
-				var el = els[i];
+			for(let i = 0; i < len; ++i) {
+				const el = els[i];
 				removeFavoriteEntry(fav, el.getAttribute('de-host'), el.getAttribute('de-board'),
 					+el.getAttribute('de-num'), true);
 			}
@@ -2706,7 +2650,6 @@ function cleanFavorites() {
 // FAVORITES WINDOW
 function showFavoritesWindow(body, data) {
 	let html = '';
-
 	// Create the list of favorite threads
 	for(let h in data) {
 		for(let b in data[h]) {
@@ -2756,9 +2699,9 @@ function showFavoritesWindow(body, data) {
 			}
 
 			// Building a foldable block for specific board
-			html += `<div class="de-fav-block${h === aib.host && b === aib.b ? ' de-fav-current' : ''}">
+			html += `<div class="de-fold-block${h === aib.host && b === aib.b ? ' de-fav-current' : ''}">
 				<div class="de-fav-header">
-					<input class="de-fav-header-switch" type="checkbox"></input>
+					<input class="de-fav-header-switch" type="checkbox">
 					<a class="de-fav-header-link" href="${ d.url }" rel="noreferrer">${h + '/' + b}</a>
 				</div>
 				<div class="de-fav-entries"${ h === aib.host ? ' de-opened' : ' style="display: none;"' }>
@@ -2770,7 +2713,7 @@ function showFavoritesWindow(body, data) {
 
 	// Appending DOM and events
 	if(html) {
-		$bEnd(body, '<div class="de-fav-content">' + html + '</div>').addEventListener('click', e => {
+		$bEnd(body, '<div class="de-fav-table">' + html + '</div>').addEventListener('click', e => {
 			let el = e.target;
 			switch(el.className) {
 			case 'de-fav-link':
@@ -2975,10 +2918,8 @@ function showFavoritesWindow(body, data) {
 
 	// "Clear" button. Allows to clear 404'd threads.
 	div.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
-		const els = $Q('.de-entry');
-		const len = els.length;
 		// Sequentially load threads, and remove inaccessible
-		for(let i = 0, last404 = false; i < len; ++i) {
+		for(let i = 0, last404 = false, els = $Q('.de-entry'), len = els.length; i < len; ++i) {
 			const el = els[i];
 			const iconEl = $q('.de-fav-inf-icon', el);
 			const titleEl = iconEl.parentNode;
@@ -2988,8 +2929,8 @@ function showFavoritesWindow(body, data) {
 				yield $ajax(el.getAttribute('de-url'), null, false);
 				iconEl.setAttribute('class', 'de-fav-inf-icon');
 				titleEl.removeAttribute('title');
-			} catch(err) {
-				if(err.code === 404) { // Check for 404 error twice
+			} catch(e) {
+				if(e.code === 404) { // Check for 404 error twice
 					if(last404) {
 						Thread.removeSavedData(el.getAttribute('de-board'), // Doesn't work. Not done now.
 							+el.getAttribute('de-num'));
@@ -3001,7 +2942,7 @@ function showFavoritesWindow(body, data) {
 					}
 				}
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-				titleEl.title = getErrorMessage(err);
+				titleEl.title = getErrorMessage(e);
 			}
 			last404 = false;
 		}
@@ -3741,10 +3682,10 @@ function addSettings(body, id) {
 			el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
 		})),
 		$if(!nav.Presto, $btn(Lng.file[lang], Lng.fileImpExp[lang], function() {
-			var fn = a => $join(a, '<label class="de-block"><input type="checkbox"/> ', '</label>');
+			var fn = a => $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
 			$popup('<b>' + Lng.cfgImpExp[lang] + ':</b><hr>' +
 				'<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' +
-					'<input type="file" accept=".json" id="de-import-file"/></div></div><hr>' +
+					'<input type="file" accept=".json" id="de-import-file"></div></div><hr>' +
 				'<div class="de-list"><a id="de-export-file" href="#">' +
 					Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + fn([
 					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
@@ -3839,7 +3780,7 @@ function addSettings(body, id) {
 			}), true);
 		})),
 		$btn(Lng.reset[lang] + '...', Lng.resetCfg[lang], function() {
-			var fn = a => $join(a, '<label class="de-block"><input type="checkbox"/> ', '</label>');
+			var fn = a => $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
 			var el = $popup('<b>' + Lng.resetData[lang] + ':</b><hr>' +
 				'<div class="de-list"><b>' + aib.dm + ':</b>' +
 					fn([Lng.panelBtn.cfg[lang], Lng.hidPstThrds[lang], Lng.myPosts[lang]]) +
@@ -4492,10 +4433,10 @@ KeyEditListener.getEditMarkup = function(keys) {
 			allKeys.push(key);
 			return '<input class="de-input-key" type="text" de-id1="' + id1 + '" de-id2="' + id2 +
 				'" size="16" value="' + KeyEditListener.getStrKey(key) +
-				(isText ? '" de-text' : '"' ) + ' readonly/>';
+				(isText ? '" de-text' : '"' ) + ' readonly>';
 		}) +
-	'<input type="button" id="de-keys-save" class="de-button" value="' + Lng.save[lang] + '"/>' +
-	'<input type="button" id="de-keys-reset" class="de-button" value="' + Lng.reset[lang] + '"/>';
+	'<input type="button" id="de-keys-save" class="de-button" value="' + Lng.save[lang] + '">' +
+	'<input type="button" id="de-keys-reset" class="de-button" value="' + Lng.reset[lang] + '">';
 	return [allKeys, html];
 };
 KeyEditListener.setTitle = function(el, idx) {
@@ -5704,8 +5645,7 @@ var Pages = {
 		DelForm.last = form;
 		form.addStuff();
 		if(pageNum != aib.page && form.firstThr) {
-			formEl.insertAdjacentHTML('afterbegin', `
-			<div class="de-page-num">
+			formEl.insertAdjacentHTML('afterbegin', `<div class="de-page-num">
 				<center style="font-size: 2em">${ Lng.page[lang] } ${ pageNum }</center>
 				<hr>
 			</div>`);
@@ -7442,12 +7382,12 @@ PostForm.prototype = {
 				if(this.oeForm) {
 					$del($q('input[name="oek_parent"]', this.oeForm));
 					this.oeForm.insertAdjacentHTML('afterbegin',
-						'<input type="hidden" value="' + qNum + '" name="oek_parent"/>');
+						'<input type="hidden" value="' + qNum + '" name="oek_parent">');
 				}
 				if(this.form) {
 					$del($q('input[name="' + aib.thrid + '"]', this.form));
 					this.form.insertAdjacentHTML('afterbegin',
-						'<input type="hidden" id="de-thrid" value="' + qNum + '" name="' + aib.thrid + '"/>');
+						'<input type="hidden" id="de-thrid" value="' + qNum + '" name="' + aib.thrid + '">');
 				}
 			}
 		} else if(closeReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
@@ -11363,7 +11303,7 @@ class MakabaPostsBuilder {
 		let rv = `<div id="post-${ num }" class="post-wrapper">
 			<div class="post reply" id="post-body-${ num }" data-num="${ num }">
 				<div id="post-details-${ num }" class="post-details">
-					<input type="checkbox" name="delete"  class="turnmeoff" value="${ num }" />
+					<input type="checkbox" name="delete"  class="turnmeoff" value="${ num }">
 					${ data.subject
 						? `<span class="post-title">${ data.subject + ( data.tags ? ' /' + data.tags + '/' : '') }</span>`
 						: ''
@@ -11418,8 +11358,8 @@ class MakabaPostsBuilder {
 		return `<blockquote id="m${ data.num }" class="post-message">
 			${ comment }
 			${ _switch(data.banned, {
-			   1:           '<br/><span class="pomyanem">(Автор этого поста был забанен. Помянем.)</span>',
-			   2:           '<br/><span class="pomyanem">(Автор этого поста был предупрежден.)</span>',
+			   1:           '<br><span class="pomyanem">(Автор этого поста был забанен. Помянем.)</span>',
+			   2:           '<br><span class="pomyanem">(Автор этого поста был предупрежден.)</span>',
 			   '@@default': ''
 			}) }
 		</blockquote>`;
@@ -12538,7 +12478,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			var str = '';
 			for(var i = 0; i < 8; ++i) {
 				str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
-					'><input type="file" name="image' + (i + 1) + '"/></div>';
+					'><input type="file" name="image' + (i + 1) + '"></div>';
 			}
 			$q('#postform .images-area', doc).lastElementChild.innerHTML = str;
 		}
@@ -12716,7 +12656,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			$script('window.FormData = void 0;');
 			var form = $q('form[name="post"]');
 			if(form) {
-				form.insertAdjacentHTML('beforeend', '<input name="json_response" value="1" type="hidden"/>');
+				form.insertAdjacentHTML('beforeend', '<input name="json_response" value="1" type="hidden">');
 			}
 			return false;
 		}
@@ -12743,7 +12683,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			var str = '';
 			for(var i = 0; i < 5; ++i) {
 				str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
-					'><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"/></div>';
+					'><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"></div>';
 			}
 			$id('upload').lastChild.innerHTML = str;
 		}
@@ -12849,7 +12789,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			#de-win-reply { float:left; margin-left:2em }`;
 		}
 		fixFileInputs(el) {
-			var str = '><input name="file" type="file"/></div>';
+			var str = '><input name="file" type="file"></div>';
 			el.removeAttribute('onchange');
 			el.parentNode.parentNode.innerHTML =
 				'<div' + str + ('<div style="display: none;"' + str).repeat(3);
@@ -13070,7 +13010,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		fixFileInputs(el) {
 			var str = '><input name="file" maxlength="4" ' +
 				'accept="|sid|7z|bz2|m4a|flac|lzh|mo3|rar|spc|fla|nsf|jpg|mpp|aac|gz|xm|wav|' +
-				'mp3|png|it|lha|torrent|swf|zip|mpc|ogg|jpeg|gif|mod" type="file"/></div>';
+				'mp3|png|it|lha|torrent|swf|zip|mpc|ogg|jpeg|gif|mod" type="file"></div>';
 			el.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 		}
 		fixHTMLHelper(str) {
@@ -13101,7 +13041,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			var el = $q('#postform input[type="button"]');
 			if(el) {
-				$replace(el, '<input type="submit" value="Отправить"/>');
+				$replace(el, '<input type="submit" value="Отправить">');
 			}
 			el = $q(this.qDForm);
 			$each($Q('input[type="hidden"]', el), $del);
@@ -13110,7 +13050,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		initCaptcha() {
 			$id('captchadiv').innerHTML = '<img src="' + this.getCaptchaSrc() +
-				'" style="vertical-align: bottom;" id="imgcaptcha"/>';
+				'" style="vertical-align: bottom;" id="imgcaptcha">';
 			return null;
 		}
 	}
@@ -13273,8 +13213,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		initCaptcha(cap) {
 			$q('td', cap.trEl).innerHTML = `
-			<input placeholder="{ Lng.cap[lang] }" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="6" autocomplete="off"/>
-			<input class="captcha_cookie" name="captcha_cookie" type="hidden"/>
+			<input placeholder="{ Lng.cap[lang] }" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="6" autocomplete="off">
+			<input class="captcha_cookie" name="captcha_cookie" type="hidden">
 			<div class="captcha_html"></div>`;
 			cap.textEl = $q('.captcha_text', cap.trEl);
 			return this.updateCaptcha(cap, true);
@@ -13525,7 +13465,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				el.innerHTML = '';
 				el.appendChild(img);
 				img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off"' +
-					' id="captcha" name="captcha" size="35" type="text"/>');
+					' id="captcha" name="captcha" size="35" type="text">');
 				$show(img);
 				cap.renew();
 			}
@@ -13549,7 +13489,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			var el = $id('submit_button');
 			if(el) {
 				$del(el.previousElementSibling);
-				$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ"/>');
+				$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ">');
 			}
 			return false;
 		}
@@ -13661,7 +13601,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			var str = '';
 			for(var i = 0; i < 4; ++i) {
 				str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
-					'><input type="file" name="file_' + i + '" tabindex="7"/></div>';
+					'><input type="file" name="file_' + i + '" tabindex="7"></div>';
 			}
 			var node = $id('files_parent');
 			node.innerHTML = str;
@@ -15263,9 +15203,7 @@ function scriptCSS() {
 	.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }' +
 
 	// Favorites
-	'.de-fav-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }\
-	.de-fav-block:not(:first-child) { border-top: none; }\
-	.de-fav-del > #de-fav-buttons { display: none; }\
+	'.de-fav-del > #de-fav-buttons { display: none; }\
 	.de-fav-del > #de-fav-delbuttons { display: block !important; }\
 	.de-fav-del .de-fav-header-switch, .de-fav-del .de-fav-switch { display: block !important; margin: 2px 0 2px 4px !important; flex: none; }\
 	#de-fav-delbuttons { display: none; }\
@@ -15281,11 +15219,13 @@ function scriptCSS() {
 	.de-fav-inf-new::after { content: " +"; }\
 	.de-fav-inf-old { color: #4f7942; }\
 	.de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait),\
-		.de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use,\
-		.de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use,\
-		.de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }\
+	.de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use,\
+	.de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use,\
+	.de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }\
 	.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }\
-	.de-fav-inf-icon { margin-bottom: -3px; }' +
+	.de-fav-inf-icon { margin-bottom: -3px; }\
+	.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }\
+	.de-fold-block:not(:first-child) { border-top: none; }' +
 
 	// Thread nav
 	'#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\
