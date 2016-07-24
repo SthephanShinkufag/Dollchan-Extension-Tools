@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = '943ff0e';
+var commit = '968d79d';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -557,7 +557,7 @@ Lng = {
 	deleted:        ['удалён', 'deleted'],
 	getNewPosts:    ['Получить новые посты', 'Get new posts'],
 	page:           ['Страница', 'Page'],
-	hiddenThrd:     ['Скрытый тред:', 'Hidden thread:'],
+	hiddenThrd:     ['Скрытый тред', 'Hidden thread'],
 	makeThrd:       ['Создать тред', 'Create thread'],
 	makeReply:      ['Ответить', 'Make reply'],
 	noSage:         ['Без сажи', 'No sage'],
@@ -9765,7 +9765,9 @@ class Post extends AbstractPost {
 	}
 	hideContent(needToHide) {
 		if(this.isOp) {
-			$toggle(this.thr.el, !needToHide);
+			if(!aib.t) {
+				$toggle(this.thr.el, !needToHide);
+			}
 		} else {
 			Post.hideContent(this.headerEl, this.hideBtn, this.userToggled, needToHide);
 		}
@@ -10081,29 +10083,30 @@ Post.note = class PostNote {
 	constructor(post) {
 		this.text = null;
 		this._post = post;
-		if(post.isOp) {
-			this._noteEl = $bBegin(post.thr.el, `
-			<div class="${ aib.cReply } de-thr-hid" id="de-thr-hid-${ post.num }">
-				${ Lng.hiddenThrd[lang] }
-				<a href="#">№${ post.num }</a>
-				<span class="de-thread-note"></span>
-			</div>`);
-			this._aEl = $q('a', this._noteEl);
-			this.textEl = this._aEl.nextElementSibling;
-		} else {
+		this.isHideThr = this._post.isOp && !aib.t; // Hide threads only on board
+		if(!this.isHideThr) {
+			// Create usual post note
 			this._noteEl = this.textEl = $bEnd(post.btns, '<span class="de-post-note"></span>');
+			return;
 		}
+		// Create a stub before the thread, that also hides thread by CSS
+		this._noteEl = $bBegin(post.thr.el, `<div class="${ aib.cReply } de-thr-hid" id="de-thr-hid-${
+			post.num }">${ Lng.hiddenThrd[lang] }: <a href="#">№${ post.num }</a>
+			<span class="de-thread-note"></span>
+		</div>`);
+		this._aEl = $q('a', this._noteEl);
+		this.textEl = this._aEl.nextElementSibling;
 	}
 	hide() {
-		if(this._post.isOp) {
+		if(this.isHideThr) {
 			this._aEl.onmouseover = this._aEl.onmouseout = this._aEl.onclick = null;
 		}
 		$hide(this._noteEl);
 	}
 	set(note) {
 		this.text = note;
-		var text;
-		if(this._post.isOp) {
+		let text;
+		if(this.isHideThr) {
 			this._aEl.onmouseover = this._aEl.onmouseout = e => this._post.hideContent(e.type === 'mouseout');
 			this._aEl.onclick = e => {
 				$pd(e);
@@ -10118,7 +10121,7 @@ Post.note = class PostNote {
 	}
 	reset() {
 		this.text = null;
-		if(this.isOp) {
+		if(this.isHideThr) {
 			this.set(null);
 		} else {
 			this.hide();

@@ -2873,7 +2873,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = '943ff0e';
+	var commit = '968d79d';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3310,7 +3310,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		deleted: ['удалён', 'deleted'],
 		getNewPosts: ['Получить новые посты', 'Get new posts'],
 		page: ['Страница', 'Page'],
-		hiddenThrd: ['Скрытый тред:', 'Hidden thread:'],
+		hiddenThrd: ['Скрытый тред', 'Hidden thread'],
 		makeThrd: ['Создать тред', 'Create thread'],
 		makeReply: ['Ответить', 'Make reply'],
 		noSage: ['Без сажи', 'No sage'],
@@ -13840,7 +13840,9 @@ true, true],
 			key: 'hideContent',
 			value: function hideContent(needToHide) {
 				if (this.isOp) {
-					$toggle(this.thr.el, !needToHide);
+					if (!aib.t) {
+						$toggle(this.thr.el, !needToHide);
+					}
 				} else {
 					Post.hideContent(this.headerEl, this.hideBtn, this.userToggled, needToHide);
 				}
@@ -14317,19 +14319,20 @@ true, true],
 
 			this.text = null;
 			this._post = post;
-			if (post.isOp) {
-				this._noteEl = $bBegin(post.thr.el, '\n\t\t\t<div class="' + aib.cReply + ' de-thr-hid" id="de-thr-hid-' + post.num + '">\n\t\t\t\t' + Lng.hiddenThrd[lang] + '\n\t\t\t\t<a href="#">№' + post.num + '</a>\n\t\t\t\t<span class="de-thread-note"></span>\n\t\t\t</div>');
-				this._aEl = $q('a', this._noteEl);
-				this.textEl = this._aEl.nextElementSibling;
-			} else {
+			this.isHideThr = this._post.isOp && !aib.t; 
+			if (!this.isHideThr) {
 				this._noteEl = this.textEl = $bEnd(post.btns, '<span class="de-post-note"></span>');
+				return;
 			}
+			this._noteEl = $bBegin(post.thr.el, '<div class="' + aib.cReply + ' de-thr-hid" id="de-thr-hid-' + post.num + '">' + Lng.hiddenThrd[lang] + ': <a href="#">№' + post.num + '</a>\n\t\t\t<span class="de-thread-note"></span>\n\t\t</div>');
+			this._aEl = $q('a', this._noteEl);
+			this.textEl = this._aEl.nextElementSibling;
 		}
 
 		_createClass(PostNote, [{
 			key: 'hide',
 			value: function hide() {
-				if (this._post.isOp) {
+				if (this.isHideThr) {
 					this._aEl.onmouseover = this._aEl.onmouseout = this._aEl.onclick = null;
 				}
 				$hide(this._noteEl);
@@ -14340,8 +14343,8 @@ true, true],
 				var _this41 = this;
 
 				this.text = note;
-				var text;
-				if (this._post.isOp) {
+				var text = void 0;
+				if (this.isHideThr) {
 					this._aEl.onmouseover = this._aEl.onmouseout = function (e) {
 						return _this41._post.hideContent(e.type === 'mouseout');
 					};
@@ -14360,7 +14363,7 @@ true, true],
 			key: 'reset',
 			value: function reset() {
 				this.text = null;
-				if (this.isOp) {
+				if (this.isHideThr) {
 					this.set(null);
 				} else {
 					this.hide();
