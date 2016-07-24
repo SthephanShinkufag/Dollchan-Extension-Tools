@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = '1322f8a';
+var commit = 'b8dc4aa';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -15498,8 +15498,10 @@ function* runMain(checkDomains, cfgPromise) {
 		return;
 	}
 	Logger.log('Parse delform');
-	if(aib.t && !!sesStorage['de-lastpcount-' + aib.b + '-' + aib.t]) {
-		if(sesStorage['de-lastpcount-' + aib.b + '-' + aib.t] > Thread.first.pcount) {
+	let storageName = 'de-lastpcount-' + aib.b + '-' + aib.t;
+	if(aib.t && !!sesStorage[storageName]) {
+		if(sesStorage[storageName] > Thread.first.pcount) {
+			sesStorage.removeItem(storageName);
 			window.location.reload();
 		}
 	}

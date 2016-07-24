@@ -2873,7 +2873,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = '1322f8a';
+	var commit = 'b8dc4aa';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -20473,7 +20473,7 @@ true, true],
 	}
 
 	function runMain(checkDomains, cfgPromise) {
-		var formEl, str;
+		var formEl, str, storageName;
 		return regeneratorRuntime.wrap(function runMain$(_context22) {
 			while (1) {
 				switch (_context22.prev = _context22.next) {
@@ -20616,8 +20616,11 @@ true, true],
 
 					case 55:
 						Logger.log('Parse delform');
-						if (aib.t && !!sesStorage['de-lastpcount-' + aib.b + '-' + aib.t]) {
-							if (sesStorage['de-lastpcount-' + aib.b + '-' + aib.t] > Thread.first.pcount) {
+						storageName = 'de-lastpcount-' + aib.b + '-' + aib.t;
+
+						if (aib.t && !!sesStorage[storageName]) {
+							if (sesStorage[storageName] > Thread.first.pcount) {
+								sesStorage.removeItem(storageName);
 								window.location.reload();
 							}
 						}
@@ -20639,9 +20642,9 @@ true, true],
 						Logger.log('Display page');
 						toggleInfinityScroll();
 						Logger.log('Infinity scroll');
-						return _context22.delegateYield(readPostsData(DelForm.first.firstThr.op), 't3', 73);
+						return _context22.delegateYield(readPostsData(DelForm.first.firstThr.op), 't3', 74);
 
-					case 73:
+					case 74:
 						Logger.log('Hide posts');
 						scrollPage();
 						Logger.log('Scroll page');
@@ -20651,7 +20654,7 @@ true, true],
 						}
 						Logger.finish();
 
-					case 78:
+					case 79:
 					case 'end':
 						return _context22.stop();
 				}
