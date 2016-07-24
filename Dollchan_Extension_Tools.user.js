@@ -2873,7 +2873,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = '40792f7';
+	var commit = '1322f8a';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -16028,7 +16028,7 @@ true, true],
 			value: function loadNew() {
 				var _this49 = this;
 
-				return ajaxPostsLoad(aib.b, this.num, !aib.dobr).then(function (pBuilder) {
+				return ajaxPostsLoad(aib.b, this.num, true).then(function (pBuilder) {
 					return pBuilder ? _this49._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false };
 				});
 			}
@@ -19432,7 +19432,8 @@ true, true],
 		    lastECode = 200,
 		    sendError = false,
 		    newPosts = 0,
-		    hasYouRefs = false;
+		    hasYouRefs = false,
+		    storageName = 'de-lastpcount-' + aib.b + '-' + aib.t;
 
 		var audio = {
 			enabled: false,
@@ -19822,6 +19823,7 @@ true, true],
 						if (audio.enabled) {
 							audio.play();
 						}
+						sesStorage[storageName] = Thread.first.pcount;
 						this._delay = this._initDelay;
 					} else if (this._delay !== 12e4) {
 						this._delay = Math.min(this._delay + this._initDelay, 12e4);
@@ -20614,6 +20616,11 @@ true, true],
 
 					case 55:
 						Logger.log('Parse delform');
+						if (aib.t && !!sesStorage['de-lastpcount-' + aib.b + '-' + aib.t]) {
+							if (sesStorage['de-lastpcount-' + aib.b + '-' + aib.t] > Thread.first.pcount) {
+								window.location.reload();
+							}
+						}
 						pr = new PostForm($q(aib.qForm));
 						Logger.log('Parse postform');
 						if (Cfg.hotKeys) {
@@ -20632,9 +20639,9 @@ true, true],
 						Logger.log('Display page');
 						toggleInfinityScroll();
 						Logger.log('Infinity scroll');
-						return _context22.delegateYield(readPostsData(DelForm.first.firstThr.op), 't3', 72);
+						return _context22.delegateYield(readPostsData(DelForm.first.firstThr.op), 't3', 73);
 
-					case 72:
+					case 73:
 						Logger.log('Hide posts');
 						scrollPage();
 						Logger.log('Scroll page');
@@ -20644,7 +20651,7 @@ true, true],
 						}
 						Logger.finish();
 
-					case 77:
+					case 78:
 					case 'end':
 						return _context22.stop();
 				}

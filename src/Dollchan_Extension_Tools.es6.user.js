@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = '40792f7';
+var commit = '1322f8a';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11551,7 +11551,7 @@ class Thread {
 			e => $popup(getErrorMessage(e), 'load-thr', false));
 	}
 	loadNew() {
-		return ajaxPostsLoad(aib.b, this.num, !aib.dobr).then(pBuilder => pBuilder
+		return ajaxPostsLoad(aib.b, this.num, true).then(pBuilder => pBuilder
 			? this._loadNewFromBuilder(pBuilder)
 			: { newCount: 0, locked: false })
 	}
@@ -14336,7 +14336,8 @@ function initThreadUpdater(title, enableUpdate) {
 		lastECode = 200,
 		sendError = false,
 		newPosts = 0,
-		hasYouRefs = false;
+		hasYouRefs = false,
+		storageName = 'de-lastpcount-' + aib.b + '-' + aib.t;
 
 	var audio = {
 		enabled: false,
@@ -14704,6 +14705,7 @@ function initThreadUpdater(title, enableUpdate) {
 					if(audio.enabled) {
 						audio.play();
 					}
+					sesStorage[storageName] = Thread.first.pcount;
 					this._delay = this._initDelay;
 				} else if(this._delay !== 12e4) {
 					this._delay = Math.min(this._delay + this._initDelay, 12e4);
@@ -15496,6 +15498,11 @@ function* runMain(checkDomains, cfgPromise) {
 		return;
 	}
 	Logger.log('Parse delform');
+	if(aib.t && !!sesStorage['de-lastpcount-' + aib.b + '-' + aib.t]) {
+		if(sesStorage['de-lastpcount-' + aib.b + '-' + aib.t] > Thread.first.pcount) {
+			window.location.reload();
+		}
+	}
 	pr = new PostForm($q(aib.qForm));
 	Logger.log('Parse postform');
 	if(Cfg.hotKeys) {
