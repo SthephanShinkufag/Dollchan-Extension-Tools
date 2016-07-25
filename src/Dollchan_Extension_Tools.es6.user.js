@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = 'e7de713';
+var commit = '9a4233c';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13634,6 +13634,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			var path = window.location.pathname;
 			if(path.includes('/board/')) {
 				window.location.pathname = path.replace(/\/board/, '');
+				return true;
 			}
 			return false;
 		}

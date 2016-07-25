@@ -2873,7 +2873,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = 'e7de713';
+	var commit = '9a4233c';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -18718,6 +18718,7 @@ true, true],
 					var path = window.location.pathname;
 					if (path.includes('/board/')) {
 						window.location.pathname = path.replace(/\/board/, '');
+						return true;
 					}
 					return false;
 				}
