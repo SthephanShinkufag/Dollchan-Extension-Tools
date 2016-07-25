@@ -2873,7 +2873,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = '968d79d';
+	var commit = 'e7de713';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -18715,6 +18715,10 @@ true, true],
 				key: 'init',
 				value: function init() {
 					$script('highlightPost = function() {}');
+					var path = window.location.pathname;
+					if (path.includes('/board/')) {
+						window.location.pathname = path.replace(/\/board/, '');
+					}
 					return false;
 				}
 			}, {
