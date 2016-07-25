@@ -2873,7 +2873,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = 'bb3d394';
+	var commit = '6706eb7';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -17966,6 +17966,7 @@ true, true],
 				_this70.qFormRedir = 'input#noko';
 				_this70.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
+				_this70.hasCatalog = true;
 				_this70.markupBB = false;
 				_this70.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
 				return _this70;

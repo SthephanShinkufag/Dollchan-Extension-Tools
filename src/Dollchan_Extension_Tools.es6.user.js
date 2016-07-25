@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = 'bb3d394';
+var commit = '6706eb7';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13067,6 +13067,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qFormRedir = 'input#noko';
 			this.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)'
 
+			this.hasCatalog = true;
 			this.markupBB = false;
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
 		}
