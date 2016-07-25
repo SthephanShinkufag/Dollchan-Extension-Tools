@@ -2873,7 +2873,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = '9a4233c';
+	var commit = 'bb3d394';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -18643,6 +18643,8 @@ true, true],
 
 				var _this81 = _possibleConstructorReturn(this, Object.getPrototypeOf(Krautchan).call(this, prot, dm));
 
+				_this81.krau = true;
+
 				_this81.cReply = 'postreply';
 				_this81.qBan = '.ban_mark';
 				_this81.qClosed = 'img[src="/images/locked.gif"]';
@@ -18715,11 +18717,6 @@ true, true],
 				key: 'init',
 				value: function init() {
 					$script('highlightPost = function() {}');
-					var path = window.location.pathname;
-					if (path.includes('/board/')) {
-						window.location.pathname = path.replace(/\/board/, '');
-						return true;
-					}
 					return false;
 				}
 			}, {
@@ -19173,7 +19170,6 @@ true, true],
 	}
 
 	function parseURL() {
-		var url;
 		if (localData) {
 			aib.prot = 'http:';
 			aib.host = aib.dm;
@@ -19181,21 +19177,22 @@ true, true],
 			aib.t = localData.t;
 			aib.docExt = '.html';
 		} else {
-			var temp;
-			url = (window.location.pathname || '').replace(/^\//, '');
+			var url = (window.location.pathname || '').replace(/^\//, '');
 			if (url.match(aib.res)) {
-				temp = url.split(aib.res);
+				var temp = url.split(aib.res);
 				aib.b = temp[0].replace(/\/$/, '');
 				aib.t = +temp[1].match(/^\d+/)[0];
 				aib.page = aib.firstPage;
 			} else {
-				temp = url.match(/\/?(\d+)[^\/]*?$/);
-				aib.page = temp && +temp[1] || aib.firstPage;
-				aib.b = url.replace(temp && aib.page ? temp[0] : /\/(?:[^\/]+\.[a-z]+)?$/, '');
+				var _temp = url.match(/\/?(\d+)[^\/]*?$/);
+				aib.page = _temp && +_temp[1] || aib.firstPage;
+				aib.b = url.replace(_temp && aib.page ? _temp[0] : /\/(?:[^\/]+\.[a-z]+)?$/, '');
+				if (aib.krau && aib.b.startsWith('board/')) {
+					aib.b = aib.b.substr(6);
+				}
 			}
 			if (aib.docExt === null) {
-				temp = url.match(/\.[a-z]+$/);
-				aib.docExt = temp ? temp[0] : '.html';
+				aib.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
 			}
 		}
 	}

@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = '9a4233c';
+var commit = 'bb3d394';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13549,6 +13549,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Krautchan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
+			this.krau = true;
 
 			this.cReply = 'postreply';
 			this.qBan = '.ban_mark';
@@ -13631,11 +13632,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script('highlightPost = function() {}');
-			var path = window.location.pathname;
-			if(path.includes('/board/')) {
-				window.location.pathname = path.replace(/\/board/, '');
-				return true;
-			}
 			return false;
 		}
 		initCaptcha(cap) {
@@ -13941,29 +13937,32 @@ function initStorageEvent() {
 }
 
 function parseURL() {
-	var url;
 	if(localData) {
+		// Locally saved thread
 		aib.prot = 'http:';
 		aib.host = aib.dm;
 		aib.b = localData.b;
 		aib.t = localData.t;
 		aib.docExt = '.html';
 	} else {
-		var temp;
-		url = (window.location.pathname || '').replace(/^\//, '');
+		const url = (window.location.pathname || '').replace(/^\//, '');
 		if(url.match(aib.res)) {
-			temp = url.split(aib.res);
+			// We are in thread
+			const temp = url.split(aib.res);
 			aib.b = temp[0].replace(/\/$/, '');
 			aib.t = +temp[1].match(/^\d+/)[0];
 			aib.page = aib.firstPage;
 		} else {
-			temp = url.match(/\/?(\d+)[^\/]*?$/);
+			// We are on board
+			const temp = url.match(/\/?(\d+)[^\/]*?$/);
 			aib.page = temp && +temp[1] || aib.firstPage;
 			aib.b = url.replace(temp && aib.page ? temp[0] : /\/(?:[^\/]+\.[a-z]+)?$/, '');
+			if(aib.krau && aib.b.startsWith('board/')) {
+				aib.b = aib.b.substr(6);
+			}
 		}
 		if(aib.docExt === null) {
-			temp = url.match(/\.[a-z]+$/);
-			aib.docExt = temp ? temp[0] : '.html';
+			aib.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
 		}
 	}
 }
