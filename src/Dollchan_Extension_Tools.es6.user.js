@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = '7b1aba3';
+var commit = 'b17945e';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1748,25 +1748,23 @@ function readViewedPosts() {
 
 class PostsStorage extends null {
 	static get(num) {
-		var storage = this._readStorage()[aib.b];
+		const storage = this._readStorage()[aib.b];
 		if(storage) {
-			var val = storage[num];
+			const val = storage[num];
 			return val ? val[2] : null;
 		}
 		return null;
 	}
 	static has(num) {
-		var storage = this._readStorage()[aib.b];
+		const storage = this._readStorage()[aib.b];
 		return storage ? storage.hasOwnProperty(num) : false;
 	}
 	static purge() {
-		this._cacheTO = null;
-		this.__cachedTime = null;
-		this._cachedStorage = null;
+		this._cacheTO = this.__cachedTime = this._cachedStorage = null;
 	}
 	static remove(num, board = aib.b) {
-		let storage = this._readStorage();
-		let bStorage = storage[board];
+		const storage = this._readStorage();
+		const bStorage = storage[board];
 		if(bStorage && bStorage.hasOwnProperty(num)) {
 			delete bStorage[num];
 			if($isEmpty(bStorage)) {
@@ -1776,9 +1774,19 @@ class PostsStorage extends null {
 		}
 	}
 	static set(num, thrNum, data = true) {
-		var storage = this._readStorage();
+		const storage = this._readStorage();
 		if(storage && storage['$count'] > 5000) {
-			this._removeOldPosts(storage);
+			const minDate = Date.now() - 5 * 24 * 3600 * 1000;
+			for(let b in storage) {
+				if(storage.hasOwnProperty(b)) {
+					const data = storage[b];
+					for(let key in data) {
+						if(data.hasOwnProperty(key) && data[key][0] < minDate) {
+							delete data[key];
+						}
+					}
+				}
+			}
 		}
 		if(!storage[aib.b]) {
 			storage[aib.b] = {};
@@ -1796,24 +1804,11 @@ class PostsStorage extends null {
 			locStorage.removeItem(oldName);
 		}
 	}
-	static _removeOldPosts(storage) {
-		var minDate = Date.now() - 5 * 24 * 3600 * 1000;
-		for(var b in storage) {
-			if(storage.hasOwnProperty(b)) {
-				var data = storage[b];
-				for(var key in data) {
-					if(data.hasOwnProperty(key) && data[key][0] < minDate) {
-						delete data[key];
-					}
-				}
-			}
-		}
-	}
 	static _readStorage() {
 		if(this._cachedStorage) {
 			return this._cachedStorage;
 		}
-		var data = locStorage[this.storageName];
+		const data = locStorage[this.storageName];
 		if(data) {
 			try {
 				return this._cachedStorage = JSON.parse(data);
@@ -10957,7 +10952,7 @@ class _4chanPostsBuilder {
 	static _setCustomSpoiler(board, val) {
 		if(!_4chanPostsBuilder._customSpoiler[board] && (val = parseInt(val))) {
 			let s;
-			if(board == aib.brd && (s = $q('.imgspoiler'))) {
+			if(board === aib.brd && (s = $q('.imgspoiler'))) {
 				_4chanPostsBuilder._customSpoiler.set(board,
 					s.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
 			}
@@ -11016,7 +11011,7 @@ class _4chanPostsBuilder {
 				name = _encode(decodedName.slice(0, 25)) + '(...)' + data.ext;
 				needTitle = true;
 			}
-			if(!data.tn_w && !data.tn_h && data.ext == '.gif') {
+			if(!data.tn_w && !data.tn_h && data.ext === '.gif') {
 				data.tn_w = data.w;
 				data.tn_h = data.h;
 			}
@@ -11162,7 +11157,7 @@ class DobrochanPostsBuilder {
 				thumb = file.thumb,
 				thumb_w = 200,
 				thumb_h = 200;
-			if(brd == 'b' || brd == 'rf') {
+			if(brd === 'b' || brd === 'rf') {
 				fileName = fullFileName = thumb.split('/').pop();
 			} else {
 				fileName = fullFileName = file.src.split('/').pop();
@@ -11175,7 +11170,7 @@ class DobrochanPostsBuilder {
 				thumb = "images/r-18g.png";
 			} else if(file.rating === 'r-18' && (max_rating !== 'r-18g' || max_rating !== 'r-18')) {
 				thumb = "images/r-18.png";
-			} else if(file.rating === 'r-15' && max_rating == 'sfw') {
+			} else if(file.rating === 'r-15' && max_rating === 'sfw') {
 				thumb = "images/r-15.png";
 			} else if(file.rating === 'illegal') {
 				thumb = "images/illegal.png";

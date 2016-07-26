@@ -2873,7 +2873,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = '7b1aba3';
+	var commit = 'b17945e';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -4864,9 +4864,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'purge',
 			value: function purge() {
-				this._cacheTO = null;
-				this.__cachedTime = null;
-				this._cachedStorage = null;
+				this._cacheTO = this.__cachedTime = this._cachedStorage = null;
 			}
 		}, {
 			key: 'remove',
@@ -4890,7 +4888,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				var storage = this._readStorage();
 				if (storage && storage['$count'] > 5000) {
-					this._removeOldPosts(storage);
+					var minDate = Date.now() - 5 * 24 * 3600 * 1000;
+					for (var b in storage) {
+						if (storage.hasOwnProperty(b)) {
+							var _data = storage[b];
+							for (var key in _data) {
+								if (_data.hasOwnProperty(key) && _data[key][0] < minDate) {
+									delete _data[key];
+								}
+							}
+						}
+					}
 				}
 				if (!storage[aib.b]) {
 					storage[aib.b] = {};
@@ -4904,21 +4912,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (locStorage.hasOwnProperty(oldName)) {
 					locStorage[newName] = locStorage[oldName];
 					locStorage.removeItem(oldName);
-				}
-			}
-		}, {
-			key: '_removeOldPosts',
-			value: function _removeOldPosts(storage) {
-				var minDate = Date.now() - 5 * 24 * 3600 * 1000;
-				for (var b in storage) {
-					if (storage.hasOwnProperty(b)) {
-						var data = storage[b];
-						for (var key in data) {
-							if (data.hasOwnProperty(key) && data[key][0] < minDate) {
-								delete data[key];
-							}
-						}
-					}
 				}
 			}
 		}, {
@@ -7787,11 +7780,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return new Promise(function (resolve, reject) {
 				var w = _this13._freeWorkers.pop();
 
-				var _data = _slicedToArray(data, 3);
+				var _data2 = _slicedToArray(data, 3);
 
-				var sendData = _data[0];
-				var transferObjs = _data[1];
-				var fn = _data[2];
+				var sendData = _data2[0];
+				var transferObjs = _data2[1];
+				var fn = _data2[2];
 
 				w.onmessage = function (e) {
 					fn(e.data);
@@ -7876,13 +7869,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 			pool = new TasksPool(mReqs, function (num, data) {
 				return downloadImgData(data[0]).then(function (imageData) {
-					var _data2 = _slicedToArray(data, 5);
+					var _data3 = _slicedToArray(data, 5);
 
-					var url = _data2[0];
-					var imgLink = _data2[1];
-					var iType = _data2[2];
-					var nExp = _data2[3];
-					var el = _data2[4];
+					var url = _data3[0];
+					var imgLink = _data3[1];
+					var iType = _data3[2];
+					var nExp = _data3[3];
+					var el = _data3[4];
 
 					if (imageData) {
 						var fName = url.substring(url.lastIndexOf("/") + 1),
@@ -7980,12 +7973,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		    dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
 		Images_.pool = new TasksPool(4, function (num, data) {
 			return downloadImgData(data[0]).then(function (imgData) {
-				var _data3 = _slicedToArray(data, 4);
+				var _data4 = _slicedToArray(data, 4);
 
-				var url = _data3[0];
-				var fName = _data3[1];
-				var el = _data3[2];
-				var imgLink = _data3[3];
+				var url = _data4[0];
+				var fName = _data4[1];
+				var el = _data4[2];
+				var imgLink = _data4[3];
 				var safeName = fName.replace(/[\\\/:*?"<>|]/g, '_');
 				progress.value = current;
 				counter.innerHTML = current;
@@ -15408,7 +15401,7 @@ true, true],
 			value: function _setCustomSpoiler(board, val) {
 				if (!_4chanPostsBuilder._customSpoiler[board] && (val = parseInt(val))) {
 					var s = void 0;
-					if (board == aib.brd && (s = $q('.imgspoiler'))) {
+					if (board === aib.brd && (s = $q('.imgspoiler'))) {
 						_4chanPostsBuilder._customSpoiler.set(board, s.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
 					}
 				} else {
@@ -15469,7 +15462,7 @@ true, true],
 						name = _encode(decodedName.slice(0, 25)) + '(...)' + data.ext;
 						needTitle = true;
 					}
-					if (!data.tn_w && !data.tn_h && data.ext == '.gif') {
+					if (!data.tn_w && !data.tn_h && data.ext === '.gif') {
 						data.tn_w = data.w;
 						data.tn_h = data.h;
 					}
@@ -15607,7 +15600,7 @@ true, true],
 					    thumb = file.thumb,
 					    thumb_w = 200,
 					    thumb_h = 200;
-					if (brd == 'b' || brd == 'rf') {
+					if (brd === 'b' || brd === 'rf') {
 						fileName = fullFileName = thumb.split('/').pop();
 					} else {
 						fileName = fullFileName = file.src.split('/').pop();
@@ -15620,7 +15613,7 @@ true, true],
 						thumb = "images/r-18g.png";
 					} else if (file.rating === 'r-18' && (max_rating !== 'r-18g' || max_rating !== 'r-18')) {
 						thumb = "images/r-18.png";
-					} else if (file.rating === 'r-15' && max_rating == 'sfw') {
+					} else if (file.rating === 'r-15' && max_rating === 'sfw') {
 						thumb = "images/r-15.png";
 					} else if (file.rating === 'illegal') {
 						thumb = "images/illegal.png";
