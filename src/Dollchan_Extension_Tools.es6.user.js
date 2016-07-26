@@ -24,7 +24,7 @@
 'use strict';
 
 var version = '16.6.17.0';
-var commit = 'c546cc2';
+var commit = '7b1aba3';
 
 var defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1790,6 +1790,12 @@ class PostsStorage extends null {
 	static get _cachedTime() {
 		return this.__cachedTime || (this.__cachedTime = Date.now());
 	}
+	static _migrateOld(newName, oldName) {
+		if(locStorage.hasOwnProperty(oldName)) {
+			locStorage[newName] = locStorage[oldName];
+			locStorage.removeItem(oldName);
+		}
+	}
 	static _removeOldPosts(storage) {
 		var minDate = Date.now() - 5 * 24 * 3600 * 1000;
 		for(var b in storage) {
@@ -1833,31 +1839,17 @@ PostsStorage._cacheTO = null;
 
 class HiddenPosts extends PostsStorage {
 	static _readStorage() {
-		if(locStorage.hasOwnProperty('de-threads-new')) {
-			locStorage['de-posts'] = locStorage['de-threads-new'];
-			locStorage.removeItem('de-threads-new');
-		}
+		this._migrateOld(this.storageName, 'de-threads-new'); // Old storage has wrong name
 		return super._readStorage();
-	}
-	static _saveStorageHelper() {
-		toggleWindow('hid', true);
-		super._saveStorageHelper();
 	}
 }
 HiddenPosts.storageName = 'de-posts';
 
 class HiddenThreads extends PostsStorage {
-	static _readStorage() {
-		if(locStorage.hasOwnProperty('')) {
-			locStorage['de-threads'] = locStorage[''];
-			locStorage.removeItem('');
-		}
-		return super._readStorage();
-	}
 	static getCount() {
-		var storage = this._readStorage();
-		var rv = 0;
-		for(var b in storage) {
+		const storage = this._readStorage();
+		let rv = 0;
+		for(let b in storage) {
 			rv += Object.keys(storage[b]).length;
 		}
 		return rv;
@@ -1870,21 +1862,14 @@ class HiddenThreads extends PostsStorage {
 		this.purge();
 	}
 
-	static _saveStorageHelper() {
-		toggleWindow('hid', true);
-		super._saveStorageHelper();
+	static _readStorage() {
+		this._migrateOld(this.storageName, ''); // Old storage has wrong name
+		return super._readStorage();
 	}
 }
 HiddenThreads.storageName = 'de-threads';
 
 class MyPosts extends PostsStorage {
-	static _readStorage() {
-		if(locStorage.hasOwnProperty('de-myposts-new')) {
-			locStorage['de-myposts'] = locStorage['de-myposts-new'];
-			locStorage.removeItem('de-myposts-new');
-		}
-		return super._readStorage();
-	}
 	static has(num) {
 		return this._cachedData.has(num);
 	}
@@ -1899,7 +1884,7 @@ class MyPosts extends PostsStorage {
 	static set(num, thrNum) {
 		super.set(num, thrNum);
 		this._cachedData.add(+num);
-		locStorage['__de-mypost'] = 1;
+		locStorage['__de-mypost'] = 1; // Synchronize my post with other tabs
 		locStorage.removeItem('__de-mypost');
 	}
 
@@ -1907,7 +1892,8 @@ class MyPosts extends PostsStorage {
 		if(this._cachedData && this._cachedStorage) {
 			return this._cachedStorage;
 		}
-		var rv = super._readStorage();
+		this._migrateOld(this.storageName, 'de-myposts-new');
+		const rv = super._readStorage();
 		this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(_ => +_)) : new Set();
 		return rv;
 	}

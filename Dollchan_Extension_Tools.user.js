@@ -2873,7 +2873,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = 'c546cc2';
+	var commit = '7b1aba3';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -4899,6 +4899,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._saveStorage();
 			}
 		}, {
+			key: '_migrateOld',
+			value: function _migrateOld(newName, oldName) {
+				if (locStorage.hasOwnProperty(oldName)) {
+					locStorage[newName] = locStorage[oldName];
+					locStorage.removeItem(oldName);
+				}
+			}
+		}, {
 			key: '_removeOldPosts',
 			value: function _removeOldPosts(storage) {
 				var minDate = Date.now() - 5 * 24 * 3600 * 1000;
@@ -4968,17 +4976,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_createClass(HiddenPosts, null, [{
 			key: '_readStorage',
 			value: function _readStorage() {
-				if (locStorage.hasOwnProperty('de-threads-new')) {
-					locStorage['de-posts'] = locStorage['de-threads-new'];
-					locStorage.removeItem('de-threads-new');
-				}
+				this._migrateOld(this.storageName, 'de-threads-new'); 
 				return _get(Object.getPrototypeOf(HiddenPosts), '_readStorage', this).call(this);
-			}
-		}, {
-			key: '_saveStorageHelper',
-			value: function _saveStorageHelper() {
-				toggleWindow('hid', true);
-				_get(Object.getPrototypeOf(HiddenPosts), '_saveStorageHelper', this).call(this);
 			}
 		}]);
 
@@ -4997,15 +4996,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 
 		_createClass(HiddenThreads, null, [{
-			key: '_readStorage',
-			value: function _readStorage() {
-				if (locStorage.hasOwnProperty('')) {
-					locStorage['de-threads'] = locStorage[''];
-					locStorage.removeItem('');
-				}
-				return _get(Object.getPrototypeOf(HiddenThreads), '_readStorage', this).call(this);
-			}
-		}, {
 			key: 'getCount',
 			value: function getCount() {
 				var storage = this._readStorage();
@@ -5027,10 +5017,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.purge();
 			}
 		}, {
-			key: '_saveStorageHelper',
-			value: function _saveStorageHelper() {
-				toggleWindow('hid', true);
-				_get(Object.getPrototypeOf(HiddenThreads), '_saveStorageHelper', this).call(this);
+			key: '_readStorage',
+			value: function _readStorage() {
+				this._migrateOld(this.storageName, ''); 
+				return _get(Object.getPrototypeOf(HiddenThreads), '_readStorage', this).call(this);
 			}
 		}]);
 
@@ -5049,15 +5039,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 
 		_createClass(MyPosts, null, [{
-			key: '_readStorage',
-			value: function _readStorage() {
-				if (locStorage.hasOwnProperty('de-myposts-new')) {
-					locStorage['de-myposts'] = locStorage['de-myposts-new'];
-					locStorage.removeItem('de-myposts-new');
-				}
-				return _get(Object.getPrototypeOf(MyPosts), '_readStorage', this).call(this);
-			}
-		}, {
 			key: 'has',
 			value: function has(num) {
 				return this._cachedData.has(num);
@@ -5079,7 +5060,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function set(num, thrNum) {
 				_get(Object.getPrototypeOf(MyPosts), 'set', this).call(this, num, thrNum);
 				this._cachedData.add(+num);
-				locStorage['__de-mypost'] = 1;
+				locStorage['__de-mypost'] = 1; 
 				locStorage.removeItem('__de-mypost');
 			}
 		}, {
@@ -5088,6 +5069,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (this._cachedData && this._cachedStorage) {
 					return this._cachedStorage;
 				}
+				this._migrateOld(this.storageName, 'de-myposts-new');
 				var rv = _get(Object.getPrototypeOf(MyPosts), '_readStorage', this).call(this);
 				this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(function (_) {
 					return +_;
