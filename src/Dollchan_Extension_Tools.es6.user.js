@@ -23,10 +23,10 @@
 (function de_main_func_inner(scriptStorage, FormData, localData) {
 'use strict';
 
-var version = '16.6.17.0';
-var commit = 'b17945e';
+const version = '16.6.17.0';
+const commit = 'd3b8f7e';
 
-var defaultCfg = {
+const defaultCfg = {
 	'disabled':         0,      // script enabled by default
 	'language':         0,      // script language [0=ru, 1=en]
 	'hideBySpell':      1,      // hide posts by spells
@@ -152,9 +152,9 @@ var defaultCfg = {
 	'vidWinDrag':       0,      // draggable Video window
 	'vidWinX':          'right: 0',     // Video window position
 	'vidWinY':          'top: 0'
-},
+};
 
-Lng = {
+const Lng = {
 	cfg: {
 		'hideBySpell':  ['Спеллы: ', 'Magic spells: '],
 		'sortSpells':   ['Сортировать спеллы и удалять дубликаты', 'Sort spells and delete duplicates'],
@@ -615,34 +615,29 @@ Lng = {
 	sizeMByte:		[' МБ', ' MB'],
 	sizeGByte:		[' ГБ', ' GB'],
 	second:			['с', 's']
-},
+};
 
-doc = window.document, docBody, aProto = Array.prototype, locStorage, sesStorage,
-Cfg, pByEl, pByNum, needScroll, pr, dummy,
-aib, nav, updater, dTime, visPosts = 2, topWinZ = 0,
-Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
-lang, quotetxt = '', isExpImg, isPreImg, excludeList,
-$each = Function.prototype.call.bind(aProto.forEach),
-emptyFn = Function.prototype,
-nativeXHRworks = true,
-gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/',
-gitRaw = 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
+const doc = window.document, emptyFn = Function.prototype, aProto = Array.prototype;
+const Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null};
+const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
+const gitRaw = 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
+
+let docBody, locStorage, sesStorage, Cfg, pByEl, pByNum, aib, nav, updater, dTime, pr, dummy, lang, isExpImg,
+	isPreImg, needScroll, excludeList, quotetxt = '', nativeXHRworks = true, visPosts = 2, topWinZ = 0;
 
 
 // UTILS
 // ===========================================================================================================
 
-function $Q(path, root = docBody) {
-	return root.querySelectorAll(path);
-}
+// DOM search
 
-function $q(path, root = docBody) {
-	return root.querySelector(path);
-}
+const $Q = (path, root = docBody) => root.querySelectorAll(path);
 
-function $id(id) {
-	return doc.getElementById(id);
-}
+const $q = (path, root = docBody) => root.querySelector(path);
+
+const $id = id => doc.getElementById(id);
+
+const $each = Function.prototype.call.bind(aProto.forEach);
 
 function $parent(el, tagName) {
 	do {
@@ -651,12 +646,14 @@ function $parent(el, tagName) {
 	return el;
 }
 
+// DOM modifiers
+
 function $before(el, node) {
 	el.parentNode.insertBefore(node, el);
 }
 
 function $after(el, node) {
-	var next = el.nextSibling;
+	const next = el.nextSibling;
 	if(next) {
 		el.parentNode.insertBefore(node, next);
 	} else {
@@ -693,15 +690,21 @@ function $replace(origEl, newEl) {
 	}
 }
 
+function $del(el) {
+	if(el) {
+		el.remove();
+	}
+}
+
 function $add(html) {
 	dummy.innerHTML = html;
 	return dummy.firstElementChild;
 }
 
 function $new(tag, attr, events) {
-	var el = doc.createElement(tag);
+	const el = doc.createElement(tag);
 	if(attr) {
-		for(var key in attr) {
+		for(let key in attr) {
 			if(key === 'text') {
 				el.textContent = attr[key];
 			} else if(key === 'value') {
@@ -712,7 +715,7 @@ function $new(tag, attr, events) {
 		}
 	}
 	if(events) {
-		for(var key in events) {
+		for(let key in events) {
 			if(events.hasOwnProperty(key)) {
 				el.addEventListener(key, events[key]);
 			}
@@ -722,7 +725,8 @@ function $new(tag, attr, events) {
 }
 
 function $New(tag, attr, nodes) {
-	for(var i = 0, len = nodes.length, el = $new(tag, attr, null); i < len; i++) {
+	const el = $new(tag, attr, null);
+	for(let i = 0, len = nodes.length; i < len; ++i) {
 		if(nodes[i]) {
 			el.appendChild(nodes[i]);
 		}
@@ -730,9 +734,7 @@ function $New(tag, attr, nodes) {
 	return el;
 }
 
-function $txt(el) {
-	return doc.createTextNode(el);
-}
+const $txt = el => doc.createTextNode(el);
 
 function $btn(val, ttl, Fn, className = 'de-button') {
 	return $new('input', {'type': 'button', 'class': className, 'value': val, 'title': ttl}, {'click': Fn});
@@ -749,9 +751,13 @@ function $css(text) {
 	return doc.head.appendChild($new('style', {'type': 'text/css', 'text': text}, null));
 }
 
-function $if(cond, el) {
-	return cond ? el : null;
+function $DOM(html) {
+	const myDoc = doc.implementation.createHTMLDocument('');
+	myDoc.documentElement.innerHTML = html;
+	return myDoc;
 }
+
+// CSS utils
 
 function $toggle(el, needToShow = el.style.display) {
 	if(needToShow) {
@@ -769,44 +775,6 @@ function $hide(el) {
 	el.style.display = 'none';
 }
 
-function $del(el) {
-	if(el) {
-		el.remove();
-	}
-}
-
-function $DOM(html) {
-	var myDoc = doc.implementation.createHTMLDocument('');
-	myDoc.documentElement.innerHTML = html;
-	return myDoc;
-}
-
-function $pd(e) {
-	e.preventDefault();
-}
-
-function $txtInsert(el, txt) {
-	var scrtop = el.scrollTop,
-		start = el.selectionStart;
-	el.value = el.value.substr(0, start) + txt + el.value.substr(el.selectionEnd);
-	el.setSelectionRange(start + txt.length, start + txt.length);
-	el.focus();
-	el.scrollTop = scrtop;
-}
-
-function $isEmpty(obj) {
-	for(var i in obj) {
-		if(obj.hasOwnProperty(i)) {
-			return false;
-		}
-	}
-	return true;
-}
-
-function $join(arr, start, end) {
-	return start + arr.join(end + start) + end;
-}
-
 function $animate(el, cName, remove = false) {
 	el.addEventListener('animationend', function aEvent() {
 		el.removeEventListener('animationend', aEvent);
@@ -817,6 +785,36 @@ function $animate(el, cName, remove = false) {
 		}
 	});
 	el.classList.add(cName);
+}
+
+// Other utils
+
+const pad2 = i => (i < 10 ? '0' : '') + i;
+
+const $if = (cond, el) => cond ? el : null;
+
+const $join = (arr, start, end) => start + arr.join(end + start) + end;
+
+function $pd(e) {
+	e.preventDefault();
+}
+
+function $isEmpty(obj) {
+	for(let i in obj) {
+		if(obj.hasOwnProperty(i)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function $txtInsert(el, txt) {
+	const scrtop = el.scrollTop;
+	const start = el.selectionStart;
+	el.value = el.value.substr(0, start) + txt + el.value.substr(el.selectionEnd);
+	el.setSelectionRange(start + txt.length, start + txt.length);
+	el.focus();
+	el.scrollTop = scrtop;
 }
 
 var Logger = {
@@ -854,6 +852,8 @@ var Logger = {
 	_marks: []
 };
 
+// Helper function, which allows to use 'yield' to await for promises completion.
+// Allows to write asynchronous code, which will looks like as a synchronous.
 function async(generatorFunc) {
 	return function(...args) {
 		function continuer(verb, arg) {
@@ -873,6 +873,8 @@ function async(generatorFunc) {
 	};
 }
 
+// Function that immediately calls the generator and also ends the promise chain.
+// This is useful to run generators at the top-level when you don't want to continue chaining promises.
 function spawn(generatorFunc, ...args) {
 	return Promise.resolve(async(generatorFunc)(...args));
 }
@@ -1460,10 +1462,10 @@ function fixEventEl(el) {
 }
 
 function onDOMLoaded(fn) {
-	if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
-		fn();
-	} else {
+	if(doc.readyState === 'loading') {
 		doc.addEventListener('DOMContentLoaded', fn);
+	} else {
+		fn();
 	}
 }
 
@@ -1528,6 +1530,7 @@ function* getStoredObj(id) {
 	return JSON.parse((yield* getStored(id)) || '{}') || {};
 }
 
+// Replaces all domain settings with new object. Removes domain settings if no object.
 function saveComCfg(dm, obj) {
 	spawn(getStoredObj, 'DESU_Config').then(val => {
 		if(obj) {
@@ -2560,7 +2563,7 @@ function showHiddenWindow(body) {
 	}
 	$bEnd(body, hasThreads ? '<hr>' : '<center><b>' + Lng.noHidThrds[lang] + '</b></center><hr>');
 
-	// "Edit" button. Calls the text editor to edit Hidden manually.
+	// "Edit" button. Calls a popup with editor to edit Hidden in JSON.
 	body.appendChild(addEditButton('hidden', fn => fn(HiddenThreads.getRawData(), true, data => {
 		HiddenThreads.saveRawData(data);
 		Thread.first.updateHidden(data[aib.b]);
@@ -2735,8 +2738,8 @@ function showFavoritesWindow(body, data) {
 
 	let div = $bEnd(body, '<hr><div id="de-fav-buttons"></div>');
 
-	// "Edit" button. Calls the text editor to edit Favorites manually.
-	div.appendChild(addEditButton('favor', fn => readFav().then(val => fn(val, true, saveFavorites))));
+	// "Edit" button. Calls a popup with editor to edit Favorites in JSON.
+	div.appendChild(addEditButton('favor', fn => readFav().then(data => fn(data, true, saveFavorites))));
 
 	// "Refresh" button. Updates counters of new posts for each thread entry.
 	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(function* () {
@@ -3405,13 +3408,12 @@ function getCfgCommon() {
 		}),
 		$New('div', null, [
 			lBox('userCSS', false, updateCSS),
-			addEditButton('css', function(fn) {
-				fn(Cfg.userCSSTxt, false, function() {
-					saveCfg('userCSSTxt', this.value);
-					updateCSS();
-					toggleWindow('cfg', true);
-				});
-			}, 'de-cfg-button'),
+			// "CSS edit" button. Calls a popup with editor to edit user CSS.
+			addEditButton('css', fn => fn(Cfg.userCSSTxt, false, function() {
+				saveCfg('userCSSTxt', this.value);
+				updateCSS();
+				toggleWindow('cfg', true);
+			}), 'de-cfg-button'),
 			$add('<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a>')
 		]),
 		lBox('panelCounter', true, updateCSS),
@@ -3456,7 +3458,7 @@ function getCfgCommon() {
 				$btn(Lng.checkNow[lang], '', function() {
 					$popup(Lng.loading[lang], 'updavail', true);
 					spawn(getStoredObj, 'DESU_Config')
-						.then(val => checkForUpdates(true, val.lastUpd))
+						.then(data => checkForUpdates(true, data.lastUpd))
 						.then(html => $popup(html, 'updavail', false), emptyFn);
 				}, 'de-cfg-button')
 			])
@@ -3471,17 +3473,15 @@ function getCfgCommon() {
 					setStored('DESU_Exclude', (excludeList = this.value));
 				}
 			}),
-			lBox('turnOff', true, function() {
-				spawn(getStoredObj, 'DESU_Config').then(val => {
-					for(var dm in val) {
-						if(dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
-							val[dm].disabled = Cfg.turnOff;
-						}
+			lBox('turnOff', true, () => spawn(getStoredObj, 'DESU_Config').then(data => {
+				for(let dm in data) {
+					if(dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
+						data[dm].disabled = Cfg.turnOff;
 					}
-					val[aib.dm].turnOff = Cfg.turnOff;
-					setStored('DESU_Config', JSON.stringify(val));
-				});
-			})
+				}
+				data[aib.dm].turnOff = Cfg.turnOff;
+				setStored('DESU_Config', JSON.stringify(data));
+			}))
 		]))
 	]);
 }
@@ -3535,26 +3535,29 @@ function getCfgInfo() {
 	]);
 }
 
+// Adds button that calls a popup with the text editor. Useful to edit settings.
 function addEditButton(name, getDataFn, className = 'de-button') {
 	return $btn(Lng.edit[lang], Lng.editInTxt[lang], () => getDataFn(function(val, isJSON, saveFn) {
-		var el = $popup('<b>' + Lng.editor[name][lang] + '</b>' +
-				'<textarea class="de-editor"></textarea>', 'edit-' + name, false),
-			ta = el.lastChild;
-		ta.value = (isJSON ? JSON.stringify(val, null, '\t') : val);
-		el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], isJSON ? function(fun) {
-			var data;
+		// Create popup window with textarea.
+		const el = $popup('<b>' + Lng.editor[name][lang] + '</b><textarea class="de-editor"></textarea>',
+		                  'edit-' + name, false);
+		const ta = el.lastChild;
+		ta.value = isJSON ? JSON.stringify(val, null, '\t') : val;
+		// "Save" button. If there a JSON data, parses and saves on success.
+		el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], !isJSON ? saveFn : () => {
+			let data;
 			try {
-				data = JSON.parse(this.value.trim().replace(/[\n\r\t]/g, '') || '{}');
+				data = JSON.parse(ta.value.trim().replace(/[\n\r\t]/g, '') || '{}');
 			} finally {
-				if(data) {
-					fun(data);
-					closePopup('edit-' + name);
-					closePopup('err-invaliddata');
-				} else {
+				if(!data) {
 					$popup(Lng.invalidData[lang], 'err-invaliddata', false);
+					return;
 				}
+				saveFn(data);
+				closePopup('edit-' + name);
+				closePopup('err-invaliddata');
 			}
-		}.bind(ta, saveFn) : saveFn.bind(ta)));
+		}));
 	}), className);
 }
 
@@ -3591,8 +3594,10 @@ function cfgTabClick(e) {
 	fixSettings();
 }
 
+// Generate content for settings window
 function addSettings(body, id) {
-	var cfgTab = name => $new('div', {
+	const getList = a => $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
+	const cfgTab = name => $new('div', {
 		'class': aib.cReply + ' de-cfg-tab',
 		'text': Lng.cfgTab[name][lang],
 		'info': name}, {
@@ -3608,6 +3613,7 @@ function addSettings(body, id) {
 		cfgTab('info')
 	]));
 	body.appendChild($New('div', {'id': 'de-cfg-buttons'}, [
+		// Language selector
 		optSel('language', false, function() {
 			saveCfg('language', lang = this.selectedIndex);
 			panel.remove();
@@ -3618,77 +3624,81 @@ function addSettings(body, id) {
 			panel.init(DelForm.first.el);
 			toggleWindow('cfg', false);
 		}, 'de-cfg-lang-select'),
-		addEditButton('cfg', function(fn) {
-			fn(Cfg, true, function(data) {
-				saveComCfg(aib.dm, data);
-				window.location.reload();
-			});
-		}),
+
+		// "Edit" button. Calls a popup with editor to edit Settings in JSON.
+		addEditButton('cfg', fn => fn(Cfg, true, data => {
+			saveComCfg(aib.dm, data);
+			window.location.reload();
+		})),
+
+		// "Global" button. Allows to save and load global settings.
 		$if(nav.isGlobal, $btn(Lng.global[lang], Lng.globalCfg[lang], function() {
-			var el = $popup('<b>' + Lng.globalCfg[lang] + ':</b>', 'cfg-global', false);
+			const el = $popup('<b>' + Lng.globalCfg[lang] + ':</b>', 'cfg-global', false);
+			// "Load" button. Applies global settings for current domain.
 			el.appendChild($New('div', {'class': 'de-list'}, [
-				$btn(Lng.load[lang], '', function() {
-					spawn(getStoredObj, 'DESU_Config').then(val => {
-						if(val && ('global' in val) && !$isEmpty(val.global)) {
-							delete val[aib.dm];
-							setStored('DESU_Config', JSON.stringify(val));
-							window.location.reload();
-						} else {
-							$popup(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
-						}
-					});
-				}),
+				$btn(Lng.load[lang], '', () => spawn(getStoredObj, 'DESU_Config').then(data => {
+					if(data && ('global' in data) && !$isEmpty(data.global)) {
+						saveComCfg(aib.dm, data.global);
+						window.location.reload();
+					} else {
+						$popup(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
+					}
+				})),
 				$txt(Lng.loadGlobal[lang])
 			]));
+			// "Save" button. Copies the domain settings into global.
 			el.appendChild($New('div', {'class': 'de-list'}, [
-				$btn(Lng.save[lang], '', function() {
-					spawn(getStoredObj, 'DESU_Config').then(val => {
-						var obj = {},
-							com = val[aib.dm];
-						for(var i in com) {
-							if(i !== 'correctTime' && i !== 'timePattern' &&
-							   i !== 'userCSS' && i !== 'userCSSTxt' &&
-							   com[i] !== defaultCfg[i] && i !== 'stats')
-							{
-								obj[i] = com[i];
-							}
+				$btn(Lng.save[lang], '', () => spawn(getStoredObj, 'DESU_Config').then(data => {
+					const obj = {};
+					const com = data[aib.dm];
+					for(let i in com) {
+						if(i !== 'correctTime' && i !== 'timePattern' &&
+						   i !== 'userCSS' && i !== 'userCSSTxt' &&
+						   com[i] !== defaultCfg[i] && i !== 'stats')
+						{
+							obj[i] = com[i];
 						}
-						val.global = obj;
-						setStored('DESU_Config', JSON.stringify(val));
-						toggleWindow('cfg', true);
-					});
-				}),
+					}
+					data.global = obj;
+					saveComCfg('global', data.global);
+					toggleWindow('cfg', true);
+				})),
 				$txt(Lng.saveGlobal[lang])
 			]));
 			el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
 		})),
+
+		// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
 		$if(!nav.Presto, $btn(Lng.file[lang], Lng.fileImpExp[lang], function() {
-			var fn = a => $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
+			// Create popup with controls
 			$popup('<b>' + Lng.cfgImpExp[lang] + ':</b><hr>' +
 				'<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' +
 					'<input type="file" accept=".json" id="de-import-file"></div></div><hr>' +
 				'<div class="de-list"><a id="de-export-file" href="#">' +
-					Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + fn([
+					Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + getList([
 					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
 					Lng.panelBtn.fav[lang],
 					Lng.hidPstThrds[lang] + ' (' + aib.dm + ')',
 					Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>',
 				'cfg-file', false);
+
+			// Import data from a file to the storage
 			$id('de-import-file').onchange = function({ target: { files: [file] } }) {
 				if(!file) {
 					return;
 				}
 				readFile(file, true).then(({ data }) => {
+					let obj;
 					try {
-						var obj = JSON.parse(data);
+						obj = JSON.parse(data);
 					} catch(e) {
 						$popup(Lng.invalidData[lang], 'err-invaliddata', false);
 						return;
 					}
-					var cfgObj = obj.settings,
-						favObj = obj.favorites,
-						dmObj = obj[aib.dm],
-						isOldCfg = !cfgObj && !favObj && !dmObj;
+					const cfgObj = obj.settings;
+					const favObj = obj.favorites;
+					const dmObj = obj[aib.dm];
+					const isOldCfg = !cfgObj && !favObj && !dmObj;
 					if(isOldCfg) {
 						setStored('DESU_Config', data);
 					}
@@ -3721,13 +3731,16 @@ function addSettings(body, id) {
 					closePopup('cfg-file');
 				});
 			}
-			var expFile = $id('de-export-file'),
-				els = $Q('input', expFile.nextElementSibling);
+
+			// Export data from a storage to the file. The file will be named by date and type of storage.
+			// For example, like "DE_20160727_1540_Cfg+Fav+domain.com(Hid+You).json".
+			const expFile = $id('de-export-file');
+			const els = $Q('input', expFile.nextElementSibling);
 			els[0].checked = true;
 			expFile.addEventListener('click', async(function* (e) {
-				var name = [], nameDm = [], val = [], valDm = [], d = new Date(),
-					fn = i => parseInt(i) < 10 ? '0' + i : i;
-				for(let i = 0, len = els.length; i < len; i++) {
+				const name = [], nameDm = [], d = new Date();
+				let val = [], valDm = [];
+				for(let i = 0, len = els.length; i < len; ++i) {
 					if(!els[i].checked) {
 						continue;
 					}
@@ -3754,24 +3767,26 @@ function addSettings(body, id) {
 				}
 				if((val = val.join(','))) {
 					downloadBlob(new Blob(['{' + val + '}'], { type: 'application/json' }),
-						'DE_' + d.getFullYear() + fn(d.getMonth() + 1) + fn(d.getDate()) + '_' +
-						fn(d.getHours()) + fn(d.getMinutes()) + '_' + name.join('+') + '.json');
+						'DE_' + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + '_' +
+						pad2(d.getHours()) + pad2(d.getMinutes()) + '_' + name.join('+') + '.json');
 				}
 				$pd(e);
 			}), true);
 		})),
+
+		// "Clear" button. Allows to clear settings/favorites/hidden/etc optionally.
 		$btn(Lng.reset[lang] + '...', Lng.resetCfg[lang], function() {
-			var fn = a => $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
-			var el = $popup('<b>' + Lng.resetData[lang] + ':</b><hr>' +
+			$popup(
+				'<b>' + Lng.resetData[lang] + ':</b><hr>' +
 				'<div class="de-list"><b>' + aib.dm + ':</b>' +
-					fn([Lng.panelBtn.cfg[lang], Lng.hidPstThrds[lang], Lng.myPosts[lang]]) +
+					getList([Lng.panelBtn.cfg[lang], Lng.hidPstThrds[lang], Lng.myPosts[lang]]) +
 				'</div><hr>' +
 				'<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' +
-					fn([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div><hr>',
-				'cfg-reset', false);
-			el.appendChild($btn(Lng.clear[lang], '', function() {
-				var els = $Q('input[type="checkbox"]', this.parentNode);
-				for(var i = 1, len = els.length; i < len; i++) {
+					getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div><hr>',
+				'cfg-reset', false
+			).appendChild($btn(Lng.clear[lang], '', function() {
+				const els = $Q('input[type="checkbox"]', this.parentNode);
+				for(let i = 1, len = els.length; i < len; ++i) {
 					if(!els[i].checked) {
 						continue;
 					}
@@ -3789,9 +3804,9 @@ function addSettings(body, id) {
 					delStored('DESU_keys');
 					delStored('DESU_Exclude');
 				} else if(els[0].checked) {
-					spawn(getStoredObj, 'DESU_Config').then(val => {
-						delete val[aib.dm];
-						setStored('DESU_Config', JSON.stringify(val));
+					spawn(getStoredObj, 'DESU_Config').then(data => {
+						delete data[aib.dm];
+						setStored('DESU_Config', JSON.stringify(data));
 						$popup(Lng.updating[lang], 'cfg-reset', true);
 						window.location.reload();
 					});
@@ -5000,6 +5015,7 @@ DateTime.checkPattern = function(val) {
 DateTime.prototype = {
 	genDateTime: null,
 	onRPat: null,
+	pad2: pad2,
 	genRFunc(rPattern) {
 		return new Function('dtime', 'return \'' +
 			rPattern.replace('_o', (this.diff < 0 ? '' : '+') + this.diff)
@@ -5036,9 +5052,6 @@ DateTime.prototype = {
 		}
 		this.genDateTime = this.genRFunc(rPattern);
 		return true;
-	},
-	pad2(num) {
-		return num < 10 ? '0' + num : num;
 	},
 	fix(txt) {
 		if(this.disabled || (!this.genDateTime && !this.getRPattern(txt))) {
@@ -11198,7 +11211,6 @@ class DobrochanPostsBuilder {
 		const date = data.date.replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/,
 			(_, y, mo, d, h, m, s) => {
 				let dt = new Date(y, +mo - 1, d, h, m, s);
-				const pad2 = n => n < 10 ? '0' + n : String(n);
 				return `${ pad2(dt.getDate()) } ${ Lng.fullMonth[1][dt.getMonth()]} ${ dt.getFullYear()
 					} (${ Lng.week[1][dt.getDay()] }) ${ pad2(dt.getHours()) }:${ pad2(dt.getMinutes()) }`;
 			});
@@ -15461,6 +15473,7 @@ function* runMain(checkDomains, cfgPromise) {
 	Logger.finish();
 }
 
+// START OF SCRIPT EXECUTION
 if(/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 	return;
 }
@@ -15471,11 +15484,11 @@ case 'de-iframe-dform':
 	onDOMLoaded(() => window.parent.postMessage(window.name + doc.documentElement.outerHTML, "*"));
 	return;
 }
-if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
+if(doc.readyState !== 'loading') {
 	needScroll = false;
 	async(runMain)(true, null);
 } else {
-	var cfgPromise = null;
+	let cfgPromise = null;
 	if((aib = getImageBoard(true, false))) {
 		if(!checkStorage()) {
 			return;

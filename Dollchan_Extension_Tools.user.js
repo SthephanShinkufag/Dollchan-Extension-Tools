@@ -2873,7 +2873,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.6.17.0';
-	var commit = 'b17945e';
+	var commit = 'd3b8f7e';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3001,8 +3001,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'vidWinDrag': 0, 
 		'vidWinX': 'right: 0', 
 		'vidWinY': 'top: 0'
-	},
-	    Lng = {
+	};
+
+	var Lng = {
 		cfg: {
 			'hideBySpell': ['Спеллы: ', 'Magic spells: '],
 			'sortSpells': ['Сортировать спеллы и удалять дубликаты', 'Sort spells and delete duplicates'],
@@ -3365,52 +3366,54 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		sizeMByte: [' МБ', ' MB'],
 		sizeGByte: [' ГБ', ' GB'],
 		second: ['с', 's']
-	},
-	    doc = window.document,
-	    docBody,
-	    aProto = Array.prototype,
-	    locStorage,
-	    sesStorage,
-	    Cfg,
-	    pByEl,
-	    pByNum,
-	    needScroll,
-	    pr,
-	    dummy,
-	    aib,
-	    nav,
-	    updater,
-	    dTime,
-	    visPosts = 2,
-	    topWinZ = 0,
-	    Images_ = { preloading: false, afterpreload: null, progressId: null, canvas: null },
-	    lang,
-	    quotetxt = '',
-	    isExpImg,
-	    isPreImg,
-	    excludeList,
-	    $each = Function.prototype.call.bind(aProto.forEach),
+	};
+
+	var doc = window.document,
 	    emptyFn = Function.prototype,
+	    aProto = Array.prototype;
+	var Images_ = { preloading: false, afterpreload: null, progressId: null, canvas: null };
+	var gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
+	var gitRaw = 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
+
+	var docBody = void 0,
+	    locStorage = void 0,
+	    sesStorage = void 0,
+	    Cfg = void 0,
+	    pByEl = void 0,
+	    pByNum = void 0,
+	    aib = void 0,
+	    nav = void 0,
+	    updater = void 0,
+	    dTime = void 0,
+	    pr = void 0,
+	    dummy = void 0,
+	    lang = void 0,
+	    isExpImg = void 0,
+	    isPreImg = void 0,
+	    needScroll = void 0,
+	    excludeList = void 0,
+	    quotetxt = '',
 	    nativeXHRworks = true,
-	    gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/',
-	    gitRaw = 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
+	    visPosts = 2,
+	    topWinZ = 0;
 
 
-	function $Q(path) {
+
+	var $Q = function $Q(path) {
 		var root = arguments.length <= 1 || arguments[1] === undefined ? docBody : arguments[1];
-
 		return root.querySelectorAll(path);
-	}
+	};
 
-	function $q(path) {
+	var $q = function $q(path) {
 		var root = arguments.length <= 1 || arguments[1] === undefined ? docBody : arguments[1];
-
 		return root.querySelector(path);
-	}
+	};
 
-	function $id(id) {
+	var $id = function $id(id) {
 		return doc.getElementById(id);
-	}
+	};
+
+	var $each = Function.prototype.call.bind(aProto.forEach);
 
 	function $parent(el, tagName) {
 		do {
@@ -3418,6 +3421,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		} while (el && el.tagName !== tagName);
 		return el;
 	}
+
 
 	function $before(el, node) {
 		el.parentNode.insertBefore(node, el);
@@ -3461,6 +3465,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 	}
 
+	function $del(el) {
+		if (el) {
+			el.remove();
+		}
+	}
+
 	function $add(html) {
 		dummy.innerHTML = html;
 		return dummy.firstElementChild;
@@ -3480,9 +3490,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}
 		if (events) {
-			for (var key in events) {
-				if (events.hasOwnProperty(key)) {
-					el.addEventListener(key, events[key]);
+			for (var _key in events) {
+				if (events.hasOwnProperty(_key)) {
+					el.addEventListener(_key, events[_key]);
 				}
 			}
 		}
@@ -3490,7 +3500,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function $New(tag, attr, nodes) {
-		for (var i = 0, len = nodes.length, el = $new(tag, attr, null); i < len; i++) {
+		var el = $new(tag, attr, null);
+		for (var i = 0, len = nodes.length; i < len; ++i) {
 			if (nodes[i]) {
 				el.appendChild(nodes[i]);
 			}
@@ -3498,9 +3509,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return el;
 	}
 
-	function $txt(el) {
+	var $txt = function $txt(el) {
 		return doc.createTextNode(el);
-	}
+	};
 
 	function $btn(val, ttl, Fn) {
 		var className = arguments.length <= 3 || arguments[3] === undefined ? 'de-button' : arguments[3];
@@ -3519,9 +3530,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return doc.head.appendChild($new('style', { 'type': 'text/css', 'text': text }, null));
 	}
 
-	function $if(cond, el) {
-		return cond ? el : null;
+	function $DOM(html) {
+		var myDoc = doc.implementation.createHTMLDocument('');
+		myDoc.documentElement.innerHTML = html;
+		return myDoc;
 	}
+
 
 	function $toggle(el) {
 		var needToShow = arguments.length <= 1 || arguments[1] === undefined ? el.style.display : arguments[1];
@@ -3541,44 +3555,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		el.style.display = 'none';
 	}
 
-	function $del(el) {
-		if (el) {
-			el.remove();
-		}
-	}
-
-	function $DOM(html) {
-		var myDoc = doc.implementation.createHTMLDocument('');
-		myDoc.documentElement.innerHTML = html;
-		return myDoc;
-	}
-
-	function $pd(e) {
-		e.preventDefault();
-	}
-
-	function $txtInsert(el, txt) {
-		var scrtop = el.scrollTop,
-		    start = el.selectionStart;
-		el.value = el.value.substr(0, start) + txt + el.value.substr(el.selectionEnd);
-		el.setSelectionRange(start + txt.length, start + txt.length);
-		el.focus();
-		el.scrollTop = scrtop;
-	}
-
-	function $isEmpty(obj) {
-		for (var i in obj) {
-			if (obj.hasOwnProperty(i)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	function $join(arr, start, end) {
-		return start + arr.join(end + start) + end;
-	}
-
 	function $animate(el, cName) {
 		var remove = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
@@ -3591,6 +3567,41 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		});
 		el.classList.add(cName);
+	}
+
+
+	var pad2 = function pad2(i) {
+		return (i < 10 ? '0' : '') + i;
+	};
+
+	var $if = function $if(cond, el) {
+		return cond ? el : null;
+	};
+
+	var $join = function $join(arr, start, end) {
+		return start + arr.join(end + start) + end;
+	};
+
+	function $pd(e) {
+		e.preventDefault();
+	}
+
+	function $isEmpty(obj) {
+		for (var i in obj) {
+			if (obj.hasOwnProperty(i)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	function $txtInsert(el, txt) {
+		var scrtop = el.scrollTop;
+		var start = el.selectionStart;
+		el.value = el.value.substr(0, start) + txt + el.value.substr(el.selectionEnd);
+		el.setSelectionRange(start + txt.length, start + txt.length);
+		el.focus();
+		el.scrollTop = scrtop;
 	}
 
 	var Logger = {
@@ -3643,8 +3654,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return result.done ? result.value : Promise.resolve(result.value).then(onFulfilled, onRejected);
 			}
 
-			for (var _len2 = arguments.length, args = Array(_len2), _key = 0; _key < _len2; _key++) {
-				args[_key] = arguments[_key];
+			for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+				args[_key2] = arguments[_key2];
 			}
 
 			var generator = generatorFunc.apply(this, args),
@@ -3655,8 +3666,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function spawn(generatorFunc) {
-		for (var _len3 = arguments.length, args = Array(_len3 > 1 ? _len3 - 1 : 0), _key2 = 1; _key2 < _len3; _key2++) {
-			args[_key2 - 1] = arguments[_key2];
+		for (var _len3 = arguments.length, args = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+			args[_key3 - 1] = arguments[_key3];
 		}
 
 		return Promise.resolve(async(generatorFunc).apply(undefined, args));
@@ -4413,10 +4424,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function onDOMLoaded(fn) {
-		if (doc.readyState === 'interactive' || doc.readyState === 'complete') {
-			fn();
-		} else {
+		if (doc.readyState === 'loading') {
 			doc.addEventListener('DOMContentLoaded', fn);
+		} else {
+			fn();
 		}
 	}
 
@@ -5833,8 +5844,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var div = $bEnd(body, '<hr><div id="de-fav-buttons"></div>');
 
 		div.appendChild(addEditButton('favor', function (fn) {
-			return readFav().then(function (val) {
-				return fn(val, true, saveFavorites);
+			return readFav().then(function (data) {
+				return fn(data, true, saveFavorites);
 			});
 		}));
 
@@ -6509,8 +6520,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			$del($id('de-css-dynamic'));
 			$del($id('de-css-user'));
 			scriptCSS();
-		}), $New('div', null, [lBox('userCSS', false, updateCSS), addEditButton('css', function (fn) {
-			fn(Cfg.userCSSTxt, false, function () {
+		}), $New('div', null, [lBox('userCSS', false, updateCSS),
+		addEditButton('css', function (fn) {
+			return fn(Cfg.userCSSTxt, false, function () {
 				saveCfg('userCSSTxt', this.value);
 				updateCSS();
 				toggleWindow('cfg', true);
@@ -6538,8 +6550,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 		}, 'de-cfg-button')]), $New('div', { 'class': 'de-cfg-depend' }, [inpTxt('loadPages', 2, null), $txt(Lng.cfg.loadPages[lang])]), $if(!nav.isChromeStorage && !nav.Presto || nav.isGM, $New('div', null, [lBox('updScript', true, null), $New('div', { 'class': 'de-cfg-depend' }, [optSel('scrUpdIntrv', false, null), $btn(Lng.checkNow[lang], '', function () {
 			$popup(Lng.loading[lang], 'updavail', true);
-			spawn(getStoredObj, 'DESU_Config').then(function (val) {
-				return checkForUpdates(true, val.lastUpd);
+			spawn(getStoredObj, 'DESU_Config').then(function (data) {
+				return checkForUpdates(true, data.lastUpd);
 			}).then(function (html) {
 				return $popup(html, 'updavail', false);
 			}, emptyFn);
@@ -6551,14 +6563,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				setStored('DESU_Exclude', excludeList = this.value);
 			}
 		}), lBox('turnOff', true, function () {
-			spawn(getStoredObj, 'DESU_Config').then(function (val) {
-				for (var dm in val) {
+			return spawn(getStoredObj, 'DESU_Config').then(function (data) {
+				for (var dm in data) {
 					if (dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
-						val[dm].disabled = Cfg.turnOff;
+						data[dm].disabled = Cfg.turnOff;
 					}
 				}
-				val[aib.dm].turnOff = Cfg.turnOff;
-				setStored('DESU_Config', JSON.stringify(val));
+				data[aib.dm].turnOff = Cfg.turnOff;
+				setStored('DESU_Config', JSON.stringify(data));
 			});
 		})]))]);
 	}
@@ -6596,23 +6608,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		return $btn(Lng.edit[lang], Lng.editInTxt[lang], function () {
 			return getDataFn(function (val, isJSON, saveFn) {
-				var el = $popup('<b>' + Lng.editor[name][lang] + '</b>' + '<textarea class="de-editor"></textarea>', 'edit-' + name, false),
-				    ta = el.lastChild;
+				var el = $popup('<b>' + Lng.editor[name][lang] + '</b><textarea class="de-editor"></textarea>', 'edit-' + name, false);
+				var ta = el.lastChild;
 				ta.value = isJSON ? JSON.stringify(val, null, '\t') : val;
-				el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], isJSON ? function (fun) {
-					var data;
+				el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], !isJSON ? saveFn : function () {
+					var data = void 0;
 					try {
-						data = JSON.parse(this.value.trim().replace(/[\n\r\t]/g, '') || '{}');
+						data = JSON.parse(ta.value.trim().replace(/[\n\r\t]/g, '') || '{}');
 					} finally {
-						if (data) {
-							fun(data);
-							closePopup('edit-' + name);
-							closePopup('err-invaliddata');
-						} else {
+						if (!data) {
 							$popup(Lng.invalidData[lang], 'err-invaliddata', false);
+							return;
 						}
+						saveFn(data);
+						closePopup('edit-' + name);
+						closePopup('err-invaliddata');
 					}
-				}.bind(ta, saveFn) : saveFn.bind(ta)));
+				}));
 			});
 		}, className);
 	}
@@ -6644,6 +6656,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function addSettings(body, id) {
+		var getList = function getList(a) {
+			return $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
+		};
 		var cfgTab = function cfgTab(name) {
 			return $new('div', {
 				'class': aib.cReply + ' de-cfg-tab',
@@ -6653,7 +6668,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 		};
 		body.appendChild($New('div', { 'id': 'de-cfg-bar' }, [cfgTab('filters'), cfgTab('posts'), cfgTab('images'), cfgTab('links'), $if(pr.form || pr.oeForm, cfgTab('form')), cfgTab('common'), cfgTab('info')]));
-		body.appendChild($New('div', { 'id': 'de-cfg-buttons' }, [optSel('language', false, function () {
+		body.appendChild($New('div', { 'id': 'de-cfg-buttons' }, [
+		optSel('language', false, function () {
 			saveCfg('language', lang = this.selectedIndex);
 			panel.remove();
 			$del($id('de-css'));
@@ -6662,18 +6678,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			scriptCSS();
 			panel.init(DelForm.first.el);
 			toggleWindow('cfg', false);
-		}, 'de-cfg-lang-select'), addEditButton('cfg', function (fn) {
-			fn(Cfg, true, function (data) {
+		}, 'de-cfg-lang-select'),
+
+		addEditButton('cfg', function (fn) {
+			return fn(Cfg, true, function (data) {
 				saveComCfg(aib.dm, data);
 				window.location.reload();
 			});
-		}), $if(nav.isGlobal, $btn(Lng.global[lang], Lng.globalCfg[lang], function () {
+		}),
+
+		$if(nav.isGlobal, $btn(Lng.global[lang], Lng.globalCfg[lang], function () {
 			var el = $popup('<b>' + Lng.globalCfg[lang] + ':</b>', 'cfg-global', false);
 			el.appendChild($New('div', { 'class': 'de-list' }, [$btn(Lng.load[lang], '', function () {
-				spawn(getStoredObj, 'DESU_Config').then(function (val) {
-					if (val && 'global' in val && !$isEmpty(val.global)) {
-						delete val[aib.dm];
-						setStored('DESU_Config', JSON.stringify(val));
+				return spawn(getStoredObj, 'DESU_Config').then(function (data) {
+					if (data && 'global' in data && !$isEmpty(data.global)) {
+						saveComCfg(aib.dm, data.global);
 						window.location.reload();
 					} else {
 						$popup(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
@@ -6681,25 +6700,25 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 			}), $txt(Lng.loadGlobal[lang])]));
 			el.appendChild($New('div', { 'class': 'de-list' }, [$btn(Lng.save[lang], '', function () {
-				spawn(getStoredObj, 'DESU_Config').then(function (val) {
-					var obj = {},
-					    com = val[aib.dm];
+				return spawn(getStoredObj, 'DESU_Config').then(function (data) {
+					var obj = {};
+					var com = data[aib.dm];
 					for (var i in com) {
 						if (i !== 'correctTime' && i !== 'timePattern' && i !== 'userCSS' && i !== 'userCSSTxt' && com[i] !== defaultCfg[i] && i !== 'stats') {
 							obj[i] = com[i];
 						}
 					}
-					val.global = obj;
-					setStored('DESU_Config', JSON.stringify(val));
+					data.global = obj;
+					saveComCfg('global', data.global);
 					toggleWindow('cfg', true);
 				});
 			}), $txt(Lng.saveGlobal[lang])]));
 			el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
-		})), $if(!nav.Presto, $btn(Lng.file[lang], Lng.fileImpExp[lang], function () {
-			var fn = function fn(a) {
-				return $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
-			};
-			$popup('<b>' + Lng.cfgImpExp[lang] + ':</b><hr>' + '<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' + '<input type="file" accept=".json" id="de-import-file"></div></div><hr>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + fn([Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang], Lng.panelBtn.fav[lang], Lng.hidPstThrds[lang] + ' (' + aib.dm + ')', Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>', 'cfg-file', false);
+		})),
+
+		$if(!nav.Presto, $btn(Lng.file[lang], Lng.fileImpExp[lang], function () {
+			$popup('<b>' + Lng.cfgImpExp[lang] + ':</b><hr>' + '<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' + '<input type="file" accept=".json" id="de-import-file"></div></div><hr>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + getList([Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang], Lng.panelBtn.fav[lang], Lng.hidPstThrds[lang] + ' (' + aib.dm + ')', Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>', 'cfg-file', false);
+
 			$id('de-import-file').onchange = function (_ref9) {
 				var _ref9$target$files = _slicedToArray(_ref9.target.files, 1);
 
@@ -6711,16 +6730,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				readFile(file, true).then(function (_ref10) {
 					var data = _ref10.data;
 
+					var obj = void 0;
 					try {
-						var obj = JSON.parse(data);
+						obj = JSON.parse(data);
 					} catch (e) {
 						$popup(Lng.invalidData[lang], 'err-invaliddata', false);
 						return;
 					}
-					var cfgObj = obj.settings,
-					    favObj = obj.favorites,
-					    dmObj = obj[aib.dm],
-					    isOldCfg = !cfgObj && !favObj && !dmObj;
+					var cfgObj = obj.settings;
+					var favObj = obj.favorites;
+					var dmObj = obj[aib.dm];
+					var isOldCfg = !cfgObj && !favObj && !dmObj;
 					if (isOldCfg) {
 						setStored('DESU_Config', data);
 					}
@@ -6753,152 +6773,150 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					closePopup('cfg-file');
 				});
 			};
-			var expFile = $id('de-export-file'),
-			    els = $Q('input', expFile.nextElementSibling);
+
+			var expFile = $id('de-export-file');
+			var els = $Q('input', expFile.nextElementSibling);
 			els[0].checked = true;
 			expFile.addEventListener('click', async(regeneratorRuntime.mark(function _callee5(e) {
-				var name, nameDm, val, valDm, d, fn, i, len;
+				var name, nameDm, d, val, valDm, i, len;
 				return regeneratorRuntime.wrap(function _callee5$(_context10) {
 					while (1) {
 						switch (_context10.prev = _context10.next) {
 							case 0:
-								name = [], nameDm = [], val = [], valDm = [], d = new Date(), fn = function fn(i) {
-									return parseInt(i) < 10 ? '0' + i : i;
-								};
+								name = [], nameDm = [], d = new Date();
+								val = [], valDm = [];
 								i = 0, len = els.length;
 
-							case 2:
+							case 3:
 								if (!(i < len)) {
-									_context10.next = 50;
+									_context10.next = 51;
 									break;
 								}
 
 								if (els[i].checked) {
-									_context10.next = 5;
+									_context10.next = 6;
 									break;
 								}
 
-								return _context10.abrupt('continue', 47);
+								return _context10.abrupt('continue', 48);
 
-							case 5:
+							case 6:
 								_context10.t0 = i;
-								_context10.next = _context10.t0 === 0 ? 8 : _context10.t0 === 1 ? 31 : _context10.t0 === 2 ? 41 : _context10.t0 === 3 ? 45 : 47;
+								_context10.next = _context10.t0 === 0 ? 9 : _context10.t0 === 1 ? 32 : _context10.t0 === 2 ? 42 : _context10.t0 === 3 ? 46 : 48;
 								break;
 
-							case 8:
+							case 9:
 								name.push('Cfg');
 								_context10.t1 = val;
-								return _context10.delegateYield(getStored('DESU_Config'), 't2', 11);
+								return _context10.delegateYield(getStored('DESU_Config'), 't2', 12);
 
-							case 11:
+							case 12:
 								_context10.t3 = _context10.t2;
 								_context10.t4 = '"settings":' + _context10.t3;
 
 								_context10.t1.push.call(_context10.t1, _context10.t4);
 
 								_context10.t5 = val;
-								return _context10.delegateYield(getStored('DESU_keys'), 't7', 16);
+								return _context10.delegateYield(getStored('DESU_keys'), 't7', 17);
 
-							case 16:
+							case 17:
 								_context10.t6 = _context10.t7;
 
 								if (_context10.t6) {
-									_context10.next = 19;
+									_context10.next = 20;
 									break;
 								}
 
 								_context10.t6 = '""';
 
-							case 19:
+							case 20:
 								_context10.t8 = _context10.t6;
 								_context10.t9 = '"hotkeys":' + _context10.t8;
 
 								_context10.t5.push.call(_context10.t5, _context10.t9);
 
 								_context10.t10 = val;
-								return _context10.delegateYield(getStored('DESU_Exclude'), 't12', 24);
+								return _context10.delegateYield(getStored('DESU_Exclude'), 't12', 25);
 
-							case 24:
+							case 25:
 								_context10.t11 = _context10.t12;
 
 								if (_context10.t11) {
-									_context10.next = 27;
+									_context10.next = 28;
 									break;
 								}
 
 								_context10.t11 = '""';
 
-							case 27:
+							case 28:
 								_context10.t13 = _context10.t11;
 								_context10.t14 = '"exclude":' + _context10.t13;
 
 								_context10.t10.push.call(_context10.t10, _context10.t14);
 
-								return _context10.abrupt('break', 47);
+								return _context10.abrupt('break', 48);
 
-							case 31:
+							case 32:
 								name.push('Fav');
 								_context10.t15 = val;
-								return _context10.delegateYield(getStored('DESU_Favorites'), 't17', 34);
+								return _context10.delegateYield(getStored('DESU_Favorites'), 't17', 35);
 
-							case 34:
+							case 35:
 								_context10.t16 = _context10.t17;
 
 								if (_context10.t16) {
-									_context10.next = 37;
+									_context10.next = 38;
 									break;
 								}
 
 								_context10.t16 = '{}';
 
-							case 37:
+							case 38:
 								_context10.t18 = _context10.t16;
 								_context10.t19 = '"favorites":' + _context10.t18;
 
 								_context10.t15.push.call(_context10.t15, _context10.t19);
 
-								return _context10.abrupt('break', 47);
+								return _context10.abrupt('break', 48);
 
-							case 41:
+							case 42:
 								nameDm.push('Hid');
 								valDm.push('"posts":' + (locStorage['de-posts'] || '{}'));
 								valDm.push('"threads":' + (locStorage['de-threads'] || '{}'));
-								return _context10.abrupt('break', 47);
+								return _context10.abrupt('break', 48);
 
-							case 45:
+							case 46:
 								nameDm.push('You');
 								valDm.push('"myposts":' + (locStorage['de-myposts'] || '{}'));
 
-							case 47:
-								i++;
-								_context10.next = 2;
+							case 48:
+								++i;
+								_context10.next = 3;
 								break;
 
-							case 50:
+							case 51:
 								if (valDm = valDm.join(',')) {
 									val.push('"' + aib.dm + '":{' + valDm + '}');
 									name.push(aib.dm + '(' + nameDm.join('+') + ')');
 								}
 								if (val = val.join(',')) {
-									downloadBlob(new Blob(['{' + val + '}'], { type: 'application/json' }), 'DE_' + d.getFullYear() + fn(d.getMonth() + 1) + fn(d.getDate()) + '_' + fn(d.getHours()) + fn(d.getMinutes()) + '_' + name.join('+') + '.json');
+									downloadBlob(new Blob(['{' + val + '}'], { type: 'application/json' }), 'DE_' + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + '_' + pad2(d.getHours()) + pad2(d.getMinutes()) + '_' + name.join('+') + '.json');
 								}
 								$pd(e);
 
-							case 53:
+							case 54:
 							case 'end':
 								return _context10.stop();
 						}
 					}
 				}, _callee5, this);
 			})), true);
-		})), $btn(Lng.reset[lang] + '...', Lng.resetCfg[lang], function () {
-			var fn = function fn(a) {
-				return $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
-			};
-			var el = $popup('<b>' + Lng.resetData[lang] + ':</b><hr>' + '<div class="de-list"><b>' + aib.dm + ':</b>' + fn([Lng.panelBtn.cfg[lang], Lng.hidPstThrds[lang], Lng.myPosts[lang]]) + '</div><hr>' + '<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' + fn([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div><hr>', 'cfg-reset', false);
-			el.appendChild($btn(Lng.clear[lang], '', function () {
+		})),
+
+		$btn(Lng.reset[lang] + '...', Lng.resetCfg[lang], function () {
+			$popup('<b>' + Lng.resetData[lang] + ':</b><hr>' + '<div class="de-list"><b>' + aib.dm + ':</b>' + getList([Lng.panelBtn.cfg[lang], Lng.hidPstThrds[lang], Lng.myPosts[lang]]) + '</div><hr>' + '<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' + getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div><hr>', 'cfg-reset', false).appendChild($btn(Lng.clear[lang], '', function () {
 				var els = $Q('input[type="checkbox"]', this.parentNode);
-				for (var i = 1, len = els.length; i < len; i++) {
+				for (var i = 1, len = els.length; i < len; ++i) {
 					if (!els[i].checked) {
 						continue;
 					}
@@ -6918,9 +6936,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					delStored('DESU_keys');
 					delStored('DESU_Exclude');
 				} else if (els[0].checked) {
-					spawn(getStoredObj, 'DESU_Config').then(function (val) {
-						delete val[aib.dm];
-						setStored('DESU_Config', JSON.stringify(val));
+					spawn(getStoredObj, 'DESU_Config').then(function (data) {
+						delete data[aib.dm];
+						setStored('DESU_Config', JSON.stringify(data));
 						$popup(Lng.updating[lang], 'cfg-reset', true);
 						window.location.reload();
 					});
@@ -8136,6 +8154,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	DateTime.prototype = {
 		genDateTime: null,
 		onRPat: null,
+		pad2: pad2,
 		genRFunc: function genRFunc(rPattern) {
 			return new Function('dtime', 'return \'' + rPattern.replace('_o', (this.diff < 0 ? '' : '+') + this.diff).replace('_s', '\' + this.pad2(dtime.getSeconds()) + \'').replace('_i', '\' + this.pad2(dtime.getMinutes()) + \'').replace('_h', '\' + this.pad2(dtime.getHours()) + \'').replace('_d', '\' + this.pad2(dtime.getDate()) + \'').replace('_w', '\' + this.arrW[dtime.getDay()] + \'').replace('_n', '\' + this.pad2(dtime.getMonth() + 1) + \'').replace('_m', '\' + this.arrM[dtime.getMonth()] + \'').replace('_M', '\' + this.arrFM[dtime.getMonth()] + \'').replace('_y', '\' + (\'\' + dtime.getFullYear()).substring(2) + \'').replace('_Y', '\' + dtime.getFullYear() + \'') + '\';');
 		},
@@ -8162,9 +8181,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.genDateTime = this.genRFunc(rPattern);
 			return true;
 		},
-		pad2: function pad2(num) {
-			return num < 10 ? '0' + num : num;
-		},
 		fix: function fix(txt) {
 			var _this14 = this;
 
@@ -8172,8 +8188,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return txt;
 			}
 			return txt.replace(new RegExp(this.regex, 'g'), function (str) {
-				for (var _len4 = arguments.length, args = Array(_len4 > 1 ? _len4 - 1 : 0), _key3 = 1; _key3 < _len4; _key3++) {
-					args[_key3 - 1] = arguments[_key3];
+				for (var _len4 = arguments.length, args = Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
+					args[_key4 - 1] = arguments[_key4];
 				}
 
 				var second, minute, hour, day, month, year;
@@ -8315,8 +8331,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var videoObj = _ref14[2];
 		var id = _ref14[3];
 
-		for (var _len5 = arguments.length, data = Array(_len5 > 2 ? _len5 - 2 : 0), _key4 = 2; _key4 < _len5; _key4++) {
-			data[_key4 - 2] = arguments[_key4];
+		for (var _len5 = arguments.length, data = Array(_len5 > 2 ? _len5 - 2 : 0), _key5 = 2; _key5 < _len5; _key5++) {
+			data[_key5 - 2] = arguments[_key5];
 		}
 
 		if (data.length !== 0) {
@@ -15627,9 +15643,6 @@ true, true],
 
 				var date = data.date.replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/, function (_, y, mo, d, h, m, s) {
 					var dt = new Date(y, +mo - 1, d, h, m, s);
-					var pad2 = function pad2(n) {
-						return n < 10 ? '0' + n : String(n);
-					};
 					return pad2(dt.getDate()) + ' ' + Lng.fullMonth[1][dt.getMonth()] + ' ' + dt.getFullYear() + ' (' + Lng.week[1][dt.getDay()] + ') ' + pad2(dt.getHours()) + ':' + pad2(dt.getMinutes());
 				});
 				var rv = '<table id="post_' + num + '" class="replypost post"><tbody><tr>\n\t\t\t<td class="doubledash">&gt;&gt;</td>\n\t\t\t<td class="reply" id="reply' + num + '">\n\t\t\t\t<a name="i' + num + '"></a>\n\t\t\t\t<label>\n\t\t\t\t\t<input name="' + num + '" value="' + data.thread_id + '" class="delete_checkbox" id="delbox_' + num + '" type="checkbox">\n\t\t\t\t\t' + (data.subject ? '<span class="replytitle">' + data.subject + '</span>' : '') + '\n\t\t\t\t\t<span class="postername">' + (data.name || 'Анонимус') + '</span> ' + date + '\n\t\t\t\t</label>\n\t\t\t\t<span class="reflink">\n\t\t\t\t\t<a onclick="Highlight(0, ' + num + ')" href="/' + brd + '/res/' + data.thread_id + '.xhtml#i' + num + '"> No.' + num + '</a>\n\t\t\t\t</span><br>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + (multiFile ? '<div style="clear: both;"></div>' : '') + '\n\t\t\t\t<div class="postbody"> ' + data.message_html + '</div>\n\t\t\t</td>\n\t\t</tr></tbody></table>';
@@ -16585,8 +16598,8 @@ true, true],
 			var origFormData = FormData,
 			    origAppend = FormData.prototype.append;
 			FormData = function FormData() {
-				for (var _len6 = arguments.length, args = Array(_len6), _key5 = 0; _key5 < _len6; _key5++) {
-					args[_key5] = arguments[_key5];
+				for (var _len6 = arguments.length, args = Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
+					args[_key6] = arguments[_key6];
 				}
 
 				var rv = new (Function.prototype.bind.apply(origFormData, [null].concat(args)))();
@@ -16632,8 +16645,8 @@ true, true],
 			isGlobal: isGM || isChromeStorage || isScriptStorage,
 			scriptInstall: firefox ? typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish' : isChromeStorage ? 'Chrome extension' : isGM ? 'Monkey' : 'Native userscript',
 			cssMatches: function cssMatches(leftSel) {
-				for (var _len7 = arguments.length, rules = Array(_len7 > 1 ? _len7 - 1 : 0), _key6 = 1; _key6 < _len7; _key6++) {
-					rules[_key6 - 1] = arguments[_key6];
+				for (var _len7 = arguments.length, rules = Array(_len7 > 1 ? _len7 - 1 : 0), _key7 = 1; _key7 < _len7; _key7++) {
+					rules[_key7 - 1] = arguments[_key7];
 				}
 
 				return leftSel + rules.join(', ' + leftSel);
@@ -20606,7 +20619,7 @@ true, true],
 			});
 			return;
 	}
-	if (doc.readyState === 'interactive' || doc.readyState === 'complete') {
+	if (doc.readyState !== 'loading') {
 		needScroll = false;
 		async(runMain)(true, null);
 	} else {
