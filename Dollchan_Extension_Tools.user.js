@@ -3000,7 +3000,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'favWinWidth': 500, 
 		'vidWinDrag': 0, 
 		'vidWinX': 'right: 0', 
-		'vidWinY': 'top: 0'
+		'vidWinY': 'top: 0',
+		'cfgTab': 'filters' 
 	};
 
 	var Lng = {
@@ -3562,10 +3563,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var pad2 = function pad2(i) {
 		return (i < 10 ? '0' : '') + i;
-	};
-
-	var $if = function $if(cond, el) {
-		return cond ? el : null;
 	};
 
 	var $join = function $join(arr, start, end) {
@@ -5496,21 +5493,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (isAnim && body.hasChildNodes()) {
 			win.addEventListener('animationend', function aEvent() {
 				this.removeEventListener('animationend', aEvent);
-				showWindow(win, body, name, false, remove, data, Cfg.animation);
+				showWindow(win, body, name, remove, data, Cfg.animation);
 				win = body = name = remove = data = null;
 			});
 			win.classList.remove('de-win-open');
 			win.classList.add('de-win-close');
 		} else {
-			showWindow(win, body, name, isUpd, remove, data, isAnim);
+			showWindow(win, body, name, remove, data, isAnim);
 		}
 	}
 
-	function showWindow(win, body, name, isUpd, remove, data, isAnim) {
-		var temp, cfgTabId;
-		if (name === 'cfg' && !remove && (temp = $q('.de-cfg-tab[selected]', body))) {
-			cfgTabId = temp.getAttribute('info');
-		}
+	function showWindow(win, body, name, remove, data, isAnim) {
 		body.innerHTML = '';
 		if (remove) {
 			win.classList.remove('de-win-active');
@@ -5540,7 +5533,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 				return;
 			case 'cfg':
-				cfgWindow.init(body, cfgTabId);break;
+				cfgWindow.init(body);break;
 			case 'hid':
 				showHiddenWindow(body);break;
 			case 'vid':
@@ -6204,8 +6197,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 	var cfgWindow = Object.create({
-
-		init: function init(body, id) {
+		init: function init(body) {
 			var _this11 = this;
 
 			body.addEventListener('click', this);
@@ -6216,18 +6208,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			body.addEventListener('keydown', this);
 			body.addEventListener('scroll', this);
 
-			var div = $bEnd(body, '<div id="de-cfg-bar"></div>');
-			div.appendChild(this._getTab('filters'));
-			div.appendChild(this._getTab('posts'));
-			div.appendChild(this._getTab('images'));
-			div.appendChild(this._getTab('links'));
-			if (pr.form || pr.oeForm) {
-				div.appendChild(this._getTab('form'));
-			}
-			div.appendChild(this._getTab('common'));
-			div.appendChild(this._getTab('info'));
+			var div = $bEnd(body, '<div id="de-cfg-bar">' + (this._getTab('filters') + this._getTab('posts') + this._getTab('images') + this._getTab('links') + (pr.form || pr.oeForm ? this._getTab('form') : '') + this._getTab('common') + this._getTab('info')) + '</div><div id="de-cfg-buttons">' + this._getSel('language') + '</div>');
 
-			div = $bEnd(body, '<div id="de-cfg-buttons">' + this._getSel('language') + '</div>');
+			this._clickTab(Cfg.cfgTab);
 
 			div.appendChild(getEditButton('cfg', function (fn) {
 				return fn(Cfg, true, function (data) {
@@ -6265,204 +6248,202 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
 			}));
 
-			if (!nav.Presto) {
-				div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], function () {
-					$popup('<b>' + Lng.cfgImpExp[lang] + ':</b><hr>' + '<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' + '<input type="file" accept=".json" id="de-import-file"></div></div><hr>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + _this11._getList([Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang], Lng.panelBtn.fav[lang], Lng.hidPstThrds[lang] + ' (' + aib.dm + ')', Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>', 'cfg-file', false);
+			!nav.Presto && div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], function () {
+				$popup('<b>' + Lng.cfgImpExp[lang] + ':</b><hr>' + '<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' + '<input type="file" accept=".json" id="de-import-file"></div></div><hr>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + _this11._getList([Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang], Lng.panelBtn.fav[lang], Lng.hidPstThrds[lang] + ' (' + aib.dm + ')', Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>', 'cfg-file', false);
 
-					$id('de-import-file').onchange = function (_ref5) {
-						var _ref5$target$files = _slicedToArray(_ref5.target.files, 1);
+				$id('de-import-file').onchange = function (_ref5) {
+					var _ref5$target$files = _slicedToArray(_ref5.target.files, 1);
 
-						var file = _ref5$target$files[0];
+					var file = _ref5$target$files[0];
 
-						if (!file) {
+					if (!file) {
+						return;
+					}
+					readFile(file, true).then(function (_ref6) {
+						var data = _ref6.data;
+
+						var obj = void 0;
+						try {
+							obj = JSON.parse(data);
+						} catch (e) {
+							$popup(Lng.invalidData[lang], 'err-invaliddata', false);
 							return;
 						}
-						readFile(file, true).then(function (_ref6) {
-							var data = _ref6.data;
-
-							var obj = void 0;
+						var cfgObj = obj.settings;
+						var favObj = obj.favorites;
+						var dmObj = obj[aib.dm];
+						var isOldCfg = !cfgObj && !favObj && !dmObj;
+						if (isOldCfg) {
+							setStored('DESU_Config', data);
+						}
+						if (cfgObj) {
 							try {
-								obj = JSON.parse(data);
-							} catch (e) {
-								$popup(Lng.invalidData[lang], 'err-invaliddata', false);
-								return;
+								setStored('DESU_Config', JSON.stringify(cfgObj));
+								setStored('DESU_keys', JSON.stringify(obj.hotkeys));
+								setStored('DESU_Exclude', JSON.stringify(obj.exclude));
+							} catch (e) {}
+						}
+						if (favObj) {
+							saveFavorites(favObj);
+						}
+						if (dmObj) {
+							if (dmObj.posts) {
+								locStorage['de-posts'] = JSON.stringify(dmObj.posts);
 							}
-							var cfgObj = obj.settings;
-							var favObj = obj.favorites;
-							var dmObj = obj[aib.dm];
-							var isOldCfg = !cfgObj && !favObj && !dmObj;
-							if (isOldCfg) {
-								setStored('DESU_Config', data);
+							if (dmObj.threads) {
+								locStorage['de-threads'] = JSON.stringify(dmObj.threads);
 							}
-							if (cfgObj) {
-								try {
-									setStored('DESU_Config', JSON.stringify(cfgObj));
-									setStored('DESU_keys', JSON.stringify(obj.hotkeys));
-									setStored('DESU_Exclude', JSON.stringify(obj.exclude));
-								} catch (e) {}
+							if (dmObj.myposts) {
+								locStorage['de-myposts'] = JSON.stringify(dmObj.myposts);
 							}
-							if (favObj) {
-								saveFavorites(favObj);
-							}
-							if (dmObj) {
-								if (dmObj.posts) {
-									locStorage['de-posts'] = JSON.stringify(dmObj.posts);
-								}
-								if (dmObj.threads) {
-									locStorage['de-threads'] = JSON.stringify(dmObj.threads);
-								}
-								if (dmObj.myposts) {
-									locStorage['de-myposts'] = JSON.stringify(dmObj.myposts);
-								}
-							}
-							if (cfgObj || dmObj || isOldCfg) {
-								$popup(Lng.updating[lang], 'cfg-file', true);
-								window.location.reload();
-								return;
-							}
-							closePopup('cfg-file');
-						});
-					};
+						}
+						if (cfgObj || dmObj || isOldCfg) {
+							$popup(Lng.updating[lang], 'cfg-file', true);
+							window.location.reload();
+							return;
+						}
+						closePopup('cfg-file');
+					});
+				};
 
-					var expFile = $id('de-export-file');
-					var els = $Q('input', expFile.nextElementSibling);
-					els[0].checked = true;
-					expFile.addEventListener('click', async(regeneratorRuntime.mark(function _callee5(e) {
-						var name, nameDm, d, val, valDm, i, len;
-						return regeneratorRuntime.wrap(function _callee5$(_context10) {
-							while (1) {
-								switch (_context10.prev = _context10.next) {
-									case 0:
-										name = [], nameDm = [], d = new Date();
-										val = [], valDm = [];
-										i = 0, len = els.length;
+				var expFile = $id('de-export-file');
+				var els = $Q('input', expFile.nextElementSibling);
+				els[0].checked = true;
+				expFile.addEventListener('click', async(regeneratorRuntime.mark(function _callee5(e) {
+					var name, nameDm, d, val, valDm, i, len;
+					return regeneratorRuntime.wrap(function _callee5$(_context10) {
+						while (1) {
+							switch (_context10.prev = _context10.next) {
+								case 0:
+									name = [], nameDm = [], d = new Date();
+									val = [], valDm = [];
+									i = 0, len = els.length;
 
-									case 3:
-										if (!(i < len)) {
-											_context10.next = 51;
-											break;
-										}
-
-										if (els[i].checked) {
-											_context10.next = 6;
-											break;
-										}
-
-										return _context10.abrupt('continue', 48);
-
-									case 6:
-										_context10.t0 = i;
-										_context10.next = _context10.t0 === 0 ? 9 : _context10.t0 === 1 ? 32 : _context10.t0 === 2 ? 42 : _context10.t0 === 3 ? 46 : 48;
+								case 3:
+									if (!(i < len)) {
+										_context10.next = 51;
 										break;
+									}
 
-									case 9:
-										name.push('Cfg');
-										_context10.t1 = val;
-										return _context10.delegateYield(getStored('DESU_Config'), 't2', 12);
-
-									case 12:
-										_context10.t3 = _context10.t2;
-										_context10.t4 = '"settings":' + _context10.t3;
-
-										_context10.t1.push.call(_context10.t1, _context10.t4);
-
-										_context10.t5 = val;
-										return _context10.delegateYield(getStored('DESU_keys'), 't7', 17);
-
-									case 17:
-										_context10.t6 = _context10.t7;
-
-										if (_context10.t6) {
-											_context10.next = 20;
-											break;
-										}
-
-										_context10.t6 = '""';
-
-									case 20:
-										_context10.t8 = _context10.t6;
-										_context10.t9 = '"hotkeys":' + _context10.t8;
-
-										_context10.t5.push.call(_context10.t5, _context10.t9);
-
-										_context10.t10 = val;
-										return _context10.delegateYield(getStored('DESU_Exclude'), 't12', 25);
-
-									case 25:
-										_context10.t11 = _context10.t12;
-
-										if (_context10.t11) {
-											_context10.next = 28;
-											break;
-										}
-
-										_context10.t11 = '""';
-
-									case 28:
-										_context10.t13 = _context10.t11;
-										_context10.t14 = '"exclude":' + _context10.t13;
-
-										_context10.t10.push.call(_context10.t10, _context10.t14);
-
-										return _context10.abrupt('break', 48);
-
-									case 32:
-										name.push('Fav');
-										_context10.t15 = val;
-										return _context10.delegateYield(getStored('DESU_Favorites'), 't17', 35);
-
-									case 35:
-										_context10.t16 = _context10.t17;
-
-										if (_context10.t16) {
-											_context10.next = 38;
-											break;
-										}
-
-										_context10.t16 = '{}';
-
-									case 38:
-										_context10.t18 = _context10.t16;
-										_context10.t19 = '"favorites":' + _context10.t18;
-
-										_context10.t15.push.call(_context10.t15, _context10.t19);
-
-										return _context10.abrupt('break', 48);
-
-									case 42:
-										nameDm.push('Hid');
-										valDm.push('"posts":' + (locStorage['de-posts'] || '{}'));
-										valDm.push('"threads":' + (locStorage['de-threads'] || '{}'));
-										return _context10.abrupt('break', 48);
-
-									case 46:
-										nameDm.push('You');
-										valDm.push('"myposts":' + (locStorage['de-myposts'] || '{}'));
-
-									case 48:
-										++i;
-										_context10.next = 3;
+									if (els[i].checked) {
+										_context10.next = 6;
 										break;
+									}
 
-									case 51:
-										if (valDm = valDm.join(',')) {
-											val.push('"' + aib.dm + '":{' + valDm + '}');
-											name.push(aib.dm + '(' + nameDm.join('+') + ')');
-										}
-										if (val = val.join(',')) {
-											downloadBlob(new Blob(['{' + val + '}'], { type: 'application/json' }), 'DE_' + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + '_' + pad2(d.getHours()) + pad2(d.getMinutes()) + '_' + name.join('+') + '.json');
-										}
-										$pd(e);
+									return _context10.abrupt('continue', 48);
 
-									case 54:
-									case 'end':
-										return _context10.stop();
-								}
+								case 6:
+									_context10.t0 = i;
+									_context10.next = _context10.t0 === 0 ? 9 : _context10.t0 === 1 ? 32 : _context10.t0 === 2 ? 42 : _context10.t0 === 3 ? 46 : 48;
+									break;
+
+								case 9:
+									name.push('Cfg');
+									_context10.t1 = val;
+									return _context10.delegateYield(getStored('DESU_Config'), 't2', 12);
+
+								case 12:
+									_context10.t3 = _context10.t2;
+									_context10.t4 = '"settings":' + _context10.t3;
+
+									_context10.t1.push.call(_context10.t1, _context10.t4);
+
+									_context10.t5 = val;
+									return _context10.delegateYield(getStored('DESU_keys'), 't7', 17);
+
+								case 17:
+									_context10.t6 = _context10.t7;
+
+									if (_context10.t6) {
+										_context10.next = 20;
+										break;
+									}
+
+									_context10.t6 = '""';
+
+								case 20:
+									_context10.t8 = _context10.t6;
+									_context10.t9 = '"hotkeys":' + _context10.t8;
+
+									_context10.t5.push.call(_context10.t5, _context10.t9);
+
+									_context10.t10 = val;
+									return _context10.delegateYield(getStored('DESU_Exclude'), 't12', 25);
+
+								case 25:
+									_context10.t11 = _context10.t12;
+
+									if (_context10.t11) {
+										_context10.next = 28;
+										break;
+									}
+
+									_context10.t11 = '""';
+
+								case 28:
+									_context10.t13 = _context10.t11;
+									_context10.t14 = '"exclude":' + _context10.t13;
+
+									_context10.t10.push.call(_context10.t10, _context10.t14);
+
+									return _context10.abrupt('break', 48);
+
+								case 32:
+									name.push('Fav');
+									_context10.t15 = val;
+									return _context10.delegateYield(getStored('DESU_Favorites'), 't17', 35);
+
+								case 35:
+									_context10.t16 = _context10.t17;
+
+									if (_context10.t16) {
+										_context10.next = 38;
+										break;
+									}
+
+									_context10.t16 = '{}';
+
+								case 38:
+									_context10.t18 = _context10.t16;
+									_context10.t19 = '"favorites":' + _context10.t18;
+
+									_context10.t15.push.call(_context10.t15, _context10.t19);
+
+									return _context10.abrupt('break', 48);
+
+								case 42:
+									nameDm.push('Hid');
+									valDm.push('"posts":' + (locStorage['de-posts'] || '{}'));
+									valDm.push('"threads":' + (locStorage['de-threads'] || '{}'));
+									return _context10.abrupt('break', 48);
+
+								case 46:
+									nameDm.push('You');
+									valDm.push('"myposts":' + (locStorage['de-myposts'] || '{}'));
+
+								case 48:
+									++i;
+									_context10.next = 3;
+									break;
+
+								case 51:
+									if (valDm = valDm.join(',')) {
+										val.push('"' + aib.dm + '":{' + valDm + '}');
+										name.push(aib.dm + '(' + nameDm.join('+') + ')');
+									}
+									if (val = val.join(',')) {
+										downloadBlob(new Blob(['{' + val + '}'], { type: 'application/json' }), 'DE_' + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + '_' + pad2(d.getHours()) + pad2(d.getMinutes()) + '_' + name.join('+') + '.json');
+									}
+									$pd(e);
+
+								case 54:
+								case 'end':
+									return _context10.stop();
 							}
-						}, _callee5, this);
-					})), true);
-				}));
-			}
+						}
+					}, _callee5, this);
+				})), true);
+			}));
 
 			div.appendChild($btn(Lng.reset[lang] + '...', Lng.resetCfg[lang], function () {
 				return $popup('<b>' + Lng.resetData[lang] + ':</b><hr>' + '<div class="de-list"><b>' + aib.dm + ':</b>' + _this11._getList([Lng.panelBtn.cfg[lang], Lng.hidPstThrds[lang], Lng.myPosts[lang]]) + '</div><hr>' + '<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' + _this11._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div><hr>', 'cfg-reset', false).appendChild($btn(Lng.clear[lang], '', function () {
@@ -6499,7 +6480,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					window.location.reload();
 				}));
 			}));
-			$q('.de-cfg-tab[info="' + (id || 'filters') + '"]', body).click();
 		},
 
 
@@ -6507,11 +6487,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var type = e.type;
 			var el = e.target;
 			var tag = el.tagName;
-			if (type === 'change' && tag === 'SELECT') {
+			if (type === 'click' && tag === 'DIV' && el.classList.contains('de-cfg-tab')) {
 				var info = el.getAttribute('info');
-				saveCfg(info, el.selectedIndex);
+				this._clickTab(info);
+				saveCfg('cfgTab', info);
+			}
+			if (type === 'change' && tag === 'SELECT') {
+				var _info = el.getAttribute('info');
+				saveCfg(_info, el.selectedIndex);
 				this._updateDependant();
-				switch (info) {
+				switch (_info) {
 					case 'language':
 						lang = el.selectedIndex;
 						panel.remove();
@@ -6552,10 +6537,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return;
 			}
 			if (type === 'click' && tag === 'INPUT' && el.type === 'checkbox') {
-				var _info = el.getAttribute('info');
-				toggleCfg(_info);
+				var _info2 = el.getAttribute('info');
+				toggleCfg(_info2);
 				this._updateDependant();
-				switch (_info) {
+				switch (_info2) {
 					case 'expandTrunc':
 					case 'updThrBtns':
 					case 'showHideBtn':
@@ -6774,8 +6759,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 			if (type === 'keyup' && tag === 'INPUT' && el.type === 'text') {
-				var _info2 = el.getAttribute('info');
-				switch (_info2) {
+				var _info3 = el.getAttribute('info');
+				switch (_info3) {
 					case 'postBtnsBack':
 						if (checkCSSColor(el.value)) {
 							el.classList.remove('de-error-input');
@@ -6812,7 +6797,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'excludeList':
 						setStored('DESU_Exclude', excludeList = el.value);break;
 					default:
-						saveCfg(_info2, el.value);
+						saveCfg(_info3, el.value);
 				}
 				return;
 			}
@@ -6852,6 +6837,57 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 
 
+		_clickTab: function _clickTab(info) {
+			var el = $q('.de-cfg-tab[info="' + info + '"]');
+			if (el.hasAttribute('selected')) {
+				return;
+			}
+			var prefTab = $q('.de-cfg-body');
+			if (prefTab) {
+				prefTab.className = 'de-cfg-unvis';
+				$q('.de-cfg-tab[selected]').removeAttribute('selected');
+			}
+			el.setAttribute('selected', '');
+			var id = el.getAttribute('info');
+			var newTab = $id('de-cfg-' + id);
+			if (!newTab) {
+				newTab = $aEnd($id('de-cfg-bar'), id === 'filters' ? this._getCfgFilters() : id === 'posts' ? this._getCfgPosts() : id === 'images' ? this._getCfgImages() : id === 'links' ? this._getCfgLinks() : id === 'form' ? this._getCfgForm() : id === 'common' ? this._getCfgCommon() : this._getCfgInfo());
+				if (id === 'filters') {
+					this._updateRowMeter($id('de-spell-txt'));
+				}
+				if (id === 'common') {
+					$after($q('input[info="userCSS"]').parentNode, getEditButton('css', function (fn) {
+						return fn(Cfg.userCSSTxt, false, function () {
+							saveCfg('userCSSTxt', this.value);
+							updateCSS();
+							toggleWindow('cfg', true);
+						});
+					}, 'de-cfg-button'));
+				}
+			}
+			newTab.className = 'de-cfg-body';
+			if (id === 'filters') {
+				$id('de-spell-txt').value = Spells.list;
+			}
+			this._updateDependant();
+
+			var els = $Q('.de-cfg-chkbox, .de-cfg-inptxt, .de-cfg-select', newTab);
+			for (var i = 0, len = els.length; i < len; ++i) {
+				var _el = els[i];
+				var _info4 = _el.getAttribute('info');
+				if (_el.tagName === 'INPUT') {
+					if (_el.type === 'checkbox') {
+						_el.checked = !!Cfg[_info4];
+					} else {
+						_el.value = Cfg[_info4];
+					}
+				} else {
+					_el.selectedIndex = Cfg[_info4];
+				}
+			}
+		},
+
+
 		_getCfgFilters: function _getCfgFilters() {
 			return '<div id="de-cfg-filters" class="de-cfg-unvis">\n\t\t\t<div id="de-spell-panel">\n\t\t\t\t' + this._getBox('hideBySpell') + '\n\t\t\t\t<a id="de-btn-spell-add" class="de-abtn de-spell-btn" href="#">' + Lng.add[lang] + '</a>\n\t\t\t\t<a id="de-btn-spell-apply" class="de-abtn de-spell-btn" href="#">' + Lng.apply[lang] + '</a>\n\t\t\t\t<a id="de-btn-spell-clear" class="de-abtn de-spell-btn" href="#">' + Lng.clear[lang] + '</a>\n\t\t\t\t<a class="de-abtn de-spell-btn" href="' + (gitWiki + 'Spells-' + (lang ? 'en' : 'ru')) + '" target="_blank">[?]</a>\n\t\t\t</div>\n\t\t\t<div id="de-spell-editor">\n\t\t\t\t<div id="de-spell-rowmeter"></div>\n\t\t\t\t<textarea id="de-spell-txt" wrap="off"></textarea>\n\t\t\t</div>\n\t\t\t' + this._getBox('sortSpells') + '<br>\n\t\t\t' + this._getBox('menuHiddBtn') + '<br>\n\t\t\t' + this._getBox('hideRefPsts') + '<br>\n\t\t\t' + this._getBox('delHiddPost') + '\n\t\t</div>';
 		},
@@ -6883,7 +6919,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgInfo: function _getCfgInfo() {
-			return '<div id="de-cfg-info" class="de-cfg-unvis">\n\t\t\t<div style="padding-bottom: 10px;">\n\t\t\t\t<a href="' + gitWiki + 'versions" target="_blank">v' + version + '.' + (commit + (nav.isES6 ? '.es6' : '')) + '</a>&nbsp;|&nbsp;\n\t\t\t\t<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;\n\t\t\t\t<a href="' + (gitWiki + (lang ? 'home-en/' : '')) + '" target="_blank">Github</a>\n\t\t\t</div>\n\t\t\t<div id="de-info-table">\n\t\t\t\t<div id="de-info-stats">' + this.getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], HiddenThreads.getCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false) + '</div>\n\t\t\t\t<div id="de-info-log">' + this.getInfoTable(Logger.getData(false), true) + '</div>\n\t\t\t</div>\n\t\t\t<input type="button" id="de-cfg-btn-debug" value="' + Lng.debug[lang] + '" title="' + Lng.infoDebug[lang] + '">\n\t\t</div>';
+			return '<div id="de-cfg-info" class="de-cfg-unvis">\n\t\t\t<div style="padding-bottom: 10px;">\n\t\t\t\t<a href="' + gitWiki + 'versions" target="_blank">v' + version + '.' + (commit + (nav.isES6 ? '.es6' : '')) + '</a>&nbsp;|&nbsp;\n\t\t\t\t<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;\n\t\t\t\t<a href="' + (gitWiki + (lang ? 'home-en/' : '')) + '" target="_blank">Github</a>\n\t\t\t</div>\n\t\t\t<div id="de-info-table">\n\t\t\t\t<div id="de-info-stats">' + this._getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], HiddenThreads.getCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false) + '</div>\n\t\t\t\t<div id="de-info-log">' + this._getInfoTable(Logger.getData(false), true) + '</div>\n\t\t\t</div>\n\t\t\t<input type="button" id="de-cfg-btn-debug" value="' + Lng.debug[lang] + '" title="' + Lng.infoDebug[lang] + '">\n\t\t</div>';
 		},
 
 
@@ -6911,7 +6947,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 
 
-		getInfoTable: function getInfoTable(data, needMs) {
+		_getInfoTable: function _getInfoTable(data, needMs) {
 			return data.map(function (data) {
 				return '<div class="de-info-row">\n\t\t\t<span class="de-info-name">' + data[0] + '</span>\n\t\t\t<span>' + (data[1] + (needMs ? 'ms' : '')) + '</span>\n\t\t</div>';
 			}).join('');
@@ -6924,47 +6960,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getTab: function _getTab(name) {
-			var _this12 = this;
-
-			return $new('div', {
-				'class': aib.cReply + ' de-cfg-tab',
-				'text': Lng.cfgTab[name][lang],
-				'info': name
-			}, { 'click': function click(e) {
-					var el = e.target;
-					if (el.hasAttribute('selected')) {
-						return;
-					}
-					var prefTab = $q('.de-cfg-body');
-					if (prefTab) {
-						prefTab.className = 'de-cfg-unvis';
-						$q('.de-cfg-tab[selected]').removeAttribute('selected');
-					}
-					el.setAttribute('selected', '');
-					var id = el.getAttribute('info');
-					var newTab = $id('de-cfg-' + id);
-					if (!newTab) {
-						newTab = $aEnd($id('de-cfg-bar'), id === 'filters' ? _this12._getCfgFilters() : id === 'posts' ? _this12._getCfgPosts() : id === 'images' ? _this12._getCfgImages() : id === 'links' ? _this12._getCfgLinks() : id === 'form' ? _this12._getCfgForm() : id === 'common' ? _this12._getCfgCommon() : _this12._getCfgInfo());
-						if (id === 'filters') {
-							_this12._updateRowMeter($id('de-spell-txt'));
-						}
-						if (id === 'common') {
-							$after($q('input[info="userCSS"]').parentNode, getEditButton('css', function (fn) {
-								return fn(Cfg.userCSSTxt, false, function () {
-									saveCfg('userCSSTxt', this.value);
-									updateCSS();
-									toggleWindow('cfg', true);
-								});
-							}, 'de-cfg-button'));
-						}
-					}
-					newTab.className = 'de-cfg-body';
-					if (id === 'filters') {
-						$id('de-spell-txt').value = Spells.list;
-					}
-					_this12._updateDependant();
-					_this12._updateOptions();
-				} });
+			return '<div class="' + aib.cReply + ' de-cfg-tab" info="' + name + '">' + Lng.cfgTab[name][lang] + '</div>';
 		},
 
 
@@ -6990,24 +6986,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
 			this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
 			this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
-		},
-
-
-		_updateOptions: function _updateOptions(tab) {
-			var els = $Q('.de-cfg-chkbox, .de-cfg-inptxt, .de-cfg-select', tab);
-			for (var i = 0, len = els.length; i < len; ++i) {
-				var el = els[i];
-				var info = el.getAttribute('info');
-				if (el.tagName === 'INPUT') {
-					if (el.type === 'checkbox') {
-						el.checked = !!Cfg[info];
-					} else {
-						el.value = Cfg[info];
-					}
-				} else {
-					el.selectedIndex = Cfg[info];
-				}
-			}
 		},
 
 
@@ -7146,7 +7124,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._el = null;
 		},
 		handleEvent: function handleEvent(e) {
-			var _this13 = this;
+			var _this12 = this;
 
 			var isOverEvent = false,
 			    el = e.target;
@@ -7173,7 +7151,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 						} else if (!rt || rt !== this.parentEl && !this.parentEl.contains(rt)) {
 							this._closeTO = setTimeout(function () {
-								return _this13.remove();
+								return _this12.remove();
 							}, 75);
 							if (this.onout) {
 								this.onout();
@@ -7279,17 +7257,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		},
 		enable: function enable() {
-			var _this14 = this;
+			var _this13 = this;
 
 			if (!this.enabled) {
 				this.enabled = true;
 				this._paused = false;
 				Promise.resolve(this.readKeys()).then(function (keys) {
-					if (_this14.enabled) {
-						_this14.gKeys = keys[2];
-						_this14.ntKeys = keys[3];
-						_this14.tKeys = keys[4];
-						doc.addEventListener('keydown', _this14, true);
+					if (_this13.enabled) {
+						_this13.gKeys = keys[2];
+						_this13.ntKeys = keys[3];
+						_this13.tKeys = keys[4];
+						doc.addEventListener('keydown', _this13, true);
 					}
 				});
 			}
@@ -7896,10 +7874,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._pool.run([data, transferObjs, fn]);
 		},
 		_createWorker: function _createWorker(num, data) {
-			var _this15 = this;
+			var _this14 = this;
 
 			return new Promise(function (resolve, reject) {
-				var w = _this15._freeWorkers.pop();
+				var w = _this14._freeWorkers.pop();
 
 				var _data2 = _slicedToArray(data, 3);
 
@@ -7909,13 +7887,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				w.onmessage = function (e) {
 					fn(e.data);
-					_this15._freeWorkers.push(w);
+					_this14._freeWorkers.push(w);
 					resolve();
 				};
 				w.onerror = function (err) {
 					resolve();
-					_this15._freeWorkers.push(w);
-					_this15._errFn(err);
+					_this14._freeWorkers.push(w);
+					_this14._errFn(err);
 				};
 				w.postMessage(sendData, transferObjs);
 			});
@@ -8285,7 +8263,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return true;
 		},
 		fix: function fix(txt) {
-			var _this16 = this;
+			var _this15 = this;
 
 			if (this.disabled || !this.genDateTime && !this.getRPattern(txt)) {
 				return txt;
@@ -8298,7 +8276,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var second, minute, hour, day, month, year;
 				for (var i = 0; i < 7; ++i) {
 					var a = args[i];
-					switch (_this16.pattern[i]) {
+					switch (_this15.pattern[i]) {
 						case 's':
 							second = a;break;
 						case 'i':
@@ -8343,8 +8321,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 				}
 				var dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
-				dtime.setHours(dtime.getHours() + _this16.diff);
-				return _this16.genDateTime(dtime);
+				dtime.setHours(dtime.getHours() + _this15.diff);
+				return _this15.genDateTime(dtime);
 			});
 		}
 	};
@@ -8470,10 +8448,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	};
 	Videos._getTitlesLoader = function () {
 		return Cfg.YTubeTitles && new TasksPool(4, function (num, info) {
-			var _info3 = _slicedToArray(info, 4);
+			var _info5 = _slicedToArray(info, 4);
 
-			var isYtube = _info3[1];
-			var id = _info3[3];
+			var isYtube = _info5[1];
+			var id = _info5[3];
 
 			if (isYtube) {
 				return Cfg.ytApiKey ? Videos._getYTInfoAPI(info, num, id) : Videos._getYTInfoOembed(info, num, id);
@@ -8855,7 +8833,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var Pages = {
 		add: function add() {
-			var _this18 = this;
+			var _this17 = this;
 
 			var pageNum = DelForm.last.pageNum + 1;
 			if (this._adding || pageNum > aib.lastPage) {
@@ -8865,19 +8843,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' + '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>');
 			MyPosts.purge();
 			this._addPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(function (formEl) {
-				var form = _this18._addForm(formEl, pageNum);
+				var form = _this17._addForm(formEl, pageNum);
 				if (!form.firstThr) {
-					_this18._endAdding();
-					_this18.add();
+					_this17._endAdding();
+					_this17.add();
 					return CancelablePromise.reject(new CancelError());
 				}
-				return spawn(_this18._updateForms, DelForm.last);
+				return spawn(_this17._updateForms, DelForm.last);
 			}).then(function () {
-				return _this18._endAdding();
+				return _this17._endAdding();
 			})['catch'](function (e) {
 				if (!(e instanceof CancelError)) {
 					$popup(getErrorMessage(e), 'add-page', false);
-					_this18._endAdding();
+					_this17._endAdding();
 				}
 			});
 		},
@@ -10034,11 +10012,11 @@ true, true],
 		_createClass(SpellsRunner, [{
 			key: 'end',
 			value: function end() {
-				var _this19 = this;
+				var _this18 = this;
 
 				if (this._endPromise) {
 					this._endPromise.then(function () {
-						return _this19._savePostsHelper();
+						return _this18._savePostsHelper();
 					});
 				} else {
 					this._savePostsHelper();
@@ -10047,13 +10025,13 @@ true, true],
 		}, {
 			key: 'run',
 			value: function run(post) {
-				var _this20 = this;
+				var _this19 = this;
 
 				var interp = new SpellsInterpreter(post, this._spells);
 				var res = interp.run();
 				if (res instanceof Promise) {
 					res = res.then(function (val) {
-						return _this20._checkRes(post, val);
+						return _this19._checkRes(post, val);
 					});
 					this._endPromise = this._endPromise ? this._endPromise.then(function () {
 						return res;
@@ -10692,7 +10670,7 @@ true, true],
 
 
 	function PostForm(form) {
-		var _this21 = this;
+		var _this20 = this;
 
 		var oeForm = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
 		var ignoreForm = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
@@ -10755,11 +10733,11 @@ true, true],
 		el.firstElementChild.onclick = function () {
 			toggleCfg('replyWinDrag');
 			if (Cfg.replyWinDrag) {
-				_this21.qArea.className = aib.cReply + ' de-win';
-				updateWinZ(_this21.qArea.style);
+				_this20.qArea.className = aib.cReply + ' de-win';
+				updateWinZ(_this20.qArea.style);
 			} else {
-				_this21.qArea.className = aib.cReply + ' de-win-inpost';
-				_this21.txta.focus();
+				_this20.qArea.className = aib.cReply + ' de-win-inpost';
+				_this20.txta.focus();
 			}
 		};
 		el.lastElementChild.onclick = this.closeReply.bind(this);
@@ -10811,10 +10789,10 @@ true, true],
 				e.stopPropagation();
 				$pd(e);
 				toggleCfg('sageReply');
-				_this21._setSage();
+				_this20._setSage();
 			};
 			setTimeout(function () {
-				return _this21._setSage();
+				return _this20._setSage();
 			}, 0);
 		}
 		this.addTextPanel();
@@ -10834,32 +10812,32 @@ true, true],
 			this.subm.value = Lng.reply[lang];
 		}
 		this.subm.addEventListener('click', function (e) {
-			if (Cfg.warnSubjTrip && _this21.subj && /#.|##./.test(_this21.subj.value)) {
+			if (Cfg.warnSubjTrip && _this20.subj && /#.|##./.test(_this20.subj.value)) {
 				$pd(e);
 				$popup(Lng.subjHasTrip[lang], 'upload', false);
 				return;
 			}
-			var val = _this21.txta.value;
+			var val = _this20.txta.value;
 			if (Spells.outreps) {
 				val = Spells.outReplace(val);
 			}
-			if (_this21.tNum && pByNum.get(_this21.tNum).subj === 'Dollchan Extension Tools') {
-				var temp = '\n\n' + _this21._wrapText(aib.markupTags[5], '-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit + (nav.isES6 ? '.es6' : '') + ' [' + nav.scriptInstall + ']')[1];
+			if (_this20.tNum && pByNum.get(_this20.tNum).subj === 'Dollchan Extension Tools') {
+				var temp = '\n\n' + _this20._wrapText(aib.markupTags[5], '-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit + (nav.isES6 ? '.es6' : '') + ' [' + nav.scriptInstall + ']')[1];
 				if (!val.includes(temp)) {
 					val += temp;
 				}
 			}
-			_this21.txta.value = val;
+			_this20.txta.value = val;
 			if (Cfg.ajaxReply) {
 				$popup(Lng.checking[lang], 'upload', true);
 			}
-			if (_this21.video && (val = _this21.video.value) && (val = val.match(Videos.ytReg))) {
-				_this21.video.value = 'http://www.youtube.com/watch?v=' + val[1];
+			if (_this20.video && (val = _this20.video.value) && (val = val.match(Videos.ytReg))) {
+				_this20.video.value = 'http://www.youtube.com/watch?v=' + val[1];
 			}
-			if (_this21.isQuick) {
-				$hide(_this21.pForm);
-				$hide(_this21.qArea);
-				$after(_this21._pBtn[+_this21.isBottom], _this21.pForm);
+			if (_this20.isQuick) {
+				$hide(_this20.pForm);
+				$hide(_this20.qArea);
+				$after(_this20._pBtn[+_this20.isBottom], _this20.pForm);
 			}
 			updater.pause();
 		});
@@ -10873,10 +10851,10 @@ true, true],
 			PostForm.hideField(el);
 		}
 		window.addEventListener('load', function () {
-			if (Cfg.userName && _this21.name) {
+			if (Cfg.userName && _this20.name) {
 				setTimeout(PostForm.setUserName, 1e3);
 			}
-			if (_this21.passw) {
+			if (_this20.passw) {
 				setTimeout(PostForm.setUserPassw, 1e3);
 			}
 		});
@@ -10884,15 +10862,15 @@ true, true],
 		if (capEl) {
 			this.cap = new Captcha(capEl, this.tNum);
 			var updCapFn = function updCapFn() {
-				_this21.cap.add();
-				_this21.cap.updOutdated();
+				_this20.cap.add();
+				_this20.cap.updOutdated();
 			};
 			this.txta.addEventListener('focus', updCapFn);
 			if (this.files) {
 				this.files.onchange = updCapFn;
 			}
 			this.form.addEventListener('click', function () {
-				return _this21.cap.add();
+				return _this20.cap.add();
 			}, true);
 		} else {
 			this.cap = null;
@@ -10907,7 +10885,7 @@ true, true],
 				if (aib._2chruNet) {
 					$bEnd(docBody, '<iframe class="ninja" id="csstest" src="/' + aib.b + '/csstest.foo"></iframe>').onload = function (e) {
 						$del(e.target);
-						spawn(html5Submit, _this21.form, _this21.subm, true).then(function (dc) {
+						spawn(html5Submit, _this20.form, _this20.subm, true).then(function (dc) {
 							return checkUpload(dc);
 						}, function (e) {
 							return $popup(getErrorMessage(e), 'upload', false);
@@ -10915,7 +10893,7 @@ true, true],
 					};
 					return;
 				}
-				spawn(html5Submit, _this21.form, _this21.subm, true).then(function (dc) {
+				spawn(html5Submit, _this20.form, _this20.subm, true).then(function (dc) {
 					return checkUpload(dc);
 				}, function (e) {
 					return $popup(getErrorMessage(e), 'upload', false);
@@ -11409,12 +11387,12 @@ true, true],
 		}, {
 			key: 'handleEvent',
 			value: function handleEvent(e) {
-				var _this22 = this;
+				var _this21 = this;
 
 				switch (e.type) {
 					case 'change':
 						setTimeout(function () {
-							return _this22._onFileChange();
+							return _this21._onFileChange();
 						}, 20);return;
 					case 'click':
 						if (e.target === this._btnDel) {
@@ -11447,7 +11425,7 @@ true, true],
 					case 'drop':
 						this._dragCount = 0;
 						setTimeout(function () {
-							return _this22._removeDropzone();
+							return _this21._removeDropzone();
 						}, 10);
 						return;
 				}
@@ -11465,21 +11443,21 @@ true, true],
 		}, {
 			key: '_addRarJpeg',
 			value: function _addRarJpeg() {
-				var _this23 = this;
+				var _this22 = this;
 
 				var el = this._parent.rarInput;
 				el.onchange = function (e) {
-					$del(_this23._btnRarJpg);
-					var myBtn = _this23._btnRarJpg = $aEnd(_this23._buttonsPlace, '<span><svg class="de-wait">' + '<use xlink:href="#de-symbol-wait"/></svg>' + Lng.wait[lang] + '</span>');
+					$del(_this22._btnRarJpg);
+					var myBtn = _this22._btnRarJpg = $aEnd(_this22._buttonsPlace, '<span><svg class="de-wait">' + '<use xlink:href="#de-symbol-wait"/></svg>' + Lng.wait[lang] + '</span>');
 					var file = e.target.files[0];
 					readFile(file).then(function (_ref40) {
 						var data = _ref40.data;
 
-						if (_this23._btnRarJpg === myBtn) {
+						if (_this22._btnRarJpg === myBtn) {
 							myBtn.className = 'de-file-rarmsg de-file-utils';
-							myBtn.title = _this23.el.files[0].name + ' + ' + file.name;
-							myBtn.textContent = _this23.el.files[0].name.replace(/^.+\./, '') + ' + ' + file.name.replace(/^.+\./, '');
-							_this23.imgFile = data;
+							myBtn.title = _this22.el.files[0].name + ' + ' + file.name;
+							myBtn.textContent = _this22.el.files[0].name.replace(/^.+\./, '') + ' + ' + file.name.replace(/^.+\./, '');
+							_this22.imgFile = data;
 						}
 					});
 				};
@@ -11596,7 +11574,7 @@ true, true],
 		}, {
 			key: '_showPviewImage',
 			value: function _showPviewImage() {
-				var _this24 = this;
+				var _this23 = this;
 
 				var file = this._input.files[0];
 				if (!file) {
@@ -11605,15 +11583,15 @@ true, true],
 				readFile(file).then(function (_ref41) {
 					var data = _ref41.data;
 
-					var newFile = _this24._input.files[0];
+					var newFile = _this23._input.files[0];
 					if (newFile !== file) {
 						return;
 					}
-					var el = _this24._thumb;
+					var el = _this23._thumb;
 					el.classList.remove('de-file-off');
 					el = el.firstChild.firstChild;
 					el.title = file.name + ', ' + (file.size / 1024).toFixed(2) + 'KB';
-					_this24._mediaEl = el = $aBegin(el, file.type === 'video/webm' ? '<video class="de-file-img" loop autoplay muted src=""></video>' : '<img class="de-file-img" src="">');
+					_this23._mediaEl = el = $aBegin(el, file.type === 'video/webm' ? '<video class="de-file-img" loop autoplay muted src=""></video>' : '<img class="de-file-img" src="">');
 					el.src = window.URL.createObjectURL(new Blob([data]));
 					if (el = el.nextSibling) {
 						window.URL.revokeObjectURL(el.src);
@@ -11661,7 +11639,7 @@ true, true],
 		_createClass(Captcha, [{
 			key: 'add',
 			value: function add() {
-				var _this25 = this;
+				var _this24 = this;
 
 				var focus = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
 				var updateHTML = arguments.length <= 1 || arguments[1] === undefined ? !this._isRecap : arguments[1];
@@ -11680,12 +11658,12 @@ true, true],
 				}
 				if (initPromise) {
 					initPromise.then(function () {
-						return _this25.initCaptcha(focus, false);
+						return _this24.initCaptcha(focus, false);
 					}, function (e) {
 						if (e instanceof AjaxError) {
-							_this25._setUpdateError(e);
+							_this24._setUpdateError(e);
 						} else {
-							_this25.hasCaptcha = false;
+							_this24.hasCaptcha = false;
 						}
 					});
 				} else if (this.hasCaptcha) {
@@ -11755,13 +11733,13 @@ true, true],
 		}, {
 			key: 'initImage',
 			value: function initImage(img) {
-				var _this26 = this;
+				var _this25 = this;
 
 				img.title = Lng.refresh[lang];
 				img.alt = Lng.loading[lang];
 				img.style.cssText = 'vertical-align: text-bottom; border: none; cursor: pointer;';
 				img.onclick = function () {
-					return _this26.update(true);
+					return _this25.update(true);
 				};
 			}
 		}, {
@@ -11799,7 +11777,7 @@ true, true],
 		}, {
 			key: 'update',
 			value: function update(focus) {
-				var _this27 = this;
+				var _this26 = this;
 
 				var isErr = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
 				var tNum = arguments.length <= 2 || arguments[2] === undefined ? this.tNum : arguments[2];
@@ -11819,9 +11797,9 @@ true, true],
 					var updatePromise = aib.updateCaptcha(this, isErr);
 					if (updatePromise) {
 						updatePromise.then(function () {
-							return _this27._updateTextEl(focus);
+							return _this26._updateTextEl(focus);
 						}, function (e) {
-							return _this27._setUpdateError(e);
+							return _this26._setUpdateError(e);
 						});
 						return;
 					}
@@ -11858,14 +11836,14 @@ true, true],
 		}, {
 			key: '_setUpdateError',
 			value: function _setUpdateError(e) {
-				var _this28 = this;
+				var _this27 = this;
 
 				if (e) {
 					this.trEl = e.toString();
 					this._added = false;
 					this.trEl.onclick = function () {
-						_this28.trEl.onclick = null;
-						_this28.add();
+						_this27.trEl.onclick = null;
+						_this27.add();
 					};
 					$show(this.trEl);
 				}
@@ -12588,11 +12566,11 @@ true, true],
 		_oldX: -1,
 		_oldY: -1,
 		_setHideTmt: function _setHideTmt() {
-			var _this29 = this;
+			var _this28 = this;
 
 			clearTimeout(this._hideTmt);
 			this._hideTmt = setTimeout(function () {
-				return _this29.hide();
+				return _this28.hide();
 			}, 2e3);
 		}
 	};
@@ -12721,7 +12699,7 @@ true, true],
 			this._elStyle.top = (this._oldT = parseInt(clientY - height / oldH * (clientY - this._oldT), 10)) + 'px';
 		},
 		_show: function _show(data) {
-			var _this30 = this;
+			var _this29 = this;
 
 			var _data$computeFullSize = data.computeFullSize();
 
@@ -12732,7 +12710,7 @@ true, true],
 			var minSize = _data$computeFullSize2[2];
 
 			this._fullEl = data.getFullObject(false, function (el) {
-				return _this30._resize(el);
+				return _this29._resize(el);
 			});
 			this._width = width;
 			this._height = height;
@@ -12895,7 +12873,7 @@ true, true],
 		}, {
 			key: 'expand',
 			value: function expand(inPost, e) {
-				var _this31 = this;
+				var _this30 = this;
 
 				if (e && !e.bubbles) {
 					return;
@@ -12918,7 +12896,7 @@ true, true],
 				(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend', '<div class="de-after-fimg"></div>');
 				this._fullEl = this.getFullObject(true, null);
 				this._fullEl.addEventListener('click', function (e) {
-					return _this31.collapse(e);
+					return _this30.collapse(e);
 				});
 				$hide(el.parentNode);
 				$after(el.parentNode, this._fullEl);
@@ -12950,7 +12928,7 @@ true, true],
 		}, {
 			key: 'getFullObject',
 			value: function getFullObject(inPost, onsizechange) {
-				var _this32 = this;
+				var _this31 = this;
 
 				var obj,
 				    src = this.src,
@@ -13021,7 +12999,7 @@ true, true],
 								target.onceLoaded = true;
 							}
 						} else {
-							_this32._size = [target.naturalWidth, target.naturalHeight];
+							_this31._size = [target.naturalWidth, target.naturalHeight];
 							var el = target.previousElementSibling;
 							if (el) {
 								var p = el.parentNode;
@@ -13220,7 +13198,7 @@ true, true],
 		},
 
 		_getHashHelper: regeneratorRuntime.mark(function _getHashHelper(imgObj) {
-			var _this35 = this;
+			var _this34 = this;
 
 			var el, src, data, buffer, val, w, h, imgData, cnv, ctx;
 			return regeneratorRuntime.wrap(function _getHashHelper$(_context17) {
@@ -13295,7 +13273,7 @@ true, true],
 
 							_context17.next = 25;
 							return new Promise(function (resolve) {
-								return _this35._workers.run([buffer, w, h], [buffer], function (val) {
+								return _this34._workers.run([buffer, w, h], [buffer], function (val) {
 									return resolve(val);
 								});
 							});
@@ -13433,7 +13411,7 @@ true, true],
 		}, {
 			key: 'handleEvent',
 			value: function handleEvent(e) {
-				var _this36 = this;
+				var _this35 = this;
 
 				var temp,
 				    el = fixEventEl(e.target),
@@ -13606,7 +13584,7 @@ true, true],
 								}
 							} else {
 								this._linkDelay = setTimeout(function () {
-									return _this36.kid = Pview.show(_this36, el);
+									return _this35.kid = Pview.show(_this35, el);
 								}, Cfg.linksOver);
 							}
 							$pd(e);
@@ -13651,7 +13629,7 @@ true, true],
 		}, {
 			key: '_addMenu',
 			value: function _addMenu(el, isOutEvent, html) {
-				var _this37 = this;
+				var _this36 = this;
 
 				if (this.menu && this.menu.parentEl === el) {
 					return;
@@ -13660,7 +13638,7 @@ true, true],
 					clearTimeout(this._menuDelay);
 				} else {
 					this._menuDelay = setTimeout(function () {
-						return _this37._showMenu(el, html);
+						return _this36._showMenu(el, html);
 					}, Cfg.linksOver);
 				}
 			}
@@ -13678,7 +13656,7 @@ true, true],
 		}, {
 			key: '_getFull',
 			value: function _getFull(node, isInit) {
-				var _this38 = this;
+				var _this37 = this;
 
 				if (aib.dobr) {
 					$del(node.nextSibling);
@@ -13704,14 +13682,14 @@ true, true],
 				}
 				ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(function (form) {
 					var maybeSpells = new Maybe(SpellsRunner);
-					if (_this38.isOp) {
-						_this38.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, form))), maybeSpells.value);
+					if (_this37.isOp) {
+						_this37.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, form))), maybeSpells.value);
 						$del(node);
 					} else {
 						var els = $Q(aib.qRPost, form);
 						for (var i = 0, len = els.length; i < len; i++) {
-							if (_this38.num === aib.getPNum(els[i])) {
-								_this38.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, els[i]))), maybeSpells.value);
+							if (_this37.num === aib.getPNum(els[i])) {
+								_this37.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, els[i]))), maybeSpells.value);
 								$del(node);
 								break;
 							}
@@ -13730,16 +13708,16 @@ true, true],
 		}, {
 			key: '_showMenu',
 			value: function _showMenu(el, html) {
-				var _this39 = this;
+				var _this38 = this;
 
 				if (this._menu) {
 					this._menu.remove();
 				}
 				this._menu = new Menu(el, html, function (el) {
-					return _this39._clickMenu(el);
+					return _this38._clickMenu(el);
 				}, false);
 				this._menu.onremove = function () {
-					return _this39._menu = null;
+					return _this38._menu = null;
 				};
 			}
 		}, {
@@ -13842,47 +13820,47 @@ true, true],
 		function Post(el, thr, num, count, isOp, prev) {
 			_classCallCheck(this, Post);
 
-			var _this40 = _possibleConstructorReturn(this, Object.getPrototypeOf(Post).call(this, thr, num, isOp));
+			var _this39 = _possibleConstructorReturn(this, Object.getPrototypeOf(Post).call(this, thr, num, isOp));
 
-			_this40.count = count;
-			_this40.el = el;
-			_this40.prev = prev;
-			_this40.next = null;
-			_this40.deleted = false;
-			_this40.hidden = false;
-			_this40.omitted = false;
-			_this40.spellHidden = false;
-			_this40.userToggled = false;
-			_this40.viewed = false;
-			_this40._selRange = null;
-			_this40._selText = '';
+			_this39.count = count;
+			_this39.el = el;
+			_this39.prev = prev;
+			_this39.next = null;
+			_this39.deleted = false;
+			_this39.hidden = false;
+			_this39.omitted = false;
+			_this39.spellHidden = false;
+			_this39.userToggled = false;
+			_this39.viewed = false;
+			_this39._selRange = null;
+			_this39._selText = '';
 			if (prev) {
-				prev.next = _this40;
+				prev.next = _this39;
 			}
-			pByEl.set(el, _this40);
-			pByNum.set(num, _this40);
+			pByEl.set(el, _this39);
+			pByNum.set(num, _this39);
 			if (MyPosts.has(num)) {
-				_this40.el.classList.add('de-mypost');
+				_this39.el.classList.add('de-mypost');
 			}
 			var refEl = $q(aib.qPostRef, el),
 			    html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') + '"><svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' + '<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' + '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>';
-			_this40._pref = refEl;
+			_this39._pref = refEl;
 			if (isOp) {
 				if (!aib.t) {
 					html += '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>';
 				}
 				html += '<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>';
 			}
-			_this40.sage = aib.getSage(el);
-			if (_this40.sage) {
+			_this39.sage = aib.getSage(el);
+			if (_this39.sage) {
 				html += '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>';
 			}
-			_this40.btns = $aEnd(refEl, html + '</span>');
-			if (Cfg.expandTrunc && _this40.trunc) {
-				_this40._getFull(_this40.trunc, true);
+			_this39.btns = $aEnd(refEl, html + '</span>');
+			if (Cfg.expandTrunc && _this39.trunc) {
+				_this39._getFull(_this39.trunc, true);
 			}
-			el.addEventListener('mouseover', _this40, true);
-			return _this40;
+			el.addEventListener('mouseover', _this39, true);
+			return _this39;
 		}
 
 		_createClass(Post, [{
@@ -14012,7 +13990,7 @@ true, true],
 		}, {
 			key: 'setVisib',
 			value: function setVisib(hide) {
-				var _this41 = this;
+				var _this40 = this;
 
 				var note = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
 
@@ -14033,13 +14011,13 @@ true, true],
 						}
 					} else {
 						this._pref.onmouseover = this._pref.onmouseout = !hide ? null : function (e) {
-							return _this41.hideContent(e.type === 'mouseout');
+							return _this40.hideContent(e.type === 'mouseout');
 						};
 					}
 				}
 				if (Cfg.strikeHidd) {
 					setTimeout(function () {
-						return _this41._strikePostNum(hide);
+						return _this40._strikePostNum(hide);
 					}, 50);
 				}
 				if (hide) {
@@ -14332,15 +14310,15 @@ true, true],
 		function PostContent(post) {
 			_classCallCheck(this, PostContent);
 
-			var _this42 = _possibleConstructorReturn(this, Object.getPrototypeOf(PostContent).call(this, post));
+			var _this41 = _possibleConstructorReturn(this, Object.getPrototypeOf(PostContent).call(this, post));
 
-			if (_this42._inited) {
-				return _possibleConstructorReturn(_this42);
+			if (_this41._inited) {
+				return _possibleConstructorReturn(_this41);
 			}
-			_this42._inited = true;
-			_this42.el = post.el;
-			_this42.post = post;
-			return _this42;
+			_this41._inited = true;
+			_this41.el = post.el;
+			_this41.post = post;
+			return _this41;
 		}
 
 		_createClass(PostContent, [{
@@ -14435,17 +14413,17 @@ true, true],
 		}, {
 			key: 'set',
 			value: function set(note) {
-				var _this43 = this;
+				var _this42 = this;
 
 				this.text = note;
 				var text = void 0;
 				if (this.isHideThr) {
 					this._aEl.onmouseover = this._aEl.onmouseout = function (e) {
-						return _this43._post.hideContent(e.type === 'mouseout');
+						return _this42._post.hideContent(e.type === 'mouseout');
 					};
 					this._aEl.onclick = function (e) {
 						$pd(e);
-						_this43._post.setUserVisib(!_this43._post.hidden);
+						_this42._post.setUserVisib(!_this42._post.hidden);
 					};
 					text = note ? '(autohide: ' + note + ')' : '(' + this._post.title + ')';
 				} else {
@@ -14704,43 +14682,43 @@ true, true],
 		function Pview(parent, link, pNum, tNum) {
 			_classCallCheck(this, Pview);
 
-			var _this44 = _possibleConstructorReturn(this, Object.getPrototypeOf(Pview).call(this, parent.thr, pNum, pNum === tNum));
+			var _this43 = _possibleConstructorReturn(this, Object.getPrototypeOf(Pview).call(this, parent.thr, pNum, pNum === tNum));
 
-			_this44._isLeft = false;
-			_this44._isTop = false;
-			_this44._link = link;
-			_this44._fromCache = false;
-			_this44._newPos = null;
-			_this44._offsetTop = 0;
-			_this44._readDelay = 0;
-			_this44.sticky = false;
-			_this44.parent = parent;
-			_this44.tNum = tNum;
+			_this43._isLeft = false;
+			_this43._isTop = false;
+			_this43._link = link;
+			_this43._fromCache = false;
+			_this43._newPos = null;
+			_this43._offsetTop = 0;
+			_this43._readDelay = 0;
+			_this43.sticky = false;
+			_this43.parent = parent;
+			_this43.tNum = tNum;
 			var post = pByNum.get(pNum);
 			if (post && (!post.isOp || !(parent instanceof Pview) || !parent._fromCache)) {
-				_this44._showPost(post);
-				return _possibleConstructorReturn(_this44);
+				_this43._showPost(post);
+				return _possibleConstructorReturn(_this43);
 			}
-			_this44._fromCache = true;
-			_this44._brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
-			if (PviewsCache.has(_this44._brd + tNum)) {
-				_this44._loading = false;
-				post = PviewsCache.get(_this44._brd + tNum).getPost(pNum);
+			_this43._fromCache = true;
+			_this43._brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
+			if (PviewsCache.has(_this43._brd + tNum)) {
+				_this43._loading = false;
+				post = PviewsCache.get(_this43._brd + tNum).getPost(pNum);
 				if (post) {
-					_this44._showPost(post);
+					_this43._showPost(post);
 				} else {
-					_this44._showPview(_this44.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">' + Lng.postNotFound[lang] + '</span></div>'));
+					_this43._showPview(_this43.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">' + Lng.postNotFound[lang] + '</span></div>'));
 				}
-				return _possibleConstructorReturn(_this44);
+				return _possibleConstructorReturn(_this43);
 			}
-			_this44._loading = true;
-			_this44._showPview(_this44.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">' + '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
-			_this44._loadPromise = ajaxLoad(aib.getThrdUrl(_this44._brd, tNum)).then(function (form) {
-				return _this44._onload(form);
+			_this43._loading = true;
+			_this43._showPview(_this43.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">' + '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
+			_this43._loadPromise = ajaxLoad(aib.getThrdUrl(_this43._brd, tNum)).then(function (form) {
+				return _this43._onload(form);
 			}, function () {
-				return _this44._onerror();
+				return _this43._onerror();
 			});
-			return _this44;
+			return _this43;
 		}
 
 		_createClass(Pview, [{
@@ -14826,11 +14804,11 @@ true, true],
 		}, {
 			key: 'markToDel',
 			value: function markToDel() {
-				var _this45 = this;
+				var _this44 = this;
 
 				clearTimeout(Pview._delTO);
 				Pview._delTO = setTimeout(function () {
-					return _this45.deleteNonSticky();
+					return _this44.deleteNonSticky();
 				}, Cfg.linksOut);
 			}
 		}, {
@@ -14929,14 +14907,14 @@ true, true],
 		}, {
 			key: '_showMenu',
 			value: function _showMenu(el, html) {
-				var _this46 = this;
+				var _this45 = this;
 
 				_get(Object.getPrototypeOf(Pview.prototype), '_showMenu', this).call(this, el, html);
 				this._menu.onover = function () {
-					return _this46.mouseEnter();
+					return _this45.mouseEnter();
 				};
 				this._menu.onout = function () {
-					return _this46.markToDel();
+					return _this45.markToDel();
 				};
 			}
 		}, {
@@ -15088,12 +15066,12 @@ true, true],
 		function PviewsCache(form, b, tNum) {
 			_classCallCheck(this, PviewsCache);
 
-			var _this47 = _possibleConstructorReturn(this, Object.getPrototypeOf(PviewsCache).call(this, b + tNum));
+			var _this46 = _possibleConstructorReturn(this, Object.getPrototypeOf(PviewsCache).call(this, b + tNum));
 
-			if (_this47._inited) {
-				return _possibleConstructorReturn(_this47);
+			if (_this46._inited) {
+				return _possibleConstructorReturn(_this46);
 			}
-			_this47._inited = true;
+			_this46._inited = true;
 			var pBn = new Map(),
 			    thr = $q(aib.qThread, form) || form,
 			    posts = $Q(aib.qRPost, thr);
@@ -15101,15 +15079,15 @@ true, true],
 				var post = posts[i];
 				pBn.set(aib.getPNum(post), new CacheItem(post, i + 1));
 			}
-			pBn.set(tNum, _this47._opObj = new CacheItem(aib.getOp(thr), 0));
-			_this47._b = b;
-			_this47._tNum = tNum;
-			_this47._tUrl = aib.getThrdUrl(b, tNum);
-			_this47._posts = pBn;
+			pBn.set(tNum, _this46._opObj = new CacheItem(aib.getOp(thr), 0));
+			_this46._b = b;
+			_this46._tNum = tNum;
+			_this46._tUrl = aib.getThrdUrl(b, tNum);
+			_this46._posts = pBn;
 			if (Cfg.linksNavig === 2) {
-				RefMap.gen(pBn, _this47._tUrl);
+				RefMap.gen(pBn, _this46._tUrl);
 			}
-			return _this47;
+			return _this46;
 		}
 
 		_createClass(PviewsCache, [{
@@ -15971,7 +15949,7 @@ true, true],
 		}]);
 
 		function Thread(el, num, prev, form) {
-			var _this48 = this;
+			var _this47 = this;
 
 			_classCallCheck(this, Thread);
 
@@ -16014,16 +15992,16 @@ true, true],
 				var updBtn = this.btns.firstChild;
 				updBtn.onclick = function (e) {
 					$pd(e);
-					_this48.load('new', false);
+					_this47.load('new', false);
 				};
 				if (Cfg.hideReplies) {
 					var repBtn = $bEnd(this.btns, ' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
 					repBtn.onclick = function (e) {
 						$pd(e);
-						var nextCoord = !_this48.next || _this48.last.omitted ? null : _this48.next.top;
-						_this48._toggleReplies(repBtn, updBtn);
+						var nextCoord = !_this47.next || _this47.last.omitted ? null : _this47.next.top;
+						_this47._toggleReplies(repBtn, updBtn);
 						if (nextCoord) {
-							scrollTo(window.pageXOffset, windows.pageYOffset + _this48.next.top - nextCoord);
+							scrollTo(window.pageXOffset, windows.pageYOffset + _this47.next.top - nextCoord);
 						}
 					};
 					this._toggleReplies(repBtn, updBtn);
@@ -16054,7 +16032,7 @@ true, true],
 		}, {
 			key: 'load',
 			value: function load(last, smartScroll) {
-				var _this49 = this;
+				var _this48 = this;
 
 				var informUser = arguments.length <= 2 || arguments[2] === undefined ? true : arguments[2];
 
@@ -16062,7 +16040,7 @@ true, true],
 					$popup(Lng.loading[lang], 'load-thr', true);
 				}
 				return ajaxPostsLoad(aib.b, this.num, false).then(function (pBuilder) {
-					return _this49._loadFromBuilder(last, smartScroll, pBuilder);
+					return _this48._loadFromBuilder(last, smartScroll, pBuilder);
 				}, function (e) {
 					return $popup(getErrorMessage(e), 'load-thr', false);
 				});
@@ -16070,16 +16048,16 @@ true, true],
 		}, {
 			key: 'loadNew',
 			value: function loadNew() {
-				var _this50 = this;
+				var _this49 = this;
 
 				return ajaxPostsLoad(aib.b, this.num, true).then(function (pBuilder) {
-					return pBuilder ? _this50._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false };
+					return pBuilder ? _this49._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false };
 				});
 			}
 		}, {
 			key: 'setFavorState',
 			value: function setFavorState(val, type) {
-				var _this51 = this;
+				var _this50 = this;
 
 				this.op.setFavBtn(val);
 				readFav().then(function (fav) {
@@ -16093,16 +16071,16 @@ true, true],
 							fav[h][b] = {};
 						}
 						fav[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
-						fav[h][b][_this51.num] = {
-							'cnt': _this51.pcount,
+						fav[h][b][_this50.num] = {
+							'cnt': _this50.pcount,
 							'new': 0,
-							'txt': _this51.op.title,
-							'url': aib.getThrdUrl(b, _this51.num),
-							'last': aib.anchor + _this51.last.num,
+							'txt': _this50.op.title,
+							'url': aib.getThrdUrl(b, _this50.num),
+							'last': aib.anchor + _this50.last.num,
 							'type': type
 						};
 					} else {
-						removeFavoriteEntry(fav, h, b, _this51.num, false);
+						removeFavoriteEntry(fav, h, b, _this50.num, false);
 					}
 					saveFavorites(fav);
 				});
@@ -16240,7 +16218,7 @@ true, true],
 		}, {
 			key: '_loadFromBuilder',
 			value: function _loadFromBuilder(last, smartScroll, pBuilder) {
-				var _this52 = this;
+				var _this51 = this;
 
 				var nextCoord,
 				    maybeSpells = new Maybe(SpellsRunner),
@@ -16340,7 +16318,7 @@ true, true],
 				if (!$q('.de-thread-collapse', btn)) {
 					$bEnd(btn, '<span class="de-thread-collapse"> [<a class="de-abtn" href="' + aib.getThrdUrl(aib.b, this.num) + '"></a>]</span>').onclick = function (e) {
 						$pd(e);
-						_this52.load(visPosts, true);
+						_this51.load(visPosts, true);
 					};
 				}
 				if (needToShow > visPosts) {
@@ -16393,7 +16371,7 @@ true, true],
 		}, {
 			key: '_parsePosts',
 			value: function _parsePosts(pBuilder) {
-				var _this53 = this;
+				var _this52 = this;
 
 				this._checkBans(pBuilder);
 				var maybeSpells = new Maybe(SpellsRunner),
@@ -16465,18 +16443,18 @@ true, true],
 					if (!f || !f[aib.b]) {
 						return;
 					}
-					if (f = f[aib.b][_this53.op.num]) {
+					if (f = f[aib.b][_this52.op.num]) {
 						var el = $q('#de-win-fav > .de-win-body');
 						if (el && el.hasChildNodes()) {
-							el = $q('.de-fav-current > .de-fav-entries > .de-entry[de-num="' + _this53.op.num + '"] .de-fav-inf-new', el);
+							el = $q('.de-fav-current > .de-fav-entries > .de-entry[de-num="' + _this52.op.num + '"] .de-fav-inf-new', el);
 							$hide(el);
 							el.textContent = 0;
 							el = el.nextElementSibling;
-							el.textContent = _this53.pcount;
+							el.textContent = _this52.pcount;
 						}
-						f.cnt = _this53.pcount;
+						f.cnt = _this52.pcount;
 						f['new'] = 0;
-						f.last = aib.anchor + _this53.last.num;
+						f.last = aib.anchor + _this52.last.num;
 						setStored('DESU_Favorites', JSON.stringify(fav));
 					}
 				});
@@ -16538,12 +16516,12 @@ true, true],
 			}
 		},
 		handleEvent: function handleEvent(e) {
-			var _this54 = this;
+			var _this53 = this;
 
 			switch (e.type) {
 				case 'scroll':
 					window.requestAnimationFrame(function () {
-						return _this54._checkThreads();
+						return _this53._checkThreads();
 					});break;
 				case 'mouseover':
 					this._expandCollapse(true, fixEventEl(e.relatedTarget));break;
@@ -16592,10 +16570,10 @@ true, true],
 			if ('elementsFromPoint' in doc) {
 				Object.defineProperty(this, '_findCurrentThread', {
 					value: function value() {
-						var _this55 = this;
+						var _this54 = this;
 
 						return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2).find(function (el) {
-							return _this55._thrs.has(el);
+							return _this54._thrs.has(el);
 						});
 					}
 				});
@@ -16630,14 +16608,14 @@ true, true],
 			}
 		},
 		_expandCollapse: function _expandCollapse(expand, rt) {
-			var _this56 = this;
+			var _this55 = this;
 
 			if (!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
 				clearTimeout(this._showhideTO);
 				this._showhideTO = setTimeout(expand ? function () {
-					return _this56._el.classList.remove('de-thr-navpanel-hidden');
+					return _this55._el.classList.remove('de-thr-navpanel-hidden');
 				} : function () {
-					return _this56._el.classList.add('de-thr-navpanel-hidden');
+					return _this55._el.classList.add('de-thr-navpanel-hidden');
 				}, Cfg.linksOver);
 			}
 		},
@@ -17187,36 +17165,36 @@ true, true],
 			function Makaba(prot, dm) {
 				_classCallCheck(this, Makaba);
 
-				var _this57 = _possibleConstructorReturn(this, Object.getPrototypeOf(Makaba).call(this, prot, dm));
+				var _this56 = _possibleConstructorReturn(this, Object.getPrototypeOf(Makaba).call(this, prot, dm));
 
-				_this57.mak = true;
+				_this56.mak = true;
 
-				_this57.cReply = 'post reply';
-				_this57.qBan = '.pomyanem';
-				_this57.qClosed = '.sticky-img[src$="locked.png"]';
-				_this57.qDForm = '#posts-form';
-				_this57.qFormRedir = null;
-				_this57.qFormRules = '.rules-area';
-				_this57.qOmitted = '.mess-post';
-				_this57.qPostHeader = '.post-details';
-				_this57.qPostImg = '.preview';
-				_this57.qPostMsg = '.post-message';
-				_this57.qPostName = '.ananimas, .post-email';
-				_this57.qPostSubj = '.post-title';
-				_this57.qRPost = '.post.reply[data-num]';
-				_this57.qTrunc = null;
+				_this56.cReply = 'post reply';
+				_this56.qBan = '.pomyanem';
+				_this56.qClosed = '.sticky-img[src$="locked.png"]';
+				_this56.qDForm = '#posts-form';
+				_this56.qFormRedir = null;
+				_this56.qFormRules = '.rules-area';
+				_this56.qOmitted = '.mess-post';
+				_this56.qPostHeader = '.post-details';
+				_this56.qPostImg = '.preview';
+				_this56.qPostMsg = '.post-message';
+				_this56.qPostName = '.ananimas, .post-email';
+				_this56.qPostSubj = '.post-title';
+				_this56.qRPost = '.post.reply[data-num]';
+				_this56.qTrunc = null;
 
-				_this57.hasCatalog = true;
-				_this57.hasOPNum = true;
-				_this57.hasPicWrap = true;
-				_this57.jsonBuilder = MakabaPostsBuilder;
-				_this57.jsonSubmit = true;
-				_this57.markupBB = true;
-				_this57.multiFile = true;
-				_this57.timePattern = 'dd+nn+yy+w+hh+ii+ss';
+				_this56.hasCatalog = true;
+				_this56.hasOPNum = true;
+				_this56.hasPicWrap = true;
+				_this56.jsonBuilder = MakabaPostsBuilder;
+				_this56.jsonSubmit = true;
+				_this56.markupBB = true;
+				_this56.multiFile = true;
+				_this56.timePattern = 'dd+nn+yy+w+hh+ii+ss';
 
-				_this57._capUpdPromise = null;
-				return _this57;
+				_this56._capUpdPromise = null;
+				return _this56;
 			}
 
 			_createClass(Makaba, [{
@@ -17314,13 +17292,13 @@ true, true],
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap, isErr) {
-					var _this58 = this;
+					var _this57 = this;
 
 					if (this._capUpdPromise) {
 						this._capUpdPromise.cancel();
 					}
 					return this._capUpdPromise = $ajax('/makaba/captcha.fcgi?type=2chaptcha&board=' + this.b + (pr.tNum ? '&action=thread' : '')).then(function (xhr) {
-						_this58._capUpdPromise = null;
+						_this57._capUpdPromise = null;
 						var el = $q('.captcha-box', cap.trEl),
 						    data = xhr.responseText;
 						if (data.includes('VIPFAIL')) {
@@ -17346,7 +17324,7 @@ true, true],
 						}
 					}, function (e) {
 						if (!(e instanceof CancelError)) {
-							_this58._capUpdPromise = null;
+							_this57._capUpdPromise = null;
 							return CancelablePromise.reject(e);
 						}
 					});
@@ -17396,35 +17374,35 @@ true, true],
 			function Tinyboard(prot, dm) {
 				_classCallCheck(this, Tinyboard);
 
-				var _this59 = _possibleConstructorReturn(this, Object.getPrototypeOf(Tinyboard).call(this, prot, dm));
+				var _this58 = _possibleConstructorReturn(this, Object.getPrototypeOf(Tinyboard).call(this, prot, dm));
 
-				_this59.tiny = true;
+				_this58.tiny = true;
 
-				_this59.cReply = 'post reply';
-				_this59.qClosed = '.fa-lock';
-				_this59.qDForm = 'form[name*="postcontrols"]';
-				_this59.qFileInfo = '.fileinfo';
-				_this59.qForm = 'form[name="post"]';
-				_this59.qFormPassw = 'input[name="password"]';
-				_this59.qFormRedir = null;
-				_this59.qOmitted = '.omitted';
-				_this59.qPages = '.pages > a:nth-last-of-type(2)';
-				_this59.qPostHeader = '.intro';
-				_this59.qPostMsg = '.body';
-				_this59.qPostName = '.name';
-				_this59.qPostSubj = '.subject';
-				_this59.qPostTrip = '.trip';
-				_this59.qPostRef = '.post_no + a';
-				_this59.qTrunc = '.toolong';
+				_this58.cReply = 'post reply';
+				_this58.qClosed = '.fa-lock';
+				_this58.qDForm = 'form[name*="postcontrols"]';
+				_this58.qFileInfo = '.fileinfo';
+				_this58.qForm = 'form[name="post"]';
+				_this58.qFormPassw = 'input[name="password"]';
+				_this58.qFormRedir = null;
+				_this58.qOmitted = '.omitted';
+				_this58.qPages = '.pages > a:nth-last-of-type(2)';
+				_this58.qPostHeader = '.intro';
+				_this58.qPostMsg = '.body';
+				_this58.qPostName = '.name';
+				_this58.qPostSubj = '.subject';
+				_this58.qPostTrip = '.trip';
+				_this58.qPostRef = '.post_no + a';
+				_this58.qTrunc = '.toolong';
 
-				_this59.firstPage = 1;
-				_this59.hasCatalog = true;
-				_this59.jsonSubmit = true;
-				_this59.timePattern = 'nn+dd+yy++w++hh+ii+ss';
-				_this59.thrid = 'thread';
+				_this58.firstPage = 1;
+				_this58.hasCatalog = true;
+				_this58.jsonSubmit = true;
+				_this58.timePattern = 'nn+dd+yy++w++hh+ii+ss';
+				_this58.thrid = 'thread';
 
-				_this59._qTable = '.post.reply';
-				return _this59;
+				_this58._qTable = '.post.reply';
+				return _this58;
 			}
 
 			_createClass(Tinyboard, [{
@@ -17492,12 +17470,12 @@ true, true],
 			function Vichan(prot, dm) {
 				_classCallCheck(this, Vichan);
 
-				var _this60 = _possibleConstructorReturn(this, Object.getPrototypeOf(Vichan).call(this, prot, dm));
+				var _this59 = _possibleConstructorReturn(this, Object.getPrototypeOf(Vichan).call(this, prot, dm));
 
-				_this60.qDelPassw = '#password';
+				_this59.qDelPassw = '#password';
 
-				_this60.multiFile = true;
-				return _this60;
+				_this59.multiFile = true;
+				return _this59;
 			}
 
 			_createClass(Vichan, [{
@@ -17541,15 +17519,15 @@ true, true],
 			function Kusaba(prot, dm) {
 				_classCallCheck(this, Kusaba);
 
-				var _this61 = _possibleConstructorReturn(this, Object.getPrototypeOf(Kusaba).call(this, prot, dm));
+				var _this60 = _possibleConstructorReturn(this, Object.getPrototypeOf(Kusaba).call(this, prot, dm));
 
-				_this61.kus = true;
+				_this60.kus = true;
 
-				_this61.qError = 'h1, h2, div[style*="1.25em"]';
-				_this61.qFormRedir = 'input[name="redirecttothread"][value="1"]';
+				_this60.qError = 'h1, h2, div[style*="1.25em"]';
+				_this60.qFormRedir = 'input[name="redirecttothread"][value="1"]';
 
-				_this61.markupBB = true;
-				return _this61;
+				_this60.markupBB = true;
+				return _this60;
 			}
 
 			_createClass(Kusaba, [{
@@ -17586,14 +17564,14 @@ true, true],
 			function _0chan(prot, dm) {
 				_classCallCheck(this, _0chan);
 
-				var _this62 = _possibleConstructorReturn(this, Object.getPrototypeOf(_0chan).call(this, prot, dm));
+				var _this61 = _possibleConstructorReturn(this, Object.getPrototypeOf(_0chan).call(this, prot, dm));
 
-				_this62.qFormRedir = '#gotothread';
-				_this62.qOPost = '.postnode';
+				_this61.qFormRedir = '#gotothread';
+				_this61.qOPost = '.postnode';
 
-				_this62.hasCatalog = true;
-				_this62.ru = true;
-				return _this62;
+				_this61.hasCatalog = true;
+				_this61.ru = true;
+				return _this61;
 			}
 
 			_createClass(_0chan, [{
@@ -17628,26 +17606,26 @@ true, true],
 			function Phutaba(prot, dm) {
 				_classCallCheck(this, Phutaba);
 
-				var _this63 = _possibleConstructorReturn(this, Object.getPrototypeOf(Phutaba).call(this, prot, dm));
+				var _this62 = _possibleConstructorReturn(this, Object.getPrototypeOf(Phutaba).call(this, prot, dm));
 
-				_this63.cReply = 'post';
-				_this63.qError = '.error';
-				_this63.qFormRedir = 'input[name="gb2"][value="thread"]';
-				_this63.qOPost = '.thread_OP';
-				_this63.qPages = '.pagelist > li:nth-last-child(2)';
-				_this63.qPostHeader = '.post_head';
-				_this63.qPostMsg = '.text';
-				_this63.qPostSubj = '.subject';
-				_this63.qPostTrip = '.tripcode';
-				_this63.qRPost = '.thread_reply';
-				_this63.qTrunc = '.tldr';
+				_this62.cReply = 'post';
+				_this62.qError = '.error';
+				_this62.qFormRedir = 'input[name="gb2"][value="thread"]';
+				_this62.qOPost = '.thread_OP';
+				_this62.qPages = '.pagelist > li:nth-last-child(2)';
+				_this62.qPostHeader = '.post_head';
+				_this62.qPostMsg = '.text';
+				_this62.qPostSubj = '.subject';
+				_this62.qPostTrip = '.tripcode';
+				_this62.qRPost = '.thread_reply';
+				_this62.qTrunc = '.tldr';
 
-				_this63.docExt = '';
-				_this63.firstPage = 1;
-				_this63.markupBB = true;
-				_this63.multiFile = true;
-				_this63.res = 'thread/';
-				return _this63;
+				_this62.docExt = '';
+				_this62.firstPage = 1;
+				_this62.markupBB = true;
+				_this62.multiFile = true;
+				_this62.res = 'thread/';
+				return _this62;
 			}
 
 			_createClass(Phutaba, [{
@@ -17730,20 +17708,20 @@ true, true],
 			function _2chan(prot, dm) {
 				_classCallCheck(this, _2chan);
 
-				var _this65 = _possibleConstructorReturn(this, Object.getPrototypeOf(_2chan).call(this, prot, dm));
+				var _this64 = _possibleConstructorReturn(this, Object.getPrototypeOf(_2chan).call(this, prot, dm));
 
-				_this65.qDForm = 'form:not([enctype])';
-				_this65.qForm = 'form:nth-of-type(1)';
-				_this65.qFormRedir = null;
-				_this65.qFormRules = '.chui';
-				_this65.qOmitted = 'font[color="#707070"]';
-				_this65.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
-				_this65.qPostRef = '.del';
-				_this65.qRPost = 'td:nth-child(2)';
+				_this64.qDForm = 'form:not([enctype])';
+				_this64.qForm = 'form:nth-of-type(1)';
+				_this64.qFormRedir = null;
+				_this64.qFormRules = '.chui';
+				_this64.qOmitted = 'font[color="#707070"]';
+				_this64.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
+				_this64.qPostRef = '.del';
+				_this64.qRPost = 'td:nth-child(2)';
 
-				_this65.docExt = '.htm';
-				_this65.thrid = 'resto';
-				return _this65;
+				_this64.docExt = '.htm';
+				_this64.thrid = 'resto';
+				return _this64;
 			}
 
 			_createClass(_2chan, [{
@@ -17803,13 +17781,13 @@ true, true],
 			function _02chNet(prot, dm) {
 				_classCallCheck(this, _02chNet);
 
-				var _this66 = _possibleConstructorReturn(this, Object.getPrototypeOf(_02chNet).call(this, prot, dm));
+				var _this65 = _possibleConstructorReturn(this, Object.getPrototypeOf(_02chNet).call(this, prot, dm));
 
-				_this66.qFormRedir = 'input[name="gb2"][value="thread"]';
+				_this65.qFormRedir = 'input[name="gb2"][value="thread"]';
 
-				_this66.ru = true;
-				_this66.timePattern = 'yyyy+nn+dd++w++hh+ii+ss';
-				return _this66;
+				_this65.ru = true;
+				_this65.timePattern = 'yyyy+nn+dd++w++hh+ii+ss';
+				return _this65;
 			}
 
 			return _02chNet;
@@ -17823,12 +17801,12 @@ true, true],
 			function _02chSu(prot, dm) {
 				_classCallCheck(this, _02chSu);
 
-				var _this67 = _possibleConstructorReturn(this, Object.getPrototypeOf(_02chSu).call(this, prot, dm));
+				var _this66 = _possibleConstructorReturn(this, Object.getPrototypeOf(_02chSu).call(this, prot, dm));
 
-				_this67.hasCatalog = true;
+				_this66.hasCatalog = true;
 
-				_this67._capUpdPromise = null;
-				return _this67;
+				_this66._capUpdPromise = null;
+				return _this66;
 			}
 
 			_createClass(_02chSu, [{
@@ -17839,20 +17817,20 @@ true, true],
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					var _this68 = this;
+					var _this67 = this;
 
 					if (this._capUpdPromise) {
 						this._capUpdPromise.cancel();
 					}
 					return this._capUpdPromise = $ajax('/captcha_update.php').then(function (xhr) {
-						_this68._capUpdPromise = null;
+						_this67._capUpdPromise = null;
 						cap.trEl.innerHTML = xhr.responseText;
 						cap.textEl = $id('recaptcha_response_field');
 						cap.initImage($q('img', cap.trEl));
 						cap.initTextEl();
 					}, function (e) {
 						if (!(e instanceof CancelError)) {
-							_this68._capUpdPromise = null;
+							_this67._capUpdPromise = null;
 							return CancelablePromise.reject(e);
 						}
 					});
@@ -17870,15 +17848,15 @@ true, true],
 			function _2chruNet(prot, dm) {
 				_classCallCheck(this, _2chruNet);
 
-				var _this69 = _possibleConstructorReturn(this, Object.getPrototypeOf(_2chruNet).call(this, prot, dm));
+				var _this68 = _possibleConstructorReturn(this, Object.getPrototypeOf(_2chruNet).call(this, prot, dm));
 
-				_this69._2chruNet = true;
+				_this68._2chruNet = true;
 
-				_this69.qFormRedir = 'input[name="noko"]';
-				_this69.qPages = '#pager > li:nth-last-child(2)';
+				_this68.qFormRedir = 'input[name="noko"]';
+				_this68.qPages = '#pager > li:nth-last-child(2)';
 
-				_this69._capUpdPromise = null;
-				return _this69;
+				_this68._capUpdPromise = null;
+				return _this68;
 			}
 
 			_createClass(_2chruNet, [{
@@ -17898,24 +17876,24 @@ true, true],
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					var _this70 = this;
+					var _this69 = this;
 
 					if (this._capUpdPromise) {
 						this._capUpdPromise.cancel();
 					}
 					return this._capUpdPromise = $ajax('/' + this.b + '/api/requires-captcha').then(function (xhr) {
-						_this70._capUpdPromise = null;
+						_this69._capUpdPromise = null;
 						if (JSON.parse(xhr.responseText)['requires-captcha'] !== '1') {
 							return CancelablePromise.reject();
 						}
-						$id('captchaimage').src = '/' + _this70.b + '/captcha?' + Math.random();
+						$id('captchaimage').src = '/' + _this69.b + '/captcha?' + Math.random();
 						if ($id('de-_2chruNet-capchecker')) {
 							return;
 						}
 						$aEnd(cap.textEl, '<span id="de-_2chruNet-capchecker" class="shortened" style="margin: 0px .5em;">\n\t\t\t\t\tпроверить капчу\n\t\t\t\t</span>').onclick = function (_ref61) {
 							var target = _ref61.target;
 
-							$ajax('/' + _this70.b + '/api/validate-captcha', { method: 'POST' }).then(function (xhr) {
+							$ajax('/' + _this69.b + '/api/validate-captcha', { method: 'POST' }).then(function (xhr) {
 								if (JSON.parse(xhr.responseText).status === 'ok') {
 									target.innerHTML = 'можно постить';
 								} else {
@@ -17928,7 +17906,7 @@ true, true],
 						};
 					}, function (e) {
 						if (!(e instanceof CancelError)) {
-							_this70._capUpdPromise = null;
+							_this69._capUpdPromise = null;
 							return CancelablePromise.reject(e);
 						}
 					});
@@ -17955,19 +17933,19 @@ true, true],
 			function _2chRu(prot, dm) {
 				_classCallCheck(this, _2chRu);
 
-				var _this71 = _possibleConstructorReturn(this, Object.getPrototypeOf(_2chRu).call(this, prot, dm));
+				var _this70 = _possibleConstructorReturn(this, Object.getPrototypeOf(_2chRu).call(this, prot, dm));
 
-				_this71.qPages = 'table[border="1"] td > a:last-of-type';
+				_this70.qPages = 'table[border="1"] td > a:last-of-type';
 
-				_this71.docExt = '.html';
-				_this71.hasPicWrap = true;
-				_this71.jsonSubmit = true;
-				_this71.markupBB = true;
-				_this71.multiFile = true;
-				_this71.ru = true;
+				_this70.docExt = '.html';
+				_this70.hasPicWrap = true;
+				_this70.jsonSubmit = true;
+				_this70.markupBB = true;
+				_this70.multiFile = true;
+				_this70.ru = true;
 
-				_this71._qTable = 'table:not(.postfiles)';
-				return _this71;
+				_this70._qTable = 'table:not(.postfiles)';
+				return _this70;
 			}
 
 			_createClass(_2chRu, [{
@@ -18053,15 +18031,15 @@ true, true],
 			function _410chanOrg(prot, dm) {
 				_classCallCheck(this, _410chanOrg);
 
-				var _this72 = _possibleConstructorReturn(this, Object.getPrototypeOf(_410chanOrg).call(this, prot, dm));
+				var _this71 = _possibleConstructorReturn(this, Object.getPrototypeOf(_410chanOrg).call(this, prot, dm));
 
-				_this72.qFormRedir = 'input#noko';
-				_this72.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
+				_this71.qFormRedir = 'input#noko';
+				_this71.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
-				_this72.hasCatalog = true;
-				_this72.markupBB = false;
-				_this72.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
-				return _this72;
+				_this71.hasCatalog = true;
+				_this71.markupBB = false;
+				_this71.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
+				return _this71;
 			}
 
 			_createClass(_410chanOrg, [{
@@ -18098,39 +18076,39 @@ true, true],
 			function _4chanOrg(prot, dm) {
 				_classCallCheck(this, _4chanOrg);
 
-				var _this73 = _possibleConstructorReturn(this, Object.getPrototypeOf(_4chanOrg).call(this, prot, dm));
+				var _this72 = _possibleConstructorReturn(this, Object.getPrototypeOf(_4chanOrg).call(this, prot, dm));
 
-				_this73.fch = true;
+				_this72.fch = true;
 
-				_this73.cReply = 'post reply';
-				_this73.qBan = 'strong[style="color: red;"]';
-				_this73.qClosed = '.archivedIcon';
-				_this73.qDelBut = '.deleteform > input[type="submit"]';
-				_this73.qError = '#errmsg';
-				_this73.qFileInfo = '.fileText';
-				_this73.qForm = 'form[name="post"]';
-				_this73.qFormRedir = null;
-				_this73.qOmitted = '.summary.desktop';
-				_this73.qOPost = '.op';
-				_this73.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
-				_this73.qPostHeader = '.postInfo';
-				_this73.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
-				_this73.qPostName = '.name';
-				_this73.qPostRef = '.postInfo > .postNum';
-				_this73.qPostSubj = '.subject';
+				_this72.cReply = 'post reply';
+				_this72.qBan = 'strong[style="color: red;"]';
+				_this72.qClosed = '.archivedIcon';
+				_this72.qDelBut = '.deleteform > input[type="submit"]';
+				_this72.qError = '#errmsg';
+				_this72.qFileInfo = '.fileText';
+				_this72.qForm = 'form[name="post"]';
+				_this72.qFormRedir = null;
+				_this72.qOmitted = '.summary.desktop';
+				_this72.qOPost = '.op';
+				_this72.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
+				_this72.qPostHeader = '.postInfo';
+				_this72.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
+				_this72.qPostName = '.name';
+				_this72.qPostRef = '.postInfo > .postNum';
+				_this72.qPostSubj = '.subject';
 
-				_this73.anchor = '#p';
-				_this73.docExt = '';
-				_this73.firstPage = 1;
-				_this73.hasCatalog = true;
-				_this73.hasTextLinks = true;
-				_this73.jsonBuilder = _4chanPostsBuilder;
-				_this73.res = 'thread/';
-				_this73.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
-				_this73.thrid = 'resto';
+				_this72.anchor = '#p';
+				_this72.docExt = '';
+				_this72.firstPage = 1;
+				_this72.hasCatalog = true;
+				_this72.hasTextLinks = true;
+				_this72.jsonBuilder = _4chanPostsBuilder;
+				_this72.res = 'thread/';
+				_this72.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
+				_this72.thrid = 'resto';
 
-				_this73._qTable = '.replyContainer';
-				return _this73;
+				_this72._qTable = '.replyContainer';
+				return _this72;
 			}
 
 			_createClass(_4chanOrg, [{
@@ -18250,10 +18228,10 @@ true, true],
 			function _8chNet(prot, dm) {
 				_classCallCheck(this, _8chNet);
 
-				var _this74 = _possibleConstructorReturn(this, Object.getPrototypeOf(_8chNet).call(this, prot, dm));
+				var _this73 = _possibleConstructorReturn(this, Object.getPrototypeOf(_8chNet).call(this, prot, dm));
 
-				_this74._capUpdPromise = null;
-				return _this74;
+				_this73._capUpdPromise = null;
+				return _this73;
 			}
 
 			_createClass(_8chNet, [{
@@ -18266,13 +18244,13 @@ true, true],
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					var _this75 = this;
+					var _this74 = this;
 
 					if (this._capUpdPromise) {
 						this._capUpdPromise.cancel();
 					}
 					return this._capUpdPromise = $ajax('/8chan-captcha/entrypoint.php?mode=get&extra=abcdefghijklmnopqrstuvwxyz').then(function (xhr) {
-						_this75._capUpdPromise = null;
+						_this74._capUpdPromise = null;
 						var resp = JSON.parse(xhr.responseText);
 						$q('.captcha_cookie', cap.trEl).value = resp.cookie;
 						$q('.captcha_html', cap.trEl).innerHTML = resp.captchahtml;
@@ -18282,7 +18260,7 @@ true, true],
 						}
 					})['catch'](function (e) {
 						if (!(e instanceof CancelError)) {
-							_this75._capUpdPromise = null;
+							_this74._capUpdPromise = null;
 							return CancelablePromise.reject(e);
 						}
 					});
@@ -18327,20 +18305,20 @@ true, true],
 			function Arhivach(prot, dm) {
 				_classCallCheck(this, Arhivach);
 
-				var _this77 = _possibleConstructorReturn(this, Object.getPrototypeOf(Arhivach).call(this, prot, dm));
+				var _this76 = _possibleConstructorReturn(this, Object.getPrototypeOf(Arhivach).call(this, prot, dm));
 
-				_this77.cReply = 'post';
-				_this77.qDForm = 'body > .container-fluid';
-				_this77.qPostHeader = '.post_head';
-				_this77.qPostImg = '.post_image > img';
-				_this77.qPostMsg = '.post_comment_body';
-				_this77.qPostRef = '.post_id, .post_head > b';
-				_this77.qPostSubj = '.post_subject';
-				_this77.qRPost = '.post:not(:first-child):not([postid=""])';
+				_this76.cReply = 'post';
+				_this76.qDForm = 'body > .container-fluid';
+				_this76.qPostHeader = '.post_head';
+				_this76.qPostImg = '.post_image > img';
+				_this76.qPostMsg = '.post_comment_body';
+				_this76.qPostRef = '.post_id, .post_head > b';
+				_this76.qPostSubj = '.post_subject';
+				_this76.qRPost = '.post:not(:first-child):not([postid=""])';
 
-				_this77.docExt = '';
-				_this77.res = 'thread/';
-				return _this77;
+				_this76.docExt = '';
+				_this76.res = 'thread/';
+				return _this76;
 			}
 
 			_createClass(Arhivach, [{
@@ -18480,28 +18458,28 @@ true, true],
 			function Dobrochan(prot, dm) {
 				_classCallCheck(this, Dobrochan);
 
-				var _this79 = _possibleConstructorReturn(this, Object.getPrototypeOf(Dobrochan).call(this, prot, dm));
+				var _this78 = _possibleConstructorReturn(this, Object.getPrototypeOf(Dobrochan).call(this, prot, dm));
 
-				_this79.dobr = true;
+				_this78.dobr = true;
 
-				_this79.qClosed = 'img[src="/images/locked.png"]';
-				_this79.qDForm = 'form[action*="delete"]';
-				_this79.qError = '.post-error, h2';
-				_this79.qFileInfo = '.fileinfo';
-				_this79.qFormRedir = 'select[name="goto"]';
-				_this79.qOmitted = '.abbrev > span:last-of-type';
-				_this79.qPages = '.pages > tbody > tr > td';
-				_this79.qPostMsg = '.postbody';
-				_this79.qPostSubj = '.replytitle';
-				_this79.qTrunc = '.abbrev > span:first-of-type';
+				_this78.qClosed = 'img[src="/images/locked.png"]';
+				_this78.qDForm = 'form[action*="delete"]';
+				_this78.qError = '.post-error, h2';
+				_this78.qFileInfo = '.fileinfo';
+				_this78.qFormRedir = 'select[name="goto"]';
+				_this78.qOmitted = '.abbrev > span:last-of-type';
+				_this78.qPages = '.pages > tbody > tr > td';
+				_this78.qPostMsg = '.postbody';
+				_this78.qPostSubj = '.replytitle';
+				_this78.qTrunc = '.abbrev > span:first-of-type';
 
-				_this79.anchor = '#i';
-				_this79.hasPicWrap = true;
-				_this79.jsonBuilder = DobrochanPostsBuilder;
-				_this79.multiFile = true;
-				_this79.ru = true;
-				_this79.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
-				return _this79;
+				_this78.anchor = '#i';
+				_this78.hasPicWrap = true;
+				_this78.jsonBuilder = DobrochanPostsBuilder;
+				_this78.multiFile = true;
+				_this78.ru = true;
+				_this78.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+				return _this78;
 			}
 
 			_createClass(Dobrochan, [{
@@ -18631,13 +18609,13 @@ true, true],
 			function DvaChNet(prot, dm) {
 				_classCallCheck(this, DvaChNet);
 
-				var _this80 = _possibleConstructorReturn(this, Object.getPrototypeOf(DvaChNet).call(this, prot, dm));
+				var _this79 = _possibleConstructorReturn(this, Object.getPrototypeOf(DvaChNet).call(this, prot, dm));
 
-				_this80.getCaptchaSrc = null;
-				_this80.ru = true;
+				_this79.getCaptchaSrc = null;
+				_this79.ru = true;
 
-				_this80._capUpdPromise = null;
-				return _this80;
+				_this79._capUpdPromise = null;
+				return _this79;
 			}
 
 			_createClass(DvaChNet, [{
@@ -18653,20 +18631,20 @@ true, true],
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha() {
-					var _this81 = this;
+					var _this80 = this;
 
 					if (this._capUpdPromise) {
 						this._capUpdPromise.cancel();
 						this._capUpdPromise = null;
 					}
 					return !$id('imgcaptcha') ? null : this._capUpdPromise = $ajax('/cgi/captcha?task=get_id').then(function (xhr) {
-						_this81._capUpdPromise = null;
+						_this80._capUpdPromise = null;
 						var id = xhr.responseText;
 						$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
 						$id('captchaid').value = id;
 					}, function (e) {
 						if (!(e instanceof CancelError)) {
-							_this81._capUpdPromise = null;
+							_this80._capUpdPromise = null;
 						}
 					});
 				}
@@ -18683,10 +18661,10 @@ true, true],
 			function Iichan(prot, dm) {
 				_classCallCheck(this, Iichan);
 
-				var _this82 = _possibleConstructorReturn(this, Object.getPrototypeOf(Iichan).call(this, prot, dm));
+				var _this81 = _possibleConstructorReturn(this, Object.getPrototypeOf(Iichan).call(this, prot, dm));
 
-				_this82.hasCatalog = true;
-				return _this82;
+				_this81.hasCatalog = true;
+				return _this81;
 			}
 
 			_createClass(Iichan, [{
@@ -18734,35 +18712,35 @@ true, true],
 			function Krautchan(prot, dm) {
 				_classCallCheck(this, Krautchan);
 
-				var _this83 = _possibleConstructorReturn(this, Object.getPrototypeOf(Krautchan).call(this, prot, dm));
+				var _this82 = _possibleConstructorReturn(this, Object.getPrototypeOf(Krautchan).call(this, prot, dm));
 
-				_this83.krau = true;
+				_this82.krau = true;
 
-				_this83.cReply = 'postreply';
-				_this83.qBan = '.ban_mark';
-				_this83.qClosed = 'img[src="/images/locked.gif"]';
-				_this83.qDForm = 'form[action*="delete"]';
-				_this83.qError = '.message_text';
-				_this83.qFileInfo = '.fileinfo';
-				_this83.qFormRedir = 'input#forward_thread';
-				_this83.qFormRules = '#rules_row';
-				_this83.qOmitted = '.omittedinfo';
-				_this83.qPages = 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a';
-				_this83.qPostHeader = '.postheader';
-				_this83.qPostImg = 'img[id^="thumbnail_"]';
-				_this83.qPostRef = '.postnumber';
-				_this83.qPostSubj = '.postsubject';
-				_this83.qRPost = '.postreply';
-				_this83.qTrunc = 'p[id^="post_truncated"]';
+				_this82.cReply = 'postreply';
+				_this82.qBan = '.ban_mark';
+				_this82.qClosed = 'img[src="/images/locked.gif"]';
+				_this82.qDForm = 'form[action*="delete"]';
+				_this82.qError = '.message_text';
+				_this82.qFileInfo = '.fileinfo';
+				_this82.qFormRedir = 'input#forward_thread';
+				_this82.qFormRules = '#rules_row';
+				_this82.qOmitted = '.omittedinfo';
+				_this82.qPages = 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a';
+				_this82.qPostHeader = '.postheader';
+				_this82.qPostImg = 'img[id^="thumbnail_"]';
+				_this82.qPostRef = '.postnumber';
+				_this82.qPostSubj = '.postsubject';
+				_this82.qRPost = '.postreply';
+				_this82.qTrunc = 'p[id^="post_truncated"]';
 
-				_this83.hasCatalog = true;
-				_this83.hasPicWrap = true;
-				_this83.hasTextLinks = true;
-				_this83.markupBB = true;
-				_this83.multiFile = true;
-				_this83.res = 'thread-';
-				_this83.timePattern = 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?';
-				return _this83;
+				_this82.hasCatalog = true;
+				_this82.hasPicWrap = true;
+				_this82.hasTextLinks = true;
+				_this82.markupBB = true;
+				_this82.multiFile = true;
+				_this82.res = 'thread-';
+				_this82.timePattern = 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?';
+				return _this82;
 			}
 
 			_createClass(Krautchan, [{
@@ -18916,10 +18894,10 @@ true, true],
 			function Lainchan(prot, dm) {
 				_classCallCheck(this, Lainchan);
 
-				var _this84 = _possibleConstructorReturn(this, Object.getPrototypeOf(Lainchan).call(this, prot, dm));
+				var _this83 = _possibleConstructorReturn(this, Object.getPrototypeOf(Lainchan).call(this, prot, dm));
 
-				_this84.qOPost = '.op';
-				return _this84;
+				_this83.qOPost = '.op';
+				return _this83;
 			}
 
 			_createClass(Lainchan, [{
@@ -18940,10 +18918,10 @@ true, true],
 			function MlpgCo(prot, dm) {
 				_classCallCheck(this, MlpgCo);
 
-				var _this85 = _possibleConstructorReturn(this, Object.getPrototypeOf(MlpgCo).call(this, prot, dm));
+				var _this84 = _possibleConstructorReturn(this, Object.getPrototypeOf(MlpgCo).call(this, prot, dm));
 
-				_this85.qOPost = '.opContainer';
-				return _this85;
+				_this84.qOPost = '.opContainer';
+				return _this84;
 			}
 
 			return MlpgCo;
@@ -18957,15 +18935,15 @@ true, true],
 			function Ponyach(prot, dm) {
 				_classCallCheck(this, Ponyach);
 
-				var _this86 = _possibleConstructorReturn(this, Object.getPrototypeOf(Ponyach).call(this, prot, dm));
+				var _this85 = _possibleConstructorReturn(this, Object.getPrototypeOf(Ponyach).call(this, prot, dm));
 
-				_this86.qBan = 'font[color="#FF0000"]';
+				_this85.qBan = 'font[color="#FF0000"]';
 
-				_this86.jsonSubmit = true;
-				_this86.multiFile = true;
-				_this86.thrid = 'replythread';
-				_this86._postMapInited = false;
-				return _this86;
+				_this85.jsonSubmit = true;
+				_this85.multiFile = true;
+				_this85.thrid = 'replythread';
+				_this85._postMapInited = false;
+				return _this85;
 			}
 
 			_createClass(Ponyach, [{
@@ -19014,10 +18992,10 @@ true, true],
 			function Ponychan(prot, dm) {
 				_classCallCheck(this, Ponychan);
 
-				var _this87 = _possibleConstructorReturn(this, Object.getPrototypeOf(Ponychan).call(this, prot, dm));
+				var _this86 = _possibleConstructorReturn(this, Object.getPrototypeOf(Ponychan).call(this, prot, dm));
 
-				_this87.qOPost = '.opContainer';
-				return _this87;
+				_this86.qOPost = '.opContainer';
+				return _this86;
 			}
 
 			_createClass(Ponychan, [{
@@ -19047,12 +19025,12 @@ true, true],
 			function Synch(prot, dm) {
 				_classCallCheck(this, Synch);
 
-				var _this88 = _possibleConstructorReturn(this, Object.getPrototypeOf(Synch).call(this, prot, dm));
+				var _this87 = _possibleConstructorReturn(this, Object.getPrototypeOf(Synch).call(this, prot, dm));
 
-				_this88.qFileInfo = '.unimportant';
+				_this87.qFileInfo = '.unimportant';
 
-				_this88.markupBB = true;
-				return _this88;
+				_this87.markupBB = true;
+				return _this87;
 			}
 
 			_createClass(Synch, [{
@@ -19095,13 +19073,13 @@ true, true],
 			function TinyIb(prot, dm) {
 				_classCallCheck(this, TinyIb);
 
-				var _this89 = _possibleConstructorReturn(this, Object.getPrototypeOf(TinyIb).call(this, prot, dm));
+				var _this88 = _possibleConstructorReturn(this, Object.getPrototypeOf(TinyIb).call(this, prot, dm));
 
-				_this89.tinyib = true;
+				_this88.tinyib = true;
 
-				_this89.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
-				_this89.qPostMsg = '.message';
-				return _this89;
+				_this88.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
+				_this88.qPostMsg = '.message';
+				return _this88;
 			}
 
 			_createClass(TinyIb, [{
@@ -19133,10 +19111,10 @@ true, true],
 			function Uchan(prot, dm) {
 				_classCallCheck(this, Uchan);
 
-				var _this90 = _possibleConstructorReturn(this, Object.getPrototypeOf(Uchan).call(this, prot, dm));
+				var _this89 = _possibleConstructorReturn(this, Object.getPrototypeOf(Uchan).call(this, prot, dm));
 
-				_this90.qFormRedir = '#noko';
-				return _this90;
+				_this89.qFormRedir = '#noko';
+				return _this89;
 			}
 
 			_createClass(Uchan, [{
@@ -19494,7 +19472,7 @@ true, true],
 				}
 			},
 			play: function play() {
-				var _this91 = this;
+				var _this90 = this;
 
 				this.stop();
 				if (this.repeatMS === 0) {
@@ -19502,7 +19480,7 @@ true, true],
 					return;
 				}
 				this._playInterval = setInterval(function () {
-					return _this91._el.play();
+					return _this90._el.play();
 				}, this.repeatMS);
 			},
 			stop: function stop() {
@@ -19531,7 +19509,7 @@ true, true],
 				$hide(this._el);
 			},
 			count: function count(delayMS, useCounter, callback) {
-				var _this92 = this;
+				var _this91 = this;
 
 				if (this._enabled && useCounter) {
 					var seconds = delayMS / 1000;
@@ -19539,15 +19517,15 @@ true, true],
 					this._countingIV = setInterval(function () {
 						seconds--;
 						if (seconds === 0) {
-							_this92._stop();
+							_this91._stop();
 							callback();
 						} else {
-							_this92._set(seconds);
+							_this91._set(seconds);
 						}
 					}, 1000);
 				} else {
 					this._countingTO = setTimeout(function () {
-						_this92._countingTO = null;
+						_this91._countingTO = null;
 						callback();
 					}, delayMS);
 				}
@@ -19592,7 +19570,7 @@ true, true],
 				return this._iconEl ? this._iconEl.href : null;
 			},
 			initIcons: function initIcons() {
-				var _this93 = this;
+				var _this92 = this;
 
 				if (this._isInited) {
 					return;
@@ -19601,7 +19579,7 @@ true, true],
 				var icon = new Image();
 				icon.onload = function (e) {
 					try {
-						_this93._initIconsHelper(e.target);
+						_this92._initIconsHelper(e.target);
 					} catch (e) {
 						console.error('Icon error:', e);
 					}
@@ -19697,7 +19675,7 @@ true, true],
 				this._iconEl = $aBegin(doc.head, '<link rel="shortcut icon" href="' + iconUrl + '">');
 			},
 			_startBlink: function _startBlink(iconUrl) {
-				var _this94 = this;
+				var _this93 = this;
 
 				if (this._blinkInterval) {
 					if (this._currentIcon === iconUrl) {
@@ -19707,8 +19685,8 @@ true, true],
 				}
 				this._currentIcon = iconUrl;
 				this._blinkInterval = setInterval(function () {
-					_this94._setIcon(_this94._isOriginalIcon ? _this94._currentIcon : _this94.originalIcon);
-					_this94._isOriginalIcon = !_this94._isOriginalIcon;
+					_this93._setIcon(_this93._isOriginalIcon ? _this93._currentIcon : _this93.originalIcon);
+					_this93._isOriginalIcon = !_this93._isOriginalIcon;
 				}, this._blinkMS);
 			}
 		};
@@ -19728,7 +19706,7 @@ true, true],
 				}
 			},
 			show: function show() {
-				var _this95 = this;
+				var _this94 = this;
 
 				var post = Thread.first.last,
 				    notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
@@ -19738,8 +19716,8 @@ true, true],
 				});
 				notif.onshow = function () {
 					return setTimeout(function () {
-						if (notif === _this95._notifEl) {
-							_this95.close();
+						if (notif === _this94._notifEl) {
+							_this94.close();
 						}
 					}, 12e3);
 				};
@@ -19748,7 +19726,7 @@ true, true],
 				};
 				notif.onerror = function () {
 					window.focus();
-					_this95._requestPermission();
+					_this94._requestPermission();
 				};
 				this._notifEl = notif;
 			},
@@ -19765,14 +19743,14 @@ true, true],
 			_notifEl: null,
 
 			_requestPermission: function _requestPermission() {
-				var _this96 = this;
+				var _this95 = this;
 
 				this._granted = false;
 				Notification.requestPermission(function (state) {
 					if (state.toLowerCase() === 'denied') {
 						saveCfg('desktNotif', 0);
 					} else {
-						_this96._granted = true;
+						_this95._granted = true;
 					}
 				});
 			}
@@ -19879,7 +19857,7 @@ true, true],
 				this._makeStep();
 			},
 			_makeStep: function _makeStep() {
-				var _this97 = this;
+				var _this96 = this;
 
 				var needSleep = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
 
@@ -19889,7 +19867,7 @@ true, true],
 							if (needSleep) {
 								this._state = 1;
 								counter.count(this._delay, !doc.hidden, function () {
-									return _this97._makeStep();
+									return _this96._makeStep();
 								});
 								return;
 							}
@@ -19899,9 +19877,9 @@ true, true],
 							this._loadPromise = Thread.first.loadNew().then(function (_ref63) {
 								var newCount = _ref63.newCount;
 								var locked = _ref63.locked;
-								return _this97._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
+								return _this96._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (e) {
-								return _this97._handleNewPosts(0, e);
+								return _this96._handleNewPosts(0, e);
 							});
 							return;
 						case 2:

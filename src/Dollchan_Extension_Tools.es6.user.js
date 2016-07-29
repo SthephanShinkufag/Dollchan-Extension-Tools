@@ -151,7 +151,8 @@ const defaultCfg = {
 	'favWinWidth':      500,    // Favorites window width
 	'vidWinDrag':       0,      // draggable Video window
 	'vidWinX':          'right: 0',     // Video window position
-	'vidWinY':          'top: 0'
+	'vidWinY':          'top: 0',
+	'cfgTab':           'filters'       // Opened tab in Settings window
 };
 
 const Lng = {
@@ -780,8 +781,6 @@ function $animate(el, cName, remove = false) {
 // Other utils
 
 const pad2 = i => (i < 10 ? '0' : '') + i;
-
-const $if = (cond, el) => cond ? el : null;
 
 const $join = (arr, start, end) => start + arr.join(end + start) + end;
 
@@ -2349,21 +2348,17 @@ function toggleWindow(name, isUpd, data, noAnim) {
 	if(isAnim && body.hasChildNodes()) {
 		win.addEventListener('animationend', function aEvent() {
 			this.removeEventListener('animationend', aEvent);
-			showWindow(win, body, name, false, remove, data, Cfg.animation);
+			showWindow(win, body, name, remove, data, Cfg.animation);
 			win = body = name = remove = data = null;
 		});
 		win.classList.remove('de-win-open');
 		win.classList.add('de-win-close');
 	} else {
-		showWindow(win, body, name, isUpd, remove, data, isAnim);
+		showWindow(win, body, name, remove, data, isAnim);
 	}
 }
 
-function showWindow(win, body, name, isUpd, remove, data, isAnim) {
-	var temp, cfgTabId;
-	if(name === 'cfg' && !remove && (temp = $q('.de-cfg-tab[selected]', body))) {
-		cfgTabId = temp.getAttribute('info');
-	}
+function showWindow(win, body, name, remove, data, isAnim) {
 	body.innerHTML = '';
 	if(remove) {
 		win.classList.remove('de-win-active');
@@ -2392,7 +2387,7 @@ function showWindow(win, body, name, isUpd, remove, data, isAnim) {
 			}
 		});
 		return;
-	case 'cfg': cfgWindow.init(body, cfgTabId); break;
+	case 'cfg': cfgWindow.init(body); break;
 	case 'hid': showHiddenWindow(body); break;
 	case 'vid': showVideosWindow(body);
 	}
@@ -2946,12 +2941,11 @@ function showFavoritesWindow(body, data) {
 }
 
 
-// SETTINGS
+// SETTINGS WINDOW
 // ===========================================================================================================
 
 const cfgWindow = Object.create({
-	// Generates content for Settings window
-	init(body, id) {
+	init(body) {
 		body.addEventListener('click', this);
 		body.addEventListener('mouseover', this);
 		body.addEventListener('mouseout', this);
@@ -2960,20 +2954,19 @@ const cfgWindow = Object.create({
 		body.addEventListener('keydown', this);
 		body.addEventListener('scroll', this);
 
-		// Tab bar
-		let div = $bEnd(body, '<div id="de-cfg-bar"></div>');
-		div.appendChild(this._getTab('filters'));
-		div.appendChild(this._getTab('posts'));
-		div.appendChild(this._getTab('images'));
-		div.appendChild(this._getTab('links'));
-		if(pr.form || pr.oeForm) {
-			div.appendChild(this._getTab('form'));
-		}
-		div.appendChild(this._getTab('common'));
-		div.appendChild(this._getTab('info'));
+		// Create tab bar and bottom buttons
+		let div = $bEnd(body, `<div id="de-cfg-bar">${
+			this._getTab('filters') +
+			this._getTab('posts') +
+			this._getTab('images') +
+			this._getTab('links') +
+			(pr.form || pr.oeForm ? this._getTab('form') : '') +
+			this._getTab('common') +
+			this._getTab('info')
+		}</div><div id="de-cfg-buttons">${ this._getSel('language') }</div>`);
 
-		// Buttons container & language selector
-		div = $bEnd(body, `<div id="de-cfg-buttons">${ this._getSel('language') }</div>`);
+		// Open default or current tab
+		this._clickTab(Cfg.cfgTab);
 
 		// "Edit" button. Calls a popup with editor to edit Settings in JSON.
 		div.appendChild(getEditButton('cfg', fn => fn(Cfg, true, data => {
@@ -3017,112 +3010,110 @@ const cfgWindow = Object.create({
 		}));
 
 		// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
-		if(!nav.Presto) {
-			div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], () => {
-				// Create popup with controls
-				$popup('<b>' + Lng.cfgImpExp[lang] + ':</b><hr>' +
-					'<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' +
-						'<input type="file" accept=".json" id="de-import-file"></div></div><hr>' +
-					'<div class="de-list"><a id="de-export-file" href="#">' +
-						Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + this._getList([
-						Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
-						Lng.panelBtn.fav[lang],
-						Lng.hidPstThrds[lang] + ' (' + aib.dm + ')',
-						Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>',
-					'cfg-file', false);
+		!nav.Presto && div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], () => {
+			// Create popup with controls
+			$popup('<b>' + Lng.cfgImpExp[lang] + ':</b><hr>' +
+				'<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' +
+					'<input type="file" accept=".json" id="de-import-file"></div></div><hr>' +
+				'<div class="de-list"><a id="de-export-file" href="#">' +
+					Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + this._getList([
+					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
+					Lng.panelBtn.fav[lang],
+					Lng.hidPstThrds[lang] + ' (' + aib.dm + ')',
+					Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>',
+				'cfg-file', false);
 
-				// Import data from a file to the storage
-				$id('de-import-file').onchange = function({ target: { files: [file] } }) {
-					if(!file) {
+			// Import data from a file to the storage
+			$id('de-import-file').onchange = function({ target: { files: [file] } }) {
+				if(!file) {
+					return;
+				}
+				readFile(file, true).then(({ data }) => {
+					let obj;
+					try {
+						obj = JSON.parse(data);
+					} catch(e) {
+						$popup(Lng.invalidData[lang], 'err-invaliddata', false);
 						return;
 					}
-					readFile(file, true).then(({ data }) => {
-						let obj;
+					const cfgObj = obj.settings;
+					const favObj = obj.favorites;
+					const dmObj = obj[aib.dm];
+					const isOldCfg = !cfgObj && !favObj && !dmObj;
+					if(isOldCfg) {
+						setStored('DESU_Config', data);
+					}
+					if(cfgObj) {
 						try {
-							obj = JSON.parse(data);
-						} catch(e) {
-							$popup(Lng.invalidData[lang], 'err-invaliddata', false);
-							return;
+							setStored('DESU_Config', JSON.stringify(cfgObj));
+							setStored('DESU_keys', JSON.stringify(obj.hotkeys));
+							setStored('DESU_Exclude', JSON.stringify(obj.exclude));
+						} catch(e) {}
+					}
+					if(favObj) {
+						saveFavorites(favObj);
+					}
+					if(dmObj) {
+						if(dmObj.posts) {
+							locStorage['de-posts'] = JSON.stringify(dmObj.posts);
 						}
-						const cfgObj = obj.settings;
-						const favObj = obj.favorites;
-						const dmObj = obj[aib.dm];
-						const isOldCfg = !cfgObj && !favObj && !dmObj;
-						if(isOldCfg) {
-							setStored('DESU_Config', data);
+						if(dmObj.threads) {
+							locStorage['de-threads'] = JSON.stringify(dmObj.threads);
 						}
-						if(cfgObj) {
-							try {
-								setStored('DESU_Config', JSON.stringify(cfgObj));
-								setStored('DESU_keys', JSON.stringify(obj.hotkeys));
-								setStored('DESU_Exclude', JSON.stringify(obj.exclude));
-							} catch(e) {}
+						if(dmObj.myposts) {
+							locStorage['de-myposts'] = JSON.stringify(dmObj.myposts);
 						}
-						if(favObj) {
-							saveFavorites(favObj);
-						}
-						if(dmObj) {
-							if(dmObj.posts) {
-								locStorage['de-posts'] = JSON.stringify(dmObj.posts);
-							}
-							if(dmObj.threads) {
-								locStorage['de-threads'] = JSON.stringify(dmObj.threads);
-							}
-							if(dmObj.myposts) {
-								locStorage['de-myposts'] = JSON.stringify(dmObj.myposts);
-							}
-						}
-						if(cfgObj || dmObj || isOldCfg) {
-							$popup(Lng.updating[lang], 'cfg-file', true);
-							window.location.reload();
-							return;
-						}
-						closePopup('cfg-file');
-					});
-				}
+					}
+					if(cfgObj || dmObj || isOldCfg) {
+						$popup(Lng.updating[lang], 'cfg-file', true);
+						window.location.reload();
+						return;
+					}
+					closePopup('cfg-file');
+				});
+			}
 
-				// Export data from a storage to the file. The file will be named by date and type of storage.
-				// For example, like "DE_20160727_1540_Cfg+Fav+domain.com(Hid+You).json".
-				const expFile = $id('de-export-file');
-				const els = $Q('input', expFile.nextElementSibling);
-				els[0].checked = true;
-				expFile.addEventListener('click', async(function* (e) {
-					const name = [], nameDm = [], d = new Date();
-					let val = [], valDm = [];
-					for(let i = 0, len = els.length; i < len; ++i) {
-						if(!els[i].checked) {
-							continue;
-						}
-						switch(i) {
-						case 0: name.push('Cfg');
-							val.push('"settings":' + (yield* getStored('DESU_Config')));
-							val.push('"hotkeys":' + ((yield* getStored('DESU_keys')) || '""'));
-							val.push('"exclude":' + ((yield* getStored('DESU_Exclude')) || '""'));
-							break;
-						case 1: name.push('Fav');
-							val.push('"favorites":' + ((yield* getStored('DESU_Favorites')) || '{}'));
-							break;
-						case 2: nameDm.push('Hid');
-							valDm.push('"posts":' + (locStorage['de-posts'] || '{}'));
-							valDm.push('"threads":' + (locStorage['de-threads'] || '{}'));
-							break;
-						case 3: nameDm.push('You');
-							valDm.push('"myposts":' + (locStorage['de-myposts'] || '{}'));
-						}
+			// Export data from a storage to the file. The file will be named by date and type of storage.
+			// For example, like "DE_20160727_1540_Cfg+Fav+domain.com(Hid+You).json".
+			const expFile = $id('de-export-file');
+			const els = $Q('input', expFile.nextElementSibling);
+			els[0].checked = true;
+			expFile.addEventListener('click', async(function* (e) {
+				const name = [], nameDm = [], d = new Date();
+				let val = [], valDm = [];
+				for(let i = 0, len = els.length; i < len; ++i) {
+					if(!els[i].checked) {
+						continue;
 					}
-					if((valDm = valDm.join(','))) {
-						val.push('"' + aib.dm + '":{' + valDm + '}');
-						name.push(aib.dm + '(' + nameDm.join('+') + ')');
+					switch(i) {
+					case 0: name.push('Cfg');
+						val.push('"settings":' + (yield* getStored('DESU_Config')));
+						val.push('"hotkeys":' + ((yield* getStored('DESU_keys')) || '""'));
+						val.push('"exclude":' + ((yield* getStored('DESU_Exclude')) || '""'));
+						break;
+					case 1: name.push('Fav');
+						val.push('"favorites":' + ((yield* getStored('DESU_Favorites')) || '{}'));
+						break;
+					case 2: nameDm.push('Hid');
+						valDm.push('"posts":' + (locStorage['de-posts'] || '{}'));
+						valDm.push('"threads":' + (locStorage['de-threads'] || '{}'));
+						break;
+					case 3: nameDm.push('You');
+						valDm.push('"myposts":' + (locStorage['de-myposts'] || '{}'));
 					}
-					if((val = val.join(','))) {
-						downloadBlob(new Blob(['{' + val + '}'], { type: 'application/json' }),
-							'DE_' + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + '_' +
-							pad2(d.getHours()) + pad2(d.getMinutes()) + '_' + name.join('+') + '.json');
-					}
-					$pd(e);
-				}), true);
-			}));
-		}
+				}
+				if((valDm = valDm.join(','))) {
+					val.push('"' + aib.dm + '":{' + valDm + '}');
+					name.push(aib.dm + '(' + nameDm.join('+') + ')');
+				}
+				if((val = val.join(','))) {
+					downloadBlob(new Blob(['{' + val + '}'], { type: 'application/json' }),
+						'DE_' + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + '_' +
+						pad2(d.getHours()) + pad2(d.getMinutes()) + '_' + name.join('+') + '.json');
+				}
+				$pd(e);
+			}), true);
+		}));
 
 		// "Clear" button. Allows to clear settings/favorites/hidden/etc optionally.
 		div.appendChild($btn(Lng.reset[lang] + '...', Lng.resetCfg[lang], () => $popup(
@@ -3164,7 +3155,6 @@ const cfgWindow = Object.create({
 			$popup(Lng.updating[lang], 'cfg-reset', true);
 			window.location.reload();
 		}))));
-		$q('.de-cfg-tab[info="' + (id || 'filters') + '"]', body).click();
 	},
 
 	// Event handler for Setting window and its controls.
@@ -3172,6 +3162,11 @@ const cfgWindow = Object.create({
 		const type = e.type;
 		const el = e.target;
 		const tag = el.tagName;
+		if(type === 'click' && tag === 'DIV' && el.classList.contains('de-cfg-tab')) {
+			const info = el.getAttribute('info');
+			this._clickTab(info);
+			saveCfg('cfgTab', info);
+		}
 		if(type === 'change' && tag === 'SELECT') {
 			const info = el.getAttribute('info');
 			saveCfg(info, el.selectedIndex);
@@ -3460,6 +3455,66 @@ const cfgWindow = Object.create({
 		}
 	},
 
+	// Switch content in Settings by clicking on tab
+	_clickTab(info) {
+		const el = $q(`.de-cfg-tab[info="${ info }"]`);
+		if(el.hasAttribute('selected')) {
+			return;
+		}
+		const prefTab = $q('.de-cfg-body');
+		if(prefTab) {
+			prefTab.className = 'de-cfg-unvis';
+			$q('.de-cfg-tab[selected]').removeAttribute('selected');
+		}
+		el.setAttribute('selected', '');
+		const id = el.getAttribute('info');
+		let newTab = $id('de-cfg-' + id);
+		if(!newTab) {
+			newTab = $aEnd($id('de-cfg-bar'),
+				id === 'filters' ? this._getCfgFilters() :
+				id === 'posts' ? this._getCfgPosts() :
+				id === 'images' ? this._getCfgImages() :
+				id === 'links' ? this._getCfgLinks() :
+				id === 'form' ? this._getCfgForm() :
+				id === 'common' ? this._getCfgCommon() :
+				this._getCfgInfo());
+			if(id === 'filters') {
+				this._updateRowMeter($id('de-spell-txt'));
+			}
+			if(id === 'common') {
+				// XXX: remove and make insertion in this._getCfgCommon()
+				$after($q('input[info="userCSS"]').parentNode, getEditButton('css', fn =>
+					fn(Cfg.userCSSTxt, false, function() {
+						saveCfg('userCSSTxt', this.value);
+						updateCSS();
+						toggleWindow('cfg', true);
+					}
+				), 'de-cfg-button'));
+			}
+		}
+		newTab.className = 'de-cfg-body';
+		if(id === 'filters') {
+			$id('de-spell-txt').value = Spells.list;
+		}
+		this._updateDependant();
+
+		// Updates all inputs according to config
+		const els = $Q('.de-cfg-chkbox, .de-cfg-inptxt, .de-cfg-select', newTab);
+		for(let i = 0, len = els.length; i < len; ++i) {
+			const el = els[i];
+			const info = el.getAttribute('info');
+			if(el.tagName === 'INPUT') {
+				if(el.type === 'checkbox') {
+					el.checked = !!Cfg[info];
+				} else {
+					el.value = Cfg[info];
+				}
+			} else {
+				el.selectedIndex = Cfg[info];
+			}
+		}
+	},
+
 	// "Filters" tab
 	_getCfgFilters() {
 		return `<div id="de-cfg-filters" class="de-cfg-unvis">
@@ -3656,13 +3711,13 @@ const cfgWindow = Object.create({
 				<a href="${ gitWiki + (lang ? 'home-en/' : '') }" target="_blank">Github</a>
 			</div>
 			<div id="de-info-table">
-				<div id="de-info-stats">${ this.getInfoTable([
+				<div id="de-info-stats">${ this._getInfoTable([
 					[Lng.thrViewed[lang], Cfg.stats.view],
 					[Lng.thrCreated[lang], Cfg.stats.op],
 					[Lng.thrHidden[lang], HiddenThreads.getCount()],
 					[Lng.postsSent[lang], Cfg.stats.reply]
 				], false) }</div>
-				<div id="de-info-log">${ this.getInfoTable(Logger.getData(false), true) }</div>
+				<div id="de-info-log">${ this._getInfoTable(Logger.getData(false), true) }</div>
 			</div>
 			<input type="button" id="de-cfg-btn-debug" value="${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
 		</div>`;
@@ -3694,7 +3749,7 @@ const cfgWindow = Object.create({
 	},
 
 	// Creates a table for Info tab
-	getInfoTable(data, needMs) {
+	_getInfoTable(data, needMs) {
 		return data.map(data => `<div class="de-info-row">
 			<span class="de-info-name">${ data[0] }</span>
 			<span>${ data[1] + (needMs ? 'ms' : '') }</span>
@@ -3708,54 +3763,7 @@ const cfgWindow = Object.create({
 
 	// Creates a tab for tab bar
 	_getTab(name) {
-		return $new('div', {
-			'class': aib.cReply + ' de-cfg-tab',
-			'text': Lng.cfgTab[name][lang],
-			'info': name
-		}, { 'click': e => {
-			// Places content in Settings by clicking on tab
-			const el = e.target;
-			if(el.hasAttribute('selected')) {
-				return;
-			}
-			const prefTab = $q('.de-cfg-body');
-			if(prefTab) {
-				prefTab.className = 'de-cfg-unvis';
-				$q('.de-cfg-tab[selected]').removeAttribute('selected');
-			}
-			el.setAttribute('selected', '');
-			const id = el.getAttribute('info');
-			let newTab = $id('de-cfg-' + id);
-			if(!newTab) {
-				newTab = $aEnd($id('de-cfg-bar'),
-					id === 'filters' ? this._getCfgFilters() :
-					id === 'posts' ? this._getCfgPosts() :
-					id === 'images' ? this._getCfgImages() :
-					id === 'links' ? this._getCfgLinks() :
-					id === 'form' ? this._getCfgForm() :
-					id === 'common' ? this._getCfgCommon() :
-					this._getCfgInfo());
-				if(id === 'filters') {
-					this._updateRowMeter($id('de-spell-txt'));
-				}
-				if(id === 'common') {
-					// XXX: remove and make insertion in this._getCfgCommon()
-					$after($q('input[info="userCSS"]').parentNode, getEditButton('css', fn =>
-						fn(Cfg.userCSSTxt, false, function() {
-							saveCfg('userCSSTxt', this.value);
-							updateCSS();
-							toggleWindow('cfg', true);
-						}
-					), 'de-cfg-button'));
-				}
-			}
-			newTab.className = 'de-cfg-body';
-			if(id === 'filters') {
-				$id('de-spell-txt').value = Spells.list;
-			}
-			this._updateDependant();
-			this._updateOptions();
-		} });
+		return `<div class="${ aib.cReply } de-cfg-tab" info="${ name }">${ Lng.cfgTab[name][lang] }</div>`
 	},
 
 	// Switching dependent checkboxes according to their parents
@@ -3792,24 +3800,6 @@ const cfgWindow = Object.create({
 		this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
 		this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
 		this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
-	},
-
-	// Updates all inputs according to config
-	_updateOptions(tab) {
-		const els = $Q('.de-cfg-chkbox, .de-cfg-inptxt, .de-cfg-select', tab);
-		for(let i = 0, len = els.length; i < len; ++i) {
-			const el = els[i];
-			const info = el.getAttribute('info');
-			if(el.tagName === 'INPUT') {
-				if(el.type === 'checkbox') {
-					el.checked = !!Cfg[info];
-				} else {
-					el.value = Cfg[info];
-				}
-			} else {
-				el.selectedIndex = Cfg[info];
-			}
-		}
 	},
 
 	// Updates row counter in spells editor
