@@ -518,8 +518,8 @@ const Lng = {
 	fileToData:     ['Загрузить данные из файла', 'Load data from a file'],
 	dataToFile:     ['Получить файл</a> с данными', 'Get the file</a> with data'],
 	globalCfg:      ['Глобальные настройки', 'Global config'],
-	loadGlobal:     [' и применить к этому домену', ' and apply to this domain'],
-	saveGlobal:     [' текущие настройки как глобальные', ' current config as global'],
+	loadGlobal:     ['и применить к этому домену', 'and apply to this domain'],
+	saveGlobal:     ['текущие настройки как глобальные', 'current config as global'],
 	descrGlobal:    ['Глобальные настройки будут по умолчанию применяться<br>при первом посещеннии других доменов', 'Global config will apply by default<br>at the first visit of other domains'],
 	editInTxt:      ['Правка в текстовом формате', 'Edit in text format'],
 	resetCfg:       ['Сбросить в настройки по умолчанию', 'Reset config to defaults'],
@@ -719,16 +719,6 @@ function $new(tag, attr, events) {
 			if(events.hasOwnProperty(key)) {
 				el.addEventListener(key, events[key]);
 			}
-		}
-	}
-	return el;
-}
-
-function $New(tag, attr, nodes) {
-	const el = $new(tag, attr, null);
-	for(let i = 0, len = nodes.length; i < len; ++i) {
-		if(nodes[i]) {
-			el.appendChild(nodes[i]);
 		}
 	}
 	return el;
@@ -2402,7 +2392,7 @@ function showWindow(win, body, name, isUpd, remove, data, isAnim) {
 			}
 		});
 		return;
-	case 'cfg': addSettings(body, cfgTabId); break;
+	case 'cfg': cfgWindow.init(body, cfgTabId); break;
 	case 'hid': showHiddenWindow(body); break;
 	case 'vid': showVideosWindow(body);
 	}
@@ -2564,7 +2554,7 @@ function showHiddenWindow(body) {
 	$bEnd(body, hasThreads ? '<hr>' : '<center><b>' + Lng.noHidThrds[lang] + '</b></center><hr>');
 
 	// "Edit" button. Calls a popup with editor to edit Hidden in JSON.
-	body.appendChild(addEditButton('hidden', fn => fn(HiddenThreads.getRawData(), true, data => {
+	body.appendChild(getEditButton('hidden', fn => fn(HiddenThreads.getRawData(), true, data => {
 		HiddenThreads.saveRawData(data);
 		Thread.first.updateHidden(data[aib.b]);
 		toggleWindow('hid', true);
@@ -2739,7 +2729,7 @@ function showFavoritesWindow(body, data) {
 	let div = $bEnd(body, '<hr><div id="de-fav-buttons"></div>');
 
 	// "Edit" button. Calls a popup with editor to edit Favorites in JSON.
-	div.appendChild(addEditButton('favor', fn => readFav().then(data => fn(data, true, saveFavorites))));
+	div.appendChild(getEditButton('favor', fn => readFav().then(data => fn(data, true, saveFavorites))));
 
 	// "Refresh" button. Updates counters of new posts for each thread entry.
 	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(function* () {
@@ -2959,866 +2949,886 @@ function showFavoritesWindow(body, data) {
 // SETTINGS
 // ===========================================================================================================
 
-function fixSettings() {
-	function toggleBox(state, arr) {
-		var i = arr.length,
-			nState = !state;
-		while(i--) {
-			($q(arr[i]) || {}).disabled = nState;
+const cfgWindow = Object.create({
+	// Generates content for Settings window
+	init(body, id) {
+		body.addEventListener('click', this);
+		body.addEventListener('mouseover', this);
+		body.addEventListener('mouseout', this);
+		body.addEventListener('change', this);
+		body.addEventListener('keyup', this);
+		body.addEventListener('keydown', this);
+		body.addEventListener('scroll', this);
+
+		// Tab bar
+		let div = $bEnd(body, '<div id="de-cfg-bar"></div>');
+		div.appendChild(this._getTab('filters'));
+		div.appendChild(this._getTab('posts'));
+		div.appendChild(this._getTab('images'));
+		div.appendChild(this._getTab('links'));
+		if(pr.form || pr.oeForm) {
+			div.appendChild(this._getTab('form'));
 		}
-	}
-	toggleBox(Cfg.ajaxUpdThr, [
-		'input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]',
-		'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]']);
-	toggleBox(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
-	toggleBox(Cfg.expandImgs, [
-		'input[info="imgNavBtns"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]',
-		'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]',
-		'input[info="webmTitles"]', 'input[info="webmVolume"]']);
-	toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
-	toggleBox(Cfg.linksNavig, [
-		'input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]',
-		'input[info="strikeHidd"]', 'input[info="noNavigHidd"]']);
-	toggleBox(Cfg.strikeHidd && Cfg.linksNavig === 2, ['input[info="removeHidd"]']);
-	toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, [
-		'select[info="YTubeType"]', 'input[info="addVimeo"]']);
-	toggleBox(Cfg.addYouTube, [
-		'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]',
-		'input[info="ytApiKey"]']);
-	toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
-	toggleBox(Cfg.ajaxReply, ['input[info="sendErrNotif"]', 'input[info="scrAfterRep"]']);
-	toggleBox(Cfg.ajaxReply === 2, [
-		'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]']);
-	toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
-	toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
-	toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
-}
+		div.appendChild(this._getTab('common'));
+		div.appendChild(this._getTab('info'));
 
-function lBox(id, isBlock, fn) {
-	var el = $new('input', {'class': 'de-cfg-chkbox', 'info': id, 'type': 'checkbox'}, {'click'() {
-		toggleCfg(this.getAttribute('info'));
-		fixSettings();
-		if(fn) {
-			fn(this);
-		}
-	}});
-	el.checked = Cfg[id];
-	return $New('label', {'class': 'de-cfg-label' + (isBlock ? ' de-block' : '')},
-		[el, $txt(' ' + Lng.cfg[id][lang])]);
-}
+		// Buttons container & language selector
+		div = $bEnd(body, `<div id="de-cfg-buttons">${ this._getSel('language') }</div>`);
 
-function inpTxt(id, size, Fn) {
-	return $new('input', {'class': 'de-cfg-inptxt', 'info': id,
-		'type': 'text', 'size': size, 'value': Cfg[id]}, {
-		'keyup': Fn ? Fn : function() {
-			saveCfg(this.getAttribute('info'), this.value);
-		}
-	});
-}
+		// "Edit" button. Calls a popup with editor to edit Settings in JSON.
+		div.appendChild(getEditButton('cfg', fn => fn(Cfg, true, data => {
+			saveComCfg(aib.dm, data);
+			window.location.reload();
+		})));
 
-function optSel(id, isBlock, Fn, className = '') {
-	var el, opt = '', x = Lng.cfg[id];
-	for(var i = 0, len = x.sel[lang].length; i < len; i++) {
-		opt += '<option value="' + i + '">' + x.sel[lang][i] + '</option>';
-	}
-	el = $add('<select class="de-cfg-select" info="' + id + '">' + opt + '</select>');
-	el.addEventListener('change', Fn || function() {
-		saveCfg(this.getAttribute('info'), this.selectedIndex);
-		fixSettings();
-	});
-	el.selectedIndex = Cfg[id];
-	return $New('label', {'class': className + (isBlock ? ' de-block' : '') + ' de-cfg-label'},
-		[el, $txt(' ' + x.txt[lang])]);
-}
-
-function updRowMeter(node) {
-	var top = node.scrollTop,
-		el = node.previousSibling,
-		num = el.numLines || 1,
-		i = 17;
-	if(num - i < ((top / 12) | 0 + 1)) {
-		var str = '';
-		while(i--) {
-			str += num++ + '<br>';
-		}
-		el.insertAdjacentHTML('beforeend', str);
-		el.numLines = num;
-	}
-	el.scrollTop = top;
-}
-
-function getCfgFilters() {
-	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-filters'}, [
-		$New('div', {'id': 'de-spell-panel'}, [
-			lBox('hideBySpell', false, Spells.toggle.bind(Spells)),
-			$new('a', {
-				'id': 'de-btn-addspell',
-				'text': Lng.add[lang],
-				'href': '#',
-				'class': 'de-abtn de-spell-btn'}, {
-				'click': $pd,
-				'mouseover': ({ target }) => target.odelay = setTimeout(() => addMenu(target), Cfg.linksOver),
-				'mouseout': ({ target }) => clearTimeout(target.odelay)
-			}),
-			$new('a', {'text': Lng.apply[lang], 'href': '#', 'class': 'de-abtn de-spell-btn'}, {'click'(e) {
-				$pd(e);
-				saveCfg('hideBySpell', 1);
-				$q('input[info="hideBySpell"]').checked = true;
-				Spells.toggle();
-			}}),
-			$new('a', {'text': Lng.clear[lang], 'href': '#', 'class': 'de-abtn de-spell-btn'}, {'click'(e) {
-				$pd(e);
-				$id('de-spell-txt').value = '';
-				Spells.toggle();
-			}}),
-			$add('<a href="' + gitWiki + 'Spells-' + (lang ? 'en' : 'ru') +
-				'" class="de-abtn de-spell-btn" target="_blank">[?]</a>')
-		]),
-		$New('div', {'id': 'de-spell-editor'}, [
-			$add('<div id="de-spell-rowmeter"></div>'),
-			$new('textarea', {'id': 'de-spell-txt', 'wrap': 'off'}, {
-				'keydown'() { updRowMeter(this); },
-				'scroll'() { updRowMeter(this); }
-			})
-		]),
-		lBox('sortSpells', true, function() {
-			if(Cfg.sortSpells) {
-				Spells.toggle();
-			}
-		}),
-		lBox('menuHiddBtn', true, null),
-		lBox('hideRefPsts', true, function() {
-			for(var post = Thread.first.op; post; post = post.next) {
-				if(!Cfg.hideRefPsts) {
-					post.ref.unhide();
-				} else if(post.hidden) {
-					post.ref.hide();
-				}
-			}
-		}),
-		lBox('delHiddPost', true, function() {
-			for(var post = Thread.first.op; post; post = post.next) {
-				if(post.hidden && !post.isOp) {
-					post.wrap.classList.toggle('de-hidden');
-				}
-			}
-			updateCSS();
-		})
-	]);
-}
-
-function getCfgPosts() {
-	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-posts'}, [
-		$if(!localData, $New('div', null, [
-			lBox('ajaxUpdThr', false, aib.t ? function() {
-				if(Cfg.ajaxUpdThr) {
-					updater.enable();
+		// "Global" button. Allows to save/load global settings.
+		nav.isGlobal && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], function() {
+			const el = $popup('<b>' + Lng.globalCfg[lang] + ':</b>', 'cfg-global', false);
+			// "Load" button. Applies global settings for current domain.
+			$bEnd(el, `<div id="de-list"><input type="button" value="${
+				Lng.load[lang] }"> ${ Lng.loadGlobal[lang] }</div>`
+			).firstElementChild.onclick = () => spawn(getStoredObj, 'DESU_Config').then(data => {
+				if(data && ('global' in data) && !$isEmpty(data.global)) {
+					saveComCfg(aib.dm, data.global);
+					window.location.reload();
 				} else {
-					updater.disable();
+					$popup(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
 				}
-			} : null),
-			inpTxt('updThrDelay', 2, null),
-			$txt(Lng.cfg.updThrDelay[lang]),
-			$New('div', {'class': 'de-cfg-depend'}, [
-				lBox('updCount', true, function() {
-					updater.toggleCounter(Cfg.updCount);
-				}),
-				lBox('favIcoBlink', true, null),
-				$if('Notification' in window, lBox('desktNotif', true, function() {
-					if(Cfg.desktNotif) {
-						Notification.requestPermission();
+			});
+			// "Save" button. Copies the domain settings into global.
+			div = $bEnd(el, `<div id="de-list"><input type="button" value="${
+				Lng.save[lang] }"> ${ Lng.saveGlobal[lang] }</div>`
+			).firstElementChild.onclick = () => spawn(getStoredObj, 'DESU_Config').then(data => {
+				const obj = {};
+				const com = data[aib.dm];
+				for(let i in com) {
+					if(i !== 'correctTime' && i !== 'timePattern' &&
+					   i !== 'userCSS' && i !== 'userCSSTxt' &&
+					   com[i] !== defaultCfg[i] && i !== 'stats')
+					{
+						obj[i] = com[i];
 					}
-				})),
-				lBox('noErrInTitle', true, null),
-				lBox('markNewPosts', true, function() {
-					Post.clearMarks();
-				})
-			])
-		])),
-		$if(aib.jsonSubmit || aib.fch, lBox('markMyPosts', true, function() {
-			if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
-				locStorage.removeItem('de-myposts');
-				MyPosts.purge();
-			}
-			updateCSS();
-		})),
-		lBox('hideReplies', true, null),
-		lBox('expandTrunc', true, updateCSS),
-		lBox('updThrBtns', true, updateCSS),
-		$New('div', null, [
-			lBox('showHideBtn', false, updateCSS),
-			lBox('showRepBtn', false, updateCSS)
-		]),
-		optSel('postBtnsCSS', false, function() {
-			saveCfg('postBtnsCSS', this.selectedIndex);
-			updateCSS();
-			if(nav.Presto) {
-				$del($q('.de-svg-icons'));
-				addSVGIcons();
-			}
-			fixSettings();
-		}),
-		inpTxt('postBtnsBack', 8, function() {
-			if(checkCSSColor(this.value)) {
-				this.classList.remove('de-error-input');
-				saveCfg('postBtnsBack', this.value);
-				updateCSS();
-			} else {
-				this.classList.add('de-error-input');
-			}
-		}),
-		optSel('noSpoilers', true, function() {
-			saveCfg('noSpoilers', this.selectedIndex);
-			updateCSS();
-		}),
-		lBox('noPostNames', true, updateCSS),
-		lBox('widePosts', true, updateCSS),
-		$New('div', null, [
-			lBox('correctTime', false, DateTime.toggleSettings),
-			inpTxt('timeOffset', 2, null),
-			$txt(Lng.cfg.timeOffset[lang]),
-			$add('<a href="' + gitWiki + 'Settings-time-' + (lang ? 'en' : 'ru') +
-				'" class="de-abtn" target="_blank">[?]</a>')
-		]),
-		$New('div', {'class': 'de-cfg-depend'}, [
-			$New('div', null, [
-				inpTxt('timePattern', 24, null),
-				$txt(Lng.cfg.timePattern[lang])
-			]),
-			$New('div', null, [
-				inpTxt('timeRPattern', 24, null),
-				$txt(Lng.cfg.timeRPattern[lang])
-			])
-		])
-	]);
-}
+				}
+				data.global = obj;
+				saveComCfg('global', data.global);
+				toggleWindow('cfg', true);
+			});
+			el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
+		}));
 
-function getCfgImages() {
-	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-images'}, [
-		optSel('expandImgs', true, function() {
-			saveCfg('expandImgs', this.selectedIndex);
-			updateCSS();
-			if(Attachment.viewer) {
-				Attachment.viewer.close();
-			}
-		}),
-		$New('div', {'class': 'de-cfg-depend'}, [
-			lBox('imgNavBtns', true, updateCSS),
-			lBox('resizeImgs', true, updateCSS),
-			$if(Post.sizing.dPxRatio > 1, lBox('resizeDPI', true, null)),
-			$New('div', null, [
-				inpTxt('minImgSize', 2, function() {
-					saveCfg('minImgSize', Math.max(+this.value, 1));
-				}),
-				$txt(Lng.cfg.minImgSize[lang])
-			]),
-			inpTxt('zoomFactor', 2, function() {
-				saveCfg('zoomFactor', Math.min(Math.max(+this.value, 1), 100));
-			}),
-			$txt(Lng.cfg.zoomFactor[lang]),
-			lBox('webmControl', true, null),
-			lBox('webmTitles', true, null),
-			$if(nav.canPlayWebm, $New('div', null, [
-				inpTxt('webmVolume', 2, function() {
-					var val = Math.min(+this.value || 0, 100);
-					saveCfg('webmVolume', val);
-					locStorage['__de-webmvolume'] = val;
-					locStorage.removeItem('__de-webmvolume');
-				}),
-				$txt(Lng.cfg.webmVolume[lang])
-			]))
-		]),
-		$if(!nav.Presto, lBox('preLoadImgs', true, null)),
-		$if(!nav.Presto && !aib.fch, $New('div', {'class': 'de-cfg-depend'}, [
-			lBox('findImgFile', true, null)
-		])),
-		optSel('openImgs', true, null),
-		lBox('imgSrcBtns', true, function() {
-			if(Cfg.imgSrcBtns) {
-				for(let form of DelForm) {
-					processImagesLinks(form.el, null, 1, 0);
+		// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
+		if(!nav.Presto) {
+			div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], () => {
+				// Create popup with controls
+				$popup('<b>' + Lng.cfgImpExp[lang] + ':</b><hr>' +
+					'<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' +
+						'<input type="file" accept=".json" id="de-import-file"></div></div><hr>' +
+					'<div class="de-list"><a id="de-export-file" href="#">' +
+						Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + this._getList([
+						Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
+						Lng.panelBtn.fav[lang],
+						Lng.hidPstThrds[lang] + ' (' + aib.dm + ')',
+						Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>',
+					'cfg-file', false);
+
+				// Import data from a file to the storage
+				$id('de-import-file').onchange = function({ target: { files: [file] } }) {
+					if(!file) {
+						return;
+					}
+					readFile(file, true).then(({ data }) => {
+						let obj;
+						try {
+							obj = JSON.parse(data);
+						} catch(e) {
+							$popup(Lng.invalidData[lang], 'err-invaliddata', false);
+							return;
+						}
+						const cfgObj = obj.settings;
+						const favObj = obj.favorites;
+						const dmObj = obj[aib.dm];
+						const isOldCfg = !cfgObj && !favObj && !dmObj;
+						if(isOldCfg) {
+							setStored('DESU_Config', data);
+						}
+						if(cfgObj) {
+							try {
+								setStored('DESU_Config', JSON.stringify(cfgObj));
+								setStored('DESU_keys', JSON.stringify(obj.hotkeys));
+								setStored('DESU_Exclude', JSON.stringify(obj.exclude));
+							} catch(e) {}
+						}
+						if(favObj) {
+							saveFavorites(favObj);
+						}
+						if(dmObj) {
+							if(dmObj.posts) {
+								locStorage['de-posts'] = JSON.stringify(dmObj.posts);
+							}
+							if(dmObj.threads) {
+								locStorage['de-threads'] = JSON.stringify(dmObj.threads);
+							}
+							if(dmObj.myposts) {
+								locStorage['de-myposts'] = JSON.stringify(dmObj.myposts);
+							}
+						}
+						if(cfgObj || dmObj || isOldCfg) {
+							$popup(Lng.updating[lang], 'cfg-file', true);
+							window.location.reload();
+							return;
+						}
+						closePopup('cfg-file');
+					});
 				}
-			} else {
-				$each($Q('.de-btn-src'), el => el.remove());
-			}
-		}),
-		lBox('delImgNames', true, function() {
-			if(Cfg.delImgNames) {
-				for(let form of DelForm) {
-					processImagesLinks(form.el, null, 0, 1);
+
+				// Export data from a storage to the file. The file will be named by date and type of storage.
+				// For example, like "DE_20160727_1540_Cfg+Fav+domain.com(Hid+You).json".
+				const expFile = $id('de-export-file');
+				const els = $Q('input', expFile.nextElementSibling);
+				els[0].checked = true;
+				expFile.addEventListener('click', async(function* (e) {
+					const name = [], nameDm = [], d = new Date();
+					let val = [], valDm = [];
+					for(let i = 0, len = els.length; i < len; ++i) {
+						if(!els[i].checked) {
+							continue;
+						}
+						switch(i) {
+						case 0: name.push('Cfg');
+							val.push('"settings":' + (yield* getStored('DESU_Config')));
+							val.push('"hotkeys":' + ((yield* getStored('DESU_keys')) || '""'));
+							val.push('"exclude":' + ((yield* getStored('DESU_Exclude')) || '""'));
+							break;
+						case 1: name.push('Fav');
+							val.push('"favorites":' + ((yield* getStored('DESU_Favorites')) || '{}'));
+							break;
+						case 2: nameDm.push('Hid');
+							valDm.push('"posts":' + (locStorage['de-posts'] || '{}'));
+							valDm.push('"threads":' + (locStorage['de-threads'] || '{}'));
+							break;
+						case 3: nameDm.push('You');
+							valDm.push('"myposts":' + (locStorage['de-myposts'] || '{}'));
+						}
+					}
+					if((valDm = valDm.join(','))) {
+						val.push('"' + aib.dm + '":{' + valDm + '}');
+						name.push(aib.dm + '(' + nameDm.join('+') + ')');
+					}
+					if((val = val.join(','))) {
+						downloadBlob(new Blob(['{' + val + '}'], { type: 'application/json' }),
+							'DE_' + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + '_' +
+							pad2(d.getHours()) + pad2(d.getMinutes()) + '_' + name.join('+') + '.json');
+					}
+					$pd(e);
+				}), true);
+			}));
+		}
+
+		// "Clear" button. Allows to clear settings/favorites/hidden/etc optionally.
+		div.appendChild($btn(Lng.reset[lang] + '...', Lng.resetCfg[lang], () => $popup(
+			'<b>' + Lng.resetData[lang] + ':</b><hr>' +
+			'<div class="de-list"><b>' + aib.dm + ':</b>' +
+				this._getList([Lng.panelBtn.cfg[lang], Lng.hidPstThrds[lang], Lng.myPosts[lang]]) +
+			'</div><hr>' +
+			'<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' +
+				this._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div><hr>',
+			'cfg-reset', false
+		).appendChild($btn(Lng.clear[lang], '', function() {
+			const els = $Q('input[type="checkbox"]', this.parentNode);
+			for(let i = 1, len = els.length; i < len; ++i) {
+				if(!els[i].checked) {
+					continue;
 				}
-			} else {
-				$each($Q('.de-img-name'), link => {
-					link.classList.remove('de-img-name');
-					link.textContent = link.title;
-					link.removeAttribute('title');
+				switch(i) {
+				case 1:
+					locStorage.removeItem('de-posts');
+					locStorage.removeItem('de-threads');
+					break;
+				case 2: locStorage.removeItem('de-myposts'); break;
+				case 4: delStored('DESU_Favorites');
+				}
+			}
+			if(els[3].checked) {
+				delStored('DESU_Config');
+				delStored('DESU_keys');
+				delStored('DESU_Exclude');
+			} else if(els[0].checked) {
+				spawn(getStoredObj, 'DESU_Config').then(data => {
+					delete data[aib.dm];
+					setStored('DESU_Config', JSON.stringify(data));
+					$popup(Lng.updating[lang], 'cfg-reset', true);
+					window.location.reload();
 				});
+				return;
 			}
-			updateCSS();
-		}),
-		$New('div', null, [
-			inpTxt('maskVisib', 2, function() {
-				var val = Math.min(+this.value || 0, 100);
-				saveCfg('maskVisib', val);
+			$popup(Lng.updating[lang], 'cfg-reset', true);
+			window.location.reload();
+		}))));
+		$q('.de-cfg-tab[info="' + (id || 'filters') + '"]', body).click();
+	},
+
+	// Event handler for Setting window and its controls.
+	handleEvent(e) {
+		const type = e.type;
+		const el = e.target;
+		const tag = el.tagName;
+		if(type === 'change' && tag === 'SELECT') {
+			const info = el.getAttribute('info');
+			saveCfg(info, el.selectedIndex);
+			this._updateDependant();
+			switch(info) {
+			case 'language':
+				lang = el.selectedIndex;
+				panel.remove();
+				$del($id('de-css'));
+				$del($id('de-css-dynamic'));
+				$del($id('de-css-user'));
+				scriptCSS();
+				panel.init(DelForm.first.el);
+				toggleWindow('cfg', false);
+				break;
+			case 'postBtnsCSS':
 				updateCSS();
-			}),
-			$txt(Lng.cfg.maskVisib[lang])
-		])
-	]);
-}
-
-function getCfgLinks() {
-	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-links'}, [
-		optSel('linksNavig', true, null),
-		$New('div', {'class': 'de-cfg-depend'}, [
-			$New('div', null, [
-				inpTxt('linksOver', 2, function() {
-					saveCfg('linksOver', +this.value | 0);
-				}),
-				$txt(Lng.cfg.linksOver[lang]),
-				inpTxt('linksOut', 2, function() {
-					saveCfg('linksOut', +this.value | 0);
-				}),
-				$txt(Lng.cfg.linksOut[lang])
-			]),
-			lBox('markViewed', true, null),
-			lBox('strikeHidd', true, updateCSS),
-			$New('div', {'class': 'de-cfg-depend'}, [
-				lBox('removeHidd', false, updateCSS)
-			]),
-			lBox('noNavigHidd', true, null)
-		]),
-		$if(aib.jsonSubmit || aib.fch, lBox('markMyLinks', true, function() {
-			if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
-				locStorage.removeItem('de-myposts');
-				MyPosts.purge();
+				if(nav.Presto) {
+					$del($q('.de-svg-icons'));
+					addSVGIcons();
+				}
+				break;
+			case 'noSpoilers': updateCSS(); break;
+			case 'expandImgs':
+				updateCSS();
+				if(Attachment.viewer) {
+					Attachment.viewer.close();
+				}
+				break;
+			case 'addPostForm':
+				pr.isBottom = Cfg.addPostForm === 1;
+				pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
+				break;
+			case 'addTextBtns': pr.addTextPanel(); break;
+			case 'scriptStyle':
+				$del($id('de-css'));
+				$del($id('de-css-dynamic'));
+				$del($id('de-css-user'));
+				scriptCSS();
 			}
-			updateCSS();
-		})),
-		lBox('crossLinks', true, null),
-		lBox('insertNum', true, null),
-		lBox('addOPLink', true, null),
-		lBox('addImgs', true, null),
-		lBox('addMP3', false, null),
-		$if(aib.prot === 'http:', lBox('addVocaroo', false, null)),
-		optSel('addYouTube', true, null),
-		$New('div', {'class': 'de-cfg-depend'}, [
-			$New('div', null, [
-				optSel('YTubeType', false, null),
-				inpTxt('YTubeWidth', 2, null),
-				$txt('\u00D7'),
-				inpTxt('YTubeHeigh', 2, null),
-				$txt('(px)')
-			]),
-			lBox('YTubeTitles', false, null),
-			$New('div', null, [
-				inpTxt('ytApiKey', 25, function() {
-					saveCfg('ytApiKey', this.value.trim());
-				}),
-				$txt(Lng.cfg.ytApiKey[lang])
-			]),
-			lBox('addVimeo', true, null)
-		])
-	]);
-}
-
-function getCfgForm() {
-	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-form'}, [
-		optSel('ajaxReply', true, null),
-		$if(pr.form, $New('div', {'class': 'de-cfg-depend'}, [
-			$New('div', null, [
-				lBox('postSameImg', true, null),
-				lBox('removeEXIF', false, null),
-				lBox('removeFName', false, null),
-				lBox('sendErrNotif', true, null)
-			]),
-			lBox('scrAfterRep', true, null)
-		])),
-		$if(pr.form, optSel('addPostForm', true, function() {
-			saveCfg('addPostForm', this.selectedIndex);
-			pr.isBottom = Cfg.addPostForm === 1;
-			pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
-		})),
-		$if(pr.txta, lBox('spacedQuote', true, null)),
-		lBox('favOnReply', true, null),
-		$if(pr.subj, lBox('warnSubjTrip', false, null)),
-		$if(pr.files && !nav.Presto, lBox('fileThumb', true, function() {
-			pr.files.changeView();
-			if(!aib.kus && !aib.multiFile) {
-				pr.setPlaceholders();
-			}
-			updateCSS();
-		})),
-		$if(pr.mail, $New('div', null, [
-			lBox('addSageBtn', false, function() {
+			return;
+		}
+		if(type === 'click' && tag === 'INPUT' && el.type === 'checkbox') {
+			const info = el.getAttribute('info');
+			toggleCfg(info);
+			this._updateDependant();
+			switch(info) {
+			case 'expandTrunc':
+			case 'updThrBtns':
+			case 'showHideBtn':
+			case 'showRepBtn':
+			case 'noPostNames':
+			case 'widePosts':
+			case 'imgNavBtns':
+			case 'resizeImgs':
+			case 'strikeHidd':
+			case 'removeHidd':
+			case 'noBoardRule':
+			case 'panelCounter':
+			case 'userCSS': updateCSS(); break;
+			case 'hideBySpell': Spells.toggle(); break;
+			case 'sortSpells':
+				if(Cfg.sortSpells) {
+					Spells.toggle();
+				}
+				break;
+			case 'hideRefPsts':
+				for(let post = Thread.first.op; post; post = post.next) {
+					if(!Cfg.hideRefPsts) {
+						post.ref.unhide();
+					} else if(post.hidden) {
+						post.ref.hide();
+					}
+				}
+				break;
+			case 'delHiddPost':
+				for(let post = Thread.first.op; post; post = post.next) {
+					if(post.hidden && !post.isOp) {
+						post.wrap.classList.toggle('de-hidden');
+					}
+				}
+				updateCSS();
+				break;
+			case 'ajaxUpdThr':
+				if(aib.t) {
+					if(Cfg.ajaxUpdThr) {
+						updater.enable();
+					} else {
+						updater.disable();
+					}
+				}
+				break;
+			case 'updCount': updater.toggleCounter(Cfg.updCount); break;
+			case 'desktNotif':
+				if(Cfg.desktNotif) {
+					Notification.requestPermission();
+				}
+				break;
+			case 'markNewPosts': Post.clearMarks(); break;
+			case 'markMyPosts':
+				if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
+					locStorage.removeItem('de-myposts');
+					MyPosts.purge();
+				}
+				updateCSS();
+				break;
+			case 'correctTime': DateTime.toggleSettings(); break;
+			case 'imgSrcBtns':
+				if(Cfg.imgSrcBtns) {
+					for(let form of DelForm) {
+						processImagesLinks(form.el, null, 1, 0);
+					}
+				} else {
+					$each($Q('.de-btn-src'), el => el.remove());
+				}
+				break;
+			case 'delImgNames':
+				if(Cfg.delImgNames) {
+					for(let form of DelForm) {
+						processImagesLinks(form.el, null, 0, 1);
+					}
+				} else {
+					$each($Q('.de-img-name'), link => {
+						link.classList.remove('de-img-name');
+						link.textContent = link.title;
+						link.removeAttribute('title');
+					});
+				}
+				updateCSS();
+				break;
+			case 'markMyLinks':
+				if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
+					locStorage.removeItem('de-myposts');
+					MyPosts.purge();
+				}
+				updateCSS();
+				break;
+			case 'fileThumb':
+				pr.files.changeView();
+				if(!aib.kus && !aib.multiFile) {
+					pr.setPlaceholders();
+				}
+				updateCSS();
+				break;
+			case 'addSageBtn':
 				PostForm.hideField($parent(pr.mail, 'LABEL') || pr.mail);
 				updateCSS();
-			}),
-			lBox('saveSage', false, null)
-		])),
-		$if(pr.cap, $New('div', null, [
-			inpTxt('capUpdTime', 2, null),
-			$txt(Lng.cfg.capUpdTime[lang]),
-			optSel('captchaLang', true, null)
-		])),
-		$if(pr.txta, $New('div', null, [
-			optSel('addTextBtns', false, function() {
-				saveCfg('addTextBtns', this.selectedIndex);
-				pr.addTextPanel();
-			}),
-			lBox('txtBtnsLoc', false, pr.addTextPanel.bind(pr))
-		])),
-		$if(pr.passw, $New('div', null, [
-			inpTxt('passwValue', 9, PostForm.setUserPassw),
-			$txt(Lng.cfg.userPassw[lang]),
-			$btn(Lng.change[lang], '', function() {
-				$q('input[info="passwValue"]').value = Math.round(Math.random() * 1e15).toString(32);
-				PostForm.setUserPassw();
-			}, 'de-cfg-button')
-		])),
-		$if(pr.name, $New('div', null, [
-			inpTxt('nameValue', 9, PostForm.setUserName),
-			$txt(' '),
-			lBox('userName', false, PostForm.setUserName)
-		])),
-		$if(pr.rules || pr.passw || pr.name, $New('div', null, [
-			$txt(Lng.dontShow[lang]),
-			$if(pr.rules, lBox('noBoardRule', false, updateCSS)),
-			$if(pr.passw, lBox('noPassword', false, function() {
-				$toggle($parent(pr.passw, 'TR'));
-			})),
-			$if(pr.name, lBox('noName', false, function() {
-				PostForm.hideField(pr.name);
-			})),
-			$if(pr.subj, lBox('noSubj', false, function() {
-				PostForm.hideField(pr.subj);
-			})),
-		]))
-	]);
-}
-
-function getCfgCommon() {
-	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-common'}, [
-		optSel('scriptStyle', true, function() {
-			saveCfg('scriptStyle', this.selectedIndex);
-			$del($id('de-css'));
-			$del($id('de-css-dynamic'));
-			$del($id('de-css-user'));
-			scriptCSS();
-		}),
-		$New('div', null, [
-			lBox('userCSS', false, updateCSS),
-			// "CSS edit" button. Calls a popup with editor to edit user CSS.
-			addEditButton('css', fn => fn(Cfg.userCSSTxt, false, function() {
-				saveCfg('userCSSTxt', this.value);
-				updateCSS();
-				toggleWindow('cfg', true);
-			}), 'de-cfg-button'),
-			$add('<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a>')
-		]),
-		lBox('panelCounter', true, updateCSS),
-		lBox('rePageTitle', true, null),
-		lBox('animation', true, null),
-		lBox('closePopups', true, null),
-		lBox('inftyScroll', true, toggleInfinityScroll),
-		lBox('scrollToTop', true, null),
-		$New('div', null, [
-			lBox('hotKeys', false, function() {
+				break;
+			case 'txtBtnsLoc': pr.addTextPanel(); break;
+			case 'userName': PostForm.setUserName(); break;
+			case 'noPassword': $toggle($parent(pr.passw, 'TR')); break;
+			case 'noName': PostForm.hideField(pr.name); break;
+			case 'noSubj': PostForm.hideField(pr.subj); break;
+			case 'inftyScroll': toggleInfinityScroll(); break;
+			case 'hotKeys':
 				if(Cfg.hotKeys) {
-					HotKeys.enable()
+					HotKeys.enable();
 				} else {
 					HotKeys.disable();
 				}
-			}),
-			$btn(Lng.edit[lang], '', function(e) {
+				break;
+			case 'turnOff': spawn(getStoredObj, 'DESU_Config').then(data => {
+					for(let dm in data) {
+						if(dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
+							data[dm].disabled = Cfg.turnOff;
+						}
+					}
+					data[aib.dm].turnOff = Cfg.turnOff;
+					setStored('DESU_Config', JSON.stringify(data));
+				});
+			}
+			return;
+		}
+		if(type === 'click' && tag === 'INPUT' && el.type === 'button') {
+			switch(el.id) {
+			case 'de-cfg-btn-pass':
+				$q('input[info="passwValue"]').value = Math.round(Math.random() * 1e15).toString(32);
+				PostForm.setUserPassw();
+				break;
+			case 'de-cfg-btn-keys':
 				$pd(e);
 				if($id('de-popup-edit-hotkeys')) {
 					return;
 				}
 				Promise.resolve(HotKeys.readKeys()).then(keys => {
-					var temp = KeyEditListener.getEditMarkup(keys),
-						el = $popup(temp[1], 'edit-hotkeys', false),
-						fn = new KeyEditListener(el, keys, temp[0]);
+					const temp = KeyEditListener.getEditMarkup(keys);
+					const el = $popup(temp[1], 'edit-hotkeys', false);
+					const fn = new KeyEditListener(el, keys, temp[0]);
 					el.addEventListener('focus', fn, true);
 					el.addEventListener('blur', fn, true);
 					el.addEventListener('click', fn, true);
 					el.addEventListener('keydown', fn, true);
 					el.addEventListener('keyup', fn, true);
 				});
-			}, 'de-cfg-button')
-		]),
-		$New('div', {'class': 'de-cfg-depend'}, [
-			inpTxt('loadPages', 2, null),
-			$txt(Lng.cfg.loadPages[lang])
-		]),
-		$if(!nav.isChromeStorage && !nav.Presto || nav.isGM, $New('div', null, [
-			lBox('updScript', true, null),
-			$New('div', {'class': 'de-cfg-depend'}, [
-				optSel('scrUpdIntrv', false, null),
-				$btn(Lng.checkNow[lang], '', function() {
-					$popup(Lng.loading[lang], 'updavail', true);
-					spawn(getStoredObj, 'DESU_Config')
-						.then(data => checkForUpdates(true, data.lastUpd))
-						.then(html => $popup(html, 'updavail', false), emptyFn);
-				}, 'de-cfg-button')
-			])
-		])),
-		$if(nav.isGlobal, $New('div', null, [
-			$txt(Lng.cfg['excludeList'][lang]),
-			$new('input', {'type': 'text', 'id': 'de-exclude-edit', 'class': 'de-cfg-inptxt',
-				'style': 'display: block; width: 80%;',
-				'value': excludeList,
-				'placeholder': '4chan.org, 8ch.net, ...'}, {
-				'keyup'() {
-					setStored('DESU_Exclude', (excludeList = this.value));
-				}
-			}),
-			lBox('turnOff', true, () => spawn(getStoredObj, 'DESU_Config').then(data => {
-				for(let dm in data) {
-					if(dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
-						data[dm].disabled = Cfg.turnOff;
+				break;
+			case 'de-cfg-btn-updnow':
+				$popup(Lng.loading[lang], 'updavail', true);
+				spawn(getStoredObj, 'DESU_Config')
+					.then(data => checkForUpdates(true, data.lastUpd))
+					.then(html => $popup(html, 'updavail', false), emptyFn);
+				break;
+			case 'de-cfg-btn-debug':
+				$popup(Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>',
+					   'cfg-debug', false).firstElementChild.value = JSON.stringify(
+				{
+					'version': version,
+					'location': String(window.location),
+					'nav': nav,
+					'cfg': Cfg,
+					'sSpells': Spells.list.split('\n'),
+					'oSpells': sesStorage['de-spells-' + aib.b + (aib.t || '')],
+					'perf': Logger.getData(true)
+				}, function(key, value) {
+					switch(key) {
+					case 'stats':
+					case 'nameValue':
+					case 'passwValue':
+					case 'ytApiKey':
+						return void 0;
 					}
+					return key in defaultCfg && value === defaultCfg[key] ? void 0 : value;
+				}, '\t');
+			}
+		}
+		if(type === 'keyup' && tag === 'INPUT' && el.type === 'text') {
+			const info = el.getAttribute('info');
+			switch(info) {
+			case 'postBtnsBack':
+				if(checkCSSColor(el.value)) {
+					el.classList.remove('de-error-input');
+					saveCfg('postBtnsBack', el.value);
+					updateCSS();
+				} else {
+					el.classList.add('de-error-input');
 				}
-				data[aib.dm].turnOff = Cfg.turnOff;
-				setStored('DESU_Config', JSON.stringify(data));
-			}))
-		]))
-	]);
-}
+				break;
+			case 'minImgSize': saveCfg('minImgSize', Math.max(+el.value, 1)); break;
+			case 'zoomFactor': saveCfg('zoomFactor', Math.min(Math.max(+el.value, 1), 100)); break;
+			case 'webmVolume':
+				const val = Math.min(+el.value || 0, 100);
+				saveCfg('webmVolume', val);
+				locStorage['__de-webmvolume'] = val;
+				locStorage.removeItem('__de-webmvolume');
+				break;
+			case 'maskVisib':
+				saveCfg('maskVisib', Math.min(+el.value || 0, 100));
+				updateCSS();
+				break;
+			case 'linksOver': saveCfg('linksOver', +el.value | 0); break;
+			case 'linksOut': saveCfg('linksOut', +el.value | 0); break;
+			case 'ytApiKey': saveCfg('ytApiKey', el.value.trim()); break;
+			case 'passwValue': PostForm.setUserPassw(); break;
+			case 'nameValue': PostForm.setUserName(); break;
+			case 'excludeList': setStored('DESU_Exclude', (excludeList = el.value)); break;
+			default: saveCfg(info, el.value);
+			}
+			return;
+		}
+		if(tag === 'A') {
+			if(el.id === 'de-btn-spell-add') {
+				switch(e.type) {
+				case 'click': $pd(e); break;
+				case 'mouseover': el.odelay = setTimeout(() => addMenu(el), Cfg.linksOver); break;
+				case 'mouseout': clearTimeout(el.odelay);
+				}
+				return;
+			}
+			if(type === 'click') {
+				switch(el.id) {
+				case 'de-btn-spell-apply':
+					$pd(e);
+					saveCfg('hideBySpell', 1);
+					$q('input[info="hideBySpell"]').checked = true;
+					Spells.toggle();
+					break;
+				case 'de-btn-spell-clear':
+					$pd(e);
+					$id('de-spell-txt').value = '';
+					Spells.toggle();
+				}
+			}
+			return;
+		}
+		if(tag === 'TEXTAREA' && el.id === 'de-spell-txt' && (type === 'keydown' || type === 'scroll')) {
+			this._updateRowMeter(el);
+		}
+	},
 
-function getCfgInfo() {
-	var getInfoTable = (data, needMs) => data.map(data => `
-		<div class="de-info-row">
+	// "Filters" tab
+	_getCfgFilters() {
+		return `<div id="de-cfg-filters" class="de-cfg-unvis">
+			<div id="de-spell-panel">
+				${ this._getBox('hideBySpell') }
+				<a id="de-btn-spell-add" class="de-abtn de-spell-btn" href="#">${ Lng.add[lang] }</a>
+				<a id="de-btn-spell-apply" class="de-abtn de-spell-btn" href="#">${ Lng.apply[lang] }</a>
+				<a id="de-btn-spell-clear" class="de-abtn de-spell-btn" href="#">${ Lng.clear[lang] }</a>
+				<a class="de-abtn de-spell-btn" href="${ gitWiki +
+					'Spells-' + (lang ? 'en' : 'ru') }" target="_blank">[?]</a>
+			</div>
+			<div id="de-spell-editor">
+				<div id="de-spell-rowmeter"></div>
+				<textarea id="de-spell-txt" wrap="off"></textarea>
+			</div>
+			${ this._getBox('sortSpells') }<br>
+			${ this._getBox('menuHiddBtn') }<br>
+			${ this._getBox('hideRefPsts') }<br>
+			${ this._getBox('delHiddPost') }
+		</div>`;
+	},
+
+	// "Posts" tab
+	_getCfgPosts() {
+		return `<div id="de-cfg-posts" class="de-cfg-unvis">
+			${ !localData ?
+				this._getBox('ajaxUpdThr') +
+				this._getInp('updThrDelay') + Lng.cfg.updThrDelay[lang] +
+				`<div class="de-cfg-depend">
+					${ this._getBox('updCount') }<br>
+					${ this._getBox('favIcoBlink') }<br>
+					${ 'Notification' in window ? this._getBox('desktNotif') + '<br>' : '' }
+					${ this._getBox('noErrInTitle') }<br>
+					${ this._getBox('markNewPosts') }
+				</div>` : '' }
+			${ aib.jsonSubmit || aib.fch ? this._getBox('markMyPosts') + '<br>' : '' }
+			${ this._getBox('hideReplies') }<br>
+			${ this._getBox('expandTrunc') }<br>
+			${ this._getBox('updThrBtns') }<br>
+			${ this._getBox('showHideBtn') }
+			${ this._getBox('showRepBtn') }<br>
+			${ this._getSel('postBtnsCSS') }
+			${ this._getInp('postBtnsBack', 8) }<br>
+			${ this._getSel('noSpoilers') }<br>
+			${ this._getBox('noPostNames') }<br>
+			${ this._getBox('widePosts') }<br>
+			${ this._getBox('correctTime') }
+			${ this._getInp('timeOffset') + Lng.cfg.timeOffset[lang] }
+			<a class="de-abtn" target="_blank" href="${ gitWiki +
+				'Settings-time-' + (lang ? 'en' : 'ru') }">[?]</a>
+			<div class="de-cfg-depend">
+				${ this._getInp('timePattern', 24) + Lng.cfg.timePattern[lang] }<br>
+				${ this._getInp('timeRPattern', 24) + Lng.cfg.timeRPattern[lang] }
+			</div>
+		</div>`;
+	},
+
+	// "Images" tab
+	_getCfgImages() {
+		return `<div id="de-cfg-images" class="de-cfg-unvis">
+			${ this._getSel('expandImgs') }<br>
+			<div class="de-cfg-depend">
+				${ this._getBox('imgNavBtns') }<br>
+				${ this._getBox('resizeImgs') }<br>
+				${ Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '' }
+				${ this._getInp('minImgSize') + Lng.cfg.minImgSize[lang] }<br>
+				${ this._getInp('zoomFactor') + Lng.cfg.zoomFactor[lang] }<br>
+				${ this._getBox('webmControl') }<br>
+				${ this._getBox('webmTitles') }<br>
+				${ nav.canPlayWebm ? this._getInp('webmVolume') + Lng.cfg.webmVolume[lang] : '' }
+			</div>
+			${ !nav.Presto ? this._getBox('preLoadImgs') + '<br>' : '' }
+			${ !nav.Presto && !aib.fch ?
+				`<div class="de-cfg-depend">${ this._getBox('findImgFile') }</div>` : '' }
+			${ this._getSel('openImgs') }<br>
+			${ this._getBox('imgSrcBtns') }<br>
+			${ this._getBox('delImgNames') }<br>
+			${ this._getInp('maskVisib') + Lng.cfg.maskVisib[lang] }
+		</div>`;
+	},
+
+	// "Links" tab
+	_getCfgLinks() {
+		return `<div id="de-cfg-links" class="de-cfg-unvis">
+			${ this._getSel('linksNavig') }
+			<div class="de-cfg-depend">
+				${ this._getInp('linksOver') + Lng.cfg.linksOver[lang] }
+				${ this._getInp('linksOut') + Lng.cfg.linksOut[lang] }<br>
+				${ this._getBox('markViewed') }<br>
+				${ this._getBox('strikeHidd') }
+				<div class="de-cfg-depend">${ this._getBox('removeHidd') }</div>
+				${ this._getBox('noNavigHidd') }
+			</div>
+			${ aib.jsonSubmit || aib.fch ? this._getBox('markMyLinks') + '<br>' : '' }
+			${ this._getBox('crossLinks') }<br>
+			${ this._getBox('insertNum') }<br>
+			${ this._getBox('addOPLink') }<br>
+			${ this._getBox('addImgs') }<br>
+			<div>
+				${ this._getBox('addMP3') }
+				${ aib.prot === 'http:' ? this._getBox('addVocaroo') : '' }
+			</div>
+			${ this._getSel('addYouTube') }
+			<div class="de-cfg-depend">
+				${ this._getSel('YTubeType') }
+				${ this._getInp('YTubeWidth') }\u00D7
+				${ this._getInp('YTubeHeigh') }(px)<br>
+				${ this._getBox('YTubeTitles') }<br>
+				${ this._getInp('ytApiKey', 25) + Lng.cfg.ytApiKey[lang] }<br>
+				${ this._getBox('addVimeo') }
+			</div>
+		</div>`;
+	},
+
+	// "Form" tab
+	_getCfgForm() {
+		return `<div id="de-cfg-form" class="de-cfg-unvis">
+			${ this._getSel('ajaxReply') }<br>
+			${ pr.form ? `<div class="de-cfg-depend">
+				${ this._getBox('postSameImg') }<br>
+				${ this._getBox('removeEXIF') }
+				${ this._getBox('removeFName') }<br>
+				${ this._getBox('sendErrNotif') }<br>
+				${ this._getBox('scrAfterRep') }
+			</div>` : '' }
+			${ pr.form ? this._getSel('addPostForm') + '<br>' : '' }
+			${ pr.txta ? this._getBox('spacedQuote') + '<br>' : '' }
+			${ this._getBox('favOnReply') }<br>
+			${ pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
+			${ pr.files && !nav.Presto ? this._getBox('fileThumb') + '<br>' : '' }
+			${ pr.mail ?
+				this._getBox('addSageBtn') +
+				this._getBox('saveSage') + '<br>' : '' }
+			${ pr.cap ?
+				this._getInp('capUpdTime') + Lng.cfg.capUpdTime[lang] + '<br>' +
+				this._getSel('captchaLang') + '<br>' : '' }
+			${ pr.txta ?
+				this._getSel('addTextBtns') +
+				this._getBox('txtBtnsLoc') + '<br>' : '' }
+			${ pr.passw ?
+				this._getInp('passwValue', 9) + Lng.cfg.userPassw[lang] +
+				`<input type="button" id="de-cfg-btn-pass" class="de-cfg-button" value="${
+						Lng.change[lang] }"><br>` : '' }
+			${ pr.name ?
+				this._getInp('nameValue', 9) + ' ' +
+				this._getBox('userName') + '<br>' : '' }
+			${ pr.rules || pr.passw || pr.name ? Lng.dontShow[lang] +
+				(pr.rules ? this._getBox('noBoardRule') : '') +
+				(pr.passw ? this._getBox('noPassword') : '') +
+				(pr.name ? this._getBox('noName') : '') +
+				(pr.subj ? this._getBox('noSubj') : '') : '' }
+		</div>`;
+	},
+
+	// "Common" tab
+	_getCfgCommon() {
+		return `<div id="de-cfg-common" class="de-cfg-unvis">
+			${ this._getSel('scriptStyle') }<br>
+			${ this._getBox('userCSS') }
+			<a href="${ gitWiki }css-tricks" class="de-abtn" target="_blank">[?]</a><br>
+			${ this._getBox('panelCounter') }<br>
+			${ this._getBox('rePageTitle') }<br>
+			${ this._getBox('animation') }<br>
+			${ this._getBox('closePopups') }<br>
+			${ this._getBox('inftyScroll') }<br>
+			${ this._getBox('scrollToTop') }<br>
+			${ this._getBox('hotKeys') }
+			<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
+			<div class="de-cfg-depend">
+				${ this._getInp('loadPages') + Lng.cfg.loadPages[lang] }
+			</div>
+			${ !nav.isChromeStorage && !nav.Presto || nav.isGM ?
+				this._getBox('updScript') +
+				`<div class="de-cfg-depend">
+					${ this._getSel('scrUpdIntrv') }
+					<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="${
+							Lng.checkNow[lang] }">
+				</div>` : '' }
+			${ nav.isGlobal ?
+				Lng.cfg['excludeList'][lang] +
+				`<input type="text" info="excludeList" class="de-cfg-inptxt" value="${ excludeList
+					}" style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, ...">` +
+				this._getBox('turnOff') : '' }
+		</div>`;
+	},
+
+	// "Info" tab
+	_getCfgInfo() {
+		return `<div id="de-cfg-info" class="de-cfg-unvis">
+			<div style="padding-bottom: 10px;">
+				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit +
+					(nav.isES6 ? '.es6' : '')}</a>&nbsp;|&nbsp;
+				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;
+				<a href="${ gitWiki + (lang ? 'home-en/' : '') }" target="_blank">Github</a>
+			</div>
+			<div id="de-info-table">
+				<div id="de-info-stats">${ this.getInfoTable([
+					[Lng.thrViewed[lang], Cfg.stats.view],
+					[Lng.thrCreated[lang], Cfg.stats.op],
+					[Lng.thrHidden[lang], HiddenThreads.getCount()],
+					[Lng.postsSent[lang], Cfg.stats.reply]
+				], false) }</div>
+				<div id="de-info-log">${ this.getInfoTable(Logger.getData(false), true) }</div>
+			</div>
+			<input type="button" id="de-cfg-btn-debug" value="${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
+		</div>`;
+	},
+
+	// Creates a label with checkbox for option switching
+	_getBox(id) {
+		return `<label class="de-cfg-label">
+			<input class="de-cfg-chkbox" info="${ id }" type="checkbox"> ${ Lng.cfg[id][lang] }
+		</label>`;
+	},
+
+	// Creates a text input for text option values
+	_getInp(id, size = 2) {
+		return `<input class="de-cfg-inptxt" info="${ id
+			}" type="text" size="${ size }" value="${ Cfg[id] }">`;
+	},
+
+	// Creates a select for multiple option values
+	_getSel(id, isBlock, Fn, className = '') {
+		const x = Lng.cfg[id];
+		let opt = '';
+		for(let i = 0, len = x.sel[lang].length; i < len; ++i) {
+			opt += '<option value="' + i + '">' + x.sel[lang][i] + '</option>';
+		}
+		return `<label class="${ className } de-cfg-label">
+			<select class="de-cfg-select" info="${ id }">${ opt }</select> ${ x.txt[lang] }
+		</label>`;
+	},
+
+	// Creates a table for Info tab
+	getInfoTable(data, needMs) {
+		return data.map(data => `<div class="de-info-row">
 			<span class="de-info-name">${ data[0] }</span>
 			<span>${ data[1] + (needMs ? 'ms' : '') }</span>
-		</div>`
-	).join('');
-	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-info'}, [$add(`
-		<div style="padding-bottom: 10px;">
-			<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit + (nav.isES6 ? '.es6' : '')}</a>
-			&nbsp;|&nbsp;
-			<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>
-			&nbsp;|&nbsp;
-			<a href="${ gitWiki + (lang ? 'home-en/' : '') }" target="_blank">Github</a>
-		</div>`), $add(`
-		<div id="de-info-table">
-			<div id="de-info-stats">${ getInfoTable([
-				[Lng.thrViewed[lang], Cfg.stats.view],
-				[Lng.thrCreated[lang], Cfg.stats.op],
-				[Lng.thrHidden[lang], HiddenThreads.getCount()],
-				[Lng.postsSent[lang], Cfg.stats.reply]
-			], false) }</div>
-			<div id="de-info-log">${ getInfoTable(Logger.getData(false), true) }</div>
-		</div>`),
-		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
-			$popup(Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>',
-			       'cfg-debug', false).firstElementChild.value = JSON.stringify(
-			{
-				'version': version,
-				'location': String(window.location),
-				'nav': nav,
-				'cfg': Cfg,
-				'sSpells': Spells.list.split('\n'),
-				'oSpells': sesStorage['de-spells-' + aib.b + (aib.t || '')],
-				'perf': Logger.getData(true)
-			}, function(key, value) {
-				switch(key) {
-				case 'stats':
-				case 'nameValue':
-				case 'passwValue':
-				case 'ytApiKey':
-					return void 0;
-				}
-				return key in defaultCfg && value === defaultCfg[key] ? void 0 : value;
-			}, '\t');
-		})
-	]);
-}
+		</div>`).join('');
+	},
 
-// Adds button that calls a popup with the text editor. Useful to edit settings.
-function addEditButton(name, getDataFn, className = 'de-button') {
-	return $btn(Lng.edit[lang], Lng.editInTxt[lang], () => getDataFn(function(val, isJSON, saveFn) {
-		// Create popup window with textarea.
-		const el = $popup('<b>' + Lng.editor[name][lang] + '</b><textarea class="de-editor"></textarea>',
-		                  'edit-' + name, false);
-		const ta = el.lastChild;
-		ta.value = isJSON ? JSON.stringify(val, null, '\t') : val;
-		// "Save" button. If there a JSON data, parses and saves on success.
-		el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], !isJSON ? saveFn : () => {
-			let data;
-			try {
-				data = JSON.parse(ta.value.trim().replace(/[\n\r\t]/g, '') || '{}');
-			} finally {
-				if(!data) {
-					$popup(Lng.invalidData[lang], 'err-invaliddata', false);
-					return;
-				}
-				saveFn(data);
-				closePopup('edit-' + name);
-				closePopup('err-invaliddata');
+	// Creates a menu with a list of checkboxes. Uses for popup window.
+	_getList(a) {
+		return $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
+	},
+
+	// Creates a tab for tab bar
+	_getTab(name) {
+		return $new('div', {
+			'class': aib.cReply + ' de-cfg-tab',
+			'text': Lng.cfgTab[name][lang],
+			'info': name
+		}, { 'click': e => {
+			// Places content in Settings by clicking on tab
+			const el = e.target;
+			if(el.hasAttribute('selected')) {
+				return;
 			}
-		}));
-	}), className);
-}
+			const prefTab = $q('.de-cfg-body');
+			if(prefTab) {
+				prefTab.className = 'de-cfg-unvis';
+				$q('.de-cfg-tab[selected]').removeAttribute('selected');
+			}
+			el.setAttribute('selected', '');
+			const id = el.getAttribute('info');
+			let newTab = $id('de-cfg-' + id);
+			if(!newTab) {
+				newTab = $aEnd($id('de-cfg-bar'),
+					id === 'filters' ? this._getCfgFilters() :
+					id === 'posts' ? this._getCfgPosts() :
+					id === 'images' ? this._getCfgImages() :
+					id === 'links' ? this._getCfgLinks() :
+					id === 'form' ? this._getCfgForm() :
+					id === 'common' ? this._getCfgCommon() :
+					this._getCfgInfo());
+				if(id === 'filters') {
+					this._updateRowMeter($id('de-spell-txt'));
+				}
+				if(id === 'common') {
+					// XXX: remove and make insertion in this._getCfgCommon()
+					$after($q('input[info="userCSS"]').parentNode, getEditButton('css', fn =>
+						fn(Cfg.userCSSTxt, false, function() {
+							saveCfg('userCSSTxt', this.value);
+							updateCSS();
+							toggleWindow('cfg', true);
+						}
+					), 'de-cfg-button'));
+				}
+			}
+			newTab.className = 'de-cfg-body';
+			if(id === 'filters') {
+				$id('de-spell-txt').value = Spells.list;
+			}
+			this._updateDependant();
+			this._updateOptions();
+		} });
+	},
 
-function cfgTabClick(e) {
-	var el = e.target;
-	if(el.hasAttribute('selected')) {
-		return;
-	}
-	var prefTab = $q('.de-cfg-body');
-	if(prefTab) {
-		prefTab.className = 'de-cfg-unvis';
-		$q('.de-cfg-tab[selected]').removeAttribute('selected');
-	}
-	el.setAttribute('selected', '');
-	var id = el.getAttribute('info'),
-		newTab = $id('de-cfg-' + id);
-	if(!newTab) {
-		$after($id('de-cfg-bar'), newTab =
-			id === 'filters' ? getCfgFilters() :
-			id === 'posts' ? getCfgPosts() :
-			id === 'images' ? getCfgImages() :
-			id === 'links' ? getCfgLinks() :
-			id === 'form' ? getCfgForm() :
-			id === 'common' ? getCfgCommon() :
-			getCfgInfo());
-		if(id === 'filters') {
-			updRowMeter($id('de-spell-txt'));
+	// Switching dependent checkboxes according to their parents
+	_toggleBox(state, arr) {
+		let i = arr.length;
+		const nState = !state;
+		while(i--) {
+			($q(arr[i]) || {}).disabled = nState;
 		}
-	}
-	newTab.className = 'de-cfg-body';
-	if(id === 'filters') {
-		$id('de-spell-txt').value = Spells.list;
-	}
-	fixSettings();
-}
+	},
+	_updateDependant() {
+		this._toggleBox(Cfg.ajaxUpdThr, [
+			'input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]',
+			'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]']);
+		this._toggleBox(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
+		this._toggleBox(Cfg.expandImgs, [
+			'input[info="imgNavBtns"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]',
+			'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]',
+			'input[info="webmTitles"]', 'input[info="webmVolume"]']);
+		this._toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
+		this._toggleBox(Cfg.linksNavig, [
+			'input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]',
+			'input[info="strikeHidd"]', 'input[info="noNavigHidd"]']);
+		this._toggleBox(Cfg.strikeHidd && Cfg.linksNavig === 2, ['input[info="removeHidd"]']);
+		this._toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, [
+			'select[info="YTubeType"]', 'input[info="addVimeo"]']);
+		this._toggleBox(Cfg.addYouTube, [
+			'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]',
+			'input[info="ytApiKey"]']);
+		this._toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
+		this._toggleBox(Cfg.ajaxReply, ['input[info="sendErrNotif"]', 'input[info="scrAfterRep"]']);
+		this._toggleBox(Cfg.ajaxReply === 2, [
+			'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]']);
+		this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
+		this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
+		this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
+	},
 
-// Generate content for settings window
-function addSettings(body, id) {
-	const getList = a => $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
-	const cfgTab = name => $new('div', {
-		'class': aib.cReply + ' de-cfg-tab',
-		'text': Lng.cfgTab[name][lang],
-		'info': name}, {
-		'click': cfgTabClick
-	});
-	body.appendChild($New('div', {'id': 'de-cfg-bar'}, [
-		cfgTab('filters'),
-		cfgTab('posts'),
-		cfgTab('images'),
-		cfgTab('links'),
-		$if(pr.form || pr.oeForm, cfgTab('form')),
-		cfgTab('common'),
-		cfgTab('info')
-	]));
-	body.appendChild($New('div', {'id': 'de-cfg-buttons'}, [
-		// Language selector
-		optSel('language', false, function() {
-			saveCfg('language', lang = this.selectedIndex);
-			panel.remove();
-			$del($id('de-css'));
-			$del($id('de-css-dynamic'));
-			$del($id('de-css-user'));
-			scriptCSS();
-			panel.init(DelForm.first.el);
-			toggleWindow('cfg', false);
-		}, 'de-cfg-lang-select'),
-
-		// "Edit" button. Calls a popup with editor to edit Settings in JSON.
-		addEditButton('cfg', fn => fn(Cfg, true, data => {
-			saveComCfg(aib.dm, data);
-			window.location.reload();
-		})),
-
-		// "Global" button. Allows to save and load global settings.
-		$if(nav.isGlobal, $btn(Lng.global[lang], Lng.globalCfg[lang], function() {
-			const el = $popup('<b>' + Lng.globalCfg[lang] + ':</b>', 'cfg-global', false);
-			// "Load" button. Applies global settings for current domain.
-			el.appendChild($New('div', {'class': 'de-list'}, [
-				$btn(Lng.load[lang], '', () => spawn(getStoredObj, 'DESU_Config').then(data => {
-					if(data && ('global' in data) && !$isEmpty(data.global)) {
-						saveComCfg(aib.dm, data.global);
-						window.location.reload();
-					} else {
-						$popup(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
-					}
-				})),
-				$txt(Lng.loadGlobal[lang])
-			]));
-			// "Save" button. Copies the domain settings into global.
-			el.appendChild($New('div', {'class': 'de-list'}, [
-				$btn(Lng.save[lang], '', () => spawn(getStoredObj, 'DESU_Config').then(data => {
-					const obj = {};
-					const com = data[aib.dm];
-					for(let i in com) {
-						if(i !== 'correctTime' && i !== 'timePattern' &&
-						   i !== 'userCSS' && i !== 'userCSSTxt' &&
-						   com[i] !== defaultCfg[i] && i !== 'stats')
-						{
-							obj[i] = com[i];
-						}
-					}
-					data.global = obj;
-					saveComCfg('global', data.global);
-					toggleWindow('cfg', true);
-				})),
-				$txt(Lng.saveGlobal[lang])
-			]));
-			el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
-		})),
-
-		// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
-		$if(!nav.Presto, $btn(Lng.file[lang], Lng.fileImpExp[lang], function() {
-			// Create popup with controls
-			$popup('<b>' + Lng.cfgImpExp[lang] + ':</b><hr>' +
-				'<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' +
-					'<input type="file" accept=".json" id="de-import-file"></div></div><hr>' +
-				'<div class="de-list"><a id="de-export-file" href="#">' +
-					Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + getList([
-					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
-					Lng.panelBtn.fav[lang],
-					Lng.hidPstThrds[lang] + ' (' + aib.dm + ')',
-					Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>',
-				'cfg-file', false);
-
-			// Import data from a file to the storage
-			$id('de-import-file').onchange = function({ target: { files: [file] } }) {
-				if(!file) {
-					return;
+	// Updates all inputs according to config
+	_updateOptions(tab) {
+		const els = $Q('.de-cfg-chkbox, .de-cfg-inptxt, .de-cfg-select', tab);
+		for(let i = 0, len = els.length; i < len; ++i) {
+			const el = els[i];
+			const info = el.getAttribute('info');
+			if(el.tagName === 'INPUT') {
+				if(el.type === 'checkbox') {
+					el.checked = !!Cfg[info];
+				} else {
+					el.value = Cfg[info];
 				}
-				readFile(file, true).then(({ data }) => {
-					let obj;
-					try {
-						obj = JSON.parse(data);
-					} catch(e) {
-						$popup(Lng.invalidData[lang], 'err-invaliddata', false);
-						return;
-					}
-					const cfgObj = obj.settings;
-					const favObj = obj.favorites;
-					const dmObj = obj[aib.dm];
-					const isOldCfg = !cfgObj && !favObj && !dmObj;
-					if(isOldCfg) {
-						setStored('DESU_Config', data);
-					}
-					if(cfgObj) {
-						try {
-							setStored('DESU_Config', JSON.stringify(cfgObj));
-							setStored('DESU_keys', JSON.stringify(obj.hotkeys));
-							setStored('DESU_Exclude', JSON.stringify(obj.exclude));
-						} catch(e) {}
-					}
-					if(favObj) {
-						saveFavorites(favObj);
-					}
-					if(dmObj) {
-						if(dmObj.posts) {
-							locStorage['de-posts'] = JSON.stringify(dmObj.posts);
-						}
-						if(dmObj.threads) {
-							locStorage['de-threads'] = JSON.stringify(dmObj.threads);
-						}
-						if(dmObj.myposts) {
-							locStorage['de-myposts'] = JSON.stringify(dmObj.myposts);
-						}
-					}
-					if(cfgObj || dmObj || isOldCfg) {
-						$popup(Lng.updating[lang], 'cfg-file', true);
-						window.location.reload();
-						return;
-					}
-					closePopup('cfg-file');
-				});
+			} else {
+				el.selectedIndex = Cfg[info];
 			}
+		}
+	},
 
-			// Export data from a storage to the file. The file will be named by date and type of storage.
-			// For example, like "DE_20160727_1540_Cfg+Fav+domain.com(Hid+You).json".
-			const expFile = $id('de-export-file');
-			const els = $Q('input', expFile.nextElementSibling);
-			els[0].checked = true;
-			expFile.addEventListener('click', async(function* (e) {
-				const name = [], nameDm = [], d = new Date();
-				let val = [], valDm = [];
-				for(let i = 0, len = els.length; i < len; ++i) {
-					if(!els[i].checked) {
-						continue;
-					}
-					switch(i) {
-					case 0: name.push('Cfg');
-						val.push('"settings":' + (yield* getStored('DESU_Config')));
-						val.push('"hotkeys":' + ((yield* getStored('DESU_keys')) || '""'));
-						val.push('"exclude":' + ((yield* getStored('DESU_Exclude')) || '""'));
-						break;
-					case 1: name.push('Fav');
-						val.push('"favorites":' + ((yield* getStored('DESU_Favorites')) || '{}'));
-						break;
-					case 2: nameDm.push('Hid');
-						valDm.push('"posts":' + (locStorage['de-posts'] || '{}'));
-						valDm.push('"threads":' + (locStorage['de-threads'] || '{}'));
-						break;
-					case 3: nameDm.push('You');
-						valDm.push('"myposts":' + (locStorage['de-myposts'] || '{}'));
-					}
-				}
-				if((valDm = valDm.join(','))) {
-					val.push('"' + aib.dm + '":{' + valDm + '}');
-					name.push(aib.dm + '(' + nameDm.join('+') + ')');
-				}
-				if((val = val.join(','))) {
-					downloadBlob(new Blob(['{' + val + '}'], { type: 'application/json' }),
-						'DE_' + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + '_' +
-						pad2(d.getHours()) + pad2(d.getMinutes()) + '_' + name.join('+') + '.json');
-				}
-				$pd(e);
-			}), true);
-		})),
-
-		// "Clear" button. Allows to clear settings/favorites/hidden/etc optionally.
-		$btn(Lng.reset[lang] + '...', Lng.resetCfg[lang], function() {
-			$popup(
-				'<b>' + Lng.resetData[lang] + ':</b><hr>' +
-				'<div class="de-list"><b>' + aib.dm + ':</b>' +
-					getList([Lng.panelBtn.cfg[lang], Lng.hidPstThrds[lang], Lng.myPosts[lang]]) +
-				'</div><hr>' +
-				'<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' +
-					getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div><hr>',
-				'cfg-reset', false
-			).appendChild($btn(Lng.clear[lang], '', function() {
-				const els = $Q('input[type="checkbox"]', this.parentNode);
-				for(let i = 1, len = els.length; i < len; ++i) {
-					if(!els[i].checked) {
-						continue;
-					}
-					switch(i) {
-					case 1:
-						locStorage.removeItem('de-posts');
-						locStorage.removeItem('de-threads');
-						break;
-					case 2: locStorage.removeItem('de-myposts'); break;
-					case 4: delStored('DESU_Favorites');
-					}
-				}
-				if(els[3].checked) {
-					delStored('DESU_Config');
-					delStored('DESU_keys');
-					delStored('DESU_Exclude');
-				} else if(els[0].checked) {
-					spawn(getStoredObj, 'DESU_Config').then(data => {
-						delete data[aib.dm];
-						setStored('DESU_Config', JSON.stringify(data));
-						$popup(Lng.updating[lang], 'cfg-reset', true);
-						window.location.reload();
-					});
-					return;
-				}
-				$popup(Lng.updating[lang], 'cfg-reset', true);
-				window.location.reload();
-			}));
-		})
-	]));
-	$q('.de-cfg-tab[info="' + (id || 'filters') + '"]', body).click();
-}
+	// Updates row counter in spells editor
+	_updateRowMeter(node) {
+		const top = node.scrollTop;
+		const el = node.previousElementSibling;
+		let num = el.numLines || 1;
+		let i = 17;
+		if(num - i < ((top / 12) | 0 + 1)) {
+			var str = '';
+			while(i--) {
+				str += num++ + '<br>';
+			}
+			el.insertAdjacentHTML('beforeend', str);
+			el.numLines = num;
+		}
+		el.scrollTop = top;
+	}
+});
 
 
 // MENU & POPUP
@@ -3867,6 +3877,32 @@ function $popup(txt, id, wait) {
 		el.closeTimeout = setTimeout(closePopup, 4e3, el);
 	}
 	return el.lastElementChild;
+}
+
+// Adds button that calls a popup with the text editor. Useful to edit settings.
+function getEditButton(name, getDataFn, className = 'de-button') {
+	return $btn(Lng.edit[lang], Lng.editInTxt[lang], () => getDataFn(function(val, isJSON, saveFn) {
+		// Create popup window with textarea.
+		const el = $popup('<b>' + Lng.editor[name][lang] + '</b><textarea class="de-editor"></textarea>',
+		                  'edit-' + name, false);
+		const ta = el.lastChild;
+		ta.value = isJSON ? JSON.stringify(val, null, '\t') : val;
+		// "Save" button. If there a JSON data, parses and saves on success.
+		el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], !isJSON ? saveFn.bind(ta) : () => {
+			let data;
+			try {
+				data = JSON.parse(ta.value.trim().replace(/[\n\r\t]/g, '') || '{}');
+			} finally {
+				if(!data) {
+					$popup(Lng.invalidData[lang], 'err-invaliddata', false);
+					return;
+				}
+				saveFn(data);
+				closePopup('edit-' + name);
+				closePopup('err-invaliddata');
+			}
+		}));
+	}), className);
 }
 
 function Menu(parentEl, html, clickFn, isFixed = true) {
@@ -3954,7 +3990,7 @@ Menu.prototype = {
 function addMenu(el) {
 	var fn = a => $join(a, '<span class="de-menu-item">', '</span>');
 	switch(el.id) {
-	case 'de-btn-addspell':
+	case 'de-btn-spell-add':
 		return new Menu(el, '<div style="display: inline-block; border-right: 1px solid grey;">' +
 			fn(('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage').split(',')) +
 			'</div><div style="display: inline-block;">' +
@@ -15010,17 +15046,17 @@ function scriptCSS() {
 
 	// Settings window
 	'.de-block { display: block; }\
-	#de-btn-addspell { margin-left: auto; }\
+	#de-btn-spell-add { margin-left: auto; }\
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }\
 	.de-cfg-body { min-height: 325px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\
 	.de-cfg-button { padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\
 	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\
+	#de-cfg-buttons > label { flex: 1 0 auto; }\
 	.de-cfg-chkbox { ' + (nav.Presto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\
 	.de-cfg-depend { padding-left: 17px; }\
 	.de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }\
 	.de-cfg-label { padding: 0; margin: 0; }\
-	.de-cfg-lang-select { flex: 1 0 auto; }\
 	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; }\
 	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
 	.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
