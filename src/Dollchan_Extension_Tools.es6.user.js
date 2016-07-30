@@ -702,44 +702,32 @@ function $add(html) {
 	return dummy.firstElementChild;
 }
 
-function $new(tag, attr, events) {
-	const el = doc.createElement(tag);
-	if(attr) {
-		for(let key in attr) {
-			if(key === 'text') {
-				el.textContent = attr[key];
-			} else if(key === 'value') {
-				el.value = attr[key];
-			} else if(attr.hasOwnProperty(key)) {
-				el.setAttribute(key, attr[key]);
-			}
-		}
-	}
-	if(events) {
-		for(let key in events) {
-			if(events.hasOwnProperty(key)) {
-				el.addEventListener(key, events[key]);
-			}
-		}
-	}
+const $txt = el => doc.createTextNode(el);
+
+// TODO: Get rid of this function and paste buttons in html
+function $btn(val, ttl, fn, className = 'de-button') {
+	const el = doc.createElement('input');
+	el.type = 'button';
+	el.className = className;
+	el.value = val;
+	el.title = ttl;
+	el.addEventListener('click', fn);
 	return el;
 }
 
-const $txt = el => doc.createTextNode(el);
-
-function $btn(val, ttl, Fn, className = 'de-button') {
-	return $new('input', {'type': 'button', 'class': className, 'value': val, 'title': ttl}, {'click': Fn});
-}
-
 function $script(text) {
-	$del(doc.head.appendChild($new('script', {'type': 'text/javascript', 'text': text}, null)));
+	// We can't insert scripts directly as html
+	const el = doc.createElement('script');
+	el.type = 'text/javascript';
+	el.textContent = text;
+	$del(doc.head.appendChild(el));
 }
 
 function $css(text) {
 	if(nav.Safari && !('flex' in docBody.style)) {
 		text = text.replace(/( flex|inline-flex|align-items)/g, ' -webkit-$1');
 	}
-	return doc.head.appendChild($new('style', {'type': 'text/css', 'text': text}, null));
+	return $bEnd(doc.head, `<style type="text/css">${ text }</style>`);
 }
 
 function $DOM(html) {
@@ -2397,31 +2385,35 @@ function showWindow(win, body, name, remove, data, isAnim) {
 	}
 }
 
+// VIDEOS WINDOW
 function showVideosWindow(body) {
-	var els = $Q('.de-video-link');
+	const els = $Q('.de-video-link');
 	if(!els.length) {
 		body.innerHTML = '<b>' + Lng.noVideoLinks[lang] + '</b>';
 		return;
 	}
 	if(!$id('de-ytube-api')) {
-		doc.head.appendChild($new('script', {
-			'id': 'de-ytube-api',
-			'type': 'text/javascript',
-			'src': aib.prot + '//www.youtube.com/player_api'
-		}, null));
+		// YouTube APT script. We can't insert scripts directly as html.
+		const script = doc.createElement('script');
+		script.type = 'text/javascript';
+		script.src = aib.prot + '//www.youtube.com/player_api';
+		doc.head.appendChild(script).id = 'de-ytube-api';
 	}
-	body.innerHTML = `
-	<div de-disableautoplay class="de-video-obj"></div>
+	body.innerHTML = `<div de-disableautoplay class="de-video-obj"></div>
 	<div id="de-video-buttons">
 		<a class="de-abtn" id="de-video-btn-prev" href="#" title="${ Lng.prevVideo[lang] }">&#x25C0;</a>
 		<a class="de-abtn" id="de-video-btn-resize" href="#" title="${ Lng.expandVideo[lang] }"></a>
 		<a class="de-abtn" id="de-video-btn-next" href="#" title="${ Lng.nextVideo[lang] }">&#x25B6;</a>
 		<a class="de-abtn" id="de-video-btn-hide" href="#" title="${ Lng.hideLnkList[lang] }">&#x25B2;</a>
 	</div>`;
-	var linkList = $new('div', {'id': 'de-video-list', 'style':
-		'max-width: ' + (+Cfg.YTubeWidth + 40) +'px; ' +
-		'max-height: ' + (doc.documentElement.clientHeight * .92 - +Cfg.YTubeHeigh - 82) + 'px;'});
-	body.appendChild($new('script', {'type': 'text/javascript', 'text': `(function() {
+	const linkList = $add(`<div id="de-video-list" style="max-width: ${ +Cfg.YTubeWidth + 40
+		}px; max-height: ${ doc.documentElement.clientHeight * 0.92 - +Cfg.YTubeHeigh - 82 }px;"></div>`);
+
+	// A script to detect the end of current video playback, and auto play next. Uses YouTube API.
+	// The first video should not start automatically!
+	const script = doc.createElement('script');
+	script.type = 'text/javascript';
+	script.textContent = `(function() {
 		if('YT' in window && 'Player' in window.YT) {
 			onYouTubePlayerAPIReady();
 		} else {
@@ -2453,7 +2445,10 @@ function showVideosWindow(body) {
 		function gotoNextVideo() {
 			document.getElementById("de-video-btn-next").click();
 		}
-	})();` }));
+	})();`;
+	body.appendChild(script);
+
+	// Events for control buttons
 	body.addEventListener('click', {
 		linkList: linkList,
 		listHidden: false,
@@ -2461,11 +2456,11 @@ function showVideosWindow(body) {
 		playerInfo: null,
 		currentLink: null,
 		handleEvent(e) {
-			var el = e.target;
+			const el = e.target;
 			if(el.classList.contains('de-abtn')) {
-				var node;
+				let node;
 				switch(e.target.id) {
-				case 'de-video-btn-hide':
+				case 'de-video-btn-hide': // Fold/unfold list of links
 					if((this.listHidden = !this.listHidden)) {
 						$hide(this.linkList);
 						e.target.textContent = '\u25BC';
@@ -2474,48 +2469,51 @@ function showVideosWindow(body) {
 						e.target.textContent = '\u25B2';
 					}
 					break;
-				case 'de-video-btn-prev':
+				case 'de-video-btn-prev': // Play previous video
 					node = this.currentLink.parentNode;
 					node = node.previousElementSibling || node.parentNode.lastElementChild;
 					node.lastElementChild.click();
 					break;
-				case 'de-video-btn-next':
+				case 'de-video-btn-next': // Play next video
 					node = this.currentLink.parentNode;
 					node = node.nextElementSibling || node.parentNode.firstElementChild;
 					node.lastElementChild.click();
 					break;
-				case 'de-video-btn-resize':
-					var exp = this.player.className === 'de-video-obj';
+				case 'de-video-btn-resize': // Expand/collapse video player
+					const exp = this.player.className === 'de-video-obj';
 					this.player.className = exp ? 'de-video-obj de-video-expanded' : 'de-video-obj';
 					this.linkList.style.maxWidth = (exp ? 894 : +Cfg.YTubeWidth + 40) + 'px';
-					this.linkList.style.maxHeight = (doc.documentElement.clientHeight * .92 -
+					this.linkList.style.maxHeight = (doc.documentElement.clientHeight * 0.92 -
 						(exp ? 562 : +Cfg.YTubeHeigh + 82)) + 'px';
 				}
 				$pd(e);
 				return;
-			} else if(!el.classList.contains('de-video-link')) {
+			} else if(!el.classList.contains('de-video-link')) { // Clicking on ">" before link
+				// Go to post that contains this link
 				pByNum.get(+e.target.getAttribute('de-num')).selectAndScrollTo();
 				return;
 			}
-			var m = el.videoInfo;
-			if(this.playerInfo !== m) {
+			const info = el.videoInfo;
+			if(this.playerInfo !== info) { // Prevents same link clicking
+				// Mark new link as a current and add player for it
 				if(this.currentLink) {
 					this.currentLink.classList.remove('de-current');
 				}
 				this.currentLink = el;
 				el.classList.add('de-current');
-				this.playerInfo = m;
-				Videos.addPlayer(this.player, m, el.classList.contains('de-ytube'), true);
+				this.playerInfo = info;
+				Videos.addPlayer(this.player, info, el.classList.contains('de-ytube'), true);
 			}
 			$pd(e);
 		}
 	}, true);
-	for(var i = 0, len = els.length; i < len; ++i) {
-		var el = els[i].cloneNode(true),
-			num = aib.getPostOfEl(els[i]).num;
+
+	// Copy all video links into videos list
+	for(let i = 0, len = els.length; i < len; ++i) {
+		const el = els[i].cloneNode(true);
+		const num = aib.getPostOfEl(els[i]).num;
 		el.videoInfo = els[i].videoInfo;
-		$bEnd(linkList, `
-		<div class="de-entry ${ aib.cReply }">
+		$bEnd(linkList, `<div class="de-entry ${ aib.cReply }">
 			<a class="de-video-refpost" title=">>${ num }" de-num="${ num }">&gt;</a>
 		</div>`).appendChild(el).classList.remove('de-current');
 		el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
@@ -5444,39 +5442,39 @@ VideosParser.prototype = {
 	}
 };
 
+// Embed .mp3 and Vocaroo links
 function embedMediaLinks(data) {
-	var isPost = data instanceof AbstractPost;
+	const isPost = data instanceof AbstractPost;
 	if(Cfg.addMP3) {
-		var els = $Q('a[href*=".mp3"]', isPost ? data.el : data);
-		for(var i = 0, len = els.length; i < len; ++i) {
-			var link = els[i];
-			if((link.target !== '_blank' && link.rel !== 'nofollow') ||
-			   !link.pathname.includes('.mp3'))
-			{
+		const els = $Q('a[href*=".mp3"]', isPost ? data.el : data);
+		for(let i = 0, len = els.length; i < len; ++i) {
+			const link = els[i];
+			if((link.target !== '_blank' && link.rel !== 'nofollow') || !link.pathname.includes('.mp3')) {
 				continue;
 			}
-			var src = link.href,
-				el = (isPost ? data : aib.getPostOfEl(link)).mp3Obj;
+			const src = link.href;
+			const el = (isPost ? data : aib.getPostOfEl(link)).mp3Obj;
 			if(nav.canPlayMP3) {
-				if(!$q('audio[src="' + src + '"]', el)) {
+				if(!$q(`audio[src="${ src }"]`, el)) {
 					el.insertAdjacentHTML('beforeend',
-						'<p><audio src="' + src + '" preload="none" controls></audio></p>');
+						`<p><audio src="${ src }" preload="none" controls></audio></p>`);
 				}
+			// Flash plugin for old browsers that not support HTML5 audio
 			} else if(!$q('object[FlashVars*="' + src + '"]', el)) {
-				el.insertAdjacentHTML('beforeend', '<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '"><br>');
+				el.insertAdjacentHTML('beforeend', `<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=${ src }"><br>`);
 			}
 		}
 	}
 	if(Cfg.addVocaroo) {
-		var els = $Q('a[href*="vocaroo.com"]', isPost ? data.el : data);
-		for(var i = 0, len = els.length; i < len; ++i) {
-			var link = els[i],
-				src = link.href.split('\/').pop(),
-				el = link.previousSibling;
-			if(!el || el.className !== 'de-vocaroo') {
-				link.insertAdjacentHTML('beforebegin', '<div class="de-vocaroo"><embed' +
-					' width="148" height="44" wmode="transparent" type="application/x-shockwave-flash"' +
-					' src="http://vocaroo.com/player.swf?playMediaID=' + src + '"></div>');
+		const els = $Q('a[href*="vocaroo.com"]', isPost ? data.el : data);
+		for(let i = 0, len = els.length; i < len; ++i) {
+			const link = els[i];
+			const el = link.previousSibling;
+			if(!el || el.className !== 'de-vocaroo') { // Don't embed already embedded links
+				link.insertAdjacentHTML('beforebegin', `<div class="de-vocaroo">
+					<embed src="http://vocaroo.com/player.swf?playMediaID=${ link.href.split('\/').pop()
+						}" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">
+				</div>`);
 			}
 		}
 	}
@@ -7300,7 +7298,9 @@ PostForm.prototype = {
 			return;
 		}
 		if(!tPanel) {
-			tPanel = $new('span', {'id': 'de-txt-panel'}, {'click': this, 'mouseover': this});
+			tPanel = $add('<span id="de-txt-panel"></span>');
+			tPanel.addEventListener('click', this);
+			tPanel.addEventListener('mouseover', this);
 		}
 		tPanel.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
 		$after(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : this.subm, tPanel);
@@ -7794,18 +7794,13 @@ class FileInput {
 		if(!this.hasFile) {
 			this.hasFile = true;
 			this._changeFilesCount(+1);
-			$after(this._buttonsPlace, this._btnDel = $new('span', {
-				'class': 'de-file-del de-file-utils',
-				'title': Lng.removeFile[lang]}, {
-				'click': this
-			}));
+			this._btnDel = $aEnd(this._buttonsPlace,
+				`<span class="de-file-del de-file-utils" title="${ Lng.removeFile[lang] }"></span>`);
+			this._btnDel.addEventListener('click', this);
 			if(this._spoilEl) {
-				$after(this._buttonsPlace, this._btnSpoil = $new('input', {
-					'class': 'de-file-spoil de-file-utils',
-					'type': 'checkbox',
-					'title': Lng.spoilFile[lang]}, {
-					'click': this
-				}));
+				this._btnSpoil = $aEnd(this._buttonsPlace, `<input type="checkbox" title="${
+					Lng.spoilFile[lang] }" class="de-file-spoil de-file-utils">`);
+				this._btnSpoil.addEventListener('click', this);
 				this._btnSpoil.checked = this._spoilEl.checked;
 			}
 		} else if(this.imgFile) {
@@ -7816,11 +7811,9 @@ class FileInput {
 			return;
 		}
 		$del(this._btnRarJpg);
-		$after(this._buttonsPlace, this._btnRarJpg = $new('span', {
-			'class': 'de-file-rar de-file-utils',
-			'title': Lng.helpAddFile[lang]}, {
-			'click': this
-		}));
+		this._btnRarJpg = $aEnd(this._buttonsPlace,
+			`<span class="de-file-rar de-file-utils" title="${ Lng.helpAddFile[lang] }"></span>`);
+		this._btnRarJpg.addEventListener('click', this);
 	}
 	_removeFile() {
 		var oldEl = this._input,
@@ -13559,7 +13552,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			defaultCfg.addSageBtn = 0;
-			$bEnd(docBody, '<div onclick="highlight = function() {}"></div>').click();
+			$script('highlight = function() {}');
 			return false;
 		}
 	}
@@ -13827,10 +13820,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.replymode { display: none; }';
 		}
 		init() {
-			$each($Q('.message > .omittedposts'), el => {
-				$bBegin(el, '<span class="abbrev">Post too long. <a href="#">Click to view.</a>');
-				$del(el);
-			})
+			$each($Q('.message > .omittedposts'), el =>
+				$replace(el, '<span class="abbrev">Post too long. <a href="#">Click to view.</a>')
+			)
 			return false;
 		}
 	}
@@ -14310,7 +14302,7 @@ function initThreadUpdater(title, enableUpdate) {
 		disable() {
 			this.stop();
 			this.enabled = false;
-			var btn = $id('de-panel-audio-on');
+			const btn = $id('de-panel-audio-on');
 			if(btn) {
 				btn.id = 'de-panel-audio-off';
 			}
@@ -14331,9 +14323,11 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 
 		get _el() {
-			var value = $new('audio', {'preload': 'auto', 'src': gitRaw + 'signal.ogg'}, null);
-			Object.defineProperty(this, '_el', { value });
-			return value;
+			const val = doc.createElement('audio');
+			val.setAttribute('preload', 'auto');
+			val.src = gitRaw + 'signal.ogg';
+			Object.defineProperty(this, '_el', { val });
+			return val;
 		}
 	};
 
