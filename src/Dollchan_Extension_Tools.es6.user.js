@@ -7585,7 +7585,7 @@ class Files {
 		this.hide();
 	}
 	get rarInput() {
-		var value = docBody.appendChild($new('input', {'type': 'file', 'style': 'display: none;'}, null));
+		var value = $bEnd(docBody, '<input type="file" style="display: none;">');
 		Object.defineProperty(this, 'rarInput', { value });
 		return value;
 	}
@@ -7749,8 +7749,8 @@ class FileInput {
 			readFile(file).then(({ data }) => {
 				if(this._btnRarJpg === myBtn) {
 					myBtn.className = 'de-file-rarmsg de-file-utils';
-					myBtn.title = this.el.files[0].name + ' + ' + file.name;
-					myBtn.textContent = this.el.files[0].name.replace(/^.+\./, '') + ' + ' +
+					myBtn.title = this._input.files[0].name + ' + ' + file.name;
+					myBtn.textContent = this._input.files[0].name.replace(/^.+\./, '') + ' + ' +
 						file.name.replace(/^.+\./, '');
 					this.imgFile = data;
 				}

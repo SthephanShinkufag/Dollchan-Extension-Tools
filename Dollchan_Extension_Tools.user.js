@@ -11293,7 +11293,7 @@ true, true],
 		}, {
 			key: 'rarInput',
 			get: function get() {
-				var value = docBody.appendChild($new('input', { 'type': 'file', 'style': 'display: none;' }, null));
+				var value = $bEnd(docBody, '<input type="file" style="display: none;">');
 				Object.defineProperty(this, 'rarInput', { value: value });
 				return value;
 			}
@@ -11455,8 +11455,8 @@ true, true],
 
 						if (_this22._btnRarJpg === myBtn) {
 							myBtn.className = 'de-file-rarmsg de-file-utils';
-							myBtn.title = _this22.el.files[0].name + ' + ' + file.name;
-							myBtn.textContent = _this22.el.files[0].name.replace(/^.+\./, '') + ' + ' + file.name.replace(/^.+\./, '');
+							myBtn.title = _this22._input.files[0].name + ' + ' + file.name;
+							myBtn.textContent = _this22._input.files[0].name.replace(/^.+\./, '') + ' + ' + file.name.replace(/^.+\./, '');
 							_this22.imgFile = data;
 						}
 					});
