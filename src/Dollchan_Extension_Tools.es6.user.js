@@ -766,23 +766,51 @@ function $animate(el, cName, remove = false) {
 	el.classList.add(cName);
 }
 
+// Checks the validity of the user inputted color
+function checkCSSColor(color) {
+	if(!color || color === 'inherit' || color === 'currentColor') {
+		return false;
+	}
+	if(color === 'transparent') {
+		return true;
+	}
+	const image = doc.createElement('img');
+	image.style.color = 'rgb(0, 0, 0)';
+	image.style.color = color;
+	if(image.style.color !== 'rgb(0, 0, 0)') {
+		return true;
+	}
+	image.style.color = 'rgb(255, 255, 255)';
+	image.style.color = color;
+	return image.style.color !== 'rgb(255, 255, 255)';
+}
+
 // Other utils
 
 const pad2 = i => (i < 10 ? '0' : '') + i;
 
+const $isEmpty = obj => Object.keys(obj).length === 0;
+
 const $join = (arr, start, end) => start + arr.join(end + start) + end;
+
+const fixBrd = b => '/' + b + (b ? '/' : '');
+
+const getAbsLink = url =>
+	url[1] === '/' ? aib.prot + url :
+	url[0] === '/' ? aib.prot + '//' + aib.host + url : url;
+
+// Prepares a string to be used as a new RegExp argument
+const quoteReg = str => (str + '').replace(/([.?*+^$[\]\\(){}|\-])/g, '\\$1');
+
+// Converts a string to a regular expression
+function toRegExp(str, noG) {
+	const l = str.lastIndexOf('/');
+	const flags = str.substr(l + 1);
+	return new RegExp(str.substr(1, l - 1), noG ? flags.replace('g', '') : flags);
+}
 
 function $pd(e) {
 	e.preventDefault();
-}
-
-function $isEmpty(obj) {
-	for(let i in obj) {
-		if(obj.hasOwnProperty(i)) {
-			return false;
-		}
-	}
-	return true;
 }
 
 function $txtInsert(el, txt) {
@@ -794,17 +822,38 @@ function $txtInsert(el, txt) {
 	el.scrollTop = scrtop;
 }
 
-var Logger = {
+// XXX: SVG events hack for Opera Presto
+function fixEventEl(el) {
+	if(el && nav.Presto) {
+		const svg = el.correspondingUseElement;
+		if(svg) {
+			el = svg.ownerSVGElement;
+		}
+	}
+	return el;
+}
+
+function onDOMLoaded(fn) {
+	if(doc.readyState === 'loading') {
+		doc.addEventListener('DOMContentLoaded', fn);
+	} else {
+		fn();
+	}
+}
+
+// Allows to record the duration of code execution
+const Logger = {
 	finish() {
 		this._finished = true;
 		this._marks.push(['LoggerFinish', Date.now()]);
 	},
 	getData(full) {
-		var duration, marks = this._marks,
-			timeLog = [],
-			i = 1;
-		for(var len = marks.length - 1, lastExtra = 0; i < len; ++i) {
+		let duration, i = 1;
+		const marks = this._marks;
+		const timeLog = [];
+		for(let len = marks.length - 1, lastExtra = 0; i < len; ++i) {
 			duration = marks[i][1] - marks[i - 1][1] + lastExtra;
+			// Ignore logs equal to 0ms
 			if(full || duration > 1) {
 				lastExtra = 0;
 				timeLog.push([marks[i][0], duration]);
@@ -834,7 +883,7 @@ var Logger = {
 function async(generatorFunc) {
 	return function(...args) {
 		function continuer(verb, arg) {
-			var result;
+			let result;
 			try {
 				result = generator[verb](arg);
 			} catch (err) {
@@ -843,9 +892,9 @@ function async(generatorFunc) {
 			}
 			return result.done ? result.value : Promise.resolve(result.value).then(onFulfilled, onRejected);
 		}
-		var generator = generatorFunc.apply(this, args),
-			onFulfilled = continuer.bind(continuer, 'next'),
-			onRejected = continuer.bind(continuer, 'throw');
+		const generator = generatorFunc.apply(this, args);
+		const onFulfilled = continuer.bind(continuer, 'next');
+		const onRejected = continuer.bind(continuer, 'throw');
 		return onFulfilled();
 	};
 }
@@ -857,11 +906,13 @@ function spawn(generatorFunc, ...args) {
 }
 
 function sleep(ms) {
-	return new Promise((resolve, reject) => setTimeout(() => resolve(), ms));
+	return new Promise((resolve, reject) => setTimeout(resolve, ms));
 }
 
+// Some async operations should be cancelable, to ignore all the chaining callbacks of promises.
+// Cancellation is supposed to flow through a graph of promise dependencies. When a promise is cancelled, it
+// will propagate to the farthest pending promises and reject them with the cancel reason CancelError.
 function CancelError() {}
-
 class CancelablePromise {
 	static reject(val) {
 		return new CancelablePromise((res, rej) => rej(val));
@@ -872,26 +923,30 @@ class CancelablePromise {
 	constructor(resolver, cancelFn) {
 		this._promise = new Promise((resolve, reject) => {
 			this._reject = reject;
-			var wrappedResolve = value => { resolve(value); this._isResolved = true; };
-			var wrappedReject = reason => { reject(reason); this._isResolved = true; };
-			resolver(wrappedResolve, wrappedReject);
+			resolver(value => {
+				resolve(value);
+				this._isResolved = true;
+			}, reason => {
+				reject(reason);
+				this._isResolved = true;
+			});
 		});
 		this._cancelFn = cancelFn;
 		this._isResolved = false;
 	}
 	then(cb, eb) {
-		var children = [];
-		var wrap = fn => function(...args) {
-			var child = fn(...args);
+		const children = [];
+		const wrap = fn => function(...args) {
+			const child = fn(...args);
 			if(child instanceof CancelablePromise) {
 				children.push(child);
 			}
 			return child;
-		}
+		};
 		return new CancelablePromise(
 			resolve => resolve(this._promise.then(cb && wrap(cb), eb && wrap(eb))),
 			() => {
-				for(var child of children) {
+				for(let child of children) {
 					child.cancel();
 				}
 				this.cancel();
@@ -922,18 +977,19 @@ AjaxError.Success = new AjaxError(200, 'OK');
 AjaxError.Locked = new AjaxError(-1, { toString() { return Lng.thrClosed[lang]; } });
 AjaxError.Timeout = new AjaxError(0, { toString() { return Lng.noConnect[lang] + ' (timeout)'; } });
 
+// Main AJAX function
 function $ajax(url, params = null, useNative = nativeXHRworks) {
-	var resolve, reject, cancelFn;
-	var needTO = params ? params.useTimeout : false;
+	let resolve, reject, cancelFn;
+	const needTO = params ? params.useTimeout : false;
 	if(!useNative && (typeof GM_xmlhttpRequest === 'function')) {
-		var toFunc = () => {
+		const toFunc = () => {
 			reject(AjaxError.Timeout);
 			try {
 				gmxhr.abort();
 			} catch(e) {}
 		};
-		var loadTO = needTO && setTimeout(toFunc, 5e3);
-		var obj = {
+		let loadTO = needTO && setTimeout(toFunc, 5e3);
+		const obj = {
 			'method': (params && params.method) || 'GET',
 			'url': nav.fixLink(url),
 			'onreadystatechange'(e) {
@@ -959,7 +1015,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			delete params.method;
 			Object.assign(obj, params);
 		}
-		var gmxhr = GM_xmlhttpRequest(obj);
+		const gmxhr = GM_xmlhttpRequest(obj);
 		cancelFn = () => {
 			if(needTO) {
 				clearTimeout(loadTO);
@@ -969,12 +1025,12 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			} catch(e) {}
 		};
 	} else {
-		var xhr = new XMLHttpRequest();
-		var toFunc = () => {
+		const xhr = new XMLHttpRequest();
+		const toFunc = () => {
 			reject(AjaxError.Timeout);
 			xhr.abort();
 		};
-		var loadTO = needTO && setTimeout(toFunc, 5e3);
+		let loadTO = needTO && setTimeout(toFunc, 5e3);
 		if(params && params.onprogress) {
 			xhr.upload.onprogress = params.onprogress;
 		}
@@ -1001,9 +1057,9 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				if(params.responseType) {
 					xhr.responseType = params.responseType;
 				}
-				var headers = params.headers;
+				const headers = params.headers;
 				if(headers) {
-					for(var h in headers) {
+					for(let h in headers) {
 						if(headers.hasOwnProperty(h)) {
 							xhr.setRequestHeader(h, headers[h]);
 						}
@@ -1233,19 +1289,6 @@ TarBuilder.prototype = {
 	}
 };
 
-function regQuote(str) {
-	return (str + '').replace(/([.?*+^$[\]\\(){}|\-])/g, '\\$1');
-}
-
-function fixBrd(b) {
-	return '/' + b + (b ? '/' : '');
-}
-
-function getAbsLink(url) {
-	return url[1] === '/' ? aib.prot + url :
-		url[0] === '/' ? aib.prot + '//' + aib.host + url : url;
-}
-
 function getErrorMessage(e) {
 	if(e instanceof AjaxError) {
 		return e.toString();
@@ -1259,12 +1302,6 @@ function getErrorMessage(e) {
 				return '    at ' + (fName ? fName + ' (' + line + ')' : line);
 			}) : e.stack)
 		) : e.name + ': ' + e.message;
-}
-
-function toRegExp(str, noG) {
-	var l = str.lastIndexOf('/'),
-		flags = str.substr(l + 1);
-	return new RegExp(str.substr(1, l - 1), noG ? flags.replace('g', '') : flags);
 }
 
 // https://html.spec.whatwg.org/multipage/forms.html#constructing-form-data-set
@@ -1410,87 +1447,58 @@ function downloadBlob(blob, name) {
 	}, 1e5);
 }
 
-function checkCSSColor(color) {
-	if(!color || color === 'inherit' || color === 'currentColor') {
-		return false;
-	}
-	if(color === 'transparent') {
-		return true;
-	}
-	var image = doc.createElement('img');
-	image.style.color = 'rgb(0, 0, 0)';
-	image.style.color = color;
-	if(image.style.color !== 'rgb(0, 0, 0)') {
-		return true;
-	}
-	image.style.color = 'rgb(255, 255, 255)';
-	image.style.color = color;
-	return image.style.color !== 'rgb(255, 255, 255)';
-}
-
-function fixEventEl(el) {
-	if(el && nav.Presto) {
-		var svg = el.correspondingUseElement;
-		if(svg) {
-			el = svg.ownerSVGElement
-		}
-	}
-	return el;
-}
-
-function onDOMLoaded(fn) {
-	if(doc.readyState === 'loading') {
-		doc.addEventListener('DOMContentLoaded', fn);
-	} else {
-		fn();
-	}
-}
-
 
 // STORAGE
 // ===========================================================================================================
 
+// Gets data from the global storage
 function* getStored(id) {
 	if(nav.isGM) {
 		return GM_getValue(id);
 	} else if(nav.isChromeStorage) {
-		return (yield new Promise((resolve, reject) => {
-			chrome.storage.local.get(id, function(obj) {
-				if(Object.keys(obj).length) {
+		// Read storage.local first. If it not existed then read storage.sync
+		return (yield new Promise((resolve, reject) => chrome.storage.local.get(id, function(obj) {
+			if(Object.keys(obj).length) {
+				resolve(obj[id]);
+			} else {
+				chrome.storage.sync.get(id, function(obj) {
 					resolve(obj[id]);
-				} else {
-					chrome.storage.sync.get(id, function(obj) {
-						resolve(obj[id]);
-					});
-				}
-			});
-		}));
-	} else if(nav.isScriptStorage) {
+				});
+			}
+		})));
+	} else if(nav.isScriptStorage) { // Opera Presto only
 		return scriptStorage.getItem(id);
 	}
 	return locStorage[id];
 }
 
+// Saves data into the global storage
 function setStored(id, value) {
 	if(nav.isGM) {
 		GM_setValue(id, value);
 	} else if(nav.isChromeStorage) {
-		var obj = {};
+		const obj = {};
 		obj[id] = value;
-		if(value.toString().length < 4095) {
+		// chrome.storage.sync has limitations.
+		// QUOTA_BYTES_PER_ITEM = 8192
+		// MAX_WRITE_OPERATIONS_PER_HOUR = 1800
+		// MAX_WRITE_OPERATIONS_PER_MINUTE = 120
+		// We need to store into storage.local if the limit is exceeded.
+		if(value.toString().length + id.length < 8192) { // TODO: use chrome.runtime.lastError instead of this
 			chrome.storage.sync.set(obj, emptyFn);
 			chrome.storage.local.remove(id, emptyFn);
 		} else {
 			chrome.storage.local.set(obj, emptyFn);
 			chrome.storage.sync.remove(id, emptyFn);
 		}
-	} else if(nav.isScriptStorage) {
+	} else if(nav.isScriptStorage) { // Opera Presto only
 		scriptStorage.setItem(id, value);
 	} else {
 		locStorage[id] = value;
 	}
 }
 
+// Removes data from the global storage
 function delStored(id) {
 	if(nav.isGM) {
 		GM_deleteValue(id);
@@ -1503,12 +1511,13 @@ function delStored(id) {
 	}
 }
 
+// Receives and parses JSON data into an object
 function* getStoredObj(id) {
 	return JSON.parse((yield* getStored(id)) || '{}') || {};
 }
 
-// Replaces all domain settings with new object. Removes domain settings if no object.
-function saveComCfg(dm, obj) {
+// Replaces the domain config with an object. Removes the domain config, if there is no object.
+function saveCfgObj(dm, obj) {
 	spawn(getStoredObj, 'DESU_Config').then(val => {
 		if(obj) {
 			val[dm] = obj;
@@ -1519,15 +1528,23 @@ function saveComCfg(dm, obj) {
 	});
 }
 
+// Saves the value for a particular config option
 function saveCfg(id, val) {
 	if(Cfg[id] !== val) {
 		Cfg[id] = val;
-		saveComCfg(aib.dm, Cfg);
+		saveCfgObj(aib.dm, Cfg);
 	}
 }
 
+// Toggles a particular config option (1|0)
+function toggleCfg(id) {
+	saveCfg(id, +!Cfg[id]);
+}
+
+// Config initialization, checking for script update.
 function* readCfg() {
-	var obj, val = yield* getStoredObj('DESU_Config');
+	let obj;
+	const val = yield* getStoredObj('DESU_Config');
 	if(!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
 		obj = nav.isGlobal ? val.global || {} : {};
 		obj.captchaLang = aib.ru ? 2 : 1;
@@ -1541,7 +1558,7 @@ function* readCfg() {
 	if(!Cfg.timePattern) {
 		Cfg.timePattern = aib.timePattern;
 	}
-	if(aib.prot !== 'http:') {
+	if(aib.prot !== 'http:') { // Vocaroo doesn't support https
 		Cfg.addVocaroo = 0;
 	}
 	if(!('Notification' in window)) {
@@ -1576,57 +1593,54 @@ function* readCfg() {
 	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
 	if(Cfg.updScript) {
-		checkForUpdates(false, val.lastUpd).then(html =>
-			onDOMLoaded(() => $popup(html, 'updavail')), emptyFn);
+		checkForUpdates(false, val.lastUpd).then(data =>
+			onDOMLoaded(() => $popup(data, 'updavail')), emptyFn);
 	}
 }
 
-function toggleCfg(id) {
-	saveCfg(id, +!Cfg[id]);
-}
-
-function readFav() {
-	return spawn(getStoredObj, 'DESU_Favorites');
-}
-
+// Initialize of hidden and favorites. Run spells.
 function* readPostsData(firstPost) {
-	var sVis = null;
+	let sVis = null;
 	try {
-		var json, str = aib.t ? sesStorage['de-hidden-' + aib.b + aib.t] : null;
+		// Get hidden posts and threads that cached in current session
+		const str = aib.t ? sesStorage['de-hidden-' + aib.b + aib.t] : null;
 		if(str) {
-			json = JSON.parse(str);
-			if(json['hash'] === (Cfg.hideBySpell ? Spells.hash : 0) &&
-			   pByNum.has(json['lastNum']) &&
-			   pByNum.get(json['lastNum']).count === json['lastCount'])
+			const json = JSON.parse(str);
+			if(json.hash === (Cfg.hideBySpell ? Spells.hash : 0) &&
+			   pByNum.has(json.lastNum) &&
+			   pByNum.get(json.lastNum).count === json.lastCount)
 			{
-				sVis = json['data'] && json['data'][0] instanceof Array ? json['data'] : null;
+				sVis = json.data && json.data[0] instanceof Array ? json.data : null;
 			}
 		}
 	} catch(e) {
 		sesStorage['de-hidden-' + aib.b + aib.t] = null;
 	}
-	var b = aib.b,
-		spellsHide = Cfg.hideBySpell;
 	if(!firstPost) {
 		return;
 	}
-	var updateFav = false,
-		fav = yield* getStoredObj('DESU_Favorites'),
-		favBrd = (aib.host in fav) && (b in fav[aib.host]) ? fav[aib.host][b] : {};
-	var maybeSpells = new Maybe(SpellsRunner);
-	for(var post = firstPost; post; post = post.next) {
-		var num = post.num;
+	let updateFav = false;
+	const fav = yield* getStoredObj('DESU_Favorites');
+	const favBrd = (aib.host in fav) && (aib.b in fav[aib.host]) ? fav[aib.host][aib.b] : {};
+	const spellsHide = Cfg.hideBySpell;
+	const maybeSpells = new Maybe(SpellsRunner);
+
+	// Search existed posts in stored data
+	for(let post = firstPost; post; post = post.next) {
+		const num = post.num;
+		// Mark favorite threads, update favorites data
 		if(post.isOp && (num in favBrd)) {
-			var f = favBrd[num],
-				thr = post.thr;
+			const f = favBrd[num];
+			const thr = post.thr;
 			post.setFavBtn(true);
 			if(aib.t) {
 				f.cnt = thr.pcount;
 				f['new'] = 0;
 				if(Cfg.markNewPosts && f.last) {
-					var lastPost = pByNum.get(+f.last.match(/\d+/));
+					let lastPost = pByNum.get(+f.last.match(/\d+/));
 					if(lastPost) {
-						while(lastPost = lastPost.next) {
+						// Mark all new posts after last viewed post
+						while((lastPost = lastPost.next)) {
 							Post.addMark(lastPost.el, true);
 						}
 					}
@@ -1637,8 +1651,9 @@ function* readPostsData(firstPost) {
 			}
 			updateFav = true;
 		}
+		// Hide hidden posts and threads
 		if(HiddenPosts.has(num)) {
-			var uHideData = HiddenPosts.get(num);
+			const uHideData = HiddenPosts.get(num);
 			if(!uHideData && post.isOp && HiddenThreads.has(num)) {
 				post.setUserVisib(true);
 			} else {
@@ -1646,7 +1661,7 @@ function* readPostsData(firstPost) {
 			}
 			continue;
 		}
-		var hideData;
+		let hideData;
 		if(post.isOp) {
 			if(HiddenThreads.has(num)) {
 				hideData = [true, null];
@@ -1659,7 +1674,7 @@ function* readPostsData(firstPost) {
 			continue;
 		}
 		if(!hideData) {
-			maybeSpells.value.run(post);
+			maybeSpells.value.run(post); // Apply spells if posts not hidden
 		} else if(hideData[0]) {
 			if(post.hidden) {
 				post.spellHidden = true;
@@ -1672,10 +1687,15 @@ function* readPostsData(firstPost) {
 	if(updateFav) {
 		setStored('DESU_Favorites', JSON.stringify(fav));
 	}
+	// After following a link from Favorites, we need to open Favorites again.
 	if(sesStorage['de-win-fav'] === '1') {
 		toggleWindow('fav', false, null, true);
 		sesStorage.removeItem('de-win-fav');
 	}
+}
+
+function readFavorites() {
+	return spawn(getStoredObj, 'DESU_Favorites');
 }
 
 function saveFavorites(fav) {
@@ -1683,42 +1703,31 @@ function saveFavorites(fav) {
 	toggleWindow('fav', true, fav);
 }
 
-function removeFavoriteEntry(fav, h, b, num, clearPage) {
-	function _isEmpty(f) {
-		for(var i in f) {
-			if(i !== 'url' && f.hasOwnProperty(i)) {
-				return false;
-			}
-		}
-		return true;
-	}
+function removeFavoriteEntry(fav, h, b, num) {
 	if((h in fav) && (b in fav[h]) && (num in fav[h][b])) {
 		delete fav[h][b][num];
-		if(_isEmpty(fav[h][b])) {
+		if(Object.keys(fav[h][b]).length === 1 && fav[h][b].url) {
 			delete fav[h][b];
 			if($isEmpty(fav[h])) {
 				delete fav[h];
 			}
 		}
 	}
-	if(clearPage && h === aib.host && b === aib.b && pByNum.has(num)) {
-		pByNum.get(num).thr.op.setFavBtn(false);
-	}
 }
 
+// Get posts that were read by posts previews
 function readViewedPosts() {
 	if(!Cfg.markViewed) {
-		return;
-	}
-	var data = sesStorage['de-viewed'];
-	if(data) {
-		data.split(',').forEach(function(pNum) {
-			var post = pByNum.get(+pNum);
-			if(post) {
-				post.el.classList.add('de-viewed');
-				post.viewed = true;
-			}
-		});
+		const data = sesStorage['de-viewed'];
+		if(data) {
+			data.split(',').forEach(function(pNum) {
+				const post = pByNum.get(+pNum);
+				if(post) {
+					post.el.classList.add('de-viewed');
+					post.viewed = true;
+				}
+			});
+		}
 	}
 }
 
@@ -1755,7 +1764,7 @@ class PostsStorage extends null {
 	}
 	static set(num, thrNum, data = true) {
 		const storage = this._readStorage();
-		if(storage && storage['$count'] > 5000) {
+		if(storage && storage.$count > 5000) {
 			const minDate = Date.now() - 5 * 24 * 3600 * 1000;
 			for(let b in storage) {
 				if(storage.hasOwnProperty(b)) {
@@ -1791,10 +1800,10 @@ class PostsStorage extends null {
 		const data = locStorage[this.storageName];
 		if(data) {
 			try {
-				return this._cachedStorage = JSON.parse(data);
+				return (this._cachedStorage = JSON.parse(data));
 			} catch(e) {}
 		}
-		return this._cachedStorage = {};
+		return (this._cachedStorage = {});
 	}
 	static _saveStorage() {
 		if(this._cacheTO === null) {
@@ -2301,7 +2310,7 @@ function toggleWindow(name, isUpd, data, noAnim) {
 			case 'de-btn-toggle': this.title =
 				Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
 			}
-		}
+		};
 		el.lastElementChild.onclick = toggleWindow.bind(null, name, false);
 		el.firstElementChild.onclick = e => {
 			var width = win.style.width,
@@ -2367,7 +2376,7 @@ function showWindow(win, body, name, remove, data, isAnim) {
 			showFavoritesWindow(body, data);
 			break;
 		}
-		readFav().then(fav => {
+		readFavorites().then(fav => {
 			showFavoritesWindow(body, fav);
 			$show(win);
 			if(isAnim) {
@@ -2533,7 +2542,7 @@ function showHiddenWindow(body) {
 				continue;
 			}
 			let block = $bEnd(body, `<div class="de-fold-block"><input type="checkbox"><b>/${ b }</b></div>`);
-			block.firstChild.onclick = (e) =>
+			block.firstChild.onclick = e =>
 				$each($Q('.de-entry > input', block), el => el.checked = e.target.checked);
 			for(let tNum in hThr[b]) {
 				$bEnd(block, `<div class="de-entry ${ aib.cReply }" info="${ b + ';' + tNum }">
@@ -2598,20 +2607,27 @@ function showHiddenWindow(body) {
 	}));
 }
 
-// Clean previously marked threads
+// Delete previously marked entries from Favorites
 function cleanFavorites() {
 	const els = $Q('.de-entry[de-removed]');
 	const len = els.length;
-	if(len) {
-		readFav().then(fav => {
-			for(let i = 0; i < len; ++i) {
-				const el = els[i];
-				removeFavoriteEntry(fav, el.getAttribute('de-host'), el.getAttribute('de-board'),
-					+el.getAttribute('de-num'), true);
-			}
-			saveFavorites(fav);
-		});
+	if(!len) {
+		return;
 	}
+	readFavorites().then(data => {
+		for(let i = 0; i < len; ++i) {
+			const el = els[i];
+			const h = el.getAttribute('de-host');
+			const b = el.getAttribute('de-board');
+			const num = +el.getAttribute('de-num');
+			removeFavoriteEntry(data, h, b, num);
+			// If there existed thread then switch its fav button
+			if(h === aib.host && b === aib.b && pByNum.has(num)) {
+				pByNum.get(num).thr.op.setFavBtn(false);
+			}
+		}
+		saveFavorites(data);
+	});
 }
 
 // FAVORITES WINDOW
@@ -2722,7 +2738,7 @@ function showFavoritesWindow(body, data) {
 	let div = $bEnd(body, '<hr><div id="de-fav-buttons"></div>');
 
 	// "Edit" button. Calls a popup with editor to edit Favorites in JSON.
-	div.appendChild(getEditButton('favor', fn => readFav().then(data => fn(data, true, saveFavorites))));
+	div.appendChild(getEditButton('favor', fn => readFavorites().then(data => fn(data, true, saveFavorites))));
 
 	// "Refresh" button. Updates counters of new posts for each thread entry.
 	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(function* () {
@@ -2968,7 +2984,7 @@ const cfgWindow = Object.create({
 
 		// "Edit" button. Calls a popup with editor to edit Settings in JSON.
 		div.appendChild(getEditButton('cfg', fn => fn(Cfg, true, data => {
-			saveComCfg(aib.dm, data);
+			saveCfgObj(aib.dm, data);
 			window.location.reload();
 		})));
 
@@ -2980,7 +2996,7 @@ const cfgWindow = Object.create({
 				Lng.load[lang] }"> ${ Lng.loadGlobal[lang] }</div>`
 			).firstElementChild.onclick = () => spawn(getStoredObj, 'DESU_Config').then(data => {
 				if(data && ('global' in data) && !$isEmpty(data.global)) {
-					saveComCfg(aib.dm, data.global);
+					saveCfgObj(aib.dm, data.global);
 					window.location.reload();
 				} else {
 					$popup(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
@@ -3001,7 +3017,7 @@ const cfgWindow = Object.create({
 					}
 				}
 				data.global = obj;
-				saveComCfg('global', data.global);
+				saveCfgObj('global', data.global);
 				toggleWindow('cfg', true);
 			});
 			el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
@@ -3069,7 +3085,7 @@ const cfgWindow = Object.create({
 					}
 					closePopup('cfg-file');
 				});
-			}
+			};
 
 			// Export data from a storage to the file. The file will be named by date and type of storage.
 			// For example, like "DE_20160727_1540_Cfg+Fav+domain.com(Hid+You).json".
@@ -3761,7 +3777,7 @@ const cfgWindow = Object.create({
 
 	// Creates a tab for tab bar
 	_getTab(name) {
-		return `<div class="${ aib.cReply } de-cfg-tab" info="${ name }">${ Lng.cfgTab[name][lang] }</div>`
+		return `<div class="${ aib.cReply } de-cfg-tab" info="${ name }">${ Lng.cfgTab[name][lang] }</div>`;
 	},
 
 	// Switching dependent checkboxes according to their parents
@@ -4959,7 +4975,7 @@ function loadDocFiles(imgOnly) {
 			post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post));
 		});
 		var files = [];
-		var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\.)?' + regQuote(aib.dm) + '\\/', 'i');
+		var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\.)?' + quoteReg(aib.dm) + '\\/', 'i');
 		$each($Q('link, *[src]', dc), function(el) {
 			if(els.indexOf(el) !== -1) {
 				return;
@@ -8155,7 +8171,7 @@ function checkUpload(data) {
 	}
 	pr.clearForm();
 	Cfg.stats[pr.tNum ? 'reply' : 'op']++;
-	saveComCfg(aib.dm, Cfg);
+	saveCfgObj(aib.dm, Cfg);
 	if(!pr.tNum) {
 		if(postNum) {
 			window.location = aib.getThrdUrl(aib.b, postNum);
@@ -9964,7 +9980,7 @@ class Post extends AbstractPost {
 			{
 				if(this._selText.includes('\n')) {
 					Spells.add(1 /* #exp */, '/' +
-						regQuote(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
+						quoteReg(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
 				} else {
 					Spells.add(0 /* #words */, this._selText.toLowerCase(), false);
 				}
@@ -9972,7 +9988,7 @@ class Post extends AbstractPost {
 				dummy.innerHTML = '';
 				dummy.appendChild(this._selRange.cloneContents());
 				Spells.add(2 /* #exph */, '/' +
-					regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
+					quoteReg(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
 			}
 			return;
 		case 'hide-name': Spells.add(6 /* #name */, this.posterName, false); return;
@@ -11514,7 +11530,7 @@ class Thread {
 	}
 	setFavorState(val, type) {
 		this.op.setFavBtn(val);
-		readFav().then(fav => {
+		readFavorites().then(fav => {
 			var b = aib.b,
 				h = aib.host;
 			if(val) {
@@ -11534,7 +11550,7 @@ class Thread {
 					'type': type
 				};
 			} else {
-				removeFavoriteEntry(fav, h, b, this.num, false);
+				removeFavoriteEntry(fav, h, b, this.num);
 			}
 			saveFavorites(fav);
 		});
@@ -11842,7 +11858,7 @@ class Thread {
 			this.last = res[3];
 			this.pcount = len + 1;
 		}
-		readFav().then(fav => {
+		readFavorites().then(fav => {
 			var f = fav[aib.host];
 			if(!f || !f[aib.b]) {
 				return;
@@ -12250,7 +12266,7 @@ class BaseBoard {
 	}
 	get reCrossLinks() { // Sets here only
 		var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' +
-			regQuote(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
+			quoteReg(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
 		Object.defineProperty(this, 'reCrossLinks', { value: val });
 		return val;
 	}
@@ -14868,7 +14884,7 @@ function initPage() {
 		}
 		if(!localData) {
 			Cfg.stats.view++;
-			saveComCfg(aib.dm, Cfg);
+			saveCfgObj(aib.dm, Cfg);
 			Thread.first.el.insertAdjacentHTML('afterend', '<div class="de-thread-buttons">' +
 				'<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>' +
 				'<span id="de-updater-count" style="display: none;"></span>]</span>' +
@@ -14937,7 +14953,7 @@ function checkForUpdates(isForce, lastUpdateTime) {
 			let cVer = version.split('.');
 			let src = gitRaw + (nav.isES6 ? 'src/' : '') + 'Dollchan_Extension_Tools.' +
 				(nav.isES6 ? 'es6.' : '') + 'user.js';
-			saveComCfg('lastUpd', Date.now());
+			saveCfgObj('lastUpd', Date.now());
 			for(var i = 0, len = Math.max(cVer.length, dVer.length); i < len; ++i) {
 				if((+dVer[i] || 0) > (+cVer[i] || 0)) {
 					return '<a style="color: blue; font-weight: bold;" href="' + src + '">' +

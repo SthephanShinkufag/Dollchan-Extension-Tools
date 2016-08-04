@@ -2847,11 +2847,11 @@ process.umask = function() { return 0; };
 },{"_process":119}],121:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -3546,26 +3546,57 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		el.classList.add(cName);
 	}
 
+	function checkCSSColor(color) {
+		if (!color || color === 'inherit' || color === 'currentColor') {
+			return false;
+		}
+		if (color === 'transparent') {
+			return true;
+		}
+		var image = doc.createElement('img');
+		image.style.color = 'rgb(0, 0, 0)';
+		image.style.color = color;
+		if (image.style.color !== 'rgb(0, 0, 0)') {
+			return true;
+		}
+		image.style.color = 'rgb(255, 255, 255)';
+		image.style.color = color;
+		return image.style.color !== 'rgb(255, 255, 255)';
+	}
+
 
 	var pad2 = function pad2(i) {
 		return (i < 10 ? '0' : '') + i;
+	};
+
+	var $isEmpty = function $isEmpty(obj) {
+		return Object.keys(obj).length === 0;
 	};
 
 	var $join = function $join(arr, start, end) {
 		return start + arr.join(end + start) + end;
 	};
 
-	function $pd(e) {
-		e.preventDefault();
+	var fixBrd = function fixBrd(b) {
+		return '/' + b + (b ? '/' : '');
+	};
+
+	var getAbsLink = function getAbsLink(url) {
+		return url[1] === '/' ? aib.prot + url : url[0] === '/' ? aib.prot + '//' + aib.host + url : url;
+	};
+
+	var quoteReg = function quoteReg(str) {
+		return (str + '').replace(/([.?*+^$[\]\\(){}|\-])/g, '\\$1');
+	};
+
+	function toRegExp(str, noG) {
+		var l = str.lastIndexOf('/');
+		var flags = str.substr(l + 1);
+		return new RegExp(str.substr(1, l - 1), noG ? flags.replace('g', '') : flags);
 	}
 
-	function $isEmpty(obj) {
-		for (var i in obj) {
-			if (obj.hasOwnProperty(i)) {
-				return false;
-			}
-		}
-		return true;
+	function $pd(e) {
+		e.preventDefault();
 	}
 
 	function $txtInsert(el, txt) {
@@ -3577,16 +3608,34 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		el.scrollTop = scrtop;
 	}
 
+	function fixEventEl(el) {
+		if (el && nav.Presto) {
+			var svg = el.correspondingUseElement;
+			if (svg) {
+				el = svg.ownerSVGElement;
+			}
+		}
+		return el;
+	}
+
+	function onDOMLoaded(fn) {
+		if (doc.readyState === 'loading') {
+			doc.addEventListener('DOMContentLoaded', fn);
+		} else {
+			fn();
+		}
+	}
+
 	var Logger = {
 		finish: function finish() {
 			this._finished = true;
 			this._marks.push(['LoggerFinish', Date.now()]);
 		},
 		getData: function getData(full) {
-			var duration,
-			    marks = this._marks,
-			    timeLog = [],
+			var duration = void 0,
 			    i = 1;
+			var marks = this._marks;
+			var timeLog = [];
 			for (var len = marks.length - 1, lastExtra = 0; i < len; ++i) {
 				duration = marks[i][1] - marks[i - 1][1] + lastExtra;
 				if (full || duration > 1) {
@@ -3617,7 +3666,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function async(generatorFunc) {
 		return function () {
 			function continuer(verb, arg) {
-				var result;
+				var result = void 0;
 				try {
 					result = generator[verb](arg);
 				} catch (err) {
@@ -3631,9 +3680,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				args[_key] = arguments[_key];
 			}
 
-			var generator = generatorFunc.apply(this, args),
-			    onFulfilled = continuer.bind(continuer, 'next'),
-			    onRejected = continuer.bind(continuer, 'throw');
+			var generator = generatorFunc.apply(this, args);
+			var onFulfilled = continuer.bind(continuer, 'next');
+			var onRejected = continuer.bind(continuer, 'throw');
 			return onFulfilled();
 		};
 	}
@@ -3648,9 +3697,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function sleep(ms) {
 		return new Promise(function (resolve, reject) {
-			return setTimeout(function () {
-				return resolve();
-			}, ms);
+			return setTimeout(resolve, ms);
 		});
 	}
 
@@ -3680,13 +3727,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			this._promise = new Promise(function (resolve, reject) {
 				_this._reject = reject;
-				var wrappedResolve = function wrappedResolve(value) {
-					resolve(value);_this._isResolved = true;
-				};
-				var wrappedReject = function wrappedReject(reason) {
-					reject(reason);_this._isResolved = true;
-				};
-				resolver(wrappedResolve, wrappedReject);
+				resolver(function (value) {
+					resolve(value);
+					_this._isResolved = true;
+				}, function (reason) {
+					reject(reason);
+					_this._isResolved = true;
+				});
 			});
 			this._cancelFn = cancelFn;
 			this._isResolved = false;
@@ -3781,104 +3828,114 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var params = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
 		var useNative = arguments.length <= 2 || arguments[2] === undefined ? nativeXHRworks : arguments[2];
 
-		var resolve, reject, cancelFn;
+		var resolve = void 0,
+		    reject = void 0,
+		    cancelFn = void 0;
 		var needTO = params ? params.useTimeout : false;
 		if (!useNative && typeof GM_xmlhttpRequest === 'function') {
-			var toFunc = function toFunc() {
-				reject(AjaxError.Timeout);
-				try {
-					gmxhr.abort();
-				} catch (e) {}
-			};
-			var loadTO = needTO && setTimeout(toFunc, 5e3);
-			var obj = {
-				'method': params && params.method || 'GET',
-				'url': nav.fixLink(url),
-				'onreadystatechange': function onreadystatechange(e) {
-					if (needTO) {
-						clearTimeout(loadTO);
-					}
-					if (e.readyState === 4) {
-						if (e.status === 200 || aib.tiny && e.status === 400) {
-							resolve(e);
-						} else {
-							reject(new AjaxError(e.status, e.statusText));
+			(function () {
+				var toFunc = function toFunc() {
+					reject(AjaxError.Timeout);
+					try {
+						gmxhr.abort();
+					} catch (e) {}
+				};
+				var loadTO = needTO && setTimeout(toFunc, 5e3);
+				var obj = {
+					'method': params && params.method || 'GET',
+					'url': nav.fixLink(url),
+					'onreadystatechange': function onreadystatechange(e) {
+						if (needTO) {
+							clearTimeout(loadTO);
 						}
-					} else if (needTO) {
-						loadTO = setTimeout(toFunc, 5e3);
-					}
-				}
-			};
-			if (params) {
-				if (params.onprogress) {
-					obj.upload = { onprogress: params.onprogress };
-					delete params.onprogress;
-				}
-				delete params.method;
-				Object.assign(obj, params);
-			}
-			var gmxhr = GM_xmlhttpRequest(obj);
-			cancelFn = function cancelFn() {
-				if (needTO) {
-					clearTimeout(loadTO);
-				}
-				try {
-					gmxhr.abort();
-				} catch (e) {}
-			};
-		} else {
-			var xhr = new XMLHttpRequest();
-			var toFunc = function toFunc() {
-				reject(AjaxError.Timeout);
-				xhr.abort();
-			};
-			var loadTO = needTO && setTimeout(toFunc, 5e3);
-			if (params && params.onprogress) {
-				xhr.upload.onprogress = params.onprogress;
-			}
-			xhr.onreadystatechange = function (_ref2) {
-				var target = _ref2.target;
-
-				if (needTO) {
-					clearTimeout(loadTO);
-				}
-				if (target.readyState === 4) {
-					if (target.status === 200 || aib.tiny && target.status === 400 || target.status === 0 && target.responseType === 'arraybuffer') {
-						resolve(target);
-					} else {
-						reject(new AjaxError(target.status, target.statusText));
-					}
-				} else if (needTO) {
-					loadTO = setTimeout(toFunc, 5e3);
-				}
-			};
-			try {
-				xhr.open(params && params.method || 'GET', url, true);
-				if (params) {
-					if (params.responseType) {
-						xhr.responseType = params.responseType;
-					}
-					var headers = params.headers;
-					if (headers) {
-						for (var h in headers) {
-							if (headers.hasOwnProperty(h)) {
-								xhr.setRequestHeader(h, headers[h]);
+						if (e.readyState === 4) {
+							if (e.status === 200 || aib.tiny && e.status === 400) {
+								resolve(e);
+							} else {
+								reject(new AjaxError(e.status, e.statusText));
 							}
+						} else if (needTO) {
+							loadTO = setTimeout(toFunc, 5e3);
 						}
 					}
+				};
+				if (params) {
+					if (params.onprogress) {
+						obj.upload = { onprogress: params.onprogress };
+						delete params.onprogress;
+					}
+					delete params.method;
+					Object.assign(obj, params);
 				}
-				xhr.send(params && params.data || null);
+				var gmxhr = GM_xmlhttpRequest(obj);
 				cancelFn = function cancelFn() {
 					if (needTO) {
 						clearTimeout(loadTO);
 					}
+					try {
+						gmxhr.abort();
+					} catch (e) {}
+				};
+			})();
+		} else {
+			var _ret2 = function () {
+				var xhr = new XMLHttpRequest();
+				var toFunc = function toFunc() {
+					reject(AjaxError.Timeout);
 					xhr.abort();
 				};
-			} catch (e) {
-				clearTimeout(loadTO);
-				nativeXHRworks = false;
-				return $ajax(url, params, false);
-			}
+				var loadTO = needTO && setTimeout(toFunc, 5e3);
+				if (params && params.onprogress) {
+					xhr.upload.onprogress = params.onprogress;
+				}
+				xhr.onreadystatechange = function (_ref2) {
+					var target = _ref2.target;
+
+					if (needTO) {
+						clearTimeout(loadTO);
+					}
+					if (target.readyState === 4) {
+						if (target.status === 200 || aib.tiny && target.status === 400 || target.status === 0 && target.responseType === 'arraybuffer') {
+							resolve(target);
+						} else {
+							reject(new AjaxError(target.status, target.statusText));
+						}
+					} else if (needTO) {
+						loadTO = setTimeout(toFunc, 5e3);
+					}
+				};
+				try {
+					xhr.open(params && params.method || 'GET', url, true);
+					if (params) {
+						if (params.responseType) {
+							xhr.responseType = params.responseType;
+						}
+						var headers = params.headers;
+						if (headers) {
+							for (var h in headers) {
+								if (headers.hasOwnProperty(h)) {
+									xhr.setRequestHeader(h, headers[h]);
+								}
+							}
+						}
+					}
+					xhr.send(params && params.data || null);
+					cancelFn = function cancelFn() {
+						if (needTO) {
+							clearTimeout(loadTO);
+						}
+						xhr.abort();
+					};
+				} catch (e) {
+					clearTimeout(loadTO);
+					nativeXHRworks = false;
+					return {
+						v: $ajax(url, params, false)
+					};
+				}
+			}();
+
+			if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
 		}
 		return new CancelablePromise(function (res, rej) {
 			resolve = res;
@@ -4106,18 +4163,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 	};
 
-	function regQuote(str) {
-		return (str + '').replace(/([.?*+^$[\]\\(){}|\-])/g, '\\$1');
-	}
-
-	function fixBrd(b) {
-		return '/' + b + (b ? '/' : '');
-	}
-
-	function getAbsLink(url) {
-		return url[1] === '/' ? aib.prot + url : url[0] === '/' ? aib.prot + '//' + aib.host + url : url;
-	}
-
 	function getErrorMessage(e) {
 		if (e instanceof AjaxError) {
 			return e.toString();
@@ -4128,12 +4173,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return Lng.internalError[lang] + e.stack ? nav.WebKit ? e.stack : e.name + ': ' + e.message + '\n' + (nav.Firefox ? e.stack.replace(/^([^@]*).*\/(.+)$/gm, function (str, fName, line) {
 			return '    at ' + (fName ? fName + ' (' + line + ')' : line);
 		}) : e.stack) : e.name + ': ' + e.message;
-	}
-
-	function toRegExp(str, noG) {
-		var l = str.lastIndexOf('/'),
-		    flags = str.substr(l + 1);
-		return new RegExp(str.substr(1, l - 1), noG ? flags.replace('g', '') : flags);
 	}
 
 	function getFormElements(form, submitter) {
@@ -4368,42 +4407,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, 1e5);
 	}
 
-	function checkCSSColor(color) {
-		if (!color || color === 'inherit' || color === 'currentColor') {
-			return false;
-		}
-		if (color === 'transparent') {
-			return true;
-		}
-		var image = doc.createElement('img');
-		image.style.color = 'rgb(0, 0, 0)';
-		image.style.color = color;
-		if (image.style.color !== 'rgb(0, 0, 0)') {
-			return true;
-		}
-		image.style.color = 'rgb(255, 255, 255)';
-		image.style.color = color;
-		return image.style.color !== 'rgb(255, 255, 255)';
-	}
-
-	function fixEventEl(el) {
-		if (el && nav.Presto) {
-			var svg = el.correspondingUseElement;
-			if (svg) {
-				el = svg.ownerSVGElement;
-			}
-		}
-		return el;
-	}
-
-	function onDOMLoaded(fn) {
-		if (doc.readyState === 'loading') {
-			doc.addEventListener('DOMContentLoaded', fn);
-		} else {
-			fn();
-		}
-	}
-
 
 	function getStored(id) {
 		return regeneratorRuntime.wrap(function getStored$(_context2) {
@@ -4425,7 +4428,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						_context2.next = 7;
 						return new Promise(function (resolve, reject) {
-							chrome.storage.local.get(id, function (obj) {
+							return chrome.storage.local.get(id, function (obj) {
 								if (Object.keys(obj).length) {
 									resolve(obj[id]);
 								} else {
@@ -4464,7 +4467,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		} else if (nav.isChromeStorage) {
 			var obj = {};
 			obj[id] = value;
-			if (value.toString().length < 4095) {
+			if (value.toString().length + id.length < 8192) {
 				chrome.storage.sync.set(obj, emptyFn);
 				chrome.storage.local.remove(id, emptyFn);
 			} else {
@@ -4530,7 +4533,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, _marked[2], this);
 	}
 
-	function saveComCfg(dm, obj) {
+	function saveCfgObj(dm, obj) {
 		spawn(getStoredObj, 'DESU_Config').then(function (val) {
 			if (obj) {
 				val[dm] = obj;
@@ -4544,8 +4547,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function saveCfg(id, val) {
 		if (Cfg[id] !== val) {
 			Cfg[id] = val;
-			saveComCfg(aib.dm, Cfg);
+			saveCfgObj(aib.dm, Cfg);
 		}
+	}
+
+	function toggleCfg(id) {
+		saveCfg(id, +!Cfg[id]);
 	}
 
 	function readCfg() {
@@ -4554,9 +4561,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			while (1) {
 				switch (_context4.prev = _context4.next) {
 					case 0:
-						return _context4.delegateYield(getStoredObj('DESU_Config'), 't0', 1);
+						obj = void 0;
+						return _context4.delegateYield(getStoredObj('DESU_Config'), 't0', 2);
 
-					case 1:
+					case 2:
 						val = _context4.t0;
 
 						if (!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
@@ -4607,14 +4615,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						setStored('DESU_Config', JSON.stringify(val));
 						lang = Cfg.language;
 						if (Cfg.updScript) {
-							checkForUpdates(false, val.lastUpd).then(function (html) {
+							checkForUpdates(false, val.lastUpd).then(function (data) {
 								return onDOMLoaded(function () {
-									return $popup(html, 'updavail');
+									return $popup(data, 'updavail');
 								});
 							}, emptyFn);
 						}
 
-					case 18:
+					case 19:
 					case 'end':
 						return _context4.stop();
 				}
@@ -4622,16 +4630,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, _marked[3], this);
 	}
 
-	function toggleCfg(id) {
-		saveCfg(id, +!Cfg[id]);
-	}
-
-	function readFav() {
-		return spawn(getStoredObj, 'DESU_Favorites');
-	}
-
 	function readPostsData(firstPost) {
-		var sVis, json, str, b, spellsHide, updateFav, fav, favBrd, maybeSpells, post, num, f, thr, lastPost, uHideData, hideData;
+		var sVis, str, json, updateFav, fav, favBrd, spellsHide, maybeSpells, _post, num, f, thr, lastPost, uHideData, hideData;
+
 		return regeneratorRuntime.wrap(function readPostsData$(_context5) {
 			while (1) {
 				switch (_context5.prev = _context5.next) {
@@ -4643,44 +4644,48 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 							if (str) {
 								json = JSON.parse(str);
-								if (json['hash'] === (Cfg.hideBySpell ? Spells.hash : 0) && pByNum.has(json['lastNum']) && pByNum.get(json['lastNum']).count === json['lastCount']) {
-									sVis = json['data'] && json['data'][0] instanceof Array ? json['data'] : null;
+
+								if (json.hash === (Cfg.hideBySpell ? Spells.hash : 0) && pByNum.has(json.lastNum) && pByNum.get(json.lastNum).count === json.lastCount) {
+									sVis = json.data && json.data[0] instanceof Array ? json.data : null;
 								}
 							}
 						} catch (e) {
 							sesStorage['de-hidden-' + aib.b + aib.t] = null;
 						}
-						b = aib.b, spellsHide = Cfg.hideBySpell;
 
 						if (firstPost) {
-							_context5.next = 5;
+							_context5.next = 4;
 							break;
 						}
 
 						return _context5.abrupt('return');
 
-					case 5:
+					case 4:
 						updateFav = false;
-						return _context5.delegateYield(getStoredObj('DESU_Favorites'), 't0', 7);
+						return _context5.delegateYield(getStoredObj('DESU_Favorites'), 't0', 6);
 
-					case 7:
+					case 6:
 						fav = _context5.t0;
-						favBrd = aib.host in fav && b in fav[aib.host] ? fav[aib.host][b] : {};
+						favBrd = aib.host in fav && aib.b in fav[aib.host] ? fav[aib.host][aib.b] : {};
+						spellsHide = Cfg.hideBySpell;
 						maybeSpells = new Maybe(SpellsRunner);
-						post = firstPost;
+
+
+						_post = firstPost;
 
 					case 11:
-						if (!post) {
-							_context5.next = 31;
+						if (!_post) {
+							_context5.next = 32;
 							break;
 						}
 
-						num = post.num;
+						num = _post.num;
 
-						if (post.isOp && num in favBrd) {
-							f = favBrd[num], thr = post.thr;
+						if (_post.isOp && num in favBrd) {
+							f = favBrd[num];
+							thr = _post.thr;
 
-							post.setFavBtn(true);
+							_post.setFavBtn(true);
 							if (aib.t) {
 								f.cnt = thr.pcount;
 								f['new'] = 0;
@@ -4707,57 +4712,59 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						uHideData = HiddenPosts.get(num);
 
-						if (!uHideData && post.isOp && HiddenThreads.has(num)) {
-							post.setUserVisib(true);
+						if (!uHideData && _post.isOp && HiddenThreads.has(num)) {
+							_post.setUserVisib(true);
 						} else {
-							post.setUserVisib(uHideData, false);
+							_post.setUserVisib(uHideData, false);
 						}
-						return _context5.abrupt('continue', 28);
+						return _context5.abrupt('continue', 29);
 
 					case 18:
-						if (!post.isOp) {
-							_context5.next = 22;
+						hideData = void 0;
+
+						if (!_post.isOp) {
+							_context5.next = 23;
 							break;
 						}
 
 						if (HiddenThreads.has(num)) {
 							hideData = [true, null];
 						} else if (spellsHide) {
-							hideData = sVis && sVis[post.count];
+							hideData = sVis && sVis[_post.count];
 						}
-						_context5.next = 27;
+						_context5.next = 28;
 						break;
 
-					case 22:
+					case 23:
 						if (!spellsHide) {
-							_context5.next = 26;
+							_context5.next = 27;
 							break;
 						}
 
-						hideData = sVis && sVis[post.count];
-						_context5.next = 27;
+						hideData = sVis && sVis[_post.count];
+						_context5.next = 28;
 						break;
 
-					case 26:
-						return _context5.abrupt('continue', 28);
-
 					case 27:
-						if (!hideData) {
-							maybeSpells.value.run(post);
-						} else if (hideData[0]) {
-							if (post.hidden) {
-								post.spellHidden = true;
-							} else {
-								post.spellHide(hideData[1]);
-							}
-						}
+						return _context5.abrupt('continue', 29);
 
 					case 28:
-						post = post.next;
+						if (!hideData) {
+							maybeSpells.value.run(_post); 
+						} else if (hideData[0]) {
+								if (_post.hidden) {
+									_post.spellHidden = true;
+								} else {
+									_post.spellHide(hideData[1]);
+								}
+							}
+
+					case 29:
+						_post = _post.next;
 						_context5.next = 11;
 						break;
 
-					case 31:
+					case 32:
 						maybeSpells.end();
 						if (updateFav) {
 							setStored('DESU_Favorites', JSON.stringify(fav));
@@ -4767,7 +4774,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							sesStorage.removeItem('de-win-fav');
 						}
 
-					case 34:
+					case 35:
 					case 'end':
 						return _context5.stop();
 				}
@@ -4775,47 +4782,39 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, _marked[4], this);
 	}
 
+	function readFavorites() {
+		return spawn(getStoredObj, 'DESU_Favorites');
+	}
+
 	function saveFavorites(fav) {
 		setStored('DESU_Favorites', JSON.stringify(fav));
 		toggleWindow('fav', true, fav);
 	}
 
-	function removeFavoriteEntry(fav, h, b, num, clearPage) {
-		function _isEmpty(f) {
-			for (var i in f) {
-				if (i !== 'url' && f.hasOwnProperty(i)) {
-					return false;
-				}
-			}
-			return true;
-		}
+	function removeFavoriteEntry(fav, h, b, num) {
 		if (h in fav && b in fav[h] && num in fav[h][b]) {
 			delete fav[h][b][num];
-			if (_isEmpty(fav[h][b])) {
+			if (Object.keys(fav[h][b]).length === 1 && fav[h][b].url) {
 				delete fav[h][b];
 				if ($isEmpty(fav[h])) {
 					delete fav[h];
 				}
 			}
 		}
-		if (clearPage && h === aib.host && b === aib.b && pByNum.has(num)) {
-			pByNum.get(num).thr.op.setFavBtn(false);
-		}
 	}
 
 	function readViewedPosts() {
 		if (!Cfg.markViewed) {
-			return;
-		}
-		var data = sesStorage['de-viewed'];
-		if (data) {
-			data.split(',').forEach(function (pNum) {
-				var post = pByNum.get(+pNum);
-				if (post) {
-					post.el.classList.add('de-viewed');
-					post.viewed = true;
-				}
-			});
+			var data = sesStorage['de-viewed'];
+			if (data) {
+				data.split(',').forEach(function (pNum) {
+					var post = pByNum.get(+pNum);
+					if (post) {
+						post.el.classList.add('de-viewed');
+						post.viewed = true;
+					}
+				});
+			}
 		}
 	}
 
@@ -4871,7 +4870,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var data = arguments.length <= 2 || arguments[2] === undefined ? true : arguments[2];
 
 				var storage = this._readStorage();
-				if (storage && storage['$count'] > 5000) {
+				if (storage && storage.$count > 5000) {
 					var minDate = Date.now() - 5 * 24 * 3600 * 1000;
 					for (var b in storage) {
 						if (storage.hasOwnProperty(b)) {
@@ -5510,7 +5509,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					showFavoritesWindow(body, data);
 					break;
 				}
-				readFav().then(function (fav) {
+				readFavorites().then(function (fav) {
 					showFavoritesWindow(body, fav);
 					$show(win);
 					if (isAnim) {
@@ -5638,9 +5637,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			};
 
 			for (var b in hThr) {
-				var _ret = _loop(b);
+				var _ret3 = _loop(b);
 
-				if (_ret === 'continue') continue;
+				if (_ret3 === 'continue') continue;
 			}
 		}
 		$bEnd(body, hasThreads ? '<hr>' : '<center><b>' + Lng.noHidThrds[lang] + '</b></center><hr>');
@@ -5740,15 +5739,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function cleanFavorites() {
 		var els = $Q('.de-entry[de-removed]');
 		var len = els.length;
-		if (len) {
-			readFav().then(function (fav) {
-				for (var i = 0; i < len; ++i) {
-					var el = els[i];
-					removeFavoriteEntry(fav, el.getAttribute('de-host'), el.getAttribute('de-board'), +el.getAttribute('de-num'), true);
-				}
-				saveFavorites(fav);
-			});
+		if (!len) {
+			return;
 		}
+		readFavorites().then(function (data) {
+			for (var i = 0; i < len; ++i) {
+				var el = els[i];
+				var h = el.getAttribute('de-host');
+				var b = el.getAttribute('de-board');
+				var num = +el.getAttribute('de-num');
+				removeFavoriteEntry(data, h, b, num);
+				if (h === aib.host && b === aib.b && pByNum.has(num)) {
+					pByNum.get(num).thr.op.setFavBtn(false);
+				}
+			}
+			saveFavorites(data);
+		});
 	}
 
 	function showFavoritesWindow(body, data) {
@@ -5818,7 +5824,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var div = $bEnd(body, '<hr><div id="de-fav-buttons"></div>');
 
 		div.appendChild(getEditButton('favor', function (fn) {
-			return readFav().then(function (data) {
+			return readFavorites().then(function (data) {
 				return fn(data, true, saveFavorites);
 			});
 		}));
@@ -6205,7 +6211,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			div.appendChild(getEditButton('cfg', function (fn) {
 				return fn(Cfg, true, function (data) {
-					saveComCfg(aib.dm, data);
+					saveCfgObj(aib.dm, data);
 					window.location.reload();
 				});
 			}));
@@ -6215,7 +6221,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				$bEnd(el, '<div id="de-list"><input type="button" value="' + Lng.load[lang] + '"> ' + Lng.loadGlobal[lang] + '</div>').firstElementChild.onclick = function () {
 					return spawn(getStoredObj, 'DESU_Config').then(function (data) {
 						if (data && 'global' in data && !$isEmpty(data.global)) {
-							saveComCfg(aib.dm, data.global);
+							saveCfgObj(aib.dm, data.global);
 							window.location.reload();
 						} else {
 							$popup(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
@@ -6232,7 +6238,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 						}
 						data.global = obj;
-						saveComCfg('global', data.global);
+						saveCfgObj('global', data.global);
 						toggleWindow('cfg', true);
 					});
 				};
@@ -6554,18 +6560,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 						break;
 					case 'hideRefPsts':
-						for (var _post = Thread.first.op; _post; _post = _post.next) {
+						for (var _post2 = Thread.first.op; _post2; _post2 = _post2.next) {
 							if (!Cfg.hideRefPsts) {
-								_post.ref.unhide();
-							} else if (_post.hidden) {
-								_post.ref.hide();
+								_post2.ref.unhide();
+							} else if (_post2.hidden) {
+								_post2.ref.hide();
 							}
 						}
 						break;
 					case 'delHiddPost':
-						for (var _post2 = Thread.first.op; _post2; _post2 = _post2.next) {
-							if (_post2.hidden && !_post2.isOp) {
-								_post2.wrap.classList.toggle('de-hidden');
+						for (var _post3 = Thread.first.op; _post3; _post3 = _post3.next) {
+							if (_post3.hidden && !_post3.isOp) {
+								_post3.wrap.classList.toggle('de-hidden');
 							}
 						}
 						updateCSS();
@@ -8156,7 +8162,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post));
 			});
 			var files = [];
-			var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\.)?' + regQuote(aib.dm) + '\\/', 'i');
+			var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\.)?' + quoteReg(aib.dm) + '\\/', 'i');
 			$each($Q('link, *[src]', dc), function (el) {
 				if (els.indexOf(el) !== -1) {
 					return;
@@ -11926,7 +11932,7 @@ true, true],
 		}
 		pr.clearForm();
 		Cfg.stats[pr.tNum ? 'reply' : 'op']++;
-		saveComCfg(aib.dm, Cfg);
+		saveCfgObj(aib.dm, Cfg);
 		if (!pr.tNum) {
 			if (postNum) {
 				window.location = aib.getThrdUrl(aib.b, postNum);
@@ -14122,14 +14128,14 @@ true, true],
 						var inMsgSel = aib.qPostMsg + ', ' + aib.qPostMsg + ' *';
 						if (nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel) || nav.matchesSelector(start, aib.qPostSubj) && nav.matchesSelector(end, aib.qPostSubj)) {
 							if (this._selText.includes('\n')) {
-								Spells.add(1 , '/' + regQuote(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
+								Spells.add(1 , '/' + quoteReg(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
 							} else {
 								Spells.add(0 , this._selText.toLowerCase(), false);
 							}
 						} else {
 							dummy.innerHTML = '';
 							dummy.appendChild(this._selRange.cloneContents());
-							Spells.add(2 , '/' + regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
+							Spells.add(2 , '/' + quoteReg(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
 						}
 						return;
 					case 'hide-name':
@@ -15819,7 +15825,7 @@ true, true],
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				var _iterator33, _isArray33, _i37, _ref57, _post3;
+				var _iterator33, _isArray33, _i37, _ref57, _post4;
 
 				return regeneratorRuntime.wrap(function bannedPostsData$(_context21) {
 					while (1) {
@@ -15859,21 +15865,21 @@ true, true],
 								_ref57 = _i37.value;
 
 							case 11:
-								_post3 = _ref57;
-								_context21.t0 = _post3.banned;
+								_post4 = _ref57;
+								_context21.t0 = _post4.banned;
 								_context21.next = _context21.t0 === 1 ? 15 : _context21.t0 === 2 ? 18 : 21;
 								break;
 
 							case 15:
 								_context21.next = 17;
-								return [1, _post3.num, $add('<span class="pomyanem">(Автор этого поста был забанен. Помянем.)</span>')];
+								return [1, _post4.num, $add('<span class="pomyanem">(Автор этого поста был забанен. Помянем.)</span>')];
 
 							case 17:
 								return _context21.abrupt('break', 21);
 
 							case 18:
 								_context21.next = 20;
-								return [2, _post3.num, $add('<span class="pomyanem">(Автор этого поста был предупрежден.)</span>')];
+								return [2, _post4.num, $add('<span class="pomyanem">(Автор этого поста был предупрежден.)</span>')];
 
 							case 20:
 								return _context21.abrupt('break', 21);
@@ -16042,7 +16048,7 @@ true, true],
 				var _this50 = this;
 
 				this.op.setFavBtn(val);
-				readFav().then(function (fav) {
+				readFavorites().then(function (fav) {
 					var b = aib.b,
 					    h = aib.host;
 					if (val) {
@@ -16062,7 +16068,7 @@ true, true],
 							'type': type
 						};
 					} else {
-						removeFavoriteEntry(fav, h, b, _this50.num, false);
+						removeFavoriteEntry(fav, h, b, _this50.num);
 					}
 					saveFavorites(fav);
 				});
@@ -16135,11 +16141,11 @@ true, true],
 					var bNum = _ref60[1];
 					var bEl = _ref60[2];
 
-					var _post4 = bNum ? pByNum.get(bNum) : this.op;
-					if (_post4 && _post4.banned !== banId) {
-						$del($q(aib.qBan, _post4.el));
-						_post4.msg.appendChild(bEl);
-						_post4.banned = banId;
+					var _post5 = bNum ? pByNum.get(bNum) : this.op;
+					if (_post5 && _post5.banned !== banId) {
+						$del($q(aib.qBan, _post5.el));
+						_post5.msg.appendChild(bEl);
+						_post5.banned = banId;
 					}
 				}
 			}
@@ -16420,7 +16426,7 @@ true, true],
 					this.last = res[3];
 					this.pcount = len + 1;
 				}
-				readFav().then(function (fav) {
+				readFavorites().then(function (fav) {
 					var f = fav[aib.host];
 					if (!f || !f[aib.b]) {
 						return;
@@ -17122,7 +17128,7 @@ true, true],
 		}, {
 			key: 'reCrossLinks',
 			get: function get() {
-				var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' + regQuote(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
+				var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' + quoteReg(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
 				Object.defineProperty(this, 'reCrossLinks', { value: val });
 				return val;
 			}
@@ -20049,7 +20055,7 @@ true, true],
 			}
 			if (!localData) {
 				Cfg.stats.view++;
-				saveComCfg(aib.dm, Cfg);
+				saveCfgObj(aib.dm, Cfg);
 				Thread.first.el.insertAdjacentHTML('afterend', '<div class="de-thread-buttons">' + '<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>' + '<span id="de-updater-count" style="display: none;"></span>]</span>' + (aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '') + '</div>');
 			}
 		} else {
@@ -20113,7 +20119,7 @@ true, true],
 			if (dVer) {
 				var cVer = version.split('.');
 				var src = gitRaw + (nav.isES6 ? 'src/' : '') + 'Dollchan_Extension_Tools.' + (nav.isES6 ? 'es6.' : '') + 'user.js';
-				saveComCfg('lastUpd', Date.now());
+				saveCfgObj('lastUpd', Date.now());
 				for (var i = 0, len = Math.max(cVer.length, dVer.length); i < len; ++i) {
 					if ((+dVer[i] || 0) > (+cVer[i] || 0)) {
 						return '<a style="color: blue; font-weight: bold;" href="' + src + '">' + Lng.updAvail[lang] + '</a>';
