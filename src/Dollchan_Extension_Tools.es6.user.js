@@ -8111,7 +8111,7 @@ function getSubmitError(dc) {
 		err += els[i].innerHTML + '\n';
 	}
 	err = err.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
-	return /successful|uploaded|updating|deleted|обновл|удален[о\.]/i.test(err) ? null : err;
+	return /successful|uploaded|updating|обновл|удален[о\.]/i.test(err) ? null : err;
 }
 
 function getUploadFunc() {
