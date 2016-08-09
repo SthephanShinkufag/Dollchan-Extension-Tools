@@ -789,8 +789,6 @@ function checkCSSColor(color) {
 
 const pad2 = i => (i < 10 ? '0' : '') + i;
 
-const $isEmpty = obj => Object.keys(obj).length === 0;
-
 const $join = (arr, start, end) => start + arr.join(end + start) + end;
 
 const fixBrd = b => '/' + b + (b ? '/' : '');
@@ -811,6 +809,15 @@ function toRegExp(str, noG) {
 
 function $pd(e) {
 	e.preventDefault();
+}
+
+function $isEmpty(obj) {
+	for(let i in obj) {
+		if(obj.hasOwnProperty(i)) {
+			return false;
+		}
+	}
+	return true;
 }
 
 function $txtInsert(el, txt) {
@@ -1706,7 +1713,7 @@ function saveFavorites(fav) {
 function removeFavoriteEntry(fav, h, b, num) {
 	if((h in fav) && (b in fav[h]) && (num in fav[h][b])) {
 		delete fav[h][b][num];
-		if(Object.keys(fav[h][b]).length === 1 && fav[h][b].url) {
+		if(fav[h][b].hasOwnProperty('url') && Object.keys(fav[h][b]).length === 1) {
 			delete fav[h][b];
 			if($isEmpty(fav[h])) {
 				delete fav[h];

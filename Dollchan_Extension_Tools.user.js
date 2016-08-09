@@ -3620,10 +3620,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return (i < 10 ? '0' : '') + i;
 	};
 
-	var $isEmpty = function $isEmpty(obj) {
-		return Object.keys(obj).length === 0;
-	};
-
 	var $join = function $join(arr, start, end) {
 		return start + arr.join(end + start) + end;
 	};
@@ -3648,6 +3644,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function $pd(e) {
 		e.preventDefault();
+	}
+
+	function $isEmpty(obj) {
+		for (var i in obj) {
+			if (obj.hasOwnProperty(i)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	function $txtInsert(el, txt) {
@@ -4845,7 +4850,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function removeFavoriteEntry(fav, h, b, num) {
 		if (h in fav && b in fav[h] && num in fav[h][b]) {
 			delete fav[h][b][num];
-			if (Object.keys(fav[h][b]).length === 1 && fav[h][b].url) {
+			if (fav[h][b].hasOwnProperty('url') && Object.keys(fav[h][b]).length === 1) {
 				delete fav[h][b];
 				if ($isEmpty(fav[h])) {
 					delete fav[h];
