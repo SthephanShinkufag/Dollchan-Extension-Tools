@@ -213,7 +213,6 @@ module.exports = function(it){
 'use strict';
 var dP          = require('./_object-dp').f
   , create      = require('./_object-create')
-  , hide        = require('./_hide')
   , redefineAll = require('./_redefine-all')
   , ctx         = require('./_ctx')
   , anInstance  = require('./_an-instance')
@@ -332,7 +331,7 @@ module.exports = {
     setSpecies(NAME);
   }
 };
-},{"./_an-instance":16,"./_ctx":31,"./_defined":32,"./_descriptors":33,"./_for-of":40,"./_hide":43,"./_iter-define":55,"./_iter-step":57,"./_meta":61,"./_object-create":64,"./_object-dp":65,"./_redefine-all":76,"./_set-species":79}],26:[function(require,module,exports){
+},{"./_an-instance":16,"./_ctx":31,"./_defined":32,"./_descriptors":33,"./_for-of":40,"./_iter-define":55,"./_iter-step":57,"./_meta":61,"./_object-create":64,"./_object-dp":65,"./_redefine-all":76,"./_set-species":79}],26:[function(require,module,exports){
 var classof = require('./_classof')
   , from    = require('./_array-from-iterable');
 module.exports = function(NAME){
@@ -1005,6 +1004,7 @@ var anObject    = require('./_an-object')
 var createDict = function(){
   var iframe = require('./_dom-create')('iframe')
     , i      = enumBugKeys.length
+    , lt     = '<'
     , gt     = '>'
     , iframeDocument;
   iframe.style.display = 'none';
@@ -1012,7 +1012,7 @@ var createDict = function(){
   iframe.src = 'javascript:'; 
   iframeDocument = iframe.contentWindow.document;
   iframeDocument.open();
-  iframeDocument.write('<script>document.F=Object</script' + gt);
+  iframeDocument.write(lt + 'script' + gt + 'document.F=Object' + lt + '/script' + gt);
   iframeDocument.close();
   createDict = iframeDocument.F;
   while(i--)delete createDict[PROTOTYPE][enumBugKeys[i]];
@@ -1029,6 +1029,7 @@ module.exports = Object.create || function create(O, Properties){
   } else result = createDict();
   return Properties === undefined ? result : dPs(result, Properties);
 };
+
 },{"./_an-object":17,"./_dom-create":34,"./_enum-bug-keys":35,"./_html":44,"./_object-dps":66,"./_shared-key":81}],65:[function(require,module,exports){
 var anObject       = require('./_an-object')
   , IE8_DOM_DEFINE = require('./_ie8-dom-define')
@@ -1560,11 +1561,9 @@ var LIBRARY            = require('./_library')
   , classof            = require('./_classof')
   , $export            = require('./_export')
   , isObject           = require('./_is-object')
-  , anObject           = require('./_an-object')
   , aFunction          = require('./_a-function')
   , anInstance         = require('./_an-instance')
   , forOf              = require('./_for-of')
-  , setProto           = require('./_set-proto').set
   , speciesConstructor = require('./_species-constructor')
   , task               = require('./_task').set
   , microtask          = require('./_microtask')()
@@ -1839,7 +1838,7 @@ $export($export.S + $export.F * !(USE_NATIVE && require('./_iter-detect')(functi
     return capability.promise;
   }
 });
-},{"./_a-function":14,"./_an-instance":16,"./_an-object":17,"./_classof":23,"./_core":29,"./_ctx":31,"./_export":37,"./_for-of":40,"./_global":41,"./_is-object":51,"./_iter-detect":56,"./_library":60,"./_microtask":62,"./_redefine-all":76,"./_set-proto":78,"./_set-species":79,"./_set-to-string-tag":80,"./_species-constructor":83,"./_task":87,"./_wks":97}],107:[function(require,module,exports){
+},{"./_a-function":14,"./_an-instance":16,"./_classof":23,"./_core":29,"./_ctx":31,"./_export":37,"./_for-of":40,"./_global":41,"./_is-object":51,"./_iter-detect":56,"./_library":60,"./_microtask":62,"./_redefine-all":76,"./_set-species":79,"./_set-to-string-tag":80,"./_species-constructor":83,"./_task":87,"./_wks":97}],107:[function(require,module,exports){
 'use strict';
 var strong = require('./_collection-strong');
 
@@ -2125,7 +2124,6 @@ var each         = require('./_array-methods')(0)
   , assign       = require('./_object-assign')
   , weak         = require('./_collection-weak')
   , isObject     = require('./_is-object')
-  , has          = require('./_has')
   , getWeak      = meta.getWeak
   , isExtensible = Object.isExtensible
   , uncaughtFrozenStore = weak.ufstore
@@ -2169,7 +2167,7 @@ if(new $WeakMap().set((Object.freeze || Object)(tmp), 7).get(tmp) != 7){
     });
   });
 }
-},{"./_array-methods":20,"./_collection":28,"./_collection-weak":27,"./_has":42,"./_is-object":51,"./_meta":61,"./_object-assign":63,"./_redefine":77}],114:[function(require,module,exports){
+},{"./_array-methods":20,"./_collection":28,"./_collection-weak":27,"./_is-object":51,"./_meta":61,"./_object-assign":63,"./_redefine":77}],114:[function(require,module,exports){
 var $export  = require('./_export');
 
 $export($export.P + $export.R, 'Map', {toJSON: require('./_collection-to-json')('Map')});
@@ -2205,8 +2203,61 @@ for(var collections = ['NodeList', 'DOMTokenList', 'MediaList', 'StyleSheetList'
   }
 }
 },{"./_global":41,"./_hide":43,"./_iterators":58,"./_redefine":77,"./_wks":97,"./es6.array.iterator":100}],119:[function(require,module,exports){
-
 var process = module.exports = {};
+
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+(function () {
+    try {
+        cachedSetTimeout = setTimeout;
+    } catch (e) {
+        cachedSetTimeout = function () {
+            throw new Error('setTimeout is not defined');
+        }
+    }
+    try {
+        cachedClearTimeout = clearTimeout;
+    } catch (e) {
+        cachedClearTimeout = function () {
+            throw new Error('clearTimeout is not defined');
+        }
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        return setTimeout(fun, 0);
+    }
+    try {
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        return clearTimeout(marker);
+    }
+    try {
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
 var queue = [];
 var draining = false;
 var currentQueue;
@@ -2231,7 +2282,7 @@ function drainQueue() {
     if (draining) {
         return;
     }
-    var timeout = setTimeout(cleanUpNextTick);
+    var timeout = runTimeout(cleanUpNextTick);
     draining = true;
 
     var len = queue.length;
@@ -2248,7 +2299,7 @@ function drainQueue() {
     }
     currentQueue = null;
     draining = false;
-    clearTimeout(timeout);
+    runClearTimeout(timeout);
 }
 
 process.nextTick = function (fun) {
@@ -2260,7 +2311,7 @@ process.nextTick = function (fun) {
     }
     queue.push(new Item(fun, args));
     if (queue.length === 1 && !draining) {
-        setTimeout(drainQueue, 0);
+        runTimeout(drainQueue);
     }
 };
 
@@ -4752,12 +4803,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						if (!hideData) {
 							maybeSpells.value.run(_post); 
 						} else if (hideData[0]) {
-								if (_post.hidden) {
-									_post.spellHidden = true;
-								} else {
-									_post.spellHide(hideData[1]);
-								}
+							if (_post.hidden) {
+								_post.spellHidden = true;
+							} else {
+								_post.spellHide(hideData[1]);
 							}
+						}
 
 					case 29:
 						_post = _post.next;
@@ -5785,30 +5836,39 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (html) {
 			$bEnd(body, '<div class="de-fav-table">' + html + '</div>').addEventListener('click', function (e) {
 				var el = e.target;
-				switch (el.className) {
-					case 'de-fav-link':
-						sesStorage['de-win-fav'] = '1'; 
-						el = el.parentNode;
-						sesStorage.removeItem('de-scroll-' + el.getAttribute('de-board') + el.getAttribute('de-num'));
-						break;
-					case 'de-fav-header-switch':
-						var checked = el.checked;
-						$each($Q('.de-entry > input', el.parentNode.nextElementSibling), function (el) {
-							return el.checked = checked;
-						});
-						el = el.parentNode.nextElementSibling;
-						if (!checked || el.hasAttribute('de-opened')) {
-							return;
-						}
-						break;
-					case 'de-fav-header-link':
-						el = el.parentNode.nextElementSibling;
-						$pd(e); 
-						break;
-					default:
-						return;
-				}
 
+				var _ret4 = function () {
+					switch (el.className) {
+						case 'de-fav-link':
+							sesStorage['de-win-fav'] = '1'; 
+							el = el.parentNode;
+							sesStorage.removeItem('de-scroll-' + el.getAttribute('de-board') + el.getAttribute('de-num'));
+							break;
+						case 'de-fav-header-switch':
+							var checked = el.checked;
+							$each($Q('.de-entry > input', el.parentNode.nextElementSibling), function (el) {
+								return el.checked = checked;
+							});
+							el = el.parentNode.nextElementSibling;
+							if (!checked || el.hasAttribute('de-opened')) {
+								return {
+									v: void 0
+								};
+							}
+							break;
+						case 'de-fav-header-link':
+							el = el.parentNode.nextElementSibling;
+							$pd(e); 
+							break;
+						default:
+							return {
+								v: void 0
+							};
+					}
+
+				}();
+
+				if ((typeof _ret4 === 'undefined' ? 'undefined' : _typeof(_ret4)) === "object") return _ret4.v;
 				if (el.hasAttribute('de-opened')) {
 					el.style.display = 'none';
 					el.removeAttribute('de-opened');
@@ -5937,10 +5997,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							if (cnt === 0) {
 								$hide(countEl); 
 							} else {
-									$show(countEl);
-									f['new'] = cnt;
-									isUpdate = true;
-								}
+								$show(countEl);
+								f['new'] = cnt;
+								isUpdate = true;
+							}
 
 						case 47:
 							++i;
@@ -7817,34 +7877,34 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (dat[i + 1] === 0xD8) {
 						j++;
 					} else if (dat[i + 1] === 0xD9 && --j === 0) {
-							i += 2;
-							break;
-						}
-				}
-			}
-		} else if (dat[0] === 0x89 && dat[1] === 0x50) {
-				for (i = 0; i < len - 7; i++) {
-					if (dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
-						i += 8;
+						i += 2;
 						break;
 					}
 				}
-			} else {
-				return {};
 			}
+		} else if (dat[0] === 0x89 && dat[1] === 0x50) {
+			for (i = 0; i < len - 7; i++) {
+				if (dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
+					i += 8;
+					break;
+				}
+			}
+		} else {
+			return {};
+		}
 		if (i !== len && len - i > 60) {
 			for (len = i + 90; i < len; i++) {
 				if (dat[i] === 0x37 && dat[i + 1] === 0x7A && dat[i + 2] === 0xBC) {
 					return { 'type': 0, 'idx': i, 'data': ab };
 				} else if (dat[i] === 0x50 && dat[i + 1] === 0x4B && dat[i + 2] === 0x03) {
-						return { 'type': 1, 'idx': i, 'data': ab };
-					} else if (dat[i] === 0x52 && dat[i + 1] === 0x61 && dat[i + 2] === 0x72) {
-							return { 'type': 2, 'idx': i, 'data': ab };
-						} else if (dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67) {
-								return { 'type': 3, 'idx': i, 'data': ab };
-							} else if (dat[i] === 0x49 && dat[i + 1] === 0x44 && dat[i + 2] === 0x33) {
-									return { 'type': 4, 'idx': i, 'data': ab };
-								}
+					return { 'type': 1, 'idx': i, 'data': ab };
+				} else if (dat[i] === 0x52 && dat[i + 1] === 0x61 && dat[i + 2] === 0x72) {
+					return { 'type': 2, 'idx': i, 'data': ab };
+				} else if (dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67) {
+					return { 'type': 3, 'idx': i, 'data': ab };
+				} else if (dat[i] === 0x49 && dat[i + 1] === 0x44 && dat[i + 2] === 0x33) {
+					return { 'type': 4, 'idx': i, 'data': ab };
+				}
 			}
 		}
 		return {};
@@ -8664,8 +8724,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						el.insertAdjacentHTML('beforeend', '<p><audio src="' + src + '" preload="none" controls></audio></p>');
 					}
 				} else if (!$q('object[FlashVars*="' + src + '"]', el)) {
-						el.insertAdjacentHTML('beforeend', '<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '"><br>');
-					}
+					el.insertAdjacentHTML('beforeend', '<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '"><br>');
+				}
 			}
 		}
 		if (Cfg.addVocaroo) {
@@ -9592,10 +9652,10 @@ true, true],
 					i--;
 					len--;
 				} else if (sp[i][0] === 0xFF) {
-						sp.push(sp.splice(i, 1)[0]);
-						i--;
-						len--;
-					}
+					sp.push(sp.splice(i, 1)[0]);
+					i--;
+					len--;
+				}
 			}
 		},
 		_sync: function _sync(data) {
@@ -12411,10 +12471,10 @@ true, true],
 						this.segment = el;
 						break; 
 					} else if (el.id === voidId) {
-							voids.push(el);
-						} else {
-							break error;
-						}
+						voids.push(el);
+					} else {
+						break error;
+					}
 					offset += el.headSize + el.size;
 				}
 				this.voids = voids;
