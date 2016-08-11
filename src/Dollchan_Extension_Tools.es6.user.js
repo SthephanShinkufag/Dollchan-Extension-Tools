@@ -9506,14 +9506,14 @@ class AbstractPost {
 		case 'de-link-ref':
 		case 'de-link-pref':
 			if(Cfg.linksNavig) {
-				if(isOutEvent) {
+				if(isOutEvent) { // We need to delete previews
 					clearTimeout(this._linkDelay);
-					if(this.kid) {
-						this.kid.markToDel();
-					} else if(!(this instanceof Pview) && Pview.top) {
-						Pview.top.markToDel();
+					if(!(aib.getPostOfEl(fixEventEl(e.relatedTarget)) instanceof Pview) && Pview.top) {
+						Pview.top.markToDel(); // If cursor is not over one of previews - delete all previews
+					} else if(this.kid) {
+						this.kid.markToDel(); // If cursor is over any preview - delete its kids
 					}
-				} else {
+				} else { // We need to show a preview for this link
 					this._linkDelay = setTimeout(() => this.kid = Pview.show(this, el), Cfg.linksOver);
 				}
 				$pd(e);

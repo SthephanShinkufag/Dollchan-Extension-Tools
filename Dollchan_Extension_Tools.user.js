@@ -13630,10 +13630,10 @@ true, true],
 						if (Cfg.linksNavig) {
 							if (isOutEvent) {
 								clearTimeout(this._linkDelay);
-								if (this.kid) {
-									this.kid.markToDel();
-								} else if (!(this instanceof Pview) && Pview.top) {
+								if (!(aib.getPostOfEl(fixEventEl(e.relatedTarget)) instanceof Pview) && Pview.top) {
 									Pview.top.markToDel();
+								} else if (this.kid) {
+									this.kid.markToDel();
 								}
 							} else {
 								this._linkDelay = setTimeout(function () {
