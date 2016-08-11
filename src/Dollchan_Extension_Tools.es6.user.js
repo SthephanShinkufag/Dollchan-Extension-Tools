@@ -3520,7 +3520,7 @@ const cfgWindow = Object.create({
 		this._updateDependant();
 
 		// Updates all inputs according to config
-		const els = $Q('.de-cfg-chkbox, .de-cfg-inptxt, .de-cfg-select', newTab);
+		const els = $Q('.de-cfg-chkbox, .de-cfg-inptxt, .de-cfg-select', newTab.parentNode);
 		for(let i = 0, len = els.length; i < len; ++i) {
 			const el = els[i];
 			const info = el.getAttribute('info');

@@ -6933,7 +6933,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			this._updateDependant();
 
-			var els = $Q('.de-cfg-chkbox, .de-cfg-inptxt, .de-cfg-select', newTab);
+			var els = $Q('.de-cfg-chkbox, .de-cfg-inptxt, .de-cfg-select', newTab.parentNode);
 			for (var i = 0, len = els.length; i < len; ++i) {
 				var _el = els[i];
 				var _info4 = _el.getAttribute('info');
@@ -13631,9 +13631,9 @@ true, true],
 							if (isOutEvent) {
 								clearTimeout(this._linkDelay);
 								if (!(aib.getPostOfEl(fixEventEl(e.relatedTarget)) instanceof Pview) && Pview.top) {
-									Pview.top.markToDel();
+									Pview.top.markToDel(); 
 								} else if (this.kid) {
-									this.kid.markToDel();
+									this.kid.markToDel(); 
 								}
 							} else {
 								this._linkDelay = setTimeout(function () {
