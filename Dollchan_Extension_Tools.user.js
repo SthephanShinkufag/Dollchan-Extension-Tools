@@ -15604,7 +15604,7 @@ true, true],
 				var fileHTML = void 0;
 				if (data.filedeleted) {
 					fileHTML = '<div id="f' + num + '" class="file"><span class="fileThumb">\n\t\t\t\t<img src="' + _icon('filedeleted-res') + '" class="fileDeletedRes" alt="File deleted.">\n\t\t\t</span></div>';
-				} else if (data.filename) {
+				} else if (typeof data.filename === 'string') {
 					var name = data.filename + data.ext,
 					    needTitle = false;
 					var decodedName = _decode(data.filename);

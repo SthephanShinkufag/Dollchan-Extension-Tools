@@ -11058,7 +11058,7 @@ class _4chanPostsBuilder {
 			fileHTML = `<div id="f${ num }" class="file"><span class="fileThumb">
 				<img src="${ _icon('filedeleted-res') }" class="fileDeletedRes" alt="File deleted.">
 			</span></div>`;
-		} else if(data.filename) {
+		} else if(typeof data.filename === 'string') {
 			let name = data.filename + data.ext,
 				needTitle = false;
 			const decodedName = _decode(data.filename);
