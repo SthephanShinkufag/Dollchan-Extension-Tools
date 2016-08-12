@@ -7070,6 +7070,12 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	if(fileEl) {
 		aib.fixFileInputs(fileEl);
 		this.files = new Files(this, $q('tr input[type="file"]', form));
+		// We need to clear file inputs in case if session was restored.
+		window.addEventListener('load', () => setTimeout(() => {
+			if(!this.files.filesCount) {
+				this.files.clear();
+			}
+		}, 0));
 	}
 	this.name = $q(aib.qFormName, form);
 	this.mail = $q(aib.qFormMail, form);

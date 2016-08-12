@@ -10759,6 +10759,13 @@ true, true],
 		if (fileEl) {
 			aib.fixFileInputs(fileEl);
 			this.files = new Files(this, $q('tr input[type="file"]', form));
+			window.addEventListener('load', function () {
+				return setTimeout(function () {
+					if (!_this20.files.filesCount) {
+						_this20.files.clear();
+					}
+				}, 0);
+			});
 		}
 		this.name = $q(aib.qFormName, form);
 		this.mail = $q(aib.qFormMail, form);
