@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         16.6.17.0
+// @version         16.8.17.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       (c) 2015 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
@@ -2923,7 +2923,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
-	var version = '16.6.17.0';
+	var version = '16.8.17.0';
 	var commit = 'd3b8f7e';
 
 	var defaultCfg = {
