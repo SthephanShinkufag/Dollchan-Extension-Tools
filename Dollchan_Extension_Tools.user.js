@@ -17357,33 +17357,54 @@ true, true],
 					if (this._capUpdPromise) {
 						this._capUpdPromise.cancel();
 					}
-					return this._capUpdPromise = $ajax('/api/captcha/2chaptcha/id?board=' + this.b + '&thread=' + pr.tNum).then(function (xhr) {
+					var type = void 0;
+					try {
+						type = JSON.parse(locStorage['store']).other.captcha_provider || '2chaptcha';
+					} catch (e) {
+						type = '2chaptcha';
+					}
+					return this._capUpdPromise = $ajax('/api/captcha/' + type + '/id?board=' + this.b + '&thread=' + pr.tNum).then(function (xhr) {
 						_this57._capUpdPromise = null;
-						var el = $q('.captcha-box', cap.trEl);
+						var box = $q('.captcha-box', cap.trEl);
 						var data = JSON.parse(xhr.responseText);
 						switch (data.result) {
 							case 0:
-								el.innerHTML = 'Пасс-код не действителен. <a href="#" id="renew-pass-btn">Обновить</a>';
+								box.innerHTML = 'Пасс-код не действителен. <a href="#" id="renew-pass-btn">Обновить</a>';
 								break;
 							case 2:
-								el.innerHTML = 'Вам не нужно вводить капчу, у вас введен пасс-код.';
+								box.textContent = 'Вам не нужно вводить капчу, у вас введен пасс-код.';
 								break;
 							case 3:
 								return CancelablePromise.reject(); 
 							case 1:
-								var src = '/api/captcha/2chaptcha/image/' + data.id;
-								if (el = $id('de-image-captcha')) {
-									el.src = '';
-									el.src = src;
+								var src = '/api/captcha/' + type + '/image/' + data.id;
+								var image = $id('de-image-captcha');
+								if (image) {
+									image.src = '';
+									image.src = src;
 								} else {
-									el = $q('.captcha-image', cap.trEl);
-									el.innerHTML = '<img id="de-image-captcha" src="' + src + '">';
-									cap.initImage(el.firstChild);
+									image = $q('.captcha-image', cap.trEl);
+									image.innerHTML = '<img id="de-image-captcha" src="' + src + '">';
+									cap.initImage(image.firstChild);
 								}
 								$q('input[name="2chaptcha_id"]', cap.trEl).value = data.id;
+								if (type !== 'animecaptcha') {
+									break;
+								} 
+								var group = $q('.captcha-radiogr');
+								if (!group) {
+									group = $bEnd(box, '<div class="captcha-radiogr"></div>');
+									box.classList.add('animedaun');
+									$del($id('captcha-value'));
+								}
+								var html = '';
+								for (var _i40 in data.values) {
+									html += '<label><input type="radio" name="animeGroup" value="' + data.values[_i40].id + '">' + data.values[_i40].name + '</label><br>';
+								}
+								group.innerHTML = html;
 								break;
 							default:
-								el.textContent = data;
+								box.textContent = data;
 						}
 					}, function (e) {
 						if (!(e instanceof CancelError)) {
@@ -18391,14 +18412,14 @@ true, true],
 					try {
 						var links = $Q('.post-reply-link', el);
 						var lLen = links.length;
-						for (var _i40 = 0; _i40 < lLen; ++_i40) {
-							var link = links[_i40];
+						for (var _i41 = 0; _i41 < lLen; ++_i41) {
+							var link = links[_i41];
 							link.textContent = '>>' + link.getAttribute('data-num');
 						}
 						var thumbs = $Q('.expand_image', el);
 						var tLen = thumbs.length;
-						for (var _i41 = 0; _i41 < tLen; ++_i41) {
-							var thumb = thumbs[_i41];
+						for (var _i42 = 0; _i42 < tLen; ++_i42) {
+							var thumb = thumbs[_i42];
 							var _link2 = thumb.getAttribute('onclick').match(/http:\/[^']+/)[0];
 							var div = thumb.firstElementChild;
 							var iframe = div.firstElementChild;
@@ -18886,16 +18907,16 @@ true, true],
 					var sessionId = null;
 					var cookie = doc.cookie;
 					if (cookie.includes('desuchan.session')) {
-						for (var _iterator35 = cookie.split(';'), _isArray35 = Array.isArray(_iterator35), _i42 = 0, _iterator35 = _isArray35 ? _iterator35 : _iterator35[Symbol.iterator]();;) {
+						for (var _iterator35 = cookie.split(';'), _isArray35 = Array.isArray(_iterator35), _i43 = 0, _iterator35 = _isArray35 ? _iterator35 : _iterator35[Symbol.iterator]();;) {
 							var _ref62;
 
 							if (_isArray35) {
-								if (_i42 >= _iterator35.length) break;
-								_ref62 = _iterator35[_i42++];
+								if (_i43 >= _iterator35.length) break;
+								_ref62 = _iterator35[_i43++];
 							} else {
-								_i42 = _iterator35.next();
-								if (_i42.done) break;
-								_ref62 = _i42.value;
+								_i43 = _iterator35.next();
+								if (_i43.done) break;
+								_ref62 = _i43.value;
 							}
 
 							var c = _ref62;

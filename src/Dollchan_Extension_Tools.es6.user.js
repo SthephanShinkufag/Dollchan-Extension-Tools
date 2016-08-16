@@ -12595,33 +12595,56 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(this._capUpdPromise) {
 				this._capUpdPromise.cancel();
 			}
+			let type;
+			try {
+				type = JSON.parse(locStorage['store']).other.captcha_provider || '2chaptcha';
+			} catch(e) {
+				type = '2chaptcha';
+			}
 			return this._capUpdPromise = $ajax(
-				'/api/captcha/2chaptcha/id?board=' + this.b + '&thread=' + pr.tNum
+				`/api/captcha/${ type }/id?board=${ this.b }&thread=` + pr.tNum
 			).then(xhr => {
 				this._capUpdPromise = null;
-				let el = $q('.captcha-box', cap.trEl);
+				let box = $q('.captcha-box', cap.trEl);
 				const data = JSON.parse(xhr.responseText);
 				switch(data.result) {
-				case 0: // VIP fail
-					el.innerHTML = 'Пасс-код не действителен. <a href="#" id="renew-pass-btn">Обновить</a>';
+				case 0:
+					box.innerHTML = 'Пасс-код не действителен. <a href="#" id="renew-pass-btn">Обновить</a>';
 					break;
-				case 2: // VIP
-					el.innerHTML = 'Вам не нужно вводить капчу, у вас введен пасс-код.';
+				case 2:
+					box.textContent = 'Вам не нужно вводить капчу, у вас введен пасс-код.';
 					break;
-				case 3: return CancelablePromise.reject(); // Disabled
-				case 1: // Check
-					const src = '/api/captcha/2chaptcha/image/' + data.id;
-					if((el = $id('de-image-captcha'))) {
-						el.src = '';
-						el.src = src;
+				case 3: return CancelablePromise.reject(); // Captcha is disabled
+				case 1: // Captcha is enabled
+					// Get captcha image
+					const src = `/api/captcha/${ type }/image/` + data.id;
+					let image = $id('de-image-captcha');
+					if(image) {
+						image.src = '';
+						image.src = src;
 					} else {
-						el = $q('.captcha-image', cap.trEl);
-						el.innerHTML = '<img id="de-image-captcha" src="' + src + '">';
-						cap.initImage(el.firstChild);
+						image = $q('.captcha-image', cap.trEl);
+						image.innerHTML = '<img id="de-image-captcha" src="' + src + '">';
+						cap.initImage(image.firstChild);
 					}
 					$q('input[name="2chaptcha_id"]', cap.trEl).value = data.id;
+					if(type !== 'animecaptcha') {
+						break;
+					} // Build anime selector
+					let group = $q('.captcha-radiogr');
+					if(!group) {
+						group = $bEnd(box, '<div class="captcha-radiogr"></div>');
+						box.classList.add('animedaun');
+						$del($id('captcha-value'));
+					}
+					let html = '';
+					for(let i in data.values) {
+						html += `<label><input type="radio" name="animeGroup" value="${
+							data.values[i].id }">${ data.values[i].name }</label><br>`;
+					}
+					group.innerHTML = html;
 					break;
-				default: el.textContent = data;
+				default: box.textContent = data;
 				}
 			}, e => {
 				if(!(e instanceof CancelError)) {
