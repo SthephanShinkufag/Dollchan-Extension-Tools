@@ -12596,21 +12596,21 @@ function getImageBoard(checkDomains, checkEngines) {
 				this._capUpdPromise.cancel();
 			}
 			return this._capUpdPromise = $ajax(
-				'/makaba/captcha.fcgi?type=2chaptcha&board=' + this.b +
-				(pr.tNum ? '&action=thread' : '')
+				'/api/captcha/2chaptcha/id?board=' + this.b + '&thread=' + pr.tNum
 			).then(xhr => {
 				this._capUpdPromise = null;
-				var el = $q('.captcha-box', cap.trEl),
-					data = xhr.responseText;
-				if(data.includes('VIPFAIL')) {
-					el.innerHTML = 'Ваш пасс-код не действителен, пожалуйста, перелогиньтесь. <a href="#" id="renew-pass-btn">Обновить</a>';
-				} else if(data.includes('VIP')) {
+				let el = $q('.captcha-box', cap.trEl);
+				const data = JSON.parse(xhr.responseText);
+				switch(data.result) {
+				case 0: // VIP fail
+					el.innerHTML = 'Пасс-код не действителен. <a href="#" id="renew-pass-btn">Обновить</a>';
+					break;
+				case 2: // VIP
 					el.innerHTML = 'Вам не нужно вводить капчу, у вас введен пасс-код.';
-				} else if(data.includes('DISABLED')) {
-					return CancelablePromise.reject();
-				} else if(data.includes('CHECK')) {
-					var key = data.substr(6),
-						src = '/makaba/captcha.fcgi?type=2chaptcha&action=image&id=' + key;
+					break;
+				case 3: return CancelablePromise.reject(); // Disabled
+				case 1: // Check
+					const src = '/api/captcha/2chaptcha/image/' + data.id;
 					if((el = $id('de-image-captcha'))) {
 						el.src = '';
 						el.src = src;
@@ -12619,10 +12619,9 @@ function getImageBoard(checkDomains, checkEngines) {
 						el.innerHTML = '<img id="de-image-captcha" src="' + src + '">';
 						cap.initImage(el.firstChild);
 					}
-					//$q('input[name="captcha_type"]', cap.trEl).value = '2chaptcha';
-					$q('input[name="2chaptcha_id"]', cap.trEl).value = key;
-				} else {
-					el.textContent = data;
+					$q('input[name="2chaptcha_id"]', cap.trEl).value = data.id;
+					break;
+				default: el.textContent = data;
 				}
 			}, e => {
 				if(!(e instanceof CancelError)) {
