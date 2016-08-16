@@ -3181,7 +3181,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'noSubj': ['Тему', 'Subject'],
 
 			'scriptStyle': {
-				sel: [['Gradient black', 'Gradient blue', 'Solid grey', 'Transparent blue'], ['Gradient black', 'Gradient blue', 'Solid grey', 'Transparent blue']],
+				sel: [['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark'], ['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark']],
 				txt: ['Стиль скрипта', 'Script style']
 			},
 			'userCSS': ['Пользовательский CSS', 'User CSS'],
@@ -6941,7 +6941,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (_el.type === 'checkbox') {
 						_el.checked = !!Cfg[_info4];
 					} else {
-						_el.value = Cfg[_info4];
+						_el.value = _info4 !== 'excludeList' ? Cfg[_info4] : excludeList;
 					}
 				} else {
 					_el.selectedIndex = Cfg[_info4];
@@ -6976,7 +6976,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgCommon: function _getCfgCommon() {
-			return '<div id="de-cfg-common" class="de-cfg-unvis">\n\t\t\t' + this._getSel('scriptStyle') + '<br>\n\t\t\t' + this._getBox('userCSS') + '\n\t\t\t<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a><br>\n\t\t\t' + this._getBox('panelCounter') + '<br>\n\t\t\t' + this._getBox('rePageTitle') + '<br>\n\t\t\t' + this._getBox('animation') + '<br>\n\t\t\t' + this._getBox('closePopups') + '<br>\n\t\t\t' + this._getBox('inftyScroll') + '<br>\n\t\t\t' + this._getBox('scrollToTop') + '<br>\n\t\t\t' + this._getBox('hotKeys') + '\n\t\t\t<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="' + Lng.edit[lang] + '">\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + (this._getInp('loadPages') + Lng.cfg.loadPages[lang]) + '\n\t\t\t</div>\n\t\t\t' + (!nav.isChromeStorage && !nav.Presto || nav.isGM ? this._getBox('updScript') + ('<div class="de-cfg-depend">\n\t\t\t\t\t' + this._getSel('scrUpdIntrv') + '\n\t\t\t\t\t<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t</div>') : '') + '\n\t\t\t' + (nav.isGlobal ? Lng.cfg['excludeList'][lang] + ('<input type="text" info="excludeList" class="de-cfg-inptxt" value="' + excludeList + '" style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, ...">') + this._getBox('turnOff') : '') + '\n\t\t</div>';
+			return '<div id="de-cfg-common" class="de-cfg-unvis">\n\t\t\t' + this._getSel('scriptStyle') + '<br>\n\t\t\t' + this._getBox('userCSS') + '\n\t\t\t<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a><br>\n\t\t\t' + this._getBox('panelCounter') + '<br>\n\t\t\t' + this._getBox('rePageTitle') + '<br>\n\t\t\t' + this._getBox('animation') + '<br>\n\t\t\t' + this._getBox('closePopups') + '<br>\n\t\t\t' + this._getBox('inftyScroll') + '<br>\n\t\t\t' + this._getBox('scrollToTop') + '<br>\n\t\t\t' + this._getBox('hotKeys') + '\n\t\t\t<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="' + Lng.edit[lang] + '">\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + (this._getInp('loadPages') + Lng.cfg.loadPages[lang]) + '\n\t\t\t</div>\n\t\t\t' + (!nav.isChromeStorage && !nav.Presto || nav.isGM ? this._getBox('updScript') + ('<div class="de-cfg-depend">\n\t\t\t\t\t' + this._getSel('scrUpdIntrv') + '\n\t\t\t\t\t<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t</div>') : '') + '\n\t\t\t' + (nav.isGlobal ? Lng.cfg.excludeList[lang] + '<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, ...">' + this._getBox('turnOff') : '') + '\n\t\t</div>';
 		},
 
 
@@ -20241,22 +20241,24 @@ true, true],
 
 		switch (Cfg.scriptStyle) {
 			case 0:
-				x += '#de-panel, .de-win-head { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\
-			.de-panel-button:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }';
+				x += '#de-panel, .de-win-head { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }';
 				break;
 			case 1:
-				x += '#de-panel, .de-win-head { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\
-			#de-panel-buttons, #de-panel-info { border-color: #8fbbed; }\
-			.de-panel-button:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }';
+				x += '#de-panel, .de-win-head { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\n\t\t\t#de-panel-buttons, #de-panel-info { border-color: #8fbbed; }';
 				break;
 			case 2:
-				x += '#de-panel, .de-win-head { background-color: #777; }\
-			#de-panel-buttons, #de-panel-info { border-color: #ccc; }\
-			.de-panel-svg:hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }';
+				x += '#de-panel, .de-win-head { background-color: #777; }\n\t\t\t#de-panel-buttons, #de-panel-info { border-color: #ccc; }\n\t\t\t.de-panel-svg:hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }';
 				break;
-			default:
-				x += '#de-panel, .de-win-head { background-color: rgba(0,20,80,.72); }\
-			.de-panel-button:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }';
+			case 3:
+				x += '#de-panel, .de-win-head { background-color: rgba(0,20,80,.72); }';
+				break;
+			case 4:
+				x += '#de-panel, .de-win-head { background: none; background-color: #333; border-radius: 0 !important; }\n\t\t\t#de-win-reply.de-win { border-radius: 0 !important; }\n\t\t\t#de-panel-buttons, #de-panel-info { border-color: #666; }';
+		}
+		if (Cfg.scriptStyle === 2) {
+			x += '.de-panel-svg:hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }';
+		} else {
+			x += '.de-panel-button:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }';
 		}
 
 		if (Cfg.disabled) {
@@ -20312,20 +20314,19 @@ true, true],
 
 		switch (Cfg.scriptStyle) {
 			case 0:
-				x += '#de-cfg-bar { background-color: #1f2740; }\
-			.de-cfg-tab { border-color: #121421 !important; }';
+				x += '#de-cfg-bar { background-color: #1f2740; }\n\t\t\t.de-cfg-tab { border-color: #121421 !important; }';
 				break;
 			case 1:
-				x += '#de-cfg-bar { background-color: #325f9e; }\
-			.de-cfg-tab { border-color: #183d77 !important; }';
+				x += '#de-cfg-bar { background-color: #325f9e; }\n\t\t\t.de-cfg-tab { border-color: #183d77 !important; }';
 				break;
 			case 2:
-				x += '#de-cfg-bar, #de-spell-rowmeter { background-color: #777; }\
-			.de-cfg-body, #de-cfg-buttons { border-color: #444; }';
+				x += '#de-cfg-bar, #de-spell-rowmeter { background-color: #777; }\n\t\t\t.de-cfg-body, #de-cfg-buttons { border-color: #444; }';
 				break;
-			default:
-				x += '#de-cfg-bar { background-color: rgba(0,20,80,.72); }\
-			.de-cfg-tab { border-color: #001450 !important; }';
+			case 3:
+				x += '#de-cfg-bar { background-color: rgba(0,20,80,.72); }\n\t\t\t.de-cfg-tab { border-color: #001450 !important; }';
+				break;
+			case 4:
+				x += '#de-cfg-bar { background-color: #222; }\n\t\t\t.de-cfg-body, #de-cfg-buttons { border-color: #666; }';
 		}
 
 		x += '.de-post-btns { margin-left: 4px; }\

@@ -119,7 +119,8 @@ const defaultCfg = {
 	'noPassword':       1,      // hide form password field
 	'noName':           0,      // hide form name field
 	'noSubj':           0,      // hide form subject field
-	'scriptStyle':      0,      // script style [0=gradient black, 1=gradient blue, 2=solid grey, 3=transparent blue]
+	'scriptStyle':      0,      /* script style
+		[0=Gradient darkblue, 1=gradient blue, 2=solid grey, 3=transparent blue, 4=square dark] */
 	'userCSS':          0,      // user style
 	'userCSSTxt':       '',     //    css text
 	'expandPanel':      0,      // show full main panel
@@ -285,8 +286,8 @@ const Lng = {
 
 		'scriptStyle': {
 			sel:        [
-				['Gradient black', 'Gradient blue', 'Solid grey', 'Transparent blue'],
-				['Gradient black', 'Gradient blue', 'Solid grey', 'Transparent blue']
+				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark'],
+				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark']
 			],
 			txt:        ['Стиль скрипта', 'Script style']
 		},
@@ -3528,7 +3529,7 @@ const cfgWindow = Object.create({
 				if(el.type === 'checkbox') {
 					el.checked = !!Cfg[info];
 				} else {
-					el.value = Cfg[info];
+					el.value = info !== 'excludeList' ? Cfg[info] : excludeList;
 				}
 			} else {
 				el.selectedIndex = Cfg[info];
@@ -3715,9 +3716,8 @@ const cfgWindow = Object.create({
 							Lng.checkNow[lang] }">
 				</div>` : '' }
 			${ nav.isGlobal ?
-				Lng.cfg['excludeList'][lang] +
-				`<input type="text" info="excludeList" class="de-cfg-inptxt" value="${ excludeList
-					}" style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, ...">` +
+				Lng.cfg.excludeList[lang] +
+				`<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, ...">` +
 				this._getBox('turnOff') : '' }
 		</div>`;
 	},
@@ -3977,7 +3977,7 @@ Menu.prototype = {
 			break;
 		case 'mouseover':
 			isOverEvent = true;
-			/* fall through */
+			/* falls through */
 		case 'mouseout':
 			clearTimeout(this._closeTO);
 			var rt = fixEventEl(e.relatedTarget);
@@ -15015,23 +15015,30 @@ function scriptCSS() {
 	use { fill: inherit; pointer-events: none; }';
 
 	switch(Cfg.scriptStyle) {
-	case 0: // gradient black
-		x += '#de-panel, .de-win-head { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }\
-			.de-panel-button:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }';
+	case 0: // Gradient darkblue
+		x += '#de-panel, .de-win-head { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }';
 		break;
 	case 1: // gradient blue
-		x += '#de-panel, .de-win-head { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\
-			#de-panel-buttons, #de-panel-info { border-color: #8fbbed; }\
-			.de-panel-button:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }';
+		x += `#de-panel, .de-win-head { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }
+			#de-panel-buttons, #de-panel-info { border-color: #8fbbed; }`;
 		break;
 	case 2: // solid grey
-		x += '#de-panel, .de-win-head { background-color: #777; }\
-			#de-panel-buttons, #de-panel-info { border-color: #ccc; }\
-			.de-panel-svg:hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }';
+		x += `#de-panel, .de-win-head { background-color: #777; }
+			#de-panel-buttons, #de-panel-info { border-color: #ccc; }
+			.de-panel-svg:hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }`;
 		break;
-	default: // transparent blue
-		x += '#de-panel, .de-win-head { background-color: rgba(0,20,80,.72); }\
-			.de-panel-button:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }';
+	case 3: // transparent blue
+		x += '#de-panel, .de-win-head { background-color: rgba(0,20,80,.72); }';
+		break;
+	case 4: // square dark
+		x += `#de-panel, .de-win-head { background: none; background-color: #333; border-radius: 0 !important; }
+			#de-win-reply.de-win { border-radius: 0 !important; }
+			#de-panel-buttons, #de-panel-info { border-color: #666; }`;
+	}
+	if(Cfg.scriptStyle === 2) {
+		x += '.de-panel-svg:hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }';
+	} else {
+		x += '.de-panel-button:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }';
 	}
 
 	if(Cfg.disabled) {
@@ -15088,21 +15095,25 @@ function scriptCSS() {
 	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }';
 
 	switch(Cfg.scriptStyle) {
-	case 0: // gradient black
-		x += '#de-cfg-bar { background-color: #1f2740; }\
-			.de-cfg-tab { border-color: #121421 !important; }';
+	case 0: // Gradient darkblue
+		x += `#de-cfg-bar { background-color: #1f2740; }
+			.de-cfg-tab { border-color: #121421 !important; }`;
 		break;
 	case 1: // gradient blue
-		x += '#de-cfg-bar { background-color: #325f9e; }\
-			.de-cfg-tab { border-color: #183d77 !important; }';
+		x += `#de-cfg-bar { background-color: #325f9e; }
+			.de-cfg-tab { border-color: #183d77 !important; }`;
 		break;
 	case 2: // solid grey
-		x += '#de-cfg-bar, #de-spell-rowmeter { background-color: #777; }\
-			.de-cfg-body, #de-cfg-buttons { border-color: #444; }';
+		x += `#de-cfg-bar, #de-spell-rowmeter { background-color: #777; }
+			.de-cfg-body, #de-cfg-buttons { border-color: #444; }`;
 		break;
-	default: // transparent blue
-		x += '#de-cfg-bar { background-color: rgba(0,20,80,.72); }\
-			.de-cfg-tab { border-color: #001450 !important; }';
+	case 3: // transparent blue
+		x += `#de-cfg-bar { background-color: rgba(0,20,80,.72); }
+			.de-cfg-tab { border-color: #001450 !important; }`;
+		break;
+	case 4: // square dark
+		x += `#de-cfg-bar { background-color: #222; }
+			.de-cfg-body, #de-cfg-buttons { border-color: #666; }`;
 	}
 
 	// Post panel
