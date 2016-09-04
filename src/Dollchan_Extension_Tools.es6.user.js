@@ -12148,14 +12148,21 @@ function initNavFuncs() {
 			return val;
 		},
 		// See https://github.com/greasemonkey/greasemonkey/issues/2034 for more info
-		getUnsafeUint8Array(data, i = 0, len = null) {
-			var rv;
-			if(len === null) {
-				rv = new Uint8Array(data, i);
-				return (rv instanceof Uint8Array) ? rv : new unsafeWindow.Uint8Array(data, i);
+		getUnsafeUint8Array(data, i, len) {
+			var ctor = Uint8Array;
+			try {
+				if(!(new Uint8Array(data) instanceof Uint8Array)) {
+					ctor = unsafeWindow.Uint8Array;
+				}
+			} catch(e) {
+				ctor = unsafeWindow.Uint8Array;
 			}
-			rv = new Uint8Array(data, i, len);
-			return (rv instanceof Uint8Array) ? rv : new unsafeWindow.Uint8Array(data, i, len);
+			switch(arguments.length) {
+				case 1: return new ctor(data);
+				case 2: return new ctor(data, i);
+				case 3: return new ctor(data, i, len);
+			}
+			throw new Error();
 		},
 		getUnsafeDataView(data, offset) {
 			var rv = new DataView(data, offset || 0);
