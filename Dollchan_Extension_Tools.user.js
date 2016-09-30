@@ -18480,6 +18480,7 @@ true, true],
 			_createClass(Brchan, [{
 				key: 'init',
 				value: function init() {
+					_get(Brchan.prototype.__proto__ || Object.getPrototypeOf(Brchan.prototype), 'init', this).call(this);
 					defaultCfg.timePattern = 'dd+nn+yy++w++hh+ii+ss';
 					defaultCfg.timeRPattern = '_d/_n/_y(_w)_h:_i:_s';
 					if (Cfg.ajaxUpdThr) {
