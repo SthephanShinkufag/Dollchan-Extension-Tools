@@ -15168,6 +15168,7 @@ true, true],
 						}
 						if (MyPosts.has(lNum)) {
 							link.classList.add('de-ref-my');
+							post.el.classList.add('de-reply-post');
 						}
 						if (!posts.has(lNum)) {
 							continue;
@@ -15221,6 +15222,7 @@ true, true],
 					}
 					if (add && MyPosts.has(lNum)) {
 						link.classList.add('de-ref-my');
+						post.el.classList.add('de-reply-post');
 						updater.refToYou();
 					}
 					if (!pByNum.has(lNum)) {
