@@ -11192,6 +11192,13 @@ true, true],
 				$q('input[name="oek_parent"], input[name="replyto"]', this.oeForm).value = tNum;
 			}
 			if (this.form) {
+				if (aib.brchan) {
+					if (tNum) {
+						$del($q('input[name="page"]', this.form));
+					} else if (!$q('input[name="page"]', this.form)) {
+						$q('input[name="board"]', this.form).insertAdjacentHTML('afterend', '<input name="page" value="1" type="hidden">');
+					}
+				}
 				$q('#de-thrid, input[name*="thread"]', this.form).value = tNum;
 			}
 		},
@@ -18482,10 +18489,13 @@ true, true],
 		var Brchan = function (_Vichan2) {
 			_inherits(Brchan, _Vichan2);
 
-			function Brchan() {
+			function Brchan(prot, dm) {
 				_classCallCheck(this, Brchan);
 
-				return _possibleConstructorReturn(this, (Brchan.__proto__ || Object.getPrototypeOf(Brchan)).apply(this, arguments));
+				var _this77 = _possibleConstructorReturn(this, (Brchan.__proto__ || Object.getPrototypeOf(Brchan)).call(this, prot, dm));
+
+				_this77.brchan = true;
+				return _this77;
 			}
 
 			_createClass(Brchan, [{
@@ -18507,7 +18517,7 @@ true, true],
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(Brchan.prototype.__proto__ || Object.getPrototypeOf(Brchan.prototype), 'css', this) + '\n\t\t\tinput[name="embed"] { width: 100% !important; }\n\t\t\t#upload_embed > td > .unimportant.hint { display: none; }\n\t\t\t';
+					return _get(Brchan.prototype.__proto__ || Object.getPrototypeOf(Brchan.prototype), 'css', this).replace('.de-btn-rep,', '') + '\n\t\t\tinput[name="embed"] { width: 100% !important; }\n\t\t\t#upload_embed > td > .unimportant.hint { display: none; }\n\t\t\t';
 				}
 			}]);
 

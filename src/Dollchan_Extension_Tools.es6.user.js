@@ -7558,6 +7558,14 @@ PostForm.prototype = {
 			$q('input[name="oek_parent"], input[name="replyto"]', this.oeForm).value = tNum;
 		}
 		if(this.form) {
+			if(aib.brchan) {
+				if(tNum) {
+					$del($q('input[name="page"]', this.form));
+				} else if(!$q('input[name="page"]', this.form)) {
+					$q('input[name="board"]', this.form).insertAdjacentHTML('afterend',
+						'<input name="page" value="1" type="hidden">');
+				}
+			}
 			$q('#de-thrid, input[name*="thread"]', this.form).value = tNum;
 		}
 	},
@@ -13432,6 +13440,11 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['arhivach.org'] = Arhivach;
 
 	class Brchan extends Vichan {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.brchan = true;
+		}
 		init() {
 			super.init();
 			defaultCfg.timePattern = 'dd+nn+yy++w++hh+ii+ss';
@@ -13447,7 +13460,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		get css() {
-			return super.css + `
+			return super.css.replace('.de-btn-rep,', '') + `
 			input[name="embed"] { width: 100% !important; }
 			#upload_embed > td > .unimportant.hint { display: none; }
 			`;
