@@ -17494,7 +17494,7 @@ true, true],
 			}, {
 				key: 'css',
 				get: function get() {
-					return '\n\t\t\t.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\tdiv.post.reply { float: left !important; clear: left; display: block; }';
+					return '\n\t\t\t.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\tdiv.post.reply:not(.de-cfg-tab):not(.de-win-body) { float: left !important; clear: left; display: block; }';
 				}
 			}, {
 				key: 'qImgName',

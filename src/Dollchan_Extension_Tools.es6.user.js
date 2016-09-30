@@ -12707,7 +12707,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `
 			.banner, ${ this.t ? '' : '.de-btn-rep,' } .hide-thread-link, .mentioned, .post-hover { display: none !important; }
-			div.post.reply { float: left !important; clear: left; display: block; }`;
+			div.post.reply:not(.de-cfg-tab):not(.de-win-body) { float: left !important; clear: left; display: block; }`;
 		}
 		get qImgName() {
 			return 'p.fileinfo > a:first-of-type';
