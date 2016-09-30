@@ -11598,7 +11598,16 @@ true, true],
 					el.classList.remove('de-file-off');
 					el = el.firstChild.firstChild;
 					el.title = file.name + ', ' + (file.size / 1024).toFixed(2) + 'KB';
-					_this23._mediaEl = el = $aBegin(el, file.type === 'video/webm' ? '<video class="de-file-img" loop autoplay muted src=""></video>' : '<img class="de-file-img" src="">');
+					var html = void 0;
+					switch (file.type) {
+						case 'video/webm':
+						case 'video/mp4':
+							html = '<video class="de-file-img" loop autoplay muted src=""></video>';
+							break;
+						default:
+							html = '<img class="de-file-img" src="">';
+					}
+					_this23._mediaEl = el = $aBegin(el, html);
 					el.src = window.URL.createObjectURL(new Blob([data]));
 					if (el = el.nextSibling) {
 						window.URL.revokeObjectURL(el.src);
@@ -13077,7 +13086,7 @@ true, true],
 		}, {
 			key: 'isVideo',
 			get: function get() {
-				var val = /\.webm(?:&|$)/i.test(this.src) || this.src.startsWith('blob:') && this.el.hasAttribute('de-video');
+				var val = /\.(?:webm|mp4)(?:&|$)/i.test(this.src) || this.src.startsWith('blob:') && this.el.hasAttribute('de-video');
 				Object.defineProperty(this, 'isVideo', { value: val });
 				return val;
 			}
@@ -17112,7 +17121,7 @@ true, true],
 		}, {
 			key: 'qImgName',
 			get: function get() {
-				var value = nav.cssMatches(this.qFileInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".apng"]');
+				var value = nav.cssMatches(this.qFileInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]');
 				Object.defineProperty(this, 'qImgName', { value: value });
 				return value;
 			}

@@ -7890,9 +7890,16 @@ class FileInput {
 			el.classList.remove('de-file-off');
 			el = el.firstChild.firstChild;
 			el.title = file.name + ', ' + (file.size/1024).toFixed(2) + 'KB';
-			this._mediaEl = el = $aBegin(el, file.type === 'video/webm' ?
-				'<video class="de-file-img" loop autoplay muted src=""></video>' :
-				'<img class="de-file-img" src="">');
+			let html;
+			switch(file.type) {
+			case 'video/webm':
+			case 'video/mp4':
+				html = '<video class="de-file-img" loop autoplay muted src=""></video>';
+				break;
+			default:
+				html = '<img class="de-file-img" src="">';
+			}
+			this._mediaEl = el = $aBegin(el, html);
 			el.src = window.URL.createObjectURL(new Blob([data]));
 			if((el = el.nextSibling)) {
 				window.URL.revokeObjectURL(el.src);
@@ -8868,7 +8875,7 @@ class ExpandableMedia {
 		return val;
 	}
 	get isVideo() {
-		var val = /\.webm(?:&|$)/i.test(this.src) ||
+		var val = /\.(?:webm|mp4)(?:&|$)/i.test(this.src) ||
 			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
 		Object.defineProperty(this, 'isVideo', { value: val });
 		return val;
@@ -12252,7 +12259,7 @@ class BaseBoard {
 	}
 	get qImgName() {
 		var value = nav.cssMatches(this.qFileInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]',
-			'[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".apng"]');
+			'[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]');
 		Object.defineProperty(this, 'qImgName', { value });
 		return value;
 	}
