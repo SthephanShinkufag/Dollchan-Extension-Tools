@@ -13439,7 +13439,18 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(Cfg.ajaxUpdThr) {
 				locStorage['auto_thread_update'] = false;
 			}
+			let el1 = $id('upload_embed');
+			let el2 = $id('upload');
+			if(el1 && el2) {
+				$after(el2, el1);
+			}
 			return false;
+		}
+		get css() {
+			return super.css + `
+			input[name="embed"] { width: 100% !important; }
+			#upload_embed > td > .unimportant.hint { display: none; }
+			`;
 		}
 	}
 	ibDomains['brchan.org'] = Brchan;

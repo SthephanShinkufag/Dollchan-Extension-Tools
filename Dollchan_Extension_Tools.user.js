@@ -18497,7 +18497,17 @@ true, true],
 					if (Cfg.ajaxUpdThr) {
 						locStorage['auto_thread_update'] = false;
 					}
+					var el1 = $id('upload_embed');
+					var el2 = $id('upload');
+					if (el1 && el2) {
+						$after(el2, el1);
+					}
 					return false;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return _get(Brchan.prototype.__proto__ || Object.getPrototypeOf(Brchan.prototype), 'css', this) + '\n\t\t\tinput[name="embed"] { width: 100% !important; }\n\t\t\t#upload_embed > td > .unimportant.hint { display: none; }\n\t\t\t';
 				}
 			}]);
 
