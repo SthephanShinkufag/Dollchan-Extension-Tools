@@ -12698,7 +12698,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `
 			.banner, ${ this.t ? '' : '.de-btn-rep,' } .hide-thread-link, .mentioned, .post-hover { display: none !important; }
-			div.post.reply { float: left; clear: left; display: block; }`;
+			div.post.reply { float: left !important; clear: left; display: block; }`;
 		}
 		get qImgName() {
 			return 'p.fileinfo > a:first-of-type';
@@ -13422,6 +13422,18 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['arhivach.org'] = Arhivach;
 
+	class Brchan extends Vichan {
+		init() {
+			defaultCfg.timePattern = 'dd+nn+yy++w++hh+ii+ss';
+			defaultCfg.timeRPattern = '_d/_n/_y(_w)_h:_i:_s';
+			if(Cfg.ajaxUpdThr) {
+				locStorage['auto_thread_update'] = false;
+			}
+			return false;
+		}
+	}
+	ibDomains['brchan.org'] = Brchan;
+	
 	class Diochan extends Kusaba {
 		get css() {
 			return super.css + '.resize { display: none; }';
