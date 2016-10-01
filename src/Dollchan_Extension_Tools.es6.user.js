@@ -13447,7 +13447,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			defaultCfg.timePattern = 'dd+nn+yy++w++hh+ii+ss';
+			defaultCfg.timePattern = 'dd+nn+yy+++++hh+ii+ss';
 			defaultCfg.timeRPattern = '_d/_n/_y(_w)_h:_i:_s';
 			if(Cfg.ajaxUpdThr) {
 				locStorage['auto_thread_update'] = false;
