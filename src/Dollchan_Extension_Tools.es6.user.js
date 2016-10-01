@@ -13630,6 +13630,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['dva-ch.net'] = DvaChNet;
+	ibDomains['2ch.rip'] = DvaChNet;
 
 	class Iichan extends BaseBoard {
 		constructor(prot, dm) {
