@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = 'd3b8f7e';
+const commit = '0d2d965';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -990,6 +990,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
 	if(!useNative && (typeof GM_xmlhttpRequest === 'function')) {
+		let gmxhr;
 		const toFunc = () => {
 			reject(AjaxError.Timeout);
 			try {
@@ -1023,7 +1024,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			delete params.method;
 			Object.assign(obj, params);
 		}
-		const gmxhr = GM_xmlhttpRequest(obj);
+		gmxhr = GM_xmlhttpRequest(obj);
 		cancelFn = () => {
 			if(needTO) {
 				clearTimeout(loadTO);
@@ -13630,6 +13631,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['dva-ch.net'] = DvaChNet;
+	ibDomains['2ch.rip'] = DvaChNet;
 
 	class Iichan extends BaseBoard {
 		constructor(prot, dm) {

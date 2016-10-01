@@ -30,7 +30,7 @@ gulp.task('updatecommit', function(cb) {
 			throw 'Git error:\n' + (stdout ? stdout + '\n' : '') + stderr;
 		}
 		gulp.src('src/Dollchan_Extension_Tools.es6.user.js')
-			.pipe(replace(/^var commit = '[^']*';$/m, 'var commit = \'' + stdout.trim().substr(0, 7) + '\';'))
+			.pipe(replace(/^const commit = '[^']*';$/m, 'const commit = \'' + stdout.trim().substr(0, 7) + '\';'))
 			.pipe(gulp.dest('./src/'))
 			.on('end', cb);
 	});

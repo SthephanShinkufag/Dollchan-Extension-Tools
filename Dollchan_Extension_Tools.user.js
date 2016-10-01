@@ -2871,7 +2871,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = 'd3b8f7e';
+	var commit = '0d2d965';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3837,6 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var needTO = params ? params.useTimeout : false;
 		if (!useNative && typeof GM_xmlhttpRequest === 'function') {
 			(function () {
+				var gmxhr = void 0;
 				var toFunc = function toFunc() {
 					reject(AjaxError.Timeout);
 					try {
@@ -3870,7 +3871,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					delete params.method;
 					Object.assign(obj, params);
 				}
-				var gmxhr = GM_xmlhttpRequest(obj);
+				gmxhr = GM_xmlhttpRequest(obj);
 				cancelFn = function cancelFn() {
 					if (needTO) {
 						clearTimeout(loadTO);
@@ -18750,6 +18751,7 @@ true, true],
 		}(BaseBoard);
 
 		ibDomains['dva-ch.net'] = DvaChNet;
+		ibDomains['2ch.rip'] = DvaChNet;
 
 		var Iichan = function (_BaseBoard14) {
 			_inherits(Iichan, _BaseBoard14);
