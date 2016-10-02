@@ -2871,7 +2871,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = '0d2d965';
+	var commit = '6ec8538';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -17502,7 +17502,7 @@ true, true],
 			}, {
 				key: 'css',
 				get: function get() {
-					return '\n\t\t\t.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\tdiv.post.reply:not(.de-cfg-tab):not(.de-win-body) { float: left !important; clear: left; display: block; }';
+					return '\n\t\t\t.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\tdiv.post.reply:not(.de-entry):not(.de-cfg-tab):not(.de-win-body) { float: left !important; clear: left; display: block; }';
 				}
 			}, {
 				key: 'qImgName',
