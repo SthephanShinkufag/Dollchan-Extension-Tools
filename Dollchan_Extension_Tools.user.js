@@ -2942,7 +2942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = '149b395';
+	var commit = '62293d8';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -16289,12 +16289,14 @@ true, true],
 			value: function _importPosts(last, pBuilder, begin, end, maybeVParser, maybeSpells) {
 				var fragm,
 				    newCount = end - begin,
-				    newVisCount = newCount;
+				    newVisCount = newCount,
+				    nums = [];
 				if (pBuilder.hasHTML && nav.hasTemplate) {
 					var temp = document.createElement('template');
 					var html = [];
 					for (var i = begin; i < end; ++i) {
 						html.push(pBuilder.getPostHTML(i));
+						nums.push(pBuilder.getPNum(i));
 					}
 					temp.innerHTML = aib.fixHTML(html.join(''));
 					fragm = temp.content;
@@ -16307,10 +16309,11 @@ true, true],
 					fragm = doc.createDocumentFragment();
 					for (; begin < end; ++begin) {
 						last = this._addPost(fragm, pBuilder.getPostEl(begin), begin + 1, last, maybeVParser);
+						nums.push(last.num);
 						newVisCount -= maybeSpells.value.run(last);
 					}
 				}
-				return [newCount, newVisCount, fragm, last];
+				return [newCount, newVisCount, fragm, last, nums];
 			}
 		}, {
 			key: '_loadFromBuilder',
@@ -16373,16 +16376,17 @@ true, true],
 						post = post.next;
 					}
 				} else {
-					var nonExisted = pBuilder.length - existed;
-					var maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
+					var nonExisted = pBuilder.length - existed,
+					    maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null),
+					    iprv = this._importPosts(op, pBuilder, Math.max(0, nonExisted + existed - needToShow), nonExisted, maybeVParser, maybeSpells);
 
-					var _importPosts2 = this._importPosts(op, pBuilder, Math.max(0, nonExisted + existed - needToShow), nonExisted, maybeVParser, maybeSpells);
+					var _iprv = _slicedToArray(iprv, 5);
 
-					var _importPosts3 = _slicedToArray(_importPosts2, 4);
+					var fragm = _iprv[2];
+					var _last = _iprv[3];
+					var nums = _iprv[4];
 
-					var fragm = _importPosts3[2];
-					var _last = _importPosts3[3];
-
+					DollchanAPI.notifyNewPosts(nums);
 					maybeVParser.end();
 					$after(op.wrap, fragm);
 					_last.next = post;
@@ -16503,6 +16507,7 @@ true, true],
 							$after(post.prev.wrap, res[2]);
 							res[3].next = post;
 							post.prev = res[3];
+							DollchanAPI.notifyNewPosts(res[4]);
 							for (var temp = post; temp; temp = temp.nextInThread) {
 								temp.count += cnt;
 							}
@@ -16533,6 +16538,7 @@ true, true],
 					newVisPosts += res[1];
 					this.el.appendChild(res[2]);
 					this.last = res[3];
+					DollchanAPI.notifyNewPosts(res[4]);
 					this.pcount = len + 1;
 				}
 				readFavorites().then(function (fav) {
@@ -19408,6 +19414,92 @@ true, true],
 		});
 	}
 
+	var DollchanAPI = function () {
+		function DollchanAPI() {
+			_classCallCheck(this, DollchanAPI);
+		}
+
+		_createClass(DollchanAPI, null, [{
+			key: 'init',
+			value: function init() {
+				if (!MessageChannel) {
+					return;
+				}
+				var channel = new MessageChannel();
+				DollchanAPI.port = channel.port1;
+				DollchanAPI.port.onmessage = DollchanAPI._handleMessage;
+				DollchanAPI.hasListeners = false;
+				DollchanAPI.activeListeners = new Set();
+				var port = channel.port2;
+				doc.defaultView.addEventListener('message', function (_ref63) {
+					var data = _ref63.data;
+
+					if (data == 'de-request-api-message') {
+						DollchanAPI.hasListeners = true;
+						document.defaultView.postMessage('de-answer-api-message', '*', [port]);
+					}
+				});
+			}
+		}, {
+			key: 'notifyNewPosts',
+			value: function notifyNewPosts(nums) {
+				if (DollchanAPI.hasListeners && DollchanAPI.activeListeners.has('newpost')) {
+					DollchanAPI.port.postMessage({ name: 'newpost', data: nums });
+				}
+			}
+		}, {
+			key: '_handleMessage',
+			value: function _handleMessage(_ref64) {
+				var arg = _ref64.data;
+
+				if (!arg || !arg.name) {
+					return;
+				}
+				var name = arg.name;
+				var data = arg.data;
+				var rv = null;
+				switch (arg.name.toLowerCase()) {
+					case 'registerapi':
+						if (data) {
+							rv = {};
+							for (var _iterator36 = data, _isArray36 = Array.isArray(_iterator36), _i44 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
+								var _ref65;
+
+								if (_isArray36) {
+									if (_i44 >= _iterator36.length) break;
+									_ref65 = _iterator36[_i44++];
+								} else {
+									_i44 = _iterator36.next();
+									if (_i44.done) break;
+									_ref65 = _i44.value;
+								}
+
+								var aName = _ref65;
+
+								rv[aName] = DollchanAPI._register(aName.toLowerCase());
+							}
+						}
+						break;
+				}
+				DollchanAPI.port.postMessage({ name: name, data: rv });
+			}
+		}, {
+			key: '_register',
+			value: function _register(name) {
+				switch (name) {
+					case 'newpost':
+						break;
+					default:
+						return false;
+				}
+				DollchanAPI.activeListeners.add(name);
+				return true;
+			}
+		}]);
+
+		return DollchanAPI;
+	}();
+
 	function parseURL() {
 		if (localData) {
 			aib.prot = 'http:';
@@ -20044,9 +20136,9 @@ true, true],
 						case 1:
 							counter.setWait();
 							this._state = 2;
-							this._loadPromise = Thread.first.loadNew().then(function (_ref63) {
-								var newCount = _ref63.newCount;
-								var locked = _ref63.locked;
+							this._loadPromise = Thread.first.loadNew().then(function (_ref66) {
+								var newCount = _ref66.newCount;
+								var locked = _ref66.locked;
 								return _this97._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (e) {
 								return _this97._handleNewPosts(0, e);
@@ -20217,8 +20309,8 @@ true, true],
 	function initPage() {
 		if (!localData && Cfg.ajaxReply === 1) {
 			docBody.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-pform" sandbox="" src="about:blank" style="display: none;"></iframe>' + '<iframe name="de-iframe-dform" sandbox="" src="about:blank" style="display: none;"></iframe>');
-			doc.defaultView.addEventListener('message', function (_ref64) {
-				var data = _ref64.data;
+			doc.defaultView.addEventListener('message', function (_ref67) {
+				var data = _ref67.data;
 
 				switch (data.substr(0, 15)) {
 					case 'de-iframe-pform':
@@ -20775,6 +20867,7 @@ true, true],
 
 					case 33:
 						initStorageEvent();
+						DollchanAPI.init();
 						parseURL();
 						if (aib.t || !Cfg.scrollToTop) {
 							doc.defaultView.addEventListener('beforeunload', function (e) {
@@ -20796,21 +20889,21 @@ true, true],
 						Logger.log('Replace delform');
 						pByEl = new Map();
 						pByNum = new Map();
-						_context22.prev = 46;
+						_context22.prev = 47;
 
 						DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
-						_context22.next = 55;
+						_context22.next = 56;
 						break;
 
-					case 50:
-						_context22.prev = 50;
-						_context22.t2 = _context22['catch'](46);
+					case 51:
+						_context22.prev = 51;
+						_context22.t2 = _context22['catch'](47);
 
 						console.log('DELFORM ERROR:\n' + getErrorMessage(_context22.t2));
 						$show(docBody);
 						return _context22.abrupt('return');
 
-					case 55:
+					case 56:
 						Logger.log('Parse delform');
 						storageName = 'de-lastpcount-' + aib.b + '-' + aib.t;
 
@@ -20838,9 +20931,9 @@ true, true],
 						Logger.log('Display page');
 						toggleInfinityScroll();
 						Logger.log('Infinity scroll');
-						return _context22.delegateYield(readPostsData(DelForm.first.firstThr.op), 't3', 74);
+						return _context22.delegateYield(readPostsData(DelForm.first.firstThr.op), 't3', 75);
 
-					case 74:
+					case 75:
 						Logger.log('Hide posts');
 						scrollPage();
 						Logger.log('Scroll page');
@@ -20850,12 +20943,12 @@ true, true],
 						}
 						Logger.finish();
 
-					case 79:
+					case 80:
 					case 'end':
 						return _context22.stop();
 				}
 			}
-		}, _marked[6], this, [[46, 50]]);
+		}, _marked[6], this, [[47, 51]]);
 	}
 
 	if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {

@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '149b395';
+const commit = '62293d8';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11665,12 +11665,14 @@ class Thread {
 	}
 	_importPosts(last, pBuilder, begin, end, maybeVParser, maybeSpells) {
 		var fragm, newCount = end - begin,
-			newVisCount = newCount;
+			newVisCount = newCount,
+			nums = [];
 		if(pBuilder.hasHTML && nav.hasTemplate) {
 			let temp = document.createElement('template');
 			let html = [];
 			for(let i = begin; i < end; ++i) {
 				html.push(pBuilder.getPostHTML(i));
+				nums.push(pBuilder.getPNum(i));
 			}
 			temp.innerHTML = aib.fixHTML(html.join(''));
 			fragm = temp.content;
@@ -11683,10 +11685,11 @@ class Thread {
 			fragm = doc.createDocumentFragment();
 			for(; begin < end; ++begin) {
 				last = this._addPost(fragm, pBuilder.getPostEl(begin), begin + 1, last, maybeVParser);
+				nums.push(last.num);
 				newVisCount -= maybeSpells.value.run(last);
 			}
 		}
-		return [newCount, newVisCount, fragm, last];
+		return [newCount, newVisCount, fragm, last, nums];
 	}
 	_loadFromBuilder(last, smartScroll, pBuilder) {
 		var nextCoord, maybeSpells = new Maybe(SpellsRunner),
@@ -11743,12 +11746,14 @@ class Thread {
 		} else {
 			let nonExisted = pBuilder.length - existed,
 				maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null),
-				[,,fragm,last] = this._importPosts(op,
-				                                   pBuilder,
-				                                   Math.max(0, nonExisted + existed - needToShow),
-				                                   nonExisted,
-				                                   maybeVParser,
-				                                   maybeSpells);
+				iprv = this._importPosts(op,
+				                         pBuilder,
+				                         Math.max(0, nonExisted + existed - needToShow),
+				                         nonExisted,
+				                         maybeVParser,
+				                         maybeSpells);
+			let [,,fragm,last,nums] = iprv;
+			DollchanAPI.notifyNewPosts(nums);
 			maybeVParser.end();
 			$after(op.wrap, fragm);
 			last.next = post;
@@ -11859,6 +11864,7 @@ class Thread {
 					$after(post.prev.wrap, res[2]);
 					res[3].next = post;
 					post.prev = res[3];
+					DollchanAPI.notifyNewPosts(res[4]);
 					for(var temp = post; temp; temp = temp.nextInThread) {
 						temp.count += cnt;
 					}
@@ -11889,6 +11895,7 @@ class Thread {
 			newVisPosts += res[1];
 			this.el.appendChild(res[2]);
 			this.last = res[3];
+			DollchanAPI.notifyNewPosts(res[4]);
 			this.pcount = len + 1;
 		}
 		readFavorites().then(fav => {
@@ -14054,6 +14061,60 @@ function initStorageEvent() {
 	});
 }
 
+class DollchanAPI {
+	static init() {
+		if(!MessageChannel) {
+			return;
+		}
+		let channel = new MessageChannel();
+		DollchanAPI.port = channel.port1;
+		DollchanAPI.port.onmessage = DollchanAPI._handleMessage;
+		DollchanAPI.hasListeners = false;
+		DollchanAPI.activeListeners = new Set();
+		let port = channel.port2;
+		doc.defaultView.addEventListener('message', ({ data }) => {
+			if(data == 'de-request-api-message') {
+			DollchanAPI.hasListeners = true;
+				document.defaultView.postMessage('de-answer-api-message', '*', [port]);
+			}
+		});
+	}
+	
+	static notifyNewPosts(nums) {
+		if(DollchanAPI.hasListeners && DollchanAPI.activeListeners.has('newpost')) {
+			DollchanAPI.port.postMessage({ name: 'newpost', data: nums });
+		}
+	}
+	
+	static _handleMessage({ data: arg }) {
+		if(!arg || !arg.name) {
+			return;
+		}
+		let name = arg.name;
+		let data = arg.data;
+		let rv = null;
+		switch(arg.name.toLowerCase()) {
+		case 'registerapi':
+			if(data) {
+				rv = {};
+				for(let aName of data) {
+					rv[aName] = DollchanAPI._register(aName.toLowerCase());
+				}
+			}
+			break;
+		}
+		DollchanAPI.port.postMessage({ name, data: rv });
+	}
+	static _register(name) {
+		switch(name) {
+		case 'newpost': break;
+		default: return false;
+		}
+		DollchanAPI.activeListeners.add(name);
+		return true;
+	}
+}
+
 function parseURL() {
 	if(localData) {
 		// Locally saved thread
@@ -15548,6 +15609,7 @@ function* runMain(checkDomains, cfgPromise) {
 		return;
 	}
 	initStorageEvent();
+	DollchanAPI.init();
 	parseURL();
 	if(aib.t || !Cfg.scrollToTop) {
 		doc.defaultView.addEventListener('beforeunload', function(e) {
