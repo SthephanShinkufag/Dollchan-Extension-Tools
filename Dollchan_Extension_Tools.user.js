@@ -2942,7 +2942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = '62293d8';
+	var commit = '51f7a7d';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -16386,9 +16386,9 @@ true, true],
 					var _last = _iprv[3];
 					var nums = _iprv[4];
 
-					DollchanAPI.notifyNewPosts(nums);
 					maybeVParser.end();
 					$after(op.wrap, fragm);
+					DollchanAPI.notifyNewPosts(nums);
 					_last.next = post;
 					if (post) {
 						post.prev = _last;

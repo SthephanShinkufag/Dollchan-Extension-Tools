@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '62293d8';
+const commit = '51f7a7d';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11753,9 +11753,9 @@ class Thread {
 				                         maybeVParser,
 				                         maybeSpells);
 			let [,,fragm,last,nums] = iprv;
-			DollchanAPI.notifyNewPosts(nums);
 			maybeVParser.end();
 			$after(op.wrap, fragm);
+			DollchanAPI.notifyNewPosts(nums);
 			last.next = post;
 			if(post) {
 				post.prev = last;
