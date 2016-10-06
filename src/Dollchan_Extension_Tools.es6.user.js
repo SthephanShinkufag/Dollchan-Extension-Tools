@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '6ec8538';
+const commit = '149b395';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9167,7 +9167,9 @@ class Attachment extends ExpandableMedia {
 		return null;
 	}
 	_getImageSrc() {
-		return aib.getImgLink(this.el).href;
+		// XXX: DON'T USE aib.getImgLink(this.el).href
+		// If #ihash spells enabled, Chrome reads href in ajaxed posts as empty -> image can't be expanded!
+		return aib.getImgLink(this.el).getAttribute('href');
 	}
 }
 Attachment.viewer = null;

@@ -2203,8 +2203,79 @@ for(var collections = ['NodeList', 'DOMTokenList', 'MediaList', 'StyleSheetList'
   }
 }
 },{"./_global":41,"./_hide":43,"./_iterators":58,"./_redefine":77,"./_wks":97,"./es6.array.iterator":100}],119:[function(require,module,exports){
-
 var process = module.exports = {};
+
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        return setTimeout(fun, 0);
+    }
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        return clearTimeout(marker);
+    }
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
 var queue = [];
 var draining = false;
 var currentQueue;
@@ -2229,7 +2300,7 @@ function drainQueue() {
     if (draining) {
         return;
     }
-    var timeout = setTimeout(cleanUpNextTick);
+    var timeout = runTimeout(cleanUpNextTick);
     draining = true;
 
     var len = queue.length;
@@ -2246,7 +2317,7 @@ function drainQueue() {
     }
     currentQueue = null;
     draining = false;
-    clearTimeout(timeout);
+    runClearTimeout(timeout);
 }
 
 process.nextTick = function (fun) {
@@ -2258,7 +2329,7 @@ process.nextTick = function (fun) {
     }
     queue.push(new Item(fun, args));
     if (queue.length === 1 && !draining) {
-        setTimeout(drainQueue, 0);
+        runTimeout(drainQueue);
     }
 };
 
@@ -2849,7 +2920,7 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -2871,7 +2942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = '6ec8538';
+	var commit = '149b395';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3399,12 +3470,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 	var $Q = function $Q(path) {
-		var root = arguments.length <= 1 || arguments[1] === undefined ? docBody : arguments[1];
+		var root = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : docBody;
 		return root.querySelectorAll(path);
 	};
 
 	var $q = function $q(path) {
-		var root = arguments.length <= 1 || arguments[1] === undefined ? docBody : arguments[1];
+		var root = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : docBody;
 		return root.querySelector(path);
 	};
 
@@ -3480,7 +3551,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	};
 
 	function $btn(val, ttl, fn) {
-		var className = arguments.length <= 3 || arguments[3] === undefined ? 'de-button' : arguments[3];
+		var className = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'de-button';
 
 		var el = doc.createElement('input');
 		el.type = 'button';
@@ -3513,7 +3584,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 	function $toggle(el) {
-		var needToShow = arguments.length <= 1 || arguments[1] === undefined ? el.style.display : arguments[1];
+		var needToShow = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : el.style.display;
 
 		if (needToShow) {
 			el.style.removeProperty('display');
@@ -3531,7 +3602,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function $animate(el, cName) {
-		var remove = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+		var remove = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
 		el.addEventListener('animationend', function aEvent() {
 			el.removeEventListener('animationend', aEvent);
@@ -3828,8 +3899,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	});
 
 	function $ajax(url) {
-		var params = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-		var useNative = arguments.length <= 2 || arguments[2] === undefined ? nativeXHRworks : arguments[2];
+		var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+		var useNative = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : nativeXHRworks;
 
 		var resolve = void 0,
 		    reject = void 0,
@@ -4756,12 +4827,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						if (!hideData) {
 							maybeSpells.value.run(_post); 
 						} else if (hideData[0]) {
-								if (_post.hidden) {
-									_post.spellHidden = true;
-								} else {
-									_post.spellHide(hideData[1]);
-								}
+							if (_post.hidden) {
+								_post.spellHidden = true;
+							} else {
+								_post.spellHide(hideData[1]);
 							}
+						}
 
 					case 29:
 						_post = _post.next;
@@ -4856,7 +4927,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'remove',
 			value: function remove(num) {
-				var board = arguments.length <= 1 || arguments[1] === undefined ? aib.b : arguments[1];
+				var board = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : aib.b;
 
 				var storage = this._readStorage();
 				var bStorage = storage[board];
@@ -4871,7 +4942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'set',
 			value: function set(num, thrNum) {
-				var data = arguments.length <= 2 || arguments[2] === undefined ? true : arguments[2];
+				var data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
 
 				var storage = this._readStorage();
 				if (storage && storage.$count > 5000) {
@@ -5568,10 +5639,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 'de-video-btn-hide':
 							if (this.listHidden = !this.listHidden) {
 								$hide(this.linkList);
-								e.target.textContent = '▼';
+								e.target.textContent = '\u25BC';
 							} else {
 								$show(this.linkList);
-								e.target.textContent = '▲';
+								e.target.textContent = '\u25B2';
 							}
 							break;
 						case 'de-video-btn-prev':
@@ -5950,10 +6021,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							if (cnt === 0) {
 								$hide(countEl); 
 							} else {
-									$show(countEl);
-									f['new'] = cnt;
-									isUpdate = true;
-								}
+								$show(countEl);
+								f['new'] = cnt;
+								isUpdate = true;
+							}
 
 						case 47:
 							++i;
@@ -6914,7 +6985,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgLinks: function _getCfgLinks() {
-			return '<div id="de-cfg-links" class="de-cfg-unvis">\n\t\t\t' + this._getSel('linksNavig') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + (this._getInp('linksOver') + Lng.cfg.linksOver[lang]) + '\n\t\t\t\t' + (this._getInp('linksOut') + Lng.cfg.linksOut[lang]) + '<br>\n\t\t\t\t' + this._getBox('markViewed') + '<br>\n\t\t\t\t' + this._getBox('strikeHidd') + '\n\t\t\t\t<div class="de-cfg-depend">' + this._getBox('removeHidd') + '</div>\n\t\t\t\t' + this._getBox('noNavigHidd') + '\n\t\t\t</div>\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyLinks') + '<br>' : '') + '\n\t\t\t' + this._getBox('crossLinks') + '<br>\n\t\t\t' + this._getBox('insertNum') + '<br>\n\t\t\t' + this._getBox('addOPLink') + '<br>\n\t\t\t' + this._getBox('addImgs') + '<br>\n\t\t\t<div>\n\t\t\t\t' + this._getBox('addMP3') + '\n\t\t\t\t' + (aib.prot === 'http:' ? this._getBox('addVocaroo') : '') + '\n\t\t\t</div>\n\t\t\t' + this._getSel('addYouTube') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getSel('YTubeType') + '\n\t\t\t\t' + this._getInp('YTubeWidth') + '×\n\t\t\t\t' + this._getInp('YTubeHeigh') + '(px)<br>\n\t\t\t\t' + this._getBox('YTubeTitles') + '<br>\n\t\t\t\t' + (this._getInp('ytApiKey', 25) + Lng.cfg.ytApiKey[lang]) + '<br>\n\t\t\t\t' + this._getBox('addVimeo') + '\n\t\t\t</div>\n\t\t</div>';
+			return '<div id="de-cfg-links" class="de-cfg-unvis">\n\t\t\t' + this._getSel('linksNavig') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + (this._getInp('linksOver') + Lng.cfg.linksOver[lang]) + '\n\t\t\t\t' + (this._getInp('linksOut') + Lng.cfg.linksOut[lang]) + '<br>\n\t\t\t\t' + this._getBox('markViewed') + '<br>\n\t\t\t\t' + this._getBox('strikeHidd') + '\n\t\t\t\t<div class="de-cfg-depend">' + this._getBox('removeHidd') + '</div>\n\t\t\t\t' + this._getBox('noNavigHidd') + '\n\t\t\t</div>\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyLinks') + '<br>' : '') + '\n\t\t\t' + this._getBox('crossLinks') + '<br>\n\t\t\t' + this._getBox('insertNum') + '<br>\n\t\t\t' + this._getBox('addOPLink') + '<br>\n\t\t\t' + this._getBox('addImgs') + '<br>\n\t\t\t<div>\n\t\t\t\t' + this._getBox('addMP3') + '\n\t\t\t\t' + (aib.prot === 'http:' ? this._getBox('addVocaroo') : '') + '\n\t\t\t</div>\n\t\t\t' + this._getSel('addYouTube') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getSel('YTubeType') + '\n\t\t\t\t' + this._getInp('YTubeWidth') + '\xD7\n\t\t\t\t' + this._getInp('YTubeHeigh') + '(px)<br>\n\t\t\t\t' + this._getBox('YTubeTitles') + '<br>\n\t\t\t\t' + (this._getInp('ytApiKey', 25) + Lng.cfg.ytApiKey[lang]) + '<br>\n\t\t\t\t' + this._getBox('addVimeo') + '\n\t\t\t</div>\n\t\t</div>';
 		},
 
 
@@ -6939,14 +7010,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getInp: function _getInp(id) {
-			var size = arguments.length <= 1 || arguments[1] === undefined ? 2 : arguments[1];
+			var size = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
 
 			return '<input class="de-cfg-inptxt" info="' + id + '" type="text" size="' + size + '" value="' + Cfg[id] + '">';
 		},
 
 
 		_getSel: function _getSel(id, isBlock, Fn) {
-			var className = arguments.length <= 3 || arguments[3] === undefined ? '' : arguments[3];
+			var className = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
 
 			var x = Lng.cfg[id];
 			var opt = '';
@@ -7032,7 +7103,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function $popup(txt, id, wait) {
 		var node,
 		    el = $id('de-popup-' + id),
-		    buttonHTML = wait ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '✖ ';
+		    buttonHTML = wait ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '\u2716 ';
 		if (el) {
 			$q('div', el).innerHTML = txt.trim();
 			$q('span', el).innerHTML = buttonHTML;
@@ -7060,7 +7131,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function getEditButton(name, getDataFn) {
-		var className = arguments.length <= 2 || arguments[2] === undefined ? 'de-button' : arguments[2];
+		var className = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'de-button';
 
 		return $btn(Lng.edit[lang], Lng.editInTxt[lang], function () {
 			return getDataFn(function (val, isJSON, saveFn) {
@@ -7086,7 +7157,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function Menu(parentEl, html, clickFn) {
-		var isFixed = arguments.length <= 3 || arguments[3] === undefined ? true : arguments[3];
+		var isFixed = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
 
 		var el = $bEnd(docBody, '<div class="' + aib.cReply + ' de-menu" style="position: ' + (isFixed ? 'fixed' : 'absolute') + '; left: 0px; top: 0px; visibility: hidden;">' + html + '</div>');
 		var mStyle = el.style,
@@ -7830,34 +7901,34 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (dat[i + 1] === 0xD8) {
 						j++;
 					} else if (dat[i + 1] === 0xD9 && --j === 0) {
-							i += 2;
-							break;
-						}
-				}
-			}
-		} else if (dat[0] === 0x89 && dat[1] === 0x50) {
-				for (i = 0; i < len - 7; i++) {
-					if (dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
-						i += 8;
+						i += 2;
 						break;
 					}
 				}
-			} else {
-				return {};
 			}
+		} else if (dat[0] === 0x89 && dat[1] === 0x50) {
+			for (i = 0; i < len - 7; i++) {
+				if (dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
+					i += 8;
+					break;
+				}
+			}
+		} else {
+			return {};
+		}
 		if (i !== len && len - i > 60) {
 			for (len = i + 90; i < len; i++) {
 				if (dat[i] === 0x37 && dat[i + 1] === 0x7A && dat[i + 2] === 0xBC) {
 					return { 'type': 0, 'idx': i, 'data': ab };
 				} else if (dat[i] === 0x50 && dat[i + 1] === 0x4B && dat[i + 2] === 0x03) {
-						return { 'type': 1, 'idx': i, 'data': ab };
-					} else if (dat[i] === 0x52 && dat[i + 1] === 0x61 && dat[i + 2] === 0x72) {
-							return { 'type': 2, 'idx': i, 'data': ab };
-						} else if (dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67) {
-								return { 'type': 3, 'idx': i, 'data': ab };
-							} else if (dat[i] === 0x49 && dat[i + 1] === 0x44 && dat[i + 2] === 0x33) {
-									return { 'type': 4, 'idx': i, 'data': ab };
-								}
+					return { 'type': 1, 'idx': i, 'data': ab };
+				} else if (dat[i] === 0x52 && dat[i + 1] === 0x61 && dat[i + 2] === 0x72) {
+					return { 'type': 2, 'idx': i, 'data': ab };
+				} else if (dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67) {
+					return { 'type': 3, 'idx': i, 'data': ab };
+				} else if (dat[i] === 0x49 && dat[i + 1] === 0x44 && dat[i + 2] === 0x33) {
+					return { 'type': 4, 'idx': i, 'data': ab };
+				}
 			}
 		}
 		return {};
@@ -7941,7 +8012,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function downloadImgData(url) {
-		var repeatOnError = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+		var repeatOnError = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
 		return $ajax(url, {
 			responseType: 'arraybuffer',
@@ -8339,8 +8410,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 	function Videos(post) {
-		var player = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-		var playerInfo = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+		var player = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+		var playerInfo = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
 		this.post = post;
 		this.vData = [[], []];
@@ -8365,7 +8436,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	Videos.ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 	Videos.vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
 	Videos.addPlayer = function (el, m, isYtube) {
-		var enableJsapi = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+		var enableJsapi = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
 		var txt;
 		if (isYtube) {
@@ -8399,9 +8470,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		link.title = (duration ? Lng.duration[lang] + duration : '') + (publ ? ', ' + Lng.published[lang] + publ + '\n' : '') + Lng.author[lang] + author + (views ? ', ' + Lng.views[lang] + views : '');
 	};
 	Videos._fixTime = function () {
-		var seconds = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
-		var minutes = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
-		var hours = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+		var seconds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+		var minutes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+		var hours = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
 
 		if (seconds >= 60) {
 			minutes += Math.floor(seconds / 60);
@@ -8677,8 +8748,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						el.insertAdjacentHTML('beforeend', '<p><audio src="' + src + '" preload="none" controls></audio></p>');
 					}
 				} else if (!$q('object[FlashVars*="' + src + '"]', el)) {
-						el.insertAdjacentHTML('beforeend', '<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '"><br>');
-					}
+					el.insertAdjacentHTML('beforeend', '<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '"><br>');
+				}
 			}
 		}
 		if (Cfg.addVocaroo) {
@@ -8785,8 +8856,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	AjaxCache._data = new Map();
 
 	function ajaxLoad(url) {
-		var returnForm = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
-		var useCache = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+		var returnForm = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+		var useCache = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
 		return AjaxCache.runCachedAjax(url, useCache).then(function (xhr) {
 			var el,
@@ -8823,7 +8894,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function infoLoadErrors(e) {
-		var showError = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+		var showError = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
 		var isAjax = e instanceof AjaxError,
 		    eCode = isAjax ? e.code : 0;
@@ -9221,7 +9292,7 @@ true, true],
 			}
 		},
 		decompileSpell: function decompileSpell(type, neg, val, scope) {
-			var wipeMsg = arguments.length <= 4 || arguments[4] === undefined ? null : arguments[4];
+			var wipeMsg = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
 
 			var spell = (neg ? '!#' : '#') + Spells.names[type] + (scope ? '[' + scope[0] + (scope[1] ? ',' + (scope[1] === -1 ? '' : scope[1]) : '') + ']' : '');
 			if (!val) {
@@ -9605,10 +9676,10 @@ true, true],
 					i--;
 					len--;
 				} else if (sp[i][0] === 0xFF) {
-						sp.push(sp.splice(i, 1)[0]);
-						i--;
-						len--;
-					}
+					sp.push(sp.splice(i, 1)[0]);
+					i--;
+					len--;
+				}
 			}
 		},
 		_sync: function _sync(data) {
@@ -10681,8 +10752,8 @@ true, true],
 	function PostForm(form) {
 		var _this20 = this;
 
-		var oeForm = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-		var ignoreForm = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+		var oeForm = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+		var ignoreForm = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
 		if (!ignoreForm && !form) {
 			if (this.oeForm) {
@@ -11108,7 +11179,7 @@ true, true],
 			}
 			temp = pByNum.get(pNum).thr.op.title.trim();
 			if (temp.length > 27) {
-				temp = temp.substr(0, 30) + '…';
+				temp = temp.substr(0, 30) + '\u2026';
 			}
 			$q('.de-win-title', this.qArea).textContent = temp || '#' + pNum;
 			this.lastQuickPNum = pNum;
@@ -11665,8 +11736,8 @@ true, true],
 			value: function add() {
 				var _this24 = this;
 
-				var focus = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
-				var updateHTML = arguments.length <= 1 || arguments[1] === undefined ? !this._isRecap : arguments[1];
+				var focus = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+				var updateHTML = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : !this._isRecap;
 
 				if (this._added) {
 					return;
@@ -11803,8 +11874,8 @@ true, true],
 			value: function update(focus) {
 				var _this26 = this;
 
-				var isErr = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
-				var tNum = arguments.length <= 2 || arguments[2] === undefined ? this.tNum : arguments[2];
+				var isErr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+				var tNum = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.tNum;
 
 				if (tNum !== this.tNum) {
 					this.remove();
@@ -12123,7 +12194,7 @@ true, true],
 	}));
 
 	function html5Submit(form, submitter) {
-		var needProgress = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+		var needProgress = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
 		var formData, hasFiles, _iterator25, _isArray25, _i29, _ref45, _ref46, name, value, type, el, fileName, newFileName, data, ajaxParams, xhr;
 
@@ -12246,7 +12317,7 @@ true, true],
 	}
 
 	function readFile(file) {
-		var asText = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+		var asText = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
 		return new Promise(function (resolve, reject) {
 			var fr = new FileReader();
@@ -12447,10 +12518,10 @@ true, true],
 						this.segment = el;
 						break; 
 					} else if (el.id === voidId) {
-							voids.push(el);
-						} else {
-							break error;
-						}
+						voids.push(el);
+					} else {
+						break error;
+					}
 					offset += el.headSize + el.size;
 				}
 				this.voids = voids;
@@ -13177,7 +13248,7 @@ true, true],
 		}, {
 			key: '_getImageSrc',
 			value: function _getImageSrc() {
-				return aib.getImgLink(this.el).href;
+				return aib.getImgLink(this.el).getAttribute('href');
 			}
 		}, {
 			key: 'info',
@@ -13353,8 +13424,8 @@ true, true],
 	}
 
 	function processImagesLinks(el, linkBoard) {
-		var addSrc = arguments.length <= 2 || arguments[2] === undefined ? Cfg.imgSrcBtns : arguments[2];
-		var delNames = arguments.length <= 3 || arguments[3] === undefined ? Cfg.delImgNames : arguments[3];
+		var addSrc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : Cfg.imgSrcBtns;
+		var delNames = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : Cfg.delImgNames;
 
 		if (!aib.mak) {
 			linkBoard = null;
@@ -13604,13 +13675,13 @@ true, true],
 								if (!(aib.getPostOfEl(fixEventEl(e.relatedTarget)) instanceof Pview) && Pview.top) {
 									Pview.top.markToDel(); 
 								} else if (this.kid) {
-										this.kid.markToDel(); 
-									}
-							} else {
-									this._linkDelay = setTimeout(function () {
-										return _this35.kid = Pview.show(_this35, el);
-									}, Cfg.linksOver);
+									this.kid.markToDel(); 
 								}
+							} else {
+								this._linkDelay = setTimeout(function () {
+									return _this35.kid = Pview.show(_this35, el);
+								}, Cfg.linksOver);
+							}
 							$pd(e);
 							e.stopPropagation();
 						}
@@ -13959,7 +14030,7 @@ true, true],
 		}, {
 			key: 'selectAndScrollTo',
 			value: function selectAndScrollTo() {
-				var scrollNode = arguments.length <= 0 || arguments[0] === undefined ? this.el : arguments[0];
+				var scrollNode = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.el;
 
 				scrollTo(0, window.pageYOffset + scrollNode.getBoundingClientRect().top - Post.sizing.wHeight / 2 + scrollNode.clientHeight / 2);
 				if (HotKeys.enabled) {
@@ -13979,8 +14050,8 @@ true, true],
 		}, {
 			key: 'setUserVisib',
 			value: function setUserVisib(hide) {
-				var save = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
-				var note = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+				var save = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+				var note = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
 				this.userToggled = true;
 				this.setVisib(hide, note);
@@ -14016,7 +14087,7 @@ true, true],
 			value: function setVisib(hide) {
 				var _this40 = this;
 
-				var note = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+				var note = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
 				if (this.hidden === hide) {
 					if (hide && note) {
@@ -14073,7 +14144,7 @@ true, true],
 		}, {
 			key: 'toggleImages',
 			value: function toggleImages() {
-				var expand = arguments.length <= 0 || arguments[0] === undefined ? !this.images.expanded : arguments[0];
+				var expand = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : !this.images.expanded;
 
 				for (var _iterator26 = this.images, _isArray26 = Array.isArray(_iterator26), _i30 = 0, _iterator26 = _isArray26 ? _iterator26 : _iterator26[Symbol.iterator]();;) {
 					var _ref48;
@@ -14386,7 +14457,7 @@ true, true],
 		}, {
 			key: 'text',
 			get: function get() {
-				var value = this.post.msg.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n').replace(/<[^>]+?>/g, '').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&nbsp;/g, ' ').trim();
+				var value = this.post.msg.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n').replace(/<[^>]+?>/g, '').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&nbsp;/g, '\xA0').trim();
 				Object.defineProperty(this, 'text', { value: value });
 				return value;
 			}
@@ -14421,7 +14492,7 @@ true, true],
 				this._noteEl = this.textEl = $bEnd(post.btns, '<span class="de-post-note"></span>');
 				return;
 			}
-			this._noteEl = $bBegin(post.thr.el, '<div class="' + aib.cReply + ' de-thr-hid" id="de-thr-hid-' + post.num + '">' + Lng.hiddenThrd[lang] + ': <a href="#">№' + post.num + '</a>\n\t\t\t<span class="de-thread-note"></span>\n\t\t</div>');
+			this._noteEl = $bBegin(post.thr.el, '<div class="' + aib.cReply + ' de-thr-hid" id="de-thr-hid-' + post.num + '">' + Lng.hiddenThrd[lang] + ': <a href="#">\u2116' + post.num + '</a>\n\t\t\t<span class="de-thread-note"></span>\n\t\t</div>');
 			this._aEl = $q('a', this._noteEl);
 			this.textEl = this._aEl.nextElementSibling;
 		}
@@ -15268,7 +15339,7 @@ true, true],
 		_createClass(RefMap, [{
 			key: 'add',
 			value: function add(post, num) {
-				var isHidden = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+				var isHidden = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
 				if (isHidden === null) {
 					var strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
@@ -15296,7 +15367,7 @@ true, true],
 		}, {
 			key: 'hide',
 			value: function hide() {
-				var isForced = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+				var isForced = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
 				if (!isForced && !Cfg.hideRefPsts || !this.hasMap || this._hidden) {
 					return;
@@ -15383,7 +15454,7 @@ true, true],
 		}, {
 			key: 'unhide',
 			value: function unhide() {
-				var isForced = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+				var isForced = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
 				if (this._hidden && !this.hasMap) {
 					return;
@@ -15744,7 +15815,7 @@ true, true],
 						thumb_w = file.thumb_width;
 						thumb_h = file.thumb_height;
 					}
-					var fileInfo = '<div class="fileinfo' + (multiFile ? ' limited' : '') + '">Файл:\n\t\t\t\t<a href="/' + file.src + '" title="' + fullFileName + '" target="_blank">' + fileName + '</a><br>\n\t\t\t\t<em>' + ext + ', ' + prettifySize(file.size) + ', ' + file.metadata.width + 'x' + file.metadata.height + '</em>' + (multiFile ? '' : ' - Нажмите на картинку для увеличения') + '<br>\n\t\t\t\t<a class="edit_ icon" href="/utils/image/edit/' + file.file_id + '/' + num + '">\n\t\t\t\t\t<img title="edit" alt="edit" src="/images/blank.png">\n\t\t\t\t</a>\n\t\t\t</div>';
+					var fileInfo = '<div class="fileinfo' + (multiFile ? ' limited' : '') + '">\u0424\u0430\u0439\u043B:\n\t\t\t\t<a href="/' + file.src + '" title="' + fullFileName + '" target="_blank">' + fileName + '</a><br>\n\t\t\t\t<em>' + ext + ', ' + prettifySize(file.size) + ', ' + file.metadata.width + 'x' + file.metadata.height + '</em>' + (multiFile ? '' : ' - Нажмите на картинку для увеличения') + '<br>\n\t\t\t\t<a class="edit_ icon" href="/utils/image/edit/' + file.file_id + '/' + num + '">\n\t\t\t\t\t<img title="edit" alt="edit" src="/images/blank.png">\n\t\t\t\t</a>\n\t\t\t</div>';
 					filesHTML += (multiFile ? '' : fileInfo) + '\n\t\t\t<div id="file_' + num + '_' + file.file_id + '" class="file">' + (multiFile ? fileInfo : '') + '\n\t\t\t\t<a href="/' + file.src + '" target="_blank">\n\t\t\t\t\t<img class="thumb" src="/' + thumb + '" width="' + thumb_w + '" height="' + thumb_h + '">\n\t\t\t\t</a>\n\t\t\t</div>';
 				}
 
@@ -15837,7 +15908,7 @@ true, true],
 						var file = _ref56;
 
 						var isWebm = file.name.substr(-5) === '.webm';
-						filesHTML += '<figure class="image">\n\t\t\t\t\t<figcaption class="file-attr">\n\t\t\t\t\t\t<a class="desktop" target="_blank" href="/' + brd + '/' + file.path + '">' + file.name + '</a>\n\t\t\t\t\t\t' + (isWebm ? '<img src="/makaba/templates/img/webm-logo.png" width="50px" alt="webm file" id="webm-icon-' + num + '-' + file.md5 + '">' : '') + '\n\t\t\t\t\t\t<span class="filesize">(' + file.size + 'Кб, ' + file.width + 'x' + file.height + (isWebm ? ', ' + file.duration : '') + ')</span>\n\t\t\t\t\t</figcaption>\n\t\t\t\t\t<div id="exlink-' + num + '-' + file.md5 + '">\n\t\t\t\t\t\t<a href="/' + brd + '/' + file.path + '" name="expandfunc" onclick="expand(\'' + num + '-' + file.md5 + '\',\'/' + brd + '/' + file.path + '\',\'/' + brd + '/' + file.thumbnail + '\',' + file.width + ',' + file.height + ',' + file.tn_width + ',' + file.tn_height + '); return false;">\n\t\t\t\t\t\t\t<img src="/' + brd + '/' + file.thumbnail + '" width="' + file.tn_width + '" height="' + file.tn_height + '" alt="' + file.size + '" class="img preview' + (isWebm ? ' webm-file' : '') + '">\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</div>\n\t\t\t\t</figure>';
+						filesHTML += '<figure class="image">\n\t\t\t\t\t<figcaption class="file-attr">\n\t\t\t\t\t\t<a class="desktop" target="_blank" href="/' + brd + '/' + file.path + '">' + file.name + '</a>\n\t\t\t\t\t\t' + (isWebm ? '<img src="/makaba/templates/img/webm-logo.png" width="50px" alt="webm file" id="webm-icon-' + num + '-' + file.md5 + '">' : '') + '\n\t\t\t\t\t\t<span class="filesize">(' + file.size + '\u041A\u0431, ' + file.width + 'x' + file.height + (isWebm ? ', ' + file.duration : '') + ')</span>\n\t\t\t\t\t</figcaption>\n\t\t\t\t\t<div id="exlink-' + num + '-' + file.md5 + '">\n\t\t\t\t\t\t<a href="/' + brd + '/' + file.path + '" name="expandfunc" onclick="expand(\'' + num + '-' + file.md5 + '\',\'/' + brd + '/' + file.path + '\',\'/' + brd + '/' + file.thumbnail + '\',' + file.width + ',' + file.height + ',' + file.tn_width + ',' + file.tn_height + '); return false;">\n\t\t\t\t\t\t\t<img src="/' + brd + '/' + file.thumbnail + '" width="' + file.tn_width + '" height="' + file.tn_height + '" alt="' + file.size + '" class="img preview' + (isWebm ? ' webm-file' : '') + '">\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</div>\n\t\t\t\t</figure>';
 					}
 					filesHTML += '</div>';
 				} else if (data.video) {
@@ -15852,7 +15923,7 @@ true, true],
 					'!!%Inquisitor%!!': '<span class="inquisitor">## Applejack ##<\/span>',
 					'!!%coder%!!': '<span class="mod">## Кодер ##<\/span>',
 					'@@default': '<span class="postertrip">' + data.trip + '<\/span>'
-				}) + '\n\t\t\t\t\t' + (data.op === 1 ? '<span class="ophui"># OP</span>&nbsp;' : '') + '\n\t\t\t\t\t<span class="posttime-reflink">\n\t\t\t\t\t\t<span class="posttime">' + data.date + '&nbsp;</span>\n\t\t\t\t\t\t<span class="reflink">\n\t\t\t\t\t\t\t<a href="/' + brd + '/res/' + (parseInt(data.parent) || num) + '.html#' + num + '">№</a><a href="/' + brd + '/res/' + (parseInt(data.parent) || num) + '.html#' + num + '" class="postbtn-reply-href" name="' + num + '">' + num + '</a>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</span>\n\t\t\t\t\t<br class="turnmeoff">\n\t\t\t\t</div>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + this._getPostMsg(data) + '\n\t\t\t</div>\n\t\t</div>';
+				}) + '\n\t\t\t\t\t' + (data.op === 1 ? '<span class="ophui"># OP</span>&nbsp;' : '') + '\n\t\t\t\t\t<span class="posttime-reflink">\n\t\t\t\t\t\t<span class="posttime">' + data.date + '&nbsp;</span>\n\t\t\t\t\t\t<span class="reflink">\n\t\t\t\t\t\t\t<a href="/' + brd + '/res/' + (parseInt(data.parent) || num) + '.html#' + num + '">\u2116</a><a href="/' + brd + '/res/' + (parseInt(data.parent) || num) + '.html#' + num + '" class="postbtn-reply-href" name="' + num + '">' + num + '</a>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</span>\n\t\t\t\t\t<br class="turnmeoff">\n\t\t\t\t</div>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + this._getPostMsg(data) + '\n\t\t\t</div>\n\t\t</div>';
 				return rv;
 			}
 		}, {
@@ -16060,7 +16131,7 @@ true, true],
 			value: function load(last, smartScroll) {
 				var _this48 = this;
 
-				var informUser = arguments.length <= 2 || arguments[2] === undefined ? true : arguments[2];
+				var informUser = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
 
 				if (informUser) {
 					$popup(Lng.loading[lang], 'load-thr', true);
@@ -16711,7 +16782,7 @@ true, true],
 
 				var rv = new (Function.prototype.bind.apply(origFormData, [null].concat(args)))();
 				rv.append = function append(name, value) {
-					var fileName = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+					var fileName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
 					if (value instanceof Blob && 'name' in value && fileName === null) {
 						return origAppend.call(this, name, value, value.name);
@@ -16886,7 +16957,7 @@ true, true],
 		}, {
 			key: 'fixHTML',
 			value: function fixHTML(data) {
-				var isForm = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+				var isForm = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
 				if (!(dTime || Spells.reps || Cfg.crossLinks || this.fixHTMLHelper || this.fixDeadLinks || this.hasTextLinks)) {
 					return data;
@@ -17947,7 +18018,7 @@ true, true],
 						if ($id('de-_2chruNet-capchecker')) {
 							return;
 						}
-						$aEnd(cap.textEl, '<span id="de-_2chruNet-capchecker" class="shortened" style="margin: 0px .5em;">\n\t\t\t\t\tпроверить капчу\n\t\t\t\t</span>').onclick = function (_ref61) {
+						$aEnd(cap.textEl, '<span id="de-_2chruNet-capchecker" class="shortened" style="margin: 0px .5em;">\n\t\t\t\t\t\u043F\u0440\u043E\u0432\u0435\u0440\u0438\u0442\u044C \u043A\u0430\u043F\u0447\u0443\n\t\t\t\t</span>').onclick = function (_ref61) {
 							var target = _ref61.target;
 
 							$ajax('/' + _this69.b + '/api/validate-captcha', { method: 'POST' }).then(function (xhr) {
@@ -18108,7 +18179,7 @@ true, true],
 				key: 'getSage',
 				value: function getSage(post) {
 					var el = $q('.filetitle', post);
-					return el && el.textContent.includes('⇩');
+					return el && el.textContent.includes('\u21E9');
 				}
 			}, {
 				key: 'css',
@@ -19437,7 +19508,7 @@ true, true],
 		}]);
 
 		function DelForm(formEl, pageNum) {
-			var prev = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+			var prev = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
 			_classCallCheck(this, DelForm);
 
@@ -19857,8 +19928,8 @@ true, true],
 
 		var updMachine = {
 			start: function start() {
-				var needSleep = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
-				var loadOnce = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+				var needSleep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+				var loadOnce = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
 				if (this._state !== -1) {
 					this.stop(false);
@@ -19872,7 +19943,7 @@ true, true],
 				this._makeStep(needSleep);
 			},
 			stop: function stop() {
-				var updateStatus = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+				var updateStatus = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
 				if (this._state !== -1) {
 					this._state = -1;
@@ -19958,7 +20029,7 @@ true, true],
 			_makeStep: function _makeStep() {
 				var _this97 = this;
 
-				var needSleep = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+				var needSleep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
 				while (true) {
 					switch (this._state) {
@@ -20038,7 +20109,7 @@ true, true],
 		}
 
 		function updateTitle() {
-			var eCode = arguments.length <= 0 || arguments[0] === undefined ? lastECode : arguments[0];
+			var eCode = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : lastECode;
 
 			doc.title = (sendError === true ? '{' + Lng.error[lang] + '} ' : '') + (eCode <= 0 || eCode === 200 ? '' : '{' + eCode + '} ') + (newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
 			favicon.updateIcon(eCode !== 200 && eCode !== 304);
@@ -20105,7 +20176,7 @@ true, true],
 				}
 			},
 			'continue': function _continue() {
-				var needSleep = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+				var needSleep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
 				if (enabled && paused) {
 					updMachine.start(needSleep);
@@ -20426,7 +20497,7 @@ true, true],
 	#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\
 	#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }' +
 
-		cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') + cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico') + cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==') + '.de-current::after { content: " ●"; }\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\t.de-mp3 { margin: 5px 20px; }\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\t.de-video-obj-inline { display: inline-block; }\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\t#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }\t.de-video-expanded { width: 854px !important; height: 480px !important; }\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\t.de-video-refpost { margin: 0 3px; text-decoration: none; cursor: pointer; }\t.de-video-resizer::after { content: "➕"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\ta.de-video-player::after { content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\t.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }\t.de-vocaroo > embed { display: inline-block; }\tvideo { background: black; }' +
+		cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') + cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico') + cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==') + '.de-current::after { content: " \u25CF"; }\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\t.de-mp3 { margin: 5px 20px; }\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\t.de-video-obj-inline { display: inline-block; }\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\t#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }\t.de-video-expanded { width: 854px !important; height: 480px !important; }\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\t.de-video-refpost { margin: 0 3px; text-decoration: none; cursor: pointer; }\t.de-video-resizer::after { content: "\u2795"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\ta.de-video-player::after { content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\t.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }\t.de-vocaroo > embed { display: inline-block; }\tvideo { background: black; }' +
 
 		'.de-file { display: inline-block; margin: 1px; height: ' + (p = aib.multiFile ? 90 : 130) + 'px; width: ' + p + 'px; text-align: center; border: 1px dashed grey; }\
 	.de-file > .de-file-del, .de-file > .de-file-spoil { float: right; }\
@@ -20507,7 +20578,7 @@ true, true],
 	.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }\
 	.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }\
 	.de-popup-msg { display: inline-block; white-space: pre-wrap; }\
-	.de-button { flex: none; padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 1px 2px; height: 24px; font: 13px arial; }\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\t.de-link-parent { outline: 1px dotted !important; }\t.de-link-pview { font-weight: bold; }\t.de-link-ref { text-decoration: none; }\t.de-list { padding-top: 4px; }\t.de-list::before { content: "●"; margin-right: 4px; }\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 9999; border: 1px solid grey !important;}\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t.de-menu-item:hover { background-color: #222; color: #fff; }\t.de-omitted { color: grey; }\t.de-omitted::before { content: "' + Lng.postsOmitted[lang] + '"; }\
+	.de-button { flex: none; padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 1px 2px; height: 24px; font: 13px arial; }\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\t.de-link-parent { outline: 1px dotted !important; }\t.de-link-pview { font-weight: bold; }\t.de-link-ref { text-decoration: none; }\t.de-list { padding-top: 4px; }\t.de-list::before { content: "\u25CF"; margin-right: 4px; }\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 9999; border: 1px solid grey !important;}\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t.de-menu-item:hover { background-color: #222; color: #fff; }\t.de-omitted { color: grey; }\t.de-omitted::before { content: "' + Lng.postsOmitted[lang] + '"; }\
 	.de-post-hiddencontent { display: none !important; }\
 	.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 	.de-pview-info { padding: 3px 6px !important; }\
