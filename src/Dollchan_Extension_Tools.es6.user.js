@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '51f7a7d';
+const commit = '32fa159';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11156,15 +11156,17 @@ class _4chanPostsBuilder {
 			capcodeImg = `<img src="${ _icon('foundericon') }" alt="This user is 4chan\'s Founder." title="This user is 4chan\'s Founder." class="identityIcon">`;
 			break;
 		}
+		
+		let name = data.name || '';
 
 		let rv = `<div class="postContainer replyContainer" id="pc${ num }">
 			<div class="sideArrows" id="sa${ num }">&gt;&gt;</div>
 			<div id="p${ num }" class="post reply ${ highlight }">
 				<div class="postInfoM mobile" id="pim${ num }">
 					<span class="nameBlock ${ capcodeClass }">
-						${ data.name.length > 30
-							? '<span class="name" data-tip data-tip-cb="mShowFull">' + data.name.substring(30) + '(...)</span>'
-							: '<span class="name">' + data.name + '</span>'
+						${ name.length > 30
+							? '<span class="name" data-tip data-tip-cb="mShowFull">' + name.substring(30) + '(...)</span>'
+							: '<span class="name">' + name + '</span>'
 						}
 						${ data.trip ? `<span class="postertrip">${ data.trip }</span>` : '' }
 						${ capcodeText }
@@ -11181,7 +11183,7 @@ class _4chanPostsBuilder {
 					<span class="subject">${ data.sub || '' }</span>
 					<span class="nameBlock ${ capcodeClass }">
 						${ data.email? `<a href="mailto:${ data.email.replace(/ /g, '%20') }" class="useremail">` : '' }
-							<span class="name">${ data.name }</span>
+							<span class="name">${ name }</span>
 							${ data.trip ? `<span class="postertrip">${ data.trip }</span>` : '' }
 							${ capcodeText }
 						${ data.email ? '</a>' : '' }
