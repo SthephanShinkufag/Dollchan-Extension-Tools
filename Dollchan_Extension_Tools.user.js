@@ -2942,7 +2942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = '00bbc84';
+	var commit = '8680c75';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -14831,8 +14831,8 @@ true, true],
 			_this43._showPview(_this43.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">' + '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
 			_this43._loadPromise = ajaxLoad(aib.getThrdUrl(_this43._brd, tNum)).then(function (form) {
 				return _this43._onload(form);
-			}, function () {
-				return _this43._onerror();
+			}, function (e) {
+				return _this43._onerror(e);
 			});
 			return _this43;
 		}

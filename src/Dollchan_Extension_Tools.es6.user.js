@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '00bbc84';
+const commit = '8680c75';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10457,7 +10457,7 @@ class Pview extends AbstractPost {
 		this._showPview(this.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">'
 			+ '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
 		this._loadPromise = ajaxLoad(aib.getThrdUrl(this._brd, tNum))
-			.then(form => this._onload(form), () => this._onerror());
+			.then(form => this._onload(form), e => this._onerror(e));
 	}
 	get stickBtn() {
 		var value = $q('.de-btn-stick', this.el);
