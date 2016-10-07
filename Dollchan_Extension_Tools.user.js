@@ -2942,7 +2942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = '5055bb0';
+	var commit = '00bbc84';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -6033,7 +6033,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								bArch = _b2 + '/arch';
 
 								if (!fav[host][bArch]) {
-									fav[host][bArch] = {};
+									fav[host][bArch] = { url: fav[host][_b2]['url'] + 'arch/' };
 								}
 								fav[host][bArch][num] = Object.assign({}, f);
 								removeFavoriteEntry(fav, host, _b2, num);

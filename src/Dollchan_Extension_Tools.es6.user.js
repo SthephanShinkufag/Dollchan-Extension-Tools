@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '5055bb0';
+const commit = '00bbc84';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2813,7 +2813,7 @@ function showFavoritesWindow(body, data) {
 				f.err = 'Archived';
 				const bArch = b + '/arch';
 				if(!fav[host][bArch]) {
-					fav[host][bArch] = {};
+					fav[host][bArch] = { url: fav[host][b]['url'] + 'arch/' };
 				}
 				fav[host][bArch][num] = Object.assign({}, f);
 				removeFavoriteEntry(fav, host, b, num);
