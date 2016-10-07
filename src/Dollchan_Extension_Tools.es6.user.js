@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '9132f51';
+const commit = '5055bb0';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -499,6 +499,7 @@ const Lng = {
 	internalError:	['Ошибка скрипта:\n', 'Script error:\n'],
 	thrNotFound:    ['Тред недоступен (№', 'Thread is unavailable (№'],
 	thrClosed:      ['Тред закрыт', 'Thread is closed'],
+	thrArchived:    ['Тред в архиве', 'Thread is archived'],
 	succDeleted:    ['Успешно удалено!', 'Succesfully deleted!'],
 	errDelete:      ['Не могу удалить:\n', 'Can\'t delete:\n'],
 	cTimeError:     ['Неправильные настройки времени', 'Invalid time settings'],
@@ -1006,9 +1007,6 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 					clearTimeout(loadTO);
 				}
 				if(e.readyState === 4) {
-					if(aib.iichan && e.responseURL.includes('/arch/')) {
-						reject(new AjaxError(-1, 'Тред помещён в архив: ' + e.responseURL));
-					}
 					if(e.status === 200 || aib.tiny && e.status === 400) {
 						resolve(e);
 					} else {
@@ -1051,9 +1049,6 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				clearTimeout(loadTO);
 			}
 			if(target.readyState === 4) {
-				if(aib.iichan && target.responseURL.includes('/arch/')) {
-					reject(new AjaxError(-1, 'Тред помещён в архив: ' + target.responseURL));
-				}
 				if(target.status === 200 ||
 				   (aib.tiny && target.status === 400) ||
 				   (target.status === 0 && target.responseType === 'arraybuffer'))
@@ -2677,7 +2672,8 @@ function showFavoritesWindow(body, data) {
 							t.err === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' :
 							'title="' + t.err + '"' }>
 							<svg class="de-fav-inf-icon ${ !t.err ? '' :
-								t.err === 'Closed' ? 'de-fav-closed' : 'de-fav-unavail' }">
+								t.err === 'Closed' || t.err === 'Archived' ?
+									'de-fav-closed' : 'de-fav-unavail' }">
 								<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>
 								<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>
 								<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>
@@ -2770,7 +2766,7 @@ function showFavoritesWindow(body, data) {
 
 			// Updating doesn't works for other domains because of different posts structure
 			// Updating is not needed in closed threads
-			if(host !== aib.host || f.err === 'Closed') {
+			if(host !== aib.host || f.err === 'Closed' || f.err === 'Archived' ) {
 				continue;
 			}
 
@@ -2780,9 +2776,13 @@ function showFavoritesWindow(body, data) {
 			// setAttribute for class is used because of SVG (for correct work in some browsers)
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
-			let form;
+			let form, isArchived;
 			try {
-				form = yield ajaxLoad(aib.getThrdUrl(b, num), true);
+				if(!aib.iichan) {
+					form = yield ajaxLoad(aib.getThrdUrl(b, num));
+				} else {
+					[form, isArchived] = yield ajaxLoad(aib.getThrdUrl(b, num), true, false, aib.iichan);
+				}
 				last404 = false;
 			} catch(e) {
 				if((e instanceof AjaxError) && e.code === 404) { // Check for 404 error twice
@@ -2806,6 +2806,17 @@ function showFavoritesWindow(body, data) {
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 				titleEl.title = Lng.thrClosed[lang];
 				f.err = 'Closed';
+				isUpdate = true;
+			} else if(isArchived) { // Moves archived threads into b/arch (iichan only)
+				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
+				titleEl.title = Lng.thrArchived[lang];
+				f.err = 'Archived';
+				const bArch = b + '/arch';
+				if(!fav[host][bArch]) {
+					fav[host][bArch] = {};
+				}
+				fav[host][bArch][num] = Object.assign({}, f);
+				removeFavoriteEntry(fav, host, b, num);
 				isUpdate = true;
 			} else {
 				// Thread is available and not closed
@@ -5566,13 +5577,14 @@ class AjaxCache extends null {
 }
 AjaxCache._data = new Map();
 
-function ajaxLoad(url, returnForm = true, useCache = false) {
+function ajaxLoad(url, returnForm = true, useCache = false, checkArch = false) {
 	return AjaxCache.runCachedAjax(url, useCache).then(xhr => {
 		var el, text = xhr.responseText;
 		if(text.includes('</html>')) {
 			el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 		}
-		return el ? el : CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
+		return el ? (!checkArch ? el : [el, (xhr.responseURL || '').includes('/arch/')]) :
+			CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
 	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 
@@ -5591,8 +5603,11 @@ function ajaxPostsLoad(brd, tNum, useCache) {
 			}
 		}, e => e.code === 304 ? null : CancelablePromise.reject(e));
 	}
-	return ajaxLoad(aib.getThrdUrl(brd, tNum), true, useCache)
-		.then(form => form ? new DOMPostsBuilder(form) : null);
+	return aib.iichan ?
+		ajaxLoad(aib.getThrdUrl(brd, tNum), true, useCache, true)
+			.then(data => data && data[0] ? new DOMPostsBuilder(data[0], data[1]) : null) :
+		ajaxLoad(aib.getThrdUrl(brd, tNum), true, useCache)
+			.then(form => form ? new DOMPostsBuilder(form) : null);
 }
 
 function infoLoadErrors(e, showError = true) {
@@ -9638,7 +9653,7 @@ class AbstractPost {
 			'<a class="de-menu-item de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' +
 			'<a class="de-menu-item de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' +
 			'<a class="de-menu-item de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>' +
-			'<a class="de-menu-item de-src-whatanime" href="http://whatanime.ga/?auto&url=' + (aib.constructor.name === 'Iichan' ? 'http://reho.st/' + p : p) + 'WhatAnime</a>';
+			'<a class="de-menu-item de-src-whatanime" href="http://whatanime.ga/?auto&url=' + (aib.iichan ? 'http://reho.st/' + p : p) + 'WhatAnime</a>';
 	}
 	_showMenu(el, html) {
 		if(this._menu) {
@@ -10996,15 +11011,16 @@ class RefMap {
 // ===========================================================================================================
 
 class DOMPostsBuilder {
-	constructor(form) {
+	constructor(form, isArchived) {
 		this._form = form;
 		this._posts = $Q(aib.qRPost, form);
 		this.length = this._posts.length;
 		this.postersCount = '';
 		this.hasHTML = false;
+		this._isArchived = isArchived;
 	}
 	get isClosed() {
-		return !!$q(aib.qClosed, this._form);
+		return !!$q(aib.qClosed, this._form) || this._isArchived;
 	}
 	getOpMessage() {
 		return aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, this._form)));
@@ -14071,7 +14087,7 @@ function initStorageEvent() {
 
 class DollchanAPI {
 	static init() {
-		if(!MessageChannel) {
+		if(!('MessageChannel' in window)) {
 			return;
 		}
 		let channel = new MessageChannel();
