@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '58f2ec9';
+const commit = 'c313d0f';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -625,7 +625,7 @@ const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/w
 const gitRaw = 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
 let docBody, locStorage, sesStorage, Cfg, pByEl, pByNum, aib, nav, updater, dTime, pr, dummy, lang, isExpImg,
-	isPreImg, needScroll, excludeList, quotetxt = '', lastResponseURL = '', nativeXHRworks = true, visPosts = 2, topWinZ = 0;
+	isPreImg, needScroll, excludeList, quotetxt = '', nativeXHRworks = true, visPosts = 2, topWinZ = 0;
 
 
 // UTILS
@@ -1006,7 +1006,9 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 					clearTimeout(loadTO);
 				}
 				if(e.readyState === 4) {
-					lastResponseURL = e.responseURL || '';
+					if(aib.iichan && e.responseURL.includes('/arch/')) {
+						reject(new AjaxError(-1, 'Тред помещён в архив: ' + e.responseURL));
+					}
 					if(e.status === 200 || aib.tiny && e.status === 400) {
 						resolve(e);
 					} else {
@@ -1049,7 +1051,9 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				clearTimeout(loadTO);
 			}
 			if(target.readyState === 4) {
-				lastResponseURL = target.responseURL || '';
+				if(aib.iichan && target.responseURL.includes('/arch/')) {
+					reject(new AjaxError(-1, 'Тред помещён в архив: ' + target.responseURL));
+				}
 				if(target.status === 200 ||
 				   (aib.tiny && target.status === 400) ||
 				   (target.status === 0 && target.responseType === 'arraybuffer'))
@@ -2105,7 +2109,7 @@ var panel = Object.create({
 						(imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) +
 						(!isThr ? '' : this._getButton('savethr'))) +
 					(!isThr || localData ? '' :
-						this._getButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') +
+						this._getButton(Cfg.ajaxUpdThr && updater.isEnabled() ? 'upd-on' : 'upd-off') +
 						(nav.Safari ? '' : this._getButton('audio-off'))) +
 					(!aib.hasCatalog ? '' : this._getButton('catalog')) +
 					this._getButton('enable') +
@@ -13649,6 +13653,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Iichan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
+			this.iichan = true;
 
 			this.hasCatalog = true;
 		}
@@ -14824,11 +14829,6 @@ function initThreadUpdater(title, enableUpdate) {
 				}
 			}
 			lastECode = eCode;
-			if(lastResponseURL) {
-  				var i = $q('.de-thread-updater');
-				if(i) i.title = lastResponseURL;
-				if(lastResponseURL.indexOf('/arch/') >= 0) disableUpdater();
-			}
 			if(doc.hidden) {
 				if(lPosts !== 0) {
 					newPosts += lPosts;
@@ -14887,7 +14887,7 @@ function initThreadUpdater(title, enableUpdate) {
 					this._panelButton.innerHTML = '<svg class="de-panel-svg"><use xlink:href="#de-symbol-panel-upd"/></svg>';
 				}
 			}
-		}
+		},
 	};
 
 	function enableUpdater() {
@@ -14954,6 +14954,9 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	return {
+		isEnabled() {
+			return enabled;
+		},
 		enable() {
 			if(!enabled) {
 				enableUpdater();
@@ -14962,7 +14965,7 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		disable() {
 			disabledByUser = true;
-			disableUpdater()
+			disableUpdater();
 		},
 		toggle() {
 			if(enabled) {
@@ -15057,7 +15060,8 @@ function initPage() {
 		navPanel.init();
 	}
 	if(!localData){
-		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr);
+		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr &&
+			!(aib.iichan && aib.b.includes('/arch')));
 		if(aib.t) {
 			Thread.first.el.nextSibling.firstChild.firstElementChild
 				.addEventListener('click', updater.forceLoad);

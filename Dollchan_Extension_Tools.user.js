@@ -2942,7 +2942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = '58f2ec9';
+	var commit = 'c313d0f';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3463,7 +3463,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	    needScroll = void 0,
 	    excludeList = void 0,
 	    quotetxt = '',
-	    lastResponseURL = '',
 	    nativeXHRworks = true,
 	    visPosts = 2,
 	    topWinZ = 0;
@@ -3925,7 +3924,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							clearTimeout(loadTO);
 						}
 						if (e.readyState === 4) {
-							lastResponseURL = e.responseURL || '';
+							if (aib.iichan && e.responseURL.includes('/arch/')) {
+								reject(new AjaxError(-1, 'Тред помещён в архив: ' + e.responseURL));
+							}
 							if (e.status === 200 || aib.tiny && e.status === 400) {
 								resolve(e);
 							} else {
@@ -3972,7 +3973,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						clearTimeout(loadTO);
 					}
 					if (target.readyState === 4) {
-						lastResponseURL = target.responseURL || '';
+						if (aib.iichan && target.responseURL.includes('/arch/')) {
+							reject(new AjaxError(-1, 'Тред помещён в архив: ' + target.responseURL));
+						}
 						if (target.status === 200 || aib.tiny && target.status === 400 || target.status === 0 && target.responseType === 'arraybuffer') {
 							resolve(target);
 						} else {
@@ -5345,7 +5348,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		init: function init(formEl) {
 			var imgLen = $Q(aib.qPostImg, formEl).length,
 			    isThr = aib.t;
-			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '\n\t\t<div id="de-main">\n\t\t\t<div id="de-panel">\n\t\t\t\t<div id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '">\n\t\t\t\t\t<svg class="de-panel-logo-svg">\n\t\t\t\t\t\t<use xlink:href="#de-symbol-panel-logo"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id="de-panel-buttons"' + (Cfg.expandPanel ? '' : ' style="display: none;"') + '>\n\t\t\t\t' + (Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (!Cfg.addYouTube ? '' : this._getButton('vid')) + (localData ? '' : this._getButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : this._getButton('goback')) + (isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) + this._getButton('goup') + this._getButton('godown') + (imgLen === 0 ? '' : this._getButton('expimg') + this._getButton('maskimg')) + (nav.Presto || localData ? '' : (imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) + (!isThr ? '' : this._getButton('savethr'))) + (!isThr || localData ? '' : this._getButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') + (nav.Safari ? '' : this._getButton('audio-off'))) + (!aib.hasCatalog ? '' : this._getButton('catalog')) + this._getButton('enable') + (!isThr ? '' : '<span id="de-panel-info">' + '<span id="de-panel-info-pcount" title="' + Lng.panelBtn.pcount[lang] + '">' + Thread.first.pcount + '</span>' + '<span id="de-panel-info-icount" title="' + Lng.panelBtn.imglen[lang] + '">' + imgLen + '</span>' + '<span id="de-panel-info-acount" title="' + Lng.panelBtn.posters[lang] + '"></span>' + '</span>')) + '\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t' + (Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">') + '\n\t\t</div>');
+			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '\n\t\t<div id="de-main">\n\t\t\t<div id="de-panel">\n\t\t\t\t<div id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '">\n\t\t\t\t\t<svg class="de-panel-logo-svg">\n\t\t\t\t\t\t<use xlink:href="#de-symbol-panel-logo"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id="de-panel-buttons"' + (Cfg.expandPanel ? '' : ' style="display: none;"') + '>\n\t\t\t\t' + (Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (!Cfg.addYouTube ? '' : this._getButton('vid')) + (localData ? '' : this._getButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : this._getButton('goback')) + (isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) + this._getButton('goup') + this._getButton('godown') + (imgLen === 0 ? '' : this._getButton('expimg') + this._getButton('maskimg')) + (nav.Presto || localData ? '' : (imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) + (!isThr ? '' : this._getButton('savethr'))) + (!isThr || localData ? '' : this._getButton(Cfg.ajaxUpdThr && updater.isEnabled() ? 'upd-on' : 'upd-off') + (nav.Safari ? '' : this._getButton('audio-off'))) + (!aib.hasCatalog ? '' : this._getButton('catalog')) + this._getButton('enable') + (!isThr ? '' : '<span id="de-panel-info">' + '<span id="de-panel-info-pcount" title="' + Lng.panelBtn.pcount[lang] + '">' + Thread.first.pcount + '</span>' + '<span id="de-panel-info-icount" title="' + Lng.panelBtn.imglen[lang] + '">' + imgLen + '</span>' + '<span id="de-panel-info-acount" title="' + Lng.panelBtn.posters[lang] + '"></span>' + '</span>')) + '\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t' + (Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">') + '\n\t\t</div>');
 			this._el = $id('de-panel');
 			this._el.addEventListener('click', this, true);
 			this._el.addEventListener('mouseover', this);
@@ -18843,6 +18846,8 @@ true, true],
 
 				var _this82 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
 
+				_this82.iichan = true;
+
 				_this82.hasCatalog = true;
 				return _this82;
 			}
@@ -20102,11 +20107,6 @@ true, true],
 					}
 				}
 				lastECode = eCode;
-				if (lastResponseURL) {
-  					var i = $q('.de-thread-updater');
-					if(i) i.title = lastResponseURL;
-					if(lastResponseURL.indexOf('/arch/') >= 0) disableUpdater();
-				}
 				if (doc.hidden) {
 					if (lPosts !== 0) {
 						newPosts += lPosts;
@@ -20243,6 +20243,9 @@ true, true],
 		}
 
 		return {
+			isEnabled: function isEnabled() {
+				return enabled;
+			},
 			enable: function enable() {
 				if (!enabled) {
 					enableUpdater();
@@ -20345,7 +20348,7 @@ true, true],
 			navPanel.init();
 		}
 		if (!localData) {
-			updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr);
+			updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr && !(aib.iichan && aib.b.includes('/arch')));
 			if (aib.t) {
 				Thread.first.el.nextSibling.firstChild.firstElementChild.addEventListener('click', updater.forceLoad);
 			}
