@@ -2942,7 +2942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = '32fa159';
+	var commit = '58f2ec9';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3463,6 +3463,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	    needScroll = void 0,
 	    excludeList = void 0,
 	    quotetxt = '',
+	    lastResponseURL = '',
 	    nativeXHRworks = true,
 	    visPosts = 2,
 	    topWinZ = 0;
@@ -3924,6 +3925,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							clearTimeout(loadTO);
 						}
 						if (e.readyState === 4) {
+							lastResponseURL = e.responseURL || '';
 							if (e.status === 200 || aib.tiny && e.status === 400) {
 								resolve(e);
 							} else {
@@ -3970,6 +3972,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						clearTimeout(loadTO);
 					}
 					if (target.readyState === 4) {
+						lastResponseURL = target.responseURL || '';
 						if (target.status === 200 || aib.tiny && target.status === 400 || target.status === 0 && target.responseType === 'arraybuffer') {
 							resolve(target);
 						} else {
@@ -20099,6 +20102,11 @@ true, true],
 					}
 				}
 				lastECode = eCode;
+				if (lastResponseURL) {
+  					var i = $q('.de-thread-updater');
+					if(i) i.title = lastResponseURL;
+					if(lastResponseURL.indexOf('/arch/') >= 0) disableUpdater();
+				}
 				if (doc.hidden) {
 					if (lPosts !== 0) {
 						newPosts += lPosts;

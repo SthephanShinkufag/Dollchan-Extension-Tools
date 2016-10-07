@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '32fa159';
+const commit = '58f2ec9';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -625,7 +625,7 @@ const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/w
 const gitRaw = 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
 let docBody, locStorage, sesStorage, Cfg, pByEl, pByNum, aib, nav, updater, dTime, pr, dummy, lang, isExpImg,
-	isPreImg, needScroll, excludeList, quotetxt = '', nativeXHRworks = true, visPosts = 2, topWinZ = 0;
+	isPreImg, needScroll, excludeList, quotetxt = '', lastResponseURL = '', nativeXHRworks = true, visPosts = 2, topWinZ = 0;
 
 
 // UTILS
@@ -1006,6 +1006,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 					clearTimeout(loadTO);
 				}
 				if(e.readyState === 4) {
+					lastResponseURL = e.responseURL || '';
 					if(e.status === 200 || aib.tiny && e.status === 400) {
 						resolve(e);
 					} else {
@@ -1048,6 +1049,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				clearTimeout(loadTO);
 			}
 			if(target.readyState === 4) {
+				lastResponseURL = target.responseURL || '';
 				if(target.status === 200 ||
 				   (aib.tiny && target.status === 400) ||
 				   (target.status === 0 && target.responseType === 'arraybuffer'))
@@ -14822,6 +14824,11 @@ function initThreadUpdater(title, enableUpdate) {
 				}
 			}
 			lastECode = eCode;
+			if(lastResponseURL) {
+  				var i = $q('.de-thread-updater');
+				if(i) i.title = lastResponseURL;
+				if(lastResponseURL.indexOf('/arch/') >= 0) disableUpdater();
+			}
 			if(doc.hidden) {
 				if(lPosts !== 0) {
 					newPosts += lPosts;
