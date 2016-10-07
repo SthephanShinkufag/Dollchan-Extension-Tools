@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = 'c313d0f';
+const commit = '9cf49ec';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2109,7 +2109,7 @@ var panel = Object.create({
 						(imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) +
 						(!isThr ? '' : this._getButton('savethr'))) +
 					(!isThr || localData ? '' :
-						this._getButton(Cfg.ajaxUpdThr && updater.isEnabled() ? 'upd-on' : 'upd-off') +
+						this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') +
 						(nav.Safari ? '' : this._getButton('audio-off'))) +
 					(!aib.hasCatalog ? '' : this._getButton('catalog')) +
 					this._getButton('enable') +
@@ -12307,6 +12307,9 @@ class BaseBoard {
 	get initCaptcha() {
 		return null;
 	}
+	get isArchived() {
+		return false;
+	}
 	get lastPage() { // Differs Makaba only
 		var el = $q(this.qPages),
 			val = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
@@ -13380,6 +13383,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			.post_replies, .post_num, .poster_sage, .post[postid=""] { display: none !important; }
 			.post { overflow-x: auto !important; }`;
 		}
+		get isArchived() {
+			return true;
+		}
 		get qImgName() {
 			return '.img_filename';
 		}
@@ -13661,6 +13667,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return !this.t ? '' : `
 			#de-main { margin-top: -37px; }
 			.logo { margin-bottom: 14px; }`;
+		}
+		get isArchived() {
+			return this.b.includes('/arch');
 		}
 		get qFormMail() {
 			return 'input[name="nya2"]';
@@ -14887,7 +14896,7 @@ function initThreadUpdater(title, enableUpdate) {
 					this._panelButton.innerHTML = '<svg class="de-panel-svg"><use xlink:href="#de-symbol-panel-upd"/></svg>';
 				}
 			}
-		},
+		}
 	};
 
 	function enableUpdater() {
@@ -14954,9 +14963,6 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	return {
-		isEnabled() {
-			return enabled;
-		},
 		enable() {
 			if(!enabled) {
 				enableUpdater();
@@ -15060,8 +15066,7 @@ function initPage() {
 		navPanel.init();
 	}
 	if(!localData){
-		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr &&
-			!(aib.iichan && aib.b.includes('/arch')));
+		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr && !aib.isArchived);
 		if(aib.t) {
 			Thread.first.el.nextSibling.firstChild.firstElementChild
 				.addEventListener('click', updater.forceLoad);
