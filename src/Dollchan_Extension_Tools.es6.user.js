@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '9cf49ec';
+const commit = '9132f51';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8238,16 +8238,6 @@ var checkDelete = async(function* (data) {
 		$popup(Lng.errDelete[lang] + err, 'delete', false);
 		updater.sendErrNotif();
 		return;
-	}
-	var [num] = doc.location.hash.match(/\d+/) || [];
-	if(num) {
-		var post = pByNum.get(+num);
-		if(post) {
-			if(!post.isOp) {
-				post.el.className = aib.cReply;
-			}
-			doc.location.hash = '';
-		}
 	}
 	var els = $Q('[de-form] ' + aib.qRPost + ' input:checked'),
 		threads = new Set(),
