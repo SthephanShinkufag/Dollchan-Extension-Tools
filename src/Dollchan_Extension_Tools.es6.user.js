@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '8680c75';
+const commit = '6cea569';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7294,16 +7294,6 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		this.form.onsubmit = e => {
 			$pd(e);
 			$popup(Lng.sendingPost[lang], 'upload', true);
-			if(aib._2chruNet) {
-				$bEnd(docBody, '<iframe class="ninja" id="csstest" src="/' +
-					aib.b + '/csstest.foo"></iframe>'
-				).onload = e => {
-					$del(e.target);
-					spawn(html5Submit, this.form, this.subm, true)
-						.then(dc => checkUpload(dc), e => $popup(getErrorMessage(e), 'upload', false));
-				};
-				return;
-			}
 			spawn(html5Submit, this.form, this.subm, true)
 				.then(dc => checkUpload(dc), e => $popup(getErrorMessage(e), 'upload', false));
 		};
@@ -10804,12 +10794,12 @@ PviewsCache.purgeSecs = 3e5;
 
 class RefMap {
 	static gen(posts, thrURL) {
-		var opNums = DelForm.tNums;
-		for(var [pNum, post] of posts) {
-			var links = $Q('a', post.msg);
-			for(var i = 0, len = links.length; i < len; ++i) {
-				var lNum, link = links[i],
-					tc = link.textContent;
+		const opNums = DelForm.tNums;
+		for(let [pNum, post] of posts) {
+			const links = $Q('a', post.msg);
+			for(let lNum, i = 0, len = links.length; i < len; ++i) {
+				const link = links[i];
+				const tc = link.textContent;
 				if(tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10))) {
 					continue;
 				}
@@ -10820,7 +10810,7 @@ class RefMap {
 				if(!posts.has(lNum)) {
 					continue;
 				}
-				var ref = posts.get(lNum).ref;
+				const ref = posts.get(lNum).ref;
 				if(ref._inited) {
 					ref.add(post, pNum);
 				} else {
@@ -10831,7 +10821,7 @@ class RefMap {
 					link.classList.add('de-ref-op');
 				}
 				if(thrURL) {
-					var url = link.getAttribute('href');
+					const url = link.getAttribute('href');
 					if(url[0] === '#') {
 						link.setAttribute('href', thrURL + url);
 					}
@@ -10851,18 +10841,17 @@ class RefMap {
 			}
 		}
 	}
-	static upd(post, add) {
-		var pNum = post.num,
-			strNums = add && Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null,
-			isThr = aib.t;
-		var links = $Q('a', post.msg);
-		for(var i = 0, len = links.length; i < len; ++i) {
-			var lNum, link = links[i],
-				tc = link.textContent;
+	static upd(post, isAdd) {
+		const pNum = post.num;
+		const strNums = isAdd && Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
+		const links = $Q('a', post.msg);
+		for(let lNum, i = 0, len = links.length; i < len; ++i) {
+			const link = links[i];
+			const tc = link.textContent;
 			if(tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10))) {
 				continue;
 			}
-			if(add && MyPosts.has(lNum)) {
+			if(isAdd && MyPosts.has(lNum)) {
 				link.classList.add('de-ref-my');
 				post.el.classList.add('de-reply-post');
 				updater.refToYou();
@@ -10870,11 +10859,11 @@ class RefMap {
 			if(!pByNum.has(lNum)) {
 				continue;
 			}
-			var lPost = pByNum.get(lNum);
-			if(!isThr) {
+			const lPost = pByNum.get(lNum);
+			if(!aib.t) {
 				link.href = '#' + (aib.fch ? 'p' : '') + lNum;
 			}
-			if(add) {
+			if(isAdd) {
 				if(strNums && strNums.has(lNum)) {
 					link.classList.add('de-link-hid');
 				}
@@ -12931,20 +12920,19 @@ function getImageBoard(checkDomains, checkEngines) {
 			return !!$q('.sage', post);
 		}
 	}
-	ibEngines.push(['link[href$="phutaba.css"]', Phutaba]);
+	ibEngines.push(['head > link[href*="phutaba.css"]', Phutaba]);
 
 	// Domains
-	class _0chanSo extends _0chan {
+	class _0chanEu extends _0chan {
 		init() {
-			if(this.host !== 'www.0-chan.ru') {
-				window.location.hostname = 'www.0-chan.ru';
+			if(this.prot !== 'https:') {
+				window.location.protocol = 'https';
 				return true;
 			}
 			return false;
 		}
 	}
-	ibDomains['0-chan.ru'] = _0chanSo;
-	ibDomains['0chan.so'] = _0chanSo;
+	ibDomains['0chan.eu'] = _0chanEu;
 
 	class _2chan extends BaseBoard {
 		constructor(prot, dm) {
@@ -13039,70 +13027,41 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['02ch.su'] = _02chSu;
 
-	class _2chruNet extends BaseBoard {
+	class _2chRip extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this._2chruNet = true;
 
-			this.qFormRedir = 'input[name="noko"]';
-			this.qPages = '#pager > li:nth-last-child(2)';
+			this.getCaptchaSrc = null;
+			this.ru = true;
 
 			this._capUpdPromise = null;
 		}
-		get css() {
-			return `
-			${this.t ? '' : '#postform em, '}.small, .replymode, #updated { display: none; }
-			tr#captcha_tr { display: table-row; }`;
-		}
-		disableRedirection(el) {
-			var p = $parent(el, 'LABEL');
-			if(p) {
-				$hide(p);
+		init() {
+			var el = $id('submit_button');
+			if(el) {
+				$del(el.previousElementSibling);
+				$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ">');
 			}
-			el.checked = true;
+			return false;
 		}
-		initCaptcha(cap) {
-			return this.updateCaptcha(cap);
-		}
-		updateCaptcha(cap) {
+		updateCaptcha() {
 			if(this._capUpdPromise) {
 				this._capUpdPromise.cancel();
-			}
-			return this._capUpdPromise = $ajax('/' + this.b + '/api/requires-captcha').then(xhr => {
 				this._capUpdPromise = null;
-				if(JSON.parse(xhr.responseText)['requires-captcha'] !== '1') {
-					return CancelablePromise.reject();
-				}
-				$id('captchaimage').src = '/' + this.b + '/captcha?' + Math.random();
-				if($id('de-_2chruNet-capchecker')) {
-					return;
-				}
-				$aEnd(cap.textEl,
-				`<span id="de-_2chruNet-capchecker" class="shortened" style="margin: 0px .5em;">
-					проверить капчу
-				</span>`).onclick = ({ target }) => {
-					$ajax('/' + this.b + '/api/validate-captcha', { method: 'POST' }).then(xhr => {
-						if(JSON.parse(xhr.responseText).status === 'ok') {
-							target.innerHTML = 'можно постить';
-						} else {
-							target.innerHTML = 'неверная капча';
-							setTimeout(() => target.innerHTML = 'проверить капчу', 1e3);
-						}
-					}, emptyFn);
-				};
+			}
+			return !$id('imgcaptcha') ? null : this._capUpdPromise = $ajax('/cgi/captcha?task=get_id').then(xhr => {
+				this._capUpdPromise = null;
+				var id = xhr.responseText;
+				$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
+				$id('captchaid').value = id;
 			}, e => {
 				if(!(e instanceof CancelError)) {
 					this._capUpdPromise = null;
-					return CancelablePromise.reject(e);
 				}
 			});
 		}
 	}
-	ibDomains['2chru.net'] = _2chruNet;
-	ibDomains['2-chru.net'] = _2chruNet;
-	ibDomains['2chru.cafe'] = _2chruNet;
-	ibDomains['2-chru.cafe'] = _2chruNet;
-	ibDomains['dmirrgetyojz735v.onion'] = _2chruNet;
+	ibDomains['2ch.rip'] = DvaChNet;
 
 	class _2chRu extends BaseBoard {
 		constructor(prot, dm) {
@@ -13625,43 +13584,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['dobrochan.org'] = Dobrochan;
 	ibDomains['dobrochan.ru'] = Dobrochan;
 
-	class DvaChNet extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.getCaptchaSrc = null;
-			this.ru = true;
-
-			this._capUpdPromise = null;
-		}
-		init() {
-			var el = $id('submit_button');
-			if(el) {
-				$del(el.previousElementSibling);
-				$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ">');
-			}
-			return false;
-		}
-		updateCaptcha() {
-			if(this._capUpdPromise) {
-				this._capUpdPromise.cancel();
-				this._capUpdPromise = null;
-			}
-			return !$id('imgcaptcha') ? null : this._capUpdPromise = $ajax('/cgi/captcha?task=get_id').then(xhr => {
-				this._capUpdPromise = null;
-				var id = xhr.responseText;
-				$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
-				$id('captchaid').value = id;
-			}, e => {
-				if(!(e instanceof CancelError)) {
-					this._capUpdPromise = null;
-				}
-			});
-		}
-	}
-	ibDomains['dva-ch.net'] = DvaChNet;
-	ibDomains['2ch.rip'] = DvaChNet;
-
 	class Iichan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -13844,15 +13766,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['lainchan.org'] = Lainchan;
 
-	class MlpgCo extends Vichan {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.qOPost = '.opContainer';
-		}
-	}
-	ibDomains['mlpg.co'] = MlpgCo;
-
 	class Ponyach extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -13885,12 +13798,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['ponya.ch'] = Ponyach;
 	ibDomains['ponyach.cf'] = Ponyach;
 	ibDomains['ponyach.ga'] = Ponyach;
 	ibDomains['ponyach.ml'] = Ponyach;
 	ibDomains['ponyach.ru'] = Ponyach;
-	ibDomains['ponychan.ru'] = Ponyach;
 
 	class Ponychan extends Tinyboard {
 		constructor(prot, dm) {
@@ -13947,6 +13858,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['syn-ch.com'] = Synch;
 	ibDomains['syn-ch.org'] = Synch;
 
+	/*
 	class TinyIb extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -13965,31 +13877,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['d3w.org'] = TinyIb;
 	ibDomains['lampach.net'] = TinyIb;
 	ibDomains['ozuchan.ru'] = TinyIb;
-
-	class Uchan extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.qFormRedir = '#noko';
-		}
-		get css() {
-			return `
-			img[src="/tr.png"], small { display: none; }
-			form[action$="/paint.pl"] { width: 280px; }
-			input[name="oek_x"], input[name="oek_y"] { width: 30px !important; }`;
-		}
-		get qImgName() {
-			return '.filesize > a:first-of-type';
-		}
-		disableRedirection(el) {
-			$hide($parent(el, 'TR'));
-			el.checked = false;
-		}
-	}
-	ibDomains['uchan.to'] = Uchan;
+	*/
 
 	var dm = localData ? localData.dm : window.location.hostname
 		.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
@@ -15570,7 +15460,6 @@ function updateCSS() {
 		(Cfg.addSageBtn ? '' : '#de-sagebtn, ') +
 		(Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') +
 		(Cfg.noBoardRule ? aib.qFormRules + ', ': '') +
-		(aib._2chruNet ? '' : '.thumbnailmsg, ') +
 		(!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') +
 		'body > hr { display: none !important; }';
 	$id('de-css-dynamic').textContent = x + '\n' + aib.css;
