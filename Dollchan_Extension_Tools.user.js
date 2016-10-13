@@ -2942,7 +2942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = '6cea569';
+	var commit = 'c34c7e6';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -18040,7 +18040,7 @@ true, true],
 			return _2chRip;
 		}(BaseBoard);
 
-		ibDomains['2ch.rip'] = DvaChNet;
+		ibDomains['2ch.rip'] = _2chRip;
 
 		var _2chRu = function (_BaseBoard8) {
 			_inherits(_2chRu, _BaseBoard8);

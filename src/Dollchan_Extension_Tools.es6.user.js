@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '6cea569';
+const commit = 'c34c7e6';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13061,7 +13061,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 		}
 	}
-	ibDomains['2ch.rip'] = DvaChNet;
+	ibDomains['2ch.rip'] = _2chRip;
 
 	class _2chRu extends BaseBoard {
 		constructor(prot, dm) {
