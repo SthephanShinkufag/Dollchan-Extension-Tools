@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = 'c34c7e6';
+const commit = '7871368';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7945,10 +7945,7 @@ class Captcha {
 		this._lastUpdate = null;
 		this._originHTML = this.trEl.innerHTML;
 		$hide(this.trEl);
-		if(this._isRecap) {
-			this._recapUpdate = $bEnd(docBody, '<div onclick="' +
-				(this._isOldRecap ? 'Recaptcha.reload()' : 'grecaptcha.reset()') + '"></div>');
-		} else {
+		if(!this._isRecap) {
 			this.trEl.innerHTML = '';
 		}
 	}
@@ -8008,6 +8005,9 @@ class Captcha {
 	initCaptcha(focus, updateImage) {
 		if(!this.textEl) {
 			$show(this.trEl);
+			if(this._isRecap) {
+				this._updateRecap();
+			}
 			if(aib.updateCaptcha) {
 				aib.updateCaptcha(this, false);
 			}
@@ -8052,7 +8052,9 @@ class Captcha {
 		if(!this._isRecap) {
 			this.trEl.innerHTML = '';
 		} else if(!this._isOldRecap) {
-			$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
+			const el = $id('g-recaptcha');
+			$replace(el, '<div id="g-recaptcha" class="g-recaptcha" data-sitekey="' +
+				el.getAttribute('data-sitekey') + '"></div>');
 		}
 		this.hasCaptcha = true;
 		this.textEl = null;
@@ -8083,7 +8085,7 @@ class Captcha {
 			}
 		} else {
 			if(this._isRecap) {
-				this._recapUpdate.click();
+				this._updateRecap();
 				return;
 			}
 			if(!this.textEl) {
@@ -8121,6 +8123,17 @@ class Captcha {
 			$show(this.trEl);
 		}
 	}
+	_updateRecap() {
+		if(this._isOldRecap) {
+			$script('Recaptcha.reload()');
+		} else {
+			const script = doc.createElement('script');
+			script.type = 'text/javascript';
+			script.src = aib.prot + '//www.google.com/recaptcha/api.js';
+			doc.head.appendChild(script);
+			setTimeout(() => $del(script), 10000);
+		}
+	}
 	_updateTextEl(focus) {
 		if(this.textEl) {
 			this.textEl.value = '';
@@ -8144,7 +8157,7 @@ function getSubmitError(dc) {
 		err += els[i].innerHTML + '\n';
 	}
 	err = err.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
-	return /successful|uploaded|updating|обновл|удален[о\.]/i.test(err) ? null : err;
+	return /successful|uploaded|updating|post deleted|обновл|удален[о\.]/i.test(err) ? null : err;
 }
 
 function getUploadFunc() {
@@ -8216,7 +8229,10 @@ function checkUpload(data) {
 		if(postNum) {
 			window.location = aib.getThrdUrl(aib.b, postNum);
 		} else if(isDocument) {
-			window.location = aib.getThrdUrl(aib.b, aib.getTNum($q(aib.qDForm, data)));
+			const dForm = $q(aib.qDForm, data);
+			if(dForm) {
+				window.location = aib.getThrdUrl(aib.b, aib.getTNum(dForm));
+			}
 		}
 		return;
 	}
@@ -12867,6 +12883,26 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibEngines.push(['.maintable[width="98%"]', _0chan]);
 
+	class TinyIB extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+			this.tinyib = true;
+
+			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
+			this.qPostMsg = '.message';
+		}
+		get css() {
+			return '.replymode { display: none; }';
+		}
+		init() {
+			$each($Q('.message > .omittedposts'), el =>
+				$replace(el, '<span class="abbrev">Post too long. <a href="#">Click to view.</a>')
+			)
+			return false;
+		}
+	}
+	ibEngines.push(['form[action$="imgboard.php?delete"]', TinyIB]);
+
 	class Phutaba extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -13857,29 +13893,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['syn-ch.ru'] = Synch;
 	ibDomains['syn-ch.com'] = Synch;
 	ibDomains['syn-ch.org'] = Synch;
-
-	/*
-	class TinyIb extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-			this.tinyib = true;
-
-			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
-			this.qPostMsg = '.message';
-		}
-		get css() {
-			return '.replymode { display: none; }';
-		}
-		init() {
-			$each($Q('.message > .omittedposts'), el =>
-				$replace(el, '<span class="abbrev">Post too long. <a href="#">Click to view.</a>')
-			)
-			return false;
-		}
-	}
-	ibDomains['lampach.net'] = TinyIb;
-	ibDomains['ozuchan.ru'] = TinyIb;
-	*/
 
 	var dm = localData ? localData.dm : window.location.hostname
 		.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
@@ -15576,7 +15589,10 @@ function* runMain(checkDomains, cfgPromise) {
 	Logger.log('Display page');
 	toggleInfinityScroll();
 	Logger.log('Infinity scroll');
-	yield* readPostsData(DelForm.first.firstThr.op);
+	const firstThr = DelForm.first.firstThr;
+	if(firstThr) {
+		yield* readPostsData(firstThr.op);
+	}
 	Logger.log('Hide posts');
 	scrollPage();
 	Logger.log('Scroll page');
