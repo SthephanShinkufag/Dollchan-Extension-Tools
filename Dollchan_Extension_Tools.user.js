@@ -2942,7 +2942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = '7871368';
+	var commit = '5b1947a';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -15619,6 +15619,17 @@ true, true],
 		return DOMPostsBuilder;
 	}();
 
+	DOMPostsBuilder.fixFileName = function (name, maxLength) {
+		var decodedName = name.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+		if (decodedName.length > maxLength) {
+			return {
+				isFixed: true,
+				name: decodedName.slice(0, 25).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#039;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+			};
+		}
+		return { isFixed: false, name: name };
+	};
+
 	var _4chanPostsBuilder = function () {
 		_createClass(_4chanPostsBuilder, null, [{
 			key: '_setCustomSpoiler',
@@ -15668,24 +15679,17 @@ true, true],
 				var _icon = function _icon(id) {
 					return '//s.4cdn.org/image/' + id + (window.devicePixelRatio >= 2 ? '@2x.gif' : '.gif');
 				};
-				var _decode = function _decode(str) {
-					return str.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-				};
-				var _encode = function _encode(str) {
-					return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#039;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-				};
 
 				var fileHTML = void 0;
 				if (data.filedeleted) {
 					fileHTML = '<div id="f' + num + '" class="file"><span class="fileThumb">\n\t\t\t\t<img src="' + _icon('filedeleted-res') + '" class="fileDeletedRes" alt="File deleted.">\n\t\t\t</span></div>';
 				} else if (typeof data.filename === 'string') {
-					var _name2 = data.filename + data.ext,
-					    needTitle = false;
-					var decodedName = _decode(data.filename);
-					if (decodedName.length > 30) {
-						_name2 = _encode(decodedName.slice(0, 25)) + '(...)' + data.ext;
-						needTitle = true;
-					}
+					var _DOMPostsBuilder$fixF = DOMPostsBuilder.fixFileName(data.filename, 30);
+
+					var _name2 = _DOMPostsBuilder$fixF.name;
+					var needTitle = _DOMPostsBuilder$fixF.isFixed;
+
+					_name2 += data.ext;
 					if (!data.tn_w && !data.tn_h && data.ext === '.gif') {
 						data.tn_w = data.w;
 						data.tn_h = data.h;
@@ -15923,8 +15927,8 @@ true, true],
 				};
 
 				var filesHTML = void 0;
-				if (data.files) {
-					filesHTML = '<div class="images' + (data.files.length === 1 ? ' images-single' : '') + '">';
+				if (data.files && data.files.length !== 0) {
+					filesHTML = '<div class="images' + (data.files.length > 1 ? ' images-multi' : '') + '">';
 					for (var _iterator32 = data.files, _isArray32 = Array.isArray(_iterator32), _i36 = 0, _iterator32 = _isArray32 ? _iterator32 : _iterator32[Symbol.iterator]();;) {
 						var _ref56;
 
@@ -15939,8 +15943,16 @@ true, true],
 
 						var file = _ref56;
 
-						var isWebm = file.name.substr(-5) === '.webm';
-						filesHTML += '<figure class="image">\n\t\t\t\t\t<figcaption class="file-attr">\n\t\t\t\t\t\t<a class="desktop" target="_blank" href="/' + brd + '/' + file.path + '">' + file.name + '</a>\n\t\t\t\t\t\t' + (isWebm ? '<img src="/makaba/templates/img/webm-logo.png" width="50px" alt="webm file" id="webm-icon-' + num + '-' + file.md5 + '">' : '') + '\n\t\t\t\t\t\t<span class="filesize">(' + file.size + '\u041A\u0431, ' + file.width + 'x' + file.height + (isWebm ? ', ' + file.duration : '') + ')</span>\n\t\t\t\t\t</figcaption>\n\t\t\t\t\t<div id="exlink-' + num + '-' + file.md5 + '">\n\t\t\t\t\t\t<a href="/' + brd + '/' + file.path + '" name="expandfunc" onclick="expand(\'' + num + '-' + file.md5 + '\',\'/' + brd + '/' + file.path + '\',\'/' + brd + '/' + file.thumbnail + '\',' + file.width + ',' + file.height + ',' + file.tn_width + ',' + file.tn_height + '); return false;">\n\t\t\t\t\t\t\t<img src="/' + brd + '/' + file.thumbnail + '" width="' + file.tn_width + '" height="' + file.tn_height + '" alt="' + file.size + '" class="img preview' + (isWebm ? ' webm-file' : '') + '">\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</div>\n\t\t\t\t</figure>';
+						var fullName = file.displayname || file.name;
+						var dotIndex = fullName.lastIndexOf('.');
+						var ext = fullName.substring(dotIndex);
+
+						var _DOMPostsBuilder$fixF2 = DOMPostsBuilder.fixFileName(fullName.substring(0, dotIndex), 30);
+
+						var name = _DOMPostsBuilder$fixF2.name; 
+
+						var isWebm = ext === '.webm';
+						filesHTML += '<figure class="image">\n\t\t\t\t\t<figcaption class="file-attr">\n\t\t\t\t\t\t<a class="desktop" target="_blank" href="/' + brd + '/' + file.path + '">' + (name + ext) + '</a>\n\t\t\t\t\t\t' + (isWebm ? '<img src="/makaba/templates/img/webm-logo.png" width="50px" alt="webm file" id="webm-icon-' + num + '-' + file.md5 + '">' : '') + '\n\t\t\t\t\t\t<span class="filesize">(' + file.size + '\u041A\u0431, ' + file.width + 'x' + file.height + (isWebm ? ', ' + file.duration : '') + ')</span>\n\t\t\t\t\t</figcaption>\n\t\t\t\t\t<div id="exlink-' + num + '-' + file.md5 + '" class="image-link">\n\t\t\t\t\t\t<a href="/' + brd + '/' + file.path + '" name="expandfunc" onclick="expand(\'' + num + '-' + file.md5 + '\',\'/' + brd + '/' + file.path + '\',\'/' + brd + '/' + file.thumbnail + '\',' + file.width + ',' + file.height + ',' + file.tn_width + ',' + file.tn_height + '); return false;">\n\t\t\t\t\t\t\t<img src="/' + brd + '/' + file.thumbnail + '" width="' + file.tn_width + '" height="' + file.tn_height + '" alt="' + file.size + '" class="img preview' + (isWebm ? ' webm-file' : '') + '">\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</div>\n\t\t\t\t</figure>';
 					}
 					filesHTML += '</div>';
 				} else if (data.video) {

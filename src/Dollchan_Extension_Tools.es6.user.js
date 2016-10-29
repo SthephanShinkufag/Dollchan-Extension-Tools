@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '7871368';
+const commit = '5b1947a';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11045,6 +11045,25 @@ class DOMPostsBuilder {
 		}
 	}
 }
+DOMPostsBuilder.fixFileName = function(name, maxLength) {
+	const decodedName = name.replace(/&amp;/g, '&')
+			.replace(/&quot;/g, '"')
+			.replace(/&#039;/g, "'")
+			.replace(/&lt;/g, '<')
+			.replace(/&gt;/g, '>');
+	if(decodedName.length > maxLength) {
+		return {
+			isFixed: true,
+			name: decodedName.slice(0, 25)
+			                 .replace(/&/g, '&amp;')
+			                 .replace(/"/g, '&quot;')
+			                 .replace(/'/g, '&#039;')
+			                 .replace(/</g, '&lt;')
+			                 .replace(/>/g, '&gt;')
+		};
+	}
+	return { isFixed: false, name }
+};
 
 class _4chanPostsBuilder {
 	static _setCustomSpoiler(board, val) {
@@ -11084,16 +11103,6 @@ class _4chanPostsBuilder {
 		const brd = this._brd;
 
 		const _icon = id => `//s.4cdn.org/image/${ id }${ window.devicePixelRatio >= 2 ? '@2x.gif' : '.gif'}`;
-		const _decode = str => str.replace(/&amp;/g, '&')
-			.replace(/&quot;/g, '"')
-			.replace(/&#039;/g, "'")
-			.replace(/&lt;/g, '<')
-			.replace(/&gt;/g, '>');
-		const _encode = str => str.replace(/&/g, '&amp;')
-			.replace(/"/g, '&quot;')
-			.replace(/'/g, '&#039;')
-			.replace(/</g, '&lt;')
-			.replace(/>/g, '&gt;');
 
 		// --- FILE ---
 		let fileHTML;
@@ -11102,13 +11111,8 @@ class _4chanPostsBuilder {
 				<img src="${ _icon('filedeleted-res') }" class="fileDeletedRes" alt="File deleted.">
 			</span></div>`;
 		} else if(typeof data.filename === 'string') {
-			let name = data.filename + data.ext,
-				needTitle = false;
-			const decodedName = _decode(data.filename);
-			if(decodedName.length > 30) {
-				name = _encode(decodedName.slice(0, 25)) + '(...)' + data.ext;
-				needTitle = true;
-			}
+			let { name, isFixed: needTitle} = DOMPostsBuilder.fixFileName(data.filename, 30);
+			name += data.ext;
 			if(!data.tn_w && !data.tn_h && data.ext === '.gif') {
 				data.tn_w = data.w;
 				data.tn_h = data.h;
@@ -11357,17 +11361,21 @@ class MakabaPostsBuilder {
 		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
 
 		let filesHTML;
-		if(data.files) {
-			filesHTML = `<div class="images${ data.files.length === 1 ? ' images-single' : '' }">`;
+		if(data.files && data.files.length !== 0) {
+			filesHTML = `<div class="images${ data.files.length > 1 ? ' images-multi' : '' }">`;
 			for(let file of data.files) {
-				let isWebm = file.name.substr(-5) === '.webm';
+				let fullName = file.displayname || file.name;
+				let dotIndex = fullName.lastIndexOf('.');
+				let ext = fullName.substring(dotIndex);
+				let { name } = DOMPostsBuilder.fixFileName(fullName.substring(0, dotIndex), 30); // FIXME: actual max file name length
+				let isWebm = ext === '.webm';
 				filesHTML += `<figure class="image">
 					<figcaption class="file-attr">
-						<a class="desktop" target="_blank" href="/${ brd }/${ file.path }">${ file.name }</a>
+						<a class="desktop" target="_blank" href="/${ brd }/${ file.path }">${ name + ext}</a>
 						${ isWebm ? `<img src="/makaba/templates/img/webm-logo.png" width="50px" alt="webm file" id="webm-icon-${ num }-${ file.md5 }">` : '' }
 						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }${ isWebm ? ', ' + file.duration : '' })</span>
 					</figcaption>
-					<div id="exlink-${ num }-${ file.md5 }">
+					<div id="exlink-${ num }-${ file.md5 }" class="image-link">
 						<a href="/${ brd }/${ file.path }" name="expandfunc" onclick="expand('${ num }-${ file.md5 }','/${ brd }/${ file.path }','/${ brd }/${ file.thumbnail }',${ file.width },${ file.height },${ file.tn_width },${ file.tn_height }); return false;">
 							<img src="/${ brd }/${ file.thumbnail }" width="${ file.tn_width }" height="${ file.tn_height }" alt="${ file.size }" class="img preview${ isWebm ? ' webm-file' : '' }">
 						</a>
