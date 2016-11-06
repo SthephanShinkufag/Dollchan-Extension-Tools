@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '3aca0d0';
+const commit = '1705ea1';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11365,7 +11365,7 @@ class MakabaPostsBuilder {
 			filesHTML = `<div class="images ${ data.files.length === 1 ? 'images-single' : 'images-multi' }">`;
 			for(let file of data.files) {
 				let imgId = num + '-' + file.md5;
-				let isWebm = file.fullname.substring(file.fullname.lastIndexOf('.')) === '.webm';
+				let isWebm = file.fullname.substr(-5) === '.webm';
 				filesHTML += `<figure class="image">
 					<figcaption class="file-attr">
 						<a id="title-${ imgId }" class="desktop" target="_blank" href="/${ brd }/${ file.path }" ${ file.displayname === file.fullname ? '' : 'title="' + file.fullname + '"' }>${ file.displayname }</a>
