@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '5b1947a';
+const commit = '3aca0d0';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11362,20 +11362,17 @@ class MakabaPostsBuilder {
 
 		let filesHTML;
 		if(data.files && data.files.length !== 0) {
-			filesHTML = `<div class="images${ data.files.length > 1 ? ' images-multi' : '' }">`;
+			filesHTML = `<div class="images ${ data.files.length === 1 ? 'images-single' : 'images-multi' }">`;
 			for(let file of data.files) {
-				let fullName = file.displayname || file.name;
-				let dotIndex = fullName.lastIndexOf('.');
-				let ext = fullName.substring(dotIndex);
-				let { name } = DOMPostsBuilder.fixFileName(fullName.substring(0, dotIndex), 30); // FIXME: actual max file name length
-				let isWebm = ext === '.webm';
+				let imgId = num + '-' + file.md5;
+				let isWebm = file.fullname.substring(file.fullname.lastIndexOf('.')) === '.webm';
 				filesHTML += `<figure class="image">
 					<figcaption class="file-attr">
-						<a class="desktop" target="_blank" href="/${ brd }/${ file.path }">${ name + ext}</a>
+						<a id="title-${ imgId }" class="desktop" target="_blank" href="/${ brd }/${ file.path }" ${ file.displayname === file.fullname ? '' : 'title="' + file.fullname + '"' }>${ file.displayname }</a>
 						${ isWebm ? `<img src="/makaba/templates/img/webm-logo.png" width="50px" alt="webm file" id="webm-icon-${ num }-${ file.md5 }">` : '' }
 						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }${ isWebm ? ', ' + file.duration : '' })</span>
 					</figcaption>
-					<div id="exlink-${ num }-${ file.md5 }" class="image-link">
+					<div id="exlink-${ imgId }" class="image-link">
 						<a href="/${ brd }/${ file.path }" name="expandfunc" onclick="expand('${ num }-${ file.md5 }','/${ brd }/${ file.path }','/${ brd }/${ file.thumbnail }',${ file.width },${ file.height },${ file.tn_width },${ file.tn_height }); return false;">
 							<img src="/${ brd }/${ file.thumbnail }" width="${ file.tn_width }" height="${ file.tn_height }" alt="${ file.size }" class="img preview${ isWebm ? ' webm-file' : '' }">
 						</a>
@@ -11406,7 +11403,7 @@ class MakabaPostsBuilder {
 						: `<span class="ananimas">${ data.name }</span>`
 					}
 					${ data.icon ? `<span class="post-icon">${ data.icon }</span>` : '' }
-					${ _switch(data.trip, {
+					${ !data.trip ? '' : _switch(data.trip, {
 					   '!!%adm%!!':        '<span class="adm">## Abu ##<\/span>',
 					   '!!%mod%!!':        '<span class="mod">## Mod ##<\/span>',
 					   '!!%Inquisitor%!!': '<span class="inquisitor">## Applejack ##<\/span>',
