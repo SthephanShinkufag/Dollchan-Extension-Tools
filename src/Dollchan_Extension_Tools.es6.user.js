@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = 'ab53a6a';
+const commit = '8b03410';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11345,10 +11345,12 @@ class MakabaPostsBuilder {
 			filesHTML = `<div class="images ${ data.files.length === 1 ? 'images-single' : 'images-multi' }">`;
 			for(let file of data.files) {
 				let imgId = num + '-' + file.md5;
-				let isWebm = file.fullname.substr(-5) === '.webm';
+				let fullname = file.fullname || file.name;
+				let displayname = file.displayname || file.name;
+				let isWebm = fullname.substr(-5) === '.webm';
 				filesHTML += `<figure class="image">
 					<figcaption class="file-attr">
-						<a id="title-${ imgId }" class="desktop" target="_blank" href="${ file.path }" ${ file.displayname === file.fullname ? '' : 'title="' + file.fullname + '"' }>${ file.displayname }</a>
+						<a id="title-${ imgId }" class="desktop" target="_blank" href="${ file.path }" ${ displayname === fullname ? '' : 'title="' + fullname + '"' }>${ displayname }</a>
 						${ isWebm ? `<img src="/makaba/templates/img/webm-logo.png" width="50px" alt="webm file" id="webm-icon-${ num }-${ file.md5 }">` : '' }
 						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }${ isWebm ? ', ' + file.duration : '' })</span>
 					</figcaption>
