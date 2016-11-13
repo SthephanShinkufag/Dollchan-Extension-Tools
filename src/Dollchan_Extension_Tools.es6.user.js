@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '1705ea1';
+const commit = '6325ad9';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3317,7 +3317,7 @@ const cfgWindow = Object.create({
 			case 'imgSrcBtns':
 				if(Cfg.imgSrcBtns) {
 					for(let form of DelForm) {
-						processImagesLinks(form.el, null, 1, 0);
+						processImagesLinks(form.el, 1, 0);
 					}
 				} else {
 					$each($Q('.de-btn-src'), el => el.remove());
@@ -3326,7 +3326,7 @@ const cfgWindow = Object.create({
 			case 'delImgNames':
 				if(Cfg.delImgNames) {
 					for(let form of DelForm) {
-						processImagesLinks(form.el, null, 0, 1);
+						processImagesLinks(form.el, 0, 1);
 					}
 				} else {
 					$each($Q('.de-img-name'), link => {
@@ -9269,18 +9269,8 @@ var ImagesHashStorage = Object.create({
 	}
 });
 
-function fixRelativeLinks(el, aName, linkBoard) {
-	var str = el.getAttribute(aName);
-	if(str[0] === '.') {
-		el.setAttribute(aName, '/' + linkBoard + str.substr(2));
-	}
-}
-
-function processImagesLinks(el, linkBoard, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgNames) {
-	if(!aib.mak) {
-		linkBoard = null;
-	}
-	if(!linkBoard && !addSrc && !delNames) {
+function processImagesLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgNames) {
+	if(!addSrc && !delNames) {
 		return;
 	}
 	for(var i = 0, els = $Q(aib.qImgName, el), len = els.length; i < len; i++) {
@@ -9292,9 +9282,6 @@ function processImagesLinks(el, linkBoard, addSrc = Cfg.imgSrcBtns, delNames = C
 		if(link.firstElementChild) {
 			continue;
 		}
-		if(linkBoard) {
-			fixRelativeLinks(link, 'href', linkBoard);
-		}
 		if(addSrc) {
 			link.insertAdjacentHTML('beforebegin',
 				'<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"/></svg>');
@@ -9304,13 +9291,6 @@ function processImagesLinks(el, linkBoard, addSrc = Cfg.imgSrcBtns, delNames = C
 			let text = link.textContent;
 			link.textContent = text.split('.').pop();
 			link.title = text;
-		}
-	}
-	if(linkBoard) {
-		for(var i = 0, els = $Q(aib.qPostImg, el), len = els.length; i < len; i++) {
-			var img = els[i];
-			fixRelativeLinks(img, 'src', linkBoard);
-			fixRelativeLinks(img.parentNode, 'href', linkBoard);
 		}
 	}
 }
@@ -11368,13 +11348,13 @@ class MakabaPostsBuilder {
 				let isWebm = file.fullname.substr(-5) === '.webm';
 				filesHTML += `<figure class="image">
 					<figcaption class="file-attr">
-						<a id="title-${ imgId }" class="desktop" target="_blank" href="/${ brd }/${ file.path }" ${ file.displayname === file.fullname ? '' : 'title="' + file.fullname + '"' }>${ file.displayname }</a>
+						<a id="title-${ imgId }" class="desktop" target="_blank" href="${ file.path }" ${ file.displayname === file.fullname ? '' : 'title="' + file.fullname + '"' }>${ file.displayname }</a>
 						${ isWebm ? `<img src="/makaba/templates/img/webm-logo.png" width="50px" alt="webm file" id="webm-icon-${ num }-${ file.md5 }">` : '' }
 						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }${ isWebm ? ', ' + file.duration : '' })</span>
 					</figcaption>
 					<div id="exlink-${ imgId }" class="image-link">
-						<a href="/${ brd }/${ file.path }" name="expandfunc" onclick="expand('${ num }-${ file.md5 }','/${ brd }/${ file.path }','/${ brd }/${ file.thumbnail }',${ file.width },${ file.height },${ file.tn_width },${ file.tn_height }); return false;">
-							<img src="/${ brd }/${ file.thumbnail }" width="${ file.tn_width }" height="${ file.tn_height }" alt="${ file.size }" class="img preview${ isWebm ? ' webm-file' : '' }">
+						<a href="/${ brd }/${ file.path }" name="expandfunc" onclick="expand('${ num }-${ file.md5 }','/${ brd }/${ file.path }','${ file.thumbnail }',${ file.width },${ file.height },${ file.tn_width },${ file.tn_height }); return false;">
+							<img src="${ file.thumbnail }" width="${ file.tn_width }" height="${ file.tn_height }" alt="${ file.size }" class="img preview${ isWebm ? ' webm-file' : '' }">
 						</a>
 					</div>
 				</figure>`;
@@ -11642,7 +11622,7 @@ class Thread {
 		if(maybeVParser.value) {
 			maybeVParser.value.parse(post);
 		}
-		processImagesLinks(el, aib.t ? null : aib.b);
+		processImagesLinks(el);
 		post.addFuncs();
 		preloadImages(post);
 		if(aib.t && Cfg.markNewPosts) {
@@ -14379,7 +14359,7 @@ class DelForm {
 			embedImagesLinks(el);
 			Logger.log('Image-links');
 		}
-		processImagesLinks(el, null);
+		processImagesLinks(el);
 		Logger.log('Image names');
 		RefMap.init(this);
 		Logger.log('Reflinks map');
