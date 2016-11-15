@@ -2942,7 +2942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = '7ce5c9d';
+	var commit = '44e9c1e';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -15076,7 +15076,7 @@ true, true],
 					if (Cfg.addImgs) {
 						embedImagesLinks(el);
 					}
-					processImagesLinks(el, this._brd);
+					processImagesLinks(el);
 				} else {
 					var node = this._pref.nextSibling;
 					this.btns = node;

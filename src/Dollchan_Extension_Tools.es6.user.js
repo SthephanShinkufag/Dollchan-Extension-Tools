@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '7ce5c9d';
+const commit = '44e9c1e';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10669,7 +10669,7 @@ class Pview extends AbstractPost {
 			if(Cfg.addImgs) {
 				embedImagesLinks(el);
 			}
-			processImagesLinks(el, this._brd);
+			processImagesLinks(el);
 		} else {
 			var node = this._pref.nextSibling;
 			this.btns = node;
