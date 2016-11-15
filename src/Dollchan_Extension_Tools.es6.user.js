@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = 'c26e1b2';
+const commit = '5be7449';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9172,10 +9172,11 @@ class Attachment extends ExpandableMedia {
 		return val;
 	}
 	get weight() {
-		var val = 0;
+		let val = 0;
 		if(this.info) {
-			var w = this.info.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
-			val = w[2] === 'M' ? (w[1] * 1e3) | 0 : !w[2] ? Math.round(w[1] / 1e3) : w[1];
+			const w = this.info.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
+			const w1 = w[1].replace(',', '.');
+			val = w[2] === 'M' ? (w1 * 1e3) | 0 : !w[2] ? Math.round(w1 / 1e3) : w1;
 		}
 		Object.defineProperty(this, 'weight', { value: val });
 		return val;
