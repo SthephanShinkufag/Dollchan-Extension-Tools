@@ -2942,7 +2942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = '2841ea1';
+	var commit = 'b446241';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -17415,6 +17415,7 @@ true, true],
 					if (el = $q('.search')) {
 						$before($q('.menu').firstChild, el);
 					}
+					$del($id('favorites-box'));
 					return false;
 				}
 			}, {

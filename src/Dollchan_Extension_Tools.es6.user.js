@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '2841ea1';
+const commit = 'b446241';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12628,6 +12628,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			if((el = $q('.search'))) {
 				$before($q('.menu').firstChild, el);
 			}
+			$del($id('favorites-box'));
 			return false;
 		}
 		initCaptcha(cap) {
