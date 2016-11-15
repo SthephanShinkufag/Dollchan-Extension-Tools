@@ -2942,7 +2942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = '5be7449';
+	var commit = '7ce5c9d';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3268,8 +3268,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'sel': ['Скрывать выделенное', 'Hide selected text'],
 			'name': ['Скрывать имя', 'Hide name'],
 			'trip': ['Скрывать трип-код', 'Hide with trip-code'],
-			'img': ['Скрывать картинку', 'Hide with image'],
-			'ihash': ['Скрывать схожие картинки', 'Hide similar images'],
+			'img': ['Скрывать по размеру картинки', 'Hide by image size'],
+			'imgn': ['Скрывать по имени картинки', 'Hide by image name'],
+			'ihash': ['Скрывать по схожей картинке', 'Hide by similar image'],
 			'noimg': ['Скрывать без картинок', 'Hide without images'],
 			'notext': ['Скрывать без текста', 'Hide without text'],
 			'text': ['Скрыть схожий текст', 'Hide similar text'],
@@ -13308,6 +13309,13 @@ true, true],
 				Object.defineProperty(this, 'weight', { value: val });
 				return val;
 			}
+		}, {
+			key: 'name',
+			get: function get() {
+				var val = $q(aib.qImgName, aib.getImgWrap(this.el)).textContent.trim();
+				Object.defineProperty(this, 'name', { value: val });
+				return val;
+			}
 		}]);
 
 		return Attachment;
@@ -14227,6 +14235,7 @@ true, true],
 				}
 				if (this.images.hasAttachments) {
 					str += getItem('img');
+					str += getItem('imgn');
 					str += getItem('ihash');
 				} else {
 					str += getItem('noimg');
@@ -14278,6 +14287,9 @@ true, true],
 						    wi = img.width,
 						    h = img.height;
 						Spells.add(8 , [0, [w, w], [wi, wi, h, h]], false);
+						return;
+					case 'hide-imgn':
+						Spells.add(3 , '/' + quoteReg(this.images.firstAttach.name) + '/', false);
 						return;
 					case 'hide-ihash':
 						spawn(ImagesHashStorage.getHash, this.images.firstAttach).then(function (hash) {
@@ -17319,6 +17331,7 @@ true, true],
 				_this56.qBan = '.pomyanem';
 				_this56.qClosed = '.sticky-img[src$="locked.png"]';
 				_this56.qDForm = '#posts-form';
+				_this56.qFileInfo = '.file-attr';
 				_this56.qFormRedir = null;
 				_this56.qFormRules = '.rules-area';
 				_this56.qOmitted = '.mess-post';
@@ -18294,12 +18307,6 @@ true, true],
 					return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
 				}
 			}, {
-				key: 'getFileInfo',
-				value: function getFileInfo(wrap) {
-					var el = $q(this.qFileInfo, wrap);
-					return el ? el.lastChild.textContent : '';
-				}
-			}, {
 				key: 'getJsonApiUrl',
 				value: function getJsonApiUrl(brd, tNum) {
 					return '//a.4cdn.org/' + brd + '/thread/' + tNum + '.json';
@@ -18308,6 +18315,11 @@ true, true],
 				key: 'getPageUrl',
 				value: function getPageUrl(b, p) {
 					return fixBrd(b) + (p > 1 ? p : '');
+				}
+			}, {
+				key: 'getImgWrap',
+				value: function getImgWrap(el) {
+					return el.parentNode.parentNode;
 				}
 			}, {
 				key: 'getSage',

@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '5be7449';
+const commit = '7ce5c9d';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -373,8 +373,9 @@ const Lng = {
 		'sel':          ['Скрывать выделенное', 'Hide selected text'],
 		'name':         ['Скрывать имя', 'Hide name'],
 		'trip':         ['Скрывать трип-код', 'Hide with trip-code'],
-		'img':          ['Скрывать картинку', 'Hide with image'],
-		'ihash':        ['Скрывать схожие картинки', 'Hide similar images'],
+		'img':          ['Скрывать по размеру картинки', 'Hide by image size'],
+		'imgn':         ['Скрывать по имени картинки', 'Hide by image name'],
+		'ihash':        ['Скрывать по схожей картинке', 'Hide by similar image'],
 		'noimg':        ['Скрывать без картинок', 'Hide without images'],
 		'notext':       ['Скрывать без текста', 'Hide without text'],
 		'text':         ['Скрыть схожий текст', 'Hide similar text'],
@@ -9167,7 +9168,7 @@ class EmbeddedImage extends ExpandableMedia {
 
 class Attachment extends ExpandableMedia {
 	get info() {
-		var val = aib.getFileInfo(aib.getImgWrap(this.el.parentNode));
+		const val = aib.getFileInfo(aib.getImgWrap(this.el.parentNode));
 		Object.defineProperty(this, 'info', { value: val });
 		return val;
 	}
@@ -9179,6 +9180,11 @@ class Attachment extends ExpandableMedia {
 			val = w[2] === 'M' ? (w1 * 1e3) | 0 : !w[2] ? Math.round(w1 / 1e3) : w1;
 		}
 		Object.defineProperty(this, 'weight', { value: val });
+		return val;
+	}
+	get name() {
+		const val = $q(aib.qImgName, aib.getImgWrap(this.el)).textContent.trim();
+		Object.defineProperty(this, 'name', { value: val });
 		return val;
 	}
 
@@ -9987,6 +9993,7 @@ class Post extends AbstractPost {
 		}
 		if(this.images.hasAttachments) {
 			str += getItem('img');
+			str += getItem('imgn');
 			str += getItem('ihash');
 		} else {
 			str += getItem('noimg');
@@ -10039,6 +10046,9 @@ class Post extends AbstractPost {
 				wi = img.width,
 				h = img.height;
 			Spells.add(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
+			return;
+		case 'hide-imgn':
+			Spells.add(3 /* #imgn */, '/' + quoteReg(this.images.firstAttach.name) + '/', false);
 			return;
 		case 'hide-ihash':
 			spawn(ImagesHashStorage.getHash, this.images.firstAttach).then(hash => {
@@ -12526,6 +12536,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qBan = '.pomyanem';
 			this.qClosed = '.sticky-img[src$="locked.png"]';
 			this.qDForm = '#posts-form';
+			this.qFileInfo = '.file-attr';
 			this.qFormRedir = null;
 			this.qFormRules = '.rules-area';
 			this.qOmitted = '.mess-post';
@@ -13282,15 +13293,14 @@ function getImageBoard(checkDomains, checkEngines) {
 		fixHTMLHelper(str) {
 			return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
 		}
-		getFileInfo(wrap) {
-			var el = $q(this.qFileInfo, wrap);
-			return el ? el.lastChild.textContent : '';
-		}
 		getJsonApiUrl(brd, tNum) {
 			return `//a.4cdn.org/${ brd }/thread/${ tNum }.json`;
 		}
 		getPageUrl(b, p) {
 			return fixBrd(b) + (p > 1 ? p : '');
+		}
+		getImgWrap(el) {
+			return el.parentNode.parentNode;
 		}
 		getSage(post) {
 			return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
