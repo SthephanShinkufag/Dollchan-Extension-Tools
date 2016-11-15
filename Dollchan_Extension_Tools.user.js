@@ -2942,7 +2942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = 'b446241';
+	var commit = 'c26e1b2';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3203,7 +3203,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				txt: ['Стиль скрипта', 'Script style']
 			},
 			'userCSS': ['Пользовательский CSS', 'User CSS'],
-			'panelCounter': ['Счетчик постов/картинок на главной панели', 'Counter of posts/images on main panel'],
+			'panelCounter': {
+				sel: [['Откл.', 'Все посты', 'Без скрытых'], ['Disabled', 'All posts', 'Except hidden']],
+				txt: ['Счетчик постов/картинок на панели', 'Counter of posts/images on panel']
+			},
 			'rePageTitle': ['Название треда в заголовке вкладки*', 'Thread title in page tab*'],
 			'animation': ['CSS3 анимация в скрипте', 'CSS3 animation in script'],
 			'closePopups': ['Автоматически закрывать уведомления', 'Close popups automatically'],
@@ -3254,6 +3257,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'audio-off': ['Звуковое оповещение о новых постах', 'Sound notification about new posts'],
 			'catalog': ['Перейти в каталог', 'Go to catalog'],
 			'pcount': ['Постов в треде', 'Posts in thread'],
+			'pcountNotHid': ['Постов в треде (без скрытых)', 'Posts in thread (without hidden)'],
 			'imglen': ['Картинок в треде', 'Images in thread'],
 			'posters': ['Постящих в треде', 'Posters in thread'],
 			'savethr': ['Сохранить на диск', 'Save to disk'],
@@ -4842,6 +4846,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					case 32:
 						maybeSpells.end();
+						if (Cfg.panelCounter === 2) {
+							$id('de-panel-info-pcount').textContent = Thread.first.pcount - Thread.first.hidCounter;
+						}
 						if (updateFav) {
 							setStored('DESU_Favorites', JSON.stringify(fav));
 						}
@@ -4850,7 +4857,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							sesStorage.removeItem('de-win-fav');
 						}
 
-					case 35:
+					case 36:
 					case 'end':
 						return _context5.stop();
 				}
@@ -5343,7 +5350,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		init: function init(formEl) {
 			var imgLen = $Q(aib.qPostImg, formEl).length,
 			    isThr = aib.t;
-			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '\n\t\t<div id="de-main">\n\t\t\t<div id="de-panel">\n\t\t\t\t<div id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '">\n\t\t\t\t\t<svg class="de-panel-logo-svg">\n\t\t\t\t\t\t<use xlink:href="#de-symbol-panel-logo"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id="de-panel-buttons"' + (Cfg.expandPanel ? '' : ' style="display: none;"') + '>\n\t\t\t\t' + (Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (!Cfg.addYouTube ? '' : this._getButton('vid')) + (localData ? '' : this._getButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : this._getButton('goback')) + (isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) + this._getButton('goup') + this._getButton('godown') + (imgLen === 0 ? '' : this._getButton('expimg') + this._getButton('maskimg')) + (nav.Presto || localData ? '' : (imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) + (!isThr ? '' : this._getButton('savethr'))) + (!isThr || localData ? '' : this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (nav.Safari ? '' : this._getButton('audio-off'))) + (!aib.hasCatalog ? '' : this._getButton('catalog')) + this._getButton('enable') + (!isThr ? '' : '<span id="de-panel-info">' + '<span id="de-panel-info-pcount" title="' + Lng.panelBtn.pcount[lang] + '">' + Thread.first.pcount + '</span>' + '<span id="de-panel-info-icount" title="' + Lng.panelBtn.imglen[lang] + '">' + imgLen + '</span>' + '<span id="de-panel-info-acount" title="' + Lng.panelBtn.posters[lang] + '"></span>' + '</span>')) + '\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t' + (Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">') + '\n\t\t</div>');
+			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '\n\t\t<div id="de-main">\n\t\t\t<div id="de-panel">\n\t\t\t\t<div id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '">\n\t\t\t\t\t<svg class="de-panel-logo-svg">\n\t\t\t\t\t\t<use xlink:href="#de-symbol-panel-logo"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id="de-panel-buttons"' + (Cfg.expandPanel ? '' : ' style="display: none;"') + '>\n\t\t\t\t' + (Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (!Cfg.addYouTube ? '' : this._getButton('vid')) + (localData ? '' : this._getButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : this._getButton('goback')) + (isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) + this._getButton('goup') + this._getButton('godown') + (imgLen === 0 ? '' : this._getButton('expimg') + this._getButton('maskimg')) + (nav.Presto || localData ? '' : (imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) + (!isThr ? '' : this._getButton('savethr'))) + (!isThr || localData ? '' : this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (nav.Safari ? '' : this._getButton('audio-off'))) + (!aib.hasCatalog ? '' : this._getButton('catalog')) + this._getButton('enable') + (!isThr ? '' : '<span id="de-panel-info">' + '<span id="de-panel-info-pcount" title="' + Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] + '">' + Thread.first.pcount + '</span>' + '<span id="de-panel-info-icount" title="' + Lng.panelBtn.imglen[lang] + '">' + imgLen + '</span>' + '<span id="de-panel-info-acount" title="' + Lng.panelBtn.posters[lang] + '"></span>' + '</span>')) + '\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t' + (Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">') + '\n\t\t</div>');
 			this._el = $id('de-panel');
 			this._el.addEventListener('click', this, true);
 			this._el.addEventListener('mouseover', this);
@@ -7027,7 +7034,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgCommon: function _getCfgCommon() {
-			return '<div id="de-cfg-common" class="de-cfg-unvis">\n\t\t\t' + this._getSel('scriptStyle') + '<br>\n\t\t\t' + this._getBox('userCSS') + '\n\t\t\t<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a><br>\n\t\t\t' + this._getBox('panelCounter') + '<br>\n\t\t\t' + this._getBox('rePageTitle') + '<br>\n\t\t\t' + this._getBox('animation') + '<br>\n\t\t\t' + this._getBox('closePopups') + '<br>\n\t\t\t' + this._getBox('inftyScroll') + '<br>\n\t\t\t' + this._getBox('scrollToTop') + '<br>\n\t\t\t' + this._getBox('hotKeys') + '\n\t\t\t<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="' + Lng.edit[lang] + '">\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + (this._getInp('loadPages') + Lng.cfg.loadPages[lang]) + '\n\t\t\t</div>\n\t\t\t' + (!nav.isChromeStorage && !nav.Presto || nav.isGM ? this._getBox('updScript') + ('<div class="de-cfg-depend">\n\t\t\t\t\t' + this._getSel('scrUpdIntrv') + '\n\t\t\t\t\t<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t</div>') : '') + '\n\t\t\t' + (nav.isGlobal ? Lng.cfg.excludeList[lang] + '<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, ...">' + this._getBox('turnOff') : '') + '\n\t\t</div>';
+			return '<div id="de-cfg-common" class="de-cfg-unvis">\n\t\t\t' + this._getSel('scriptStyle') + '<br>\n\t\t\t' + this._getBox('userCSS') + '\n\t\t\t<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a><br>\n\t\t\t' + this._getSel('panelCounter') + '<br>\n\t\t\t' + this._getBox('rePageTitle') + '<br>\n\t\t\t' + this._getBox('animation') + '<br>\n\t\t\t' + this._getBox('closePopups') + '<br>\n\t\t\t' + this._getBox('inftyScroll') + '<br>\n\t\t\t' + this._getBox('scrollToTop') + '<br>\n\t\t\t' + this._getBox('hotKeys') + '\n\t\t\t<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="' + Lng.edit[lang] + '">\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + (this._getInp('loadPages') + Lng.cfg.loadPages[lang]) + '\n\t\t\t</div>\n\t\t\t' + (!nav.isChromeStorage && !nav.Presto || nav.isGM ? this._getBox('updScript') + ('<div class="de-cfg-depend">\n\t\t\t\t\t' + this._getSel('scrUpdIntrv') + '\n\t\t\t\t\t<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t</div>') : '') + '\n\t\t\t' + (nav.isGlobal ? Lng.cfg.excludeList[lang] + '<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, ...">' + this._getBox('turnOff') : '') + '\n\t\t</div>';
 		},
 
 
@@ -13909,6 +13916,9 @@ true, true],
 			key: 'hideContent',
 			value: function hideContent(headerEl, hideBtn, isUser, hide) {
 				if (hide) {
+					if (aib.t) {
+						Thread.first.hidCounter++;
+					}
 					hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
 					if (headerEl) {
 						for (var el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
@@ -16074,6 +16084,7 @@ true, true],
 			    omt = aib.t ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
 			this.hasNew = false;
 			this.hidden = false;
+			this.hidCounter = 0;
 			this.loadCount = 0;
 			this.next = null;
 			this.num = num;
@@ -16479,7 +16490,7 @@ true, true],
 					scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);
 				}
 				if (newPosts !== 0 || panel.isNew) {
-					panel.updateCounter(pBuilder.length + 1, $Q(aib.qPostImg, this.el).length, pBuilder.postersCount);
+					panel.updateCounter(pBuilder.length + 1 - this.hidCounter, $Q(aib.qPostImg, this.el).length, pBuilder.postersCount);
 					Pview.updatePosition(true);
 				}
 				if (pBuilder.isClosed) {

@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = 'b446241';
+const commit = 'c26e1b2';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -124,7 +124,7 @@ const defaultCfg = {
 	'userCSS':          0,      // user style
 	'userCSSTxt':       '',     //    css text
 	'expandPanel':      0,      // show full main panel
-	'panelCounter':     1,      // posts/images counter in script panel
+	'panelCounter':     1,      // posts/images counter in script panel [0=off, 1=all posts, 2=not hidden]
 	'rePageTitle':      1,      // replace page title in threads
 	'animation':        1,      // CSS3 animation in script
 	'closePopups':      0,      // auto-close popups
@@ -292,7 +292,10 @@ const Lng = {
 			txt:        ['Стиль скрипта', 'Script style']
 		},
 		'userCSS':      ['Пользовательский CSS', 'User CSS'],
-		'panelCounter': ['Счетчик постов/картинок на главной панели', 'Counter of posts/images on main panel'],
+		'panelCounter': {
+			sel:        [['Откл.', 'Все посты', 'Без скрытых'], ['Disabled', 'All posts', 'Except hidden']],
+			txt:        ['Счетчик постов/картинок на панели', 'Counter of posts/images on panel']
+		},
 		'rePageTitle':  ['Название треда в заголовке вкладки*', 'Thread title in page tab*'],
 		'animation':    ['CSS3 анимация в скрипте', 'CSS3 animation in script'],
 		'closePopups':  ['Автоматически закрывать уведомления', 'Close popups automatically'],
@@ -359,6 +362,7 @@ const Lng = {
 		'audio-off':    ['Звуковое оповещение о новых постах', 'Sound notification about new posts'],
 		'catalog':      ['Перейти в каталог', 'Go to catalog'],
 		'pcount':       ['Постов в треде', 'Posts in thread'],
+		'pcountNotHid': ['Постов в треде (без скрытых)', 'Posts in thread (without hidden)'],
 		'imglen':       ['Картинок в треде', 'Images in thread'],
 		'posters':      ['Постящих в треде', 'Posters in thread'],
 		'savethr':      ['Сохранить на диск', 'Save to disk'],
@@ -1694,6 +1698,9 @@ function* readPostsData(firstPost) {
 		}
 	}
 	maybeSpells.end();
+	if(Cfg.panelCounter === 2) {
+		$id('de-panel-info-pcount').textContent = Thread.first.pcount - Thread.first.hidCounter;
+	}
 	if(updateFav) {
 		setStored('DESU_Favorites', JSON.stringify(fav));
 	}
@@ -2109,7 +2116,8 @@ var panel = Object.create({
 					(!aib.hasCatalog ? '' : this._getButton('catalog')) +
 					this._getButton('enable') +
 					(!isThr ? '' : '<span id="de-panel-info">' +
-						'<span id="de-panel-info-pcount" title="' + Lng.panelBtn.pcount[lang] + '">' +
+						'<span id="de-panel-info-pcount" title="' +
+							Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] + '">' +
 							Thread.first.pcount + '</span>' +
 						'<span id="de-panel-info-icount" title="' + Lng.panelBtn.imglen[lang] + '">' + imgLen + '</span>' +
 						'<span id="de-panel-info-acount" title="' + Lng.panelBtn.posters[lang] + '"></span>' +
@@ -3715,7 +3723,7 @@ const cfgWindow = Object.create({
 			${ this._getSel('scriptStyle') }<br>
 			${ this._getBox('userCSS') }
 			<a href="${ gitWiki }css-tricks" class="de-abtn" target="_blank">[?]</a><br>
-			${ this._getBox('panelCounter') }<br>
+			${ this._getSel('panelCounter') }<br>
 			${ this._getBox('rePageTitle') }<br>
 			${ this._getBox('animation') }<br>
 			${ this._getBox('closePopups') }<br>
@@ -9671,6 +9679,9 @@ class Post extends AbstractPost {
 	}
 	static hideContent(headerEl, hideBtn, isUser, hide) {
 		if(hide) {
+			if(aib.t) {
+				Thread.first.hidCounter++;
+			}
 			hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
 			if(headerEl) {
 				for(var el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
@@ -11458,6 +11469,7 @@ class Thread {
 			omt = aib.t ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
 		this.hasNew = false;
 		this.hidden = false;
+		this.hidCounter = 0;
 		this.loadCount = 0;
 		this.next = null;
 		this.num = num;
@@ -11826,7 +11838,10 @@ class Thread {
 			scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);
 		}
 		if(newPosts !== 0 || panel.isNew) {
-			panel.updateCounter(pBuilder.length + 1, $Q(aib.qPostImg, this.el).length, pBuilder.postersCount);
+			panel.updateCounter(
+				pBuilder.length + 1 - this.hidCounter,
+				$Q(aib.qPostImg, this.el).length,
+				pBuilder.postersCount);
 			Pview.updatePosition(true);
 		}
 		if(pBuilder.isClosed) {
