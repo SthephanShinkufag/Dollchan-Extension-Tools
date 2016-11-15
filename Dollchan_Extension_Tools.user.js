@@ -2942,7 +2942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = '44e9c1e';
+	var commit = '70d554b';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -12776,6 +12776,7 @@ true, true],
 				data = data.getFollow(isForward);
 			} while (data && !data.isVideo && !data.isImage);
 			if (data) {
+				data.cancelWebmLoad();
 				this.update(data, true, null);
 				data.post.selectAndScrollTo(data.post.images.first.el);
 			}
@@ -12875,16 +12876,18 @@ true, true],
 			data.post.thr.form.el.appendChild(obj);
 		},
 		_remove: function _remove(e) {
-			if (this.data.isVideo && this._fullEl.tagName === 'VIDEO') {
+			var data = this.data;
+			if (data.isVideo && this._fullEl.tagName === 'VIDEO') {
 				this._fullEl.pause();
 				this._fullEl.removeAttribute('src');
+				data.cancelWebmLoad();
 			}
-			if (this.data.inPview && this.data.post.sticky) {
-				this.data.post.setSticky(false);
+			if (data.inPview && data.post.sticky) {
+				data.post.setSticky(false);
 			}
 			$del(this._obj);
-			if (e && this.data.inPview) {
-				this.data.sendCloseEvent(e, false);
+			if (e && data.inPview) {
+				data.sendCloseEvent(e, false);
 			}
 		},
 		_resize: function _resize(el) {
@@ -12940,17 +12943,27 @@ true, true],
 			this.next = null;
 			this.expanded = false;
 			this._fullEl = null;
+			this._webmLoading = null;
 			if (prev) {
 				prev.next = this;
 			}
 		}
 
 		_createClass(ExpandableMedia, [{
+			key: 'cancelWebmLoad',
+			value: function cancelWebmLoad() {
+				if (this._webmLoading) {
+					this._webmLoading.cancel();
+					this._webmLoading = null;
+				}
+			}
+		}, {
 			key: 'collapse',
 			value: function collapse(e) {
 				if (e && this.isVideo && this.isControlClick(e)) {
 					return;
 				}
+				this.cancelWebmLoad();
 				this.expanded = false;
 				$del(this._fullEl);
 				this._fullEl = null;
@@ -13093,7 +13106,7 @@ true, true],
 							}
 						});
 						if (Cfg.webmTitles) {
-							downloadImgData(obj.src).then(function (data) {
+							this._webmLoading = downloadImgData(obj.src, false).then(function (data) {
 								var title = '',
 								    d = new _WebmParser(data.buffer).getData();
 								if (!d) {

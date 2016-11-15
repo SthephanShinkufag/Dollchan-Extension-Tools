@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '44e9c1e';
+const commit = '70d554b';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8747,6 +8747,7 @@ AttachmentViewer.prototype = {
 			data = data.getFollow(isForward);
 		} while(data && !data.isVideo && !data.isImage);
 		if(data) {
+			data.cancelWebmLoad();
 			this.update(data, true, null);
 			data.post.selectAndScrollTo(data.post.images.first.el);
 		}
@@ -8834,16 +8835,18 @@ AttachmentViewer.prototype = {
 		data.post.thr.form.el.appendChild(obj);
 	},
 	_remove(e) {
-		if(this.data.isVideo && this._fullEl.tagName === 'VIDEO') {
+		const data = this.data;
+		if(data.isVideo && this._fullEl.tagName === 'VIDEO') {
 			this._fullEl.pause();
 			this._fullEl.removeAttribute('src');
+			data.cancelWebmLoad();
 		}
-		if(this.data.inPview && this.data.post.sticky) {
-			this.data.post.setSticky(false);
+		if(data.inPview && data.post.sticky) {
+			data.post.setSticky(false);
 		}
 		$del(this._obj);
-		if(e && this.data.inPview) {
-			this.data.sendCloseEvent(e, false);
+		if(e && data.inPview) {
+			data.sendCloseEvent(e, false);
 		}
 	},
 	_resize(el) {
@@ -8891,6 +8894,7 @@ class ExpandableMedia {
 		this.next = null;
 		this.expanded = false;
 		this._fullEl = null;
+		this._webmLoading = null;
 		if(prev) {
 			prev.next = this;
 		}
@@ -8923,10 +8927,17 @@ class ExpandableMedia {
 	get width() {
 		return (this._size || [-1, -1])[0];
 	}
+	cancelWebmLoad() {
+		if(this._webmLoading) {
+			this._webmLoading.cancel();
+			this._webmLoading = null;
+		}
+	}
 	collapse(e) {
 		if(e && this.isVideo && this.isControlClick(e)) {
 			return;
 		}
+		this.cancelWebmLoad();
 		this.expanded = false;
 		$del(this._fullEl);
 		this._fullEl = null;
@@ -9054,7 +9065,7 @@ class ExpandableMedia {
 					}
 				});
 				if(Cfg.webmTitles) {
-					downloadImgData(obj.src).then(data => {
+					this._webmLoading = downloadImgData(obj.src, false).then(data => {
 						var title = '', d = (new WebmParser(data.buffer)).getData();
 						if(!d) {
 							return;
