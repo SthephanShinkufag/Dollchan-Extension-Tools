@@ -2942,7 +2942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = '70d554b';
+	var commit = '06d93da';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -12772,11 +12772,11 @@ true, true],
 		},
 		navigate: function navigate(isForward) {
 			var data = this.data;
+			data.cancelWebmLoad();
 			do {
 				data = data.getFollow(isForward);
 			} while (data && !data.isVideo && !data.isImage);
 			if (data) {
-				data.cancelWebmLoad();
 				this.update(data, true, null);
 				data.post.selectAndScrollTo(data.post.images.first.el);
 			}
@@ -12877,11 +12877,7 @@ true, true],
 		},
 		_remove: function _remove(e) {
 			var data = this.data;
-			if (data.isVideo && this._fullEl.tagName === 'VIDEO') {
-				this._fullEl.pause();
-				this._fullEl.removeAttribute('src');
-				data.cancelWebmLoad();
-			}
+			data.cancelWebmLoad();
 			if (data.inPview && data.post.sticky) {
 				data.post.setSticky(false);
 			}
@@ -12943,7 +12939,7 @@ true, true],
 			this.next = null;
 			this.expanded = false;
 			this._fullEl = null;
-			this._webmLoading = null;
+			this._webmTitleLoad = null;
 			if (prev) {
 				prev.next = this;
 			}
@@ -12952,9 +12948,15 @@ true, true],
 		_createClass(ExpandableMedia, [{
 			key: 'cancelWebmLoad',
 			value: function cancelWebmLoad() {
-				if (this._webmLoading) {
-					this._webmLoading.cancel();
-					this._webmLoading = null;
+				var full = Attachment.viewer && Attachment.viewer._fullEl || this._fullEl;
+				if (this.isVideo && full.tagName === 'VIDEO') {
+					full.pause();
+					full.removeAttribute('src');
+					full.load();
+				}
+				if (this._webmTitleLoad) {
+					this._webmTitleLoad.cancel();
+					this._webmTitleLoad = null;
 				}
 			}
 		}, {
@@ -13106,7 +13108,7 @@ true, true],
 							}
 						});
 						if (Cfg.webmTitles) {
-							this._webmLoading = downloadImgData(obj.src, false).then(function (data) {
+							this._webmTitleLoad = downloadImgData(obj.src, false).then(function (data) {
 								var title = '',
 								    d = new _WebmParser(data.buffer).getData();
 								if (!d) {

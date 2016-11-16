@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '70d554b';
+const commit = '06d93da';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8743,11 +8743,11 @@ AttachmentViewer.prototype = {
 	},
 	navigate(isForward) {
 		var data = this.data;
+		data.cancelWebmLoad();
 		do {
 			data = data.getFollow(isForward);
 		} while(data && !data.isVideo && !data.isImage);
 		if(data) {
-			data.cancelWebmLoad();
 			this.update(data, true, null);
 			data.post.selectAndScrollTo(data.post.images.first.el);
 		}
@@ -8836,11 +8836,7 @@ AttachmentViewer.prototype = {
 	},
 	_remove(e) {
 		const data = this.data;
-		if(data.isVideo && this._fullEl.tagName === 'VIDEO') {
-			this._fullEl.pause();
-			this._fullEl.removeAttribute('src');
-			data.cancelWebmLoad();
-		}
+		data.cancelWebmLoad();
 		if(data.inPview && data.post.sticky) {
 			data.post.setSticky(false);
 		}
@@ -8894,7 +8890,7 @@ class ExpandableMedia {
 		this.next = null;
 		this.expanded = false;
 		this._fullEl = null;
-		this._webmLoading = null;
+		this._webmTitleLoad = null;
 		if(prev) {
 			prev.next = this;
 		}
@@ -8928,9 +8924,15 @@ class ExpandableMedia {
 		return (this._size || [-1, -1])[0];
 	}
 	cancelWebmLoad() {
-		if(this._webmLoading) {
-			this._webmLoading.cancel();
-			this._webmLoading = null;
+		const full = Attachment.viewer && Attachment.viewer._fullEl || this._fullEl;
+		if(this.isVideo && full.tagName === 'VIDEO') {
+			full.pause();
+			full.removeAttribute('src');
+			full.load();
+		}
+		if(this._webmTitleLoad) {
+			this._webmTitleLoad.cancel();
+			this._webmTitleLoad = null;
 		}
 	}
 	collapse(e) {
@@ -9065,7 +9067,7 @@ class ExpandableMedia {
 					}
 				});
 				if(Cfg.webmTitles) {
-					this._webmLoading = downloadImgData(obj.src, false).then(data => {
+					this._webmTitleLoad = downloadImgData(obj.src, false).then(data => {
 						var title = '', d = (new WebmParser(data.buffer)).getData();
 						if(!d) {
 							return;
