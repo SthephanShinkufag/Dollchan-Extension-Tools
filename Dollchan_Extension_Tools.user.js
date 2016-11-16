@@ -2942,7 +2942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = '06d93da';
+	var commit = '945d61e';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -12772,7 +12772,7 @@ true, true],
 		},
 		navigate: function navigate(isForward) {
 			var data = this.data;
-			data.cancelWebmLoad();
+			data.cancelWebmLoad(this._fullEl);
 			do {
 				data = data.getFollow(isForward);
 			} while (data && !data.isVideo && !data.isImage);
@@ -12877,7 +12877,7 @@ true, true],
 		},
 		_remove: function _remove(e) {
 			var data = this.data;
-			data.cancelWebmLoad();
+			data.cancelWebmLoad(this._fullEl);
 			if (data.inPview && data.post.sticky) {
 				data.post.setSticky(false);
 			}
@@ -12947,12 +12947,11 @@ true, true],
 
 		_createClass(ExpandableMedia, [{
 			key: 'cancelWebmLoad',
-			value: function cancelWebmLoad() {
-				var full = Attachment.viewer && Attachment.viewer._fullEl || this._fullEl;
-				if (this.isVideo && full.tagName === 'VIDEO') {
-					full.pause();
-					full.removeAttribute('src');
-					full.load();
+			value: function cancelWebmLoad(fullEl) {
+				if (this.isVideo && fullEl.tagName === 'VIDEO') {
+					fullEl.pause();
+					fullEl.removeAttribute('src');
+					fullEl.load();
 				}
 				if (this._webmTitleLoad) {
 					this._webmTitleLoad.cancel();
@@ -12965,7 +12964,7 @@ true, true],
 				if (e && this.isVideo && this.isControlClick(e)) {
 					return;
 				}
-				this.cancelWebmLoad();
+				this.cancelWebmLoad(this._fullEl);
 				this.expanded = false;
 				$del(this._fullEl);
 				this._fullEl = null;

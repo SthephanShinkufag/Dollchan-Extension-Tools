@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '06d93da';
+const commit = '945d61e';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8743,7 +8743,7 @@ AttachmentViewer.prototype = {
 	},
 	navigate(isForward) {
 		var data = this.data;
-		data.cancelWebmLoad();
+		data.cancelWebmLoad(this._fullEl);
 		do {
 			data = data.getFollow(isForward);
 		} while(data && !data.isVideo && !data.isImage);
@@ -8836,7 +8836,7 @@ AttachmentViewer.prototype = {
 	},
 	_remove(e) {
 		const data = this.data;
-		data.cancelWebmLoad();
+		data.cancelWebmLoad(this._fullEl);
 		if(data.inPview && data.post.sticky) {
 			data.post.setSticky(false);
 		}
@@ -8923,12 +8923,11 @@ class ExpandableMedia {
 	get width() {
 		return (this._size || [-1, -1])[0];
 	}
-	cancelWebmLoad() {
-		const full = Attachment.viewer && Attachment.viewer._fullEl || this._fullEl;
-		if(this.isVideo && full.tagName === 'VIDEO') {
-			full.pause();
-			full.removeAttribute('src');
-			full.load();
+	cancelWebmLoad(fullEl) {
+		if(this.isVideo && fullEl.tagName === 'VIDEO') {
+			fullEl.pause();
+			fullEl.removeAttribute('src');
+			fullEl.load();
 		}
 		if(this._webmTitleLoad) {
 			this._webmTitleLoad.cancel();
@@ -8939,7 +8938,7 @@ class ExpandableMedia {
 		if(e && this.isVideo && this.isControlClick(e)) {
 			return;
 		}
-		this.cancelWebmLoad();
+		this.cancelWebmLoad(this._fullEl);
 		this.expanded = false;
 		$del(this._fullEl);
 		this._fullEl = null;
