@@ -2942,7 +2942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = '945d61e';
+	var commit = '8f0001d';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -19123,7 +19123,6 @@ true, true],
 				_this84.jsonSubmit = true;
 				_this84.multiFile = true;
 				_this84.thrid = 'replythread';
-				_this84._postMapInited = false;
 				return _this84;
 			}
 
@@ -19148,13 +19147,6 @@ true, true],
 					defaultCfg.removeEXIF = 0;
 					return false;
 				}
-			}, {
-				key: 'modifiedPosts',
-				get: function get() {
-					var val = new WeakMap();
-					Object.defineProperty(this, 'modifiedPosts', { value: val });
-					return val;
-				}
 			}]);
 
 			return Ponyach;
@@ -19162,8 +19154,16 @@ true, true],
 
 		ibDomains['ponyach.cf'] = Ponyach;
 		ibDomains['ponyach.ga'] = Ponyach;
+		ibDomains['ponyach.gq'] = Ponyach;
 		ibDomains['ponyach.ml'] = Ponyach;
 		ibDomains['ponyach.ru'] = Ponyach;
+		ibDomains['ponyach.tk'] = Ponyach;
+		ibDomains['cafe-asylum.cf'] = Ponyach;
+		ibDomains['cafe-bb.cf'] = Ponyach;
+		ibDomains['cafe-bb.ga'] = Ponyach;
+		ibDomains['cafe-bb.gq'] = Ponyach;
+		ibDomains['cafe-bb.ml'] = Ponyach;
+		ibDomains['cafe-bb.tk'] = Ponyach;
 
 		var Ponychan = function (_Tinyboard2) {
 			_inherits(Ponychan, _Tinyboard2);

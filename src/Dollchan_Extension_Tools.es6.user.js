@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = '945d61e';
+const commit = '8f0001d';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13837,12 +13837,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.jsonSubmit = true;
 			this.multiFile = true;
 			this.thrid = 'replythread';
-			this._postMapInited = false;
-		}
-		get modifiedPosts() { // Ponyach hack. Sets here only
-			var val = new WeakMap();
-			Object.defineProperty(this, 'modifiedPosts', { value: val });
-			return val;
 		}
 		getPNum(post) {
 			return +post.getAttribute('data-num');
@@ -13862,8 +13856,16 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['ponyach.cf'] = Ponyach;
 	ibDomains['ponyach.ga'] = Ponyach;
+	ibDomains['ponyach.gq'] = Ponyach;
 	ibDomains['ponyach.ml'] = Ponyach;
 	ibDomains['ponyach.ru'] = Ponyach;
+	ibDomains['ponyach.tk'] = Ponyach;
+	ibDomains['cafe-asylum.cf'] = Ponyach;
+	ibDomains['cafe-bb.cf'] = Ponyach;
+	ibDomains['cafe-bb.ga'] = Ponyach;
+	ibDomains['cafe-bb.gq'] = Ponyach;
+	ibDomains['cafe-bb.ml'] = Ponyach;
+	ibDomains['cafe-bb.tk'] = Ponyach;
 
 	class Ponychan extends Tinyboard {
 		constructor(prot, dm) {
