@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.8.17.0';
-const commit = 'ebc65ba';
+const commit = '762075a';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5278,9 +5278,9 @@ Videos._getYTInfoAPI = function(info, num, id) {
 };
 Videos._getYTInfoOembed = function(info, num, id) {
 	return (nav.isGM ?
-		$ajax('http://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&format=json', null, false)
+		$ajax('https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&format=json', null, false)
 	:
-		$ajax('http://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&callback=?')
+		$ajax('https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&callback=?')
 	).then(xhr =>
 	{
 		var json = JSON.parse(xhr.responseText);

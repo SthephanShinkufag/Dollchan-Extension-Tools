@@ -2942,7 +2942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.8.17.0';
-	var commit = 'ebc65ba';
+	var commit = '762075a';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -8560,7 +8560,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		});
 	};
 	Videos._getYTInfoOembed = function (info, num, id) {
-		return (nav.isGM ? $ajax('http://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&format=json', null, false) : $ajax('http://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&callback=?')).then(function (xhr) {
+		return (nav.isGM ? $ajax('https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&format=json', null, false) : $ajax('https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&callback=?')).then(function (xhr) {
 			var json = JSON.parse(xhr.responseText);
 			return Videos._titlesLoaderHelper(info, num, json.title, json.author_name, null, null, null);
 		})['catch'](function () {
