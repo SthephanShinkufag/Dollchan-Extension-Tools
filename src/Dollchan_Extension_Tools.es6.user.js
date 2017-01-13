@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = 'e3b3e2b';
+const commit = '3a05f45';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1499,13 +1499,16 @@ function setStored(id, value) {
 		// MAX_WRITE_OPERATIONS_PER_HOUR = 1800
 		// MAX_WRITE_OPERATIONS_PER_MINUTE = 120
 		// We need to store into storage.local if the limit is exceeded.
-		if(value.toString().length + id.length < 8192) { // TODO: use chrome.runtime.lastError instead of this
-			chrome.storage.sync.set(obj, emptyFn);
-			chrome.storage.local.remove(id, emptyFn);
-		} else {
-			chrome.storage.local.set(obj, emptyFn);
-			chrome.storage.sync.remove(id, emptyFn);
-		}
+		chrome.storage.sync.set(obj, function() {
+			if(chrome.runtime.lastError) {
+				console.log('Sync storage error: ' + chrome.runtime.lastError.message);
+				chrome.storage.local.set(obj, emptyFn);
+				chrome.storage.sync.remove(id, emptyFn);
+			} else {
+				console.log('Sync storage OK');
+				chrome.storage.local.remove(id, emptyFn);
+			}
+		});
 	} else if(nav.isScriptStorage) { // Opera Presto only
 		scriptStorage.setItem(id, value);
 	} else {

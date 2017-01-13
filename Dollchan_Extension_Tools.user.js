@@ -2942,7 +2942,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = 'e3b3e2b';
+	var commit = '3a05f45';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -4546,15 +4546,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (nav.isGM) {
 			GM_setValue(id, value);
 		} else if (nav.isChromeStorage) {
-			var obj = {};
-			obj[id] = value;
-			if (value.toString().length + id.length < 8192) {
-				chrome.storage.sync.set(obj, emptyFn);
-				chrome.storage.local.remove(id, emptyFn);
-			} else {
-				chrome.storage.local.set(obj, emptyFn);
-				chrome.storage.sync.remove(id, emptyFn);
-			}
+			(function () {
+				var obj = {};
+				obj[id] = value;
+				chrome.storage.sync.set(obj, function () {
+					if (chrome.runtime.lastError) {
+						console.log('Sync storage error: ' + chrome.runtime.lastError.message);
+						chrome.storage.local.set(obj, emptyFn);
+						chrome.storage.sync.remove(id, emptyFn);
+					} else {
+						console.log('Sync storage OK');
+						chrome.storage.local.remove(id, emptyFn);
+					}
+				});
+			})();
 		} else if (nav.isScriptStorage) {
 			scriptStorage.setItem(id, value);
 		} else {
@@ -5721,9 +5726,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			};
 
 			for (var b in hThr) {
-				var _ret3 = _loop(b);
+				var _ret4 = _loop(b);
 
-				if (_ret3 === 'continue') continue;
+				if (_ret4 === 'continue') continue;
 			}
 		}
 		$bEnd(body, hasThreads ? '<hr>' : '<center><b>' + Lng.noHidThrds[lang] + '</b></center><hr>');
@@ -5870,7 +5875,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			$bEnd(body, '<div class="de-fav-table">' + html + '</div>').addEventListener('click', function (e) {
 				var el = e.target;
 
-				var _ret4 = function () {
+				var _ret5 = function () {
 					switch (el.className) {
 						case 'de-fav-link':
 							sesStorage['de-win-fav'] = '1'; 
@@ -5901,7 +5906,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				}();
 
-				if ((typeof _ret4 === 'undefined' ? 'undefined' : _typeof(_ret4)) === "object") return _ret4.v;
+				if ((typeof _ret5 === 'undefined' ? 'undefined' : _typeof(_ret5)) === "object") return _ret5.v;
 				if (el.hasAttribute('de-opened')) {
 					el.style.display = 'none';
 					el.removeAttribute('de-opened');
