@@ -2373,7 +2373,8 @@ process.umask = function() { return 0; };
 !(function(global) {
   "use strict";
 
-  var hasOwn = Object.prototype.hasOwnProperty;
+  var Op = Object.prototype;
+  var hasOwn = Op.hasOwnProperty;
   var undefined; 
   var $Symbol = typeof Symbol === "function" ? Symbol : {};
   var iteratorSymbol = $Symbol.iterator || "@@iterator";
@@ -2391,7 +2392,8 @@ process.umask = function() { return 0; };
   runtime = global.regeneratorRuntime = inModule ? module.exports : {};
 
   function wrap(innerFn, outerFn, self, tryLocsList) {
-    var generator = Object.create((outerFn || Generator).prototype);
+    var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator;
+    var generator = Object.create(protoGenerator.prototype);
     var context = new Context(tryLocsList || []);
 
     generator._invoke = makeInvokeMethod(innerFn, self, context);
@@ -2419,10 +2421,25 @@ process.umask = function() { return 0; };
   function GeneratorFunction() {}
   function GeneratorFunctionPrototype() {}
 
-  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
+  var IteratorPrototype = {};
+  IteratorPrototype[iteratorSymbol] = function () {
+    return this;
+  };
+
+  var getProto = Object.getPrototypeOf;
+  var NativeIteratorPrototype = getProto && getProto(getProto(values([])));
+  if (NativeIteratorPrototype &&
+      NativeIteratorPrototype !== Op &&
+      hasOwn.call(NativeIteratorPrototype, iteratorSymbol)) {
+    IteratorPrototype = NativeIteratorPrototype;
+  }
+
+  var Gp = GeneratorFunctionPrototype.prototype =
+    Generator.prototype = Object.create(IteratorPrototype);
   GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
   GeneratorFunctionPrototype.constructor = GeneratorFunction;
-  GeneratorFunctionPrototype[toStringTagSymbol] = GeneratorFunction.displayName = "GeneratorFunction";
+  GeneratorFunctionPrototype[toStringTagSymbol] =
+    GeneratorFunction.displayName = "GeneratorFunction";
 
   function defineIteratorMethods(prototype) {
     ["next", "throw", "return"].forEach(function(method) {
@@ -2454,12 +2471,8 @@ process.umask = function() { return 0; };
   };
 
   runtime.awrap = function(arg) {
-    return new AwaitArgument(arg);
+    return { __await: arg };
   };
-
-  function AwaitArgument(arg) {
-    this.arg = arg;
-  }
 
   function AsyncIterator(generator) {
     function invoke(method, arg, resolve, reject) {
@@ -2469,8 +2482,10 @@ process.umask = function() { return 0; };
       } else {
         var result = record.arg;
         var value = result.value;
-        if (value instanceof AwaitArgument) {
-          return Promise.resolve(value.arg).then(function(value) {
+        if (value &&
+            typeof value === "object" &&
+            hasOwn.call(value, "__await")) {
+          return Promise.resolve(value.__await).then(function(value) {
             invoke("next", value, resolve, reject);
           }, function(err) {
             invoke("throw", err, resolve, reject);
@@ -2508,6 +2523,7 @@ process.umask = function() { return 0; };
   }
 
   defineIteratorMethods(AsyncIterator.prototype);
+  runtime.AsyncIterator = AsyncIterator;
 
   runtime.async = function(innerFn, outerFn, self, tryLocsList) {
     var iter = new AsyncIterator(
@@ -2637,10 +2653,6 @@ process.umask = function() { return 0; };
   }
 
   defineIteratorMethods(Gp);
-
-  Gp[iteratorSymbol] = function() {
-    return this;
-  };
 
   Gp[toStringTagSymbol] = "Generator";
 
@@ -2942,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = 'c813c9b';
+	var commit = '2e8a3d9';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -2984,6 +2996,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'webmControl': 1, 
 		'webmTitles': 0, 
 		'webmVolume': 100, 
+		'minWebmWidth': 320, 
 		'preLoadImgs': 0, 
 		'findImgFile': 0, 
 		'openImgs': 0, 
@@ -3123,6 +3136,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'webmControl': ['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
 			'webmTitles': ['Получать заголовки webm из метаданных', 'Get webm titles from metadata'],
 			'webmVolume': ['Громкость webm-файлов [0-100%]', 'Default volume for webm files [0-100%]'],
+			'minWebmWidth': ['Минимальная ширина webm (px)', 'Minimal webm width (px)'],
 			'preLoadImgs': ['Предварительно загружать картинки*', 'Pre-load images*'],
 			'findImgFile': ['Распознавать встроенные файлы в картинках*', 'Detect built-in files in images*'],
 			'openImgs': {
@@ -5740,7 +5754,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function _callee() {
-			var i, els, len, _els$i$getAttribute$s, _els$i$getAttribute$s2, _b, tNum;
+			var i, els, len, _els$i$getAttribute$s, _els$i$getAttribute$s2, b, tNum;
 
 			return regeneratorRuntime.wrap(function _callee$(_context6) {
 				while (1) {
@@ -5750,45 +5764,42 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 1:
 							if (!(i < len)) {
-								_context6.next = 17;
+								_context6.next = 14;
 								break;
 							}
 
-							_els$i$getAttribute$s = els[i].getAttribute('info').split(';');
-							_els$i$getAttribute$s2 = _slicedToArray(_els$i$getAttribute$s, 2);
-							_b = _els$i$getAttribute$s2[0];
-							tNum = _els$i$getAttribute$s2[1];
-							_context6.prev = 6;
-							_context6.next = 9;
-							return $ajax(aib.getThrdUrl(_b, tNum));
+							_els$i$getAttribute$s = els[i].getAttribute('info').split(';'), _els$i$getAttribute$s2 = _slicedToArray(_els$i$getAttribute$s, 2), b = _els$i$getAttribute$s2[0], tNum = _els$i$getAttribute$s2[1];
+							_context6.prev = 3;
+							_context6.next = 6;
+							return $ajax(aib.getThrdUrl(b, tNum));
 
-						case 9:
-							_context6.next = 14;
+						case 6:
+							_context6.next = 11;
 							break;
 
-						case 11:
-							_context6.prev = 11;
-							_context6.t0 = _context6['catch'](6);
+						case 8:
+							_context6.prev = 8;
+							_context6.t0 = _context6['catch'](3);
 
 							if (_context6.t0.code === 404) {
-								HiddenThreads.remove(tNum, _b); 
-								HiddenPosts.remove(tNum, _b); 
+								HiddenThreads.remove(tNum, b); 
+								HiddenPosts.remove(tNum, b); 
 							}
 
-						case 14:
+						case 11:
 							++i;
 							_context6.next = 1;
 							break;
 
-						case 17:
+						case 14:
 							toggleWindow('hid', true);
 
-						case 18:
+						case 15:
 						case 'end':
 							return _context6.stop();
 					}
 				}
-			}, _callee, this, [[6, 11]]);
+			}, _callee, this, [[3, 8]]);
 		}))));
 
 		body.appendChild($btn(Lng.remove[lang], Lng.delNotes[lang], function () {
@@ -5797,12 +5808,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return;
 				}
 
-				var _el$getAttribute$spli = el.getAttribute('info').split(';');
-
-				var _el$getAttribute$spli2 = _slicedToArray(_el$getAttribute$spli, 2);
-
-				var b = _el$getAttribute$spli2[0];
-				var tNum = _el$getAttribute$spli2[1];
+				var _el$getAttribute$spli = el.getAttribute('info').split(';'),
+				    _el$getAttribute$spli2 = _slicedToArray(_el$getAttribute$spli, 2),
+				    b = _el$getAttribute$spli2[0],
+				    tNum = _el$getAttribute$spli2[1];
 
 				var num = +tNum;
 				if (pByNum.has(num)) {
@@ -5926,7 +5935,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(regeneratorRuntime.mark(function _callee2() {
-			var fav, isUpdate, last404, els, i, len, el, host, _b2, num, f, countEl, iconEl, titleEl, form, isArchived, _ref5, _ref6, bArch, cnt;
+			var fav, isUpdate, last404, els, i, len, el, host, _b, num, f, countEl, iconEl, titleEl, form, isArchived, _ref5, _ref6, bArch, cnt;
 
 			return regeneratorRuntime.wrap(function _callee2$(_context7) {
 				while (1) {
@@ -5949,9 +5958,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 							el = els[i];
 							host = el.getAttribute('de-host');
-							_b2 = el.getAttribute('de-board');
+							_b = el.getAttribute('de-board');
 							num = el.getAttribute('de-num');
-							f = fav[host][_b2][num];
+							f = fav[host][_b][num];
 
 
 							if (!(host !== aib.host || f.err === 'Closed' || f.err === 'Archived')) {
@@ -5977,7 +5986,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 
 							_context7.next = 24;
-							return ajaxLoad(aib.getThrdUrl(_b2, num));
+							return ajaxLoad(aib.getThrdUrl(_b, num));
 
 						case 24:
 							form = _context7.sent;
@@ -5986,7 +5995,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 27:
 							_context7.next = 29;
-							return ajaxLoad(aib.getThrdUrl(_b2, num), true, false, aib.iichan);
+							return ajaxLoad(aib.getThrdUrl(_b, num), true, false, aib.iichan);
 
 						case 29:
 							_ref5 = _context7.sent;
@@ -6013,7 +6022,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								break;
 							}
 
-							Thread.removeSavedData(_b2, num); 
+							Thread.removeSavedData(_b, num); 
 							_context7.next = 46;
 							break;
 
@@ -6041,13 +6050,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 								titleEl.title = Lng.thrArchived[lang];
 								f.err = 'Archived';
-								bArch = _b2 + '/arch';
+								bArch = _b + '/arch';
 
 								if (!fav[host][bArch]) {
-									fav[host][bArch] = { url: fav[host][_b2]['url'] + 'arch/' };
+									fav[host][bArch] = { url: fav[host][_b]['url'] + 'arch/' };
 								}
 								fav[host][bArch][num] = Object.assign({}, f);
-								removeFavoriteEntry(fav, host, _b2, num);
+								removeFavoriteEntry(fav, host, _b, num);
 								isUpdate = true;
 							} else {
 								iconEl.setAttribute('class', 'de-fav-inf-icon');
@@ -6189,13 +6198,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 27:
 
 							for (_i5 = 0; _i5 < len; ++_i5) {
-								_thrInfo$_i = thrInfo[_i5];
-								found = _thrInfo$_i.found;
-								pageEl = _thrInfo$_i.pageEl;
-								iconClass = _thrInfo$_i.iconClass;
-								_iconEl = _thrInfo$_i.iconEl;
-								iconTitle = _thrInfo$_i.iconTitle;
-								_titleEl = _thrInfo$_i.titleEl;
+								_thrInfo$_i = thrInfo[_i5], found = _thrInfo$_i.found, pageEl = _thrInfo$_i.pageEl, iconClass = _thrInfo$_i.iconClass, _iconEl = _thrInfo$_i.iconEl, iconTitle = _thrInfo$_i.iconTitle, _titleEl = _thrInfo$_i.titleEl;
 
 								if (!found) {
 									_iconEl.setAttribute('class', iconClass);
@@ -6376,9 +6379,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				$popup('<b>' + Lng.cfgImpExp[lang] + ':</b><hr>' + '<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' + '<input type="file" accept=".json" id="de-import-file"></div></div><hr>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + _this11._getList([Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang], Lng.panelBtn.fav[lang], Lng.hidPstThrds[lang] + ' (' + aib.dm + ')', Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>', 'cfg-file', false);
 
 				$id('de-import-file').onchange = function (_ref7) {
-					var _ref7$target$files = _slicedToArray(_ref7.target.files, 1);
-
-					var file = _ref7$target$files[0];
+					var _ref7$target$files = _slicedToArray(_ref7.target.files, 1),
+					    file = _ref7$target$files[0];
 
 					if (!file) {
 						return;
@@ -6904,6 +6906,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						locStorage['__de-webmvolume'] = val;
 						locStorage.removeItem('__de-webmvolume');
 						break;
+					case 'minWebmWidth':
+						saveCfg('minWebmWidth', Math.max(+el.value, Cfg.minImgSize));break;
 					case 'maskVisib':
 						saveCfg('maskVisib', Math.min(+el.value || 0, 100));
 						updateCSS();
@@ -7023,7 +7027,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgImages: function _getCfgImages() {
-			return '<div id="de-cfg-images" class="de-cfg-unvis">\n\t\t\t' + this._getSel('expandImgs') + '<br>\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('imgNavBtns') + '<br>\n\t\t\t\t' + this._getBox('resizeImgs') + '<br>\n\t\t\t\t' + (Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '') + '\n\t\t\t\t' + (this._getInp('minImgSize') + Lng.cfg.minImgSize[lang]) + '<br>\n\t\t\t\t' + (this._getInp('zoomFactor') + Lng.cfg.zoomFactor[lang]) + '<br>\n\t\t\t\t' + this._getBox('webmControl') + '<br>\n\t\t\t\t' + this._getBox('webmTitles') + '<br>\n\t\t\t\t' + (nav.canPlayWebm ? this._getInp('webmVolume') + Lng.cfg.webmVolume[lang] : '') + '\n\t\t\t</div>\n\t\t\t' + (!nav.Presto ? this._getBox('preLoadImgs') + '<br>' : '') + '\n\t\t\t' + (!nav.Presto && !aib.fch ? '<div class="de-cfg-depend">' + this._getBox('findImgFile') + '</div>' : '') + '\n\t\t\t' + this._getSel('openImgs') + '<br>\n\t\t\t' + this._getBox('imgSrcBtns') + '<br>\n\t\t\t' + this._getBox('delImgNames') + '<br>\n\t\t\t' + (this._getInp('maskVisib') + Lng.cfg.maskVisib[lang]) + '\n\t\t</div>';
+			return '<div id="de-cfg-images" class="de-cfg-unvis">\n\t\t\t' + this._getSel('expandImgs') + '<br>\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('imgNavBtns') + '<br>\n\t\t\t\t' + this._getBox('resizeImgs') + '<br>\n\t\t\t\t' + (Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '') + '\n\t\t\t\t' + (this._getInp('minImgSize') + Lng.cfg.minImgSize[lang]) + '<br>\n\t\t\t\t' + (this._getInp('zoomFactor') + Lng.cfg.zoomFactor[lang]) + '<br>\n\t\t\t\t' + this._getBox('webmControl') + '<br>\n\t\t\t\t' + this._getBox('webmTitles') + '<br>\n\t\t\t\t' + (nav.canPlayWebm ? this._getInp('webmVolume') + Lng.cfg.webmVolume[lang] + '<br>' : '') + '\n\t\t\t\t' + (this._getInp('minWebmWidth') + Lng.cfg.minWebmWidth[lang]) + '\n\t\t\t</div>\n\t\t\t' + (!nav.Presto ? this._getBox('preLoadImgs') + '<br>' : '') + '\n\t\t\t' + (!nav.Presto && !aib.fch ? '<div class="de-cfg-depend">' + this._getBox('findImgFile') + '</div>' : '') + '\n\t\t\t' + this._getSel('openImgs') + '<br>\n\t\t\t' + this._getBox('imgSrcBtns') + '<br>\n\t\t\t' + this._getBox('delImgNames') + '<br>\n\t\t\t' + (this._getInp('maskVisib') + Lng.cfg.maskVisib[lang]) + '\n\t\t</div>';
 		},
 
 
@@ -7098,7 +7102,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_updateDependant: function _updateDependant() {
 			this._toggleBox(Cfg.ajaxUpdThr, ['input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]', 'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]']);
 			this._toggleBox(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
-			this._toggleBox(Cfg.expandImgs, ['input[info="imgNavBtns"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]']);
+			this._toggleBox(Cfg.expandImgs, ['input[info="imgNavBtns"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]', 'input[info="minWebmWidth"]']);
 			this._toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
 			this._toggleBox(Cfg.linksNavig, ['input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]', 'input[info="strikeHidd"]', 'input[info="noNavigHidd"]']);
 			this._toggleBox(Cfg.strikeHidd && Cfg.linksNavig === 2, ['input[info="removeHidd"]']);
@@ -8001,13 +8005,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var _this14 = this;
 
 			return new Promise(function (resolve, reject) {
-				var w = _this14._freeWorkers.pop();
-
-				var _data2 = _slicedToArray(data, 3);
-
-				var sendData = _data2[0];
-				var transferObjs = _data2[1];
-				var fn = _data2[2];
+				var w = _this14._freeWorkers.pop(),
+				    _data2 = _slicedToArray(data, 3),
+				    sendData = _data2[0],
+				    transferObjs = _data2[1],
+				    fn = _data2[2];
 
 				w.onmessage = function (e) {
 					fn(e.data);
@@ -8092,13 +8094,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 			pool = new TasksPool(mReqs, function (num, data) {
 				return downloadImgData(data[0]).then(function (imageData) {
-					var _data3 = _slicedToArray(data, 5);
-
-					var url = _data3[0];
-					var imgLink = _data3[1];
-					var iType = _data3[2];
-					var nExp = _data3[3];
-					var el = _data3[4];
+					var _data3 = _slicedToArray(data, 5),
+					    url = _data3[0],
+					    imgLink = _data3[1],
+					    iType = _data3[2],
+					    nExp = _data3[3],
+					    el = _data3[4];
 
 					if (imageData) {
 						var fName = url.substring(url.lastIndexOf("/") + 1),
@@ -8196,13 +8197,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		    dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
 		Images_.pool = new TasksPool(4, function (num, data) {
 			return downloadImgData(data[0]).then(function (imgData) {
-				var _data4 = _slicedToArray(data, 4);
+				var _data4 = _slicedToArray(data, 4),
+				    url = _data4[0],
+				    fName = _data4[1],
+				    el = _data4[2],
+				    imgLink = _data4[3],
+				    safeName = fName.replace(/[\\\/:*?"<>|]/g, '_');
 
-				var url = _data4[0];
-				var fName = _data4[1];
-				var el = _data4[2];
-				var imgLink = _data4[3];
-				var safeName = fName.replace(/[\\\/:*?"<>|]/g, '_');
 				progress.value = current;
 				counter.innerHTML = current;
 				current++;
@@ -8499,13 +8500,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 	};
 	Videos.setLinkData = function (link, _ref11) {
-		var _ref12 = _slicedToArray(_ref11, 5);
-
-		var title = _ref12[0];
-		var author = _ref12[1];
-		var views = _ref12[2];
-		var publ = _ref12[3];
-		var duration = _ref12[4];
+		var _ref12 = _slicedToArray(_ref11, 5),
+		    title = _ref12[0],
+		    author = _ref12[1],
+		    views = _ref12[2],
+		    publ = _ref12[3],
+		    duration = _ref12[4];
 
 		link.textContent = title;
 		link.classList.add('de-video-title');
@@ -8529,12 +8529,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return [timeStr, hours, minutes, seconds];
 	};
 	Videos._titlesLoaderHelper = function (_ref13, num) {
-		var _ref14 = _slicedToArray(_ref13, 4);
-
-		var link = _ref14[0];
-		var isYtube = _ref14[1];
-		var videoObj = _ref14[2];
-		var id = _ref14[3];
+		var _ref14 = _slicedToArray(_ref13, 4),
+		    link = _ref14[0],
+		    isYtube = _ref14[1],
+		    videoObj = _ref14[2],
+		    id = _ref14[3];
 
 		for (var _len5 = arguments.length, data = Array(_len5 > 2 ? _len5 - 2 : 0), _key4 = 2; _key4 < _len5; _key4++) {
 			data[_key4 - 2] = arguments[_key4];
@@ -8572,10 +8571,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	};
 	Videos._getTitlesLoader = function () {
 		return Cfg.YTubeTitles && new TasksPool(4, function (num, info) {
-			var _info5 = _slicedToArray(info, 4);
-
-			var isYtube = _info5[1];
-			var id = _info5[3];
+			var _info5 = _slicedToArray(info, 4),
+			    isYtube = _info5[1],
+			    id = _info5[3];
 
 			if (isYtube) {
 				return Cfg.ytApiKey ? Videos._getYTInfoAPI(info, num, id) : Videos._getYTInfoOembed(info, num, id);
@@ -8761,11 +8759,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 			for (var i = 0, len = vids.length; i < len; ++i) {
-				var _vids$i = _slicedToArray(vids[i], 3);
-
-				var pst = _vids$i[0];
-				var m = _vids$i[1];
-				var isYtube = _vids$i[2];
+				var _vids$i = _slicedToArray(vids[i], 3),
+				    pst = _vids$i[0],
+				    m = _vids$i[1],
+				    isYtube = _vids$i[2];
 
 				if (pst) {
 					pst.videos.addLink(m, loader, null, isYtube);
@@ -8830,10 +8827,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'runCachedAjax',
 			value: function runCachedAjax(url, useCache) {
-				var _ref16 = AjaxCache._data.get(url) || {};
-
-				var hasCacheControl = _ref16.hasCacheControl;
-				var params = _ref16.params;
+				var _ref16 = AjaxCache._data.get(url) || {},
+				    hasCacheControl = _ref16.hasCacheControl,
+				    params = _ref16.params;
 
 				var ajaxURL = hasCacheControl === false ? AjaxCache.fixURL(url) : url;
 				return $ajax(ajaxURL, useCache && params || { useTimeout: true }).then(function (xhr) {
@@ -9352,16 +9348,15 @@ true, true],
 						return spell;
 					}
 
-					var _ref21 = wipeMsg || [];
-
-					var _ref22 = _slicedToArray(_ref21, 2);
-
-					var msgBit = _ref22[0];
-					var msgData = _ref22[1];
-					var names = [];
-					var bits = { 1: 'samelines', 2: 'samewords', 4: 'longwords', 8: 'symbols',
+					var _ref21 = wipeMsg || [],
+					    _ref22 = _slicedToArray(_ref21, 2),
+					    msgBit = _ref22[0],
+					    msgData = _ref22[1],
+					    names = [],
+					    bits = { 1: 'samelines', 2: 'samewords', 4: 'longwords', 8: 'symbols',
 						16: 'capslock', 32: 'numbers', 64: 'whitespace'
 					};
+
 					for (var bit in bits) {
 						if (+bit !== msgBit) {
 							if (val & +bit) {
@@ -10169,11 +10164,10 @@ true, true],
 		}, {
 			key: '_checkRes',
 			value: function _checkRes(post, _ref28) {
-				var _ref29 = _slicedToArray(_ref28, 3);
-
-				var hasNumSpell = _ref29[0];
-				var val = _ref29[1];
-				var msg = _ref29[2];
+				var _ref29 = _slicedToArray(_ref28, 3),
+				    hasNumSpell = _ref29[0],
+				    val = _ref29[1],
+				    msg = _ref29[2];
 
 				this.hasNumSpell |= hasNumSpell;
 				if (val) {
@@ -10304,12 +10298,10 @@ true, true],
 			var cl = this._ctx.length;
 			var spell = this._ctx[cl - 3][this._ctx[cl - 2] - 1];
 
-			var _checkRes4 = this._checkRes(spell, val, this._ctx[cl - 1]);
-
-			var _checkRes5 = _slicedToArray(_checkRes4, 2);
-
-			var rv = _checkRes5[0];
-			var stopCheck = _checkRes5[1];
+			var _checkRes4 = this._checkRes(spell, val, this._ctx[cl - 1]),
+			    _checkRes5 = _slicedToArray(_checkRes4, 2),
+			    rv = _checkRes5[0],
+			    stopCheck = _checkRes5[1];
 
 			return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null] : this.run();
 		},
@@ -10352,13 +10344,11 @@ true, true],
 						_ref31 = _i19.value;
 					}
 
-					var _ref32 = _ref31;
-
-					var _ref33 = _slicedToArray(_ref32, 3);
-
-					var isNeg = _ref33[0];
-					var spell = _ref33[1];
-					var wipeMsg = _ref33[2];
+					var _ref32 = _ref31,
+					    _ref33 = _slicedToArray(_ref32, 3),
+					    isNeg = _ref33[0],
+					    spell = _ref33[1],
+					    wipeMsg = _ref33[2];
 
 					rv.push(Spells.decompileSpell(spell[0] & 0xFF, isNeg, spell[1], spell[2], wipeMsg));
 				}
@@ -10525,14 +10515,12 @@ true, true],
 			return pTrip ? !val || pTrip.includes(val) : false;
 		},
 		_img: function _img(val) {
-			var hide;var images = this._post.images;
-
-			var _val = _slicedToArray(val, 3);
-
-			var compareRule = _val[0];
-			var weightVals = _val[1];
-			var sizeVals = _val[2];
-
+			var hide,
+			    images = this._post.images,
+			    _val = _slicedToArray(val, 3),
+			    compareRule = _val[0],
+			    weightVals = _val[1],
+			    sizeVals = _val[2];
 			if (!val) {
 				return images.hasAttachments;
 			}
@@ -12260,7 +12248,7 @@ true, true],
 							break;
 						}
 
-						return _context16.abrupt('break', 36);
+						return _context16.abrupt('break', 33);
 
 					case 6:
 						_ref45 = _iterator25[_i29++];
@@ -12275,20 +12263,16 @@ true, true],
 							break;
 						}
 
-						return _context16.abrupt('break', 36);
+						return _context16.abrupt('break', 33);
 
 					case 12:
 						_ref45 = _i29.value;
 
 					case 13:
-						_ref46 = _ref45;
-						name = _ref46.name;
-						value = _ref46.value;
-						type = _ref46.type;
-						el = _ref46.el;
+						_ref46 = _ref45, name = _ref46.name, value = _ref46.value, type = _ref46.type, el = _ref46.el;
 
 						if (!(type === 'file')) {
-							_context16.next = 33;
+							_context16.next = 30;
 							break;
 						}
 
@@ -12296,67 +12280,68 @@ true, true],
 						fileName = value.name, newFileName = Cfg.removeFName ? ' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
 
 						if (!(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) && (Cfg.postSameImg || Cfg.removeEXIF))) {
-							_context16.next = 32;
+							_context16.next = 29;
 							break;
 						}
 
-						_context16.next = 24;
+						_context16.t0 = cleanFile;
+						_context16.next = 21;
 						return readFile(value);
 
-					case 24:
-						_context16.t0 = _context16.sent.data;
-						_context16.t1 = el.obj.imgFile;
-						data = cleanFile(_context16.t0, _context16.t1);
+					case 21:
+						_context16.t1 = _context16.sent.data;
+						_context16.t2 = el.obj.imgFile;
+						data = (0, _context16.t0)(_context16.t1, _context16.t2);
 
 						if (data) {
-							_context16.next = 29;
+							_context16.next = 26;
 							break;
 						}
 
 						return _context16.abrupt('return', Promise.reject(Lng.fileCorrupt[lang] + fileName));
 
-					case 29:
+					case 26:
 						value = new File(data, newFileName);
-						_context16.next = 33;
+						_context16.next = 30;
 						break;
 
-					case 32:
+					case 29:
 						if (Cfg.removeFName) {
 							value = new File([value], newFileName);
 						}
 
-					case 33:
+					case 30:
 						formData.append(name, value);
 
-					case 34:
+					case 31:
 						_context16.next = 3;
 						break;
 
-					case 36:
+					case 33:
 						ajaxParams = { method: 'POST', data: formData };
 
 						if (needProgress && hasFiles) {
 							ajaxParams.onprogress = getUploadFunc();
 						}
-						_context16.prev = 38;
-						_context16.next = 41;
+						_context16.prev = 35;
+						_context16.next = 38;
 						return $ajax(form.action, ajaxParams);
 
-					case 41:
+					case 38:
 						xhr = _context16.sent;
 						return _context16.abrupt('return', aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText));
 
-					case 45:
-						_context16.prev = 45;
-						_context16.t2 = _context16['catch'](38);
-						return _context16.abrupt('return', Promise.reject(_context16.t2));
+					case 42:
+						_context16.prev = 42;
+						_context16.t3 = _context16['catch'](35);
+						return _context16.abrupt('return', Promise.reject(_context16.t3));
 
-					case 48:
+					case 45:
 					case 'end':
 						return _context16.stop();
 				}
 			}
-		}, _marked[5], this, [[38, 45]]);
+		}, _marked[5], this, [[35, 42]]);
 	}
 
 	function readFile(file) {
@@ -12840,17 +12825,18 @@ true, true],
 		_show: function _show(data) {
 			var _this29 = this;
 
-			var _data$computeFullSize = data.computeFullSize();
-
-			var _data$computeFullSize2 = _slicedToArray(_data$computeFullSize, 3);
-
-			var width = _data$computeFullSize2[0];
-			var height = _data$computeFullSize2[1];
-			var minSize = _data$computeFullSize2[2];
+			var _data$computeFullSize = data.computeFullSize(),
+			    _data$computeFullSize2 = _slicedToArray(_data$computeFullSize, 3),
+			    width = _data$computeFullSize2[0],
+			    height = _data$computeFullSize2[1],
+			    minSize = _data$computeFullSize2[2];
 
 			this._fullEl = data.getFullObject(false, function (el) {
 				return _this29._resize(el);
 			});
+			if (data.isVideo && width < Cfg.minWebmWidth) {
+				width = Cfg.minWebmWidth;
+			}
 			this._width = width;
 			this._height = height;
 			this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
@@ -12894,13 +12880,11 @@ true, true],
 				return;
 			}
 
-			var _data$computeFullSize3 = this.data.computeFullSize();
-
-			var _data$computeFullSize4 = _slicedToArray(_data$computeFullSize3, 3);
-
-			var width = _data$computeFullSize4[0];
-			var height = _data$computeFullSize4[1];
-			var minSize = _data$computeFullSize4[2];
+			var _data$computeFullSize3 = this.data.computeFullSize(),
+			    _data$computeFullSize4 = _slicedToArray(_data$computeFullSize3, 3),
+			    width = _data$computeFullSize4[0],
+			    height = _data$computeFullSize4[1],
+			    minSize = _data$computeFullSize4[2];
 
 			this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 			if (Post.sizing.wWidth - this._oldL - this._width < 5 || Post.sizing.wHeight - this._oldT - this._height < 5) {
@@ -15282,12 +15266,10 @@ true, true],
 						_ref49 = _i31.value;
 					}
 
-					var _ref50 = _ref49;
-
-					var _ref51 = _slicedToArray(_ref50, 2);
-
-					var pNum = _ref51[0];
-					var _post4 = _ref51[1];
+					var _ref50 = _ref49,
+					    _ref51 = _slicedToArray(_ref50, 2),
+					    pNum = _ref51[0],
+					    _post4 = _ref51[1];
 
 					var links = $Q('a', _post4.msg);
 					for (var lNum, i = 0, len = links.length; i < len; ++i) {
@@ -15704,10 +15686,9 @@ true, true],
 				if (data.filedeleted) {
 					fileHTML = '<div id="f' + num + '" class="file"><span class="fileThumb">\n\t\t\t\t<img src="' + _icon('filedeleted-res') + '" class="fileDeletedRes" alt="File deleted.">\n\t\t\t</span></div>';
 				} else if (typeof data.filename === 'string') {
-					var _DOMPostsBuilder$fixF = DOMPostsBuilder.fixFileName(data.filename, 30);
-
-					var _name2 = _DOMPostsBuilder$fixF.name;
-					var needTitle = _DOMPostsBuilder$fixF.isFixed;
+					var _DOMPostsBuilder$fixF = DOMPostsBuilder.fixFileName(data.filename, 30),
+					    _name2 = _DOMPostsBuilder$fixF.name,
+					    needTitle = _DOMPostsBuilder$fixF.isFixed;
 
 					_name2 += data.ext;
 					if (!data.tn_w && !data.tn_h && data.ext === '.gif') {
@@ -16302,13 +16283,11 @@ true, true],
 						_ref58 = _i38.value;
 					}
 
-					var _ref59 = _ref58;
-
-					var _ref60 = _slicedToArray(_ref59, 3);
-
-					var banId = _ref60[0];
-					var bNum = _ref60[1];
-					var bEl = _ref60[2];
+					var _ref59 = _ref58,
+					    _ref60 = _slicedToArray(_ref59, 3),
+					    banId = _ref60[0],
+					    bNum = _ref60[1],
+					    bEl = _ref60[2];
 
 					var _post6 = bNum ? pByNum.get(bNum) : this.op;
 					if (_post6 && _post6.banned !== banId) {
@@ -16440,11 +16419,10 @@ true, true],
 					    maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null),
 					    iprv = this._importPosts(op, pBuilder, Math.max(0, nonExisted + existed - needToShow), nonExisted, maybeVParser, maybeSpells);
 
-					var _iprv = _slicedToArray(iprv, 5);
-
-					var fragm = _iprv[2];
-					var _last = _iprv[3];
-					var nums = _iprv[4];
+					var _iprv = _slicedToArray(iprv, 5),
+					    fragm = _iprv[2],
+					    _last = _iprv[3],
+					    nums = _iprv[4];
 
 					maybeVParser.end();
 					$after(op.wrap, fragm);
@@ -16507,14 +16485,11 @@ true, true],
 		}, {
 			key: '_loadNewFromBuilder',
 			value: function _loadNewFromBuilder(pBuilder) {
-				var lastOffset = pr.isVisible ? pr.top : null;
-
-				var _parsePosts2 = this._parsePosts(pBuilder);
-
-				var _parsePosts3 = _slicedToArray(_parsePosts2, 2);
-
-				var newPosts = _parsePosts3[0];
-				var newVisPosts = _parsePosts3[1];
+				var lastOffset = pr.isVisible ? pr.top : null,
+				    _parsePosts2 = this._parsePosts(pBuilder),
+				    _parsePosts3 = _slicedToArray(_parsePosts2, 2),
+				    newPosts = _parsePosts3[0],
+				    newVisPosts = _parsePosts3[1];
 
 				if (lastOffset !== null) {
 					scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);
@@ -19256,10 +19231,9 @@ true, true],
 		}
 		if (checkEngines) {
 			for (var i = ibEngines.length - 1; i >= 0; --i) {
-				var _ibEngines$i = _slicedToArray(ibEngines[i], 2);
-
-				var path = _ibEngines$i[0];
-				var Ctor = _ibEngines$i[1];
+				var _ibEngines$i = _slicedToArray(ibEngines[i], 2),
+				    path = _ibEngines$i[0],
+				    Ctor = _ibEngines$i[1];
 
 				if ($q(path, doc)) {
 					return new Ctor(prot, dm);
@@ -20072,8 +20046,8 @@ true, true],
 							counter.setWait();
 							this._state = 2;
 							this._loadPromise = Thread.first.loadNew().then(function (_ref65) {
-								var newCount = _ref65.newCount;
-								var locked = _ref65.locked;
+								var newCount = _ref65.newCount,
+								    locked = _ref65.locked;
 								return _this93._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (e) {
 								return _this93._handleNewPosts(0, e);

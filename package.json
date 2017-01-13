@@ -7,12 +7,12 @@
   "dependencies": {
     "babel-plugin-transform-es3-member-expression-literals": "=6.8.0",
     "babel-plugin-transform-es3-property-literals": "=6.8.0",
-    "babel-preset-es2015": "=6.13.2",
+    "babel-preset-es2015": "=6.18.0",
     "core-js": "=2.4.1"
   },
   "devDependencies": {
     "babelify": "=7.3.0",
-    "browserify": "=13.1.0",
+    "browserify": "=13.3.0",
     "gulp": "=3.9.1",
     "gulp-babel": "=6.1.2",
     "gulp-dest": "=0.2.3",

@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = 'c813c9b';
+const commit = '2e8a3d9';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -66,6 +66,7 @@ const defaultCfg = {
 	'webmControl':      1,      //    control bar for webm files
 	'webmTitles':       0,      //    get webm titles from metadata
 	'webmVolume':       100,    //    default volume for webm files (%)
+	'minWebmWidth':     320,    //    minimal wibm width
 	'preLoadImgs':      0,      // pre-load images
 	'findImgFile':      0,      //    detect built-in files in images
 	'openImgs':         0,      // open images in posts [0=off, 1=all images, 2=GIFs only, 3=non-GIFs]
@@ -206,6 +207,7 @@ const Lng = {
 		'webmControl':  ['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
 		'webmTitles':   ['Получать заголовки webm из метаданных', 'Get webm titles from metadata'],
 		'webmVolume':   ['Громкость webm-файлов [0-100%]', 'Default volume for webm files [0-100%]'],
+		'minWebmWidth': ['Минимальная ширина webm (px)', 'Minimal webm width (px)'],
 		'preLoadImgs':  ['Предварительно загружать картинки*', 'Pre-load images*'],
 		'findImgFile':  ['Распознавать встроенные файлы в картинках*', 'Detect built-in files in images*'],
 		'openImgs': {
@@ -3461,6 +3463,7 @@ const cfgWindow = Object.create({
 				locStorage['__de-webmvolume'] = val;
 				locStorage.removeItem('__de-webmvolume');
 				break;
+			case 'minWebmWidth': saveCfg('minWebmWidth', Math.max(+el.value, Cfg.minImgSize)); break;
 			case 'maskVisib':
 				saveCfg('maskVisib', Math.min(+el.value || 0, 100));
 				updateCSS();
@@ -3634,7 +3637,8 @@ const cfgWindow = Object.create({
 				${ this._getInp('zoomFactor') + Lng.cfg.zoomFactor[lang] }<br>
 				${ this._getBox('webmControl') }<br>
 				${ this._getBox('webmTitles') }<br>
-				${ nav.canPlayWebm ? this._getInp('webmVolume') + Lng.cfg.webmVolume[lang] : '' }
+				${ nav.canPlayWebm ? this._getInp('webmVolume') + Lng.cfg.webmVolume[lang] + '<br>' : '' }
+				${ this._getInp('minWebmWidth') + Lng.cfg.minWebmWidth[lang] }
 			</div>
 			${ !nav.Presto ? this._getBox('preLoadImgs') + '<br>' : '' }
 			${ !nav.Presto && !aib.fch ?
@@ -3831,7 +3835,7 @@ const cfgWindow = Object.create({
 		this._toggleBox(Cfg.expandImgs, [
 			'input[info="imgNavBtns"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]',
 			'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]',
-			'input[info="webmTitles"]', 'input[info="webmVolume"]']);
+			'input[info="webmTitles"]', 'input[info="webmVolume"]', 'input[info="minWebmWidth"]']);
 		this._toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
 		this._toggleBox(Cfg.linksNavig, [
 			'input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]',
@@ -8806,6 +8810,9 @@ AttachmentViewer.prototype = {
 	_show(data) {
 		var [width, height, minSize] = data.computeFullSize();
 		this._fullEl = data.getFullObject(false, el => this._resize(el));
+		if(data.isVideo && (width < Cfg.minWebmWidth)) {
+			width = Cfg.minWebmWidth;
+		}
 		this._width = width;
 		this._height = height;
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
