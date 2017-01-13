@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '2e8a3d9';
+const commit = '63c146f';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7234,7 +7234,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	if(aib.dobr) {
 		this.txta.removeAttribute('id');
 	}
-	if(!aib.tiny) {
+	if(!aib.tiny || aib.brchan) {
 		this.subm.value = Lng.reply[lang];
 	}
 	this.subm.addEventListener('click', e => {
@@ -13523,7 +13523,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return super.css.replace('.de-btn-rep,', '') + `
 			input[name="embed"] { width: 100% !important; }
 			#upload_embed > td > .unimportant.hint { display: none; }
-			`;
+			body.replypage .reply .reflink::after { content: "" }`;
+		}
+		getSage(post) {
+			return !!$q('.sage', post);
 		}
 	}
 	ibDomains['brchan.org'] = Brchan;
@@ -13561,7 +13564,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `
-			.de-video-obj-inline { margin-left: 5px; }\
+			.de-video-obj-inline { margin-left: 5px; }
 			.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none; }
 			.delete { background: none; }
 			.delete_checkbox { position: static !important; }`;

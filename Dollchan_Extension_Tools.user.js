@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '2e8a3d9';
+	var commit = '63c146f';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -10929,7 +10929,7 @@ true, true],
 		if (aib.dobr) {
 			this.txta.removeAttribute('id');
 		}
-		if (!aib.tiny) {
+		if (!aib.tiny || aib.brchan) {
 			this.subm.value = Lng.reply[lang];
 		}
 		this.subm.addEventListener('click', function (e) {
@@ -18640,9 +18640,14 @@ true, true],
 					return false;
 				}
 			}, {
+				key: 'getSage',
+				value: function getSage(post) {
+					return !!$q('.sage', post);
+				}
+			}, {
 				key: 'css',
 				get: function get() {
-					return _get(Brchan.prototype.__proto__ || Object.getPrototypeOf(Brchan.prototype), 'css', this).replace('.de-btn-rep,', '') + '\n\t\t\tinput[name="embed"] { width: 100% !important; }\n\t\t\t#upload_embed > td > .unimportant.hint { display: none; }\n\t\t\t';
+					return _get(Brchan.prototype.__proto__ || Object.getPrototypeOf(Brchan.prototype), 'css', this).replace('.de-btn-rep,', '') + '\n\t\t\tinput[name="embed"] { width: 100% !important; }\n\t\t\t#upload_embed > td > .unimportant.hint { display: none; }\n\t\t\tbody.replypage .reply .reflink::after { content: "" }';
 				}
 			}]);
 
@@ -18813,7 +18818,7 @@ true, true],
 			}, {
 				key: 'css',
 				get: function get() {
-					return '\n\t\t\t.de-video-obj-inline { margin-left: 5px; }\t\t\t.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none; }\n\t\t\t.delete { background: none; }\n\t\t\t.delete_checkbox { position: static !important; }';
+					return '\n\t\t\t.de-video-obj-inline { margin-left: 5px; }\n\t\t\t.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none; }\n\t\t\t.delete { background: none; }\n\t\t\t.delete_checkbox { position: static !important; }';
 				}
 			}]);
 
