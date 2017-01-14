@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '2630f17';
+	var commit = '7e72f98';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3040,6 +3040,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'addSageBtn': 1, 
 		'saveSage': 1, 
 		'sageReply': 0, 
+		'cap4chanAlt': 1, 
 		'capUpdTime': 300, 
 		'captchaLang': 1, 
 		'addTextBtns': 1, 
@@ -3197,6 +3198,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'fileThumb': ['Область превью картинок вместо кнопки "Файл"', 'File thumbnail area instead of "File" button'],
 			'addSageBtn': ['Кнопка Sage вместо "E-mail" ', 'Sage button instead of "E-mail" '],
 			'saveSage': ['Запоминать сажу', 'Remember sage'],
+			'cap4chanAlt': ['4chan: альтернативная капча*', '4chan: use alternative captcha*'],
 			'capUpdTime': ['Интервал обновления капчи (сек)', 'Captcha update interval (sec)'],
 			'captchaLang': {
 				sel: [['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus']],
@@ -7039,7 +7041,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgForm: function _getCfgForm() {
-			return '<div id="de-cfg-form" class="de-cfg-unvis">\n\t\t\t' + this._getSel('ajaxReply') + '<br>\n\t\t\t' + (pr.form ? '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('postSameImg') + '<br>\n\t\t\t\t' + this._getBox('removeEXIF') + '\n\t\t\t\t' + this._getBox('removeFName') + '<br>\n\t\t\t\t' + this._getBox('sendErrNotif') + '<br>\n\t\t\t\t' + this._getBox('scrAfterRep') + '\n\t\t\t</div>' : '') + '\n\t\t\t' + (pr.form ? this._getSel('addPostForm') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getBox('spacedQuote') + '<br>' : '') + '\n\t\t\t' + this._getBox('favOnReply') + '<br>\n\t\t\t' + (pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '') + '\n\t\t\t' + (pr.files && !nav.Presto ? this._getBox('fileThumb') + '<br>' : '') + '\n\t\t\t' + (pr.mail ? this._getBox('addSageBtn') + this._getBox('saveSage') + '<br>' : '') + '\n\t\t\t' + (pr.cap ? this._getInp('capUpdTime') + Lng.cfg.capUpdTime[lang] + '<br>' + this._getSel('captchaLang') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getSel('addTextBtns') + this._getBox('txtBtnsLoc') + '<br>' : '') + '\n\t\t\t' + (pr.passw ? this._getInp('passwValue', 9) + Lng.cfg.userPassw[lang] + ('<input type="button" id="de-cfg-btn-pass" class="de-cfg-button" value="' + Lng.change[lang] + '"><br>') : '') + '\n\t\t\t' + (pr.name ? this._getInp('nameValue', 9) + ' ' + this._getBox('userName') + '<br>' : '') + '\n\t\t\t' + (pr.rules || pr.passw || pr.name ? Lng.dontShow[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '') + '\n\t\t</div>';
+			return '<div id="de-cfg-form" class="de-cfg-unvis">\n\t\t\t' + this._getSel('ajaxReply') + '<br>\n\t\t\t' + (pr.form ? '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('postSameImg') + '<br>\n\t\t\t\t' + this._getBox('removeEXIF') + '\n\t\t\t\t' + this._getBox('removeFName') + '<br>\n\t\t\t\t' + this._getBox('sendErrNotif') + '<br>\n\t\t\t\t' + this._getBox('scrAfterRep') + '\n\t\t\t</div>' : '') + '\n\t\t\t' + (pr.form ? this._getSel('addPostForm') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getBox('spacedQuote') + '<br>' : '') + '\n\t\t\t' + this._getBox('favOnReply') + '<br>\n\t\t\t' + (pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '') + '\n\t\t\t' + (pr.files && !nav.Presto ? this._getBox('fileThumb') + '<br>' : '') + '\n\t\t\t' + (pr.mail ? this._getBox('addSageBtn') + this._getBox('saveSage') + '<br>' : '') + '\n\t\t\t' + (pr.cap ? (aib.fch ? this._getBox('cap4chanAlt') + '<br>' : '') + this._getInp('capUpdTime') + Lng.cfg.capUpdTime[lang] + '<br>' + this._getSel('captchaLang') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getSel('addTextBtns') + this._getBox('txtBtnsLoc') + '<br>' : '') + '\n\t\t\t' + (pr.passw ? this._getInp('passwValue', 9) + Lng.cfg.userPassw[lang] + ('<input type="button" id="de-cfg-btn-pass" class="de-cfg-button" value="' + Lng.change[lang] + '"><br>') : '') + '\n\t\t\t' + (pr.name ? this._getInp('nameValue', 9) + ' ' + this._getBox('userName') + '<br>' : '') + '\n\t\t\t' + (pr.rules || pr.passw || pr.name ? Lng.dontShow[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '') + '\n\t\t</div>';
 		},
 
 
@@ -18383,17 +18385,26 @@ true, true],
 					    value = null;
 					if (el) {
 						value = function (el) {
-							var container = $id('qrCaptchaContainerAlt');
-							if (!container) {
-								$replace($id('g-recaptcha'), '<div id="qrCaptchaContainerAlt"></div>');
+							if (Cfg.cap4chanAlt) {
+								var container = $id('qrCaptchaContainerAlt');
+								if (!container) {
+									$replace($id('g-recaptcha'), '<div id="qrCaptchaContainerAlt"></div>');
+									this.click();
+									$show(el);
+									el.setAttribute('onclick', 'if(event.target.tagName !== \'INPUT\') { Recaptcha.reload(); }');
+								} else {
+									container.click();
+								}
+								setTimeout(function () {
+									$id('recaptcha_response_field').setAttribute('tabindex', 5);
+								}, 1e3);
+							} else {
+								$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
 								this.click();
 								$show(el);
-								el.setAttribute('onclick', 'if(event.target.tagName !== \'INPUT\') { Recaptcha.reload(); }');
-							} else {
-								container.click();
 							}
 							return null;
-						}.bind($bEnd(docBody, '<div onclick="QR.initCaptchaAlt();"></div>'), el);
+						}.bind($bEnd(docBody, '<div onclick="' + (Cfg.cap4chanAlt ? 'QR.initCaptchaAlt();' : 'initRecaptcha();') + '"></div>'), el);
 					}
 					Object.defineProperty(this, 'updateCaptcha', { value: value });
 					return value;
