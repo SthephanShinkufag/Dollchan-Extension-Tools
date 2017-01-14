@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '7e72f98';
+const commit = '496ff95';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -42,6 +42,7 @@ const defaultCfg = {
 	'desktNotif':       0,      //    desktop notifications for new posts
 	'noErrInTitle':     0,      //    don't show error number in title (except 404)
 	'markNewPosts':     1,      //    mark new posts with color when tab changes
+	'useDobrAPI':       1,      //    dobrochan: use json API
 	'markMyPosts':      1,      // mark my posts with color
 	'hideReplies':      0,      // show only op-posts in threads list
 	'expandTrunc':      0,      // auto expanding of truncated posts
@@ -174,6 +175,7 @@ const Lng = {
 		'desktNotif':   ['Уведомлять о новых постах на рабочем столе', 'Desktop notifications for new posts'],
 		'noErrInTitle': ['Не показывать номер ошибки в заголовке', 'Don\'t show error number in title'],
 		'markNewPosts': ['Выделять цветом новые посты', 'Mark new posts with color'],
+		'useDobrAPI':   ['dobrochan: использовать json API', 'dobrochan: use json API'],
 		'markMyPosts':  ['Выделять цветом мои посты', 'Mark my posts with color'],
 		'hideReplies':  ['Показывать только оп-посты в списке тредов*', 'Show only op-posts in threads list*'],
 		'expandTrunc':  ['Разворачивать сокращенные посты*', 'Auto expanding of truncated posts*'],
@@ -3605,7 +3607,8 @@ const cfgWindow = Object.create({
 					${ this._getBox('favIcoBlink') }<br>
 					${ 'Notification' in window ? this._getBox('desktNotif') + '<br>' : '' }
 					${ this._getBox('noErrInTitle') }<br>
-					${ this._getBox('markNewPosts') }
+					${ this._getBox('markNewPosts') }<br>
+					${ aib.dobr ? this._getBox('useDobrAPI') : '' }
 				</div>` : '' }
 			${ aib.jsonSubmit || aib.fch ? this._getBox('markMyPosts') + '<br>' : '' }
 			${ this._getBox('hideReplies') }<br>
@@ -5609,7 +5612,7 @@ function ajaxLoad(url, returnForm = true, useCache = false, checkArch = false) {
 }
 
 function ajaxPostsLoad(brd, tNum, useCache) {
-	if(aib.jsonBuilder) {
+	if(aib.jsonBuilder && !(aib.dobr && !Cfg.useDobrAPI)) {
 		return AjaxCache.runCachedAjax(aib.getJsonApiUrl(brd, tNum), useCache).then(xhr => {
 			try {
 				return new aib.jsonBuilder(JSON.parse(xhr.responseText), brd);
