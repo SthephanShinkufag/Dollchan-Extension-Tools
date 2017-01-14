@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '63c146f';
+	var commit = '0bee1ba';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3013,6 +3013,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'noNavigHidd': 0, 
 		'markMyLinks': 1, 
 		'crossLinks': 0, 
+		'decodeLinks': 0, 
 		'insertNum': 1, 
 		'addOPLink': 0, 
 		'addImgs': 0, 
@@ -3159,6 +3160,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'noNavigHidd': ['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
 			'markMyLinks': ['Помечать ссылки на мои посты как (You)', 'Mark links to my posts with (You)'],
 			'crossLinks': ['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
+			'decodeLinks': ['Декодировать %D0%A5%D1 в ссылках*', 'Decode %D0%A5%D1 in links*'],
 			'insertNum': ['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
 			'addOPLink': ['>>ссылка при ответе на оп-пост на доске', 'Insert >>link for reply to op-posts on board'],
 			'addImgs': ['Загружать картинки к jpg, png, gif ссылкам*', 'Load images to jpg, png, gif links*'],
@@ -7032,7 +7034,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgLinks: function _getCfgLinks() {
-			return '<div id="de-cfg-links" class="de-cfg-unvis">\n\t\t\t' + this._getSel('linksNavig') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + (this._getInp('linksOver') + Lng.cfg.linksOver[lang]) + '\n\t\t\t\t' + (this._getInp('linksOut') + Lng.cfg.linksOut[lang]) + '<br>\n\t\t\t\t' + this._getBox('markViewed') + '<br>\n\t\t\t\t' + this._getBox('strikeHidd') + '\n\t\t\t\t<div class="de-cfg-depend">' + this._getBox('removeHidd') + '</div>\n\t\t\t\t' + this._getBox('noNavigHidd') + '\n\t\t\t</div>\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyLinks') + '<br>' : '') + '\n\t\t\t' + this._getBox('crossLinks') + '<br>\n\t\t\t' + this._getBox('insertNum') + '<br>\n\t\t\t' + this._getBox('addOPLink') + '<br>\n\t\t\t' + this._getBox('addImgs') + '<br>\n\t\t\t<div>\n\t\t\t\t' + this._getBox('addMP3') + '\n\t\t\t\t' + (aib.prot === 'http:' ? this._getBox('addVocaroo') : '') + '\n\t\t\t</div>\n\t\t\t' + this._getSel('addYouTube') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getSel('YTubeType') + '\n\t\t\t\t' + this._getInp('YTubeWidth') + '\xD7\n\t\t\t\t' + this._getInp('YTubeHeigh') + '(px)<br>\n\t\t\t\t' + this._getBox('YTubeTitles') + '<br>\n\t\t\t\t' + (this._getInp('ytApiKey', 25) + Lng.cfg.ytApiKey[lang]) + '<br>\n\t\t\t\t' + this._getBox('addVimeo') + '\n\t\t\t</div>\n\t\t</div>';
+			return '<div id="de-cfg-links" class="de-cfg-unvis">\n\t\t\t' + this._getSel('linksNavig') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + (this._getInp('linksOver') + Lng.cfg.linksOver[lang]) + '\n\t\t\t\t' + (this._getInp('linksOut') + Lng.cfg.linksOut[lang]) + '<br>\n\t\t\t\t' + this._getBox('markViewed') + '<br>\n\t\t\t\t' + this._getBox('strikeHidd') + '\n\t\t\t\t<div class="de-cfg-depend">' + this._getBox('removeHidd') + '</div>\n\t\t\t\t' + this._getBox('noNavigHidd') + '\n\t\t\t</div>\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyLinks') + '<br>' : '') + '\n\t\t\t' + this._getBox('crossLinks') + '<br>\n\t\t\t' + this._getBox('decodeLinks') + '<br>\n\t\t\t' + this._getBox('insertNum') + '<br>\n\t\t\t' + this._getBox('addOPLink') + '<br>\n\t\t\t' + this._getBox('addImgs') + '<br>\n\t\t\t<div>\n\t\t\t\t' + this._getBox('addMP3') + '\n\t\t\t\t' + (aib.prot === 'http:' ? this._getBox('addVocaroo') : '') + '\n\t\t\t</div>\n\t\t\t' + this._getSel('addYouTube') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getSel('YTubeType') + '\n\t\t\t\t' + this._getInp('YTubeWidth') + '\xD7\n\t\t\t\t' + this._getInp('YTubeHeigh') + '(px)<br>\n\t\t\t\t' + this._getBox('YTubeTitles') + '<br>\n\t\t\t\t' + (this._getInp('ytApiKey', 25) + Lng.cfg.ytApiKey[lang]) + '<br>\n\t\t\t\t' + this._getBox('addVimeo') + '\n\t\t\t</div>\n\t\t</div>';
 		},
 
 
@@ -17000,7 +17002,7 @@ true, true],
 			value: function fixHTML(data) {
 				var isForm = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
-				if (!(dTime || Spells.reps || Cfg.crossLinks || this.fixHTMLHelper || this.fixDeadLinks || this.hasTextLinks)) {
+				if (!(dTime || Spells.reps || Cfg.crossLinks || Cfg.decodeLinks || this.fixHTMLHelper || this.fixDeadLinks || this.hasTextLinks)) {
 					return data;
 				}
 				var str;
@@ -17032,6 +17034,11 @@ true, true],
 				if (Cfg.crossLinks) {
 					str = str.replace(aib.reCrossLinks, function (str, b, tNum, pNum) {
 						return '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<';
+					});
+				}
+				if (Cfg.decodeLinks) {
+					str = str.replace(/>https?:\/\/[^<]+</ig, function (match) {
+						return decodeURI(match);
 					});
 				}
 				if (typeof data === 'string') {

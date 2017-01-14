@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '63c146f';
+const commit = '0bee1ba';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -83,6 +83,7 @@ const defaultCfg = {
 	'noNavigHidd':      0,      //    don't show previews for hidden posts
 	'markMyLinks':      1,      // mark links to my posts with ()
 	'crossLinks':       0,      // replace http: with >>/b/links
+	'decodeLinks':      0,      // decode %D0%A5%D1 in links
 	'insertNum':        1,      // insert >>link on postnumber click
 	'addOPLink':        0,      // insert >>link for reply to op-posts on board
 	'addImgs':          0,      // embed links to images
@@ -230,6 +231,7 @@ const Lng = {
 		'noNavigHidd':  ['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
 		'markMyLinks':  ['Помечать ссылки на мои посты как (You)', 'Mark links to my posts with (You)'],
 		'crossLinks':   ['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
+		'decodeLinks':  ['Декодировать %D0%A5%D1 в ссылках*', 'Decode %D0%A5%D1 in links*'],
 		'insertNum':    ['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
 		'addOPLink':    ['>>ссылка при ответе на оп-пост на доске', 'Insert >>link for reply to op-posts on board'],
 		'addImgs':      ['Загружать картинки к jpg, png, gif ссылкам*', 'Load images to jpg, png, gif links*'],
@@ -3664,6 +3666,7 @@ const cfgWindow = Object.create({
 			</div>
 			${ aib.jsonSubmit || aib.fch ? this._getBox('markMyLinks') + '<br>' : '' }
 			${ this._getBox('crossLinks') }<br>
+			${ this._getBox('decodeLinks') }<br>
 			${ this._getBox('insertNum') }<br>
 			${ this._getBox('addOPLink') }<br>
 			${ this._getBox('addImgs') }<br>
@@ -12381,8 +12384,8 @@ class BaseBoard {
 	}
 	fixFileInputs() {}
 	fixHTML(data, isForm = false) {
-		if(!(dTime || Spells.reps || Cfg.crossLinks || this.fixHTMLHelper || this.fixDeadLinks ||
-			this.hasTextLinks))
+		if(!(dTime || Spells.reps || Cfg.crossLinks || Cfg.decodeLinks ||
+			this.fixHTMLHelper || this.fixDeadLinks || this.hasTextLinks))
 		{
 			return data;
 		}
@@ -12414,6 +12417,9 @@ class BaseBoard {
 		if(Cfg.crossLinks) {
 			str = str.replace(aib.reCrossLinks,
 				(str, b, tNum, pNum) => '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<');
+		}
+		if(Cfg.decodeLinks) {
+			str = str.replace(/>https?:\/\/[^<]+</ig, (match) => decodeURI(match));
 		}
 		if(typeof data === 'string') {
 			return str;
