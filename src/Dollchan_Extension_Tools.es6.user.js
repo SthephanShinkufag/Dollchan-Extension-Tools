@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '0bee1ba';
+const commit = '2630f17';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12419,7 +12419,7 @@ class BaseBoard {
 				(str, b, tNum, pNum) => '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<');
 		}
 		if(Cfg.decodeLinks) {
-			str = str.replace(/>https?:\/\/[^<]+</ig, (match) => decodeURI(match));
+			str = str.replace(/>https?:\/\/[^<]+</ig, match => decodeURI(match));
 		}
 		if(typeof data === 'string') {
 			return str;
@@ -13529,7 +13529,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return super.css.replace('.de-btn-rep,', '') + `
 			input[name="embed"] { width: 100% !important; }
 			#upload_embed > td > .unimportant.hint { display: none; }
-			body.replypage .reply .reflink::after { content: "" }`;
+			.reflink::after { content: "" !important; }`;
 		}
 		getSage(post) {
 			return !!$q('.sage', post);
