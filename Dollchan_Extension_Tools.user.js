@@ -17642,7 +17642,7 @@ true, true],
 			}, {
 				key: 'markupTags',
 				get: function get() {
-					return ["'''", "''", '__', '~~', '**', '[code'];
+					return ["'''", "''", '[u', '[s', '**', '[code'];
 				}
 			}]);
 
