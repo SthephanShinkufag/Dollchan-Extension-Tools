@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '496ff95';
+	var commit = 'f02f6d7';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -17642,7 +17642,7 @@ true, true],
 			}, {
 				key: 'markupTags',
 				get: function get() {
-					return ["'''", "''", '[u', '[s', '**', '[code'];
+					return ["'''", "''", '__', '~~', '**', '[code'];
 				}
 			}]);
 
@@ -18640,6 +18640,7 @@ true, true],
 				var _this78 = _possibleConstructorReturn(this, (Brchan.__proto__ || Object.getPrototypeOf(Brchan)).call(this, prot, dm));
 
 				_this78.brchan = true;
+
 				_this78.qPostTrip = '.poster_id';
 				return _this78;
 			}
@@ -18669,6 +18670,11 @@ true, true],
 				key: 'css',
 				get: function get() {
 					return _get(Brchan.prototype.__proto__ || Object.getPrototypeOf(Brchan.prototype), 'css', this).replace('.de-btn-rep,', '') + '\n\t\t\tinput[name="embed"] { width: 100% !important; }\n\t\t\t#upload_embed > td > .unimportant.hint { display: none; }\n\t\t\t.reflink::after { content: "" !important; }';
+				}
+			}, {
+				key: 'markupTags',
+				get: function get() {
+					return ["'''", "''", '[u', '[s', '**', '[code'];
 				}
 			}]);
 

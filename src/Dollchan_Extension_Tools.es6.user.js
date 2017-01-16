@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '496ff95';
+const commit = 'f02f6d7';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13525,8 +13525,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Brchan extends Vichan {
 		constructor(prot, dm) {
 			super(prot, dm);
-
 			this.brchan = true;
+
+			this.qPostTrip = '.poster_id';
 		}
 		init() {
 			super.init();
@@ -13547,6 +13548,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			input[name="embed"] { width: 100% !important; }
 			#upload_embed > td > .unimportant.hint { display: none; }
 			.reflink::after { content: "" !important; }`;
+		}
+		get markupTags() {
+			return ["'''", "''", '[u', '[s', '**', '[code'];
 		}
 		getSage(post) {
 			return !!$q('.sage', post);
