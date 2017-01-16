@@ -18640,6 +18640,7 @@ true, true],
 				var _this78 = _possibleConstructorReturn(this, (Brchan.__proto__ || Object.getPrototypeOf(Brchan)).call(this, prot, dm));
 
 				_this78.brchan = true;
+				_this78.qPostTrip = '.poster_id';
 				return _this78;
 			}
 
