@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = 'f02f6d7';
+const commit = 'd8e6a65';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12425,7 +12425,12 @@ class BaseBoard {
 				(str, b, tNum, pNum) => '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<');
 		}
 		if(Cfg.decodeLinks) {
-			str = str.replace(/>https?:\/\/[^<]+</ig, match => decodeURI(match));
+			str = str.replace(/>https?:\/\/[^<]+</ig, function(match) {
+				try {
+					return decodeURI(match);
+				} catch(e) {}
+				return match;
+			});
 		}
 		if(typeof data === 'string') {
 			return str;

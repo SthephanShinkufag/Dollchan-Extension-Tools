@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = 'f02f6d7';
+	var commit = 'd8e6a65';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -17042,7 +17042,10 @@ true, true],
 				}
 				if (Cfg.decodeLinks) {
 					str = str.replace(/>https?:\/\/[^<]+</ig, function (match) {
-						return decodeURI(match);
+						try {
+							return decodeURI(match);
+						} catch (e) {}
+						return match;
 					});
 				}
 				if (typeof data === 'string') {
