@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = 'd8e6a65';
+	var commit = '0f28994';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -18645,6 +18645,7 @@ true, true],
 				_this78.brchan = true;
 
 				_this78.qPostTrip = '.poster_id';
+				_this78.markupBB = true;
 				return _this78;
 			}
 
@@ -18677,7 +18678,7 @@ true, true],
 			}, {
 				key: 'markupTags',
 				get: function get() {
-					return ["'''", "''", '[u', '[s', '**', '[code'];
+					return ["b", "i", 'u', 's', 'spoiler', 'code'];
 				}
 			}]);
 

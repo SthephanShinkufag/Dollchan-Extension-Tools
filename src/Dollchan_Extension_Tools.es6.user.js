@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = 'd8e6a65';
+const commit = '0f28994';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13533,6 +13533,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.brchan = true;
 
 			this.qPostTrip = '.poster_id';
+			this.markupBB = true;
 		}
 		init() {
 			super.init();
@@ -13555,7 +13556,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			.reflink::after { content: "" !important; }`;
 		}
 		get markupTags() {
-			return ["'''", "''", '[u', '[s', '**', '[code'];
+			return ["b", "i", 'u', 's', 'spoiler', 'code'];
 		}
 		getSage(post) {
 			return !!$q('.sage', post);
