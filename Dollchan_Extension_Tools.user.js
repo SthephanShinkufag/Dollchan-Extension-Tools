@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = 'd79a789';
+	var commit = '5570f14';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -17445,6 +17445,9 @@ true, true],
 					}
 					if (el = $q('.search')) {
 						$before($q('.menu').firstChild, el);
+					}
+					if (el = $id('shampoo')) {
+						el.tabIndex = 1;
 					}
 					$del($id('favorites-box'));
 					return false;
