@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '0f28994';
+	var commit = 'd79a789';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -11748,7 +11748,7 @@ true, true],
 			this.tNum = initNum;
 			this.trEl = el.tagName === 'TR' ? el : $parent(el, 'TR');
 			this._added = false;
-			this._isOldRecap = !!$id('recaptcha_widget_div');
+			this._isOldRecap = !!$id('recaptcha_widget_div') || aib.fch && Cfg.cap4chanAlt;
 			this._isRecap = !!$q('[id*="recaptcha"]', this.trEl);
 			this._lastUpdate = null;
 			this._originHTML = this.trEl.innerHTML;
@@ -18386,31 +18386,26 @@ true, true],
 			}, {
 				key: 'updateCaptcha',
 				get: function get() {
-					var el = $id('captchaFormPart'),
-					    value = null;
-					if (el) {
-						value = function (el) {
-							if (Cfg.cap4chanAlt) {
-								var container = $id('qrCaptchaContainerAlt');
-								if (!container) {
-									$replace($id('g-recaptcha'), '<div id="qrCaptchaContainerAlt"></div>');
-									this.click();
-									$show(el);
-									el.setAttribute('onclick', 'if(event.target.tagName !== \'INPUT\') { Recaptcha.reload(); }');
-								} else {
-									container.click();
-								}
-								setTimeout(function () {
-									$id('recaptcha_response_field').setAttribute('tabindex', 5);
-								}, 1e3);
-							} else {
-								$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
-								this.click();
-								$show(el);
-							}
+					var tr = $id('captchaFormPart');
+					var value = !tr ? null : function (el) {
+						if (!Cfg.cap4chanAlt) {
+							$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
+							el.click();
 							return null;
-						}.bind($bEnd(docBody, '<div onclick="' + (Cfg.cap4chanAlt ? 'QR.initCaptchaAlt();' : 'initRecaptcha();') + '"></div>'), el);
-					}
+						}
+						var container = $id('qrCaptchaContainerAlt');
+						if (container) {
+							container.click();
+							return null;
+						}
+						$replace($id('g-recaptcha'), '<div id="qrCaptchaContainerAlt"></div>');
+						el.click();
+						this.setAttribute('onclick', 'if(event.target.tagName !== \'INPUT\') { Recaptcha.reload(); }');
+						setTimeout(function () {
+							$id('recaptcha_response_field').tabIndex = 5;
+						}, 3e3);
+						return null;
+					}.bind(tr, $bEnd(docBody, '<div onclick="' + (Cfg.cap4chanAlt ? 'QR.initCaptchaAlt();' : 'initRecaptcha();') + '"></div>'));
 					Object.defineProperty(this, 'updateCaptcha', { value: value });
 					return value;
 				}
