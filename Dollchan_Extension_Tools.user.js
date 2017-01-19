@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '5570f14';
+	var commit = '710c1e9';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -8296,7 +8296,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post));
 			});
 			var files = [];
-			var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\.)?' + quoteReg(aib.dm) + '\\/', 'i');
+			var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\.)?' + quoteReg(aib.fch ? '4cdn.org' : aib.dm) + '\\/', 'i');
 			$each($Q('link, *[src]', dc), function (el) {
 				if (els.indexOf(el) !== -1) {
 					return;

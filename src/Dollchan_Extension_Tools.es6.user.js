@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '5570f14';
+const commit = '710c1e9';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5023,7 +5023,8 @@ function loadDocFiles(imgOnly) {
 			post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post));
 		});
 		var files = [];
-		var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\.)?' + quoteReg(aib.dm) + '\\/', 'i');
+		var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\.)?' +
+			quoteReg(aib.fch ? '4cdn.org' : aib.dm) + '\\/', 'i');
 		$each($Q('link, *[src]', dc), function(el) {
 			if(els.indexOf(el) !== -1) {
 				return;
