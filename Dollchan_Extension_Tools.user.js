@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = 'ece6e9a';
+	var commit = '51c509a';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -19874,15 +19874,15 @@ true, true],
 				ctx.drawImage(icon, 0, 0, wh, wh);
 				var original = ctx.getImageData(0, 0, wh, wh);
 				drawLines(ctx, [15, 15, 7, 7], [7, 15, 15, 7], '#780000', 3, scale);
-				drawLines(ctx, [14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5], '#FA2020', 1.5, scale);
+				drawLines(ctx, [14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5], '#fa2020', 1.5, scale);
 				this._iconError = canvas.toDataURL('image/png');
 				ctx.putImageData(original, 0, 0);
-				drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#404020', 4, scale);
-				drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#E6E000', 2, scale);
+				drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#1c5f23', 4, scale);
+				drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#00f51b', 2, scale);
 				this._iconNew = canvas.toDataURL('image/png');
 				ctx.putImageData(original, 0, 0);
-				drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#1c375f', 4, scale);
-				drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#0063f5', 2, scale);
+				drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#122091', 4, scale);
+				drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#1b6df5', 2, scale);
 				this._iconYou = canvas.toDataURL('image/png');
 				this._hasIcons = true;
 			},
