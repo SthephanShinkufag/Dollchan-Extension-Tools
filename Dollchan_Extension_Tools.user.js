@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '710c1e9';
+	var commit = 'ece6e9a';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -13309,7 +13309,7 @@ true, true],
 			get: function get() {
 				var val = 0;
 				if (this.info) {
-					var w = this.info.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
+					var w = this.info.match(/(\d+(?:[\.,]\d+)?)\s*([mмkк])?i?[bб]/i);
 					var w1 = w[1].replace(',', '.');
 					val = w[2] === 'M' ? w1 * 1e3 | 0 : !w[2] ? Math.round(w1 / 1e3) : w1;
 				}
@@ -18664,9 +18664,19 @@ true, true],
 					return false;
 				}
 			}, {
+				key: 'getImgWrap',
+				value: function getImgWrap(el) {
+					return el.parentNode.parentNode;
+				}
+			}, {
 				key: 'getSage',
 				value: function getSage(post) {
 					return !!$q('.sage', post);
+				}
+			}, {
+				key: 'qImgName',
+				get: function get() {
+					return '.postfilename';
 				}
 			}, {
 				key: 'css',
@@ -18684,6 +18694,7 @@ true, true],
 		}(Vichan);
 
 		ibDomains['brchan.org'] = Brchan;
+		ibDomains['brchanansdnhvvnm.onion'] = Brchan;
 
 		var Diochan = function (_Kusaba4) {
 			_inherits(Diochan, _Kusaba4);

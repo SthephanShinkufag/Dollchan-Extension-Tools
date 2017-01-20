@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '710c1e9';
+const commit = 'ece6e9a';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9205,7 +9205,7 @@ class Attachment extends ExpandableMedia {
 	get weight() {
 		let val = 0;
 		if(this.info) {
-			const w = this.info.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
+			const w = this.info.match(/(\d+(?:[\.,]\d+)?)\s*([mмkк])?i?[bб]/i);
 			const w1 = w[1].replace(',', '.');
 			val = w[2] === 'M' ? (w1 * 1e3) | 0 : !w[2] ? Math.round(w1 / 1e3) : w1;
 		}
@@ -13546,6 +13546,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return false;
 		}
+		get qImgName() {
+			return '.postfilename';
+		}
+		getImgWrap(el) {
+			return el.parentNode.parentNode;
+		}
 		get css() {
 			return super.css.replace('.de-btn-rep,', '') + `
 			input[name="embed"] { width: 100% !important; }
@@ -13560,6 +13566,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['brchan.org'] = Brchan;
+	ibDomains['brchanansdnhvvnm.onion'] = Brchan;
 	
 	class Diochan extends Kusaba {
 		get css() {
