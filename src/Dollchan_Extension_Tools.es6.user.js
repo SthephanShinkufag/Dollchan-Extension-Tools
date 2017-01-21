@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '51c509a';
+const commit = '86feef7';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13539,10 +13539,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(Cfg.ajaxUpdThr) {
 				locStorage['auto_thread_update'] = false;
 			}
-			let el1 = $id('upload_embed');
-			let el2 = $id('upload');
+			const el1 = $id('upload_embed');
+			const el2 = $id('upload');
 			if(el1 && el2) {
 				$after(el2, el1);
+			}
+			const textarea = $id('body');
+			if(textarea) {
+				textarea.removeAttribute('id');
 			}
 			return false;
 		}
@@ -15387,7 +15391,7 @@ function scriptCSS() {
 	gif('.de-file-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') +
 
 	// Post reply
-	'#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ' + (nav.Presto ? '-2px -10px' : '0 0 -1px -11px') + '; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\
+	'#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ' + (nav.Presto ? '-2px -10px' : '0 0 1px -10px') + '; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\
 	.de-parea { text-align: center; }\
 	.de-parea-btn-close::after { content: "' + Lng.hideForm[lang] + '"; }\
 	.de-parea-btn-thrd::after { content: "' + Lng.makeThrd[lang] + '"; }\
