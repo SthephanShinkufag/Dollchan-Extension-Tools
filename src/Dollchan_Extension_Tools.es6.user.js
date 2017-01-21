@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '86feef7';
+const commit = '30042d9';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12504,7 +12504,7 @@ class BaseBoard {
 		op = thr.ownerDocument.createElement('div');
 		op.setAttribute('de-oppost', '');
 		var el, opEnd = $q(this._qTable, thr);
-		while((el = thr.firstChild) !== opEnd) {
+		while((el = thr.firstChild) && (el !== opEnd)) {
 			op.appendChild(el);
 		}
 		if(thr.hasChildNodes()) {

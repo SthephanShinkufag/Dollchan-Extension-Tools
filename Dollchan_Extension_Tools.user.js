@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '86feef7';
+	var commit = '30042d9';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -17143,7 +17143,7 @@ true, true],
 				op.setAttribute('de-oppost', '');
 				var el,
 				    opEnd = $q(this._qTable, thr);
-				while ((el = thr.firstChild) !== opEnd) {
+				while ((el = thr.firstChild) && el !== opEnd) {
 					op.appendChild(el);
 				}
 				if (thr.hasChildNodes()) {
