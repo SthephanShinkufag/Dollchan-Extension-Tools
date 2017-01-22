@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '30042d9';
+	var commit = '3965137';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3776,7 +3776,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return result.done ? result.value : Promise.resolve(result.value).then(onFulfilled, onRejected);
 			}
 
-			for (var _len2 = arguments.length, args = Array(_len2), _key = 0; _key < _len2; _key++) {
+			for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
 				args[_key] = arguments[_key];
 			}
 
@@ -3788,7 +3788,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function spawn(generatorFunc) {
-		for (var _len3 = arguments.length, args = Array(_len3 > 1 ? _len3 - 1 : 0), _key2 = 1; _key2 < _len3; _key2++) {
+		for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
 			args[_key2 - 1] = arguments[_key2];
 		}
 
@@ -3857,16 +3857,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return new CancelablePromise(function (resolve) {
 					return resolve(_this2._promise.then(cb && wrap(cb), eb && wrap(eb)));
 				}, function () {
-					for (var _iterator = children, _isArray = Array.isArray(_iterator), _i2 = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+					for (var _iterator = children, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
 						var _ref;
 
 						if (_isArray) {
-							if (_i2 >= _iterator.length) break;
-							_ref = _iterator[_i2++];
+							if (_i >= _iterator.length) break;
+							_ref = _iterator[_i++];
 						} else {
-							_i2 = _iterator.next();
-							if (_i2.done) break;
-							_ref = _i2.value;
+							_i = _iterator.next();
+							if (_i.done) break;
+							_ref = _i.value;
 						}
 
 						var child = _ref;
@@ -4211,19 +4211,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 	TarBuilder.prototype = {
 		addFile: function addFile(filepath, input) {
-			var i = 0,
-			    checksum = 0,
-			    fileSize = input.length,
-			    header = new Uint8Array(512);
-			for (var nameLen = Math.min(filepath.length, 100); i < nameLen; ++i) {
+			var i = void 0,
+			    checksum = 0;
+			var fileSize = input.length;
+			var header = new Uint8Array(512);
+			var nameLen = Math.min(filepath.length, 100);
+			for (i = 0; i < nameLen; ++i) {
 				header[i] = filepath.charCodeAt(i) & 0xFF;
 			}
-			this._padSet(header, 100, '100777', 8);
-			this._padSet(header, 108, '0', 8);
-			this._padSet(header, 116, '0', 8);
-			this._padSet(header, 124, fileSize.toString(8), 13);
-			this._padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12);
-			this._padSet(header, 148, '        ', 8);
+			this._padSet(header, 100, '100777', 8); 
+			this._padSet(header, 108, '0', 8); 
+			this._padSet(header, 116, '0', 8); 
+			this._padSet(header, 124, fileSize.toString(8), 13); 
+			this._padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12); 
+			this._padSet(header, 148, '        ', 8); 
 			header[156] = 0x30;
 			for (i = 0; i < 157; i++) {
 				checksum += header[i];
@@ -4236,12 +4237,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		},
 		addString: function addString(filepath, str) {
-			var i,
-			    len,
-			    data,
-			    sDat = unescape(encodeURIComponent(str));
-			for (i = 0, len = sDat.length, data = new Uint8Array(len); i < len; ++i) {
-				data[i] = sDat.charCodeAt(i) & 0xFF;
+			var sDat = unescape(encodeURIComponent(str));
+			for (var i = 0, len = sDat.length, _data = new Uint8Array(len); i < len; ++i) {
+				_data[i] = sDat.charCodeAt(i) & 0xFF;
 			}
 			this.addFile(filepath, data);
 		},
@@ -4250,8 +4248,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return new Blob(this._data, { 'type': 'application/x-tar' });
 		},
 		_padSet: function _padSet(data, offset, num, len) {
-			var i = 0,
-			    nLen = num.length;
+			var i = 0;
+			var nLen = num.length;
 			len -= 2;
 			while (nLen < len) {
 				data[offset++] = 0x20; 
@@ -4277,55 +4275,61 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function getFormElements(form, submitter) {
-		var controls, fixName, i, len, field, tagName, type, name, options, _i, _len, option, files, dirname, dir;
+		var controls, fixName, i, len, field, tagName, type, name, options, j, jlen, option, files, _j, _jlen, dirname;
 
 		return regeneratorRuntime.wrap(function getFormElements$(_context) {
 			while (1) {
 				switch (_context.prev = _context.next) {
 					case 0:
-						controls = $Q('button, input, keygen, object, select, textarea', form), fixName = function fixName(name) {
+						controls = $Q('button, input, keygen, object, select, textarea', form);
+
+						fixName = function fixName(name) {
 							return name ? name.replace(/([^\r])\n|\r([^\n])/g, '$1\r\n$2') : '';
 						};
+
 						i = 0, len = controls.length;
 
-					case 2:
+					case 3:
 						if (!(i < len)) {
-							_context.next = 56;
+							_context.next = 59;
 							break;
 						}
 
-						field = controls[i], tagName = field.tagName.toLowerCase(), type = field.getAttribute('type'), name = field.getAttribute('name');
+						field = controls[i];
+						tagName = field.tagName.toLowerCase();
+						type = field.getAttribute('type');
+						name = field.getAttribute('name');
 
-						if (!($parent(field, 'DATALIST', form) || isFormElDisabled(field) || (tagName === 'button' || tagName === 'input' && (type === 'submit' || type === 'reset' || type === 'button')) && field !== submitter || tagName === 'input' && (type === 'checkbox' && !field.checked || type === 'radio' && !field.checked || type === 'image' && !name) || tagName === 'object')) {
-							_context.next = 6;
+						if (!($parent(field, 'DATALIST', form) || isFormElDisabled(field) || field !== submitter && (tagName === 'button' || tagName === 'input' && (type === 'submit' || type === 'reset' || type === 'button')) || tagName === 'input' && (type === 'checkbox' && !field.checked || type === 'radio' && !field.checked || type === 'image' && !name) || tagName === 'object')) {
+							_context.next = 10;
 							break;
 						}
 
-						return _context.abrupt('continue', 53);
+						return _context.abrupt('continue', 56);
 
-					case 6:
+					case 10:
 						if (!(tagName === 'select')) {
-							_context.next = 19;
+							_context.next = 23;
 							break;
 						}
 
 						options = $Q('select > option, select > optgrout > option', field);
-						_i = 0, _len = options.length;
+						j = 0, jlen = options.length;
 
-					case 9:
-						if (!(_i < _len)) {
-							_context.next = 17;
+					case 13:
+						if (!(j < jlen)) {
+							_context.next = 21;
 							break;
 						}
 
-						option = options[_i];
+						option = options[j];
 
 						if (!(option.selected && !isFormElDisabled(option))) {
-							_context.next = 14;
+							_context.next = 18;
 							break;
 						}
 
-						_context.next = 14;
+						_context.next = 18;
 						return {
 							el: field,
 							name: fixName(name),
@@ -4333,30 +4337,30 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							type: type
 						};
 
-					case 14:
-						++_i;
-						_context.next = 9;
+					case 18:
+						++j;
+						_context.next = 13;
 						break;
 
-					case 17:
-						_context.next = 41;
+					case 21:
+						_context.next = 45;
 						break;
 
-					case 19:
+					case 23:
 						if (!(tagName === 'input')) {
-							_context.next = 41;
+							_context.next = 45;
 							break;
 						}
 
 						_context.t0 = type;
-						_context.next = _context.t0 === 'image' ? 23 : _context.t0 === 'checkbox' ? 24 : _context.t0 === 'radio' ? 24 : _context.t0 === 'file' ? 27 : 41;
+						_context.next = _context.t0 === 'image' ? 27 : _context.t0 === 'checkbox' ? 28 : _context.t0 === 'radio' ? 28 : _context.t0 === 'file' ? 31 : 45;
 						break;
 
-					case 23:
+					case 27:
 						throw new Error('input[type="image"] is not supported');
 
-					case 24:
-						_context.next = 26;
+					case 28:
+						_context.next = 30;
 						return {
 							el: field,
 							name: fixName(name),
@@ -4364,43 +4368,43 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							type: type
 						};
 
-					case 26:
-						return _context.abrupt('continue', 53);
+					case 30:
+						return _context.abrupt('continue', 56);
 
-					case 27:
+					case 31:
 						if (!(field.files.length > 0)) {
-							_context.next = 38;
+							_context.next = 42;
 							break;
 						}
 
 						files = field.files;
-						_i = 0, _len = files.length;
+						_j = 0, _jlen = files.length;
 
-					case 30:
-						if (!(_i < _len)) {
-							_context.next = 36;
+					case 34:
+						if (!(_j < _jlen)) {
+							_context.next = 40;
 							break;
 						}
 
-						_context.next = 33;
+						_context.next = 37;
 						return {
 							el: field,
 							name: name,
-							value: files[_i],
+							value: files[_j],
 							type: type
 						};
 
-					case 33:
-						++_i;
-						_context.next = 30;
+					case 37:
+						++_j;
+						_context.next = 34;
 						break;
 
-					case 36:
-						_context.next = 40;
+					case 40:
+						_context.next = 44;
 						break;
 
-					case 38:
-						_context.next = 40;
+					case 42:
+						_context.next = 44;
 						return {
 							el: field,
 							name: fixName(name),
@@ -4408,16 +4412,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							type: 'application/octet-stream'
 						};
 
-					case 40:
-						return _context.abrupt('continue', 53);
+					case 44:
+						return _context.abrupt('continue', 56);
 
-					case 41:
+					case 45:
 						if (!(type === 'textarea')) {
-							_context.next = 46;
+							_context.next = 50;
 							break;
 						}
 
-						_context.next = 44;
+						_context.next = 48;
 						return {
 							el: field,
 							name: name || '',
@@ -4425,12 +4429,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							type: type
 						};
 
-					case 44:
-						_context.next = 48;
+					case 48:
+						_context.next = 52;
 						break;
 
-					case 46:
-						_context.next = 48;
+					case 50:
+						_context.next = 52;
 						return {
 							el: field,
 							name: fixName(name),
@@ -4438,29 +4442,28 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							type: type
 						};
 
-					case 48:
+					case 52:
 						dirname = field.getAttribute('dirname');
 
 						if (!dirname) {
-							_context.next = 53;
+							_context.next = 56;
 							break;
 						}
 
-						dir = nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr';
-						_context.next = 53;
+						_context.next = 56;
 						return {
 							el: field,
 							name: fixName(dirname),
-							value: dir,
+							value: nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr',
 							type: 'direction'
 						};
 
-					case 53:
+					case 56:
 						++i;
-						_context.next = 2;
+						_context.next = 3;
 						break;
 
-					case 56:
+					case 59:
 					case 'end':
 						return _context.stop();
 				}
@@ -4912,9 +4915,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function readViewedPosts() {
 		if (!Cfg.markViewed) {
-			var data = sesStorage['de-viewed'];
-			if (data) {
-				data.split(',').forEach(function (pNum) {
+			var _data2 = sesStorage['de-viewed'];
+			if (_data2) {
+				_data2.split(',').forEach(function (pNum) {
 					var post = pByNum.get(+pNum);
 					if (post) {
 						post.el.classList.add('de-viewed');
@@ -4981,10 +4984,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var minDate = Date.now() - 5 * 24 * 3600 * 1000;
 					for (var b in storage) {
 						if (storage.hasOwnProperty(b)) {
-							var _data = storage[b];
-							for (var key in _data) {
-								if (_data.hasOwnProperty(key) && _data[key][0] < minDate) {
-									delete _data[key];
+							var _data3 = storage[b];
+							for (var key in _data3) {
+								if (_data3.hasOwnProperty(key) && _data3[key][0] < minDate) {
+									delete _data3[key];
 								}
 							}
 						}
@@ -5269,16 +5272,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 'de-panel-preimg':
 							isPreImg = !isPreImg;
 							if (!e.ctrlKey) {
-								for (var _iterator2 = DelForm, _isArray2 = Array.isArray(_iterator2), _i3 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
+								for (var _iterator2 = DelForm, _isArray2 = Array.isArray(_iterator2), _i2 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
 									var _ref4;
 
 									if (_isArray2) {
-										if (_i3 >= _iterator2.length) break;
-										_ref4 = _iterator2[_i3++];
+										if (_i2 >= _iterator2.length) break;
+										_ref4 = _iterator2[_i2++];
 									} else {
-										_i3 = _iterator2.next();
-										if (_i3.done) break;
-										_ref4 = _i3.value;
+										_i2 = _iterator2.next();
+										if (_i2.done) break;
+										_ref4 = _i2.value;
 									}
 
 									var form = _ref4;
@@ -6059,7 +6062,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								bArch = _b + '/arch';
 
 								if (!fav[host][bArch]) {
-									fav[host][bArch] = { url: fav[host][_b]['url'] + 'arch/' };
+									fav[host][bArch] = { url: fav[host][_b].url + 'arch/' };
 								}
 								fav[host][bArch][num] = Object.assign({}, f);
 								removeFavoriteEntry(fav, host, _b, num);
@@ -6104,7 +6107,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}))));
 
 		div.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(regeneratorRuntime.mark(function _callee3() {
-			var els, len, thrInfo, i, el, iconEl, titleEl, endPage, page, infoLoaded, tNums, form, _i4, pInfo, _i5, _thrInfo$_i, found, pageEl, iconClass, _iconEl, iconTitle, _titleEl;
+			var els, len, thrInfo, i, el, iconEl, titleEl, endPage, page, infoLoaded, tNums, form, _i3, pInfo, _i4, _thrInfo$_i, found, pageEl, iconClass, _iconEl, iconTitle, _titleEl;
 
 			return regeneratorRuntime.wrap(function _callee3$(_context8) {
 				while (1) {
@@ -6173,8 +6176,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 21:
 
-							for (_i4 = 0; _i4 < len; ++_i4) {
-								pInfo = thrInfo[_i4];
+							for (_i3 = 0; _i3 < len; ++_i3) {
+								pInfo = thrInfo[_i3];
 
 								if (tNums.has(pInfo.num)) {
 									pInfo.iconEl.setAttribute('class', pInfo.iconClass);
@@ -6203,8 +6206,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 27:
 
-							for (_i5 = 0; _i5 < len; ++_i5) {
-								_thrInfo$_i = thrInfo[_i5], found = _thrInfo$_i.found, pageEl = _thrInfo$_i.pageEl, iconClass = _thrInfo$_i.iconClass, _iconEl = _thrInfo$_i.iconEl, iconTitle = _thrInfo$_i.iconTitle, _titleEl = _thrInfo$_i.titleEl;
+							for (_i4 = 0; _i4 < len; ++_i4) {
+								_thrInfo$_i = thrInfo[_i4], found = _thrInfo$_i.found, pageEl = _thrInfo$_i.pageEl, iconClass = _thrInfo$_i.iconClass, _iconEl = _thrInfo$_i.iconEl, iconTitle = _thrInfo$_i.iconTitle, _titleEl = _thrInfo$_i.titleEl;
 
 								if (!found) {
 									_iconEl.setAttribute('class', iconClass);
@@ -6578,7 +6581,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}));
 
 			div.appendChild($btn(Lng.reset[lang] + '...', Lng.resetCfg[lang], function () {
-				return $popup('<b>' + Lng.resetData[lang] + ':</b><hr>' + '<div class="de-list"><b>' + aib.dm + ':</b>' + _this11._getList([Lng.panelBtn.cfg[lang], Lng.hidPstThrds[lang], Lng.myPosts[lang]]) + '</div><hr>' + '<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' + _this11._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div><hr>', 'cfg-reset', false).appendChild($btn(Lng.clear[lang], '', function () {
+				return $popup('<b>' + Lng.resetData[lang] + ':</b><hr>' + ('<div class="de-list"><b>' + aib.dm + ':</b>' + _this11._getList([Lng.panelBtn.cfg[lang], Lng.hidPstThrds[lang], Lng.myPosts[lang]]) + '</div><hr>') + ('<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' + _this11._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div><hr>'), 'cfg-reset', false).appendChild($btn(Lng.clear[lang], '', function () {
 					var els = $Q('input[type="checkbox"]', this.parentNode);
 					for (var i = 1, len = els.length; i < len; ++i) {
 						if (!els[i].checked) {
@@ -6740,16 +6743,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						DateTime.toggleSettings();break;
 					case 'imgSrcBtns':
 						if (Cfg.imgSrcBtns) {
-							for (var _iterator3 = DelForm, _isArray3 = Array.isArray(_iterator3), _i6 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
+							for (var _iterator3 = DelForm, _isArray3 = Array.isArray(_iterator3), _i5 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
 								var _ref9;
 
 								if (_isArray3) {
-									if (_i6 >= _iterator3.length) break;
-									_ref9 = _iterator3[_i6++];
+									if (_i5 >= _iterator3.length) break;
+									_ref9 = _iterator3[_i5++];
 								} else {
-									_i6 = _iterator3.next();
-									if (_i6.done) break;
-									_ref9 = _i6.value;
+									_i5 = _iterator3.next();
+									if (_i5.done) break;
+									_ref9 = _i5.value;
 								}
 
 								var form = _ref9;
@@ -6764,16 +6767,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 					case 'delImgNames':
 						if (Cfg.delImgNames) {
-							for (var _iterator4 = DelForm, _isArray4 = Array.isArray(_iterator4), _i7 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
+							for (var _iterator4 = DelForm, _isArray4 = Array.isArray(_iterator4), _i6 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
 								var _ref10;
 
 								if (_isArray4) {
-									if (_i7 >= _iterator4.length) break;
-									_ref10 = _iterator4[_i7++];
+									if (_i6 >= _iterator4.length) break;
+									_ref10 = _iterator4[_i6++];
 								} else {
-									_i7 = _iterator4.next();
-									if (_i7.done) break;
-									_ref10 = _i7.value;
+									_i6 = _iterator4.next();
+									if (_i6.done) break;
+									_ref10 = _i6.value;
 								}
 
 								var _form = _ref10;
@@ -7225,9 +7228,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var height = el.offsetHeight;
 		var yOffset = isFixed ? 0 : window.pageYOffset;
 		if (cr.bottom + height < Post.sizing.wHeight) {
-			mStyle.top = yOffset + cr.bottom - .5 + 'px';
+			mStyle.top = yOffset + cr.bottom - 0.5 + 'px';
 		} else {
-			mStyle.top = yOffset + cr.top - height + .5 + 'px';
+			mStyle.top = yOffset + cr.top - height + 0.5 + 'px';
 		}
 		mStyle.removeProperty('visibility');
 		this._clickFn = clickFn;
@@ -7768,10 +7771,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.saveButton.disabled = true;
 		}
 	}
-	KeyEditListener.keyCodes = ['',,,,,,,, 'Backspace', 'Tab',,,, 'Enter',,, 'Shift', 'Ctrl', 'Alt',,,,,,,,,,,,,,
-'Space',,,,, 
-'←', '↑', '→', '↓',,,,,,,,  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',, ';',, '=',,,, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',,,,,,  
-'Numpad 0', 'Numpad 1', 'Numpad 2', 'Numpad 3', 'Numpad 4', 'Numpad 5', 'Numpad 6', 'Numpad 7', 'Numpad 8', 'Numpad 9', 'Numpad *', 'Numpad +',, 'Numpad -', 'Numpad .', 'Numpad /',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+	KeyEditListener.keyCodes = ['',,,,,,,, 'Backspace', 'Tab',,,, 'Enter',,, 'Shift', 'Ctrl', 'Alt',,,,,,,,,,,,,,  
+'Space',,,,,    '←', '↑', '→', '↓',,,,,,,,  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',, ';',, '=',,,, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',,,,,,
+'Numpad 0', 'Numpad 1', 'Numpad 2', 'Numpad 3', 'Numpad 4', 'Numpad 5', 'Numpad 6', 'Numpad 7', 'Numpad 8', 'Numpad 9', 'Numpad *', 'Numpad +',, 'Numpad -', 'Numpad .', 'Numpad /',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,     
 '-',,,,,,,,,,,,, ';', '=', ',', '-', '.', '/', '`',,,,,,,,,,,,,,,,,,,,,,,,,,, '[', '\\', ']', '\''];
 	KeyEditListener.getStrKey = function (key) {
 		return (key & 0x1000 ? 'Ctrl+' : '') + (key & 0x2000 ? 'Shift+' : '') + (key & 0x4000 ? 'Alt+' : '') + KeyEditListener.keyCodes[key & 0xFFF];
@@ -8012,10 +8014,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			return new Promise(function (resolve, reject) {
 				var w = _this14._freeWorkers.pop(),
-				    _data2 = _slicedToArray(data, 3),
-				    sendData = _data2[0],
-				    transferObjs = _data2[1],
-				    fn = _data2[2];
+				    _data4 = _slicedToArray(data, 3),
+				    sendData = _data4[0],
+				    transferObjs = _data4[1],
+				    fn = _data4[2];
 
 				w.onmessage = function (e) {
 					fn(e.data);
@@ -8100,12 +8102,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 			pool = new TasksPool(mReqs, function (num, data) {
 				return downloadImgData(data[0]).then(function (imageData) {
-					var _data3 = _slicedToArray(data, 5),
-					    url = _data3[0],
-					    imgLink = _data3[1],
-					    iType = _data3[2],
-					    nExp = _data3[3],
-					    el = _data3[4];
+					var _data5 = _slicedToArray(data, 5),
+					    url = _data5[0],
+					    imgLink = _data5[1],
+					    iType = _data5[2],
+					    nExp = _data5[3],
+					    el = _data5[4];
 
 					if (imageData) {
 						var fName = url.substring(url.lastIndexOf("/") + 1),
@@ -8203,19 +8205,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		    dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
 		Images_.pool = new TasksPool(4, function (num, data) {
 			return downloadImgData(data[0]).then(function (imgData) {
-				var _data4 = _slicedToArray(data, 4),
-				    url = _data4[0],
-				    fName = _data4[1],
-				    el = _data4[2],
-				    imgLink = _data4[3],
+				var _data6 = _slicedToArray(data, 4),
+				    url = _data6[0],
+				    fName = _data6[1],
+				    el = _data6[2],
+				    imgLink = _data6[3],
 				    safeName = fName.replace(/[\\\/:*?"<>|]/g, '_');
 
 				progress.value = current;
 				counter.innerHTML = current;
 				current++;
 				if (imgLink) {
-					var safeName = fName.replace(/[\\\/:*?"<>|]/g, '_'),
-					    thumbName = safeName.replace(/\.[a-z]+$/, '.png');
+					var thumbName = safeName.replace(/\.[a-z]+$/, '.png');
 					if (imgOnly) {
 						thumbName = 'thumb-' + thumbName;
 					} else {
@@ -8400,7 +8401,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return txt;
 			}
 			return txt.replace(new RegExp(this.regex, 'g'), function (str) {
-				for (var _len4 = arguments.length, args = Array(_len4 > 1 ? _len4 - 1 : 0), _key3 = 1; _key3 < _len4; _key3++) {
+				for (var _len3 = arguments.length, args = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
 					args[_key3 - 1] = arguments[_key3];
 				}
 
@@ -8541,7 +8542,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		    videoObj = _ref14[2],
 		    id = _ref14[3];
 
-		for (var _len5 = arguments.length, data = Array(_len5 > 2 ? _len5 - 2 : 0), _key4 = 2; _key4 < _len5; _key4++) {
+		for (var _len4 = arguments.length, data = Array(_len4 > 2 ? _len4 - 2 : 0), _key4 = 2; _key4 < _len4; _key4++) {
 			data[_key4 - 2] = arguments[_key4];
 		}
 
@@ -8586,7 +8587,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			return $ajax(aib.prot + '//vimeo.com/api/v2/video/' + id + '.json', null, false).then(function (xhr) {
 				var entry = JSON.parse(xhr.responseText)[0];
-				return Videos._titlesLoaderHelper(info, num, entry['title'], entry['user_name'], entry['stats_number_of_plays'], /(.*)\s(.*)?/.exec(entry["upload_date"])[1], Videos._fixTime(entry['duration'])[0]);
+				return Videos._titlesLoaderHelper(info, num, entry.title, entry.user_name, entry.stats_number_of_plays, /(.*)\s(.*)?/.exec(entry.upload_date)[1], Videos._fixTime(entry.duration)[0]);
 			})['catch'](function () {
 				return Videos._titlesLoaderHelper(info, num);
 			});
@@ -8737,41 +8738,41 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		},
 		parse: function parse(data) {
-			var isPost = data instanceof AbstractPost,
-			    loader = this._loader,
-			    vids = aib.fixVideo(isPost, data),
-			    links = $Q('a[href*="youtu"]', isPost ? data.el : data);
+			var isPost = data instanceof AbstractPost;
+			var loader = this._loader;
+			var links = $Q('a[href*="youtu"]', isPost ? data.el : data);
 			for (var i = 0, len = links.length; i < len; ++i) {
-				var link = links[i],
-				    m = link.href.match(Videos.ytReg);
+				var link = links[i];
+				var m = link.href.match(Videos.ytReg);
 				if (m) {
-					var mPost = isPost ? data : aib.getPostOfEl(link);
-					if (mPost) {
-						mPost.videos.addLink(m, loader, link, true);
+					var _mPost = isPost ? data : aib.getPostOfEl(link);
+					if (_mPost) {
+						_mPost.videos.addLink(m, loader, link, true);
 					}
 				}
 			}
 			if (Cfg.addVimeo) {
 				links = $Q('a[href*="vimeo.com"]', isPost ? data.el : data);
-				for (var i = 0, len = links.length; i < len; ++i) {
-					var link = links[i],
-					    m = link.href.match(Videos.vimReg);
-					if (m) {
-						var mPost = isPost ? data : aib.getPostOfEl(link);
+				for (var _i7 = 0, _len5 = links.length; _i7 < _len5; ++_i7) {
+					var _link = links[_i7];
+					var _m = _link.href.match(Videos.vimReg);
+					if (_m) {
+						var mPost = isPost ? data : aib.getPostOfEl(_link);
 						if (mPost) {
-							mPost.videos.addLink(m, loader, link, false);
+							mPost.videos.addLink(_m, loader, _link, false);
 						}
 					}
 				}
 			}
-			for (var i = 0, len = vids.length; i < len; ++i) {
-				var _vids$i = _slicedToArray(vids[i], 3),
-				    pst = _vids$i[0],
-				    m = _vids$i[1],
-				    isYtube = _vids$i[2];
+			var vids = aib.fixVideo(isPost, data);
+			for (var _i8 = 0, _len6 = vids.length; _i8 < _len6; ++_i8) {
+				var _vids$_i = _slicedToArray(vids[_i8], 3),
+				    pst = _vids$_i[0],
+				    _m2 = _vids$_i[1],
+				    isYtube = _vids$_i[2];
 
 				if (pst) {
-					pst.videos.addLink(m, loader, null, isYtube);
+					pst.videos.addLink(_m2, loader, null, isYtube);
 				}
 			}
 			return this;
@@ -8800,11 +8801,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 		if (Cfg.addVocaroo) {
 			var _els = $Q('a[href*="vocaroo.com"]', isPost ? data.el : data);
-			for (var _i8 = 0, _len6 = _els.length; _i8 < _len6; ++_i8) {
-				var _link = _els[_i8];
-				var _el2 = _link.previousSibling;
+			for (var _i9 = 0, _len7 = _els.length; _i9 < _len7; ++_i9) {
+				var _link2 = _els[_i9];
+				var _el2 = _link2.previousSibling;
 				if (!_el2 || _el2.className !== 'de-vocaroo') {
-					_link.insertAdjacentHTML('beforebegin', '<div class="de-vocaroo">\n\t\t\t\t\t<embed src="http://vocaroo.com/player.swf?playMediaID=' + _link.href.split('\/').pop() + '" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">\n\t\t\t\t</div>');
+					_link2.insertAdjacentHTML('beforebegin', '<div class="de-vocaroo">\n\t\t\t\t\t<embed src="http://vocaroo.com/player.swf?playMediaID=' + _link2.href.split('\/').pop() + '" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">\n\t\t\t\t</div>');
 				}
 			}
 		}
@@ -8850,16 +8851,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				    i = 0,
 				    hasCacheControl = false,
 				    ajaxHeaders = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
-				for (var _iterator5 = ajaxHeaders.split('\r\n'), _isArray5 = Array.isArray(_iterator5), _i9 = 0, _iterator5 = _isArray5 ? _iterator5 : _iterator5[Symbol.iterator]();;) {
+				for (var _iterator5 = ajaxHeaders.split('\r\n'), _isArray5 = Array.isArray(_iterator5), _i10 = 0, _iterator5 = _isArray5 ? _iterator5 : _iterator5[Symbol.iterator]();;) {
 					var _ref17;
 
 					if (_isArray5) {
-						if (_i9 >= _iterator5.length) break;
-						_ref17 = _iterator5[_i9++];
+						if (_i10 >= _iterator5.length) break;
+						_ref17 = _iterator5[_i10++];
 					} else {
-						_i9 = _iterator5.next();
-						if (_i9.done) break;
-						_ref17 = _i9.value;
+						_i10 = _iterator5.next();
+						if (_i10.done) break;
+						_ref17 = _i10.value;
 					}
 
 					var header = _ref17;
@@ -8989,7 +8990,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 
 		load: async(regeneratorRuntime.mark(function _callee7(count) {
-			var _iterator6, _isArray6, _i10, _ref18, form, len, i, el, first;
+			var _iterator6, _isArray6, _i11, _ref18, form, len, i, el, first;
 
 			return regeneratorRuntime.wrap(function _callee7$(_context12) {
 				while (1) {
@@ -9013,7 +9014,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								pr.clearForm();
 							}
 							DelForm.tNums = new Set();
-							_iterator6 = DelForm, _isArray6 = Array.isArray(_iterator6), _i10 = 0, _iterator6 = _isArray6 ? _iterator6 : _iterator6[Symbol.iterator]();
+							_iterator6 = DelForm, _isArray6 = Array.isArray(_iterator6), _i11 = 0, _iterator6 = _isArray6 ? _iterator6 : _iterator6[Symbol.iterator]();
 
 						case 11:
 							if (!_isArray6) {
@@ -9021,7 +9022,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								break;
 							}
 
-							if (!(_i10 >= _iterator6.length)) {
+							if (!(_i11 >= _iterator6.length)) {
 								_context12.next = 14;
 								break;
 							}
@@ -9029,14 +9030,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return _context12.abrupt('break', 29);
 
 						case 14:
-							_ref18 = _iterator6[_i10++];
+							_ref18 = _iterator6[_i11++];
 							_context12.next = 21;
 							break;
 
 						case 17:
-							_i10 = _iterator6.next();
+							_i11 = _iterator6.next();
 
-							if (!_i10.done) {
+							if (!_i11.done) {
 								_context12.next = 20;
 								break;
 							}
@@ -9044,7 +9045,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return _context12.abrupt('break', 29);
 
 						case 20:
-							_ref18 = _i10.value;
+							_ref18 = _i11.value;
 
 						case 21:
 							form = _ref18;
@@ -9227,16 +9228,16 @@ true, true],
 					str += '\n\n';
 				}
 				if (reps) {
-					for (var _iterator7 = reps, _isArray7 = Array.isArray(_iterator7), _i11 = 0, _iterator7 = _isArray7 ? _iterator7 : _iterator7[Symbol.iterator]();;) {
+					for (var _iterator7 = reps, _isArray7 = Array.isArray(_iterator7), _i12 = 0, _iterator7 = _isArray7 ? _iterator7 : _iterator7[Symbol.iterator]();;) {
 						var _ref19;
 
 						if (_isArray7) {
-							if (_i11 >= _iterator7.length) break;
-							_ref19 = _iterator7[_i11++];
+							if (_i12 >= _iterator7.length) break;
+							_ref19 = _iterator7[_i12++];
 						} else {
-							_i11 = _iterator7.next();
-							if (_i11.done) break;
-							_ref19 = _i11.value;
+							_i12 = _iterator7.next();
+							if (_i12.done) break;
+							_ref19 = _i12.value;
 						}
 
 						var rep = _ref19;
@@ -9245,16 +9246,16 @@ true, true],
 					}
 				}
 				if (oreps) {
-					for (var _iterator8 = oreps, _isArray8 = Array.isArray(_iterator8), _i12 = 0, _iterator8 = _isArray8 ? _iterator8 : _iterator8[Symbol.iterator]();;) {
+					for (var _iterator8 = oreps, _isArray8 = Array.isArray(_iterator8), _i13 = 0, _iterator8 = _isArray8 ? _iterator8 : _iterator8[Symbol.iterator]();;) {
 						var _ref20;
 
 						if (_isArray8) {
-							if (_i12 >= _iterator8.length) break;
-							_ref20 = _iterator8[_i12++];
+							if (_i13 >= _iterator8.length) break;
+							_ref20 = _iterator8[_i13++];
 						} else {
-							_i12 = _iterator8.next();
-							if (_i12.done) break;
-							_ref20 = _i12.value;
+							_i13 = _iterator8.next();
+							if (_i13.done) break;
+							_ref20 = _i13.value;
 						}
 
 						var orep = _ref20;
@@ -9410,16 +9411,16 @@ true, true],
 			saveCfg('hideBySpell', 0);
 		},
 		outReplace: function outReplace(txt) {
-			for (var _iterator9 = this.outreps, _isArray9 = Array.isArray(_iterator9), _i13 = 0, _iterator9 = _isArray9 ? _iterator9 : _iterator9[Symbol.iterator]();;) {
+			for (var _iterator9 = this.outreps, _isArray9 = Array.isArray(_iterator9), _i14 = 0, _iterator9 = _isArray9 ? _iterator9 : _iterator9[Symbol.iterator]();;) {
 				var _ref23;
 
 				if (_isArray9) {
-					if (_i13 >= _iterator9.length) break;
-					_ref23 = _iterator9[_i13++];
+					if (_i14 >= _iterator9.length) break;
+					_ref23 = _iterator9[_i14++];
 				} else {
-					_i13 = _iterator9.next();
-					if (_i13.done) break;
-					_ref23 = _i13.value;
+					_i14 = _iterator9.next();
+					if (_i14.done) break;
+					_ref23 = _i14.value;
 				}
 
 				var orep = _ref23;
@@ -9462,16 +9463,16 @@ true, true],
 			}
 		},
 		replace: function replace(txt) {
-			for (var _iterator10 = this.reps, _isArray10 = Array.isArray(_iterator10), _i14 = 0, _iterator10 = _isArray10 ? _iterator10 : _iterator10[Symbol.iterator]();;) {
+			for (var _iterator10 = this.reps, _isArray10 = Array.isArray(_iterator10), _i15 = 0, _iterator10 = _isArray10 ? _iterator10 : _iterator10[Symbol.iterator]();;) {
 				var _ref24;
 
 				if (_isArray10) {
-					if (_i14 >= _iterator10.length) break;
-					_ref24 = _iterator10[_i14++];
+					if (_i15 >= _iterator10.length) break;
+					_ref24 = _iterator10[_i15++];
 				} else {
-					_i14 = _iterator10.next();
-					if (_i14.done) break;
-					_ref24 = _i14.value;
+					_i15 = _iterator10.next();
+					if (_i15.done) break;
+					_ref24 = _i15.value;
 				}
 
 				var orep = _ref24;
@@ -9561,16 +9562,16 @@ true, true],
 		},
 		_initHiders: function _initHiders(data) {
 			if (data) {
-				for (var _iterator11 = data, _isArray11 = Array.isArray(_iterator11), _i15 = 0, _iterator11 = _isArray11 ? _iterator11 : _iterator11[Symbol.iterator]();;) {
+				for (var _iterator11 = data, _isArray11 = Array.isArray(_iterator11), _i16 = 0, _iterator11 = _isArray11 ? _iterator11 : _iterator11[Symbol.iterator]();;) {
 					var _ref25;
 
 					if (_isArray11) {
-						if (_i15 >= _iterator11.length) break;
-						_ref25 = _iterator11[_i15++];
+						if (_i16 >= _iterator11.length) break;
+						_ref25 = _iterator11[_i16++];
 					} else {
-						_i15 = _iterator11.next();
-						if (_i15.done) break;
-						_ref25 = _i15.value;
+						_i16 = _iterator11.next();
+						if (_i16.done) break;
+						_ref25 = _i16.value;
 					}
 
 					var item = _ref25;
@@ -9594,16 +9595,16 @@ true, true],
 		},
 		_initReps: function _initReps(data) {
 			if (data) {
-				for (var _iterator12 = data, _isArray12 = Array.isArray(_iterator12), _i16 = 0, _iterator12 = _isArray12 ? _iterator12 : _iterator12[Symbol.iterator]();;) {
+				for (var _iterator12 = data, _isArray12 = Array.isArray(_iterator12), _i17 = 0, _iterator12 = _isArray12 ? _iterator12 : _iterator12[Symbol.iterator]();;) {
 					var _ref26;
 
 					if (_isArray12) {
-						if (_i16 >= _iterator12.length) break;
-						_ref26 = _iterator12[_i16++];
+						if (_i17 >= _iterator12.length) break;
+						_ref26 = _iterator12[_i17++];
 					} else {
-						_i16 = _iterator12.next();
-						if (_i16.done) break;
-						_ref26 = _i16.value;
+						_i17 = _iterator12.next();
+						if (_i17.done) break;
+						_ref26 = _i17.value;
 					}
 
 					var item = _ref26;
@@ -9623,16 +9624,16 @@ true, true],
 		},
 		_optimizeReps: function _optimizeReps(data) {
 			var rv = [];
-			for (var _iterator13 = data, _isArray13 = Array.isArray(_iterator13), _i17 = 0, _iterator13 = _isArray13 ? _iterator13 : _iterator13[Symbol.iterator]();;) {
+			for (var _iterator13 = data, _isArray13 = Array.isArray(_iterator13), _i18 = 0, _iterator13 = _isArray13 ? _iterator13 : _iterator13[Symbol.iterator]();;) {
 				var _ref27;
 
 				if (_isArray13) {
-					if (_i17 >= _iterator13.length) break;
-					_ref27 = _iterator13[_i17++];
+					if (_i18 >= _iterator13.length) break;
+					_ref27 = _iterator13[_i18++];
 				} else {
-					_i17 = _iterator13.next();
-					if (_i17.done) break;
-					_ref27 = _i17.value;
+					_i18 = _iterator13.next();
+					if (_i18.done) break;
+					_ref27 = _i18.value;
 				}
 
 				var rep = _ref27;
@@ -9715,17 +9716,17 @@ true, true],
 				}
 			}
 			sp = sp.sort();
-			for (var i = 0, len = sp.length - 1; i < len; i++) {
-				if (sp[i][0] === sp[i + 1][0] && sp[i][1] <= sp[i + 1][1] && sp[i][1] >= sp[i + 1][1] && (sp[i][2] === null || 
-				sp[i][2] === undefined || 
-				sp[i][2] <= sp[i + 1][2] && sp[i][2] >= sp[i + 1][2])) {
-					sp.splice(i + 1, 1);
-					i--;
-					len--;
-				} else if (sp[i][0] === 0xFF) {
-					sp.push(sp.splice(i, 1)[0]);
-					i--;
-					len--;
+			for (var _i19 = 0, _len8 = sp.length - 1; _i19 < _len8; _i19++) {
+				if (sp[_i19][0] === sp[_i19 + 1][0] && sp[_i19][1] <= sp[_i19 + 1][1] && sp[_i19][1] >= sp[_i19 + 1][1] && (sp[_i19][2] === null || 
+				sp[_i19][2] === undefined || 
+				sp[_i19][2] <= sp[_i19 + 1][2] && sp[_i19][2] >= sp[_i19 + 1][2])) {
+					sp.splice(_i19 + 1, 1);
+					_i19--;
+					_len8--;
+				} else if (sp[_i19][0] === 0xFF) {
+					sp.push(sp.splice(_i19, 1)[0]);
+					_i19--;
+					_len8--;
 				}
 			}
 		},
@@ -10324,30 +10325,30 @@ true, true],
 		},
 		_getMsg: function _getMsg() {
 			var rv = [];
-			for (var _iterator14 = this._triggeredSpellsStack, _isArray14 = Array.isArray(_iterator14), _i18 = 0, _iterator14 = _isArray14 ? _iterator14 : _iterator14[Symbol.iterator]();;) {
+			for (var _iterator14 = this._triggeredSpellsStack, _isArray14 = Array.isArray(_iterator14), _i20 = 0, _iterator14 = _isArray14 ? _iterator14 : _iterator14[Symbol.iterator]();;) {
 				var _ref30;
 
 				if (_isArray14) {
-					if (_i18 >= _iterator14.length) break;
-					_ref30 = _iterator14[_i18++];
+					if (_i20 >= _iterator14.length) break;
+					_ref30 = _iterator14[_i20++];
 				} else {
-					_i18 = _iterator14.next();
-					if (_i18.done) break;
-					_ref30 = _i18.value;
+					_i20 = _iterator14.next();
+					if (_i20.done) break;
+					_ref30 = _i20.value;
 				}
 
 				var spellEls = _ref30;
 
-				for (var _iterator15 = spellEls, _isArray15 = Array.isArray(_iterator15), _i19 = 0, _iterator15 = _isArray15 ? _iterator15 : _iterator15[Symbol.iterator]();;) {
+				for (var _iterator15 = spellEls, _isArray15 = Array.isArray(_iterator15), _i21 = 0, _iterator15 = _isArray15 ? _iterator15 : _iterator15[Symbol.iterator]();;) {
 					var _ref31;
 
 					if (_isArray15) {
-						if (_i19 >= _iterator15.length) break;
-						_ref31 = _iterator15[_i19++];
+						if (_i21 >= _iterator15.length) break;
+						_ref31 = _iterator15[_i21++];
 					} else {
-						_i19 = _iterator15.next();
-						if (_i19.done) break;
-						_ref31 = _i19.value;
+						_i21 = _iterator15.next();
+						if (_i21.done) break;
+						_ref31 = _i21.value;
 					}
 
 					var _ref32 = _ref31,
@@ -10410,16 +10411,16 @@ true, true],
 			return val.test(this._post.html);
 		},
 		_imgn: function _imgn(val) {
-			for (var _iterator16 = this._post.images, _isArray16 = Array.isArray(_iterator16), _i20 = 0, _iterator16 = _isArray16 ? _iterator16 : _iterator16[Symbol.iterator]();;) {
+			for (var _iterator16 = this._post.images, _isArray16 = Array.isArray(_iterator16), _i22 = 0, _iterator16 = _isArray16 ? _iterator16 : _iterator16[Symbol.iterator]();;) {
 				var _ref34;
 
 				if (_isArray16) {
-					if (_i20 >= _iterator16.length) break;
-					_ref34 = _iterator16[_i20++];
+					if (_i22 >= _iterator16.length) break;
+					_ref34 = _iterator16[_i22++];
 				} else {
-					_i20 = _iterator16.next();
-					if (_i20.done) break;
-					_ref34 = _i20.value;
+					_i22 = _iterator16.next();
+					if (_i22.done) break;
+					_ref34 = _i22.value;
 				}
 
 				var image = _ref34;
@@ -10432,13 +10433,13 @@ true, true],
 		},
 
 		_ihash: async(regeneratorRuntime.mark(function _callee8(val) {
-			var _iterator17, _isArray17, _i21, _ref35, image, hash;
+			var _iterator17, _isArray17, _i23, _ref35, image, hash;
 
 			return regeneratorRuntime.wrap(function _callee8$(_context14) {
 				while (1) {
 					switch (_context14.prev = _context14.next) {
 						case 0:
-							_iterator17 = this._post.images, _isArray17 = Array.isArray(_iterator17), _i21 = 0, _iterator17 = _isArray17 ? _iterator17 : _iterator17[Symbol.iterator]();
+							_iterator17 = this._post.images, _isArray17 = Array.isArray(_iterator17), _i23 = 0, _iterator17 = _isArray17 ? _iterator17 : _iterator17[Symbol.iterator]();
 
 						case 1:
 							if (!_isArray17) {
@@ -10446,7 +10447,7 @@ true, true],
 								break;
 							}
 
-							if (!(_i21 >= _iterator17.length)) {
+							if (!(_i23 >= _iterator17.length)) {
 								_context14.next = 4;
 								break;
 							}
@@ -10454,14 +10455,14 @@ true, true],
 							return _context14.abrupt('break', 20);
 
 						case 4:
-							_ref35 = _iterator17[_i21++];
+							_ref35 = _iterator17[_i23++];
 							_context14.next = 11;
 							break;
 
 						case 7:
-							_i21 = _iterator17.next();
+							_i23 = _iterator17.next();
 
-							if (!_i21.done) {
+							if (!_i23.done) {
 								_context14.next = 10;
 								break;
 							}
@@ -10469,7 +10470,7 @@ true, true],
 							return _context14.abrupt('break', 20);
 
 						case 10:
-							_ref35 = _i21.value;
+							_ref35 = _i23.value;
 
 						case 11:
 							image = _ref35;
@@ -10521,25 +10522,26 @@ true, true],
 			return pTrip ? !val || pTrip.includes(val) : false;
 		},
 		_img: function _img(val) {
-			var hide,
-			    images = this._post.images,
-			    _val = _slicedToArray(val, 3),
+			var images = this._post.images;
+
+			var _val = _slicedToArray(val, 3),
 			    compareRule = _val[0],
 			    weightVals = _val[1],
 			    sizeVals = _val[2];
+
 			if (!val) {
 				return images.hasAttachments;
 			}
-			for (var _iterator18 = images, _isArray18 = Array.isArray(_iterator18), _i22 = 0, _iterator18 = _isArray18 ? _iterator18 : _iterator18[Symbol.iterator]();;) {
+			for (var _iterator18 = images, _isArray18 = Array.isArray(_iterator18), _i24 = 0, _iterator18 = _isArray18 ? _iterator18 : _iterator18[Symbol.iterator]();;) {
 				var _ref36;
 
 				if (_isArray18) {
-					if (_i22 >= _iterator18.length) break;
-					_ref36 = _iterator18[_i22++];
+					if (_i24 >= _iterator18.length) break;
+					_ref36 = _iterator18[_i24++];
 				} else {
-					_i22 = _iterator18.next();
-					if (_i22.done) break;
-					_ref36 = _i22.value;
+					_i24 = _iterator18.next();
+					if (_i24.done) break;
+					_ref36 = _i24.value;
 				}
 
 				var image = _ref36;
@@ -10549,6 +10551,7 @@ true, true],
 				}
 				if (weightVals) {
 					var w = image.weight;
+					var hide = void 0;
 					switch (compareRule) {
 						case 0:
 							hide = w >= weightVals[0] && w <= weightVals[1];break;
@@ -10564,21 +10567,21 @@ true, true],
 					}
 				}
 				if (sizeVals) {
-					var w = image.width,
-					    h = image.height;
+					var _w = image.width;
+					var h = image.height;
 					switch (compareRule) {
 						case 0:
-							if (w >= sizeVals[0] && w <= sizeVals[1] && h >= sizeVals[2] && h <= sizeVals[3]) {
+							if (_w >= sizeVals[0] && _w <= sizeVals[1] && h >= sizeVals[2] && h <= sizeVals[3]) {
 								return true;
 							}
 							break;
 						case 1:
-							if (w < sizeVals[0] && h < sizeVals[3]) {
+							if (_w < sizeVals[0] && h < sizeVals[3]) {
 								return true;
 							}
 							break;
 						case 2:
-							if (w > sizeVals[0] && h > sizeVals[3]) {
+							if (_w > sizeVals[0] && h > sizeVals[3]) {
 								return true;
 							}
 					}
@@ -10603,9 +10606,9 @@ true, true],
 			return this._videoVauthor(val, false);
 		},
 		_wipe: function _wipe(val) {
-			var arr,
-			    len,
-			    x,
+			var arr = void 0,
+			    len = void 0,
+			    x = void 0,
 			    txt = this._post.text;
 			if (val & 1) {
 				arr = txt.replace(/>/g, '').split(/\s*\n\s*/);
@@ -10629,24 +10632,24 @@ true, true],
 				if ((len = arr.length) > 3) {
 					arr.sort();
 					var keys = 0;
-					for (var i = 0, n = len / 4, pop = 0; i < len; keys++) {
-						x = arr[i];
-						var j = 0;
-						while (arr[i++] === x) {
-							j++;
+					for (var _i25 = 0, _n = len / 4, pop = 0; _i25 < len; keys++) {
+						x = arr[_i25];
+						var _j2 = 0;
+						while (arr[_i25++] === x) {
+							_j2++;
 						}
 						if (len > 25) {
-							if (j > pop && x.length > 2) {
-								pop = j;
+							if (_j2 > pop && x.length > 2) {
+								pop = _j2;
 							}
-							if (pop >= n) {
+							if (pop >= _n) {
 								this._wipeMsg = [2, 'same "' + x.substr(0, 20) + '" x' + (pop + 1)];
 								return true;
 							}
 						}
 					}
 					x = keys / len;
-					if (x < .25) {
+					if (x < 0.25) {
 						this._wipeMsg = [2, 'uniq ' + (x * 100).toFixed(0) + '%'];
 						return true;
 					}
@@ -10661,7 +10664,7 @@ true, true],
 			}
 			if (val & 8) {
 				var _txt = txt.replace(/\s+/g, '');
-				if ((len = _txt.length) > 30 && (x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > .4) {
+				if ((len = _txt.length) > 30 && (x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4) {
 					this._wipeMsg = [8, (x * 100).toFixed(0) + '%'];
 					return true;
 				}
@@ -10669,11 +10672,11 @@ true, true],
 			if (val & 16) {
 				arr = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
 				if ((len = arr.length) > 4) {
-					var n = 0,
-					    capsw = 0,
-					    casew = 0;
-					for (var i = 0; i < len; i++) {
-						x = arr[i];
+					var _n2 = 0;
+					var capsw = 0;
+					var casew = 0;
+					for (var _i26 = 0; _i26 < len; _i26++) {
+						x = arr[_i26];
 						if ((x.match(/[a-zа-я]/ig) || []).length < 5) {
 							continue;
 						}
@@ -10683,20 +10686,20 @@ true, true],
 						if (x === x.toUpperCase()) {
 							capsw++;
 						}
-						n++;
+						_n2++;
 					}
-					if (capsw / n >= .3 && n > 4) {
+					if (capsw / _n2 >= 0.3 && _n2 > 4) {
 						this._wipeMsg = [16, 'CAPS ' + capsw / arr.length * 100 + '%'];
 						return true;
-					} else if (casew / n >= .3 && n > 8) {
+					} else if (casew / _n2 >= 0.3 && _n2 > 8) {
 						this._wipeMsg = [16, 'cAsE ' + casew / arr.length * 100 + '%'];
 						return true;
 					}
 				}
 			}
 			if (val & 32) {
-				var _txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
-				if ((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > .4) {
+				var _txt2 = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
+				if ((len = _txt2.length) > 30 && (x = (len - _txt2.replace(/\d/g, '').length) / len) > 0.4) {
 					this._wipeMsg = [32, Math.round(x * 100) + '%'];
 					return true;
 				}
@@ -10737,30 +10740,30 @@ true, true],
 			if (!videos.hasLinks || !Cfg.YTubeTitles) {
 				return false;
 			}
-			for (var _iterator19 = videos.vData, _isArray19 = Array.isArray(_iterator19), _i23 = 0, _iterator19 = _isArray19 ? _iterator19 : _iterator19[Symbol.iterator]();;) {
+			for (var _iterator19 = videos.vData, _isArray19 = Array.isArray(_iterator19), _i27 = 0, _iterator19 = _isArray19 ? _iterator19 : _iterator19[Symbol.iterator]();;) {
 				var _ref37;
 
 				if (_isArray19) {
-					if (_i23 >= _iterator19.length) break;
-					_ref37 = _iterator19[_i23++];
+					if (_i27 >= _iterator19.length) break;
+					_ref37 = _iterator19[_i27++];
 				} else {
-					_i23 = _iterator19.next();
-					if (_i23.done) break;
-					_ref37 = _i23.value;
+					_i27 = _iterator19.next();
+					if (_i27.done) break;
+					_ref37 = _i27.value;
 				}
 
 				var siteData = _ref37;
 
-				for (var _iterator20 = siteData, _isArray20 = Array.isArray(_iterator20), _i24 = 0, _iterator20 = _isArray20 ? _iterator20 : _iterator20[Symbol.iterator]();;) {
+				for (var _iterator20 = siteData, _isArray20 = Array.isArray(_iterator20), _i28 = 0, _iterator20 = _isArray20 ? _iterator20 : _iterator20[Symbol.iterator]();;) {
 					var _ref38;
 
 					if (_isArray20) {
-						if (_i24 >= _iterator20.length) break;
-						_ref38 = _iterator20[_i24++];
+						if (_i28 >= _iterator20.length) break;
+						_ref38 = _iterator20[_i28++];
 					} else {
-						_i24 = _iterator20.next();
-						if (_i24.done) break;
-						_ref38 = _i24.value;
+						_i28 = _iterator20.next();
+						if (_i28.done) break;
+						_ref38 = _i28.value;
 					}
 
 					var data = _ref38;
@@ -10854,7 +10857,7 @@ true, true],
 				case 'de-btn-close':
 					this.title = Lng.closeReply[lang];break;
 				case 'de-btn-toggle':
-					this.title = Cfg['replyWinDrag'] ? Lng.underPost[lang] : Lng.makeDrag[lang];
+					this.title = Cfg.replyWinDrag ? Lng.underPost[lang] : Lng.makeDrag[lang];
 			}
 		};
 		el.firstElementChild.onclick = function () {
@@ -11037,16 +11040,16 @@ true, true],
 			saveCfg('passwValue', el.value);
 		}
 		var value = pr.passw.value = Cfg.passwValue;
-		for (var _iterator21 = DelForm, _isArray21 = Array.isArray(_iterator21), _i25 = 0, _iterator21 = _isArray21 ? _iterator21 : _iterator21[Symbol.iterator]();;) {
+		for (var _iterator21 = DelForm, _isArray21 = Array.isArray(_iterator21), _i29 = 0, _iterator21 = _isArray21 ? _iterator21 : _iterator21[Symbol.iterator]();;) {
 			var _ref39;
 
 			if (_isArray21) {
-				if (_i25 >= _iterator21.length) break;
-				_ref39 = _iterator21[_i25++];
+				if (_i29 >= _iterator21.length) break;
+				_ref39 = _iterator21[_i29++];
 			} else {
-				_i25 = _iterator21.next();
-				if (_i25.done) break;
-				_ref39 = _i25.value;
+				_i29 = _iterator21.next();
+				if (_i29.done) break;
+				_ref39 = _i29.value;
 			}
 
 			var form = _ref39;
@@ -11079,7 +11082,8 @@ true, true],
 			}
 			tPanel.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
 			$after(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : this.subm, tPanel);
-			id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'], val = ['B', 'i', 'U', 'S', '%', 'C', 'v', '^'];
+			id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
+			val = ['B', 'i', 'U', 'S', '%', 'C', 'v', '^'];
 			btns = aib.markupTags;
 			for (var i = 0, len = btns.length; i < len; ++i) {
 				if (btns[i] === '') {
@@ -11362,16 +11366,16 @@ true, true],
 			key: 'changeView',
 			value: function changeView() {
 				var cfg = !!Cfg.fileThumb;
-				for (var _iterator22 = this._inputs, _isArray22 = Array.isArray(_iterator22), _i26 = 0, _iterator22 = _isArray22 ? _iterator22 : _iterator22[Symbol.iterator]();;) {
+				for (var _iterator22 = this._inputs, _isArray22 = Array.isArray(_iterator22), _i30 = 0, _iterator22 = _isArray22 ? _iterator22 : _iterator22[Symbol.iterator]();;) {
 					var _ref40;
 
 					if (_isArray22) {
-						if (_i26 >= _iterator22.length) break;
-						_ref40 = _iterator22[_i26++];
+						if (_i30 >= _iterator22.length) break;
+						_ref40 = _iterator22[_i30++];
 					} else {
-						_i26 = _iterator22.next();
-						if (_i26.done) break;
-						_ref40 = _i26.value;
+						_i30 = _iterator22.next();
+						if (_i30.done) break;
+						_ref40 = _i30.value;
 					}
 
 					var inp = _ref40;
@@ -11383,16 +11387,16 @@ true, true],
 		}, {
 			key: 'clear',
 			value: function clear() {
-				for (var _iterator23 = this._inputs, _isArray23 = Array.isArray(_iterator23), _i27 = 0, _iterator23 = _isArray23 ? _iterator23 : _iterator23[Symbol.iterator]();;) {
+				for (var _iterator23 = this._inputs, _isArray23 = Array.isArray(_iterator23), _i31 = 0, _iterator23 = _isArray23 ? _iterator23 : _iterator23[Symbol.iterator]();;) {
 					var _ref41;
 
 					if (_isArray23) {
-						if (_i27 >= _iterator23.length) break;
-						_ref41 = _iterator23[_i27++];
+						if (_i31 >= _iterator23.length) break;
+						_ref41 = _iterator23[_i31++];
 					} else {
-						_i27 = _iterator23.next();
-						if (_i27.done) break;
-						_ref41 = _i27.value;
+						_i31 = _iterator23.next();
+						if (_i31.done) break;
+						_ref41 = _i31.value;
 					}
 
 					var inp = _ref41;
@@ -12123,7 +12127,7 @@ true, true],
 	}
 
 	var checkDelete = async(regeneratorRuntime.mark(function _callee9(data) {
-		var err, els, threads, isThr, i, len, el, _iterator24, _isArray24, _i28, _ref44, thr;
+		var err, els, threads, isThr, i, len, el, _iterator24, _isArray24, _i32, _ref44, thr;
 
 		return regeneratorRuntime.wrap(function _callee9$(_context15) {
 			while (1) {
@@ -12177,7 +12181,7 @@ true, true],
 						break;
 
 					case 19:
-						_iterator24 = threads, _isArray24 = Array.isArray(_iterator24), _i28 = 0, _iterator24 = _isArray24 ? _iterator24 : _iterator24[Symbol.iterator]();
+						_iterator24 = threads, _isArray24 = Array.isArray(_iterator24), _i32 = 0, _iterator24 = _isArray24 ? _iterator24 : _iterator24[Symbol.iterator]();
 
 					case 20:
 						if (!_isArray24) {
@@ -12185,7 +12189,7 @@ true, true],
 							break;
 						}
 
-						if (!(_i28 >= _iterator24.length)) {
+						if (!(_i32 >= _iterator24.length)) {
 							_context15.next = 23;
 							break;
 						}
@@ -12193,14 +12197,14 @@ true, true],
 						return _context15.abrupt('break', 35);
 
 					case 23:
-						_ref44 = _iterator24[_i28++];
+						_ref44 = _iterator24[_i32++];
 						_context15.next = 30;
 						break;
 
 					case 26:
-						_i28 = _iterator24.next();
+						_i32 = _iterator24.next();
 
-						if (!_i28.done) {
+						if (!_i32.done) {
 							_context15.next = 29;
 							break;
 						}
@@ -12208,7 +12212,7 @@ true, true],
 						return _context15.abrupt('break', 35);
 
 					case 29:
-						_ref44 = _i28.value;
+						_ref44 = _i32.value;
 
 					case 30:
 						thr = _ref44;
@@ -12233,7 +12237,7 @@ true, true],
 	function html5Submit(form, submitter) {
 		var needProgress = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-		var formData, hasFiles, _iterator25, _isArray25, _i29, _ref45, _ref46, name, value, type, el, fileName, newFileName, data, ajaxParams, xhr;
+		var formData, hasFiles, _iterator25, _isArray25, _i33, _ref45, _ref46, name, value, type, el, fileName, newFileName, data, ajaxParams, xhr;
 
 		return regeneratorRuntime.wrap(function html5Submit$(_context16) {
 			while (1) {
@@ -12241,7 +12245,7 @@ true, true],
 					case 0:
 						formData = new FormData();
 						hasFiles = false;
-						_iterator25 = getFormElements(form, submitter), _isArray25 = Array.isArray(_iterator25), _i29 = 0, _iterator25 = _isArray25 ? _iterator25 : _iterator25[Symbol.iterator]();
+						_iterator25 = getFormElements(form, submitter), _isArray25 = Array.isArray(_iterator25), _i33 = 0, _iterator25 = _isArray25 ? _iterator25 : _iterator25[Symbol.iterator]();
 
 					case 3:
 						if (!_isArray25) {
@@ -12249,7 +12253,7 @@ true, true],
 							break;
 						}
 
-						if (!(_i29 >= _iterator25.length)) {
+						if (!(_i33 >= _iterator25.length)) {
 							_context16.next = 6;
 							break;
 						}
@@ -12257,14 +12261,14 @@ true, true],
 						return _context16.abrupt('break', 33);
 
 					case 6:
-						_ref45 = _iterator25[_i29++];
+						_ref45 = _iterator25[_i33++];
 						_context16.next = 13;
 						break;
 
 					case 9:
-						_i29 = _iterator25.next();
+						_i33 = _iterator25.next();
 
-						if (!_i29.done) {
+						if (!_i33.done) {
 							_context16.next = 12;
 							break;
 						}
@@ -12272,7 +12276,7 @@ true, true],
 						return _context16.abrupt('break', 33);
 
 					case 12:
-						_ref45 = _i29.value;
+						_ref45 = _i33.value;
 
 					case 13:
 						_ref46 = _ref45, name = _ref46.name, value = _ref46.value, type = _ref46.type, el = _ref46.el;
@@ -12595,27 +12599,27 @@ true, true],
 
 
 	function genImgHash(data) {
-		var buf = new Uint8Array(data[0]),
-		    oldw = data[1],
-		    oldh = data[2],
-		    size = oldw * oldh;
+		var buf = new Uint8Array(data[0]);
+		var oldw = data[1];
+		var oldh = data[2];
+		var size = oldw * oldh;
 		for (var i = 0, j = 0; i < size; i++, j += 4) {
-			buf[i] = buf[j] * .3 + buf[j + 1] * .59 + buf[j + 2] * .11;
+			buf[i] = buf[j] * 0.3 + buf[j + 1] * 0.59 + buf[j + 2] * 0.11;
 		}
-		var newh = 8,
-		    neww = 8,
-		    levels = 3,
-		    areas = 256 / levels,
-		    values = 256 / (levels - 1),
-		    hash = 0;
-		for (var i = 0; i < newh; i++) {
-			for (var j = 0; j < neww; j++) {
-				var tmp = i / (newh - 1) * (oldh - 1),
-				    l = Math.min(tmp | 0, oldh - 2),
-				    u = tmp - l;
-				tmp = j / (neww - 1) * (oldw - 1);
-				var c = Math.min(tmp | 0, oldw - 2),
-				    t = tmp - c;
+		var newh = 8;
+		var neww = 8;
+		var levels = 3;
+		var areas = 256 / levels;
+		var values = 256 / (levels - 1);
+		var hash = 0;
+		for (var _i34 = 0; _i34 < newh; _i34++) {
+			for (var _j3 = 0; _j3 < neww; _j3++) {
+				var tmp = _i34 / (newh - 1) * (oldh - 1);
+				var l = Math.min(tmp | 0, oldh - 2);
+				var u = tmp - l;
+				tmp = _j3 / (neww - 1) * (oldw - 1);
+				var c = Math.min(tmp | 0, oldw - 2);
+				var t = tmp - c;
 				hash = (hash << 4) + Math.min(values * ((buf[l * oldw + c] * ((1 - t) * (1 - u)) + buf[l * oldw + c + 1] * (t * (1 - u)) + buf[(l + 1) * oldw + c + 1] * (t * u) + buf[(l + 1) * oldw + c] * ((1 - t) * u)) / areas | 0), 255);
 				var g = hash & 0xF0000000;
 				if (g) {
@@ -12976,13 +12980,13 @@ true, true],
 				if (!this._size) {
 					return this._getThumbSize();
 				}
-				var minSize = Cfg.minImgSize,
-				    width = this._size[0],
-				    height = this._size[1];
+				var width = this._size[0];
+				var height = this._size[1];
 				if (Cfg.resizeDPI) {
 					width /= Post.sizing.dPxRatio;
 					height /= Post.sizing.dPxRatio;
 				}
+				var minSize = Cfg.minImgSize;
 				if (width < minSize && height < minSize) {
 					var ar = width / height;
 					if (width > height) {
@@ -12994,16 +12998,16 @@ true, true],
 					}
 				}
 				if (Cfg.resizeImgs) {
-					var maxWidth = Post.sizing.wWidth - 2,
-					    maxHeight = Post.sizing.wHeight - 2;
+					var maxWidth = Post.sizing.wWidth - 2;
+					var maxHeight = Post.sizing.wHeight - 2;
 					if (width > maxWidth || height > maxHeight) {
-						var ar = width / height;
-						if (ar > maxWidth / maxHeight) {
+						var _ar = width / height;
+						if (_ar > maxWidth / maxHeight) {
 							width = maxWidth;
-							height = width / ar;
+							height = width / _ar;
 						} else {
 							height = maxHeight;
-							width = height * ar;
+							width = height * _ar;
 						}
 						if (width < minSize || height < minSize) {
 							return [width, height, Math.max(width, height)];
@@ -13147,7 +13151,9 @@ true, true],
 								var p = el.parentNode;
 								$hide(el);
 								p.classList.remove('de-img-wrapper-nosize');
-								onsizechange && onsizechange(p);
+								if (onsizechange) {
+									onsizechange(p);
+								}
 							}
 						}
 					};
@@ -14184,16 +14190,16 @@ true, true],
 			value: function toggleImages() {
 				var expand = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : !this.images.expanded;
 
-				for (var _iterator26 = this.images, _isArray26 = Array.isArray(_iterator26), _i30 = 0, _iterator26 = _isArray26 ? _iterator26 : _iterator26[Symbol.iterator]();;) {
+				for (var _iterator26 = this.images, _isArray26 = Array.isArray(_iterator26), _i35 = 0, _iterator26 = _isArray26 ? _iterator26 : _iterator26[Symbol.iterator]();;) {
 					var _ref48;
 
 					if (_isArray26) {
-						if (_i30 >= _iterator26.length) break;
-						_ref48 = _iterator26[_i30++];
+						if (_i35 >= _iterator26.length) break;
+						_ref48 = _iterator26[_i35++];
 					} else {
-						_i30 = _iterator26.next();
-						if (_i30.done) break;
-						_ref48 = _i30.value;
+						_i35 = _iterator26.next();
+						if (_i35.done) break;
+						_ref48 = _i35.value;
 					}
 
 					var image = _ref48;
@@ -14593,7 +14599,7 @@ true, true],
 		    olen = i,
 		    _olen = i,
 		    n = 0;
-		if (len < olen * .4 || len > olen * 3) {
+		if (len < olen * 0.4 || len > olen * 3) {
 			return;
 		}
 		while (i--) {
@@ -14608,7 +14614,7 @@ true, true],
 				}
 			}
 		}
-		if (n < _olen * .4 || len > _olen * 3) {
+		if (n < _olen * 0.4 || len > _olen * 3) {
 			return;
 		}
 		if (oHid) {
@@ -14668,9 +14674,9 @@ true, true],
 	function PostImages(post) {
 		var first = null,
 		    last = null,
-		    els = $Q(aib.qPostImg, post.el),
-		    filesMap = new Map(),
-		    hasAttachments = false;
+		    els = $Q(aib.qPostImg, post.el);
+		var hasAttachments = false;
+		var filesMap = new Map();
 		for (var i = 0, len = els.length; i < len; ++i) {
 			var el = els[i];
 			last = new Attachment(post, el, last);
@@ -14682,10 +14688,10 @@ true, true],
 		}
 		if (Cfg.addImgs) {
 			els = Array.from($Q('.de-img-pre', post.el));
-			for (var i = 0, len = els.length; i < len; ++i) {
-				var el = els[i];
-				last = new EmbeddedImage(post, el, last);
-				filesMap.set(el, last);
+			for (var _i36 = 0, _len9 = els.length; _i36 < _len9; ++_i36) {
+				var _el3 = els[_i36];
+				last = new EmbeddedImage(post, _el3, last);
+				filesMap.set(_el3, last);
 				if (!first) {
 					first = last;
 				}
@@ -15260,16 +15266,16 @@ true, true],
 			key: 'gen',
 			value: function gen(posts, thrURL) {
 				var opNums = DelForm.tNums;
-				for (var _iterator27 = posts, _isArray27 = Array.isArray(_iterator27), _i31 = 0, _iterator27 = _isArray27 ? _iterator27 : _iterator27[Symbol.iterator]();;) {
+				for (var _iterator27 = posts, _isArray27 = Array.isArray(_iterator27), _i37 = 0, _iterator27 = _isArray27 ? _iterator27 : _iterator27[Symbol.iterator]();;) {
 					var _ref49;
 
 					if (_isArray27) {
-						if (_i31 >= _iterator27.length) break;
-						_ref49 = _iterator27[_i31++];
+						if (_i37 >= _iterator27.length) break;
+						_ref49 = _iterator27[_i37++];
 					} else {
-						_i31 = _iterator27.next();
-						if (_i31.done) break;
-						_ref49 = _i31.value;
+						_i37 = _iterator27.next();
+						if (_i37.done) break;
+						_ref49 = _i37.value;
 					}
 
 					var _ref50 = _ref49,
@@ -15410,16 +15416,16 @@ true, true],
 					return;
 				}
 				this._hidden = true;
-				for (var _iterator28 = this._set, _isArray28 = Array.isArray(_iterator28), _i32 = 0, _iterator28 = _isArray28 ? _iterator28 : _iterator28[Symbol.iterator]();;) {
+				for (var _iterator28 = this._set, _isArray28 = Array.isArray(_iterator28), _i38 = 0, _iterator28 = _isArray28 ? _iterator28 : _iterator28[Symbol.iterator]();;) {
 					var _ref52;
 
 					if (_isArray28) {
-						if (_i32 >= _iterator28.length) break;
-						_ref52 = _iterator28[_i32++];
+						if (_i38 >= _iterator28.length) break;
+						_ref52 = _iterator28[_i38++];
 					} else {
-						_i32 = _iterator28.next();
-						if (_i32.done) break;
-						_ref52 = _i32.value;
+						_i38 = _iterator28.next();
+						if (_i38.done) break;
+						_ref52 = _i38.value;
 					}
 
 					var num = _ref52;
@@ -15440,16 +15446,16 @@ true, true],
 			key: 'init',
 			value: function init(tUrl, strNums) {
 				var html = '';
-				for (var _iterator29 = this._set, _isArray29 = Array.isArray(_iterator29), _i33 = 0, _iterator29 = _isArray29 ? _iterator29 : _iterator29[Symbol.iterator]();;) {
+				for (var _iterator29 = this._set, _isArray29 = Array.isArray(_iterator29), _i39 = 0, _iterator29 = _isArray29 ? _iterator29 : _iterator29[Symbol.iterator]();;) {
 					var _ref53;
 
 					if (_isArray29) {
-						if (_i33 >= _iterator29.length) break;
-						_ref53 = _iterator29[_i33++];
+						if (_i39 >= _iterator29.length) break;
+						_ref53 = _iterator29[_i39++];
 					} else {
-						_i33 = _iterator29.next();
-						if (_i33.done) break;
-						_ref53 = _i33.value;
+						_i39 = _iterator29.next();
+						if (_i39.done) break;
+						_ref53 = _i39.value;
 					}
 
 					var num = _ref53;
@@ -15497,16 +15503,16 @@ true, true],
 					return;
 				}
 				this._hidden = false;
-				for (var _iterator30 = this._set, _isArray30 = Array.isArray(_iterator30), _i34 = 0, _iterator30 = _isArray30 ? _iterator30 : _iterator30[Symbol.iterator]();;) {
+				for (var _iterator30 = this._set, _isArray30 = Array.isArray(_iterator30), _i40 = 0, _iterator30 = _isArray30 ? _iterator30 : _iterator30[Symbol.iterator]();;) {
 					var _ref54;
 
 					if (_isArray30) {
-						if (_i34 >= _iterator30.length) break;
-						_ref54 = _iterator30[_i34++];
+						if (_i40 >= _iterator30.length) break;
+						_ref54 = _iterator30[_i40++];
 					} else {
-						_i34 = _iterator30.next();
-						if (_i34.done) break;
-						_ref54 = _i34.value;
+						_i40 = _iterator30.next();
+						if (_i40.done) break;
+						_ref54 = _i40.value;
 					}
 
 					var num = _ref54;
@@ -15817,16 +15823,16 @@ true, true],
 				var multiFile = data.files.length > 1;
 
 				var filesHTML = '';
-				for (var _iterator31 = data.files, _isArray31 = Array.isArray(_iterator31), _i35 = 0, _iterator31 = _isArray31 ? _iterator31 : _iterator31[Symbol.iterator]();;) {
+				for (var _iterator31 = data.files, _isArray31 = Array.isArray(_iterator31), _i41 = 0, _iterator31 = _isArray31 ? _iterator31 : _iterator31[Symbol.iterator]();;) {
 					var _ref55;
 
 					if (_isArray31) {
-						if (_i35 >= _iterator31.length) break;
-						_ref55 = _iterator31[_i35++];
+						if (_i41 >= _iterator31.length) break;
+						_ref55 = _iterator31[_i41++];
 					} else {
-						_i35 = _iterator31.next();
-						if (_i35.done) break;
-						_ref55 = _i35.value;
+						_i41 = _iterator31.next();
+						if (_i41.done) break;
+						_ref55 = _i41.value;
 					}
 
 					var file = _ref55;
@@ -15936,16 +15942,16 @@ true, true],
 				var filesHTML = void 0;
 				if (data.files && data.files.length !== 0) {
 					filesHTML = '<div class="images ' + (data.files.length === 1 ? 'images-single' : 'images-multi') + '">';
-					for (var _iterator32 = data.files, _isArray32 = Array.isArray(_iterator32), _i36 = 0, _iterator32 = _isArray32 ? _iterator32 : _iterator32[Symbol.iterator]();;) {
+					for (var _iterator32 = data.files, _isArray32 = Array.isArray(_iterator32), _i42 = 0, _iterator32 = _isArray32 ? _iterator32 : _iterator32[Symbol.iterator]();;) {
 						var _ref56;
 
 						if (_isArray32) {
-							if (_i36 >= _iterator32.length) break;
-							_ref56 = _iterator32[_i36++];
+							if (_i42 >= _iterator32.length) break;
+							_ref56 = _iterator32[_i42++];
 						} else {
-							_i36 = _iterator32.next();
-							if (_i36.done) break;
-							_ref56 = _i36.value;
+							_i42 = _iterator32.next();
+							if (_i42.done) break;
+							_ref56 = _i42.value;
 						}
 
 						var file = _ref56;
@@ -15963,7 +15969,7 @@ true, true],
 					filesHTML = '';
 				}
 
-				var rv = '<div id="post-' + num + '" class="post-wrapper">\n\t\t\t<div class="post reply" id="post-body-' + num + '" data-num="' + num + '">\n\t\t\t\t<div id="post-details-' + num + '" class="post-details">\n\t\t\t\t\t<input type="checkbox" name="delete"  class="turnmeoff" value="' + num + '">\n\t\t\t\t\t' + (data.subject ? '<span class="post-title">' + (data.subject + (data.tags ? ' /' + data.tags + '/' : '')) + '</span>' : '') + '\n\t\t\t\t\t' + (data.email ? '<a href="' + data.email + '" class="post-email">' + data.name + '</a>' : '<span class="ananimas">' + data.name + '</span>') + '\n\t\t\t\t\t' + (data.icon ? '<span class="post-icon">' + data.icon + '</span>' : '') + '\n\t\t\t\t\t' + (!data.trip ? '' : _switch(data.trip, {
+				var rv = '<div id="post-' + num + '" class="post-wrapper">\n\t\t\t<div class="post reply" id="post-body-' + num + '" data-num="' + num + '">\n\t\t\t\t<div id="post-details-' + num + '" class="post-details">\n\t\t\t\t\t<input type="checkbox" name="delete"  class="turnmeoff" value="' + num + '">\n\t\t\t\t\t' + (!data.subject ? '' : '<span class="post-title">' + (data.subject + (data.tags ? ' /' + data.tags + '/' : '')) + '</span>') + '\n\t\t\t\t\t' + (data.email ? '<a href="' + data.email + '" class="post-email">' + data.name + '</a>' : '<span class="ananimas">' + data.name + '</span>') + '\n\t\t\t\t\t' + (data.icon ? '<span class="post-icon">' + data.icon + '</span>' : '') + '\n\t\t\t\t\t' + (!data.trip ? '' : _switch(data.trip, {
 					'!!%adm%!!': '<span class="adm">## Abu ##<\/span>',
 					'!!%mod%!!': '<span class="mod">## Mod ##<\/span>',
 					'!!%Inquisitor%!!': '<span class="inquisitor">## Applejack ##<\/span>',
@@ -15980,13 +15986,13 @@ true, true],
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				var _iterator33, _isArray33, _i37, _ref57, _post5;
+				var _iterator33, _isArray33, _i43, _ref57, _post5;
 
 				return regeneratorRuntime.wrap(function bannedPostsData$(_context21) {
 					while (1) {
 						switch (_context21.prev = _context21.next) {
 							case 0:
-								_iterator33 = this._posts, _isArray33 = Array.isArray(_iterator33), _i37 = 0, _iterator33 = _isArray33 ? _iterator33 : _iterator33[Symbol.iterator]();
+								_iterator33 = this._posts, _isArray33 = Array.isArray(_iterator33), _i43 = 0, _iterator33 = _isArray33 ? _iterator33 : _iterator33[Symbol.iterator]();
 
 							case 1:
 								if (!_isArray33) {
@@ -15994,7 +16000,7 @@ true, true],
 									break;
 								}
 
-								if (!(_i37 >= _iterator33.length)) {
+								if (!(_i43 >= _iterator33.length)) {
 									_context21.next = 4;
 									break;
 								}
@@ -16002,14 +16008,14 @@ true, true],
 								return _context21.abrupt('break', 23);
 
 							case 4:
-								_ref57 = _iterator33[_i37++];
+								_ref57 = _iterator33[_i43++];
 								_context21.next = 11;
 								break;
 
 							case 7:
-								_i37 = _iterator33.next();
+								_i43 = _iterator33.next();
 
-								if (!_i37.done) {
+								if (!_i43.done) {
 									_context21.next = 10;
 									break;
 								}
@@ -16017,7 +16023,7 @@ true, true],
 								return _context21.abrupt('break', 23);
 
 							case 10:
-								_ref57 = _i37.value;
+								_ref57 = _i43.value;
 
 							case 11:
 								_post5 = _ref57;
@@ -16277,16 +16283,16 @@ true, true],
 				if (!aib.qBan) {
 					return;
 				}
-				for (var _iterator34 = pBuilder.bannedPostsData(), _isArray34 = Array.isArray(_iterator34), _i38 = 0, _iterator34 = _isArray34 ? _iterator34 : _iterator34[Symbol.iterator]();;) {
+				for (var _iterator34 = pBuilder.bannedPostsData(), _isArray34 = Array.isArray(_iterator34), _i44 = 0, _iterator34 = _isArray34 ? _iterator34 : _iterator34[Symbol.iterator]();;) {
 					var _ref58;
 
 					if (_isArray34) {
-						if (_i38 >= _iterator34.length) break;
-						_ref58 = _iterator34[_i38++];
+						if (_i44 >= _iterator34.length) break;
+						_ref58 = _iterator34[_i44++];
 					} else {
-						_i38 = _iterator34.next();
-						if (_i38.done) break;
-						_ref58 = _i38.value;
+						_i44 = _iterator34.next();
+						if (_i44.done) break;
+						_ref58 = _i44.value;
 					}
 
 					var _ref59 = _ref58,
@@ -16346,8 +16352,8 @@ true, true],
 					temp.innerHTML = aib.fixHTML(html.join(''));
 					fragm = temp.content;
 					var _posts = $Q(aib.qRPost, fragm);
-					for (var _i39 = 0, _len7 = _posts.length; _i39 < _len7; ++_i39) {
-						last = this._addPost(fragm, _posts[_i39], begin + _i39 + 1, last, maybeVParser);
+					for (var _i45 = 0, _len10 = _posts.length; _i45 < _len10; ++_i45) {
+						last = this._addPost(fragm, _posts[_i45], begin + _i45 + 1, last, maybeVParser);
 						newVisCount -= maybeSpells.value.run(last);
 					}
 				} else {
@@ -16380,8 +16386,7 @@ true, true],
 				$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 				if (this.loadCount === 0) {
 					if (op.trunc) {
-						var newMsg = pBuilder.getOpMessage();
-						op.updateMsg(newMsg, maybeSpells.value);
+						op.updateMsg(pBuilder.getOpMessage(), maybeSpells.value);
 					}
 					op.ref.removeMap();
 				}
@@ -16574,12 +16579,12 @@ true, true],
 					}
 				}
 				if (len + 1 > this.pcount) {
-					var res = this._importPosts(this.last, pBuilder, this.lastNotDeleted.count, len, maybeVParser, maybeSpells);
-					newPosts += res[0];
-					newVisPosts += res[1];
-					this.el.appendChild(res[2]);
-					this.last = res[3];
-					DollchanAPI.notifyNewPosts(res[4]);
+					var _res = this._importPosts(this.last, pBuilder, this.lastNotDeleted.count, len, maybeVParser, maybeSpells);
+					newPosts += _res[0];
+					newVisPosts += _res[1];
+					this.el.appendChild(_res[2]);
+					this.last = _res[3];
+					DollchanAPI.notifyNewPosts(_res[4]);
 					this.pcount = len + 1;
 				}
 				readFavorites().then(function (fav) {
@@ -16823,7 +16828,7 @@ true, true],
 			var origFormData = FormData,
 			    origAppend = FormData.prototype.append;
 			FormData = function FormData() {
-				for (var _len8 = arguments.length, args = Array(_len8), _key5 = 0; _key5 < _len8; _key5++) {
+				for (var _len11 = arguments.length, args = Array(_len11), _key5 = 0; _key5 < _len11; _key5++) {
 					args[_key5] = arguments[_key5];
 				}
 
@@ -16870,7 +16875,7 @@ true, true],
 			isGlobal: isGM || isChromeStorage || isScriptStorage,
 			scriptInstall: firefox ? typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish' : isChromeStorage ? 'Chrome extension' : isGM ? 'Monkey' : 'Native userscript',
 			cssMatches: function cssMatches(leftSel) {
-				for (var _len9 = arguments.length, rules = Array(_len9 > 1 ? _len9 - 1 : 0), _key6 = 1; _key6 < _len9; _key6++) {
+				for (var _len12 = arguments.length, rules = Array(_len12 > 1 ? _len12 - 1 : 0), _key6 = 1; _key6 < _len12; _key6++) {
 					rules[_key6 - 1] = arguments[_key6];
 				}
 
@@ -17468,7 +17473,7 @@ true, true],
 					}
 					var type = void 0;
 					try {
-						type = JSON.parse(locStorage['store']).other.captcha_provider || '2chaptcha';
+						type = JSON.parse(locStorage.store).other.captcha_provider || '2chaptcha';
 					} catch (e) {
 						type = '2chaptcha';
 					}
@@ -17507,8 +17512,8 @@ true, true],
 									$del($id('captcha-value'));
 								}
 								var html = '';
-								for (var _i40 in data.values) {
-									html += '<label><input type="radio" name="animeGroup" value="' + data.values[_i40].id + '">' + data.values[_i40].name + '</label><br>';
+								for (var _i46 in data.values) {
+									html += '<label><input type="radio" name="animeGroup" value="' + data.values[_i46].id + '">' + data.values[_i46].name + '</label><br>';
 								}
 								group.innerHTML = html;
 								break;
@@ -17687,8 +17692,8 @@ true, true],
 					setTimeout(function () {
 						$del($id('updater'));
 					}, 0);
-					if (locStorage['file_dragdrop'] !== 'false') {
-						locStorage['file_dragdrop'] = false;
+					if (locStorage.file_dragdrop !== 'false') {
+						locStorage.file_dragdrop = false;
 						window.location.reload();
 						return true;
 					}
@@ -18525,20 +18530,20 @@ true, true],
 					try {
 						var links = $Q('.post-reply-link', el);
 						var lLen = links.length;
-						for (var _i41 = 0; _i41 < lLen; ++_i41) {
-							var link = links[_i41];
+						for (var _i47 = 0; _i47 < lLen; ++_i47) {
+							var link = links[_i47];
 							link.textContent = '>>' + link.getAttribute('data-num');
 						}
 						var thumbs = $Q('.expand_image', el);
 						var tLen = thumbs.length;
-						for (var _i42 = 0; _i42 < tLen; ++_i42) {
-							var thumb = thumbs[_i42];
-							var _link2 = thumb.getAttribute('onclick').match(/http:\/[^']+/)[0];
+						for (var _i48 = 0; _i48 < tLen; ++_i48) {
+							var thumb = thumbs[_i48];
+							var _link3 = thumb.getAttribute('onclick').match(/http:\/[^']+/)[0];
 							var div = thumb.firstElementChild;
 							var iframe = div.firstElementChild;
-							thumb.href = thumb.nextElementSibling.href = _link2;
+							thumb.href = thumb.nextElementSibling.href = _link3;
 							if (iframe.tagName === 'IFRAME') {
-								div.innerHTML = '<img src="' + _link2.replace('/img/', '/thumb/') + '" width="' + iframe.width + '" height="' + iframe.height + '">';
+								div.innerHTML = '<img src="' + _link3.replace('/img/', '/thumb/') + '" width="' + iframe.width + '" height="' + iframe.height + '">';
 							}
 						}
 					} catch (e) {}
@@ -18654,7 +18659,7 @@ true, true],
 					defaultCfg.timePattern = 'dd+nn+yy+++++hh+ii+ss';
 					defaultCfg.timeRPattern = '_d/_n/_y(_w)_h:_i:_s';
 					if (Cfg.ajaxUpdThr) {
-						locStorage['auto_thread_update'] = false;
+						locStorage.auto_thread_update = false;
 					}
 					var el1 = $id('upload_embed');
 					var el2 = $id('upload');
@@ -19048,16 +19053,16 @@ true, true],
 					var sessionId = null;
 					var cookie = doc.cookie;
 					if (cookie.includes('desuchan.session')) {
-						for (var _iterator35 = cookie.split(';'), _isArray35 = Array.isArray(_iterator35), _i43 = 0, _iterator35 = _isArray35 ? _iterator35 : _iterator35[Symbol.iterator]();;) {
+						for (var _iterator35 = cookie.split(';'), _isArray35 = Array.isArray(_iterator35), _i49 = 0, _iterator35 = _isArray35 ? _iterator35 : _iterator35[Symbol.iterator]();;) {
 							var _ref61;
 
 							if (_isArray35) {
-								if (_i43 >= _iterator35.length) break;
-								_ref61 = _iterator35[_i43++];
+								if (_i49 >= _iterator35.length) break;
+								_ref61 = _iterator35[_i49++];
 							} else {
-								_i43 = _iterator35.next();
-								if (_i43.done) break;
-								_ref61 = _i43.value;
+								_i49 = _iterator35.next();
+								if (_i49.done) break;
+								_ref61 = _i49.value;
 							}
 
 							var c = _ref61;
@@ -19243,8 +19248,8 @@ true, true],
 				key: 'init',
 				value: function init() {
 					var val = '{"simpleNavbar":true,"showInfo":true}';
-					if (locStorage['settings'] !== val) {
-						locStorage['settings'] = val;
+					if (locStorage.settings !== val) {
+						locStorage.settings = val;
 						window.location.reload();
 						return true;
 					}
@@ -19420,16 +19425,16 @@ true, true],
 					case 'registerapi':
 						if (data) {
 							rv = {};
-							for (var _iterator36 = data, _isArray36 = Array.isArray(_iterator36), _i44 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
+							for (var _iterator36 = data, _isArray36 = Array.isArray(_iterator36), _i50 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
 								var _ref64;
 
 								if (_isArray36) {
-									if (_i44 >= _iterator36.length) break;
-									_ref64 = _iterator36[_i44++];
+									if (_i50 >= _iterator36.length) break;
+									_ref64 = _iterator36[_i50++];
 								} else {
-									_i44 = _iterator36.next();
-									if (_i44.done) break;
-									_ref64 = _i44.value;
+									_i50 = _iterator36.next();
+									if (_i50.done) break;
+									_ref64 = _i50.value;
 								}
 
 								var aName = _ref64;
@@ -19800,8 +19805,8 @@ true, true],
 				icon.onload = function (e) {
 					try {
 						_this89._initIconsHelper(e.target);
-					} catch (e) {
-						console.error('Icon error:', e);
+					} catch (err) {
+						console.error('Icon error:', err);
 					}
 				};
 				if (aib.fch) {
@@ -20371,32 +20376,14 @@ true, true],
 
 	function scriptCSS() {
 		var cont = function cont(id, src) {
-			return id + '::before { content: ""; padding-right: 16px; margin-right: 4px; background: url(' + src + ') no-repeat center; background-size: contain; }';
+			return id + ('::before { content: ""; padding-right: 16px; margin-right: 4px; background: url(' + src + ') no-repeat center; background-size: contain; }');
 		};
 		var gif = function gif(id, src) {
-			return id + ' { background-image: url(data:image/gif;base64,' + src + '); background-repeat: no-repeat; background-position: center; }';
+			return id + (' { background-image: url(data:image/gif;base64,' + src + '); background-repeat: no-repeat; background-position: center; }');
 		};
 
-		var p,
-		    x = '#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\
-	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\
-	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\
-	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; }\
-	a.de-panel-button, a.de-panel-button:hover { color: inherit !important; }\
-	.de-panel-svg, #de-panel-logo, .de-panel-logo-svg, .de-panel-button { width: 25px; height: 25px; }\
-	#de-panel-goback { transform: rotate(180deg); will-change: transform; }\
-	#de-panel-godown { transform: rotate(90deg); will-change: transform; }\
-	#de-panel-goup { transform: rotate(-90deg); will-change: transform; }\
-	#de-panel-upd-on { fill: #32ff32; }\
-	#de-panel-upd-warn { fill: #fff441; }\
-	#de-panel-upd-off { fill: #ff3232; }\
-	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }\
-	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }\
-	#de-panel-info-icount::before, #de-panel-info-acount:not(:empty)::before { content: "/"; }\
-	.de-svg-back { fill: inherit; stroke: none; }\
-	.de-svg-stroke { stroke: currentColor; fill: none; }\
-	.de-svg-fill { stroke: none; fill: currentColor; }\
-	use { fill: inherit; pointer-events: none; }';
+		var p = void 0,
+		    x = '#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\n\t#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\n\t#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\n\t.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; }\n\ta.de-panel-button, a.de-panel-button:hover { color: inherit !important; }\n\t.de-panel-svg, #de-panel-logo, .de-panel-logo-svg, .de-panel-button { width: 25px; height: 25px; }\n\t#de-panel-goback { transform: rotate(180deg); will-change: transform; }\n\t#de-panel-godown { transform: rotate(90deg); will-change: transform; }\n\t#de-panel-goup { transform: rotate(-90deg); will-change: transform; }\n\t#de-panel-upd-on { fill: #32ff32; }\n\t#de-panel-upd-warn { fill: #fff441; }\n\t#de-panel-upd-off { fill: #ff3232; }\n\t#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }\n\t#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }\n\t#de-panel-info-icount::before, #de-panel-info-acount:not(:empty)::before { content: "/"; }\n\t.de-svg-back { fill: inherit; stroke: none; }\n\t.de-svg-stroke { stroke: currentColor; fill: none; }\n\t.de-svg-fill { stroke: none; fill: currentColor; }\n\tuse { fill: inherit; pointer-events: none; }';
 
 		switch (Cfg.scriptStyle) {
 			case 0:
@@ -20425,51 +20412,9 @@ true, true],
 			return;
 		}
 
-		x += '.de-win .de-btn-toggle { transform: rotate(180deg); }\
-	.de-resizer { position: absolute; }\
-	.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\
-	.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\
-	.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\
-	.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\
-	.de-win > .de-win-head { cursor: move; }\
-	.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\
-	#de-win-cfg { width: 355px; }\
-	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\
-	#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\
-	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\
-	#de-win-hid { max-width: 60%; }\
-	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\
-	#de-win-vid .de-entry { white-space: normal; }\
-	.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }' +
+		x += '.de-win .de-btn-toggle { transform: rotate(180deg); }\n\t.de-resizer { position: absolute; }\n\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\n\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\n\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-win > .de-win-head { cursor: move; }\n\t.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\n\t#de-win-cfg { width: 355px; }\n\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\n\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\n\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\n\t#de-win-hid { max-width: 60%; }\n\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\n\t#de-win-vid .de-entry { white-space: normal; }\n\t.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }' + (
 
-		'.de-block { display: block; }\
-	#de-btn-spell-add { margin-left: auto; }\
-	#de-cfg-bar { display: flex; margin: 0; padding: 0; }\
-	.de-cfg-body { min-height: 325px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
-	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\
-	.de-cfg-button { padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\
-	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\
-	#de-cfg-buttons > label { flex: 1 0 auto; }\
-	.de-cfg-chkbox { ' + (nav.Presto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\
-	.de-cfg-depend { padding-left: 17px; }\
-	.de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }\
-	.de-cfg-label { padding: 0; margin: 0; }\
-	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; }\
-	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
-	.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
-	.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\
-	.de-cfg-tab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\
-	.de-cfg-unvis { display: none; }\
-	#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\
-	#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\
-	.de-info-name { flex: 1 0 auto; }\
-	.de-info-row { display: flex; }\
-	#de-info-table { display: flex; height: 267px; }\
-	.de-spell-btn { padding: 0 4px; }\
-	#de-spell-editor { display: flex; align-items: stretch; height: 235px; padding: 2px 0; }\
-	#de-spell-panel { display: flex; }\
-	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
-	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }';
+		'.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 325px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { ' + (nav.Presto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\n\t.de-cfg-depend { padding-left: 17px; }\n\t.de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\n\t.de-cfg-unvis { display: none; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; height: 267px; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 235px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }');
 
 		switch (Cfg.scriptStyle) {
 			case 0:
@@ -20488,163 +20433,30 @@ true, true],
 				x += '#de-cfg-bar { background-color: #222; }\n\t\t\t.de-cfg-body, #de-cfg-buttons { border-color: #666; }';
 		}
 
-		x += '.de-post-btns { margin-left: 4px; }\
-	.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
-	.de-thread-note { font-style: italic; }\
-	.de-btn-hide > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\
-	.de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }';
+		x += '.de-post-btns { margin-left: 4px; }\n\t.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\n\t.de-thread-note { font-style: italic; }\n\t.de-btn-hide > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\n\t.de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }\n\t' + (!pr.form && !pr.oeForm ? '.de-btn-rep { display: none; }' : '') +
 
-		if (nav.Firefox && !nav.isES6) {
-			x += '.de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle { transform: rotate(0deg); }';
-		}
+		cont('.de-src-google', 'https://google.com/favicon.ico') + cont('.de-src-yandex', 'https://yandex.ru/favicon.ico') + cont('.de-src-tineye', 'https://tineye.com/favicon.ico') + cont('.de-src-saucenao', 'https://saucenao.com/favicon.ico') + cont('.de-src-iqdb', '//iqdb.org/favicon.ico') + cont('.de-src-whatanime', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAMAAADarb8dAAAAWlBMVEX////29fbT1NOOj44dGx0SEhIHCAfX2NfQ0NDBwcGztLOwsbA7Ozs4ODgeHh7/2Nf/1dTMsbGpkZGWZWRyRUQ8NTYoIyMZAAAAAAAGBASBaGeBZ2Z2XVtmTUw2fryxAAAAGHRSTlP+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v4W3wyUAAAAZElEQVQI152OSQ6AMBRCadU6zxN1uP81/Y2NSY0r2fBgA+BL/wrbWEcewEqrrHa5zpSuCJMC0IY0WiA1iJW4ikkPYCFeUlQKFASTKI8SyTc8s8sc/rBDvwbF1LVjUJzbftjv6xfbkBHGT8GSnQAAAABJRU5ErkJggg==') + (
 
-		x += (pr.form || pr.oeForm ? '' : '.de-btn-rep { display: none; }') +
+		'.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); margin: 0 4px 0 2px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\n\t.de-post-deleted::after { content: "' + Lng.deleted[lang] + '"; margin: 0 4px 0 2px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }') +
 
-		cont('.de-src-google', 'https://google.com/favicon.ico') + cont('.de-src-yandex', 'https://yandex.ru/favicon.ico') + cont('.de-src-tineye', 'https://tineye.com/favicon.ico') + cont('.de-src-saucenao', 'https://saucenao.com/favicon.ico') + cont('.de-src-iqdb', '//iqdb.org/favicon.ico') + cont('.de-src-whatanime', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAMAAADarb8dAAAAWlBMVEX////29fbT1NOOj44dGx0SEhIHCAfX2NfQ0NDBwcGztLOwsbA7Ozs4ODgeHh7/2Nf/1dTMsbGpkZGWZWRyRUQ8NTYoIyMZAAAAAAAGBASBaGeBZ2Z2XVtmTUw2fryxAAAAGHRSTlP+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v4W3wyUAAAAZElEQVQI152OSQ6AMBRCadU6zxN1uP81/Y2NSY0r2fBgA+BL/wrbWEcewEqrrHa5zpSuCJMC0IY0WiA1iJW4ikkPYCFeUlQKFASTKI8SyTc8s8sc/rBDvwbF1LVjUJzbftjv6xfbkBHGT8GSnQAAAABJRU5ErkJggg==') +
+		'#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\n\t#de-txt-panel > span:empty { display: inline-block; width: 23px; height: 22px; margin: 0 2px; }' + gif('#de-btn-bold:empty', (p = 'R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ') + 'T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==') + gif('#de-btn-italic:empty', p + 'K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==') + gif('#de-btn-under:empty', p + 'V3IKpq4YAoRARzAoV3hzoDnoJNlGSWSEHw7JrEHILiVp1NlZXtKe5XiptPrFh4NVKHh9FI5NX60WIJ6ATZoVeaVnf8xSU4r7NMRYcFk6pzYRD2TIUAAA7') + gif('#de-btn-strike:empty', p + 'S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7') + gif('#de-btn-spoil:empty', 'R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==') + gif('#de-btn-code:empty', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=') + gif('#de-btn-sup:empty', p + 'Q3IKpq4YAgZiSQhGByrzn7YURGFGWhxzMuqqBGC7wRUNkeU7nnWNoMosFXKzi8BHs3EQnDRAHLY2e0BxnWfEJkRdT80NNTrliG3aWcBhZhgIAOw==') + gif('#de-btn-sub:empty', p + 'R3IKpq4YAgZiSxquujtOCvIUayAkVZEoRcjCu2wbivMw2WaYi7vVYYqMFYq/i8BEM4ZIrYOmpdD49m2VFd2oiUZTORWcNYT9SpnZrTjiML0MBADs=') + gif('#de-btn-quote:empty', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=') +
 
-		'.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); margin: 0 4px 0 2px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
-	.de-post-deleted::after { content: "' + Lng.deleted[lang] + '"; margin: 0 4px 0 2px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }' +
-
-		'#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
-	#de-txt-panel > span:empty { display: inline-block; width: 23px; height: 22px; margin: 0 2px; }' + gif('#de-btn-bold:empty', (p = 'R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ') + 'T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==') + gif('#de-btn-italic:empty', p + 'K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==') + gif('#de-btn-under:empty', p + 'V3IKpq4YAoRARzAoV3hzoDnoJNlGSWSEHw7JrEHILiVp1NlZXtKe5XiptPrFh4NVKHh9FI5NX60WIJ6ATZoVeaVnf8xSU4r7NMRYcFk6pzYRD2TIUAAA7') + gif('#de-btn-strike:empty', p + 'S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7') + gif('#de-btn-spoil:empty', 'R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==') + gif('#de-btn-code:empty', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=') + gif('#de-btn-sup:empty', p + 'Q3IKpq4YAgZiSQhGByrzn7YURGFGWhxzMuqqBGC7wRUNkeU7nnWNoMosFXKzi8BHs3EQnDRAHLY2e0BxnWfEJkRdT80NNTrliG3aWcBhZhgIAOw==') + gif('#de-btn-sub:empty', p + 'R3IKpq4YAgZiSxquujtOCvIUayAkVZEoRcjCu2wbivMw2WaYi7vVYYqMFYq/i8BEM4ZIrYOmpdD49m2VFd2oiUZTORWcNYT9SpnZrTjiML0MBADs=') + gif('#de-btn-quote:empty', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=') +
-
-		'@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }\
-	@keyframes de-close { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }\
-	@keyframes de-blink {\
-		0%, 100% { transform: translateX(0); }\
-		10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }\
-		20%, 40%, 60%, 80% { transform: translateX(10px); }\
-	}\
-	@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\
-	@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\
-	@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
-	@keyframes de-post-open-br { from { transform: translate(50%,50%) scale(0); opacity: 0; } }\
-	@keyframes de-post-close-tl { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\
-	@keyframes de-post-close-bl { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\
-	@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
-	@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\
-	@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\
-	@keyframes de-win-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
-	@keyframes de-win-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
-	.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\
-	.de-open { animation: de-open .15s ease-out both; }\
-	.de-close { animation: de-close .15s ease-in both; }\
-	.de-blink { animation: de-blink .7s ease-in-out both; }\
-	.de-post-new { animation: de-post-new .2s ease-out both; }\
-	.de-win-open { animation: de-win-open .2s ease-out backwards; }\
-	.de-win-close { animation: de-win-close .2s ease-in both; }';
+		'@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }\n\t@keyframes de-close { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }\n\t@keyframes de-blink {\n\t\t0%, 100% { transform: translateX(0); }\n\t\t10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }\n\t\t20%, 40%, 60%, 80% { transform: translateX(10px); }\n\t}\n\t@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\n\t@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\n\t@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\n\t@keyframes de-post-open-br { from { transform: translate(50%,50%) scale(0); opacity: 0; } }\n\t@keyframes de-post-close-tl { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\n\t@keyframes de-post-close-bl { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\n\t@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\n\t@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\n\t@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\n\t@keyframes de-win-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\n\t@keyframes de-win-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\n\t.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\n\t.de-open { animation: de-open .15s ease-out both; }\n\t.de-close { animation: de-close .15s ease-in both; }\n\t.de-blink { animation: de-blink .7s ease-in-out both; }\n\t.de-post-new { animation: de-post-new .2s ease-out both; }\n\t.de-win-open { animation: de-win-open .2s ease-out backwards; }\n\t.de-win-close { animation: de-win-close .2s ease-in both; }';
 
 		p = Math.max(Cfg.minImgSize || 0, 50);
-		x += '.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
-	.de-img-pre { max-width: 200px; max-height: 200px; }\
-	.de-img-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\
-	.de-img-full, .de-img-wrapper-nosize { width: 100%; height: 100%; }\
-	.de-img-wrapper-inpost { min-width: ' + p + 'px; min-height: ' + p + 'px; float: left; ' + (aib.multiFile ? '' : 'padding: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ') + '}\
-	.de-img-wrapper-nosize { position: relative; }\
-	.de-img-wrapper-nosize > .de-img-full { position: absolute; z-index: 1; opacity: .3; }\
-	.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\
-	#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; margin-top: -18px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\
-	#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\
-	#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }' +
+		x += '.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\n\t.de-img-pre { max-width: 200px; max-height: 200px; }\n\t.de-img-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\n\t.de-img-full, .de-img-wrapper-nosize { width: 100%; height: 100%; }\n\t.de-img-wrapper-inpost { min-width: ' + p + 'px; min-height: ' + p + 'px; float: left; ' + (aib.multiFile ? '' : 'padding: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ') + ' }\n\t.de-img-wrapper-nosize { position: relative; }\n\t.de-img-wrapper-nosize > .de-img-full { position: absolute; z-index: 1; opacity: .3; }\n\t.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\n\t#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; margin-top: -18px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\n\t#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\n\t#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }' +
 
-		cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') + cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico') + cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==') + '.de-current::after { content: " \u25CF"; }\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\t.de-mp3 { margin: 5px 20px; }\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\t.de-video-obj-inline { display: inline-block; }\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\t#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }\t.de-video-expanded { width: 854px !important; height: 480px !important; }\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\t.de-video-refpost { margin: 0 3px; text-decoration: none; cursor: pointer; }\t.de-video-resizer::after { content: "\u2795"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\ta.de-video-player::after { content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\t.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }\t.de-vocaroo > embed { display: inline-block; }\tvideo { background: black; }' +
+		cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') + cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico') + cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==') + '.de-current::after { content: " \u25CF"; }\n\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\n\t.de-mp3 { margin: 5px 20px; }\n\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\n\t.de-video-obj-inline { display: inline-block; }\n\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\n\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\n\t#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }\n\t.de-video-expanded { width: 854px !important; height: 480px !important; }\n\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\n\t.de-video-refpost { margin: 0 3px; text-decoration: none; cursor: pointer; }\n\t.de-video-resizer::after { content: "\u2795"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\n\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\n\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\n\ta.de-video-player::after { content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\n\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\n\t.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }\n\t.de-vocaroo > embed { display: inline-block; }\n\tvideo { background: black; }' + (
 
-		'.de-file { display: inline-block; margin: 1px; height: ' + (p = aib.multiFile ? 90 : 130) + 'px; width: ' + p + 'px; text-align: center; border: 1px dashed grey; }\
-	.de-file > .de-file-del, .de-file > .de-file-spoil { float: right; }\
-	.de-file > .de-file-rar { float: left; }\
-	.de-file > .de-file-rarmsg { float: left; padding: 0 4px 2px; color: #fff; background-color: rgba(55,55,55,.5); }\
-	.de-file > .de-file-utils { display: none; }\
-	.de-file > div { display: table; width: 100%; height: 100%; cursor: pointer; }\
-	.de-file > div > div { display: table-cell; vertical-align: middle; }\
-	.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -' + (p + 2) + 'px !important; vertical-align: top; width: ' + (p + 2) + 'px !important; height: ' + (p + 2) + 'px; border: none !important; cursor: pointer; }\
-	#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\
-	.de-file-drag { background: rgba(88,88,88,.4); border: 1px solid grey; }\
-	.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; position: relative; margin: -18px 2px; }\
-	.de-file:hover:not(.de-file-drag) > .de-file-spoil { margin: -16px 21px; }\
-	img.de-file-img, video.de-file-img { max-width: ' + (p - 4) + 'px; max-height: ' + (p - 4) + 'px; }\
-	.de-file-input { max-width: 300px; }\
-	.de-file-off > div > div::after { content: "' + Lng.noFile[lang] + '"; }\
-	.de-file-rarmsg { margin: 0 5px; font: bold 11px tahoma; cursor: default; }\
-	.de-file-del, .de-file-rar { display: inline-block; margin: 0 4px -3px; width: 16px; height: 16px; cursor: pointer; }\
-	.de-file-spoil { display: none; }' + gif('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=') + gif('.de-file-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') +
+		'.de-file { display: inline-block; margin: 1px; height: ' + (p = aib.multiFile ? 90 : 130) + 'px; width: ' + p + 'px; text-align: center; border: 1px dashed grey; }\n\t.de-file > .de-file-del, .de-file > .de-file-spoil { float: right; }\n\t.de-file > .de-file-rar { float: left; }\n\t.de-file > .de-file-rarmsg { float: left; padding: 0 4px 2px; color: #fff; background-color: rgba(55,55,55,.5); }\n\t.de-file > .de-file-utils { display: none; }\n\t.de-file > div { display: table; width: 100%; height: 100%; cursor: pointer; }\n\t.de-file > div > div { display: table-cell; vertical-align: middle; }\n\t.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -' + (p + 2) + 'px !important; vertical-align: top; width: ' + (p + 2) + 'px !important; height: ' + (p + 2) + 'px; border: none !important; cursor: pointer; }\n\t#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\n\t.de-file-drag { background: rgba(88,88,88,.4); border: 1px solid grey; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; position: relative; margin: -18px 2px; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-spoil { margin: -16px 21px; }\n\timg.de-file-img, video.de-file-img { max-width: ' + (p - 4) + 'px; max-height: ' + (p - 4) + 'px; }\n\t.de-file-input { max-width: 300px; }\n\t.de-file-off > div > div::after { content: "' + Lng.noFile[lang] + '"; }\n\t.de-file-rarmsg { margin: 0 5px; font: bold 11px tahoma; cursor: default; }\n\t.de-file-del, .de-file-rar { display: inline-block; margin: 0 4px -3px; width: 16px; height: 16px; cursor: pointer; }\n\t.de-file-spoil { display: none; }') + gif('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=') + gif('.de-file-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + (
 
-		'#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ' + (nav.Presto ? '-2px -10px' : '0 0 1px -10px') + '; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\
-	.de-parea { text-align: center; }\
-	.de-parea-btn-close::after { content: "' + Lng.hideForm[lang] + '"; }\
-	.de-parea-btn-thrd::after { content: "' + Lng.makeThrd[lang] + '"; }\
-	.de-parea-btn-reply::after { content: "' + Lng.makeReply[lang] + '"; }\
-	#de-pform > form { padding: 0; margin: 0; border: none; }\
-	#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }\
-	.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\
-	.de-win-inpost > .de-resizer { display: none; }\
-	.de-win-inpost > .de-win-head { background: none; color: inherit; }\
-	#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\
-	#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\
-	#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\
-	#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\
-	#de-win-reply.de-win #de-resizer-text { display: none !important; }\
-	#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\
-	.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }' +
+		'#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ' + (nav.Presto ? '-2px -10px' : '0 0 1px -10px') + '; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\n\t.de-parea { text-align: center; }\n\t.de-parea-btn-close::after { content: "' + Lng.hideForm[lang] + '"; }\n\t.de-parea-btn-thrd::after { content: "' + Lng.makeThrd[lang] + '"; }\n\t.de-parea-btn-reply::after { content: "' + Lng.makeReply[lang] + '"; }\n\t#de-pform > form { padding: 0; margin: 0; border: none; }\n\t#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }\n\t.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\n\t.de-win-inpost > .de-resizer { display: none; }\n\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\n\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\n\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\n\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\n\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\n\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\n\t#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\n\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }') +
 
-		'.de-fav-del > #de-fav-buttons { display: none; }\
-	.de-fav-del > #de-fav-delbuttons { display: block !important; }\
-	.de-fav-del .de-fav-header-switch, .de-fav-del .de-fav-switch { display: block !important; margin: 2px 0 2px 4px !important; flex: none; }\
-	#de-fav-delbuttons { display: none; }\
-	.de-fav-header-switch, .de-fav-switch { display: none; }\
-	.de-fav-header { margin-top: 0; margin-bottom: 0; padding: 1px 0; display: flex; }\
-	.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }\
-	.de-fav-header-link { margin-left: 4px; color: inherit; font-weight: bold; font-size: 14px; flex: auto; text-decoration: none; outline: none; }\
-	.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\
-	.de-fav-link { flex: none; margin-left: 4px; text-decoration: none; border: none; }\
-	.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\
-	.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }\
-	.de-fav-inf-new { color: #424f79; }\
-	.de-fav-inf-new::after { content: " +"; }\
-	.de-fav-inf-old { color: #4f7942; }\
-	.de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait),\
-	.de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use,\
-	.de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use,\
-	.de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }\
-	.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }\
-	.de-fav-inf-icon { margin-bottom: -3px; }\
-	.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }\
-	.de-fold-block:not(:first-child) { border-top: none; }' +
+		'.de-fav-del > #de-fav-buttons { display: none; }\n\t.de-fav-del > #de-fav-delbuttons { display: block !important; }\n\t.de-fav-del .de-fav-header-switch, .de-fav-del .de-fav-switch { display: block !important; margin: 2px 0 2px 4px !important; flex: none; }\n\t#de-fav-delbuttons { display: none; }\n\t.de-fav-header-switch, .de-fav-switch { display: none; }\n\t.de-fav-header { margin-top: 0; margin-bottom: 0; padding: 1px 0; display: flex; }\n\t.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }\n\t.de-fav-header-link { margin-left: 4px; color: inherit; font-weight: bold; font-size: 14px; flex: auto; text-decoration: none; outline: none; }\n\t.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\n\t.de-fav-link { flex: none; margin-left: 4px; text-decoration: none; border: none; }\n\t.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n\t.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }\n\t.de-fav-inf-new { color: #424f79; }\n\t.de-fav-inf-new::after { content: " +"; }\n\t.de-fav-inf-old { color: #4f7942; }\n\t.de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait),\n\t.de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use,\n\t.de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use,\n\t.de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }\n\t.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }\n\t.de-fav-inf-icon { margin-bottom: -3px; }\n\t.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }\n\t.de-fold-block:not(:first-child) { border-top: none; }' +
 
-		'#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\
-	.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\
-	#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px;}\
-	.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\
-	#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\
-	#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\
-	#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\
-	:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }' +
+		'#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\n\t.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\n\t#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px;}\n\t.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\n\t#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\n\t#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\n\t#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\n\t:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }' + (
 
-		'@keyframes de-wait-anim { to { transform: rotate(360deg); } }\
-	.de-wait, .de-fav-wait , .de-img-load { animation: de-wait-anim 1s linear infinite; }\
-	.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\
-	.de-abtn { text-decoration: none !important; outline: none; }\
-	.de-after-fimg { clear: left; }\
-	#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
-	.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }\
-	.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }\
-	.de-popup-msg { display: inline-block; white-space: pre-wrap; }\
-	.de-button { flex: none; padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 1px 2px; height: 24px; font: 13px arial; }\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\t.de-link-parent { outline: 1px dotted !important; }\t.de-link-pview { font-weight: bold; }\t.de-link-ref { text-decoration: none; }\t.de-list { padding-top: 4px; }\t.de-list::before { content: "\u25CF"; margin-right: 4px; }\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 9999; border: 1px solid grey !important;}\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t.de-menu-item:hover { background-color: #222; color: #fff; }\t.de-omitted { color: grey; }\t.de-omitted::before { content: "' + Lng.postsOmitted[lang] + '"; }\
-	.de-post-hiddencontent { display: none !important; }\
-	.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
-	.de-pview-info { padding: 3px 6px !important; }\
-	.de-ref-op::after { content: " (OP)"; }\
-	.de-ref-del::after { content: " (Del)"; }\
-	.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
-	.de-refmap::before { content: "' + Lng.replies[lang] + ' "; }\
-	.de-refcomma:last-child { display: none; }\
-	.de-replies-hide::after { content: "' + Lng.hidePosts[lang] + '"; }\
-	.de-replies-show::after { content: "' + Lng.showPosts[lang] + '"; }\
-	.de-thread-buttons { clear: left; margin-top: 5px; }\
-	.de-thread-collapse > a::after { content: "' + Lng.collapseThrd[lang] + '"; }\
-	.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '"; }\
-	#de-updater-count::before { content: ": "; }\
-	.de-viewed { color: #747488 !important; }\
-	form > hr { clear: both }';
+		'@keyframes de-wait-anim { to { transform: rotate(360deg); } }\n\t.de-wait, .de-fav-wait , .de-img-load { animation: de-wait-anim 1s linear infinite; }\n\t.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\n\t.de-abtn { text-decoration: none !important; outline: none; }\n\t.de-after-fimg { clear: left; }\n\t#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\n\t.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }\n\t.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }\n\t.de-popup-msg { display: inline-block; white-space: pre-wrap; }\n\t.de-button { flex: none; padding: 0 ' + (nav.Firefox ? 2 : 4) + 'px !important; margin: 1px 2px; height: 24px; font: 13px arial; }\n\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\n\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\n\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\n\t.de-link-parent { outline: 1px dotted !important; }\n\t.de-link-pview { font-weight: bold; }\n\t.de-link-ref { text-decoration: none; }\n\t.de-list { padding-top: 4px; }\n\t.de-list::before { content: "\u25CF"; margin-right: 4px; }\n\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 9999; border: 1px solid grey !important;}\n\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\n\t.de-menu-item:hover { background-color: #222; color: #fff; }\n\t.de-omitted { color: grey; }\n\t.de-omitted::before { content: "' + Lng.postsOmitted[lang] + '"; }\n\t.de-post-hiddencontent { display: none !important; }\n\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\n\t.de-pview-info { padding: 3px 6px !important; }\n\t.de-ref-op::after { content: " (OP)"; }\n\t.de-ref-del::after { content: " (Del)"; }\n\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\n\t.de-refmap::before { content: "' + Lng.replies[lang] + ' "; }\n\t.de-refcomma:last-child { display: none; }\n\t.de-replies-hide::after { content: "' + Lng.hidePosts[lang] + '"; }\n\t.de-replies-show::after { content: "' + Lng.showPosts[lang] + '"; }\n\t.de-thread-buttons { clear: left; margin-top: 5px; }\n\t.de-thread-collapse > a::after { content: "' + Lng.collapseThrd[lang] + '"; }\n\t.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '"; }\n\t#de-updater-count::before { content: ": "; }\n\t.de-viewed { color: #747488 !important; }\n\tform > hr { clear: both }');
 
 		$css(x).id = 'de-css';
 		$css('').id = 'de-css-dynamic';
@@ -20653,58 +20465,8 @@ true, true],
 	}
 
 	function updateCSS() {
-		var x = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }';
-		if (Cfg.markMyLinks) {
-			x += '.de-ref-my::after { content: " (You)"; }\
-		.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\
-		.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }';
-		}
-		if (Cfg.markMyPosts) {
-			x += '.de-mypost {' + (nav.Presto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8); }') + '\
-		.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }\
--		.de-mypost .de-post-deleted::after { content: "' + Lng.deleted[lang] + ' (You)"; }';
-		}
-		x += '.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8); }') + '\
-	.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7); }' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8); }');
-		if (!Cfg.resizeImgs) {
-			x += '.de-img-wrapper-inpost > .de-img-full { width: auto; }';
-		}
-		if (Cfg.postBtnsCSS === 0) {
-			x += '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: #4F7942; }\
-		.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }';
-		} else {
-			x += '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\
-		.de-btn-hide-user { color: #BFFFBF; }\
-		.de-btn-unhide-user { color: #FFBFBF; }\
-		.de-btn-fav-sel { color: #FFE100; }\
-		.de-btn-stick-on { color: #BFFFBF; }\
-		.de-btn-sage { fill: #4B4B4B; }\
-		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }';
-		}
-		if (Cfg.hideReplies || Cfg.updThrBtns) {
-			x += '.de-thread-buttons::before { content: ">> "; }';
-		}
-		if (Cfg.maskImgs) {
-			x += aib.qPostImg + ', .de-img-pre, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; } ' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }';
-		}
-		if (Cfg.delImgNames) {
-			x += '.de-img-name { text-transform: capitalize; text-decoration: none; }';
-		}
-		if (Cfg.noSpoilers === 1) {
-			x += '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\
-			.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }';
-		} else if (Cfg.noSpoilers === 2) {
-			x += '.spoiler, s { color: inherit !important; }\
-			.spoiler > a, s > a:not(:hover) { color: inherit !important; }';
-		}
-		if (Cfg.widePosts) {
-			x += '.' + aib.cReply.replace(/\s/, '.') + ':not(.de-pview) { float: none; width: 100%; }';
-		}
-		if (Cfg.strikeHidd) {
-			x += '.de-link-hid { text-decoration: line-through !important; }';
-		}
-		x += '.postarea, small[id^="rfmap"], .theader, ' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + (Cfg.imgNavBtns ? '' : '#de-img-btn-next, #de-img-btn-prev, ') + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + (Cfg.showRepBtn ? '' : '.de-btn-rep, ') + (Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (Cfg.delHiddPost ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (Cfg.addSageBtn ? '' : '#de-sagebtn, ') + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + (!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + 'body > hr { display: none !important; }';
-		$id('de-css-dynamic').textContent = x + '\n' + aib.css;
+		var str = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + '; }\n\t.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + '; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.Presto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + '; }\n\t\t.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }\n\t\t.de-mypost .de-post-deleted::after { content: "' + Lng.deleted[lang] + ' (You)"; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-my::after { content: " (You)"; }\n\t\t.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }' : '') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: #4F7942; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t' + (Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '') + '\n\t' + (Cfg.resizeImgs ? '' : '.de-img-wrapper-inpost > .de-img-full { width: auto; }') + '\n\t' + (Cfg.maskImgs ? aib.qPostImg + (', .de-img-pre, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; } ' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }') : '') + '\n\t' + (Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '') + '\n\t' + (Cfg.widePosts ? '.' + aib.cReply.replace(/\s/, '.') + ':not(.de-pview) { float: none; width: 100%; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (!Cfg.addSageBtn ? '#de-sagebtn, ' : '') + (Cfg.delHiddPost ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (!Cfg.imgNavBtns ? '#de-img-btn-next, #de-img-btn-prev, ' : '') + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + (!Cfg.panelCounter ? '#de-panel-info, ' : '') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (!Cfg.showHideBtn ? '.de-btn-hide, ' : '') + (!Cfg.showRepBtn ? '.de-btn-rep, ' : '') + (!Cfg.updThrBtns && !aib.t ? '.de-thread-updater, ' : '') + (!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + ' body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }';
+		$id('de-css-dynamic').textContent = str + '\n' + aib.css;
 		$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 	}
 
