@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '8025022';
+	var commit = '103de84';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -18127,6 +18127,7 @@ true, true],
 		}(BaseBoard);
 
 		ibDomains['2ch.rip'] = _2chRip;
+		ibDomains['dva-ch.com'] = _2chRip;
 
 		var _2chRu = function (_BaseBoard9) {
 			_inherits(_2chRu, _BaseBoard9);
