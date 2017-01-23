@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '3965137';
+const commit = '8025022';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1282,7 +1282,9 @@ TarBuilder.prototype = {
 	},
 	addString(filepath, str) {
 		const sDat = unescape(encodeURIComponent(str));
-		for(let i = 0, len = sDat.length, data = new Uint8Array(len); i < len; ++i) {
+		const len = sDat.length;
+		const data = new Uint8Array(len);
+		for(let i = 0; i < len; ++i) {
 			data[i] = sDat.charCodeAt(i) & 0xFF;
 		}
 		this.addFile(filepath, data);

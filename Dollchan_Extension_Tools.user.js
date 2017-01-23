@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '3965137';
+	var commit = '8025022';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -4238,8 +4238,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 		addString: function addString(filepath, str) {
 			var sDat = unescape(encodeURIComponent(str));
-			for (var i = 0, len = sDat.length, _data = new Uint8Array(len); i < len; ++i) {
-				_data[i] = sDat.charCodeAt(i) & 0xFF;
+			var len = sDat.length;
+			var data = new Uint8Array(len);
+			for (var i = 0; i < len; ++i) {
+				data[i] = sDat.charCodeAt(i) & 0xFF;
 			}
 			this.addFile(filepath, data);
 		},
@@ -4915,9 +4917,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function readViewedPosts() {
 		if (!Cfg.markViewed) {
-			var _data2 = sesStorage['de-viewed'];
-			if (_data2) {
-				_data2.split(',').forEach(function (pNum) {
+			var data = sesStorage['de-viewed'];
+			if (data) {
+				data.split(',').forEach(function (pNum) {
 					var post = pByNum.get(+pNum);
 					if (post) {
 						post.el.classList.add('de-viewed');
@@ -4984,10 +4986,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var minDate = Date.now() - 5 * 24 * 3600 * 1000;
 					for (var b in storage) {
 						if (storage.hasOwnProperty(b)) {
-							var _data3 = storage[b];
-							for (var key in _data3) {
-								if (_data3.hasOwnProperty(key) && _data3[key][0] < minDate) {
-									delete _data3[key];
+							var _data = storage[b];
+							for (var key in _data) {
+								if (_data.hasOwnProperty(key) && _data[key][0] < minDate) {
+									delete _data[key];
 								}
 							}
 						}
@@ -8014,10 +8016,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			return new Promise(function (resolve, reject) {
 				var w = _this14._freeWorkers.pop(),
-				    _data4 = _slicedToArray(data, 3),
-				    sendData = _data4[0],
-				    transferObjs = _data4[1],
-				    fn = _data4[2];
+				    _data2 = _slicedToArray(data, 3),
+				    sendData = _data2[0],
+				    transferObjs = _data2[1],
+				    fn = _data2[2];
 
 				w.onmessage = function (e) {
 					fn(e.data);
@@ -8102,12 +8104,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 			pool = new TasksPool(mReqs, function (num, data) {
 				return downloadImgData(data[0]).then(function (imageData) {
-					var _data5 = _slicedToArray(data, 5),
-					    url = _data5[0],
-					    imgLink = _data5[1],
-					    iType = _data5[2],
-					    nExp = _data5[3],
-					    el = _data5[4];
+					var _data3 = _slicedToArray(data, 5),
+					    url = _data3[0],
+					    imgLink = _data3[1],
+					    iType = _data3[2],
+					    nExp = _data3[3],
+					    el = _data3[4];
 
 					if (imageData) {
 						var fName = url.substring(url.lastIndexOf("/") + 1),
@@ -8205,11 +8207,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		    dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
 		Images_.pool = new TasksPool(4, function (num, data) {
 			return downloadImgData(data[0]).then(function (imgData) {
-				var _data6 = _slicedToArray(data, 4),
-				    url = _data6[0],
-				    fName = _data6[1],
-				    el = _data6[2],
-				    imgLink = _data6[3],
+				var _data4 = _slicedToArray(data, 4),
+				    url = _data4[0],
+				    fName = _data4[1],
+				    el = _data4[2],
+				    imgLink = _data4[3],
 				    safeName = fName.replace(/[\\\/:*?"<>|]/g, '_');
 
 				progress.value = current;
