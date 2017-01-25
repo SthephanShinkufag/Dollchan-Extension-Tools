@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '865f7c6';
+const commit = '315f943';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -15442,8 +15442,6 @@ function scriptCSS() {
 	.de-fav-inf-new::after { content: " +"; }
 	.de-fav-inf-old { color: #4f7942; }
 	.de-fav-inf-you { padding: 0 4px; margin-right: 4px; border-radius: 3px; color: #fff; background-color: #424f79; opacity: 0.65; }
-	.de-fav-inf-you::before { content: "["; }
-	.de-fav-inf-you::after { content: "] "; }
 	.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }
 	.de-fold-block:not(:first-child) { border-top: none; }` +
 
