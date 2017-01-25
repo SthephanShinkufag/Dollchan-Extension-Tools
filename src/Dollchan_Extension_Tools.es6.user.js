@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '103de84';
+const commit = '865f7c6';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -547,6 +547,7 @@ const Lng = {
 	infoPage:       ['Проверить актуальность тредов (до 10 страницы)', 'Check for threads actuality (up to 10 page)'],
 	clrDeleted:     ['Очистить недоступные (404) треды', 'Clear inaccessible (404) threads'],
 	oldPosts:       ['Постов при последнем посещении', 'Posts at the last visit'],
+	myPostsRep:     ['Ответов на ваши посты', 'Replies to your posts'],
 	newPosts:       ['Количество новых постов', 'Number of new posts'],
 	thrPage:        ['Тред на @странице', 'Thread on @page'],
 	hiddenPosts:    ['Скрытые посты', 'Hidden posts'],
@@ -1653,6 +1654,7 @@ function* readPostsData(firstPost) {
 			if(aib.t) {
 				f.cnt = thr.pcount;
 				f['new'] = 0;
+				f.you = 0;
 				if(Cfg.markNewPosts && f.last) {
 					let lastPost = pByNum.get(+f.last.match(/\d+/));
 					if(lastPost) {
@@ -2691,10 +2693,10 @@ function showFavoritesWindow(body, data) {
 								<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>
 							</svg>
 						</span>
+						<span class="de-fav-inf-you" title="${ Lng.myPostsRep[lang] }"${
+							t.you ? '' : ' style="display: none;"' }>${ t.you || 0 }</span>
 						<span class="de-fav-inf-new" title="${ Lng.newPosts[lang] }"${
-							t['new'] ? '' : ' style="display: none;"' }>
-							${ t['new'] || 0 }
-						</span>
+							t['new'] ? '' : ' style="display: none;"' }>${ t['new'] || 0 }</span>
 						<span class="de-fav-inf-old" title="${ Lng.oldPosts[lang] }">${ t.cnt }</span>
 						<span class="de-fav-inf-page" title="${ Lng.thrPage[lang] }"></span>
 					</div>
@@ -2783,6 +2785,7 @@ function showFavoritesWindow(body, data) {
 			}
 
 			const countEl = $q('.de-fav-inf-new', el);
+			const youEl = countEl.previousElementSibling;
 			const iconEl = $q('.de-fav-inf-icon', el);
 			const titleEl = iconEl.parentNode;
 			// setAttribute for class is used because of SVG (for correct work in some browsers)
@@ -2808,6 +2811,7 @@ function showFavoritesWindow(body, data) {
 				}
 				last404 = false;
 				$hide(countEl);
+				$hide(youEl);
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 				f.err = titleEl.title = getErrorMessage(e);
 				isUpdate = true;
@@ -2841,14 +2845,32 @@ function showFavoritesWindow(body, data) {
 			}
 
 			// Updating a counter of new posts
-			const cnt = $Q(aib.qRPost, form).length + 1 - f.cnt;
+			const posts = $Q(aib.qRPost, form);
+			const cnt = posts.length + 1 - f.cnt;
 			countEl.textContent = cnt;
 			if(cnt === 0) {
 				$hide(countEl); // Hide counter if no new posts
+				$hide(youEl);
 			} else {
 				$show(countEl);
 				f['new'] = cnt;
 				isUpdate = true;
+
+				// Check for replies to my posts
+				f.you = 0;
+				for(let j = 0; j < cnt; ++j) {
+					const links = $Q(aib.qPostMsg + ' a', posts[posts.length - 1 - j]);
+					for(let a = 0, len = links.length, num; a < len; ++a) {
+						const tc = links[a].textContent;
+						if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && MyPosts.has(num)) {
+							f.you++;
+						}
+					}
+				}
+				if(f.you) {
+					youEl.textContent = f.you;
+					$show(youEl);
+				}
 			}
 		}
 		AjaxCache.clear();
@@ -11630,6 +11652,7 @@ class Thread {
 				fav[h][b][this.num] = {
 					'cnt': this.pcount,
 					'new': 0,
+					'you': 0,
 					'txt': this.op.title,
 					'url': aib.getThrdUrl(b, this.num),
 					'last': aib.anchor + this.last.num,
@@ -11965,11 +11988,12 @@ class Thread {
 						this.op.num + '"] .de-fav-inf-new', el);
 					$hide(el);
 					el.textContent = 0;
-					el = el.nextElementSibling;
+					el = el.nextElementSibling; // .de-fav-inf-old
 					el.textContent = this.pcount;
 				}
 				f.cnt = this.pcount;
 				f['new'] = 0;
+				f.you = 0;
 				f.last = aib.anchor + this.last.num;
 				setStored('DESU_Favorites', JSON.stringify(fav));
 			}
@@ -15411,15 +15435,15 @@ function scriptCSS() {
 	.de-fav-link { flex: none; margin-left: 4px; text-decoration: none; border: none; }
 	.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 	.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }
+	.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }
+	.de-fav-inf-icon { margin-bottom: -3px; }
+	.de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }
 	.de-fav-inf-new { color: #424f79; }
 	.de-fav-inf-new::after { content: " +"; }
 	.de-fav-inf-old { color: #4f7942; }
-	.de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait),
-	.de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use,
-	.de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use,
-	.de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }
-	.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }
-	.de-fav-inf-icon { margin-bottom: -3px; }
+	.de-fav-inf-you { padding: 0 4px; margin-right: 4px; border-radius: 3px; color: #fff; background-color: #424f79; opacity: 0.65; }
+	.de-fav-inf-you::before { content: "["; }
+	.de-fav-inf-you::after { content: "] "; }
 	.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }
 	.de-fold-block:not(:first-child) { border-top: none; }` +
 

@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '103de84';
+	var commit = '865f7c6';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3381,6 +3381,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		infoPage: ['Проверить актуальность тредов (до 10 страницы)', 'Check for threads actuality (up to 10 page)'],
 		clrDeleted: ['Очистить недоступные (404) треды', 'Clear inaccessible (404) threads'],
 		oldPosts: ['Постов при последнем посещении', 'Posts at the last visit'],
+		myPostsRep: ['Ответов на ваши посты', 'Replies to your posts'],
 		newPosts: ['Количество новых постов', 'Number of new posts'],
 		thrPage: ['Тред на @странице', 'Thread on @page'],
 		hiddenPosts: ['Скрытые посты', 'Hidden posts'],
@@ -4798,6 +4799,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							if (aib.t) {
 								f.cnt = thr.pcount;
 								f['new'] = 0;
+								f.you = 0;
 								if (Cfg.markNewPosts && f.last) {
 									lastPost = pByNum.get(+f.last.match(/\d+/));
 
@@ -5879,7 +5881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 					}
 
-					innerHtml += '<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t<input class="de-fav-switch" type="checkbox">\n\t\t\t\t\t<a class="de-fav-link" href="' + (t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last : h === aib.host ? aib.anchor + t.last : '')) + '" rel="noreferrer">\n\t\t\t\t\t\t' + tNum + '\n\t\t\t\t\t</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<span class="de-fav-inf-iwrap" ' + (!t.err ? '' : t.err === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' : 'title="' + t.err + '"') + '>\n\t\t\t\t\t\t\t<svg class="de-fav-inf-icon ' + (!t.err ? '' : t.err === 'Closed' || t.err === 'Archived' ? 'de-fav-closed' : 'de-fav-unavail') + '">\n\t\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + (t['new'] ? '' : ' style="display: none;"') + '>\n\t\t\t\t\t\t\t' + (t['new'] || 0) + '\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>';
+					innerHtml += '<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t<input class="de-fav-switch" type="checkbox">\n\t\t\t\t\t<a class="de-fav-link" href="' + (t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last : h === aib.host ? aib.anchor + t.last : '')) + '" rel="noreferrer">\n\t\t\t\t\t\t' + tNum + '\n\t\t\t\t\t</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<span class="de-fav-inf-iwrap" ' + (!t.err ? '' : t.err === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' : 'title="' + t.err + '"') + '>\n\t\t\t\t\t\t\t<svg class="de-fav-inf-icon ' + (!t.err ? '' : t.err === 'Closed' || t.err === 'Archived' ? 'de-fav-closed' : 'de-fav-unavail') + '">\n\t\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-you" title="' + Lng.myPostsRep[lang] + '"' + (t.you ? '' : ' style="display: none;"') + '>' + (t.you || 0) + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + (t['new'] ? '' : ' style="display: none;"') + '>' + (t['new'] || 0) + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>';
 				}
 				if (!innerHtml) {
 					continue;
@@ -5946,7 +5948,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(regeneratorRuntime.mark(function _callee2() {
-			var fav, isUpdate, last404, els, i, len, el, host, _b, num, f, countEl, iconEl, titleEl, form, isArchived, _ref5, _ref6, bArch, cnt;
+			var fav, isUpdate, last404, els, i, len, el, host, _b, num, f, countEl, youEl, iconEl, titleEl, form, isArchived, _ref5, _ref6, bArch, posts, cnt, j, links, a, _len3, _num, tc;
 
 			return regeneratorRuntime.wrap(function _callee2$(_context7) {
 				while (1) {
@@ -5963,7 +5965,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 6:
 							if (!(i < len)) {
-								_context7.next = 59;
+								_context7.next = 62;
 								break;
 							}
 
@@ -5979,78 +5981,80 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								break;
 							}
 
-							return _context7.abrupt('continue', 56);
+							return _context7.abrupt('continue', 59);
 
 						case 14:
 							countEl = $q('.de-fav-inf-new', el);
+							youEl = countEl.previousElementSibling;
 							iconEl = $q('.de-fav-inf-icon', el);
 							titleEl = iconEl.parentNode;
 
 							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 							titleEl.title = Lng.updating[lang];
 							form = void 0, isArchived = void 0;
-							_context7.prev = 20;
+							_context7.prev = 21;
 
 							if (aib.iichan) {
-								_context7.next = 27;
+								_context7.next = 28;
 								break;
 							}
 
-							_context7.next = 24;
+							_context7.next = 25;
 							return ajaxLoad(aib.getThrdUrl(_b, num));
 
-						case 24:
+						case 25:
 							form = _context7.sent;
-							_context7.next = 33;
+							_context7.next = 34;
 							break;
 
-						case 27:
-							_context7.next = 29;
+						case 28:
+							_context7.next = 30;
 							return ajaxLoad(aib.getThrdUrl(_b, num), true, false, aib.iichan);
 
-						case 29:
+						case 30:
 							_ref5 = _context7.sent;
 							_ref6 = _slicedToArray(_ref5, 2);
 							form = _ref6[0];
 							isArchived = _ref6[1];
 
-						case 33:
+						case 34:
 							last404 = false;
-							_context7.next = 52;
+							_context7.next = 54;
 							break;
 
-						case 36:
-							_context7.prev = 36;
-							_context7.t1 = _context7['catch'](20);
+						case 37:
+							_context7.prev = 37;
+							_context7.t1 = _context7['catch'](21);
 
 							if (!(_context7.t1 instanceof AjaxError && _context7.t1.code === 404)) {
-								_context7.next = 46;
+								_context7.next = 47;
 								break;
 							}
 
 							if (!last404) {
-								_context7.next = 43;
+								_context7.next = 44;
 								break;
 							}
 
 							Thread.removeSavedData(_b, num); 
-							_context7.next = 46;
+							_context7.next = 47;
 							break;
 
-						case 43:
+						case 44:
 							last404 = true;
 							--i; 
-							return _context7.abrupt('continue', 56);
+							return _context7.abrupt('continue', 59);
 
-						case 46:
+						case 47:
 							last404 = false;
 							$hide(countEl);
+							$hide(youEl);
 							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 							f.err = titleEl.title = getErrorMessage(_context7.t1);
 							isUpdate = true;
-							return _context7.abrupt('continue', 56);
+							return _context7.abrupt('continue', 59);
 
-						case 52:
+						case 54:
 
 							if ($q(aib.qClosed, form)) {
 								iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
@@ -6078,34 +6082,53 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								}
 							}
 
-							cnt = $Q(aib.qRPost, form).length + 1 - f.cnt;
+							posts = $Q(aib.qRPost, form);
+							cnt = posts.length + 1 - f.cnt;
 
 							countEl.textContent = cnt;
 							if (cnt === 0) {
 								$hide(countEl); 
+								$hide(youEl);
 							} else {
 								$show(countEl);
 								f['new'] = cnt;
 								isUpdate = true;
+
+								f.you = 0;
+								for (j = 0; j < cnt; ++j) {
+									links = $Q(aib.qPostMsg + ' a', posts[posts.length - 1 - j]);
+
+									for (a = 0, _len3 = links.length; a < _len3; ++a) {
+										tc = links[a].textContent;
+
+										if (tc[0] === '>' && tc[1] === '>' && (_num = +tc.substr(2)) && MyPosts.has(_num)) {
+											f.you++;
+										}
+									}
+								}
+								if (f.you) {
+									youEl.textContent = f.you;
+									$show(youEl);
+								}
 							}
 
-						case 56:
+						case 59:
 							++i;
 							_context7.next = 6;
 							break;
 
-						case 59:
+						case 62:
 							AjaxCache.clear();
 							if (isUpdate) {
 								setStored('DESU_Favorites', JSON.stringify(fav));
 							}
 
-						case 61:
+						case 64:
 						case 'end':
 							return _context7.stop();
 					}
 				}
-			}, _callee2, this, [[20, 36]]);
+			}, _callee2, this, [[21, 37]]);
 		}))));
 
 		div.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(regeneratorRuntime.mark(function _callee3() {
@@ -8403,7 +8426,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return txt;
 			}
 			return txt.replace(new RegExp(this.regex, 'g'), function (str) {
-				for (var _len3 = arguments.length, args = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+				for (var _len4 = arguments.length, args = Array(_len4 > 1 ? _len4 - 1 : 0), _key3 = 1; _key3 < _len4; _key3++) {
 					args[_key3 - 1] = arguments[_key3];
 				}
 
@@ -8544,7 +8567,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		    videoObj = _ref14[2],
 		    id = _ref14[3];
 
-		for (var _len4 = arguments.length, data = Array(_len4 > 2 ? _len4 - 2 : 0), _key4 = 2; _key4 < _len4; _key4++) {
+		for (var _len5 = arguments.length, data = Array(_len5 > 2 ? _len5 - 2 : 0), _key4 = 2; _key4 < _len5; _key4++) {
 			data[_key4 - 2] = arguments[_key4];
 		}
 
@@ -8755,7 +8778,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			if (Cfg.addVimeo) {
 				links = $Q('a[href*="vimeo.com"]', isPost ? data.el : data);
-				for (var _i7 = 0, _len5 = links.length; _i7 < _len5; ++_i7) {
+				for (var _i7 = 0, _len6 = links.length; _i7 < _len6; ++_i7) {
 					var _link = links[_i7];
 					var _m = _link.href.match(Videos.vimReg);
 					if (_m) {
@@ -8767,7 +8790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 			var vids = aib.fixVideo(isPost, data);
-			for (var _i8 = 0, _len6 = vids.length; _i8 < _len6; ++_i8) {
+			for (var _i8 = 0, _len7 = vids.length; _i8 < _len7; ++_i8) {
 				var _vids$_i = _slicedToArray(vids[_i8], 3),
 				    pst = _vids$_i[0],
 				    _m2 = _vids$_i[1],
@@ -8803,7 +8826,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 		if (Cfg.addVocaroo) {
 			var _els = $Q('a[href*="vocaroo.com"]', isPost ? data.el : data);
-			for (var _i9 = 0, _len7 = _els.length; _i9 < _len7; ++_i9) {
+			for (var _i9 = 0, _len8 = _els.length; _i9 < _len8; ++_i9) {
 				var _link2 = _els[_i9];
 				var _el2 = _link2.previousSibling;
 				if (!_el2 || _el2.className !== 'de-vocaroo') {
@@ -9718,17 +9741,17 @@ true, true],
 				}
 			}
 			sp = sp.sort();
-			for (var _i19 = 0, _len8 = sp.length - 1; _i19 < _len8; _i19++) {
+			for (var _i19 = 0, _len9 = sp.length - 1; _i19 < _len9; _i19++) {
 				if (sp[_i19][0] === sp[_i19 + 1][0] && sp[_i19][1] <= sp[_i19 + 1][1] && sp[_i19][1] >= sp[_i19 + 1][1] && (sp[_i19][2] === null || 
 				sp[_i19][2] === undefined || 
 				sp[_i19][2] <= sp[_i19 + 1][2] && sp[_i19][2] >= sp[_i19 + 1][2])) {
 					sp.splice(_i19 + 1, 1);
 					_i19--;
-					_len8--;
+					_len9--;
 				} else if (sp[_i19][0] === 0xFF) {
 					sp.push(sp.splice(_i19, 1)[0]);
 					_i19--;
-					_len8--;
+					_len9--;
 				}
 			}
 		},
@@ -14690,7 +14713,7 @@ true, true],
 		}
 		if (Cfg.addImgs) {
 			els = Array.from($Q('.de-img-pre', post.el));
-			for (var _i36 = 0, _len9 = els.length; _i36 < _len9; ++_i36) {
+			for (var _i36 = 0, _len10 = els.length; _i36 < _len10; ++_i36) {
 				var _el3 = els[_i36];
 				last = new EmbeddedImage(post, _el3, last);
 				filesMap.set(_el3, last);
@@ -16226,6 +16249,7 @@ true, true],
 						fav[h][b][_this50.num] = {
 							'cnt': _this50.pcount,
 							'new': 0,
+							'you': 0,
 							'txt': _this50.op.title,
 							'url': aib.getThrdUrl(b, _this50.num),
 							'last': aib.anchor + _this50.last.num,
@@ -16354,7 +16378,7 @@ true, true],
 					temp.innerHTML = aib.fixHTML(html.join(''));
 					fragm = temp.content;
 					var _posts = $Q(aib.qRPost, fragm);
-					for (var _i45 = 0, _len10 = _posts.length; _i45 < _len10; ++_i45) {
+					for (var _i45 = 0, _len11 = _posts.length; _i45 < _len11; ++_i45) {
 						last = this._addPost(fragm, _posts[_i45], begin + _i45 + 1, last, maybeVParser);
 						newVisCount -= maybeSpells.value.run(last);
 					}
@@ -16600,11 +16624,12 @@ true, true],
 							el = $q('.de-fav-current > .de-fav-entries > .de-entry[de-num="' + _this52.op.num + '"] .de-fav-inf-new', el);
 							$hide(el);
 							el.textContent = 0;
-							el = el.nextElementSibling;
+							el = el.nextElementSibling; 
 							el.textContent = _this52.pcount;
 						}
 						f.cnt = _this52.pcount;
 						f['new'] = 0;
+						f.you = 0;
 						f.last = aib.anchor + _this52.last.num;
 						setStored('DESU_Favorites', JSON.stringify(fav));
 					}
@@ -16830,7 +16855,7 @@ true, true],
 			var origFormData = FormData,
 			    origAppend = FormData.prototype.append;
 			FormData = function FormData() {
-				for (var _len11 = arguments.length, args = Array(_len11), _key5 = 0; _key5 < _len11; _key5++) {
+				for (var _len12 = arguments.length, args = Array(_len12), _key5 = 0; _key5 < _len12; _key5++) {
 					args[_key5] = arguments[_key5];
 				}
 
@@ -16877,7 +16902,7 @@ true, true],
 			isGlobal: isGM || isChromeStorage || isScriptStorage,
 			scriptInstall: firefox ? typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish' : isChromeStorage ? 'Chrome extension' : isGM ? 'Monkey' : 'Native userscript',
 			cssMatches: function cssMatches(leftSel) {
-				for (var _len12 = arguments.length, rules = Array(_len12 > 1 ? _len12 - 1 : 0), _key6 = 1; _key6 < _len12; _key6++) {
+				for (var _len13 = arguments.length, rules = Array(_len13 > 1 ? _len13 - 1 : 0), _key6 = 1; _key6 < _len13; _key6++) {
 					rules[_key6 - 1] = arguments[_key6];
 				}
 
@@ -20455,7 +20480,7 @@ true, true],
 
 		'#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ' + (nav.Presto ? '-2px -10px' : '0 0 1px -10px') + '; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\n\t.de-parea { text-align: center; }\n\t.de-parea-btn-close::after { content: "' + Lng.hideForm[lang] + '"; }\n\t.de-parea-btn-thrd::after { content: "' + Lng.makeThrd[lang] + '"; }\n\t.de-parea-btn-reply::after { content: "' + Lng.makeReply[lang] + '"; }\n\t#de-pform > form { padding: 0; margin: 0; border: none; }\n\t#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }\n\t.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\n\t.de-win-inpost > .de-resizer { display: none; }\n\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\n\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\n\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\n\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\n\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\n\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\n\t#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\n\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }') +
 
-		'.de-fav-del > #de-fav-buttons { display: none; }\n\t.de-fav-del > #de-fav-delbuttons { display: block !important; }\n\t.de-fav-del .de-fav-header-switch, .de-fav-del .de-fav-switch { display: block !important; margin: 2px 0 2px 4px !important; flex: none; }\n\t#de-fav-delbuttons { display: none; }\n\t.de-fav-header-switch, .de-fav-switch { display: none; }\n\t.de-fav-header { margin-top: 0; margin-bottom: 0; padding: 1px 0; display: flex; }\n\t.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }\n\t.de-fav-header-link { margin-left: 4px; color: inherit; font-weight: bold; font-size: 14px; flex: auto; text-decoration: none; outline: none; }\n\t.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\n\t.de-fav-link { flex: none; margin-left: 4px; text-decoration: none; border: none; }\n\t.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n\t.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }\n\t.de-fav-inf-new { color: #424f79; }\n\t.de-fav-inf-new::after { content: " +"; }\n\t.de-fav-inf-old { color: #4f7942; }\n\t.de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait),\n\t.de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use,\n\t.de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use,\n\t.de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }\n\t.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }\n\t.de-fav-inf-icon { margin-bottom: -3px; }\n\t.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }\n\t.de-fold-block:not(:first-child) { border-top: none; }' +
+		'.de-fav-del > #de-fav-buttons { display: none; }\n\t.de-fav-del > #de-fav-delbuttons { display: block !important; }\n\t.de-fav-del .de-fav-header-switch, .de-fav-del .de-fav-switch { display: block !important; margin: 2px 0 2px 4px !important; flex: none; }\n\t#de-fav-delbuttons { display: none; }\n\t.de-fav-header-switch, .de-fav-switch { display: none; }\n\t.de-fav-header { margin-top: 0; margin-bottom: 0; padding: 1px 0; display: flex; }\n\t.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }\n\t.de-fav-header-link { margin-left: 4px; color: inherit; font-weight: bold; font-size: 14px; flex: auto; text-decoration: none; outline: none; }\n\t.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\n\t.de-fav-link { flex: none; margin-left: 4px; text-decoration: none; border: none; }\n\t.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n\t.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }\n\t.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }\n\t.de-fav-inf-icon { margin-bottom: -3px; }\n\t.de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }\n\t.de-fav-inf-new { color: #424f79; }\n\t.de-fav-inf-new::after { content: " +"; }\n\t.de-fav-inf-old { color: #4f7942; }\n\t.de-fav-inf-you { padding: 0 4px; margin-right: 4px; border-radius: 3px; color: #fff; background-color: #424f79; opacity: 0.65; }\n\t.de-fav-inf-you::before { content: "["; }\n\t.de-fav-inf-you::after { content: "] "; }\n\t.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }\n\t.de-fold-block:not(:first-child) { border-top: none; }' +
 
 		'#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\n\t.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\n\t#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px;}\n\t.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\n\t#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\n\t#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\n\t#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\n\t:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }' + (
 
