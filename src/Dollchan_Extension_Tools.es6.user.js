@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '315f943';
+const commit = 'f5edab0';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2768,8 +2768,12 @@ function showFavoritesWindow(body, data) {
 	// "Refresh" button. Updates counters of new posts for each thread entry.
 	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(function* () {
 		let fav = yield* getStoredObj('DESU_Favorites');
+		if(!fav[aib.host]) {
+			return;
+		}
 		let isUpdate = false;
 		let last404 = false;
+		const myposts = JSON.parse(locStorage['de-myposts'] || '{}');
 		const els = $Q('.de-entry');
 		for(let i = 0, len = els.length; i < len; ++i) {
 			const el = els[i];
@@ -2780,7 +2784,7 @@ function showFavoritesWindow(body, data) {
 
 			// Updating doesn't works for other domains because of different posts structure
 			// Updating is not needed in closed threads
-			if(host !== aib.host || f.err === 'Closed' || f.err === 'Archived' ) {
+			if(f.err === 'Closed' || f.err === 'Archived' ) {
 				continue;
 			}
 
@@ -2857,19 +2861,21 @@ function showFavoritesWindow(body, data) {
 				isUpdate = true;
 
 				// Check for replies to my posts
-				f.you = 0;
-				for(let j = 0; j < cnt; ++j) {
-					const links = $Q(aib.qPostMsg + ' a', posts[posts.length - 1 - j]);
-					for(let a = 0, len = links.length, num; a < len; ++a) {
-						const tc = links[a].textContent;
-						if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && MyPosts.has(num)) {
-							f.you++;
+				if(myposts && myposts[b]) {
+					f.you = 0;
+					for(let j = 0; j < cnt; ++j) {
+						const links = $Q(aib.qPostMsg + ' a', posts[posts.length - 1 - j]);
+						for(let a = 0, len = links.length, num; a < len; ++a) {
+							const tc = links[a].textContent;
+							if(tc[0] === '>' && tc[1] === '>' && myposts[b][tc.substr(2)]) {
+								f.you++;
+							}
 						}
 					}
-				}
-				if(f.you) {
-					youEl.textContent = f.you;
-					$show(youEl);
+					if(f.you) {
+						youEl.textContent = f.you;
+						$show(youEl);
+					}
 				}
 			}
 		}

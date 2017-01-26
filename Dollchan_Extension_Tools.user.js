@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '315f943';
+	var commit = 'f5edab0';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -5948,7 +5948,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(regeneratorRuntime.mark(function _callee2() {
-			var fav, isUpdate, last404, els, i, len, el, host, _b, num, f, countEl, youEl, iconEl, titleEl, form, isArchived, _ref5, _ref6, bArch, posts, cnt, j, links, a, _len3, _num, tc;
+			var fav, isUpdate, last404, myposts, els, i, len, el, host, _b, num, f, countEl, youEl, iconEl, titleEl, form, isArchived, _ref5, _ref6, bArch, posts, cnt, j, links, a, _len3, _num, tc;
 
 			return regeneratorRuntime.wrap(function _callee2$(_context7) {
 				while (1) {
@@ -5958,14 +5958,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 1:
 							fav = _context7.t0;
+
+							if (fav[aib.host]) {
+								_context7.next = 4;
+								break;
+							}
+
+							return _context7.abrupt('return');
+
+						case 4:
 							isUpdate = false;
 							last404 = false;
+							myposts = JSON.parse(locStorage['de-myposts'] || '{}');
 							els = $Q('.de-entry');
 							i = 0, len = els.length;
 
-						case 6:
+						case 9:
 							if (!(i < len)) {
-								_context7.next = 62;
+								_context7.next = 65;
 								break;
 							}
 
@@ -5976,14 +5986,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							f = fav[host][_b][num];
 
 
-							if (!(host !== aib.host || f.err === 'Closed' || f.err === 'Archived')) {
-								_context7.next = 14;
+							if (!(f.err === 'Closed' || f.err === 'Archived')) {
+								_context7.next = 17;
 								break;
 							}
 
-							return _context7.abrupt('continue', 59);
+							return _context7.abrupt('continue', 62);
 
-						case 14:
+						case 17:
 							countEl = $q('.de-fav-inf-new', el);
 							youEl = countEl.previousElementSibling;
 							iconEl = $q('.de-fav-inf-icon', el);
@@ -5992,69 +6002,69 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 							titleEl.title = Lng.updating[lang];
 							form = void 0, isArchived = void 0;
-							_context7.prev = 21;
+							_context7.prev = 24;
 
 							if (aib.iichan) {
-								_context7.next = 28;
+								_context7.next = 31;
 								break;
 							}
 
-							_context7.next = 25;
+							_context7.next = 28;
 							return ajaxLoad(aib.getThrdUrl(_b, num));
 
-						case 25:
+						case 28:
 							form = _context7.sent;
-							_context7.next = 34;
+							_context7.next = 37;
 							break;
 
-						case 28:
-							_context7.next = 30;
+						case 31:
+							_context7.next = 33;
 							return ajaxLoad(aib.getThrdUrl(_b, num), true, false, aib.iichan);
 
-						case 30:
+						case 33:
 							_ref5 = _context7.sent;
 							_ref6 = _slicedToArray(_ref5, 2);
 							form = _ref6[0];
 							isArchived = _ref6[1];
 
-						case 34:
+						case 37:
 							last404 = false;
-							_context7.next = 54;
+							_context7.next = 57;
 							break;
 
-						case 37:
-							_context7.prev = 37;
-							_context7.t1 = _context7['catch'](21);
+						case 40:
+							_context7.prev = 40;
+							_context7.t1 = _context7['catch'](24);
 
 							if (!(_context7.t1 instanceof AjaxError && _context7.t1.code === 404)) {
-								_context7.next = 47;
+								_context7.next = 50;
 								break;
 							}
 
 							if (!last404) {
-								_context7.next = 44;
+								_context7.next = 47;
 								break;
 							}
 
 							Thread.removeSavedData(_b, num); 
-							_context7.next = 47;
+							_context7.next = 50;
 							break;
 
-						case 44:
+						case 47:
 							last404 = true;
 							--i; 
-							return _context7.abrupt('continue', 59);
+							return _context7.abrupt('continue', 62);
 
-						case 47:
+						case 50:
 							last404 = false;
 							$hide(countEl);
 							$hide(youEl);
 							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 							f.err = titleEl.title = getErrorMessage(_context7.t1);
 							isUpdate = true;
-							return _context7.abrupt('continue', 59);
+							return _context7.abrupt('continue', 62);
 
-						case 54:
+						case 57:
 
 							if ($q(aib.qClosed, form)) {
 								iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
@@ -6094,41 +6104,43 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								f['new'] = cnt;
 								isUpdate = true;
 
-								f.you = 0;
-								for (j = 0; j < cnt; ++j) {
-									links = $Q(aib.qPostMsg + ' a', posts[posts.length - 1 - j]);
+								if (myposts && myposts[_b]) {
+									f.you = 0;
+									for (j = 0; j < cnt; ++j) {
+										links = $Q(aib.qPostMsg + ' a', posts[posts.length - 1 - j]);
 
-									for (a = 0, _len3 = links.length; a < _len3; ++a) {
-										tc = links[a].textContent;
+										for (a = 0, _len3 = links.length; a < _len3; ++a) {
+											tc = links[a].textContent;
 
-										if (tc[0] === '>' && tc[1] === '>' && (_num = +tc.substr(2)) && MyPosts.has(_num)) {
-											f.you++;
+											if (tc[0] === '>' && tc[1] === '>' && myposts[_b][tc.substr(2)]) {
+												f.you++;
+											}
 										}
 									}
-								}
-								if (f.you) {
-									youEl.textContent = f.you;
-									$show(youEl);
+									if (f.you) {
+										youEl.textContent = f.you;
+										$show(youEl);
+									}
 								}
 							}
 
-						case 59:
+						case 62:
 							++i;
-							_context7.next = 6;
+							_context7.next = 9;
 							break;
 
-						case 62:
+						case 65:
 							AjaxCache.clear();
 							if (isUpdate) {
 								setStored('DESU_Favorites', JSON.stringify(fav));
 							}
 
-						case 64:
+						case 67:
 						case 'end':
 							return _context7.stop();
 					}
 				}
-			}, _callee2, this, [[21, 37]]);
+			}, _callee2, this, [[24, 40]]);
 		}))));
 
 		div.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(regeneratorRuntime.mark(function _callee3() {
