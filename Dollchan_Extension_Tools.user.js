@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = 'f5edab0';
+	var commit = 'a9a154f';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -5986,7 +5986,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							f = fav[host][_b][num];
 
 
-							if (!(f.err === 'Closed' || f.err === 'Archived')) {
+							if (!(host !== aib.host || f.err === 'Closed' || f.err === 'Archived')) {
 								_context7.next = 17;
 								break;
 							}

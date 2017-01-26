@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = 'f5edab0';
+const commit = 'a9a154f';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -2784,7 +2784,7 @@ function showFavoritesWindow(body, data) {
 
 			// Updating doesn't works for other domains because of different posts structure
 			// Updating is not needed in closed threads
-			if(f.err === 'Closed' || f.err === 'Archived' ) {
+			if(host !== aib.host || f.err === 'Closed' || f.err === 'Archived' ) {
 				continue;
 			}
 
