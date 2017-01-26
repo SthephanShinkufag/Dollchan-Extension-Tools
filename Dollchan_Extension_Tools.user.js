@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = 'a9a154f';
+	var commit = '9bcc2e5';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -12094,7 +12094,7 @@ true, true],
 		if (aib.getSubmitData) {
 			if (aib.jsonSubmit) {
 				try {
-					data = JSON.parse(isDocument ? data.body.textContent : data);
+					data = JSON.parse(isDocument ? data.body.textContent : aib._8ch ? data.replace('|', ',') : data);
 				} catch (e) {
 					error = getErrorMessage(e);
 				}
@@ -18472,11 +18472,18 @@ true, true],
 
 				var _this74 = _possibleConstructorReturn(this, (_8chNet.__proto__ || Object.getPrototypeOf(_8chNet)).call(this, prot, dm));
 
+				_this74._8ch = true;
+
 				_this74._capUpdPromise = null;
 				return _this74;
 			}
 
 			_createClass(_8chNet, [{
+				key: 'getSubmitData',
+				value: function getSubmitData(json) {
+					return { error: json.error || json._m, postNum: json.id && +json.id };
+				}
+			}, {
 				key: 'initCaptcha',
 				value: function initCaptcha(cap) {
 					$q('td', cap.trEl).innerHTML = '\n\t\t\t<input placeholder="{ Lng.cap[lang] }" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="6" autocomplete="off">\n\t\t\t<input class="captcha_cookie" name="captcha_cookie" type="hidden">\n\t\t\t<div class="captcha_html"></div>';

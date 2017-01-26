@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = 'a9a154f';
+const commit = '9bcc2e5';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8240,7 +8240,8 @@ function checkUpload(data) {
 	if(aib.getSubmitData) {
 		if(aib.jsonSubmit) {
 			try {
-				data = JSON.parse(isDocument ? data.body.textContent : data);
+				data = JSON.parse(isDocument ? data.body.textContent :
+					(aib._8ch ? data.replace('|', ',') : data));
 			} catch(e) {
 				error = getErrorMessage(e);
 			}
@@ -13401,11 +13402,15 @@ function getImageBoard(checkDomains, checkEngines) {
 	class _8chNet extends Vichan {
 		constructor(prot, dm) {
 			super(prot, dm);
+			this._8ch = true;
 
 			this._capUpdPromise = null;
 		}
 		get css() {
 			return super.css + '#post-moderation-fields { display: initial !important; }';
+		}
+		getSubmitData(json) {
+			return { error: json.error || json._m, postNum: json.id && +json.id };
 		}
 		initCaptcha(cap) {
 			$q('td', cap.trEl).innerHTML = `
