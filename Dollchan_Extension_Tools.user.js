@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '9bcc2e5';
+	var commit = '58ee92b';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -12093,8 +12093,19 @@ true, true],
 		    isDocument = data instanceof HTMLDocument;
 		if (aib.getSubmitData) {
 			if (aib.jsonSubmit) {
+				if (aib._8ch && data.substring(0, 16) === '{"captcha":true|') {
+					$ajax('/dnsbls_bypass_popup.php').then(function (xhr) {
+						$popup(xhr.responseText, 'upload', false).style.width = '350px';
+						if (pr.isQuick) {
+							pr.setReply(true, false);
+						}
+						updater.sendErrNotif();
+						updater['continue']();
+					});
+					return;
+				}
 				try {
-					data = JSON.parse(isDocument ? data.body.textContent : aib._8ch ? data.replace('|', ',') : data);
+					data = JSON.parse(isDocument ? data.body.textContent : data);
 				} catch (e) {
 					error = getErrorMessage(e);
 				}
@@ -18479,11 +18490,6 @@ true, true],
 			}
 
 			_createClass(_8chNet, [{
-				key: 'getSubmitData',
-				value: function getSubmitData(json) {
-					return { error: json.error || json._m, postNum: json.id && +json.id };
-				}
-			}, {
 				key: 'initCaptcha',
 				value: function initCaptcha(cap) {
 					$q('td', cap.trEl).innerHTML = '\n\t\t\t<input placeholder="{ Lng.cap[lang] }" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="6" autocomplete="off">\n\t\t\t<input class="captcha_cookie" name="captcha_cookie" type="hidden">\n\t\t\t<div class="captcha_html"></div>';

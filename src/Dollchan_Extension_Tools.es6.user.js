@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '9bcc2e5';
+const commit = '58ee92b';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8239,9 +8239,19 @@ function checkUpload(data) {
 	var error = null, postNum = null, isDocument = data instanceof HTMLDocument;
 	if(aib.getSubmitData) {
 		if(aib.jsonSubmit) {
+			if(aib._8ch && data.substring(0, 16) === '{"captcha":true|') {
+				$ajax('/dnsbls_bypass_popup.php').then(xhr => {
+					$popup(xhr.responseText, 'upload', false).style.width = '350px';
+					if(pr.isQuick) {
+						pr.setReply(true, false);
+					}
+					updater.sendErrNotif();
+					updater.continue();
+				});
+				return;
+			}
 			try {
-				data = JSON.parse(isDocument ? data.body.textContent :
-					(aib._8ch ? data.replace('|', ',') : data));
+				data = JSON.parse(isDocument ? data.body.textContent : data);
 			} catch(e) {
 				error = getErrorMessage(e);
 			}
@@ -13408,9 +13418,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return super.css + '#post-moderation-fields { display: initial !important; }';
-		}
-		getSubmitData(json) {
-			return { error: json.error || json._m, postNum: json.id && +json.id };
 		}
 		initCaptcha(cap) {
 			$q('td', cap.trEl).innerHTML = `
