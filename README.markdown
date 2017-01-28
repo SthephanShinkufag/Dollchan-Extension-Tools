@@ -19,4 +19,13 @@
 
 ### License
 
-© 2017 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
+© 2017 Dollchan Extension Tools Team. See the [LICENSE file](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/blob/master/LICENSE) for license rights and limitations (MIT).
+
+### ES5 compilation
+
+You can compile ES5 script version from ES6 source by next steps:
+
+* Install [Node.js](https://nodejs.org/) if not yet.
+* Install [Gulp](http://gulpjs.com/) globally: `npm install -g gulp`
+* Go to Dollchan repo and run `npm install` to update dependencies.
+* Run `gulp make` to compile into ES5 version.
