@@ -17033,7 +17033,7 @@ true, true],
 			this.qForm = '#postform';
 			this.qFormPassw = 'tr input[type="password"]'; 
 			this.qFormRedir = 'input[name="postredir"][value="1"]';
-			this.qFormRules = '.rules, #rules';
+			this.qFormRules = '.rules, #rules, .regras';
 			this.qOmitted = '.omittedposts';
 			this.qOPost = '.oppost';
 			this.qPages = 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type';
@@ -17351,7 +17351,7 @@ true, true],
 		}, {
 			key: 'qThread',
 			get: function get() {
-				var val = $q('.thread') ? '.thread' : $q('div[id*="_info"][style*="float"]') ? 'div[id^="t"]:not([style])' : '[id^="thread"]';
+				var val = $q('.thread') ? '.thread' : $q('div[id*="_info"][style*="float"]') ? 'div[id^="t"]:not([style])' : !!$q('div[id^="thread"]') ? 'div[id^="thread"]' : '[id^="thread"]';
 				Object.defineProperty(this, 'qThread', { value: val });
 				return val;
 			}
@@ -19355,6 +19355,63 @@ true, true],
 		ibDomains['syn-ch.ru'] = Synch;
 		ibDomains['syn-ch.com'] = Synch;
 		ibDomains['syn-ch.org'] = Synch;
+
+		var _55chan = function (_Vichan4) {
+	      _inherits(_55chan, _Vichan4);
+
+	      function _55chan(prot, dm) {
+	        _classCallCheck(this, _55chan);
+
+	        var _this87 = _possibleConstructorReturn(this, (_55chan.__proto__ || Object.getPrototypeOf(_55chan)).call(this, prot, dm));
+
+	        _this87.qPostImg = 'img.post-image';
+	        _this87._capUpdPromise = null;
+
+	        return _this87;
+	      }
+
+	      //Copied from _8chnet (the only difference is that maxlength = 8 not 6)
+			_createClass(_55chan, [{
+				key: 'initCaptcha',
+				value: function initCaptcha(cap) {
+					$q('td', cap.trEl).innerHTML = '\n\t\t\t<input placeholder="{ Lng.cap[lang] }" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="8" autocomplete="off">\n\t\t\t<input class="captcha_cookie" name="captcha_cookie" type="hidden">\n\t\t\t<div class="captcha_html"></div>';
+					cap.textEl = $q('.captcha_text', cap.trEl);
+					return this.updateCaptcha(cap, true);
+				}
+			}, {
+				key: 'updateCaptcha',
+				value: function updateCaptcha(cap) {
+					var _this87 = this;
+						if (this._capUpdPromise) {
+						this._capUpdPromise.cancel();
+					}
+					return this._capUpdPromise = $ajax('/8chan-captcha/entrypoint.php?mode=get&extra=abcdefghijklmnopqrstuvwxyz').then(function (xhr) {
+						_this87._capUpdPromise = null;
+						var resp = JSON.parse(xhr.responseText);
+						$q('.captcha_cookie', cap.trEl).value = resp.cookie;
+						$q('.captcha_html', cap.trEl).innerHTML = resp.captchahtml;
+						var img = $q('img', cap.trEl);
+						if (img) {
+							cap.initImage(img);
+						}
+					})['catch'](function (e) {
+						if (!(e instanceof CancelError)) {
+							_this87._capUpdPromise = null;
+							return CancelablePromise.reject(e);
+						}
+					});
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return _get(_55chan.prototype.__proto__ || Object.getPrototypeOf(_55chan.prototype), 'css', this) + '#post-moderation-fields { display: initial !important; }';
+				}
+			}]);
+
+	      return _55chan;
+	    }(Vichan);
+
+	    ibDomains['55chan.org'] = _55chan;
 
 		var dm = localData ? localData.dm : window.location.hostname.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 		var prot = window.location.protocol;
