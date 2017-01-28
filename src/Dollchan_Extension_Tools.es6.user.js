@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '0699571';
+const commit = 'bc59572';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1615,7 +1615,7 @@ function* readCfg() {
 	lang = Cfg.language;
 	if(Cfg.updScript) {
 		checkForUpdates(false, val.lastUpd).then(data =>
-			onDOMLoaded(() => $popup(data, 'updavail')), emptyFn);
+			onDOMLoaded(() => $popup('updavail', data)), emptyFn);
 	}
 }
 
@@ -2896,7 +2896,7 @@ function showFavoritesWindow(body, data) {
 		if(!len) { // Cancel if no existed entries
 			return;
 		}
-		$popup(Lng.loading[lang], 'load-pages', true);
+		$popup('load-pages', Lng.loading[lang], true);
 
 		// Create indexed array of entries and "waiting" SVG icon for each entry
 		for(let i = 0; i < len; ++i) {
@@ -3059,7 +3059,7 @@ const cfgWindow = Object.create({
 
 		// "Global" button. Allows to save/load global settings.
 		nav.isGlobal && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], function() {
-			const el = $popup('<b>' + Lng.globalCfg[lang] + ':</b>', 'cfg-global', false);
+			const el = $popup('cfg-global', '<b>' + Lng.globalCfg[lang] + ':</b>');
 			// "Load" button. Applies global settings for current domain.
 			$bEnd(el, `<div id="de-list"><input type="button" value="${
 				Lng.load[lang] }"> ${ Lng.loadGlobal[lang] }</div>`
@@ -3068,7 +3068,7 @@ const cfgWindow = Object.create({
 					saveCfgObj(aib.dm, data.global);
 					window.location.reload();
 				} else {
-					$popup(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
+					$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
 				}
 			});
 			// "Save" button. Copies the domain settings into global.
@@ -3095,7 +3095,7 @@ const cfgWindow = Object.create({
 		// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
 		!nav.Presto && div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], () => {
 			// Create popup with controls
-			$popup('<b>' + Lng.cfgImpExp[lang] + ':</b><hr>' +
+			$popup('cfg-file', '<b>' + Lng.cfgImpExp[lang] + ':</b><hr>' +
 				'<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' +
 					'<input type="file" accept=".json" id="de-import-file"></div></div><hr>' +
 				'<div class="de-list"><a id="de-export-file" href="#">' +
@@ -3103,8 +3103,7 @@ const cfgWindow = Object.create({
 					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
 					Lng.panelBtn.fav[lang],
 					Lng.hidPstThrds[lang] + ' (' + aib.dm + ')',
-					Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>',
-				'cfg-file', false);
+					Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>');
 
 			// Import data from a file to the storage
 			$id('de-import-file').onchange = function({ target: { files: [file] } }) {
@@ -3116,7 +3115,7 @@ const cfgWindow = Object.create({
 					try {
 						obj = JSON.parse(data);
 					} catch(e) {
-						$popup(Lng.invalidData[lang], 'err-invaliddata', false);
+						$popup('err-invaliddata', Lng.invalidData[lang]);
 						return;
 					}
 					const cfgObj = obj.settings;
@@ -3148,7 +3147,7 @@ const cfgWindow = Object.create({
 						}
 					}
 					if(cfgObj || dmObj || isOldCfg) {
-						$popup(Lng.updating[lang], 'cfg-file', true);
+						$popup('cfg-file', Lng.updating[lang], true);
 						window.location.reload();
 						return;
 					}
@@ -3200,13 +3199,14 @@ const cfgWindow = Object.create({
 
 		// "Clear" button. Allows to clear settings/favorites/hidden/etc optionally.
 		div.appendChild($btn(Lng.reset[lang] + '...', Lng.resetCfg[lang], () => $popup(
+			'cfg-reset',
 			`<b>${ Lng.resetData[lang] }:</b><hr>` +
 			`<div class="de-list"><b>${ aib.dm }:</b>${
 				this._getList([Lng.panelBtn.cfg[lang], Lng.hidPstThrds[lang], Lng.myPosts[lang]])
 			}</div><hr>` +
 			`<div class="de-list"><b>${ Lng.allDomains[lang] }:</b>${
 				this._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]])
-			}</div><hr>`, 'cfg-reset', false
+			}</div><hr>`
 		).appendChild($btn(Lng.clear[lang], '', function() {
 			const els = $Q('input[type="checkbox"]', this.parentNode);
 			for(let i = 1, len = els.length; i < len; ++i) {
@@ -3230,12 +3230,12 @@ const cfgWindow = Object.create({
 				spawn(getStoredObj, 'DESU_Config').then(data => {
 					delete data[aib.dm];
 					setStored('DESU_Config', JSON.stringify(data));
-					$popup(Lng.updating[lang], 'cfg-reset', true);
+					$popup('cfg-reset', Lng.updating[lang], true);
 					window.location.reload();
 				});
 				return;
 			}
-			$popup(Lng.updating[lang], 'cfg-reset', true);
+			$popup('cfg-reset', Lng.updating[lang], true);
 			window.location.reload();
 		}))));
 	},
@@ -3441,7 +3441,7 @@ const cfgWindow = Object.create({
 				}
 				Promise.resolve(HotKeys.readKeys()).then(keys => {
 					const temp = KeyEditListener.getEditMarkup(keys);
-					const el = $popup(temp[1], 'edit-hotkeys', false);
+					const el = $popup('edit-hotkeys', temp[1]);
 					const fn = new KeyEditListener(el, keys, temp[0]);
 					el.addEventListener('focus', fn, true);
 					el.addEventListener('blur', fn, true);
@@ -3451,14 +3451,14 @@ const cfgWindow = Object.create({
 				});
 				break;
 			case 'de-cfg-btn-updnow':
-				$popup(Lng.loading[lang], 'updavail', true);
+				$popup('updavail', Lng.loading[lang], true);
 				spawn(getStoredObj, 'DESU_Config')
 					.then(data => checkForUpdates(true, data.lastUpd))
-					.then(html => $popup(html, 'updavail', false), emptyFn);
+					.then(html => $popup('updavail', html), emptyFn);
 				break;
 			case 'de-cfg-btn-debug':
-				$popup(Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>',
-					   'cfg-debug', false).firstElementChild.value = JSON.stringify(
+				$popup('cfg-debug', Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>')
+					.firstElementChild.value = JSON.stringify(
 				{
 					'version': version,
 					'location': String(window.location),
@@ -3928,14 +3928,14 @@ function closePopup(data) {
 	}
 }
 
-function $popup(txt, id, wait) {
+function $popup(id, txt, isWait = false) {
 	var node, el = $id('de-popup-' + id),
-		buttonHTML = wait ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '\u2716 ';
+		buttonHTML = isWait ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '\u2716 ';
 	if(el) {
 		$q('div', el).innerHTML = txt.trim();
 		$q('span', el).innerHTML = buttonHTML;
 		clearTimeout(el.closeTimeout);
-		if(!wait && Cfg.animation) {
+		if(!isWait && Cfg.animation) {
 			$animate(el, 'de-blink');
 		}
 	} else {
@@ -3955,7 +3955,7 @@ function $popup(txt, id, wait) {
 			$animate(el, 'de-open');
 		}
 	}
-	if(Cfg.closePopups && !wait && !id.includes('edit') && !id.includes('cfg')) {
+	if(Cfg.closePopups && !isWait && !id.includes('edit') && !id.includes('cfg')) {
 		el.closeTimeout = setTimeout(closePopup, 4e3, el);
 	}
 	return el.lastElementChild;
@@ -3965,8 +3965,8 @@ function $popup(txt, id, wait) {
 function getEditButton(name, getDataFn, className = 'de-button') {
 	return $btn(Lng.edit[lang], Lng.editInTxt[lang], () => getDataFn(function(val, isJSON, saveFn) {
 		// Create popup window with textarea.
-		const el = $popup('<b>' + Lng.editor[name][lang] + '</b><textarea class="de-editor"></textarea>',
-		                  'edit-' + name, false);
+		const el = $popup('edit-' + name,
+			'<b>' + Lng.editor[name][lang] + '</b><textarea class="de-editor"></textarea>');
 		const ta = el.lastChild;
 		ta.value = isJSON ? JSON.stringify(val, null, '\t') : val;
 		// "Save" button. If there a JSON data, parses and saves on success.
@@ -3976,7 +3976,7 @@ function getEditButton(name, getDataFn, className = 'de-button') {
 				data = JSON.parse(ta.value.trim().replace(/[\n\r\t]/g, '') || '{}');
 			} finally {
 				if(!data) {
-					$popup(Lng.invalidData[lang], 'err-invaliddata', false);
+					$popup('err-invaliddata', Lng.invalidData[lang]);
 					return;
 				}
 				saveFn(data);
@@ -4095,7 +4095,7 @@ function addMenu(el) {
 			if(!$id('de-popup-savethr')) {
 				var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
 				if(Images_.preloading) {
-					$popup(Lng.loading[lang], 'savethr', true);
+					$popup('savethr', Lng.loading[lang], true);
 					Images_.afterpreload = loadDocFiles.bind(null, imgOnly);
 					Images_.progressId = 'savethr';
 				} else {
@@ -4895,7 +4895,7 @@ function preloadImages(data) {
 				}
 			}
 			if(Images_.progressId) {
-				$popup(Lng.loadImage[lang] + cImg + '/' + len, Images_.progressId, true);
+				$popup(Images_.progressId, Lng.loadImage[lang] + cImg + '/' + len, true);
 			}
 			cImg++;
 		}), function() {
@@ -4985,7 +4985,7 @@ function loadDocFiles(imgOnly) {
 			} else {
 				warnings += '<br>' + Lng.cantLoad[lang] + '<a href="' + url + '">' + url +
 					'</a><br>' + Lng.willSavePview[lang];
-				$popup(Lng.loadErrors[lang] + warnings, 'err-files', false);
+				$popup('err-files', Lng.loadErrors[lang] + warnings);
 				if(imgOnly) {
 					return getDataFromImg(el).then(data => tar.addFile(thumbName, data), emptyFn);
 				}
@@ -5083,9 +5083,9 @@ function loadDocFiles(imgOnly) {
 			count++;
 		});
 	}
-	$popup((imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) +
+	$popup('load-files', (imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) +
 		'<br><progress id="de-loadprogress" value="0" max="' + count +
-		'"></progress> <span>1</span>/' + count, 'load-files', true);
+		'"></progress> <span>1</span>/' + count, true);
 	progress = $id('de-loadprogress');
 	counter = progress.nextElementSibling;
 	Images_.pool.complete();
@@ -5121,7 +5121,7 @@ function DateTime(pattern, rPattern, diff, dtLang, onRPat) {
 }
 DateTime.toggleSettings = function(el) {
 	if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.timeOffset) || DateTime.checkPattern(Cfg.timePattern))) {
-		$popup(Lng.cTimeError[lang], 'err-correcttime', false);
+		$popup('err-correcttime', Lng.cTimeError[lang]);
 		saveCfg('correctTime', 0);
 		el.checked = false;
 	}
@@ -5670,9 +5670,9 @@ function infoLoadErrors(e, showError = true) {
 	if(eCode === 200) {
 		closePopup('newposts');
 	} else if(isAjax && eCode === 0) {
-		$popup(e.message ? String(e.message) : Lng.noConnect[lang], 'newposts', false);
+		$popup('newposts', e.message ? String(e.message) : Lng.noConnect[lang]);
 	} else {
-		$popup(Lng.thrNotFound[lang] + aib.t + '): \n' + getErrorMessage(e), 'newposts', false);
+		$popup('newposts', Lng.thrNotFound[lang] + aib.t + '): \n' + getErrorMessage(e));
 		if(showError) {
 			doc.title = '{' + eCode + '} ' + doc.title;
 		}
@@ -5703,13 +5703,13 @@ var Pages = {
 			return spawn(this._updateForms, DelForm.last);
 		}).then(() => this._endAdding()).catch(e => {
 			if(!(e instanceof CancelError)) {
-				$popup(getErrorMessage(e), 'add-page', false);
+				$popup('add-page', getErrorMessage(e));
 				this._endAdding();
 			}
 		});
 	},
 	load: async(function* (count) {
-		$popup(Lng.loading[lang], 'load-pages', true);
+		$popup('load-pages', Lng.loading[lang], true);
 		if(this._addPromise) {
 			this._addPromise.cancel();
 			this._endAdding();
@@ -5742,7 +5742,7 @@ var Pages = {
 				var el = yield ajaxLoad(aib.getPageUrl(aib.b, i));
 				this._addForm(el, i);
 			} catch (e) {
-				$popup(getErrorMessage(e), 'load-pages', false);
+				$popup('load-pages', getErrorMessage(e));
 			}
 		}
 		var first = DelForm.first;
@@ -6022,7 +6022,7 @@ var Spells = Object.create({
 		var codeGen = new SpellsCodegen(text),
 			data = codeGen.generate();
 		if(codeGen.hasError) {
-			$popup(Lng.error[lang] + ': ' + codeGen.error, 'err-spell', false);
+			$popup('err-spell', Lng.error[lang] + ': ' + codeGen.error);
 		} else if(data) {
 			if(data[0] && Cfg.sortSpells) {
 				this._sort(data[0]);
@@ -7281,7 +7281,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	this.subm.addEventListener('click', e => {
 		if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
 			$pd(e);
-			$popup(Lng.subjHasTrip[lang], 'upload', false);
+			$popup('upload', Lng.subjHasTrip[lang]);
 			return;
 		}
 		var val = this.txta.value;
@@ -7298,7 +7298,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		}
 		this.txta.value = val;
 		if(Cfg.ajaxReply) {
-			$popup(Lng.checking[lang], 'upload', true);
+			$popup('upload', Lng.checking[lang], true);
 		}
 		if(this.video && (val = this.video.value) && (val = val.match(Videos.ytReg))) {
 			this.video.value = 'http://www.youtube.com/watch?v=' + val[1];
@@ -7348,9 +7348,9 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	if(Cfg.ajaxReply === 2) {
 		this.form.onsubmit = e => {
 			$pd(e);
-			$popup(Lng.sendingPost[lang], 'upload', true);
+			$popup('upload', Lng.sendingPost[lang], true);
 			spawn(html5Submit, this.form, this.subm, true)
-				.then(dc => checkUpload(dc), e => $popup(getErrorMessage(e), 'upload', false));
+				.then(dc => checkUpload(dc), e => $popup('upload', getErrorMessage(e)));
 		};
 	} else if(Cfg.ajaxReply === 1) {
 		this.form.target = 'de-iframe-pform';
@@ -8216,9 +8216,10 @@ function getSubmitError(dc) {
 }
 
 function getUploadFunc() {
-	$popup(Lng.sendingPost[lang] + '<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' +
+	$popup('upload', Lng.sendingPost[lang] +
+		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' +
 		'</progress><div style="display: none; font: bold 12px arial;">' +
-		'<span></span> / <span></span> (<span></span>)</div>', 'upload', true);
+		'<span></span> / <span></span> (<span></span>)</div>', true);
 	var beginTime = Date.now(),
 		inited = false,
 		progress = $id('de-uploadprogress'),
@@ -8249,8 +8250,24 @@ function checkUpload(data) {
 		if(aib.jsonSubmit) {
 			if(aib._8ch && data.substring(0, 16) === '{"captcha":true|') {
 				$ajax('/dnsbls_bypass_popup.php').then(xhr => {
-					$popup(xhr.responseText, 'upload', false).style.cssText =
+					$popup('upload', xhr.responseText).style.cssText =
 						'width: 350px; text-align: center;';
+					$id('captcha_pop_submit').onclick = function() {
+						$id('captcha_message_box').innerHTML =
+							'<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>';
+						const formData = new FormData();
+						formData.append('captcha_text', $q('.captcha_text').value);
+						formData.append('captcha_cookie', $q('.captcha_cookie').value);
+						$ajax('/dnsbls_bypass_popup.php', { method: 'POST', data: formData }).then(xhr => {
+							const data = JSON.parse(xhr.responseText);
+							if(data.status === 1) {
+								$popup('upload', data.message);
+							} else {
+								$id('captcha_message_box').innerHTML = data.message;
+								$id('captcha_objects').innerHTML = data.new_captcha;
+							}
+						});
+					}
 					if(pr.isQuick) {
 						pr.setReply(true, false);
 					}
@@ -8278,7 +8295,7 @@ function checkUpload(data) {
 		if(/captch|капч|подтвер|verifi/i.test(error)) {
 			pr.refreshCapImg(true);
 		}
-		$popup(error, 'upload', false);
+		$popup('upload', error);
 		updater.sendErrNotif();
 		updater.continue();
 		return;
@@ -8323,7 +8340,7 @@ function checkUpload(data) {
 var checkDelete = async(function* (data) {
 	var err = getSubmitError(data instanceof HTMLDocument ? data : $DOM(data));
 	if(err) {
-		$popup(Lng.errDelete[lang] + err, 'delete', false);
+		$popup('delete', Lng.errDelete[lang] + err);
 		updater.sendErrNotif();
 		return;
 	}
@@ -8349,7 +8366,7 @@ var checkDelete = async(function* (data) {
 			yield thr.load(visPosts, false, false);
 		}
 	}
-	$popup(Lng.succDeleted[lang], 'delete', false);
+	$popup('delete', Lng.succDeleted[lang]);
 });
 
 function* html5Submit(form, submitter, needProgress = false) {
@@ -9701,7 +9718,7 @@ class AbstractPost {
 			return;
 		}
 		if(!isInit) {
-			$popup(Lng.loading[lang], 'load-fullmsg', true);
+			$popup('load-fullmsg', Lng.loading[lang], true);
 		}
 		ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(form => {
 			var maybeSpells = new Maybe(SpellsRunner);
@@ -11651,11 +11668,11 @@ class Thread {
 	}
 	load(last, smartScroll, informUser = true) {
 		if(informUser) {
-			$popup(Lng.loading[lang], 'load-thr', true);
+			$popup('load-thr', Lng.loading[lang], true);
 		}
 		return ajaxPostsLoad(aib.b, this.num, false).then(
 			pBuilder => this._loadFromBuilder(last, smartScroll, pBuilder),
-			e => $popup(getErrorMessage(e), 'load-thr', false));
+			e => $popup('load-thr', getErrorMessage(e)));
 	}
 	loadNew() {
 		return ajaxPostsLoad(aib.b, this.num, true).then(pBuilder => pBuilder ?
@@ -14473,16 +14490,16 @@ class DelForm {
 					btn.onclick = e => {
 						$pd(e);
 						pr.closeReply();
-						$popup(Lng.deleting[lang], 'delete', true);
+						$popup('delete', Lng.deleting[lang], true);
 						spawn(html5Submit, el, e.target)
-							.then(dc => checkDelete(dc), e => $popup(getErrorMessage(e), 'delete', false));
+							.then(dc => checkDelete(dc), e => $popup('delete', getErrorMessage(e)));
 					};
 				}
 			} else if(Cfg.ajaxReply === 1) {
 				el.target = 'de-iframe-dform';
 				el.onsubmit = function() {
 					pr.closeReply();
-					$popup(Lng.deleting[lang], 'delete', true);
+					$popup('delete', Lng.deleting[lang], true);
 				};
 			}
 		}
@@ -15023,7 +15040,7 @@ function initThreadUpdater(title, enableUpdate) {
 			if(enabled && paused) {
 				return;
 			}
-			$popup(Lng.loading[lang], 'newposts', true);
+			$popup('newposts', Lng.loading[lang], true);
 			forceLoadPosts();
 		},
 		pause() {

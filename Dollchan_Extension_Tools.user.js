@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '0699571';
+	var commit = 'bc59572';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -4730,7 +4730,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						if (Cfg.updScript) {
 							checkForUpdates(false, val.lastUpd).then(function (data) {
 								return onDOMLoaded(function () {
-									return $popup(data, 'updavail');
+									return $popup('updavail', data);
 								});
 							}, emptyFn);
 						}
@@ -6165,7 +6165,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return _context8.abrupt('return');
 
 						case 5:
-							$popup(Lng.loading[lang], 'load-pages', true);
+							$popup('load-pages', Lng.loading[lang], true);
 
 							for (i = 0; i < len; ++i) {
 								el = els[i];
@@ -6396,14 +6396,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}));
 
 			nav.isGlobal && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], function () {
-				var el = $popup('<b>' + Lng.globalCfg[lang] + ':</b>', 'cfg-global', false);
+				var el = $popup('cfg-global', '<b>' + Lng.globalCfg[lang] + ':</b>');
 				$bEnd(el, '<div id="de-list"><input type="button" value="' + Lng.load[lang] + '"> ' + Lng.loadGlobal[lang] + '</div>').firstElementChild.onclick = function () {
 					return spawn(getStoredObj, 'DESU_Config').then(function (data) {
 						if (data && 'global' in data && !$isEmpty(data.global)) {
 							saveCfgObj(aib.dm, data.global);
 							window.location.reload();
 						} else {
-							$popup(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
+							$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
 						}
 					});
 				};
@@ -6425,7 +6425,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}));
 
 			!nav.Presto && div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], function () {
-				$popup('<b>' + Lng.cfgImpExp[lang] + ':</b><hr>' + '<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' + '<input type="file" accept=".json" id="de-import-file"></div></div><hr>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + _this11._getList([Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang], Lng.panelBtn.fav[lang], Lng.hidPstThrds[lang] + ' (' + aib.dm + ')', Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>', 'cfg-file', false);
+				$popup('cfg-file', '<b>' + Lng.cfgImpExp[lang] + ':</b><hr>' + '<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' + '<input type="file" accept=".json" id="de-import-file"></div></div><hr>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + _this11._getList([Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang], Lng.panelBtn.fav[lang], Lng.hidPstThrds[lang] + ' (' + aib.dm + ')', Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>');
 
 				$id('de-import-file').onchange = function (_ref7) {
 					var _ref7$target$files = _slicedToArray(_ref7.target.files, 1),
@@ -6441,7 +6441,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						try {
 							obj = JSON.parse(data);
 						} catch (e) {
-							$popup(Lng.invalidData[lang], 'err-invaliddata', false);
+							$popup('err-invaliddata', Lng.invalidData[lang]);
 							return;
 						}
 						var cfgObj = obj.settings;
@@ -6473,7 +6473,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 						}
 						if (cfgObj || dmObj || isOldCfg) {
-							$popup(Lng.updating[lang], 'cfg-file', true);
+							$popup('cfg-file', Lng.updating[lang], true);
 							window.location.reload();
 							return;
 						}
@@ -6621,7 +6621,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}));
 
 			div.appendChild($btn(Lng.reset[lang] + '...', Lng.resetCfg[lang], function () {
-				return $popup('<b>' + Lng.resetData[lang] + ':</b><hr>' + ('<div class="de-list"><b>' + aib.dm + ':</b>' + _this11._getList([Lng.panelBtn.cfg[lang], Lng.hidPstThrds[lang], Lng.myPosts[lang]]) + '</div><hr>') + ('<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' + _this11._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div><hr>'), 'cfg-reset', false).appendChild($btn(Lng.clear[lang], '', function () {
+				return $popup('cfg-reset', '<b>' + Lng.resetData[lang] + ':</b><hr>' + ('<div class="de-list"><b>' + aib.dm + ':</b>' + _this11._getList([Lng.panelBtn.cfg[lang], Lng.hidPstThrds[lang], Lng.myPosts[lang]]) + '</div><hr>') + ('<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' + _this11._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div><hr>')).appendChild($btn(Lng.clear[lang], '', function () {
 					var els = $Q('input[type="checkbox"]', this.parentNode);
 					for (var i = 1, len = els.length; i < len; ++i) {
 						if (!els[i].checked) {
@@ -6646,12 +6646,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						spawn(getStoredObj, 'DESU_Config').then(function (data) {
 							delete data[aib.dm];
 							setStored('DESU_Config', JSON.stringify(data));
-							$popup(Lng.updating[lang], 'cfg-reset', true);
+							$popup('cfg-reset', Lng.updating[lang], true);
 							window.location.reload();
 						});
 						return;
 					}
-					$popup(Lng.updating[lang], 'cfg-reset', true);
+					$popup('cfg-reset', Lng.updating[lang], true);
 					window.location.reload();
 				}));
 			}));
@@ -6900,7 +6900,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 						Promise.resolve(HotKeys.readKeys()).then(function (keys) {
 							var temp = KeyEditListener.getEditMarkup(keys);
-							var el = $popup(temp[1], 'edit-hotkeys', false);
+							var el = $popup('edit-hotkeys', temp[1]);
 							var fn = new KeyEditListener(el, keys, temp[0]);
 							el.addEventListener('focus', fn, true);
 							el.addEventListener('blur', fn, true);
@@ -6910,15 +6910,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						});
 						break;
 					case 'de-cfg-btn-updnow':
-						$popup(Lng.loading[lang], 'updavail', true);
+						$popup('updavail', Lng.loading[lang], true);
 						spawn(getStoredObj, 'DESU_Config').then(function (data) {
 							return checkForUpdates(true, data.lastUpd);
 						}).then(function (html) {
-							return $popup(html, 'updavail', false);
+							return $popup('updavail', html);
 						}, emptyFn);
 						break;
 					case 'de-cfg-btn-debug':
-						$popup(Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>', 'cfg-debug', false).firstElementChild.value = JSON.stringify({
+						$popup('cfg-debug', Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>').firstElementChild.value = JSON.stringify({
 							'version': version,
 							'location': String(window.location),
 							'nav': nav,
@@ -7201,15 +7201,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 	}
 
-	function $popup(txt, id, wait) {
+	function $popup(id, txt) {
+		var isWait = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
 		var node,
 		    el = $id('de-popup-' + id),
-		    buttonHTML = wait ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '\u2716 ';
+		    buttonHTML = isWait ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '\u2716 ';
 		if (el) {
 			$q('div', el).innerHTML = txt.trim();
 			$q('span', el).innerHTML = buttonHTML;
 			clearTimeout(el.closeTimeout);
-			if (!wait && Cfg.animation) {
+			if (!isWait && Cfg.animation) {
 				$animate(el, 'de-blink');
 			}
 		} else {
@@ -7225,7 +7227,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				$animate(el, 'de-open');
 			}
 		}
-		if (Cfg.closePopups && !wait && !id.includes('edit') && !id.includes('cfg')) {
+		if (Cfg.closePopups && !isWait && !id.includes('edit') && !id.includes('cfg')) {
 			el.closeTimeout = setTimeout(closePopup, 4e3, el);
 		}
 		return el.lastElementChild;
@@ -7236,7 +7238,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		return $btn(Lng.edit[lang], Lng.editInTxt[lang], function () {
 			return getDataFn(function (val, isJSON, saveFn) {
-				var el = $popup('<b>' + Lng.editor[name][lang] + '</b><textarea class="de-editor"></textarea>', 'edit-' + name, false);
+				var el = $popup('edit-' + name, '<b>' + Lng.editor[name][lang] + '</b><textarea class="de-editor"></textarea>');
 				var ta = el.lastChild;
 				ta.value = isJSON ? JSON.stringify(val, null, '\t') : val;
 				el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], !isJSON ? saveFn.bind(ta) : function () {
@@ -7245,7 +7247,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						data = JSON.parse(ta.value.trim().replace(/[\n\r\t]/g, '') || '{}');
 					} finally {
 						if (!data) {
-							$popup(Lng.invalidData[lang], 'err-invaliddata', false);
+							$popup('err-invaliddata', Lng.invalidData[lang]);
 							return;
 						}
 						saveFn(data);
@@ -7363,7 +7365,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (!$id('de-popup-savethr')) {
 						var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
 						if (Images_.preloading) {
-							$popup(Lng.loading[lang], 'savethr', true);
+							$popup('savethr', Lng.loading[lang], true);
 							Images_.afterpreload = loadDocFiles.bind(null, imgOnly);
 							Images_.progressId = 'savethr';
 						} else {
@@ -8172,7 +8174,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 					}
 					if (Images_.progressId) {
-						$popup(Lng.loadImage[lang] + cImg + '/' + len, Images_.progressId, true);
+						$popup(Images_.progressId, Lng.loadImage[lang] + cImg + '/' + len, true);
 					}
 					cImg++;
 				});
@@ -8273,7 +8275,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						tar.addFile(safeName, imgData);
 					} else {
 						warnings += '<br>' + Lng.cantLoad[lang] + '<a href="' + url + '">' + url + '</a><br>' + Lng.willSavePview[lang];
-						$popup(Lng.loadErrors[lang] + warnings, 'err-files', false);
+						$popup('err-files', Lng.loadErrors[lang] + warnings);
 						if (imgOnly) {
 							return getDataFromImg(el).then(function (data) {
 								return tar.addFile(thumbName, data);
@@ -8372,7 +8374,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				count++;
 			});
 		}
-		$popup((imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) + '<br><progress id="de-loadprogress" value="0" max="' + count + '"></progress> <span>1</span>/' + count, 'load-files', true);
+		$popup('load-files', (imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) + '<br><progress id="de-loadprogress" value="0" max="' + count + '"></progress> <span>1</span>/' + count, true);
 		progress = $id('de-loadprogress');
 		counter = progress.nextElementSibling;
 		Images_.pool.complete();
@@ -8401,7 +8403,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 	DateTime.toggleSettings = function (el) {
 		if (el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.timeOffset) || DateTime.checkPattern(Cfg.timePattern))) {
-			$popup(Lng.cTimeError[lang], 'err-correcttime', false);
+			$popup('err-correcttime', Lng.cTimeError[lang]);
 			saveCfg('correctTime', 0);
 			el.checked = false;
 		}
@@ -8995,9 +8997,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (eCode === 200) {
 			closePopup('newposts');
 		} else if (isAjax && eCode === 0) {
-			$popup(e.message ? String(e.message) : Lng.noConnect[lang], 'newposts', false);
+			$popup('newposts', e.message ? String(e.message) : Lng.noConnect[lang]);
 		} else {
-			$popup(Lng.thrNotFound[lang] + aib.t + '): \n' + getErrorMessage(e), 'newposts', false);
+			$popup('newposts', Lng.thrNotFound[lang] + aib.t + '): \n' + getErrorMessage(e));
 			if (showError) {
 				doc.title = '{' + eCode + '} ' + doc.title;
 			}
@@ -9028,7 +9030,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return _this17._endAdding();
 			})['catch'](function (e) {
 				if (!(e instanceof CancelError)) {
-					$popup(getErrorMessage(e), 'add-page', false);
+					$popup('add-page', getErrorMessage(e));
 					_this17._endAdding();
 				}
 			});
@@ -9041,7 +9043,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				while (1) {
 					switch (_context12.prev = _context12.next) {
 						case 0:
-							$popup(Lng.loading[lang], 'load-pages', true);
+							$popup('load-pages', Lng.loading[lang], true);
 							if (this._addPromise) {
 								this._addPromise.cancel();
 								this._endAdding();
@@ -9140,7 +9142,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							_context12.prev = 40;
 							_context12.t0 = _context12['catch'](33);
 
-							$popup(getErrorMessage(_context12.t0), 'load-pages', false);
+							$popup('load-pages', getErrorMessage(_context12.t0));
 
 						case 43:
 							++i;
@@ -9478,7 +9480,7 @@ true, true],
 			var codeGen = new SpellsCodegen(text),
 			    data = codeGen.generate();
 			if (codeGen.hasError) {
-				$popup(Lng.error[lang] + ': ' + codeGen.error, 'err-spell', false);
+				$popup('err-spell', Lng.error[lang] + ': ' + codeGen.error);
 			} else if (data) {
 				if (data[0] && Cfg.sortSpells) {
 					this._sort(data[0]);
@@ -10989,7 +10991,7 @@ true, true],
 		this.subm.addEventListener('click', function (e) {
 			if (Cfg.warnSubjTrip && _this20.subj && /#.|##./.test(_this20.subj.value)) {
 				$pd(e);
-				$popup(Lng.subjHasTrip[lang], 'upload', false);
+				$popup('upload', Lng.subjHasTrip[lang]);
 				return;
 			}
 			var val = _this20.txta.value;
@@ -11004,7 +11006,7 @@ true, true],
 			}
 			_this20.txta.value = val;
 			if (Cfg.ajaxReply) {
-				$popup(Lng.checking[lang], 'upload', true);
+				$popup('upload', Lng.checking[lang], true);
 			}
 			if (_this20.video && (val = _this20.video.value) && (val = val.match(Videos.ytReg))) {
 				_this20.video.value = 'http://www.youtube.com/watch?v=' + val[1];
@@ -11056,11 +11058,11 @@ true, true],
 		if (Cfg.ajaxReply === 2) {
 			this.form.onsubmit = function (e) {
 				$pd(e);
-				$popup(Lng.sendingPost[lang], 'upload', true);
+				$popup('upload', Lng.sendingPost[lang], true);
 				spawn(html5Submit, _this20.form, _this20.subm, true).then(function (dc) {
 					return checkUpload(dc);
 				}, function (e) {
-					return $popup(getErrorMessage(e), 'upload', false);
+					return $popup('upload', getErrorMessage(e));
 				});
 			};
 		} else if (Cfg.ajaxReply === 1) {
@@ -12071,7 +12073,7 @@ true, true],
 	}
 
 	function getUploadFunc() {
-		$popup(Lng.sendingPost[lang] + '<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' + '</progress><div style="display: none; font: bold 12px arial;">' + '<span></span> / <span></span> (<span></span>)</div>', 'upload', true);
+		$popup('upload', Lng.sendingPost[lang] + '<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' + '</progress><div style="display: none; font: bold 12px arial;">' + '<span></span> / <span></span> (<span></span>)</div>', true);
 		var beginTime = Date.now(),
 		    inited = false,
 		    progress = $id('de-uploadprogress'),
@@ -12103,7 +12105,22 @@ true, true],
 			if (aib.jsonSubmit) {
 				if (aib._8ch && data.substring(0, 16) === '{"captcha":true|') {
 					$ajax('/dnsbls_bypass_popup.php').then(function (xhr) {
-						$popup(xhr.responseText, 'upload', false).style.cssText = 'width: 350px; text-align: center;';
+						$popup('upload', xhr.responseText).style.cssText = 'width: 350px; text-align: center;';
+						$id('captcha_pop_submit').onclick = function () {
+							$id('captcha_message_box').innerHTML = '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>';
+							var formData = new FormData();
+							formData.append('captcha_text', $q('.captcha_text').value);
+							formData.append('captcha_cookie', $q('.captcha_cookie').value);
+							$ajax('/dnsbls_bypass_popup.php', { method: 'POST', data: formData }).then(function (xhr) {
+								var data = JSON.parse(xhr.responseText);
+								if (data.status === 1) {
+									$popup('upload', data.message);
+								} else {
+									$id('captcha_message_box').innerHTML = data.message;
+									$id('captcha_objects').innerHTML = data.new_captcha;
+								}
+							});
+						};
 						if (pr.isQuick) {
 							pr.setReply(true, false);
 						}
@@ -12134,7 +12151,7 @@ true, true],
 			if (/captch|капч|подтвер|verifi/i.test(error)) {
 				pr.refreshCapImg(true);
 			}
-			$popup(error, 'upload', false);
+			$popup('upload', error);
 			updater.sendErrNotif();
 			updater['continue']();
 			return;
@@ -12196,7 +12213,7 @@ true, true],
 							break;
 						}
 
-						$popup(Lng.errDelete[lang] + err, 'delete', false);
+						$popup('delete', Lng.errDelete[lang] + err);
 						updater.sendErrNotif();
 						return _context15.abrupt('return');
 
@@ -12280,7 +12297,7 @@ true, true],
 						break;
 
 					case 35:
-						$popup(Lng.succDeleted[lang], 'delete', false);
+						$popup('delete', Lng.succDeleted[lang]);
 
 					case 36:
 					case 'end':
@@ -13870,7 +13887,7 @@ true, true],
 					return;
 				}
 				if (!isInit) {
-					$popup(Lng.loading[lang], 'load-fullmsg', true);
+					$popup('load-fullmsg', Lng.loading[lang], true);
 				}
 				ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(function (form) {
 					var maybeSpells = new Maybe(SpellsRunner);
@@ -16243,12 +16260,12 @@ true, true],
 				var informUser = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
 
 				if (informUser) {
-					$popup(Lng.loading[lang], 'load-thr', true);
+					$popup('load-thr', Lng.loading[lang], true);
 				}
 				return ajaxPostsLoad(aib.b, this.num, false).then(function (pBuilder) {
 					return _this48._loadFromBuilder(last, smartScroll, pBuilder);
 				}, function (e) {
-					return $popup(getErrorMessage(e), 'load-thr', false);
+					return $popup('load-thr', getErrorMessage(e));
 				});
 			}
 		}, {
@@ -19685,11 +19702,11 @@ true, true],
 							btn.onclick = function (e) {
 								$pd(e);
 								pr.closeReply();
-								$popup(Lng.deleting[lang], 'delete', true);
+								$popup('delete', Lng.deleting[lang], true);
 								spawn(html5Submit, el, e.target).then(function (dc) {
 									return checkDelete(dc);
 								}, function (e) {
-									return $popup(getErrorMessage(e), 'delete', false);
+									return $popup('delete', getErrorMessage(e));
 								});
 							};
 						}
@@ -19697,7 +19714,7 @@ true, true],
 						el.target = 'de-iframe-dform';
 						el.onsubmit = function () {
 							pr.closeReply();
-							$popup(Lng.deleting[lang], 'delete', true);
+							$popup('delete', Lng.deleting[lang], true);
 						};
 					}
 				}
@@ -20282,7 +20299,7 @@ true, true],
 				if (enabled && paused) {
 					return;
 				}
-				$popup(Lng.loading[lang], 'newposts', true);
+				$popup('newposts', Lng.loading[lang], true);
 				forceLoadPosts();
 			},
 			pause: function pause() {
