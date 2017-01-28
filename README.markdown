@@ -1,13 +1,9 @@
 ## ![dE](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/Icon.png) Dollchan Extension Tools
 
 >
-**[GET USERSCRIPT](https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js)**
+**Get as userscript: [ES5 version](https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js), [ES6 version](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/src/Dollchan_Extension_Tools.es6.user.js)** (Firefox 45+, Chrome 51+)
 >
-**[GET CHROME EXTENSION](https://chrome.google.com/webstore/detail/dollchan-extension-tools/ipnoalfffblkaodfmipjjgkfbgcfadad)**
-
-Dollchan supports **ECMAScript 6**! (For Firefox 45+, Chrome 51+)
->
-**[GET ES6 SCRIPT](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/src/Dollchan_Extension_Tools.es6.user.js)**
+**Get as Chrome [Extension](https://chrome.google.com/webstore/detail/dollchan-extension-tools/ipnoalfffblkaodfmipjjgkfbgcfadad)**
 
 ### Wiki
 
