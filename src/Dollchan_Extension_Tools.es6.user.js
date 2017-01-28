@@ -24,17 +24,17 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '58ee92b';
+const commit = '0699571';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
 	'language':         0,      // script language [0=ru, 1=en]
 	'hideBySpell':      1,      // hide posts by spells
-	'spells':           null,     // user defined spells
+	'spells':           null,   // user defined spells
 	'sortSpells':       0,      // sort spells when applying
 	'menuHiddBtn':      1,      // menu on hide button
 	'hideRefPsts':      0,      // hide posts referenced to hidden posts
-	'delHiddPost':      0,      // delete hidden posts
+	'delHiddPost':      0,      // delete hidden [0=disable, 1=all, 2=posts only, 3=threads only]
 	'ajaxUpdThr':       1,      // threads updater
 	'updThrDelay':      20,     //    update interval (sec)
 	'updCount':         1,      //    show countdown for thread updater
@@ -166,7 +166,10 @@ const Lng = {
 		'sortSpells':   ['Сортировать спеллы и удалять дубликаты', 'Sort spells and delete duplicates'],
 		'menuHiddBtn':  ['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
 		'hideRefPsts':  ['Скрывать ответы на скрытые посты', 'Hide replies to hidden posts'],
-		'delHiddPost':  ['Удалять скрытые посты', 'Delete hidden posts'],
+		'delHiddPost':  {
+			sel:        [['Откл.', 'Всё', 'Только посты', 'Только треды'], ['Disable', 'All', 'Posts only', 'Threads only']],
+			txt:        ['Удалять скрытое', 'Delete hidden']
+		},
 
 		'ajaxUpdThr':   ['AJAX обновление треда ', 'AJAX thread update '],
 		'updThrDelay':  ['(сек)', '(sec)'],
@@ -3262,6 +3265,19 @@ const cfgWindow = Object.create({
 				panel.init(DelForm.first.el);
 				toggleWindow('cfg', false);
 				break;
+			case 'delHiddPost':
+				const isHide = Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2;
+				for(let post = Thread.first.op; post; post = post.next) {
+					if(post.hidden && !post.isOp) {
+						if(isHide) {
+							post.wrap.classList.add('de-hidden');
+						} else {
+							post.wrap.classList.remove('de-hidden');
+						}
+					}
+				}
+				updateCSS();
+				break;
 			case 'postBtnsCSS':
 				updateCSS();
 				if(nav.Presto) {
@@ -3321,14 +3337,6 @@ const cfgWindow = Object.create({
 						post.ref.hide();
 					}
 				}
-				break;
-			case 'delHiddPost':
-				for(let post = Thread.first.op; post; post = post.next) {
-					if(post.hidden && !post.isOp) {
-						post.wrap.classList.toggle('de-hidden');
-					}
-				}
-				updateCSS();
 				break;
 			case 'ajaxUpdThr':
 				if(aib.t) {
@@ -3614,7 +3622,7 @@ const cfgWindow = Object.create({
 			${ this._getBox('sortSpells') }<br>
 			${ this._getBox('menuHiddBtn') }<br>
 			${ this._getBox('hideRefPsts') }<br>
-			${ this._getBox('delHiddPost') }
+			${ this._getSel('delHiddPost') }
 		</div>`;
 	},
 
@@ -8241,7 +8249,8 @@ function checkUpload(data) {
 		if(aib.jsonSubmit) {
 			if(aib._8ch && data.substring(0, 16) === '{"captcha":true|') {
 				$ajax('/dnsbls_bypass_popup.php').then(xhr => {
-					$popup(xhr.responseText, 'upload', false).style.width = '350px';
+					$popup(xhr.responseText, 'upload', false).style.cssText =
+						'width: 350px; text-align: center;';
 					if(pr.isQuick) {
 						pr.setReply(true, false);
 					}
@@ -9982,7 +9991,7 @@ class Post extends AbstractPost {
 		if(this.isOp) {
 			this.thr.hidden = hide;
 		} else {
-			if(Cfg.delHiddPost) {
+			if(Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2) {
 				if(hide) {
 					this.wrap.classList.add('de-hidden');
 				} else {
@@ -15560,7 +15569,7 @@ function updateCSS() {
 	   `.spoiler, s { color: inherit !important; }
 		.spoiler > a, s > a:not(:hover) { color: inherit !important; }` : '' }
 	${  !Cfg.addSageBtn ? '#de-sagebtn, ' : '' }${
-		 Cfg.delHiddPost ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '' }${
+		 Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '' }${
 		!Cfg.imgNavBtns ? '#de-img-btn-next, #de-img-btn-prev, ' : '' }${
 		 Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '' }${
 		 Cfg.noBoardRule ? aib.qFormRules + ', ' : '' }${
