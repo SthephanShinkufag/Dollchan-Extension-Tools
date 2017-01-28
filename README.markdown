@@ -23,4 +23,4 @@ Dollchan supports **ECMAScript 6**! (For Firefox 45+, Chrome 51+)
 
 ### License
 
-Copyright (c) 2014 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
+© 2017 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
