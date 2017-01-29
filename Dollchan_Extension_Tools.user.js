@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = 'bc59572';
+	var commit = '550bcd2';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -17033,7 +17033,7 @@ true, true],
 			this.qForm = '#postform';
 			this.qFormPassw = 'tr input[type="password"]'; 
 			this.qFormRedir = 'input[name="postredir"][value="1"]';
-			this.qFormRules = '.rules, #rules, .regras';
+			this.qFormRules = '.rules, #rules';
 			this.qOmitted = '.omittedposts';
 			this.qOPost = '.oppost';
 			this.qPages = 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type';
@@ -18558,6 +18558,25 @@ true, true],
 		ibDomains['8ch.net'] = _8chNet;
 		ibDomains['oxwugzccvk3dk6tj.onion'] = _8chNet;
 
+		var _55chan = function (_chNet) {
+			_inherits(_55chan, _chNet);
+
+			function _55chan(prot, dm) {
+				_classCallCheck(this, _55chan);
+
+				var _this76 = _possibleConstructorReturn(this, (_55chan.__proto__ || Object.getPrototypeOf(_55chan)).call(this, prot, dm));
+
+				_this76._8ch = null;
+
+				_this76.qFormRules = '.regras';
+				return _this76;
+			}
+
+			return _55chan;
+		}(_8chNet);
+
+		ibDomains['55chan.org'] = _55chan;
+
 		var _7chanOrg = function (_BaseBoard11) {
 			_inherits(_7chanOrg, _BaseBoard11);
 
@@ -18585,20 +18604,20 @@ true, true],
 			function Arhivach(prot, dm) {
 				_classCallCheck(this, Arhivach);
 
-				var _this77 = _possibleConstructorReturn(this, (Arhivach.__proto__ || Object.getPrototypeOf(Arhivach)).call(this, prot, dm));
+				var _this78 = _possibleConstructorReturn(this, (Arhivach.__proto__ || Object.getPrototypeOf(Arhivach)).call(this, prot, dm));
 
-				_this77.cReply = 'post';
-				_this77.qDForm = 'body > .container-fluid';
-				_this77.qPostHeader = '.post_head';
-				_this77.qPostImg = '.post_image > img';
-				_this77.qPostMsg = '.post_comment_body';
-				_this77.qPostRef = '.post_id, .post_head > b';
-				_this77.qPostSubj = '.post_subject';
-				_this77.qRPost = '.post:not(:first-child):not([postid=""])';
+				_this78.cReply = 'post';
+				_this78.qDForm = 'body > .container-fluid';
+				_this78.qPostHeader = '.post_head';
+				_this78.qPostImg = '.post_image > img';
+				_this78.qPostMsg = '.post_comment_body';
+				_this78.qPostRef = '.post_id, .post_head > b';
+				_this78.qPostSubj = '.post_subject';
+				_this78.qRPost = '.post:not(:first-child):not([postid=""])';
 
-				_this77.docExt = '';
-				_this77.res = 'thread/';
-				return _this77;
+				_this78.docExt = '';
+				_this78.res = 'thread/';
+				return _this78;
 			}
 
 			_createClass(Arhivach, [{
@@ -18721,13 +18740,13 @@ true, true],
 			function Brchan(prot, dm) {
 				_classCallCheck(this, Brchan);
 
-				var _this78 = _possibleConstructorReturn(this, (Brchan.__proto__ || Object.getPrototypeOf(Brchan)).call(this, prot, dm));
+				var _this79 = _possibleConstructorReturn(this, (Brchan.__proto__ || Object.getPrototypeOf(Brchan)).call(this, prot, dm));
 
-				_this78.brchan = true;
+				_this79.brchan = true;
 
-				_this78.qPostTrip = '.poster_id';
-				_this78.markupBB = true;
-				return _this78;
+				_this79.qPostTrip = '.poster_id';
+				_this79.markupBB = true;
+				return _this79;
 			}
 
 			_createClass(Brchan, [{
@@ -18811,28 +18830,28 @@ true, true],
 			function Dobrochan(prot, dm) {
 				_classCallCheck(this, Dobrochan);
 
-				var _this80 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
+				var _this81 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
 
-				_this80.dobr = true;
+				_this81.dobr = true;
 
-				_this80.qClosed = 'img[src="/images/locked.png"]';
-				_this80.qDForm = 'form[action*="delete"]';
-				_this80.qError = '.post-error, h2';
-				_this80.qFileInfo = '.fileinfo';
-				_this80.qFormRedir = 'select[name="goto"]';
-				_this80.qOmitted = '.abbrev > span:last-of-type';
-				_this80.qPages = '.pages > tbody > tr > td';
-				_this80.qPostMsg = '.postbody';
-				_this80.qPostSubj = '.replytitle';
-				_this80.qTrunc = '.abbrev > span:first-of-type';
+				_this81.qClosed = 'img[src="/images/locked.png"]';
+				_this81.qDForm = 'form[action*="delete"]';
+				_this81.qError = '.post-error, h2';
+				_this81.qFileInfo = '.fileinfo';
+				_this81.qFormRedir = 'select[name="goto"]';
+				_this81.qOmitted = '.abbrev > span:last-of-type';
+				_this81.qPages = '.pages > tbody > tr > td';
+				_this81.qPostMsg = '.postbody';
+				_this81.qPostSubj = '.replytitle';
+				_this81.qTrunc = '.abbrev > span:first-of-type';
 
-				_this80.anchor = '#i';
-				_this80.hasPicWrap = true;
-				_this80.jsonBuilder = DobrochanPostsBuilder;
-				_this80.multiFile = true;
-				_this80.ru = true;
-				_this80.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
-				return _this80;
+				_this81.anchor = '#i';
+				_this81.hasPicWrap = true;
+				_this81.jsonBuilder = DobrochanPostsBuilder;
+				_this81.multiFile = true;
+				_this81.ru = true;
+				_this81.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+				return _this81;
 			}
 
 			_createClass(Dobrochan, [{
@@ -18962,12 +18981,12 @@ true, true],
 			function Iichan(prot, dm) {
 				_classCallCheck(this, Iichan);
 
-				var _this81 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
+				var _this82 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
 
-				_this81.iichan = true;
+				_this82.iichan = true;
 
-				_this81.hasCatalog = true;
-				return _this81;
+				_this82.hasCatalog = true;
+				return _this82;
 			}
 
 			_createClass(Iichan, [{
@@ -19020,35 +19039,35 @@ true, true],
 			function Krautchan(prot, dm) {
 				_classCallCheck(this, Krautchan);
 
-				var _this82 = _possibleConstructorReturn(this, (Krautchan.__proto__ || Object.getPrototypeOf(Krautchan)).call(this, prot, dm));
+				var _this83 = _possibleConstructorReturn(this, (Krautchan.__proto__ || Object.getPrototypeOf(Krautchan)).call(this, prot, dm));
 
-				_this82.krau = true;
+				_this83.krau = true;
 
-				_this82.cReply = 'postreply';
-				_this82.qBan = '.ban_mark';
-				_this82.qClosed = 'img[src="/images/locked.gif"]';
-				_this82.qDForm = 'form[action*="delete"]';
-				_this82.qError = '.message_text';
-				_this82.qFileInfo = '.fileinfo';
-				_this82.qFormRedir = 'input#forward_thread';
-				_this82.qFormRules = '#rules_row';
-				_this82.qOmitted = '.omittedinfo';
-				_this82.qPages = 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a';
-				_this82.qPostHeader = '.postheader';
-				_this82.qPostImg = 'img[id^="thumbnail_"]';
-				_this82.qPostRef = '.postnumber';
-				_this82.qPostSubj = '.postsubject';
-				_this82.qRPost = '.postreply';
-				_this82.qTrunc = 'p[id^="post_truncated"]';
+				_this83.cReply = 'postreply';
+				_this83.qBan = '.ban_mark';
+				_this83.qClosed = 'img[src="/images/locked.gif"]';
+				_this83.qDForm = 'form[action*="delete"]';
+				_this83.qError = '.message_text';
+				_this83.qFileInfo = '.fileinfo';
+				_this83.qFormRedir = 'input#forward_thread';
+				_this83.qFormRules = '#rules_row';
+				_this83.qOmitted = '.omittedinfo';
+				_this83.qPages = 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a';
+				_this83.qPostHeader = '.postheader';
+				_this83.qPostImg = 'img[id^="thumbnail_"]';
+				_this83.qPostRef = '.postnumber';
+				_this83.qPostSubj = '.postsubject';
+				_this83.qRPost = '.postreply';
+				_this83.qTrunc = 'p[id^="post_truncated"]';
 
-				_this82.hasCatalog = true;
-				_this82.hasPicWrap = true;
-				_this82.hasTextLinks = true;
-				_this82.markupBB = true;
-				_this82.multiFile = true;
-				_this82.res = 'thread-';
-				_this82.timePattern = 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?';
-				return _this82;
+				_this83.hasCatalog = true;
+				_this83.hasPicWrap = true;
+				_this83.hasTextLinks = true;
+				_this83.markupBB = true;
+				_this83.multiFile = true;
+				_this83.res = 'thread-';
+				_this83.timePattern = 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?';
+				return _this83;
 			}
 
 			_createClass(Krautchan, [{
@@ -19202,10 +19221,10 @@ true, true],
 			function Lainchan(prot, dm) {
 				_classCallCheck(this, Lainchan);
 
-				var _this83 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
+				var _this84 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
 
-				_this83.qOPost = '.op';
-				return _this83;
+				_this84.qOPost = '.op';
+				return _this84;
 			}
 
 			_createClass(Lainchan, [{
@@ -19226,14 +19245,14 @@ true, true],
 			function Ponyach(prot, dm) {
 				_classCallCheck(this, Ponyach);
 
-				var _this84 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
+				var _this85 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
 
-				_this84.qBan = 'font[color="#FF0000"]';
+				_this85.qBan = 'font[color="#FF0000"]';
 
-				_this84.jsonSubmit = true;
-				_this84.multiFile = true;
-				_this84.thrid = 'replythread';
-				return _this84;
+				_this85.jsonSubmit = true;
+				_this85.multiFile = true;
+				_this85.thrid = 'replythread';
+				return _this85;
 			}
 
 			_createClass(Ponyach, [{
@@ -19281,10 +19300,10 @@ true, true],
 			function Ponychan(prot, dm) {
 				_classCallCheck(this, Ponychan);
 
-				var _this85 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
+				var _this86 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
 
-				_this85.qOPost = '.opContainer';
-				return _this85;
+				_this86.qOPost = '.opContainer';
+				return _this86;
 			}
 
 			_createClass(Ponychan, [{
@@ -19314,12 +19333,12 @@ true, true],
 			function Synch(prot, dm) {
 				_classCallCheck(this, Synch);
 
-				var _this86 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
+				var _this87 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
 
-				_this86.qFileInfo = '.unimportant';
+				_this87.qFileInfo = '.unimportant';
 
-				_this86.markupBB = true;
-				return _this86;
+				_this87.markupBB = true;
+				return _this87;
 			}
 
 			_createClass(Synch, [{
@@ -19355,63 +19374,6 @@ true, true],
 		ibDomains['syn-ch.ru'] = Synch;
 		ibDomains['syn-ch.com'] = Synch;
 		ibDomains['syn-ch.org'] = Synch;
-
-		var _55chan = function (_Vichan4) {
-	      _inherits(_55chan, _Vichan4);
-
-	      function _55chan(prot, dm) {
-	        _classCallCheck(this, _55chan);
-
-	        var _this87 = _possibleConstructorReturn(this, (_55chan.__proto__ || Object.getPrototypeOf(_55chan)).call(this, prot, dm));
-
-	        _this87.qPostImg = 'img.post-image';
-	        _this87._capUpdPromise = null;
-
-	        return _this87;
-	      }
-
-	      //Copied from _8chnet (the only difference is that maxlength = 8 not 6)
-			_createClass(_55chan, [{
-				key: 'initCaptcha',
-				value: function initCaptcha(cap) {
-					$q('td', cap.trEl).innerHTML = '\n\t\t\t<input placeholder="{ Lng.cap[lang] }" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="8" autocomplete="off">\n\t\t\t<input class="captcha_cookie" name="captcha_cookie" type="hidden">\n\t\t\t<div class="captcha_html"></div>';
-					cap.textEl = $q('.captcha_text', cap.trEl);
-					return this.updateCaptcha(cap, true);
-				}
-			}, {
-				key: 'updateCaptcha',
-				value: function updateCaptcha(cap) {
-					var _this87 = this;
-						if (this._capUpdPromise) {
-						this._capUpdPromise.cancel();
-					}
-					return this._capUpdPromise = $ajax('/8chan-captcha/entrypoint.php?mode=get&extra=abcdefghijklmnopqrstuvwxyz').then(function (xhr) {
-						_this87._capUpdPromise = null;
-						var resp = JSON.parse(xhr.responseText);
-						$q('.captcha_cookie', cap.trEl).value = resp.cookie;
-						$q('.captcha_html', cap.trEl).innerHTML = resp.captchahtml;
-						var img = $q('img', cap.trEl);
-						if (img) {
-							cap.initImage(img);
-						}
-					})['catch'](function (e) {
-						if (!(e instanceof CancelError)) {
-							_this87._capUpdPromise = null;
-							return CancelablePromise.reject(e);
-						}
-					});
-				}
-			}, {
-				key: 'css',
-				get: function get() {
-					return _get(_55chan.prototype.__proto__ || Object.getPrototypeOf(_55chan.prototype), 'css', this) + '#post-moderation-fields { display: initial !important; }';
-				}
-			}]);
-
-	      return _55chan;
-	    }(Vichan);
-
-	    ibDomains['55chan.org'] = _55chan;
 
 		var dm = localData ? localData.dm : window.location.hostname.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 		var prot = window.location.protocol;
@@ -19830,7 +19792,7 @@ true, true],
 				}
 			},
 			play: function play() {
-				var _this87 = this;
+				var _this88 = this;
 
 				this.stop();
 				if (this.repeatMS === 0) {
@@ -19838,7 +19800,7 @@ true, true],
 					return;
 				}
 				this._playInterval = setInterval(function () {
-					return _this87._el.play();
+					return _this88._el.play();
 				}, this.repeatMS);
 			},
 			stop: function stop() {
@@ -19869,7 +19831,7 @@ true, true],
 				$hide(this._el);
 			},
 			count: function count(delayMS, useCounter, callback) {
-				var _this88 = this;
+				var _this89 = this;
 
 				if (this._enabled && useCounter) {
 					var seconds = delayMS / 1000;
@@ -19877,15 +19839,15 @@ true, true],
 					this._countingIV = setInterval(function () {
 						seconds--;
 						if (seconds === 0) {
-							_this88._stop();
+							_this89._stop();
 							callback();
 						} else {
-							_this88._set(seconds);
+							_this89._set(seconds);
 						}
 					}, 1000);
 				} else {
 					this._countingTO = setTimeout(function () {
-						_this88._countingTO = null;
+						_this89._countingTO = null;
 						callback();
 					}, delayMS);
 				}
@@ -19930,7 +19892,7 @@ true, true],
 				return this._iconEl ? this._iconEl.href : null;
 			},
 			initIcons: function initIcons() {
-				var _this89 = this;
+				var _this90 = this;
 
 				if (this._isInited) {
 					return;
@@ -19939,7 +19901,7 @@ true, true],
 				var icon = new Image();
 				icon.onload = function (e) {
 					try {
-						_this89._initIconsHelper(e.target);
+						_this90._initIconsHelper(e.target);
 					} catch (err) {
 						console.error('Icon error:', err);
 					}
@@ -20035,7 +19997,7 @@ true, true],
 				this._iconEl = $aBegin(doc.head, '<link rel="shortcut icon" href="' + iconUrl + '">');
 			},
 			_startBlink: function _startBlink(iconUrl) {
-				var _this90 = this;
+				var _this91 = this;
 
 				if (this._blinkInterval) {
 					if (this._currentIcon === iconUrl) {
@@ -20045,8 +20007,8 @@ true, true],
 				}
 				this._currentIcon = iconUrl;
 				this._blinkInterval = setInterval(function () {
-					_this90._setIcon(_this90._isOriginalIcon ? _this90._currentIcon : _this90.originalIcon);
-					_this90._isOriginalIcon = !_this90._isOriginalIcon;
+					_this91._setIcon(_this91._isOriginalIcon ? _this91._currentIcon : _this91.originalIcon);
+					_this91._isOriginalIcon = !_this91._isOriginalIcon;
 				}, this._blinkMS);
 			}
 		};
@@ -20066,7 +20028,7 @@ true, true],
 				}
 			},
 			show: function show() {
-				var _this91 = this;
+				var _this92 = this;
 
 				var post = Thread.first.last,
 				    notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
@@ -20076,8 +20038,8 @@ true, true],
 				});
 				notif.onshow = function () {
 					return setTimeout(function () {
-						if (notif === _this91._notifEl) {
-							_this91.close();
+						if (notif === _this92._notifEl) {
+							_this92.close();
 						}
 					}, 12e3);
 				};
@@ -20086,7 +20048,7 @@ true, true],
 				};
 				notif.onerror = function () {
 					window.focus();
-					_this91._requestPermission();
+					_this92._requestPermission();
 				};
 				this._notifEl = notif;
 			},
@@ -20103,14 +20065,14 @@ true, true],
 			_notifEl: null,
 
 			_requestPermission: function _requestPermission() {
-				var _this92 = this;
+				var _this93 = this;
 
 				this._granted = false;
 				Notification.requestPermission(function (state) {
 					if (state.toLowerCase() === 'denied') {
 						saveCfg('desktNotif', 0);
 					} else {
-						_this92._granted = true;
+						_this93._granted = true;
 					}
 				});
 			}
@@ -20217,7 +20179,7 @@ true, true],
 				this._makeStep();
 			},
 			_makeStep: function _makeStep() {
-				var _this93 = this;
+				var _this94 = this;
 
 				var needSleep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
@@ -20227,7 +20189,7 @@ true, true],
 							if (needSleep) {
 								this._state = 1;
 								counter.count(this._delay, !doc.hidden, function () {
-									return _this93._makeStep();
+									return _this94._makeStep();
 								});
 								return;
 							}
@@ -20237,9 +20199,9 @@ true, true],
 							this._loadPromise = Thread.first.loadNew().then(function (_ref65) {
 								var newCount = _ref65.newCount,
 								    locked = _ref65.locked;
-								return _this93._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
+								return _this94._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (e) {
-								return _this93._handleNewPosts(0, e);
+								return _this94._handleNewPosts(0, e);
 							});
 							return;
 						case 2:
