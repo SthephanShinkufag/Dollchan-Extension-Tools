@@ -12337,7 +12337,7 @@ class BaseBoard {
 		this.qForm = '#postform';
 		this.qFormPassw = 'tr input[type="password"]'; // Differs Vichan only
 		this.qFormRedir = 'input[name="postredir"][value="1"]';
-		this.qFormRules = '.rules, #rules';
+		this.qFormRules = '.rules, #rules, .regras';
 		this.qOmitted = '.omittedposts';
 		this.qOPost = '.oppost';
 		this.qPages = 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type';
@@ -12414,6 +12414,7 @@ class BaseBoard {
 	get qThread() {
 		var val = $q('.thread') ? '.thread' :
 			$q('div[id*="_info"][style*="float"]') ? 'div[id^="t"]:not([style])' :
+			!!$q('div[id^="thread"]') ? 'div[id^="thread"]' :
 			'[id^="thread"]';
 		Object.defineProperty(this, 'qThread', { value: val });
 		return val;
@@ -14035,6 +14036,50 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['syn-ch.ru'] = Synch;
 	ibDomains['syn-ch.com'] = Synch;
 	ibDomains['syn-ch.org'] = Synch;
+
+	class _55chan extends Vichan {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.qPostImg = 'img.post-image';
+			this._capUpdPromise = null;
+		}
+
+		//Copied from _8chnet (the only difference is that maxlength = 8 not 6)
+		get css() {
+			return super.css + '#post-moderation-fields { display: initial !important; }';
+		}
+		initCaptcha(cap) {
+			$q('td', cap.trEl).innerHTML = `
+			<input placeholder="{ Lng.cap[lang] }" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="8" autocomplete="off">
+			<input class="captcha_cookie" name="captcha_cookie" type="hidden">
+			<div class="captcha_html"></div>`;
+			cap.textEl = $q('.captcha_text', cap.trEl);
+			return this.updateCaptcha(cap, true);
+		}
+		updateCaptcha(cap) {
+			if(this._capUpdPromise) {
+				this._capUpdPromise.cancel();
+			}
+			return (this._capUpdPromise = $ajax('/8chan-captcha/entrypoint.php?mode=get&extra=abcdefghijklmnopqrstuvwxyz').then(xhr => {
+				this._capUpdPromise = null;
+				var resp = JSON.parse(xhr.responseText);
+				$q('.captcha_cookie', cap.trEl).value = resp.cookie;
+				$q('.captcha_html', cap.trEl).innerHTML = resp.captchahtml;
+				var img = $q('img', cap.trEl);
+				if(img) {
+					cap.initImage(img);
+				}
+			}).catch(e => {
+				if(!(e instanceof CancelError)) {
+					this._capUpdPromise = null;
+					return CancelablePromise.reject(e);
+				}
+			}));
+		}
+	}
+	ibDomains['55chan.org'] = _55chan;
+
 
 	var dm = localData ? localData.dm : window.location.hostname
 		.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
