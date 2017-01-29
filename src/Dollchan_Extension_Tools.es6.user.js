@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '550bcd2';
+const commit = '37f3d11';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8267,7 +8267,7 @@ function checkUpload(data) {
 								$id('captcha_objects').innerHTML = data.new_captcha;
 							}
 						});
-					}
+					};
 					if(pr.isQuick) {
 						pr.setReply(true, false);
 					}
@@ -13448,7 +13448,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		initCaptcha(cap) {
 			$q('td', cap.trEl).innerHTML = `
-			<input placeholder="{ Lng.cap[lang] }" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="6" autocomplete="off">
+			<input placeholder="{ Lng.cap[lang] }" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="8" autocomplete="off">
 			<input class="captcha_cookie" name="captcha_cookie" type="hidden">
 			<div class="captcha_html"></div>`;
 			cap.textEl = $q('.captcha_text', cap.trEl);

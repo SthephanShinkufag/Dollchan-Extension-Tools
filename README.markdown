@@ -23,7 +23,7 @@
 
 ### ES5 compilation
 
-You can compile ES5 script version from ES6 source by next steps:
+You can compile ES5 script version from ES6 source by following steps:
 
 * Install [Node.js](https://nodejs.org/) if not yet.
 * Install [Gulp](http://gulpjs.com/) globally: `npm install -g gulp`

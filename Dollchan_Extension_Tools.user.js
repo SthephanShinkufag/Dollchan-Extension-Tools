@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '550bcd2';
+	var commit = '37f3d11';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -18517,7 +18517,7 @@ true, true],
 			_createClass(_8chNet, [{
 				key: 'initCaptcha',
 				value: function initCaptcha(cap) {
-					$q('td', cap.trEl).innerHTML = '\n\t\t\t<input placeholder="{ Lng.cap[lang] }" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="6" autocomplete="off">\n\t\t\t<input class="captcha_cookie" name="captcha_cookie" type="hidden">\n\t\t\t<div class="captcha_html"></div>';
+					$q('td', cap.trEl).innerHTML = '\n\t\t\t<input placeholder="{ Lng.cap[lang] }" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="8" autocomplete="off">\n\t\t\t<input class="captcha_cookie" name="captcha_cookie" type="hidden">\n\t\t\t<div class="captcha_html"></div>';
 					cap.textEl = $q('.captcha_text', cap.trEl);
 					return this.updateCaptcha(cap, true);
 				}
