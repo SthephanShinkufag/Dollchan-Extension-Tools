@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '37f3d11';
+const commit = 'eec5e47';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -10209,7 +10209,7 @@ Post.content = class PostContent extends TemporaryContent {
 		return value;
 	}
 	get html() {
-		var val = this.el.innerHTML;
+		var val = this.el.outerHTML;
 		Object.defineProperty(this, 'html', { value: val });
 		return val;
 	}
