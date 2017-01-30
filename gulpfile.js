@@ -5,7 +5,7 @@ var replace = require('gulp-replace');
 var spawn = require('child_process').spawn;
 var source = require('vinyl-source-stream');
 var browserify = require('browserify');
-var babelify = require("babelify");
+var babelify = require('babelify');
 var streamify = require('gulp-streamify');
 
 var paths = {
@@ -50,7 +50,7 @@ gulp.task('make', ['updatecommit'], function() {
 gulp.task('makeall', ['make'], function() {
 	return gulp.src('./Dollchan_Extension_Tools.user.js')
 		.pipe(replace('global.regenerator', 'window.regenerator'))
-		.pipe(gulp.dest('./dollchan-extension/data'))
+		.pipe(gulp.dest('./dollchan-extension/data'));
 });
 
 gulp.task('watch', function() {

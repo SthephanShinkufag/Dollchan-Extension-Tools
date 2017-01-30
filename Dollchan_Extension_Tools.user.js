@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '61c98bd';
+	var commit = 'f3fba67';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -8145,7 +8145,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var cImg = 1,
 			    mReqs = isPost ? 1 : 4,
 			    rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile, function (e) {
-				console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
+				console.error('FILE DETECTOR ERROR, line: ' + e.lineno + ' - ' + e.message);
 			});
 			pool = new TasksPool(mReqs, function (num, data) {
 				return downloadImgData(data[0]).then(function (imageData) {
@@ -8157,7 +8157,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					    el = _data3[4];
 
 					if (imageData) {
-						var fName = url.substring(url.lastIndexOf("/") + 1),
+						var fName = url.substring(url.lastIndexOf('/') + 1),
 						    nameLink = $q(aib.qImgName, aib.getImgWrap(imgLink));
 						imgLink.setAttribute('download', fName);
 						nameLink.setAttribute('download', fName);
@@ -8323,7 +8323,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (aib.tiny) {
 					url = url.replace(/^.*?\?v=|&.*?$/g, '');
 				}
-				Images_.pool.run([url, imgLink.getAttribute('download') || url.substring(url.lastIndexOf("/") + 1), el, imgLink]);
+				Images_.pool.run([url, imgLink.getAttribute('download') || url.substring(url.lastIndexOf('/') + 1), el, imgLink]);
 			}
 		});
 		if (!imgOnly) {
@@ -8355,7 +8355,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					$del(el);
 					return;
 				}
-				fName = url.substring(url.lastIndexOf("/") + 1).replace(/[\\\/:*?"<>|]/g, '_').toLowerCase();
+				fName = url.substring(url.lastIndexOf('/') + 1).replace(/[\\\/:*?"<>|]/g, '_').toLowerCase();
 				if (files.indexOf(fName) !== -1) {
 					var temp = url.lastIndexOf('.'),
 					    ext = url.substring(temp);
@@ -15925,7 +15925,7 @@ true, true],
 						}
 					}
 					var max_rating = 'r15'; 
-					if (file.rating === 'r-18g' && max_rating !== "r-18g") {
+					if (file.rating === 'r-18g' && max_rating !== 'r-18g') {
 						thumb = "images/r-18g.png";
 					} else if (file.rating === 'r-18' && (max_rating !== 'r-18g' || max_rating !== 'r-18')) {
 						thumb = "images/r-18.png";
@@ -17504,7 +17504,7 @@ true, true],
 					} else if (json.Status === 'Redirect') {
 						postNum = +json.Target;
 					} else {
-						error = Lng.error[lang] + ":\n" + json.Reason;
+						error = Lng.error[lang] + ':\n' + json.Reason;
 					}
 					return { error: error, postNum: postNum };
 				}
@@ -18263,7 +18263,7 @@ true, true],
 					} else {
 						error = Lng.error[lang];
 						if (json.error) {
-							error += ":\n" + json.error.text;
+							error += ':\n' + json.error.text;
 						}
 					}
 					return { error: error, postNum: postNum };
@@ -18959,7 +18959,7 @@ true, true],
 						return null;
 					}
 					if (cap.textEl) {
-						var src = img.getAttribute('src').split('/').slice(0, -1).join('/') + "/" + Date.now() + '.png';
+						var src = img.getAttribute('src').split('/').slice(0, -1).join('/') + '/' + Date.now() + '.png';
 						img.src = '';
 						img.src = src;
 					} else if (isErr) {
@@ -20795,7 +20795,7 @@ true, true],
 		case 'de-iframe-pform':
 		case 'de-iframe-dform':
 			onDOMLoaded(function () {
-				return window.parent.postMessage(window.name + doc.documentElement.outerHTML, "*");
+				return window.parent.postMessage(window.name + doc.documentElement.outerHTML, '*');
 			});
 			return;
 	}

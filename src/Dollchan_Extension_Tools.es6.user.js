@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '61c98bd';
+const commit = 'f3fba67';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -4871,12 +4871,12 @@ function preloadImages(data) {
 		var cImg = 1,
 			mReqs = isPost ? 1 : 4,
 			rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile, function(e) {
-				console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
+				console.error('FILE DETECTOR ERROR, line: ' + e.lineno + ' - ' + e.message);
 			});
 		pool = new TasksPool(mReqs, (num, data) => downloadImgData(data[0]).then(imageData => {
 			var [url, imgLink, iType, nExp, el] = data;
 			if(imageData) {
-				var fName = url.substring(url.lastIndexOf("/") + 1),
+				var fName = url.substring(url.lastIndexOf('/') + 1),
 					nameLink = $q(aib.qImgName, aib.getImgWrap(imgLink));
 				imgLink.setAttribute('download', fName);
 				nameLink.setAttribute('download', fName);
@@ -5032,7 +5032,7 @@ function loadDocFiles(imgOnly) {
 				url = url.replace(/^.*?\?v=|&.*?$/g, '');
 			}
 			Images_.pool.run([url, imgLink.getAttribute('download') ||
-				url.substring(url.lastIndexOf("/") + 1), el, imgLink]);
+				url.substring(url.lastIndexOf('/') + 1), el, imgLink]);
 		}
 	});
 	if(!imgOnly) {
@@ -5064,7 +5064,7 @@ function loadDocFiles(imgOnly) {
 				$del(el);
 				return;
 			}
-			fName = url.substring(url.lastIndexOf("/") + 1).replace(/[\\\/:*?"<>|]/g, '_').toLowerCase();
+			fName = url.substring(url.lastIndexOf('/') + 1).replace(/[\\\/:*?"<>|]/g, '_').toLowerCase();
 			if(files.indexOf(fName) !== -1) {
 				var temp = url.lastIndexOf('.'),
 					ext = url.substring(temp);
@@ -11364,7 +11364,7 @@ class DobrochanPostsBuilder {
 				}
 			}
 			const max_rating = 'r15'; // FIXME: read from settings
-			if(file.rating === 'r-18g' && max_rating !== "r-18g") {
+			if(file.rating === 'r-18g' && max_rating !== 'r-18g') {
 				thumb = "images/r-18g.png";
 			} else if(file.rating === 'r-18' && (max_rating !== 'r-18g' || max_rating !== 'r-18')) {
 				thumb = "images/r-18.png";
@@ -12732,7 +12732,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			} else if(json.Status === 'Redirect') {
 				postNum = +json.Target;
 			} else {
-				error = Lng.error[lang] + ":\n" + json.Reason;
+				error = Lng.error[lang] + ':\n' + json.Reason;
 			}
 			return { error, postNum };
 		}
@@ -13265,7 +13265,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			} else {
 				error = Lng.error[lang];
 				if(json.error) {
-					error += ":\n" + json.error.text;
+					error += ':\n' + json.error.text;
 				}
 			}
 			return { error, postNum };
@@ -13756,7 +13756,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return null;
 			}
 			if(cap.textEl) {
-				var src = img.getAttribute('src').split('/').slice(0,-1).join('/') + "/" + Date.now() + '.png';
+				var src = img.getAttribute('src').split('/').slice(0,-1).join('/') + '/' + Date.now() + '.png';
 				img.src = '';
 				img.src = src;
 			} else if(isErr) {
@@ -15749,7 +15749,7 @@ switch(window.name) {
 case '': break;
 case 'de-iframe-pform':
 case 'de-iframe-dform':
-	onDOMLoaded(() => window.parent.postMessage(window.name + doc.documentElement.outerHTML, "*"));
+	onDOMLoaded(() => window.parent.postMessage(window.name + doc.documentElement.outerHTML, '*'));
 	return;
 }
 if(doc.readyState !== 'loading') {
