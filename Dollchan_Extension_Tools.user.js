@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = 'eec5e47';
+	var commit = 'ad0bf16';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -18445,6 +18445,10 @@ true, true],
 				key: 'init',
 				value: function init() {
 					Cfg.findImgFile = 0;
+					var el = $id('styleSelector');
+					if (el) {
+						el.setAttribute('onchange', 'setActiveStyleSheet(this.value);');
+					}
 					return false;
 				}
 			}, {

@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = 'eec5e47';
+const commit = 'ad0bf16';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13431,6 +13431,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			Cfg.findImgFile = 0;
+			const el = $id('styleSelector');
+			if(el) {
+				el.setAttribute('onchange', 'setActiveStyleSheet(this.value);');
+			}
 			return false;
 		}
 	}
