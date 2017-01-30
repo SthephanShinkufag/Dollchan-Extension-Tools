@@ -18576,6 +18576,7 @@ true, true],
 
 				_this76._8ch = null;
 
+				_this76.qPostImg = 'img.post-image';
 				_this76.qFormRules = '.regras';
 				return _this76;
 			}

@@ -13488,6 +13488,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 			this._8ch = null;
 
+			this.qPostImg = 'img.post-image';
 			this.qFormRules = '.regras';
 		}
 		get qThread() {
