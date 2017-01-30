@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = 'ad0bf16';
+const commit = '61c98bd';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11589,7 +11589,6 @@ class Thread {
 		}
 		this.last = lastPost;
 		el.style.counterReset = 'de-cnt ' + omt;
-		el.removeAttribute('id');
 		el.setAttribute('de-thread', null);
 		visPosts = Math.max(visPosts, len);
 		if(aib.tiny) {
@@ -12412,10 +12411,7 @@ class BaseBoard {
 		return value;
 	}
 	get qThread() {
-		var val = $q('.thread') ? '.thread' :
-			$q('div[id*="_info"][style*="float"]') ? 'div[id^="t"]:not([style])' :
-			!!$q('div[id^="thread"]') ? 'div[id^="thread"]' :
-			'[id^="thread"]';
+		var val = $q('.thread') ? '.thread' : '[id^="thread"]';
 		Object.defineProperty(this, 'qThread', { value: val });
 		return val;
 	}
@@ -12933,6 +12929,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			setTimeout(function() {
 				$del($id('updater'));
 			}, 0);
+			const textarea = $id('body');
+			if(textarea) {
+				textarea.removeAttribute('id');
+			}
+			$script('highlightReply = function() {}');
 			if(locStorage.file_dragdrop !== 'false') {
 				locStorage.file_dragdrop = false;
 				window.location.reload();
@@ -13489,6 +13490,9 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.qFormRules = '.regras';
 		}
+		get qThread() {
+			return 'div[data-board]';
+		}
 	}
 	ibDomains['55chan.org'] = _55chan;
 
@@ -13619,10 +13623,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			const el2 = $id('upload');
 			if(el1 && el2) {
 				$after(el2, el1);
-			}
-			const textarea = $id('body');
-			if(textarea) {
-				textarea.removeAttribute('id');
 			}
 			return false;
 		}

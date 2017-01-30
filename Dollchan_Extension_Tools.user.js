@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = 'ad0bf16';
+	var commit = '61c98bd';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -16200,7 +16200,6 @@ true, true],
 			}
 			this.last = lastPost;
 			el.style.counterReset = 'de-cnt ' + omt;
-			el.removeAttribute('id');
 			el.setAttribute('de-thread', null);
 			visPosts = Math.max(visPosts, len);
 			if (aib.tiny) {
@@ -17351,7 +17350,7 @@ true, true],
 		}, {
 			key: 'qThread',
 			get: function get() {
-				var val = $q('.thread') ? '.thread' : $q('div[id*="_info"][style*="float"]') ? 'div[id^="t"]:not([style])' : !!$q('div[id^="thread"]') ? 'div[id^="thread"]' : '[id^="thread"]';
+				var val = $q('.thread') ? '.thread' : '[id^="thread"]';
 				Object.defineProperty(this, 'qThread', { value: val });
 				return val;
 			}
@@ -17767,6 +17766,11 @@ true, true],
 					setTimeout(function () {
 						$del($id('updater'));
 					}, 0);
+					var textarea = $id('body');
+					if (textarea) {
+						textarea.removeAttribute('id');
+					}
+					$script('highlightReply = function() {}');
 					if (locStorage.file_dragdrop !== 'false') {
 						locStorage.file_dragdrop = false;
 						window.location.reload();
@@ -18576,6 +18580,13 @@ true, true],
 				return _this76;
 			}
 
+			_createClass(_55chan, [{
+				key: 'qThread',
+				get: function get() {
+					return 'div[data-board]';
+				}
+			}]);
+
 			return _55chan;
 		}(_8chNet);
 
@@ -18766,10 +18777,6 @@ true, true],
 					var el2 = $id('upload');
 					if (el1 && el2) {
 						$after(el2, el1);
-					}
-					var textarea = $id('body');
-					if (textarea) {
-						textarea.removeAttribute('id');
 					}
 					return false;
 				}
