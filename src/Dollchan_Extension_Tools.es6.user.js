@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = 'f3fba67';
+const commit = 'a21013a';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12905,6 +12905,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.qDelPassw = '#password';
+			this.qPostImg = '.post-image';
 
 			this.multiFile = true;
 		}
@@ -13488,7 +13489,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 			this._8ch = null;
 
-			this.qPostImg = 'img.post-image';
 			this.qFormRules = '.regras';
 		}
 		get qThread() {

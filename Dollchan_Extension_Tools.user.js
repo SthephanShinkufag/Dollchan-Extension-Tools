@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = 'f3fba67';
+	var commit = 'a21013a';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -17745,6 +17745,7 @@ true, true],
 				var _this59 = _possibleConstructorReturn(this, (Vichan.__proto__ || Object.getPrototypeOf(Vichan)).call(this, prot, dm));
 
 				_this59.qDelPassw = '#password';
+				_this59.qPostImg = '.post-image';
 
 				_this59.multiFile = true;
 				return _this59;
@@ -18576,7 +18577,6 @@ true, true],
 
 				_this76._8ch = null;
 
-				_this76.qPostImg = 'img.post-image';
 				_this76.qFormRules = '.regras';
 				return _this76;
 			}
