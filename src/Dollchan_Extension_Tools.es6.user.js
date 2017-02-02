@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = 'a21013a';
+const commit = '07fde78';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13957,6 +13957,14 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['lainchan.org'] = Lainchan;
+
+	class Nowere extends BaseBoard {
+		init() {
+			$script('highlight = function() {}');
+			return false;
+		}
+	}
+	ibDomains['nowere.net'] = Nowere;
 
 	class Ponyach extends BaseBoard {
 		constructor(prot, dm) {

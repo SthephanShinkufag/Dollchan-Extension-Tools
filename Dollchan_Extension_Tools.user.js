@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = 'a21013a';
+	var commit = '07fde78';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -19251,20 +19251,42 @@ true, true],
 
 		ibDomains['lainchan.org'] = Lainchan;
 
-		var Ponyach = function (_BaseBoard16) {
-			_inherits(Ponyach, _BaseBoard16);
+		var Nowere = function (_BaseBoard16) {
+			_inherits(Nowere, _BaseBoard16);
+
+			function Nowere() {
+				_classCallCheck(this, Nowere);
+
+				return _possibleConstructorReturn(this, (Nowere.__proto__ || Object.getPrototypeOf(Nowere)).apply(this, arguments));
+			}
+
+			_createClass(Nowere, [{
+				key: 'init',
+				value: function init() {
+					$script('highlight = function() {}');
+					return false;
+				}
+			}]);
+
+			return Nowere;
+		}(BaseBoard);
+
+		ibDomains['nowere.net'] = Nowere;
+
+		var Ponyach = function (_BaseBoard17) {
+			_inherits(Ponyach, _BaseBoard17);
 
 			function Ponyach(prot, dm) {
 				_classCallCheck(this, Ponyach);
 
-				var _this85 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
+				var _this86 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
 
-				_this85.qBan = 'font[color="#FF0000"]';
+				_this86.qBan = 'font[color="#FF0000"]';
 
-				_this85.jsonSubmit = true;
-				_this85.multiFile = true;
-				_this85.thrid = 'replythread';
-				return _this85;
+				_this86.jsonSubmit = true;
+				_this86.multiFile = true;
+				_this86.thrid = 'replythread';
+				return _this86;
 			}
 
 			_createClass(Ponyach, [{
@@ -19312,10 +19334,10 @@ true, true],
 			function Ponychan(prot, dm) {
 				_classCallCheck(this, Ponychan);
 
-				var _this86 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
+				var _this87 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
 
-				_this86.qOPost = '.opContainer';
-				return _this86;
+				_this87.qOPost = '.opContainer';
+				return _this87;
 			}
 
 			_createClass(Ponychan, [{
@@ -19345,12 +19367,12 @@ true, true],
 			function Synch(prot, dm) {
 				_classCallCheck(this, Synch);
 
-				var _this87 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
+				var _this88 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
 
-				_this87.qFileInfo = '.unimportant';
+				_this88.qFileInfo = '.unimportant';
 
-				_this87.markupBB = true;
-				return _this87;
+				_this88.markupBB = true;
+				return _this88;
 			}
 
 			_createClass(Synch, [{
@@ -19804,7 +19826,7 @@ true, true],
 				}
 			},
 			play: function play() {
-				var _this88 = this;
+				var _this89 = this;
 
 				this.stop();
 				if (this.repeatMS === 0) {
@@ -19812,7 +19834,7 @@ true, true],
 					return;
 				}
 				this._playInterval = setInterval(function () {
-					return _this88._el.play();
+					return _this89._el.play();
 				}, this.repeatMS);
 			},
 			stop: function stop() {
@@ -19843,7 +19865,7 @@ true, true],
 				$hide(this._el);
 			},
 			count: function count(delayMS, useCounter, callback) {
-				var _this89 = this;
+				var _this90 = this;
 
 				if (this._enabled && useCounter) {
 					var seconds = delayMS / 1000;
@@ -19851,15 +19873,15 @@ true, true],
 					this._countingIV = setInterval(function () {
 						seconds--;
 						if (seconds === 0) {
-							_this89._stop();
+							_this90._stop();
 							callback();
 						} else {
-							_this89._set(seconds);
+							_this90._set(seconds);
 						}
 					}, 1000);
 				} else {
 					this._countingTO = setTimeout(function () {
-						_this89._countingTO = null;
+						_this90._countingTO = null;
 						callback();
 					}, delayMS);
 				}
@@ -19904,7 +19926,7 @@ true, true],
 				return this._iconEl ? this._iconEl.href : null;
 			},
 			initIcons: function initIcons() {
-				var _this90 = this;
+				var _this91 = this;
 
 				if (this._isInited) {
 					return;
@@ -19913,7 +19935,7 @@ true, true],
 				var icon = new Image();
 				icon.onload = function (e) {
 					try {
-						_this90._initIconsHelper(e.target);
+						_this91._initIconsHelper(e.target);
 					} catch (err) {
 						console.error('Icon error:', err);
 					}
@@ -20009,7 +20031,7 @@ true, true],
 				this._iconEl = $aBegin(doc.head, '<link rel="shortcut icon" href="' + iconUrl + '">');
 			},
 			_startBlink: function _startBlink(iconUrl) {
-				var _this91 = this;
+				var _this92 = this;
 
 				if (this._blinkInterval) {
 					if (this._currentIcon === iconUrl) {
@@ -20019,8 +20041,8 @@ true, true],
 				}
 				this._currentIcon = iconUrl;
 				this._blinkInterval = setInterval(function () {
-					_this91._setIcon(_this91._isOriginalIcon ? _this91._currentIcon : _this91.originalIcon);
-					_this91._isOriginalIcon = !_this91._isOriginalIcon;
+					_this92._setIcon(_this92._isOriginalIcon ? _this92._currentIcon : _this92.originalIcon);
+					_this92._isOriginalIcon = !_this92._isOriginalIcon;
 				}, this._blinkMS);
 			}
 		};
@@ -20040,7 +20062,7 @@ true, true],
 				}
 			},
 			show: function show() {
-				var _this92 = this;
+				var _this93 = this;
 
 				var post = Thread.first.last,
 				    notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
@@ -20050,8 +20072,8 @@ true, true],
 				});
 				notif.onshow = function () {
 					return setTimeout(function () {
-						if (notif === _this92._notifEl) {
-							_this92.close();
+						if (notif === _this93._notifEl) {
+							_this93.close();
 						}
 					}, 12e3);
 				};
@@ -20060,7 +20082,7 @@ true, true],
 				};
 				notif.onerror = function () {
 					window.focus();
-					_this92._requestPermission();
+					_this93._requestPermission();
 				};
 				this._notifEl = notif;
 			},
@@ -20077,14 +20099,14 @@ true, true],
 			_notifEl: null,
 
 			_requestPermission: function _requestPermission() {
-				var _this93 = this;
+				var _this94 = this;
 
 				this._granted = false;
 				Notification.requestPermission(function (state) {
 					if (state.toLowerCase() === 'denied') {
 						saveCfg('desktNotif', 0);
 					} else {
-						_this93._granted = true;
+						_this94._granted = true;
 					}
 				});
 			}
@@ -20191,7 +20213,7 @@ true, true],
 				this._makeStep();
 			},
 			_makeStep: function _makeStep() {
-				var _this94 = this;
+				var _this95 = this;
 
 				var needSleep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
@@ -20201,7 +20223,7 @@ true, true],
 							if (needSleep) {
 								this._state = 1;
 								counter.count(this._delay, !doc.hidden, function () {
-									return _this94._makeStep();
+									return _this95._makeStep();
 								});
 								return;
 							}
@@ -20211,9 +20233,9 @@ true, true],
 							this._loadPromise = Thread.first.loadNew().then(function (_ref65) {
 								var newCount = _ref65.newCount,
 								    locked = _ref65.locked;
-								return _this94._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
+								return _this95._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (e) {
-								return _this94._handleNewPosts(0, e);
+								return _this95._handleNewPosts(0, e);
 							});
 							return;
 						case 2:
