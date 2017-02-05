@@ -2954,7 +2954,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '07fde78';
+	var commit = 'd6bca02';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -4728,9 +4728,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						setStored('DESU_Config', JSON.stringify(val));
 						lang = Cfg.language;
 						if (Cfg.updScript) {
-							checkForUpdates(false, val.lastUpd).then(function (data) {
+							checkForUpdates(false, val.lastUpd).then(function (html) {
 								return onDOMLoaded(function () {
-									return $popup('updavail', data);
+									return $popup('updavail', html);
 								});
 							}, emptyFn);
 						}
@@ -14223,7 +14223,9 @@ true, true],
 						}
 					} else {
 						this._pref.onmouseover = this._pref.onmouseout = !hide ? null : function (e) {
-							return _this40.hideContent(e.type === 'mouseout');
+							var yOffset = window.pageYOffset;
+							_this40.hideContent(e.type === 'mouseout');
+							scrollTo(window.pageXOffset, yOffset);
 						};
 					}
 				}
@@ -19528,7 +19530,7 @@ true, true],
 				doc.defaultView.addEventListener('message', function (_ref62) {
 					var data = _ref62.data;
 
-					if (data == 'de-request-api-message') {
+					if (data === 'de-request-api-message') {
 						DollchanAPI.hasListeners = true;
 						document.defaultView.postMessage('de-answer-api-message', '*', [port]);
 					}
@@ -20460,47 +20462,33 @@ true, true],
 		}, 0);
 	}
 
-	function checkForUpdates(isForce, lastUpdateTime) {
-		if (!isForce) {
-			var day = 2 * 1000 * 60 * 60 * 24,
-			    temp = Cfg.scrUpdIntrv;
-			switch (temp) {
-				case 0:
-					temp = day;break;
-				case 1:
-					temp = day * 2;break;
-				case 2:
-					temp = day * 7;break;
-				case 3:
-					temp = day * 14;break;
-				default:
-					temp = day * 30;
-			}
-			if (Date.now() - +lastUpdateTime < temp) {
+	function checkForUpdates(isManual, lastUpdateTime) {
+		if (!isManual) {
+			if (Date.now() - +lastUpdateTime < [1, 2, 7, 14, 30][Cfg.scrUpdIntrv] * 1000 * 60 * 60 * 24) {
 				return Promise.reject();
 			}
 		}
 		return $ajax(gitRaw + 'Dollchan_Extension_Tools.meta.js', { 'Content-Type': 'text/plain' }, false).then(function (xhr) {
-			var m = xhr.responseText.match(/@version\s+([0-9.]+)/),
-			    dVer = m && m[1] ? m[1].split('.') : null;
-			if (dVer) {
-				var cVer = version.split('.');
+			var m = xhr.responseText.match(/@version\s+([0-9.]+)/);
+			var remoteVer = m && m[1] ? m[1].split('.') : null;
+			if (remoteVer) {
+				var currentVer = version.split('.');
 				var src = gitRaw + (nav.isES6 ? 'src/' : '') + 'Dollchan_Extension_Tools.' + (nav.isES6 ? 'es6.' : '') + 'user.js';
 				saveCfgObj('lastUpd', Date.now());
-				for (var i = 0, len = Math.max(cVer.length, dVer.length); i < len; ++i) {
-					if ((+dVer[i] || 0) > (+cVer[i] || 0)) {
+				for (var i = 0, _len14 = Math.max(currentVer.length, remoteVer.length); i < _len14; ++i) {
+					if ((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
 						return '<a style="color: blue; font-weight: bold;" href="' + src + '">' + Lng.updAvail[lang] + '</a>';
-					} else if ((+dVer[i] || 0) < (+cVer[i] || 0)) {
+					} else if ((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
 						break;
 					}
 				}
-				if (isForce) {
+				if (isManual) {
 					return Lng.haveLatest[lang];
 				}
 			}
 			return Promise.reject();
 		}, function () {
-			return isForce ? '<div style="color: red; font-weigth: bold;">' + Lng.noConnect[lang] + '</div>' : Promise.reject();
+			return isManual ? '<div style="color: red; font-weigth: bold;">' + Lng.noConnect[lang] + '</div>' : Promise.reject();
 		});
 	}
 
@@ -20601,15 +20589,6 @@ true, true],
 		$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 	}
 
-
-	function doLocalChangings() {
-		$each($Q('.de-post-removed'), function (el) {
-			var post = pByEl.get(el);
-			if (post) {
-				post['delete'](false);
-			}
-		});
-	}
 
 	function runMain(checkDomains, cfgPromise) {
 		var formEl, str, storageName, firstThr;
@@ -20796,7 +20775,12 @@ true, true],
 						scrollPage();
 						Logger.log('Scroll page');
 						if (localData) {
-							doLocalChangings();
+							$each($Q('.de-post-removed'), function (el) {
+								var post = pByEl.get(el);
+								if (post) {
+									post['delete'](false);
+								}
+							});
 							Logger.log('Local changings');
 						}
 						Logger.finish();

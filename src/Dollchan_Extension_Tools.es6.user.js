@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '07fde78';
+const commit = 'd6bca02';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1614,8 +1614,8 @@ function* readCfg() {
 	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
 	if(Cfg.updScript) {
-		checkForUpdates(false, val.lastUpd).then(data =>
-			onDOMLoaded(() => $popup('updavail', data)), emptyFn);
+		checkForUpdates(false, val.lastUpd).then(html =>
+			onDOMLoaded(() => $popup('updavail', html)), emptyFn);
 	}
 }
 
@@ -10015,8 +10015,11 @@ class Post extends AbstractPost {
 					this.wrap.classList.remove('de-hidden');
 				}
 			} else {
-				this._pref.onmouseover = this._pref.onmouseout = !hide ? null :
-					e => this.hideContent(e.type === 'mouseout');
+				this._pref.onmouseover = this._pref.onmouseout = !hide ? null : e => {
+					const yOffset = window.pageYOffset;
+					this.hideContent(e.type === 'mouseout');
+					scrollTo(window.pageXOffset, yOffset);
+				};
 			}
 		}
 		if(Cfg.strikeHidd) {
@@ -14166,7 +14169,7 @@ class DollchanAPI {
 		DollchanAPI.activeListeners = new Set();
 		let port = channel.port2;
 		doc.defaultView.addEventListener('message', ({ data }) => {
-			if(data == 'de-request-api-message') {
+			if(data === 'de-request-api-message') {
 			DollchanAPI.hasListeners = true;
 				document.defaultView.postMessage('de-answer-api-message', '*', [port]);
 			}
@@ -15175,18 +15178,10 @@ function scrollPage() {
 	}, 0);
 }
 
-function checkForUpdates(isForce, lastUpdateTime) {
-	if(!isForce) {
-		var day = 2 * 1000 * 60 * 60 * 24,
-			temp = Cfg.scrUpdIntrv;
-		switch(temp) {
-		case 0: temp = day; break;
-		case 1: temp = day * 2; break;
-		case 2: temp = day * 7; break;
-		case 3: temp = day * 14; break;
-		default: temp = day * 30;
-		}
-		if(Date.now() - +lastUpdateTime < temp) {
+// Checking for script updates from github
+function checkForUpdates(isManual, lastUpdateTime) {
+	if(!isManual) {
+		if(Date.now() - +lastUpdateTime < [1, 2, 7, 14, 30][Cfg.scrUpdIntrv] * 1000 * 60 * 60 * 24) {
 			return Promise.reject();
 		}
 	}
@@ -15194,28 +15189,28 @@ function checkForUpdates(isForce, lastUpdateTime) {
 		gitRaw + 'Dollchan_Extension_Tools.meta.js',
 		{'Content-Type': 'text/plain'}, false
 	).then(xhr => {
-		var m = xhr.responseText.match(/@version\s+([0-9.]+)/),
-			dVer = m && m[1] ? m[1].split('.') : null;
-		if(dVer) {
-			let cVer = version.split('.');
-			let src = gitRaw + (nav.isES6 ? 'src/' : '') + 'Dollchan_Extension_Tools.' +
+		const m = xhr.responseText.match(/@version\s+([0-9.]+)/);
+		const remoteVer = m && m[1] ? m[1].split('.') : null;
+		if(remoteVer) {
+			const currentVer = version.split('.');
+			const src = gitRaw + (nav.isES6 ? 'src/' : '') + 'Dollchan_Extension_Tools.' +
 				(nav.isES6 ? 'es6.' : '') + 'user.js';
 			saveCfgObj('lastUpd', Date.now());
-			for(var i = 0, len = Math.max(cVer.length, dVer.length); i < len; ++i) {
-				if((+dVer[i] || 0) > (+cVer[i] || 0)) {
+			for(let i = 0, len = Math.max(currentVer.length, remoteVer.length); i < len; ++i) {
+				if((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
 					return '<a style="color: blue; font-weight: bold;" href="' + src + '">' +
 						Lng.updAvail[lang] + '</a>';
-				} else if((+dVer[i] || 0) < (+cVer[i] || 0)) {
+				} else if((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
 					break;
 				}
 			}
-			if(isForce) {
+			if(isManual) {
 				return Lng.haveLatest[lang];
 			}
 		}
 		return Promise.reject();
-	}, () => isForce ? '<div style="color: red; font-weigth: bold;">' + Lng.noConnect[lang] + '</div>' :
-	                   Promise.reject()
+	}, () => isManual ? '<div style="color: red; font-weigth: bold;">' + Lng.noConnect[lang] + '</div>' :
+	                    Promise.reject()
 	);
 }
 
@@ -15630,15 +15625,6 @@ function updateCSS() {
 // MAIN
 // ===========================================================================================================
 
-function doLocalChangings() {
-	$each($Q('.de-post-removed'), el => {
-		var post = pByEl.get(el);
-		if(post) {
-			post.delete(false);
-		}
-	});
-}
-
 function* runMain(checkDomains, cfgPromise) {
 	Logger.init();
 	docBody = doc.body;
@@ -15648,7 +15634,7 @@ function* runMain(checkDomains, cfgPromise) {
 	if(!aib) {
 		aib = getImageBoard(checkDomains, true);
 	}
-	var formEl = $q(aib.qDForm + ', form[de-form]');
+	let formEl = $q(aib.qDForm + ', form[de-form]');
 	if(!formEl) {
 		return;
 	}
@@ -15659,7 +15645,7 @@ function* runMain(checkDomains, cfgPromise) {
 		}
 		initNavFuncs();
 	}
-	var str = yield* getStored('DESU_Exclude');
+	const str = yield* getStored('DESU_Exclude');
 	if(str && str.includes(aib.dm)) {
 		return;
 	}
@@ -15711,7 +15697,7 @@ function* runMain(checkDomains, cfgPromise) {
 		return;
 	}
 	Logger.log('Parse delform');
-	let storageName = 'de-lastpcount-' + aib.b + '-' + aib.t;
+	const storageName = 'de-lastpcount-' + aib.b + '-' + aib.t;
 	if(aib.t && !!sesStorage[storageName]) {
 		if(sesStorage[storageName] > Thread.first.pcount) {
 			sesStorage.removeItem(storageName);
@@ -15744,7 +15730,12 @@ function* runMain(checkDomains, cfgPromise) {
 	scrollPage();
 	Logger.log('Scroll page');
 	if(localData) {
-		doLocalChangings();
+		$each($Q('.de-post-removed'), el => {
+			const post = pByEl.get(el);
+			if(post) {
+				post.delete(false);
+			}
+		});
 		Logger.log('Local changings');
 	}
 	Logger.finish();
