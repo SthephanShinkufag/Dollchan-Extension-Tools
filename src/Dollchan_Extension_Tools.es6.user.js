@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = 'd6bca02';
+const commit = 'bbca4a1';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default

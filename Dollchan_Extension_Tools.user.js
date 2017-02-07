@@ -2373,8 +2373,7 @@ process.umask = function() { return 0; };
 !(function(global) {
   "use strict";
 
-  var Op = Object.prototype;
-  var hasOwn = Op.hasOwnProperty;
+  var hasOwn = Object.prototype.hasOwnProperty;
   var undefined; 
   var $Symbol = typeof Symbol === "function" ? Symbol : {};
   var iteratorSymbol = $Symbol.iterator || "@@iterator";
@@ -2421,25 +2420,10 @@ process.umask = function() { return 0; };
   function GeneratorFunction() {}
   function GeneratorFunctionPrototype() {}
 
-  var IteratorPrototype = {};
-  IteratorPrototype[iteratorSymbol] = function () {
-    return this;
-  };
-
-  var getProto = Object.getPrototypeOf;
-  var NativeIteratorPrototype = getProto && getProto(getProto(values([])));
-  if (NativeIteratorPrototype &&
-      NativeIteratorPrototype !== Op &&
-      hasOwn.call(NativeIteratorPrototype, iteratorSymbol)) {
-    IteratorPrototype = NativeIteratorPrototype;
-  }
-
-  var Gp = GeneratorFunctionPrototype.prototype =
-    Generator.prototype = Object.create(IteratorPrototype);
+  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
   GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
   GeneratorFunctionPrototype.constructor = GeneratorFunction;
-  GeneratorFunctionPrototype[toStringTagSymbol] =
-    GeneratorFunction.displayName = "GeneratorFunction";
+  GeneratorFunctionPrototype[toStringTagSymbol] = GeneratorFunction.displayName = "GeneratorFunction";
 
   function defineIteratorMethods(prototype) {
     ["next", "throw", "return"].forEach(function(method) {
@@ -2471,8 +2455,12 @@ process.umask = function() { return 0; };
   };
 
   runtime.awrap = function(arg) {
-    return { __await: arg };
+    return new AwaitArgument(arg);
   };
+
+  function AwaitArgument(arg) {
+    this.arg = arg;
+  }
 
   function AsyncIterator(generator) {
     function invoke(method, arg, resolve, reject) {
@@ -2482,10 +2470,8 @@ process.umask = function() { return 0; };
       } else {
         var result = record.arg;
         var value = result.value;
-        if (value &&
-            typeof value === "object" &&
-            hasOwn.call(value, "__await")) {
-          return Promise.resolve(value.__await).then(function(value) {
+        if (value instanceof AwaitArgument) {
+          return Promise.resolve(value.arg).then(function(value) {
             invoke("next", value, resolve, reject);
           }, function(err) {
             invoke("throw", err, resolve, reject);
@@ -2523,7 +2509,6 @@ process.umask = function() { return 0; };
   }
 
   defineIteratorMethods(AsyncIterator.prototype);
-  runtime.AsyncIterator = AsyncIterator;
 
   runtime.async = function(innerFn, outerFn, self, tryLocsList) {
     var iter = new AsyncIterator(
@@ -2653,6 +2638,10 @@ process.umask = function() { return 0; };
   }
 
   defineIteratorMethods(Gp);
+
+  Gp[iteratorSymbol] = function() {
+    return this;
+  };
 
   Gp[toStringTagSymbol] = "Generator";
 
@@ -2954,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = 'd6bca02';
+	var commit = 'bbca4a1';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -5770,7 +5759,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function _callee() {
-			var i, els, len, _els$i$getAttribute$s, _els$i$getAttribute$s2, b, tNum;
+			var i, els, len, _els$i$getAttribute$s, _els$i$getAttribute$s2, _b, tNum;
 
 			return regeneratorRuntime.wrap(function _callee$(_context6) {
 				while (1) {
@@ -5784,10 +5773,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								break;
 							}
 
-							_els$i$getAttribute$s = els[i].getAttribute('info').split(';'), _els$i$getAttribute$s2 = _slicedToArray(_els$i$getAttribute$s, 2), b = _els$i$getAttribute$s2[0], tNum = _els$i$getAttribute$s2[1];
+							_els$i$getAttribute$s = els[i].getAttribute('info').split(';'), _els$i$getAttribute$s2 = _slicedToArray(_els$i$getAttribute$s, 2), _b = _els$i$getAttribute$s2[0], tNum = _els$i$getAttribute$s2[1];
 							_context6.prev = 3;
 							_context6.next = 6;
-							return $ajax(aib.getThrdUrl(b, tNum));
+							return $ajax(aib.getThrdUrl(_b, tNum));
 
 						case 6:
 							_context6.next = 11;
@@ -5798,8 +5787,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							_context6.t0 = _context6['catch'](3);
 
 							if (_context6.t0.code === 404) {
-								HiddenThreads.remove(tNum, b); 
-								HiddenPosts.remove(tNum, b); 
+								HiddenThreads.remove(tNum, _b); 
+								HiddenPosts.remove(tNum, _b); 
 							}
 
 						case 11:
@@ -5951,7 +5940,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(regeneratorRuntime.mark(function _callee2() {
-			var fav, isUpdate, last404, myposts, els, i, len, el, host, _b, num, f, countEl, youEl, iconEl, titleEl, form, isArchived, _ref5, _ref6, bArch, posts, cnt, j, links, a, _len3, _num, tc;
+			var fav, isUpdate, last404, myposts, els, i, len, el, host, _b2, num, f, countEl, youEl, iconEl, titleEl, form, isArchived, _ref5, _ref6, bArch, posts, cnt, j, links, a, _len3, _num, tc;
 
 			return regeneratorRuntime.wrap(function _callee2$(_context7) {
 				while (1) {
@@ -5984,9 +5973,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 							el = els[i];
 							host = el.getAttribute('de-host');
-							_b = el.getAttribute('de-board');
+							_b2 = el.getAttribute('de-board');
 							num = el.getAttribute('de-num');
-							f = fav[host][_b][num];
+							f = fav[host][_b2][num];
 
 
 							if (!(host !== aib.host || f.err === 'Closed' || f.err === 'Archived')) {
@@ -6013,7 +6002,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 
 							_context7.next = 28;
-							return ajaxLoad(aib.getThrdUrl(_b, num));
+							return ajaxLoad(aib.getThrdUrl(_b2, num));
 
 						case 28:
 							form = _context7.sent;
@@ -6022,7 +6011,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 31:
 							_context7.next = 33;
-							return ajaxLoad(aib.getThrdUrl(_b, num), true, false, aib.iichan);
+							return ajaxLoad(aib.getThrdUrl(_b2, num), true, false, aib.iichan);
 
 						case 33:
 							_ref5 = _context7.sent;
@@ -6049,7 +6038,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								break;
 							}
 
-							Thread.removeSavedData(_b, num); 
+							Thread.removeSavedData(_b2, num); 
 							_context7.next = 50;
 							break;
 
@@ -6078,13 +6067,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 								titleEl.title = Lng.thrArchived[lang];
 								f.err = 'Archived';
-								bArch = _b + '/arch';
+								bArch = _b2 + '/arch';
 
 								if (!fav[host][bArch]) {
-									fav[host][bArch] = { url: fav[host][_b].url + 'arch/' };
+									fav[host][bArch] = { url: fav[host][_b2].url + 'arch/' };
 								}
 								fav[host][bArch][num] = Object.assign({}, f);
-								removeFavoriteEntry(fav, host, _b, num);
+								removeFavoriteEntry(fav, host, _b2, num);
 								isUpdate = true;
 							} else {
 								iconEl.setAttribute('class', 'de-fav-inf-icon');
@@ -6107,7 +6096,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								f['new'] = cnt;
 								isUpdate = true;
 
-								if (myposts && myposts[_b]) {
+								if (myposts && myposts[_b2]) {
 									f.you = 0;
 									for (j = 0; j < cnt; ++j) {
 										links = $Q(aib.qPostMsg + ' a', posts[posts.length - 1 - j]);
@@ -6115,7 +6104,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 										for (a = 0, _len3 = links.length; a < _len3; ++a) {
 											tc = links[a].textContent;
 
-											if (tc[0] === '>' && tc[1] === '>' && myposts[_b][tc.substr(2)]) {
+											if (tc[0] === '>' && tc[1] === '>' && myposts[_b2][tc.substr(2)]) {
 												f.you++;
 											}
 										}
@@ -12331,7 +12320,7 @@ true, true],
 							break;
 						}
 
-						return _context16.abrupt('break', 33);
+						return _context16.abrupt('break', 32);
 
 					case 6:
 						_ref45 = _iterator25[_i33++];
@@ -12346,7 +12335,7 @@ true, true],
 							break;
 						}
 
-						return _context16.abrupt('break', 33);
+						return _context16.abrupt('break', 32);
 
 					case 12:
 						_ref45 = _i33.value;
@@ -12355,7 +12344,7 @@ true, true],
 						_ref46 = _ref45, name = _ref46.name, value = _ref46.value, type = _ref46.type, el = _ref46.el;
 
 						if (!(type === 'file')) {
-							_context16.next = 30;
+							_context16.next = 29;
 							break;
 						}
 
@@ -12363,68 +12352,67 @@ true, true],
 						fileName = value.name, newFileName = Cfg.removeFName ? ' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
 
 						if (!(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) && (Cfg.postSameImg || Cfg.removeEXIF))) {
-							_context16.next = 29;
+							_context16.next = 28;
 							break;
 						}
 
-						_context16.t0 = cleanFile;
-						_context16.next = 21;
+						_context16.next = 20;
 						return readFile(value);
 
-					case 21:
-						_context16.t1 = _context16.sent.data;
-						_context16.t2 = el.obj.imgFile;
-						data = (0, _context16.t0)(_context16.t1, _context16.t2);
+					case 20:
+						_context16.t0 = _context16.sent.data;
+						_context16.t1 = el.obj.imgFile;
+						data = cleanFile(_context16.t0, _context16.t1);
 
 						if (data) {
-							_context16.next = 26;
+							_context16.next = 25;
 							break;
 						}
 
 						return _context16.abrupt('return', Promise.reject(Lng.fileCorrupt[lang] + fileName));
 
-					case 26:
+					case 25:
 						value = new File(data, newFileName);
-						_context16.next = 30;
+						_context16.next = 29;
 						break;
 
-					case 29:
+					case 28:
 						if (Cfg.removeFName) {
 							value = new File([value], newFileName);
 						}
 
-					case 30:
+					case 29:
 						formData.append(name, value);
 
-					case 31:
+					case 30:
 						_context16.next = 3;
 						break;
 
-					case 33:
+					case 32:
 						ajaxParams = { method: 'POST', data: formData };
 
 						if (needProgress && hasFiles) {
 							ajaxParams.onprogress = getUploadFunc();
 						}
-						_context16.prev = 35;
-						_context16.next = 38;
+						_context16.prev = 34;
+						_context16.next = 37;
 						return $ajax(form.action, ajaxParams);
 
-					case 38:
+					case 37:
 						xhr = _context16.sent;
 						return _context16.abrupt('return', aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText));
 
-					case 42:
-						_context16.prev = 42;
-						_context16.t3 = _context16['catch'](35);
-						return _context16.abrupt('return', Promise.reject(_context16.t3));
+					case 41:
+						_context16.prev = 41;
+						_context16.t2 = _context16['catch'](34);
+						return _context16.abrupt('return', Promise.reject(_context16.t2));
 
-					case 45:
+					case 44:
 					case 'end':
 						return _context16.stop();
 				}
 			}
-		}, _marked[5], this, [[35, 42]]);
+		}, _marked[5], this, [[34, 41]]);
 	}
 
 	function readFile(file) {
