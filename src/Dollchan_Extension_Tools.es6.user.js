@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = 'bbca4a1';
+const commit = 'e3a753c';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -743,8 +743,8 @@ function $script(text) {
 }
 
 function $css(text) {
-	if(nav.Safari && !('flex' in docBody.style)) {
-		text = text.replace(/( flex|inline-flex|align-items)/g, ' -webkit-$1');
+	if(nav.Safari && nav.Safari < 9) {
+		text = text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1');
 	}
 	return $bEnd(doc.head, `<style type="text/css">${ text }</style>`);
 }
@@ -1585,6 +1585,9 @@ function* readCfg() {
 	if(!('Notification' in window)) {
 		Cfg.desktNotif = 0;
 	}
+	if(nav.Safari && nav.Safari < 10) {
+		Cfg.animation = 0;
+	}
 	if(nav.Presto) {
 		if(Cfg.YTubeType === 2) {
 			Cfg.YTubeType = 1;
@@ -1981,7 +1984,7 @@ var panel = Object.create({
 		}
 	},
 	handleEvent(e) {
-		if(!e.isTrusted) {
+		if(!e.isTrusted && !(nav.Safari && nav.Safari < 10)) {
 			return;
 		}
 		var el = fixEventEl(e.target);
@@ -3770,7 +3773,7 @@ const cfgWindow = Object.create({
 			<a href="${ gitWiki }css-tricks" class="de-abtn" target="_blank">[?]</a><br>
 			${ this._getSel('panelCounter') }<br>
 			${ this._getBox('rePageTitle') }<br>
-			${ this._getBox('animation') }<br>
+			${ !nav.Safari || nav.Safari >= 10 ? this._getBox('animation') + '<br>' : '' }
 			${ this._getBox('closePopups') }<br>
 			${ this._getBox('inftyScroll') }<br>
 			${ this._getBox('scrollToTop') }<br>
@@ -10715,8 +10718,7 @@ class Pview extends AbstractPost {
 			return;
 		}
 		var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
-		$css('@keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + 'px; }}').className =
-			'de-css-move';
+		$css('@keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + 'px; }}').className = 'de-css-move';
 		if(this._newPos) {
 			pv.style.cssText = this._newPos;
 			pv.removeEventListener('animationend', this);
@@ -12188,7 +12190,7 @@ function initNavFuncs() {
 		presto = !!window.opera,
 		webkit = ua.includes('WebKit/'),
 		chrome = webkit && ua.includes('Chrome/'),
-		safari = webkit && !chrome,
+		safari = webkit && !chrome ? ua.match(/Version\/(\d+)/)[1] : false,
 		isGM = false,
 		isChromeStorage = window.chrome && !!window.chrome.storage,
 		isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
@@ -12659,7 +12661,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `
-			.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, .logo + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .prerekl-hr, .posts > hr, .reflink::before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }
+			.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, .logo + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .prerekl-hr, .posts > hr, .reflink::before, .thread-nav, .toolbar-area, #ABU-alert-wait, #media-thumbnail { display: none !important; }
 			.captcha-image > img { cursor: pointer; }
 			#de-txt-panel { font-size: 16px !important; }
 			.images-area input { float: none !important; display: inline !important; }
