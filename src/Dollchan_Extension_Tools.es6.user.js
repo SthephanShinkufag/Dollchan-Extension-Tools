@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = 'e3a753c';
+const commit = '0d723ce';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -743,7 +743,7 @@ function $script(text) {
 }
 
 function $css(text) {
-	if(nav.Safari && nav.Safari < 9) {
+	if(nav.Safari && !('flex' in docBody.style)) {
 		text = text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1');
 	}
 	return $bEnd(doc.head, `<style type="text/css">${ text }</style>`);
@@ -1585,9 +1585,6 @@ function* readCfg() {
 	if(!('Notification' in window)) {
 		Cfg.desktNotif = 0;
 	}
-	if(nav.Safari && nav.Safari < 10) {
-		Cfg.animation = 0;
-	}
 	if(nav.Presto) {
 		if(Cfg.YTubeType === 2) {
 			Cfg.YTubeType = 1;
@@ -1984,7 +1981,7 @@ var panel = Object.create({
 		}
 	},
 	handleEvent(e) {
-		if(!e.isTrusted && !(nav.Safari && nav.Safari < 10)) {
+		if('isTrusted' in e && !e.isTrusted) {
 			return;
 		}
 		var el = fixEventEl(e.target);
@@ -3773,7 +3770,7 @@ const cfgWindow = Object.create({
 			<a href="${ gitWiki }css-tricks" class="de-abtn" target="_blank">[?]</a><br>
 			${ this._getSel('panelCounter') }<br>
 			${ this._getBox('rePageTitle') }<br>
-			${ !nav.Safari || nav.Safari >= 10 ? this._getBox('animation') + '<br>' : '' }
+			${ 'animation' in docBody.style ? this._getBox('animation') + '<br>' : '' }
 			${ this._getBox('closePopups') }<br>
 			${ this._getBox('inftyScroll') }<br>
 			${ this._getBox('scrollToTop') }<br>
@@ -12190,7 +12187,7 @@ function initNavFuncs() {
 		presto = !!window.opera,
 		webkit = ua.includes('WebKit/'),
 		chrome = webkit && ua.includes('Chrome/'),
-		safari = webkit && !chrome ? ua.match(/Version\/(\d+)/)[1] : false,
+		safari = webkit && !chrome,
 		isGM = false,
 		isChromeStorage = window.chrome && !!window.chrome.storage,
 		isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
@@ -15378,34 +15375,38 @@ function scriptCSS() {
 	gif('#de-btn-code:empty', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=') +
 	gif('#de-btn-sup:empty', p + 'Q3IKpq4YAgZiSQhGByrzn7YURGFGWhxzMuqqBGC7wRUNkeU7nnWNoMosFXKzi8BHs3EQnDRAHLY2e0BxnWfEJkRdT80NNTrliG3aWcBhZhgIAOw==') +
 	gif('#de-btn-sub:empty', p + 'R3IKpq4YAgZiSxquujtOCvIUayAkVZEoRcjCu2wbivMw2WaYi7vVYYqMFYq/i8BEM4ZIrYOmpdD49m2VFd2oiUZTORWcNYT9SpnZrTjiML0MBADs=') +
-	gif('#de-btn-quote:empty', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=') +
+	gif('#de-btn-quote:empty', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=');
 
 	// Show/close animation
-	`@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }
-	@keyframes de-close { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }
-	@keyframes de-blink {
-		0%, 100% { transform: translateX(0); }
-		10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
-		20%, 40%, 60%, 80% { transform: translateX(10px); }
+	if('animation' in document.body.style) {
+		x += `@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }
+		@keyframes de-close { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }
+		@keyframes de-blink {
+			0%, 100% { transform: translateX(0); }
+			10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+			20%, 40%, 60%, 80% { transform: translateX(10px); }
+		}
+		@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }
+		@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }
+		@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }
+		@keyframes de-post-open-br { from { transform: translate(50%,50%) scale(0); opacity: 0; } }
+		@keyframes de-post-close-tl { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }
+		@keyframes de-post-close-bl { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }
+		@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }
+		@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }
+		@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }
+		@keyframes de-win-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }
+		@keyframes de-win-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }
+		.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }
+		.de-open { animation: de-open .15s ease-out both; }
+		.de-close { animation: de-close .15s ease-in both; }
+		.de-blink { animation: de-blink .7s ease-in-out both; }
+		.de-post-new { animation: de-post-new .2s ease-out both; }
+		.de-win-open { animation: de-win-open .2s ease-out backwards; }
+		.de-win-close { animation: de-win-close .2s ease-in both; }`;
+	} else {
+		Cfg.animation = 0;
 	}
-	@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }
-	@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }
-	@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }
-	@keyframes de-post-open-br { from { transform: translate(50%,50%) scale(0); opacity: 0; } }
-	@keyframes de-post-close-tl { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }
-	@keyframes de-post-close-bl { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }
-	@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }
-	@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }
-	@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }
-	@keyframes de-win-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }
-	@keyframes de-win-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }
-	.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }
-	.de-open { animation: de-open .15s ease-out both; }
-	.de-close { animation: de-close .15s ease-in both; }
-	.de-blink { animation: de-blink .7s ease-in-out both; }
-	.de-post-new { animation: de-post-new .2s ease-out both; }
-	.de-win-open { animation: de-win-open .2s ease-out backwards; }
-	.de-win-close { animation: de-win-close .2s ease-in both; }`;
 
 	// Full images
 	p = Math.max(Cfg.minImgSize || 0, 50);
