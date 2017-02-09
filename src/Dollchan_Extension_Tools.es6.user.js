@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '0d723ce';
+const commit = 'a4d6cc3';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12213,8 +12213,8 @@ function initNavFuncs() {
 	if(needFileHack && FormData) {
 		var origFormData = FormData,
 			origAppend = FormData.prototype.append;
-		FormData = function FormData(...args) {
-			var rv = new origFormData(...args);
+		FormData = function FormData(form) {
+			var rv = new origFormData(form);
 			rv.append = function append(name, value, fileName = null) {
 				if(value instanceof Blob && 'name' in value && fileName === null) {
 					return origAppend.call(this, name, value, value.name);
@@ -15378,7 +15378,7 @@ function scriptCSS() {
 	gif('#de-btn-quote:empty', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=');
 
 	// Show/close animation
-	if('animation' in document.body.style) {
+	if('animation' in docBody.style) {
 		x += `@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }
 		@keyframes de-close { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }
 		@keyframes de-blink {
