@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = 'a4d6cc3';
+	var commit = 'd287b96';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -4223,8 +4223,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				checksum += header[i];
 			}
 			this._padSet(header, 148, checksum.toString(8), 8);
-			this._data.push(header);
-			this._data.push(input);
+			this._data.push(header, input);
 			if ((i = Math.ceil(fileSize / 512) * 512 - fileSize) !== 0) {
 				this._data.push(new Uint8Array(i));
 			}
@@ -6485,7 +6484,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 								case 3:
 									if (!(i < len)) {
-										_context10.next = 51;
+										_context10.next = 46;
 										break;
 									}
 
@@ -6494,11 +6493,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 										break;
 									}
 
-									return _context10.abrupt('continue', 48);
+									return _context10.abrupt('continue', 43);
 
 								case 6:
 									_context10.t0 = i;
-									_context10.next = _context10.t0 === 0 ? 9 : _context10.t0 === 1 ? 32 : _context10.t0 === 2 ? 42 : _context10.t0 === 3 ? 46 : 48;
+									_context10.next = _context10.t0 === 0 ? 9 : _context10.t0 === 1 ? 28 : _context10.t0 === 2 ? 38 : _context10.t0 === 3 ? 41 : 43;
 									break;
 
 								case 9:
@@ -6509,88 +6508,79 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								case 12:
 									_context10.t3 = _context10.t2;
 									_context10.t4 = '"settings":' + _context10.t3;
+									return _context10.delegateYield(getStored('DESU_keys'), 't6', 15);
 
-									_context10.t1.push.call(_context10.t1, _context10.t4);
+								case 15:
+									_context10.t5 = _context10.t6;
 
-									_context10.t5 = val;
-									return _context10.delegateYield(getStored('DESU_keys'), 't7', 17);
-
-								case 17:
-									_context10.t6 = _context10.t7;
-
-									if (_context10.t6) {
-										_context10.next = 20;
+									if (_context10.t5) {
+										_context10.next = 18;
 										break;
 									}
 
-									_context10.t6 = '""';
+									_context10.t5 = '""';
 
-								case 20:
-									_context10.t8 = _context10.t6;
-									_context10.t9 = '"hotkeys":' + _context10.t8;
+								case 18:
+									_context10.t7 = _context10.t5;
+									_context10.t8 = '"hotkeys":' + _context10.t7;
+									return _context10.delegateYield(getStored('DESU_Exclude'), 't10', 21);
 
-									_context10.t5.push.call(_context10.t5, _context10.t9);
+								case 21:
+									_context10.t9 = _context10.t10;
 
-									_context10.t10 = val;
-									return _context10.delegateYield(getStored('DESU_Exclude'), 't12', 25);
-
-								case 25:
-									_context10.t11 = _context10.t12;
-
-									if (_context10.t11) {
-										_context10.next = 28;
+									if (_context10.t9) {
+										_context10.next = 24;
 										break;
 									}
 
-									_context10.t11 = '""';
+									_context10.t9 = '""';
+
+								case 24:
+									_context10.t11 = _context10.t9;
+									_context10.t12 = '"exclude":' + _context10.t11;
+
+									_context10.t1.push.call(_context10.t1, _context10.t4, _context10.t8, _context10.t12);
+
+									return _context10.abrupt('break', 43);
 
 								case 28:
-									_context10.t13 = _context10.t11;
-									_context10.t14 = '"exclude":' + _context10.t13;
-
-									_context10.t10.push.call(_context10.t10, _context10.t14);
-
-									return _context10.abrupt('break', 48);
-
-								case 32:
 									name.push('Fav');
-									_context10.t15 = val;
-									return _context10.delegateYield(getStored('DESU_Favorites'), 't17', 35);
+									_context10.t13 = val;
+									return _context10.delegateYield(getStored('DESU_Favorites'), 't15', 31);
 
-								case 35:
-									_context10.t16 = _context10.t17;
+								case 31:
+									_context10.t14 = _context10.t15;
 
-									if (_context10.t16) {
-										_context10.next = 38;
+									if (_context10.t14) {
+										_context10.next = 34;
 										break;
 									}
 
-									_context10.t16 = '{}';
+									_context10.t14 = '{}';
+
+								case 34:
+									_context10.t16 = _context10.t14;
+									_context10.t17 = '"favorites":' + _context10.t16;
+
+									_context10.t13.push.call(_context10.t13, _context10.t17);
+
+									return _context10.abrupt('break', 43);
 
 								case 38:
-									_context10.t18 = _context10.t16;
-									_context10.t19 = '"favorites":' + _context10.t18;
-
-									_context10.t15.push.call(_context10.t15, _context10.t19);
-
-									return _context10.abrupt('break', 48);
-
-								case 42:
 									nameDm.push('Hid');
-									valDm.push('"posts":' + (locStorage['de-posts'] || '{}'));
-									valDm.push('"threads":' + (locStorage['de-threads'] || '{}'));
-									return _context10.abrupt('break', 48);
+									valDm.push('"posts":' + (locStorage['de-posts'] || '{}'), '"threads":' + (locStorage['de-threads'] || '{}'));
+									return _context10.abrupt('break', 43);
 
-								case 46:
+								case 41:
 									nameDm.push('You');
 									valDm.push('"myposts":' + (locStorage['de-myposts'] || '{}'));
 
-								case 48:
+								case 43:
 									++i;
 									_context10.next = 3;
 									break;
 
-								case 51:
+								case 46:
 									if (valDm = valDm.join(',')) {
 										val.push('"' + aib.dm + '":{' + valDm + '}');
 										name.push(aib.dm + '(' + nameDm.join('+') + ')');
@@ -6600,7 +6590,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									}
 									$pd(e);
 
-								case 54:
+								case 49:
 								case 'end':
 									return _context10.stop();
 							}
@@ -9857,11 +9847,7 @@ true, true],
 							if (!res) {
 								return null;
 							}
-							if (name === 'rep') {
-								reps.push(res[1]);
-							} else {
-								outreps.push(res[1]);
-							}
+							(name === 'rep' ? reps : outreps).push(res[1]);
 							i += res[0] - 1;
 							this._col += res[0] - 1;
 							lastType = this.TYPE_REPLACER;
@@ -16882,7 +16868,7 @@ true, true],
 		var needFileHack = false;
 		try {
 			new File([''], '');
-			if (firefox) {
+			if (firefox || safari) {
 				needFileHack = !FormData.prototype.get;
 			}
 		} catch (e) {
@@ -17819,8 +17805,7 @@ true, true],
 			return Kusaba;
 		}(BaseBoard);
 
-		ibEngines.push(['script[src*="kusaba"]', Kusaba]);
-		ibEngines.push(['form#delform[action$="/board.php"]', Kusaba]);
+		ibEngines.push(['script[src*="kusaba"]', Kusaba], ['form#delform[action$="/board.php"]', Kusaba]);
 
 		var _0chan = function (_Kusaba) {
 			_inherits(_0chan, _Kusaba);

@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = 'a4d6cc3';
+const commit = 'd287b96';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1278,8 +1278,7 @@ TarBuilder.prototype = {
 		}
 		// checksum
 		this._padSet(header, 148, checksum.toString(8), 8);
-		this._data.push(header);
-		this._data.push(input);
+		this._data.push(header, input);
 		if((i = Math.ceil(fileSize / 512) * 512 - fileSize) !== 0) {
 			this._data.push(new Uint8Array(i));
 		}
@@ -3169,16 +3168,16 @@ const cfgWindow = Object.create({
 					}
 					switch(i) {
 					case 0: name.push('Cfg');
-						val.push('"settings":' + (yield* getStored('DESU_Config')));
-						val.push('"hotkeys":' + ((yield* getStored('DESU_keys')) || '""'));
-						val.push('"exclude":' + ((yield* getStored('DESU_Exclude')) || '""'));
+						val.push('"settings":' + (yield* getStored('DESU_Config')),
+							'"hotkeys":' + ((yield* getStored('DESU_keys')) || '""'),
+							'"exclude":' + ((yield* getStored('DESU_Exclude')) || '""'));
 						break;
 					case 1: name.push('Fav');
 						val.push('"favorites":' + ((yield* getStored('DESU_Favorites')) || '{}'));
 						break;
 					case 2: nameDm.push('Hid');
-						valDm.push('"posts":' + (locStorage['de-posts'] || '{}'));
-						valDm.push('"threads":' + (locStorage['de-threads'] || '{}'));
+						valDm.push('"posts":' + (locStorage['de-posts'] || '{}'),
+							'"threads":' + (locStorage['de-threads'] || '{}'));
 						break;
 					case 3: nameDm.push('You');
 						valDm.push('"myposts":' + (locStorage['de-myposts'] || '{}'));
@@ -6365,11 +6364,7 @@ SpellsCodegen.prototype = {
 					if(!res) {
 						return null;
 					}
-					if(name === 'rep') {
-						reps.push(res[1]);
-					} else {
-						outreps.push(res[1]);
-					}
+					(name === 'rep'? reps : outreps).push(res[1]);
 					i += res[0] - 1;
 					this._col += res[0] - 1;
 					lastType = this.TYPE_REPLACER;
@@ -12204,7 +12199,7 @@ function initNavFuncs() {
 	var needFileHack = false;
 	try {
 		new File([''], '');
-		if(firefox) {
+		if(firefox || safari) {
 			needFileHack = !FormData.prototype.get;
 		}
 	} catch(e) {
@@ -12974,8 +12969,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 		}
 	}
-	ibEngines.push(['script[src*="kusaba"]', Kusaba]);
-	ibEngines.push(['form#delform[action$="/board.php"]', Kusaba]);
+	ibEngines.push(['script[src*="kusaba"]', Kusaba], ['form#delform[action$="/board.php"]', Kusaba]);
 
 	class _0chan extends Kusaba {
 		constructor(prot, dm) {
