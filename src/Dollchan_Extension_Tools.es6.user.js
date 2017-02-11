@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = 'd287b96';
+const commit = '6c852ce';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1319,12 +1319,14 @@ function getErrorMessage(e) {
 	if(typeof e === 'string') {
 		return e;
 	}
-	return Lng.internalError[lang] + e.stack ? (nav.WebKit ? e.stack :
-			e.name + ': ' + e.message + '\n' +
-			(nav.Firefox ? e.stack.replace(/^([^@]*).*\/(.+)$/gm, function(str, fName, line) {
-				return '    at ' + (fName ? fName + ' (' + line + ')' : line);
-			}) : e.stack)
-		) : e.name + ': ' + e.message;
+	return Lng.internalError[lang] + (
+		!e.stack ? e.name + ': ' + e.message :
+		nav.WebKit ? e.stack :
+		e.name + ': ' + e.message + '\n' + (!nav.Firefox ? e.stack : e.stack.replace(
+			/^([^@]*).*\/(.+)$/gm,
+			(str, fName, line) => '    at ' + (fName ? fName + ' (' + line + ')' : line)
+		))
+	);
 }
 
 // https://html.spec.whatwg.org/multipage/forms.html#constructing-form-data-set
@@ -1457,7 +1459,7 @@ function prettifySize(val) {
 }
 
 function downloadBlob(blob, name) {
-	const url = window.URL.createObjectURL(blob);
+	const url = nav.MsEdge ? navigator.msSaveOrOpenBlob(blob, name) : window.URL.createObjectURL(blob);
 	const link = docBody.appendChild($add(`<a href="${ url }" download="${ name }"></a>`));
 	link.click();
 	setTimeout(() => {
@@ -1498,13 +1500,9 @@ function setStored(id, value) {
 	} else if(nav.isChromeStorage) {
 		const obj = {};
 		obj[id] = value;
-		// chrome.storage.sync has limitations.
-		// QUOTA_BYTES_PER_ITEM = 8192
-		// MAX_WRITE_OPERATIONS_PER_HOUR = 1800
-		// MAX_WRITE_OPERATIONS_PER_MINUTE = 120
-		// We need to store into storage.local if the limit is exceeded.
 		chrome.storage.sync.set(obj, function() {
 			if(chrome.runtime.lastError) {
+				// Store into storage.local if the storage.sync limit is exceeded
 				chrome.storage.local.set(obj, emptyFn);
 				chrome.storage.sync.remove(id, emptyFn);
 			} else {
@@ -2232,8 +2230,8 @@ function WinResizer(name, dir, cfgName, win, target) {
 WinResizer.prototype = {
 	handleEvent(e) {
 		var val, x, y, cr = this.win.getBoundingClientRect(),
-			maxX = nav.Chrome ? doc.documentElement.clientWidth : Post.sizing.wWidth,
-			maxY = nav.Chrome ? doc.documentElement.clientHeight : Post.sizing.wHeight,
+			maxX = Post.sizing.wWidth,
+			maxY = Post.sizing.wHeight,
 			width = this.wStyle.width,
 			z = '; z-index: ' + this.wStyle.zIndex + (width ? '; width:' + width : '');
 		switch(e.type) {
@@ -4155,7 +4153,7 @@ var HotKeys = {
 		var thrKeys = [
 			/* Update thread  */ 0x0055 /* = U */
 		];
-		return [HotKeys.version, !!nav.Firefox, globKeys, nonThrKeys, thrKeys];
+		return [HotKeys.version, nav.Firefox, globKeys, nonThrKeys, thrKeys];
 	},
 	clear() {
 		this.cPost = null;
@@ -4413,7 +4411,7 @@ var HotKeys = {
 				keys[0] = this.version;
 				setStored('DESU_keys', JSON.stringify(keys));
 			}
-			if(keys[1] ^ !!nav.Firefox) {
+			if(keys[1] ^ nav.Firefox) {
 				var mapFunc = nav.Firefox ? function mapFuncFF(key) {
 					switch(key) {
 					case 189: return 173;
@@ -4429,7 +4427,7 @@ var HotKeys = {
 					default: return key;
 					}
 				};
-				keys[1] = !!nav.Firefox;
+				keys[1] = nav.Firefox;
 				keys[2] = keys[2].map(mapFunc);
 				keys[3] = keys[3].map(mapFunc);
 				setStored('DESU_keys', JSON.stringify(keys));
@@ -12176,16 +12174,22 @@ function checkStorage() {
 	return true;
 }
 
+// Browser identification and browser-specific hacks
 function initNavFuncs() {
-	var ua = window.navigator.userAgent,
-		firefox = ua.includes('Gecko/'),
-		presto = !!window.opera,
-		webkit = ua.includes('WebKit/'),
-		chrome = webkit && ua.includes('Chrome/'),
-		safari = webkit && !chrome,
-		isGM = false,
-		isChromeStorage = window.chrome && !!window.chrome.storage,
-		isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
+	const ua = navigator.userAgent;
+	const firefox = ua.includes('Gecko/');
+	const webkit = ua.includes('WebKit/');
+	const chrome = webkit && ua.includes('Chrome/');
+	const safari = webkit && !chrome;
+	const isChromeStorage = !!window.chrome && !!window.chrome.storage;
+	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
+	let isGM = false;
+	try {
+		isGM = (typeof GM_setValue === 'function') &&
+			(!chrome || !GM_setValue.toString().includes('not supported'));
+	} catch(e) {
+		isGM = e.message === 'Permission denied to access property "toString"';
+	}
 	if(!('requestAnimationFrame' in window)) { // XXX: nav.Presto
 		window.requestAnimationFrame = fn => setTimeout(fn, 0);
 	}
@@ -12196,7 +12200,7 @@ function initNavFuncs() {
 			}
 		};
 	}
-	var needFileHack = false;
+	let needFileHack = false;
 	try {
 		new File([''], '');
 		if(firefox || safari) {
@@ -12206,10 +12210,10 @@ function initNavFuncs() {
 		needFileHack = true;
 	}
 	if(needFileHack && FormData) {
-		var origFormData = FormData,
-			origAppend = FormData.prototype.append;
+		const origFormData = FormData;
+		const origAppend = FormData.prototype.append;
 		FormData = function FormData(form) {
-			var rv = new origFormData(form);
+			const rv = new origFormData(form);
 			rv.append = function append(name, value, fileName = null) {
 				if(value instanceof Blob && 'name' in value && fileName === null) {
 					return origAppend.call(this, name, value, value.name);
@@ -12219,7 +12223,7 @@ function initNavFuncs() {
 			return rv;
 		};
 		window.File = function File(arr, name) {
-			var rv = new Blob(arr);
+			const rv = new Blob(arr);
 			rv.name = name;
 			return rv;
 		};
@@ -12227,21 +12231,16 @@ function initNavFuncs() {
 	if('toJSON' in aProto) {
 		delete aProto.toJSON;
 	}
-	try {
-		isGM = (typeof GM_setValue === 'function') &&
-			(!chrome || !GM_setValue.toString().includes('not supported'));
-	} catch(e) {
-		isGM = e.message === 'Permission denied to access property "toString"';
-	}
 	nav = {
 		get ua() {
 			return navigator.userAgent + (this.Firefox ? ' [' + navigator.buildID + ']' : '');
 		},
 		Firefox: firefox,
-		Presto: presto,
 		WebKit: webkit,
 		Chrome: chrome,
 		Safari: safari,
+		Presto: !!window.opera,
+		MsEdge: ua.includes('Edge/'),
 		isGM: isGM,
 		get isES6() {
 			return typeof de_main_func_outer === 'undefined';
@@ -12259,12 +12258,12 @@ function initNavFuncs() {
 			return url;
 		},
 		get hasTemplate() {
-			var value = 'content' in document.createElement('template');
+			const value = 'content' in document.createElement('template');
 			Object.defineProperty(this, 'hasTemplate', { value });
 			return value;
 		},
 		get hasWorker() {
-			var val = false;
+			let val = false;
 			try {
 				val = 'Worker' in window && 'URL' in window;
 			} catch(e) {}
@@ -12275,26 +12274,26 @@ function initNavFuncs() {
 			return val;
 		},
 		get canPlayMP3() {
-			var val = !!new Audio().canPlayType('audio/mpeg;');
+			const val = !!new Audio().canPlayType('audio/mpeg;');
 			Object.defineProperty(this, 'canPlayMP3', { value: val });
 			return val;
 		},
 		get canPlayWebm() {
-			var val = !this.Safari || !!new Audio().canPlayType('video/webm; codecs="vp8,vorbis"');
+			const val = !this.Safari || !!new Audio().canPlayType('video/webm; codecs="vp8,vorbis"');
 			Object.defineProperty(this, 'canPlayWebm', { value: val });
 			return val;
 		},
 		get matchesSelector() {
-			var dE = doc.documentElement,
-				val = Function.prototype.call.bind(
-					dE.matches || dE.mozMatchesSelector ||
-					dE.webkitMatchesSelector || dE.oMatchesSelector);
+			const dE = doc.documentElement;
+			const val = Function.prototype.call.bind(
+				dE.matches || dE.mozMatchesSelector ||
+				dE.webkitMatchesSelector || dE.oMatchesSelector);
 			Object.defineProperty(this, 'matchesSelector', { value: val });
 			return val;
 		},
 		// See https://github.com/greasemonkey/greasemonkey/issues/2034 for more info
 		getUnsafeUint8Array(data, i, len) {
-			var ctor = Uint8Array;
+			let ctor = Uint8Array;
 			try {
 				if(!(new Uint8Array(data) instanceof Uint8Array)) {
 					ctor = unsafeWindow.Uint8Array;
@@ -12310,7 +12309,7 @@ function initNavFuncs() {
 			throw new Error();
 		},
 		getUnsafeDataView(data, offset) {
-			var rv = new DataView(data, offset || 0);
+			const rv = new DataView(data, offset || 0);
 			return (rv instanceof DataView) ? rv : new unsafeWindow.DataView(data, offset || 0);
 		}
 	};
@@ -15290,7 +15289,7 @@ function scriptCSS() {
 	`.de-block { display: block; }
 	#de-btn-spell-add { margin-left: auto; }
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }
-	.de-cfg-body { min-height: 325px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }
+	.de-cfg-body { min-height: 327px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }
 	.de-cfg-button { padding: 0 ${ nav.Firefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
 	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }

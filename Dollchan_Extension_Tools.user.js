@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = 'd287b96';
+	var commit = '6c852ce';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -4263,9 +4263,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (typeof e === 'string') {
 			return e;
 		}
-		return Lng.internalError[lang] + e.stack ? nav.WebKit ? e.stack : e.name + ': ' + e.message + '\n' + (nav.Firefox ? e.stack.replace(/^([^@]*).*\/(.+)$/gm, function (str, fName, line) {
+		return Lng.internalError[lang] + (!e.stack ? e.name + ': ' + e.message : nav.WebKit ? e.stack : e.name + ': ' + e.message + '\n' + (!nav.Firefox ? e.stack : e.stack.replace(/^([^@]*).*\/(.+)$/gm, function (str, fName, line) {
 			return '    at ' + (fName ? fName + ' (' + line + ')' : line);
-		}) : e.stack) : e.name + ': ' + e.message;
+		})));
 	}
 
 	function getFormElements(form, submitter) {
@@ -4496,7 +4496,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function downloadBlob(blob, name) {
-		var url = window.URL.createObjectURL(blob);
+		var url = nav.MsEdge ? navigator.msSaveOrOpenBlob(blob, name) : window.URL.createObjectURL(blob);
 		var link = docBody.appendChild($add('<a href="' + url + '" download="' + name + '"></a>'));
 		link.click();
 		setTimeout(function () {
@@ -5470,8 +5470,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			    x,
 			    y,
 			    cr = this.win.getBoundingClientRect(),
-			    maxX = nav.Chrome ? doc.documentElement.clientWidth : Post.sizing.wWidth,
-			    maxY = nav.Chrome ? doc.documentElement.clientHeight : Post.sizing.wHeight,
+			    maxX = Post.sizing.wWidth,
+			    maxY = Post.sizing.wHeight,
 			    width = this.wStyle.width,
 			    z = '; z-index: ' + this.wStyle.zIndex + (width ? '; width:' + width : '');
 			switch (e.type) {
@@ -7402,7 +7402,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var thrKeys = [
 0x0055 
 			];
-			return [HotKeys.version, !!nav.Firefox, globKeys, nonThrKeys, thrKeys];
+			return [HotKeys.version, nav.Firefox, globKeys, nonThrKeys, thrKeys];
 		},
 		clear: function clear() {
 			this.cPost = null;
@@ -7682,7 +7682,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								keys[0] = this.version;
 								setStored('DESU_keys', JSON.stringify(keys));
 							}
-							if (keys[1] ^ !!nav.Firefox) {
+							if (keys[1] ^ nav.Firefox) {
 								mapFunc = nav.Firefox ? function mapFuncFF(key) {
 									switch (key) {
 										case 189:
@@ -7707,7 +7707,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									}
 								};
 
-								keys[1] = !!nav.Firefox;
+								keys[1] = nav.Firefox;
 								keys[2] = keys[2].map(mapFunc);
 								keys[3] = keys[3].map(mapFunc);
 								setStored('DESU_keys', JSON.stringify(keys));
@@ -16844,15 +16844,19 @@ true, true],
 	}
 
 	function initNavFuncs() {
-		var ua = window.navigator.userAgent,
-		    firefox = ua.includes('Gecko/'),
-		    presto = !!window.opera,
-		    webkit = ua.includes('WebKit/'),
-		    chrome = webkit && ua.includes('Chrome/'),
-		    safari = webkit && !chrome,
-		    isGM = false,
-		    isChromeStorage = window.chrome && !!window.chrome.storage,
-		    isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
+		var ua = navigator.userAgent;
+		var firefox = ua.includes('Gecko/');
+		var webkit = ua.includes('WebKit/');
+		var chrome = webkit && ua.includes('Chrome/');
+		var safari = webkit && !chrome;
+		var isChromeStorage = !!window.chrome && !!window.chrome.storage;
+		var isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
+		var isGM = false;
+		try {
+			isGM = typeof GM_setValue === 'function' && (!chrome || !GM_setValue.toString().includes('not supported'));
+		} catch (e) {
+			isGM = e.message === 'Permission denied to access property "toString"';
+		}
 		if (!('requestAnimationFrame' in window)) {
 			window.requestAnimationFrame = function (fn) {
 				return setTimeout(fn, 0);
@@ -16875,43 +16879,41 @@ true, true],
 			needFileHack = true;
 		}
 		if (needFileHack && FormData) {
-			var origFormData = FormData,
-			    origAppend = FormData.prototype.append;
-			FormData = function FormData(form) {
-				var rv = new origFormData(form);
-				rv.append = function append(name, value) {
-					var fileName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+			(function () {
+				var origFormData = FormData;
+				var origAppend = FormData.prototype.append;
+				FormData = function FormData(form) {
+					var rv = new origFormData(form);
+					rv.append = function append(name, value) {
+						var fileName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-					if (value instanceof Blob && 'name' in value && fileName === null) {
-						return origAppend.call(this, name, value, value.name);
-					}
-					return origAppend.apply(this, arguments);
+						if (value instanceof Blob && 'name' in value && fileName === null) {
+							return origAppend.call(this, name, value, value.name);
+						}
+						return origAppend.apply(this, arguments);
+					};
+					return rv;
 				};
-				return rv;
-			};
-			window.File = function File(arr, name) {
-				var rv = new Blob(arr);
-				rv.name = name;
-				return rv;
-			};
+				window.File = function File(arr, name) {
+					var rv = new Blob(arr);
+					rv.name = name;
+					return rv;
+				};
+			})();
 		}
 		if ('toJSON' in aProto) {
 			delete aProto.toJSON;
-		}
-		try {
-			isGM = typeof GM_setValue === 'function' && (!chrome || !GM_setValue.toString().includes('not supported'));
-		} catch (e) {
-			isGM = e.message === 'Permission denied to access property "toString"';
 		}
 		nav = {
 			get ua() {
 				return navigator.userAgent + (this.Firefox ? ' [' + navigator.buildID + ']' : '');
 			},
 			Firefox: firefox,
-			Presto: presto,
 			WebKit: webkit,
 			Chrome: chrome,
 			Safari: safari,
+			Presto: !!window.opera,
+			MsEdge: ua.includes('Edge/'),
 			isGM: isGM,
 			get isES6() {
 				return typeof de_main_func_outer === 'undefined';
@@ -16958,8 +16960,8 @@ true, true],
 				return val;
 			},
 			get matchesSelector() {
-				var dE = doc.documentElement,
-				    val = Function.prototype.call.bind(dE.matches || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector);
+				var dE = doc.documentElement;
+				var val = Function.prototype.call.bind(dE.matches || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector);
 				Object.defineProperty(this, 'matchesSelector', { value: val });
 				return val;
 			},
@@ -20502,7 +20504,7 @@ true, true],
 
 		x += '.de-win .de-btn-toggle { transform: rotate(180deg); }\n\t.de-resizer { position: absolute; }\n\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\n\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\n\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-win > .de-win-head { cursor: move; }\n\t.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\n\t#de-win-cfg { width: 355px; }\n\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\n\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\n\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\n\t#de-win-hid { max-width: 60%; }\n\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\n\t#de-win-vid .de-entry { white-space: normal; }\n\t.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }' + (
 
-		'.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 325px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { ' + (nav.Presto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\n\t.de-cfg-depend { padding-left: 17px; }\n\t.de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\n\t.de-cfg-unvis { display: none; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; height: 267px; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 235px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }');
+		'.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 327px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { ' + (nav.Presto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\n\t.de-cfg-depend { padding-left: 17px; }\n\t.de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\n\t.de-cfg-unvis { display: none; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; height: 267px; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 235px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }');
 
 		switch (Cfg.scriptStyle) {
 			case 0:
