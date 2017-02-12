@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '64f7a89';
+const commit = 'fc720ae';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9137,9 +9137,6 @@ class ExpandableMedia {
 						locStorage.removeItem('__de-webmvolume');
 					}
 				});
-				if(/\.(?:webm)(?:&|$)/i.test(src)) {
-					DollchanAPI.notify('webmshow', src);
-				}
 				if(Cfg.webmTitles) {
 					this._webmTitleLoad = downloadImgData(obj.src, false).then(data => {
 						var title = '', d = (new WebmParser(data.buffer)).getData();
@@ -9203,6 +9200,7 @@ class ExpandableMedia {
 				}
 			};
 		}
+		DollchanAPI.notify('expandmedia', src);
 		return obj;
 	}
 	isControlClick(e) {
@@ -14201,7 +14199,7 @@ class DollchanAPI {
 	static _register(name) {
 		switch(name) {
 		case 'newpost':
-		case 'webmshow': break;
+		case 'expandmedia': break;
 		default: return false;
 		}
 		DollchanAPI.activeListeners.add(name);

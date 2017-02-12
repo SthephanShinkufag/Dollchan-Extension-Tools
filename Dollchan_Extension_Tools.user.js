@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '64f7a89';
+	var commit = 'fc720ae';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -13148,9 +13148,6 @@ true, true],
 								locStorage.removeItem('__de-webmvolume');
 							}
 						});
-						if (/\.(?:webm)(?:&|$)/i.test(src)) {
-							DollchanAPI.notify('webmshow', src);
-						}
 						if (Cfg.webmTitles) {
 							this._webmTitleLoad = downloadImgData(obj.src, false).then(function (data) {
 								var title = '',
@@ -13206,6 +13203,7 @@ true, true],
 						}
 					};
 				}
+				DollchanAPI.notify('expandmedia', src);
 				return obj;
 			}
 		}, {
@@ -19557,7 +19555,7 @@ true, true],
 			value: function _register(name) {
 				switch (name) {
 					case 'newpost':
-					case 'webmshow':
+					case 'expandmedia':
 						break;
 					default:
 						return false;
