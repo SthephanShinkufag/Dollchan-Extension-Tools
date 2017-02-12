@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '0b8a409';
+const commit = '64f7a89';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9137,7 +9137,9 @@ class ExpandableMedia {
 						locStorage.removeItem('__de-webmvolume');
 					}
 				});
-				DollchanAPI.notify('webmshow', src);
+				if(/\.(?:webm)(?:&|$)/i.test(src)) {
+					DollchanAPI.notify('webmshow', src);
+				}
 				if(Cfg.webmTitles) {
 					this._webmTitleLoad = downloadImgData(obj.src, false).then(data => {
 						var title = '', d = (new WebmParser(data.buffer)).getData();
