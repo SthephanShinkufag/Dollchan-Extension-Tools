@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '916b3ac';
+const commit = '0b8a409';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9137,6 +9137,7 @@ class ExpandableMedia {
 						locStorage.removeItem('__de-webmvolume');
 					}
 				});
+				DollchanAPI.notify('webmshow', src);
 				if(Cfg.webmTitles) {
 					this._webmTitleLoad = downloadImgData(obj.src, false).then(data => {
 						var title = '', d = (new WebmParser(data.buffer)).getData();
@@ -11868,7 +11869,7 @@ class Thread {
 			let [,,fragm,last,nums] = iprv;
 			maybeVParser.end();
 			$after(op.wrap, fragm);
-			DollchanAPI.notifyNewPosts(nums);
+			DollchanAPI.notify('newpost', nums);
 			last.next = post;
 			if(post) {
 				post.prev = last;
@@ -11980,7 +11981,7 @@ class Thread {
 					$after(post.prev.wrap, res[2]);
 					res[3].next = post;
 					post.prev = res[3];
-					DollchanAPI.notifyNewPosts(res[4]);
+					DollchanAPI.notify('newpost', res[4]);
 					for(var temp = post; temp; temp = temp.nextInThread) {
 						temp.count += cnt;
 					}
@@ -12011,7 +12012,7 @@ class Thread {
 			newVisPosts += res[1];
 			this.el.appendChild(res[2]);
 			this.last = res[3];
-			DollchanAPI.notifyNewPosts(res[4]);
+			DollchanAPI.notify('newpost', res[4]);
 			this.pcount = len + 1;
 		}
 		readFavorites().then(fav => {
@@ -14150,28 +14151,29 @@ function initStorageEvent() {
 	});
 }
 
+// You can use Dollchan API listeners in Your external scripts and apps
+// More info: https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/dollchan-api
 class DollchanAPI {
 	static init() {
 		if(!('MessageChannel' in window)) {
 			return;
 		}
-		let channel = new MessageChannel();
+		const channel = new MessageChannel();
 		DollchanAPI.port = channel.port1;
 		DollchanAPI.port.onmessage = DollchanAPI._handleMessage;
 		DollchanAPI.hasListeners = false;
 		DollchanAPI.activeListeners = new Set();
-		let port = channel.port2;
+		const port = channel.port2;
 		doc.defaultView.addEventListener('message', ({ data }) => {
 			if(data === 'de-request-api-message') {
-			DollchanAPI.hasListeners = true;
+				DollchanAPI.hasListeners = true;
 				document.defaultView.postMessage('de-answer-api-message', '*', [port]);
 			}
 		});
 	}
-
-	static notifyNewPosts(nums) {
-		if(DollchanAPI.hasListeners && DollchanAPI.activeListeners.has('newpost')) {
-			DollchanAPI.port.postMessage({ name: 'newpost', data: nums });
+	static notify(name, data) {
+		if(DollchanAPI.hasListeners && DollchanAPI.activeListeners.has(name)) {
+			DollchanAPI.port.postMessage({ name: name, data: data });
 		}
 	}
 
@@ -14179,8 +14181,8 @@ class DollchanAPI {
 		if(!arg || !arg.name) {
 			return;
 		}
-		let name = arg.name;
-		let data = arg.data;
+		const name = arg.name;
+		const data = arg.data;
 		let rv = null;
 		switch(arg.name.toLowerCase()) {
 		case 'registerapi':
@@ -14196,7 +14198,8 @@ class DollchanAPI {
 	}
 	static _register(name) {
 		switch(name) {
-		case 'newpost': break;
+		case 'newpost':
+		case 'webmshow': break;
 		default: return false;
 		}
 		DollchanAPI.activeListeners.add(name);

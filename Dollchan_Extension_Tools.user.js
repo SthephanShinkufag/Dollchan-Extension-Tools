@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = '916b3ac';
+	var commit = '0b8a409';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -13148,6 +13148,7 @@ true, true],
 								locStorage.removeItem('__de-webmvolume');
 							}
 						});
+						DollchanAPI.notify('webmshow', src);
 						if (Cfg.webmTitles) {
 							this._webmTitleLoad = downloadImgData(obj.src, false).then(function (data) {
 								var title = '',
@@ -16484,7 +16485,7 @@ true, true],
 
 					maybeVParser.end();
 					$after(op.wrap, fragm);
-					DollchanAPI.notifyNewPosts(nums);
+					DollchanAPI.notify('newpost', nums);
 					_last.next = post;
 					if (post) {
 						post.prev = _last;
@@ -16600,7 +16601,7 @@ true, true],
 							$after(post.prev.wrap, res[2]);
 							res[3].next = post;
 							post.prev = res[3];
-							DollchanAPI.notifyNewPosts(res[4]);
+							DollchanAPI.notify('newpost', res[4]);
 							for (var temp = post; temp; temp = temp.nextInThread) {
 								temp.count += cnt;
 							}
@@ -16631,7 +16632,7 @@ true, true],
 					newVisPosts += _res[1];
 					this.el.appendChild(_res[2]);
 					this.last = _res[3];
-					DollchanAPI.notifyNewPosts(_res[4]);
+					DollchanAPI.notify('newpost', _res[4]);
 					this.pcount = len + 1;
 				}
 				readFavorites().then(function (fav) {
@@ -19479,6 +19480,7 @@ true, true],
 		});
 	}
 
+
 	var DollchanAPI = function () {
 		function DollchanAPI() {
 			_classCallCheck(this, DollchanAPI);
@@ -19506,10 +19508,10 @@ true, true],
 				});
 			}
 		}, {
-			key: 'notifyNewPosts',
-			value: function notifyNewPosts(nums) {
-				if (DollchanAPI.hasListeners && DollchanAPI.activeListeners.has('newpost')) {
-					DollchanAPI.port.postMessage({ name: 'newpost', data: nums });
+			key: 'notify',
+			value: function notify(name, data) {
+				if (DollchanAPI.hasListeners && DollchanAPI.activeListeners.has(name)) {
+					DollchanAPI.port.postMessage({ name: name, data: data });
 				}
 			}
 		}, {
@@ -19553,6 +19555,7 @@ true, true],
 			value: function _register(name) {
 				switch (name) {
 					case 'newpost':
+					case 'webmshow':
 						break;
 					default:
 						return false;
