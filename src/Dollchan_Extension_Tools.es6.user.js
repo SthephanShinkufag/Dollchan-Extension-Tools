@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '18c3322';
+const commit = 'd8618a4';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -598,6 +598,7 @@ const Lng = {
 	willSavePview:  ['Будет сохранено превью', 'Thumbnail will be saved'],
 	loadErrors:     ['Во время загрузки произошли ошибки:', 'An error occurred during the loading:'],
 	errCorruptData: ['Ошибка: сервер отправил повреждённые данные', 'Error: server sent corrupted data'],
+	errMsEdgeWebm:  ['Загрузите приложение для воспроизведения webm-файлов', 'Please load app to play webm files'],
 	expImgInline:   ['[Click] открыть в посте, [Ctrl+Click] в центре', '[Click] expand in post, [Ctrl+Click] by center'],
 	expImgFull:     ['[Click] открыть в центре, [Ctrl+Click] в посте', '[Click] expand by center, [Ctrl+Click] in post'],
 	nextImg:        ['Следующая картинка', 'Next image'],
@@ -3672,7 +3673,6 @@ const cfgWindow = Object.create({
 				${ this._getInp('zoomFactor') + Lng.cfg.zoomFactor[lang] }<br>
 				${ this._getBox('webmControl') }<br>
 				${ this._getBox('webmTitles') }<br>
-				${ nav.canPlayWebm ? this._getInp('webmVolume') + Lng.cfg.webmVolume[lang] + '<br>' : '' }
 				${ this._getInp('minWebmWidth') + Lng.cfg.minWebmWidth[lang] }
 			</div>
 			${ !nav.Presto ? this._getBox('preLoadImgs') + '<br>' : '' }
@@ -9111,75 +9111,17 @@ class ExpandableMedia {
 		return isForward ? imgs.first : imgs.last;
 	}
 	getFullObject(inPost, onsizechange) {
-		var obj, src = this.src,
-			size = this._size;
-		if(this.isVideo) { // FIXME: handle null size videos
-			if(aib.tiny) {
-				src = src.replace(/^.*?\?v=|&.*?$/g, '');
-			}
-			if(nav.canPlayWebm) {
-				obj = $add('<video style="width: inherit; height: inherit" src="' + src +
-					'" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') +
-					(Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>');
-				obj.volume = Cfg.webmVolume / 100;
-				setTimeout(() => obj.dispatchEvent(new CustomEvent('volumechange')), 150);
-				obj.addEventListener('error', function() {
-					if(!this.onceLoaded) {
-						this.load();
-						this.onceLoaded = true;
-					}
-				});
-				obj.addEventListener('volumechange', function(e) {
-					var val = this.muted ? 0 : Math.round(this.volume * 100);
-					if(e.isTrusted && val !== Cfg.webmVolume) {
-						saveCfg('webmVolume', val);
-						locStorage['__de-webmvolume'] = val;
-						locStorage.removeItem('__de-webmvolume');
-					}
-				});
-				if(Cfg.webmTitles) {
-					this._webmTitleLoad = downloadImgData(obj.src, false).then(data => {
-						var title = '', d = (new WebmParser(data.buffer)).getData();
-						if(!d) {
-							return;
-						}
-						d = d[0];
-						for(var i = 0, len = d.length; i < len; i++) {
-							// Segment Info = 0x1549A966
-							// Title = 0x7BA9[length | 0x80]
-							if(d[i] === 0x49 && d[i + 1] === 0xA9 && d[i + 2] === 0x66 &&
-							   d[i + 18] === 0x7B && d[i + 19] === 0xA9)
-							{
-								i += 20;
-								for(var end = (d[i++] & 0x7F) + i; i < end; i++) {
-									title += String.fromCharCode(d[i]);
-								}
-								if(title) {
-									obj.title = decodeURIComponent(escape(title));
-								}
-								break;
-							}
-						}
-					});
-				}
-			} else {
-				obj = $add('<object style="width: inherit; height: inherit" data="' + src +
-					'" type="application/x-vlc-plugin">' +
-					'<param name="pluginspage" value="http://www.videolan.org/vlc/"/>' +
-					'<param name="controls" value="' + (Cfg.webmControl ? 'true' : 'false') + '"/>' +
-					'<param name="loop" value="true"/>' +
-					'<param name="autoplay" value="true"/>' +
-					'<param name="wmode" value="transparent"/></object>');
-			}
-		} else {
-			var html = '<div class="de-img-wrapper' +
-				(inPost ? ' de-img-wrapper-inpost' : (size ? '' : ' de-img-wrapper-nosize')) + '">';
-			if(!inPost && !size) {
+		let obj, src = this.src;
+		// Expand images: JPG, PNG, GIF
+		if(!this.isVideo) {
+			let html = '<div class="de-img-wrapper' +
+				(inPost ? ' de-img-wrapper-inpost' : (this._size ? '' : ' de-img-wrapper-nosize')) + '">';
+			if(!inPost && !this._size) {
 				html += '<svg class="de-img-load"><use xlink:href="#de-symbol-wait"/></svg>';
 			}
 			html += '<img class="de-img-full" src="' + src + '" alt="' + src + '"></div>';
 			obj = $add(html);
-			var img = obj.lastChild;
+			const img = obj.lastChild;
 			img.onload = img.onerror = ({ target }) => {
 				if(target.naturalHeight + target.naturalWidth === 0) {
 					if(!target.onceLoaded) {
@@ -9188,9 +9130,9 @@ class ExpandableMedia {
 					}
 				} else {
 					this._size = [target.naturalWidth, target.naturalHeight];
-					var el = target.previousElementSibling;
+					const el = target.previousElementSibling;
 					if(el) {
-						var p = el.parentNode;
+						const p = el.parentNode;
 						$hide(el);
 						p.classList.remove('de-img-wrapper-nosize');
 						if(onsizechange){
@@ -9199,6 +9141,66 @@ class ExpandableMedia {
 					}
 				}
 			};
+			DollchanAPI.notify('expandmedia', src);
+			return obj;
+		}
+
+		// Expand videos: WEBM, MP4
+		// FIXME: handle null size videos
+		if(aib.tiny) {
+			src = src.replace(/^.*?\?v=|&.*?$/g, '');
+		}
+		obj = $add(`<video style="width: inherit; height: inherit" src="${ src }" loop autoplay ${
+			Cfg.webmControl ? 'controls ' : ''}${
+			Cfg.webmVolume === 0 ? 'muted ' : ''}></video>`);
+		obj.volume = Cfg.webmVolume / 100;
+		obj.addEventListener('error', function() {
+			if(!this.onceLoaded) {
+				this.load();
+				this.onceLoaded = true;
+			}
+		});
+		// Sync webm volume on all browser tabs
+		setTimeout(() => obj.dispatchEvent(new CustomEvent('volumechange')), 150);
+		obj.addEventListener('volumechange', function(e) {
+			const val = this.muted ? 0 : Math.round(this.volume * 100);
+			if(e.isTrusted && val !== Cfg.webmVolume) {
+				saveCfg('webmVolume', val);
+				locStorage['__de-webmvolume'] = val;
+				locStorage.removeItem('__de-webmvolume');
+			}
+		});
+		// MS Edge needs an external app with DollchanAPI to play webms
+		const isWebm = src.split('.').pop() === 'webm';
+		if(nav.MsEdge && isWebm &&
+			(!DollchanAPI.hasListeners || !DollchanAPI.activeListeners.has('expandmedia')))
+		{
+			$popup('err-expandmedia', Lng.errMsEdgeWebm[lang], false);
+		}
+		// Get webm title: load file and parse its metadata
+		if(isWebm && Cfg.webmTitles) {
+			this._webmTitleLoad = downloadImgData(obj.src, false).then(data => {
+				let title = '', d = (new WebmParser(data.buffer)).getData();
+				if(!d) {
+					return;
+				}
+				d = d[0];
+				for(let i = 0, len = d.length; i < len; i++) {
+					// Segment Info = 0x1549A966, segment title = 0x7BA9[length | 0x80]
+					if(d[i] === 0x49 && d[i + 1] === 0xA9 && d[i + 2] === 0x66 &&
+					   d[i + 18] === 0x7B && d[i + 19] === 0xA9)
+					{
+						i += 20;
+						for(let end = (d[i++] & 0x7F) + i; i < end; i++) {
+							title += String.fromCharCode(d[i]);
+						}
+						if(title) {
+							obj.title = decodeURIComponent(escape(title));
+						}
+						break;
+					}
+				}
+			});
 		}
 		DollchanAPI.notify('expandmedia', src);
 		return obj;
@@ -12278,11 +12280,6 @@ function initNavFuncs() {
 		get canPlayMP3() {
 			const val = !!new Audio().canPlayType('audio/mpeg;');
 			Object.defineProperty(this, 'canPlayMP3', { value: val });
-			return val;
-		},
-		get canPlayWebm() {
-			const val = !this.Safari || !!new Audio().canPlayType('video/webm; codecs="vp8,vorbis"');
-			Object.defineProperty(this, 'canPlayWebm', { value: val });
 			return val;
 		},
 		get matchesSelector() {
