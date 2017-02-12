@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = 'fc720ae';
+	var commit = '18c3322';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -4502,7 +4502,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		setTimeout(function () {
 			window.URL.revokeObjectURL(url);
 			$del(link);
-		}, 1e5);
+		}, 2e5);
 	}
 
 
@@ -17489,7 +17489,7 @@ true, true],
 			}, {
 				key: 'init',
 				value: function init() {
-					$script('$alert = function() {};\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });');
+					$script('$alert = function() {};\n\t\t\t\tObject.defineProperty(window, "linkremover", { writable: false });\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });');
 					$each($Q('.autorefresh'), $del);
 					var el = $q('td > .anoniconsselectlist');
 					if (el) {

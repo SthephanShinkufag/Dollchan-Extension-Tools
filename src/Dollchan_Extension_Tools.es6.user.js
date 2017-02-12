@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = 'fc720ae';
+const commit = '18c3322';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -1465,7 +1465,7 @@ function downloadBlob(blob, name) {
 	setTimeout(() => {
 		window.URL.revokeObjectURL(url);
 		$del(link);
-	}, 1e5);
+	}, 2e5);
 }
 
 
@@ -12739,6 +12739,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script(`$alert = function() {};
+				Object.defineProperty(window, "linkremover", { writable: false });
 				window.FormData = void 0;
 				$(function() { $(window).off(); });`);
 			$each($Q('.autorefresh'), $del);
