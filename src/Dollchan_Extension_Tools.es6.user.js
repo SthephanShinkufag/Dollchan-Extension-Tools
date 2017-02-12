@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = '6c852ce';
+const commit = '916b3ac';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3103,7 +3103,8 @@ const cfgWindow = Object.create({
 					Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>');
 
 			// Import data from a file to the storage
-			$id('de-import-file').onchange = function({ target: { files: [file] } }) {
+			$id('de-import-file').onchange = function(e) {
+				const file = e.target.files[0];
 				if(!file) {
 					return;
 				}
