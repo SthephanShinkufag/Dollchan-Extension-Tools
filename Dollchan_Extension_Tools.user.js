@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         16.12.28.0
+// @version         17.2.17.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © 2017 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
@@ -2942,8 +2942,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
-	var version = '16.12.28.0';
-	var commit = '67bec62';
+	var version = '17.2.17.0';
+	var commit = 'd3b3fbc';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -13180,7 +13180,7 @@ true, true],
 					}
 				});
 				var isWebm = src.split('.').pop() === 'webm';
-				if (nav.MsEdge && isWebm && (!DollchanAPI.hasListeners || !DollchanAPI.activeListeners.has('expandmedia'))) {
+				if (nav.MsEdge && isWebm && !DollchanAPI.hasListener('expandmedia')) {
 					$popup('err-expandmedia', Lng.errMsEdgeWebm[lang], false);
 				}
 				if (isWebm && Cfg.webmTitles) {
@@ -17485,7 +17485,7 @@ true, true],
 			}, {
 				key: 'init',
 				value: function init() {
-					$script('$alert = function() {};\n\t\t\t\tObject.defineProperty(window, "linkremover", { writable: false });\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });');
+					$script('$alert = function() {};\n\t\t\t\tObject.defineProperty(window, "linkremover", { value: function() {}, writable: false });\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });');
 					$each($Q('.autorefresh'), $del);
 					var el = $q('td > .anoniconsselectlist');
 					if (el) {
@@ -19485,13 +19485,13 @@ true, true],
 		_createClass(DollchanAPI, null, [{
 			key: 'init',
 			value: function init() {
+				DollchanAPI.hasListeners = false;
 				if (!('MessageChannel' in window)) {
 					return;
 				}
 				var channel = new MessageChannel();
 				DollchanAPI.port = channel.port1;
 				DollchanAPI.port.onmessage = DollchanAPI._handleMessage;
-				DollchanAPI.hasListeners = false;
 				DollchanAPI.activeListeners = new Set();
 				var port = channel.port2;
 				doc.defaultView.addEventListener('message', function (_ref61) {
@@ -19504,9 +19504,14 @@ true, true],
 				});
 			}
 		}, {
+			key: 'hasListener',
+			value: function hasListener(name) {
+				return DollchanAPI.hasListeners && DollchanAPI.activeListeners.has(name);
+			}
+		}, {
 			key: 'notify',
 			value: function notify(name, data) {
-				if (DollchanAPI.hasListeners && DollchanAPI.activeListeners.has(name)) {
+				if (DollchanAPI.hasListener(name)) {
 					DollchanAPI.port.postMessage({ name: name, data: data });
 				}
 			}

@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         16.12.28.0
+// @version         17.2.17.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © 2017 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
@@ -23,8 +23,8 @@
 (function de_main_func_inner(scriptStorage, FormData, localData) {
 'use strict';
 
-const version = '16.12.28.0';
-const commit = '67bec62';
+const version = '17.2.17.0';
+const commit = 'd3b3fbc';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9173,9 +9173,7 @@ class ExpandableMedia {
 		});
 		// MS Edge needs an external app with DollchanAPI to play webms
 		const isWebm = src.split('.').pop() === 'webm';
-		if(nav.MsEdge && isWebm &&
-			(!DollchanAPI.hasListeners || !DollchanAPI.activeListeners.has('expandmedia')))
-		{
+		if(nav.MsEdge && isWebm && !DollchanAPI.hasListener('expandmedia')) {
 			$popup('err-expandmedia', Lng.errMsEdgeWebm[lang], false);
 		}
 		// Get webm title: load file and parse its metadata
@@ -12736,7 +12734,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script(`$alert = function() {};
-				Object.defineProperty(window, "linkremover", { writable: false });
+				Object.defineProperty(window, "linkremover", { value: function() {}, writable: false });
 				window.FormData = void 0;
 				$(function() { $(window).off(); });`);
 			$each($Q('.autorefresh'), $del);
@@ -14153,13 +14151,13 @@ function initStorageEvent() {
 // More info: https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/dollchan-api
 class DollchanAPI {
 	static init() {
+		DollchanAPI.hasListeners = false;
 		if(!('MessageChannel' in window)) {
 			return;
 		}
 		const channel = new MessageChannel();
 		DollchanAPI.port = channel.port1;
 		DollchanAPI.port.onmessage = DollchanAPI._handleMessage;
-		DollchanAPI.hasListeners = false;
 		DollchanAPI.activeListeners = new Set();
 		const port = channel.port2;
 		doc.defaultView.addEventListener('message', ({ data }) => {
@@ -14169,8 +14167,11 @@ class DollchanAPI {
 			}
 		});
 	}
+	static hasListener(name) {
+		return DollchanAPI.hasListeners && DollchanAPI.activeListeners.has(name);
+	}
 	static notify(name, data) {
-		if(DollchanAPI.hasListeners && DollchanAPI.activeListeners.has(name)) {
+		if(DollchanAPI.hasListener(name)) {
 			DollchanAPI.port.postMessage({ name: name, data: data });
 		}
 	}
