@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '16.12.28.0';
-	var commit = 'd8618a4';
+	var commit = '67bec62';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -7059,7 +7059,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgImages: function _getCfgImages() {
-			return '<div id="de-cfg-images" class="de-cfg-unvis">\n\t\t\t' + this._getSel('expandImgs') + '<br>\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('imgNavBtns') + '<br>\n\t\t\t\t' + this._getBox('resizeImgs') + '<br>\n\t\t\t\t' + (Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '') + '\n\t\t\t\t' + (this._getInp('minImgSize') + Lng.cfg.minImgSize[lang]) + '<br>\n\t\t\t\t' + (this._getInp('zoomFactor') + Lng.cfg.zoomFactor[lang]) + '<br>\n\t\t\t\t' + this._getBox('webmControl') + '<br>\n\t\t\t\t' + this._getBox('webmTitles') + '<br>\n\t\t\t\t' + (this._getInp('minWebmWidth') + Lng.cfg.minWebmWidth[lang]) + '\n\t\t\t</div>\n\t\t\t' + (!nav.Presto ? this._getBox('preLoadImgs') + '<br>' : '') + '\n\t\t\t' + (!nav.Presto && !aib.fch ? '<div class="de-cfg-depend">' + this._getBox('findImgFile') + '</div>' : '') + '\n\t\t\t' + this._getSel('openImgs') + '<br>\n\t\t\t' + this._getBox('imgSrcBtns') + '<br>\n\t\t\t' + this._getBox('delImgNames') + '<br>\n\t\t\t' + (this._getInp('maskVisib') + Lng.cfg.maskVisib[lang]) + '\n\t\t</div>';
+			return '<div id="de-cfg-images" class="de-cfg-unvis">\n\t\t\t' + this._getSel('expandImgs') + '<br>\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('imgNavBtns') + '<br>\n\t\t\t\t' + this._getBox('resizeImgs') + '<br>\n\t\t\t\t' + (Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '') + '\n\t\t\t\t' + (this._getInp('minImgSize') + Lng.cfg.minImgSize[lang]) + '<br>\n\t\t\t\t' + (this._getInp('zoomFactor') + Lng.cfg.zoomFactor[lang]) + '<br>\n\t\t\t\t' + this._getBox('webmControl') + '<br>\n\t\t\t\t' + this._getBox('webmTitles') + '<br>\n\t\t\t\t' + (this._getInp('webmVolume') + Lng.cfg.webmVolume[lang] + '<br>') + '\n\t\t\t\t' + (this._getInp('minWebmWidth') + Lng.cfg.minWebmWidth[lang]) + '\n\t\t\t</div>\n\t\t\t' + (!nav.Presto ? this._getBox('preLoadImgs') + '<br>' : '') + '\n\t\t\t' + (!nav.Presto && !aib.fch ? '<div class="de-cfg-depend">' + this._getBox('findImgFile') + '</div>' : '') + '\n\t\t\t' + this._getSel('openImgs') + '<br>\n\t\t\t' + this._getBox('imgSrcBtns') + '<br>\n\t\t\t' + this._getBox('delImgNames') + '<br>\n\t\t\t' + (this._getInp('maskVisib') + Lng.cfg.maskVisib[lang]) + '\n\t\t</div>';
 		},
 
 
@@ -17386,7 +17386,6 @@ true, true],
 				_this56.qBan = '.pomyanem';
 				_this56.qClosed = '.sticky-img[src$="locked.png"]';
 				_this56.qDForm = '#posts-form';
-				_this56.qFileInfo = '.file-attr';
 				_this56.qFormRedir = null;
 				_this56.qFormRules = '.rules-area';
 				_this56.qOmitted = '.mess-post';

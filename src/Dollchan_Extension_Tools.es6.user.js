@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '16.12.28.0';
-const commit = 'd8618a4';
+const commit = '67bec62';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3673,6 +3673,7 @@ const cfgWindow = Object.create({
 				${ this._getInp('zoomFactor') + Lng.cfg.zoomFactor[lang] }<br>
 				${ this._getBox('webmControl') }<br>
 				${ this._getBox('webmTitles') }<br>
+				${ this._getInp('webmVolume') + Lng.cfg.webmVolume[lang] + '<br>' }
 				${ this._getInp('minWebmWidth') + Lng.cfg.minWebmWidth[lang] }
 			</div>
 			${ !nav.Presto ? this._getBox('preLoadImgs') + '<br>' : '' }
@@ -12626,7 +12627,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qBan = '.pomyanem';
 			this.qClosed = '.sticky-img[src$="locked.png"]';
 			this.qDForm = '#posts-form';
-			this.qFileInfo = '.file-attr';
 			this.qFormRedir = null;
 			this.qFormRules = '.rules-area';
 			this.qOmitted = '.mess-post';
