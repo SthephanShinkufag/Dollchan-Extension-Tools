@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '1c5d914';
+const commit = '61a5762';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3830,13 +3830,13 @@ const cfgWindow = Object.create({
 	},
 
 	// Creates a select for multiple option values
-	_getSel(id, isBlock, Fn, className = '') {
+	_getSel(id) {
 		const x = Lng.cfg[id];
 		let opt = [];
 		for(let i = 0, len = x.sel[lang].length; i < len; ++i) {
 			opt.push('<option value="', i, '">', x.sel[lang][i], '</option>');
 		}
-		return `<label class="${ className } de-cfg-label">
+		return `<label class="de-cfg-label">
 			<select class="de-cfg-select" info="${ id }">${ opt.join('') }</select> ${ x.txt[lang] }
 		</label>`;
 	},

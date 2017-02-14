@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '1c5d914';
+	var commit = '61a5762';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -7096,15 +7096,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 
 
-		_getSel: function _getSel(id, isBlock, Fn) {
-			var className = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
-
+		_getSel: function _getSel(id) {
 			var x = Lng.cfg[id];
 			var opt = [];
 			for (var i = 0, len = x.sel[lang].length; i < len; ++i) {
 				opt.push('<option value="', i, '">', x.sel[lang][i], '</option>');
 			}
-			return '<label class="' + className + ' de-cfg-label">\n\t\t\t<select class="de-cfg-select" info="' + id + '">' + opt.join('') + '</select> ' + x.txt[lang] + '\n\t\t</label>';
+			return '<label class="de-cfg-label">\n\t\t\t<select class="de-cfg-select" info="' + id + '">' + opt.join('') + '</select> ' + x.txt[lang] + '\n\t\t</label>';
 		},
 
 
