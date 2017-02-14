@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '3a65251';
+const commit = '1c5d914';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3630,7 +3630,7 @@ const cfgWindow = Object.create({
 		return `<div id="de-cfg-posts" class="de-cfg-unvis">
 			${ !localData ?
 				this._getBox('ajaxUpdThr') +
-				this._getInp('updThrDelay') + Lng.cfg.updThrDelay[lang] +
+				this._getInp('updThrDelay') +
 				`<div class="de-cfg-depend">
 					${ this._getBox('updCount') }<br>
 					${ this._getBox('favIcoBlink') }<br>
@@ -3646,17 +3646,17 @@ const cfgWindow = Object.create({
 			${ this._getBox('showHideBtn') }
 			${ this._getBox('showRepBtn') }<br>
 			${ this._getSel('postBtnsCSS') }
-			${ this._getInp('postBtnsBack', 8) }<br>
+			${ this._getInp('postBtnsBack', false, 8) }<br>
 			${ this._getSel('noSpoilers') }<br>
 			${ this._getBox('noPostNames') }<br>
 			${ this._getBox('widePosts') }<br>
 			${ this._getBox('correctTime') }
-			${ this._getInp('timeOffset') + Lng.cfg.timeOffset[lang] }
+			${ this._getInp('timeOffset') }
 			<a class="de-abtn" target="_blank" href="${ gitWiki +
 				'Settings-time-' + (lang ? 'en' : 'ru') }">[?]</a>
 			<div class="de-cfg-depend">
-				${ this._getInp('timePattern', 24) + Lng.cfg.timePattern[lang] }<br>
-				${ this._getInp('timeRPattern', 24) + Lng.cfg.timeRPattern[lang] }
+				${ this._getInp('timePattern', true, 24) }<br>
+				${ this._getInp('timeRPattern', true, 24) }
 			</div>
 		</div>`;
 	},
@@ -3669,12 +3669,12 @@ const cfgWindow = Object.create({
 				${ this._getBox('imgNavBtns') }<br>
 				${ this._getBox('resizeImgs') }<br>
 				${ Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '' }
-				${ this._getInp('minImgSize') + Lng.cfg.minImgSize[lang] }<br>
-				${ this._getInp('zoomFactor') + Lng.cfg.zoomFactor[lang] }<br>
+				${ this._getInp('minImgSize') }<br>
+				${ this._getInp('zoomFactor') }<br>
 				${ this._getBox('webmControl') }<br>
 				${ this._getBox('webmTitles') }<br>
-				${ this._getInp('webmVolume') + Lng.cfg.webmVolume[lang] + '<br>' }
-				${ this._getInp('minWebmWidth') + Lng.cfg.minWebmWidth[lang] }
+				${ this._getInp('webmVolume') }<br>
+				${ this._getInp('minWebmWidth') }
 			</div>
 			${ !nav.Presto ? this._getBox('preLoadImgs') + '<br>' : '' }
 			${ !nav.Presto && !aib.fch ?
@@ -3682,7 +3682,7 @@ const cfgWindow = Object.create({
 			${ this._getSel('openImgs') }<br>
 			${ this._getBox('imgSrcBtns') }<br>
 			${ this._getBox('delImgNames') }<br>
-			${ this._getInp('maskVisib') + Lng.cfg.maskVisib[lang] }
+			${ this._getInp('maskVisib') }
 		</div>`;
 	},
 
@@ -3691,8 +3691,8 @@ const cfgWindow = Object.create({
 		return `<div id="de-cfg-links" class="de-cfg-unvis">
 			${ this._getSel('linksNavig') }
 			<div class="de-cfg-depend">
-				${ this._getInp('linksOver') + Lng.cfg.linksOver[lang] }
-				${ this._getInp('linksOut') + Lng.cfg.linksOut[lang] }<br>
+				${ this._getInp('linksOver') }
+				${ this._getInp('linksOut') }<br>
 				${ this._getBox('markViewed') }<br>
 				${ this._getBox('strikeHidd') }
 				<div class="de-cfg-depend">${ this._getBox('removeHidd') }</div>
@@ -3711,10 +3711,10 @@ const cfgWindow = Object.create({
 			${ this._getSel('addYouTube') }
 			<div class="de-cfg-depend">
 				${ this._getSel('YTubeType') }
-				${ this._getInp('YTubeWidth') }\u00D7
-				${ this._getInp('YTubeHeigh') }(px)<br>
+				${ this._getInp('YTubeWidth', false) }\u00D7
+				${ this._getInp('YTubeHeigh', false) }(px)<br>
 				${ this._getBox('YTubeTitles') }<br>
-				${ this._getInp('ytApiKey', 25) + Lng.cfg.ytApiKey[lang] }<br>
+				${ this._getInp('ytApiKey', true, 25) }<br>
 				${ this._getBox('addVimeo') }
 			</div>
 		</div>`;
@@ -3741,17 +3741,17 @@ const cfgWindow = Object.create({
 				this._getBox('saveSage') + '<br>' : '' }
 			${ pr.cap ?
 				(aib.fch ? this._getBox('cap4chanAlt') + '<br>' : '') +
-				this._getInp('capUpdTime') + Lng.cfg.capUpdTime[lang] + '<br>' +
+				this._getInp('capUpdTime') + '<br>' +
 				this._getSel('captchaLang') + '<br>' : '' }
 			${ pr.txta ?
 				this._getSel('addTextBtns') +
 				this._getBox('txtBtnsLoc') + '<br>' : '' }
 			${ pr.passw ?
-				this._getInp('passwValue', 9) + Lng.cfg.userPassw[lang] +
+				this._getInp('passwValue', true, 9) +
 				`<input type="button" id="de-cfg-btn-pass" class="de-cfg-button" value="${
 						Lng.change[lang] }"><br>` : '' }
 			${ pr.name ?
-				this._getInp('nameValue', 9) + ' ' +
+				this._getInp('nameValue', false, 9) + ' ' +
 				this._getBox('userName') + '<br>' : '' }
 			${ pr.rules || pr.passw || pr.name ? Lng.dontShow[lang] +
 				(pr.rules ? this._getBox('noBoardRule') : '') +
@@ -3776,7 +3776,7 @@ const cfgWindow = Object.create({
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-cfg-depend">
-				${ this._getInp('loadPages') + Lng.cfg.loadPages[lang] }
+				${ this._getInp('loadPages') }
 			</div>
 			${ !nav.isChromeStorage && !nav.Presto || nav.isGM ?
 				this._getBox('updScript') +
@@ -3822,20 +3822,22 @@ const cfgWindow = Object.create({
 	},
 
 	// Creates a text input for text option values
-	_getInp(id, size = 2) {
-		return `<input class="de-cfg-inptxt" info="${ id
-			}" type="text" size="${ size }" value="${ Cfg[id] }">`;
+	_getInp(id, addText = true, size = 2) {
+		return `<label class="de-cfg-label">
+			<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="${ Cfg[id] }">${
+		      addText ? Lng.cfg[id][lang] : ''
+	    }</label>`;
 	},
 
 	// Creates a select for multiple option values
 	_getSel(id, isBlock, Fn, className = '') {
 		const x = Lng.cfg[id];
-		let opt = '';
+		let opt = [];
 		for(let i = 0, len = x.sel[lang].length; i < len; ++i) {
-			opt += '<option value="' + i + '">' + x.sel[lang][i] + '</option>';
+			opt.push('<option value="', i, '">', x.sel[lang][i], '</option>');
 		}
 		return `<label class="${ className } de-cfg-label">
-			<select class="de-cfg-select" info="${ id }">${ opt }</select> ${ x.txt[lang] }
+			<select class="de-cfg-select" info="${ id }">${ opt.join('') }</select> ${ x.txt[lang] }
 		</label>`;
 	},
 
