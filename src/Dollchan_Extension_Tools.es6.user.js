@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '6097b63';
+const commit = '9004d4b';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9150,7 +9150,7 @@ class ExpandableMedia {
 					const newWidth = target.naturalWidth;
 					const newHeight = target.naturalHeight;
 					const ar = this._size ? this._size[1] / this._size[0] : newHeight / newWidth;
-					const isExifRotated = Math.abs((target.scrollHeight / target.scrollWidth) - ar) > 1e-5;
+					const isExifRotated = target.scrollHeight / target.scrollWidth > 1 ? ar < 1 : ar > 1;
 					if(!this._size || isExifRotated) {
 						this._size = isExifRotated ? [newHeight, newWidth] : [newWidth, newHeight];
 					}
@@ -12650,6 +12650,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qBan = '.pomyanem';
 			this.qClosed = '.sticky-img[src$="locked.png"]';
 			this.qDForm = '#posts-form';
+			this.qFileInfo = '.file-attr';
 			this.qFormRedir = null;
 			this.qFormRules = '.rules-area';
 			this.qOmitted = '.mess-post';
@@ -12717,6 +12718,10 @@ function getImageBoard(checkDomains, checkEngines) {
 				return 0;
 			}
 			return el.textContent.includes('предупрежден') ? 2 : 1;
+		}
+		getFileInfo(wrap) {
+			var el = $q('.filesize', wrap);
+			return el ? el.textContent : '';
 		}
 		getImgParent(node) {
 			var el = $parent(node, 'FIGURE'),
@@ -13419,6 +13424,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixHTMLHelper(str) {
 			return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
+		}
+		getFileInfo(wrap) {
+			var el = $q(this.qFileInfo, wrap);
+			return el ? el.lastChild.textContent : '';
 		}
 		getJsonApiUrl(brd, tNum) {
 			return `//a.4cdn.org/${ brd }/thread/${ tNum }.json`;

@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '6097b63';
+	var commit = '9004d4b';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -13160,7 +13160,7 @@ true, true],
 							var newWidth = target.naturalWidth;
 							var newHeight = target.naturalHeight;
 							var ar = _this31._size ? _this31._size[1] / _this31._size[0] : newHeight / newWidth;
-							var isExifRotated = Math.abs(target.scrollHeight / target.scrollWidth - ar) > 1e-5;
+							var isExifRotated = target.scrollHeight / target.scrollWidth > 1 ? ar < 1 : ar > 1;
 							if (!_this31._size || isExifRotated) {
 								_this31._size = isExifRotated ? [newHeight, newWidth] : [newWidth, newHeight];
 							}
@@ -17410,6 +17410,7 @@ true, true],
 				_this56.qBan = '.pomyanem';
 				_this56.qClosed = '.sticky-img[src$="locked.png"]';
 				_this56.qDForm = '#posts-form';
+				_this56.qFileInfo = '.file-attr';
 				_this56.qFormRedir = null;
 				_this56.qFormRules = '.rules-area';
 				_this56.qOmitted = '.mess-post';
@@ -17451,6 +17452,12 @@ true, true],
 						return 0;
 					}
 					return el.textContent.includes('предупрежден') ? 2 : 1;
+				}
+			}, {
+				key: 'getFileInfo',
+				value: function getFileInfo(wrap) {
+					var el = $q('.filesize', wrap);
+					return el ? el.textContent : '';
 				}
 			}, {
 				key: 'getImgParent',
@@ -18392,6 +18399,12 @@ true, true],
 				key: 'fixHTMLHelper',
 				value: function fixHTMLHelper(str) {
 					return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
+				}
+			}, {
+				key: 'getFileInfo',
+				value: function getFileInfo(wrap) {
+					var el = $q(this.qFileInfo, wrap);
+					return el ? el.lastChild.textContent : '';
 				}
 			}, {
 				key: 'getJsonApiUrl',
