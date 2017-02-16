@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '61a5762';
+const commit = '4bc211d';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8876,7 +8876,7 @@ AttachmentViewer.prototype = {
 	},
 	_show(data) {
 		var [width, height, minSize] = data.computeFullSize();
-		this._fullEl = data.getFullObject(false, el => this._resize(el));
+		this._fullEl = data.getFullObject(false, el => this._resize(el), el => this._rotate(el));
 		if(data.isVideo && (width < Cfg.minWebmWidth)) {
 			width = Cfg.minWebmWidth;
 		}
@@ -8954,6 +8954,21 @@ AttachmentViewer.prototype = {
 		this._elStyle.height = height + 'px';
 		this._elStyle.left = (this._oldL = parseInt(cPointX - width / 2, 10)) + 'px';
 		this._elStyle.top = (this._oldT = parseInt(cPointY - height / 2, 10)) + 'px';
+	},
+	_rotate(el) {
+		if(el !== this._fullEl) {
+			return;
+		}
+		const width = this._width;
+		const height = this._height;
+		this._width = height;
+		this._height = width;
+		this._elStyle.width = height + 'px';
+		this._elStyle.height = width + 'px';
+		const halfWidth = width / 2;
+		const halfHeight = height / 2;
+		this._elStyle.left = (this._oldL = parseInt(this._oldL + halfWidth - halfHeight, 10)) + 'px';
+		this._elStyle.top = (this._oldT = parseInt(this._oldT + halfHeight - halfWidth, 10)) + 'px';
 	}
 };
 
@@ -9087,7 +9102,7 @@ class ExpandableMedia {
 		var el = this.el;
 		(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-after-fimg"></div>');
-		this._fullEl = this.getFullObject(true, null);
+		this._fullEl = this.getFullObject(true, null, null);
 		this._fullEl.addEventListener('click', e => this.collapse(e));
 		$hide(el.parentNode);
 		$after(el.parentNode, this._fullEl);
@@ -9113,7 +9128,7 @@ class ExpandableMedia {
 		} while(imgs.first === null);
 		return isForward ? imgs.first : imgs.last;
 	}
-	getFullObject(inPost, onsizechange) {
+	getFullObject(inPost, onsizechange, onrotate) {
 		let obj, src = this.src;
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
@@ -9132,15 +9147,23 @@ class ExpandableMedia {
 						target.onceLoaded = true;
 					}
 				} else {
-					this._size = [target.naturalWidth, target.naturalHeight];
+					const newWidth = target.naturalWidth;
+					const newHeight = target.naturalHeight;
+					const ar = this._size ? this._size[1] / this._size[0] : newHeight / newWidth;
+					const isExifRotated = Math.abs((target.scrollHeight / target.scrollWidth) - ar) > 0.001;
+					if(!this._size || isExifRotated) {
+						this._size = isExifRotated ? [newHeight, newWidth] : [newWidth, newHeight];
+					}
 					const el = target.previousElementSibling;
 					if(el) {
 						const p = el.parentNode;
 						$hide(el);
 						p.classList.remove('de-img-wrapper-nosize');
-						if(onsizechange){
+						if(onsizechange) {
 							onsizechange(p);
 						}
+					} else if(isExifRotated && onrotate) {
+						onrotate(target.parentNode);
 					}
 				}
 			};
@@ -15408,7 +15431,7 @@ function scriptCSS() {
 
 	// Full images
 	p = Math.max(Cfg.minImgSize || 0, 50);
-	x += `.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }
+	x += `.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }
 	.de-img-pre { max-width: 200px; max-height: 200px; }
 	.de-img-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
 	.de-img-full, .de-img-wrapper-nosize { width: 100%; height: 100%; }
