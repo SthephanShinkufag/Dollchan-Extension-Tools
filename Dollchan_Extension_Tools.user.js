@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '4bc211d';
+	var commit = '6097b63';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -13160,7 +13160,7 @@ true, true],
 							var newWidth = target.naturalWidth;
 							var newHeight = target.naturalHeight;
 							var ar = _this31._size ? _this31._size[1] / _this31._size[0] : newHeight / newWidth;
-							var isExifRotated = Math.abs(target.scrollHeight / target.scrollWidth - ar) > 0.001;
+							var isExifRotated = Math.abs(target.scrollHeight / target.scrollWidth - ar) > 1e-5;
 							if (!_this31._size || isExifRotated) {
 								_this31._size = isExifRotated ? [newHeight, newWidth] : [newWidth, newHeight];
 							}

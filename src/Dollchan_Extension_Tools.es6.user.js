@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '4bc211d';
+const commit = '6097b63';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -9150,7 +9150,7 @@ class ExpandableMedia {
 					const newWidth = target.naturalWidth;
 					const newHeight = target.naturalHeight;
 					const ar = this._size ? this._size[1] / this._size[0] : newHeight / newWidth;
-					const isExifRotated = Math.abs((target.scrollHeight / target.scrollWidth) - ar) > 0.001;
+					const isExifRotated = Math.abs((target.scrollHeight / target.scrollWidth) - ar) > 1e-5;
 					if(!this._size || isExifRotated) {
 						this._size = isExifRotated ? [newHeight, newWidth] : [newWidth, newHeight];
 					}
