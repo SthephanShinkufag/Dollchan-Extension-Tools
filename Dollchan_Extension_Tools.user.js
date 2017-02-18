@@ -2937,13 +2937,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-(function de_main_func_inner(scriptStorage, FormData, localData, scrollTo) {
+(function de_main_func_inner(scriptStorage, FormData, scrollTo, localData) {
 	'use strict';
 
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '1d8f874';
+	var commit = '508cea3';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -8279,7 +8279,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var scriptStr,
 				    localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
 				if (nav.isES6) {
-					scriptStr = '(' + String(de_main_func_inner) + ')(null, null, ' + localData + ');';
+					scriptStr = '(' + String(de_main_func_inner) + ')(null, null, window.scrollTo.bind(window), ' + localData + ');';
 				} else {
 					scriptStr = '(' + String(de_main_func_outer) + ')(' + localData + ');';
 				}
@@ -20839,7 +20839,7 @@ true, true],
 		});
 		doc.addEventListener('DOMContentLoaded', async(runMain.bind(null, false, cfgPromise)));
 	}
-})(window.opera && window.opera.scriptStorage, window.FormData, (typeof localData === 'undefined' ? 'undefined' : _typeof(localData)) === 'object' ? localData : null, window.scrollTo.bind(window));
+})(window.opera && window.opera.scriptStorage, window.FormData, window.scrollTo.bind(window), (typeof localData === 'undefined' ? 'undefined' : _typeof(localData)) === 'object' ? localData : null);
 
 },{}],122:[function(require,module,exports){
 'use strict';

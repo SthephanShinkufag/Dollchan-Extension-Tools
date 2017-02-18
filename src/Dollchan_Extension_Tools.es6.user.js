@@ -20,11 +20,11 @@
 
 /* jshint esnext:true, elision:true, noyield:true */
 
-(function de_main_func_inner(scriptStorage, FormData, localData, scrollTo) {
+(function de_main_func_inner(scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '1d8f874';
+const commit = '508cea3';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5009,7 +5009,7 @@ function loadDocFiles(imgOnly) {
 			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
 			var scriptStr, localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
 			if(nav.isES6) {
-				scriptStr = '(' + String(de_main_func_inner) + ')(null, null, ' + localData + ');';
+				scriptStr = '(' + String(de_main_func_inner) + ')(null, null, window.scrollTo.bind(window), ' + localData + ');';
 			} else {
 				scriptStr = '(' + String(de_main_func_outer) + ')(' + localData + ');';
 			}
@@ -15820,4 +15820,4 @@ if(doc.readyState !== 'loading') {
 	doc.addEventListener('DOMContentLoaded', async(runMain.bind(null, false, cfgPromise)));
 }
 
-})(window.opera && window.opera.scriptStorage, window.FormData, typeof localData === 'object' ? localData : null, window.scrollTo.bind(window));
+})(window.opera && window.opera.scriptStorage, window.FormData, window.scrollTo.bind(window), typeof localData === 'object' ? localData : null);
