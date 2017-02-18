@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '502c655';
+	var commit = '1d8f874';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -20839,7 +20839,7 @@ true, true],
 		});
 		doc.addEventListener('DOMContentLoaded', async(runMain.bind(null, false, cfgPromise)));
 	}
-})(window.opera && window.opera.scriptStorage, window.FormData, (typeof localData === 'undefined' ? 'undefined' : _typeof(localData)) === 'object' ? localData : null, window.scrollTo);
+})(window.opera && window.opera.scriptStorage, window.FormData, (typeof localData === 'undefined' ? 'undefined' : _typeof(localData)) === 'object' ? localData : null, window.scrollTo.bind(window));
 
 },{}],122:[function(require,module,exports){
 'use strict';

@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '502c655';
+const commit = '1d8f874';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -15820,4 +15820,4 @@ if(doc.readyState !== 'loading') {
 	doc.addEventListener('DOMContentLoaded', async(runMain.bind(null, false, cfgPromise)));
 }
 
-})(window.opera && window.opera.scriptStorage, window.FormData, typeof localData === 'object' ? localData : null, window.scrollTo);
+})(window.opera && window.opera.scriptStorage, window.FormData, typeof localData === 'object' ? localData : null, window.scrollTo.bind(window));
