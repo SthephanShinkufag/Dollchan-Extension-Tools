@@ -2937,13 +2937,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-(function de_main_func_inner(scriptStorage, FormData, localData) {
+(function de_main_func_inner(scriptStorage, FormData, localData, scrollTo) {
 	'use strict';
 
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '9004d4b';
+	var commit = '502c655';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -17516,7 +17516,7 @@ true, true],
 			}, {
 				key: 'init',
 				value: function init() {
-					$script('$alert = function() {};\n\t\t\t\tObject.defineProperty(window, "linkremover", { value: function() {}, writable: false });\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });');
+					$script('(function() {\n\t\t\t\tvar emptyFn = function() {};\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name, { value: emptyFn, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\tfixGlobalFunc("$alert");\n\t\t\t\tfixGlobalFunc("linkremover");\n\t\t\t\tfixGlobalFunc("scrollTo");\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });\n\t\t\t\tvar obj;\n\t\t\t\ttry {\n\t\t\t\t\tobj = JSON.parse(localStorage.store || "{}");\n\t\t\t\t} catch(e) {\n\t\t\t\t\tobj = {};\n\t\t\t\t}\n\t\t\t\tobj.thread = {autorefresh: false};\n\t\t\t\tlocalStorage.store = JSON.stringify(obj);\n\t\t\t})();');
 					$each($Q('.autorefresh'), $del);
 					var el = $q('td > .anoniconsselectlist');
 					if (el) {
@@ -20451,7 +20451,7 @@ true, true],
 	function scrollPage() {
 		if (!aib.t && Cfg.scrollToTop) {
 			if (doc.hidden || needScroll) {
-				window.scrollTo(0, 0);
+				scrollTo(0, 0);
 			}
 			return;
 		}
@@ -20464,7 +20464,7 @@ true, true],
 			    hash,
 			    val = +sesStorage['de-scroll-' + aib.b + aib.t];
 			if (val) {
-				window.scrollTo(0, val);
+				scrollTo(0, val);
 				sesStorage.removeItem('de-scroll-' + aib.b + aib.t);
 			} else if ((hash = window.location.hash) && (num = hash.match(/#[ip]?(\d+)$/)) && (num = +num[1]) && (post = pByNum.get(num)) && !post.isOp) {
 				post.selectAndScrollTo();
@@ -20839,7 +20839,7 @@ true, true],
 		});
 		doc.addEventListener('DOMContentLoaded', async(runMain.bind(null, false, cfgPromise)));
 	}
-})(window.opera && window.opera.scriptStorage, window.FormData, (typeof localData === 'undefined' ? 'undefined' : _typeof(localData)) === 'object' ? localData : null);
+})(window.opera && window.opera.scriptStorage, window.FormData, (typeof localData === 'undefined' ? 'undefined' : _typeof(localData)) === 'object' ? localData : null, window.scrollTo);
 
 },{}],122:[function(require,module,exports){
 'use strict';

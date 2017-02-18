@@ -20,11 +20,11 @@
 
 /* jshint esnext:true, elision:true, noyield:true */
 
-(function de_main_func_inner(scriptStorage, FormData, localData) {
+(function de_main_func_inner(scriptStorage, FormData, localData, scrollTo) {
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '9004d4b';
+const commit = '502c655';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12763,10 +12763,25 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el.parentNode;
 		}
 		init() {
-			$script(`$alert = function() {};
-				Object.defineProperty(window, "linkremover", { value: function() {}, writable: false });
+			$script(`(function() {
+				var emptyFn = function() {};
+				function fixGlobalFunc(name) {
+					Object.defineProperty(window, name, { value: emptyFn, writable: false, configurable: false });
+				}
+				fixGlobalFunc("$alert");
+				fixGlobalFunc("linkremover");
+				fixGlobalFunc("scrollTo");
 				window.FormData = void 0;
-				$(function() { $(window).off(); });`);
+				$(function() { $(window).off(); });
+				var obj;
+				try {
+					obj = JSON.parse(localStorage.store || "{}");
+				} catch(e) {
+					obj = {};
+				}
+				obj.thread = {autorefresh: false};
+				localStorage.store = JSON.stringify(obj);
+			})();`);
 			$each($Q('.autorefresh'), $del);
 			var el = $q('td > .anoniconsselectlist');
 			if(el) {
@@ -15185,7 +15200,7 @@ function initPage() {
 function scrollPage() {
 	if(!aib.t && Cfg.scrollToTop) {
 		if(doc.hidden || needScroll) {
-			window.scrollTo(0, 0);
+			scrollTo(0, 0);
 		}
 		return;
 	}
@@ -15196,7 +15211,7 @@ function scrollPage() {
 		var post, num, hash,
 			val = +sesStorage['de-scroll-' + aib.b + aib.t];
 		if(val) {
-			window.scrollTo(0, val);
+			scrollTo(0, val);
 			sesStorage.removeItem('de-scroll-' + aib.b + aib.t);
 		} else if((hash = window.location.hash) &&
 		          (num = hash.match(/#[ip]?(\d+)$/)) &&
@@ -15805,4 +15820,4 @@ if(doc.readyState !== 'loading') {
 	doc.addEventListener('DOMContentLoaded', async(runMain.bind(null, false, cfgPromise)));
 }
 
-})(window.opera && window.opera.scriptStorage, window.FormData, typeof localData === 'object' ? localData : null);
+})(window.opera && window.opera.scriptStorage, window.FormData, typeof localData === 'object' ? localData : null, window.scrollTo);
