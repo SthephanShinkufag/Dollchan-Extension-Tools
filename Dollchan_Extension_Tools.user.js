@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '508cea3';
+	var commit = 'b6dc538';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -7092,7 +7092,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var addText = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 			var size = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 2;
 
-			return '<label class="de-cfg-label">\n\t\t\t<input class="de-cfg-inptxt" info="' + id + '" type="text" size="' + size + '" value="' + Cfg[id] + '">' + (addText ? Lng.cfg[id][lang] : '') + '</label>';
+			return '<label class="de-cfg-label">\n\t\t\t<input class="de-cfg-inptxt" info="' + id + '" type="text" size="' + size + '" value="' + Cfg[id] + '">' + (addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '') + '</label>';
 		},
 
 

@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '508cea3';
+const commit = 'b6dc538';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -3825,7 +3825,7 @@ const cfgWindow = Object.create({
 	_getInp(id, addText = true, size = 2) {
 		return `<label class="de-cfg-label">
 			<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="${ Cfg[id] }">${
-		      addText ? Lng.cfg[id][lang] : ''
+		      addText && Lng.cfg[id] ? Lng.cfg[id][lang] : ''
 	    }</label>`;
 	},
 
