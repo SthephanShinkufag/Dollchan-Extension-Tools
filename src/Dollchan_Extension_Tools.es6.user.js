@@ -13366,7 +13366,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
 		}
 		get updateCaptcha() {
-			unsafeWindow.request_faptcha(aib.b); // Update adaptive captcha status
+			// Update captcha
+			// TODO implement this without using page's own functions,
+			// see https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/pull/1041#discussion_r106283296
+			if(nav.isGM && 'unsafeWindow' in window) {
+				unsafeWindow.request_faptcha(aib.b);
+			} else {
+				$script(`request_faptcha('${aib.b}')`);
+			}
 		}
 		getSage(post) {
 			var el = $q('.filetitle', post);
