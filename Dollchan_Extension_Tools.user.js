@@ -4658,7 +4658,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function readCfg() {
-		var obj, val;
+		var obj, val, hasGlobal;
 		return regeneratorRuntime.wrap(function readCfg$(_context4) {
 			while (1) {
 				switch (_context4.prev = _context4.next) {
@@ -4670,10 +4670,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						val = _context4.t0;
 
 						if (!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
-							obj = nav.isGlobal ? val.global || {} : {};
-							obj.captchaLang = aib.ru ? 2 : 1;
-							obj.correctTime = 0;
+							hasGlobal = nav.isGlobal && !!val.global;
+
+							obj = hasGlobal ? val.global : {};
+							if (hasGlobal) {
+								delete obj.correctTime;
+								delete obj.captchaLang;
+							}
 						}
+						defaultCfg.captchaLang = aib.ru ? 2 : 1;
 						defaultCfg.language = +!String(navigator.language).toLowerCase().startsWith('ru');
 						Cfg = Object.assign(Object.create(defaultCfg), obj);
 						if (!Cfg.timeOffset) {
@@ -4724,7 +4729,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}, emptyFn);
 						}
 
-					case 19:
+					case 20:
 					case 'end':
 						return _context4.stop();
 				}

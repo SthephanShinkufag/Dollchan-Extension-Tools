@@ -1565,10 +1565,14 @@ function* readCfg() {
 	let obj;
 	const val = yield* getStoredObj('DESU_Config');
 	if(!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
-		obj = nav.isGlobal ? val.global || {} : {};
-		obj.captchaLang = aib.ru ? 2 : 1;
-		obj.correctTime = 0;
+		let hasGlobal = nav.isGlobal && !!val.global;
+		obj = hasGlobal ? val.global : {};
+		if(hasGlobal) {
+			delete obj.correctTime;
+			delete obj.captchaLang;
+		}
 	}
+	defaultCfg.captchaLang = aib.ru ? 2 : 1;
 	defaultCfg.language = +!String(navigator.language).toLowerCase().startsWith('ru');
 	Cfg = Object.assign(Object.create(defaultCfg), obj);
 	if(!Cfg.timeOffset) {
