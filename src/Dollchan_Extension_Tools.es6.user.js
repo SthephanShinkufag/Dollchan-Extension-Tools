@@ -13380,6 +13380,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el;
 		}
 		init() {
+			super.init();
 			spawn(getStoredObj, 'DESU_Config').then(val => {
 				if(!(dm in val) || $isEmpty(val[dm])) { // First launch on this domain
 					Cfg.captchaLang = 0;
