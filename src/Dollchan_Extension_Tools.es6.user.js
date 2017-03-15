@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = 'b6dc538';
+const commit = 'bb02c3d';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13335,6 +13335,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qFormRedir = 'input#noko';
 			this.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
+			this.ru = true;
 			this.hasCatalog = true;
 			this.markupBB = false;
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
@@ -13343,7 +13344,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return super.css + `
 			body { margin: 0 }
 			#resizer { display: none; }
-			.topmenu { position: static; }`;
+			.topmenu { position: static; }
+			.de-thr-hid { display: inherit; }
+			form > span { margin-top: 5px; }
+			form > .de-thread-buttons { float: left; } `;
 		}
 		get markupTags() {
 			return ['**', '*', '__', '^^', '%%', '`'];
@@ -13351,9 +13355,38 @@ function getImageBoard(checkDomains, checkEngines) {
 		getCaptchaSrc(src, tNum) {
 			return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
 		}
+		get updateCaptcha() {
+			unsafeWindow.request_faptcha(aib.b); // Update adaptive captcha status
+		}
 		getSage(post) {
 			var el = $q('.filetitle', post);
 			return el && el.textContent.includes('\u21E9');
+		}
+		fixHTML(data, isForm) {
+			const el = super.fixHTML(data, isForm);
+
+			// Move [ Back ] link outside of thread div, so this will prevent new posts from being appended after that link
+			if(aib.t) {
+				try {
+					const backBtn = $q(`${this.qThread} > span[style]`, el);
+					const modBtn = $q('a[accesskey=m]', el);
+					const thr = backBtn.parentElement;
+
+					$after(thr, backBtn);
+					[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(elm => $after(backBtn.lastChild, elm));
+				} catch(e) { console.error(e) }
+			}
+
+			return el;
+		}
+		init() {
+			spawn(getStoredObj, 'DESU_Config').then(val => {
+				if(!(dm in val) || $isEmpty(val[dm])) { // First launch on this domain
+					Cfg.captchaLang = 0;
+			}})
+
+			// Workaround for "OK bug" #921
+			$bEnd(docBody, '<span id="faptcha_input" style="display: none" />');
 		}
 	}
 	ibDomains['410chan.org'] = _410chanOrg;
