@@ -1572,7 +1572,7 @@ function* readCfg() {
 			delete obj.captchaLang;
 		}
 	}
-	defaultCfg.captchaLang = aib.ru ? 2 : 1;
+	defaultCfg.captchaLang = aib.capLang;
 	defaultCfg.language = +!String(navigator.language).toLowerCase().startsWith('ru');
 	Cfg = Object.assign(Object.create(defaultCfg), obj);
 	if(!Cfg.timeOffset) {
@@ -12400,6 +12400,9 @@ class BaseBoard {
 	get css() {
 		return '';
 	}
+	get capLang() {
+		return this.ru ? 2 : 1;
+	}
 	get fixDeadLinks() {
 		return null;
 	}
@@ -13353,6 +13356,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			form > span { margin-top: 5px; }
 			form > .de-thread-buttons { float: left; } `;
 		}
+		get capLang() {
+			return 0;
+		}
 		get markupTags() {
 			return ['**', '*', '__', '^^', '%%', '`'];
 		}
@@ -13385,11 +13391,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			spawn(getStoredObj, 'DESU_Config').then(val => {
-				if(!(dm in val) || $isEmpty(val[dm])) { // First launch on this domain
-					Cfg.captchaLang = 0;
-			}})
-
 			// Workaround for "OK bug" #921
 			$bEnd(docBody, '<span id="faptcha_input" style="display: none" />');
 		}
