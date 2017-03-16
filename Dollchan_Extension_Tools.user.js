@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = 'bb02c3d';
+	var commit = '90cdc0d';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -18789,6 +18789,25 @@ true, true],
 					if (el1 && el2) {
 						$after(el2, el1);
 					}
+
+					var imgLinks = $Q('.fileinfo > a');
+					for (var _iterator35 = imgLinks, _isArray35 = Array.isArray(_iterator35), _i49 = 0, _iterator35 = _isArray35 ? _iterator35 : _iterator35[Symbol.iterator]();;) {
+						var _ref60;
+
+						if (_isArray35) {
+							if (_i49 >= _iterator35.length) break;
+							_ref60 = _iterator35[_i49++];
+						} else {
+							_i49 = _iterator35.next();
+							if (_i49.done) break;
+							_ref60 = _i49.value;
+						}
+
+						var a = _ref60;
+
+						var filename = $q('.postfilename', a.parentElement).innerText;
+						a.setAttribute('download', filename);
+					}
 					return false;
 				}
 			}, {
@@ -19172,19 +19191,19 @@ true, true],
 					var sessionId = null;
 					var cookie = doc.cookie;
 					if (cookie.includes('desuchan.session')) {
-						for (var _iterator35 = cookie.split(';'), _isArray35 = Array.isArray(_iterator35), _i49 = 0, _iterator35 = _isArray35 ? _iterator35 : _iterator35[Symbol.iterator]();;) {
-							var _ref60;
+						for (var _iterator36 = cookie.split(';'), _isArray36 = Array.isArray(_iterator36), _i50 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
+							var _ref61;
 
-							if (_isArray35) {
-								if (_i49 >= _iterator35.length) break;
-								_ref60 = _iterator35[_i49++];
+							if (_isArray36) {
+								if (_i50 >= _iterator36.length) break;
+								_ref61 = _iterator36[_i50++];
 							} else {
-								_i49 = _iterator35.next();
-								if (_i49.done) break;
-								_ref60 = _i49.value;
+								_i50 = _iterator36.next();
+								if (_i50.done) break;
+								_ref61 = _i50.value;
 							}
 
-							var c = _ref60;
+							var c = _ref61;
 
 							var m = c.match(/^\s*desuchan\.session=(.*)$/);
 							if (m) {
@@ -19536,8 +19555,8 @@ true, true],
 				DollchanAPI.port.onmessage = DollchanAPI._handleMessage;
 				DollchanAPI.activeListeners = new Set();
 				var port = channel.port2;
-				doc.defaultView.addEventListener('message', function (_ref61) {
-					var data = _ref61.data;
+				doc.defaultView.addEventListener('message', function (_ref62) {
+					var data = _ref62.data;
 
 					if (data === 'de-request-api-message') {
 						DollchanAPI.hasListeners = true;
@@ -19559,8 +19578,8 @@ true, true],
 			}
 		}, {
 			key: '_handleMessage',
-			value: function _handleMessage(_ref62) {
-				var arg = _ref62.data;
+			value: function _handleMessage(_ref63) {
+				var arg = _ref63.data;
 
 				if (!arg || !arg.name) {
 					return;
@@ -19572,19 +19591,19 @@ true, true],
 					case 'registerapi':
 						if (data) {
 							rv = {};
-							for (var _iterator36 = data, _isArray36 = Array.isArray(_iterator36), _i50 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
-								var _ref63;
+							for (var _iterator37 = data, _isArray37 = Array.isArray(_iterator37), _i51 = 0, _iterator37 = _isArray37 ? _iterator37 : _iterator37[Symbol.iterator]();;) {
+								var _ref64;
 
-								if (_isArray36) {
-									if (_i50 >= _iterator36.length) break;
-									_ref63 = _iterator36[_i50++];
+								if (_isArray37) {
+									if (_i51 >= _iterator37.length) break;
+									_ref64 = _iterator37[_i51++];
 								} else {
-									_i50 = _iterator36.next();
-									if (_i50.done) break;
-									_ref63 = _i50.value;
+									_i51 = _iterator37.next();
+									if (_i51.done) break;
+									_ref64 = _i51.value;
 								}
 
-								var aName = _ref63;
+								var aName = _ref64;
 
 								rv[aName] = DollchanAPI._register(aName.toLowerCase());
 							}
@@ -20247,9 +20266,9 @@ true, true],
 						case 1:
 							counter.setWait();
 							this._state = 2;
-							this._loadPromise = Thread.first.loadNew().then(function (_ref64) {
-								var newCount = _ref64.newCount,
-								    locked = _ref64.locked;
+							this._loadPromise = Thread.first.loadNew().then(function (_ref65) {
+								var newCount = _ref65.newCount,
+								    locked = _ref65.locked;
 								return _this95._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (e) {
 								return _this95._handleNewPosts(0, e);
@@ -20420,8 +20439,8 @@ true, true],
 	function initPage() {
 		if (!localData && Cfg.ajaxReply === 1) {
 			docBody.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-pform" sandbox="" src="about:blank" style="display: none;"></iframe>' + '<iframe name="de-iframe-dform" sandbox="" src="about:blank" style="display: none;"></iframe>');
-			doc.defaultView.addEventListener('message', function (_ref65) {
-				var data = _ref65.data;
+			doc.defaultView.addEventListener('message', function (_ref66) {
+				var data = _ref66.data;
 
 				switch (data.substr(0, 15)) {
 					case 'de-iframe-pform':
