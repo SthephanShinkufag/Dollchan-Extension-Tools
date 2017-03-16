@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = 'bb02c3d';
+const commit = 'f12d6c5';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13365,7 +13365,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		getCaptchaSrc(src, tNum) {
 			return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
 		}
-		get updateCaptcha() {
+		updateCaptcha() {
 			// Update captcha
 			// TODO implement this without using page's own functions,
 			// see https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/pull/1041#discussion_r106283296

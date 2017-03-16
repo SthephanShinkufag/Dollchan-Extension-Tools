@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = 'bb02c3d';
+	var commit = 'f12d6c5';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -4678,7 +4678,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								delete obj.captchaLang;
 							}
 						}
-						defaultCfg.captchaLang = aib.ru ? 2 : 1;
+						defaultCfg.captchaLang = aib.capLang;
 						defaultCfg.language = +!String(navigator.language).toLowerCase().startsWith('ru');
 						Cfg = Object.assign(Object.create(defaultCfg), obj);
 						if (!Cfg.timeOffset) {
@@ -17303,6 +17303,11 @@ true, true],
 				return '';
 			}
 		}, {
+			key: 'capLang',
+			get: function get() {
+				return this.ru ? 2 : 1;
+			}
+		}, {
 			key: 'fixDeadLinks',
 			get: function get() {
 				return null;
@@ -18333,6 +18338,15 @@ true, true],
 					return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
 				}
 			}, {
+				key: 'updateCaptcha',
+				value: function updateCaptcha() {
+					if (nav.isGM && 'unsafeWindow' in window) {
+						unsafeWindow.request_faptcha(aib.b);
+					} else {
+						$script('request_faptcha(\'' + aib.b + '\')');
+					}
+				}
+			}, {
 				key: 'getSage',
 				value: function getSage(post) {
 					var el = $q('.filetitle', post);
@@ -18349,13 +18363,16 @@ true, true],
 						try {
 							(function () {
 								var backBtn = $q(_this73.qThread + ' > span[style]', el);
-								var modBtn = $q('a[accesskey=m]', el);
-								var thr = backBtn.parentElement;
 
-								$after(thr, backBtn);
-								[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(function (elm) {
-									return $after(backBtn.lastChild, elm);
-								});
+								if (backBtn) {
+									var modBtn = $q('a[accesskey=m]', el);
+									var thr = backBtn.parentElement;
+
+									$after(thr, backBtn);
+									[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(function (elm) {
+										return $after(backBtn.lastChild, elm);
+									});
+								}
 							})();
 						} catch (e) {
 							console.error(e);
@@ -18367,12 +18384,7 @@ true, true],
 			}, {
 				key: 'init',
 				value: function init() {
-					spawn(getStoredObj, 'DESU_Config').then(function (val) {
-						if (!(dm in val) || $isEmpty(val[dm])) {
-							Cfg.captchaLang = 0;
-						}
-					});
-
+					_get(_410chanOrg.prototype.__proto__ || Object.getPrototypeOf(_410chanOrg.prototype), 'init', this).call(this);
 					$bEnd(docBody, '<span id="faptcha_input" style="display: none" />');
 				}
 			}, {
@@ -18381,14 +18393,14 @@ true, true],
 					return _get(_410chanOrg.prototype.__proto__ || Object.getPrototypeOf(_410chanOrg.prototype), 'css', this) + '\n\t\t\tbody { margin: 0 }\n\t\t\t#resizer { display: none; }\n\t\t\t.topmenu { position: static; }\n\t\t\t.de-thr-hid { display: inherit; }\n\t\t\tform > span { margin-top: 5px; }\n\t\t\tform > .de-thread-buttons { float: left; } ';
 				}
 			}, {
+				key: 'capLang',
+				get: function get() {
+					return 0;
+				}
+			}, {
 				key: 'markupTags',
 				get: function get() {
 					return ['**', '*', '__', '^^', '%%', '`'];
-				}
-			}, {
-				key: 'updateCaptcha',
-				get: function get() {
-					unsafeWindow.request_faptcha(aib.b); 
 				}
 			}]);
 
