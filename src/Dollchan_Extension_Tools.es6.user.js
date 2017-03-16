@@ -1572,7 +1572,7 @@ function* readCfg() {
 			delete obj.captchaLang;
 		}
 	}
-	defaultCfg.captchaLang = aib.ru ? 2 : 1;
+	defaultCfg.captchaLang = aib.capLang;
 	defaultCfg.language = +!String(navigator.language).toLowerCase().startsWith('ru');
 	Cfg = Object.assign(Object.create(defaultCfg), obj);
 	if(!Cfg.timeOffset) {
@@ -12400,6 +12400,9 @@ class BaseBoard {
 	get css() {
 		return '';
 	}
+	get capLang() {
+		return this.ru ? 2 : 1;
+	}
 	get fixDeadLinks() {
 		return null;
 	}
@@ -13339,6 +13342,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qFormRedir = 'input#noko';
 			this.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
+			this.ru = true;
 			this.hasCatalog = true;
 			this.markupBB = false;
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
@@ -13347,7 +13351,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			return super.css + `
 			body { margin: 0 }
 			#resizer { display: none; }
-			.topmenu { position: static; }`;
+			.topmenu { position: static; }
+			.de-thr-hid { display: inherit; }
+			form > span { margin-top: 5px; }
+			form > .de-thread-buttons { float: left; } `;
+		}
+		get capLang() {
+			return 0;
 		}
 		get markupTags() {
 			return ['**', '*', '__', '^^', '%%', '`'];
@@ -13355,9 +13365,44 @@ function getImageBoard(checkDomains, checkEngines) {
 		getCaptchaSrc(src, tNum) {
 			return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
 		}
+		get updateCaptcha() {
+			// Update captcha
+			// TODO implement this without using page's own functions,
+			// see https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/pull/1041#discussion_r106283296
+			if(nav.isGM && 'unsafeWindow' in window) {
+				unsafeWindow.request_faptcha(aib.b);
+			} else {
+				$script(`request_faptcha('${aib.b}')`);
+			}
+		}
 		getSage(post) {
 			var el = $q('.filetitle', post);
 			return el && el.textContent.includes('\u21E9');
+		}
+		fixHTML(data, isForm) {
+			const el = super.fixHTML(data, isForm);
+
+			// Move [ Back ] link outside of thread div, so this will prevent new posts from being appended after that link
+			if(aib.t) {
+				try {
+					const backBtn = $q(`${this.qThread} > span[style]`, el);
+
+					if(backBtn) {
+						const modBtn = $q('a[accesskey=m]', el);
+						const thr = backBtn.parentElement;
+
+						$after(thr, backBtn);
+						[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(elm => $after(backBtn.lastChild, elm));
+					}
+				} catch(e) { console.error(e) }
+			}
+
+			return el;
+		}
+		init() {
+			super.init();
+			// Workaround for "OK bug" #921
+			$bEnd(docBody, '<span id="faptcha_input" style="display: none" />');
 		}
 	}
 	ibDomains['410chan.org'] = _410chanOrg;
