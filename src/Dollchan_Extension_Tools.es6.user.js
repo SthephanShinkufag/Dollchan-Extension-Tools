@@ -13386,11 +13386,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(aib.t) {
 				try {
 					const backBtn = $q(`${this.qThread} > span[style]`, el);
-					const modBtn = $q('a[accesskey=m]', el);
-					const thr = backBtn.parentElement;
 
-					$after(thr, backBtn);
-					[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(elm => $after(backBtn.lastChild, elm));
+					if(backBtn) {
+						const modBtn = $q('a[accesskey=m]', el);
+						const thr = backBtn.parentElement;
+
+						$after(thr, backBtn);
+						[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(elm => $after(backBtn.lastChild, elm));
+					}
 				} catch(e) { console.error(e) }
 			}
 
