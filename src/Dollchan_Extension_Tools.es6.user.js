@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = 'beec375';
+const commit = 'fb21195';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -14052,6 +14052,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			return super.css + `
 			.sidearrows { display: none !important; }
 			.bar { position: static; }`;
+		}
+		init() {
+			super.init();
+			$each($Q('.files + .post.op'), el => el.insertBefore(el.previousElementSibling, el.firstChild));
+			return false;
 		}
 	}
 	ibDomains['lainchan.org'] = Lainchan;

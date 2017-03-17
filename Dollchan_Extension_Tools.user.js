@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = 'beec375';
+	var commit = 'fb21195';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -19324,6 +19324,15 @@ true, true],
 			}
 
 			_createClass(Lainchan, [{
+				key: 'init',
+				value: function init() {
+					_get(Lainchan.prototype.__proto__ || Object.getPrototypeOf(Lainchan.prototype), 'init', this).call(this);
+					$each($Q('.files + .post.op'), function (el) {
+						return el.insertBefore(el.previousElementSibling, el.firstChild);
+					});
+					return false;
+				}
+			}, {
 				key: 'css',
 				get: function get() {
 					return _get(Lainchan.prototype.__proto__ || Object.getPrototypeOf(Lainchan.prototype), 'css', this) + '\n\t\t\t.sidearrows { display: none !important; }\n\t\t\t.bar { position: static; }';
