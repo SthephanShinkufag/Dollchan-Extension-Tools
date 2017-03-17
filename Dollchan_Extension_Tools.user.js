@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = 'cf30b21';
+	var commit = 'beec375';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -17466,7 +17466,7 @@ true, true],
 			}, {
 				key: 'getFileInfo',
 				value: function getFileInfo(wrap) {
-					var el = $q('.filesize', wrap);
+					var el = $q(this.qFileInfo, wrap);
 					return el ? el.textContent : '';
 				}
 			}, {

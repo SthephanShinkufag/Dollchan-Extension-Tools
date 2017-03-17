@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = 'cf30b21';
+const commit = 'beec375';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -12727,7 +12727,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el.textContent.includes('предупрежден') ? 2 : 1;
 		}
 		getFileInfo(wrap) {
-			var el = $q('.filesize', wrap);
+			var el = $q(this.qFileInfo, wrap);
 			return el ? el.textContent : '';
 		}
 		getImgParent(node) {
