@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = 'f12d6c5';
+const commit = 'cf30b21';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -13715,6 +13715,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			const el2 = $id('upload');
 			if(el1 && el2) {
 				$after(el2, el1);
+			}
+
+			// Replacing name image for brchan.org #1033
+			let imgLinks = $Q('.fileinfo > a');
+			for (let a of imgLinks) {
+				let filename = $q('.postfilename', a.parentElement).innerText;
+				a.setAttribute('download', filename);
 			}
 			return false;
 		}
