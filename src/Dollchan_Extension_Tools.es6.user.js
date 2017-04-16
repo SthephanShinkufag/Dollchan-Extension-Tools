@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '17c5129';
+const commit = 'be7d3e7';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -658,7 +658,7 @@ const $q = (path, root = docBody) => root.querySelector(path);
 
 const $id = id => doc.getElementById(id);
 
-const $each = Function.prototype.call.bind(aProto.forEach);
+const $each = (els, cb) => aProto.forEach.call(els, cb);
 
 function $parent(el, tagName) {
 	do {
@@ -920,8 +920,8 @@ function async(generatorFunc) {
 			return result.done ? result.value : Promise.resolve(result.value).then(onFulfilled, onRejected);
 		}
 		const generator = generatorFunc.apply(this, args);
-		const onFulfilled = continuer.bind(continuer, 'next');
-		const onRejected = continuer.bind(continuer, 'throw');
+		const onFulfilled = arg => continuer('next', arg);
+		const onRejected = arg => continuer('throw', arg);
 		return onFulfilled();
 	};
 }
@@ -2339,7 +2339,7 @@ function toggleWindow(name, isUpd, data, noAnim) {
 				Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
 			}
 		};
-		el.lastElementChild.onclick = toggleWindow.bind(null, name, false);
+		el.lastElementChild.onclick = () => toggleWindow(name, false);
 		el.firstElementChild.onclick = e => {
 			var width = win.style.width,
 				w = width ? '; width: ' + width : '';
@@ -4101,7 +4101,7 @@ function addMenu(el) {
 				var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
 				if(Images_.preloading) {
 					$popup('savethr', Lng.loading[lang], true);
-					Images_.afterpreload = loadDocFiles.bind(null, imgOnly);
+					Images_.afterpreload = () => loadDocFiles(imgOnly);
 					Images_.progressId = 'savethr';
 				} else {
 					loadDocFiles(imgOnly);
@@ -4785,7 +4785,7 @@ function WorkerPool(mReqs, wrkFn, errFn) {
 			self.postMessage(info);
 		}
 	}`], {'type': 'text/javascript'}));
-	this._pool = new TasksPool(mReqs, this._createWorker.bind(this), null);
+	this._pool = new TasksPool(mReqs, (num, data) => this._createWorker(num, data), null);
 	this._freeWorkers = [];
 	this._url = url;
 	this._errFn = errFn;
@@ -4896,7 +4896,7 @@ function preloadImages(data) {
 				}
 				if(rjf) {
 					rjf.run(imageData.buffer, [imageData.buffer],
-						addImgFileIcon.bind(null, nameLink, fName));
+						info => addImgFileIcon(nameLink, fName, info));
 				}
 			}
 			if(Images_.progressId) {
@@ -5013,7 +5013,7 @@ function loadDocFiles(imgOnly) {
 			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
 			var scriptStr, localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
 			if(nav.isES6) {
-				scriptStr = '(' + String(de_main_func_inner) + ')(null, null, window.scrollTo.bind(window), ' + localData + ');';
+				scriptStr = '(' + String(de_main_func_inner) + ')(null, null, (x, y) => window.scrollTo(x, y), ' + localData + ');';
 			} else {
 				scriptStr = '(' + String(de_main_func_outer) + ')(' + localData + ');';
 			}
@@ -6774,7 +6774,7 @@ SpellsInterpreter.prototype = {
 				var val = this._runSpell(type, scope[i][1]);
 				if(val instanceof Promise) {
 					this._ctx.push(len, scope, ++i, isNegScope);
-					return val.then(this._asyncContinue.bind(this));
+					return val.then(v => this._asyncContinue(v));
 				}
 				[rv, stopCheck] = this._checkRes(scope[i], val, isNegScope);
 				if(!stopCheck) {
@@ -7172,8 +7172,8 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	this.pArea = [$bBegin(DelForm.first.el, html),
 	              $aEnd(aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el, html)];
 	this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
-	this._pBtn[0].firstElementChild.onclick = this.showMainReply.bind(this, false);
-	this._pBtn[1].firstElementChild.onclick = this.showMainReply.bind(this, true);
+	this._pBtn[0].firstElementChild.onclick = () => this.showMainReply(false);
+	this._pBtn[1].firstElementChild.onclick = () => this.showMainReply(true);
 	this.qArea = $add('<div style="display: none; ' + Cfg.replyWinX + '; ' + Cfg.replyWinY +
 		'; z-index: ' + (++topWinZ) + ';" id="de-win-reply" class="' + aib.cReply +
 		(Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost') + '"></div>');
@@ -7208,7 +7208,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 			this.txta.focus();
 		}
 	};
-	el.lastElementChild.onclick = this.closeReply.bind(this);
+	el.lastElementChild.onclick = () => this.closeReply(this);
 	if(!this.form || !this.txta) {
 		return;
 	}
@@ -8841,7 +8841,7 @@ AttachmentViewer.prototype = {
 	_minSize: 0,
 	_moved: false,
 	get _btns() {
-		var val = new ImgBtnsShowHider(this.navigate.bind(this, true), this.navigate.bind(this, false));
+		var val = new ImgBtnsShowHider(() => this.navigate(true), () => this.navigate(false));
 		Object.defineProperty(this, '_btns', { value: val });
 		return val;
 	},
@@ -9329,7 +9329,7 @@ var ImagesHashStorage = Object.create({
 		}
 	},
 	get getHash() {
-		var val = this._getHashHelper.bind(this);
+		var val = () => this._getHashHelper(this);
 		Object.defineProperty(this, 'getHash', { value: val });
 		return val;
 	},
@@ -12411,11 +12411,11 @@ function initNavFuncs() {
 		},
 		get matchesSelector() {
 			const dE = doc.documentElement;
-			const val = Function.prototype.call.bind(
-				dE.matches || dE.mozMatchesSelector ||
-				dE.webkitMatchesSelector || dE.oMatchesSelector);
-			Object.defineProperty(this, 'matchesSelector', { value: val });
-			return val;
+			const func = dE.matches || dE.mozMatchesSelector ||
+				dE.webkitMatchesSelector || dE.oMatchesSelector;
+			const value = (el, sel) => func.call(el, sel);
+			Object.defineProperty(this, 'matchesSelector', { value });
+			return value;
 		},
 		// See https://github.com/greasemonkey/greasemonkey/issues/2034 for more info
 		getUnsafeUint8Array(data, i, len) {
@@ -12826,11 +12826,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB'];
 		}
-		get _hasNames() { // Makaba hack. Sets here only
-			var val = !!$q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]');
-			Object.defineProperty(this, '_hasNames', { value: val });
-			return val;
-		}
 		fixFileInputs(el) {
 			var str = '';
 			for(var i = 0; i < 8; ++i) {
@@ -12868,7 +12863,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el.parentNode;
 		}
 		getSage(post) {
-			if(this._hasNames) {
+			if($q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]')) {
 				this.getSage = function(post) {
 					var name = $q(this.qPostName, post);
 					return name ? name.childElementCount === 0 && !$q('.ophui', post) : false;
@@ -13659,26 +13654,28 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get updateCaptcha() {
 			const tr = $id('captchaFormPart');
-			const value = !tr ? null : function(el) {
-				if(!Cfg.cap4chanAlt) {
-					$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
+			let value;
+			if(tr) {
+				value = function() {
+					if(!Cfg.cap4chanAlt) {
+						$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
+						el.click();
+						return null;
+					}
+					const container = $id('qrCaptchaContainerAlt');
+					if(container) {
+						container.click();
+						return null;
+					}
+					$replace($id('g-recaptcha'), '<div id="qrCaptchaContainerAlt"></div>');
 					el.click();
+					tr.setAttribute('onclick', 'if(event.target.tagName !== \'INPUT\') { Recaptcha.reload(); }');
+					setTimeout(() => $id('recaptcha_response_field').tabIndex = 5, 3e3);
 					return null;
 				}
-				const container = $id('qrCaptchaContainerAlt');
-				if(container) {
-					container.click();
-					return null;
-				}
-				$replace($id('g-recaptcha'), '<div id="qrCaptchaContainerAlt"></div>');
-				el.click();
-				this.setAttribute('onclick', 'if(event.target.tagName !== \'INPUT\') { Recaptcha.reload(); }');
-				setTimeout(function() {
-					$id('recaptcha_response_field').tabIndex = 5;
-				}, 3e3);
-				return null;
-			}.bind(tr, $bEnd(docBody, `<div onclick="${
-				Cfg.cap4chanAlt ? 'QR.initCaptchaAlt();' : 'initRecaptcha();'}"></div>`));
+			} else {
+				value = null;
+			}
 			Object.defineProperty(this, 'updateCaptcha', { value });
 			return value;
 		}
@@ -15931,7 +15928,10 @@ function* runMain(checkDomains, cfgPromise) {
 		initNavFuncs();
 	}
 	const str = yield* getStored('DESU_Exclude');
-	if(str && str.includes(aib.dm)) {
+	if(str == null) {
+		// Greasemonkey very slow reads undefined values so store here an empty string
+		setStored('DESU_Exclude', '');
+	} else if(str.includes(aib.dm)) {
 		return;
 	}
 	excludeList = str || '';
@@ -16062,7 +16062,7 @@ if(doc.readyState !== 'loading') {
 		needScroll = false;
 		doc.removeEventListener(e.type, wFunc);
 	});
-	doc.addEventListener('DOMContentLoaded', async(runMain.bind(null, false, cfgPromise)));
+	doc.addEventListener('DOMContentLoaded', async(() => runMain(false, cfgPromise)));
 }
 
-})(window.opera && window.opera.scriptStorage, window.FormData, window.scrollTo.bind(window), typeof localData === 'object' ? localData : null);
+})(window.opera && window.opera.scriptStorage, window.FormData, (x, y) => window.scrollTo(x, y), typeof localData === 'object' ? localData : null);
