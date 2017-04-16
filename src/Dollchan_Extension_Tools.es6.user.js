@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = 'dc82c29';
+const commit = '3f68278';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -555,11 +555,11 @@ const Lng = {
 	thrPage:        ['Тред на @странице', 'Thread on @page'],
 	hiddenPosts:    ['Скрытые посты', 'Hidden posts'],
 	onPage:         [' на странице', ' on the page'],
-	hidPstThrds:    ['Скрытые посты и треды', 'Hidden posts and threads'],
+	hidPostThr:     ['Скрытые посты и треды', 'Hidden posts and threads'],
 	myPosts:        ['Мои посты', 'My posts'],
-	noHidThrds:     ['Нет скрытых тредов...', 'No hidden threads...'],
+	noHidThr:       ['Нет скрытых тредов...', 'No hidden threads...'],
 	invalidData:    ['Некорректный формат данных', 'Incorrect data format'],
-	noFavThrds:     ['Нет избранных тредов...', 'Favorites is empty...'],
+	noFavThr:       ['Нет избранных тредов...', 'Favorites is empty...'],
 	noVideoLinks:   ['Нет ссылок на видео...', 'No video links...'],
 	hideLnkList:    ['Скрыть/Показать список ссылок', 'Hide/Unhide list of links'],
 	prevVideo:      ['Предыдущее видео', 'Previous video'],
@@ -573,12 +573,12 @@ const Lng = {
 	postsOmitted:   ['Пропущено ответов: ', 'Posts omitted: '],
 	showPosts:      ['Показать посты', 'Show posts'],
 	hidePosts:      ['Скрыть посты', 'Hide posts'],
-	collapseThrd:   ['Свернуть тред', 'Collapse thread'],
+	collapseThr:    ['Свернуть тред', 'Collapse thread'],
 	deleted:        ['удалён', 'deleted'],
 	getNewPosts:    ['Получить новые посты', 'Get new posts'],
 	page:           ['Страница', 'Page'],
-	hiddenThrd:     ['Скрытый тред', 'Hidden thread'],
-	makeThrd:       ['Создать тред', 'Create thread'],
+	hiddenThr:      ['Скрытый тред', 'Hidden thread'],
+	makeThr:        ['Создать тред', 'Create thread'],
 	makeReply:      ['Ответить', 'Make reply'],
 	noSage:         ['Без сажи', 'No sage'],
 	hideForm:       ['Скрыть форму', 'Hide form'],
@@ -605,7 +605,7 @@ const Lng = {
 	prevImg:        ['Предыдущая картинка', 'Previous image'],
 	togglePost:     ['Скрыть/Раскрыть пост', 'Hide/Unhide post'],
 	replyToPost:    ['Ответить на пост', 'Reply to post'],
-	expandThrd:     ['Развернуть тред', 'Expand thread'],
+	expandThr:      ['Развернуть тред', 'Expand thread'],
 	addFav:         ['Добавить тред в Избранное', 'Add thread to Favorites'],
 	delFav:         ['Убрать тред из Избранного', 'Remove thread from Favorites'],
 	attachPview:    ['Закрепить превью', 'Attach preview'],
@@ -630,12 +630,12 @@ const Lng = {
 	],
 	seRow:          [' (строка ', ' (row '],
 	seCol:          [', столбец ', ', column '],
-	sendingPost:	['Отправка поста...', 'Sending post...'],
-	sizeByte:		[' Байт', ' Byte'],
-	sizeKByte:		[' КБ', ' KB'],
-	sizeMByte:		[' МБ', ' MB'],
-	sizeGByte:		[' ГБ', ' GB'],
-	second:			['с', 's']
+	sendingPost:    ['Отправка поста...', 'Sending post...'],
+	sizeByte:       [' Байт', ' Byte'],
+	sizeKByte:      [' КБ', ' KB'],
+	sizeMByte:      [' МБ', ' MB'],
+	sizeGByte:      [' ГБ', ' GB'],
+	second:         ['с', 's']
 };
 
 const doc = window.document, emptyFn = Function.prototype, aProto = Array.prototype;
@@ -2576,13 +2576,13 @@ function showHiddenWindow(body) {
 			for(let tNum in hThr[b]) {
 				$bEnd(block, `<div class="de-entry ${ aib.cReply }" info="${ b + ';' + tNum }">
 					<input type="checkbox">
-					<a href="${ aib.getThrdUrl(b, tNum) }" target="_blank">${ tNum }</a>
+					<a href="${ aib.getThrUrl(b, tNum) }" target="_blank">${ tNum }</a>
 					<div class="de-entry-title">- ${ hThr[b][tNum][2] }</div>
 				</div>`);
 			}
 		}
 	}
-	$bEnd(body, hasThreads ? '<hr>' : '<center><b>' + Lng.noHidThrds[lang] + '</b></center><hr>');
+	$bEnd(body, hasThreads ? '<hr>' : '<center><b>' + Lng.noHidThr[lang] + '</b></center><hr>');
 
 	// "Edit" button. Calls a popup with editor to edit Hidden in JSON.
 	body.appendChild(getEditButton('hidden', fn => fn(HiddenThreads.getRawData(), true, data => {
@@ -2597,7 +2597,7 @@ function showHiddenWindow(body) {
 		for(let i = 0, els = $Q('.de-entry[info]', this.parentNode), len = els.length; i < len; ++i) {
 			const [b, tNum] = els[i].getAttribute('info').split(';');
 			try {
-				yield $ajax(aib.getThrdUrl(b, tNum));
+				yield $ajax(aib.getThrUrl(b, tNum));
 			} catch(e) {
 				if(e.code === 404) {
 					HiddenThreads.remove(tNum, b); // Remove thread from threads storage
@@ -2762,7 +2762,7 @@ function showFavoritesWindow(body, data) {
 			}
 		});
 	} else {
-		$bEnd(body, '<center><b>' + Lng.noFavThrds[lang] + '</b></center>');
+		$bEnd(body, '<center><b>' + Lng.noFavThr[lang] + '</b></center>');
 	}
 
 	let div = $bEnd(body, '<hr><div id="de-fav-buttons"></div>');
@@ -2803,9 +2803,9 @@ function showFavoritesWindow(body, data) {
 			let form, isArchived;
 			try {
 				if(!aib.iichan) {
-					form = yield ajaxLoad(aib.getThrdUrl(b, num));
+					form = yield ajaxLoad(aib.getThrUrl(b, num));
 				} else {
-					[form, isArchived] = yield ajaxLoad(aib.getThrdUrl(b, num), true, false, aib.iichan);
+					[form, isArchived] = yield ajaxLoad(aib.getThrUrl(b, num), true, false, aib.iichan);
 				}
 				last404 = false;
 			} catch(e) {
@@ -3104,7 +3104,7 @@ const cfgWindow = Object.create({
 					Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + this._getList([
 					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
 					Lng.panelBtn.fav[lang],
-					Lng.hidPstThrds[lang] + ' (' + aib.dm + ')',
+					Lng.hidPostThr[lang] + ' (' + aib.dm + ')',
 					Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>');
 
 			// Import data from a file to the storage
@@ -3205,7 +3205,7 @@ const cfgWindow = Object.create({
 			'cfg-reset',
 			`<b>${ Lng.resetData[lang] }:</b><hr>` +
 			`<div class="de-list"><b>${ aib.dm }:</b>${
-				this._getList([Lng.panelBtn.cfg[lang], Lng.hidPstThrds[lang], Lng.myPosts[lang]])
+				this._getList([Lng.panelBtn.cfg[lang], Lng.hidPostThr[lang], Lng.myPosts[lang]])
 			}</div><hr>` +
 			`<div class="de-list"><b>${ Lng.allDomains[lang] }:</b>${
 				this._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]])
@@ -4338,9 +4338,9 @@ var HotKeys = {
 					post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 					if(post) {
 						if(typeof GM_openInTab === 'function') {
-							GM_openInTab(aib.getThrdUrl(aib.b, post.tNum), false, true);
+							GM_openInTab(aib.getThrUrl(aib.b, post.tNum), false, true);
 						} else {
-							window.open(aib.getThrdUrl(aib.b, post.tNum), '_blank');
+							window.open(aib.getThrUrl(aib.b, post.tNum), '_blank');
 						}
 					}
 					break;
@@ -5663,9 +5663,9 @@ function ajaxPostsLoad(brd, tNum, useCache) {
 		}, e => e.code === 304 ? null : CancelablePromise.reject(e));
 	}
 	return aib.iichan ?
-		ajaxLoad(aib.getThrdUrl(brd, tNum), true, useCache, true)
+		ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache, true)
 			.then(data => data && data[0] ? new DOMPostsBuilder(data[0], data[1]) : null) :
-		ajaxLoad(aib.getThrdUrl(brd, tNum), true, useCache)
+		ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache)
 			.then(form => form ? new DOMPostsBuilder(form) : null);
 }
 
@@ -7127,7 +7127,7 @@ SpellsInterpreter.prototype = {
 function PostForm(form, oeForm = null, ignoreForm = false) {
 	if(!ignoreForm && !form) {
 		if(this.oeForm) {
-			ajaxLoad(aib.getThrdUrl(aib.b, Thread.first.num), false).then(loadedDoc => {
+			ajaxLoad(aib.getThrUrl(aib.b, Thread.first.num), false).then(loadedDoc => {
 				var form = $q(aib.qForm, loadedDoc),
 					oeForm = $q('form[name="oeform"], form[action*="paint"]', loadedDoc);
 				pr = new PostForm(form && doc.adoptNode(form), oeForm && doc.adoptNode(oeForm), true);
@@ -8307,11 +8307,11 @@ function checkUpload(data) {
 	saveCfgObj(aib.dm, Cfg);
 	if(!tNum) {
 		if(postNum) {
-			window.location = aib.getThrdUrl(aib.b, postNum);
+			window.location = aib.getThrUrl(aib.b, postNum);
 		} else if(isDocument) {
 			const dForm = $q(aib.qDForm, data);
 			if(dForm) {
-				window.location = aib.getThrdUrl(aib.b, aib.getTNum(dForm));
+				window.location = aib.getThrUrl(aib.b, aib.getTNum(dForm));
 			}
 		}
 		return;
@@ -9631,7 +9631,7 @@ class AbstractPost {
 			}
 			return;
 		case 'de-btn-expthr':
-			this.btns.title = Lng.expandThrd[lang];
+			this.btns.title = Lng.expandThr[lang];
 			if(!(this instanceof Pview)) {
 				this._addMenu(el, isOutEvent, $join(Lng.selExpandThr[lang],
 					'<span class="de-menu-item" info="thr-exp">', '</span>'));
@@ -9742,7 +9742,7 @@ class AbstractPost {
 		if(!isInit) {
 			$popup('load-fullmsg', Lng.loading[lang], true);
 		}
-		ajaxLoad(aib.getThrdUrl(aib.b, this.tNum)).then(form => {
+		ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(form => {
 			var maybeSpells = new Maybe(SpellsRunner);
 			if(this.isOp) {
 				this.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, form))), maybeSpells.value);
@@ -10289,7 +10289,7 @@ Post.note = class PostNote {
 		}
 		// Create a stub before the thread, that also hides thread by CSS
 		this._noteEl = $bBegin(post.thr.el, `<div class="${ aib.cReply } de-thr-hid" id="de-thr-hid-${
-			post.num }">${ Lng.hiddenThrd[lang] }: <a href="#">№${ post.num }</a>
+			post.num }">${ Lng.hiddenThr[lang] }: <a href="#">№${ post.num }</a>
 			<span class="de-thread-note"></span>
 		</div>`);
 		this._aEl = $q('a', this._noteEl);
@@ -10713,7 +10713,7 @@ class Pview extends AbstractPost {
 		if(post && (aib.b !== this._brd || !post.ref.hasMap || !post.ref.has(parentNum))) {
 			(post.ref.hasMap ? $q('.de-refmap', post.el) : $aEnd(post.msg, '<div class="de-refmap"></div>'))
 				.insertAdjacentHTML('afterbegin', '<a class="de-link-ref" href="' +
-					aib.getThrdUrl(this._brd, this.parent.tNum) + aib.anchor +
+					aib.getThrUrl(this._brd, this.parent.tNum) + aib.anchor +
 					parentNum + '">&gt;&gt;' + (aib.b === this._brd ? '' : '/' + aib.b + '/') +
 					parentNum + '</a><span class="de-refcomma">, </span>');
 		}
@@ -10907,7 +10907,7 @@ class PviewsCache extends TemporaryContent {
 		pBn.set(tNum, this._opObj = new CacheItem(aib.getOp(thr), 0));
 		this._b = b;
 		this._tNum = tNum;
-		this._tUrl = aib.getThrdUrl(b, tNum);
+		this._tUrl = aib.getThrUrl(b, tNum);
 		this._posts = pBn;
 		if(Cfg.linksNavig === 2) {
 			RefMap.gen(pBn, this._tUrl);
@@ -11542,7 +11542,7 @@ class MakabaPostsBuilder {
 						`<div id="like-div${ num }" class="like-div">
 							<span class="like-icon"><i class="fa fa-bolt"></i></span>
 							<span class="like-caption">Двачую</span>
-					<span id="like-count${ num }" class="like-count">${ data.likes || '' }</span>
+							<span id="like-count${ num }" class="like-count">${ data.likes || '' }</span>
 						</div>
 						<div id="dislike-div${ num }" class="dislike-div">
 							<span class="dislike-icon"><i class="fa fa-thumbs-down"></i></span>
@@ -11824,7 +11824,7 @@ class Thread {
 					'new': 0,
 					'you': 0,
 					'txt': this.op.title,
-					'url': aib.getThrdUrl(b, num),
+					'url': aib.getThrUrl(b, num),
 					'last': aib.anchor + this.last.num,
 					'type': type
 				};
@@ -12030,7 +12030,7 @@ class Thread {
 		}
 		if(!$q('.de-thread-collapse', btn)) {
 			$bEnd(btn, '<span class="de-thread-collapse"> [<a class="de-abtn" href="' +
-				aib.getThrdUrl(aib.b, this.thrId) + '"></a>]</span>'
+				aib.getThrUrl(aib.b, this.thrId) + '"></a>]</span>'
 			).onclick = e => {
 				$pd(e);
 				this.loadPosts(visPosts, true);
@@ -12733,7 +12733,7 @@ class BaseBoard {
 		var a = $q('a[href^="mailto:"], a[href="sage"]', post);
 		return !!a && /sage/i.test(a.href);
 	}
-	getThrdUrl(b, tNum) { // Differs Arhivach only
+	getThrUrl(b, tNum) { // Differs Arhivach only
 		return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
 	}
 	getTNum(op) {
@@ -13655,9 +13655,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			return ['', '', '', '', '[spoiler'];
 		}
 		get updateCaptcha() {
+			let value = null;
 			const tr = $id('captchaFormPart');
-			let value;
 			if(tr) {
+				const el = $bEnd(docBody, `<div onclick="${
+					Cfg.cap4chanAlt ? 'QR.initCaptchaAlt();' : 'initRecaptcha();'}"></div>`);
 				value = function() {
 					if(!Cfg.cap4chanAlt) {
 						$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
@@ -13671,12 +13673,10 @@ function getImageBoard(checkDomains, checkEngines) {
 					}
 					$replace($id('g-recaptcha'), '<div id="qrCaptchaContainerAlt"></div>');
 					el.click();
-					tr.setAttribute('onclick', 'if(event.target.tagName !== \'INPUT\') { Recaptcha.reload(); }');
+					tr.setAttribute('onclick', "if(event.target.tagName !== 'INPUT') { Recaptcha.reload(); }");
 					setTimeout(() => $id('recaptcha_response_field').tabIndex = 5, 3e3);
 					return null;
 				}
-			} else {
-				value = null;
 			}
 			Object.defineProperty(this, 'updateCaptcha', { value });
 			return value;
@@ -13868,7 +13868,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSage(post) {
 			return !!$q('.poster_sage', post);
 		}
-		getThrdUrl(b, tNum) {
+		getThrUrl(b, tNum) {
 			return $q('link[rel="canonical"]', doc.head).href;
 		}
 		getTNum(el) {
@@ -15753,7 +15753,7 @@ function scriptCSS() {
 	`#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ${ nav.Presto ? '-2px -10px' : '0 0 1px -10px' }; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }
 	.de-parea { text-align: center; }
 	.de-parea-btn-close::after { content: "${ Lng.hideForm[lang] }"; }
-	.de-parea-btn-thr::after { content: "${ Lng.makeThrd[lang] }"; }
+	.de-parea-btn-thr::after { content: "${ Lng.makeThr[lang] }"; }
 	.de-parea-btn-reply::after { content: "${ Lng.makeReply[lang] }"; }
 	#de-pform > form { padding: 0; margin: 0; border: none; }
 	#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }
@@ -15836,7 +15836,7 @@ function scriptCSS() {
 	.de-replies-hide::after { content: "${ Lng.hidePosts[lang] }"; }
 	.de-replies-show::after { content: "${ Lng.showPosts[lang] }"; }
 	.de-thread-buttons { clear: left; margin-top: 5px; }
-	.de-thread-collapse > a::after { content: "${ Lng.collapseThrd[lang] }"; }
+	.de-thread-collapse > a::after { content: "${ Lng.collapseThr[lang] }"; }
 	.de-thread-updater > a::after { content: "${ Lng.getNewPosts[lang] }"; }
 	#de-updater-count::before { content: ": "; }
 	.de-viewed { color: #747488 !important; }
