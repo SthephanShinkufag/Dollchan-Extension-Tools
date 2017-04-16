@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '341d62d';
+	var commit = 'dc82c29';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3421,7 +3421,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		willSavePview: ['Будет сохранено превью', 'Thumbnail will be saved'],
 		loadErrors: ['Во время загрузки произошли ошибки:', 'An error occurred during the loading:'],
 		errCorruptData: ['Ошибка: сервер отправил повреждённые данные', 'Error: server sent corrupted data'],
-		errMsEdgeWebm: ['Загрузите приложение для воспроизведения webm-файлов', 'Please load app to play webm files'],
+		errMsEdgeWebm: ['Загрузите скрипт для воспроизведения webm (VP9/Opus)', 'Please load a script to play webm (VP9/Opus)'],
 		expImgInline: ['[Click] открыть в посте, [Ctrl+Click] в центре', '[Click] expand in post, [Ctrl+Click] by center'],
 		expImgFull: ['[Click] открыть в центре, [Ctrl+Click] в посте', '[Click] expand by center, [Ctrl+Click] in post'],
 		nextImg: ['Следующая картинка', 'Next image'],
@@ -13237,7 +13237,8 @@ true, true],
 				});
 				var isWebm = src.split('.').pop() === 'webm';
 				if (nav.MsEdge && isWebm && !DollchanAPI.hasListener('expandmedia')) {
-					$popup('err-expandmedia', Lng.errMsEdgeWebm[lang], false);
+					var href = 'https://github.com/Kagami/webmify/';
+					$popup('err-expandmedia', Lng.errMsEdgeWebm[lang] + (':\n<a href="' + href + '" target="_blank">' + href + '</a>'), false);
 				}
 				if (isWebm && Cfg.webmTitles) {
 					this._webmTitleLoad = downloadImgData(obj.src, false).then(function (data) {

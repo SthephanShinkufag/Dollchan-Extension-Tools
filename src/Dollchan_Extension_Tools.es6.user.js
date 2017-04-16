@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '341d62d';
+const commit = 'dc82c29';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -598,7 +598,7 @@ const Lng = {
 	willSavePview:  ['Будет сохранено превью', 'Thumbnail will be saved'],
 	loadErrors:     ['Во время загрузки произошли ошибки:', 'An error occurred during the loading:'],
 	errCorruptData: ['Ошибка: сервер отправил повреждённые данные', 'Error: server sent corrupted data'],
-	errMsEdgeWebm:  ['Загрузите приложение для воспроизведения webm-файлов', 'Please load app to play webm files'],
+	errMsEdgeWebm:  ['Загрузите скрипт для воспроизведения webm (VP9/Opus)', 'Please load a script to play webm (VP9/Opus)'],
 	expImgInline:   ['[Click] открыть в посте, [Ctrl+Click] в центре', '[Click] expand in post, [Ctrl+Click] by center'],
 	expImgFull:     ['[Click] открыть в центре, [Ctrl+Click] в посте', '[Click] expand by center, [Ctrl+Click] in post'],
 	nextImg:        ['Следующая картинка', 'Next image'],
@@ -9198,7 +9198,9 @@ class ExpandableMedia {
 		// MS Edge needs an external app with DollchanAPI to play webms
 		const isWebm = src.split('.').pop() === 'webm';
 		if(nav.MsEdge && isWebm && !DollchanAPI.hasListener('expandmedia')) {
-			$popup('err-expandmedia', Lng.errMsEdgeWebm[lang], false);
+			const href = 'https://github.com/Kagami/webmify/';
+			$popup('err-expandmedia', Lng.errMsEdgeWebm[lang] +
+				`:\n<a href="${ href }" target="_blank">${ href }</a>`, false);
 		}
 		// Get webm title: load file and parse its metadata
 		if(isWebm && Cfg.webmTitles) {
