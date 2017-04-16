@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = 'fb21195';
+const commit = '17c5129';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -914,7 +914,7 @@ function async(generatorFunc) {
 			try {
 				result = generator[verb](arg);
 			} catch (err) {
-				console.log('Generator throw: ', err);
+				console.error('Generator throw:', err);
 				return Promise.reject(err);
 			}
 			return result.done ? result.value : Promise.resolve(result.value).then(onFulfilled, onRejected);
@@ -4348,11 +4348,11 @@ var HotKeys = {
 					post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 					if(post) {
 						if(post.thr.loadCount !== 0 && post.thr.op.next.count === 1) {
-							var nextThr = post.thr.nextNotHidden;
-							post.thr.load(visPosts, !!nextThr);
+							const nextThr = post.thr.nextNotHidden;
+							post.thr.loadPosts(visPosts, !!nextThr);
 							post = (nextThr || post.thr).op;
 						} else {
-							post.thr.load('all', false);
+							post.thr.loadPosts('all');
 							post = post.thr.op;
 						}
 						scrollTo(window.pageXOffset, window.pageYOffset + post.top);
@@ -4876,7 +4876,7 @@ function preloadImages(data) {
 		var cImg = 1,
 			mReqs = isPost ? 1 : 4,
 			rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile, function(e) {
-				console.error('FILE DETECTOR ERROR, line: ' + e.lineno + ' - ' + e.message);
+				console.error('File detector error:', `line: ${ e.lineno } - ${ e.message }`);
 			});
 		pool = new TasksPool(mReqs, (num, data) => downloadImgData(data[0]).then(imageData => {
 			var [url, imgLink, iType, nExp, el] = data;
@@ -5656,7 +5656,7 @@ function ajaxPostsLoad(brd, tNum, useCache) {
 				if(e instanceof AjaxError) {
 					return CancelablePromise.reject(e);
 				}
-				console.warn(`API Error ${ e }. Switching to DOM parsing.`);
+				console.warn(`API error: ${ e }. Switching to DOM parsing!`);
 				aib.jsonBuilder = null;
 				return ajaxPostsLoad(brd, tNum, useCache);
 			}
@@ -7490,25 +7490,11 @@ PostForm.prototype = {
 		return this.pForm.getBoundingClientRect().top;
 	},
 	showQuickReply(post, pNum, closeReply, isNumClick) {
-		var temp, isThr = aib.t,
-			qNum = post.tNum;
 		if(!this.isQuick) {
 			this.isQuick = true;
 			this.setReply(true, false);
 			$q('a', this._pBtn[+this.isBottom]).className =
-				'de-abtn de-parea-btn-' + (isThr ? 'reply' : 'thrd');
-			if(!isThr && !aib.kus && !aib.dobr && !aib.mak) {
-				if(this.oeForm) {
-					$del($q('input[name="oek_parent"]', this.oeForm));
-					this.oeForm.insertAdjacentHTML('afterbegin',
-						'<input type="hidden" value="' + qNum + '" name="oek_parent">');
-				}
-				if(this.form) {
-					$del($q('input[name="' + aib.thrid + '"]', this.form));
-					this.form.insertAdjacentHTML('afterbegin',
-						'<input type="hidden" id="de-thrid" value="' + qNum + '" name="' + aib.thrid + '">');
-				}
-			}
+				'de-abtn de-parea-btn-' + (aib.t ? 'reply' : 'thr');
 		} else if(closeReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
 			this.closeReply();
 			return;
@@ -7517,19 +7503,20 @@ PostForm.prototype = {
 		if(this.qArea.classList.contains('de-win')) {
 			updateWinZ(this.qArea.style);
 		}
-		if(!isThr) {
+		const qNum = post.thr.num;
+		if(!aib.t) {
 			this._toggleQuickReply(qNum);
 		}
 		if(!this.form) {
 			return;
 		}
-		if(!isThr && this.tNum !== qNum) {
+		if(!aib.t && this.tNum !== qNum) {
 			this.tNum = qNum;
 			this.refreshCapImg(false);
 		}
 		this.tNum = qNum;
-		temp = this.txta.value;
-		if(!Cfg.addOPLink && !isThr && post.isOp && !isNumClick) {
+		let temp = this.txta.value;
+		if(!Cfg.addOPLink && !aib.t && post.isOp && !isNumClick) {
 			this.txta.focus();
 		} else {
 			var isOnNewLine = temp === '' || temp.slice(-1) === '\n';
@@ -7570,8 +7557,7 @@ PostForm.prototype = {
 			this.isQuick = false;
 			this.lastQuickPNum = -1;
 			if(!aib.t) {
-				this._toggleQuickReply(0);
-				$del($id('de-thrid'));
+				this._toggleQuickReply(false);
 			}
 			this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 		}
@@ -7604,7 +7590,7 @@ PostForm.prototype = {
 	},
 	updatePAreaBtns() {
 		var txt = 'de-abtn de-parea-btn-',
-			rep = aib.t ? 'reply' : 'thrd';
+			rep = aib.t ? 'reply' : 'thr';
 		$q('a', this._pBtn[+this.isBottom]).className = txt + (!this.pForm.style.display ? 'close' : rep);
 		$q('a', this._pBtn[+!this.isBottom]).className = txt + rep;
 	},
@@ -7623,10 +7609,14 @@ PostForm.prototype = {
 	},
 	_toggleQuickReply(tNum) {
 		if(this.oeForm) {
-			$q('input[name="oek_parent"], input[name="replyto"]', this.oeForm).value = tNum;
+			$del($q('input[name="oek_parent"]', this.oeForm));
+			if(tNum) {
+				this.oeForm.insertAdjacentHTML('afterbegin',
+					'<input type="hidden" value="' + qNum + '" name="oek_parent">');
+			}
 		}
 		if(this.form) {
-			if(aib.brchan) {
+			if(aib.tiny) {
 				if(tNum) {
 					$del($q('input[name="page"]', this.form));
 				} else if(!$q('input[name="page"]', this.form)) {
@@ -7634,7 +7624,11 @@ PostForm.prototype = {
 						'<input name="page" value="1" type="hidden">');
 				}
 			}
-			$q('#de-thrid, input[name*="thread"]', this.form).value = tNum;
+			$del($q(`input[name="${ aib.formParent }"]`, this.form));
+			if(tNum) {
+				this.form.insertAdjacentHTML('afterbegin',
+					`<input type="hidden" name="${ aib.formParent }" value="${ tNum }">`);
+			}
 		}
 	},
 	_setPlaceholder(val) {
@@ -8301,16 +8295,17 @@ function checkUpload(data) {
 		updater.continue();
 		return;
 	}
+	const tNum = pr.tNum;
 	if((Cfg.markMyPosts || Cfg.markMyLinks) && postNum) {
-		MyPosts.set(postNum, pr.tNum || postNum);
+		MyPosts.set(postNum, tNum || postNum);
 	}
-	if(Cfg.favOnReply && pr.tNum && !$q('.de-btn-fav-sel', pByNum.get(pr.tNum).el)) {
-		pByNum.get(pr.tNum).thr.setFavorState(true, 'onreply');
+	if(Cfg.favOnReply && tNum && !$q('.de-btn-fav-sel', pByNum.get(tNum).el)) {
+		pByNum.get(tNum).thr.setFavorState(true, 'onreply');
 	}
 	pr.clearForm();
-	Cfg.stats[pr.tNum ? 'reply' : 'op']++;
+	Cfg.stats[tNum ? 'reply' : 'op']++;
 	saveCfgObj(aib.dm, Cfg);
-	if(!pr.tNum) {
+	if(!tNum) {
 		if(postNum) {
 			window.location = aib.getThrdUrl(aib.b, postNum);
 		} else if(isDocument) {
@@ -8323,7 +8318,7 @@ function checkUpload(data) {
 	}
 	if(aib.t) {
 		Post.clearMarks();
-		Thread.first.loadNew().then(() => AjaxError.Success, e => e).then(e => {
+		Thread.first.loadNewPosts().then(() => AjaxError.Success, e => e).then(e => {
 			infoLoadErrors(e);
 			if(Cfg.scrAfterRep) {
 				scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
@@ -8332,7 +8327,7 @@ function checkUpload(data) {
 			closePopup('upload');
 		});
 	} else {
-		pByNum.get(pr.tNum).thr.load(visPosts, false, false).then(() => closePopup('upload'));
+		pByNum.get(tNum).thr.loadPosts(visPosts, false, false).then(() => closePopup('upload'));
 	}
 	pr.closeReply();
 	pr.refreshCapImg(false);
@@ -8358,13 +8353,13 @@ var checkDelete = async(function* (data) {
 	if(isThr) {
 		Post.clearMarks();
 		try {
-			yield Thread.first.loadNew();
+			yield Thread.first.loadNewPosts();
 		} catch(e) {
 			infoLoadErrors(e);
 		}
 	} else {
 		for(var thr of threads) {
-			yield thr.load(visPosts, false, false);
+			yield thr.loadPosts(visPosts, false, false);
 		}
 	}
 	$popup('delete', Lng.succDeleted[lang]);
@@ -8903,7 +8898,7 @@ AttachmentViewer.prototype = {
 		obj.addEventListener('onwheel' in obj ? 'wheel' : 'mousewheel', this, true);
 		obj.addEventListener('mousedown', this, true);
 		obj.addEventListener('click', this, true);
-		if(data.inPview && !data.post.sticky) {
+		if(data.inPview && !data.post.isSticky) {
 			this.data.post.setSticky(true);
 		}
 		if(!data.inPview) {
@@ -8916,7 +8911,7 @@ AttachmentViewer.prototype = {
 	_remove(e) {
 		const data = this.data;
 		data.cancelWebmLoad(this._fullEl);
-		if(data.inPview && data.post.sticky) {
+		if(data.inPview && data.post.isSticky) {
 			data.post.setSticky(false);
 		}
 		$del(this._obj);
@@ -9585,7 +9580,7 @@ class AbstractPost {
 			}
 			switch(el.classList[0]) {
 			case 'de-btn-expthr':
-				this.thr.load('all', false);
+				this.thr.loadPosts('all');
 				return;
 			case 'de-btn-fav': this.thr.setFavorState(true, 'user'); return;
 			case 'de-btn-fav-sel': this.thr.setFavorState(false, 'user'); return;
@@ -9908,7 +9903,7 @@ class Post extends AbstractPost {
 		return new Post.content(this).title;
 	}
 	get tNum() {
-		return this.thr.num;
+		return this.thr.thrId;
 	}
 	get top() {
 		return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el)
@@ -10192,7 +10187,7 @@ class Post extends AbstractPost {
 			return;
 		case 'thr-exp':
 			var task = parseInt(el.textContent.match(/\d+/), 10);
-			this.thr.load(!task ? 'all' : task === 10 ? 'more' : task, false);
+			this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
 		}
 	}
 	_strikePostNum(isHide) {
@@ -10273,7 +10268,7 @@ Post.content = class PostContent extends TemporaryContent {
 		return val;
 	}
 	get wrap() {
-		var val = aib.getWrap(this.el, this.post.isOp);
+		var val = aib.getPostWrap(this.el, this.post.isOp);
 		Object.defineProperty(this, 'wrap', { value: val });
 		return val;
 	}
@@ -10553,39 +10548,50 @@ class Pview extends AbstractPost {
 	}
 	constructor(parent, link, pNum, tNum) {
 		super(parent.thr, pNum, pNum === tNum);
+		this._isCached = false;
 		this._isLeft = false;
 		this._isTop = false;
 		this._link = link;
-		this._fromCache = false;
 		this._newPos = null;
 		this._offsetTop = 0;
 		this._readDelay = 0;
-		this.sticky = false;
+		this.isSticky = false;
 		this.parent = parent;
 		this.tNum = tNum;
-		var post = pByNum.get(pNum);
-		if(post && (!post.isOp || !(parent instanceof Pview) || !parent._fromCache)) {
+		let post = pByNum.get(pNum);
+		if(post && (!post.isOp || !(parent instanceof Pview) || !parent._isCached)) {
 			this._showPost(post);
 			return;
 		}
-		this._fromCache = true;
+		this._isCached = true;
 		this._brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
 		if(PviewsCache.has(this._brd + tNum)) {
-			this._loading = false;
 			post = PviewsCache.get(this._brd + tNum).getPost(pNum);
 			if(post) {
 				this._showPost(post);
 			} else {
-				this._showPview(this.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">' +
-					Lng.postNotFound[lang] + '</span></div>'));
+				this._showPview(this.el = $add(`<div class="${ aib.cReply } de-pview-info de-pview">
+					${ Lng.postNotFound[lang] }</div>`));
 			}
 			return;
 		}
-		this._loading = true;
-		this._showPview(this.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">' +
-			'<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
-		this._loadPromise = ajaxLoad(aib.getThrdUrl(this._brd, tNum))
-			.then(form => this._onload(form), e => this._onerror(e));
+		this._showPview(this.el = $add(`<div class="${ aib.cReply } de-pview-info de-pview">
+			<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`));
+
+		// Get post preview via ajax. Uses json if available.
+		this._loadPromise = ajaxPostsLoad(this._brd, tNum, false).then(
+			pBuilder => {
+				if(aib.jsonBuilder) {
+					const html = [];
+					for(let i = 0, len = pBuilder.length + 1; i < len; ++i) {
+						html.push(pBuilder.getPostHTML(i - 1)); // pBuilder.getPostHTML(-1) is oppost
+					}
+					this._onload($add(`<div>${ aib.fixHTML(html.join('')) }</div>`));
+				} else {
+					this._onload(pBuilder._form);
+				}
+			},
+			e => this._onerror(e));
 	}
 	get stickBtn() {
 		var value = $q('.de-btn-stick', this.el);
@@ -10598,8 +10604,9 @@ class Pview extends AbstractPost {
 		if(Pview.top === this) {
 			Pview.top = null;
 		}
-		if(this._loading) {
+		if(this._loadPromise) {
 			this._loadPromise.cancel();
+			this._loadPromise = null;
 		}
 		var vPost = Attachment.viewer && Attachment.viewer.data.post;
 		var pv = this;
@@ -10622,7 +10629,7 @@ class Pview extends AbstractPost {
 	deleteNonSticky() {
 		var lastSticky = null, pv = this;
 		do {
-			if(pv.sticky) {
+			if(pv.isSticky) {
 				lastSticky = pv;
 			}
 		} while((pv = pv.kid));
@@ -10675,7 +10682,7 @@ class Pview extends AbstractPost {
 	}
 	setSticky(val) {
 		this.stickBtn.setAttribute('class', val ? 'de-btn-stick-on' : 'de-btn-stick');
-		this.sticky = val;
+		this.isSticky = val;
 	}
 	setUserVisib() {
 		var post = pByNum.get(this.num);
@@ -10706,7 +10713,7 @@ class Pview extends AbstractPost {
 				.insertAdjacentHTML('afterbegin', '<a class="de-link-ref" href="' +
 					aib.getThrdUrl(this._brd, this.parent.tNum) + aib.anchor +
 					parentNum + '">&gt;&gt;' + (aib.b === this._brd ? '' : '/' + aib.b + '/') +
-					parentNum +	'</a><span class="de-refcomma">, </span>');
+					parentNum + '</a><span class="de-refcomma">, </span>');
 		}
 		if(post) {
 			this._showPost(post);
@@ -10890,7 +10897,7 @@ class PviewsCache extends TemporaryContent {
 		this._inited = true;
 		var pBn = new Map(),
 			thr = $q(aib.qThread, form) || form,
-			posts = $Q(aib.qRPost, thr);
+			posts = $Q(aib.qRPost + ', ' + aib.qOPost, thr);
 		for(var i = 0, len = posts.length; i < len; ++i) {
 			var post = posts[i];
 			pBn.set(aib.getPNum(post), new CacheItem(post, i + 1));
@@ -11142,7 +11149,6 @@ class DOMPostsBuilder {
 		this._posts = $Q(aib.qRPost, form);
 		this.length = this._posts.length;
 		this.postersCount = '';
-		this.hasHTML = false;
 		this._isArchived = isArchived;
 	}
 	get isClosed() {
@@ -11203,7 +11209,6 @@ class _4chanPostsBuilder {
 		this._brd = brd;
 		this.length = json.posts.length - 1;
 		this.postersCount = this._posts[0].unique_ips;
-		this.hasHTML = true;
 		if(this._posts[0].custom_spoiler) {
 			_4chanPostsBuilder._setCustomSpoiler(brd, this._posts[0].custom_spoiler);
 		}
@@ -11212,7 +11217,7 @@ class _4chanPostsBuilder {
 		return !!(this._posts[0].closed || this._posts[0].archived);
 	}
 	getOpMessage() {
-		let data = this._posts[0];
+		const data = this._posts[0];
 		return $add(aib.fixHTML(`<blockquote class="postMessage" id="m${ data.no }"> ${ data.com }</blockquote>`));
 	}
 	getPostEl(i) {
@@ -11222,11 +11227,10 @@ class _4chanPostsBuilder {
 		const data = this._posts[i + 1];
 		const num = data.no;
 		const brd = this._brd;
-
 		const _icon = id => `//s.4cdn.org/image/${ id }${ window.devicePixelRatio >= 2 ? '@2x.gif' : '.gif'}`;
 
 		// --- FILE ---
-		let fileHTML;
+		let fileHTML = '';
 		if(data.filedeleted) {
 			fileHTML = `<div id="f${ num }" class="file"><span class="fileThumb">
 				<img src="${ _icon('filedeleted-res') }" class="fileDeletedRes" alt="File deleted.">
@@ -11241,8 +11245,7 @@ class _4chanPostsBuilder {
 			const isSpoiler = data.spoiler && !Cfg.noSpoilers;
 			if(isSpoiler) {
 				name = 'Spoiler Image';
-				data.tn_w = 100;
-				data.tn_h = 100;
+				data.tn_w = data.tn_h = 100;
 				needTitle = false;
 			}
 			const size = prettifySize(data.fsize);
@@ -11262,8 +11265,6 @@ class _4chanPostsBuilder {
 					<div data-tip="" data-tip-cb="mShowFull" class="mFileInfo mobile">${ size } ${ data.ext.substr(1).toUpperCase() }</div>
 				</a>
 			</div>`;
-		} else {
-			fileHTML = '';
 		}
 
 		// --- CAPCODE ---
@@ -11299,11 +11300,11 @@ class _4chanPostsBuilder {
 			break;
 		}
 
-		let name = data.name || '';
+		const name = data.name || '';
 
-		let rv = `<div class="postContainer replyContainer" id="pc${ num }">
+		return `<div class="postContainer replyContainer" id="pc${ num }">
 			<div class="sideArrows" id="sa${ num }">&gt;&gt;</div>
-			<div id="p${ num }" class="post reply ${ highlight }">
+			<div id="p${ num }" class="post ${ i === -1 ? 'op' : 'reply' } ${ highlight }">
 				<div class="postInfoM mobile" id="pim${ num }">
 					<span class="nameBlock ${ capcodeClass }">
 						${ name.length > 30 ?
@@ -11337,10 +11338,9 @@ class _4chanPostsBuilder {
 					<span class="postNum desktop"><a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('${ num }');" title="Reply to this post">${ num }</a></span>
 				</div>
 				${ fileHTML }
-				<blockquote class="postMessage" id="m${ num }">${ data.com || '' }</blockquote>
+				<blockquote class="postMessage" id="m${ num }"> ${ data.com || '' }</blockquote>
 			</div>
 		</div>`;
-		return rv;
 	}
 	getPNum(i) {
 		return this._posts[i + 1].no;
@@ -11352,14 +11352,13 @@ _4chanPostsBuilder._customSpoiler = new Map();
 class DobrochanPostsBuilder {
 	constructor(json, brd) {
 		if(json.error) {
-			throw new AjaxError(0, `API ${ json.message }`);
+			throw new AjaxError(0, `API error: ${ json.error.message }`);
 		}
 		this._json = json.result;
 		this._brd = brd;
 		this._posts = json.result.threads[0].posts;
 		this.length = this._posts.length - 1;
 		this.postersCount = '';
-		this.hasHTML = true;
 	}
 	get isClosed() {
 		return !!this._json.threads[0].archived;
@@ -11378,10 +11377,11 @@ class DobrochanPostsBuilder {
 
 		let filesHTML = '';
 		for(let file of data.files) {
-			let fileName, fullFileName, ext = file.src.split('.').pop(),
-				thumb = file.thumb,
-				thumb_w = 200,
-				thumb_h = 200;
+			let fileName, fullFileName;
+			let thumb = file.thumb;
+			let thumb_w = 200;
+			let thumb_h = 200;
+			const ext = file.src.split('.').pop();
 			if(brd === 'b' || brd === 'rf') {
 				fileName = fullFileName = thumb.split('/').pop();
 			} else {
@@ -11426,9 +11426,12 @@ class DobrochanPostsBuilder {
 				return `${ pad2(dt.getDate()) } ${ Lng.fullMonth[1][dt.getMonth()]} ${ dt.getFullYear()
 					} (${ Lng.week[1][dt.getDay()] }) ${ pad2(dt.getHours()) }:${ pad2(dt.getMinutes()) }`;
 			});
-		let rv = `<table id="post_${ num }" class="replypost post"><tbody><tr>
+
+		const isOp = i === -1;
+		return `${ isOp ? `<div id="post_${ num }" class="oppost post">` :
+		`<table id="post_${ num }" class="replypost post"><tbody><tr>
 			<td class="doubledash">&gt;&gt;</td>
-			<td class="reply" id="reply${ num }">
+			<td class="reply" id="reply${ num }">` }
 				<a name="i${ num }"></a>
 				<label>
 					<input name="${ num }" value="${ data.thread_id
@@ -11437,15 +11440,12 @@ class DobrochanPostsBuilder {
 					<span class="postername">${ data.name || 'Анонимус' }</span> ${ date }
 				</label>
 				<span class="reflink">
-					<a onclick="Highlight(0, ${ num })" href="/${ brd
-						}/res/${ data.thread_id }.xhtml#i${ num }"> No.${ num }</a>
+					<a href="/${ brd }/res/${ data.thread_id }.xhtml#i${ num }"> No.${ num }</a>
 				</span><br>
 				${ filesHTML }
 				${ multiFile ? '<div style="clear: both;"></div>' : '' }
 				<div class="postbody"> ${ data.message_html }</div>
-			</td>
-		</tr></tbody></table>`;
-		return rv;
+			${ isOp ? '</div>' : '</td></tr></tbody></table>' }`;
 	}
 	getPNum(i) {
 		return this._posts[i + 1].display_id;
@@ -11456,14 +11456,13 @@ class DobrochanPostsBuilder {
 class MakabaPostsBuilder {
 	constructor(json, brd) {
 		if(json.Error) {
-			throw new AjaxError(0, `API ${ json.Error } (${ json.Code })`);
+			throw new AjaxError(0, `API error: ${ json.Error } (${ json.Code })`);
 		}
 		this._json = json;
 		this._brd = brd;
 		this._posts = json.threads[0].posts;
 		this.length = json.posts_count;
 		this.postersCount = json.unique_posters;
-		this.hasHTML = true;
 	}
 	get isClosed() {
 		return this._json.is_closed;
@@ -11481,23 +11480,25 @@ class MakabaPostsBuilder {
 
 		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
 
-		let filesHTML;
+		let filesHTML = '';
 		if(data.files && data.files.length !== 0) {
 			filesHTML = `<div class="images ${ data.files.length === 1 ? 'images-single' : 'images-multi' }">`;
 			for(let file of data.files) {
-				let imgId = num + '-' + file.md5;
-				let fullname = file.fullname || file.name;
-				let displayname = file.displayname || file.name;
-				let isWebm = fullname.substr(-5) === '.webm';
+				const imgId = num + '-' + file.md5;
+				const fullName = file.fullname || file.name;
+				const dispName = file.displayname || file.name;
+				const isWebm = fullName.substr(-5) === '.webm';
 				filesHTML += `<figure class="image">
 					<figcaption class="file-attr">
-						<a id="title-${ imgId }" class="desktop" target="_blank" href="${ file.path }" ${ displayname === fullname ? '' : 'title="' + fullname + '"' }>${ displayname }</a>
-						${ isWebm ? `<img src="/makaba/templates/img/webm-logo.png" width="50px" alt="webm file" id="webm-icon-${ num }-${ file.md5 }">` : '' }
-						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }${ isWebm ? ', ' + file.duration : '' })</span>
+						<a id="title-${ imgId }" class="desktop" target="_blank" href="${ file.path }"${
+							dispName === fullName ? '' : ` title="${ fullName }"` }>${ dispName }</a>
+						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }${
+							isWebm ? ', ' + file.duration : '' })</span>
 					</figcaption>
 					<div id="exlink-${ imgId }" class="image-link">
-						<a href="${ file.path }" name="expandfunc" onclick="expand('${ num }-${ file.md5 }','${ file.path }','${ file.thumbnail }',${ file.width },${ file.height },${ file.tn_width },${ file.tn_height }); return false;">
-							<img src="${ file.thumbnail }" width="${ file.tn_width }" height="${ file.tn_height }" alt="${ file.size }" class="img preview${ isWebm ? ' webm-file' : '' }">
+						<a href="${ file.path }">
+							<img src="${ file.thumbnail }" width="${ file.tn_width }" height="${ file.tn_height
+								}" alt="${ file.size }" class="img preview${ isWebm ? ' webm-file' : '' }">
 						</a>
 					</div>
 				</figure>`;
@@ -11509,27 +11510,25 @@ class MakabaPostsBuilder {
 					${ post.video }
 				</div>
 			</div>`;
-		} else {
-			filesHTML = '';
 		}
 
-		let rv = `<div id="post-${ num }" class="post-wrapper">
-			<div class="post reply" id="post-body-${ num }" data-num="${ num }">
+		return `<div id="post-${ num }" class="post-wrapper">
+			<div class="post ${ i === '-1' ? 'oppost' : 'reply' }" id="post-body-${ num }" data-num="${ num }">
 				<div id="post-details-${ num }" class="post-details">
-					<input type="checkbox" name="delete"  class="turnmeoff" value="${ num }">
+					<input type="checkbox" name="delete" value="${ num }">
 					${ !data.subject ? '' :
 						`<span class="post-title">${ data.subject + ( data.tags ? ' /' + data.tags + '/' : '') }</span>` }
 					${ data.email ?
 						`<a href="${ data.email }" class="post-email">${ data.name }</a>` :
 						`<span class="ananimas">${ data.name }</span>` }
 					${ data.icon ? `<span class="post-icon">${ data.icon }</span>` : '' }
-					${ !data.trip ? '' : _switch(data.trip, {
-					   '!!%adm%!!':        '<span class="adm">## Abu ##<\/span>',
-					   '!!%mod%!!':        '<span class="mod">## Mod ##<\/span>',
-					   '!!%Inquisitor%!!': '<span class="inquisitor">## Applejack ##<\/span>',
-					   '!!%coder%!!':      '<span class="mod">## Кодер ##<\/span>',
-					   '@@default':        '<span class="postertrip">' + data.trip + '<\/span>'
-					}) }
+					<span class="${ !data.trip ? '' : _switch(data.trip, {
+					   '!!%adm%!!':        'adm">## Abu ##',
+					   '!!%mod%!!':        'mod">## Mod ##',
+					   '!!%Inquisitor%!!': 'inquisitor">## Applejack ##',
+					   '!!%coder%!!':      'mod">## Кодер ##',
+					   '@@default':        'postertrip">' + data.trip
+					}) }<\/span>
 					${ data.op === 1 ? '<span class="ophui"># OP</span>&nbsp;' : '' }
 					<span class="posttime-reflink">
 						<span class="posttime">${ data.date }&nbsp;</span>
@@ -11537,13 +11536,22 @@ class MakabaPostsBuilder {
 							<a href="/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }">№</a><a href="/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }" class="postbtn-reply-href" name="${ num }">${ num }</a>
 						</span>
 					</span>
-					<br class="turnmeoff">
+					${ this._brd === 'po' ?
+						`<div id="like-div${ num }" class="like-div">
+							<span class="like-icon"><i class="fa fa-bolt"></i></span>
+							<span class="like-caption">Двачую</span>
+					<span id="like-count${ num }" class="like-count">${ data.likes || '' }</span>
+						</div>
+						<div id="dislike-div${ num }" class="dislike-div">
+							<span class="dislike-icon"><i class="fa fa-thumbs-down"></i></span>
+							<span class="dislike-caption">RRRAGE!</span>
+							<span id="dislike-count${ num }" class="dislike-count">${ data.dislikes || '' }</span>
+						</div>` : '' }
 				</div>
 				${ filesHTML }
 				${ this._getPostMsg(data) }
 			</div>
 		</div>`;
-		return rv;
 	}
 	getPNum(i) {
 		return this._posts[i + 1].num;
@@ -11576,6 +11584,77 @@ class MakabaPostsBuilder {
 	}
 }
 
+class _0chanPostsBuilder {
+	constructor(json, brd) {
+		if(json.error) {
+			throw new AjaxError(0, `API error: ${ json.message }`);
+		}
+		this._json = json;
+		this._posts = json.posts;
+		this.length = json.posts.length - 1;
+		this.postersCount = '';
+	}
+	getOpMessage() {
+		return $add(aib.fixHTML(`<div class="post-body-message"><div> ${ this._posts[0].message }</div></div>`));
+	}
+	getPostEl(i) {
+		return $add(aib.fixHTML(this.getPostHTML(i)));
+	}
+	getPostHTML(i) {
+		const data = this._posts[i + 1];
+		const num = data.id;
+		const brd = data.boardDir;
+		const parId = data.parentId;
+		const isOp = i === -1;
+		let filesHTML = '';
+		if(data.attachments.length) {
+			filesHTML += '<div class="post-attachments">';
+			for(let file of data.attachments) {
+				const id = file.id;
+				const img = file.images;
+				const orig = img.original;
+				const thumb200 = img.thumb_200px;
+				const thumb400 = img.thumb_400px;
+				filesHTML += `<figure class="post-img"><span>
+					<figcaption>
+						<span class="pull-left">${ orig.width }x${ orig.height }, ${ orig.size_kb }Кб</span>
+					</figcaption>
+					<a href="${ orig.url }" target="_blank"><img src="${ thumb200.url
+						}" srcset="${ thumb400.url } 2x" class="post-img-thumbnail" style="width: ${
+						thumb200.width }px; height: ${ thumb200.height }px;"></a>
+				</span></figure>`;
+			}
+			filesHTML += '</div>';
+		}
+
+		return `<div><div class="block post${ isOp ? ' post-op' : '' }">
+			<div class="post-header">
+				<a name="${ num }"></a>
+				<span class="post-id">
+					<a href="/${ brd }" class="router-link-active">/${ brd }/</a>
+					${ isOp ? `<span>— ${ this._json.thread.board.name } —</span>` : '' }
+					<a href="/${ brd }/${ data.threadId + (isOp ? '' : '#' + num) }">#${ num }</a>
+				</span>
+				<span class="pull-right">
+					<span class="post-thread-options"></span>
+					<span class="post-date">${ data.date }</span>
+				</span>
+			</div>
+			<div class="post-body${ data.attachments.length > 1 ? '' : ' post-inline-attachment' }">
+				${ filesHTML }
+				<div class="post-body-message">
+					${ parId === this._json.posts[0].id ? '' : `<div class="post-parent"><a data-post="${ parId }" href="/${ brd }/${ data.threadId }#${ parId}">&gt;&gt;${ parId }</a></div>` }
+					<div> ${ data.message ? data.message.replace(/\n/, '<br>') : '' }</div>
+				</div>
+			</div>
+			<div class="post-footer"></div>
+		</div></div>`;
+	}
+	getPNum(i) {
+		return +this._posts[i + 1].id; // Must return a Number, not a String!
+	}
+}
+
 
 // THREADS
 // ===========================================================================================================
@@ -11600,6 +11679,7 @@ class Thread {
 		this.loadCount = 0;
 		this.next = null;
 		this.num = num;
+		this.thrId = aib.getThrId(el) || num;
 		this.pcount = omt + len;
 		this.el = el;
 		this.prev = prev;
@@ -11631,7 +11711,7 @@ class Thread {
 			var updBtn = this.btns.firstChild;
 			updBtn.onclick = e => {
 				$pd(e);
-				this.load('new', false);
+				this.loadPosts('new');
 			};
 			if(Cfg.hideReplies) {
 				var repBtn = $bEnd(this.btns,
@@ -11692,24 +11772,43 @@ class Thread {
 		this.pcount -= count;
 		return post;
 	}
-	load(last, smartScroll, informUser = true) {
-		if(informUser) {
+	/**
+	* Thread loading via ajax.
+	*   Calls from the list of threads, not in a thread.
+	*   Adds posts to current thread accoring to task:
+	* @param {String|Number} task
+	*   'new'    - get new posts,
+	*   'all'    - get all posts,
+	*   'more'   - show 10 omitted posts + get new posts
+	*   {number} - get last N posts
+	* @param {Boolean} isSmartScroll - keeps the scroll position relative to the next thread.
+	* @param {Boolean} isInformUser - shows a popup with waiting animation
+	* @returns {Promise} - resolves with null, to chain with function when loading ends
+	*/
+	loadPosts(task, isSmartScroll = false, isInformUser = true) {
+		if(isInformUser) {
 			$popup('load-thr', Lng.loading[lang], true);
 		}
-		return ajaxPostsLoad(aib.b, this.num, false).then(
-			pBuilder => this._loadFromBuilder(last, smartScroll, pBuilder),
+		return ajaxPostsLoad(aib.b, this.thrId, false).then(
+			pBuilder => this._loadFromBuilder(task, isSmartScroll, pBuilder),
 			e => $popup('load-thr', getErrorMessage(e)));
 	}
-	loadNew() {
-		return ajaxPostsLoad(aib.b, this.num, true).then(pBuilder => pBuilder ?
-			this._loadNewFromBuilder(pBuilder) :
-			{ newCount: 0, locked: false });
+	/**
+	* New posts loading via ajax.
+	*  Calls by thread updater, by clicking on >>[Get new posts] button, and after sending a reply.
+	*  Adds new posts to the end of current thread.
+	*  @returns {Promise} - resolves with Object, { newCount: Number, locked: Boolean }
+	*/
+	loadNewPosts() {
+		return ajaxPostsLoad(aib.b, this.thrId, true).then(
+			pBuilder => pBuilder ? this._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false });
 	}
 	setFavorState(val, type) {
 		this.op.setFavBtn(val);
 		readFavorites().then(fav => {
-			var b = aib.b,
-				h = aib.host;
+			const b = aib.b;
+			const h = aib.host;
+			const num = this.thrId;
 			if(val) {
 				if(!fav[h]) {
 					fav[h] = {};
@@ -11718,17 +11817,17 @@ class Thread {
 					fav[h][b] = {};
 				}
 				fav[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
-				fav[h][b][this.num] = {
+				fav[h][b][num] = {
 					'cnt': this.pcount,
 					'new': 0,
 					'you': 0,
 					'txt': this.op.title,
-					'url': aib.getThrdUrl(b, this.num),
+					'url': aib.getThrdUrl(b, num),
 					'last': aib.anchor + this.last.num,
 					'type': type
 				};
 			} else {
-				removeFavoriteEntry(fav, h, b, this.num);
+				removeFavoriteEntry(fav, h, b, num);
 			}
 			saveFavorites(fav);
 		});
@@ -11750,7 +11849,7 @@ class Thread {
 
 	_addPost(parent, el, i, prev, maybeVParser) {
 		var post, num = aib.getPNum(el),
-			wrap = doc.adoptNode(aib.getWrap(el, false));
+			wrap = doc.adoptNode(aib.getPostWrap(el, false));
 		post = new Post(el, this, num, i, false, prev);
 		parent.appendChild(wrap);
 		if(aib.t && !doc.hidden && Cfg.animation) {
@@ -11812,7 +11911,7 @@ class Thread {
 		var fragm, newCount = end - begin,
 			newVisCount = newCount,
 			nums = [];
-		if(pBuilder.hasHTML && nav.hasTemplate) {
+		if(aib.jsonBuilder && nav.hasTemplate) {
 			let temp = document.createElement('template');
 			let html = [];
 			for(let i = begin; i < end; ++i) {
@@ -11929,10 +12028,10 @@ class Thread {
 		}
 		if(!$q('.de-thread-collapse', btn)) {
 			$bEnd(btn, '<span class="de-thread-collapse"> [<a class="de-abtn" href="' +
-				aib.getThrdUrl(aib.b, this.num) + '"></a>]</span>'
+				aib.getThrdUrl(aib.b, this.thrId) + '"></a>]</span>'
 			).onclick = e => {
 				$pd(e);
-				this.load(visPosts, true);
+				this.loadPosts(visPosts, true);
 			};
 		}
 		if(needToShow > visPosts) {
@@ -12200,7 +12299,7 @@ function checkStorage() {
 		}
 	}
 	if(!(locStorage && (typeof locStorage === 'object') && sesStorage)) {
-		console.log('WEBSTORAGE ERROR: please, enable webstorage!');
+		console.error('Webstorage error: please, enable webstorage!');
 		return false;
 	}
 	return true;
@@ -12357,7 +12456,7 @@ class BaseBoard {
 		this.qError = 'h1, h2, font[size="5"]';
 		this.qFileInfo = '.filesize';
 		this.qForm = '#postform';
-		this.qFormPassw = 'tr input[type="password"]'; // Differs Vichan only
+		this.qFormPassw = 'tr input[type="password"]'; // Differs Tinyboard only
 		this.qFormRedir = 'input[name="postredir"][value="1"]';
 		this.qFormRules = '.rules, #rules';
 		this.qOmitted = '.omittedposts';
@@ -12378,6 +12477,7 @@ class BaseBoard {
 		this.dm = dm;
 		this.docExt = null;
 		this.firstPage = 0;
+		this.formParent = 'parent';
 		this.hasCatalog = false;
 		this.hasOPNum = false; // Sets in Makaba only
 		this.hasPicWrap = false;
@@ -12393,14 +12493,13 @@ class BaseBoard {
 		this.ru = false;
 		this.t = false;
 		this.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
-		this.thrid = 'parent';
 
 		this._qTable = 'form > table, div > table, div[id^="repl"]';
 	}
 	get css() {
 		return '';
 	}
-	get capLang() {
+	get capLang() { // Differs from _410chanOrg only
 		return this.ru ? 2 : 1;
 	}
 	get fixDeadLinks() {
@@ -12601,7 +12700,7 @@ class BaseBoard {
 		return fixBrd(b) + (p > 0 ? p + this.docExt : '');
 	}
 	getPNum(post) {
-		return +post.id.match(/\d+/)[0];
+		return +post.id.match(/\d+/)[0]; // Must return a Number, not a String!
 	}
 	getPostElOfEl(el) {
 		var sel = this.qRPost + ', [de-thread]';
@@ -12613,6 +12712,21 @@ class BaseBoard {
 	getPostOfEl(el) { // Sets here only
 		return pByEl.get(this.getPostElOfEl(el));
 	}
+	getPostWrap(el, isOp) {
+		if(isOp) {
+			return el;
+		}
+		if(el.tagName === 'TD') {
+			Object.defineProperty(this, 'getPostWrap', { value(el, isOp) {
+				return isOp ? el : $parent(el, 'TABLE');
+			}});
+		} else {
+			Object.defineProperty(this, 'getPostWrap', { value(el, isOp) {
+				return el;
+			}});
+		}
+		return this.getPostWrap(el, isOp);
+	}
 	getSage(post) {
 		var a = $q('a[href^="mailto:"], a[href="sage"]', post);
 		return !!a && /sage/i.test(a.href);
@@ -12623,23 +12737,28 @@ class BaseBoard {
 	getTNum(op) {
 		return +$q('input[type="checkbox"]', op).value;
 	}
-	getWrap(el, isOp) {
-		if(isOp) {
-			return el;
-		}
-		if(el.tagName === 'TD') {
-			Object.defineProperty(this, 'getWrap', { value(el, isOp) {
-				return isOp ? el : $parent(el, 'TABLE');
-			}});
-		} else {
-			Object.defineProperty(this, 'getWrap', { value(el, isOp) {
-				return el;
-			}});
-		}
-		return this.getWrap(el, isOp);
+	getThrId(op) { // Differs _0chanHk only
+		return null;
 	}
 	insertYtPlayer(msg, playerHtml) {
 		return $bBegin(msg, playerHtml);
+	}
+	observeContent() {} // Differs _0chanHk only
+	parseURL() {
+		const url = (window.location.pathname || '').replace(/^\//, '');
+		if(url.match(this.res)) { // We are in thread
+			const temp = url.split(this.res);
+			this.b = temp[0].replace(/\/$/, '');
+			this.t = +temp[1].match(/^\d+/)[0];
+			this.page = this.firstPage;
+		} else { // We are on board
+			const temp = url.match(/\/?(\d+)[^\/]*?$/);
+			this.page = temp && +temp[1] || this.firstPage;
+			this.b = url.replace(temp && this.page ? temp[0] : /\/(?:[^\/]+\.[a-z]+)?$/, '');
+		}
+		if(this.docExt === null) {
+			this.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
+		}
 	}
 }
 
@@ -12669,6 +12788,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qRPost = '.post.reply[data-num]';
 			this.qTrunc = null;
 
+			this.formParent = 'thread';
 			this.hasCatalog = true;
 			this.hasOPNum = true;
 			this.hasPicWrap = true;
@@ -12744,6 +12864,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPNum(post) {
 			return +post.getAttribute('data-num');
 		}
+		getPostWrap(el, isOp) {
+			return el.parentNode;
+		}
 		getSage(post) {
 			if(this._hasNames) {
 				this.getSage = function(post) {
@@ -12765,9 +12888,6 @@ function getImageBoard(checkDomains, checkEngines) {
 				error = Lng.error[lang] + ':\n' + json.Reason;
 			}
 			return { error, postNum };
-		}
-		getWrap(el) {
-			return el.parentNode;
 		}
 		init() {
 			$script(`(function() {
@@ -12897,10 +13017,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qTrunc = '.toolong';
 
 			this.firstPage = 1;
+			this.formParent = 'thread';
 			this.hasCatalog = true;
 			this.jsonSubmit = true;
 			this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
-			this.thrid = 'thread';
 
 			this._qTable = '.post.reply';
 		}
@@ -12999,6 +13119,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qError = 'h1, h2, div[style*="1.25em"]';
 			this.qFormRedir = 'input[name="redirecttothread"][value="1"]';
 
+			this.formParent = 'replythread';
 			this.markupBB = true;
 		}
 		get css() {
@@ -13123,16 +13244,95 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['head > link[href*="phutaba.css"]', Phutaba]);
 
 	// Domains
-	class _0chanEu extends _0chan {
+	class _0chanHk extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.cReply = 'block post';
+			this.qDForm = '#content > div > .threads-scroll-spy + div, .threads > div:first-of-type';
+			this.qFileInfo = 'figcaption';
+			this.qForm = '.reply-form';
+			this.qOmitted = 'div[style="margin-left: 25px; font-weight: bold;"]';
+			this.qOPost = '.post-op';
+			this.qPostHeader = '.post-header';
+			this.qPostImg = '.post-img-thumbnail';
+			this.qPostMsg = '.post-body-message';
+			this.qPostRef = '.post-id';
+			this.qRPost = '.block.post:not(.post-op)';
+
+			this.docExt = '';
+			this.jsonBuilder = _0chanPostsBuilder;
+			this.res = '';
+		}
+		get qThread() {
+			return 'div[style="margin-top: 20px; margin-bottom: 40px;"] > div, .thread > div';
+		}
+		get css() {
+			return `.post-replied-by, .post-referenced-by { display: none; }
+				.de-post-btns { float: right; }
+				#de-main { z-index: 1; position: relative; }
+				#de-main > hr { display: none; }
+				.de-pview { margin-left: -250px !important; }
+				label { font-weight: initial; }
+				hr { margin: 4px; border-top: 1px solid #bbb; }`;
+		}
+		getImgWrap(el) {
+			return $parent(el, 'FIGURE');
+		}
+		getJsonApiUrl(brd, num) {
+			return '/api/thread?thread=' + num;
+		}
+		getPNum(post) {
+			return +$q('a[name]', post).name;
+		}
+		getPostWrap(el) {
+			return el.parentNode;
+		}
+		getTNum(op) {
+			return +$q('a[name]', op).name;
+		}
+		getThrId(op) {
+			return $q('.post-id > a:nth-of-type(2)', op).href.match(/\d+$/)[0];
+		}
 		init() {
-			if(this.prot !== 'https:') {
-				window.location.protocol = 'https';
-				return true;
-			}
+			defaultCfg.postBtnsCSS = 0;
+			$del($q('base', doc.head)); // <base> is not compartible with SVG
+			$each($Q('a[data-post]'), el => el.href =
+				$q('.post-id > a:nth-of-type(2)', el.parentNode.parentNode.parentNode.previousElementSibling)
+				.href.split('#')[0] + '#' + el.getAttribute('data-post'));
 			return false;
 		}
+		observeContent(checkDomains, cfgPromise) {
+			const initObserver = new MutationObserver(mutations => {
+				const el = mutations[0].addedNodes[0];
+				if(el && el.id === 'app') {
+					initObserver.disconnect();
+					doc.defaultView.addEventListener('message', ({ data }) => {
+						if(data === '0chan-content-done') {
+							DelForm.tNums = new Set();
+							$del($id('de-svg-icons'));
+							$del($id('de-thr-navpanel'));
+							$del($id('de-css'));
+							$del($id('de-css-dynamic'));
+							$del($id('de-css-user'));
+							async(runMain)(checkDomains, cfgPromise);
+						}
+					});
+					$script(`window.app.$bus.on('refreshContentDone',
+						() => document.defaultView.postMessage('0chan-content-done', '*'))`);
+				}
+			});
+			initObserver.observe(docBody, { childList: true });
+		}
+		parseURL() {
+			const url = (window.location.pathname || '').replace(/^\//, '');
+			const temp = url.split('/');
+			this.b = temp[0];
+			this.t = temp[1] ? +temp[1].match(/^\d+/)[0] : 0;
+			this.page = 0;
+		}
 	}
-	ibDomains['0chan.eu'] = _0chanEu;
+	ibDomains['0chan.hk'] = _0chanHk;
 
 	class _2chan extends BaseBoard {
 		constructor(prot, dm) {
@@ -13148,7 +13348,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qRPost = 'td:nth-child(2)';
 
 			this.docExt = '.htm';
-			this.thrid = 'resto';
+			this.formParent = 'resto';
 		}
 		get css() {
 			return `
@@ -13178,7 +13378,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 		}
 		init() {
-			$del($q('base', doc.head));
+			$del($q('base', doc.head)); // <base> is not compartible with SVG
 			return false;
 		}
 	}
@@ -13432,12 +13632,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.anchor = '#p';
 			this.docExt = '';
 			this.firstPage = 1;
+			this.formParent = 'resto';
 			this.hasCatalog = true;
 			this.hasTextLinks = true;
 			this.jsonBuilder = _4chanPostsBuilder;
 			this.res = 'thread/';
 			this.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
-			this.thrid = 'resto';
 
 			this._qTable = '.replyContainer';
 		}
@@ -13502,6 +13702,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		getImgWrap(el) {
 			return el.parentNode.parentNode;
 		}
+		getPostWrap(el, isOp) {
+			return el.parentNode;
+		}
 		getSage(post) {
 			return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
 		}
@@ -13518,9 +13721,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getTNum(op) {
 			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
-		}
-		getWrap(el, isOp) {
-			return el.parentNode;
 		}
 		init() {
 			Cfg.findImgFile = 0;
@@ -13772,6 +13972,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qTrunc = '.abbrev > span:first-of-type';
 
 			this.anchor = '#i';
+			this.formParent = 'thread_id';
 			this.hasPicWrap = true;
 			this.jsonBuilder = DobrochanPostsBuilder;
 			this.multiFile = true;
@@ -13932,7 +14133,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qTrunc = 'p[id^="post_truncated"]';
 
 			this.hasCatalog = true;
-			this.hasPicWrap= true;
+			this.hasPicWrap = true;
 			this.hasTextLinks = true;
 			this.markupBB = true;
 			this.multiFile = true;
@@ -14039,6 +14240,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			$q('input[name="captcha_name"]', cap.trEl).value = id;
 			return null;
 		}
+		parseURL() {
+			super.parseURL();
+			if(this.b.startsWith('board/')) {
+				this.b = this.b.substr(6);
+			}
+		}
 	}
 	ibDomains['krautchan.net'] = Krautchan;
 
@@ -14077,7 +14284,6 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.jsonSubmit = true;
 			this.multiFile = true;
-			this.thrid = 'replythread';
 		}
 		getPNum(post) {
 			return +post.getAttribute('data-num');
@@ -14313,37 +14519,6 @@ class DollchanAPI {
 		}
 		DollchanAPI.activeListeners.add(name);
 		return true;
-	}
-}
-
-function parseURL() {
-	if(localData) {
-		// Locally saved thread
-		aib.prot = 'http:';
-		aib.host = aib.dm;
-		aib.b = localData.b;
-		aib.t = localData.t;
-		aib.docExt = '.html';
-	} else {
-		const url = (window.location.pathname || '').replace(/^\//, '');
-		if(url.match(aib.res)) {
-			// We are in thread
-			const temp = url.split(aib.res);
-			aib.b = temp[0].replace(/\/$/, '');
-			aib.t = +temp[1].match(/^\d+/)[0];
-			aib.page = aib.firstPage;
-		} else {
-			// We are on board
-			const temp = url.match(/\/?(\d+)[^\/]*?$/);
-			aib.page = temp && +temp[1] || aib.firstPage;
-			aib.b = url.replace(temp && aib.page ? temp[0] : /\/(?:[^\/]+\.[a-z]+)?$/, '');
-			if(aib.krau && aib.b.startsWith('board/')) {
-				aib.b = aib.b.substr(6);
-			}
-		}
-		if(aib.docExt === null) {
-			aib.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
-		}
 	}
 }
 
@@ -14590,7 +14765,7 @@ class DelForm {
 					elNext = el.nextSibling;
 				}
 				$del(el);
-				console.log('Repeated thread ' + num + '.');
+				console.log('Repeated thread: ' + num);
 			} else {
 				DelForm.tNums.add(num);
 				thr = new Thread(threads[i], num, thr, this);
@@ -14779,7 +14954,7 @@ function initThreadUpdater(title, enableUpdate) {
 				try {
 					this._initIconsHelper(e.target);
 				} catch(err) {
-					console.error('Icon error:', err);
+					console.warn('Icon error:', err);
 				}
 			};
 			if(aib.fch) {
@@ -15054,7 +15229,7 @@ function initThreadUpdater(title, enableUpdate) {
 			case 1:
 				counter.setWait();
 				this._state = 2;
-				this._loadPromise = Thread.first.loadNew().then(
+				this._loadPromise = Thread.first.loadNewPosts().then(
 					({ newCount, locked }) =>
 						this._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success),
 					e => this._handleNewPosts(0, e));
@@ -15068,7 +15243,7 @@ function initThreadUpdater(title, enableUpdate) {
 				this._state = 0;
 				break;
 			default:
-				console.error('Invalid State!', this._state, new Error().stack);
+				console.error('Invalid thread updater state:', this._state, new Error().stack);
 				return;
 			}
 		},
@@ -15579,7 +15754,7 @@ function scriptCSS() {
 	`#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ${ nav.Presto ? '-2px -10px' : '0 0 1px -10px' }; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }
 	.de-parea { text-align: center; }
 	.de-parea-btn-close::after { content: "${ Lng.hideForm[lang] }"; }
-	.de-parea-btn-thrd::after { content: "${ Lng.makeThrd[lang] }"; }
+	.de-parea-btn-thr::after { content: "${ Lng.makeThrd[lang] }"; }
 	.de-parea-btn-reply::after { content: "${ Lng.makeReply[lang] }"; }
 	#de-pform > form { padding: 0; margin: 0; border: none; }
 	#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }
@@ -15745,6 +15920,7 @@ function* runMain(checkDomains, cfgPromise) {
 	}
 	let formEl = $q(aib.qDForm + ', form[de-form]');
 	if(!formEl) {
+		aib.observeContent(checkDomains, cfgPromise);
 		return;
 	}
 	Logger.log('Imageboard check');
@@ -15778,7 +15954,15 @@ function* runMain(checkDomains, cfgPromise) {
 	}
 	initStorageEvent();
 	DollchanAPI.init();
-	parseURL();
+	if(localData) {
+		aib.prot = 'http:';
+		aib.host = aib.dm;
+		aib.b = localData.b;
+		aib.t = localData.t;
+		aib.docExt = '.html';
+	} else {
+		aib.parseURL();
+	}
 	if(aib.t || !Cfg.scrollToTop) {
 		doc.defaultView.addEventListener('beforeunload', function(e) {
 			sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset;
@@ -15801,7 +15985,7 @@ function* runMain(checkDomains, cfgPromise) {
 	try {
 		DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
 	} catch(e) {
-		console.log('DELFORM ERROR:\n' + getErrorMessage(e));
+		console.error('Delform parsing error:', getErrorMessage(e));
 		$show(docBody);
 		return;
 	}
