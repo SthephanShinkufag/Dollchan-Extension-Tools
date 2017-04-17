@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = 'f07c1fc';
+	var commit = '6099b68';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -11336,7 +11336,7 @@ true, true],
 			if (this.oeForm) {
 				$del($q('input[name="oek_parent"]', this.oeForm));
 				if (tNum) {
-					this.oeForm.insertAdjacentHTML('afterbegin', '<input type="hidden" value="' + qNum + '" name="oek_parent">');
+					this.oeForm.insertAdjacentHTML('afterbegin', '<input type="hidden" value="' + tNum + '" name="oek_parent">');
 				}
 			}
 			if (this.form) {
