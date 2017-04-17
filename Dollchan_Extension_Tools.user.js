@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = 'e37e571';
+	var commit = 'f07c1fc';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -5222,7 +5222,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					useId = 'upd';
 					break;
 				case 'catalog':
-					href = aib.getCatalogUrl();
+					href = aib.catalogUrl;
 			}
 			var panelTitle = title || Lng.panelBtn[id][lang];
 			return '\n\t\t<a id="de-panel-' + id + '" class="de-abtn de-panel-button" title="' + panelTitle + '" href="' + (href || '#') + '">\n\t\t\t<svg class="de-panel-svg">\n\t\t\t' + (id !== 'audio-off' ? '\n\t\t\t\t<use xlink:href="#de-symbol-panel-' + (useId || id) + '"/>' : '\n\t\t\t\t<use class="de-use-audio-off" xlink:href="#de-symbol-panel-audio-off"/>\n\t\t\t\t<use class="de-use-audio-on" xlink:href="#de-symbol-panel-audio-on"/>') + '\n\t\t\t</svg>\n\t\t</a>';
@@ -6071,7 +6071,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 57:
 
-							if ($q(aib.qClosed, form)) {
+							if (aib.qClosed && $q(aib.qClosed, form)) {
 								iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 								titleEl.title = Lng.thrClosed[lang];
 								f.err = 'Closed';
@@ -10864,7 +10864,9 @@ true, true],
 		this.subm = $q('tr input[type="submit"]', form);
 		var fileEl = $q('tr input[type="file"]', form);
 		if (fileEl) {
-			aib.fixFileInputs(fileEl);
+			if (aib.fixFileInputs) {
+				aib.fixFileInputs(fileEl);
+			}
 			this.files = new Files(this, $q('tr input[type="file"]', form));
 			window.addEventListener('load', function () {
 				return setTimeout(function () {
@@ -11822,10 +11824,7 @@ true, true],
 					this.trEl.innerHTML = this._originHTML;
 				}
 				this.textEl = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.trEl);
-				var initPromise = null;
-				if (aib.initCaptcha) {
-					initPromise = aib.initCaptcha(this);
-				}
+				var initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
 				if (initPromise) {
 					initPromise.then(function () {
 						return _this26.initCaptcha(focus, false);
@@ -15739,7 +15738,7 @@ true, true],
 		}, {
 			key: 'isClosed',
 			get: function get() {
-				return !!$q(aib.qClosed, this._form) || this._isArchived;
+				return aib.qClosed && !!$q(aib.qClosed, this._form) || this._isArchived;
 			}
 		}]);
 
@@ -16284,7 +16283,7 @@ true, true],
 			this.loadCount = 0;
 			this.next = null;
 			this.num = num;
-			this.thrId = aib.getThrId(el) || num;
+			this.thrId = aib.thrId ? aib.thrId(el) : num;
 			this.pcount = omt + len;
 			this.el = el;
 			this.prev = prev;
@@ -17125,6 +17124,7 @@ true, true],
 
 			this.cReply = 'reply';
 			this.qBan = null;
+			this.qClosed = null;
 			this.qDelBut = 'input[type="submit"]'; 
 			this.qDelPassw = 'input[type="password"], input[name="password"]'; 
 			this.qDForm = '#delform, form[name="delform"]';
@@ -17178,9 +17178,6 @@ true, true],
 				$hide($parent(el, 'TR'));
 				el.checked = true;
 			}
-		}, {
-			key: 'fixFileInputs',
-			value: function fixFileInputs() {}
 		}, {
 			key: 'fixHTML',
 			value: function fixHTML(data) {
@@ -17274,11 +17271,6 @@ true, true],
 			value: function getCaptchaSrc(src, tNum) {
 				var tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=').replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
 				return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum) : tmp.replace(/res\d+/, 'mainpage');
-			}
-		}, {
-			key: 'getCatalogUrl',
-			value: function getCatalogUrl() {
-				return this.prot + '//' + this.host + '/' + this.b + '/catalog.html';
 			}
 		}, {
 			key: 'getFileInfo',
@@ -17395,19 +17387,10 @@ true, true],
 				return +$q('input[type="checkbox"]', op).value;
 			}
 		}, {
-			key: 'getThrId',
-			value: function getThrId(op) {
-				return null;
-			}
-		}, {
 			key: 'insertYtPlayer',
 			value: function insertYtPlayer(msg, playerHtml) {
 				return $bBegin(msg, playerHtml);
 			}
-		}, {
-			key: 'observeContent',
-			value: function observeContent() {} 
-
 		}, {
 			key: 'parseURL',
 			value: function parseURL() {
@@ -17425,31 +17408,6 @@ true, true],
 				if (this.docExt === null) {
 					this.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
 				}
-			}
-		}, {
-			key: 'css',
-			get: function get() {
-				return '';
-			}
-		}, {
-			key: 'capLang',
-			get: function get() {
-				return this.ru ? 2 : 1;
-			}
-		}, {
-			key: 'fixDeadLinks',
-			get: function get() {
-				return null;
-			}
-		}, {
-			key: 'fixHTMLHelper',
-			get: function get() {
-				return null;
-			}
-		}, {
-			key: 'getSubmitData',
-			get: function get() {
-				return null;
 			}
 		}, {
 			key: 'qFormMail',
@@ -17488,6 +17446,41 @@ true, true],
 				return val;
 			}
 		}, {
+			key: 'capLang',
+			get: function get() {
+				return this.ru ? 2 : 1;
+			}
+		}, {
+			key: 'catalogUrl',
+			get: function get() {
+				return this.prot + '//' + this.host + '/' + this.b + '/catalog.html';
+			}
+		}, {
+			key: 'css',
+			get: function get() {
+				return '';
+			}
+		}, {
+			key: 'fixDeadLinks',
+			get: function get() {
+				return null;
+			}
+		}, {
+			key: 'fixHTMLHelper',
+			get: function get() {
+				return null;
+			}
+		}, {
+			key: 'fixFileInputs',
+			get: function get() {
+				return null;
+			}
+		}, {
+			key: 'getSubmitData',
+			get: function get() {
+				return null;
+			}
+		}, {
 			key: 'initCaptcha',
 			get: function get() {
 				return null;
@@ -17514,11 +17507,21 @@ true, true],
 				return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
 			}
 		}, {
+			key: 'observeContent',
+			get: function get() {
+				return null;
+			}
+		}, {
 			key: 'reCrossLinks',
 			get: function get() {
 				var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' + quoteReg(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
 				Object.defineProperty(this, 'reCrossLinks', { value: val });
 				return val;
+			}
+		}, {
+			key: 'thrId',
+			get: function get() {
+				return null;
 			}
 		}, {
 			key: 'updateCaptcha',
@@ -17576,15 +17579,6 @@ true, true],
 			}
 
 			_createClass(Makaba, [{
-				key: 'fixFileInputs',
-				value: function fixFileInputs(el) {
-					var str = '';
-					for (var i = 0; i < 8; ++i) {
-						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="image' + (i + 1) + '"></div>';
-					}
-					$q('#postform .images-area', doc).lastElementChild.innerHTML = str;
-				}
-			}, {
 				key: 'getBanId',
 				value: function getBanId(postEl) {
 					var el = $q(this.qBan, postEl);
@@ -17742,14 +17736,23 @@ true, true],
 					});
 				}
 			}, {
-				key: 'css',
-				get: function get() {
-					return '\n\t\t\t.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, .logo + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .prerekl-hr, .posts > hr, .reflink::before, .thread-nav, .toolbar-area, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t.mess-post { display: block; }\n\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t.post.reply .post-message { max-height: initial !important; }\n\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; } .file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t' + (Cfg.expandImgs ? '#fullscreen-container { display: none !important; }' : '') + '\n\t\t\t' + (Cfg.txtBtnsLoc ? '.message-sticker-btn, .message-sticker-preview { bottom: 25px !important; }' : '');
-				}
-			}, {
 				key: 'qImgName',
 				get: function get() {
 					return '.file-attr > .desktop';
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, .logo + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .prerekl-hr, .posts > hr, .reflink::before, .thread-nav, .toolbar-area, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post.reply .post-message { max-height: initial !important; }\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; } .file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t\t' + (Cfg.expandImgs ? '#fullscreen-container { display: none !important; }' : '') + '\n\t\t\t\t' + (Cfg.txtBtnsLoc ? '.message-sticker-btn, .message-sticker-preview { bottom: 25px !important; }' : '');
+				}
+			}, {
+				key: 'fixFileInputs',
+				get: function get() {
+					var str = '';
+					for (var i = 0; i < 8; ++i) {
+						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="image' + (i + 1) + '"></div>';
+					}
+					$q('#postform .images-area', doc).lastElementChild.innerHTML = str;
 				}
 			}, {
 				key: 'lastPage',
@@ -17795,9 +17798,9 @@ true, true],
 				_this61.qPostHeader = '.intro';
 				_this61.qPostMsg = '.body';
 				_this61.qPostName = '.name';
+				_this61.qPostRef = '.post_no + a';
 				_this61.qPostSubj = '.subject';
 				_this61.qPostTrip = '.trip';
-				_this61.qPostRef = '.post_no + a';
 				_this61.qTrunc = '.toolong';
 
 				_this61.firstPage = 1;
@@ -17848,14 +17851,14 @@ true, true],
 					return false;
 				}
 			}, {
-				key: 'css',
-				get: function get() {
-					return '\n\t\t\t.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\tdiv.post.reply:not(.de-entry):not(.de-cfg-tab):not(.de-win-body) { float: left !important; clear: left; display: block; }';
-				}
-			}, {
 				key: 'qImgName',
 				get: function get() {
 					return 'p.fileinfo > a:first-of-type';
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.banner, ' + (this.t ? '' : '.de-btn-rep,') + ' .hide-thread-link, .mentioned, .post-hover { display: none !important; }\n\t\t\t\tdiv.post.reply:not(.de-entry):not(.de-cfg-tab):not(.de-win-body) { float: left !important; clear: left; display: block; }';
 				}
 			}, {
 				key: 'markupTags',
@@ -17885,15 +17888,6 @@ true, true],
 			}
 
 			_createClass(Vichan, [{
-				key: 'fixFileInputs',
-				value: function fixFileInputs(el) {
-					var str = '';
-					for (var i = 0; i < 5; ++i) {
-						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"></div>';
-					}
-					$id('upload').lastChild.innerHTML = str;
-				}
-			}, {
 				key: 'init',
 				value: function init() {
 					_get(Vichan.prototype.__proto__ || Object.getPrototypeOf(Vichan.prototype), 'init', this).call(this);
@@ -17915,7 +17909,16 @@ true, true],
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(Vichan.prototype.__proto__ || Object.getPrototypeOf(Vichan.prototype), 'css', this) + '\n\t\t\t.boardlist { position: static !important; }\n\t\t\tbody { padding: 0 5px !important; }\n\t\t\t.fileinfo { width: 250px; }\n\t\t\t.multifile { width: auto !important; }\n\t\t\t#expand-all-images, #expand-all-images + .unimportant, .post-btn, small { display: none !important; }';
+					return _get(Vichan.prototype.__proto__ || Object.getPrototypeOf(Vichan.prototype), 'css', this) + '.boardlist { position: static !important; }\n\t\t\t\tbody { padding: 0 5px !important; }\n\t\t\t\t.fileinfo { width: 250px; }\n\t\t\t\t.multifile { width: auto !important; }\n\t\t\t\t#expand-all-images, #expand-all-images + .unimportant, .post-btn, small { display: none !important; }';
+				}
+			}, {
+				key: 'fixFileInputs',
+				get: function get() {
+					var str = '';
+					for (var i = 0; i < 5; ++i) {
+						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"></div>';
+					}
+					$id('upload').lastChild.innerHTML = str;
 				}
 			}]);
 
@@ -17960,7 +17963,7 @@ true, true],
 			}, {
 				key: 'css',
 				get: function get() {
-					return '\n\t\t\t.extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }\n\t\t\t.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
+					return '.extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }\n\t\t\t\t.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
 				}
 			}]);
 
@@ -18105,14 +18108,14 @@ true, true],
 					return !!$q('.sage', post);
 				}
 			}, {
-				key: 'css',
-				get: function get() {
-					return '\n\t\t\t.content > hr, .de-parea > hr, .de-pview > .doubledash { display: none !important }\n\t\t\t.de-pview > .post { margin-left: 0; border: none; }\n\t\t\t#de-win-reply { float:left; margin-left:2em }';
-				}
-			}, {
 				key: 'qImgName',
 				get: function get() {
 					return '.filename > a';
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.content > hr, .de-parea > hr, .de-pview > .doubledash { display: none !important }\n\t\t\t\t.de-pview > .post { margin-left: 0; border: none; }\n\t\t\t\t#de-win-reply { float:left; margin-left:2em }';
 				}
 			}]);
 
@@ -18165,18 +18168,13 @@ true, true],
 				}
 			}, {
 				key: 'getPostWrap',
-				value: function getPostWrap(el) {
+				value: function getPostWrap(el, isOp) {
 					return el.parentNode;
 				}
 			}, {
 				key: 'getTNum',
 				value: function getTNum(op) {
 					return +$q('a[name]', op).name;
-				}
-			}, {
-				key: 'getThrId',
-				value: function getThrId(op) {
-					return $q('.post-id > a:nth-of-type(2)', op).href.match(/\d+$/)[0];
 				}
 			}, {
 				key: 'init',
@@ -18221,6 +18219,11 @@ true, true],
 					this.b = temp[0];
 					this.t = temp[1] ? +temp[1].match(/^\d+/)[0] : 0;
 					this.page = 0;
+				}
+			}, {
+				key: 'thrId',
+				value: function thrId(op) {
+					return $q('.post-id > a:nth-of-type(2)', op).href.match(/\d+$/)[0];
 				}
 			}, {
 				key: 'qThread',
@@ -18291,11 +18294,6 @@ true, true],
 					return false;
 				}
 			}, {
-				key: 'css',
-				get: function get() {
-					return '\n\t\t\t.ftbl { width: auto; margin: 0; }\n\t\t\t.reply { background: #f0e0d6; }\n\t\t\tspan { font-size: inherit; }';
-				}
-			}, {
 				key: 'qImgName',
 				get: function get() {
 					return 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
@@ -18304,6 +18302,11 @@ true, true],
 				key: 'qThread',
 				get: function get() {
 					return '.thre';
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.ftbl { width: auto; margin: 0; }\n\t\t\t\t.reply { background: #f0e0d6; }\n\t\t\t\tspan { font-size: inherit; }';
 				}
 			}]);
 
@@ -18406,7 +18409,7 @@ true, true],
 				}
 			}, {
 				key: 'updateCaptcha',
-				value: function updateCaptcha() {
+				get: function get() {
 					var _this73 = this;
 
 					if (this._capUpdPromise) {
@@ -18507,10 +18510,9 @@ true, true],
 					return false;
 				}
 			}, {
-				key: 'initCaptcha',
-				value: function initCaptcha() {
-					$id('captchadiv').innerHTML = '<img src="' + this.getCaptchaSrc() + '" style="vertical-align: bottom;" id="imgcaptcha">';
-					return null;
+				key: 'qThread',
+				get: function get() {
+					return '.threadz';
 				}
 			}, {
 				key: 'css',
@@ -18518,9 +18520,10 @@ true, true],
 					return 'span[id$="_display"], #fastload { display: none; }';
 				}
 			}, {
-				key: 'qThread',
+				key: 'initCaptcha',
 				get: function get() {
-					return '.threadz';
+					$id('captchadiv').innerHTML = '<img src="' + this.getCaptchaSrc() + '" style="vertical-align: bottom;" id="imgcaptcha">';
+					return null;
 				}
 			}]);
 
@@ -18549,41 +18552,18 @@ true, true],
 			}
 
 			_createClass(_410chanOrg, [{
-				key: 'getCaptchaSrc',
-				value: function getCaptchaSrc(src, tNum) {
-					return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
-				}
-			}, {
-				key: 'updateCaptcha',
-				value: function updateCaptcha() {
-					if (nav.isGM && 'unsafeWindow' in window) {
-						unsafeWindow.request_faptcha(aib.b);
-					} else {
-						$script('request_faptcha(\'' + aib.b + '\')');
-					}
-				}
-			}, {
-				key: 'getSage',
-				value: function getSage(post) {
-					var el = $q('.filetitle', post);
-					return el && el.textContent.includes('\u21E9');
-				}
-			}, {
 				key: 'fixHTML',
 				value: function fixHTML(data, isForm) {
 					var _this76 = this;
 
 					var el = _get(_410chanOrg.prototype.__proto__ || Object.getPrototypeOf(_410chanOrg.prototype), 'fixHTML', this).call(this, data, isForm);
-
 					if (aib.t) {
 						try {
 							(function () {
 								var backBtn = $q(_this76.qThread + ' > span[style]', el);
-
 								if (backBtn) {
-									var modBtn = $q('a[accesskey=m]', el);
+									var modBtn = $q('a[accesskey="m"]', el);
 									var thr = backBtn.parentElement;
-
 									$after(thr, backBtn);
 									[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(function (elm) {
 										return $after(backBtn.lastChild, elm);
@@ -18594,19 +18574,24 @@ true, true],
 							console.error(e);
 						}
 					}
-
 					return el;
+				}
+			}, {
+				key: 'getCaptchaSrc',
+				value: function getCaptchaSrc(src, tNum) {
+					return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
+				}
+			}, {
+				key: 'getSage',
+				value: function getSage(post) {
+					var el = $q('.filetitle', post);
+					return el && el.textContent.includes('\u21E9');
 				}
 			}, {
 				key: 'init',
 				value: function init() {
 					_get(_410chanOrg.prototype.__proto__ || Object.getPrototypeOf(_410chanOrg.prototype), 'init', this).call(this);
-					$bEnd(docBody, '<span id="faptcha_input" style="display: none" />');
-				}
-			}, {
-				key: 'css',
-				get: function get() {
-					return _get(_410chanOrg.prototype.__proto__ || Object.getPrototypeOf(_410chanOrg.prototype), 'css', this) + '\n\t\t\tbody { margin: 0 }\n\t\t\t#resizer { display: none; }\n\t\t\t.topmenu { position: static; }\n\t\t\t.de-thr-hid { display: inherit; }\n\t\t\tform > span { margin-top: 5px; }\n\t\t\tform > .de-thread-buttons { float: left; } ';
+					$bEnd(docBody, '<span id="faptcha_input" style="display: none"></span>');
 				}
 			}, {
 				key: 'capLang',
@@ -18614,9 +18599,23 @@ true, true],
 					return 0;
 				}
 			}, {
+				key: 'css',
+				get: function get() {
+					return _get(_410chanOrg.prototype.__proto__ || Object.getPrototypeOf(_410chanOrg.prototype), 'css', this) + 'body { margin: 0 }\n\t\t\t\t#resizer { display: none; }\n\t\t\t\t.topmenu { position: static; }\n\t\t\t\t.de-thr-hid { display: inherit; }\n\t\t\t\tform > span { margin-top: 5px; }\n\t\t\t\tform > .de-thread-buttons { float: left; } ';
+				}
+			}, {
 				key: 'markupTags',
 				get: function get() {
 					return ['**', '*', '__', '^^', '%%', '`'];
+				}
+			}, {
+				key: 'updateCaptcha',
+				get: function get() {
+					if (nav.isGM && 'unsafeWindow' in window) {
+						unsafeWindow.request_faptcha(aib.b);
+					} else {
+						$script('request_faptcha(\'' + aib.b + '\')');
+					}
 				}
 			}]);
 
@@ -18688,14 +18687,14 @@ true, true],
 					return '//a.4cdn.org/' + brd + '/thread/' + tNum + '.json';
 				}
 			}, {
-				key: 'getPageUrl',
-				value: function getPageUrl(b, p) {
-					return fixBrd(b) + (p > 1 ? p : '');
-				}
-			}, {
 				key: 'getImgWrap',
 				value: function getImgWrap(el) {
 					return el.parentNode.parentNode;
+				}
+			}, {
+				key: 'getPageUrl',
+				value: function getPageUrl(b, p) {
+					return fixBrd(b) + (p > 1 ? p : '');
 				}
 			}, {
 				key: 'getPostWrap',
@@ -18738,11 +18737,6 @@ true, true],
 					return false;
 				}
 			}, {
-				key: 'css',
-				get: function get() {
-					return '\n\t\t\t.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }\n\t\t\t#bottomReportBtn { display: initial !important; }\n\t\t\t.postForm { display: table !important; width: auto !important; }\n\t\t\ttextarea { margin-right: 0 !important; }';
-				}
-			}, {
 				key: 'qFormSubj',
 				get: function get() {
 					return 'input[name="sub"]';
@@ -18751,6 +18745,11 @@ true, true],
 				key: 'qImgName',
 				get: function get() {
 					return '.fileText > a';
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }\n\t\t\t\t#bottomReportBtn { display: initial !important; }\n\t\t\t\t.postForm { display: table !important; width: auto !important; }\n\t\t\t\ttextarea { margin-right: 0 !important; }';
 				}
 			}, {
 				key: 'markupTags',
@@ -19011,16 +19010,6 @@ true, true],
 					return false;
 				}
 			}, {
-				key: 'css',
-				get: function get() {
-					return '\n\t\t\t.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }\n\t\t\t.de-cfg-label.de-block { display: block; }\n\t\t\t.post_replies, .post_num, .poster_sage, .post[postid=""] { display: none !important; }\n\t\t\t.post { overflow-x: auto !important; }';
-				}
-			}, {
-				key: 'isArchived',
-				get: function get() {
-					return true;
-				}
-			}, {
 				key: 'qImgName',
 				get: function get() {
 					return '.img_filename';
@@ -19029,6 +19018,16 @@ true, true],
 				key: 'qThread',
 				get: function get() {
 					return '.thread_inner';
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }\n\t\t\t\t.de-cfg-label.de-block { display: block; }\n\t\t\t\t.post_replies, .post_num, .poster_sage, .post[postid=""] { display: none !important; }\n\t\t\t\t.post { overflow-x: auto !important; }';
+				}
+			}, {
+				key: 'isArchived',
+				get: function get() {
+					return true;
 				}
 			}]);
 
@@ -19048,11 +19047,22 @@ true, true],
 				_this83.brchan = true;
 
 				_this83.qPostTrip = '.poster_id';
+
 				_this83.markupBB = true;
 				return _this83;
 			}
 
 			_createClass(Brchan, [{
+				key: 'getImgWrap',
+				value: function getImgWrap(el) {
+					return el.parentNode.parentNode;
+				}
+			}, {
+				key: 'getSage',
+				value: function getSage(post) {
+					return !!$q('.sage', post);
+				}
+			}, {
 				key: 'init',
 				value: function init() {
 					_get(Brchan.prototype.__proto__ || Object.getPrototypeOf(Brchan.prototype), 'init', this).call(this);
@@ -19066,7 +19076,6 @@ true, true],
 					if (el1 && el2) {
 						$after(el2, el1);
 					}
-
 					var imgLinks = $Q('.fileinfo > a');
 					for (var _iterator36 = imgLinks, _isArray36 = Array.isArray(_iterator36), _i50 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
 						var _ref62;
@@ -19082,20 +19091,9 @@ true, true],
 
 						var a = _ref62;
 
-						var filename = $q('.postfilename', a.parentElement).innerText;
-						a.setAttribute('download', filename);
+						a.setAttribute('download', $q('.postfilename', a.parentElement).innerText);
 					}
 					return false;
-				}
-			}, {
-				key: 'getImgWrap',
-				value: function getImgWrap(el) {
-					return el.parentNode.parentNode;
-				}
-			}, {
-				key: 'getSage',
-				value: function getSage(post) {
-					return !!$q('.sage', post);
 				}
 			}, {
 				key: 'qImgName',
@@ -19105,7 +19103,7 @@ true, true],
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(Brchan.prototype.__proto__ || Object.getPrototypeOf(Brchan.prototype), 'css', this).replace('.de-btn-rep,', '') + '\n\t\t\tinput[name="embed"] { width: 100% !important; }\n\t\t\t#upload_embed > td > .unimportant.hint { display: none; }\n\t\t\t.reflink::after { content: "" !important; }';
+					return _get(Brchan.prototype.__proto__ || Object.getPrototypeOf(Brchan.prototype), 'css', this).replace('.de-btn-rep,', '') + 'input[name="embed"] { width: 100% !important; }\n\t\t\t\t#upload_embed > td > .unimportant.hint { display: none; }\n\t\t\t\t.reflink::after { content: "" !important; }';
 				}
 			}, {
 				key: 'markupTags',
@@ -19283,7 +19281,7 @@ true, true],
 			}, {
 				key: 'css',
 				get: function get() {
-					return '\n\t\t\t.de-video-obj-inline { margin-left: 5px; }\n\t\t\t.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none; }\n\t\t\t.delete { background: none; }\n\t\t\t.delete_checkbox { position: static !important; }';
+					return '.de-video-obj-inline { margin-left: 5px; }\n\t\t\t\t.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none; }\n\t\t\t\t.delete { background: none; }\n\t\t\t\t.delete_checkbox { position: static !important; }';
 				}
 			}]);
 
@@ -19309,26 +19307,11 @@ true, true],
 			}
 
 			_createClass(Iichan, [{
-				key: 'getCatalogUrl',
-				value: function getCatalogUrl() {
-					return this.prot + '//' + this.host + '/' + this.b + '/catalogue.html';
-				}
-			}, {
 				key: 'init',
 				value: function init() {
 					defaultCfg.addSageBtn = 0;
 					$script('highlight = function() {}');
 					return false;
-				}
-			}, {
-				key: 'css',
-				get: function get() {
-					return !this.t ? '' : '\n\t\t\t#de-main { margin-top: -37px; }\n\t\t\t.logo { margin-bottom: 14px; }';
-				}
-			}, {
-				key: 'isArchived',
-				get: function get() {
-					return this.b.includes('/arch');
 				}
 			}, {
 				key: 'qFormMail',
@@ -19344,6 +19327,21 @@ true, true],
 				key: 'qFormSubj',
 				get: function get() {
 					return 'input[name="nya3"]';
+				}
+			}, {
+				key: 'catalogUrl',
+				get: function get() {
+					return this.prot + '//' + this.host + '/' + this.b + '/catalogue.html';
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return !this.t ? '' : '#de-main { margin-top: -37px; }\n\t\t\t\t.logo { margin-bottom: 14px; }';
+				}
+			}, {
+				key: 'isArchived',
+				get: function get() {
+					return this.b.includes('/arch');
 				}
 			}]);
 
@@ -19390,17 +19388,6 @@ true, true],
 			}
 
 			_createClass(Krautchan, [{
-				key: 'fixFileInputs',
-				value: function fixFileInputs(el) {
-					var str = '';
-					for (var i = 0; i < 4; ++i) {
-						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file_' + i + '" tabindex="7"></div>';
-					}
-					var node = $id('files_parent');
-					node.innerHTML = str;
-					node.removeAttribute('id');
-				}
-			}, {
 				key: 'fixDeadLinks',
 				value: function fixDeadLinks(str) {
 					return str.replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g, '<a class="de-ref-del" href="#$1">&gt;&gt;$1</a>');
@@ -19409,11 +19396,6 @@ true, true],
 				key: 'fixHTMLHelper',
 				value: function fixHTMLHelper(str) {
 					return str.replace(/href="(#\d+)"/g, 'href="/' + aib.b + '/thread-' + aib.t + '.html$1"');
-				}
-			}, {
-				key: 'getCatalogUrl',
-				value: function getCatalogUrl() {
-					return this.prot + '//' + this.host + '/catalog/' + this.b;
 				}
 			}, {
 				key: 'getImgWrap',
@@ -19460,6 +19442,14 @@ true, true],
 					return $bBegin(prev.hasAttribute('style') ? prev : pMsg, playerHtml);
 				}
 			}, {
+				key: 'parseURL',
+				value: function parseURL() {
+					_get(Krautchan.prototype.__proto__ || Object.getPrototypeOf(Krautchan.prototype), 'parseURL', this).call(this);
+					if (this.b.startsWith('board/')) {
+						this.b = this.b.substr(6);
+					}
+				}
+			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap, isErr) {
 					if (isErr && !cap.hasCaptcha) {
@@ -19498,19 +19488,6 @@ true, true],
 					return null;
 				}
 			}, {
-				key: 'parseURL',
-				value: function parseURL() {
-					_get(Krautchan.prototype.__proto__ || Object.getPrototypeOf(Krautchan.prototype), 'parseURL', this).call(this);
-					if (this.b.startsWith('board/')) {
-						this.b = this.b.substr(6);
-					}
-				}
-			}, {
-				key: 'css',
-				get: function get() {
-					return '\n\t\t\timg[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none; }\n\t\t\t.de-thr-hid { float: none; }\n\t\t\t.de-video-obj-inline { margin-left: 5px; }\t\t\tdiv[id^="Wz"] { z-index: 10000 !important; }\n\t\t\tform[action="/paint"] > select { width: 105px; }\n\t\t\tform[action="/paint"] > input[type="text"] { width: 24px !important; }';
-				}
-			}, {
 				key: 'qFormName',
 				get: function get() {
 					return 'input[name="internal_n"]';
@@ -19529,6 +19506,27 @@ true, true],
 				key: 'qThread',
 				get: function get() {
 					return '.thread_body';
+				}
+			}, {
+				key: 'catalogUrl',
+				get: function get() {
+					return this.prot + '//' + this.host + '/catalog/' + this.b;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return 'img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none; }\n\t\t\t\t.de-thr-hid { float: none; }\n\t\t\t\t.de-video-obj-inline { margin-left: 5px; }\t\t\t\tdiv[id^="Wz"] { z-index: 10000 !important; }\n\t\t\t\tform[action="/paint"] > select { width: 105px; }\n\t\t\t\tform[action="/paint"] > input[type="text"] { width: 24px !important; }';
+				}
+			}, {
+				key: 'fixFileInputs',
+				get: function get() {
+					var str = '';
+					for (var i = 0; i < 4; ++i) {
+						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file_' + i + '" tabindex="7"></div>';
+					}
+					var node = $id('files_parent');
+					node.innerHTML = str;
+					node.removeAttribute('id');
 				}
 			}, {
 				key: 'markupTags',
@@ -19566,7 +19564,7 @@ true, true],
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(Lainchan.prototype.__proto__ || Object.getPrototypeOf(Lainchan.prototype), 'css', this) + '\n\t\t\t.sidearrows { display: none !important; }\n\t\t\t.bar { position: static; }';
+					return _get(Lainchan.prototype.__proto__ || Object.getPrototypeOf(Lainchan.prototype), 'css', this) + '.sidearrows { display: none !important; }\n\t\t\t\t.bar { position: static; }';
 				}
 			}]);
 
@@ -19675,7 +19673,7 @@ true, true],
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(Ponychan.prototype.__proto__ || Object.getPrototypeOf(Ponychan.prototype), 'css', this) + '\n\t\t\t.mature_thread { display: block !important; }\n\t\t\t.mature_warning { display: none; }';
+					return _get(Ponychan.prototype.__proto__ || Object.getPrototypeOf(Ponychan.prototype), 'css', this) + '.mature_thread { display: block !important; }\n\t\t\t\t.mature_warning { display: none; }';
 				}
 			}]);
 
@@ -19716,7 +19714,7 @@ true, true],
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(Synch.prototype.__proto__ || Object.getPrototypeOf(Synch.prototype), 'css', this) + '\n\t\t\t.fa-sort { display: none; }\n\t\t\ttime::after { content: none; }';
+					return _get(Synch.prototype.__proto__ || Object.getPrototypeOf(Synch.prototype), 'css', this) + '.fa-sort { display: none; }\n\t\t\t\ttime::after { content: none; }';
 				}
 			}, {
 				key: 'markupTags',
@@ -20921,7 +20919,9 @@ true, true],
 							break;
 						}
 
-						aib.observeContent(checkDomains, cfgPromise);
+						if (aib.observeContent) {
+							aib.observeContent(checkDomains, cfgPromise);
+						}
 						return _context22.abrupt('return');
 
 					case 9:
