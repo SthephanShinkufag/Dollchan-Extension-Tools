@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '3f68278';
+const commit = 'e37e571';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7172,8 +7172,8 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	this.pArea = [$bBegin(DelForm.first.el, html),
 	              $aEnd(aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el, html)];
 	this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
-	this._pBtn[0].firstElementChild.onclick = () => this.showMainReply(false);
-	this._pBtn[1].firstElementChild.onclick = () => this.showMainReply(true);
+	this._pBtn[0].firstElementChild.onclick = e => this.showMainReply(false, e);
+	this._pBtn[1].firstElementChild.onclick = e => this.showMainReply(true, e);
 	this.qArea = $add('<div style="display: none; ' + Cfg.replyWinX + '; ' + Cfg.replyWinY +
 		'; z-index: ' + (++topWinZ) + ';" id="de-win-reply" class="' + aib.cReply +
 		(Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost') + '"></div>');
@@ -7208,7 +7208,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 			this.txta.focus();
 		}
 	};
-	el.lastElementChild.onclick = () => this.closeReply(this);
+	el.lastElementChild.onclick = () => this.closeReply();
 	if(!this.form || !this.txta) {
 		return;
 	}
@@ -9331,7 +9331,7 @@ var ImagesHashStorage = Object.create({
 		}
 	},
 	get getHash() {
-		var val = () => this._getHashHelper(this);
+		var val = this._getHashHelper.bind(this);
 		Object.defineProperty(this, 'getHash', { value: val });
 		return val;
 	},
