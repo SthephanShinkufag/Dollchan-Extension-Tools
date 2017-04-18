@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '6099b68';
+	var commit = '9af3e64';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -21045,18 +21045,27 @@ true, true],
 						_context22.prev = 52;
 
 						DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
-						_context22.next = 61;
-						break;
+
+						if (Thread.first) {
+							_context22.next = 56;
+							break;
+						}
+
+						throw 'No threads detected!';
 
 					case 56:
-						_context22.prev = 56;
+						_context22.next = 63;
+						break;
+
+					case 58:
+						_context22.prev = 58;
 						_context22.t2 = _context22['catch'](52);
 
 						console.error('Delform parsing error:', getErrorMessage(_context22.t2));
 						$show(docBody);
 						return _context22.abrupt('return');
 
-					case 61:
+					case 63:
 						Logger.log('Parse delform');
 						storageName = 'de-lastpcount-' + aib.b + '-' + aib.t;
 
@@ -21087,13 +21096,13 @@ true, true],
 						firstThr = DelForm.first.firstThr;
 
 						if (!firstThr) {
-							_context22.next = 82;
+							_context22.next = 84;
 							break;
 						}
 
-						return _context22.delegateYield(readPostsData(firstThr.op), 't3', 82);
+						return _context22.delegateYield(readPostsData(firstThr.op), 't3', 84);
 
-					case 82:
+					case 84:
 						Logger.log('Hide posts');
 						scrollPage();
 						Logger.log('Scroll page');
@@ -21108,12 +21117,12 @@ true, true],
 						}
 						Logger.finish();
 
-					case 87:
+					case 89:
 					case 'end':
 						return _context22.stop();
 				}
 			}
-		}, _marked[6], this, [[52, 56]]);
+		}, _marked[6], this, [[52, 58]]);
 	}
 
 	if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {

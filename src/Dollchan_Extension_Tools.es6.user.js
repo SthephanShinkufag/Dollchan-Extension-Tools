@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '6099b68';
+const commit = '9af3e64';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -15972,6 +15972,9 @@ function* runMain(checkDomains, cfgPromise) {
 	pByNum = new Map();
 	try {
 		DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
+		if(!Thread.first) {
+			throw 'No threads detected!';
+		}
 	} catch(e) {
 		console.error('Delform parsing error:', getErrorMessage(e));
 		$show(docBody);
