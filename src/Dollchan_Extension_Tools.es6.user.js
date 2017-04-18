@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '9af3e64';
+const commit = '2a70745';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -5269,9 +5269,8 @@ Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
 	$show(el);
 	if(!enableJsapi) {
 		el.lastChild.onclick = function() {
-			var node = this.parentNode;
-			node.className = node.className === 'de-video-obj' ?
-				'de-video-obj de-video-expanded' : 'de-video-obj';
+			const node = this.parentNode;
+			node.className = 'de-video-obj' + (node.className === 'de-video-obj' ? ' de-video-expanded' : '');
 		};
 	}
 };
@@ -15861,7 +15860,8 @@ function updateCSS() {
 	${ Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '' }
 	${ Cfg.resizeImgs ? '' : '.de-img-wrapper-inpost > .de-img-full { width: auto; }' }
 	${ Cfg.maskImgs ? aib.qPostImg + `, .de-img-pre, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; } ${
-		aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }` : '' }
+		aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }
+		.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }
 	${ Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : ''}
 	${ Cfg.widePosts ? `.${ aib.cReply.replace(/\s/, '.') }:not(.de-pview) { float: none; width: 100%; }` : '' }
 	${ Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '' }
