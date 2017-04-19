@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '2a70745';
+const commit = '9dbef43';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -4879,10 +4879,10 @@ function preloadImages(data) {
 				console.error('File detector error:', `line: ${ e.lineno } - ${ e.message }`);
 			});
 		pool = new TasksPool(mReqs, (num, data) => downloadImgData(data[0]).then(imageData => {
-			var [url, imgLink, iType, nExp, el] = data;
+			const [url, imgLink, iType, nExp, el] = data;
 			if(imageData) {
-				var fName = url.substring(url.lastIndexOf('/') + 1),
-					nameLink = $q(aib.qImgName, aib.getImgWrap(imgLink));
+				const fName = url.substring(url.lastIndexOf('/') + 1);
+				const nameLink = $q(aib.qImgName, aib.getImgWrap(el));
 				imgLink.setAttribute('download', fName);
 				nameLink.setAttribute('download', fName);
 				nameLink.setAttribute('de-href', nameLink.href);
@@ -4983,7 +4983,7 @@ function loadDocFiles(imgOnly) {
 			} else {
 				thumbName = 'thumbs/' + thumbName;
 				safeName = imgData ? 'images/' + safeName : thumbName;
-				imgLink.href = $q('a[de-href], ' + aib.qImgName, aib.getImgWrap(imgLink)).href = safeName;
+				imgLink.href = $q('a[de-href], ' + aib.qImgName, aib.getImgWrap(el)).href = safeName;
 			}
 			if(imgData) {
 				tar.addFile(safeName, imgData);
@@ -6860,7 +6860,7 @@ SpellsInterpreter.prototype = {
 	},
 	_imgn(val) {
 		for(var image of this._post.images) {
-			if((image instanceof Attachment) && val.test(image.info)) {
+			if((image instanceof Attachment) && val.test(image.name)) {
 				return true;
 			}
 		}
@@ -9280,7 +9280,7 @@ class EmbeddedImage extends ExpandableMedia {
 
 class Attachment extends ExpandableMedia {
 	get info() {
-		const val = aib.getFileInfo(aib.getImgWrap(this.el.parentNode));
+		const val = aib.getImgInfo(aib.getImgWrap(this.el));
 		Object.defineProperty(this, 'info', { value: val });
 		return val;
 	}
@@ -9301,7 +9301,7 @@ class Attachment extends ExpandableMedia {
 	}
 
 	_getImageParent() {
-		return aib.getImgParent(this.el.parentNode);
+		return aib.getImgWrap(this.el);
 	}
 	_getImageSize() {
 		if(this.info) {
@@ -9311,9 +9311,9 @@ class Attachment extends ExpandableMedia {
 		return null;
 	}
 	_getImageSrc() {
-		// XXX: DON'T USE aib.getImgLink(this.el).href
+		// XXX: DON'T USE aib.getImgSrcLink(this.el).href
 		// If #ihash spells enabled, Chrome reads href in ajaxed posts as empty -> image can't be expanded!
-		return aib.getImgLink(this.el).getAttribute('href');
+		return aib.getImgSrcLink(this.el).getAttribute('href');
 	}
 }
 Attachment.viewer = null;
@@ -12455,11 +12455,11 @@ class BaseBoard {
 		this.qDelPassw = 'input[type="password"], input[name="password"]'; // Differs Vichan only
 		this.qDForm = '#delform, form[name="delform"]';
 		this.qError = 'h1, h2, font[size="5"]';
-		this.qFileInfo = '.filesize';
 		this.qForm = '#postform';
 		this.qFormPassw = 'tr input[type="password"]'; // Differs Tinyboard only
 		this.qFormRedir = 'input[name="postredir"][value="1"]';
 		this.qFormRules = '.rules, #rules';
+		this.qImgInfo = '.filesize';
 		this.qOmitted = '.omittedposts';
 		this.qOPost = '.oppost';
 		this.qPages = 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type';
@@ -12510,7 +12510,7 @@ class BaseBoard {
 			'[name="subject"]', '[name="field3"]');
 	}
 	get qImgName() {
-		var value = nav.cssMatches(this.qFileInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]',
+		var value = nav.cssMatches(this.qImgInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]',
 			'[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]');
 		Object.defineProperty(this, 'qImgName', { value });
 		return value;
@@ -12667,20 +12667,15 @@ class BaseBoard {
 		return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum)
 					: tmp.replace(/res\d+/, 'mainpage');
 	}
-	getFileInfo(wrap) {
-		var el = $q(this.qFileInfo, wrap);
+	getImgInfo(wrap) {
+		const el = $q(this.qImgInfo, wrap);
 		return el ? el.textContent : '';
 	}
-	getImgLink(img) {
-		var el = img.parentNode;
-		return el.tagName === 'SPAN' ? el.parentNode : el;
+	getImgSrcLink(img) {
+		return $parent(img, 'A');
 	}
-	getImgParent(el) { // Differs Makaba only
-		return this.getImgWrap(el);
-	}
-	getImgWrap(el) {
-		var node = (el.tagName === 'SPAN' ? el.parentNode : el).parentNode;
-		return node.tagName === 'SPAN' ? node.parentNode : node;
+	getImgWrap(img) {
+		return $parent(img, 'A').parentNode;
 	}
 	getJsonApiUrl(brd, tNum) {}
 	getOmitted(el, len) {
@@ -12781,9 +12776,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qBan = '.pomyanem';
 			this.qClosed = '.sticky-img[src$="locked.png"]';
 			this.qDForm = '#posts-form';
-			this.qFileInfo = '.file-attr';
 			this.qFormRedir = null;
 			this.qFormRules = '.rules-area';
+			this.qImgInfo = '.file-attr';
 			this.qOmitted = '.mess-post';
 			this.qPostHeader = '.post-details';
 			this.qPostImg = '.preview';
@@ -12845,17 +12840,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return el.textContent.includes('предупрежден') ? 2 : 1;
 		}
-		getFileInfo(wrap) {
-			var el = $q(this.qFileInfo, wrap);
-			return el ? el.textContent : '';
-		}
-		getImgParent(node) {
-			var el = $parent(node, 'FIGURE'),
-				parent = el.parentNode;
-			return parent.lastElementChild === el ? parent : el;
-		}
-		getImgWrap(el) {
-			return $parent(el, 'FIGURE');
+		getImgWrap(img) {
+			return img.parentNode.parentNode.parentNode;
 		}
 		getJsonApiUrl(brd, tNum) {
 			return `/${ brd }/res/${ tNum }.json`;
@@ -13001,10 +12987,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.cReply = 'post reply';
 			this.qClosed = '.fa-lock';
 			this.qDForm = 'form[name*="postcontrols"]';
-			this.qFileInfo = '.fileinfo';
 			this.qForm = 'form[name="post"]';
 			this.qFormPassw = 'input[name="password"]';
 			this.qFormRedir = null;
+			this.qImgInfo = '.fileinfo';
 			this.qOmitted = '.omitted';
 			this.qPages = '.pages > a:nth-last-of-type(2)';
 			this.qPostHeader = '.intro';
@@ -13220,8 +13206,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.parentNode.parentNode.innerHTML =
 				'<div' + str + ('<div style="display: none;"' + str).repeat(3);
 		}
-		getImgWrap(el) {
-			return el.parentNode.parentNode;
+		getImgWrap(img) {
+			return img.parentNode.parentNode.parentNode;
 		}
 		getPageUrl(b, p) {
 			return p > 1 ? fixBrd(b) + 'page/' + p : fixBrd(b);
@@ -13245,8 +13231,8 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.cReply = 'block post';
 			this.qDForm = '#content > div > .threads-scroll-spy + div, .threads > div:first-of-type';
-			this.qFileInfo = 'figcaption';
 			this.qForm = '.reply-form';
+			this.qImgInfo = 'figcaption';
 			this.qOmitted = 'div[style="margin-left: 25px; font-weight: bold;"]';
 			this.qOPost = '.post-op';
 			this.qPostHeader = '.post-header';
@@ -13271,8 +13257,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				label { font-weight: initial; }
 				hr { margin: 4px; border-top: 1px solid #bbb; }`;
 		}
-		getImgWrap(el) {
-			return $parent(el, 'FIGURE');
+		getImgWrap(img) {
+			return img.parentNode.parentNode.parentNode;
 		}
 		getJsonApiUrl(brd, num) {
 			return '/api/thread?thread=' + num;
@@ -13606,9 +13592,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qClosed = '.archivedIcon';
 			this.qDelBut = '.deleteform > input[type="submit"]';
 			this.qError = '#errmsg';
-			this.qFileInfo = '.fileText';
 			this.qForm = 'form[name="post"]';
 			this.qFormRedir = null;
+			this.qImgInfo = '.fileText';
 			this.qOmitted = '.summary.desktop';
 			this.qOPost = '.op';
 			this.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
@@ -13679,15 +13665,15 @@ function getImageBoard(checkDomains, checkEngines) {
 		fixHTMLHelper(str) {
 			return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
 		}
-		getFileInfo(wrap) {
-			var el = $q(this.qFileInfo, wrap);
+		getImgInfo(wrap) {
+			const el = $q(this.qImgInfo, wrap);
 			return el ? el.lastChild.textContent : '';
 		}
 		getJsonApiUrl(brd, tNum) {
 			return `//a.4cdn.org/${ brd }/thread/${ tNum }.json`;
 		}
-		getImgWrap(el) {
-			return el.parentNode.parentNode;
+		getImgWrap(img) {
+			return img.parentNode.parentNode;
 		}
 		getPageUrl(b, p) {
 			return fixBrd(b) + (p > 1 ? p : '');
@@ -13817,37 +13803,19 @@ function getImageBoard(checkDomains, checkEngines) {
 		fixHTML(data, isForm) {
 			const el = super.fixHTML(data, isForm);
 			try {
-				const links = $Q('.post-reply-link', el);
-				const lLen = links.length;
-				for(let i = 0; i < lLen; ++i) {
-					const link = links[i];
-					link.textContent = '>>' + link.getAttribute('data-num');
-				}
-				const thumbs = $Q('.expand_image', el);
-				const tLen = thumbs.length;
-				for(let i = 0; i < tLen; ++i) {
-					const thumb = thumbs[i];
-					const link = thumb.getAttribute('onclick').match(/http:\/[^']+/)[0];
-					const div = thumb.firstElementChild;
-					const iframe = div.firstElementChild;
-					thumb.href = thumb.nextElementSibling.href = link;
-					if(iframe.tagName === 'IFRAME') {
-						div.innerHTML = '<img src="' + link.replace('/img/', '/thumb/') +
-							'" width="' + iframe.width + '" height="' + iframe.height + '">';
-					}
+				const els = $Q('.expand_image', el);
+				for(let i = 0, tLen = els.length; i < tLen; ++i) {
+					els[i].href = els[i].getAttribute('onclick').match(/http:\/[^']+/)[0];
 				}
 			} catch(e) {}
 			return el;
 		}
-		getFileInfo(wrap) {
-			var data = wrap.firstElementChild.getAttribute('onclick').match(/'([1-9]\d*)','([1-9]\d*)'/);
-			return data ? data[1] + 'x' + data[2] : null;
+		getImgInfo(wrap) {
+			const data = wrap.firstElementChild.getAttribute('onclick').match(/'([1-9]\d*)','([1-9]\d*)'/);
+			return data ? `${ data[1] }x${ data[2] }, 0Kb`  : null;
 		}
-		getImgLink(img) {
-			return img.parentNode.parentNode.parentNode.lastElementChild;
-		}
-		getImgWrap(el) {
-			return el.parentNode.parentNode;
+		getImgWrap(img) {
+			return $parent(img, 'A').parentNode;
 		}
 		getOp(el) {
 			return $q('.post:first-child', el);
@@ -13906,8 +13874,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ["b", "i", 'u', 's', 'spoiler', 'code'];
 		}
-		getImgWrap(el) {
-			return el.parentNode.parentNode;
+		getImgWrap(img) {
+			return img.parentNode.parentNode.parentNode;
 		}
 		getSage(post) {
 			return !!$q('.sage', post);
@@ -13951,8 +13919,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qClosed = 'img[src="/images/locked.png"]';
 			this.qDForm = 'form[action*="delete"]';
 			this.qError = '.post-error, h2';
-			this.qFileInfo = '.fileinfo';
 			this.qFormRedir = 'select[name="goto"]';
+			this.qImgInfo = '.fileinfo';
 			this.qOmitted = '.abbrev > span:last-of-type';
 			this.qPages = '.pages > tbody > tr > td';
 			this.qPostMsg = '.postbody';
@@ -13984,14 +13952,16 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 			el.firstElementChild.value = 1;
 		}
-		getImgLink(img) {
-			var el = img.parentNode;
+		getImgSrcLink(img) {
+			// There are can be censored <img> that may not have <a> containers
+			const el = img.parentNode;
 			return el.tagName === 'A' ? el :
 				$q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
 		}
-		getImgWrap(el) {
+		getImgWrap(img) {
+			const el = img.parentNode;
 			return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode :
-				el.firstElementChild.tagName === 'IMG' ? el.parentNode : el;
+				img.previousElementSibling ? el : el.parentNode
 		}
 		getJsonApiUrl(brd, tNum) {
 			return `/api/thread/${ brd }/${ tNum }/all.json?new_format&message_html&board`;
@@ -14106,9 +14076,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qClosed = 'img[src="/images/locked.gif"]';
 			this.qDForm = 'form[action*="delete"]';
 			this.qError = '.message_text';
-			this.qFileInfo = '.fileinfo';
 			this.qFormRedir = 'input#forward_thread';
 			this.qFormRules = '#rules_row';
+			this.qImgInfo = '.fileinfo';
 			this.qOmitted = '.omittedinfo';
 			this.qPages = 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a';
 			this.qPostHeader = '.postheader';
@@ -14169,8 +14139,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		fixHTMLHelper(str) {
 			return str.replace(/href="(#\d+)"/g, 'href="/' + aib.b + '/thread-' + aib.t + '.html$1"');
 		}
-		getImgWrap(el) {
-			return el.parentNode;
+		getImgWrap(img) {
+			return img.parentNode.parentNode;
 		}
 		getSage(post) {
 			return !!$q('.sage', post);
@@ -14265,9 +14235,16 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.qBan = 'font[color="#FF0000"]';
+			this.qImgInfo = '.filesize[style="display: inline;"]';
 
 			this.jsonSubmit = true;
 			this.multiFile = true;
+		}
+		get qImgName() {
+			return '.filesize[style="display: inline;"] > .mobile_filename_hide';
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode.parentNode.parentNode;
 		}
 		getPNum(post) {
 			return +post.getAttribute('data-num');
@@ -14276,7 +14253,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return { error: json.error, postNum: json.id && +json.id };
 		}
 		init() {
-			var el = $id('postform');
+			const el = $id('postform');
 			if(el) {
 				el.setAttribute('action', el.getAttribute('action') + '?json=1');
 			}
@@ -14322,7 +14299,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
-			this.qFileInfo = '.unimportant';
+			this.qImgInfo = '.unimportant';
 
 			this.markupBB = true;
 		}

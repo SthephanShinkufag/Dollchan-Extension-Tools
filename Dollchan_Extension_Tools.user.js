@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '2a70745';
+	var commit = '9dbef43';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -8153,23 +8153,25 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					    el = _data3[4];
 
 					if (imageData) {
-						var fName = url.substring(url.lastIndexOf('/') + 1),
-						    nameLink = $q(aib.qImgName, aib.getImgWrap(imgLink));
-						imgLink.setAttribute('download', fName);
-						nameLink.setAttribute('download', fName);
-						nameLink.setAttribute('de-href', nameLink.href);
-						imgLink.href = nameLink.href = window.URL.createObjectURL(new Blob([imageData], { 'type': iType }));
-						if (iType === 'video/webm') {
-							el.setAttribute('de-video', '');
-						}
-						if (nExp) {
-							el.src = imgLink.href;
-						}
-						if (rjf) {
-							rjf.run(imageData.buffer, [imageData.buffer], function (info) {
-								return addImgFileIcon(nameLink, fName, info);
-							});
-						}
+						(function () {
+							var fName = url.substring(url.lastIndexOf('/') + 1);
+							var nameLink = $q(aib.qImgName, aib.getImgWrap(el));
+							imgLink.setAttribute('download', fName);
+							nameLink.setAttribute('download', fName);
+							nameLink.setAttribute('de-href', nameLink.href);
+							imgLink.href = nameLink.href = window.URL.createObjectURL(new Blob([imageData], { 'type': iType }));
+							if (iType === 'video/webm') {
+								el.setAttribute('de-video', '');
+							}
+							if (nExp) {
+								el.src = imgLink.href;
+							}
+							if (rjf) {
+								rjf.run(imageData.buffer, [imageData.buffer], function (info) {
+									return addImgFileIcon(nameLink, fName, info);
+								});
+							}
+						})();
 					}
 					if (Images_.progressId) {
 						$popup(Images_.progressId, Lng.loadImage[lang] + cImg + '/' + len, true);
@@ -8267,7 +8269,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					} else {
 						thumbName = 'thumbs/' + thumbName;
 						safeName = imgData ? 'images/' + safeName : thumbName;
-						imgLink.href = $q('a[de-href], ' + aib.qImgName, aib.getImgWrap(imgLink)).href = safeName;
+						imgLink.href = $q('a[de-href], ' + aib.qImgName, aib.getImgWrap(el)).href = safeName;
 					}
 					if (imgData) {
 						tar.addFile(safeName, imgData);
@@ -10470,7 +10472,7 @@ true, true],
 
 				var image = _ref33;
 
-				if (image instanceof Attachment && val.test(image.info)) {
+				if (image instanceof Attachment && val.test(image.name)) {
 					return true;
 				}
 			}
@@ -13390,7 +13392,7 @@ true, true],
 		_createClass(Attachment, [{
 			key: '_getImageParent',
 			value: function _getImageParent() {
-				return aib.getImgParent(this.el.parentNode);
+				return aib.getImgWrap(this.el);
 			}
 		}, {
 			key: '_getImageSize',
@@ -13404,12 +13406,12 @@ true, true],
 		}, {
 			key: '_getImageSrc',
 			value: function _getImageSrc() {
-				return aib.getImgLink(this.el).getAttribute('href');
+				return aib.getImgSrcLink(this.el).getAttribute('href');
 			}
 		}, {
 			key: 'info',
 			get: function get() {
-				var val = aib.getFileInfo(aib.getImgWrap(this.el.parentNode));
+				var val = aib.getImgInfo(aib.getImgWrap(this.el));
 				Object.defineProperty(this, 'info', { value: val });
 				return val;
 			}
@@ -17129,11 +17131,11 @@ true, true],
 			this.qDelPassw = 'input[type="password"], input[name="password"]'; 
 			this.qDForm = '#delform, form[name="delform"]';
 			this.qError = 'h1, h2, font[size="5"]';
-			this.qFileInfo = '.filesize';
 			this.qForm = '#postform';
 			this.qFormPassw = 'tr input[type="password"]'; 
 			this.qFormRedir = 'input[name="postredir"][value="1"]';
 			this.qFormRules = '.rules, #rules';
+			this.qImgInfo = '.filesize';
 			this.qOmitted = '.omittedposts';
 			this.qOPost = '.oppost';
 			this.qPages = 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type';
@@ -17273,27 +17275,20 @@ true, true],
 				return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum) : tmp.replace(/res\d+/, 'mainpage');
 			}
 		}, {
-			key: 'getFileInfo',
-			value: function getFileInfo(wrap) {
-				var el = $q(this.qFileInfo, wrap);
+			key: 'getImgInfo',
+			value: function getImgInfo(wrap) {
+				var el = $q(this.qImgInfo, wrap);
 				return el ? el.textContent : '';
 			}
 		}, {
-			key: 'getImgLink',
-			value: function getImgLink(img) {
-				var el = img.parentNode;
-				return el.tagName === 'SPAN' ? el.parentNode : el;
-			}
-		}, {
-			key: 'getImgParent',
-			value: function getImgParent(el) {
-				return this.getImgWrap(el);
+			key: 'getImgSrcLink',
+			value: function getImgSrcLink(img) {
+				return $parent(img, 'A');
 			}
 		}, {
 			key: 'getImgWrap',
-			value: function getImgWrap(el) {
-				var node = (el.tagName === 'SPAN' ? el.parentNode : el).parentNode;
-				return node.tagName === 'SPAN' ? node.parentNode : node;
+			value: function getImgWrap(img) {
+				return $parent(img, 'A').parentNode;
 			}
 		}, {
 			key: 'getJsonApiUrl',
@@ -17427,7 +17422,7 @@ true, true],
 		}, {
 			key: 'qImgName',
 			get: function get() {
-				var value = nav.cssMatches(this.qFileInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]');
+				var value = nav.cssMatches(this.qImgInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]');
 				Object.defineProperty(this, 'qImgName', { value: value });
 				return value;
 			}
@@ -17552,9 +17547,9 @@ true, true],
 				_this59.qBan = '.pomyanem';
 				_this59.qClosed = '.sticky-img[src$="locked.png"]';
 				_this59.qDForm = '#posts-form';
-				_this59.qFileInfo = '.file-attr';
 				_this59.qFormRedir = null;
 				_this59.qFormRules = '.rules-area';
+				_this59.qImgInfo = '.file-attr';
 				_this59.qOmitted = '.mess-post';
 				_this59.qPostHeader = '.post-details';
 				_this59.qPostImg = '.preview';
@@ -17588,22 +17583,9 @@ true, true],
 					return el.textContent.includes('предупрежден') ? 2 : 1;
 				}
 			}, {
-				key: 'getFileInfo',
-				value: function getFileInfo(wrap) {
-					var el = $q(this.qFileInfo, wrap);
-					return el ? el.textContent : '';
-				}
-			}, {
-				key: 'getImgParent',
-				value: function getImgParent(node) {
-					var el = $parent(node, 'FIGURE'),
-					    parent = el.parentNode;
-					return parent.lastElementChild === el ? parent : el;
-				}
-			}, {
 				key: 'getImgWrap',
-				value: function getImgWrap(el) {
-					return $parent(el, 'FIGURE');
+				value: function getImgWrap(img) {
+					return img.parentNode.parentNode.parentNode;
 				}
 			}, {
 				key: 'getJsonApiUrl',
@@ -17789,10 +17771,10 @@ true, true],
 				_this61.cReply = 'post reply';
 				_this61.qClosed = '.fa-lock';
 				_this61.qDForm = 'form[name*="postcontrols"]';
-				_this61.qFileInfo = '.fileinfo';
 				_this61.qForm = 'form[name="post"]';
 				_this61.qFormPassw = 'input[name="password"]';
 				_this61.qFormRedir = null;
+				_this61.qImgInfo = '.fileinfo';
 				_this61.qOmitted = '.omitted';
 				_this61.qPages = '.pages > a:nth-last-of-type(2)';
 				_this61.qPostHeader = '.intro';
@@ -18086,8 +18068,8 @@ true, true],
 				}
 			}, {
 				key: 'getImgWrap',
-				value: function getImgWrap(el) {
-					return el.parentNode.parentNode;
+				value: function getImgWrap(img) {
+					return img.parentNode.parentNode.parentNode;
 				}
 			}, {
 				key: 'getPageUrl',
@@ -18135,8 +18117,8 @@ true, true],
 
 				_this67.cReply = 'block post';
 				_this67.qDForm = '#content > div > .threads-scroll-spy + div, .threads > div:first-of-type';
-				_this67.qFileInfo = 'figcaption';
 				_this67.qForm = '.reply-form';
+				_this67.qImgInfo = 'figcaption';
 				_this67.qOmitted = 'div[style="margin-left: 25px; font-weight: bold;"]';
 				_this67.qOPost = '.post-op';
 				_this67.qPostHeader = '.post-header';
@@ -18153,8 +18135,8 @@ true, true],
 
 			_createClass(_0chanHk, [{
 				key: 'getImgWrap',
-				value: function getImgWrap(el) {
-					return $parent(el, 'FIGURE');
+				value: function getImgWrap(img) {
+					return img.parentNode.parentNode.parentNode;
 				}
 			}, {
 				key: 'getJsonApiUrl',
@@ -18639,9 +18621,9 @@ true, true],
 				_this77.qClosed = '.archivedIcon';
 				_this77.qDelBut = '.deleteform > input[type="submit"]';
 				_this77.qError = '#errmsg';
-				_this77.qFileInfo = '.fileText';
 				_this77.qForm = 'form[name="post"]';
 				_this77.qFormRedir = null;
+				_this77.qImgInfo = '.fileText';
 				_this77.qOmitted = '.summary.desktop';
 				_this77.qOPost = '.op';
 				_this77.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
@@ -18676,9 +18658,9 @@ true, true],
 					return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
 				}
 			}, {
-				key: 'getFileInfo',
-				value: function getFileInfo(wrap) {
-					var el = $q(this.qFileInfo, wrap);
+				key: 'getImgInfo',
+				value: function getImgInfo(wrap) {
+					var el = $q(this.qImgInfo, wrap);
 					return el ? el.lastChild.textContent : '';
 				}
 			}, {
@@ -18688,8 +18670,8 @@ true, true],
 				}
 			}, {
 				key: 'getImgWrap',
-				value: function getImgWrap(el) {
-					return el.parentNode.parentNode;
+				value: function getImgWrap(img) {
+					return img.parentNode.parentNode;
 				}
 			}, {
 				key: 'getPageUrl',
@@ -18927,42 +18909,23 @@ true, true],
 				value: function fixHTML(data, isForm) {
 					var el = _get(Arhivach.prototype.__proto__ || Object.getPrototypeOf(Arhivach.prototype), 'fixHTML', this).call(this, data, isForm);
 					try {
-						var links = $Q('.post-reply-link', el);
-						var lLen = links.length;
-						for (var _i48 = 0; _i48 < lLen; ++_i48) {
-							var link = links[_i48];
-							link.textContent = '>>' + link.getAttribute('data-num');
-						}
-						var thumbs = $Q('.expand_image', el);
-						var tLen = thumbs.length;
-						for (var _i49 = 0; _i49 < tLen; ++_i49) {
-							var thumb = thumbs[_i49];
-							var _link3 = thumb.getAttribute('onclick').match(/http:\/[^']+/)[0];
-							var div = thumb.firstElementChild;
-							var iframe = div.firstElementChild;
-							thumb.href = thumb.nextElementSibling.href = _link3;
-							if (iframe.tagName === 'IFRAME') {
-								div.innerHTML = '<img src="' + _link3.replace('/img/', '/thumb/') + '" width="' + iframe.width + '" height="' + iframe.height + '">';
-							}
+						var _els2 = $Q('.expand_image', el);
+						for (var _i48 = 0, tLen = _els2.length; _i48 < tLen; ++_i48) {
+							_els2[_i48].href = _els2[_i48].getAttribute('onclick').match(/http:\/[^']+/)[0];
 						}
 					} catch (e) {}
 					return el;
 				}
 			}, {
-				key: 'getFileInfo',
-				value: function getFileInfo(wrap) {
+				key: 'getImgInfo',
+				value: function getImgInfo(wrap) {
 					var data = wrap.firstElementChild.getAttribute('onclick').match(/'([1-9]\d*)','([1-9]\d*)'/);
-					return data ? data[1] + 'x' + data[2] : null;
-				}
-			}, {
-				key: 'getImgLink',
-				value: function getImgLink(img) {
-					return img.parentNode.parentNode.parentNode.lastElementChild;
+					return data ? data[1] + 'x' + data[2] + ', 0Kb' : null;
 				}
 			}, {
 				key: 'getImgWrap',
-				value: function getImgWrap(el) {
-					return el.parentNode.parentNode;
+				value: function getImgWrap(img) {
+					return $parent(img, 'A').parentNode;
 				}
 			}, {
 				key: 'getOp',
@@ -19054,8 +19017,8 @@ true, true],
 
 			_createClass(Brchan, [{
 				key: 'getImgWrap',
-				value: function getImgWrap(el) {
-					return el.parentNode.parentNode;
+				value: function getImgWrap(img) {
+					return img.parentNode.parentNode.parentNode;
 				}
 			}, {
 				key: 'getSage',
@@ -19077,16 +19040,16 @@ true, true],
 						$after(el2, el1);
 					}
 					var imgLinks = $Q('.fileinfo > a');
-					for (var _iterator36 = imgLinks, _isArray36 = Array.isArray(_iterator36), _i50 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
+					for (var _iterator36 = imgLinks, _isArray36 = Array.isArray(_iterator36), _i49 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
 						var _ref62;
 
 						if (_isArray36) {
-							if (_i50 >= _iterator36.length) break;
-							_ref62 = _iterator36[_i50++];
+							if (_i49 >= _iterator36.length) break;
+							_ref62 = _iterator36[_i49++];
 						} else {
-							_i50 = _iterator36.next();
-							if (_i50.done) break;
-							_ref62 = _i50.value;
+							_i49 = _iterator36.next();
+							if (_i49.done) break;
+							_ref62 = _i49.value;
 						}
 
 						var a = _ref62;
@@ -19153,8 +19116,8 @@ true, true],
 				_this85.qClosed = 'img[src="/images/locked.png"]';
 				_this85.qDForm = 'form[action*="delete"]';
 				_this85.qError = '.post-error, h2';
-				_this85.qFileInfo = '.fileinfo';
 				_this85.qFormRedir = 'select[name="goto"]';
+				_this85.qImgInfo = '.fileinfo';
 				_this85.qOmitted = '.abbrev > span:last-of-type';
 				_this85.qPages = '.pages > tbody > tr > td';
 				_this85.qPostMsg = '.postbody';
@@ -19187,15 +19150,16 @@ true, true],
 					el.firstElementChild.value = 1;
 				}
 			}, {
-				key: 'getImgLink',
-				value: function getImgLink(img) {
+				key: 'getImgSrcLink',
+				value: function getImgSrcLink(img) {
 					var el = img.parentNode;
 					return el.tagName === 'A' ? el : $q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
 				}
 			}, {
 				key: 'getImgWrap',
-				value: function getImgWrap(el) {
-					return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode : el.firstElementChild.tagName === 'IMG' ? el.parentNode : el;
+				value: function getImgWrap(img) {
+					var el = img.parentNode;
+					return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode : img.previousElementSibling ? el : el.parentNode;
 				}
 			}, {
 				key: 'getJsonApiUrl',
@@ -19365,9 +19329,9 @@ true, true],
 				_this87.qClosed = 'img[src="/images/locked.gif"]';
 				_this87.qDForm = 'form[action*="delete"]';
 				_this87.qError = '.message_text';
-				_this87.qFileInfo = '.fileinfo';
 				_this87.qFormRedir = 'input#forward_thread';
 				_this87.qFormRules = '#rules_row';
+				_this87.qImgInfo = '.fileinfo';
 				_this87.qOmitted = '.omittedinfo';
 				_this87.qPages = 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a';
 				_this87.qPostHeader = '.postheader';
@@ -19399,8 +19363,8 @@ true, true],
 				}
 			}, {
 				key: 'getImgWrap',
-				value: function getImgWrap(el) {
-					return el.parentNode;
+				value: function getImgWrap(img) {
+					return img.parentNode.parentNode;
 				}
 			}, {
 				key: 'getSage',
@@ -19459,16 +19423,16 @@ true, true],
 					var sessionId = null;
 					var cookie = doc.cookie;
 					if (cookie.includes('desuchan.session')) {
-						for (var _iterator37 = cookie.split(';'), _isArray37 = Array.isArray(_iterator37), _i51 = 0, _iterator37 = _isArray37 ? _iterator37 : _iterator37[Symbol.iterator]();;) {
+						for (var _iterator37 = cookie.split(';'), _isArray37 = Array.isArray(_iterator37), _i50 = 0, _iterator37 = _isArray37 ? _iterator37 : _iterator37[Symbol.iterator]();;) {
 							var _ref63;
 
 							if (_isArray37) {
-								if (_i51 >= _iterator37.length) break;
-								_ref63 = _iterator37[_i51++];
+								if (_i50 >= _iterator37.length) break;
+								_ref63 = _iterator37[_i50++];
 							} else {
-								_i51 = _iterator37.next();
-								if (_i51.done) break;
-								_ref63 = _i51.value;
+								_i50 = _iterator37.next();
+								if (_i50.done) break;
+								_ref63 = _i50.value;
 							}
 
 							var c = _ref63;
@@ -19604,6 +19568,7 @@ true, true],
 				var _this90 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
 
 				_this90.qBan = 'font[color="#FF0000"]';
+				_this90.qImgInfo = '.filesize[style="display: inline;"]';
 
 				_this90.jsonSubmit = true;
 				_this90.multiFile = true;
@@ -19611,6 +19576,11 @@ true, true],
 			}
 
 			_createClass(Ponyach, [{
+				key: 'getImgWrap',
+				value: function getImgWrap(img) {
+					return img.parentNode.parentNode.parentNode.parentNode;
+				}
+			}, {
 				key: 'getPNum',
 				value: function getPNum(post) {
 					return +post.getAttribute('data-num');
@@ -19630,6 +19600,11 @@ true, true],
 					defaultCfg.postSameImg = 0;
 					defaultCfg.removeEXIF = 0;
 					return false;
+				}
+			}, {
+				key: 'qImgName',
+				get: function get() {
+					return '.filesize[style="display: inline;"] > .mobile_filename_hide';
 				}
 			}]);
 
@@ -19690,7 +19665,7 @@ true, true],
 
 				var _this92 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
 
-				_this92.qFileInfo = '.unimportant';
+				_this92.qImgInfo = '.unimportant';
 
 				_this92.markupBB = true;
 				return _this92;
@@ -19883,16 +19858,16 @@ true, true],
 					case 'registerapi':
 						if (data) {
 							rv = {};
-							for (var _iterator38 = data, _isArray38 = Array.isArray(_iterator38), _i52 = 0, _iterator38 = _isArray38 ? _iterator38 : _iterator38[Symbol.iterator]();;) {
+							for (var _iterator38 = data, _isArray38 = Array.isArray(_iterator38), _i51 = 0, _iterator38 = _isArray38 ? _iterator38 : _iterator38[Symbol.iterator]();;) {
 								var _ref66;
 
 								if (_isArray38) {
-									if (_i52 >= _iterator38.length) break;
-									_ref66 = _iterator38[_i52++];
+									if (_i51 >= _iterator38.length) break;
+									_ref66 = _iterator38[_i51++];
 								} else {
-									_i52 = _iterator38.next();
-									if (_i52.done) break;
-									_ref66 = _i52.value;
+									_i51 = _iterator38.next();
+									if (_i51.done) break;
+									_ref66 = _i51.value;
 								}
 
 								var aName = _ref66;
@@ -21142,7 +21117,7 @@ true, true],
 		needScroll = false;
 		async(runMain)(true, null);
 	} else {
-		var _ret10 = function () {
+		var _ret11 = function () {
 			var cfgPromise = null;
 			if (aib = getImageBoard(true, false)) {
 				if (!checkStorage()) {
@@ -21163,7 +21138,7 @@ true, true],
 			}));
 		}();
 
-		if ((typeof _ret10 === 'undefined' ? 'undefined' : _typeof(_ret10)) === "object") return _ret10.v;
+		if ((typeof _ret11 === 'undefined' ? 'undefined' : _typeof(_ret11)) === "object") return _ret11.v;
 	}
 })(window.opera && window.opera.scriptStorage, window.FormData, function (x, y) {
 	return window.scrollTo(x, y);
