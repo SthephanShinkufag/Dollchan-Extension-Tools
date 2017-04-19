@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = 'b1b0328';
+const commit = '53ff935';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -8291,6 +8291,7 @@ function checkUpload(data) {
 		$popup('upload', error);
 		updater.sendErrNotif();
 		updater.continue();
+		DollchanAPI.notify('submitform', { success: false, error: error });
 		return;
 	}
 	const tNum = pr.tNum;
@@ -8301,6 +8302,7 @@ function checkUpload(data) {
 		pByNum.get(tNum).thr.setFavorState(true, 'onreply');
 	}
 	pr.clearForm();
+	DollchanAPI.notify('submitform', { success: true, num: postNum });
 	Cfg.stats[tNum ? 'reply' : 'op']++;
 	saveCfgObj(aib.dm, Cfg);
 	if(!tNum) {
@@ -14243,6 +14245,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qBan = 'font[color="#FF0000"]';
 			this.qImgInfo = '.filesize[style="display: inline;"]';
 
+			this.formParent = 'replythread';
 			this.jsonSubmit = true;
 			this.multiFile = true;
 		}
@@ -14482,7 +14485,8 @@ class DollchanAPI {
 	static _register(name) {
 		switch(name) {
 		case 'newpost':
-		case 'expandmedia': break;
+		case 'expandmedia':
+		case 'submitform': break;
 		default: return false;
 		}
 		DollchanAPI.activeListeners.add(name);

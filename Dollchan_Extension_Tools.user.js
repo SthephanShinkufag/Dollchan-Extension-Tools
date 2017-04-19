@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = 'b1b0328';
+	var commit = '53ff935';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -12152,6 +12152,7 @@ true, true],
 			$popup('upload', error);
 			updater.sendErrNotif();
 			updater['continue']();
+			DollchanAPI.notify('submitform', { success: false, error: error });
 			return;
 		}
 		var tNum = pr.tNum;
@@ -12162,6 +12163,7 @@ true, true],
 			pByNum.get(tNum).thr.setFavorState(true, 'onreply');
 		}
 		pr.clearForm();
+		DollchanAPI.notify('submitform', { success: true, num: postNum });
 		Cfg.stats[tNum ? 'reply' : 'op']++;
 		saveCfgObj(aib.dm, Cfg);
 		if (!tNum) {
@@ -19580,6 +19582,7 @@ true, true],
 				_this90.qBan = 'font[color="#FF0000"]';
 				_this90.qImgInfo = '.filesize[style="display: inline;"]';
 
+				_this90.formParent = 'replythread';
 				_this90.jsonSubmit = true;
 				_this90.multiFile = true;
 				return _this90;
@@ -19900,6 +19903,7 @@ true, true],
 				switch (name) {
 					case 'newpost':
 					case 'expandmedia':
+					case 'submitform':
 						break;
 					default:
 						return false;
