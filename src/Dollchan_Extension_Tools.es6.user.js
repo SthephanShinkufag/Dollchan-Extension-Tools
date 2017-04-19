@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '9dbef43';
+const commit = 'b1b0328';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -4882,7 +4882,7 @@ function preloadImages(data) {
 			const [url, imgLink, iType, nExp, el] = data;
 			if(imageData) {
 				const fName = url.substring(url.lastIndexOf('/') + 1);
-				const nameLink = $q(aib.qImgName, aib.getImgWrap(el));
+				const nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
 				imgLink.setAttribute('download', fName);
 				nameLink.setAttribute('download', fName);
 				nameLink.setAttribute('de-href', nameLink.href);
@@ -4983,7 +4983,7 @@ function loadDocFiles(imgOnly) {
 			} else {
 				thumbName = 'thumbs/' + thumbName;
 				safeName = imgData ? 'images/' + safeName : thumbName;
-				imgLink.href = $q('a[de-href], ' + aib.qImgName, aib.getImgWrap(el)).href = safeName;
+				imgLink.href = $q('a[de-href], ' + aib.qImgNameLink, aib.getImgWrap(el)).href = safeName;
 			}
 			if(imgData) {
 				tar.addFile(safeName, imgData);
@@ -9295,7 +9295,7 @@ class Attachment extends ExpandableMedia {
 		return val;
 	}
 	get name() {
-		const val = $q(aib.qImgName, aib.getImgWrap(this.el)).textContent.trim();
+		const val = aib.getImgRealName(aib.getImgWrap(this.el)).textContent.trim();
 		Object.defineProperty(this, 'name', { value: val });
 		return val;
 	}
@@ -9400,7 +9400,7 @@ function processImagesLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgNa
 	if(!addSrc && !delNames) {
 		return;
 	}
-	for(var i = 0, els = $Q(aib.qImgName, el), len = els.length; i < len; i++) {
+	for(var i = 0, els = $Q(aib.qImgNameLink, el), len = els.length; i < len; i++) {
 		var link = els[i];
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
@@ -12509,10 +12509,10 @@ class BaseBoard {
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="subject"]', '[name="field3"]');
 	}
-	get qImgName() {
+	get qImgNameLink() {
 		var value = nav.cssMatches(this.qImgInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]',
 			'[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]');
-		Object.defineProperty(this, 'qImgName', { value });
+		Object.defineProperty(this, 'qImgNameLink', { value });
 		return value;
 	}
 	get qMsgImgLink() { // Sets here only
@@ -12671,6 +12671,9 @@ class BaseBoard {
 		const el = $q(this.qImgInfo, wrap);
 		return el ? el.textContent : '';
 	}
+	getImgRealName(wrap) {
+		return $q(this.qImgNameLink, wrap);
+	}
 	getImgSrcLink(img) {
 		return $parent(img, 'A');
 	}
@@ -12800,7 +12803,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this._capUpdPromise = null;
 		}
-		get qImgName() {
+		get qImgNameLink() {
 			return '.file-attr > .desktop';
 		}
 		get css() {
@@ -13009,7 +13012,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this._qTable = '.post.reply';
 		}
-		get qImgName() {
+		get qImgNameLink() {
 			return 'p.fileinfo > a:first-of-type';
 		}
 		get css() {
@@ -13029,6 +13032,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				$del(el);
 			}
 			return videos;
+		}
+		getImgRealName(wrap) {
+			return $q('.unimportant > a', wrap);
 		}
 		getPageUrl(b, p) {
 			return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
@@ -13192,7 +13198,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 			this.res = 'thread/';
 		}
-		get qImgName() {
+		get qImgNameLink() {
 			return '.filename > a';
 		}
 		get css() {
@@ -13331,7 +13337,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.docExt = '.htm';
 			this.formParent = 'resto';
 		}
-		get qImgName() {
+		get qImgNameLink() {
 			return 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
 		}
 		get qThread() {
@@ -13619,7 +13625,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get qFormSubj() {
 			return 'input[name="sub"]';
 		}
-		get qImgName() {
+		get qImgNameLink() {
 			return '.fileText > a';
 		}
 		get css() {
@@ -13785,7 +13791,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.docExt = '';
 			this.res = 'thread/';
 		}
-		get qImgName() {
+		get qImgNameLink() {
 			return '.img_filename';
 		}
 		get qThread() {
@@ -13862,9 +13868,6 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.markupBB = true;
 		}
-		get qImgName() {
-			return '.postfilename';
-		}
 		get css() {
 			return super.css.replace('.de-btn-rep,', '') +
 				`input[name="embed"] { width: 100% !important; }
@@ -13873,6 +13876,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get markupTags() {
 			return ["b", "i", 'u', 's', 'spoiler', 'code'];
+		}
+		getImgRealName(wrap) {
+			return $q('.postfilename', wrap);
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode;
@@ -14102,7 +14108,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get qFormSubj() {
 			return 'input[name="internal_s"]';
 		}
-		get qImgName() {
+		get qImgNameLink() {
 			return '.filename > a';
 		}
 		get qThread() {
@@ -14240,8 +14246,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.jsonSubmit = true;
 			this.multiFile = true;
 		}
-		get qImgName() {
-			return '.filesize[style="display: inline;"] > .mobile_filename_hide';
+		get qImgNameLink() {
+			return '.filesize > a:first-of-type';
+		}
+		getImgRealName(wrap) {
+			return $q('.filesize[style="display: inline;"] > .mobile_filename_hide', wrap);
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode.parentNode;

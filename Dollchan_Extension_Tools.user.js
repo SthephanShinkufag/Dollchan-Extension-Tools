@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '9dbef43';
+	var commit = 'b1b0328';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -8155,7 +8155,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (imageData) {
 						(function () {
 							var fName = url.substring(url.lastIndexOf('/') + 1);
-							var nameLink = $q(aib.qImgName, aib.getImgWrap(el));
+							var nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
 							imgLink.setAttribute('download', fName);
 							nameLink.setAttribute('download', fName);
 							nameLink.setAttribute('de-href', nameLink.href);
@@ -8269,7 +8269,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					} else {
 						thumbName = 'thumbs/' + thumbName;
 						safeName = imgData ? 'images/' + safeName : thumbName;
-						imgLink.href = $q('a[de-href], ' + aib.qImgName, aib.getImgWrap(el)).href = safeName;
+						imgLink.href = $q('a[de-href], ' + aib.qImgNameLink, aib.getImgWrap(el)).href = safeName;
 					}
 					if (imgData) {
 						tar.addFile(safeName, imgData);
@@ -13430,7 +13430,7 @@ true, true],
 		}, {
 			key: 'name',
 			get: function get() {
-				var val = $q(aib.qImgName, aib.getImgWrap(this.el)).textContent.trim();
+				var val = aib.getImgRealName(aib.getImgWrap(this.el)).textContent.trim();
 				Object.defineProperty(this, 'name', { value: val });
 				return val;
 			}
@@ -13589,7 +13589,7 @@ true, true],
 		if (!addSrc && !delNames) {
 			return;
 		}
-		for (var i = 0, els = $Q(aib.qImgName, el), len = els.length; i < len; i++) {
+		for (var i = 0, els = $Q(aib.qImgNameLink, el), len = els.length; i < len; i++) {
 			var link = els[i];
 			if (/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 				$del(link);
@@ -17281,6 +17281,11 @@ true, true],
 				return el ? el.textContent : '';
 			}
 		}, {
+			key: 'getImgRealName',
+			value: function getImgRealName(wrap) {
+				return $q(this.qImgNameLink, wrap);
+			}
+		}, {
 			key: 'getImgSrcLink',
 			value: function getImgSrcLink(img) {
 				return $parent(img, 'A');
@@ -17420,10 +17425,10 @@ true, true],
 				return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])', '[name="subject"]', '[name="field3"]');
 			}
 		}, {
-			key: 'qImgName',
+			key: 'qImgNameLink',
 			get: function get() {
 				var value = nav.cssMatches(this.qImgInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]');
-				Object.defineProperty(this, 'qImgName', { value: value });
+				Object.defineProperty(this, 'qImgNameLink', { value: value });
 				return value;
 			}
 		}, {
@@ -17718,7 +17723,7 @@ true, true],
 					});
 				}
 			}, {
-				key: 'qImgName',
+				key: 'qImgNameLink',
 				get: function get() {
 					return '.file-attr > .desktop';
 				}
@@ -17808,6 +17813,11 @@ true, true],
 					return videos;
 				}
 			}, {
+				key: 'getImgRealName',
+				value: function getImgRealName(wrap) {
+					return $q('.unimportant > a', wrap);
+				}
+			}, {
 				key: 'getPageUrl',
 				value: function getPageUrl(b, p) {
 					return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
@@ -17833,7 +17843,7 @@ true, true],
 					return false;
 				}
 			}, {
-				key: 'qImgName',
+				key: 'qImgNameLink',
 				get: function get() {
 					return 'p.fileinfo > a:first-of-type';
 				}
@@ -18090,7 +18100,7 @@ true, true],
 					return !!$q('.sage', post);
 				}
 			}, {
-				key: 'qImgName',
+				key: 'qImgNameLink',
 				get: function get() {
 					return '.filename > a';
 				}
@@ -18276,7 +18286,7 @@ true, true],
 					return false;
 				}
 			}, {
-				key: 'qImgName',
+				key: 'qImgNameLink',
 				get: function get() {
 					return 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
 				}
@@ -18724,7 +18734,7 @@ true, true],
 					return 'input[name="sub"]';
 				}
 			}, {
-				key: 'qImgName',
+				key: 'qImgNameLink',
 				get: function get() {
 					return '.fileText > a';
 				}
@@ -18973,7 +18983,7 @@ true, true],
 					return false;
 				}
 			}, {
-				key: 'qImgName',
+				key: 'qImgNameLink',
 				get: function get() {
 					return '.img_filename';
 				}
@@ -19016,6 +19026,11 @@ true, true],
 			}
 
 			_createClass(Brchan, [{
+				key: 'getImgRealName',
+				value: function getImgRealName(wrap) {
+					return $q('.postfilename', wrap);
+				}
+			}, {
 				key: 'getImgWrap',
 				value: function getImgWrap(img) {
 					return img.parentNode.parentNode.parentNode;
@@ -19057,11 +19072,6 @@ true, true],
 						a.setAttribute('download', $q('.postfilename', a.parentElement).innerText);
 					}
 					return false;
-				}
-			}, {
-				key: 'qImgName',
-				get: function get() {
-					return '.postfilename';
 				}
 			}, {
 				key: 'css',
@@ -19462,7 +19472,7 @@ true, true],
 					return 'input[name="internal_s"]';
 				}
 			}, {
-				key: 'qImgName',
+				key: 'qImgNameLink',
 				get: function get() {
 					return '.filename > a';
 				}
@@ -19576,6 +19586,11 @@ true, true],
 			}
 
 			_createClass(Ponyach, [{
+				key: 'getImgRealName',
+				value: function getImgRealName(wrap) {
+					return $q('.filesize[style="display: inline;"] > .mobile_filename_hide', wrap);
+				}
+			}, {
 				key: 'getImgWrap',
 				value: function getImgWrap(img) {
 					return img.parentNode.parentNode.parentNode.parentNode;
@@ -19602,9 +19617,9 @@ true, true],
 					return false;
 				}
 			}, {
-				key: 'qImgName',
+				key: 'qImgNameLink',
 				get: function get() {
-					return '.filesize[style="display: inline;"] > .mobile_filename_hide';
+					return '.filesize > a:first-of-type';
 				}
 			}]);
 
