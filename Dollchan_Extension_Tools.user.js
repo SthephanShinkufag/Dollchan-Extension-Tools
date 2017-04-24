@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '53ff935';
+	var commit = '4543453';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -17732,7 +17732,7 @@ true, true],
 			}, {
 				key: 'css',
 				get: function get() {
-					return '.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, .logo + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .prerekl-hr, .posts > hr, .reflink::before, .thread-nav, .toolbar-area, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post.reply .post-message { max-height: initial !important; }\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; } .file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t\t' + (Cfg.expandImgs ? '#fullscreen-container { display: none !important; }' : '') + '\n\t\t\t\t' + (Cfg.txtBtnsLoc ? '.message-sticker-btn, .message-sticker-preview { bottom: 25px !important; }' : '');
+					return '.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, .logo + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .prerekl-hr, .posts > hr, .reflink::before, .thread-nav, .toolbar-area, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.images-area input { float: none !important; display: inline !important; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post.reply .post-message { max-height: initial !important; }\n\t\t\t\t.tmp_postform { width: auto; }\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; } .file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t\t' + (Cfg.expandImgs ? '#fullscreen-container { display: none !important; }' : '') + '\n\t\t\t\t' + (Cfg.txtBtnsLoc ? '.message-sticker-btn, .message-sticker-preview { bottom: 25px !important; }' : '');
 				}
 			}, {
 				key: 'fixFileInputs',
