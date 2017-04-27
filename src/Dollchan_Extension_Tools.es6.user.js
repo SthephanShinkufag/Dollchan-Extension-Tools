@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '4543453';
+const commit = '61cebdc';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -913,7 +913,7 @@ function async(generatorFunc) {
 			let result;
 			try {
 				result = generator[verb](arg);
-			} catch (err) {
+			} catch(err) {
 				console.error('Generator throw:', err);
 				return Promise.reject(err);
 			}
@@ -5745,7 +5745,7 @@ var Pages = {
 			try {
 				var el = yield ajaxLoad(aib.getPageUrl(aib.b, i));
 				this._addForm(el, i);
-			} catch (e) {
+			} catch(e) {
 				$popup('load-pages', getErrorMessage(e));
 			}
 		}
@@ -7329,18 +7329,20 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 			setTimeout(PostForm.setUserPassw, 1e3);
 		}
 	});
-	var capEl = $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', form);
+	// Captcha initialization.
+	// Delete/hide old captcha, add events for captcha showing.
+	const capEl = $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', form);
 	if(capEl) {
 		this.cap = new Captcha(capEl, this.tNum);
-		let updCapFn = () => {
-			this.cap.add();
+		const updCapFn = () => {
+			this.cap.addCaptcha();
 			this.cap.updOutdated();
 		};
 		this.txta.addEventListener('focus', updCapFn);
 		if(this.files) {
 			this.files.onchange = updCapFn;
 		}
-		this.form.addEventListener('click', () => this.cap.add(), true);
+		this.form.addEventListener('click', () => this.cap.addCaptcha(), true);
 	} else {
 		this.cap = null;
 	}
@@ -7513,7 +7515,7 @@ PostForm.prototype = {
 		}
 		if(!aib.t && this.tNum !== qNum) {
 			this.tNum = qNum;
-			this.refreshCapImg(false);
+			this.refreshCap();
 		}
 		this.tNum = qNum;
 		let temp = this.txta.value;
@@ -7539,7 +7541,7 @@ PostForm.prototype = {
 		this.closeReply();
 		if(!aib.t) {
 			this.tNum = false;
-			this.refreshCapImg(false);
+			this.refreshCap();
 		}
 		if(this.isBottom === isBottom) {
 			$toggle(this.pForm, this.isHidden);
@@ -7563,9 +7565,9 @@ PostForm.prototype = {
 			this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 		}
 	},
-	refreshCapImg(isErr) {
+	refreshCap(isErr = false) {
 		if(this.cap) {
-			this.cap.update(isErr, isErr, this.tNum);
+			this.cap.refreshCaptcha(isErr, isErr, this.tNum);
 		}
 	},
 	setReply(isQuick, needToHide) {
@@ -7989,29 +7991,34 @@ class Captcha {
 		this.hasCaptcha = true;
 		this.textEl = null;
 		this.tNum = initNum;
-		this.trEl = el.tagName === 'TR' ? el : $parent(el, 'TR');
-		this._added = false;
-		this._isOldRecap = !!$id('recaptcha_widget_div') || aib.fch && Cfg.cap4chanAlt;
-		this._isRecap = !!$q('[id*="recaptcha"]', this.trEl);
+		this.parentEl = el.tagName === 'TR' ? el : $parent(el, 'TR');
+		this.isAdded = false;
+		this._isRecap = !!$q('[id*="recaptcha"]', this.parentEl);
 		this._lastUpdate = null;
-		this._originHTML = this.trEl.innerHTML;
-		$hide(this.trEl);
+		this.originHTML = this.parentEl.innerHTML;
+		$hide(this.parentEl);
 		if(!this._isRecap) {
-			this.trEl.innerHTML = '';
+			this.parentEl.innerHTML = '';
 		}
 	}
-	add(focus = false, updateHTML = !this._isRecap) {
-		if(this._added) {
+	addCaptcha() {
+		if(this.isAdded) { // Run this function only once
 			return;
 		}
-		this._added = true;
-		if(updateHTML) {
-			this.trEl.innerHTML = this._originHTML;
+		this.isAdded = true;
+		if(!this._isRecap) {
+			this.parentEl.innerHTML = this.originHTML;
+			this.textEl = $q('input[type="text"][name*="aptcha"]', this.parentEl);
+		} else if(this._isOldRecap()) {
+			this.textEl = $id('recaptcha_response_field');
+		} else {
+			const el = $q('#g-recaptcha' + (aib.fch ? ', #qrCaptchaContainerAlt' : ''));
+			$replace(el, '<div id="g-recaptcha" class="g-recaptcha" data-sitekey="' +
+				el.getAttribute('data-sitekey') + '"></div>');
 		}
-		this.textEl = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.trEl);
 		const initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
 		if(initPromise) {
-			initPromise.then(() => this.initCaptcha(focus, false), e => {
+			initPromise.then(() => this.showCaptcha(), e => {
 				if(e instanceof AjaxError) {
 					this._setUpdateError(e);
 				} else {
@@ -8019,7 +8026,7 @@ class Captcha {
 				}
 			});
 		} else if(this.hasCaptcha) {
-			this.initCaptcha(focus, true);
+			this.showCaptcha(true);
 		}
 	}
 	handleEvent(e) {
@@ -8028,10 +8035,10 @@ class Captcha {
 			if(!Cfg.captchaLang || e.which === 0) {
 				return;
 			}
-			var ruUa = 'йцукенгшщзхъїфыівапролджэєячсмитьбюёґ',
-				en = 'qwertyuiop[]]assdfghjkl;\'\'zxcvbnm,.`\\';
-			var i, code = e.charCode || e.keyCode,
-				chr = String.fromCharCode(code).toLowerCase();
+			const ruUa = 'йцукенгшщзхъїфыівапролджэєячсмитьбюёґ';
+			const en = 'qwertyuiop[]]assdfghjkl;\'\'zxcvbnm,.`\\';
+			const code = e.charCode || e.keyCode;
+			let i, chr = String.fromCharCode(code).toLowerCase();
 			if(Cfg.captchaLang === 1) {
 				if(code < 0x0410 || code > 0x04FF || (i = ruUa.indexOf(chr)) === -1) {
 					return;
@@ -8050,40 +8057,11 @@ class Captcha {
 		$pd(e);
 		e.stopPropagation();
 	}
-	initCaptcha(focus, updateImage) {
-		if(!this.textEl) {
-			$show(this.trEl);
-			if(this._isRecap) {
-				this._updateRecap();
-			}
-			if(aib.updateCaptcha) {
-				aib.updateCaptcha(this, false);
-			}
-			return;
-		}
-		this.initTextEl();
-		var img;
-		if(this._isRecap || !(img = $q('img', this.trEl))) {
-			$show(this.trEl);
-			return;
-		}
-		this.initImage(img);
-		var a = img.parentNode;
-		if(a.tagName === 'A') {
-			$replace(a, img);
-		}
-		if(updateImage) {
-			this.update(focus);
-		} else {
-			this._lastUpdate = Date.now();
-		}
-		$show(this.trEl);
-	}
 	initImage(img) {
 		img.title = Lng.refresh[lang];
 		img.alt = Lng.loading[lang];
 		img.style.cssText = 'vertical-align: text-bottom; border: none; cursor: pointer;';
-		img.onclick = () => this.update(true);
+		img.onclick = () => this.refreshCaptcha(true);
 	}
 	initTextEl() {
 		this.textEl.autocomplete = 'off';
@@ -8095,97 +8073,120 @@ class Captcha {
 		this.textEl.addEventListener('focus', this);
 		this.textEl.onfocus = null;
 	}
-	remove() {
-		$hide(this.trEl);
-		if(!this._isRecap) {
-			this.trEl.innerHTML = '';
-		} else if(!this._isOldRecap) {
-			const el = $id('g-recaptcha');
-			$replace(el, '<div id="g-recaptcha" class="g-recaptcha" data-sitekey="' +
-				el.getAttribute('data-sitekey') + '"></div>');
-		}
-		this.hasCaptcha = true;
-		this.textEl = null;
-		this._added = false;
-	}
-	renew() {
-		this._added = false;
-		this._originHTML = this.trEl.innerHTML;
-		this.add(false, false);
-	}
-	update(focus, isErr = false, tNum = this.tNum) {
-		if(tNum !== this.tNum) {
-			this.remove();
-		} else if(!this.hasCaptcha && !isErr) {
+	showCaptcha(isUpdateImage = false) {
+		if(!this.textEl) {
+			$show(this.parentEl);
+			if(aib.updateCaptcha) {
+				aib.updateCaptcha(this, false);
+			} else if(this._isRecap) {
+				this._updateRecap();
+			}
 			return;
 		}
-		this.tNum = tNum;
-		if(!this._added) {
-			this.add();
+		this.initTextEl();
+		let img;
+		if(this._isRecap || !(img = $q('img', this.parentEl))) {
+			$show(this.parentEl);
+			return;
+		}
+		this.initImage(img);
+		const a = img.parentNode;
+		if(a.tagName === 'A') {
+			$replace(a, img);
+		}
+		if(isUpdateImage) {
+			this.refreshCaptcha(false);
+		} else {
+			this._lastUpdate = Date.now();
+		}
+		$show(this.parentEl);
+	}
+	refreshCaptcha(isFocus, isErr = false, tNum = this.tNum) {
+		if(!this.isAdded || tNum !== this.tNum) {
+			this.tNum = tNum;
+			this.isAdded = false;
+			this.hasCaptcha = true;
+			this.textEl = null;
+			$hide(this.parentEl);
+			this.addCaptcha();
+			return;
+		} else if(!this.hasCaptcha && !isErr) {
 			return;
 		}
 		this._lastUpdate = Date.now();
 		if(aib.updateCaptcha) {
-			var updatePromise = aib.updateCaptcha(this, isErr);
+			const updatePromise = aib.updateCaptcha(this, isErr);
 			if(updatePromise) {
-				updatePromise.then(() => this._updateTextEl(focus), e => this._setUpdateError(e));
+				updatePromise.then(() => this._updateTextEl(isFocus), e => this._setUpdateError(e));
+			}
+		} else if(this._isRecap) {
+			this._updateRecap();
+		} else if(this.textEl) {
+			this._updateTextEl(isFocus);
+			const img = $q('img', this.parentEl);
+			if(!img) {
 				return;
 			}
-		} else {
-			if(this._isRecap) {
-				this._updateRecap();
-				return;
-			}
-			if(!this.textEl) {
-				return;
-			}
-			var img = $q('img', this.trEl);
-			if(img) {
-				if(aib.getCaptchaSrc) {
-					var src = img.getAttribute('src');
-					if(src) {
-						img.src = '';
-						img.src = aib.getCaptchaSrc(src, tNum);
-					}
-				} else {
-					img.click();
+			if(aib.getCaptchaSrc) {
+				const src = img.getAttribute('src');
+				if(src) {
+					img.src = '';
+					img.src = aib.getCaptchaSrc(src, tNum);
 				}
+			} else {
+				img.click();
 			}
 		}
-		this._updateTextEl(focus);
+	}
+	updateHelper(url, fn) {
+		if(aib._capUpdPromise) {
+			aib._capUpdPromise.cancel();
+		}
+		return (aib._capUpdPromise = $ajax(url).then(xhr => {
+			aib._capUpdPromise = null;
+			fn(xhr);
+		}, e => {
+			if(!(e instanceof CancelError)) {
+				aib._capUpdPromise = null;
+				return CancelablePromise.reject(e);
+			}
+		}))
 	}
 	updOutdated() {
 		if(this._lastUpdate && (Date.now() - this._lastUpdate > Cfg.capUpdTime * 1e3)) {
-			this.update(false);
+			this.refreshCaptcha(false);
 		}
 	}
 
+	_isOldRecap() {
+		return !!$id('recaptcha_widget_div') || aib.fch && Cfg.cap4chanAlt && pr.tNum;
+	}
 	_setUpdateError(e) {
 		if(e) {
-			this.trEl = e.toString();
-			this._added = false;
-			this.trEl.onclick = () => {
-				this.trEl.onclick = null;
-				this.add();
+			this.parentEl = e.toString();
+			this.isAdded = false;
+			this.parentEl.onclick = () => {
+				this.parentEl.onclick = null;
+				this.addCaptcha();
 			};
-			$show(this.trEl);
+			$show(this.parentEl);
 		}
 	}
 	_updateRecap() {
-		if(this._isOldRecap) {
+		if(this._isOldRecap()) {
 			$script('Recaptcha.reload()');
 		} else {
 			const script = doc.createElement('script');
 			script.type = 'text/javascript';
 			script.src = aib.prot + '//www.google.com/recaptcha/api.js';
 			doc.head.appendChild(script);
-			setTimeout(() => $del(script), 10000);
+			setTimeout(() => $del(script), 1e5);
 		}
 	}
-	_updateTextEl(focus) {
+	_updateTextEl(isFocus) {
 		if(this.textEl) {
 			this.textEl.value = '';
-			if(focus) {
+			if(isFocus) {
 				this.textEl.focus();
 			}
 		}
@@ -8285,8 +8286,8 @@ function checkUpload(data) {
 		if(pr.isQuick) {
 			pr.setReply(true, false);
 		}
-		if(/captch|капч|подтвер|verifi/i.test(error)) {
-			pr.refreshCapImg(true);
+		if(/[cf]aptch|капч|подтвер|verifi/i.test(error)) {
+			pr.refreshCap(true);
 		}
 		$popup('upload', error);
 		updater.sendErrNotif();
@@ -8330,7 +8331,7 @@ function checkUpload(data) {
 		pByNum.get(tNum).thr.loadPosts(visPosts, false, false).then(() => closePopup('upload'));
 	}
 	pr.closeReply();
-	pr.refreshCapImg(false);
+	pr.refreshCap();
 }
 
 var checkDelete = async(function* (data) {
@@ -12664,10 +12665,9 @@ class BaseBoard {
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
 	}
 	getCaptchaSrc(src, tNum) {
-		var tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
-					 .replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
-		return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum)
-					: tmp.replace(/res\d+/, 'mainpage');
+		const tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
+					   .replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
+		return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum) : tmp.replace(/res\d+/, 'mainpage');
 	}
 	getImgInfo(wrap) {
 		const el = $q(this.qImgInfo, wrap);
@@ -12919,21 +12919,18 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.updateCaptcha(cap);
 		}
 		updateCaptcha(cap, isErr) {
-			if(this._capUpdPromise) {
-				this._capUpdPromise.cancel();
-			}
 			let type;
 			try {
 				type = JSON.parse(locStorage.store).other.captcha_provider || '2chaptcha';
 			} catch(e) {
 				type = '2chaptcha';
 			}
-			return (this._capUpdPromise = $ajax(
-				`/api/captcha/${ type }/id?board=${ this.b }&thread=` + pr.tNum
-			).then(xhr => {
-				this._capUpdPromise = null;
-				let box = $q('.captcha-box', cap.trEl);
-				const data = JSON.parse(xhr.responseText);
+			return cap.updateHelper(`/api/captcha/${ type }/id?board=${ this.b }&thread=` + pr.tNum, xhr => {
+				const box = $q('.captcha-box', cap.parentEl);
+				let data = xhr.responseText;
+				try {
+					data = JSON.parse(data);
+				} catch(e) {}
 				switch(data.result) {
 				case 0:
 					box.innerHTML = 'Пасс-код не действителен. <a href="#" id="renew-pass-btn">Обновить</a>';
@@ -12943,42 +12940,24 @@ function getImageBoard(checkDomains, checkEngines) {
 					break;
 				case 3: return CancelablePromise.reject(); // Captcha is disabled
 				case 1: // Captcha is enabled
-					// Get captcha image
-					const src = `/api/captcha/${ type }/image/` + data.id;
-					let image = $id('de-image-captcha');
-					if(image) {
-						image.src = '';
-						image.src = src;
-					} else {
-						image = $q('.captcha-image', cap.trEl);
-						image.innerHTML = '<img id="de-image-captcha" src="' + src + '">';
-						cap.initImage(image.firstChild);
-					}
-					$q('input[name="2chaptcha_id"]', cap.trEl).value = data.id;
-					if(type !== 'animecaptcha') {
+					if(type === '2chaptcha') {
+						// Get captcha image
+						const src = `/api/captcha/${ type }/image/` + data.id;
+						let image = $id('de-image-captcha');
+						if(image) {
+							image.src = '';
+							image.src = src;
+						} else {
+							image = $q('.captcha-image', cap.parentEl);
+							image.innerHTML = `<img id="de-image-captcha" src="${ src }">`;
+							cap.initImage(image.firstChild);
+						}
+						$q('input[name="2chaptcha_id"]', cap.parentEl).value = data.id;
 						break;
-					} // Build anime selector
-					let group = $q('.captcha-radiogr');
-					if(!group) {
-						group = $bEnd(box, '<div class="captcha-radiogr"></div>');
-						box.classList.add('animedaun');
-						$del($id('captcha-value'));
 					}
-					let html = '';
-					for(let i in data.values) {
-						html += `<label><input type="radio" name="animeGroup" value="${
-							data.values[i].id }">${ data.values[i].name }</label><br>`;
-					}
-					group.innerHTML = html;
-					break;
-				default: box.textContent = data;
+				default: box.innerHTML = data;
 				}
-			}, e => {
-				if(!(e instanceof CancelError)) {
-					this._capUpdPromise = null;
-					return CancelablePromise.reject(e);
-				}
-			}));
+			});
 		}
 	}
 	ibEngines.push(['body.makaba', Makaba]);
@@ -13393,25 +13372,13 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this._capUpdPromise = null;
 		}
-		initCaptcha(cap) {
-			return this.updateCaptcha(cap);
-		}
 		updateCaptcha(cap) {
-			if(this._capUpdPromise) {
-				this._capUpdPromise.cancel();
-			}
-			return (this._capUpdPromise = $ajax('/captcha_update.php').then(xhr => {
-				this._capUpdPromise = null;
-				cap.trEl.innerHTML = xhr.responseText;
+			return cap.updateHelper('/captcha_update.php', xhr => {
+				cap.parentEl.innerHTML = xhr.responseText;
 				cap.textEl = $id('recaptcha_response_field');
-				cap.initImage($q('img', cap.trEl));
+				cap.initImage($q('img', cap.parentEl));
 				cap.initTextEl();
-			}, e => {
-				if(!(e instanceof CancelError)) {
-					this._capUpdPromise = null;
-					return CancelablePromise.reject(e);
-				}
-			}));
+			});
 		}
 	}
 	ibDomains['02ch.su'] = _02chSu;
@@ -13420,26 +13387,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
-			this.getCaptchaSrc = null;
 			this.ru = true;
 
 			this._capUpdPromise = null;
-		}
-		get updateCaptcha() {
-			if(this._capUpdPromise) {
-				this._capUpdPromise.cancel();
-				this._capUpdPromise = null;
-			}
-			return !$id('imgcaptcha') ? null : this._capUpdPromise = $ajax('/cgi/captcha?task=get_id').then(xhr => {
-				this._capUpdPromise = null;
-				var id = xhr.responseText;
-				$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
-				$id('captchaid').value = id;
-			}, e => {
-				if(!(e instanceof CancelError)) {
-					this._capUpdPromise = null;
-				}
-			});
 		}
 		init() {
 			var el = $id('submit_button');
@@ -13448,6 +13398,13 @@ function getImageBoard(checkDomains, checkEngines) {
 				$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ">');
 			}
 			return false;
+		}
+		updateCaptcha(cap) {
+			return cap.updateHelper('/cgi/captcha?task=get_id', xhr => {
+				const id = xhr.responseText;
+				$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
+				$id('captchaid').value = id;
+			});
 		}
 	}
 	ibDomains['2ch.rip'] = _2chRip;
@@ -13535,6 +13492,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasCatalog = true;
 			this.markupBB = false;
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
+
+			this._capUpdPromise = null;
 		}
 		get capLang() {
 			return 0;
@@ -13550,16 +13509,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ['**', '*', '__', '^^', '%%', '`'];
 		}
-		get updateCaptcha() {
-			// Update captcha
-			// TODO implement this without using page's own functions,
-			// see https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/pull/1041#discussion_r106283296
-			if(nav.isGM && 'unsafeWindow' in window) {
-				unsafeWindow.request_faptcha(aib.b);
-			} else {
-				$script(`request_faptcha('${aib.b}')`);
-			}
-		}
 		fixHTML(data, isForm) {
 			const el = super.fixHTML(data, isForm);
 			// Move [ Back ] link outside of thread div, so this will prevent new posts from being appended after that link
@@ -13568,11 +13517,10 @@ function getImageBoard(checkDomains, checkEngines) {
 					const backBtn = $q(`${ this.qThread } > span[style]`, el);
 					if(backBtn) {
 						const modBtn = $q('a[accesskey="m"]', el);
-						const thr = backBtn.parentElement;
-						$after(thr, backBtn);
+						$after(backBtn.parentElement, backBtn);
 						[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(elm => $after(backBtn.lastChild, elm));
 					}
-				} catch(e) { console.error(e) }
+				} catch(e) {}
 			}
 			return el;
 		}
@@ -13587,6 +13535,21 @@ function getImageBoard(checkDomains, checkEngines) {
 			super.init();
 			// Workaround for "OK bug" #921
 			$bEnd(docBody, '<span id="faptcha_input" style="display: none"></span>');
+		}
+		updateCaptcha(cap) {
+			return cap.updateHelper(`/api_adaptive.php?board=${ this.b }`, xhr => {
+				if(xhr.responseText === '1') {
+					cap.textEl.disabled = true;
+					setTimeout(() => cap.textEl.value = 'проезд оплачен', 0);
+				} else {
+					cap.textEl.disabled = false;
+					cap.textEl.value = '';
+					const img = $q('img', cap.parentEl);
+					const src = img.getAttribute('src');
+					img.src = '';
+					img.src = this.getCaptchaSrc(src);
+				}
+			});
 		}
 	}
 	ibDomains['410chan.org'] = _410chanOrg;
@@ -13644,12 +13607,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			let value = null;
 			const tr = $id('captchaFormPart');
 			if(tr) {
-				const el = $bEnd(docBody, `<div onclick="${
-					Cfg.cap4chanAlt ? 'QR.initCaptchaAlt();' : 'initRecaptcha();'}"></div>`);
+				const capClick = $bEnd(docBody, `<div onclick="initRecaptcha();"></div>`);
+				const altCapClick = $bEnd(docBody, `<div onclick="QR.initCaptchaAlt();"></div>`);
 				value = function() {
-					if(!Cfg.cap4chanAlt) {
-						$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
-						el.click();
+					if(!Cfg.cap4chanAlt || !pr.tNum) {
+						$replace($q('#g-recaptcha, #qrCaptchaContainerAlt'), '<div id="g-recaptcha"></div>');
+						capClick.click();
+						tr.removeAttribute('onclick');
 						return null;
 					}
 					const container = $id('qrCaptchaContainerAlt');
@@ -13658,11 +13622,11 @@ function getImageBoard(checkDomains, checkEngines) {
 						return null;
 					}
 					$replace($id('g-recaptcha'), '<div id="qrCaptchaContainerAlt"></div>');
-					el.click();
+					altCapClick.click();
 					tr.setAttribute('onclick', "if(event.target.tagName !== 'INPUT') { Recaptcha.reload(); }");
 					setTimeout(() => $id('recaptcha_response_field').tabIndex = 5, 3e3);
 					return null;
-				}
+				};
 			}
 			Object.defineProperty(this, 'updateCaptcha', { value });
 			return value;
@@ -13729,32 +13693,23 @@ function getImageBoard(checkDomains, checkEngines) {
 			return super.css + '#post-moderation-fields { display: initial !important; }';
 		}
 		initCaptcha(cap) {
-			$q('td', cap.trEl).innerHTML = `
+			$q('td', cap.parentEl).innerHTML = `
 			<input placeholder="{ Lng.cap[lang] }" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="8" autocomplete="off">
 			<input class="captcha_cookie" name="captcha_cookie" type="hidden">
 			<div class="captcha_html"></div>`;
-			cap.textEl = $q('.captcha_text', cap.trEl);
+			cap.textEl = $q('.captcha_text', cap.parentEl);
 			return this.updateCaptcha(cap, true);
 		}
 		updateCaptcha(cap) {
-			if(this._capUpdPromise) {
-				this._capUpdPromise.cancel();
-			}
-			return (this._capUpdPromise = $ajax('/8chan-captcha/entrypoint.php?mode=get&extra=abcdefghijklmnopqrstuvwxyz').then(xhr => {
-				this._capUpdPromise = null;
-				var resp = JSON.parse(xhr.responseText);
-				$q('.captcha_cookie', cap.trEl).value = resp.cookie;
-				$q('.captcha_html', cap.trEl).innerHTML = resp.captchahtml;
-				var img = $q('img', cap.trEl);
+			return cap.updateHelper('/8chan-captcha/entrypoint.php?mode=get&extra=abcdefghijklmnopqrstuvwxyz', xhr => {
+				const obj = JSON.parse(xhr.responseText);
+				$q('.captcha_cookie', cap.parentEl).value = obj.cookie;
+				$q('.captcha_html', cap.parentEl).innerHTML = obj.captchahtml;
+				const img = $q('img', cap.parentEl);
 				if(img) {
 					cap.initImage(img);
 				}
-			}).catch(e => {
-				if(!(e instanceof CancelError)) {
-					this._capUpdPromise = null;
-					return CancelablePromise.reject(e);
-				}
-			}));
+			});
 		}
 	}
 	ibDomains['8ch.net'] = _8chNet;
@@ -13970,7 +13925,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		getImgWrap(img) {
 			const el = img.parentNode;
 			return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode :
-				img.previousElementSibling ? el : el.parentNode
+				img.previousElementSibling ? el : el.parentNode;
 		}
 		getJsonApiUrl(brd, tNum) {
 			return `/api/thread/${ brd }/${ tNum }/all.json?new_format&message_html&board`;
@@ -14007,8 +13962,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		initCaptcha(cap) {
 			if(!cap.textEl) {
-				$hide($q('img', cap.trEl));
-				$show(cap.trEl);
+				$hide($q('img', cap.parentEl));
+				$show(cap.parentEl);
 			}
 			return null;
 		}
@@ -14017,22 +13972,25 @@ function getImageBoard(checkDomains, checkEngines) {
 			return $bBegin(prev.tagName === 'BR' ? prev : msg, playerHtml);
 		}
 		updateCaptcha(cap, isErr) {
-			var img = $q('img', cap.trEl);
+			const img = $q('img', cap.parentEl);
 			if(!img) {
 				return null;
 			}
 			if(cap.textEl) {
-				var src = img.getAttribute('src').split('/').slice(0,-1).join('/') + '/' + Date.now() + '.png';
+				const src = img.getAttribute('src').split('/').slice(0, -1).join('/') + '/' + Date.now() + '.png';
 				img.src = '';
 				img.src = src;
+				cap.textEl.value = '';
 			} else if(isErr) {
-				var el = img.parentNode;
+				const el = img.parentNode;
 				el.innerHTML = '';
 				el.appendChild(img);
 				img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off"' +
 					' id="captcha" name="captcha" size="35" type="text">');
 				$show(img);
-				cap.renew();
+				cap.isAdded = false;
+				cap.originHTML = cap.parentEl.innerHTML;
+				cap.addCaptcha();
 			}
 			return null;
 		}
@@ -14163,9 +14121,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		initCaptcha(cap) {
 			cap.hasCaptcha = false;
-			var scripts = $Q('script:not([src])', doc);
-			for(var i = 0, len = scripts.length; i < len; ++i) {
-				var m = scripts[i].textContent.match(/var boardRequiresCaptcha = ([a-z]+);/);
+			const scripts = $Q('script:not([src])', doc);
+			for(let i = 0, len = scripts.length; i < len; ++i) {
+				const m = scripts[i].textContent.match(/var boardRequiresCaptcha = ([a-z]+);/);
 				if(m) {
 					if(m[1] === 'true') {
 						cap.hasCaptcha = true;
@@ -14189,25 +14147,25 @@ function getImageBoard(checkDomains, checkEngines) {
 		updateCaptcha(cap, isErr) {
 			if(isErr && !cap.hasCaptcha) {
 				cap.hasCaptcha = true;
-				cap.initCaptcha(false, false);
+				cap.showCaptcha();
 			}
-			var sessionId = null;
-			var cookie = doc.cookie;
+			let sessionId = null;
+			const cookie = doc.cookie;
 			if(cookie.includes('desuchan.session')) {
-				for(var c of cookie.split(';')) {
-					var m = c.match(/^\s*desuchan\.session=(.*)$/);
+				for(let c of cookie.split(';')) {
+					const m = c.match(/^\s*desuchan\.session=(.*)$/);
 					if(m) {
 						sessionId = unescape(m[1].replace(/\+/g, ' '));
 						break;
 					}
 				}
 			}
-			var id = this.b + (pr.tNum ? pr.tNum : '') + (sessionId ? '-' + sessionId : '') +
-				'-' + new Date().getTime() + '-' + Math.round(100000000 * Math.random());
-			var img = $q('img', cap.trEl);
+			const id = this.b + (pr.tNum ? pr.tNum : '') + (sessionId ? '-' + sessionId : '') +
+				'-' + new Date().getTime() + '-' + Math.round(1e8 * Math.random());
+			const img = $q('img', cap.parentEl);
 			img.src = '';
 			img.src = '/captcha?id=' + id;
-			$q('input[name="captcha_name"]', cap.trEl).value = id;
+			$q('input[name="captcha_name"]', cap.parentEl).value = id;
 			return null;
 		}
 	}
