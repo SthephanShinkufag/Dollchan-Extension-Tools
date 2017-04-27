@@ -2943,7 +2943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '61cebdc';
+	var commit = '630f6ff';
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -19520,6 +19520,11 @@ true, true],
 				value: function init() {
 					$script('highlight = function() {}');
 					return false;
+				}
+			}, {
+				key: 'markupTags',
+				get: function get() {
+					return ['**', '***', '', '^H', '', ''];
 				}
 			}]);
 

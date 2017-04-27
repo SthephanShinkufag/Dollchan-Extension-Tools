@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '61cebdc';
+const commit = '630f6ff';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -14190,6 +14190,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['lainchan.org'] = Lainchan;
 
 	class Nowere extends BaseBoard {
+		get markupTags() {
+			return ['**', '***', '', '^H', '', ''];
+		}
 		init() {
 			$script('highlight = function() {}');
 			return false;
