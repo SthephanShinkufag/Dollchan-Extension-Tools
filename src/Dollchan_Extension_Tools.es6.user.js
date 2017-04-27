@@ -24,7 +24,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '630f6ff';
+const commit = 'ffae733';
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -11630,6 +11630,9 @@ class _0chanPostsBuilder {
 			filesHTML += '</div>';
 		}
 
+		const d = new Date(data.date * 1e3);
+		const date = `${ d.getFullYear() }-${ pad2(d.getMonth() + 1) }-${ pad2(d.getDate()) } ${
+			pad2(d.getHours()) }:${ pad2(d.getMinutes()) }:${ pad2(d.getSeconds()) }`;
 		return `<div><div class="block post${ isOp ? ' post-op' : '' }">
 			<div class="post-header">
 				<a name="${ num }"></a>
@@ -11640,7 +11643,7 @@ class _0chanPostsBuilder {
 				</span>
 				<span class="pull-right">
 					<span class="post-thread-options"></span>
-					<span class="post-date">${ data.date }</span>
+					<span class="post-date">${ date }</span>
 				</span>
 			</div>
 			<div class="post-body${ data.attachments.length > 1 ? '' : ' post-inline-attachment' }">
