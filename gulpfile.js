@@ -71,36 +71,36 @@ gulp.task('updatecommit', function(cb) {
 		if(code !== 0) {
 			throw 'Git error:\n' + (stdout ? stdout + '\n' : '') + stderr;
 		}
-		gulp.src('src/Dollchan_Extension_Tools.es6.user.js')
+		gulp.src('src/modules/Head.js')
 			.pipe(replace(/^const commit = '[^']*';$/m, 'const commit = \'' + stdout.trim().substr(0, 7) + '\';'))
-			.pipe(gulp.dest('./src/'))
+			.pipe(gulp.dest('src/modules'))
 			.on('end', cb);
 	});
 });
 
-gulp.task('makees5', ['updatecommit'], function() {
-	return browserify(['./src/es5-polyfills.js', './src/Dollchan_Extension_Tools.es6.user.js'])
+gulp.task('make:es6', ['updatecommit'], function() {
+	return gulp.src(paths.modules)
+		.pipe(concat('Dollchan_Extension_Tools.es6.user.js', {newLine: '\n'}))
+		.pipe(gulp.dest('src'));
+});
+
+gulp.task('make:es5', ['make:es6'], function() {
+	return browserify(['src/es5-polyfills.js', 'src/Dollchan_Extension_Tools.es6.user.js'])
 		.transform(babelify)
 		.bundle()
 		.pipe(source('Dollchan_Extension_Tools.user.js'))
 		.pipe(streamify(strip()))
 		.pipe(streamify(headerfooter('(function de_main_func_outer(localData) {\n', '})(null);')))
 		.pipe(streamify(headerfooter.header('Dollchan_Extension_Tools.meta.js')))
-		.pipe(gulp.dest('./'));
+		.pipe(gulp.dest(''));
 });
 
-gulp.task('makees6', function() {
-	return gulp.src(paths.modules)
-		.pipe(concat('Dollchan_Extension_Tools.es6.user.js', {newLine: '\n'}))
-		.pipe(gulp.dest('./src/'));
-});
-
-gulp.task('make', ['makees6', 'makees5']);
+gulp.task('make', ['make:es5']);
 
 gulp.task('makeall', ['make'], function() {
-	return gulp.src('./Dollchan_Extension_Tools.user.js')
+	return gulp.src('Dollchan_Extension_Tools.user.js')
 		.pipe(replace('global.regenerator', 'window.regenerator'))
-		.pipe(gulp.dest('./dollchan-extension/data'));
+		.pipe(gulp.dest('dollchan-extension/data'));
 });
 
 gulp.task('watch', function() {
