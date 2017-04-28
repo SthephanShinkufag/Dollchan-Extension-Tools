@@ -78,10 +78,12 @@
     "gulp-babel": "=6.1.2",
     "gulp-concat": "=2.6.1",
     "gulp-dest": "=0.2.3",
+    "gulp-file": "=0.3.0",
     "gulp-headerfooter": "=1.0.3",
     "gulp-replace": "=0.5.4",
     "gulp-streamify": "=1.0.2",
     "gulp-strip-comments": "=2.4.3",
+    "gulp-tap": "=0.4.2",
     "vinyl-source-stream": "=1.1.0"
   }
 }

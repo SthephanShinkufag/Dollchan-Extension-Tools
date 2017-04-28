@@ -1,3 +1,5 @@
+/*==[ DefaultCfg.js ]==*/
+
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
 	'language':         0,      // script language [0=ru, 1=en]

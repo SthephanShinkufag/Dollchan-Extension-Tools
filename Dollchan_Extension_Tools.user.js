@@ -2947,7 +2947,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '9ef459a';
+	var commit = '5a10b53';
+
 
 	var defaultCfg = {
 		'disabled': 0, 
@@ -3081,35 +3082,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'vidWinY': 'top: 0',
 		'cfgTab': 'filters' 
 	};
-
-	var doc = window.document,
-	    emptyFn = Function.prototype,
-	    aProto = Array.prototype;
-	var Images_ = { preloading: false, afterpreload: null, progressId: null, canvas: null };
-	var gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
-	var gitRaw = 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
-
-	var docBody = void 0,
-	    locStorage = void 0,
-	    sesStorage = void 0,
-	    Cfg = void 0,
-	    pByEl = void 0,
-	    pByNum = void 0,
-	    aib = void 0,
-	    nav = void 0,
-	    updater = void 0,
-	    dTime = void 0,
-	    pr = void 0,
-	    dummy = void 0,
-	    lang = void 0,
-	    isExpImg = void 0,
-	    isPreImg = void 0,
-	    needScroll = void 0,
-	    excludeList = void 0,
-	    quotetxt = '',
-	    nativeXHRworks = true,
-	    visPosts = 2,
-	    topWinZ = 0;
 
 
 	var Lng = {
@@ -3491,6 +3463,36 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		sizeGByte: [' ГБ', ' GB'],
 		second: ['с', 's']
 	};
+
+
+	var doc = window.document,
+	    emptyFn = Function.prototype,
+	    aProto = Array.prototype;
+	var Images_ = { preloading: false, afterpreload: null, progressId: null, canvas: null };
+	var gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
+	var gitRaw = 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
+
+	var docBody = void 0,
+	    locStorage = void 0,
+	    sesStorage = void 0,
+	    Cfg = void 0,
+	    pByEl = void 0,
+	    pByNum = void 0,
+	    aib = void 0,
+	    nav = void 0,
+	    updater = void 0,
+	    dTime = void 0,
+	    pr = void 0,
+	    dummy = void 0,
+	    lang = void 0,
+	    isExpImg = void 0,
+	    isPreImg = void 0,
+	    needScroll = void 0,
+	    excludeList = void 0,
+	    quotetxt = '',
+	    nativeXHRworks = true,
+	    visPosts = 2,
+	    topWinZ = 0;
 
 
 
@@ -21149,6 +21151,7 @@ true, true],
 
 		if ((typeof _ret11 === 'undefined' ? 'undefined' : _typeof(_ret11)) === "object") return _ret11.v;
 	}
+
 })(window.opera && window.opera.scriptStorage, window.FormData, function (x, y) {
 	return window.scrollTo(x, y);
 }, (typeof localData === 'undefined' ? 'undefined' : _typeof(localData)) === 'object' ? localData : null);

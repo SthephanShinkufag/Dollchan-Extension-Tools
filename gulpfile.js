@@ -1,12 +1,14 @@
 var babelify     = require('babelify');
 var browserify   = require('browserify');
+var spawn        = require('child_process').spawn;
 var gulp         = require('gulp');
 var concat       = require('gulp-concat');
+var newfile      = require('gulp-file');
 var headerfooter = require('gulp-headerfooter');
 var replace      = require('gulp-replace');
 var streamify    = require('gulp-streamify');
 var strip        = require('gulp-strip-comments');
-var spawn        = require('child_process').spawn;
+var tap          = require('gulp-tap');
 var source       = require('vinyl-source-stream');
 
 var paths = {
@@ -49,7 +51,7 @@ var paths = {
 		'src/modules/DelForm.js',
 		'src/modules/Browser.js',
 		'src/modules/BoardDefaults.js',
-		'src/modules/BoardCustom.js',
+		'src/modules/BoardDetector.js',
 		'src/modules/Misc.js',
 		'src/modules/SvgIcons.js',
 		'src/modules/Css.js',
@@ -58,6 +60,7 @@ var paths = {
 	]
 };
 
+// Updates commit version in Head.js module
 gulp.task('updatecommit', function(cb) {
 	var git = spawn('git', ['rev-parse', 'HEAD']);
 	var stdout, stderr;
@@ -78,12 +81,14 @@ gulp.task('updatecommit', function(cb) {
 	});
 });
 
+// Makes es6-script from module files
 gulp.task('make:es6', ['updatecommit'], function() {
 	return gulp.src(paths.modules)
-		.pipe(concat('Dollchan_Extension_Tools.es6.user.js', {newLine: '\n'}))
+		.pipe(concat('Dollchan_Extension_Tools.es6.user.js', {newLine: '\r\n'}))
 		.pipe(gulp.dest('src'));
 });
 
+// Makes es5-script from es6-script
 gulp.task('make:es5', ['make:es6'], function() {
 	return browserify(['src/es5-polyfills.js', 'src/Dollchan_Extension_Tools.es6.user.js'])
 		.transform(babelify)
@@ -97,7 +102,24 @@ gulp.task('make:es5', ['make:es6'], function() {
 
 gulp.task('make', ['make:es5']);
 
-gulp.task('makeall', ['make'], function() {
+// Split es6-script into separate module files
+gulp.task('make:modules', function() {
+	gulp.src('src/Dollchan_Extension_Tools.es6.user.js').pipe(tap(function(file) {
+		var arr = file.contents.toString().split('/*==[ ');
+		newfile('src/modules/Head.js', arr[0].slice(0, -2)).pipe(gulp.dest('')); // Replace file with new
+		for(var i = 1, len = arr.length; i < len; ++i) {
+			var str = arr[i];
+			if(i !== len - 1) {
+				str = str.slice(0, -2); // Remove last \r\n
+			}
+			var fileName = str.slice(0, str.indexOf(' ]'));
+			newfile('src/modules/' + fileName, '/*==[ ' + str).pipe(gulp.dest(''));
+		}
+	}));
+});
+
+// Makes firefox-extension from es5-script
+gulp.task('make:extension', ['make'], function() {
 	return gulp.src('Dollchan_Extension_Tools.user.js')
 		.pipe(replace('global.regenerator', 'window.regenerator'))
 		.pipe(gulp.dest('dollchan-extension/data'));

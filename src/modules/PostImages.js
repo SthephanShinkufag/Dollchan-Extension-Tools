@@ -1,6 +1,6 @@
-/*============================================================================================================
+/*==[ PostImages.js ]=========================================================================================
                                                     IMAGES
-            images expanding (in post / by center), navigate buttons, embedding of links to images
+               images expanding (in post / by center), navigate buttons, image-links embedding
 ============================================================================================================*/
 
 function ImgBtnsShowHider(nextFn, prevFn) {

@@ -1,3 +1,5 @@
+/*==[ GlobalVars.js ]==*/
+
 const doc = window.document, emptyFn = Function.prototype, aProto = Array.prototype;
 const Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null};
 const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
