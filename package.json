@@ -76,6 +76,7 @@
     "browserify": "=14.0.0",
     "gulp": "=3.9.1",
     "gulp-babel": "=6.1.2",
+    "gulp-concat": "=2.6.1",
     "gulp-dest": "=0.2.3",
     "gulp-headerfooter": "=1.0.3",
     "gulp-replace": "=0.5.4",

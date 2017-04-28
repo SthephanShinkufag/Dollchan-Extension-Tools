@@ -1,12 +1,13 @@
-var gulp = require('gulp');
-var strip = require('gulp-strip-comments');
+var babelify     = require('babelify');
+var browserify   = require('browserify');
+var gulp         = require('gulp');
+var concat       = require('gulp-concat');
 var headerfooter = require('gulp-headerfooter');
-var replace = require('gulp-replace');
-var spawn = require('child_process').spawn;
-var source = require('vinyl-source-stream');
-var browserify = require('browserify');
-var babelify = require('babelify');
-var streamify = require('gulp-streamify');
+var replace      = require('gulp-replace');
+var streamify    = require('gulp-streamify');
+var strip        = require('gulp-strip-comments');
+var spawn        = require('child_process').spawn;
+var source       = require('vinyl-source-stream');
 
 var paths = {
 	scripts: [
@@ -14,6 +15,47 @@ var paths = {
 		'src/Dollchan_Extension_Tools.es6.user.js',
 		'Dollchan_Extension_Tools.meta.js'
 	],
+	modules: [
+		'src/modules/Head.js',
+		'src/modules/DefaultCfg.js',
+		'src/modules/Localization.js',
+		'src/modules/GlobalVars.js',
+		'src/modules/Utils.js',
+		'src/modules/Storage.js',
+		'src/modules/Panel.js',
+		'src/modules/WindowUtils.js',
+		'src/modules/WindowVidHid.js',
+		'src/modules/WindowFavorites.js',
+		'src/modules/WindowSettings.js',
+		'src/modules/MenuPopups.js',
+		'src/modules/Hotkeys.js',
+		'src/modules/ContentLoad.js',
+		'src/modules/TimeCorrection.js',
+		'src/modules/Players.js',
+		'src/modules/Ajax.js',
+		'src/modules/Pages.js',
+		'src/modules/Spells.js',
+		'src/modules/Form.js',
+		'src/modules/FormSubmit.js',
+		'src/modules/FormFile.js',
+		'src/modules/FormCaptcha.js',
+		'src/modules/Posts.js',
+		'src/modules/PostPreviews.js',
+		'src/modules/PostImages.js',
+		'src/modules/PostBuilders.js',
+		'src/modules/RefMap.js',
+		'src/modules/Threads.js',
+		'src/modules/ThreadUpdater.js',
+		'src/modules/DelForm.js',
+		'src/modules/Browser.js',
+		'src/modules/BoardDefaults.js',
+		'src/modules/BoardCustom.js',
+		'src/modules/Misc.js',
+		'src/modules/SvgIcons.js',
+		'src/modules/Css.js',
+		'src/modules/Main.js',
+		'src/modules/Tail.js'
+	]
 };
 
 gulp.task('updatecommit', function(cb) {
@@ -36,7 +78,7 @@ gulp.task('updatecommit', function(cb) {
 	});
 });
 
-gulp.task('make', ['updatecommit'], function() {
+gulp.task('makees5', ['updatecommit'], function() {
 	return browserify(['./src/es5-polyfills.js', './src/Dollchan_Extension_Tools.es6.user.js'])
 		.transform(babelify)
 		.bundle()
@@ -46,6 +88,14 @@ gulp.task('make', ['updatecommit'], function() {
 		.pipe(streamify(headerfooter.header('Dollchan_Extension_Tools.meta.js')))
 		.pipe(gulp.dest('./'));
 });
+
+gulp.task('makees6', function() {
+	return gulp.src(paths.modules)
+		.pipe(concat('Dollchan_Extension_Tools.es6.user.js', {newLine: '\n'}))
+		.pipe(gulp.dest('./src/'));
+});
+
+gulp.task('make', ['makees6', 'makees5']);
 
 gulp.task('makeall', ['make'], function() {
 	return gulp.src('./Dollchan_Extension_Tools.user.js')
