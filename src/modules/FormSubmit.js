@@ -180,8 +180,9 @@ function* html5Submit(form, submitter, needProgress = false) {
 			hasFiles = true;
 			var fileName = value.name,
 				newFileName = Cfg.removeFName ? ' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
-			if(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) &&
-			   (Cfg.postSameImg || Cfg.removeEXIF))
+			if((Cfg.postSameImg || Cfg.removeEXIF) &&
+			   (value.type === 'image/jpeg' || value.type === 'image/png' ||
+			    value.type === 'video/webm' && !aib.mak))
 			{
 				var data = cleanFile((yield readFile(value)).data, el.obj.imgFile);
 				if(!data) {

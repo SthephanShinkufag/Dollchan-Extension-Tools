@@ -2947,7 +2947,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '5a10b53';
+	var commit = '2d916e6';
 
 
 	var defaultCfg = {
@@ -11791,7 +11791,7 @@ true, true],
 						hasFiles = true;
 						fileName = value.name, newFileName = Cfg.removeFName ? ' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
 
-						if (!(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) && (Cfg.postSameImg || Cfg.removeEXIF))) {
+						if (!((Cfg.postSameImg || Cfg.removeEXIF) && (value.type === 'image/jpeg' || value.type === 'image/png' || value.type === 'video/webm' && !aib.mak))) {
 							_context16.next = 28;
 							break;
 						}

@@ -24,9 +24,11 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '5a10b53';
+const commit  = '2d916e6';
 
-/*==[ DefaultCfg.js ]==*/
+/*==[ DefaultCfg.js ]=========================================================================================
+                                                DEFAULT CONFIG
+============================================================================================================*/
 
 const defaultCfg = {
 	'disabled':         0,      // script enabled by default
@@ -7950,8 +7952,9 @@ function* html5Submit(form, submitter, needProgress = false) {
 			hasFiles = true;
 			var fileName = value.name,
 				newFileName = Cfg.removeFName ? ' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
-			if(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) &&
-			   (Cfg.postSameImg || Cfg.removeEXIF))
+			if((Cfg.postSameImg || Cfg.removeEXIF) &&
+			   (value.type === 'image/jpeg' || value.type === 'image/png' ||
+			    value.type === 'video/webm' && !aib.mak))
 			{
 				var data = cleanFile((yield readFile(value)).data, el.obj.imgFile);
 				if(!data) {
