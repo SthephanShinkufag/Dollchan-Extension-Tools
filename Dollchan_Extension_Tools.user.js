@@ -2356,10 +2356,6 @@ process.off = noop;
 process.removeListener = noop;
 process.removeAllListeners = noop;
 process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
 
 process.binding = function (name) {
     throw new Error('process.binding is not supported');
@@ -13795,7 +13791,7 @@ true, true],
 						$pd(e);
 						_this37._post.setUserVisib(!_this37._post.hidden);
 					};
-					text = note ? '(autohide: ' + note + ')' : '(' + this._post.title + ')';
+					text = (this._post.title ? '(' + this._post.title + ') ' : '') + (note ? '[autohide: ' + note + ']' : '');
 				} else {
 					text = note ? 'autohide: ' + note : '';
 				}
