@@ -2356,6 +2356,10 @@ process.off = noop;
 process.removeListener = noop;
 process.removeAllListeners = noop;
 process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
 
 process.binding = function (name) {
     throw new Error('process.binding is not supported');
@@ -2936,14 +2940,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 
-
 (function de_main_func_inner(scriptStorage, FormData, scrollTo, localData) {
 	'use strict';
 
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '2d916e6';
+	var commit = '2ef9e99';
 
 
 	var defaultCfg = {
@@ -18500,7 +18503,7 @@ true, true],
 			}, {
 				key: 'init',
 				value: function init() {
-					$script('(function() {\n\t\t\t\tvar emptyFn = function() {};\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name, { value: emptyFn, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\tfixGlobalFunc("$alert");\n\t\t\t\tfixGlobalFunc("linkremover");\n\t\t\t\tfixGlobalFunc("scrollTo");\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });\n\t\t\t\tvar obj;\n\t\t\t\ttry {\n\t\t\t\t\tobj = JSON.parse(localStorage.store || "{}");\n\t\t\t\t} catch(e) {\n\t\t\t\t\tobj = {};\n\t\t\t\t}\n\t\t\t\tobj.thread = {autorefresh: false};\n\t\t\t\tlocalStorage.store = JSON.stringify(obj);\n\t\t\t})();');
+					$script('(function() {\n\t\t\t\tvar emptyFn = function() {};\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name, { value: emptyFn, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\tfixGlobalFunc("$alert");\n\t\t\t\tfixGlobalFunc("autorefresh_start"):\n\t\t\t\tfixGlobalFunc("linkremover");\n\t\t\t\tfixGlobalFunc("scrollTo");\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });\n\t\t\t})();');
 					$each($Q('.autorefresh'), $del);
 					var el = $q('td > .anoniconsselectlist');
 					if (el) {

@@ -18,10 +18,8 @@
 // @nocompat        Chrome
 // ==/UserScript==
 
-/* jshint esnext:true, elision:true, noyield:true */
-
 (function de_main_func_inner(scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
 const version = '17.2.13.0';
-const commit  = '2d916e6';
+const commit = '2ef9e99';

@@ -127,18 +127,11 @@ function getImageBoard(checkDomains, checkEngines) {
 					Object.defineProperty(window, name, { value: emptyFn, writable: false, configurable: false });
 				}
 				fixGlobalFunc("$alert");
+				fixGlobalFunc("autorefresh_start"):
 				fixGlobalFunc("linkremover");
 				fixGlobalFunc("scrollTo");
 				window.FormData = void 0;
 				$(function() { $(window).off(); });
-				var obj;
-				try {
-					obj = JSON.parse(localStorage.store || "{}");
-				} catch(e) {
-					obj = {};
-				}
-				obj.thread = {autorefresh: false};
-				localStorage.store = JSON.stringify(obj);
 			})();`);
 			$each($Q('.autorefresh'), $del);
 			var el = $q('td > .anoniconsselectlist');

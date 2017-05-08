@@ -18,13 +18,11 @@
 // @nocompat        Chrome
 // ==/UserScript==
 
-/* jshint esnext:true, elision:true, noyield:true */
-
 (function de_main_func_inner(scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
 const version = '17.2.13.0';
-const commit  = '2d916e6';
+const commit = '2ef9e99';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -13716,18 +13714,11 @@ function getImageBoard(checkDomains, checkEngines) {
 					Object.defineProperty(window, name, { value: emptyFn, writable: false, configurable: false });
 				}
 				fixGlobalFunc("$alert");
+				fixGlobalFunc("autorefresh_start"):
 				fixGlobalFunc("linkremover");
 				fixGlobalFunc("scrollTo");
 				window.FormData = void 0;
 				$(function() { $(window).off(); });
-				var obj;
-				try {
-					obj = JSON.parse(localStorage.store || "{}");
-				} catch(e) {
-					obj = {};
-				}
-				obj.thread = {autorefresh: false};
-				localStorage.store = JSON.stringify(obj);
 			})();`);
 			$each($Q('.autorefresh'), $del);
 			var el = $q('td > .anoniconsselectlist');
