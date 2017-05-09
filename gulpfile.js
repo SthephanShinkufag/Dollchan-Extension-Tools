@@ -43,7 +43,7 @@ gulp.task('make:es6', ['updatecommit'], function() {
 	gulp.src('src/modules/Wrap.js').pipe(tap(function(wrapFile) {
 		var str = wrapFile.contents.toString();
 		var arr = str.match(/\/\*==\[ .*? \]==\*\//g);
-		for(var i = 0, count = 0, len = arr.length; i < len; ++i) {
+		for(var i = 0, count = 0, len = arr.length - 1; i < len; ++i) {
 			var match = arr[i];
 			gulp.src('src/modules/' + match.replace(/\/\*==\[ | \]==\*\//g, '')).pipe(tap(function(moduleFile) {
 				str = str.replace(this, moduleFile.contents.toString());

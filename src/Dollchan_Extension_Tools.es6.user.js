@@ -19,10 +19,10 @@
 // ==/UserScript==
 
 (function de_main_func_inner(scriptStorage, FormData, scrollTo, localData) {
-'use strict';;
+'use strict';
 
 const version = '17.2.13.0';
-const commit = '331f02c';
+const commit = '78ca231';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
