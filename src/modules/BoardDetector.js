@@ -6,7 +6,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	var ibDomains = {};
 	var ibEngines = [];
 
-	// Engines
+	// ENGINES
 	class Makaba extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -344,34 +344,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibEngines.push(['script[src*="kusaba"]', Kusaba], ['form#delform[action$="/board.php"]', Kusaba]);
 
-	class _0chan extends Kusaba {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.qFormRedir = '#gotothread';
-			this.qOPost = '.postnode';
-
-			this.hasCatalog = true;
-			this.ru = true;
-		}
-		get css() {
-			return super.css + '.logo + hr, .replieslist, table[border="0"] + hr, .uibutton { display: none; }';
-		}
-		fixVideo(isPost, data) {
-			var videos = [],
-				els = $Q('.youtube.embed', isPost ? data.el : data);
-			for(var i = 0, len = els.length; i < len; ++i) {
-				var el = els[i];
-				var id = el.getAttribute('data-id');
-				var m = ['https://www.youtube.com/watch?v=' + id, id];
-				videos.push([isPost ? data : this.getPostOfEl(el), m, true]);
-				$del(el.parentNode);
-			}
-			return videos;
-		}
-	}
-	ibEngines.push(['.maintable[width="98%"]', _0chan]);
-
 	class TinyIB extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -383,6 +355,12 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return '.replymode { display: none; }';
 		}
+		fixHTMLHelper(str) {
+			return str.replace(/="\.\.\//g, `="/${ this.b }/`);
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode.parentNode;
+		}
 		init() {
 			$each($Q('.message > .omittedposts'),
 			      el => $replace(el, '<span class="abbrev">Post too long. <a href="#">Click to view.</a>'));
@@ -391,61 +369,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibEngines.push(['form[action$="imgboard.php?delete"]', TinyIB]);
 
-	class Phutaba extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.cReply = 'post';
-			this.qError = '.error';
-			this.qFormRedir = 'input[name="gb2"][value="thread"]';
-			this.qOPost = '.thread_OP';
-			this.qPages = '.pagelist > li:nth-last-child(2)';
-			this.qPostHeader = '.post_head';
-			this.qPostMsg = '.text';
-			this.qPostSubj = '.subject';
-			this.qPostTrip = '.tripcode';
-			this.qRPost = '.thread_reply';
-			this.qTrunc = '.tldr';
-
-			this.docExt = '';
-			this.firstPage = 1;
-			this.markupBB = true;
-			this.multiFile = true;
-			this.res = 'thread/';
-		}
-		get qImgNameLink() {
-			return '.filename > a';
-		}
-		get css() {
-			return `.content > hr, .de-parea > hr, .de-pview > .doubledash { display: none !important }
-				.de-pview > .post { margin-left: 0; border: none; }
-				#de-win-reply { float:left; margin-left:2em }`;
-		}
-		fixFileInputs(el) {
-			var str = '><input name="file" type="file"></div>';
-			el.removeAttribute('onchange');
-			el.parentNode.parentNode.innerHTML =
-				'<div' + str + ('<div style="display: none;"' + str).repeat(3);
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode.parentNode;
-		}
-		getPageUrl(b, p) {
-			return p > 1 ? fixBrd(b) + 'page/' + p : fixBrd(b);
-		}
-		getPostElOfEl(el) {
-			while(el && !nav.matchesSelector(el, '.post')) {
-				el = el.parentElement;
-			}
-			return el.parentNode;
-		}
-		getSage(post) {
-			return !!$q('.sage', post);
-		}
-	}
-	ibEngines.push(['head > link[href*="phutaba.css"]', Phutaba]);
-
-	// Domains
+	// DOMAINS
 	class _0chanHk extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -544,6 +468,9 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.ru = true;
 			this.timePattern = 'yyyy+nn+dd++w++hh+ii+ss';
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode.parentNode;
 		}
 	}
 	ibDomains['02ch.net'] = _02chNet;
@@ -680,6 +607,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getCaptchaSrc(src, tNum) {
 			return '/' + this.b + '/captcha.fpl?' + Math.random();
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode.parentNode;
 		}
 		getOmitted(el, len) {
 			var txt;
@@ -1244,6 +1174,61 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['dobrochan.org'] = Dobrochan;
 	ibDomains['dobrochan.ru'] = Dobrochan;
 
+	class Ernstchan extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.cReply = 'post';
+			this.qError = '.error';
+			this.qFormRedir = 'input[name="gb2"][value="thread"]';
+			this.qOPost = '.thread_OP';
+			this.qPages = '.pagelist > li:nth-last-child(2)';
+			this.qPostHeader = '.post_head';
+			this.qPostMsg = '.text';
+			this.qPostSubj = '.subject';
+			this.qPostTrip = '.tripcode';
+			this.qRPost = '.thread_reply';
+			this.qTrunc = '.tldr';
+
+			this.docExt = '';
+			this.firstPage = 1;
+			this.markupBB = true;
+			this.multiFile = true;
+			this.res = 'thread/';
+		}
+		get qImgNameLink() {
+			return '.filename > a';
+		}
+		get css() {
+			return `.content > hr, .de-parea > hr, .de-pview > .doubledash { display: none !important }
+				.de-pview > .post { margin-left: 0; border: none; }
+				#de-win-reply { float:left; margin-left:2em }`;
+		}
+		fixFileInputs(el) {
+			var str = '><input name="file" type="file"></div>';
+			el.removeAttribute('onchange');
+			el.parentNode.parentNode.innerHTML =
+				'<div' + str + ('<div style="display: none;"' + str).repeat(3);
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode.parentNode;
+		}
+		getPageUrl(b, p) {
+			return p > 1 ? fixBrd(b) + 'page/' + p : fixBrd(b);
+		}
+		getPostElOfEl(el) {
+			while(el && !nav.matchesSelector(el, '.post')) {
+				el = el.parentElement;
+			}
+			return el.parentNode;
+		}
+		getSage(post) {
+			return !!$q('.sage', post);
+		}
+	}
+	ibDomains['ernstchan.com'] = Ernstchan;
+	// ibEngines.push(['head > link[href*="phutaba.css"]', Ernstchan]);
+
 	class Iichan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -1530,7 +1515,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub'];
 		}
 		init() {
-			var val = '{"simpleNavbar":true,"showInfo":true}';
+			var val = '{"simpleNavbar":true}';
 			if(locStorage.settings !== val) {
 				locStorage.settings = val;
 				window.location.reload();

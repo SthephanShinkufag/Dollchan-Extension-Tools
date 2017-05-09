@@ -9,7 +9,7 @@ class Captcha {
 		this.tNum = initNum;
 		this.parentEl = el.tagName === 'TR' ? el : $parent(el, 'TR');
 		this.isAdded = false;
-		this._isRecap = !!$q('[id*="recaptcha"]', this.parentEl);
+		this._isRecap = !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
 		this._lastUpdate = null;
 		this.originHTML = this.parentEl.innerHTML;
 		$hide(this.parentEl);
@@ -28,7 +28,7 @@ class Captcha {
 		} else if(this._isOldRecap()) {
 			this.textEl = $id('recaptcha_response_field');
 		} else {
-			const el = $q('#g-recaptcha' + (aib.fch ? ', #qrCaptchaContainerAlt' : ''));
+			const el = $q('#g-recaptcha, .g-recaptcha' + (aib.fch ? ', #qrCaptchaContainerAlt' : ''));
 			$replace(el, '<div id="g-recaptcha" class="g-recaptcha" data-sitekey="' +
 				el.getAttribute('data-sitekey') + '"></div>');
 		}
