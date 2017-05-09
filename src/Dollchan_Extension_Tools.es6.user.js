@@ -19,10 +19,10 @@
 // ==/UserScript==
 
 (function de_main_func_inner(scriptStorage, FormData, scrollTo, localData) {
-'use strict';
+'use strict';;
 
 const version = '17.2.13.0';
-const commit = '2ef9e99';
+const commit = '331f02c';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -16055,6 +16055,6 @@ if(doc.readyState !== 'loading') {
 	doc.addEventListener('DOMContentLoaded', async(() => runMain(false, cfgPromise)));
 }
 
-/*==[ Tail.js ]==*/
+/*==[ Tail ]==*/
 
 })(window.opera && window.opera.scriptStorage, window.FormData, (x, y) => window.scrollTo(x, y), typeof localData === 'object' ? localData : null);
