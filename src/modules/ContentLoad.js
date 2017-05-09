@@ -293,7 +293,7 @@ function loadDocFiles(imgOnly) {
 		var docName = aib.dm + '-' + aib.b.replace(/[\\\/:*?"<>|]/g, '') + '-' + aib.t;
 		if(!imgOnly) {
 			$q('head', dc).insertAdjacentHTML('beforeend',
-				'<script type="text/javascript" src="data/dollscript.js"></script>');
+				'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
 			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
 			var scriptStr, localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
 			if(nav.isES6) {

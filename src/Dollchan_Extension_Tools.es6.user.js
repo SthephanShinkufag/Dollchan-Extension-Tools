@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '78ca231';
+const commit = 'e4186ce';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -4980,7 +4980,7 @@ function loadDocFiles(imgOnly) {
 		var docName = aib.dm + '-' + aib.b.replace(/[\\\/:*?"<>|]/g, '') + '-' + aib.t;
 		if(!imgOnly) {
 			$q('head', dc).insertAdjacentHTML('beforeend',
-				'<script type="text/javascript" src="data/dollscript.js"></script>');
+				'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
 			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
 			var scriptStr, localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
 			if(nav.isES6) {
@@ -14123,12 +14123,43 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['0chan.hk'] = _0chanHk;
 
+	class _02chNet extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.qFormRedir = 'input[name="gb2"][value="thread"]';
+
+			this.ru = true;
+			this.timePattern = 'yyyy+nn+dd++w++hh+ii+ss';
+		}
+	}
+	ibDomains['02ch.net'] = _02chNet;
+
+	class _02chSu extends Kusaba {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.hasCatalog = true;
+
+			this._capUpdPromise = null;
+		}
+		updateCaptcha(cap) {
+			return cap.updateHelper('/captcha_update.php', xhr => {
+				cap.parentEl.innerHTML = xhr.responseText;
+				cap.textEl = $id('recaptcha_response_field');
+				cap.initImage($q('img', cap.parentEl));
+				cap.initTextEl();
+			});
+		}
+	}
+	ibDomains['02ch.su'] = _02chSu;
+
 	class _2chan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
 
 			this.qDForm = 'form:not([enctype])';
-			this.qForm = 'form:nth-of-type(1)';
+			this.qForm = 'form[enctype]';
 			this.qFormRedir = null;
 			this.qFormRules = '.chui';
 			this.qOmitted = 'font[color="#707070"]';
@@ -14171,37 +14202,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['2chan.net'] = _2chan;
-
-	class _02chNet extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.qFormRedir = 'input[name="gb2"][value="thread"]';
-
-			this.ru = true;
-			this.timePattern = 'yyyy+nn+dd++w++hh+ii+ss';
-		}
-	}
-	ibDomains['02ch.net'] = _02chNet;
-
-	class _02chSu extends Kusaba {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.hasCatalog = true;
-
-			this._capUpdPromise = null;
-		}
-		updateCaptcha(cap) {
-			return cap.updateHelper('/captcha_update.php', xhr => {
-				cap.parentEl.innerHTML = xhr.responseText;
-				cap.textEl = $id('recaptcha_response_field');
-				cap.initImage($q('img', cap.parentEl));
-				cap.initTextEl();
-			});
-		}
-	}
-	ibDomains['02ch.su'] = _02chSu;
 
 	class _2chRip extends BaseBoard {
 		constructor(prot, dm) {

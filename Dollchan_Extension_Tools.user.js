@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '78ca231';
+	var commit = 'e4186ce';
 
 
 	var defaultCfg = {
@@ -8234,7 +8234,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, function () {
 			var docName = aib.dm + '-' + aib.b.replace(/[\\\/:*?"<>|]/g, '') + '-' + aib.t;
 			if (!imgOnly) {
-				$q('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js"></script>');
+				$q('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
 				$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
 				var scriptStr,
 				    localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
@@ -19080,26 +19080,77 @@ true, true],
 
 		ibDomains['0chan.hk'] = _0chanHk;
 
-		var _2chan = function (_BaseBoard7) {
-			_inherits(_2chan, _BaseBoard7);
+		var _02chNet = function (_BaseBoard7) {
+			_inherits(_02chNet, _BaseBoard7);
+
+			function _02chNet(prot, dm) {
+				_classCallCheck(this, _02chNet);
+
+				var _this74 = _possibleConstructorReturn(this, (_02chNet.__proto__ || Object.getPrototypeOf(_02chNet)).call(this, prot, dm));
+
+				_this74.qFormRedir = 'input[name="gb2"][value="thread"]';
+
+				_this74.ru = true;
+				_this74.timePattern = 'yyyy+nn+dd++w++hh+ii+ss';
+				return _this74;
+			}
+
+			return _02chNet;
+		}(BaseBoard);
+
+		ibDomains['02ch.net'] = _02chNet;
+
+		var _02chSu = function (_Kusaba2) {
+			_inherits(_02chSu, _Kusaba2);
+
+			function _02chSu(prot, dm) {
+				_classCallCheck(this, _02chSu);
+
+				var _this75 = _possibleConstructorReturn(this, (_02chSu.__proto__ || Object.getPrototypeOf(_02chSu)).call(this, prot, dm));
+
+				_this75.hasCatalog = true;
+
+				_this75._capUpdPromise = null;
+				return _this75;
+			}
+
+			_createClass(_02chSu, [{
+				key: 'updateCaptcha',
+				value: function updateCaptcha(cap) {
+					return cap.updateHelper('/captcha_update.php', function (xhr) {
+						cap.parentEl.innerHTML = xhr.responseText;
+						cap.textEl = $id('recaptcha_response_field');
+						cap.initImage($q('img', cap.parentEl));
+						cap.initTextEl();
+					});
+				}
+			}]);
+
+			return _02chSu;
+		}(Kusaba);
+
+		ibDomains['02ch.su'] = _02chSu;
+
+		var _2chan = function (_BaseBoard8) {
+			_inherits(_2chan, _BaseBoard8);
 
 			function _2chan(prot, dm) {
 				_classCallCheck(this, _2chan);
 
-				var _this74 = _possibleConstructorReturn(this, (_2chan.__proto__ || Object.getPrototypeOf(_2chan)).call(this, prot, dm));
+				var _this76 = _possibleConstructorReturn(this, (_2chan.__proto__ || Object.getPrototypeOf(_2chan)).call(this, prot, dm));
 
-				_this74.qDForm = 'form:not([enctype])';
-				_this74.qForm = 'form:nth-of-type(1)';
-				_this74.qFormRedir = null;
-				_this74.qFormRules = '.chui';
-				_this74.qOmitted = 'font[color="#707070"]';
-				_this74.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
-				_this74.qPostRef = '.del';
-				_this74.qRPost = 'td:nth-child(2)';
+				_this76.qDForm = 'form:not([enctype])';
+				_this76.qForm = 'form[enctype]';
+				_this76.qFormRedir = null;
+				_this76.qFormRules = '.chui';
+				_this76.qOmitted = 'font[color="#707070"]';
+				_this76.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
+				_this76.qPostRef = '.del';
+				_this76.qRPost = 'td:nth-child(2)';
 
-				_this74.docExt = '.htm';
-				_this74.formParent = 'resto';
-				return _this74;
+				_this76.docExt = '.htm';
+				_this76.formParent = 'resto';
+				return _this76;
 			}
 
 			_createClass(_2chan, [{
@@ -19152,57 +19203,6 @@ true, true],
 		}(BaseBoard);
 
 		ibDomains['2chan.net'] = _2chan;
-
-		var _02chNet = function (_BaseBoard8) {
-			_inherits(_02chNet, _BaseBoard8);
-
-			function _02chNet(prot, dm) {
-				_classCallCheck(this, _02chNet);
-
-				var _this75 = _possibleConstructorReturn(this, (_02chNet.__proto__ || Object.getPrototypeOf(_02chNet)).call(this, prot, dm));
-
-				_this75.qFormRedir = 'input[name="gb2"][value="thread"]';
-
-				_this75.ru = true;
-				_this75.timePattern = 'yyyy+nn+dd++w++hh+ii+ss';
-				return _this75;
-			}
-
-			return _02chNet;
-		}(BaseBoard);
-
-		ibDomains['02ch.net'] = _02chNet;
-
-		var _02chSu = function (_Kusaba2) {
-			_inherits(_02chSu, _Kusaba2);
-
-			function _02chSu(prot, dm) {
-				_classCallCheck(this, _02chSu);
-
-				var _this76 = _possibleConstructorReturn(this, (_02chSu.__proto__ || Object.getPrototypeOf(_02chSu)).call(this, prot, dm));
-
-				_this76.hasCatalog = true;
-
-				_this76._capUpdPromise = null;
-				return _this76;
-			}
-
-			_createClass(_02chSu, [{
-				key: 'updateCaptcha',
-				value: function updateCaptcha(cap) {
-					return cap.updateHelper('/captcha_update.php', function (xhr) {
-						cap.parentEl.innerHTML = xhr.responseText;
-						cap.textEl = $id('recaptcha_response_field');
-						cap.initImage($q('img', cap.parentEl));
-						cap.initTextEl();
-					});
-				}
-			}]);
-
-			return _02chSu;
-		}(Kusaba);
-
-		ibDomains['02ch.su'] = _02chSu;
 
 		var _2chRip = function (_BaseBoard9) {
 			_inherits(_2chRip, _BaseBoard9);
