@@ -431,15 +431,19 @@ function getImageBoard(checkDomains, checkEngines) {
 				if(el && el.id === 'app') {
 					initObserver.disconnect();
 					doc.defaultView.addEventListener('message', ({ data }) => {
-						if(data === '0chan-content-done') {
-							DelForm.tNums = new Set();
-							$del($id('de-svg-icons'));
-							$del($id('de-thr-navpanel'));
-							$del($id('de-css'));
-							$del($id('de-css-dynamic'));
-							$del($id('de-css-user'));
-							async(runMain)(checkDomains, cfgPromise);
+						if(data !== '0chan-content-done') {
+							return;
 						}
+						if(updater) {
+							updater.disable();
+						}
+						DelForm.tNums = new Set();
+						$del($id('de-svg-icons'));
+						$del($id('de-thr-navpanel'));
+						$del($id('de-css'));
+						$del($id('de-css-dynamic'));
+						$del($id('de-css-user'));
+						async(runMain)(checkDomains, cfgPromise);
 					});
 					$script(`window.app.$bus.on('refreshContentDone',
 						() => document.defaultView.postMessage('0chan-content-done', '*'))`);

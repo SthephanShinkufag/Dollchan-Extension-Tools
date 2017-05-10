@@ -506,7 +506,7 @@ class _0chanPostsBuilder {
 				${ filesHTML }
 				<div class="post-body-message">
 					${ parId === this._json.posts[0].id ? '' : `<div class="post-parent"><a data-post="${ parId }" href="/${ brd }/${ data.threadId }#${ parId}">&gt;&gt;${ parId }</a></div>` }
-					<div> ${ data.message ? data.message.replace(/\n/, '<br>') : '' }</div>
+					<div> ${ data.messageHtml || '' }</div>
 				</div>
 			</div>
 			<div class="post-footer"></div>
