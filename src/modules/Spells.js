@@ -664,7 +664,7 @@ SpellsCodegen.prototype = {
 		if(!m) {
 			return null;
 		}
-		if(haveComma !== !!m[2]) {
+		if(haveComma !== Boolean(m[2])) {
 			return null;
 		}
 		val = m[1];

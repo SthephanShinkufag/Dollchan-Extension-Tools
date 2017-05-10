@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = 'b724003';
+const commit = 'fe4630b';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -6575,7 +6575,7 @@ SpellsCodegen.prototype = {
 		if(!m) {
 			return null;
 		}
-		if(haveComma !== !!m[2]) {
+		if(haveComma !== Boolean(m[2])) {
 			return null;
 		}
 		val = m[1];
@@ -13836,7 +13836,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return videos;
 		}
 		getImgRealName(wrap) {
-			return $q('.unimportant > a', wrap);
+			return $q('.postfilename, .unimportant > a', wrap);
 		}
 		getPageUrl(b, p) {
 			return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
@@ -14584,9 +14584,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get markupTags() {
 			return ["b", "i", 'u', 's', 'spoiler', 'code'];
-		}
-		getImgRealName(wrap) {
-			return $q('.postfilename', wrap);
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode;

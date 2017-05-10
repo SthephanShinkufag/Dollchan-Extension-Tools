@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = 'b724003';
+	var commit = 'fe4630b';
 
 
 	var defaultCfg = {
@@ -10063,7 +10063,7 @@ true, true],
 			if (!m) {
 				return null;
 			}
-			if (haveComma !== !!m[2]) {
+			if (haveComma !== Boolean(m[2])) {
 				return null;
 			}
 			val = m[1];
@@ -18661,7 +18661,7 @@ true, true],
 			}, {
 				key: 'getImgRealName',
 				value: function getImgRealName(wrap) {
-					return $q('.unimportant > a', wrap);
+					return $q('.postfilename, .unimportant > a', wrap);
 				}
 			}, {
 				key: 'getPageUrl',
@@ -19751,11 +19751,6 @@ true, true],
 			}
 
 			_createClass(Brchan, [{
-				key: 'getImgRealName',
-				value: function getImgRealName(wrap) {
-					return $q('.postfilename', wrap);
-				}
-			}, {
 				key: 'getImgWrap',
 				value: function getImgWrap(img) {
 					return img.parentNode.parentNode.parentNode;

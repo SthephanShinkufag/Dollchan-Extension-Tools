@@ -249,7 +249,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return videos;
 		}
 		getImgRealName(wrap) {
-			return $q('.unimportant > a', wrap);
+			return $q('.postfilename, .unimportant > a', wrap);
 		}
 		getPageUrl(b, p) {
 			return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
@@ -997,9 +997,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get markupTags() {
 			return ["b", "i", 'u', 's', 'spoiler', 'code'];
-		}
-		getImgRealName(wrap) {
-			return $q('.postfilename', wrap);
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode;
