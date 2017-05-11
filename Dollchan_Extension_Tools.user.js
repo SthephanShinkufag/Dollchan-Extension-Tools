@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = 'c45509b';
+	var commit = '4f6c5cd';
 
 
 	var defaultCfg = {
@@ -3689,7 +3689,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function escapeHTML(html) {
-		return doc.createElement('div').appendChild($txt(html)).parentNode.innerHTML;
+		var el = doc.createElement('div');
+		var str = el.appendChild($txt(html)).parentNode.innerHTML;
+		$del(el);
+		return str;
 	}
 
 	function $pd(e) {

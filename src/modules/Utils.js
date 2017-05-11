@@ -183,7 +183,10 @@ function toRegExp(str, noG) {
 }
 
 function escapeHTML(html) {
-    return doc.createElement('div').appendChild($txt(html)).parentNode.innerHTML;
+	const el = doc.createElement('div');
+	const str = el.appendChild($txt(html)).parentNode.innerHTML;
+	$del(el);
+    return str;
 }
 
 function $pd(e) {
