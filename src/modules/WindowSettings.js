@@ -801,9 +801,8 @@ const cfgWindow = Object.create({
 	// Creates a text input for text option values
 	_getInp(id, addText = true, size = 2) {
 		return `<label class="de-cfg-label">
-			<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="${ Cfg[id] }">${
-		      addText && Lng.cfg[id] ? Lng.cfg[id][lang] : ''
-	    }</label>`;
+			<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="${
+				escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;
 	},
 
 	// Creates a select for multiple option values

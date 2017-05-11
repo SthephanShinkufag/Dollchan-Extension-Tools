@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '4c54220';
+const commit = 'c45509b';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -836,6 +836,10 @@ function toRegExp(str, noG) {
 	const l = str.lastIndexOf('/');
 	const flags = str.substr(l + 1);
 	return new RegExp(str.substr(1, l - 1), noG ? flags.replace('g', '') : flags);
+}
+
+function escapeHTML(html) {
+    return doc.createElement('div').appendChild($txt(html)).parentNode.innerHTML;
 }
 
 function $pd(e) {
@@ -3798,9 +3802,8 @@ const cfgWindow = Object.create({
 	// Creates a text input for text option values
 	_getInp(id, addText = true, size = 2) {
 		return `<label class="de-cfg-label">
-			<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="${ Cfg[id] }">${
-		      addText && Lng.cfg[id] ? Lng.cfg[id][lang] : ''
-	    }</label>`;
+			<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="${
+				escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;
 	},
 
 	// Creates a select for multiple option values

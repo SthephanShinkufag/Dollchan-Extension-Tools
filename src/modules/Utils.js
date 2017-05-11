@@ -182,6 +182,10 @@ function toRegExp(str, noG) {
 	return new RegExp(str.substr(1, l - 1), noG ? flags.replace('g', '') : flags);
 }
 
+function escapeHTML(html) {
+    return doc.createElement('div').appendChild($txt(html)).parentNode.innerHTML;
+}
+
 function $pd(e) {
 	e.preventDefault();
 }

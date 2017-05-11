@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '4c54220';
+	var commit = 'c45509b';
 
 
 	var defaultCfg = {
@@ -3686,6 +3686,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var l = str.lastIndexOf('/');
 		var flags = str.substr(l + 1);
 		return new RegExp(str.substr(1, l - 1), noG ? flags.replace('g', '') : flags);
+	}
+
+	function escapeHTML(html) {
+		return doc.createElement('div').appendChild($txt(html)).parentNode.innerHTML;
 	}
 
 	function $pd(e) {
@@ -7042,7 +7046,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var addText = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 			var size = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 2;
 
-			return '<label class="de-cfg-label">\n\t\t\t<input class="de-cfg-inptxt" info="' + id + '" type="text" size="' + size + '" value="' + Cfg[id] + '">' + (addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '') + '</label>';
+			return '<label class="de-cfg-label">\n\t\t\t<input class="de-cfg-inptxt" info="' + id + '" type="text" size="' + size + '" value="' + escapeHTML(Cfg[id]) + '">' + (addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '') + '</label>';
 		},
 
 
