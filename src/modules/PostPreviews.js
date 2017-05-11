@@ -7,16 +7,17 @@ class Pview extends AbstractPost {
 		return Pview.top ? Pview.top.parent : null;
 	}
 	static show(parent, link) {
-		var rv, tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,aib.getPostOfEl(link).tNum])[1],
-			pNum = +(link.textContent.trim().match(/\d+$/) || [tNum])[0],
-			isTop = !(parent instanceof Pview),
-			pv = isTop ? Pview.top : parent.kid;
+		const tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,aib.getPostOfEl(link).tNum])[1];
+		const pNum = +(link.textContent.trim().match(/\d+$/) || [tNum])[0];
+		const isTop = !(parent instanceof Pview);
+		let pv = isTop ? Pview.top : parent.kid;
 		clearTimeout(Pview._delTO);
 		if(pv && pv.num === pNum) {
 			if(pv.kid) {
 				pv.kid.delete();
 			}
 			if(pv._link !== link) {
+				// If cursor hovers new link with the same number - move old preview here
 				pv._setPosition(link, Cfg.animation);
 				pv._link.classList.remove('de-link-parent');
 				link.classList.add('de-link-parent');
@@ -30,6 +31,7 @@ class Pview extends AbstractPost {
 			}
 			pv.parent = parent;
 		} else if(!Cfg.noNavigHidd || !pByNum.has(pNum) || !pByNum.get(pNum).hidden) {
+			// Show new preview under new link
 			if(pv) {
 				pv.delete();
 			}
@@ -43,34 +45,35 @@ class Pview extends AbstractPost {
 		return pv;
 	}
 	static updatePosition(scroll) {
-		var pv = Pview.top;
-		if(pv) {
-			var parent = pv.parent;
-			if(parent.omitted) {
+		let pv = Pview.top;
+		if(!pv) {
+			return;
+		}
+		const parent = pv.parent;
+		if(parent.omitted) {
+			pv.delete();
+			return;
+		}
+		if(parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
+			const el = parent.ref.getElByNum(pv.num);
+			if(el) {
+				pv._link = el;
+			} else {
 				pv.delete();
 				return;
 			}
-			if(parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
-				var el = parent.ref.getElByNum(pv.num);
-				if(el) {
-					pv._link = el;
-				} else {
-					pv.delete();
-					return;
-				}
+		}
+		const cr = parent.hidden ? parent : pv._link.getBoundingClientRect();
+		const diff = pv._isTop ? pv._offsetTop - window.pageYOffset - cr.bottom
+		                       : pv._offsetTop + pv.el.offsetHeight - window.pageYOffset - cr.top;
+		if(Math.abs(diff) > 1) {
+			if(scroll) {
+				scrollTo(window.pageXOffset, window.pageYOffset - diff);
 			}
-			var cr = parent.hidden ? parent : pv._link.getBoundingClientRect();
-			var diff = pv._isTop ? pv._offsetTop - (window.pageYOffset + cr.bottom)
-			                     : (pv._offsetTop + pv.el.offsetHeight) - (window.pageYOffset + cr.top);
-			if(Math.abs(diff) > 1) {
-				if(scroll) {
-					scrollTo(window.pageXOffset, window.pageYOffset - diff);
-				}
-				do {
-					pv._offsetTop -= diff;
-					pv.el.style.top = Math.max(pv._offsetTop, 0) + 'px';
-				} while((pv = pv.kid));
-			}
+			do {
+				pv._offsetTop -= diff;
+				pv.el.style.top = Math.max(pv._offsetTop, 0) + 'px';
+			} while((pv = pv.kid));
 		}
 	}
 	static _markLink(el, num) {

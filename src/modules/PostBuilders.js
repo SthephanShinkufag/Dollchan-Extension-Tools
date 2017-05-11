@@ -372,7 +372,7 @@ class MakabaPostsBuilder {
 		}
 
 		return `<div id="post-${ num }" class="post-wrapper">
-			<div class="post ${ i === '-1' ? 'oppost' : 'reply' }" id="post-body-${ num }" data-num="${ num }">
+			<div class="post ${ i === -1 ? 'oppost' : 'reply' }" id="post-body-${ num }" data-num="${ num }">
 				<div id="post-details-${ num }" class="post-details">
 					<input type="checkbox" name="delete" value="${ num }">
 					${ !data.subject ? '' :

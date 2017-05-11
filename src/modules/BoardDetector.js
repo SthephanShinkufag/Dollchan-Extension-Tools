@@ -127,7 +127,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					Object.defineProperty(window, name, { value: emptyFn, writable: false, configurable: false });
 				}
 				fixGlobalFunc("$alert");
-				fixGlobalFunc("autorefresh_start"):
+				fixGlobalFunc("autorefresh_start");
 				fixGlobalFunc("linkremover");
 				fixGlobalFunc("scrollTo");
 				window.FormData = void 0;

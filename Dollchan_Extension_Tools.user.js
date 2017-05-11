@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '4f6c5cd';
+	var commit = '826766f';
 
 
 	var defaultCfg = {
@@ -13971,11 +13971,10 @@ true, true],
 		_createClass(Pview, null, [{
 			key: 'show',
 			value: function show(parent, link) {
-				var rv,
-				    tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [, aib.getPostOfEl(link).tNum])[1],
-				    pNum = +(link.textContent.trim().match(/\d+$/) || [tNum])[0],
-				    isTop = !(parent instanceof Pview),
-				    pv = isTop ? Pview.top : parent.kid;
+				var tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [, aib.getPostOfEl(link).tNum])[1];
+				var pNum = +(link.textContent.trim().match(/\d+$/) || [tNum])[0];
+				var isTop = !(parent instanceof Pview);
+				var pv = isTop ? Pview.top : parent.kid;
 				clearTimeout(Pview._delTO);
 				if (pv && pv.num === pNum) {
 					if (pv.kid) {
@@ -14011,32 +14010,33 @@ true, true],
 			key: 'updatePosition',
 			value: function updatePosition(scroll) {
 				var pv = Pview.top;
-				if (pv) {
-					var parent = pv.parent;
-					if (parent.omitted) {
+				if (!pv) {
+					return;
+				}
+				var parent = pv.parent;
+				if (parent.omitted) {
+					pv['delete']();
+					return;
+				}
+				if (parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
+					var el = parent.ref.getElByNum(pv.num);
+					if (el) {
+						pv._link = el;
+					} else {
 						pv['delete']();
 						return;
 					}
-					if (parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
-						var el = parent.ref.getElByNum(pv.num);
-						if (el) {
-							pv._link = el;
-						} else {
-							pv['delete']();
-							return;
-						}
+				}
+				var cr = parent.hidden ? parent : pv._link.getBoundingClientRect();
+				var diff = pv._isTop ? pv._offsetTop - window.pageYOffset - cr.bottom : pv._offsetTop + pv.el.offsetHeight - window.pageYOffset - cr.top;
+				if (Math.abs(diff) > 1) {
+					if (scroll) {
+						scrollTo(window.pageXOffset, window.pageYOffset - diff);
 					}
-					var cr = parent.hidden ? parent : pv._link.getBoundingClientRect();
-					var diff = pv._isTop ? pv._offsetTop - (window.pageYOffset + cr.bottom) : pv._offsetTop + pv.el.offsetHeight - (window.pageYOffset + cr.top);
-					if (Math.abs(diff) > 1) {
-						if (scroll) {
-							scrollTo(window.pageXOffset, window.pageYOffset - diff);
-						}
-						do {
-							pv._offsetTop -= diff;
-							pv.el.style.top = Math.max(pv._offsetTop, 0) + 'px';
-						} while (pv = pv.kid);
-					}
+					do {
+						pv._offsetTop -= diff;
+						pv.el.style.top = Math.max(pv._offsetTop, 0) + 'px';
+					} while (pv = pv.kid);
 				}
 			}
 		}, {
@@ -15855,7 +15855,7 @@ true, true],
 					filesHTML = '<div class="images">\n\t\t\t\t<div style="float: left; margin: 5px; margin-right:10px">\n\t\t\t\t\t' + post.video + '\n\t\t\t\t</div>\n\t\t\t</div>';
 				}
 
-				return '<div id="post-' + num + '" class="post-wrapper">\n\t\t\t<div class="post ' + (i === '-1' ? 'oppost' : 'reply') + '" id="post-body-' + num + '" data-num="' + num + '">\n\t\t\t\t<div id="post-details-' + num + '" class="post-details">\n\t\t\t\t\t<input type="checkbox" name="delete" value="' + num + '">\n\t\t\t\t\t' + (!data.subject ? '' : '<span class="post-title">' + (data.subject + (data.tags ? ' /' + data.tags + '/' : '')) + '</span>') + '\n\t\t\t\t\t' + (data.email ? '<a href="' + data.email + '" class="post-email">' + data.name + '</a>' : '<span class="ananimas">' + data.name + '</span>') + '\n\t\t\t\t\t' + (data.icon ? '<span class="post-icon">' + data.icon + '</span>' : '') + '\n\t\t\t\t\t<span class="' + (!data.trip ? '' : _switch(data.trip, {
+				return '<div id="post-' + num + '" class="post-wrapper">\n\t\t\t<div class="post ' + (i === -1 ? 'oppost' : 'reply') + '" id="post-body-' + num + '" data-num="' + num + '">\n\t\t\t\t<div id="post-details-' + num + '" class="post-details">\n\t\t\t\t\t<input type="checkbox" name="delete" value="' + num + '">\n\t\t\t\t\t' + (!data.subject ? '' : '<span class="post-title">' + (data.subject + (data.tags ? ' /' + data.tags + '/' : '')) + '</span>') + '\n\t\t\t\t\t' + (data.email ? '<a href="' + data.email + '" class="post-email">' + data.name + '</a>' : '<span class="ananimas">' + data.name + '</span>') + '\n\t\t\t\t\t' + (data.icon ? '<span class="post-icon">' + data.icon + '</span>' : '') + '\n\t\t\t\t\t<span class="' + (!data.trip ? '' : _switch(data.trip, {
 					'!!%adm%!!': 'adm">## Abu ##',
 					'!!%mod%!!': 'mod">## Mod ##',
 					'!!%Inquisitor%!!': 'inquisitor">## Applejack ##',
@@ -18510,7 +18510,7 @@ true, true],
 			}, {
 				key: 'init',
 				value: function init() {
-					$script('(function() {\n\t\t\t\tvar emptyFn = function() {};\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name, { value: emptyFn, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\tfixGlobalFunc("$alert");\n\t\t\t\tfixGlobalFunc("autorefresh_start"):\n\t\t\t\tfixGlobalFunc("linkremover");\n\t\t\t\tfixGlobalFunc("scrollTo");\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });\n\t\t\t})();');
+					$script('(function() {\n\t\t\t\tvar emptyFn = function() {};\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name, { value: emptyFn, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\tfixGlobalFunc("$alert");\n\t\t\t\tfixGlobalFunc("autorefresh_start");\n\t\t\t\tfixGlobalFunc("linkremover");\n\t\t\t\tfixGlobalFunc("scrollTo");\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });\n\t\t\t})();');
 					$each($Q('.autorefresh'), $del);
 					var el = $q('td > .anoniconsselectlist');
 					if (el) {
