@@ -183,10 +183,11 @@ function toRegExp(str, noG) {
 }
 
 function escapeHTML(html) {
-	const el = doc.createElement('div');
-	const str = el.appendChild($txt(html)).parentNode.innerHTML;
-	$del(el);
-    return str;
+	let el = doc.createElement('div');
+	el.appendChild($txt(html));
+	const str = el.innerHTML;
+	el = null; // $del(el) not works in nav.Presto because el.parentNode === null
+	return str;
 }
 
 function $pd(e) {

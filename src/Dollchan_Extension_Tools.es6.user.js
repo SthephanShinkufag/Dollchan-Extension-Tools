@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '44e3c28';
+const commit = '253ebf8';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -841,10 +841,11 @@ function toRegExp(str, noG) {
 }
 
 function escapeHTML(html) {
-	const el = doc.createElement('div');
-	const str = el.appendChild($txt(html)).parentNode.innerHTML;
-	$del(el);
-    return str;
+	let el = doc.createElement('div');
+	el.appendChild($txt(html));
+	const str = el.innerHTML;
+	el = null; // $del(el) not works in nav.Presto because el.parentNode === null
+	return str;
 }
 
 function $pd(e) {
@@ -13217,6 +13218,7 @@ function initNavFuncs() {
 	const webkit = ua.includes('WebKit/');
 	const chrome = webkit && ua.includes('Chrome/');
 	const safari = webkit && !chrome;
+	const presto = !!window.opera;
 	const isChromeStorage = !!window.chrome && !!window.chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	let isGM = false;
@@ -13248,14 +13250,19 @@ function initNavFuncs() {
 	if(needFileHack && FormData) {
 		const origFormData = FormData;
 		const origAppend = FormData.prototype.append;
-		FormData = function FormData(form) {
+		const rvAppend = function append(name, value, fileName = null) {
+			if(value instanceof Blob && 'name' in value && fileName === null) {
+				return origAppend.call(this, name, value, value.name);
+			}
+			return origAppend.apply(this, arguments);
+		};
+		FormData = presto ? function FormData(...args) {
+			const rv = new origFormData(...args);
+			rv.append = rvAppend;
+			return rv;
+		} : function FormData(form) { // Safari < 10
 			const rv = new origFormData(form);
-			rv.append = function append(name, value, fileName = null) {
-				if(value instanceof Blob && 'name' in value && fileName === null) {
-					return origAppend.call(this, name, value, value.name);
-				}
-				return origAppend.apply(this, arguments);
-			};
+			rv.append = rvAppend;
 			return rv;
 		};
 		window.File = function File(arr, name) {
@@ -13275,7 +13282,7 @@ function initNavFuncs() {
 		WebKit: webkit,
 		Chrome: chrome,
 		Safari: safari,
-		Presto: !!window.opera,
+		Presto: presto,
 		MsEdge: ua.includes('Edge/'),
 		isGM: isGM,
 		get isES6() {
