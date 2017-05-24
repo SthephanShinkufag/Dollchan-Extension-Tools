@@ -9,21 +9,21 @@ class Files {
 		this.fileTd = $parent(fileEl, 'TD');
 		this.onchange = null;
 		this._form = form;
-		var inputs = [];
-		var els = $Q('input[type="file"]', this.fileTd);
-		for(var i = 0, len = els.length; i < len; ++i) {
+		const inputs = [];
+		const els = $Q('input[type="file"]', this.fileTd);
+		for(let i = 0, len = els.length; i < len; ++i) {
 			inputs.push(new FileInput(this, els[i]));
 		}
 		this._inputs = inputs;
 		this.hide();
 	}
 	get rarInput() {
-		var value = $bEnd(docBody, '<input type="file" style="display: none;">');
+		const value = $bEnd(docBody, '<input type="file" style="display: none;">');
 		Object.defineProperty(this, 'rarInput', { value });
 		return value;
 	}
 	get thumbsEl() {
-		var value;
+		let value;
 		if(aib.multiFile) {
 			value = $add('<tr><td></td><td><div id="de-file-area"></div></td></tr>');
 			$after(this.fileTd.parentNode, value);
@@ -35,10 +35,10 @@ class Files {
 		Object.defineProperty(this, 'thumbsEl', { value });
 		return value;
 	}
-	changeView() {
-		var cfg = !!Cfg.fileThumb;
+	changeMode() {
+		const cfg = !!Cfg.fileThumb;
 		for(let inp of this._inputs) {
-			inp.changeView(cfg);
+			inp.changeMode(cfg);
 		}
 		this.hide();
 	}
@@ -49,8 +49,8 @@ class Files {
 		this.hide();
 	}
 	hide() {
-		for(var els = this._inputs, i = els.length - 1; i > 0; --i) {
-			let inp = els[i];
+		for(let els = this._inputs, i = els.length - 1; i > 0; --i) {
+			const inp = els[i];
 			if(inp.hasFile) {
 				break;
 			} else if(els[i - 1].hasFile) {
@@ -66,43 +66,86 @@ class FileInput {
 	constructor(parent, el) {
 		this.hasFile = false;
 		this.imgFile = null;
-		this._btnDel = null;
-		this._btnSpoil = null;
-		this._btnRarJpg = null;
+		this.urlFile = null;
 		this._dragCount = 0;
 		this._input = el;
 		this._inputAfter = el.nextSibling;
 		this._inputParent = el.parentNode;
 		this._mediaEl = null;
 		this._parent = parent;
+		this._rarMsg = null;
 		this._spoilEl = $q('input[type="checkbox"][name="spoiler"]', el.parentNode);
 		this._thumb = null;
+
+		// Add container with utils buttons
+		this._utils = $add(`<div class="de-file-utils">
+			<div class="de-file-rar" title="${ Lng.helpAddFile[lang] }" style="display: none;"></div>
+			<input class="de-file-spoil" type="checkbox" title="${ Lng.spoilFile[lang] }" style="display: none;">
+			<div class="de-file-url" title="${ Lng.addUrlFile[lang] }"></div>
+			<div class="de-file-del" title="${ Lng.removeFile[lang] }" style="display: none;"></div>
+		</div>`);
+		[this._btnRarJpg, this._btnSpoil, this._btnUrl, this._btnDel] = this._utils.children;
+		this._utils.addEventListener('click', this);
 		el.classList.add('de-file-input');
 		el.addEventListener('change', this);
+
+		// Add input for getting files by url
+		this._urlWrap = $add(`<span style="display: none;">
+			<input type="text" placeholder="${ Lng.linkToFile[lang] }">
+			<input type="button" class="de-file-url-add" value="+"></span>`);
+		const [txtEl, btnEl] = this._urlWrap.children;
+		btnEl.addEventListener('click', e => {
+			const url = txtEl.value;
+			if(!url) {
+				return;
+			}
+			$popup('file-loading', Lng.loading[lang], true);
+			downloadImgData(url, false).then(data => {
+				if(!data) {
+					$popup('file-loading', Lng.cantLoad[lang] + 'URL: ' + url);
+					return;
+				}
+				$hide(this._urlWrap);
+				closePopup('file-loading');
+				const fileName = url.split('/').pop();
+				const fileType = getFileType(url);
+				this.urlFile = [data, fileName, fileType];
+				if(Cfg.fileThumb) {
+					this._addNewThumb(data, fileName, data.length, fileType);
+				}
+				this._onFileChange();
+			});
+		});
+
 		if(el.files && el.files[0]) {
 			this._removeFile();
 		}
 		if(Cfg.fileThumb) {
 			this._initThumbs();
+		} else {
+			$before(this._input, this._urlWrap);
+			$after(this._input, this._utils);
 		}
 		el.obj = this;
 	}
-	changeView(showThumbs) {
+	changeMode(showThumbs) {
 		if(showThumbs ^ !!this._thumb) {
 			if(showThumbs) {
 				this._initThumbs();
-			} else {
-				this._removeThumbs();
+				return;
 			}
-			if(this._btnDel) {
-				$after(this._buttonsPlace, this._btnDel);
+			$show(this._wrap);
+			$show(this._parent.fileTd.parentNode);
+			if(this._mediaEl) {
+				window.URL.revokeObjectURL(this._mediaEl.src);
 			}
-			if(this._btnSpoil) {
-				$after(this._buttonsPlace, this._btnSpoil);
-			}
-			if(this._btnRarJpg) {
-				$after(this._buttonsPlace, this._btnRarJpg);
-			}
+			this._toggleDragEvents(this._input, false);
+			const urlTr = this._urlWrap.parentNode.parentNode;
+			$before(this._input, this._urlWrap);
+			$after(this._input, this._utils);
+			$del(urlTr);
+			$del(this._thumb);
+			this._thumb = this._mediaEl = null;
 		}
 	}
 	clear() {
@@ -115,10 +158,17 @@ class FileInput {
 				this._mediaEl = null;
 			}
 		}
-		$del(this._btnDel);
-		$del(this._btnSpoil);
-		$del(this._btnRarJpg);
-		this.imgFile = this._btnDel = this._btnSpoil = this._btnRarJpg = null;
+		if(this._btnDel) {
+			$hide(this._btnDel);
+			$hide(this._btnSpoil);
+			$hide(this._btnRarJpg);
+			$del(this._rarMsg);
+			$show(this._btnUrl);
+			$hide(this._urlWrap);
+			$show(this._input);
+			this._urlWrap.firstElementChild.value = '';
+		}
+		this.imgFile = this.urlFile = null;
 		this._changeFilesCount(-1);
 		this._removeFile();
 	}
@@ -134,7 +184,13 @@ class FileInput {
 				return;
 			} else if(e.target === this._btnRarJpg) {
 				this._addRarJpeg();
+			} else if(e.target === this._btnUrl) {
+				$toggle(this._urlWrap);
+				$toggle(this._input);
+				$toggle(this._btnUrl);
+				$toggle(this._btnDel);
 			} else if(e.target.className === 'de-file-img') {
+				this.urlFile = null;
 				this._input.click();
 			}
 			e.stopPropagation();
@@ -160,31 +216,48 @@ class FileInput {
 		}
 	}
 	hide() {
-		$hide(Cfg.fileThumb ? this._thumb : this._wrap);
+		if(Cfg.fileThumb) {
+			$hide(this._thumb);
+		}
+		$hide(this._wrap);
 	}
 	show() {
-		$show(Cfg.fileThumb ? this._thumb : this._wrap);
+		if(Cfg.fileThumb) {
+			$show(this._thumb);
+		}
+		$show(this._wrap);
 	}
 
-	get _buttonsPlace() {
-		return Cfg.fileThumb ? this._thumb.firstChild : this._input;
-	}
 	get _wrap() {
 		return aib.multiFile ? this._input.parentNode : this._input;
 	}
+	_addNewThumb(fileData, fileName, fileSize, fileType) {
+		let el = this._thumb;
+		el.classList.remove('de-file-off');
+		el = el.firstChild.firstChild;
+		el.title = `${ fileName }', ${ (fileSize / 1024).toFixed(2) }KB`;
+		this._mediaEl = el = $aBegin(el, fileType.startsWith('video/') ?
+			'<video class="de-file-img" loop autoplay muted src=""></video>' :
+			'<img class="de-file-img" src="">');
+		el.src = window.URL.createObjectURL(new Blob([fileData]));
+		if((el = el.nextSibling)) {
+			window.URL.revokeObjectURL(el.src);
+			$del(el);
+		}
+	}
 	_addRarJpeg() {
-		var el = this._parent.rarInput;
+		const el = this._parent.rarInput;
 		el.onchange = e => {
-			$del(this._btnRarJpg);
-			var myBtn = this._btnRarJpg = $aEnd(this._buttonsPlace, '<span><svg class="de-wait">' +
+			$hide(this._btnRarJpg);
+			const myBtn = this._rarMsg = $aBegin(this._utils, '<span><svg class="de-wait">' +
 				'<use xlink:href="#de-symbol-wait"/></svg>' + Lng.wait[lang] + '</span>');
-			var file = e.target.files[0];
+			const file = e.target.files[0];
 			readFile(file).then(({ data }) => {
-				if(this._btnRarJpg === myBtn) {
-					myBtn.className = 'de-file-rarmsg de-file-utils';
-					myBtn.title = this._input.files[0].name + ' + ' + file.name;
-					myBtn.textContent = this._input.files[0].name.replace(/^.+\./, '') + ' + ' +
-						file.name.replace(/^.+\./, '');
+				if(this._rarMsg === myBtn) {
+					myBtn.className = 'de-file-rarmsg';
+					const origFileName = this.urlFile ? this.urlFile[1] : this._input.files[0].name;
+					myBtn.title = origFileName + ' + ' + file.name;
+					myBtn.textContent = origFileName.split('.').pop() + ' + ' + file.name.split('.').pop();
 					this.imgFile = data;
 				}
 			});
@@ -197,22 +270,18 @@ class FileInput {
 			this._parent.fileTd.firstElementChild.value = this._parent.filesCount + 1;
 		}
 	}
-	_eventInput(el, add) {
-		var name = add ? 'addEventListener' : 'removeEventListener';
-		el[name]('dragover', $pd);
-		el[name]('dragenter', this);
-		el[name]('dragleave', this);
-		el[name]('drop', this);
-	}
 	_initThumbs() {
-		$hide(this._parent.fileTd.parentNode);
-		var thumb = $bEnd(this._parent.thumbsEl,
+		const fileTr = this._parent.fileTd.parentNode;
+		$hide(fileTr);
+		($q('.de-file-url-area') || $bBegin(fileTr,
+			'<tr class="de-file-url-area"><td></td><td></td></tr>')).lastChild.appendChild(this._urlWrap);
+		this._thumb = $bEnd(this._parent.thumbsEl,
 			'<div class="de-file de-file-off"><div class="de-file-img">' +
 			'<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
-		this._thumb = thumb;
-		thumb.addEventListener('click', this);
-		thumb.addEventListener('dragenter', this);
-		this._eventInput(this._input, true);
+		this._thumb.addEventListener('click', this);
+		this._thumb.addEventListener('dragenter', this);
+		this._thumb.appendChild(this._utils);
+		this._toggleDragEvents(this._input, true);
 		if(this.hasFile) {
 			this._showPviewImage();
 		}
@@ -224,37 +293,40 @@ class FileInput {
 		if(Cfg.fileThumb) {
 			this._showPviewImage();
 		}
-		if(!this.hasFile) {
+		if(this.hasFile) {
+			this.imgFile = null;
+		} else {
 			this.hasFile = true;
 			this._changeFilesCount(+1);
-			this._btnDel = $aEnd(this._buttonsPlace,
-				`<span class="de-file-del de-file-utils" title="${ Lng.removeFile[lang] }"></span>`);
-			this._btnDel.addEventListener('click', this);
-			if(this._spoilEl) {
-				this._btnSpoil = $aEnd(this._buttonsPlace, `<input type="checkbox" title="${
-					Lng.spoilFile[lang] }" class="de-file-spoil de-file-utils">`);
-				this._btnSpoil.addEventListener('click', this);
-				this._btnSpoil.checked = this._spoilEl.checked;
+			$hide(this._btnUrl);
+			if(!this._urlWrap.firstElementChild.value) {
+				$hide(this._urlWrap);
+				$show(this._input);
+			} else {
+				$hide(this._input);
 			}
-		} else if(this.imgFile) {
-			this.imgFile = null;
+			$show(this._btnDel);
+			if(this._spoilEl) {
+				this._btnSpoil.checked = this._spoilEl.checked;
+				$show(this._btnSpoil);
+			}
 		}
 		this._parent.hide();
-		if(nav.Presto || aib.fch || !/^image\/(?:png|jpeg)$/.test(this._input.files[0].type)) {
+		if(nav.Presto || aib.fch ||
+		   !/^image\/(?:png|jpeg)$/.test(this.urlFile ? this.urlFile[2] : this._input.files[0].type))
+		{
 			return;
 		}
-		$del(this._btnRarJpg);
-		this._btnRarJpg = $aEnd(this._buttonsPlace,
-			`<span class="de-file-rar de-file-utils" title="${ Lng.helpAddFile[lang] }"></span>`);
-		this._btnRarJpg.addEventListener('click', this);
+		$del(this._rarMsg);
+		$show(this._btnRarJpg);
 	}
 	_removeFile() {
-		var oldEl = this._input,
-			newEl = $aEnd(oldEl, oldEl.outerHTML);
-		this._eventInput(oldEl, false);
+		const oldEl = this._input;
+		const newEl = $aEnd(oldEl, oldEl.outerHTML);
+		this._toggleDragEvents(oldEl, false);
 		oldEl.removeEventListener('change', this);
 		if(Cfg.fileThumb) {
-			this._eventInput(newEl, true);
+			this._toggleDragEvents(newEl, true);
 		}
 		newEl.addEventListener('change', this);
 		newEl.obj = this;
@@ -270,45 +342,26 @@ class FileInput {
 			this._inputParent.appendChild(this._input);
 		}
 	}
-	_removeThumbs() {
-		$show(this._wrap);
-		$show(this._parent.fileTd.parentNode);
-		if(this._mediaEl) {
-			window.URL.revokeObjectURL(this._mediaEl.src);
-		}
-		this._eventInput(this._input, false);
-		$del(this._thumb);
-		this._thumb = this._mediaEl = null;
-	}
 	_showPviewImage() {
-		var file = this._input.files[0];
-		if(!file) {
-			return;
+		if(this.urlFile) {
+			const [data, fileName, fileType] = this.urlFile;
+			this._addNewThumb(data, fileName, data.length, fileType);
+		} else {
+			const file = this._input.files[0];
+			if(file) {
+				readFile(file).then(({ data }) => {
+					if(this._input.files[0] === file) {
+						this._addNewThumb(data, file.name, file.size, file.type);
+					}
+				});
+			}
 		}
-		readFile(file).then(({ data }) => {
-			var newFile = this._input.files[0];
-			if(newFile !== file) {
-				return;
-			}
-			var el = this._thumb;
-			el.classList.remove('de-file-off');
-			el = el.firstChild.firstChild;
-			el.title = file.name + ', ' + (file.size/1024).toFixed(2) + 'KB';
-			let html;
-			switch(file.type) {
-			case 'video/webm':
-			case 'video/mp4':
-				html = '<video class="de-file-img" loop autoplay muted src=""></video>';
-				break;
-			default:
-				html = '<img class="de-file-img" src="">';
-			}
-			this._mediaEl = el = $aBegin(el, html);
-			el.src = window.URL.createObjectURL(new Blob([data]));
-			if((el = el.nextSibling)) {
-				window.URL.revokeObjectURL(el.src);
-				$del(el);
-			}
-		});
+	}
+	_toggleDragEvents(el, add) {
+		const name = add ? 'addEventListener' : 'removeEventListener';
+		el[name]('dragover', $pd);
+		el[name]('dragenter', this);
+		el[name]('dragleave', this);
+		el[name]('drop', this);
 	}
 }

@@ -618,6 +618,7 @@ function* getFormElements(form, submitter) {
 				};
 				continue constructSet;
 			case 'file':
+				let urlFile;
 				if(field.files.length > 0) {
 					const files = field.files;
 					for(let j = 0, jlen = files.length; j < jlen; ++j) {
@@ -628,6 +629,13 @@ function* getFormElements(form, submitter) {
 							type: type
 						};
 					}
+				} else if((urlFile = field.obj.urlFile)) {
+					yield {
+						el: field,
+						name: name,
+						value: new File([urlFile[0]], urlFile[1], { type: urlFile[2] }),
+						type: type
+					};
 				} else {
 					yield {
 						el: field,
@@ -696,6 +704,13 @@ function prettifySize(val) {
 		return (val / (1024)).toFixed(2) + Lng.sizeKByte[lang];
 	}
 	return val.toFixed(2) + Lng.sizeByte[lang];
+}
+
+function getFileType(url) {
+	return /\.jpe?g$/i.test(url) ? 'image/jpeg' :
+		/\.png$/i.test(url) ? 'image/png' :
+		/\.gif$/i.test(url) ? 'image/gif' :
+		/\.webm$/i.test(url) ? 'video/webm' : '';
 }
 
 function downloadBlob(blob, name) {

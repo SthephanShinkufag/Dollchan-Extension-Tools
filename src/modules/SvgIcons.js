@@ -13,6 +13,7 @@ function addSVGIcons() {
 			<stop offset="100%" stop-color="#A0A0A0"/>
 		</linearGradient>
 	</defs>
+
 	<!-- POST ICONS -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-back">
 		<path class="de-svg-back" d="M4 1q-3 0,-3 3v8q0 3,3 3h8q3 0,3 -3v-8q0 -3,-3-3z"/>
@@ -52,6 +53,7 @@ function addSVGIcons() {
 		<circle class="de-svg-stroke" cx="7" cy="7" r="2.5" stroke-width="2"/>
 		<line class="de-svg-stroke" stroke-width="2" x1="9" y1="9" x2="12" y2="12"/>
 	</symbol>
+
 	<!-- WINDOW ICONS -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-win-arrow">
 		<path class="de-svg-stroke" stroke-width="3.5" d="M8 13V6"/>
@@ -60,6 +62,7 @@ function addSVGIcons() {
 	<symbol viewBox="0 0 16 16" id="de-symbol-win-close">
 		<path class="de-svg-stroke" stroke-width="2.5" d="M3.5 3.5l9 9m-9 0l9-9"/>
 	</symbol>
+
 	<!-- NAVIGATION PANEL ICONS -->
 	<symbol viewBox="0 0 7 7" id="de-symbol-nav-arrow">
 		<path class="de-svg-fill" d="M6 3.5L2 0v7z"/>
@@ -70,6 +73,7 @@ function addSVGIcons() {
 	<symbol viewBox="0 0 24 24" id="de-symbol-nav-down">
 		<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>
 	</symbol>
+
 	<!-- MAIN PANEL -->
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-logo">
 		<path class="de-svg-fill" d="M22 5h-10v16h4v-14h6z"/>

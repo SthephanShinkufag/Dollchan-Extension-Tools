@@ -26,7 +26,7 @@ const defaultCfg = {
 	'showHideBtn':      1,      // show post hide button
 	'showRepBtn':       1,      // show post reply button
 	'postBtnsCSS':      1,      // post buttons style [0=simple green, 1=gradient grey, 2=custom]
-	'postBtnsBack':     '#8C8C8C',      // custom background color
+	'postBtnsBack':     '#8c8c8c',      // custom background color
 	'noSpoilers':       1,      // expand text spoilers [0=off, 1=grey, 2=native]
 	'noPostNames':      0,      // hide post names
 	'widePosts':        0,      // stretch posts to screen width

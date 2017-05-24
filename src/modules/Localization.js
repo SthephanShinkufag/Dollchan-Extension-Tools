@@ -430,6 +430,8 @@ const Lng = {
 	clickToAdd:     ['Выберите, либо перетащите файл', 'Select or drag and drop file'],
 	removeFile:     ['Удалить файл', 'Remove file'],
 	spoilFile:      ['Спойлер', 'Spoiler'],
+	addUrlFile:     ['Добавить файл по ссылке', 'Add a file by url'],
+	linkToFile:     ['Ссылка на файл', 'Link to file'],
 	helpAddFile:    ['Встроить .ogg, .rar, .zip или .7z в картинку', 'Pack .ogg, .rar, .zip or .7z into image'],
 	downloadFile:   ['Скачать содержащийся в картинке файл', 'Download existing file from image'],
 	fileCorrupt:    ['Файл повреждён: ', 'File is corrupted: '],

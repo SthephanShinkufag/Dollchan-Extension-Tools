@@ -173,18 +173,19 @@ var checkDelete = async(function* (data) {
 });
 
 function* html5Submit(form, submitter, needProgress = false) {
-	var formData = new FormData();
-	var hasFiles = false;
-	for(var {name, value, type, el} of getFormElements(form, submitter)) {
+	const formData = new FormData();
+	let hasFiles = false;
+	for(let {name, value, type, el} of getFormElements(form, submitter)) {
 		if(type === 'file') {
 			hasFiles = true;
-			var fileName = value.name,
-				newFileName = Cfg.removeFName ? ' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
+			const fileName = value.name;
+			const newFileName = Cfg.removeFName ?
+				' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
 			if((Cfg.postSameImg || Cfg.removeEXIF) &&
 			   (value.type === 'image/jpeg' || value.type === 'image/png' ||
-			    value.type === 'video/webm' && !aib.mak))
+				value.type === 'video/webm' && !aib.mak))
 			{
-				var data = cleanFile((yield readFile(value)).data, el.obj.imgFile);
+				const data = cleanFile((yield readFile(value)).data, el.obj.imgFile);
 				if(!data) {
 					return Promise.reject(Lng.fileCorrupt[lang] + fileName);
 				}
@@ -195,12 +196,12 @@ function* html5Submit(form, submitter, needProgress = false) {
 		}
 		formData.append(name, value);
 	}
-	var ajaxParams = { method: 'POST', data: formData };
+	const ajaxParams = { method: 'POST', data: formData };
 	if(needProgress && hasFiles) {
 		ajaxParams.onprogress = getUploadFunc();
 	}
 	try {
-		var xhr = yield $ajax(form.action, ajaxParams);
+		const xhr = yield $ajax(form.action, ajaxParams);
 		return aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText);
 	} catch(err) {
 		return Promise.reject(err);

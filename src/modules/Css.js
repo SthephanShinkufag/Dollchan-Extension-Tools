@@ -233,26 +233,27 @@ function scriptCSS() {
 	video { background: black; }` +
 
 	// File inputs
-	`.de-file { display: inline-block; margin: 1px; height: ${ p = aib.multiFile ? 90 : 130 }px; width: ${ p }px; text-align: center; border: 1px dashed grey; }
-	.de-file > .de-file-del, .de-file > .de-file-spoil { float: right; }
-	.de-file > .de-file-rar { float: left; }
-	.de-file > .de-file-rarmsg { float: left; padding: 0 4px 2px; color: #fff; background-color: rgba(55,55,55,.5); }
-	.de-file > .de-file-utils { display: none; }
-	.de-file > div { display: table; width: 100%; height: 100%; cursor: pointer; }
-	.de-file > div > div { display: table-cell; vertical-align: middle; }
+	`.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ${ p = aib.multiFile ? 90 : 130 }px; width: ${ p }px; text-align: center; border: 1px dashed grey; }
+	.de-file > .de-file-img { display: table; width: 100%; height: 100%; cursor: pointer; }
+	.de-file > .de-file-img > div { display: table-cell; vertical-align: middle; }
+	.de-file > .de-file-utils { display: none; height: 16px; margin-top: -18px; padding: 1px 0; background: rgba(60,60,60,.6); position: relative; }
+	.de-file > .de-file-utils > .de-file-rarmsg { color: #fff; }
 	.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -${ p + 2 }px !important; vertical-align: top; width: ${ p + 2 }px !important; height: ${ p + 2 }px; border: none !important; cursor: pointer; }
 	#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }
-	.de-file-drag { background: rgba(88,88,88,.4); border: 1px solid grey; }
-	.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; position: relative; margin: -18px 2px; }
-	.de-file:hover:not(.de-file-drag) > .de-file-spoil { margin: -16px 21px; }
+	.de-file-drag { background: rgba(88,88,88,.8); border: 1px solid grey; opacity: .7; }
+	.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }
 	img.de-file-img, video.de-file-img { max-width: ${ p - 4 }px; max-height: ${ p - 4 }px; }
 	.de-file-input { max-width: 300px; }
-	.de-file-off > div > div::after { content: "${ Lng.noFile[lang] }"; }
-	.de-file-rarmsg { margin: 0 5px; font: bold 11px tahoma; cursor: default; }
-	.de-file-del, .de-file-rar { display: inline-block; margin: 0 4px -3px; width: 16px; height: 16px; cursor: pointer; }
-	.de-file-spoil { display: none; }` +
+	.de-file-input + .de-file-utils { margin-left: 4px; }
+	.de-file-off > .de-file-img > div::after { content: "${ Lng.noFile[lang] }"; }
+	.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }
+	.de-file-del, .de-file-rar, .de-file-url { display: inline-block; margin: 0 1px; padding: 0 16px 16px 0; cursor: pointer; }
+	.de-file-spoil { margin: 0 3px; vertical-align: 1px; }
+	.de-file-url-add { font-weight: bold; width: 21px; padding: 0 !important;; }
+	.de-file-utils { display: inline-block; vertical-align: -2px; }` +
 	gif('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=') +
 	gif('.de-file-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') +
+	gif('.de-file-url', 'R0lGODlhEAAQAJEAACyr4e/19////wAAACH5BAEAAAIALAAAAAAQABAAAAIrlI+pwK3WokMyBEmjxbBeLgEbKFrmyXTn+nXaF7nNGMslZ9NpFu4L/ggeCgA7') +
 
 	// Post reply
 	`#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ${ nav.Presto ? '-2px -10px' : '0 0 1px -10px' }; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }
@@ -299,7 +300,7 @@ function scriptCSS() {
 	// Thread nav
 	`#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }
 	.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }
-	#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px;}
+	#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px; }
 	.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }
 	#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }
 	#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }

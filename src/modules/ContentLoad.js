@@ -135,16 +135,16 @@ function downloadImgData(url, repeatOnError = true) {
 	return $ajax(url, {
 		responseType: 'arraybuffer',
 		overrideMimeType: 'text/plain; charset=x-user-defined'
-	}, !aib.fch || url.startsWith('blob')).then(xhr => {
+	}, url.startsWith('blob')).then(xhr => {
 		if(xhr.status === 0 && xhr.responseType === 'arraybuffer') {
 			return new Uint8Array(xhr.response);
 		}
 		if('response' in xhr) {
 			return nav.getUnsafeUint8Array(xhr.response);
 		}
-		var txt = xhr.responseText,
-			rv = new Uint8Array(txt.length);
-		for(var i = 0, len = txt.length; i < len; ++i) {
+		const txt = xhr.responseText;
+		const rv = new Uint8Array(txt.length);
+		for(let i = 0, len = txt.length; i < len; ++i) {
 			rv[i] = txt.charCodeAt(i) & 0xFF;
 		}
 		return rv;
@@ -206,21 +206,16 @@ function preloadImages(data) {
 		if(!imgLink) {
 			continue;
 		}
-		var iType, url = imgLink.href,
-			nExp = !!Cfg.openImgs;
-		if(/\.gif$/i.test(url)) {
-			iType = 'image/gif';
+		let nExp = !!Cfg.openImgs;
+		const url = imgLink.href;
+		const iType = getFileType(url);
+		if(!iType) {
+			continue;
+		} else if(iType === 'image/gif') {
 			nExp &= Cfg.openImgs !== 3;
 		} else {
-			if(/\.jpe?g$/i.test(url)) {
-				iType = 'image/jpeg';
-			} else if(/\.png$/i.test(url)) {
-				iType = 'image/png';
-			} else if(/\.webm$/i.test(url)) {
-				iType = 'video/webm';
+			if(iType === 'video/webm') {
 				nExp = false;
-			} else {
-				continue;
 			}
 			nExp &= Cfg.openImgs !== 2;
 		}

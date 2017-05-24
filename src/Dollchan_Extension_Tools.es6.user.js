@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '826766f';
+const commit = '59cacc7';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -52,7 +52,7 @@ const defaultCfg = {
 	'showHideBtn':      1,      // show post hide button
 	'showRepBtn':       1,      // show post reply button
 	'postBtnsCSS':      1,      // post buttons style [0=simple green, 1=gradient grey, 2=custom]
-	'postBtnsBack':     '#8C8C8C',      // custom background color
+	'postBtnsBack':     '#8c8c8c',      // custom background color
 	'noSpoilers':       1,      // expand text spoilers [0=off, 1=grey, 2=native]
 	'noPostNames':      0,      // hide post names
 	'widePosts':        0,      // stretch posts to screen width
@@ -594,6 +594,8 @@ const Lng = {
 	clickToAdd:     ['Выберите, либо перетащите файл', 'Select or drag and drop file'],
 	removeFile:     ['Удалить файл', 'Remove file'],
 	spoilFile:      ['Спойлер', 'Spoiler'],
+	addUrlFile:     ['Добавить файл по ссылке', 'Add a file by url'],
+	linkToFile:     ['Ссылка на файл', 'Link to file'],
 	helpAddFile:    ['Встроить .ogg, .rar, .zip или .7z в картинку', 'Pack .ogg, .rar, .zip or .7z into image'],
 	downloadFile:   ['Скачать содержащийся в картинке файл', 'Download existing file from image'],
 	fileCorrupt:    ['Файл повреждён: ', 'File is corrupted: '],
@@ -1274,6 +1276,7 @@ function* getFormElements(form, submitter) {
 				};
 				continue constructSet;
 			case 'file':
+				let urlFile;
 				if(field.files.length > 0) {
 					const files = field.files;
 					for(let j = 0, jlen = files.length; j < jlen; ++j) {
@@ -1284,6 +1287,13 @@ function* getFormElements(form, submitter) {
 							type: type
 						};
 					}
+				} else if((urlFile = field.obj.urlFile)) {
+					yield {
+						el: field,
+						name: name,
+						value: new File([urlFile[0]], urlFile[1], { type: urlFile[2] }),
+						type: type
+					};
 				} else {
 					yield {
 						el: field,
@@ -1352,6 +1362,13 @@ function prettifySize(val) {
 		return (val / (1024)).toFixed(2) + Lng.sizeKByte[lang];
 	}
 	return val.toFixed(2) + Lng.sizeByte[lang];
+}
+
+function getFileType(url) {
+	return /\.jpe?g$/i.test(url) ? 'image/jpeg' :
+		/\.png$/i.test(url) ? 'image/png' :
+		/\.gif$/i.test(url) ? 'image/gif' :
+		/\.webm$/i.test(url) ? 'video/webm' : '';
 }
 
 function downloadBlob(blob, name) {
@@ -4828,16 +4845,16 @@ function downloadImgData(url, repeatOnError = true) {
 	return $ajax(url, {
 		responseType: 'arraybuffer',
 		overrideMimeType: 'text/plain; charset=x-user-defined'
-	}, !aib.fch || url.startsWith('blob')).then(xhr => {
+	}, url.startsWith('blob')).then(xhr => {
 		if(xhr.status === 0 && xhr.responseType === 'arraybuffer') {
 			return new Uint8Array(xhr.response);
 		}
 		if('response' in xhr) {
 			return nav.getUnsafeUint8Array(xhr.response);
 		}
-		var txt = xhr.responseText,
-			rv = new Uint8Array(txt.length);
-		for(var i = 0, len = txt.length; i < len; ++i) {
+		const txt = xhr.responseText;
+		const rv = new Uint8Array(txt.length);
+		for(let i = 0, len = txt.length; i < len; ++i) {
 			rv[i] = txt.charCodeAt(i) & 0xFF;
 		}
 		return rv;
@@ -4899,21 +4916,16 @@ function preloadImages(data) {
 		if(!imgLink) {
 			continue;
 		}
-		var iType, url = imgLink.href,
-			nExp = !!Cfg.openImgs;
-		if(/\.gif$/i.test(url)) {
-			iType = 'image/gif';
+		let nExp = !!Cfg.openImgs;
+		const url = imgLink.href;
+		const iType = getFileType(url);
+		if(!iType) {
+			continue;
+		} else if(iType === 'image/gif') {
 			nExp &= Cfg.openImgs !== 3;
 		} else {
-			if(/\.jpe?g$/i.test(url)) {
-				iType = 'image/jpeg';
-			} else if(/\.png$/i.test(url)) {
-				iType = 'image/png';
-			} else if(/\.webm$/i.test(url)) {
-				iType = 'video/webm';
+			if(iType === 'video/webm') {
 				nExp = false;
-			} else {
-				continue;
 			}
 			nExp &= Cfg.openImgs !== 2;
 		}
@@ -7949,18 +7961,19 @@ var checkDelete = async(function* (data) {
 });
 
 function* html5Submit(form, submitter, needProgress = false) {
-	var formData = new FormData();
-	var hasFiles = false;
-	for(var {name, value, type, el} of getFormElements(form, submitter)) {
+	const formData = new FormData();
+	let hasFiles = false;
+	for(let {name, value, type, el} of getFormElements(form, submitter)) {
 		if(type === 'file') {
 			hasFiles = true;
-			var fileName = value.name,
-				newFileName = Cfg.removeFName ? ' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
+			const fileName = value.name;
+			const newFileName = Cfg.removeFName ?
+				' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
 			if((Cfg.postSameImg || Cfg.removeEXIF) &&
 			   (value.type === 'image/jpeg' || value.type === 'image/png' ||
-			    value.type === 'video/webm' && !aib.mak))
+				value.type === 'video/webm' && !aib.mak))
 			{
-				var data = cleanFile((yield readFile(value)).data, el.obj.imgFile);
+				const data = cleanFile((yield readFile(value)).data, el.obj.imgFile);
 				if(!data) {
 					return Promise.reject(Lng.fileCorrupt[lang] + fileName);
 				}
@@ -7971,12 +7984,12 @@ function* html5Submit(form, submitter, needProgress = false) {
 		}
 		formData.append(name, value);
 	}
-	var ajaxParams = { method: 'POST', data: formData };
+	const ajaxParams = { method: 'POST', data: formData };
 	if(needProgress && hasFiles) {
 		ajaxParams.onprogress = getUploadFunc();
 	}
 	try {
-		var xhr = yield $ajax(form.action, ajaxParams);
+		const xhr = yield $ajax(form.action, ajaxParams);
 		return aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText);
 	} catch(err) {
 		return Promise.reject(err);
@@ -8235,21 +8248,21 @@ class Files {
 		this.fileTd = $parent(fileEl, 'TD');
 		this.onchange = null;
 		this._form = form;
-		var inputs = [];
-		var els = $Q('input[type="file"]', this.fileTd);
-		for(var i = 0, len = els.length; i < len; ++i) {
+		const inputs = [];
+		const els = $Q('input[type="file"]', this.fileTd);
+		for(let i = 0, len = els.length; i < len; ++i) {
 			inputs.push(new FileInput(this, els[i]));
 		}
 		this._inputs = inputs;
 		this.hide();
 	}
 	get rarInput() {
-		var value = $bEnd(docBody, '<input type="file" style="display: none;">');
+		const value = $bEnd(docBody, '<input type="file" style="display: none;">');
 		Object.defineProperty(this, 'rarInput', { value });
 		return value;
 	}
 	get thumbsEl() {
-		var value;
+		let value;
 		if(aib.multiFile) {
 			value = $add('<tr><td></td><td><div id="de-file-area"></div></td></tr>');
 			$after(this.fileTd.parentNode, value);
@@ -8261,10 +8274,10 @@ class Files {
 		Object.defineProperty(this, 'thumbsEl', { value });
 		return value;
 	}
-	changeView() {
-		var cfg = !!Cfg.fileThumb;
+	changeMode() {
+		const cfg = !!Cfg.fileThumb;
 		for(let inp of this._inputs) {
-			inp.changeView(cfg);
+			inp.changeMode(cfg);
 		}
 		this.hide();
 	}
@@ -8275,8 +8288,8 @@ class Files {
 		this.hide();
 	}
 	hide() {
-		for(var els = this._inputs, i = els.length - 1; i > 0; --i) {
-			let inp = els[i];
+		for(let els = this._inputs, i = els.length - 1; i > 0; --i) {
+			const inp = els[i];
 			if(inp.hasFile) {
 				break;
 			} else if(els[i - 1].hasFile) {
@@ -8292,43 +8305,86 @@ class FileInput {
 	constructor(parent, el) {
 		this.hasFile = false;
 		this.imgFile = null;
-		this._btnDel = null;
-		this._btnSpoil = null;
-		this._btnRarJpg = null;
+		this.urlFile = null;
 		this._dragCount = 0;
 		this._input = el;
 		this._inputAfter = el.nextSibling;
 		this._inputParent = el.parentNode;
 		this._mediaEl = null;
 		this._parent = parent;
+		this._rarMsg = null;
 		this._spoilEl = $q('input[type="checkbox"][name="spoiler"]', el.parentNode);
 		this._thumb = null;
+
+		// Add container with utils buttons
+		this._utils = $add(`<div class="de-file-utils">
+			<div class="de-file-rar" title="${ Lng.helpAddFile[lang] }" style="display: none;"></div>
+			<input class="de-file-spoil" type="checkbox" title="${ Lng.spoilFile[lang] }" style="display: none;">
+			<div class="de-file-url" title="${ Lng.addUrlFile[lang] }"></div>
+			<div class="de-file-del" title="${ Lng.removeFile[lang] }" style="display: none;"></div>
+		</div>`);
+		[this._btnRarJpg, this._btnSpoil, this._btnUrl, this._btnDel] = this._utils.children;
+		this._utils.addEventListener('click', this);
 		el.classList.add('de-file-input');
 		el.addEventListener('change', this);
+
+		// Add input for getting files by url
+		this._urlWrap = $add(`<span style="display: none;">
+			<input type="text" placeholder="${ Lng.linkToFile[lang] }">
+			<input type="button" class="de-file-url-add" value="+"></span>`);
+		const [txtEl, btnEl] = this._urlWrap.children;
+		btnEl.addEventListener('click', e => {
+			const url = txtEl.value;
+			if(!url) {
+				return;
+			}
+			$popup('file-loading', Lng.loading[lang], true);
+			downloadImgData(url, false).then(data => {
+				if(!data) {
+					$popup('file-loading', Lng.cantLoad[lang] + 'URL: ' + url);
+					return;
+				}
+				$hide(this._urlWrap);
+				closePopup('file-loading');
+				const fileName = url.split('/').pop();
+				const fileType = getFileType(url);
+				this.urlFile = [data, fileName, fileType];
+				if(Cfg.fileThumb) {
+					this._addNewThumb(data, fileName, data.length, fileType);
+				}
+				this._onFileChange();
+			});
+		});
+
 		if(el.files && el.files[0]) {
 			this._removeFile();
 		}
 		if(Cfg.fileThumb) {
 			this._initThumbs();
+		} else {
+			$before(this._input, this._urlWrap);
+			$after(this._input, this._utils);
 		}
 		el.obj = this;
 	}
-	changeView(showThumbs) {
+	changeMode(showThumbs) {
 		if(showThumbs ^ !!this._thumb) {
 			if(showThumbs) {
 				this._initThumbs();
-			} else {
-				this._removeThumbs();
+				return;
 			}
-			if(this._btnDel) {
-				$after(this._buttonsPlace, this._btnDel);
+			$show(this._wrap);
+			$show(this._parent.fileTd.parentNode);
+			if(this._mediaEl) {
+				window.URL.revokeObjectURL(this._mediaEl.src);
 			}
-			if(this._btnSpoil) {
-				$after(this._buttonsPlace, this._btnSpoil);
-			}
-			if(this._btnRarJpg) {
-				$after(this._buttonsPlace, this._btnRarJpg);
-			}
+			this._toggleDragEvents(this._input, false);
+			const urlTr = this._urlWrap.parentNode.parentNode;
+			$before(this._input, this._urlWrap);
+			$after(this._input, this._utils);
+			$del(urlTr);
+			$del(this._thumb);
+			this._thumb = this._mediaEl = null;
 		}
 	}
 	clear() {
@@ -8341,10 +8397,17 @@ class FileInput {
 				this._mediaEl = null;
 			}
 		}
-		$del(this._btnDel);
-		$del(this._btnSpoil);
-		$del(this._btnRarJpg);
-		this.imgFile = this._btnDel = this._btnSpoil = this._btnRarJpg = null;
+		if(this._btnDel) {
+			$hide(this._btnDel);
+			$hide(this._btnSpoil);
+			$hide(this._btnRarJpg);
+			$del(this._rarMsg);
+			$show(this._btnUrl);
+			$hide(this._urlWrap);
+			$show(this._input);
+			this._urlWrap.firstElementChild.value = '';
+		}
+		this.imgFile = this.urlFile = null;
 		this._changeFilesCount(-1);
 		this._removeFile();
 	}
@@ -8360,7 +8423,13 @@ class FileInput {
 				return;
 			} else if(e.target === this._btnRarJpg) {
 				this._addRarJpeg();
+			} else if(e.target === this._btnUrl) {
+				$toggle(this._urlWrap);
+				$toggle(this._input);
+				$toggle(this._btnUrl);
+				$toggle(this._btnDel);
 			} else if(e.target.className === 'de-file-img') {
+				this.urlFile = null;
 				this._input.click();
 			}
 			e.stopPropagation();
@@ -8386,31 +8455,48 @@ class FileInput {
 		}
 	}
 	hide() {
-		$hide(Cfg.fileThumb ? this._thumb : this._wrap);
+		if(Cfg.fileThumb) {
+			$hide(this._thumb);
+		}
+		$hide(this._wrap);
 	}
 	show() {
-		$show(Cfg.fileThumb ? this._thumb : this._wrap);
+		if(Cfg.fileThumb) {
+			$show(this._thumb);
+		}
+		$show(this._wrap);
 	}
 
-	get _buttonsPlace() {
-		return Cfg.fileThumb ? this._thumb.firstChild : this._input;
-	}
 	get _wrap() {
 		return aib.multiFile ? this._input.parentNode : this._input;
 	}
+	_addNewThumb(fileData, fileName, fileSize, fileType) {
+		let el = this._thumb;
+		el.classList.remove('de-file-off');
+		el = el.firstChild.firstChild;
+		el.title = `${ fileName }', ${ (fileSize / 1024).toFixed(2) }KB`;
+		this._mediaEl = el = $aBegin(el, fileType.startsWith('video/') ?
+			'<video class="de-file-img" loop autoplay muted src=""></video>' :
+			'<img class="de-file-img" src="">');
+		el.src = window.URL.createObjectURL(new Blob([fileData]));
+		if((el = el.nextSibling)) {
+			window.URL.revokeObjectURL(el.src);
+			$del(el);
+		}
+	}
 	_addRarJpeg() {
-		var el = this._parent.rarInput;
+		const el = this._parent.rarInput;
 		el.onchange = e => {
-			$del(this._btnRarJpg);
-			var myBtn = this._btnRarJpg = $aEnd(this._buttonsPlace, '<span><svg class="de-wait">' +
+			$hide(this._btnRarJpg);
+			const myBtn = this._rarMsg = $aBegin(this._utils, '<span><svg class="de-wait">' +
 				'<use xlink:href="#de-symbol-wait"/></svg>' + Lng.wait[lang] + '</span>');
-			var file = e.target.files[0];
+			const file = e.target.files[0];
 			readFile(file).then(({ data }) => {
-				if(this._btnRarJpg === myBtn) {
-					myBtn.className = 'de-file-rarmsg de-file-utils';
-					myBtn.title = this._input.files[0].name + ' + ' + file.name;
-					myBtn.textContent = this._input.files[0].name.replace(/^.+\./, '') + ' + ' +
-						file.name.replace(/^.+\./, '');
+				if(this._rarMsg === myBtn) {
+					myBtn.className = 'de-file-rarmsg';
+					const origFileName = this.urlFile ? this.urlFile[1] : this._input.files[0].name;
+					myBtn.title = origFileName + ' + ' + file.name;
+					myBtn.textContent = origFileName.split('.').pop() + ' + ' + file.name.split('.').pop();
 					this.imgFile = data;
 				}
 			});
@@ -8423,22 +8509,18 @@ class FileInput {
 			this._parent.fileTd.firstElementChild.value = this._parent.filesCount + 1;
 		}
 	}
-	_eventInput(el, add) {
-		var name = add ? 'addEventListener' : 'removeEventListener';
-		el[name]('dragover', $pd);
-		el[name]('dragenter', this);
-		el[name]('dragleave', this);
-		el[name]('drop', this);
-	}
 	_initThumbs() {
-		$hide(this._parent.fileTd.parentNode);
-		var thumb = $bEnd(this._parent.thumbsEl,
+		const fileTr = this._parent.fileTd.parentNode;
+		$hide(fileTr);
+		($q('.de-file-url-area') || $bBegin(fileTr,
+			'<tr class="de-file-url-area"><td></td><td></td></tr>')).lastChild.appendChild(this._urlWrap);
+		this._thumb = $bEnd(this._parent.thumbsEl,
 			'<div class="de-file de-file-off"><div class="de-file-img">' +
 			'<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
-		this._thumb = thumb;
-		thumb.addEventListener('click', this);
-		thumb.addEventListener('dragenter', this);
-		this._eventInput(this._input, true);
+		this._thumb.addEventListener('click', this);
+		this._thumb.addEventListener('dragenter', this);
+		this._thumb.appendChild(this._utils);
+		this._toggleDragEvents(this._input, true);
 		if(this.hasFile) {
 			this._showPviewImage();
 		}
@@ -8450,37 +8532,40 @@ class FileInput {
 		if(Cfg.fileThumb) {
 			this._showPviewImage();
 		}
-		if(!this.hasFile) {
+		if(this.hasFile) {
+			this.imgFile = null;
+		} else {
 			this.hasFile = true;
 			this._changeFilesCount(+1);
-			this._btnDel = $aEnd(this._buttonsPlace,
-				`<span class="de-file-del de-file-utils" title="${ Lng.removeFile[lang] }"></span>`);
-			this._btnDel.addEventListener('click', this);
-			if(this._spoilEl) {
-				this._btnSpoil = $aEnd(this._buttonsPlace, `<input type="checkbox" title="${
-					Lng.spoilFile[lang] }" class="de-file-spoil de-file-utils">`);
-				this._btnSpoil.addEventListener('click', this);
-				this._btnSpoil.checked = this._spoilEl.checked;
+			$hide(this._btnUrl);
+			if(!this._urlWrap.firstElementChild.value) {
+				$hide(this._urlWrap);
+				$show(this._input);
+			} else {
+				$hide(this._input);
 			}
-		} else if(this.imgFile) {
-			this.imgFile = null;
+			$show(this._btnDel);
+			if(this._spoilEl) {
+				this._btnSpoil.checked = this._spoilEl.checked;
+				$show(this._btnSpoil);
+			}
 		}
 		this._parent.hide();
-		if(nav.Presto || aib.fch || !/^image\/(?:png|jpeg)$/.test(this._input.files[0].type)) {
+		if(nav.Presto || aib.fch ||
+		   !/^image\/(?:png|jpeg)$/.test(this.urlFile ? this.urlFile[2] : this._input.files[0].type))
+		{
 			return;
 		}
-		$del(this._btnRarJpg);
-		this._btnRarJpg = $aEnd(this._buttonsPlace,
-			`<span class="de-file-rar de-file-utils" title="${ Lng.helpAddFile[lang] }"></span>`);
-		this._btnRarJpg.addEventListener('click', this);
+		$del(this._rarMsg);
+		$show(this._btnRarJpg);
 	}
 	_removeFile() {
-		var oldEl = this._input,
-			newEl = $aEnd(oldEl, oldEl.outerHTML);
-		this._eventInput(oldEl, false);
+		const oldEl = this._input;
+		const newEl = $aEnd(oldEl, oldEl.outerHTML);
+		this._toggleDragEvents(oldEl, false);
 		oldEl.removeEventListener('change', this);
 		if(Cfg.fileThumb) {
-			this._eventInput(newEl, true);
+			this._toggleDragEvents(newEl, true);
 		}
 		newEl.addEventListener('change', this);
 		newEl.obj = this;
@@ -8496,46 +8581,27 @@ class FileInput {
 			this._inputParent.appendChild(this._input);
 		}
 	}
-	_removeThumbs() {
-		$show(this._wrap);
-		$show(this._parent.fileTd.parentNode);
-		if(this._mediaEl) {
-			window.URL.revokeObjectURL(this._mediaEl.src);
-		}
-		this._eventInput(this._input, false);
-		$del(this._thumb);
-		this._thumb = this._mediaEl = null;
-	}
 	_showPviewImage() {
-		var file = this._input.files[0];
-		if(!file) {
-			return;
+		if(this.urlFile) {
+			const [data, fileName, fileType] = this.urlFile;
+			this._addNewThumb(data, fileName, data.length, fileType);
+		} else {
+			const file = this._input.files[0];
+			if(file) {
+				readFile(file).then(({ data }) => {
+					if(this._input.files[0] === file) {
+						this._addNewThumb(data, file.name, file.size, file.type);
+					}
+				});
+			}
 		}
-		readFile(file).then(({ data }) => {
-			var newFile = this._input.files[0];
-			if(newFile !== file) {
-				return;
-			}
-			var el = this._thumb;
-			el.classList.remove('de-file-off');
-			el = el.firstChild.firstChild;
-			el.title = file.name + ', ' + (file.size/1024).toFixed(2) + 'KB';
-			let html;
-			switch(file.type) {
-			case 'video/webm':
-			case 'video/mp4':
-				html = '<video class="de-file-img" loop autoplay muted src=""></video>';
-				break;
-			default:
-				html = '<img class="de-file-img" src="">';
-			}
-			this._mediaEl = el = $aBegin(el, html);
-			el.src = window.URL.createObjectURL(new Blob([data]));
-			if((el = el.nextSibling)) {
-				window.URL.revokeObjectURL(el.src);
-				$del(el);
-			}
-		});
+	}
+	_toggleDragEvents(el, add) {
+		const name = add ? 'addEventListener' : 'removeEventListener';
+		el[name]('dragover', $pd);
+		el[name]('dragenter', this);
+		el[name]('dragleave', this);
+		el[name]('drop', this);
 	}
 }
 
@@ -13643,7 +13709,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, .logo + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .prerekl-hr, .posts > hr, .reflink::before, .thread-nav, .toolbar-area, #ABU-alert-wait, #media-thumbnail { display: none !important; }
 				.captcha-image > img { cursor: pointer; }
 				#de-txt-panel { font-size: 16px !important; }
-				.images-area input { float: none !important; display: inline !important; }
 				.mess-post { display: block; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.post.reply .post-message { max-height: initial !important; }
@@ -15327,6 +15392,7 @@ function addSVGIcons() {
 			<stop offset="100%" stop-color="#A0A0A0"/>
 		</linearGradient>
 	</defs>
+
 	<!-- POST ICONS -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-back">
 		<path class="de-svg-back" d="M4 1q-3 0,-3 3v8q0 3,3 3h8q3 0,3 -3v-8q0 -3,-3-3z"/>
@@ -15366,6 +15432,7 @@ function addSVGIcons() {
 		<circle class="de-svg-stroke" cx="7" cy="7" r="2.5" stroke-width="2"/>
 		<line class="de-svg-stroke" stroke-width="2" x1="9" y1="9" x2="12" y2="12"/>
 	</symbol>
+
 	<!-- WINDOW ICONS -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-win-arrow">
 		<path class="de-svg-stroke" stroke-width="3.5" d="M8 13V6"/>
@@ -15374,6 +15441,7 @@ function addSVGIcons() {
 	<symbol viewBox="0 0 16 16" id="de-symbol-win-close">
 		<path class="de-svg-stroke" stroke-width="2.5" d="M3.5 3.5l9 9m-9 0l9-9"/>
 	</symbol>
+
 	<!-- NAVIGATION PANEL ICONS -->
 	<symbol viewBox="0 0 7 7" id="de-symbol-nav-arrow">
 		<path class="de-svg-fill" d="M6 3.5L2 0v7z"/>
@@ -15384,6 +15452,7 @@ function addSVGIcons() {
 	<symbol viewBox="0 0 24 24" id="de-symbol-nav-down">
 		<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>
 	</symbol>
+
 	<!-- MAIN PANEL -->
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-logo">
 		<path class="de-svg-fill" d="M22 5h-10v16h4v-14h6z"/>
@@ -15705,26 +15774,27 @@ function scriptCSS() {
 	video { background: black; }` +
 
 	// File inputs
-	`.de-file { display: inline-block; margin: 1px; height: ${ p = aib.multiFile ? 90 : 130 }px; width: ${ p }px; text-align: center; border: 1px dashed grey; }
-	.de-file > .de-file-del, .de-file > .de-file-spoil { float: right; }
-	.de-file > .de-file-rar { float: left; }
-	.de-file > .de-file-rarmsg { float: left; padding: 0 4px 2px; color: #fff; background-color: rgba(55,55,55,.5); }
-	.de-file > .de-file-utils { display: none; }
-	.de-file > div { display: table; width: 100%; height: 100%; cursor: pointer; }
-	.de-file > div > div { display: table-cell; vertical-align: middle; }
+	`.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ${ p = aib.multiFile ? 90 : 130 }px; width: ${ p }px; text-align: center; border: 1px dashed grey; }
+	.de-file > .de-file-img { display: table; width: 100%; height: 100%; cursor: pointer; }
+	.de-file > .de-file-img > div { display: table-cell; vertical-align: middle; }
+	.de-file > .de-file-utils { display: none; height: 16px; margin-top: -18px; padding: 1px 0; background: rgba(60,60,60,.6); position: relative; }
+	.de-file > .de-file-utils > .de-file-rarmsg { color: #fff; }
 	.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -${ p + 2 }px !important; vertical-align: top; width: ${ p + 2 }px !important; height: ${ p + 2 }px; border: none !important; cursor: pointer; }
 	#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }
-	.de-file-drag { background: rgba(88,88,88,.4); border: 1px solid grey; }
-	.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; position: relative; margin: -18px 2px; }
-	.de-file:hover:not(.de-file-drag) > .de-file-spoil { margin: -16px 21px; }
+	.de-file-drag { background: rgba(88,88,88,.8); border: 1px solid grey; opacity: .7; }
+	.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }
 	img.de-file-img, video.de-file-img { max-width: ${ p - 4 }px; max-height: ${ p - 4 }px; }
 	.de-file-input { max-width: 300px; }
-	.de-file-off > div > div::after { content: "${ Lng.noFile[lang] }"; }
-	.de-file-rarmsg { margin: 0 5px; font: bold 11px tahoma; cursor: default; }
-	.de-file-del, .de-file-rar { display: inline-block; margin: 0 4px -3px; width: 16px; height: 16px; cursor: pointer; }
-	.de-file-spoil { display: none; }` +
+	.de-file-input + .de-file-utils { margin-left: 4px; }
+	.de-file-off > .de-file-img > div::after { content: "${ Lng.noFile[lang] }"; }
+	.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }
+	.de-file-del, .de-file-rar, .de-file-url { display: inline-block; margin: 0 1px; padding: 0 16px 16px 0; cursor: pointer; }
+	.de-file-spoil { margin: 0 3px; vertical-align: 1px; }
+	.de-file-url-add { font-weight: bold; width: 21px; padding: 0 !important;; }
+	.de-file-utils { display: inline-block; vertical-align: -2px; }` +
 	gif('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=') +
 	gif('.de-file-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') +
+	gif('.de-file-url', 'R0lGODlhEAAQAJEAACyr4e/19////wAAACH5BAEAAAIALAAAAAAQABAAAAIrlI+pwK3WokMyBEmjxbBeLgEbKFrmyXTn+nXaF7nNGMslZ9NpFu4L/ggeCgA7') +
 
 	// Post reply
 	`#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ${ nav.Presto ? '-2px -10px' : '0 0 1px -10px' }; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }
@@ -15771,7 +15841,7 @@ function scriptCSS() {
 	// Thread nav
 	`#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }
 	.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }
-	#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px;}
+	#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px; }
 	.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }
 	#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }
 	#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }
