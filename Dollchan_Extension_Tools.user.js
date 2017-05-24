@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '253ebf8';
+	var commit = '1a86bb0';
 
 
 	var defaultCfg = {
@@ -3693,9 +3693,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function escapeHTML(html) {
 		var el = doc.createElement('div');
 		el.appendChild($txt(html));
-		var str = el.innerHTML;
-		el = null; 
-		return str;
+		return el.innerHTML;
 	}
 
 	function $pd(e) {
@@ -17941,7 +17939,6 @@ true, true],
 		var webkit = ua.includes('WebKit/');
 		var chrome = webkit && ua.includes('Chrome/');
 		var safari = webkit && !chrome;
-		var presto = !!window.opera;
 		var isChromeStorage = !!window.chrome && !!window.chrome.storage;
 		var isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 		var isGM = false;
@@ -17975,25 +17972,16 @@ true, true],
 			(function () {
 				var origFormData = FormData;
 				var origAppend = FormData.prototype.append;
-				var rvAppend = function append(name, value) {
-					var fileName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+				FormData = function FormData(form) {
+					var rv = form ? new origFormData(form) : new origFormData();
+					rv.append = function append(name, value) {
+						var fileName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-					if (value instanceof Blob && 'name' in value && fileName === null) {
-						return origAppend.call(this, name, value, value.name);
-					}
-					return origAppend.apply(this, arguments);
-				};
-				FormData = presto ? function FormData() {
-					for (var _len12 = arguments.length, args = Array(_len12), _key5 = 0; _key5 < _len12; _key5++) {
-						args[_key5] = arguments[_key5];
-					}
-
-					var rv = new (Function.prototype.bind.apply(origFormData, [null].concat(args)))();
-					rv.append = rvAppend;
-					return rv;
-				} : function FormData(form) {
-					var rv = new origFormData(form);
-					rv.append = rvAppend;
+						if (value instanceof Blob && 'name' in value && fileName === null) {
+							return origAppend.call(this, name, value, value.name);
+						}
+						return origAppend.apply(this, arguments);
+					};
 					return rv;
 				};
 				window.File = function File(arr, name) {
@@ -18014,7 +18002,7 @@ true, true],
 			WebKit: webkit,
 			Chrome: chrome,
 			Safari: safari,
-			Presto: presto,
+			Presto: !!window.opera,
 			MsEdge: ua.includes('Edge/'),
 			isGM: isGM,
 			get isES6() {
@@ -18025,8 +18013,8 @@ true, true],
 			isGlobal: isGM || isChromeStorage || isScriptStorage,
 			scriptInstall: firefox ? typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish' : isChromeStorage ? 'Chrome extension' : isGM ? 'Monkey' : 'Native userscript',
 			cssMatches: function cssMatches(leftSel) {
-				for (var _len13 = arguments.length, rules = Array(_len13 > 1 ? _len13 - 1 : 0), _key6 = 1; _key6 < _len13; _key6++) {
-					rules[_key6 - 1] = arguments[_key6];
+				for (var _len12 = arguments.length, rules = Array(_len12 > 1 ? _len12 - 1 : 0), _key5 = 1; _key5 < _len12; _key5++) {
+					rules[_key5 - 1] = arguments[_key5];
 				}
 
 				return leftSel + rules.join(', ' + leftSel);
@@ -20332,7 +20320,7 @@ true, true],
 				value: function initCaptcha(cap) {
 					cap.hasCaptcha = false;
 					var scripts = $Q('script:not([src])', doc);
-					for (var _i49 = 0, _len14 = scripts.length; _i49 < _len14; ++_i49) {
+					for (var _i49 = 0, _len13 = scripts.length; _i49 < _len13; ++_i49) {
 						var m = scripts[_i49].textContent.match(/var boardRequiresCaptcha = ([a-z]+);/);
 						if (m) {
 							if (m[1] === 'true') {
@@ -20791,7 +20779,7 @@ true, true],
 				var currentVer = version.split('.');
 				var src = gitRaw + (nav.isES6 ? 'src/' : '') + 'Dollchan_Extension_Tools.' + (nav.isES6 ? 'es6.' : '') + 'user.js';
 				saveCfgObj('lastUpd', Date.now());
-				for (var i = 0, _len15 = Math.max(currentVer.length, remoteVer.length); i < _len15; ++i) {
+				for (var i = 0, _len14 = Math.max(currentVer.length, remoteVer.length); i < _len14; ++i) {
 					if ((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
 						return '<a style="color: blue; font-weight: bold;" href="' + src + '">' + Lng.updAvail[lang] + '</a>';
 					} else if ((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {

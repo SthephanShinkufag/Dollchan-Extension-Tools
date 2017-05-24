@@ -27,7 +27,6 @@ function initNavFuncs() {
 	const webkit = ua.includes('WebKit/');
 	const chrome = webkit && ua.includes('Chrome/');
 	const safari = webkit && !chrome;
-	const presto = !!window.opera;
 	const isChromeStorage = !!window.chrome && !!window.chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	let isGM = false;
@@ -59,19 +58,14 @@ function initNavFuncs() {
 	if(needFileHack && FormData) {
 		const origFormData = FormData;
 		const origAppend = FormData.prototype.append;
-		const rvAppend = function append(name, value, fileName = null) {
-			if(value instanceof Blob && 'name' in value && fileName === null) {
-				return origAppend.call(this, name, value, value.name);
-			}
-			return origAppend.apply(this, arguments);
-		};
-		FormData = presto ? function FormData(...args) {
-			const rv = new origFormData(...args);
-			rv.append = rvAppend;
-			return rv;
-		} : function FormData(form) { // Safari < 10
-			const rv = new origFormData(form);
-			rv.append = rvAppend;
+		FormData = function FormData(form) {
+			const rv = form ? new origFormData(form) : new origFormData();
+			rv.append = function append(name, value, fileName = null) {
+				if(value instanceof Blob && 'name' in value && fileName === null) {
+					return origAppend.call(this, name, value, value.name);
+				}
+				return origAppend.apply(this, arguments);
+			};
 			return rv;
 		};
 		window.File = function File(arr, name) {
@@ -91,7 +85,7 @@ function initNavFuncs() {
 		WebKit: webkit,
 		Chrome: chrome,
 		Safari: safari,
-		Presto: presto,
+		Presto: !!window.opera,
 		MsEdge: ua.includes('Edge/'),
 		isGM: isGM,
 		get isES6() {
