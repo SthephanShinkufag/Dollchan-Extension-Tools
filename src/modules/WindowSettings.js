@@ -369,7 +369,7 @@ const cfgWindow = Object.create({
 				updateCSS();
 				break;
 			case 'fileThumb':
-				pr.files.changeView();
+				pr.files.changeMode();
 				if(!aib.kus && !aib.multiFile) {
 					pr.setPlaceholders();
 				}

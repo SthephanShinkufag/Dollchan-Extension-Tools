@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '59cacc7';
+const commit = '1da2d19';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -3390,7 +3390,7 @@ const cfgWindow = Object.create({
 				updateCSS();
 				break;
 			case 'fileThumb':
-				pr.files.changeView();
+				pr.files.changeMode();
 				if(!aib.kus && !aib.multiFile) {
 					pr.setPlaceholders();
 				}
