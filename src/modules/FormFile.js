@@ -105,12 +105,12 @@ class FileInput {
 					$popup('file-loading', Lng.cantLoad[lang] + 'URL: ' + url);
 					return;
 				}
-				$hide(this._urlWrap);
 				closePopup('file-loading');
 				const fileName = url.split('/').pop();
 				const fileType = getFileType(url);
 				this.urlFile = [data, fileName, fileType];
 				if(Cfg.fileThumb) {
+					$hide(this._urlWrap);
 					this._addNewThumb(data, fileName, data.length, fileType);
 				}
 				this._onFileChange();
@@ -138,6 +138,7 @@ class FileInput {
 			$show(this._parent.fileTd.parentNode);
 			if(this._mediaEl) {
 				window.URL.revokeObjectURL(this._mediaEl.src);
+				$show(this._urlWrap);
 			}
 			this._toggleDragEvents(this._input, false);
 			const urlTr = this._urlWrap.parentNode.parentNode;
@@ -284,6 +285,7 @@ class FileInput {
 		this._toggleDragEvents(this._input, true);
 		if(this.hasFile) {
 			this._showPviewImage();
+			$hide(this._urlWrap);
 		}
 	}
 	_onFileChange() {

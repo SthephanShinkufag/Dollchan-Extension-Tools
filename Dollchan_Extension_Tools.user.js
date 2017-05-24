@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '1da2d19';
+	var commit = 'd6e0207';
 
 
 	var defaultCfg = {
@@ -12277,12 +12277,12 @@ true, true],
 						$popup('file-loading', Lng.cantLoad[lang] + 'URL: ' + url);
 						return;
 					}
-					$hide(_this23._urlWrap);
 					closePopup('file-loading');
 					var fileName = url.split('/').pop();
 					var fileType = getFileType(url);
 					_this23.urlFile = [data, fileName, fileType];
 					if (Cfg.fileThumb) {
+						$hide(_this23._urlWrap);
 						_this23._addNewThumb(data, fileName, data.length, fileType);
 					}
 					_this23._onFileChange();
@@ -12313,6 +12313,7 @@ true, true],
 					$show(this._parent.fileTd.parentNode);
 					if (this._mediaEl) {
 						window.URL.revokeObjectURL(this._mediaEl.src);
+						$show(this._urlWrap);
 					}
 					this._toggleDragEvents(this._input, false);
 					var urlTr = this._urlWrap.parentNode.parentNode;
@@ -12476,6 +12477,7 @@ true, true],
 				this._toggleDragEvents(this._input, true);
 				if (this.hasFile) {
 					this._showPviewImage();
+					$hide(this._urlWrap);
 				}
 			}
 		}, {
