@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25">
+	<linearGradient id="de-panel" x1="50%" y1="0%" y2="100%" x2="50%">
+		<stop offset="0%" stop-color="#7b849b"/>
+		<stop offset="8%" stop-color="#616b86"/>
+		<stop offset="52%" stop-color="#3a414f"/>
+		<stop offset="52%" stop-color="#121212"/>
+		<stop offset="100%" stop-color="#1f2740"/>
+	</linearGradient>
+	<path fill="url(#de-panel)" d="M0 0v25h25v-25h-25"/>
+	<path fill="#f5f5f5" d="M5 5h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zM9 5h3v3H9zM5 9h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zM9 9h3v3H9zm-4 4h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zm-4 0h3v3H9zm-4 4h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zm-4 0h3v3H9z"/>
+</svg>
