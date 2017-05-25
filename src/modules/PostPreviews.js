@@ -284,7 +284,7 @@ class Pview extends AbstractPost {
 			return;
 		}
 		var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
-		$css('@keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + 'px; }}').className = 'de-css-move';
+		$css('@keyframes ' + uId + ' { to { ' + lmw + ' top:' + top + 'px; } }').className = 'de-css-move';
 		if(this._newPos) {
 			pv.style.cssText = this._newPos;
 			pv.removeEventListener('animationend', this);

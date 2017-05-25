@@ -151,9 +151,8 @@ var Spells = Object.create({
 			}
 			var [msgBit, msgData] = wipeMsg || [],
 				names = [],
-				bits = {1: 'samelines',2: 'samewords', 4: 'longwords', 8: 'symbols',
-						16: 'capslock', 32: 'numbers', 64: 'whitespace'
-				};
+				bits = { 1: 'samelines', 2: 'samewords', 4: 'longwords', 8: 'symbols',
+					16: 'capslock', 32: 'numbers', 64: 'whitespace' };
 			for(var bit in bits) {
 				if(+bit !== msgBit) {
 					if(val & +bit) {

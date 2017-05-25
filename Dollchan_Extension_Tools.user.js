@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '1a86bb0';
+	var commit = '3543824';
 
 
 	var defaultCfg = {
@@ -4110,7 +4110,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 		get: function get() {
 			this._data.push(new Uint8Array(1024));
-			return new Blob(this._data, { 'type': 'application/x-tar' });
+			return new Blob(this._data, { type: 'application/x-tar' });
 		},
 		_padSet: function _padSet(data, offset, num, len) {
 			var i = 0;
@@ -4612,7 +4612,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							Cfg.passwValue = Math.round(Math.random() * 1e15).toString(32);
 						}
 						if (!Cfg.stats) {
-							Cfg.stats = { 'view': 0, 'op': 0, 'reply': 0 };
+							Cfg.stats = { view: 0, op: 0, reply: 0 };
 						}
 						setStored('DESU_Config', JSON.stringify(val));
 						lang = Cfg.language;
@@ -5862,7 +5862,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					continue;
 				}
 
-				html += '<div class="de-fold-block' + (h === aib.host && b === aib.b ? ' de-fav-current' : '') + '">\n\t\t\t\t<div class="de-fav-header">\n\t\t\t\t\t<input class="de-fav-header-switch" type="checkbox">\n\t\t\t\t\t<a class="de-fav-header-link" href="' + d.url + '" rel="noreferrer">' + (h + '/' + b) + '</a>\n\t\t\t\t</div>\n\t\t\t\t<div class="de-fav-entries"' + (h === aib.host ? ' de-opened' : ' style="display: none;"') + '>\n\t\t\t\t\t' + innerHtml + '\n\t\t\t\t</div>\n\t\t\t</div>';
+				html += '<div class="de-fold-block' + (h === aib.host && b === aib.b ? ' de-fav-current' : '') + '">\n\t\t\t\t<div class="de-fav-header">\n\t\t\t\t\t<input class="de-fav-header-switch" type="checkbox">\n\t\t\t\t\t<a class="de-fav-header-link" href="' + d.url + '" rel="noreferrer">' + h + '/' + b + '</a>\n\t\t\t\t</div>\n\t\t\t\t<div class="de-fav-entries"' + (h === aib.host ? ' de-opened' : ' style="display: none;"') + '>\n\t\t\t\t\t' + innerHtml + '\n\t\t\t\t</div>\n\t\t\t</div>';
 			}
 		}
 
@@ -5879,10 +5879,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							break;
 						case 'de-fav-header-switch':
 							var checked = el.checked;
-							$each($Q('.de-entry > input', el.parentNode.nextElementSibling), function (el) {
-								return el.checked = checked;
-							});
 							el = el.parentNode.nextElementSibling;
+							$each($Q('.de-entry > input', el), function (checkBox) {
+								return checkBox.checked = checked;
+							});
 							if (!checked || el.hasAttribute('de-opened')) {
 								return {
 									v: void 0
@@ -6636,10 +6636,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'language':
 						lang = el.selectedIndex;
 						panel.remove();
-						$del($id('de-css'));
-						$del($id('de-css-dynamic'));
-						$del($id('de-css-user'));
-						scriptCSS();
+						this._updateCSS();
 						panel.init(DelForm.first.el);
 						toggleWindow('cfg', false);
 						break;
@@ -6678,10 +6675,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'addTextBtns':
 						pr.addTextPanel();break;
 					case 'scriptStyle':
-						$del($id('de-css'));
-						$del($id('de-css-dynamic'));
-						$del($id('de-css-user'));
-						scriptCSS();
+						this._updateCSS();
 				}
 				return;
 			}
@@ -7112,6 +7106,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			while (i--) {
 				($q(arr[i]) || {}).disabled = nState;
 			}
+		},
+		_updateCSS: function _updateCSS() {
+			$each($Q('#de-css, #de-css-dynamic, #de-css-user', doc.head), $del);
+			scriptCSS();
 		},
 		_updateDependant: function _updateDependant() {
 			this._toggleBox(Cfg.ajaxUpdThr, ['input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]', 'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]']);
@@ -7983,15 +7981,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (i !== len && len - i > 60) {
 			for (len = i + 90; i < len; i++) {
 				if (dat[i] === 0x37 && dat[i + 1] === 0x7A && dat[i + 2] === 0xBC) {
-					return { 'type': 0, 'idx': i, 'data': ab };
+					return { type: 0, idx: i, data: ab };
 				} else if (dat[i] === 0x50 && dat[i + 1] === 0x4B && dat[i + 2] === 0x03) {
-					return { 'type': 1, 'idx': i, 'data': ab };
+					return { type: 1, idx: i, data: ab };
 				} else if (dat[i] === 0x52 && dat[i + 1] === 0x61 && dat[i + 2] === 0x72) {
-					return { 'type': 2, 'idx': i, 'data': ab };
+					return { type: 2, idx: i, data: ab };
 				} else if (dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67) {
-					return { 'type': 3, 'idx': i, 'data': ab };
+					return { type: 3, idx: i, data: ab };
 				} else if (dat[i] === 0x49 && dat[i + 1] === 0x44 && dat[i + 2] === 0x33) {
-					return { 'type': 4, 'idx': i, 'data': ab };
+					return { type: 4, idx: i, data: ab };
 				}
 			}
 		}
@@ -8007,7 +8005,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			};
 			return;
 		}
-		var url = window.URL.createObjectURL(new Blob(['self.onmessage = function(e) {\n\t\tvar info = (' + String(wrkFn) + ')(e.data);\n\t\tif(info.data) {\n\t\t\tself.postMessage(info, [info.data]);\n\t\t} else {\n\t\t\tself.postMessage(info);\n\t\t}\n\t}'], { 'type': 'text/javascript' }));
+		var url = window.URL.createObjectURL(new Blob(['self.onmessage = function(e) {\n\t\tvar info = (' + String(wrkFn) + ')(e.data);\n\t\tif(info.data) {\n\t\t\tself.postMessage(info, [info.data]);\n\t\t} else {\n\t\t\tself.postMessage(info);\n\t\t}\n\t}'], { type: 'text/javascript' }));
 		this._pool = new TasksPool(mReqs, function (num, data) {
 			return _this14._createWorker(num, data);
 		}, null);
@@ -8074,7 +8072,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			app = 'audio/mpeg';
 			ext = 'mp3';
 		}
-		nameLink.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], { 'type': app })) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] + '" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>');
+		nameLink.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], { type: app })) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] + '" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>');
 	}
 
 	function downloadImgData(url) {
@@ -8129,7 +8127,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							imgLink.setAttribute('download', fName);
 							nameLink.setAttribute('download', fName);
 							nameLink.setAttribute('de-href', nameLink.href);
-							imgLink.href = nameLink.href = window.URL.createObjectURL(new Blob([imageData], { 'type': iType }));
+							imgLink.href = nameLink.href = window.URL.createObjectURL(new Blob([imageData], { type: iType }));
 							if (iType === 'video/webm') {
 								el.setAttribute('de-video', '');
 							}
@@ -9522,8 +9520,7 @@ true, true],
 					    msgData = _ref21[1],
 					    names = [],
 					    bits = { 1: 'samelines', 2: 'samewords', 4: 'longwords', 8: 'symbols',
-						16: 'capslock', 32: 'numbers', 64: 'whitespace'
-					};
+						16: 'capslock', 32: 'numbers', 64: 'whitespace' };
 
 					for (var bit in bits) {
 						if (+bit !== msgBit) {
@@ -11526,26 +11523,27 @@ true, true],
 
 	function getUploadFunc() {
 		$popup('upload', Lng.sendingPost[lang] + '<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' + '</progress><div style="display: none; font: bold 12px arial;">' + '<span></span> / <span></span> (<span></span>)</div>', true);
-		var beginTime = Date.now(),
-		    inited = false,
-		    progress = $id('de-uploadprogress'),
-		    counterWrap = progress.nextElementSibling,
-		    counterEl = counterWrap.firstElementChild,
-		    totalEl = counterEl.nextElementSibling,
-		    speedEl = totalEl.nextElementSibling;
+		var inited = false;
+		var beginTime = Date.now();
+		var progress = $id('de-uploadprogress');
+		var counterWrap = progress.nextElementSibling;
+
+		var _counterWrap$children = _slicedToArray(counterWrap.children, 3),
+		    counterEl = _counterWrap$children[0],
+		    totalEl = _counterWrap$children[1],
+		    speedEl = _counterWrap$children[2];
+
 		return function (data) {
 			if (!inited) {
-				var total = data.total;
-				progress.setAttribute('max', total);
+				progress.setAttribute('max', data.total);
 				$show(progress);
-				totalEl.textContent = prettifySize(total);
+				totalEl.textContent = prettifySize(data.total);
 				$show(counterWrap);
 				inited = true;
 			}
-			var loaded = data.loaded;
-			progress.value = loaded;
-			counterEl.textContent = prettifySize(loaded);
-			speedEl.textContent = prettifySize(loaded / (Date.now() - beginTime) * 1e3) + '/' + Lng.second[lang];
+			progress.value = data.loaded;
+			counterEl.textContent = prettifySize(data.loaded);
+			speedEl.textContent = prettifySize(data.loaded / (Date.now() - beginTime) * 1e3) + '/' + Lng.second[lang];
 		};
 	}
 
@@ -14376,7 +14374,7 @@ true, true],
 					return;
 				}
 				var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
-				$css('@keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + 'px; }}').className = 'de-css-move';
+				$css('@keyframes ' + uId + ' { to { ' + lmw + ' top:' + top + 'px; } }').className = 'de-css-move';
 				if (this._newPos) {
 					pv.style.cssText = this._newPos;
 					pv.removeEventListener('animationend', this);
@@ -18788,7 +18786,7 @@ true, true],
 			}, {
 				key: 'init',
 				value: function init() {
-					$script('window.FormData = void 0;');
+					$script('window.FormData = void 0');
 					var form = $q('form[name="post"]');
 					if (form) {
 						form.insertAdjacentHTML('beforeend', '<input name="json_response" value="1" type="hidden">');
@@ -18837,7 +18835,7 @@ true, true],
 				value: function init() {
 					_get(Vichan.prototype.__proto__ || Object.getPrototypeOf(Vichan.prototype), 'init', this).call(this);
 					setTimeout(function () {
-						$del($id('updater'));
+						return $del($id('updater'));
 					}, 0);
 					var textarea = $id('body');
 					if (textarea) {
@@ -18900,9 +18898,7 @@ true, true],
 				value: function init() {
 					var el = $id('posttypeindicator');
 					if (el) {
-						$del(el.previousSibling);
-						$del(el.nextSibling);
-						$del(el);
+						[el.previousSibling, el.nextSibling, el].forEach($del);
 					}
 				}
 			}, {
@@ -19041,11 +19037,7 @@ true, true],
 									updater.disable();
 								}
 								DelForm.tNums = new Set();
-								$del($id('de-svg-icons'));
-								$del($id('de-thr-navpanel'));
-								$del($id('de-css'));
-								$del($id('de-css-dynamic'));
-								$del($id('de-css-user'));
+								$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel', doc), $del);
 								async(runMain)(checkDomains, cfgPromise);
 							});
 							$script('window.app.$bus.on(\'refreshContentDone\',\n\t\t\t\t\t\t() => document.defaultView.postMessage(\'0chan-content-done\', \'*\'))');
@@ -19978,9 +19970,7 @@ true, true],
 			_createClass(Dobrochan, [{
 				key: 'delTruncMsg',
 				value: function delTruncMsg(post, el, isInit) {
-					$del(el.nextSibling);
-					$del(el.previousSibling);
-					$del(el);
+					[el.previousSibling, el.nextSibling, el].forEach($del);
 					if (isInit) {
 						$replace(post.msg.firstElementChild, $q('.alternate > div', post.el));
 					} else {
@@ -20054,7 +20044,7 @@ true, true],
 						});
 						return true;
 					}
-					$script('window.UploadProgress = function() {};');
+					$script('window.UploadProgress = function() {}');
 					var el = $id('postform');
 					if (el) {
 						el.appendChild($q('.rules'));

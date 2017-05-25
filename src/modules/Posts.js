@@ -856,9 +856,10 @@ Post.note = class PostNote {
 				$pd(e);
 				this._post.setUserVisib(!this._post.hidden);
 			};
-			text = (this._post.title ? `(${this._post.title}) ` : '') + (note ? `[autohide: ${note}]` : '');
+			text = (this._post.title ? `(${ this._post.title }) ` : '') +
+				(note ? `[autohide: ${ note }]` : '');
 		} else {
-			text = note ? `autohide: ${note}` : '';
+			text = note ? `autohide: ${ note }` : '';
 		}
 		this.textEl.textContent = text;
 		$show(this._noteEl);

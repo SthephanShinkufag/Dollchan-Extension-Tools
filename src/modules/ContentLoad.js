@@ -37,19 +37,19 @@ function detectImgFile(ab) {
 		for(len = i + 90; i < len; i++) {
 			/* 7Z [37 7a bc af] = [7zјЇ] */
 			if(dat[i] === 0x37 && dat[i + 1] === 0x7A && dat[i + 2] === 0xBC) {
-				return {'type': 0, 'idx': i, 'data': ab};
+				return { type: 0, idx: i, data: ab };
 			/* ZIP [50 4b 03 04] = [PK..] */
 			} else if(dat[i] === 0x50 && dat[i + 1] === 0x4B && dat[i + 2] === 0x03) {
-				return {'type': 1, 'idx': i, 'data': ab};
+				return { type: 1, idx: i, data: ab };
 			/* RAR [52 61 72 21] = [Rar!] */
 			} else if(dat[i] === 0x52 && dat[i + 1] === 0x61 && dat[i + 2] === 0x72) {
-				return {'type': 2, 'idx': i, 'data': ab};
+				return { type: 2, idx: i, data: ab };
 			/* OGG [4f 67 67 53] = [OggS] */
 			} else if(dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67) {
-				return {'type': 3, 'idx': i, 'data': ab};
+				return { type: 3, idx: i, data: ab };
 			/* MP3 [0x49 0x44 0x33] = [ID3] */
 			} else if(dat[i] === 0x49 && dat[i + 1] === 0x44 && dat[i + 2] === 0x33) {
-				return {'type': 4, 'idx': i, 'data': ab};
+				return { type: 4, idx: i, data: ab };
 			}
 		}
 	}
@@ -68,7 +68,7 @@ function WorkerPool(mReqs, wrkFn, errFn) {
 		} else {
 			self.postMessage(info);
 		}
-	}`], {'type': 'text/javascript'}));
+	}`], { type: 'text/javascript' }));
 	this._pool = new TasksPool(mReqs, (num, data) => this._createWorker(num, data), null);
 	this._freeWorkers = [];
 	this._url = url;
@@ -126,7 +126,7 @@ function addImgFileIcon(nameLink, fName, info) {
 		ext = 'mp3';
 	}
 	nameLink.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(
-			new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {'type': app})
+			new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], { type: app })
 		) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
 		'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>');
 }
@@ -171,7 +171,7 @@ function preloadImages(data) {
 				nameLink.setAttribute('download', fName);
 				nameLink.setAttribute('de-href', nameLink.href);
 				imgLink.href = nameLink.href =
-					window.URL.createObjectURL(new Blob([imageData], {'type': iType}));
+					window.URL.createObjectURL(new Blob([imageData], { type: iType }));
 				if(iType === 'video/webm') {
 					el.setAttribute('de-video', '');
 				}

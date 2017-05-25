@@ -794,5 +794,5 @@ function genImgHash(data) {
 			hash &= ~g;
 		}
 	}
-	return {hash: hash};
+	return { hash: hash };
 }

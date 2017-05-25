@@ -260,7 +260,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 		}
 		init() {
-			$script('window.FormData = void 0;');
+			$script('window.FormData = void 0');
 			var form = $q('form[name="post"]');
 			if(form) {
 				form.insertAdjacentHTML('beforeend', '<input name="json_response" value="1" type="hidden">');
@@ -296,9 +296,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			setTimeout(function() {
-				$del($id('updater'));
-			}, 0);
+			setTimeout(() => $del($id('updater')), 0);
 			const textarea = $id('body');
 			if(textarea) {
 				textarea.removeAttribute('id');
@@ -335,9 +333,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			var el = $id('posttypeindicator');
 			if(el) {
-				$del(el.previousSibling);
-				$del(el.nextSibling);
-				$del(el);
+				[el.previousSibling, el.nextSibling, el].forEach($del);
 			}
 		}
 	}
@@ -437,11 +433,7 @@ function getImageBoard(checkDomains, checkEngines) {
 							updater.disable();
 						}
 						DelForm.tNums = new Set();
-						$del($id('de-svg-icons'));
-						$del($id('de-thr-navpanel'));
-						$del($id('de-css'));
-						$del($id('de-css-dynamic'));
-						$del($id('de-css-user'));
+						$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel', doc), $del);
 						async(runMain)(checkDomains, cfgPromise);
 					});
 					$script(`window.app.$bus.on('refreshContentDone',
@@ -677,14 +669,16 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixHTML(data, isForm) {
 			const el = super.fixHTML(data, isForm);
-			// Move [ Back ] link outside of thread div, so this will prevent new posts from being appended after that link
+			// Move [ Back ] link outside of thread div,
+			// so this will prevent new posts from being appended after that link
 			if(aib.t) {
 				try {
 					const backBtn = $q(`${ this.qThread } > span[style]`, el);
 					if(backBtn) {
 						const modBtn = $q('a[accesskey="m"]', el);
 						$after(backBtn.parentElement, backBtn);
-						[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(elm => $after(backBtn.lastChild, elm));
+						[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(
+							elm => $after(backBtn.lastChild, elm));
 					}
 				} catch(e) {}
 			}
@@ -1069,9 +1063,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.delete_checkbox { position: static !important; }`;
 		}
 		delTruncMsg(post, el, isInit) {
-			$del(el.nextSibling);
-			$del(el.previousSibling);
-			$del(el);
+			[el.previousSibling, el.nextSibling, el].forEach($del);
 			if(isInit) {
 				$replace(post.msg.firstElementChild, $q('.alternate > div', post.el));
 			} else {
@@ -1128,7 +1120,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				});
 				return true;
 			}
-			$script('window.UploadProgress = function() {};');
+			$script('window.UploadProgress = function() {}');
 			var el = $id('postform');
 			if(el) {
 				el.appendChild($q('.rules'));

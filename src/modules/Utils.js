@@ -533,7 +533,7 @@ TarBuilder.prototype = {
 	},
 	get() {
 		this._data.push(new Uint8Array(1024));
-		return new Blob(this._data, {'type': 'application/x-tar'});
+		return new Blob(this._data, { type: 'application/x-tar' });
 	},
 
 	_padSet(data, offset, num, len) {

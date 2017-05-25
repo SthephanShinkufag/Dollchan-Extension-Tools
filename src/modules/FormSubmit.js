@@ -20,26 +20,22 @@ function getUploadFunc() {
 		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' +
 		'</progress><div style="display: none; font: bold 12px arial;">' +
 		'<span></span> / <span></span> (<span></span>)</div>', true);
-	var beginTime = Date.now(),
-		inited = false,
-		progress = $id('de-uploadprogress'),
-		counterWrap = progress.nextElementSibling,
-		counterEl = counterWrap.firstElementChild,
-		totalEl = counterEl.nextElementSibling,
-		speedEl = totalEl.nextElementSibling;
+	let inited = false;
+	const beginTime = Date.now();
+	const progress = $id('de-uploadprogress');
+	const counterWrap = progress.nextElementSibling;
+	const [counterEl, totalEl, speedEl] = counterWrap.children;
 	return function(data) {
 		if(!inited) {
-			var total = data.total;
-			progress.setAttribute('max', total);
+			progress.setAttribute('max', data.total);
 			$show(progress);
-			totalEl.textContent = prettifySize(total);
+			totalEl.textContent = prettifySize(data.total);
 			$show(counterWrap);
 			inited = true;
 		}
-		var loaded = data.loaded;
-		progress.value = loaded;
-		counterEl.textContent = prettifySize(loaded);
-		speedEl.textContent = prettifySize((loaded / (Date.now() - beginTime)) * 1e3) +
+		progress.value = data.loaded;
+		counterEl.textContent = prettifySize(data.loaded);
+		speedEl.textContent = prettifySize((data.loaded / (Date.now() - beginTime)) * 1e3) +
 										   '/' + Lng.second[lang];
 	};
 }
@@ -175,7 +171,7 @@ var checkDelete = async(function* (data) {
 function* html5Submit(form, submitter, needProgress = false) {
 	const formData = new FormData();
 	let hasFiles = false;
-	for(let {name, value, type, el} of getFormElements(form, submitter)) {
+	for(let { name, value, type, el } of getFormElements(form, submitter)) {
 		if(type === 'file') {
 			hasFiles = true;
 			const fileName = value.name;

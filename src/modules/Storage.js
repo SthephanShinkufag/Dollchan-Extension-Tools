@@ -140,7 +140,7 @@ function* readCfg() {
 		Cfg.passwValue = Math.round(Math.random() * 1e15).toString(32);
 	}
 	if(!Cfg.stats) {
-		Cfg.stats = {'view': 0, 'op': 0, 'reply': 0};
+		Cfg.stats = { view: 0, op: 0, reply: 0 };
 	}
 	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;

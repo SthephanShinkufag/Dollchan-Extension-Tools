@@ -70,8 +70,7 @@ function checkForUpdates(isManual, lastUpdateTime) {
 		}
 	}
 	return $ajax(
-		gitRaw + 'Dollchan_Extension_Tools.meta.js',
-		{'Content-Type': 'text/plain'}, false
+		gitRaw + 'Dollchan_Extension_Tools.meta.js', { 'Content-Type': 'text/plain' }, false
 	).then(xhr => {
 		const m = xhr.responseText.match(/@version\s+([0-9.]+)/);
 		const remoteVer = m && m[1] ? m[1].split('.') : null;

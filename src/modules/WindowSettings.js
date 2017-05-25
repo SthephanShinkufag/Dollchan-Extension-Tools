@@ -234,10 +234,7 @@ const cfgWindow = Object.create({
 			case 'language':
 				lang = el.selectedIndex;
 				panel.remove();
-				$del($id('de-css'));
-				$del($id('de-css-dynamic'));
-				$del($id('de-css-user'));
-				scriptCSS();
+				this._updateCSS();
 				panel.init(DelForm.first.el);
 				toggleWindow('cfg', false);
 				break;
@@ -273,11 +270,7 @@ const cfgWindow = Object.create({
 				pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
 				break;
 			case 'addTextBtns': pr.addTextPanel(); break;
-			case 'scriptStyle':
-				$del($id('de-css'));
-				$del($id('de-css-dynamic'));
-				$del($id('de-css-user'));
-				scriptCSS();
+			case 'scriptStyle': this._updateCSS();
 			}
 			return;
 		}
@@ -842,6 +835,10 @@ const cfgWindow = Object.create({
 		while(i--) {
 			($q(arr[i]) || {}).disabled = nState;
 		}
+	},
+	_updateCSS() {
+		$each($Q('#de-css, #de-css-dynamic, #de-css-user', doc.head), $del);
+		scriptCSS();
 	},
 	_updateDependant() {
 		this._toggleBox(Cfg.ajaxUpdThr, [

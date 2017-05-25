@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '1a86bb0';
+const commit = '3543824';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -649,7 +649,7 @@ const Lng = {
 /*==[ GlobalVars.js ]==*/
 
 const doc = window.document, emptyFn = Function.prototype, aProto = Array.prototype;
-const Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null};
+const Images_ = { preloading: false, afterpreload: null, progressId: null, canvas: null };
 const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
 const gitRaw = 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
@@ -1191,7 +1191,7 @@ TarBuilder.prototype = {
 	},
 	get() {
 		this._data.push(new Uint8Array(1024));
-		return new Blob(this._data, {'type': 'application/x-tar'});
+		return new Blob(this._data, { type: 'application/x-tar' });
 	},
 
 	_padSet(data, offset, num, len) {
@@ -1522,7 +1522,7 @@ function* readCfg() {
 		Cfg.passwValue = Math.round(Math.random() * 1e15).toString(32);
 	}
 	if(!Cfg.stats) {
-		Cfg.stats = {'view': 0, 'op': 0, 'reply': 0};
+		Cfg.stats = { view: 0, op: 0, reply: 0 };
 	}
 	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
@@ -2705,10 +2705,10 @@ function showFavoritesWindow(body, data) {
 			}
 
 			// Building a foldable block for specific board
-			html += `<div class="de-fold-block${h === aib.host && b === aib.b ? ' de-fav-current' : ''}">
+			html += `<div class="de-fold-block${ h === aib.host && b === aib.b ? ' de-fav-current' : '' }">
 				<div class="de-fav-header">
 					<input class="de-fav-header-switch" type="checkbox">
-					<a class="de-fav-header-link" href="${ d.url }" rel="noreferrer">${h + '/' + b}</a>
+					<a class="de-fav-header-link" href="${ d.url }" rel="noreferrer">${ h }/${ b }</a>
 				</div>
 				<div class="de-fav-entries"${ h === aib.host ? ' de-opened' : ' style="display: none;"' }>
 					${ innerHtml }
@@ -2732,8 +2732,8 @@ function showFavoritesWindow(body, data) {
 			case 'de-fav-header-switch':
 				const checked = el.checked;
 				// Select/unselect all checkboxes in board block
-				$each($Q('.de-entry > input', el.parentNode.nextElementSibling), el => el.checked = checked);
 				el = el.parentNode.nextElementSibling;
+				$each($Q('.de-entry > input', el), checkBox => checkBox.checked = checked);
 				if(!checked || el.hasAttribute('de-opened')) {
 					return;
 				}
@@ -3254,10 +3254,7 @@ const cfgWindow = Object.create({
 			case 'language':
 				lang = el.selectedIndex;
 				panel.remove();
-				$del($id('de-css'));
-				$del($id('de-css-dynamic'));
-				$del($id('de-css-user'));
-				scriptCSS();
+				this._updateCSS();
 				panel.init(DelForm.first.el);
 				toggleWindow('cfg', false);
 				break;
@@ -3293,11 +3290,7 @@ const cfgWindow = Object.create({
 				pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
 				break;
 			case 'addTextBtns': pr.addTextPanel(); break;
-			case 'scriptStyle':
-				$del($id('de-css'));
-				$del($id('de-css-dynamic'));
-				$del($id('de-css-user'));
-				scriptCSS();
+			case 'scriptStyle': this._updateCSS();
 			}
 			return;
 		}
@@ -3862,6 +3855,10 @@ const cfgWindow = Object.create({
 		while(i--) {
 			($q(arr[i]) || {}).disabled = nState;
 		}
+	},
+	_updateCSS() {
+		$each($Q('#de-css, #de-css-dynamic, #de-css-user', doc.head), $del);
+		scriptCSS();
 	},
 	_updateDependant() {
 		this._toggleBox(Cfg.ajaxUpdThr, [
@@ -4746,19 +4743,19 @@ function detectImgFile(ab) {
 		for(len = i + 90; i < len; i++) {
 			/* 7Z [37 7a bc af] = [7zјЇ] */
 			if(dat[i] === 0x37 && dat[i + 1] === 0x7A && dat[i + 2] === 0xBC) {
-				return {'type': 0, 'idx': i, 'data': ab};
+				return { type: 0, idx: i, data: ab };
 			/* ZIP [50 4b 03 04] = [PK..] */
 			} else if(dat[i] === 0x50 && dat[i + 1] === 0x4B && dat[i + 2] === 0x03) {
-				return {'type': 1, 'idx': i, 'data': ab};
+				return { type: 1, idx: i, data: ab };
 			/* RAR [52 61 72 21] = [Rar!] */
 			} else if(dat[i] === 0x52 && dat[i + 1] === 0x61 && dat[i + 2] === 0x72) {
-				return {'type': 2, 'idx': i, 'data': ab};
+				return { type: 2, idx: i, data: ab };
 			/* OGG [4f 67 67 53] = [OggS] */
 			} else if(dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67) {
-				return {'type': 3, 'idx': i, 'data': ab};
+				return { type: 3, idx: i, data: ab };
 			/* MP3 [0x49 0x44 0x33] = [ID3] */
 			} else if(dat[i] === 0x49 && dat[i + 1] === 0x44 && dat[i + 2] === 0x33) {
-				return {'type': 4, 'idx': i, 'data': ab};
+				return { type: 4, idx: i, data: ab };
 			}
 		}
 	}
@@ -4777,7 +4774,7 @@ function WorkerPool(mReqs, wrkFn, errFn) {
 		} else {
 			self.postMessage(info);
 		}
-	}`], {'type': 'text/javascript'}));
+	}`], { type: 'text/javascript' }));
 	this._pool = new TasksPool(mReqs, (num, data) => this._createWorker(num, data), null);
 	this._freeWorkers = [];
 	this._url = url;
@@ -4835,7 +4832,7 @@ function addImgFileIcon(nameLink, fName, info) {
 		ext = 'mp3';
 	}
 	nameLink.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(
-			new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {'type': app})
+			new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], { type: app })
 		) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
 		'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>');
 }
@@ -4880,7 +4877,7 @@ function preloadImages(data) {
 				nameLink.setAttribute('download', fName);
 				nameLink.setAttribute('de-href', nameLink.href);
 				imgLink.href = nameLink.href =
-					window.URL.createObjectURL(new Blob([imageData], {'type': iType}));
+					window.URL.createObjectURL(new Blob([imageData], { type: iType }));
 				if(iType === 'video/webm') {
 					el.setAttribute('de-video', '');
 				}
@@ -6079,9 +6076,8 @@ var Spells = Object.create({
 			}
 			var [msgBit, msgData] = wipeMsg || [],
 				names = [],
-				bits = {1: 'samelines',2: 'samewords', 4: 'longwords', 8: 'symbols',
-						16: 'capslock', 32: 'numbers', 64: 'whitespace'
-				};
+				bits = { 1: 'samelines', 2: 'samewords', 4: 'longwords', 8: 'symbols',
+					16: 'capslock', 32: 'numbers', 64: 'whitespace' };
 			for(var bit in bits) {
 				if(+bit !== msgBit) {
 					if(val & +bit) {
@@ -7807,26 +7803,22 @@ function getUploadFunc() {
 		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' +
 		'</progress><div style="display: none; font: bold 12px arial;">' +
 		'<span></span> / <span></span> (<span></span>)</div>', true);
-	var beginTime = Date.now(),
-		inited = false,
-		progress = $id('de-uploadprogress'),
-		counterWrap = progress.nextElementSibling,
-		counterEl = counterWrap.firstElementChild,
-		totalEl = counterEl.nextElementSibling,
-		speedEl = totalEl.nextElementSibling;
+	let inited = false;
+	const beginTime = Date.now();
+	const progress = $id('de-uploadprogress');
+	const counterWrap = progress.nextElementSibling;
+	const [counterEl, totalEl, speedEl] = counterWrap.children;
 	return function(data) {
 		if(!inited) {
-			var total = data.total;
-			progress.setAttribute('max', total);
+			progress.setAttribute('max', data.total);
 			$show(progress);
-			totalEl.textContent = prettifySize(total);
+			totalEl.textContent = prettifySize(data.total);
 			$show(counterWrap);
 			inited = true;
 		}
-		var loaded = data.loaded;
-		progress.value = loaded;
-		counterEl.textContent = prettifySize(loaded);
-		speedEl.textContent = prettifySize((loaded / (Date.now() - beginTime)) * 1e3) +
+		progress.value = data.loaded;
+		counterEl.textContent = prettifySize(data.loaded);
+		speedEl.textContent = prettifySize((data.loaded / (Date.now() - beginTime)) * 1e3) +
 										   '/' + Lng.second[lang];
 	};
 }
@@ -7962,7 +7954,7 @@ var checkDelete = async(function* (data) {
 function* html5Submit(form, submitter, needProgress = false) {
 	const formData = new FormData();
 	let hasFiles = false;
-	for(let {name, value, type, el} of getFormElements(form, submitter)) {
+	for(let { name, value, type, el } of getFormElements(form, submitter)) {
 		if(type === 'file') {
 			hasFiles = true;
 			const fileName = value.name;
@@ -9685,9 +9677,10 @@ Post.note = class PostNote {
 				$pd(e);
 				this._post.setUserVisib(!this._post.hidden);
 			};
-			text = (this._post.title ? `(${this._post.title}) ` : '') + (note ? `[autohide: ${note}]` : '');
+			text = (this._post.title ? `(${ this._post.title }) ` : '') +
+				(note ? `[autohide: ${ note }]` : '');
 		} else {
-			text = note ? `autohide: ${note}` : '';
+			text = note ? `autohide: ${ note }` : '';
 		}
 		this.textEl.textContent = text;
 		$show(this._noteEl);
@@ -10127,7 +10120,7 @@ class Pview extends AbstractPost {
 			return;
 		}
 		var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
-		$css('@keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + 'px; }}').className = 'de-css-move';
+		$css('@keyframes ' + uId + ' { to { ' + lmw + ' top:' + top + 'px; } }').className = 'de-css-move';
 		if(this._newPos) {
 			pv.style.cssText = this._newPos;
 			pv.removeEventListener('animationend', this);
@@ -11108,7 +11101,7 @@ function genImgHash(data) {
 			hash &= ~g;
 		}
 	}
-	return {hash: hash};
+	return { hash: hash };
 }
 
 /*==[ PostBuilders.js ]=======================================================================================
@@ -13933,7 +13926,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 		}
 		init() {
-			$script('window.FormData = void 0;');
+			$script('window.FormData = void 0');
 			var form = $q('form[name="post"]');
 			if(form) {
 				form.insertAdjacentHTML('beforeend', '<input name="json_response" value="1" type="hidden">');
@@ -13969,9 +13962,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			setTimeout(function() {
-				$del($id('updater'));
-			}, 0);
+			setTimeout(() => $del($id('updater')), 0);
 			const textarea = $id('body');
 			if(textarea) {
 				textarea.removeAttribute('id');
@@ -14008,9 +13999,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			var el = $id('posttypeindicator');
 			if(el) {
-				$del(el.previousSibling);
-				$del(el.nextSibling);
-				$del(el);
+				[el.previousSibling, el.nextSibling, el].forEach($del);
 			}
 		}
 	}
@@ -14110,11 +14099,7 @@ function getImageBoard(checkDomains, checkEngines) {
 							updater.disable();
 						}
 						DelForm.tNums = new Set();
-						$del($id('de-svg-icons'));
-						$del($id('de-thr-navpanel'));
-						$del($id('de-css'));
-						$del($id('de-css-dynamic'));
-						$del($id('de-css-user'));
+						$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel', doc), $del);
 						async(runMain)(checkDomains, cfgPromise);
 					});
 					$script(`window.app.$bus.on('refreshContentDone',
@@ -14350,14 +14335,16 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixHTML(data, isForm) {
 			const el = super.fixHTML(data, isForm);
-			// Move [ Back ] link outside of thread div, so this will prevent new posts from being appended after that link
+			// Move [ Back ] link outside of thread div,
+			// so this will prevent new posts from being appended after that link
 			if(aib.t) {
 				try {
 					const backBtn = $q(`${ this.qThread } > span[style]`, el);
 					if(backBtn) {
 						const modBtn = $q('a[accesskey="m"]', el);
 						$after(backBtn.parentElement, backBtn);
-						[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(elm => $after(backBtn.lastChild, elm));
+						[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(
+							elm => $after(backBtn.lastChild, elm));
 					}
 				} catch(e) {}
 			}
@@ -14742,9 +14729,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.delete_checkbox { position: static !important; }`;
 		}
 		delTruncMsg(post, el, isInit) {
-			$del(el.nextSibling);
-			$del(el.previousSibling);
-			$del(el);
+			[el.previousSibling, el.nextSibling, el].forEach($del);
 			if(isInit) {
 				$replace(post.msg.firstElementChild, $q('.alternate > div', post.el));
 			} else {
@@ -14801,7 +14786,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				});
 				return true;
 			}
-			$script('window.UploadProgress = function() {};');
+			$script('window.UploadProgress = function() {}');
 			var el = $id('postform');
 			if(el) {
 				el.appendChild($q('.rules'));
@@ -15295,8 +15280,7 @@ function checkForUpdates(isManual, lastUpdateTime) {
 		}
 	}
 	return $ajax(
-		gitRaw + 'Dollchan_Extension_Tools.meta.js',
-		{'Content-Type': 'text/plain'}, false
+		gitRaw + 'Dollchan_Extension_Tools.meta.js', { 'Content-Type': 'text/plain' }, false
 	).then(xhr => {
 		const m = xhr.responseText.match(/@version\s+([0-9.]+)/);
 		const remoteVer = m && m[1] ? m[1].split('.') : null;

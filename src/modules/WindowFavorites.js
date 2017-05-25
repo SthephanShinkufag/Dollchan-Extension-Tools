@@ -77,10 +77,10 @@ function showFavoritesWindow(body, data) {
 			}
 
 			// Building a foldable block for specific board
-			html += `<div class="de-fold-block${h === aib.host && b === aib.b ? ' de-fav-current' : ''}">
+			html += `<div class="de-fold-block${ h === aib.host && b === aib.b ? ' de-fav-current' : '' }">
 				<div class="de-fav-header">
 					<input class="de-fav-header-switch" type="checkbox">
-					<a class="de-fav-header-link" href="${ d.url }" rel="noreferrer">${h + '/' + b}</a>
+					<a class="de-fav-header-link" href="${ d.url }" rel="noreferrer">${ h }/${ b }</a>
 				</div>
 				<div class="de-fav-entries"${ h === aib.host ? ' de-opened' : ' style="display: none;"' }>
 					${ innerHtml }
@@ -104,8 +104,8 @@ function showFavoritesWindow(body, data) {
 			case 'de-fav-header-switch':
 				const checked = el.checked;
 				// Select/unselect all checkboxes in board block
-				$each($Q('.de-entry > input', el.parentNode.nextElementSibling), el => el.checked = checked);
 				el = el.parentNode.nextElementSibling;
+				$each($Q('.de-entry > input', el), checkBox => checkBox.checked = checked);
 				if(!checked || el.hasAttribute('de-opened')) {
 					return;
 				}
