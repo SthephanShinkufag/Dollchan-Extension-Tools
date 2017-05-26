@@ -221,14 +221,6 @@ function fixEventEl(el) {
 	return el;
 }
 
-function onDOMLoaded(fn) {
-	if(doc.readyState === 'loading') {
-		doc.addEventListener('DOMContentLoaded', fn);
-	} else {
-		fn();
-	}
-}
-
 // Allows to record the duration of code execution
 const Logger = {
 	finish() {

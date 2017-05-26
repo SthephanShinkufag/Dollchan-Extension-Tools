@@ -73,7 +73,7 @@ const defaultCfg = {
 	'YTubeTitles':      0,      //    convert links to titles
 	'ytApiKey':         '',     //    public key for youtube API
 	'addVimeo':         1,      //    embed vimeo links
-	'ajaxReply':        2,      // posting with AJAX (0=no, 1=iframe, 2=HTML5)
+	'ajaxPosting':      1,      // posting without reload
 	'postSameImg':      1,      //    ability to post same images
 	'removeEXIF':       1,      //    remove EXIF data from JPEGs
 	'removeFName':      0,      //    remove file name

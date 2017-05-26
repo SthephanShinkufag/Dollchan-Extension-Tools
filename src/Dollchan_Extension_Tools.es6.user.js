@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '3543824';
+const commit = 'e0dcdd2';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -99,7 +99,7 @@ const defaultCfg = {
 	'YTubeTitles':      0,      //    convert links to titles
 	'ytApiKey':         '',     //    public key for youtube API
 	'addVimeo':         1,      //    embed vimeo links
-	'ajaxReply':        2,      // posting with AJAX (0=no, 1=iframe, 2=HTML5)
+	'ajaxPosting':      1,      // posting without reload
 	'postSameImg':      1,      //    ability to post same images
 	'removeEXIF':       1,      //    remove EXIF data from JPEGs
 	'removeFName':      0,      //    remove file name
@@ -264,10 +264,7 @@ const Lng = {
 		'YTubeTitles':  ['Загружать названия к YouTube-ссылкам*', 'Load titles into YouTube-links*'],
 		'ytApiKey':     ['Ключ YT API*', 'YT API Key*'],
 
-		'ajaxReply': {
-			sel:        [['Откл.', 'Iframe', 'HTML5'], ['Disable', 'Iframe', 'HTML5']],
-			txt:        ['AJAX отправка постов*', 'posting with AJAX*']
-		},
+		'ajaxPosting':  ['Отправка постов без перезагрузки*', 'Posting without reload*'],
 		'postSameImg':  ['Возможность отправки одинаковых картинок', 'Ability to post same images'],
 		'removeEXIF':   ['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG '],
 		'removeFName':  ['Удалять имя файлов', 'Clear file names'],
@@ -877,14 +874,6 @@ function fixEventEl(el) {
 		}
 	}
 	return el;
-}
-
-function onDOMLoaded(fn) {
-	if(doc.readyState === 'loading') {
-		doc.addEventListener('DOMContentLoaded', fn);
-	} else {
-		fn();
-	}
 }
 
 // Allows to record the duration of code execution
@@ -1527,8 +1516,13 @@ function* readCfg() {
 	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
 	if(Cfg.updScript) {
-		checkForUpdates(false, val.lastUpd).then(html =>
-			onDOMLoaded(() => $popup('updavail', html)), emptyFn);
+		checkForUpdates(false, val.lastUpd).then(html => {
+			if(doc.readyState === 'loading') {
+				doc.addEventListener('DOMContentLoaded', () => $popup('updavail', html));
+			} else {
+				$popup('updavail', html);
+			}
+		}, emptyFn);
 	}
 }
 
@@ -3713,7 +3707,7 @@ const cfgWindow = Object.create({
 	// "Form" tab
 	_getCfgForm() {
 		return `<div id="de-cfg-form" class="de-cfg-unvis">
-			${ this._getSel('ajaxReply') }<br>
+			${ this._getBox('ajaxPosting') }<br>
 			${ pr.form ? `<div class="de-cfg-depend">
 				${ this._getBox('postSameImg') }<br>
 				${ this._getBox('removeEXIF') }
@@ -3880,9 +3874,9 @@ const cfgWindow = Object.create({
 			'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]',
 			'input[info="ytApiKey"]']);
 		this._toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
-		this._toggleBox(Cfg.ajaxReply, ['input[info="sendErrNotif"]', 'input[info="scrAfterRep"]']);
-		this._toggleBox(Cfg.ajaxReply === 2, [
-			'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]']);
+		this._toggleBox(Cfg.ajaxPosting, [
+			'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]',
+			'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]']);
 		this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
 		this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
 		this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
@@ -7408,7 +7402,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 			}
 		}
 		this.txta.value = val;
-		if(Cfg.ajaxReply) {
+		if(Cfg.ajaxPosting) {
 			$popup('upload', Lng.checking[lang], true);
 		}
 		if(this.video && (val = this.video.value) && (val = val.match(Videos.ytReg))) {
@@ -7455,19 +7449,16 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	} else {
 		this.cap = null;
 	}
-	if(Cfg.ajaxReply && aib.qFormRedir && (el = $q(aib.qFormRedir, form))) {
-		aib.disableRedirection(el);
-	}
-	if(Cfg.ajaxReply === 2) {
+	if(Cfg.ajaxPosting) {
+		if(aib.qFormRedir && (el = $q(aib.qFormRedir, form))) {
+			aib.disableRedirection(el);
+		}
 		this.form.onsubmit = e => {
 			$pd(e);
 			$popup('upload', Lng.sendingPost[lang], true);
 			spawn(html5Submit, this.form, this.subm, true)
 				.then(dc => checkUpload(dc), e => $popup('upload', getErrorMessage(e)));
 		};
-	} else if(Cfg.ajaxReply === 1) {
-		this.form.target = 'de-iframe-pform';
-		this.form.onsubmit = null;
 	}
 }
 PostForm.hideField = function(el) {
@@ -7919,18 +7910,18 @@ function checkUpload(data) {
 	pr.refreshCap();
 }
 
-var checkDelete = async(function* (data) {
-	var err = getSubmitError(data instanceof HTMLDocument ? data : $DOM(data));
+function* checkDelete(data) {
+	const err = getSubmitError(data instanceof HTMLDocument ? data : $DOM(data));
 	if(err) {
 		$popup('delete', Lng.errDelete[lang] + err);
 		updater.sendErrNotif();
 		return;
 	}
-	var els = $Q('[de-form] ' + aib.qRPost + ' input:checked'),
-		threads = new Set(),
-		isThr = aib.t;
-	for(var i = 0, len = els.length; i < len; ++i) {
-		var el = els[i];
+	const els = $Q('[de-form] ' + aib.qRPost + ' input:checked');
+	const threads = new Set();
+	const isThr = aib.t;
+	for(let i = 0, len = els.length; i < len; ++i) {
+		const el = els[i];
 		el.checked = false;
 		if(!isThr) {
 			threads.add(aib.getPostOfEl(el).thr);
@@ -7944,12 +7935,12 @@ var checkDelete = async(function* (data) {
 			infoLoadErrors(e);
 		}
 	} else {
-		for(var thr of threads) {
+		for(let thr of threads) {
 			yield thr.loadPosts(visPosts, false, false);
 		}
 	}
 	$popup('delete', Lng.succDeleted[lang]);
-});
+}
 
 function* html5Submit(form, submitter, needProgress = false) {
 	const formData = new FormData();
@@ -13137,25 +13128,17 @@ class DelForm {
 		return value;
 	}
 	addStuff() {
-		var el = this.el;
-		if(!localData) {
-			if(Cfg.ajaxReply === 2) {
-				el.onsubmit = $pd;
-				var btn = $q(aib.qDelBut, el);
-				if(btn) {
-					btn.onclick = e => {
-						$pd(e);
-						pr.closeReply();
-						$popup('delete', Lng.deleting[lang], true);
-						spawn(html5Submit, el, e.target)
-							.then(dc => checkDelete(dc), e => $popup('delete', getErrorMessage(e)));
-					};
-				}
-			} else if(Cfg.ajaxReply === 1) {
-				el.target = 'de-iframe-dform';
-				el.onsubmit = function() {
+		const el = this.el;
+		if(!localData && Cfg.ajaxPosting) {
+			el.onsubmit = $pd;
+			const btn = $q(aib.qDelBut, el);
+			if(btn) {
+				btn.onclick = e => {
+					$pd(e);
 					pr.closeReply();
 					$popup('delete', Lng.deleting[lang], true);
+					spawn(html5Submit, el, e.target).then(async(checkDelete),
+						e => $popup('delete', getErrorMessage(e)));
 				};
 			}
 		}
@@ -15308,20 +15291,6 @@ function checkForUpdates(isManual, lastUpdateTime) {
 }
 
 function initPage() {
-	if(!localData && Cfg.ajaxReply === 1) {
-		docBody.insertAdjacentHTML('beforeend',
-			'<iframe name="de-iframe-pform" sandbox="" src="about:blank" style="display: none;"></iframe>' +
-			'<iframe name="de-iframe-dform" sandbox="" src="about:blank" style="display: none;"></iframe>');
-		doc.defaultView.addEventListener('message', ({ data }) => {
-			switch(data.substr(0, 15)) {
-			case 'de-iframe-pform':
-				checkUpload($DOM(data.substr(15)));
-				$q('iframe[name="de-iframe-pform"]').src = 'about:blank';
-				break;
-			case 'de-iframe-dform': checkDelete($DOM(data.substr(15))); break;
-			}
-		});
-	}
 	if(aib.t) {
 		if(Cfg.rePageTitle) {
 			doc.title = '/' + aib.b + ' - ' + Thread.first.op.title;
@@ -15940,6 +15909,7 @@ function updateCSS() {
 		!Cfg.showHideBtn ? '.de-btn-hide, ' : '' }${
 		!Cfg.showRepBtn ? '.de-btn-rep, ' : '' }${
 		!Cfg.updThrBtns && !aib.t ? '.de-thread-updater, ' : '' }${
+		!Cfg.ajaxPosting ? '.de-file-rar, .de-file-url, ' : '' }${
 		!aib.kus && (aib.multiFile || !Cfg.fileThumb) ?
 			'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : ''
 	} body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }`;
@@ -16086,13 +16056,6 @@ function* runMain(checkDomains, cfgPromise) {
 
 // START OF SCRIPT EXECUTION
 if(/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
-	return;
-}
-switch(window.name) {
-case '': break;
-case 'de-iframe-pform':
-case 'de-iframe-dform':
-	onDOMLoaded(() => window.parent.postMessage(window.name + doc.documentElement.outerHTML, '*'));
 	return;
 }
 if(doc.readyState !== 'loading') {

@@ -404,6 +404,7 @@ function updateCSS() {
 		!Cfg.showHideBtn ? '.de-btn-hide, ' : '' }${
 		!Cfg.showRepBtn ? '.de-btn-rep, ' : '' }${
 		!Cfg.updThrBtns && !aib.t ? '.de-thread-updater, ' : '' }${
+		!Cfg.ajaxPosting ? '.de-file-rar, .de-file-url, ' : '' }${
 		!aib.kus && (aib.multiFile || !Cfg.fileThumb) ?
 			'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : ''
 	} body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }`;

@@ -98,20 +98,6 @@ function checkForUpdates(isManual, lastUpdateTime) {
 }
 
 function initPage() {
-	if(!localData && Cfg.ajaxReply === 1) {
-		docBody.insertAdjacentHTML('beforeend',
-			'<iframe name="de-iframe-pform" sandbox="" src="about:blank" style="display: none;"></iframe>' +
-			'<iframe name="de-iframe-dform" sandbox="" src="about:blank" style="display: none;"></iframe>');
-		doc.defaultView.addEventListener('message', ({ data }) => {
-			switch(data.substr(0, 15)) {
-			case 'de-iframe-pform':
-				checkUpload($DOM(data.substr(15)));
-				$q('iframe[name="de-iframe-pform"]').src = 'about:blank';
-				break;
-			case 'de-iframe-dform': checkDelete($DOM(data.substr(15))); break;
-			}
-		});
-	}
 	if(aib.t) {
 		if(Cfg.rePageTitle) {
 			doc.title = '/' + aib.b + ' - ' + Thread.first.op.title;

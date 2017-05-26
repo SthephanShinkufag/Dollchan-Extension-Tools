@@ -139,13 +139,6 @@ function* runMain(checkDomains, cfgPromise) {
 if(/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 	return;
 }
-switch(window.name) {
-case '': break;
-case 'de-iframe-pform':
-case 'de-iframe-dform':
-	onDOMLoaded(() => window.parent.postMessage(window.name + doc.documentElement.outerHTML, '*'));
-	return;
-}
 if(doc.readyState !== 'loading') {
 	needScroll = false;
 	async(runMain)(true, null);

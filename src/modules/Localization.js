@@ -100,10 +100,7 @@ const Lng = {
 		'YTubeTitles':  ['Загружать названия к YouTube-ссылкам*', 'Load titles into YouTube-links*'],
 		'ytApiKey':     ['Ключ YT API*', 'YT API Key*'],
 
-		'ajaxReply': {
-			sel:        [['Откл.', 'Iframe', 'HTML5'], ['Disable', 'Iframe', 'HTML5']],
-			txt:        ['AJAX отправка постов*', 'posting with AJAX*']
-		},
+		'ajaxPosting':  ['Отправка постов без перезагрузки*', 'Posting without reload*'],
 		'postSameImg':  ['Возможность отправки одинаковых картинок', 'Ability to post same images'],
 		'removeEXIF':   ['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG '],
 		'removeFName':  ['Удалять имя файлов', 'Clear file names'],

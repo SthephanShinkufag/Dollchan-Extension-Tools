@@ -110,25 +110,17 @@ class DelForm {
 		return value;
 	}
 	addStuff() {
-		var el = this.el;
-		if(!localData) {
-			if(Cfg.ajaxReply === 2) {
-				el.onsubmit = $pd;
-				var btn = $q(aib.qDelBut, el);
-				if(btn) {
-					btn.onclick = e => {
-						$pd(e);
-						pr.closeReply();
-						$popup('delete', Lng.deleting[lang], true);
-						spawn(html5Submit, el, e.target)
-							.then(dc => checkDelete(dc), e => $popup('delete', getErrorMessage(e)));
-					};
-				}
-			} else if(Cfg.ajaxReply === 1) {
-				el.target = 'de-iframe-dform';
-				el.onsubmit = function() {
+		const el = this.el;
+		if(!localData && Cfg.ajaxPosting) {
+			el.onsubmit = $pd;
+			const btn = $q(aib.qDelBut, el);
+			if(btn) {
+				btn.onclick = e => {
+					$pd(e);
 					pr.closeReply();
 					$popup('delete', Lng.deleting[lang], true);
+					spawn(html5Submit, el, e.target).then(async(checkDelete),
+						e => $popup('delete', getErrorMessage(e)));
 				};
 			}
 		}

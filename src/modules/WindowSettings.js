@@ -693,7 +693,7 @@ const cfgWindow = Object.create({
 	// "Form" tab
 	_getCfgForm() {
 		return `<div id="de-cfg-form" class="de-cfg-unvis">
-			${ this._getSel('ajaxReply') }<br>
+			${ this._getBox('ajaxPosting') }<br>
 			${ pr.form ? `<div class="de-cfg-depend">
 				${ this._getBox('postSameImg') }<br>
 				${ this._getBox('removeEXIF') }
@@ -860,9 +860,9 @@ const cfgWindow = Object.create({
 			'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]',
 			'input[info="ytApiKey"]']);
 		this._toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
-		this._toggleBox(Cfg.ajaxReply, ['input[info="sendErrNotif"]', 'input[info="scrAfterRep"]']);
-		this._toggleBox(Cfg.ajaxReply === 2, [
-			'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]']);
+		this._toggleBox(Cfg.ajaxPosting, [
+			'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]',
+			'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]']);
 		this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
 		this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
 		this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);

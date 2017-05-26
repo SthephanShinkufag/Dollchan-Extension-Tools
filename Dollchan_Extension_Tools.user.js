@@ -2943,10 +2943,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 (function de_main_func_inner(scriptStorage, FormData, scrollTo, localData) {
 	'use strict';
 
-	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, html5Submit, runMain].map(regeneratorRuntime.mark);
+	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '3543824';
+	var commit = 'e0dcdd2';
 
 
 	var defaultCfg = {
@@ -3020,7 +3020,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'YTubeTitles': 0, 
 		'ytApiKey': '', 
 		'addVimeo': 1, 
-		'ajaxReply': 2, 
+		'ajaxPosting': 1, 
 		'postSameImg': 1, 
 		'removeEXIF': 1, 
 		'removeFName': 0, 
@@ -3178,10 +3178,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'YTubeTitles': ['Загружать названия к YouTube-ссылкам*', 'Load titles into YouTube-links*'],
 			'ytApiKey': ['Ключ YT API*', 'YT API Key*'],
 
-			'ajaxReply': {
-				sel: [['Откл.', 'Iframe', 'HTML5'], ['Disable', 'Iframe', 'HTML5']],
-				txt: ['AJAX отправка постов*', 'posting with AJAX*']
-			},
+			'ajaxPosting': ['Отправка постов без перезагрузки*', 'Posting without reload*'],
 			'postSameImg': ['Возможность отправки одинаковых картинок', 'Ability to post same images'],
 			'removeEXIF': ['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG '],
 			'removeFName': ['Удалять имя файлов', 'Clear file names'],
@@ -3726,14 +3723,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}
 		return el;
-	}
-
-	function onDOMLoaded(fn) {
-		if (doc.readyState === 'loading') {
-			doc.addEventListener('DOMContentLoaded', fn);
-		} else {
-			fn();
-		}
 	}
 
 	var Logger = {
@@ -4618,9 +4607,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						lang = Cfg.language;
 						if (Cfg.updScript) {
 							checkForUpdates(false, val.lastUpd).then(function (html) {
-								return onDOMLoaded(function () {
-									return $popup('updavail', html);
-								});
+								if (doc.readyState === 'loading') {
+									doc.addEventListener('DOMContentLoaded', function () {
+										return $popup('updavail', html);
+									});
+								} else {
+									$popup('updavail', html);
+								}
 							}, emptyFn);
 						}
 
@@ -7046,7 +7039,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgForm: function _getCfgForm() {
-			return '<div id="de-cfg-form" class="de-cfg-unvis">\n\t\t\t' + this._getSel('ajaxReply') + '<br>\n\t\t\t' + (pr.form ? '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('postSameImg') + '<br>\n\t\t\t\t' + this._getBox('removeEXIF') + '\n\t\t\t\t' + this._getBox('removeFName') + '<br>\n\t\t\t\t' + this._getBox('sendErrNotif') + '<br>\n\t\t\t\t' + this._getBox('scrAfterRep') + '\n\t\t\t</div>' : '') + '\n\t\t\t' + (pr.form ? this._getSel('addPostForm') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getBox('spacedQuote') + '<br>' : '') + '\n\t\t\t' + this._getBox('favOnReply') + '<br>\n\t\t\t' + (pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '') + '\n\t\t\t' + (pr.files && !nav.Presto ? this._getBox('fileThumb') + '<br>' : '') + '\n\t\t\t' + (pr.mail ? this._getBox('addSageBtn') + this._getBox('saveSage') + '<br>' : '') + '\n\t\t\t' + (pr.cap ? (aib.fch ? this._getBox('cap4chanAlt') + '<br>' : '') + this._getInp('capUpdTime') + '<br>' + this._getSel('captchaLang') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getSel('addTextBtns') + this._getBox('txtBtnsLoc') + '<br>' : '') + '\n\t\t\t' + (pr.passw ? this._getInp('passwValue', true, 9) + ('<input type="button" id="de-cfg-btn-pass" class="de-cfg-button" value="' + Lng.change[lang] + '"><br>') : '') + '\n\t\t\t' + (pr.name ? this._getInp('nameValue', false, 9) + ' ' + this._getBox('userName') + '<br>' : '') + '\n\t\t\t' + (pr.rules || pr.passw || pr.name ? Lng.dontShow[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '') + '\n\t\t</div>';
+			return '<div id="de-cfg-form" class="de-cfg-unvis">\n\t\t\t' + this._getBox('ajaxPosting') + '<br>\n\t\t\t' + (pr.form ? '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('postSameImg') + '<br>\n\t\t\t\t' + this._getBox('removeEXIF') + '\n\t\t\t\t' + this._getBox('removeFName') + '<br>\n\t\t\t\t' + this._getBox('sendErrNotif') + '<br>\n\t\t\t\t' + this._getBox('scrAfterRep') + '\n\t\t\t</div>' : '') + '\n\t\t\t' + (pr.form ? this._getSel('addPostForm') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getBox('spacedQuote') + '<br>' : '') + '\n\t\t\t' + this._getBox('favOnReply') + '<br>\n\t\t\t' + (pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '') + '\n\t\t\t' + (pr.files && !nav.Presto ? this._getBox('fileThumb') + '<br>' : '') + '\n\t\t\t' + (pr.mail ? this._getBox('addSageBtn') + this._getBox('saveSage') + '<br>' : '') + '\n\t\t\t' + (pr.cap ? (aib.fch ? this._getBox('cap4chanAlt') + '<br>' : '') + this._getInp('capUpdTime') + '<br>' + this._getSel('captchaLang') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getSel('addTextBtns') + this._getBox('txtBtnsLoc') + '<br>' : '') + '\n\t\t\t' + (pr.passw ? this._getInp('passwValue', true, 9) + ('<input type="button" id="de-cfg-btn-pass" class="de-cfg-button" value="' + Lng.change[lang] + '"><br>') : '') + '\n\t\t\t' + (pr.name ? this._getInp('nameValue', false, 9) + ' ' + this._getBox('userName') + '<br>' : '') + '\n\t\t\t' + (pr.rules || pr.passw || pr.name ? Lng.dontShow[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '') + '\n\t\t</div>';
 		},
 
 
@@ -7121,8 +7114,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, ['select[info="YTubeType"]', 'input[info="addVimeo"]']);
 			this._toggleBox(Cfg.addYouTube, ['input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]', 'input[info="ytApiKey"]']);
 			this._toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
-			this._toggleBox(Cfg.ajaxReply, ['input[info="sendErrNotif"]', 'input[info="scrAfterRep"]']);
-			this._toggleBox(Cfg.ajaxReply === 2, ['input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]']);
+			this._toggleBox(Cfg.ajaxPosting, ['input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]', 'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]']);
 			this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
 			this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
 			this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
@@ -11124,7 +11116,7 @@ true, true],
 				}
 			}
 			_this22.txta.value = val;
-			if (Cfg.ajaxReply) {
+			if (Cfg.ajaxPosting) {
 				$popup('upload', Lng.checking[lang], true);
 			}
 			if (_this22.video && (val = _this22.video.value) && (val = val.match(Videos.ytReg))) {
@@ -11171,10 +11163,10 @@ true, true],
 		} else {
 			this.cap = null;
 		}
-		if (Cfg.ajaxReply && aib.qFormRedir && (el = $q(aib.qFormRedir, form))) {
-			aib.disableRedirection(el);
-		}
-		if (Cfg.ajaxReply === 2) {
+		if (Cfg.ajaxPosting) {
+			if (aib.qFormRedir && (el = $q(aib.qFormRedir, form))) {
+				aib.disableRedirection(el);
+			}
 			this.form.onsubmit = function (e) {
 				$pd(e);
 				$popup('upload', Lng.sendingPost[lang], true);
@@ -11184,9 +11176,6 @@ true, true],
 					return $popup('upload', getErrorMessage(e));
 				});
 			};
-		} else if (Cfg.ajaxReply === 1) {
-			this.form.target = 'de-iframe-pform';
-			this.form.onsubmit = null;
 		}
 	}
 	PostForm.hideField = function (el) {
@@ -11652,10 +11641,10 @@ true, true],
 		pr.refreshCap();
 	}
 
-	var checkDelete = async(regeneratorRuntime.mark(function _callee9(data) {
+	function checkDelete(data) {
 		var err, els, threads, isThr, i, len, el, _iterator22, _isArray22, _i30, _ref39, thr;
 
-		return regeneratorRuntime.wrap(function _callee9$(_context15) {
+		return regeneratorRuntime.wrap(function checkDelete$(_context15) {
 			while (1) {
 				switch (_context15.prev = _context15.next) {
 					case 0:
@@ -11671,7 +11660,9 @@ true, true],
 						return _context15.abrupt('return');
 
 					case 5:
-						els = $Q('[de-form] ' + aib.qRPost + ' input:checked'), threads = new Set(), isThr = aib.t;
+						els = $Q('[de-form] ' + aib.qRPost + ' input:checked');
+						threads = new Set();
+						isThr = aib.t;
 
 						for (i = 0, len = els.length; i < len; ++i) {
 							el = els[i];
@@ -11683,82 +11674,82 @@ true, true],
 						}
 
 						if (!isThr) {
-							_context15.next = 19;
+							_context15.next = 21;
 							break;
 						}
 
 						Post.clearMarks();
-						_context15.prev = 9;
-						_context15.next = 12;
+						_context15.prev = 11;
+						_context15.next = 14;
 						return Thread.first.loadNewPosts();
 
-					case 12:
-						_context15.next = 17;
+					case 14:
+						_context15.next = 19;
 						break;
 
-					case 14:
-						_context15.prev = 14;
-						_context15.t0 = _context15['catch'](9);
+					case 16:
+						_context15.prev = 16;
+						_context15.t0 = _context15['catch'](11);
 
 						infoLoadErrors(_context15.t0);
 
-					case 17:
-						_context15.next = 35;
+					case 19:
+						_context15.next = 37;
 						break;
 
-					case 19:
+					case 21:
 						_iterator22 = threads, _isArray22 = Array.isArray(_iterator22), _i30 = 0, _iterator22 = _isArray22 ? _iterator22 : _iterator22[Symbol.iterator]();
 
-					case 20:
+					case 22:
 						if (!_isArray22) {
-							_context15.next = 26;
+							_context15.next = 28;
 							break;
 						}
 
 						if (!(_i30 >= _iterator22.length)) {
-							_context15.next = 23;
+							_context15.next = 25;
 							break;
 						}
 
-						return _context15.abrupt('break', 35);
+						return _context15.abrupt('break', 37);
 
-					case 23:
+					case 25:
 						_ref39 = _iterator22[_i30++];
-						_context15.next = 30;
+						_context15.next = 32;
 						break;
 
-					case 26:
+					case 28:
 						_i30 = _iterator22.next();
 
 						if (!_i30.done) {
-							_context15.next = 29;
+							_context15.next = 31;
 							break;
 						}
 
-						return _context15.abrupt('break', 35);
+						return _context15.abrupt('break', 37);
 
-					case 29:
+					case 31:
 						_ref39 = _i30.value;
 
-					case 30:
+					case 32:
 						thr = _ref39;
-						_context15.next = 33;
+						_context15.next = 35;
 						return thr.loadPosts(visPosts, false, false);
 
-					case 33:
-						_context15.next = 20;
+					case 35:
+						_context15.next = 22;
 						break;
 
-					case 35:
+					case 37:
 						$popup('delete', Lng.succDeleted[lang]);
 
-					case 36:
+					case 38:
 					case 'end':
 						return _context15.stop();
 				}
 			}
-		}, _callee9, this, [[9, 14]]);
-	}));
+		}, _marked[5], this, [[11, 16]]);
+	}
 
 	function html5Submit(form, submitter) {
 		var needProgress = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
@@ -11877,7 +11868,7 @@ true, true],
 						return _context16.stop();
 				}
 			}
-		}, _marked[5], this, [[35, 42]]);
+		}, _marked[6], this, [[35, 42]]);
 	}
 
 	function readFile(file) {
@@ -17856,27 +17847,17 @@ true, true],
 			key: 'addStuff',
 			value: function addStuff() {
 				var el = this.el;
-				if (!localData) {
-					if (Cfg.ajaxReply === 2) {
-						el.onsubmit = $pd;
-						var btn = $q(aib.qDelBut, el);
-						if (btn) {
-							btn.onclick = function (e) {
-								$pd(e);
-								pr.closeReply();
-								$popup('delete', Lng.deleting[lang], true);
-								spawn(html5Submit, el, e.target).then(function (dc) {
-									return checkDelete(dc);
-								}, function (e) {
-									return $popup('delete', getErrorMessage(e));
-								});
-							};
-						}
-					} else if (Cfg.ajaxReply === 1) {
-						el.target = 'de-iframe-dform';
-						el.onsubmit = function () {
+				if (!localData && Cfg.ajaxPosting) {
+					el.onsubmit = $pd;
+					var btn = $q(aib.qDelBut, el);
+					if (btn) {
+						btn.onclick = function (e) {
+							$pd(e);
 							pr.closeReply();
 							$popup('delete', Lng.deleting[lang], true);
+							spawn(html5Submit, el, e.target).then(async(checkDelete), function (e) {
+								return $popup('delete', getErrorMessage(e));
+							});
 						};
 					}
 				}
@@ -20787,21 +20768,6 @@ true, true],
 	}
 
 	function initPage() {
-		if (!localData && Cfg.ajaxReply === 1) {
-			docBody.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-pform" sandbox="" src="about:blank" style="display: none;"></iframe>' + '<iframe name="de-iframe-dform" sandbox="" src="about:blank" style="display: none;"></iframe>');
-			doc.defaultView.addEventListener('message', function (_ref68) {
-				var data = _ref68.data;
-
-				switch (data.substr(0, 15)) {
-					case 'de-iframe-pform':
-						checkUpload($DOM(data.substr(15)));
-						$q('iframe[name="de-iframe-pform"]').src = 'about:blank';
-						break;
-					case 'de-iframe-dform':
-						checkDelete($DOM(data.substr(15)));break;
-				}
-			});
-		}
 		if (aib.t) {
 			if (Cfg.rePageTitle) {
 				doc.title = '/' + aib.b + ' - ' + Thread.first.op.title;
@@ -20947,7 +20913,7 @@ true, true],
 	}
 
 	function updateCSS() {
-		var str = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + '; }\n\t.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + '; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.Presto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + '; }\n\t\t.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }\n\t\t.de-mypost .de-post-deleted::after { content: "' + Lng.deleted[lang] + ' (You)"; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-my::after { content: " (You)"; }\n\t\t.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }' : '') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: #4F7942; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t' + (Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '') + '\n\t' + (Cfg.resizeImgs ? '' : '.de-img-wrapper-inpost > .de-img-full { width: auto; }') + '\n\t' + (Cfg.maskImgs ? aib.qPostImg + (', .de-img-pre, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; } ' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }') : '') + '\n\t' + (Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '') + '\n\t' + (Cfg.widePosts ? '.' + aib.cReply.replace(/\s/, '.') + ':not(.de-pview) { float: none; width: 100%; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (!Cfg.addSageBtn ? '#de-sagebtn, ' : '') + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (!Cfg.imgNavBtns ? '#de-img-btn-next, #de-img-btn-prev, ' : '') + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + (!Cfg.panelCounter ? '#de-panel-info, ' : '') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (!Cfg.showHideBtn ? '.de-btn-hide, ' : '') + (!Cfg.showRepBtn ? '.de-btn-rep, ' : '') + (!Cfg.updThrBtns && !aib.t ? '.de-thread-updater, ' : '') + (!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + ' body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }';
+		var str = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + '; }\n\t.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + '; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.Presto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + '; }\n\t\t.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }\n\t\t.de-mypost .de-post-deleted::after { content: "' + Lng.deleted[lang] + ' (You)"; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-my::after { content: " (You)"; }\n\t\t.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }' : '') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: #4F7942; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t' + (Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '') + '\n\t' + (Cfg.resizeImgs ? '' : '.de-img-wrapper-inpost > .de-img-full { width: auto; }') + '\n\t' + (Cfg.maskImgs ? aib.qPostImg + (', .de-img-pre, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; } ' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }') : '') + '\n\t' + (Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '') + '\n\t' + (Cfg.widePosts ? '.' + aib.cReply.replace(/\s/, '.') + ':not(.de-pview) { float: none; width: 100%; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (!Cfg.addSageBtn ? '#de-sagebtn, ' : '') + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (!Cfg.imgNavBtns ? '#de-img-btn-next, #de-img-btn-prev, ' : '') + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + (!Cfg.panelCounter ? '#de-panel-info, ' : '') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (!Cfg.showHideBtn ? '.de-btn-hide, ' : '') + (!Cfg.showRepBtn ? '.de-btn-rep, ' : '') + (!Cfg.updThrBtns && !aib.t ? '.de-thread-updater, ' : '') + (!Cfg.ajaxPosting ? '.de-file-rar, .de-file-url, ' : '') + (!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + ' body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }';
 		$id('de-css-dynamic').textContent = str + '\n' + aib.css;
 		$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 	}
@@ -21183,21 +21149,11 @@ true, true],
 						return _context22.stop();
 				}
 			}
-		}, _marked[6], this, [[52, 58]]);
+		}, _marked[7], this, [[52, 58]]);
 	}
 
 	if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 		return;
-	}
-	switch (window.name) {
-		case '':
-			break;
-		case 'de-iframe-pform':
-		case 'de-iframe-dform':
-			onDOMLoaded(function () {
-				return window.parent.postMessage(window.name + doc.documentElement.outerHTML, '*');
-			});
-			return;
 	}
 	if (doc.readyState !== 'loading') {
 		needScroll = false;

@@ -179,7 +179,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 			}
 		}
 		this.txta.value = val;
-		if(Cfg.ajaxReply) {
+		if(Cfg.ajaxPosting) {
 			$popup('upload', Lng.checking[lang], true);
 		}
 		if(this.video && (val = this.video.value) && (val = val.match(Videos.ytReg))) {
@@ -226,19 +226,16 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	} else {
 		this.cap = null;
 	}
-	if(Cfg.ajaxReply && aib.qFormRedir && (el = $q(aib.qFormRedir, form))) {
-		aib.disableRedirection(el);
-	}
-	if(Cfg.ajaxReply === 2) {
+	if(Cfg.ajaxPosting) {
+		if(aib.qFormRedir && (el = $q(aib.qFormRedir, form))) {
+			aib.disableRedirection(el);
+		}
 		this.form.onsubmit = e => {
 			$pd(e);
 			$popup('upload', Lng.sendingPost[lang], true);
 			spawn(html5Submit, this.form, this.subm, true)
 				.then(dc => checkUpload(dc), e => $popup('upload', getErrorMessage(e)));
 		};
-	} else if(Cfg.ajaxReply === 1) {
-		this.form.target = 'de-iframe-pform';
-		this.form.onsubmit = null;
 	}
 }
 PostForm.hideField = function(el) {

@@ -136,18 +136,18 @@ function checkUpload(data) {
 	pr.refreshCap();
 }
 
-var checkDelete = async(function* (data) {
-	var err = getSubmitError(data instanceof HTMLDocument ? data : $DOM(data));
+function* checkDelete(data) {
+	const err = getSubmitError(data instanceof HTMLDocument ? data : $DOM(data));
 	if(err) {
 		$popup('delete', Lng.errDelete[lang] + err);
 		updater.sendErrNotif();
 		return;
 	}
-	var els = $Q('[de-form] ' + aib.qRPost + ' input:checked'),
-		threads = new Set(),
-		isThr = aib.t;
-	for(var i = 0, len = els.length; i < len; ++i) {
-		var el = els[i];
+	const els = $Q('[de-form] ' + aib.qRPost + ' input:checked');
+	const threads = new Set();
+	const isThr = aib.t;
+	for(let i = 0, len = els.length; i < len; ++i) {
+		const el = els[i];
 		el.checked = false;
 		if(!isThr) {
 			threads.add(aib.getPostOfEl(el).thr);
@@ -161,12 +161,12 @@ var checkDelete = async(function* (data) {
 			infoLoadErrors(e);
 		}
 	} else {
-		for(var thr of threads) {
+		for(let thr of threads) {
 			yield thr.loadPosts(visPosts, false, false);
 		}
 	}
 	$popup('delete', Lng.succDeleted[lang]);
-});
+}
 
 function* html5Submit(form, submitter, needProgress = false) {
 	const formData = new FormData();

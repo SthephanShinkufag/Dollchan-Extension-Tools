@@ -145,8 +145,13 @@ function* readCfg() {
 	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
 	if(Cfg.updScript) {
-		checkForUpdates(false, val.lastUpd).then(html =>
-			onDOMLoaded(() => $popup('updavail', html)), emptyFn);
+		checkForUpdates(false, val.lastUpd).then(html => {
+			if(doc.readyState === 'loading') {
+				doc.addEventListener('DOMContentLoaded', () => $popup('updavail', html));
+			} else {
+				$popup('updavail', html);
+			}
+		}, emptyFn);
 	}
 }
 
