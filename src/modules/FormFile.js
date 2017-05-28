@@ -156,7 +156,6 @@ class FileInput {
 		this._removeFile();
 	}
 	handleEvent(e) {
-		console.log(e)
 		const el = e.target;
 		const isThumb = el === this._thumb || el.className === 'de-file-img';
 		switch(e.type) {
@@ -222,6 +221,9 @@ class FileInput {
 						this._addNewThumb(data, file.name, file.size, file.type);
 						this._onFileChange();
 					});
+				} else {
+					this._urlInput.value = e.dataTransfer.getData('text/plain');
+					this._urlAddBtn.click();
 				}
 				setTimeout(() => this._thumb.classList.remove('de-file-drag'), 10);
 				e.stopPropagation();

@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '08d47e7';
+const commit = '01a6b4a';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -588,7 +588,7 @@ const Lng = {
 	search:         ['Искать в ', 'Search in '],
 	wait:           ['Ждите', 'Wait'],
 	noFile:         ['Нет файла', 'No file'],
-	clickToAdd:     ['Выберите, либо перетащите файл', 'Select or drag and drop file'],
+	clickToAdd:     ['Выберите файл, либо перетащите сюда файл или ссылку', 'Select file, or drag-n-drop file or link'],
 	removeFile:     ['Удалить файл', 'Remove file'],
 	spoilFile:      ['Спойлер', 'Spoiler'],
 	addUrlFile:     ['Добавить файл по ссылке', 'Add a file by url link'],
@@ -8377,7 +8377,6 @@ class FileInput {
 		this._removeFile();
 	}
 	handleEvent(e) {
-		console.log(e)
 		const el = e.target;
 		const isThumb = el === this._thumb || el.className === 'de-file-img';
 		switch(e.type) {
@@ -8443,6 +8442,9 @@ class FileInput {
 						this._addNewThumb(data, file.name, file.size, file.type);
 						this._onFileChange();
 					});
+				} else {
+					this._urlInput.value = e.dataTransfer.getData('text/plain');
+					this._urlAddBtn.click();
 				}
 				setTimeout(() => this._thumb.classList.remove('de-file-drag'), 10);
 				e.stopPropagation();

@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '08d47e7';
+	var commit = '01a6b4a';
 
 
 	var defaultCfg = {
@@ -3410,7 +3410,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		search: ['Искать в ', 'Search in '],
 		wait: ['Ждите', 'Wait'],
 		noFile: ['Нет файла', 'No file'],
-		clickToAdd: ['Выберите, либо перетащите файл', 'Select or drag and drop file'],
+		clickToAdd: ['Выберите файл, либо перетащите сюда файл или ссылку', 'Select file, or drag-n-drop file or link'],
 		removeFile: ['Удалить файл', 'Remove file'],
 		spoilFile: ['Спойлер', 'Spoiler'],
 		addUrlFile: ['Добавить файл по ссылке', 'Add a file by url link'],
@@ -12324,7 +12324,6 @@ true, true],
 			value: function handleEvent(e) {
 				var _this23 = this;
 
-				console.log(e);
 				var el = e.target;
 				var isThumb = el === this._thumb || el.className === 'de-file-img';
 				switch (e.type) {
@@ -12402,6 +12401,9 @@ true, true],
 										_this23._addNewThumb(data, file.name, file.size, file.type);
 										_this23._onFileChange();
 									});
+								} else {
+									_this23._urlInput.value = e.dataTransfer.getData('text/plain');
+									_this23._urlAddBtn.click();
 								}
 								setTimeout(function () {
 									return _this23._thumb.classList.remove('de-file-drag');

@@ -424,7 +424,7 @@ const Lng = {
 	search:         ['Искать в ', 'Search in '],
 	wait:           ['Ждите', 'Wait'],
 	noFile:         ['Нет файла', 'No file'],
-	clickToAdd:     ['Выберите, либо перетащите файл', 'Select or drag and drop file'],
+	clickToAdd:     ['Выберите файл, либо перетащите сюда файл или ссылку', 'Select file, or drag-n-drop file or link'],
 	removeFile:     ['Удалить файл', 'Remove file'],
 	spoilFile:      ['Спойлер', 'Spoiler'],
 	addUrlFile:     ['Добавить файл по ссылке', 'Add a file by url link'],
