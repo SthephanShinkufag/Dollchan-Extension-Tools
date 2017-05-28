@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = 'e0dcdd2';
+	var commit = '08d47e7';
 
 
 	var defaultCfg = {
@@ -4129,7 +4129,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function getFormElements(form, submitter) {
-		var controls, fixName, i, len, field, tagName, type, name, options, j, jlen, option, urlFile, files, _j, _jlen, dirname;
+		var controls, fixName, i, len, field, tagName, type, name, options, j, jlen, option, imgFile, files, _j, _jlen, dirname;
 
 		return regeneratorRuntime.wrap(function getFormElements$(_context) {
 			while (1) {
@@ -4226,7 +4226,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return _context.abrupt('continue', 62);
 
 					case 31:
-						urlFile = void 0;
+						imgFile = void 0;
 
 						if (!(field.files.length > 0)) {
 							_context.next = 43;
@@ -4260,7 +4260,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 
 					case 43:
-						if (!(urlFile = field.obj.urlFile)) {
+						if (!(imgFile = field.obj.imgFile)) {
 							_context.next = 48;
 							break;
 						}
@@ -4269,7 +4269,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return {
 							el: field,
 							name: name,
-							value: new File([urlFile[0]], urlFile[1], { type: urlFile[2] }),
+							value: new File([imgFile[0]], imgFile[1], { type: imgFile[2] }),
 							type: type
 						};
 
@@ -11817,7 +11817,7 @@ true, true],
 
 					case 21:
 						_context16.t0 = _context16.sent.data;
-						_context16.t1 = el.obj.imgFile;
+						_context16.t1 = el.obj.extraFile;
 						_data5 = cleanFile(_context16.t0, _context16.t1);
 
 						if (_data5) {
@@ -12220,13 +12220,11 @@ true, true],
 		function FileInput(parent, el) {
 			_classCallCheck(this, FileInput);
 
+			this.extraFile = null;
 			this.hasFile = false;
+			this.hasUrlFile = false;
 			this.imgFile = null;
-			this.urlFile = null;
-			this._dragCount = 0;
 			this._input = el;
-			this._inputAfter = el.nextSibling;
-			this._inputParent = el.parentNode;
 			this._mediaEl = null;
 			this._parent = parent;
 			this._rarMsg = null;
@@ -12278,8 +12276,7 @@ true, true],
 					}
 					$show(this._wrap);
 					$show(this._parent.fileTd.parentNode);
-					this._toggleDragEvents(this._input, false);
-					if (this.urlFile) {
+					if (this.hasUrlFile) {
 						$show(this._urlWrap);
 						$hide(this._input);
 					}
@@ -12290,6 +12287,7 @@ true, true],
 					if (this._mediaEl) {
 						window.URL.revokeObjectURL(this._mediaEl.src);
 					}
+					this._toggleDragEvents(this._thumb, false);
 					$del(this._thumb);
 					this._thumb = this._mediaEl = null;
 				}
@@ -12316,7 +12314,8 @@ true, true],
 					$show(this._input);
 					this._urlInput.value = '';
 				}
-				this.imgFile = this.urlFile = null;
+				this.extraFile = this.imgFile = null;
+				this.hasUrlFile = false;
 				this._changeFilesCount(-1);
 				this._removeFile();
 			}
@@ -12325,15 +12324,16 @@ true, true],
 			value: function handleEvent(e) {
 				var _this23 = this;
 
+				console.log(e);
 				var el = e.target;
+				var isThumb = el === this._thumb || el.className === 'de-file-img';
 				switch (e.type) {
 					case 'change':
 						setTimeout(function () {
 							return _this23._onFileChange();
 						}, 20);return;
 					case 'click':
-						if (el.className === 'de-file-img') {
-							this.urlFile = null;
+						if (isThumb) {
 							this._input.click();
 						} else if (el === this._btnDel) {
 							this.clear();
@@ -12347,9 +12347,7 @@ true, true],
 							$toggle(this._urlWrap);
 							$toggle(this._btnUrl);
 							$toggle(this._btnDel);
-							if (!Cfg.fileThumb) {
-								$toggle(this._input);
-							}
+							$toggle(this._input);
 						} else if (el === this._urlAddBtn) {
 							var _ret7 = function () {
 								var url = _this23._urlInput.value;
@@ -12367,7 +12365,8 @@ true, true],
 									closePopup('file-loading');
 									var fileName = url.split('/').pop();
 									var fileType = getFileType(url);
-									_this23.urlFile = [data, fileName, fileType];
+									_this23.imgFile = [data, fileName, fileType];
+									_this23.hasUrlFile = true;
 									if (Cfg.fileThumb) {
 										$hide(_this23._urlWrap);
 										_this23._addNewThumb(data, fileName, data.length, fileType);
@@ -12382,24 +12381,34 @@ true, true],
 						$pd(e);
 						return;
 					case 'dragenter':
-						if (el === this._input) {
-							this._dragCount++;
-						} else {
-							$after(this._thumb, this._input);
+						if (isThumb) {
 							this._thumb.classList.add('de-file-drag');
 						}
 						return;
 					case 'dragleave':
-						if (--this._dragCount === 0) {
-							this._removeDropzone();
+						if (isThumb && !this._thumb.contains(e.relatedTarget)) {
+							this._thumb.classList.remove('de-file-drag');
 						}
 						return;
 					case 'drop':
-						if (el === this._input) {
-							this._dragCount = 0;
-							setTimeout(function () {
-								return _this23._removeDropzone();
-							}, 10);
+						if (isThumb) {
+							(function () {
+								var file = e.dataTransfer.files[0];
+								if (file) {
+									readFile(file).then(function (_ref44) {
+										var data = _ref44.data;
+
+										_this23.imgFile = [data, file.name, file.type];
+										_this23._addNewThumb(data, file.name, file.size, file.type);
+										_this23._onFileChange();
+									});
+								}
+								setTimeout(function () {
+									return _this23._thumb.classList.remove('de-file-drag');
+								}, 10);
+								e.stopPropagation();
+								$pd(e);
+							})();
 						} else if (el === this._urlInput) {
 							setTimeout(function () {
 								return _this23._urlAddBtn.click();
@@ -12447,15 +12456,15 @@ true, true],
 					$hide(_this24._btnRarJpg);
 					var myBtn = _this24._rarMsg = $aBegin(_this24._utils, '<span><svg class="de-wait">' + '<use xlink:href="#de-symbol-wait"/></svg>' + Lng.wait[lang] + '</span>');
 					var file = e.target.files[0];
-					readFile(file).then(function (_ref44) {
-						var data = _ref44.data;
+					readFile(file).then(function (_ref45) {
+						var data = _ref45.data;
 
 						if (_this24._rarMsg === myBtn) {
 							myBtn.className = 'de-file-rarmsg';
-							var origFileName = _this24.urlFile ? _this24.urlFile[1] : _this24._input.files[0].name;
+							var origFileName = _this24.imgFile ? _this24.imgFile[1] : _this24._input.files[0].name;
 							myBtn.title = origFileName + ' + ' + file.name;
 							myBtn.textContent = origFileName.split('.').pop() + ' + ' + file.name.split('.').pop();
-							_this24.imgFile = data;
+							_this24.extraFile = data;
 						}
 					});
 				};
@@ -12479,7 +12488,7 @@ true, true],
 				this._thumb.addEventListener('click', this);
 				this._thumb.addEventListener('dragenter', this);
 				this._thumb.appendChild(this._utils);
-				this._toggleDragEvents(this._input, true);
+				this._toggleDragEvents(this._thumb, true);
 				if (this.hasFile) {
 					this._showPviewImage();
 					$hide(this._urlWrap);
@@ -12495,16 +12504,17 @@ true, true],
 					this._showPviewImage();
 				}
 				if (this.hasFile) {
-					this.imgFile = null;
+					this.extraFile = null;
+					this.hasUrlFile = false;
 				} else {
 					this.hasFile = true;
 					this._changeFilesCount(+1);
 					$hide(this._btnUrl);
-					if (!this.urlFile) {
+					if (this.hasUrlFile) {
+						$hide(this._input);
+					} else {
 						$hide(this._urlWrap);
 						$show(this._input);
-					} else if (!Cfg.fileThumb) {
-						$hide(this._input);
 					}
 					$show(this._btnDel);
 					if (this._spoilEl) {
@@ -12513,7 +12523,7 @@ true, true],
 					}
 				}
 				this._parent.hide();
-				if (nav.Presto || aib.fch || !/^image\/(?:png|jpeg)$/.test(this.urlFile ? this.urlFile[2] : this._input.files[0].type)) {
+				if (nav.Presto || aib.fch || !/^image\/(?:png|jpeg)$/.test(this.imgFile ? this.imgFile[2] : this._input.files[0].type)) {
 					return;
 				}
 				$del(this._rarMsg);
@@ -12524,45 +12534,32 @@ true, true],
 			value: function _removeFile() {
 				var oldEl = this._input;
 				var newEl = $aEnd(oldEl, oldEl.outerHTML);
-				this._toggleDragEvents(oldEl, false);
 				oldEl.removeEventListener('change', this);
-				if (Cfg.fileThumb) {
-					this._toggleDragEvents(newEl, true);
-				}
 				newEl.addEventListener('change', this);
 				newEl.obj = this;
 				this._input = newEl;
 				$del(oldEl);
 				this.hasFile = false;
-			}
-		}, {
-			key: '_removeDropzone',
-			value: function _removeDropzone() {
-				this._thumb.classList.remove('de-file-drag');
-				if (this._inputAfter) {
-					$before(this._inputAfter, this._input);
-				} else {
-					this._inputParent.appendChild(this._input);
-				}
+				this.hasUrlFile = false;
 			}
 		}, {
 			key: '_showPviewImage',
 			value: function _showPviewImage() {
 				var _this25 = this;
 
-				if (this.urlFile) {
-					var _urlFile = _slicedToArray(this.urlFile, 3),
-					    _data6 = _urlFile[0],
-					    fileName = _urlFile[1],
-					    fileType = _urlFile[2];
+				if (this.imgFile) {
+					var _imgFile = _slicedToArray(this.imgFile, 3),
+					    _data6 = _imgFile[0],
+					    fileName = _imgFile[1],
+					    fileType = _imgFile[2];
 
 					this._addNewThumb(_data6, fileName, _data6.length, fileType);
 				} else {
 					(function () {
 						var file = _this25._input.files[0];
 						if (file) {
-							readFile(file).then(function (_ref45) {
-								var data = _ref45.data;
+							readFile(file).then(function (_ref46) {
+								var data = _ref46.data;
 
 								if (_this25._input.files[0] === file) {
 									_this25._addNewThumb(data, file.name, file.size, file.type);
@@ -13513,18 +13510,18 @@ true, true],
 				var expand = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : !this.images.expanded;
 
 				for (var _iterator26 = this.images, _isArray26 = Array.isArray(_iterator26), _i34 = 0, _iterator26 = _isArray26 ? _iterator26 : _iterator26[Symbol.iterator]();;) {
-					var _ref46;
+					var _ref47;
 
 					if (_isArray26) {
 						if (_i34 >= _iterator26.length) break;
-						_ref46 = _iterator26[_i34++];
+						_ref47 = _iterator26[_i34++];
 					} else {
 						_i34 = _iterator26.next();
 						if (_i34.done) break;
-						_ref46 = _i34.value;
+						_ref47 = _i34.value;
 					}
 
-					var image = _ref46;
+					var image = _ref47;
 
 					if (image.isImage && image.expanded ^ expand) {
 						if (expand) {
@@ -15070,8 +15067,8 @@ true, true],
 					html += '<img class="de-img-full" src="' + src + '" alt="' + src + '"></div>';
 					obj = $add(html);
 					var img = obj.lastChild;
-					img.onload = img.onerror = function (_ref47) {
-						var target = _ref47.target;
+					img.onload = img.onerror = function (_ref48) {
+						var target = _ref48.target;
 
 						if (target.naturalHeight + target.naturalWidth === 0) {
 							if (!target.onceLoaded) {
@@ -15801,18 +15798,18 @@ true, true],
 
 				var filesHTML = '';
 				for (var _iterator27 = data.files, _isArray27 = Array.isArray(_iterator27), _i37 = 0, _iterator27 = _isArray27 ? _iterator27 : _iterator27[Symbol.iterator]();;) {
-					var _ref48;
+					var _ref49;
 
 					if (_isArray27) {
 						if (_i37 >= _iterator27.length) break;
-						_ref48 = _iterator27[_i37++];
+						_ref49 = _iterator27[_i37++];
 					} else {
 						_i37 = _iterator27.next();
 						if (_i37.done) break;
-						_ref48 = _i37.value;
+						_ref49 = _i37.value;
 					}
 
-					var file = _ref48;
+					var file = _ref49;
 
 					var fileName = void 0,
 					    fullFileName = void 0;
@@ -15920,18 +15917,18 @@ true, true],
 				if (data.files && data.files.length !== 0) {
 					filesHTML = '<div class="images ' + (data.files.length === 1 ? 'images-single' : 'images-multi') + '">';
 					for (var _iterator28 = data.files, _isArray28 = Array.isArray(_iterator28), _i38 = 0, _iterator28 = _isArray28 ? _iterator28 : _iterator28[Symbol.iterator]();;) {
-						var _ref49;
+						var _ref50;
 
 						if (_isArray28) {
 							if (_i38 >= _iterator28.length) break;
-							_ref49 = _iterator28[_i38++];
+							_ref50 = _iterator28[_i38++];
 						} else {
 							_i38 = _iterator28.next();
 							if (_i38.done) break;
-							_ref49 = _i38.value;
+							_ref50 = _i38.value;
 						}
 
-						var file = _ref49;
+						var file = _ref50;
 
 						var imgId = num + '-' + file.md5;
 						var fullName = file.fullname || file.name;
@@ -15960,7 +15957,7 @@ true, true],
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				var _iterator29, _isArray29, _i39, _ref50, _post4;
+				var _iterator29, _isArray29, _i39, _ref51, _post4;
 
 				return regeneratorRuntime.wrap(function bannedPostsData$(_context21) {
 					while (1) {
@@ -15982,7 +15979,7 @@ true, true],
 								return _context21.abrupt('break', 23);
 
 							case 4:
-								_ref50 = _iterator29[_i39++];
+								_ref51 = _iterator29[_i39++];
 								_context21.next = 11;
 								break;
 
@@ -15997,10 +15994,10 @@ true, true],
 								return _context21.abrupt('break', 23);
 
 							case 10:
-								_ref50 = _i39.value;
+								_ref51 = _i39.value;
 
 							case 11:
-								_post4 = _ref50;
+								_post4 = _ref51;
 								_context21.t0 = _post4.banned;
 								_context21.next = _context21.t0 === 1 ? 15 : _context21.t0 === 2 ? 18 : 21;
 								break;
@@ -16088,18 +16085,18 @@ true, true],
 				if (data.attachments.length) {
 					filesHTML += '<div class="post-attachments">';
 					for (var _iterator30 = data.attachments, _isArray30 = Array.isArray(_iterator30), _i40 = 0, _iterator30 = _isArray30 ? _iterator30 : _iterator30[Symbol.iterator]();;) {
-						var _ref51;
+						var _ref52;
 
 						if (_isArray30) {
 							if (_i40 >= _iterator30.length) break;
-							_ref51 = _iterator30[_i40++];
+							_ref52 = _iterator30[_i40++];
 						} else {
 							_i40 = _iterator30.next();
 							if (_i40.done) break;
-							_ref51 = _i40.value;
+							_ref52 = _i40.value;
 						}
 
-						var file = _ref51;
+						var file = _ref52;
 
 						var id = file.id;
 						var img = file.images;
@@ -16132,21 +16129,21 @@ true, true],
 			value: function gen(posts, thrURL) {
 				var opNums = DelForm.tNums;
 				for (var _iterator31 = posts, _isArray31 = Array.isArray(_iterator31), _i41 = 0, _iterator31 = _isArray31 ? _iterator31 : _iterator31[Symbol.iterator]();;) {
-					var _ref52;
+					var _ref53;
 
 					if (_isArray31) {
 						if (_i41 >= _iterator31.length) break;
-						_ref52 = _iterator31[_i41++];
+						_ref53 = _iterator31[_i41++];
 					} else {
 						_i41 = _iterator31.next();
 						if (_i41.done) break;
-						_ref52 = _i41.value;
+						_ref53 = _i41.value;
 					}
 
-					var _ref53 = _ref52,
-					    _ref54 = _slicedToArray(_ref53, 2),
-					    pNum = _ref54[0],
-					    _post5 = _ref54[1];
+					var _ref54 = _ref53,
+					    _ref55 = _slicedToArray(_ref54, 2),
+					    pNum = _ref55[0],
+					    _post5 = _ref55[1];
 
 					var links = $Q('a', _post5.msg);
 					for (var lNum, i = 0, len = links.length; i < len; ++i) {
@@ -16282,18 +16279,18 @@ true, true],
 				}
 				this._hidden = true;
 				for (var _iterator32 = this._set, _isArray32 = Array.isArray(_iterator32), _i42 = 0, _iterator32 = _isArray32 ? _iterator32 : _iterator32[Symbol.iterator]();;) {
-					var _ref55;
+					var _ref56;
 
 					if (_isArray32) {
 						if (_i42 >= _iterator32.length) break;
-						_ref55 = _iterator32[_i42++];
+						_ref56 = _iterator32[_i42++];
 					} else {
 						_i42 = _iterator32.next();
 						if (_i42.done) break;
-						_ref55 = _i42.value;
+						_ref56 = _i42.value;
 					}
 
-					var num = _ref55;
+					var num = _ref56;
 
 					var pst = pByNum.get(num);
 					if (pst && !pst.hidden) {
@@ -16312,18 +16309,18 @@ true, true],
 			value: function init(tUrl, strNums) {
 				var html = '';
 				for (var _iterator33 = this._set, _isArray33 = Array.isArray(_iterator33), _i43 = 0, _iterator33 = _isArray33 ? _iterator33 : _iterator33[Symbol.iterator]();;) {
-					var _ref56;
+					var _ref57;
 
 					if (_isArray33) {
 						if (_i43 >= _iterator33.length) break;
-						_ref56 = _iterator33[_i43++];
+						_ref57 = _iterator33[_i43++];
 					} else {
 						_i43 = _iterator33.next();
 						if (_i43.done) break;
-						_ref56 = _i43.value;
+						_ref57 = _i43.value;
 					}
 
-					var num = _ref56;
+					var num = _ref57;
 
 					html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 				}
@@ -16369,18 +16366,18 @@ true, true],
 				}
 				this._hidden = false;
 				for (var _iterator34 = this._set, _isArray34 = Array.isArray(_iterator34), _i44 = 0, _iterator34 = _isArray34 ? _iterator34 : _iterator34[Symbol.iterator]();;) {
-					var _ref57;
+					var _ref58;
 
 					if (_isArray34) {
 						if (_i44 >= _iterator34.length) break;
-						_ref57 = _iterator34[_i44++];
+						_ref58 = _iterator34[_i44++];
 					} else {
 						_i44 = _iterator34.next();
 						if (_i44.done) break;
-						_ref57 = _i44.value;
+						_ref58 = _i44.value;
 					}
 
-					var num = _ref57;
+					var num = _ref58;
 
 					var pst = pByNum.get(num);
 					if (pst && pst.hidden && !pst.spellHidden) {
@@ -16637,22 +16634,22 @@ true, true],
 					return;
 				}
 				for (var _iterator35 = pBuilder.bannedPostsData(), _isArray35 = Array.isArray(_iterator35), _i45 = 0, _iterator35 = _isArray35 ? _iterator35 : _iterator35[Symbol.iterator]();;) {
-					var _ref58;
+					var _ref59;
 
 					if (_isArray35) {
 						if (_i45 >= _iterator35.length) break;
-						_ref58 = _iterator35[_i45++];
+						_ref59 = _iterator35[_i45++];
 					} else {
 						_i45 = _iterator35.next();
 						if (_i45.done) break;
-						_ref58 = _i45.value;
+						_ref59 = _i45.value;
 					}
 
-					var _ref59 = _ref58,
-					    _ref60 = _slicedToArray(_ref59, 3),
-					    banId = _ref60[0],
-					    bNum = _ref60[1],
-					    bEl = _ref60[2];
+					var _ref60 = _ref59,
+					    _ref61 = _slicedToArray(_ref60, 3),
+					    banId = _ref61[0],
+					    bNum = _ref61[1],
+					    bEl = _ref61[2];
 
 					var _post6 = bNum ? pByNum.get(bNum) : this.op;
 					if (_post6 && _post6.banned !== banId) {
@@ -17556,9 +17553,9 @@ true, true],
 						case 1:
 							counter.setWait();
 							this._state = 2;
-							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref61) {
-								var newCount = _ref61.newCount,
-								    locked = _ref61.locked;
+							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref62) {
+								var newCount = _ref62.newCount,
+								    locked = _ref62.locked;
 								return _this65._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (e) {
 								return _this65._handleNewPosts(0, e);
@@ -19008,8 +19005,8 @@ true, true],
 						var el = mutations[0].addedNodes[0];
 						if (el && el.id === 'app') {
 							initObserver.disconnect();
-							doc.defaultView.addEventListener('message', function (_ref62) {
-								var data = _ref62.data;
+							doc.defaultView.addEventListener('message', function (_ref63) {
+								var data = _ref63.data;
 
 								if (data !== '0chan-content-done') {
 									return;
@@ -19860,18 +19857,18 @@ true, true],
 					}
 					var imgLinks = $Q('.fileinfo > a');
 					for (var _iterator36 = imgLinks, _isArray36 = Array.isArray(_iterator36), _i48 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
-						var _ref63;
+						var _ref64;
 
 						if (_isArray36) {
 							if (_i48 >= _iterator36.length) break;
-							_ref63 = _iterator36[_i48++];
+							_ref64 = _iterator36[_i48++];
 						} else {
 							_i48 = _iterator36.next();
 							if (_i48.done) break;
-							_ref63 = _i48.value;
+							_ref64 = _i48.value;
 						}
 
-						var a = _ref63;
+						var a = _ref64;
 
 						a.setAttribute('download', $q('.postfilename', a.parentElement).innerText);
 					}
@@ -20328,18 +20325,18 @@ true, true],
 					var cookie = doc.cookie;
 					if (cookie.includes('desuchan.session')) {
 						for (var _iterator37 = cookie.split(';'), _isArray37 = Array.isArray(_iterator37), _i50 = 0, _iterator37 = _isArray37 ? _iterator37 : _iterator37[Symbol.iterator]();;) {
-							var _ref64;
+							var _ref65;
 
 							if (_isArray37) {
 								if (_i50 >= _iterator37.length) break;
-								_ref64 = _iterator37[_i50++];
+								_ref65 = _iterator37[_i50++];
 							} else {
 								_i50 = _iterator37.next();
 								if (_i50.done) break;
-								_ref64 = _i50.value;
+								_ref65 = _i50.value;
 							}
 
-							var c = _ref64;
+							var c = _ref65;
 
 							var m = c.match(/^\s*desuchan\.session=(.*)$/);
 							if (m) {
@@ -20659,8 +20656,8 @@ true, true],
 				DollchanAPI.port.onmessage = DollchanAPI._handleMessage;
 				DollchanAPI.activeListeners = new Set();
 				var port = channel.port2;
-				doc.defaultView.addEventListener('message', function (_ref65) {
-					var data = _ref65.data;
+				doc.defaultView.addEventListener('message', function (_ref66) {
+					var data = _ref66.data;
 
 					if (data === 'de-request-api-message') {
 						DollchanAPI.hasListeners = true;
@@ -20682,8 +20679,8 @@ true, true],
 			}
 		}, {
 			key: '_handleMessage',
-			value: function _handleMessage(_ref66) {
-				var arg = _ref66.data;
+			value: function _handleMessage(_ref67) {
+				var arg = _ref67.data;
 
 				if (!arg || !arg.name) {
 					return;
@@ -20696,18 +20693,18 @@ true, true],
 						if (data) {
 							rv = {};
 							for (var _iterator38 = data, _isArray38 = Array.isArray(_iterator38), _i51 = 0, _iterator38 = _isArray38 ? _iterator38 : _iterator38[Symbol.iterator]();;) {
-								var _ref67;
+								var _ref68;
 
 								if (_isArray38) {
 									if (_i51 >= _iterator38.length) break;
-									_ref67 = _iterator38[_i51++];
+									_ref68 = _iterator38[_i51++];
 								} else {
 									_i51 = _iterator38.next();
 									if (_i51.done) break;
-									_ref67 = _i51.value;
+									_ref68 = _i51.value;
 								}
 
-								var aName = _ref67;
+								var aName = _ref68;
 
 								rv[aName] = DollchanAPI._register(aName.toLowerCase());
 							}
@@ -21159,7 +21156,7 @@ true, true],
 		needScroll = false;
 		async(runMain)(true, null);
 	} else {
-		var _ret13 = function () {
+		var _ret14 = function () {
 			var cfgPromise = null;
 			if (aib = getImageBoard(true, false)) {
 				if (!checkStorage()) {
@@ -21180,7 +21177,7 @@ true, true],
 			}));
 		}();
 
-		if ((typeof _ret13 === 'undefined' ? 'undefined' : _typeof(_ret13)) === "object") return _ret13.v;
+		if ((typeof _ret14 === 'undefined' ? 'undefined' : _typeof(_ret14)) === "object") return _ret14.v;
 	}
 
 })(window.opera && window.opera.scriptStorage, window.FormData, function (x, y) {

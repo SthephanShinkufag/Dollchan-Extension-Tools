@@ -181,7 +181,7 @@ function* html5Submit(form, submitter, needProgress = false) {
 			   (value.type === 'image/jpeg' || value.type === 'image/png' ||
 				value.type === 'video/webm' && !aib.mak))
 			{
-				const data = cleanFile((yield readFile(value)).data, el.obj.imgFile);
+				const data = cleanFile((yield readFile(value)).data, el.obj.extraFile);
 				if(!data) {
 					return Promise.reject(Lng.fileCorrupt[lang] + fileName);
 				}

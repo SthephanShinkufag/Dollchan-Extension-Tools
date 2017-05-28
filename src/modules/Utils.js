@@ -609,7 +609,7 @@ function* getFormElements(form, submitter) {
 				};
 				continue constructSet;
 			case 'file':
-				let urlFile;
+				let imgFile;
 				if(field.files.length > 0) {
 					const files = field.files;
 					for(let j = 0, jlen = files.length; j < jlen; ++j) {
@@ -620,11 +620,11 @@ function* getFormElements(form, submitter) {
 							type: type
 						};
 					}
-				} else if((urlFile = field.obj.urlFile)) {
+				} else if((imgFile = field.obj.imgFile)) {
 					yield {
 						el: field,
 						name: name,
-						value: new File([urlFile[0]], urlFile[1], { type: urlFile[2] }),
+						value: new File([imgFile[0]], imgFile[1], { type: imgFile[2] }),
 						type: type
 					};
 				} else {

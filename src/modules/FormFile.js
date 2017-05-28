@@ -64,13 +64,11 @@ class Files {
 
 class FileInput {
 	constructor(parent, el) {
+		this.extraFile = null;
 		this.hasFile = false;
+		this.hasUrlFile = false;
 		this.imgFile = null;
-		this.urlFile = null;
-		this._dragCount = 0;
 		this._input = el;
-		this._inputAfter = el.nextSibling;
-		this._inputParent = el.parentNode;
 		this._mediaEl = null;
 		this._parent = parent;
 		this._rarMsg = null;
@@ -116,8 +114,7 @@ class FileInput {
 			}
 			$show(this._wrap);
 			$show(this._parent.fileTd.parentNode);
-			this._toggleDragEvents(this._input, false);
-			if(this.urlFile) {
+			if(this.hasUrlFile) {
 				$show(this._urlWrap);
 				$hide(this._input);
 			}
@@ -128,6 +125,7 @@ class FileInput {
 			if(this._mediaEl) {
 				window.URL.revokeObjectURL(this._mediaEl.src);
 			}
+			this._toggleDragEvents(this._thumb, false);
 			$del(this._thumb);
 			this._thumb = this._mediaEl = null;
 		}
@@ -152,17 +150,19 @@ class FileInput {
 			$show(this._input);
 			this._urlInput.value = '';
 		}
-		this.imgFile = this.urlFile = null;
+		this.extraFile = this.imgFile = null;
+		this.hasUrlFile = false;
 		this._changeFilesCount(-1);
 		this._removeFile();
 	}
 	handleEvent(e) {
+		console.log(e)
 		const el = e.target;
+		const isThumb = el === this._thumb || el.className === 'de-file-img';
 		switch(e.type) {
 		case 'change': setTimeout(() => this._onFileChange(), 20); return;
 		case 'click':
-			if(el.className === 'de-file-img') {
-				this.urlFile = null;
+			if(isThumb) {
 				this._input.click();
 			} else if(el === this._btnDel) {
 				this.clear();
@@ -176,9 +176,7 @@ class FileInput {
 				$toggle(this._urlWrap);
 				$toggle(this._btnUrl);
 				$toggle(this._btnDel);
-				if(!Cfg.fileThumb) {
-					$toggle(this._input);
-				}
+				$toggle(this._input);
 			} else if(el === this._urlAddBtn) {
 				const url = this._urlInput.value;
 				if(!url) {
@@ -193,7 +191,8 @@ class FileInput {
 					closePopup('file-loading');
 					const fileName = url.split('/').pop();
 					const fileType = getFileType(url);
-					this.urlFile = [data, fileName, fileType];
+					this.imgFile = [data, fileName, fileType];
+					this.hasUrlFile = true;
 					if(Cfg.fileThumb) {
 						$hide(this._urlWrap);
 						this._addNewThumb(data, fileName, data.length, fileType);
@@ -205,24 +204,30 @@ class FileInput {
 			$pd(e);
 			return;
 		case 'dragenter':
-			if(el === this._input) {
-				this._dragCount++;
-			} else {
-				$after(this._thumb, this._input);
+			if(isThumb) {
 				this._thumb.classList.add('de-file-drag');
 			}
 			return;
 		case 'dragleave':
-			if(--this._dragCount === 0) {
-				this._removeDropzone();
+			if(isThumb && !this._thumb.contains(e.relatedTarget)) {
+				this._thumb.classList.remove('de-file-drag');
 			}
 			return;
 		case 'drop':
-			if(el === this._input) {
-				this._dragCount = 0;
-				setTimeout(() => this._removeDropzone(), 10);
+			if(isThumb) {
+				const file = e.dataTransfer.files[0];
+				if(file) {
+					readFile(file).then(({ data }) => {
+						this.imgFile = [data, file.name, file.type];
+						this._addNewThumb(data, file.name, file.size, file.type);
+						this._onFileChange();
+					});
+				}
+				setTimeout(() => this._thumb.classList.remove('de-file-drag'), 10);
+				e.stopPropagation();
+				$pd(e);
 			} else if(el === this._urlInput) {
-				setTimeout(() => this._urlAddBtn.click(), 10)
+				setTimeout(() => this._urlAddBtn.click(), 10);
 			}
 		}
 	}
@@ -266,10 +271,10 @@ class FileInput {
 			readFile(file).then(({ data }) => {
 				if(this._rarMsg === myBtn) {
 					myBtn.className = 'de-file-rarmsg';
-					const origFileName = this.urlFile ? this.urlFile[1] : this._input.files[0].name;
+					const origFileName = this.imgFile ? this.imgFile[1] : this._input.files[0].name;
 					myBtn.title = origFileName + ' + ' + file.name;
 					myBtn.textContent = origFileName.split('.').pop() + ' + ' + file.name.split('.').pop();
-					this.imgFile = data;
+					this.extraFile = data;
 				}
 			});
 		};
@@ -292,7 +297,7 @@ class FileInput {
 		this._thumb.addEventListener('click', this);
 		this._thumb.addEventListener('dragenter', this);
 		this._thumb.appendChild(this._utils);
-		this._toggleDragEvents(this._input, true);
+		this._toggleDragEvents(this._thumb, true);
 		if(this.hasFile) {
 			this._showPviewImage();
 			$hide(this._urlWrap);
@@ -306,16 +311,17 @@ class FileInput {
 			this._showPviewImage();
 		}
 		if(this.hasFile) {
-			this.imgFile = null;
+			this.extraFile = null;
+			this.hasUrlFile = false;
 		} else {
 			this.hasFile = true;
 			this._changeFilesCount(+1);
 			$hide(this._btnUrl);
-			if(!this.urlFile) {
+			if(this.hasUrlFile) {
+				$hide(this._input);
+			} else {
 				$hide(this._urlWrap);
 				$show(this._input);
-			} else if(!Cfg.fileThumb) {
-				$hide(this._input);
 			}
 			$show(this._btnDel);
 			if(this._spoilEl) {
@@ -325,7 +331,7 @@ class FileInput {
 		}
 		this._parent.hide();
 		if(nav.Presto || aib.fch ||
-		   !/^image\/(?:png|jpeg)$/.test(this.urlFile ? this.urlFile[2] : this._input.files[0].type))
+		   !/^image\/(?:png|jpeg)$/.test(this.imgFile ? this.imgFile[2] : this._input.files[0].type))
 		{
 			return;
 		}
@@ -335,28 +341,17 @@ class FileInput {
 	_removeFile() {
 		const oldEl = this._input;
 		const newEl = $aEnd(oldEl, oldEl.outerHTML);
-		this._toggleDragEvents(oldEl, false);
 		oldEl.removeEventListener('change', this);
-		if(Cfg.fileThumb) {
-			this._toggleDragEvents(newEl, true);
-		}
 		newEl.addEventListener('change', this);
 		newEl.obj = this;
 		this._input = newEl;
 		$del(oldEl);
 		this.hasFile = false;
-	}
-	_removeDropzone() {
-		this._thumb.classList.remove('de-file-drag');
-		if(this._inputAfter) {
-			$before(this._inputAfter, this._input);
-		} else {
-			this._inputParent.appendChild(this._input);
-		}
+		this.hasUrlFile = false;
 	}
 	_showPviewImage() {
-		if(this.urlFile) {
-			const [data, fileName, fileType] = this.urlFile;
+		if(this.imgFile) {
+			const [data, fileName, fileType] = this.imgFile;
 			this._addNewThumb(data, fileName, data.length, fileType);
 		} else {
 			const file = this._input.files[0];
