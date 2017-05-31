@@ -555,7 +555,7 @@ class ExpandableMedia {
 		return obj;
 	}
 	isControlClick(e) {
-		return Cfg.webmControl && e.clientY > (e.target.getBoundingClientRect().bottom - 30);
+		return Cfg.webmControl && e.clientY > (e.target.getBoundingClientRect().bottom - 40);
 	}
 	sendCloseEvent(e, inPost) {
 		var pv = this.post,

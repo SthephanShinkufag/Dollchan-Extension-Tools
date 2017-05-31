@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '01a6b4a';
+const commit = 'ff0bb09';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -10850,7 +10850,7 @@ class ExpandableMedia {
 		return obj;
 	}
 	isControlClick(e) {
-		return Cfg.webmControl && e.clientY > (e.target.getBoundingClientRect().bottom - 30);
+		return Cfg.webmControl && e.clientY > (e.target.getBoundingClientRect().bottom - 40);
 	}
 	sendCloseEvent(e, inPost) {
 		var pv = this.post,

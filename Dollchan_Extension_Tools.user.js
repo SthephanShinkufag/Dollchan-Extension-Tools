@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '01a6b4a';
+	var commit = 'ff0bb09';
 
 
 	var defaultCfg = {
@@ -15157,7 +15157,7 @@ true, true],
 		}, {
 			key: 'isControlClick',
 			value: function isControlClick(e) {
-				return Cfg.webmControl && e.clientY > e.target.getBoundingClientRect().bottom - 30;
+				return Cfg.webmControl && e.clientY > e.target.getBoundingClientRect().bottom - 40;
 			}
 		}, {
 			key: 'sendCloseEvent',
