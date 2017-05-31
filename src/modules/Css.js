@@ -372,7 +372,7 @@ function updateCSS() {
 		.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }
 		.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }` : '' }
 	${ Cfg.postBtnsCSS === 0 ?
-	   `.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: #4F7942; }
+	   `.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }
 		.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }` :
 	   `.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }
 		.de-btn-hide-user { color: #BFFFBF; }

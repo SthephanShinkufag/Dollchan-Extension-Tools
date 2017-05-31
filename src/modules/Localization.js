@@ -28,7 +28,7 @@ const Lng = {
 		'showHideBtn':  ['Кнопки скрытия ', 'Hide buttons '],
 		'showRepBtn':   ['Кнопки быстрого ответа', 'Quick reply buttons'],
 		'postBtnsCSS': {
-			sel:        [['Упрощенные', 'Серый градиент', 'Настраиваемые'], ['Simple green', 'Gradient grey', 'Custom filled']],
+			sel:        [['Упрощенные', 'Серый градиент', 'Настраиваемые'], ['Simple', 'Gradient grey', 'Custom filled']],
 			txt:        ['Кнопки постов ', 'Post buttons ']
 		},
 		'noSpoilers':{
