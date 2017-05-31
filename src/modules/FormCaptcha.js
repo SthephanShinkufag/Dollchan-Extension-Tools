@@ -81,7 +81,7 @@ class Captcha {
 	}
 	initTextEl() {
 		this.textEl.autocomplete = 'off';
-		if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
+		if(!aib.kus && (aib.multiFile || Cfg.fileInputs !== 2)) {
 			this.textEl.placeholder = Lng.cap[lang];
 		}
 		this.textEl.addEventListener('keypress', this);

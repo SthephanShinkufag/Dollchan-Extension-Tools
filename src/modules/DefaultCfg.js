@@ -79,11 +79,11 @@ const defaultCfg = {
 	'removeFName':      0,      //    remove file name
 	'sendErrNotif':     1,      //    inform about post send error if page is blurred
 	'scrAfterRep':      0,      //    scroll to the bottom after reply
+	'fileInputs':       2,      //    transform file fields [0=no, 1=simple, 2=thumbnails]
 	'addPostForm':      2,      // postform displayed [0=at top, 1=at bottom, 2=hidden]
 	'spacedQuote':      1,      // insert a space when quoting "> "
 	'favOnReply':       1,      // add thread to favorites on reply
 	'warnSubjTrip':     0,      // warn if subject field contains tripcode
-	'fileThumb':        1,      // file preview area instead of file button
 	'addSageBtn':       1,      // email field -> sage button
 	'saveSage':         1,      // remember sage
 	'sageReply':        0,      //    reply with sage

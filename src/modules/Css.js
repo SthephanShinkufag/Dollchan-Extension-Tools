@@ -233,23 +233,24 @@ function scriptCSS() {
 	video { background: black; }` +
 
 	// File inputs
-	`.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ${ p = aib.multiFile ? 90 : 130 }px; width: ${ p }px; text-align: center; border: 1px dashed grey; }
+	`.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ${ p = aib.multiFile ? 90 : 130 }px; width: ${ p }px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }
 	.de-file > .de-file-img { display: table; width: 100%; height: 100%; cursor: pointer; }
 	.de-file > .de-file-img > div { display: table-cell; vertical-align: middle; }
-	.de-file > .de-file-utils { display: none; height: 16px; margin-top: -18px; padding: 1px 0; background: rgba(60,60,60,.6); position: relative; }
+	.de-file > .de-file-utils { display: none; height: 16px; margin-top: -18px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; }
 	.de-file > .de-file-utils > .de-file-rarmsg { color: #fff; }
-	.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -${ p + 2 }px !important; vertical-align: top; width: ${ p + 2 }px !important; height: ${ p + 2 }px; border: none !important; cursor: pointer; }
 	#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }
-	.de-file-drag { background: rgba(88,88,88,.8); border: 1px solid grey; opacity: .7; }
+	.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }
 	.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }
 	img.de-file-img, video.de-file-img { max-width: ${ p - 4 }px; max-height: ${ p - 4 }px; }
 	.de-file-input { max-width: 300px; }
 	.de-file-input + .de-file-utils { margin-left: 4px; }
-	.de-file-off > .de-file-img > div::after { content: "${ Lng.noFile[lang] }"; }
+	.de-file-off > .de-file-img > div::after { content: "${ Lng.dropFileHere[lang] }"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }
 	.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }
 	.de-file-del, .de-file-rar, .de-file-url { display: inline-block; margin: 0 1px; padding: 0 16px 16px 0; cursor: pointer; }
 	.de-file-spoil { margin: 0 3px; vertical-align: 1px; }
-	.de-file-url-add { font-weight: bold; width: 21px; padding: 0 !important;; }
+	.de-file-url-add { font-weight: bold; width: 21px; padding: 0 !important; }
+	.de-file-url-input { border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }
+	.de-file-url-noedit { background: rgba(255,255,255,.5); cursor: pointer; }
 	.de-file-utils { display: inline-block; vertical-align: -2px; }` +
 	gif('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=') +
 	gif('.de-file-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') +
@@ -394,6 +395,7 @@ function updateCSS() {
 	   Cfg.noSpoilers === 2 ?
 	   `.spoiler, s { color: inherit !important; }
 		.spoiler > a, s > a:not(:hover) { color: inherit !important; }` : '' }
+	${ Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }' }
 	${  !Cfg.addSageBtn ? '#de-sagebtn, ' : '' }${
 		 Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '' }${
 		!Cfg.imgNavBtns ? '#de-img-btn-next, #de-img-btn-prev, ' : '' }${
@@ -405,7 +407,8 @@ function updateCSS() {
 		!Cfg.showRepBtn ? '.de-btn-rep, ' : '' }${
 		!Cfg.updThrBtns && !aib.t ? '.de-thread-updater, ' : '' }${
 		!Cfg.ajaxPosting ? '.de-file-rar, .de-file-url, ' : '' }${
-		!aib.kus && (aib.multiFile || !Cfg.fileThumb) ?
+		!Cfg.fileInputs ? '.de-file-url-wrap, .de-file-url, ' : '' }${
+		!aib.kus && (aib.multiFile || Cfg.fileInputs !== 2) ?
 			'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : ''
 	} body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }`;
 	$id('de-css-dynamic').textContent = str + '\n' + aib.css;

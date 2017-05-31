@@ -106,6 +106,10 @@ const Lng = {
 		'removeFName':  ['Удалять имя файлов', 'Clear file names'],
 		'sendErrNotif': ['Оповещать в заголовке об ошибке отправки', 'Inform in title about post send error'],
 		'scrAfterRep':  ['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
+		'fileInputs':   {
+			sel:        [['Откл.', 'Упрощ.', 'Превью'], ['Disable', 'Simple', 'Preview']],
+			txt:        ['Улучшенное поле добавления файлов', 'Improved filed for file adding']
+		},
 		'addPostForm': {
 			sel:        [['Сверху', 'Внизу', 'Скрытая'], ['At top', 'At bottom', 'Hidden']],
 			txt:        ['Форма ответа в треде', 'Reply form in thread']
@@ -113,7 +117,6 @@ const Lng = {
 		'spacedQuote':  ['Вставлять пробел при цитировании "> "', 'Insert a space when quoting "> "'],
 		'favOnReply':   ['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
 		'warnSubjTrip': ['Оповещать при наличии трип-кода в поле "Тема"', 'Warn if "Subject" field contains trip-code'],
-		'fileThumb':    ['Область превью картинок вместо кнопки "Файл"', 'File thumbnail area instead of "File" button'],
 		'addSageBtn':   ['Кнопка Sage вместо "E-mail" ', 'Sage button instead of "E-mail" '],
 		'saveSage':     ['Запоминать сажу', 'Remember sage'],
 		'cap4chanAlt':  ['4chan: альтернативная капча*', '4chan: use alternative captcha*'],
@@ -423,12 +426,12 @@ const Lng = {
 	hideForm:       ['Скрыть форму', 'Hide form'],
 	search:         ['Искать в ', 'Search in '],
 	wait:           ['Ждите', 'Wait'],
-	noFile:         ['Нет файла', 'No file'],
-	clickToAdd:     ['Выберите файл, либо перетащите сюда файл или ссылку', 'Select file, or drag-n-drop file or link'],
+	dropFileHere:   ['Бросьте сюда файл или ссылку', 'Drop file or link here'],
+	youCanDrag:     ['Можно перетаскивать картинки и ссылки на файлы прямо со страницы', 'You can drag images and file links directly from the page'],
 	removeFile:     ['Удалить файл', 'Remove file'],
 	spoilFile:      ['Спойлер', 'Spoiler'],
-	addUrlFile:     ['Добавить файл по ссылке', 'Add a file by url link'],
-	linkToFile:     ['Введите/Перетяните сюда ссылку', 'Enter/Drop url link here'],
+	addManually:    ['Ввести ссылку на файл вручную', 'Enter a link to the file manually'],
+	enterTheLink:   ['Введите ссылку и нажмите \'+\'', 'Enter the link and click \'+\''],
 	helpAddFile:    ['Встроить .ogg, .rar, .zip или .7z в картинку', 'Pack .ogg, .rar, .zip or .7z into image'],
 	downloadFile:   ['Скачать содержащийся в картинке файл', 'Download existing file from image'],
 	fileCorrupt:    ['Файл повреждён: ', 'File is corrupted: '],

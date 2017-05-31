@@ -265,6 +265,13 @@ const cfgWindow = Object.create({
 					Attachment.viewer.close();
 				}
 				break;
+			case 'fileInputs':
+				pr.files.changeMode();
+				if(!aib.kus && !aib.multiFile) {
+					pr.setPlaceholders();
+				}
+				updateCSS();
+				break;
 			case 'addPostForm':
 				pr.isBottom = Cfg.addPostForm === 1;
 				pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
@@ -358,13 +365,6 @@ const cfgWindow = Object.create({
 				if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
 					locStorage.removeItem('de-myposts');
 					MyPosts.purge();
-				}
-				updateCSS();
-				break;
-			case 'fileThumb':
-				pr.files.changeMode();
-				if(!aib.kus && !aib.multiFile) {
-					pr.setPlaceholders();
 				}
 				updateCSS();
 				break;
@@ -699,13 +699,13 @@ const cfgWindow = Object.create({
 				${ this._getBox('removeEXIF') }
 				${ this._getBox('removeFName') }<br>
 				${ this._getBox('sendErrNotif') }<br>
-				${ this._getBox('scrAfterRep') }
+				${ this._getBox('scrAfterRep') }<br>
+				${ pr.files && !nav.Presto ? this._getSel('fileInputs') : '' }
 			</div>` : '' }
 			${ pr.form ? this._getSel('addPostForm') + '<br>' : '' }
 			${ pr.txta ? this._getBox('spacedQuote') + '<br>' : '' }
 			${ this._getBox('favOnReply') }<br>
 			${ pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
-			${ pr.files && !nav.Presto ? this._getBox('fileThumb') + '<br>' : '' }
 			${ pr.mail ?
 				this._getBox('addSageBtn') +
 				this._getBox('saveSage') + '<br>' : '' }
@@ -862,7 +862,7 @@ const cfgWindow = Object.create({
 		this._toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
 		this._toggleBox(Cfg.ajaxPosting, [
 			'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]',
-			'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]']);
+			'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]']);
 		this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
 		this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
 		this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);

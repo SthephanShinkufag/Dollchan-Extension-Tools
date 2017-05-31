@@ -4512,7 +4512,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						if (!nav.isGM) {
 							Cfg.updScript = 0;
 						}
-						Cfg.fileThumb = 0;
+						Cfg.fileInputs = 0;
 					}
 					if (nav.isChromeStorage) {
 						Cfg.updScript = 0;
@@ -10079,7 +10079,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		new WinResizer('reply', 'left', 'textaWidth', this.qArea, this.txta);
 		new WinResizer('reply', 'right', 'textaWidth', this.qArea, this.txta);
 		new WinResizer('reply', 'bottom', 'textaHeight', this.qArea, this.txta);
-		if (!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
+		if (!aib.kus && (aib.multiFile || !Cfg.fileInputs)) {
 			this.setPlaceholders();
 		}
 		this.form.style.display = 'inline-block';
@@ -10550,7 +10550,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_setPlaceholder: function _setPlaceholder(val) {
 			var el = val === 'cap' ? this.cap.textEl : this[val];
 			if (el) {
-				if (aib.multiFile || !Cfg.fileThumb) {
+				if (aib.multiFile || !Cfg.fileInputs) {
 					el.placeholder = Lng[val][lang];
 				} else {
 					el.removeAttribute('placeholder');
@@ -10618,7 +10618,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.hideInputs();
 		},
 		delUtils: function delUtils() {
-			if (Cfg.fileThumb) {
+			if (Cfg.fileInputs) {
 				this.thumb.classList.add('de-file-off');
 				if (this._mediaEl) {
 					window.URL.revokeObjectURL(this._mediaEl.src);
@@ -10700,7 +10700,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				while (inp.prev && inp.prev.empty) {
 					inp = inp.prev;
 				}
-				var hideThumbs = Cfg.fileThumb;
+				var hideThumbs = Cfg.fileInputs;
 				while (inp = inp.next) {
 					$hide(hideThumbs ? inp.thumb : inp._wrap);
 				}
@@ -10709,7 +10709,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		init: function init(isUpdate) {
 			var _this16 = this;
 
-			if (Cfg.fileThumb) {
+			if (Cfg.fileInputs) {
 				setTimeout(function () {
 					$hide(_this16.form.fileTd.parentNode);
 				}, 0);
@@ -10746,7 +10746,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_spUtil: null,
 		_rjUtil: null,
 		get _buttonsPlace() {
-			return Cfg.fileThumb ? this.thumb.firstChild : this.el;
+			return Cfg.fileInputs ? this.thumb.firstChild : this.el;
 		},
 		get _wrap() {
 			return aib.multiFile ? this.el.parentNode : this.el;
@@ -10780,7 +10780,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		},
 		_onFileChange: function _onFileChange() {
-			if (Cfg.fileThumb) {
+			if (Cfg.fileInputs) {
 				this._showPviewImage();
 			} else {
 				this.form.eventFiles(false);
@@ -10806,7 +10806,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.imgFile = null;
 			}
 			if (this.next) {
-				$show(Cfg.fileThumb ? this.next.thumb : this.next._wrap);
+				$show(Cfg.fileInputs ? this.next.thumb : this.next._wrap);
 			}
 			if (nav.Presto || aib.fch || !/^image\/(?:png|jpeg)$/.test(this.el.files[0].type)) {
 				return;
@@ -10990,7 +10990,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'initTextEl',
 			value: function initTextEl() {
 				this.textEl.autocomplete = 'off';
-				if (!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
+				if (!aib.kus && (aib.multiFile || !Cfg.fileInputs)) {
 					this.textEl.placeholder = Lng.cap[lang];
 				}
 				this.textEl.addEventListener('keypress', this);
@@ -19081,7 +19081,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (Cfg.strikeHidd) {
 			x += '.de-link-hid { text-decoration: line-through !important; }';
 		}
-		x += '.postarea, small[id^="rfmap"], .theader, ' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + (Cfg.imgNavBtns ? '' : '#de-img-btn-next, #de-img-btn-prev, ') + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + (Cfg.showRepBtn ? '' : '.de-btn-rep, ') + (Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (Cfg.delHiddPost ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (Cfg.addSageBtn ? '' : '#de-sagebtn, ') + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + (aib._2chruNet ? '' : '.thumbnailmsg, ') + (!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + 'body > hr { display: none !important; }';
+		x += '.postarea, small[id^="rfmap"], .theader, ' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + (Cfg.imgNavBtns ? '' : '#de-img-btn-next, #de-img-btn-prev, ') + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + (Cfg.showRepBtn ? '' : '.de-btn-rep, ') + (Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (Cfg.delHiddPost ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (Cfg.addSageBtn ? '' : '#de-sagebtn, ') + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + (aib._2chruNet ? '' : '.thumbnailmsg, ') + (!aib.kus && (aib.multiFile || !Cfg.fileInputs) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + 'body > hr { display: none !important; }';
 		$id('de-css-dynamic').textContent = x + '\n' + aib.css;
 		$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 	}

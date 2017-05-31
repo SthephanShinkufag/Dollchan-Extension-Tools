@@ -97,7 +97,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	new WinResizer('reply', 'left', 'textaWidth', this.qArea, this.txta);
 	new WinResizer('reply', 'right', 'textaWidth', this.qArea, this.txta);
 	new WinResizer('reply', 'bottom', 'textaHeight', this.qArea, this.txta);
-	if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
+	if(!aib.kus && (aib.multiFile || Cfg.fileInputs !== 2)) {
 		this.setPlaceholders();
 	}
 	this.form.style.display = 'inline-block';
@@ -514,7 +514,7 @@ PostForm.prototype = {
 	_setPlaceholder(val) {
 		var el = val === 'cap' ? this.cap.textEl : this[val];
 		if(el) {
-			if(aib.multiFile || !Cfg.fileThumb) {
+			if(aib.multiFile || Cfg.fileInputs !== 2) {
 				el.placeholder = Lng[val][lang];
 			} else {
 				el.removeAttribute('placeholder');

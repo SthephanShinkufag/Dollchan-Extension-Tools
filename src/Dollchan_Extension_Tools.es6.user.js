@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = 'ff0bb09';
+const commit = '3c90121';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -105,11 +105,11 @@ const defaultCfg = {
 	'removeFName':      0,      //    remove file name
 	'sendErrNotif':     1,      //    inform about post send error if page is blurred
 	'scrAfterRep':      0,      //    scroll to the bottom after reply
+	'fileInputs':       2,      //    transform file fields [0=no, 1=simple, 2=thumbnails]
 	'addPostForm':      2,      // postform displayed [0=at top, 1=at bottom, 2=hidden]
 	'spacedQuote':      1,      // insert a space when quoting "> "
 	'favOnReply':       1,      // add thread to favorites on reply
 	'warnSubjTrip':     0,      // warn if subject field contains tripcode
-	'fileThumb':        1,      // file preview area instead of file button
 	'addSageBtn':       1,      // email field -> sage button
 	'saveSage':         1,      // remember sage
 	'sageReply':        0,      //    reply with sage
@@ -270,6 +270,10 @@ const Lng = {
 		'removeFName':  ['Удалять имя файлов', 'Clear file names'],
 		'sendErrNotif': ['Оповещать в заголовке об ошибке отправки', 'Inform in title about post send error'],
 		'scrAfterRep':  ['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
+		'fileInputs':   {
+			sel:        [['Откл.', 'Упрощ.', 'Превью'], ['Disable', 'Simple', 'Preview']],
+			txt:        ['Улучшенное поле добавления файлов', 'Improved filed for file adding']
+		},
 		'addPostForm': {
 			sel:        [['Сверху', 'Внизу', 'Скрытая'], ['At top', 'At bottom', 'Hidden']],
 			txt:        ['Форма ответа в треде', 'Reply form in thread']
@@ -277,7 +281,6 @@ const Lng = {
 		'spacedQuote':  ['Вставлять пробел при цитировании "> "', 'Insert a space when quoting "> "'],
 		'favOnReply':   ['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
 		'warnSubjTrip': ['Оповещать при наличии трип-кода в поле "Тема"', 'Warn if "Subject" field contains trip-code'],
-		'fileThumb':    ['Область превью картинок вместо кнопки "Файл"', 'File thumbnail area instead of "File" button'],
 		'addSageBtn':   ['Кнопка Sage вместо "E-mail" ', 'Sage button instead of "E-mail" '],
 		'saveSage':     ['Запоминать сажу', 'Remember sage'],
 		'cap4chanAlt':  ['4chan: альтернативная капча*', '4chan: use alternative captcha*'],
@@ -587,12 +590,12 @@ const Lng = {
 	hideForm:       ['Скрыть форму', 'Hide form'],
 	search:         ['Искать в ', 'Search in '],
 	wait:           ['Ждите', 'Wait'],
-	noFile:         ['Нет файла', 'No file'],
-	clickToAdd:     ['Выберите файл, либо перетащите сюда файл или ссылку', 'Select file, or drag-n-drop file or link'],
+	dropFileHere:   ['Бросьте сюда файл или ссылку', 'Drop file or link here'],
+	youCanDrag:     ['Можно перетаскивать картинки и ссылки на файлы прямо со страницы', 'You can drag images and file links directly from the page'],
 	removeFile:     ['Удалить файл', 'Remove file'],
 	spoilFile:      ['Спойлер', 'Spoiler'],
-	addUrlFile:     ['Добавить файл по ссылке', 'Add a file by url link'],
-	linkToFile:     ['Введите/Перетяните сюда ссылку', 'Enter/Drop url link here'],
+	addManually:    ['Ввести ссылку на файл вручную', 'Enter a link to the file manually'],
+	enterTheLink:   ['Введите ссылку и нажмите \'+\'', 'Enter the link and click \'+\''],
 	helpAddFile:    ['Встроить .ogg, .rar, .zip или .7z в картинку', 'Pack .ogg, .rar, .zip or .7z into image'],
 	downloadFile:   ['Скачать содержащийся в картинке файл', 'Download existing file from image'],
 	fileCorrupt:    ['Файл повреждён: ', 'File is corrupted: '],
@@ -1496,7 +1499,7 @@ function* readCfg() {
 		if(!nav.isGM) {
 			Cfg.updScript = 0;
 		}
-		Cfg.fileThumb = 0;
+		Cfg.fileInputs = 0;
 	}
 	if(nav.isChromeStorage) {
 		Cfg.updScript = 0;
@@ -3279,6 +3282,13 @@ const cfgWindow = Object.create({
 					Attachment.viewer.close();
 				}
 				break;
+			case 'fileInputs':
+				pr.files.changeMode();
+				if(!aib.kus && !aib.multiFile) {
+					pr.setPlaceholders();
+				}
+				updateCSS();
+				break;
 			case 'addPostForm':
 				pr.isBottom = Cfg.addPostForm === 1;
 				pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
@@ -3372,13 +3382,6 @@ const cfgWindow = Object.create({
 				if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
 					locStorage.removeItem('de-myposts');
 					MyPosts.purge();
-				}
-				updateCSS();
-				break;
-			case 'fileThumb':
-				pr.files.changeMode();
-				if(!aib.kus && !aib.multiFile) {
-					pr.setPlaceholders();
 				}
 				updateCSS();
 				break;
@@ -3713,13 +3716,13 @@ const cfgWindow = Object.create({
 				${ this._getBox('removeEXIF') }
 				${ this._getBox('removeFName') }<br>
 				${ this._getBox('sendErrNotif') }<br>
-				${ this._getBox('scrAfterRep') }
+				${ this._getBox('scrAfterRep') }<br>
+				${ pr.files && !nav.Presto ? this._getSel('fileInputs') : '' }
 			</div>` : '' }
 			${ pr.form ? this._getSel('addPostForm') + '<br>' : '' }
 			${ pr.txta ? this._getBox('spacedQuote') + '<br>' : '' }
 			${ this._getBox('favOnReply') }<br>
 			${ pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
-			${ pr.files && !nav.Presto ? this._getBox('fileThumb') + '<br>' : '' }
 			${ pr.mail ?
 				this._getBox('addSageBtn') +
 				this._getBox('saveSage') + '<br>' : '' }
@@ -3876,7 +3879,7 @@ const cfgWindow = Object.create({
 		this._toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
 		this._toggleBox(Cfg.ajaxPosting, [
 			'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]',
-			'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]']);
+			'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]']);
 		this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
 		this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
 		this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
@@ -7320,7 +7323,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	new WinResizer('reply', 'left', 'textaWidth', this.qArea, this.txta);
 	new WinResizer('reply', 'right', 'textaWidth', this.qArea, this.txta);
 	new WinResizer('reply', 'bottom', 'textaHeight', this.qArea, this.txta);
-	if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
+	if(!aib.kus && (aib.multiFile || Cfg.fileInputs !== 2)) {
 		this.setPlaceholders();
 	}
 	this.form.style.display = 'inline-block';
@@ -7737,7 +7740,7 @@ PostForm.prototype = {
 	_setPlaceholder(val) {
 		var el = val === 'cap' ? this.cap.textEl : this[val];
 		if(el) {
-			if(aib.multiFile || !Cfg.fileThumb) {
+			if(aib.multiFile || Cfg.fileInputs !== 2) {
 				el.placeholder = Lng[val][lang];
 			} else {
 				el.removeAttribute('placeholder');
@@ -8257,7 +8260,7 @@ class Files {
 		return value;
 	}
 	changeMode() {
-		const cfg = !!Cfg.fileThumb;
+		const cfg = Cfg.fileInputs === 2;
 		for(let inp of this._inputs) {
 			inp.changeMode(cfg);
 		}
@@ -8287,92 +8290,90 @@ class FileInput {
 	constructor(parent, el) {
 		this.extraFile = null;
 		this.hasFile = false;
-		this.hasUrlFile = false;
 		this.imgFile = null;
 		this._input = el;
+		this._isUrlEditable = false;
 		this._mediaEl = null;
 		this._parent = parent;
 		this._rarMsg = null;
 		this._spoilEl = $q('input[type="checkbox"][name="spoiler"]', el.parentNode);
 		this._thumb = null;
-
-		// Add container with utils buttons
 		this._utils = $add(`<div class="de-file-utils">
 			<div class="de-file-rar" title="${ Lng.helpAddFile[lang] }" style="display: none;"></div>
 			<input class="de-file-spoil" type="checkbox" title="${ Lng.spoilFile[lang] }" style="display: none;">
-			<div class="de-file-url" title="${ Lng.addUrlFile[lang] }"></div>
+			<div class="de-file-url" title="${ Lng.addManually[lang] }"></div>
 			<div class="de-file-del" title="${ Lng.removeFile[lang] }" style="display: none;"></div>
 		</div>`);
 		[this._btnRarJpg, this._btnSpoil, this._btnUrl, this._btnDel] = this._utils.children;
 		this._utils.addEventListener('click', this);
+		this._urlWrap = $add(`<span class="de-file-url-wrap">
+			<input type="text" class="de-file-url-input de-file-url-noedit" title="${
+				Lng.youCanDrag[lang] }" placeholder="${ Lng.dropFileHere[lang] }">
+			<input type="button" class="de-file-url-add" value="+" title="${
+				Lng.addManually[lang] }" style="display: none;"></span>`);
+		[this._urlInput, this._urlAddBtn] = this._urlWrap.children;
+		this._urlWrap.addEventListener('click', this);
+		this._toggleDragEvents(this._urlWrap, true);
+		$hide(el);
+		el.obj = this;
 		el.classList.add('de-file-input');
 		el.addEventListener('change', this);
-
-		// Add input for getting files by url
-		this._urlWrap = $add(`<span style="display: none;">
-			<input type="text" placeholder="${ Lng.linkToFile[lang] }">
-			<input type="button" class="de-file-url-add" value="+" title="${ Lng.addUrlFile[lang] }"></span>`);
-		[this._urlInput, this._urlAddBtn] = this._urlWrap.children;
-		this._urlInput.addEventListener('drop', this);
-		this._urlAddBtn.addEventListener('click', this);
-
 		if(el.files && el.files[0]) {
 			this._removeFile();
 		}
-		if(Cfg.fileThumb) {
+		if(this._isThumb) {
 			this._initThumbs();
 		} else {
-			$before(this._input, this._urlWrap);
-			$after(this._input, this._utils);
+			$before(el, this._urlWrap);
+			$after(el, this._utils);
 		}
-		el.obj = this;
 	}
 	changeMode(showThumbs) {
-		if(showThumbs ^ !!this._thumb) {
-			if(showThumbs) {
-				this._initThumbs();
-				return;
-			}
-			$show(this._wrap);
-			$show(this._parent.fileTd.parentNode);
-			if(this.hasUrlFile) {
-				$show(this._urlWrap);
-				$hide(this._input);
-			}
-			$after(this._input, this._utils);
-			const urlTr = this._urlWrap.parentNode.parentNode;
-			$before(this._input, this._urlWrap);
-			$del(urlTr);
-			if(this._mediaEl) {
-				window.URL.revokeObjectURL(this._mediaEl.src);
-			}
-			this._toggleDragEvents(this._thumb, false);
-			$del(this._thumb);
-			this._thumb = this._mediaEl = null;
+		if(!(showThumbs ^ !!this._thumb)) {
+			return;
 		}
+		if(showThumbs) {
+			this._initThumbs();
+			return;
+		}
+		const urlTr = this._urlWrap.parentNode.parentNode;
+		$before(this._input, this._urlWrap);
+		$after(this._input, this._utils);
+		$del(urlTr);
+		$show(this._parent.fileTd.parentNode);
+		$show(this._urlWrap);
+		if(this._mediaEl) {
+			window.URL.revokeObjectURL(this._mediaEl.src);
+		}
+		this._toggleDragEvents(this._thumb, false);
+		$del(this._thumb);
+		this._thumb = this._mediaEl = null;
 	}
 	clear() {
-		if(Cfg.fileThumb) {
+		if(this._isThumb) {
 			this._thumb.classList.add('de-file-off');
 			if(this._mediaEl) {
 				window.URL.revokeObjectURL(this._mediaEl.src);
-				this._mediaEl.parentNode.title = Lng.clickToAdd[lang];
+				this._mediaEl.parentNode.title = Lng.youCanDrag[lang];
 				$del(this._mediaEl);
 				this._mediaEl = null;
 			}
 		}
 		if(this._btnDel) {
-			$hide(this._btnDel);
+			this._showDelBtn(false);
 			$hide(this._btnSpoil);
 			$hide(this._btnRarJpg);
+			$hide(this._urlAddBtn);
 			$del(this._rarMsg);
-			$show(this._btnUrl);
-			$hide(this._urlWrap);
-			$show(this._input);
+			if(this._isThumb) {
+				$hide(this._urlWrap);
+			}
 			this._urlInput.value = '';
+			this._urlInput.classList.add('de-file-url-noedit');
+			this._urlInput.placeholder = Lng.dropFileHere[lang];
 		}
 		this.extraFile = this.imgFile = null;
-		this.hasUrlFile = false;
+		this._isUrlEditable = false;
 		this._changeFilesCount(-1);
 		this._removeFile();
 	}
@@ -8380,7 +8381,7 @@ class FileInput {
 		const el = e.target;
 		const isThumb = el === this._thumb || el.className === 'de-file-img';
 		switch(e.type) {
-		case 'change': setTimeout(() => this._onFileChange(), 20); return;
+		case 'change': setTimeout(() => this._onFileChange(false), 20); return;
 		case 'click':
 			if(isThumb) {
 				this._input.click();
@@ -8393,32 +8394,19 @@ class FileInput {
 			} else if(el === this._btnRarJpg) {
 				this._addRarJpeg();
 			} else if(el === this._btnUrl) {
-				$toggle(this._urlWrap);
-				$toggle(this._btnUrl);
-				$toggle(this._btnDel);
-				$toggle(this._input);
-			} else if(el === this._urlAddBtn) {
-				const url = this._urlInput.value;
-				if(!url) {
-					return;
+				this._showDelBtn((this._isUrlEditable = true));
+				$show(this._urlAddBtn);
+				if(this._isThumb) {
+					$toggle(this._urlWrap);
 				}
-				$popup('file-loading', Lng.loading[lang], true);
-				downloadImgData(url, false).then(data => {
-					if(!data) {
-						$popup('file-loading', Lng.cantLoad[lang] + 'URL: ' + url);
-						return;
-					}
-					closePopup('file-loading');
-					const fileName = url.split('/').pop();
-					const fileType = getFileType(url);
-					this.imgFile = [data, fileName, fileType];
-					this.hasUrlFile = true;
-					if(Cfg.fileThumb) {
-						$hide(this._urlWrap);
-						this._addNewThumb(data, fileName, data.length, fileType);
-					}
-					this._onFileChange();
-				});
+				this._urlInput.classList.remove('de-file-url-noedit');
+				this._urlInput.placeholder = Lng.enterTheLink[lang];
+				this._urlInput.focus();
+			} else if(el === this._urlAddBtn) {
+				this._addUrlFile(this._urlInput.value);
+			} else if(el === this._urlInput && !this._isUrlEditable) {
+				this._input.click();
+				this._urlInput.blur();
 			}
 			e.stopPropagation();
 			$pd(e);
@@ -8434,39 +8422,42 @@ class FileInput {
 			}
 			return;
 		case 'drop':
-			if(isThumb) {
-				const file = e.dataTransfer.files[0];
-				if(file) {
-					readFile(file).then(({ data }) => {
-						this.imgFile = [data, file.name, file.type];
-						this._addNewThumb(data, file.name, file.size, file.type);
-						this._onFileChange();
-					});
-				} else {
-					this._urlInput.value = e.dataTransfer.getData('text/plain');
-					this._urlAddBtn.click();
-				}
-				setTimeout(() => this._thumb.classList.remove('de-file-drag'), 10);
-				e.stopPropagation();
-				$pd(e);
-			} else if(el === this._urlInput) {
-				setTimeout(() => this._urlAddBtn.click(), 10);
+			const dt = e.dataTransfer;
+			if(!isThumb && el !== this._urlInput) {
+				return;
 			}
+			const file = dt.files[0];
+			if(file) {
+				readFile(file).then(({ data }) => {
+					this.imgFile = [data, file.name, file.type];
+					this._onFileChange(true);
+				});
+			} else {
+				this._addUrlFile(dt.getData('text/plain'));
+			}
+			setTimeout(() => this._thumb.classList.remove('de-file-drag'), 10);
+			e.stopPropagation();
+			$pd(e);
 		}
 	}
 	hide() {
-		if(Cfg.fileThumb) {
+		if(this._isThumb) {
+			this._showDelBtn(false);
 			$hide(this._thumb);
+			$hide(this._urlWrap);
 		}
 		$hide(this._wrap);
 	}
 	show() {
-		if(Cfg.fileThumb) {
+		if(this._isThumb) {
 			$show(this._thumb);
 		}
 		$show(this._wrap);
 	}
 
+	get _isThumb() {
+		return Cfg.fileInputs === 2;
+	}
 	get _wrap() {
 		return aib.multiFile ? this._input.parentNode : this._input;
 	}
@@ -8474,7 +8465,7 @@ class FileInput {
 		let el = this._thumb;
 		el.classList.remove('de-file-off');
 		el = el.firstChild.firstChild;
-		el.title = `${ fileName }', ${ (fileSize / 1024).toFixed(2) }KB`;
+		el.title = `${ fileName }, ${ (fileSize / 1024).toFixed(2) }KB`;
 		this._mediaEl = el = $aBegin(el, fileType.startsWith('video/') ?
 			'<video class="de-file-img" loop autoplay muted src=""></video>' :
 			'<img class="de-file-img" src="">');
@@ -8503,6 +8494,25 @@ class FileInput {
 		};
 		el.click();
 	}
+	_addUrlFile(url) {
+		if(!url) {
+			return;
+		}
+		$popup('file-loading', Lng.loading[lang], true);
+		downloadImgData(url, false).then(data => {
+			if(!data) {
+				$popup('file-loading', Lng.cantLoad[lang] + 'URL: ' + url);
+				return;
+			}
+			closePopup('file-loading');
+			this._isUrlEditable = false;
+			this.imgFile = [data.buffer, url.split('/').pop(), getFileType(url)];
+			if(this._isThumb) {
+				$hide(this._urlWrap);
+			}
+			this._onFileChange(true);
+		});
+	}
 	_changeFilesCount(val) {
 		this._parent.filesCount = Math.max(this._parent.filesCount + val, 0);
 		if(aib.dobr) {
@@ -8512,54 +8522,55 @@ class FileInput {
 	_initThumbs() {
 		const fileTr = this._parent.fileTd.parentNode;
 		$hide(fileTr);
+		$hide(this._urlWrap);
 		($q('.de-file-url-area') || $bBegin(fileTr,
 			'<tr class="de-file-url-area"><td></td><td></td></tr>')).lastChild.appendChild(this._urlWrap);
 		this._thumb = $bEnd(this._parent.thumbsEl,
-			'<div class="de-file de-file-off"><div class="de-file-img">' +
-			'<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
+			`<div class="de-file de-file-off"><div class="de-file-img"><div class="de-file-img" title="${
+				Lng.youCanDrag[lang] }"></div></div></div>`);
 		this._thumb.addEventListener('click', this);
 		this._thumb.addEventListener('dragenter', this);
 		this._thumb.appendChild(this._utils);
 		this._toggleDragEvents(this._thumb, true);
 		if(this.hasFile) {
 			this._showPviewImage();
-			$hide(this._urlWrap);
 		}
 	}
-	_onFileChange() {
+	_onFileChange(hasImgFile) {
+		this._urlInput.value = hasImgFile ? this.imgFile[1] : this._input.files[0].name;
+		if(!hasImgFile) {
+			this.imgFile = null;
+		}
 		if(this._parent.onchange) {
 			this._parent.onchange();
 		}
-		if(Cfg.fileThumb) {
+		if(this._isThumb) {
 			this._showPviewImage();
 		}
 		if(this.hasFile) {
 			this.extraFile = null;
-			this.hasUrlFile = false;
 		} else {
 			this.hasFile = true;
 			this._changeFilesCount(+1);
-			$hide(this._btnUrl);
-			if(this.hasUrlFile) {
-				$hide(this._input);
-			} else {
+			this._showDelBtn(true);
+			$hide(this._urlAddBtn);
+			if(this._isThumb) {
 				$hide(this._urlWrap);
-				$show(this._input);
 			}
-			$show(this._btnDel);
 			if(this._spoilEl) {
 				this._btnSpoil.checked = this._spoilEl.checked;
 				$show(this._btnSpoil);
 			}
+			this._urlInput.classList.add('de-file-url-noedit');
+			this._urlInput.placeholder = Lng.dropFileHere[lang];
 		}
 		this._parent.hide();
-		if(nav.Presto || aib.fch ||
-		   !/^image\/(?:png|jpeg)$/.test(this.imgFile ? this.imgFile[2] : this._input.files[0].type))
+		if(!nav.Presto && !aib.fch &&
+		   /^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile[2] : this._input.files[0].type))
 		{
-			return;
+			$del(this._rarMsg);
+			$show(this._btnRarJpg);
 		}
-		$del(this._rarMsg);
-		$show(this._btnRarJpg);
 	}
 	_removeFile() {
 		const oldEl = this._input;
@@ -8570,12 +8581,11 @@ class FileInput {
 		this._input = newEl;
 		$del(oldEl);
 		this.hasFile = false;
-		this.hasUrlFile = false;
 	}
 	_showPviewImage() {
 		if(this.imgFile) {
 			const [data, fileName, fileType] = this.imgFile;
-			this._addNewThumb(data, fileName, data.length, fileType);
+			this._addNewThumb(data, fileName, data.byteLength, fileType);
 		} else {
 			const file = this._input.files[0];
 			if(file) {
@@ -8586,6 +8596,10 @@ class FileInput {
 				});
 			}
 		}
+	}
+	_showDelBtn(isShow) {
+		$toggle(this._btnDel, isShow);
+		$toggle(this._btnUrl, !isShow);
 	}
 	_toggleDragEvents(el, add) {
 		const name = add ? 'addEventListener' : 'removeEventListener';
@@ -8679,7 +8693,7 @@ class Captcha {
 	}
 	initTextEl() {
 		this.textEl.autocomplete = 'off';
-		if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
+		if(!aib.kus && (aib.multiFile || Cfg.fileInputs !== 2)) {
 			this.textEl.placeholder = Lng.cap[lang];
 		}
 		this.textEl.addEventListener('keypress', this);
@@ -15735,23 +15749,24 @@ function scriptCSS() {
 	video { background: black; }` +
 
 	// File inputs
-	`.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ${ p = aib.multiFile ? 90 : 130 }px; width: ${ p }px; text-align: center; border: 1px dashed grey; }
+	`.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ${ p = aib.multiFile ? 90 : 130 }px; width: ${ p }px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }
 	.de-file > .de-file-img { display: table; width: 100%; height: 100%; cursor: pointer; }
 	.de-file > .de-file-img > div { display: table-cell; vertical-align: middle; }
-	.de-file > .de-file-utils { display: none; height: 16px; margin-top: -18px; padding: 1px 0; background: rgba(60,60,60,.6); position: relative; }
+	.de-file > .de-file-utils { display: none; height: 16px; margin-top: -18px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; }
 	.de-file > .de-file-utils > .de-file-rarmsg { color: #fff; }
-	.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -${ p + 2 }px !important; vertical-align: top; width: ${ p + 2 }px !important; height: ${ p + 2 }px; border: none !important; cursor: pointer; }
 	#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }
-	.de-file-drag { background: rgba(88,88,88,.8); border: 1px solid grey; opacity: .7; }
+	.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }
 	.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }
 	img.de-file-img, video.de-file-img { max-width: ${ p - 4 }px; max-height: ${ p - 4 }px; }
 	.de-file-input { max-width: 300px; }
 	.de-file-input + .de-file-utils { margin-left: 4px; }
-	.de-file-off > .de-file-img > div::after { content: "${ Lng.noFile[lang] }"; }
+	.de-file-off > .de-file-img > div::after { content: "${ Lng.dropFileHere[lang] }"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }
 	.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }
 	.de-file-del, .de-file-rar, .de-file-url { display: inline-block; margin: 0 1px; padding: 0 16px 16px 0; cursor: pointer; }
 	.de-file-spoil { margin: 0 3px; vertical-align: 1px; }
-	.de-file-url-add { font-weight: bold; width: 21px; padding: 0 !important;; }
+	.de-file-url-add { font-weight: bold; width: 21px; padding: 0 !important; }
+	.de-file-url-input { border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }
+	.de-file-url-noedit { background: rgba(255,255,255,.5); cursor: pointer; }
 	.de-file-utils { display: inline-block; vertical-align: -2px; }` +
 	gif('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=') +
 	gif('.de-file-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') +
@@ -15896,6 +15911,7 @@ function updateCSS() {
 	   Cfg.noSpoilers === 2 ?
 	   `.spoiler, s { color: inherit !important; }
 		.spoiler > a, s > a:not(:hover) { color: inherit !important; }` : '' }
+	${ Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }' }
 	${  !Cfg.addSageBtn ? '#de-sagebtn, ' : '' }${
 		 Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '' }${
 		!Cfg.imgNavBtns ? '#de-img-btn-next, #de-img-btn-prev, ' : '' }${
@@ -15907,7 +15923,8 @@ function updateCSS() {
 		!Cfg.showRepBtn ? '.de-btn-rep, ' : '' }${
 		!Cfg.updThrBtns && !aib.t ? '.de-thread-updater, ' : '' }${
 		!Cfg.ajaxPosting ? '.de-file-rar, .de-file-url, ' : '' }${
-		!aib.kus && (aib.multiFile || !Cfg.fileThumb) ?
+		!Cfg.fileInputs ? '.de-file-url-wrap, .de-file-url, ' : '' }${
+		!aib.kus && (aib.multiFile || Cfg.fileInputs !== 2) ?
 			'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : ''
 	} body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }`;
 	$id('de-css-dynamic').textContent = str + '\n' + aib.css;

@@ -125,7 +125,7 @@ function* readCfg() {
 		if(!nav.isGM) {
 			Cfg.updScript = 0;
 		}
-		Cfg.fileThumb = 0;
+		Cfg.fileInputs = 0;
 	}
 	if(nav.isChromeStorage) {
 		Cfg.updScript = 0;

@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = 'ff0bb09';
+	var commit = '3c90121';
 
 
 	var defaultCfg = {
@@ -3026,11 +3026,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'removeFName': 0, 
 		'sendErrNotif': 1, 
 		'scrAfterRep': 0, 
+		'fileInputs': 2, 
 		'addPostForm': 2, 
 		'spacedQuote': 1, 
 		'favOnReply': 1, 
 		'warnSubjTrip': 0, 
-		'fileThumb': 1, 
 		'addSageBtn': 1, 
 		'saveSage': 1, 
 		'sageReply': 0, 
@@ -3184,6 +3184,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'removeFName': ['Удалять имя файлов', 'Clear file names'],
 			'sendErrNotif': ['Оповещать в заголовке об ошибке отправки', 'Inform in title about post send error'],
 			'scrAfterRep': ['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
+			'fileInputs': {
+				sel: [['Откл.', 'Упрощ.', 'Превью'], ['Disable', 'Simple', 'Preview']],
+				txt: ['Улучшенное поле добавления файлов', 'Improved filed for file adding']
+			},
 			'addPostForm': {
 				sel: [['Сверху', 'Внизу', 'Скрытая'], ['At top', 'At bottom', 'Hidden']],
 				txt: ['Форма ответа в треде', 'Reply form in thread']
@@ -3191,7 +3195,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'spacedQuote': ['Вставлять пробел при цитировании "> "', 'Insert a space when quoting "> "'],
 			'favOnReply': ['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
 			'warnSubjTrip': ['Оповещать при наличии трип-кода в поле "Тема"', 'Warn if "Subject" field contains trip-code'],
-			'fileThumb': ['Область превью картинок вместо кнопки "Файл"', 'File thumbnail area instead of "File" button'],
 			'addSageBtn': ['Кнопка Sage вместо "E-mail" ', 'Sage button instead of "E-mail" '],
 			'saveSage': ['Запоминать сажу', 'Remember sage'],
 			'cap4chanAlt': ['4chan: альтернативная капча*', '4chan: use alternative captcha*'],
@@ -3409,12 +3412,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		hideForm: ['Скрыть форму', 'Hide form'],
 		search: ['Искать в ', 'Search in '],
 		wait: ['Ждите', 'Wait'],
-		noFile: ['Нет файла', 'No file'],
-		clickToAdd: ['Выберите файл, либо перетащите сюда файл или ссылку', 'Select file, or drag-n-drop file or link'],
+		dropFileHere: ['Бросьте сюда файл или ссылку', 'Drop file or link here'],
+		youCanDrag: ['Можно перетаскивать картинки и ссылки на файлы прямо со страницы', 'You can drag images and file links directly from the page'],
 		removeFile: ['Удалить файл', 'Remove file'],
 		spoilFile: ['Спойлер', 'Spoiler'],
-		addUrlFile: ['Добавить файл по ссылке', 'Add a file by url link'],
-		linkToFile: ['Введите/Перетяните сюда ссылку', 'Enter/Drop url link here'],
+		addManually: ['Ввести ссылку на файл вручную', 'Enter a link to the file manually'],
+		enterTheLink: ['Введите ссылку и нажмите \'+\'', 'Enter the link and click \'+\''],
 		helpAddFile: ['Встроить .ogg, .rar, .zip или .7z в картинку', 'Pack .ogg, .rar, .zip or .7z into image'],
 		downloadFile: ['Скачать содержащийся в картинке файл', 'Download existing file from image'],
 		fileCorrupt: ['Файл повреждён: ', 'File is corrupted: '],
@@ -4586,7 +4589,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							if (!nav.isGM) {
 								Cfg.updScript = 0;
 							}
-							Cfg.fileThumb = 0;
+							Cfg.fileInputs = 0;
 						}
 						if (nav.isChromeStorage) {
 							Cfg.updScript = 0;
@@ -6661,6 +6664,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							Attachment.viewer.close();
 						}
 						break;
+					case 'fileInputs':
+						pr.files.changeMode();
+						if (!aib.kus && !aib.multiFile) {
+							pr.setPlaceholders();
+						}
+						updateCSS();
+						break;
 					case 'addPostForm':
 						pr.isBottom = Cfg.addPostForm === 1;
 						pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
@@ -6789,13 +6799,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						if (!Cfg.markMyPosts && !Cfg.markMyLinks) {
 							locStorage.removeItem('de-myposts');
 							MyPosts.purge();
-						}
-						updateCSS();
-						break;
-					case 'fileThumb':
-						pr.files.changeMode();
-						if (!aib.kus && !aib.multiFile) {
-							pr.setPlaceholders();
 						}
 						updateCSS();
 						break;
@@ -7039,7 +7042,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgForm: function _getCfgForm() {
-			return '<div id="de-cfg-form" class="de-cfg-unvis">\n\t\t\t' + this._getBox('ajaxPosting') + '<br>\n\t\t\t' + (pr.form ? '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('postSameImg') + '<br>\n\t\t\t\t' + this._getBox('removeEXIF') + '\n\t\t\t\t' + this._getBox('removeFName') + '<br>\n\t\t\t\t' + this._getBox('sendErrNotif') + '<br>\n\t\t\t\t' + this._getBox('scrAfterRep') + '\n\t\t\t</div>' : '') + '\n\t\t\t' + (pr.form ? this._getSel('addPostForm') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getBox('spacedQuote') + '<br>' : '') + '\n\t\t\t' + this._getBox('favOnReply') + '<br>\n\t\t\t' + (pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '') + '\n\t\t\t' + (pr.files && !nav.Presto ? this._getBox('fileThumb') + '<br>' : '') + '\n\t\t\t' + (pr.mail ? this._getBox('addSageBtn') + this._getBox('saveSage') + '<br>' : '') + '\n\t\t\t' + (pr.cap ? (aib.fch ? this._getBox('cap4chanAlt') + '<br>' : '') + this._getInp('capUpdTime') + '<br>' + this._getSel('captchaLang') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getSel('addTextBtns') + this._getBox('txtBtnsLoc') + '<br>' : '') + '\n\t\t\t' + (pr.passw ? this._getInp('passwValue', true, 9) + ('<input type="button" id="de-cfg-btn-pass" class="de-cfg-button" value="' + Lng.change[lang] + '"><br>') : '') + '\n\t\t\t' + (pr.name ? this._getInp('nameValue', false, 9) + ' ' + this._getBox('userName') + '<br>' : '') + '\n\t\t\t' + (pr.rules || pr.passw || pr.name ? Lng.dontShow[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '') + '\n\t\t</div>';
+			return '<div id="de-cfg-form" class="de-cfg-unvis">\n\t\t\t' + this._getBox('ajaxPosting') + '<br>\n\t\t\t' + (pr.form ? '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('postSameImg') + '<br>\n\t\t\t\t' + this._getBox('removeEXIF') + '\n\t\t\t\t' + this._getBox('removeFName') + '<br>\n\t\t\t\t' + this._getBox('sendErrNotif') + '<br>\n\t\t\t\t' + this._getBox('scrAfterRep') + '<br>\n\t\t\t\t' + (pr.files && !nav.Presto ? this._getSel('fileInputs') : '') + '\n\t\t\t</div>' : '') + '\n\t\t\t' + (pr.form ? this._getSel('addPostForm') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getBox('spacedQuote') + '<br>' : '') + '\n\t\t\t' + this._getBox('favOnReply') + '<br>\n\t\t\t' + (pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '') + '\n\t\t\t' + (pr.mail ? this._getBox('addSageBtn') + this._getBox('saveSage') + '<br>' : '') + '\n\t\t\t' + (pr.cap ? (aib.fch ? this._getBox('cap4chanAlt') + '<br>' : '') + this._getInp('capUpdTime') + '<br>' + this._getSel('captchaLang') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getSel('addTextBtns') + this._getBox('txtBtnsLoc') + '<br>' : '') + '\n\t\t\t' + (pr.passw ? this._getInp('passwValue', true, 9) + ('<input type="button" id="de-cfg-btn-pass" class="de-cfg-button" value="' + Lng.change[lang] + '"><br>') : '') + '\n\t\t\t' + (pr.name ? this._getInp('nameValue', false, 9) + ' ' + this._getBox('userName') + '<br>' : '') + '\n\t\t\t' + (pr.rules || pr.passw || pr.name ? Lng.dontShow[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '') + '\n\t\t</div>';
 		},
 
 
@@ -7114,7 +7117,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, ['select[info="YTubeType"]', 'input[info="addVimeo"]']);
 			this._toggleBox(Cfg.addYouTube, ['input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]', 'input[info="ytApiKey"]']);
 			this._toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
-			this._toggleBox(Cfg.ajaxPosting, ['input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]', 'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]']);
+			this._toggleBox(Cfg.ajaxPosting, ['input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]', 'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]']);
 			this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
 			this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
 			this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
@@ -11036,7 +11039,7 @@ true, true],
 		new WinResizer('reply', 'left', 'textaWidth', this.qArea, this.txta);
 		new WinResizer('reply', 'right', 'textaWidth', this.qArea, this.txta);
 		new WinResizer('reply', 'bottom', 'textaHeight', this.qArea, this.txta);
-		if (!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
+		if (!aib.kus && (aib.multiFile || Cfg.fileInputs !== 2)) {
 			this.setPlaceholders();
 		}
 		this.form.style.display = 'inline-block';
@@ -11460,7 +11463,7 @@ true, true],
 		_setPlaceholder: function _setPlaceholder(val) {
 			var el = val === 'cap' ? this.cap.textEl : this[val];
 			if (el) {
-				if (aib.multiFile || !Cfg.fileThumb) {
+				if (aib.multiFile || Cfg.fileInputs !== 2) {
 					el.placeholder = Lng[val][lang];
 				} else {
 					el.removeAttribute('placeholder');
@@ -12135,7 +12138,7 @@ true, true],
 		_createClass(Files, [{
 			key: 'changeMode',
 			value: function changeMode() {
-				var cfg = !!Cfg.fileThumb;
+				var cfg = Cfg.fileInputs === 2;
 				for (var _iterator24 = this._inputs, _isArray24 = Array.isArray(_iterator24), _i32 = 0, _iterator24 = _isArray24 ? _iterator24 : _iterator24[Symbol.iterator]();;) {
 					var _ref42;
 
@@ -12222,16 +12225,15 @@ true, true],
 
 			this.extraFile = null;
 			this.hasFile = false;
-			this.hasUrlFile = false;
 			this.imgFile = null;
 			this._input = el;
+			this._isUrlEditable = false;
 			this._mediaEl = null;
 			this._parent = parent;
 			this._rarMsg = null;
 			this._spoilEl = $q('input[type="checkbox"][name="spoiler"]', el.parentNode);
 			this._thumb = null;
-
-			this._utils = $add('<div class="de-file-utils">\n\t\t\t<div class="de-file-rar" title="' + Lng.helpAddFile[lang] + '" style="display: none;"></div>\n\t\t\t<input class="de-file-spoil" type="checkbox" title="' + Lng.spoilFile[lang] + '" style="display: none;">\n\t\t\t<div class="de-file-url" title="' + Lng.addUrlFile[lang] + '"></div>\n\t\t\t<div class="de-file-del" title="' + Lng.removeFile[lang] + '" style="display: none;"></div>\n\t\t</div>');
+			this._utils = $add('<div class="de-file-utils">\n\t\t\t<div class="de-file-rar" title="' + Lng.helpAddFile[lang] + '" style="display: none;"></div>\n\t\t\t<input class="de-file-spoil" type="checkbox" title="' + Lng.spoilFile[lang] + '" style="display: none;">\n\t\t\t<div class="de-file-url" title="' + Lng.addManually[lang] + '"></div>\n\t\t\t<div class="de-file-del" title="' + Lng.removeFile[lang] + '" style="display: none;"></div>\n\t\t</div>');
 
 			var _utils$children = _slicedToArray(this._utils.children, 4);
 
@@ -12241,81 +12243,80 @@ true, true],
 			this._btnDel = _utils$children[3];
 
 			this._utils.addEventListener('click', this);
-			el.classList.add('de-file-input');
-			el.addEventListener('change', this);
-
-			this._urlWrap = $add('<span style="display: none;">\n\t\t\t<input type="text" placeholder="' + Lng.linkToFile[lang] + '">\n\t\t\t<input type="button" class="de-file-url-add" value="+" title="' + Lng.addUrlFile[lang] + '"></span>');
+			this._urlWrap = $add('<span class="de-file-url-wrap">\n\t\t\t<input type="text" class="de-file-url-input de-file-url-noedit" title="' + Lng.youCanDrag[lang] + '" placeholder="' + Lng.dropFileHere[lang] + '">\n\t\t\t<input type="button" class="de-file-url-add" value="+" title="' + Lng.addManually[lang] + '" style="display: none;"></span>');
 
 			var _urlWrap$children = _slicedToArray(this._urlWrap.children, 2);
 
 			this._urlInput = _urlWrap$children[0];
 			this._urlAddBtn = _urlWrap$children[1];
 
-			this._urlInput.addEventListener('drop', this);
-			this._urlAddBtn.addEventListener('click', this);
-
+			this._urlWrap.addEventListener('click', this);
+			this._toggleDragEvents(this._urlWrap, true);
+			$hide(el);
+			el.obj = this;
+			el.classList.add('de-file-input');
+			el.addEventListener('change', this);
 			if (el.files && el.files[0]) {
 				this._removeFile();
 			}
-			if (Cfg.fileThumb) {
+			if (this._isThumb) {
 				this._initThumbs();
 			} else {
-				$before(this._input, this._urlWrap);
-				$after(this._input, this._utils);
+				$before(el, this._urlWrap);
+				$after(el, this._utils);
 			}
-			el.obj = this;
 		}
 
 		_createClass(FileInput, [{
 			key: 'changeMode',
 			value: function changeMode(showThumbs) {
-				if (showThumbs ^ !!this._thumb) {
-					if (showThumbs) {
-						this._initThumbs();
-						return;
-					}
-					$show(this._wrap);
-					$show(this._parent.fileTd.parentNode);
-					if (this.hasUrlFile) {
-						$show(this._urlWrap);
-						$hide(this._input);
-					}
-					$after(this._input, this._utils);
-					var urlTr = this._urlWrap.parentNode.parentNode;
-					$before(this._input, this._urlWrap);
-					$del(urlTr);
-					if (this._mediaEl) {
-						window.URL.revokeObjectURL(this._mediaEl.src);
-					}
-					this._toggleDragEvents(this._thumb, false);
-					$del(this._thumb);
-					this._thumb = this._mediaEl = null;
+				if (!(showThumbs ^ !!this._thumb)) {
+					return;
 				}
+				if (showThumbs) {
+					this._initThumbs();
+					return;
+				}
+				var urlTr = this._urlWrap.parentNode.parentNode;
+				$before(this._input, this._urlWrap);
+				$after(this._input, this._utils);
+				$del(urlTr);
+				$show(this._parent.fileTd.parentNode);
+				$show(this._urlWrap);
+				if (this._mediaEl) {
+					window.URL.revokeObjectURL(this._mediaEl.src);
+				}
+				this._toggleDragEvents(this._thumb, false);
+				$del(this._thumb);
+				this._thumb = this._mediaEl = null;
 			}
 		}, {
 			key: 'clear',
 			value: function clear() {
-				if (Cfg.fileThumb) {
+				if (this._isThumb) {
 					this._thumb.classList.add('de-file-off');
 					if (this._mediaEl) {
 						window.URL.revokeObjectURL(this._mediaEl.src);
-						this._mediaEl.parentNode.title = Lng.clickToAdd[lang];
+						this._mediaEl.parentNode.title = Lng.youCanDrag[lang];
 						$del(this._mediaEl);
 						this._mediaEl = null;
 					}
 				}
 				if (this._btnDel) {
-					$hide(this._btnDel);
+					this._showDelBtn(false);
 					$hide(this._btnSpoil);
 					$hide(this._btnRarJpg);
+					$hide(this._urlAddBtn);
 					$del(this._rarMsg);
-					$show(this._btnUrl);
-					$hide(this._urlWrap);
-					$show(this._input);
+					if (this._isThumb) {
+						$hide(this._urlWrap);
+					}
 					this._urlInput.value = '';
+					this._urlInput.classList.add('de-file-url-noedit');
+					this._urlInput.placeholder = Lng.dropFileHere[lang];
 				}
 				this.extraFile = this.imgFile = null;
-				this.hasUrlFile = false;
+				this._isUrlEditable = false;
 				this._changeFilesCount(-1);
 				this._removeFile();
 			}
@@ -12326,110 +12327,104 @@ true, true],
 
 				var el = e.target;
 				var isThumb = el === this._thumb || el.className === 'de-file-img';
-				switch (e.type) {
-					case 'change':
-						setTimeout(function () {
-							return _this23._onFileChange();
-						}, 20);return;
-					case 'click':
-						if (isThumb) {
-							this._input.click();
-						} else if (el === this._btnDel) {
-							this.clear();
-							this._parent.hide();
-						} else if (el === this._btnSpoil) {
-							this._spoilEl.checked = this._btnSpoil.checked;
-							return;
-						} else if (el === this._btnRarJpg) {
-							this._addRarJpeg();
-						} else if (el === this._btnUrl) {
-							$toggle(this._urlWrap);
-							$toggle(this._btnUrl);
-							$toggle(this._btnDel);
-							$toggle(this._input);
-						} else if (el === this._urlAddBtn) {
-							var _ret7 = function () {
-								var url = _this23._urlInput.value;
-								if (!url) {
-									return {
-										v: void 0
-									};
-								}
-								$popup('file-loading', Lng.loading[lang], true);
-								downloadImgData(url, false).then(function (data) {
-									if (!data) {
-										$popup('file-loading', Lng.cantLoad[lang] + 'URL: ' + url);
-										return;
-									}
-									closePopup('file-loading');
-									var fileName = url.split('/').pop();
-									var fileType = getFileType(url);
-									_this23.imgFile = [data, fileName, fileType];
-									_this23.hasUrlFile = true;
-									if (Cfg.fileThumb) {
-										$hide(_this23._urlWrap);
-										_this23._addNewThumb(data, fileName, data.length, fileType);
-									}
-									_this23._onFileChange();
-								});
-							}();
 
-							if ((typeof _ret7 === 'undefined' ? 'undefined' : _typeof(_ret7)) === "object") return _ret7.v;
-						}
-						e.stopPropagation();
-						$pd(e);
-						return;
-					case 'dragenter':
-						if (isThumb) {
-							this._thumb.classList.add('de-file-drag');
-						}
-						return;
-					case 'dragleave':
-						if (isThumb && !this._thumb.contains(e.relatedTarget)) {
-							this._thumb.classList.remove('de-file-drag');
-						}
-						return;
-					case 'drop':
-						if (isThumb) {
-							(function () {
-								var file = e.dataTransfer.files[0];
-								if (file) {
-									readFile(file).then(function (_ref44) {
-										var data = _ref44.data;
-
-										_this23.imgFile = [data, file.name, file.type];
-										_this23._addNewThumb(data, file.name, file.size, file.type);
-										_this23._onFileChange();
-									});
-								} else {
-									_this23._urlInput.value = e.dataTransfer.getData('text/plain');
-									_this23._urlAddBtn.click();
-								}
-								setTimeout(function () {
-									return _this23._thumb.classList.remove('de-file-drag');
-								}, 10);
-								e.stopPropagation();
-								$pd(e);
-							})();
-						} else if (el === this._urlInput) {
+				var _ret7 = function () {
+					switch (e.type) {
+						case 'change':
 							setTimeout(function () {
-								return _this23._urlAddBtn.click();
+								return _this23._onFileChange(false);
+							}, 20);return {
+								v: void 0
+							};
+						case 'click':
+							if (isThumb) {
+								_this23._input.click();
+							} else if (el === _this23._btnDel) {
+								_this23.clear();
+								_this23._parent.hide();
+							} else if (el === _this23._btnSpoil) {
+								_this23._spoilEl.checked = _this23._btnSpoil.checked;
+								return {
+									v: void 0
+								};
+							} else if (el === _this23._btnRarJpg) {
+								_this23._addRarJpeg();
+							} else if (el === _this23._btnUrl) {
+								_this23._showDelBtn(_this23._isUrlEditable = true);
+								$show(_this23._urlAddBtn);
+								if (_this23._isThumb) {
+									$toggle(_this23._urlWrap);
+								}
+								_this23._urlInput.classList.remove('de-file-url-noedit');
+								_this23._urlInput.placeholder = Lng.enterTheLink[lang];
+								_this23._urlInput.focus();
+							} else if (el === _this23._urlAddBtn) {
+								_this23._addUrlFile(_this23._urlInput.value);
+							} else if (el === _this23._urlInput && !_this23._isUrlEditable) {
+								_this23._input.click();
+								_this23._urlInput.blur();
+							}
+							e.stopPropagation();
+							$pd(e);
+							return {
+								v: void 0
+							};
+						case 'dragenter':
+							if (isThumb) {
+								_this23._thumb.classList.add('de-file-drag');
+							}
+							return {
+								v: void 0
+							};
+						case 'dragleave':
+							if (isThumb && !_this23._thumb.contains(e.relatedTarget)) {
+								_this23._thumb.classList.remove('de-file-drag');
+							}
+							return {
+								v: void 0
+							};
+						case 'drop':
+							var dt = e.dataTransfer;
+							if (!isThumb && el !== _this23._urlInput) {
+								return {
+									v: void 0
+								};
+							}
+							var file = dt.files[0];
+							if (file) {
+								readFile(file).then(function (_ref44) {
+									var data = _ref44.data;
+
+									_this23.imgFile = [data, file.name, file.type];
+									_this23._onFileChange(true);
+								});
+							} else {
+								_this23._addUrlFile(dt.getData('text/plain'));
+							}
+							setTimeout(function () {
+								return _this23._thumb.classList.remove('de-file-drag');
 							}, 10);
-						}
-				}
+							e.stopPropagation();
+							$pd(e);
+					}
+				}();
+
+				if ((typeof _ret7 === 'undefined' ? 'undefined' : _typeof(_ret7)) === "object") return _ret7.v;
 			}
 		}, {
 			key: 'hide',
 			value: function hide() {
-				if (Cfg.fileThumb) {
+				if (this._isThumb) {
+					this._showDelBtn(false);
 					$hide(this._thumb);
+					$hide(this._urlWrap);
 				}
 				$hide(this._wrap);
 			}
 		}, {
 			key: 'show',
 			value: function show() {
-				if (Cfg.fileThumb) {
+				if (this._isThumb) {
 					$show(this._thumb);
 				}
 				$show(this._wrap);
@@ -12440,7 +12435,7 @@ true, true],
 				var el = this._thumb;
 				el.classList.remove('de-file-off');
 				el = el.firstChild.firstChild;
-				el.title = fileName + '\', ' + (fileSize / 1024).toFixed(2) + 'KB';
+				el.title = fileName + ', ' + (fileSize / 1024).toFixed(2) + 'KB';
 				this._mediaEl = el = $aBegin(el, fileType.startsWith('video/') ? '<video class="de-file-img" loop autoplay muted src=""></video>' : '<img class="de-file-img" src="">');
 				el.src = window.URL.createObjectURL(new Blob([fileData]));
 				if (el = el.nextSibling) {
@@ -12473,6 +12468,29 @@ true, true],
 				el.click();
 			}
 		}, {
+			key: '_addUrlFile',
+			value: function _addUrlFile(url) {
+				var _this25 = this;
+
+				if (!url) {
+					return;
+				}
+				$popup('file-loading', Lng.loading[lang], true);
+				downloadImgData(url, false).then(function (data) {
+					if (!data) {
+						$popup('file-loading', Lng.cantLoad[lang] + 'URL: ' + url);
+						return;
+					}
+					closePopup('file-loading');
+					_this25._isUrlEditable = false;
+					_this25.imgFile = [data.buffer, url.split('/').pop(), getFileType(url)];
+					if (_this25._isThumb) {
+						$hide(_this25._urlWrap);
+					}
+					_this25._onFileChange(true);
+				});
+			}
+		}, {
 			key: '_changeFilesCount',
 			value: function _changeFilesCount(val) {
 				this._parent.filesCount = Math.max(this._parent.filesCount + val, 0);
@@ -12485,51 +12503,52 @@ true, true],
 			value: function _initThumbs() {
 				var fileTr = this._parent.fileTd.parentNode;
 				$hide(fileTr);
+				$hide(this._urlWrap);
 				($q('.de-file-url-area') || $bBegin(fileTr, '<tr class="de-file-url-area"><td></td><td></td></tr>')).lastChild.appendChild(this._urlWrap);
-				this._thumb = $bEnd(this._parent.thumbsEl, '<div class="de-file de-file-off"><div class="de-file-img">' + '<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
+				this._thumb = $bEnd(this._parent.thumbsEl, '<div class="de-file de-file-off"><div class="de-file-img"><div class="de-file-img" title="' + Lng.youCanDrag[lang] + '"></div></div></div>');
 				this._thumb.addEventListener('click', this);
 				this._thumb.addEventListener('dragenter', this);
 				this._thumb.appendChild(this._utils);
 				this._toggleDragEvents(this._thumb, true);
 				if (this.hasFile) {
 					this._showPviewImage();
-					$hide(this._urlWrap);
 				}
 			}
 		}, {
 			key: '_onFileChange',
-			value: function _onFileChange() {
+			value: function _onFileChange(hasImgFile) {
+				this._urlInput.value = hasImgFile ? this.imgFile[1] : this._input.files[0].name;
+				if (!hasImgFile) {
+					this.imgFile = null;
+				}
 				if (this._parent.onchange) {
 					this._parent.onchange();
 				}
-				if (Cfg.fileThumb) {
+				if (this._isThumb) {
 					this._showPviewImage();
 				}
 				if (this.hasFile) {
 					this.extraFile = null;
-					this.hasUrlFile = false;
 				} else {
 					this.hasFile = true;
 					this._changeFilesCount(+1);
-					$hide(this._btnUrl);
-					if (this.hasUrlFile) {
-						$hide(this._input);
-					} else {
+					this._showDelBtn(true);
+					$hide(this._urlAddBtn);
+					if (this._isThumb) {
 						$hide(this._urlWrap);
-						$show(this._input);
 					}
-					$show(this._btnDel);
 					if (this._spoilEl) {
 						this._btnSpoil.checked = this._spoilEl.checked;
 						$show(this._btnSpoil);
 					}
+					this._urlInput.classList.add('de-file-url-noedit');
+					this._urlInput.placeholder = Lng.dropFileHere[lang];
 				}
 				this._parent.hide();
-				if (nav.Presto || aib.fch || !/^image\/(?:png|jpeg)$/.test(this.imgFile ? this.imgFile[2] : this._input.files[0].type)) {
-					return;
+				if (!nav.Presto && !aib.fch && /^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile[2] : this._input.files[0].type)) {
+					$del(this._rarMsg);
+					$show(this._btnRarJpg);
 				}
-				$del(this._rarMsg);
-				$show(this._btnRarJpg);
 			}
 		}, {
 			key: '_removeFile',
@@ -12542,12 +12561,11 @@ true, true],
 				this._input = newEl;
 				$del(oldEl);
 				this.hasFile = false;
-				this.hasUrlFile = false;
 			}
 		}, {
 			key: '_showPviewImage',
 			value: function _showPviewImage() {
-				var _this25 = this;
+				var _this26 = this;
 
 				if (this.imgFile) {
 					var _imgFile = _slicedToArray(this.imgFile, 3),
@@ -12555,21 +12573,27 @@ true, true],
 					    fileName = _imgFile[1],
 					    fileType = _imgFile[2];
 
-					this._addNewThumb(_data6, fileName, _data6.length, fileType);
+					this._addNewThumb(_data6, fileName, _data6.byteLength, fileType);
 				} else {
 					(function () {
-						var file = _this25._input.files[0];
+						var file = _this26._input.files[0];
 						if (file) {
 							readFile(file).then(function (_ref46) {
 								var data = _ref46.data;
 
-								if (_this25._input.files[0] === file) {
-									_this25._addNewThumb(data, file.name, file.size, file.type);
+								if (_this26._input.files[0] === file) {
+									_this26._addNewThumb(data, file.name, file.size, file.type);
 								}
 							});
 						}
 					})();
 				}
+			}
+		}, {
+			key: '_showDelBtn',
+			value: function _showDelBtn(isShow) {
+				$toggle(this._btnDel, isShow);
+				$toggle(this._btnUrl, !isShow);
 			}
 		}, {
 			key: '_toggleDragEvents',
@@ -12579,6 +12603,11 @@ true, true],
 				el[name]('dragenter', this);
 				el[name]('dragleave', this);
 				el[name]('drop', this);
+			}
+		}, {
+			key: '_isThumb',
+			get: function get() {
+				return Cfg.fileInputs === 2;
 			}
 		}, {
 			key: '_wrap',
@@ -12612,7 +12641,7 @@ true, true],
 		_createClass(Captcha, [{
 			key: 'addCaptcha',
 			value: function addCaptcha() {
-				var _this26 = this;
+				var _this27 = this;
 
 				if (this.isAdded) {
 					return;
@@ -12630,12 +12659,12 @@ true, true],
 				var initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
 				if (initPromise) {
 					initPromise.then(function () {
-						return _this26.showCaptcha();
+						return _this27.showCaptcha();
 					}, function (e) {
 						if (e instanceof AjaxError) {
-							_this26._setUpdateError(e);
+							_this27._setUpdateError(e);
 						} else {
-							_this26.hasCaptcha = false;
+							_this27.hasCaptcha = false;
 						}
 					});
 				} else if (this.hasCaptcha) {
@@ -12677,20 +12706,20 @@ true, true],
 		}, {
 			key: 'initImage',
 			value: function initImage(img) {
-				var _this27 = this;
+				var _this28 = this;
 
 				img.title = Lng.refresh[lang];
 				img.alt = Lng.loading[lang];
 				img.style.cssText = 'vertical-align: text-bottom; border: none; cursor: pointer;';
 				img.onclick = function () {
-					return _this27.refreshCaptcha(true);
+					return _this28.refreshCaptcha(true);
 				};
 			}
 		}, {
 			key: 'initTextEl',
 			value: function initTextEl() {
 				this.textEl.autocomplete = 'off';
-				if (!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
+				if (!aib.kus && (aib.multiFile || Cfg.fileInputs !== 2)) {
 					this.textEl.placeholder = Lng.cap[lang];
 				}
 				this.textEl.addEventListener('keypress', this);
@@ -12733,7 +12762,7 @@ true, true],
 		}, {
 			key: 'refreshCaptcha',
 			value: function refreshCaptcha(isFocus) {
-				var _this28 = this;
+				var _this29 = this;
 
 				var isErr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 				var tNum = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.tNum;
@@ -12754,9 +12783,9 @@ true, true],
 					var updatePromise = aib.updateCaptcha(this, isErr);
 					if (updatePromise) {
 						updatePromise.then(function () {
-							return _this28._updateTextEl(isFocus);
+							return _this29._updateTextEl(isFocus);
 						}, function (e) {
-							return _this28._setUpdateError(e);
+							return _this29._setUpdateError(e);
 						});
 					}
 				} else if (this._isRecap) {
@@ -12809,14 +12838,14 @@ true, true],
 		}, {
 			key: '_setUpdateError',
 			value: function _setUpdateError(e) {
-				var _this29 = this;
+				var _this30 = this;
 
 				if (e) {
 					this.parentEl = e.toString();
 					this.isAdded = false;
 					this.parentEl.onclick = function () {
-						_this29.parentEl.onclick = null;
-						_this29.addCaptcha();
+						_this30.parentEl.onclick = null;
+						_this30.addCaptcha();
 					};
 					$show(this.parentEl);
 				}
@@ -12881,7 +12910,7 @@ true, true],
 		}, {
 			key: 'handleEvent',
 			value: function handleEvent(e) {
-				var _this30 = this;
+				var _this31 = this;
 
 				var temp,
 				    el = fixEventEl(e.target),
@@ -13054,7 +13083,7 @@ true, true],
 								}
 							} else {
 								this._linkDelay = setTimeout(function () {
-									return _this30.kid = Pview.show(_this30, el);
+									return _this31.kid = Pview.show(_this31, el);
 								}, Cfg.linksOver);
 							}
 							$pd(e);
@@ -13099,7 +13128,7 @@ true, true],
 		}, {
 			key: '_addMenu',
 			value: function _addMenu(el, isOutEvent, html) {
-				var _this31 = this;
+				var _this32 = this;
 
 				if (this.menu && this.menu.parentEl === el) {
 					return;
@@ -13108,7 +13137,7 @@ true, true],
 					clearTimeout(this._menuDelay);
 				} else {
 					this._menuDelay = setTimeout(function () {
-						return _this31._showMenu(el, html);
+						return _this32._showMenu(el, html);
 					}, Cfg.linksOver);
 				}
 			}
@@ -13126,7 +13155,7 @@ true, true],
 		}, {
 			key: '_getFullMsg',
 			value: function _getFullMsg(el, isInit) {
-				var _this32 = this;
+				var _this33 = this;
 
 				if (aib.delTruncMsg) {
 					aib.delTruncMsg(this, el, isInit);
@@ -13137,14 +13166,14 @@ true, true],
 				}
 				ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(function (form) {
 					var maybeSpells = new Maybe(SpellsRunner);
-					if (_this32.isOp) {
-						_this32.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, form))), maybeSpells.value);
+					if (_this33.isOp) {
+						_this33.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, form))), maybeSpells.value);
 						$del(el);
 					} else {
 						var _els3 = $Q(aib.qRPost, form);
 						for (var i = 0, len = _els3.length; i < len; i++) {
-							if (_this32.num === aib.getPNum(_els3[i])) {
-								_this32.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, _els3[i]))), maybeSpells.value);
+							if (_this33.num === aib.getPNum(_els3[i])) {
+								_this33.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, _els3[i]))), maybeSpells.value);
 								$del(el);
 								break;
 							}
@@ -13163,16 +13192,16 @@ true, true],
 		}, {
 			key: '_showMenu',
 			value: function _showMenu(el, html) {
-				var _this33 = this;
+				var _this34 = this;
 
 				if (this._menu) {
 					this._menu.remove();
 				}
 				this._menu = new Menu(el, html, function (el) {
-					return _this33._clickMenu(el);
+					return _this34._clickMenu(el);
 				}, false);
 				this._menu.onremove = function () {
-					return _this33._menu = null;
+					return _this34._menu = null;
 				};
 			}
 		}, {
@@ -13278,47 +13307,47 @@ true, true],
 		function Post(el, thr, num, count, isOp, prev) {
 			_classCallCheck(this, Post);
 
-			var _this34 = _possibleConstructorReturn(this, (Post.__proto__ || Object.getPrototypeOf(Post)).call(this, thr, num, isOp));
+			var _this35 = _possibleConstructorReturn(this, (Post.__proto__ || Object.getPrototypeOf(Post)).call(this, thr, num, isOp));
 
-			_this34.count = count;
-			_this34.el = el;
-			_this34.prev = prev;
-			_this34.next = null;
-			_this34.deleted = false;
-			_this34.hidden = false;
-			_this34.omitted = false;
-			_this34.spellHidden = false;
-			_this34.userToggled = false;
-			_this34.viewed = false;
-			_this34._selRange = null;
-			_this34._selText = '';
+			_this35.count = count;
+			_this35.el = el;
+			_this35.prev = prev;
+			_this35.next = null;
+			_this35.deleted = false;
+			_this35.hidden = false;
+			_this35.omitted = false;
+			_this35.spellHidden = false;
+			_this35.userToggled = false;
+			_this35.viewed = false;
+			_this35._selRange = null;
+			_this35._selText = '';
 			if (prev) {
-				prev.next = _this34;
+				prev.next = _this35;
 			}
-			pByEl.set(el, _this34);
-			pByNum.set(num, _this34);
+			pByEl.set(el, _this35);
+			pByNum.set(num, _this35);
 			if (MyPosts.has(num)) {
-				_this34.el.classList.add('de-mypost');
+				_this35.el.classList.add('de-mypost');
 			}
 			var refEl = $q(aib.qPostRef, el),
 			    html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') + '"><svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' + '<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' + '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>';
-			_this34._pref = refEl;
+			_this35._pref = refEl;
 			if (isOp) {
 				if (!aib.t) {
 					html += '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>';
 				}
 				html += '<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>';
 			}
-			_this34.sage = aib.getSage(el);
-			if (_this34.sage) {
+			_this35.sage = aib.getSage(el);
+			if (_this35.sage) {
 				html += '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>';
 			}
-			_this34.btns = $aEnd(refEl, html + '</span>');
-			if (Cfg.expandTrunc && _this34.trunc) {
-				_this34._getFullMsg(_this34.trunc, true);
+			_this35.btns = $aEnd(refEl, html + '</span>');
+			if (Cfg.expandTrunc && _this35.trunc) {
+				_this35._getFullMsg(_this35.trunc, true);
 			}
-			el.addEventListener('mouseover', _this34, true);
-			return _this34;
+			el.addEventListener('mouseover', _this35, true);
+			return _this35;
 		}
 
 		_createClass(Post, [{
@@ -13448,7 +13477,7 @@ true, true],
 		}, {
 			key: 'setVisib',
 			value: function setVisib(hide) {
-				var _this35 = this;
+				var _this36 = this;
 
 				var note = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
@@ -13470,14 +13499,14 @@ true, true],
 					} else {
 						this._pref.onmouseover = this._pref.onmouseout = !hide ? null : function (e) {
 							var yOffset = window.pageYOffset;
-							_this35.hideContent(e.type === 'mouseout');
+							_this36.hideContent(e.type === 'mouseout');
 							scrollTo(window.pageXOffset, yOffset);
 						};
 					}
 				}
 				if (Cfg.strikeHidd) {
 					setTimeout(function () {
-						return _this35._strikePostNum(hide);
+						return _this36._strikePostNum(hide);
 					}, 50);
 				}
 				if (hide) {
@@ -13774,15 +13803,15 @@ true, true],
 		function PostContent(post) {
 			_classCallCheck(this, PostContent);
 
-			var _this36 = _possibleConstructorReturn(this, (PostContent.__proto__ || Object.getPrototypeOf(PostContent)).call(this, post));
+			var _this37 = _possibleConstructorReturn(this, (PostContent.__proto__ || Object.getPrototypeOf(PostContent)).call(this, post));
 
-			if (_this36._inited) {
-				return _possibleConstructorReturn(_this36);
+			if (_this37._inited) {
+				return _possibleConstructorReturn(_this37);
 			}
-			_this36._inited = true;
-			_this36.el = post.el;
-			_this36.post = post;
-			return _this36;
+			_this37._inited = true;
+			_this37.el = post.el;
+			_this37.post = post;
+			return _this37;
 		}
 
 		_createClass(PostContent, [{
@@ -13877,17 +13906,17 @@ true, true],
 		}, {
 			key: 'set',
 			value: function set(note) {
-				var _this37 = this;
+				var _this38 = this;
 
 				this.text = note;
 				var text = void 0;
 				if (this.isHideThr) {
 					this._aEl.onmouseover = this._aEl.onmouseout = function (e) {
-						return _this37._post.hideContent(e.type === 'mouseout');
+						return _this38._post.hideContent(e.type === 'mouseout');
 					};
 					this._aEl.onclick = function (e) {
 						$pd(e);
-						_this37._post.setUserVisib(!_this37._post.hidden);
+						_this38._post.setUserVisib(!_this38._post.hidden);
 					};
 					text = (this._post.title ? '(' + this._post.title + ') ' : '') + (note ? '[autohide: ' + note + ']' : '');
 				} else {
@@ -14146,50 +14175,50 @@ true, true],
 		function Pview(parent, link, pNum, tNum) {
 			_classCallCheck(this, Pview);
 
-			var _this38 = _possibleConstructorReturn(this, (Pview.__proto__ || Object.getPrototypeOf(Pview)).call(this, parent.thr, pNum, pNum === tNum));
+			var _this39 = _possibleConstructorReturn(this, (Pview.__proto__ || Object.getPrototypeOf(Pview)).call(this, parent.thr, pNum, pNum === tNum));
 
-			_this38._isCached = false;
-			_this38._isLeft = false;
-			_this38._isTop = false;
-			_this38._link = link;
-			_this38._newPos = null;
-			_this38._offsetTop = 0;
-			_this38._readDelay = 0;
-			_this38.isSticky = false;
-			_this38.parent = parent;
-			_this38.tNum = tNum;
+			_this39._isCached = false;
+			_this39._isLeft = false;
+			_this39._isTop = false;
+			_this39._link = link;
+			_this39._newPos = null;
+			_this39._offsetTop = 0;
+			_this39._readDelay = 0;
+			_this39.isSticky = false;
+			_this39.parent = parent;
+			_this39.tNum = tNum;
 			var post = pByNum.get(pNum);
 			if (post && (!post.isOp || !(parent instanceof Pview) || !parent._isCached)) {
-				_this38._showPost(post);
-				return _possibleConstructorReturn(_this38);
+				_this39._showPost(post);
+				return _possibleConstructorReturn(_this39);
 			}
-			_this38._isCached = true;
-			_this38._brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
-			if (PviewsCache.has(_this38._brd + tNum)) {
-				post = PviewsCache.get(_this38._brd + tNum).getPost(pNum);
+			_this39._isCached = true;
+			_this39._brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
+			if (PviewsCache.has(_this39._brd + tNum)) {
+				post = PviewsCache.get(_this39._brd + tNum).getPost(pNum);
 				if (post) {
-					_this38._showPost(post);
+					_this39._showPost(post);
 				} else {
-					_this38._showPview(_this38.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t\t\t' + Lng.postNotFound[lang] + '</div>'));
+					_this39._showPview(_this39.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t\t\t' + Lng.postNotFound[lang] + '</div>'));
 				}
-				return _possibleConstructorReturn(_this38);
+				return _possibleConstructorReturn(_this39);
 			}
-			_this38._showPview(_this38.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
+			_this39._showPview(_this39.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
 
-			_this38._loadPromise = ajaxPostsLoad(_this38._brd, tNum, false).then(function (pBuilder) {
+			_this39._loadPromise = ajaxPostsLoad(_this39._brd, tNum, false).then(function (pBuilder) {
 				if (aib.jsonBuilder) {
 					var html = [];
 					for (var i = 0, len = pBuilder.length + 1; i < len; ++i) {
 						html.push(pBuilder.getPostHTML(i - 1)); 
 					}
-					_this38._onload($add('<div>' + aib.fixHTML(html.join('')) + '</div>'));
+					_this39._onload($add('<div>' + aib.fixHTML(html.join('')) + '</div>'));
 				} else {
-					_this38._onload(pBuilder._form);
+					_this39._onload(pBuilder._form);
 				}
 			}, function (e) {
-				return _this38._onerror(e);
+				return _this39._onerror(e);
 			});
-			return _this38;
+			return _this39;
 		}
 
 		_createClass(Pview, [{
@@ -14276,11 +14305,11 @@ true, true],
 		}, {
 			key: 'markToDel',
 			value: function markToDel() {
-				var _this39 = this;
+				var _this40 = this;
 
 				clearTimeout(Pview._delTO);
 				Pview._delTO = setTimeout(function () {
-					return _this39.deleteNonSticky();
+					return _this40.deleteNonSticky();
 				}, Cfg.linksOut);
 			}
 		}, {
@@ -14379,14 +14408,14 @@ true, true],
 		}, {
 			key: '_showMenu',
 			value: function _showMenu(el, html) {
-				var _this40 = this;
+				var _this41 = this;
 
 				_get(Pview.prototype.__proto__ || Object.getPrototypeOf(Pview.prototype), '_showMenu', this).call(this, el, html);
 				this._menu.onover = function () {
-					return _this40.mouseEnter();
+					return _this41.mouseEnter();
 				};
 				this._menu.onout = function () {
-					return _this40.markToDel();
+					return _this41.markToDel();
 				};
 			}
 		}, {
@@ -14538,12 +14567,12 @@ true, true],
 		function PviewsCache(form, b, tNum) {
 			_classCallCheck(this, PviewsCache);
 
-			var _this41 = _possibleConstructorReturn(this, (PviewsCache.__proto__ || Object.getPrototypeOf(PviewsCache)).call(this, b + tNum));
+			var _this42 = _possibleConstructorReturn(this, (PviewsCache.__proto__ || Object.getPrototypeOf(PviewsCache)).call(this, b + tNum));
 
-			if (_this41._inited) {
-				return _possibleConstructorReturn(_this41);
+			if (_this42._inited) {
+				return _possibleConstructorReturn(_this42);
 			}
-			_this41._inited = true;
+			_this42._inited = true;
 			var pBn = new Map(),
 			    thr = $q(aib.qThread, form) || form,
 			    posts = $Q(aib.qRPost + ', ' + aib.qOPost, thr);
@@ -14551,15 +14580,15 @@ true, true],
 				var post = posts[i];
 				pBn.set(aib.getPNum(post), new CacheItem(post, i + 1));
 			}
-			pBn.set(tNum, _this41._opObj = new CacheItem(aib.getOp(thr), 0));
-			_this41._b = b;
-			_this41._tNum = tNum;
-			_this41._tUrl = aib.getThrUrl(b, tNum);
-			_this41._posts = pBn;
+			pBn.set(tNum, _this42._opObj = new CacheItem(aib.getOp(thr), 0));
+			_this42._b = b;
+			_this42._tNum = tNum;
+			_this42._tUrl = aib.getThrUrl(b, tNum);
+			_this42._posts = pBn;
 			if (Cfg.linksNavig === 2) {
-				RefMap.gen(pBn, _this41._tUrl);
+				RefMap.gen(pBn, _this42._tUrl);
 			}
-			return _this41;
+			return _this42;
 		}
 
 		_createClass(PviewsCache, [{
@@ -14659,11 +14688,11 @@ true, true],
 		_oldX: -1,
 		_oldY: -1,
 		_setHideTmt: function _setHideTmt() {
-			var _this42 = this;
+			var _this43 = this;
 
 			clearTimeout(this._hideTmt);
 			this._hideTmt = setTimeout(function () {
-				return _this42.hide();
+				return _this43.hide();
 			}, 2e3);
 		}
 	};
@@ -14758,12 +14787,12 @@ true, true],
 		_minSize: 0,
 		_moved: false,
 		get _btns() {
-			var _this43 = this;
+			var _this44 = this;
 
 			var val = new ImgBtnsShowHider(function () {
-				return _this43.navigate(true);
+				return _this44.navigate(true);
 			}, function () {
-				return _this43.navigate(false);
+				return _this44.navigate(false);
 			});
 			Object.defineProperty(this, '_btns', { value: val });
 			return val;
@@ -14799,7 +14828,7 @@ true, true],
 			this._elStyle.top = (this._oldT = parseInt(clientY - height / oldH * (clientY - this._oldT), 10)) + 'px';
 		},
 		_show: function _show(data) {
-			var _this44 = this;
+			var _this45 = this;
 
 			var _data$computeFullSize = data.computeFullSize(),
 			    _data$computeFullSize2 = _slicedToArray(_data$computeFullSize, 3),
@@ -14808,9 +14837,9 @@ true, true],
 			    minSize = _data$computeFullSize2[2];
 
 			this._fullEl = data.getFullObject(false, function (el) {
-				return _this44._resize(el);
+				return _this45._resize(el);
 			}, function (el) {
-				return _this44._rotate(el);
+				return _this45._rotate(el);
 			});
 			if (data.isVideo && width < Cfg.minWebmWidth) {
 				width = Cfg.minWebmWidth;
@@ -15002,7 +15031,7 @@ true, true],
 		}, {
 			key: 'expand',
 			value: function expand(inPost, e) {
-				var _this45 = this;
+				var _this46 = this;
 
 				if (e && !e.bubbles) {
 					return;
@@ -15025,7 +15054,7 @@ true, true],
 				(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend', '<div class="de-after-fimg"></div>');
 				this._fullEl = this.getFullObject(true, null, null);
 				this._fullEl.addEventListener('click', function (e) {
-					return _this45.collapse(e);
+					return _this46.collapse(e);
 				});
 				$hide(el.parentNode);
 				$after(el.parentNode, this._fullEl);
@@ -15057,7 +15086,7 @@ true, true],
 		}, {
 			key: 'getFullObject',
 			value: function getFullObject(inPost, onsizechange, onrotate) {
-				var _this46 = this;
+				var _this47 = this;
 
 				var obj = void 0,
 				    src = this.src;
@@ -15080,10 +15109,10 @@ true, true],
 						} else {
 							var newWidth = target.naturalWidth;
 							var newHeight = target.naturalHeight;
-							var ar = _this46._size ? _this46._size[1] / _this46._size[0] : newHeight / newWidth;
+							var ar = _this47._size ? _this47._size[1] / _this47._size[0] : newHeight / newWidth;
 							var isExifRotated = target.scrollHeight / target.scrollWidth > 1 ? ar < 1 : ar > 1;
-							if (!_this46._size || isExifRotated) {
-								_this46._size = isExifRotated ? [newHeight, newWidth] : [newWidth, newHeight];
+							if (!_this47._size || isExifRotated) {
+								_this47._size = isExifRotated ? [newHeight, newWidth] : [newWidth, newHeight];
 							}
 							var _el7 = target.previousElementSibling;
 							if (_el7) {
@@ -15348,7 +15377,7 @@ true, true],
 		},
 
 		_getHashHelper: regeneratorRuntime.mark(function _getHashHelper(imgObj) {
-			var _this49 = this;
+			var _this50 = this;
 
 			var el, src, data, buffer, val, w, h, imgData, cnv, ctx;
 			return regeneratorRuntime.wrap(function _getHashHelper$(_context17) {
@@ -15423,7 +15452,7 @@ true, true],
 
 							_context17.next = 25;
 							return new Promise(function (resolve) {
-								return _this49._workers.run([buffer, w, h], [buffer], function (val) {
+								return _this50._workers.run([buffer, w, h], [buffer], function (val) {
 									return resolve(val);
 								});
 							});
@@ -16445,7 +16474,7 @@ true, true],
 		}]);
 
 		function Thread(el, num, prev, form) {
-			var _this50 = this;
+			var _this51 = this;
 
 			_classCallCheck(this, Thread);
 
@@ -16489,16 +16518,16 @@ true, true],
 				var updBtn = this.btns.firstChild;
 				updBtn.onclick = function (e) {
 					$pd(e);
-					_this50.loadPosts('new');
+					_this51.loadPosts('new');
 				};
 				if (Cfg.hideReplies) {
 					var repBtn = $bEnd(this.btns, ' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
 					repBtn.onclick = function (e) {
 						$pd(e);
-						var nextCoord = !_this50.next || _this50.last.omitted ? null : _this50.next.top;
-						_this50._toggleReplies(repBtn, updBtn);
+						var nextCoord = !_this51.next || _this51.last.omitted ? null : _this51.next.top;
+						_this51._toggleReplies(repBtn, updBtn);
 						if (nextCoord) {
-							scrollTo(window.pageXOffset, windows.pageYOffset + _this50.next.top - nextCoord);
+							scrollTo(window.pageXOffset, windows.pageYOffset + _this51.next.top - nextCoord);
 						}
 					};
 					this._toggleReplies(repBtn, updBtn);
@@ -16530,7 +16559,7 @@ true, true],
 		}, {
 			key: 'loadPosts',
 			value: function loadPosts(task) {
-				var _this51 = this;
+				var _this52 = this;
 
 				var isSmartScroll = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 				var isInformUser = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
@@ -16539,7 +16568,7 @@ true, true],
 					$popup('load-thr', Lng.loading[lang], true);
 				}
 				return ajaxPostsLoad(aib.b, this.thrId, false).then(function (pBuilder) {
-					return _this51._loadFromBuilder(task, isSmartScroll, pBuilder);
+					return _this52._loadFromBuilder(task, isSmartScroll, pBuilder);
 				}, function (e) {
 					return $popup('load-thr', getErrorMessage(e));
 				});
@@ -16548,22 +16577,22 @@ true, true],
 		}, {
 			key: 'loadNewPosts',
 			value: function loadNewPosts() {
-				var _this52 = this;
+				var _this53 = this;
 
 				return ajaxPostsLoad(aib.b, this.thrId, true).then(function (pBuilder) {
-					return pBuilder ? _this52._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false };
+					return pBuilder ? _this53._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false };
 				});
 			}
 		}, {
 			key: 'setFavorState',
 			value: function setFavorState(val, type) {
-				var _this53 = this;
+				var _this54 = this;
 
 				this.op.setFavBtn(val);
 				readFavorites().then(function (fav) {
 					var b = aib.b;
 					var h = aib.host;
-					var num = _this53.thrId;
+					var num = _this54.thrId;
 					if (val) {
 						if (!fav[h]) {
 							fav[h] = {};
@@ -16573,12 +16602,12 @@ true, true],
 						}
 						fav[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
 						fav[h][b][num] = {
-							'cnt': _this53.pcount,
+							'cnt': _this54.pcount,
 							'new': 0,
 							'you': 0,
-							'txt': _this53.op.title,
+							'txt': _this54.op.title,
 							'url': aib.getThrUrl(b, num),
-							'last': aib.anchor + _this53.last.num,
+							'last': aib.anchor + _this54.last.num,
 							'type': type
 						};
 					} else {
@@ -16721,7 +16750,7 @@ true, true],
 		}, {
 			key: '_loadFromBuilder',
 			value: function _loadFromBuilder(last, smartScroll, pBuilder) {
-				var _this54 = this;
+				var _this55 = this;
 
 				var nextCoord,
 				    maybeSpells = new Maybe(SpellsRunner),
@@ -16820,7 +16849,7 @@ true, true],
 				if (!$q('.de-thread-collapse', btn)) {
 					$bEnd(btn, '<span class="de-thread-collapse"> [<a class="de-abtn" href="' + aib.getThrUrl(aib.b, this.thrId) + '"></a>]</span>').onclick = function (e) {
 						$pd(e);
-						_this54.loadPosts(visPosts, true);
+						_this55.loadPosts(visPosts, true);
 					};
 				}
 				if (needToShow > visPosts) {
@@ -16870,7 +16899,7 @@ true, true],
 		}, {
 			key: '_parsePosts',
 			value: function _parsePosts(pBuilder) {
-				var _this55 = this;
+				var _this56 = this;
 
 				this._checkBans(pBuilder);
 				var maybeSpells = new Maybe(SpellsRunner),
@@ -16944,19 +16973,19 @@ true, true],
 					if (!f || !f[aib.b]) {
 						return;
 					}
-					if (f = f[aib.b][_this55.op.num]) {
+					if (f = f[aib.b][_this56.op.num]) {
 						var el = $q('#de-win-fav > .de-win-body');
 						if (el && el.hasChildNodes()) {
-							el = $q('.de-fav-current > .de-fav-entries > .de-entry[de-num="' + _this55.op.num + '"] .de-fav-inf-new', el);
+							el = $q('.de-fav-current > .de-fav-entries > .de-entry[de-num="' + _this56.op.num + '"] .de-fav-inf-new', el);
 							$hide(el);
 							el.textContent = 0;
 							el = el.nextElementSibling; 
-							el.textContent = _this55.pcount;
+							el.textContent = _this56.pcount;
 						}
-						f.cnt = _this55.pcount;
+						f.cnt = _this56.pcount;
 						f['new'] = 0;
 						f.you = 0;
-						f.last = aib.anchor + _this55.last.num;
+						f.last = aib.anchor + _this56.last.num;
 						setStored('DESU_Favorites', JSON.stringify(fav));
 					}
 				});
@@ -17018,12 +17047,12 @@ true, true],
 			}
 		},
 		handleEvent: function handleEvent(e) {
-			var _this56 = this;
+			var _this57 = this;
 
 			switch (e.type) {
 				case 'scroll':
 					window.requestAnimationFrame(function () {
-						return _this56._checkThreads();
+						return _this57._checkThreads();
 					});break;
 				case 'mouseover':
 					this._expandCollapse(true, fixEventEl(e.relatedTarget));break;
@@ -17072,10 +17101,10 @@ true, true],
 			if ('elementsFromPoint' in doc) {
 				Object.defineProperty(this, '_findCurrentThread', {
 					value: function value() {
-						var _this57 = this;
+						var _this58 = this;
 
 						return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2).find(function (el) {
-							return _this57._thrs.has(el);
+							return _this58._thrs.has(el);
 						});
 					}
 				});
@@ -17110,14 +17139,14 @@ true, true],
 			}
 		},
 		_expandCollapse: function _expandCollapse(expand, rt) {
-			var _this58 = this;
+			var _this59 = this;
 
 			if (!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
 				clearTimeout(this._showhideTO);
 				this._showhideTO = setTimeout(expand ? function () {
-					return _this58._el.classList.remove('de-thr-navpanel-hidden');
+					return _this59._el.classList.remove('de-thr-navpanel-hidden');
 				} : function () {
-					return _this58._el.classList.add('de-thr-navpanel-hidden');
+					return _this59._el.classList.add('de-thr-navpanel-hidden');
 				}, Cfg.linksOver);
 			}
 		},
@@ -17151,7 +17180,7 @@ true, true],
 				}
 			},
 			play: function play() {
-				var _this59 = this;
+				var _this60 = this;
 
 				this.stop();
 				if (this.repeatMS === 0) {
@@ -17159,7 +17188,7 @@ true, true],
 					return;
 				}
 				this._playInterval = setInterval(function () {
-					return _this59._el.play();
+					return _this60._el.play();
 				}, this.repeatMS);
 			},
 			stop: function stop() {
@@ -17190,7 +17219,7 @@ true, true],
 				$hide(this._el);
 			},
 			count: function count(delayMS, useCounter, callback) {
-				var _this60 = this;
+				var _this61 = this;
 
 				if (this._enabled && useCounter) {
 					var seconds = delayMS / 1000;
@@ -17198,15 +17227,15 @@ true, true],
 					this._countingIV = setInterval(function () {
 						seconds--;
 						if (seconds === 0) {
-							_this60._stop();
+							_this61._stop();
 							callback();
 						} else {
-							_this60._set(seconds);
+							_this61._set(seconds);
 						}
 					}, 1000);
 				} else {
 					this._countingTO = setTimeout(function () {
-						_this60._countingTO = null;
+						_this61._countingTO = null;
 						callback();
 					}, delayMS);
 				}
@@ -17251,7 +17280,7 @@ true, true],
 				return this._iconEl ? this._iconEl.href : null;
 			},
 			initIcons: function initIcons() {
-				var _this61 = this;
+				var _this62 = this;
 
 				if (this._isInited) {
 					return;
@@ -17260,7 +17289,7 @@ true, true],
 				var icon = new Image();
 				icon.onload = function (e) {
 					try {
-						_this61._initIconsHelper(e.target);
+						_this62._initIconsHelper(e.target);
 					} catch (err) {
 						console.warn('Icon error:', err);
 					}
@@ -17356,7 +17385,7 @@ true, true],
 				this._iconEl = $aBegin(doc.head, '<link rel="shortcut icon" href="' + iconUrl + '">');
 			},
 			_startBlink: function _startBlink(iconUrl) {
-				var _this62 = this;
+				var _this63 = this;
 
 				if (this._blinkInterval) {
 					if (this._currentIcon === iconUrl) {
@@ -17366,8 +17395,8 @@ true, true],
 				}
 				this._currentIcon = iconUrl;
 				this._blinkInterval = setInterval(function () {
-					_this62._setIcon(_this62._isOriginalIcon ? _this62._currentIcon : _this62.originalIcon);
-					_this62._isOriginalIcon = !_this62._isOriginalIcon;
+					_this63._setIcon(_this63._isOriginalIcon ? _this63._currentIcon : _this63.originalIcon);
+					_this63._isOriginalIcon = !_this63._isOriginalIcon;
 				}, this._blinkMS);
 			}
 		};
@@ -17387,7 +17416,7 @@ true, true],
 				}
 			},
 			show: function show() {
-				var _this63 = this;
+				var _this64 = this;
 
 				var post = Thread.first.last,
 				    notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
@@ -17397,8 +17426,8 @@ true, true],
 				});
 				notif.onshow = function () {
 					return setTimeout(function () {
-						if (notif === _this63._notifEl) {
-							_this63.close();
+						if (notif === _this64._notifEl) {
+							_this64.close();
 						}
 					}, 12e3);
 				};
@@ -17407,7 +17436,7 @@ true, true],
 				};
 				notif.onerror = function () {
 					window.focus();
-					_this63._requestPermission();
+					_this64._requestPermission();
 				};
 				this._notifEl = notif;
 			},
@@ -17424,14 +17453,14 @@ true, true],
 			_notifEl: null,
 
 			_requestPermission: function _requestPermission() {
-				var _this64 = this;
+				var _this65 = this;
 
 				this._granted = false;
 				Notification.requestPermission(function (state) {
 					if (state.toLowerCase() === 'denied') {
 						saveCfg('desktNotif', 0);
 					} else {
-						_this64._granted = true;
+						_this65._granted = true;
 					}
 				});
 			}
@@ -17538,7 +17567,7 @@ true, true],
 				this._makeStep();
 			},
 			_makeStep: function _makeStep() {
-				var _this65 = this;
+				var _this66 = this;
 
 				var needSleep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
@@ -17548,7 +17577,7 @@ true, true],
 							if (needSleep) {
 								this._state = 1;
 								counter.count(this._delay, !doc.hidden, function () {
-									return _this65._makeStep();
+									return _this66._makeStep();
 								});
 								return;
 							}
@@ -17558,9 +17587,9 @@ true, true],
 							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref62) {
 								var newCount = _ref62.newCount,
 								    locked = _ref62.locked;
-								return _this65._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
+								return _this66._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (e) {
-								return _this65._handleNewPosts(0, e);
+								return _this66._handleNewPosts(0, e);
 							});
 							return;
 						case 2:
@@ -18488,38 +18517,38 @@ true, true],
 			function Makaba(prot, dm) {
 				_classCallCheck(this, Makaba);
 
-				var _this66 = _possibleConstructorReturn(this, (Makaba.__proto__ || Object.getPrototypeOf(Makaba)).call(this, prot, dm));
+				var _this67 = _possibleConstructorReturn(this, (Makaba.__proto__ || Object.getPrototypeOf(Makaba)).call(this, prot, dm));
 
-				_this66.mak = true;
+				_this67.mak = true;
 
-				_this66.cReply = 'post reply';
-				_this66.qBan = '.pomyanem';
-				_this66.qClosed = '.sticky-img[src$="locked.png"]';
-				_this66.qDForm = '#posts-form';
-				_this66.qFormRedir = null;
-				_this66.qFormRules = '.rules-area';
-				_this66.qImgInfo = '.file-attr';
-				_this66.qOmitted = '.mess-post';
-				_this66.qPostHeader = '.post-details';
-				_this66.qPostImg = '.preview';
-				_this66.qPostMsg = '.post-message';
-				_this66.qPostName = '.ananimas, .post-email';
-				_this66.qPostSubj = '.post-title';
-				_this66.qRPost = '.post.reply[data-num]';
-				_this66.qTrunc = null;
+				_this67.cReply = 'post reply';
+				_this67.qBan = '.pomyanem';
+				_this67.qClosed = '.sticky-img[src$="locked.png"]';
+				_this67.qDForm = '#posts-form';
+				_this67.qFormRedir = null;
+				_this67.qFormRules = '.rules-area';
+				_this67.qImgInfo = '.file-attr';
+				_this67.qOmitted = '.mess-post';
+				_this67.qPostHeader = '.post-details';
+				_this67.qPostImg = '.preview';
+				_this67.qPostMsg = '.post-message';
+				_this67.qPostName = '.ananimas, .post-email';
+				_this67.qPostSubj = '.post-title';
+				_this67.qRPost = '.post.reply[data-num]';
+				_this67.qTrunc = null;
 
-				_this66.formParent = 'thread';
-				_this66.hasCatalog = true;
-				_this66.hasOPNum = true;
-				_this66.hasPicWrap = true;
-				_this66.jsonBuilder = MakabaPostsBuilder;
-				_this66.jsonSubmit = true;
-				_this66.markupBB = true;
-				_this66.multiFile = true;
-				_this66.timePattern = 'dd+nn+yy+w+hh+ii+ss';
+				_this67.formParent = 'thread';
+				_this67.hasCatalog = true;
+				_this67.hasOPNum = true;
+				_this67.hasPicWrap = true;
+				_this67.jsonBuilder = MakabaPostsBuilder;
+				_this67.jsonSubmit = true;
+				_this67.markupBB = true;
+				_this67.multiFile = true;
+				_this67.timePattern = 'dd+nn+yy+w+hh+ii+ss';
 
-				_this66._capUpdPromise = null;
-				return _this66;
+				_this67._capUpdPromise = null;
+				return _this67;
 			}
 
 			_createClass(Makaba, [{
@@ -18700,35 +18729,35 @@ true, true],
 			function Tinyboard(prot, dm) {
 				_classCallCheck(this, Tinyboard);
 
-				var _this67 = _possibleConstructorReturn(this, (Tinyboard.__proto__ || Object.getPrototypeOf(Tinyboard)).call(this, prot, dm));
+				var _this68 = _possibleConstructorReturn(this, (Tinyboard.__proto__ || Object.getPrototypeOf(Tinyboard)).call(this, prot, dm));
 
-				_this67.tiny = true;
+				_this68.tiny = true;
 
-				_this67.cReply = 'post reply';
-				_this67.qClosed = '.fa-lock';
-				_this67.qDForm = 'form[name*="postcontrols"]';
-				_this67.qForm = 'form[name="post"]';
-				_this67.qFormPassw = 'input[name="password"]';
-				_this67.qFormRedir = null;
-				_this67.qImgInfo = '.fileinfo';
-				_this67.qOmitted = '.omitted';
-				_this67.qPages = '.pages > a:nth-last-of-type(2)';
-				_this67.qPostHeader = '.intro';
-				_this67.qPostMsg = '.body';
-				_this67.qPostName = '.name';
-				_this67.qPostRef = '.post_no + a';
-				_this67.qPostSubj = '.subject';
-				_this67.qPostTrip = '.trip';
-				_this67.qTrunc = '.toolong';
+				_this68.cReply = 'post reply';
+				_this68.qClosed = '.fa-lock';
+				_this68.qDForm = 'form[name*="postcontrols"]';
+				_this68.qForm = 'form[name="post"]';
+				_this68.qFormPassw = 'input[name="password"]';
+				_this68.qFormRedir = null;
+				_this68.qImgInfo = '.fileinfo';
+				_this68.qOmitted = '.omitted';
+				_this68.qPages = '.pages > a:nth-last-of-type(2)';
+				_this68.qPostHeader = '.intro';
+				_this68.qPostMsg = '.body';
+				_this68.qPostName = '.name';
+				_this68.qPostRef = '.post_no + a';
+				_this68.qPostSubj = '.subject';
+				_this68.qPostTrip = '.trip';
+				_this68.qTrunc = '.toolong';
 
-				_this67.firstPage = 1;
-				_this67.formParent = 'thread';
-				_this67.hasCatalog = true;
-				_this67.jsonSubmit = true;
-				_this67.timePattern = 'nn+dd+yy++w++hh+ii+ss';
+				_this68.firstPage = 1;
+				_this68.formParent = 'thread';
+				_this68.hasCatalog = true;
+				_this68.jsonSubmit = true;
+				_this68.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 
-				_this67._qTable = '.post.reply';
-				return _this67;
+				_this68._qTable = '.post.reply';
+				return _this68;
 			}
 
 			_createClass(Tinyboard, [{
@@ -18801,13 +18830,13 @@ true, true],
 			function Vichan(prot, dm) {
 				_classCallCheck(this, Vichan);
 
-				var _this68 = _possibleConstructorReturn(this, (Vichan.__proto__ || Object.getPrototypeOf(Vichan)).call(this, prot, dm));
+				var _this69 = _possibleConstructorReturn(this, (Vichan.__proto__ || Object.getPrototypeOf(Vichan)).call(this, prot, dm));
 
-				_this68.qDelPassw = '#password';
-				_this68.qPostImg = '.post-image';
+				_this69.qDelPassw = '#password';
+				_this69.qPostImg = '.post-image';
 
-				_this68.multiFile = true;
-				return _this68;
+				_this69.multiFile = true;
+				return _this69;
 			}
 
 			_createClass(Vichan, [{
@@ -18856,16 +18885,16 @@ true, true],
 			function Kusaba(prot, dm) {
 				_classCallCheck(this, Kusaba);
 
-				var _this69 = _possibleConstructorReturn(this, (Kusaba.__proto__ || Object.getPrototypeOf(Kusaba)).call(this, prot, dm));
+				var _this70 = _possibleConstructorReturn(this, (Kusaba.__proto__ || Object.getPrototypeOf(Kusaba)).call(this, prot, dm));
 
-				_this69.kus = true;
+				_this70.kus = true;
 
-				_this69.qError = 'h1, h2, div[style*="1.25em"]';
-				_this69.qFormRedir = 'input[name="redirecttothread"][value="1"]';
+				_this70.qError = 'h1, h2, div[style*="1.25em"]';
+				_this70.qFormRedir = 'input[name="redirecttothread"][value="1"]';
 
-				_this69.formParent = 'replythread';
-				_this69.markupBB = true;
-				return _this69;
+				_this70.formParent = 'replythread';
+				_this70.markupBB = true;
+				return _this70;
 			}
 
 			_createClass(Kusaba, [{
@@ -18899,13 +18928,13 @@ true, true],
 			function TinyIB(prot, dm) {
 				_classCallCheck(this, TinyIB);
 
-				var _this70 = _possibleConstructorReturn(this, (TinyIB.__proto__ || Object.getPrototypeOf(TinyIB)).call(this, prot, dm));
+				var _this71 = _possibleConstructorReturn(this, (TinyIB.__proto__ || Object.getPrototypeOf(TinyIB)).call(this, prot, dm));
 
-				_this70.tinyib = true;
+				_this71.tinyib = true;
 
-				_this70.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
-				_this70.qPostMsg = '.message';
-				return _this70;
+				_this71.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
+				_this71.qPostMsg = '.message';
+				return _this71;
 			}
 
 			_createClass(TinyIB, [{
@@ -18945,24 +18974,24 @@ true, true],
 			function _0chanHk(prot, dm) {
 				_classCallCheck(this, _0chanHk);
 
-				var _this71 = _possibleConstructorReturn(this, (_0chanHk.__proto__ || Object.getPrototypeOf(_0chanHk)).call(this, prot, dm));
+				var _this72 = _possibleConstructorReturn(this, (_0chanHk.__proto__ || Object.getPrototypeOf(_0chanHk)).call(this, prot, dm));
 
-				_this71.cReply = 'block post';
-				_this71.qDForm = '#content > div > .threads-scroll-spy + div, .threads > div:first-of-type';
-				_this71.qForm = '.reply-form';
-				_this71.qImgInfo = 'figcaption';
-				_this71.qOmitted = 'div[style="margin-left: 25px; font-weight: bold;"]';
-				_this71.qOPost = '.post-op';
-				_this71.qPostHeader = '.post-header';
-				_this71.qPostImg = '.post-img-thumbnail';
-				_this71.qPostMsg = '.post-body-message';
-				_this71.qPostRef = '.post-id';
-				_this71.qRPost = '.block.post:not(.post-op)';
+				_this72.cReply = 'block post';
+				_this72.qDForm = '#content > div > .threads-scroll-spy + div, .threads > div:first-of-type';
+				_this72.qForm = '.reply-form';
+				_this72.qImgInfo = 'figcaption';
+				_this72.qOmitted = 'div[style="margin-left: 25px; font-weight: bold;"]';
+				_this72.qOPost = '.post-op';
+				_this72.qPostHeader = '.post-header';
+				_this72.qPostImg = '.post-img-thumbnail';
+				_this72.qPostMsg = '.post-body-message';
+				_this72.qPostRef = '.post-id';
+				_this72.qRPost = '.block.post:not(.post-op)';
 
-				_this71.docExt = '';
-				_this71.jsonBuilder = _0chanPostsBuilder;
-				_this71.res = '';
-				return _this71;
+				_this72.docExt = '';
+				_this72.jsonBuilder = _0chanPostsBuilder;
+				_this72.res = '';
+				return _this72;
 			}
 
 			_createClass(_0chanHk, [{
@@ -19062,13 +19091,13 @@ true, true],
 			function _02chNet(prot, dm) {
 				_classCallCheck(this, _02chNet);
 
-				var _this72 = _possibleConstructorReturn(this, (_02chNet.__proto__ || Object.getPrototypeOf(_02chNet)).call(this, prot, dm));
+				var _this73 = _possibleConstructorReturn(this, (_02chNet.__proto__ || Object.getPrototypeOf(_02chNet)).call(this, prot, dm));
 
-				_this72.qFormRedir = 'input[name="gb2"][value="thread"]';
+				_this73.qFormRedir = 'input[name="gb2"][value="thread"]';
 
-				_this72.ru = true;
-				_this72.timePattern = 'yyyy+nn+dd++w++hh+ii+ss';
-				return _this72;
+				_this73.ru = true;
+				_this73.timePattern = 'yyyy+nn+dd++w++hh+ii+ss';
+				return _this73;
 			}
 
 			_createClass(_02chNet, [{
@@ -19089,12 +19118,12 @@ true, true],
 			function _02chSu(prot, dm) {
 				_classCallCheck(this, _02chSu);
 
-				var _this73 = _possibleConstructorReturn(this, (_02chSu.__proto__ || Object.getPrototypeOf(_02chSu)).call(this, prot, dm));
+				var _this74 = _possibleConstructorReturn(this, (_02chSu.__proto__ || Object.getPrototypeOf(_02chSu)).call(this, prot, dm));
 
-				_this73.hasCatalog = true;
+				_this74.hasCatalog = true;
 
-				_this73._capUpdPromise = null;
-				return _this73;
+				_this74._capUpdPromise = null;
+				return _this74;
 			}
 
 			_createClass(_02chSu, [{
@@ -19120,20 +19149,20 @@ true, true],
 			function _2chan(prot, dm) {
 				_classCallCheck(this, _2chan);
 
-				var _this74 = _possibleConstructorReturn(this, (_2chan.__proto__ || Object.getPrototypeOf(_2chan)).call(this, prot, dm));
+				var _this75 = _possibleConstructorReturn(this, (_2chan.__proto__ || Object.getPrototypeOf(_2chan)).call(this, prot, dm));
 
-				_this74.qDForm = 'form:not([enctype])';
-				_this74.qForm = 'form[enctype]';
-				_this74.qFormRedir = null;
-				_this74.qFormRules = '.chui';
-				_this74.qOmitted = 'font[color="#707070"]';
-				_this74.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
-				_this74.qPostRef = '.del';
-				_this74.qRPost = 'td:nth-child(2)';
+				_this75.qDForm = 'form:not([enctype])';
+				_this75.qForm = 'form[enctype]';
+				_this75.qFormRedir = null;
+				_this75.qFormRules = '.chui';
+				_this75.qOmitted = 'font[color="#707070"]';
+				_this75.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
+				_this75.qPostRef = '.del';
+				_this75.qRPost = 'td:nth-child(2)';
 
-				_this74.docExt = '.htm';
-				_this74.formParent = 'resto';
-				return _this74;
+				_this75.docExt = '.htm';
+				_this75.formParent = 'resto';
+				return _this75;
 			}
 
 			_createClass(_2chan, [{
@@ -19193,12 +19222,12 @@ true, true],
 			function _2chRip(prot, dm) {
 				_classCallCheck(this, _2chRip);
 
-				var _this75 = _possibleConstructorReturn(this, (_2chRip.__proto__ || Object.getPrototypeOf(_2chRip)).call(this, prot, dm));
+				var _this76 = _possibleConstructorReturn(this, (_2chRip.__proto__ || Object.getPrototypeOf(_2chRip)).call(this, prot, dm));
 
-				_this75.ru = true;
+				_this76.ru = true;
 
-				_this75._capUpdPromise = null;
-				return _this75;
+				_this76._capUpdPromise = null;
+				return _this76;
 			}
 
 			_createClass(_2chRip, [{
@@ -19234,19 +19263,19 @@ true, true],
 			function _2chRu(prot, dm) {
 				_classCallCheck(this, _2chRu);
 
-				var _this76 = _possibleConstructorReturn(this, (_2chRu.__proto__ || Object.getPrototypeOf(_2chRu)).call(this, prot, dm));
+				var _this77 = _possibleConstructorReturn(this, (_2chRu.__proto__ || Object.getPrototypeOf(_2chRu)).call(this, prot, dm));
 
-				_this76.qPages = 'table[border="1"] td > a:last-of-type';
+				_this77.qPages = 'table[border="1"] td > a:last-of-type';
 
-				_this76.docExt = '.html';
-				_this76.hasPicWrap = true;
-				_this76.jsonSubmit = true;
-				_this76.markupBB = true;
-				_this76.multiFile = true;
-				_this76.ru = true;
+				_this77.docExt = '.html';
+				_this77.hasPicWrap = true;
+				_this77.jsonSubmit = true;
+				_this77.markupBB = true;
+				_this77.multiFile = true;
+				_this77.ru = true;
 
-				_this76._qTable = 'table:not(.postfiles)';
-				return _this76;
+				_this77._qTable = 'table:not(.postfiles)';
+				return _this77;
 			}
 
 			_createClass(_2chRu, [{
@@ -19337,30 +19366,30 @@ true, true],
 			function _410chanOrg(prot, dm) {
 				_classCallCheck(this, _410chanOrg);
 
-				var _this77 = _possibleConstructorReturn(this, (_410chanOrg.__proto__ || Object.getPrototypeOf(_410chanOrg)).call(this, prot, dm));
+				var _this78 = _possibleConstructorReturn(this, (_410chanOrg.__proto__ || Object.getPrototypeOf(_410chanOrg)).call(this, prot, dm));
 
-				_this77.qFormRedir = 'input#noko';
-				_this77.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
+				_this78.qFormRedir = 'input#noko';
+				_this78.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
-				_this77.ru = true;
-				_this77.hasCatalog = true;
-				_this77.markupBB = false;
-				_this77.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
+				_this78.ru = true;
+				_this78.hasCatalog = true;
+				_this78.markupBB = false;
+				_this78.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
 
-				_this77._capUpdPromise = null;
-				return _this77;
+				_this78._capUpdPromise = null;
+				return _this78;
 			}
 
 			_createClass(_410chanOrg, [{
 				key: 'fixHTML',
 				value: function fixHTML(data, isForm) {
-					var _this78 = this;
+					var _this79 = this;
 
 					var el = _get(_410chanOrg.prototype.__proto__ || Object.getPrototypeOf(_410chanOrg.prototype), 'fixHTML', this).call(this, data, isForm);
 					if (aib.t) {
 						try {
 							(function () {
-								var backBtn = $q(_this78.qThread + ' > span[style]', el);
+								var backBtn = $q(_this79.qThread + ' > span[style]', el);
 								if (backBtn) {
 									var modBtn = $q('a[accesskey="m"]', el);
 									$after(backBtn.parentElement, backBtn);
@@ -19393,7 +19422,7 @@ true, true],
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					var _this79 = this;
+					var _this80 = this;
 
 					return cap.updateHelper('/api_adaptive.php?board=' + this.b, function (xhr) {
 						if (xhr.responseText === '1') {
@@ -19407,7 +19436,7 @@ true, true],
 							var img = $q('img', cap.parentEl);
 							var src = img.getAttribute('src');
 							img.src = '';
-							img.src = _this79.getCaptchaSrc(src);
+							img.src = _this80.getCaptchaSrc(src);
 						}
 					});
 				}
@@ -19439,39 +19468,39 @@ true, true],
 			function _4chanOrg(prot, dm) {
 				_classCallCheck(this, _4chanOrg);
 
-				var _this80 = _possibleConstructorReturn(this, (_4chanOrg.__proto__ || Object.getPrototypeOf(_4chanOrg)).call(this, prot, dm));
+				var _this81 = _possibleConstructorReturn(this, (_4chanOrg.__proto__ || Object.getPrototypeOf(_4chanOrg)).call(this, prot, dm));
 
-				_this80.fch = true;
+				_this81.fch = true;
 
-				_this80.cReply = 'post reply';
-				_this80.qBan = 'strong[style="color: red;"]';
-				_this80.qClosed = '.archivedIcon';
-				_this80.qDelBut = '.deleteform > input[type="submit"]';
-				_this80.qError = '#errmsg';
-				_this80.qForm = 'form[name="post"]';
-				_this80.qFormRedir = null;
-				_this80.qImgInfo = '.fileText';
-				_this80.qOmitted = '.summary.desktop';
-				_this80.qOPost = '.op';
-				_this80.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
-				_this80.qPostHeader = '.postInfo';
-				_this80.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
-				_this80.qPostName = '.name';
-				_this80.qPostRef = '.postInfo > .postNum';
-				_this80.qPostSubj = '.subject';
+				_this81.cReply = 'post reply';
+				_this81.qBan = 'strong[style="color: red;"]';
+				_this81.qClosed = '.archivedIcon';
+				_this81.qDelBut = '.deleteform > input[type="submit"]';
+				_this81.qError = '#errmsg';
+				_this81.qForm = 'form[name="post"]';
+				_this81.qFormRedir = null;
+				_this81.qImgInfo = '.fileText';
+				_this81.qOmitted = '.summary.desktop';
+				_this81.qOPost = '.op';
+				_this81.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
+				_this81.qPostHeader = '.postInfo';
+				_this81.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
+				_this81.qPostName = '.name';
+				_this81.qPostRef = '.postInfo > .postNum';
+				_this81.qPostSubj = '.subject';
 
-				_this80.anchor = '#p';
-				_this80.docExt = '';
-				_this80.firstPage = 1;
-				_this80.formParent = 'resto';
-				_this80.hasCatalog = true;
-				_this80.hasTextLinks = true;
-				_this80.jsonBuilder = _4chanPostsBuilder;
-				_this80.res = 'thread/';
-				_this80.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
+				_this81.anchor = '#p';
+				_this81.docExt = '';
+				_this81.firstPage = 1;
+				_this81.formParent = 'resto';
+				_this81.hasCatalog = true;
+				_this81.hasTextLinks = true;
+				_this81.jsonBuilder = _4chanPostsBuilder;
+				_this81.res = 'thread/';
+				_this81.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
 
-				_this80._qTable = '.replyContainer';
-				return _this80;
+				_this81._qTable = '.replyContainer';
+				return _this81;
 			}
 
 			_createClass(_4chanOrg, [{
@@ -19612,12 +19641,12 @@ true, true],
 			function _8chNet(prot, dm) {
 				_classCallCheck(this, _8chNet);
 
-				var _this81 = _possibleConstructorReturn(this, (_8chNet.__proto__ || Object.getPrototypeOf(_8chNet)).call(this, prot, dm));
+				var _this82 = _possibleConstructorReturn(this, (_8chNet.__proto__ || Object.getPrototypeOf(_8chNet)).call(this, prot, dm));
 
-				_this81._8ch = true;
+				_this82._8ch = true;
 
-				_this81._capUpdPromise = null;
-				return _this81;
+				_this82._capUpdPromise = null;
+				return _this82;
 			}
 
 			_createClass(_8chNet, [{
@@ -19659,12 +19688,12 @@ true, true],
 			function _55chan(prot, dm) {
 				_classCallCheck(this, _55chan);
 
-				var _this82 = _possibleConstructorReturn(this, (_55chan.__proto__ || Object.getPrototypeOf(_55chan)).call(this, prot, dm));
+				var _this83 = _possibleConstructorReturn(this, (_55chan.__proto__ || Object.getPrototypeOf(_55chan)).call(this, prot, dm));
 
-				_this82._8ch = null;
+				_this83._8ch = null;
 
-				_this82.qFormRules = '.regras';
-				return _this82;
+				_this83.qFormRules = '.regras';
+				return _this83;
 			}
 
 			_createClass(_55chan, [{
@@ -19706,20 +19735,20 @@ true, true],
 			function Arhivach(prot, dm) {
 				_classCallCheck(this, Arhivach);
 
-				var _this84 = _possibleConstructorReturn(this, (Arhivach.__proto__ || Object.getPrototypeOf(Arhivach)).call(this, prot, dm));
+				var _this85 = _possibleConstructorReturn(this, (Arhivach.__proto__ || Object.getPrototypeOf(Arhivach)).call(this, prot, dm));
 
-				_this84.cReply = 'post';
-				_this84.qDForm = 'body > .container-fluid';
-				_this84.qPostHeader = '.post_head';
-				_this84.qPostImg = '.post_image > img';
-				_this84.qPostMsg = '.post_comment_body';
-				_this84.qPostRef = '.post_id, .post_head > b';
-				_this84.qPostSubj = '.post_subject';
-				_this84.qRPost = '.post:not(:first-child):not([postid=""])';
+				_this85.cReply = 'post';
+				_this85.qDForm = 'body > .container-fluid';
+				_this85.qPostHeader = '.post_head';
+				_this85.qPostImg = '.post_image > img';
+				_this85.qPostMsg = '.post_comment_body';
+				_this85.qPostRef = '.post_id, .post_head > b';
+				_this85.qPostSubj = '.post_subject';
+				_this85.qRPost = '.post:not(:first-child):not([postid=""])';
 
-				_this84.docExt = '';
-				_this84.res = 'thread/';
-				return _this84;
+				_this85.docExt = '';
+				_this85.res = 'thread/';
+				return _this85;
 			}
 
 			_createClass(Arhivach, [{
@@ -19823,14 +19852,14 @@ true, true],
 			function Brchan(prot, dm) {
 				_classCallCheck(this, Brchan);
 
-				var _this85 = _possibleConstructorReturn(this, (Brchan.__proto__ || Object.getPrototypeOf(Brchan)).call(this, prot, dm));
+				var _this86 = _possibleConstructorReturn(this, (Brchan.__proto__ || Object.getPrototypeOf(Brchan)).call(this, prot, dm));
 
-				_this85.brchan = true;
+				_this86.brchan = true;
 
-				_this85.qPostTrip = '.poster_id';
+				_this86.qPostTrip = '.poster_id';
 
-				_this85.markupBB = true;
-				return _this85;
+				_this86.markupBB = true;
+				return _this86;
 			}
 
 			_createClass(Brchan, [{
@@ -19922,29 +19951,29 @@ true, true],
 			function Dobrochan(prot, dm) {
 				_classCallCheck(this, Dobrochan);
 
-				var _this87 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
+				var _this88 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
 
-				_this87.dobr = true;
+				_this88.dobr = true;
 
-				_this87.qClosed = 'img[src="/images/locked.png"]';
-				_this87.qDForm = 'form[action*="delete"]';
-				_this87.qError = '.post-error, h2';
-				_this87.qFormRedir = 'select[name="goto"]';
-				_this87.qImgInfo = '.fileinfo';
-				_this87.qOmitted = '.abbrev > span:last-of-type';
-				_this87.qPages = '.pages > tbody > tr > td';
-				_this87.qPostMsg = '.postbody';
-				_this87.qPostSubj = '.replytitle';
-				_this87.qTrunc = '.abbrev > span:first-of-type';
+				_this88.qClosed = 'img[src="/images/locked.png"]';
+				_this88.qDForm = 'form[action*="delete"]';
+				_this88.qError = '.post-error, h2';
+				_this88.qFormRedir = 'select[name="goto"]';
+				_this88.qImgInfo = '.fileinfo';
+				_this88.qOmitted = '.abbrev > span:last-of-type';
+				_this88.qPages = '.pages > tbody > tr > td';
+				_this88.qPostMsg = '.postbody';
+				_this88.qPostSubj = '.replytitle';
+				_this88.qTrunc = '.abbrev > span:first-of-type';
 
-				_this87.anchor = '#i';
-				_this87.formParent = 'thread_id';
-				_this87.hasPicWrap = true;
-				_this87.jsonBuilder = DobrochanPostsBuilder;
-				_this87.multiFile = true;
-				_this87.ru = true;
-				_this87.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
-				return _this87;
+				_this88.anchor = '#i';
+				_this88.formParent = 'thread_id';
+				_this88.hasPicWrap = true;
+				_this88.jsonBuilder = DobrochanPostsBuilder;
+				_this88.multiFile = true;
+				_this88.ru = true;
+				_this88.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+				return _this88;
 			}
 
 			_createClass(Dobrochan, [{
@@ -20090,26 +20119,26 @@ true, true],
 			function Ernstchan(prot, dm) {
 				_classCallCheck(this, Ernstchan);
 
-				var _this88 = _possibleConstructorReturn(this, (Ernstchan.__proto__ || Object.getPrototypeOf(Ernstchan)).call(this, prot, dm));
+				var _this89 = _possibleConstructorReturn(this, (Ernstchan.__proto__ || Object.getPrototypeOf(Ernstchan)).call(this, prot, dm));
 
-				_this88.cReply = 'post';
-				_this88.qError = '.error';
-				_this88.qFormRedir = 'input[name="gb2"][value="thread"]';
-				_this88.qOPost = '.thread_OP';
-				_this88.qPages = '.pagelist > li:nth-last-child(2)';
-				_this88.qPostHeader = '.post_head';
-				_this88.qPostMsg = '.text';
-				_this88.qPostSubj = '.subject';
-				_this88.qPostTrip = '.tripcode';
-				_this88.qRPost = '.thread_reply';
-				_this88.qTrunc = '.tldr';
+				_this89.cReply = 'post';
+				_this89.qError = '.error';
+				_this89.qFormRedir = 'input[name="gb2"][value="thread"]';
+				_this89.qOPost = '.thread_OP';
+				_this89.qPages = '.pagelist > li:nth-last-child(2)';
+				_this89.qPostHeader = '.post_head';
+				_this89.qPostMsg = '.text';
+				_this89.qPostSubj = '.subject';
+				_this89.qPostTrip = '.tripcode';
+				_this89.qRPost = '.thread_reply';
+				_this89.qTrunc = '.tldr';
 
-				_this88.docExt = '';
-				_this88.firstPage = 1;
-				_this88.markupBB = true;
-				_this88.multiFile = true;
-				_this88.res = 'thread/';
-				return _this88;
+				_this89.docExt = '';
+				_this89.firstPage = 1;
+				_this89.markupBB = true;
+				_this89.multiFile = true;
+				_this89.res = 'thread/';
+				return _this89;
 			}
 
 			_createClass(Ernstchan, [{
@@ -20165,12 +20194,12 @@ true, true],
 			function Iichan(prot, dm) {
 				_classCallCheck(this, Iichan);
 
-				var _this89 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
+				var _this90 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
 
-				_this89.iichan = true;
+				_this90.iichan = true;
 
-				_this89.hasCatalog = true;
-				return _this89;
+				_this90.hasCatalog = true;
+				return _this90;
 			}
 
 			_createClass(Iichan, [{
@@ -20223,35 +20252,35 @@ true, true],
 			function Krautchan(prot, dm) {
 				_classCallCheck(this, Krautchan);
 
-				var _this90 = _possibleConstructorReturn(this, (Krautchan.__proto__ || Object.getPrototypeOf(Krautchan)).call(this, prot, dm));
+				var _this91 = _possibleConstructorReturn(this, (Krautchan.__proto__ || Object.getPrototypeOf(Krautchan)).call(this, prot, dm));
 
-				_this90.krau = true;
+				_this91.krau = true;
 
-				_this90.cReply = 'postreply';
-				_this90.qBan = '.ban_mark';
-				_this90.qClosed = 'img[src="/images/locked.gif"]';
-				_this90.qDForm = 'form[action*="delete"]';
-				_this90.qError = '.message_text';
-				_this90.qFormRedir = 'input#forward_thread';
-				_this90.qFormRules = '#rules_row';
-				_this90.qImgInfo = '.fileinfo';
-				_this90.qOmitted = '.omittedinfo';
-				_this90.qPages = 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a';
-				_this90.qPostHeader = '.postheader';
-				_this90.qPostImg = 'img[id^="thumbnail_"]';
-				_this90.qPostRef = '.postnumber';
-				_this90.qPostSubj = '.postsubject';
-				_this90.qRPost = '.postreply';
-				_this90.qTrunc = 'p[id^="post_truncated"]';
+				_this91.cReply = 'postreply';
+				_this91.qBan = '.ban_mark';
+				_this91.qClosed = 'img[src="/images/locked.gif"]';
+				_this91.qDForm = 'form[action*="delete"]';
+				_this91.qError = '.message_text';
+				_this91.qFormRedir = 'input#forward_thread';
+				_this91.qFormRules = '#rules_row';
+				_this91.qImgInfo = '.fileinfo';
+				_this91.qOmitted = '.omittedinfo';
+				_this91.qPages = 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a';
+				_this91.qPostHeader = '.postheader';
+				_this91.qPostImg = 'img[id^="thumbnail_"]';
+				_this91.qPostRef = '.postnumber';
+				_this91.qPostSubj = '.postsubject';
+				_this91.qRPost = '.postreply';
+				_this91.qTrunc = 'p[id^="post_truncated"]';
 
-				_this90.hasCatalog = true;
-				_this90.hasPicWrap = true;
-				_this90.hasTextLinks = true;
-				_this90.markupBB = true;
-				_this90.multiFile = true;
-				_this90.res = 'thread-';
-				_this90.timePattern = 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?';
-				return _this90;
+				_this91.hasCatalog = true;
+				_this91.hasPicWrap = true;
+				_this91.hasTextLinks = true;
+				_this91.markupBB = true;
+				_this91.multiFile = true;
+				_this91.res = 'thread-';
+				_this91.timePattern = 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?';
+				return _this91;
 			}
 
 			_createClass(Krautchan, [{
@@ -20413,10 +20442,10 @@ true, true],
 			function Lainchan(prot, dm) {
 				_classCallCheck(this, Lainchan);
 
-				var _this91 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
+				var _this92 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
 
-				_this91.qOPost = '.op';
-				return _this91;
+				_this92.qOPost = '.op';
+				return _this92;
 			}
 
 			_createClass(Lainchan, [{
@@ -20473,15 +20502,15 @@ true, true],
 			function Ponyach(prot, dm) {
 				_classCallCheck(this, Ponyach);
 
-				var _this93 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
+				var _this94 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
 
-				_this93.qBan = 'font[color="#FF0000"]';
-				_this93.qImgInfo = '.filesize[style="display: inline;"]';
+				_this94.qBan = 'font[color="#FF0000"]';
+				_this94.qImgInfo = '.filesize[style="display: inline;"]';
 
-				_this93.formParent = 'replythread';
-				_this93.jsonSubmit = true;
-				_this93.multiFile = true;
-				return _this93;
+				_this94.formParent = 'replythread';
+				_this94.jsonSubmit = true;
+				_this94.multiFile = true;
+				return _this94;
 			}
 
 			_createClass(Ponyach, [{
@@ -20544,10 +20573,10 @@ true, true],
 			function Ponychan(prot, dm) {
 				_classCallCheck(this, Ponychan);
 
-				var _this94 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
+				var _this95 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
 
-				_this94.qOPost = '.opContainer';
-				return _this94;
+				_this95.qOPost = '.opContainer';
+				return _this95;
 			}
 
 			_createClass(Ponychan, [{
@@ -20577,12 +20606,12 @@ true, true],
 			function Synch(prot, dm) {
 				_classCallCheck(this, Synch);
 
-				var _this95 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
+				var _this96 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
 
-				_this95.qImgInfo = '.unimportant';
+				_this96.qImgInfo = '.unimportant';
 
-				_this95.markupBB = true;
-				return _this95;
+				_this96.markupBB = true;
+				return _this96;
 			}
 
 			_createClass(Synch, [{
@@ -20895,7 +20924,7 @@ true, true],
 
 		cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') + cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico') + cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==') + '.de-current::after { content: " \u25CF"; }\n\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\n\t.de-mp3 { margin: 5px 20px; }\n\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\n\t.de-video-obj-inline { display: inline-block; }\n\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\n\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\n\t#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }\n\t.de-video-expanded { width: 854px !important; height: 480px !important; }\n\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\n\t.de-video-refpost { margin: 0 3px; text-decoration: none; cursor: pointer; }\n\t.de-video-resizer::after { content: "\u2795"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\n\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\n\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\n\ta.de-video-player::after { content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\n\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\n\t.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }\n\t.de-vocaroo > embed { display: inline-block; }\n\tvideo { background: black; }' + (
 
-		'.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ' + (p = aib.multiFile ? 90 : 130) + 'px; width: ' + p + 'px; text-align: center; border: 1px dashed grey; }\n\t.de-file > .de-file-img { display: table; width: 100%; height: 100%; cursor: pointer; }\n\t.de-file > .de-file-img > div { display: table-cell; vertical-align: middle; }\n\t.de-file > .de-file-utils { display: none; height: 16px; margin-top: -18px; padding: 1px 0; background: rgba(60,60,60,.6); position: relative; }\n\t.de-file > .de-file-utils > .de-file-rarmsg { color: #fff; }\n\t.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -' + (p + 2) + 'px !important; vertical-align: top; width: ' + (p + 2) + 'px !important; height: ' + (p + 2) + 'px; border: none !important; cursor: pointer; }\n\t#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\n\t.de-file-drag { background: rgba(88,88,88,.8); border: 1px solid grey; opacity: .7; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }\n\timg.de-file-img, video.de-file-img { max-width: ' + (p - 4) + 'px; max-height: ' + (p - 4) + 'px; }\n\t.de-file-input { max-width: 300px; }\n\t.de-file-input + .de-file-utils { margin-left: 4px; }\n\t.de-file-off > .de-file-img > div::after { content: "' + Lng.noFile[lang] + '"; }\n\t.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }\n\t.de-file-del, .de-file-rar, .de-file-url { display: inline-block; margin: 0 1px; padding: 0 16px 16px 0; cursor: pointer; }\n\t.de-file-spoil { margin: 0 3px; vertical-align: 1px; }\n\t.de-file-url-add { font-weight: bold; width: 21px; padding: 0 !important;; }\n\t.de-file-utils { display: inline-block; vertical-align: -2px; }') + gif('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=') + gif('.de-file-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + gif('.de-file-url', 'R0lGODlhEAAQAJEAACyr4e/19////wAAACH5BAEAAAIALAAAAAAQABAAAAIrlI+pwK3WokMyBEmjxbBeLgEbKFrmyXTn+nXaF7nNGMslZ9NpFu4L/ggeCgA7') + (
+		'.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ' + (p = aib.multiFile ? 90 : 130) + 'px; width: ' + p + 'px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }\n\t.de-file > .de-file-img { display: table; width: 100%; height: 100%; cursor: pointer; }\n\t.de-file > .de-file-img > div { display: table-cell; vertical-align: middle; }\n\t.de-file > .de-file-utils { display: none; height: 16px; margin-top: -18px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; }\n\t.de-file > .de-file-utils > .de-file-rarmsg { color: #fff; }\n\t#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\n\t.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }\n\timg.de-file-img, video.de-file-img { max-width: ' + (p - 4) + 'px; max-height: ' + (p - 4) + 'px; }\n\t.de-file-input { max-width: 300px; }\n\t.de-file-input + .de-file-utils { margin-left: 4px; }\n\t.de-file-off > .de-file-img > div::after { content: "' + Lng.dropFileHere[lang] + '"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }\n\t.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }\n\t.de-file-del, .de-file-rar, .de-file-url { display: inline-block; margin: 0 1px; padding: 0 16px 16px 0; cursor: pointer; }\n\t.de-file-spoil { margin: 0 3px; vertical-align: 1px; }\n\t.de-file-url-add { font-weight: bold; width: 21px; padding: 0 !important; }\n\t.de-file-url-input { border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }\n\t.de-file-url-noedit { background: rgba(255,255,255,.5); cursor: pointer; }\n\t.de-file-utils { display: inline-block; vertical-align: -2px; }') + gif('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=') + gif('.de-file-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + gif('.de-file-url', 'R0lGODlhEAAQAJEAACyr4e/19////wAAACH5BAEAAAIALAAAAAAQABAAAAIrlI+pwK3WokMyBEmjxbBeLgEbKFrmyXTn+nXaF7nNGMslZ9NpFu4L/ggeCgA7') + (
 
 		'#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ' + (nav.Presto ? '-2px -10px' : '0 0 1px -10px') + '; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\n\t.de-parea { text-align: center; }\n\t.de-parea-btn-close::after { content: "' + Lng.hideForm[lang] + '"; }\n\t.de-parea-btn-thr::after { content: "' + Lng.makeThr[lang] + '"; }\n\t.de-parea-btn-reply::after { content: "' + Lng.makeReply[lang] + '"; }\n\t#de-pform > form { padding: 0; margin: 0; border: none; }\n\t#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }\n\t.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\n\t.de-win-inpost > .de-resizer { display: none; }\n\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\n\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\n\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\n\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\n\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\n\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\n\t#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\n\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }') +
 
@@ -20912,7 +20941,7 @@ true, true],
 	}
 
 	function updateCSS() {
-		var str = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + '; }\n\t.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + '; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.Presto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + '; }\n\t\t.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }\n\t\t.de-mypost .de-post-deleted::after { content: "' + Lng.deleted[lang] + ' (You)"; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-my::after { content: " (You)"; }\n\t\t.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }' : '') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: #4F7942; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t' + (Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '') + '\n\t' + (Cfg.resizeImgs ? '' : '.de-img-wrapper-inpost > .de-img-full { width: auto; }') + '\n\t' + (Cfg.maskImgs ? aib.qPostImg + (', .de-img-pre, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; } ' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }') : '') + '\n\t' + (Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '') + '\n\t' + (Cfg.widePosts ? '.' + aib.cReply.replace(/\s/, '.') + ':not(.de-pview) { float: none; width: 100%; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (!Cfg.addSageBtn ? '#de-sagebtn, ' : '') + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (!Cfg.imgNavBtns ? '#de-img-btn-next, #de-img-btn-prev, ' : '') + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + (!Cfg.panelCounter ? '#de-panel-info, ' : '') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (!Cfg.showHideBtn ? '.de-btn-hide, ' : '') + (!Cfg.showRepBtn ? '.de-btn-rep, ' : '') + (!Cfg.updThrBtns && !aib.t ? '.de-thread-updater, ' : '') + (!Cfg.ajaxPosting ? '.de-file-rar, .de-file-url, ' : '') + (!aib.kus && (aib.multiFile || !Cfg.fileThumb) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + ' body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }';
+		var str = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + '; }\n\t.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + '; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.Presto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + '; }\n\t\t.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }\n\t\t.de-mypost .de-post-deleted::after { content: "' + Lng.deleted[lang] + ' (You)"; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-my::after { content: " (You)"; }\n\t\t.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }' : '') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: #4F7942; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t' + (Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '') + '\n\t' + (Cfg.resizeImgs ? '' : '.de-img-wrapper-inpost > .de-img-full { width: auto; }') + '\n\t' + (Cfg.maskImgs ? aib.qPostImg + (', .de-img-pre, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; } ' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }') : '') + '\n\t' + (Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '') + '\n\t' + (Cfg.widePosts ? '.' + aib.cReply.replace(/\s/, '.') + ':not(.de-pview) { float: none; width: 100%; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }') + '\n\t' + (!Cfg.addSageBtn ? '#de-sagebtn, ' : '') + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (!Cfg.imgNavBtns ? '#de-img-btn-next, #de-img-btn-prev, ' : '') + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + (!Cfg.panelCounter ? '#de-panel-info, ' : '') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (!Cfg.showHideBtn ? '.de-btn-hide, ' : '') + (!Cfg.showRepBtn ? '.de-btn-rep, ' : '') + (!Cfg.updThrBtns && !aib.t ? '.de-thread-updater, ' : '') + (!Cfg.ajaxPosting ? '.de-file-rar, .de-file-url, ' : '') + (!Cfg.fileInputs ? '.de-file-url-wrap, .de-file-url, ' : '') + (!aib.kus && (aib.multiFile || Cfg.fileInputs !== 2) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + ' body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }';
 		$id('de-css-dynamic').textContent = str + '\n' + aib.css;
 		$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 	}
@@ -21158,7 +21187,7 @@ true, true],
 		needScroll = false;
 		async(runMain)(true, null);
 	} else {
-		var _ret14 = function () {
+		var _ret13 = function () {
 			var cfgPromise = null;
 			if (aib = getImageBoard(true, false)) {
 				if (!checkStorage()) {
@@ -21179,7 +21208,7 @@ true, true],
 			}));
 		}();
 
-		if ((typeof _ret14 === 'undefined' ? 'undefined' : _typeof(_ret14)) === "object") return _ret14.v;
+		if ((typeof _ret13 === 'undefined' ? 'undefined' : _typeof(_ret13)) === "object") return _ret13.v;
 	}
 
 })(window.opera && window.opera.scriptStorage, window.FormData, function (x, y) {
