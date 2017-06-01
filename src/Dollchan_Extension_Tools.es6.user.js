@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '0ead91e';
+const commit = '6e63c88';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -4843,7 +4843,9 @@ function downloadImgData(url, repeatOnError = true) {
 			return new Uint8Array(xhr.response);
 		}
 		if('response' in xhr) {
-			return nav.getUnsafeUint8Array(xhr.response);
+			try {
+				return nav.getUnsafeUint8Array(xhr.response);
+			} catch(e) {}
 		}
 		const txt = xhr.responseText;
 		const rv = new Uint8Array(txt.length);
@@ -7801,7 +7803,7 @@ function getUploadFunc() {
 	const beginTime = Date.now();
 	const progress = $id('de-uploadprogress');
 	const counterWrap = progress.nextElementSibling;
-	const [counterEl, totalEl, speedEl] = counterWrap.children;
+	const [counterEl, totalEl, speedEl] = Array.from(counterWrap.children);
 	return function(data) {
 		if(!inited) {
 			progress.setAttribute('max', data.total);
@@ -8304,14 +8306,14 @@ class FileInput {
 			<div class="de-file-url" title="${ Lng.addManually[lang] }"></div>
 			<div class="de-file-del" title="${ Lng.removeFile[lang] }" style="display: none;"></div>
 		</div>`);
-		[this._btnRarJpg, this._btnSpoil, this._btnUrl, this._btnDel] = this._utils.children;
+		[this._btnRarJpg, this._btnSpoil, this._btnUrl, this._btnDel] = Array.from(this._utils.children);
 		this._utils.addEventListener('click', this);
 		this._urlWrap = $add(`<span class="de-file-url-wrap">
 			<input type="text" class="de-file-url-input de-file-url-noedit" title="${
 				Lng.youCanDrag[lang] }" placeholder="${ Lng.dropFileHere[lang] }">
 			<input type="button" class="de-file-url-add" value="+" title="${
 				Lng.addManually[lang] }" style="display: none;"></span>`);
-		[this._urlInput, this._urlAddBtn] = this._urlWrap.children;
+		[this._urlInput, this._urlAddBtn] = Array.from(this._urlWrap.children);
 		this._urlWrap.addEventListener('click', this);
 		this._toggleDragEvents(this._urlWrap, true);
 		$hide(el);

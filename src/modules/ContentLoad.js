@@ -140,7 +140,9 @@ function downloadImgData(url, repeatOnError = true) {
 			return new Uint8Array(xhr.response);
 		}
 		if('response' in xhr) {
-			return nav.getUnsafeUint8Array(xhr.response);
+			try {
+				return nav.getUnsafeUint8Array(xhr.response);
+			} catch(e) {}
 		}
 		const txt = xhr.responseText;
 		const rv = new Uint8Array(txt.length);

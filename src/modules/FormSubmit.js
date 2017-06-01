@@ -24,7 +24,7 @@ function getUploadFunc() {
 	const beginTime = Date.now();
 	const progress = $id('de-uploadprogress');
 	const counterWrap = progress.nextElementSibling;
-	const [counterEl, totalEl, speedEl] = counterWrap.children;
+	const [counterEl, totalEl, speedEl] = Array.from(counterWrap.children);
 	return function(data) {
 		if(!inited) {
 			progress.setAttribute('max', data.total);

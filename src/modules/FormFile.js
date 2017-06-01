@@ -80,14 +80,14 @@ class FileInput {
 			<div class="de-file-url" title="${ Lng.addManually[lang] }"></div>
 			<div class="de-file-del" title="${ Lng.removeFile[lang] }" style="display: none;"></div>
 		</div>`);
-		[this._btnRarJpg, this._btnSpoil, this._btnUrl, this._btnDel] = this._utils.children;
+		[this._btnRarJpg, this._btnSpoil, this._btnUrl, this._btnDel] = Array.from(this._utils.children);
 		this._utils.addEventListener('click', this);
 		this._urlWrap = $add(`<span class="de-file-url-wrap">
 			<input type="text" class="de-file-url-input de-file-url-noedit" title="${
 				Lng.youCanDrag[lang] }" placeholder="${ Lng.dropFileHere[lang] }">
 			<input type="button" class="de-file-url-add" value="+" title="${
 				Lng.addManually[lang] }" style="display: none;"></span>`);
-		[this._urlInput, this._urlAddBtn] = this._urlWrap.children;
+		[this._urlInput, this._urlAddBtn] = Array.from(this._urlWrap.children);
 		this._urlWrap.addEventListener('click', this);
 		this._toggleDragEvents(this._urlWrap, true);
 		$hide(el);

@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '0ead91e';
+	var commit = '6e63c88';
 
 
 	var defaultCfg = {
@@ -8081,7 +8081,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return new Uint8Array(xhr.response);
 			}
 			if ('response' in xhr) {
-				return nav.getUnsafeUint8Array(xhr.response);
+				try {
+					return nav.getUnsafeUint8Array(xhr.response);
+				} catch (e) {}
 			}
 			var txt = xhr.responseText;
 			var rv = new Uint8Array(txt.length);
@@ -11520,10 +11522,11 @@ true, true],
 		var progress = $id('de-uploadprogress');
 		var counterWrap = progress.nextElementSibling;
 
-		var _counterWrap$children = _slicedToArray(counterWrap.children, 3),
-		    counterEl = _counterWrap$children[0],
-		    totalEl = _counterWrap$children[1],
-		    speedEl = _counterWrap$children[2];
+		var _Array$from = Array.from(counterWrap.children),
+		    _Array$from2 = _slicedToArray(_Array$from, 3),
+		    counterEl = _Array$from2[0],
+		    totalEl = _Array$from2[1],
+		    speedEl = _Array$from2[2];
 
 		return function (data) {
 			if (!inited) {
@@ -12235,20 +12238,24 @@ true, true],
 			this._thumb = null;
 			this._utils = $add('<div class="de-file-utils">\n\t\t\t<div class="de-file-rar" title="' + Lng.helpAddFile[lang] + '" style="display: none;"></div>\n\t\t\t<input class="de-file-spoil" type="checkbox" title="' + Lng.spoilFile[lang] + '" style="display: none;">\n\t\t\t<div class="de-file-url" title="' + Lng.addManually[lang] + '"></div>\n\t\t\t<div class="de-file-del" title="' + Lng.removeFile[lang] + '" style="display: none;"></div>\n\t\t</div>');
 
-			var _utils$children = _slicedToArray(this._utils.children, 4);
+			var _Array$from3 = Array.from(this._utils.children);
 
-			this._btnRarJpg = _utils$children[0];
-			this._btnSpoil = _utils$children[1];
-			this._btnUrl = _utils$children[2];
-			this._btnDel = _utils$children[3];
+			var _Array$from4 = _slicedToArray(_Array$from3, 4);
+
+			this._btnRarJpg = _Array$from4[0];
+			this._btnSpoil = _Array$from4[1];
+			this._btnUrl = _Array$from4[2];
+			this._btnDel = _Array$from4[3];
 
 			this._utils.addEventListener('click', this);
 			this._urlWrap = $add('<span class="de-file-url-wrap">\n\t\t\t<input type="text" class="de-file-url-input de-file-url-noedit" title="' + Lng.youCanDrag[lang] + '" placeholder="' + Lng.dropFileHere[lang] + '">\n\t\t\t<input type="button" class="de-file-url-add" value="+" title="' + Lng.addManually[lang] + '" style="display: none;"></span>');
 
-			var _urlWrap$children = _slicedToArray(this._urlWrap.children, 2);
+			var _Array$from5 = Array.from(this._urlWrap.children);
 
-			this._urlInput = _urlWrap$children[0];
-			this._urlAddBtn = _urlWrap$children[1];
+			var _Array$from6 = _slicedToArray(_Array$from5, 2);
+
+			this._urlInput = _Array$from6[0];
+			this._urlAddBtn = _Array$from6[1];
 
 			this._urlWrap.addEventListener('click', this);
 			this._toggleDragEvents(this._urlWrap, true);
