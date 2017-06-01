@@ -21,11 +21,23 @@
 
 © 2017 Dollchan Extension Tools Team. See the [LICENSE file](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/blob/master/LICENSE) for license rights and limitations (MIT).
 
-### ES5 compilation
-
-You can compile ES5 script version from ES6 source by following steps:
+### Script compilation
 
 * Install [Node.js](https://nodejs.org/) if not yet.
 * Install [Gulp](http://gulpjs.com/) globally: `npm install -g gulp`
 * Go to Dollchan repo and run `npm install` to update dependencies.
-* Run `gulp make` to compile into ES5 version.
+
+You can make both ES5 and ES6 script versions from [/src/modules](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/tree/master/src/modules) by running:
+
+`gulp make`
+
+Or you can make ES6 script only:
+
+`gulp make:es6`
+
+Also you can make separate source modules from your ES6 script:
+
+`gulp make:modules`
+
+
+
