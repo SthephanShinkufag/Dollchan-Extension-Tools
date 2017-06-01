@@ -1241,8 +1241,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.prot + '//' + this.host + '/' + this.b + '/catalogue.html';
 		}
 		get css() {
-			return !this.t ? '' : `#de-main { margin-top: -37px; }
-				.logo { margin-bottom: 14px; }`;
+			return `${ !this.t ? '' : `#de-main { margin-top: -37px; } .logo { margin-bottom: 14px; }`}
+			.iichan-hide-thread-btn { display: none; }`;
 		}
 		get isArchived() {
 			return this.b.includes('/arch');

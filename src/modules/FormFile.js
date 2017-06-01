@@ -202,12 +202,13 @@ class FileInput {
 			if(!isThumb && el !== this._urlInput) {
 				return;
 			}
-			const file = dt.files[0];
-			if(file) {
-				readFile(file).then(({ data }) => {
-					this.imgFile = [data, file.name, file.type];
-					this._onFileChange(true);
-				});
+			const filesLen = dt.files.length;
+			if(filesLen) {
+				const inpArray = this._parent._inputs;
+				const inpLen = inpArray.length;
+				for(let i = inpArray.indexOf(this), j = 0; i < inpLen && j < filesLen; ++i, ++j) {
+					FileInput._readDroppedFile(inpArray[i], dt.files[j]);
+				}
 			} else {
 				this._addUrlFile(dt.getData('text/plain'));
 			}
@@ -231,6 +232,13 @@ class FileInput {
 		$show(this._wrap);
 	}
 
+	static _readDroppedFile(input, file) {
+		readFile(file).then(({ data }) => {
+			input.imgFile = [data, file.name, file.type];
+			input.show();
+			input._onFileChange(true);
+		});
+	}
 	get _isThumb() {
 		return Cfg.fileInputs === 2;
 	}
