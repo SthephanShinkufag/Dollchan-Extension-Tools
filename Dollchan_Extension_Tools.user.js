@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = 'fdcfacb';
+	var commit = 'b7dce3c';
 
 
 	var defaultCfg = {
@@ -20205,7 +20205,6 @@ true, true],
 
 				_this90.iichan = true;
 
-				_this90.qPostImg = '.thumbnail';
 				_this90.hasCatalog = true;
 				return _this90;
 			}
@@ -20215,9 +20214,6 @@ true, true],
 				value: function init() {
 					defaultCfg.addSageBtn = 0;
 					$script('highlight = function() {}');
-					$each($Q('.thumb'), function (el) {
-						return el.className = 'thumbnail';
-					});
 					return false;
 				}
 			}, {
@@ -20243,7 +20239,7 @@ true, true],
 			}, {
 				key: 'css',
 				get: function get() {
-					return (!this.t ? '' : '#de-main { margin-top: -37px; } .logo { margin-bottom: 14px; }') + '.thumbnail { border: none; float: left; margin: 2px 20px; }';
+					return !this.t ? '' : '#de-main { margin-top: -37px; }\n\t\t\t\t.logo { margin-bottom: 14px; }';
 				}
 			}, {
 				key: 'isArchived',

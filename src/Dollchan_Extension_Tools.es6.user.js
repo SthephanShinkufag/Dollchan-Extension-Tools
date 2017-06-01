@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = 'fdcfacb';
+const commit = 'b7dce3c';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -14888,7 +14888,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 			this.iichan = true;
 
-			this.qPostImg = '.thumbnail';
 			this.hasCatalog = true;
 		}
 		get qFormMail() {
@@ -14904,8 +14903,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.prot + '//' + this.host + '/' + this.b + '/catalogue.html';
 		}
 		get css() {
-			return (!this.t ? '' : `#de-main { margin-top: -37px; } .logo { margin-bottom: 14px; }`) +
-				'.thumbnail { border: none; float: left; margin: 2px 20px; }';
+			return !this.t ? '' : `#de-main { margin-top: -37px; }
+				.logo { margin-bottom: 14px; }`;
 		}
 		get isArchived() {
 			return this.b.includes('/arch');
@@ -14913,7 +14912,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			defaultCfg.addSageBtn = 0;
 			$script('highlight = function() {}');
-			$each($Q('.thumb'), el => el.className = 'thumbnail');
 			return false;
 		}
 	}
