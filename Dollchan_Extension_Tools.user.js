@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.2.13.0';
-	var commit = '6e63c88';
+	var commit = 'fdcfacb';
 
 
 	var defaultCfg = {
@@ -3420,7 +3420,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		enterTheLink: ['Введите ссылку и нажмите \'+\'', 'Enter the link and click \'+\''],
 		helpAddFile: ['Встроить .ogg, .rar, .zip или .7z в картинку', 'Pack .ogg, .rar, .zip or .7z into image'],
 		downloadFile: ['Скачать содержащийся в картинке файл', 'Download existing file from image'],
-		fileCorrupt: ['Файл повреждён: ', 'File is corrupted: '],
+		fileCorrupt: ['Файл повреждён: ', 'File is corrupt: '],
 		subjHasTrip: ['Поле "Тема" содержит трипкод', '"Subject" field contains a tripcode'],
 		loadImage: ['Загружаются картинки: ', 'Loading images: '],
 		loadFile: ['Загружаются файлы: ', 'Loading files: '],
@@ -20205,6 +20205,7 @@ true, true],
 
 				_this90.iichan = true;
 
+				_this90.qPostImg = '.thumbnail';
 				_this90.hasCatalog = true;
 				return _this90;
 			}
@@ -20214,6 +20215,9 @@ true, true],
 				value: function init() {
 					defaultCfg.addSageBtn = 0;
 					$script('highlight = function() {}');
+					$each($Q('.thumb'), function (el) {
+						return el.className = 'thumbnail';
+					});
 					return false;
 				}
 			}, {
@@ -20239,7 +20243,7 @@ true, true],
 			}, {
 				key: 'css',
 				get: function get() {
-					return !this.t ? '' : '#de-main { margin-top: -37px; }\n\t\t\t\t.logo { margin-bottom: 14px; }';
+					return (!this.t ? '' : '#de-main { margin-top: -37px; } .logo { margin-bottom: 14px; }') + '.thumbnail { border: none; float: left; margin: 2px 20px; }';
 				}
 			}, {
 				key: 'isArchived',

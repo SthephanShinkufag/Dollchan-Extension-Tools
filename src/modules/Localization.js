@@ -434,7 +434,7 @@ const Lng = {
 	enterTheLink:   ['Введите ссылку и нажмите \'+\'', 'Enter the link and click \'+\''],
 	helpAddFile:    ['Встроить .ogg, .rar, .zip или .7z в картинку', 'Pack .ogg, .rar, .zip or .7z into image'],
 	downloadFile:   ['Скачать содержащийся в картинке файл', 'Download existing file from image'],
-	fileCorrupt:    ['Файл повреждён: ', 'File is corrupted: '],
+	fileCorrupt:    ['Файл повреждён: ', 'File is corrupt: '],
 	subjHasTrip:    ['Поле "Тема" содержит трипкод', '"Subject" field contains a tripcode'],
 	loadImage:      ['Загружаются картинки: ', 'Loading images: '],
 	loadFile:       ['Загружаются файлы: ', 'Loading files: '],

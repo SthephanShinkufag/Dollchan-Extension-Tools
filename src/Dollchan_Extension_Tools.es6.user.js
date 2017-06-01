@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '6e63c88';
+const commit = 'fdcfacb';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -598,7 +598,7 @@ const Lng = {
 	enterTheLink:   ['Введите ссылку и нажмите \'+\'', 'Enter the link and click \'+\''],
 	helpAddFile:    ['Встроить .ogg, .rar, .zip или .7z в картинку', 'Pack .ogg, .rar, .zip or .7z into image'],
 	downloadFile:   ['Скачать содержащийся в картинке файл', 'Download existing file from image'],
-	fileCorrupt:    ['Файл повреждён: ', 'File is corrupted: '],
+	fileCorrupt:    ['Файл повреждён: ', 'File is corrupt: '],
 	subjHasTrip:    ['Поле "Тема" содержит трипкод', '"Subject" field contains a tripcode'],
 	loadImage:      ['Загружаются картинки: ', 'Loading images: '],
 	loadFile:       ['Загружаются файлы: ', 'Loading files: '],
@@ -14888,6 +14888,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 			this.iichan = true;
 
+			this.qPostImg = '.thumbnail';
 			this.hasCatalog = true;
 		}
 		get qFormMail() {
@@ -14903,8 +14904,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.prot + '//' + this.host + '/' + this.b + '/catalogue.html';
 		}
 		get css() {
-			return !this.t ? '' : `#de-main { margin-top: -37px; }
-				.logo { margin-bottom: 14px; }`;
+			return (!this.t ? '' : `#de-main { margin-top: -37px; } .logo { margin-bottom: 14px; }`) +
+				'.thumbnail { border: none; float: left; margin: 2px 20px; }';
 		}
 		get isArchived() {
 			return this.b.includes('/arch');
@@ -14912,6 +14913,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			defaultCfg.addSageBtn = 0;
 			$script('highlight = function() {}');
+			$each($Q('.thumb'), el => el.className = 'thumbnail');
 			return false;
 		}
 	}
