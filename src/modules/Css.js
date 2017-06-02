@@ -257,7 +257,7 @@ function scriptCSS() {
 	gif('.de-file-url', 'R0lGODlhEAAQAJEAACyr4e/19////wAAACH5BAEAAAIALAAAAAAQABAAAAIrlI+pwK3WokMyBEmjxbBeLgEbKFrmyXTn+nXaF7nNGMslZ9NpFu4L/ggeCgA7') +
 
 	// Post reply
-	`#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ${ nav.Presto ? '-2px -10px' : '0 0 1px -10px' }; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }
+	`#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ${ nav.Presto ? '-2px -10px' : '0 0 -2px -10px' }; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }
 	.de-parea { text-align: center; }
 	.de-parea-btn-close::after { content: "${ Lng.hideForm[lang] }"; }
 	.de-parea-btn-thr::after { content: "${ Lng.makeThr[lang] }"; }

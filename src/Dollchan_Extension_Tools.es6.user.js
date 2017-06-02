@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.2.13.0';
-const commit = '982bbcc';
+const commit = '2d558ff';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -370,8 +370,8 @@ const Lng = {
 		'godown':       ['В конец страницы', 'Scroll to bottom'],
 		'expimg':       ['Раскрыть все картинки', 'Expand all images'],
 		'preimg':       [
-			'Предзагрузка картинок ([Ctrl+Click] только для новых постов)',
-			'Preload images ([Ctrl+Click] for new posts only)'
+			'Предзагрузка картинок&#13;([Ctrl+Click] только для новых постов)',
+			'Preload images&#13;([Ctrl+Click] for new posts only)'
 		],
 		'maskimg':      ['Маскировать картинки', 'Mask images'],
 		'upd-on':       ['Выключить автообновление треда', 'Disable thread autoupdate'],
@@ -590,8 +590,10 @@ const Lng = {
 	hideForm:       ['Скрыть форму', 'Hide form'],
 	search:         ['Искать в ', 'Search in '],
 	wait:           ['Ждите', 'Wait'],
-	dropFileHere:   ['Бросьте сюда файл или ссылку', 'Drop file or link here'],
-	youCanDrag:     ['Можно перетаскивать картинки и ссылки на файлы прямо со страницы', 'You can drag images and file links directly from the page'],
+	dropFileHere:   ['Бросьте сюда файл(ы) или ссылку', 'Drop file(s) or link here'],
+	youCanDrag:     [
+		'Можно перетаскивать картинки и ссылки на файлы&#13;прямо со страницы или других сайтов',
+		'You can drag images and file links&#13;directly from the page or other sites'],
 	removeFile:     ['Удалить файл', 'Remove file'],
 	spoilFile:      ['Спойлер', 'Spoiler'],
 	addManually:    ['Ввести ссылку на файл вручную', 'Enter a link to the file manually'],
@@ -8312,7 +8314,7 @@ class FileInput {
 			<input type="text" class="de-file-url-input de-file-url-noedit" title="${
 				Lng.youCanDrag[lang] }" placeholder="${ Lng.dropFileHere[lang] }">
 			<input type="button" class="de-file-url-add" value="+" title="${
-				Lng.addManually[lang] }" style="display: none;"></span>`);
+				Lng.add[lang] }" style="display: none;"></span>`);
 		[this._urlInput, this._urlAddBtn] = Array.from(this._urlWrap.children);
 		this._urlWrap.addEventListener('click', this);
 		this._toggleDragEvents(this._urlWrap, true);
@@ -8533,8 +8535,8 @@ class FileInput {
 		const fileTr = this._parent.fileTd.parentNode;
 		$hide(fileTr);
 		$hide(this._urlWrap);
-		($q('.de-file-url-area') || $bBegin(fileTr,
-			'<tr class="de-file-url-area"><td></td><td></td></tr>')).lastChild.appendChild(this._urlWrap);
+		($q('.de-file-url-area') || $bBegin(fileTr, `<tr class="de-file-url-area">
+			<td class="postblock"></td><td></td></tr>`)).lastChild.appendChild(this._urlWrap);
 		this._thumb = $bEnd(this._parent.thumbsEl,
 			`<div class="de-file de-file-off"><div class="de-file-img"><div class="de-file-img" title="${
 				Lng.youCanDrag[lang] }"></div></div></div>`);
@@ -15783,7 +15785,7 @@ function scriptCSS() {
 	gif('.de-file-url', 'R0lGODlhEAAQAJEAACyr4e/19////wAAACH5BAEAAAIALAAAAAAQABAAAAIrlI+pwK3WokMyBEmjxbBeLgEbKFrmyXTn+nXaF7nNGMslZ9NpFu4L/ggeCgA7') +
 
 	// Post reply
-	`#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ${ nav.Presto ? '-2px -10px' : '0 0 1px -10px' }; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }
+	`#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ${ nav.Presto ? '-2px -10px' : '0 0 -2px -10px' }; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }
 	.de-parea { text-align: center; }
 	.de-parea-btn-close::after { content: "${ Lng.hideForm[lang] }"; }
 	.de-parea-btn-thr::after { content: "${ Lng.makeThr[lang] }"; }

@@ -86,7 +86,7 @@ class FileInput {
 			<input type="text" class="de-file-url-input de-file-url-noedit" title="${
 				Lng.youCanDrag[lang] }" placeholder="${ Lng.dropFileHere[lang] }">
 			<input type="button" class="de-file-url-add" value="+" title="${
-				Lng.addManually[lang] }" style="display: none;"></span>`);
+				Lng.add[lang] }" style="display: none;"></span>`);
 		[this._urlInput, this._urlAddBtn] = Array.from(this._urlWrap.children);
 		this._urlWrap.addEventListener('click', this);
 		this._toggleDragEvents(this._urlWrap, true);
@@ -307,8 +307,8 @@ class FileInput {
 		const fileTr = this._parent.fileTd.parentNode;
 		$hide(fileTr);
 		$hide(this._urlWrap);
-		($q('.de-file-url-area') || $bBegin(fileTr,
-			'<tr class="de-file-url-area"><td></td><td></td></tr>')).lastChild.appendChild(this._urlWrap);
+		($q('.de-file-url-area') || $bBegin(fileTr, `<tr class="de-file-url-area">
+			<td class="postblock"></td><td></td></tr>`)).lastChild.appendChild(this._urlWrap);
 		this._thumb = $bEnd(this._parent.thumbsEl,
 			`<div class="de-file de-file-off"><div class="de-file-img"><div class="de-file-img" title="${
 				Lng.youCanDrag[lang] }"></div></div></div>`);

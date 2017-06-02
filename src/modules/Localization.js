@@ -206,8 +206,8 @@ const Lng = {
 		'godown':       ['В конец страницы', 'Scroll to bottom'],
 		'expimg':       ['Раскрыть все картинки', 'Expand all images'],
 		'preimg':       [
-			'Предзагрузка картинок ([Ctrl+Click] только для новых постов)',
-			'Preload images ([Ctrl+Click] for new posts only)'
+			'Предзагрузка картинок&#13;([Ctrl+Click] только для новых постов)',
+			'Preload images&#13;([Ctrl+Click] for new posts only)'
 		],
 		'maskimg':      ['Маскировать картинки', 'Mask images'],
 		'upd-on':       ['Выключить автообновление треда', 'Disable thread autoupdate'],
@@ -426,8 +426,10 @@ const Lng = {
 	hideForm:       ['Скрыть форму', 'Hide form'],
 	search:         ['Искать в ', 'Search in '],
 	wait:           ['Ждите', 'Wait'],
-	dropFileHere:   ['Бросьте сюда файл или ссылку', 'Drop file or link here'],
-	youCanDrag:     ['Можно перетаскивать картинки и ссылки на файлы прямо со страницы', 'You can drag images and file links directly from the page'],
+	dropFileHere:   ['Бросьте сюда файл(ы) или ссылку', 'Drop file(s) or link here'],
+	youCanDrag:     [
+		'Можно перетаскивать картинки и ссылки на файлы&#13;прямо со страницы или других сайтов',
+		'You can drag images and file links&#13;directly from the page or other sites'],
 	removeFile:     ['Удалить файл', 'Remove file'],
 	spoilFile:      ['Спойлер', 'Spoiler'],
 	addManually:    ['Ввести ссылку на файл вручную', 'Enter a link to the file manually'],
