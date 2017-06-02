@@ -189,7 +189,7 @@ function ajaxLoad(url, returnForm = true, useCache = false, checkArch = false) {
 }
 
 function ajaxPostsLoad(brd, tNum, useCache) {
-	if(aib.jsonBuilder && !(aib.dobr && !Cfg.useDobrAPI)) {
+	if(aib.jsonBuilder) {
 		return AjaxCache.runCachedAjax(aib.getJsonApiUrl(brd, tNum), useCache).then(xhr => {
 			try {
 				return new aib.jsonBuilder(JSON.parse(xhr.responseText), brd);

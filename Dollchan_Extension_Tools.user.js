@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.6.2.0';
-	var commit = 'f38da67';
+	var commit = 'db36329';
 
 
 	var defaultCfg = {
@@ -4577,6 +4577,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						if (aib.prot !== 'http:') {
 							Cfg.addVocaroo = 0;
 						}
+						if (aib.dobr && !Cfg.useDobrAPI) {
+							aib.jsonBuilder = null;
+						}
 						if (!('Notification' in window)) {
 							Cfg.desktNotif = 0;
 						}
@@ -4620,7 +4623,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}, emptyFn);
 						}
 
-					case 20:
+					case 21:
 					case 'end':
 						return _context4.stop();
 				}
@@ -6735,6 +6738,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 					case 'markNewPosts':
 						Post.clearMarks();break;
+					case 'useDobrAPI':
+						aib.jsonBuilder = Cfg.useDobrAPI ? DobrochanPostsBuilder : null;break;
 					case 'markMyPosts':
 						if (!Cfg.markMyPosts && !Cfg.markMyLinks) {
 							locStorage.removeItem('de-myposts');
@@ -9075,7 +9080,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function ajaxPostsLoad(brd, tNum, useCache) {
-		if (aib.jsonBuilder && !(aib.dobr && !Cfg.useDobrAPI)) {
+		if (aib.jsonBuilder) {
 			return AjaxCache.runCachedAjax(aib.getJsonApiUrl(brd, tNum), useCache).then(function (xhr) {
 				try {
 					return new aib.jsonBuilder(JSON.parse(xhr.responseText), brd);

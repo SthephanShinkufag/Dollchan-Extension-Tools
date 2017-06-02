@@ -113,6 +113,9 @@ function* readCfg() {
 	if(aib.prot !== 'http:') { // Vocaroo doesn't support https
 		Cfg.addVocaroo = 0;
 	}
+	if(aib.dobr && !Cfg.useDobrAPI) {
+		aib.jsonBuilder = null;
+	}
 	if(!('Notification' in window)) {
 		Cfg.desktNotif = 0;
 	}

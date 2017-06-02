@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.6.2.0';
-const commit = 'f38da67';
+const commit = 'db36329';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -1488,6 +1488,9 @@ function* readCfg() {
 	}
 	if(aib.prot !== 'http:') { // Vocaroo doesn't support https
 		Cfg.addVocaroo = 0;
+	}
+	if(aib.dobr && !Cfg.useDobrAPI) {
+		aib.jsonBuilder = null;
 	}
 	if(!('Notification' in window)) {
 		Cfg.desktNotif = 0;
@@ -3349,6 +3352,7 @@ const cfgWindow = Object.create({
 				}
 				break;
 			case 'markNewPosts': Post.clearMarks(); break;
+			case 'useDobrAPI': aib.jsonBuilder = Cfg.useDobrAPI ? DobrochanPostsBuilder : null; break;
 			case 'markMyPosts':
 				if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
 					locStorage.removeItem('de-myposts');
@@ -5757,7 +5761,7 @@ function ajaxLoad(url, returnForm = true, useCache = false, checkArch = false) {
 }
 
 function ajaxPostsLoad(brd, tNum, useCache) {
-	if(aib.jsonBuilder && !(aib.dobr && !Cfg.useDobrAPI)) {
+	if(aib.jsonBuilder) {
 		return AjaxCache.runCachedAjax(aib.getJsonApiUrl(brd, tNum), useCache).then(xhr => {
 			try {
 				return new aib.jsonBuilder(JSON.parse(xhr.responseText), brd);

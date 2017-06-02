@@ -330,6 +330,7 @@ const cfgWindow = Object.create({
 				}
 				break;
 			case 'markNewPosts': Post.clearMarks(); break;
+			case 'useDobrAPI': aib.jsonBuilder = Cfg.useDobrAPI ? DobrochanPostsBuilder : null; break;
 			case 'markMyPosts':
 				if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
 					locStorage.removeItem('de-myposts');
