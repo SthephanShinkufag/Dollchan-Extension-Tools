@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.6.2.0';
-	var commit = 'db36329';
+	var commit = 'f3347b8';
 
 
 	var defaultCfg = {
@@ -12253,7 +12253,7 @@ true, true],
 			this._btnDel = _Array$from4[3];
 
 			this._utils.addEventListener('click', this);
-			this._urlWrap = $add('<span class="de-file-url-wrap">\n\t\t\t<input type="text" class="de-file-url-input de-file-url-noedit" title="' + Lng.youCanDrag[lang] + '" placeholder="' + Lng.dropFileHere[lang] + '">\n\t\t\t<input type="button" class="de-file-url-add" value="+" title="' + Lng.add[lang] + '" style="display: none;"></span>');
+			this._urlWrap = $add('<span class="de-file-url-wrap">\n\t\t\t<input type="text" name="de-file" class="de-file-url-input de-file-url-noedit" title="' + Lng.youCanDrag[lang] + '" placeholder="' + Lng.dropFileHere[lang] + '">\n\t\t\t<input type="button" class="de-file-url-add" value="+" title="' + Lng.add[lang] + '" style="display: none;"></span>');
 
 			var _Array$from5 = Array.from(this._urlWrap.children);
 

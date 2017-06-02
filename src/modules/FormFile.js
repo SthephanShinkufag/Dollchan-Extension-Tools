@@ -83,7 +83,7 @@ class FileInput {
 		[this._btnRarJpg, this._btnSpoil, this._btnUrl, this._btnDel] = Array.from(this._utils.children);
 		this._utils.addEventListener('click', this);
 		this._urlWrap = $add(`<span class="de-file-url-wrap">
-			<input type="text" class="de-file-url-input de-file-url-noedit" title="${
+			<input type="text" name="de-file" class="de-file-url-input de-file-url-noedit" title="${
 				Lng.youCanDrag[lang] }" placeholder="${ Lng.dropFileHere[lang] }">
 			<input type="button" class="de-file-url-add" value="+" title="${
 				Lng.add[lang] }" style="display: none;"></span>`);
