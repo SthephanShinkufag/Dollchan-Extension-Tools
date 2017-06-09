@@ -161,11 +161,6 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		this.subm.value = Lng.reply[lang];
 	}
 	this.subm.addEventListener('click', e => {
-		if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
-			$pd(e);
-			$popup('upload', Lng.subjHasTrip[lang]);
-			return;
-		}
 		var val = this.txta.value;
 		if(Spells.outreps) {
 			val = Spells.outReplace(val);

@@ -135,7 +135,7 @@ function* runMain(checkDomains, cfgPromise) {
 	Logger.finish();
 }
 
-// START OF SCRIPT EXECUTION
+// START OF DOLLCHAN EXECUTION
 if(/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 	return;
 }

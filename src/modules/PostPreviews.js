@@ -318,7 +318,7 @@ class Pview extends AbstractPost {
 			(post.viewed ? ' de-viewed' : '') + (isMyPost ? ' de-mypost' : '');
 		$show(el);
 		$each($Q('.de-post-hiddencontent', el), node => node.classList.remove('de-post-hiddencontent'));
-		if(Cfg.linksNavig === 2) {
+		if(Cfg.linksNavig) {
 			Pview._markLink(el, this.parent.num);
 		}
 		this._pref = $q(aib.qPostRef, el);
@@ -444,7 +444,7 @@ class PviewsCache extends TemporaryContent {
 		this._tNum = tNum;
 		this._tUrl = aib.getThrUrl(b, tNum);
 		this._posts = pBn;
-		if(Cfg.linksNavig === 2) {
+		if(Cfg.linksNavig) {
 			RefMap.gen(pBn, this._tUrl);
 		}
 	}

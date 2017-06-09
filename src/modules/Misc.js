@@ -62,7 +62,7 @@ class DollchanAPI {
 	}
 }
 
-// Checking for script updates from github
+// Checking for Dollchan updates from github
 function checkForUpdates(isManual, lastUpdateTime) {
 	if(!isManual) {
 		if(Date.now() - +lastUpdateTime < [1, 2, 7, 14, 30][Cfg.scrUpdIntrv] * 1000 * 60 * 60 * 24) {

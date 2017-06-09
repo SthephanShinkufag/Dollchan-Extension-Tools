@@ -6,16 +6,16 @@ const Lng = {
 	cfg: {
 		'hideBySpell':  ['Спеллы: ', 'Magic spells: '],
 		'sortSpells':   ['Сортировать спеллы и удалять дубликаты', 'Sort spells and remove duplicates'],
-		'menuHiddBtn':  ['Дополнительное меню кнопок скрытия ', 'Extra options for the "Hide post" button'],
+		'menuHiddBtn':  ['Дополнительное меню для кнопок "Скрыть" ', 'Extra options for the "Hide" buttons'],
 		'hideRefPsts':  ['Скрывать ответы на скрытые посты', 'Hide replies to hidden posts'],
 		'delHiddPost':  {
 			sel:        [['Откл.', 'Всё', 'Только посты', 'Только треды'], ['Disable', 'All', 'Posts only', 'Threads only']],
 			txt:        ['Удалять скрытое', 'Remove placeholders']
 		},
 
-		'ajaxUpdThr':   ['AJAX обновление треда ', 'AJAX thread update '],
-		'updThrDelay':  ['секунд', 'seconds'],
-		'updCount':     ['Обратный счетчик секунд до обновления', 'Show countdown to thread update'],
+		'ajaxUpdThr':   ['Апдейтер тредов ', 'Threads updater '],
+		'updThrDelay':  ['(сек)', '(sec)'],
+		'updCount':     ['Обратный счетчик обновления треда', 'Show countdown to thread update'],
 		'favIcoBlink':  ['Мигать фавиконом при новых постах', 'Blink the favicon on new posts'],
 		'desktNotif':   ['Уведомлять о новых постах на рабочем столе', 'Desktop notifications for new posts'],
 		'noErrInTitle': ['Не показывать номер ошибки в заголовке', 'Don\'t show error code in title'],
@@ -23,10 +23,10 @@ const Lng = {
 		'useDobrAPI':   ['dobrochan: использовать JSON API', 'dobrochan: use JSON API'],
 		'markMyPosts':  ['Выделять цветом мои посты', 'Highlight my own posts'],
 		'hideReplies':  ['Показывать только оп-посты в списке тредов*', 'Show only op-posts in threads list*'],
-		'expandTrunc':  ['Разворачивать сокращенные посты*', 'Auto-expand truncated posts*'],
-		'updThrBtns':   ['Кнопки получения новых постов в списке тредов', 'Get-new-posts buttons in threads list'],
-		'showHideBtn':  ['Кнопки скрытия ', 'Hide buttons '],
-		'showRepBtn':   ['Кнопки быстрого ответа', 'Quick reply buttons'],
+		'expandTrunc':  ['Авто-разворот сокращенных постов*', 'Auto-expand truncated posts*'],
+		'updThrBtns':   ['Кнопки "Получить новые посты" в списке тредов', 'Show "Get new posts" buttons in threads list'],
+		'showHideBtn':  ['Кнопки "Скрыть" ', 'Show "Hide" buttons '],
+		'showRepBtn':   ['Кнопки "Быстрый ответ"', 'Show "Quick reply" buttons'],
 		'postBtnsCSS': {
 			sel:        [['Упрощенные', 'Серый градиент', 'Настраиваемые'], ['Simple', 'Gradient grey', 'Custom']],
 			txt:        ['Кнопки постов ', 'Post buttons ']
@@ -36,11 +36,10 @@ const Lng = {
 			txt:        ['Раскрытие текстовых спойлеров', 'Text spoilers expansion']
 		},
 		'noPostNames':  ['Скрывать имена в постах', 'Hide poster names'],
-		'widePosts':    ['Растягивать посты по ширине экрана', 'Stretch posts to page width'],
 		'hotKeys':      ['Горячие клавиши', 'Hotkeys'],
 		'loadPages':    ['Количество страниц, загружаемых по F5', 'Number of pages that are loaded on F5 '],
-		'correctTime':  ['Коррекция времени* ', 'Time correction* '],
-		'timeOffset':   ['(ч) разница ', '(h) difference '],
+		'correctTime':  ['Коррекция времени в постах* ', 'Time correction in posts* '],
+		'timeOffset':   ['разница (ч) ', 'time offset (h) '],
 		'timePattern':  ['Шаблон поиска', 'Search pattern'],
 		'timeRPattern': ['Шаблон замены', 'Replace pattern'],
 
@@ -51,83 +50,79 @@ const Lng = {
 		'imgNavBtns':   ['Добавлять кнопки навигации по картинкам', 'Add buttons to navigate images'],
 		'resizeDPI':    ['Отображать картинки пиксель в пиксель', 'Don\'t upscale images on high DPI displays'],
 		'resizeImgs':   ['Уменьшать в экран большие картинки', 'Resize large images to fit screen'],
-		'minImgSize':   ['Минимальный размер картинок (px)', 'Minimal image size (px)'],
-		'zoomFactor':   ['Чувствительность зума картинок [1-100%]', 'Sensibility of the images zoom [1-100%]'],
-		'webmControl':  ['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
-		'webmTitles':   ['Получать заголовки WebM из метаданных', 'Fetch and display WebM metedata title'],
-		'webmVolume':   ['Громкость WebM-файлов [0-100%]', 'Default volume for WebM videos [0-100%]'],
-		'minWebmWidth': ['Минимальная ширина webm (px)', 'Minimal WebM width (px)'],
-		'preLoadImgs':  ['Предварительно загружать картинки*', 'Pre-load images*'],
-		'findImgFile':  ['Распознавать встроенные файлы в картинках*', 'Detect built-in files in images*'],
+		'minImgSize':   ['Миним. размер раскрытых картинок (px)', 'Minimal size for expanded images (px)'],
+		'zoomFactor':   ['Чувствительность зума картинок [1-100%]', 'Images zoom sensibility [1-100%]'],
+		'webmControl':  ['Показывать контрол-бар для WebM', 'Show control bar for WebM'],
+		'webmTitles':   ['Получать названия WebM из метаданных', 'Load titles from WebM metadata'],
+		'webmVolume':   ['Громкость WebM по умолчанию [0-100%]', 'Default volume for WebM [0-100%]'],
+		'minWebmWidth': ['Минимальная ширина WebM (px)', 'Minimal width for WebM (px)'],
+		'preLoadImgs':  ['Предварительно загружать картинки*', 'Preload images*'],
+		'findImgFile':  ['Распознавать встроенные файлы в картинках*', 'Detect embedded files in images*'],
 		'openImgs': {
 			sel:        [['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'], ['Disable', 'All types', 'Only GIF', 'Non-GIF']],
 			txt:        ['Заменять картинки на оригиналы*', 'Replace thumbnails with original images*']
 		},
-		'imgSrcBtns':   ['Добавлять кнопки для поиска картинок', 'Add image search buttons'],
+		'imgSrcBtns':   ['Добавлять кнопки "Поиск" для картинок', 'Add "Search" buttons for images'],
 		'delImgNames':  ['Скрывать имена картинок', 'Hide filenames'],
-		'maskVisib':    ['Видимость при маскировке [0-100%]', 'Image opacity in NSFW mode [0-100%]'],
+		'maskVisib':    ['Прозрачность в режиме NSFW [0-100%]', 'Images opacity in NSFW mode [0-100%]'],
 
-		'linksNavig': {
-			sel:        [['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
-			txt:        ['Навигация по >>ссылкам* ', 'Navigation by >>links* ']
-		},
+		'linksNavig':   ['Навигация постов по >>ссылкам* ', 'Posts navigation by >>links* '],
 		'linksOver':    ['Появление ', 'Appearance '],
 		'linksOut':     ['Пропадание (мс)', 'Disappearance (ms)'],
-		'markViewed':   ['Отмечать просмотренные посты', 'Mark viewed posts'],
+		'markViewed':   ['Помечать просмотренные посты', 'Mark viewed posts'],
 		'strikeHidd':   ['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
 		'removeHidd':   ['Также удалять из карты ответов', 'Also remove from reply maps'],
 		'noNavigHidd':  ['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
 		'markMyLinks':  ['Помечать ссылки на мои посты как (You)', 'Mark links to my posts with (You)'],
-		'crossLinks':   ['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
+		'crossLinks':   ['Заменять http:// на >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
 		'decodeLinks':  ['Декодировать %D0%A5%D1 в ссылках*', 'Decode %D0%A5%D1 in links*'],
 		'insertNum':    ['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
 		'addOPLink':    ['>>ссылка при ответе на оп-пост на доске', 'Insert >>link when replying to OP on board'],
-		'addImgs':      ['Загружать картинки к jpg, png, gif ссылкам*', 'Load images to jpg, png, gif links*'],
+		'addImgs':      ['Загружать картинки к jpg/png/gif ссылкам*', 'Load images to jpg/png/gif links*'],
 		'addMP3':       ['Плеер к mp3 ссылкам* ', 'Player to mp3 links* '],
-		'addVocaroo':   ['к Vocaroo ссылкам*', 'to Vocaroo links*'],
-		'addVimeo':     ['Добавлять плеер к Vimeo ссылкам*', 'Add player to Vimeo links*'],
+		'addVocaroo':   ['к Vocaroo ссылкам*', 'for Vocaroo links*'],
+		'addVimeo':     ['Добавлять плеер к Vimeo ссылкам*', 'Add player for Vimeo links*'],
 		'addYouTube': {
 			sel:        [
 				['Ничего', 'Плеер по клику', 'Авто плеер', 'Превью+плеер', 'Только превью'],
 				['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']
 			],
-			txt:        ['к YouTube-ссылкам* ', 'to YouTube-links* ']
+			txt:        ['к YouTube ссылкам* ', 'to YouTube-links* ']
 		},
 		'YTubeType': {
 			sel:        [['Flash', 'HTML5'], ['Flash', 'HTML5']],
 			txt:        ['', '']
 		},
-		'YTubeTitles':  ['Загружать названия к YouTube-ссылкам*', 'Load titles for YouTube links*'],
+		'YTubeTitles':  ['Загружать названия к YouTube ссылкам*', 'Load titles for YouTube links*'],
 		'ytApiKey':     ['Ключ YT API*', 'YT API Key*'],
 
 		'ajaxPosting':  ['Отправка постов без перезагрузки*', 'Posting without refresh*'],
-		'postSameImg':  ['Возможность отправки одинаковых картинок', 'Ability to post same images'],
+		'postSameImg':  ['Возможность отправки одинаковых картинок', 'Ability to post duplicate images'],
 		'removeEXIF':   ['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG '],
-		'removeFName':  ['Удалять имя файлов', 'Clear file names'],
+		'removeFName':  ['Очищать имя файлов', 'Clear file names'],
 		'sendErrNotif': ['Оповещать в заголовке об ошибке отправки', 'Inform in title about post send error'],
 		'scrAfterRep':  ['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
 		'fileInputs':   {
 			sel:        [['Откл.', 'Упрощ.', 'Превью'], ['Disable', 'Simple', 'Preview']],
-			txt:        ['Улучшенное поле добавления файлов', 'Revamped file attachment field']
+			txt:        ['Улучшенное поле добавления файлов', 'Enhanced file attachment field']
 		},
 		'addPostForm': {
 			sel:        [['Сверху', 'Внизу', 'Скрытая'], ['At top', 'At bottom', 'Hidden']],
-			txt:        ['Форма ответа в треде', 'Reply form display']
+			txt:        ['Форма ответа в треде', 'Reply form display in thread']
 		},
 		'spacedQuote':  ['Вставлять пробел при цитировании "> "', 'Insert a space when quoting "> "'],
-		'favOnReply':   ['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
-		'warnSubjTrip': ['Оповещать при наличии трип-кода в поле "Тема"', 'Warn if the "Subject" field contains a tripcode'],
-		'addSageBtn':   ['Кнопка Sage вместо "E-mail" ', 'Replace the e-mail field with a "Sage" button'],
-		'saveSage':     ['Запоминать сажу', 'Remember sage per thread'],
+		'favOnReply':   ['Добавлять тред в "Избранное" после ответа', 'Add thread to "Favorites" after reply'],
+		'addSageBtn':   ['Кнопка Sage вместо поля "Email" ', 'Replace "Email" with Sage button '],
+		'saveSage':     ['Помнить сажу', 'Remember sage'],
 		'cap4chanAlt':  ['4chan: альтернативная капча*', '4chan: use alternative captcha*'],
 		'capUpdTime':   ['Интервал обновления капчи (сек)', 'Captcha update interval (sec)'],
 		'captchaLang': {
 			sel:        [['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus']],
-			txt:        ['Язык ввода капчи', 'Captcha language']
+			txt:        ['Принудительный язык ввода капчи', 'Forced captcha input language']
 		},
 		'addTextBtns': {
 			sel:        [['Откл.', 'Графич.', 'Упрощ.', 'Стандарт.'], ['Disable', 'As images', 'As text', 'Standard']],
-			txt:        ['Кнопки разметки текста ', 'Text format buttons ']
+			txt:        ['Кнопки разметки текста ', 'Text markup buttons ']
 		},
 		'txtBtnsLoc':   ['Внизу', 'At bottom'],
 		'userPassw':    ['Постоянный пароль', 'Fixed password'],
@@ -142,19 +137,18 @@ const Lng = {
 				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark'],
 				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark']
 			],
-			txt:        ['Стиль скрипта', 'Script style']
+			txt:        ['Стиль Dollchan', 'Dollchan style']
 		},
 		'userCSS':      ['Пользовательский CSS', 'User CSS'],
 		'panelCounter': {
 			sel:        [['Откл.', 'Все посты', 'Без скрытых'], ['Disabled', 'All posts', 'Except hidden']],
-			txt:        ['Счетчик постов/картинок на панели', 'Count posts/images on the panel']
+			txt:        ['Счетчик постов/картинок на панели', 'Panel counter for posts/images']
 		},
-		'rePageTitle':  ['Название треда в заголовке вкладки*', 'Thread title in page tab*'],
-		'animation':    ['CSS3 анимация в скрипте', 'CSS3 animation in script'],
-		'closePopups':  ['Автоматически закрывать уведомления', 'Close popups automatically'],
+		'rePageTitle':  ['Название треда в заголовке вкладки*', 'Show thread title in the page tab*'],
+		'animation':    ['CSS3 анимация', 'CSS3 animation'],
 		'inftyScroll':  ['Бесконечная прокрутка страниц', 'Infinite scrolling for pages'],
-		'scrollToTop':  ['Всегда скроллить в топ на доске', 'Always scroll to top in threads list'],
-		'updScript':    ['Автоматически проверять обновления скрипта', 'Check for updates'],
+		'scrollToTop':  ['Всегда скроллить в топ на доске', 'Always scroll to top in the threads list'],
+		'updScript':    ['Автоматически проверять обновления', 'Auto check for Dollchan updates'],
 		'scrUpdIntrv': {
 			sel:        [
 				['Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'],
@@ -162,8 +156,8 @@ const Lng = {
 			],
 			txt:        ['', '']
 		},
-		'excludeList':  ['Не запускать скрипт на:', 'Prevent script launch on:'],
-		'turnOff':      ['Включать скрипт только на этом сайте', 'Enable script only on this site'],
+		'excludeList':  ['Не запускать Dollchan на:', 'Prevent Dollchan launch on:'],
+		'turnOff':      ['Включать Dollchan только на этом сайте', 'Enable Dollchan only on this site'],
 
 		'language': {
 			sel:        [['Ru', 'En'], ['Ru', 'En']],
@@ -209,7 +203,7 @@ const Lng = {
 			'Предзагрузка картинок&#13;([Ctrl+Click] только для новых постов)',
 			'Preload images&#13;([Ctrl+Click] for new posts only)'
 		],
-		'maskimg':      ['Маскировать картинки', 'Mask images'],
+		'maskimg':      ['Режим NSFW', 'NSFW mode'],
 		'upd-on':       ['Выключить автообновление треда', 'Disable thread autoupdate'],
 		'upd-off':      ['Включить автообновление треда', 'Enable thread autoupdate'],
 		'audio-off':    ['Звуковое оповещение о новых постах', 'Sound notification about new posts'],
@@ -219,7 +213,7 @@ const Lng = {
 		'imglen':       ['Картинок в треде', 'Images in thread'],
 		'posters':      ['Постящих в треде', 'Posters in thread'],
 		'savethr':      ['Сохранить на диск', 'Save to disk'],
-		'enable':       ['Включить/выключить скрипт', 'Turn on/off the script']
+		'enable':       ['Включить/выключить Dollchan', 'Turn on/off the Dollchan']
 	},
 
 	selHiderMenu: {
@@ -269,7 +263,7 @@ const Lng = {
 		'%l%i27 – открыть/закрыть "Скрытое"%/l',
 		'%l%i218 – открыть/закрыть "Видео"%/l',
 		'%l%i28 – открыть/закрыть панель%/l',
-		'%l%i29 – вкл./выкл. маскировку картинок%/l',
+		'%l%i29 – вкл./выкл. режим NSFW%/l',
 		'%l%i40 – обновить тред (в треде)%/l',
 		'%l%i212t – жирный%/l',
 		'%l%i213t – курсив%/l',
@@ -293,7 +287,7 @@ const Lng = {
 		'%l%i27 – open/close "Hidden"%/l',
 		'%l%i218 – open/close "Videos"%/l',
 		'%l%i28 – open/close main panel%/l',
-		'%l%i29 – Toggle NSFW mode%/l',
+		'%l%i29 – toggle NSFW mode%/l',
 		'%l%i40 – update thread%/l',
 		'%l%i212t – bold%/l',
 		'%l%i213t – italic%/l',
@@ -354,7 +348,7 @@ const Lng = {
 	updating:       ['Обновление...', 'Updating...'],
 	error:          ['Ошибка', 'Error'],
 	noConnect:      ['Ошибка подключения', 'Connection failed'],
-	internalError:	['Ошибка скрипта:\n', 'Script error:\n'],
+	internalError:	['Внутренняя ошибка:\n', 'Internal error:\n'],
 	thrNotFound:    ['Тред недоступен (№', 'Thread is unavailable (№'],
 	thrClosed:      ['Тред закрыт', 'Thread is closed'],
 	thrArchived:    ['Тред в архиве', 'Thread is archived'],
@@ -434,17 +428,16 @@ const Lng = {
 	spoilFile:      ['Спойлер', 'Spoiler'],
 	addManually:    ['Ввести ссылку на файл вручную', 'Enter a link to the file manually'],
 	enterTheLink:   ['Введите ссылку и нажмите \'+\'', 'Enter the link and click \'+\''],
-	helpAddFile:    ['Встроить .ogg, .rar, .zip или .7z в картинку', 'Embed a .ogg, .rar, .zip or .7z in the image'],
+	helpAddFile:    ['Встроить ogg/rar/zip/7z в картинку', 'Embed ogg/rar/zip/7z into the image'],
 	downloadFile:   ['Скачать содержащийся в картинке файл', 'Download embedded file from the image'],
 	fileCorrupt:    ['Файл повреждён: ', 'File is corrupt: '],
-	subjHasTrip:    ['Поле "Тема" содержит трипкод', '"Subject" field contains a tripcode'],
 	loadImage:      ['Загружаются картинки: ', 'Loading images: '],
 	loadFile:       ['Загружаются файлы: ', 'Loading files: '],
 	cantLoad:       ['Не могу загрузить ', 'Can\'t load '],
 	willSavePview:  ['Будет сохранено превью', 'Thumbnail will be saved'],
 	loadErrors:     ['Во время загрузки произошли ошибки:', 'An error occurred during the loading:'],
 	errCorruptData: ['Ошибка: сервер отправил повреждённые данные', 'Error: server sent corrupted data'],
-	errMsEdgeWebm:  ['Загрузите скрипт для воспроизведения webm (VP9/Opus)', 'Please load a script to play webm (VP9/Opus)'],
+	errMsEdgeWebm:  ['Загрузите скрипт для воспроизведения WebM (VP9/Opus)', 'Please load a script to play WebM (VP9/Opus)'],
 	expImgInline:   ['[Click] открыть в посте, [Ctrl+Click] в центре', '[Click] expand in post, [Ctrl+Click] by center'],
 	expImgFull:     ['[Click] открыть в центре, [Ctrl+Click] в посте', '[Click] expand by center, [Ctrl+Click] in post'],
 	nextImg:        ['Следующая картинка', 'Next image'],

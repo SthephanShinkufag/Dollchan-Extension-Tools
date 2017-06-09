@@ -22,144 +22,141 @@
 'use strict';
 
 const version = '17.6.2.0';
-const commit = 'f3347b8';
+const commit = '5fb2e06';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
 ============================================================================================================*/
 
 const defaultCfg = {
-	'disabled':         0,      // script enabled by default
-	'language':         0,      // script language [0=ru, 1=en]
+	'disabled':         0,      // Dollchan enabled by default
+	'language':         0,      // Dollchan language [0=ru, 1=en]
 	'hideBySpell':      1,      // hide posts by spells
 	'spells':           null,   // user defined spells
-	'sortSpells':       0,      // sort spells when applying
-	'menuHiddBtn':      1,      // menu on hide button
-	'hideRefPsts':      0,      // hide posts referenced to hidden posts
-	'delHiddPost':      0,      // delete hidden [0=disable, 1=all, 2=posts only, 3=threads only]
+	'sortSpells':       0,      // sort spells and remove duplicates
+	'menuHiddBtn':      1,      // extra options for the "Hide" buttons
+	'hideRefPsts':      0,      // hide replies to hidden posts
+	'delHiddPost':      0,      // remove placeholders [0=off, 1=all, 2=posts only, 3=threads only]
 	'ajaxUpdThr':       1,      // threads updater
 	'updThrDelay':      20,     //    update interval (sec)
-	'updCount':         1,      //    show countdown for thread updater
-	'favIcoBlink':      0,      //    favicon blinking for new posts
+	'updCount':         1,      //    show countdown to thread update
+	'favIcoBlink':      0,      //    blink the favicon on new posts
 	'desktNotif':       0,      //    desktop notifications for new posts
-	'noErrInTitle':     0,      //    don't show error number in title (except 404)
-	'markNewPosts':     1,      //    mark new posts with color when tab changes
+	'noErrInTitle':     0,      //    don't show error code in title (except 404)
+	'markNewPosts':     1,      //    highlight new posts with color
 	'useDobrAPI':       1,      //    dobrochan: use json API
-	'markMyPosts':      1,      // mark my posts with color
+	'markMyPosts':      1,      // highlight my own posts
 	'hideReplies':      0,      // show only op-posts in threads list
-	'expandTrunc':      0,      // auto expanding of truncated posts
-	'updThrBtns':       1,      // updater buttons in threads list
-	'showHideBtn':      1,      // show post hide button
-	'showRepBtn':       1,      // show post reply button
-	'postBtnsCSS':      1,      // post buttons style [0=simple green, 1=gradient grey, 2=custom]
-	'postBtnsBack':     '#8c8c8c',      // custom background color
-	'noSpoilers':       1,      // expand text spoilers [0=off, 1=grey, 2=native]
-	'noPostNames':      0,      // hide post names
-	'widePosts':        0,      // stretch posts to screen width
-	'correctTime':      0,      // correct time in posts
-	'timeOffset':       '+0',   //    time offset (hours)
+	'expandTrunc':      0,      // auto-expand truncated posts
+	'updThrBtns':       1,      // show "Get new posts" buttons in threads list
+	'showHideBtn':      1,      // show "Hide" buttons
+	'showRepBtn':       1,      // show "Quick reply" buttons
+	'postBtnsCSS':      1,      // post buttons style [0=simple, 1=gradient grey, 2=custom]
+	'postBtnsBack':  '#8c8c8c', //    custom background color
+	'noSpoilers':       1,      // text spoilers expansion [0=off, 1=grey, 2=native]
+	'noPostNames':      0,      // hide poster names
+	'correctTime':      0,      // time correction in posts
+	'timeOffset':       '+0',   //    time offset (h)
 	'timePattern':      '',     //    search pattern
 	'timeRPattern':     '',     //    replace pattern
-	'expandImgs':       2,      // expand images by click [0=off, 1=in post, 2=by center]
-	'imgNavBtns':       1,      //    add image navigation for full images
-	'resizeDPI':        0,      //    honor dpi settings
-	'resizeImgs':       1,      //    resize large images
-	'minImgSize':       100,    //    minimal image's size for expanding by center (px)
-	'zoomFactor':       25,     //    zoom images by this factor on every wheel event (%)
-	'webmControl':      1,      //    control bar for webm files
-	'webmTitles':       0,      //    get webm titles from metadata
-	'webmVolume':       100,    //    default volume for webm files (%)
-	'minWebmWidth':     320,    //    minimal wibm width
-	'preLoadImgs':      0,      // pre-load images
-	'findImgFile':      0,      //    detect built-in files in images
-	'openImgs':         0,      // open images in posts [0=off, 1=all images, 2=GIFs only, 3=non-GIFs]
-	'imgSrcBtns':       1,      // add image search buttons
-	'delImgNames':      0,      // remove names of images
-	'maskImgs':         0,      // mask images
-	'maskVisib':        7,      // visibility for masked images (%)
-	'linksNavig':       2,      // navigation by >>links [0=off, 1=no map, 2=+refmap]
+	'expandImgs':       2,      // expand images on click [0=off, 1=in post, 2=by center]
+	'imgNavBtns':       1,      //    add buttons to navigate images
+	'resizeDPI':        0,      //    don't upscale images on high DPI displays
+	'resizeImgs':       1,      //    resize large images to fit screen
+	'minImgSize':       100,    //    minimal size for expanded images (px)
+	'zoomFactor':       25,     //    images zoom sensibility [1-100%]
+	'webmControl':      1,      //    show control bar for WebM
+	'webmTitles':       0,      //    load titles from WebM metadata
+	'webmVolume':       100,    //    default volume for WebM [0-100%]
+	'minWebmWidth':     320,    //    minimal width for WebM (px)
+	'preLoadImgs':      0,      // preload images
+	'findImgFile':      0,      //    detect embedded files in images
+	'openImgs':         0,      // replace thumbs with original images [0=off, 1=all images, 2=GIFs only, 3=non-GIFs]
+	'imgSrcBtns':       1,      // add "Search" buttons for images
+	'delImgNames':      0,      // hide filenames
+	'maskImgs':         0,      // NSFW mode
+	'maskVisib':        7,      // image opacity in NSFW mode [0-100%]
+	'linksNavig':       1,      // posts navigation by >>links
 	'linksOver':        100,    //    delay appearance (ms)
 	'linksOut':         1500,   //    delay disappearance (ms)
 	'markViewed':       0,      //    mark viewed posts
 	'strikeHidd':       0,      //    strike >>links to hidden posts
-	'removeHidd':       0,      //        remove from refmap
+	'removeHidd':       0,      //        also remove from reply maps
 	'noNavigHidd':      0,      //    don't show previews for hidden posts
-	'markMyLinks':      1,      // mark links to my posts with ()
-	'crossLinks':       0,      // replace http: with >>/b/links
+	'markMyLinks':      1,      // mark links to my posts with (You)
+	'crossLinks':       0,      // replace http:// with >>/b/links*
 	'decodeLinks':      0,      // decode %D0%A5%D1 in links
-	'insertNum':        1,      // insert >>link on postnumber click
-	'addOPLink':        0,      // insert >>link for reply to op-posts on board
-	'addImgs':          0,      // embed links to images
+	'insertNum':        1,      // insert >>link on №postnumber click*
+	'addOPLink':        0,      // insert >>link when replying to OP on board
+	'addImgs':          0,      // load images to jpg/png/gif links*
 	'addMP3':           1,      // embed mp3 links
 	'addVocaroo':       1,      // embed Vocaroo links
 	'addYouTube':       3,      // embed YouTube links [0=off, 1=onclick, 2=player, 3=preview+player, 4=preview]
 	'YTubeType':        0,      //    player type [0=flash, 1=HTML5]
 	'YTubeWidth':       360,    //    player width (px)
 	'YTubeHeigh':       270,    //    player height (px)
-	'YTubeTitles':      0,      //    convert links to titles
-	'ytApiKey':         '',     //    public key for youtube API
-	'addVimeo':         1,      //    embed vimeo links
-	'ajaxPosting':      1,      // posting without reload
-	'postSameImg':      1,      //    ability to post same images
-	'removeEXIF':       1,      //    remove EXIF data from JPEGs
-	'removeFName':      0,      //    remove file name
-	'sendErrNotif':     1,      //    inform about post send error if page is blurred
+	'YTubeTitles':      0,      //    load titles for YouTube links
+	'ytApiKey':         '',     //    YouTube API key
+	'addVimeo':         1,      //    embed Vimeo links
+	'ajaxPosting':      1,      // posting without refresh
+	'postSameImg':      1,      //    ability to post duplicate images
+	'removeEXIF':       1,      //    remove EXIF from JPEG
+	'removeFName':      0,      //    clear file names
+	'sendErrNotif':     1,      //    inform in title about post send error
 	'scrAfterRep':      0,      //    scroll to the bottom after reply
-	'fileInputs':       2,      //    transform file fields [0=no, 1=simple, 2=thumbnails]
-	'addPostForm':      2,      // postform displayed [0=at top, 1=at bottom, 2=hidden]
+	'fileInputs':       2,      //    enhanced file attachment field  [0=off, 1=simple, 2=preview]
+	'addPostForm':      2,      // reply form display in thread [0=at top, 1=at bottom, 2=hidden]
 	'spacedQuote':      1,      // insert a space when quoting "> "
-	'favOnReply':       1,      // add thread to favorites on reply
-	'warnSubjTrip':     0,      // warn if subject field contains tripcode
-	'addSageBtn':       1,      // email field -> sage button
+	'favOnReply':       1,      // add thread to favorites after reply
+	'addSageBtn':       1,      // replace "Email" with Sage button
 	'saveSage':         1,      // remember sage
 	'sageReply':        0,      //    reply with sage
 	'cap4chanAlt':      1,      // 4chan: use alternative captcha
 	'capUpdTime':       300,    // captcha update interval (sec)
-	'captchaLang':      1,      // language input in captcha [0=off, 1=en, 2=ru]
-	'addTextBtns':      1,      // text format buttons [0=off, 1=graphics, 2=text, 3=usual]
+	'captchaLang':      1,      // forced captcha input language [0=off, 1=en, 2=ru]
+	'addTextBtns':      1,      // text markup buttons [0=off, 1=graphics, 2=text, 3=usual]
 	'txtBtnsLoc':       1,      //    located at [0=top, 1=bottom]
 	'passwValue':       '',     // user password value
 	'userName':         0,      // user name
 	'nameValue':        '',     //    value
 	'noBoardRule':      1,      // hide board rules
-	'noPassword':       1,      // hide form password field
-	'noName':           0,      // hide form name field
-	'noSubj':           0,      // hide form subject field
-	'scriptStyle':      0,      /* script style
+	'noPassword':       1,      // hide form "Password" field
+	'noName':           0,      // hide form "Name" field
+	'noSubj':           0,      // hide form "Subject" field
+	'scriptStyle':      0,      /* Dollchan style
 		[0=Gradient darkblue, 1=gradient blue, 2=solid grey, 3=transparent blue, 4=square dark] */
-	'userCSS':          0,      // user style
+	'userCSS':          0,      // user CSS
 	'userCSSTxt':       '',     //    css text
 	'expandPanel':      0,      // show full main panel
-	'panelCounter':     1,      // posts/images counter in script panel [0=off, 1=all posts, 2=not hidden]
-	'rePageTitle':      1,      // replace page title in threads
-	'animation':        1,      // CSS3 animation in script
-	'closePopups':      0,      // auto-close popups
-	'inftyScroll':      1,      // infinity scroll
-	'scrollToTop':      0,      // scroll to top in threads list
-	'hotKeys':          1,      // enable hotkeys
+	'panelCounter':     1,      // panel counter for posts/images [0=off, 1=all posts, 2=except hidden]
+	'rePageTitle':      1,      // show thread title in the page tab
+	'animation':        1,      // CSS3 animation
+	'inftyScroll':      1,      // infinite scrolling for pages
+	'scrollToTop':      0,      // always scroll to top in the threads list
+	'hotKeys':          1,      // hotkeys
 	'loadPages':        1,      //    number of pages that are loaded on F5
-	'updScript':        1,      // check for script's update
-	'scrUpdIntrv':      1,      //    check interval in days (every val+1 day)
-	'turnOff':          0,      // enable script only for this site
+	'updScript':        1,      // auto check for Dollchan updates
+	'scrUpdIntrv':      1,      //    interval in days (every val+1 day)
+	'turnOff':          0,      // enable Dollchan only on this site
 	'textaWidth':       300,    // textarea width (px)
 	'textaHeight':      115,    // textarea height (px)
-	'replyWinDrag':     0,      // draggable Quick Reply form
-	'replyWinX':        'right: 0',     // Quick Reply form position
-	'replyWinY':        'top: 0',
-	'cfgWinDrag':       0,      // draggable Settings window
-	'cfgWinX':          'right: 0',     // Settings window position
-	'cfgWinY':          'top: 0',
-	'hidWinDrag':       0,      // draggable Hidden window
-	'hidWinX':          'right: 0',     // Hidden window position
-	'hidWinY':          'top: 0',
-	'favWinDrag':       0,      // draggable Favorites window
-	'favWinX':          'right: 0',     // Favorites window position
-	'favWinY':          'top: 0',
-	'favWinWidth':      500,    // Favorites window width
-	'vidWinDrag':       0,      // draggable Video window
-	'vidWinX':          'right: 0',     // Video window position
-	'vidWinY':          'top: 0',
-	'cfgTab':           'filters'       // Opened tab in Settings window
+	'replyWinDrag':     0,      // draggable "Quick Reply" form
+	'replyWinX':    'right: 0', //    "Quick Reply" form X position
+	'replyWinY':    'top: 0',   //    "Quick Reply" form Y position
+	'cfgWinDrag':       0,      // draggable "Settings" window
+	'cfgWinX':      'right: 0', //    "Settings" window X position
+	'cfgWinY':      'top: 0',   //    "Settings" window Y position
+	'cfgTab':       'filters',  // remembered tab in "Settings" window
+	'hidWinDrag':       0,      // draggable "Hidden" window
+	'hidWinX':      'right: 0', //    "Hidden" window X position
+	'hidWinY':      'top: 0',   //    "Hidden" window Y position
+	'favWinDrag':       0,      // draggable "Favorites" window
+	'favWinX':      'right: 0', //    "Favorites" window X position
+	'favWinY':      'top: 0',   //    "Favorites" window Y position
+	'favWinWidth':      500,    //    "Favorites" window width (px)
+	'vidWinDrag':       0,      // draggable "Video" window
+	'vidWinX':      'right: 0', //    "Video" window X position
+	'vidWinY':      'top: 0',   //    "Video" window Y position
 };
 
 /*==[ Localization.js ]=======================================================================================
@@ -170,16 +167,16 @@ const Lng = {
 	cfg: {
 		'hideBySpell':  ['Спеллы: ', 'Magic spells: '],
 		'sortSpells':   ['Сортировать спеллы и удалять дубликаты', 'Sort spells and remove duplicates'],
-		'menuHiddBtn':  ['Дополнительное меню кнопок скрытия ', 'Extra options for the "Hide post" button'],
+		'menuHiddBtn':  ['Дополнительное меню для кнопок "Скрыть" ', 'Extra options for the "Hide" buttons'],
 		'hideRefPsts':  ['Скрывать ответы на скрытые посты', 'Hide replies to hidden posts'],
 		'delHiddPost':  {
 			sel:        [['Откл.', 'Всё', 'Только посты', 'Только треды'], ['Disable', 'All', 'Posts only', 'Threads only']],
 			txt:        ['Удалять скрытое', 'Remove placeholders']
 		},
 
-		'ajaxUpdThr':   ['AJAX обновление треда ', 'AJAX thread update '],
-		'updThrDelay':  ['секунд', 'seconds'],
-		'updCount':     ['Обратный счетчик секунд до обновления', 'Show countdown to thread update'],
+		'ajaxUpdThr':   ['Апдейтер тредов ', 'Threads updater '],
+		'updThrDelay':  ['(сек)', '(sec)'],
+		'updCount':     ['Обратный счетчик обновления треда', 'Show countdown to thread update'],
 		'favIcoBlink':  ['Мигать фавиконом при новых постах', 'Blink the favicon on new posts'],
 		'desktNotif':   ['Уведомлять о новых постах на рабочем столе', 'Desktop notifications for new posts'],
 		'noErrInTitle': ['Не показывать номер ошибки в заголовке', 'Don\'t show error code in title'],
@@ -187,10 +184,10 @@ const Lng = {
 		'useDobrAPI':   ['dobrochan: использовать JSON API', 'dobrochan: use JSON API'],
 		'markMyPosts':  ['Выделять цветом мои посты', 'Highlight my own posts'],
 		'hideReplies':  ['Показывать только оп-посты в списке тредов*', 'Show only op-posts in threads list*'],
-		'expandTrunc':  ['Разворачивать сокращенные посты*', 'Auto-expand truncated posts*'],
-		'updThrBtns':   ['Кнопки получения новых постов в списке тредов', 'Get-new-posts buttons in threads list'],
-		'showHideBtn':  ['Кнопки скрытия ', 'Hide buttons '],
-		'showRepBtn':   ['Кнопки быстрого ответа', 'Quick reply buttons'],
+		'expandTrunc':  ['Авто-разворот сокращенных постов*', 'Auto-expand truncated posts*'],
+		'updThrBtns':   ['Кнопки "Получить новые посты" в списке тредов', 'Show "Get new posts" buttons in threads list'],
+		'showHideBtn':  ['Кнопки "Скрыть" ', 'Show "Hide" buttons '],
+		'showRepBtn':   ['Кнопки "Быстрый ответ"', 'Show "Quick reply" buttons'],
 		'postBtnsCSS': {
 			sel:        [['Упрощенные', 'Серый градиент', 'Настраиваемые'], ['Simple', 'Gradient grey', 'Custom']],
 			txt:        ['Кнопки постов ', 'Post buttons ']
@@ -200,11 +197,10 @@ const Lng = {
 			txt:        ['Раскрытие текстовых спойлеров', 'Text spoilers expansion']
 		},
 		'noPostNames':  ['Скрывать имена в постах', 'Hide poster names'],
-		'widePosts':    ['Растягивать посты по ширине экрана', 'Stretch posts to page width'],
 		'hotKeys':      ['Горячие клавиши', 'Hotkeys'],
 		'loadPages':    ['Количество страниц, загружаемых по F5', 'Number of pages that are loaded on F5 '],
-		'correctTime':  ['Коррекция времени* ', 'Time correction* '],
-		'timeOffset':   ['(ч) разница ', '(h) difference '],
+		'correctTime':  ['Коррекция времени в постах* ', 'Time correction in posts* '],
+		'timeOffset':   ['разница (ч) ', 'time offset (h) '],
 		'timePattern':  ['Шаблон поиска', 'Search pattern'],
 		'timeRPattern': ['Шаблон замены', 'Replace pattern'],
 
@@ -215,83 +211,79 @@ const Lng = {
 		'imgNavBtns':   ['Добавлять кнопки навигации по картинкам', 'Add buttons to navigate images'],
 		'resizeDPI':    ['Отображать картинки пиксель в пиксель', 'Don\'t upscale images on high DPI displays'],
 		'resizeImgs':   ['Уменьшать в экран большие картинки', 'Resize large images to fit screen'],
-		'minImgSize':   ['Минимальный размер картинок (px)', 'Minimal image size (px)'],
-		'zoomFactor':   ['Чувствительность зума картинок [1-100%]', 'Sensibility of the images zoom [1-100%]'],
-		'webmControl':  ['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
-		'webmTitles':   ['Получать заголовки WebM из метаданных', 'Fetch and display WebM metedata title'],
-		'webmVolume':   ['Громкость WebM-файлов [0-100%]', 'Default volume for WebM videos [0-100%]'],
-		'minWebmWidth': ['Минимальная ширина webm (px)', 'Minimal WebM width (px)'],
-		'preLoadImgs':  ['Предварительно загружать картинки*', 'Pre-load images*'],
-		'findImgFile':  ['Распознавать встроенные файлы в картинках*', 'Detect built-in files in images*'],
+		'minImgSize':   ['Миним. размер раскрытых картинок (px)', 'Minimal size for expanded images (px)'],
+		'zoomFactor':   ['Чувствительность зума картинок [1-100%]', 'Images zoom sensibility [1-100%]'],
+		'webmControl':  ['Показывать контрол-бар для WebM', 'Show control bar for WebM'],
+		'webmTitles':   ['Получать названия WebM из метаданных', 'Load titles from WebM metadata'],
+		'webmVolume':   ['Громкость WebM по умолчанию [0-100%]', 'Default volume for WebM [0-100%]'],
+		'minWebmWidth': ['Минимальная ширина WebM (px)', 'Minimal width for WebM (px)'],
+		'preLoadImgs':  ['Предварительно загружать картинки*', 'Preload images*'],
+		'findImgFile':  ['Распознавать встроенные файлы в картинках*', 'Detect embedded files in images*'],
 		'openImgs': {
 			sel:        [['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'], ['Disable', 'All types', 'Only GIF', 'Non-GIF']],
 			txt:        ['Заменять картинки на оригиналы*', 'Replace thumbnails with original images*']
 		},
-		'imgSrcBtns':   ['Добавлять кнопки для поиска картинок', 'Add image search buttons'],
+		'imgSrcBtns':   ['Добавлять кнопки "Поиск" для картинок', 'Add "Search" buttons for images'],
 		'delImgNames':  ['Скрывать имена картинок', 'Hide filenames'],
-		'maskVisib':    ['Видимость при маскировке [0-100%]', 'Image opacity in NSFW mode [0-100%]'],
+		'maskVisib':    ['Прозрачность в режиме NSFW [0-100%]', 'Images opacity in NSFW mode [0-100%]'],
 
-		'linksNavig': {
-			sel:        [['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
-			txt:        ['Навигация по >>ссылкам* ', 'Navigation by >>links* ']
-		},
+		'linksNavig':   ['Навигация постов по >>ссылкам* ', 'Posts navigation by >>links* '],
 		'linksOver':    ['Появление ', 'Appearance '],
 		'linksOut':     ['Пропадание (мс)', 'Disappearance (ms)'],
-		'markViewed':   ['Отмечать просмотренные посты', 'Mark viewed posts'],
+		'markViewed':   ['Помечать просмотренные посты', 'Mark viewed posts'],
 		'strikeHidd':   ['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
 		'removeHidd':   ['Также удалять из карты ответов', 'Also remove from reply maps'],
 		'noNavigHidd':  ['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
 		'markMyLinks':  ['Помечать ссылки на мои посты как (You)', 'Mark links to my posts with (You)'],
-		'crossLinks':   ['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
+		'crossLinks':   ['Заменять http:// на >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
 		'decodeLinks':  ['Декодировать %D0%A5%D1 в ссылках*', 'Decode %D0%A5%D1 in links*'],
 		'insertNum':    ['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
 		'addOPLink':    ['>>ссылка при ответе на оп-пост на доске', 'Insert >>link when replying to OP on board'],
-		'addImgs':      ['Загружать картинки к jpg, png, gif ссылкам*', 'Load images to jpg, png, gif links*'],
+		'addImgs':      ['Загружать картинки к jpg/png/gif ссылкам*', 'Load images to jpg/png/gif links*'],
 		'addMP3':       ['Плеер к mp3 ссылкам* ', 'Player to mp3 links* '],
-		'addVocaroo':   ['к Vocaroo ссылкам*', 'to Vocaroo links*'],
-		'addVimeo':     ['Добавлять плеер к Vimeo ссылкам*', 'Add player to Vimeo links*'],
+		'addVocaroo':   ['к Vocaroo ссылкам*', 'for Vocaroo links*'],
+		'addVimeo':     ['Добавлять плеер к Vimeo ссылкам*', 'Add player for Vimeo links*'],
 		'addYouTube': {
 			sel:        [
 				['Ничего', 'Плеер по клику', 'Авто плеер', 'Превью+плеер', 'Только превью'],
 				['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']
 			],
-			txt:        ['к YouTube-ссылкам* ', 'to YouTube-links* ']
+			txt:        ['к YouTube ссылкам* ', 'to YouTube-links* ']
 		},
 		'YTubeType': {
 			sel:        [['Flash', 'HTML5'], ['Flash', 'HTML5']],
 			txt:        ['', '']
 		},
-		'YTubeTitles':  ['Загружать названия к YouTube-ссылкам*', 'Load titles for YouTube links*'],
+		'YTubeTitles':  ['Загружать названия к YouTube ссылкам*', 'Load titles for YouTube links*'],
 		'ytApiKey':     ['Ключ YT API*', 'YT API Key*'],
 
 		'ajaxPosting':  ['Отправка постов без перезагрузки*', 'Posting without refresh*'],
-		'postSameImg':  ['Возможность отправки одинаковых картинок', 'Ability to post same images'],
+		'postSameImg':  ['Возможность отправки одинаковых картинок', 'Ability to post duplicate images'],
 		'removeEXIF':   ['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG '],
-		'removeFName':  ['Удалять имя файлов', 'Clear file names'],
+		'removeFName':  ['Очищать имя файлов', 'Clear file names'],
 		'sendErrNotif': ['Оповещать в заголовке об ошибке отправки', 'Inform in title about post send error'],
 		'scrAfterRep':  ['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
 		'fileInputs':   {
 			sel:        [['Откл.', 'Упрощ.', 'Превью'], ['Disable', 'Simple', 'Preview']],
-			txt:        ['Улучшенное поле добавления файлов', 'Revamped file attachment field']
+			txt:        ['Улучшенное поле добавления файлов', 'Enhanced file attachment field']
 		},
 		'addPostForm': {
 			sel:        [['Сверху', 'Внизу', 'Скрытая'], ['At top', 'At bottom', 'Hidden']],
-			txt:        ['Форма ответа в треде', 'Reply form display']
+			txt:        ['Форма ответа в треде', 'Reply form display in thread']
 		},
 		'spacedQuote':  ['Вставлять пробел при цитировании "> "', 'Insert a space when quoting "> "'],
-		'favOnReply':   ['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
-		'warnSubjTrip': ['Оповещать при наличии трип-кода в поле "Тема"', 'Warn if the "Subject" field contains a tripcode'],
-		'addSageBtn':   ['Кнопка Sage вместо "E-mail" ', 'Replace the e-mail field with a "Sage" button'],
-		'saveSage':     ['Запоминать сажу', 'Remember sage per thread'],
+		'favOnReply':   ['Добавлять тред в "Избранное" после ответа', 'Add thread to "Favorites" after reply'],
+		'addSageBtn':   ['Кнопка Sage вместо поля "Email" ', 'Replace "Email" with Sage button '],
+		'saveSage':     ['Помнить сажу', 'Remember sage'],
 		'cap4chanAlt':  ['4chan: альтернативная капча*', '4chan: use alternative captcha*'],
 		'capUpdTime':   ['Интервал обновления капчи (сек)', 'Captcha update interval (sec)'],
 		'captchaLang': {
 			sel:        [['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus']],
-			txt:        ['Язык ввода капчи', 'Captcha language']
+			txt:        ['Принудительный язык ввода капчи', 'Forced captcha input language']
 		},
 		'addTextBtns': {
 			sel:        [['Откл.', 'Графич.', 'Упрощ.', 'Стандарт.'], ['Disable', 'As images', 'As text', 'Standard']],
-			txt:        ['Кнопки разметки текста ', 'Text format buttons ']
+			txt:        ['Кнопки разметки текста ', 'Text markup buttons ']
 		},
 		'txtBtnsLoc':   ['Внизу', 'At bottom'],
 		'userPassw':    ['Постоянный пароль', 'Fixed password'],
@@ -306,19 +298,18 @@ const Lng = {
 				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark'],
 				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark']
 			],
-			txt:        ['Стиль скрипта', 'Script style']
+			txt:        ['Стиль Dollchan', 'Dollchan style']
 		},
 		'userCSS':      ['Пользовательский CSS', 'User CSS'],
 		'panelCounter': {
 			sel:        [['Откл.', 'Все посты', 'Без скрытых'], ['Disabled', 'All posts', 'Except hidden']],
-			txt:        ['Счетчик постов/картинок на панели', 'Count posts/images on the panel']
+			txt:        ['Счетчик постов/картинок на панели', 'Panel counter for posts/images']
 		},
-		'rePageTitle':  ['Название треда в заголовке вкладки*', 'Thread title in page tab*'],
-		'animation':    ['CSS3 анимация в скрипте', 'CSS3 animation in script'],
-		'closePopups':  ['Автоматически закрывать уведомления', 'Close popups automatically'],
+		'rePageTitle':  ['Название треда в заголовке вкладки*', 'Show thread title in the page tab*'],
+		'animation':    ['CSS3 анимация', 'CSS3 animation'],
 		'inftyScroll':  ['Бесконечная прокрутка страниц', 'Infinite scrolling for pages'],
-		'scrollToTop':  ['Всегда скроллить в топ на доске', 'Always scroll to top in threads list'],
-		'updScript':    ['Автоматически проверять обновления скрипта', 'Check for updates'],
+		'scrollToTop':  ['Всегда скроллить в топ на доске', 'Always scroll to top in the threads list'],
+		'updScript':    ['Автоматически проверять обновления', 'Auto check for Dollchan updates'],
 		'scrUpdIntrv': {
 			sel:        [
 				['Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'],
@@ -326,8 +317,8 @@ const Lng = {
 			],
 			txt:        ['', '']
 		},
-		'excludeList':  ['Не запускать скрипт на:', 'Prevent script launch on:'],
-		'turnOff':      ['Включать скрипт только на этом сайте', 'Enable script only on this site'],
+		'excludeList':  ['Не запускать Dollchan на:', 'Prevent Dollchan launch on:'],
+		'turnOff':      ['Включать Dollchan только на этом сайте', 'Enable Dollchan only on this site'],
 
 		'language': {
 			sel:        [['Ru', 'En'], ['Ru', 'En']],
@@ -373,7 +364,7 @@ const Lng = {
 			'Предзагрузка картинок&#13;([Ctrl+Click] только для новых постов)',
 			'Preload images&#13;([Ctrl+Click] for new posts only)'
 		],
-		'maskimg':      ['Маскировать картинки', 'Mask images'],
+		'maskimg':      ['Режим NSFW', 'NSFW mode'],
 		'upd-on':       ['Выключить автообновление треда', 'Disable thread autoupdate'],
 		'upd-off':      ['Включить автообновление треда', 'Enable thread autoupdate'],
 		'audio-off':    ['Звуковое оповещение о новых постах', 'Sound notification about new posts'],
@@ -383,7 +374,7 @@ const Lng = {
 		'imglen':       ['Картинок в треде', 'Images in thread'],
 		'posters':      ['Постящих в треде', 'Posters in thread'],
 		'savethr':      ['Сохранить на диск', 'Save to disk'],
-		'enable':       ['Включить/выключить скрипт', 'Turn on/off the script']
+		'enable':       ['Включить/выключить Dollchan', 'Turn on/off the Dollchan']
 	},
 
 	selHiderMenu: {
@@ -433,7 +424,7 @@ const Lng = {
 		'%l%i27 – открыть/закрыть "Скрытое"%/l',
 		'%l%i218 – открыть/закрыть "Видео"%/l',
 		'%l%i28 – открыть/закрыть панель%/l',
-		'%l%i29 – вкл./выкл. маскировку картинок%/l',
+		'%l%i29 – вкл./выкл. режим NSFW%/l',
 		'%l%i40 – обновить тред (в треде)%/l',
 		'%l%i212t – жирный%/l',
 		'%l%i213t – курсив%/l',
@@ -457,7 +448,7 @@ const Lng = {
 		'%l%i27 – open/close "Hidden"%/l',
 		'%l%i218 – open/close "Videos"%/l',
 		'%l%i28 – open/close main panel%/l',
-		'%l%i29 – Toggle NSFW mode%/l',
+		'%l%i29 – toggle NSFW mode%/l',
 		'%l%i40 – update thread%/l',
 		'%l%i212t – bold%/l',
 		'%l%i213t – italic%/l',
@@ -518,7 +509,7 @@ const Lng = {
 	updating:       ['Обновление...', 'Updating...'],
 	error:          ['Ошибка', 'Error'],
 	noConnect:      ['Ошибка подключения', 'Connection failed'],
-	internalError:	['Ошибка скрипта:\n', 'Script error:\n'],
+	internalError:	['Внутренняя ошибка:\n', 'Internal error:\n'],
 	thrNotFound:    ['Тред недоступен (№', 'Thread is unavailable (№'],
 	thrClosed:      ['Тред закрыт', 'Thread is closed'],
 	thrArchived:    ['Тред в архиве', 'Thread is archived'],
@@ -598,17 +589,16 @@ const Lng = {
 	spoilFile:      ['Спойлер', 'Spoiler'],
 	addManually:    ['Ввести ссылку на файл вручную', 'Enter a link to the file manually'],
 	enterTheLink:   ['Введите ссылку и нажмите \'+\'', 'Enter the link and click \'+\''],
-	helpAddFile:    ['Встроить .ogg, .rar, .zip или .7z в картинку', 'Embed a .ogg, .rar, .zip or .7z in the image'],
+	helpAddFile:    ['Встроить ogg/rar/zip/7z в картинку', 'Embed ogg/rar/zip/7z into the image'],
 	downloadFile:   ['Скачать содержащийся в картинке файл', 'Download embedded file from the image'],
 	fileCorrupt:    ['Файл повреждён: ', 'File is corrupt: '],
-	subjHasTrip:    ['Поле "Тема" содержит трипкод', '"Subject" field contains a tripcode'],
 	loadImage:      ['Загружаются картинки: ', 'Loading images: '],
 	loadFile:       ['Загружаются файлы: ', 'Loading files: '],
 	cantLoad:       ['Не могу загрузить ', 'Can\'t load '],
 	willSavePview:  ['Будет сохранено превью', 'Thumbnail will be saved'],
 	loadErrors:     ['Во время загрузки произошли ошибки:', 'An error occurred during the loading:'],
 	errCorruptData: ['Ошибка: сервер отправил повреждённые данные', 'Error: server sent corrupted data'],
-	errMsEdgeWebm:  ['Загрузите скрипт для воспроизведения webm (VP9/Opus)', 'Please load a script to play webm (VP9/Opus)'],
+	errMsEdgeWebm:  ['Загрузите скрипт для воспроизведения WebM (VP9/Opus)', 'Please load a script to play WebM (VP9/Opus)'],
 	expImgInline:   ['[Click] открыть в посте, [Ctrl+Click] в центре', '[Click] expand in post, [Ctrl+Click] by center'],
 	expImgFull:     ['[Click] открыть в центре, [Ctrl+Click] в посте', '[Click] expand by center, [Ctrl+Click] in post'],
 	nextImg:        ['Следующая картинка', 'Next image'],
@@ -1465,7 +1455,7 @@ function toggleCfg(id) {
 	saveCfg(id, +!Cfg[id]);
 }
 
-// Config initialization, checking for script update.
+// Config initialization, checking for Dollchan update.
 function* readCfg() {
 	let obj;
 	const val = yield* getStoredObj('DESU_Config');
@@ -3313,7 +3303,6 @@ const cfgWindow = Object.create({
 			case 'showHideBtn':
 			case 'showRepBtn':
 			case 'noPostNames':
-			case 'widePosts':
 			case 'imgNavBtns':
 			case 'resizeImgs':
 			case 'strikeHidd':
@@ -3642,7 +3631,6 @@ const cfgWindow = Object.create({
 			${ this._getInp('postBtnsBack', false, 8) }<br>
 			${ this._getSel('noSpoilers') }<br>
 			${ this._getBox('noPostNames') }<br>
-			${ this._getBox('widePosts') }<br>
 			${ this._getBox('correctTime') }
 			${ this._getInp('timeOffset') }
 			<a class="de-abtn" target="_blank" href="${ gitWiki +
@@ -3682,7 +3670,7 @@ const cfgWindow = Object.create({
 	// "Links" tab
 	_getCfgLinks() {
 		return `<div id="de-cfg-links" class="de-cfg-unvis">
-			${ this._getSel('linksNavig') }
+			${ this._getBox('linksNavig') }
 			<div class="de-cfg-depend">
 				${ this._getInp('linksOver') }
 				${ this._getInp('linksOut') }<br>
@@ -3728,7 +3716,6 @@ const cfgWindow = Object.create({
 			${ pr.form ? this._getSel('addPostForm') + '<br>' : '' }
 			${ pr.txta ? this._getBox('spacedQuote') + '<br>' : '' }
 			${ this._getBox('favOnReply') }<br>
-			${ pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
 			${ pr.mail ?
 				this._getBox('addSageBtn') +
 				this._getBox('saveSage') + '<br>' : '' }
@@ -3763,7 +3750,6 @@ const cfgWindow = Object.create({
 			${ this._getSel('panelCounter') }<br>
 			${ this._getBox('rePageTitle') }<br>
 			${ 'animation' in docBody.style ? this._getBox('animation') + '<br>' : '' }
-			${ this._getBox('closePopups') }<br>
 			${ this._getBox('inftyScroll') }<br>
 			${ this._getBox('scrollToTop') }<br>
 			${ this._getBox('hotKeys') }
@@ -3876,7 +3862,7 @@ const cfgWindow = Object.create({
 		this._toggleBox(Cfg.linksNavig, [
 			'input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]',
 			'input[info="strikeHidd"]', 'input[info="noNavigHidd"]']);
-		this._toggleBox(Cfg.strikeHidd && Cfg.linksNavig === 2, ['input[info="removeHidd"]']);
+		this._toggleBox(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
 		this._toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, [
 			'select[info="YTubeType"]', 'input[info="addVimeo"]']);
 		this._toggleBox(Cfg.addYouTube, [
@@ -3931,7 +3917,6 @@ function $popup(id, txt, isWait = false) {
 	if(el) {
 		$q('div', el).innerHTML = txt.trim();
 		$q('span', el).innerHTML = buttonHTML;
-		clearTimeout(el.closeTimeout);
 		if(!isWait && Cfg.animation) {
 			$animate(el, 'de-blink');
 		}
@@ -3951,9 +3936,6 @@ function $popup(id, txt, isWait = false) {
 		if(Cfg.animation) {
 			$animate(el, 'de-open');
 		}
-	}
-	if(Cfg.closePopups && !isWait && !id.includes('edit') && !id.includes('cfg')) {
-		el.closeTimeout = setTimeout(closePopup, 4e3, el);
 	}
 	return el.lastElementChild;
 }
@@ -7395,11 +7377,6 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		this.subm.value = Lng.reply[lang];
 	}
 	this.subm.addEventListener('click', e => {
-		if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
-			$pd(e);
-			$popup('upload', Lng.subjHasTrip[lang]);
-			return;
-		}
 		var val = this.txta.value;
 		if(Spells.outreps) {
 			val = Spells.outReplace(val);
@@ -10172,7 +10149,7 @@ class Pview extends AbstractPost {
 			(post.viewed ? ' de-viewed' : '') + (isMyPost ? ' de-mypost' : '');
 		$show(el);
 		$each($Q('.de-post-hiddencontent', el), node => node.classList.remove('de-post-hiddencontent'));
-		if(Cfg.linksNavig === 2) {
+		if(Cfg.linksNavig) {
 			Pview._markLink(el, this.parent.num);
 		}
 		this._pref = $q(aib.qPostRef, el);
@@ -10298,7 +10275,7 @@ class PviewsCache extends TemporaryContent {
 		this._tNum = tNum;
 		this._tUrl = aib.getThrUrl(b, tNum);
 		this._posts = pBn;
-		if(Cfg.linksNavig === 2) {
+		if(Cfg.linksNavig) {
 			RefMap.gen(pBn, this._tUrl);
 		}
 	}
@@ -11684,7 +11661,7 @@ class RefMap {
 	}
 	static init(form) {
 		var post = form.firstThr && form.firstThr.op;
-		if(post && Cfg.linksNavig === 2) {
+		if(post && Cfg.linksNavig) {
 			this.gen(pByNum, '');
 			var strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 			for(; post; post = post.next) {
@@ -15282,7 +15259,7 @@ class DollchanAPI {
 	}
 }
 
-// Checking for script updates from github
+// Checking for Dollchan updates from github
 function checkForUpdates(isManual, lastUpdateTime) {
 	if(!isManual) {
 		if(Date.now() - +lastUpdateTime < [1, 2, 7, 14, 30][Cfg.scrUpdIntrv] * 1000 * 60 * 60 * 24) {
@@ -15919,7 +15896,6 @@ function updateCSS() {
 		aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }
 		.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }
 	${ Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : ''}
-	${ Cfg.widePosts ? `.${ aib.cReply.replace(/\s/, '.') }:not(.de-pview) { float: none; width: 100%; }` : '' }
 	${ Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '' }
 	${ Cfg.noSpoilers === 1 ?
 	   `.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }
@@ -16084,7 +16060,7 @@ function* runMain(checkDomains, cfgPromise) {
 	Logger.finish();
 }
 
-// START OF SCRIPT EXECUTION
+// START OF DOLLCHAN EXECUTION
 if(/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 	return;
 }

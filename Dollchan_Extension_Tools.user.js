@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.6.2.0';
-	var commit = 'f3347b8';
+	var commit = '5fb2e06';
 
 
 	var defaultCfg = {
@@ -2976,7 +2976,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'postBtnsBack': '#8c8c8c', 
 		'noSpoilers': 1, 
 		'noPostNames': 0, 
-		'widePosts': 0, 
 		'correctTime': 0, 
 		'timeOffset': '+0', 
 		'timePattern': '', 
@@ -2998,7 +2997,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'delImgNames': 0, 
 		'maskImgs': 0, 
 		'maskVisib': 7, 
-		'linksNavig': 2, 
+		'linksNavig': 1, 
 		'linksOver': 100, 
 		'linksOut': 1500, 
 		'markViewed': 0, 
@@ -3030,7 +3029,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'addPostForm': 2, 
 		'spacedQuote': 1, 
 		'favOnReply': 1, 
-		'warnSubjTrip': 0, 
 		'addSageBtn': 1, 
 		'saveSage': 1, 
 		'sageReply': 0, 
@@ -3053,7 +3051,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'panelCounter': 1, 
 		'rePageTitle': 1, 
 		'animation': 1, 
-		'closePopups': 0, 
 		'inftyScroll': 1, 
 		'scrollToTop': 0, 
 		'hotKeys': 1, 
@@ -3065,38 +3062,37 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'textaHeight': 115, 
 		'replyWinDrag': 0, 
 		'replyWinX': 'right: 0', 
-		'replyWinY': 'top: 0',
+		'replyWinY': 'top: 0', 
 		'cfgWinDrag': 0, 
 		'cfgWinX': 'right: 0', 
-		'cfgWinY': 'top: 0',
+		'cfgWinY': 'top: 0', 
+		'cfgTab': 'filters', 
 		'hidWinDrag': 0, 
 		'hidWinX': 'right: 0', 
-		'hidWinY': 'top: 0',
+		'hidWinY': 'top: 0', 
 		'favWinDrag': 0, 
 		'favWinX': 'right: 0', 
-		'favWinY': 'top: 0',
+		'favWinY': 'top: 0', 
 		'favWinWidth': 500, 
 		'vidWinDrag': 0, 
 		'vidWinX': 'right: 0', 
-		'vidWinY': 'top: 0',
-		'cfgTab': 'filters' 
-	};
+		'vidWinY': 'top: 0' };
 
 
 	var Lng = {
 		cfg: {
 			'hideBySpell': ['Спеллы: ', 'Magic spells: '],
 			'sortSpells': ['Сортировать спеллы и удалять дубликаты', 'Sort spells and remove duplicates'],
-			'menuHiddBtn': ['Дополнительное меню кнопок скрытия ', 'Extra options for the "Hide post" button'],
+			'menuHiddBtn': ['Дополнительное меню для кнопок "Скрыть" ', 'Extra options for the "Hide" buttons'],
 			'hideRefPsts': ['Скрывать ответы на скрытые посты', 'Hide replies to hidden posts'],
 			'delHiddPost': {
 				sel: [['Откл.', 'Всё', 'Только посты', 'Только треды'], ['Disable', 'All', 'Posts only', 'Threads only']],
 				txt: ['Удалять скрытое', 'Remove placeholders']
 			},
 
-			'ajaxUpdThr': ['AJAX обновление треда ', 'AJAX thread update '],
-			'updThrDelay': ['секунд', 'seconds'],
-			'updCount': ['Обратный счетчик секунд до обновления', 'Show countdown to thread update'],
+			'ajaxUpdThr': ['Апдейтер тредов ', 'Threads updater '],
+			'updThrDelay': ['(сек)', '(sec)'],
+			'updCount': ['Обратный счетчик обновления треда', 'Show countdown to thread update'],
 			'favIcoBlink': ['Мигать фавиконом при новых постах', 'Blink the favicon on new posts'],
 			'desktNotif': ['Уведомлять о новых постах на рабочем столе', 'Desktop notifications for new posts'],
 			'noErrInTitle': ['Не показывать номер ошибки в заголовке', 'Don\'t show error code in title'],
@@ -3104,10 +3100,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'useDobrAPI': ['dobrochan: использовать JSON API', 'dobrochan: use JSON API'],
 			'markMyPosts': ['Выделять цветом мои посты', 'Highlight my own posts'],
 			'hideReplies': ['Показывать только оп-посты в списке тредов*', 'Show only op-posts in threads list*'],
-			'expandTrunc': ['Разворачивать сокращенные посты*', 'Auto-expand truncated posts*'],
-			'updThrBtns': ['Кнопки получения новых постов в списке тредов', 'Get-new-posts buttons in threads list'],
-			'showHideBtn': ['Кнопки скрытия ', 'Hide buttons '],
-			'showRepBtn': ['Кнопки быстрого ответа', 'Quick reply buttons'],
+			'expandTrunc': ['Авто-разворот сокращенных постов*', 'Auto-expand truncated posts*'],
+			'updThrBtns': ['Кнопки "Получить новые посты" в списке тредов', 'Show "Get new posts" buttons in threads list'],
+			'showHideBtn': ['Кнопки "Скрыть" ', 'Show "Hide" buttons '],
+			'showRepBtn': ['Кнопки "Быстрый ответ"', 'Show "Quick reply" buttons'],
 			'postBtnsCSS': {
 				sel: [['Упрощенные', 'Серый градиент', 'Настраиваемые'], ['Simple', 'Gradient grey', 'Custom']],
 				txt: ['Кнопки постов ', 'Post buttons ']
@@ -3117,11 +3113,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				txt: ['Раскрытие текстовых спойлеров', 'Text spoilers expansion']
 			},
 			'noPostNames': ['Скрывать имена в постах', 'Hide poster names'],
-			'widePosts': ['Растягивать посты по ширине экрана', 'Stretch posts to page width'],
 			'hotKeys': ['Горячие клавиши', 'Hotkeys'],
 			'loadPages': ['Количество страниц, загружаемых по F5', 'Number of pages that are loaded on F5 '],
-			'correctTime': ['Коррекция времени* ', 'Time correction* '],
-			'timeOffset': ['(ч) разница ', '(h) difference '],
+			'correctTime': ['Коррекция времени в постах* ', 'Time correction in posts* '],
+			'timeOffset': ['разница (ч) ', 'time offset (h) '],
 			'timePattern': ['Шаблон поиска', 'Search pattern'],
 			'timeRPattern': ['Шаблон замены', 'Replace pattern'],
 
@@ -3132,80 +3127,76 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'imgNavBtns': ['Добавлять кнопки навигации по картинкам', 'Add buttons to navigate images'],
 			'resizeDPI': ['Отображать картинки пиксель в пиксель', 'Don\'t upscale images on high DPI displays'],
 			'resizeImgs': ['Уменьшать в экран большие картинки', 'Resize large images to fit screen'],
-			'minImgSize': ['Минимальный размер картинок (px)', 'Minimal image size (px)'],
-			'zoomFactor': ['Чувствительность зума картинок [1-100%]', 'Sensibility of the images zoom [1-100%]'],
-			'webmControl': ['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
-			'webmTitles': ['Получать заголовки WebM из метаданных', 'Fetch and display WebM metedata title'],
-			'webmVolume': ['Громкость WebM-файлов [0-100%]', 'Default volume for WebM videos [0-100%]'],
-			'minWebmWidth': ['Минимальная ширина webm (px)', 'Minimal WebM width (px)'],
-			'preLoadImgs': ['Предварительно загружать картинки*', 'Pre-load images*'],
-			'findImgFile': ['Распознавать встроенные файлы в картинках*', 'Detect built-in files in images*'],
+			'minImgSize': ['Миним. размер раскрытых картинок (px)', 'Minimal size for expanded images (px)'],
+			'zoomFactor': ['Чувствительность зума картинок [1-100%]', 'Images zoom sensibility [1-100%]'],
+			'webmControl': ['Показывать контрол-бар для WebM', 'Show control bar for WebM'],
+			'webmTitles': ['Получать названия WebM из метаданных', 'Load titles from WebM metadata'],
+			'webmVolume': ['Громкость WebM по умолчанию [0-100%]', 'Default volume for WebM [0-100%]'],
+			'minWebmWidth': ['Минимальная ширина WebM (px)', 'Minimal width for WebM (px)'],
+			'preLoadImgs': ['Предварительно загружать картинки*', 'Preload images*'],
+			'findImgFile': ['Распознавать встроенные файлы в картинках*', 'Detect embedded files in images*'],
 			'openImgs': {
 				sel: [['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'], ['Disable', 'All types', 'Only GIF', 'Non-GIF']],
 				txt: ['Заменять картинки на оригиналы*', 'Replace thumbnails with original images*']
 			},
-			'imgSrcBtns': ['Добавлять кнопки для поиска картинок', 'Add image search buttons'],
+			'imgSrcBtns': ['Добавлять кнопки "Поиск" для картинок', 'Add "Search" buttons for images'],
 			'delImgNames': ['Скрывать имена картинок', 'Hide filenames'],
-			'maskVisib': ['Видимость при маскировке [0-100%]', 'Image opacity in NSFW mode [0-100%]'],
+			'maskVisib': ['Прозрачность в режиме NSFW [0-100%]', 'Images opacity in NSFW mode [0-100%]'],
 
-			'linksNavig': {
-				sel: [['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
-				txt: ['Навигация по >>ссылкам* ', 'Navigation by >>links* ']
-			},
+			'linksNavig': ['Навигация постов по >>ссылкам* ', 'Posts navigation by >>links* '],
 			'linksOver': ['Появление ', 'Appearance '],
 			'linksOut': ['Пропадание (мс)', 'Disappearance (ms)'],
-			'markViewed': ['Отмечать просмотренные посты', 'Mark viewed posts'],
+			'markViewed': ['Помечать просмотренные посты', 'Mark viewed posts'],
 			'strikeHidd': ['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
 			'removeHidd': ['Также удалять из карты ответов', 'Also remove from reply maps'],
 			'noNavigHidd': ['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
 			'markMyLinks': ['Помечать ссылки на мои посты как (You)', 'Mark links to my posts with (You)'],
-			'crossLinks': ['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
+			'crossLinks': ['Заменять http:// на >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
 			'decodeLinks': ['Декодировать %D0%A5%D1 в ссылках*', 'Decode %D0%A5%D1 in links*'],
 			'insertNum': ['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
 			'addOPLink': ['>>ссылка при ответе на оп-пост на доске', 'Insert >>link when replying to OP on board'],
-			'addImgs': ['Загружать картинки к jpg, png, gif ссылкам*', 'Load images to jpg, png, gif links*'],
+			'addImgs': ['Загружать картинки к jpg/png/gif ссылкам*', 'Load images to jpg/png/gif links*'],
 			'addMP3': ['Плеер к mp3 ссылкам* ', 'Player to mp3 links* '],
-			'addVocaroo': ['к Vocaroo ссылкам*', 'to Vocaroo links*'],
-			'addVimeo': ['Добавлять плеер к Vimeo ссылкам*', 'Add player to Vimeo links*'],
+			'addVocaroo': ['к Vocaroo ссылкам*', 'for Vocaroo links*'],
+			'addVimeo': ['Добавлять плеер к Vimeo ссылкам*', 'Add player for Vimeo links*'],
 			'addYouTube': {
 				sel: [['Ничего', 'Плеер по клику', 'Авто плеер', 'Превью+плеер', 'Только превью'], ['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']],
-				txt: ['к YouTube-ссылкам* ', 'to YouTube-links* ']
+				txt: ['к YouTube ссылкам* ', 'to YouTube-links* ']
 			},
 			'YTubeType': {
 				sel: [['Flash', 'HTML5'], ['Flash', 'HTML5']],
 				txt: ['', '']
 			},
-			'YTubeTitles': ['Загружать названия к YouTube-ссылкам*', 'Load titles for YouTube links*'],
+			'YTubeTitles': ['Загружать названия к YouTube ссылкам*', 'Load titles for YouTube links*'],
 			'ytApiKey': ['Ключ YT API*', 'YT API Key*'],
 
 			'ajaxPosting': ['Отправка постов без перезагрузки*', 'Posting without refresh*'],
-			'postSameImg': ['Возможность отправки одинаковых картинок', 'Ability to post same images'],
+			'postSameImg': ['Возможность отправки одинаковых картинок', 'Ability to post duplicate images'],
 			'removeEXIF': ['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG '],
-			'removeFName': ['Удалять имя файлов', 'Clear file names'],
+			'removeFName': ['Очищать имя файлов', 'Clear file names'],
 			'sendErrNotif': ['Оповещать в заголовке об ошибке отправки', 'Inform in title about post send error'],
 			'scrAfterRep': ['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
 			'fileInputs': {
 				sel: [['Откл.', 'Упрощ.', 'Превью'], ['Disable', 'Simple', 'Preview']],
-				txt: ['Улучшенное поле добавления файлов', 'Revamped file attachment field']
+				txt: ['Улучшенное поле добавления файлов', 'Enhanced file attachment field']
 			},
 			'addPostForm': {
 				sel: [['Сверху', 'Внизу', 'Скрытая'], ['At top', 'At bottom', 'Hidden']],
-				txt: ['Форма ответа в треде', 'Reply form display']
+				txt: ['Форма ответа в треде', 'Reply form display in thread']
 			},
 			'spacedQuote': ['Вставлять пробел при цитировании "> "', 'Insert a space when quoting "> "'],
-			'favOnReply': ['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
-			'warnSubjTrip': ['Оповещать при наличии трип-кода в поле "Тема"', 'Warn if the "Subject" field contains a tripcode'],
-			'addSageBtn': ['Кнопка Sage вместо "E-mail" ', 'Replace the e-mail field with a "Sage" button'],
-			'saveSage': ['Запоминать сажу', 'Remember sage per thread'],
+			'favOnReply': ['Добавлять тред в "Избранное" после ответа', 'Add thread to "Favorites" after reply'],
+			'addSageBtn': ['Кнопка Sage вместо поля "Email" ', 'Replace "Email" with Sage button '],
+			'saveSage': ['Помнить сажу', 'Remember sage'],
 			'cap4chanAlt': ['4chan: альтернативная капча*', '4chan: use alternative captcha*'],
 			'capUpdTime': ['Интервал обновления капчи (сек)', 'Captcha update interval (sec)'],
 			'captchaLang': {
 				sel: [['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus']],
-				txt: ['Язык ввода капчи', 'Captcha language']
+				txt: ['Принудительный язык ввода капчи', 'Forced captcha input language']
 			},
 			'addTextBtns': {
 				sel: [['Откл.', 'Графич.', 'Упрощ.', 'Стандарт.'], ['Disable', 'As images', 'As text', 'Standard']],
-				txt: ['Кнопки разметки текста ', 'Text format buttons ']
+				txt: ['Кнопки разметки текста ', 'Text markup buttons ']
 			},
 			'txtBtnsLoc': ['Внизу', 'At bottom'],
 			'userPassw': ['Постоянный пароль', 'Fixed password'],
@@ -3217,25 +3208,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			'scriptStyle': {
 				sel: [['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark'], ['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark']],
-				txt: ['Стиль скрипта', 'Script style']
+				txt: ['Стиль Dollchan', 'Dollchan style']
 			},
 			'userCSS': ['Пользовательский CSS', 'User CSS'],
 			'panelCounter': {
 				sel: [['Откл.', 'Все посты', 'Без скрытых'], ['Disabled', 'All posts', 'Except hidden']],
-				txt: ['Счетчик постов/картинок на панели', 'Count posts/images on the panel']
+				txt: ['Счетчик постов/картинок на панели', 'Panel counter for posts/images']
 			},
-			'rePageTitle': ['Название треда в заголовке вкладки*', 'Thread title in page tab*'],
-			'animation': ['CSS3 анимация в скрипте', 'CSS3 animation in script'],
-			'closePopups': ['Автоматически закрывать уведомления', 'Close popups automatically'],
+			'rePageTitle': ['Название треда в заголовке вкладки*', 'Show thread title in the page tab*'],
+			'animation': ['CSS3 анимация', 'CSS3 animation'],
 			'inftyScroll': ['Бесконечная прокрутка страниц', 'Infinite scrolling for pages'],
-			'scrollToTop': ['Всегда скроллить в топ на доске', 'Always scroll to top in threads list'],
-			'updScript': ['Автоматически проверять обновления скрипта', 'Check for updates'],
+			'scrollToTop': ['Всегда скроллить в топ на доске', 'Always scroll to top in the threads list'],
+			'updScript': ['Автоматически проверять обновления', 'Auto check for Dollchan updates'],
 			'scrUpdIntrv': {
 				sel: [['Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'], ['Every day', 'Every 2 days', 'Every week', 'Every 2 weeks', 'Every month']],
 				txt: ['', '']
 			},
-			'excludeList': ['Не запускать скрипт на:', 'Prevent script launch on:'],
-			'turnOff': ['Включать скрипт только на этом сайте', 'Enable script only on this site'],
+			'excludeList': ['Не запускать Dollchan на:', 'Prevent Dollchan launch on:'],
+			'turnOff': ['Включать Dollchan только на этом сайте', 'Enable Dollchan only on this site'],
 
 			'language': {
 				sel: [['Ru', 'En'], ['Ru', 'En']],
@@ -3268,7 +3258,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'godown': ['В конец страницы', 'Scroll to bottom'],
 			'expimg': ['Раскрыть все картинки', 'Expand all images'],
 			'preimg': ['Предзагрузка картинок&#13;([Ctrl+Click] только для новых постов)', 'Preload images&#13;([Ctrl+Click] for new posts only)'],
-			'maskimg': ['Маскировать картинки', 'Mask images'],
+			'maskimg': ['Режим NSFW', 'NSFW mode'],
 			'upd-on': ['Выключить автообновление треда', 'Disable thread autoupdate'],
 			'upd-off': ['Включить автообновление треда', 'Enable thread autoupdate'],
 			'audio-off': ['Звуковое оповещение о новых постах', 'Sound notification about new posts'],
@@ -3278,7 +3268,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'imglen': ['Картинок в треде', 'Images in thread'],
 			'posters': ['Постящих в треде', 'Posters in thread'],
 			'savethr': ['Сохранить на диск', 'Save to disk'],
-			'enable': ['Включить/выключить скрипт', 'Turn on/off the script']
+			'enable': ['Включить/выключить Dollchan', 'Turn on/off the Dollchan']
 		},
 
 		selHiderMenu: {
@@ -3298,7 +3288,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		selSaveThr: [['Скачать весь тред', 'Скачать картинки'], ['Download thread', 'Download images']],
 		selAudioNotif: [['Каждые 30 сек.', 'Каждую минуту', 'Каждые 2 мин.', 'Каждые 5 мин.'], ['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.']],
 
-		hotKeyEdit: [['%l%i24 – предыдущая страница/картинка%/l', '%l%i217 – следующая страница/картинка%/l', '%l%i21 – тред (на доске)/пост (в треде) ниже%/l', '%l%i20 – тред (на доске)/пост (в треде) выше%/l', '%l%i31 – пост (на доске) ниже%/l', '%l%i30 – пост (на доске) выше%/l', '%l%i23 – скрыть пост/тред%/l', '%l%i32 – перейти в тред%/l', '%l%i33 – развернуть тред%/l', '%l%i211 – раскрыть картинку в посте%/l', '%l%i22 – быстрый ответ%/l', '%l%i25t – отправить пост%/l', '%l%i210 – открыть/закрыть "Настройки"%/l', '%l%i26 – открыть/закрыть "Избранное"%/l', '%l%i27 – открыть/закрыть "Скрытое"%/l', '%l%i218 – открыть/закрыть "Видео"%/l', '%l%i28 – открыть/закрыть панель%/l', '%l%i29 – вкл./выкл. маскировку картинок%/l', '%l%i40 – обновить тред (в треде)%/l', '%l%i212t – жирный%/l', '%l%i213t – курсив%/l', '%l%i214t – зачеркнутый%/l', '%l%i215t – спойлер%/l', '%l%i216t – код%/l'], ['%l%i24 – previous page/image%/l', '%l%i217 – next page/image%/l', '%l%i21 – thread (on board)/post (in thread) below%/l', '%l%i20 – thread (on board)/post (in thread) above%/l', '%l%i31 – on board post below%/l', '%l%i30 – on board post above%/l', '%l%i23 – hide post/thread%/l', '%l%i32 – go to thread%/l', '%l%i33 – expand thread%/l', '%l%i211 – expand post\'s images%/l', '%l%i22 – quick reply%/l', '%l%i25t – send post%/l', '%l%i210 – open/close "Settings"%/l', '%l%i26 – open/close "Favorites"%/l', '%l%i27 – open/close "Hidden"%/l', '%l%i218 – open/close "Videos"%/l', '%l%i28 – open/close main panel%/l', '%l%i29 – Toggle NSFW mode%/l', '%l%i40 – update thread%/l', '%l%i212t – bold%/l', '%l%i213t – italic%/l', '%l%i214t – strike%/l', '%l%i215t – spoiler%/l', '%l%i216t – code%/l']],
+		hotKeyEdit: [['%l%i24 – предыдущая страница/картинка%/l', '%l%i217 – следующая страница/картинка%/l', '%l%i21 – тред (на доске)/пост (в треде) ниже%/l', '%l%i20 – тред (на доске)/пост (в треде) выше%/l', '%l%i31 – пост (на доске) ниже%/l', '%l%i30 – пост (на доске) выше%/l', '%l%i23 – скрыть пост/тред%/l', '%l%i32 – перейти в тред%/l', '%l%i33 – развернуть тред%/l', '%l%i211 – раскрыть картинку в посте%/l', '%l%i22 – быстрый ответ%/l', '%l%i25t – отправить пост%/l', '%l%i210 – открыть/закрыть "Настройки"%/l', '%l%i26 – открыть/закрыть "Избранное"%/l', '%l%i27 – открыть/закрыть "Скрытое"%/l', '%l%i218 – открыть/закрыть "Видео"%/l', '%l%i28 – открыть/закрыть панель%/l', '%l%i29 – вкл./выкл. режим NSFW%/l', '%l%i40 – обновить тред (в треде)%/l', '%l%i212t – жирный%/l', '%l%i213t – курсив%/l', '%l%i214t – зачеркнутый%/l', '%l%i215t – спойлер%/l', '%l%i216t – код%/l'], ['%l%i24 – previous page/image%/l', '%l%i217 – next page/image%/l', '%l%i21 – thread (on board)/post (in thread) below%/l', '%l%i20 – thread (on board)/post (in thread) above%/l', '%l%i31 – on board post below%/l', '%l%i30 – on board post above%/l', '%l%i23 – hide post/thread%/l', '%l%i32 – go to thread%/l', '%l%i33 – expand thread%/l', '%l%i211 – expand post\'s images%/l', '%l%i22 – quick reply%/l', '%l%i25t – send post%/l', '%l%i210 – open/close "Settings"%/l', '%l%i26 – open/close "Favorites"%/l', '%l%i27 – open/close "Hidden"%/l', '%l%i218 – open/close "Videos"%/l', '%l%i28 – open/close main panel%/l', '%l%i29 – toggle NSFW mode%/l', '%l%i40 – update thread%/l', '%l%i212t – bold%/l', '%l%i213t – italic%/l', '%l%i214t – strike%/l', '%l%i215t – spoiler%/l', '%l%i216t – code%/l']],
 
 		month: [['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'], ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']],
 		fullMonth: [['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']],
@@ -3340,7 +3330,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		updating: ['Обновление...', 'Updating...'],
 		error: ['Ошибка', 'Error'],
 		noConnect: ['Ошибка подключения', 'Connection failed'],
-		internalError: ['Ошибка скрипта:\n', 'Script error:\n'],
+		internalError: ['Внутренняя ошибка:\n', 'Internal error:\n'],
 		thrNotFound: ['Тред недоступен (№', 'Thread is unavailable (№'],
 		thrClosed: ['Тред закрыт', 'Thread is closed'],
 		thrArchived: ['Тред в архиве', 'Thread is archived'],
@@ -3418,17 +3408,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		spoilFile: ['Спойлер', 'Spoiler'],
 		addManually: ['Ввести ссылку на файл вручную', 'Enter a link to the file manually'],
 		enterTheLink: ['Введите ссылку и нажмите \'+\'', 'Enter the link and click \'+\''],
-		helpAddFile: ['Встроить .ogg, .rar, .zip или .7z в картинку', 'Embed a .ogg, .rar, .zip or .7z in the image'],
+		helpAddFile: ['Встроить ogg/rar/zip/7z в картинку', 'Embed ogg/rar/zip/7z into the image'],
 		downloadFile: ['Скачать содержащийся в картинке файл', 'Download embedded file from the image'],
 		fileCorrupt: ['Файл повреждён: ', 'File is corrupt: '],
-		subjHasTrip: ['Поле "Тема" содержит трипкод', '"Subject" field contains a tripcode'],
 		loadImage: ['Загружаются картинки: ', 'Loading images: '],
 		loadFile: ['Загружаются файлы: ', 'Loading files: '],
 		cantLoad: ['Не могу загрузить ', 'Can\'t load '],
 		willSavePview: ['Будет сохранено превью', 'Thumbnail will be saved'],
 		loadErrors: ['Во время загрузки произошли ошибки:', 'An error occurred during the loading:'],
 		errCorruptData: ['Ошибка: сервер отправил повреждённые данные', 'Error: server sent corrupted data'],
-		errMsEdgeWebm: ['Загрузите скрипт для воспроизведения webm (VP9/Opus)', 'Please load a script to play webm (VP9/Opus)'],
+		errMsEdgeWebm: ['Загрузите скрипт для воспроизведения WebM (VP9/Opus)', 'Please load a script to play WebM (VP9/Opus)'],
 		expImgInline: ['[Click] открыть в посте, [Ctrl+Click] в центре', '[Click] expand in post, [Ctrl+Click] by center'],
 		expImgFull: ['[Click] открыть в центре, [Ctrl+Click] в посте', '[Click] expand by center, [Ctrl+Click] in post'],
 		nextImg: ['Следующая картинка', 'Next image'],
@@ -6695,7 +6684,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'showHideBtn':
 					case 'showRepBtn':
 					case 'noPostNames':
-					case 'widePosts':
 					case 'imgNavBtns':
 					case 'resizeImgs':
 					case 'strikeHidd':
@@ -7032,7 +7020,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgPosts: function _getCfgPosts() {
-			return '<div id="de-cfg-posts" class="de-cfg-unvis">\n\t\t\t' + (!localData ? this._getBox('ajaxUpdThr') + this._getInp('updThrDelay') + ('<div class="de-cfg-depend">\n\t\t\t\t\t' + this._getBox('updCount') + '<br>\n\t\t\t\t\t' + this._getBox('favIcoBlink') + '<br>\n\t\t\t\t\t' + ('Notification' in window ? this._getBox('desktNotif') + '<br>' : '') + '\n\t\t\t\t\t' + this._getBox('noErrInTitle') + '<br>\n\t\t\t\t\t' + this._getBox('markNewPosts') + '<br>\n\t\t\t\t\t' + (aib.dobr ? this._getBox('useDobrAPI') : '') + '\n\t\t\t\t</div>') : '') + '\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyPosts') + '<br>' : '') + '\n\t\t\t' + this._getBox('hideReplies') + '<br>\n\t\t\t' + this._getBox('expandTrunc') + '<br>\n\t\t\t' + this._getBox('updThrBtns') + '<br>\n\t\t\t' + this._getBox('showHideBtn') + '\n\t\t\t' + this._getBox('showRepBtn') + '<br>\n\t\t\t' + this._getSel('postBtnsCSS') + '\n\t\t\t' + this._getInp('postBtnsBack', false, 8) + '<br>\n\t\t\t' + this._getSel('noSpoilers') + '<br>\n\t\t\t' + this._getBox('noPostNames') + '<br>\n\t\t\t' + this._getBox('widePosts') + '<br>\n\t\t\t' + this._getBox('correctTime') + '\n\t\t\t' + this._getInp('timeOffset') + '\n\t\t\t<a class="de-abtn" target="_blank" href="' + (gitWiki + 'Settings-time-' + (lang ? 'en' : 'ru')) + '">[?]</a>\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('timePattern', true, 24) + '<br>\n\t\t\t\t' + this._getInp('timeRPattern', true, 24) + '\n\t\t\t</div>\n\t\t</div>';
+			return '<div id="de-cfg-posts" class="de-cfg-unvis">\n\t\t\t' + (!localData ? this._getBox('ajaxUpdThr') + this._getInp('updThrDelay') + ('<div class="de-cfg-depend">\n\t\t\t\t\t' + this._getBox('updCount') + '<br>\n\t\t\t\t\t' + this._getBox('favIcoBlink') + '<br>\n\t\t\t\t\t' + ('Notification' in window ? this._getBox('desktNotif') + '<br>' : '') + '\n\t\t\t\t\t' + this._getBox('noErrInTitle') + '<br>\n\t\t\t\t\t' + this._getBox('markNewPosts') + '<br>\n\t\t\t\t\t' + (aib.dobr ? this._getBox('useDobrAPI') : '') + '\n\t\t\t\t</div>') : '') + '\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyPosts') + '<br>' : '') + '\n\t\t\t' + this._getBox('hideReplies') + '<br>\n\t\t\t' + this._getBox('expandTrunc') + '<br>\n\t\t\t' + this._getBox('updThrBtns') + '<br>\n\t\t\t' + this._getBox('showHideBtn') + '\n\t\t\t' + this._getBox('showRepBtn') + '<br>\n\t\t\t' + this._getSel('postBtnsCSS') + '\n\t\t\t' + this._getInp('postBtnsBack', false, 8) + '<br>\n\t\t\t' + this._getSel('noSpoilers') + '<br>\n\t\t\t' + this._getBox('noPostNames') + '<br>\n\t\t\t' + this._getBox('correctTime') + '\n\t\t\t' + this._getInp('timeOffset') + '\n\t\t\t<a class="de-abtn" target="_blank" href="' + (gitWiki + 'Settings-time-' + (lang ? 'en' : 'ru')) + '">[?]</a>\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('timePattern', true, 24) + '<br>\n\t\t\t\t' + this._getInp('timeRPattern', true, 24) + '\n\t\t\t</div>\n\t\t</div>';
 		},
 
 
@@ -7042,17 +7030,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgLinks: function _getCfgLinks() {
-			return '<div id="de-cfg-links" class="de-cfg-unvis">\n\t\t\t' + this._getSel('linksNavig') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('linksOver') + '\n\t\t\t\t' + this._getInp('linksOut') + '<br>\n\t\t\t\t' + this._getBox('markViewed') + '<br>\n\t\t\t\t' + this._getBox('strikeHidd') + '\n\t\t\t\t<div class="de-cfg-depend">' + this._getBox('removeHidd') + '</div>\n\t\t\t\t' + this._getBox('noNavigHidd') + '\n\t\t\t</div>\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyLinks') + '<br>' : '') + '\n\t\t\t' + this._getBox('crossLinks') + '<br>\n\t\t\t' + this._getBox('decodeLinks') + '<br>\n\t\t\t' + this._getBox('insertNum') + '<br>\n\t\t\t' + this._getBox('addOPLink') + '<br>\n\t\t\t' + this._getBox('addImgs') + '<br>\n\t\t\t<div>\n\t\t\t\t' + this._getBox('addMP3') + '\n\t\t\t\t' + (aib.prot === 'http:' ? this._getBox('addVocaroo') : '') + '\n\t\t\t</div>\n\t\t\t' + this._getSel('addYouTube') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getSel('YTubeType') + '\n\t\t\t\t' + this._getInp('YTubeWidth', false) + '\xD7\n\t\t\t\t' + this._getInp('YTubeHeigh', false) + '(px)<br>\n\t\t\t\t' + this._getBox('YTubeTitles') + '<br>\n\t\t\t\t' + this._getInp('ytApiKey', true, 25) + '<br>\n\t\t\t\t' + this._getBox('addVimeo') + '\n\t\t\t</div>\n\t\t</div>';
+			return '<div id="de-cfg-links" class="de-cfg-unvis">\n\t\t\t' + this._getBox('linksNavig') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('linksOver') + '\n\t\t\t\t' + this._getInp('linksOut') + '<br>\n\t\t\t\t' + this._getBox('markViewed') + '<br>\n\t\t\t\t' + this._getBox('strikeHidd') + '\n\t\t\t\t<div class="de-cfg-depend">' + this._getBox('removeHidd') + '</div>\n\t\t\t\t' + this._getBox('noNavigHidd') + '\n\t\t\t</div>\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyLinks') + '<br>' : '') + '\n\t\t\t' + this._getBox('crossLinks') + '<br>\n\t\t\t' + this._getBox('decodeLinks') + '<br>\n\t\t\t' + this._getBox('insertNum') + '<br>\n\t\t\t' + this._getBox('addOPLink') + '<br>\n\t\t\t' + this._getBox('addImgs') + '<br>\n\t\t\t<div>\n\t\t\t\t' + this._getBox('addMP3') + '\n\t\t\t\t' + (aib.prot === 'http:' ? this._getBox('addVocaroo') : '') + '\n\t\t\t</div>\n\t\t\t' + this._getSel('addYouTube') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getSel('YTubeType') + '\n\t\t\t\t' + this._getInp('YTubeWidth', false) + '\xD7\n\t\t\t\t' + this._getInp('YTubeHeigh', false) + '(px)<br>\n\t\t\t\t' + this._getBox('YTubeTitles') + '<br>\n\t\t\t\t' + this._getInp('ytApiKey', true, 25) + '<br>\n\t\t\t\t' + this._getBox('addVimeo') + '\n\t\t\t</div>\n\t\t</div>';
 		},
 
 
 		_getCfgForm: function _getCfgForm() {
-			return '<div id="de-cfg-form" class="de-cfg-unvis">\n\t\t\t' + this._getBox('ajaxPosting') + '<br>\n\t\t\t' + (pr.form ? '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('postSameImg') + '<br>\n\t\t\t\t' + this._getBox('removeEXIF') + '\n\t\t\t\t' + this._getBox('removeFName') + '<br>\n\t\t\t\t' + this._getBox('sendErrNotif') + '<br>\n\t\t\t\t' + this._getBox('scrAfterRep') + '<br>\n\t\t\t\t' + (pr.files && !nav.Presto ? this._getSel('fileInputs') : '') + '\n\t\t\t</div>' : '') + '\n\t\t\t' + (pr.form ? this._getSel('addPostForm') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getBox('spacedQuote') + '<br>' : '') + '\n\t\t\t' + this._getBox('favOnReply') + '<br>\n\t\t\t' + (pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '') + '\n\t\t\t' + (pr.mail ? this._getBox('addSageBtn') + this._getBox('saveSage') + '<br>' : '') + '\n\t\t\t' + (pr.cap ? (aib.fch ? this._getBox('cap4chanAlt') + '<br>' : '') + this._getInp('capUpdTime') + '<br>' + this._getSel('captchaLang') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getSel('addTextBtns') + this._getBox('txtBtnsLoc') + '<br>' : '') + '\n\t\t\t' + (pr.passw ? this._getInp('passwValue', true, 9) + ('<input type="button" id="de-cfg-btn-pass" class="de-cfg-button" value="' + Lng.change[lang] + '"><br>') : '') + '\n\t\t\t' + (pr.name ? this._getInp('nameValue', false, 9) + ' ' + this._getBox('userName') + '<br>' : '') + '\n\t\t\t' + (pr.rules || pr.passw || pr.name ? Lng.dontShow[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '') + '\n\t\t</div>';
+			return '<div id="de-cfg-form" class="de-cfg-unvis">\n\t\t\t' + this._getBox('ajaxPosting') + '<br>\n\t\t\t' + (pr.form ? '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('postSameImg') + '<br>\n\t\t\t\t' + this._getBox('removeEXIF') + '\n\t\t\t\t' + this._getBox('removeFName') + '<br>\n\t\t\t\t' + this._getBox('sendErrNotif') + '<br>\n\t\t\t\t' + this._getBox('scrAfterRep') + '<br>\n\t\t\t\t' + (pr.files && !nav.Presto ? this._getSel('fileInputs') : '') + '\n\t\t\t</div>' : '') + '\n\t\t\t' + (pr.form ? this._getSel('addPostForm') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getBox('spacedQuote') + '<br>' : '') + '\n\t\t\t' + this._getBox('favOnReply') + '<br>\n\t\t\t' + (pr.mail ? this._getBox('addSageBtn') + this._getBox('saveSage') + '<br>' : '') + '\n\t\t\t' + (pr.cap ? (aib.fch ? this._getBox('cap4chanAlt') + '<br>' : '') + this._getInp('capUpdTime') + '<br>' + this._getSel('captchaLang') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getSel('addTextBtns') + this._getBox('txtBtnsLoc') + '<br>' : '') + '\n\t\t\t' + (pr.passw ? this._getInp('passwValue', true, 9) + ('<input type="button" id="de-cfg-btn-pass" class="de-cfg-button" value="' + Lng.change[lang] + '"><br>') : '') + '\n\t\t\t' + (pr.name ? this._getInp('nameValue', false, 9) + ' ' + this._getBox('userName') + '<br>' : '') + '\n\t\t\t' + (pr.rules || pr.passw || pr.name ? Lng.dontShow[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '') + '\n\t\t</div>';
 		},
 
 
 		_getCfgCommon: function _getCfgCommon() {
-			return '<div id="de-cfg-common" class="de-cfg-unvis">\n\t\t\t' + this._getSel('scriptStyle') + '<br>\n\t\t\t' + this._getBox('userCSS') + '\n\t\t\t<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a><br>\n\t\t\t' + this._getSel('panelCounter') + '<br>\n\t\t\t' + this._getBox('rePageTitle') + '<br>\n\t\t\t' + ('animation' in docBody.style ? this._getBox('animation') + '<br>' : '') + '\n\t\t\t' + this._getBox('closePopups') + '<br>\n\t\t\t' + this._getBox('inftyScroll') + '<br>\n\t\t\t' + this._getBox('scrollToTop') + '<br>\n\t\t\t' + this._getBox('hotKeys') + '\n\t\t\t<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="' + Lng.edit[lang] + '">\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('loadPages') + '\n\t\t\t</div>\n\t\t\t' + (!nav.isChromeStorage && !nav.Presto || nav.isGM ? this._getBox('updScript') + ('<div class="de-cfg-depend">\n\t\t\t\t\t' + this._getSel('scrUpdIntrv') + '\n\t\t\t\t\t<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t</div>') : '') + '\n\t\t\t' + (nav.isGlobal ? Lng.cfg.excludeList[lang] + '<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, ...">' + this._getBox('turnOff') : '') + '\n\t\t</div>';
+			return '<div id="de-cfg-common" class="de-cfg-unvis">\n\t\t\t' + this._getSel('scriptStyle') + '<br>\n\t\t\t' + this._getBox('userCSS') + '\n\t\t\t<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a><br>\n\t\t\t' + this._getSel('panelCounter') + '<br>\n\t\t\t' + this._getBox('rePageTitle') + '<br>\n\t\t\t' + ('animation' in docBody.style ? this._getBox('animation') + '<br>' : '') + '\n\t\t\t' + this._getBox('inftyScroll') + '<br>\n\t\t\t' + this._getBox('scrollToTop') + '<br>\n\t\t\t' + this._getBox('hotKeys') + '\n\t\t\t<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="' + Lng.edit[lang] + '">\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('loadPages') + '\n\t\t\t</div>\n\t\t\t' + (!nav.isChromeStorage && !nav.Presto || nav.isGM ? this._getBox('updScript') + ('<div class="de-cfg-depend">\n\t\t\t\t\t' + this._getSel('scrUpdIntrv') + '\n\t\t\t\t\t<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t</div>') : '') + '\n\t\t\t' + (nav.isGlobal ? Lng.cfg.excludeList[lang] + '<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, ...">' + this._getBox('turnOff') : '') + '\n\t\t</div>';
 		},
 
 
@@ -7118,7 +7106,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._toggleBox(Cfg.expandImgs, ['input[info="imgNavBtns"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]', 'input[info="minWebmWidth"]']);
 			this._toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
 			this._toggleBox(Cfg.linksNavig, ['input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]', 'input[info="strikeHidd"]', 'input[info="noNavigHidd"]']);
-			this._toggleBox(Cfg.strikeHidd && Cfg.linksNavig === 2, ['input[info="removeHidd"]']);
+			this._toggleBox(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
 			this._toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, ['select[info="YTubeType"]', 'input[info="addVimeo"]']);
 			this._toggleBox(Cfg.addYouTube, ['input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]', 'input[info="ytApiKey"]']);
 			this._toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
@@ -7168,7 +7156,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (el) {
 			$q('div', el).innerHTML = txt.trim();
 			$q('span', el).innerHTML = buttonHTML;
-			clearTimeout(el.closeTimeout);
 			if (!isWait && Cfg.animation) {
 				$animate(el, 'de-blink');
 			}
@@ -7184,9 +7171,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (Cfg.animation) {
 				$animate(el, 'de-open');
 			}
-		}
-		if (Cfg.closePopups && !isWait && !id.includes('edit') && !id.includes('cfg')) {
-			el.closeTimeout = setTimeout(closePopup, 4e3, el);
 		}
 		return el.lastElementChild;
 	}
@@ -11110,11 +11094,6 @@ true, true],
 			this.subm.value = Lng.reply[lang];
 		}
 		this.subm.addEventListener('click', function (e) {
-			if (Cfg.warnSubjTrip && _this22.subj && /#.|##./.test(_this22.subj.value)) {
-				$pd(e);
-				$popup('upload', Lng.subjHasTrip[lang]);
-				return;
-			}
 			var val = _this22.txta.value;
 			if (Spells.outreps) {
 				val = Spells.outReplace(val);
@@ -14438,7 +14417,7 @@ true, true],
 				$each($Q('.de-post-hiddencontent', el), function (node) {
 					return node.classList.remove('de-post-hiddencontent');
 				});
-				if (Cfg.linksNavig === 2) {
+				if (Cfg.linksNavig) {
 					Pview._markLink(el, this.parent.num);
 				}
 				this._pref = $q(aib.qPostRef, el);
@@ -14590,7 +14569,7 @@ true, true],
 			_this42._tNum = tNum;
 			_this42._tUrl = aib.getThrUrl(b, tNum);
 			_this42._posts = pBn;
-			if (Cfg.linksNavig === 2) {
+			if (Cfg.linksNavig) {
 				RefMap.gen(pBn, _this42._tUrl);
 			}
 			return _this42;
@@ -16218,7 +16197,7 @@ true, true],
 			key: 'init',
 			value: function init(form) {
 				var post = form.firstThr && form.firstThr.op;
-				if (post && Cfg.linksNavig === 2) {
+				if (post && Cfg.linksNavig) {
 					this.gen(pByNum, '');
 					var strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 					for (; post; post = post.next) {
@@ -20946,7 +20925,7 @@ true, true],
 	}
 
 	function updateCSS() {
-		var str = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + '; }\n\t.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + '; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.Presto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + '; }\n\t\t.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }\n\t\t.de-mypost .de-post-deleted::after { content: "' + Lng.deleted[lang] + ' (You)"; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-my::after { content: " (You)"; }\n\t\t.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }' : '') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t' + (Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '') + '\n\t' + (Cfg.resizeImgs ? '' : '.de-img-wrapper-inpost > .de-img-full { width: auto; }') + '\n\t' + (Cfg.maskImgs ? aib.qPostImg + (', .de-img-pre, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; } ' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }') : '') + '\n\t' + (Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '') + '\n\t' + (Cfg.widePosts ? '.' + aib.cReply.replace(/\s/, '.') + ':not(.de-pview) { float: none; width: 100%; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }') + '\n\t' + (!Cfg.addSageBtn ? '#de-sagebtn, ' : '') + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (!Cfg.imgNavBtns ? '#de-img-btn-next, #de-img-btn-prev, ' : '') + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + (!Cfg.panelCounter ? '#de-panel-info, ' : '') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (!Cfg.showHideBtn ? '.de-btn-hide, ' : '') + (!Cfg.showRepBtn ? '.de-btn-rep, ' : '') + (!Cfg.updThrBtns && !aib.t ? '.de-thread-updater, ' : '') + (!Cfg.ajaxPosting ? '.de-file-rar, .de-file-url, ' : '') + (!Cfg.fileInputs ? '.de-file-url-wrap, .de-file-url, ' : '') + (!aib.kus && (aib.multiFile || Cfg.fileInputs !== 2) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + ' body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }';
+		var str = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + '; }\n\t.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + '; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.Presto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + '; }\n\t\t.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }\n\t\t.de-mypost .de-post-deleted::after { content: "' + Lng.deleted[lang] + ' (You)"; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-my::after { content: " (You)"; }\n\t\t.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }' : '') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t' + (Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '') + '\n\t' + (Cfg.resizeImgs ? '' : '.de-img-wrapper-inpost > .de-img-full { width: auto; }') + '\n\t' + (Cfg.maskImgs ? aib.qPostImg + (', .de-img-pre, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; } ' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }') : '') + '\n\t' + (Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }') + '\n\t' + (!Cfg.addSageBtn ? '#de-sagebtn, ' : '') + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (!Cfg.imgNavBtns ? '#de-img-btn-next, #de-img-btn-prev, ' : '') + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + (!Cfg.panelCounter ? '#de-panel-info, ' : '') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (!Cfg.showHideBtn ? '.de-btn-hide, ' : '') + (!Cfg.showRepBtn ? '.de-btn-rep, ' : '') + (!Cfg.updThrBtns && !aib.t ? '.de-thread-updater, ' : '') + (!Cfg.ajaxPosting ? '.de-file-rar, .de-file-url, ' : '') + (!Cfg.fileInputs ? '.de-file-url-wrap, .de-file-url, ' : '') + (!aib.kus && (aib.multiFile || Cfg.fileInputs !== 2) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + ' body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }';
 		$id('de-css-dynamic').textContent = str + '\n' + aib.css;
 		$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 	}

@@ -41,7 +41,7 @@ class RefMap {
 	}
 	static init(form) {
 		var post = form.firstThr && form.firstThr.op;
-		if(post && Cfg.linksNavig === 2) {
+		if(post && Cfg.linksNavig) {
 			this.gen(pByNum, '');
 			var strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 			for(; post; post = post.next) {

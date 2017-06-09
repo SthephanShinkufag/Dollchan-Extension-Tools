@@ -291,7 +291,6 @@ const cfgWindow = Object.create({
 			case 'showHideBtn':
 			case 'showRepBtn':
 			case 'noPostNames':
-			case 'widePosts':
 			case 'imgNavBtns':
 			case 'resizeImgs':
 			case 'strikeHidd':
@@ -620,7 +619,6 @@ const cfgWindow = Object.create({
 			${ this._getInp('postBtnsBack', false, 8) }<br>
 			${ this._getSel('noSpoilers') }<br>
 			${ this._getBox('noPostNames') }<br>
-			${ this._getBox('widePosts') }<br>
 			${ this._getBox('correctTime') }
 			${ this._getInp('timeOffset') }
 			<a class="de-abtn" target="_blank" href="${ gitWiki +
@@ -660,7 +658,7 @@ const cfgWindow = Object.create({
 	// "Links" tab
 	_getCfgLinks() {
 		return `<div id="de-cfg-links" class="de-cfg-unvis">
-			${ this._getSel('linksNavig') }
+			${ this._getBox('linksNavig') }
 			<div class="de-cfg-depend">
 				${ this._getInp('linksOver') }
 				${ this._getInp('linksOut') }<br>
@@ -706,7 +704,6 @@ const cfgWindow = Object.create({
 			${ pr.form ? this._getSel('addPostForm') + '<br>' : '' }
 			${ pr.txta ? this._getBox('spacedQuote') + '<br>' : '' }
 			${ this._getBox('favOnReply') }<br>
-			${ pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
 			${ pr.mail ?
 				this._getBox('addSageBtn') +
 				this._getBox('saveSage') + '<br>' : '' }
@@ -741,7 +738,6 @@ const cfgWindow = Object.create({
 			${ this._getSel('panelCounter') }<br>
 			${ this._getBox('rePageTitle') }<br>
 			${ 'animation' in docBody.style ? this._getBox('animation') + '<br>' : '' }
-			${ this._getBox('closePopups') }<br>
 			${ this._getBox('inftyScroll') }<br>
 			${ this._getBox('scrollToTop') }<br>
 			${ this._getBox('hotKeys') }
@@ -854,7 +850,7 @@ const cfgWindow = Object.create({
 		this._toggleBox(Cfg.linksNavig, [
 			'input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]',
 			'input[info="strikeHidd"]', 'input[info="noNavigHidd"]']);
-		this._toggleBox(Cfg.strikeHidd && Cfg.linksNavig === 2, ['input[info="removeHidd"]']);
+		this._toggleBox(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
 		this._toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, [
 			'select[info="YTubeType"]', 'input[info="addVimeo"]']);
 		this._toggleBox(Cfg.addYouTube, [

@@ -89,7 +89,7 @@ function toggleCfg(id) {
 	saveCfg(id, +!Cfg[id]);
 }
 
-// Config initialization, checking for script update.
+// Config initialization, checking for Dollchan update.
 function* readCfg() {
 	let obj;
 	const val = yield* getStoredObj('DESU_Config');

@@ -20,7 +20,6 @@ function $popup(id, txt, isWait = false) {
 	if(el) {
 		$q('div', el).innerHTML = txt.trim();
 		$q('span', el).innerHTML = buttonHTML;
-		clearTimeout(el.closeTimeout);
 		if(!isWait && Cfg.animation) {
 			$animate(el, 'de-blink');
 		}
@@ -40,9 +39,6 @@ function $popup(id, txt, isWait = false) {
 		if(Cfg.animation) {
 			$animate(el, 'de-open');
 		}
-	}
-	if(Cfg.closePopups && !isWait && !id.includes('edit') && !id.includes('cfg')) {
-		el.closeTimeout = setTimeout(closePopup, 4e3, el);
 	}
 	return el.lastElementChild;
 }
