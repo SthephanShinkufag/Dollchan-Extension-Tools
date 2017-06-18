@@ -172,6 +172,9 @@ function* html5Submit(form, submitter, needProgress = false) {
 	const formData = new FormData();
 	let hasFiles = false;
 	for(let { name, value, type, el } of getFormElements(form, submitter)) {
+		if(name === 'de-file-txt') {
+			continue;
+		}
 		if(type === 'file') {
 			hasFiles = true;
 			const fileName = value.name;

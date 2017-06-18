@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.6.2.0';
-	var commit = '5fb2e06';
+	var commit = 'd0c5850';
 
 
 	var defaultCfg = {
@@ -11765,7 +11765,7 @@ true, true],
 							break;
 						}
 
-						return _context16.abrupt('break', 33);
+						return _context16.abrupt('break', 35);
 
 					case 6:
 						_ref40 = _iterator23[_i31++];
@@ -11780,7 +11780,7 @@ true, true],
 							break;
 						}
 
-						return _context16.abrupt('break', 33);
+						return _context16.abrupt('break', 35);
 
 					case 12:
 						_ref40 = _i31.value;
@@ -11788,8 +11788,16 @@ true, true],
 					case 13:
 						_ref41 = _ref40, name = _ref41.name, value = _ref41.value, type = _ref41.type, el = _ref41.el;
 
+						if (!(name === 'de-file-txt')) {
+							_context16.next = 16;
+							break;
+						}
+
+						return _context16.abrupt('continue', 33);
+
+					case 16:
 						if (!(type === 'file')) {
-							_context16.next = 30;
+							_context16.next = 32;
 							break;
 						}
 
@@ -11798,67 +11806,67 @@ true, true],
 						newFileName = Cfg.removeFName ? ' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
 
 						if (!((Cfg.postSameImg || Cfg.removeEXIF) && (value.type === 'image/jpeg' || value.type === 'image/png' || value.type === 'video/webm' && !aib.mak))) {
-							_context16.next = 29;
+							_context16.next = 31;
 							break;
 						}
 
-						_context16.next = 21;
+						_context16.next = 23;
 						return readFile(value);
 
-					case 21:
+					case 23:
 						_context16.t0 = _context16.sent.data;
 						_context16.t1 = el.obj.extraFile;
 						_data5 = cleanFile(_context16.t0, _context16.t1);
 
 						if (_data5) {
-							_context16.next = 26;
+							_context16.next = 28;
 							break;
 						}
 
 						return _context16.abrupt('return', Promise.reject(Lng.fileCorrupt[lang] + fileName));
 
-					case 26:
+					case 28:
 						value = new File(_data5, newFileName);
-						_context16.next = 30;
+						_context16.next = 32;
 						break;
 
-					case 29:
+					case 31:
 						if (Cfg.removeFName) {
 							value = new File([value], newFileName);
 						}
 
-					case 30:
+					case 32:
 						formData.append(name, value);
 
-					case 31:
+					case 33:
 						_context16.next = 3;
 						break;
 
-					case 33:
+					case 35:
 						ajaxParams = { method: 'POST', data: formData };
 
 						if (needProgress && hasFiles) {
 							ajaxParams.onprogress = getUploadFunc();
 						}
-						_context16.prev = 35;
-						_context16.next = 38;
+						_context16.prev = 37;
+						_context16.next = 40;
 						return $ajax(form.action, ajaxParams);
 
-					case 38:
+					case 40:
 						xhr = _context16.sent;
 						return _context16.abrupt('return', aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText));
 
-					case 42:
-						_context16.prev = 42;
-						_context16.t2 = _context16['catch'](35);
+					case 44:
+						_context16.prev = 44;
+						_context16.t2 = _context16['catch'](37);
 						return _context16.abrupt('return', Promise.reject(_context16.t2));
 
-					case 45:
+					case 47:
 					case 'end':
 						return _context16.stop();
 				}
 			}
-		}, _marked[6], this, [[35, 42]]);
+		}, _marked[6], this, [[37, 44]]);
 	}
 
 	function readFile(file) {
@@ -12125,7 +12133,7 @@ true, true],
 		_createClass(Files, [{
 			key: 'changeMode',
 			value: function changeMode() {
-				var cfg = Cfg.fileInputs === 2;
+				var cfg = Cfg.fileInputs === 2 && Cfg.ajaxPosting;
 				for (var _iterator24 = this._inputs, _isArray24 = Array.isArray(_iterator24), _i32 = 0, _iterator24 = _isArray24 ? _iterator24 : _iterator24[Symbol.iterator]();;) {
 					var _ref42;
 
@@ -12214,13 +12222,13 @@ true, true],
 			this.hasFile = false;
 			this.imgFile = null;
 			this._input = el;
-			this._isUrlEditable = false;
+			this._isTxtEditable = false;
 			this._mediaEl = null;
 			this._parent = parent;
 			this._rarMsg = null;
 			this._spoilEl = $q('input[type="checkbox"][name="spoiler"]', el.parentNode);
 			this._thumb = null;
-			this._utils = $add('<div class="de-file-utils">\n\t\t\t<div class="de-file-rar" title="' + Lng.helpAddFile[lang] + '" style="display: none;"></div>\n\t\t\t<input class="de-file-spoil" type="checkbox" title="' + Lng.spoilFile[lang] + '" style="display: none;">\n\t\t\t<div class="de-file-url" title="' + Lng.addManually[lang] + '"></div>\n\t\t\t<div class="de-file-del" title="' + Lng.removeFile[lang] + '" style="display: none;"></div>\n\t\t</div>');
+			this._utils = $add('<div class="de-file-utils">\n\t\t\t<div class="de-file-btn-rar" title="' + Lng.helpAddFile[lang] + '" style="display: none;"></div>\n\t\t\t<input class="de-file-spoil" type="checkbox" title="' + Lng.spoilFile[lang] + '" style="display: none;">\n\t\t\t<div class="de-file-btn-txt" title="' + Lng.addManually[lang] + '"></div>\n\t\t\t<div class="de-file-btn-del" title="' + Lng.removeFile[lang] + '" style="display: none;"></div>\n\t\t</div>');
 
 			var _Array$from3 = Array.from(this._utils.children);
 
@@ -12228,22 +12236,24 @@ true, true],
 
 			this._btnRarJpg = _Array$from4[0];
 			this._btnSpoil = _Array$from4[1];
-			this._btnUrl = _Array$from4[2];
+			this._btnTxt = _Array$from4[2];
 			this._btnDel = _Array$from4[3];
 
 			this._utils.addEventListener('click', this);
-			this._urlWrap = $add('<span class="de-file-url-wrap">\n\t\t\t<input type="text" name="de-file" class="de-file-url-input de-file-url-noedit" title="' + Lng.youCanDrag[lang] + '" placeholder="' + Lng.dropFileHere[lang] + '">\n\t\t\t<input type="button" class="de-file-url-add" value="+" title="' + Lng.add[lang] + '" style="display: none;"></span>');
+			this._txtWrap = $add('<span class="de-file-txt-wrap">\n\t\t\t<input type="text" name="de-file-txt" class="de-file-txt-input de-file-txt-noedit" title="' + Lng.youCanDrag[lang] + '" placeholder="' + Lng.dropFileHere[lang] + '">\n\t\t\t<input type="button" class="de-file-txt-add" value="+" title="' + Lng.add[lang] + '" style="display: none;"></span>');
 
-			var _Array$from5 = Array.from(this._urlWrap.children);
+			var _Array$from5 = Array.from(this._txtWrap.children);
 
 			var _Array$from6 = _slicedToArray(_Array$from5, 2);
 
-			this._urlInput = _Array$from6[0];
-			this._urlAddBtn = _Array$from6[1];
+			this._txtInput = _Array$from6[0];
+			this._txtAddBtn = _Array$from6[1];
 
-			this._urlWrap.addEventListener('click', this);
-			this._toggleDragEvents(this._urlWrap, true);
-			$hide(el);
+			this._txtWrap.addEventListener('click', this);
+			this._toggleDragEvents(this._txtWrap, true);
+			if (Cfg.ajaxPosting) {
+				$hide(el);
+			}
 			el.obj = this;
 			el.classList.add('de-file-input');
 			el.addEventListener('change', this);
@@ -12253,7 +12263,9 @@ true, true],
 			if (this._isThumb) {
 				this._initThumbs();
 			} else {
-				$before(el, this._urlWrap);
+				if (Cfg.fileInputs === 1 && Cfg.ajaxPosting) {
+					$before(el, this._txtWrap);
+				}
 				$after(el, this._utils);
 			}
 		}
@@ -12268,12 +12280,12 @@ true, true],
 					this._initThumbs();
 					return;
 				}
-				var urlTr = this._urlWrap.parentNode.parentNode;
-				$before(this._input, this._urlWrap);
+				var el = this._txtWrap.parentNode.parentNode;
+				$before(this._input, this._txtWrap);
 				$after(this._input, this._utils);
-				$del(urlTr);
+				$del(el);
 				$show(this._parent.fileTd.parentNode);
-				$show(this._urlWrap);
+				$show(this._txtWrap);
 				if (this._mediaEl) {
 					window.URL.revokeObjectURL(this._mediaEl.src);
 				}
@@ -12297,17 +12309,17 @@ true, true],
 					this._showDelBtn(false);
 					$hide(this._btnSpoil);
 					$hide(this._btnRarJpg);
-					$hide(this._urlAddBtn);
+					$hide(this._txtAddBtn);
 					$del(this._rarMsg);
 					if (this._isThumb) {
-						$hide(this._urlWrap);
+						$hide(this._txtWrap);
 					}
-					this._urlInput.value = '';
-					this._urlInput.classList.add('de-file-url-noedit');
-					this._urlInput.placeholder = Lng.dropFileHere[lang];
+					this._txtInput.value = '';
+					this._txtInput.classList.add('de-file-txt-noedit');
+					this._txtInput.placeholder = Lng.dropFileHere[lang];
 				}
 				this.extraFile = this.imgFile = null;
-				this._isUrlEditable = false;
+				this._isTxtEditable = false;
 				this._changeFilesCount(-1);
 				this._removeFile();
 			}
@@ -12334,20 +12346,20 @@ true, true],
 							return;
 						} else if (el === this._btnRarJpg) {
 							this._addRarJpeg();
-						} else if (el === this._btnUrl) {
-							this._showDelBtn(this._isUrlEditable = true);
-							$show(this._urlAddBtn);
+						} else if (el === this._btnTxt) {
+							this._showDelBtn(this._isTxtEditable = true);
+							$show(this._txtAddBtn);
 							if (this._isThumb) {
-								$toggle(this._urlWrap);
+								$toggle(this._txtWrap);
 							}
-							this._urlInput.classList.remove('de-file-url-noedit');
-							this._urlInput.placeholder = Lng.enterTheLink[lang];
-							this._urlInput.focus();
-						} else if (el === this._urlAddBtn) {
-							this._addUrlFile(this._urlInput.value);
-						} else if (el === this._urlInput && !this._isUrlEditable) {
+							this._txtInput.classList.remove('de-file-txt-noedit');
+							this._txtInput.placeholder = Lng.enterTheLink[lang];
+							this._txtInput.focus();
+						} else if (el === this._txtAddBtn) {
+							this._addUrlFile(this._txtInput.value);
+						} else if (el === this._txtInput && !this._isTxtEditable) {
 							this._input.click();
-							this._urlInput.blur();
+							this._txtInput.blur();
 						}
 						e.stopPropagation();
 						$pd(e);
@@ -12364,7 +12376,7 @@ true, true],
 						return;
 					case 'drop':
 						var dt = e.dataTransfer;
-						if (!isThumb && el !== this._urlInput) {
+						if (!isThumb && el !== this._txtInput) {
 							return;
 						}
 						var filesLen = dt.files.length;
@@ -12390,7 +12402,7 @@ true, true],
 				if (this._isThumb) {
 					this._showDelBtn(false);
 					$hide(this._thumb);
-					$hide(this._urlWrap);
+					$hide(this._txtWrap);
 				}
 				$hide(this._wrap);
 			}
@@ -12455,10 +12467,10 @@ true, true],
 						return;
 					}
 					closePopup('file-loading');
-					_this25._isUrlEditable = false;
+					_this25._isTxtEditable = false;
 					_this25.imgFile = [data.buffer, url.split('/').pop(), getFileType(url)];
 					if (_this25._isThumb) {
-						$hide(_this25._urlWrap);
+						$hide(_this25._txtWrap);
 					}
 					_this25._onFileChange(true);
 				});
@@ -12476,8 +12488,8 @@ true, true],
 			value: function _initThumbs() {
 				var fileTr = this._parent.fileTd.parentNode;
 				$hide(fileTr);
-				$hide(this._urlWrap);
-				($q('.de-file-url-area') || $bBegin(fileTr, '<tr class="de-file-url-area">\n\t\t\t<td class="postblock"></td><td></td></tr>')).lastChild.appendChild(this._urlWrap);
+				$hide(this._txtWrap);
+				($q('.de-file-txt-area') || $bBegin(fileTr, '<tr class="de-file-txt-area">\n\t\t\t<td class="postblock"></td><td></td></tr>')).lastChild.appendChild(this._txtWrap);
 				this._thumb = $bEnd(this._parent.thumbsEl, '<div class="de-file de-file-off"><div class="de-file-img"><div class="de-file-img" title="' + Lng.youCanDrag[lang] + '"></div></div></div>');
 				this._thumb.addEventListener('click', this);
 				this._thumb.addEventListener('dragenter', this);
@@ -12490,7 +12502,7 @@ true, true],
 		}, {
 			key: '_onFileChange',
 			value: function _onFileChange(hasImgFile) {
-				this._urlInput.value = hasImgFile ? this.imgFile[1] : this._input.files[0].name;
+				this._txtInput.value = hasImgFile ? this.imgFile[1] : this._input.files[0].name;
 				if (!hasImgFile) {
 					this.imgFile = null;
 				}
@@ -12506,16 +12518,16 @@ true, true],
 					this.hasFile = true;
 					this._changeFilesCount(+1);
 					this._showDelBtn(true);
-					$hide(this._urlAddBtn);
+					$hide(this._txtAddBtn);
 					if (this._isThumb) {
-						$hide(this._urlWrap);
+						$hide(this._txtWrap);
 					}
 					if (this._spoilEl) {
 						this._btnSpoil.checked = this._spoilEl.checked;
 						$show(this._btnSpoil);
 					}
-					this._urlInput.classList.add('de-file-url-noedit');
-					this._urlInput.placeholder = Lng.dropFileHere[lang];
+					this._txtInput.classList.add('de-file-txt-noedit');
+					this._txtInput.placeholder = Lng.dropFileHere[lang];
 				}
 				this._parent.hide();
 				if (!nav.Presto && !aib.fch && /^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile[2] : this._input.files[0].type)) {
@@ -12566,7 +12578,7 @@ true, true],
 			key: '_showDelBtn',
 			value: function _showDelBtn(isShow) {
 				$toggle(this._btnDel, isShow);
-				$toggle(this._btnUrl, !isShow);
+				$toggle(this._btnTxt, !isShow);
 			}
 		}, {
 			key: '_toggleDragEvents',
@@ -12580,7 +12592,7 @@ true, true],
 		}, {
 			key: '_isThumb',
 			get: function get() {
-				return Cfg.fileInputs === 2;
+				return Cfg.fileInputs === 2 && Cfg.ajaxPosting;
 			}
 		}, {
 			key: '_wrap',
@@ -20908,7 +20920,7 @@ true, true],
 
 		cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') + cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico') + cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==') + '.de-current::after { content: " \u25CF"; }\n\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\n\t.de-mp3 { margin: 5px 20px; }\n\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\n\t.de-video-obj-inline { display: inline-block; }\n\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\n\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\n\t#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }\n\t.de-video-expanded { width: 854px !important; height: 480px !important; }\n\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\n\t.de-video-refpost { margin: 0 3px; text-decoration: none; cursor: pointer; }\n\t.de-video-resizer::after { content: "\u2795"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\n\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\n\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\n\ta.de-video-player::after { content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\n\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\n\t.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }\n\t.de-vocaroo > embed { display: inline-block; }\n\tvideo { background: black; }' + (
 
-		'.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ' + (p = aib.multiFile ? 90 : 130) + 'px; width: ' + p + 'px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }\n\t.de-file > .de-file-img { display: table; width: 100%; height: 100%; cursor: pointer; }\n\t.de-file > .de-file-img > div { display: table-cell; vertical-align: middle; }\n\t.de-file > .de-file-utils { display: none; height: 16px; margin-top: -18px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; }\n\t.de-file > .de-file-utils > .de-file-rarmsg { color: #fff; }\n\t#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\n\t.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }\n\timg.de-file-img, video.de-file-img { max-width: ' + (p - 4) + 'px; max-height: ' + (p - 4) + 'px; }\n\t.de-file-input { max-width: 300px; }\n\t.de-file-input + .de-file-utils { margin-left: 4px; }\n\t.de-file-off > .de-file-img > div::after { content: "' + Lng.dropFileHere[lang] + '"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }\n\t.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }\n\t.de-file-del, .de-file-rar, .de-file-url { display: inline-block; margin: 0 1px; padding: 0 16px 16px 0; cursor: pointer; }\n\t.de-file-spoil { margin: 0 3px; vertical-align: 1px; }\n\t.de-file-url-add { font-weight: bold; width: 21px; padding: 0 !important; }\n\t.de-file-url-input { border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }\n\t.de-file-url-noedit { background: rgba(255,255,255,.5); cursor: pointer; }\n\t.de-file-utils { display: inline-block; vertical-align: -2px; }') + gif('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=') + gif('.de-file-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + gif('.de-file-url', 'R0lGODlhEAAQAJEAACyr4e/19////wAAACH5BAEAAAIALAAAAAAQABAAAAIrlI+pwK3WokMyBEmjxbBeLgEbKFrmyXTn+nXaF7nNGMslZ9NpFu4L/ggeCgA7') + (
+		'.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ' + (p = aib.multiFile ? 90 : 130) + 'px; width: ' + p + 'px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }\n\t.de-file > .de-file-img { display: table; width: 100%; height: 100%; cursor: pointer; }\n\t.de-file > .de-file-img > div { display: table-cell; vertical-align: middle; }\n\t.de-file > .de-file-utils { display: none; height: 16px; margin-top: -18px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; }\n\t.de-file > .de-file-utils > .de-file-rarmsg { color: #fff; }\n\t#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\n\t.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }\n\timg.de-file-img, video.de-file-img { max-width: ' + (p - 4) + 'px; max-height: ' + (p - 4) + 'px; }\n\t.de-file-input { max-width: 300px; }\n\t.de-file-input + .de-file-utils { margin-left: 4px; }\n\t.de-file-off > .de-file-img > div::after { content: "' + Lng.dropFileHere[lang] + '"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }\n\t.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }\n\t.de-file-btn-del, .de-file-btn-rar, .de-file-btn-txt { display: inline-block; margin: 0 1px; padding: 0 16px 16px 0; cursor: pointer; }\n\t.de-file-spoil { margin: 0 3px; vertical-align: 1px; }\n\t.de-file-txt-add { font-weight: bold; width: 21px; padding: 0 !important; }\n\t.de-file-txt-input { border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }\n\t.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }\n\t.de-file-utils { display: inline-block; float: none; vertical-align: -2px; }') + gif('.de-file-btn-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=') + gif('.de-file-btn-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + gif('.de-file-btn-txt', 'R0lGODlhEAAQAJEAACyr4e/19////wAAACH5BAEAAAIALAAAAAAQABAAAAIrlI+pwK3WokMyBEmjxbBeLgEbKFrmyXTn+nXaF7nNGMslZ9NpFu4L/ggeCgA7') + (
 
 		'#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ' + (nav.Presto ? '-2px -10px' : '0 0 -2px -10px') + '; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\n\t.de-parea { text-align: center; }\n\t.de-parea-btn-close::after { content: "' + Lng.hideForm[lang] + '"; }\n\t.de-parea-btn-thr::after { content: "' + Lng.makeThr[lang] + '"; }\n\t.de-parea-btn-reply::after { content: "' + Lng.makeReply[lang] + '"; }\n\t#de-pform > form { padding: 0; margin: 0; border: none; }\n\t#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }\n\t.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\n\t.de-win-inpost > .de-resizer { display: none; }\n\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\n\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\n\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\n\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\n\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\n\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\n\t#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\n\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }') +
 
@@ -20925,7 +20937,7 @@ true, true],
 	}
 
 	function updateCSS() {
-		var str = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + '; }\n\t.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + '; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.Presto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + '; }\n\t\t.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }\n\t\t.de-mypost .de-post-deleted::after { content: "' + Lng.deleted[lang] + ' (You)"; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-my::after { content: " (You)"; }\n\t\t.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }' : '') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t' + (Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '') + '\n\t' + (Cfg.resizeImgs ? '' : '.de-img-wrapper-inpost > .de-img-full { width: auto; }') + '\n\t' + (Cfg.maskImgs ? aib.qPostImg + (', .de-img-pre, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; } ' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }') : '') + '\n\t' + (Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }') + '\n\t' + (!Cfg.addSageBtn ? '#de-sagebtn, ' : '') + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (!Cfg.imgNavBtns ? '#de-img-btn-next, #de-img-btn-prev, ' : '') + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + (!Cfg.panelCounter ? '#de-panel-info, ' : '') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (!Cfg.showHideBtn ? '.de-btn-hide, ' : '') + (!Cfg.showRepBtn ? '.de-btn-rep, ' : '') + (!Cfg.updThrBtns && !aib.t ? '.de-thread-updater, ' : '') + (!Cfg.ajaxPosting ? '.de-file-rar, .de-file-url, ' : '') + (!Cfg.fileInputs ? '.de-file-url-wrap, .de-file-url, ' : '') + (!aib.kus && (aib.multiFile || Cfg.fileInputs !== 2) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + ' body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }';
+		var str = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + '; }\n\t.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + '; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.Presto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + '; }\n\t\t.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }\n\t\t.de-mypost .de-post-deleted::after { content: "' + Lng.deleted[lang] + ' (You)"; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-my::after { content: " (You)"; }\n\t\t.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }' : '') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t' + (Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '') + '\n\t' + (Cfg.resizeImgs ? '' : '.de-img-wrapper-inpost > .de-img-full { width: auto; }') + '\n\t' + (Cfg.maskImgs ? aib.qPostImg + (', .de-img-pre, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; } ' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }') : '') + '\n\t' + (Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }') + '\n\t' + (!Cfg.addSageBtn ? '#de-sagebtn, ' : '') + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (!Cfg.imgNavBtns ? '#de-img-btn-next, #de-img-btn-prev, ' : '') + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + (!Cfg.panelCounter ? '#de-panel-info, ' : '') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (!Cfg.showHideBtn ? '.de-btn-hide, ' : '') + (!Cfg.showRepBtn ? '.de-btn-rep, ' : '') + (!Cfg.updThrBtns && !aib.t ? '.de-thread-updater, ' : '') + (!Cfg.ajaxPosting ? '.de-file-btn-rar, .de-file-btn-txt, ' : '') + (!Cfg.fileInputs ? '.de-file-txt-wrap, .de-file-btn-txt, ' : '') + (!aib.kus && (aib.multiFile || Cfg.fileInputs !== 2) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + ' body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }';
 		$id('de-css-dynamic').textContent = str + '\n' + aib.css;
 		$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 	}
