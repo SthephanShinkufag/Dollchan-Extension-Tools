@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.6.2.0';
-	var commit = '9dbe983';
+	var commit = 'bd2c7f6';
 
 
 	var defaultCfg = {
@@ -12471,14 +12471,14 @@ true, true],
 					var name = url.split('/').pop();
 					var ext = name.split('.').pop();
 					if (!/^(jpe?g|png|gif|webm)$/.test(ext)) {
-						switch ([data[0].toString(16), data[1].toString(16)].join('')) {
-							case 'ffd8':
+						switch (data[0] << 8 | data[1]) {
+							case 0xFFD8:
 								ext = 'jpg';break;
-							case '8950':
+							case 0x8950:
 								ext = 'png';break;
-							case '4749':
+							case 0x4749:
 								ext = 'gif';break;
-							case '1a45':
+							case 0x1A45:
 								ext = 'webm';break;
 							default:
 								ext = '';

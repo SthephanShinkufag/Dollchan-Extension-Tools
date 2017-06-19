@@ -297,11 +297,11 @@ class FileInput {
 			let name = url.split('/').pop();
 			let ext = name.split('.').pop();
 			if(!/^(jpe?g|png|gif|webm)$/.test(ext)) {
-				switch([data[0].toString(16), data[1].toString(16)].join('')) {
-				case 'ffd8': ext = 'jpg'; break;
-				case '8950': ext = 'png'; break;
-				case '4749': ext = 'gif'; break;
-				case '1a45': ext = 'webm'; break;
+				switch((data[0] << 8) | data[1]) {
+				case 0xFFD8: ext = 'jpg'; break;
+				case 0x8950: ext = 'png'; break;
+				case 0x4749: ext = 'gif'; break;
+				case 0x1A45: ext = 'webm'; break;
 				default: ext = '';
 				}
 				if(ext) {
