@@ -620,7 +620,7 @@ function* getFormElements(form, submitter) {
 							type: type
 						};
 					}
-				} else if((imgFile = field.obj.imgFile)) {
+				} else if(field.obj && (imgFile = field.obj.imgFile)) {
 					yield {
 						el: field,
 						name: name,

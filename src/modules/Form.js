@@ -23,10 +23,10 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	this.oeForm = oeForm || $q('form[name="oeform"], form[action*="paint"]');
 	this.txta = $q('tr:not([style*="none"]) textarea:not([style*="display:none"])', form);
 	this.subm = $q('tr input[type="submit"]', form);
-	var fileEl = $q('tr input[type="file"]', form);
+	const fileEl = $q('tr input[type="file"]', form);
 	if(fileEl) {
 		if(aib.fixFileInputs) {
-			aib.fixFileInputs(fileEl);
+			aib.fixFileInputs($parent(fileEl, 'TD'));
 		}
 		this.files = new Files(this, $q('tr input[type="file"]', form));
 		// We need to clear file inputs in case if session was restored.

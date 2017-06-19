@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.6.2.0';
-	var commit = '4e1cb3c';
+	var commit = '825a89e';
 
 
 	var defaultCfg = {
@@ -4252,7 +4252,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 
 					case 43:
-						if (!(imgFile = field.obj.imgFile)) {
+						if (!(field.obj && (imgFile = field.obj.imgFile))) {
 							_context.next = 48;
 							break;
 						}
@@ -10964,7 +10964,7 @@ true, true],
 		var fileEl = $q('tr input[type="file"]', form);
 		if (fileEl) {
 			if (aib.fixFileInputs) {
-				aib.fixFileInputs(fileEl);
+				aib.fixFileInputs($parent(fileEl, 'TD'));
 			}
 			this.files = new Files(this, $q('tr input[type="file"]', form));
 			window.addEventListener('load', function () {
@@ -11815,7 +11815,7 @@ true, true],
 
 					case 23:
 						_context16.t0 = _context16.sent.data;
-						_context16.t1 = el.obj.extraFile;
+						_context16.t1 = el.obj ? el.obj.extraFile : null;
 						_data5 = cleanFile(_context16.t0, _context16.t1);
 
 						if (_data5) {
@@ -18574,6 +18574,15 @@ true, true],
 					$del(el);
 				}
 			}, {
+				key: 'fixFileInputs',
+				value: function fixFileInputs(el) {
+					var str = '';
+					for (var _i47 = 0; _i47 < 8; ++_i47) {
+						str += '<div' + (_i47 ? ' style="display: none;"' : '') + '><input type="file" name="image' + (_i47 + 1) + '"></div>';
+					}
+					el.innerHTML = str;
+				}
+			}, {
 				key: 'getBanId',
 				value: function getBanId(postEl) {
 					var el = $q(this.qBan, postEl);
@@ -18709,15 +18718,6 @@ true, true],
 				key: 'css',
 				get: function get() {
 					return '.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], #de-win-reply.de-win .kupi-passcode-suka, .fa-media-icon, .logo + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .prerekl-hr, .posts > hr, .reflink::before, .thread-nav, .toolbar-area, #ABU-alert-wait, #media-thumbnail { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post.reply .post-message { max-height: initial !important; }\n\t\t\t\t.tmp_postform { width: auto; }\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; } .file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t\t' + (Cfg.expandImgs ? '#fullscreen-container { display: none !important; }' : '') + '\n\t\t\t\t' + (Cfg.txtBtnsLoc ? '.message-sticker-btn, .message-sticker-preview { bottom: 25px !important; }' : '');
-				}
-			}, {
-				key: 'fixFileInputs',
-				get: function get() {
-					var str = '';
-					for (var i = 0; i < 8; ++i) {
-						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="image' + (i + 1) + '"></div>';
-					}
-					$q('#postform .images-area', doc).lastElementChild.innerHTML = str;
 				}
 			}, {
 				key: 'lastPage',
@@ -18858,6 +18858,15 @@ true, true],
 			}
 
 			_createClass(Vichan, [{
+				key: 'fixFileInputs',
+				value: function fixFileInputs(el) {
+					var str = '';
+					for (var _i48 = 0; _i48 < 5; ++_i48) {
+						str += '<div' + (_i48 ? ' style="display: none;"' : '') + '><input type="file" name="file' + (_i48 ? _i48 + 1 : '') + '"></div>';
+					}
+					el.innerHTML = str;
+				}
+			}, {
 				key: 'init',
 				value: function init() {
 					_get(Vichan.prototype.__proto__ || Object.getPrototypeOf(Vichan.prototype), 'init', this).call(this);
@@ -18880,15 +18889,6 @@ true, true],
 				key: 'css',
 				get: function get() {
 					return _get(Vichan.prototype.__proto__ || Object.getPrototypeOf(Vichan.prototype), 'css', this) + '.boardlist { position: static !important; }\n\t\t\t\tbody { padding: 0 5px !important; }\n\t\t\t\t.fileinfo { width: 250px; }\n\t\t\t\t.multifile { width: auto !important; }\n\t\t\t\t#expand-all-images, #expand-all-images + .unimportant, .post-btn, small { display: none !important; }';
-				}
-			}, {
-				key: 'fixFileInputs',
-				get: function get() {
-					var str = '';
-					for (var i = 0; i < 5; ++i) {
-						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file' + (i === 0 ? '' : i + 1) + '"></div>';
-					}
-					$id('upload').lastChild.innerHTML = str;
 				}
 			}]);
 
@@ -19299,8 +19299,8 @@ true, true],
 			_createClass(_2chRu, [{
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
-					var str = '><input name="file" maxlength="4" ' + 'accept="|sid|7z|bz2|m4a|flac|lzh|mo3|rar|spc|fla|nsf|jpg|mpp|aac|gz|xm|wav|' + 'mp3|png|it|lha|torrent|swf|zip|mpc|ogg|jpeg|gif|mod" type="file"></div>';
-					el.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+					var str = '><input type="file" name="file"></div>';
+					el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 				}
 			}, {
 				key: 'fixHTMLHelper',
@@ -19783,8 +19783,8 @@ true, true],
 					var el = _get(Arhivach.prototype.__proto__ || Object.getPrototypeOf(Arhivach.prototype), 'fixHTML', this).call(this, data, isForm);
 					try {
 						var _els4 = $Q('.expand_image', el);
-						for (var _i47 = 0, tLen = _els4.length; _i47 < tLen; ++_i47) {
-							_els4[_i47].href = _els4[_i47].getAttribute('onclick').match(/http:\/[^']+/)[0];
+						for (var _i49 = 0, tLen = _els4.length; _i49 < tLen; ++_i49) {
+							_els4[_i49].href = _els4[_i49].getAttribute('onclick').match(/http:\/[^']+/)[0];
 						}
 					} catch (e) {}
 					return el;
@@ -19913,16 +19913,16 @@ true, true],
 						$after(el2, el1);
 					}
 					var imgLinks = $Q('.fileinfo > a');
-					for (var _iterator36 = imgLinks, _isArray36 = Array.isArray(_iterator36), _i48 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
+					for (var _iterator36 = imgLinks, _isArray36 = Array.isArray(_iterator36), _i50 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
 						var _ref64;
 
 						if (_isArray36) {
-							if (_i48 >= _iterator36.length) break;
-							_ref64 = _iterator36[_i48++];
+							if (_i50 >= _iterator36.length) break;
+							_ref64 = _iterator36[_i50++];
 						} else {
-							_i48 = _iterator36.next();
-							if (_i48.done) break;
-							_ref64 = _i48.value;
+							_i50 = _iterator36.next();
+							if (_i50.done) break;
+							_ref64 = _i50.value;
 						}
 
 						var a = _ref64;
@@ -19952,16 +19952,26 @@ true, true],
 		var Diochan = function (_Kusaba3) {
 			_inherits(Diochan, _Kusaba3);
 
-			function Diochan() {
+			function Diochan(prot, dm) {
 				_classCallCheck(this, Diochan);
 
-				return _possibleConstructorReturn(this, (Diochan.__proto__ || Object.getPrototypeOf(Diochan)).apply(this, arguments));
+				var _this87 = _possibleConstructorReturn(this, (Diochan.__proto__ || Object.getPrototypeOf(Diochan)).call(this, prot, dm));
+
+				_this87.multiFile = true;
+				return _this87;
 			}
 
 			_createClass(Diochan, [{
+				key: 'fixFileInputs',
+				value: function fixFileInputs(el) {
+					var str = '><input type="file" name="imagefile[]"></div>';
+					el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(2);
+					$each($Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3'), $del);
+				}
+			}, {
 				key: 'css',
 				get: function get() {
-					return _get(Diochan.prototype.__proto__ || Object.getPrototypeOf(Diochan.prototype), 'css', this) + '.resize { display: none; }';
+					return _get(Diochan.prototype.__proto__ || Object.getPrototypeOf(Diochan.prototype), 'css', this) + '.resize, .postblock { display: none; }';
 				}
 			}]);
 
@@ -19969,7 +19979,6 @@ true, true],
 		}(Kusaba);
 
 		ibDomains['diochan.com'] = Diochan;
-		ibDomains['niuchan.org'] = Diochan;
 
 		var Dobrochan = function (_BaseBoard13) {
 			_inherits(Dobrochan, _BaseBoard13);
@@ -20023,9 +20032,8 @@ true, true],
 			}, {
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
-					el = $id('files_parent');
-					$each($Q('input[type="file"]', el), function (el) {
-						el.removeAttribute('onchange');
+					$each($Q('input[type="file"]', el), function (input) {
+						return input.removeAttribute('onchange');
 					});
 					el.firstElementChild.value = 1;
 				}
@@ -20171,8 +20179,7 @@ true, true],
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
 					var str = '><input name="file" type="file"></div>';
-					el.removeAttribute('onchange');
-					el.parentNode.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+					el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 				}
 			}, {
 				key: 'getImgWrap',
@@ -20315,6 +20322,16 @@ true, true],
 					return str.replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g, '<a class="de-ref-del" href="#$1">&gt;&gt;$1</a>');
 				}
 			}, {
+				key: 'fixFileInputs',
+				value: function fixFileInputs(el) {
+					var str = '';
+					for (var _i51 = 0; _i51 < 4; ++_i51) {
+						str += '<div' + (_i51 ? ' style="display: none;"' : '') + '><input type="file" name="file_' + _i51 + '" tabindex="7"></div>';
+					}
+					el.innerHTML = str;
+					el.removeAttribute('id');
+				}
+			}, {
 				key: 'fixHTMLHelper',
 				value: function fixHTMLHelper(str) {
 					return str.replace(/href="(#\d+)"/g, 'href="/' + aib.b + '/thread-' + aib.t + '.html$1"');
@@ -20345,8 +20362,8 @@ true, true],
 				value: function initCaptcha(cap) {
 					cap.hasCaptcha = false;
 					var scripts = $Q('script:not([src])', doc);
-					for (var _i49 = 0, _len13 = scripts.length; _i49 < _len13; ++_i49) {
-						var m = scripts[_i49].textContent.match(/var boardRequiresCaptcha = ([a-z]+);/);
+					for (var _i52 = 0, _len13 = scripts.length; _i52 < _len13; ++_i52) {
+						var m = scripts[_i52].textContent.match(/var boardRequiresCaptcha = ([a-z]+);/);
 						if (m) {
 							if (m[1] === 'true') {
 								cap.hasCaptcha = true;
@@ -20381,16 +20398,16 @@ true, true],
 					var sessionId = null;
 					var cookie = doc.cookie;
 					if (cookie.includes('desuchan.session')) {
-						for (var _iterator37 = cookie.split(';'), _isArray37 = Array.isArray(_iterator37), _i50 = 0, _iterator37 = _isArray37 ? _iterator37 : _iterator37[Symbol.iterator]();;) {
+						for (var _iterator37 = cookie.split(';'), _isArray37 = Array.isArray(_iterator37), _i53 = 0, _iterator37 = _isArray37 ? _iterator37 : _iterator37[Symbol.iterator]();;) {
 							var _ref65;
 
 							if (_isArray37) {
-								if (_i50 >= _iterator37.length) break;
-								_ref65 = _iterator37[_i50++];
+								if (_i53 >= _iterator37.length) break;
+								_ref65 = _iterator37[_i53++];
 							} else {
-								_i50 = _iterator37.next();
-								if (_i50.done) break;
-								_ref65 = _i50.value;
+								_i53 = _iterator37.next();
+								if (_i53.done) break;
+								_ref65 = _i53.value;
 							}
 
 							var c = _ref65;
@@ -20440,17 +20457,6 @@ true, true],
 					return 'img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none; }\n\t\t\t\t.de-thr-hid { float: none; }\n\t\t\t\t.de-video-obj-inline { margin-left: 5px; }\t\t\t\tdiv[id^="Wz"] { z-index: 10000 !important; }\n\t\t\t\tform[action="/paint"] > select { width: 105px; }\n\t\t\t\tform[action="/paint"] > input[type="text"] { width: 24px !important; }';
 				}
 			}, {
-				key: 'fixFileInputs',
-				get: function get() {
-					var str = '';
-					for (var i = 0; i < 4; ++i) {
-						str += '<div' + (i === 0 ? '' : ' style="display: none;"') + '><input type="file" name="file_' + i + '" tabindex="7"></div>';
-					}
-					var node = $id('files_parent');
-					node.innerHTML = str;
-					node.removeAttribute('id');
-				}
-			}, {
 				key: 'markupTags',
 				get: function get() {
 					return ['b', 'i', 'u', 's', 'spoiler', 'aa'];
@@ -20495,6 +20501,27 @@ true, true],
 
 		ibDomains['lainchan.org'] = Lainchan;
 
+		var Niuchan = function (_Kusaba4) {
+			_inherits(Niuchan, _Kusaba4);
+
+			function Niuchan() {
+				_classCallCheck(this, Niuchan);
+
+				return _possibleConstructorReturn(this, (Niuchan.__proto__ || Object.getPrototypeOf(Niuchan)).apply(this, arguments));
+			}
+
+			_createClass(Niuchan, [{
+				key: 'css',
+				get: function get() {
+					return _get(Niuchan.prototype.__proto__ || Object.getPrototypeOf(Niuchan.prototype), 'css', this) + '.resize { display: none; }';
+				}
+			}]);
+
+			return Niuchan;
+		}(Kusaba);
+
+		ibDomains['niuchan.org'] = Niuchan;
+
 		var Nowere = function (_BaseBoard17) {
 			_inherits(Nowere, _BaseBoard17);
 
@@ -20528,15 +20555,15 @@ true, true],
 			function Ponyach(prot, dm) {
 				_classCallCheck(this, Ponyach);
 
-				var _this94 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
+				var _this95 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
 
-				_this94.qBan = 'font[color="#FF0000"]';
-				_this94.qImgInfo = '.filesize[style="display: inline;"]';
+				_this95.qBan = 'font[color="#FF0000"]';
+				_this95.qImgInfo = '.filesize[style="display: inline;"]';
 
-				_this94.formParent = 'replythread';
-				_this94.jsonSubmit = true;
-				_this94.multiFile = true;
-				return _this94;
+				_this95.formParent = 'replythread';
+				_this95.jsonSubmit = true;
+				_this95.multiFile = true;
+				return _this95;
 			}
 
 			_createClass(Ponyach, [{
@@ -20599,10 +20626,10 @@ true, true],
 			function Ponychan(prot, dm) {
 				_classCallCheck(this, Ponychan);
 
-				var _this95 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
+				var _this96 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
 
-				_this95.qOPost = '.opContainer';
-				return _this95;
+				_this96.qOPost = '.opContainer';
+				return _this96;
 			}
 
 			_createClass(Ponychan, [{
@@ -20632,12 +20659,12 @@ true, true],
 			function Synch(prot, dm) {
 				_classCallCheck(this, Synch);
 
-				var _this96 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
+				var _this97 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
 
-				_this96.qImgInfo = '.unimportant';
+				_this97.qImgInfo = '.unimportant';
 
-				_this96.markupBB = true;
-				return _this96;
+				_this97.markupBB = true;
+				return _this97;
 			}
 
 			_createClass(Synch, [{
@@ -20749,16 +20776,16 @@ true, true],
 					case 'registerapi':
 						if (data) {
 							rv = {};
-							for (var _iterator38 = data, _isArray38 = Array.isArray(_iterator38), _i51 = 0, _iterator38 = _isArray38 ? _iterator38 : _iterator38[Symbol.iterator]();;) {
+							for (var _iterator38 = data, _isArray38 = Array.isArray(_iterator38), _i54 = 0, _iterator38 = _isArray38 ? _iterator38 : _iterator38[Symbol.iterator]();;) {
 								var _ref68;
 
 								if (_isArray38) {
-									if (_i51 >= _iterator38.length) break;
-									_ref68 = _iterator38[_i51++];
+									if (_i54 >= _iterator38.length) break;
+									_ref68 = _iterator38[_i54++];
 								} else {
-									_i51 = _iterator38.next();
-									if (_i51.done) break;
-									_ref68 = _i51.value;
+									_i54 = _iterator38.next();
+									if (_i54.done) break;
+									_ref68 = _i54.value;
 								}
 
 								var aName = _ref68;
