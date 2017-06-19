@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.6.2.0';
-	var commit = 'd0c5850';
+	var commit = 'c957c12';
 
 
 	var defaultCfg = {
@@ -12468,7 +12468,26 @@ true, true],
 					}
 					closePopup('file-loading');
 					_this25._isTxtEditable = false;
-					_this25.imgFile = [data.buffer, url.split('/').pop(), getFileType(url)];
+					var name = url.split('/').pop();
+					var ext = name.split('.').pop();
+					if (!/^(jpe?g|png|gif|webm)$/.test(ext)) {
+						switch ([data[0].toString(16), data[1].toString(16)].join('')) {
+							case 'ffd8':
+								ext = 'jpg';break;
+							case '8950':
+								ext = 'png';break;
+							case '4749':
+								ext = 'gif';break;
+							case '1a45':
+								ext = 'webm';break;
+							default:
+								ext = '';
+						}
+						if (ext) {
+							url = name = name.split('?').shift() + '.' + ext;
+						}
+					}
+					_this25.imgFile = [data.buffer, name, getFileType(url)];
 					if (_this25._isThumb) {
 						$hide(_this25._txtWrap);
 					}

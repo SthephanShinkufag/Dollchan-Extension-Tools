@@ -294,7 +294,21 @@ class FileInput {
 			}
 			closePopup('file-loading');
 			this._isTxtEditable = false;
-			this.imgFile = [data.buffer, url.split('/').pop(), getFileType(url)];
+			let name = url.split('/').pop();
+			let ext = name.split('.').pop();
+			if(!/^(jpe?g|png|gif|webm)$/.test(ext)) {
+				switch([data[0].toString(16), data[1].toString(16)].join('')) {
+				case 'ffd8': ext = 'jpg'; break;
+				case '8950': ext = 'png'; break;
+				case '4749': ext = 'gif'; break;
+				case '1a45': ext = 'webm'; break;
+				default: ext = '';
+				}
+				if(ext) {
+					url = name = name.split('?').shift() + '.' + ext;
+				}
+			}
+			this.imgFile = [data.buffer, name, getFileType(url)];
 			if(this._isThumb) {
 				$hide(this._txtWrap);
 			}
