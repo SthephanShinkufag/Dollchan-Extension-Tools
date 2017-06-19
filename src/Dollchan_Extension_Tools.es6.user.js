@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.6.2.0';
-const commit = 'bd2c7f6';
+const commit = '4e1cb3c';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -13812,7 +13812,10 @@ function getImageBoard(checkDomains, checkEngines) {
 				$q('.option-area > td:last-child').appendChild(el);
 			}
 			if((el = $q('.search'))) {
-				$before($q('.menu').firstChild, el);
+				let node = $q('.adminbar__menu, .menu');
+				if(node && (node = node.firstChild)) {
+					$before(node, el);
+				}
 			}
 			if((el = $id('shampoo'))) {
 				el.tabIndex = 1;

@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.6.2.0';
-	var commit = 'bd2c7f6';
+	var commit = '4e1cb3c';
 
 
 	var defaultCfg = {
@@ -18639,7 +18639,10 @@ true, true],
 						$q('.option-area > td:last-child').appendChild(el);
 					}
 					if (el = $q('.search')) {
-						$before($q('.menu').firstChild, el);
+						var node = $q('.adminbar__menu, .menu');
+						if (node && (node = node.firstChild)) {
+							$before(node, el);
+						}
 					}
 					if (el = $id('shampoo')) {
 						el.tabIndex = 1;

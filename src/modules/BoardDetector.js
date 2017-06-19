@@ -138,7 +138,10 @@ function getImageBoard(checkDomains, checkEngines) {
 				$q('.option-area > td:last-child').appendChild(el);
 			}
 			if((el = $q('.search'))) {
-				$before($q('.menu').firstChild, el);
+				let node = $q('.adminbar__menu, .menu');
+				if(node && (node = node.firstChild)) {
+					$before(node, el);
+				}
 			}
 			if((el = $id('shampoo'))) {
 				el.tabIndex = 1;
