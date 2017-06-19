@@ -769,6 +769,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(tr) {
 				const capClick = $bEnd(docBody, `<div onclick="initRecaptcha();"></div>`);
 				const altCapClick = $bEnd(docBody, `<div onclick="QR.initCaptchaAlt();"></div>`);
+				const waitForReload = () => setTimeout(function() {
+					const input = $id('recaptcha_response_field');
+					if(input) {
+						input.tabIndex = 5;
+					} else {
+						waitForReload();
+					}
+				}, 1e3);
 				value = function() {
 					if(!Cfg.cap4chanAlt || !pr.tNum) {
 						$replace($q('#g-recaptcha, #qrCaptchaContainerAlt'), '<div id="g-recaptcha"></div>');
@@ -784,7 +792,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					$replace($id('g-recaptcha'), '<div id="qrCaptchaContainerAlt"></div>');
 					altCapClick.click();
 					tr.setAttribute('onclick', "if(event.target.tagName !== 'INPUT') { Recaptcha.reload(); }");
-					setTimeout(() => $id('recaptcha_response_field').tabIndex = 5, 3e3);
+					waitForReload();
 					return null;
 				};
 			}

@@ -22,8 +22,8 @@ const Lng = {
 		'markNewPosts': ['Выделять цветом новые посты', 'Highlight new posts with color'],
 		'useDobrAPI':   ['dobrochan: использовать JSON API', 'dobrochan: use JSON API'],
 		'markMyPosts':  ['Выделять цветом мои посты', 'Highlight my own posts'],
-		'hideReplies':  ['Показывать только оп-посты в списке тредов*', 'Show only op-posts in threads list*'],
-		'expandTrunc':  ['Авто-разворот сокращенных постов*', 'Auto-expand truncated posts*'],
+		'hideReplies':  ['Показывать только оп-посты в списке тредов*', 'Show only OP in threads list*'],
+		'expandTrunc':  ['Авторазворот сокращенных постов*', 'Autoexpand truncated posts*'],
 		'updThrBtns':   ['Кнопки "Получить новые посты" в списке тредов', 'Show "Get new posts" buttons in threads list'],
 		'showHideBtn':  ['Кнопки "Скрыть" ', 'Show "Hide" buttons '],
 		'showRepBtn':   ['Кнопки "Быстрый ответ"', 'Show "Quick reply" buttons'],
@@ -78,8 +78,8 @@ const Lng = {
 		'decodeLinks':  ['Декодировать %D0%A5%D1 в ссылках*', 'Decode %D0%A5%D1 in links*'],
 		'insertNum':    ['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
 		'addOPLink':    ['>>ссылка при ответе на оп-пост на доске', 'Insert >>link when replying to OP on board'],
-		'addImgs':      ['Загружать картинки к jpg/png/gif ссылкам*', 'Load images to jpg/png/gif links*'],
-		'addMP3':       ['Плеер к mp3 ссылкам* ', 'Player to mp3 links* '],
+		'addImgs':      ['Загружать картинки к jpg/png/gif ссылкам*', 'Load images for jpg/png/gif links*'],
+		'addMP3':       ['Плеер к mp3 ссылкам* ', 'Player for mp3 links* '],
 		'addVocaroo':   ['к Vocaroo ссылкам*', 'for Vocaroo links*'],
 		'addVimeo':     ['Добавлять плеер к Vimeo ссылкам*', 'Add player for Vimeo links*'],
 		'addYouTube': {
@@ -87,7 +87,7 @@ const Lng = {
 				['Ничего', 'Плеер по клику', 'Авто плеер', 'Превью+плеер', 'Только превью'],
 				['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']
 			],
-			txt:        ['к YouTube ссылкам* ', 'to YouTube-links* ']
+			txt:        ['к YouTube ссылкам* ', 'for YouTube links* ']
 		},
 		'YTubeType': {
 			sel:        [['Flash', 'HTML5'], ['Flash', 'HTML5']],
@@ -192,7 +192,7 @@ const Lng = {
 		'cfg':          ['Настройки', 'Settings'],
 		'hid':          ['Скрытое', 'Hidden'],
 		'fav':          ['Избранное', 'Favorites'],
-		'vid':          ['Видео-ссылки', 'Video links'],
+		'vid':          ['Видео ссылки', 'Video links'],
 		'refresh':      ['Обновить', 'Refresh'],
 		'goback':       ['Назад на доску', 'Return to board'],
 		'gonext':       ['На страницу %s', 'Go to page %s'],
@@ -219,7 +219,7 @@ const Lng = {
 	selHiderMenu: {
 		'sel':          ['Скрывать выделенное', 'Hide selected text'],
 		'name':         ['Скрывать имя', 'Hide name'],
-		'trip':         ['Скрывать трип-код', 'Hide with trip-code'],
+		'trip':         ['Скрывать трипкод', 'Hide with tripcode'],
 		'img':          ['Скрывать по размеру картинки', 'Hide by image size'],
 		'imgn':         ['Скрывать по имени картинки', 'Hide by image name'],
 		'ihash':        ['Скрывать по схожей картинке', 'Hide by similar image'],
@@ -323,7 +323,7 @@ const Lng = {
 
 	name:           ['Имя', 'Name'],
 	subj:           ['Тема', 'Subject'],
-	mail:           ['E-mail', 'E-mail'],
+	mail:           ['Email', 'Email'],
 	cap:            ['Капча', 'Captcha'],
 	video:          ['Видео', 'Video'],
 	add:            ['Добавить', 'Add'],
