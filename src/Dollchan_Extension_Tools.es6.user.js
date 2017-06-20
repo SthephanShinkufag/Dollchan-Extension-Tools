@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         17.6.20.0
+// @version         17.6.2.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © 2017 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
@@ -21,8 +21,8 @@
 (function de_main_func_inner(scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '17.6.20.0';
-const commit = '9cf3f06';
+const version = '17.6.2.0';
+const commit = 'dcbcf48';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -2426,7 +2426,7 @@ function showVideosWindow(body) {
 		<a class="de-abtn" id="de-video-btn-hide" href="#" title="${ Lng.hideLnkList[lang] }">&#x25B2;</a>
 	</div>`;
 	const linkList = $add(`<div id="de-video-list" style="max-width: ${ +Cfg.YTubeWidth + 40
-		}px; max-height: ${ doc.documentElement.clientHeight * 0.92 - +Cfg.YTubeHeigh - 82 }px;"></div>`);
+		}px; max-height: ${ nav.viewportHeight() * 0.92 - +Cfg.YTubeHeigh - 82 }px;"></div>`);
 
 	// A script to detect the end of current video playback, and auto play next. Uses YouTube API.
 	// The first video should not start automatically!
@@ -2502,7 +2502,7 @@ function showVideosWindow(body) {
 					const exp = this.player.className === 'de-video-obj';
 					this.player.className = exp ? 'de-video-obj de-video-expanded' : 'de-video-obj';
 					this.linkList.style.maxWidth = (exp ? 894 : +Cfg.YTubeWidth + 40) + 'px';
-					this.linkList.style.maxHeight = (doc.documentElement.clientHeight * 0.92 -
+					this.linkList.style.maxHeight = (nav.viewportHeight() * 0.92 -
 						(exp ? 562 : +Cfg.YTubeHeigh + 82)) + 'px';
 				}
 				$pd(e);
@@ -7573,7 +7573,7 @@ PostForm.prototype = {
 	get isVisible() {
 		if(!this.isHidden && this.isBottom && $q(':focus', this.pForm)) {
 			var cr = this.pForm.getBoundingClientRect();
-			return cr.bottom > 0 && cr.top < doc.documentElement.clientHeight;
+			return cr.bottom > 0 && cr.top < nav.viewportHeight();
 		}
 		return false;
 	},
@@ -9760,32 +9760,32 @@ Post.sizing = {
 		return val;
 	},
 	get wHeight() {
-		var val = doc.documentElement.clientHeight;
+		var val = nav.viewportHeight();
 		if(!this._enabled) {
 			doc.defaultView.addEventListener('resize', this);
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
-			'wWidth': { writable: true, configurable: true, value: doc.documentElement.clientWidth },
+			'wWidth': { writable: true, configurable: true, value: nav.viewportWidth() },
 			'wHeight': { writable: true, configurable: true, value: val }
 		});
 		return val;
 	},
 	get wWidth() {
-		var val = doc.documentElement.clientWidth;
+		var val = nav.viewportWidth();
 		if(!this._enabled) {
 			doc.defaultView.addEventListener('resize', this);
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
 			'wWidth': { writable: true, configurable: true, value: val },
-			'wHeight': { writable: true, configurable: true, value: doc.documentElement.clientHeight }
+			'wHeight': { writable: true, configurable: true, value: nav.viewportHeight() }
 		});
 		return val;
 	},
 	handleEvent() {
-		this.wHeight = doc.documentElement.clientHeight;
-		this.wWidth = doc.documentElement.clientWidth;
+		this.wHeight = nav.viewportHeight();
+		this.wWidth = nav.viewportWidth();
 	},
 
 	_enabled: false
@@ -10115,7 +10115,7 @@ class Pview extends AbstractPost {
 			cr = link.getBoundingClientRect(),
 			offX = cr.left + window.pageXOffset + cr.width / 2,
 			offY = cr.top,
-			bWidth = doc.documentElement.clientWidth,
+			bWidth = nav.viewportWidth(),
 			isLeft = offX < bWidth / 2,
 			tmp = (isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10)),
 			lmw = 'max-width:' + (bWidth - tmp - 10) + 'px; left:' + tmp + 'px;';
@@ -10126,7 +10126,7 @@ class Pview extends AbstractPost {
 			pv.style.cssText = lmw;
 		}
 		var top = pv.offsetHeight,
-			isTop = offY + top + cr.height < doc.documentElement.clientHeight || offY - top < 5;
+			isTop = offY + top + cr.height < nav.viewportHeight() || offY - top < 5;
 		top = window.pageYOffset + (isTop ? offY + cr.height : offY - top);
 		this._offsetTop = top;
 		this._isLeft = isLeft;
@@ -13320,6 +13320,18 @@ function initNavFuncs() {
 				dE.webkitMatchesSelector || dE.oMatchesSelector;
 			const value = (el, sel) => func.call(el, sel);
 			Object.defineProperty(this, 'matchesSelector', { value });
+			return value;
+		},
+		get viewportHeight() {
+			const value = document.compatMode && document.compatMode == 'CSS1Compat' ?
+				() => doc.documentElement.clientHeight : () => docBody.clientHeight;
+			Object.defineProperty(this, 'viewportHeight', { value });
+			return value;
+		},
+		get viewportWidth() {
+			const value = document.compatMode && document.compatMode == 'CSS1Compat' ?
+				() => doc.documentElement.clientWidth : () => docBody.clientWidth;
+			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
 		},
 		// See https://github.com/greasemonkey/greasemonkey/issues/2034 for more info

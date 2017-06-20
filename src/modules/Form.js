@@ -357,7 +357,7 @@ PostForm.prototype = {
 	get isVisible() {
 		if(!this.isHidden && this.isBottom && $q(':focus', this.pForm)) {
 			var cr = this.pForm.getBoundingClientRect();
-			return cr.bottom > 0 && cr.top < doc.documentElement.clientHeight;
+			return cr.bottom > 0 && cr.top < nav.viewportHeight();
 		}
 		return false;
 	},

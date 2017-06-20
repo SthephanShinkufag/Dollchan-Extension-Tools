@@ -2945,8 +2945,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
-	var version = '17.6.20.0';
-	var commit = '9cf3f06';
+	var version = '17.6.2.0';
+	var commit = 'dcbcf48';
 
 
 	var defaultCfg = {
@@ -5619,7 +5619,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			doc.head.appendChild(_script).id = 'de-ytube-api';
 		}
 		body.innerHTML = '<div de-disableautoplay class="de-video-obj"></div>\n\t<div id="de-video-buttons">\n\t\t<a class="de-abtn" id="de-video-btn-prev" href="#" title="' + Lng.prevVideo[lang] + '">&#x25C0;</a>\n\t\t<a class="de-abtn" id="de-video-btn-resize" href="#" title="' + Lng.expandVideo[lang] + '"></a>\n\t\t<a class="de-abtn" id="de-video-btn-next" href="#" title="' + Lng.nextVideo[lang] + '">&#x25B6;</a>\n\t\t<a class="de-abtn" id="de-video-btn-hide" href="#" title="' + Lng.hideLnkList[lang] + '">&#x25B2;</a>\n\t</div>';
-		var linkList = $add('<div id="de-video-list" style="max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; max-height: ' + (doc.documentElement.clientHeight * 0.92 - +Cfg.YTubeHeigh - 82) + 'px;"></div>');
+		var linkList = $add('<div id="de-video-list" style="max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; max-height: ' + (nav.viewportHeight() * 0.92 - +Cfg.YTubeHeigh - 82) + 'px;"></div>');
 
 		var script = doc.createElement('script');
 		script.type = 'text/javascript';
@@ -5660,7 +5660,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							var exp = this.player.className === 'de-video-obj';
 							this.player.className = exp ? 'de-video-obj de-video-expanded' : 'de-video-obj';
 							this.linkList.style.maxWidth = (exp ? 894 : +Cfg.YTubeWidth + 40) + 'px';
-							this.linkList.style.maxHeight = doc.documentElement.clientHeight * 0.92 - (exp ? 562 : +Cfg.YTubeHeigh + 82) + 'px';
+							this.linkList.style.maxHeight = nav.viewportHeight() * 0.92 - (exp ? 562 : +Cfg.YTubeHeigh + 82) + 'px';
 					}
 					$pd(e);
 					return;
@@ -11303,7 +11303,7 @@ true, true],
 		get isVisible() {
 			if (!this.isHidden && this.isBottom && $q(':focus', this.pForm)) {
 				var cr = this.pForm.getBoundingClientRect();
-				return cr.bottom > 0 && cr.top < doc.documentElement.clientHeight;
+				return cr.bottom > 0 && cr.top < nav.viewportHeight();
 			}
 			return false;
 		},
@@ -14004,32 +14004,32 @@ true, true],
 			return val;
 		},
 		get wHeight() {
-			var val = doc.documentElement.clientHeight;
+			var val = nav.viewportHeight();
 			if (!this._enabled) {
 				doc.defaultView.addEventListener('resize', this);
 				this._enabled = true;
 			}
 			Object.defineProperties(this, {
-				'wWidth': { writable: true, configurable: true, value: doc.documentElement.clientWidth },
+				'wWidth': { writable: true, configurable: true, value: nav.viewportWidth() },
 				'wHeight': { writable: true, configurable: true, value: val }
 			});
 			return val;
 		},
 		get wWidth() {
-			var val = doc.documentElement.clientWidth;
+			var val = nav.viewportWidth();
 			if (!this._enabled) {
 				doc.defaultView.addEventListener('resize', this);
 				this._enabled = true;
 			}
 			Object.defineProperties(this, {
 				'wWidth': { writable: true, configurable: true, value: val },
-				'wHeight': { writable: true, configurable: true, value: doc.documentElement.clientHeight }
+				'wHeight': { writable: true, configurable: true, value: nav.viewportHeight() }
 			});
 			return val;
 		},
 		handleEvent: function handleEvent() {
-			this.wHeight = doc.documentElement.clientHeight;
-			this.wWidth = doc.documentElement.clientWidth;
+			this.wHeight = nav.viewportHeight();
+			this.wWidth = nav.viewportWidth();
 		},
 
 
@@ -14387,7 +14387,7 @@ true, true],
 				    cr = link.getBoundingClientRect(),
 				    offX = cr.left + window.pageXOffset + cr.width / 2,
 				    offY = cr.top,
-				    bWidth = doc.documentElement.clientWidth,
+				    bWidth = nav.viewportWidth(),
 				    isLeft = offX < bWidth / 2,
 				    tmp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10),
 				    lmw = 'max-width:' + (bWidth - tmp - 10) + 'px; left:' + tmp + 'px;';
@@ -14398,7 +14398,7 @@ true, true],
 					pv.style.cssText = lmw;
 				}
 				var top = pv.offsetHeight,
-				    isTop = offY + top + cr.height < doc.documentElement.clientHeight || offY - top < 5;
+				    isTop = offY + top + cr.height < nav.viewportHeight() || offY - top < 5;
 				top = window.pageYOffset + (isTop ? offY + cr.height : offY - top);
 				this._offsetTop = top;
 				this._isLeft = isLeft;
@@ -18073,6 +18073,24 @@ true, true],
 					return func.call(el, sel);
 				};
 				Object.defineProperty(this, 'matchesSelector', { value: value });
+				return value;
+			},
+			get viewportHeight() {
+				var value = document.compatMode && document.compatMode == 'CSS1Compat' ? function () {
+					return doc.documentElement.clientHeight;
+				} : function () {
+					return docBody.clientHeight;
+				};
+				Object.defineProperty(this, 'viewportHeight', { value: value });
+				return value;
+			},
+			get viewportWidth() {
+				var value = document.compatMode && document.compatMode == 'CSS1Compat' ? function () {
+					return doc.documentElement.clientWidth;
+				} : function () {
+					return docBody.clientWidth;
+				};
+				Object.defineProperty(this, 'viewportWidth', { value: value });
 				return value;
 			},
 			getUnsafeUint8Array: function getUnsafeUint8Array(data, i, len) {

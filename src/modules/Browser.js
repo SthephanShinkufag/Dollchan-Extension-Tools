@@ -132,6 +132,18 @@ function initNavFuncs() {
 			Object.defineProperty(this, 'matchesSelector', { value });
 			return value;
 		},
+		get viewportHeight() {
+			const value = document.compatMode && document.compatMode == 'CSS1Compat' ?
+				() => doc.documentElement.clientHeight : () => docBody.clientHeight;
+			Object.defineProperty(this, 'viewportHeight', { value });
+			return value;
+		},
+		get viewportWidth() {
+			const value = document.compatMode && document.compatMode == 'CSS1Compat' ?
+				() => doc.documentElement.clientWidth : () => docBody.clientWidth;
+			Object.defineProperty(this, 'viewportWidth', { value });
+			return value;
+		},
 		// See https://github.com/greasemonkey/greasemonkey/issues/2034 for more info
 		getUnsafeUint8Array(data, i, len) {
 			let ctor = Uint8Array;

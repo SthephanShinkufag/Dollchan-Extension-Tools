@@ -23,7 +23,7 @@ function showVideosWindow(body) {
 		<a class="de-abtn" id="de-video-btn-hide" href="#" title="${ Lng.hideLnkList[lang] }">&#x25B2;</a>
 	</div>`;
 	const linkList = $add(`<div id="de-video-list" style="max-width: ${ +Cfg.YTubeWidth + 40
-		}px; max-height: ${ doc.documentElement.clientHeight * 0.92 - +Cfg.YTubeHeigh - 82 }px;"></div>`);
+		}px; max-height: ${ nav.viewportHeight() * 0.92 - +Cfg.YTubeHeigh - 82 }px;"></div>`);
 
 	// A script to detect the end of current video playback, and auto play next. Uses YouTube API.
 	// The first video should not start automatically!
@@ -99,7 +99,7 @@ function showVideosWindow(body) {
 					const exp = this.player.className === 'de-video-obj';
 					this.player.className = exp ? 'de-video-obj de-video-expanded' : 'de-video-obj';
 					this.linkList.style.maxWidth = (exp ? 894 : +Cfg.YTubeWidth + 40) + 'px';
-					this.linkList.style.maxHeight = (doc.documentElement.clientHeight * 0.92 -
+					this.linkList.style.maxHeight = (nav.viewportHeight() * 0.92 -
 						(exp ? 562 : +Cfg.YTubeHeigh + 82)) + 'px';
 				}
 				$pd(e);

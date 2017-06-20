@@ -263,7 +263,7 @@ class Pview extends AbstractPost {
 			cr = link.getBoundingClientRect(),
 			offX = cr.left + window.pageXOffset + cr.width / 2,
 			offY = cr.top,
-			bWidth = doc.documentElement.clientWidth,
+			bWidth = nav.viewportWidth(),
 			isLeft = offX < bWidth / 2,
 			tmp = (isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10)),
 			lmw = 'max-width:' + (bWidth - tmp - 10) + 'px; left:' + tmp + 'px;';
@@ -274,7 +274,7 @@ class Pview extends AbstractPost {
 			pv.style.cssText = lmw;
 		}
 		var top = pv.offsetHeight,
-			isTop = offY + top + cr.height < doc.documentElement.clientHeight || offY - top < 5;
+			isTop = offY + top + cr.height < nav.viewportHeight() || offY - top < 5;
 		top = window.pageYOffset + (isTop ? offY + cr.height : offY - top);
 		this._offsetTop = top;
 		this._isLeft = isLeft;

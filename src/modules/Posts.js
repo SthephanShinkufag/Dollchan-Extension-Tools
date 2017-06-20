@@ -923,32 +923,32 @@ Post.sizing = {
 		return val;
 	},
 	get wHeight() {
-		var val = doc.documentElement.clientHeight;
+		var val = nav.viewportHeight();
 		if(!this._enabled) {
 			doc.defaultView.addEventListener('resize', this);
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
-			'wWidth': { writable: true, configurable: true, value: doc.documentElement.clientWidth },
+			'wWidth': { writable: true, configurable: true, value: nav.viewportWidth() },
 			'wHeight': { writable: true, configurable: true, value: val }
 		});
 		return val;
 	},
 	get wWidth() {
-		var val = doc.documentElement.clientWidth;
+		var val = nav.viewportWidth();
 		if(!this._enabled) {
 			doc.defaultView.addEventListener('resize', this);
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
 			'wWidth': { writable: true, configurable: true, value: val },
-			'wHeight': { writable: true, configurable: true, value: doc.documentElement.clientHeight }
+			'wHeight': { writable: true, configurable: true, value: nav.viewportHeight() }
 		});
 		return val;
 	},
 	handleEvent() {
-		this.wHeight = doc.documentElement.clientHeight;
-		this.wWidth = doc.documentElement.clientWidth;
+		this.wHeight = nav.viewportHeight();
+		this.wWidth = nav.viewportWidth();
 	},
 
 	_enabled: false
