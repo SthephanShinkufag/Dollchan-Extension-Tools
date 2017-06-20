@@ -198,9 +198,9 @@ function scriptCSS() {
 	x += `.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }
 	.de-img-pre { max-width: 200px; max-height: 200px; }
 	.de-img-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
-	.de-img-full, .de-img-wrapper-nosize { width: 100%; height: 100%; }
+	.de-img-full { width: 100%; }
 	.de-img-wrapper-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'padding: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
-	.de-img-wrapper-nosize { position: relative; }
+	.de-img-wrapper-nosize { position: relative; width: 100%; height: 100%; }
 	.de-img-wrapper-nosize > .de-img-full { position: absolute; z-index: 1; opacity: .3; }
 	.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }
 	#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; margin-top: -18px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }
