@@ -2945,8 +2945,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
-	var version = '17.6.2.0';
-	var commit = 'dcbcf48';
+	var version = '17.6.20.0';
+	var commit = 'dd3c76e';
 
 
 	var defaultCfg = {
