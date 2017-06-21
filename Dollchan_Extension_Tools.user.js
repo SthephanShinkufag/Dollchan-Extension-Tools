@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.6.20.0';
-	var commit = 'e2b8ea3';
+	var commit = '3a9ce11';
 
 
 	var defaultCfg = {
@@ -2976,6 +2976,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'postBtnsBack': '#8c8c8c', 
 		'noSpoilers': 1, 
 		'noPostNames': 0, 
+		'widePosts': 0, 
 		'correctTime': 0, 
 		'timeOffset': '+0', 
 		'timePattern': '', 
@@ -3029,6 +3030,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'addPostForm': 2, 
 		'spacedQuote': 1, 
 		'favOnReply': 1, 
+		'warnSubjTrip': 0, 
 		'addSageBtn': 1, 
 		'saveSage': 1, 
 		'sageReply': 0, 
@@ -3051,6 +3053,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'panelCounter': 1, 
 		'rePageTitle': 1, 
 		'animation': 1, 
+		'closePopups': 0, 
 		'inftyScroll': 1, 
 		'scrollToTop': 0, 
 		'hotKeys': 1, 
@@ -3113,6 +3116,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				txt: ['Раскрытие текстовых спойлеров', 'Text spoilers expansion']
 			},
 			'noPostNames': ['Скрывать имена в постах', 'Hide poster names'],
+			'widePosts': ['Растягивать посты по ширине экрана', 'Stretch posts to page width'],
 			'hotKeys': ['Горячие клавиши', 'Hotkeys'],
 			'loadPages': ['Количество страниц, загружаемых по F5', 'Number of pages that are loaded on F5 '],
 			'correctTime': ['Коррекция времени в постах* ', 'Time correction in posts* '],
@@ -3186,6 +3190,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			},
 			'spacedQuote': ['Вставлять пробел при цитировании "> "', 'Insert a space when quoting "> "'],
 			'favOnReply': ['Добавлять тред в "Избранное" после ответа', 'Add thread to "Favorites" after reply'],
+			'warnSubjTrip': ['Оповещать при наличии трип-кода в поле "Тема"', 'Warn if the "Subject" field contains a tripcode'],
 			'addSageBtn': ['Кнопка Sage вместо поля "Email" ', 'Replace "Email" with Sage button '],
 			'saveSage': ['Помнить сажу', 'Remember sage'],
 			'cap4chanAlt': ['4chan: альтернативная капча*', '4chan: use alternative captcha*'],
@@ -3217,6 +3222,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			},
 			'rePageTitle': ['Название треда в заголовке вкладки*', 'Show thread title in the page tab*'],
 			'animation': ['CSS3 анимация', 'CSS3 animation'],
+			'closePopups': ['Автоматически закрывать уведомления', 'Close popups automatically'],
 			'inftyScroll': ['Бесконечная прокрутка страниц', 'Infinite scrolling for pages'],
 			'scrollToTop': ['Всегда скроллить в топ на доске', 'Always scroll to top in the threads list'],
 			'updScript': ['Автоматически проверять обновления', 'Auto check for Dollchan updates'],
@@ -3411,6 +3417,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		helpAddFile: ['Встроить ogg/rar/zip/7z в картинку', 'Embed ogg/rar/zip/7z into the image'],
 		downloadFile: ['Скачать содержащийся в картинке файл', 'Download embedded file from the image'],
 		fileCorrupt: ['Файл повреждён: ', 'File is corrupt: '],
+		subjHasTrip: ['Поле "Тема" содержит трипкод', '"Subject" field contains a tripcode'],
 		loadImage: ['Загружаются картинки: ', 'Loading images: '],
 		loadFile: ['Загружаются файлы: ', 'Loading files: '],
 		cantLoad: ['Не могу загрузить ', 'Can\'t load '],
@@ -6684,6 +6691,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'showHideBtn':
 					case 'showRepBtn':
 					case 'noPostNames':
+					case 'widePosts':
 					case 'imgNavBtns':
 					case 'resizeImgs':
 					case 'strikeHidd':
@@ -7020,7 +7028,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgPosts: function _getCfgPosts() {
-			return '<div id="de-cfg-posts" class="de-cfg-unvis">\n\t\t\t' + (!localData ? this._getBox('ajaxUpdThr') + this._getInp('updThrDelay') + ('<div class="de-cfg-depend">\n\t\t\t\t\t' + this._getBox('updCount') + '<br>\n\t\t\t\t\t' + this._getBox('favIcoBlink') + '<br>\n\t\t\t\t\t' + ('Notification' in window ? this._getBox('desktNotif') + '<br>' : '') + '\n\t\t\t\t\t' + this._getBox('noErrInTitle') + '<br>\n\t\t\t\t\t' + this._getBox('markNewPosts') + '<br>\n\t\t\t\t\t' + (aib.dobr ? this._getBox('useDobrAPI') : '') + '\n\t\t\t\t</div>') : '') + '\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyPosts') + '<br>' : '') + '\n\t\t\t' + this._getBox('hideReplies') + '<br>\n\t\t\t' + this._getBox('expandTrunc') + '<br>\n\t\t\t' + this._getBox('updThrBtns') + '<br>\n\t\t\t' + this._getBox('showHideBtn') + '\n\t\t\t' + this._getBox('showRepBtn') + '<br>\n\t\t\t' + this._getSel('postBtnsCSS') + '\n\t\t\t' + this._getInp('postBtnsBack', false, 8) + '<br>\n\t\t\t' + this._getSel('noSpoilers') + '<br>\n\t\t\t' + this._getBox('noPostNames') + '<br>\n\t\t\t' + this._getBox('correctTime') + '\n\t\t\t' + this._getInp('timeOffset') + '\n\t\t\t<a class="de-abtn" target="_blank" href="' + (gitWiki + 'Settings-time-' + (lang ? 'en' : 'ru')) + '">[?]</a>\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('timePattern', true, 24) + '<br>\n\t\t\t\t' + this._getInp('timeRPattern', true, 24) + '\n\t\t\t</div>\n\t\t</div>';
+			return '<div id="de-cfg-posts" class="de-cfg-unvis">\n\t\t\t' + (!localData ? this._getBox('ajaxUpdThr') + this._getInp('updThrDelay') + ('<div class="de-cfg-depend">\n\t\t\t\t\t' + this._getBox('updCount') + '<br>\n\t\t\t\t\t' + this._getBox('favIcoBlink') + '<br>\n\t\t\t\t\t' + ('Notification' in window ? this._getBox('desktNotif') + '<br>' : '') + '\n\t\t\t\t\t' + this._getBox('noErrInTitle') + '<br>\n\t\t\t\t\t' + this._getBox('markNewPosts') + '<br>\n\t\t\t\t\t' + (aib.dobr ? this._getBox('useDobrAPI') : '') + '\n\t\t\t\t</div>') : '') + '\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyPosts') + '<br>' : '') + '\n\t\t\t' + this._getBox('hideReplies') + '<br>\n\t\t\t' + this._getBox('expandTrunc') + '<br>\n\t\t\t' + this._getBox('updThrBtns') + '<br>\n\t\t\t' + this._getBox('showHideBtn') + '\n\t\t\t' + this._getBox('showRepBtn') + '<br>\n\t\t\t' + this._getSel('postBtnsCSS') + '\n\t\t\t' + this._getInp('postBtnsBack', false, 8) + '<br>\n\t\t\t' + this._getSel('noSpoilers') + '<br>\n\t\t\t' + this._getBox('noPostNames') + '<br>\n\t\t\t' + this._getBox('widePosts') + '<br>\n\t\t\t' + this._getBox('correctTime') + '\n\t\t\t' + this._getInp('timeOffset') + '\n\t\t\t<a class="de-abtn" target="_blank" href="' + (gitWiki + 'Settings-time-' + (lang ? 'en' : 'ru')) + '">[?]</a>\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('timePattern', true, 24) + '<br>\n\t\t\t\t' + this._getInp('timeRPattern', true, 24) + '\n\t\t\t</div>\n\t\t</div>';
 		},
 
 
@@ -7035,12 +7043,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgForm: function _getCfgForm() {
-			return '<div id="de-cfg-form" class="de-cfg-unvis">\n\t\t\t' + this._getBox('ajaxPosting') + '<br>\n\t\t\t' + (pr.form ? '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('postSameImg') + '<br>\n\t\t\t\t' + this._getBox('removeEXIF') + '\n\t\t\t\t' + this._getBox('removeFName') + '<br>\n\t\t\t\t' + this._getBox('sendErrNotif') + '<br>\n\t\t\t\t' + this._getBox('scrAfterRep') + '<br>\n\t\t\t\t' + (pr.files && !nav.Presto ? this._getSel('fileInputs') : '') + '\n\t\t\t</div>' : '') + '\n\t\t\t' + (pr.form ? this._getSel('addPostForm') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getBox('spacedQuote') + '<br>' : '') + '\n\t\t\t' + this._getBox('favOnReply') + '<br>\n\t\t\t' + (pr.mail ? this._getBox('addSageBtn') + this._getBox('saveSage') + '<br>' : '') + '\n\t\t\t' + (pr.cap ? (aib.fch ? this._getBox('cap4chanAlt') + '<br>' : '') + this._getInp('capUpdTime') + '<br>' + this._getSel('captchaLang') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getSel('addTextBtns') + this._getBox('txtBtnsLoc') + '<br>' : '') + '\n\t\t\t' + (pr.passw ? this._getInp('passwValue', true, 9) + ('<input type="button" id="de-cfg-btn-pass" class="de-cfg-button" value="' + Lng.change[lang] + '"><br>') : '') + '\n\t\t\t' + (pr.name ? this._getInp('nameValue', false, 9) + ' ' + this._getBox('userName') + '<br>' : '') + '\n\t\t\t' + (pr.rules || pr.passw || pr.name ? Lng.dontShow[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '') + '\n\t\t</div>';
+			return '<div id="de-cfg-form" class="de-cfg-unvis">\n\t\t\t' + this._getBox('ajaxPosting') + '<br>\n\t\t\t' + (pr.form ? '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('postSameImg') + '<br>\n\t\t\t\t' + this._getBox('removeEXIF') + '\n\t\t\t\t' + this._getBox('removeFName') + '<br>\n\t\t\t\t' + this._getBox('sendErrNotif') + '<br>\n\t\t\t\t' + this._getBox('scrAfterRep') + '<br>\n\t\t\t\t' + (pr.files && !nav.Presto ? this._getSel('fileInputs') : '') + '\n\t\t\t</div>' : '') + '\n\t\t\t' + (pr.form ? this._getSel('addPostForm') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getBox('spacedQuote') + '<br>' : '') + '\n\t\t\t' + this._getBox('favOnReply') + '<br>\n\t\t\t' + (pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '') + '\n\t\t\t' + (pr.mail ? this._getBox('addSageBtn') + this._getBox('saveSage') + '<br>' : '') + '\n\t\t\t' + (pr.cap ? (aib.fch ? this._getBox('cap4chanAlt') + '<br>' : '') + this._getInp('capUpdTime') + '<br>' + this._getSel('captchaLang') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getSel('addTextBtns') + this._getBox('txtBtnsLoc') + '<br>' : '') + '\n\t\t\t' + (pr.passw ? this._getInp('passwValue', true, 9) + ('<input type="button" id="de-cfg-btn-pass" class="de-cfg-button" value="' + Lng.change[lang] + '"><br>') : '') + '\n\t\t\t' + (pr.name ? this._getInp('nameValue', false, 9) + ' ' + this._getBox('userName') + '<br>' : '') + '\n\t\t\t' + (pr.rules || pr.passw || pr.name ? Lng.dontShow[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '') + '\n\t\t</div>';
 		},
 
 
 		_getCfgCommon: function _getCfgCommon() {
-			return '<div id="de-cfg-common" class="de-cfg-unvis">\n\t\t\t' + this._getSel('scriptStyle') + '<br>\n\t\t\t' + this._getBox('userCSS') + '\n\t\t\t<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a><br>\n\t\t\t' + this._getSel('panelCounter') + '<br>\n\t\t\t' + this._getBox('rePageTitle') + '<br>\n\t\t\t' + ('animation' in docBody.style ? this._getBox('animation') + '<br>' : '') + '\n\t\t\t' + this._getBox('inftyScroll') + '<br>\n\t\t\t' + this._getBox('scrollToTop') + '<br>\n\t\t\t' + this._getBox('hotKeys') + '\n\t\t\t<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="' + Lng.edit[lang] + '">\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('loadPages') + '\n\t\t\t</div>\n\t\t\t' + (!nav.isChromeStorage && !nav.Presto || nav.isGM ? this._getBox('updScript') + ('<div class="de-cfg-depend">\n\t\t\t\t\t' + this._getSel('scrUpdIntrv') + '\n\t\t\t\t\t<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t</div>') : '') + '\n\t\t\t' + (nav.isGlobal ? Lng.cfg.excludeList[lang] + '<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, ...">' + this._getBox('turnOff') : '') + '\n\t\t</div>';
+			return '<div id="de-cfg-common" class="de-cfg-unvis">\n\t\t\t' + this._getSel('scriptStyle') + '<br>\n\t\t\t' + this._getBox('userCSS') + '\n\t\t\t<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a><br>\n\t\t\t' + this._getSel('panelCounter') + '<br>\n\t\t\t' + this._getBox('rePageTitle') + '<br>\n\t\t\t' + ('animation' in docBody.style ? this._getBox('animation') + '<br>' : '') + '\n\t\t\t' + this._getBox('closePopups') + '<br>\n\t\t\t' + this._getBox('inftyScroll') + '<br>\n\t\t\t' + this._getBox('scrollToTop') + '<br>\n\t\t\t' + this._getBox('hotKeys') + '\n\t\t\t<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="' + Lng.edit[lang] + '">\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('loadPages') + '\n\t\t\t</div>\n\t\t\t' + (!nav.isChromeStorage && !nav.Presto || nav.isGM ? this._getBox('updScript') + ('<div class="de-cfg-depend">\n\t\t\t\t\t' + this._getSel('scrUpdIntrv') + '\n\t\t\t\t\t<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t</div>') : '') + '\n\t\t\t' + (nav.isGlobal ? Lng.cfg.excludeList[lang] + '<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, ...">' + this._getBox('turnOff') : '') + '\n\t\t</div>';
 		},
 
 
@@ -7150,9 +7158,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function $popup(id, txt) {
 		var isWait = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-		var node,
-		    el = $id('de-popup-' + id),
-		    buttonHTML = isWait ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '\u2716 ';
+		var el = $id('de-popup-' + id);
+		var buttonHTML = isWait ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '\u2716 ';
 		if (el) {
 			$q('div', el).innerHTML = txt.trim();
 			$q('span', el).innerHTML = buttonHTML;
@@ -7171,6 +7178,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (Cfg.animation) {
 				$animate(el, 'de-open');
 			}
+		}
+		if (Cfg.closePopups && !isWait && !id.includes('edit') && !id.includes('cfg')) {
+			el.closeTimeout = setTimeout(closePopup, 6e3, el);
 		}
 		return el.lastElementChild;
 	}
@@ -11094,6 +11104,11 @@ true, true],
 			this.subm.value = Lng.reply[lang];
 		}
 		this.subm.addEventListener('click', function (e) {
+			if (Cfg.warnSubjTrip && _this22.subj && /#.|##./.test(_this22.subj.value)) {
+				$pd(e);
+				$popup('upload', Lng.subjHasTrip[lang]);
+				return;
+			}
 			var val = _this22.txta.value;
 			if (Spells.outreps) {
 				val = Spells.outReplace(val);
@@ -21012,7 +21027,7 @@ true, true],
 	}
 
 	function updateCSS() {
-		var str = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + '; }\n\t.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + '; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.Presto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + '; }\n\t\t.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }\n\t\t.de-mypost .de-post-deleted::after { content: "' + Lng.deleted[lang] + ' (You)"; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-my::after { content: " (You)"; }\n\t\t.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }' : '') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t' + (Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '') + '\n\t' + (Cfg.resizeImgs ? '' : '.de-img-wrapper-inpost > .de-img-full { width: auto; }') + '\n\t' + (Cfg.maskImgs ? aib.qPostImg + (', .de-img-pre, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; } ' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }') : '') + '\n\t' + (Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }') + '\n\t' + (!Cfg.addSageBtn ? '#de-sagebtn, ' : '') + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (!Cfg.imgNavBtns ? '#de-img-btn-next, #de-img-btn-prev, ' : '') + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + (!Cfg.panelCounter ? '#de-panel-info, ' : '') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (!Cfg.showHideBtn ? '.de-btn-hide, ' : '') + (!Cfg.showRepBtn ? '.de-btn-rep, ' : '') + (!Cfg.updThrBtns && !aib.t ? '.de-thread-updater, ' : '') + (!Cfg.ajaxPosting ? '.de-file-btn-rar, .de-file-btn-txt, ' : '') + (!Cfg.fileInputs ? '.de-file-txt-wrap, .de-file-btn-txt, ' : '') + (!aib.kus && (aib.multiFile || Cfg.fileInputs !== 2) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + ' body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }';
+		var str = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + '; }\n\t.de-selected, .de-error-input { ' + (nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + '; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.Presto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + '; }\n\t\t.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }\n\t\t.de-mypost .de-post-deleted::after { content: "' + Lng.deleted[lang] + ' (You)"; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-my::after { content: " (You)"; }\n\t\t.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }' : '') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t' + (Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '') + '\n\t' + (Cfg.resizeImgs ? '' : '.de-img-wrapper-inpost > .de-img-full { width: auto; }') + '\n\t' + (Cfg.maskImgs ? aib.qPostImg + (', .de-img-pre, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; } ' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }') : '') + '\n\t' + (Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '') + '\n\t' + (Cfg.widePosts ? '.' + aib.cReply.replace(/\s/, '.') + ':not(.de-pview) { float: none; width: 100%; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }') + '\n\t' + (!Cfg.addSageBtn ? '#de-sagebtn, ' : '') + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + (!Cfg.imgNavBtns ? '#de-img-btn-next, #de-img-btn-prev, ' : '') + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + (!Cfg.panelCounter ? '#de-panel-info, ' : '') + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + (!Cfg.showHideBtn ? '.de-btn-hide, ' : '') + (!Cfg.showRepBtn ? '.de-btn-rep, ' : '') + (!Cfg.updThrBtns && !aib.t ? '.de-thread-updater, ' : '') + (!Cfg.ajaxPosting ? '.de-file-btn-rar, .de-file-btn-txt, ' : '') + (!Cfg.fileInputs ? '.de-file-txt-wrap, .de-file-btn-txt, ' : '') + (!aib.kus && (aib.multiFile || Cfg.fileInputs !== 2) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + ' body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }';
 		$id('de-css-dynamic').textContent = str + '\n' + aib.css;
 		$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 	}

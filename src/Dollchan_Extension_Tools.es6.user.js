@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = 'e2b8ea3';
+const commit = '3a9ce11';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -55,6 +55,7 @@ const defaultCfg = {
 	'postBtnsBack':  '#8c8c8c', //    custom background color
 	'noSpoilers':       1,      // text spoilers expansion [0=off, 1=grey, 2=native]
 	'noPostNames':      0,      // hide poster names
+	'widePosts':        0,      // stretch posts to screen width
 	'correctTime':      0,      // time correction in posts
 	'timeOffset':       '+0',   //    time offset (h)
 	'timePattern':      '',     //    search pattern
@@ -108,6 +109,7 @@ const defaultCfg = {
 	'addPostForm':      2,      // reply form display in thread [0=at top, 1=at bottom, 2=hidden]
 	'spacedQuote':      1,      // insert a space when quoting "> "
 	'favOnReply':       1,      // add thread to favorites after reply
+	'warnSubjTrip':     0,      // warn if "Subject" field contains tripcode
 	'addSageBtn':       1,      // replace "Email" with Sage button
 	'saveSage':         1,      // remember sage
 	'sageReply':        0,      //    reply with sage
@@ -131,6 +133,7 @@ const defaultCfg = {
 	'panelCounter':     1,      // panel counter for posts/images [0=off, 1=all posts, 2=except hidden]
 	'rePageTitle':      1,      // show thread title in the page tab
 	'animation':        1,      // CSS3 animation
+	'closePopups':      0,      // close popups automatically
 	'inftyScroll':      1,      // infinite scrolling for pages
 	'scrollToTop':      0,      // always scroll to top in the threads list
 	'hotKeys':          1,      // hotkeys
@@ -197,6 +200,7 @@ const Lng = {
 			txt:        ['Раскрытие текстовых спойлеров', 'Text spoilers expansion']
 		},
 		'noPostNames':  ['Скрывать имена в постах', 'Hide poster names'],
+		'widePosts':    ['Растягивать посты по ширине экрана', 'Stretch posts to page width'],
 		'hotKeys':      ['Горячие клавиши', 'Hotkeys'],
 		'loadPages':    ['Количество страниц, загружаемых по F5', 'Number of pages that are loaded on F5 '],
 		'correctTime':  ['Коррекция времени в постах* ', 'Time correction in posts* '],
@@ -273,6 +277,7 @@ const Lng = {
 		},
 		'spacedQuote':  ['Вставлять пробел при цитировании "> "', 'Insert a space when quoting "> "'],
 		'favOnReply':   ['Добавлять тред в "Избранное" после ответа', 'Add thread to "Favorites" after reply'],
+		'warnSubjTrip': ['Оповещать при наличии трип-кода в поле "Тема"', 'Warn if the "Subject" field contains a tripcode'],
 		'addSageBtn':   ['Кнопка Sage вместо поля "Email" ', 'Replace "Email" with Sage button '],
 		'saveSage':     ['Помнить сажу', 'Remember sage'],
 		'cap4chanAlt':  ['4chan: альтернативная капча*', '4chan: use alternative captcha*'],
@@ -307,6 +312,7 @@ const Lng = {
 		},
 		'rePageTitle':  ['Название треда в заголовке вкладки*', 'Show thread title in the page tab*'],
 		'animation':    ['CSS3 анимация', 'CSS3 animation'],
+		'closePopups':  ['Автоматически закрывать уведомления', 'Close popups automatically'],
 		'inftyScroll':  ['Бесконечная прокрутка страниц', 'Infinite scrolling for pages'],
 		'scrollToTop':  ['Всегда скроллить в топ на доске', 'Always scroll to top in the threads list'],
 		'updScript':    ['Автоматически проверять обновления', 'Auto check for Dollchan updates'],
@@ -592,6 +598,7 @@ const Lng = {
 	helpAddFile:    ['Встроить ogg/rar/zip/7z в картинку', 'Embed ogg/rar/zip/7z into the image'],
 	downloadFile:   ['Скачать содержащийся в картинке файл', 'Download embedded file from the image'],
 	fileCorrupt:    ['Файл повреждён: ', 'File is corrupt: '],
+	subjHasTrip:    ['Поле "Тема" содержит трипкод', '"Subject" field contains a tripcode'],
 	loadImage:      ['Загружаются картинки: ', 'Loading images: '],
 	loadFile:       ['Загружаются файлы: ', 'Loading files: '],
 	cantLoad:       ['Не могу загрузить ', 'Can\'t load '],
@@ -3303,6 +3310,7 @@ const cfgWindow = Object.create({
 			case 'showHideBtn':
 			case 'showRepBtn':
 			case 'noPostNames':
+			case 'widePosts':
 			case 'imgNavBtns':
 			case 'resizeImgs':
 			case 'strikeHidd':
@@ -3631,6 +3639,7 @@ const cfgWindow = Object.create({
 			${ this._getInp('postBtnsBack', false, 8) }<br>
 			${ this._getSel('noSpoilers') }<br>
 			${ this._getBox('noPostNames') }<br>
+			${ this._getBox('widePosts') }<br>
 			${ this._getBox('correctTime') }
 			${ this._getInp('timeOffset') }
 			<a class="de-abtn" target="_blank" href="${ gitWiki +
@@ -3716,6 +3725,7 @@ const cfgWindow = Object.create({
 			${ pr.form ? this._getSel('addPostForm') + '<br>' : '' }
 			${ pr.txta ? this._getBox('spacedQuote') + '<br>' : '' }
 			${ this._getBox('favOnReply') }<br>
+			${ pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
 			${ pr.mail ?
 				this._getBox('addSageBtn') +
 				this._getBox('saveSage') + '<br>' : '' }
@@ -3750,6 +3760,7 @@ const cfgWindow = Object.create({
 			${ this._getSel('panelCounter') }<br>
 			${ this._getBox('rePageTitle') }<br>
 			${ 'animation' in docBody.style ? this._getBox('animation') + '<br>' : '' }
+			${ this._getBox('closePopups') }<br>
 			${ this._getBox('inftyScroll') }<br>
 			${ this._getBox('scrollToTop') }<br>
 			${ this._getBox('hotKeys') }
@@ -3912,8 +3923,8 @@ function closePopup(data) {
 }
 
 function $popup(id, txt, isWait = false) {
-	var node, el = $id('de-popup-' + id),
-		buttonHTML = isWait ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '\u2716 ';
+	let el = $id('de-popup-' + id);
+	const buttonHTML = isWait ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '\u2716 ';
 	if(el) {
 		$q('div', el).innerHTML = txt.trim();
 		$q('span', el).innerHTML = buttonHTML;
@@ -3927,7 +3938,7 @@ function $popup(id, txt, isWait = false) {
 			<div class="de-popup-msg">${ txt.trim() }</div>
 		</div>`));
 		el.onclick = e => {
-			var el = fixEventEl(e.target);
+			let el = fixEventEl(e.target);
 			el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 			if(el.className === 'de-popup-btn') {
 				closePopup(el.parentNode);
@@ -3936,6 +3947,9 @@ function $popup(id, txt, isWait = false) {
 		if(Cfg.animation) {
 			$animate(el, 'de-open');
 		}
+	}
+	if(Cfg.closePopups && !isWait && !id.includes('edit') && !id.includes('cfg')) {
+		el.closeTimeout = setTimeout(closePopup, 6e3, el);
 	}
 	return el.lastElementChild;
 }
@@ -7377,12 +7391,17 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		this.subm.value = Lng.reply[lang];
 	}
 	this.subm.addEventListener('click', e => {
-		var val = this.txta.value;
+		if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
+			$pd(e);
+			$popup('upload', Lng.subjHasTrip[lang]);
+			return;
+		}
+		let val = this.txta.value;
 		if(Spells.outreps) {
 			val = Spells.outReplace(val);
 		}
 		if(this.tNum && pByNum.get(this.tNum).subj === 'Dollchan Extension Tools') {
-			var temp = '\n\n' + this._wrapText(aib.markupTags[5],
+			const temp = '\n\n' + this._wrapText(aib.markupTags[5],
 				'-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit +
 				(nav.isES6 ? '.es6' : '') + ' [' + nav.scriptInstall + ']')[1];
 			if(!val.includes(temp)) {
@@ -15948,6 +15967,7 @@ function updateCSS() {
 		aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }
 		.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }
 	${ Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : ''}
+	${ Cfg.widePosts ? `.${ aib.cReply.replace(/\s/, '.') }:not(.de-pview) { float: none; width: 100%; }` : '' }
 	${ Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '' }
 	${ Cfg.noSpoilers === 1 ?
 	   `.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }

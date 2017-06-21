@@ -29,6 +29,7 @@ const defaultCfg = {
 	'postBtnsBack':  '#8c8c8c', //    custom background color
 	'noSpoilers':       1,      // text spoilers expansion [0=off, 1=grey, 2=native]
 	'noPostNames':      0,      // hide poster names
+	'widePosts':        0,      // stretch posts to screen width
 	'correctTime':      0,      // time correction in posts
 	'timeOffset':       '+0',   //    time offset (h)
 	'timePattern':      '',     //    search pattern
@@ -82,6 +83,7 @@ const defaultCfg = {
 	'addPostForm':      2,      // reply form display in thread [0=at top, 1=at bottom, 2=hidden]
 	'spacedQuote':      1,      // insert a space when quoting "> "
 	'favOnReply':       1,      // add thread to favorites after reply
+	'warnSubjTrip':     0,      // warn if "Subject" field contains tripcode
 	'addSageBtn':       1,      // replace "Email" with Sage button
 	'saveSage':         1,      // remember sage
 	'sageReply':        0,      //    reply with sage
@@ -105,6 +107,7 @@ const defaultCfg = {
 	'panelCounter':     1,      // panel counter for posts/images [0=off, 1=all posts, 2=except hidden]
 	'rePageTitle':      1,      // show thread title in the page tab
 	'animation':        1,      // CSS3 animation
+	'closePopups':      0,      // close popups automatically
 	'inftyScroll':      1,      // infinite scrolling for pages
 	'scrollToTop':      0,      // always scroll to top in the threads list
 	'hotKeys':          1,      // hotkeys

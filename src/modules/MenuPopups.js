@@ -15,8 +15,8 @@ function closePopup(data) {
 }
 
 function $popup(id, txt, isWait = false) {
-	var node, el = $id('de-popup-' + id),
-		buttonHTML = isWait ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '\u2716 ';
+	let el = $id('de-popup-' + id);
+	const buttonHTML = isWait ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '\u2716 ';
 	if(el) {
 		$q('div', el).innerHTML = txt.trim();
 		$q('span', el).innerHTML = buttonHTML;
@@ -30,7 +30,7 @@ function $popup(id, txt, isWait = false) {
 			<div class="de-popup-msg">${ txt.trim() }</div>
 		</div>`));
 		el.onclick = e => {
-			var el = fixEventEl(e.target);
+			let el = fixEventEl(e.target);
 			el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 			if(el.className === 'de-popup-btn') {
 				closePopup(el.parentNode);
@@ -39,6 +39,9 @@ function $popup(id, txt, isWait = false) {
 		if(Cfg.animation) {
 			$animate(el, 'de-open');
 		}
+	}
+	if(Cfg.closePopups && !isWait && !id.includes('edit') && !id.includes('cfg')) {
+		el.closeTimeout = setTimeout(closePopup, 6e3, el);
 	}
 	return el.lastElementChild;
 }

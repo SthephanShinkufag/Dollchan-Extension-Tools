@@ -161,12 +161,17 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		this.subm.value = Lng.reply[lang];
 	}
 	this.subm.addEventListener('click', e => {
-		var val = this.txta.value;
+		if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
+			$pd(e);
+			$popup('upload', Lng.subjHasTrip[lang]);
+			return;
+		}
+		let val = this.txta.value;
 		if(Spells.outreps) {
 			val = Spells.outReplace(val);
 		}
 		if(this.tNum && pByNum.get(this.tNum).subj === 'Dollchan Extension Tools') {
-			var temp = '\n\n' + this._wrapText(aib.markupTags[5],
+			const temp = '\n\n' + this._wrapText(aib.markupTags[5],
 				'-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit +
 				(nav.isES6 ? '.es6' : '') + ' [' + nav.scriptInstall + ']')[1];
 			if(!val.includes(temp)) {
