@@ -7,8 +7,8 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	if(!ignoreForm && !form) {
 		if(this.oeForm) {
 			ajaxLoad(aib.getThrUrl(aib.b, Thread.first.num), false).then(loadedDoc => {
-				var form = $q(aib.qForm, loadedDoc),
-					oeForm = $q('form[name="oeform"], form[action*="paint"]', loadedDoc);
+				const form = $q(aib.qForm, loadedDoc);
+				const oeForm = $q('form[name="oeform"], form[action*="paint"]', loadedDoc);
 				pr = new PostForm(form && doc.adoptNode(form), oeForm && doc.adoptNode(oeForm), true);
 			}, () => {
 				pr = new PostForm(null, null, true);
@@ -49,7 +49,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	if(this.oeForm) {
 		this.pForm.appendChild(this.oeForm);
 	}
-	var html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
+	const html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
 	this.pArea = [$bBegin(DelForm.first.el, html),
 	              $aEnd(aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el, html)];
 	this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
@@ -64,6 +64,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	`<div class="de-win-head">
 		<span class="de-win-title"></span>
 		<span class="de-win-buttons">
+			<svg class="de-btn-clear"><use xlink:href="#de-symbol-unavail"/></svg>
 			<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>
 			<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>
 		</span>
@@ -72,14 +73,25 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	<div class="de-resizer de-resizer-left"></div>
 	<div class="de-resizer de-resizer-right"></div>
 	<div class="de-resizer de-resizer-bottom"></div>`));
-	var el = $q('.de-win-buttons', this.qArea);
+	let el = $q('.de-win-buttons', this.qArea);
 	el.onmouseover = function(e) {
 		switch(fixEventEl(e.target).classList[0]) {
+		case 'de-btn-clear': this.title = Lng.clearForm[lang]; break;
 		case 'de-btn-close': this.title = Lng.closeReply[lang]; break;
 		case 'de-btn-toggle': this.title = Cfg.replyWinDrag ? Lng.underPost[lang] : Lng.makeDrag[lang];
 		}
 	};
-	el.firstElementChild.onclick = () => {
+	(el = el.firstElementChild).onclick = () => {
+		saveCfg('sageReply', 0);
+		this._setSage();
+		this.files.clear();
+		[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(node => {
+			if(node) {
+				node.value = '';
+			}
+		});
+	};
+	(el = el.nextElementSibling).onclick = () => {
 		toggleCfg('replyWinDrag');
 		if(Cfg.replyWinDrag) {
 			this.qArea.className = aib.cReply + ' de-win';
@@ -89,7 +101,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 			this.txta.focus();
 		}
 	};
-	el.lastElementChild.onclick = () => this.closeReply();
+	el.nextElementSibling.onclick = () => this.closeReply();
 	if(!this.form || !this.txta) {
 		return;
 	}
@@ -119,7 +131,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 					$pd(e);
 					return;
 				case 'mousemove':
-					var cr = this._el.getBoundingClientRect();
+					const cr = this._el.getBoundingClientRect();
 					this._elStyle.width = (e.clientX - cr.left) + 'px';
 					this._elStyle.height = (e.clientY - cr.top) + 'px';
 					return;
@@ -148,7 +160,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	this.txta.classList.add('de-textarea');
 	this.txta.style.cssText = 'width: ' + Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px;';
 	this.txta.addEventListener('keypress', function(e) {
-		var code = e.charCode || e.keyCode;
+		const code = e.charCode || e.keyCode;
 		if((code === 33 || code === 34) && e.which === 0) {
 			e.target.blur();
 			window.focus();

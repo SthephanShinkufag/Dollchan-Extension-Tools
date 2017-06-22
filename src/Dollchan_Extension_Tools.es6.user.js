@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = '3a9ce11';
+const commit = '9a49c81';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -568,7 +568,8 @@ const Lng = {
 	prevVideo:      ['Предыдущее видео', 'Previous video'],
 	nextVideo:      ['Следующее видео', 'Next video'],
 	toPanel:        ['Закрепить на панели', 'Attach to panel'],
-	underPost:      ['Поместить форму под пост', 'Move under post'],
+	underPost:      ['Поместить форму под пост', 'Move form under post'],
+	clearForm:      ['Очистить форму', 'Clear form'],
 	makeDrag:       ['Сделать перетаскиваемым окном', 'Make draggable window'],
 	closeWindow:    ['Закрыть окно', 'Close window'],
 	closeReply:     ['Закрыть форму', 'Close form'],
@@ -2283,21 +2284,20 @@ WinResizer.prototype = {
 };
 
 function toggleWindow(name, isUpd, data, noAnim) {
-	var el, main = $id('de-main'),
-		win = $id('de-win-' + name),
-		isActive = win && win.classList.contains('de-win-active');
+	let el, win = $id('de-win-' + name);
+	const isActive = win && win.classList.contains('de-win-active');
 	if(isUpd && !isActive) {
 		return;
 	}
 	if(!win) {
-		var winAttr = (Cfg[name + 'WinDrag'] ?
+		const winAttr = (Cfg[name + 'WinDrag'] ?
 			'de-win" style="' + Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] :
 			'de-win-fixed" style="right: 0; bottom: 25px'
 		) + (name !== 'fav' ? '' : '; width: ' + Cfg.favWinWidth + 'px; ');
-		var backColor = getComputedStyle(docBody).getPropertyValue('background-color');
-		var bodyAttr = name === 'cfg' ? ' ' + aib.cReply : '" style="background-color: ' +
+		const backColor = getComputedStyle(docBody).getPropertyValue('background-color');
+		const bodyAttr = name === 'cfg' ? ' ' + aib.cReply : '" style="background-color: ' +
 			(backColor !== 'transparent' ? backColor : '#EEE');
-		win = $aBegin(main,
+		win = $aBegin($id('de-main'),
 		`<div id="de-win-${ name }" class="${ winAttr }; display: none;">
 			<div class="de-win-head">
 				<span class="de-win-title">
@@ -2327,15 +2327,15 @@ function toggleWindow(name, isUpd, data, noAnim) {
 		};
 		el.lastElementChild.onclick = () => toggleWindow(name, false);
 		el.firstElementChild.onclick = e => {
-			var width = win.style.width,
-				w = width ? '; width: ' + width : '';
+			const width = win.style.width;
+			const w = width ? '; width: ' + width : '';
 			toggleCfg(name + 'WinDrag');
 			if(Cfg[name + 'WinDrag']) {
 				win.classList.remove('de-win-fixed');
 				win.classList.add('de-win');
 				win.style.cssText = Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] + w;
 			} else {
-				var temp = $q('.de-win-active.de-win-fixed', win.parentNode);
+				const temp = $q('.de-win-active.de-win-fixed', win.parentNode);
 				if(temp) {
 					toggleWindow(temp.id.substr(7), false);
 				}
@@ -2348,14 +2348,14 @@ function toggleWindow(name, isUpd, data, noAnim) {
 		makeDraggable(name, win, $q('.de-win-head', win));
 	}
 	updateWinZ(win.style);
-	var remove = !isUpd && isActive;
+	let remove = !isUpd && isActive;
 	if(!remove && !win.classList.contains('de-win') &&
 	  (el = $q('.de-win-active.de-win-fixed:not(#de-win-' + name + ')', win.parentNode)))
 	{
 		toggleWindow(el.id.substr(7), false);
 	}
-	var isAnim = !noAnim && !isUpd && Cfg.animation,
-		body = $q('.de-win-body', win);
+	const isAnim = !noAnim && !isUpd && Cfg.animation;
+	let body = $q('.de-win-body', win);
 	if(isAnim && body.hasChildNodes()) {
 		win.addEventListener('animationend', function aEvent() {
 			this.removeEventListener('animationend', aEvent);
@@ -7237,8 +7237,8 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	if(!ignoreForm && !form) {
 		if(this.oeForm) {
 			ajaxLoad(aib.getThrUrl(aib.b, Thread.first.num), false).then(loadedDoc => {
-				var form = $q(aib.qForm, loadedDoc),
-					oeForm = $q('form[name="oeform"], form[action*="paint"]', loadedDoc);
+				const form = $q(aib.qForm, loadedDoc);
+				const oeForm = $q('form[name="oeform"], form[action*="paint"]', loadedDoc);
 				pr = new PostForm(form && doc.adoptNode(form), oeForm && doc.adoptNode(oeForm), true);
 			}, () => {
 				pr = new PostForm(null, null, true);
@@ -7279,7 +7279,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	if(this.oeForm) {
 		this.pForm.appendChild(this.oeForm);
 	}
-	var html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
+	const html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
 	this.pArea = [$bBegin(DelForm.first.el, html),
 	              $aEnd(aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el, html)];
 	this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
@@ -7294,6 +7294,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	`<div class="de-win-head">
 		<span class="de-win-title"></span>
 		<span class="de-win-buttons">
+			<svg class="de-btn-clear"><use xlink:href="#de-symbol-unavail"/></svg>
 			<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>
 			<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>
 		</span>
@@ -7302,14 +7303,25 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	<div class="de-resizer de-resizer-left"></div>
 	<div class="de-resizer de-resizer-right"></div>
 	<div class="de-resizer de-resizer-bottom"></div>`));
-	var el = $q('.de-win-buttons', this.qArea);
+	let el = $q('.de-win-buttons', this.qArea);
 	el.onmouseover = function(e) {
 		switch(fixEventEl(e.target).classList[0]) {
+		case 'de-btn-clear': this.title = Lng.clearForm[lang]; break;
 		case 'de-btn-close': this.title = Lng.closeReply[lang]; break;
 		case 'de-btn-toggle': this.title = Cfg.replyWinDrag ? Lng.underPost[lang] : Lng.makeDrag[lang];
 		}
 	};
-	el.firstElementChild.onclick = () => {
+	(el = el.firstElementChild).onclick = () => {
+		saveCfg('sageReply', 0);
+		this._setSage();
+		this.files.clear();
+		[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(node => {
+			if(node) {
+				node.value = '';
+			}
+		});
+	};
+	(el = el.nextElementSibling).onclick = () => {
 		toggleCfg('replyWinDrag');
 		if(Cfg.replyWinDrag) {
 			this.qArea.className = aib.cReply + ' de-win';
@@ -7319,7 +7331,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 			this.txta.focus();
 		}
 	};
-	el.lastElementChild.onclick = () => this.closeReply();
+	el.nextElementSibling.onclick = () => this.closeReply();
 	if(!this.form || !this.txta) {
 		return;
 	}
@@ -7349,7 +7361,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 					$pd(e);
 					return;
 				case 'mousemove':
-					var cr = this._el.getBoundingClientRect();
+					const cr = this._el.getBoundingClientRect();
 					this._elStyle.width = (e.clientX - cr.left) + 'px';
 					this._elStyle.height = (e.clientY - cr.top) + 'px';
 					return;
@@ -7378,7 +7390,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	this.txta.classList.add('de-textarea');
 	this.txta.style.cssText = 'width: ' + Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px;';
 	this.txta.addEventListener('keypress', function(e) {
-		var code = e.charCode || e.keyCode;
+		const code = e.charCode || e.keyCode;
 		if((code === 33 || code === 34) && e.which === 0) {
 			e.target.blur();
 			window.focus();
@@ -15571,8 +15583,8 @@ function addSVGIcons() {
 		<image display="inline" width="16" height="16" xlink:href="data:image/gif;base64,R0lGODlhEAAQAKIAAP3rqPPOd+y6V+WmN+Dg4M7OzmZmZv///yH5BAEAAAcALAAAAAAQABAAAANCeLrWvZARUqqJkjiLj9FMcWHf6IldGZqM4zqRAcw0zXpAoO/6LfeNnS8XcAhjAIHSoFwim0wockCtUodWq+/1UiQAADs="/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-unavail">
-		<circle fill="none" stroke="#CF4436" stroke-width="2" cx="8" cy="8" r="6"/>
-		<path stroke="#CF4436" stroke-width="2" d="M3.8 3.8l8.4 8.4"/>
+		<circle class="de-svg-stroke" fill="none" stroke-width="2" cx="8" cy="8" r="5"/>
+		<path class="de-svg-stroke" stroke-width="2" d="M4 4l8 8"/>
 	</symbol>
 	</svg>
 	</div>`);
@@ -15714,7 +15726,7 @@ function scriptCSS() {
 	.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }
 	.de-thread-note { font-style: italic; }
 	.de-btn-hide > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }
-	.de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }
+	.de-btn-clear, .de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }
 	${ !pr.form && !pr.oeForm ? '.de-btn-rep { display: none; }' : '' }` +
 
 	// Sauce buttons
@@ -15837,13 +15849,13 @@ function scriptCSS() {
 	gif('.de-file-btn-txt', 'R0lGODlhEAAQAJEAACyr4e/19////wAAACH5BAEAAAIALAAAAAAQABAAAAIrlI+pwK3WokMyBEmjxbBeLgEbKFrmyXTn+nXaF7nNGMslZ9NpFu4L/ggeCgA7') +
 
 	// Post reply
-	`#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ${ nav.Presto ? '-2px -10px' : '0 0 -2px -10px' }; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }
-	.de-parea { text-align: center; }
+	`.de-parea { text-align: center; }
 	.de-parea-btn-close::after { content: "${ Lng.hideForm[lang] }"; }
 	.de-parea-btn-thr::after { content: "${ Lng.makeThr[lang] }"; }
 	.de-parea-btn-reply::after { content: "${ Lng.makeReply[lang] }"; }
 	#de-pform > form { padding: 0; margin: 0; border: none; }
 	#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }
+	#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ${ nav.Presto ? '-2px -10px' : '0 0 -2px -10px' }; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }
 	.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }
 	.de-win-inpost > .de-resizer { display: none; }
 	.de-win-inpost > .de-win-head { background: none; color: inherit; }
@@ -15855,7 +15867,7 @@ function scriptCSS() {
 	#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }
 	.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }` +
 
-	// Favorites
+	// Favorites window
 	`.de-fav-del > #de-fav-buttons { display: none; }
 	.de-fav-del > #de-fav-delbuttons { display: block !important; }
 	.de-fav-del .de-fav-header-switch, .de-fav-del .de-fav-switch { display: block !important; margin: 2px 0 2px 4px !important; flex: none; }
@@ -15875,6 +15887,7 @@ function scriptCSS() {
 	.de-fav-inf-new::after { content: " +"; }
 	.de-fav-inf-old { color: #4f7942; }
 	.de-fav-inf-you { padding: 0 4px; margin-right: 4px; border-radius: 3px; color: #fff; background-color: #424f79; opacity: 0.65; }
+	.de-fav-unavail { color: #cf4436; }
 	.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }
 	.de-fold-block:not(:first-child) { border-top: none; }` +
 

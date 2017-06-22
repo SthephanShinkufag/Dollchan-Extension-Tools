@@ -139,21 +139,20 @@ WinResizer.prototype = {
 };
 
 function toggleWindow(name, isUpd, data, noAnim) {
-	var el, main = $id('de-main'),
-		win = $id('de-win-' + name),
-		isActive = win && win.classList.contains('de-win-active');
+	let el, win = $id('de-win-' + name);
+	const isActive = win && win.classList.contains('de-win-active');
 	if(isUpd && !isActive) {
 		return;
 	}
 	if(!win) {
-		var winAttr = (Cfg[name + 'WinDrag'] ?
+		const winAttr = (Cfg[name + 'WinDrag'] ?
 			'de-win" style="' + Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] :
 			'de-win-fixed" style="right: 0; bottom: 25px'
 		) + (name !== 'fav' ? '' : '; width: ' + Cfg.favWinWidth + 'px; ');
-		var backColor = getComputedStyle(docBody).getPropertyValue('background-color');
-		var bodyAttr = name === 'cfg' ? ' ' + aib.cReply : '" style="background-color: ' +
+		const backColor = getComputedStyle(docBody).getPropertyValue('background-color');
+		const bodyAttr = name === 'cfg' ? ' ' + aib.cReply : '" style="background-color: ' +
 			(backColor !== 'transparent' ? backColor : '#EEE');
-		win = $aBegin(main,
+		win = $aBegin($id('de-main'),
 		`<div id="de-win-${ name }" class="${ winAttr }; display: none;">
 			<div class="de-win-head">
 				<span class="de-win-title">
@@ -183,15 +182,15 @@ function toggleWindow(name, isUpd, data, noAnim) {
 		};
 		el.lastElementChild.onclick = () => toggleWindow(name, false);
 		el.firstElementChild.onclick = e => {
-			var width = win.style.width,
-				w = width ? '; width: ' + width : '';
+			const width = win.style.width;
+			const w = width ? '; width: ' + width : '';
 			toggleCfg(name + 'WinDrag');
 			if(Cfg[name + 'WinDrag']) {
 				win.classList.remove('de-win-fixed');
 				win.classList.add('de-win');
 				win.style.cssText = Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] + w;
 			} else {
-				var temp = $q('.de-win-active.de-win-fixed', win.parentNode);
+				const temp = $q('.de-win-active.de-win-fixed', win.parentNode);
 				if(temp) {
 					toggleWindow(temp.id.substr(7), false);
 				}
@@ -204,14 +203,14 @@ function toggleWindow(name, isUpd, data, noAnim) {
 		makeDraggable(name, win, $q('.de-win-head', win));
 	}
 	updateWinZ(win.style);
-	var remove = !isUpd && isActive;
+	let remove = !isUpd && isActive;
 	if(!remove && !win.classList.contains('de-win') &&
 	  (el = $q('.de-win-active.de-win-fixed:not(#de-win-' + name + ')', win.parentNode)))
 	{
 		toggleWindow(el.id.substr(7), false);
 	}
-	var isAnim = !noAnim && !isUpd && Cfg.animation,
-		body = $q('.de-win-body', win);
+	const isAnim = !noAnim && !isUpd && Cfg.animation;
+	let body = $q('.de-win-body', win);
 	if(isAnim && body.hasChildNodes()) {
 		win.addEventListener('animationend', function aEvent() {
 			this.removeEventListener('animationend', aEvent);

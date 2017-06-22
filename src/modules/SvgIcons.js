@@ -153,8 +153,8 @@ function addSVGIcons() {
 		<image display="inline" width="16" height="16" xlink:href="data:image/gif;base64,R0lGODlhEAAQAKIAAP3rqPPOd+y6V+WmN+Dg4M7OzmZmZv///yH5BAEAAAcALAAAAAAQABAAAANCeLrWvZARUqqJkjiLj9FMcWHf6IldGZqM4zqRAcw0zXpAoO/6LfeNnS8XcAhjAIHSoFwim0wockCtUodWq+/1UiQAADs="/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-unavail">
-		<circle fill="none" stroke="#CF4436" stroke-width="2" cx="8" cy="8" r="6"/>
-		<path stroke="#CF4436" stroke-width="2" d="M3.8 3.8l8.4 8.4"/>
+		<circle class="de-svg-stroke" fill="none" stroke-width="2" cx="8" cy="8" r="5"/>
+		<path class="de-svg-stroke" stroke-width="2" d="M4 4l8 8"/>
 	</symbol>
 	</svg>
 	</div>`);
