@@ -116,6 +116,9 @@ function* readCfg() {
 	if(aib.dobr && !Cfg.useDobrAPI) {
 		aib.jsonBuilder = null;
 	}
+	if(!('FormData' in window)) {
+		Cfg.ajaxPosting = 0;
+	}
 	if(!('Notification' in window)) {
 		Cfg.desktNotif = 0;
 	}
