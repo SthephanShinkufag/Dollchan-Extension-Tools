@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.6.20.0';
-	var commit = '9a49c81';
+	var commit = '3043d18';
 
 
 	var defaultCfg = {
@@ -3086,7 +3086,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		cfg: {
 			'hideBySpell': ['Спеллы: ', 'Magic spells: '],
 			'sortSpells': ['Сортировать спеллы и удалять дубликаты', 'Sort spells and remove duplicates'],
-			'menuHiddBtn': ['Дополнительное меню для кнопок "Скрыть" ', 'Extra options for the "Hide" buttons'],
+			'menuHiddBtn': ['Дополнительное меню для кнопок "Скрыть" ', 'Extra options for "Hide" buttons'],
 			'hideRefPsts': ['Скрывать ответы на скрытые посты', 'Hide replies to hidden posts'],
 			'delHiddPost': {
 				sel: [['Откл.', 'Всё', 'Только посты', 'Только треды'], ['Disable', 'All', 'Posts only', 'Threads only']],
@@ -3179,7 +3179,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			'removeEXIF': ['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG '],
 			'removeFName': ['Очищать имя файлов', 'Clear file names'],
 			'sendErrNotif': ['Оповещать в заголовке об ошибке отправки', 'Inform in title about post send error'],
-			'scrAfterRep': ['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
+			'scrAfterRep': ['Перемещаться в конец треда после отправки', 'Scroll to bottom after reply'],
 			'fileInputs': {
 				sel: [['Откл.', 'Упрощ.', 'Превью'], ['Disable', 'Simple', 'Preview']],
 				txt: ['Улучшенное поле добавления файлов', 'Enhanced file attachment field']
@@ -3190,7 +3190,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			},
 			'spacedQuote': ['Вставлять пробел при цитировании "> "', 'Insert a space when quoting "> "'],
 			'favOnReply': ['Добавлять тред в "Избранное" после ответа', 'Add thread to "Favorites" after reply'],
-			'warnSubjTrip': ['Оповещать при наличии трип-кода в поле "Тема"', 'Warn if the "Subject" field contains a tripcode'],
+			'warnSubjTrip': ['Оповещать о трипкоде в поле "Тема"', 'Warn about a tripcode in "Subject" field'],
 			'addSageBtn': ['Кнопка Sage вместо поля "Email" ', 'Replace "Email" with Sage button '],
 			'saveSage': ['Помнить сажу', 'Remember sage'],
 			'cap4chanAlt': ['4chan: альтернативная капча*', '4chan: use alternative captcha*'],
@@ -3333,6 +3333,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		loading: ['Загрузка...', 'Loading...'],
 		checking: ['Проверка...', 'Checking...'],
 		deleting: ['Удаление...', 'Deleting...'],
+		deletion: ['Удаление...', 'Deletion...'],
 		updating: ['Обновление...', 'Updating...'],
 		error: ['Ошибка', 'Error'],
 		noConnect: ['Ошибка подключения', 'Connection failed'],
@@ -3363,15 +3364,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		globalCfg: ['Глобальные настройки', 'Global config'],
 		loadGlobal: ['и применить к этому домену', 'and apply to this domain'],
 		saveGlobal: ['текущие настройки как глобальные', 'current config as global'],
-		descrGlobal: ['Глобальные настройки будут по умолчанию применяться<br>при первом посещеннии других доменов', 'Global config will apply by default<br>at the first visit of other domains'],
+		descrGlobal: ['Глобальные настройки применяются по умолчанию<br>при первом посещении других доменов', 'Global config is applied by default<br>on the first visit of other domains'],
 		editInTxt: ['Правка в текстовом формате', 'Edit in text format'],
 		resetCfg: ['Сбросить в настройки по умолчанию', 'Reset config to defaults'],
 		resetData: ['Очистить данные', 'Reset selected data'],
 		allDomains: ['для всех доменов', 'for all domains'],
-		delNotes: ['Удаление выделенных записей', 'Deleting of selected notes'],
+		delEntries: ['Выбрать и удалить записи', 'Select and delete entries'],
 		saveChanges: ['Сохранить внесенные изменения', 'Save your changes'],
 		infoCount: ['Обновить счетчики постов', 'Refresh posts counters'],
-		infoPage: ['Проверить актуальность тредов (до 10 страницы)', 'Check for threads actuality (up to 10 page)'],
+		infoPage: ['Проверить положение тредов (до 10-й страницы)', 'Check for threads position (up to 10th page)'],
 		clrDeleted: ['Очистить недоступные (404) треды', 'Clear inaccessible (404) threads'],
 		oldPosts: ['Постов при последнем посещении', 'Posts at the last visit'],
 		myPostsRep: ['Ответов на ваши посты', 'Replies to your posts'],
@@ -3449,8 +3450,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		seMissSpell: ['пропущен спелл', 'missing spell'],
 		seErrRegex: ['синтаксическая ошибка в регулярном выражении: %s', 'syntax error in regular expression: %s'],
 		seUnexpChar: ['неожиданный символ: %s', 'unexpected character: %s'],
-		seMissClBkt: ['пропущена закрывающаяся скобка', 'missing ) in parenthetical'],
-		seRepsInParens: ['спелл $s не должен располагаться в скобках', 'spell %s shouldn\'t be in parens'],
+		seMissClBkt: ['пропущена закрывающая скобка', 'missing \')\' in expression'],
+		seRepsInParens: ['спелл %s не должен располагаться в скобках', 'spell %s shouldn\'t be inside parentheses'],
 		seOpInReps: ['недопустимо использовать оператор %s со спеллами #rep и #outrep', 'don\'t use operator %s with spells #rep & #outrep'],
 		seRow: [' (строка ', ' (row '],
 		seCol: [', столбец ', ', column '],
@@ -5784,7 +5785,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, _callee, this, [[3, 8]]);
 		}))));
 
-		body.appendChild($btn(Lng.remove[lang], Lng.delNotes[lang], function () {
+		body.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], function () {
 			$each($Q('.de-entry[info]', body), function (el) {
 				if (!$q('input', el).checked) {
 					return;
@@ -6315,12 +6316,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, _callee4, this, [[7, 14]]);
 		}))));
 
-		div.appendChild($btn(Lng.deleting[lang], Lng.delNotes[lang], function () {
+		div.appendChild($btn(Lng.deletion[lang], Lng.delEntries[lang], function () {
 			return body.classList.add('de-fav-del');
 		}));
 		div = $bEnd(body, '<div id="de-fav-delbuttons"></div>');
 
-		div.appendChild($btn(Lng.apply[lang], Lng.delNotes[lang], function () {
+		div.appendChild($btn(Lng.apply[lang], Lng.delEntries[lang], function () {
 			$each($Q('.de-entry > input[type="checkbox"]', body), function (el) {
 				if (el.checked) {
 					el.parentNode.setAttribute('de-removed', '');
@@ -20982,7 +20983,7 @@ true, true],
 			return;
 		}
 
-		x += '.de-win .de-btn-toggle { transform: rotate(180deg); }\n\t.de-resizer { position: absolute; }\n\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\n\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\n\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-win > .de-win-head { cursor: move; }\n\t.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\n\t#de-win-cfg { width: 355px; }\n\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\n\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\n\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\n\t#de-win-hid { max-width: 60%; }\n\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\n\t#de-win-vid .de-entry { white-space: normal; }\n\t.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }' + (
+		x += '.de-win .de-btn-toggle { transform: rotate(180deg); }\n\t.de-resizer { position: absolute; }\n\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\n\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\n\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-win > .de-win-head { cursor: move; }\n\t.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\n\t.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }\n\t.de-win > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); }\n\t.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); }\n\t#de-win-cfg { width: 355px; }\n\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\n\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\n\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\n\t#de-win-hid { max-width: 60%; }\n\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\n\t#de-win-vid .de-entry { white-space: normal; }\n\t.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }' + (
 
 		'.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 327px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { ' + (nav.Presto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\n\t.de-cfg-depend { padding-left: 17px; }\n\t.de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\n\t.de-cfg-unvis { display: none; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; height: 267px; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 235px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }');
 

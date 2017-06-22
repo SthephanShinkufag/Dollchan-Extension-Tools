@@ -8,7 +8,7 @@ const defaultCfg = {
 	'hideBySpell':      1,      // hide posts by spells
 	'spells':           null,   // user defined spells
 	'sortSpells':       0,      // sort spells and remove duplicates
-	'menuHiddBtn':      1,      // extra options for the "Hide" buttons
+	'menuHiddBtn':      1,      // extra options for "Hide" buttons
 	'hideRefPsts':      0,      // hide replies to hidden posts
 	'delHiddPost':      0,      // remove placeholders [0=off, 1=all, 2=posts only, 3=threads only]
 	'ajaxUpdThr':       1,      // threads updater
@@ -78,12 +78,12 @@ const defaultCfg = {
 	'removeEXIF':       1,      //    remove EXIF from JPEG
 	'removeFName':      0,      //    clear file names
 	'sendErrNotif':     1,      //    inform in title about post send error
-	'scrAfterRep':      0,      //    scroll to the bottom after reply
+	'scrAfterRep':      0,      //    scroll to bottom after reply
 	'fileInputs':       2,      //    enhanced file attachment field  [0=off, 1=simple, 2=preview]
 	'addPostForm':      2,      // reply form display in thread [0=at top, 1=at bottom, 2=hidden]
 	'spacedQuote':      1,      // insert a space when quoting "> "
 	'favOnReply':       1,      // add thread to favorites after reply
-	'warnSubjTrip':     0,      // warn if "Subject" field contains tripcode
+	'warnSubjTrip':     0,      // warn about a tripcode in "Subject" field
 	'addSageBtn':       1,      // replace "Email" with Sage button
 	'saveSage':         1,      // remember sage
 	'sageReply':        0,      //    reply with sage

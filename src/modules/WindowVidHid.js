@@ -188,7 +188,7 @@ function showHiddenWindow(body) {
 	})));
 
 	// "Delete" button. Allows to delete selected threads
-	body.appendChild($btn(Lng.remove[lang], Lng.delNotes[lang], () => {
+	body.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], () => {
 		$each($Q('.de-entry[info]', body), el => {
 			if(!$q('input', el).checked) {
 				return;

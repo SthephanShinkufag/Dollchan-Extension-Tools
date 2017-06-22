@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = '9a49c81';
+const commit = '3043d18';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -34,7 +34,7 @@ const defaultCfg = {
 	'hideBySpell':      1,      // hide posts by spells
 	'spells':           null,   // user defined spells
 	'sortSpells':       0,      // sort spells and remove duplicates
-	'menuHiddBtn':      1,      // extra options for the "Hide" buttons
+	'menuHiddBtn':      1,      // extra options for "Hide" buttons
 	'hideRefPsts':      0,      // hide replies to hidden posts
 	'delHiddPost':      0,      // remove placeholders [0=off, 1=all, 2=posts only, 3=threads only]
 	'ajaxUpdThr':       1,      // threads updater
@@ -104,12 +104,12 @@ const defaultCfg = {
 	'removeEXIF':       1,      //    remove EXIF from JPEG
 	'removeFName':      0,      //    clear file names
 	'sendErrNotif':     1,      //    inform in title about post send error
-	'scrAfterRep':      0,      //    scroll to the bottom after reply
+	'scrAfterRep':      0,      //    scroll to bottom after reply
 	'fileInputs':       2,      //    enhanced file attachment field  [0=off, 1=simple, 2=preview]
 	'addPostForm':      2,      // reply form display in thread [0=at top, 1=at bottom, 2=hidden]
 	'spacedQuote':      1,      // insert a space when quoting "> "
 	'favOnReply':       1,      // add thread to favorites after reply
-	'warnSubjTrip':     0,      // warn if "Subject" field contains tripcode
+	'warnSubjTrip':     0,      // warn about a tripcode in "Subject" field
 	'addSageBtn':       1,      // replace "Email" with Sage button
 	'saveSage':         1,      // remember sage
 	'sageReply':        0,      //    reply with sage
@@ -170,7 +170,7 @@ const Lng = {
 	cfg: {
 		'hideBySpell':  ['Спеллы: ', 'Magic spells: '],
 		'sortSpells':   ['Сортировать спеллы и удалять дубликаты', 'Sort spells and remove duplicates'],
-		'menuHiddBtn':  ['Дополнительное меню для кнопок "Скрыть" ', 'Extra options for the "Hide" buttons'],
+		'menuHiddBtn':  ['Дополнительное меню для кнопок "Скрыть" ', 'Extra options for "Hide" buttons'],
 		'hideRefPsts':  ['Скрывать ответы на скрытые посты', 'Hide replies to hidden posts'],
 		'delHiddPost':  {
 			sel:        [['Откл.', 'Всё', 'Только посты', 'Только треды'], ['Disable', 'All', 'Posts only', 'Threads only']],
@@ -266,7 +266,7 @@ const Lng = {
 		'removeEXIF':   ['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG '],
 		'removeFName':  ['Очищать имя файлов', 'Clear file names'],
 		'sendErrNotif': ['Оповещать в заголовке об ошибке отправки', 'Inform in title about post send error'],
-		'scrAfterRep':  ['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
+		'scrAfterRep':  ['Перемещаться в конец треда после отправки', 'Scroll to bottom after reply'],
 		'fileInputs':   {
 			sel:        [['Откл.', 'Упрощ.', 'Превью'], ['Disable', 'Simple', 'Preview']],
 			txt:        ['Улучшенное поле добавления файлов', 'Enhanced file attachment field']
@@ -277,7 +277,7 @@ const Lng = {
 		},
 		'spacedQuote':  ['Вставлять пробел при цитировании "> "', 'Insert a space when quoting "> "'],
 		'favOnReply':   ['Добавлять тред в "Избранное" после ответа', 'Add thread to "Favorites" after reply'],
-		'warnSubjTrip': ['Оповещать при наличии трип-кода в поле "Тема"', 'Warn if the "Subject" field contains a tripcode'],
+		'warnSubjTrip': ['Оповещать о трипкоде в поле "Тема"', 'Warn about a tripcode in "Subject" field'],
 		'addSageBtn':   ['Кнопка Sage вместо поля "Email" ', 'Replace "Email" with Sage button '],
 		'saveSage':     ['Помнить сажу', 'Remember sage'],
 		'cap4chanAlt':  ['4chan: альтернативная капча*', '4chan: use alternative captcha*'],
@@ -512,6 +512,7 @@ const Lng = {
 	loading:        ['Загрузка...', 'Loading...'],
 	checking:       ['Проверка...', 'Checking...'],
 	deleting:       ['Удаление...', 'Deleting...'],
+	deletion:       ['Удаление...', 'Deletion...'],
 	updating:       ['Обновление...', 'Updating...'],
 	error:          ['Ошибка', 'Error'],
 	noConnect:      ['Ошибка подключения', 'Connection failed'],
@@ -542,15 +543,17 @@ const Lng = {
 	globalCfg:      ['Глобальные настройки', 'Global config'],
 	loadGlobal:     ['и применить к этому домену', 'and apply to this domain'],
 	saveGlobal:     ['текущие настройки как глобальные', 'current config as global'],
-	descrGlobal:    ['Глобальные настройки будут по умолчанию применяться<br>при первом посещеннии других доменов', 'Global config will apply by default<br>at the first visit of other domains'],
+	descrGlobal:    [
+		'Глобальные настройки применяются по умолчанию<br>при первом посещении других доменов',
+		'Global config is applied by default<br>on the first visit of other domains'],
 	editInTxt:      ['Правка в текстовом формате', 'Edit in text format'],
 	resetCfg:       ['Сбросить в настройки по умолчанию', 'Reset config to defaults'],
 	resetData:      ['Очистить данные', 'Reset selected data'],
 	allDomains:     ['для всех доменов', 'for all domains'],
-	delNotes:       ['Удаление выделенных записей', 'Deleting of selected notes'],
+	delEntries:     ['Выбрать и удалить записи', 'Select and delete entries'],
 	saveChanges:    ['Сохранить внесенные изменения', 'Save your changes'],
 	infoCount:      ['Обновить счетчики постов', 'Refresh posts counters'],
-	infoPage:       ['Проверить актуальность тредов (до 10 страницы)', 'Check for threads actuality (up to 10 page)'],
+	infoPage:       ['Проверить положение тредов (до 10-й страницы)', 'Check for threads position (up to 10th page)'],
 	clrDeleted:     ['Очистить недоступные (404) треды', 'Clear inaccessible (404) threads'],
 	oldPosts:       ['Постов при последнем посещении', 'Posts at the last visit'],
 	myPostsRep:     ['Ответов на ваши посты', 'Replies to your posts'],
@@ -630,8 +633,8 @@ const Lng = {
 	seMissSpell:    ['пропущен спелл', 'missing spell'],
 	seErrRegex:     ['синтаксическая ошибка в регулярном выражении: %s', 'syntax error in regular expression: %s'],
 	seUnexpChar:    ['неожиданный символ: %s', 'unexpected character: %s'],
-	seMissClBkt:    ['пропущена закрывающаяся скобка', 'missing ) in parenthetical'],
-	seRepsInParens: ['спелл $s не должен располагаться в скобках', 'spell %s shouldn\'t be in parens'],
+	seMissClBkt:    ['пропущена закрывающая скобка', 'missing \')\' in expression'],
+	seRepsInParens: ['спелл %s не должен располагаться в скобках', 'spell %s shouldn\'t be inside parentheses'],
 	seOpInReps:     [
 		'недопустимо использовать оператор %s со спеллами #rep и #outrep',
 		'don\'t use operator %s with spells #rep & #outrep'
@@ -2598,7 +2601,7 @@ function showHiddenWindow(body) {
 	})));
 
 	// "Delete" button. Allows to delete selected threads
-	body.appendChild($btn(Lng.remove[lang], Lng.delNotes[lang], () => {
+	body.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], () => {
 		$each($Q('.de-entry[info]', body), el => {
 			if(!$q('input', el).checked) {
 				return;
@@ -2996,11 +2999,11 @@ function showFavoritesWindow(body, data) {
 	})));
 
 	// "Deleting..." button. Hides all control buttons, shows "Apply" and "Cancel" buttons
-	div.appendChild($btn(Lng.deleting[lang], Lng.delNotes[lang], () => body.classList.add('de-fav-del')));
+	div.appendChild($btn(Lng.deletion[lang], Lng.delEntries[lang], () => body.classList.add('de-fav-del')));
 	div = $bEnd(body, '<div id="de-fav-delbuttons"></div>');
 
 	// "Apply" button, depends to "Deleting..."
-	div.appendChild($btn(Lng.apply[lang], Lng.delNotes[lang], () => {
+	div.appendChild($btn(Lng.apply[lang], Lng.delEntries[lang], () => {
 		$each($Q('.de-entry > input[type="checkbox"]', body), el => { // Mark checked entries as deleted
 			if(el.checked) {
 				el.parentNode.setAttribute('de-removed', '');
@@ -15660,6 +15663,9 @@ function scriptCSS() {
 	.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }
 	.de-win > .de-win-head { cursor: move; }
 	.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }
+	.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }
+	.de-win > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); }
+	.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); }
 	#de-win-cfg { width: 355px; }
 	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }
 	#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }

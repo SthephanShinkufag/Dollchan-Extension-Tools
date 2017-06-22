@@ -6,7 +6,7 @@ const Lng = {
 	cfg: {
 		'hideBySpell':  ['Спеллы: ', 'Magic spells: '],
 		'sortSpells':   ['Сортировать спеллы и удалять дубликаты', 'Sort spells and remove duplicates'],
-		'menuHiddBtn':  ['Дополнительное меню для кнопок "Скрыть" ', 'Extra options for the "Hide" buttons'],
+		'menuHiddBtn':  ['Дополнительное меню для кнопок "Скрыть" ', 'Extra options for "Hide" buttons'],
 		'hideRefPsts':  ['Скрывать ответы на скрытые посты', 'Hide replies to hidden posts'],
 		'delHiddPost':  {
 			sel:        [['Откл.', 'Всё', 'Только посты', 'Только треды'], ['Disable', 'All', 'Posts only', 'Threads only']],
@@ -102,7 +102,7 @@ const Lng = {
 		'removeEXIF':   ['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG '],
 		'removeFName':  ['Очищать имя файлов', 'Clear file names'],
 		'sendErrNotif': ['Оповещать в заголовке об ошибке отправки', 'Inform in title about post send error'],
-		'scrAfterRep':  ['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
+		'scrAfterRep':  ['Перемещаться в конец треда после отправки', 'Scroll to bottom after reply'],
 		'fileInputs':   {
 			sel:        [['Откл.', 'Упрощ.', 'Превью'], ['Disable', 'Simple', 'Preview']],
 			txt:        ['Улучшенное поле добавления файлов', 'Enhanced file attachment field']
@@ -113,7 +113,7 @@ const Lng = {
 		},
 		'spacedQuote':  ['Вставлять пробел при цитировании "> "', 'Insert a space when quoting "> "'],
 		'favOnReply':   ['Добавлять тред в "Избранное" после ответа', 'Add thread to "Favorites" after reply'],
-		'warnSubjTrip': ['Оповещать при наличии трип-кода в поле "Тема"', 'Warn if the "Subject" field contains a tripcode'],
+		'warnSubjTrip': ['Оповещать о трипкоде в поле "Тема"', 'Warn about a tripcode in "Subject" field'],
 		'addSageBtn':   ['Кнопка Sage вместо поля "Email" ', 'Replace "Email" with Sage button '],
 		'saveSage':     ['Помнить сажу', 'Remember sage'],
 		'cap4chanAlt':  ['4chan: альтернативная капча*', '4chan: use alternative captcha*'],
@@ -348,6 +348,7 @@ const Lng = {
 	loading:        ['Загрузка...', 'Loading...'],
 	checking:       ['Проверка...', 'Checking...'],
 	deleting:       ['Удаление...', 'Deleting...'],
+	deletion:       ['Удаление...', 'Deletion...'],
 	updating:       ['Обновление...', 'Updating...'],
 	error:          ['Ошибка', 'Error'],
 	noConnect:      ['Ошибка подключения', 'Connection failed'],
@@ -378,15 +379,17 @@ const Lng = {
 	globalCfg:      ['Глобальные настройки', 'Global config'],
 	loadGlobal:     ['и применить к этому домену', 'and apply to this domain'],
 	saveGlobal:     ['текущие настройки как глобальные', 'current config as global'],
-	descrGlobal:    ['Глобальные настройки будут по умолчанию применяться<br>при первом посещеннии других доменов', 'Global config will apply by default<br>at the first visit of other domains'],
+	descrGlobal:    [
+		'Глобальные настройки применяются по умолчанию<br>при первом посещении других доменов',
+		'Global config is applied by default<br>on the first visit of other domains'],
 	editInTxt:      ['Правка в текстовом формате', 'Edit in text format'],
 	resetCfg:       ['Сбросить в настройки по умолчанию', 'Reset config to defaults'],
 	resetData:      ['Очистить данные', 'Reset selected data'],
 	allDomains:     ['для всех доменов', 'for all domains'],
-	delNotes:       ['Удаление выделенных записей', 'Deleting of selected notes'],
+	delEntries:     ['Выбрать и удалить записи', 'Select and delete entries'],
 	saveChanges:    ['Сохранить внесенные изменения', 'Save your changes'],
 	infoCount:      ['Обновить счетчики постов', 'Refresh posts counters'],
-	infoPage:       ['Проверить актуальность тредов (до 10 страницы)', 'Check for threads actuality (up to 10 page)'],
+	infoPage:       ['Проверить положение тредов (до 10-й страницы)', 'Check for threads position (up to 10th page)'],
 	clrDeleted:     ['Очистить недоступные (404) треды', 'Clear inaccessible (404) threads'],
 	oldPosts:       ['Постов при последнем посещении', 'Posts at the last visit'],
 	myPostsRep:     ['Ответов на ваши посты', 'Replies to your posts'],
@@ -466,8 +469,8 @@ const Lng = {
 	seMissSpell:    ['пропущен спелл', 'missing spell'],
 	seErrRegex:     ['синтаксическая ошибка в регулярном выражении: %s', 'syntax error in regular expression: %s'],
 	seUnexpChar:    ['неожиданный символ: %s', 'unexpected character: %s'],
-	seMissClBkt:    ['пропущена закрывающаяся скобка', 'missing ) in parenthetical'],
-	seRepsInParens: ['спелл $s не должен располагаться в скобках', 'spell %s shouldn\'t be in parens'],
+	seMissClBkt:    ['пропущена закрывающая скобка', 'missing \')\' in expression'],
+	seRepsInParens: ['спелл %s не должен располагаться в скобках', 'spell %s shouldn\'t be inside parentheses'],
 	seOpInReps:     [
 		'недопустимо использовать оператор %s со спеллами #rep и #outrep',
 		'don\'t use operator %s with spells #rep & #outrep'

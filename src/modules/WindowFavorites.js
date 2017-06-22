@@ -369,11 +369,11 @@ function showFavoritesWindow(body, data) {
 	})));
 
 	// "Deleting..." button. Hides all control buttons, shows "Apply" and "Cancel" buttons
-	div.appendChild($btn(Lng.deleting[lang], Lng.delNotes[lang], () => body.classList.add('de-fav-del')));
+	div.appendChild($btn(Lng.deletion[lang], Lng.delEntries[lang], () => body.classList.add('de-fav-del')));
 	div = $bEnd(body, '<div id="de-fav-delbuttons"></div>');
 
 	// "Apply" button, depends to "Deleting..."
-	div.appendChild($btn(Lng.apply[lang], Lng.delNotes[lang], () => {
+	div.appendChild($btn(Lng.apply[lang], Lng.delEntries[lang], () => {
 		$each($Q('.de-entry > input[type="checkbox"]', body), el => { // Mark checked entries as deleted
 			if(el.checked) {
 				el.parentNode.setAttribute('de-removed', '');
