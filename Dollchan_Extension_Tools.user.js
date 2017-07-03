@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.6.20.0';
-	var commit = '177a88b';
+	var commit = '7537964';
 
 
 	var defaultCfg = {
@@ -3079,7 +3079,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'favWinWidth': 500, 
 		'vidWinDrag': 0, 
 		'vidWinX': 'right: 0', 
-		'vidWinY': 'top: 0' };
+		'vidWinY': 'top: 0' 
+	};
 
 
 	var Lng = {
