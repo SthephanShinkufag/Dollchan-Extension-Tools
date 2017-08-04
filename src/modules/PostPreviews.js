@@ -324,7 +324,7 @@ class Pview extends AbstractPost {
 		this._pref = $q(aib.qPostRef, el);
 		this._link.classList.add('de-link-parent');
 		if(post instanceof CacheItem) {
-			this.btns = $aEnd(this._pref, '<span class="de-post-btns">' + pText + '</span');
+			this.btns = $aEnd(this._pref, '<span class="de-post-btns">' + pText + '</span>');
 			embedMediaLinks(this);
 			if(Cfg.addYouTube) {
 				new VideosParser().parse(this).end();

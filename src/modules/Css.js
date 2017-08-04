@@ -22,7 +22,6 @@ function scriptCSS() {
 	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }
 	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }
 	#de-panel-info-icount::before, #de-panel-info-acount:not(:empty)::before { content: "/"; }
-	.de-svg-back { fill: inherit; stroke: none; }
 	.de-svg-stroke { stroke: currentColor; fill: none; }
 	.de-svg-fill { stroke: none; fill: currentColor; }
 	use { fill: inherit; pointer-events: none; }`;
@@ -134,6 +133,7 @@ function scriptCSS() {
 
 	// Post panel
 	x += `.de-post-btns { margin-left: 4px; }
+	.de-post-btns-back { fill: inherit; stroke: none; }
 	.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }
 	.de-thread-note { font-style: italic; }
 	.de-btn-hide > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }
@@ -153,19 +153,10 @@ function scriptCSS() {
 	.de-post-deleted::after { content: "${ Lng.deleted[lang] }"; margin: 0 4px 0 2px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }` +
 
 	// Text markup buttons
-	`#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }
-	#de-txt-panel > span:empty { display: inline-block; width: 19px; height: 18px; margin: 0 2px; background-color: #f0f0f0; border: 2px solid #646464; border-radius: 4px; }
-	#de-txt-panel > span:empty:hover { background-color: #8c8c8c; }
-	#de-btn-bold:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="3" y="15" width="20" style="font-family: sans-serif; font-size: 17px; font-weight: 800;">B</text></svg>') }
-	#de-btn-italic:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="6" y="16" width="20" style="font-family: sans-serif; font-size: 17px; font-weight: 600; font-style: italic;">i</text></svg>') }
-	#de-btn-under:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="5" y="13" width="20" style="font-family: sans-serif; font-size: 17px; font-weight: 600; text-decoration: underline;">u</text></svg>') }
-	#de-btn-strike:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="-2" y="16" width="20" style="font-family: sans-serif; font-size: 22px; font-weight: 600; text-decoration: line-through; font-style: italic;"> s </text></svg>') }
-	#de-btn-spoil:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect x="2" y="5" width="15" height="9" style="fill:rgb(100,100,100);"></rect></svg>'); }
-	#de-btn-code:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="4" y="16" width="20" style="font-family: monospace; font-size: 18px; font-weight: 600;">C</text></svg>'); }
-	#de-btn-sup:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="4" y="16" width="20" style="font-family: sans-serif; font-size: 16px; font-weight: 600;">x²</text></svg>'); }
-	#de-btn-sub:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="4" y="16" width="20" style="font-family: sans-serif; font-size: 16px; font-weight: 600;">x₂</text></svg>'); }
-	#de-btn-quote:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="4" y="18" width="20" style="font-family: sans-serif; font-size: 22px; font-weight: 600;">></text></svg>'); }
-	`;
+	`#de-txt-panel { display: block; font-weight: bold; cursor: pointer; }
+	#de-txt-panel > div { display: inline-block; }
+	#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 2px; }
+	.de-markup-back { fill: #f0f0f0; stroke: #808080; }`;
 
 	// Show/close animation
 	if('animation' in docBody.style) {

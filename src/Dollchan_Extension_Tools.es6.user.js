@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = '7537964';
+const commit = 'cb232ad';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -7536,13 +7536,13 @@ PostForm.prototype = {
 			if(btns[i] === '') {
 				continue;
 			}
-			html +=
-			`<span id="de-btn-${ id[i] }" de-title="${ Lng.txtBtn[i][lang] }" de-tag="${ btns[i] }">${
+			html += `<div id="de-btn-${ id[i] }" de-title="${ Lng.txtBtn[i][lang] }" de-tag="${ btns[i] }">${
 				Cfg.addTextBtns === 2 ?
 					(html === '' ? '[ ' : '') + '<a class="de-abtn" href="#">' + val[i] + '</a> / ' :
 				Cfg.addTextBtns === 3 ?
-					'<button type="button" style="font-weight: bold;">' + val[i] + '</button>' : ''
-			}</span>`;
+					'<button type="button" style="font-weight: bold;">' + val[i] + '</button>' :
+				`<svg><use xlink:href="#de-symbol-markup-${ id[i] }"/></svg>`
+			}</div>`;
 		}
 		tPanel.innerHTML = html +
 		`<span id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
@@ -10213,7 +10213,7 @@ class Pview extends AbstractPost {
 		this._pref = $q(aib.qPostRef, el);
 		this._link.classList.add('de-link-parent');
 		if(post instanceof CacheItem) {
-			this.btns = $aEnd(this._pref, '<span class="de-post-btns">' + pText + '</span');
+			this.btns = $aEnd(this._pref, '<span class="de-post-btns">' + pText + '</span>');
 			embedMediaLinks(this);
 			if(Cfg.addYouTube) {
 				new VideosParser().parse(this).end();
@@ -15452,40 +15452,40 @@ function addSVGIcons() {
 
 	<!-- POST ICONS -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-back">
-		<path class="de-svg-back" d="M4 1q-3 0,-3 3v8q0 3,3 3h8q3 0,3 -3v-8q0 -3,-3-3z"/>
+		<path class="de-post-btns-back" d="M4 1q-3 0,-3 3v8q0 3,3 3h8q3 0,3 -3v-8q0 -3,-3-3z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-hide">
-		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<line class="de-svg-stroke" stroke-width="2.5" x1="4.5" y1="11.5" x2="11.5" y2="4.5"/>
 		<line class="de-svg-stroke" stroke-width="2.5" x1="11.5" y1="11.5" x2="4.5" y2="4.5"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-unhide">
-		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<line class="de-svg-stroke" stroke-width="2" x1="8" y1="4" x2="8" y2="12"/>
 		<line class="de-svg-stroke" stroke-width="2" x1="4" y1="8" x2="12" y2="8"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-rep">
-		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<path class="de-svg-fill" d="M5 11c0 .8.6 1.2 1.3.7l5-3c.6-.4.6-1 0-1.5l-5-3C5.6 4 5 4.3 5 5v6z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-expthr">
-		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<path class="de-svg-fill" d="M4.5 6L8 3l3.5 3H9.25v4h2.25L8 13 4.5 10h2.25V6z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-fav">
-		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<path class="de-svg-fill" d="M8 3l1.5 3 3.5.5-2.5 2.2 1 3.8-3.5-2-3.5 2 1-3.8L3 6.5 6.5 6 8 3z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-stick">
-		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<path class="de-svg-fill" d="M5 5h6v6H5z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-sage">
-		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<path class="de-svg-fill" d="M4 9h8l-4 4.5zM6 3h4v1h-4zM6 5h4v1h-4zM6 7h4v1h-4z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-src">
-		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<circle class="de-svg-stroke" cx="7" cy="7" r="2.5" stroke-width="2"/>
 		<line class="de-svg-stroke" stroke-width="2" x1="9" y1="9" x2="12" y2="12"/>
 	</symbol>
@@ -15574,7 +15574,53 @@ function addSVGIcons() {
 		<path class="de-svg-stroke" stroke-width="3" d="M12.5 4v8"/>
 		<path class="de-svg-fill" d="M16 4.8v4a5 5 0 0 1-3.5 8.7A5 5 0 0 1 9 9V4.7a8.5 8.5 0 1 0 7 0z"/>
 	</symbol>
-	<!-- ----------------- -->
+
+	<!-- MARKUP BUTTONS -->
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-back">
+		<path class="de-markup-back" stroke-width="2" d="M6 1q-5 0,-5 5v10q0 5,5 5h11q5 0,5 -5v-10q0 -5,-5-5z"/>
+	</symbol>
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-bold">
+		<use xlink:href="#de-symbol-markup-back"/>
+		<text x="5.5" y="17" style="font-family: sans-serif; font-size: 17px; font-weight: 800;">B</text>
+	</symbol>
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-italic">
+		<use xlink:href="#de-symbol-markup-back"/>
+		<text x="8" y="17" style="font-family: sans-serif; font-size: 17px; font-weight: 600; font-style: italic;">i</text>
+	</symbol>
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-under">
+		<use xlink:href="#de-symbol-markup-back"/>
+		<text x="6" y="15" width="20" style="font-family: sans-serif; font-size: 17px; font-weight: 600;">u</text>
+		<path stroke="#444" stroke-width="1.5" d="M6 17H17.5"/>
+	</symbol>
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-strike">
+		<use xlink:href="#de-symbol-markup-back"/>
+		<text x="4" y="17" style="font-family: sans-serif; font-size: 22px; font-weight: 600; font-style: italic;">s</text>
+		<path stroke="#444" d="M4 11H19"/>
+	</symbol>
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-spoil">
+		<use xlink:href="#de-symbol-markup-back"/>
+		<path stroke="#666" stroke-width="10" d="M4 11H19"/>
+	</symbol>
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-code">
+		<use xlink:href="#de-symbol-markup-back"/>
+		<text x="5" y="17" style="font-family: 'Lucida Console', monospace; font-size: 18px; font-weight: 600;">C</text>
+	</symbol>
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-sup">
+		<use xlink:href="#de-symbol-markup-back"/>
+		<text x="4" y="15" style="font-family: sans-serif; font-size: 16px; font-weight: 600;">x</text>
+		<text x="14" y="10" style="font-family: sans-serif; font-size: 8px; font-weight: 600;">2</text>
+	</symbol>
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-sub">
+		<use xlink:href="#de-symbol-markup-back"/>
+		<text x="4" y="15" style="font-family: sans-serif; font-size: 16px; font-weight: 600;">x</text>
+		<text x="14" y="17" style="font-family: sans-serif; font-size: 8px; font-weight: 600;">2</text>
+	</symbol>
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-quote">
+		<use xlink:href="#de-symbol-markup-back"/>
+		<text x="4" y="17" style="font-family: sans-serif; font-size: 20px; font-weight: 600;">&gt;</text>
+	</symbol>
+
+	<!-- OTHER -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-wait">
 		<circle fill="#929087" cx="8" cy="2" r="2"/>
 		<circle fill="#C5C2BA" cx="8" cy="14" r="2"/>
@@ -15620,7 +15666,6 @@ function scriptCSS() {
 	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }
 	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }
 	#de-panel-info-icount::before, #de-panel-info-acount:not(:empty)::before { content: "/"; }
-	.de-svg-back { fill: inherit; stroke: none; }
 	.de-svg-stroke { stroke: currentColor; fill: none; }
 	.de-svg-fill { stroke: none; fill: currentColor; }
 	use { fill: inherit; pointer-events: none; }`;
@@ -15732,6 +15777,7 @@ function scriptCSS() {
 
 	// Post panel
 	x += `.de-post-btns { margin-left: 4px; }
+	.de-post-btns-back { fill: inherit; stroke: none; }
 	.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }
 	.de-thread-note { font-style: italic; }
 	.de-btn-hide > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }
@@ -15751,19 +15797,10 @@ function scriptCSS() {
 	.de-post-deleted::after { content: "${ Lng.deleted[lang] }"; margin: 0 4px 0 2px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }` +
 
 	// Text markup buttons
-	`#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }
-	#de-txt-panel > span:empty { display: inline-block; width: 19px; height: 18px; margin: 0 2px; background-color: #f0f0f0; border: 2px solid #646464; border-radius: 4px; }
-	#de-txt-panel > span:empty:hover { background-color: #8c8c8c; }
-	#de-btn-bold:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="3" y="15" width="20" style="font-family: sans-serif; font-size: 17px; font-weight: 800;">B</text></svg>') }
-	#de-btn-italic:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="6" y="16" width="20" style="font-family: sans-serif; font-size: 17px; font-weight: 600; font-style: italic;">i</text></svg>') }
-	#de-btn-under:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="5" y="13" width="20" style="font-family: sans-serif; font-size: 17px; font-weight: 600; text-decoration: underline;">u</text></svg>') }
-	#de-btn-strike:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="-2" y="16" width="20" style="font-family: sans-serif; font-size: 22px; font-weight: 600; text-decoration: line-through; font-style: italic;"> s </text></svg>') }
-	#de-btn-spoil:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect x="2" y="5" width="15" height="9" style="fill:rgb(100,100,100);"></rect></svg>'); }
-	#de-btn-code:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="4" y="16" width="20" style="font-family: monospace; font-size: 18px; font-weight: 600;">C</text></svg>'); }
-	#de-btn-sup:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="4" y="16" width="20" style="font-family: sans-serif; font-size: 16px; font-weight: 600;">x²</text></svg>'); }
-	#de-btn-sub:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="4" y="16" width="20" style="font-family: sans-serif; font-size: 16px; font-weight: 600;">x₂</text></svg>'); }
-	#de-btn-quote:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="4" y="18" width="20" style="font-family: sans-serif; font-size: 22px; font-weight: 600;">></text></svg>'); }
-	`;
+	`#de-txt-panel { display: block; font-weight: bold; cursor: pointer; }
+	#de-txt-panel > div { display: inline-block; }
+	#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 2px; }
+	.de-markup-back { fill: #f0f0f0; stroke: #808080; }`;
 
 	// Show/close animation
 	if('animation' in docBody.style) {
