@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = '177a88b';
+const commit = '7537964';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -15752,16 +15752,18 @@ function scriptCSS() {
 
 	// Text markup buttons
 	`#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }
-	#de-txt-panel > span:empty { display: inline-block; width: 23px; height: 22px; margin: 0 2px; }` +
-	gif('#de-btn-bold:empty', (p = 'R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ') + 'T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==') +
-	gif('#de-btn-italic:empty', p + 'K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==') +
-	gif('#de-btn-under:empty', p + 'V3IKpq4YAoRARzAoV3hzoDnoJNlGSWSEHw7JrEHILiVp1NlZXtKe5XiptPrFh4NVKHh9FI5NX60WIJ6ATZoVeaVnf8xSU4r7NMRYcFk6pzYRD2TIUAAA7') +
-	gif('#de-btn-strike:empty', p + 'S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7') +
-	gif('#de-btn-spoil:empty', 'R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==') +
-	gif('#de-btn-code:empty', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=') +
-	gif('#de-btn-sup:empty', p + 'Q3IKpq4YAgZiSQhGByrzn7YURGFGWhxzMuqqBGC7wRUNkeU7nnWNoMosFXKzi8BHs3EQnDRAHLY2e0BxnWfEJkRdT80NNTrliG3aWcBhZhgIAOw==') +
-	gif('#de-btn-sub:empty', p + 'R3IKpq4YAgZiSxquujtOCvIUayAkVZEoRcjCu2wbivMw2WaYi7vVYYqMFYq/i8BEM4ZIrYOmpdD49m2VFd2oiUZTORWcNYT9SpnZrTjiML0MBADs=') +
-	gif('#de-btn-quote:empty', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=');
+	#de-txt-panel > span:empty { display: inline-block; width: 19px; height: 18px; margin: 0 2px; background-color: #f0f0f0; border: 2px solid #646464; border-radius: 4px; }
+	#de-txt-panel > span:empty:hover { background-color: #8c8c8c; }
+	#de-btn-bold:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="3" y="15" width="20" style="font-family: sans-serif; font-size: 17px; font-weight: 800;">B</text></svg>') }
+	#de-btn-italic:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="6" y="16" width="20" style="font-family: sans-serif; font-size: 17px; font-weight: 600; font-style: italic;">i</text></svg>') }
+	#de-btn-under:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="5" y="13" width="20" style="font-family: sans-serif; font-size: 17px; font-weight: 600; text-decoration: underline;">u</text></svg>') }
+	#de-btn-strike:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="-2" y="16" width="20" style="font-family: sans-serif; font-size: 22px; font-weight: 600; text-decoration: line-through; font-style: italic;"> s </text></svg>') }
+	#de-btn-spoil:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect x="2" y="5" width="15" height="9" style="fill:rgb(100,100,100);"></rect></svg>'); }
+	#de-btn-code:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="4" y="16" width="20" style="font-family: monospace; font-size: 18px; font-weight: 600;">C</text></svg>'); }
+	#de-btn-sup:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="4" y="16" width="20" style="font-family: sans-serif; font-size: 16px; font-weight: 600;">x²</text></svg>'); }
+	#de-btn-sub:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="4" y="16" width="20" style="font-family: sans-serif; font-size: 16px; font-weight: 600;">x₂</text></svg>'); }
+	#de-btn-quote:empty { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text x="4" y="18" width="20" style="font-family: sans-serif; font-size: 22px; font-weight: 600;">></text></svg>'); }
+	`;
 
 	// Show/close animation
 	if('animation' in docBody.style) {
