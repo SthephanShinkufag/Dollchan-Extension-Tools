@@ -181,7 +181,7 @@ function addSVGIcons() {
 	</symbol>
 	<symbol viewBox="0 0 23 22" id="de-symbol-markup-quote">
 		<use xlink:href="#de-symbol-markup-back"/>
-		<text x="4" y="17" style="font-family: sans-serif; font-size: 20px; font-weight: 600;">&gt;</text>
+		<text x="6" y="18" style="font-family: sans-serif; font-size: 20px; font-weight: 600;">&gt;</text>
 	</symbol>
 
 	<!-- OTHER -->

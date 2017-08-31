@@ -309,9 +309,10 @@ PostForm.prototype = {
 			}</div>`;
 		}
 		tPanel.innerHTML = html +
-		`<span id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
+		`<div id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
 			Cfg.addTextBtns === 2 ? '<a class="de-abtn" href="#">&gt;</a> ]' :
-			Cfg.addTextBtns === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' : ''
+			Cfg.addTextBtns === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' :
+			'<svg><use xlink:href="#de-symbol-markup-quote"/></svg>'
 		}</span>`;
 	},
 	clearForm() {
