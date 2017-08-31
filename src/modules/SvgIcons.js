@@ -16,40 +16,40 @@ function addSVGIcons() {
 
 	<!-- POST ICONS -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-back">
-		<path class="de-svg-back" d="M4 1q-3 0,-3 3v8q0 3,3 3h8q3 0,3 -3v-8q0 -3,-3-3z"/>
+		<path class="de-post-btns-back" d="M4 1q-3 0,-3 3v8q0 3,3 3h8q3 0,3 -3v-8q0 -3,-3-3z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-hide">
-		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<line class="de-svg-stroke" stroke-width="2.5" x1="4.5" y1="11.5" x2="11.5" y2="4.5"/>
 		<line class="de-svg-stroke" stroke-width="2.5" x1="11.5" y1="11.5" x2="4.5" y2="4.5"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-unhide">
-		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<line class="de-svg-stroke" stroke-width="2" x1="8" y1="4" x2="8" y2="12"/>
 		<line class="de-svg-stroke" stroke-width="2" x1="4" y1="8" x2="12" y2="8"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-rep">
-		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<path class="de-svg-fill" d="M5 11c0 .8.6 1.2 1.3.7l5-3c.6-.4.6-1 0-1.5l-5-3C5.6 4 5 4.3 5 5v6z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-expthr">
-		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<path class="de-svg-fill" d="M4.5 6L8 3l3.5 3H9.25v4h2.25L8 13 4.5 10h2.25V6z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-fav">
-		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<path class="de-svg-fill" d="M8 3l1.5 3 3.5.5-2.5 2.2 1 3.8-3.5-2-3.5 2 1-3.8L3 6.5 6.5 6 8 3z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-stick">
-		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<path class="de-svg-fill" d="M5 5h6v6H5z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-sage">
-		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<path class="de-svg-fill" d="M4 9h8l-4 4.5zM6 3h4v1h-4zM6 5h4v1h-4zM6 7h4v1h-4z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-src">
-		<use class="de-svg-back" xlink:href="#de-symbol-post-back"/>
+		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<circle class="de-svg-stroke" cx="7" cy="7" r="2.5" stroke-width="2"/>
 		<line class="de-svg-stroke" stroke-width="2" x1="9" y1="9" x2="12" y2="12"/>
 	</symbol>
@@ -138,7 +138,53 @@ function addSVGIcons() {
 		<path class="de-svg-stroke" stroke-width="3" d="M12.5 4v8"/>
 		<path class="de-svg-fill" d="M16 4.8v4a5 5 0 0 1-3.5 8.7A5 5 0 0 1 9 9V4.7a8.5 8.5 0 1 0 7 0z"/>
 	</symbol>
-	<!-- ----------------- -->
+
+	<!-- MARKUP BUTTONS -->
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-back">
+		<path class="de-markup-back" stroke-width="2" d="M6 1q-5 0,-5 5v10q0 5,5 5h11q5 0,5 -5v-10q0 -5,-5-5z"/>
+	</symbol>
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-bold">
+		<use xlink:href="#de-symbol-markup-back"/>
+		<text x="5.5" y="17" style="font-family: sans-serif; font-size: 17px; font-weight: 800;">B</text>
+	</symbol>
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-italic">
+		<use xlink:href="#de-symbol-markup-back"/>
+		<text x="8" y="17" style="font-family: sans-serif; font-size: 17px; font-weight: 600; font-style: italic;">i</text>
+	</symbol>
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-under">
+		<use xlink:href="#de-symbol-markup-back"/>
+		<text x="6" y="15" width="20" style="font-family: sans-serif; font-size: 17px; font-weight: 600;">u</text>
+		<path stroke="#444" stroke-width="1.5" d="M6 17H17.5"/>
+	</symbol>
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-strike">
+		<use xlink:href="#de-symbol-markup-back"/>
+		<text x="4" y="17" style="font-family: sans-serif; font-size: 22px; font-weight: 600; font-style: italic;">s</text>
+		<path stroke="#444" d="M4 11H19"/>
+	</symbol>
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-spoil">
+		<use xlink:href="#de-symbol-markup-back"/>
+		<path stroke="#666" stroke-width="10" d="M4 11H19"/>
+	</symbol>
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-code">
+		<use xlink:href="#de-symbol-markup-back"/>
+		<text x="5" y="17" style="font-family: 'Lucida Console', monospace; font-size: 18px; font-weight: 600;">C</text>
+	</symbol>
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-sup">
+		<use xlink:href="#de-symbol-markup-back"/>
+		<text x="4" y="15" style="font-family: sans-serif; font-size: 16px; font-weight: 600;">x</text>
+		<text x="14" y="10" style="font-family: sans-serif; font-size: 8px; font-weight: 600;">2</text>
+	</symbol>
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-sub">
+		<use xlink:href="#de-symbol-markup-back"/>
+		<text x="4" y="15" style="font-family: sans-serif; font-size: 16px; font-weight: 600;">x</text>
+		<text x="14" y="17" style="font-family: sans-serif; font-size: 8px; font-weight: 600;">2</text>
+	</symbol>
+	<symbol viewBox="0 0 23 22" id="de-symbol-markup-quote">
+		<use xlink:href="#de-symbol-markup-back"/>
+		<text x="6" y="18" style="font-family: sans-serif; font-size: 20px; font-weight: 600;">&gt;</text>
+	</symbol>
+
+	<!-- OTHER -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-wait">
 		<circle fill="#929087" cx="8" cy="2" r="2"/>
 		<circle fill="#C5C2BA" cx="8" cy="14" r="2"/>
