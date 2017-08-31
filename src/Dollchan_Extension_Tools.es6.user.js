@@ -7545,9 +7545,10 @@ PostForm.prototype = {
 			}</div>`;
 		}
 		tPanel.innerHTML = html +
-		`<span id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
+		`<div id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
 			Cfg.addTextBtns === 2 ? '<a class="de-abtn" href="#">&gt;</a> ]' :
-			Cfg.addTextBtns === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' : ''
+			Cfg.addTextBtns === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' :
+			'<svg><use xlink:href="#de-symbol-markup-quote"/></svg>'
 		}</span>`;
 	},
 	clearForm() {
@@ -15617,7 +15618,7 @@ function addSVGIcons() {
 	</symbol>
 	<symbol viewBox="0 0 23 22" id="de-symbol-markup-quote">
 		<use xlink:href="#de-symbol-markup-back"/>
-		<text x="4" y="17" style="font-family: sans-serif; font-size: 20px; font-weight: 600;">&gt;</text>
+		<text x="6" y="18" style="font-family: sans-serif; font-size: 20px; font-weight: 600;">&gt;</text>
 	</symbol>
 
 	<!-- OTHER -->
