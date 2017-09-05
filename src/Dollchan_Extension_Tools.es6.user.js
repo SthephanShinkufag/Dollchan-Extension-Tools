@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = '93d0200';
+const commit = 'e841629';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -13804,6 +13804,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.post.reply .post-message { max-height: initial !important; }
 				.tmp_postform { width: auto; }
+				.de-win-inpost { position: static !important; }
 				${ Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '' }
 				${ Cfg.delImgNames ? '.filesize { display: inline !important; } .file-attr { margin-bottom: 1px; }' : '' }
 				${ Cfg.expandImgs ? '#fullscreen-container { display: none !important; }' : '' }
