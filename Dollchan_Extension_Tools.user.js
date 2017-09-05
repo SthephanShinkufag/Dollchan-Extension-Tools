@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.6.20.0';
-	var commit = 'e841629';
+	var commit = 'b7b359b';
 
 
 	var defaultCfg = {
@@ -20898,7 +20898,7 @@ true, true],
 	function scrollPage() {
 		if (!aib.t && Cfg.scrollToTop) {
 			if (doc.hidden || needScroll) {
-				scrollTo(0, 0);
+				scrollTo(0, 1);
 			}
 			return;
 		}

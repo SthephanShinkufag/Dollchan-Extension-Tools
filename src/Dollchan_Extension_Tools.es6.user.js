@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = 'e841629';
+const commit = 'b7b359b';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -15443,7 +15443,7 @@ function initPage() {
 function scrollPage() {
 	if(!aib.t && Cfg.scrollToTop) {
 		if(doc.hidden || needScroll) {
-			scrollTo(0, 0);
+			scrollTo(0, 1);
 		}
 		return;
 	}
