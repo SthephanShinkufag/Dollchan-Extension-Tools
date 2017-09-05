@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.6.20.0';
-	var commit = 'f3d746f';
+	var commit = '93d0200';
 
 
 	var defaultCfg = {
@@ -3079,8 +3079,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		'favWinWidth': 500, 
 		'vidWinDrag': 0, 
 		'vidWinX': 'right: 0', 
-		'vidWinY': 'top: 0' 
-	};
+		'vidWinY': 'top: 0' };
 
 
 	var Lng = {
@@ -3300,7 +3299,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		month: [['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'], ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], ['січ', 'лют', 'бер', 'кві', 'тра', 'чер', 'лип', 'сер', 'вер', 'жов', 'лис', 'гру']],
 		fullMonth: [['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], ['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня', 'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня']],
 		week: [['Вск', 'Пнд', 'Втр', 'Срд', 'Чтв', 'Птн', 'Сбт'], ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], ['Нед', 'Пон', 'Вів', 'Сер', 'Чет', 'Птн', 'Сбт']],
-
+		monthDict: {
+			'янв': 0, 'фев': 1, 'мар': 2, 'апр': 3, 'май': 4, 'мая': 4, 'июн': 5, 'июл': 6, 'авг': 7, 'сен': 8, 'окт': 9, 'ноя': 10, 'дек': 11,
+			'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'may': 4, 'jun': 5, 'jul': 6, 'aug': 7, 'sep': 8, 'oct': 9, 'nov': 10, 'dec': 11,
+			'січ': 0, 'лют': 1, 'бер': 2, 'кві': 3, 'тра': 4, 'чер': 5, 'лип': 6, 'сер': 7, 'вер': 8, 'жов': 9, 'лис': 10, 'гру': 11
+		},
 		editor: {
 			cfg: ['Редактирование настроек:', 'Edit settings:', 'Редагування налаштувань:'],
 			hidden: ['Редактирование скрытых тредов:', 'Edit hidden threads:', 'Редагування прихованих ниток:'],
@@ -8352,7 +8355,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 		this.regex = pattern.replace(/(?:[sihdny]\?){2,}/g, function (str) {
 			return '(?:' + str.replace(/\?/g, '') + ')?';
-		}).replace(/\-/g, '[^<]').replace(/\+/g, '[^0-9]').replace(/([sihdny]+)/g, '($1)').replace(/[sihdny]/g, '\\d').replace(/m|w/g, '([a-zA-Zа-яА-Я]+)');
+		}).replace(/\-/g, '[^<]').replace(/\+/g, '[^0-9<]').replace(/([sihdny]+)/g, '($1)').replace(/[sihdny]/g, '\\d').replace(/m|w/g, '([a-zA-Zа-яА-Я]+)');
 		this.pattern = pattern.replace(/[\?\-\+]+/g, '').replace(/([a-z])\1+/g, '$1');
 		this.diff = parseInt(diff, 10);
 		this.arrW = Lng.week[dtLang];
@@ -8432,34 +8435,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 'y':
 							year = a;break;
 						case 'm':
-							switch (a.slice(0, 3).toLowerCase()) {
-								case 'янв':case 'jan':
-									month = 0;break;
-								case 'фев':case 'feb':
-									month = 1;break;
-								case 'мар':case 'mar':
-									month = 2;break;
-								case 'апр':case 'apr':
-									month = 3;break;
-								case 'май':case 'мая':case 'may':
-									month = 4;break;
-								case 'июн':case 'jun':
-									month = 5;break;
-								case 'июл':case 'jul':
-									month = 6;break;
-								case 'авг':case 'aug':
-									month = 7;break;
-								case 'сен':case 'sep':
-									month = 8;break;
-								case 'окт':case 'oct':
-									month = 9;break;
-								case 'ноя':case 'nov':
-									month = 10;break;
-								case 'дек':case 'dec':
-									month = 11;break;
-								default:
-									month = 0;break;
-							}
+							month = Lng.monthDict[a.slice(0, 3).toLowerCase()] || 0;break;
 					}
 				}
 				var dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);

@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = 'f3d746f';
+const commit = '93d0200';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -511,7 +511,11 @@ const Lng = {
 		['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 		['Нед', 'Пон', 'Вів', 'Сер', 'Чет', 'Птн', 'Сбт']
 	],
-
+	monthDict: {
+		'янв': 0, 'фев': 1, 'мар': 2, 'апр': 3, 'май': 4, 'мая': 4, 'июн': 5, 'июл': 6, 'авг': 7, 'сен': 8, 'окт': 9, 'ноя': 10, 'дек': 11,
+		'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'may': 4, 'jun': 5, 'jul': 6, 'aug': 7, 'sep': 8, 'oct': 9, 'nov': 10, 'dec': 11,
+		'січ': 0, 'лют': 1, 'бер': 2, 'кві': 3, 'тра': 4, 'чер': 5, 'лип': 6, 'сер': 7, 'вер': 8, 'жов': 9, 'лис': 10, 'гру': 11
+	},
 	editor: {
 		cfg:        ['Редактирование настроек:', 'Edit settings:', 'Редагування налаштувань:'],
 		hidden:     ['Редактирование скрытых тредов:', 'Edit hidden threads:', 'Редагування прихованих ниток:'],
@@ -5141,7 +5145,7 @@ function DateTime(pattern, rPattern, diff, dtLang, onRPat) {
 	this.regex = pattern
 		.replace(/(?:[sihdny]\?){2,}/g, str => '(?:' + str.replace(/\?/g, '') + ')?')
 		.replace(/\-/g, '[^<]')
-		.replace(/\+/g, '[^0-9]')
+		.replace(/\+/g, '[^0-9<]')
 		.replace(/([sihdny]+)/g, '($1)')
 		.replace(/[sihdny]/g, '\\d')
 		.replace(/m|w/g, '([a-zA-Zа-яА-Я]+)');
@@ -5224,22 +5228,7 @@ DateTime.prototype = {
 				case 'd': day = a; break;
 				case 'n': month = a - 1; break;
 				case 'y': year = a; break;
-				case 'm':
-					switch(a.slice(0, 3).toLowerCase()) {
-					case 'янв': case 'jan': month = 0; break;
-					case 'фев': case 'feb': month = 1; break;
-					case 'мар': case 'mar': month = 2; break;
-					case 'апр': case 'apr': month = 3; break;
-					case 'май': case 'мая': case 'may': month = 4; break;
-					case 'июн': case 'jun': month = 5; break;
-					case 'июл': case 'jul': month = 6; break;
-					case 'авг': case 'aug': month = 7; break;
-					case 'сен': case 'sep': month = 8; break;
-					case 'окт': case 'oct': month = 9; break;
-					case 'ноя': case 'nov': month = 10; break;
-					case 'дек': case 'dec': month = 11; break;
-					default: month = 0; break;
-					}
+				case 'm': month = Lng.monthDict[a.slice(0, 3).toLowerCase()] || 0; break;
 				}
 			}
 			var dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);

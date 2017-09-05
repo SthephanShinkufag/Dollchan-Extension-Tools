@@ -10,7 +10,7 @@ function DateTime(pattern, rPattern, diff, dtLang, onRPat) {
 	this.regex = pattern
 		.replace(/(?:[sihdny]\?){2,}/g, str => '(?:' + str.replace(/\?/g, '') + ')?')
 		.replace(/\-/g, '[^<]')
-		.replace(/\+/g, '[^0-9]')
+		.replace(/\+/g, '[^0-9<]')
 		.replace(/([sihdny]+)/g, '($1)')
 		.replace(/[sihdny]/g, '\\d')
 		.replace(/m|w/g, '([a-zA-Zа-яА-Я]+)');
@@ -93,22 +93,7 @@ DateTime.prototype = {
 				case 'd': day = a; break;
 				case 'n': month = a - 1; break;
 				case 'y': year = a; break;
-				case 'm':
-					switch(a.slice(0, 3).toLowerCase()) {
-					case 'янв': case 'jan': month = 0; break;
-					case 'фев': case 'feb': month = 1; break;
-					case 'мар': case 'mar': month = 2; break;
-					case 'апр': case 'apr': month = 3; break;
-					case 'май': case 'мая': case 'may': month = 4; break;
-					case 'июн': case 'jun': month = 5; break;
-					case 'июл': case 'jul': month = 6; break;
-					case 'авг': case 'aug': month = 7; break;
-					case 'сен': case 'sep': month = 8; break;
-					case 'окт': case 'oct': month = 9; break;
-					case 'ноя': case 'nov': month = 10; break;
-					case 'дек': case 'dec': month = 11; break;
-					default: month = 0; break;
-					}
+				case 'm': month = Lng.monthDict[a.slice(0, 3).toLowerCase()] || 0; break;
 				}
 			}
 			var dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
