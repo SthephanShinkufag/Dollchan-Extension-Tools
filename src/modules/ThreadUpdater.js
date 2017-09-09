@@ -250,10 +250,13 @@ function initThreadUpdater(title, enableUpdate) {
 
 		show() {
 			var post = Thread.first.last,
-				notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts +
-					Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : (newPosts % 10) > 4 ||
-					(newPosts % 10) === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
-					(newPosts % 10) === 1 ? 0 : 1] + Lng.newPost[lang][3],
+				notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts + ' ' +
+					Lng.newPost[lang][
+						lang !== 0 ? +(newPosts !== 1) :
+						(newPosts % 10) > 4 || (newPosts % 10) === 0 ||
+						(((newPosts % 100) / 10) | 0) === 1 ? 2 :
+						(newPosts % 10) === 1 ? 0 : 1
+					] + '. ' + Lng.newPost[lang][3] + ':',
 				{
 					'body': post.text.substring(0, 250).replace(/\s+/g, ' '),
 					'tag': aib.dm + aib.b + aib.t,

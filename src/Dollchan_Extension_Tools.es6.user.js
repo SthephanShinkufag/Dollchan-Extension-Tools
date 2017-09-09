@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = 'b7b359b';
+const commit = '6a907b1';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -167,261 +167,742 @@ const defaultCfg = {
 ============================================================================================================*/
 
 const Lng = {
+	// "Settings" window: tab names
+	cfgTab: {
+		filters: ['Фильтры', 'Filters', 'Фільтри'],
+		posts:   ['Посты', 'Posts', 'Пости'],
+		images:  ['Картинки', 'Images', 'Зображ.'],
+		links:   ['Ссылки', 'Links', 'Посил.'],
+		form:    ['Форма', 'Form', 'Форма'],
+		common:  ['Общее', 'Common', 'Спільне'],
+		info:    ['Инфо', 'Info', 'Інфо']
+	},
+	// "Settings" window: options
 	cfg: {
-		'hideBySpell':  ['Спеллы: ', 'Magic spells: ', 'Заклинання: '],
-		'sortSpells':   ['Сортировать спеллы и удалять дубликаты', 'Sort spells and remove duplicates', 'Сортувати заклинання й видаляти дублікати'],
-		'menuHiddBtn':  ['Дополнительное меню для кнопок "Скрыть" ', 'Extra options for "Hide" buttons', 'Додаткове меню кнопок приховування'],
-		'hideRefPsts':  ['Скрывать ответы на скрытые посты', 'Hide replies to hidden posts', 'Приховувати відповіді на приховані дописи'],
-		'delHiddPost':  {
-			sel:        [['Откл.', 'Всё', 'Только посты', 'Только треды'], ['Disable', 'All', 'Posts only', 'Threads only'], ['Вимкнено', 'Усі', 'Лише дописи', 'Лише нитки']],
-			txt:        ['Удалять скрытое', 'Remove placeholders', 'Видаляти приховані дописи']
+		language: {
+			sel: [['Ru', 'En', 'Ua'], ['Ru', 'En', 'Ua'], ['Ru', 'En', 'Ua']],
+			txt: ['', '', '']
 		},
 
-		'ajaxUpdThr':   ['Апдейтер тредов ', 'Threads updater ', 'Оновлення ниток'],
-		'updThrDelay':  ['(сек)', '(sec)', '(сек)'],
-		'updCount':     ['Обратный счетчик обновления треда', 'Show countdown to thread update', 'Зворотній відлік секунд до оновлення'],
-		'favIcoBlink':  ['Мигать фавиконом при новых постах', 'Blink the favicon on new posts', 'Блимати іконкою сторінки в разі появи нових дописів'],
-		'desktNotif':   ['Уведомлять о новых постах на рабочем столе', 'Desktop notifications for new posts', 'Повідомляти про нові дописи на стільниці'],
-		'noErrInTitle': ['Не показывать номер ошибки в заголовке', 'Don\'t show error code in title', 'Не показувати номер помилки в заголовку'],
-		'markNewPosts': ['Выделять цветом новые посты', 'Highlight new posts with color', 'Виділяти кольором нові дописи'],
-		'useDobrAPI':   ['dobrochan: использовать JSON API', 'dobrochan: use JSON API', 'dobrochan: використовувати JSON API'],
-		'markMyPosts':  ['Выделять цветом мои посты', 'Highlight my own posts', 'Виділяти кольором мої дописи'],
-		'hideReplies':  ['Показывать только оп-посты в списке тредов*', 'Show only OP in threads list*', 'Показувати тільки OP-дописи в списку ниток*' ],
-		'expandTrunc':  ['Авторазворот сокращенных постов*', 'Autoexpand truncated posts*', 'Розгортати згорнуті дописи*'],
-		'updThrBtns':   ['Кнопки "Получить новые посты" в списке тредов', 'Show "Get new posts" buttons in threads list', 'Кнопки отримання нових дописів у списку ниток'],
-		'showHideBtn':  ['Кнопки "Скрыть" ', 'Show "Hide" buttons ', 'Кнопки приховування '],
-		'showRepBtn':   ['Кнопки "Быстрый ответ"', 'Show "Quick reply" buttons', 'Кнопки швидкої відповіді'],
-		'postBtnsCSS': {
-			sel:        [['Упрощенные', 'Серый градиент', 'Настраиваемые'], ['Simple', 'Gradient grey', 'Custom'], ['Спрощені', 'Сірий градієнт', 'Користувацькі']],
-			txt:        ['Кнопки постов ', 'Post buttons ', 'Кнопки дописів ']
+		// "Filters" tab
+		hideBySpell: [
+			'Спеллы: ',
+			'Magic spells: ',
+			'Спелли: '],
+		sortSpells: [
+			'Сортировать спеллы и удалять дубликаты',
+			'Sort spells and remove duplicates',
+			'Сортувати спелли та видаляти дублікати'],
+		menuHiddBtn: [
+			'Дополнительное меню для кнопок "Скрыть"',
+			'Extra options for "Hide" buttons',
+			'Додаткове меню для кнопок "Сховати"'],
+		hideRefPsts: [
+			'Скрывать ответы на скрытые посты',
+			'Hide replies to hidden posts',
+			'Ховати відповіді на сховані пости'],
+		delHiddPost: {
+			sel: [
+				['Откл.', 'Всё', 'Только посты', 'Только треды'],
+				['Disable', 'All', 'Posts only', 'Threads only'],
+				['Вимк.', 'Все', 'Лише пости', 'Лише треди']],
+			txt: [
+				'Удалять скрытое',
+				'Remove placeholders',
+				'Видаляти сховане']
 		},
-		'noSpoilers':{
-			sel:        [['Откл.', 'Серое', 'Родное'], ['Disable', 'Grey', 'Native'], ['Вимк.', 'Сіре', 'Рідне']],
-			txt:        ['Раскрытие текстовых спойлеров', 'Text spoilers expansion', 'Розкривання тестових спойлерів']
-		},
-		'noPostNames':  ['Скрывать имена в постах', 'Hide poster names', 'Приховувати імена в дописах'],
-		'widePosts':    ['Растягивать посты по ширине экрана', 'Stretch posts to page width', 'Розтягувати дописи на ширину екрану'],
-		'hotKeys':      ['Горячие клавиши', 'Hotkeys', 'Гарячі клавіші'],
-		'loadPages':    ['Количество страниц, загружаемых по F5', 'Number of pages that are loaded on F5 ', 'Кількість сторінок, що завантажуються на F5'],
-		'correctTime':  ['Коррекция времени в постах* ', 'Time correction in posts* ', 'Корекція часу* '],
-		'timeOffset':   ['разница (ч) ', 'time offset (h) ', '(год) різниця '],
-		'timePattern':  ['Шаблон поиска', 'Search pattern', 'Шаблон пошуку'],
-		'timeRPattern': ['Шаблон замены', 'Replace pattern', 'Шаблон заміни'],
 
-		'expandImgs': {
-			sel:        [['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center'], ['Вимк.', 'В дописі', 'По центру']],
-			txt:        ['Раскрывать картинки по клику', 'Expand images on click', 'Розгортати зображення на клацання']
+		// "Posts" tab
+		ajaxUpdThr: [
+			'Апдейтер тредов ',
+			'Threads updater ',
+			'Оновлювач тредів '],
+		updThrDelay: [
+			'(сек)',
+			'(sec)',
+			'(сек)'],
+		updCount: [
+			'Обратный счетчик обновления треда',
+			'Show countdown to thread update',
+			'Зворотній відлік оновлення треду'],
+		favIcoBlink: [
+			'Мигать фавиконом при появлении новых постов',
+			'Blink the favicon on new posts',
+			'Блимати фавіконом в разі появи нових постів'],
+		desktNotif: [
+			'Уведомлять о новых постах на рабочем столе',
+			'Desktop notifications for new posts',
+			'Повідомляти про нові пости на стільниці'],
+		noErrInTitle: [
+			'Не показывать номер ошибки в заголовке',
+			'Donʼt show error code in pageʼs title',
+			'Не показувати номер помилки в заголовку'],
+		markNewPosts: [
+			'Выделять цветом новые посты',
+			'Highlight new posts with color',
+			'Виділяти кольором нові пости'],
+		useDobrAPI: [
+			'dobrochan: использовать JSON API',
+			'dobrochan: use JSON API',
+			'dobrochan: використовувати JSON API'],
+		markMyPosts: [
+			'Выделять цветом мои посты',
+			'Highlight my own posts',
+			'Виділяти кольором мої пости'],
+		hideReplies: [
+			'Показывать только OP в списке тредов*',
+			'Show only OP in threads list*',
+			'Показувати лише OP в списку тредів*'],
+		expandTrunc: [
+			'Авторазворот сокращенных постов*',
+			'Autoexpand truncated posts*',
+			'Авторозгортання скорочених постів*'],
+		updThrBtns: [
+			'Кнопки "Получить новые посты" в списке тредов',
+			'Show "Get new posts" buttons in threads list',
+			'Кнопки "Отримати нові пости" у списку тредів'],
+		showHideBtn: [
+			'Кнопки "Скрыть" ',
+			'Show "Hide" buttons ',
+			'Кнопки "Сховати" '],
+		showRepBtn: [
+			'Кнопки "Быстрый ответ"',
+			'Show "Quick reply" buttons',
+			'Кнопки "Швидка відповідь"'],
+		postBtnsCSS: {
+			sel: [
+				['Упрощенные', 'Серый градиент', 'Настраиваемые'],
+				['Simple', 'Gradient grey', 'Custom'],
+				['Спрощені', 'Сірий градієнт', 'Користувацькі']],
+			txt: [
+				'Кнопки постов ',
+				'Post buttons ',
+				'Кнопки постів ']
 		},
-		'imgNavBtns':   ['Добавлять кнопки навигации по картинкам', 'Add buttons to navigate images', 'Додавати кнопки навігації по зображеннях'],
-		'resizeDPI':    ['Отображать картинки пиксель в пиксель', 'Don\'t upscale images on high DPI displays', 'Не розтягувати зображення на дисплеях з високим DPI'],
-		'resizeImgs':   ['Уменьшать в экран большие картинки', 'Resize large images to fit screen', 'Припасовувати великі зображення до екрана'],
-		'minImgSize':   ['Миним. размер раскрытых картинок (px)', 'Minimal size for expanded images (px)', 'Мінімальний розмір розгорнутих зображень (пікс.)'],
-		'zoomFactor':   ['Чувствительность зума картинок [1-100%]', 'Images zoom sensibility [1-100%]', 'Чутливість зуму зображень [1-100%]'],
-		'webmControl':  ['Показывать контрол-бар для WebM', 'Show control bar for WebM', 'Показувати смугу керування для webm'],
-		'webmTitles':   ['Получать названия WebM из метаданных', 'Load titles from WebM metadata', 'Отримувати назви webm з метаданих'],
-		'webmVolume':   ['Громкость WebM по умолчанию [0-100%]', 'Default volume for WebM [0-100%]', 'Гучність webm за замовчуванням [0-100%]'],
-		'minWebmWidth': ['Минимальная ширина WebM (px)', 'Minimal width for WebM (px)'],
-		'preLoadImgs':  ['Предварительно загружать картинки*', 'Preload images*', 'Завантажувати зображення заздалегідь*'],
-		'findImgFile':  ['Распознавать встроенные файлы в картинках*', 'Detect embedded files in images*', 'Розпізнавати вбудовані в зображення файли*'],
-		'openImgs': {
-			sel:        [['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'], ['Disable', 'All types', 'Only GIF', 'Non-GIF'], ['Вимк.', 'Всі', 'Тільки GIF', 'Крім GIF']],
-			txt:        ['Заменять картинки на оригиналы*', 'Replace thumbnails with original images*', 'Заміняти зображення на оригінали*']
+		noSpoilers: {
+			sel: [
+				['Откл.', 'Серое', 'Родное'],
+				['Disable', 'Grey', 'Native'],
+				['Вимк.', 'Сіре', 'Рідне']],
+			txt: [
+				'Раскрытие текстовых спойлеров',
+				'Text spoilers expansion',
+				'Розкриття текстових спойлерів']
 		},
-		'imgSrcBtns':   ['Добавлять кнопки "Поиск" для картинок', 'Add "Search" buttons for images', 'Додавати кнопки для пошуку зображень'],
-		'delImgNames':  ['Скрывать имена картинок', 'Hide filenames', 'Приховувати імена зображень'],
-		'maskVisib':    ['Прозрачность в режиме NSFW [0-100%]', 'Images opacity in NSFW mode [0-100%]', 'Видимість для NSFW-зображень [0-100%]'],
+		noPostNames: [
+			'Скрывать имена в постах',
+			'Hide poster names',
+			'Ховати імена в постах'],
+		widePosts: [
+			'Растягивать посты по ширине экрана',
+			'Stretch posts to page width',
+			'Розтягувати пости на ширину екрану'],
+		hotKeys: [
+			'Горячие клавиши',
+			'Hotkeys',
+			'Гарячі клавіші'],
+		loadPages: [
+			'Количество страниц, загружаемых по F5',
+			'Number of pages that are loaded on F5 ',
+			'Кількість сторінок, що завантажуються по F5'],
+		correctTime: [
+			'Коррекция времени в постах* ',
+			'Time correction in posts* ',
+			'Корекція часу в постах* '],
+		timeOffset: [
+			'разница (ч) ',
+			'time offset (h) ',
+			'різниця (год) '],
+		timePattern: [
+			'Шаблон поиска',
+			'Search pattern',
+			'Шаблон пошуку'],
+		timeRPattern: [
+			'Шаблон замены',
+			'Replace pattern',
+			'Шаблон заміни'],
 
-		'linksNavig':   ['Навигация постов по >>ссылкам* ', 'Posts navigation by >>links* ', 'Навігація по >>посиланнях* '],
-		'linksOver':    ['Появление ', 'Appearance ', 'Поява '],
-		'linksOut':     ['Пропадание (мс)', 'Disappearance (ms)', 'Зникнення (мс)'],
-		'markViewed':   ['Помечать просмотренные посты', 'Mark viewed posts', 'Позначати переглянуті дописи'],
-		'strikeHidd':   ['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts', 'Закреслювати >>посилання на приховані дописи'],
-		'removeHidd':   ['Также удалять из карты ответов', 'Also remove from reply maps', 'Також видаляти з карти відповідей'],
-		'noNavigHidd':  ['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts', 'Не показувати превʼю до прихованих дописів'],
-		'markMyLinks':  ['Помечать ссылки на мои посты как (You)', 'Mark links to my posts with (You)', 'Позначати посилання на мої дописи як (You)'],
-		'crossLinks':   ['Заменять http:// на >>/b/ссылки*', 'Replace http:// with >>/b/links*', 'Перетворювати https:// на >>/b/посилання*'],
-		'decodeLinks':  ['Декодировать %D0%A5%D1 в ссылках*', 'Decode %D0%A5%D1 in links*', 'Декодувати %D0%A5%D1 в посиланнях*'],
-		'insertNum':    ['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*', 'Вставляти >>посилання на клік по №допису*'],
-		'addOPLink':    ['>>ссылка при ответе на оп-пост на доске', 'Insert >>link when replying to OP on board', '>>посилання при відповіді на OP-допис на дошці'],
-		'addImgs':      ['Загружать картинки к jpg/png/gif ссылкам*', 'Load images for jpg/png/gif links*', 'Завантажувати зображення до посилань jpg, png, gif*'],
-		'addMP3':       ['Плеер к mp3 ссылкам* ', 'Player for mp3 links* ', 'Програвач до посилань mp3* '],
-		'addVocaroo':   ['к Vocaroo ссылкам*', 'for Vocaroo links*', 'до посилань Vocaroo*'],
-		'addVimeo':     ['Добавлять плеер к Vimeo ссылкам*', 'Add player for Vimeo links*', 'Додавати програвач до посилань Vimeo*'],
-		'addYouTube': {
-			sel:        [
+		// "Images" tab
+		expandImgs: {
+			sel: [
+				['Откл.', 'В посте', 'По центру'],
+				['Disable', 'In post', 'By center'],
+				['Вимк.', 'В пості', 'По центру']],
+			txt: [
+				'Раскрывать картинки по клику',
+				'Expand images on click',
+				'Розгортати зображення по кліку']
+		},
+		imgNavBtns: [
+			'Добавлять кнопки навигации по картинкам',
+			'Add buttons to navigate images',
+			'Додавати кнопки навігації по зображеннях'],
+		resizeDPI: [
+			'Не растягивать на дисплеях с высоким DPI',
+			'Donʼt upscale images on high DPI displays',
+			'Не розтягувати на дисплеях з високим DPI'],
+		resizeImgs: [
+			'Умещать большие картинки в экран',
+			'Resize large images to fit screen',
+			'Вміщувати великі зображення в екран'],
+		minImgSize: [
+			'Миним. размер раскрытых картинок (px)',
+			'Minimal size for expanded images (px)',
+			'Мінім. розмір розгорнутих зображень (px)'],
+		zoomFactor: [
+			'Чувствительность зума картинок [1-100%]',
+			'Images zoom sensibility [1-100%]',
+			'Чутливість зуму зображень [1-100%]'],
+		webmControl: [
+			'Показывать контрол-бар для WebM',
+			'Show control bar for WebM',
+			'Показувати смугу керування для WebM'],
+		webmTitles: [
+			'Получать названия WebM из метаданных',
+			'Load titles from WebM metadata',
+			'Отримувати назви WebM з метаданих'],
+		webmVolume: [
+			'Громкость WebM по умолчанию [0-100%]',
+			'Default volume for WebM [0-100%]',
+			'Гучність WebM по замовчуванню [0-100%]'],
+		minWebmWidth: [
+			'Минимальная ширина WebM (px)',
+			'Minimal width for WebM (px)',
+			'Мінімальна ширина WebM (px)'],
+		preLoadImgs: [
+			'Предварительно загружать картинки*',
+			'Preload images*',
+			'Наперед завантажувати зображення *'],
+		findImgFile: [
+			'Распознавать файлы, встроенные в картинках*',
+			'Detect embedded files in images*',
+			'Розпізнавати файли, що вбудовані в зображення*'],
+		openImgs: {
+			sel: [
+				['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'],
+				['Disable', 'All types', 'Only GIF', 'Non-GIF'],
+				['Вимк.', 'Всі', 'Лише GIF', 'Окрім GIF']],
+			txt: [
+				'Заменять картинки на оригиналы*',
+				'Replace thumbnails with original images*',
+				'Замінювати зображення на оригінали*']
+		},
+		imgSrcBtns: [
+			'Добавлять кнопки "Поиск" для картинок',
+			'Add "Search" buttons for images',
+			'Додавати кнопки "Пошук" для зображень'],
+		delImgNames: [
+			'Скрывать имена картинок',
+			'Hide filenames',
+			'Ховати імена зображень'],
+		maskVisib: [
+			'Видимость для NSFW-изображений [0-100%]',
+			'Visibility for NSFW images [0-100%]',
+			'Видимість для NSFW-зображень [0-100%]'],
+
+		// "Links" tab
+		linksNavig: [
+			'Навигация постов по >>ссылкам* ',
+			'Posts navigation by >>links* ',
+			'Навігація постів по >>посиланнях* '],
+		linksOver: [
+			'Появление ',
+			'Appearance ',
+			'Поява '],
+		linksOut: [
+			'Пропадание (мс)',
+			'Disappearance (ms)',
+			'Зникнення (мс)'],
+		markViewed: [
+			'Помечать просмотренные посты',
+			'Mark viewed posts',
+			'Позначати переглянуті пости'],
+		strikeHidd: [
+			'Зачеркивать >>ссылки на скрытые посты',
+			'Strike >>links to hidden posts',
+			'Закреслювати >>посилання на сховані пости'],
+		removeHidd: [
+			'Также удалять из обратных >>ссылок',
+			'Also remove from >>backlinks',
+			'Також видаляти із зворотніх >>посилань'],
+		noNavigHidd: [
+			'Не отображать превью для скрытых постов',
+			'Donʼt show previews for hidden posts',
+			'Не показувати превʼю до cхованих постів'],
+		markMyLinks: [
+			'Помечать ссылки на мои посты как (You)',
+			'Mark links to my posts with (You)',
+			'Позначати посилання на мої пости як (You)'],
+		crossLinks: [
+			'Заменять http:// на >>/b/ссылки*',
+			'Replace http:// with >>/b/links*',
+			'Замінювати https:// на >>/b/посилання*'],
+		decodeLinks: [
+			'Декодировать %D0%A5%D1 в ссылках*',
+			'Decode %D0%A5%D1 in links*',
+			'Декодувати %D0%A5%D1 в посиланнях*'],
+		insertNum: [
+			'Вставлять >>ссылку по клику на №поста*',
+			'Insert >>link on №postnumber click*',
+			'Вставляти >>посилання на клік по №посту*'],
+		addOPLink: [
+			'>>ссылка при ответе на OP в списке тредов',
+			'Insert >>link when replying to OP on threads list',
+			'>>посилання при відповіді на OP у списці тредів'],
+		addImgs: [
+			'Загружать картинки к jpg/png/gif ссылкам*',
+			'Load images for jpg/png/gif links*',
+			'Додавати зображення до jpg/png/gif посилань*'],
+		addMP3: [
+			'Плеер к mp3 ссылкам* ',
+			'Player for mp3 links* ',
+			'Плеєр до mp3 посилань* '],
+		addVocaroo: [
+			'к Vocaroo ссылкам*',
+			'for Vocaroo links*',
+			'до Vocaroo посилань*'],
+		addVimeo: [
+			'Добавлять плеер к Vimeo ссылкам*',
+			'Add player for Vimeo links*',
+			'Додавати плеєр до Vimeo посилань*'],
+		addYouTube: {
+			sel: [
 				['Ничего', 'Плеер по клику', 'Авто плеер', 'Превью+плеер', 'Только превью'],
 				['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview'],
-				['Нічого', 'Програвач на посилання', 'Автопрограчач', 'Превʼю+програвач', 'Тільки превʼю']
-			],
-			txt:        ['к YouTube ссылкам* ', 'for YouTube links* ', 'до посилань YouTube* ']
+				['Нічого', 'Плеєр по кліку', 'Авто плеєр', 'Превʼю+плеєр', 'Тільки превʼю']],
+			txt: [
+				'к YouTube ссылкам* ',
+				'for YouTube links* ',
+				'до YouTube посилань* ']
 		},
-		'YTubeType': {
-			sel:        [['Flash', 'HTML5'], ['Flash', 'HTML5'], ['Flash', 'HTML5']],
-			txt:        ['', '', '']
+		YTubeType: {
+			sel: [['Flash', 'HTML5'], ['Flash', 'HTML5'], ['Flash', 'HTML5']],
+			txt: ['', '', '']
 		},
-		'YTubeTitles':  ['Загружать названия к YouTube ссылкам*', 'Load titles for YouTube links*', 'Завантажувати назви до посилань YouTube*'],
-		'ytApiKey':     ['Ключ YT API*', 'YT API Key*', 'Ключ YT API*'],
+		YTubeTitles: [
+			'Загружать названия к YouTube ссылкам*',
+			'Load titles for YouTube links*',
+			'Отримувати назви до YouTube посилань*'],
+		ytApiKey: [
+			'Ключ YT API*',
+			'YT API Key*',
+			'Ключ YT API*'],
 
-		'ajaxPosting':  ['Отправка постов без перезагрузки*', 'Posting without refresh*', 'Дописування через AJAX*'],
-		'postSameImg':  ['Возможность отправки одинаковых картинок', 'Ability to post duplicate images', 'Можливість надсилання однакових зображень'],
-		'removeEXIF':   ['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG ', 'Видаляти EXIF з JPEG '],
-		'removeFName':  ['Очищать имя файлов', 'Clear file names', 'Видаляти імена файлів'],
-		'sendErrNotif': ['Оповещать в заголовке об ошибке отправки', 'Inform in title about post send error', 'Сповіщати в заголовку про помилку надсилання'],
-		'scrAfterRep':  ['Перемещаться в конец треда после отправки', 'Scroll to bottom after reply', 'Переміщуватися в кінець нитки після надсилання'],
-		'fileInputs':   {
-			sel:        [['Откл.', 'Упрощ.', 'Превью'], ['Disable', 'Simple', 'Preview'], ['Вимкн.', 'Спрощ.', 'Превʼю']],
-			txt:        ['Улучшенное поле добавления файлов', 'Enhanced file attachment field', 'Покращене поле додавання файлів']
+		// "Form" tab
+		ajaxPosting: [
+			'Отправка постов без перезагрузки*',
+			'Posting without page refresh*',
+			'Постування без оновлення сторінки*'],
+		postSameImg: [
+			'Возможность отправки одинаковых картинок',
+			'Ability to post duplicate images',
+			'Можливість надсилання однакових зображень'],
+		removeEXIF: [
+			'Удалять EXIF из JPEG ',
+			'Remove EXIF from JPEG ',
+			'Видаляти EXIF з JPEG '],
+		removeFName: [
+			'Очищать имена файлов',
+			'Clear file names',
+			'Видаляти імена файлів'],
+		sendErrNotif: [
+			'Оповещать в заголовке об ошибке отправки',
+			'Inform in title about post send error',
+			'Сповіщати в заголовку про помилку надсилання'],
+		scrAfterRep: [
+			'Перемещаться в конец треда после отправки',
+			'Scroll to bottom after reply',
+			'Гортати в кінець треду після надсилання'],
+		fileInputs: {
+			sel: [
+				['Откл.', 'Упрощ.', 'Превью'],
+				['Disable', 'Simple', 'Preview'],
+				['Вимкн.', 'Спрощене', 'Превʼю']],
+			txt: [
+				'Улучшенное поле добавления файлов',
+				'Enhanced file attachment field',
+				'Покращене поле додавання файлів']
 		},
-		'addPostForm': {
-			sel:        [['Сверху', 'Внизу', 'Скрытая'], ['At top', 'At bottom', 'Hidden'], ['Вгорі', 'Знизу', 'Прихована']],
-			txt:        ['Форма ответа в треде', 'Reply form display in thread', 'Форма відповіді в нитці']
+		addPostForm: {
+			sel: [
+				['Сверху', 'Внизу', 'Скрытая'],
+				['At top', 'At bottom', 'Hidden'],
+				['Вгорі', 'Знизу', 'Прихована']],
+			txt: [
+				'Форма ответа в треде',
+				'Reply form display in thread',
+				'Форма відповіді в треді']
 		},
-		'spacedQuote':  ['Вставлять пробел при цитировании "> "', 'Insert a space when quoting "> "', 'Вставляти пробіл під час цитування з "> "'],
-		'favOnReply':   ['Добавлять тред в "Избранное" после ответа', 'Add thread to "Favorites" after reply', 'Додавати нитку в вибрані після відповідання'],
-		'warnSubjTrip': ['Оповещать о трипкоде в поле "Тема"', 'Warn about a tripcode in "Subject" field', 'Сповіщати в разі присутності трипкоду в полі «Тема»'],
-		'addSageBtn':   ['Кнопка Sage вместо поля "Email" ', 'Replace "Email" with Sage button ', 'Кнопка Sage замість "E-mail" '],
-		'saveSage':     ['Помнить сажу', 'Remember sage', 'Запамʼятовувати sage'],
-		'cap4chanAlt':  ['4chan: альтернативная капча*', '4chan: use alternative captcha*', '4chan: альтернативна капча*'],
-		'capUpdTime':   ['Интервал обновления капчи (сек)', 'Captcha update interval (sec)', 'Інтервал оновлення капчі (сек)'],
-		'captchaLang': {
-			sel:        [['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus'], ['Вимк.', 'Eng', 'Ukr']],
-			txt:        ['Принудительный язык ввода капчи', 'Forced captcha input language', 'Мова введення капчі']
+		spacedQuote: [
+			'Вставлять пробел при цитировании "> "',
+			'Insert a space when quoting "> "',
+			'Вставляти пробіл при цитуванні "> "'],
+		favOnReply: [
+			'Добавлять тред в "Избранное" после ответа',
+			'Add thread to "Favorites" after reply',
+			'Додавати тред в "Вибране" після відповіді'],
+		warnSubjTrip: [
+			'Оповещать о трипкоде в поле "Тема"',
+			'Warn about a tripcode in "Subject" field',
+			'Сповіщувати про трипкод в полі "Тема"'],
+		addSageBtn: [
+			'Кнопка Sage вместо поля "Email" ',
+			'Replace "Email" with Sage button ',
+			'Кнопка Sage замість "E-mail" '],
+		saveSage: [
+			'Помнить сажу',
+			'Remember sage',
+			'Памʼятати сажу'],
+		cap4chanAlt: [
+			'4chan: альтернативная капча*',
+			'4chan: use alternative captcha*',
+			'4chan: альтернативна капча*'],
+		capUpdTime: [
+			'Интервал обновления капчи (сек)',
+			'Captcha update interval (sec)',
+			'Інтервал оновлення капчі (сек)'],
+		captchaLang: {
+			sel: [
+				['Откл.', 'Eng', 'Rus'],
+				['Disable', 'Eng', 'Rus'],
+				['Вимк.', 'Eng', 'Ukr']],
+			txt: [
+				'Принудительный язык ввода капчи',
+				'Forced captcha input language',
+				'Примусова мова вводу капчі']
 		},
-		'addTextBtns': {
-			sel:        [['Откл.', 'Графич.', 'Упрощ.', 'Стандарт.'], ['Disable', 'As images', 'As text', 'Standard'], ['Вимк.', 'Графіч.', 'Спрощ.', 'Стандарт.']],
-			txt:        ['Кнопки разметки текста ', 'Text markup buttons ', 'Кнопки розмітки тексту ']
+		addTextBtns: {
+			sel: [
+				['Откл.', 'Графические', 'Упрощённые', 'Стандартные'],
+				['Disable', 'As images', 'As text', 'Standard'],
+				['Вимк.', 'Графічні', 'Спрощені', 'Стандартні']],
+			txt: [
+				'Кнопки разметки текста ',
+				'Text markup buttons ',
+				'Кнопки розмітки тексту ']
 		},
-		'txtBtnsLoc':   ['Внизу', 'At bottom', 'Знизу'],
-		'userPassw':    ['Постоянный пароль', 'Fixed password', 'Постійний пароль'],
-		'userName':     ['Постоянное имя', 'Fixed name', 'Постійне імʼя'],
-		'noBoardRule':  ['Правила ', 'Rules ', 'Правила '],
-		'noPassword':   ['Пароль ', 'Password ', 'Пароль '],
-		'noName':       ['Имя ', 'Name ', 'Імʼя '],
-		'noSubj':       ['Тему', 'Subject', 'Тему'],
+		txtBtnsLoc: [
+			'Внизу',
+			'At bottom',
+			'Знизу'],
+		userPassw: [
+			'Постоянный пароль',
+			'Fixed password',
+			'Постійний пароль'],
+		userName: [
+			'Постоянное имя',
+			'Fixed name',
+			'Постійне імʼя'],
+		noBoardRule: [
+			'Правила ',
+			'Rules ',
+			'Правила '],
+		noPassword: [
+			'Пароль ',
+			'Password ',
+			'Пароль '],
+		noName: [
+			'Имя ',
+			'Name ',
+			'Імʼя '],
+		noSubj: [
+			'Тему',
+			'Subject',
+			'Тему'],
 
-		'scriptStyle': {
-			sel:        [
+		// "Common" tab
+		scriptStyle: {
+			sel: [
 				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark'],
 				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark'],
-				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark']
-
-			],
-			txt:        ['Стиль Dollchan', 'Dollchan style', 'Стиль Dollchan']
+				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark']],
+			txt: [
+				'Стиль Dollchan',
+				'Dollchan style',
+				'Стиль Dollchan']
 		},
-		'userCSS':      ['Пользовательский CSS', 'User CSS', 'Користувацький CSS'],
-		'panelCounter': {
-			sel:        [['Откл.', 'Все посты', 'Без скрытых'], ['Disabled', 'All posts', 'Except hidden'], ['Вимкнуто', 'Усі дописи', 'Крім прихованих']],
-			txt:        ['Счетчик постов/картинок на панели', 'Panel counter for posts/images', 'Лічильник дописів/зображень на головній панелі']
+		userCSS: [
+			'Пользовательский CSS',
+			'User CSS',
+			'Користувацький CSS'],
+		panelCounter: {
+			sel: [
+				['Откл.', 'Все посты', 'Без скрытых'],
+				['Disabled', 'All posts', 'Except hidden'],
+				['Вимкн.', 'Усі пости', 'Крім схованих']],
+			txt: [
+				'Счетчик постов/картинок в треде',
+				'Сounter for posts/images in thread',
+				'Лічильник постів/зображень в треді']
 		},
-		'rePageTitle':  ['Название треда в заголовке вкладки*', 'Show thread title in the page tab*', 'Назва нитки в заголовку вкладки*'],
-		'animation':    ['CSS3 анимация', 'CSS3 animation', 'Анімація CSS3 в скрипті'],
-		'closePopups':  ['Автоматически закрывать уведомления', 'Close popups automatically', 'Автоматично закривати сповіщення'],
-		'inftyScroll':  ['Бесконечная прокрутка страниц', 'Infinite scrolling for pages', 'Нескінченна прокрутка сторінок'],
-		'scrollToTop':  ['Всегда скроллить в топ на доске', 'Always scroll to top in the threads list', 'Завжди переходити нагору в списку дописів'],
-		'updScript':    ['Автоматически проверять обновления', 'Auto check for Dollchan updates', 'Автоматично перевіряти оновлення скрипта'],
-		'scrUpdIntrv': {
-			sel:        [
+		rePageTitle: [
+			'Название треда в заголовке вкладки*',
+			'Show thread title in the page tab*',
+			'Назва треду в заголовку вкладки*'],
+		animation: [
+			'CSS3 анимация',
+			'CSS3 animation',
+			'CSS3 анімація'],
+		closePopups: [
+			'Автоматически закрывать уведомления',
+			'Close popups automatically',
+			'Автоматично закривати сповіщення'],
+		inftyScroll: [
+			'Бесконечная прокрутка страниц',
+			'Infinite scrolling for pages',
+			'Нескінченна прокрутка сторінок'],
+		scrollToTop: [
+			'Всегда перемещаться вверх в списке тредов',
+			'Always scroll to top in the threads list',
+			'Завжди гортати догори в списку тредів'],
+		updScript: [
+			'Автоматически проверять обновления Dollchan',
+			'Auto check for Dollchan updates',
+			'Автоматично перевіряти оновлення Dollchan'],
+		scrUpdIntrv: {
+			sel: [
 				['Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'],
 				['Every day', 'Every 2 days', 'Every week', 'Every 2 weeks', 'Every month'],
-				['Щодня', 'Кожні 2 дні', 'Щотижня', 'Кожні 2 тижні', 'Щомісяця']
-			],
-			txt:        ['', '', '']
+				['Щодня', 'Кожні 2 дні', 'Щотижня', 'Кожні 2 тижні', 'Щомісяця']],
+			txt: ['', '', '']
 		},
-		'excludeList':  ['Не запускать Dollchan на:', 'Prevent Dollchan launch on:', 'Не запускати скрипт на:'],
-		'turnOff':      ['Включать Dollchan только на этом сайте', 'Enable Dollchan only on this site', 'Вмикати скрипт тільки на цьому сайті'],
-
-		'language': {
-			sel:        [['Ru', 'En', 'Uk'], ['Ru', 'En', 'Uk'], ['Ru', 'En', 'Uk']],
-			txt:        ['', '', '']
-		}
+		excludeList: [
+			'Не запускать Dollchan на:',
+			'Prevent Dollchan launch on:',
+			'Не запускати Dollchan на:'],
+		turnOff: [
+			'Запускать Dollchan только на этом сайте',
+			'Run Dollchan only on this site',
+			'Запускати Dollchan лише на цьому сайті']
 	},
 
+	// Main panel buttons: tooltips
+	panelBtn: {
+		attach: [
+			'Прикрепить/Открепить панель',
+			'Attach/Detach panel',
+			'Закріпити/відкріпити панель'],
+		cfg: [
+			'Настройки',
+			'Settings',
+			'Налаштування'],
+		hid: [
+			'Скрытое',
+			'Hidden',
+			'Сховане'],
+		fav: [
+			'Избранное',
+			'Favorites',
+			'Вибране'],
+		vid: [
+			'Ссылки на видео',
+			'Video links',
+			'Посилання на відео'],
+		refresh: [
+			'Обновить',
+			'Refresh',
+			'Оновити'],
+		goback: [
+			'Назад на доску',
+			'Return to board',
+			'Назад до дошки'],
+		gonext: [
+			'На %s страницу',
+			'Go to page %s',
+			'До %s сторінки'],
+		goup: [
+			'В начало страницы',
+			'Scroll to top',
+			'Прогорнути догори'],
+		godown: [
+			'В конец страницы',
+			'Scroll to bottom',
+			'Прогорнути донизу'],
+		expimg: [
+			'Раскрыть все картинки',
+			'Expand all images',
+			'Розгорнути всі зображення'],
+		maskimg: [
+			'Режим NSFW',
+			'NSFW mode',
+			'Режим NSFW'],
+		preimg: [
+			'Предзагрузить картинки&#13;([Ctrl+Click] только для новых постов)',
+			'Preload images&#13;([Ctrl+Click] for new posts only)',
+			'Наперед завантажити зображення&#13;([Ctrl+Click] лише для нових постів)'],
+		savethr: [
+			'Сохранить на диск',
+			'Save to disk',
+			'Зберегти на диск'],
+		'upd-on': [
+			'Выключить автообновление треда',
+			'Disable thread updater',
+			'Вимкнути оновлювач треду'],
+		'upd-off': [
+			'Включить автообновление треда',
+			'Enable thread updater',
+			'Увімкнути оновлювач треду'],
+		'audio-off': [
+			'Звуковое оповещение о новых постах',
+			'Sound notification about new posts',
+			'Звукове сповіщення про нові пости'],
+		catalog: [
+			'Перейти в каталог',
+			'Go to catalog',
+			'Перейти до каталогу'],
+		enable: [
+			'Включить/выключить Dollchan',
+			'Turn on/off the Dollchan',
+			'Увімкнути/вимкнути Dollchan'],
+		pcount: [
+			'Постов в треде',
+			'Posts in thread',
+			'Постів у треді'],
+		pcountNotHid: [
+			'Постов в треде (без скрытых)',
+			'Posts in thread (without hidden)',
+			'Постів у треді (крім схованих)'],
+		imglen: [
+			'Картинок в треде',
+			'Images in thread',
+			'Зображень у треді'],
+		posters: [
+			'Постящих в треде',
+			'Posters in thread',
+			'Постувачів у треді']
+	},
+
+	// Post buttons: tooltips
+	togglePost: [
+		'Скрыть/Раскрыть пост',
+		'Hide/Unhide post',
+		'Сховати/показати пост'],
+	replyToPost: [
+		'Ответить на пост',
+		'Reply to post',
+		'Відповісти на пост'],
+	expandThr: [
+		'Развернуть тред',
+		'Expand thread',
+		'Розгорнути тред'],
+	addFav: [
+		'Добавить тред в Избранное',
+		'Add thread to Favorites',
+		'Додати тред в Вибране'],
+	delFav: [
+		'Убрать тред из Избранного',
+		'Remove thread from Favorites',
+		'Прибрати тред з Вибраного'],
+	attachPview: [
+		'Закрепить превью',
+		'Attach preview',
+		'Закріпити превʼю'],
+	searchIn: [
+		'Искать в ',
+		'Search in ',
+		'Шукати в '],
+
+	// Windows buttons: tooltips
+	closeWindow: [
+		'Закрыть окно',
+		'Close window',
+		'Закрити вікно'],
+	closeReply: [
+		'Закрыть форму',
+		'Close form',
+		'Закрити форму'],
+	toPanel: [
+		'Закрепить на панели',
+		'Attach to panel',
+		'Закріпити на панелі'],
+	makeDrag: [
+		'Сделать перетаскиваемым окном',
+		'Make draggable window',
+		'Зробити перетягуваним вікном'],
+	underPost: [
+		'Разместить форму после поста',
+		'Move form under post',
+		'Розмістити форму після посту'],
+	clearForm: [
+		'Очистить форму',
+		'Clear form',
+		'Очистити форму'],
+
+	// Markup buttons: tooltips
 	txtBtn: [
 		['Жирный', 'Bold', 'Жирний'],
-		['Наклонный', 'Italic', 'Курсив'],
+		['Курсив', 'Italic', 'Курсив'],
 		['Подчеркнутый', 'Underlined', 'Підкреслений'],
 		['Зачеркнутый', 'Strike', 'Закреслений'],
 		['Спойлер', 'Spoiler', 'Спойлер'],
 		['Код', 'Code', 'Код'],
 		['Верхний индекс', 'Superscript', 'Верхній індекс'],
 		['Нижний индекс', 'Subscript', 'Нижній індекс'],
-		['Цитировать выделенное', 'Quote selected', 'Цитувати виділене']
-	],
+		['Цитировать выделенное', 'Quote selected', 'Цитувати виділене']],
 
-	cfgTab: {
-		'filters':      ['Фильтры', 'Filters', 'Фільтри'],
-		'posts':        ['Посты', 'Posts', 'Дописи'],
-		'images':       ['Картинки', 'Images', 'Зображення'],
-		'links':        ['Ссылки', 'Links', 'Посилання'],
-		'form':         ['Форма', 'Form', 'Форма'],
-		'common':       ['Общее', 'Common', 'Спільне'],
-		'info':         ['Инфо', 'Info', 'Інфо']
+	// Drop-down menus: options
+	selHiderMenu: { // "Hide" post button
+		sel: [
+			'Скрывать выделенное',
+			'Hide selected text',
+			'Ховати виділене'],
+		name: [
+			'Скрывать по имени',
+			'Hide by name',
+			'Ховати по імені'],
+		trip: [
+			'Скрывать по трипкоду',
+			'Hide by tripcode',
+			'Ховати по тріпкоду'],
+		img: [
+			'Скрывать по размеру картинки',
+			'Hide by image size',
+			'Ховати по розміру зображення'],
+		imgn: [
+			'Скрывать по имени картинки',
+			'Hide by image name',
+			'Ховати по імені зображення'],
+		ihash: [
+			'Скрывать схожие картинки',
+			'Hide by similar images',
+			'Ховати подібні зображення'],
+		noimg: [
+			'Скрывать без картинок',
+			'Hide without images',
+			'Ховати без зображень'],
+		notext: [
+			'Скрывать без текста',
+			'Hide without text',
+			'Ховати без тексту'],
+		text: [
+			'Скрыть схожий текст',
+			'Hide similar text',
+			'Сховати схожий текст'],
+		refs: [
+			'Скрыть с ответами',
+			'Hide with answers',
+			'Сховати з відповідями']
 	},
-
-	panelBtn: {
-		'attach':       ['Прикрепить/Открепить панель', 'Attach/Detach panel', 'Закріпити/відкріпити панель'],
-		'cfg':          ['Настройки', 'Settings', 'Налаштування'],
-		'hid':          ['Скрытое', 'Hidden', 'Приховане'],
-		'fav':          ['Избранное', 'Favorites', 'Вибране'],
-		'vid':          ['Видео ссылки', 'Video links', 'Посилання на відео'],
-		'refresh':      ['Обновить', 'Refresh', 'Оновити'],
-		'goback':       ['Назад на доску', 'Return to board', 'Назад до дошки'],
-		'gonext':       ['На страницу %s', 'Go to page %s', 'Перейти на %s'],
-		'goup':         ['В начало страницы', 'Scroll to top', 'Прогорнути догори'],
-		'godown':       ['В конец страницы', 'Scroll to bottom', 'Прогорнути донизу'],
-		'expimg':       ['Раскрыть все картинки', 'Expand all images', 'Розгорнути всі зображення'],
-		'preimg':       [
-			'Предзагрузка картинок&#13;([Ctrl+Click] только для новых постов)',
-			'Preload images&#13;([Ctrl+Click] for new posts only)',
-			'Презавантаження зображень&#13;([Ctrl+Click] лише для нових дописів)'
-		],
-		'maskimg':      ['Режим NSFW', 'NSFW mode', 'Режим NSFW'],
-		'upd-on':       ['Выключить автообновление треда', 'Disable thread autoupdate', 'Вимкнути автооновлення нитки'],
-		'upd-off':      ['Включить автообновление треда', 'Enable thread autoupdate', 'Увімкнути автоооновлення нитки'],
-		'audio-off':    ['Звуковое оповещение о новых постах', 'Sound notification about new posts', 'Звукове сповіщення про нові дописи'],
-		'catalog':      ['Перейти в каталог', 'Go to catalog', 'Перейти до каталога'],
-		'pcount':       ['Постов в треде', 'Posts in thread', 'Дописів у нитці'],
-		'pcountNotHid': ['Постов в треде (без скрытых)', 'Posts in thread (without hidden)', 'Дописів у нитці (без прихованих)'],
-		'imglen':       ['Картинок в треде', 'Images in thread', 'Зображень у нитці'],
-		'posters':      ['Постящих в треде', 'Posters in thread', 'Дописувачів у нитці'],
-		'savethr':      ['Сохранить на диск', 'Save to disk', 'Зберегти на диск'],
-		'enable':       ['Включить/выключить Dollchan', 'Turn on/off the Dollchan', 'Увімкнути/вимкнути Dollchan']
-	},
-
-	selHiderMenu: {
-		'sel':          ['Скрывать выделенное', 'Hide selected text', 'Приховувати виділене'],
-		'name':         ['Скрывать имя', 'Hide name', 'Приховувати імʼя'],
-		'trip':         ['Скрывать трипкод', 'Hide with tripcode', 'Приховувати трипкод'],
-		'img':          ['Скрывать по размеру картинки', 'Hide by image size', 'Приховувати по розміру зображення'],
-		'imgn':         ['Скрывать по имени картинки', 'Hide by image name', 'Приховувати зображення'],
-		'ihash':        ['Скрывать по схожей картинке', 'Hide by similar image', 'Приховувати схожі зображення'],
-		'noimg':        ['Скрывать без картинок', 'Hide without images', 'Приховувати без зображень'],
-		'notext':       ['Скрывать без текста', 'Hide without text', 'Приховувати без тексту'],
-		'text':         ['Скрыть схожий текст', 'Hide similar text', 'Приховати схожий текст'],
-		'refs':         ['Скрыть с ответами', 'Hide with answers', 'Приховати з відповідями']
-	},
-	selExpandThr: [
+	selExpandThr: [ // "Expand thread" post button
 		['+10 постов', 'Последние 30', 'Последние 50', 'Последние 100', 'Весь тред'],
 		['+10 posts', 'Last 30 posts', 'Last 50 posts', 'Last 100 posts', 'Entire thread'],
-		['+10 дописів', 'Останні 30', 'Останні 50', 'Останні 100', 'Вся нитка']
-	],
-	selAjaxPages: [
+		['+10 постів', 'Останні 30', 'Останні 50', 'Останні 100', 'Весь тред']],
+	selAjaxPages: [ // "Refresh" panel button
 		['1 страница', '2 страницы', '3 страницы', '4 страницы', '5 страниц'],
 		['1 page', '2 pages', '3 pages', '4 pages', '5 pages'],
-		['1 сторінка', '2 сторінки', '3 сторінки', '4 сторінки', '5 сторінок']
-	],
-	selSaveThr: [
+		['1 сторінка', '2 сторінки', '3 сторінки', '4 сторінки', '5 сторінок']],
+	selSaveThr: [ // "Save to disk" panel button
 		['Скачать весь тред', 'Скачать картинки'],
 		['Download thread', 'Download images'],
-		['Завантажити всю нитку', 'Завантажити зображення']
-	],
-	selAudioNotif: [
+		['Завантажити весь тред', 'Завантажити зображення']],
+	selAudioNotif: [ // "Sound notification" panel button
 		['Каждые 30 сек.', 'Каждую минуту', 'Каждые 2 мин.', 'Каждые 5 мин.'],
 		['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.'],
-		['Кожні 30 сек.', 'Щохвилини', 'Кожні 2 хв.', 'Кожні 5 хв.']
-	],
+		['Кожні 30 сек.', 'Щохвилини', 'Кожні 2 хв.', 'Кожні 5 хв.']],
 
+	// Hotkeys editor
 	hotKeyEdit: [[
+		// Ru
 		'%l%i24 – предыдущая страница/картинка%/l',
 		'%l%i217 – следующая страница/картинка%/l',
 		'%l%i21 – тред (на доске)/пост (в треде) ниже%/l',
@@ -446,6 +927,7 @@ const Lng = {
 		'%l%i214t – зачеркнутый%/l',
 		'%l%i215t – спойлер%/l',
 		'%l%i216t – код%/l'], [
+		// En
 		'%l%i24 – previous page/image%/l',
 		'%l%i217 – next page/image%/l',
 		'%l%i21 – thread (on board)/post (in thread) below%/l',
@@ -455,7 +937,7 @@ const Lng = {
 		'%l%i23 – hide post/thread%/l',
 		'%l%i32 – go to thread%/l',
 		'%l%i33 – expand thread%/l',
-		'%l%i211 – expand post\'s images%/l',
+		'%l%i211 – expand postʼs images%/l',
 		'%l%i22 – quick reply%/l',
 		'%l%i25t – send post%/l',
 		'%l%i210 – open/close "Settings"%/l',
@@ -470,227 +952,522 @@ const Lng = {
 		'%l%i214t – strike%/l',
 		'%l%i215t – spoiler%/l',
 		'%l%i216t – code%/l'], [
+		// Ua
 		'%l%i24 – попередня сторінка/зображення%/l',
 		'%l%i217 – наступна сторінка/зображення%/l',
-		'%l%i21 – нитка (на дошці)/допис (в нитці) нище%/l',
-		'%l%i20 – нитка (на дошці)/допис (в нитці) вище%/l',
-		'%l%i31 – допис (на дошці) нище%/l',
-		'%l%i30 – допис (на дошці) вище%/l',
-		'%l%i23 – приховати допис/нитку%/l',
-		'%l%i32 – перейти в нитку%/l',
-		'%l%i33 – розгорнути нитку%/l',
-		'%l%i211 – розгорнути зображення в дописі%/l',
+		'%l%i21 – тред (на дошці)/пост (в треді) нижче%/l',
+		'%l%i20 – тред (на дошці)/пост (в треді) вище%/l',
+		'%l%i31 – пост (на дошці) нижче%/l',
+		'%l%i30 – пост (на дошці) вище%/l',
+		'%l%i23 – приховати пост/тред%/l',
+		'%l%i32 – перейти в тред%/l',
+		'%l%i33 – розгорнути тред%/l',
+		'%l%i211 – розгорнути зображення в пості%/l',
 		'%l%i22 – швидка відповідь%/l',
-		'%l%i25t – відправити допис%/l',
+		'%l%i25t – відправити пост%/l',
 		'%l%i210 – відкрити/закрити "Налаштування"%/l',
-		'%l%i26 – відкрити/закрити "Обране"%/l',
-		'%l%i27 – відкрити/закрити "Приховане"%/l',
-		'%l%i218 – відкрити/закрити "Відео"%/l',
+		'%l%i26 – відкрити/закрити "Вибране"%/l',
+		'%l%i27 – відкрити/закрити "Сховане"%/l',
+		'%l%i218 – відкрити/закрити "Посилання на відео"%/l',
 		'%l%i28 – відкрити/закрити панель%/l',
-		'%l%i29 – увімк/вимк режим NSFW%/l',
-		'%l%i40 – обновити нитку (в нитці)%/l',
+		'%l%i29 – увімкнути/вимкнути режим NSFW%/l',
+		'%l%i40 – оновити тред (в треді)%/l',
 		'%l%i212t – жирний%/l',
 		'%l%i213t – курсив%/l',
 		'%l%i214t – закреслений%/l',
 		'%l%i215t – спойлер%/l',
-		'%l%i216t – код%/l'
-	]],
+		'%l%i216t – код%/l']],
 
+	// Time correction in posts
+	cTimeError: [
+		'Неправильные настройки времени',
+		'Invalid time settings',
+		'Неправильні налаштування часу'],
 	month: [
 		['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'],
 		['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-		['січ', 'лют', 'бер', 'кві', 'тра', 'чер', 'лип', 'сер', 'вер', 'жов', 'лис', 'гру']
-	],
+		['січ', 'лют', 'бер', 'кві', 'тра', 'чер', 'лип', 'сер', 'вер', 'жов', 'лис', 'гру']],
 	fullMonth: [
 		['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'],
 		['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-		['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня', 'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня']
-	],
+		['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня', 'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня']],
 	week: [
 		['Вск', 'Пнд', 'Втр', 'Срд', 'Чтв', 'Птн', 'Сбт'],
 		['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-		['Нед', 'Пон', 'Вів', 'Сер', 'Чет', 'Птн', 'Сбт']
-	],
+		['Нед', 'Пон', 'Вів', 'Сер', 'Чет', 'Птн', 'Сбт']],
 	monthDict: {
 		'янв': 0, 'фев': 1, 'мар': 2, 'апр': 3, 'май': 4, 'мая': 4, 'июн': 5, 'июл': 6, 'авг': 7, 'сен': 8, 'окт': 9, 'ноя': 10, 'дек': 11,
 		'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'may': 4, 'jun': 5, 'jul': 6, 'aug': 7, 'sep': 8, 'oct': 9, 'nov': 10, 'dec': 11,
 		'січ': 0, 'лют': 1, 'бер': 2, 'кві': 3, 'тра': 4, 'чер': 5, 'лип': 6, 'сер': 7, 'вер': 8, 'жов': 9, 'лис': 10, 'гру': 11
 	},
+
+	// Spells: popups
+	seSyntaxErr: [
+		'синтаксическая ошибка в аргументе спелла: %s',
+		'syntax error in argument of spell: %s',
+		'синтаксична помилка в аргументі спеллу: %s'],
+	seUnknown: [
+		'неизвестный спелл: %s',
+		'unknown spell: %s',
+		'невідомий спелл: %s'],
+	seMissOp: [
+		'пропущен оператор',
+		'missing operator',
+		'пропущено оператор'],
+	seMissArg: [
+		'пропущен аргумент спелла: %s',
+		'missing argument of spell: %s',
+		'пропущено аргумент спеллу: %s'],
+	seMissSpell: [
+		'пропущен спелл',
+		'missing spell',
+		'пропущено спелл'],
+	seErrRegex: [
+		'синтаксическая ошибка в регулярном выражении: %s',
+		'syntax error in regular expression: %s',
+		'синтаксична помилка в регулярному виразі: %s'],
+	seUnexpChar: [
+		'неожиданный символ: %s',
+		'unexpected character: %s',
+		'неочікуваний символ: %s'],
+	seMissClBkt: [
+		'пропущена закрывающая скобка',
+		'missing \')\' in expression',
+		'пропущено закривну дужку'],
+	seRepsInParens: [
+		'спелл %s не должен располагаться в скобках',
+		'spell %s shouldnʼt be inside parentheses',
+		'спелл %s не може бути в дужках'],
+	seOpInReps: [
+		'недопустимо использовать оператор %s со спеллами #rep и #outrep',
+		'donʼt use operator %s with spells #rep & #outrep',
+		'неприпустимо використовувати оператор %s зі спеллами #rep и #outrep'],
+	seRow: [
+		' (строка ',
+		' (row ',
+		' (рядок '],
+	seCol: [
+		', столбец ',
+		', column ',
+		', стовпчик '],
+
+	// Data editor
+	editInTxt: [
+		'Правка в текстовом формате',
+		'Edit in text format',
+		'Правка в текстовому форматі'],
 	editor: {
-		cfg:        ['Редактирование настроек:', 'Edit settings:', 'Редагування налаштувань:'],
-		hidden:     ['Редактирование скрытых тредов:', 'Edit hidden threads:', 'Редагування прихованих ниток:'],
-		favor:      ['Редактирование избранного:', 'Edit favorites:', 'Редагування вибраного:'],
-		css:        ['Редактирование CSS', 'Edit CSS', 'Редагування CSS']
+		cfg: [
+			'Редактирование настроек',
+			'Edit settings',
+			'Редагування налаштувань'],
+		hidden: [
+			'Редактирование скрытых тредов',
+			'Edit hidden threads',
+			'Редагування схованих тредів'],
+		favor: [
+			'Редактирование избранного',
+			'Edit favorites',
+			'Редагування вибраного'],
+		css: [
+			'Редактирование CSS',
+			'Edit CSS',
+			'Редагування CSS']
 	},
 
-	newPost: [
-		[' новый пост', ' новых поста', ' новых постов', '. Последний:'],
-		[' new post', ' new posts', ' new posts', '. Latest: '],
-		[' новий допис', ' нових дописи', ' нових дописів', '. Останній:']
-	],
-
-	name:           ['Имя', 'Name', 'Імʼя'],
-	subj:           ['Тема', 'Subject', 'Тема'],
-	mail:           ['Email', 'Email', 'Ел. пошта'],
-	cap:            ['Капча', 'Captcha', 'Капча'],
-	video:          ['Видео', 'Video', 'Відео'],
-	add:            ['Добавить', 'Add', 'Додати'],
-	apply:          ['Применить', 'Apply', 'Застосувати'],
-	cancel:         ['Отмена', 'Cancel', 'Скасувати'],
-	clear:          ['Очистить', 'Clear', 'Очистити'],
-	refresh:        ['Обновить', 'Refresh', 'Оновити'],
-	load:           ['Загрузить', 'Load', 'Завантажити'],
-	save:           ['Сохранить', 'Save', 'Зберегти'],
-	edit:           ['Правка', 'Edit','Правка'],
-	file:           ['Файл', 'File', 'Файл'],
-	global:         ['Глобальные', 'Global', 'Глобальні'],
-	reset:          ['Сброс', 'Reset', 'Скинути'],
-	remove:         ['Удалить', 'Remove', 'Видалити'],
-	info:           ['Инфо', 'Info', 'Інфо'],
-	undo:           ['Отмена', 'Undo', 'Скасувати'],
-	change:         ['Сменить', 'Change', 'Змінити'],
-	reply:          ['Ответ', 'Reply', 'Відповідь'],
-	loading:        ['Загрузка...', 'Loading...', 'Завантаження…'],
-	checking:       ['Проверка...', 'Checking...', 'Перевірка…'],
-	deleting:       ['Удаление...', 'Deleting...', 'Видалення…'],
-	deletion:       ['Удаление...', 'Deletion...', 'Видалення…'],
-	updating:       ['Обновление...', 'Updating...', 'Оновлення…'],
-	error:          ['Ошибка', 'Error', 'Помилка'],
-	noConnect:      ['Ошибка подключения', 'Connection failed', 'Помилка зʼєднання'],
-	internalError:	['Внутренняя ошибка:\n', 'Internal error:\n', 'Внутрішня помилка:\n'],
-	thrNotFound:    ['Тред недоступен (№', 'Thread is unavailable (№', 'Нитка недоступна (№'],
-	thrClosed:      ['Тред закрыт', 'Thread is closed', 'Нитку закрито'],
-	thrArchived:    ['Тред в архиве', 'Thread is archived', 'Нитку заархівовано'],
-	succDeleted:    ['Успешно удалено!', 'Succesfully deleted!', 'Успішно видалено!'],
-	errDelete:      ['Не могу удалить:\n', 'Can\'t delete:\n', 'Не можу видалити:\n'],
-	cTimeError:     ['Неправильные настройки времени', 'Invalid time settings', 'Неправильні налаштування часу'],
-	noGlobalCfg:    ['Глобальные настройки не найдены', 'Global config not found', 'Глобальні налаштування не знайдено'],
-	postNotFound:   ['Пост не найден', 'Post not found', 'Допис не знайдено'],
-	dontShow:       ['Скрыть: ', 'Hide: ', 'Приховати: '],
-	checkNow:       ['Проверить сейчас', 'Check now', 'Перевірити зараз'],
-	updAvail:       ['Доступно обновление!', 'Update available!', 'Доступне оновлення!'],
-	haveLatest:     ['У вас стоит последняя стабильная версия!', 'You have the latest stable version!', 'У вас остання версія!'],
-	thrViewed:      ['Тредов посещено', 'Threads visited', 'Ниток відвідано'],
-	thrCreated:     ['Тредов создано', 'Threads created', 'Ниток створено'],
-	thrHidden:      ['Тредов скрыто', 'Threads hidden', 'Ниток приховано'],
-	postsSent:      ['Постов отправлено', 'Posts sent', 'Дописів надіслано'],
-	total:          ['Всего', 'Total', 'Всього'],
-	debug:          ['Отладка', 'Debug', 'Зневадження'],
-	infoDebug:      ['Информация для отладки', 'Information for debugging', 'Інформація для зневадження'],
-	fileImpExp:     ['Импорт/экспорт настроек в файл', 'Import/export config to file', 'Імпорт/експорт налаштувань до файлу'],
-	cfgImpExp:      ['Импорт/экспорт настроек', 'Import/export of config', 'Імпорт/експорт налаштувань'],
-	fileToData:     ['Загрузить данные из файла', 'Load data from a file', 'Завантажити налаштування з файла'],
-	dataToFile:     ['Получить файл</a> с данными', 'Get the file</a> with data', 'Отримати файл</a> з налаштуваннями'],
-	globalCfg:      ['Глобальные настройки', 'Global config', 'Глобальні налаштування'],
-	loadGlobal:     ['и применить к этому домену', 'and apply to this domain', ' і застосувати до цього домена'],
-	saveGlobal:     ['текущие настройки как глобальные', 'current config as global', ' поточні налаштування як глобальні'],
-	descrGlobal:    [
+	// Settings import/export/clearing
+	fileImpExp: [
+		'Импорт/экспорт настроек в файл',
+		'Import/export config to file',
+		'Імпорт/експорт налаштувань до файлу'],
+	fileToData: [
+		'Загрузить данные из файла',
+		'Load data from a file',
+		'Завантажити дані з файла'],
+	dataToFile: [
+		'Получить файл</a> с данными',
+		'Get the file</a> with data',
+		'Отримати файл</a> з даними'],
+	globalCfg: [
+		'Глобальные настройки',
+		'Global config',
+		'Глобальні налаштування'],
+	loadGlobal: [
+		'и применить к этому домену',
+		'and apply to this domain',
+		'і застосувати до цього домену'],
+	saveGlobal: [
+		'текущие настройки как глобальные',
+		'current config as global',
+		'поточні налаштування як глобальні'],
+	descrGlobal: [
 		'Глобальные настройки применяются по умолчанию<br>при первом посещении других доменов',
 		'Global config is applied by default<br>on the first visit of other domains',
-		'Глобальні налаштування будуть за промовчанням застосовуватися<br>під час першого відвідання інших доменів'],
-	editInTxt:      ['Правка в текстовом формате', 'Edit in text format', 'Правка в текстовому форматі'],
-	resetCfg:       ['Сбросить в настройки по умолчанию', 'Reset config to defaults', 'Скинути в налаштування за замовчуванням'],
-	resetData:      ['Очистить данные', 'Reset selected data', 'Очистити дані'],
-	allDomains:     ['для всех доменов', 'for all domains', 'Для всіх доменів:'],
-	delEntries:     ['Выбрать и удалить записи', 'Select and delete entries', 'Видалити виділені записи'],
-	saveChanges:    ['Сохранить внесенные изменения', 'Save your changes', 'Зберегти внесені зміни'],
-	infoCount:      ['Обновить счетчики постов', 'Refresh posts counters', 'Оновити лічильники дописів'],
-	infoPage:       ['Проверить положение тредов (до 10-й страницы)', 'Check for threads position (up to 10th page)', 'Перевірити актуальність ниток (до 10 сторінки)'],
-	clrDeleted:     ['Очистить недоступные (404) треды', 'Clear inaccessible (404) threads', 'Очистити недоступні (404) нитки'],
-	oldPosts:       ['Постов при последнем посещении', 'Posts at the last visit', 'Дописів під час останнього відвідування'],
-	myPostsRep:     ['Ответов на ваши посты', 'Replies to your posts', 'Відповідей на ваші дописи'],
-	newPosts:       ['Количество новых постов', 'Number of new posts', 'Кількість нових дописів'],
-	thrPage:        ['Тред на @странице', 'Thread on @page', 'Нитка на @сторінці'],
-	hiddenPosts:    ['Скрытые посты', 'Hidden posts', 'Приховані дописи'],
-	onPage:         [' на странице', ' on the page', ' на сторінці'],
-	hidPostThr:     ['Скрытые посты и треды', 'Hidden posts and threads', 'Приховані нитки та дописи'],
-	myPosts:        ['Мои посты', 'My posts', 'Мої дописи'],
-	noHidThr:       ['Нет скрытых тредов...', 'No hidden threads...', 'Немає прихованих дописів…'],
-	invalidData:    ['Некорректный формат данных', 'Incorrect data format', 'Некоректний формат даних'],
-	noFavThr:       ['Нет избранных тредов...', 'Favorites is empty...', 'Немає вибраних ниток…'],
-	noVideoLinks:   ['Нет ссылок на видео...', 'No video links...', 'Немає посилань на відео…'],
-	hideLnkList:    ['Скрыть/Показать список ссылок', 'Hide/Unhide list of links', 'Приховати/показати список посилань'],
-	prevVideo:      ['Предыдущее видео', 'Previous video', 'Попереднє відео'],
-	nextVideo:      ['Следующее видео', 'Next video', 'Наступне відео'],
-	toPanel:        ['Закрепить на панели', 'Attach to panel', 'Закріпити на панель'],
-	underPost:      ['Поместить форму под пост', 'Move form under post', 'Помістити форму під допис'],
-	clearForm:      ['Очистить форму', 'Clear form', 'Очистити форму'],
-	makeDrag:       ['Сделать перетаскиваемым окном', 'Make draggable window', 'Зробити перетягуваним вікном'],
-	closeWindow:    ['Закрыть окно', 'Close window', 'Закрити вікно'],
-	closeReply:     ['Закрыть форму', 'Close form', 'Закрити форму'],
-	replies:        ['Ответы:', 'Replies:', 'Відповіді:'],
-	postsOmitted:   ['Пропущено ответов: ', 'Posts omitted: ', 'Пропущено відповідей: '],
-	showPosts:      ['Показать посты', 'Show posts', 'Показати дописи'],
-	hidePosts:      ['Скрыть посты', 'Hide posts', 'Приховати дописи'],
-	collapseThr:    ['Свернуть тред', 'Collapse thread', 'Згорнути нитку'],
-	deleted:        ['удалён', 'deleted', 'видалено'],
-	getNewPosts:    ['Получить новые посты', 'Get new posts', 'Отримати нові дописи'],
-	page:           ['Страница', 'Page', 'Сторінка'],
-	hiddenThr:      ['Скрытый тред', 'Hidden thread', 'Прихована нитка:'],
-	makeThr:        ['Создать тред', 'Create thread', 'Створити нитку'],
-	makeReply:      ['Ответить', 'Reply', 'Відповісти'],
-	noSage:         ['Без сажи', 'No sage', 'Без sage'],
-	hideForm:       ['Скрыть форму', 'Hide form', 'Приховати форму'],
-	search:         ['Искать в ', 'Search in ', 'Шукати в '],
-	wait:           ['Ждите', 'Wait', 'Чекайте'],
-	dropFileHere:   ['Бросьте сюда файл(ы) или ссылку', 'Drop file(s) or link here', 'Киньте сюди файл(и) чи посилання'],
-	youCanDrag:     [
+		'Глобальні налаштування застосовуються по замовчуванню<br>під час першого відвідання інших доменів'],
+	resetCfg: [
+		'Сбросить в настройки по умолчанию',
+		'Reset config to defaults',
+		'Скинути в налаштування по замовчуванню'],
+	resetData: [
+		'Очистить выбранные данные',
+		'Reset selected data',
+		'Очистити обрані дані'],
+	allDomains: [
+		'для всех доменов',
+		'for all domains',
+		'для всіх доменів'],
+	delEntries: [
+		'Выбрать и удалить записи',
+		'Select and delete entries',
+		'Обрати та видалити записи'],
+	saveChanges: [
+		'Сохранить внесенные изменения',
+		'Save your changes',
+		'Зберегти внесені зміни'],
+	hiddenPosts: [
+		'Скрытые посты',
+		'Hidden posts',
+		'Сховані пости'],
+	hidPostThr: [
+		'Скрытые посты и треды',
+		'Hidden posts and threads',
+		'Сховані пости та треди'],
+	myPosts: [
+		'Мои посты',
+		'My posts',
+		'Мої пости'],
+
+	// Settings window: Common/Info tab
+	checkNow: [
+		'Проверить сейчас',
+		'Check now',
+		'Перевірити зараз'],
+	updAvail: [
+		'Доступно обновление Dollchan!',
+		'Dollchan update available!',
+		'Доступне оновлення Dollchan!'],
+	haveLatest: [
+		'У вас стоит последняя стабильная версия!',
+		'You have the latest stable version!',
+		'Ви маєте останню стабільну версію!'],
+	thrViewed: [
+		'Тредов посещено',
+		'Threads visited',
+		'Тредів відвідано'],
+	thrCreated: [
+		'Тредов создано',
+		'Threads created',
+		'Тредів створено'],
+	thrHidden: [
+		'Тредов скрыто',
+		'Threads hidden',
+		'Тредів сховано'],
+	postsSent: [
+		'Постов отправлено',
+		'Posts sent',
+		'Постів надіслано'],
+	total: [
+		'Всего',
+		'Total',
+		'Всього'],
+	debug: [
+		'Отладка',
+		'Debug',
+		'Відлагодження'],
+	infoDebug: [
+		'Информация для отладки',
+		'Information for debugging',
+		'Інформація для відлагодження'],
+
+	// Favorites window: tooltips
+	infoCount: [
+		'Обновить счетчики постов',
+		'Refresh posts counters',
+		'Оновити лічильники постів'],
+	infoPage: [
+		'Проверить положение тредов (до 10-й страницы)',
+		'Check for threads position (up to 10th page)',
+		'Перевірити актуальність тредів (до 10 сторінки)'],
+	clrDeleted: [
+		'Очистить недоступные (404) треды',
+		'Clear inaccessible (404) threads',
+		'Очистити недоступні (404) треди'],
+	oldPosts: [
+		'Постов при последнем посещении',
+		'Posts at the last visit',
+		'Постів під час останнього відвідування'],
+	newPosts: [
+		'Количество новых постов',
+		'Number of new posts',
+		'Кількість нових постів'],
+	myPostsRep: [
+		'Ответов на ваши посты',
+		'Replies to your posts',
+		'Відповідей на ваші пости'],
+	thrPage: [
+		'Тред на @странице',
+		'Thread on @page',
+		'Тред на @сторінці'],
+
+	// Video links: tooltips
+	hideLnkList: [
+		'Скрыть/Показать список ссылок',
+		'Hide/Unhide list of links',
+		'Сховати/показати перелік посилань'],
+	expandVideo: [
+		'Развернуть/Свернуть видео',
+		'Expand/Collapse video',
+		'Розгорнути/згорнути відео'],
+	prevVideo: [
+		'Предыдущее видео',
+		'Previous video',
+		'Попереднє відео'],
+	nextVideo: [
+		'Следующее видео',
+		'Next video',
+		'Наступне відео'],
+	duration: [
+		'Продолжительность: ',
+		'Duration: ',
+		'Тривалість: '],
+	published: [
+		'опубликовано: ',
+		'published: ',
+		'опубліковано: '],
+	author: [
+		'Автор: ',
+		'Author: ',
+		'Автор: '],
+	views: [
+		'просмотров: ',
+		'views: ',
+		'переглядів: '],
+
+	// Postform file inputs: tooltips
+	dropFileHere: [
+		'Бросьте сюда файл(ы) или ссылку',
+		'Drop file(s) or link here',
+		'Киньте сюди файл(и) чи посилання'],
+	youCanDrag: [
 		'Можно перетаскивать картинки и ссылки на файлы&#13;прямо со страницы или других сайтов',
 		'You can drag images and file links&#13;directly from the page or other sites',
-		'Ви можете перетягувати зображення чи файли&#13;зі сторінки чи інших сайтів'],
-	removeFile:     ['Удалить файл', 'Remove file', 'Видалити файл'],
-	spoilFile:      ['Спойлер', 'Spoiler', 'Спойлер'],
-	addManually:    ['Ввести ссылку на файл вручную', 'Enter a link to the file manually', 'Ввести посилання на файл вручну'],
-	enterTheLink:   ['Введите ссылку и нажмите \'+\'', 'Enter the link and click \'+\'', 'Вставте посилання та натисніть \'+\''],
-	helpAddFile:    ['Встроить ogg/rar/zip/7z в картинку', 'Embed ogg/rar/zip/7z into the image', 'Вбудувати .ogg, .rar, .zip або .7z в зображення'],
-	downloadFile:   ['Скачать содержащийся в картинке файл', 'Download embedded file from the image', 'Завантажити файл, що міститься в зображення'],
-	fileCorrupt:    ['Файл повреждён: ', 'File is corrupt: ', 'Файл пошкоджено: '],
-	subjHasTrip:    ['Поле "Тема" содержит трипкод', '"Subject" field contains a tripcode', 'Поле «Тема» містить трипкод'],
-	loadImage:      ['Загружаются картинки: ', 'Loading images: ', 'Завантажуються зображення: '],
-	loadFile:       ['Загружаются файлы: ', 'Loading files: ', 'Завантажуються файли: '],
-	cantLoad:       ['Не могу загрузить ', 'Can\'t load ', 'Не можу завантажити '],
-	willSavePview:  ['Будет сохранено превью', 'Thumbnail will be saved', 'Буде збережено мініатюру'],
-	loadErrors:     ['Во время загрузки произошли ошибки:', 'An error occurred during the loading:', 'Під час завантаження сталася помилка:'],
-	errCorruptData: ['Ошибка: сервер отправил повреждённые данные', 'Error: server sent corrupted data', 'Помилка: сервер надіслав пошкоджені дані'],
-	errMsEdgeWebm:  ['Загрузите скрипт для воспроизведения WebM (VP9/Opus)', 'Please load a script to play WebM (VP9/Opus)', 'Завантажте скрипт для відтворення  WebM (VP9/Opus)'],
-	expImgInline:   ['[Click] открыть в посте, [Ctrl+Click] в центре', '[Click] expand in post, [Ctrl+Click] by center', '[Click] розгорнути в дописі, [Ctrl+Click] в центрі'],
-	expImgFull:     ['[Click] открыть в центре, [Ctrl+Click] в посте', '[Click] expand by center, [Ctrl+Click] in post', '[Click] розгорнути в центрі, [Ctrl+Click] в дописі'],
-	nextImg:        ['Следующая картинка', 'Next image', 'Наступне зображення'],
-	prevImg:        ['Предыдущая картинка', 'Previous image', 'Попереднє зображення'],
-	togglePost:     ['Скрыть/Раскрыть пост', 'Hide/Unhide post', 'Приховати/показати допис'],
-	replyToPost:    ['Ответить на пост', 'Reply to post', 'Відповісти на допис'],
-	expandThr:      ['Развернуть тред', 'Expand thread', 'Розгорнути нитку'],
-	addFav:         ['Добавить тред в Избранное', 'Add thread to Favorites', 'Додати нитку в вибране'],
-	delFav:         ['Убрать тред из Избранного', 'Remove thread from Favorites', 'Прибрати нитку з вибраного'],
-	attachPview:    ['Закрепить превью', 'Attach preview', 'Закріпити превʼю'],
-	expandVideo:    ['Развернуть/Свернуть видео', 'Expand/Collapse video', 'Розгорнути/згорнути відео'],
-	duration:       ['Продолжительность: ', 'Duration: ', 'Тривалість: '],
-	published:      ['опубликовано: ', 'published: ', 'опубліковано: '],
-	author:         ['Автор: ', 'Author: ', 'Автор: '],
-	views:          ['просмотров: ', 'views: ', 'переглядів: '],
+		'Можна перетягувати зображення чи посилання на файли&#13;безпосередньо зі сторінки чи інших сайтів'],
+	removeFile: [
+		'Удалить файл',
+		'Remove file',
+		'Видалити файл'],
+	spoilFile: [
+		'Спойлер',
+		'Spoiler',
+		'Спойлер'],
+	addManually: [
+		'Ввести ссылку на файл вручную',
+		'Enter a link to the file manually',
+		'Ввести посилання на файл вручну'],
+	enterTheLink: [
+		'Введите ссылку и нажмите \'+\'',
+		'Enter the link and click \'+\'',
+		'Введіть посилання та натисніть \'+\''],
+	helpAddFile: [
+		'Встроить ogg/rar/zip/7z в картинку',
+		'Embed ogg/rar/zip/7z into the image',
+		'Вбудувати ogg/rar/zip/7z в зображення'],
 
-	seSyntaxErr:    ['синтаксическая ошибка в аргументе спелла: %s', 'syntax error in argument of spell: %s', 'синтаксична помилка в аргументі закляття: %s'],
-	seUnknown:      ['неизвестный спелл: %s', 'unknown spell: %s', 'невідоме закляття: %s'],
-	seMissOp:       ['пропущен оператор', 'missing operator', 'пропущено оператор'],
-	seMissArg:      ['пропущен аргумент спелла: %s', 'missing argument of spell: %s', 'пропущено аргумент закляття: %s'],
-	seMissSpell:    ['пропущен спелл', 'missing spell', 'пропущено закляття'],
-	seErrRegex:     ['синтаксическая ошибка в регулярном выражении: %s', 'syntax error in regular expression: %s', 'синтаксична помилка в регулярному виразі: %s'],
-	seUnexpChar:    ['неожиданный символ: %s', 'unexpected character: %s', 'неочікуваний символ символ: %s'],
-	seMissClBkt:    ['пропущена закрывающая скобка', 'missing \')\' in expression', 'пропущено закривну дужку'],
-	seRepsInParens: ['спелл %s не должен располагаться в скобках', 'spell %s shouldn\'t be inside parentheses', 'закляття $s не може бути в дужках'],
-	seOpInReps:     [
-		'недопустимо использовать оператор %s со спеллами #rep и #outrep',
-		'don\'t use operator %s with spells #rep & #outrep',
-		'неприпустимо використовувати оператор %s з закляттями #rep и #outrep'
-	],
-	seRow:          [' (строка ', ' (row ', ' (рядок '],
-	seCol:          [', столбец ', ', column ', ', стовпчик '],
-	sendingPost:    ['Отправка поста...', 'Sending post...', 'Надсилання допису...'],
-	sizeByte:       [' Байт', ' Byte', ' Байт'],
-	sizeKByte:      [' КБ', ' KB', ' КБ'],
-	sizeMByte:      [' МБ', ' MB', ' МБ'],
-	sizeGByte:      [' ГБ', ' GB', ' ГБ'],
-	second:         ['с', 's', 'с']
+	// Post images: tooltips
+	expImgInline: [
+		'[Click] открыть в посте, [Ctrl+Click] по центру',
+		'[Click] expand in post, [Ctrl+Click] by center',
+		'[Click] розгорнути в пості, [Ctrl+Click] в центрі'],
+	expImgFull: [
+		'[Click] открыть по центру, [Ctrl+Click] в посте',
+		'[Click] expand by center, [Ctrl+Click] in post',
+		'[Click] розгорнути в центрі, [Ctrl+Click] в пості'],
+	nextImg: [
+		'Следующая картинка',
+		'Next image',
+		'Наступне зображення'],
+	prevImg: [
+		'Предыдущая картинка',
+		'Previous image',
+		'Попереднє зображення'],
+	downloadFile: [
+		'Скачать содержащийся в картинке файл',
+		'Download embedded file from the image',
+		'Завантажити файл, що міститься в зображенні'],
+
+	// Threads/images download: popups
+	loadImage: [
+		'Загружаются картинки',
+		'Loading images',
+		'Завантажуються зображення'],
+	loadFile: [
+		'Загружаются файлы',
+		'Loading files',
+		'Завантажуються файли'],
+	cantLoad: [
+		'Не могу загрузить',
+		'Canʼt load',
+		'Не можу завантажити'],
+	willSavePview: [
+		'Будет сохранено превью',
+		'Thumbnail will be saved',
+		'Буде збережено превʼю'],
+	loadErrors: [
+		'Во время загрузки произошли ошибки:',
+		'An error occurred during the loading:',
+		'Під час завантаження сталися помилки:'],
+
+	// Ajax: popups
+	succDeleted: [
+		'Успешно удалено!',
+		'Succesfully deleted!',
+		'Успішно видалено!'],
+	errDelete: [
+		'Не могу удалить',
+		'Canʼt delete',
+		'Не можу видалити'],
+	fileCorrupt: [
+		'Файл повреждён',
+		'File is corrupt',
+		'Файл пошкоджено'],
+	errCorruptData: [
+		'Ошибка: сервер отправил повреждённые данные',
+		'Error: server sent corrupted data',
+		'Помилка: сервер надіслав пошкоджені дані'],
+	noConnect: [
+		'Ошибка подключения',
+		'Connection failed',
+		'Помилка зʼєднання'],
+	thrNotFound: [
+		'Тред недоступен (№',
+		'Thread is unavailable (№',
+		'Тред недоступний (№'],
+	thrClosed: [
+		'Тред закрыт',
+		'Thread is closed',
+		'Тред закрито'],
+	thrArchived: [
+		'Тред в архиве',
+		'Thread is archived',
+		'Тред заархівовано'],
+
+	// Other warnings
+	internalError: [
+		'Внутренняя ошибка:\n',
+		'Internal error:\n',
+		'Внутрішня помилка:\n'],
+	postNotFound: [
+		'Пост не найден',
+		'Post not found',
+		'пост не знайдено'],
+	noHidThr: [
+		'Нет скрытых тредов…',
+		'No hidden threads…',
+		'Немає схованих постів…'],
+	noFavThr: [
+		'Нет избранных тредов…',
+		'Favorites is empty…',
+		'Немає вибраних тредів…'],
+	noVideoLinks: [
+		'Нет ссылок на видео…',
+		'No video links…',
+		'Немає посилань на відео…'],
+	invalidData: [
+		'Некорректный формат данных',
+		'Incorrect data format',
+		'Некоректний формат даних'],
+	noGlobalCfg: [
+		'Глобальные настройки не найдены',
+		'Global config not found',
+		'Глобальні налаштування не знайдено'],
+	subjHasTrip: [
+		'Поле "Тема" содержит трипкод!',
+		'"Subject" field contains a tripcode!',
+		'Поле "Тема" містить трипкод!'],
+	errMsEdgeWebm: [
+		'Загрузите скрипт для воспроизведения WebM (VP9/Opus)',
+		'Please load a script to play WebM (VP9/Opus)',
+		'Завантажте скрипт для відтворення WebM (VP9/Opus)'],
+
+	// Single words
+	second: ['с', 's', 'с'],
+	sizeByte: [' Байт', ' Byte', ' Байт'],
+	sizeKByte: [' КБ', ' KB', ' КБ'],
+	sizeMByte: [' МБ', ' MB', ' МБ'],
+	sizeGByte: [' ГБ', ' GB', ' ГБ'],
+	name: ['Имя', 'Name', 'Імʼя'],
+	subj: ['Тема', 'Subject', 'Тема'],
+	mail: ['Почта', 'Email', 'Пошта'],
+	video: ['Видео','Video', 'Відео'],
+	cap: ['Капча', 'Captcha', 'Капча'],
+	add: ['Добавить', 'Add', 'Додати'],
+	apply: ['Применить', 'Apply', 'Застосувати'],
+	cancel: ['Отмена', 'Cancel', 'Скасувати'],
+	clear: ['Очистить', 'Clear', 'Очистити'],
+	refresh: ['Обновить', 'Refresh', 'Оновити'],
+	save: ['Сохранить', 'Save', 'Зберегти'],
+	load: ['Загрузить', 'Load', 'Завантажити'],
+	edit: ['Правка', 'Edit', 'Правка'],
+	file: ['Файл', 'File', 'Файл'],
+	global: ['Глобальные', 'Global', 'Глобальні'],
+	reset: ['Сброс', 'Reset', 'Скинути'],
+	remove: ['Удалить', 'Remove', 'Видалити'],
+	change: ['Сменить', 'Change', 'Змінити'],
+	page: ['Страница', 'Page', 'Сторінка'],
+	reply: ['Ответ', 'Reply', 'Відповідь'],
+	replies: ['Ответы:', 'Replies:', 'Відповіді:'],
+	makeReply: ['Ответить', 'Reply', 'Відповісти'],
+	error: ['Ошибка', 'Error', 'Помилка'],
+	loading: ['Загрузка…', 'Loading…', 'Завантаження…'],
+	sending: ['Отправка…', 'Sending…', 'Надсилання…'],
+	checking: ['Проверка…', 'Checking…', 'Перевірка…'],
+	updating: ['Обновление…', 'Updating…', 'Оновлення…'],
+	deleting: ['Удаление…', 'Deleting…', 'Видалення…'],
+	deletion: ['Удаление…', 'Deletion…', 'Видалення…'],
+	deleted: ['удалён', 'deleted', 'видалено'],
+	hide: ['Скрыть: ', 'Hide: ', 'Сховати: '],
+
+	// Miscellaneous
+	hidePosts: [
+		'Скрыть посты',
+		'Hide posts',
+		'Сховати пости'],
+	showPosts: [
+		'Показать посты',
+		'Show posts',
+		'Показати пости'],
+	getNewPosts: [
+		'Получить новые посты',
+		'Get new posts',
+		'Отримати нові пости'],
+	makeThr: [
+		'Создать тред',
+		'Create thread',
+		'Створити тред'],
+	collapseThr: [
+		'Свернуть тред',
+		'Collapse thread',
+		'Згорнути тред'],
+	hiddenThr: [
+		'Скрытый тред',
+		'Hidden thread',
+		'Схований тред'],
+	hideForm: [
+		'Скрыть форму',
+		'Hide form',
+		'Сховати форму'],
+	noSage: [
+		'Без сажи',
+		'No sage',
+		'Без сажі'],
+	postsOmitted: [
+		'Пропущено ответов: ',
+		'Posts omitted: ',
+		'Пропущено відповідей: '],
+	newPost: [
+		['новый пост', 'новых поста', 'новых постов', 'Последний'],
+		['new post', 'new posts', 'new posts', 'Latest'],
+		['новий пост', 'нових пости', 'нових постів', 'Останній']]
 };
 
 /*==[ GlobalVars.js ]==*/
@@ -3045,11 +3822,11 @@ function showFavoritesWindow(body, data) {
 		cleanFavorites(); // Delete marked entries
 	})));
 
-	// "Deleting..." button. Hides all control buttons, shows "Apply" and "Cancel" buttons
+	// "Deleting…" button. Hides all control buttons, shows "Apply" and "Cancel" buttons
 	div.appendChild($btn(Lng.deletion[lang], Lng.delEntries[lang], () => body.classList.add('de-fav-del')));
 	div = $bEnd(body, '<div id="de-fav-delbuttons"></div>');
 
-	// "Apply" button, depends to "Deleting..."
+	// "Apply" button, depends to "Deleting…"
 	div.appendChild($btn(Lng.apply[lang], Lng.delEntries[lang], () => {
 		$each($Q('.de-entry > input[type="checkbox"]', body), el => { // Mark checked entries as deleted
 			if(el.checked) {
@@ -3060,7 +3837,7 @@ function showFavoritesWindow(body, data) {
 		body.classList.remove('de-fav-del'); // Show all control buttons
 	}));
 
-	// "Cancel" button, depends to "Deleting..."
+	// "Cancel" button, depends to "Deleting…"
 	div.appendChild($btn(Lng.cancel[lang], '', () => {
 		$each($Q('input[type="checkbox"]', body), el => el.checked = false); // Unselect all checkboxes
 		body.classList.remove('de-fav-del'); // Show all control buttons
@@ -3139,7 +3916,7 @@ const cfgWindow = Object.create({
 		// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
 		!nav.Presto && div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], () => {
 			// Create popup with controls
-			$popup('cfg-file', '<b>' + Lng.cfgImpExp[lang] + ':</b><hr>' +
+			$popup('cfg-file', '<b>' + Lng.fileImpExp[lang] + ':</b><hr>' +
 				'<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' +
 					'<input type="file" accept=".json" id="de-import-file"></div></div><hr>' +
 				'<div class="de-list"><a id="de-export-file" href="#">' +
@@ -3243,7 +4020,7 @@ const cfgWindow = Object.create({
 		}));
 
 		// "Clear" button. Allows to clear settings/favorites/hidden/etc optionally.
-		div.appendChild($btn(Lng.reset[lang] + '...', Lng.resetCfg[lang], () => $popup(
+		div.appendChild($btn(Lng.reset[lang] + '…', Lng.resetCfg[lang], () => $popup(
 			'cfg-reset',
 			`<b>${ Lng.resetData[lang] }:</b><hr>` +
 			`<div class="de-list"><b>${ aib.dm }:</b>${
@@ -3793,7 +4570,7 @@ const cfgWindow = Object.create({
 			${ pr.name ?
 				this._getInp('nameValue', false, 9) + ' ' +
 				this._getBox('userName') + '<br>' : '' }
-			${ pr.rules || pr.passw || pr.name ? Lng.dontShow[lang] +
+			${ pr.rules || pr.passw || pr.name ? Lng.hide[lang] +
 				(pr.rules ? this._getBox('noBoardRule') : '') +
 				(pr.passw ? this._getBox('noPassword') : '') +
 				(pr.name ? this._getBox('noName') : '') +
@@ -3827,7 +4604,7 @@ const cfgWindow = Object.create({
 				</div>` : '' }
 			${ nav.isGlobal ?
 				Lng.cfg.excludeList[lang] +
-				`<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, ...">` +
+				`<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, …">` +
 				this._getBox('turnOff') : '' }
 		</div>`;
 	},
@@ -4941,7 +5718,7 @@ function preloadImages(data) {
 				}
 			}
 			if(Images_.progressId) {
-				$popup(Images_.progressId, Lng.loadImage[lang] + cImg + '/' + len, true);
+				$popup(Images_.progressId, Lng.loadImage[lang] + ': ' + cImg + '/' + len, true);
 			}
 			cImg++;
 		}), function() {
@@ -5024,7 +5801,7 @@ function loadDocFiles(imgOnly) {
 			if(imgData) {
 				tar.addFile(safeName, imgData);
 			} else {
-				warnings += '<br>' + Lng.cantLoad[lang] + '<a href="' + url + '">' + url +
+				warnings += '<br>' + Lng.cantLoad[lang] + ' <a href="' + url + '">' + url +
 					'</a><br>' + Lng.willSavePview[lang];
 				$popup('err-files', Lng.loadErrors[lang] + warnings);
 				if(imgOnly) {
@@ -5125,7 +5902,7 @@ function loadDocFiles(imgOnly) {
 		});
 	}
 	$popup('load-files', (imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) +
-		'<br><progress id="de-loadprogress" value="0" max="' + count +
+		':<br><progress id="de-loadprogress" value="0" max="' + count +
 		'"></progress> <span>1</span>/' + count, true);
 	progress = $id('de-loadprogress');
 	counter = progress.nextElementSibling;
@@ -7509,7 +8286,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		}
 		this.form.onsubmit = e => {
 			$pd(e);
-			$popup('upload', Lng.sendingPost[lang], true);
+			$popup('upload', Lng.sending[lang], true);
 			spawn(html5Submit, this.form, this.subm, true)
 				.then(dc => checkUpload(dc), e => $popup('upload', getErrorMessage(e)));
 		};
@@ -7845,7 +8622,7 @@ function getSubmitError(dc) {
 }
 
 function getUploadFunc() {
-	$popup('upload', Lng.sendingPost[lang] +
+	$popup('upload', Lng.sending[lang] +
 		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' +
 		'</progress><div style="display: none; font: bold 12px arial;">' +
 		'<span></span> / <span></span> (<span></span>)</div>', true);
@@ -7968,7 +8745,7 @@ function checkUpload(data) {
 function* checkDelete(data) {
 	const err = getSubmitError(data instanceof HTMLDocument ? data : $DOM(data));
 	if(err) {
-		$popup('delete', Lng.errDelete[lang] + err);
+		$popup('delete', Lng.errDelete[lang] + ':\n' + err);
 		updater.sendErrNotif();
 		return;
 	}
@@ -8015,7 +8792,7 @@ function* html5Submit(form, submitter, needProgress = false) {
 			{
 				const data = cleanFile((yield readFile(value)).data, el.obj ? el.obj.extraFile : null);
 				if(!data) {
-					return Promise.reject(Lng.fileCorrupt[lang] + fileName);
+					return Promise.reject(Lng.fileCorrupt[lang] + ': ' + fileName);
 				}
 				value = new File(data, newFileName);
 			} else if(Cfg.removeFName) {
@@ -8546,8 +9323,8 @@ class FileInput {
 		const el = this._parent.rarInput;
 		el.onchange = e => {
 			$hide(this._btnRarJpg);
-			const myBtn = this._rarMsg = $aBegin(this._utils, '<span><svg class="de-wait">' +
-				'<use xlink:href="#de-symbol-wait"/></svg>' + Lng.wait[lang] + '</span>');
+			const myBtn = this._rarMsg = $aBegin(this._utils,
+				'<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
 			const file = e.target.files[0];
 			readFile(file).then(({ data }) => {
 				if(this._rarMsg === myBtn) {
@@ -8568,7 +9345,7 @@ class FileInput {
 		$popup('file-loading', Lng.loading[lang], true);
 		downloadImgData(url, false).then(data => {
 			if(!data) {
-				$popup('file-loading', Lng.cantLoad[lang] + 'URL: ' + url);
+				$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
 				return;
 			}
 			closePopup('file-loading');
@@ -9212,7 +9989,7 @@ class AbstractPost {
 	}
 	_getMenuImgSrc(el) {
 		var link = el.nextSibling,
-			p = encodeURIComponent(link.getAttribute('de-href') || link.href) + '" target="_blank">' + Lng.search[lang];
+			p = encodeURIComponent(link.getAttribute('de-href') || link.href) + '" target="_blank">' + Lng.searchIn[lang];
 		return '<a class="de-menu-item de-src-google" href="https://www.google.com/searchbyimage?image_url=' + p + 'Google</a>' +
 			'<a class="de-menu-item de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex</a>' +
 			'<a class="de-menu-item de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' +
@@ -11356,7 +12133,7 @@ class _4chanPostsBuilder {
 				<div class="postInfoM mobile" id="pim${ num }">
 					<span class="nameBlock ${ capcodeClass }">
 						${ name.length > 30 ?
-							'<span class="name" data-tip data-tip-cb="mShowFull">' + name.substring(30) + '(...)</span>' :
+							'<span class="name" data-tip data-tip-cb="mShowFull">' + name.substring(30) + '(…)</span>' :
 							'<span class="name">' + name + '</span>'
 						}
 						${ data.trip ? `<span class="postertrip">${ data.trip }</span>` : '' }
@@ -11435,7 +12212,7 @@ class DobrochanPostsBuilder {
 			} else {
 				fileName = fullFileName = file.src.split('/').pop();
 				if(multiFile && fileName.length > 20) {
-					fileName = fileName.substr(0, 20 - ext.length) + '(...)' + ext;
+					fileName = fileName.substr(0, 20 - ext.length) + '(…)' + ext;
 				}
 			}
 			const max_rating = 'r15'; // FIXME: read from settings
@@ -12794,10 +13571,13 @@ function initThreadUpdater(title, enableUpdate) {
 
 		show() {
 			var post = Thread.first.last,
-				notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts +
-					Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : (newPosts % 10) > 4 ||
-					(newPosts % 10) === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
-					(newPosts % 10) === 1 ? 0 : 1] + Lng.newPost[lang][3],
+				notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts + ' ' +
+					Lng.newPost[lang][
+						lang !== 0 ? +(newPosts !== 1) :
+						(newPosts % 10) > 4 || (newPosts % 10) === 0 ||
+						(((newPosts % 100) / 10) | 0) === 1 ? 2 :
+						(newPosts % 10) === 1 ? 0 : 1
+					] + '. ' + Lng.newPost[lang][3] + ':',
 				{
 					'body': post.text.substring(0, 250).replace(/\s+/g, ' '),
 					'tag': aib.dm + aib.b + aib.t,

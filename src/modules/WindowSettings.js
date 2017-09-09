@@ -70,7 +70,7 @@ const cfgWindow = Object.create({
 		// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
 		!nav.Presto && div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], () => {
 			// Create popup with controls
-			$popup('cfg-file', '<b>' + Lng.cfgImpExp[lang] + ':</b><hr>' +
+			$popup('cfg-file', '<b>' + Lng.fileImpExp[lang] + ':</b><hr>' +
 				'<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' +
 					'<input type="file" accept=".json" id="de-import-file"></div></div><hr>' +
 				'<div class="de-list"><a id="de-export-file" href="#">' +
@@ -174,7 +174,7 @@ const cfgWindow = Object.create({
 		}));
 
 		// "Clear" button. Allows to clear settings/favorites/hidden/etc optionally.
-		div.appendChild($btn(Lng.reset[lang] + '...', Lng.resetCfg[lang], () => $popup(
+		div.appendChild($btn(Lng.reset[lang] + '…', Lng.resetCfg[lang], () => $popup(
 			'cfg-reset',
 			`<b>${ Lng.resetData[lang] }:</b><hr>` +
 			`<div class="de-list"><b>${ aib.dm }:</b>${
@@ -724,7 +724,7 @@ const cfgWindow = Object.create({
 			${ pr.name ?
 				this._getInp('nameValue', false, 9) + ' ' +
 				this._getBox('userName') + '<br>' : '' }
-			${ pr.rules || pr.passw || pr.name ? Lng.dontShow[lang] +
+			${ pr.rules || pr.passw || pr.name ? Lng.hide[lang] +
 				(pr.rules ? this._getBox('noBoardRule') : '') +
 				(pr.passw ? this._getBox('noPassword') : '') +
 				(pr.name ? this._getBox('noName') : '') +
@@ -758,7 +758,7 @@ const cfgWindow = Object.create({
 				</div>` : '' }
 			${ nav.isGlobal ?
 				Lng.cfg.excludeList[lang] +
-				`<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, ...">` +
+				`<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, …">` +
 				this._getBox('turnOff') : '' }
 		</div>`;
 	},

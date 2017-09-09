@@ -16,7 +16,7 @@ function getSubmitError(dc) {
 }
 
 function getUploadFunc() {
-	$popup('upload', Lng.sendingPost[lang] +
+	$popup('upload', Lng.sending[lang] +
 		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' +
 		'</progress><div style="display: none; font: bold 12px arial;">' +
 		'<span></span> / <span></span> (<span></span>)</div>', true);
@@ -139,7 +139,7 @@ function checkUpload(data) {
 function* checkDelete(data) {
 	const err = getSubmitError(data instanceof HTMLDocument ? data : $DOM(data));
 	if(err) {
-		$popup('delete', Lng.errDelete[lang] + err);
+		$popup('delete', Lng.errDelete[lang] + ':\n' + err);
 		updater.sendErrNotif();
 		return;
 	}
@@ -186,7 +186,7 @@ function* html5Submit(form, submitter, needProgress = false) {
 			{
 				const data = cleanFile((yield readFile(value)).data, el.obj ? el.obj.extraFile : null);
 				if(!data) {
-					return Promise.reject(Lng.fileCorrupt[lang] + fileName);
+					return Promise.reject(Lng.fileCorrupt[lang] + ': ' + fileName);
 				}
 				value = new File(data, newFileName);
 			} else if(Cfg.removeFName) {

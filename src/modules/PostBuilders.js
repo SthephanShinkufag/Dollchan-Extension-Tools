@@ -167,7 +167,7 @@ class _4chanPostsBuilder {
 				<div class="postInfoM mobile" id="pim${ num }">
 					<span class="nameBlock ${ capcodeClass }">
 						${ name.length > 30 ?
-							'<span class="name" data-tip data-tip-cb="mShowFull">' + name.substring(30) + '(...)</span>' :
+							'<span class="name" data-tip data-tip-cb="mShowFull">' + name.substring(30) + '(…)</span>' :
 							'<span class="name">' + name + '</span>'
 						}
 						${ data.trip ? `<span class="postertrip">${ data.trip }</span>` : '' }
@@ -246,7 +246,7 @@ class DobrochanPostsBuilder {
 			} else {
 				fileName = fullFileName = file.src.split('/').pop();
 				if(multiFile && fileName.length > 20) {
-					fileName = fileName.substr(0, 20 - ext.length) + '(...)' + ext;
+					fileName = fileName.substr(0, 20 - ext.length) + '(…)' + ext;
 				}
 			}
 			const max_rating = 'r15'; // FIXME: read from settings

@@ -186,7 +186,7 @@ function preloadImages(data) {
 				}
 			}
 			if(Images_.progressId) {
-				$popup(Images_.progressId, Lng.loadImage[lang] + cImg + '/' + len, true);
+				$popup(Images_.progressId, Lng.loadImage[lang] + ': ' + cImg + '/' + len, true);
 			}
 			cImg++;
 		}), function() {
@@ -269,7 +269,7 @@ function loadDocFiles(imgOnly) {
 			if(imgData) {
 				tar.addFile(safeName, imgData);
 			} else {
-				warnings += '<br>' + Lng.cantLoad[lang] + '<a href="' + url + '">' + url +
+				warnings += '<br>' + Lng.cantLoad[lang] + ' <a href="' + url + '">' + url +
 					'</a><br>' + Lng.willSavePview[lang];
 				$popup('err-files', Lng.loadErrors[lang] + warnings);
 				if(imgOnly) {
@@ -370,7 +370,7 @@ function loadDocFiles(imgOnly) {
 		});
 	}
 	$popup('load-files', (imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) +
-		'<br><progress id="de-loadprogress" value="0" max="' + count +
+		':<br><progress id="de-loadprogress" value="0" max="' + count +
 		'"></progress> <span>1</span>/' + count, true);
 	progress = $id('de-loadprogress');
 	counter = progress.nextElementSibling;

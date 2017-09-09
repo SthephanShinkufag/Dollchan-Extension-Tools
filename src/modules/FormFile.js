@@ -267,8 +267,8 @@ class FileInput {
 		const el = this._parent.rarInput;
 		el.onchange = e => {
 			$hide(this._btnRarJpg);
-			const myBtn = this._rarMsg = $aBegin(this._utils, '<span><svg class="de-wait">' +
-				'<use xlink:href="#de-symbol-wait"/></svg>' + Lng.wait[lang] + '</span>');
+			const myBtn = this._rarMsg = $aBegin(this._utils,
+				'<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
 			const file = e.target.files[0];
 			readFile(file).then(({ data }) => {
 				if(this._rarMsg === myBtn) {
@@ -289,7 +289,7 @@ class FileInput {
 		$popup('file-loading', Lng.loading[lang], true);
 		downloadImgData(url, false).then(data => {
 			if(!data) {
-				$popup('file-loading', Lng.cantLoad[lang] + 'URL: ' + url);
+				$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
 				return;
 			}
 			closePopup('file-loading');

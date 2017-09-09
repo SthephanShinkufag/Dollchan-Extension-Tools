@@ -244,7 +244,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		}
 		this.form.onsubmit = e => {
 			$pd(e);
-			$popup('upload', Lng.sendingPost[lang], true);
+			$popup('upload', Lng.sending[lang], true);
 			spawn(html5Submit, this.form, this.subm, true)
 				.then(dc => checkUpload(dc), e => $popup('upload', getErrorMessage(e)));
 		};
