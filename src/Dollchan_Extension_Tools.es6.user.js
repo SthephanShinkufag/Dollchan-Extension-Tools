@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = '6a907b1';
+const commit = '4024264';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -15536,7 +15536,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.reflink::after { content: "" !important; }`;
 		}
 		get markupTags() {
-			return ["b", "i", 'u', 's', 'spoiler', 'code'];
+			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode;
@@ -15566,6 +15566,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['brchan.org'] = Brchan;
 	ibDomains['brchanansdnhvvnm.onion'] = Brchan;
+	ibDomains['lolifox.org'] = Brchan;
 
 	class Diochan extends Kusaba {
 		constructor(prot, dm) {
@@ -15938,6 +15939,18 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['krautchan.net'] = Krautchan;
+
+	class Kropyvach extends Vichan {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.markupBB = true;
+		}
+		get markupTags() {
+			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
+		}
+	}
+	ibDomains['kropyva.ch'] = Kropyvach;
 
 	class Lainchan extends Vichan {
 		constructor(prot, dm) {

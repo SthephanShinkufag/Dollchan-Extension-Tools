@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements, getStored, getStoredObj, readCfg, readPostsData, checkDelete, html5Submit, runMain].map(regeneratorRuntime.mark);
 
 	var version = '17.6.20.0';
-	var commit = '6a907b1';
+	var commit = '4024264';
 
 
 	var defaultCfg = {
@@ -19978,7 +19978,7 @@ true, true],
 			}, {
 				key: 'markupTags',
 				get: function get() {
-					return ["b", "i", 'u', 's', 'spoiler', 'code'];
+					return ['b', 'i', 'u', 's', 'spoiler', 'code'];
 				}
 			}]);
 
@@ -19987,6 +19987,7 @@ true, true],
 
 		ibDomains['brchan.org'] = Brchan;
 		ibDomains['brchanansdnhvvnm.onion'] = Brchan;
+		ibDomains['lolifox.org'] = Brchan;
 
 		var Diochan = function (_Kusaba3) {
 			_inherits(Diochan, _Kusaba3);
@@ -20507,16 +20508,40 @@ true, true],
 
 		ibDomains['krautchan.net'] = Krautchan;
 
-		var Lainchan = function (_Vichan3) {
-			_inherits(Lainchan, _Vichan3);
+		var Kropyvach = function (_Vichan3) {
+			_inherits(Kropyvach, _Vichan3);
+
+			function Kropyvach(prot, dm) {
+				_classCallCheck(this, Kropyvach);
+
+				var _this92 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
+
+				_this92.markupBB = true;
+				return _this92;
+			}
+
+			_createClass(Kropyvach, [{
+				key: 'markupTags',
+				get: function get() {
+					return ['b', 'i', 'u', 's', 'spoiler', 'code'];
+				}
+			}]);
+
+			return Kropyvach;
+		}(Vichan);
+
+		ibDomains['kropyva.ch'] = Kropyvach;
+
+		var Lainchan = function (_Vichan4) {
+			_inherits(Lainchan, _Vichan4);
 
 			function Lainchan(prot, dm) {
 				_classCallCheck(this, Lainchan);
 
-				var _this92 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
+				var _this93 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
 
-				_this92.qOPost = '.op';
-				return _this92;
+				_this93.qOPost = '.op';
+				return _this93;
 			}
 
 			_createClass(Lainchan, [{
@@ -20594,15 +20619,15 @@ true, true],
 			function Ponyach(prot, dm) {
 				_classCallCheck(this, Ponyach);
 
-				var _this95 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
+				var _this96 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
 
-				_this95.qBan = 'font[color="#FF0000"]';
-				_this95.qImgInfo = '.filesize[style="display: inline;"]';
+				_this96.qBan = 'font[color="#FF0000"]';
+				_this96.qImgInfo = '.filesize[style="display: inline;"]';
 
-				_this95.formParent = 'replythread';
-				_this95.jsonSubmit = true;
-				_this95.multiFile = true;
-				return _this95;
+				_this96.formParent = 'replythread';
+				_this96.jsonSubmit = true;
+				_this96.multiFile = true;
+				return _this96;
 			}
 
 			_createClass(Ponyach, [{
@@ -20665,10 +20690,10 @@ true, true],
 			function Ponychan(prot, dm) {
 				_classCallCheck(this, Ponychan);
 
-				var _this96 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
+				var _this97 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
 
-				_this96.qOPost = '.opContainer';
-				return _this96;
+				_this97.qOPost = '.opContainer';
+				return _this97;
 			}
 
 			_createClass(Ponychan, [{
@@ -20698,12 +20723,12 @@ true, true],
 			function Synch(prot, dm) {
 				_classCallCheck(this, Synch);
 
-				var _this97 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
+				var _this98 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
 
-				_this97.qImgInfo = '.unimportant';
+				_this98.qImgInfo = '.unimportant';
 
-				_this97.markupBB = true;
-				return _this97;
+				_this98.markupBB = true;
+				return _this98;
 			}
 
 			_createClass(Synch, [{
