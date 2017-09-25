@@ -660,14 +660,14 @@ var ImagesHashStorage = Object.create({
 		return val;
 	},
 
-	*_getHashHelper(imgObj) {
+	_getHashHelper: async function(imgObj) {
 		var el = imgObj.el,
 			src = imgObj.src;
 		if(src in this._storage) {
 			return this._storage[src];
 		}
 		if(!el.complete) {
-			yield new Promise(resolve => el.addEventListener('load', () => resolve()));
+			await new Promise(resolve => el.addEventListener('load', () => resolve()));
 		}
 		if(el.naturalWidth + el.naturalHeight === 0) {
 			return -1;
@@ -676,7 +676,7 @@ var ImagesHashStorage = Object.create({
 			w = el.naturalWidth,
 			h = el.naturalHeight;
 		if(aib.fch) {
-			var imgData = yield downloadImgData(el.src);
+			var imgData = await downloadImgData(el.src);
 			if(imgData) {
 				buffer = imgData.buffer;
 			}
@@ -689,7 +689,7 @@ var ImagesHashStorage = Object.create({
 			buffer = ctx.getImageData(0, 0, w, h).data.buffer;
 		}
 		if(buffer) {
-			data = yield new Promise(resolve =>
+			data = await new Promise(resolve =>
 				this._workers.run([buffer, w, h], [buffer], val => resolve(val)));
 			if(data && ('hash' in data)) {
 				val = data.hash;

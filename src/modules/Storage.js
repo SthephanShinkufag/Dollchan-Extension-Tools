@@ -3,12 +3,12 @@
 ============================================================================================================*/
 
 // Gets data from the global storage
-function* getStored(id) {
+async function getStored(id) {
 	if(nav.isGM) {
 		return GM_getValue(id);
 	} else if(nav.isChromeStorage) {
 		// Read storage.local first. If it not existed then read storage.sync
-		return (yield new Promise((resolve, reject) => chrome.storage.local.get(id, function(obj) {
+		return (await new Promise((resolve, reject) => chrome.storage.local.get(id, function(obj) {
 			if(Object.keys(obj).length) {
 				resolve(obj[id]);
 			} else {
@@ -60,8 +60,8 @@ function delStored(id) {
 }
 
 // Receives and parses JSON data into an object
-function* getStoredObj(id) {
-	return JSON.parse((yield* getStored(id)) || '{}') || {};
+async function getStoredObj(id) {
+	return JSON.parse((await getStored(id)) || '{}') || {};
 }
 
 // Replaces the domain config with an object. Removes the domain config, if there is no object.
@@ -90,9 +90,9 @@ function toggleCfg(id) {
 }
 
 // Config initialization, checking for Dollchan update.
-function* readCfg() {
+async function readCfg() {
 	let obj;
-	const val = yield* getStoredObj('DESU_Config');
+	const val = await getStoredObj('DESU_Config');
 	if(!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
 		let hasGlobal = nav.isGlobal && !!val.global;
 		obj = hasGlobal ? val.global : {};
@@ -162,7 +162,7 @@ function* readCfg() {
 }
 
 // Initialize of hidden and favorites. Run spells.
-function* readPostsData(firstPost) {
+async function readPostsData(firstPost) {
 	let sVis = null;
 	try {
 		// Get hidden posts and threads that cached in current session
@@ -183,7 +183,7 @@ function* readPostsData(firstPost) {
 		return;
 	}
 	let updateFav = false;
-	const fav = yield* getStoredObj('DESU_Favorites');
+	const fav = await getStoredObj('DESU_Favorites');
 	const favBrd = (aib.host in fav) && (aib.b in fav[aib.host]) ? fav[aib.host][aib.b] : {};
 	const spellsHide = Cfg.hideBySpell;
 	const maybeSpells = new Maybe(SpellsRunner);

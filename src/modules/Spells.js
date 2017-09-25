@@ -1049,18 +1049,18 @@ SpellsInterpreter.prototype = {
 		}
 		return false;
 	},
-	_ihash: async(function* (val) {
+	_ihash: async function(val) {
 		for(var image of this._post.images) {
 			if(!(image instanceof Attachment)) {
 				continue;
 			}
-			var hash = yield* ImagesHashStorage.getHash(image);
+			var hash = await ImagesHashStorage.getHash(image);
 			if(hash === val) {
 				return true;
 			}
 		}
 		return false;
-	}),
+	},
 	_subj(val) {
 		var pSubj = this._post.subj;
 		return pSubj ? !val || val.test(pSubj) : false;

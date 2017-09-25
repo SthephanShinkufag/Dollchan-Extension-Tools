@@ -136,8 +136,8 @@ function showFavoritesWindow(body, data) {
 	div.appendChild(getEditButton('favor', fn => readFavorites().then(data => fn(data, true, saveFavorites))));
 
 	// "Refresh" button. Updates counters of new posts for each thread entry.
-	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(function* () {
-		let fav = yield* getStoredObj('DESU_Favorites');
+	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async function() {
+		let fav = await getStoredObj('DESU_Favorites');
 		if(!fav[aib.host]) {
 			return;
 		}
@@ -168,9 +168,9 @@ function showFavoritesWindow(body, data) {
 			let form, isArchived;
 			try {
 				if(!aib.iichan) {
-					form = yield ajaxLoad(aib.getThrUrl(b, num));
+					form = await ajaxLoad(aib.getThrUrl(b, num));
 				} else {
-					[form, isArchived] = yield ajaxLoad(aib.getThrUrl(b, num), true, false, aib.iichan);
+					[form, isArchived] = await ajaxLoad(aib.getThrUrl(b, num), true, false, aib.iichan);
 				}
 				last404 = false;
 			} catch(e) {
@@ -253,10 +253,10 @@ function showFavoritesWindow(body, data) {
 		if(isUpdate) {
 			setStored('DESU_Favorites', JSON.stringify(fav));
 		}
-	})));
+	}));
 
 	// "Page" button. Shows on which page every thread is existed.
-	div.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(function* () {
+	div.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async function() {
 		const els = $Q('.de-fav-current > .de-fav-entries > .de-entry');
 		const len = els.length;
 		let thrInfo = [];
@@ -289,7 +289,7 @@ function showFavoritesWindow(body, data) {
 		for(let page = 0, infoLoaded = 0; page < endPage; ++page) {
 			let tNums;
 			try {
-				let form = yield ajaxLoad(aib.getPageUrl(aib.b, page));
+				let form = await ajaxLoad(aib.getPageUrl(aib.b, page));
 				tNums = new Set(Array.from(DelForm.getThreads(form)).map(thrEl => aib.getTNum(thrEl)));
 			} catch(e) {
 				continue;
@@ -333,10 +333,10 @@ function showFavoritesWindow(body, data) {
 		}
 
 		closePopup('load-pages');
-	})));
+	}));
 
 	// "Clear" button. Allows to clear 404'd threads.
-	div.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
+	div.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async function() {
 		// Sequentially load threads, and remove inaccessible
 		for(let i = 0, last404 = false, els = $Q('.de-entry'), len = els.length; i < len; ++i) {
 			const el = els[i];
@@ -345,7 +345,7 @@ function showFavoritesWindow(body, data) {
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
 			try {
-				yield $ajax(el.getAttribute('de-url'), null, false);
+				await $ajax(el.getAttribute('de-url'), null, false);
 				iconEl.setAttribute('class', 'de-fav-inf-icon');
 				titleEl.removeAttribute('title');
 			} catch(e) {
@@ -366,7 +366,7 @@ function showFavoritesWindow(body, data) {
 			last404 = false;
 		}
 		cleanFavorites(); // Delete marked entries
-	})));
+	}));
 
 	// "Deleting…" button. Hides all control buttons, shows "Apply" and "Cancel" buttons
 	div.appendChild($btn(Lng.deletion[lang], Lng.delEntries[lang], () => body.classList.add('de-fav-del')));

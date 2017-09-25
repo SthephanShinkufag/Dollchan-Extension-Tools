@@ -438,7 +438,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						}
 						DelForm.tNums = new Set();
 						$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel', doc), $del);
-						async(runMain)(checkDomains, cfgPromise);
+						runMain(checkDomains, cfgPromise);
 					});
 					$script(`window.app.$bus.on('refreshContentDone',
 						() => document.defaultView.postMessage('0chan-content-done', '*'))`);

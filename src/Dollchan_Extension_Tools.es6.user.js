@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = '4024264';
+const commit = '6a24977';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -1740,31 +1740,10 @@ const Logger = {
 	_marks: []
 };
 
-// Helper function, which allows to use 'yield' to await for promises completion.
-// Allows to write asynchronous code, which will looks like as a synchronous.
-function async(generatorFunc) {
-	return function(...args) {
-		function continuer(verb, arg) {
-			let result;
-			try {
-				result = generator[verb](arg);
-			} catch(err) {
-				console.error('Generator throw:', err);
-				return Promise.reject(err);
-			}
-			return result.done ? result.value : Promise.resolve(result.value).then(onFulfilled, onRejected);
-		}
-		const generator = generatorFunc.apply(this, args);
-		const onFulfilled = arg => continuer('next', arg);
-		const onRejected = arg => continuer('throw', arg);
-		return onFulfilled();
-	};
-}
-
 // Function that immediately calls the generator and also ends the promise chain.
 // This is useful to run generators at the top-level when you don't want to continue chaining promises.
 function spawn(generatorFunc, ...args) {
-	return Promise.resolve(async(generatorFunc)(...args));
+	return Promise.resolve(generatorFunc(...args));
 }
 
 function sleep(ms) {
@@ -2201,12 +2180,12 @@ function downloadBlob(blob, name) {
 ============================================================================================================*/
 
 // Gets data from the global storage
-function* getStored(id) {
+async function getStored(id) {
 	if(nav.isGM) {
 		return GM_getValue(id);
 	} else if(nav.isChromeStorage) {
 		// Read storage.local first. If it not existed then read storage.sync
-		return (yield new Promise((resolve, reject) => chrome.storage.local.get(id, function(obj) {
+		return (await new Promise((resolve, reject) => chrome.storage.local.get(id, function(obj) {
 			if(Object.keys(obj).length) {
 				resolve(obj[id]);
 			} else {
@@ -2258,8 +2237,8 @@ function delStored(id) {
 }
 
 // Receives and parses JSON data into an object
-function* getStoredObj(id) {
-	return JSON.parse((yield* getStored(id)) || '{}') || {};
+async function getStoredObj(id) {
+	return JSON.parse((await getStored(id)) || '{}') || {};
 }
 
 // Replaces the domain config with an object. Removes the domain config, if there is no object.
@@ -2288,9 +2267,9 @@ function toggleCfg(id) {
 }
 
 // Config initialization, checking for Dollchan update.
-function* readCfg() {
+async function readCfg() {
 	let obj;
-	const val = yield* getStoredObj('DESU_Config');
+	const val = await getStoredObj('DESU_Config');
 	if(!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
 		let hasGlobal = nav.isGlobal && !!val.global;
 		obj = hasGlobal ? val.global : {};
@@ -2360,7 +2339,7 @@ function* readCfg() {
 }
 
 // Initialize of hidden and favorites. Run spells.
-function* readPostsData(firstPost) {
+async function readPostsData(firstPost) {
 	let sVis = null;
 	try {
 		// Get hidden posts and threads that cached in current session
@@ -2381,7 +2360,7 @@ function* readPostsData(firstPost) {
 		return;
 	}
 	let updateFav = false;
-	const fav = yield* getStoredObj('DESU_Favorites');
+	const fav = await getStoredObj('DESU_Favorites');
 	const favBrd = (aib.host in fav) && (aib.b in fav[aib.host]) ? fav[aib.host][aib.b] : {};
 	const spellsHide = Cfg.hideBySpell;
 	const maybeSpells = new Maybe(SpellsRunner);
@@ -3408,12 +3387,12 @@ function showHiddenWindow(body) {
 	})));
 
 	// "Clear" button. Allows to clear 404'd threads.
-	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
+	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async function() {
 		// Sequentially load threads, and remove inaccessible
 		for(let i = 0, els = $Q('.de-entry[info]', this.parentNode), len = els.length; i < len; ++i) {
 			const [b, tNum] = els[i].getAttribute('info').split(';');
 			try {
-				yield $ajax(aib.getThrUrl(b, tNum));
+				await $ajax(aib.getThrUrl(b, tNum));
 			} catch(e) {
 				if(e.code === 404) {
 					HiddenThreads.remove(tNum, b); // Remove thread from threads storage
@@ -3422,7 +3401,7 @@ function showHiddenWindow(body) {
 			}
 		}
 		toggleWindow('hid', true);
-	})));
+	}));
 
 	// "Delete" button. Allows to delete selected threads
 	body.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], () => {
@@ -3590,8 +3569,8 @@ function showFavoritesWindow(body, data) {
 	div.appendChild(getEditButton('favor', fn => readFavorites().then(data => fn(data, true, saveFavorites))));
 
 	// "Refresh" button. Updates counters of new posts for each thread entry.
-	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(function* () {
-		let fav = yield* getStoredObj('DESU_Favorites');
+	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async function() {
+		let fav = await getStoredObj('DESU_Favorites');
 		if(!fav[aib.host]) {
 			return;
 		}
@@ -3622,9 +3601,9 @@ function showFavoritesWindow(body, data) {
 			let form, isArchived;
 			try {
 				if(!aib.iichan) {
-					form = yield ajaxLoad(aib.getThrUrl(b, num));
+					form = await ajaxLoad(aib.getThrUrl(b, num));
 				} else {
-					[form, isArchived] = yield ajaxLoad(aib.getThrUrl(b, num), true, false, aib.iichan);
+					[form, isArchived] = await ajaxLoad(aib.getThrUrl(b, num), true, false, aib.iichan);
 				}
 				last404 = false;
 			} catch(e) {
@@ -3707,10 +3686,10 @@ function showFavoritesWindow(body, data) {
 		if(isUpdate) {
 			setStored('DESU_Favorites', JSON.stringify(fav));
 		}
-	})));
+	}));
 
 	// "Page" button. Shows on which page every thread is existed.
-	div.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(function* () {
+	div.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async function() {
 		const els = $Q('.de-fav-current > .de-fav-entries > .de-entry');
 		const len = els.length;
 		let thrInfo = [];
@@ -3743,7 +3722,7 @@ function showFavoritesWindow(body, data) {
 		for(let page = 0, infoLoaded = 0; page < endPage; ++page) {
 			let tNums;
 			try {
-				let form = yield ajaxLoad(aib.getPageUrl(aib.b, page));
+				let form = await ajaxLoad(aib.getPageUrl(aib.b, page));
 				tNums = new Set(Array.from(DelForm.getThreads(form)).map(thrEl => aib.getTNum(thrEl)));
 			} catch(e) {
 				continue;
@@ -3787,10 +3766,10 @@ function showFavoritesWindow(body, data) {
 		}
 
 		closePopup('load-pages');
-	})));
+	}));
 
 	// "Clear" button. Allows to clear 404'd threads.
-	div.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
+	div.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async function() {
 		// Sequentially load threads, and remove inaccessible
 		for(let i = 0, last404 = false, els = $Q('.de-entry'), len = els.length; i < len; ++i) {
 			const el = els[i];
@@ -3799,7 +3778,7 @@ function showFavoritesWindow(body, data) {
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
 			try {
-				yield $ajax(el.getAttribute('de-url'), null, false);
+				await $ajax(el.getAttribute('de-url'), null, false);
 				iconEl.setAttribute('class', 'de-fav-inf-icon');
 				titleEl.removeAttribute('title');
 			} catch(e) {
@@ -3820,7 +3799,7 @@ function showFavoritesWindow(body, data) {
 			last404 = false;
 		}
 		cleanFavorites(); // Delete marked entries
-	})));
+	}));
 
 	// "Deleting…" button. Hides all control buttons, shows "Apply" and "Cancel" buttons
 	div.appendChild($btn(Lng.deletion[lang], Lng.delEntries[lang], () => body.classList.add('de-fav-del')));
@@ -3982,7 +3961,7 @@ const cfgWindow = Object.create({
 			const expFile = $id('de-export-file');
 			const els = $Q('input', expFile.nextElementSibling);
 			els[0].checked = true;
-			expFile.addEventListener('click', async(function* (e) {
+			expFile.addEventListener('click', async function(e) {
 				const name = [], nameDm = [], d = new Date();
 				let val = [], valDm = [];
 				for(let i = 0, len = els.length; i < len; ++i) {
@@ -3991,12 +3970,12 @@ const cfgWindow = Object.create({
 					}
 					switch(i) {
 					case 0: name.push('Cfg');
-						val.push('"settings":' + (yield* getStored('DESU_Config')),
-							'"hotkeys":' + ((yield* getStored('DESU_keys')) || '""'),
-							'"exclude":' + ((yield* getStored('DESU_Exclude')) || '""'));
+						val.push('"settings":' + (await getStored('DESU_Config')),
+							'"hotkeys":' + ((await getStored('DESU_keys')) || '""'),
+							'"exclude":' + ((await getStored('DESU_Exclude')) || '""'));
 						break;
 					case 1: name.push('Fav');
-						val.push('"favorites":' + ((yield* getStored('DESU_Favorites')) || '{}'));
+						val.push('"favorites":' + ((await getStored('DESU_Favorites')) || '{}'));
 						break;
 					case 2: nameDm.push('Hid');
 						valDm.push('"posts":' + (locStorage['de-posts'] || '{}'),
@@ -4016,7 +3995,7 @@ const cfgWindow = Object.create({
 						pad2(d.getHours()) + pad2(d.getMinutes()) + '_' + name.join('+') + '.json');
 				}
 				$pd(e);
-			}), true);
+			}, true);
 		}));
 
 		// "Clear" button. Allows to clear settings/favorites/hidden/etc optionally.
@@ -5197,8 +5176,8 @@ var HotKeys = {
 		this.tKeys = keys[4];
 		this._paused = false;
 	},
-	readKeys: async(function* () {
-		var keys, str = yield* getStored('DESU_keys');
+	readKeys: async function() {
+		var keys, str = await getStored('DESU_keys');
 		if(!str) {
 			return this.getDefaultKeys();
 		}
@@ -5257,7 +5236,7 @@ var HotKeys = {
 			}
 			return keys;
 		}
-	}),
+	},
 
 	_paused: false,
 	_getFirstVisPost(getThread, getFull) {
@@ -5663,7 +5642,7 @@ function addImgFileIcon(nameLink, fName, info) {
 		'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>');
 }
 
-function downloadImgData(url, repeatOnError = true) {
+async function downloadImgData(url, repeatOnError = true) {
 	return $ajax(url, {
 		responseType: 'arraybuffer',
 		overrideMimeType: 'text/plain; charset=x-user-defined'
@@ -6634,7 +6613,7 @@ var Pages = {
 			}
 		});
 	},
-	load: async(function* (count) {
+	load: async function(count) {
 		$popup('load-pages', Lng.loading[lang], true);
 		if(this._addPromise) {
 			this._addPromise.cancel();
@@ -6665,7 +6644,7 @@ var Pages = {
 		var len = Math.min(aib.lastPage + 1, aib.page + count);
 		for(var i = aib.page; i < len; ++i) {
 			try {
-				var el = yield ajaxLoad(aib.getPageUrl(aib.b, i));
+				var el = await ajaxLoad(aib.getPageUrl(aib.b, i));
 				this._addForm(el, i);
 			} catch(e) {
 				$popup('load-pages', getErrorMessage(e));
@@ -6675,10 +6654,10 @@ var Pages = {
 		if(first !== DelForm.last) {
 			DelForm.first = first.next;
 			$del(first.el);
-			yield* this._updateForms(DelForm.first);
+			await this._updateForms(DelForm.first);
 			closePopup('load-pages');
 		}
-	}),
+	},
 
 	_adding: false,
 	_addPromise: null,
@@ -6703,8 +6682,8 @@ var Pages = {
 		this._adding = false;
 		this._addPromise = null;
 	},
-	*_updateForms(newForm) {
-		yield* readPostsData(newForm.firstThr.op);
+	_updateForms: async function(newForm) {
+		await readPostsData(newForm.firstThr.op);
 		if(pr.passw) {
 			PostForm.setUserPassw();
 		}
@@ -7787,18 +7766,18 @@ SpellsInterpreter.prototype = {
 		}
 		return false;
 	},
-	_ihash: async(function* (val) {
+	_ihash: async function(val) {
 		for(var image of this._post.images) {
 			if(!(image instanceof Attachment)) {
 				continue;
 			}
-			var hash = yield* ImagesHashStorage.getHash(image);
+			var hash = await ImagesHashStorage.getHash(image);
 			if(hash === val) {
 				return true;
 			}
 		}
 		return false;
-	}),
+	},
 	_subj(val) {
 		var pSubj = this._post.subj;
 		return pSubj ? !val || val.test(pSubj) : false;
@@ -8742,7 +8721,7 @@ function checkUpload(data) {
 	pr.refreshCap();
 }
 
-function* checkDelete(data) {
+async function checkDelete(data) {
 	const err = getSubmitError(data instanceof HTMLDocument ? data : $DOM(data));
 	if(err) {
 		$popup('delete', Lng.errDelete[lang] + ':\n' + err);
@@ -8762,19 +8741,19 @@ function* checkDelete(data) {
 	if(isThr) {
 		Post.clearMarks();
 		try {
-			yield Thread.first.loadNewPosts();
+			await Thread.first.loadNewPosts();
 		} catch(e) {
 			infoLoadErrors(e);
 		}
 	} else {
 		for(let thr of threads) {
-			yield thr.loadPosts(visPosts, false, false);
+			await thr.loadPosts(visPosts, false, false);
 		}
 	}
 	$popup('delete', Lng.succDeleted[lang]);
 }
 
-function* html5Submit(form, submitter, needProgress = false) {
+async function html5Submit(form, submitter, needProgress = false) {
 	const formData = new FormData();
 	let hasFiles = false;
 	for(let { name, value, type, el } of getFormElements(form, submitter)) {
@@ -8790,7 +8769,7 @@ function* html5Submit(form, submitter, needProgress = false) {
 			   (value.type === 'image/jpeg' || value.type === 'image/png' ||
 				value.type === 'video/webm' && !aib.mak))
 			{
-				const data = cleanFile((yield readFile(value)).data, el.obj ? el.obj.extraFile : null);
+				const data = cleanFile((await readFile(value)).data, el.obj ? el.obj.extraFile : null);
 				if(!data) {
 					return Promise.reject(Lng.fileCorrupt[lang] + ': ' + fileName);
 				}
@@ -8806,14 +8785,14 @@ function* html5Submit(form, submitter, needProgress = false) {
 		ajaxParams.onprogress = getUploadFunc();
 	}
 	try {
-		const xhr = yield $ajax(form.action, ajaxParams);
+		const xhr = await $ajax(form.action, ajaxParams);
 		return aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText);
 	} catch(err) {
 		return Promise.reject(err);
 	}
 }
 
-function readFile(file, asText = false) {
+async function readFile(file, asText = false) {
 	return new Promise((resolve, reject) => {
 		var fr = new FileReader();
 		// XXX: firefox hack to prevent 'XrayWrapper denied access to property "then"' errors
@@ -11827,14 +11806,14 @@ var ImagesHashStorage = Object.create({
 		return val;
 	},
 
-	*_getHashHelper(imgObj) {
+	_getHashHelper: async function(imgObj) {
 		var el = imgObj.el,
 			src = imgObj.src;
 		if(src in this._storage) {
 			return this._storage[src];
 		}
 		if(!el.complete) {
-			yield new Promise(resolve => el.addEventListener('load', () => resolve()));
+			await new Promise(resolve => el.addEventListener('load', () => resolve()));
 		}
 		if(el.naturalWidth + el.naturalHeight === 0) {
 			return -1;
@@ -11843,7 +11822,7 @@ var ImagesHashStorage = Object.create({
 			w = el.naturalWidth,
 			h = el.naturalHeight;
 		if(aib.fch) {
-			var imgData = yield downloadImgData(el.src);
+			var imgData = await downloadImgData(el.src);
 			if(imgData) {
 				buffer = imgData.buffer;
 			}
@@ -11856,7 +11835,7 @@ var ImagesHashStorage = Object.create({
 			buffer = ctx.getImageData(0, 0, w, h).data.buffer;
 		}
 		if(buffer) {
-			data = yield new Promise(resolve =>
+			data = await new Promise(resolve =>
 				this._workers.run([buffer, w, h], [buffer], val => resolve(val)));
 			if(data && ('hash' in data)) {
 				val = data.hash;
@@ -14009,7 +13988,7 @@ class DelForm {
 					$pd(e);
 					pr.closeReply();
 					$popup('delete', Lng.deleting[lang], true);
-					spawn(html5Submit, el, e.target).then(async(checkDelete),
+					spawn(html5Submit, el, e.target).then(checkDelete,
 						e => $popup('delete', getErrorMessage(e)));
 				};
 			}
@@ -14971,7 +14950,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						}
 						DelForm.tNums = new Set();
 						$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel', doc), $del);
-						async(runMain)(checkDomains, cfgPromise);
+						runMain(checkDomains, cfgPromise);
 					});
 					$script(`window.app.$bus.on('refreshContentDone',
 						() => document.defaultView.postMessage('0chan-content-done', '*'))`);
@@ -16884,7 +16863,7 @@ function updateCSS() {
                                                      MAIN
 ============================================================================================================*/
 
-function* runMain(checkDomains, cfgPromise) {
+async function runMain(checkDomains, cfgPromise) {
 	Logger.init();
 	docBody = doc.body;
 	if(!docBody) {
@@ -16907,7 +16886,7 @@ function* runMain(checkDomains, cfgPromise) {
 		}
 		initNavFuncs();
 	}
-	const str = yield* getStored('DESU_Exclude');
+	const str = await getStored('DESU_Exclude');
 	if(str == null) {
 		// Greasemonkey very slow reads undefined values so store here an empty string
 		setStored('DESU_Exclude', '');
@@ -16917,9 +16896,9 @@ function* runMain(checkDomains, cfgPromise) {
 	excludeList = str || '';
 	if(!Cfg) {
 		if(cfgPromise) {
-			yield cfgPromise;
+			await cfgPromise;
 		} else {
-			yield* readCfg();
+			await readCfg();
 		}
 	}
 	Logger.log('Config loading');
@@ -17000,7 +16979,7 @@ function* runMain(checkDomains, cfgPromise) {
 	Logger.log('Infinity scroll');
 	const firstThr = DelForm.first.firstThr;
 	if(firstThr) {
-		yield* readPostsData(firstThr.op);
+		await readPostsData(firstThr.op);
 	}
 	Logger.log('Hide posts');
 	scrollPage();
@@ -17023,7 +17002,7 @@ if(/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 }
 if(doc.readyState !== 'loading') {
 	needScroll = false;
-	async(runMain)(true, null);
+	runMain(true, null);
 } else {
 	let cfgPromise = null;
 	if((aib = getImageBoard(true, false))) {
@@ -17038,7 +17017,7 @@ if(doc.readyState !== 'loading') {
 		needScroll = false;
 		doc.removeEventListener(e.type, wFunc);
 	});
-	doc.addEventListener('DOMContentLoaded', async(() => runMain(false, cfgPromise)));
+	doc.addEventListener('DOMContentLoaded', () => runMain(false, cfgPromise));
 }
 
 /*==[ Tail ]==*/

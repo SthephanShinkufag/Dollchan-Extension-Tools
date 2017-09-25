@@ -2,7 +2,7 @@
                                                      MAIN
 ============================================================================================================*/
 
-function* runMain(checkDomains, cfgPromise) {
+async function runMain(checkDomains, cfgPromise) {
 	Logger.init();
 	docBody = doc.body;
 	if(!docBody) {
@@ -25,7 +25,7 @@ function* runMain(checkDomains, cfgPromise) {
 		}
 		initNavFuncs();
 	}
-	const str = yield* getStored('DESU_Exclude');
+	const str = await getStored('DESU_Exclude');
 	if(str == null) {
 		// Greasemonkey very slow reads undefined values so store here an empty string
 		setStored('DESU_Exclude', '');
@@ -35,9 +35,9 @@ function* runMain(checkDomains, cfgPromise) {
 	excludeList = str || '';
 	if(!Cfg) {
 		if(cfgPromise) {
-			yield cfgPromise;
+			await cfgPromise;
 		} else {
-			yield* readCfg();
+			await readCfg();
 		}
 	}
 	Logger.log('Config loading');
@@ -118,7 +118,7 @@ function* runMain(checkDomains, cfgPromise) {
 	Logger.log('Infinity scroll');
 	const firstThr = DelForm.first.firstThr;
 	if(firstThr) {
-		yield* readPostsData(firstThr.op);
+		await readPostsData(firstThr.op);
 	}
 	Logger.log('Hide posts');
 	scrollPage();
@@ -141,7 +141,7 @@ if(/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 }
 if(doc.readyState !== 'loading') {
 	needScroll = false;
-	async(runMain)(true, null);
+	runMain(true, null);
 } else {
 	let cfgPromise = null;
 	if((aib = getImageBoard(true, false))) {
@@ -156,5 +156,5 @@ if(doc.readyState !== 'loading') {
 		needScroll = false;
 		doc.removeEventListener(e.type, wFunc);
 	});
-	doc.addEventListener('DOMContentLoaded', async(() => runMain(false, cfgPromise)));
+	doc.addEventListener('DOMContentLoaded', () => runMain(false, cfgPromise));
 }

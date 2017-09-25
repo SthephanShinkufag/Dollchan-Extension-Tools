@@ -27,7 +27,7 @@ var Pages = {
 			}
 		});
 	},
-	load: async(function* (count) {
+	load: async function(count) {
 		$popup('load-pages', Lng.loading[lang], true);
 		if(this._addPromise) {
 			this._addPromise.cancel();
@@ -58,7 +58,7 @@ var Pages = {
 		var len = Math.min(aib.lastPage + 1, aib.page + count);
 		for(var i = aib.page; i < len; ++i) {
 			try {
-				var el = yield ajaxLoad(aib.getPageUrl(aib.b, i));
+				var el = await ajaxLoad(aib.getPageUrl(aib.b, i));
 				this._addForm(el, i);
 			} catch(e) {
 				$popup('load-pages', getErrorMessage(e));
@@ -68,10 +68,10 @@ var Pages = {
 		if(first !== DelForm.last) {
 			DelForm.first = first.next;
 			$del(first.el);
-			yield* this._updateForms(DelForm.first);
+			await this._updateForms(DelForm.first);
 			closePopup('load-pages');
 		}
-	}),
+	},
 
 	_adding: false,
 	_addPromise: null,
@@ -96,8 +96,8 @@ var Pages = {
 		this._adding = false;
 		this._addPromise = null;
 	},
-	*_updateForms(newForm) {
-		yield* readPostsData(newForm.firstThr.op);
+	_updateForms: async function(newForm) {
+		await readPostsData(newForm.firstThr.op);
 		if(pr.passw) {
 			PostForm.setUserPassw();
 		}

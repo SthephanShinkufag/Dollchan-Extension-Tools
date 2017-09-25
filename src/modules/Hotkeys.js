@@ -262,8 +262,8 @@ var HotKeys = {
 		this.tKeys = keys[4];
 		this._paused = false;
 	},
-	readKeys: async(function* () {
-		var keys, str = yield* getStored('DESU_keys');
+	readKeys: async function() {
+		var keys, str = await getStored('DESU_keys');
 		if(!str) {
 			return this.getDefaultKeys();
 		}
@@ -322,7 +322,7 @@ var HotKeys = {
 			}
 			return keys;
 		}
-	}),
+	},
 
 	_paused: false,
 	_getFirstVisPost(getThread, getFull) {

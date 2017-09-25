@@ -131,7 +131,7 @@ function addImgFileIcon(nameLink, fName, info) {
 		'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>');
 }
 
-function downloadImgData(url, repeatOnError = true) {
+async function downloadImgData(url, repeatOnError = true) {
 	return $ajax(url, {
 		responseType: 'arraybuffer',
 		overrideMimeType: 'text/plain; charset=x-user-defined'

@@ -136,7 +136,7 @@ function checkUpload(data) {
 	pr.refreshCap();
 }
 
-function* checkDelete(data) {
+async function checkDelete(data) {
 	const err = getSubmitError(data instanceof HTMLDocument ? data : $DOM(data));
 	if(err) {
 		$popup('delete', Lng.errDelete[lang] + ':\n' + err);
@@ -156,19 +156,19 @@ function* checkDelete(data) {
 	if(isThr) {
 		Post.clearMarks();
 		try {
-			yield Thread.first.loadNewPosts();
+			await Thread.first.loadNewPosts();
 		} catch(e) {
 			infoLoadErrors(e);
 		}
 	} else {
 		for(let thr of threads) {
-			yield thr.loadPosts(visPosts, false, false);
+			await thr.loadPosts(visPosts, false, false);
 		}
 	}
 	$popup('delete', Lng.succDeleted[lang]);
 }
 
-function* html5Submit(form, submitter, needProgress = false) {
+async function html5Submit(form, submitter, needProgress = false) {
 	const formData = new FormData();
 	let hasFiles = false;
 	for(let { name, value, type, el } of getFormElements(form, submitter)) {
@@ -184,7 +184,7 @@ function* html5Submit(form, submitter, needProgress = false) {
 			   (value.type === 'image/jpeg' || value.type === 'image/png' ||
 				value.type === 'video/webm' && !aib.mak))
 			{
-				const data = cleanFile((yield readFile(value)).data, el.obj ? el.obj.extraFile : null);
+				const data = cleanFile((await readFile(value)).data, el.obj ? el.obj.extraFile : null);
 				if(!data) {
 					return Promise.reject(Lng.fileCorrupt[lang] + ': ' + fileName);
 				}
@@ -200,14 +200,14 @@ function* html5Submit(form, submitter, needProgress = false) {
 		ajaxParams.onprogress = getUploadFunc();
 	}
 	try {
-		const xhr = yield $ajax(form.action, ajaxParams);
+		const xhr = await $ajax(form.action, ajaxParams);
 		return aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText);
 	} catch(err) {
 		return Promise.reject(err);
 	}
 }
 
-function readFile(file, asText = false) {
+async function readFile(file, asText = false) {
 	return new Promise((resolve, reject) => {
 		var fr = new FileReader();
 		// XXX: firefox hack to prevent 'XrayWrapper denied access to property "then"' errors

@@ -171,12 +171,12 @@ function showHiddenWindow(body) {
 	})));
 
 	// "Clear" button. Allows to clear 404'd threads.
-	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
+	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async function() {
 		// Sequentially load threads, and remove inaccessible
 		for(let i = 0, els = $Q('.de-entry[info]', this.parentNode), len = els.length; i < len; ++i) {
 			const [b, tNum] = els[i].getAttribute('info').split(';');
 			try {
-				yield $ajax(aib.getThrUrl(b, tNum));
+				await $ajax(aib.getThrUrl(b, tNum));
 			} catch(e) {
 				if(e.code === 404) {
 					HiddenThreads.remove(tNum, b); // Remove thread from threads storage
@@ -185,7 +185,7 @@ function showHiddenWindow(body) {
 			}
 		}
 		toggleWindow('hid', true);
-	})));
+	}));
 
 	// "Delete" button. Allows to delete selected threads
 	body.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], () => {

@@ -258,31 +258,10 @@ const Logger = {
 	_marks: []
 };
 
-// Helper function, which allows to use 'yield' to await for promises completion.
-// Allows to write asynchronous code, which will looks like as a synchronous.
-function async(generatorFunc) {
-	return function(...args) {
-		function continuer(verb, arg) {
-			let result;
-			try {
-				result = generator[verb](arg);
-			} catch(err) {
-				console.error('Generator throw:', err);
-				return Promise.reject(err);
-			}
-			return result.done ? result.value : Promise.resolve(result.value).then(onFulfilled, onRejected);
-		}
-		const generator = generatorFunc.apply(this, args);
-		const onFulfilled = arg => continuer('next', arg);
-		const onRejected = arg => continuer('throw', arg);
-		return onFulfilled();
-	};
-}
-
 // Function that immediately calls the generator and also ends the promise chain.
 // This is useful to run generators at the top-level when you don't want to continue chaining promises.
 function spawn(generatorFunc, ...args) {
-	return Promise.resolve(async(generatorFunc)(...args));
+	return Promise.resolve(generatorFunc(...args));
 }
 
 function sleep(ms) {

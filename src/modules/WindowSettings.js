@@ -136,7 +136,7 @@ const cfgWindow = Object.create({
 			const expFile = $id('de-export-file');
 			const els = $Q('input', expFile.nextElementSibling);
 			els[0].checked = true;
-			expFile.addEventListener('click', async(function* (e) {
+			expFile.addEventListener('click', async function(e) {
 				const name = [], nameDm = [], d = new Date();
 				let val = [], valDm = [];
 				for(let i = 0, len = els.length; i < len; ++i) {
@@ -145,12 +145,12 @@ const cfgWindow = Object.create({
 					}
 					switch(i) {
 					case 0: name.push('Cfg');
-						val.push('"settings":' + (yield* getStored('DESU_Config')),
-							'"hotkeys":' + ((yield* getStored('DESU_keys')) || '""'),
-							'"exclude":' + ((yield* getStored('DESU_Exclude')) || '""'));
+						val.push('"settings":' + (await getStored('DESU_Config')),
+							'"hotkeys":' + ((await getStored('DESU_keys')) || '""'),
+							'"exclude":' + ((await getStored('DESU_Exclude')) || '""'));
 						break;
 					case 1: name.push('Fav');
-						val.push('"favorites":' + ((yield* getStored('DESU_Favorites')) || '{}'));
+						val.push('"favorites":' + ((await getStored('DESU_Favorites')) || '{}'));
 						break;
 					case 2: nameDm.push('Hid');
 						valDm.push('"posts":' + (locStorage['de-posts'] || '{}'),
@@ -170,7 +170,7 @@ const cfgWindow = Object.create({
 						pad2(d.getHours()) + pad2(d.getMinutes()) + '_' + name.join('+') + '.json');
 				}
 				$pd(e);
-			}), true);
+			}, true);
 		}));
 
 		// "Clear" button. Allows to clear settings/favorites/hidden/etc optionally.
