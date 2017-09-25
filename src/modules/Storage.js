@@ -66,7 +66,7 @@ async function getStoredObj(id) {
 
 // Replaces the domain config with an object. Removes the domain config, if there is no object.
 function saveCfgObj(dm, obj) {
-	spawn(getStoredObj, 'DESU_Config').then(val => {
+	getStoredObj('DESU_Config').then(val => {
 		if(obj) {
 			val[dm] = obj;
 		} else {
@@ -262,7 +262,7 @@ async function readPostsData(firstPost) {
 }
 
 function readFavorites() {
-	return spawn(getStoredObj, 'DESU_Favorites');
+	return getStoredObj('DESU_Favorites');
 }
 
 function saveFavorites(fav) {

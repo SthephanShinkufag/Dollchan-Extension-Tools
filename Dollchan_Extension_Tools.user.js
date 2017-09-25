@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.6.20.0';
-	var commit = '6a24977';
+	var commit = 'ca7a735';
 
 
 	var defaultCfg = {
@@ -3781,14 +3781,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_marks: []
 	};
 
-	function spawn(generatorFunc) {
-		for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-			args[_key - 1] = arguments[_key];
-		}
-
-		return Promise.resolve(generatorFunc.apply(undefined, args));
-	}
-
 	function sleep(ms) {
 		return new Promise(function (resolve, reject) {
 			return setTimeout(resolve, ms);
@@ -4512,7 +4504,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function saveCfgObj(dm, obj) {
-		spawn(getStoredObj, 'DESU_Config').then(function (val) {
+		getStoredObj('DESU_Config').then(function (val) {
 			if (obj) {
 				val[dm] = obj;
 			} else {
@@ -4782,7 +4774,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function readFavorites() {
-		return spawn(getStoredObj, 'DESU_Favorites');
+		return getStoredObj('DESU_Favorites');
 	}
 
 	function saveFavorites(fav) {
@@ -5915,7 +5907,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], function _callee2() {
-			var fav, isUpdate, last404, myposts, els, i, len, el, host, _b2, num, f, countEl, youEl, iconEl, titleEl, form, isArchived, _ref4, _ref5, bArch, posts, cnt, j, links, a, _len2, _num, tc;
+			var fav, isUpdate, last404, myposts, els, i, len, el, host, _b2, num, f, countEl, youEl, iconEl, titleEl, form, isArchived, _ref4, _ref5, bArch, posts, cnt, j, links, a, _len, _num, tc;
 
 			return regeneratorRuntime.async(function _callee2$(_context7) {
 				while (1) {
@@ -6077,7 +6069,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									for (j = 0; j < cnt; ++j) {
 										links = $Q(aib.qPostMsg + ' a', posts[posts.length - 1 - j]);
 
-										for (a = 0, _len2 = links.length; a < _len2; ++a) {
+										for (a = 0, _len = links.length; a < _len; ++a) {
 											tc = links[a].textContent;
 
 											if (tc[0] === '>' && tc[1] === '>' && myposts[_b2][tc.substr(2)]) {
@@ -6363,7 +6355,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			nav.isGlobal && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], function () {
 				var el = $popup('cfg-global', '<b>' + Lng.globalCfg[lang] + ':</b>');
 				$bEnd(el, '<div id="de-list"><input type="button" value="' + Lng.load[lang] + '"> ' + Lng.loadGlobal[lang] + '</div>').firstElementChild.onclick = function () {
-					return spawn(getStoredObj, 'DESU_Config').then(function (data) {
+					return getStoredObj('DESU_Config').then(function (data) {
 						if (data && 'global' in data && !$isEmpty(data.global)) {
 							saveCfgObj(aib.dm, data.global);
 							window.location.reload();
@@ -6373,7 +6365,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					});
 				};
 				div = $bEnd(el, '<div id="de-list"><input type="button" value="' + Lng.save[lang] + '"> ' + Lng.saveGlobal[lang] + '</div>').firstElementChild.onclick = function () {
-					return spawn(getStoredObj, 'DESU_Config').then(function (data) {
+					return getStoredObj('DESU_Config').then(function (data) {
 						var obj = {};
 						var com = data[aib.dm];
 						for (var i in com) {
@@ -6601,7 +6593,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						delStored('DESU_keys');
 						delStored('DESU_Exclude');
 					} else if (els[0].checked) {
-						spawn(getStoredObj, 'DESU_Config').then(function (data) {
+						getStoredObj('DESU_Config').then(function (data) {
 							delete data[aib.dm];
 							setStored('DESU_Config', JSON.stringify(data));
 							$popup('cfg-reset', Lng.updating[lang], true);
@@ -6829,7 +6821,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 						break;
 					case 'turnOff':
-						spawn(getStoredObj, 'DESU_Config').then(function (data) {
+						getStoredObj('DESU_Config').then(function (data) {
 							for (var dm in data) {
 								if (dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
 									data[dm].disabled = Cfg.turnOff;
@@ -6865,7 +6857,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 					case 'de-cfg-btn-updnow':
 						$popup('updavail', Lng.loading[lang], true);
-						spawn(getStoredObj, 'DESU_Config').then(function (data) {
+						getStoredObj('DESU_Config').then(function (data) {
 							return checkForUpdates(true, data.lastUpd);
 						}).then(function (html) {
 							return $popup('updavail', html);
@@ -7055,7 +7047,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgInfo: function _getCfgInfo() {
-			return '<div id="de-cfg-info" class="de-cfg-unvis">\n\t\t\t<div style="padding-bottom: 10px;">\n\t\t\t\t<a href="' + gitWiki + 'versions" target="_blank">v' + version + '.' + (commit + (nav.isES6 ? '.es6' : '')) + '</a>&nbsp;|&nbsp;\n\t\t\t\t<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;\n\t\t\t\t<a href="' + (gitWiki + (lang ? 'home-en/' : '')) + '" target="_blank">Github</a>\n\t\t\t</div>\n\t\t\t<div id="de-info-table">\n\t\t\t\t<div id="de-info-stats">' + this._getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], HiddenThreads.getCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false) + '</div>\n\t\t\t\t<div id="de-info-log">' + this._getInfoTable(Logger.getData(false), true) + '</div>\n\t\t\t</div>\n\t\t\t<input type="button" id="de-cfg-btn-debug" value="' + Lng.debug[lang] + '" title="' + Lng.infoDebug[lang] + '">\n\t\t</div>';
+			return '<div id="de-cfg-info" class="de-cfg-unvis">\n\t\t\t<div style="padding-bottom: 10px;">\n\t\t\t\t<a href="' + gitWiki + 'versions" target="_blank">v' + version + '.' + (commit + (nav.isESNext ? '.es6' : '')) + '</a>&nbsp;|&nbsp;\n\t\t\t\t<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;\n\t\t\t\t<a href="' + (gitWiki + (lang ? 'home-en/' : '')) + '" target="_blank">Github</a>\n\t\t\t</div>\n\t\t\t<div id="de-info-table">\n\t\t\t\t<div id="de-info-stats">' + this._getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], HiddenThreads.getCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false) + '</div>\n\t\t\t\t<div id="de-info-log">' + this._getInfoTable(Logger.getData(false), true) + '</div>\n\t\t\t</div>\n\t\t\t<input type="button" id="de-cfg-btn-debug" value="' + Lng.debug[lang] + '" title="' + Lng.infoDebug[lang] + '">\n\t\t</div>';
 		},
 
 
@@ -8272,7 +8264,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
 				var scriptStr,
 				    localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
-				if (nav.isES6) {
+				if (nav.isESNext) {
 					scriptStr = '(' + String(de_main_func_inner) + ')(null, null, (x, y) => window.scrollTo(x, y), ' + localData + ');';
 				} else {
 					scriptStr = '(' + String(de_main_func_outer) + ')(' + localData + ');';
@@ -8419,8 +8411,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return txt;
 			}
 			return txt.replace(new RegExp(this.regex, 'g'), function (str) {
-				for (var _len3 = arguments.length, args = Array(_len3 > 1 ? _len3 - 1 : 0), _key2 = 1; _key2 < _len3; _key2++) {
-					args[_key2 - 1] = arguments[_key2];
+				for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key = 1; _key < _len2; _key++) {
+					args[_key - 1] = arguments[_key];
 				}
 
 				var second, minute, hour, day, month, year;
@@ -8533,8 +8525,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		    videoObj = _ref12[2],
 		    id = _ref12[3];
 
-		for (var _len4 = arguments.length, data = Array(_len4 > 2 ? _len4 - 2 : 0), _key3 = 2; _key3 < _len4; _key3++) {
-			data[_key3 - 2] = arguments[_key3];
+		for (var _len3 = arguments.length, data = Array(_len3 > 2 ? _len3 - 2 : 0), _key2 = 2; _key2 < _len3; _key2++) {
+			data[_key2 - 2] = arguments[_key2];
 		}
 
 		if (data.length !== 0) {
@@ -8744,7 +8736,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			if (Cfg.addVimeo) {
 				links = $Q('a[href*="vimeo.com"]', isPost ? data.el : data);
-				for (var _i7 = 0, _len5 = links.length; _i7 < _len5; ++_i7) {
+				for (var _i7 = 0, _len4 = links.length; _i7 < _len4; ++_i7) {
 					var _link = links[_i7];
 					var _m = _link.href.match(Videos.vimReg);
 					if (_m) {
@@ -8756,7 +8748,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 			var vids = aib.fixVideo(isPost, data);
-			for (var _i8 = 0, _len6 = vids.length; _i8 < _len6; ++_i8) {
+			for (var _i8 = 0, _len5 = vids.length; _i8 < _len5; ++_i8) {
 				var _vids$_i = _slicedToArray(vids[_i8], 3),
 				    pst = _vids$_i[0],
 				    _m2 = _vids$_i[1],
@@ -8792,7 +8784,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 		if (Cfg.addVocaroo) {
 			var _els = $Q('a[href*="vocaroo.com"]', isPost ? data.el : data);
-			for (var _i9 = 0, _len7 = _els.length; _i9 < _len7; ++_i9) {
+			for (var _i9 = 0, _len6 = _els.length; _i9 < _len6; ++_i9) {
 				var _link2 = _els[_i9];
 				var _el2 = _link2.previousSibling;
 				if (!_el2 || _el2.className !== 'de-vocaroo') {
@@ -9119,7 +9111,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					_this18.add();
 					return CancelablePromise.reject(new CancelError());
 				}
-				return spawn(_this18._updateForms, DelForm.last);
+				return _this18._updateForms(DelForm.last);
 			}).then(function () {
 				return _this18._endAdding();
 			})['catch'](function (e) {
@@ -9859,17 +9851,17 @@ true, true],
 				}
 			}
 			sp = sp.sort();
-			for (var _i19 = 0, _len8 = sp.length - 1; _i19 < _len8; _i19++) {
+			for (var _i19 = 0, _len7 = sp.length - 1; _i19 < _len7; _i19++) {
 				if (sp[_i19][0] === sp[_i19 + 1][0] && sp[_i19][1] <= sp[_i19 + 1][1] && sp[_i19][1] >= sp[_i19 + 1][1] && (sp[_i19][2] === null || 
 				sp[_i19][2] === undefined || 
 				sp[_i19][2] <= sp[_i19 + 1][2] && sp[_i19][2] >= sp[_i19 + 1][2])) {
 					sp.splice(_i19 + 1, 1);
 					_i19--;
-					_len8--;
+					_len7--;
 				} else if (sp[_i19][0] === 0xFF) {
 					sp.push(sp.splice(_i19, 1)[0]);
 					_i19--;
-					_len8--;
+					_len7--;
 				}
 			}
 		},
@@ -11116,7 +11108,7 @@ true, true],
 				val = Spells.outReplace(val);
 			}
 			if (_this22.tNum && pByNum.get(_this22.tNum).subj === 'Dollchan Extension Tools') {
-				var temp = '\n\n' + _this22._wrapText(aib.markupTags[5], '-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit + (nav.isES6 ? '.es6' : '') + ' [' + nav.scriptInstall + ']')[1];
+				var temp = '\n\n' + _this22._wrapText(aib.markupTags[5], '-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit + (nav.isESNext ? '.es6' : '') + ' [' + nav.scriptInstall + ']')[1];
 				if (!val.includes(temp)) {
 					val += temp;
 				}
@@ -11176,7 +11168,7 @@ true, true],
 			this.form.onsubmit = function (e) {
 				$pd(e);
 				$popup('upload', Lng.sending[lang], true);
-				spawn(html5Submit, _this22.form, _this22.subm, true).then(function (dc) {
+				html5Submit(_this22.form, _this22.subm, true).then(function (dc) {
 					return checkUpload(dc);
 				}, function (e) {
 					return $popup('upload', getErrorMessage(e));
@@ -13697,7 +13689,7 @@ true, true],
 						Spells.add(3 , '/' + quoteReg(this.images.firstAttach.name) + '/', false);
 						return;
 					case 'hide-ihash':
-						spawn(ImagesHashStorage.getHash, this.images.firstAttach).then(function (hash) {
+						ImagesHashStorage.getHash(this.images.firstAttach).then(function (hash) {
 							if (hash !== -1) {
 								Spells.add(4 , hash, false);
 							}
@@ -14080,7 +14072,7 @@ true, true],
 		}
 		if (Cfg.addImgs) {
 			els = Array.from($Q('.de-img-pre', post.el));
-			for (var _i35 = 0, _len9 = els.length; _i35 < _len9; ++_i35) {
+			for (var _i35 = 0, _len8 = els.length; _i35 < _len8; ++_i35) {
 				var _el5 = els[_i35];
 				last = new EmbeddedImage(post, _el5, last);
 				filesMap.set(_el5, last);
@@ -16774,7 +16766,7 @@ true, true],
 					temp.innerHTML = aib.fixHTML(html.join(''));
 					fragm = temp.content;
 					var _posts = $Q(aib.qRPost, fragm);
-					for (var _i46 = 0, _len10 = _posts.length; _i46 < _len10; ++_i46) {
+					for (var _i46 = 0, _len9 = _posts.length; _i46 < _len9; ++_i46) {
 						last = this._addPost(fragm, _posts[_i46], begin + _i46 + 1, last, maybeVParser);
 						newVisCount -= maybeSpells.value.run(last);
 					}
@@ -17924,7 +17916,7 @@ true, true],
 							$pd(e);
 							pr.closeReply();
 							$popup('delete', Lng.deleting[lang], true);
-							spawn(html5Submit, el, e.target).then(checkDelete, function (e) {
+							html5Submit(el, e.target).then(checkDelete, function (e) {
 								return $popup('delete', getErrorMessage(e));
 							});
 						};
@@ -18053,7 +18045,7 @@ true, true],
 			Presto: !!window.opera,
 			MsEdge: ua.includes('Edge/'),
 			isGM: isGM,
-			get isES6() {
+			get isESNext() {
 				return typeof de_main_func_outer === 'undefined';
 			},
 			isChromeStorage: isChromeStorage,
@@ -18061,8 +18053,8 @@ true, true],
 			isGlobal: isGM || isChromeStorage || isScriptStorage,
 			scriptInstall: firefox ? typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish' : isChromeStorage ? 'Chrome extension' : isGM ? 'Monkey' : 'Native userscript',
 			cssMatches: function cssMatches(leftSel) {
-				for (var _len11 = arguments.length, rules = Array(_len11 > 1 ? _len11 - 1 : 0), _key4 = 1; _key4 < _len11; _key4++) {
-					rules[_key4 - 1] = arguments[_key4];
+				for (var _len10 = arguments.length, rules = Array(_len10 > 1 ? _len10 - 1 : 0), _key3 = 1; _key3 < _len10; _key3++) {
+					rules[_key3 - 1] = arguments[_key3];
 				}
 
 				return leftSel + rules.join(', ' + leftSel);
@@ -20126,7 +20118,7 @@ true, true],
 				value: function init() {
 					if (window.location.pathname === '/settings') {
 						$q('input[type="button"]').addEventListener('click', function () {
-							spawn(readCfg).then(function () {
+							return readCfg().then(function () {
 								return saveCfg('__hanarating', $id('rating').value);
 							});
 						});
@@ -20407,7 +20399,7 @@ true, true],
 				value: function initCaptcha(cap) {
 					cap.hasCaptcha = false;
 					var scripts = $Q('script:not([src])', doc);
-					for (var _i52 = 0, _len12 = scripts.length; _i52 < _len12; ++_i52) {
+					for (var _i52 = 0, _len11 = scripts.length; _i52 < _len11; ++_i52) {
 						var m = scripts[_i52].textContent.match(/var boardRequiresCaptcha = ([a-z]+);/);
 						if (m) {
 							if (m[1] === 'true') {
@@ -20898,9 +20890,9 @@ true, true],
 			var remoteVer = m && m[1] ? m[1].split('.') : null;
 			if (remoteVer) {
 				var currentVer = version.split('.');
-				var src = gitRaw + (nav.isES6 ? 'src/' : '') + 'Dollchan_Extension_Tools.' + (nav.isES6 ? 'es6.' : '') + 'user.js';
+				var src = gitRaw + (nav.isESNext ? 'src/' : '') + 'Dollchan_Extension_Tools.' + (nav.isESNext ? 'es6.' : '') + 'user.js';
 				saveCfgObj('lastUpd', Date.now());
-				for (var i = 0, _len13 = Math.max(currentVer.length, remoteVer.length); i < _len13; ++i) {
+				for (var i = 0, _len12 = Math.max(currentVer.length, remoteVer.length); i < _len12; ++i) {
 					if ((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
 						return '<a style="color: blue; font-weight: bold;" href="' + src + '">' + Lng.updAvail[lang] + '</a>';
 					} else if ((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
@@ -21321,7 +21313,7 @@ true, true],
 					};
 				}
 				initNavFuncs();
-				cfgPromise = spawn(readCfg);
+				cfgPromise = readCfg();
 			}
 			needScroll = true;
 			doc.addEventListener('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', function wFunc(e) {

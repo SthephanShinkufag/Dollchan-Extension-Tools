@@ -1132,9 +1132,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			if(window.location.pathname === '/settings') {
-				$q('input[type="button"]').addEventListener('click', function() {
-					spawn(readCfg).then(() => saveCfg('__hanarating', $id('rating').value));
-				});
+				$q('input[type="button"]').addEventListener('click',
+					() => readCfg().then(() => saveCfg('__hanarating', $id('rating').value)));
 				return true;
 			}
 			$script('window.UploadProgress = function() {}');

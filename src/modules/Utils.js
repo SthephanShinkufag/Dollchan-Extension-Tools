@@ -258,12 +258,6 @@ const Logger = {
 	_marks: []
 };
 
-// Function that immediately calls the generator and also ends the promise chain.
-// This is useful to run generators at the top-level when you don't want to continue chaining promises.
-function spawn(generatorFunc, ...args) {
-	return Promise.resolve(generatorFunc(...args));
-}
-
 function sleep(ms) {
 	return new Promise((resolve, reject) => setTimeout(resolve, ms));
 }

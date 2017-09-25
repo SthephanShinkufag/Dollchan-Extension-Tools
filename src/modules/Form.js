@@ -185,7 +185,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		if(this.tNum && pByNum.get(this.tNum).subj === 'Dollchan Extension Tools') {
 			const temp = '\n\n' + this._wrapText(aib.markupTags[5],
 				'-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit +
-				(nav.isES6 ? '.es6' : '') + ' [' + nav.scriptInstall + ']')[1];
+				(nav.isESNext ? '.es6' : '') + ' [' + nav.scriptInstall + ']')[1];
 			if(!val.includes(temp)) {
 				val += temp;
 			}
@@ -245,7 +245,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		this.form.onsubmit = e => {
 			$pd(e);
 			$popup('upload', Lng.sending[lang], true);
-			spawn(html5Submit, this.form, this.subm, true)
+			html5Submit(this.form, this.subm, true)
 				.then(dc => checkUpload(dc), e => $popup('upload', getErrorMessage(e)));
 		};
 	}

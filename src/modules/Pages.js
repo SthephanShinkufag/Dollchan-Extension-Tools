@@ -19,7 +19,7 @@ var Pages = {
 				this.add();
 				return CancelablePromise.reject(new CancelError());
 			}
-			return spawn(this._updateForms, DelForm.last);
+			return this._updateForms(DelForm.last);
 		}).then(() => this._endAdding()).catch(e => {
 			if(!(e instanceof CancelError)) {
 				$popup('add-page', getErrorMessage(e));

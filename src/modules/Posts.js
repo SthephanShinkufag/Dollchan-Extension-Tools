@@ -714,7 +714,7 @@ class Post extends AbstractPost {
 			Spells.add(3 /* #imgn */, '/' + quoteReg(this.images.firstAttach.name) + '/', false);
 			return;
 		case 'hide-ihash':
-			spawn(ImagesHashStorage.getHash, this.images.firstAttach).then(hash => {
+			ImagesHashStorage.getHash(this.images.firstAttach).then(hash => {
 				if(hash !== -1) {
 					Spells.add(4 /* #ihash */, hash, false);
 				}

@@ -22,7 +22,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = '6a24977';
+const commit = 'ca7a735';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -1740,12 +1740,6 @@ const Logger = {
 	_marks: []
 };
 
-// Function that immediately calls the generator and also ends the promise chain.
-// This is useful to run generators at the top-level when you don't want to continue chaining promises.
-function spawn(generatorFunc, ...args) {
-	return Promise.resolve(generatorFunc(...args));
-}
-
 function sleep(ms) {
 	return new Promise((resolve, reject) => setTimeout(resolve, ms));
 }
@@ -2243,7 +2237,7 @@ async function getStoredObj(id) {
 
 // Replaces the domain config with an object. Removes the domain config, if there is no object.
 function saveCfgObj(dm, obj) {
-	spawn(getStoredObj, 'DESU_Config').then(val => {
+	getStoredObj('DESU_Config').then(val => {
 		if(obj) {
 			val[dm] = obj;
 		} else {
@@ -2439,7 +2433,7 @@ async function readPostsData(firstPost) {
 }
 
 function readFavorites() {
-	return spawn(getStoredObj, 'DESU_Favorites');
+	return getStoredObj('DESU_Favorites');
 }
 
 function saveFavorites(fav) {
@@ -3863,7 +3857,7 @@ const cfgWindow = Object.create({
 			// "Load" button. Applies global settings for current domain.
 			$bEnd(el, `<div id="de-list"><input type="button" value="${
 				Lng.load[lang] }"> ${ Lng.loadGlobal[lang] }</div>`
-			).firstElementChild.onclick = () => spawn(getStoredObj, 'DESU_Config').then(data => {
+			).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
 				if(data && ('global' in data) && !$isEmpty(data.global)) {
 					saveCfgObj(aib.dm, data.global);
 					window.location.reload();
@@ -3874,7 +3868,7 @@ const cfgWindow = Object.create({
 			// "Save" button. Copies the domain settings into global.
 			div = $bEnd(el, `<div id="de-list"><input type="button" value="${
 				Lng.save[lang] }"> ${ Lng.saveGlobal[lang] }</div>`
-			).firstElementChild.onclick = () => spawn(getStoredObj, 'DESU_Config').then(data => {
+			).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
 				const obj = {};
 				const com = data[aib.dm];
 				for(let i in com) {
@@ -4028,7 +4022,7 @@ const cfgWindow = Object.create({
 				delStored('DESU_keys');
 				delStored('DESU_Exclude');
 			} else if(els[0].checked) {
-				spawn(getStoredObj, 'DESU_Config').then(data => {
+				getStoredObj('DESU_Config').then(data => {
 					delete data[aib.dm];
 					setStored('DESU_Config', JSON.stringify(data));
 					$popup('cfg-reset', Lng.updating[lang], true);
@@ -4211,7 +4205,7 @@ const cfgWindow = Object.create({
 					HotKeys.disable();
 				}
 				break;
-			case 'turnOff': spawn(getStoredObj, 'DESU_Config').then(data => {
+			case 'turnOff': getStoredObj('DESU_Config').then(data => {
 					for(let dm in data) {
 						if(dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
 							data[dm].disabled = Cfg.turnOff;
@@ -4247,7 +4241,7 @@ const cfgWindow = Object.create({
 				break;
 			case 'de-cfg-btn-updnow':
 				$popup('updavail', Lng.loading[lang], true);
-				spawn(getStoredObj, 'DESU_Config')
+				getStoredObj('DESU_Config')
 					.then(data => checkForUpdates(true, data.lastUpd))
 					.then(html => $popup('updavail', html), emptyFn);
 				break;
@@ -4593,7 +4587,7 @@ const cfgWindow = Object.create({
 		return `<div id="de-cfg-info" class="de-cfg-unvis">
 			<div style="padding-bottom: 10px;">
 				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit +
-					(nav.isES6 ? '.es6' : '')}</a>&nbsp;|&nbsp;
+					(nav.isESNext ? '.es6' : '')}</a>&nbsp;|&nbsp;
 				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;
 				<a href="${ gitWiki + (lang ? 'home-en/' : '') }" target="_blank">Github</a>
 			</div>
@@ -5804,8 +5798,9 @@ function loadDocFiles(imgOnly) {
 				'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
 			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
 			var scriptStr, localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
-			if(nav.isES6) {
-				scriptStr = '(' + String(de_main_func_inner) + ')(null, null, (x, y) => window.scrollTo(x, y), ' + localData + ');';
+			if(nav.isESNext) {
+				scriptStr = '(' + String(de_main_func_inner) +
+					')(null, null, (x, y) => window.scrollTo(x, y), ' + localData + ');';
 			} else {
 				scriptStr = '(' + String(de_main_func_outer) + ')(' + localData + ');';
 			}
@@ -6605,7 +6600,7 @@ var Pages = {
 				this.add();
 				return CancelablePromise.reject(new CancelError());
 			}
-			return spawn(this._updateForms, DelForm.last);
+			return this._updateForms(DelForm.last);
 		}).then(() => this._endAdding()).catch(e => {
 			if(!(e instanceof CancelError)) {
 				$popup('add-page', getErrorMessage(e));
@@ -8206,7 +8201,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		if(this.tNum && pByNum.get(this.tNum).subj === 'Dollchan Extension Tools') {
 			const temp = '\n\n' + this._wrapText(aib.markupTags[5],
 				'-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit +
-				(nav.isES6 ? '.es6' : '') + ' [' + nav.scriptInstall + ']')[1];
+				(nav.isESNext ? '.es6' : '') + ' [' + nav.scriptInstall + ']')[1];
 			if(!val.includes(temp)) {
 				val += temp;
 			}
@@ -8266,7 +8261,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		this.form.onsubmit = e => {
 			$pd(e);
 			$popup('upload', Lng.sending[lang], true);
-			spawn(html5Submit, this.form, this.subm, true)
+			html5Submit(this.form, this.subm, true)
 				.then(dc => checkUpload(dc), e => $popup('upload', getErrorMessage(e)));
 		};
 	}
@@ -10374,7 +10369,7 @@ class Post extends AbstractPost {
 			Spells.add(3 /* #imgn */, '/' + quoteReg(this.images.firstAttach.name) + '/', false);
 			return;
 		case 'hide-ihash':
-			spawn(ImagesHashStorage.getHash, this.images.firstAttach).then(hash => {
+			ImagesHashStorage.getHash(this.images.firstAttach).then(hash => {
 				if(hash !== -1) {
 					Spells.add(4 /* #ihash */, hash, false);
 				}
@@ -13988,8 +13983,7 @@ class DelForm {
 					$pd(e);
 					pr.closeReply();
 					$popup('delete', Lng.deleting[lang], true);
-					spawn(html5Submit, el, e.target).then(checkDelete,
-						e => $popup('delete', getErrorMessage(e)));
+					html5Submit(el, e.target).then(checkDelete, e => $popup('delete', getErrorMessage(e)));
 				};
 			}
 		}
@@ -14104,7 +14098,7 @@ function initNavFuncs() {
 		Presto: !!window.opera,
 		MsEdge: ua.includes('Edge/'),
 		isGM: isGM,
-		get isES6() {
+		get isESNext() {
 			return typeof de_main_func_outer === 'undefined';
 		},
 		isChromeStorage: isChromeStorage,
@@ -15644,9 +15638,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			if(window.location.pathname === '/settings') {
-				$q('input[type="button"]').addEventListener('click', function() {
-					spawn(readCfg).then(() => saveCfg('__hanarating', $id('rating').value));
-				});
+				$q('input[type="button"]').addEventListener('click',
+					() => readCfg().then(() => saveCfg('__hanarating', $id('rating').value)));
 				return true;
 			}
 			$script('window.UploadProgress = function() {}');
@@ -16165,8 +16158,8 @@ function checkForUpdates(isManual, lastUpdateTime) {
 		const remoteVer = m && m[1] ? m[1].split('.') : null;
 		if(remoteVer) {
 			const currentVer = version.split('.');
-			const src = gitRaw + (nav.isES6 ? 'src/' : '') + 'Dollchan_Extension_Tools.' +
-				(nav.isES6 ? 'es6.' : '') + 'user.js';
+			const src = gitRaw + (nav.isESNext ? 'src/' : '') + 'Dollchan_Extension_Tools.' +
+				(nav.isESNext ? 'es6.' : '') + 'user.js';
 			saveCfgObj('lastUpd', Date.now());
 			for(let i = 0, len = Math.max(currentVer.length, remoteVer.length); i < len; ++i) {
 				if((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
@@ -17010,7 +17003,7 @@ if(doc.readyState !== 'loading') {
 			return;
 		}
 		initNavFuncs();
-		cfgPromise = spawn(readCfg);
+		cfgPromise = readCfg();
 	}
 	needScroll = true;
 	doc.addEventListener('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', function wFunc(e) {

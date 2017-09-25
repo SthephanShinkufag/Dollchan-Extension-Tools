@@ -293,8 +293,9 @@ function loadDocFiles(imgOnly) {
 				'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
 			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
 			var scriptStr, localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
-			if(nav.isES6) {
-				scriptStr = '(' + String(de_main_func_inner) + ')(null, null, (x, y) => window.scrollTo(x, y), ' + localData + ');';
+			if(nav.isESNext) {
+				scriptStr = '(' + String(de_main_func_inner) +
+					')(null, null, (x, y) => window.scrollTo(x, y), ' + localData + ');';
 			} else {
 				scriptStr = '(' + String(de_main_func_outer) + ')(' + localData + ');';
 			}

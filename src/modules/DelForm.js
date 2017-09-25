@@ -119,8 +119,7 @@ class DelForm {
 					$pd(e);
 					pr.closeReply();
 					$popup('delete', Lng.deleting[lang], true);
-					spawn(html5Submit, el, e.target).then(checkDelete,
-						e => $popup('delete', getErrorMessage(e)));
+					html5Submit(el, e.target).then(checkDelete, e => $popup('delete', getErrorMessage(e)));
 				};
 			}
 		}

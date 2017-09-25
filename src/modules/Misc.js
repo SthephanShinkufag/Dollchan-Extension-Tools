@@ -76,8 +76,8 @@ function checkForUpdates(isManual, lastUpdateTime) {
 		const remoteVer = m && m[1] ? m[1].split('.') : null;
 		if(remoteVer) {
 			const currentVer = version.split('.');
-			const src = gitRaw + (nav.isES6 ? 'src/' : '') + 'Dollchan_Extension_Tools.' +
-				(nav.isES6 ? 'es6.' : '') + 'user.js';
+			const src = gitRaw + (nav.isESNext ? 'src/' : '') + 'Dollchan_Extension_Tools.' +
+				(nav.isESNext ? 'es6.' : '') + 'user.js';
 			saveCfgObj('lastUpd', Date.now());
 			for(let i = 0, len = Math.max(currentVer.length, remoteVer.length); i < len; ++i) {
 				if((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {

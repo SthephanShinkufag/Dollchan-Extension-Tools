@@ -38,7 +38,7 @@ const cfgWindow = Object.create({
 			// "Load" button. Applies global settings for current domain.
 			$bEnd(el, `<div id="de-list"><input type="button" value="${
 				Lng.load[lang] }"> ${ Lng.loadGlobal[lang] }</div>`
-			).firstElementChild.onclick = () => spawn(getStoredObj, 'DESU_Config').then(data => {
+			).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
 				if(data && ('global' in data) && !$isEmpty(data.global)) {
 					saveCfgObj(aib.dm, data.global);
 					window.location.reload();
@@ -49,7 +49,7 @@ const cfgWindow = Object.create({
 			// "Save" button. Copies the domain settings into global.
 			div = $bEnd(el, `<div id="de-list"><input type="button" value="${
 				Lng.save[lang] }"> ${ Lng.saveGlobal[lang] }</div>`
-			).firstElementChild.onclick = () => spawn(getStoredObj, 'DESU_Config').then(data => {
+			).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
 				const obj = {};
 				const com = data[aib.dm];
 				for(let i in com) {
@@ -203,7 +203,7 @@ const cfgWindow = Object.create({
 				delStored('DESU_keys');
 				delStored('DESU_Exclude');
 			} else if(els[0].checked) {
-				spawn(getStoredObj, 'DESU_Config').then(data => {
+				getStoredObj('DESU_Config').then(data => {
 					delete data[aib.dm];
 					setStored('DESU_Config', JSON.stringify(data));
 					$popup('cfg-reset', Lng.updating[lang], true);
@@ -386,7 +386,7 @@ const cfgWindow = Object.create({
 					HotKeys.disable();
 				}
 				break;
-			case 'turnOff': spawn(getStoredObj, 'DESU_Config').then(data => {
+			case 'turnOff': getStoredObj('DESU_Config').then(data => {
 					for(let dm in data) {
 						if(dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
 							data[dm].disabled = Cfg.turnOff;
@@ -422,7 +422,7 @@ const cfgWindow = Object.create({
 				break;
 			case 'de-cfg-btn-updnow':
 				$popup('updavail', Lng.loading[lang], true);
-				spawn(getStoredObj, 'DESU_Config')
+				getStoredObj('DESU_Config')
 					.then(data => checkForUpdates(true, data.lastUpd))
 					.then(html => $popup('updavail', html), emptyFn);
 				break;
@@ -768,7 +768,7 @@ const cfgWindow = Object.create({
 		return `<div id="de-cfg-info" class="de-cfg-unvis">
 			<div style="padding-bottom: 10px;">
 				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit +
-					(nav.isES6 ? '.es6' : '')}</a>&nbsp;|&nbsp;
+					(nav.isESNext ? '.es6' : '')}</a>&nbsp;|&nbsp;
 				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;
 				<a href="${ gitWiki + (lang ? 'home-en/' : '') }" target="_blank">Github</a>
 			</div>

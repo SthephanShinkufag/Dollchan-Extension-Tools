@@ -88,7 +88,7 @@ function initNavFuncs() {
 		Presto: !!window.opera,
 		MsEdge: ua.includes('Edge/'),
 		isGM: isGM,
-		get isES6() {
+		get isESNext() {
 			return typeof de_main_func_outer === 'undefined';
 		},
 		isChromeStorage: isChromeStorage,

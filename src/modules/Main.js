@@ -149,7 +149,7 @@ if(doc.readyState !== 'loading') {
 			return;
 		}
 		initNavFuncs();
-		cfgPromise = spawn(readCfg);
+		cfgPromise = readCfg();
 	}
 	needScroll = true;
 	doc.addEventListener('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', function wFunc(e) {
