@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.6.20.0';
-	var commit = '0d5272b';
+	var commit = '9a82b1f';
 
 
 	var defaultCfg = {
@@ -9225,13 +9225,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 
 		_updateForms: function _updateForms(newForm) {
+			var fav;
 			return regeneratorRuntime.async(function _updateForms$(_context14) {
 				while (1) {
 					switch (_context14.prev = _context14.next) {
 						case 0:
-							getStoredObj('DESU_Favorites').then(function (fav) {
-								return readPostsData(newForm.firstThr.op, fav);
-							});
+							_context14.next = 2;
+							return regeneratorRuntime.awrap(getStoredObj('DESU_Favorites'));
+
+						case 2:
+							fav = _context14.sent;
+
+							readPostsData(newForm.firstThr.op, fav);
 							if (pr.passw) {
 								PostForm.setUserPassw();
 							}
@@ -9239,7 +9244,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								HotKeys.clear();
 							}
 
-						case 3:
+						case 6:
 						case 'end':
 							return _context14.stop();
 					}

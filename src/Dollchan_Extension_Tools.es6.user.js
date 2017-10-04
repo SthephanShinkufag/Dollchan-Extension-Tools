@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = '0d5272b';
+const commit = '9a82b1f';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -6702,7 +6702,8 @@ var Pages = {
 		this._addPromise = null;
 	},
 	_updateForms: async function(newForm) {
-		getStoredObj('DESU_Favorites').then(fav => readPostsData(newForm.firstThr.op, fav));
+		let fav = await getStoredObj('DESU_Favorites');
+		readPostsData(newForm.firstThr.op, fav);
 		if(pr.passw) {
 			PostForm.setUserPassw();
 		}
