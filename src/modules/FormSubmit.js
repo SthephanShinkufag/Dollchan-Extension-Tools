@@ -219,6 +219,7 @@ async function readFile(file, asText = false) {
 }
 
 function cleanFile(data, extraData) {
+	const subarray = (begin, end) => nav.getUnsafeUint8Array(data, begin, end - begin);
 	var i, len, val, lIdx, jpgDat, img = nav.getUnsafeUint8Array(data),
 		rand = Cfg.postSameImg && String(Math.round(Math.random() * 1e6)),
 		rExif = !!Cfg.removeEXIF,
@@ -239,12 +240,12 @@ function cleanFile(data, extraData) {
 						} else if(img[i + 1] === 0xE0 && img[i + 7] === 0x46 &&
 						         (img[i + 2] !== 0 || img[i + 3] >= 0x0E || img[i + 15] !== 0xFF))
 						{
-							jpgDat = img.subarray(i + 11, i + 16);
+							jpgDat = subarray(i + 11, i + 16);
 						}
 					}
 					if(((img[i + 1] >> 4) === 0xE && img[i + 1] !== 0xEE) || img[i + 1] === 0xFE) {
 						if(lIdx !== i) {
-							val.push(img.subarray(lIdx, i));
+							val.push(subarray(lIdx, i));
 						}
 						i += 2 + (img[i + 2] << 8) + img[i + 3];
 						lIdx = i;
@@ -273,7 +274,7 @@ function cleanFile(data, extraData) {
 		}
 		val[0] = new Uint8Array([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x0E, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1]);
 		val[1] = jpgDat || new Uint8Array([0, 0, 1, 0, 1]);
-		val.push(img.subarray(lIdx, i));
+		val.push(subarray(lIdx, i));
 		if(extraData) {
 			val.push(extraData);
 		}

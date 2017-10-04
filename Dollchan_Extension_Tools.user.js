@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.6.20.0';
-	var commit = 'b4651fc';
+	var commit = '7b2eb6b';
 
 
 	var defaultCfg = {
@@ -11791,6 +11791,9 @@ true, true],
 	}
 
 	function cleanFile(data, extraData) {
+		var subarray = function subarray(begin, end) {
+			return nav.getUnsafeUint8Array(data, begin, end - begin);
+		};
 		var i,
 		    len,
 		    val,
@@ -11812,12 +11815,12 @@ true, true],
 							if (img[i + 1] === 0xE1 && img[i + 4] === 0x45) {
 								jpgDat = readExif(data, i + 10, (img[i + 2] << 8) + img[i + 3]);
 							} else if (img[i + 1] === 0xE0 && img[i + 7] === 0x46 && (img[i + 2] !== 0 || img[i + 3] >= 0x0E || img[i + 15] !== 0xFF)) {
-								jpgDat = img.subarray(i + 11, i + 16);
+								jpgDat = subarray(i + 11, i + 16);
 							}
 						}
 						if (img[i + 1] >> 4 === 0xE && img[i + 1] !== 0xEE || img[i + 1] === 0xFE) {
 							if (lIdx !== i) {
-								val.push(img.subarray(lIdx, i));
+								val.push(subarray(lIdx, i));
 							}
 							i += 2 + (img[i + 2] << 8) + img[i + 3];
 							lIdx = i;
@@ -11846,7 +11849,7 @@ true, true],
 			}
 			val[0] = new Uint8Array([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x0E, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1]);
 			val[1] = jpgDat || new Uint8Array([0, 0, 1, 0, 1]);
-			val.push(img.subarray(lIdx, i));
+			val.push(subarray(lIdx, i));
 			if (extraData) {
 				val.push(extraData);
 			}
