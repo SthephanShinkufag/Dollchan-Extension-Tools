@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = '8996c91';
+const commit = 'b4651fc';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -14211,7 +14211,7 @@ function initNavFuncs() {
 		},
 		getUnsafeDataView(data, offset) {
 			const rv = new DataView(data, offset || 0);
-			return nav.isNewGM || (nav.Firefox && (rv instanceof DataView)) ? rv : new unsafeWindow.DataView(data, offset || 0);
+			return nav.isNewGM || !nav.Firefox || (rv instanceof DataView) ? rv : new unsafeWindow.DataView(data, offset || 0);
 		}
 	};
 }

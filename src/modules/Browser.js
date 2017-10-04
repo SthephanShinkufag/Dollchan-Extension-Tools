@@ -179,7 +179,7 @@ function initNavFuncs() {
 		},
 		getUnsafeDataView(data, offset) {
 			const rv = new DataView(data, offset || 0);
-			return nav.isNewGM || (nav.Firefox && (rv instanceof DataView)) ? rv : new unsafeWindow.DataView(data, offset || 0);
+			return nav.isNewGM || !nav.Firefox || (rv instanceof DataView) ? rv : new unsafeWindow.DataView(data, offset || 0);
 		}
 	};
 }
