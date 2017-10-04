@@ -424,7 +424,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.href.split('#')[0] + '#' + el.getAttribute('data-post'));
 			return false;
 		}
-		observeContent(checkDomains, cfgPromise) {
+		observeContent(checkDomains, dataPromise) {
 			const initObserver = new MutationObserver(mutations => {
 				const el = mutations[0].addedNodes[0];
 				if(el && el.id === 'app') {
@@ -438,7 +438,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						}
 						DelForm.tNums = new Set();
 						$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel', doc), $del);
-						runMain(checkDomains, cfgPromise);
+						runMain(checkDomains, dataPromise);
 					});
 					$script(`window.app.$bus.on('refreshContentDone',
 						() => document.defaultView.postMessage('0chan-content-done', '*'))`);
@@ -1234,6 +1234,20 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['ernstchan.com'] = Ernstchan;
 	// ibEngines.push(['head > link[href*="phutaba.css"]', Ernstchan]);
+
+	class Ichan extends Kusaba {
+		init() {
+			super.init();
+			var el = $q('div[id^="thread"]');
+			if(el) {
+				let node;
+				while((node = el.nextElementSibling) && node.tagName === 'TABLE') {
+					el.appendChild(node);
+				}
+			}
+		}
+	}
+	ibDomains['ichan.net'] = Ichan;
 
 	class Iichan extends BaseBoard {
 		constructor(prot, dm) {

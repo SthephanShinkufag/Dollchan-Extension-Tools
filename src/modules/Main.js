@@ -14,7 +14,7 @@ async function runMain(checkDomains, dataPromise) {
 	let formEl = $q(aib.qDForm + ', form[de-form]');
 	if(!formEl) {
 		if(aib.observeContent) {
-			aib.observeContent(checkDomains, cfgPromise);
+			aib.observeContent(checkDomains, dataPromise);
 		}
 		return;
 	}

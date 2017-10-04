@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.6.20.0';
-	var commit = '7b2eb6b';
+	var commit = '34459d2';
 
 
 	var defaultCfg = {
@@ -18992,7 +18992,7 @@ true, true],
 				}
 			}, {
 				key: 'observeContent',
-				value: function observeContent(checkDomains, cfgPromise) {
+				value: function observeContent(checkDomains, dataPromise) {
 					var initObserver = new MutationObserver(function (mutations) {
 						var el = mutations[0].addedNodes[0];
 						if (el && el.id === 'app') {
@@ -19008,7 +19008,7 @@ true, true],
 								}
 								DelForm.tNums = new Set();
 								$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel', doc), $del);
-								runMain(checkDomains, cfgPromise);
+								runMain(checkDomains, dataPromise);
 							});
 							$script('window.app.$bus.on(\'refreshContentDone\',\n\t\t\t\t\t\t() => document.defaultView.postMessage(\'0chan-content-done\', \'*\'))');
 						}
@@ -20165,18 +20165,46 @@ true, true],
 
 		ibDomains['ernstchan.com'] = Ernstchan;
 
+		var Ichan = function (_Kusaba4) {
+			_inherits(Ichan, _Kusaba4);
+
+			function Ichan() {
+				_classCallCheck(this, Ichan);
+
+				return _possibleConstructorReturn(this, (Ichan.__proto__ || Object.getPrototypeOf(Ichan)).apply(this, arguments));
+			}
+
+			_createClass(Ichan, [{
+				key: 'init',
+				value: function init() {
+					_get(Ichan.prototype.__proto__ || Object.getPrototypeOf(Ichan.prototype), 'init', this).call(this);
+					var el = $q('div[id^="thread"]');
+					if (el) {
+						var node = void 0;
+						while ((node = el.nextElementSibling) && node.tagName === 'TABLE') {
+							el.appendChild(node);
+						}
+					}
+				}
+			}]);
+
+			return Ichan;
+		}(Kusaba);
+
+		ibDomains['ichan.net'] = Ichan;
+
 		var Iichan = function (_BaseBoard15) {
 			_inherits(Iichan, _BaseBoard15);
 
 			function Iichan(prot, dm) {
 				_classCallCheck(this, Iichan);
 
-				var _this90 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
+				var _this91 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
 
-				_this90.iichan = true;
+				_this91.iichan = true;
 
-				_this90.hasCatalog = true;
-				return _this90;
+				_this91.hasCatalog = true;
+				return _this91;
 			}
 
 			_createClass(Iichan, [{
@@ -20229,35 +20257,35 @@ true, true],
 			function Krautchan(prot, dm) {
 				_classCallCheck(this, Krautchan);
 
-				var _this91 = _possibleConstructorReturn(this, (Krautchan.__proto__ || Object.getPrototypeOf(Krautchan)).call(this, prot, dm));
+				var _this92 = _possibleConstructorReturn(this, (Krautchan.__proto__ || Object.getPrototypeOf(Krautchan)).call(this, prot, dm));
 
-				_this91.krau = true;
+				_this92.krau = true;
 
-				_this91.cReply = 'postreply';
-				_this91.qBan = '.ban_mark';
-				_this91.qClosed = 'img[src="/images/locked.gif"]';
-				_this91.qDForm = 'form[action*="delete"]';
-				_this91.qError = '.message_text';
-				_this91.qFormRedir = 'input#forward_thread';
-				_this91.qFormRules = '#rules_row';
-				_this91.qImgInfo = '.fileinfo';
-				_this91.qOmitted = '.omittedinfo';
-				_this91.qPages = 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a';
-				_this91.qPostHeader = '.postheader';
-				_this91.qPostImg = 'img[id^="thumbnail_"]';
-				_this91.qPostRef = '.postnumber';
-				_this91.qPostSubj = '.postsubject';
-				_this91.qRPost = '.postreply';
-				_this91.qTrunc = 'p[id^="post_truncated"]';
+				_this92.cReply = 'postreply';
+				_this92.qBan = '.ban_mark';
+				_this92.qClosed = 'img[src="/images/locked.gif"]';
+				_this92.qDForm = 'form[action*="delete"]';
+				_this92.qError = '.message_text';
+				_this92.qFormRedir = 'input#forward_thread';
+				_this92.qFormRules = '#rules_row';
+				_this92.qImgInfo = '.fileinfo';
+				_this92.qOmitted = '.omittedinfo';
+				_this92.qPages = 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a';
+				_this92.qPostHeader = '.postheader';
+				_this92.qPostImg = 'img[id^="thumbnail_"]';
+				_this92.qPostRef = '.postnumber';
+				_this92.qPostSubj = '.postsubject';
+				_this92.qRPost = '.postreply';
+				_this92.qTrunc = 'p[id^="post_truncated"]';
 
-				_this91.hasCatalog = true;
-				_this91.hasPicWrap = true;
-				_this91.hasTextLinks = true;
-				_this91.markupBB = true;
-				_this91.multiFile = true;
-				_this91.res = 'thread-';
-				_this91.timePattern = 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?';
-				return _this91;
+				_this92.hasCatalog = true;
+				_this92.hasPicWrap = true;
+				_this92.hasTextLinks = true;
+				_this92.markupBB = true;
+				_this92.multiFile = true;
+				_this92.res = 'thread-';
+				_this92.timePattern = 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?';
+				return _this92;
 			}
 
 			_createClass(Krautchan, [{
@@ -20418,10 +20446,10 @@ true, true],
 			function Kropyvach(prot, dm) {
 				_classCallCheck(this, Kropyvach);
 
-				var _this92 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
+				var _this93 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
 
-				_this92.markupBB = true;
-				return _this92;
+				_this93.markupBB = true;
+				return _this93;
 			}
 
 			_createClass(Kropyvach, [{
@@ -20442,10 +20470,10 @@ true, true],
 			function Lainchan(prot, dm) {
 				_classCallCheck(this, Lainchan);
 
-				var _this93 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
+				var _this94 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
 
-				_this93.qOPost = '.op';
-				return _this93;
+				_this94.qOPost = '.op';
+				return _this94;
 			}
 
 			_createClass(Lainchan, [{
@@ -20469,8 +20497,8 @@ true, true],
 
 		ibDomains['lainchan.org'] = Lainchan;
 
-		var Niuchan = function (_Kusaba4) {
-			_inherits(Niuchan, _Kusaba4);
+		var Niuchan = function (_Kusaba5) {
+			_inherits(Niuchan, _Kusaba5);
 
 			function Niuchan() {
 				_classCallCheck(this, Niuchan);
@@ -20523,15 +20551,15 @@ true, true],
 			function Ponyach(prot, dm) {
 				_classCallCheck(this, Ponyach);
 
-				var _this96 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
+				var _this97 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
 
-				_this96.qBan = 'font[color="#FF0000"]';
-				_this96.qImgInfo = '.filesize[style="display: inline;"]';
+				_this97.qBan = 'font[color="#FF0000"]';
+				_this97.qImgInfo = '.filesize[style="display: inline;"]';
 
-				_this96.formParent = 'replythread';
-				_this96.jsonSubmit = true;
-				_this96.multiFile = true;
-				return _this96;
+				_this97.formParent = 'replythread';
+				_this97.jsonSubmit = true;
+				_this97.multiFile = true;
+				return _this97;
 			}
 
 			_createClass(Ponyach, [{
@@ -20594,10 +20622,10 @@ true, true],
 			function Ponychan(prot, dm) {
 				_classCallCheck(this, Ponychan);
 
-				var _this97 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
+				var _this98 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
 
-				_this97.qOPost = '.opContainer';
-				return _this97;
+				_this98.qOPost = '.opContainer';
+				return _this98;
 			}
 
 			_createClass(Ponychan, [{
@@ -20627,12 +20655,12 @@ true, true],
 			function Synch(prot, dm) {
 				_classCallCheck(this, Synch);
 
-				var _this98 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
+				var _this99 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
 
-				_this98.qImgInfo = '.unimportant';
+				_this99.qImgInfo = '.unimportant';
 
-				_this98.markupBB = true;
-				return _this98;
+				_this99.markupBB = true;
+				return _this99;
 			}
 
 			_createClass(Synch, [{
@@ -20997,7 +21025,7 @@ true, true],
 						}
 
 						if (aib.observeContent) {
-							aib.observeContent(checkDomains, cfgPromise);
+							aib.observeContent(checkDomains, dataPromise);
 						}
 						return _context23.abrupt('return');
 
