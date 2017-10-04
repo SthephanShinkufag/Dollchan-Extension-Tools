@@ -4,7 +4,9 @@
 
 // Gets data from the global storage
 async function getStored(id) {
-	if(nav.isGM) {
+	if(nav.isNewGM) {
+		return await GM.getValue(id);
+	} else if(nav.isGM) {
 		return GM_getValue(id);
 	} else if(nav.isChromeStorage) {
 		// Read storage.local first. If it not existed then read storage.sync
@@ -24,8 +26,11 @@ async function getStored(id) {
 }
 
 // Saves data into the global storage
+// FIXME: make async?
 function setStored(id, value) {
-	if(nav.isGM) {
+	if(nav.isNewGM) {
+		return GM.setValue(id, value);
+	} else if(nav.isGM) {
 		GM_setValue(id, value);
 	} else if(nav.isChromeStorage) {
 		const obj = {};
@@ -47,8 +52,11 @@ function setStored(id, value) {
 }
 
 // Removes data from the global storage
+// FIXME: make async?
 function delStored(id) {
-	if(nav.isGM) {
+	if(nav.isNewGM) {
+		return GM.deleteValue(id);
+	} else if(nav.isGM) {
 		GM_deleteValue(id);
 	} else if(nav.isChromeStorage) {
 		chrome.storage.sync.remove(id, emptyFn);
@@ -88,6 +96,12 @@ function saveCfg(id, val) {
 function toggleCfg(id) {
 	saveCfg(id, +!Cfg[id]);
 }
+  
+async function readData() {
+	var [_, fav, eList] = await Promise.all([readCfg(), readFavorites(), getStored('DESU_Exclude')]);
+	return [eList, fav];
+}
+    
 
 // Config initialization, checking for Dollchan update.
 async function readCfg() {
@@ -162,7 +176,7 @@ async function readCfg() {
 }
 
 // Initialize of hidden and favorites. Run spells.
-async function readPostsData(firstPost) {
+function readPostsData(firstPost, fav) {
 	let sVis = null;
 	try {
 		// Get hidden posts and threads that cached in current session
@@ -183,7 +197,6 @@ async function readPostsData(firstPost) {
 		return;
 	}
 	let updateFav = false;
-	const fav = await getStoredObj('DESU_Favorites');
 	const favBrd = (aib.host in fav) && (aib.b in fav[aib.host]) ? fav[aib.host][aib.b] : {};
 	const spellsHide = Cfg.hideBySpell;
 	const maybeSpells = new Maybe(SpellsRunner);

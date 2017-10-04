@@ -97,7 +97,7 @@ var Pages = {
 		this._addPromise = null;
 	},
 	_updateForms: async function(newForm) {
-		await readPostsData(newForm.firstThr.op);
+		getStoredObj('DESU_Favorites').then(fav => readPostsData(newForm.firstThr.op, fav));
 		if(pr.passw) {
 			PostForm.setUserPassw();
 		}

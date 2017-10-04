@@ -2923,9 +2923,9 @@ process.umask = function() { return 0; };
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.6.20.0';
-	var commit = 'ca7a735';
+	var commit = '0d5272b';
 
 
 	var defaultCfg = {
@@ -4379,20 +4379,32 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			while (1) {
 				switch (_context2.prev = _context2.next) {
 					case 0:
+						if (!nav.isNewGM) {
+							_context2.next = 6;
+							break;
+						}
+
+						_context2.next = 3;
+						return regeneratorRuntime.awrap(GM.getValue(id));
+
+					case 3:
+						return _context2.abrupt('return', _context2.sent);
+
+					case 6:
 						if (!nav.isGM) {
-							_context2.next = 4;
+							_context2.next = 10;
 							break;
 						}
 
 						return _context2.abrupt('return', GM_getValue(id));
 
-					case 4:
+					case 10:
 						if (!nav.isChromeStorage) {
-							_context2.next = 10;
+							_context2.next = 16;
 							break;
 						}
 
-						_context2.next = 7;
+						_context2.next = 13;
 						return regeneratorRuntime.awrap(new Promise(function (resolve, reject) {
 							return chrome.storage.local.get(id, function (obj) {
 								if (Object.keys(obj).length) {
@@ -4405,21 +4417,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							});
 						}));
 
-					case 7:
+					case 13:
 						return _context2.abrupt('return', _context2.sent);
 
-					case 10:
+					case 16:
 						if (!nav.isScriptStorage) {
-							_context2.next = 12;
+							_context2.next = 18;
 							break;
 						}
 
 						return _context2.abrupt('return', scriptStorage.getItem(id));
 
-					case 12:
+					case 18:
 						return _context2.abrupt('return', locStorage[id]);
 
-					case 13:
+					case 19:
 					case 'end':
 						return _context2.stop();
 				}
@@ -4428,7 +4440,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function setStored(id, value) {
-		if (nav.isGM) {
+		if (nav.isNewGM) {
+			return GM.setValue(id, value);
+		} else if (nav.isGM) {
 			GM_setValue(id, value);
 		} else if (nav.isChromeStorage) {
 			(function () {
@@ -4451,7 +4465,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function delStored(id) {
-		if (nav.isGM) {
+		if (nav.isNewGM) {
+			return GM.deleteValue(id);
+		} else if (nav.isGM) {
 			GM_deleteValue(id);
 		} else if (nav.isChromeStorage) {
 			chrome.storage.sync.remove(id, emptyFn);
@@ -4525,18 +4541,44 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		saveCfg(id, +!Cfg[id]);
 	}
 
-	function readCfg() {
-		var obj, val, hasGlobal;
-		return regeneratorRuntime.async(function readCfg$(_context4) {
+	function readData() {
+		var _ref2, _ref3, _, fav, eList;
+
+		return regeneratorRuntime.async(function readData$(_context4) {
 			while (1) {
 				switch (_context4.prev = _context4.next) {
 					case 0:
+						_context4.next = 2;
+						return regeneratorRuntime.awrap(Promise.all([readCfg(), readFavorites(), getStored('DESU_Exclude')]));
+
+					case 2:
+						_ref2 = _context4.sent;
+						_ref3 = _slicedToArray(_ref2, 3);
+						_ = _ref3[0];
+						fav = _ref3[1];
+						eList = _ref3[2];
+						return _context4.abrupt('return', [eList, fav]);
+
+					case 8:
+					case 'end':
+						return _context4.stop();
+				}
+			}
+		}, null, this);
+	}
+
+	function readCfg() {
+		var obj, val, hasGlobal;
+		return regeneratorRuntime.async(function readCfg$(_context5) {
+			while (1) {
+				switch (_context5.prev = _context5.next) {
+					case 0:
 						obj = void 0;
-						_context4.next = 3;
+						_context5.next = 3;
 						return regeneratorRuntime.awrap(getStoredObj('DESU_Config'));
 
 					case 3:
-						val = _context4.sent;
+						val = _context5.sent;
 
 						if (!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
 							hasGlobal = nav.isGlobal && !!val.global;
@@ -4610,167 +4652,99 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					case 23:
 					case 'end':
-						return _context4.stop();
+						return _context5.stop();
 				}
 			}
 		}, null, this);
 	}
 
-	function readPostsData(firstPost) {
-		var sVis, str, json, updateFav, fav, favBrd, spellsHide, maybeSpells, _post, num, f, thr, lastPost, uHideData, hideData;
-
-		return regeneratorRuntime.async(function readPostsData$(_context5) {
-			while (1) {
-				switch (_context5.prev = _context5.next) {
-					case 0:
-						sVis = null;
-
-						try {
-							str = aib.t ? sesStorage['de-hidden-' + aib.b + aib.t] : null;
-
-							if (str) {
-								json = JSON.parse(str);
-
-								if (json.hash === (Cfg.hideBySpell ? Spells.hash : 0) && pByNum.has(json.lastNum) && pByNum.get(json.lastNum).count === json.lastCount) {
-									sVis = json.data && json.data[0] instanceof Array ? json.data : null;
-								}
-							}
-						} catch (e) {
-							sesStorage['de-hidden-' + aib.b + aib.t] = null;
-						}
-
-						if (firstPost) {
-							_context5.next = 4;
-							break;
-						}
-
-						return _context5.abrupt('return');
-
-					case 4:
-						updateFav = false;
-						_context5.next = 7;
-						return regeneratorRuntime.awrap(getStoredObj('DESU_Favorites'));
-
-					case 7:
-						fav = _context5.sent;
-						favBrd = aib.host in fav && aib.b in fav[aib.host] ? fav[aib.host][aib.b] : {};
-						spellsHide = Cfg.hideBySpell;
-						maybeSpells = new Maybe(SpellsRunner);
-
-
-						_post = firstPost;
-
-					case 12:
-						if (!_post) {
-							_context5.next = 33;
-							break;
-						}
-
-						num = _post.num;
-
-						if (_post.isOp && num in favBrd) {
-							f = favBrd[num];
-							thr = _post.thr;
-
-							_post.setFavBtn(true);
-							if (aib.t) {
-								f.cnt = thr.pcount;
-								f['new'] = 0;
-								f.you = 0;
-								if (Cfg.markNewPosts && f.last) {
-									lastPost = pByNum.get(+f.last.match(/\d+/));
-
-									if (lastPost) {
-										while (lastPost = lastPost.next) {
-											Post.addMark(lastPost.el, true);
-										}
-									}
-								}
-								f.last = aib.anchor + thr.last.num;
-							} else {
-								f['new'] = thr.pcount - f.cnt;
-							}
-							updateFav = true;
-						}
-
-						if (!HiddenPosts.has(num)) {
-							_context5.next = 19;
-							break;
-						}
-
-						uHideData = HiddenPosts.get(num);
-
-						if (!uHideData && _post.isOp && HiddenThreads.has(num)) {
-							_post.setUserVisib(true);
-						} else {
-							_post.setUserVisib(uHideData, false);
-						}
-						return _context5.abrupt('continue', 30);
-
-					case 19:
-						hideData = void 0;
-
-						if (!_post.isOp) {
-							_context5.next = 24;
-							break;
-						}
-
-						if (HiddenThreads.has(num)) {
-							hideData = [true, null];
-						} else if (spellsHide) {
-							hideData = sVis && sVis[_post.count];
-						}
-						_context5.next = 29;
-						break;
-
-					case 24:
-						if (!spellsHide) {
-							_context5.next = 28;
-							break;
-						}
-
-						hideData = sVis && sVis[_post.count];
-						_context5.next = 29;
-						break;
-
-					case 28:
-						return _context5.abrupt('continue', 30);
-
-					case 29:
-						if (!hideData) {
-							maybeSpells.value.run(_post); 
-						} else if (hideData[0]) {
-							if (_post.hidden) {
-								_post.spellHidden = true;
-							} else {
-								_post.spellHide(hideData[1]);
-							}
-						}
-
-					case 30:
-						_post = _post.next;
-						_context5.next = 12;
-						break;
-
-					case 33:
-						maybeSpells.end();
-						if (Cfg.panelCounter === 2) {
-							$id('de-panel-info-pcount').textContent = Thread.first.pcount - Thread.first.hidCounter;
-						}
-						if (updateFav) {
-							setStored('DESU_Favorites', JSON.stringify(fav));
-						}
-						if (sesStorage['de-win-fav'] === '1') {
-							toggleWindow('fav', false, null, true);
-							sesStorage.removeItem('de-win-fav');
-						}
-
-					case 37:
-					case 'end':
-						return _context5.stop();
+	function readPostsData(firstPost, fav) {
+		var sVis = null;
+		try {
+			var str = aib.t ? sesStorage['de-hidden-' + aib.b + aib.t] : null;
+			if (str) {
+				var json = JSON.parse(str);
+				if (json.hash === (Cfg.hideBySpell ? Spells.hash : 0) && pByNum.has(json.lastNum) && pByNum.get(json.lastNum).count === json.lastCount) {
+					sVis = json.data && json.data[0] instanceof Array ? json.data : null;
 				}
 			}
-		}, null, this);
+		} catch (e) {
+			sesStorage['de-hidden-' + aib.b + aib.t] = null;
+		}
+		if (!firstPost) {
+			return;
+		}
+		var updateFav = false;
+		var favBrd = aib.host in fav && aib.b in fav[aib.host] ? fav[aib.host][aib.b] : {};
+		var spellsHide = Cfg.hideBySpell;
+		var maybeSpells = new Maybe(SpellsRunner);
+
+		for (var _post = firstPost; _post; _post = _post.next) {
+			var num = _post.num;
+			if (_post.isOp && num in favBrd) {
+				var f = favBrd[num];
+				var thr = _post.thr;
+				_post.setFavBtn(true);
+				if (aib.t) {
+					f.cnt = thr.pcount;
+					f['new'] = 0;
+					f.you = 0;
+					if (Cfg.markNewPosts && f.last) {
+						var lastPost = pByNum.get(+f.last.match(/\d+/));
+						if (lastPost) {
+							while (lastPost = lastPost.next) {
+								Post.addMark(lastPost.el, true);
+							}
+						}
+					}
+					f.last = aib.anchor + thr.last.num;
+				} else {
+					f['new'] = thr.pcount - f.cnt;
+				}
+				updateFav = true;
+			}
+			if (HiddenPosts.has(num)) {
+				var uHideData = HiddenPosts.get(num);
+				if (!uHideData && _post.isOp && HiddenThreads.has(num)) {
+					_post.setUserVisib(true);
+				} else {
+					_post.setUserVisib(uHideData, false);
+				}
+				continue;
+			}
+			var hideData = void 0;
+			if (_post.isOp) {
+				if (HiddenThreads.has(num)) {
+					hideData = [true, null];
+				} else if (spellsHide) {
+					hideData = sVis && sVis[_post.count];
+				}
+			} else if (spellsHide) {
+				hideData = sVis && sVis[_post.count];
+			} else {
+				continue;
+			}
+			if (!hideData) {
+				maybeSpells.value.run(_post); 
+			} else if (hideData[0]) {
+				if (_post.hidden) {
+					_post.spellHidden = true;
+				} else {
+					_post.spellHide(hideData[1]);
+				}
+			}
+		}
+		maybeSpells.end();
+		if (Cfg.panelCounter === 2) {
+			$id('de-panel-info-pcount').textContent = Thread.first.pcount - Thread.first.hidCounter;
+		}
+		if (updateFav) {
+			setStored('DESU_Favorites', JSON.stringify(fav));
+		}
+		if (sesStorage['de-win-fav'] === '1') {
+			toggleWindow('fav', false, null, true);
+			sesStorage.removeItem('de-win-fav');
+		}
 	}
 
 	function readFavorites() {
@@ -4810,8 +4784,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 
-	var PostsStorage = function (_ref2) {
-		_inherits(PostsStorage, _ref2);
+	var PostsStorage = function (_ref4) {
+		_inherits(PostsStorage, _ref4);
 
 		function PostsStorage() {
 			_classCallCheck(this, PostsStorage);
@@ -5232,18 +5206,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							isPreImg = !isPreImg;
 							if (!e.ctrlKey) {
 								for (var _iterator2 = DelForm, _isArray2 = Array.isArray(_iterator2), _i2 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
-									var _ref3;
+									var _ref5;
 
 									if (_isArray2) {
 										if (_i2 >= _iterator2.length) break;
-										_ref3 = _iterator2[_i2++];
+										_ref5 = _iterator2[_i2++];
 									} else {
 										_i2 = _iterator2.next();
 										if (_i2.done) break;
-										_ref3 = _i2.value;
+										_ref5 = _i2.value;
 									}
 
-									var form = _ref3;
+									var form = _ref5;
 
 									preloadImages(form.el);
 								}
@@ -5907,7 +5881,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], function _callee2() {
-			var fav, isUpdate, last404, myposts, els, i, len, el, host, _b2, num, f, countEl, youEl, iconEl, titleEl, form, isArchived, _ref4, _ref5, bArch, posts, cnt, j, links, a, _len, _num, tc;
+			var fav, isUpdate, last404, myposts, els, i, len, el, host, _b2, num, f, countEl, youEl, iconEl, titleEl, form, isArchived, _ref6, _ref7, bArch, posts, cnt, j, links, a, _len, _num, tc;
 
 			return regeneratorRuntime.async(function _callee2$(_context7) {
 				while (1) {
@@ -5982,10 +5956,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return regeneratorRuntime.awrap(ajaxLoad(aib.getThrUrl(_b2, num), true, false, aib.iichan));
 
 						case 34:
-							_ref4 = _context7.sent;
-							_ref5 = _slicedToArray(_ref4, 2);
-							form = _ref5[0];
-							isArchived = _ref5[1];
+							_ref6 = _context7.sent;
+							_ref7 = _slicedToArray(_ref6, 2);
+							form = _ref7[0];
+							isArchived = _ref7[1];
 
 						case 38:
 							last404 = false;
@@ -6389,8 +6363,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (!file) {
 						return;
 					}
-					readFile(file, true).then(function (_ref6) {
-						var data = _ref6.data;
+					readFile(file, true).then(function (_ref8) {
+						var data = _ref8.data;
 
 						var obj = void 0;
 						try {
@@ -6440,7 +6414,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var els = $Q('input', expFile.nextElementSibling);
 				els[0].checked = true;
 				expFile.addEventListener('click', function _callee5(e) {
-					var name, nameDm, d, val, valDm, i, len;
+					var name, nameDm, d, val, valDm, i, len, cfgData;
 					return regeneratorRuntime.async(function _callee5$(_context10) {
 						while (1) {
 							switch (_context10.prev = _context10.next) {
@@ -6451,7 +6425,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 								case 3:
 									if (!(i < len)) {
-										_context10.next = 50;
+										_context10.next = 34;
 										break;
 									}
 
@@ -6460,98 +6434,63 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 										break;
 									}
 
-									return _context10.abrupt('continue', 47);
+									return _context10.abrupt('continue', 31);
 
 								case 6:
 									_context10.t0 = i;
-									_context10.next = _context10.t0 === 0 ? 9 : _context10.t0 === 1 ? 31 : _context10.t0 === 2 ? 42 : _context10.t0 === 3 ? 45 : 47;
+									_context10.next = _context10.t0 === 0 ? 9 : _context10.t0 === 1 ? 15 : _context10.t0 === 2 ? 26 : _context10.t0 === 3 ? 29 : 31;
 									break;
 
 								case 9:
 									name.push('Cfg');
-									_context10.t1 = val;
-									_context10.next = 13;
-									return regeneratorRuntime.awrap(getStored('DESU_Config'));
+									_context10.next = 12;
+									return regeneratorRuntime.awrap(Promise.all([getStored('DESU_Config'), getStored('DESU_keys'), getStored('DESU_Exclude')]));
 
-								case 13:
-									_context10.t2 = _context10.sent;
-									_context10.t3 = '"settings":' + _context10.t2;
-									_context10.next = 17;
-									return regeneratorRuntime.awrap(getStored('DESU_keys'));
+								case 12:
+									cfgData = _context10.sent;
 
-								case 17:
-									_context10.t4 = _context10.sent;
+									val.push('"settings":' + cfgData[0], '"hotkeys":' + (cfgData[1] || '""'), '"exclude":' + (cfgData[2] || '""'));
+									return _context10.abrupt('break', 31);
 
-									if (_context10.t4) {
-										_context10.next = 20;
-										break;
-									}
-
-									_context10.t4 = '""';
-
-								case 20:
-									_context10.t5 = _context10.t4;
-									_context10.t6 = '"hotkeys":' + _context10.t5;
-									_context10.next = 24;
-									return regeneratorRuntime.awrap(getStored('DESU_Exclude'));
-
-								case 24:
-									_context10.t7 = _context10.sent;
-
-									if (_context10.t7) {
-										_context10.next = 27;
-										break;
-									}
-
-									_context10.t7 = '""';
-
-								case 27:
-									_context10.t8 = _context10.t7;
-									_context10.t9 = '"exclude":' + _context10.t8;
-
-									_context10.t1.push.call(_context10.t1, _context10.t3, _context10.t6, _context10.t9);
-
-									return _context10.abrupt('break', 47);
-
-								case 31:
+								case 15:
 									name.push('Fav');
-									_context10.t10 = val;
-									_context10.next = 35;
+									_context10.t1 = val;
+									_context10.next = 19;
 									return regeneratorRuntime.awrap(getStored('DESU_Favorites'));
 
-								case 35:
-									_context10.t11 = _context10.sent;
+								case 19:
+									_context10.t2 = _context10.sent;
 
-									if (_context10.t11) {
-										_context10.next = 38;
+									if (_context10.t2) {
+										_context10.next = 22;
 										break;
 									}
 
-									_context10.t11 = '{}';
+									_context10.t2 = '{}';
 
-								case 38:
-									_context10.t12 = _context10.t11;
-									_context10.t13 = '"favorites":' + _context10.t12;
+								case 22:
+									_context10.t3 = _context10.t2;
+									_context10.t4 = '"favorites":' + _context10.t3;
 
-									_context10.t10.push.call(_context10.t10, _context10.t13);
+									_context10.t1.push.call(_context10.t1, _context10.t4);
 
-									return _context10.abrupt('break', 47);
+									return _context10.abrupt('break', 31);
 
-								case 42:
+								case 26:
 									nameDm.push('Hid');
 									valDm.push('"posts":' + (locStorage['de-posts'] || '{}'), '"threads":' + (locStorage['de-threads'] || '{}'));
-									return _context10.abrupt('break', 47);
+									return _context10.abrupt('break', 31);
 
-								case 45:
+								case 29:
 									nameDm.push('You');
 									valDm.push('"myposts":' + (locStorage['de-myposts'] || '{}'));
 
-								case 47:
+								case 31:
 									++i;
 									_context10.next = 3;
 									break;
 
-								case 50:
+								case 34:
 									if (valDm = valDm.join(',')) {
 										val.push('"' + aib.dm + '":{' + valDm + '}');
 										name.push(aib.dm + '(' + nameDm.join('+') + ')');
@@ -6561,7 +6500,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									}
 									$pd(e);
 
-								case 53:
+								case 37:
 								case 'end':
 									return _context10.stop();
 							}
@@ -6742,18 +6681,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'imgSrcBtns':
 						if (Cfg.imgSrcBtns) {
 							for (var _iterator3 = DelForm, _isArray3 = Array.isArray(_iterator3), _i5 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
-								var _ref7;
+								var _ref9;
 
 								if (_isArray3) {
 									if (_i5 >= _iterator3.length) break;
-									_ref7 = _iterator3[_i5++];
+									_ref9 = _iterator3[_i5++];
 								} else {
 									_i5 = _iterator3.next();
 									if (_i5.done) break;
-									_ref7 = _i5.value;
+									_ref9 = _i5.value;
 								}
 
-								var form = _ref7;
+								var form = _ref9;
 
 								processImagesLinks(form.el, 1, 0);
 							}
@@ -6766,18 +6705,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'delImgNames':
 						if (Cfg.delImgNames) {
 							for (var _iterator4 = DelForm, _isArray4 = Array.isArray(_iterator4), _i6 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
-								var _ref8;
+								var _ref10;
 
 								if (_isArray4) {
 									if (_i6 >= _iterator4.length) break;
-									_ref8 = _iterator4[_i6++];
+									_ref10 = _iterator4[_i6++];
 								} else {
 									_i6 = _iterator4.next();
 									if (_i6.done) break;
-									_ref8 = _i6.value;
+									_ref10 = _i6.value;
 								}
 
-								var _form = _ref8;
+								var _form = _ref10;
 
 								processImagesLinks(_form.el, 0, 1);
 							}
@@ -8489,13 +8428,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			};
 		}
 	};
-	Videos.setLinkData = function (link, _ref9) {
-		var _ref10 = _slicedToArray(_ref9, 5),
-		    title = _ref10[0],
-		    author = _ref10[1],
-		    views = _ref10[2],
-		    publ = _ref10[3],
-		    duration = _ref10[4];
+	Videos.setLinkData = function (link, _ref11) {
+		var _ref12 = _slicedToArray(_ref11, 5),
+		    title = _ref12[0],
+		    author = _ref12[1],
+		    views = _ref12[2],
+		    publ = _ref12[3],
+		    duration = _ref12[4];
 
 		link.textContent = title;
 		link.classList.add('de-video-title');
@@ -8518,12 +8457,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var timeStr = (hours ? hours + 'h' : '') + (minutes ? minutes + 'm' : '') + (seconds ? seconds + 's' : '');
 		return [timeStr, hours, minutes, seconds];
 	};
-	Videos._titlesLoaderHelper = function (_ref11, num) {
-		var _ref12 = _slicedToArray(_ref11, 4),
-		    link = _ref12[0],
-		    isYtube = _ref12[1],
-		    videoObj = _ref12[2],
-		    id = _ref12[3];
+	Videos._titlesLoaderHelper = function (_ref13, num) {
+		var _ref14 = _slicedToArray(_ref13, 4),
+		    link = _ref14[0],
+		    isYtube = _ref14[1],
+		    videoObj = _ref14[2],
+		    id = _ref14[3];
 
 		for (var _len3 = arguments.length, data = Array(_len3 > 2 ? _len3 - 2 : 0), _key2 = 2; _key2 < _len3; _key2++) {
 			data[_key2 - 2] = arguments[_key2];
@@ -8803,7 +8742,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		    reject = void 0,
 		    cancelFn = void 0;
 		var needTO = params ? params.useTimeout : false;
-		if (!useNative && typeof GM_xmlhttpRequest === 'function') {
+		if (!useNative && nav.hasGMXHR) {
 			(function () {
 				var gmxhr = void 0;
 				var toFunc = function toFunc() {
@@ -8839,15 +8778,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					delete params.method;
 					Object.assign(obj, params);
 				}
-				gmxhr = GM_xmlhttpRequest(obj);
-				cancelFn = function cancelFn() {
-					if (needTO) {
-						clearTimeout(loadTO);
-					}
-					try {
-						gmxhr.abort();
-					} catch (e) {}
-				};
+				if (nav.isNewGM) {
+					GM.xmlHttpRequest(obj);
+					cancelFn = emptyFn;
+				} else {
+					gmxhr = GM_xmlhttpRequest(obj);
+					cancelFn = function cancelFn() {
+						if (needTO) {
+							clearTimeout(loadTO);
+						}
+						try {
+							gmxhr.abort();
+						} catch (e) {}
+					};
+				}
 			})();
 		} else {
 			var _ret6 = function () {
@@ -8860,8 +8804,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (params && params.onprogress) {
 					xhr.upload.onprogress = params.onprogress;
 				}
-				xhr.onreadystatechange = function (_ref13) {
-					var target = _ref13.target;
+				xhr.onreadystatechange = function (_ref15) {
+					var target = _ref15.target;
 
 					if (needTO) {
 						clearTimeout(loadTO);
@@ -8945,8 +8889,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 	});
 
-	var AjaxCache = function (_ref14) {
-		_inherits(AjaxCache, _ref14);
+	var AjaxCache = function (_ref16) {
+		_inherits(AjaxCache, _ref16);
 
 		function AjaxCache() {
 			_classCallCheck(this, AjaxCache);
@@ -8967,9 +8911,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'runCachedAjax',
 			value: function runCachedAjax(url, useCache) {
-				var _ref15 = AjaxCache._data.get(url) || {},
-				    hasCacheControl = _ref15.hasCacheControl,
-				    params = _ref15.params;
+				var _ref17 = AjaxCache._data.get(url) || {},
+				    hasCacheControl = _ref17.hasCacheControl,
+				    params = _ref17.params;
 
 				var ajaxURL = hasCacheControl === false ? AjaxCache.fixURL(url) : url;
 				return $ajax(ajaxURL, useCache && params || { useTimeout: true }).then(function (xhr) {
@@ -8985,18 +8929,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				    hasCacheControl = false,
 				    ajaxHeaders = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
 				for (var _iterator5 = ajaxHeaders.split('\r\n'), _isArray5 = Array.isArray(_iterator5), _i10 = 0, _iterator5 = _isArray5 ? _iterator5 : _iterator5[Symbol.iterator]();;) {
-					var _ref16;
+					var _ref18;
 
 					if (_isArray5) {
 						if (_i10 >= _iterator5.length) break;
-						_ref16 = _iterator5[_i10++];
+						_ref18 = _iterator5[_i10++];
 					} else {
 						_i10 = _iterator5.next();
 						if (_i10.done) break;
-						_ref16 = _i10.value;
+						_ref18 = _i10.value;
 					}
 
-					var header = _ref16;
+					var header = _ref18;
 
 					var lHeader = header.toLowerCase();
 					if (lHeader.startsWith('cache-control: ')) {
@@ -9123,7 +9067,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 
 		load: function load(count) {
-			var _iterator6, _isArray6, _i11, _ref17, form, len, i, el, first;
+			var _iterator6, _isArray6, _i11, _ref19, form, len, i, el, first;
 
 			return regeneratorRuntime.async(function load$(_context13) {
 				while (1) {
@@ -9163,7 +9107,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return _context13.abrupt('break', 29);
 
 						case 14:
-							_ref17 = _iterator6[_i11++];
+							_ref19 = _iterator6[_i11++];
 							_context13.next = 21;
 							break;
 
@@ -9178,10 +9122,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return _context13.abrupt('break', 29);
 
 						case 20:
-							_ref17 = _i11.value;
+							_ref19 = _i11.value;
 
 						case 21:
-							form = _ref17;
+							form = _ref19;
 
 							$each($Q('a[href^="blob:"]', form.el), function (a) {
 								return URL.revokeObjectURL(a.href);
@@ -9285,10 +9229,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				while (1) {
 					switch (_context14.prev = _context14.next) {
 						case 0:
-							_context14.next = 2;
-							return regeneratorRuntime.awrap(readPostsData(newForm.firstThr.op));
-
-						case 2:
+							getStoredObj('DESU_Favorites').then(function (fav) {
+								return readPostsData(newForm.firstThr.op, fav);
+							});
 							if (pr.passw) {
 								PostForm.setUserPassw();
 							}
@@ -9296,7 +9239,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								HotKeys.clear();
 							}
 
-						case 4:
+						case 3:
 						case 'end':
 							return _context14.stop();
 					}
@@ -9365,36 +9308,36 @@ true, true],
 				}
 				if (reps) {
 					for (var _iterator7 = reps, _isArray7 = Array.isArray(_iterator7), _i12 = 0, _iterator7 = _isArray7 ? _iterator7 : _iterator7[Symbol.iterator]();;) {
-						var _ref18;
+						var _ref20;
 
 						if (_isArray7) {
 							if (_i12 >= _iterator7.length) break;
-							_ref18 = _iterator7[_i12++];
+							_ref20 = _iterator7[_i12++];
 						} else {
 							_i12 = _iterator7.next();
 							if (_i12.done) break;
-							_ref18 = _i12.value;
+							_ref20 = _i12.value;
 						}
 
-						var rep = _ref18;
+						var rep = _ref20;
 
 						str += this._decompileRep(rep, false) + '\n';
 					}
 				}
 				if (oreps) {
 					for (var _iterator8 = oreps, _isArray8 = Array.isArray(_iterator8), _i13 = 0, _iterator8 = _isArray8 ? _iterator8 : _iterator8[Symbol.iterator]();;) {
-						var _ref19;
+						var _ref21;
 
 						if (_isArray8) {
 							if (_i13 >= _iterator8.length) break;
-							_ref19 = _iterator8[_i13++];
+							_ref21 = _iterator8[_i13++];
 						} else {
 							_i13 = _iterator8.next();
 							if (_i13.done) break;
-							_ref19 = _i13.value;
+							_ref21 = _i13.value;
 						}
 
-						var orep = _ref19;
+						var orep = _ref21;
 
 						str += this._decompileRep(orep, true) + '\n';
 					}
@@ -9491,10 +9434,10 @@ true, true],
 						return spell;
 					}
 
-					var _ref20 = wipeMsg || [],
-					    _ref21 = _slicedToArray(_ref20, 2),
-					    msgBit = _ref21[0],
-					    msgData = _ref21[1],
+					var _ref22 = wipeMsg || [],
+					    _ref23 = _slicedToArray(_ref22, 2),
+					    msgBit = _ref23[0],
+					    msgData = _ref23[1],
 					    names = [],
 					    bits = { 1: 'samelines', 2: 'samewords', 4: 'longwords', 8: 'symbols',
 						16: 'capslock', 32: 'numbers', 64: 'whitespace' };
@@ -9547,18 +9490,18 @@ true, true],
 		},
 		outReplace: function outReplace(txt) {
 			for (var _iterator9 = this.outreps, _isArray9 = Array.isArray(_iterator9), _i14 = 0, _iterator9 = _isArray9 ? _iterator9 : _iterator9[Symbol.iterator]();;) {
-				var _ref22;
+				var _ref24;
 
 				if (_isArray9) {
 					if (_i14 >= _iterator9.length) break;
-					_ref22 = _iterator9[_i14++];
+					_ref24 = _iterator9[_i14++];
 				} else {
 					_i14 = _iterator9.next();
 					if (_i14.done) break;
-					_ref22 = _i14.value;
+					_ref24 = _i14.value;
 				}
 
-				var orep = _ref22;
+				var orep = _ref24;
 
 				txt = txt.replace(orep[0], orep[1]);
 			}
@@ -9599,18 +9542,18 @@ true, true],
 		},
 		replace: function replace(txt) {
 			for (var _iterator10 = this.reps, _isArray10 = Array.isArray(_iterator10), _i15 = 0, _iterator10 = _isArray10 ? _iterator10 : _iterator10[Symbol.iterator]();;) {
-				var _ref23;
+				var _ref25;
 
 				if (_isArray10) {
 					if (_i15 >= _iterator10.length) break;
-					_ref23 = _iterator10[_i15++];
+					_ref25 = _iterator10[_i15++];
 				} else {
 					_i15 = _iterator10.next();
 					if (_i15.done) break;
-					_ref23 = _i15.value;
+					_ref25 = _i15.value;
 				}
 
-				var orep = _ref23;
+				var orep = _ref25;
 
 				txt = txt.replace(orep[0], orep[1]);
 			}
@@ -9698,18 +9641,18 @@ true, true],
 		_initHiders: function _initHiders(data) {
 			if (data) {
 				for (var _iterator11 = data, _isArray11 = Array.isArray(_iterator11), _i16 = 0, _iterator11 = _isArray11 ? _iterator11 : _iterator11[Symbol.iterator]();;) {
-					var _ref24;
+					var _ref26;
 
 					if (_isArray11) {
 						if (_i16 >= _iterator11.length) break;
-						_ref24 = _iterator11[_i16++];
+						_ref26 = _iterator11[_i16++];
 					} else {
 						_i16 = _iterator11.next();
 						if (_i16.done) break;
-						_ref24 = _i16.value;
+						_ref26 = _i16.value;
 					}
 
-					var item = _ref24;
+					var item = _ref26;
 
 					var val = item[1];
 					if (val) {
@@ -9731,18 +9674,18 @@ true, true],
 		_initReps: function _initReps(data) {
 			if (data) {
 				for (var _iterator12 = data, _isArray12 = Array.isArray(_iterator12), _i17 = 0, _iterator12 = _isArray12 ? _iterator12 : _iterator12[Symbol.iterator]();;) {
-					var _ref25;
+					var _ref27;
 
 					if (_isArray12) {
 						if (_i17 >= _iterator12.length) break;
-						_ref25 = _iterator12[_i17++];
+						_ref27 = _iterator12[_i17++];
 					} else {
 						_i17 = _iterator12.next();
 						if (_i17.done) break;
-						_ref25 = _i17.value;
+						_ref27 = _i17.value;
 					}
 
-					var item = _ref25;
+					var item = _ref27;
 
 					item[0] = toRegExp(item[0], false);
 				}
@@ -9760,18 +9703,18 @@ true, true],
 		_optimizeReps: function _optimizeReps(data) {
 			var rv = [];
 			for (var _iterator13 = data, _isArray13 = Array.isArray(_iterator13), _i18 = 0, _iterator13 = _isArray13 ? _iterator13 : _iterator13[Symbol.iterator]();;) {
-				var _ref26;
+				var _ref28;
 
 				if (_isArray13) {
 					if (_i18 >= _iterator13.length) break;
-					_ref26 = _iterator13[_i18++];
+					_ref28 = _iterator13[_i18++];
 				} else {
 					_i18 = _iterator13.next();
 					if (_i18.done) break;
-					_ref26 = _i18.value;
+					_ref28 = _i18.value;
 				}
 
-				var rep = _ref26;
+				var rep = _ref28;
 
 				if (!rep[0] || rep[0] === aib.b && (rep[1] === -1 ? !aib.t : !rep[1] || +rep[1] === aib.t)) {
 					rv.push([rep[2], rep[3]]);
@@ -10301,11 +10244,11 @@ true, true],
 			}
 		}, {
 			key: '_checkRes',
-			value: function _checkRes(post, _ref27) {
-				var _ref28 = _slicedToArray(_ref27, 3),
-				    hasNumSpell = _ref28[0],
-				    val = _ref28[1],
-				    msg = _ref28[2];
+			value: function _checkRes(post, _ref29) {
+				var _ref30 = _slicedToArray(_ref29, 3),
+				    hasNumSpell = _ref30[0],
+				    val = _ref30[1],
+				    msg = _ref30[2];
 
 				this.hasNumSpell |= hasNumSpell;
 				if (val) {
@@ -10461,36 +10404,36 @@ true, true],
 		_getMsg: function _getMsg() {
 			var rv = [];
 			for (var _iterator14 = this._triggeredSpellsStack, _isArray14 = Array.isArray(_iterator14), _i20 = 0, _iterator14 = _isArray14 ? _iterator14 : _iterator14[Symbol.iterator]();;) {
-				var _ref29;
+				var _ref31;
 
 				if (_isArray14) {
 					if (_i20 >= _iterator14.length) break;
-					_ref29 = _iterator14[_i20++];
+					_ref31 = _iterator14[_i20++];
 				} else {
 					_i20 = _iterator14.next();
 					if (_i20.done) break;
-					_ref29 = _i20.value;
+					_ref31 = _i20.value;
 				}
 
-				var spellEls = _ref29;
+				var spellEls = _ref31;
 
 				for (var _iterator15 = spellEls, _isArray15 = Array.isArray(_iterator15), _i21 = 0, _iterator15 = _isArray15 ? _iterator15 : _iterator15[Symbol.iterator]();;) {
-					var _ref30;
+					var _ref32;
 
 					if (_isArray15) {
 						if (_i21 >= _iterator15.length) break;
-						_ref30 = _iterator15[_i21++];
+						_ref32 = _iterator15[_i21++];
 					} else {
 						_i21 = _iterator15.next();
 						if (_i21.done) break;
-						_ref30 = _i21.value;
+						_ref32 = _i21.value;
 					}
 
-					var _ref31 = _ref30,
-					    _ref32 = _slicedToArray(_ref31, 3),
-					    isNeg = _ref32[0],
-					    spell = _ref32[1],
-					    wipeMsg = _ref32[2];
+					var _ref33 = _ref32,
+					    _ref34 = _slicedToArray(_ref33, 3),
+					    isNeg = _ref34[0],
+					    spell = _ref34[1],
+					    wipeMsg = _ref34[2];
 
 					rv.push(Spells.decompileSpell(spell[0] & 0xFF, isNeg, spell[1], spell[2], wipeMsg));
 				}
@@ -10547,18 +10490,18 @@ true, true],
 		},
 		_imgn: function _imgn(val) {
 			for (var _iterator16 = this._post.images, _isArray16 = Array.isArray(_iterator16), _i22 = 0, _iterator16 = _isArray16 ? _iterator16 : _iterator16[Symbol.iterator]();;) {
-				var _ref33;
+				var _ref35;
 
 				if (_isArray16) {
 					if (_i22 >= _iterator16.length) break;
-					_ref33 = _iterator16[_i22++];
+					_ref35 = _iterator16[_i22++];
 				} else {
 					_i22 = _iterator16.next();
 					if (_i22.done) break;
-					_ref33 = _i22.value;
+					_ref35 = _i22.value;
 				}
 
-				var image = _ref33;
+				var image = _ref35;
 
 				if (image instanceof Attachment && val.test(image.name)) {
 					return true;
@@ -10568,7 +10511,7 @@ true, true],
 		},
 
 		_ihash: function _ihash(val) {
-			var _iterator17, _isArray17, _i23, _ref34, image, hash;
+			var _iterator17, _isArray17, _i23, _ref36, image, hash;
 
 			return regeneratorRuntime.async(function _ihash$(_context15) {
 				while (1) {
@@ -10590,7 +10533,7 @@ true, true],
 							return _context15.abrupt('break', 21);
 
 						case 4:
-							_ref34 = _iterator17[_i23++];
+							_ref36 = _iterator17[_i23++];
 							_context15.next = 11;
 							break;
 
@@ -10605,10 +10548,10 @@ true, true],
 							return _context15.abrupt('break', 21);
 
 						case 10:
-							_ref34 = _i23.value;
+							_ref36 = _i23.value;
 
 						case 11:
-							image = _ref34;
+							image = _ref36;
 
 							if (image instanceof Attachment) {
 								_context15.next = 14;
@@ -10669,18 +10612,18 @@ true, true],
 				return images.hasAttachments;
 			}
 			for (var _iterator18 = images, _isArray18 = Array.isArray(_iterator18), _i24 = 0, _iterator18 = _isArray18 ? _iterator18 : _iterator18[Symbol.iterator]();;) {
-				var _ref35;
+				var _ref37;
 
 				if (_isArray18) {
 					if (_i24 >= _iterator18.length) break;
-					_ref35 = _iterator18[_i24++];
+					_ref37 = _iterator18[_i24++];
 				} else {
 					_i24 = _iterator18.next();
 					if (_i24.done) break;
-					_ref35 = _i24.value;
+					_ref37 = _i24.value;
 				}
 
-				var image = _ref35;
+				var image = _ref37;
 
 				if (!(image instanceof Attachment)) {
 					continue;
@@ -10877,32 +10820,32 @@ true, true],
 				return false;
 			}
 			for (var _iterator19 = videos.vData, _isArray19 = Array.isArray(_iterator19), _i27 = 0, _iterator19 = _isArray19 ? _iterator19 : _iterator19[Symbol.iterator]();;) {
-				var _ref36;
+				var _ref38;
 
 				if (_isArray19) {
 					if (_i27 >= _iterator19.length) break;
-					_ref36 = _iterator19[_i27++];
+					_ref38 = _iterator19[_i27++];
 				} else {
 					_i27 = _iterator19.next();
 					if (_i27.done) break;
-					_ref36 = _i27.value;
+					_ref38 = _i27.value;
 				}
 
-				var siteData = _ref36;
+				var siteData = _ref38;
 
 				for (var _iterator20 = siteData, _isArray20 = Array.isArray(_iterator20), _i28 = 0, _iterator20 = _isArray20 ? _iterator20 : _iterator20[Symbol.iterator]();;) {
-					var _ref37;
+					var _ref39;
 
 					if (_isArray20) {
 						if (_i28 >= _iterator20.length) break;
-						_ref37 = _iterator20[_i28++];
+						_ref39 = _iterator20[_i28++];
 					} else {
 						_i28 = _iterator20.next();
 						if (_i28.done) break;
-						_ref37 = _i28.value;
+						_ref39 = _i28.value;
 					}
 
-					var data = _ref37;
+					var data = _ref39;
 
 					if (isAuthorSpell ? val === data[1] : val.test(data[0])) {
 						return true;
@@ -11168,9 +11111,7 @@ true, true],
 			this.form.onsubmit = function (e) {
 				$pd(e);
 				$popup('upload', Lng.sending[lang], true);
-				html5Submit(_this22.form, _this22.subm, true).then(function (dc) {
-					return checkUpload(dc);
-				}, function (e) {
+				html5Submit(_this22.form, _this22.subm, true).then(checkUpload)['catch'](function (e) {
 					return $popup('upload', getErrorMessage(e));
 				});
 			};
@@ -11194,18 +11135,18 @@ true, true],
 		}
 		var value = pr.passw.value = Cfg.passwValue;
 		for (var _iterator21 = DelForm, _isArray21 = Array.isArray(_iterator21), _i29 = 0, _iterator21 = _isArray21 ? _iterator21 : _iterator21[Symbol.iterator]();;) {
-			var _ref38;
+			var _ref40;
 
 			if (_isArray21) {
 				if (_i29 >= _iterator21.length) break;
-				_ref38 = _iterator21[_i29++];
+				_ref40 = _iterator21[_i29++];
 			} else {
 				_i29 = _iterator21.next();
 				if (_i29.done) break;
-				_ref38 = _i29.value;
+				_ref40 = _i29.value;
 			}
 
-			var form = _ref38;
+			var form = _ref40;
 
 			(form.passEl || {}).value = value;
 		}
@@ -11641,8 +11582,7 @@ true, true],
 	}
 
 	function checkDelete(data) {
-		var err, els, threads, isThr, i, len, el, _iterator22, _isArray22, _i30, _ref39, thr;
-
+		var err, els, threads, isThr, i, len, el;
 		return regeneratorRuntime.async(function checkDelete$(_context16) {
 			while (1) {
 				switch (_context16.prev = _context16.next) {
@@ -11693,56 +11633,19 @@ true, true],
 						infoLoadErrors(_context16.t0);
 
 					case 19:
-						_context16.next = 37;
+						_context16.next = 23;
 						break;
 
 					case 21:
-						_iterator22 = threads, _isArray22 = Array.isArray(_iterator22), _i30 = 0, _iterator22 = _isArray22 ? _iterator22 : _iterator22[Symbol.iterator]();
+						_context16.next = 23;
+						return regeneratorRuntime.awrap(Promise.all(Array.from(threads).map(function (thr) {
+							return thr.loadPosts(visPosts, false, false);
+						})));
 
-					case 22:
-						if (!_isArray22) {
-							_context16.next = 28;
-							break;
-						}
-
-						if (!(_i30 >= _iterator22.length)) {
-							_context16.next = 25;
-							break;
-						}
-
-						return _context16.abrupt('break', 37);
-
-					case 25:
-						_ref39 = _iterator22[_i30++];
-						_context16.next = 32;
-						break;
-
-					case 28:
-						_i30 = _iterator22.next();
-
-						if (!_i30.done) {
-							_context16.next = 31;
-							break;
-						}
-
-						return _context16.abrupt('break', 37);
-
-					case 31:
-						_ref39 = _i30.value;
-
-					case 32:
-						thr = _ref39;
-						_context16.next = 35;
-						return regeneratorRuntime.awrap(thr.loadPosts(visPosts, false, false));
-
-					case 35:
-						_context16.next = 22;
-						break;
-
-					case 37:
+					case 23:
 						$popup('delete', Lng.succDeleted[lang]);
 
-					case 38:
+					case 24:
 					case 'end':
 						return _context16.stop();
 				}
@@ -11753,7 +11656,7 @@ true, true],
 	function html5Submit(form, submitter) {
 		var needProgress = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-		var formData, hasFiles, _iterator23, _isArray23, _i31, _ref40, _ref41, name, value, type, el, fileName, newFileName, _data5, ajaxParams, xhr;
+		var formData, hasFiles, _iterator22, _isArray22, _i30, _ref41, _ref42, name, value, type, el, fileName, newFileName, _data5, ajaxParams, xhr;
 
 		return regeneratorRuntime.async(function html5Submit$(_context17) {
 			while (1) {
@@ -11761,15 +11664,15 @@ true, true],
 					case 0:
 						formData = new FormData();
 						hasFiles = false;
-						_iterator23 = getFormElements(form, submitter), _isArray23 = Array.isArray(_iterator23), _i31 = 0, _iterator23 = _isArray23 ? _iterator23 : _iterator23[Symbol.iterator]();
+						_iterator22 = getFormElements(form, submitter), _isArray22 = Array.isArray(_iterator22), _i30 = 0, _iterator22 = _isArray22 ? _iterator22 : _iterator22[Symbol.iterator]();
 
 					case 3:
-						if (!_isArray23) {
+						if (!_isArray22) {
 							_context17.next = 9;
 							break;
 						}
 
-						if (!(_i31 >= _iterator23.length)) {
+						if (!(_i30 >= _iterator22.length)) {
 							_context17.next = 6;
 							break;
 						}
@@ -11777,14 +11680,14 @@ true, true],
 						return _context17.abrupt('break', 35);
 
 					case 6:
-						_ref40 = _iterator23[_i31++];
+						_ref41 = _iterator22[_i30++];
 						_context17.next = 13;
 						break;
 
 					case 9:
-						_i31 = _iterator23.next();
+						_i30 = _iterator22.next();
 
-						if (!_i31.done) {
+						if (!_i30.done) {
 							_context17.next = 12;
 							break;
 						}
@@ -11792,10 +11695,10 @@ true, true],
 						return _context17.abrupt('break', 35);
 
 					case 12:
-						_ref40 = _i31.value;
+						_ref41 = _i30.value;
 
 					case 13:
-						_ref41 = _ref40, name = _ref41.name, value = _ref41.value, type = _ref41.type, el = _ref41.el;
+						_ref42 = _ref41, name = _ref42.name, value = _ref42.value, type = _ref42.type, el = _ref42.el;
 
 						if (!(name === 'de-file-txt')) {
 							_context17.next = 16;
@@ -12153,19 +12056,19 @@ true, true],
 			key: 'changeMode',
 			value: function changeMode() {
 				var cfg = Cfg.fileInputs === 2 && Cfg.ajaxPosting;
-				for (var _iterator24 = this._inputs, _isArray24 = Array.isArray(_iterator24), _i32 = 0, _iterator24 = _isArray24 ? _iterator24 : _iterator24[Symbol.iterator]();;) {
-					var _ref42;
+				for (var _iterator23 = this._inputs, _isArray23 = Array.isArray(_iterator23), _i31 = 0, _iterator23 = _isArray23 ? _iterator23 : _iterator23[Symbol.iterator]();;) {
+					var _ref43;
 
-					if (_isArray24) {
-						if (_i32 >= _iterator24.length) break;
-						_ref42 = _iterator24[_i32++];
+					if (_isArray23) {
+						if (_i31 >= _iterator23.length) break;
+						_ref43 = _iterator23[_i31++];
 					} else {
-						_i32 = _iterator24.next();
-						if (_i32.done) break;
-						_ref42 = _i32.value;
+						_i31 = _iterator23.next();
+						if (_i31.done) break;
+						_ref43 = _i31.value;
 					}
 
-					var inp = _ref42;
+					var inp = _ref43;
 
 					inp.changeMode(cfg);
 				}
@@ -12174,19 +12077,19 @@ true, true],
 		}, {
 			key: 'clear',
 			value: function clear() {
-				for (var _iterator25 = this._inputs, _isArray25 = Array.isArray(_iterator25), _i33 = 0, _iterator25 = _isArray25 ? _iterator25 : _iterator25[Symbol.iterator]();;) {
-					var _ref43;
+				for (var _iterator24 = this._inputs, _isArray24 = Array.isArray(_iterator24), _i32 = 0, _iterator24 = _isArray24 ? _iterator24 : _iterator24[Symbol.iterator]();;) {
+					var _ref44;
 
-					if (_isArray25) {
-						if (_i33 >= _iterator25.length) break;
-						_ref43 = _iterator25[_i33++];
+					if (_isArray24) {
+						if (_i32 >= _iterator24.length) break;
+						_ref44 = _iterator24[_i32++];
 					} else {
-						_i33 = _iterator25.next();
-						if (_i33.done) break;
-						_ref43 = _i33.value;
+						_i32 = _iterator24.next();
+						if (_i32.done) break;
+						_ref44 = _i32.value;
 					}
 
-					var inp = _ref43;
+					var inp = _ref44;
 
 					inp.clear();
 				}
@@ -12457,8 +12360,8 @@ true, true],
 					$hide(_this24._btnRarJpg);
 					var myBtn = _this24._rarMsg = $aBegin(_this24._utils, '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
 					var file = e.target.files[0];
-					readFile(file).then(function (_ref44) {
-						var data = _ref44.data;
+					readFile(file).then(function (_ref45) {
+						var data = _ref45.data;
 
 						if (_this24._rarMsg === myBtn) {
 							myBtn.className = 'de-file-rarmsg';
@@ -12601,8 +12504,8 @@ true, true],
 					(function () {
 						var file = _this26._input.files[0];
 						if (file) {
-							readFile(file).then(function (_ref45) {
-								var data = _ref45.data;
+							readFile(file).then(function (_ref46) {
+								var data = _ref46.data;
 
 								if (_this26._input.files[0] === file) {
 									_this26._addNewThumb(data, file.name, file.size, file.type);
@@ -12640,8 +12543,8 @@ true, true],
 		}], [{
 			key: '_readDroppedFile',
 			value: function _readDroppedFile(input, file) {
-				readFile(file).then(function (_ref46) {
-					var data = _ref46.data;
+				readFile(file).then(function (_ref47) {
+					var data = _ref47.data;
 
 					input.imgFile = [data, file.name, file.type];
 					input.show();
@@ -13574,19 +13477,19 @@ true, true],
 			value: function toggleImages() {
 				var expand = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : !this.images.expanded;
 
-				for (var _iterator26 = this.images, _isArray26 = Array.isArray(_iterator26), _i34 = 0, _iterator26 = _isArray26 ? _iterator26 : _iterator26[Symbol.iterator]();;) {
-					var _ref47;
+				for (var _iterator25 = this.images, _isArray25 = Array.isArray(_iterator25), _i33 = 0, _iterator25 = _isArray25 ? _iterator25 : _iterator25[Symbol.iterator]();;) {
+					var _ref48;
 
-					if (_isArray26) {
-						if (_i34 >= _iterator26.length) break;
-						_ref47 = _iterator26[_i34++];
+					if (_isArray25) {
+						if (_i33 >= _iterator25.length) break;
+						_ref48 = _iterator25[_i33++];
 					} else {
-						_i34 = _iterator26.next();
-						if (_i34.done) break;
-						_ref47 = _i34.value;
+						_i33 = _iterator25.next();
+						if (_i33.done) break;
+						_ref48 = _i33.value;
 					}
 
-					var image = _ref47;
+					var image = _ref48;
 
 					if (image.isImage && image.expanded ^ expand) {
 						if (expand) {
@@ -14072,8 +13975,8 @@ true, true],
 		}
 		if (Cfg.addImgs) {
 			els = Array.from($Q('.de-img-pre', post.el));
-			for (var _i35 = 0, _len8 = els.length; _i35 < _len8; ++_i35) {
-				var _el5 = els[_i35];
+			for (var _i34 = 0, _len8 = els.length; _i34 < _len8; ++_i34) {
+				var _el5 = els[_i34];
 				last = new EmbeddedImage(post, _el5, last);
 				filesMap.set(_el5, last);
 				if (!first) {
@@ -15132,8 +15035,8 @@ true, true],
 					html += '<img class="de-img-full" src="' + src + '" alt="' + src + '"></div>';
 					obj = $add(html);
 					var img = obj.lastChild;
-					img.onload = img.onerror = function (_ref48) {
-						var target = _ref48.target;
+					img.onload = img.onerror = function (_ref49) {
+						var target = _ref49.target;
 
 						if (target.naturalHeight + target.naturalWidth === 0) {
 							if (!target.onceLoaded) {
@@ -15589,9 +15492,9 @@ true, true],
 		var areas = 256 / levels;
 		var values = 256 / (levels - 1);
 		var hash = 0;
-		for (var _i36 = 0; _i36 < newh; _i36++) {
+		for (var _i35 = 0; _i35 < newh; _i35++) {
 			for (var _j3 = 0; _j3 < neww; _j3++) {
-				var tmp = _i36 / (newh - 1) * (oldh - 1);
+				var tmp = _i35 / (newh - 1) * (oldh - 1);
 				var l = Math.min(tmp | 0, oldh - 2);
 				var u = tmp - l;
 				tmp = _j3 / (neww - 1) * (oldw - 1);
@@ -15861,19 +15764,19 @@ true, true],
 				var multiFile = data.files.length > 1;
 
 				var filesHTML = '';
-				for (var _iterator27 = data.files, _isArray27 = Array.isArray(_iterator27), _i37 = 0, _iterator27 = _isArray27 ? _iterator27 : _iterator27[Symbol.iterator]();;) {
-					var _ref49;
+				for (var _iterator26 = data.files, _isArray26 = Array.isArray(_iterator26), _i36 = 0, _iterator26 = _isArray26 ? _iterator26 : _iterator26[Symbol.iterator]();;) {
+					var _ref50;
 
-					if (_isArray27) {
-						if (_i37 >= _iterator27.length) break;
-						_ref49 = _iterator27[_i37++];
+					if (_isArray26) {
+						if (_i36 >= _iterator26.length) break;
+						_ref50 = _iterator26[_i36++];
 					} else {
-						_i37 = _iterator27.next();
-						if (_i37.done) break;
-						_ref49 = _i37.value;
+						_i36 = _iterator26.next();
+						if (_i36.done) break;
+						_ref50 = _i36.value;
 					}
 
-					var file = _ref49;
+					var file = _ref50;
 
 					var fileName = void 0,
 					    fullFileName = void 0;
@@ -15980,19 +15883,19 @@ true, true],
 				var filesHTML = '';
 				if (data.files && data.files.length !== 0) {
 					filesHTML = '<div class="images ' + (data.files.length === 1 ? 'images-single' : 'images-multi') + '">';
-					for (var _iterator28 = data.files, _isArray28 = Array.isArray(_iterator28), _i38 = 0, _iterator28 = _isArray28 ? _iterator28 : _iterator28[Symbol.iterator]();;) {
-						var _ref50;
+					for (var _iterator27 = data.files, _isArray27 = Array.isArray(_iterator27), _i37 = 0, _iterator27 = _isArray27 ? _iterator27 : _iterator27[Symbol.iterator]();;) {
+						var _ref51;
 
-						if (_isArray28) {
-							if (_i38 >= _iterator28.length) break;
-							_ref50 = _iterator28[_i38++];
+						if (_isArray27) {
+							if (_i37 >= _iterator27.length) break;
+							_ref51 = _iterator27[_i37++];
 						} else {
-							_i38 = _iterator28.next();
-							if (_i38.done) break;
-							_ref50 = _i38.value;
+							_i37 = _iterator27.next();
+							if (_i37.done) break;
+							_ref51 = _i37.value;
 						}
 
-						var file = _ref50;
+						var file = _ref51;
 
 						var imgId = num + '-' + file.md5;
 						var fullName = file.fullname || file.name;
@@ -16021,21 +15924,21 @@ true, true],
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				var _iterator29, _isArray29, _i39, _ref51, _post4;
+				var _iterator28, _isArray28, _i38, _ref52, _post4;
 
 				return regeneratorRuntime.wrap(function bannedPostsData$(_context23) {
 					while (1) {
 						switch (_context23.prev = _context23.next) {
 							case 0:
-								_iterator29 = this._posts, _isArray29 = Array.isArray(_iterator29), _i39 = 0, _iterator29 = _isArray29 ? _iterator29 : _iterator29[Symbol.iterator]();
+								_iterator28 = this._posts, _isArray28 = Array.isArray(_iterator28), _i38 = 0, _iterator28 = _isArray28 ? _iterator28 : _iterator28[Symbol.iterator]();
 
 							case 1:
-								if (!_isArray29) {
+								if (!_isArray28) {
 									_context23.next = 7;
 									break;
 								}
 
-								if (!(_i39 >= _iterator29.length)) {
+								if (!(_i38 >= _iterator28.length)) {
 									_context23.next = 4;
 									break;
 								}
@@ -16043,14 +15946,14 @@ true, true],
 								return _context23.abrupt('break', 23);
 
 							case 4:
-								_ref51 = _iterator29[_i39++];
+								_ref52 = _iterator28[_i38++];
 								_context23.next = 11;
 								break;
 
 							case 7:
-								_i39 = _iterator29.next();
+								_i38 = _iterator28.next();
 
-								if (!_i39.done) {
+								if (!_i38.done) {
 									_context23.next = 10;
 									break;
 								}
@@ -16058,10 +15961,10 @@ true, true],
 								return _context23.abrupt('break', 23);
 
 							case 10:
-								_ref51 = _i39.value;
+								_ref52 = _i38.value;
 
 							case 11:
-								_post4 = _ref51;
+								_post4 = _ref52;
 								_context23.t0 = _post4.banned;
 								_context23.next = _context23.t0 === 1 ? 15 : _context23.t0 === 2 ? 18 : 21;
 								break;
@@ -16148,19 +16051,19 @@ true, true],
 				var filesHTML = '';
 				if (data.attachments.length) {
 					filesHTML += '<div class="post-attachments">';
-					for (var _iterator30 = data.attachments, _isArray30 = Array.isArray(_iterator30), _i40 = 0, _iterator30 = _isArray30 ? _iterator30 : _iterator30[Symbol.iterator]();;) {
-						var _ref52;
+					for (var _iterator29 = data.attachments, _isArray29 = Array.isArray(_iterator29), _i39 = 0, _iterator29 = _isArray29 ? _iterator29 : _iterator29[Symbol.iterator]();;) {
+						var _ref53;
 
-						if (_isArray30) {
-							if (_i40 >= _iterator30.length) break;
-							_ref52 = _iterator30[_i40++];
+						if (_isArray29) {
+							if (_i39 >= _iterator29.length) break;
+							_ref53 = _iterator29[_i39++];
 						} else {
-							_i40 = _iterator30.next();
-							if (_i40.done) break;
-							_ref52 = _i40.value;
+							_i39 = _iterator29.next();
+							if (_i39.done) break;
+							_ref53 = _i39.value;
 						}
 
-						var file = _ref52;
+						var file = _ref53;
 
 						var id = file.id;
 						var img = file.images;
@@ -16192,22 +16095,22 @@ true, true],
 			key: 'gen',
 			value: function gen(posts, thrURL) {
 				var opNums = DelForm.tNums;
-				for (var _iterator31 = posts, _isArray31 = Array.isArray(_iterator31), _i41 = 0, _iterator31 = _isArray31 ? _iterator31 : _iterator31[Symbol.iterator]();;) {
-					var _ref53;
+				for (var _iterator30 = posts, _isArray30 = Array.isArray(_iterator30), _i40 = 0, _iterator30 = _isArray30 ? _iterator30 : _iterator30[Symbol.iterator]();;) {
+					var _ref54;
 
-					if (_isArray31) {
-						if (_i41 >= _iterator31.length) break;
-						_ref53 = _iterator31[_i41++];
+					if (_isArray30) {
+						if (_i40 >= _iterator30.length) break;
+						_ref54 = _iterator30[_i40++];
 					} else {
-						_i41 = _iterator31.next();
-						if (_i41.done) break;
-						_ref53 = _i41.value;
+						_i40 = _iterator30.next();
+						if (_i40.done) break;
+						_ref54 = _i40.value;
 					}
 
-					var _ref54 = _ref53,
-					    _ref55 = _slicedToArray(_ref54, 2),
-					    pNum = _ref55[0],
-					    _post5 = _ref55[1];
+					var _ref55 = _ref54,
+					    _ref56 = _slicedToArray(_ref55, 2),
+					    pNum = _ref56[0],
+					    _post5 = _ref56[1];
 
 					var links = $Q('a', _post5.msg);
 					for (var lNum, i = 0, len = links.length; i < len; ++i) {
@@ -16342,19 +16245,19 @@ true, true],
 					return;
 				}
 				this._hidden = true;
-				for (var _iterator32 = this._set, _isArray32 = Array.isArray(_iterator32), _i42 = 0, _iterator32 = _isArray32 ? _iterator32 : _iterator32[Symbol.iterator]();;) {
-					var _ref56;
+				for (var _iterator31 = this._set, _isArray31 = Array.isArray(_iterator31), _i41 = 0, _iterator31 = _isArray31 ? _iterator31 : _iterator31[Symbol.iterator]();;) {
+					var _ref57;
 
-					if (_isArray32) {
-						if (_i42 >= _iterator32.length) break;
-						_ref56 = _iterator32[_i42++];
+					if (_isArray31) {
+						if (_i41 >= _iterator31.length) break;
+						_ref57 = _iterator31[_i41++];
 					} else {
-						_i42 = _iterator32.next();
-						if (_i42.done) break;
-						_ref56 = _i42.value;
+						_i41 = _iterator31.next();
+						if (_i41.done) break;
+						_ref57 = _i41.value;
 					}
 
-					var num = _ref56;
+					var num = _ref57;
 
 					var pst = pByNum.get(num);
 					if (pst && !pst.hidden) {
@@ -16372,19 +16275,19 @@ true, true],
 			key: 'init',
 			value: function init(tUrl, strNums) {
 				var html = '';
-				for (var _iterator33 = this._set, _isArray33 = Array.isArray(_iterator33), _i43 = 0, _iterator33 = _isArray33 ? _iterator33 : _iterator33[Symbol.iterator]();;) {
-					var _ref57;
+				for (var _iterator32 = this._set, _isArray32 = Array.isArray(_iterator32), _i42 = 0, _iterator32 = _isArray32 ? _iterator32 : _iterator32[Symbol.iterator]();;) {
+					var _ref58;
 
-					if (_isArray33) {
-						if (_i43 >= _iterator33.length) break;
-						_ref57 = _iterator33[_i43++];
+					if (_isArray32) {
+						if (_i42 >= _iterator32.length) break;
+						_ref58 = _iterator32[_i42++];
 					} else {
-						_i43 = _iterator33.next();
-						if (_i43.done) break;
-						_ref57 = _i43.value;
+						_i42 = _iterator32.next();
+						if (_i42.done) break;
+						_ref58 = _i42.value;
 					}
 
-					var num = _ref57;
+					var num = _ref58;
 
 					html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 				}
@@ -16429,19 +16332,19 @@ true, true],
 					return;
 				}
 				this._hidden = false;
-				for (var _iterator34 = this._set, _isArray34 = Array.isArray(_iterator34), _i44 = 0, _iterator34 = _isArray34 ? _iterator34 : _iterator34[Symbol.iterator]();;) {
-					var _ref58;
+				for (var _iterator33 = this._set, _isArray33 = Array.isArray(_iterator33), _i43 = 0, _iterator33 = _isArray33 ? _iterator33 : _iterator33[Symbol.iterator]();;) {
+					var _ref59;
 
-					if (_isArray34) {
-						if (_i44 >= _iterator34.length) break;
-						_ref58 = _iterator34[_i44++];
+					if (_isArray33) {
+						if (_i43 >= _iterator33.length) break;
+						_ref59 = _iterator33[_i43++];
 					} else {
-						_i44 = _iterator34.next();
-						if (_i44.done) break;
-						_ref58 = _i44.value;
+						_i43 = _iterator33.next();
+						if (_i43.done) break;
+						_ref59 = _i43.value;
 					}
 
-					var num = _ref58;
+					var num = _ref59;
 
 					var pst = pByNum.get(num);
 					if (pst && pst.hidden && !pst.spellHidden) {
@@ -16697,23 +16600,23 @@ true, true],
 				if (!aib.qBan) {
 					return;
 				}
-				for (var _iterator35 = pBuilder.bannedPostsData(), _isArray35 = Array.isArray(_iterator35), _i45 = 0, _iterator35 = _isArray35 ? _iterator35 : _iterator35[Symbol.iterator]();;) {
-					var _ref59;
+				for (var _iterator34 = pBuilder.bannedPostsData(), _isArray34 = Array.isArray(_iterator34), _i44 = 0, _iterator34 = _isArray34 ? _iterator34 : _iterator34[Symbol.iterator]();;) {
+					var _ref60;
 
-					if (_isArray35) {
-						if (_i45 >= _iterator35.length) break;
-						_ref59 = _iterator35[_i45++];
+					if (_isArray34) {
+						if (_i44 >= _iterator34.length) break;
+						_ref60 = _iterator34[_i44++];
 					} else {
-						_i45 = _iterator35.next();
-						if (_i45.done) break;
-						_ref59 = _i45.value;
+						_i44 = _iterator34.next();
+						if (_i44.done) break;
+						_ref60 = _i44.value;
 					}
 
-					var _ref60 = _ref59,
-					    _ref61 = _slicedToArray(_ref60, 3),
-					    banId = _ref61[0],
-					    bNum = _ref61[1],
-					    bEl = _ref61[2];
+					var _ref61 = _ref60,
+					    _ref62 = _slicedToArray(_ref61, 3),
+					    banId = _ref62[0],
+					    bNum = _ref62[1],
+					    bEl = _ref62[2];
 
 					var _post6 = bNum ? pByNum.get(bNum) : this.op;
 					if (_post6 && _post6.banned !== banId) {
@@ -16766,8 +16669,8 @@ true, true],
 					temp.innerHTML = aib.fixHTML(html.join(''));
 					fragm = temp.content;
 					var _posts = $Q(aib.qRPost, fragm);
-					for (var _i46 = 0, _len9 = _posts.length; _i46 < _len9; ++_i46) {
-						last = this._addPost(fragm, _posts[_i46], begin + _i46 + 1, last, maybeVParser);
+					for (var _i45 = 0, _len9 = _posts.length; _i45 < _len9; ++_i45) {
+						last = this._addPost(fragm, _posts[_i45], begin + _i45 + 1, last, maybeVParser);
 						newVisCount -= maybeSpells.value.run(last);
 					}
 				} else {
@@ -17617,9 +17520,9 @@ true, true],
 						case 1:
 							counter.setWait();
 							this._state = 2;
-							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref62) {
-								var newCount = _ref62.newCount,
-								    locked = _ref62.locked;
+							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref63) {
+								var newCount = _ref63.newCount,
+								    locked = _ref63.locked;
 								return _this66._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (e) {
 								return _this66._handleNewPosts(0, e);
@@ -17916,7 +17819,7 @@ true, true],
 							$pd(e);
 							pr.closeReply();
 							$popup('delete', Lng.deleting[lang], true);
-							html5Submit(el, e.target).then(checkDelete, function (e) {
+							html5Submit(el, e.target).then(checkDelete)['catch'](function (e) {
 								return $popup('delete', getErrorMessage(e));
 							});
 						};
@@ -17982,10 +17885,13 @@ true, true],
 		var isChromeStorage = !!window.chrome && !!window.chrome.storage;
 		var isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 		var isGM = false;
-		try {
-			isGM = typeof GM_setValue === 'function' && (!chrome || !GM_setValue.toString().includes('not supported'));
-		} catch (e) {
-			isGM = e.message === 'Permission denied to access property "toString"';
+		var isNewGM = typeof GM !== 'undefined' && typeof GM.setValue === 'function';
+		if (!isNewGM) {
+			try {
+				isGM = typeof GM_setValue === 'function' && (!chrome || !GM_setValue.toString().includes('not supported'));
+			} catch (e) {
+				isGM = e.message === 'Permission denied to access property "toString"';
+			}
 		}
 		if (!('requestAnimationFrame' in window)) {
 			window.requestAnimationFrame = function (fn) {
@@ -18045,13 +17951,26 @@ true, true],
 			Presto: !!window.opera,
 			MsEdge: ua.includes('Edge/'),
 			isGM: isGM,
+			isNewGM: isNewGM,
 			get isESNext() {
 				return typeof de_main_func_outer === 'undefined';
 			},
 			isChromeStorage: isChromeStorage,
 			isScriptStorage: isScriptStorage,
-			isGlobal: isGM || isChromeStorage || isScriptStorage,
-			scriptInstall: firefox ? typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish' : isChromeStorage ? 'Chrome extension' : isGM ? 'Monkey' : 'Native userscript',
+			isGlobal: isGM || isNewGM || isChromeStorage || isScriptStorage,
+			hasGMXHR: typeof GM_xmlhttpRequest === 'function' || isNewGM && typeof GM.xmlHttpRequest === 'function',
+			get scriptInstall() {
+				if (this.Firefox) {
+					if (this.isNewGM) {
+						if (GM.info) {
+							return GM.info.scriptHandler + ' ' + GM.info.version;
+						}
+						return 'Greasemonkey';
+					}
+					return typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish';
+				}
+				return isChromeStorage ? 'Chrome extension' : isGM ? 'Monkey' : 'Native userscript';
+			},
 			cssMatches: function cssMatches(leftSel) {
 				for (var _len10 = arguments.length, rules = Array(_len10 > 1 ? _len10 - 1 : 0), _key3 = 1; _key3 < _len10; _key3++) {
 					rules[_key3 - 1] = arguments[_key3];
@@ -18613,8 +18532,8 @@ true, true],
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
 					var str = '';
-					for (var _i47 = 0; _i47 < 8; ++_i47) {
-						str += '<div' + (_i47 ? ' style="display: none;"' : '') + '><input type="file" name="image' + (_i47 + 1) + '"></div>';
+					for (var _i46 = 0; _i46 < 8; ++_i46) {
+						str += '<div' + (_i46 ? ' style="display: none;"' : '') + '><input type="file" name="image' + (_i46 + 1) + '"></div>';
 					}
 					el.innerHTML = str;
 				}
@@ -18897,8 +18816,8 @@ true, true],
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
 					var str = '';
-					for (var _i48 = 0; _i48 < 5; ++_i48) {
-						str += '<div' + (_i48 ? ' style="display: none;"' : '') + '><input type="file" name="file' + (_i48 ? _i48 + 1 : '') + '"></div>';
+					for (var _i47 = 0; _i47 < 5; ++_i47) {
+						str += '<div' + (_i47 ? ' style="display: none;"' : '') + '><input type="file" name="file' + (_i47 ? _i47 + 1 : '') + '"></div>';
 					}
 					el.innerHTML = str;
 				}
@@ -19090,8 +19009,8 @@ true, true],
 						var el = mutations[0].addedNodes[0];
 						if (el && el.id === 'app') {
 							initObserver.disconnect();
-							doc.defaultView.addEventListener('message', function (_ref63) {
-								var data = _ref63.data;
+							doc.defaultView.addEventListener('message', function (_ref64) {
+								var data = _ref64.data;
 
 								if (data !== '0chan-content-done') {
 									return;
@@ -19819,8 +19738,8 @@ true, true],
 					var el = _get(Arhivach.prototype.__proto__ || Object.getPrototypeOf(Arhivach.prototype), 'fixHTML', this).call(this, data, isForm);
 					try {
 						var _els4 = $Q('.expand_image', el);
-						for (var _i49 = 0, tLen = _els4.length; _i49 < tLen; ++_i49) {
-							_els4[_i49].href = _els4[_i49].getAttribute('onclick').match(/http:\/[^']+/)[0];
+						for (var _i48 = 0, tLen = _els4.length; _i48 < tLen; ++_i48) {
+							_els4[_i48].href = _els4[_i48].getAttribute('onclick').match(/http:\/[^']+/)[0];
 						}
 					} catch (e) {}
 					return el;
@@ -19949,19 +19868,19 @@ true, true],
 						$after(el2, el1);
 					}
 					var imgLinks = $Q('.fileinfo > a');
-					for (var _iterator36 = imgLinks, _isArray36 = Array.isArray(_iterator36), _i50 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
-						var _ref64;
+					for (var _iterator35 = imgLinks, _isArray35 = Array.isArray(_iterator35), _i49 = 0, _iterator35 = _isArray35 ? _iterator35 : _iterator35[Symbol.iterator]();;) {
+						var _ref65;
 
-						if (_isArray36) {
-							if (_i50 >= _iterator36.length) break;
-							_ref64 = _iterator36[_i50++];
+						if (_isArray35) {
+							if (_i49 >= _iterator35.length) break;
+							_ref65 = _iterator35[_i49++];
 						} else {
-							_i50 = _iterator36.next();
-							if (_i50.done) break;
-							_ref64 = _i50.value;
+							_i49 = _iterator35.next();
+							if (_i49.done) break;
+							_ref65 = _i49.value;
 						}
 
-						var a = _ref64;
+						var a = _ref65;
 
 						a.setAttribute('download', $q('.postfilename', a.parentElement).innerText);
 					}
@@ -20362,8 +20281,8 @@ true, true],
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
 					var str = '';
-					for (var _i51 = 0; _i51 < 4; ++_i51) {
-						str += '<div' + (_i51 ? ' style="display: none;"' : '') + '><input type="file" name="file_' + _i51 + '" tabindex="7"></div>';
+					for (var _i50 = 0; _i50 < 4; ++_i50) {
+						str += '<div' + (_i50 ? ' style="display: none;"' : '') + '><input type="file" name="file_' + _i50 + '" tabindex="7"></div>';
 					}
 					el.innerHTML = str;
 					el.removeAttribute('id');
@@ -20399,8 +20318,8 @@ true, true],
 				value: function initCaptcha(cap) {
 					cap.hasCaptcha = false;
 					var scripts = $Q('script:not([src])', doc);
-					for (var _i52 = 0, _len11 = scripts.length; _i52 < _len11; ++_i52) {
-						var m = scripts[_i52].textContent.match(/var boardRequiresCaptcha = ([a-z]+);/);
+					for (var _i51 = 0, _len11 = scripts.length; _i51 < _len11; ++_i51) {
+						var m = scripts[_i51].textContent.match(/var boardRequiresCaptcha = ([a-z]+);/);
 						if (m) {
 							if (m[1] === 'true') {
 								cap.hasCaptcha = true;
@@ -20435,19 +20354,19 @@ true, true],
 					var sessionId = null;
 					var cookie = doc.cookie;
 					if (cookie.includes('desuchan.session')) {
-						for (var _iterator37 = cookie.split(';'), _isArray37 = Array.isArray(_iterator37), _i53 = 0, _iterator37 = _isArray37 ? _iterator37 : _iterator37[Symbol.iterator]();;) {
-							var _ref65;
+						for (var _iterator36 = cookie.split(';'), _isArray36 = Array.isArray(_iterator36), _i52 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
+							var _ref66;
 
-							if (_isArray37) {
-								if (_i53 >= _iterator37.length) break;
-								_ref65 = _iterator37[_i53++];
+							if (_isArray36) {
+								if (_i52 >= _iterator36.length) break;
+								_ref66 = _iterator36[_i52++];
 							} else {
-								_i53 = _iterator37.next();
-								if (_i53.done) break;
-								_ref65 = _i53.value;
+								_i52 = _iterator36.next();
+								if (_i52.done) break;
+								_ref66 = _i52.value;
 							}
 
-							var c = _ref65;
+							var c = _ref66;
 
 							var m = c.match(/^\s*desuchan\.session=(.*)$/);
 							if (m) {
@@ -20801,8 +20720,8 @@ true, true],
 				DollchanAPI.port.onmessage = DollchanAPI._handleMessage;
 				DollchanAPI.activeListeners = new Set();
 				var port = channel.port2;
-				doc.defaultView.addEventListener('message', function (_ref66) {
-					var data = _ref66.data;
+				doc.defaultView.addEventListener('message', function (_ref67) {
+					var data = _ref67.data;
 
 					if (data === 'de-request-api-message') {
 						DollchanAPI.hasListeners = true;
@@ -20824,8 +20743,8 @@ true, true],
 			}
 		}, {
 			key: '_handleMessage',
-			value: function _handleMessage(_ref67) {
-				var arg = _ref67.data;
+			value: function _handleMessage(_ref68) {
+				var arg = _ref68.data;
 
 				if (!arg || !arg.name) {
 					return;
@@ -20837,19 +20756,19 @@ true, true],
 					case 'registerapi':
 						if (data) {
 							rv = {};
-							for (var _iterator38 = data, _isArray38 = Array.isArray(_iterator38), _i54 = 0, _iterator38 = _isArray38 ? _iterator38 : _iterator38[Symbol.iterator]();;) {
-								var _ref68;
+							for (var _iterator37 = data, _isArray37 = Array.isArray(_iterator37), _i53 = 0, _iterator37 = _isArray37 ? _iterator37 : _iterator37[Symbol.iterator]();;) {
+								var _ref69;
 
-								if (_isArray38) {
-									if (_i54 >= _iterator38.length) break;
-									_ref68 = _iterator38[_i54++];
+								if (_isArray37) {
+									if (_i53 >= _iterator37.length) break;
+									_ref69 = _iterator37[_i53++];
 								} else {
-									_i54 = _iterator38.next();
-									if (_i54.done) break;
-									_ref68 = _i54.value;
+									_i53 = _iterator37.next();
+									if (_i53.done) break;
+									_ref69 = _i53.value;
 								}
 
-								var aName = _ref68;
+								var aName = _ref69;
 
 								rv[aName] = DollchanAPI._register(aName.toLowerCase());
 							}
@@ -21061,8 +20980,9 @@ true, true],
 	}
 
 
-	function runMain(checkDomains, cfgPromise) {
-		var formEl, str, storageName, firstThr;
+	function runMain(checkDomains, dataPromise) {
+		var formEl, eList, fav, _ref70, _ref71, _ref72, _ref73, storageName, firstThr;
+
 		return regeneratorRuntime.async(function runMain$(_context24) {
 			while (1) {
 				switch (_context24.prev = _context24.next) {
@@ -21112,68 +21032,58 @@ true, true],
 						initNavFuncs();
 
 					case 14:
-						_context24.next = 16;
-						return regeneratorRuntime.awrap(getStored('DESU_Exclude'));
+						eList = void 0, fav = void 0;
 
-					case 16:
-						str = _context24.sent;
-
-						if (!(str == null)) {
-							_context24.next = 21;
+						if (!dataPromise) {
+							_context24.next = 24;
 							break;
 						}
 
-						setStored('DESU_Exclude', '');
-						_context24.next = 23;
+						_context24.next = 18;
+						return regeneratorRuntime.awrap(dataPromise);
+
+					case 18:
+						_ref70 = _context24.sent;
+						_ref71 = _slicedToArray(_ref70, 2);
+						eList = _ref71[0];
+						fav = _ref71[1];
+						_context24.next = 30;
 						break;
 
-					case 21:
-						if (!str.includes(aib.dm)) {
-							_context24.next = 23;
-							break;
-						}
+					case 24:
+						_context24.next = 26;
+						return regeneratorRuntime.awrap(readData());
 
-						return _context24.abrupt('return');
+					case 26:
+						_ref72 = _context24.sent;
+						_ref73 = _slicedToArray(_ref72, 2);
+						eList = _ref73[0];
+						fav = _ref73[1];
 
-					case 23:
-						excludeList = str || '';
-
-						if (Cfg) {
+					case 30:
+						if (!(eList && eList.includes(aib.dm))) {
 							_context24.next = 32;
 							break;
 						}
 
-						if (!cfgPromise) {
-							_context24.next = 30;
-							break;
-						}
-
-						_context24.next = 28;
-						return regeneratorRuntime.awrap(cfgPromise);
-
-					case 28:
-						_context24.next = 32;
-						break;
-
-					case 30:
-						_context24.next = 32;
-						return regeneratorRuntime.awrap(readCfg());
+						return _context24.abrupt('return');
 
 					case 32:
-						Logger.log('Config loading');
+						excludeList = eList || '';
+						Logger.log('Data loading');
 
 						if (!(!Cfg.disabled && (aib.init && aib.init() || $id('de-panel')))) {
-							_context24.next = 35;
+							_context24.next = 36;
 							break;
 						}
 
 						return _context24.abrupt('return');
 
-					case 35:
+					case 36:
 						addSVGIcons();
 
 						if (!Cfg.disabled) {
-							_context24.next = 40;
+							_context24.next = 41;
 							break;
 						}
 
@@ -21181,7 +21091,7 @@ true, true],
 						scriptCSS();
 						return _context24.abrupt('return');
 
-					case 40:
+					case 41:
 						initStorageEvent();
 						DollchanAPI.init();
 						if (localData) {
@@ -21213,30 +21123,30 @@ true, true],
 						Logger.log('Replace delform');
 						pByEl = new Map();
 						pByNum = new Map();
-						_context24.prev = 54;
+						_context24.prev = 55;
 
 						DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
 
 						if (Thread.first) {
-							_context24.next = 58;
+							_context24.next = 59;
 							break;
 						}
 
 						throw 'No threads detected!';
 
-					case 58:
-						_context24.next = 65;
+					case 59:
+						_context24.next = 66;
 						break;
 
-					case 60:
-						_context24.prev = 60;
-						_context24.t0 = _context24['catch'](54);
+					case 61:
+						_context24.prev = 61;
+						_context24.t0 = _context24['catch'](55);
 
 						console.error('Delform parsing error:', getErrorMessage(_context24.t0));
 						$show(docBody);
 						return _context24.abrupt('return');
 
-					case 65:
+					case 66:
 						Logger.log('Parse delform');
 						storageName = 'de-lastpcount-' + aib.b + '-' + aib.t;
 
@@ -21266,15 +21176,9 @@ true, true],
 						Logger.log('Infinity scroll');
 						firstThr = DelForm.first.firstThr;
 
-						if (!firstThr) {
-							_context24.next = 87;
-							break;
+						if (firstThr) {
+							readPostsData(firstThr.op, fav);
 						}
-
-						_context24.next = 87;
-						return regeneratorRuntime.awrap(readPostsData(firstThr.op));
-
-					case 87:
 						Logger.log('Hide posts');
 						scrollPage();
 						Logger.log('Scroll page');
@@ -21289,12 +21193,12 @@ true, true],
 						}
 						Logger.finish();
 
-					case 92:
+					case 91:
 					case 'end':
 						return _context24.stop();
 				}
 			}
-		}, null, this, [[54, 60]]);
+		}, null, this, [[55, 61]]);
 	}
 
 	if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
@@ -21305,7 +21209,7 @@ true, true],
 		runMain(true, null);
 	} else {
 		var _ret12 = function () {
-			var cfgPromise = null;
+			var dataPromise = null;
 			if (aib = getImageBoard(true, false)) {
 				if (!checkStorage()) {
 					return {
@@ -21313,7 +21217,7 @@ true, true],
 					};
 				}
 				initNavFuncs();
-				cfgPromise = readCfg();
+				dataPromise = readData();
 			}
 			needScroll = true;
 			doc.addEventListener('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', function wFunc(e) {
@@ -21321,7 +21225,7 @@ true, true],
 				doc.removeEventListener(e.type, wFunc);
 			});
 			doc.addEventListener('DOMContentLoaded', function () {
-				return runMain(false, cfgPromise);
+				return runMain(false, dataPromise);
 			});
 		}();
 

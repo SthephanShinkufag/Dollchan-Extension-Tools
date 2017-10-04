@@ -2,7 +2,7 @@
                                                      MAIN
 ============================================================================================================*/
 
-async function runMain(checkDomains, cfgPromise) {
+async function runMain(checkDomains, dataPromise) {
 	Logger.init();
 	docBody = doc.body;
 	if(!docBody) {
@@ -25,22 +25,17 @@ async function runMain(checkDomains, cfgPromise) {
 		}
 		initNavFuncs();
 	}
-	const str = await getStored('DESU_Exclude');
-	if(str == null) {
-		// Greasemonkey very slow reads undefined values so store here an empty string
-		setStored('DESU_Exclude', '');
-	} else if(str.includes(aib.dm)) {
+	let eList, fav;
+	if(dataPromise) {
+		[eList, fav] = await dataPromise;
+	} else {
+		[eList, fav] = await readData();
+	}
+	if(eList && eList.includes(aib.dm)) {
 		return;
 	}
-	excludeList = str || '';
-	if(!Cfg) {
-		if(cfgPromise) {
-			await cfgPromise;
-		} else {
-			await readCfg();
-		}
-	}
-	Logger.log('Config loading');
+	excludeList = eList || '';
+	Logger.log('Data loading');
 	if(!Cfg.disabled && ((aib.init && aib.init()) || $id('de-panel'))) {
 		return;
 	}
@@ -118,7 +113,7 @@ async function runMain(checkDomains, cfgPromise) {
 	Logger.log('Infinity scroll');
 	const firstThr = DelForm.first.firstThr;
 	if(firstThr) {
-		await readPostsData(firstThr.op);
+		readPostsData(firstThr.op, fav);
 	}
 	Logger.log('Hide posts');
 	scrollPage();
@@ -143,18 +138,18 @@ if(doc.readyState !== 'loading') {
 	needScroll = false;
 	runMain(true, null);
 } else {
-	let cfgPromise = null;
+	let dataPromise = null;
 	if((aib = getImageBoard(true, false))) {
 		if(!checkStorage()) {
 			return;
 		}
 		initNavFuncs();
-		cfgPromise = readCfg();
+		dataPromise = readData();
 	}
 	needScroll = true;
 	doc.addEventListener('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', function wFunc(e) {
 		needScroll = false;
 		doc.removeEventListener(e.type, wFunc);
 	});
-	doc.addEventListener('DOMContentLoaded', () => runMain(false, cfgPromise));
+	doc.addEventListener('DOMContentLoaded', () => runMain(false, dataPromise));
 }

@@ -13,6 +13,10 @@
 // @grant           GM_deleteValue
 // @grant           GM_openInTab
 // @grant           GM_xmlhttpRequest
+// @grant           GM.getValue
+// @grant           GM.setValue
+// @grant           GM.deleteValue
+// @grant           GM.xmlHttpRequest
 // @grant           unsafeWindow
 // @include         *
 // @nocompat        Chrome
@@ -22,7 +26,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = 'ca7a735';
+const commit = '0d5272b';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -2175,7 +2179,9 @@ function downloadBlob(blob, name) {
 
 // Gets data from the global storage
 async function getStored(id) {
-	if(nav.isGM) {
+	if(nav.isNewGM) {
+		return await GM.getValue(id);
+	} else if(nav.isGM) {
 		return GM_getValue(id);
 	} else if(nav.isChromeStorage) {
 		// Read storage.local first. If it not existed then read storage.sync
@@ -2195,8 +2201,11 @@ async function getStored(id) {
 }
 
 // Saves data into the global storage
+// FIXME: make async?
 function setStored(id, value) {
-	if(nav.isGM) {
+	if(nav.isNewGM) {
+		return GM.setValue(id, value);
+	} else if(nav.isGM) {
 		GM_setValue(id, value);
 	} else if(nav.isChromeStorage) {
 		const obj = {};
@@ -2218,8 +2227,11 @@ function setStored(id, value) {
 }
 
 // Removes data from the global storage
+// FIXME: make async?
 function delStored(id) {
-	if(nav.isGM) {
+	if(nav.isNewGM) {
+		return GM.deleteValue(id);
+	} else if(nav.isGM) {
 		GM_deleteValue(id);
 	} else if(nav.isChromeStorage) {
 		chrome.storage.sync.remove(id, emptyFn);
@@ -2259,6 +2271,12 @@ function saveCfg(id, val) {
 function toggleCfg(id) {
 	saveCfg(id, +!Cfg[id]);
 }
+  
+async function readData() {
+	var [_, fav, eList] = await Promise.all([readCfg(), readFavorites(), getStored('DESU_Exclude')]);
+	return [eList, fav];
+}
+    
 
 // Config initialization, checking for Dollchan update.
 async function readCfg() {
@@ -2333,7 +2351,7 @@ async function readCfg() {
 }
 
 // Initialize of hidden and favorites. Run spells.
-async function readPostsData(firstPost) {
+function readPostsData(firstPost, fav) {
 	let sVis = null;
 	try {
 		// Get hidden posts and threads that cached in current session
@@ -2354,7 +2372,6 @@ async function readPostsData(firstPost) {
 		return;
 	}
 	let updateFav = false;
-	const fav = await getStoredObj('DESU_Favorites');
 	const favBrd = (aib.host in fav) && (aib.b in fav[aib.host]) ? fav[aib.host][aib.b] : {};
 	const spellsHide = Cfg.hideBySpell;
 	const maybeSpells = new Maybe(SpellsRunner);
@@ -3964,9 +3981,10 @@ const cfgWindow = Object.create({
 					}
 					switch(i) {
 					case 0: name.push('Cfg');
-						val.push('"settings":' + (await getStored('DESU_Config')),
-							'"hotkeys":' + ((await getStored('DESU_keys')) || '""'),
-							'"exclude":' + ((await getStored('DESU_Exclude')) || '""'));
+						let cfgData = await Promise.all([getStored('DESU_Config'), getStored('DESU_keys'), getStored('DESU_Exclude')]);
+						val.push('"settings":' + cfgData[0],
+							'"hotkeys":' + (cfgData[1] || '""'),
+							'"exclude":' + (cfgData[2] || '""'));
 						break;
 					case 1: name.push('Fav');
 						val.push('"favorites":' + ((await getStored('DESU_Favorites')) || '{}'));
@@ -6360,7 +6378,7 @@ function embedMediaLinks(data) {
 function $ajax(url, params = null, useNative = nativeXHRworks) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
-	if(!useNative && (typeof GM_xmlhttpRequest === 'function')) {
+	if(!useNative && nav.hasGMXHR) {
 		let gmxhr;
 		const toFunc = () => {
 			reject(AjaxError.Timeout);
@@ -6395,15 +6413,21 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			delete params.method;
 			Object.assign(obj, params);
 		}
-		gmxhr = GM_xmlhttpRequest(obj);
-		cancelFn = () => {
-			if(needTO) {
-				clearTimeout(loadTO);
-			}
-			try {
-				gmxhr.abort();
-			} catch(e) {}
-		};
+		// TODO: GreaseMonkey 4.0alpha cannot cancel xhr's
+		if(nav.isNewGM) {
+			GM.xmlHttpRequest(obj);
+			cancelFn = emptyFn;
+		} else {
+			gmxhr = GM_xmlhttpRequest(obj);
+			cancelFn = () => {
+				if(needTO) {
+					clearTimeout(loadTO);
+				}
+				try {
+					gmxhr.abort();
+				} catch(e) {}
+			};
+		}
 	} else {
 		const xhr = new XMLHttpRequest();
 		const toFunc = () => {
@@ -6678,7 +6702,7 @@ var Pages = {
 		this._addPromise = null;
 	},
 	_updateForms: async function(newForm) {
-		await readPostsData(newForm.firstThr.op);
+		getStoredObj('DESU_Favorites').then(fav => readPostsData(newForm.firstThr.op, fav));
 		if(pr.passw) {
 			PostForm.setUserPassw();
 		}
@@ -8262,7 +8286,8 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 			$pd(e);
 			$popup('upload', Lng.sending[lang], true);
 			html5Submit(this.form, this.subm, true)
-				.then(dc => checkUpload(dc), e => $popup('upload', getErrorMessage(e)));
+				.then(checkUpload)
+				.catch(e => $popup('upload', getErrorMessage(e)));
 		};
 	}
 }
@@ -8741,9 +8766,7 @@ async function checkDelete(data) {
 			infoLoadErrors(e);
 		}
 	} else {
-		for(let thr of threads) {
-			await thr.loadPosts(visPosts, false, false);
-		}
+		await Promise.all(Array.from(threads).map(thr => thr.loadPosts(visPosts, false, false)));
 	}
 	$popup('delete', Lng.succDeleted[lang]);
 }
@@ -13983,7 +14006,7 @@ class DelForm {
 					$pd(e);
 					pr.closeReply();
 					$popup('delete', Lng.deleting[lang], true);
-					html5Submit(el, e.target).then(checkDelete, e => $popup('delete', getErrorMessage(e)));
+					html5Submit(el, e.target).then(checkDelete).catch(e => $popup('delete', getErrorMessage(e)));
 				};
 			}
 		}
@@ -14040,11 +14063,14 @@ function initNavFuncs() {
 	const isChromeStorage = !!window.chrome && !!window.chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	let isGM = false;
-	try {
-		isGM = (typeof GM_setValue === 'function') &&
-			(!chrome || !GM_setValue.toString().includes('not supported'));
-	} catch(e) {
-		isGM = e.message === 'Permission denied to access property "toString"';
+	let isNewGM = typeof GM !== 'undefined' && typeof GM.setValue === 'function';
+	if(!isNewGM) {
+		try {
+			isGM = (typeof GM_setValue === 'function') &&
+				(!chrome || !GM_setValue.toString().includes('not supported'));
+		} catch(e) {
+			isGM = e.message === 'Permission denied to access property "toString"';
+		}
 	}
 	if(!('requestAnimationFrame' in window)) { // XXX: nav.Presto
 		window.requestAnimationFrame = fn => setTimeout(fn, 0);
@@ -14098,15 +14124,26 @@ function initNavFuncs() {
 		Presto: !!window.opera,
 		MsEdge: ua.includes('Edge/'),
 		isGM: isGM,
+		isNewGM: isNewGM,
 		get isESNext() {
 			return typeof de_main_func_outer === 'undefined';
 		},
 		isChromeStorage: isChromeStorage,
 		isScriptStorage: isScriptStorage,
-		isGlobal: isGM || isChromeStorage || isScriptStorage,
-		scriptInstall: (firefox ? (typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish') :
-			isChromeStorage ? 'Chrome extension' :
-			isGM ? 'Monkey' : 'Native userscript'),
+		isGlobal: isGM || isNewGM || isChromeStorage || isScriptStorage,
+		hasGMXHR: (typeof GM_xmlhttpRequest === 'function') || (isNewGM && (typeof GM.xmlHttpRequest === 'function')),
+		get scriptInstall() {
+			if(this.Firefox) {
+				if(this.isNewGM) {
+					if(GM.info) {
+						return `${ GM.info.scriptHandler } ${ GM.info.version }`;
+					}
+					return 'Greasemonkey';
+				}
+				return typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish';
+			}
+			return isChromeStorage ? 'Chrome extension' : isGM ? 'Monkey' : 'Native userscript';
+		},
 		cssMatches(leftSel, ...rules) {
 			return leftSel + rules.join(', ' + leftSel);
 		},
@@ -16856,7 +16893,7 @@ function updateCSS() {
                                                      MAIN
 ============================================================================================================*/
 
-async function runMain(checkDomains, cfgPromise) {
+async function runMain(checkDomains, dataPromise) {
 	Logger.init();
 	docBody = doc.body;
 	if(!docBody) {
@@ -16879,22 +16916,17 @@ async function runMain(checkDomains, cfgPromise) {
 		}
 		initNavFuncs();
 	}
-	const str = await getStored('DESU_Exclude');
-	if(str == null) {
-		// Greasemonkey very slow reads undefined values so store here an empty string
-		setStored('DESU_Exclude', '');
-	} else if(str.includes(aib.dm)) {
+	let eList, fav;
+	if(dataPromise) {
+		[eList, fav] = await dataPromise;
+	} else {
+		[eList, fav] = await readData();
+	}
+	if(eList && eList.includes(aib.dm)) {
 		return;
 	}
-	excludeList = str || '';
-	if(!Cfg) {
-		if(cfgPromise) {
-			await cfgPromise;
-		} else {
-			await readCfg();
-		}
-	}
-	Logger.log('Config loading');
+	excludeList = eList || '';
+	Logger.log('Data loading');
 	if(!Cfg.disabled && ((aib.init && aib.init()) || $id('de-panel'))) {
 		return;
 	}
@@ -16972,7 +17004,7 @@ async function runMain(checkDomains, cfgPromise) {
 	Logger.log('Infinity scroll');
 	const firstThr = DelForm.first.firstThr;
 	if(firstThr) {
-		await readPostsData(firstThr.op);
+		readPostsData(firstThr.op, fav);
 	}
 	Logger.log('Hide posts');
 	scrollPage();
@@ -16997,20 +17029,20 @@ if(doc.readyState !== 'loading') {
 	needScroll = false;
 	runMain(true, null);
 } else {
-	let cfgPromise = null;
+	let dataPromise = null;
 	if((aib = getImageBoard(true, false))) {
 		if(!checkStorage()) {
 			return;
 		}
 		initNavFuncs();
-		cfgPromise = readCfg();
+		dataPromise = readData();
 	}
 	needScroll = true;
 	doc.addEventListener('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', function wFunc(e) {
 		needScroll = false;
 		doc.removeEventListener(e.type, wFunc);
 	});
-	doc.addEventListener('DOMContentLoaded', () => runMain(false, cfgPromise));
+	doc.addEventListener('DOMContentLoaded', () => runMain(false, dataPromise));
 }
 
 /*==[ Tail ]==*/

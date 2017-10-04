@@ -30,11 +30,14 @@ function initNavFuncs() {
 	const isChromeStorage = !!window.chrome && !!window.chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	let isGM = false;
-	try {
-		isGM = (typeof GM_setValue === 'function') &&
-			(!chrome || !GM_setValue.toString().includes('not supported'));
-	} catch(e) {
-		isGM = e.message === 'Permission denied to access property "toString"';
+	let isNewGM = typeof GM !== 'undefined' && typeof GM.setValue === 'function';
+	if(!isNewGM) {
+		try {
+			isGM = (typeof GM_setValue === 'function') &&
+				(!chrome || !GM_setValue.toString().includes('not supported'));
+		} catch(e) {
+			isGM = e.message === 'Permission denied to access property "toString"';
+		}
 	}
 	if(!('requestAnimationFrame' in window)) { // XXX: nav.Presto
 		window.requestAnimationFrame = fn => setTimeout(fn, 0);
@@ -88,15 +91,26 @@ function initNavFuncs() {
 		Presto: !!window.opera,
 		MsEdge: ua.includes('Edge/'),
 		isGM: isGM,
+		isNewGM: isNewGM,
 		get isESNext() {
 			return typeof de_main_func_outer === 'undefined';
 		},
 		isChromeStorage: isChromeStorage,
 		isScriptStorage: isScriptStorage,
-		isGlobal: isGM || isChromeStorage || isScriptStorage,
-		scriptInstall: (firefox ? (typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish') :
-			isChromeStorage ? 'Chrome extension' :
-			isGM ? 'Monkey' : 'Native userscript'),
+		isGlobal: isGM || isNewGM || isChromeStorage || isScriptStorage,
+		hasGMXHR: (typeof GM_xmlhttpRequest === 'function') || (isNewGM && (typeof GM.xmlHttpRequest === 'function')),
+		get scriptInstall() {
+			if(this.Firefox) {
+				if(this.isNewGM) {
+					if(GM.info) {
+						return `${ GM.info.scriptHandler } ${ GM.info.version }`;
+					}
+					return 'Greasemonkey';
+				}
+				return typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish';
+			}
+			return isChromeStorage ? 'Chrome extension' : isGM ? 'Monkey' : 'Native userscript';
+		},
 		cssMatches(leftSel, ...rules) {
 			return leftSel + rules.join(', ' + leftSel);
 		},

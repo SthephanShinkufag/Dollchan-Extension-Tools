@@ -6,7 +6,7 @@
 function $ajax(url, params = null, useNative = nativeXHRworks) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
-	if(!useNative && (typeof GM_xmlhttpRequest === 'function')) {
+	if(!useNative && nav.hasGMXHR) {
 		let gmxhr;
 		const toFunc = () => {
 			reject(AjaxError.Timeout);
@@ -41,15 +41,21 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			delete params.method;
 			Object.assign(obj, params);
 		}
-		gmxhr = GM_xmlhttpRequest(obj);
-		cancelFn = () => {
-			if(needTO) {
-				clearTimeout(loadTO);
-			}
-			try {
-				gmxhr.abort();
-			} catch(e) {}
-		};
+		// TODO: GreaseMonkey 4.0alpha cannot cancel xhr's
+		if(nav.isNewGM) {
+			GM.xmlHttpRequest(obj);
+			cancelFn = emptyFn;
+		} else {
+			gmxhr = GM_xmlhttpRequest(obj);
+			cancelFn = () => {
+				if(needTO) {
+					clearTimeout(loadTO);
+				}
+				try {
+					gmxhr.abort();
+				} catch(e) {}
+			};
+		}
 	} else {
 		const xhr = new XMLHttpRequest();
 		const toFunc = () => {

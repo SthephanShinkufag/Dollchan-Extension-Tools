@@ -13,6 +13,10 @@
 // @grant           GM_deleteValue
 // @grant           GM_openInTab
 // @grant           GM_xmlhttpRequest
+// @grant           GM.getValue
+// @grant           GM.setValue
+// @grant           GM.deleteValue
+// @grant           GM.xmlHttpRequest
 // @grant           unsafeWindow
 // @include         *
 // @nocompat        Chrome
@@ -22,7 +26,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = 'ca7a735';
+const commit = '0d5272b';
 
 /*==[ DefaultCfg.js ]==*/
 /*==[ Localization.js ]==*/

@@ -145,9 +145,10 @@ const cfgWindow = Object.create({
 					}
 					switch(i) {
 					case 0: name.push('Cfg');
-						val.push('"settings":' + (await getStored('DESU_Config')),
-							'"hotkeys":' + ((await getStored('DESU_keys')) || '""'),
-							'"exclude":' + ((await getStored('DESU_Exclude')) || '""'));
+						let cfgData = await Promise.all([getStored('DESU_Config'), getStored('DESU_keys'), getStored('DESU_Exclude')]);
+						val.push('"settings":' + cfgData[0],
+							'"hotkeys":' + (cfgData[1] || '""'),
+							'"exclude":' + (cfgData[2] || '""'));
 						break;
 					case 1: name.push('Fav');
 						val.push('"favorites":' + ((await getStored('DESU_Favorites')) || '{}'));

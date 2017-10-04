@@ -246,7 +246,8 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 			$pd(e);
 			$popup('upload', Lng.sending[lang], true);
 			html5Submit(this.form, this.subm, true)
-				.then(dc => checkUpload(dc), e => $popup('upload', getErrorMessage(e)));
+				.then(checkUpload)
+				.catch(e => $popup('upload', getErrorMessage(e)));
 		};
 	}
 }
