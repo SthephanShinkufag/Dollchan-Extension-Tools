@@ -158,15 +158,17 @@ function initNavFuncs() {
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
 		},
-		// See https://github.com/greasemonkey/greasemonkey/issues/2034 for more info
+		// Workaround for old greasemonkeys
 		getUnsafeUint8Array(data, i, len) {
 			let ctor = Uint8Array;
-			try {
-				if(!(new Uint8Array(data) instanceof Uint8Array)) {
+			if(!nav.isNewGM && nav.Firefox) {
+				try {
+					if(!(new Uint8Array(data) instanceof Uint8Array)) {
+						ctor = unsafeWindow.Uint8Array;
+					}
+				} catch(e) {
 					ctor = unsafeWindow.Uint8Array;
 				}
-			} catch(e) {
-				ctor = unsafeWindow.Uint8Array;
 			}
 			switch(arguments.length) {
 				case 1: return new ctor(data);
@@ -177,7 +179,7 @@ function initNavFuncs() {
 		},
 		getUnsafeDataView(data, offset) {
 			const rv = new DataView(data, offset || 0);
-			return (rv instanceof DataView) ? rv : new unsafeWindow.DataView(data, offset || 0);
+			return nav.isNewGM || (nav.Firefox && (rv instanceof DataView)) ? rv : new unsafeWindow.DataView(data, offset || 0);
 		}
 	};
 }

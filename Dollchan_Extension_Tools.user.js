@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.6.20.0';
-	var commit = 'ec4e85e';
+	var commit = '8996c91';
 
 
 	var defaultCfg = {
@@ -18015,12 +18015,14 @@ true, true],
 			},
 			getUnsafeUint8Array: function getUnsafeUint8Array(data, i, len) {
 				var ctor = Uint8Array;
-				try {
-					if (!(new Uint8Array(data) instanceof Uint8Array)) {
+				if (!nav.isNewGM && nav.Firefox) {
+					try {
+						if (!(new Uint8Array(data) instanceof Uint8Array)) {
+							ctor = unsafeWindow.Uint8Array;
+						}
+					} catch (e) {
 						ctor = unsafeWindow.Uint8Array;
 					}
-				} catch (e) {
-					ctor = unsafeWindow.Uint8Array;
 				}
 				switch (arguments.length) {
 					case 1:
@@ -18034,7 +18036,7 @@ true, true],
 			},
 			getUnsafeDataView: function getUnsafeDataView(data, offset) {
 				var rv = new DataView(data, offset || 0);
-				return rv instanceof DataView ? rv : new unsafeWindow.DataView(data, offset || 0);
+				return nav.isNewGM || nav.Firefox && rv instanceof DataView ? rv : new unsafeWindow.DataView(data, offset || 0);
 			}
 		};
 	}
