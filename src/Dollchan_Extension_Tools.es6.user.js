@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = '9a82b1f';
+const commit = 'ec4e85e';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -2272,11 +2272,9 @@ function toggleCfg(id) {
 	saveCfg(id, +!Cfg[id]);
 }
   
-async function readData() {
-	var [_, fav, eList] = await Promise.all([readCfg(), readFavorites(), getStored('DESU_Exclude')]);
-	return [eList, fav];
+function readData() {
+	return Promise.all([getStored('DESU_Exclude'), readFavorites(), readCfg()]);
 }
-    
 
 // Config initialization, checking for Dollchan update.
 async function readCfg() {
