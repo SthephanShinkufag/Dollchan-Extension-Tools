@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = '0e1c0c5';
+const commit = '0cd66d1';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -3939,7 +3939,7 @@ const cfgWindow = Object.create({
 						try {
 							setStored('DESU_Config', JSON.stringify(cfgObj));
 							setStored('DESU_keys', JSON.stringify(obj.hotkeys));
-							setStored('DESU_Exclude', JSON.stringify(obj.exclude));
+							setStored('DESU_Exclude', obj.exclude);
 						} catch(e) {}
 					}
 					if(favObj) {
@@ -3982,7 +3982,7 @@ const cfgWindow = Object.create({
 						let cfgData = await Promise.all([getStored('DESU_Config'), getStored('DESU_keys'), getStored('DESU_Exclude')]);
 						val.push('"settings":' + cfgData[0],
 							'"hotkeys":' + (cfgData[1] || '""'),
-							'"exclude":' + (cfgData[2] || '""'));
+							`"exclude":"${ cfgData[2] || '' }"`);
 						break;
 					case 1: name.push('Fav');
 						val.push('"favorites":' + ((await getStored('DESU_Favorites')) || '{}'));

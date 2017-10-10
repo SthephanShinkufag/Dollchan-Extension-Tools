@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.6.20.0';
-	var commit = '0e1c0c5';
+	var commit = '0cd66d1';
 
 
 	var defaultCfg = {
@@ -6362,7 +6362,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							try {
 								setStored('DESU_Config', JSON.stringify(cfgObj));
 								setStored('DESU_keys', JSON.stringify(obj.hotkeys));
-								setStored('DESU_Exclude', JSON.stringify(obj.exclude));
+								setStored('DESU_Exclude', obj.exclude);
 							} catch (e) {}
 						}
 						if (favObj) {
@@ -6427,7 +6427,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								case 12:
 									cfgData = _context9.sent;
 
-									val.push('"settings":' + cfgData[0], '"hotkeys":' + (cfgData[1] || '""'), '"exclude":' + (cfgData[2] || '""'));
+									val.push('"settings":' + cfgData[0], '"hotkeys":' + (cfgData[1] || '""'), '"exclude":"' + (cfgData[2] || '') + '"');
 									return _context9.abrupt('break', 31);
 
 								case 15:
