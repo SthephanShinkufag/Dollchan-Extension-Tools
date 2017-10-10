@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = '34459d2';
+const commit = '0e1c0c5';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -15567,11 +15567,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			const el2 = $id('upload');
 			if(el1 && el2) {
 				$after(el2, el1);
-			}
-			// Replacing name image for brchan.org #1033
-			const imgLinks = $Q('.fileinfo > a');
-			for(let a of imgLinks) {
-				a.setAttribute('download', $q('.postfilename', a.parentElement).innerText);
 			}
 			return false;
 		}

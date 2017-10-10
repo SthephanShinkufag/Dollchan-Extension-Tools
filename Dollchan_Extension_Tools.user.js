@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.6.20.0';
-	var commit = '34459d2';
+	var commit = '0e1c0c5';
 
 
 	var defaultCfg = {
@@ -19855,23 +19855,6 @@ true, true],
 					if (el1 && el2) {
 						$after(el2, el1);
 					}
-					var imgLinks = $Q('.fileinfo > a');
-					for (var _iterator35 = imgLinks, _isArray35 = Array.isArray(_iterator35), _i49 = 0, _iterator35 = _isArray35 ? _iterator35 : _iterator35[Symbol.iterator]();;) {
-						var _ref63;
-
-						if (_isArray35) {
-							if (_i49 >= _iterator35.length) break;
-							_ref63 = _iterator35[_i49++];
-						} else {
-							_i49 = _iterator35.next();
-							if (_i49.done) break;
-							_ref63 = _i49.value;
-						}
-
-						var a = _ref63;
-
-						a.setAttribute('download', $q('.postfilename', a.parentElement).innerText);
-					}
 					return false;
 				}
 			}, {
@@ -20297,8 +20280,8 @@ true, true],
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
 					var str = '';
-					for (var _i50 = 0; _i50 < 4; ++_i50) {
-						str += '<div' + (_i50 ? ' style="display: none;"' : '') + '><input type="file" name="file_' + _i50 + '" tabindex="7"></div>';
+					for (var _i49 = 0; _i49 < 4; ++_i49) {
+						str += '<div' + (_i49 ? ' style="display: none;"' : '') + '><input type="file" name="file_' + _i49 + '" tabindex="7"></div>';
 					}
 					el.innerHTML = str;
 					el.removeAttribute('id');
@@ -20334,8 +20317,8 @@ true, true],
 				value: function initCaptcha(cap) {
 					cap.hasCaptcha = false;
 					var scripts = $Q('script:not([src])', doc);
-					for (var _i51 = 0, _len11 = scripts.length; _i51 < _len11; ++_i51) {
-						var m = scripts[_i51].textContent.match(/var boardRequiresCaptcha = ([a-z]+);/);
+					for (var _i50 = 0, _len11 = scripts.length; _i50 < _len11; ++_i50) {
+						var m = scripts[_i50].textContent.match(/var boardRequiresCaptcha = ([a-z]+);/);
 						if (m) {
 							if (m[1] === 'true') {
 								cap.hasCaptcha = true;
@@ -20370,19 +20353,19 @@ true, true],
 					var sessionId = null;
 					var cookie = doc.cookie;
 					if (cookie.includes('desuchan.session')) {
-						for (var _iterator36 = cookie.split(';'), _isArray36 = Array.isArray(_iterator36), _i52 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
-							var _ref64;
+						for (var _iterator35 = cookie.split(';'), _isArray35 = Array.isArray(_iterator35), _i51 = 0, _iterator35 = _isArray35 ? _iterator35 : _iterator35[Symbol.iterator]();;) {
+							var _ref63;
 
-							if (_isArray36) {
-								if (_i52 >= _iterator36.length) break;
-								_ref64 = _iterator36[_i52++];
+							if (_isArray35) {
+								if (_i51 >= _iterator35.length) break;
+								_ref63 = _iterator35[_i51++];
 							} else {
-								_i52 = _iterator36.next();
-								if (_i52.done) break;
-								_ref64 = _i52.value;
+								_i51 = _iterator35.next();
+								if (_i51.done) break;
+								_ref63 = _i51.value;
 							}
 
-							var c = _ref64;
+							var c = _ref63;
 
 							var m = c.match(/^\s*desuchan\.session=(.*)$/);
 							if (m) {
@@ -20736,8 +20719,8 @@ true, true],
 				DollchanAPI.port.onmessage = DollchanAPI._handleMessage;
 				DollchanAPI.activeListeners = new Set();
 				var port = channel.port2;
-				doc.defaultView.addEventListener('message', function (_ref65) {
-					var data = _ref65.data;
+				doc.defaultView.addEventListener('message', function (_ref64) {
+					var data = _ref64.data;
 
 					if (data === 'de-request-api-message') {
 						DollchanAPI.hasListeners = true;
@@ -20759,8 +20742,8 @@ true, true],
 			}
 		}, {
 			key: '_handleMessage',
-			value: function _handleMessage(_ref66) {
-				var arg = _ref66.data;
+			value: function _handleMessage(_ref65) {
+				var arg = _ref65.data;
 
 				if (!arg || !arg.name) {
 					return;
@@ -20772,19 +20755,19 @@ true, true],
 					case 'registerapi':
 						if (data) {
 							rv = {};
-							for (var _iterator37 = data, _isArray37 = Array.isArray(_iterator37), _i53 = 0, _iterator37 = _isArray37 ? _iterator37 : _iterator37[Symbol.iterator]();;) {
-								var _ref67;
+							for (var _iterator36 = data, _isArray36 = Array.isArray(_iterator36), _i52 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
+								var _ref66;
 
-								if (_isArray37) {
-									if (_i53 >= _iterator37.length) break;
-									_ref67 = _iterator37[_i53++];
+								if (_isArray36) {
+									if (_i52 >= _iterator36.length) break;
+									_ref66 = _iterator36[_i52++];
 								} else {
-									_i53 = _iterator37.next();
-									if (_i53.done) break;
-									_ref67 = _i53.value;
+									_i52 = _iterator36.next();
+									if (_i52.done) break;
+									_ref66 = _i52.value;
 								}
 
-								var aName = _ref67;
+								var aName = _ref66;
 
 								rv[aName] = DollchanAPI._register(aName.toLowerCase());
 							}
@@ -20997,7 +20980,7 @@ true, true],
 
 
 	function runMain(checkDomains, dataPromise) {
-		var formEl, eList, fav, _ref68, _ref69, _ref70, _ref71, storageName, firstThr;
+		var formEl, eList, fav, _ref67, _ref68, _ref69, _ref70, storageName, firstThr;
 
 		return regeneratorRuntime.async(function runMain$(_context23) {
 			while (1) {
@@ -21059,10 +21042,10 @@ true, true],
 						return regeneratorRuntime.awrap(dataPromise);
 
 					case 18:
-						_ref68 = _context23.sent;
-						_ref69 = _slicedToArray(_ref68, 2);
-						eList = _ref69[0];
-						fav = _ref69[1];
+						_ref67 = _context23.sent;
+						_ref68 = _slicedToArray(_ref67, 2);
+						eList = _ref68[0];
+						fav = _ref68[1];
 						_context23.next = 30;
 						break;
 
@@ -21071,10 +21054,10 @@ true, true],
 						return regeneratorRuntime.awrap(readData());
 
 					case 26:
-						_ref70 = _context23.sent;
-						_ref71 = _slicedToArray(_ref70, 2);
-						eList = _ref71[0];
-						fav = _ref71[1];
+						_ref69 = _context23.sent;
+						_ref70 = _slicedToArray(_ref69, 2);
+						eList = _ref70[0];
+						fav = _ref70[1];
 
 					case 30:
 						if (!(eList && eList.includes(aib.dm))) {

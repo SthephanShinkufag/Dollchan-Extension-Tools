@@ -1023,11 +1023,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(el1 && el2) {
 				$after(el2, el1);
 			}
-			// Replacing name image for brchan.org #1033
-			const imgLinks = $Q('.fileinfo > a');
-			for(let a of imgLinks) {
-				a.setAttribute('download', $q('.postfilename', a.parentElement).innerText);
-			}
 			return false;
 		}
 	}
