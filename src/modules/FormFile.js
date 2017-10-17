@@ -15,6 +15,7 @@ class Files {
 			inputs.push(new FileInput(this, els[i]));
 		}
 		this._inputs = inputs;
+		this._files  = [];
 		this.hide();
 	}
 	get rarInput() {
@@ -161,13 +162,24 @@ class FileInput {
 		const el = e.target;
 		const isThumb = el === this._thumb || el.className === 'de-file-img';
 		switch(e.type) {
-		case 'change': setTimeout(() => this._onFileChange(false), 20); return;
+		case 'change':
+			setTimeout(() => this._onFileChange(false), 20);
+			const index = this._parent._inputs.indexOf(this);
+			if(el.files.length > 0) {
+				this._parent._files[index] = el.files[0];
+			} else {
+				delete this._parent._files[index];
+			}
+			DollchanAPI.notify('filechange', this._parent._files);
+			return;
 		case 'click':
 			if(isThumb) {
 				this._input.click();
 			} else if(el === this._btnDel) {
 				this.clear();
 				this._parent.hide();
+				delete this._parent._files[this._parent._inputs.indexOf(this)];
+				DollchanAPI.notify('filechange', this._parent._files);
 			} else if(el === this._btnSpoil) {
 				this._spoilEl.checked = this._btnSpoil.checked;
 				return;
@@ -212,7 +224,9 @@ class FileInput {
 				const inpLen = inpArray.length;
 				for(let i = inpArray.indexOf(this), j = 0; i < inpLen && j < filesLen; ++i, ++j) {
 					FileInput._readDroppedFile(inpArray[i], dt.files[j]);
+					this._parent._files[i] = dt.files[j];
 				}
+				DollchanAPI.notify('filechange', this._parent._files);
 			} else {
 				this._addUrlFile(dt.getData('text/plain'));
 			}
@@ -309,6 +323,10 @@ class FileInput {
 				}
 			}
 			this.imgFile = [data.buffer, name, getFileType(url)];
+			const file = new Blob([data], { type: this.imgFile[2] });
+			file.name = name;
+			this._parent._files[this._parent._inputs.indexOf(this)] = file;
+			DollchanAPI.notify('filechange', this._parent._files);
 			if(this._isThumb) {
 				$hide(this._txtWrap);
 			}

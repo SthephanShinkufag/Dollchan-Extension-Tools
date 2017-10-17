@@ -52,8 +52,9 @@ class DollchanAPI {
 	}
 	static _register(name) {
 		switch(name) {
-		case 'newpost':
 		case 'expandmedia':
+		case 'filechange':
+		case 'newpost':
 		case 'submitform': break;
 		default: return false;
 		}

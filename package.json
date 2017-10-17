@@ -51,7 +51,7 @@
 		"babel-traverse": "<6.20.0",
 		"babel-types": "<6.20.0",
 		"babel-plugin-check-es2015-constants": "<6.20.0",
-		"babel-plugin-syntax-async-functions": "6.13.0",
+		"babel-plugin-syntax-async-functions": "<6.20.0",
 		"babel-plugin-transform-es2015-arrow-functions": "<6.20.0",
 		"babel-plugin-transform-es2015-block-scoped-functions": "<6.20.0",
 		"babel-plugin-transform-es2015-block-scoping": "<6.20.0",

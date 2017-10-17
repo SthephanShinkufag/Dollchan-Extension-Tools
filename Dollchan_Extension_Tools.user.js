@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.6.20.0';
-	var commit = '0cd66d1';
+	var commit = 'acfb55c';
 
 
 	var defaultCfg = {
@@ -12035,6 +12035,7 @@ true, true],
 				inputs.push(new FileInput(this, els[i]));
 			}
 			this._inputs = inputs;
+			this._files = [];
 			this.hide();
 		}
 
@@ -12242,13 +12243,23 @@ true, true],
 					case 'change':
 						setTimeout(function () {
 							return _this23._onFileChange(false);
-						}, 20);return;
+						}, 20);
+						var index = this._parent._inputs.indexOf(this);
+						if (el.files.length > 0) {
+							this._parent._files[index] = el.files[0];
+						} else {
+							delete this._parent._files[index];
+						}
+						DollchanAPI.notify('filechange', this._parent._files);
+						return;
 					case 'click':
 						if (isThumb) {
 							this._input.click();
 						} else if (el === this._btnDel) {
 							this.clear();
 							this._parent.hide();
+							delete this._parent._files[this._parent._inputs.indexOf(this)];
+							DollchanAPI.notify('filechange', this._parent._files);
 						} else if (el === this._btnSpoil) {
 							this._spoilEl.checked = this._btnSpoil.checked;
 							return;
@@ -12293,7 +12304,9 @@ true, true],
 							var inpLen = inpArray.length;
 							for (var i = inpArray.indexOf(this), j = 0; i < inpLen && j < filesLen; ++i, ++j) {
 								FileInput._readDroppedFile(inpArray[i], dt.files[j]);
+								this._parent._files[i] = dt.files[j];
 							}
+							DollchanAPI.notify('filechange', this._parent._files);
 						} else {
 							this._addUrlFile(dt.getData('text/plain'));
 						}
@@ -12396,6 +12409,10 @@ true, true],
 						}
 					}
 					_this25.imgFile = [data.buffer, name, getFileType(url)];
+					var file = new Blob([data], { type: _this25.imgFile[2] });
+					file.name = name;
+					_this25._parent._files[_this25._parent._inputs.indexOf(_this25)] = file;
+					DollchanAPI.notify('filechange', _this25._parent._files);
 					if (_this25._isThumb) {
 						$hide(_this25._txtWrap);
 					}
@@ -20780,8 +20797,9 @@ true, true],
 			key: '_register',
 			value: function _register(name) {
 				switch (name) {
-					case 'newpost':
 					case 'expandmedia':
+					case 'filechange':
+					case 'newpost':
 					case 'submitform':
 						break;
 					default:

@@ -30,14 +30,6 @@ function runAPI() {
 		port.onmessage = ({ data }) => {
 			const result = data.data ;
 			switch(data.name) {
-			case 'registerapi':
-				for(let key in result) {
-					console.log(`API ${ key } ${ result[key] ? 'is' : 'not' } registered.`);
-				}
-				break;
-			case 'newpost':
-				console.log('New posts detected:', result);
-				break;
 			case 'expandmedia':
 				const ext = result.split('.').pop();
 				console.log(ext + ' is opened:', result);
@@ -45,6 +37,17 @@ function runAPI() {
 					console.log(document.querySelector(`video[src="${ result }"]`));
 				} else {
 					console.log(document.querySelector(`img[src="${ result }"]`));
+				}
+				break;
+			case 'filechange':
+				console.log('Files changed:', result);
+				break;
+			case 'newpost':
+				console.log('New posts detected:', result);
+				break;
+			case 'registerapi':
+				for(let key in result) {
+					console.log(`API ${ key } ${ result[key] ? 'is' : 'not' } registered.`);
 				}
 				break;
 			case 'submitform':
@@ -57,8 +60,9 @@ function runAPI() {
 		 /* case '...': */
 			}
 		};
-		port.postMessage({ name: 'registerapi', data: ['newpost'] });
 		port.postMessage({ name: 'registerapi', data: ['expandmedia'] });
+		port.postMessage({ name: 'registerapi', data: ['filechange'] });
+		port.postMessage({ name: 'registerapi', data: ['newpost'] });
 		port.postMessage({ name: 'registerapi', data: ['submitform'] });
 	 /* port.postMessage({ name: 'registerapi', data: ['...'] }); */
 	}).catch(() => console.log('Dollchan API not detected!'));
