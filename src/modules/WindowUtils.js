@@ -149,9 +149,6 @@ function toggleWindow(name, isUpd, data, noAnim) {
 			'de-win" style="' + Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] :
 			'de-win-fixed" style="right: 0; bottom: 25px'
 		) + (name !== 'fav' ? '' : '; width: ' + Cfg.favWinWidth + 'px; ');
-		const backColor = getComputedStyle(docBody).getPropertyValue('background-color');
-		const bodyAttr = name === 'cfg' ? ' ' + aib.cReply : '" style="background-color: ' +
-			(backColor !== 'transparent' ? backColor : '#EEE');
 		win = $aBegin($id('de-main'),
 		`<div id="de-win-${ name }" class="${ winAttr }; display: none;">
 			<div class="de-win-head">
@@ -163,11 +160,20 @@ function toggleWindow(name, isUpd, data, noAnim) {
 					<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>
 				</span>
 			</div>
-			<div class="de-win-body${ bodyAttr }"></div>
+			<div class="de-win-body"></div>
 			${ name !== 'fav' ? '' : `
 				<div class="de-resizer de-resizer-left"></div>
 				<div class="de-resizer de-resizer-right"></div>` }
 		</div>`);
+		setTimeout(() => {
+			const el = $q('.de-win-body', win);
+			if(name === 'cfg') {
+				el.className = 'de-win-body ' + aib.cReply;
+			} else {
+				const backColor = getComputedStyle(docBody).getPropertyValue('background-color');
+				el.style.backgroundColor = backColor !== 'transparent' ? backColor : '#EEE';
+			}
+		}, 0);
 		if(name === 'fav') {
 			new WinResizer('fav', 'left', 'favWinWidth', win, win);
 			new WinResizer('fav', 'right', 'favWinWidth', win, win);
