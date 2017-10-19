@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = '96a2e73';
+const commit = '4099f75';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -15834,7 +15834,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ !this.t ? '' : `#de-main { margin-top: -37px; } .logo { margin-bottom: 14px; }`}
-			.iichan-hide-thread-btn { display: none; }`;
+			.iichan-hide-thread-btn { display: none; }
+			.replypage div[id^="thread"] span.reflink::after { content: none; }`;
 		}
 		get isArchived() {
 			return this.b.includes('/arch');
