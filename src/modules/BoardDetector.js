@@ -252,7 +252,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return videos;
 		}
 		getImgRealName(wrap) {
-			return $q('.postfilename, .unimportant > a', wrap);
+			return $q('.postfilename, .unimportant > a', wrap).textContent;
 		}
 		getPageUrl(b, p) {
 			return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
@@ -1479,7 +1479,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.filesize > a:first-of-type';
 		}
 		getImgRealName(wrap) {
-			return $q('.filesize[style="display: inline;"] > .mobile_filename_hide', wrap);
+			return $q('.filesize[style="display: inline;"] > .mobile_filename_hide', wrap).textContent;
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode.parentNode;

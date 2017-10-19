@@ -1130,6 +1130,10 @@ const Lng = {
 		'Скачать содержащийся в картинке файл',
 		'Download embedded file from the image',
 		'Завантажити файл, що міститься в зображенні'],
+	openOriginal: [
+		'Открыть оригинал в новой вкладке',
+		'Open original image in the new tab',
+		'Відкрити оригінал в новій вкладці'],
 
 	// Threads/images download: popups
 	loadImage: [

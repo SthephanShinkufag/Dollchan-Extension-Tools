@@ -113,7 +113,7 @@ AttachmentViewer.prototype = {
 			docBody.removeEventListener('mouseup', this, true);
 			return;
 		case 'click':
-			if(this.data.isVideo && this.data.isControlClick(e)) {
+			if(this.data.isVideo && this.data.isControlClick(e) || e.target.className === 'de-img-full-src') {
 				return;
 			}
 			if(e.button === 0) {
@@ -208,7 +208,8 @@ AttachmentViewer.prototype = {
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-		var obj = $add('<div class="de-img-center" style="top:' + this._oldT + 'px; left:' +
+		var obj = $add('<div class="de-img-center" style="top:' +
+			(this._oldT - 11 /* 1/2 of .de-img-full-info */) + 'px; left:' +
 			this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
 		if(data.isImage) {
 			$aBegin(obj, '<a style="width: inherit; height: inherit;" href="' +
@@ -387,7 +388,7 @@ class ExpandableMedia {
 		}
 		if(Cfg.resizeImgs) {
 			const maxWidth = Post.sizing.wWidth - 2;
-			const maxHeight = Post.sizing.wHeight - 2;
+			const maxHeight = Post.sizing.wHeight - 24 /* height of .de-img-full-info + 2 */;
 			if(width > maxWidth || height > maxHeight) {
 				const ar = width / height;
 				if(ar > maxWidth / maxHeight) {
@@ -455,14 +456,28 @@ class ExpandableMedia {
 		let obj, src = this.src;
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
-			let html = '<div class="de-img-wrapper' +
-				(inPost ? ' de-img-wrapper-inpost' : (this._size ? '' : ' de-img-wrapper-nosize')) + '">';
-			if(!inPost && !this._size) {
-				html += '<svg class="de-img-load"><use xlink:href="#de-symbol-wait"/></svg>';
+			let name, origSrc;
+			const parent = this._getImageParent();
+			if(this.el.className !== 'de-img-pre') {
+				const nameEl = $q(aib.qImgNameLink, parent);
+				origSrc = nameEl.getAttribute('de-href') || nameEl.href;
+				name = this.name;
+			} else {
+				origSrc = parent.href;
+				name = origSrc.split('/').pop();
 			}
-			html += '<img class="de-img-full" src="' + src + '" alt="' + src + '"></div>';
-			obj = $add(html);
-			const img = obj.lastChild;
+			obj = $add(`<div class="de-img-wrapper${
+				         inPost ? ' de-img-wrapper-inpost' :
+				         !this._size ? ' de-img-wrapper-nosize' : '' }">
+				${ !inPost && !this._size ?
+					'<svg class="de-img-load"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
+				<img class="de-img-full" src="${ src }" alt="${ src }">
+				<div class="de-img-full-info">
+					<a class="de-img-full-src" target="_blank" title="${
+					 Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>
+				</div>
+			</div>`);
+			const img = $q('.de-img-full', obj);
 			img.onload = img.onerror = ({ target }) => {
 				if(target.naturalHeight + target.naturalWidth === 0) {
 					if(!target.onceLoaded) {
@@ -621,7 +636,7 @@ class Attachment extends ExpandableMedia {
 		return val;
 	}
 	get name() {
-		const val = aib.getImgRealName(aib.getImgWrap(this.el)).textContent.trim();
+		const val = aib.getImgRealName(aib.getImgWrap(this.el)).trim();
 		Object.defineProperty(this, 'name', { value: val });
 		return val;
 	}

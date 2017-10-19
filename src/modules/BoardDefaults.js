@@ -67,8 +67,8 @@ class BaseBoard {
 			'[name="subject"]', '[name="field3"]');
 	}
 	get qImgNameLink() {
-		var value = nav.cssMatches(this.qImgInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]',
-			'[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]');
+		var value = nav.cssMatches(this.qImgInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]',
+			'[href$=".gif"]', '[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]', ', [href^="blob:"]');
 		Object.defineProperty(this, 'qImgNameLink', { value });
 		return value;
 	}
@@ -231,7 +231,7 @@ class BaseBoard {
 		return el ? el.textContent : '';
 	}
 	getImgRealName(wrap) {
-		return $q(this.qImgNameLink, wrap);
+		return $q(this.qImgNameLink, wrap)[Cfg.delImgNames ? 'title' : 'textContent'];
 	}
 	getImgSrcLink(img) {
 		return $parent(img, 'A');

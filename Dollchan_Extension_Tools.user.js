@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.6.20.0';
-	var commit = '4099f75';
+	var commit = '2910631';
 
 
 	var defaultCfg = {
@@ -3406,6 +3406,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		nextImg: ['Следующая картинка', 'Next image', 'Наступне зображення'],
 		prevImg: ['Предыдущая картинка', 'Previous image', 'Попереднє зображення'],
 		downloadFile: ['Скачать содержащийся в картинке файл', 'Download embedded file from the image', 'Завантажити файл, що міститься в зображенні'],
+		openOriginal: ['Открыть оригинал в новой вкладке', 'Open original image in the new tab', 'Відкрити оригінал в новій вкладці'],
 
 		loadImage: ['Загружаются картинки', 'Loading images', 'Завантажуються зображення'],
 		loadFile: ['Загружаются файлы', 'Loading files', 'Завантажуються файли'],
@@ -14682,7 +14683,7 @@ true, true],
 					docBody.removeEventListener('mouseup', this, true);
 					return;
 				case 'click':
-					if (this.data.isVideo && this.data.isControlClick(e)) {
+					if (this.data.isVideo && this.data.isControlClick(e) || e.target.className === 'de-img-full-src') {
 						return;
 					}
 					if (e.button === 0) {
@@ -14796,7 +14797,7 @@ true, true],
 			this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 			this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 			this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-			var obj = $add('<div class="de-img-center" style="top:' + this._oldT + 'px; left:' + this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
+			var obj = $add('<div class="de-img-center" style="top:' + (this._oldT - 11 ) + 'px; left:' + this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
 			if (data.isImage) {
 				$aBegin(obj, '<a style="width: inherit; height: inherit;" href="' + data.src + '"></a>').appendChild(this._fullEl);
 			} else {
@@ -14958,7 +14959,7 @@ true, true],
 				}
 				if (Cfg.resizeImgs) {
 					var maxWidth = Post.sizing.wWidth - 2;
-					var maxHeight = Post.sizing.wHeight - 2;
+					var maxHeight = Post.sizing.wHeight - 24 ;
 					if (width > maxWidth || height > maxHeight) {
 						var _ar = width / height;
 						if (_ar > maxWidth / maxHeight) {
@@ -15038,13 +15039,19 @@ true, true],
 				var obj = void 0,
 				    src = this.src;
 				if (!this.isVideo) {
-					var html = '<div class="de-img-wrapper' + (inPost ? ' de-img-wrapper-inpost' : this._size ? '' : ' de-img-wrapper-nosize') + '">';
-					if (!inPost && !this._size) {
-						html += '<svg class="de-img-load"><use xlink:href="#de-symbol-wait"/></svg>';
+					var _name2 = void 0,
+					    origSrc = void 0;
+					var parent = this._getImageParent();
+					if (this.el.className !== 'de-img-pre') {
+						var nameEl = $q(aib.qImgNameLink, parent);
+						origSrc = nameEl.getAttribute('de-href') || nameEl.href;
+						_name2 = this.name;
+					} else {
+						origSrc = parent.href;
+						_name2 = origSrc.split('/').pop();
 					}
-					html += '<img class="de-img-full" src="' + src + '" alt="' + src + '"></div>';
-					obj = $add(html);
-					var img = obj.lastChild;
+					obj = $add('<div class="de-img-wrapper' + (inPost ? ' de-img-wrapper-inpost' : !this._size ? ' de-img-wrapper-nosize' : '') + '">\n\t\t\t\t' + (!inPost && !this._size ? '<svg class="de-img-load"><use xlink:href="#de-symbol-wait"/></svg>' : '') + '\n\t\t\t\t<img class="de-img-full" src="' + src + '" alt="' + src + '">\n\t\t\t\t<div class="de-img-full-info">\n\t\t\t\t\t<a class="de-img-full-src" target="_blank" title="' + Lng.openOriginal[lang] + '" href="' + origSrc + '">' + _name2 + '</a>\n\t\t\t\t</div>\n\t\t\t</div>');
+					var img = $q('.de-img-full', obj);
 					img.onload = img.onerror = function (_ref47) {
 						var target = _ref47.target;
 
@@ -15295,7 +15302,7 @@ true, true],
 		}, {
 			key: 'name',
 			get: function get() {
-				var val = aib.getImgRealName(aib.getImgWrap(this.el)).textContent.trim();
+				var val = aib.getImgRealName(aib.getImgWrap(this.el)).trim();
 				Object.defineProperty(this, 'name', { value: val });
 				return val;
 			}
@@ -15655,22 +15662,22 @@ true, true],
 					fileHTML = '<div id="f' + num + '" class="file"><span class="fileThumb">\n\t\t\t\t<img src="' + _icon('filedeleted-res') + '" class="fileDeletedRes" alt="File deleted.">\n\t\t\t</span></div>';
 				} else if (typeof data.filename === 'string') {
 					var _DOMPostsBuilder$fixF = DOMPostsBuilder.fixFileName(data.filename, 30),
-					    _name2 = _DOMPostsBuilder$fixF.name,
+					    _name3 = _DOMPostsBuilder$fixF.name,
 					    needTitle = _DOMPostsBuilder$fixF.isFixed;
 
-					_name2 += data.ext;
+					_name3 += data.ext;
 					if (!data.tn_w && !data.tn_h && data.ext === '.gif') {
 						data.tn_w = data.w;
 						data.tn_h = data.h;
 					}
 					var isSpoiler = data.spoiler && !Cfg.noSpoilers;
 					if (isSpoiler) {
-						_name2 = 'Spoiler Image';
+						_name3 = 'Spoiler Image';
 						data.tn_w = data.tn_h = 100;
 						needTitle = false;
 					}
 					var size = prettifySize(data.fsize);
-					fileHTML = '<div class="file" id="f' + num + '">\n\t\t\t\t<div class="fileText" id="fT' + num + '" ' + (isSpoiler ? 'title="' + (data.filename + data.ext) + '"' : '') + '>File: <a href="//i.4cdn.org/' + brd + '/' + (data.tim + data.ext) + '" ' + (needTitle ? 'title="' + (data.filename + data.ext) + '"' : '') + ' target="_blank">' + _name2 + '</a> (' + size + ', ' + (data.ext === '.pdf' ? 'PDF' : data.w + 'x' + data.h) + ')</div>\n\t\t\t\t<a class="fileThumb ' + (isSpoiler ? 'imgSpoiler' : '') + '" href="//i.4cdn.org/' + brd + '/' + (data.tim + data.ext) + '" target="_blank">\n\t\t\t\t\t<img src="' + (isSpoiler ? '//s.4cdn.org/image/spoiler' + _4chanPostsBuilder._customSpoiler.get(brd) || '' + '.png' : '//i.4cdn.org/' + brd + '/' + data.tim + 's.jpg') + '" alt="' + size + '" data-md5="' + data.md5 + '" style="height: ' + data.tn_h + 'px; width: ' + data.tn_w + 'px;">\n\t\t\t\t\t<div data-tip="" data-tip-cb="mShowFull" class="mFileInfo mobile">' + size + ' ' + data.ext.substr(1).toUpperCase() + '</div>\n\t\t\t\t</a>\n\t\t\t</div>';
+					fileHTML = '<div class="file" id="f' + num + '">\n\t\t\t\t<div class="fileText" id="fT' + num + '" ' + (isSpoiler ? 'title="' + (data.filename + data.ext) + '"' : '') + '>File: <a href="//i.4cdn.org/' + brd + '/' + (data.tim + data.ext) + '" ' + (needTitle ? 'title="' + (data.filename + data.ext) + '"' : '') + ' target="_blank">' + _name3 + '</a> (' + size + ', ' + (data.ext === '.pdf' ? 'PDF' : data.w + 'x' + data.h) + ')</div>\n\t\t\t\t<a class="fileThumb ' + (isSpoiler ? 'imgSpoiler' : '') + '" href="//i.4cdn.org/' + brd + '/' + (data.tim + data.ext) + '" target="_blank">\n\t\t\t\t\t<img src="' + (isSpoiler ? '//s.4cdn.org/image/spoiler' + _4chanPostsBuilder._customSpoiler.get(brd) || '' + '.png' : '//i.4cdn.org/' + brd + '/' + data.tim + 's.jpg') + '" alt="' + size + '" data-md5="' + data.md5 + '" style="height: ' + data.tn_h + 'px; width: ' + data.tn_w + 'px;">\n\t\t\t\t\t<div data-tip="" data-tip-cb="mShowFull" class="mFileInfo mobile">' + size + ' ' + data.ext.substr(1).toUpperCase() + '</div>\n\t\t\t\t</a>\n\t\t\t</div>';
 				}
 
 				var highlight = '',
@@ -18232,7 +18239,7 @@ true, true],
 		}, {
 			key: 'getImgRealName',
 			value: function getImgRealName(wrap) {
-				return $q(this.qImgNameLink, wrap);
+				return $q(this.qImgNameLink, wrap)[Cfg.delImgNames ? 'title' : 'textContent'];
 			}
 		}, {
 			key: 'getImgSrcLink',
@@ -18376,7 +18383,7 @@ true, true],
 		}, {
 			key: 'qImgNameLink',
 			get: function get() {
-				var value = nav.cssMatches(this.qImgInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]');
+				var value = nav.cssMatches(this.qImgInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]', ', [href^="blob:"]');
 				Object.defineProperty(this, 'qImgNameLink', { value: value });
 				return value;
 			}
@@ -18760,7 +18767,7 @@ true, true],
 			}, {
 				key: 'getImgRealName',
 				value: function getImgRealName(wrap) {
-					return $q('.postfilename, .unimportant > a', wrap);
+					return $q('.postfilename, .unimportant > a', wrap).textContent;
 				}
 			}, {
 				key: 'getPageUrl',
@@ -20572,7 +20579,7 @@ true, true],
 			_createClass(Ponyach, [{
 				key: 'getImgRealName',
 				value: function getImgRealName(wrap) {
-					return $q('.filesize[style="display: inline;"] > .mobile_filename_hide', wrap);
+					return $q('.filesize[style="display: inline;"] > .mobile_filename_hide', wrap).textContent;
 				}
 			}, {
 				key: 'getImgWrap',
@@ -20977,7 +20984,7 @@ true, true],
 		}
 
 		p = Math.max(Cfg.minImgSize || 0, 50);
-		x += '.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }\n\t.de-img-pre { max-width: 200px; max-height: 200px; }\n\t.de-img-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\n\t.de-img-full { width: 100%; }\n\t.de-img-wrapper-inpost { min-width: ' + p + 'px; min-height: ' + p + 'px; float: left; ' + (aib.multiFile ? '' : 'padding: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ') + ' }\n\t.de-img-wrapper-nosize { position: relative; width: 100%; height: 100%; }\n\t.de-img-wrapper-nosize > .de-img-full { position: absolute; z-index: 1; opacity: .3; }\n\t.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\n\t#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; margin-top: -18px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\n\t#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\n\t#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }' +
+		x += '.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }\n\t.de-img-pre { max-width: 200px; max-height: 200px; }\n\t.de-img-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\n\t.de-img-full { width: 100%; }\n\t.de-img-full-info { text-align: center; }\n\t.de-img-full-src { display: inline-block; padding: 2px 4px; margin: 2px 0 2px -1px; background: rgba(64,64,64,.8); font: bold 12px tahoma; color: #fff  !important; text-decoration: none; outline: none; }\n\t.de-img-full-src:hover { color: #fff !important; background: rgba(64,64,64,.6); }\n\t.de-img-wrapper-inpost { min-width: ' + p + 'px; min-height: ' + p + 'px; float: left; ' + (aib.multiFile ? '' : 'padding: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ') + ' }\n\t.de-img-wrapper-nosize { position: relative; width: 100%; height: 100%; }\n\t.de-img-wrapper-nosize > .de-img-full { position: absolute; z-index: 1; opacity: .3; }\n\t.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\n\t#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; margin-top: -18px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\n\t#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\n\t#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }' +
 
 		cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') + cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico') + cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==') + '.de-current::after { content: " \u25CF"; }\n\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\n\t.de-mp3 { margin: 5px 20px; }\n\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\n\t.de-video-obj-inline { display: inline-block; }\n\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\n\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\n\t#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }\n\t.de-video-expanded { width: 854px !important; height: 480px !important; }\n\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\n\t.de-video-refpost { margin: 0 3px; text-decoration: none; cursor: pointer; }\n\t.de-video-resizer::after { content: "\u2795"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\n\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\n\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\n\ta.de-video-player::after { content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\n\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\n\t.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }\n\t.de-vocaroo > embed { display: inline-block; }\n\tvideo { background: black; }' + (
 

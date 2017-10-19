@@ -195,6 +195,9 @@ function scriptCSS() {
 	.de-img-pre { max-width: 200px; max-height: 200px; }
 	.de-img-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
 	.de-img-full { width: 100%; }
+	.de-img-full-info { text-align: center; }
+	.de-img-full-src { display: inline-block; padding: 2px 4px; margin: 2px 0 2px -1px; background: rgba(64,64,64,.8); font: bold 12px tahoma; color: #fff  !important; text-decoration: none; outline: none; }
+	.de-img-full-src:hover { color: #fff !important; background: rgba(64,64,64,.6); }
 	.de-img-wrapper-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'padding: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
 	.de-img-wrapper-nosize { position: relative; width: 100%; height: 100%; }
 	.de-img-wrapper-nosize > .de-img-full { position: absolute; z-index: 1; opacity: .3; }

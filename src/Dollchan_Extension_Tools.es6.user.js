@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.6.20.0';
-const commit = '4099f75';
+const commit = '2910631';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -1298,6 +1298,10 @@ const Lng = {
 		'Скачать содержащийся в картинке файл',
 		'Download embedded file from the image',
 		'Завантажити файл, що міститься в зображенні'],
+	openOriginal: [
+		'Открыть оригинал в новой вкладке',
+		'Open original image in the new tab',
+		'Відкрити оригінал в новій вкладці'],
 
 	// Threads/images download: popups
 	loadImage: [
@@ -11301,7 +11305,7 @@ AttachmentViewer.prototype = {
 			docBody.removeEventListener('mouseup', this, true);
 			return;
 		case 'click':
-			if(this.data.isVideo && this.data.isControlClick(e)) {
+			if(this.data.isVideo && this.data.isControlClick(e) || e.target.className === 'de-img-full-src') {
 				return;
 			}
 			if(e.button === 0) {
@@ -11396,7 +11400,8 @@ AttachmentViewer.prototype = {
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-		var obj = $add('<div class="de-img-center" style="top:' + this._oldT + 'px; left:' +
+		var obj = $add('<div class="de-img-center" style="top:' +
+			(this._oldT - 11 /* 1/2 of .de-img-full-info */) + 'px; left:' +
 			this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
 		if(data.isImage) {
 			$aBegin(obj, '<a style="width: inherit; height: inherit;" href="' +
@@ -11575,7 +11580,7 @@ class ExpandableMedia {
 		}
 		if(Cfg.resizeImgs) {
 			const maxWidth = Post.sizing.wWidth - 2;
-			const maxHeight = Post.sizing.wHeight - 2;
+			const maxHeight = Post.sizing.wHeight - 24 /* height of .de-img-full-info + 2 */;
 			if(width > maxWidth || height > maxHeight) {
 				const ar = width / height;
 				if(ar > maxWidth / maxHeight) {
@@ -11643,14 +11648,28 @@ class ExpandableMedia {
 		let obj, src = this.src;
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
-			let html = '<div class="de-img-wrapper' +
-				(inPost ? ' de-img-wrapper-inpost' : (this._size ? '' : ' de-img-wrapper-nosize')) + '">';
-			if(!inPost && !this._size) {
-				html += '<svg class="de-img-load"><use xlink:href="#de-symbol-wait"/></svg>';
+			let name, origSrc;
+			const parent = this._getImageParent();
+			if(this.el.className !== 'de-img-pre') {
+				const nameEl = $q(aib.qImgNameLink, parent);
+				origSrc = nameEl.getAttribute('de-href') || nameEl.href;
+				name = this.name;
+			} else {
+				origSrc = parent.href;
+				name = origSrc.split('/').pop();
 			}
-			html += '<img class="de-img-full" src="' + src + '" alt="' + src + '"></div>';
-			obj = $add(html);
-			const img = obj.lastChild;
+			obj = $add(`<div class="de-img-wrapper${
+				         inPost ? ' de-img-wrapper-inpost' :
+				         !this._size ? ' de-img-wrapper-nosize' : '' }">
+				${ !inPost && !this._size ?
+					'<svg class="de-img-load"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
+				<img class="de-img-full" src="${ src }" alt="${ src }">
+				<div class="de-img-full-info">
+					<a class="de-img-full-src" target="_blank" title="${
+					 Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>
+				</div>
+			</div>`);
+			const img = $q('.de-img-full', obj);
 			img.onload = img.onerror = ({ target }) => {
 				if(target.naturalHeight + target.naturalWidth === 0) {
 					if(!target.onceLoaded) {
@@ -11809,7 +11828,7 @@ class Attachment extends ExpandableMedia {
 		return val;
 	}
 	get name() {
-		const val = aib.getImgRealName(aib.getImgWrap(this.el)).textContent.trim();
+		const val = aib.getImgRealName(aib.getImgWrap(this.el)).trim();
 		Object.defineProperty(this, 'name', { value: val });
 		return val;
 	}
@@ -14310,8 +14329,8 @@ class BaseBoard {
 			'[name="subject"]', '[name="field3"]');
 	}
 	get qImgNameLink() {
-		var value = nav.cssMatches(this.qImgInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]',
-			'[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]');
+		var value = nav.cssMatches(this.qImgInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]',
+			'[href$=".gif"]', '[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]', ', [href^="blob:"]');
 		Object.defineProperty(this, 'qImgNameLink', { value });
 		return value;
 	}
@@ -14474,7 +14493,7 @@ class BaseBoard {
 		return el ? el.textContent : '';
 	}
 	getImgRealName(wrap) {
-		return $q(this.qImgNameLink, wrap);
+		return $q(this.qImgNameLink, wrap)[Cfg.delImgNames ? 'title' : 'textContent'];
 	}
 	getImgSrcLink(img) {
 		return $parent(img, 'A');
@@ -14821,7 +14840,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return videos;
 		}
 		getImgRealName(wrap) {
-			return $q('.postfilename, .unimportant > a', wrap);
+			return $q('.postfilename, .unimportant > a', wrap).textContent;
 		}
 		getPageUrl(b, p) {
 			return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
@@ -16048,7 +16067,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.filesize > a:first-of-type';
 		}
 		getImgRealName(wrap) {
-			return $q('.filesize[style="display: inline;"] > .mobile_filename_hide', wrap);
+			return $q('.filesize[style="display: inline;"] > .mobile_filename_hide', wrap).textContent;
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode.parentNode;
@@ -16709,6 +16728,9 @@ function scriptCSS() {
 	.de-img-pre { max-width: 200px; max-height: 200px; }
 	.de-img-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
 	.de-img-full { width: 100%; }
+	.de-img-full-info { text-align: center; }
+	.de-img-full-src { display: inline-block; padding: 2px 4px; margin: 2px 0 2px -1px; background: rgba(64,64,64,.8); font: bold 12px tahoma; color: #fff  !important; text-decoration: none; outline: none; }
+	.de-img-full-src:hover { color: #fff !important; background: rgba(64,64,64,.6); }
 	.de-img-wrapper-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'padding: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
 	.de-img-wrapper-nosize { position: relative; width: 100%; height: 100%; }
 	.de-img-wrapper-nosize > .de-img-full { position: absolute; z-index: 1; opacity: .3; }
