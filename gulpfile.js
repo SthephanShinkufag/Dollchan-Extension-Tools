@@ -91,13 +91,6 @@ gulp.task('make:modules', function() {
 	}));
 });
 
-// Makes firefox-extension from es5-script
-gulp.task('make:extension', ['make'], function() {
-	return gulp.src('Dollchan_Extension_Tools.user.js')
-		.pipe(replace('global.regenerator', 'window.regenerator'))
-		.pipe(gulp.dest('dollchan-extension/data'));
-});
-
 // Waits for changes in watchedPaths files, then makes es5 and es6-scripts
 gulp.task('watch', function() {
 	gulp.watch(watchedPaths, ['make']);

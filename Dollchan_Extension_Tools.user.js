@@ -2945,8 +2945,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
-	var version = '17.6.20.0';
-	var commit = '2910631';
+	var version = '17.10.23.0';
+	var commit = '7f1b7ef';
 
 
 	var defaultCfg = {
