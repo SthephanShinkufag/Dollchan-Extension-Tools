@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.10.23.0';
-const commit = '7f1b7ef';
+const commit = '20d1e98';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
