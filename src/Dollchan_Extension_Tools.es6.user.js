@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         17.10.23.0
+// @version         17.10.24.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © 2017 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
@@ -25,8 +25,8 @@
 (function de_main_func_inner(scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '17.10.23.0';
-const commit = '20d1e98';
+const version = '17.10.24.0';
+const commit = '4b68f0d';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -5662,7 +5662,7 @@ function addImgFileIcon(nameLink, fName, info) {
 		'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>');
 }
 
-async function downloadImgData(url, repeatOnError = true) {
+function downloadImgData(url, repeatOnError = true) {
 	return $ajax(url, {
 		responseType: 'arraybuffer',
 		overrideMimeType: 'text/plain; charset=x-user-defined'
@@ -11736,6 +11736,9 @@ class ExpandableMedia {
 		// Get webm title: load file and parse its metadata
 		if(isWebm && Cfg.webmTitles) {
 			this._webmTitleLoad = downloadImgData(obj.src, false).then(data => {
+				if(!data) {
+					return;
+				}
 				let title = '', d = (new WebmParser(data.buffer)).getData();
 				if(!d) {
 					return;

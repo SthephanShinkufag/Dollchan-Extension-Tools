@@ -544,6 +544,9 @@ class ExpandableMedia {
 		// Get webm title: load file and parse its metadata
 		if(isWebm && Cfg.webmTitles) {
 			this._webmTitleLoad = downloadImgData(obj.src, false).then(data => {
+				if(!data) {
+					return;
+				}
 				let title = '', d = (new WebmParser(data.buffer)).getData();
 				if(!d) {
 					return;

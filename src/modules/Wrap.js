@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         17.10.23.0
+// @version         17.10.24.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © 2017 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
@@ -25,8 +25,8 @@
 (function de_main_func_inner(scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '17.10.23.0';
-const commit = '20d1e98';
+const version = '17.10.24.0';
+const commit = '4b68f0d';
 
 /*==[ DefaultCfg.js ]==*/
 /*==[ Localization.js ]==*/
