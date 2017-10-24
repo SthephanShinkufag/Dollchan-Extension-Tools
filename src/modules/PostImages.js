@@ -113,7 +113,11 @@ AttachmentViewer.prototype = {
 			docBody.removeEventListener('mouseup', this, true);
 			return;
 		case 'click':
-			if(this.data.isVideo && this.data.isControlClick(e) || e.target.className === 'de-img-full-src') {
+			const el = e.target;
+			if(this.data.isVideo && this.data.isControlClick(e) ||
+			   el.tagName !== 'IMG' && el.tagName !== 'VIDEO' &&
+			   !el.classList.contains('de-img-wrapper') && el.target.className !== 'de-img-load')
+			{
 				return;
 			}
 			if(e.button === 0) {
@@ -453,31 +457,30 @@ class ExpandableMedia {
 		return isForward ? imgs.first : imgs.last;
 	}
 	getFullObject(inPost, onsizechange, onrotate) {
-		let obj, src = this.src;
+		let wrapEl, name, origSrc, src = this.src;
+		const parent = this._getImageParent();
+		if(this.el.className !== 'de-img-pre') {
+			const nameEl = $q(aib.qImgNameLink, parent);
+			origSrc = nameEl.getAttribute('de-href') || nameEl.href;
+			name = this.name;
+		} else {
+			origSrc = parent.href;
+			name = origSrc.split('/').pop();
+		}
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
-			let name, origSrc;
-			const parent = this._getImageParent();
-			if(this.el.className !== 'de-img-pre') {
-				const nameEl = $q(aib.qImgNameLink, parent);
-				origSrc = nameEl.getAttribute('de-href') || nameEl.href;
-				name = this.name;
-			} else {
-				origSrc = parent.href;
-				name = origSrc.split('/').pop();
-			}
-			obj = $add(`<div class="de-img-wrapper${
-				         inPost ? ' de-img-wrapper-inpost' :
-				         !this._size ? ' de-img-wrapper-nosize' : '' }">
+			wrapEl = $add(`<div class="de-img-wrapper${
+					inPost ? ' de-img-wrapper-inpost' :
+					!this._size ? ' de-img-wrapper-nosize' : '' }">
 				${ !inPost && !this._size ?
 					'<svg class="de-img-load"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
 				<img class="de-img-full" src="${ src }" alt="${ src }">
 				<div class="de-img-full-info">
 					<a class="de-img-full-src" target="_blank" title="${
-					 Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>
+						Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>
 				</div>
 			</div>`);
-			const img = $q('.de-img-full', obj);
+			const img = $q('.de-img-full', wrapEl);
 			img.onload = img.onerror = ({ target }) => {
 				if(target.naturalHeight + target.naturalWidth === 0) {
 					if(!target.onceLoaded) {
@@ -506,7 +509,7 @@ class ExpandableMedia {
 				}
 			};
 			DollchanAPI.notify('expandmedia', src);
-			return obj;
+			return wrapEl;
 		}
 
 		// Expand videos: WEBM, MP4
@@ -514,19 +517,29 @@ class ExpandableMedia {
 		if(aib.tiny) {
 			src = src.replace(/^.*?\?v=|&.*?$/g, '');
 		}
-		obj = $add(`<video style="width: inherit; height: inherit" src="${ src }" loop autoplay ${
-			Cfg.webmControl ? 'controls ' : ''}${
-			Cfg.webmVolume === 0 ? 'muted ' : ''}></video>`);
-		obj.volume = Cfg.webmVolume / 100;
-		obj.addEventListener('error', function() {
+		const isWebm = src.split('.').pop() === 'webm';
+		const needTitle = isWebm && Cfg.webmTitles;
+		wrapEl = $add(`<div class="de-img-wrapper" style="width: inherit; height: inherit">
+			<video style="width: inherit; height: inherit" src="${ src }" loop autoplay ${
+				Cfg.webmControl ? 'controls ' : ''}${
+				Cfg.webmVolume === 0 ? 'muted ' : ''}></video>
+			<div class="de-img-full-info">
+				<a class="de-img-full-src" target="_blank" title="${
+					Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>
+				${ needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
+			</div>
+		</div>`);
+		const videoEl = $q('video', wrapEl);
+		videoEl.volume = Cfg.webmVolume / 100;
+		videoEl.addEventListener('error', function() {
 			if(!this.onceLoaded) {
 				this.load();
 				this.onceLoaded = true;
 			}
 		});
 		// Sync webm volume on all browser tabs
-		setTimeout(() => obj.dispatchEvent(new CustomEvent('volumechange')), 150);
-		obj.addEventListener('volumechange', function(e) {
+		setTimeout(() => videoEl.dispatchEvent(new CustomEvent('volumechange')), 150);
+		videoEl.addEventListener('volumechange', function(e) {
 			const val = this.muted ? 0 : Math.round(this.volume * 100);
 			if(e.isTrusted && val !== Cfg.webmVolume) {
 				saveCfg('webmVolume', val);
@@ -535,15 +548,15 @@ class ExpandableMedia {
 			}
 		});
 		// MS Edge needs an external app with DollchanAPI to play webms
-		const isWebm = src.split('.').pop() === 'webm';
 		if(nav.MsEdge && isWebm && !DollchanAPI.hasListener('expandmedia')) {
 			const href = 'https://github.com/Kagami/webmify/';
 			$popup('err-expandmedia', Lng.errMsEdgeWebm[lang] +
 				`:\n<a href="${ href }" target="_blank">${ href }</a>`, false);
 		}
 		// Get webm title: load file and parse its metadata
-		if(isWebm && Cfg.webmTitles) {
-			this._webmTitleLoad = downloadImgData(obj.src, false).then(data => {
+		if(needTitle) {
+			this._webmTitleLoad = downloadImgData(videoEl.src, false).then(data => {
+				$hide($q('.de-wait', wrapEl));
 				if(!data) {
 					return;
 				}
@@ -562,7 +575,8 @@ class ExpandableMedia {
 							title += String.fromCharCode(d[i]);
 						}
 						if(title) {
-							obj.title = decodeURIComponent(escape(title));
+							videoEl.title = decodeURIComponent(escape(title));
+							$q('.de-img-full-src', wrapEl).textContent += ' - ' + title;
 						}
 						break;
 					}
@@ -570,7 +584,7 @@ class ExpandableMedia {
 			});
 		}
 		DollchanAPI.notify('expandmedia', src);
-		return obj;
+		return wrapEl;
 	}
 	isControlClick(e) {
 		return Cfg.webmControl && e.clientY > (e.target.getBoundingClientRect().bottom - 40);

@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = '4b68f0d';
+	var commit = '31bbc1d';
 
 
 	var defaultCfg = {
@@ -14673,7 +14673,8 @@ true, true],
 					docBody.removeEventListener('mouseup', this, true);
 					return;
 				case 'click':
-					if (this.data.isVideo && this.data.isControlClick(e) || e.target.className === 'de-img-full-src') {
+					var _el7 = e.target;
+					if (this.data.isVideo && this.data.isControlClick(e) || _el7.tagName !== 'IMG' && _el7.tagName !== 'VIDEO' && !_el7.classList.contains('de-img-wrapper') && _el7.target.className !== 'de-img-load') {
 						return;
 					}
 					if (e.button === 0) {
@@ -15026,22 +15027,22 @@ true, true],
 			value: function getFullObject(inPost, onsizechange, onrotate) {
 				var _this47 = this;
 
-				var obj = void 0,
+				var wrapEl = void 0,
+				    name = void 0,
+				    origSrc = void 0,
 				    src = this.src;
+				var parent = this._getImageParent();
+				if (this.el.className !== 'de-img-pre') {
+					var nameEl = $q(aib.qImgNameLink, parent);
+					origSrc = nameEl.getAttribute('de-href') || nameEl.href;
+					name = this.name;
+				} else {
+					origSrc = parent.href;
+					name = origSrc.split('/').pop();
+				}
 				if (!this.isVideo) {
-					var _name2 = void 0,
-					    origSrc = void 0;
-					var parent = this._getImageParent();
-					if (this.el.className !== 'de-img-pre') {
-						var nameEl = $q(aib.qImgNameLink, parent);
-						origSrc = nameEl.getAttribute('de-href') || nameEl.href;
-						_name2 = this.name;
-					} else {
-						origSrc = parent.href;
-						_name2 = origSrc.split('/').pop();
-					}
-					obj = $add('<div class="de-img-wrapper' + (inPost ? ' de-img-wrapper-inpost' : !this._size ? ' de-img-wrapper-nosize' : '') + '">\n\t\t\t\t' + (!inPost && !this._size ? '<svg class="de-img-load"><use xlink:href="#de-symbol-wait"/></svg>' : '') + '\n\t\t\t\t<img class="de-img-full" src="' + src + '" alt="' + src + '">\n\t\t\t\t<div class="de-img-full-info">\n\t\t\t\t\t<a class="de-img-full-src" target="_blank" title="' + Lng.openOriginal[lang] + '" href="' + origSrc + '">' + _name2 + '</a>\n\t\t\t\t</div>\n\t\t\t</div>');
-					var img = $q('.de-img-full', obj);
+					wrapEl = $add('<div class="de-img-wrapper' + (inPost ? ' de-img-wrapper-inpost' : !this._size ? ' de-img-wrapper-nosize' : '') + '">\n\t\t\t\t' + (!inPost && !this._size ? '<svg class="de-img-load"><use xlink:href="#de-symbol-wait"/></svg>' : '') + '\n\t\t\t\t<img class="de-img-full" src="' + src + '" alt="' + src + '">\n\t\t\t\t<div class="de-img-full-info">\n\t\t\t\t\t<a class="de-img-full-src" target="_blank" title="' + Lng.openOriginal[lang] + '" href="' + origSrc + '">' + name + '</a>\n\t\t\t\t</div>\n\t\t\t</div>');
+					var img = $q('.de-img-full', wrapEl);
 					img.onload = img.onerror = function (_ref47) {
 						var target = _ref47.target;
 
@@ -15058,10 +15059,10 @@ true, true],
 							if (!_this47._size || isExifRotated) {
 								_this47._size = isExifRotated ? [newHeight, newWidth] : [newWidth, newHeight];
 							}
-							var _el7 = target.previousElementSibling;
-							if (_el7) {
-								var p = _el7.parentNode;
-								$hide(_el7);
+							var _el8 = target.previousElementSibling;
+							if (_el8) {
+								var p = _el8.parentNode;
+								$hide(_el8);
 								p.classList.remove('de-img-wrapper-nosize');
 								if (onsizechange) {
 									onsizechange(p);
@@ -15072,24 +15073,27 @@ true, true],
 						}
 					};
 					DollchanAPI.notify('expandmedia', src);
-					return obj;
+					return wrapEl;
 				}
 
 				if (aib.tiny) {
 					src = src.replace(/^.*?\?v=|&.*?$/g, '');
 				}
-				obj = $add('<video style="width: inherit; height: inherit" src="' + src + '" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') + (Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>');
-				obj.volume = Cfg.webmVolume / 100;
-				obj.addEventListener('error', function () {
+				var isWebm = src.split('.').pop() === 'webm';
+				var needTitle = isWebm && Cfg.webmTitles;
+				wrapEl = $add('<div class="de-img-wrapper" style="width: inherit; height: inherit">\n\t\t\t<video style="width: inherit; height: inherit" src="' + src + '" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') + (Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>\n\t\t\t<div class="de-img-full-info">\n\t\t\t\t<a class="de-img-full-src" target="_blank" title="' + Lng.openOriginal[lang] + '" href="' + origSrc + '">' + name + '</a>\n\t\t\t\t' + (needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '') + '\n\t\t\t</div>\n\t\t</div>');
+				var videoEl = $q('video', wrapEl);
+				videoEl.volume = Cfg.webmVolume / 100;
+				videoEl.addEventListener('error', function () {
 					if (!this.onceLoaded) {
 						this.load();
 						this.onceLoaded = true;
 					}
 				});
 				setTimeout(function () {
-					return obj.dispatchEvent(new CustomEvent('volumechange'));
+					return videoEl.dispatchEvent(new CustomEvent('volumechange'));
 				}, 150);
-				obj.addEventListener('volumechange', function (e) {
+				videoEl.addEventListener('volumechange', function (e) {
 					var val = this.muted ? 0 : Math.round(this.volume * 100);
 					if (e.isTrusted && val !== Cfg.webmVolume) {
 						saveCfg('webmVolume', val);
@@ -15097,13 +15101,13 @@ true, true],
 						locStorage.removeItem('__de-webmvolume');
 					}
 				});
-				var isWebm = src.split('.').pop() === 'webm';
 				if (nav.MsEdge && isWebm && !DollchanAPI.hasListener('expandmedia')) {
 					var href = 'https://github.com/Kagami/webmify/';
 					$popup('err-expandmedia', Lng.errMsEdgeWebm[lang] + (':\n<a href="' + href + '" target="_blank">' + href + '</a>'), false);
 				}
-				if (isWebm && Cfg.webmTitles) {
-					this._webmTitleLoad = downloadImgData(obj.src, false).then(function (data) {
+				if (needTitle) {
+					this._webmTitleLoad = downloadImgData(videoEl.src, false).then(function (data) {
+						$hide($q('.de-wait', wrapEl));
 						if (!data) {
 							return;
 						}
@@ -15120,7 +15124,8 @@ true, true],
 									title += String.fromCharCode(d[i]);
 								}
 								if (title) {
-									obj.title = decodeURIComponent(escape(title));
+									videoEl.title = decodeURIComponent(escape(title));
+									$q('.de-img-full-src', wrapEl).textContent += ' - ' + title;
 								}
 								break;
 							}
@@ -15128,7 +15133,7 @@ true, true],
 					});
 				}
 				DollchanAPI.notify('expandmedia', src);
-				return obj;
+				return wrapEl;
 			}
 		}, {
 			key: 'isControlClick',
@@ -15655,22 +15660,22 @@ true, true],
 					fileHTML = '<div id="f' + num + '" class="file"><span class="fileThumb">\n\t\t\t\t<img src="' + _icon('filedeleted-res') + '" class="fileDeletedRes" alt="File deleted.">\n\t\t\t</span></div>';
 				} else if (typeof data.filename === 'string') {
 					var _DOMPostsBuilder$fixF = DOMPostsBuilder.fixFileName(data.filename, 30),
-					    _name3 = _DOMPostsBuilder$fixF.name,
+					    _name2 = _DOMPostsBuilder$fixF.name,
 					    needTitle = _DOMPostsBuilder$fixF.isFixed;
 
-					_name3 += data.ext;
+					_name2 += data.ext;
 					if (!data.tn_w && !data.tn_h && data.ext === '.gif') {
 						data.tn_w = data.w;
 						data.tn_h = data.h;
 					}
 					var isSpoiler = data.spoiler && !Cfg.noSpoilers;
 					if (isSpoiler) {
-						_name3 = 'Spoiler Image';
+						_name2 = 'Spoiler Image';
 						data.tn_w = data.tn_h = 100;
 						needTitle = false;
 					}
 					var size = prettifySize(data.fsize);
-					fileHTML = '<div class="file" id="f' + num + '">\n\t\t\t\t<div class="fileText" id="fT' + num + '" ' + (isSpoiler ? 'title="' + (data.filename + data.ext) + '"' : '') + '>File: <a href="//i.4cdn.org/' + brd + '/' + (data.tim + data.ext) + '" ' + (needTitle ? 'title="' + (data.filename + data.ext) + '"' : '') + ' target="_blank">' + _name3 + '</a> (' + size + ', ' + (data.ext === '.pdf' ? 'PDF' : data.w + 'x' + data.h) + ')</div>\n\t\t\t\t<a class="fileThumb ' + (isSpoiler ? 'imgSpoiler' : '') + '" href="//i.4cdn.org/' + brd + '/' + (data.tim + data.ext) + '" target="_blank">\n\t\t\t\t\t<img src="' + (isSpoiler ? '//s.4cdn.org/image/spoiler' + _4chanPostsBuilder._customSpoiler.get(brd) || '' + '.png' : '//i.4cdn.org/' + brd + '/' + data.tim + 's.jpg') + '" alt="' + size + '" data-md5="' + data.md5 + '" style="height: ' + data.tn_h + 'px; width: ' + data.tn_w + 'px;">\n\t\t\t\t\t<div data-tip="" data-tip-cb="mShowFull" class="mFileInfo mobile">' + size + ' ' + data.ext.substr(1).toUpperCase() + '</div>\n\t\t\t\t</a>\n\t\t\t</div>';
+					fileHTML = '<div class="file" id="f' + num + '">\n\t\t\t\t<div class="fileText" id="fT' + num + '" ' + (isSpoiler ? 'title="' + (data.filename + data.ext) + '"' : '') + '>File: <a href="//i.4cdn.org/' + brd + '/' + (data.tim + data.ext) + '" ' + (needTitle ? 'title="' + (data.filename + data.ext) + '"' : '') + ' target="_blank">' + _name2 + '</a> (' + size + ', ' + (data.ext === '.pdf' ? 'PDF' : data.w + 'x' + data.h) + ')</div>\n\t\t\t\t<a class="fileThumb ' + (isSpoiler ? 'imgSpoiler' : '') + '" href="//i.4cdn.org/' + brd + '/' + (data.tim + data.ext) + '" target="_blank">\n\t\t\t\t\t<img src="' + (isSpoiler ? '//s.4cdn.org/image/spoiler' + _4chanPostsBuilder._customSpoiler.get(brd) || '' + '.png' : '//i.4cdn.org/' + brd + '/' + data.tim + 's.jpg') + '" alt="' + size + '" data-md5="' + data.md5 + '" style="height: ' + data.tn_h + 'px; width: ' + data.tn_w + 'px;">\n\t\t\t\t\t<div data-tip="" data-tip-cb="mShowFull" class="mFileInfo mobile">' + size + ' ' + data.ext.substr(1).toUpperCase() + '</div>\n\t\t\t\t</a>\n\t\t\t</div>';
 				}
 
 				var highlight = '',
@@ -20073,9 +20078,9 @@ true, true],
 						img.src = src;
 						cap.textEl.value = '';
 					} else if (isErr) {
-						var _el8 = img.parentNode;
-						_el8.innerHTML = '';
-						_el8.appendChild(img);
+						var _el9 = img.parentNode;
+						_el9.innerHTML = '';
+						_el9.appendChild(img);
 						img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off"' + ' id="captcha" name="captcha" size="35" type="text">');
 						$show(img);
 						cap.isAdded = false;
