@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = '31bbc1d';
+	var commit = 'b06bdb0';
 
 
 	var defaultCfg = {
@@ -15124,8 +15124,7 @@ true, true],
 									title += String.fromCharCode(d[i]);
 								}
 								if (title) {
-									videoEl.title = decodeURIComponent(escape(title));
-									$q('.de-img-full-src', wrapEl).textContent += ' - ' + title;
+									$q('.de-img-full-src', wrapEl).textContent += ' - ' + (videoEl.title = decodeURIComponent(escape(title)));
 								}
 								break;
 							}

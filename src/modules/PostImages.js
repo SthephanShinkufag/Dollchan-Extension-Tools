@@ -575,8 +575,8 @@ class ExpandableMedia {
 							title += String.fromCharCode(d[i]);
 						}
 						if(title) {
-							videoEl.title = decodeURIComponent(escape(title));
-							$q('.de-img-full-src', wrapEl).textContent += ' - ' + title;
+							$q('.de-img-full-src', wrapEl).textContent +=
+								' - ' + (videoEl.title = decodeURIComponent(escape(title)));
 						}
 						break;
 					}

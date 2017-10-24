@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '31bbc1d';
+const commit = 'b06bdb0';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -11767,8 +11767,8 @@ class ExpandableMedia {
 							title += String.fromCharCode(d[i]);
 						}
 						if(title) {
-							videoEl.title = decodeURIComponent(escape(title));
-							$q('.de-img-full-src', wrapEl).textContent += ' - ' + title;
+							$q('.de-img-full-src', wrapEl).textContent +=
+								' - ' + (videoEl.title = decodeURIComponent(escape(title)));
 						}
 						break;
 					}
