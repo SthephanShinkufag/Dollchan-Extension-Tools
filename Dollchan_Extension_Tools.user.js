@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = '1cb92c3';
+	var commit = '7bd4220';
 
 
 	var defaultCfg = {
@@ -10897,8 +10897,6 @@ true, true],
 		this.passw = $q(aib.qFormPassw, form);
 		this.rules = $q(aib.qFormRules, form);
 		this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
-
-		console.log(this.txta, this.subm, this.name, this.mail, this.subj, this.passw, this.rules, this.video);
 		this.pForm = $add('<div id="de-pform" class="de-win-body"></div>');
 		if (this.form) {
 			this.pForm.appendChild(this.form);

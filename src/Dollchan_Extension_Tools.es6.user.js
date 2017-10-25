@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '1cb92c3';
+const commit = '7bd4220';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -8091,8 +8091,6 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	this.passw = $q(aib.qFormPassw, form);
 	this.rules = $q(aib.qFormRules, form);
 	this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
-	
-	console.log(this.txta, this.subm, this.name, this.mail, this.subj, this.passw, this.rules,this.video)
 	this.pForm = $add('<div id="de-pform" class="de-win-body"></div>');
 	if(this.form) {
 		this.pForm.appendChild(this.form);
