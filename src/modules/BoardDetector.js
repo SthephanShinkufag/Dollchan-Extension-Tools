@@ -1017,10 +1017,15 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(Cfg.ajaxUpdThr) {
 				locStorage.auto_thread_update = false;
 			}
-			const el1 = $id('upload_embed');
-			const el2 = $id('upload');
-			if(el1 && el2) {
-				$after(el2, el1);
+			let el = $id('upload_embed');
+			let el2 = $id('upload');
+			if(el && el2) {
+				$after(el2, el);
+			}
+			// #upload can contain hidden fields, we must to save them from deletion
+			el = $q('#upload > td > input:not([name="file"])');
+			if(el) {
+				$q(this.qForm).appendChild(el);
 			}
 			return false;
 		}

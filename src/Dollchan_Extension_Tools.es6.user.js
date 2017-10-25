@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = 'fcc0227';
+const commit = '1cb92c3';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -8091,6 +8091,8 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	this.passw = $q(aib.qFormPassw, form);
 	this.rules = $q(aib.qFormRules, form);
 	this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
+	
+	console.log(this.txta, this.subm, this.name, this.mail, this.subj, this.passw, this.rules,this.video)
 	this.pForm = $add('<div id="de-pform" class="de-win-body"></div>');
 	if(this.form) {
 		this.pForm.appendChild(this.form);
@@ -15622,10 +15624,15 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(Cfg.ajaxUpdThr) {
 				locStorage.auto_thread_update = false;
 			}
-			const el1 = $id('upload_embed');
-			const el2 = $id('upload');
-			if(el1 && el2) {
-				$after(el2, el1);
+			let el = $id('upload_embed');
+			let el2 = $id('upload');
+			if(el && el2) {
+				$after(el2, el);
+			}
+			// #upload can contain hidden fields, we must to save them from deletion
+			el = $q('#upload > td > input:not([name="file"])');
+			if(el) {
+				$q(this.qForm).appendChild(el);
 			}
 			return false;
 		}
