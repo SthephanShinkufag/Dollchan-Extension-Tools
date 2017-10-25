@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = '8302ade';
+	var commit = 'f294b19';
 
 
 	var defaultCfg = {
@@ -17899,7 +17899,7 @@ true, true],
 		var isChromeStorage = !!window.chrome && !!window.chrome.storage;
 		var isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 		var isGM = false;
-		var isNewGM = typeof GM !== 'undefined' && typeof GM.setValue === 'function';
+		var isNewGM = typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 		if (!isNewGM) {
 			try {
 				isGM = typeof GM_setValue === 'function' && (!chrome || !GM_setValue.toString().includes('not supported'));

@@ -30,7 +30,7 @@ function initNavFuncs() {
 	const isChromeStorage = !!window.chrome && !!window.chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	let isGM = false;
-	let isNewGM = typeof GM !== 'undefined' && typeof GM.setValue === 'function';
+	let isNewGM = typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 	if(!isNewGM) {
 		try {
 			isGM = (typeof GM_setValue === 'function') &&
