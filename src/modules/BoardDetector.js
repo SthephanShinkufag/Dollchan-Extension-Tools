@@ -997,8 +997,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 		}
 		get css() {
-			return super.css.replace('.de-btn-rep,', '') +
-				`input[name="embed"] { width: 100% !important; }
+			return super.css + `input[name="embed"] { width: 100% !important; }
 				#upload_embed > td > .unimportant.hint { display: none; }
 				.reflink::after { content: "" !important; }`;
 		}

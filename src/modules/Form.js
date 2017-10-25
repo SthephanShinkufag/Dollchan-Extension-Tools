@@ -169,7 +169,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	if(aib.dobr) {
 		this.txta.removeAttribute('id');
 	}
-	if(!aib.tiny || aib.brchan) {
+	if(!aib.tiny) {
 		this.subm.value = Lng.reply[lang];
 	}
 	this.subm.addEventListener('click', e => {

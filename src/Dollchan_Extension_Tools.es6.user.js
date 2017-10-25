@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = 'b06bdb0';
+const commit = 'fcc0227';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -8218,7 +8218,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	if(aib.dobr) {
 		this.txta.removeAttribute('id');
 	}
-	if(!aib.tiny || aib.brchan) {
+	if(!aib.tiny) {
 		this.subm.value = Lng.reply[lang];
 	}
 	this.subm.addEventListener('click', e => {
@@ -15602,8 +15602,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 		}
 		get css() {
-			return super.css.replace('.de-btn-rep,', '') +
-				`input[name="embed"] { width: 100% !important; }
+			return super.css + `input[name="embed"] { width: 100% !important; }
 				#upload_embed > td > .unimportant.hint { display: none; }
 				.reflink::after { content: "" !important; }`;
 		}

@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = 'b06bdb0';
+	var commit = 'fcc0227';
 
 
 	var defaultCfg = {
@@ -11018,7 +11018,7 @@ true, true],
 		if (aib.dobr) {
 			this.txta.removeAttribute('id');
 		}
-		if (!aib.tiny || aib.brchan) {
+		if (!aib.tiny) {
 			this.subm.value = Lng.reply[lang];
 		}
 		this.subm.addEventListener('click', function (e) {
@@ -19888,7 +19888,7 @@ true, true],
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(Brchan.prototype.__proto__ || Object.getPrototypeOf(Brchan.prototype), 'css', this).replace('.de-btn-rep,', '') + 'input[name="embed"] { width: 100% !important; }\n\t\t\t\t#upload_embed > td > .unimportant.hint { display: none; }\n\t\t\t\t.reflink::after { content: "" !important; }';
+					return _get(Brchan.prototype.__proto__ || Object.getPrototypeOf(Brchan.prototype), 'css', this) + 'input[name="embed"] { width: 100% !important; }\n\t\t\t\t#upload_embed > td > .unimportant.hint { display: none; }\n\t\t\t\t.reflink::after { content: "" !important; }';
 				}
 			}, {
 				key: 'markupTags',
