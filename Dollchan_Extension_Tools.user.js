@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = '7bd4220';
+	var commit = '8302ade';
 
 
 	var defaultCfg = {
@@ -18841,6 +18841,12 @@ true, true],
 				key: 'init',
 				value: function init() {
 					_get(Vichan.prototype.__proto__ || Object.getPrototypeOf(Vichan.prototype), 'init', this).call(this);
+					if (locStorage.file_dragdrop !== 'false') {
+						locStorage.file_dragdrop = false;
+						window.location.reload();
+						return true;
+					}
+					$script('highlightReply = function() {}');
 					setTimeout(function () {
 						return $del($id('updater'));
 					}, 0);
@@ -18848,11 +18854,9 @@ true, true],
 					if (textarea) {
 						textarea.removeAttribute('id');
 					}
-					$script('highlightReply = function() {}');
-					if (locStorage.file_dragdrop !== 'false') {
-						locStorage.file_dragdrop = false;
-						window.location.reload();
-						return true;
+					var el = $q('#upload > td > input:not([name="file"])');
+					if (el) {
+						$q(this.qForm).appendChild(el);
 					}
 					return false;
 				}
@@ -19882,10 +19886,6 @@ true, true],
 					var el2 = $id('upload');
 					if (el && el2) {
 						$after(el2, el);
-					}
-					el = $q('#upload > td > input:not([name="file"])');
-					if (el) {
-						$q(this.qForm).appendChild(el);
 					}
 					return false;
 				}

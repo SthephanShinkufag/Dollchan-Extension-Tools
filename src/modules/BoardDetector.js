@@ -300,16 +300,21 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
+			if(locStorage.file_dragdrop !== 'false') {
+				locStorage.file_dragdrop = false;
+				window.location.reload();
+				return true;
+			}
+			$script('highlightReply = function() {}');
 			setTimeout(() => $del($id('updater')), 0);
 			const textarea = $id('body');
 			if(textarea) {
 				textarea.removeAttribute('id');
 			}
-			$script('highlightReply = function() {}');
-			if(locStorage.file_dragdrop !== 'false') {
-				locStorage.file_dragdrop = false;
-				window.location.reload();
-				return true;
+			// #upload can contain hidden field, we must to save it from deletion
+			const el = $q('#upload > td > input:not([name="file"])');
+			if(el) {
+				$q(this.qForm).appendChild(el);
 			}
 			return false;
 		}
@@ -1017,15 +1022,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(Cfg.ajaxUpdThr) {
 				locStorage.auto_thread_update = false;
 			}
-			let el = $id('upload_embed');
-			let el2 = $id('upload');
+			const el = $id('upload_embed');
+			const el2 = $id('upload');
 			if(el && el2) {
 				$after(el2, el);
-			}
-			// #upload can contain hidden fields, we must to save them from deletion
-			el = $q('#upload > td > input:not([name="file"])');
-			if(el) {
-				$q(this.qForm).appendChild(el);
 			}
 			return false;
 		}
