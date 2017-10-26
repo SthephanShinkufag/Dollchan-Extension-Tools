@@ -36,6 +36,7 @@ const defaultCfg = {
 	'timeRPattern':     '',     //    replace pattern
 	'expandImgs':       2,      // expand images on click [0=off, 1=in post, 2=by center]
 	'imgNavBtns':       1,      //    add buttons to navigate images
+	'imgInfoLink':      1,      //    show name under expanded image
 	'resizeDPI':        0,      //    don't upscale images on high DPI displays
 	'resizeImgs':       1,      //    resize large images to fit screen
 	'minImgSize':       100,    //    minimal size for expanded images (px)

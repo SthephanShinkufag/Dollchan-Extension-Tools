@@ -213,7 +213,7 @@ AttachmentViewer.prototype = {
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
 		var obj = $add('<div class="de-img-center" style="top:' +
-			(this._oldT - 11 /* 1/2 of .de-img-full-info */) + 'px; left:' +
+			(this._oldT - (Cfg.imgInfoLink ? 11 : 0)) + 'px; left:' +
 			this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
 		if(data.isImage) {
 			$aBegin(obj, '<a style="width: inherit; height: inherit;" href="' +
@@ -392,7 +392,7 @@ class ExpandableMedia {
 		}
 		if(Cfg.resizeImgs) {
 			const maxWidth = Post.sizing.wWidth - 2;
-			const maxHeight = Post.sizing.wHeight - 24 /* height of .de-img-full-info + 2 */;
+			const maxHeight = Post.sizing.wHeight - (Cfg.imgInfoLink ? 24 : 2);
 			if(width > maxWidth || height > maxHeight) {
 				const ar = width / height;
 				if(ar > maxWidth / maxHeight) {

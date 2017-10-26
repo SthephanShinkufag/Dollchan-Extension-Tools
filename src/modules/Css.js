@@ -399,6 +399,7 @@ function updateCSS() {
 	${  !Cfg.addSageBtn ? '#de-sagebtn, ' : '' }${
 		 Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '' }${
 		!Cfg.imgNavBtns ? '#de-img-btn-next, #de-img-btn-prev, ' : '' }${
+		!Cfg.imgInfoLink ? '.de-img-full-info, ' : '' }${
 		 Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '' }${
 		 Cfg.noBoardRule ? aib.qFormRules + ', ' : '' }${
 		!Cfg.panelCounter ? '#de-panel-info, ' : '' }${

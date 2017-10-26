@@ -340,6 +340,13 @@ const cfgWindow = Object.create({
 				updateCSS();
 				break;
 			case 'correctTime': DateTime.toggleSettings(); break;
+			case 'imgInfoLink':
+				const img = $q('.de-img-wrapper');
+				if(img) {
+					img.click();
+				}
+				updateCSS();
+				break;
 			case 'imgSrcBtns':
 				if(Cfg.imgSrcBtns) {
 					for(let form of DelForm) {
@@ -639,6 +646,7 @@ const cfgWindow = Object.create({
 			${ this._getSel('expandImgs') }<br>
 			<div class="de-cfg-depend">
 				${ this._getBox('imgNavBtns') }<br>
+				${ this._getBox('imgInfoLink') }<br>
 				${ this._getBox('resizeImgs') }<br>
 				${ Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '' }
 				${ this._getInp('minImgSize') }<br>
@@ -848,9 +856,10 @@ const cfgWindow = Object.create({
 			'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]']);
 		this._toggleBox(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
 		this._toggleBox(Cfg.expandImgs, [
-			'input[info="imgNavBtns"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]',
-			'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]',
-			'input[info="webmTitles"]', 'input[info="webmVolume"]', 'input[info="minWebmWidth"]']);
+			'input[info="imgNavBtns"]', 'input[info="imgInfoLink"]', 'input[info="resizeDPI"]',
+			'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]',
+			'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]',
+			'input[info="minWebmWidth"]']);
 		this._toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
 		this._toggleBox(Cfg.linksNavig, [
 			'input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]',

@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = 'f294b19';
+const commit = '118edb2';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -66,6 +66,7 @@ const defaultCfg = {
 	'timeRPattern':     '',     //    replace pattern
 	'expandImgs':       2,      // expand images on click [0=off, 1=in post, 2=by center]
 	'imgNavBtns':       1,      //    add buttons to navigate images
+	'imgInfoLink':      1,      //    show name under expanded image
 	'resizeDPI':        0,      //    don't upscale images on high DPI displays
 	'resizeImgs':       1,      //    resize large images to fit screen
 	'minImgSize':       100,    //    minimal size for expanded images (px)
@@ -341,6 +342,10 @@ const Lng = {
 			'Добавлять кнопки навигации по картинкам',
 			'Add buttons to navigate images',
 			'Додавати кнопки навігації по зображеннях'],
+		imgInfoLink: [
+			'Имя файла под раскрытой картинкой',
+			'Show file name under expanded image',
+			'Імʼя файлу під розкритим зображенням'],
 		resizeDPI: [
 			'Не растягивать на дисплеях с высоким DPI',
 			'Donʼt upscale images on high DPI displays',
@@ -1300,7 +1305,7 @@ const Lng = {
 		'Завантажити файл, що міститься в зображенні'],
 	openOriginal: [
 		'Открыть оригинал в новой вкладке',
-		'Open original image in the new tab',
+		'Open the original image in new tab',
 		'Відкрити оригінал в новій вкладці'],
 
 	// Threads/images download: popups
@@ -4184,6 +4189,13 @@ const cfgWindow = Object.create({
 				updateCSS();
 				break;
 			case 'correctTime': DateTime.toggleSettings(); break;
+			case 'imgInfoLink':
+				const img = $q('.de-img-wrapper');
+				if(img) {
+					img.click();
+				}
+				updateCSS();
+				break;
 			case 'imgSrcBtns':
 				if(Cfg.imgSrcBtns) {
 					for(let form of DelForm) {
@@ -4483,6 +4495,7 @@ const cfgWindow = Object.create({
 			${ this._getSel('expandImgs') }<br>
 			<div class="de-cfg-depend">
 				${ this._getBox('imgNavBtns') }<br>
+				${ this._getBox('imgInfoLink') }<br>
 				${ this._getBox('resizeImgs') }<br>
 				${ Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '' }
 				${ this._getInp('minImgSize') }<br>
@@ -4692,9 +4705,10 @@ const cfgWindow = Object.create({
 			'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]']);
 		this._toggleBox(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
 		this._toggleBox(Cfg.expandImgs, [
-			'input[info="imgNavBtns"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]',
-			'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]',
-			'input[info="webmTitles"]', 'input[info="webmVolume"]', 'input[info="minWebmWidth"]']);
+			'input[info="imgNavBtns"]', 'input[info="imgInfoLink"]', 'input[info="resizeDPI"]',
+			'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]',
+			'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]',
+			'input[info="minWebmWidth"]']);
 		this._toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
 		this._toggleBox(Cfg.linksNavig, [
 			'input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]',
@@ -11405,7 +11419,7 @@ AttachmentViewer.prototype = {
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
 		var obj = $add('<div class="de-img-center" style="top:' +
-			(this._oldT - 11 /* 1/2 of .de-img-full-info */) + 'px; left:' +
+			(this._oldT - (Cfg.imgInfoLink ? 11 : 0)) + 'px; left:' +
 			this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
 		if(data.isImage) {
 			$aBegin(obj, '<a style="width: inherit; height: inherit;" href="' +
@@ -11584,7 +11598,7 @@ class ExpandableMedia {
 		}
 		if(Cfg.resizeImgs) {
 			const maxWidth = Post.sizing.wWidth - 2;
-			const maxHeight = Post.sizing.wHeight - 24 /* height of .de-img-full-info + 2 */;
+			const maxHeight = Post.sizing.wHeight - (Cfg.imgInfoLink ? 24 : 2);
 			if(width > maxWidth || height > maxHeight) {
 				const ar = width / height;
 				if(ar > maxWidth / maxHeight) {
@@ -16953,6 +16967,7 @@ function updateCSS() {
 	${  !Cfg.addSageBtn ? '#de-sagebtn, ' : '' }${
 		 Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '' }${
 		!Cfg.imgNavBtns ? '#de-img-btn-next, #de-img-btn-prev, ' : '' }${
+		!Cfg.imgInfoLink ? '.de-img-full-info, ' : '' }${
 		 Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '' }${
 		 Cfg.noBoardRule ? aib.qFormRules + ', ' : '' }${
 		!Cfg.panelCounter ? '#de-panel-info, ' : '' }${

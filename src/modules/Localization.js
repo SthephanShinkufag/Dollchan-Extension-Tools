@@ -173,6 +173,10 @@ const Lng = {
 			'Добавлять кнопки навигации по картинкам',
 			'Add buttons to navigate images',
 			'Додавати кнопки навігації по зображеннях'],
+		imgInfoLink: [
+			'Имя файла под раскрытой картинкой',
+			'Show file name under expanded image',
+			'Імʼя файлу під розкритим зображенням'],
 		resizeDPI: [
 			'Не растягивать на дисплеях с высоким DPI',
 			'Donʼt upscale images on high DPI displays',
@@ -1132,7 +1136,7 @@ const Lng = {
 		'Завантажити файл, що міститься в зображенні'],
 	openOriginal: [
 		'Открыть оригинал в новой вкладке',
-		'Open original image in the new tab',
+		'Open the original image in new tab',
 		'Відкрити оригінал в новій вкладці'],
 
 	// Threads/images download: popups
