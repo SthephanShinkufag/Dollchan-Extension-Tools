@@ -516,7 +516,7 @@ function initStorageEvent() {
 			$hide(docBody);
 			if(data.data) {
 				Spells.setSpells(data.data, false);
-				Cfg.spells = aib.stringify(data.data);
+				Cfg.spells = JSON.stringify(data.data);
 				temp = $id('de-spell-txt');
 				if(temp) {
 					temp.value = Spells.list;

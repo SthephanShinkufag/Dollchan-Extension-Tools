@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '1246dbf';
+const commit = 'd7d835f';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -2700,7 +2700,7 @@ function initStorageEvent() {
 			$hide(docBody);
 			if(data.data) {
 				Spells.setSpells(data.data, false);
-				Cfg.spells = aib.stringify(data.data);
+				Cfg.spells = JSON.stringify(data.data);
 				temp = $id('de-spell-txt');
 				if(temp) {
 					temp.value = Spells.list;
@@ -6878,7 +6878,7 @@ var Spells = Object.create({
 					chk.checked = false;
 				}
 			}
-			saveCfg('spells', aib.stringify(spells));
+			saveCfg('spells', JSON.stringify(spells));
 			this.setSpells(spells, true);
 			if(fld) {
 				fld.value = this.list;
@@ -7009,14 +7009,14 @@ var Spells = Object.create({
 		if(val && (spells = this.parseText(val))) {
 			closePopup('err-spell');
 			this.setSpells(spells, true);
-			saveCfg('spells', aib.stringify(spells));
+			saveCfg('spells', JSON.stringify(spells));
 			fld.value = this.list;
 		} else {
 			if(!val) {
 				closePopup('err-spell');
 				SpellsRunner.unhideAll();
 				this.disable();
-				saveCfg('spells', aib.stringify([Date.now(), null, null, null]));
+				saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
 				locStorage['__de-spells'] = '{"hide": false, "data": null}';
 				locStorage.removeItem('__de-spells');
 			}
@@ -14615,9 +14615,6 @@ class BaseBoard {
 			this.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
 		}
 	}
-	stringify(obj) { // Differs _410chan only
-		return JSON.stringify(obj);
-	}
 }
 
 /*==[ BoardDetector.js ]======================================================================================
@@ -15324,10 +15321,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			super.init();
 			// Workaround for "OK bug" #921
 			$bEnd(docBody, '<span id="faptcha_input" style="display: none"></span>');
-		}
-		stringify(obj) {
-			const str = JSON.stringify(obj);
-			return obj instanceof Array ? str.replace(/^"\[/, '[').replace(/\]"$/, ']') : str;
+			// Workaround for "JSON.stringify bug" #1107
+			delete Array.prototype.toJSON;
 		}
 		updateCaptcha(cap) {
 			return cap.updateHelper(`/api_adaptive.php?board=${ this.b }`, xhr => {

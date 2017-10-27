@@ -322,7 +322,4 @@ class BaseBoard {
 			this.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
 		}
 	}
-	stringify(obj) { // Differs _410chan only
-		return JSON.stringify(obj);
-	}
 }
