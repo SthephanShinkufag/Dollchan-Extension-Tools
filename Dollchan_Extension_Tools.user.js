@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = '118edb2';
+	var commit = '1246dbf';
 
 
 	var defaultCfg = {
@@ -5065,7 +5065,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						$hide(docBody);
 						if (data.data) {
 							Spells.setSpells(data.data, false);
-							Cfg.spells = JSON.stringify(data.data);
+							Cfg.spells = aib.stringify(data.data);
 							temp = $id('de-spell-txt');
 							if (temp) {
 								temp.value = Spells.list;
@@ -9397,7 +9397,7 @@ true, true],
 						chk.checked = false;
 					}
 				}
-				saveCfg('spells', JSON.stringify(spells));
+				saveCfg('spells', aib.stringify(spells));
 				this.setSpells(spells, true);
 				if (fld) {
 					fld.value = this.list;
@@ -9556,14 +9556,14 @@ true, true],
 			if (val && (spells = this.parseText(val))) {
 				closePopup('err-spell');
 				this.setSpells(spells, true);
-				saveCfg('spells', JSON.stringify(spells));
+				saveCfg('spells', aib.stringify(spells));
 				fld.value = this.list;
 			} else {
 				if (!val) {
 					closePopup('err-spell');
 					SpellsRunner.unhideAll();
 					this.disable();
-					saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
+					saveCfg('spells', aib.stringify([Date.now(), null, null, null]));
 					locStorage['__de-spells'] = '{"hide": false, "data": null}';
 					locStorage.removeItem('__de-spells');
 				}
@@ -18372,6 +18372,11 @@ true, true],
 				}
 			}
 		}, {
+			key: 'stringify',
+			value: function stringify(obj) {
+				return JSON.stringify(obj);
+			}
+		}, {
 			key: 'qFormMail',
 			get: function get() {
 				return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])', '[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
@@ -19420,6 +19425,12 @@ true, true],
 				value: function init() {
 					_get(_410chanOrg.prototype.__proto__ || Object.getPrototypeOf(_410chanOrg.prototype), 'init', this).call(this);
 					$bEnd(docBody, '<span id="faptcha_input" style="display: none"></span>');
+				}
+			}, {
+				key: 'stringify',
+				value: function stringify(obj) {
+					var str = JSON.stringify(obj);
+					return obj instanceof Array ? str.replace(/^"\[/, '[').replace(/\]"$/, ']') : str;
 				}
 			}, {
 				key: 'updateCaptcha',

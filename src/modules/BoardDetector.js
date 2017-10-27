@@ -703,6 +703,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			// Workaround for "OK bug" #921
 			$bEnd(docBody, '<span id="faptcha_input" style="display: none"></span>');
 		}
+		stringify(obj) {
+			const str = JSON.stringify(obj);
+			return obj instanceof Array ? str.replace(/^"\[/, '[').replace(/\]"$/, ']') : str;
+		}
 		updateCaptcha(cap) {
 			return cap.updateHelper(`/api_adaptive.php?board=${ this.b }`, xhr => {
 				if(xhr.responseText === '1') {

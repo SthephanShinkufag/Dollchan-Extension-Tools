@@ -119,7 +119,7 @@ var Spells = Object.create({
 					chk.checked = false;
 				}
 			}
-			saveCfg('spells', JSON.stringify(spells));
+			saveCfg('spells', aib.stringify(spells));
 			this.setSpells(spells, true);
 			if(fld) {
 				fld.value = this.list;
@@ -250,14 +250,14 @@ var Spells = Object.create({
 		if(val && (spells = this.parseText(val))) {
 			closePopup('err-spell');
 			this.setSpells(spells, true);
-			saveCfg('spells', JSON.stringify(spells));
+			saveCfg('spells', aib.stringify(spells));
 			fld.value = this.list;
 		} else {
 			if(!val) {
 				closePopup('err-spell');
 				SpellsRunner.unhideAll();
 				this.disable();
-				saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
+				saveCfg('spells', aib.stringify([Date.now(), null, null, null]));
 				locStorage['__de-spells'] = '{"hide": false, "data": null}';
 				locStorage.removeItem('__de-spells');
 			}
