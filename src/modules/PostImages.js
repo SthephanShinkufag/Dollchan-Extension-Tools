@@ -116,7 +116,7 @@ AttachmentViewer.prototype = {
 			const el = e.target;
 			if(this.data.isVideo && this.data.isControlClick(e) ||
 			   el.tagName !== 'IMG' && el.tagName !== 'VIDEO' &&
-			   !el.classList.contains('de-img-wrapper') && el.target.className !== 'de-img-load')
+			   !el.classList.contains('de-fullimg-wrap') && el.target.className !== 'de-fullimg-load')
 			{
 				return;
 			}
@@ -212,12 +212,11 @@ AttachmentViewer.prototype = {
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-		var obj = $add('<div class="de-img-center" style="top:' +
+		var obj = $add('<div class="de-fullimg-center" style="top:' +
 			(this._oldT - (Cfg.imgInfoLink ? 11 : 0)) + 'px; left:' +
 			this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
 		if(data.isImage) {
-			$aBegin(obj, '<a style="width: inherit; height: inherit;" href="' +
-				data.src + '"></a>').appendChild(this._fullEl);
+			$aBegin(obj, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`).appendChild(this._fullEl);
 		} else {
 			obj.appendChild(this._fullEl);
 		}
@@ -429,7 +428,7 @@ class ExpandableMedia {
 		this.expanded = true;
 		var el = this.el;
 		(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend',
-			'<div class="de-after-fimg"></div>');
+			'<div class="de-fullimg-after"></div>');
 		this._fullEl = this.getFullObject(true, null, null);
 		this._fullEl.addEventListener('click', e => this.collapse(e));
 		$hide(el.parentNode);
@@ -469,18 +468,18 @@ class ExpandableMedia {
 		}
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
-			wrapEl = $add(`<div class="de-img-wrapper${
-					inPost ? ' de-img-wrapper-inpost' :
-					!this._size ? ' de-img-wrapper-nosize' : '' }">
+			wrapEl = $add(`<div class="de-fullimg-wrap${
+					inPost ? ' de-fullimg-wrap-inpost' :
+					!this._size ? ' de-fullimg-wrap-nosize' : '' }">
 				${ !inPost && !this._size ?
-					'<svg class="de-img-load"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
-				<img class="de-img-full" src="${ src }" alt="${ src }">
-				<div class="de-img-full-info">
-					<a class="de-img-full-src" target="_blank" title="${
+					'<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
+				<img class="de-fullimg" src="${ src }" alt="${ src }">
+				<div class="de-fullimg-info">
+					<a class="de-fullimg-src" target="_blank" title="${
 						Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>
 				</div>
 			</div>`);
-			const img = $q('.de-img-full', wrapEl);
+			const img = $q('.de-fullimg', wrapEl);
 			img.onload = img.onerror = ({ target }) => {
 				if(target.naturalHeight + target.naturalWidth === 0) {
 					if(!target.onceLoaded) {
@@ -499,7 +498,7 @@ class ExpandableMedia {
 					if(el) {
 						const p = el.parentNode;
 						$hide(el);
-						p.classList.remove('de-img-wrapper-nosize');
+						p.classList.remove('de-fullimg-wrap-nosize');
 						if(onsizechange) {
 							onsizechange(p);
 						}
@@ -519,12 +518,12 @@ class ExpandableMedia {
 		}
 		const isWebm = src.split('.').pop() === 'webm';
 		const needTitle = isWebm && Cfg.webmTitles;
-		wrapEl = $add(`<div class="de-img-wrapper" style="width: inherit; height: inherit">
+		wrapEl = $add(`<div class="de-fullimg-wrap">
 			<video style="width: inherit; height: inherit" src="${ src }" loop autoplay ${
 				Cfg.webmControl ? 'controls ' : ''}${
 				Cfg.webmVolume === 0 ? 'muted ' : ''}></video>
-			<div class="de-img-full-info">
-				<a class="de-img-full-src" target="_blank" title="${
+			<div class="de-fullimg-info">
+				<a class="de-fullimg-src" target="_blank" title="${
 					Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>
 				${ needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
 			</div>
@@ -575,7 +574,7 @@ class ExpandableMedia {
 							title += String.fromCharCode(d[i]);
 						}
 						if(title) {
-							$q('.de-img-full-src', wrapEl).textContent +=
+							$q('.de-fullimg-src', wrapEl).textContent +=
 								' - ' + (videoEl.title = decodeURIComponent(escape(title)));
 						}
 						break;

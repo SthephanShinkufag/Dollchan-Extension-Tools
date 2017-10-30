@@ -164,7 +164,7 @@ class AbstractPost {
 			return;
 		}
 		if(!isOutEvent && Cfg.expandImgs &&
-		   el.tagName === 'IMG' && !el.classList.contains('de-img-full') &&
+		   el.tagName === 'IMG' && !el.classList.contains('de-fullimg') &&
 		   (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo))
 		{
 			el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];

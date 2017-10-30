@@ -346,7 +346,7 @@ class Pview extends AbstractPost {
 				'<use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
 				'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' + pText;
 			$each($Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') +
-				'.de-img-wrapper, .de-after-fimg', el), $del);
+				'.de-fullimg-wrap, .de-fullimg-after', el), $del);
 			$each($Q(aib.qPostImg, el), function(el) {
 				$show(el.parentNode);
 			});

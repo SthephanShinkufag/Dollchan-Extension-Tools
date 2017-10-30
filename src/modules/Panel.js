@@ -94,7 +94,7 @@ var panel = Object.create({
 			case 'de-panel-godown': scrollTo(0, docBody.scrollHeight || docBody.offsetHeight); break;
 			case 'de-panel-expimg':
 				isExpImg = !isExpImg;
-				$del($q('.de-img-center'));
+				$del($q('.de-fullimg-center'));
 				for(var post = Thread.first.op; post; post = post.next) {
 					post.toggleImages(isExpImg);
 				}

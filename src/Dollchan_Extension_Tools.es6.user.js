@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = 'd7d835f';
+const commit = '0feb9e4';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -2815,7 +2815,7 @@ var panel = Object.create({
 			case 'de-panel-godown': scrollTo(0, docBody.scrollHeight || docBody.offsetHeight); break;
 			case 'de-panel-expimg':
 				isExpImg = !isExpImg;
-				$del($q('.de-img-center'));
+				$del($q('.de-fullimg-center'));
 				for(var post = Thread.first.op; post; post = post.next) {
 					post.toggleImages(isExpImg);
 				}
@@ -4190,7 +4190,7 @@ const cfgWindow = Object.create({
 				break;
 			case 'correctTime': DateTime.toggleSettings(); break;
 			case 'imgInfoLink':
-				const img = $q('.de-img-wrapper');
+				const img = $q('.de-fullimg-wrap');
 				if(img) {
 					img.click();
 				}
@@ -9884,7 +9884,7 @@ class AbstractPost {
 			return;
 		}
 		if(!isOutEvent && Cfg.expandImgs &&
-		   el.tagName === 'IMG' && !el.classList.contains('de-img-full') &&
+		   el.tagName === 'IMG' && !el.classList.contains('de-fullimg') &&
 		   (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo))
 		{
 			el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
@@ -11081,7 +11081,7 @@ class Pview extends AbstractPost {
 				'<use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
 				'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' + pText;
 			$each($Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') +
-				'.de-img-wrapper, .de-after-fimg', el), $del);
+				'.de-fullimg-wrap, .de-fullimg-after', el), $del);
 			$each($Q(aib.qPostImg, el), function(el) {
 				$show(el.parentNode);
 			});
@@ -11322,7 +11322,7 @@ AttachmentViewer.prototype = {
 			const el = e.target;
 			if(this.data.isVideo && this.data.isControlClick(e) ||
 			   el.tagName !== 'IMG' && el.tagName !== 'VIDEO' &&
-			   !el.classList.contains('de-img-wrapper') && el.target.className !== 'de-img-load')
+			   !el.classList.contains('de-fullimg-wrap') && el.target.className !== 'de-fullimg-load')
 			{
 				return;
 			}
@@ -11418,12 +11418,11 @@ AttachmentViewer.prototype = {
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-		var obj = $add('<div class="de-img-center" style="top:' +
+		var obj = $add('<div class="de-fullimg-center" style="top:' +
 			(this._oldT - (Cfg.imgInfoLink ? 11 : 0)) + 'px; left:' +
 			this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
 		if(data.isImage) {
-			$aBegin(obj, '<a style="width: inherit; height: inherit;" href="' +
-				data.src + '"></a>').appendChild(this._fullEl);
+			$aBegin(obj, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`).appendChild(this._fullEl);
 		} else {
 			obj.appendChild(this._fullEl);
 		}
@@ -11635,7 +11634,7 @@ class ExpandableMedia {
 		this.expanded = true;
 		var el = this.el;
 		(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend',
-			'<div class="de-after-fimg"></div>');
+			'<div class="de-fullimg-after"></div>');
 		this._fullEl = this.getFullObject(true, null, null);
 		this._fullEl.addEventListener('click', e => this.collapse(e));
 		$hide(el.parentNode);
@@ -11675,18 +11674,18 @@ class ExpandableMedia {
 		}
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
-			wrapEl = $add(`<div class="de-img-wrapper${
-					inPost ? ' de-img-wrapper-inpost' :
-					!this._size ? ' de-img-wrapper-nosize' : '' }">
+			wrapEl = $add(`<div class="de-fullimg-wrap${
+					inPost ? ' de-fullimg-wrap-inpost' :
+					!this._size ? ' de-fullimg-wrap-nosize' : '' }">
 				${ !inPost && !this._size ?
-					'<svg class="de-img-load"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
-				<img class="de-img-full" src="${ src }" alt="${ src }">
-				<div class="de-img-full-info">
-					<a class="de-img-full-src" target="_blank" title="${
+					'<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
+				<img class="de-fullimg" src="${ src }" alt="${ src }">
+				<div class="de-fullimg-info">
+					<a class="de-fullimg-src" target="_blank" title="${
 						Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>
 				</div>
 			</div>`);
-			const img = $q('.de-img-full', wrapEl);
+			const img = $q('.de-fullimg', wrapEl);
 			img.onload = img.onerror = ({ target }) => {
 				if(target.naturalHeight + target.naturalWidth === 0) {
 					if(!target.onceLoaded) {
@@ -11705,7 +11704,7 @@ class ExpandableMedia {
 					if(el) {
 						const p = el.parentNode;
 						$hide(el);
-						p.classList.remove('de-img-wrapper-nosize');
+						p.classList.remove('de-fullimg-wrap-nosize');
 						if(onsizechange) {
 							onsizechange(p);
 						}
@@ -11725,12 +11724,12 @@ class ExpandableMedia {
 		}
 		const isWebm = src.split('.').pop() === 'webm';
 		const needTitle = isWebm && Cfg.webmTitles;
-		wrapEl = $add(`<div class="de-img-wrapper" style="width: inherit; height: inherit">
+		wrapEl = $add(`<div class="de-fullimg-wrap">
 			<video style="width: inherit; height: inherit" src="${ src }" loop autoplay ${
 				Cfg.webmControl ? 'controls ' : ''}${
 				Cfg.webmVolume === 0 ? 'muted ' : ''}></video>
-			<div class="de-img-full-info">
-				<a class="de-img-full-src" target="_blank" title="${
+			<div class="de-fullimg-info">
+				<a class="de-fullimg-src" target="_blank" title="${
 					Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>
 				${ needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
 			</div>
@@ -11781,7 +11780,7 @@ class ExpandableMedia {
 							title += String.fromCharCode(d[i]);
 						}
 						if(title) {
-							$q('.de-img-full-src', wrapEl).textContent +=
+							$q('.de-fullimg-src', wrapEl).textContent +=
 								' - ' + (videoEl.title = decodeURIComponent(escape(title)));
 						}
 						break;
@@ -16761,17 +16760,19 @@ function scriptCSS() {
 
 	// Full images
 	p = Math.max(Cfg.minImgSize || 0, 50);
-	x += `.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }
+	x += `.de-img-pre, .de-fullimg { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }
 	.de-img-pre { max-width: 200px; max-height: 200px; }
-	.de-img-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
-	.de-img-full { width: 100%; }
-	.de-img-full-info { text-align: center; }
-	.de-img-full-src { display: inline-block; padding: 2px 4px; margin: 2px 0 2px -1px; background: rgba(64,64,64,.8); font: bold 12px tahoma; color: #fff  !important; text-decoration: none; outline: none; }
-	.de-img-full-src:hover { color: #fff !important; background: rgba(64,64,64,.6); }
-	.de-img-wrapper-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'padding: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
-	.de-img-wrapper-nosize { position: relative; width: 100%; height: 100%; }
-	.de-img-wrapper-nosize > .de-img-full { position: absolute; z-index: 1; opacity: .3; }
-	.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }
+	.de-fullimg { width: 100%; }
+	.de-fullimg, .de-fullimg-wrap, .de-fullimg-wrap-link { width: inherit; height: inherit; }
+	.de-fullimg-after { clear: left; }
+	.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }
+	.de-fullimg-info { text-align: center; }
+	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
+	.de-fullimg-src { display: inline-block; padding: 2px 4px; margin: 2px 0 2px -1px; background: rgba(64,64,64,.8); font: bold 12px tahoma; color: #fff  !important; text-decoration: none; outline: none; }
+	.de-fullimg-src:hover { color: #fff !important; background: rgba(64,64,64,.6); }
+	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'padding: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
+	.de-fullimg-wrap-nosize { position: relative; width: 100%; height: 100%; }
+	.de-fullimg-wrap-nosize > .de-fullimg { position: absolute; z-index: 1; opacity: .3; }
 	#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; margin-top: -18px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }
 	#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }
 	#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }` +
@@ -16880,10 +16881,9 @@ function scriptCSS() {
 
 	// Other
 	`@keyframes de-wait-anim { to { transform: rotate(360deg); } }
-	.de-wait, .de-fav-wait , .de-img-load { animation: de-wait-anim 1s linear infinite; }
+	.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }
 	.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }
 	.de-abtn { text-decoration: none !important; outline: none; }
-	.de-after-fimg { clear: left; }
 	#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }
 	.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }
 	.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }
@@ -16952,7 +16952,7 @@ function updateCSS() {
 		.de-btn-sage { fill: #4B4B4B; }
 		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ${ Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack }; }` }
 	${ Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '' }
-	${ Cfg.resizeImgs ? '' : '.de-img-wrapper-inpost > .de-img-full { width: auto; }' }
+	${ Cfg.resizeImgs ? '' : '.de-fullimg-wrap-inpost > .de-fullimg { width: auto; }' }
 	${ Cfg.maskImgs ? aib.qPostImg + `, .de-img-pre, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; } ${
 		aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }
 		.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }
@@ -16969,7 +16969,7 @@ function updateCSS() {
 	${  !Cfg.addSageBtn ? '#de-sagebtn, ' : '' }${
 		 Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '' }${
 		!Cfg.imgNavBtns ? '#de-img-btn-next, #de-img-btn-prev, ' : '' }${
-		!Cfg.imgInfoLink ? '.de-img-full-info, ' : '' }${
+		!Cfg.imgInfoLink ? '.de-fullimg-info, ' : '' }${
 		 Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '' }${
 		 Cfg.noBoardRule ? aib.qFormRules + ', ' : '' }${
 		!Cfg.panelCounter ? '#de-panel-info, ' : '' }${

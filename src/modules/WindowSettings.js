@@ -341,7 +341,7 @@ const cfgWindow = Object.create({
 				break;
 			case 'correctTime': DateTime.toggleSettings(); break;
 			case 'imgInfoLink':
-				const img = $q('.de-img-wrapper');
+				const img = $q('.de-fullimg-wrap');
 				if(img) {
 					img.click();
 				}
