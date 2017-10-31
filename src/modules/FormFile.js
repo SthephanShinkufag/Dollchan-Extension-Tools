@@ -312,8 +312,8 @@ class FileInput {
 			closePopup('file-loading');
 			this._isTxtEditable = false;
 			let name = file ? file.name : url.split('/').pop();
-			const type = file && file.type;
-			if(type || !/^(jpe?g|png|gif|webm)$/.test(name.split('.').pop())) {
+			const type = file && file.type || getFileType(name);
+			if(!type || name.includes('?')) {
 				let ext;
 				switch((data[0] << 8) | data[1]) {
 				case 0xFFD8: ext = 'jpg'; break;

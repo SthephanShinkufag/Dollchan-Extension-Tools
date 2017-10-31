@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = '82ff8e3';
+	var commit = '1f1ea92';
 
 
 	var defaultCfg = {
@@ -12446,8 +12446,8 @@ true, true],
 					closePopup('file-loading');
 					_this25._isTxtEditable = false;
 					var name = file ? file.name : url.split('/').pop();
-					var type = file && file.type;
-					if (type || !/^(jpe?g|png|gif|webm)$/.test(name.split('.').pop())) {
+					var type = file && file.type || getFileType(name);
+					if (!type || name.includes('?')) {
 						var ext = void 0;
 						switch (data[0] << 8 | data[1]) {
 							case 0xFFD8:

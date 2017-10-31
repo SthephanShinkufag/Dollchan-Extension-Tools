@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '82ff8e3';
+const commit = '1f1ea92';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -9422,8 +9422,8 @@ class FileInput {
 			closePopup('file-loading');
 			this._isTxtEditable = false;
 			let name = file ? file.name : url.split('/').pop();
-			const type = file && file.type;
-			if(type || !/^(jpe?g|png|gif|webm)$/.test(name.split('.').pop())) {
+			const type = file && file.type || getFileType(name);
+			if(!type || name.includes('?')) {
 				let ext;
 				switch((data[0] << 8) | data[1]) {
 				case 0xFFD8: ext = 'jpg'; break;
