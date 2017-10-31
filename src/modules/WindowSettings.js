@@ -235,6 +235,15 @@ const cfgWindow = Object.create({
 			case 'language':
 				lang = el.selectedIndex;
 				panel.remove();
+				if(pr.form) {
+					pr.addTextPanel();
+					pr.setPlaceholders();
+					pr.updateLanguage();
+					if(pr.files) {
+						$each($Q('.de-file-img, .de-file-txt-input', pr.form),
+						      el => el.title = Lng.youCanDrag[lang]);
+					}
+				}
 				this._updateCSS();
 				panel.init(DelForm.first.el);
 				toggleWindow('cfg', false);
@@ -268,9 +277,7 @@ const cfgWindow = Object.create({
 				break;
 			case 'fileInputs':
 				pr.files.changeMode();
-				if(!aib.kus && !aib.multiFile) {
-					pr.setPlaceholders();
-				}
+				pr.setPlaceholders();
 				updateCSS();
 				break;
 			case 'addPostForm':

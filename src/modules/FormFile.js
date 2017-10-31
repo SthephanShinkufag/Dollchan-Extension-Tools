@@ -296,21 +296,25 @@ class FileInput {
 		};
 		el.click();
 	}
-	_addUrlFile(url) {
+	_addUrlFile(url, file = null) {
 		if(!url) {
-			return;
+			return Promise.reject(new Error('URL is null'));
 		}
 		$popup('file-loading', Lng.loading[lang], true);
-		downloadImgData(url, false).then(data => {
+		return downloadImgData(url, false).then(data => {
+			if(file) {
+				window.URL.revokeObjectURL(url);
+			}
 			if(!data) {
 				$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
 				return;
 			}
 			closePopup('file-loading');
 			this._isTxtEditable = false;
-			let name = url.split('/').pop();
-			let ext = name.split('.').pop();
-			if(!/^(jpe?g|png|gif|webm)$/.test(ext)) {
+			let name = file ? file.name : url.split('/').pop();
+			const type = file && file.type;
+			if(type || !/^(jpe?g|png|gif|webm)$/.test(name.split('.').pop())) {
+				let ext;
 				switch((data[0] << 8) | data[1]) {
 				case 0xFFD8: ext = 'jpg'; break;
 				case 0x8950: ext = 'png'; break;
@@ -319,12 +323,14 @@ class FileInput {
 				default: ext = '';
 				}
 				if(ext) {
-					url = name = name.split('?').shift() + '.' + ext;
+					name = name.split('?').shift() + '.' + ext;
 				}
 			}
-			this.imgFile = [data.buffer, name, getFileType(url)];
-			const file = new Blob([data], { type: this.imgFile[2] });
-			file.name = name;
+			this.imgFile = [data.buffer, name, type || getFileType(name)];
+			if(!file) {
+				file = new Blob([data], { type: this.imgFile[2] });
+				file.name = name;
+			}
 			this._parent._files[this._parent._inputs.indexOf(this)] = file;
 			DollchanAPI.notify('filechange', this._parent._files);
 			if(this._isThumb) {
@@ -401,6 +407,7 @@ class FileInput {
 		this._input = newEl;
 		$del(oldEl);
 		this.hasFile = false;
+		delete this._parent._files[this._parent._inputs.indexOf(this)];
 	}
 	_showPviewImage() {
 		if(this.imgFile) {

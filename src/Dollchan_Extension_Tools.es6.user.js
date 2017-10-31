@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '0feb9e4';
+const commit = '82ff8e3';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -405,7 +405,7 @@ const Lng = {
 			'Hide filenames',
 			'Ховати імена зображень'],
 		maskVisib: [
-			'Видимость для NSFW-изображений [0-100%]',
+			'Видимость для NSFW-картинок [0-100%]',
 			'Visibility for NSFW images [0-100%]',
 			'Видимість для NSFW-зображень [0-100%]'],
 
@@ -736,9 +736,9 @@ const Lng = {
 			'NSFW mode',
 			'Режим NSFW'],
 		preimg: [
-			'Предзагрузить картинки&#13;([Ctrl+Click] только для новых постов)',
-			'Preload images&#13;([Ctrl+Click] for new posts only)',
-			'Наперед завантажити зображення&#13;([Ctrl+Click] лише для нових постів)'],
+			'Предзагрузить картинки\r\n([Ctrl+Click] только для новых постов)',
+			'Preload images\r\n([Ctrl+Click] for new posts only)',
+			'Наперед завантажити зображення\r\n([Ctrl+Click] лише для нових постів)'],
 		savethr: [
 			'Сохранить на диск',
 			'Save to disk',
@@ -1253,14 +1253,18 @@ const Lng = {
 		'переглядів: '],
 
 	// Postform file inputs: tooltips
+	pasteImage: [
+		'Ctrl+V - вставить картинку из буфера',
+		'Ctrl+V - paste an image from clipboard',
+		'Ctrl+V - додати зображення з буферу'],
 	dropFileHere: [
 		'Бросьте сюда файл(ы) или ссылку',
 		'Drop file(s) or link here',
 		'Киньте сюди файл(и) чи посилання'],
 	youCanDrag: [
-		'Можно перетаскивать картинки и ссылки на файлы&#13;прямо со страницы или других сайтов',
-		'You can drag images and file links&#13;directly from the page or other sites',
-		'Можна перетягувати зображення чи посилання на файли&#13;безпосередньо зі сторінки чи інших сайтів'],
+		'Можно перетаскивать картинки и ссылки на файлы\r\nпрямо со страницы или других сайтов',
+		'You can drag images and file links\r\ndirectly from the page or other sites',
+		'Можна перетягувати зображення чи посилання на файли\r\nбезпосередньо зі сторінки чи інших сайтів'],
 	removeFile: [
 		'Удалить файл',
 		'Remove file',
@@ -4084,6 +4088,15 @@ const cfgWindow = Object.create({
 			case 'language':
 				lang = el.selectedIndex;
 				panel.remove();
+				if(pr.form) {
+					pr.addTextPanel();
+					pr.setPlaceholders();
+					pr.updateLanguage();
+					if(pr.files) {
+						$each($Q('.de-file-img, .de-file-txt-input', pr.form),
+						      el => el.title = Lng.youCanDrag[lang]);
+					}
+				}
 				this._updateCSS();
 				panel.init(DelForm.first.el);
 				toggleWindow('cfg', false);
@@ -4117,9 +4130,7 @@ const cfgWindow = Object.create({
 				break;
 			case 'fileInputs':
 				pr.files.changeMode();
-				if(!aib.kus && !aib.multiFile) {
-					pr.setPlaceholders();
-				}
+				pr.setPlaceholders();
 				updateCSS();
 				break;
 			case 'addPostForm':
@@ -8172,9 +8183,9 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	new WinResizer('reply', 'left', 'textaWidth', this.qArea, this.txta);
 	new WinResizer('reply', 'right', 'textaWidth', this.qArea, this.txta);
 	new WinResizer('reply', 'bottom', 'textaHeight', this.qArea, this.txta);
-	if(!aib.kus && (aib.multiFile || Cfg.fileInputs !== 2)) {
-		this.setPlaceholders();
-	}
+	this.addTextPanel();
+	this.setPlaceholders();
+	this.updateLanguage();
 	this.form.style.display = 'inline-block';
 	this.form.style.textAlign = 'left';
 	if(nav.Firefox) {
@@ -8219,21 +8230,34 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		};
 		setTimeout(() => this._setSage(), 0);
 	}
-	this.addTextPanel();
 	this.txta.classList.add('de-textarea');
 	this.txta.style.cssText = 'width: ' + Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px;';
-	this.txta.addEventListener('keypress', function(e) {
+	this.txta.addEventListener('keypress', e => {
 		const code = e.charCode || e.keyCode;
 		if((code === 33 || code === 34) && e.which === 0) {
 			e.target.blur();
 			window.focus();
 		}
 	});
+	this.txta.addEventListener('paste', e => {
+		if('clipboardData' in e) {
+			for(let item of e.clipboardData.items) {
+				if(item.kind === 'file') {
+					const inputs = this.files._inputs;
+					for(let i = 0, len = inputs.length; i < len; ++i) {
+						const input = inputs[i];
+						if(!input.hasFile) {
+							const file = item.getAsFile();
+							input._addUrlFile(URL.createObjectURL(file), file);
+							break;
+						}
+					}
+				}
+			}
+		}
+	});
 	if(aib.dobr) {
 		this.txta.removeAttribute('id');
-	}
-	if(!aib.tiny) {
-		this.subm.value = Lng.reply[lang];
 	}
 	this.subm.addEventListener('click', e => {
 		if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
@@ -8358,7 +8382,7 @@ PostForm.prototype = {
 		tPanel.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
 		$after(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : this.subm, tPanel);
 		id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
-		val = ['B', 'i', 'U', 'S', '%', 'C', 'v', '^'];
+		val = ['B', 'i', 'U', 'S', '%', 'C', 'x\u00b2', 'x\u2082'];
 		btns = aib.markupTags;
 		for(var i = 0, len = btns.length; i < len; ++i) {
 			if(btns[i] === '') {
@@ -8537,12 +8561,21 @@ PostForm.prototype = {
 		this.updatePAreaBtns();
 	},
 	setPlaceholders() {
+		if(aib.kus || !aib.multiFile && Cfg.fileInputs === 2) {
+			return;
+		}
 		this._setPlaceholder('name');
 		this._setPlaceholder('subj');
 		this._setPlaceholder('mail');
 		this._setPlaceholder('video');
 		if(this.cap) {
 			this._setPlaceholder('cap');
+		}
+	},
+	updateLanguage() {
+		this.txta.title = Lng.pasteImage[lang];
+		if(!aib.tiny) {
+			this.subm.value = Lng.reply[lang];
 		}
 	},
 	updatePAreaBtns() {
@@ -9373,21 +9406,25 @@ class FileInput {
 		};
 		el.click();
 	}
-	_addUrlFile(url) {
+	_addUrlFile(url, file = null) {
 		if(!url) {
-			return;
+			return Promise.reject(new Error('URL is null'));
 		}
 		$popup('file-loading', Lng.loading[lang], true);
-		downloadImgData(url, false).then(data => {
+		return downloadImgData(url, false).then(data => {
+			if(file) {
+				window.URL.revokeObjectURL(url);
+			}
 			if(!data) {
 				$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
 				return;
 			}
 			closePopup('file-loading');
 			this._isTxtEditable = false;
-			let name = url.split('/').pop();
-			let ext = name.split('.').pop();
-			if(!/^(jpe?g|png|gif|webm)$/.test(ext)) {
+			let name = file ? file.name : url.split('/').pop();
+			const type = file && file.type;
+			if(type || !/^(jpe?g|png|gif|webm)$/.test(name.split('.').pop())) {
+				let ext;
 				switch((data[0] << 8) | data[1]) {
 				case 0xFFD8: ext = 'jpg'; break;
 				case 0x8950: ext = 'png'; break;
@@ -9396,12 +9433,14 @@ class FileInput {
 				default: ext = '';
 				}
 				if(ext) {
-					url = name = name.split('?').shift() + '.' + ext;
+					name = name.split('?').shift() + '.' + ext;
 				}
 			}
-			this.imgFile = [data.buffer, name, getFileType(url)];
-			const file = new Blob([data], { type: this.imgFile[2] });
-			file.name = name;
+			this.imgFile = [data.buffer, name, type || getFileType(name)];
+			if(!file) {
+				file = new Blob([data], { type: this.imgFile[2] });
+				file.name = name;
+			}
 			this._parent._files[this._parent._inputs.indexOf(this)] = file;
 			DollchanAPI.notify('filechange', this._parent._files);
 			if(this._isThumb) {
@@ -9478,6 +9517,7 @@ class FileInput {
 		this._input = newEl;
 		$del(oldEl);
 		this.hasFile = false;
+		delete this._parent._files[this._parent._inputs.indexOf(this)];
 	}
 	_showPviewImage() {
 		if(this.imgFile) {

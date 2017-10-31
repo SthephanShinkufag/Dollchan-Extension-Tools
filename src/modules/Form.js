@@ -109,9 +109,9 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	new WinResizer('reply', 'left', 'textaWidth', this.qArea, this.txta);
 	new WinResizer('reply', 'right', 'textaWidth', this.qArea, this.txta);
 	new WinResizer('reply', 'bottom', 'textaHeight', this.qArea, this.txta);
-	if(!aib.kus && (aib.multiFile || Cfg.fileInputs !== 2)) {
-		this.setPlaceholders();
-	}
+	this.addTextPanel();
+	this.setPlaceholders();
+	this.updateLanguage();
 	this.form.style.display = 'inline-block';
 	this.form.style.textAlign = 'left';
 	if(nav.Firefox) {
@@ -156,21 +156,34 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		};
 		setTimeout(() => this._setSage(), 0);
 	}
-	this.addTextPanel();
 	this.txta.classList.add('de-textarea');
 	this.txta.style.cssText = 'width: ' + Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px;';
-	this.txta.addEventListener('keypress', function(e) {
+	this.txta.addEventListener('keypress', e => {
 		const code = e.charCode || e.keyCode;
 		if((code === 33 || code === 34) && e.which === 0) {
 			e.target.blur();
 			window.focus();
 		}
 	});
+	this.txta.addEventListener('paste', e => {
+		if('clipboardData' in e) {
+			for(let item of e.clipboardData.items) {
+				if(item.kind === 'file') {
+					const inputs = this.files._inputs;
+					for(let i = 0, len = inputs.length; i < len; ++i) {
+						const input = inputs[i];
+						if(!input.hasFile) {
+							const file = item.getAsFile();
+							input._addUrlFile(URL.createObjectURL(file), file);
+							break;
+						}
+					}
+				}
+			}
+		}
+	});
 	if(aib.dobr) {
 		this.txta.removeAttribute('id');
-	}
-	if(!aib.tiny) {
-		this.subm.value = Lng.reply[lang];
 	}
 	this.subm.addEventListener('click', e => {
 		if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
@@ -295,7 +308,7 @@ PostForm.prototype = {
 		tPanel.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
 		$after(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : this.subm, tPanel);
 		id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
-		val = ['B', 'i', 'U', 'S', '%', 'C', 'v', '^'];
+		val = ['B', 'i', 'U', 'S', '%', 'C', 'x\u00b2', 'x\u2082'];
 		btns = aib.markupTags;
 		for(var i = 0, len = btns.length; i < len; ++i) {
 			if(btns[i] === '') {
@@ -474,12 +487,21 @@ PostForm.prototype = {
 		this.updatePAreaBtns();
 	},
 	setPlaceholders() {
+		if(aib.kus || !aib.multiFile && Cfg.fileInputs === 2) {
+			return;
+		}
 		this._setPlaceholder('name');
 		this._setPlaceholder('subj');
 		this._setPlaceholder('mail');
 		this._setPlaceholder('video');
 		if(this.cap) {
 			this._setPlaceholder('cap');
+		}
+	},
+	updateLanguage() {
+		this.txta.title = Lng.pasteImage[lang];
+		if(!aib.tiny) {
+			this.subm.value = Lng.reply[lang];
 		}
 	},
 	updatePAreaBtns() {

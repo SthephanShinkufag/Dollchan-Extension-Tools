@@ -236,7 +236,7 @@ const Lng = {
 			'Hide filenames',
 			'Ховати імена зображень'],
 		maskVisib: [
-			'Видимость для NSFW-изображений [0-100%]',
+			'Видимость для NSFW-картинок [0-100%]',
 			'Visibility for NSFW images [0-100%]',
 			'Видимість для NSFW-зображень [0-100%]'],
 
@@ -567,9 +567,9 @@ const Lng = {
 			'NSFW mode',
 			'Режим NSFW'],
 		preimg: [
-			'Предзагрузить картинки&#13;([Ctrl+Click] только для новых постов)',
-			'Preload images&#13;([Ctrl+Click] for new posts only)',
-			'Наперед завантажити зображення&#13;([Ctrl+Click] лише для нових постів)'],
+			'Предзагрузить картинки\r\n([Ctrl+Click] только для новых постов)',
+			'Preload images\r\n([Ctrl+Click] for new posts only)',
+			'Наперед завантажити зображення\r\n([Ctrl+Click] лише для нових постів)'],
 		savethr: [
 			'Сохранить на диск',
 			'Save to disk',
@@ -1084,14 +1084,18 @@ const Lng = {
 		'переглядів: '],
 
 	// Postform file inputs: tooltips
+	pasteImage: [
+		'Ctrl+V - вставить картинку из буфера',
+		'Ctrl+V - paste an image from clipboard',
+		'Ctrl+V - додати зображення з буферу'],
 	dropFileHere: [
 		'Бросьте сюда файл(ы) или ссылку',
 		'Drop file(s) or link here',
 		'Киньте сюди файл(и) чи посилання'],
 	youCanDrag: [
-		'Можно перетаскивать картинки и ссылки на файлы&#13;прямо со страницы или других сайтов',
-		'You can drag images and file links&#13;directly from the page or other sites',
-		'Можна перетягувати зображення чи посилання на файли&#13;безпосередньо зі сторінки чи інших сайтів'],
+		'Можно перетаскивать картинки и ссылки на файлы\r\nпрямо со страницы или других сайтов',
+		'You can drag images and file links\r\ndirectly from the page or other sites',
+		'Можна перетягувати зображення чи посилання на файли\r\nбезпосередньо зі сторінки чи інших сайтів'],
 	removeFile: [
 		'Удалить файл',
 		'Remove file',
