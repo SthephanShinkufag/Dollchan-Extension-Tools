@@ -1236,6 +1236,37 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['ernstchan.com'] = Ernstchan;
 	// ibEngines.push(['head > link[href*="phutaba.css"]', Ernstchan]);
 
+	class Nulldvachin extends Ernstchan {
+		fixFileInputs(el) {
+			var _maxfiles = typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3;
+			const str = '><input name="file" type="file"></div>';
+			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(_maxfiles);
+		}
+		get markupTags() {
+			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub'];
+		}
+		get qFormMail() {
+			return 'input[name="nya2"]';
+		}
+		init() {
+			let locSettings;
+			try {
+				locSettings = JSON.parse(locStorage.getItem('settings'));
+			} catch(e) {
+				return false;
+			}
+			if(locSettings && locSettings['turnOffAll'] !== 1) {
+				locSettings['turnOffAll'] = 1;
+				locStorage.setItem('settings', JSON.stringify(locSettings));
+				window.location.reload();
+				return true;
+			}
+			return false;
+		}
+	}
+	ibDomains['02ch.in'] = Nulldvachin;
+	ibDomains['buttflaps.pp.ua'] = Nulldvachin;
+
 	class Ichan extends Kusaba {
 		init() {
 			super.init();
