@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = '7a282a3';
+	var commit = '48601b1';
 
 
 	var defaultCfg = {
@@ -20262,8 +20262,13 @@ true, true],
 			}, {
 				key: 'init',
 				value: function init() {
-					var locSettings = JSON.parse(locStorage.settings);
-					if (locSettings['turnOffAll'] !== 1) {
+					var locSettings = void 0;
+					try {
+						locSettings = JSON.parse(locStorage.getItem('settings'));
+					} catch (e) {
+						locSettings = {};
+					}
+					if (locSettings && locSettings['turnOffAll'] !== 1) {
 						locSettings['turnOffAll'] = 1;
 						locStorage.setItem('settings', JSON.stringify(locSettings));
 						window.location.reload();
@@ -20286,7 +20291,8 @@ true, true],
 			return Nulldvachin;
 		}(Ernstchan);
 
-		ibEngines.push(['body.nulldvachin', Nulldvachin]);
+		ibDomains['02ch.in'] = Nulldvachin;
+		ibDomains['buttflaps.pp.ua'] = Nulldvachin;
 
 		var Ichan = function (_Kusaba4) {
 			_inherits(Ichan, _Kusaba4);
