@@ -1236,6 +1236,32 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['ernstchan.com'] = Ernstchan;
 	// ibEngines.push(['head > link[href*="phutaba.css"]', Ernstchan]);
 
+	class Nulldvachin extends Ernstchan
+	{
+		fixFileInputs(el) {
+			var _maxfiles = typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3;
+			const str = '><input name="file" type="file"></div>';
+			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(_maxfiles);
+		}
+		get markupTags() {
+			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub'];
+		}
+		get qFormMail() {
+			return 'input[name="nya2"]';
+		}
+		init() {
+			var locSettings = JSON.parse(locStorage.settings);
+			if(locSettings['turnOffAll'] !== 1) {
+				locSettings['turnOffAll'] = 1;
+				locStorage.setItem('settings', JSON.stringify(locSettings));
+				window.location.reload();
+				return true;
+			}
+			return false;
+		}
+	}
+	ibEngines.push(['body.nulldvachin', Nulldvachin]);
+
 	class Ichan extends Kusaba {
 		init() {
 			super.init();
