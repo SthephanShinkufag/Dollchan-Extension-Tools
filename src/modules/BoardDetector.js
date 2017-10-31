@@ -1253,7 +1253,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			try {
 				locSettings = JSON.parse(locStorage.getItem('settings'));
 			} catch(e) {
-				locSettings = {};
+				return false;
 			}
 			if(locSettings && locSettings['turnOffAll'] !== 1) {
 				locSettings['turnOffAll'] = 1;

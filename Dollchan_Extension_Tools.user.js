@@ -2946,7 +2946,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = '48601b1';
+	var commit = '600e90f';
 
 
 	var defaultCfg = {
@@ -20266,7 +20266,7 @@ true, true],
 					try {
 						locSettings = JSON.parse(locStorage.getItem('settings'));
 					} catch (e) {
-						locSettings = {};
+						return false;
 					}
 					if (locSettings && locSettings['turnOffAll'] !== 1) {
 						locSettings['turnOffAll'] = 1;

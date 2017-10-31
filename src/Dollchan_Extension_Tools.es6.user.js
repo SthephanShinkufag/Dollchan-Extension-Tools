@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '48601b1';
+const commit = '600e90f';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -15911,7 +15911,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			try {
 				locSettings = JSON.parse(locStorage.getItem('settings'));
 			} catch(e) {
-				locSettings = {};
+				return false;
 			}
 			if(locSettings && locSettings['turnOffAll'] !== 1) {
 				locSettings['turnOffAll'] = 1;
