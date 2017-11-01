@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '600e90f';
+const commit = 'a324b35';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -16261,12 +16261,25 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['syn-ch.com'] = Synch;
 	ibDomains['syn-ch.org'] = Synch;
 
-	var dm = localData ? localData.dm : window.location.hostname
-		.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
-	var prot = window.location.protocol;
-	if(checkDomains && (dm in ibDomains)) {
-		return new ibDomains[dm](prot, dm);
+	const prot = window.location.protocol;
+	let dm = localData && localData.dm;
+	if(checkDomains) {
+		if(!dm) {
+			let ibKeys = Object.keys(ibDomains);
+			let i = ibKeys.length;
+			let host = window.location.hostname.toLowerCase();
+			while(i--) {
+				dm = ibKeys[i];
+				if(host === dm || host.endsWith('.' + dm)) {
+					return new ibDomains[dm](prot, dm);
+				}
+			}
+		} else if(dm in ibDomains) {
+			return new ibDomains[dm](prot, dm);
+		}
 	}
+	dm = window.location.hostname.match(
+		/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	if(checkEngines) {
 		for(var i = ibEngines.length - 1; i >= 0; --i) {
 			var [path, Ctor] = ibEngines[i];
