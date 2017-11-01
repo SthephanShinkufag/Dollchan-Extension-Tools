@@ -2969,7 +2969,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = 'dab375c';
+	var commit = '2d4568c';
 
 
 	var defaultCfg = {
@@ -19678,7 +19678,7 @@ true, true],
 				get: function get() {
 					var value = null;
 					var tr = $id('captchaFormPart');
-					if (tr) {
+					if (tr && !$q('a[onclick="confirmPassLogout(event);"]')) {
 						(function () {
 							var capClick = $bEnd(docBody, '<div onclick="initRecaptcha();"></div>');
 							var altCapClick = $bEnd(docBody, '<div onclick="QR.initCaptchaAlt();"></div>');
@@ -19693,13 +19693,8 @@ true, true],
 								}, 1e3);
 							};
 							value = function value() {
-								var recapEl = void 0;
 								if (!Cfg.cap4chanAlt || !pr.tNum) {
-									recapEl = $q('#g-recaptcha, #qrCaptchaContainerAlt');
-									if (!recapEl) {
-										return null;
-									}
-									$replace(recapEl, '<div id="g-recaptcha"></div>');
+									$replace($q('#g-recaptcha, #qrCaptchaContainerAlt'), '<div id="g-recaptcha"></div>');
 									capClick.click();
 									tr.removeAttribute('onclick');
 									return null;
@@ -19709,11 +19704,7 @@ true, true],
 									container.click();
 									return null;
 								}
-								recapEl = $id('g-recaptcha');
-								if (!recapEl) {
-									return null;
-								}
-								$replace(recapEl, '<div id="qrCaptchaContainerAlt"></div>');
+								$replace($id('g-recaptcha'), '<div id="qrCaptchaContainerAlt"></div>');
 								altCapClick.click();
 								tr.setAttribute('onclick', "if(event.target.tagName !== 'INPUT') { Recaptcha.reload(); }");
 								waitForReload();

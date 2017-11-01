@@ -775,7 +775,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get updateCaptcha() {
 			let value = null;
 			const tr = $id('captchaFormPart');
-			if(tr) {
+			if(tr && !$q('a[onclick="confirmPassLogout(event);"]')) {
 				const capClick = $bEnd(docBody, `<div onclick="initRecaptcha();"></div>`);
 				const altCapClick = $bEnd(docBody, `<div onclick="QR.initCaptchaAlt();"></div>`);
 				const waitForReload = () => setTimeout(function() {
@@ -787,13 +787,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					}
 				}, 1e3);
 				value = function() {
-					let recapEl;
 					if(!Cfg.cap4chanAlt || !pr.tNum) {
-						recapEl = $q('#g-recaptcha, #qrCaptchaContainerAlt');
-						if(!recapEl) {
-							return null;
-						}
-						$replace(recapEl, '<div id="g-recaptcha"></div>');
+						$replace($q('#g-recaptcha, #qrCaptchaContainerAlt'), '<div id="g-recaptcha"></div>');
 						capClick.click();
 						tr.removeAttribute('onclick');
 						return null;
@@ -803,11 +798,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						container.click();
 						return null;
 					}
-					recapEl = $id('g-recaptcha');
-					if(!recapEl) {
-						return null;
-					}
-					$replace(recapEl, '<div id="qrCaptchaContainerAlt"></div>');
+					$replace($id('g-recaptcha'), '<div id="qrCaptchaContainerAlt"></div>');
 					altCapClick.click();
 					tr.setAttribute('onclick', "if(event.target.tagName !== 'INPUT') { Recaptcha.reload(); }");
 					waitForReload();
