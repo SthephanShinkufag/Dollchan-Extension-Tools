@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = 'a324b35';
+const commit = 'dab375c';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -15445,8 +15445,13 @@ function getImageBoard(checkDomains, checkEngines) {
 					}
 				}, 1e3);
 				value = function() {
+					let recapEl;
 					if(!Cfg.cap4chanAlt || !pr.tNum) {
-						$replace($q('#g-recaptcha, #qrCaptchaContainerAlt'), '<div id="g-recaptcha"></div>');
+						recapEl = $q('#g-recaptcha, #qrCaptchaContainerAlt');
+						if(!recapEl) {
+							return null;
+						}
+						$replace(recapEl, '<div id="g-recaptcha"></div>');
 						capClick.click();
 						tr.removeAttribute('onclick');
 						return null;
@@ -15456,7 +15461,11 @@ function getImageBoard(checkDomains, checkEngines) {
 						container.click();
 						return null;
 					}
-					$replace($id('g-recaptcha'), '<div id="qrCaptchaContainerAlt"></div>');
+					recapEl = $id('g-recaptcha');
+					if(!recapEl) {
+						return null;
+					}
+					$replace(recapEl, '<div id="qrCaptchaContainerAlt"></div>');
 					altCapClick.click();
 					tr.setAttribute('onclick', "if(event.target.tagName !== 'INPUT') { Recaptcha.reload(); }");
 					waitForReload();

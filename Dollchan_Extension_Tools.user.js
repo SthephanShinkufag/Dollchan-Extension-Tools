@@ -2969,7 +2969,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = 'a324b35';
+	var commit = 'dab375c';
 
 
 	var defaultCfg = {
@@ -19693,8 +19693,13 @@ true, true],
 								}, 1e3);
 							};
 							value = function value() {
+								var recapEl = void 0;
 								if (!Cfg.cap4chanAlt || !pr.tNum) {
-									$replace($q('#g-recaptcha, #qrCaptchaContainerAlt'), '<div id="g-recaptcha"></div>');
+									recapEl = $q('#g-recaptcha, #qrCaptchaContainerAlt');
+									if (!recapEl) {
+										return null;
+									}
+									$replace(recapEl, '<div id="g-recaptcha"></div>');
 									capClick.click();
 									tr.removeAttribute('onclick');
 									return null;
@@ -19704,7 +19709,11 @@ true, true],
 									container.click();
 									return null;
 								}
-								$replace($id('g-recaptcha'), '<div id="qrCaptchaContainerAlt"></div>');
+								recapEl = $id('g-recaptcha');
+								if (!recapEl) {
+									return null;
+								}
+								$replace(recapEl, '<div id="qrCaptchaContainerAlt"></div>');
 								altCapClick.click();
 								tr.setAttribute('onclick', "if(event.target.tagName !== 'INPUT') { Recaptcha.reload(); }");
 								waitForReload();
