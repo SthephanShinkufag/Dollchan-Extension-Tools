@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = 'cfd13f0';
+const commit = 'db31b4b';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -15433,7 +15433,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get updateCaptcha() {
 			let value = null;
 			const tr = $id('captchaFormPart');
-			if(tr && !$q('a[onclick="confirmPassLogout(event);"]', tr)) {
+			if(tr && $q('a[onclick="confirmPassLogout(event);"]', tr)) {
+				value = () => null;
+			} else if(tr) {
 				const capClick = $bEnd(docBody, `<div onclick="initRecaptcha();"></div>`);
 				const altCapClick = $bEnd(docBody, `<div onclick="QR.initCaptchaAlt();"></div>`);
 				const waitForReload = () => setTimeout(function() {
