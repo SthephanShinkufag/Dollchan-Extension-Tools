@@ -2969,7 +2969,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = 'db31b4b';
+	var commit = '36ef62c';
 
 
 	var defaultCfg = {
@@ -11136,7 +11136,7 @@ true, true],
 			}
 		});
 		var capEl = $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', form);
-		if (capEl) {
+		if (capEl && !(aib.fch && $q('a[onclick="confirmPassLogout(event);"]', form))) {
 			this.cap = new Captcha(capEl, this.tNum);
 			var updCapFn = function updCapFn() {
 				_this22.cap.addCaptcha();
@@ -19678,11 +19678,7 @@ true, true],
 				get: function get() {
 					var value = null;
 					var tr = $id('captchaFormPart');
-					if (tr && $q('a[onclick="confirmPassLogout(event);"]', tr)) {
-						value = function value() {
-							return null;
-						};
-					} else if (tr) {
+					if (tr) {
 						(function () {
 							var capClick = $bEnd(docBody, '<div onclick="initRecaptcha();"></div>');
 							var altCapClick = $bEnd(docBody, '<div onclick="QR.initCaptchaAlt();"></div>');

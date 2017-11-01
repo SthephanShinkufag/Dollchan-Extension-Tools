@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = 'db31b4b';
+const commit = '36ef62c';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -8311,7 +8311,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	// Captcha initialization.
 	// Delete/hide old captcha, add events for captcha showing.
 	const capEl = $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', form);
-	if(capEl) {
+	if(capEl && !(aib.fch && $q('a[onclick="confirmPassLogout(event);"]', form))) {
 		this.cap = new Captcha(capEl, this.tNum);
 		const updCapFn = () => {
 			this.cap.addCaptcha();
@@ -15433,9 +15433,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get updateCaptcha() {
 			let value = null;
 			const tr = $id('captchaFormPart');
-			if(tr && $q('a[onclick="confirmPassLogout(event);"]', tr)) {
-				value = () => null;
-			} else if(tr) {
+			if(tr) {
 				const capClick = $bEnd(docBody, `<div onclick="initRecaptcha();"></div>`);
 				const altCapClick = $bEnd(docBody, `<div onclick="QR.initCaptchaAlt();"></div>`);
 				const waitForReload = () => setTimeout(function() {
