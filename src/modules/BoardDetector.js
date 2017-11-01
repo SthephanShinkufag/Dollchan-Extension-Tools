@@ -775,7 +775,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get updateCaptcha() {
 			let value = null;
 			const tr = $id('captchaFormPart');
-			if(tr && !$q('a[onclick="confirmPassLogout(event);"]')) {
+			if(tr && !$q('a[onclick="confirmPassLogout(event);"]', tr)) {
 				const capClick = $bEnd(docBody, `<div onclick="initRecaptcha();"></div>`);
 				const altCapClick = $bEnd(docBody, `<div onclick="QR.initCaptchaAlt();"></div>`);
 				const waitForReload = () => setTimeout(function() {
