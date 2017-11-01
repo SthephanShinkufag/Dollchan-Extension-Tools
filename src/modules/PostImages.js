@@ -468,9 +468,10 @@ class ExpandableMedia {
 		}
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
-			wrapEl = $add(`<div class="de-fullimg-wrap${
-					inPost ? ' de-fullimg-wrap-inpost' :
-					!this._size ? ' de-fullimg-wrap-nosize' : '' }">
+			wrapEl = $add(`<div class="${
+					inPost ? 'de-fullimg-wrap-inpost' :
+					!this._size ? ' de-fullimg-wrap-nosize' :
+					'de-fullimg-wrap' }">
 				${ !inPost && !this._size ?
 					'<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
 				<img class="de-fullimg" src="${ src }" alt="${ src }">

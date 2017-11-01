@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '36ef62c';
+const commit = '1756417';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -11714,9 +11714,10 @@ class ExpandableMedia {
 		}
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
-			wrapEl = $add(`<div class="de-fullimg-wrap${
-					inPost ? ' de-fullimg-wrap-inpost' :
-					!this._size ? ' de-fullimg-wrap-nosize' : '' }">
+			wrapEl = $add(`<div class="${
+					inPost ? 'de-fullimg-wrap-inpost' :
+					!this._size ? ' de-fullimg-wrap-nosize' :
+					'de-fullimg-wrap' }">
 				${ !inPost && !this._size ?
 					'<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
 				<img class="de-fullimg" src="${ src }" alt="${ src }">
@@ -16847,7 +16848,7 @@ function scriptCSS() {
 	x += `.de-img-pre, .de-fullimg { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }
 	.de-img-pre { max-width: 200px; max-height: 200px; }
 	.de-fullimg { width: 100%; }
-	.de-fullimg, .de-fullimg-wrap, .de-fullimg-wrap-link { width: inherit; height: inherit; }
+	.de-fullimg-wrap, .de-fullimg-wrap > .de-fullimg, .de-fullimg-wrap-link { width: inherit; height: inherit; }
 	.de-fullimg-after { clear: left; }
 	.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }
 	.de-fullimg-info { text-align: center; }
