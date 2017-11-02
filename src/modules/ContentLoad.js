@@ -161,9 +161,8 @@ function preloadImages(data) {
 	if(isPreImg || Cfg.preLoadImgs) {
 		var cImg = 1,
 			mReqs = isPost ? 1 : 4,
-			rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile, function(e) {
-				console.error('File detector error:', `line: ${ e.lineno } - ${ e.message }`);
-			});
+			rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile,
+				e => console.error('File detector error:', `line: ${ e.lineno } - ${ e.message }`));
 		pool = new TasksPool(mReqs, (num, data) => downloadImgData(data[0]).then(imageData => {
 			const [url, imgLink, iType, nExp, el] = data;
 			if(imageData) {

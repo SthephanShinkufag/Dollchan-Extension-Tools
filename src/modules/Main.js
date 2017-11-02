@@ -57,9 +57,8 @@ async function runMain(checkDomains, dataPromise) {
 		aib.parseURL();
 	}
 	if(aib.t || !Cfg.scrollToTop) {
-		doc.defaultView.addEventListener('beforeunload', function(e) {
-			sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset;
-		});
+		doc.defaultView.addEventListener('beforeunload',
+			e => sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset);
 	}
 	Logger.log('Init');
 	if(Cfg.correctTime) {

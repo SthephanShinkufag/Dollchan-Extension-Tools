@@ -468,10 +468,9 @@ class ExpandableMedia {
 		}
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
-			wrapEl = $add(`<div class="${
-					inPost ? 'de-fullimg-wrap-inpost' :
-					!this._size ? ' de-fullimg-wrap-nosize' :
-					'de-fullimg-wrap' }">
+			wrapEl = $add(`<div class="de-fullimg-wrap${
+					inPost ? ' de-fullimg-wrap-inpost' : ' de-fullimg-wrap-center' +
+					(!this._size ? ' de-fullimg-wrap-nosize' : '') }">
 				${ !inPost && !this._size ?
 					'<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
 				<img class="de-fullimg" src="${ src }" alt="${ src }">
@@ -487,25 +486,25 @@ class ExpandableMedia {
 						target.src = target.src;
 						target.onceLoaded = true;
 					}
-				} else {
-					const newWidth = target.naturalWidth;
-					const newHeight = target.naturalHeight;
-					const ar = this._size ? this._size[1] / this._size[0] : newHeight / newWidth;
-					const isExifRotated = target.scrollHeight / target.scrollWidth > 1 ? ar < 1 : ar > 1;
-					if(!this._size || isExifRotated) {
-						this._size = isExifRotated ? [newHeight, newWidth] : [newWidth, newHeight];
+					return;
+				}
+				const newWidth = target.naturalWidth;
+				const newHeight = target.naturalHeight;
+				const ar = this._size ? this._size[1] / this._size[0] : newHeight / newWidth;
+				const isExifRotated = target.scrollHeight / target.scrollWidth > 1 ? ar < 1 : ar > 1;
+				if(!this._size || isExifRotated) {
+					this._size = isExifRotated ? [newHeight, newWidth] : [newWidth, newHeight];
+				}
+				const el = target.previousElementSibling;
+				if(el) {
+					const p = el.parentNode;
+					$hide(el);
+					p.classList.remove('de-fullimg-wrap-nosize');
+					if(onsizechange) {
+						onsizechange(p);
 					}
-					const el = target.previousElementSibling;
-					if(el) {
-						const p = el.parentNode;
-						$hide(el);
-						p.classList.remove('de-fullimg-wrap-nosize');
-						if(onsizechange) {
-							onsizechange(p);
-						}
-					} else if(isExifRotated && onrotate) {
-						onrotate(target.parentNode);
-					}
+				} else if(isExifRotated && onrotate) {
+					onrotate(target.parentNode);
 				}
 			};
 			DollchanAPI.notify('expandmedia', src);
@@ -539,7 +538,7 @@ class ExpandableMedia {
 		});
 		// Sync webm volume on all browser tabs
 		setTimeout(() => videoEl.dispatchEvent(new CustomEvent('volumechange')), 150);
-		videoEl.addEventListener('volumechange', function(e) {
+		videoEl.addEventListener('volumechange', e => {
 			const val = this.muted ? 0 : Math.round(this.volume * 100);
 			if(e.isTrusted && val !== Cfg.webmVolume) {
 				saveCfg('webmVolume', val);
@@ -663,7 +662,7 @@ class Attachment extends ExpandableMedia {
 	}
 	_getImageSize() {
 		if(this.info) {
-			var size = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
+			var size = this.info.match(/(?:[\s]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[\)\s,]|$)/);
 			return [size[1], size[2]];
 		}
 		return null;

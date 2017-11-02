@@ -464,7 +464,7 @@ MyPosts._cachedData = null;
 
 
 function initStorageEvent() {
-	doc.defaultView.addEventListener('storage', function(e) {
+	doc.defaultView.addEventListener('storage', e => {
 		var data, temp, post, val = e.newValue;
 		if(!val) {
 			return;

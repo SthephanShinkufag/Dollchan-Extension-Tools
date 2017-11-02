@@ -179,7 +179,7 @@ function toggleWindow(name, isUpd, data, noAnim) {
 			new WinResizer('fav', 'right', 'favWinWidth', win, win);
 		}
 		el = $q('.de-win-buttons', win);
-		el.onmouseover = function(e) {
+		el.onmouseover = e => {
 			switch(fixEventEl(e.target).classList[0]) {
 			case 'de-btn-close': this.title = Lng.closeWindow[lang]; break;
 			case 'de-btn-toggle': this.title =

@@ -81,7 +81,7 @@ const cfgWindow = Object.create({
 					Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>');
 
 			// Import data from a file to the storage
-			$id('de-import-file').onchange = function(e) {
+			$id('de-import-file').onchange = e => {
 				const file = e.target.files[0];
 				if(!file) {
 					return;
@@ -136,7 +136,7 @@ const cfgWindow = Object.create({
 			const expFile = $id('de-export-file');
 			const els = $Q('input', expFile.nextElementSibling);
 			els[0].checked = true;
-			expFile.addEventListener('click', async function(e) {
+			expFile.addEventListener('click', async e => {
 				const name = [], nameDm = [], d = new Date();
 				let val = [], valDm = [];
 				for(let i = 0, len = els.length; i < len; ++i) {

@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '1756417';
+const commit = '9e6c2cc';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -2652,7 +2652,7 @@ MyPosts._cachedData = null;
 
 
 function initStorageEvent() {
-	doc.defaultView.addEventListener('storage', function(e) {
+	doc.defaultView.addEventListener('storage', e => {
 		var data, temp, post, val = e.newValue;
 		if(!val) {
 			return;
@@ -3152,7 +3152,7 @@ function toggleWindow(name, isUpd, data, noAnim) {
 			new WinResizer('fav', 'right', 'favWinWidth', win, win);
 		}
 		el = $q('.de-win-buttons', win);
-		el.onmouseover = function(e) {
+		el.onmouseover = e => {
 			switch(fixEventEl(e.target).classList[0]) {
 			case 'de-btn-close': this.title = Lng.closeWindow[lang]; break;
 			case 'de-btn-toggle': this.title =
@@ -3934,7 +3934,7 @@ const cfgWindow = Object.create({
 					Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>');
 
 			// Import data from a file to the storage
-			$id('de-import-file').onchange = function(e) {
+			$id('de-import-file').onchange = e => {
 				const file = e.target.files[0];
 				if(!file) {
 					return;
@@ -3989,7 +3989,7 @@ const cfgWindow = Object.create({
 			const expFile = $id('de-export-file');
 			const els = $Q('input', expFile.nextElementSibling);
 			els[0].checked = true;
-			expFile.addEventListener('click', async function(e) {
+			expFile.addEventListener('click', async e => {
 				const name = [], nameDm = [], d = new Date();
 				let val = [], valDm = [];
 				for(let i = 0, len = els.length; i < len; ++i) {
@@ -5717,9 +5717,8 @@ function preloadImages(data) {
 	if(isPreImg || Cfg.preLoadImgs) {
 		var cImg = 1,
 			mReqs = isPost ? 1 : 4,
-			rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile, function(e) {
-				console.error('File detector error:', `line: ${ e.lineno } - ${ e.message }`);
-			});
+			rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile,
+				e => console.error('File detector error:', `line: ${ e.lineno } - ${ e.message }`));
 		pool = new TasksPool(mReqs, (num, data) => downloadImgData(data[0]).then(imageData => {
 			const [url, imgLink, iType, nExp, el] = data;
 			if(imageData) {
@@ -6756,10 +6755,8 @@ function toggleInfinityScroll() {
 		}
 	}
 }
-toggleInfinityScroll.onwheel = function(e) {
-	if((e.type === 'wheel' ? e.deltaY :
-	   -('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta)) > 0)
-	{
+toggleInfinityScroll.onwheel = e => {
+	if((e.type === 'wheel' ? e.deltaY : -('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta)) > 0) {
 		window.requestAnimationFrame(() => {
 			if(Thread.last.bottom - 150 < Post.sizing.wHeight) {
 				Pages.add();
@@ -8148,7 +8145,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	<div class="de-resizer de-resizer-right"></div>
 	<div class="de-resizer de-resizer-bottom"></div>`));
 	let el = $q('.de-win-buttons', this.qArea);
-	el.onmouseover = function(e) {
+	el.onmouseover = e => {
 		switch(fixEventEl(e.target).classList[0]) {
 		case 'de-btn-clear': this.title = Lng.clearForm[lang]; break;
 		case 'de-btn-close': this.title = Lng.closeReply[lang]; break;
@@ -11714,10 +11711,9 @@ class ExpandableMedia {
 		}
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
-			wrapEl = $add(`<div class="${
-					inPost ? 'de-fullimg-wrap-inpost' :
-					!this._size ? ' de-fullimg-wrap-nosize' :
-					'de-fullimg-wrap' }">
+			wrapEl = $add(`<div class="de-fullimg-wrap${
+					inPost ? ' de-fullimg-wrap-inpost' : ' de-fullimg-wrap-center' +
+					(!this._size ? ' de-fullimg-wrap-nosize' : '') }">
 				${ !inPost && !this._size ?
 					'<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
 				<img class="de-fullimg" src="${ src }" alt="${ src }">
@@ -11733,25 +11729,25 @@ class ExpandableMedia {
 						target.src = target.src;
 						target.onceLoaded = true;
 					}
-				} else {
-					const newWidth = target.naturalWidth;
-					const newHeight = target.naturalHeight;
-					const ar = this._size ? this._size[1] / this._size[0] : newHeight / newWidth;
-					const isExifRotated = target.scrollHeight / target.scrollWidth > 1 ? ar < 1 : ar > 1;
-					if(!this._size || isExifRotated) {
-						this._size = isExifRotated ? [newHeight, newWidth] : [newWidth, newHeight];
+					return;
+				}
+				const newWidth = target.naturalWidth;
+				const newHeight = target.naturalHeight;
+				const ar = this._size ? this._size[1] / this._size[0] : newHeight / newWidth;
+				const isExifRotated = target.scrollHeight / target.scrollWidth > 1 ? ar < 1 : ar > 1;
+				if(!this._size || isExifRotated) {
+					this._size = isExifRotated ? [newHeight, newWidth] : [newWidth, newHeight];
+				}
+				const el = target.previousElementSibling;
+				if(el) {
+					const p = el.parentNode;
+					$hide(el);
+					p.classList.remove('de-fullimg-wrap-nosize');
+					if(onsizechange) {
+						onsizechange(p);
 					}
-					const el = target.previousElementSibling;
-					if(el) {
-						const p = el.parentNode;
-						$hide(el);
-						p.classList.remove('de-fullimg-wrap-nosize');
-						if(onsizechange) {
-							onsizechange(p);
-						}
-					} else if(isExifRotated && onrotate) {
-						onrotate(target.parentNode);
-					}
+				} else if(isExifRotated && onrotate) {
+					onrotate(target.parentNode);
 				}
 			};
 			DollchanAPI.notify('expandmedia', src);
@@ -11785,7 +11781,7 @@ class ExpandableMedia {
 		});
 		// Sync webm volume on all browser tabs
 		setTimeout(() => videoEl.dispatchEvent(new CustomEvent('volumechange')), 150);
-		videoEl.addEventListener('volumechange', function(e) {
+		videoEl.addEventListener('volumechange', e => {
 			const val = this.muted ? 0 : Math.round(this.volume * 100);
 			if(e.isTrusted && val !== Cfg.webmVolume) {
 				saveCfg('webmVolume', val);
@@ -11909,7 +11905,7 @@ class Attachment extends ExpandableMedia {
 	}
 	_getImageSize() {
 		if(this.info) {
-			var size = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
+			var size = this.info.match(/(?:[\s]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[\)\s,]|$)/);
 			return [size[1], size[2]];
 		}
 		return null;
@@ -16847,17 +16843,15 @@ function scriptCSS() {
 	p = Math.max(Cfg.minImgSize || 0, 50);
 	x += `.de-img-pre, .de-fullimg { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }
 	.de-img-pre { max-width: 200px; max-height: 200px; }
-	.de-fullimg { width: 100%; }
-	.de-fullimg-wrap, .de-fullimg-wrap > .de-fullimg, .de-fullimg-wrap-link { width: inherit; height: inherit; }
 	.de-fullimg-after { clear: left; }
 	.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }
 	.de-fullimg-info { text-align: center; }
 	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
-	.de-fullimg-src { display: inline-block; padding: 2px 4px; margin: 2px 0 2px -1px; background: rgba(64,64,64,.8); font: bold 12px tahoma; color: #fff  !important; text-decoration: none; outline: none; }
+	.de-fullimg-src { float: none !important; display: inline-block; padding: 2px 4px; margin: 2px 0 2px -1px; background: rgba(64,64,64,.8); font: bold 12px tahoma; color: #fff  !important; text-decoration: none; outline: none; }
 	.de-fullimg-src:hover { color: #fff !important; background: rgba(64,64,64,.6); }
+	.de-fullimg-wrap-center, .de-fullimg-wrap-center > .de-fullimg, .de-fullimg-wrap-link { width: inherit; height: inherit; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'padding: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
-	.de-fullimg-wrap-nosize { position: relative; width: 100%; height: 100%; }
-	.de-fullimg-wrap-nosize > .de-fullimg { position: absolute; z-index: 1; opacity: .3; }
+	.de-fullimg-wrap-nosize > .de-fullimg { opacity: .3; }
 	#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; margin-top: -18px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }
 	#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }
 	#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }` +
@@ -17037,7 +17031,7 @@ function updateCSS() {
 		.de-btn-sage { fill: #4B4B4B; }
 		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ${ Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack }; }` }
 	${ Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '' }
-	${ Cfg.resizeImgs ? '' : '.de-fullimg-wrap-inpost > .de-fullimg { width: auto; }' }
+	.de-fullimg-wrap-inpost > .de-fullimg { width: ${ Cfg.resizeImgs ? '100%' : 'auto' }; }
 	${ Cfg.maskImgs ? aib.qPostImg + `, .de-img-pre, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; } ${
 		aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }
 		.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }
@@ -17130,9 +17124,8 @@ async function runMain(checkDomains, dataPromise) {
 		aib.parseURL();
 	}
 	if(aib.t || !Cfg.scrollToTop) {
-		doc.defaultView.addEventListener('beforeunload', function(e) {
-			sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset;
-		});
+		doc.defaultView.addEventListener('beforeunload',
+			e => sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset);
 	}
 	Logger.log('Init');
 	if(Cfg.correctTime) {

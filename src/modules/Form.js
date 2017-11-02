@@ -74,7 +74,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	<div class="de-resizer de-resizer-right"></div>
 	<div class="de-resizer de-resizer-bottom"></div>`));
 	let el = $q('.de-win-buttons', this.qArea);
-	el.onmouseover = function(e) {
+	el.onmouseover = e => {
 		switch(fixEventEl(e.target).classList[0]) {
 		case 'de-btn-clear': this.title = Lng.clearForm[lang]; break;
 		case 'de-btn-close': this.title = Lng.closeReply[lang]; break;

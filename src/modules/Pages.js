@@ -118,10 +118,8 @@ function toggleInfinityScroll() {
 		}
 	}
 }
-toggleInfinityScroll.onwheel = function(e) {
-	if((e.type === 'wheel' ? e.deltaY :
-	   -('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta)) > 0)
-	{
+toggleInfinityScroll.onwheel = e => {
+	if((e.type === 'wheel' ? e.deltaY : -('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta)) > 0) {
 		window.requestAnimationFrame(() => {
 			if(Thread.last.bottom - 150 < Post.sizing.wHeight) {
 				Pages.add();
