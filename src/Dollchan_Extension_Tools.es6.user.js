@@ -26,7 +26,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '9e6c2cc';
+const commit = '8019512';
 
 /*==[ DefaultCfg.js ]=========================================================================================
                                                 DEFAULT CONFIG
@@ -8308,7 +8308,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	// Captcha initialization.
 	// Delete/hide old captcha, add events for captcha showing.
 	const capEl = $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', form);
-	if(capEl && !(aib.fch && $q('a[onclick="confirmPassLogout(event);"]', form))) {
+	if(capEl && !(aib.fch && doc.cookie.includes('pass_enabled'))) {
 		this.cap = new Captcha(capEl, this.tNum);
 		const updCapFn = () => {
 			this.cap.addCaptcha();

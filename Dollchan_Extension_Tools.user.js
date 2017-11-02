@@ -2969,7 +2969,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = '9e6c2cc';
+	var commit = '8019512';
 
 
 	var defaultCfg = {
@@ -11138,7 +11138,7 @@ true, true],
 			}
 		});
 		var capEl = $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', form);
-		if (capEl && !(aib.fch && $q('a[onclick="confirmPassLogout(event);"]', form))) {
+		if (capEl && !(aib.fch && doc.cookie.includes('pass_enabled'))) {
 			this.cap = new Captcha(capEl, this.tNum);
 			var updCapFn = function updCapFn() {
 				_this23.cap.addCaptcha();
